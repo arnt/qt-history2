@@ -1984,12 +1984,14 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if (widget) {
                 int tiltX = ((int)tabletPointRec.tiltX)/(32767/60); // 32K -> 60
                 int tiltY = ((int)tabletPointRec.tiltY)/(32767/60); // 32K -> 60
-                QPoint hiRes(tabletPointRec.absX, tabletPointRec.absY);
+                HIPoint hiPoint;
+                GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hiPoint);
+                QPointF hiRes(hiPoint.x, hiPoint.y);
                 QPoint p(where.h, where.v);
                 QPoint plocal(widget->mapFromGlobal(p));
-                // ### Fix the maxy and maxx values and tilt values.
-                QTabletEvent e(t, plocal, p, hiRes, 0, INT_MAX, 0, INT_MAX,  currTabletDevice,
-                               tabletPointRec.pressure, 0, 0xffff, tiltX, tiltY, modifiers,
+                // ### Fix the tilt values.
+                QTabletEvent e(t, plocal, p, hiRes, currTabletDevice,
+                               qReal(tabletPointRec.pressure / qReal(0xffff)), tiltX, tiltY, modifiers,
                                tabletUniqueID);
                 QApplication::sendSpontaneousEvent(widget, &e);
                 if (e.isAccepted())

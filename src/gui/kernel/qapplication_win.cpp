@@ -3188,8 +3188,8 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
 
             double degX = atan(sin(radAzim) / tanAlt);
             double degY = atan(cos(radAzim) / tanAlt);
-            tiltX = static_cast<int>(degX * (180 / PI));
-            tiltY = static_cast<int>(-degY * (180 / PI));
+            tiltX = int(degX * (180 / PI));
+            tiltY = int(-degY * (180 / PI));
         }
         // get the unique ID of the device...
         int csr_type,
@@ -3198,8 +3198,9 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
         Q_LONGLONG llId = csr_type;
         llId = (llId << 24) | csr_physid;
-        QTabletEvent e(t, localPos, globalPos, globalPos, tdd.minX, tdd.maxX, tdd.minY, tdd.maxY, dev,
-                       prsNew, tdd.minPressure, tdd.maxPressure, tiltX, tiltY, 0, llId);
+        QTabletEvent e(t, localPos, globalPos, globalPos, dev,
+                       qReal(prsNew / qReal(tdd.maxPressure - tdd.minPressure)),
+                       txiltX, tiltY, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
     }
     return sendEvent;

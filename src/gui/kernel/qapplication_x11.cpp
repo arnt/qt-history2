@@ -3646,7 +3646,8 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
 
     QWidget *w = this;
     QPoint global,
-        curr, hiRes;
+        curr;
+    QPointF hiRes;
     static int pressure = 0;
     static int xTilt = 0,
                yTilt = 0;
@@ -3746,21 +3747,21 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         xTilt = short(motion->axis_data[3]);
         yTilt = short(motion->axis_data[4]);
         pressure = motion->axis_data[2];
-        hiRes = QPoint(motion->axis_data[0], motion->axis_data[1]);
+        hiRes = global;
         modifiers = translateModifiers(motion->state);
     } else {
         xTilt = short(button->axis_data[3]);
         yTilt = short(button->axis_data[4]);
         pressure = button->axis_data[2];
-        hiRes = QPoint(button->axis_data[0], button->axis_data[1]);
+        hiRes = global;
         modifiers = translateModifiers(button->state);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
     uid = -1;
 #endif
-    QTabletEvent e(t, curr, global, hiRes, tablet->minX, tablet->maxX, tablet->minY, tablet->maxY,
-                   deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt,
-                   modifiers, uid);
+    QTabletEvent e(t, curr, global, hiRes,
+                   deviceType, qReal(pressure / qReal(tablet->maxPressure - tablet->minPressure)),
+                   xTilt, yTilt, modifiers, uid);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }

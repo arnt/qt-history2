@@ -1272,16 +1272,17 @@ QInputMethodEvent::~QInputMethodEvent()
 
     \ingroup events
 
-    Tablet Events are generated from a Wacom tablet. Most of
-    the time you will want to deal with events from the tablet as if
-    they were events from a mouse; for example, you would retrieve the
-    cursor position with x(), y(), pos(), globalX(), globalY(), and
-    globalPos(). In some situations you may wish to retrieve the extra
-    information provided by the tablet device driver; for example, you
-    might want to adjust color brightness based on pressure.
-    QTabletEvent allows you to read the pressure(), the xTilt(), and
-    yTilt(), as well as the type of device being used with device()
-    (see \l{TabletDevice}).
+    Tablet Events are generated from a Wacom tablet. Most of the time you will
+    want to deal with events from the tablet as if they were events from a
+    mouse; for example, you would retrieve the cursor position with x(), y(),
+    pos(), globalX(), globalY(), and globalPos(). In some situations you may
+    wish to retrieve the extra information provided by the tablet device
+    driver; for example, you might want to do subpixeling with higher
+    resolution coordinates or you may want to adjust color brightness based on
+    pressure.  QTabletEvent allows you to read the pressure(), the xTilt(), and
+    yTilt(), as well as the type of device being used with device() (see
+    \l{TabletDevice}). It can also give you the minimum and maximum values for
+    each device's pressure and high resolution coordinates.
 
     A tablet event contains a special accept flag that indicates
     whether the receiver wants the event. You should call
@@ -1312,44 +1313,27 @@ QInputMethodEvent::~QInputMethodEvent()
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent(Type type, const QPoint &position,
-                                  const QPoint &globalPos, int device,
-                                  int pressure, int xTilt, int yTilt,
-                                  Q_LONGLONG &uId)
-
-  Construct a tablet event of the given \a type. The \a position
-  indicates where the event occurred in the widget; \a globalPos is
-  the corresponding position in absolute coordinates. The \a device
-  contains the \link TabletDevice device type \endlink; \a pressure
-  contains the pressure exerted on the \a device; \a xTilt and \a
-  yTilt contain the device's degree of tilt from the X and Y axes
-  respectively. The \a uId contains an event ID.
-
-  On Irix, \a globalPos will contain the high-resolution coordinates
-  received from the tablet device driver, instead of from the
-  windowing system.
+  Construct a tablet event of the given \a type. The \a position indicates
+  where the event occurred in the widget; \a globalPos is the corresponding
+  position in absolute coordinates. The \a hiResPos contains high resolution \a
+  pressure contains the pressure exerted on the \a device. \a xTilt and \a
+  yTilt contain the device's degree of tilt from the X and Y axes respectively.
+  The \a uId contains the unique id for the current device.
 
   \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
 */
 
-QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos,
-                  int minX, int maxX, int minY, int maxY, int device,
-                  int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
-                  Qt::KeyboardModifiers keyState, Q_LONGLONG unique)
+QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
+                           int device, qReal pressure, int xTilt, int yTilt, Qt::KeyboardModifiers keyState,
+                           Q_LONGLONG unique)
     : QInputEvent(t, keyState),
       mPos(pos),
       mGPos(globalPos),
-      mHiResPos(hiResPos),
-      mHiResMinX(minX),
-      mHiResMaxX(maxX),
-      mHiResMinY(minY),
-      mHiResMaxY(maxY),
+      mHiResGlobalPos(hiResGlobalPos),
       mDev(device),
-      mPress(pressure),
       mXT(xTilt),
       mYT(yTilt),
-      mMinPressure(minPressure),
-      mMaxPressure(maxPressure),
+      mPress(pressure),
       mUnique(unique)
 {
 }
@@ -1370,13 +1354,10 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn int QTabletEvent::pressure() const
+    \fn qReal QTabletEvent::pressure() const
 
-    Returns the pressure that is exerted on the device. This number
-    is a value from 0 (no pressure) to 255 (maximum pressure)
-    inclusive. The pressure is always scaled to be within this range
-    no matter how many pressure levels the underlying hardware
-    supports.
+    Returns the pressure for the device. 0.0 indicates that the stylus is not
+    on the tablet, 1.0 indicates the maximum amount of pressure for the stylus.
 */
 
 /*!
@@ -1442,7 +1423,7 @@ QTabletEvent::~QTabletEvent()
     globalPos() can differ significantly from the current position
     QCursor::pos().
 
-    \sa globalX() globalY()
+    \sa globalX() globalY() hiResGlobalPos()
 */
 
 /*!
@@ -1451,29 +1432,49 @@ QTabletEvent::~QTabletEvent()
     Returns the global x position of the mouse pointer at the time of
     the event.
 
-    \sa globalY() globalPos()
+    \sa globalY() globalPos() hiResGlobalX()
 */
 
 /*!
     \fn int QTabletEvent::globalY() const
 
-    Returns the global y position of the mouse pointer at the time of
+    Returns the global y position of the tablet device at the time of
     the event.
 
-    \sa globalX() globalPos()
+    \sa globalX() globalPos() hiResGlobalY()
 */
 
 /*!
-    \fn Q_LONGLONG QTabletEvent::uniqueId()
+    \fn Q_LONGLONG QTabletEvent::uniqueId() const
 
     Returns a unique ID for the current device, making it possible
     to differentiate between multiple devices being used at the same
     time on the tablet.
 
-    Values for the same device might vary from OS to OS.
+    Values for the same device may vary from OS to OS.
 
     It is possible to generate a unique ID for any Wacom device.
+*/
 
+/*!
+    \fn const QPointF &QTabletEvent::hiResGlobalPos() const
+
+    The high precision coordinates delivered from the tablet expressed.
+    Sub pixeling information is in the fractional part of the QPointF.
+
+    \sa globalPos() hiResGlobalX() hiResGlobalY()
+*/
+
+/*!
+    \fn qReal &QTabletEvent::hiResGlobalX() const
+
+    The high precision x position of the tablet device.
+*/
+
+/*!
+    \fn qReal &QTabletEvent::hiResGlobalY() const
+
+    The high precision y position of the tablet device.
 */
 
 /*!

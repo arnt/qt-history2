@@ -2865,10 +2865,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QTabletEvent *tablet = static_cast<QTabletEvent*>(e);
             QPoint relpos = tablet->pos();
             while (w) {
-                QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(), tablet->hiResPos(),
-                                tablet->minHiResX(), tablet->maxHiResX(), tablet->minHiResY(), tablet->maxHiResY(),
-                                tablet->device(), tablet->pressure(), tablet->minPressure(), tablet->maxPressure(),
-                                tablet->xTilt(), tablet->yTilt(), tablet->modifiers(), tablet->uniqueId());
+                QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(),
+                                tablet->hiResGlobalPos(), tablet->device(), tablet->pressure(),
+                                tablet->xTilt(), tablet->yTilt(), tablet->modifiers(),
+                                tablet->uniqueId());
                 te.spont = e->spontaneous();
                 res = notify_helper(w, w == receiver ? tablet : &te);
                 e->spont = false;

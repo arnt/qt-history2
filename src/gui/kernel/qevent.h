@@ -116,38 +116,31 @@ class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
-    QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos,
-                  int minX, int maxX, int minY, int maxY, int device,
-                  int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
-                  Qt::KeyboardModifiers keyState, Q_LONGLONG uniqueID);
+    QTabletEvent(Type t, const QPoint &pos,  const QPoint &globalPos, const QPointF &hiResGlobalPos,
+                 int device, qReal pressure, int xTilt, int yTilt,
+                 Qt::KeyboardModifiers keyState, Q_LONGLONG uniqueID);
     ~QTabletEvent();
 
-    inline int pressure() const { return mPress; }
+    inline qReal pressure() const { return mPress; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
     inline const QPoint &pos() const { return mPos; }
     inline const QPoint &globalPos() const { return mGPos; }
-    inline const QPoint &hiResPos() const { return mHiResPos; }
+    inline const QPointF &hiResGlobalPos() const { return mHiResGlobalPos; }
     inline int x() const { return mPos.x(); }
     inline int y() const { return mPos.y(); }
     inline int globalX() const { return mGPos.x(); }
     inline int globalY() const { return mGPos.y(); }
-    inline int hiResX() const { return mHiResPos.x(); }
-    inline int hiResY() const { return mHiResPos.y(); }
+    inline qReal hiResGlobalX() const { return mHiResGlobalPos.x(); }
+    inline qReal hiResGlobalY() const { return mHiResGlobalPos.y(); }
     inline TabletDevice device() const { return TabletDevice(mDev); }
-    inline Q_LONGLONG uniqueId() { return mUnique; }
-    inline int minPressure() const { return mMinPressure; }
-    inline int maxPressure() const { return mMaxPressure; }
-    inline int minHiResX() const { return mHiResMinX; }
-    inline int minHiResY() const { return mHiResMinY; }
-    inline int maxHiResX() const { return mHiResMaxX; }
-    inline int maxHiResY() const { return mHiResMaxY; }
+    inline Q_LONGLONG uniqueId() const { return mUnique; }
 
 protected:
-    QPoint mPos, mGPos, mHiResPos;
-    int mHiResMinX, mHiResMaxX, mHiResMinY, mHiResMaxY;
-    int mDev, mPress, mXT, mYT;
-    int mMinPressure, mMaxPressure;
+    QPoint mPos, mGPos;
+    QPointF mHiResGlobalPos;
+    int mDev, mXT, mYT;
+    qReal mPress;
     Q_LONGLONG mUnique;
 };
 
