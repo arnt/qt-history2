@@ -42,8 +42,6 @@
 #include <qsqldriver.h>
 #include <qstring.h>
 
-#define OCIEXTP_ORACLE // not needed
-#define OCI8DP_ORACLE // not needed
 #include <oci.h>
 
 class QOCIPrivate;
