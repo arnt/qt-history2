@@ -126,6 +126,7 @@ private:
     void initPages();
     void initConnections();
 
+    void fixEnvironment(const QString &var, const QString &file = QString::null);
     void prepareEnvironment();
 
     void makeDone( bool error );
@@ -138,7 +139,7 @@ private:
     int totalRead;
 
     QString buildQtShortcutText;
-
+    bool fixedPath;
     bool filesCopied;
     bool persistentEnv;
     int filesToCompile;

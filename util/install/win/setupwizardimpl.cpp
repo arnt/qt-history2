@@ -384,6 +384,7 @@ static bool createDir( const QString& fullPath )
 SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal, WFlags flag ) :
     QWizard( parent, name, modal, flag ),
     tmpPath( QEnvironment::getTempPath() ),
+    fixedPath(false),
     filesCopied( false ),
     filesToCompile( 0 ),
     filesCompiled( 0 ),
@@ -757,6 +758,7 @@ void SetupWizardImpl::clickedSystem( int sys )
 	return;
     QString makeCmd = globalInformation.text(GlobalInformation::MakeTool);
     QString environment;
+    fixedPath = false;
     if ( !optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
         QString commandTool;
 	environment = getenv("COMSPEC");
@@ -765,19 +767,23 @@ void SetupWizardImpl::clickedSystem( int sys )
         else
             commandTool = "cmd.exe";
         if (!environment.isEmpty() && !environment.endsWith(commandTool, false)) {
-	    QMessageBox::critical(this, "Environment problems",
+	    if (QMessageBox::critical(this, "Environment problems",
                                         "The 'COMSPEC' environment variable is not set to use\n"
                                         "'" + commandTool + "'. This could cause some problems when building.\n"
                                         "If you have difficulty then change it to use '" + commandTool + "'\n"
                                         "and restart the installation\n\n"
                                         "Please contact your local system administration if you have\n"
                                         "difficulties finding the file, or if you don't know how to\n"
-                                        "modify the environment settings on your system.");
+                                        "modify the environment settings on your system.\n\n"
+					"Alternatively, by clicking yes, the installer will try to set\n"
+					"these for you.",
+					 QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		fixEnvironment("COMSPEC", commandTool);
         }
         if( !findFile( makeCmd ) ) {
 	    environment = getDirectoryList("PATH");
 	    // ### try to adjust environment
-	    QMessageBox::critical( this, "Environment problems",
+	    if (QMessageBox::critical(this, "Environment problems",
 					 "The make tool '" + makeCmd + "' could not be located in any\n"
 					 "directory listed in the 'PATH' environment variable:"
 					 "\n\n" + environment + "\n\n"
@@ -788,13 +794,17 @@ void SetupWizardImpl::clickedSystem( int sys )
 					 "and add the location to the environment settings of your\n"
 					 "system. Please contact your local system administration if\n"
 					 "you have difficulties finding the files, or if you don't\n"
-					 "know how to modifiy the environment settings of your system." );
+					 "know how to modifiy the environment settings of your system.\n\n"
+					 "Alternatively, by clicking yes, the installer will try to set\n"
+					 "these for you.",
+					 QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		fixEnvironment("PATH", makeCmd);
 	}
 	if (globalInformation.sysId() != GlobalInformation::Borland && globalInformation.sysId() != GlobalInformation::MinGW) {
 	    if (!findFile( "string.h" ) ) {
 		environment = getDirectoryList("INCLUDE");
 		// ### try to adjust environment
-		QMessageBox::critical( this, "Environment problems",
+		if (QMessageBox::critical(this, "Environment problems",
 				      "The file 'string.h' could not be located in any directory\n"
 				      "listed in the 'INCLUDE' environment variable:\n\n" + environment + "\n\n"
 				      "You might have to install the platform headers, or adjust\n"
@@ -802,12 +812,17 @@ void SetupWizardImpl::clickedSystem( int sys )
 				      "installation.\n\n"
 				      "Please contact your local system administration if you have\n"
 				      "difficulties finding the file, or if you don't know how to\n"
-				      "modify the environment settings on your system." );
+				      "modify the environment settings on your system.\n\n"
+				      "Alternatively, by clicking yes, the installer will try to set\n"
+				      "these for you.",
+    				      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		fixEnvironment("INCLUDE", "string.h");
+
 	    }
 	    if (!findFile("ole32.lib")) {
 		environment = getDirectoryList("LIB");
 		// ### try to adjust environment
-		QMessageBox::critical( this, "Environment problems",
+		if (QMessageBox::critical(this, "Environment problems",
 				      "The file 'ole32.lib' could not be located in any directory\n"
 				      "listed in the 'LIB' environment variable:\n\n" + environment + "\n\n"
 				      "You might have to install the platform libraries, or adjust\n"
@@ -815,7 +830,12 @@ void SetupWizardImpl::clickedSystem( int sys )
 				      "installation.\n\n"
 				      "Please contact your local system administration if you have\n"
 				      "difficulties finding the file, or if you don't know how to\n"
-				      "modify the environment settings on your system." );
+				      "modify the environment settings on your system.\n\n"
+				      "Alternatively, by clicking yes, the installer will try to set\n"
+				      "these for you.",
+  				      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		fixEnvironment("LIB", "ole32.lib");
+
 	    }
 	    bool foundCommonDll = false;
 	    QString commonDll;
@@ -837,10 +857,10 @@ void SetupWizardImpl::clickedSystem( int sys )
 	    } else {
 		foundCommonDll = true;
 	    }
-	    if(!foundCommonDll) {
+	    if(!foundCommonDll && !fixedPath) {
 		environment = getDirectoryList("PATH");
 		// ### try to adjust environment
-		QMessageBox::critical( this, "Environment problems",
+		if (QMessageBox::critical(this, "Environment problems",
 				       commonDllText + "could not be located in any\n"
 				       "directory listed in the 'PATH' environment variable:"
 				       "\n\n" + environment + "\n\n"
@@ -851,12 +871,17 @@ void SetupWizardImpl::clickedSystem( int sys )
 				       "and add the location to the environment settings of your\n"
 				       "system. Please contact your local system administration if\n"
 				       "you have difficulties finding the files, or if you don't\n"
-				       "know how to modifiy the environment settings of your system." );
+				       "know how to modifiy the environment settings of your system.\n\n"
+				       "Alternatively, by clicking yes, the installer will try to set\n"
+				       "these for you.",
+    				       QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		fixEnvironment("PATH", commonDllText);
+
 	    }
 	}
 	if (globalInformation.sysId() == GlobalInformation::Intel && !findFile("icl.exe")) {
 	    environment = getDirectoryList("PATH");
-	    QMessageBox::critical(this, "Environment problems",
+	    if (QMessageBox::critical(this, "Environment problems",
 				  "The Intel C++ compiler (icl.exe) could not be found\n"
 				  "in your PATH:\n\n" + environment + "\n\n"
 				  "Make sure the path to this file is present in the PATH environment\n"
@@ -866,10 +891,103 @@ void SetupWizardImpl::clickedSystem( int sys )
 				  "and add the location to the environment settings of your\n"
 				  "system. Please contact your local system administration if\n"
 				  "you have difficulties finding the files, or if you don't\n"
-				  "know how to modifiy the environment settings of your system." );
+				  "know how to modifiy the environment settings of your system.\n\n"
+				  "Alternatively, by clicking yes, the installer will try to set\n"
+				  "these for you.",
+ 				  QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		fixEnvironment("PATH", "icl.exe");
+
 	}
     }
 #endif
+}
+
+void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
+{
+    if (var == "COMSPEC" || !(globalInformation.sysId() == GlobalInformation::MSVC || 
+	globalInformation.sysId() == GlobalInformation::MSVCNET)) {
+	QString fn = QDir::convertSeparators(QFileDialog::getOpenFileName(QString::null, QString::null, this, 0,
+						  "Please find " + file));
+	QString envs = getenv(var);
+	if (var != "COMSPEC") {
+	    fn.truncate(fn.findRev("\\") - 1);
+	    fn += ";" + envs;
+	}
+	if (!fn.isEmpty())
+	    QEnvironment::putEnv(var, fn, QEnvironment::PersistentEnv);
+    } else if (globalInformation.sysId() == GlobalInformation::MSVC) {
+	QString visualStudio = 
+	    QEnvironment::getRegistryString("Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", 
+	 				    "ProductDir", QEnvironment::LocalMachine);
+	if (var == "PATH" && !fixedPath) {
+	    QString newPaths = visualStudio + "\\vc98\\bin;";
+	    newPaths += visualStudio + "\\Common\\MSDev98\\Bin;";
+	    if (qWinVersion() & Qt::WV_NT_based)
+		newPaths += visualStudio + "\\Common\\Tools\\WinNT;";
+	    else
+		newPaths += visualStudio + "\\Common\\Tools\\Win95;";
+	    QEnvironment::putEnv("PATH", newPaths + getenv("PATH"), QEnvironment::PersistentEnv);
+	    fixedPath = true;
+	} else if (var == "LIB") {
+	    QString newPaths = visualStudio + "\\vc98\\lib;";
+	    newPaths = visualStudio + "\\vc98\\mfc\\lib;";
+	    QEnvironment::putEnv("LIB", newPaths + getenv("LIB"), QEnvironment::PersistentEnv);
+	} else if (var == "INCLUDE") {
+	    QString newPaths = visualStudio + "\\vc98\\atl\\include;";
+	    newPaths = visualStudio + "\\vc98\\include;";
+	    newPaths = visualStudio + "\\vc98\\mfc\\include;";
+	    QEnvironment::putEnv("INCLUDE", newPaths + getenv("INCLUDE"), QEnvironment::PersistentEnv);
+	}
+    } else if (globalInformation.sysId() == GlobalInformation::MSVCNET) {
+	QString visualStudio = QEnvironment::getRegistryString("Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VS", 
+							       "ProductDir", QEnvironment::LocalMachine);
+	if (visualStudio.isEmpty())
+	    visualStudio = QEnvironment::getRegistryString("Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", 
+							   "ProductDir", QEnvironment::LocalMachine);
+	// With .NET this isn't so easily done, we need to read in the vsvars32.bat file 
+	// to get this right
+	QFile f(visualStudio + "\\Common7\\Tools\\vsvars32.bat");
+	QString contents;
+	if (f.open(IO_ReadOnly)) {
+	    contents = QString(f.readAll());
+	}
+	int vsinstall = contents.find("VSINSTALLDIR=")+13;
+	QString VSINSTALLDIR = contents.mid(vsinstall, contents.find("\n", vsinstall) - vsinstall);
+	int vcinstall = contents.find("VCINSTALLDIR=")+13;
+	QString VCINSTALLDIR = contents.mid(vcinstall, contents.find("\n", vcinstall) - vcinstall);
+	int framework = contents.find("FrameworkDir=")+13;
+	QString FrameworkDir = contents.mid(framework, contents.find("\n", framework) - framework);
+	int frameworkVer = contents.find("FrameworkVersion=")+17;
+	QString FrameworkVer = contents.mid(frameworkVer, contents.find("\n", frameworkVer) - frameworkVer);
+	int frameworkSDK = contents.find("FrameworkSDKDir=")+16;
+	QString FrameworkSDK = contents.mid(frameworkSDK, contents.find("\n", frameworkSDK) - frameworkSDK);
+	if (var == "PATH" && !fixedPath) {
+	    QString newPaths = VSINSTALLDIR + ";";
+	    newPaths += VCINSTALLDIR + "\\Bin;";
+	    newPaths += VCINSTALLDIR + "\\Common7\\Tools;";
+	    newPaths += VCINSTALLDIR + "\\Common7\\Tools\\bin\\prerelease;";
+	    newPaths += VCINSTALLDIR + "\\Common7\\Tools\\bin;";
+	    newPaths += FrameworkSDK + "\\bin;";
+	    newPaths += FrameworkSDK + "\\" + FrameworkVer + ";";
+	    QEnvironment::putEnv("PATH", newPaths + getenv("PATH"), QEnvironment::PersistentEnv);
+	    fixedPath = true;
+	} else if (var == "LIB") {
+	    QString newPaths = VCINSTALLDIR + "\\ATLMFC\\LIB;";
+	    newPaths += VCINSTALLDIR + "\\LIB;";
+	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\lib\\prerelease;";
+	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\lib;";
+	    newPaths += FrameworkSDK + "\\lib;";
+	    QEnvironment::putEnv("LIB", newPaths + getenv("LIB"), QEnvironment::PersistentEnv);
+	} else if (var == "INCLUDE") {
+	    QString newPaths = VCINSTALLDIR + "\\ATLMFC\\INCLUDE;";
+	    newPaths += VCINSTALLDIR + "\\INCLUDE;";
+	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\include\\prerelease;";
+	    newPaths += VCINSTALLDIR + "\\PlatformSDK\\include;";
+	    newPaths += FrameworkSDK + "\\include;";
+	    QEnvironment::putEnv("INCLUDE", newPaths + getenv("INCLUDE"), QEnvironment::PersistentEnv);
+	}
+
+    }
 }
 
 void SetupWizardImpl::readCleanerOutput()
