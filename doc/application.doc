@@ -55,7 +55,7 @@ Here's the header file in full:
 There's nothing much particular about this.  It declares a class that
 inherits QMainWindow, with some slots and some private variables.  And
 it uses a class predeclarations to speed up compiles: \c
-QMultiLineEdit, \c QToolBar and \c QPopupMenu are declared, not
+QTextEdit, \c QToolBar and \c QPopupMenu are declared, not
 included.  make depend then won't think that every .cpp file that
 includes application.h needs to be recompiled when e.g. qpopupmenu.h
 changes.
@@ -165,11 +165,11 @@ the toolbar (above) and the menu bar (here).
 We create a Help menu, add it to the menu bar, and insert a few
 commands in the Help menu.
 
-\printline QMultiLineEdit
+\printline QTextEdit
 \printline setFocus
 \printline setCentralWidget
 
-We create a multi-line edit widget, set the initial focus to be there,
+We create a simple text-editor, set the initial focus to it,
 and make it the central widget of this window.
 
 QMainWindow::centralWidget() is the meat: It's what the menu bar,
@@ -222,8 +222,7 @@ away.)
 \printuntil statusBar
 \printline }
 
-This function loads a file into the editor.  It takes care to turn off
-auto-update of the editor, for faster loading and less flicker.  When
+This function loads a file into the editor. When
 it's done, it sets the window system caption to the file name and
 displays a success message for two seconds in the status bar.
 
@@ -233,7 +232,7 @@ displays a success message for two seconds in the status bar.
 This function saves the current file.  Nothing remarkable in the first
 part.
 
-\printline setEdited
+\printline setModified
 
 Tell the editor that the contents haven't been edited since the last
 save.  When the user closes the window, ApplicationWindow may want to
@@ -302,7 +301,7 @@ Four lines to tell the user what we're doing, two lines to do it.
 
 Okay, now we know there's space for this line.
 
-\printuntil textLine
+\printuntil e->text(
 
 Use the painter to print it.
 
@@ -338,7 +337,7 @@ FALSE), we acknowledge that.
 
 \printline }
 
-Tha's all.  We have printed a text document.
+That 's all.  We have printed a text document.
 
 <a name="closeEvent"></a>
 \printline ::closeEvent
@@ -348,7 +347,7 @@ This event get to process window-system close events.  A close event
 is subtly different from a hide event: hide may often mean "iconify"
 but close means that the window is going away for good.
 
-\printline edited
+\printline isModified
 \printline accept
 \printline return
 \printline }
