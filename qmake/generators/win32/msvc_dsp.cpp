@@ -55,6 +55,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     } else {
         dspfile = project->first("MSVCDSP_TEMPLATE");
     }
+    if (dspfile.startsWith("\"") && dspfile.endsWith("\""))
+	dspfile = dspfile.mid(1, dspfile.length() - 2);
     QString dspfile_loc = findTemplate(dspfile);
 
     QFile file(dspfile_loc);
