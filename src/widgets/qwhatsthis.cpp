@@ -517,7 +517,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
-	if ( x + w > sx+screen.width() )
+	if ( x + w  + shadowWidth > sx+screen.width() )
 	    x = (widget? (QMIN(screen.width(),
 			      pos.x() + widget->width())
 			 ) : screen.width() )
@@ -530,14 +530,14 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	if ( widget && h > widget->height() + 16 ) {
 	    y = pos.y() + widget->height() + 2; // below, two pixels spacing
 	    // what's this is above or below, wherever there's most space
-	    if ( y + h + 10 > screen.height() )
+	    if ( y + h + 10 > sy+screen.height() )
 		y = pos.y() + 2 - shadowWidth - h; // above, overlap
 	}
 	y = ppos.y() + 2;
 
 	// squeeze it in if that would result in part of what's this
 	// being only partially visible
-	if ( y + h > screen.height() )
+	if ( y + h + shadowWidth > sy+screen.height() )
 	    y = ( widget ? (QMIN(screen.height(),
 				 pos.y() + widget->height())
 			    ) : screen.height() )
