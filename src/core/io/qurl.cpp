@@ -1172,7 +1172,9 @@ QByteArray QUrlPrivate::toEncoded() const
         url += ":";
     }
     if (!authority().isEmpty()) {
-        url += "//";
+
+	if (!scheme.isEmpty())
+	    url += "//";
 
         if (!userName.isEmpty()) {
             url += QUrl::toPercentEncoding(userName, ":");
@@ -1199,6 +1201,9 @@ QByteArray QUrlPrivate::toEncoded() const
         }
     }
 
+    // check if we need to insert a slash
+    if (!authority().isEmpty() && !path.isEmpty() && path.at(0) != QLatin1Char('/'))
+	url += '/';
     url += QUrl::toPercentEncoding(path, " \t");
 
     if (!query.isEmpty())
@@ -1915,21 +1920,26 @@ QString QUrl::toString(int formattingOptions) const
     QString url;
 
     if (!(formattingOptions & QUrl::RemoveScheme) && !d->scheme.isEmpty())
-        url += d->scheme + ":";
+        url += d->scheme + QLatin1Char(':');
     if ((formattingOptions & QUrl::RemoveAuthority) != QUrl::RemoveAuthority) {
         QString tmp = d->authority(formattingOptions);
         if (!tmp.isEmpty()) {
             if (!url.isEmpty())
-                url += "//";
+                url += QLatin1String("//");
             url += tmp;
         }
     }
-    if (!(formattingOptions & QUrl::RemovePath))
+    if (!(formattingOptions & QUrl::RemovePath)) {
+	// check if we need to insert a slash
+	if ((formattingOptions & QUrl::RemoveAuthority) != QUrl::RemoveAuthority 
+	    && !d->authority(formattingOptions).isEmpty() && !d->path.isEmpty() && d->path.at(0) != QLatin1Char('/'))
+	    url += QLatin1Char('/');
 	url += d->path;
+    }
     if (!(formattingOptions & QUrl::RemoveQuery) && !d->query.isEmpty())
-        url += "?" + d->query;
+        url += QLatin1Char('?') + d->query;
     if (!(formattingOptions & QUrl::RemoveFragment) && !d->fragment.isEmpty())
-        url += "#" + d->fragment;
+        url += QLatin1Char('#') + d->fragment;
 
     return url;
 }
