@@ -590,6 +590,12 @@ void VcprojGenerator::initCompilerTool()
 
     RConf.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
     RConf.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
+    QStringList::iterator it;
+    for(it=RConf.compiler.PreprocessorDefinitions.begin(); 
+	it!=RConf.compiler.PreprocessorDefinitions.end(); 
+	++it)
+	(*it).replace('\"', "&quot;");
+    
     RConf.compiler.parseOptions(project->variables()["MSVCPROJ_INCPATH"]);
 }
 
