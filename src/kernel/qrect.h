@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#55 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#56 $
 **
 ** Definition of QRect class
 **
@@ -97,7 +97,8 @@ public:
 
     void   setRect( int x, int y, int w, int h );
     void   setCoords( int x1, int y1, int x2, int y2 );
-
+    void   addCoords( int x1, int y1, int x2, int y2 );
+    
     QSize  size()	const;
     int	   width()	const;
     int	   height()	const;

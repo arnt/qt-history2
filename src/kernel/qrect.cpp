@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#70 $
 **
 ** Implementation of QRect class
 **
@@ -518,6 +518,18 @@ void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
     y2 = (QCOORD)yp2;
 }
 
+/*!  
+  Adds \a x1, \a y1, \a x2 and \a y2 respectively to the existing
+  coordinates of the rectangle.
+*/
+
+void QRect::addCoords( int xp1, int yp1, int xp2, int yp2 )
+{
+    x1 += (QCOORD)xp1;
+    y1 += (QCOORD)yp1;
+    x2 += (QCOORD)xp2;
+    y2 += (QCOORD)yp2;
+}
 
 /*!
   \fn QSize QRect::size() const
