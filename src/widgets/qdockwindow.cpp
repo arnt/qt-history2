@@ -700,6 +700,12 @@ void QDockWindow::setOrientation( Orientation o )
 
 QDockWindow::~QDockWindow()
 {
+    if ( area() )
+	area()->removeDockWindow( this, FALSE, FALSE );
+    if ( area()  && area()->parentWidget() &&
+	 area()->parentWidget()->inherits( "QMainWindow" ) )
+	( (QMainWindow*)area()->parentWidget() )->removeDockWindow( this );
+
     delete (QDockArea::DockWindowData*)dockWindowData;
 }
 

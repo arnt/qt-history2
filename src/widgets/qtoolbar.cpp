@@ -55,32 +55,32 @@
 #include "qwidgetlist.h"
 
 static const char * arrow_v_xpm[] = {
-"7 9 3 1",
-"       c None",
-".      c #000000",
-"+      c none",
-".+++++.",
-"..+++..",
-"+..+..+",
-"++...++",
-".++.++.",
-"..+++..",
-"+..+..+",
-"++...++",
-"+++.+++"};
+    "7 9 3 1",
+    "	    c None",
+    ".	    c #000000",
+    "+	    c none",
+    ".+++++.",
+    "..+++..",
+    "+..+..+",
+    "++...++",
+    ".++.++.",
+    "..+++..",
+    "+..+..+",
+    "++...++",
+    "+++.+++"};
 
 static const char * arrow_h_xpm[] = {
-"9 7 3 1",
-"       c None",
-".      c #000000",
-"+      c none",
-"..++..+++",
-"+..++..++",
-"++..++..+",
-"+++..++..",
-"++..++..+",
-"+..++..++",
-"..++..+++"};
+    "9 7 3 1",
+    "	    c None",
+    ".	    c #000000",
+    "+	    c none",
+    "..++..+++",
+    "+..++..++",
+    "++..++..+",
+    "+++..++..",
+    "++..++..+",
+    "+..++..++",
+    "..++..+++"};
 
 class QToolBarExtensionWidget;
 
@@ -107,7 +107,7 @@ public:
     QSize sizeHint() const;
     Orientation orientation() const { return orient; }
 public slots:
-   void setOrientation( Orientation );
+    void setOrientation( Orientation );
 protected:
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
@@ -126,8 +126,8 @@ public:
 
 protected:
     void resizeEvent( QResizeEvent *e ) {
-        QWidget::resizeEvent( e );
-        layOut();
+	QWidget::resizeEvent( e );
+	layOut();
     }
 
 private:
@@ -149,9 +149,9 @@ void QToolBarExtensionWidget::setOrientation( Orientation o )
 {
     orient = o;
     if ( orient == Horizontal )
-        tb->setPixmap( QPixmap( arrow_h_xpm ) );
+	tb->setPixmap( QPixmap( arrow_h_xpm ) );
     else
-        tb->setPixmap( QPixmap( arrow_v_xpm ) );
+	tb->setPixmap( QPixmap( arrow_v_xpm ) );
     layOut();
 }
 
@@ -161,11 +161,11 @@ void QToolBarExtensionWidget::layOut()
 }
 
 QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
-                                     const char* name )
+				     const char* name )
     : QWidget( parent, name )
 {
     connect( parent, SIGNAL(orientationChanged(Orientation)),
-             this, SLOT(setOrientation(Orientation)) );
+	     this, SLOT(setOrientation(Orientation)) );
     setOrientation( o );
     setBackgroundMode( parent->backgroundMode() );
     setBackgroundOrigin( ParentOrigin );
@@ -194,7 +194,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
     QPainter p( this );
 
     style().drawToolBarSeparator( &p, x(), y(), width(), height(),
-                                  colorGroup(), orient );
+				  colorGroup(), orient );
 }
 
 #include "qtoolbar.moc"
@@ -259,26 +259,26 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
 /*!  Constructs an empty tool bar that is a child of \a parent and
   managed by \a parent, initially in \a dock, labeled \a and starting
-  a newline in the dock if \a newLine is TRUE.  \a name is the object
+  a newline in the dock if \a newLine is TRUE. \a name is the object
   name, as usual.
 */
 
 QToolBar::QToolBar( const QString &label,
-                    QMainWindow * parent, QMainWindow::ToolBarDock dock,
-                    bool newLine, const char * name )
+		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
+		    bool newLine, const char * name )
     : QDockWindow( InDock, parent, name )
 {
     mw = parent;
     init();
 
     if ( parent )
-        parent->addToolBar( this, label, dock, newLine );
+	parent->addToolBar( this, label, dock, newLine );
 }
 
 
 /*!  Constructs an empty horizontal tool bar with a parent of \a
-  parent and managed by \a mainWindow.  The \a label and \a newLine
-  are passed straight to QMainWindow::addDockWindow().  \a name is the
+  parent and managed by \a mainWindow.	The \a label and \a newLine
+  are passed straight to QMainWindow::addDockWindow().	\a name is the
   object name and \a f is the widget flags.
 
   This is the constructor to use if you want to create torn-off
@@ -286,15 +286,15 @@ QToolBar::QToolBar( const QString &label,
 */
 
 QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
-                    QWidget * parent, bool newLine, const char * name,
-                    WFlags f )
+		    QWidget * parent, bool newLine, const char * name,
+		    WFlags f )
     : QDockWindow( InDock, parent, name, f )
 {
     mw = mainWindow;
     init();
 
     if ( mainWindow )
-        mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
 }
 
 
@@ -309,7 +309,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
     init();
 
     if ( parent )
-        parent->addToolBar( this, QString::null, QMainWindow::Top );
+	parent->addToolBar( this, QString::null, QMainWindow::Top );
 }
 
 /*!
@@ -323,16 +323,16 @@ void QToolBar::init()
     d->extension->hide();
     d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
     connect( d->extensionPopup, SIGNAL( activated( int ) ),
-             this, SLOT( popupSelected( int ) ) );
+	     this, SLOT( popupSelected( int ) ) );
     connect( d->extensionPopup, SIGNAL( aboutToShow() ),
-             this, SLOT( setupArrowMenu() ) );
+	     this, SLOT( setupArrowMenu() ) );
     d->extension->button()->setPopup( d->extensionPopup );
     d->extension->button()->setPopupDelay( -1 );
     sw = 0;
 
 #if defined(QT_CHECK_NULL)
     if ( !mw )
-        qWarning( "QToolBar::QToolBar main window cannot be 0." );
+	qWarning( "QToolBar::QToolBar main window cannot be 0." );
 #endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
@@ -369,7 +369,7 @@ void QToolBar::show()
 {
     QDockWindow::show();
     if ( mw )
-        mw->triggerLayout( FALSE );
+	mw->triggerLayout( FALSE );
 }
 
 
@@ -381,7 +381,7 @@ void QToolBar::hide()
 {
     QDockWindow::hide();
     if ( mw )
-        mw->triggerLayout( FALSE );
+	mw->triggerLayout( FALSE );
 }
 
 /*!  Returns a pointer to the QMainWindow which controls this tool bar.
@@ -411,10 +411,10 @@ void QToolBar::setStretchableWidget( QWidget * w )
     boxLayout()->setStretchFactor( w, 1 );
 
     if ( !isHorizontalStretchable() && !isVerticalStretchable() ) {
-        if ( orientation() == Horizontal )
-            setHorizontalStretchable( TRUE );
-        else
-            setVerticalStretchable( TRUE );
+	if ( orientation() == Horizontal )
+	    setHorizontalStretchable( TRUE );
+	else
+	    setVerticalStretchable( TRUE );
     }
 }
 
@@ -426,15 +426,15 @@ bool QToolBar::event( QEvent * e )
     bool r =  QDockWindow::event( e );
     //after the event filters have dealt with it:
     if ( e->type() == QEvent::ChildInserted ) {
-        QObject * child = ((QChildEvent*)e)->child();
-        if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
-             child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
-            boxLayout()->addWidget( (QWidget*)child );
-            if ( isVisibleTo(0) )
-                ( (QWidget*)child )->show();
-        }
-        if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
-            boxLayout()->setStretchFactor( (QWidget*)child, 1 );
+	QObject * child = ((QChildEvent*)e)->child();
+	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
+	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
+	    boxLayout()->addWidget( (QWidget*)child );
+	    if ( isVisibleTo(0) )
+		( (QWidget*)child )->show();
+	}
+	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
+	    boxLayout()->setStretchFactor( (QWidget*)child, 1 );
     }
     return r;
 }
@@ -472,14 +472,14 @@ QString QToolBar::label() const
 void QToolBar::clear()
 {
     if ( !children() )
-        return;
+	return;
     QObjectListIt it( *children() );
     QObject * obj;
     while( (obj=it.current()) != 0 ) {
-        ++it;
-        if ( obj->isWidgetType() &&
-             qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 )
-            delete obj;
+	++it;
+	if ( obj->isWidgetType() &&
+	     qstrcmp( "qt_dockwidget_internal", obj->name() ) != 0 )
+	    delete obj;
     }
 }
 
@@ -488,7 +488,7 @@ void QToolBar::clear()
 QSize QToolBar::minimumSize() const
 {
     if ( orientation() == Horizontal )
-        return QSize( 0, QDockWindow::minimumSize().height() );
+	return QSize( 0, QDockWindow::minimumSize().height() );
     return QSize( QDockWindow::minimumSize().width(), 0 );
 }
 
@@ -499,7 +499,7 @@ QSize QToolBar::minimumSize() const
 QSize QToolBar::minimumSizeHint() const
 {
     if ( orientation() == Horizontal )
-        return QSize( 0, QDockWindow::minimumSizeHint().height() );
+	return QSize( 0, QDockWindow::minimumSizeHint().height() );
     return QSize( QDockWindow::minimumSizeHint().width(), 0 );
 }
 
@@ -511,74 +511,74 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 {
     bool tooSmall;
     if ( orientation() ==  Horizontal )
-        tooSmall = e->size().width() < sizeHint().width();
+	tooSmall = e->size().width() < sizeHint().width();
     else
-        tooSmall = e->size().height() < sizeHint().height();
+	tooSmall = e->size().height() < sizeHint().height();
     if ( tooSmall ) {
-        QObjectListIt it( *children() );
-        bool hide = FALSE;
-        bool doHide = FALSE;
-        d->extensionPopup->clear();
-        d->hiddenItems.clear();
-        while ( it.current() ) {
-            if ( !it.current()->isWidgetType() ||
-                 qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
-                ++it;
-                continue;
-            }
-            QWidget *w = (QWidget*)it.current();
-            hide = FALSE;
-            if ( orientation() == Horizontal ) {
-                if ( w->x() + w->width() > e->size().width() )
-                    hide = TRUE;
-            } else {
-                if ( w->y() + w->height() > e->size().height() )
-                    hide = TRUE;
-            }
-            if ( hide ) {
-                doHide = TRUE;
-                if ( w->inherits( "QToolButton" ) ) {
-                    QToolButton *b = (QToolButton*)w;
-                    QString s = b->textLabel();
-                    if ( s.isEmpty() )
-                        s = "";
-                    int id = d->extensionPopup->insertItem( b->iconSet(), s );
-                    d->hiddenItems.insert( id, b );
-                    if ( b->isToggleButton() )
-                        d->extensionPopup->setItemChecked( id, b->isOn() );
-                    if ( !b->isEnabled() )
-                        d->extensionPopup->setItemEnabled( id, FALSE );
-                } else if ( w->inherits( "QButton" ) ) {
-                    QButton *b = (QButton*)w;
-                    QString s = b->text();
-                    if ( s.isEmpty() )
-                        s = "";
-                    int id = -1;
-                    if ( b->pixmap() )
-                        id = d->extensionPopup->insertItem( *b->pixmap(), s );
-                    else
-                        id = d->extensionPopup->insertItem( s );
-                    d->hiddenItems.insert( id, b );
-                    if ( b->isToggleButton() )
-                        d->extensionPopup->setItemChecked( id, b->isOn() );
-                    if ( !b->isEnabled() )
-                        d->extensionPopup->setItemEnabled( id, FALSE );
-                }
-            }
-            ++it;
-        }
-        if ( doHide ) {
-            if ( orientation() == Horizontal )
-                d->extension->setGeometry( width() - 20, 1, 19, height() - 2 );
-            else
-                d->extension->setGeometry( 1, height() - 20, width() - 2, 19 );
-            d->extension->show();
-            d->extension->raise();
-        } else {
-            d->extension->hide();
-        }
+	QObjectListIt it( *children() );
+	bool hide = FALSE;
+	bool doHide = FALSE;
+	d->extensionPopup->clear();
+	d->hiddenItems.clear();
+	while ( it.current() ) {
+	    if ( !it.current()->isWidgetType() ||
+		 qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
+		++it;
+		continue;
+	    }
+	    QWidget *w = (QWidget*)it.current();
+	    hide = FALSE;
+	    if ( orientation() == Horizontal ) {
+		if ( w->x() + w->width() > e->size().width() )
+		    hide = TRUE;
+	    } else {
+		if ( w->y() + w->height() > e->size().height() )
+		    hide = TRUE;
+	    }
+	    if ( hide ) {
+		doHide = TRUE;
+		if ( w->inherits( "QToolButton" ) ) {
+		    QToolButton *b = (QToolButton*)w;
+		    QString s = b->textLabel();
+		    if ( s.isEmpty() )
+			s = "";
+		    int id = d->extensionPopup->insertItem( b->iconSet(), s );
+		    d->hiddenItems.insert( id, b );
+		    if ( b->isToggleButton() )
+			d->extensionPopup->setItemChecked( id, b->isOn() );
+		    if ( !b->isEnabled() )
+			d->extensionPopup->setItemEnabled( id, FALSE );
+		} else if ( w->inherits( "QButton" ) ) {
+		    QButton *b = (QButton*)w;
+		    QString s = b->text();
+		    if ( s.isEmpty() )
+			s = "";
+		    int id = -1;
+		    if ( b->pixmap() )
+			id = d->extensionPopup->insertItem( *b->pixmap(), s );
+		    else
+			id = d->extensionPopup->insertItem( s );
+		    d->hiddenItems.insert( id, b );
+		    if ( b->isToggleButton() )
+			d->extensionPopup->setItemChecked( id, b->isOn() );
+		    if ( !b->isEnabled() )
+			d->extensionPopup->setItemEnabled( id, FALSE );
+		}
+	    }
+	    ++it;
+	}
+	if ( doHide ) {
+	    if ( orientation() == Horizontal )
+		d->extension->setGeometry( width() - 20, 1, 19, height() - 2 );
+	    else
+		d->extension->setGeometry( 1, height() - 20, width() - 2, 19 );
+	    d->extension->show();
+	    d->extension->raise();
+	} else {
+	    d->extension->hide();
+	}
     } else {
-        d->extension->hide();
+	d->extension->hide();
     }
 }
 
@@ -587,42 +587,43 @@ void QToolBar::popupSelected( int id )
     QButton *b = d->hiddenItems.find( id );
     d->button = b;
     if ( d->button )
-        QTimer::singleShot( 0, this, SLOT( emulateButtonClicked() ) );
+	QTimer::singleShot( 0, this, SLOT( emulateButtonClicked() ) );
 }
 
 void QToolBar::emulateButtonClicked()
 {
     if ( !d->button )
-        return;
+	return;
 
     if ( d->button->inherits( "QPushButton" ) &&
-         ( (QPushButton*)d->button )->popup() ) {
-        ( (QPushButton*)d->button )->popup()->exec( QCursor::pos() );
+	 ( (QPushButton*)d->button )->popup() ) {
+	( (QPushButton*)d->button )->popup()->exec( QCursor::pos() );
     } else if ( d->button->inherits( "QToolButton" ) &&
-           ( (QToolButton*)d->button )->popup() ) {
-        ( (QToolButton*)d->button )->popup()->exec( QCursor::pos() );
+		( (QToolButton*)d->button )->popup() ) {
+	( (QToolButton*)d->button )->popup()->exec( QCursor::pos() );
     } else if ( d->button->isToggleButton() ) {
-        d->button->setOn( !d->button->isOn() );
-        emit d->button->pressed();
-        emit d->button->released();
-        emit d->button->clicked();
-        if ( d->button->inherits( "QWhatsThisButton" ) )
-            d->button->setOn( FALSE );
+	d->button->setOn( !d->button->isOn() );
+	emit d->button->pressed();
+	emit d->button->released();
+	emit d->button->clicked();
+	if ( d->button->inherits( "QWhatsThisButton" ) )
+	    d->button->setOn( FALSE );
     } else {
-        emit d->button->pressed();
-        emit d->button->released();
-        emit d->button->clicked();
+	emit d->button->pressed();
+	emit d->button->released();
+	emit d->button->clicked();
     }
-    d->button = 0;
+    if ( d )
+	d->button = 0;
 }
 
 void QToolBar::setupArrowMenu()
 {
     QIntDictIterator<QButton> it( d->hiddenItems );
     while ( it.current() ) {
-        d->extensionPopup->setItemEnabled( it.currentKey(), it.current()->isEnabled() );
-        d->extensionPopup->setItemChecked( it.currentKey(), it.current()->isOn() );
-        ++it;
+	d->extensionPopup->setItemEnabled( it.currentKey(), it.current()->isEnabled() );
+	d->extensionPopup->setItemChecked( it.currentKey(), it.current()->isOn() );
+	++it;
     }
 }
 
@@ -645,7 +646,7 @@ pull-down menus, you start to lose efficiency.
 
 5.  Make sure that adjacent icons are distinctive. There are some tool bars
 where you see a group of 4-5 icons that represent related functions, but they
-are so similar that you can't differentiate among them.  These tool bars are
+are so similar that you can't differentiate among them.	 These tool bars are
 often a poor attempt at a "common visual language".
 
 6.  Use any de facto standard icons of your platform (for windows use the
