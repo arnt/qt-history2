@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#32 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#32 $";
 #endif
 
 
@@ -357,21 +357,27 @@ bool QWidget::event( QEvent *e )		// receive event
 	    QWidget *w = this;
 	    if ( !k->didAccel() ) {
 		k->setAccel();			// flag that we tried accel
-		while ( w ) {
-		    if ( w->testFlag(WHasAccel) ) {
-			QObjectList *list = w->children();
-			QObject *obj = list->first();
-			while ( obj && !obj->inherits("QAccel") )
-			    obj = list->next();
-			if ( obj ) {		// accelerator found
-			    if ( list->at() > 0 ) // put first in list
-				w->setToFirstChild( obj );
+		while ( w ) {			// try all parents
+		    bool has_accel = w->testFlag(WHasAccel);
+		    if ( has_accel && w->children() ) {
+			QObjectListIt it( *w->children() );
+			QObject *obj;
+			bool found_accel = FALSE;
+			while ( (obj=it.current()) ) {
+			    if ( !obj->highPriority() )
+				break;
+			    if ( !obj->inherits("QAccel") )
+				break;
+			    found_accel = TRUE;
 			    if ( obj->event( k ) )
-				return TRUE;
+				return TRUE;	// accel wanted it
+			    ++it;
 			}
-			else			// no accelerator
+			if ( !found_accel )	// accel probably removed
 			    w->clearFlag( WHasAccel );
 		    }
+		    else if ( has_accel )	// accel but not children???
+			w->clearFlag( WHasAccel );
 		    w = w->parentWidget();
 		}
 	    }
@@ -419,6 +425,10 @@ bool QWidget::event( QEvent *e )		// receive event
 	    if ( !c->isAccepted() )
 		return FALSE;
 	    }
+	    break;
+
+	case Event_AccelInserted:
+	    setFlag( WHasAccel );
 	    break;
 
 	default:
