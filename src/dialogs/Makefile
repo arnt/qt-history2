@@ -15,12 +15,13 @@ CC	=	gcc
 
 #######	Files
 
-HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h
-SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp
+HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h	qtabdlg.h
+SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp	qtabdlg.cpp
+BETA	= 	qtabdlg.cpp qtabdlg.h
 BETA	=
-OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o
-SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp
-OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o
+OBJECTS =	qfiledlg.o	qmsgbox.o	qprndlg.o	qtabdlg.o
+SRCMETA =	mfiledlg.cpp	mmsgbox.cpp	mprndlg.cpp	mtabdlg.cpp
+OBJMETA =	mfiledlg.o	mmsgbox.o	mprndlg.o	mtabdlg.o
 TARGET = $(LIBDIR)/libqdialogs.a
 
 #######	Implicit rules
@@ -75,6 +76,9 @@ mmsgbox.cpp: qmsgbox.h
 
 mprndlg.cpp: qprndlg.h
 	moc qprndlg.h -o mprndlg.cpp
+
+mtabdlg.cpp: qtabdlg.h
+	moc qtabdlg.h -o mtabdlg.cpp
 
 
 -include .depend
