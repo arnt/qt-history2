@@ -223,8 +223,9 @@ public:
     void setEnabled( bool );
     bool isEnabled() const;
 
+
 protected:
-    bool eventFilter( QObject *, QEvent * );
+    void widgetEvent(QEvent *);
     void childEvent( QChildEvent *e );
     void addChildLayout( QLayout *l );
     void addChildWidget( QWidget *w );
@@ -234,6 +235,7 @@ protected:
     QRect alignmentRect( const QRect& ) const;
 
 private:
+    friend class QApplication;
     void init();
     static void activateRecursiveHelper(QLayoutItem *item);
     int insideSpacing;

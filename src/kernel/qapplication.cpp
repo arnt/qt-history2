@@ -21,6 +21,7 @@
 #include "qevent.h"
 #include "qhash.h"
 #include "qcleanuphandler.h"
+#include "qlayout.h"
 
 #include "qtranslator.h"
 #include "qtextcodec.h"
@@ -2815,6 +2816,11 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 	    widget->setAttribute(QWidget::WA_UnderMouse, true);
 	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
 	    widget->setAttribute(QWidget::WA_UnderMouse, false);
+
+	if (QLayout *layout=widget->d->layout) {
+	    layout->widgetEvent(e);
+	}
+
 
 	// throw away mouse events to disabled widgets
 	if ( !widget->isEnabled() ) {

@@ -605,7 +605,6 @@ QLayout::QLayout( QWidget *parent, int margin, int spacing, const char *name )
 	    parent->layout()->setParent(0);
 	} else {
 	    topLevel = TRUE;
-	    parent->installEventFilter( this );
 	    parent->d->layout = this;
 	    invalidate();
 	}
@@ -814,18 +813,15 @@ static bool removeWidgetRecursively( QLayoutItem *lay, QWidget *w )
 }
 
 /*!
-    \reimp
+    \internal
     Performs child widget layout when the parent widget is
     resized.  Also handles removal of widgets. \a e is the
-    event the occurred on object \a o.
+    event
 */
-bool QLayout::eventFilter( QObject *o, QEvent *e )
+void QLayout::widgetEvent(QEvent *e)
 {
     if ( !enabled )
-	return FALSE;
-
-    if ( !o->isWidgetType() )
-	return FALSE;
+	return;
 
     switch ( e->type() ) {
     case QEvent::Resize:
@@ -883,7 +879,6 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    return QObject::eventFilter( o, e );
 }
 
 /*!
