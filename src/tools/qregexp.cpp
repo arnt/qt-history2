@@ -69,7 +69,7 @@
 */
 
 /*!
-  \class QRegExp qregexp.h
+  \class QRegExp
 
   \brief The QRegExp class provides pattern matching using regular expressions.
 
@@ -669,20 +669,14 @@
   \target member-function-documentation
 */
 
-static const int NumBadChars = 128;
+const int NumBadChars = 64;
 #define BadChar( ch ) ( (ch).cell() % NumBadChars )
 
-static const int NoOccurrence = INT_MAX;
-static const int EmptyCapture = INT_MAX;
-static const int InftyLen = INT_MAX;
-static const int InftyRep = 1025;
-static const int EOS = -1;
-
-#ifndef QT_NO_REGEXP_OPTIM
-static int engCount = 0;
-static QMemArray<int> *noOccurrences = 0;
-static QMemArray<int> *firstOccurrenceAtZero = 0;
-#endif
+const int NoOccurrence = INT_MAX;
+const int EmptyCapture = INT_MAX;
+const int InftyLen = INT_MAX;
+const int InftyRep = 1025;
+const int EOS = -1;
 
 /*
   Merges two QMemArrays of ints and puts the result into the first one.
@@ -864,9 +858,10 @@ public:
 	int dummy;
 
 #ifndef QT_NO_REGEXP_OPTIM
-	const QMemArray<int>& firstOccurrence() const {
-	    return *firstOccurrenceAtZero;
-	}
+	CharClass() { occ1.fill( 0, NumBadChars ); }
+
+	const QMemArray<int>& firstOccurrence() const { return occ1; }
+	QMemArray<int> occ1;
 #endif
     };
 #endif
@@ -1213,12 +1208,6 @@ QRegExpEngine::QRegExpEngine( const QString& rx, bool caseSensitive )
 #ifndef QT_NO_REGEXP_OPTIM
 QRegExpEngine::~QRegExpEngine()
 {
-    if ( --engCount == 0 ) {
-	delete noOccurrences;
-	noOccurrences = 0;
-	delete firstOccurrenceAtZero;
-	firstOccurrenceAtZero = 0;
-    }
 }
 #endif
 
@@ -1419,10 +1408,11 @@ void QRegExpEngine::setupBadCharHeuristic( int minLen,
 					   const QMemArray<int>& firstOcc )
 {
     minl = minLen;
-    if ( cs )
+    if ( cs ) {
 	occ1 = firstOcc;
-    else
-	occ1 = *firstOccurrenceAtZero;
+    } else {
+	occ1.fill( 0, NumBadChars );
+    }
 }
 
 /*
@@ -1525,14 +1515,6 @@ void QRegExpEngine::dump() const
 
 void QRegExpEngine::setup( bool caseSensitive )
 {
-#ifndef QT_NO_REGEXP_OPTIM
-    if ( engCount++ == 0 ) {
-	noOccurrences = new QMemArray<int>( NumBadChars );
-	firstOccurrenceAtZero = new QMemArray<int>( NumBadChars );
-	noOccurrences->fill( NoOccurrence );
-	firstOccurrenceAtZero->fill( 0 );
-    }
-#endif
     s.setAutoDelete( TRUE );
     s.resize( 32 );
     ns = 0;
@@ -1560,7 +1542,7 @@ void QRegExpEngine::setup( bool caseSensitive )
 #ifndef QT_NO_REGEXP_OPTIM
     useGoodStringHeuristic = FALSE;
     minl = 0;
-    occ1 = *firstOccurrenceAtZero;
+    occ1.fill( 0, NumBadChars );
 #endif
     mmCapturedNoMatch.fill( -1, 2 );
 }
@@ -2166,10 +2148,10 @@ bool QRegExpEngine::matchHere()
 
 QRegExpEngine::CharClass::CharClass()
     : c( 0 ), n( FALSE )
-#ifndef QT_NO_REGEXP_OPTIM
-      , occ1( *noOccurrences )
-#endif
 {
+#ifndef QT_NO_REGEXP_OPTIM
+    occ1.fill( NoOccurrence, NumBadChars );
+#endif
 }
 
 QRegExpEngine::CharClass& QRegExpEngine::CharClass::operator=(
@@ -2195,7 +2177,7 @@ void QRegExpEngine::CharClass::setNegative( bool negative )
 {
     n = negative;
 #ifndef QT_NO_REGEXP_OPTIM
-    occ1 = *firstOccurrenceAtZero;
+    occ1.fill( 0, NumBadChars );
 #endif
 }
 
@@ -2203,7 +2185,7 @@ void QRegExpEngine::CharClass::addCategories( int cats )
 {
     c |= cats;
 #ifndef QT_NO_REGEXP_OPTIM
-    occ1 = *firstOccurrenceAtZero;
+    occ1.fill( 0, NumBadChars );
 #endif
 }
 
@@ -2231,7 +2213,7 @@ void QRegExpEngine::CharClass::addRange( ushort from, ushort to )
 		occ1[i] = 0;
 	}
     } else {
-	occ1 = *firstOccurrenceAtZero;
+	occ1.fill( 0, NumBadChars );
     }
 #endif
 }
@@ -2270,9 +2252,12 @@ void QRegExpEngine::CharClass::dump() const
 QRegExpEngine::Box::Box( QRegExpEngine *engine )
     : eng( engine ), skipanchors( 0 )
 #ifndef QT_NO_REGEXP_OPTIM
-      , earlyStart( 0 ), lateStart( 0 ), maxl( 0 ), occ1( *noOccurrences )
+      , earlyStart( 0 ), lateStart( 0 ), maxl( 0 )
 #endif
 {
+#ifndef QT_NO_REGEXP_OPTIM
+    occ1.fill( NoOccurrence, NumBadChars );
+#endif
     minl = 0;
 }
 
@@ -3813,7 +3798,7 @@ QString QRegExp::escape( const QString& str )
     static const char meta[] = "$()*+.?[\\]^{|}";
     QString quoted = str;
     int i = 0;
- 
+
     while ( i < (int) quoted.length() ) {
 	if ( strchr(meta, quoted[i].latin1()) != 0 )
 	    quoted.insert( i++, "\\" );
