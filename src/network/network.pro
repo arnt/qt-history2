@@ -17,8 +17,8 @@ network {
 		    qsocket.h \
 		    qsocketdevice.h \
 		    qsocketdevice_p.h \
-		    qresolver.h \
-		    qresolver_p.h \
+		    qdns.h \
+		    qdns_p.h \
 		    qurlinfo.h
 
 	SOURCES	= qftp.cpp \
@@ -27,11 +27,11 @@ network {
 		    qserversocket.cpp \
 		    qsocket.cpp \
 		    qsocketdevice.cpp \
-		    qresolver.cpp \
+		    qdns.cpp \
 		    qurlinfo.cpp
 
-	unix:SOURCES += qsocketdevice_unix.cpp qresolver_unix.cpp
-	win32:SOURCES += qsocketdevice_win.cpp qresolver_win.cpp
+	unix:SOURCES += qdns_unix.cpp qdns_unix.cpp
+	win32:SOURCES += qdns_win.cpp qdns_win.cpp
 
 	mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 }
