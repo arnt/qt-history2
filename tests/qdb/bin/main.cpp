@@ -219,6 +219,7 @@ int main( int argc, char** argv )
 	QStringList idx = driver->indexNames();
 	for ( i = 0; i < idx.count(); ++i )
 	    outstream << "index: " << idx[i] << endl;
+	outstream << "records in table:" << driver->size() << endl;
 	return 0;
     }
 
