@@ -155,11 +155,17 @@ public:
 		badness++;
 		return 1;
 	    } else {
-		motion +=
-		    QPoint((buffer[0] & 0x10) ? buffer[1]-256 : buffer[1],
-			   (buffer[0] & 0x20) ? 256-buffer[2] : -buffer[2]);
+		QPoint delta((buffer[0] & 0x10) ? buffer[1]-256 : buffer[1],
+		       (buffer[0] & 0x20) ? 256-buffer[2] : -buffer[2]);
+#ifndef QT_NO_QWS_TRANSFORMED
+		delta = qt_screen->mapToDevice( delta, QSize(1,1) );
+#endif // QT_NO_QWS_TRANSFORMED
+		motion += delta;
 		int nbstate = buffer[0] & 0x7;
-		if ( motion.x() || motion.y() || bstate != nbstate ) {
+		int wheel = packetsize > 3 ? (signed char)buffer[3] : 0;
+		if ( wheel < -2 || wheel > 2 )
+		    wheel = 0;
+		if ( motion.x() || motion.y() || bstate != nbstate || wheel) {
 		    bstate = nbstate;
 		    goodness++;
 		} else {

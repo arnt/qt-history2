@@ -89,7 +89,7 @@ public:
 
 private:
 
-    unsigned int getRop(RasterOp);
+    unsigned int getRop(Qt::RasterOp);
 
     // Convert colour into what the hardware needs
     unsigned int get_color(unsigned int);
@@ -103,7 +103,7 @@ private:
 };
 
 template<const int depth,const int type>
-inline unsigned int QGfxMatrox<depth,type>::getRop(RasterOp r)
+inline unsigned int QGfxMatrox<depth,type>::getRop(Qt::RasterOp r)
 {
   if(r==CopyROP) {
     return 0xc;
@@ -700,12 +700,20 @@ QGfx * QMatroxScreen::createGfx(unsigned char * b,int w,int h,int d,
 {
     QGfx * ret=0;
     if( onCard(b) ) {
-	if( d==16 ) {
+	if ( FALSE ) {
+	    //Just to simplify the ifdeffery
+#ifndef QT_NO_QWS_DEPTH_16
+	} else if( d==16 ) {
 	    ret = new QGfxMatrox<16,0>(b,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_32
 	} else if ( d==32 ) {
 	    ret = new QGfxMatrox<32,0>(b,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_8
 	} else if ( d==8 ) {
 	    ret = new QGfxMatrox<8,0>(b,w,h);
+#endif
 	}
 	if(ret) {
 	    ret->setShared(shared);

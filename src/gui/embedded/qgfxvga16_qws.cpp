@@ -2053,8 +2053,7 @@ void QVga16Cursor::set(const QImage& image, int hotx, int hoty)
     data->height = image.height();
     memcpy(data->cursor, image.bits(), image.numBytes());
     data->colors = image.numColors();
-    int depth = gfx->bitDepth();
-    if ( depth <= 8 ) {
+    if ( gfx && gfx->bitDepth() <= 8 ) {
 	for (int i = 0; i < image.numColors(); i++) {
 	    int r = qRed( image.colorTable()[i] );
 	    int g = qGreen( image.colorTable()[i] );
@@ -2111,12 +2110,12 @@ void QVga16Cursor::drawCursor(QRect &r)
     if (!r.intersects(data->bound))
 	return;
 
-    if ( data->width != cursor->width() || data->height != cursor->height() ) {
+    if ( !cursor || data->width != cursor->width() || data->height != cursor->height() ) {
 	delete cursor;
 	cursor = new QImage( data->cursor, data->width, data->height, 8,
 			 data->clut, data->colors, QImage::IgnoreEndian );
     }
-    if ( data->width && data->height ) {
+    if ( gfx && data->width && data->height ) {
 	qt_sw_cursor = FALSE;   // prevent recursive call from blt
 	gfx->setSource( cursor );
 	gfx->setAlphaType(QGfx::InlineAlpha);

@@ -120,6 +120,9 @@ QDirectPainter::QDirectPainter( const QWidget* w ) :
     d->h = w->height();
     d->gfx->beginTransaction(QRect(d->offset,size()));
     d->change = QRect(d->offset, QSize(d->w,d->h));
+
+
+    //???? pretend to be in paint event to shut up warning from QWSPaintEngine::begin
 }
 
 /*!

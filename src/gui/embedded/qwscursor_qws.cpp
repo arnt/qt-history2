@@ -20,7 +20,7 @@
 #include "qwscursor_qws.h"
 
 #ifndef QT_NO_QWS_CURSOR
-static QWSCursor *systemCursorTable[16];
+static QWSCursor *systemCursorTable[Qt::LastCursor+1];
 static bool systemCursorTableInit = false;
 
 // 16 x 16
@@ -421,7 +421,10 @@ void QWSCursor::createSystemCursor( int id )
 	    systemCursorTable[WhatsThisCursor] =
 		new QWSCursor(whatsthis_bits, whatsthism_bits, 32, 32, 0, 0);
 	    break;
-
+	case BusyCursor:
+	    systemCursorTable[BusyCursor] =
+		new QWSCursor(busy_bits, busym_bits, 32, 32, 0, 0);
+	    break;
 	default:
 	    qWarning( "Unknown system cursor %d", id );
     }
