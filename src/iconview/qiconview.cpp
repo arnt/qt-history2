@@ -4011,6 +4011,20 @@ bool QIconView::showToolTips() const
 
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
+    if ( d->rubber ) {
+	QPainter p;
+	p.begin( viewport() );
+	p.setRasterOp( NotROP );
+	p.setPen( QPen( color0, 1 ) );
+	p.setBrush( NoBrush );
+
+	drawRubber( &p );
+	d->dragging = FALSE;
+	p.end();
+	delete d->rubber;
+	d->rubber = 0;
+    }
+
     d->dragStartPos = e->pos();
     QIconViewItem *item = findItem( e->pos() );
     d->pressedItem = item;
