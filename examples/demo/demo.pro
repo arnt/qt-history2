@@ -65,9 +65,7 @@ opengl {
 }
 
 sql {
-	FORMS += sql/book.ui \
-		      sql/editbook.ui \
-	              sql/connect.ui \
+	FORMS += sql/connect.ui \
 		      sql/sqlex.ui
 }
 

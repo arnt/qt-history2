@@ -46,7 +46,6 @@
 
 #if defined(QT_MODULE_SQL)
 #include <qsqldatabase.h>
-#include "sql/book.h"
 #include "sql/sqlex.h"
 #endif
 
@@ -67,9 +66,7 @@ QWidget *Frame::createCategory(const QString &cat)
 #if defined(QT_MODULE_SQL)
     } else if(cat == "Database") {
 	tab = new QTabWidget();
-	w = new BookForm( tab );
 	tab->addTab( new SqlEx(), tr( "SQL Explorer" ) );
-	tab->addTab( w, tr( "Database" ) );
 #endif
 #if defined(QT_MODULE_CANVAS)
     } else if(cat == "2D Graphics") {
