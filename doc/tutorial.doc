@@ -89,8 +89,9 @@ the bare minimum you need to get a Qt application up and running.
 The picture above is a snapshot of this program.
 
 \include t1/main.cpp
+\walkthrough t1/main.cpp
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 \skipto include
 \printline qapp
@@ -211,6 +212,7 @@ now go on to make the application quit properly when the user tells it to.
 We will also use a font that is more exciting than the default one.
 
 \include t2/main.cpp
+\walkthrough t2/main.cpp
 
 <h2>Line by Line Walk-Through</h2>
 
@@ -298,8 +300,9 @@ We'll keep it simple and use just a single mother (uh, family values?)
 and a lone child.
 
 \include t3/main.cpp
+\walkthrough t3/main.cpp
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 \skipto qvbox.h
 \printline qvbox.h
@@ -372,8 +375,9 @@ This example shows how to create your own widget, describes how to control the
 minimum and maximum sizes of a widget, and introduces widget names.
 
 \include t4/main.cpp
+\walkthrough t4/main.cpp
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 \skipto MyWidget
 \printuntil }
@@ -481,8 +485,9 @@ This example shows how to create and connect together several widgets
 by using signals and slots, and how to handle resize events.
 
 \include t5/main.cpp
+\walkthrough t5/main.cpp
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 \skipto qapp
 \printuntil qvbox
@@ -576,8 +581,9 @@ widget as a child widget.
 
 <a name=main></a>
 \include t6/main.cpp
+\walkthrough t6/main.cpp
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 \skipto LCDRange
 \printuntil };
@@ -713,14 +719,14 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 <h3>\link t7-lcdrange-h.html lcdrange.h\endlink</h3>
 
 This file is mainly lifted from <a href="t6.html#main">main.cpp</a> in
 Chapter 6; only the changes are noted here.
 
-\dontinclude t7/lcdrange.h
+\walkthrough t7/lcdrange.h
 
 \skipto ifndef
 \printuntil define
@@ -780,7 +786,7 @@ signal you'll see called <i>something</i>Changed().
 
 <h3>\link t7-lcdrange-cpp.html lcdrange.cpp\endlink</h3>
 
-\dontinclude t7/lcdrange.cpp
+\walkthrough t7/lcdrange.cpp
 
 This file is mainly lifted from <a href="t6.html#main">t6/main.cpp</a>, and
 only the changes are noted here.
@@ -830,7 +836,7 @@ addition, the slider will automatically adjust the value if it is
 outside its legal range.
 
 <h3>\link t7-main-cpp.html main.cpp\endlink</h3>
-\dontinclude t7/main.cpp
+\walkthrough t7/main.cpp
 
 \skipto previous
 \printline previous
@@ -961,14 +967,14 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 <h3>\link t8-lcdrange-h.html lcdrange.h\endlink</h3>
 
 This file is very similar to the lcdrange.h in Chapter 7.  We have added
 one slot: setRange().
 
-\dontinclude t8/lcdrange.h
+\walkthrough t8/lcdrange.h
 
 \skipto setRange
 \printline setRange
@@ -978,7 +984,7 @@ Until now, it has been fixed at 0..99.
 
 <h3>\link t8-lcdrange-cpp.html lcdrange.cpp\endlink</h3>
 
-\dontinclude t8/lcdrange.cpp
+\walkthrough t8/lcdrange.cpp
 
 There is a change to the constructor (we'll discuss that later).
 
@@ -1000,7 +1006,7 @@ function using \l ::qInstallMsgHandler().
 
 CannonField is a new custom widget that knows how to display itself.
 
-\dontinclude t8/cannon.h
+\walkthrough t8/cannon.h
 
 \skipto include
 \skipto class
@@ -1023,7 +1029,7 @@ to update itself (i.e., paint the widget's surface).
 
 <h3>\link t8-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t8/cannon.cpp
+\walkthrough t8/cannon.cpp
 
 \skipto ::CannonField
 \printuntil {
@@ -1077,7 +1083,7 @@ We'll come back to QPainter later; it can do a great many things.
 
 <h3>\link t8-main-cpp.html main.cpp\endlink</h3>
 
-\dontinclude t8/main.cpp
+\walkthrough t8/main.cpp
 
 \skipto cannon.h
 \printline cannon.h
@@ -1171,7 +1177,7 @@ keyboard input will go to the LCDRange widget by default.
 LCDRange does not contain any keyPressEvent(), so that would seem not
 to be terribly useful.  However, its constructor just got a new line:
 
-\dontinclude t8/lcdrange.cpp
+\walkthrough t8/lcdrange.cpp
 \skipto setFocusProxy
 \printline setFocusProxy
 
@@ -1309,11 +1315,11 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 <h3>\link t9-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t9/cannon.cpp
+\walkthrough t9/cannon.cpp
 
 \skipto ::paintEvent
 \printuntil QPainter
@@ -1386,7 +1392,7 @@ The result looks like this:
 We're done, except that we haven't explained why Windows didn't dither
 this time.
 
-\dontinclude t9/main.cpp
+\walkthrough t9/main.cpp
 \skipto main
 \printline main
 \printline {
@@ -1520,13 +1526,13 @@ generating the meta object information necessary for
 <a href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 <h3>\link t10-cannon-h.html cannon.h\endlink</h3>
 
 The CannonField now has a force value in addition to the angle.
 
-\dontinclude t10/cannon.h
+\walkthrough t10/cannon.h
 
 \skipto angle
 \printuntil forceChanged
@@ -1546,7 +1552,7 @@ The force is stored in the integer f.
 
 <h3>\link t10-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t10/cannon.cpp
+\walkthrough t10/cannon.cpp
 
 \skipto include
 \skipto pixmap
@@ -1629,7 +1635,7 @@ is 0,0).
 
 <h3>\link t10-main-cpp.html main.cpp\endlink</h3>
 
-\dontinclude t10/main.cpp
+\walkthrough t10/main.cpp
 
 \skipto MyWidget::MyWidget
 \printuntil {
@@ -1781,13 +1787,13 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 <h3>\link t11-cannon-h.html cannon.h\endlink</h3>
 
 The CannonField now has shooting capabilities.
 
-\dontinclude t11/cannon.h
+\walkthrough t11/cannon.h
 
 \skipto shoot
 \printline shoot
@@ -1824,7 +1830,7 @@ when the shot was fired.
 
 <h3>\link t11-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t11/cannon.cpp
+\walkthrough t11/cannon.cpp
 
 \skipto include
 \skipto math
@@ -1915,7 +1921,7 @@ integer.
 
 <h3>\link t11-main-cpp.html main.cpp\endlink</h3>
 
-\dontinclude t11/main.cpp
+\walkthrough t11/main.cpp
 
 \skipto class
 \printuntil };
@@ -2048,14 +2054,14 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 
 <h3>\link t12-lcdrange-h.html lcdrange.h\endlink</h3>
 
 The LCDRange now has a text label.
 
-\dontinclude t12/lcdrange.h
+\walkthrough t12/lcdrange.h
 
 \skipto QLabel
 \printline QLabel
@@ -2097,7 +2103,7 @@ frame.
 
 <h3>\link t12-lcdrange-cpp.html lcdrange.cpp\endlink</h3>
 
-\dontinclude t12/lcdrange.cpp
+\walkthrough t12/lcdrange.cpp
 
 \skipto qlabel
 \printline include
@@ -2138,7 +2144,7 @@ This function sets the label text.
 The CannonField now has two new signals: hit() and missed().  In addition
 it contains a target.
 
-\dontinclude t12/cannon.h
+\walkthrough t12/cannon.h
 
 \skipto slots
 \skipto newTarget
@@ -2172,7 +2178,7 @@ This private variable contains the center point of the target.
 
 <h3>\link t12-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t12/cannon.cpp
+\walkthrough t12/cannon.cpp
 
 \skipto qdatetime
 \printline qdatetime
@@ -2286,7 +2292,7 @@ can be resized by the user or the program at any time.
 
 <h3>\link t12-main-cpp.html main.cpp\endlink</h3>
 
-\dontinclude t12/main.cpp
+\walkthrough t12/main.cpp
 
 There are no new members in the MyWidget class, but we have slightly
 changed the constructor to set the new LCDRange text labels.
@@ -2460,12 +2466,12 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 
 <h3>\link t13-lcdrange-h.html lcdrange.h\endlink</h3>
 
-\dontinclude t13/lcdrange.h
+\walkthrough t13/lcdrange.h
 
 \skipto include
 \printuntil QWidget
@@ -2477,7 +2483,7 @@ not a widget, it manages one.)
 
 <h3>\link t13-lcdrange-cpp.html lcdrange.cpp\endlink</h3>
 
-\dontinclude t13/lcdrange.cpp
+\walkthrough t13/lcdrange.cpp
 
 \skipto layout
 \printline layout
@@ -2517,7 +2523,7 @@ not.
 
 The CannonField now has a game over state and a few new functions.
 
-\dontinclude t13/cannon.h
+\walkthrough t13/cannon.h
 
 \skipto gameOver
 \printline gameOver
@@ -2545,7 +2551,7 @@ game is over, and FALSE means that a game is going on.
 
 <h3>\link t13-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t13/cannon.cpp
+\walkthrough t13/cannon.cpp
 
 \skipto ::CannonField
 \skipto gameEnded
@@ -2613,7 +2619,7 @@ We draw the shot only when shooting and the target only when playing
 This file is new.  It contains the definition of the GameBoard class,
 which was last seen as MyWidget.
 
-\dontinclude t13/gamebrd.h
+\walkthrough t13/gamebrd.h
 
 \skipto include
 \skipto class
@@ -2629,7 +2635,7 @@ the game status.
 This file is new.  It contains the implementation of the GameBoard
 class, which was last seen as MyWidget.
 
-\dontinclude t13/gamebrd.cpp
+\walkthrough t13/gamebrd.cpp
 
 We have made some changes in the GameBoard constructor.
 
@@ -2881,7 +2887,7 @@ generating the meta object information necessary for <a
 href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
-<h2>Line-by-Line Walk-through</h2>
+<h2>Line-by-line Walkthrough</h2>
 
 
 <h3>\link t14-cannon-h.html cannon.h\endlink</h3>
@@ -2891,7 +2897,7 @@ barrel by clicking on it and dragging.  CannonField also has a barrier
 wall.
 
 
-\dontinclude t14/cannon.h
+\walkthrough t14/cannon.h
 
 \skipto CannonField
 \skipto protected
@@ -2924,7 +2930,7 @@ barrel and not released it.
 
 <h3>\link t14-cannon-cpp.html cannon.cpp\endlink</h3>
 
-\dontinclude t14/cannon.cpp
+\walkthrough t14/cannon.cpp
 
 \skipto ::CannonField
 \skipto barrelPressed
@@ -3033,7 +3039,7 @@ matrix and return TRUE if it is inside the original barrel rectangle.
 
 <h3>\link t14-gamebrd-cpp.html gamebrd.cpp\endlink</h3>
 
-\dontinclude t14/gamebrd.cpp
+\walkthrough t14/gamebrd.cpp
 
 \skipto qaccel.h
 \printline qaccel.h
