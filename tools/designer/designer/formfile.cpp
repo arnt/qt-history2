@@ -599,7 +599,9 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
 	if ( !codeEdited && !timeStamp.isUpToDate() )
 	    loadCode();
 	MetaDataBase::MetaInfo mi = MetaDataBase::metaInfo( formWindow() );
-	QString cn = mi.className;
+	QString cn;
+	if ( mi.classNameChanged )
+	    cn = mi.className;
 	if ( cn.isEmpty() )
 	    cn = formWindow()->name();
 	QString body = "\n\n" + iface->createFunctionStart( cn,
