@@ -93,8 +93,8 @@ public:
     explicit QTextFrame(QTextDocument *doc);
     ~QTextFrame();
 
-    void setFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
-    QTextFrameFormat format() const { return QTextObject::format().toFrameFormat(); }
+    void setFrameFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
+    QTextFrameFormat frameFormat() const { return QTextObject::format().toFrameFormat(); }
 
     QTextCursor firstCursorPosition() const;
     QTextCursor lastCursorPosition() const;

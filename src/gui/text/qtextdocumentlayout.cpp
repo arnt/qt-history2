@@ -1102,7 +1102,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     Q_ASSERT(data(f)->sizeDirty);
 //     qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
-    QTextFrameFormat fformat = f->format();
+    QTextFrameFormat fformat = f->frameFormat();
 
     QTextFrame *parent = f->parentFrame();
     const QTextFrameData *pd = parent ? data(parent) : 0;
@@ -1127,7 +1127,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     QTextFrameData *fd = data(f);
 
     {
-        QTextFrameFormat fformat = f->format();
+        QTextFrameFormat fformat = f->frameFormat();
         // set sizes of this frame from the format
         fd->margin = fformat.margin();
         fd->border = fformat.border();
@@ -1522,7 +1522,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
     QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
     if (frame) {
-        pos = frame->format().position();
+        pos = frame->frameFormat().position();
         data(frame)->sizeDirty = false;
         data(frame)->size = intrinsic.toSize();
     }

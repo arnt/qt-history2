@@ -1078,7 +1078,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
                 emitAttribute("height", QString::number(imgFmt.height()));
 
             if (QTextFrame *imageFrame = qobject_cast<QTextFrame *>(doc->objectForFormat(imgFmt)))
-                emitFloatStyle(imageFrame->format().position());
+                emitFloatStyle(imageFrame->frameFormat().position());
 
             html += QLatin1String(" />");
         }

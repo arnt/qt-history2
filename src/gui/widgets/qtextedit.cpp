@@ -384,9 +384,9 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
     viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 
     QTextFrame *rootFrame = doc->rootFrame();
-    QTextFrameFormat ffmt = rootFrame->format();
+    QTextFrameFormat ffmt = rootFrame->frameFormat();
     ffmt.setMargin(4);
-    rootFrame->setFormat(ffmt);
+    rootFrame->setFrameFormat(ffmt);
 
     if (!fragment.isEmpty()) {
         cursor.movePosition(QTextCursor::Start);
