@@ -273,7 +273,7 @@ QFSFileEnginePrivate::doStat() const
         if(d->fd != -1) {
             that->could_stat = !QT_FSTAT(d->fd, &st);
         } else {
-            QString file = QFile::encodeName(d->file);
+            const QByteArray file = QFile::encodeName(d->file);
             if(::lstat(file, &st) == 0) 
                 that->could_stat = true;
             else
