@@ -740,19 +740,36 @@ bool QPSQLDriver::rollbackTransaction()
     return TRUE;
 }
 
-QStringList QPSQLDriver::tables( const QString& /* user */ ) const
+QStringList QPSQLDriver::tables( const QString& typeName ) const
 {
     QStringList tl;
     if ( !isOpen() )
 	return tl;
+    int type = typeName.toInt();
     QSqlQuery t = createQuery();
-    QString stmt;
-    stmt = "select relname from pg_class where ( relkind = 'r' or relkind = 'v' ) "
-		"and ( relname !~ '^Inv' ) "
-		"and ( relname !~ '^pg_' ) ";
-    t.exec( stmt );
-    while ( t.isActive() && t.next() )
-	tl.append( t.value(0).toString() );
+    t.setForwardOnly( TRUE );
+
+    if ( typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables) ) {
+        t.exec( "select relname from pg_class where ( relkind = 'r' ) "
+                "and ( relname !~ '^Inv' ) "
+                "and ( relname !~ '^pg_' ) " );
+	while ( t.next() )
+	    tl.append( t.value(0).toString() );
+    }
+    if ( (type & (int)QSql::Views) == (int)QSql::Views ) {
+        t.exec( "select relname from pg_class where ( relkind = 'v' ) "
+                "and ( relname !~ '^Inv' ) "
+                "and ( relname !~ '^pg_' ) " );
+	while ( t.next() )
+	    tl.append( t.value(0).toString() );
+    }
+    if ( (type & (int)QSql::SystemTables) == (int)QSql::SystemTables ) {
+	t.exec( "select relname from pg_class where ( relkind = 'r' ) "
+		"and ( relname like 'pg_%' ) " );
+	while ( t.next() )
+	    tl.append( t.value(0).toString() );
+    }
+
     return tl;
 }
 

@@ -91,6 +91,7 @@ public:
     bool		isOpen() const;
     bool		isOpenError() const;
     QStringList		tables() const;
+    QStringList		tables( QSql::TableType type ) const;
     QSqlIndex		primaryIndex( const QString& tablename ) const;
     QSqlRecord		record( const QString& tablename ) const;
     QSqlRecord		record( const QSqlQuery& query ) const;

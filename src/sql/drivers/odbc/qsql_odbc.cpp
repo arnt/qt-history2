@@ -1649,11 +1649,12 @@ bool QODBCDriver::endTrans()
     return TRUE;
 }
 
-QStringList QODBCDriver::tables( const QString& /* user */ ) const
+QStringList QODBCDriver::tables( const QString& typeName ) const
 {
     QStringList tl;
     if ( !isOpen() )
 	return tl;
+    int type = typeName.toInt();
     SQLHANDLE hStmt;
 
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
@@ -1669,9 +1670,17 @@ QStringList QODBCDriver::tables( const QString& /* user */ ) const
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
 			SQL_IS_UINTEGER );
+    QString tableType;
+    if ( typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables) )
+	tableType += "TABLE,";
+    if ( (type & (int)QSql::Views) == (int)QSql::Views )
+	tableType += "VIEW,";
+    if ( (type & (int)QSql::SystemTables) == (int)QSql::SystemTables )
+	tableType += "SYSTEM TABLE,";
+    if ( tableType.isEmpty() )
+	return tl;
+    tableType.truncate( tableType.length() - 1 );
 
-    // Prevent SQLTables to display all the system tables
-    QString tableType = "TABLE";
     r = SQLTables( hStmt,
 		   NULL,
 		   0,

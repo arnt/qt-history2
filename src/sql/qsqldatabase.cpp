@@ -932,7 +932,10 @@ QSqlError QSqlDatabase::lastError() const
 
 
 /*!
-    Returns a list of tables in the database.
+    \overload
+
+    Returns a list of tables visibel to the user in the database.
+    To retrieve also the views or system tables, use the function above.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
@@ -948,7 +951,28 @@ QSqlError QSqlDatabase::lastError() const
 
 QStringList QSqlDatabase::tables() const
 {
-    return d->driver->tables( userName() );
+    return tables( QSql::Tables );
+}
+
+/*!
+    Returns a list of tables, system tables and/or views in the database
+    according to the parameter \a type.
+
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
+    \code
+    QStringList list = myDatabase.tables( QSql::Tables | QSql::Views );
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+        myProcessing( *it );
+        ++it;
+    }
+    \endcode
+*/
+
+QStringList QSqlDatabase::tables( QSql::TableType type ) const
+{
+    return d->driver->tables( QString::number( (int)type ) );
 }
 
 /*!

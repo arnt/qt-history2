@@ -283,7 +283,13 @@ QSqlError QSqlDriver::lastError() const
     Returns a list of tables in the database. The default
     implementation returns an empty list.
 
-    Currently the \a user argument is unused.
+    The \a typeName argument describes what types of tables
+    should be returned. Due to binary compatibility, the string
+    contains the value of the enum QSql::TableTypes as text.
+    An empty string should be treated as QSql::Tables for
+    downward compatibility.
+
+    \sa QSql::TableTypes
 */
 
 QStringList QSqlDriver::tables( const QString&	) const

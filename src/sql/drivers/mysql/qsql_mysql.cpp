@@ -500,11 +500,14 @@ QSqlQuery QMYSQLDriver::createQuery() const
     return QSqlQuery( new QMYSQLResult( this ) );
 }
 
-QStringList QMYSQLDriver::tables( const QString& ) const
+QStringList QMYSQLDriver::tables( const QString& typeName ) const
 {
     QStringList tl;
     if ( !isOpen() )
 	return tl;
+    if ( !typeName.isEmpty() && !(typeName.toInt() & (int)QSql::Tables) )
+	return tl;
+
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
     MYSQL_ROW	row;
     int i = 0;

@@ -732,16 +732,30 @@ QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
     return info;
 }
 
-QStringList QTDSDriver::tables( const QString& /*user*/ ) const
+QStringList QTDSDriver::tables( const QString& typeName ) const
 {
     QStringList list;
 
     if ( !isOpen() )
 	return list;
 
+    int type = typeName.toInt();
+    QString typeFilter;
+
+    if ( typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables) )
+	typeFilter += "type='U' or ";
+    if ( (type & (int)QSql::SystemTables) == (int)QSql::SystemTables )
+	typeFilter += "type='S' or ";
+    if ( (type & (int)QSql::Views) == (int)QSql::Views )
+	typeFilter += "type='V' or ";
+
+    if ( typeFilter.isEmpty() )
+	return list;
+    typeFilter.truncate( typeFilter.length() - 4 );
+
     QSqlQuery t = createQuery();
     t.setForwardOnly( TRUE );
-    t.exec( "select name from sysobjects where type='U'" );
+    t.exec( "select name from sysobjects where " + typeFilter );
     while ( t.next() ) {
 	list.append( t.value(0).toString().stripWhiteSpace() );
     }

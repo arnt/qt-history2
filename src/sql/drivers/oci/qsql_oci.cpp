@@ -2168,26 +2168,52 @@ bool QOCIDriver::rollbackTransaction()
     return TRUE;
 }
 
-QStringList QOCIDriver::tables( const QString& ) const
+QStringList QOCIDriver::tables( const QString& typeName ) const
 {
     QStringList tl;
     if ( !isOpen() )
 	return tl;
+
     QSqlQuery t = createQuery();
     t.setForwardOnly( TRUE );
-    t.exec( "select owner, table_name from all_tables "
-	    "where owner != 'MDSYS' "
-	    "and owner != 'LBACSYS' "
-	    "and owner != 'SYS' "
-	    "and owner != 'SYSTEM' "
-	    "and owner != 'WKSYS'"
-	    "and owner != 'CTXSYS'"
-	    "and owner != 'WMSYS'" );
-    while ( t.next() ) {
-	if ( t.value(0).toString() != d->user )
-	    tl.append( t.value(0).toString() + "." + t.value(1).toString() );
-	else
-	    tl.append( t.value(1).toString() );
+    int type = typeName.toInt();
+    if ( typeName.isEmpty() || ((type & (int)QSql::Tables) == (int)QSql::Tables) ) {
+        t.exec( "select owner, table_name from all_tables "
+		"where owner != 'MDSYS' "
+		"and owner != 'LBACSYS' "
+		"and owner != 'SYS' "
+		"and owner != 'SYSTEM' "
+		"and owner != 'WKSYS'"
+		"and owner != 'CTXSYS'"
+		"and owner != 'WMSYS'" );
+        while ( t.next() ) {
+	    if ( t.value(0).toString() != d->user )
+		tl.append( t.value(0).toString() + "." + t.value(1).toString() );
+	    else
+		tl.append( t.value(1).toString() );
+	}
+    }
+    if ( (type & (int)QSql::Views) == (int)QSql::Views ) {
+        t.exec( "select owner, view_name from all_views "
+                "where owner != 'MDSYS' "
+                "and owner != 'LBACSYS' "
+                "and owner != 'SYS' "
+                "and owner != 'SYSTEM' "
+                "and owner != 'WKSYS'"
+                "and owner != 'CTXSYS'"
+                "and owner != 'WMSYS'" );
+        while ( t.next() ) {
+            if ( t.value(0).toString() != d->user )
+                tl.append( t.value(0).toString() + "." + t.value(1).toString() );
+            else
+                tl.append( t.value(1).toString() );
+        }
+    }
+    if ( (type & (int)QSql::SystemTables) == (int)QSql::SystemTables ) {
+	t.exec( "select table_name from dictionary" );
+	while ( t.next() ) {
+	    tl.append( t.value(0).toString() );
+	}
     }
     return tl;
 }

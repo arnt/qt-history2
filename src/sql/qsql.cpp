@@ -93,6 +93,17 @@
 */
 
 /*!
+    enum QSql::TableType
+
+    This enum type describes types of tables
+
+    \value Tables  all tables visible by the user
+    \value SystemTables  internal tables used by the DBMS
+    \value Views  Database views
+    \value AllTables  all of the above
+*/
+
+/*!
     \fn QSql::QSql()
 
     Constructs a Qt SQL namespace class

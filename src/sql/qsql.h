@@ -77,6 +77,13 @@ public:
 	InOut = 3  //InOut = In | Out
     };
 
+    enum TableType { 
+	Tables = 0x01,
+	SystemTables = 0x02,
+	Views = 0x04,
+	AllTables = 0xff
+    };
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSql( const QSql & );
