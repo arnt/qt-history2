@@ -46,6 +46,7 @@ class FormWindowManager;
 class OrderIndicator;
 class FormEditor;
 class SignalSlotEditor;
+class View3D;
 
 class FormWindowDnDItem : public AbstractDnDItem
 {
@@ -348,6 +349,10 @@ private:
     WidgetToActionMap m_widget_to_action_map;
     ActionList m_action_list;
     
+#ifdef DESIGNER_VIEW3D
+    View3D *m_view_3d;
+#endif
+        
 private:
     friend class FormWindowManager;
     friend class SizeHandle;

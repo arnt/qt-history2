@@ -2,6 +2,8 @@ DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt depend_prl assistant
 
+view3d: CONFIG += opengl
+
 #mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
 
 #unix:!mac:!hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.so
@@ -50,6 +52,8 @@ LIBS += -L../../lib \
     -L../../../../lib \
     -lQtDesigner
 
+view3d: LIBS += -lQtOpenGL
+    
 HEADERS +=  designerapp.h \
     mainwindow.h \
     propertyeditorview.h \

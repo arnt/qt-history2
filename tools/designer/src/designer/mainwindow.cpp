@@ -185,10 +185,7 @@ void MainWindow::enableFormActions(bool enable)
     m_actionMaximize->setEnabled(enable);
     m_actionMinimize->setEnabled(enable);
     m_showGrid->setEnabled(enable);
-    m_widgetEditMode->setEnabled(enable);
-    m_connectionEditMode->setEnabled(enable);
-    m_tabOrderEditMode->setEnabled(enable);
-    m_editModeSelector->setEnabled(enable);
+    m_editModeGrp->setEnabled(enable);
 }
 
 void MainWindow::windowChanged()
@@ -392,23 +389,31 @@ void MainWindow::setupMenuBar()
     connect(m_showGrid, SIGNAL(checked(bool)), this, SLOT(showGrid(bool)));
 
     menu->addSeparator();
+    
+    m_editModeGrp = new QActionGroup(this);
+    m_editModeGrp->setExclusive(true);
     m_widgetEditMode = menu->addAction(tr("Edit Widgets"));
     m_widgetEditMode->setCheckable(true);
     m_widgetEditMode->setShortcut(Qt::Key_F2);
+    m_editModeGrp->addAction(m_widgetEditMode);
     m_formActionList.append(m_widgetEditMode);
     m_connectionEditMode = menu->addAction(tr("Edit Connections"));
     m_connectionEditMode->setCheckable(true);
     m_connectionEditMode->setShortcut(Qt::Key_F3);
+    m_editModeGrp->addAction(m_connectionEditMode);
     m_formActionList.append(m_connectionEditMode);
     m_tabOrderEditMode = menu->addAction(tr("Edit Tab order"));
     m_tabOrderEditMode->setCheckable(true);
     m_tabOrderEditMode->setShortcut(Qt::Key_F4);
-    m_formActionList.append(m_tabOrderEditMode);
-    m_editModeGrp = new QActionGroup(this);
-    m_editModeGrp->setExclusive(true);
-    m_editModeGrp->addAction(m_widgetEditMode);
-    m_editModeGrp->addAction(m_connectionEditMode);
     m_editModeGrp->addAction(m_tabOrderEditMode);
+    m_formActionList.append(m_tabOrderEditMode);
+#ifdef DESIGNER_VIEW3D    
+    m_view3DEditMode = menu->addAction(tr("3D View"));
+    m_view3DEditMode->setCheckable(true);
+    m_view3DEditMode->setShortcut(Qt::Key_F5);
+    m_editModeGrp->addAction(m_view3DEditMode);
+    m_formActionList.append(m_view3DEditMode);
+#endif
     connect(m_editModeGrp, SIGNAL(triggered(QAction*)), this, SLOT(editMode(QAction*)));
 
     m_readOnly = menu->addAction(tr("Read-Only"));
@@ -509,6 +514,10 @@ void MainWindow::editMode(QAction *action)
             newMode = AbstractFormWindow::ConnectionEditMode;
         else if (action == m_tabOrderEditMode)
             newMode = AbstractFormWindow::TabOrderEditMode;
+#ifdef DESIGNER_VIEW3D        
+        else if (action == m_view3DEditMode)
+            newMode = AbstractFormWindow::View3DEditMode;
+#endif        
         else
             Q_ASSERT(0);
 

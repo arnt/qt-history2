@@ -66,7 +66,11 @@ SOURCES += qdesigner_widget.cpp \
            default_layoutdecoration.cpp \
            pixmapcache.cpp
 
-
+view3d {
+    HEADERS += view3d.h
+    SOURCES += view3d.cpp
+}
+           
 MOCABLE += formwindow.cpp
 
 QMAKE_MOD_RCC = rcc_resource

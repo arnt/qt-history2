@@ -26,6 +26,10 @@
 #include "signalsloteditor.h"
 #include "layoutdecoration.h"
 
+#ifdef DESIGNER_VIEW3D
+#    include "view3d.h"
+#endif
+
 // shared
 #include <spacer.h>
 #include <layoutinfo.h>
@@ -307,6 +311,12 @@ void FormWindow::init()
                 m_signalSlotEditor, SLOT(deleteWidgetItem(QWidget*)));
     m_signalSlotEditor->setGeometry(rect());
     m_signalSlotEditor->show();
+    
+#ifdef DESIGNER_VIEW3D    
+    m_view_3d = new View3D(this, this);
+    m_view_3d->setGeometry(rect());
+    m_view_3d->show();
+#endif
 }
 /*
 void FormWindow::removeWidget(QWidget *w)
@@ -1821,6 +1831,10 @@ void FormWindow::resizeEvent(QResizeEvent *e)
         m_mainContainer->setGeometry(rect());
     if (m_signalSlotEditor != 0)
         m_signalSlotEditor->setGeometry(rect());
+#ifdef DESIGNER_VIEW3D
+    if (m_view_3d != 0)
+        m_view_3d->setGeometry(rect());
+#endif
 }
 
 /*!
@@ -2058,6 +2072,12 @@ void FormWindow::setEditMode(EditMode mode)
         case TabOrderEditMode:
             showOrderIndicators();
             break;
+
+#ifdef DESIGNER_VIEW3D                        
+        case View3DEditMode:
+            m_view_3d->updateForm();
+            m_view_3d->raise();
+#endif    
     }
 
     emit editModeChanged(mode);

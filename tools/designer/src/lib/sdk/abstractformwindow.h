@@ -32,6 +32,9 @@ public:
         WidgetEditMode,
         ConnectionEditMode,
         TabOrderEditMode
+#ifdef DESIGNER_VIEW3D        
+        ,View3DEditMode
+#endif
     };
 
     enum FeatureFlag 

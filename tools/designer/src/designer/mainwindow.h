@@ -112,6 +112,9 @@ private:
     QAction *m_widgetEditMode;
     QAction *m_connectionEditMode;
     QAction *m_tabOrderEditMode;
+#ifdef DESIGNER_VIEW3D    
+    QAction *m_view3DEditMode;
+#endif
     QActionGroup *m_editModeGrp;
     QMenu *m_menuWindow;
     bool m_closeForm;

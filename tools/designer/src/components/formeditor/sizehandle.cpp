@@ -99,7 +99,7 @@ void SizeHandle::paintEvent(QPaintEvent *)
 
     QPainter p(this);
     p.setPen(m->activeFormWindow() == fw ? Qt::blue : Qt::red);
-    p.drawRect(0, 0, width(), height());
+    p.drawRect(0, 0, width() - 1, height() - 1);
 }
 
 void SizeHandle::mousePressEvent(QMouseEvent *e)

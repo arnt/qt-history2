@@ -17,6 +17,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     else:isEqual(QTSHAREDLIB, -lsignalsloteditor):sharedlib = -lsignalsloteditor
     else:isEqual(QTSHAREDLIB, -lshared):sharedlib = -lshared
     else:isEqual(QTSHAREDLIB, -lQtDesigner):sharedlib = -lQtDesigner
+    else:isEqual(QTSHAREDLIB, -lQtOpenGL):sharedlib = -lQtOpenGL
 
     !isEmpty(sharedlib) {
         LIBS -= $${sharedlib}
@@ -28,3 +29,5 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
         }
     }
 }
+
+view3d: DEFINES += DESIGNER_VIEW3D
