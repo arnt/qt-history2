@@ -1505,6 +1505,7 @@ void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &
     }
 }
 
+#ifdef CONTAINER_CUSTOM_WIDGETS
 static QWidgetContainerInterfacePrivate *containerWidgetInterface( QWidget *w )
 {
     WidgetInterface *iface = 0;
@@ -1518,6 +1519,7 @@ static QWidgetContainerInterfacePrivate *containerWidgetInterface( QWidget *w )
     iface->release();
     return iface2;
 }
+#endif
 
 void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
 					  QMap<QString, int> &commands, QWidget *w )
