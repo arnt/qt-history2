@@ -40,7 +40,7 @@
     This beta release also previews the new \e{Qt Designer} user
     interface design tool. The tool is still heavily under
     development, but you can already try it out and give us feedback.
-    Read the \l{designer-manual.html}{Qt Designer Manual} to get
+    See the \l{qt4-designer.html}{Qt Designer overview} to get
     started.
 
     In addition, the following modules have been significantly improved

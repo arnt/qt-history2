@@ -3,7 +3,7 @@
 \startpage index.html Qt Reference Documentation
 \nextpage designer-getting-started.html Getting Started
 
-\title Qt Designer
+\title Qt Designer Manual
 
 \QD is Trolltech's tool for designing and building graphical user
 interfaces (GUIs) from Qt components. It allows you to design and build
@@ -135,17 +135,6 @@ that they will look and feel exactly as you intended.
    <a href="designer-editing-mode.html#sec.5">Previewing Forms</a>
    \endraw
  \endlist
-\i \l{designer-connection-mode.html}{Connection Editing Mode}
- \list
-   \i
-   \raw HTML
-   <a href="designer-connection-mode.html#sec.1">Connecting Objects</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-connection-mode.html#sec.2">Editing Connections</a>
-   \endraw
- \endlist
 \i \l{designer-using-containers.html}{Using Containers}
  \list
    \i
@@ -171,6 +160,17 @@ that they will look and feel exactly as you intended.
    \i
    \raw HTML
    <a href="designer-using-containers.html#sec.6">Toolbox Widgets</a>
+   \endraw
+ \endlist
+\i \l{designer-connection-mode.html}{Connection Editing Mode}
+ \list
+   \i
+   \raw HTML
+   <a href="designer-connection-mode.html#sec.1">Connecting Objects</a>
+   \endraw
+   \i
+   \raw HTML
+   <a href="designer-connection-mode.html#sec.2">Editing Connections</a>
    \endraw
  \endlist
 \endlist
@@ -594,6 +594,7 @@ the form's design.
 \page designer-using-a-component.html
 \previouspage designer-designing-a-component.html Designing a Component
 \contentspage designer-manual.html Contents
+\nextpage designer-editing-mode.html Form Editing Mode
 
 \title Using a Component in Your Application
 
@@ -841,6 +842,7 @@ without having to write code themselves.
 
 /*!
 \page designer-editing-mode.html
+\previouspage designer-designing-a-component.html Designing a Component
 \contentspage designer-manual.html Contents
 \nextpage designer-using-containers.html Using Containers
 

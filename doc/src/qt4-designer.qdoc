@@ -1,22 +1,23 @@
 /*!
 \page qt4-designer.html
 
-\title Qt Designer
+\title Qt 4: Qt Designer
 
 \QD has been completely re-written based on our experience with the previous
-versions of the product for Qt 3. One of the main new ideas behind the new
-version of \QD is to release the application as a collection of interchangeable
+versions of the product for Qt 3. One of the main new ideas behind this new
+version is to release the application as a collection of interchangeable
 components that include the form editor, widget box, and other useful tools
 for creating graphical user interfaces with Qt. These components can either
 be used together in the \QD application, or integrated into other systems.
 As a result, certain features such as the project editor and code editor have
-been removed from the version of \QD that is included in this release. This
+been removed from the version that is included in this release. This
 allows the components to be independent of each other.
 
 The current version of \QD is not feature complete. However, it is still
 under continuous development. This document will explain what is already in
-place for the \QD application, and outline features which we plan to add in
-future releases.
+place and outlines features which we plan to add in future releases.
+
+See also the \l{designer-manual.html}{Qt Designer Manual}.
 
 \tableofcontents
 
@@ -41,9 +42,13 @@ on a form. It is configurable from an XML file, making it easy to add custom
 widgets. This file is a collection of .ui documents. Widgets are placed on the 
 form using drag and drop.
 
+\image designer-main-window.png
+
 \section2 Property Editor
 
 This allows editing of most properties in widgets and layout objects.
+
+\image designer-property-editor.png
 
 \section2 Form Editing Mode
 
@@ -52,6 +57,8 @@ the form. Previously, it was necessary to break layouts in order to add
 new widgets to them. \QD now supports more direct manipulation of widgets:
 You can clone a widget by dragging it with the \key CTRL key held down, and
 it is even possible to drag widgets between forms.
+
+\image designer-editing-mode.png
 
 \section2 Connection Editing Mode
 
