@@ -36,23 +36,13 @@
 **********************************************************************/
 
 #include "qglobal.h"
-
-#if defined(Q_OS_SUN)
-#define readlink _qt_hide_readlink
-#endif
-
-#include <pwd.h>
-#include <grp.h>
-
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
 
-#if defined(Q_OS_SUN)
-#undef readlink
-extern "C" int readlink( const char *, void *, uint );
-#endif
+#include <pwd.h>
+#include <grp.h>
 
 
 void QFileInfo::slashify( QString& )
