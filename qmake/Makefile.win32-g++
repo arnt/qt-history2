@@ -3,9 +3,10 @@
 #
 CXX	    =	g++
 CFLAGS	    =	-c -o$@ -O \
-		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\include -I..\src\tools \
-		-I..\mkspecs\win32-g++ -I..\arch\i386 \
-		-DUNICODE -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DQT_BUILD_QMAKE -DQT_COMPAT
+		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\include \
+		-I..\src\tools -I..\mkspecs\win32-g++ -I..\arch\i386 \
+		-DUNICODE -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS \
+		-DQT_BUILD_QMAKE -DQT_NO_UNICODETABLE -DHAVE_QCONFIG_CPP -DQT_NO_THREAD
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	
 LIBS	    = -lole32 -luuid 
@@ -16,15 +17,40 @@ ADDCLEAN    =
 #qmake code
 OBJS=project.o main.o makefile.o unixmake.o unixmake2.o borland_bmake.o mingw_make.o \
 	msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o projectgenerator.o \
- 	metrowerks_xml.o pbuilder_pbx.o msvc_objectmodel.o property.o meta.o qtmd5.o
+	metrowerks_xml.o pbuilder_pbx.o msvc_objectmodel.o property.o meta.o qtmd5.o makefiledeps.o
 
 #qt code
-QTOBJS=qstring.o quuid.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o \
- 	qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o qfile_win.o qregexp.o qgvector.o \
- 	qgcache.o qbitarray.o qdir.o qfileinfo_win.o qdir_win.o qfileinfo.o qdatetime.o qhash.o \
- 	qstringlist.o qmap.o qlibrary.o qlibrary_win.o qconfig.o qsettings.o qsettings_win.o qunicodetables.o qlinkedlist.o \
-	qlist.o qvector.o qbytearray.o qchar.o qlocale.o
-
+QTOBJS= \
+	qbitarray.o \
+	qbuffer.o \
+	qbytearray.o \
+	qchar.o \
+	qconfig.o \
+	qdatastream.o \
+	qdatetime.o \
+	qdir.o \
+	qdir_win.o \
+	qfile.o \
+	qfile_win.o \
+	qfileinfo.o \
+	qfileinfo_win.o \
+	qglobal.o \
+	qhash.o \
+	qiodevice.o \
+	qlibrary.o \
+	qlibrary_win.o \
+	qlist.o \
+	qlocale.o \
+	qmap.o \
+	qregexp.o \
+	qsettings.o \
+	qsettings_win.o \
+	qstring.o \
+	qstringlist.o \
+	qtextstream.o \
+	qunicodetables.o \
+	quuid.o \
+	qvector.o 
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
@@ -42,113 +68,101 @@ distclean:: clean
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $<
 
-qconfig.o: ..\src\tools\qconfig.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qconfig.cpp
+qconfig.o: ..\src\core\base\qconfig.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\base\qconfig.cpp
 
-qlibrary.o: ..\src\tools\qlibrary.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlibrary.cpp
+qlibrary.o: ..\src\core\library\qlibrary.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary.cpp
 
-qlibrary_win.o: ..\src\tools\qlibrary_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlibrary_win.cpp
+qlibrary_win.o: ..\src\core\library\qlibrary_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary_win.cpp
 
-qlocale.o: ..\src\tools\qlocale.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlocale.cpp
+qtextstream.o: ..\src\core\io\qtextstream.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp
 
-qtextstream.o: ..\src\tools\qtextstream.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qtextstream.cpp
+qiodevice.o: ..\src\core\io\qiodevice.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qiodevice.cpp
 
-qiodevice.o: ..\src\tools\qiodevice.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qiodevice.cpp
+qglobal.o: ..\src\core\base\qglobal.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\base\qglobal.cpp
 
-qglobal.o: ..\src\tools\qglobal.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qglobal.cpp
+qhash.o: ..\src\core\tools\qhash.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qhash.cpp
 
-qgdict.o: ..\src\compat\qgdict.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qgdict.cpp
+qbytearray.o: ..\src\core\tools\qbytearray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbytearray.cpp
 
-qcstring.o: ..\src\compat\qcstring.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qcstring.cpp
+qchar.o: ..\src\core\tools\qchar.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qchar.cpp
 
-qstring.o: ..\src\tools\qstring.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp
+qstring.o: ..\src\core\tools\qstring.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstring.cpp
 
-qlocale.o: ..\src\tools\qlocale.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlocale.cpp
+qlocale.o: ..\src\core\tools\qlocale.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlocale.cpp
 
-quuid.o: ..\src\tools\quuid.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\quuid.cpp
+quuid.o: ..\src\core\library\quuid.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\library\quuid.cpp
 
-qdatastream.o: ..\src\tools\qdatastream.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qdatastream.cpp
+qdatastream.o: ..\src\core\io\qdatastream.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp
 
-qgarray.o: ..\src\compat\qgarray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qgarray.cpp
+qbuffer.o: ..\src\core\io\qbuffer.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qbuffer.cpp
 
-qbuffer.o: ..\src\tools\qbuffer.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qbuffer.cpp
+qlist.o: ..\src\core\tools\qlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlist.cpp
 
-qglist.o: ..\src\compat\qglist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qglist.cpp
+qlinkedlist.o: ..\src\core\tools\qlinkedlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlinkedlist.cpp
 
-qlinkedlist.o: ..\src\tools\qlinkedlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlinkedlist.cpp
+qfile.o: ..\src\core\io\qfile.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile.cpp
 
-qptrcollection.o: ..\src\compat\qptrcollection.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qptrcollection.cpp
-
-qfile.o: ..\src\tools\qfile.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qfile.cpp
-
-qfile_win.o: ..\src\tools\qfile_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qfile_win.cpp
+qfile_win.o: ..\src\core\io\qfile_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile_win.cpp
 
 qtextcodec.o: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
 
-qregexp.o: ..\src\tools\qregexp.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qregexp.cpp
+qregexp.o: ..\src\core\tools\qregexp.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qregexp.cpp
 
-qgvector.o: ..\src\compat\qgvector.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qgvector.cpp
+qvector.o: ..\src\core\tools\qvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qvector.cpp
 
-qgcache.o: ..\src\compat\qgcache.cpp
-	$(CXX) $(CXXFLAGS) ..\src\compat\qgcache.cpp
+qbitarray.o: ..\src\core\tools\qbitarray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qbitarray.cpp
 
-qbitarray.o: ..\src\tools\qbitarray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qbitarray.cpp
+qdir.o: ..\src\core\io\qdir.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
 
-qdir.o: ..\src\tools\qdir.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qdir.cpp
+qsettings.o: ..\src\core\other\qsettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\other\qsettings.cpp
 
-qhash.o: ..\src\tools\qhash.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qhash.cpp
+qsettings_win.o: ..\src\core\other\qsettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\other\qsettings_win.cpp
 
-qsettings.o: ..\src\tools\qsettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings.cpp
+qfileinfo_win.o: ..\src\core\io\qfileinfo_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo_win.cpp
 
-qsettings_win.o: ..\src\tools\qsettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qsettings_win.cpp
+qdir_win.o: ..\src\core\io\qdir_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir_win.cpp
 
-qfileinfo_win.o: ..\src\tools\qfileinfo_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qfileinfo_win.cpp
+qfileinfo.o: ..\src\core\io\qfileinfo.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo.cpp
 
-qdir_win.o: ..\src\tools\qdir_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qdir_win.cpp
+qdatetime.o: ..\src\core\tools\qdatetime.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qdatetime.cpp
 
-qfileinfo.o: ..\src\tools\qfileinfo.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qfileinfo.cpp
+qstringlist.o: ..\src\core\tools\qstringlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qstringlist.cpp
 
-qdatetime.o: ..\src\tools\qdatetime.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qdatetime.cpp
+qmap.o: ..\src\core\tools\qmap.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qmap.cpp
 
-qstringlist.o: ..\src\tools\qstringlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qstringlist.cpp
-
-qmap.o: ..\src\tools\qmap.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qmap.cpp
-
-qunicodetables.o: ..\src\tools\qunicodetables.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qunicodetables.cpp
+qunicodetables.o: ..\src\core\tools\qunicodetables.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qunicodetables.cpp
 
 makefile.o: generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp
@@ -189,14 +203,14 @@ project.o: project.cpp project.h option.h
 meta.o: meta.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) meta.cpp
 
-property.o: property.cpp property.h option.h
-	$(CXX) $(CXXFLAGS) property.cpp
-	
 main.o: main.cpp project.h
 	$(CXX) $(CXXFLAGS) main.cpp
 
 option.o: option.cpp option.h
 	$(CXX) $(CXXFLAGS) option.cpp
+
+property.o: property.cpp project.h option.h
+	$(CXX) $(CXXFLAGS) property.cpp
 
 projectgenerator.o: generators/projectgenerator.cpp
 	$(CXX) $(CXXFLAGS) generators/projectgenerator.cpp
@@ -207,14 +221,5 @@ metrowerks_xml.o: generators/mac/metrowerks_xml.cpp
 pbuilder_pbx.o: generators/mac/pbuilder_pbx.cpp
 	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
 
-qlist.o: ..\src\tools\qlist.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qlist.cpp
-
-qvector.o: ..\src\tools\qvector.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qvector.cpp
-
-qbytearray.o: ..\src\tools\qbytearray.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qbytearray.cpp
-
-qchar.o: ..\src\tools\qchar.cpp
-	$(CXX) $(CXXFLAGS) ..\src\tools\qchar.cpp
+makefiledeps.o: generators/makefiledeps.cpp
+	$(CXX) $(CXXFLAGS) generators/makefiledeps.cpp
