@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#8 $
 **
-** Implementation of QPicture class for Windows
+** Implementation of QPicture class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940802
@@ -11,9 +11,16 @@
 *****************************************************************************/
 
 #include "qpicture.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#7 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#8 $")
 
 
 QPicture::QPicture()

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#15 $
 **
-** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
+** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940630
@@ -16,9 +16,16 @@
 #include "qfontinf.h"
 #include "qwidget.h"
 #include "qpainter.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#14 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#15 $")
 
 
 QFont *QFont::defFont = 0;			// default font

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#38 $
 **
-** Implementation of QPainter class for Windows
+** Implementation of QPainter class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940112
@@ -18,9 +18,16 @@
 #include "qlist.h"
 #include "qintdict.h"
 #include <math.h>
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#37 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#38 $")
 
 
 /*****************************************************************************
@@ -1695,33 +1702,33 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 }
 
 
-void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
+void QPainter::drawBezier( const QPointArray &a, int index )
 {
-    if ( npoints < 0 )
-	npoints = a.size() - index;
-    if ( index + npoints > (int)a.size() )
-	npoints = a.size() - index;
-    if ( !isActive() || npoints < 2 || index < 0 )
-	return;
-    QPointArray pa = a;
-    if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    QPointArray tmp;
-	    if ( npoints != (int)a.size() ) {
-		pa.resize( npoints );
-		for ( int i=0; i<npoints; i++ )
-		    pa.setPoint( i, a.point(index+i) );
-		index = 0;
-	    }
-	    QPDevCmdParam param[1];
-	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
-		return;
-	}
-	if ( txop != TxNone )
-	    pa = xForm( a );
+    if ( !isActive() )
+        return;
+    if ( (int)a.size() - index < 4 ) {
+#if defined(CHECK_RANGE)
+        warning( "QPainter::drawBezier: Cubic Bezier needs 4 control points" );
+#endif
+        return;
     }
-    PolyBezier( hdc, (POINT*)(pa.data()+index), npoints );
+    QPointArray pa( a );
+    if ( index != 0 || a.size() > 4 ) {
+        pa = QPointArray( 4 );
+        for ( int i=0; i<4; i++ )
+            pa.setPoint( i, a.point(index+i) );
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+        if ( testf(ExtDev) ) {
+            QPDevCmdParam param[1];
+            param[0].ptarr = (QPointArray*)&pa;
+            if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
+                return;
+        }
+        if ( txop != TxNone )
+            pa = xForm( pa );
+    }
+    PolyBezier( hdc, (POINT*)(pa.data()+index), 4 );
 }
 
 
@@ -1761,7 +1768,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( tmp_dc )
 	pm->allocMemDC();
     if ( mask ) {
-	bool isNT = FALSE;
+	bool isNT = TRUE;
 	if ( isNT ) {
 	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
 		     sx, sy, 0xccaa0000 );

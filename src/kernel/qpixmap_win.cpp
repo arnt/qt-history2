@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#28 $
 **
-** Implementation of QPixmap class for Windows
+** Implementation of QPixmap class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940501
@@ -15,9 +15,16 @@
 #include "qpaintdc.h"
 #include "qwmatrix.h"
 #include "qapp.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#27 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#28 $")
 
 
 bool QPixmap::optimAll = TRUE;

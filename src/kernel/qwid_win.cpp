@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#32 $
 **
-** Implementation of QWidget and QWindow classes for Windows
+** Implementation of QWidget and QWindow classes for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 931205
@@ -17,9 +17,16 @@
 #include "qpixmap.h"
 #include "qwidcoll.h"
 #include "qobjcoll.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#31 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#32 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp

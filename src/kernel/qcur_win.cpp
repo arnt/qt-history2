@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#14 $
 **
-** Implementation of QCursor class for Windows
+** Implementation of QCursor class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940219
@@ -15,9 +15,16 @@
 #include "qapp.h"
 #include "qimage.h"
 #include "qdstream.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#13 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#14 $")
 
 
 /*****************************************************************************

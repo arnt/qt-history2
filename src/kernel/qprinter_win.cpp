@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#10 $
 **
-** Implementation of QPrinter class for Windows
+** Implementation of QPrinter class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 950810
@@ -15,9 +15,16 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qwidget.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#9 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#10 $")
 
 
 // QPrinter states

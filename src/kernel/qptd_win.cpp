@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#17 $
 **
-** Implementation of QPaintDevice class for Windows
+** Implementation of QPaintDevice class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940801
@@ -15,9 +15,16 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapp.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#16 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#17 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )

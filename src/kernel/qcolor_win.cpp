@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#19 $
 **
-** Implementation of QColor class for Windows
+** Implementation of QColor class for Win32
 **
 ** Author  : Haavard Nord
 ** Created : 940112
@@ -12,9 +12,16 @@
 
 #include "qcolor.h"
 #include "qapp.h"
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#18 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#19 $")
 
 
 /*****************************************************************************

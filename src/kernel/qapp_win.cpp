@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#35 $
 **
-** Implementation of Windows startup routines and event handling
+** Implementation of Win32 startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931203
@@ -16,9 +16,16 @@
 #include "qpainter.h"
 #include "qpmcache.h"
 #include <ctype.h>
-#include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#34 $")
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#35 $")
 
 
 /*****************************************************************************
@@ -59,6 +66,8 @@ static void	initTimers();
 static void	cleanupTimers();
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
+
+static bool	qt_try_modal( QWidget *, MSG * );
 
 static int	translateKeyCode( int );
 
@@ -715,7 +724,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 
     if ( app_do_modal )				// modal event handling
 	if ( !qt_try_modal(widget, &msg) )
-	    continue;
+	    return 0;
 
     if ( widget->winEvent(&msg) )		// send through widget filter
 	return 0;
