@@ -932,6 +932,7 @@ void QTextView::contentsWheelEvent( QWheelEvent *e )
 void QTextView::contentsMousePressEvent( QMouseEvent *e )
 {
     clearUndoRedo();
+    QTextCursor oldCursor = *cursor;
     QTextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = FALSE;
@@ -1023,7 +1024,9 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
     }
-    updateCurrentFormat();
+
+    if ( *cursor != oldCursor )
+	updateCurrentFormat();
 }
 
 /*! \reimp */
@@ -1080,6 +1083,7 @@ void QTextView::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 {
+    QTextCursor oldCursor = *cursor;
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
 #ifndef QT_NO_DRAGANDDROP
@@ -1104,7 +1108,8 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 	}
     }
     emitCursorPositionChanged( cursor );
-    updateCurrentFormat();
+    if ( oldCursor != *cursor )
+	updateCurrentFormat();
     inDoubleClick = FALSE;
 
 #ifndef QT_NO_NETWORKPROTOCOL

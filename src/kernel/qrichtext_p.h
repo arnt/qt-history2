@@ -251,6 +251,7 @@ public:
     QTextCursor( const QTextCursor &c );
     QTextCursor &operator=( const QTextCursor &c );
     bool operator==( const QTextCursor &c ) const;
+    bool operator!=( QTextCursor &c ) const { return !(*this == c); }
 
     QTextDocument *document() const { return doc; }
     void setDocument( QTextDocument *d );
