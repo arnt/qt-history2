@@ -104,6 +104,7 @@ static bool servermaxrect=FALSE; // set to TRUE once.
 
 
 extern QApplication::Type qt_appType;
+extern void qwsUpdateActivePainters();
 
 //these used to be environment variables, they are initialized from
 //environment variables in
@@ -2811,7 +2812,7 @@ void QETWidget::updateRegion()
 
     setChildrenAllocatedDirty();
     paintable_region_dirty = TRUE;
-    updateActivePainter();
+    qwsUpdateActivePainters();
 }
 
 bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *event )
@@ -2881,7 +2882,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 		event->rectangles[i].width(),
 		event->rectangles[i].height() );
 */
-	updateActivePainter();
+	qwsUpdateActivePainters();
 	repaintDecoration( exposed, FALSE );
 
 #ifndef QT_NO_QWS_MANAGER

@@ -25,7 +25,6 @@
 #include "qlayout.h"
 #include "qtextcodec.h"
 #include "qcursor.h"
-#include "qptrdict.h"
 #include "qinputcontext_p.h"
 
 #include "qwsdisplay_qws.h"
@@ -56,6 +55,8 @@ extern QWidget *qt_pressGrab;
 extern QWidget *qt_mouseGrb;
 
 extern QRect qt_maxWindowRect;
+
+extern void qwsUpdateActivePainters();
 
 static QWidget *keyboardGrb = 0;
 
@@ -1051,24 +1052,24 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    if ( !oldr.isEmpty() )
 			QApplication::postEvent( p, new QPaintEvent(oldr, TRUE) );
 		    p->setChildrenAllocatedDirty( dirtyChildren, this );
-		    updateActivePainter();
+		    qwsUpdateActivePainters();
 		    paint_children( p, paintRegion, isResize );
 		}
 		p->overlapping_children = -1;
 	    } else {
 		if ( oldp != r.topLeft() ) {
-		    updateActivePainter();
+		    qwsUpdateActivePainters();
 		    paint_hierarchy( this, TRUE );
 		} else {
 		    setChildrenAllocatedDirty( dirtyChildren );
-		    updateActivePainter();
+		    qwsUpdateActivePainters();
 		    QApplication::postEvent( this, new QPaintEvent(rect(),
 			!testWFlags(QWidget::WResizeNoErase)) );
 		    paint_children( this, dirtyChildren, TRUE );
 		}
 	    }
 	} else {
-	    updateActivePainter();
+	    qwsUpdateActivePainters();
 	}
 #ifndef QT_NO_QWS_MANAGER
 	if (isResize && d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
@@ -1548,50 +1549,6 @@ QRegion QWidget::paintableRegion() const
     }
 
     return QRegion();
-}
-
-static QPtrDict<QPainter> *painterDict = 0;
-
-void QWidget::setActivePainter( QPainter *painter ) const
-{
-    if ( !painterDict )
-	painterDict = new QPtrDict<QPainter>;
-    painterDict->insert( (void *)this, painter );
-}
-
-void QWidget::clearActivePainter() const
-{
-    if ( painterDict )
-	painterDict->remove( (void *)this );
-}
-
-class QWSUpdatePainter : public QPainter
-{
-    public:
-	void setGfx( QGfx *g ) {
-	    gfx = g;
-	}
-};
-
-void QWidget::updateActivePainter() const
-{
-    if ( painterDict && painterDict->count() ) {
-        QObjectList childObjects = children();
-	for (int i = 0; i < childObjects.size(); ++i) {
-	    QObject *ch = childObjects.at(i);
-	    if ( ch->isWidgetType() ) {
-	        QWidget *w = static_cast<QWidget *>(ch);
-		w->updateActivePainter();
-	    }
-	}
-
-	QPainter *painter = painterDict->find( (void *)this );
-	if ( painter ) {
-	    painter->save();
-	    ((QWSUpdatePainter *)painter)->setGfx( graphicsContext() );
-	    painter->restore();
-	}
-    }
 }
 
 void QWidget::setMask( const QRegion& region )

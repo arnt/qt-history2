@@ -382,6 +382,7 @@ protected:
 #elif defined(Q_WS_QWS)
     friend class QFontEngine;
     QGfx * gfx;
+    friend void qwsUpdateActivePainters();
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;

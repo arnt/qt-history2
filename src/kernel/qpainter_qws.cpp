@@ -69,6 +69,23 @@ public:
     QPoint curPt;
 };
 
+static QList<QPainter> *widgetPainterList = 0;
+
+void qwsUpdateActivePainters()
+{
+    if ( widgetPainterList ) {
+	QPainter *ptr = widgetPainterList->first();
+	while ( ptr ) {
+	    ptr->save();
+	    delete ptr->gfx;
+	    ptr->gfx = ptr->device()->graphicsContext();
+	    ptr->setf( QPainter::VolatileDC );
+	    ptr->restore();
+	    ptr = widgetPainterList->next();
+	}
+    }
+}
+
 
 /*****************************************************************************
   Trigonometric function for QPainter
@@ -170,6 +187,8 @@ void QPainter::destroy()
 
 void QPainter::init()
 {
+    if ( !widgetPainterList )
+	widgetPainterList = new QList<QPainter>;
     d = new QPainterPrivate;
     flags = IsStartingUp;
     bg_col = white;				// default background color
@@ -439,7 +458,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    if ( !testf(ExtDev) )
 		gfx->setWidgetRegion( QRect(w->mapToGlobal(QPoint(0,0)), w->size()) );
 	}
-	w->setActivePainter( this );
+	widgetPainterList->prepend( this );
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
@@ -508,10 +527,8 @@ bool QPainter::end()				// end painting
     if ( paintEventSaveRegion )
 	*paintEventSaveRegion = QRegion();
 
-    if ( pdev->devType() == QInternal::Widget ) {
-	QWidget *w = (QWidget*)pdev;
-	w->clearActivePainter();
-    }
+    if ( pdev->devType() == QInternal::Widget )
+	widgetPainterList->removeRef( this );
 
     delete gfx;
     gfx = 0;
