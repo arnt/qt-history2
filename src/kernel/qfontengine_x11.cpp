@@ -24,6 +24,7 @@
 
 #ifdef Q_Q4PAINTER
 #include "qx11gc.h"
+#include "qx11gc_p.h"
 #include "q4painter_p.h"
 #define QPaintDevice QX11GC
 #endif
