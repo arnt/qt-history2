@@ -1154,7 +1154,7 @@ Q_CORE_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
 #  ifndef QT_NO_DEBUG
-#    define Q_ASSERT(cond) {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);}
+#    define Q_ASSERT(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
 #  else
 #    define Q_ASSERT(cond)
 #  endif
@@ -1164,7 +1164,7 @@ Q_CORE_EXPORT void qt_assert_x(const char *where, const char *what, const char *
 
 #if !defined(Q_ASSERT_X)
 #  ifndef QT_NO_DEBUG
-#    define Q_ASSERT_X(cond, where, what) {if(!(cond))qt_assert_x(where, what,__FILE__,__LINE__);}
+#    define Q_ASSERT_X(cond, where, what) do {if(!(cond))qt_assert_x(where, what,__FILE__,__LINE__);} while (0)
 #  else
 #    define Q_ASSERT_X(cond, where, what)
 #  endif
@@ -1173,7 +1173,7 @@ Q_CORE_EXPORT void qt_assert_x(const char *where, const char *what, const char *
 Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 
 #ifndef QT_NO_DEBUG
-#  define Q_CHECK_PTR(p) {if(!(p))qt_check_pointer(__FILE__,__LINE__);}
+#  define Q_CHECK_PTR(p) do {if(!(p))qt_check_pointer(__FILE__,__LINE__);} while (0)
 #else
 #  define Q_CHECK_PTR(p)
 #endif

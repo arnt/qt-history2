@@ -602,7 +602,7 @@ QKeySequence::operator int () const
  */
 int QKeySequence::operator[](uint index) const
 {
-    Q_ASSERT_X(index < 4, "QKeySequence::operator[]", "index out of range")
+    Q_ASSERT_X(index < 4, "QKeySequence::operator[]", "index out of range");
     return d->key[index];
 }
 

@@ -19,15 +19,15 @@ public:
 
 template<class T>
 inline T QStack<T>::pop()
-{ Q_ASSERT(!this->isEmpty()) T t = this->data()[this->size() -1];
+{ Q_ASSERT(!this->isEmpty()); T t = this->data()[this->size() -1];
   this->resize(this->size()-1); return t; }
 
 template<class T>
 inline T &QStack<T>::top()
-{ Q_ASSERT(!this->isEmpty()) this->detach(); return this->data()[this->size()-1]; }
+{ Q_ASSERT(!this->isEmpty()); this->detach(); return this->data()[this->size()-1]; }
 
 template<class T>
 inline const T &QStack<T>::top() const
-{ Q_ASSERT(!this->isEmpty()) return this->data()[this->size()-1]; }
+{ Q_ASSERT(!this->isEmpty()); return this->data()[this->size()-1]; }
 
 #endif // QSTACK_H

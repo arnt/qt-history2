@@ -101,7 +101,7 @@ void QAbstractItemViewPrivate::init()
 QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
-    Q_ASSERT(model)
+    Q_ASSERT(model);
     d->model = model;
     d->init();
 }
@@ -109,7 +109,7 @@ QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
 QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QViewport(dd, parent)
 {
-    Q_ASSERT(model)
+    Q_ASSERT(model);
     d->model = model;
     d->init();
 }
@@ -410,7 +410,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
         return;
     }
     e->accept();
-    
+
     if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
 }
@@ -823,7 +823,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 
     if (old.isValid())
         d->viewport->repaint(itemViewportRect(old));
-        
+
     if (current.isValid())
         ensureItemVisible(current);
 
@@ -910,7 +910,7 @@ void QAbstractItemView::doAutoScroll()
     int margin = d->autoScrollMargin;
     int verticalValue = verticalScrollBar()->value();
     int horizontalValue = horizontalScrollBar()->value();
-    
+
     QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
     QRect area = d->viewport->clipRegion().boundingRect();
 
@@ -920,13 +920,13 @@ void QAbstractItemView::doAutoScroll()
     else if (area.bottom() - pos.y() < margin)
         delta = d->autoScrollCount;
     verticalScrollBar()->setValue(verticalValue + delta);
-    
+
     if (pos.x() - area.left() < margin)
         delta = -d->autoScrollCount;
     else if (area.right() - pos.x() < margin)
         delta = d->autoScrollCount;
     horizontalScrollBar()->setValue(horizontalValue + delta);
-    
+
     if (verticalValue == verticalScrollBar()->value()
         && horizontalValue == horizontalScrollBar()->value()
         || state() != Dragging)

@@ -6872,7 +6872,7 @@ typedef QMap<QSettingsKey, QCoreVariant> KeyMap;
 static QString nameAttr(const QDomElement &elt)
 {
     QString name = elt.attribute(QLatin1String("name"));
-    Q_ASSERT(!name.isEmpty())
+    Q_ASSERT(!name.isEmpty());
     return name;
 }
 
