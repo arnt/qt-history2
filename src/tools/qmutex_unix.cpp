@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** QMutex class for Unix
 **
@@ -43,7 +43,7 @@ typedef pthread_mutex_t     Q_MUTEX_T;
 
 // POSIX threads mutex types
 #if ((defined(PTHREAD_MUTEX_RECURSIVE) && defined(PTHREAD_MUTEX_DEFAULT)) || \
-     defined(Q_OS_FREEBSD)) && !defined(Q_OS_UNIXWARE7) && !defined(Q_OS_SOLARIS)
+     defined(Q_OS_FREEBSD)) && !defined(Q_OS_UNIXWARE) && !defined(Q_OS_SOLARIS)
     // POSIX 1003.1c-1995 - We love this OS
 #  define Q_MUTEX_SET_TYPE(a, b) pthread_mutexattr_settype((a), (b))
 #  if defined(QT_CHECK_RANGE)

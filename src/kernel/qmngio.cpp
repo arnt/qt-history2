@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of MNG QImage IOHandler
 **
 ** Created : 970521
 **
-** Copyright (C) 1997-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1997-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -52,7 +52,7 @@
 // This is needed for Borland with STL support, since in that case, INT32 is
 // already defined by some Borland header.
 #define XMD_H
-#if defined(Q_OS_UNIXWARE7)
+#if defined(Q_OS_UNIXWARE)
 #  define HAVE_BOOLEAN  // libjpeg under Unixware seems to need this
 #  define HAVE_PROTOTYPES
 #endif

@@ -1217,10 +1217,10 @@ if [ -z "$PLATFORM" ]; then
 	PLATFORM=cygwin-g++
 	;;
      OpenUNIX:*)
-	#PLATFORM=openunix-g++
-        PLATFORM=openunix-cc
+	#PLATFORM=unixware7-g++
+        PLATFORM=unixware7-cc
 	PLATFORM_NOTES="
-	    - Also available for OpenUNIX: openunix-g++
+	    - Also available for OpenUNIX: unixware7-g++
 	"
         ;;
      UnixWare:*)
