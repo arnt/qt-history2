@@ -1,6 +1,6 @@
 DEFINES += QDOC2_COMPAT
 QT = core
-CONFIG += console release
+CONFIG += console 
 CONFIG -= resource_fork
 HEADERS += apigenerator.h \
            archiveextractor.h \
