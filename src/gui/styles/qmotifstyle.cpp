@@ -1265,7 +1265,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                   handle = subControlRect(CC_Slider, opt, SC_SliderHandle, widget);
 
             if ((opt->subControls & SC_SliderGroove) && groove.isValid()) {
-                qDrawShadePanel(p, groove, opt->palette, true, 2,
+                qDrawShadePanel(p, groove, opt->palette, true, pixelMetric(PM_DefaultFrameWidth),
                                 &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
                 if ((opt->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOption focusOpt = *opt;
@@ -1510,7 +1510,7 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         break;
 
     case PM_SliderThickness:
-        ret = 24;
+        ret = 16 + 4 * pixelMetric(PM_DefaultFrameWidth);
         break;
 
     case PM_SliderControlThickness:
@@ -1617,7 +1617,7 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                 int thickness = pixelMetric(PM_SliderControlThickness, opt, widget);
                 bool horizontal = slider->orientation == Qt::Horizontal;
                 int len = pixelMetric(PM_SliderLength, opt, widget);
-                int motifBorder = 3;
+                int motifBorder = pixelMetric(PM_DefaultFrameWidth);
                 int sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
                                                         horizontal ? slider->rect.width() - len - 2 * motifBorder
                                                         : slider->rect.height() - len - 2 * motifBorder,
