@@ -16,6 +16,7 @@ class QLayout;
 class QDomElement;
 class QListViewItem;
 class QTable;
+class QAction;
 
 class QWidgetFactory
 {
@@ -46,6 +47,7 @@ private:
     void createColumn( const QDomElement &e, QWidget *widget );
     void loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap );
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
+    void loadActions( const QDomElement &e );
 
 private:
     struct Image {
@@ -74,6 +76,7 @@ private:
     QString defConnection, defTable;
     QMap<QString, QString> buddies;
     QMap<QTable*, QValueList<Field> > fieldMaps;
+    QList<QAction> actionList;
 
 };
 

@@ -52,6 +52,7 @@
 #include <qdatetimeedit.h>
 #include <qsqltable.h>
 #include <qsplitter.h>
+#include <qaction.h>
 
 static QList<QWidgetFactory> widgetFactories;
 
@@ -144,6 +145,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     while ( tabOrder.tagName() != "tabstops" && !tabOrder.isNull() )
 	tabOrder = tabOrder.nextSibling().toElement();
 
+    QDomElement actions = firstWidget;
+    while ( actions.tagName() != "actions" && !actions.isNull() )
+	actions = actions.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
@@ -153,6 +158,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	delete widgetFactory;
 	return 0;
     }
+
+    if ( !actions.isNull() )
+	widgetFactory->loadActions( actions );
+
     if ( w && name && qstrlen( name ) > 0 )
 	w->setName( name );
 
@@ -1197,5 +1206,24 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 	    item->setPixmap( i, pixmaps[ i ] );
 	}
 	lastItem = item;
+    }
+}
+
+void QWidgetFactory::loadActions( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QAction *a = 0;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "action" ) {
+	    a = new QAction( toplevel );
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "property" )
+		    setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+		n2 = n2.nextSibling().toElement();
+	    }
+	    actionList.append( a );
+	}
+	n = n.nextSibling().toElement();
     }
 }
