@@ -74,15 +74,15 @@ public:
     QPrinterPaintEngine(QPrinter *pm, QPaintEngine *engine) : QWrapperPaintEngine(engine), print(pm) { }
 
     virtual Qt::HANDLE handle() const { return print->aborted() ? 0 : QWrapperPaintEngine::handle(); }
-    virtual bool begin(const QPaintDevice *pdev, bool unclipped);
+    virtual bool begin(const QPaintDevice *pdev);
     virtual bool end();
 };
 bool
-QPrinterPaintEngine::begin(const QPaintDevice *pdev, bool unclipped)
+QPrinterPaintEngine::begin(const QPaintDevice *pdev)
 {
     if(!print->printerBegin())
         return false;
-    return QWrapperPaintEngine::begin(const_cast<QPaintDevice *>(pdev), unclipped);
+    return QWrapperPaintEngine::begin(const_cast<QPaintDevice *>(pdev));
 }
 bool
 QPrinterPaintEngine::end()

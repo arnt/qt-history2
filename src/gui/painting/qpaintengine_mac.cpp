@@ -136,6 +136,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
     d->clip.dirty = false;
     d->offx = d->offy = 0;
 
+    bool unclipped = false;
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
         { //offset painting in widget relative the tld
