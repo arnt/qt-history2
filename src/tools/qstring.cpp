@@ -12640,7 +12640,8 @@ int QLigature::match(QString & str, unsigned int index)
     while ((i < str.length()) && (ch = decomposition_map[lig])) {
 	if (str[(int)i] != QChar(ch))
 	    return 0;
-	i++; lig++;
+	i++;
+	lig++;
     }
 
     if (!decomposition_map[lig])
@@ -13863,10 +13864,10 @@ int QString::find( QChar c, int index, bool cs ) const
 int QString::find( const QString& str, int index, bool cs ) const
 {
     /*
-      We use some weird hashing for efficiency's sake.  Instead of
-      comparing strings, we compare the hash value of str with that of
-      a part of this QString.  Only if that matches, we call ucstrncmp
-      or ucstrnicmp.
+      We use some simple hashing for efficiency's sake. Instead of
+      comparing strings, we compare the hash value of str with that
+      of a part of this QString. Only if that matches, we call
+      ucstrncmp() or ucstrnicmp().
 
       The hash value of a string is the sum of the cells of its
       QChars.
@@ -13892,7 +13893,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    hstr += ustr[i].cell();
 	}
 	i = 0;
-	for (;;) {
+	for ( ;; ) {
 	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
 		return index + i;
 	    if ( i == delta )
@@ -13907,7 +13908,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 	    hstr += ustr[i].lower().cell();
 	}
 	i = 0;
-	for (;;) {
+	for ( ;; ) {
 	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
 		return index + i;
 	    if ( i == delta )
@@ -14836,8 +14837,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     uint olen = length();
     int nlen = olen + len;
 
-    int df = s - d->unicode; // ### pointer subtraction, cast down to int
-    if ( df >= 0 && (uint)df < d->maxl ) {
+    if ( s >= d->unicode && (uint)(s - d->unicode) < d->maxl ) {
 	// Part of me - take a copy.
 	QChar *tmp = QT_ALLOC_QCHAR_VEC( len );
 	memcpy(tmp,s,len*sizeof(QChar));
@@ -14950,6 +14950,80 @@ QString &QString::remove( uint index, uint len )
     return *this;
 }
 
+/*! \overload
+
+    Removes every occurrence of the character \a c in the string.
+    Returns a reference to the string.
+
+    This is the same as replace(\a c, "").
+*/
+QString &QString::remove( QChar c )
+{
+    int i = 0;
+    while ( i < (int) length() ) {
+	if ( constref(i) == c ) {
+	    remove( i, 1 );
+	} else {
+	    i++;
+	}
+    }
+    return *this;
+}
+
+/*! \overload
+
+    \fn QString &QString::remove( char c )
+
+    Removes every occurrence of the character \a c in the string.
+    Returns a reference to the string.
+
+    This is the same as replace(\a c, "").
+*/
+
+/*! \overload
+
+    Removes every occurrence of \a str in the string. Returns a
+    reference to the string.
+
+    This is the same as replace(\a str, "").
+*/
+QString &QString::remove( const QString & str )
+{
+    int index = 0;
+    if ( !str.isEmpty() ) {
+	while ( (index = find(str, index)) != -1 )
+	    remove( index, str.length() );
+    }
+    return *this;
+}
+
+#ifndef QT_NO_REGEXP
+
+/*! \overload
+
+    Removes every occurrence of the regular expression \a rx in the
+    string. Returns a reference to the string.
+
+    This is the same as replace(\a rx, "").
+*/
+
+QString &QString::remove( const QRegExp & rx )
+{
+    return replace( rx, QString::null );
+}
+
+#endif
+
+/*! \overload
+
+    Removes every occurrence of \a str in the string. Returns a
+    reference to the string.
+*/
+QString &QString::remove( const char *str )
+{
+    return remove( QString::fromLatin1(str) );
+}
+
 /*!
   Replaces \a len characters starting at position \a index from the
   string with \a s, and returns a reference to the string.
@@ -14980,8 +15054,6 @@ QString &QString::replace( uint index, uint len, const QString &s )
   Replaces \a len characters starting at position \a index by
   \a slen characters of QChar data from \a s, and returns a
   reference to the string.
-
-  \sa insert(), remove()
 */
 
 QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
@@ -14989,10 +15061,9 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     if ( len == slen && index + len <= length() ) {
 	// Optimized common case: replace without size change
 	real_detach();
-	memcpy( d->unicode+index, s, len*sizeof(QChar) );
+	memcpy( d->unicode+index, s, len * sizeof(QChar) );
     } else {
-	int df = s - d->unicode; // ### pointer subtraction, cast down to int
-	if ( df >= 0 && (uint)df < d->maxl ) {
+	if ( s >= d->unicode && (uint)(s - d->unicode) < d->maxl ) {
 	    // Part of me - take a copy.
 	    QChar *tmp = QT_ALLOC_QCHAR_VEC( slen );
 	    memcpy(tmp,s,slen*sizeof(QChar));
@@ -15006,6 +15077,120 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     }
     return *this;
 }
+
+/*! \overload
+
+    Replaces every occurrence of the character \a c in the string
+    with \a after. Returns a reference to the string.
+
+    Example:
+    \code
+    QString s = "a,b,c";
+    s.replace( QChar(','), " or " );
+    // s == "a or b or c"
+    \endcode
+*/
+QString &QString::replace( QChar c, const QString & after )
+{
+    int i = 0;
+    while ( i < (int) length() ) {
+	if ( constref(i) == c ) {
+	    replace( i, 1, after );
+	    i += after.length();
+	} else {
+	    i++;
+	}
+    }
+    return *this;
+}
+
+/*! \overload
+    \fn QString &QString::replace( char c, const QString & after )
+*/
+
+/*! \overload
+
+    Replaces every occurrence of the string \a before in the string
+    with the string \a after. Returns a reference to the string.
+
+    Example:
+    \code
+    QString s = "Greek is Greek";
+    s.replace( "Greek", "English" );
+    // s == "English is English"
+    \endcode
+*/
+QString &QString::replace( const QString & before, const QString & after )
+{
+    int index = 0;
+    while ( (index = find(before, index)) != -1 ) {
+	replace( index, before.length(), after );
+	index += after.length();
+
+	// avoid infinite loop
+	if ( before.length() == 0 )
+	    index++;
+    }
+    return *this;
+}
+
+#ifndef QT_NO_REGEXP
+/*! \overload
+
+  Replaces every occurrence of the regexp \a rx in the string with \a str.
+  Returns a reference to the string. For example:
+  \code
+    QString s = "banana";
+    s.replace( QRegExp("an"), "" );
+    // s == "ba"
+  \endcode
+
+  For regexps containing \link qregexp.html#capturing-text capturing
+  parentheses \endlink, occurrences of <b>\\1</b>, <b>\\2</b>, ...,
+  in \a str are replaced with \a{rx}.cap(1), cap(2), ...
+
+  \code
+    QString t = "A <i>bon mot</i>.";
+    t.replace( QRegExp("<i>([^<]*)</i>"), "\\emph{\\1}" );
+    // t == "A \\emph{bon mot}."
+  \endcode
+
+  \sa find(), findRev(), QRegExp::cap()
+*/
+
+QString &QString::replace( const QRegExp &rx, const QString &str )
+{
+    QRegExp rx2 = rx;
+    QString str2 = str;
+    int index = 0;
+    int lastCap = rx2.capturedTexts().count() - 1;
+
+    while ( index <= (int)length() ) {
+	index = rx2.search( *this, index );
+	if ( index == -1 )
+	    break;
+
+	if ( lastCap > 0 ) {
+	    str2 = str;
+	    for ( int j = (int) str2.length() - 2; j >= 0; j-- ) {
+		if ( str2[j] == '\\' ) {
+		    int no = str2[j + 1].digitValue();
+		    if ( no > 0 && no <= lastCap )
+			str2.replace( j, 2, rx2.cap(no) );
+		}
+	    }
+	}
+
+	replace( index, rx2.matchedLength(), str2 );
+	index += str2.length();
+
+	// avoid infinite loop on 0-length matches (e.g., [a-z]*)
+	if ( rx2.matchedLength() == 0 )
+	    index++;
+    }
+    return *this;
+}
+#endif
 
 #ifndef QT_NO_REGEXP
 /*!
@@ -15084,61 +15269,6 @@ int QString::contains( const QRegExp &rx ) const
     return count;
 }
 
-/*! \overload
-
-  Replaces every occurrence of the regexp \a rx in the string with \a str.
-  Returns a reference to the string. For example:
-  \code
-    QString t = "banana";
-    t.replace( QRegExp("an"), "" );
-    // t == "ba"
-  \endcode
-
-  For regexps containing \link qregexp.html#capturing-text capturing
-  parentheses \endlink, occurrences of <b>\\1</b>, <b>\\2</b>, ...,
-  in \a str are replaced with \a{rx}.cap(1), cap(2), ...
-
-  \code
-    QString t = "A <i>bon mot</i>.";
-    t.replace( QRegExp("<i>([^<]*)</i>"), "\\emph{\\1}" );
-    // t == "A \\emph{bon mot}."
-  \endcode
-
-  \sa find(), findRev(), QRegExp::cap()
-*/
-
-QString &QString::replace( const QRegExp &rx, const QString &str )
-{
-    QRegExp rx2 = rx;
-    QString str2 = str;
-    int index = 0;
-    int lastCap = rx2.capturedTexts().count() - 1;
-
-    while ( index < (int)length() ) {
-	index = rx2.search( *this, index );
-	if ( index == -1 )
-	    break;
-
-	if ( lastCap > 0 ) {
-	    str2 = str;
-	    for ( int j = (int) str2.length() - 2; j >= 0; j-- ) {
-		if ( str2[j] == '\\' ) {
-		    int no = str2[j + 1].digitValue();
-		    if ( no > 0 && no <= lastCap )
-			str2.replace( j, 2, rx2.cap(no) );
-		}
-	    }
-	}
-
-	replace( index, rx2.matchedLength(), str2 );
-	index += str2.length();
-
-	// avoid infinite loop on 0-length matches (e.g., [a-z]*)
-	if ( rx2.matchedLength() == 0 )
-	    index++;
-    }
-    return *this;
-}
 #endif //QT_NO_REGEXP
 
 static bool ok_in_base( QChar c, int base )

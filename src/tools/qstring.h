@@ -493,8 +493,21 @@ public:
     QString    &prepend( QChar );
     QString    &prepend( const QString & );
     QString    &remove( uint index, uint len );
+    QString    &remove( QChar c );
+    QString    &remove( char c ) { return remove( QChar(c) ); }
+    QString    &remove( const QString & );
+#ifndef QT_NO_REGEXP
+    QString    &remove( const QRegExp & );
+#endif
+#ifndef QT_NO_CAST_ASCII
+    QString    &remove( const char * );
+#endif
     QString    &replace( uint index, uint len, const QString & );
     QString    &replace( uint index, uint len, const QChar*, uint clen );
+    QString    &replace( QChar c, const QString & );
+    QString    &replace( char c, const QString & after )
+    { return replace( QChar(c), after ); }
+    QString    &replace( const QString &, const QString & );
 #ifndef QT_NO_REGEXP
     QString    &replace( const QRegExp &, const QString & );
 #endif
@@ -590,17 +603,6 @@ public:
     bool isRightToLeft() const;
 
 private:
-    /*
-      In Qt 1.0 and 2.0, users could write
-      str.replace(QString("foo"), QString("bar")) and "foo" was
-      automatically converted into a regexp.
-
-      In Qt 3.0, this gives a compiler error. Users have to write
-      QRegExp("foo"). In Qt 3.1 or 4.0, we will move replace() to the
-      public API.
-    */
-    QString& replace( const QString &, const QString & ) { return *this; }
-
     QString( int size, bool /* dummy */ );	// allocate size incl. \0
 
     void deref();
@@ -806,7 +808,6 @@ inline int QString::find( char c, int index, bool cs ) const
 
 inline int QString::findRev( char c, int index, bool cs) const
 { return findRev( QChar(c), index, cs ); }
-
 
 #ifndef QT_NO_CAST_ASCII
 inline int QString::find( const char* str, int index ) const
