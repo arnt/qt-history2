@@ -1221,6 +1221,15 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     motion++;
 
+    if ( parentMenu && parentMenu->isPopupMenu ) {
+	QPopupMenu* p = (QPopupMenu*)parentMenu;
+	int myIndex;
+
+	p->findPopup( this, &myIndex );
+	if ( p->actItem != myIndex )
+	    p->setActiveItem( myIndex );
+    }
+
     if ( (e->state() & Qt::MouseButtonMask) == 0 &&
 	 !hasMouseTracking() )
 	return;
