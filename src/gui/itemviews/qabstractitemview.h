@@ -1,11 +1,13 @@
 #ifndef QABSTRACTITEMVIEW_H
 #define QABSTRACTITEMVIEW_H
 
+#ifndef QT_H
 #include <qscrollview.h>
 #include <qgenericitemmodel.h>
 #include <qitemselectionmodel.h>
 #include <qitemdelegate.h>
 #include <qdragobject.h>
+#endif
 
 class QAbstractItemViewPrivate;
 
@@ -24,17 +26,17 @@ public:
 
 //     virtual void sort(int column, SortOrder order);
 //     int sorted(int row) const;
-    
+
     virtual void clearSelections();
     virtual void setSelectionMode(QItemSelectionModel::SelectionMode mode);
     QItemSelectionModel::SelectionMode selectionMode() const;
 
     virtual void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel* selectionModel() const;
-    
+
     void setCurrentItem(const QModelIndex &data);
     QModelIndex currentItem() const;
-    
+
     void setItemDelegate(QItemDelegate *delegate);
     QItemDelegate *itemDelegate() const;
 
@@ -47,10 +49,10 @@ protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    
+
     virtual void selectionChanged(const QItemSelectionPointer &deselected,
 				  const QItemSelectionPointer &selected);
-    
+
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
     virtual void startItemsLayout();
@@ -76,7 +78,7 @@ protected:
 	MovePageUp,
 	MovePageDown
     };
-    
+
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0;
     virtual QRect itemRect(const QModelIndex &item) const = 0;
 
@@ -112,7 +114,7 @@ protected:
 	Opening,
 	Closing
     };
-    
+
     State state() const;
     void setState(State state);
 

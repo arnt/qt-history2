@@ -1,12 +1,14 @@
 #ifndef QTREEMODEL_H
 #define QTREEMODEL_H
 
+#ifndef QT_H
 #include <qgenericitemmodel.h>
 #include <qsharedpointer.h>
 #include <qlist.h>
 #include <qvector.h>
 #include <qiconset.h>
 #include <qstring.h>
+#endif
 
 class QTreeModel;
 

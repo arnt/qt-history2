@@ -1,7 +1,9 @@
 #ifndef QGENERICHEADER_H
 #define QGENERICHEADER_H
 
+#ifndef QT_H
 #include <qabstractitemview.h>
+#endif
 
 class QGenericHeaderPrivate;
 
@@ -17,7 +19,7 @@ public:
 	Stretch, // fill available visible space
 	Content // set size to fit the content
     };
-    
+
     QGenericHeader(QGenericItemModel *model, Orientation orientation, QWidget *parent = 0, const char *name = 0);
     virtual ~QGenericHeader();
 
@@ -73,19 +75,19 @@ protected:
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void initializeSections(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    
+
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
 
     void viewportMousePressEvent(QMouseEvent *e);
     void viewportMouseMoveEvent(QMouseEvent *e);
     void viewportMouseReleaseEvent(QMouseEvent *e);
     void resizeEvent(QResizeEvent *e);
-    
+
     virtual void paintSection(QPainter *painter, QItemDelegate *delegate, QItemOptions *options,
 			      const QModelIndex &item);
 
     int indexAt(int position) const;
-    
+
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
 			  ButtonState state);

@@ -1,10 +1,12 @@
 #ifndef QTABLEMODEL_H
 #define QTABLEMODEL_H
 
+#ifndef QT_H
 #include <qgenericitemmodel.h>
 #include <qvector.h>
 #include <qiconset.h>
 #include <qstring.h>
+#endif
 
 class QTableModelItem
 {
@@ -16,7 +18,7 @@ public:
     inline QIconSet iconSet() const { return icn; }
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
-    
+
     inline void setText(const QString &text) { txt = text; }
     inline void setIconSet(const QIconSet &iconSet) { icn = iconSet; }
     inline void setEditable(bool editable) { edit = editable; }
@@ -32,7 +34,7 @@ private:
 class QTableModel : public QGenericItemModel
 {
     Q_OBJECT
-    
+
 public:
     QTableModel(int rows = 0, int columns = 0, QObject *parent = 0, const char *name = 0);
     ~QTableModel();

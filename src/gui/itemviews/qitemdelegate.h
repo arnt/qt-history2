@@ -1,8 +1,10 @@
 #ifndef QITEMDELEGATE_H
 #define QITEMDELEGATE_H
 
+#ifndef QT_H
 #include <qpalette.h>
 #include <qgenericitemmodel.h>
+#endif
 
 class QPainter;
 class QAbstractItemView;

@@ -1,9 +1,11 @@
 #ifndef QITEMSELECTIONMODEL_H
 #define QITEMSELECTIONMODEL_H
 
+#ifndef QT_H
 #include <qgenericitemmodel.h>
 #include <qsharedpointer.h>
 #include <qlist.h>
+#endif
 
 class QItemSelectionRange
 {

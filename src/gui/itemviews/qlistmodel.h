@@ -1,10 +1,12 @@
 #ifndef QLISTMODEL_H
 #define QLISTMODEL_H
 
+#ifndef QT_H
 #include <qgenericitemmodel.h>
 #include <qlist.h>
 #include <qiconset.h>
 #include <qstring.h>
+#endif
 
 class QListModel;
 
@@ -18,12 +20,12 @@ public:
     inline QIconSet iconSet() const { return icn; }
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
-    
+
     inline void setText(const QString &text) { txt = text; }
     inline void setIconSet(const QIconSet &iconSet) { icn = iconSet; }
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
-    
+
     inline bool operator ==(const QListModelItem &other) const
 	{ return txt == other.txt && edit == other.edit && select == other.select; }
     inline bool operator !=(const QListModelItem &other) const { return !operator==(other); }
@@ -38,7 +40,7 @@ private:
 class QListModel : public QGenericItemModel
 {
     friend class QListModelItem;
-    
+
     Q_OBJECT
 
 public:

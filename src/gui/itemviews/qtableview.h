@@ -1,13 +1,15 @@
 #ifndef QTABLEVIEW_H
 #define QTABLEVIEW_H
 
+#ifndef QT_H
 #include <qgenerictableview.h>
 #include <qtablemodel.h>
+#endif
 
 class QTableView : public QGenericTableView
 {
     Q_OBJECT
-    
+
 public:
     QTableView(QWidget *parent = 0, const char *name = 0);
     QTableView(QTableModel *model, QWidget *parent = 0, const char *name = 0);

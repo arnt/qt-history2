@@ -1,12 +1,14 @@
 #ifndef QGENERICITEMMODEL_H
 #define QGENERICITEMMODEL_H
 
+#ifndef QT_H
 #include <qobject.h>
 #include <qmime.h>
 #include <qstring.h>
 #include <qiconset.h>
 #include <qvariant.h>
 #include <qlist.h>
+#endif
 
 class QGenericItemModel;
 
@@ -50,7 +52,7 @@ public:
 
     virtual QModelIndex index(int row, int col, const QModelIndex &parent) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
-    
+
     inline QModelIndex topLeft(const QModelIndex &parent) const
 	{ return index(0, 0, parent); }
     inline QModelIndex bottomRight(const QModelIndex &parent) const
@@ -75,12 +77,12 @@ public:
     virtual QVariant::Type type(const QModelIndex &index, int element) const = 0;
     virtual int element(const QModelIndex &index, QVariant::Type type) const = 0;
     virtual int elementCount(const QModelIndex &index) const;
-    
+
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;
     virtual bool isDragEnabled(const QModelIndex &index) const;
     virtual bool isDropEnabled(const QModelIndex &index) const;
-    
+
     virtual bool isModelSortable() const;
     virtual void sort(int column, SortOrder order);
 

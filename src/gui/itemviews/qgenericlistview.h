@@ -1,7 +1,9 @@
 #ifndef QGENERICLISTVIEW_H
 #define QGENERICLISTVIEW_H
 
+#ifndef QT_H
 #include <qabstractitemview.h>
+#endif
 
 class QGenericListViewItem;
 class QGenericListViewPrivate;
@@ -31,24 +33,24 @@ protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    
+
     void startItemsLayout();
     bool doItemsLayout(int num);
     void stopItemsLayout();
-    
+
     void contentsDragMoveEvent(QDragMoveEvent *e);
     void contentsDropEvent(QDropEvent *e);
     QDragObject *dragObject();
     void startDrag();
-    
+
     void getViewOptions(QItemOptions *options) const;
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
-    
+
     QRect selectionRect(const QItemSelection *selection) const;
-    
+
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
     void doStaticLayout(const QRect &bounds, int first, int last);
     void doDynamicLayout(const QRect &bounds, int first, int last);
@@ -61,7 +63,7 @@ protected:
     void moveItem(int index, const QPoint &dest);
 
     void updateGeometries();
-    
+
 private:
     QGenericListViewPrivate *d;
 };

@@ -1,7 +1,9 @@
 #ifndef QGENERICTABLE_H
 #define QGENERICTABLE_H
 
+#ifndef QT_H
 #include <qabstractitemview.h>
+#endif
 
 class QGenericHeader;
 class QGenericTableViewPrivate;
@@ -46,7 +48,7 @@ protected slots:
     void columnWidthChanged(int column, int oldWidth, int newWidth);
     void rowCountChanged(int oldCount, int newCount);
     void columnCountChanged(int oldCount, int newCount);
-    
+
 protected:
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
     QModelIndex itemAt(int x, int y) const;
