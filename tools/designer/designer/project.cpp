@@ -1465,6 +1465,7 @@ extern QObject* qwf_form_object;
 
 QObjectList *Project::run()
 {
+#if 0
     setupProjectPluginManagers();
 
     if ( !programPluginManager )
@@ -1655,6 +1656,10 @@ QObjectList *Project::run()
     piface->release();
 
     return l;
+#else
+    qFatal( "Project::run()" );
+    return 0;
+#endif
 }
 
 QWidget *Project::findRealForm( QWidget *wid )

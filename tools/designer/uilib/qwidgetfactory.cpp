@@ -20,7 +20,6 @@
 
 #include "qwidgetfactory.h"
 
-#include "../interfaces/interpreterinterface.h"
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/widgetinterface.h"
 
@@ -103,7 +102,6 @@ public:
 };
 
 static QPtrList<QWidgetFactory> widgetFactories;
-static QPluginManager<InterpreterInterface> *interpreterInterfaceManager = 0;
 static QPluginManager<LanguageInterface> *languageInterfaceManager = 0;
 static QPluginManager<WidgetInterface> *widgetInterfaceManager = 0;
 
@@ -342,10 +340,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     if ( !languageInterfaceManager )
 	languageInterfaceManager =
 	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), *qwf_plugin_dir );
-    if ( !interpreterInterfaceManager )
-	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), *qwf_plugin_dir );
-
     widgetFactory->loadExtraSource();
 
     if ( widgetFactory->toplevel ) {
@@ -388,20 +382,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    }
 	}
 #endif
-    }
-
-    if ( widgetFactory->toplevel || qwf_form_object ) {
-	if ( qwf_language && interpreterInterfaceManager && qwf_execute_code ) {
-	    InterpreterInterface *interpreterInterface = 0;
-	    interpreterInterfaceManager->queryInterface( *qwf_language, &interpreterInterface );
-	    if ( interpreterInterface ) {
-		interpreterInterface->init();
-		interpreterInterface->exec( qwf_form_object ?
-					    qwf_form_object : widgetFactory->toplevel,
-					    widgetFactory->code );
-	    }
-	}
-
     }
 
     for ( QMap<QString, QString>::Iterator it = widgetFactory->buddies.begin();

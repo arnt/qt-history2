@@ -49,6 +49,10 @@ public:
     void onFormChange( QObject *receiver, const char *slot );
 
     bool singleProjectMode() const;
+    void showError( QWidget *widget, int line, const QString &message );
+    void showStackFrame( QWidget *w, int line );
+    void showDebugStep( QWidget *w, int line );
+
 
     QRESULT queryInterface( const QUuid &uuid, QUnknownInterface** iface );
     Q_REFCOUNT

@@ -84,7 +84,11 @@ struct DesignerInterface : public QUnknownInterface
     virtual void onFormChange( QObject *receiver, const char *slot ) = 0;
 
     virtual bool singleProjectMode() const = 0;
-};
+    virtual void showError( QWidget *widget, int line, const QString &message ) = 0;
+    virtual void showStackFrame( QWidget *w, int line ) = 0;
+    virtual void showDebugStep( QWidget *w, int line ) = 0;
+
+    };
 
 struct DesignerProject
 {

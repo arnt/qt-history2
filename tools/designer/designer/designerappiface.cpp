@@ -137,7 +137,21 @@ bool DesignerInterfaceImpl::singleProjectMode() const
     return mainWindow->singleProjectMode();
 }
 
+void DesignerInterfaceImpl::showError( QWidget *widget,
+				       int line, const QString &message )
+{
+    mainWindow->showErrorMessage( widget, line, message );
+}
 
+void DesignerInterfaceImpl::showStackFrame( QWidget *w, int line )
+{
+    mainWindow->showStackFrame( w, line );
+}
+
+void DesignerInterfaceImpl::showDebugStep( QWidget *w, int line )
+{
+    mainWindow->showDebugStep( w, line );
+}
 
 DesignerProjectImpl::DesignerProjectImpl( Project *pr )
     : project( pr )
