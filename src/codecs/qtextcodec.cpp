@@ -2833,7 +2833,7 @@ static void realSetup()
 
     (void)new QTsciiCodec;
 
-    for (int i = 0; i < 9; ++i) {
+    for (i = 0; i < 9; ++i) {
 	(void)new QIsciiCodec(i);
     }
 #endif // QT_NO_CODECS

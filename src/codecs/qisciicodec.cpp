@@ -49,7 +49,7 @@ int QIsciiCodec::heuristicNameMatch(const char* hint) const
     else
         p = hint;
 
-    if (strcasecmp(p, codecs[idx].name) == 0 )
+    if (QString::fromLatin1(p).lower() == QString::fromLatin1(codecs[idx].name).lower())
 	return 4;
     else
 	return QTextCodec::heuristicNameMatch(hint);
