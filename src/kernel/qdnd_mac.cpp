@@ -364,15 +364,13 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     Point mouse;
     GetDragMouse( theDrag, &mouse, 0L );
     QWidget *widget = QApplication::widgetAt( mouse.h, mouse.v, true );
-    while ( widget && !widget->acceptDrops() ) 
+    while( widget && !widget->acceptDrops() )
 	widget = widget->parentWidget(TRUE);
-    if(widget) {
-	QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
-	QApplication::sendEvent( widget, &de );
-	macDndExtra->acceptact = de.isActionAccepted();
-	return 0;
-    }
-    return 1;
+    if(!widget)
+	return 1;
+    QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
+    QApplication::sendEvent( widget, &de );
+    return !(macDndExtra->acceptact = de.isActionAccepted());
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
 static void cleanup_dnd_receiveUPP() 
@@ -414,9 +412,8 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     QMacSavedPortInfo savedInfo(macDndExtra->widget);
     GlobalToLocal( &local );
     QWidget *widget = recursive_match( macDndExtra->widget, local.h, local.v );
-
-    if ( widget && (!widget->acceptDrops()) )
-	widget = 0;
+    while ( widget && (!widget->acceptDrops()) )
+	widget = widget->parentWidget(TRUE);
 
     if (widget && (theMessage == kDragTrackingInWindow) && (widget == current_drag_widget) ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
