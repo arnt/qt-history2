@@ -813,7 +813,7 @@ bool QApplication::x11_apply_settings()
     QDateTime timestamp, settingsstamp;
     bool update_timestamp = FALSE;
 
-    if (XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
+    if (XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
 			   qt_settings_timestamp, 0, 0,
 			   False, AnyPropertyType, &type, &format, &nitems,
 			   &after, &data) == Success && format == 8) {
@@ -824,7 +824,7 @@ bool QApplication::x11_apply_settings()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
+	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
 			       qt_settings_timestamp,
 			       offset, 1024, False, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
@@ -1047,9 +1047,9 @@ bool QApplication::x11_apply_settings()
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
 	s << settingsstamp;
 
-	XChangeProperty(appDpy, QPaintDevice::x11AppRootWindow(), qt_settings_timestamp,
-			qt_settings_timestamp, 8, PropModeReplace,
-			(unsigned char *) stamp.buffer().data(),
+	XChangeProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
+			qt_settings_timestamp, qt_settings_timestamp, 8,
+			PropModeReplace, (unsigned char *) stamp.buffer().data(),
 			stamp.buffer().size());
     }
 
@@ -1117,7 +1117,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 
 	while (after > 0) {
 	    uchar *data;
-	    XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
+	    XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow( 0 ),
 				qt_resource_manager,
 				offset, 8192, False, AnyPropertyType,
 				&type, &format, &nitems, &after,
@@ -2023,9 +2023,9 @@ void qt_init_internal( int *argcptr, char **argv,
 	int screen;
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
 	    XSelectInput( appDpy, QPaintDevice::x11AppRootWindow( screen ),
-			  KeymapStateMask |
-			  EnterWindowMask | LeaveWindowMask |
+			  KeymapStateMask | EnterWindowMask | LeaveWindowMask |
 			  PropertyChangeMask );
+	}
 
 #ifndef QT_NO_XRANDR
 	    if (qt_use_xrandr)
