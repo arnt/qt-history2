@@ -35,6 +35,8 @@
 
 #include <sqlcli1.h>
 
+#include <string.h>
+
 static const int COLNAMESIZE = 255;
 static const SQLSMALLINT qParamType[4] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
 
@@ -557,6 +559,7 @@ bool QDB2Result::exec()
     QList<QByteArray> tmpStorage; // holds temporary ptrs
     QVarLengthArray<SQLINTEGER, 32> indicators(boundValues().count());
 
+    memset(indicators.data(), 0, indicators.size());
     setActive(false);
     setAt(QSql::BeforeFirstRow);
     SQLRETURN r;

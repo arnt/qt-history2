@@ -27,6 +27,8 @@
 #include <qvarlengtharray.h>
 #include <qvector.h>
 
+#include <string.h>
+
 // undefine this to prevent initial check of the ODBC driver
 #define ODBC_CHECK_DRIVER
 
@@ -984,6 +986,7 @@ bool QODBCResult::exec()
     QList<QByteArray> tmpStorage; // holds temporary buffers
     QVarLengthArray<SQLINTEGER, 32> indicators(boundValues().count());
 
+    memset(indicators.data(), 0, indicators.size());
     setActive(false);
     setAt(QSql::BeforeFirstRow);
     d->rInf.clear();
