@@ -5,7 +5,7 @@
 **
 ** Created : 2000-11-03
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -1557,8 +1557,9 @@ bool QDateEdit::setFocusSection( int s )
     \i If the year has two digits in the range 0..69, the current
     century, i.e. 2000, will be added giving a year in the range
     2000..2069.
-    \i If the year is in the range 100..999, the current century, i.e.
-    2000, will be added giving a year in the range 2100..2999.
+    \i If the year has three digits in the range 100..999, the
+    current millennium, i.e. 2000, will be added giving a year
+    in the range 2100..2999.
     \endlist
 
 */
