@@ -1752,7 +1752,7 @@ if [ "$Products" != "qt-professional" ]; then
 	    $unixtests/checkavail "IBASE" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
 	    ;;
 	sqlite)
-	    if [ -f $relpath/src/3rdparty/sqlite/sqlite.h ]; then
+	    if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
 		CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite"
 	    fi
 	    ;;
