@@ -158,20 +158,22 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
 
 void QAuServerMac::play(const QString& filename)
 {
-    Movie movie = get_movie(filename, offscreen);
-    GoToBeginningOfMovie(movie);
-    SetMovieVolume(movie, kFullVolume);
-    (void)new QAuServerMacCleanupHandler(1, movie); //this will handle the cleanup
-    StartMovie(movie);
+    if(Movie movie = get_movie(filename, offscreen)) {
+        GoToBeginningOfMovie(movie);
+        SetMovieVolume(movie, kFullVolume);
+        (void)new QAuServerMacCleanupHandler(1, movie); //this will handle the cleanup
+        StartMovie(movie);
+    }
 }
 
 void QAuServerMac::play(QSound *s)
 {
-    Movie movie = get_movie(s->fileName(), offscreen);
-    GoToBeginningOfMovie(movie);
-    SetMovieVolume(movie, kFullVolume);
-    (void)new QAuServerMacCleanupHandler(this, s, movie); //this will handle the cleanup
-    StartMovie(movie);
+    if(Movie movie = get_movie(s->fileName(), offscreen)) {
+        GoToBeginningOfMovie(movie);
+        SetMovieVolume(movie, kFullVolume);
+        (void)new QAuServerMacCleanupHandler(this, s, movie); //this will handle the cleanup
+        StartMovie(movie);
+    }
 }
 
 void QAuServerMac::stop(QSound *s)
