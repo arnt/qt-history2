@@ -6,7 +6,7 @@
 #include "settingsdialog.h"
 #include "config.h"
 
-#include <q4dockwindow.h>
+#include <qdockwindow.h>
 
 #include <qdir.h>
 #include <qtimer.h>
@@ -52,7 +52,7 @@ MainWindow::MainWindow()
 
     updateProfileSettings();
 
-    dw = new Q4DockWindow(this);
+    dw = new QDockWindow(this);
     helpDock = new HelpDialog(dw, this);
 
     dw->setAllowedAreas(AllDockWindowAreas);
@@ -221,7 +221,7 @@ bool MainWindow::insertActionSeparator()
 bool MainWindow::close()
 {
     saveSettings();
-    return Q4MainWindow::close();
+    return QMainWindow::close();
 }
 
 void MainWindow::about()
@@ -535,7 +535,7 @@ void MainWindow::showSettingsDialog(int page)
 void MainWindow::hide()
 {
     saveToolbarSettings();
-    Q4MainWindow::hide();
+    QMainWindow::hide();
 }
 
 MainWindow* MainWindow::newWindow()

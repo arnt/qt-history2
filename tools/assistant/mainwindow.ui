@@ -1,6 +1,6 @@
 <UI version="4.0" stdSetDef="1" >
  <class>MainWindow</class>
- <widget class="Q4MainWindow" name="MainWindow" >
+ <widget class="QMainWindow" name="MainWindow" >
   <property name="objectName" >
    <cstring>MainWindow</cstring>
   </property>
@@ -15,7 +15,7 @@
   <property name="windowTitle" >
    <string>Qt Assistant by Trolltech</string>
   </property>
-  <widget class="Q4ToolBar" name="Toolbar" >
+  <widget class="QToolBar" name="Toolbar" >
    <property name="objectName" >
     <cstring>Toolbar</cstring>
    </property>
@@ -35,7 +35,7 @@
    <addAction name="separator" />
    <addAction name="actionHelpWhatsThis" />
   </widget>
-  <widget class="Q4ToolBar" name="goActionToolbar" >
+  <widget class="QToolBar" name="goActionToolbar" >
    <property name="objectName" >
     <cstring>goActionToolbar</cstring>
    </property>

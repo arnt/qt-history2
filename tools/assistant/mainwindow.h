@@ -11,9 +11,9 @@ class FindDialog;
 class SettingsDialog;
 class HelpWindow;
 class QMenu;
-class Q4DockWindow;
+class QDockWindow;
 
-class MainWindow : public Q4MainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -79,7 +79,7 @@ private:
     SettingsDialog *settingsDia;
     QMap<QAction*, QString> bookmarks;
     HelpDialog *helpDock;
-    Q4DockWindow *dw;
+    QDockWindow *dw;
     QPointer<FindDialog> findDialog;
     static QList<MainWindow*> windows;
     QMap<QAction*,QString> *goActionDocFiles;
