@@ -36,6 +36,8 @@ public:
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
 
+    QString currentMessage() const;
+
 public slots:
     void showMessage(const QString &text, int timeout = 0);
     void clearMessage();

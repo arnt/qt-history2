@@ -401,6 +401,16 @@ void QStatusBar::clearMessage()
 }
 
 /*!
+    Returns the temporary message currently shown,
+    or the null string if there is no such message.
+*/
+QString QStatusBar::currentMessage() const
+{
+    Q_D(const QStatusBar);
+    return d->tempItem;
+}
+
+/*!
     \fn void QStatusBar::message(const QString &message, int timeout)
 
     Hides the normal status indications and displays \a message for \a
