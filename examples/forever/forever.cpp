@@ -92,6 +92,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );		// create application object
     Forever always;				// create widget
+    always.resize( 400, 250 );			// start up with size 400x250
     a.setMainWidget( &always );			// set as main widget
     always.setCaption("Qt Example - Forever");
     always.show();				// show widget
