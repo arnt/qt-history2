@@ -38,6 +38,7 @@
 #include "qbuffer.h"
 #include "qdir.h"
 #include "qstringlist.h"
+#include "qlibrary.h"
 
 #include "shlobj.h"
 
@@ -49,6 +50,23 @@ extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
 const int maxNameLen = 255;
 const int maxMultiLen = 16383;
+
+typedef LPITEMIDLIST (WINAPI *PtrSHBrowseForFolder)(BROWSEINFO*);
+static PtrSHBrowseForFolder ptrSHBrowseForFolder = 0;
+typedef BOOL (WINAPI *PtrSHGetPathFromIDList)(LPITEMIDLIST,LPSTR);
+static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
+
+static void resolveLibs()
+{
+    QLibrary* lib = new QLibrary("shell32");
+    static bool triedResolve = FALSE;
+    if ( !ptrSHBrowseForFolder && !ptrSHGetPathFromIDList && !triedResolve ) {
+	triedResolve = TRUE;
+	ptrSHBrowseForFolder = (PtrSHBrowseForFolder) lib->resolve( "SHBrowseForFolderW" );
+	ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib->resolve( "SHGetPathFromIDListW" );
+    }
+    delete lib;
+}
 
 // Returns the wildcard part of a filter.
 static QString extractFilter( const QString& rawFilter )
@@ -502,9 +520,10 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	}
     } else if (uMsg == BFFM_SELCHANGED) {
 #if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based ) {
+	resolveLibs();
+	if ( ptrSHGetPathFromIDList && qt_winver & Qt::WV_NT_based ) {
 	    TCHAR path[MAX_PATH];
-	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
+	    ptrSHGetPathFromIDList(LPITEMIDLIST(lParam), (LPSTR)path);
 	    QString tmpStr = qt_winQString(path);
 	    if (!tmpStr.isEmpty())
 		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
@@ -547,7 +566,8 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     if ( parent )
 	qt_enter_modal( parent );
 #if defined(UNICODE)
-    if ( qt_winver & WV_NT_based ) {
+    resolveLibs();
+    if ( ptrSHBrowseForFolder && ptrSHGetPathFromIDList && qt_winver & Qt::WV_NT_based ) { 
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	TCHAR path[MAX_PATH];
 	TCHAR initPath[MAX_PATH];
@@ -562,9 +582,9 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
 	bi.lpfn = winGetExistDirCallbackProc;
 	bi.lParam = Q_ULONG(&initDir);
-	LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+	LPITEMIDLIST pItemIDList = ptrSHBrowseForFolder(&bi);
 	if (pItemIDList) {
-	    SHGetPathFromIDList(pItemIDList, path);
+	    ptrSHGetPathFromIDList(pItemIDList, (LPSTR)path);
 	    IMalloc *pMalloc;
 	    if (SHGetMalloc(&pMalloc) != NOERROR)
 		result = QString::null;
