@@ -66,6 +66,9 @@
 #ifndef SPI_GETUIEFFECTS 
 #define SPI_GETUIEFFECTS 0x103E
 #endif
+#ifndef SPI_GETKEYBOARDCUES
+#define SPI_GETKEYBOARDCUES 0x100A
+#endif
 #ifndef IDC_HAND
 #define IDC_HAND            MAKEINTRESOURCE(32649)
 #endif
