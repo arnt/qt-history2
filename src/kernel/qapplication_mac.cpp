@@ -1567,7 +1567,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	static UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-		   (modif & (rightOptionKeyBit|kEventKeyModifierNumLockBit|
+		   (modif & (rightOptionKeyBit|kEventKeyModifierNumLockMask|
 			     optionKey|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
 	if(!chr) 
 	    break;
