@@ -6423,18 +6423,8 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 			   const QString& oldAnchorHref, const QString& anchorHref  ) const
 {
     QString tag;
-    if ( f ) {
-	if ( f->font().family() != defaultFormat->font().family()
-	     || f->font().pointSize() != defaultFormat->font().pointSize()
-	     || f->font().weight() != defaultFormat->font().weight()
-	     || f->font().italic() != defaultFormat->font().italic()
-	     || f->color().rgb() != defaultFormat->color().rgb() )
-	    tag += "</font>";
-	if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
-	    tag += "</u>";
-	if ( !oldAnchorHref.isEmpty() )
-	    tag += "</a>";
-    }
+    if ( f )
+	tag += f->makeFormatEndTags( defaultFormat, oldAnchorHref );
 
     if ( !anchorHref.isEmpty() )
 	tag += "<a href=\"" + anchorHref + "\">";
@@ -6443,6 +6433,14 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	    tag += "<u>";
     }
+    
+    if ( vAlign() != defaultFormat->vAlign() ) {
+	if ( vAlign() == QTextFormat::AlignSuperScript )
+	    tag +="<sup>";
+	else if ( vAlign() == QTextFormat::AlignSubScript )
+	    tag +="<sub>";
+    }
+    
     if ( font() != defaultFormat->font()
 	 || color().rgb() != defaultFormat->color().rgb() ) {
 	QString s;
@@ -6472,6 +6470,12 @@ QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QStrin
 	 || font().italic() != defaultFormat->font().italic()
 	 || color().rgb() != defaultFormat->color().rgb() )
 	tag += "</font>";
+    if ( vAlign() != defaultFormat->vAlign() ) {
+	if ( vAlign() == QTextFormat::AlignSuperScript )
+	    tag +="</sup>";
+	else if ( vAlign() == QTextFormat::AlignSubScript )
+	    tag +="</sub>";
+    }
     if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	tag += "</u>";
     if ( !anchorHref.isEmpty() )
