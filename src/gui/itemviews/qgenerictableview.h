@@ -30,8 +30,8 @@ public:
     bool isRowHidden(int row) const;
     bool isColumnHidden(int column) const;
 
-    void setDrawGrid(bool draw);
-    bool drawGrid() const;
+    void setShowGrid(bool show);
+    bool showGrid() const;
 
 public slots:
     void selectRow(int row, ButtonState state = Qt::NoButton);
@@ -51,6 +51,7 @@ protected slots:
 
 protected:
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
+    virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
     QModelIndex itemAt(int x, int y) const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemRect(const QModelIndex &item) const;

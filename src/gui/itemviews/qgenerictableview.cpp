@@ -19,9 +19,9 @@ class QGenericTableViewPrivate
 {
 public:
     QGenericTableViewPrivate(QGenericTableView *owner)
-	: drawGrid(true), topHeader(0), leftHeader(0), q(owner) {}
+	: showGrid(true), topHeader(0), leftHeader(0), q(owner) {}
 
-    bool drawGrid;
+    bool showGrid;
     QGenericHeader *topHeader, *leftHeader;
     QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
     QGenericTableView *q;
@@ -126,7 +126,7 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
     int collast = columnAt(cx + cw);
     int rowfirst = rowAt(cy);
     int rowlast = rowAt(cy + ch);
-    bool drawGrid = d->drawGrid;
+    bool showGrid = d->showGrid;
 
     QModelIndex bottomRight = model()->bottomRight(root());
 
@@ -170,11 +170,8 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
 			     options.palette.base()));
 		itemDelegate()->paint(p, options, item);
 	    }
-	    if (drawGrid) {
-		p->setPen(lightGray);
-		p->drawLine(0, rowh-1, colw-1, rowh-1);
-		p->drawLine(colw-1, 0, colw-1, rowh-1);
-		p->setPen(palette().text());
+	    if (showGrid) {
+		drawGrid(p, 0, 0, colw - 1, rowh - 1);
 	    }
 	    p->translate(-colp, -rowp);
 
@@ -182,6 +179,15 @@ void QGenericTableView::drawContents(QPainter *p, int cx, int cy, int cw, int ch
 	    rowh = oldrh;
 	}
     }
+}
+
+void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
+{
+    QPen old = p->pen();
+    p->setPen(lightGray);
+    p->drawLine(x, h, w, h);
+    p->drawLine(w, y, w, h);
+    p->setPen(old);
 }
 
 QModelIndex QGenericTableView::itemAt(int x, int y) const
@@ -389,14 +395,14 @@ bool QGenericTableView::isColumnHidden(int column) const
     return d->topHeader->isSectionHidden(column);
 }
 
-void QGenericTableView::setDrawGrid(bool draw)
+void QGenericTableView::setShowGrid(bool show)
 {
-    d->drawGrid = draw;
+    d->showGrid = show;
 }
 
-bool QGenericTableView::drawGrid() const
+bool QGenericTableView::showGrid() const
 {
-    return d->drawGrid;
+    return d->showGrid;
 }
 
 void QGenericTableView::rowHeightChanged(int row, int oldSize, int newSize)
