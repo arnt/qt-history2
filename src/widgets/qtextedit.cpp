@@ -2392,7 +2392,8 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 /*!
   \obsolete
  */
-void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
+void QTextEdit::insert( const QString &text, bool indent,
+			bool checkNewLine, bool removeSelected )
 {
     uint f = 0;
     if ( indent )
@@ -2521,7 +2522,8 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 }
 
 /*! Inserts \a text as the paragraph at position \a para. If \a para
-  is -1, the text is appended.
+  is -1 or out of range, the text is appended. Use append() if the
+  append operation is performance critical.
 */
 
 void QTextEdit::insertParagraph( const QString &text, int para )
@@ -2530,17 +2532,33 @@ void QTextEdit::insertParagraph( const QString &text, int para )
     if ( d->optimMode )
 	return;
 #endif
+    for ( int i = 0; i < (int)doc->numSelections(); ++i )
+	doc->removeSelection( i );
+
     QTextParag *p = doc->paragAt( para );
-    if ( p ) {
-	QTextCursor tmp( doc );
-	tmp.setParag( p );
-	tmp.setIndex( 0 );
-	tmp.insert( text, TRUE );
-	tmp.splitAndInsertEmptyParag();
-	repaintChanged();
-    } else {
-	append( text );
+
+    bool append = !p;
+    if ( !p )
+	p = doc->lastParag();
+
+    QTextCursor old = *cursor;
+    drawCursor( FALSE );
+
+    cursor->setParag( p );
+    cursor->setIndex( 0 );
+    clearUndoRedo();
+    if ( append && cursor->parag()->length() > 1 ) {
+	cursor->setIndex( cursor->parag()->length() - 1 );
+	doKeyboardAction( ActionReturn );
     }
+    insert( text, FALSE, TRUE, TRUE );
+    doKeyboardAction( ActionReturn );
+
+    drawCursor( FALSE );
+    *cursor = old;
+    drawCursor( TRUE );
+
+    repaintChanged();
 }
 
 /*! Removes the paragraph \a para */
@@ -3955,7 +3973,11 @@ int QTextEdit::heightForWidth( int w ) const
 }
 
 /*! Appends the text \a text to the end of the text edit.
-    Note that the undo/redo history is cleared by this function.
+
+  Due to speed omptimizations, note that the undo/redo history is
+  cleared by this function and the append operation is not
+  undo-able. If you want to append text, which is added to the
+  undo/redo history as wll, use insertParagraph().
  */
 
 void QTextEdit::append( const QString &text )
