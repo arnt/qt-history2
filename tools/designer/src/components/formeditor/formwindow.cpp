@@ -136,7 +136,8 @@ DropLine::DropLine(QWidget *parent)
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WFlags flags)
     : AbstractFormWindow(parent, flags),
-      m_core(core)
+      m_core(core),
+      m_currentTool(-1)
 {
     init();
 
