@@ -3350,11 +3350,21 @@ bool QETWidget::translatePaintEvent( const MSG & )
     int res = GetUpdateRgn(winId(), (HRGN) rgn.handle(), FALSE);
     setWState( WState_InPaintEvent );
     hdc = BeginPaint( winId(), &ps );
-    if ( res != COMPLEXREGION )
+    if ( res != COMPLEXREGION ) {
 	rgn = QRect(QPoint(ps.rcPaint.left,ps.rcPaint.top),
-		    QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
-    QPaintEvent e(rgn);
-    QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
+
+	QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
+	QPaintEvent e(rgn);
+	QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
+    }else {
+	QMemArray<QRect> rects = rgn.rects();
+	int i;
+	for ( i = 0; i < (int)rects.size(); i++ ) {
+	    QPaintEvent ev( rects[i] );
+	    QApplication::sendSpontaneousEvent( this, (QEvent*)&ev );
+	}
+	    
+    }
     hdc = 0;
     EndPaint( winId(), &ps );
     clearWState( WState_InPaintEvent );
