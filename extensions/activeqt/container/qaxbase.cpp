@@ -92,7 +92,7 @@ public:
 
     // add a connection
     void addConnection( IConnectionPoint *cpoint, IID iid ) 
-    {	
+    {
 	ULONG cookie;
 	Connection i1( 0, iid, 0 );
 	connections.append( i1 );
@@ -471,7 +471,7 @@ private:
     use setControl() to instantiate a COM object.
 */
 QAxBase::QAxBase( IUnknown *iface )
-: ptr( iface ), eventSink( 0 ), metaobj( 0 ), propWritable( 0 )
+: ptr( iface ), eventSink( 0 ), useEventSink( TRUE ), metaobj( 0 ), propWritable( 0 )
 {
     if ( ptr )
 	ptr->AddRef();
@@ -553,6 +553,21 @@ bool QAxBase::setControl( const QString &c )
 QString QAxBase::control() const
 {
     return ctrl;
+}
+
+/*!
+    Disables the event sink implementation for this ActiveX container.
+    
+    Some ActiveX controls (e.g. the Windows Media Player) run unstable when connected with an 
+    event sink. To get OLE events you will have to use standard COM methods to register your 
+    own event sink. Use queryInterface to get access to the raw COM object.
+
+    Note that this function should be called immediately after construction of the object (without
+    passing an object identifier), before calling QAxWidget->setControl().
+*/
+void QAxBase::disableEventSink()
+{
+    useEventSink = FALSE;
 }
 
 /*!
@@ -965,7 +980,7 @@ QMetaObject *QAxBase::metaObject() const
 
 				if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
 				    prop->flags |= PropBindable;
-				    if ( !eventSink )
+				    if ( !eventSink && !useEventSink )
 					that->eventSink = new QAxEventSink( that );
 				    // generate changed signal
 				    QString signalName = function + "Changed";
@@ -986,7 +1001,8 @@ QMetaObject *QAxBase::metaObject() const
 
 					signallist.insert( signalProto, signal );
 				    }
-				    eventSink->addProperty( funcdesc->memid, function, signalProto );
+				    if ( eventSink )
+					eventSink->addProperty( funcdesc->memid, function, signalProto );
 				}
 			    } else if ( !prop->t ) {
 				QString ptype = paramTypes[0];
@@ -1177,7 +1193,7 @@ QMetaObject *QAxBase::metaObject() const
 
 			    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE ) {
 				prop->flags |= PropBindable;
-				if ( !eventSink )
+				if ( !eventSink && !useEventSink )
 				    that->eventSink = new QAxEventSink( that );
 				// generate changed signal
 				QString signalName = variableName + "Changed";
@@ -1198,7 +1214,8 @@ QMetaObject *QAxBase::metaObject() const
 
 				    signallist.insert( signalProto, signal );
 				}
-				eventSink->addProperty( vardesc->memid, variableName, signalProto );
+				if ( eventSink )
+				    eventSink->addProperty( vardesc->memid, variableName, signalProto );
 			    }
 			}
 
@@ -1264,7 +1281,7 @@ QMetaObject *QAxBase::metaObject() const
 
     CComPtr<IConnectionPointContainer> cpoints;
     ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-    if ( cpoints ) {
+    if ( cpoints && !useEventSink ) {
 	CComPtr<IProvideClassInfo> classinfo;
 	cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
 
@@ -1281,9 +1298,10 @@ QMetaObject *QAxBase::metaObject() const
 
 		IID iid;
 		cpoint->GetConnectionInterface( &iid );
-		if ( !eventSink )
+		if ( !eventSink && !useEventSink )
 		    that->eventSink = new QAxEventSink( that );
-		eventSink->addConnection( cpoint, iid );
+		if ( eventSink )
+		    eventSink->addConnection( cpoint, iid );
 
 		if ( classinfo ) {
 		    CComPtr<ITypeInfo> info;
@@ -1428,7 +1446,8 @@ QMetaObject *QAxBase::metaObject() const
 					signal->parameters = params;
 					signallist.insert( prototype, signal );
 				    }
-				    eventSink->addSignal( funcdesc->memid, prototype );
+				    if ( eventSink )
+					eventSink->addSignal( funcdesc->memid, prototype );
 
 #if 0 // documentation in metaobject would be cool?
 				    // get function documentation

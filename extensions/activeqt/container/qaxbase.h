@@ -99,6 +99,7 @@ signals:
 public:
     virtual void clear();
     bool setControl( const QString& );
+    void disableEventSink();
 
 protected:
     QMetaObject *metaobj;
@@ -110,6 +111,7 @@ private:
 
     IUnknown *ptr;
     QAxEventSink *eventSink;
+    bool useEventSink;
     QString ctrl;
     QMap<QCString, bool> *propWritable;
 };
