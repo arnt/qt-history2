@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#2 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -204,7 +204,8 @@ void QTextHorizontalLine::draw(QPainter* p, int x, int y,
     }
     QPen pen(p->pen());
     pen.setWidth( 2 );
-    p->setPen( pen );    p->drawLine( cx-ox+x , y-oy+4, cx-ox+cw, y-oy+4 );
+    p->setPen( pen );    
+    p->drawLine( r.left()-1, y-oy+4, r.right()+1, y-oy+4) ;
 }
 
 
@@ -243,6 +244,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 
     if (it->isBox) {
 	QTextBox* b = (QTextBox*)*it;
+	b->setWidth(p, width );
 	height = b->height;
 	base = height;
 	last = *it;
@@ -261,11 +263,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     QTextIterator prev = it;
 
 
-    while ( it != end  && !it->isBox ) {
-	if ( it->isContainer ) {
-	    ++it;
-	    continue;
-	}
+    while ( it != end ) {
 	int h,a,d;
 	if (it->isSimpleNode) {
 	    if ( it.parentNode() != prev.parentNode()
@@ -291,10 +289,12 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	rh = QMAX( rh, h );
 	rasc = QMAX( rasc, a );
 	rdesc = QMAX( rdesc, d );
-
+	
 	prev = it;
-// 	++it;
-	it++;
+	do {
+	    ++it;
+	}
+	while ( it != end && it->isContainer && !it->isBox );
 	
 	// break (a) after a space, (b) before a box, (c) if we have
 	// to or (d) at the end of a box.
@@ -308,7 +308,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    if (noSpaceFound && prev->isSpace())
 		noSpaceFound = FALSE;
 	}
-	if (prev->isNewline() )
+	if ( prev->isNewline() )
 	    break;
     }
 
@@ -340,7 +340,20 @@ QTextRow::~QTextRow()
 }
 
 
-void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+
+QTextIterator QTextRow::begin() const
+{
+    return QTextIterator( first, parent );
+}
+
+QTextIterator QTextRow::end() const
+{
+    QTextIterator it( last, 0 );
+    ++it;
+    return it;
+}
+ 
+void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 		  QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper,
 		  bool onlyDirty, bool onlySelection)
 {
@@ -369,20 +382,15 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
     }
 
     dirty = FALSE;
-    QTextNode* t = first;
-    QTextContainer* par = parent;
-
+    
     bool reducedFlickerMode = FALSE;
-    do {
-	if ( !t->isSimpleNode && paper ) {
-	    reducedFlickerMode = TRUE;
+    QTextIterator it;
+    for ( it = begin(); it != end(); ++it ) {
+	if ( it->isSimpleNode && paper ) {
+ 	    reducedFlickerMode = TRUE;
 	    break;
 	}
-	if (t == last)
-	    break;
-	t = box->nextLayout(t, par);
-    } while ( t );
-
+    }
 
     if ( !reducedFlickerMode ) {
 	if (!onlyDirty && !onlySelection && paper) {
@@ -396,63 +404,67 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 
 
 
-    t = first;
     bool inFirst = TRUE;
-    par = parent;
 
     int tx = x + fill;
 
     static QString s;
 
-    do {
+    QFontMetrics fm = p->fontMetrics();
+    for ( it = begin(); it != end(); ++it ) {
+	if ( it->isContainer && !it->isBox )
+	    continue;
 	s.truncate(0);
-	p->setFont( par->font() );
-	const QFontMetrics & fm = p->fontMetrics();
+	QFont font = it.parentNode()->font();
+	if ( font != p->font() ) {
+	    p->setFont( font );
+	    fm = p->fontMetrics();
+	}
 	int tw = 0;
 	QTextNode* tmp = 0;
-	bool select = t->isSelected;
-	bool selectionDirty = t->isSelectionDirty;
-	t->isSelectionDirty = 0;
-	if (t->isSimpleNode) {
-	    if (!t->isNull()){
-		s += t->c;
-		tw += fm.width( t->c );
+	bool select = it->isSelected;
+	bool selectionDirty = it->isSelectionDirty;
+	it->isSelectionDirty = 0;
+	if (it->isSimpleNode) {
+	    if (!it->isNull()){
+		s += it->c;
+		tw += fm.width( it->c );
 	    }
 	    // special optimized code for simple nodes (characters)
-	    while ( t != last && (tmp = t->nextSibling() ) && tmp->isSimpleNode
+	    while ( *it != last && (tmp = it->nextSibling() ) && tmp->isSimpleNode
 		    && ((bool)tmp->isSelected) == select
 		    && ((bool) tmp->isSelectionDirty) == selectionDirty
-		    && t->isSimpleNode
+		    && it->isSimpleNode
 		    ) {
-		t = tmp;
+		it = QTextIterator( tmp, it.parentNode() );
 		tmp->isSelectionDirty = 0;
-		if (!t->isNull()) {
-		    s += t->c;
-		    tw += fm.width( t->c );
+		if (!it->isNull()) {
+		    s += it->c;
+		    tw += fm.width( it->c );
 		}
-		// 	    if (t->isSpace())
+		// 	    if (it->isSpace())
 		// 	      break;
 	    }
 	}
 	else {
 	    // custom nodes
-	    tw += ((QTextCustomNode*)t)->width;
+	    tw += ((QTextCustomNode*)*it)->width;
 	}
 	
 
 	if (!onlySelection || selectionDirty) {
-	    p->setPen( par->color(cg.text()) );
+	    p->setPen( it.parentNode()->color(cg.text()) );
 	
 	    if (select) {
 		if ( inFirst )
 		    p->fillRect(x+obx-ox, y+oby-oy, tw+(tx-x), height, cg.highlight() );
-		if (t ==last)
+		if (*it ==last)
 		    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, cg.highlight());
 		else
 		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, cg.highlight());
 		p->setPen( cg.highlightedText() );
 	    }
-	    else if ( (onlyDirty || onlySelection || (reducedFlickerMode && t->isSimpleNode)) && paper ) {
+	    else if ( (onlyDirty || onlySelection || (reducedFlickerMode && it->isSimpleNode)) && paper ) {
 		int txo = 0;
 		if ( inFirst ) {
 		    if ( paper->pixmap() )
@@ -462,7 +474,7 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 			p->fillRect(x+obx-ox, y+oby-oy, tw+(tx-x), height, *paper );
 		    txo = tw;
 		}
-		if (t==last){
+		if (*it == last){
 		    if ( paper->pixmap() )
 			p->drawTiledPixmap(tx+obx-ox+txo, y+oby-oy, width-(tx-x)-txo, height,
 					   *paper->pixmap(), tx+obx+txo, y+oby);
@@ -478,7 +490,7 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 		}
 	    }
 	
-	    if (t->isSimpleNode) {
+	    if (it->isSimpleNode) {
 		// Get rid of garbage at last of line (\n etc. at visible
 		// on Windows. ### Matthias: Fix in parser?
  		int len = s.length();
@@ -489,7 +501,7 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 	    }
 	    else {
 		if ( reducedFlickerMode ) {
-		    if (!t->isSelected) {
+		    if (!it->isSelected) {
 			if ( inFirst ) {
 			    if ( paper->pixmap() )
 				p->drawTiledPixmap(x+obx-ox, y+oby-oy, (tx-x), height,
@@ -497,7 +509,7 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 			    else
 				p->fillRect(x+obx-ox, y+oby-oy, (tx-x), height, *paper);
 			}
-			if (t==last){
+			if ( *it == last){
 			    if ( paper->pixmap() )
 				p->drawTiledPixmap(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height,
 						   *paper->pixmap(), tx+obx+tw, y+oby);
@@ -505,8 +517,8 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 				p->fillRect(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height, *paper);
 			}
 		    }
-		    int h = ((QTextCustomNode*)t)->height;
-		    if ( h < height && !t->isSelected ) {
+		    int h = ((QTextCustomNode*)*it)->height;
+		    if ( h < height && !it->isSelected ) {
 			if ( paper->pixmap() )
 			    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, base-h,
 					       *paper->pixmap(), tx+obx, y+oby);
@@ -518,31 +530,28 @@ void QTextRow::draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, 
 			else
 			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *paper);
 		    }
-		    ((QTextCustomNode*)t)->draw(p,tx+obx,y+oby+base-h,
-					      ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, paper);
+ 		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
+						  ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, paper);
 		
-		    if ( t->isSelected ) {
+		    if ( it->isSelected ) {
 			QRect tr( tx+obx-ox, y+oby-oy+base-h, tw, h );
 			backgroundRegion = backgroundRegion.subtract( tr );
 		    }
 		}
 		else {
-		    int h = ((QTextCustomNode*)t)->height;
-		    ((QTextCustomNode*)t)->draw(p,tx+obx,y+oby+base-h,
+		    int h = ((QTextCustomNode*)*it)->height;
+		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
 					      ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper);
 		}
 	    }
 	}
 	tx += tw;
-	if (t == last)
-	    break;
-	t = box->nextLayout(t, par);
 	inFirst = FALSE;
-    } while ( t );
+    };
 
 }
 
-QTextNode* QTextRow::hitTest(QTextContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg)
+QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 {
     if (!intersects(xarg-obx, yarg-oby, 0,0))
 	return 0;
@@ -550,23 +559,21 @@ QTextNode* QTextRow::hitTest(QTextContainer* box, QPainter* p, int obx, int oby,
     if (first->isBox) {
 	return ((QTextBox*)first)->hitTest(p, obx+x, oby+y, xarg, yarg);
     }
-
-    QTextNode* t = first;
-    QTextContainer* par = parent;
+    QTextIterator it;
     int tx = fill;
-    QTextNode* result = t;
-    do {
-	p->setFont( par->font() );
+    for ( it = begin(); it != end(); ++it ) {
+	if ( it->isContainer && !it->isBox )
+	    continue;    
+	p->setFont( it.parentNode()->font() );
 	QFontMetrics fm = p->fontMetrics();
-	if (t->isSimpleNode)
-	    tx += fm.width( t->c );
+	if (it->isSimpleNode)
+	    tx += fm.width( it->c );
 	else
-	    tx += ((QTextCustomNode*)t)->width;
-	result = t;
-	t = box->nextLayout(t, par);
-    } while (result != last && obx + x + tx <= xarg);
-	
-    return result;
+	    tx += ((QTextCustomNode*)*it)->width;
+	if (obx + x + tx > xarg)
+	    break;
+    }
+    return *it;
 
 }
 
@@ -781,6 +788,8 @@ QTextIterator QTextContainer::begin() const
 
 QTextIterator QTextContainer::end() const
 {
+    if ( !isLastSibling )
+	return QTextIterator( next, parent );
     QTextContainer* i = parent;
     while ( i && i->isLastSibling)
 	i = i->parent;
@@ -978,7 +987,7 @@ void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int 
 
 
     for (QTextRow* row = rows.first(); row; row = rows.next()) {
-	row->draw(this, p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper, onlyDirty, onlySelection);
+	row->draw(p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper, onlyDirty, onlySelection);
     }
 
 }
@@ -1016,33 +1025,28 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     if (colwidth < 10)
 	colwidth = 10;
 
-    QTextContainer* par = this;
     QTextRow* row = 0;
 
     int margintop = margin( QStyleSheetItem::MarginTop );
     int marginbottom = margin( QStyleSheetItem::MarginBottom );
     int marginleft = margin( QStyleSheetItem::MarginLeft );
     int marginright = margin( QStyleSheetItem::MarginRight );
-    int marginvertical = marginright + marginleft;
+    int marginhorizontal = marginright + marginleft;
     int h = margintop;
 
-    p->setFont( par->font() );
-    QFontMetrics fm = p->fontMetrics();
     QTextIterator it = begin();
     ++it;
+    p->setFont( it.parentNode()->font() );
+    QFontMetrics fm = p->fontMetrics();
     while ( it != end() ) {
-	if (it->isBox){
-	    // ### todo this can be done in word wrap?!
-	    ((QTextBox*)*it)->setWidth(p, colwidth-marginvertical);
-	}
 	row = new QTextRow(p, fm, it,
-			   colwidth-marginvertical - label_offset, alignment() );
+			   colwidth-marginhorizontal - label_offset, alignment() );
 	rows.append(row);
 	row->x = marginleft + label_offset;
 	row->y = h;
 	h += row->height;
     }
-    
+
     height = h;
 
     if (!oldRows.isEmpty() || ncols > 1 ) {
@@ -1169,7 +1173,7 @@ QTextNode* QTextBox::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
     QTextRow* row;
     QTextNode* result = 0;
     for ( row = rows.first(); row; row = rows.next()) {
-	result = row->hitTest(this, p, obx, oby, xarg, yarg);
+	result = row->hitTest(p, obx, oby, xarg, yarg);
 	if (result)
 	    break;
     }
@@ -1840,8 +1844,8 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 	
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
-	      // HACK Torben warning( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
-	      // HACK Torben tagname.ascii(), current->style->name().ascii(), pos);
+		warning( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
+			 tagname.ascii(), current->style->name().ascii(), pos);
 		pos = beforePos;
 		return FALSE;
 	    }
@@ -2181,14 +2185,13 @@ bool QTextDocument::eatCloseTag(const QString& doc, int& pos, const QString& ope
     eatSpace(doc, pos);
     eat(doc, pos, '>');
     if (!valid) {
-      // HACK Torben warning( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
-
+	warning( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
 	valid = TRUE;
     }
     valid &= tag == open;
     if (!valid) {
-      // HACK Torben warning( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
-      // HACK Torben open.ascii(), tag.ascii(), pos);
+	warning( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
+		 open.ascii(), tag.ascii(), pos);
     }
     return valid;
 }

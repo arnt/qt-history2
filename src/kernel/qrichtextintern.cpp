@@ -96,16 +96,19 @@ public:
     int base;
     int fill;
     bool intersects(int xr, int yr, int wr, int hr);
-    void draw(QTextContainer* box, QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-    QTextNode* hitTest(QTextContainer* box, QPainter* p, int obx, int oby, int xarg, int yarg);
+    QTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
     bool locate(QTextContainer* box, QPainter* p, QTextNode* node, int &lx, int &ly, int &lh);
 
     bool dirty;
 
+    QTextIterator begin() const;
+    QTextIterator end() const;
+    
     QTextNode* first;
     QTextNode* last;
     QTextContainer* parent;
