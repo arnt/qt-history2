@@ -743,12 +743,10 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 	    pix = PixmapChooser::loadPixmap( "image.xpm" );
 	MetaDataBase::setPixmapKey( formwindow, pix.serialNumber(), arg );
 	return pix;
-    } else {
-	QPixmap pix = PixmapChooser::loadPixmap( "image.xpm" );
-	MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
-	return pix;
     }
-    return QPixmap();
+    QPixmap pix = PixmapChooser::loadPixmap( "image.xpm" );
+    MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
+    return pix;
 }
 
 void Resource::saveItem( const QStringList &text, const QPtrList<QPixmap> &pixmaps, QTextStream &ts, int indent )
