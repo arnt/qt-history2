@@ -59,7 +59,6 @@ public:
     void setStackSize(uint stackSize);
     uint stackSize() const;
 
-    int exec();
     void exit(int retcode = 0);
 
 public slots:
@@ -78,6 +77,7 @@ signals:
 
 protected:
     virtual void run() = 0;
+    int exec();
 
     static void setTerminationEnabled(bool enabled = true);
 
