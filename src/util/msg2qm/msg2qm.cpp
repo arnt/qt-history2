@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#3 $
+** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#4 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -30,11 +30,11 @@ QString extractContents( const QString& line )
     QString contents;
     if ( line.contains('\"') < 2)
 	return contents;
-    unsigned int pos = 0;
-    while ( pos < line.length() && line[pos] != '\"' )
+    int pos = 0;
+    while ( pos < int(line.length()) && line[pos] != '\"' )
 	pos++;
     pos++;
-    while ( pos < line.length() && line[pos] != '\"' ) {
+    while ( pos < int(line.length()) && line[pos] != '\"' ) {
 	if ( line[pos] == '\\') {
 	    pos++;
 	    switch (char(line[pos]) ) {
@@ -101,9 +101,9 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 void translate( const QString& filename, const QString& qmfile )
 {
     //we start in locale-specific mode, thenswitch when we find the char set
-    
+
     bool firstRound = TRUE;
-    
+
     QFile f(filename);
     if ( !f.open( IO_ReadOnly) )
 	return;
@@ -170,9 +170,9 @@ void translate( const QString& filename, const QString& qmfile )
 		    QString charset = msgstr.mid( cpos, i-cpos );
 		    QTextCodec *codec = QTextCodec::codecForName( charset.ascii() );
 		    if ( codec ) {
-		        debug( "PO file character set: %s. Codec: %s", 
+		        debug( "PO file character set: %s. Codec: %s",
 			       charset.ascii(), codec->name() );
-			t.setCodec( codec );		      
+			t.setCodec( codec );		
 		    } else {
 			debug( "No codec for %s", charset.ascii() );
 		    }

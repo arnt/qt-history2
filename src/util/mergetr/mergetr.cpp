@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#2 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#3 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -23,7 +23,7 @@ bool isEmpty( const QString& line )
     }
     return TRUE;
 }
-	    
+	
 
 bool hasHandle( const QString& line, const QString& handle)
 {
@@ -44,9 +44,9 @@ bool isSystemComment( const QString& line )
 QString extractContents( const QString& line )
 {
     QString contents;
-    unsigned int pos = 0;
+    int pos = 0;
     bool inStr = FALSE;
-    while ( pos < line.length()  ) {
+    while ( pos < int(line.length())  ) {
 	if ( line[pos] == '"' ) {
 	    inStr = !inStr;
 	    pos++;
@@ -210,12 +210,12 @@ Status compare( const Item &i1, const Item &i2 )
 	return First;
     QString s1 = extractContents( i1.msgid );
     QString s2 = extractContents( i2.msgid );
-    int i = strcmp( s1.ascii(), s2.ascii() ); 
-    if ( i < 0 ) 
+    int i = strcmp( s1.ascii(), s2.ascii() );
+    if ( i < 0 )
 	return First;
     if ( i == 0 )
 	return Equal;
-    // i > 0 
+    // i > 0
 	return Second;
 }
 
@@ -276,6 +276,6 @@ int main( int argc, char* argv[] )
 	exit(1);
     }
 
-    merge( argv[newfile], argv[orgfile], 
+    merge( argv[newfile], argv[orgfile],
 	   argc > newfile+1 ? argv[newfile+1] : "merge.tr" );
 }
