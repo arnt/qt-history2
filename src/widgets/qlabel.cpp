@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#71 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#71 $");
 
 
 #if QT_VERSION == 200
@@ -539,8 +539,11 @@ void QLabel::drawContents( QPainter *p )
 
 void QLabel::updateLabel()
 {
+    // ##### perhaps we should just use repaint(contentsRect())
+
     QPainter paint( this );
-    paint.eraseRect( contentsRect() );
+    if ( backgroundMode() != NoBackground )
+	paint.eraseRect( contentsRect() );
     drawContents( &paint );
 }
 
