@@ -795,7 +795,21 @@ bool QClipboard::event( QEvent *e )
 			// encoding of choice, so we choose the encoding of the locale
 			fmt = "text/plain";
 			data = d->source()->encodedData( fmt );
-			char *list[] = { data.data() };
+
+			/*
+			  according to the man page,
+			  XmbTextListToTextProperty expects a null
+			  terminated list of null terminated strings.
+			  unfortunately, it doesn't seem to be clean
+			  exactly how this should be done, so we
+			  append a second null to the data we got
+			  above, and add a null to the list passed to
+			  XmbTextListToTextProperty.
+			*/
+			if ( data.resize( data.size() + 1 ) )
+			    *data.end() = '\0';
+			char *list[] = { data.data(), "" };
+
 			XICCEncodingStyle style;
 			if ( target == xa_compound_text )
 			    style = XCompoundTextStyle;
