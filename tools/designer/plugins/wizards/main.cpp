@@ -55,7 +55,7 @@ extern void qInitImages();
 extern void qCleanupImages();
 
 StandardTemplateWizardInterface::StandardTemplateWizardInterface()
-    : ref( 0 )
+    : ref( 0 ), inUse( FALSE )
 {
 }
 
