@@ -1,5 +1,6 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qtextformat.h>
+#include "qtextpiecetable_p.h"
 
 #include "qabstracttextdocumentlayout_p.h"
 #define d d_func()
@@ -61,12 +62,6 @@ void QAbstractTextDocumentLayout::invalidate(const QRegion &r)
 {
 }
 
-QTextLayout *QAbstractTextDocumentLayout::layoutAt(int position) const
-{
-    return 0;
-}
-
-
 void QAbstractTextDocumentLayout::setPageSize(const QSize &size)
 {
     d->pageSize = size;
@@ -75,4 +70,101 @@ void QAbstractTextDocumentLayout::setPageSize(const QSize &size)
 QSize QAbstractTextDocumentLayout::pageSize() const
 {
     return d->pageSize;
+}
+
+
+QTextLayout *QAbstractTextDocumentLayout::BlockIterator::layout() const
+{
+    const QTextPieceTable::BlockMap &blockMap = pt->blockMap();
+    return blockMap.fragment(block)->layout;
+}
+
+QTextBlockFormat QAbstractTextDocumentLayout::BlockIterator::format() const
+{
+    int idx = formatIndex();
+    if (idx == -1)
+	return QTextBlockFormat();
+
+    return pt->formatCollection()->blockFormat(idx);
+}
+
+int QAbstractTextDocumentLayout::BlockIterator::formatIndex() const
+{
+    if (atEnd())
+	return -1;
+
+    QTextPieceTable::FragmentIterator it = pt->find(pt->blockMap().key(block));
+    Q_ASSERT(!it.atEnd());
+
+    return it.value()->format;
+}
+
+int QAbstractTextDocumentLayout::BlockIterator::position() const
+{
+    return pt->blockMap().key(block);
+}
+
+int QAbstractTextDocumentLayout::BlockIterator::length() const
+{
+    return pt->blockMap().size(block);
+}
+
+bool QAbstractTextDocumentLayout::BlockIterator::operator<(const BlockIterator &it) const
+{
+    Q_ASSERT(pt == it.pt);
+    return pt->blockMap().key(block) < pt->blockMap().key(it.block);
+}
+
+QAbstractTextDocumentLayout::BlockIterator& QAbstractTextDocumentLayout::BlockIterator::operator++()
+{
+    block = pt->blockMap().next(block);
+    return *this;
+}
+
+QAbstractTextDocumentLayout::BlockIterator& QAbstractTextDocumentLayout::BlockIterator::operator--()
+{
+    block = pt->blockMap().prev(block);
+    return *this;
+}
+
+
+QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+	return BlockIterator();
+    return BlockIterator(pieceTable, pieceTable->blockMap().findNode(pos));
+}
+
+QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::begin() const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+	return BlockIterator();
+    return BlockIterator(pieceTable, pieceTable->blockMap().begin().n);
+}
+
+QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::end() const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+	return BlockIterator();
+    return BlockIterator(pieceTable, 0);
+}
+
+int QAbstractTextDocumentLayout::formatIndex(int pos)
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+	return -1;
+    return pieceTable->find(pos).value()->format;
+}
+
+QTextFormat QAbstractTextDocumentLayout::format(int pos)
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+	return QTextFormat();
+    int idx = pieceTable->find(pos).value()->format;
+    return pieceTable->formatCollection()->blockFormat(idx);
 }

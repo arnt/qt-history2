@@ -12,6 +12,7 @@
 class QRect;
 class QRegion;
 class QAbstractTextDocumentLayoutPrivate;
+class QTextPieceTable;
 
 class QAbstractTextDocumentLayout : public QObject
 {
@@ -48,7 +49,39 @@ protected:
     void invalidate(const QRect &r);
     void invalidate(const QRegion &r);
 
-    QTextLayout *layoutAt(int position) const;
+    class BlockIterator {
+	const QTextPieceTable *pt;
+	int block;
+    public:
+	BlockIterator() { pt = 0; block = 0; }
+	BlockIterator(const BlockIterator &other) { pt = other.pt; block = other.block; }
+	BlockIterator(const QTextPieceTable *p, int b) { pt = p; block = b; }
+
+	BlockIterator &operator=(const BlockIterator &other) { pt = other.pt; block = other.block; return *this; }
+
+	QTextLayout *layout() const;
+	QTextBlockFormat format() const;
+	int formatIndex() const;
+
+	int position() const;
+	int length() const;
+
+	inline bool atEnd() const { return !block; }
+
+	bool operator==(const BlockIterator& it) const { return pt == it.pt && block == it.block; }
+	bool operator!=(const BlockIterator& it) const { return pt != it.pt || block != it.block; }
+	bool operator<(const BlockIterator &it) const;
+
+	BlockIterator& operator++();
+	BlockIterator& operator--();
+    };
+
+    BlockIterator findBlock(int pos) const;
+    BlockIterator begin() const;
+    BlockIterator end() const;
+
+    int formatIndex(int pos);
+    QTextFormat format(int pos);
 
 private slots:
     void handlerDestroyed(QObject *obj);

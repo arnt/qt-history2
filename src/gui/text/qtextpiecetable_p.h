@@ -161,6 +161,8 @@ public:
     inline BlockIterator blocksFind(int pos) const { return BlockIterator(blocks.find(pos), this); }
     inline int numBlocks() const { return blocks.numNodes(); }
 
+    const BlockMap &blockMap() const { return blocks; }
+
     inline QTextDocumentConfig *config() { return &docConfig; }
     inline const QTextDocumentConfig *config() const { return &docConfig; }
 
