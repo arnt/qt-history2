@@ -1515,16 +1515,21 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 //     while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
 //         --lineEnd;
 
-    if (reverse) {
-        int end = qMin(lineEnd, si->position + l) - si->position;
-        int glyph_end = end == l ? si->num_glyphs : logClusters[end];
-        for (int i = glyph_end - 1; i >= glyph_pos; i--)
-            x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+    if (si->isObject) {
+        if(pos == l)
+            x += si->width;
     } else {
-        int start = qMax(line.from - si->position, 0);
-        int glyph_start = logClusters[start];
-        for (int i = glyph_start; i < glyph_pos; i++)
-            x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+        if (reverse) {
+            int end = qMin(lineEnd, si->position + l) - si->position;
+            int glyph_end = end == l ? si->num_glyphs : logClusters[end];
+            for (int i = glyph_end - 1; i >= glyph_pos; i--)
+                x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+        } else {
+            int start = qMax(line.from - si->position, 0);
+            int glyph_start = logClusters[start];
+            for (int i = glyph_start; i < glyph_pos; i++)
+                x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+        }
     }
 
     // add the items left of the cursor
