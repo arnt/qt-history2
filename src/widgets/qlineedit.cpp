@@ -848,6 +848,7 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
     d->preeditLength = e->text().length();
     d->cursor->setIndex(d->preeditStart + e->cursorPos());
 
+    emit textChanged( text() );
     e->accept();
 }
 
@@ -862,6 +863,7 @@ void QLineEdit::imEndEvent( QIMEvent *e )
     d->cursor->setIndex(d->preeditStart + e->text().length());
     d->preeditStart = d->preeditLength = -1;
 
+    emit textChanged( text() );
     e->accept();
 }
 
