@@ -318,8 +318,8 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 
     char *mapaddr = 0;
     size_t maplen = file.size();
-    mapaddr = (char *) mmap( mapaddr, maplen, PROT_READ, 0, file.handle(), 0 );
-    if ( ! mapaddr ) {
+    mapaddr = (char *) mmap( mapaddr, maplen, PROT_READ, MAP_PRIVATE, file.handle(), 0 );
+    if ( mapaddr == MAP_FAILED ) {
 	perror( "mmap" );
 	file.close();
 	return FALSE;
