@@ -484,7 +484,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
   of the fields from the filter and their values from the current cursor
   record. The cursor is initially positioned at an invalid row.  To move
   to a valid row, use seek(), first(), last(), prev() or next().  This
-  method is useful, for example, for retrieving data based upon a
+  function is useful, for example, for retrieving data based upon a
   table's primary index:
 
   \code
@@ -613,7 +613,7 @@ bool QSqlCursor::canDelete() const
 /*! Returns a formatted string composed of the \a prefix (e.g. table or
     view name), ".", the \a field name, the \a fieldSep and the field
     value. If the \a prefix is empty then the string will begin with the
-    \a field name. This method is useful for generating SQL statements.
+    \a field name. This function is useful for generating SQL statements.
 
 */
 
@@ -633,7 +633,7 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
     \a prefix is empty then the field will begin with the \a field name.
     The fields are then joined together separated by the \a sep.
     Calculated fields and fields where isGenerated() returns FALSE are
-    not included. This method is useful for generating SQL statements.
+    not included. This function is useful for generating SQL statements.
 
 
 */
@@ -660,7 +660,7 @@ QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QStr
     name), ".", the \a field name, the \a fieldSep and the field value.
     If the \a prefix is empty then the field will begin with the \a
     field name. The field values are taken from \a rec. The fields are
-    then joined together separated by the \a sep. This method is useful
+    then joined together separated by the \a sep. This function is useful
     for generating SQL statements.
 
 */
