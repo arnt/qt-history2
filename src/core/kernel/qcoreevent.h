@@ -110,12 +110,9 @@ public:
         WhatsThis = 111,
         StatusTip = 112,
 
-        AccessibleQueryHelp = 113,              // query help text
-        AccessibleQueryDescription = 114,       // query description text
-
-        ActionChanged = 115,
-        ActionAdded = 116,
-        ActionRemoved = 117,
+        ActionChanged = 113,
+        ActionAdded = 114,
+        ActionRemoved = 115,
 
         FileOpen = 116,                         // file open request
 
@@ -128,7 +125,7 @@ public:
         AccelOverride = ShortcutOverride,       // accelerator override event
 #endif
 
-        WhatsThisClicked = 119,
+        WhatsThisClicked = 118,
 
 #ifdef QT_COMPAT
         CaptionChange = WindowTitleChange,

@@ -62,14 +62,14 @@ QString QAccessibleHeader::text(Text t, int child) const
             str = header()->label(child - 1);
             break;
         case Description: {
-            QPoint p(header()->sectionRect(child-1).center());
-            QHelpEvent event(QEvent::AccessibleQueryDescription, p, header()->mapToGlobal(p));
-            QApplication::sendEvent(widget(), &event);
+            QAccessibleEvent event(QAccessibleEvent::Description, child);
+            if (QApplication::sendEvent(widget(), &event))
+                str = event.value();
             break; }
         case Help: {
-            QPoint p(header()->sectionRect(child-1).center());
-            QHelpEvent event(QEvent::AccessibleQueryHelp, p, header()->mapToGlobal(p));
-            QApplication::sendEvent(widget(), &event);
+            QAccessibleEvent event(QAccessibleEvent::Help, child);
+            if (QApplication::sendEvent(widget(), &event))
+                str = event.value();
             break; }
         }
     }

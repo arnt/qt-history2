@@ -22,12 +22,12 @@
 #ifndef QT_NO_ACCESSIBILITY
 
 #ifndef QT_H
+#include "qevent.h"
 #include "qobject.h"
 #include "qrect.h"
 #include "qvector.h"
 #include "qvariant.h"
 #endif // QT_H
-
 
 struct QAccessibleInterface;
 
@@ -286,6 +286,25 @@ struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible
 };
 
 Q_DECLARE_INTERFACE(QAccessibleInterface, "http://trolltech.com/Qt/QAccessibleInterface")
+
+
+class Q_GUI_EXPORT QAccessibleEvent: public QEvent
+{
+public:
+    enum TextType { Description, Help };
+
+    inline QAccessibleEvent(TextType textType, int child)
+        : QEvent(Accessibility), t(textType), c(child) {}
+    inline TextType textType() const { return t; }
+    inline int child() const { return c; }
+    inline QString value() const { return val; }
+    inline void setValue(const QString &aText) { val = aText; }
+
+private:
+    TextType t;
+    int c;
+    QString val;
+};
 
 #endif //QT_NO_ACCESSIBILITY
 

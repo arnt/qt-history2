@@ -4800,7 +4800,24 @@ bool QWidget::event(QEvent *e)
             return false;
         break;
 #endif
-   case QEvent::EmbeddingControl:
+#ifndef QT_NO_ACCESSIBILITY
+    case QEvent::Accessibility: {
+        QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
+        if (ev->child())
+            return false;
+        switch (ev->textType()) {
+        case QAccessibleEvent::Description:
+            ev->setValue(d->toolTip);
+            break;
+        case QAccessibleEvent::Help:
+            ev->setValue(d->whatsThis);
+            break;
+        default:
+            return false;
+        }
+        break; }
+#endif
+    case QEvent::EmbeddingControl:
         clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
         d->topData()->ftop = 0;
         d->topData()->fright = 0;
