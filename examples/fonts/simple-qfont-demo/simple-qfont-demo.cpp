@@ -1,22 +1,15 @@
 /* $Id$ */
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qfont.h>
+#include "viewer.h"
 
+#include <qapplication.h>
+ 
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
-    QPushButton  push( "Push me", 0, "Push me" );
+    Viewer * textViewer = new Viewer();
 
-    QFont font( "Bavaria", 18 );          // preferred family is Bavaria
-    font.setStyleHint( QFont::Serif );    // can also use any serif font
-
-    font.setWeight( QFont::Bold );
-
-    push.setFont( font );
-
-    app.setMainWidget( &push );
-    push.show();
+    app.setMainWidget( textViewer );
+    textViewer->show();
     return app.exec();
-}
+}                  

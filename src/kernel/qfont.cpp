@@ -56,8 +56,7 @@
 
 
 // REVISED: brad
-/*!
-  \class QFont qfont.h
+/*! \class QFont qfont.h
 
   \brief The QFont class specifies a font used for drawing text.
 
@@ -65,59 +64,65 @@
   \ingroup appearance
   \ingroup shared
 
-  QFont, more precisely, is a collection of attributes of a font.
-  When Qt needs to draw text, it will look up and load the closest
-  matching installed font and draw using that.
+  More precisely, QFont is a collection of attributes of a font.
+  When Qt needs to draw text, it will look up the closest
+  matching installed font, load it and use it.
+  If a choosen X11 font does not cover all characters to be displayed,
+  QFont blends in the missing characters from other fonts if possible. 
 
-  The most important attributes of a QFont are its family(),
-  pointSize(), weight() and whether it is italic() or not.  There are
-  QFont constructors that take these attributes as arguments, as shown
-  in this example:
+  The most important attributes of a QFont are its font family (family()),
+  its size (pointSize()), its boldness (weight()) and 
+  whether it is italic() or not. There are
+  QFont constructors that take these attributes as arguments, for example:
 
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-	QPainter p( this );
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto defaultButton
+  \printline defaultButton
+  \printuntil times
 
-	// times, 12pt, normal
-	p.setFont( QFont( "times" ) );
-	p.drawText( 10, 20, "Text1" );
+  12pt (the default if nothing else is specified) Times, normal weight,
+  roman (i.e. non-italic) is used for the pushbutton label.
 
-	// helvetica, 18pt, normal
-	p.setFont( QFont( "helvetica", 18 ) );
-	p.drawText( 10, 120, "Text2" );
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto sansSerifButton
+  \printline sansSerifButton
+  \printuntil Helvetica
 
-	// courier, 24pt, bold
-	p.setFont( QFont( "courier", 24, QFont::Bold ) );
-	p.drawText( 10, 220, "Text3" );
+  This button's label is drawn using Helvetica 12pt, non-bold, non-italic.
 
-	// lucida, 36pt, bold, italic
-	p.setFont( QFont( "lucida", 36, QFont::Bold, TRUE ) );
-	p.drawText( 10, 320, "Text4" );
-    }
-  \endcode
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto italicsButton
+  \printline italicsButton
+  \printuntil lucida
 
-  The default QFont constructor makes a copy of application's default
+  To draw this button's label 12pt Lucida, bold italic is used.
+
+  (Code taken from \link simple-font-demo-example.html 
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
+
+  The default QFont constructor keeps a copy of the application's default
   font, QApplication::font().
 
   You can also change these attributes of an existing QFont object
   using functions such as setFamily(), setPointSize(), setWeight() and
   setItalic().
 
-  There are also some less-used attributes.  setUnderline() decides
+  There are also some less-used attributes. setUnderline() decides
   whether the font is underlined or not; setStrikeOut() can be used to get
   overstrike (a horizontal line through the middle of the characters);
   setFixedPitch() determines whether Qt should give preference to
-  fixed-pitch (also known as fixed-width) or variable-pitch fonts when it
-  needs to choose an installed font; setStyleHint() can be used to offer
+  fixed-pitch (also known as fixed-width or typewriter fonts) 
+  or variable-pitch fonts when it needs to choose an installed font. 
+
+  setStyleHint() can be used to offer
   more general help to the font matching algorithm, and on X11
   setRawName() can be used to bypass the entire font matching and use an
-  X11 XLFD.
+  X11 XLFD (X Logical Font Description).
 
   Of course there is also a reader function for each of these set*()
-  functions.  Note that the reader functions return the values
+  functions. Note that the reader functions return the values
   previously set, \e not the attributes of the actual window system
-  font that will be used for drawing.  You can get information about
+  font that will be used for drawing. You can get information about
   the font that will be used for drawing by using QFontInfo, but be
   aware that QFontInfo may be slow and that its results depend on what
   fonts are installed.
@@ -128,13 +133,21 @@
   the slow window system functions it uses.
 
   QFont also offers a few static functions, mostly to tune the font
-  matching algorithm: You can control what happens if a font's family
-  isn't installed using insertSubstitution() and removeSubstitution(),
-  ask what happens for a single family using substitute() and you can
-  get a complete list of the fallback families using substitutions().
+  matching algorithm: You can control what happens if a font family
+  isn't installed using insertSubstitution(), insertSubstitutions() 
+  and removeSubstitution().
 
-  cacheStatistics() offers cache effectiveness information; this is
-  useful mostly for debugging.
+  This is especially important when different character sets are 
+  used at the same time. As a Times font for example does not include
+  Arabic characters, an Arabic substitution font for Times can
+  be specified and will be used when Arabic characters show up.
+
+  Each QFont can have an entire substitution list so that Unicode
+  characters can be displayed even if no Unicode fonts are available.
+  How good this approximation works depends on the variety
+  of fonts installed.
+  
+  You can get a complete list of the fallback families using substitutions().
 
   Finally, QApplication::setFont() allows you to set the default font.
   The default default font is chosen at application startup from a set
@@ -371,19 +384,22 @@ QFont &QFont::operator=( const QFont &font )
 }
 
 
-/*!
-  Returns the family name set by setFamily().
+/*! Returns the family name set by setFamily().
 
   Use QFontInfo to find the family name of the window system font that
   is actually used for drawing.
 
-  Example:
-  \code
-    QFont     font( "Nairobi" );
-    QFontInfo info( font );
-    qDebug( "Font family requested is    : \"%s\"", font.family() );
-    qDebug( "Font family actually used is: \"%s\"", info.family() );
-  \endcode
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto messageText
+  \printline messageText
+  \printuntil font.family() 
+  \skipto Font used
+  \printline Font used
+  \printuntil info.pointSize()
+
+  (Code taken from \link simple-font-demo-example.html
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
+
   \sa setFamily(), substitute()
 */
 QString QFont::family() const
@@ -410,8 +426,8 @@ void QFont::setFamily( const QString &family )
 }
 
 
-/*!
-  Returns the point size in 1/10ths of a point.
+/*! Returns the point size in 1/10ths of a point.
+
   \sa pointSize()
   */
 int QFont::deciPointSize() const
@@ -420,20 +436,21 @@ int QFont::deciPointSize() const
 }
 
 
-/*!
-  Returns the point size set by setPointSize().
+/*! Returns the point size set by setPointSize().
 
   Use QFontInfo to find the point size of the window system font
   actually used.
 
-  Example of use:
-  \code
-    QFont     font( "helvetica" );
-    QFontInfo info( font );
-    font.setPointSize( 53 );
-    qDebug( "Font size requested is    : %d", font.pointSize() );
-    qDebug( "Font size actually used is: %d", info.pointSize() );
-  \endcode
+   \walkthrough fonts/simple-qfont-demo/viewer.cpp
+   \skipto messageText
+   \printuntil messageText =
+   \skipto font.pointSize()
+   \printuntil "Font used: \""
+   \skipto info.pointSize()
+   \printline info.pointSize()
+
+  (Code taken from \link simple-font-demo-example.html
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   \sa setPointSize() deciPointSize()
 */
@@ -443,15 +460,15 @@ int QFont::pointSize() const
 }
 
 
-/*!
-  Sets the point size to \a pointSize. The point size must be greater
+/*! Sets the point size to \a pointSize. The point size must be greater
   than zero.
 
-  Example:
-  \code
-    QFont font( "courier" );
-    font.setPointSize( 18 );
-  \endcode
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto Tokyo
+  \printuntil setPointSize
+
+  (Code taken from \link simple-font-demo-example.html
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   \sa pointSize(), QFontInfo
 */
@@ -476,8 +493,7 @@ void QFont::setPointSize( int pointSize )
 }
 
 
-/*!
-  Sets the point size to \a pointSize. The point size must be greater
+/*! Sets the point size to \a pointSize. The point size must be greater
   than zero. The requested precision may not be achieved on all platforms.
 */
 void QFont::setPointSizeFloat( float pointSize )
@@ -576,11 +592,14 @@ int QFont::weight() const
 /*! Sets the weight (or boldness) to \a weight, which should be a value
   from the QFont::Weight enumeration.
 
-  \walkthrough fonts/simple-qfont-demo/simple-qfont-demo.cpp
-  \skipto QFont
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto Tokyo
   \printline font
   \skipto setWeight
   \printline setWeight
+
+  (Code taken from \link simple-font-demo-example.html
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   Strictly speaking you can use all values in the range [0,99] (where
   0 is ultralight and 99 is extremely black), but there is perhaps
@@ -783,15 +802,13 @@ QFont::StyleHint QFont::styleHint() const
   is available, if not it will display its text label with another
   serif font:
 
-  \walkthrough fonts/simple-qfont-demo/simple-qfont-demo.cpp
-  \skipto include
-  \printuntil PushButton
-
-  \printline Bavaria
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto Newyork
+  \printline Newyork
   \printline setStyleHint
 
-  \skipto push.setFont
-  \printuntil }
+  \skipto setFont
+  \printline setFont 
 
   \sa QFont::StyleHint, styleHint(), QFont::StyleStrategy, styleStrategy(), QFontInfo
 */
@@ -1001,27 +1018,15 @@ static void initFontSubst()
 }
 
 
-/*!
-  Returns the first family name to be used whenever \a familyName is
+/*! Returns the first family name to be used whenever \a familyName is
   specified. The lookup is case insensitive.
 
   If there is no substitution for \a familyName, then \a familyName is
   returned.
 
-  Example:
-  \code
-    QFont::insertSubstitution( "NewYork", "London" );
-    QFont::insertSubstitution( "Paris",   "Texas" );
+  To obtain a list of all substitutions use substitutes().
 
-    QFont::substitute( "NewYork" );     // returns "London"
-    QFont::substitute( "PARIS" );       // returns "Texas"
-    QFont::substitute( "Rome" );        // returns "Rome"
-
-    QFont::removeSubstitution( "newyork" );
-    QFont::substitute( "NewYork" );     // returns "NewYork"
-  \endcode
-
-  \sa setFamily(), insertSubstitution(), removeSubstitution()
+  \sa setFamily() insertSubstitution() removeSubstitution()
 */
 QString QFont::substitute( const QString &familyName )
 {
@@ -1040,6 +1045,14 @@ QString QFont::substitute( const QString &familyName )
 
   If there is no substitution for \a familyName, then an empty
   list is returned.
+
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto QFont::substitutes(
+
+  (Code taken from \link simple-font-demo-example.html
+   fonts/simple-qfont-demo/viewer.cpp \endlink)                                   
+
+   \sa substitute()
  */
 QStringList QFont::substitutes(const QString &familyName)
 {
@@ -1052,15 +1065,20 @@ QStringList QFont::substitutes(const QString &familyName)
 }
 
 
-/*!
-  Inserts the family name \a substitutionName into the substitution
+/*! Inserts the family name \a substituteName into the substitution
   table for \a familyName, i.e. \a substituteName can be used if \a familyName is not
   available. The search for \a familyName is case insensitive.
 
   The family name \a substituteName is appended to the substitution list
   for \a familyName if it already exists in the substitution table.
 
-  \sa insertSubstitutions(), removeSubstitution(), substitutions(), substitute()
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto insertSubstitution(
+  \printline insertSubstitution(
+
+  (Code taken from \link simple-font-demo-example.html
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
+  \sa insertSubstitutions() removeSubstitution() substitutions() substitute() substitutes()
 */
 void QFont::insertSubstitution(const QString &familyName,
 			       const QString &substituteName)
@@ -1078,12 +1096,22 @@ void QFont::insertSubstitution(const QString &familyName,
 }
 
 
-/*!
-  Inserts the list of families \a substituteNames into the substitution
+/*! Inserts the list of families \a substituteNames into the substitution
   table for \a familyName.  The search for \a familyName is case insensitive.
 
   The list \a substituteNames will be appended to the substitution list for
   \a familyName if it already exists in the substitution table.
+
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+  \skipto QStringList substitutes
+  \printline substitutes;
+  \skipto substitutes <<
+  \printline substitutes <<
+  \skipto insertSubstitutions( "Bavaria"
+  \printline Bavaria
+
+  (Code taken from \link simple-font-demo-example.html
+  fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   \sa insertSubstitution, removeSubstitution, substitutions(), substitute()
 */

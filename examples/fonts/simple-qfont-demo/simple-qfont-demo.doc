@@ -12,8 +12,20 @@ $Id$
   QFont member functions.
 
   <hr>
+
+  The main window API (viewer.h):
+
+  \include fonts/simple-qfont-demo/viewer.h
+
+  <hr>
+
+  The main window implementation (viewer.cpp):
+
+  \include fonts/simple-qfont-demo/viewer.cpp
+
+  <hr>
  
-  Implementation:
+  main() program (simple-qfont-demo.cpp):
  
   \include fonts/simple-qfont-demo/simple-qfont-demo.cpp
 
