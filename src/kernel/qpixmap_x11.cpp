@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#66 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#65 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#66 $")
 
 
 /*****************************************************************************
@@ -153,7 +153,6 @@ static int highest_bit( ulong v )
 
 bool QPixmap::optimAll = TRUE;
 
-
 /*----------------------------------------------------------------------------
   \internal
   Initializes the pixmap data.
@@ -274,8 +273,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
     data = pixmap.data;
     data->ref();
     devFlags = pixmap.devFlags;			// copy QPaintDevice flags
-    dpy = pixmap.dpy;				// copy QPaintDevice display
-    hd	= pixmap.hd;				// copy QPaintDevice drawable
+    hd = pixmap.hd;				// copy QPaintDevice drawable
 }
 
 /*----------------------------------------------------------------------------
@@ -315,8 +313,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     }
     data = pixmap.data;
     devFlags = pixmap.devFlags;			// copy QPaintDevice flags
-    dpy = pixmap.dpy;				// copy QPaintDevice display
-    hd	= pixmap.hd;				// copy QPaintDevice drawable
+    hd = pixmap.hd;				// copy QPaintDevice drawable
     return *this;
 }
 
@@ -1085,7 +1082,6 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
-    Display *dpy = qt_xdisplay();
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
 	    QPixmap nullPixmap;
