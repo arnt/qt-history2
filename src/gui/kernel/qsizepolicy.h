@@ -17,9 +17,6 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qobjectdefs.h"
 
-
-// Documentation is in qabstractlayout.cpp.
-
 class QVariant;
 
 class Q_GUI_EXPORT QSizePolicy
@@ -55,7 +52,6 @@ public:
     QSizePolicy(Policy horizontal, Policy vertical)
         : data(horizontal | (vertical<<HSize)) { }
 
-
     Policy horizontalPolicy() const { return static_cast<Policy>(data & HMask); }
     Policy verticalPolicy() const { return static_cast<Policy>((data & VMask) >> HSize); }
 
@@ -85,36 +81,32 @@ public:
 
     void transpose();
 
-
-
 #ifdef QT3_SUPPORT
-    typedef Qt::Orientations ExpandData;
     typedef Policy SizeType;
-
+#ifndef qdoc
+    typedef Qt::Orientations ExpandData;
     enum {
         NoDirection = 0,
         Horizontally = 1,
         Vertically = 2,
         BothDirections = Horizontally | Vertically
     };
-#endif
+#else
+    enum ExpandData {
+        NoDirection = 0x0,
+        Horizontally = 0x1,
+        Vertically = 0x2,
+        BothDirections = 0x3
+    };
+#endif // qdoc
 
+    inline QT3_SUPPORT bool mayShrinkHorizontally() const
+        { return horizontalPolicy() & ShrinkFlag; }
+    inline QT3_SUPPORT bool mayShrinkVertically() const { return verticalPolicy() & ShrinkFlag; }
+    inline QT3_SUPPORT bool mayGrowHorizontally() const { return horizontalPolicy() & GrowFlag; }
+    inline QT3_SUPPORT bool mayGrowVertically() const { return verticalPolicy() & GrowFlag; }
+    inline QT3_SUPPORT Qt::Orientations expanding() const { return expandingDirections(); }
 
-#if 0//###def QT3_SUPPORT
-    bool mayShrinkHorizontally() const { return horizontalPolicy() & ShrinkFlag; }
-    bool mayShrinkVertically() const { return verticalPolicy() & ShrinkFlag; }
-    bool mayGrowHorizontally() const { return horizontalPolicy() & GrowFlag; }
-    bool mayGrowVertically() const { return verticalPolicy() & GrowFlag; }
-
-    Qt::Orientations expanding() const
-    {
-        return expandingDirections();
-    }
-#endif
-
-
-#ifdef QT3_SUPPORT
-public:
     QT3_SUPPORT_CONSTRUCTOR QSizePolicy(Policy hor, Policy ver, bool hfw)
         : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) { }
 
