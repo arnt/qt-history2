@@ -19,6 +19,7 @@
 #include <limits.h>
 
 Q_GLOBAL_STATIC(QFontDatabase, fontDatabase)
+using namespace I;
 
 // -------------------------------------------------------------------------
 bool AbstractPropertyGroup::dirty() const
@@ -27,12 +28,12 @@ bool AbstractPropertyGroup::dirty() const
         if (propertyAt(i)->dirty())
             return true;
 
-    return I::PropertyGroup::dirty();
+    return Property::dirty();
 }
 
 void AbstractPropertyGroup::setDirty(bool b)
 {
-    I::PropertyGroup::setDirty(b);
+    Property::setDirty(b);
 
     for (int i=0; i<propertyCount(); ++i)
         propertyAt(i)->setDirty(b);
