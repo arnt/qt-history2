@@ -29,6 +29,7 @@
 #include <qmessagebox.h>
 #include "mainwindow.h"
 #include "workspace.h"
+#include <stdlib.h>
 
 SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
     : filename( fn ), ed( 0 ), fileNameTemp( temp ),
