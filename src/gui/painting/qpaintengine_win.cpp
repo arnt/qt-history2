@@ -571,9 +571,9 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
     }
 
     if (d->nocolBrush) {
-        SetTextColor(d->hdc, d->bColor);
+        COLORREF old = SetTextColor(d->hdc, d->bColor);
         Rectangle(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
-        SetTextColor(d->hdc, d->pColor);
+        SetTextColor(d->hdc, old);
     } else {
         Rectangle(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
     }
@@ -949,7 +949,6 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
         return;
     }
 
-    int old_pix = d->pColor;
     d->pColor = COLOR_VALUE(pen.color());
     d->pWidth = pen.width();
     bool cacheIt = (d->penStyle == PS_NULL || (d->penStyle == PS_SOLID && pen.width() == 0));
@@ -1026,8 +1025,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
     }
 
 set:
-    if (old_pix != d->pColor)
-        SetTextColor(d->hdc, d->pColor);
+    SetTextColor(d->hdc, d->pColor);
     SelectObject(d->hdc, d->hpen);
     if (hpen_old)
         DeleteObject(hpen_old);
