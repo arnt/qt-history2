@@ -46,7 +46,7 @@
 extern void qt_init_image_handlers();
 extern void qt_init_image_plugins();
 
-#define Q_TRANSPARENT 0x00000000
+#define Q_TRANSPARENT 0x00ffffff
 
 /*!
     \class QImageConsumer qasyncimageio.h
@@ -1061,11 +1061,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		} else {
 		    if (needfirst) {
 			firstcode=oldcode=code;
-			if (!out_of_bounds) {
-			    if ( firstcode!=trans_index && line ) {
-				line[y][x] = color(firstcode);
-			    }
-			}
+			if (!out_of_bounds && line)
+			    line[y][x] = color(firstcode);
 			x++;
 			if (x>=swidth) out_of_bounds = TRUE;
 			needfirst=FALSE;
@@ -1109,11 +1106,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			oldcode=incode;
 			while (sp>stack) {
 			    --sp;
-			    if (!out_of_bounds) {
-				if ( *sp!=trans_index ) {
-				    line[y][x] = color(*sp);
-				}
-			    }
+			    if (!out_of_bounds)
+				line[y][x] = color(*sp);
 			    x++;
 			    if (x>=swidth) out_of_bounds = TRUE;
 			    if (x>right) {
@@ -1317,13 +1311,9 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 
 QRgb QGIFFormat::color( uchar index ) const
 {
-    QRgb *map;
-    if ( lcmap )
-	map = localcmap;
-    else
-	map =globalcmap;
-    if ( index > ncols )
+    if ( index == trans_index || index > ncols )
 	return Q_TRANSPARENT;
+    QRgb *map = lcmap ? localcmap : globalcmap;
     return map[index];
 }
 

@@ -183,7 +183,7 @@ QPrinter::QPrinter( PrinterMode m )
         if ( PrintDlgA( &pd ) != 0 )
             readPdlgA( &pd );
     } )
-    setPrinterMapping( hdc, res );    
+    setPrinterMapping( hdc, res );
 }
 
 QPrinter::~QPrinter()
@@ -598,7 +598,7 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
 	// don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
 	// on the winversion the driver was built with.
 	// below we assure we don't get out of bound reads that might lead to a crash
-	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
+	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) &&
 	    ((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
 	    ((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
 	    szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
@@ -696,7 +696,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
 	// don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
 	// on the winversion the driver was built with.
 	// below we assure we don't get out of bound reads that might lead to a crash
-	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
+	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) &&
 	    ((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
 	    ((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
 	    szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
@@ -983,7 +983,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
         ncols = 256;
     }
     else if ( d > 8 ) {
-	// some windows printer drivers on 95/98 can't handle 32 bit DIBs, 
+	// some windows printer drivers on 95/98 can't handle 32 bit DIBs,
 	// so we have to use 24 bits in that case.
 	if ( qt_winver & Qt::WV_DOS_based )
 	    d = 24;
@@ -1326,11 +1326,11 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
     int lpy = GetDeviceCaps( hdc, LOGPIXELSY );
     *top = GetDeviceCaps( hdc, PHYSICALOFFSETX ) * res / lpx;
     *left = GetDeviceCaps( hdc, PHYSICALOFFSETY ) * res / lpy;
-    *bottom = ( GetDeviceCaps( hdc, PHYSICALWIDTH ) - 
-		GetDeviceCaps( hdc, HORZRES ) - 
+    *bottom = ( GetDeviceCaps( hdc, PHYSICALWIDTH ) -
+		GetDeviceCaps( hdc, HORZRES ) -
 		GetDeviceCaps( handle(), PHYSICALOFFSETX ) ) * res / lpx;
-    *right = ( GetDeviceCaps( hdc, PHYSICALHEIGHT ) - 
-	       GetDeviceCaps( hdc, VERTRES ) - 
+    *right = ( GetDeviceCaps( hdc, PHYSICALHEIGHT ) -
+	       GetDeviceCaps( hdc, VERTRES ) -
 	       GetDeviceCaps( handle(), PHYSICALOFFSETY ) ) * res / lpy;
 }
 
