@@ -45,6 +45,7 @@ static bool qt_gdiplus_support = false;
 static bool qt_resolved_gdiplus = false;
 
 static void qt_resolve_gdiplus();
+static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features();
 
 static QSysInfo::WinVersion qt_winver = QSysInfo::WV_NT;
 
@@ -279,13 +280,7 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 
 QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target,
                                      PaintEngineFeatures caps)
-    :
-#ifndef NO_NATIVE_XFORM
-      QPaintEngine(dptr, caps)
-#else
-      QPaintEngine(dptr, caps)
-#endif
-
+    : QPaintEngine(dptr, caps)
 {
     // ### below is temp hack to survive pixmap gc construction
     d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
@@ -293,19 +288,7 @@ QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevic
 }
 
 QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
-    :
-#ifndef NO_NATIVE_XFORM
-      QPaintEngine(*(new QWin32PaintEnginePrivate), PaintEngineFeatures(CoordTransform
-                                                           | PenWidthTransform
-                                                           | PixmapTransform
-                                                           | PixmapScale
-                                                           | UsesFontEngine
-     							   | SolidAlphaFill
-                                                           | PainterPaths ))
-#else
-      QPaintEngine(*(new QWin32PaintEnginePrivate), PaintEngineFeatures(UsesFontEngine))
-#endif
-
+    : QPaintEngine(*(new QWin32PaintEnginePrivate), qt_decide_paintengine_features())
 {
     // ### below is temp hack to survive pixmap gc construction
     d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
@@ -1068,8 +1051,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         d->gdiplusEngine->drawPixmap(r, pixmap, sr, false);
         return;
     } else if (!d->forceGdi
-               && (pixmap.hasAlphaChannel()
-                   || (pixmap.hasAlpha() && d->txop > QPainter::TxScale))) {
+               && (pixmap.hasAlpha() && d->txop > QPainter::TxScale)) {
         // Try to use GDI+ since we don't support alpha in GDI at the moment, and
         // rotated/sheared masked pixmaps looks bad.
         d->forceGdiplus = true;
@@ -1094,7 +1076,19 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         pm_offset = 0;
     }
 
-   if (mask) {
+    if (pixmap.hasAlphaChannel()) {
+        BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
+                             0,                 // BlendFlags, must be zero
+                             255,               // SourceConstantAlpha, we use pr pixel
+                             AC_SRC_ALPHA       // AlphaFormat
+        };
+        if (!AlphaBlend(d->hdc, r.x(), r.y(), r.width(), r.height(),
+                        pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
+                        bf)) {
+            qSystemWarning("AlphaBlend failed...");
+            return;
+        }
+    } else if (mask) {
         if (stretch) {
             QImage imageData(pixmap);
             QImage imageMask = imageData.createAlphaMask();
@@ -1550,7 +1544,15 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
             tw *= 2;
         while (tw*th < 32678 && th < r.height()/2)
             th *= 2;
-        QPixmap tile(tw, th, pixmap.depth(), QPixmap::BestOptim);
+        QPixmap tile;
+        if (pixmap.hasAlphaChannel()) {
+            QImage image(tw, th, 32);
+            image.fill(QColor(0, 0, 0, 0).rgb());
+            image.setAlphaBuffer(true);
+            tile = image;
+        } else {
+            tile = QPixmap(tw, th, pixmap.depth(), QPixmap::BestOptim);
+        }
         qt_fill_tile(&tile, pixmap);
         if (mask) {
             QBitmap tilemask(tw, th, false, QPixmap::NormalOptim);
@@ -1603,6 +1605,30 @@ void QWin32PaintEnginePrivate::endGdiplus()
     gdiplusInUse = false;
 
     q->setDirty(QPaintEngine::AllDirty);
+}
+
+
+static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
+{
+    if (!qt_resolved_gdiplus)
+        qt_resolve_gdiplus();
+
+    if (qt_gdiplus_support) { // GDI+ combined engine...
+        return QPaintEngine::PaintEngineFeatures(QPaintEngine::CoordTransform
+                                                 | QPaintEngine::PenWidthTransform
+                                                 | QPaintEngine::PixmapTransform
+                                                 | QPaintEngine::PixmapScale
+                                                 | QPaintEngine::UsesFontEngine
+                                                 | QPaintEngine::SolidAlphaFill
+                                                 | QPaintEngine::PainterPaths);
+    } else { // GDI only
+        return QPaintEngine::PaintEngineFeatures(QPaintEngine::CoordTransform
+                                                 | QPaintEngine::PenWidthTransform
+                                                 | QPaintEngine::PixmapTransform
+                                                 | QPaintEngine::PixmapScale
+                                                 | QPaintEngine::UsesFontEngine
+                                                 | QPaintEngine::PainterPaths);
+    }
 }
 
 
@@ -1866,13 +1892,7 @@ static const int qt_hatchstyle_map[] = {
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *ref = 0);
 
 QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
-    : QPaintEngine(*(new QGdiplusPaintEnginePrivate),
-                   PaintEngineFeatures(CoordTransform
-                          | PenWidthTransform
-                          | PatternTransform
-                          | PixmapTransform
-                          | LinearGradients))
-
+    : QPaintEngine(*(new QGdiplusPaintEnginePrivate), 0)
 {
     d->pdev = dev;
 }
