@@ -68,7 +68,7 @@ unix {
 
 	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT
-	!macx:LIBS += -ldl
+	!macx:!freebsd-g++:LIBS += -ldl
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
