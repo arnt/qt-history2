@@ -283,9 +283,9 @@ QMYSQLResult::~QMYSQLResult()
 QVariant QMYSQLResult::handle() const
 {
 #if MYSQL_VERSION_ID >= 40108
-    return d->meta ? QVariant::fromValue(d->meta) : QVariant::fromValue(d->stmt);
+    return d->meta ? qVariantFromValue(d->meta) : qVariantFromValue(d->stmt);
 #else
-    return QVariant::fromValue(d->result);
+    return qVariantFromValue(d->result);
 #endif
 }
 
@@ -1085,7 +1085,7 @@ QSqlRecord QMYSQLDriver::record(const QString& tablename) const
 
 QVariant QMYSQLDriver::handle() const
 {
-    return QVariant::fromValue(d->mysql);
+    return qVariantFromValue(d->mysql);
 }
 
 bool QMYSQLDriver::beginTransaction()
