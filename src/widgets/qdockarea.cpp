@@ -439,14 +439,13 @@ int QDockAreaLayout::widthForHeight( int h ) const
   subclass.
 
   QMainWindow contains four QDockAreas which you can use for your
-  QToolbars and QDockWindows. It is possible to add your own QDockAreas
-  to a QMainWindow, though not straightforward. (See the <i>Qt
-  Linguist</i> source code for an example.)
-
-  In most situations you do not need to use the QDockArea class
-  directly. But if it makes sense for your application to have a
-  QDockArea somewhere other than a QMainWindow you can always create
-  your own QDockAreas using this class.
+  QToolbars and QDockWindows, so in most situations you do not need to
+  use the QDockArea class directly. 
+  
+  QMainWindow contains support for its own dock areas but isn't
+  convenient for adding new QDockAreas. If you need to create your own
+  dock areas we suggest that you create a QWidget subclass and add your
+  QDockAreas to your subclass.
 
   The QDockArea class maintains a position list of all its child dock
   windows. Dock windows are added to a dock area from position 0
@@ -486,17 +485,17 @@ int QDockAreaLayout::widthForHeight( int h ) const
   \enum QDockArea::HandlePosition
 
     A dock window has two kinds of handles, the dock window handle used
-    for dragging the dock window, and the resize handle use to resize
-    the dock window.
+    for dragging the dock window, and the splitter handle used to resize
+    the dock window in relation to other dock windows using a splitter.
+    (The splitter handle is only visible for docked windows.)
 
-  This enum specifies where the dock window resize handles (size grips)
-  are placed in the dock area. (These usually appear at the opposite
-  side of the dock window handle.)
+  This enum specifies where the dock window splitter handle is placed in
+  the dock area. 
 
-  \value Normal The resize handles of dock windows are placed at the
+  \value Normal The splitter handles of dock windows are placed at the
   right and/or bottom.
 
-  \value Reverse The resize handles of dock windows are placed at the
+  \value Reverse The splitter handles of dock windows are placed at the
   left and/or top.
 
 */
@@ -519,8 +518,8 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
     Does not affect floating dock windows or dock windows in other dock
     areas, even if they first appeared in this dock area. Floating dock
     windows are effectively top level windows and are not child windows
-    of the dock area. When a floating dock window is dragged into a dock
-    area its parent becomes the dock area.
+    of the dock area. When a floating dock window is docked (dragged
+    into a dock area) its parent becomes the dock area.
  */
 
 QDockArea::~QDockArea()
