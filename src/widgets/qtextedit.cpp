@@ -1102,10 +1102,11 @@ bool QTextEdit::event( QEvent *e )
 {
     if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
-	if ( ke->state() == NoButton || ke->state() == Keypad ) {
+	if ( ke->state() == NoButton || ke->state() == ShiftButton
+	     || ke->state() == Keypad ) {
 	    if ( ke->key() < Key_Escape ) {
 		ke->accept();
-	    } else {
+	    } else if ( ke->state() == NoButton ) {
 		switch ( ke->key() ) {
 		case Key_Return:
 		case Key_Enter:
