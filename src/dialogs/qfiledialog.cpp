@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#28 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#29 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#29 $");
 
 
 /*!
@@ -243,17 +243,22 @@ void QFileDialog::rereadDir()
     files->clear();
 
     const QFileInfoList	 *filist = d.entryInfoList();
-    QFileInfoListIterator it( *filist );
-    QFileInfo		 *fi = it.current();
-    while ( fi && fi->isDir() ) {
-	dirs->insertItem( fi->fileName().data() );
-	fi = ++it;
+    if ( filist ) {
+	QFileInfoListIterator it( *filist );
+	QFileInfo		 *fi = it.current();
+	while ( fi && fi->isDir() ) {
+	    dirs->insertItem( fi->fileName().data() );
+	    fi = ++it;
+	}
+	while ( fi ) {
+	    files->insertItem( fi->fileName().data() );
+	    fi = ++it;
+	}
+    } else {
+	qApp->restoreOverrideCursor();
+	QMessageBox::message( "Sorry", "Cannot open or read directory." );
+	qApp ->setOverrideCursor( waitCursor );
     }
-    while ( fi ) {
-	files->insertItem( fi->fileName().data() );
-	fi = ++it;
-    }
-
     dirs ->setAutoUpdate( TRUE );
     files->setAutoUpdate( TRUE );
     dirs ->repaint();
