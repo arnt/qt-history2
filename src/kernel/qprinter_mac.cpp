@@ -49,6 +49,7 @@ class QPrinterGC : public QWrapperGC
 public:
     QPrinterGC(QPrinter *pm, QAbstractGC *gc) : QWrapperGC(gc), print(pm) { }
 
+    virtual Qt::HANDLE handle() const { return print->aborted() ? 0 : QWrapperGC::handle(); }
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped);
     virtual bool end();
 };
@@ -144,6 +145,8 @@ QPrinter::~QPrinter()
 
 bool QPrinter::newPage()
 {
+    if(state != PST_ACTIVE)
+	return FALSE;
     if(PMSessionEndPage(psession) != noErr)  {//end the last page
         state = PST_ERROR;
         return false;
@@ -158,12 +161,19 @@ bool QPrinter::newPage()
 
 bool QPrinter::abort()
 {
-    return false;
+    if(state != PST_ACTIVE)
+	return false;
+    if(PMSessionEndPage(psession) == noErr && 
+       PMSessionEndDocument(psession) == noErr) {
+	hd = NULL;
+        state = PST_ABORTED;
+    }
+    return aborted();
 }
 
 bool QPrinter::aborted() const
 {
-    return false;
+    return (state == PST_ABORTED);
 }
 
 bool
