@@ -786,15 +786,15 @@ struct QFileDialogPrivate {
     struct File: public QListViewItem {
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListViewItem * parent )
-	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 )
+	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ), mimePixmap( 0 )
 	{ setup(); dlgp->last = this; }
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListView * parent )
-	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 )
+	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ), mimePixmap( 0 )
 	{ setup(); dlgp->last = this; }
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListView * parent, QListViewItem * after )
-	    : QListViewItem( parent, after ), info( *fi ), d(dlgp), i( 0 )
+	    : QListViewItem( parent, after ), info( *fi ), d(dlgp), i( 0 ), mimePixmap( 0 )
 	{ setup(); if ( !nextSibling() ) dlgp->last = this; }
 
 	QString text( int column ) const;
@@ -803,6 +803,7 @@ struct QFileDialogPrivate {
 	QUrlInfo info;
 	QFileDialogPrivate * d;
 	QListBoxItem *i;
+	QPixmap *mimePixmap;
     };
 
     class MCItem: public QListBoxItem {
@@ -857,7 +858,8 @@ struct QFileDialogPrivate {
     };
 
     UrlInfoList sortedList;
-
+    QList<File> pendingItems;
+    
     QFileListBox * moreFiles;
 
     QFileDialog::Mode mode;
@@ -886,6 +888,7 @@ struct QFileDialogPrivate {
     bool ignoreReturn;
     bool ignoreStop;
     QSizeGrip *sizeGrip;
+    QTimer *mimeTypeTimer;
     
 };
 
@@ -1704,14 +1707,12 @@ QString QFileDialogPrivate::File::text( int column ) const
     return QString::fromLatin1("<--->");
 }
 
-
 const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 {
     if ( column ) {
 	return 0;
-    } else if ( fileIconProvider && d->url.isLocalFile() ) {
-	QFileInfo inf( QUrl( d->url, info.name() ).path() );
-	return fileIconProvider->pixmap( inf );
+    } else if ( mimePixmap ) {
+	return mimePixmap;
     } else if ( info.isSymLink() ) {
 	if ( info.isFile() )
 	    return symLinkFileIcon;
@@ -1991,6 +1992,10 @@ void QFileDialog::init()
     d->checkForFilter = FALSE;
     d->ignoreReturn = FALSE;
     d->ignoreStop = FALSE;
+    d->pendingItems.setAutoDelete( FALSE );
+    d->mimeTypeTimer = new QTimer( this );
+    connect( d->mimeTypeTimer, SIGNAL( timeout() ),
+	     this, SLOT( doMimeTypeLookup() ) );
     
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
@@ -2629,6 +2634,8 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
+    if ( d->mimeTypeTimer->isActive() )
+	d->mimeTypeTimer->stop();
     d->url.listChildren();
 }
 
@@ -3125,7 +3132,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	for ( eb = d->extraButtons.first(); eb; eb = d->extraButtons.next() )
 	    eb->setFixedSize( r );
     }
-    
+
     d->topLevelLayout->activate();
 
     d->sizeGrip->setGeometry( width() - 13, height() - 13, 13, 13 );
@@ -4261,6 +4268,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	d->sortedList.clear();
+	d->pendingItems.clear();
 	d->moreFiles->clearSelection();
 	files->clearSelection();
 	d->moreFiles->clear();
@@ -4325,6 +4333,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    insertEntry( ui, 0 );
 	}
 	resortDir();
+	d->mimeTypeTimer->start( 10 );
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
@@ -4421,6 +4430,7 @@ void QFileDialog::removeEntry( QNetworkOperation *op )
     bool ok1 = FALSE, ok2 = FALSE;
     for ( i = d->sortedList.first(); it.current(); ++it, i = d->sortedList.next() ) {
 	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg( 0 ) ) {
+	    d->pendingItems.removeRef( (QFileDialogPrivate::File*)it.current() );
 	    delete ( (QFileDialogPrivate::File*)it.current() )->i;
 	    delete it.current();
 	    ok1 = TRUE;
@@ -4557,6 +4567,7 @@ void QFileDialog::resortDir()
 	    item->setSelectable( FALSE );
 	    item2->setSelectable( FALSE );
 	}
+	d->pendingItems.append( item );
     }
 }
 
@@ -4587,6 +4598,44 @@ void QFileDialog::removeProgressDia()
     if ( d->progressDia )
 	delete d->progressDia;
     d->progressDia = 0;
+}
+
+void QFileDialog::doMimeTypeLookup()
+{
+    if ( !iconProvider() ) {
+	d->pendingItems.clear();
+	d->mimeTypeTimer->stop();
+	return;
+    }
+    
+    d->mimeTypeTimer->stop();
+    if ( d->pendingItems.count() == 0 ) {
+	return;
+    }
+    
+    QRect r;
+    for ( uint i = 0; i < 5; ++i ) {
+	QFileDialogPrivate::File *item = d->pendingItems.first();
+	if ( !item )
+	    break;
+	QFileInfo fi;
+	if ( d->url.isLocalFile() )
+	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path() );
+	else
+	    fi.setFile( item->info.name() ); // #####
+	QPixmap *p = (QPixmap*)iconProvider()->pixmap( fi );
+	if ( p != item->pixmap( 0 ) ) {
+	    item->mimePixmap = p;
+	    if ( files->isVisible() )
+		item->repaint();
+	    else
+		r = r.unite( d->moreFiles->itemRect( item->i ) );
+	}
+   	d->pendingItems.removeFirst();
+    }
+    if ( d->moreFiles->isVisible() )
+	d->moreFiles->viewport()->repaint( r, FALSE );
+    d->mimeTypeTimer->start( 1 );
 }
 
 #include "qfiledialog.moc"

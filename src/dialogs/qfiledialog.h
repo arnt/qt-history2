@@ -171,6 +171,8 @@ private slots:
 
     void fixupNameEdit();
 
+    void doMimeTypeLookup();
+    
 protected:
     void resizeEvent( QResizeEvent * );
     void keyPressEvent( QKeyEvent * );
