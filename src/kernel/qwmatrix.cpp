@@ -44,7 +44,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #include <math.h>
 #endif
 
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_WMATRIX
 
 // NOT REVISED
 /*!
@@ -665,5 +665,5 @@ QDataStream &operator>>( QDataStream &s, QWMatrix &m )
 }
 #endif // QT_NO_DATASTREAM
 
-#endif // QT_NO_TRANSFORMATIONS
+#endif // QT_NO_WMATRIX
 

@@ -271,7 +271,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
 }
 
 
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 /*!
   Returns a transformed copy of this bitmap by using \a matrix.
 

@@ -2082,6 +2082,8 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
 
+#if !defined(QT_NO_IMAGE_SMOOTHSCALE) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
+
 /*!
     \overload
   Draws the pixmap \a pm into the rectangle \a r. The pixmap is scaled to fit the rectangle, if
@@ -2122,16 +2124,28 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
     QPixmap pixmap = pm;
 
     if ( scale ) {
-	if ( smooth ) {
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
+# ifndef QT_NO_PIXMAP_TRANSFORMATION
+	if ( smooth )
+# endif
+	{
 	    QImage i = pm.convertToImage();
 	    pixmap = QPixmap( i.smoothScale( rw, rh ) );
-	} else {
+	}
+# ifndef QT_NO_PIXMAP_TRANSFORMATION
+	else
+# endif
+#endif
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
+	{
 	    pixmap = pm.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) );
 	}
+#endif
     }
     drawPixmap( r.x(), r.y(), pixmap );
 }
 
+#endif
 
 /*!
     \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr, int conversionFlags = 0 );
@@ -2269,6 +2283,7 @@ void QPainter::drawImage( const QPoint & p, const QImage & i,
     drawImage(p, i, i.rect(), conversion_flags);
 }
 
+#if !defined(QT_NO_IMAGE_TRANSFORMATION) || !defined(QT_NO_IMAGE_SMOOTHSCALE)
 
 /*!
     \overload
@@ -2310,11 +2325,22 @@ void QPainter::drawImage( const QRect &r, const QImage &i )
     float scaleY = (float)rh/(float)ih;
     bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
 
-    QImage img = scale ? ( smooth ? i.smoothScale( rw, rh ) : i.scale( rw, rh ) ) : i;
+    QImage img = scale
+	? (
+#if defined(QT_NO_IMAGE_TRANSFORMATION)
+		i.smoothScale( rw, rh )
+#elif defined(QT_NO_IMAGE_SMOOTHSCALE)
+		i.scale( rw, rh )
+#else
+		smooth ? i.smoothScale( rw, rh ) : i.scale( rw, rh )
+#endif
+	  )
+	: i;
 
     drawImage( r.x(), r.y(), img );
 }
 
+#endif
 
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,

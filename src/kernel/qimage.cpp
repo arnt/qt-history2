@@ -2661,7 +2661,7 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
 
   \sa scaleWidth() scaleHeight() smoothScale() xForm()
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scale( int w, int h, ScaleMode mode ) const
 {
     return scale( QSize( w, h ), mode );
@@ -2671,7 +2671,7 @@ QImage QImage::scale( int w, int h, ScaleMode mode ) const
 /*! \overload
   The requested size of the image is \a s.
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
@@ -2707,7 +2707,7 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 
   \sa scale() scaleHeight() smoothScale() xForm()
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaleWidth( int w ) const
 {
     if ( isNull() ) {
@@ -2734,7 +2734,7 @@ QImage QImage::scaleWidth( int w ) const
 
   \sa scale() scaleWidth() smoothScale() xForm()
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaleHeight( int h ) const
 {
     if ( isNull() ) {
@@ -2792,7 +2792,7 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
 
   \sa scale() QPixmap::xForm() QPixmap::trueMatrix() QWMatrix
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::xForm( const QWMatrix &matrix ) const
 {
     // This function uses the same algorithm (and quite some code) as

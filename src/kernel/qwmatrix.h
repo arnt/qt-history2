@@ -44,7 +44,7 @@
 #include "qrect.h"
 #endif // QT_H
 
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_WMATRIX
 
 
 class Q_EXPORT QWMatrix					// 2D transform matrix
@@ -112,6 +112,6 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QWMatrix & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QWMatrix & );
 
 
-#endif // QT_NO_TRANSFORMATIONS
+#endif // QT_NO_WMATRIX
 
 #endif // QWMATRIX_H
