@@ -292,7 +292,14 @@ void QtFileIconDrag::append( const QIconDragItem &item, const QRect &pr,
 			     const QRect &tr, const QString &url )
 {
     QIconDrag::append( item, pr, tr );
-    urls << url;
+    QString ourUrl = url;    
+#ifdef Q_WS_WIN
+    if (ourUrl.length() > 2 && ourUrl[1] != ':') {
+	QDir dir(ourUrl);
+	ourUrl = dir.absPath();
+    }
+#endif
+    urls << QUriDrag::localFileToUri(ourUrl);
 }
 
 /*****************************************************************************
