@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#35 $
+** $Id: //depot/qt/main/src/moc/moc.y#36 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#36 $";
 #endif
 
 
@@ -751,7 +751,7 @@ void generate()                                 // generate C++ source code
 //'
     Function *f;
     f = signals.first();                        // make internal signal methods
-    bool included_list_stuff = FALSE;
+    static bool included_list_stuff = FALSE;
     while ( f ) {
         QString typstr = "";                    // type string
         QString valstr = "";                    // value string
