@@ -1,5 +1,5 @@
 TEMPLATE    =   lib
 HEADERS     =   qnp.h
-SOURCES     =   qnpbind.cpp
+SOURCES     =   qnp.cpp
 TARGET      =   qnp
 VERSION     =   0.1
