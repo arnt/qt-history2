@@ -1951,8 +1951,11 @@ void QLineEdit::blinkOn()
 }
 
 void QLineEdit::updateOffset()
-{ // must not call repaint() - paintEvent() calls this
-    int textWidth = d->parag->rect().width();
+{ 
+    // must not call repaint() - paintEvent() calls this
+    int parWidth = d->parag->rect().width() - 4; // QTextParag adds 4 pixels to the real width
+    int leftGap = d->parag->leftGap();
+    int textWidth = parWidth - leftGap;
     int w = width();
     int fw = 0;
     fw = frameWidth() + margin() + 1;
@@ -1960,16 +1963,34 @@ void QLineEdit::updateOffset()
     int cursorPos = d->cursor->x();
 
     if ( textWidth > w ) {
-	if ( cursorPos < d->offset )
+	if ( d->offset + w > parWidth )
+	    d->offset = parWidth - w;
+	else if ( d->offset < leftGap )
+	    d->offset = leftGap;
+	else if ( cursorPos < d->offset )
 	    d->offset = cursorPos;
 	else if ( cursorPos > d->offset + w )
 	    d->offset = cursorPos - w;
-	// the 4 pixels are a bit magic. It's the border QRichrText adds. Makes right aligned
-	// lineedits work without having a moving right border
-	if ( d->parag->alignment() & Qt::AlignRight && textWidth < w + 4 + d->offset )
-	    d->offset = QMAX( 0, textWidth - w - 4 );
     } else {
-	d->offset = 0;
+	int align = d->parag->alignment() & Qt::AlignHorizontal_Mask;
+	if ( align == Qt::AlignAuto ) {
+	    if ( d->parag->string()->isRightToLeft() )
+		align = Qt::AlignRight;
+	    else
+		align = Qt::AlignLeft;
+	}
+	switch( align ) {
+	    case Qt::AlignCenter:
+		d->offset = leftGap - (w - textWidth)/2;
+		break;
+	    case Qt::AlignRight:
+		d->offset = leftGap - (w- textWidth);
+		break;
+	    case Qt::AlignLeft:
+	    default:
+		d->offset = 0;
+		break;
+	}
     }
 }
 
@@ -2190,7 +2211,7 @@ void QLineEdit::delOrBackspace( bool backspace )
 		    d->undoRedoInfo.text = QString::null;
 		}
 		if ( backspace ) {
-		    d->cursor->gotoLeft();
+		    d->cursor->gotoPreviousLetter();
 		    d->undoRedoInfo.index = d->cursor->index();
 		}
 		QChar ch = d->cursor->parag()->at( d->cursor->index() )->c;
