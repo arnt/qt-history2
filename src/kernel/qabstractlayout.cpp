@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#37 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -858,7 +858,7 @@ void QLayout::freeze( int w, int h )
 	setResizeMode( Fixed );
     } else {
 	setResizeMode( FreeResize ); // layout will not change min/max size
-	setFixedSize( w, h );
+	//#################paul: doesn't link: setFixedSize( w, h );
     }
 }
 
