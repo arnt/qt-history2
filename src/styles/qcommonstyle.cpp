@@ -1754,7 +1754,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_ComboBox: {
 	int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
-	sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
+	sz = QSize(sz.width() + dfw + 21, sz.height() + dfw + 1);
 	break; }
 
     case CT_PopupMenuItem: {

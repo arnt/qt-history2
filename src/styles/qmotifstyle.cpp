@@ -53,6 +53,7 @@
 #include "qlistview.h"
 #include "qsplitter.h"
 #include "qslider.h"
+#include "qcombobox.h"
 #include <limits.h>
 
 
@@ -738,6 +739,17 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
 			    data );
 	break;
+	
+    case CC_ComboBox:
+	if ( sub == SC_None )
+	    sub = SC_ComboBoxArrow | SC_ComboBoxEditField;
+	if ( sub & SC_ComboBoxArrow )
+	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags, subActive, 
+			    data );
+	if ( sub & SC_ComboBoxEditField )
+	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
+			    subActive, data );
+	break;
 
     case CC_ScrollBar: {
 	if (! w)
@@ -789,6 +801,49 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 					  sub, subActive, data );
     }
 }
+
+int get_combo_extra_width( int h, int *return_awh=0 )
+{
+    int awh;
+    if ( h < 8 ) {
+        awh = 6;
+    } else if ( h < 14 ) {
+        awh = h - 2;
+    } else {
+        awh = h/2;
+    }
+    if ( return_awh )
+        *return_awh = awh;
+    return awh*3/2;
+}
+
+static void get_combo_parameters( const QRect &r,
+                                  int &ew, int &awh, int &ax,
+                                  int &ay, int &sh, int &dh,
+                                  int &sy )
+{
+    ew = get_combo_extra_width( r.height(), &awh );
+
+    sh = (awh+3)/4;
+    if ( sh < 3 )
+        sh = 3;
+    dh = sh/2 + 1;
+
+    ay = r.y() + (r.height()-awh-sh-dh)/2;
+    if ( ay < 0 ) {
+        //panic mode
+        ay = 0;
+        sy = r.height();
+    } else {
+        sy = ay+awh+dh;
+    }
+    if( QApplication::reverseLayout() )
+        ax = r.x();
+    else
+        ax = r.x() + r.width() - ew;
+    ax  += (ew-awh)/2;
+}
+
 
 void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				  QPainter *p,
@@ -863,6 +918,47 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 	}
 	break; }
 
+    case SC_ComboBoxArrow: {
+	QComboBox * cb = (QComboBox *) widget;	
+	int awh, ax, ay, sh, sy, dh, ew;
+	int fw = pixelMetric( PM_DefaultFrameWidth, cb);
+
+	drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
+	QRect ar = querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
+					   data );
+	qDrawArrow( p, DownArrow, MotifStyle, FALSE, ar.x(), ar.y(), 
+		    ar.width(), ar.height(), cg, TRUE );
+
+	QRect tr = r;
+	tr.addCoords( fw, fw, -fw, -fw );
+	get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
+
+	// draws the shaded line under the arrow
+	p->setPen( cg.light() );
+	p->drawLine( ax, sy, ax+awh-1, sy );
+	p->drawLine( ax, sy, ax, sy+sh-1 );
+	p->setPen( cg.dark() );
+	p->drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
+	p->drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
+
+	if ( cb->hasFocus() ) {
+	    QRect re = subRect( SR_ComboBoxFocusRect, cb );
+	    drawPrimitive( PO_FocusRect, p, re, cg );
+	}
+	
+	break; }
+	
+    case SC_ComboBoxEditField: {
+	QComboBox * cb = (QComboBox *) widget;
+	if ( cb->editable() ) {
+	    QRect er = querySubControlMetrics( CC_ComboBox, cb, 
+					       SC_ComboBoxEditField );
+	    er.addCoords( -1, -1, 1, 1);
+	    qDrawShadePanel( p, er, cg, TRUE, 1, 
+			     &cg.brush( QColorGroup::Button ));
+	}	
+	break; }
+    
     default:
 	break;
     }
@@ -1138,6 +1234,35 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 
 	break; }
 
+    case CC_ComboBox:
+	switch ( sc ) {
+	case SC_ComboBoxArrow: {
+	    QComboBox * cb = (QComboBox *) widget;
+	    int ew, awh, sh, dh, ax, ay, sy;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, cb );
+	    QRect cr = cb->rect();
+	    cr.addCoords( fw, fw, -fw, -fw );
+	    get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
+	    rect.setRect( ax, ay, awh, awh );
+	    break; }
+
+	case SC_ComboBoxEditField: {
+	    QComboBox * cb = (QComboBox *) widget;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, cb );
+	    rect = cb->rect();
+	    rect.addCoords( fw, fw, -fw, -fw );
+	    int ew = get_combo_extra_width( rect.height() );
+	
+	    if( QApplication::reverseLayout() )
+		rect.moveBy( ew, 0 );
+ 	    rect.addCoords( 1, 1, -1-ew, -1 );
+	    break; }
+	
+	default:
+	    break;
+	}
+	break;
+	
     default:
 	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
     }
@@ -1150,7 +1275,6 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 				     const QSize &contentsSize,
 				     void **data ) const
 {
-    //cheat
     return QCommonStyle::sizeFromContents( contents, w, contentsSize, data );
 }
 
@@ -1163,7 +1287,17 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	rect = QCommonStyle::subRect( r, widget );
 	rect.addCoords( 1, 1, -1, -2 );
 	break;
+	
+    case SR_ComboBoxFocusRect: {
+	int awh, ax, ay, sh, sy, dh, ew;
+	int fw = pixelMetric( PM_DefaultFrameWidth, widget );
+	QRect tr = widget->rect();
 
+	tr.addCoords( fw, fw, -fw, -fw );
+	get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
+	rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
+	break; }
+	
     default:
 	rect = QCommonStyle::subRect( r, widget );
     }
@@ -1973,48 +2107,6 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     }
 }
 
-int get_combo_extra_width( int h, int *return_awh=0 )
-{
-    int awh;
-    if ( h < 8 ) {
-        awh = 6;
-    } else if ( h < 14 ) {
-        awh = h - 2;
-    } else {
-        awh = h/2;
-    }
-    if ( return_awh )
-        *return_awh = awh;
-    return awh*3/2;
-}
-
-
-static void get_combo_parameters( const QRect &r,
-                                  int &ew, int &awh, int &ax,
-                                  int &ay, int &sh, int &dh,
-                                  int &sy )
-{
-    ew = get_combo_extra_width( r.height(), &awh );
-
-    sh = (awh+3)/4;
-    if ( sh < 3 )
-        sh = 3;
-    dh = sh/2 + 1;
-
-    ay = r.y() + (r.height()-awh-sh-dh)/2;
-    if ( ay < 0 ) {
-        //panic mode
-        ay = 0;
-        sy = r.height();
-    } else {
-        sy = ay+awh+dh;
-    }
-    if( QApplication::reverseLayout() )
-        ax = r.x();
-    else
-        ax = r.x() + r.width() - ew;
-    ax  += (ew-awh)/2;
-}
 
 /*! \reimp
  */
@@ -2034,7 +2126,6 @@ void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 //     qDrawArrow( p, DownArrow, MotifStyle, FALSE,
 //                 ax, ay, awh, awh, g, TRUE );
-
 //     p->setPen( g.light() );
 //     p->drawLine( ax, sy, ax+awh-1, sy );
 //     p->drawLine( ax, sy, ax, sy+sh-1 );
