@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#13 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#14 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -16,6 +16,8 @@
 #include "qstring.h"
 #include "qlist.h"
 
+struct QMultiLineData;
+
 class QMultiLineEdit : public QTableView
 {
     Q_OBJECT
@@ -26,10 +28,6 @@ public:
     const char *textLine( int line ) const;
     QString text() const;
 
-    void insert( const char *s, int line = -1 );
-    void remove( int );
-    void clear();
-
     int numLines();
 
     bool	isReadOnly();
@@ -39,16 +37,16 @@ public:
     void	setFont( const QFont &font );
 
 public slots:
-    void	setText( const char * );
-    void	selectAll();
-    void	setReadOnly( bool );
+    void clear();
+    void setText( const char * );
+    void append( const char * );
+    void selectAll();
+    void setReadOnly( bool );
 
 signals:
     void	textChanged();
 
 protected:
-
-    // table view stuff
     void	paintCell( QPainter *, int row, int col );
 
     void	mousePressEvent( QMouseEvent * );
@@ -67,19 +65,21 @@ protected:
 
 
 protected:
-    void	insertChar( char );
-    void 	newLine();
-    void 	killLine();
-    void	pageUp();
-    void	pageDown();
-    void	cursorLeft( bool mark=FALSE, int steps = 1 );
-    void	cursorRight( bool mark=FALSE, int steps = 1 );
-    void	cursorUp( bool mark=FALSE, int steps = 1 );
-    void	cursorDown( bool mark=FALSE, int steps = 1 );
-    void	backspace();
-    void	del();
-    void	home( bool mark=FALSE );
-    void	end( bool mark=FALSE );
+    virtual void insert( const char *s, int line = -1 );
+    virtual void remove( int );
+    virtual void insertChar( char );
+    virtual void newLine();
+    virtual void killLine();
+    virtual void pageUp();
+    virtual void pageDown();
+    virtual void cursorLeft( bool mark=FALSE, int steps = 1 );
+    virtual void cursorRight( bool mark=FALSE, int steps = 1 );
+    virtual void cursorUp( bool mark=FALSE, int steps = 1 );
+    virtual void cursorDown( bool mark=FALSE, int steps = 1 );
+    virtual void backspace();
+    virtual void del();
+    virtual void home( bool mark=FALSE );
+    virtual void end( bool mark=FALSE );
 
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
@@ -90,12 +90,15 @@ private slots:
 
 private:
     QList<QString> *contents;
-    bool	    readOnly;
-    bool	    cursorOn;
-    bool	    dummy;
-    bool	    markIsOn;
-    bool	    dragScrolling ;
-    bool	    dragMarking;
+    QMultiLineData *mlData;
+
+    bool	readOnly;
+    bool	cursorOn;
+    bool	dummy;
+    bool	markIsOn;
+    bool	dragScrolling ;
+    bool	dragMarking;
+    bool	textDirty;    
 
     int		cursorX;
     int		cursorY;
@@ -110,6 +113,7 @@ private:
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
 
+    void	setWidth( int );
     void	updateCellWidth();
     bool 	partiallyInvisible( int row );
     void	makeVisible();
