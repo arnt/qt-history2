@@ -45,6 +45,7 @@
 #include "qclipboard.h"
 #include "qthread.h"
 #include "qwhatsthis.h" // ######## dependency
+#include "qthread.h"
 #include "qt_windows.h"
 
 #include <windowsx.h>

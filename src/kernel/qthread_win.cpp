@@ -345,11 +345,11 @@ public:
   QThreadEventsPrivate
 */
 
-class QThreadEventsPrivate : public QObject
+class QThreadPostEventPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QThreadEventsPrivate();
+    QThreadPostEventPrivate();
     QPtrList<QThreadQtEvent> events;
     QCriticalSection protect;
     void add(QThreadQtEvent *);
@@ -358,15 +358,15 @@ public slots:
 private:
 };
 
-static QThreadEventsPrivate * qthreadEventsPrivate = 0;
+static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
-QThreadEventsPrivate::QThreadEventsPrivate()
+QThreadPostEventPrivate::QThreadPostEventPrivate()
 {
     events.setAutoDelete( TRUE );
     connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
 }
 
-void QThreadEventsPrivate::sendEvents()
+void QThreadPostEventPrivate::sendEvents()
 {
     protect.enter();
     QThreadQtEvent * qte;
@@ -376,7 +376,7 @@ void QThreadEventsPrivate::sendEvents()
     protect.leave();
 }
 
-void QThreadEventsPrivate::add(QThreadQtEvent * e)
+void QThreadPostEventPrivate::add(QThreadQtEvent * e)
 {
     events.append( e );
 }
@@ -614,21 +614,21 @@ Qt::HANDLE QThread::currentThread()
 
 void QThread::initialize()
 {
-    if( !qthreadEventsPrivate )
-	qthreadEventsPrivate = new QThreadPostEventPrivate();
+    if( !qthreadposteventprivate )
+	qthreadposteventprivate = new QThreadPostEventPrivate();
 }
 
 void QThread::cleanup()
 {
-    delete qthreadEventsPrivate;
-    qthreadEventsPrivate = 0;
+    delete qthreadposteventprivate;
+    qthreadposteventprivate = 0;
 }
 
 void QThread::postEvent( QObject *o,QEvent *e )
 {
-    qthreadEventsPrivate->protect.enter();
-    qthreadEventsPrivate->add( new QThreadQtEvent(o,e)  );
-    qthreadEventsPrivate->protect.leave();
+    qthreadposteventprivate->protect.enter();
+    qthreadposteventprivate->add( new QThreadQtEvent(o,e)  );
+    qthreadposteventprivate->protect.leave();
     qApp->wakeUpGuiThread();
 }
 
