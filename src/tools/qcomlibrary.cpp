@@ -167,8 +167,8 @@ static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
 
 	if ( ! current || pos == s_len + 1 ) {
 	    // save result
-	    token_info.results[ field ] = s;
-	    token_info.lengths[ field ] = fieldlen - 1;
+	    token_info.results[ (int)field ] = s;
+	    token_info.lengths[ (int)field ] = fieldlen - 1;
 
 	    // end of string
 	    ret = 0;
@@ -177,8 +177,8 @@ static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
 
 	if ( current == token_info.fields[ field ] ) {
 	    // save result
-	    token_info.results[ field ] = s;
-	    token_info.lengths[ field ] = fieldlen - 1;
+	    token_info.results[ (int)field ] = s;
+	    token_info.lengths[ (int)field ] = fieldlen - 1;
 
 	    // end of field
 	    fieldlen = 0;
