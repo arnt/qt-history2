@@ -179,7 +179,6 @@ static void resolveUsp10()
 
 	hasUsp10 = false;
 
-        return;
         ScriptFreeCache = (fScriptFreeCache) lib.resolve("ScriptFreeCache");
         ScriptItemize = (fScriptItemize) lib.resolve("ScriptItemize");
         ScriptShape = (fScriptShape) lib.resolve("ScriptShape");
@@ -452,8 +451,8 @@ static unsigned char script_for_win_language[0x80] = {
 static inline QUnicodeTables::Script scriptForWinLanguage(DWORD langid)
 {
     QUnicodeTables::Script script = langid < 0x80 ? (QUnicodeTables::Script)script_for_win_language[langid] : QUnicodeTables::Common;
-    if (script == QUnicodeTables::Common)
-        qWarning("Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid);
+    // if (script == QUnicodeTables::Common)
+    //     qWarning("Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid);
     return script;
 }
 
