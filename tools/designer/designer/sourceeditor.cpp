@@ -62,7 +62,7 @@ void SourceEditor::setForm( FormWindow *fw )
 {
     save();
     bool changed = FALSE;
-    if ( formWindow != fw ) {
+    if ( &(*formWindow) != fw ) {
 	saveBreakPoints();
 	changed = TRUE;
     }
