@@ -1207,7 +1207,6 @@ bool QLayout::activate()
 	    if ( h > ms.height() )
 		ms = QSize( 0, 0 );
 	}
-	
     }
 
     if ( !ms.isEmpty() )
