@@ -435,7 +435,7 @@ ProjectGenerator::addFile(QString file)
 
 
 QString
-ProjectGenerator::getWritableVar(const QString &v, bool /*fixPath*/)
+ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
 {
     QStringList &vals = project->variables()[v];
     if(vals.isEmpty())
@@ -455,10 +455,14 @@ ProjectGenerator::getWritableVar(const QString &v, bool /*fixPath*/)
 	    spaces += " ";
 	join = vals.join(" \\\n" + spaces);
     } 
+#if 0
     // ### Commented out for now so that project generation works.
-    // Sam: can you look at why this was needed?
-    /*    if(fixPath)
-	join = join.replace("\\", "/");*/
+    // Sam: it had to do with trailing \'s (ie considered continuation lines)
+    if(fixPath)
+	join = join.replace("\\", "/");
+#else
+    Q_UNUSED(fixPath);
+#endif
     return ret + join + "\n";
 }
 
