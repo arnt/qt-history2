@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#47 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -935,15 +935,9 @@ QLayout::~QLayout()
 */
 void QLayout::addChildLayout( QLayout *l )
 {
-    if ( l->topLevel ) {
-#if defined(CHECK_NULL)
-	warning( "QLayout: Attempt to add top-level layout as child" );
-#endif
-	return;
-    }
     if ( l->parent() ) {
 #if defined(CHECK_NULL)
-	warning( "QLayout::addChildLayout(), layout already added." );
+	warning( "QLayout::addChildLayout(), layout already has a parent." );
 #endif
 	return;
     }
