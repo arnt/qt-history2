@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#2 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#3 $
 **
 ** Definition of QButtonGroup class
 **
@@ -19,6 +19,7 @@
 class QButton;
 class QButtonList;
 
+
 class QButtonGroup : public QGroupBox
 {
     Q_OBJECT
@@ -30,7 +31,7 @@ public:
     void remove( QButton * );
 
 signals:
-    void selected( int id );
+    void clicked( int id );
 
 slots:
     void buttonClicked();

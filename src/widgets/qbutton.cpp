@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#20 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,37 +16,77 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#20 $";
 #endif
 
 
-QButton::QButton( QWidget *parent, const char *name ) : QWidget( parent, name )
+/*!
+\class QButton qbutton.h
+\brief The QButton class is the base class of button widgets, and it
+provides functionality common to buttons.
+
+The QButton class implements an abstract button, and lets subclasses specify
+how to reply to user action and how to draw itself.
+
+The QButton class has three signals. The pressed() signal is emitted
+when the left mouse button is pressed when the cursor is inside the
+button. After being pressed, the button will be down until the left mouse
+button is again released, which causes a released() signal. If the
+left mouse button is released when the cursor is inside the button, the
+clicked() signal will be emitted.
+
+There are two types of buttons; standard buttons and toggle buttons. A
+standard button can either be pressed down or released. The QPushButton
+class is an example of a standard button. A toggle button has an additional
+flag that is toggled each time the button is clicked. The QRadioButton
+and QCheckBox classes are examples of toggle buttons.
+*/
+
+
+/*!
+Constructs a standard button with a parent widget and a name.
+*/
+
+QButton::QButton( QWidget *parent, const char *name )
+    : QWidget( parent, name )
 {
     initMetaObject();
-    onOffButton = FALSE;			// button is not on/off
-    buttonDown = FALSE;				// button is up
-    buttonOn = FALSE;				// button is off
-    mlbDown = FALSE;				// mouse left button up
+    toggleBt   = FALSE;			// button is not on/off
+    buttonDown = FALSE;			// button is up
+    buttonOn   = FALSE;			// button is off
+    mlbDown    = FALSE;			// mouse left button up
     if ( parent && parent->inherits("QButtonGroup") ) {
-	((QButtonGroup*)parent)->insert( this );// insert into buttongrp parent
-	inGroup = TRUE;
+	group = (QButtonGroup*)parent;
+	group->insert( this );			// insert into button group
     }
     else
-	inGroup = FALSE;
+	group = 0;
 }
+
+/*!
+Destroys the button and all its child widgets.
+*/
 
 QButton::~QButton()
 {
-    QButtonGroup *p = (QButtonGroup *)parent();
-    if ( inGroup && p && p->inherits("QButtonGroup") )
-	p->remove( this );			// remove from buttongrp parent
+    if ( group )				// remove from button group
+	group->remove( this );
 }
 
+
+/*!
+Returns the button text.
+*/
 
 const char *QButton::label() const		// get button label
 {
     return btext;
 }
+
+/*!
+Sets the button text. If \e resize is TRUE, then the button will resize
+itself automatically to the size of the label.
+*/
 
 void QButton::setLabel( const char *label, bool resize )
 {						// set button label
@@ -57,15 +97,36 @@ void QButton::setLabel( const char *label, bool resize )
 }
 
 
+/*!
+Resizes the button to fit the label.
+
+This virtual function is reimplemented by subclasses.
+*/
+
 void QButton::resizeFitLabel()			// do nothing
 {
 }
 
 
+/*!
+\fn bool QButton::isOn() const
+Returns TRUE if this toggle button has been switched ON, or FALSE
+if it has been switched OFF.
+
+\sa switchOn(), switchOff(), isOn().
+*/
+
+/*!
+Swithes a toggle button ON.  This function should be called only for
+toggle buttons.
+
+\sa switchOff(), isOn().
+*/
+
 void QButton::switchOn()			// switch button on
 {
 #if defined(CHECK_STATE)
-    if ( !onOffButton )
+    if ( !toggleBt )
 	warning( "QButton::switchOn: Only on/off buttons should be switched" );
 #endif
     bool lastOn = buttonOn;
@@ -74,10 +135,17 @@ void QButton::switchOn()			// switch button on
 	repaint( FALSE );			// redraw
 }
 
+/*!
+Swithes a toggle button OFF.  This function should be called only for
+toggle buttons.
+
+\sa switchOn(), isOn().
+*/
+
 void QButton::switchOff()			// switch button off
 {
 #if defined(CHECK_STATE)
-    if ( !onOffButton )
+    if ( !toggleBt )
 	warning( "QButton::switchOff: Only on/off buttons should be switched");
 #endif
     bool lastOn = buttonOn;
@@ -87,16 +155,46 @@ void QButton::switchOff()			// switch button off
 }
 
 
-void QButton::setOnOffButton( bool onOff )	// set to on/off button
+/*!
+\fn bool QButton::toggleButton() const
+Returns TRUE if the button is a toggle button.
+
+\sa setToggleButton().
+*/
+
+
+/*!
+Sets the button to become a toggle button if \e toggle is TRUE, or a
+standard button if \e toggle is FALSE.
+
+A button is initially a standard button.
+
+\sa toggleButton().
+*/
+
+void QButton::setToggleButton( bool toggle )	// set to toggle button
 {
-    onOffButton = onOff;
+    toggleBt = toggle;
 }
 
+
+/*!
+Returns TRUE if \e pos is inside the widget rectangle, or FALSE if it
+is outside.
+
+This virtual function is reimplemented by subclasses.
+*/
 
 bool QButton::hitButton( const QPoint &pos ) const
 {
     return rect().contains( pos );
 }
+
+/*!
+Draws the buttons.  The default implementation does nothing.
+
+This virtual function is reimplemented by subclasses to draw real buttons.
+*/
 
 void QButton::drawButton( QPainter * )
 {
@@ -125,7 +223,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
     bool hit = hitButton( e->pos() );
     buttonDown = FALSE;
     if ( hit ) {				// mouse release on button
-	if ( onOffButton )
+	if ( toggleBt )
 	    buttonOn = !buttonOn;
 	repaint( FALSE );
 	emit released();

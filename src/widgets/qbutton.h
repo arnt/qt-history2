@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#13 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#14 $
 **
 ** Definition of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qwidget.h"
 
 
-class QPixmapDict;
+class QButtonGroup;				// button group (qbttngrp.h)
 
 
 class QButton : public QWidget			// button class
@@ -40,12 +40,12 @@ protected:
     bool    isDown() const { return buttonDown; }
     bool    isUp()   const { return !buttonDown; }
 
-    void    switchOn();				// switch button on
-    void    switchOff();			// switch button off
     bool    isOn()   const { return buttonOn; }
+    void    switchOn();
+    void    switchOff();
 
-    void    setOnOffButton( bool );		// set to on/off type button
-    bool    isOnOffButton()  const { return onOffButton; }
+    void    setToggleButton( bool );
+    bool    toggleButton()  const { return toggleBt; }
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
@@ -58,11 +58,11 @@ protected:
 
 private:
     QString btext;
-    uint    onOffButton	: 1;
+    uint    toggleBt	: 1;
     uint    buttonDown	: 1;
     uint    buttonOn	: 1;
     uint    mlbDown	: 1;
-    uint    inGroup	: 1;
+    QButtonGroup *group;
 
     friend class QButtonGroup;
 };
