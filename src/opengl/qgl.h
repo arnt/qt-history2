@@ -53,7 +53,9 @@ Q_EXPORT inline const char *qGLVersion() {
 
 #if defined(Q_WS_WIN)
 # include <qt_windows.h>
-#elif defined(Q_WS_MAC)
+#endif
+
+#if defined(Q_WS_MAC)
 # include <gl.h>
 # include <glu.h>
 #else
