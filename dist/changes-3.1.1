@@ -1,3 +1,5 @@
+#81642
+
 Qt 3.1.1 is a bugfix release. It maintains both forward and backward
 compatibility (source and binary) with Qt 3.1.0
 
@@ -23,10 +25,17 @@ compatibility (source and binary) with Qt 3.1.0
 *			   Library					   *
 ****************************************************************************
 
+- QAccel
+	Fixed for single key accelerators. Make Shift modifier work
+	for all key combinations, unless an accelerator with Shift is
+	defined.
+
 - QAction
 	Remove iconset when a null-iconset is being set.
 
 - QApplication
+	Don't overwrite explicitely set font with default font when
+	using the static methods before calling the constructor.
 	X11 only: Support custom color maps on 8bit visuals.
 
 - QCheckBox
@@ -57,7 +66,8 @@ compatibility (source and binary) with Qt 3.1.0
 	Implement API on Windows and Mac.
 
 - QFileDialog
-	Fix visibility of preview widgets.
+	Fix visibility of preview widgets. Renaming files works now
+	also in ExistingFiles mode.
 
 - QFont
 	X11 only: Fix width calculation for undefined characters.
@@ -78,13 +88,19 @@ compatibility (source and binary) with Qt 3.1.0
 	Mac only: Implement path searching.
 
 - QLineEdit
-	Draw background pixmap with the correct offset.
+	Draw background pixmap with the correct offset. Fixed
+	undo/redo.
+	Mac only: Key_Up goes moves the cursor to the beginning,
+	Key_Down to the end of the lineedit.
 
 - QListBox
 	Fix null-pointer crash in QFileDialog.
 
 - QListView
 	Fix null-pointer crash when reimplementing insertItem.
+
+- QMenuBar
+	Improved focus handling.
 
 - QMime
 	Support URLs on Japanese Win98.
@@ -124,7 +140,8 @@ compatibility (source and binary) with Qt 3.1.0
 - QSettings
 	X11 only: Don't read Qt specific settings if application is
 	not desktop-settings-aware.
-	Windows only: Handle null-terminations correctly on Win9x/ME.
+	Windows only: Handle null-terminations correctly on
+	Win9x/ME. Fixed a resource leak.
 
 - QSqlCursor
 	Improve performance for multiple inserts
@@ -139,14 +156,22 @@ compatibility (source and binary) with Qt 3.1.0
 	Fix focus handling for dynamically created tab widgets.
 
 - QTable
-	Make sizeHint implementation depend on header visibility.
+	Make sizeHint implementation depend on header
+	visibility. Update the geometry of cell widgets in
+	setRowHeight() and setColumnWidth().
+
+- QTableItem
+	Fixed sizeHint() for items with wordwrap and items with
+	newlines in the text.
 
 - QTextCodecFactory
 	Load plugins correctly.
 
 - QTextEdit
 	Fix rendering of selections in inactive windows. Return the
-	string with format tags in LogText mode.
+	string with format tags in LogText mode. Non-breaking
+	whitespaces (0xa0) are not converted to spaces anymore in
+	text().
 
 - QWheelEvent
 	X11 only: Support second mouse wheel (since there is no
