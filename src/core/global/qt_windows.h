@@ -24,8 +24,6 @@
 #endif
 #endif
 
-#include "qwindowdefs.h"
-
 #include <windows.h>
 
 // already defined when compiled with WINVER >= 0x0500

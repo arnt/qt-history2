@@ -32,7 +32,7 @@
 #ifndef QT_NO_LIBRARY
 
 #ifdef Q_WS_WIN
-# include "qwindowdefs_win.h"
+# include "qt_windows.h"
 #endif
 
 
