@@ -897,26 +897,30 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
         return;
     }
 
-    QPixmap pixmap = sourcePm;
-    bool srcIsAlpha = pixmap.hasAlphaChannel();
+    const QPixmap *pixmap = &sourcePm;
+    bool srcIsAlpha = pixmap->hasAlphaChannel();
     bool targetIsAlpha = d->pdev->devType() == QInternal::Pixmap
                          && static_cast<QPixmap *>(d->pdev)->hasAlphaChannel();
 
     // Source needs to be alpha if target is.
     if (targetIsAlpha && !srcIsAlpha) {
-        QString key = QString("qt_src_not_alpha: sn=%1").arg(pixmap.serialNumber());
+        QString key = QString("qt_src_not_alpha: sn=%1").arg(pixmap->serialNumber());
         QPixmap *cached = QPixmapCache::find(key);
         if (!cached) {
-            QImage im = pixmap.toImage();
+            QImage im = pixmap->toImage();
             im = im.convertDepth(32);
             im.setAlphaBuffer(true);
-            pixmap = im;
-            QPixmapCache::insert(key, pixmap);
+            QPixmap tmp = im;
+            QPixmapCache::insert(key, tmp);
+            pixmap = QPixmapCache::find(key);
+            Q_ASSERT_X(pixmap,
+                       "QWin32PaintEngine::drawPixmap()",
+                       "We just inserted pixmap into cache so it should have been there");
         }
     }
 
-    if (d->pen.color().alpha() != 255 && pixmap.isQBitmap()) {
-        QRegion region(*static_cast<const QBitmap*>(&pixmap));
+    if (d->pen.color().alpha() != 255 && pixmap->isQBitmap()) {
+        QRegion region(*static_cast<const QBitmap*>(pixmap));
         region.translate(qRound(r.x()), qRound(r.y()));
         updateClipRegion(region, Qt::IntersectClip);
         d->fillAlpha(r, d->pen.color());
@@ -925,9 +929,9 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
         return;
     }
 
-    QPixmap *pm = (QPixmap*)&pixmap;
+    QPixmap *pm = (QPixmap*)pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
-    if (!mask && pixmap.isQBitmap() && d->bgMode == Qt::TransparentMode)
+    if (!mask && pixmap->isQBitmap() && d->bgMode == Qt::TransparentMode)
        mask = (QBitmap*) pm;
 
     HDC pm_dc = pm->getDC();
@@ -949,7 +953,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
         }
     } else if (mask && mode == Qt::ComposePixmap) {
         if (stretch) {
-            QImage imageData = pixmap.toImage();
+            QImage imageData = pixmap->toImage();
             QImage imageMask = imageData.createAlphaMask();
             QBitmap tmpbm = imageMask;
             QBitmap bm(sr.width(), sr.height());
