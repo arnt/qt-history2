@@ -28,6 +28,7 @@
 #include <qregexp.h>
 #include <qsignal.h>
 #include <qtoolbutton.h>
+#include <qmessagebox.h>
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
@@ -878,8 +879,11 @@ void QFileDialog::done(int result)
 void QFileDialog::accept()
 {
     QStringList files = selectedFiles();
+    QString fn = d->fileName->text();
+
     if (files.count() < 1)
-        return; // nothing was selected
+        files.append(fn);
+
     switch (d->fileMode) {
     case DirectoryOnly:
     case Directory:
@@ -888,7 +892,7 @@ void QFileDialog::accept()
             QDialog::accept();
         }
         return;
-    case AnyFile:// FIXME: not supported, as we rely on selected files
+    case AnyFile:
         if (!QFileInfo(files.first()).isDir())
             QDialog::accept();
         return;
@@ -896,8 +900,11 @@ void QFileDialog::accept()
     case ExistingFiles:
         for (int i = 0; i < files.count(); ++i) {
             QFileInfo info(files.at(i));
-            if (!info.exists())
+            if (!info.exists()) {
+                QString message = "\nFile not found.\nPlease verify the correct file name was given";
+                QMessageBox::warning(this, d->acceptButton->text(), info.fileName() + message);
                 return;
+            }
             if (info.isDir()) {
                 setDirectory(info.absoluteFilePath());
                 return;
@@ -1494,7 +1501,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
                      q, SLOT(fileNameChanged(const QString&)));
-    QObject::connect(fileName, SIGNAL(returnPressed()), q, SLOT(accept()));
+//    QObject::connect(fileName, SIGNAL(returnPressed()), q, SLOT(accept()));
     grid->addWidget(fileName, 2, 2, 1, 3);
 
     fileType = new QComboBox(q);
