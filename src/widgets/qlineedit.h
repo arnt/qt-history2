@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#74 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#75 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -47,6 +47,8 @@ public:
    ~QLineEdit();
 
     QString text() const;
+    QString displayText() const;
+
     int		maxLength()	const;
     virtual void setMaxLength( int );
 
@@ -120,7 +122,6 @@ protected:
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
     void	paintEvent( QPaintEvent * );
-    void	timerEvent( QTimerEvent * );
     void	resizeEvent( QResizeEvent * );
     void	leaveEvent( QEvent * );
     void	dragEnterEvent( QDragEnterEvent * );
@@ -137,7 +138,6 @@ private:
     // kept
     void	newMark( int pos, bool copy=TRUE );
     void	markWord( int pos );
-    void	copyText();
     int		lastCharVisible() const;
     int		minMark() const;
     int		maxMark() const;
@@ -155,16 +155,18 @@ private:
     bool	dragScrolling;
     bool	scrollingLeft;
     int		alignmentFlag;
-    int 	alignOffset;
     bool	ed;
+
+    void updateOffset();
+    int xPosToCursorPos( int ) const;
+    void blinkOn();
+    void makePixmap() const;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLineEdit( const QLineEdit & );
     QLineEdit &operator=( const QLineEdit & );
 #endif
-
-    friend class QComboBox;
 };
 
 
