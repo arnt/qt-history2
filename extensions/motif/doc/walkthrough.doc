@@ -11,7 +11,7 @@ This walkthrough covers a complete migration of a Motif based program
 to the Qt toolkit using the \e {Qt Motif Extension}.
 
 It is rarely practical for a large project with hundreds of thousands
-or even millons of lines of code to be migrated all at once; such an
+or even millions of lines of code to be migrated all at once; such an
 endeavor would require too many development resources and would incur
 significant risks. Every line of code would have to be rewritten,
 every user interface redesigned, and quality assurance tests and
@@ -117,7 +117,7 @@ we should also add \c -lqmotif to the list of libraries.
 \endcode
 
 Now we regenerate our \c Makefile by running \c qmake again, and
-rebuild using \c make. This time, our project succesfully links, and
+rebuild using \c make. This time, our project successfully links, and
 the application runs as expected.
 
 We are now ready to start using the \e {Qt Motif Extension}.
@@ -152,7 +152,7 @@ foreign \c Display.
 \printuntil QApplication
 
 The next change is not yet necessary, but it is included to show that
-the \e {Qt Motif Extension} provides a complete intregration.
+the \e {Qt Motif Extension} provides a complete integration.
 Normally, a Motif based program would use the \c XtAppMainLoop()
 function to run the application's event loop. This is still possible,
 but since we are migrating to the Qt toolkit, we would like to use the
@@ -207,23 +207,23 @@ We are ready to start migrating the user interface for our project.
 As mentioned in the introduction, we do this in steps, ensuring that
 our application is still usable at every step of the migration process.
 
-The user interface can be viewed as a heirarchy; each top-level window
+The user interface can be viewed as a hierarchy; each top-level window
 and dialog depends upon a parent (which is another top-level window or
 dialog). When using Motif \c XmMainWindow widgets, these should be
 viewed as two separate entities: the \e {Main Window} widget with the
-popup-menu heirarchy and the \e View widget contained in the \e {Main
+popup-menu hierarchy and the \e View widget contained in the \e {Main
 Window} widget. The \e View widget depends on the \e {Main Window}
 widget.
 
 We begin migrating the pieces that have no dependencies, and work our
 way up the dependency tree until all pieces have been migrated.
 
-The heirarchy for this project looks something like this:
+The hierarchy for this project looks something like this:
 
 \img motif-todo.png Motif Todo Hierarchy
 
 We will begin by migrating and replacing all of the dialogs, then the
-\e {Main Window} widget with popup-menu heirarchy, and finally the \e
+\e {Main Window} widget with popup-menu hierarchy, and finally the \e
 View widget.
 
 However, we are not ready to begin just yet. The migration process can
@@ -305,7 +305,7 @@ Next, we remove the \c help_cb() function implementation.
 The \e Help dialog is now removed from our project.  We cannot add
 QToolTip and QWhatsThis help at the moment, since we are still using
 \c XmMainWindow for the \e {Main Window} widget.  Once we have
-migrated the \e {Main Window} and the popup-menu heirarchy, we can
+migrated the \e {Main Window} and the popup-menu hierarchy, we can
 begin using QToolTip and QWhatsThis for online help.
 
 \section1 Using Qt Standard Dialogs
@@ -722,7 +722,7 @@ Manual\endlink is a complete reference on the use of \e {Qt Designer}.
 \section2 Implementing the \e {Main Window}
 
 The description for the \e {Main Window} is saved as \c mainwindow.ui.
-We add this file to the probject file and regenerate the \c Makefile.
+We add this file to the project file and regenerate the \c Makefile.
 The \e uic utility generates the code for our \e {Main Window}, which
 is then compiled and link into our application.
 
@@ -896,7 +896,7 @@ constructor and a destructor.
 \printline
 
 The existing \c pages, \c currentPage and \c maxpages global variables
-are removed from the source files.  We reaplce them with \c extern
+are removed from the source files.  We replace them with \c extern
 declarations in \c page.h.
 
 \skipto extern Page *pages[];
@@ -1011,7 +1011,7 @@ instead of using \e new.
 \printuntil }
 
 The \c SaveDB() function in \c io.cpp also needs these changes.  We
-change one occurange of \c XtFree() to \e delete.
+change one occurance of \c XtFree() to \e delete.
 
 \skipto void SaveDB(char* filename)
 \skipto Make sure to grab current page
@@ -1054,7 +1054,7 @@ Since we have moved the code directly into the \e {Main Window}
 implementation, we create these dialogs with \e this as the parent
 argument.
 
-The \c PageChange() callback functon is moved to from \c actions.cpp
+The \c PageChange() callback function is moved to from \c actions.cpp
 to \c todo.cpp and made \c static since it is not used anywhere else.
 
 Earlier modifications to \c actions.cpp caused the \c Trim() function
@@ -1063,7 +1063,7 @@ to become unused, so we remove it.
 The \c MIN() and \c MAX() macros in \c todo.cpp are unneeded.  Qt
 provides the \c QMIN() and \c QMAX() macros which we will use.
 
-Earlier modicifations caused the \c fallback_resources array to become
+Earlier modifications caused the \c fallback_resources array to become
 unused, so we remove it. 
 
 In the near future, our program will not use Motif anymore, and we
@@ -1143,7 +1143,7 @@ XmNotebook widget class.
 compatibility with previous and future versions.
 
 \i Disadvantages - The new widget will need to be written and
-regression tested.  Existing code in our applicaton will need to be
+regression tested.  Existing code in our application will need to be
 changed in order to deal with the new widget's API.
 
 \endlist
@@ -1408,7 +1408,7 @@ For completeness, the code to initialize a QPrinter object is included below.
 
 Qt provides rich text using a subset of HTML.  The QSimpleRichText
 class makes rich-text printing simple.  All we need to do is create a
-string with the proper format tags inserted at the apprioriate
+string with the proper format tags inserted at the appropriate
 places.  For our example, we will keep the printing output similar to
 previous versions.
 
@@ -1452,7 +1452,7 @@ so we use \c bool and \c false instead.
 The last modification needed to completely remove Xt and Motif from
 our application is to stop using the QMotif class.  We remove the
 qmotif.h \c #include statement from \c todo.cpp, and remove the
-instantiaion from the \c main() function.
+instantiation from the \c main() function.
 
 After doing this, we can remove the \c -lXm and \c -lqmotif from the
 \c LIBS variable in our project file.  Our project file also contains
