@@ -40,7 +40,7 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 
-static const char * const file_xpm[]={
+static const char * file_xpm[]={
     "16 16 5 1",
     ". c #7f7f7f",
     "# c None",

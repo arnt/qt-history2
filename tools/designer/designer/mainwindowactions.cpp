@@ -64,7 +64,7 @@
 #include "dbconnectionimpl.h"
 #endif
 
-static const char * const whatsthis_image[] = {
+static const char * whatsthis_image[] = {
     "16 16 3 1",
     "	c None",
     "o	c #000000",
@@ -1873,4 +1873,3 @@ void MainWindow::toolsCustomWidget()
     rebuildCustomWidgetGUI();
     statusBar()->clear();
 }
-
