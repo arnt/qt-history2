@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#147 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -845,14 +845,13 @@ void QLineEdit::cursorLeft( bool mark, int steps )
 	return;
     }
     if ( cursorPos > 0 || (!mark && hasMarkedText()) ) {
-	int maxP = cursorPos;
 	cursorPos -= steps;
 	if ( cursorPos < 0 )
 	    cursorPos = 0;
 	cursorOn = FALSE;
 	blinkSlot();
 	int minP = QMIN( minMark(), cursorPos );
-	maxP = QMAX( maxMark(), cursorPos );
+	int maxP = QMAX( maxMark(), cursorPos );
 	if ( mark )
 	    newMark( cursorPos );
 	else

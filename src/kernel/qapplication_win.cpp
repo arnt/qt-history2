@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#156 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1770,7 +1770,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     int	   state;
     int	   i;
 
-    for ( i=0; mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 ) ;
+    for ( i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 )
+	;
     if ( !mouseTbl[i] )
 	return FALSE;
     type   = mouseTbl[++i];			// event type
@@ -2149,8 +2150,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     } else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
 	// Ignore silly Windows move event to wild pos after iconify.
-	if ( a <= QCOORD_MAX && a >= QCOORD_MIN &&
-	     b <= QCOORD_MAX && b >= QCOORD_MIN ) {
+	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) {
 	    QPoint newPos( a, b );
 	    r.moveTopLeft( newPos );
 	    setCRect( r );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#132 $
 **
 ** Implementation of QListView widget class
 **
@@ -348,9 +348,8 @@ void QListViewItem::init()
 
 QListViewItem::~QListViewItem()
 {
-    QListViewItem * nextChild = childItem;
     while ( childItem ) {
-	nextChild = childItem->siblingItem;
+	QListViewItem *nextChild = childItem->siblingItem;
 	delete childItem;
 	childItem = nextChild;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#61 $
 **
 ** Implementation of QFrame widget class
 **
@@ -247,7 +247,7 @@ void QFrame::setLineWidth( int w )
 
 void QFrame::setMidLineWidth( int w )
 {
-    mwidth = (short) ( w & 0x00ff | mwidth & 0xff00 );
+    mwidth = (short) ( (w & 0x00ff) | (mwidth & 0xff00) );
     updateFrameWidth();
 }
 
@@ -273,7 +273,7 @@ void QFrame::setMidLineWidth( int w )
 
 void QFrame::setMargin( int w )
 {
-    mwidth = (short) ( ((w & 0xff) << 8) | mwidth & 0x00ff );
+    mwidth = (short) ( ((w & 0xff) << 8) | (mwidth & 0x00ff) );
     updateFrameWidth();
 }
 
