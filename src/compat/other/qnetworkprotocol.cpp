@@ -1277,8 +1277,8 @@ int QHttpProtocol::supportedOperations() const
 */
 void QHttpProtocol::operationGet(QNetworkOperation *op)
 {
-    connect(&http, SIGNAL(readyRead(QHttpResponseHeader)),
-            this, SLOT(clientReply(QHttpResponseHeader)));
+    connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)),
+            this, SLOT(clientReply(const QHttpResponseHeader &)));
     connect(&http, SIGNAL(done(bool)),
             this, SLOT(clientDone(bool)));
     connect(&http, SIGNAL(stateChanged(int)),
@@ -1297,8 +1297,8 @@ void QHttpProtocol::operationGet(QNetworkOperation *op)
 */
 void QHttpProtocol::operationPut(QNetworkOperation *op)
 {
-    connect(&http, SIGNAL(readyRead(QHttpResponseHeader)),
-            this, SLOT(clientReply(QHttpResponseHeader)));
+    connect(&http, SIGNAL(readyRead(const QHttpResponseHeader &)),
+            this, SLOT(clientReply(const QHttpResponseHeader &)));
     connect(&http, SIGNAL(done(bool)),
             this, SLOT(clientDone(bool)));
     connect(&http, SIGNAL(stateChanged(int)),
@@ -1353,13 +1353,6 @@ void QHttpProtocol::clientReply(const QHttpResponseHeader &rep)
 
 void QHttpProtocol::clientDone(bool err)
 {
-    disconnect(this, SIGNAL(readyRead(QHttpResponseHeader)),
-            this, SLOT(clientReply(QHttpResponseHeader)));
-    disconnect(this, SIGNAL(done(bool)),
-            this, SLOT(clientDone(bool)));
-    disconnect(this, SIGNAL(stateChanged(int)),
-            this, SLOT(clientStateChanged(int)));
-
     if (err) {
         QNetworkOperation *op = operationInProgress();
         if (op) {
@@ -1460,7 +1453,7 @@ private slots:
     void npListInfo(const QUrlInfo &);
     void npDone(bool);
     void npStateChanged(int);
-    void npDataTransferProgress(int, int);
+    void npDataTransferProgress(Q_LLONG, Q_LLONG);
     void npReadyRead();
 
 private:
@@ -1539,8 +1532,8 @@ bool QFtpProtocol::checkConnection(QNetworkOperation *op)
                 this, SLOT(npDone(bool)));
         connect(&ftp, SIGNAL(stateChanged(int)),
                 this, SLOT(npStateChanged(int)));
-        connect(&ftp, SIGNAL(dataTransferProgress(int,int)),
-                this, SLOT(npDataTransferProgress(int,int)));
+        connect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG, Q_LLONG)),
+                this, SLOT(npDataTransferProgress(Q_LLONG, Q_LLONG)));
         connect(&ftp, SIGNAL(readyRead()),
                 this, SLOT(npReadyRead()));
 
@@ -1651,8 +1644,8 @@ void QFtpProtocol::npDone(bool err)
                     this, SLOT(npDone(bool)));
         disconnect(&ftp, SIGNAL(stateChanged(int)),
                     this, SLOT(npStateChanged(int)));
-        disconnect(&ftp, SIGNAL(dataTransferProgress(int,int)),
-                    this, SLOT(npDataTransferProgress(int,int)));
+        disconnect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG, Q_LLONG)),
+                    this, SLOT(npDataTransferProgress(Q_LLONG, Q_LLONG)));
         disconnect(&ftp, SIGNAL(readyRead()),
                     this, SLOT(npReadyRead()));
     }
@@ -1681,9 +1674,9 @@ void QFtpProtocol::npStateChanged(int state)
     }
 }
 
-void QFtpProtocol::npDataTransferProgress(int bDone, int bTotal)
+void QFtpProtocol::npDataTransferProgress(Q_LLONG bDone, Q_LLONG bTotal)
 {
-    emit QNetworkProtocol::dataTransferProgress(bDone, bTotal, operationInProgress());
+    emit QNetworkProtocol::dataTransferProgress((int) bDone, (int) bTotal, operationInProgress());
 }
 
 void QFtpProtocol::npReadyRead()
