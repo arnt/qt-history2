@@ -381,13 +381,13 @@ void QTreeView::close(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
-    int idx = d->viewIndex(index);
-    if (idx > -1) { // is visible
-        d->close(idx, true);
+    int i = d->viewIndex(index);
+    if (i > -1) { // is visible
+        d->close(i, true);
     } else {
-        idx = d->openedIndexes.indexOf(index);
-        if (idx > -1)
-            d->openedIndexes.remove(idx);
+        i = d->openedIndexes.indexOf(index);
+        if (i > -1)
+            d->openedIndexes.remove(i);
     }
 }
 
@@ -400,6 +400,9 @@ void QTreeView::close(const QModelIndex &index)
 
 bool QTreeView::isOpen(const QModelIndex &index) const
 {
+    int i = d->viewIndex(index);
+    if (i > -1) // is visible - FIXME: this is a workaround for a bug!
+        return d->viewItems.at(i).open;
     return d->openedIndexes.contains(index);
 }
 
