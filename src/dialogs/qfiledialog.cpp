@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#249 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#250 $
 **
 ** Implementation of QFileDialog class
 **
@@ -581,8 +581,8 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     if ( e->button() != LeftButton ) {
         QListBox::viewportMousePressEvent( e );
 
-        if ( e->button() == RightButton && currentItem() != -1 )
-            filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
+//          if ( e->button() == RightButton && currentItem() != -1 )
+//              filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
 
         firstMousePressEvent = FALSE;
         return;
@@ -610,6 +610,8 @@ void QFileListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 {
     QListBox::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
+    if ( e->button() == RightButton && currentItem() != -1 )
+        filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
 }
 
 void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
@@ -765,6 +767,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 
 void QFileListBox::doDragScroll()
 {
+    renameTimer->stop();
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     int l = 16;
@@ -918,7 +921,6 @@ void QFileListBox::rename()
                 return;
 
             filedialog->rereadDir();
-            filedialog->setSelection( newfile );
             for ( uint i = 0; i < count(); ++i ) {
                 if ( text( i ) == lined->text() ) {
                     setCurrentItem( i );
@@ -1175,6 +1177,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
 
 void QFileListView::doDragScroll()
 {
+    renameTimer->stop();
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     int l = 16;
@@ -1311,7 +1314,6 @@ void QFileListView::rename()
                 return;
 
             filedialog->rereadDir();
-            filedialog->setSelection( newfile );
             QListViewItemIterator it( this );
             for ( ; it.current(); ++it ) {
                 if ( it.current()->text( 0 ) == lined->text() ) {
@@ -1529,6 +1531,28 @@ static QStringList makeFiltersList( const QString &filter )
         lst.append( filter.mid( j, l - j + 1 ).simplifyWhiteSpace() );
 
     return lst;
+}
+
+static QString findNewFolderName( const QDir &dir )
+{
+    
+    QStringList entries = dir.entryList( QFileDialog::tr( "New" ) );
+    
+    int i = 1;
+    while ( TRUE ) {
+        QString fname = QFileDialog::tr( "New Folder %1" ).arg( i );
+        QStringList::Iterator it = entries.begin();
+        bool exist = FALSE;
+        for ( ; it != entries.end(); ++it ) {
+            if ( *it == fname ) {
+                exist = TRUE;
+                break;
+            }
+        }
+        if ( !exist )
+            return fname;
+        ++i;
+    }
 }
 
 /*!
@@ -2850,84 +2874,31 @@ void QFileDialog::cdUpClicked()
     }
 }
 
-// Internal
-class QNewFolderDialog : public QDialog
-{
-public:
-    QNewFolderDialog( QWidget *parent = 0, const char *name = 0 );
-
-    QString dirname() { return nameEdit->text(); }
-
-protected:
-    void resizeEvent( QResizeEvent *e ) {
-        QDialog::resizeEvent( e );
-        if ( back )
-            back->setGeometry( QRect(QPoint(0,0), size()) );
-    }
-
-private:
-    QVBox *back;
-	QLineEdit *nameEdit;
-};
-
-
-QNewFolderDialog::QNewFolderDialog( QWidget *parent, const char *name )
-	: QDialog( parent, name, TRUE )
-{
-    setCaption( QFileDialog::tr( "New Folder" ) );
-
-    back = new QVBox( this );
-    back->setMargin( 10 );
-    back->setSpacing( 5 );
-
-    QHBox *row1 = new QHBox( (QWidget*)back );
-    row1->setSpacing( 5 );
-    QLabel *label = new QLabel( QFileDialog::tr( "&Folder name:" ), row1 );
-	nameEdit = new QLineEdit( row1 );
-    label->setBuddy( nameEdit );
-    label->setAutoResize( TRUE );
-
-    QHBox *row2 = new QHBox( (QWidget*)back );
-    row2->setSpacing( 5 );
-    (void)new QWidget( row2 );
-
-    QPushButton *okButton = new QPushButton(QFileDialog::tr( "&OK" ), row2 );
-    okButton->setDefault( TRUE );
-    connect( okButton, SIGNAL( clicked() ), SLOT( accept() ) );
-
-    QPushButton *cancelButton = new QPushButton( QFileDialog::tr( "&Cancel" ), row2 );
-    connect( cancelButton, SIGNAL( clicked() ), SLOT( reject() ) );
-
-    nameEdit->setFocus();
-
-    resize( 300, 100 );
-}
-
 void QFileDialog::newFolderClicked()
 {
-    QNewFolderDialog *dialog = new QNewFolderDialog( this, "new folder dialog" );
-    if ( dialog->exec() == QDialog::Accepted ) {
-        QString dirname = dialog->dirname();
-        delete dialog;
-        if ( dirname.isEmpty() ) {
-	        QMessageBox::warning( this, tr( "New Folder" ),
-                                  QString( tr( "Invalid directory name" ) ) );
-            return;
+    QString fname = findNewFolderName( cwd );
+    cwd.mkdir( fname );
+    rereadDir();
+
+    if ( d->moreFiles->isVisible() ) {
+        for ( uint i = 0; i < d->moreFiles->count(); ++i ) {
+            if ( d->moreFiles->text( i ) == fname ) {
+                d->moreFiles->setCurrentItem( i );
+                d->moreFiles->startRename( FALSE );
+                break;
+            }
         }
-        if ( !cwd.mkdir(dirname) )
-            if ( cwd.exists(dirname) )
-                QMessageBox::warning( this, tr( "New Folder" ),
-                                      tr( "<qt>Unable to create directory \"%1\". "
-                                          "A file/directory with that name already exists.</qt>"
-                                          ).arg( cwd.absPath() + "/" + dirname ) );
-            else
-                QMessageBox::warning( this, tr( "New Folder" ),
-                                      tr( "<qt>Unable to create directory \"%1\". "
-                                          "Please make sure that the current directory "
-                                          "is writable.</qt>"
-                                          ).arg( cwd.absPath() + "/" + dirname ) );
-        else
-            rereadDir();
+    } else {
+        QListViewItem *item = files->firstChild();
+        while ( item ) {
+            if ( item->text( 0 ) == fname ) {
+                files->setSelected( item, TRUE );
+                files->setCurrentItem( item );
+                files->startRename( FALSE );
+                break;
+            }
+            item = item->nextSibling();
+        }
     }
 }
 
