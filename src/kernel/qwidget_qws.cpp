@@ -821,7 +821,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    if ( extra && extra->topextra && extra->topextra->qwsManager ) {
 		rgn += extra->topextra->qwsManager->region();
 	    }
-	    if ( isMove && !isResize )
+	    if ( isMove && !isResize && alloc_region_index >= 0 )
 		qwsDisplay()->moveRegion(winId(), x - oldp.x(), y - oldp.y());
 	    else
 		qwsDisplay()->requestRegion(winId(), rgn);
@@ -1345,19 +1345,24 @@ QGfx * QWidget::graphicsContext() const
     qgfx_qws=qwsDisplay()->screenGfx();
     QPoint offset=mapToGlobal(QPoint(0,0));
     QRegion r; // empty if not visible
-    if (isVisible())
+    if ( isVisible() && topLevelWidget()->isVisible() ) {
 	r = paintableRegion();
-    int rgnIdx = topLevelWidget()->alloc_region_index;
-    int *rgnRev = qwsDisplay()->regionManager()->revision( rgnIdx );
-    if ( topLevelWidget()->alloc_region_revision != *rgnRev ) {
-	// The TL region has changed, so we better make sure we're
-	// not writing to any regions we don't own anymore.
-	// We'll get a RegionModified event soon that will get our
-	// regions back in sync again.
-	r &= qwsDisplay()->regionManager()->region( rgnIdx );
+	int rgnIdx = topLevelWidget()->alloc_region_index;
+	if ( rgnIdx >= 0 ) {
+	    int *rgnRev = qwsDisplay()->regionManager()->revision( rgnIdx );
+	    if ( topLevelWidget()->alloc_region_revision != *rgnRev ) {
+		// The TL region has changed, so we better make sure we're
+		// not writing to any regions we don't own anymore.
+		// We'll get a RegionModified event soon that will get our
+		// regions back in sync again.
+		r &= qwsDisplay()->regionManager()->region( rgnIdx );
+	    }
+	    qgfx_qws->setGlobalRegionIndex( rgnIdx );
+	} else {
+	    r = QRegion();
+	}
     }
     qgfx_qws->setWidgetRegion(r);
-    qgfx_qws->setGlobalRegionIndex( rgnIdx );
     qgfx_qws->setOffset(offset.x(),offset.y());
     // Clip the window decoration for TL windows.
     // It is possible for these windows to draw on the wm decoration if

@@ -2666,6 +2666,10 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
     if ( alloc_region_index < 0 )
 	alloc_region_index = rgnMan->find( winId() );
 
+    if ( alloc_region_index < 0 ) {
+	qFatal( "Cannot find region for window %d", winId() );
+    }
+
     int revision = *rgnMan->revision( alloc_region_index );
     if ( revision != alloc_region_revision ) {
 	alloc_region_revision = revision;
