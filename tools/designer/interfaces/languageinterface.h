@@ -79,7 +79,6 @@ struct LanguageInterface : public QUnknownInterface
 	ReturnType,
 	ConnectionsToCustomSlots,
 	AdditionalFiles,
-	SaveFormCodeExternal,
 	StoreFormCodeSeperate
     };
 

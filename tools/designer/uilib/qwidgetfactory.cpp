@@ -181,6 +181,8 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
     return w;
 }
 
+#undef slots
+
 /*!  \overload
     Loads the user interface description from the \a dev device.
  */
@@ -202,18 +204,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
-    while ( firstWidget.tagName() != "widget" ) {
-	if ( firstWidget.tagName() == "variable" ) {
-	    widgetFactory->variables << firstWidget.firstChild().toText().data();
-	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
-	    widgetFactory->usePixmapCollection = TRUE;
-	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
-	    widgetFactory->defSpacing = firstWidget.attribute( "spacing", QString::number( widgetFactory->defSpacing ) ).toInt();
-	    widgetFactory->defMargin = firstWidget.attribute( "margin", QString::number( widgetFactory->defMargin ) ).toInt();
-	}
-	firstWidget = firstWidget.nextSibling().toElement();
-    }
-
+    QDomElement variables = firstWidget;
+    while ( variables.tagName() != "variables" && !variables.isNull() )
+	variables = variables.nextSibling().toElement();
+    
+    QDomElement slots = firstWidget;
+    while ( slots.tagName() != "slots" && !slots.isNull() )
+	slots = slots.nextSibling().toElement();
+    
     QDomElement connections = firstWidget;
     while ( connections.tagName() != "connections" && !connections.isNull() )
 	connections = connections.nextSibling().toElement();
@@ -242,6 +240,19 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     while ( functions.tagName() != "functions" && !functions.isNull() )
 	functions = functions.nextSibling().toElement();
 
+    while ( firstWidget.tagName() != "widget" ) {
+	
+	if ( firstWidget.tagName() == "variable" ) { // compatibility with old betas
+	    widgetFactory->variables << firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
+	    widgetFactory->usePixmapCollection = TRUE;
+	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
+	    widgetFactory->defSpacing = firstWidget.attribute( "spacing", QString::number( widgetFactory->defSpacing ) ).toInt();
+	    widgetFactory->defMargin = firstWidget.attribute( "margin", QString::number( widgetFactory->defMargin ) ).toInt();
+	}
+	firstWidget = firstWidget.nextSibling().toElement();
+    }
+
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
@@ -252,6 +263,19 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	return 0;
     }
 
+    if ( !variables.isNull() ) {
+	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
+	    if ( n.tagName() == "variable" )
+		widgetFactory->variables << n.firstChild().toText().data();
+    }
+    if ( !slots.isNull() ) {
+	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
+	    if ( n.tagName() == "slot" ) {
+		QString s = n.firstChild().toText().data();
+		widgetFactory->languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language" ) );
+	    }
+    }
+	
     if ( !actions.isNull() )
 	widgetFactory->loadActions( actions );
     if ( !toolbars.isNull() )
@@ -266,8 +290,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadConnections( connections, connector );
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
-    if ( !functions.isNull() )
+    
+    
+    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas
 	widgetFactory->loadFunctions( functions );
+    
 
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language );
@@ -1522,6 +1549,8 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
     }
 }
 
+
+// compatibility with early 3.0 betas
 void QWidgetFactory::loadFunctions( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
@@ -1612,12 +1641,8 @@ void QWidgetFactory::loadExtraSource()
     QString lang = *qwf_language;
     LanguageInterface *iface = 0;
     languageInterfaceManager->queryInterface( lang, &iface );
-    if ( !iface )
+    if ( !iface || iface->StoreFormCodeSeperate )
 	return;
-    if ( !iface->supports( LanguageInterface::SaveFormCodeExternal ) ) {
-	iface->release();
-	return;
-    }
 
     QValueList<LanguageInterface::Function> functions;
     QStringList forwards;

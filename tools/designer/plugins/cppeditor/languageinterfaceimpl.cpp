@@ -163,8 +163,6 @@ bool LanguageInterfaceImpl::supports( Support s ) const
 	return TRUE;
     if ( s == AdditionalFiles )
 	return TRUE;
-    if ( s == SaveFormCodeExternal )
-	return TRUE;
     if ( s == StoreFormCodeSeperate )
 	return TRUE;
     return FALSE;

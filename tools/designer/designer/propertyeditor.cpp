@@ -2695,6 +2695,9 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	else
 	    item = new PropertyIntItem( this, item, 0, name, TRUE );
 	break;
+    case QVariant::KeySequence:
+	item = new PropertyTextItem( this, item, 0, name, FALSE, FALSE, FALSE, TRUE );
+	break;
     case QVariant::UInt:
 	item = new PropertyIntItem( this, item, 0, name, FALSE );
 	break;

@@ -95,7 +95,7 @@ private:
     void saveChildActions( QAction *a, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );
-    void saveFunctions( QTextStream &ts, int indent );
+    void saveFormCode();
 
     QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0, const QString& className = QString::null );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
@@ -116,7 +116,7 @@ private:
     void loadMenuBar( const QDomElement &n );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e, const QString &tagname = "pixmap" );
-    void loadFunctions( const QDomElement &e );
+    void loadFunctions( const QDomElement &e ); // compatibility with early 3.0 betas
     void loadExtraSource();
 
 private:
