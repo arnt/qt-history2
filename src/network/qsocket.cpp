@@ -265,47 +265,55 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
 
 void QSocket::tryConnecting()
 {
-    if ( d->state != HostLookup )
-	return;
+#if defined(QSOCKET_DEBUG)
+    qDebug( "QSocket (%s)::tryConnecting()", name() );
+#endif
     // ### this ifdef isn't correct - addresses() also does /etc/hosts and
-    // numeric-address-as-string handling.
 #ifndef QT_NO_DNS
-    QValueList<QHostAddress> l = d->dns->addresses();
+    static QValueList<QHostAddress> l;
+    if ( d->state == HostLookup ) {
+	// numeric-address-as-string handling.
+	l = d->dns->addresses();
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s)::tryConnecting: host %s, port %d, %d addresses",
-	    name(), d->host.ascii(), d->port, l.count() );
+	qDebug( "QSocket (%s)::tryConnecting: host %s, port %d, %d addresses",
+		name(), d->host.ascii(), d->port, l.count() );
 #endif
-    if ( l.isEmpty() ) {
-	if ( !d->dns->isWorking() ) {
-	    d->state = Idle;
-	    emit error( ErrHostNotFound );
+	if ( l.isEmpty() ) {
+	    if ( !d->dns->isWorking() ) {
+		d->state = Idle;
+		emit error( ErrHostNotFound );
+	    }
+	    return;
 	}
-	return;
+	emit hostFound();
+	d->state = Connecting; // enter the next if clause
     }
-    emit hostFound();
 
-    // ### hack: just use the first address
-    d->state = Connecting;
-    if ( d->socket->connect( l[0], d->port ) == FALSE ) {
-	if ( d->socket->error() == QSocketDevice::NoError ) {
-	    if ( d->wsn )
-		d->wsn->setEnabled( TRUE );
-	    return; // not serious, try again later
+    if ( d->state == Connecting ) {
+	// ### hack: just use the first address
+	if ( d->socket->connect( l[0], d->port ) == FALSE ) {
+	    if ( d->socket->error() == QSocketDevice::NoError ) {
+		if ( d->wsn )
+		    d->wsn->setEnabled( TRUE );
+		// write notifier will not fire in all cases (at least under Windows), so:
+		//QTimer::singleShot( 100, this, SLOT(tryConnecting()) ); ### this does not really work
+		return; // not serious, try again later
+	    }
+	    d->state = Idle;
+	    emit error( ErrConnectionRefused );
+	    return;
 	}
-	d->state = Idle;
-	emit error( ErrConnectionRefused );
-	return;
-    }
 #if defined(QSOCKET_DEBUG)
-    QString canonical = d->dns->canonicalName();
-    if ( !canonical.isNull() && canonical != d->host )
-	qDebug( "Connecting to %s", canonical.ascii() );
-    qDebug( "QSocket (%s)::tryConnecting: Connect to IP address %s",
-	    name(), l[0].toString().ascii() );
+	QString canonical = d->dns->canonicalName();
+	if ( !canonical.isNull() && canonical != d->host )
+	    qDebug( "Connecting to %s", canonical.ascii() );
+	qDebug( "QSocket (%s)::tryConnecting: Connect to IP address %s",
+		name(), l[0].toString().ascii() );
 #endif
-    // The socket write notifier will fire when the connection succeeds
-    if ( d->wsn )
-	d->wsn->setEnabled( TRUE );
+	// The socket write notifier will fire when the connection succeeds
+	if ( d->wsn )
+	    d->wsn->setEnabled( TRUE );
+    }
 #endif
 }
 

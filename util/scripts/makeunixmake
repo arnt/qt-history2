@@ -66,14 +66,20 @@ find tutorial \
 	    fi
 	fi
 	mkfiledotin=Makefile.in
-	case $pro_file in 
+	case $pro_file in
 	    */examples.pro) TEMPLATE=;;
 	    */tutorial.pro) TEMPLATE=;;
 	    *-pro.pro) mkfiledotin=Makefile-pro.in;;
 	    *-kde.pro) mkfiledotin=Makefile-kde.in;;
-	esac; 
- 
+	esac;
+
 	tmake $TMAKEARG ${TEMPLATE} $(basename $pro_file) > $mkfiledotin
         if [ -n "$LIST" ] ; then echo "$DIR/$mkfiledotin" ; fi;
 	)
     done
+
+if [ "$PLATFORM" = "qws" ]
+then
+    rm $QTDIR/tools/Makefile.in
+    echo "all:" > $QTDIR/tools/Makefile.in
+fi

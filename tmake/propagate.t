@@ -29,7 +29,7 @@
 	    if ( !Config('embedded') ) {
 		$project{"PNG_OBJECTS"} = &Objects($project{"PNG_SOURCES"});
 		$project{"ZLIB_OBJECTS"} = &Objects($project{"ZLIB_SOURCES"});
-	    }
+                  }
 	} else {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_RPATH_QT)');
@@ -283,11 +283,33 @@ REQUIRES=#$ $text .= Project("REQUIRES");
 		$text .= "tmp/lib$m.a:\n\t";
 		if ( $m eq "freetype" ) {
 		    $text .= '$(MAKE) -C 3rdparty/freetype2 \
-                            CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../tmp \
+                            CONFIG_MK=config$$DASHCROSS.mk OBJ_DIR=../../tmp \
                             ../../tmp/libfreetype.a'."\n";
 		} else {
-		    $text .= $project{"MAKELIB$m"}."\n";
+		    if ( Config('embedded') ) {
+		      if ( $m eq "z" ) {
+			$text .= '$(MAKE) -C 3rdparty/zlib -f Makefile$$DASHCROSS; \
+			cp 3rdparty/zlib/libz.a tmp'."\n";
+		      }
+		      if ( $m eq "png" ) {
+			$text .= '$(MAKE) -C 3rdparty/libpng \
+			    -f scripts/makefile.linux$$DASHCROSS; \
+			    cp 3rdparty/libpng/libpng.a tmp'."\n";
+		      }
+		      if ( $m eq "mng" ) {
+			$text .= '$(MAKE) -C 3rdparty/libmng \
+			    -f makefiles/makefile.linux$$DASHCROSS; \
+			    cp 3rdparty/libmng/libmng.a tmp'."\n";
+		      }
+		      if ( $m eq "jpeg" ) {
+			$text .= '$(MAKE) -C 3rdparty/jpeglib -f makefile.unix$$DASHCROSS; \
+			    cp 3rdparty/jpeglib/libjpeg.a tmp'."\n";
+		      }
+		    } else {
+			    $text .= $project{"MAKELIB$m"}."\n";
+		    }
 		}
+
 	    }
 	}
 #$}

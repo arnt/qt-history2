@@ -685,16 +685,16 @@ mng:QWSSUBLIBS += mng
 zlib:QWSSUBLIBS += z
 jpeg:QWSSUBLIBS += jpeg
 embedded:SUBLIBS = $$QWSSUBLIBS
-embedded:MAKELIBz = $(MAKE) -C 3rdparty/zlib -f Makefile$$DASHMIPS; \
+embedded:MAKELIBz = $(MAKE) -C 3rdparty/zlib -f Makefile$$DASHCROSS; \
 			cp 3rdparty/zlib/libz.a tmp
-embedded:MAKELIBfreetype = $(MAKE) -C 3rdparty/freetype2 CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../tmp \
+embedded:MAKELIBfreetype = $(MAKE) -C 3rdparty/freetype2 CONFIG_MK=config$$DASHCROSS.mk OBJ_DIR=../../tmp \
 			    ../../tmp/libfreetype.a
 embedded:MAKELIBpng = $(MAKE) -C 3rdparty/libpng \
-			    -f scripts/makefile.linux$$DASHMIPS; \
+			    -f scripts/makefile.linux$$DASHCROSS; \
 			    cp 3rdparty/libpng/libpng.a tmp
 embedded:MAKELIBmng = $(MAKE) -C 3rdparty/libmng \
-			    -f makefiles/makefile.linux$$DASHMIPS; \
+			    -f makefiles/makefile.linux$$DASHCROSS; \
 			    cp 3rdparty/libmng/libmng.a tmp
-embedded:MAKELIBjpeg = $(MAKE) -C 3rdparty/jpeglib -f makefile.unix$$DASHMIPS; \
+embedded:MAKELIBjpeg = $(MAKE) -C 3rdparty/jpeglib -f makefile.unix$$DASHCROSS; \
 			    cp 3rdparty/jpeglib/libjpeg.a tmp
 

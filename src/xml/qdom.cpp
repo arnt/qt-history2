@@ -4941,13 +4941,13 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
 
   // print out the element names of all elements that are a direct child
   // of the outermost element.
-  QDomElement *docElem = doc.documentElement();
+  QDomElement docElem = doc.documentElement();
 
   QDomNode n = docElem.firstChild();
   while( !n.isNull() ) {
       QDomElement e = n.toElement(); // try to convert the node to an element.
       if( !e.isNull() ) { // the node was really an element.
-          cout << n.name() << endl;
+          cout << n.tagName() << endl;
       }
       n = n.nextSibling();
   }

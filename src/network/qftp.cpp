@@ -211,11 +211,16 @@ bool QFtp::checkConnection( QNetworkOperation * )
 #endif
 	return TRUE;
     }
-
     if ( commandSocket->isOpen() ) {
 // #if defined(QFTP_DEBUG)
 // 	qDebug( "QFtp: command socket open but connection not ok!" );
 // #endif
+	return FALSE;
+    }
+    if ( commandSocket->state() == QSocket::Connecting ) {
+#if defined(QFTP_DEBUG)
+	qDebug( "QFtp::checkConnection(): already trying to connect" );
+#endif
 	return FALSE;
     }
 

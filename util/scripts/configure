@@ -354,7 +354,7 @@ then
 	# This is a Qt/Embedded distribution
 	SM=no
 	MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
-	PLATFORMS="linux-generic-g++ linux-mips-g++ linux-x86-g++"
+	PLATFORMS="linux-generic-g++ linux-mips-g++ linux-x86-g++ linux-arm-g++"
 	case "$UNAME_MACHINE" in
 	 *86) ARCH=x86-
 	;; *) ARCH=generic-
@@ -658,6 +658,8 @@ if [ "$HELP" = "yes" ]; then
 	    else
 		MODULES_HELP=""
 	    fi
+    else
+	MODULES_HELP="opengl table network canvas"
     fi
 
     cat <<EOF

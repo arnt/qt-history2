@@ -38,17 +38,29 @@
 #include "qintdict.h"
 #include <process.h>
 
+extern Qt::WindowsVersion qt_winver;
+
 void qSystemWarning( const QString& message )
 {
     int error = GetLastError();
     TCHAR* string;
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-			  NULL,
-			  error,
-			  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			  (LPTSTR)&string,
-			  0,
-			  NULL );
+
+    if ( qt_winver & Qt::WV_NT_based )
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+			      NULL,
+			      error,
+			      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			      (LPTSTR)&string,
+			      0,
+			      NULL );
+    else 
+	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+			      NULL,
+			      error,
+			      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			      (char*)&string,
+			      0,
+			      NULL );
 
     qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( qt_winQString(string) ) );
     LocalFree( (HLOCAL)string );
@@ -58,6 +70,7 @@ void qSystemWarning( const QString& message )
 #define QMUTEX_TYPE_NORMAL 0
 #define QMUTEX_TYPE_RECURSIVE 1
 #endif
+
 
 /*
   QCriticalSection
@@ -108,7 +121,10 @@ public:
 
 QMutexPrivate::QMutexPrivate()
 {
-    handle = CreateMutex( NULL, FALSE, NULL );
+    if ( qt_winver & Qt::WV_NT_based )
+	handle = CreateMutex( NULL, FALSE, NULL );
+    else
+	handle = CreateMutexA( NULL, FALSE, NULL );
 #ifdef CHECK_RANGE
     if ( !handle )
 	qSystemWarning( "Mutex init failure" );
@@ -345,8 +361,14 @@ public:
 QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
-    handle = CreateEvent( NULL, TRUE, FALSE, NULL );
-    single = CreateEvent( NULL, FALSE, FALSE, NULL );
+    if ( qt_winver & Qt::WV_NT_based ) {
+	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
+	single = CreateEvent( NULL, FALSE, FALSE, NULL );
+    } else {
+	handle = CreateEventA( NULL, TRUE, FALSE, NULL );
+	single = CreateEventA( NULL, FALSE, FALSE, NULL );
+    }
+
 #ifdef CHECK_RANGE
     if ( !handle || !single )
     qSystemWarning( "Condition init failure" );
@@ -503,6 +525,8 @@ void QThreadPrivate::internalRun( QThread* that )
 
 QThreadPrivate::QThreadPrivate()
 {
+    running = FALSE;
+    finished = FALSE;
 }
 
 QThreadPrivate::~QThreadPrivate()
@@ -646,7 +670,12 @@ QSemaphore::QSemaphore( int maxcount )
 {
     d = new QSemaphorePrivate;
     d->maxCount = maxcount;
-    d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
+    if ( qt_winver & Qt::WV_NT_based ) {
+	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
+    } else {
+	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
+    }
+    
 #ifdef CHECK_RANGE
     if ( !d->handle )
 	qSystemWarning( "Semaphore init failure" );

@@ -278,6 +278,8 @@ void QVFbScreen::disconnect()
 
 bool QVFbScreen::initCard()
 {
+    static int dummy;
+    optype = &dummy;
     if(d==8) {
 	screencols=256;
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE

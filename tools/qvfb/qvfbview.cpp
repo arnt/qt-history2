@@ -161,8 +161,6 @@ void QVFbView::lock()
     int rv;
     do {
 	rv = semop(lockId,&sops,1);
-	if (rv == -1 && errno != EINTR)
-	    qDebug("Semop unlock failure %s",strerror(errno));
     } while ( rv == -1 && errno == EINTR );
 
     if ( rv == -1 )
@@ -179,8 +177,6 @@ void QVFbView::unlock()
 	int rv;
 	do {
 	    rv = semop(lockId,&sops,1);
-	    if (rv == -1 && errno != EINTR)
-		qDebug("Semop unlock failure %s",strerror(errno));
 	} while ( rv == -1 && errno == EINTR );
     }
 }

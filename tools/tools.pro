@@ -1,2 +1,3 @@
 TEMPLATE	= subdirs
-SUBDIRS		= designer
+win32:SUBDIRS	= designer
+unix:SUBDIRS	= designer

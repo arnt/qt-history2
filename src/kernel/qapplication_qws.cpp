@@ -3147,8 +3147,6 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
-    return true;
-
     if ( !animate_ui )
 	return FALSE;
 
