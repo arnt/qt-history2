@@ -544,9 +544,9 @@ void QRect::moveCenter( const QPoint &p )
 
     \overload
 
-    Moves the rectangle \a p.x() along the x axis and \a p.y() along the y
-    axis, relative to the current position. Positive values move the
-    rectangle to the right and down.
+    Moves the rectangle \a{p}\e{.x()} along the x axis and
+    \a{p}\e{.y()} along the y axis, relative to the current position.
+    Positive values move the rectangle to the right and down.
 
     \sa moveTopLeft()
 */

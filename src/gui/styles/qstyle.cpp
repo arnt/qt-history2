@@ -727,6 +727,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_CheckListExclusiveIndicator radiobutton part of a listview item
     \value PE_RubberBand rubber band used in such things as iconview
 
+    \value PE_TreeBranch lines used to represent the branch of a tree
+    in a tree view
+
     \value PE_CustomBase  base value for custom PrimitiveElements.
 	All values above this are reserved for custom use. Custom
 	values must be greater than this value.
@@ -770,6 +773,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value Style_HasFocus
     \value Style_Active
     \value Style_ButtonDefault
+    \value Style_Open
+    \value Style_Children
+    \value Style_Item
+    \value Style_Sibling
 
     \sa drawPrimitive()
 */
@@ -1738,6 +1745,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_UnderlineAccelerator whether accelerators are underlined
 
+    \value SH_SpinBoxAnimateButton animate a click when up or down is pressed in a spin box
+
     \sa styleHint()
 */
 
@@ -1802,10 +1811,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
     \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 				    const QPalette &pal,
-				    const QStyleOption&) const
+				    const QStyleOption& opt) const
+
+    \overload
 
     Returns a pixmap styled to conform to \a pixmaptype description
-    out of \a pixmap.
+    out of \a pixmap, and taking into account the palette specified by
+    \a pal.
 
     The \a opt argument can be used to pass extra information required
     when drawing the ControlElement. Note that \a opt may be the
@@ -1889,8 +1901,8 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 
 
 /*!
-    Converts \a logical_val to a pixel position. min maps to 0, max
-    maps to \a span and other values are distributed evenly
+    Converts \a logical_val to a pixel position. \a min maps to 0, \a
+    max maps to \a span and other values are distributed evenly
     in-between.
 
     This function can handle the entire integer range without
@@ -1928,8 +1940,8 @@ int QStyle::positionFromValue( int min, int max, int logical_val, int span )
 
 
 /*!
-    Converts the pixel position \a pos to a value. 0 maps to min, \a
-    span maps to max and other values are distributed evenly
+    Converts the pixel position \a pos to a value. 0 maps to \a min,
+    \a span maps to \a max and other values are distributed evenly
     in-between.
 
     This function can handle the entire integer range without

@@ -956,14 +956,6 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion, const QRect &paintRect, bool erased=TRUE )
-
-    Constructs a paint event object with the rectangle \a paintRect
-    that should be updated. The region is given by \a paintRegion. If
-    \a erased is TRUE the region will be cleared before repainting.
-*/
-
-/*!
     \fn const QRect &QPaintEvent::rect() const
 
     Returns the rectangle that should be updated.
@@ -1425,19 +1417,6 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
     Will return 0 for IMStartEvent and IMEndEvent.
 */
 
-
-/*!
-    \fn void QIMEvent::ignore()
-
-    Clears the accept flag parameter of the input method event object.
-
-    Clearing the accept parameter indicates that the event receiver
-    does not want the input method event.
-
-    The accept flag is cleared by default.
-
-    \sa accept()
-*/
 
 /*!
     \class QTabletEvent qevent.h
