@@ -373,16 +373,17 @@ void QDockWindowHandle::paintEvent(QPaintEvent *e)
     if ((!dockWindow->dockArea || mousePressed) && !opaque)
         return;
     QPainter p(this);
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
+    Q4StyleOptionDockWindow opt(0);
+    opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Horizontal)
-        flags |= QStyle::Style_Horizontal;
+        opt.state |= QStyle::Style_Horizontal;
 
-    style().drawPrimitive(QStyle::PE_DockWindowHandle, &p,
-                           QStyle::visualRect(style().subRect(QStyle::SR_DockWindowHandleRect,
-                                                                this), this),
-                           palette(), flags);
+    opt.rect = rect();
+    opt.docked = dockWindow->area();
+    opt.isCloseEnabled = dockWindow->isCloseEnabled();
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_DockWindowHandleRect, &opt, this),
+                                  this);
+    style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
     QWidget::paintEvent(e);
 }
 

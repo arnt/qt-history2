@@ -26,7 +26,7 @@ struct Q_GUI_EXPORT Q4StyleOption {
     QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
     enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
-           ListView, ListViewItem, Header };
+           ListView, ListViewItem, Header, DockWindow };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -147,6 +147,14 @@ struct Q4StyleOptionListView : public Q4StyleOptionComplex {
     int treeStepSize;
     bool rootIsDecorated;
     Q4StyleOptionListView(int version) : Q4StyleOptionComplex(version, ListView) {}
+};
+
+struct Q4StyleOptionDockWindow : public Q4StyleOption
+{
+    enum { Type = DockWindow };
+    bool docked;
+    bool isCloseEnabled;
+    Q4StyleOptionDockWindow(int version) : Q4StyleOption(version , DockWindow) {}
 };
 
 template <typename T>

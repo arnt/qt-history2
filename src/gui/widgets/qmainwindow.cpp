@@ -251,14 +251,16 @@ protected:
             QDockWindow *dw = qt_cast<QDockWindow*>(o);
             if (!dw || !dw->isVisible())
                 continue;
-
-            QStyle::SFlags flags = QStyle::Style_Default;
+            Q4StyleOptionDockWindow opt(0);
+            opt.rect.setRect(x, 0, 30, 10);
+            opt.palette = palette();
+            opt.docked = dw->area();
+            opt.isCloseEnabled = dw->isCloseEnabled();
+            opt.state = QStyle::Style_Default;
             if (i == pressedHandle)
-                flags |= QStyle::Style_On;
+                opt.state |= QStyle::Style_On;
 
-            style().drawPrimitive(QStyle::PE_DockWindowHandle, &p,
-                                   QRect(x, 0, 30, 10), palette(),
-                                   flags);
+            style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
             x += 30;
         }
     }

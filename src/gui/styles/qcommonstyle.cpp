@@ -217,32 +217,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         p->restore();
         break; }
 
-    case PE_DockWindowHandle: {
-        bool highlight = flags & Style_On;
-
-        p->save();
-        p->translate(r.x(), r.y());
-        if (flags & Style_Horizontal) {
-            int x = r.width() / 3;
-            if (r.height() > 4) {
-                qDrawShadePanel(p, x, 2, 3, r.height() - 4,
-                                 pal, highlight, 1, 0);
-                qDrawShadePanel(p, x+3, 2, 3, r.height() - 4,
-                                 pal, highlight, 1, 0);
-            }
-        } else {
-            if (r.width() > 4) {
-                int y = r.height() / 3;
-                qDrawShadePanel(p, 2, y, r.width() - 4, 3,
-                                 pal, highlight, 1, 0);
-                qDrawShadePanel(p, 2, y+3, r.width() - 4, 3,
-                                 pal, highlight, 1, 0);
-            }
-        }
-        p->restore();
-        break;
-    }
-
     case PE_DockWindowSeparator: {
         QPoint p1, p2;
         if (flags & Style_Horizontal) {
@@ -640,6 +614,32 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
                 lw = pixelMetric(PM_DockWindowFrameWidth);
 
             qDrawShadePanel(p, frame->rect, frame->palette, false, lw);
+        }
+        break;
+    case PE_DockWindowHandle:
+        if (const Q4StyleOptionDockWindow *dw = qt_cast<const Q4StyleOptionDockWindow *>(opt)) {
+            bool highlight = dw->state & Style_On;
+
+            p->save();
+            p->translate(dw->rect.x(), dw->rect.y());
+            if (dw->state & Style_Horizontal) {
+                int x = dw->rect.width() / 3;
+                if (dw->rect.height() > 4) {
+                    qDrawShadePanel(p, x, 2, 3, dw->rect.height() - 4,
+                                    dw->palette, highlight, 1, 0);
+                    qDrawShadePanel(p, x+3, 2, 3, dw->rect.height() - 4,
+                                    dw->palette, highlight, 1, 0);
+                }
+            } else {
+                if (dw->rect.width() > 4) {
+                    int y = dw->rect.height() / 3;
+                    qDrawShadePanel(p, 2, y, dw->rect.width() - 4, 3,
+                                    dw->palette, highlight, 1, 0);
+                    qDrawShadePanel(p, 2, y+3, dw->rect.width() - 4, 3,
+                                    dw->palette, highlight, 1, 0);
+                }
+            }
+            p->restore();
         }
         break;
     default:
@@ -1585,26 +1585,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
         }
 #endif // QT_NO_SLIDER
 
-#ifndef QT_NO_MAINWINDOW
-    case SR_DockWindowHandleRect:
-        {
-            if (! widget->parentWidget())
-                break;
-
-            const QDockWindow * dw = (const QDockWindow *) widget->parentWidget();
-
-            if (!dw->area() || !dw->isCloseEnabled())
-                rect.setRect(0, 0, widget->width(), widget->height());
-            else {
-                if (dw->area()->orientation() == Horizontal)
-                    rect.setRect(0, 15, widget->width(), widget->height() - 15);
-                else
-                    rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
-            }
-            break;
-        }
-#endif // QT_NO_MAINWINDOW
-
 
     case SR_ToolButtonContents:
         rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
@@ -1764,6 +1744,18 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
             }
             else
                 r = pb->rect;
+        }
+        break;
+    case SR_DockWindowHandleRect:
+        if (const Q4StyleOptionDockWindow *dw = qt_cast<const Q4StyleOptionDockWindow *>(opt)) {
+            if (!dw->docked || !dw->isCloseEnabled)
+                r.setRect(0, 0, dw->rect.width(), dw->rect.height());
+            else {
+                if (dw->state & Style_Horizontal)
+                    r.setRect(0, 15, dw->rect.width(), dw->rect.height() - 15);
+                else
+                    r.setRect(0, 1, dw->rect.width() - 15, dw->rect.height() - 1);
+            }
         }
         break;
     default:
