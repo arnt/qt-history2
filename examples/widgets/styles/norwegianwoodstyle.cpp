@@ -17,7 +17,7 @@ static void drawRoundRect(QPainter *painter, int x, int y, int width,
 
 static QRegion roundRectRegion(const QRect &rect, int radius)
 {
-    int diameter = 2 * radius;
+    int diameter = (2 * radius) - 1;
 
     QPolygon polygon;
     polygon << QPoint(rect.x() + radius, rect.y())
@@ -101,7 +101,7 @@ int NorwegianWoodStyle::pixelMetric(PixelMetric pm, const QStyleOption *option,
 {
     switch (pm) {
     case PM_ComboBoxFrameWidth:
-        return 6;
+        return 8;
     case PM_ScrollBarExtent:
         return QMotifStyle::pixelMetric(pm, option, widget) + 4;
     default:
@@ -179,7 +179,7 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
             }
             painter->setClipping(false);
             painter->setPen(option->palette.foreground().color());
-            drawRoundRect(painter, x, y, width, height, minorSide);
+            drawRoundRect(painter, x, y, width - 1, height - 1, minorSide);
             painter->setPen(oldPen);
         }
         break;

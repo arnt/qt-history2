@@ -53,7 +53,7 @@ private:
     QCheckBox *checkBox;
 
     QGroupBox *topRightGroupBox;
-    QPushButton *normalPushButton;
+    QPushButton *defaultPushButton;
     QPushButton *togglePushButton;
     QPushButton *flatPushButton;
 

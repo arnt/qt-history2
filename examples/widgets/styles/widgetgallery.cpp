@@ -113,17 +113,20 @@ void WidgetGallery::createTopRightGroupBox()
 {
     topRightGroupBox = new QGroupBox(tr("Group 2"), this);
 
-    normalPushButton = new QPushButton(tr("Normal Push Button"),
-                                       topRightGroupBox);
+    defaultPushButton = new QPushButton(tr("Default Push Button"),
+                                        topRightGroupBox);
+    defaultPushButton->setDefault(true);
+
     togglePushButton = new QPushButton(tr("Toggle Push Button"),
                                        topRightGroupBox);
     togglePushButton->setCheckable(true);
     togglePushButton->setChecked(true);
+
     flatPushButton = new QPushButton(tr("Flat Push Button"), topRightGroupBox);
     flatPushButton->setFlat(true);
 
     QVBoxLayout *layout = new QVBoxLayout(topRightGroupBox);
-    layout->addWidget(normalPushButton);
+    layout->addWidget(defaultPushButton);
     layout->addWidget(togglePushButton);
     layout->addWidget(flatPushButton);
     layout->addStretch(1);
@@ -165,14 +168,19 @@ void WidgetGallery::createBottomRightGroupBox()
     lineEdit->setEchoMode(QLineEdit::Password);
 
     spinBox = new QSpinBox(bottomRightGroupBox);
+    spinBox->setValue(50);
 
     dateTimeEdit = new QDateTimeEdit(bottomRightGroupBox);
+    dateTimeEdit->setDateTime(QDateTime::currentDateTime());
 
     slider = new QSlider(Qt::Horizontal, bottomRightGroupBox);
+    slider->setValue(40);
 
     scrollBar = new QScrollBar(Qt::Horizontal, bottomRightGroupBox);
+    scrollBar->setValue(60);
 
     dial = new QDial(bottomRightGroupBox);
+    dial->setValue(30);
 
     QGridLayout *layout = new QGridLayout(bottomRightGroupBox);
     layout->addWidget(lineEdit, 0, 0, 1, 2);
