@@ -89,14 +89,14 @@ public:
     QWidget* widget() { return d; }
     QSize sizeHint() { return QSize( 0, 0 ); }
     static bool handles(QWidget *);
-    
+
 public slots:
     void objDestroyed(QObject *);
 
 protected:
     bool eventFilter( QObject * o, QEvent * e );
     void paintEvent( QPaintEvent * );
-    
+
 private:
     QWidget *d;
     QPixmap pmt, pmb, pml, pmr, pmtl, pmtr, pmbl, pmbr;
@@ -127,8 +127,9 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 	reparent( d->parentWidget(), pos() );
 	raise();
 	d->installEventFilter( this );
+	d->parentWidget()->installEventFilter( this );
 	setGeometry( widget->x() - 3, widget->y() - 3, widget->width() + 6, widget->height() + 6 );
-	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );  
+	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
 	show();
     } else {
 	d = NULL;
@@ -152,17 +153,23 @@ void QAquaFocusWidget::objDestroyed(QObject * o)
 
 bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 {
+    if (d && o == d->parentWidget()) {
+	if (e->type() == QEvent::ChildInserted)
+	    return TRUE;
+	else
+	    return FALSE;
+    }
     if (o != d)
 	return FALSE;
     switch (e->type()) {
     case QEvent::Move: {
 	QMoveEvent *me = (QMoveEvent*)e;
-	move( me->pos().x() - 2, me->pos().y() - 2 );
+	move( me->pos().x() - 3, me->pos().y() - 3 );
 	break;
     }
     case QEvent::Resize: {
 	QResizeEvent *re = (QResizeEvent*)e;
-	resize( re->size().width() + 4, re->size().height() + 4 );
+	resize( re->size().width() + 6, re->size().height() + 6 );
 	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );  
 	break;
     }
@@ -178,7 +185,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
     return FALSE;
 }
 
-void QAquaFocusWidget::paintEvent( QPaintEvent *e )
+void QAquaFocusWidget::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     p.drawTiledPixmap( 4, 0, width() - 8, pmt.height(), pmt );
@@ -1710,15 +1717,15 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		else
 		    rect.setRect( 0, scr->height() - (20 + 17), 16, 20 );
 		break;
-	    case SC_ScrollBarGroove: 
+	    case SC_ScrollBarGroove:
 		if(scr->orientation() == Horizontal)
 		    rect.setX( rect.x() + 7 );
 		else
 		    rect.setY( rect.y() + 5 );
 		//fall through
-	    case SC_ScrollBarSubPage: 
+	    case SC_ScrollBarSubPage:
 		if(sc == SC_ScrollBarSubPage) {
-		    if(scr->orientation() == Horizontal) 
+		    if(scr->orientation() == Horizontal)
 			rect.setWidth(rect.width() + 20);
 		    else
 			rect.setHeight(rect.height() + 20);
@@ -1731,7 +1738,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		else
 		    rect.moveBy( 0, -sbextent );
 		break; }
-	    default: 
+	    default:
 		break;
 	    }
 	}
