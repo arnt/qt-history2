@@ -88,7 +88,7 @@ class qGreater
 public:
     inline bool operator()(const T &t1, const T &t2) const
     {
-        return (t1 > t2);
+        return (t2 < t1);
     }
 };
 
