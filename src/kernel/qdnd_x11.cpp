@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#99 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -779,9 +779,10 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 	finished.data.l[1] = 0; // flags
 	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, FALSE,
 		    NoEventMask, (XEvent*)&finished );
+    } else {
+	QDragLeaveEvent e;
+	QApplication::sendEvent( qt_xdnd_current_widget, &e );
     }
-    QDragLeaveEvent e;
-    QApplication::sendEvent( qt_xdnd_current_widget, &e );
     qt_xdnd_dragsource_xid = 0;
     qt_xdnd_current_widget = 0;
 }
