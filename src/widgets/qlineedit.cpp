@@ -885,14 +885,16 @@ bool QLineEdit::event( QEvent * e )
 	QKeyEvent* ke = (QKeyEvent*) e;
 	if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
-	    case Key_A:
+// Those are too frequently used for application functionality
+/*	    case Key_A:	
 	    case Key_B:
-	    case Key_C:
 	    case Key_D:
 	    case Key_E:
 	    case Key_F:
 	    case Key_H:
 	    case Key_K:
+*/
+	    case Key_C:
 	    case Key_V:
 	    case Key_X:	    
 	    case Key_Y:
