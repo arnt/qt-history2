@@ -1,3 +1,5 @@
+using namespace Qt;
+
 void OptionsDialog::apply()
 {
     QStringList flagList;
