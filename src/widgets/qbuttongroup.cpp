@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#14 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#14 $";
 #endif
 
 
@@ -38,8 +38,8 @@ There are two standard ways of using a button group:
 <ol>
 <li> A button group can be a normal parent widget for a set of buttons.
 Because QButtonGroup inherits QGroupBox, it can display a frame and
-a title. The buttons get identifiers 0, 1, 2 etc. in the order they are
-inserted.
+a title. The buttons are assigned identifiers 0, 1, 2 etc. in the order
+they are inserted.
 <li> A button group can be an invisible widget and the contained buttons
 have some other parent widget.
 A button must be manually inserted using the insert() function with an

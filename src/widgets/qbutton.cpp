@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#31 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,22 +16,23 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#31 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QButton qbutton.h
-  \brief The QButton class is the base class of button widgets, and it
-  provides functionality common to buttons.
+
+  \brief The QButton class is abstract the base class of button
+  widgets, and it provides functionality common to buttons.
 
   \ingroup abstractwidgets
 
   The QButton class implements an abstract button, and lets subclasses specify
-  how to reply to user action and how to draw themselves.
+  how to reply to user actions and how to draw the button.
 
   The QButton class has three signals. The pressed() signal is emitted
-  when the left mouse button is pressed when the cursor is inside the
+  when the left mouse button is pressed while the cursor is inside the
   button. After being pressed, the button will be down until the left
   mouse button is again released, which causes a released() signal. If the
   left mouse button is released when the cursor is inside the button, the
@@ -46,8 +47,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#30 $";
   The button label can be a \link setText() text\endlink or a \link
   setPixmap() pixmap\endlink.  It is up to widget implementation to
   display the text or the pixmap.  All Qt buttons are capable of showing
-  texts and pixmaps.  If both a text and a pixmap has been specified,
-  the pixmap should have precedence over the text.
+  texts and pixmaps.
 
   Another convention thing about QButtons is \link setAutoResizing()
   auto-resizing\endlink.  Enabling
@@ -114,7 +114,7 @@ QButton::~QButton()
 
 /*----------------------------------------------------------------------------
   \fn bool QButton::isUp() const
-  Returns TRUE of the button is standing up, the opposite of isDown().
+  Returns TRUE of the button is up, the opposite of isDown().
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -124,8 +124,7 @@ QButton::~QButton()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the button text to \e text and redraws the contents.
-  Setting a pixmap will override the button text.
+  Sets the button contents to \e text and redraws the contents.
 
   The button resizes itself if auto-resizing is enabled.
 
@@ -150,7 +149,8 @@ void QButton::setText( const char *text )
 
 /*----------------------------------------------------------------------------
   \fn const QPixmap *QButton::pixmap() const
-  Returns the button pixmap.
+
+  Returns the button pixmap, or 0 if the button isn't showing a pixmap.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -323,7 +323,7 @@ void QButton::drawButtonLabel( QPainter * )
 
 
 /*----------------------------------------------------------------------------
-  Handles mouse press events for the button.
+  Handles mouse press events for the button. \sa mouseReleaseEvent()
  ----------------------------------------------------------------------------*/
 
 void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
@@ -340,7 +340,7 @@ void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
 }
 
 /*----------------------------------------------------------------------------
-  Handles mouse release events for the button.
+  Handles mouse release events for the button. \sa mousePressEvent()
  ----------------------------------------------------------------------------*/
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
@@ -405,6 +405,8 @@ void QButton::paintEvent( QPaintEvent * )
 
 /*----------------------------------------------------------------------------
   Handles focus in events for the button.
+
+  \sa focusOutEvent()
  ----------------------------------------------------------------------------*/
 
 void QButton::focusInEvent( QFocusEvent * )
@@ -414,6 +416,7 @@ void QButton::focusInEvent( QFocusEvent * )
 
 /*----------------------------------------------------------------------------
   Handles focus out events for the button.
+  \sa focusInEvent()
  ----------------------------------------------------------------------------*/
 
 void QButton::focusOutEvent( QFocusEvent * )

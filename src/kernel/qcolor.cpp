@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#26 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#26 $";
 #endif
 
 
@@ -23,9 +23,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#25 $";
 \brief The QColor class provides colors based on RGB.
 \ingroup colors
 
-A color is normally specified in terms of RGB (red,green and blue) components,
-but it is also possible to convert from HSV (hue,saturation and value) or
-set a color name (X-Windows color database).
+A color is normally specified in terms of RGB (red,green and blue)
+components, but it is also possible to specify HSV (hue,saturation and
+value) or set a color name (X-Windows color database, no support yet
+on other window systems).
 
 There are 19 predefined global QColor objects:
 \c black, \c white, \c darkGray, \c gray, \c lightGray, \c red, \c green,
@@ -42,7 +43,7 @@ that is, whenever the pixel() function is called:
 
 <ol>
 <li> Is the pixel value valid?	If it is, just return it, otherwise,
-allocate a pixel value (2).
+allocate a pixel value.
 <li> Check an internal hash table to see if we allocated an equal RGB
 value earlier.	If we did, set the pixel value and return.
 <li> Try to allocate the RGB value. If we succeed, we get a pixel value
@@ -52,10 +53,7 @@ Return the pixel value.
 color and save it in the internal table.
 </ol>
 
-This method seems to work well even with thousands of allocated colors.
-
-\sa QPalette.
-*/
+\sa QPalette QColorGroup QWidget::setBackgroundColor */
 
 // --------------------------------------------------------------------------
 // Global colors
@@ -101,10 +99,9 @@ Constructs a color with the RGB value (r,g,b).
 \fn QColor::QColor( ulong rgb, ulong pix )
 Constructs a color with a RGB value and a custom pixel value.
 
-If the \e pix = 0xffffffff, then the color uses this RGB value
-in a standard way.  If \e pix is something else, then the pixel value
-will be set directly to \e pix (skips the standard allocation procedure).
-*/
+If the \e pix = 0xffffffff, then the color uses the RGB value in a
+standard way.  If \e pix is something else, then the pixel value will
+be set directly to \e pix (skips the standard allocation procedure). */
 
 /*!
 \fn QColor::QColor( const char *name )
@@ -157,12 +154,11 @@ Returns the current RGB value as HSV.
 \arg \e *s, saturation.
 \arg \e *v, value.
 
-The hue defines the color. It is between 0 and 360 inclusive in the chromatic
-case, and -1 if the color is achromatic.
-The saturation and value vary between 0 and 255 inclusive.
+The hue defines the color. Its range is 0-359 if the color is
+chromatic and -1 if the color is achromatic.  The saturation and value
+both vary between 0 and 255 inclusive.
 
-\sa setHsv().
-*/
+\sa setHsv(). */
 
 void QColor::hsv( int *h, int *s, int *v ) const
 {						// get HSV value
