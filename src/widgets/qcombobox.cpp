@@ -243,7 +243,23 @@
 /*! \property QComboBox::duplicatesEnabled
     \brief whether duplicates are allowed
 
-  This property only has an effect if the combobox is editable.
+  If the combobox is editable and the user enters some text in the
+  lineedit of the combobox and presses Enter (and the
+  insertionPolicy() is different from NoInsertion), then what happens
+  is as follows:
+    \list
+    \i If the text is not already in the list, the text is inserted.
+  \i If the text is in the list and this property is TRUE, the text is
+  inserted.
+  \i If the text is in the list and this property is FALSE, the text
+  is \e not inserted; instead the item which has matching text becomes
+  the current item.
+  \endlist
+
+  This property only affects user-interaction. You can use
+  insertItem() to insert duplicates if you wish regardless of this
+  setting.
+
 */
 
 /*! \property QComboBox::editable

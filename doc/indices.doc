@@ -151,7 +151,7 @@ Appendix
 <td valign=top>
 \list
   \i \link qmake.html  qmake \endlink
-  \i \link designer.html  Qt Designer \endlink
+  \i \link designer-manual.html  Qt Designer \endlink
   \i \link qembed.html  QEmbed - inline files/images \endlink
   \i \link qvfb-qws.html  QVFb - virtual framebuffer for Qt/Embedded \endlink
 \endlist
