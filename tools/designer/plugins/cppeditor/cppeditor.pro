@@ -24,7 +24,7 @@ DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 unix:LIBS	+= -leditor
 win32:LIBS	+= $(QTDIR)/lib/editor100.lib
-INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces $(QTDIR)/tools/designer/editor
+INCLUDEPATH	+= ../../../../src/kernel ../../interfaces ../../editor
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins
