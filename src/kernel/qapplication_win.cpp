@@ -58,6 +58,7 @@
 #include <windowsx.h>
 #include <limits.h>
 #include <string.h>
+#include <ctype.h>
 
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
@@ -538,8 +539,7 @@ static void qt_set_windows_resources()
     QT_WA( {
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof( ncm );
-	SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
-			      sizeof( ncm ), &ncm, NULL);
+	SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0 );
 	menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
@@ -549,8 +549,7 @@ static void qt_set_windows_resources()
 	// A version
 	NONCLIENTMETRICSA ncm;
 	ncm.cbSize = sizeof( ncm );
-	SystemParametersInfoA( SPI_GETNONCLIENTMETRICS,
-			      sizeof( ncm ), &ncm, NULL);
+	SystemParametersInfoA( SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
 	menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,TRUE);

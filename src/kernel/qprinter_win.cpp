@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPrinter class for Win32
 **
 ** Created : 950810
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -41,12 +41,8 @@
 #include "qpaintdevicemetrics.h"
 #include "qapplication_p.h"
 
+#include <stdlib.h>
 #include <limits.h>
-
-#if defined(__MINGW32__)
-#include <malloc.h>
-#define DOCINFOA DOCINFO
-#endif
 
 #ifdef Q_OS_TEMP
 #include <commdlg.h>

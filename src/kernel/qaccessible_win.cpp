@@ -3,7 +3,7 @@
 **
 ** Implementation of QAccessible class for Win32
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -38,7 +38,7 @@
 
 #include <winable.h>
 #include <oleacc.h>
-#ifndef Q_CC_BOR
+#if !defined (Q_CC_BOR) && !defined (Q_CC_GNU)
 #include <comdef.h>
 #endif
 
@@ -371,7 +371,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int, unsigne
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wchar_t **rgszNames, unsigned int, unsigned long, long *rgdispid )
 {
-#ifndef Q_CC_BOR
+#if !defined(Q_CC_BOR) && !defined(Q_CC_GNU)
     // PROPERTIES:  Hierarchical
     if ( _bstr_t(rgszNames[0]) == _bstr_t(L"accParent") ) 
 	rgdispid[0] = DISPID_ACC_PARENT;
