@@ -119,6 +119,12 @@ QSocketDevicePrivate::~QSocketDevicePrivate()
 */
 
 /*! \fn Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len, const QHostAddress &host, Q_UINT16 port)
+
+    Writes \a len bytes to the socket from \a data and returns the
+    number of bytes written. Returns -1 if an error occurred.
+
+    This is used for \c QSocketDevice::Datagram sockets. You must
+    specify the \a host and \a port of the destination of the data.
 */
 
 /*!

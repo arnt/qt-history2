@@ -985,7 +985,7 @@ void QTabDialog::setOkButton()
 /*!
     \fn void QTabDialog::setOKButton(const QString &text)
 
-    Use setOkButton() instead.
+    Use setOkButton(\a text) instead.
 */
 
 

@@ -4423,7 +4423,7 @@ int QListBoxItem::rtti() const
 /*!
     \fn void QListBox::setDragSelect(bool b)
 
-    Does nothing. Dragging always selects.
+    Does nothing. Dragging always selects. The \a b parameter is ignored.
 */
 
 /*!
@@ -4435,7 +4435,7 @@ int QListBoxItem::rtti() const
 /*!
     \fn void QListBox::setAutoScroll(bool b)
 
-    Use setDragAutoScroll() instead.
+    Use setDragAutoScroll(\a b) instead.
 */
 
 /*!
@@ -4448,6 +4448,9 @@ int QListBoxItem::rtti() const
     \fn void QListBox::setAutoScrollBar(bool enable)
 
     Use setVScrollBarMode() instead.
+
+    If \a enable is true, pass \c Auto as the argument to
+    setVScrollBarMode(); otherwise, pass \c AlwaysOff.
 */
 
 /*!
@@ -4460,6 +4463,9 @@ int QListBoxItem::rtti() const
     \fn void QListBox::setScrollBar(bool enable)
 
     Use setVScrollBarMode() instead.
+
+    If \a enable is true, pass \c AlwaysOn as the argument to
+    setVScrollBarMode(); otherwise, pass \c AlwaysOff.
 */
 
 /*!
@@ -4472,6 +4478,9 @@ int QListBoxItem::rtti() const
     \fn void QListBox::setAutoBottomScrollBar(bool enable)
 
     Use setHScrollBarMode() instead.
+
+    If \a enable is true, pass \c Auto as the argument to
+    setHScrollBarMode(); otherwise, pass \c AlwaysOff.
 */
 
 /*!
@@ -4484,6 +4493,9 @@ int QListBoxItem::rtti() const
     \fn void QListBox::setBottomScrollBar(bool enable)
 
     Use setHScrollBarMode() instead.
+
+    If \a enable is true, pass \c AlwaysOn as the argument to
+    setHScrollBarMode(); otherwise, pass \c AlwaysOff.
 */
 
 /*!
@@ -4495,7 +4507,8 @@ int QListBoxItem::rtti() const
 /*!
     \fn void QListBox::setSmoothScrolling(bool b)
 
-    Does nothing. Qt always scrolls smoothly.
+    Does nothing. Qt always scrolls smoothly. The \a b parameter is
+    ignored.
 */
 
 /*!
@@ -4507,7 +4520,8 @@ int QListBoxItem::rtti() const
 /*!
     \fn void QListBox::setAutoUpdate(bool b)
 
-    Does nothing. Qt always updates automatically.
+    Does nothing. Qt always updates automatically. The \a b parameter
+    is ignored.
 */
 
 /*!
@@ -4517,9 +4531,9 @@ int QListBoxItem::rtti() const
 */
 
 /*!
-    \fn int  QListBox::cellHeight(int i) const
+    \fn int QListBox::cellHeight(int i) const
 
-    Use itemHeight() instead.
+    Use itemHeight(\a i) instead.
 */
 
 /*!
@@ -4537,7 +4551,7 @@ int QListBoxItem::rtti() const
 /*!
     \fn int  QListBox::cellWidth(int i) const
 
-    Use maxItemWidth() instead.
+    Use maxItemWidth(\a i) instead.
 */
 
 /*!
@@ -4567,7 +4581,7 @@ int QListBoxItem::rtti() const
 /*!
     \fn int  QListBox::findItem(int yPos) const
 
-    Use index(itemAt()) instead.
+    Use index(itemAt(\a yPos)) instead.
 */
 
 /*!
@@ -4582,5 +4596,38 @@ int QListBoxItem::rtti() const
     Use isCurrent() instead.
 */
 
+
+/*!
+    \enum QListBox::StringComparisonMode
+
+    This enum type is used to set the string comparison mode when
+    searching for an item. We'll refer to the string being searched
+    as the 'target' string.
+
+    \value CaseSensitive The strings must match case sensitively.
+    \value ExactMatch The target and search strings must match exactly.
+    \value BeginsWith The target string begins with the search string.
+    \value EndsWith The target string ends with the search string.
+    \value Contains The target string contains the search string.
+
+    If you OR these flags together (excluding \c CaseSensitive), the
+    search criteria be applied in the following order: \c ExactMatch,
+    \c BeginsWith, \c EndsWith, \c Contains.
+
+    Matching is case-insensitive unless \c CaseSensitive is set. \c
+    CaseSensitive can be OR-ed with any combination of the other
+    flags.
+
+    \sa ComparisonFlags
+*/
+
+/*!
+    \typedef QListBox::ComparisonFlags
+
+    This typedef is used in QIconView's API for values that are OR'd
+    combinations of \l StringComparisonMode values.
+
+    \sa StringComparisonMode
+*/
 
 #endif // QT_NO_LISTBOX

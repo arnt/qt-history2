@@ -318,7 +318,6 @@ public:
     virtual void setResizeMode(ResizeMode m);
     ResizeMode resizeMode() const;
 
-    // Documented in qstring.cpp
     enum StringComparisonMode {
         CaseSensitive   = 0x00001, // 0 0001
         BeginsWith      = 0x00002, // 0 0010

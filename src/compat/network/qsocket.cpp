@@ -141,6 +141,7 @@ public:
     bool sn_read_alreadyCalled;                     // needed to avoid recursion
 };
 
+/*! \reimp */
 Q_LONGLONG QSocket::read(char *data, Q_LONGLONG maxSize)
 {
     if (maxSize >= d->rba.size())
@@ -165,6 +166,7 @@ Q_LONGLONG QSocket::read(char *data, Q_LONGLONG maxSize)
     return maxSize;
 }
 
+/*! \reimp */
 Q_LONGLONG QSocket::write(const char *data, Q_LONGLONG size)
 {
     if (d->state == QSocket::Closing) {
@@ -204,6 +206,7 @@ Q_LONGLONG QSocket::write(const char *data, Q_LONGLONG size)
     return size;
 }
 
+/*! \reimp */
 void QSocket::close()
 {
     if (d->state == QSocket::Idle)        // already closed
@@ -228,6 +231,7 @@ void QSocket::close()
     d->state = QSocket::Idle;
 }
 
+/*! \reimp */
 void QSocket::flush()
 {
     bool osBufferFull = false;
@@ -315,17 +319,19 @@ void QSocket::flush()
         d->wsn->setEnabled(d->wsize > 0); // write if there's data
 }
 
+/*! \reimp */
 Q_LONGLONG QSocket::size() const
 {
     return (Q_LONGLONG)bytesAvailable();
 }
 
-
+/*! \reimp */
 Q_LONGLONG QSocket::at() const
 {
     return 0;
 }
 
+/*! \reimp */
 bool QSocket::seek(Q_LONGLONG index)
 {
     if (index < 0 || index > (QIODevice::Offset)d->rba.size())
@@ -343,6 +349,7 @@ bool QSocket::seek(Q_LONGLONG index)
     return true;
 }
 
+/*! \reimp */
 bool QSocket::atEnd() const
 {
     if (d->socket == 0)
@@ -1045,6 +1052,7 @@ QByteArray QSocket::readLine()
     return a;
 }
 
+/*! \reimp */
 Q_LONGLONG QSocket::readLine(char *data, Q_LONGLONG len)
 {
     int ret = 0;
@@ -1351,5 +1359,10 @@ int QSocket::ungetch( int ch )
 #endif
     return d->rba.ungetch( ch );
 }
+
+/*!
+    \fn bool QSocket::isOpen() const
+    \reimp
+*/
 
 #include "moc_qsocket.cpp"

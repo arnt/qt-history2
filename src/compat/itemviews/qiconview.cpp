@@ -6288,4 +6288,37 @@ bool QIconView::isRenaming() const
 #endif
 }
 
+/*!
+    \enum QIconView::StringComparisonMode
+
+    This enum type is used to set the string comparison mode when
+    searching for an item. We'll refer to the string being searched
+    as the 'target' string.
+
+    \value CaseSensitive The strings must match case sensitively.
+    \value ExactMatch The target and search strings must match exactly.
+    \value BeginsWith The target string begins with the search string.
+    \value EndsWith The target string ends with the search string.
+    \value Contains The target string contains the search string.
+
+    If you OR these flags together (excluding \c CaseSensitive), the
+    search criteria be applied in the following order: \c ExactMatch,
+    \c BeginsWith, \c EndsWith, \c Contains.
+
+    Matching is case-insensitive unless \c CaseSensitive is set. \c
+    CaseSensitive can be OR-ed with any combination of the other
+    flags.
+
+    \sa ComparisonFlags
+*/
+
+/*!
+    \typedef QIconView::ComparisonFlags
+
+    This typedef is used in QIconView's API for values that are OR'd
+    combinations of \l StringComparisonMode values.
+
+    \sa StringComparisonMode
+*/
+
 #endif // QT_NO_ICONVIEW
