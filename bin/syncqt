@@ -96,7 +96,7 @@ sub parseArgs
 	if(!$var || "$var" eq "show_help") {
 	    print "Unknown option: $arg\n\n" if(!$var);
 	    showUsage();
-	    exit $var;
+	    exit 0;
 	} elsif ("$var" eq "showonly") {
 	    if("$val" eq "yes") {
 		$showonly++;
