@@ -579,10 +579,21 @@ void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     if (yRnd >= 100)
         yRnd = 99;
 
+    int w = r.width(), h = r.height();
+#ifdef NO_NATIVE_XFORM
+    if (d->pStyle == NoPen) {
+        ++w;
+        ++h;
+    }
+#else
+    --w;
+    --h;
+#endif
+
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
-    RoundRect(d->hdc, r.x(), r.y(), r.x()+r.width(), r.y()+r.height(),
-              r.width()*xRnd/100, r.height()*yRnd/100);
+    RoundRect(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h,
+              w*xRnd/100, h*yRnd/100);
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 }
