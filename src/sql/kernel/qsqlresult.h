@@ -37,10 +37,10 @@ protected:
     enum BindingSyntax {
         PositionalBinding,
         NamedBinding
-// #ifdef QT3_SUPPORT ### uncomment later on
+#ifdef QT3_SUPPORT
         , BindByPosition = PositionalBinding,
         BindByName = NamedBinding
-// #endif
+#endif
     };
 
     explicit QSqlResult(const QSqlDriver * db);
