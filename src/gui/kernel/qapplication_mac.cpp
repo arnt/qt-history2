@@ -270,10 +270,13 @@ void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context =
 void qt_mac_secure_keyboard(bool b)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if(b)
-        EnableSecureEventInput();
-    else
-        DisableSecureEventInput();
+    if(b) {
+        if (EnableSecureEventInput)
+            EnableSecureEventInput();
+    } else {
+        if (DisableSecureEventInput)
+            DisableSecureEventInput();
+    }
 #else
     Q_UNUSED(b);
 #endif
