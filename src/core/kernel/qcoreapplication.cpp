@@ -45,6 +45,18 @@
 extern QString qAppFileName();
 #endif
 
+// Support for introspection
+
+QSignalSpyCallbackSet Q_CORE_EXPORT qt_signal_spy_callback_set = { 0, 0, 0, 0 };
+
+void qt_register_signal_spy_callbacks(const QSignalSpyCallbackSet &callback_set)
+{
+    qt_signal_spy_callback_set = callback_set;
+}
+
+extern "C" void Q_CORE_EXPORT qt_startup_hook()
+{
+}
 
 typedef void (*VFPTR)();
 typedef QList<VFPTR> QVFuncList;
@@ -341,6 +353,8 @@ void QCoreApplication::init()
             d->argc = j;
         }
     }
+    
+    qt_startup_hook();
 }
 
 /*!

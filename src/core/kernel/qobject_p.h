@@ -30,6 +30,18 @@
 #include "qcoreevent.h"
 #include "qlist.h"
 
+struct QSignalSpyCallbackSet
+{
+    typedef void (*BeginCallback)(QObject *caller, int method_index, void **argv);
+    typedef void (*EndCallback)(QObject *caller, int method_index);
+    BeginCallback signal_begin_callback,
+                    slot_begin_callback;
+    EndCallback signal_end_callback,
+                slot_end_callback;
+};
+void Q_CORE_EXPORT qt_register_signal_spy_callbacks(const QSignalSpyCallbackSet &callback_set);
+
+extern QSignalSpyCallbackSet qt_signal_spy_callback_set;
 
 inline QObjectData::~QObjectData() {}
 
