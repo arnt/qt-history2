@@ -470,6 +470,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    setMask( m );
         }
     }
+    data->uninit = FALSE;
 
     return TRUE;
 }
