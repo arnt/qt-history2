@@ -17,7 +17,7 @@
 #include <qgfxraster_qws.h>
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
-#if Q_Q3PAINTER
+#ifndef Q_Q3PAINTER
 #include "qpainter_p.h"
 #include "qgc_qws.h"
 #define GFX(p) static_cast<QWSGC *>(p->device()->gc())->gfx()

@@ -64,9 +64,10 @@ public:
 
     void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh);
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags);
+    void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim);
 
     virtual Qt::HANDLE handle() const;
-    inline Type type() const { return QAbstractGC::QWS; }
+    inline Type type() const { return QAbstractGC::QWindowSystem; }
 
     static void initialize();
     static void cleanup();

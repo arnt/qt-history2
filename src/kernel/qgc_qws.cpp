@@ -682,6 +682,12 @@ void QWSGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int 
     d->gfx->blt(x,y,sw,sh,sx,sy);
 
 }
+
+void QWSGC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim)
+{
+    qDebug("QWSGC::drawTiledPixmap");
+}
+
 void QWSGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags){
     qDebug("QWSGC::drawTextItem");
 }
