@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#224 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#225 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -99,7 +99,7 @@ struct QLineEditPrivate {
 */
 
 
-static const int scrollTime = 100;		// mark text scroll time
+static const int scrollTime = 40;		// mark text scroll time
 
 
 /*!
@@ -655,7 +655,8 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     if ( e->pos().x() < margin || e->pos().x() > width() - margin ) {
 	if ( !dragScrolling ) {
 	    dragScrolling = TRUE;
-	    if ( ( e->pos().x() < margin ) )
+	    scrollingLeft = e->pos().x() < margin;
+	    if ( scrollingLeft )
 		newMark( xPosToCursorPos( 0 ), FALSE );
 	    else
 		newMark( xPosToCursorPos( width() ), FALSE );
