@@ -1,12 +1,13 @@
-Qt Book Edition Non-Commercial License Agreement Norway
+Qt Book Edition Non-Commercial License Agreement North and
+South America
 Agreement version 1.0
 
 
-IMPORTANT - PLEASE READ CAREFULLY: 
+IMPORTANT-READ CAREFULLY: 
 
 1. This Trolltech End-User License Agreement ("Agreement") 
 is a legal agreement between you (either an individual or a 
-legal entity) ("Licensee") and Trolltech AS ("Trolltech"), 
+legal entity) ("Licensee") and Trolltech Inc ("Trolltech"), 
 and pertains to the Trolltech software product(s) accompanying 
 this Agreement, which include(s) computer software and may 
 include "online" or electronic documentation, associated media, 
@@ -48,7 +49,7 @@ indirect access to functionality of the Licensed Software,
 usage of the software is considered to be usage of the Licensed 
 Software and is thus bound by this Agreement.
 
-GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES
+GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES 
 
 8. Licensee is as an individual granted a personal, 
 non-exclusive, non-transferable license, in a non-commercial 
@@ -61,14 +62,13 @@ Licensed Software may not be used in the course of Licensee's
 employment or whilst engaged in activities that will be 
 compensated.
 
-
 9. (i) Applications must add primary and substantial 
 functionality to the Licensed Software; (ii) Applications may 
 not pass on functionality which in any way makes it possible 
 for others to create software with the Licensed Software; 
 (iii) Applications may not compete with the Licensed Software; 
-and (iv) Licensee may not use Trolltech's or any of 
-its suppliers' names, logos, or trademarks to market the 
+and (iv) Licensee may not use Trolltech's or any of its 
+suppliers' names, logos, or trademarks to market the 
 Application(s), except to state that the Application was 
 developed using the Licensed Software.
 
@@ -111,35 +111,37 @@ not limited to the following categories:  GIF, JPEG and MPEG.
 
 WARRANTY DISCLAIMER
 
-13. The Licensed Software is licensed to Licensee "as is". To 
-the maximum extent permitted by applicable law, Trolltech on 
-behalf of itself and its suppliers, disclaims all warranties 
-and conditions, either express or implied, including, but not 
-limited to, implied warranties of merchantability, fitness 
-for a particular purpose, title and non-infringement with 
-regard to the Licensed Software.
+13. THE LICENSED SOFTWARE IS LICENSED TO LICENSEE "AS IS". 
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, TROLLTECH 
+ON BEHALF OF ITSELF AND ITS SUPPLIERS, DISCLAIMS ALL 
+WARRANTIES AND CONDITIONS, EITHER EXPRESS OR IMPLIED, 
+INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND 
+NON-INFRINGEMENT WITH REGARD TO THE LICENSED SOFTWARE.  THIS 
+WARRANTY DISCLAIMER NOTWITHSTANDING, LICENSEE MAY HAVE 
+SPECIFIC LEGAL RIGHTS WHICH MAY VARY FROM STATE/JURISDICTION 
+TO STATE/JURISDICTION.
 
 LIMITATION OF LIABILITY
 
-14. If, Trolltech's warranty disclaimer notwithstanding, 
-Trolltech is held liable to Licensee, whether in contract, 
-tort or any other legal theory, based on the Licensed 
-Software, Trolltech's entire liability to Licensee and 
-Licensee's exclusive remedy shall be, at Trolltech's 
-option, either (A) return of the price Licensee paid for 
-the Licensed Software, or (B) repair or replacement of 
-the Licensed Software, provided Licensee returns to 
-Trolltech all copies of the Licensed Software as 
-originally delivered to Licensee. Trolltech shall not 
-under any circumstances be liable to Licensee based on 
-failure of the Licensed Software if the failure resulted 
-from accident, abuse or misapplication, nor shall 
-Trolltech under any circumstances be liable for special 
-damages, punitive or exemplary damages, damages for loss 
-of profits or interruption of business or for loss or 
-corruption of data. Any award of damages from Trolltech 
-to Licensee shall not exceed the total amount Licensee 
-has paid to Trolltech in connection with this Agreement. 
+14. IF, TROLLTECH'S WARRANTY DISCLAIMER NOTWITHSTANDING, 
+TROLLTECH IS HELD LIABLE TO LICENSEE, WHETHER IN CONTRACT, 
+TORT OR ANY OTHER LEGAL THEORY, BASED ON THE LICENSED 
+SOFTWARE, TROLLTECH'S ENTIRE LIABILITY TO LICENSEE AND 
+LICENSEE'S EXCLUSIVE REMEDY SHALL BE, AT TROLLTECH'S OPTION, 
+EITHER (A) RETURN OF THE PRICE LICENSEE PAID FOR THE LICENSED 
+SOFTWARE, OR (B) REPAIR OR REPLACEMENT OF THE LICENSED 
+SOFTWARE, PROVIDED LICENSEE RETURNS TO TROLLTECH ALL COPIES OF 
+THE LICENSED SOFTWARE AS ORIGINALLY DELIVERED TO LICENSEE. 
+TROLLTECH SHALL NOT UNDER ANY CIRCUMSTANCES BE LIABLE TO 
+LICENSEE BASED ON FAILURE OF THE LICENSED SOFTWARE IF THE 
+FAILURE RESULTED FROM ACCIDENT, ABUSE OR MISAPPLICATION, NOR 
+SHALL TROLLTECH UNDER ANY  CIRCUMSTANCES BE LIABLE FOR SPECIAL 
+DAMAGES, PUNITIVE OR EXEMPLARY DAMAGES, DAMAGES FOR LOSS OF 
+PROFITS OR INTERRUPTION OF BUSINESS OR FOR LOSS OR CORRUPTION 
+OF DATA. ANY AWARD OF DAMAGES FROM TROLLTECH TO LICENSEE SHALL 
+NOT EXCEED THE TOTAL AMOUNT LICENSEE HAS PAID TO TROLLTECH IN 
+CONNECTION WITH THIS AGREEMENT.
 
 GENERAL PROVISIONS
 
@@ -155,10 +157,18 @@ limitations of liability and exclusions of damages set forth
 in this Agreement shall remain in effect.
 
 16. This Agreement shall be construed, interpreted and 
-governed by the laws of Norway, the legal venue to be Oslo 
-City Court. Trolltech reserves all rights not specifically 
-granted in this Agreement.
- 
+governed by the laws of the State of California, USA. 
+Any action or proceeding arising from or relating to this 
+Agreement shall be brought in a federal court in the Northern 
+District of California or in the State Court in Santa Clara 
+County, California, and each party irrevocably submits to the 
+personal jurisdiction of any such court in any such action or 
+proceeding. The Agreement gives Licensee specific legal rights; 
+Licensee may have others, which vary from state to state and 
+from country to country.  Trolltech reserves all rights not 
+specifically granted in this Agreement.
+
+
 Appendix 1:
 
 Parts of the Licensed Software that are permitted for 
@@ -166,6 +176,5 @@ distribution ("Redistributables"):
 
 - The Licensed Software's main and plug-in libraries in 
 dynamically loaded library / shared object format.
-
 
 
