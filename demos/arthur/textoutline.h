@@ -40,9 +40,9 @@ private:
     void updatePath();
     QPointF mapPoint(float x, float y, bool *ok);
 
-    QPainterPath basePath;
+    QVector<QPainterPath> basePaths;
+    QVector<QPainterPath> xpaths;
     QRectF basePathBounds;
-    QPainterPath xpath;
     DragLocation dragLocation;
     QPoint pul, pur, pbl, pbr;
 };

@@ -30,8 +30,18 @@ TextOutline::TextOutline(QWidget *parent)
     f.setStyleHint(QFont::Serif);
     f.setStyleStrategy(QFont::ForceOutline);
     f.setPointSize(100);
-    basePath.addText(0, 100, f, "Trolltech");
-    basePathBounds = basePath.boundingRect();
+
+    QString text("Trolltech");
+    basePaths.resize(text.size());
+    xpaths.resize(text.size());
+
+    int x = 0;
+    for (int i = 0; i < text.size(); ++i) {
+        QChar c = text.at(i);
+        basePaths[i].addText(x, 100, f, QString(c));
+        x += QFontMetrics(f).width(c);
+        basePathBounds |= basePaths.at(i).boundingRect();
+    }
 
     // Increase the bounds a bit to avoid close to zero calculation problems...
     basePathBounds.addCoords(-5, -5, 5, 5);
@@ -65,10 +75,13 @@ void TextOutline::paintEvent(QPaintEvent *)
 
     fillBackground(&p);
 
-    p.fillPath(xpath, QColor(159, 124, 240, attributes->alpha ? 127 : 255));
-    if (attributes->antialias)
-        p.setRenderHint(QPainter::Antialiasing);
-    p.strokePath(xpath, QPen(QColor(0, 0, 0, attributes->alpha ? 191 : 255), 2));
+    for (int i = 0; i < xpaths.size(); ++i) {
+        QPainterPath &xpath = xpaths[i];
+        p.fillPath(xpath, QColor(159, 124, 240, attributes->alpha ? 127 : 255));
+        if (attributes->antialias)
+            p.setRenderHint(QPainter::Antialiasing);
+        p.strokePath(xpath, QPen(QColor(0, 0, 0, attributes->alpha ? 191 : 255), 2));
+    }
 
     drawTarget(&p, pul);
     drawTarget(&p, pbl);
@@ -175,31 +188,33 @@ QPointF TextOutline::mapPoint(float x, float y, bool *mappingOk)
 
 void TextOutline::updatePath()
 {
-    bool mappingOk = true;
-    QPainterPath newPath;
-    newPath.setFillRule(Qt::WindingFill);
-
-    for (int i=0; i<basePath.elementCount() && mappingOk; ++i) {
-        const QPainterPath::Element &elm = basePath.elementAt(i);
-        switch (elm.type) {
-        case QPainterPath::MoveToElement:
-            newPath.moveTo(mapPoint(elm.x, elm.y, &mappingOk));
-            break;
-        case QPainterPath::LineToElement:
-            newPath.lineTo(mapPoint(elm.x, elm.y, &mappingOk));
-            break;
-        case QPainterPath::CurveToElement:
-            newPath.curveTo(mapPoint(elm.x, elm.y, &mappingOk),
-                            mapPoint(basePath.elementAt(i+1).x, basePath.elementAt(i+1).y, &mappingOk),
-                            mapPoint(basePath.elementAt(i+2).x, basePath.elementAt(i+2).y, &mappingOk));
-            // Skip the two CurveToDataElement's
-            i += 2;
-            break;
-        default:
-            qFatal("aaahahhhhh!!!!");
-            break;
+    for (int p = 0; p < basePaths.size(); ++p) {
+        QPainterPath &basePath = basePaths[p];
+        bool mappingOk = true;
+        QPainterPath newPath;
+        newPath.setFillRule(Qt::WindingFill);
+        for (int i=0; i<basePath.elementCount() && mappingOk; ++i) {
+            const QPainterPath::Element &elm = basePath.elementAt(i);
+            switch (elm.type) {
+            case QPainterPath::MoveToElement:
+                newPath.moveTo(mapPoint(elm.x, elm.y, &mappingOk));
+                break;
+            case QPainterPath::LineToElement:
+                newPath.lineTo(mapPoint(elm.x, elm.y, &mappingOk));
+                break;
+            case QPainterPath::CurveToElement:
+                newPath.curveTo(mapPoint(elm.x, elm.y, &mappingOk),
+                                mapPoint(basePath.elementAt(i+1).x, basePath.elementAt(i+1).y, &mappingOk),
+                                mapPoint(basePath.elementAt(i+2).x, basePath.elementAt(i+2).y, &mappingOk));
+                // Skip the two CurveToDataElement's
+                i += 2;
+                break;
+            default:
+                qFatal("aaahahhhhh!!!!");
+                break;
+            }
         }
+        if (mappingOk)
+            xpaths[p] = newPath;
     }
-    if (mappingOk)
-        xpath = newPath;
 }
