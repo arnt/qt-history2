@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#16 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#17 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#17 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -110,11 +110,11 @@ QProgressBar *QProgressDialog::bar() const
     <li>The total number of steps is 100.
   </ul>
 
-  \arg \e parent, \e name, \e modal, and \e f are sent to the
-    QSemiModal::QSemiModal() constructor. Note that if \e modal is FALSE (the
-    default), you will need to have an event loop proceeding for any
-    redrawing of the dialog to occur.  If it is TRUE, the dialog ensures
-    events are processed when needed.
+  \e parent, \e name, \e modal, and \e f are sent to the
+  QSemiModal::QSemiModal() constructor. Note that if \e modal is FALSE
+  (the default), you will need to have an event loop proceeding for
+  any redrawing of the dialog to occur.  If it is TRUE, the dialog
+  ensures events are processed when needed.
 
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
