@@ -769,7 +769,6 @@ MakefileGenerator::init()
 			}
 			if(!found) {
 			    QString dir, regex = (*val_it), real_dir;
-			    qDebug("LOoking for %s", regex.latin1());
 			    if(regex.findRev(Option::dir_sep) != -1) {
 				dir = regex.left(regex.findRev(Option::dir_sep) + 1);
 				real_dir = fileFixify(Option::fixPathToLocalOS(dir), QDir::currentDirPath(),
