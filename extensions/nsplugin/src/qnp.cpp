@@ -275,23 +275,11 @@ public:
 private:
     static int argc;
     static char** argv;
-    int mousecheck;
 
 public:
     PluginSDK_QApplication() :
-	QApplication(argc, argv),
-	mousecheck(0)
+	QApplication(argc, argv)
     {
-    }
-
-    void timerEvent(QTimerEvent* event)
-    {
-	if (event->timerId() == mousecheck) {
-	    killTimer( mousecheck );
-	    checkFocussedWidget();
-	} else {
-	    QApplication::timerEvent(event);
-	}
     }
 
     void checkFocussedWidget()
@@ -311,16 +299,12 @@ public:
 		    break;
 		}
 	    }
-debug("foc = %p",newFocussedWidget);
 	    if (newFocussedWidget != focussedWidget && focussedWidget)
 		focussedWidget->leaveInstance();
 	    
 	    if (newFocussedWidget) {
 		if (newFocussedWidget != focussedWidget)
 		    newFocussedWidget->enterInstance();
-	    } else {
-		killTimer( mousecheck );
-		mousecheck = 0;
 	    }
 	    
 	    focussedWidget = newFocussedWidget;
@@ -329,18 +313,10 @@ debug("foc = %p",newFocussedWidget);
 
     bool notify( QObject* obj, QEvent* event )
     {
-	if (event->type() == Event_Enter) {
-	    	debug("enter event");
-	    if ( mousecheck ) {
-		killTimer( mousecheck );
-		mousecheck = 0;
-	    }
+	if ( event->type() == Event_Enter ||
+	     event->type() == Event_Leave )
+	{
 	    checkFocussedWidget();
-	} else if (event->type() == Event_Leave) {
-	    debug("leave event");
-	    if ( !mousecheck ) {
-		mousecheck = startTimer(200);
-	    }
 	}
 
 	return QApplication::notify( obj, event );
@@ -626,15 +602,6 @@ NPP_New(NPMIMEType /*pluginType*/,
     next_pi = This;
     qNP->newInstance();
     instance_count++;
-
-#ifdef _WS_WIN_
-    if (strstr(This->instance->userAgent(), "Mozilla/3.")) {
-	// ### work-around for browser inconsistency
-	const char* src = This->instance->arg("SRC");
-	if (src)
-	    This->instance->getURL(src);
-    }
-#endif
 
     return result;
 }
