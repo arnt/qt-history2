@@ -2410,7 +2410,8 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
                     X11->time = event->xclient.data.l[1];
                 if (amw && amw != widget) {
                     QWidget* groupLeader = widget;
-                    while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
+                    while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader)
+                           && groupLeader != amw)
                         groupLeader = groupLeader->parentWidget();
                     if (!groupLeader) {
                         QWidget *p = amw->parentWidget();
@@ -3771,20 +3772,26 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
         }
 
         bool send_event = false;
-        if (max && !isMaximized()) {
-            setWState(Qt::WState_Maximized);
-            send_event = true;
-        } else if (!max && isMaximized()) {
-            clearWState(Qt::WState_Maximized);
-            send_event = true;
+
+        if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
+            && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))) {
+            if (max && !isMaximized()) {
+                setWState(Qt::WState_Maximized);
+                send_event = true;
+            } else if (!max && isMaximized()) {
+                clearWState(Qt::WState_Maximized);
+                send_event = true;
+            }
         }
 
-        if (full && !isFullScreen()) {
-            setWState(Qt::WState_FullScreen);
-            send_event = true;
-        } else if (!full && isFullScreen()) {
-            clearWState(Qt::WState_FullScreen);
-            send_event = true;
+        if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
+            if (full && !isFullScreen()) {
+                setWState(Qt::WState_FullScreen);
+                send_event = true;
+            } else if (!full && isFullScreen()) {
+                clearWState(Qt::WState_FullScreen);
+                send_event = true;
+            }
         }
 
         if (send_event) {
