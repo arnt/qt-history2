@@ -49,7 +49,7 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 
-extern void qSystemWarning( const QString& messsage );
+extern void qSystemWarning( const QString& message, int code = -1 );
 
 static HINSTANCE qt_load_library( const QString& lib )
 {

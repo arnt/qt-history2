@@ -31,9 +31,14 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 
-void qSystemWarning( const QString& message )
+void qSystemWarning( const QString& message, int code = -1 )
 {
-    int error = GetLastError();
+    int error;
+    if ( code == -1 )
+	error = GetLastError();
+    else
+	error = code;
+
     TCHAR* string;
 
     if ( qt_winver & Qt::WV_NT_based ) {
