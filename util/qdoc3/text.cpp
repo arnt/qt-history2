@@ -97,7 +97,7 @@ QString Text::toString() const
     QString str;
     const Atom *atom = firstAtom();
     while ( atom != 0 ) {
-	if ( atom->type() == Atom::String )
+	if ( atom->type() == Atom::String || atom->type() == Atom::AutoLink )
 	    str += atom->string();
 	atom = atom->next();
     }
