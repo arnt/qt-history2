@@ -4,9 +4,6 @@ platforms.
 
 #define _FILE_OFFSET_BITS 64
 #include <unistd.h>
-#if !defined(_LFS_LARGEFILE)
-#error "version test macro _LFS_LARGEFILE is not defined"
-#endif
 #include <sys/types.h>
 #include <assert.h>
 

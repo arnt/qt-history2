@@ -129,7 +129,9 @@ nis {
 }
 !nis:DEFINES += QT_NO_NIS
 
-unix:largefile:DEFINES += _FILE_OFFSET_BITS=64
+largefile {
+	!mac:unix:DEFINES += _FILE_OFFSET_BITS=64
+}
 
 #here for compatability, should go away ####
 include($$KERNEL_CPP/qt_compat.pri)
