@@ -790,7 +790,7 @@ void QSettings::insertSearchPath(System s, const QString &path)
 #endif
 
     if (!qt_verify_key(path)) {
-        qWarning("QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1());
+        qWarning("QSettings::insertSearchPath: Invalid key: '%s'", path.latin1());
         return;
     }
 
@@ -828,7 +828,7 @@ void QSettings::insertSearchPath(System s, const QString &path)
 void QSettings::removeSearchPath(System s, const QString &path)
 {
     if (!qt_verify_key(path)) {
-        qWarning("QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1());
+        qWarning("QSettings::insertSearchPath: Invalid key: '%s'", path.latin1());
         return;
     }
 
@@ -1050,7 +1050,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::readBoolEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::readBoolEntry: Invalid key: '%s'", grp_key.latin1());
         if (ok)
             *ok = false;
 
@@ -1100,7 +1100,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::readDoubleEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::readDoubleEntry: Invalid key: '%s'", grp_key.latin1());
         if (ok)
             *ok = false;
 
@@ -1144,7 +1144,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::readNumEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::readNumEntry: Invalid key: '%s'", grp_key.latin1());
         if (ok)
             *ok = false;
         return def;
@@ -1187,7 +1187,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::readEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::readEntry: Invalid key: '%s'", grp_key.latin1());
         if (ok)
             *ok = false;
 
@@ -1206,8 +1206,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
 
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/'));
-        list.removeAll(QString());
+        QStringList list(grp_key.split('/', QString::StripEmptyEntries));
 
         if (list.count() < 2) {
             qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
@@ -1224,10 +1223,10 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
             d->heading = list[0];
             d->group = list[1];
 
-            // remove the group from the list
-            list.removeAll(list.at(1));
             // remove the heading from the list
-            list.removeAll(list.at(0));
+            list.removeFirst();
+            // remove the group from the list
+            list.removeFirst();
 
             realkey = list.join("/");
         }
@@ -1262,7 +1261,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.latin1());
         return false;
     }
 
@@ -1291,7 +1290,7 @@ bool QSettings::writeEntry(const QString &key, double value)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.latin1());
         return false;
     }
 
@@ -1319,7 +1318,7 @@ bool QSettings::writeEntry(const QString &key, int value)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.latin1());
         return false;
     }
 
@@ -1370,7 +1369,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.latin1());
         return false;
     }
 
@@ -1384,8 +1383,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/'));
-        list.removeAll(QString());
+        QStringList list(grp_key.split('/', QString::StripEmptyEntries));
 
         if (list.count() < 2) {
             qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
@@ -1401,10 +1399,10 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
             d->heading = list[0];
             d->group = list[1];
 
-            // remove the group from the list
-            list.removeAll(list.at(1));
             // remove the heading from the list
-            list.removeAll(list.at(0));
+            list.removeFirst();
+            // remove the group from the list
+            list.removeFirst();
 
             realkey = list.join("/");
         }
@@ -1428,7 +1426,7 @@ bool QSettings::removeEntry(const QString &key)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::removeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::removeEntry: Invalid key: '%s'", grp_key.latin1());
         return false;
     }
 
@@ -1440,8 +1438,7 @@ bool QSettings::removeEntry(const QString &key)
     QString realkey;
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/'));
-        list.removeAll(QString());
+        QStringList list(grp_key.split('/', QString::StripEmptyEntries));
 
         if (list.count() < 2) {
             qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
@@ -1457,10 +1454,10 @@ bool QSettings::removeEntry(const QString &key)
             d->heading = list[0];
             d->group = list[1];
 
-            // remove the group from the list
-            list.removeAll(list.at(1));
             // remove the heading from the list
-            list.removeAll(list.at(0));
+            list.removeFirst();
+            // remove the group from the list
+            list.removeFirst();
 
             realkey = list.join("/");
         }
@@ -1503,7 +1500,7 @@ QStringList QSettings::entryList(const QString &key) const
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::entryList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::entryList: Invalid key: %s", grp_key.latin1());
         return QStringList();
     }
 
@@ -1515,8 +1512,7 @@ QStringList QSettings::entryList(const QString &key) const
     QString realkey;
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/'));
-        list.removeAll(QString());
+        QStringList list(grp_key.split('/', QString::StripEmptyEntries));
 
         if (list.count() < 1) {
             qWarning("QSettings::listEntries: invalid key '%s'", grp_key.latin1());
@@ -1531,10 +1527,10 @@ QStringList QSettings::entryList(const QString &key) const
             d->heading = list[0];
             d->group = list[1];
 
-            // remove the group from the list
-            list.removeAll(list.at(1));
             // remove the heading from the list
-            list.removeAll(list.at(0));
+            list.removeFirst();
+            // remove the group from the list
+            list.removeFirst();
 
             realkey = list.join("/");
         }
@@ -1596,7 +1592,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::subkeyList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::subkeyList: Invalid key: %s", grp_key.latin1());
         return QStringList();
     }
 
@@ -1609,8 +1605,7 @@ QStringList QSettings::subkeyList(const QString &key) const
     int subkeycount = 2;
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/'));
-        list.removeAll(QString());
+        QStringList list(grp_key.split('/', QString::StripEmptyEntries));
 
         if (list.count() < 1) {
             qWarning("QSettings::subkeyList: invalid key '%s'", grp_key.latin1());
@@ -1626,10 +1621,10 @@ QStringList QSettings::subkeyList(const QString &key) const
             d->heading = list[0];
             d->group = list[1];
 
-            // remove the group from the list
-            list.removeAll(list.at(1));
             // remove the heading from the list
-            list.removeAll(list.at(0));
+            list.removeFirst();
+            // remove the group from the list
+            list.removeFirst();
 
             realkey = list.join("/");
         }
@@ -1685,7 +1680,7 @@ QDateTime QSettings::lastModificationTime(const QString &key)
 {
     QString grp_key(groupKey(group(), key));
     if (!qt_verify_key(grp_key)) {
-        qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.ascii());
         return QDateTime();
     }
 
@@ -1696,8 +1691,7 @@ QDateTime QSettings::lastModificationTime(const QString &key)
 
     if (grp_key[0] == '/') {
         // parse our key
-        QStringList list(grp_key.split('/'));
-        list.removeAll(QString());
+        QStringList list(grp_key.split('/', QString::StripEmptyEntries));
 
         if (list.count() < 2) {
             qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.latin1());
