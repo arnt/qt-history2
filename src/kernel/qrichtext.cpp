@@ -1268,7 +1268,7 @@ void QTextDocument::setText( const QString &text, const QString &context )
 	setPlainText( text );
 }
 
-QString QTextDocument::plainText( QTextParag *p, bool formatted ) const
+QString QTextDocument::plainText( QTextParag *p ) const
 {
     if ( !p ) {
 	QString buffer;
@@ -1284,17 +1284,12 @@ QString QTextDocument::plainText( QTextParag *p, bool formatted ) const
 	}
 	return buffer;
     } else {
-	if ( !formatted )
-	    return p->string()->toString();
-
-	// ##### TODO: return formatted string
 	return p->string()->toString();
     }
 }
 
-QString QTextDocument::richText( QTextParag *p, bool formatted ) const
+QString QTextDocument::richText( QTextParag *p ) const
 {
-    Q_UNUSED( formatted );
     QString s;
     if ( !p ) {
 	p = fParag;
@@ -1339,19 +1334,19 @@ QString QTextDocument::text() const
 	return QString::null;
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
 	return richText();
-    return plainText( 0, FALSE );
+    return plainText( 0 );
 }
 
-QString QTextDocument::text( int parag, bool formatted ) const
+QString QTextDocument::text( int parag ) const
 {
     QTextParag *p = paragAt( parag );
     if ( !p )
 	return QString::null;
 
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
-	return richText( p, formatted );
+	return richText( p );
     else
-	return plainText( p, formatted );
+	return plainText( p );
 }
 
 void QTextDocument::invalidate()
@@ -5259,7 +5254,7 @@ QString QTextTable::richText() const
     for ( ; it != attributes.end(); ++it )
 	s += it.key() + "=" + *it + " ";
     s += ">\n";
-    
+
     int lastRow = -1;
     bool needEnd = FALSE;
     QListIterator<QTextTableCell> it2( cells );
@@ -5653,7 +5648,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     }
 
     attributes = attr;
-    
+
     parent->addCell( this );
 }
 

@@ -1445,6 +1445,12 @@ void QTextView::setFontInternal( const QFont &f_ )
 }
 
 /*! Returns the contents of the view.
+  
+  If the view is readonly (i.e. it is a QTextView or QTextBrowser),
+  exactly the same contents as you did set is returned. If it is
+  editable (i.e. it is a QTextEdit), the current contens is set, and
+  depending on textFormat() the text will contain HTML formatting tags
+  or not.
  */
 
 QString QTextView::text() const
@@ -1454,15 +1460,14 @@ QString QTextView::text() const
     return doc->text();
 }
 
-/*! Returns the text of the paragraph \a parag. If \a formatted, the
-  returned string contains wordwrappes, else not. Depending on
+/*! Returns the text of the paragraph \a parag. Depending on
   textFormat(), the returned string contains formatting HTML tags or
   not.
 */
 
-QString QTextView::text( int parag, bool formatted ) const
+QString QTextView::text( int parag ) const
 {
-    return doc->text( parag, formatted );
+    return doc->text( parag );
 }
 
 /*!  Changes the contents of the view to the string \a text and the

@@ -316,7 +316,7 @@ public:
     void save( const QString &fn = QString::null );
     QString fileName() const;
     QString text() const;
-    QString text( int parag, bool formatted ) const;
+    QString text( int parag ) const;
     QString originalText() const;
 
     int x() const;
@@ -421,8 +421,8 @@ public:
 
     void setPlainText( const QString &text );
     void setRichText( const QString &text, const QString &context );
-    QString richText( QTextParag *p = 0, bool formatted = FALSE ) const;
-    QString plainText( QTextParag *p = 0, bool formatted = FALSE ) const;
+    QString richText( QTextParag *p = 0 ) const;
+    QString plainText( QTextParag *p = 0 ) const;
 
     bool focusNextPrevChild( bool next );
 
@@ -1154,7 +1154,7 @@ private:
     int cached_width;
     int cached_sizehint;
     QMap<QString, QString> attributes;
-    
+
 };
 
 class QTextTable: public QTextCustomItem
@@ -1208,7 +1208,7 @@ private:
     int us_ib, us_b, us_ob, us_cs;
     int lastX, lastY;
     QMap<QString, QString> attributes;
-    
+
     int currCell;
 
     Placement place;

@@ -64,7 +64,7 @@ class Q_EXPORT QTextView : public QScrollView
 {
     friend class QTextEdit;
     friend class QTextBrowser;
-    
+
     Q_OBJECT
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QString text READ text WRITE setText )
@@ -93,7 +93,7 @@ public:
     virtual ~QTextView();
 
     QString text() const;
-    QString text( int parag, bool formatted = FALSE ) const;
+    QString text( int parag ) const;
     TextFormat textFormat() const;
     QString context() const;
     QString documentTitle() const;
