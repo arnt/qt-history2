@@ -313,7 +313,7 @@ QSize QToolButton::sizeHint() const
      	    w = iconSize.width();
      	if ( h < iconSize.height() )
      	    h = iconSize.height();
-    } else {
+    } else if ( !iconSet().isNull() ) {
 	// ### in 3.1, use QIconSet::iconSize( QIconSet::Small );
      	QPixmap pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
      	w = pm.width();
