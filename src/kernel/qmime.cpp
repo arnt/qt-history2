@@ -261,7 +261,8 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 	    f.readBlock(ba.data(), ba.size());
 	    QStoredDrag* sr = new QStoredDrag( mimetype );
 	    sr->setEncodedData( ba );
-	    r = sr;
+	    delete d->last;
+	    d->last = r = sr;
 	}
     }
 
@@ -376,10 +377,6 @@ const QMimeSource *QMimeSourceFactory::data(const QString& abs_name) const
 	// all installed mime-source factories and ask these
 	r = static_cast<const QMimeSource *>(defaultFactory()->data(abs_name));
     }
-
-
-    delete d->last;
-    d->last = const_cast<QMimeSource *>(r);
     return r;
 }
 
