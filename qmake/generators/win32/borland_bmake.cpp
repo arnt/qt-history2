@@ -59,12 +59,12 @@ BorlandMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    if(project->variables()["TEMPLATE"].first() == "app" ||
-       project->variables()["TEMPLATE"].first() == "lib") {
+    if(project->first("TEMPLATE") == "app" ||
+       project->first("TEMPLATE") == "lib") {
 	writeBorlandParts(t);
 	return MakefileGenerator::writeMakefile(t);
     }
-    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    else if(project->first("TEMPLATE") == "subdirs") {
 	writeSubDirs(t);
 	return TRUE;
     }
@@ -120,7 +120,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	"
-      << varGlue("TARGET",project->variables()["DESTDIR"].first() + "\\","",project->variables()["TARGET_EXT"].first())
+      << varGlue("TARGET",project->first("DESTDIR") + "\\","",project->first("TARGET_EXT"))
       << endl;
     t << endl;
 
@@ -177,11 +177,11 @@ BorlandMakefileGenerator::init()
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->variables()["TEMPLATE"].first() == "app")
+    if(project->first("TEMPLATE") == "app")
 	project->variables()["QMAKE_APP_FLAG"].append("1");
-    else if(project->variables()["TEMPLATE"].first() == "lib")
+    else if(project->first("TEMPLATE") == "lib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
-    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    else if(project->first("TEMPLATE") == "subdirs") {
 	MakefileGenerator::init();
 	if(project->variables()["MAKEFILE"].isEmpty())
 	    project->variables()["MAKEFILE"].append("Makefile");
@@ -203,8 +203,8 @@ BorlandMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->variables()["TARGET"].first() == "qt" || 
-		  project->variables()["TARGET"].first() == "qt-mt") &&
+	    if ( (project->first("TARGET") == "qt" || 
+		  project->first("TARGET") == "qt-mt") &&
 		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -266,8 +266,8 @@ BorlandMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
-	if ( (project->variables()["TARGET"].first() == "qt" ||
-	      project->variables()["TARGET"].first() == "qt-mt") &&
+	if ( (project->first("TARGET") == "qt" ||
+	      project->first("TARGET") == "qt-mt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
@@ -279,7 +279,7 @@ BorlandMakefileGenerator::init()
 	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
+		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
@@ -301,7 +301,7 @@ BorlandMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(
-		QStringList::split('.',project->variables()["VERSION"].first()).join("") + ".dll");
+		QStringList::split('.',project->first("VERSION")).join("") + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
@@ -345,7 +345,7 @@ BorlandMakefileGenerator::init()
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {
-	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->variables()["DEF_FILE"].first());
+	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
     }
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
@@ -362,10 +362,10 @@ BorlandMakefileGenerator::init()
     }
     MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {
-	QStringList l = QStringList::split('.', project->variables()["VERSION"].first());
+	QStringList l = QStringList::split('.', project->first("VERSION"));
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
-    project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".tds");
+    project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".tds");
 }
 

@@ -57,11 +57,11 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    if(project->variables()["TEMPLATE"].first() == "vcapp" ||
-       project->variables()["TEMPLATE"].first() == "vclib") {
+    if(project->first("TEMPLATE") == "vcapp" ||
+       project->first("TEMPLATE") == "vclib") {
 	return writeDspParts(t);
     }
-    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    else if(project->first("TEMPLATE") == "subdirs") {
 	writeHeader(t);
 	writeSubDirs(t);
 	return TRUE;
@@ -74,9 +74,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 {
     QString dspfile;
     if ( !project->variables()["DSP_TEMPLATE"].isEmpty() ) {
-	dspfile = project->variables()["DSP_TEMPLATE"].first();
+	dspfile = project->first("DSP_TEMPLATE");
     } else {
-	dspfile = project->variables()["MSVCDSP_TEMPLATE"].first();
+	dspfile = project->first("MSVCDSP_TEMPLATE");
     }
     dspfile = findTemplate(dspfile);
 
@@ -192,7 +192,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    
 		    QString mocFile;
 		    if(!project->variables()["MOC_DIR"].isEmpty())
-			mocFile = project->variables()["MOC_DIR"].first();
+			mocFile = project->first("MOC_DIR");
 		    else
 			mocFile = fpath;
 
@@ -289,9 +289,9 @@ DspMakefileGenerator::init()
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->variables()["TEMPLATE"].first() == "vcapp" )
+    if(project->first("TEMPLATE") == "vcapp" )
 	project->variables()["QMAKE_APP_FLAG"].append("1");
-    else if(project->variables()["TEMPLATE"].first() == "vclib")
+    else if(project->first("TEMPLATE") == "vclib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
     
     QStringList &configs = project->variables()["CONFIG"];
@@ -307,8 +307,8 @@ DspMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->variables()["TARGET"].first() == "qt" ||
-		  (project->variables()["TARGET"].first() == "qt-mt") &&
+	    if ( (project->first("TARGET") == "qt" ||
+		  (project->first("TARGET") == "qt-mt") &&
 		  !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ))
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -333,8 +333,8 @@ DspMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_OPENGL"];
 	}
 
-	if ( (project->variables()["TARGET"].first() == "qt" ||
-	      project->variables()["TARGET"].first() == "qt-mt") &&
+	if ( (project->first("TARGET") == "qt" ||
+	      project->first("TARGET") == "qt-mt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
@@ -346,7 +346,7 @@ DspMakefileGenerator::init()
 	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
+		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%s%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
@@ -366,7 +366,7 @@ DspMakefileGenerator::init()
     }
     if ( project->isActiveConfig("thread") ) {
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
-        if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" 
+        if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain" 
             || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
 	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
@@ -377,7 +377,7 @@ DspMakefileGenerator::init()
     }
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
-	    QString ver_xyz(project->variables()["VERSION"].first());
+	    QString ver_xyz(project->first("VERSION"));
 	    ver_xyz.replace(QRegExp("\\."), "");
 	    project->variables()["TARGET_EXT"].append(ver_xyz + ".dll");
 	} else {
@@ -390,7 +390,7 @@ DspMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".lib");
 	}
     }
-    project->variables()["TARGET"].first() += project->variables()["TARGET_EXT"].first();
+    project->variables()["TARGET"].first() += project->first("TARGET_EXT");
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
     }
@@ -445,12 +445,12 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_RELDEFS"].clear();
     }
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
-	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first());
-	Option::fixPathToTargetOS(project->variables()["TARGET"].first());
+	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
+	Option::fixPathToTargetOS(project->first("TARGET"));
 	project->variables()["MSVCDSP_TARGET"].append(
-	    QString("/out:\"") + project->variables()["TARGET"].first() + "\"");
+	    QString("/out:\"") + project->first("TARGET") + "\"");
 	if ( project->isActiveConfig("dll") ) {
-	    QString imp = project->variables()["TARGET"].first();
+	    QString imp = project->first("TARGET");
 	    imp.replace(QRegExp("\\.dll"), ".lib");
 	    project->variables()["MSVCDSP_TARGET"].append(QString(" /implib:\"") + imp + "\"");
 	}
@@ -458,10 +458,10 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	project->variables()["MSVCDSP_COPY_DLL"].append(
 	    "# Begin Special Build Tool\n"
-	    "TargetPath=" + project->variables()["TARGET"].first() + "\n"
+	    "TargetPath=" + project->first("TARGET") + "\n"
 	    "SOURCE=$(InputPath)\n"
-	    "PostBuild_Desc=Copy DLL to " + project->variables()["DLLDESTDIR"].first() + "\n"
-	    "PostBuild_Cmds=copy $(TargetPath) \"" + project->variables()["DLLDESTDIR"].first() + "\"\n"
+	    "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
+	    "PostBuild_Cmds=copy $(TargetPath) \"" + project->first("DLLDESTDIR") + "\"\n"
 	    "# End Special Build Tool");
     }
     if ( project->isActiveConfig("moc") ) {

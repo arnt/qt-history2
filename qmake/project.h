@@ -59,6 +59,10 @@ public:
     bool read(QString project, QString pwd);
     QString projectFile() { return pfile; }
     QString configFile() { return cfile; }
+
+    bool isEmpty(const QString &v) { return vars[v].isEmpty(); }
+    QStringList &values(const QString &v) { return vars[v]; }
+    QString first(const QString &v) { return vars[v].isEmpty() ? QString("") : vars[v].first(); }
     QMap<QString, QStringList> &variables() { return vars; }
     bool isActiveConfig(const QString &x);
 

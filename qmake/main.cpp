@@ -98,15 +98,15 @@ int main(int argc, char **argv)
 
 	    /* figure out generator */
 	    MakefileGenerator *mkfile = NULL;
-	    QString gen = proj.variables()["MAKEFILE_GENERATOR"].first(), def_mkfile;
+	    QString gen = proj.first("MAKEFILE_GENERATOR"), def_mkfile;
 	    if(gen.isEmpty()) {
 		fprintf(stderr, "No generator specified in config file: %s\n", fn.latin1());
 		exit_val = 3;
 	    } else if(gen == "UNIX") {
 		mkfile = new UnixMakefileGenerator(&proj);
 	    } else if(gen == "MSVC") {
-		if(proj.variables()["TEMPLATE"].first().find(QRegExp("^vc.*")) != -1) {
-		    def_mkfile = proj.variables()["QMAKE_TARGET"].first() + ".dsp";
+		if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
+		    def_mkfile = proj.first("QMAKE_TARGET") + ".dsp";
 		    mkfile = new DspMakefileGenerator(&proj);
 		} else {
 		    mkfile = new NmakeMakefileGenerator(&proj);
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 		if(!(Option::output.state() & IO_Open)) {
 		    if(Option::output.name().isEmpty()) {
 			if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) 
-			    Option::output.setName(proj.variables()["QMAKE_MAKEFILE"].first());
+			    Option::output.setName(proj.first("QMAKE_MAKEFILE"));
 			else if(!def_mkfile.isEmpty()) 
 			    Option::output.setName(def_mkfile);
 			else

@@ -128,7 +128,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
 	    QString mocFile;
 	    if(!project->variables()["MOC_DIR"].isEmpty())
-		mocFile = project->variables()["MOC_DIR"].first();
+		mocFile = project->first("MOC_DIR");
 	    else
 		mocFile = "./"; //fn_target.left(dir_pos+1);
 
@@ -334,7 +334,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		QString mocFile;
 		QFileInfo fi(fn_local);
 		if(!project->variables()["MOC_DIR"].isEmpty())
-		    mocFile = project->variables()["MOC_DIR"].first();
+		    mocFile = project->first("MOC_DIR");
 		else
 		    mocFile = fi.dirPath() + Option::dir_sep;
 
@@ -651,7 +651,7 @@ MakefileGenerator::init()
 
     if ( mocAware() ) {
 	if(!project->variables()["MOC_DIR"].isEmpty())
-	    project->variables()["INCLUDEPATH"].append(project->variables()["MOC_DIR"].first());
+	    project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
     }
@@ -732,7 +732,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 
     QString mocdir;
     if(!project->variables()["MOC_DIR"].isEmpty())
-	mocdir = project->variables()["MOC_DIR"].first();
+	mocdir = project->first("MOC_DIR");
 
     for( ;oit != objl.end(); oit++) {
 	QFileInfo fi(Option::fixPathToLocalOS((*oit)));
@@ -890,7 +890,7 @@ MakefileGenerator::createObjectList(const QString &var)
     QStringList &l = project->variables()[var];
     QString dir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
-	dir = project->variables()["OBJECTS_DIR"].first();
+	dir = project->first("OBJECTS_DIR");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	QString dirName;
@@ -949,12 +949,10 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     QString pfile = project->projectFile();
     QString args;
     if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-	args += "QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + "\"";
+	args += "QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + "\"";
     fileFixify(pfile);
 
-    if ( project->variables()["QMAKE_QMAKE"].isEmpty() )
-	project->variables()["QMAKE_QMAKE"].append( "" );
-    QString qmake_path = project->variables()["QMAKE_QMAKE"].first();
+    QString qmake_path = project->first("QMAKE_QMAKE");
     if(qmake_path.isEmpty())
 	qmake_path = "qmake"; //hope its in your path
     if(!ofile.isEmpty()) {

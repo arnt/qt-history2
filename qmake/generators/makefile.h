@@ -62,8 +62,10 @@ protected:
     bool generateDependancies(QStringList &dirs, QString x);
     bool generateMocList(QString fn);
 
-    inline QString findMocSource(const QString &moc_file) const { return mocablesFromMOC[cleanFilePath(moc_file)]; }
-    inline QString findMocDestination(const QString &src_file) const { return mocablesToMOC[cleanFilePath(src_file)]; }
+    inline QString findMocSource(const QString &moc_file) const 
+	{ QString tmp = cleanFilePath(moc_file); return !mocablesFromMOC.contains(tmp) ? QString("") : mocablesFromMOC[tmp]; }
+    inline QString findMocDestination(const QString &src_file) const 
+	{ QString tmp = cleanFilePath(src_file); return !mocablesToMOC.contains(tmp) ? QString("") : mocablesToMOC[tmp]; }
 
     void setMocAware(bool o) { moc_aware = o; }
     bool mocAware() const { return moc_aware; }

@@ -60,12 +60,12 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    if(project->variables()["TEMPLATE"].first() == "app" ||
-       project->variables()["TEMPLATE"].first() == "lib") {
+    if(project->first("TEMPLATE") == "app" ||
+       project->first("TEMPLATE") == "lib") {
 	writeNmakeParts(t);
 	return MakefileGenerator::writeMakefile(t);
     }
-    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    else if(project->first("TEMPLATE") == "subdirs") {
 	writeSubDirs(t);
 	return TRUE;
     }
@@ -122,7 +122,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	";
     if( !project->variables()[ "DESTDIR" ].isEmpty() )
-	t << varGlue("TARGET",project->variables()["DESTDIR"].first() + "\\","",project->variables()["TARGET_EXT"].first());
+	t << varGlue("TARGET",project->first("DESTDIR") + "\\","",project->first("TARGET_EXT"));
     else
 	t << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     t << endl;
@@ -182,9 +182,9 @@ NmakeMakefileGenerator::init()
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->variables()["TEMPLATE"].first() == "app")
+    if(project->first("TEMPLATE") == "app")
 	project->variables()["QMAKE_APP_FLAG"].append("1");
-    else if(project->variables()["TEMPLATE"].first() == "lib")
+    else if(project->first("TEMPLATE") == "lib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
 
     QStringList &configs = project->variables()["CONFIG"];
@@ -200,8 +200,8 @@ NmakeMakefileGenerator::init()
            project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
           (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->variables()["TARGET"].first() == "qt" || 
-		  project->variables()["TARGET"].first() == "qt-mt") &&
+	    if ( (project->first("TARGET") == "qt" || 
+		  project->first("TARGET") == "qt-mt") &&
 		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -253,8 +253,8 @@ NmakeMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
-	if ( (project->variables()["TARGET"].first() == "qt" || 
-	      project->variables()["TARGET"].first() == "qt-mt") &&
+	if ( (project->first("TARGET") == "qt" || 
+	      project->first("TARGET") == "qt-mt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
@@ -266,7 +266,7 @@ NmakeMakefileGenerator::init()
 	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
+		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
@@ -288,7 +288,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(
-		QStringList::split('.',project->variables()["VERSION"].first()).join("") + ".dll");
+		QStringList::split('.',project->first("VERSION")).join("") + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
@@ -328,7 +328,7 @@ NmakeMakefileGenerator::init()
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {
-	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->variables()["DEF_FILE"].first());
+	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
     }
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
@@ -345,18 +345,18 @@ NmakeMakefileGenerator::init()
     }
     MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {
-	QStringList l = QStringList::split('.', project->variables()["VERSION"].first());
+	QStringList l = QStringList::split('.', project->first("VERSION"));
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
     if(project->isActiveConfig("dll")) {
-	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".lib");
-	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".exp");
+	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".lib");
+	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".exp");
     }
     if(project->isActiveConfig("debug")) {
-	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".pdb");
+	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".pdb");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
-	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".ilk");
+	project->variables()["QMAKE_CLEAN"].append(project->first("TARGET") + ".ilk");
     }
 
 }
