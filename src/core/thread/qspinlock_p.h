@@ -99,16 +99,16 @@ private:
 // QStaticSpinLock allows you to have static-global spinlocks
 class Q_CORE_EXPORT QStaticSpinLock
 {
+    static QSpinLock *static_lock;
 public:
     inline operator QSpinLock *()
     {
-	static QSpinLock *sx = 0;
-	if (!sx) {
+	if (!static_lock) {
 	    QSpinLock *x = new QSpinLock;
-	    if (!q_atomic_test_and_set_ptr(&sx, 0, x))
+	    if (!q_atomic_test_and_set_ptr(&static_lock, 0, x))
 		delete x;
 	}
-	return sx;
+	return static_lock;
     }
 };
 
