@@ -15,6 +15,7 @@
 #define Q3MEMARRAY_H
 
 #include "q3garray.h"
+#include "qvector.h"
 
 template<class type>
 class Q3MemArray : public Q3GArray
@@ -31,6 +32,7 @@ public:
     Q3MemArray() {}
     Q3MemArray( int size ) : Q3GArray(size*sizeof(type)) {}
     Q3MemArray( const Q3MemArray<type> &a ) : Q3GArray(a) {}
+    Q3MemArray( const QVector<type> &vector);
    ~Q3MemArray() {}
     Q3MemArray<type> &operator=(const Q3MemArray<type> &a)
 				{ return (Q3MemArray<type>&)Q3GArray::assign(a); }
@@ -80,6 +82,25 @@ public:
     Iterator end() { return data() + size(); }
     ConstIterator begin() const { return data(); }
     ConstIterator end() const { return data() + size(); }
+
+    operator QVector<type>() const;
 };
+
+template<class type>
+Q_OUTOFLINE_TEMPLATE Q3MemArray<type>::Q3MemArray( const QVector<type> &vector)
+    : Q3GArray(vector.size())
+{
+    for (int i = 0; i < vector.size(); ++i)
+        at(i) = vector.at(i);
+}
+
+template<class type>
+Q_OUTOFLINE_TEMPLATE Q3MemArray<type>::operator QVector<type>() const
+{
+    QVector<type> vector;
+    for (int i = 0; i < size(); ++i)
+        vector.append(at(i));
+
+}
 
 #endif // Q3MEMARRAY_H
