@@ -1627,6 +1627,22 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				QBrush *b = new QBrush( QColor(), QPixmap( img ) );
 				setPaper( b );
 			    }
+			} else if ( it.key() == "text" ) {
+			    QColor c( *it );
+			    if ( formatCollection()->defaultFormat()->color() != c ) {
+				QDict<QTextFormat> formats = formatCollection()->dict();
+				QDictIterator<QTextFormat> it( formats );
+				while ( it.current() ) {
+				    if ( it.current() == formatCollection()->defaultFormat() ) {
+					++it;
+					continue;
+				    }
+				    it.current()->setColor( c );
+				    ++it;
+				}
+				formatCollection()->defaultFormat()->setColor( c );
+				curtag.format.setColor( c );
+			    }
 			}
 		    }
 		} else {
