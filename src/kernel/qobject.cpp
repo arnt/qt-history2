@@ -2274,7 +2274,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoImage m = (RProtoImage)p->set;
 	    (this->*m)( value.toImage() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2286,7 +2286,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoPoint m = (RProtoPoint)p->set;
 	    (this->*m)( value.toPoint() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2298,7 +2298,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoStringList m = (RProtoStringList)p->set;
 	    (this->*m)( value.toStringList() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2310,7 +2310,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoString m = (RProtoString)p->set;
 	    (this->*m)( value.toString() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2325,7 +2325,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->set;
 	    (this->*m)( value.toCString().data() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2337,7 +2337,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoFont m = (RProtoFont)p->set;
 	    (this->*m)( value.toFont() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2349,7 +2349,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoPixmap m = (RProtoPixmap)p->set;
 	    (this->*m)( value.toPixmap() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2361,7 +2361,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoBrush m = (RProtoBrush)p->set;
 	    (this->*m)( value.toBrush() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2373,7 +2373,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoRect m = (RProtoRect)p->set;
 	    (this->*m)( value.toRect() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2385,7 +2385,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoSize m = (RProtoSize)p->set;
 	    (this->*m)( value.toSize() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2397,7 +2397,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoColor m = (RProtoColor)p->set;
 	    (this->*m)( value.toColor() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2409,7 +2409,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoPalette m = (RProtoPalette)p->set;
 	    (this->*m)( value.toPalette() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2421,7 +2421,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoColorGroup m = (RProtoColorGroup)p->set;
 	    (this->*m)( value.toColorGroup() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2433,7 +2433,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoBitmap m = (RProtoBitmap)p->set;
 	    (this->*m)( value.toBitmap() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2445,7 +2445,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoRegion m = (RProtoRegion)p->set;
 	    (this->*m)( value.toRegion() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2457,7 +2457,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoPointArray m = (RProtoPointArray)p->set;
 	    (this->*m)( value.toPointArray() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2469,7 +2469,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoCursor m = (RProtoCursor)p->set;
 	    (this->*m)( value.toCursor() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2481,7 +2481,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoIconSet m = (RProtoIconSet)p->set;
 	    (this->*m)( value.toIconSet() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2493,7 +2493,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoInt m = (RProtoInt)p->set;
 	    (this->*m)( value.toInt() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2505,7 +2505,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoUInt m = (RProtoUInt)p->set;
 	    (this->*m)( value.toUInt() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2517,7 +2517,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoDouble m = (RProtoDouble)p->set;
 	    (this->*m)( value.toDouble() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2529,7 +2529,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoBool m = (RProtoBool)p->set;
 	    (this->*m)( value.toBool() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2541,7 +2541,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoList m = (RProtoList)p->set;
 	    (this->*m)( value.toList() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2553,7 +2553,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoMap m = (RProtoMap)p->set;
 	    (this->*m)( value.toMap() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
 
@@ -2565,7 +2565,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    RProtoSizePolicy m = (RProtoSizePolicy)p->set;
 	    (this->*m)( value.toSizePolicy() );
 	} else {
-	    ASSERT( 0 );
+	    qWarning( "QObject::setProperty: Can't write property %s", p->name() );
 	}
 	return TRUE;
     }
