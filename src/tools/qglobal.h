@@ -1070,6 +1070,7 @@ void* QTypeInfoHelper(...);
 template <typename T> inline void qInit(T &t){ qInitHelper((T(*)())0, (void*)&t); }
 template <typename T> inline void qDelete(T &t){ qDeleteHelper((T(*)())0, (void*)&t); }
 template <typename T> inline bool qIsDetached(T &) { return true; }
+
 template <typename T>
 class QTypeInfo
 {
@@ -1161,8 +1162,8 @@ Q_DECLARE_TYPEINFO(const double, Q_PRIMITIVE_TYPE);
 template <> inline void qDelete<void*>(void *&) { }
 typedef void (*QFunctionPointer)();
 typedef void (*QFunctionPointerWithArgs)(...);
-template <> inline void qDelete<QFunctionPointer>(QFunctionPointer &) { }
-template <> inline void qDelete<QFunctionPointerWithArgs>(QFunctionPointerWithArgs &) { }
+template <> inline void qDelete(QFunctionPointer &) { }
+template <> inline void qDelete(QFunctionPointerWithArgs &) { }
 
 
 void *qMalloc(size_t size);
