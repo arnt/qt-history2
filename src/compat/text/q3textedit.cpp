@@ -107,10 +107,10 @@ public:
 };
 
 #ifndef QT_NO_MIME
-class QRichTextDrag : public QTextDrag
+class Q3RichTextDrag : public QTextDrag
 {
 public:
-    QRichTextDrag(QWidget *dragSource = 0, const char *name = 0);
+    Q3RichTextDrag(QWidget *dragSource = 0, const char *name = 0);
 
     void setPlainText(const QString &txt) { setText(txt); }
     void setRichText(const QString &txt) { richTxt = txt; }
@@ -127,12 +127,12 @@ private:
 
 };
 
-QRichTextDrag::QRichTextDrag(QWidget *dragSource, const char *name)
+Q3RichTextDrag::Q3RichTextDrag(QWidget *dragSource, const char *name)
     : QTextDrag(dragSource, name)
 {
 }
 
-QByteArray QRichTextDrag::encodedData(const char *mime) const
+QByteArray Q3RichTextDrag::encodedData(const char *mime) const
 {
     if (qstrcmp("application/x-qrichtext", mime) == 0) {
         return richTxt.toUtf8(); // #### perhaps we should use USC2 instead?
@@ -140,7 +140,7 @@ QByteArray QRichTextDrag::encodedData(const char *mime) const
         return QTextDrag::encodedData(mime);
 }
 
-bool QRichTextDrag::decode(QMimeSource *e, QString &str, const QString &mimetype,
+bool Q3RichTextDrag::decode(QMimeSource *e, QString &str, const QString &mimetype,
                             const QString &subtype)
 {
     if (mimetype == "application/x-qrichtext") {
@@ -161,14 +161,14 @@ bool QRichTextDrag::decode(QMimeSource *e, QString &str, const QString &mimetype
     return QTextDrag::decode(e, str, st);
 }
 
-bool QRichTextDrag::canDecode(QMimeSource* e)
+bool Q3RichTextDrag::canDecode(QMimeSource* e)
 {
     if (e->provides("application/x-qrichtext"))
         return true;
     return QTextDrag::canDecode(e);
 }
 
-const char* QRichTextDrag::format(int i) const
+const char* Q3RichTextDrag::format(int i) const
 {
     if (QTextDrag::format(i))
         return QTextDrag::format(i);
@@ -2574,7 +2574,7 @@ void Q3TextEdit::contentsDropEvent(QDropEvent *e)
     inDnD = false;
     e->acceptAction();
     bool intern = false;
-    if (QRichTextDrag::canDecode(e)) {
+    if (Q3RichTextDrag::canDecode(e)) {
         bool hasSel = doc->hasSelection(Q3TextDocument::Standard);
         bool internalDrag = e->source() == this || e->source() == viewport();
         int dropId, dropIndex;
@@ -3284,7 +3284,7 @@ QTextDrag *Q3TextEdit::dragObject(QWidget *parent) const
         return 0;
     if (textFormat() != RichText)
         return new QTextDrag(doc->selectedText(Q3TextDocument::Standard), parent);
-    QRichTextDrag *drag = new QRichTextDrag(parent);
+    Q3RichTextDrag *drag = new Q3RichTextDrag(parent);
     drag->setPlainText(doc->selectedText(Q3TextDocument::Standard));
     drag->setRichText(doc->selectedText(Q3TextDocument::Standard, true));
     return drag;
@@ -4897,10 +4897,10 @@ void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
         return;
     if (doc->hasSelection(Q3TextDocument::Standard))
         removeSelectedText();
-    if (!QRichTextDrag::canDecode(m))
+    if (!Q3RichTextDrag::canDecode(m))
         return;
     QString t;
-    if (!QRichTextDrag::decode(m, t, st, subtype))
+    if (!Q3RichTextDrag::decode(m, t, st, subtype))
         return;
     if (st == "application/x-qrichtext") {
         int start;
