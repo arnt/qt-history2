@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#49 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#50 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -95,9 +95,10 @@ public:
 			      const char *format=0 );
     bool	save( const char *fileName, const char *format ) const;
 
-#if 0
-    const QRgb	pixel( int x, int y ) const;
-#endif
+    bool	valid( int x, int y ) const;
+    int		pixelIndex( int x, int y ) const;
+    QRgb	pixel( int x, int y ) const;
+    void	setPixel( int x, int y, uint index_or_rgb );
 
 private:
     void	init();
