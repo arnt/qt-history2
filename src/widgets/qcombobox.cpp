@@ -862,6 +862,7 @@ void QComboBox::setCurrentItem( int index )
 	return;
     }
     d->current = index;
+    d->completeAt = 0;
     if ( d->ed ) {
 	d->ed->setText( text( index ) );
 	d->updateLinedGeometry();
@@ -1291,6 +1292,17 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( c );
 	else
 	    setCurrentItem( 0 );
+    } else if ( d->useCompletion && d->ed == 0 && 
+		e->text() != QString::null ) {
+	QString ct = currentText().left( d->completeAt ) + e->text();
+	int i = completionIndex( ct, currentItem() );
+	if ( i < 0 && d->completeAt > 0 )
+	    i = completionIndex( e->text(), 0 );
+	d->completeAt = 0;
+	if ( i >= 0 ) {
+	    setCurrentItem( i );
+	    d->completeAt = ct.length();
+	}
     } else {
 	e->ignore();
 	return;
@@ -1310,6 +1322,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 void QComboBox::focusInEvent( QFocusEvent * e )
 {
     QWidget::focusInEvent( e );
+    d->completeNow = FALSE;
 }
 
 /*!
@@ -1486,26 +1499,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		 d->ed->cursorPosition() == (int)d->ed->text().length() ) {
 		d->completeNow = FALSE;
 		QString ct( d->ed->text() );
-		QString it;
-		int i =0;
-		int foundAt = -1;
-		int foundLength = 100000; // lots
-		while( i<count() ) {
-		    it = text( i );
-		    if ( it.length() >= ct.length() ) {
-			it.truncate( ct.length() );
-			int itlen = text( i ).length();
-			if ( (it == ct || it.lower() == ct )
-			    && itlen < foundLength ) {
-			    foundAt = i;
-			    foundLength = text( i ).length();
-			    break;
-			}
-		    }
-		    i++;
-		}
-		if ( foundAt > -1 ) {
-		    it = text( foundAt );
+		int i = completionIndex( ct, currentItem() );
+		if ( i > -1 ) {
+		    QString it = text( i );
 		    d->ed->validateAndSet( it, ct.length(),
 					   ct.length(), it.length() );
 		}
@@ -1635,6 +1631,40 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 }
 
 
+/*! Returns the index of the first item \e after \a startingAt of
+  which \a prefix is a case-insensitive prefix. Returns -1 if no items
+  start with \a prefix.
+*/
+
+int QComboBox::completionIndex( const QString & prefix,
+				int startingAt = 0 ) const
+{
+    int start = startingAt;
+    if ( start < 0 || start >= count() )
+	start = 0;
+    if ( start >= count() )
+	return -1;
+    QString match = prefix.lower();
+    if ( match.length() < 1 )
+	return start;
+
+    QString current;
+    int i = start;
+    do {
+	current = text( i );
+	if ( current.length() >= match.length() ) {
+	    current.truncate( match.length() );
+	    if ( current == match || current.lower() == match )
+		return i;
+	}
+	i++;
+	if ( i == count() )
+	    i = 0;
+    } while ( i != start );
+    return -1;
+}
+
+
 /*!
   Returns the current maximum on-screen size of the combo box.  The
   default is ten lines.
@@ -1753,7 +1783,7 @@ void QComboBox::returnPressed()
     if ( doInsert ) {
 	if ( count() == d->maxCount )
 	    removeItem( count() - 1 );
-	
+
 	switch ( insertionPolicy() ) {
 	case AtCurrent:
 	    if ( s != text( currentItem() ) )

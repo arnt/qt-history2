@@ -134,7 +134,7 @@ public:
 
     void 	setDuplicatesEnabled( bool enable );
     bool 	duplicatesEnabled() const;
-    
+
     bool 	editable() const;
     void 	setEditable( bool );
 
@@ -178,6 +178,7 @@ private:
     void	currentChanged();
     QRect	arrowRect() const;
     bool	getMetrics( int *dist, int *buttonW, int *buttonH ) const;
+    int		completionIndex( const QString &, int ) const;
 
     QComboData	*d;
 
