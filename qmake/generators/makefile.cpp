@@ -414,7 +414,9 @@ MakefileGenerator::init()
 	if(doDepends()) {
 	    QStringList incDirs;
 	    QString dirs[] = { QString("QMAKE_ABSOLUTE_SOURCE_PATH"),
-				   QString("INCLUDEPATH"), QString("DEPENDPATH"), QString::null };
+				   QString("DEPENDPATH"), QString::null, QString::null };
+	    if(project->isActiveConfig("depend_includepath"))
+		dirs[2] = QString("INCLUDEPATH");
 	    for(int y = 0; dirs[y] != QString::null; y++) {
 		QStringList &l = v[dirs[y]];
 		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
