@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#19 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -17,14 +17,14 @@
 #include "qapp.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#19 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -160,7 +160,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( !src_dc ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
-		src_dc = GetDC( ((QWidget*)src)->id() );
+		src_dc = GetDC( ((QWidget*)src)->winId() );
 		break;
 	    case PDT_PIXMAP:
 		src_dc = ((QPixmap*)src)->allocMemDC();
@@ -171,7 +171,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( !dst_dc ) {
 	switch ( td ) {
 	    case PDT_WIDGET:
-		dst_dc = GetDC( ((QWidget*)dst)->id() );
+		if ( ((QWidget*)dst)->testWFlags(WPaintUnclipped) )
+		    dst_dc = GetWindowDC( ((QWidget*)dst)->winId() );
+		else
+		    dst_dc = GetDC( ((QWidget*)dst)->winId() );
 		break;
 	    case PDT_PIXMAP:
 		dst_dc = ((QPixmap*)dst)->allocMemDC();
@@ -198,7 +201,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( src_tmp ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
-		ReleaseDC( ((QWidget*)src)->id(), src_dc );
+		ReleaseDC( ((QWidget*)src)->winId(), src_dc );
 		break;
 	    case PDT_PIXMAP:
 		if ( !((QPixmap*)src)->isOptimized() )
@@ -209,7 +212,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( dst_tmp ) {
 	switch ( td ) {
 	    case PDT_WIDGET:
-		ReleaseDC( ((QWidget*)dst)->id(), dst_dc );
+		ReleaseDC( ((QWidget*)dst)->winId(), dst_dc );
 		break;
 	    case PDT_PIXMAP:
 		if ( !((QPixmap*)dst)->isOptimized() )

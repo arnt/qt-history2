@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#42 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#42 $")
 
 
 /*****************************************************************************
@@ -645,12 +645,14 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(WState_PaintEvent) ) // during paint event
-	    hdc = w->hdc;
-	else
-	    w->hdc = hdc = GetDC( w->winId() );
-	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
-	    // !!!hanord todo
+	if ( w->testWFlags(WState_PaintEvent) ) {
+	    hdc = w->hdc;			// during paint event
+	} else {
+	    if ( w->testWFlags(WPaintUnclipped) )
+		hdc = GetWindowDC( w->winId() );
+	    else
+		hdc = GetDC( w->winId() );
+	    w->hdc = hdc;
 	}
     }
     else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
