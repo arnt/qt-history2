@@ -1,9 +1,11 @@
+#include <QtGui>
+
 #include "dialog.h"
 
 #define MESSAGE \
-    Dialog::tr("<p align=\"center\">Message boxes have a caption, a text, " \
+    Dialog::tr("<p>Message boxes have a caption, a text, " \
                "and up to three buttons, each with standard or custom texts." \
-               "<p align=\"center\">Click a button or press Esc.")
+               "<p>Click a button or press Esc.")
 
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
@@ -86,40 +88,6 @@ Dialog::Dialog(QWidget *parent)
     QPushButton *errorButton =
             new QPushButton(tr("QErrorMessage::&error()"), this);
 
-    QGridLayout *grid = new QGridLayout(this);
-    grid->setColumnStretch(1, 1);
-    grid->setColumnSpacing(1, 250);
-    grid->addWidget(integerButton, 0, 0);
-    grid->addWidget(integerLabel, 0, 1);
-    grid->addWidget(doubleButton, 1, 0);
-    grid->addWidget(doubleLabel, 1, 1);
-    grid->addWidget(itemButton, 2, 0);
-    grid->addWidget(itemLabel, 2, 1);
-    grid->addWidget(textButton, 3, 0);
-    grid->addWidget(textLabel, 3, 1);
-    grid->addWidget(colorButton, 4, 0);
-    grid->addWidget(colorLabel, 4, 1);
-    grid->addWidget(fontButton, 5, 0);
-    grid->addWidget(fontLabel, 5, 1);
-    grid->addWidget(directoryButton, 6, 0);
-    grid->addWidget(directoryLabel, 6, 1);
-    grid->addWidget(openFileNameButton, 7, 0);
-    grid->addWidget(openFileNameLabel, 7, 1);
-    grid->addWidget(openFileNamesButton, 8, 0);
-    grid->addWidget(openFileNamesLabel, 8, 1);
-    grid->addWidget(saveFileNameButton, 9, 0);
-    grid->addWidget(saveFileNameLabel, 9, 1);
-    grid->addWidget(criticalButton, 10, 0);
-    grid->addWidget(criticalLabel, 10, 1);
-    grid->addWidget(informationButton, 11, 0);
-    grid->addWidget(informationLabel, 11, 1);
-    grid->addWidget(questionButton, 12, 0);
-    grid->addWidget(questionLabel, 12, 1);
-    grid->addWidget(warningButton, 13, 0);
-    grid->addWidget(warningLabel, 13, 1);
-    grid->addWidget(errorButton, 14, 0);
-    grid->addWidget(errorLabel, 14, 1);
-
     connect(integerButton, SIGNAL(clicked()),
             this, SLOT(setInteger()));
     connect(doubleButton, SIGNAL(clicked()),
@@ -151,7 +119,41 @@ Dialog::Dialog(QWidget *parent)
     connect(errorButton, SIGNAL(clicked()),
             this, SLOT(errorMessage()));
 
-    setWindowTitle(tr("Built-in Dialogs"));
+    QGridLayout *layout = new QGridLayout(this);
+    layout->setColumnStretch(1, 1);
+    layout->setColumnSpacing(1, 250);
+    layout->addWidget(integerButton, 0, 0);
+    layout->addWidget(integerLabel, 0, 1);
+    layout->addWidget(doubleButton, 1, 0);
+    layout->addWidget(doubleLabel, 1, 1);
+    layout->addWidget(itemButton, 2, 0);
+    layout->addWidget(itemLabel, 2, 1);
+    layout->addWidget(textButton, 3, 0);
+    layout->addWidget(textLabel, 3, 1);
+    layout->addWidget(colorButton, 4, 0);
+    layout->addWidget(colorLabel, 4, 1);
+    layout->addWidget(fontButton, 5, 0);
+    layout->addWidget(fontLabel, 5, 1);
+    layout->addWidget(directoryButton, 6, 0);
+    layout->addWidget(directoryLabel, 6, 1);
+    layout->addWidget(openFileNameButton, 7, 0);
+    layout->addWidget(openFileNameLabel, 7, 1);
+    layout->addWidget(openFileNamesButton, 8, 0);
+    layout->addWidget(openFileNamesLabel, 8, 1);
+    layout->addWidget(saveFileNameButton, 9, 0);
+    layout->addWidget(saveFileNameLabel, 9, 1);
+    layout->addWidget(criticalButton, 10, 0);
+    layout->addWidget(criticalLabel, 10, 1);
+    layout->addWidget(informationButton, 11, 0);
+    layout->addWidget(informationLabel, 11, 1);
+    layout->addWidget(questionButton, 12, 0);
+    layout->addWidget(questionLabel, 12, 1);
+    layout->addWidget(warningButton, 13, 0);
+    layout->addWidget(warningLabel, 13, 1);
+    layout->addWidget(errorButton, 14, 0);
+    layout->addWidget(errorLabel, 14, 1);
+
+    setWindowTitle(tr("Standard Dialogs"));
 }
 
 void Dialog::setInteger()
@@ -191,7 +193,7 @@ void Dialog::setText()
 {
     bool ok;
     QString name = QInputDialog::getText(tr("QInputDialog::getText()"),
-                                         tr("Username:"), QLineEdit::Normal,
+                                         tr("User name:"), QLineEdit::Normal,
                                          QString(), &ok, this);
     if (ok && !name.isEmpty())
         textLabel->setText(name);
@@ -230,7 +232,7 @@ void Dialog::setOpenFileName()
     QString filename = QFileDialog::getOpenFileName(
                                 this, tr("QFileDialog::getOpenFileName()"),
                                 openFileNameLabel->text(),
-                                "All (*);;Text files (*.txt)");
+                                tr("All (*);;Text files (*.txt)"));
     if (!filename.isEmpty())
         openFileNameLabel->setText(filename);
 }
@@ -240,7 +242,7 @@ void Dialog::setOpenFileNames()
     QStringList files = QFileDialog::getOpenFileNames(
                                 this, tr("QFileDialog::getOpenFileNames()"),
                                 openFilesPath,
-                                "All (*);;Text files (*.txt)");
+                                tr("All (*);;Text files (*.txt)"));
     if (files.count()) {
         openFilesPath = files[0];
         openFileNamesLabel->setText(QString("[%1]").arg(files.join(", ")));
@@ -252,7 +254,7 @@ void Dialog::setSaveFileName()
     QString filename = QFileDialog::getSaveFileName(
                                 this, tr("QFileDialog::getSaveFileName()"),
                                 saveFileNameLabel->text(),
-                                "All (*);;Text files (*.txt)");
+                                tr("All (*);;Text files (*.txt)"));
     if (!filename.isEmpty())
         saveFileNameLabel->setText(filename);
 }
@@ -264,14 +266,12 @@ void Dialog::criticalMessage()
                                       QMessageBox::Abort,
                                       QMessageBox::Retry,
                                       QMessageBox::Ignore);
-    QString answer;
     if (reply == QMessageBox::Abort)
-        answer = tr("Abort");
+        criticalLabel->setText(tr("Abort"));
     else if (reply == QMessageBox::Retry)
-        answer = tr("Retry");
+        criticalLabel->setText(tr("Retry"));
     else
-        answer = tr("Ignore");
-    criticalLabel->setText(answer);
+        criticalLabel->setText(tr("Ignore"));
 }
 
 void Dialog::informationMessage()
@@ -301,12 +301,11 @@ void Dialog::warningMessage()
                                      MESSAGE,
                                      tr("Save &Again"),
                                      tr("&Continue"));
-    QString answer;
     if (reply == 0)
-        answer = tr("Save Again");
+        warningLabel->setText(tr("Save Again"));
     else
-        answer = tr("Continue");
-    warningLabel->setText(answer);
+        warningLabel->setText(tr("Continue"));
+    
 }
 
 void Dialog::errorMessage()

@@ -1,7 +1,10 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <QtGui>
+#include <QDialog>
+
+class QLabel;
+class QErrorMessage;
 
 class Dialog : public QDialog
 {
