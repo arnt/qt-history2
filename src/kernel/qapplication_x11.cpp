@@ -884,6 +884,7 @@ static bool qt_set_desktop_properties()
 	    QStringList::ConstIterator it = pathlist.begin();
 	    while (it != pathlist.end()) {
 		QApplication::addPluginPath(*it);
+		it++;
 	    }
 	}
 
@@ -1035,6 +1036,7 @@ static bool qt_set_desktop_properties()
 	    QStringList::ConstIterator it = pathlist.begin();
 	    while (it != pathlist.end()) {
 		QApplication::addPluginPath(*it);
+		it++;
 	    }
 	}
 
