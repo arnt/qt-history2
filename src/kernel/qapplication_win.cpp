@@ -2279,6 +2279,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QApplication::sendEvent( widget, &leave );
 		    curWin = 0;
 		}
+		if ( widget == popupButtonFocus )
+		    popupButtonFocus = 0;
 		result = FALSE;
 		break;
 
