@@ -998,8 +998,10 @@ void QAbstractSocketPrivate::connectToNextAddress()
 
         // Perhaps reinitialize the socket layer if its protocol
         // doesn't match the address.
-        if (!socketLayer.isValid() || socketLayer.protocol() != protocol)
+        if (!socketLayer.isValid() || socketLayer.protocol() != protocol
+            || socketLayer.socketState() != Qt::UnconnectedState) {
             initSocketLayer(q->socketType(), protocol);
+        }
 
         // Tries to connect to the address. If it succeeds immediately
         // (localhost address on BSD or any UDP connect), emit
@@ -1061,7 +1063,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
         }
 
         connectTimeElapsed += stopWatch.elapsed();
-        
+
         // if we timed out and there are no more address then report timeout error
         if (timedOut && (addresses.isEmpty() || connectTimeElapsed >= d->blockingTimeout)) {
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1075,7 +1077,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
-        
+
 
         // Check if the connection has been established.
         testConnection();
