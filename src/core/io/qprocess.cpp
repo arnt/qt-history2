@@ -235,8 +235,10 @@ void QProcessPrivate::startupNotification()
     }
 }
 
+#ifndef Q_WS_WIN
 void QProcessPrivate::notified()
 { }
+#endif // Q_WS_WIN
 
 QProcess::QProcess(QObject *parent)
     : QIODevice(*new QProcessPrivate, parent)

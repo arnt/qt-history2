@@ -162,7 +162,7 @@ public:
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
-    const char* name() const;
+    QByteArray name() const;
     int mibEnum() const;
 
 };
@@ -187,7 +187,7 @@ QByteArray QWindowsLocalCodec::convertFromUnicode(const QChar *uc, int len, Conv
 }
 
 
-const char* QWindowsLocalCodec::name() const
+QByteArray QWindowsLocalCodec::name() const
 {
     return "System";
 }
