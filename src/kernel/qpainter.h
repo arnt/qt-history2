@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#77 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#78 $
 **
 ** Definition of QPainter class
 **
@@ -202,7 +202,7 @@ private:
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
 	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   FontMet=0x1000, FontInf=0x2000 };
+	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000 };
     ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
@@ -244,6 +244,7 @@ protected:
     uint	nocolBrush	: 1;
     uint	xfFont		: 1;
     void       *tm;
+    void	nativeXForm( bool );
 #elif defined(_WS_PM_)
     HPS		hps;				// presentation space
     int		dh;				// device height
@@ -263,7 +264,6 @@ protected:
 public:
     void drawBezier( const QPointArray &, int index=0, int npoints=-1 );
 #endif
-
 
 private:	// Disabled copy constructor and operator=
     QPainter( const QPainter & ) {}
