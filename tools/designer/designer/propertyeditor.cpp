@@ -2368,7 +2368,21 @@ void PropertyList::setupProperties()
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
 	    continue;
 	if ( editor->widget()->inherits( "QDesignerToolBar" ) ) {
-	    if ( qstrcmp( p->name(), "label" ) != 0 && qstrcmp( p->name(), "name" ) != 0 )
+	    if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "maximumHeight" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "geometry" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "sizePolicy" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "minimumSize" ) == 0 )
+		continue;
+	    if ( qstrcmp( p->name(), "maximumSize" ) == 0 )
 		continue;
 	}
 	if ( editor->widget()->inherits( "QDesignerMenuBar" ) ) {

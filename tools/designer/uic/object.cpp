@@ -133,7 +133,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    }
 	    return result;
 	}
-    }   else {
+    } else if ( objClass != "QToolBar" ) {
 	// register the object and unify its name
 	objName = registerObject( objName );
 	out << "    ";
@@ -227,7 +227,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		out << indent << objName << "->insertTab( " << page << ", " << trmacro << "( " << fixString( label ) << " ) );" << endl;
 	    }
 	}
-     } else { // standard widgets
+     } else if ( objClass != "QToolBar" ) { // standard widgets
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName() ) )
 		createObjectImpl( n, objClass, objName );

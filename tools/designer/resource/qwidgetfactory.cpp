@@ -1463,6 +1463,8 @@ void QWidgetFactory::loadToolBars( const QDomElement &e )
 		    tb->addSeparator();
 		} else if ( n2.tagName() == "widget" ) {
 		    (void)createWidgetInternal( n2, tb, 0, n2.attribute( "class", "QWidget" ) );
+		} else if ( n2.tagName() == "property" ) {
+		    setProperty( tb, n2.attribute( "name" ), n2.firstChild().toElement() );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

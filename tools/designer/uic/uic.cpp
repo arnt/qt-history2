@@ -167,7 +167,10 @@ QString Uic::getFormClassName( const QDomElement& e )
  */
 QString Uic::getClassName( const QDomElement& e )
 {
-    return e.attribute( "class" );
+    QString s = e.attribute( "class" );
+    if ( s.isEmpty() && e.tagName() == "toolbar" )
+	s = "QToolBar";
+    return s;
 }
 
 /*! Returns TRUE if database framework code is generated, else FALSE.
@@ -280,7 +283,7 @@ void Uic::createActionDecl( const QDomElement& e )
 void Uic::createToolbarDecl( const QDomElement &e )
 {
     if ( e.tagName() == "toolbar" )
-	out << "    " << "QToolBar *" << e.attribute( "name" ) << ";" << endl;
+	out << "    " << "QToolBar *" << getObjectName( e ) << ";" << endl;
 }
 
 void Uic::createMenuBarDecl( const QDomElement &e )
@@ -342,15 +345,15 @@ QString get_dock( const QString &d )
     return "";
 }
 
-void Uic::createToolbarImpl( const QDomElement &n )
+void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, const QString &parent )
 {
     QDomNodeList nl = n.elementsByTagName( "toolbar" );
     for ( int i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement ae = nl.item( i ).toElement();
-	QString objName = ae.attribute( "name" );
-	QString label = ae.attribute( "label" );
 	QString dock = get_dock( ae.attribute( "dock" ) );
-	out << indent << objName << " = new QToolBar( \"" << label << "\", this, " << dock << " ); " << endl;
+	QString objName = getObjectName( ae );
+ 	out << indent << objName << " = new QToolBar( \"\", this, " << dock << " ); " << endl;
+	createObjectImpl( ae, parentClass, parent );
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
 		out << indent << n2.attribute( "name" ) << "->addTo( " << objName << " );" << endl;

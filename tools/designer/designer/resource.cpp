@@ -2186,9 +2186,9 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
 	    if ( tb->isHidden() )
 		continue;
-	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label(), TRUE )
-	       << "\" name=\"" << entitize( tb->name(), TRUE ) << "\">" << endl;
+	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\">" << endl;
 	    indent++;
+	    saveObjectProperties( tb, ts, indent );
 	    QPtrList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
 		if ( a->inherits( "QSeparatorAction" ) ) {
@@ -2254,8 +2254,6 @@ void Resource::loadToolBars( const QDomElement &e )
 	if ( n.tagName() == "toolbar" ) {
 	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
 	    tb = new QDesignerToolBar( mw, dock );
-	    tb->setLabel( n.attribute( "label" ) );
-	    tb->setName( n.attribute( "name" ) );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
@@ -2274,6 +2272,8 @@ void Resource::loadToolBars( const QDomElement &e )
 		    a->addTo( tb );
 		    tb->addAction( a );
 		    tb->installEventFilters( w );
+		} else if ( n2.tagName() == "property" ) {
+		    setObjectProperty( tb, n2.attribute( "name" ), n2.firstChild().toElement() );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

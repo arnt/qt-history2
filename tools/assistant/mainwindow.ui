@@ -36,8 +36,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>914</width>
-            <height>764</height>
+            <width>910</width>
+            <height>762</height>
         </rect>
     </property>
     <property name="caption">
@@ -77,7 +77,13 @@
     </item>
 </menubar>
 <toolbars>
-    <toolbar dock="2" label="Operations" name="Toolbar">
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>Toolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Operations</string>
+        </property>
         <action name="actionFilePrint"/>
         <separator/>
         <action name="actionEditCopy"/>
@@ -380,12 +386,12 @@
         <receiver>MainWindow</receiver>
         <slot>showLinguistHelp()</slot>
     </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">about()</slot>
     <slot access="public" language="C++" returnType="void">aboutQt()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">find()</slot>
     <slot access="public" language="C++" returnType="void">goHome()</slot>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="public" language="C++" returnType="void">showLinguistHelp()</slot>
     <slot access="public" language="C++" returnType="void">print()</slot>
     <slot access="public" language="C++" returnType="void">setupBookmarkMenu()</slot>
@@ -395,25 +401,6 @@
     <slot access="public" language="C++" returnType="void">showQtHelp()</slot>
 </connections>
 <functions>
-    <function name="about()" >{
-}</function>
-    <function name="aboutQt()" >{
-}</function>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="find()" >{
-    if ( !findDialog ) {
-	findDialog = new FindDialog( this );
-	findDialog-&gt;setBrowser( browser );
-    }
-    findDialog-&gt;comboFind-&gt;setFocus();
-    findDialog-&gt;show();
-}</function>
-    <function name="goHome()" >{
-    // #### we need a general Qt fonrtpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
-    showLink( "index.html", "Qt Reference Documentation" );
-}</function>
     <function name="init()" >{
     browser = new HelpWindow( this, "qt_assistant_helpwindow" );
     browser-&gt;setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
@@ -456,6 +443,25 @@
     QAccel *a = new QAccel( this );
     a-&gt;insertItem( CTRL+Key_L, 100 );
     a-&gt;connectItem( 100, helpDock-&gt;editIndex, SLOT( setFocus() ) );
+}</function>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="about()" >{
+}</function>
+    <function name="aboutQt()" >{
+}</function>
+    <function name="find()" >{
+    if ( !findDialog ) {
+	findDialog = new FindDialog( this );
+	findDialog-&gt;setBrowser( browser );
+    }
+    findDialog-&gt;comboFind-&gt;setFocus();
+    findDialog-&gt;show();
+}</function>
+    <function name="goHome()" >{
+    // #### we need a general Qt fonrtpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
+    showLink( "index.html", "Qt Reference Documentation" );
 }</function>
     <function name="showLinguistHelp()" >{
     // ## Hmm.. I guess we'll have to change that name..

@@ -812,7 +812,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << endl;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "toolbars" )
-	    createToolbarImpl( n );
+	    createToolbarImpl( n, objClass, objName );
     }
     out << endl;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {

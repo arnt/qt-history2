@@ -16,8 +16,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>706</width>
-            <height>466</height>
+            <width>702</width>
+            <height>464</height>
         </rect>
     </property>
     <property name="caption">
@@ -83,7 +83,13 @@
     </item>
 </menubar>
 <toolbars>
-    <toolbar dock="2" label="Tools" name="toolBar">
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toolBar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools</string>
+        </property>
         <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
         <action name="fileSaveAction"/>
@@ -94,7 +100,13 @@
         <action name="editCopyAction"/>
         <action name="editPasteAction"/>
     </toolbar>
-    <toolbar dock="2" label="Toolbar" name="Toolbar">
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>Toolbar</cstring>
+        </property>
+        <property name="label">
+            <string>Toolbar</string>
+        </property>
         <action name="leftAlignAction"/>
         <action name="rightAlignAction"/>
         <action name="centerAlignAction"/>
