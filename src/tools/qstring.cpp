@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#156 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#157 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -124,8 +124,8 @@ bool QChar::isSpace() const
 
   The caller is responsible for deleting the return value with delete[].
 */
-//### len as in-out ref param - API consistency?
-QChar* QString::asciiToUnicode( const QByteArray& ba, uint& len )
+
+QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
 {
     int l = 0;
     while ( l < (int)ba.size() && ba[l] )
@@ -133,7 +133,8 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint& len )
     char* str = ba.data();
     QChar *uc = new QChar[l];
     QChar *result = uc;
-    len = l;
+    if ( len )
+	*len = l;
     while (l--)
 	*uc++ = *str++;
     return result;
@@ -141,30 +142,32 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint& len )
 
 /*!
   This utility function converts the NUL-terminated 8-bit string
-  \a str to Unicode, returning the result and setting \a l to
+  \a str to Unicode, returning the result and setting \a len to
   the length of the Unicode string.
 
   The caller is responsible for deleting the return value with delete[].
 */
-//### l as in-out ref param - API consistency?
-QChar* QString::asciiToUnicode(const char *str, uint& l, uint maxlen )
+
+QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
 {
-    if (!str) {
-	l = 0;
-	return 0;
+    QChar* result = 0;
+    uint l = 0;
+    if ( str ) {
+	if ( maxlen != (uint)-1 ) {
+	    while (str[l] && l < maxlen)
+		l++;
+	} else {
+	    // Faster?
+	    l = strlen(str);
+	}
+	QChar *uc = new QChar[l];
+	result = uc;
+	uint i = l;
+	while ( i-- )
+	    *uc++ = *str++;
     }
-    if ( maxlen != (uint)-1 ) {
-	l = 0;
-	while (str[l] && l < maxlen)
-	    l++;
-    } else {
-	// Faster?
-	l = strlen(str);
-    }
-    QChar *uc = new QChar[l];
-    QChar *result = uc;
-    while (*str)
-	*uc++ = *str++;
+    if ( len )
+	*len = l;
     return result;
 }
 
@@ -315,7 +318,7 @@ QString::QString( const QByteArray& ba )
 {
     Q2HELPER(stat_construct_ba++);
     uint l;
-    QChar *uc = asciiToUnicode(ba,l);
+    QChar *uc = asciiToUnicode(ba,&l);
     d = new Data(uc,l,l);
 }
 
@@ -344,7 +347,7 @@ QString::QString( const char *str )
 {
     Q2HELPER(stat_construct_charstar++);
     uint l;
-    QChar *uc = asciiToUnicode(str,l);
+    QChar *uc = asciiToUnicode(str,&l);
     Q2HELPER(stat_construct_charstar_size+=l);
     d = new Data(uc,l,l);
 }
@@ -370,7 +373,7 @@ QString::QString( const char *str, uint maxSize )
 {
     Q2HELPER(stat_construct_charstar++);
     uint l;
-    QChar *uc = asciiToUnicode( str, l, maxSize-1 );
+    QChar *uc = asciiToUnicode( str, &l, maxSize-1 );
     d = new Data(uc,l,l);
 }
 
@@ -432,7 +435,7 @@ QString &QString::operator=( const QByteArray& ba )
 {
     deref();
     uint l;
-    QChar *uc = asciiToUnicode(ba,l);
+    QChar *uc = asciiToUnicode(ba,&l);
     d = new Data(uc,l,l);
     return *this;
 }
@@ -449,7 +452,7 @@ QString &QString::operator=( const char *str )
 {
     deref();
     uint l;
-    QChar *uc = asciiToUnicode(str,l);
+    QChar *uc = asciiToUnicode(str,&l);
     d = new Data(uc,l,l);
     return *this;
 }
@@ -1377,7 +1380,7 @@ QString QString::stripWhiteSpace() const
 
     int start = 0;
     int end = length() - 1;
-    while ( ucisspace(s[start]) && start<=end )	// skip white space from start
+    while ( start<=end && ucisspace(s[start]) )	// skip white space from start
 	start++;
     if ( start > end ) {			// only white space
 	return result;
