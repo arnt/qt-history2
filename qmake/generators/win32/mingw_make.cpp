@@ -166,7 +166,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << "SOURCES =	" << varList("SOURCES") << endl;
     QString objectsLinkLine;
     if(project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]);
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]); 
 	objectsLinkLine = var("QMAKE_LINK_OBJECT_SCRIPT");
     } else {
 	objectsLinkLine = "$(OBJECTS)";
@@ -178,7 +178,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     QString objmocLinkLine;
     if(project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
-	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]);
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]); 
 	objmocLinkLine = var("QMAKE_LINK_OBJMOC_SCRIPT");
     } else {
 	objmocLinkLine = "$(OBJMOC)";
@@ -530,25 +530,13 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE_DLL"];
 	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE_DLL"];
 	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
-	if(!project->variables()["QMAKE_LIB_FLAG"].isEmpty())
-	    project->variables()["TARGET_EXT"].append(project->first("VERSION").replace(".", "") + ".dll");
-	else
-	    project->variables()["TARGET_EXT"].append(".dll");
     } else {
 	project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CFLAGS_CONSOLE"];
 	project->variables()["QMAKE_CXXFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_CXXFLAGS_CONSOLE"];
 	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE"];
 	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS"];
-	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	    project->variables()["TARGET_EXT"].append(".exe");
-	} else {
-	    project->variables()["TARGET_EXT"].append(".a");
-	    project->variables()["QMAKE_LFLAGS"].append("-static");
-	    if(project->variables()["TARGET"].value(0).left(3) != "lib")
-		project->variables()["TARGET"].value(0).prepend("lib");
-	}
     }
-
+    
     if(project->isActiveConfig("windows")) {
 	if(project->isActiveConfig("console")) {
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_CONSOLE_ANY"];
@@ -565,7 +553,7 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"];
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_CONSOLE"];
     }
-
+    
     if(project->isActiveConfig("exceptions")) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_ON"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_ON"];
@@ -573,18 +561,9 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_OFF"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_OFF"];
     }
-
-    if(project->isActiveConfig("rtti")) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
-    }
-
-    if(project->isActiveConfig("moc"))
-	setMocAware(TRUE);
-
+    
+    processRttiConfig();
+    processMocConfig();
     processLibsVar();
 
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
@@ -595,7 +574,7 @@ MingwMakefileGenerator::init()
 	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
 	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
-
+  
     if(project->isActiveConfig("dll")) {
 		QString destDir = "";
 		if(!project->first("DESTDIR").isEmpty())
@@ -603,7 +582,7 @@ MingwMakefileGenerator::init()
 		project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") +
 					  destDir + "lib" + project->first("TARGET") + ".a");
     }
-
+    
     if(!project->variables()["DEF_FILE"].isEmpty())
 	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,") + project->first("DEF_FILE"));
 //    if(!project->isActiveConfig("incremental"))
@@ -619,53 +598,20 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
 #endif
-
-    if(!project->variables()["RC_FILE"].isEmpty()) {
-	if(!project->variables()["RES_FILE"].isEmpty()) {
-	    fprintf(stderr, "Both .rc and .res file specified.\n");
-	    fprintf(stderr, "Please specify one of them, not both.");
-	    exit(666);
-	}
-	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-        project->variables()["RES_FILE"].first().replace(".rc",".o");
-	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
-	project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
-    }
-
-    if(!project->variables()["RES_FILE"].isEmpty())
-	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
-
+   
+    processRcFileVar();
     MakefileGenerator::init();
-
+    
     if(!project->variables()["VERSION"].isEmpty()) {
 	QStringList l = project->first("VERSION").split('.');
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
-
+    
     if(project->isActiveConfig("dll")) {
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") +"lib" + project->first("TARGET") + ".a");
     }
-
-    QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-	QString tmp_out = project->variables()[(*it) + ".output"].first();
-	if(tmp_out.isEmpty())
-	    continue;
-	QStringList &tmp = project->variables()[(*it) + ".input"];
-	for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-	    QStringList &inputs = project->variables()[(*it2)];
-	    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-		QFileInfo fi(Option::fixPathToLocalOS((*input)));
-		QString in = Option::fixPathToTargetOS((*input), FALSE),
-		       out = tmp_out;
-		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-		    project->variables()["OBJCOMP"] += out;
-	    }
-	}
-    }
+    processExtraWinCompilersVar();    
 }
 
 void
@@ -697,5 +643,17 @@ void MingwMakefileGenerator::processLibsVar()
 	} else {
 	    ++libit;
 	}
+    }
+}
+
+void MingwMakefileGenerator::fixTargetExt()
+{
+    if (!project->isActiveConfig("dll") && !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+	project->variables()["TARGET_EXT"].append(".a");
+	project->variables()["QMAKE_LFLAGS"].append("-static");
+	if(project->variables()["TARGET"].value(0).left(3) != "lib")
+	    project->variables()["TARGET"].value(0).prepend("lib");
+    } else {
+	Win32MakefileGenerator::fixTargetExt();
     }
 }

@@ -999,27 +999,12 @@ void VcprojGenerator::initOld()
 	}
     }
 
-    // DLL -----------------------------------------------------------
-    if(project->isActiveConfig("dll")) {
-	if(!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	    QString ver_xyz(project->first("VERSION"));
-	    ver_xyz.replace(QRegExp("\\."), "");
-	    project->variables()["TARGET_EXT"].append(ver_xyz + ".dll");
-	} else {
-	    project->variables()["TARGET_EXT"].append(".dll");
-	}
-    } else { // EXE / LIB -----------------------------------------------------
-	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty())
-	    project->variables()["TARGET_EXT"].append(".exe");
-	else
-	    project->variables()["TARGET_EXT"].append(".lib");
-    }
+    fixTargetExt();
+
     project->variables()["MSVCPROJ_VER"] = "7.00";
     project->variables()["MSVCPROJ_DEBUG_OPT"] = "/GZ /ZI";
 
-    // MOC -----------------------------------------------------------
-    if(project->isActiveConfig("moc"))
-	setMocAware(TRUE);
+    processMocConfig();
 
     // /VERSION:x.yz -------------------------------------------------
     if(!project->variables()["VERSION"].isEmpty()) {

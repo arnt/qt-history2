@@ -35,7 +35,12 @@ protected:
     virtual bool findLibraries();
     virtual void processPrlFiles();
     virtual void processLibsVar();
-
+    virtual void fixTargetExt();
+    virtual void processRttiConfig();
+    virtual void processMocConfig();
+    virtual void processRcFileVar();
+    virtual void processExtraWinCompilersVar();
+    virtual void processQtConfig();
 public:
     Win32MakefileGenerator(QMakeProject *p);
     ~Win32MakefileGenerator();

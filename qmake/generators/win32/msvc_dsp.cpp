@@ -641,20 +641,7 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_TARGETDIRDEB"] = "Debug";
     }
 
-    if(project->isActiveConfig("dll")) {
-	if(!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	    QString ver_xyz(project->first("VERSION"));
-	    ver_xyz.replace(".", "");
-	    project->variables()["TARGET_EXT"].append(ver_xyz + ".dll");
-	} else {
-	    project->variables()["TARGET_EXT"].append(".dll");
-	}
-    } else {
-	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty())
-	    project->variables()["TARGET_EXT"].append(".exe");
-	else
-	    project->variables()["TARGET_EXT"].append(".lib");
-    }
+    fixTargetExt();
     project->variables()["MSVCDSP_VER"] = "6.00";
     project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
 

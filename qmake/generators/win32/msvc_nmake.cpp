@@ -429,48 +429,11 @@ NmakeMakefileGenerator::init()
     }
     if(!project->variables()["QMAKE_INCDIR"].isEmpty())
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if(project->isActiveConfig("qt")) {
-	if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	} else {
-	    if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-		if(hver != -1) {
-		    QString ver;
-		    ver.sprintf("qt" QTDLL_POSTFIX "%d.lib", hver);
-		    QStringList &libs = project->variables()["QMAKE_LIBS"];
-		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt\\.lib"), ver);
-		}
-	    }
-	    if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin"))
-		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
-	}
-    }
-    if(project->isActiveConfig("dll")) {
-	if(!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	    project->variables()["TARGET_EXT"].append(project->first("VERSION").replace(".", "") + ".dll");
-	} else {
-	    project->variables()["TARGET_EXT"].append(".dll");
-	}
-    } else {
-	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	    project->variables()["TARGET_EXT"].append(".exe");
-	} else {
-	    project->variables()["TARGET_EXT"].append(".lib");
-	}
-    }
-
-    if(project->isActiveConfig("rtti")) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
-    }
-    if(project->isActiveConfig("moc"))
-	setMocAware(TRUE);
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-
+    
+    processQtConfig();    
+    fixTargetExt();
+    processRttiConfig();
+    processMocConfig();
     processLibsVar();
 
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
@@ -493,19 +456,7 @@ NmakeMakefileGenerator::init()
 	minor.replace(".", "");
 	project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
-    if(!project->variables()["RC_FILE"].isEmpty()) {
-	if(!project->variables()["RES_FILE"].isEmpty()) {
-	    fprintf(stderr, "Both .rc and .res file specified.\n");
-	    fprintf(stderr, "Please specify one of them, not both.");
-	    exit(666);
-	}
-	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-	project->variables()["RES_FILE"].first().replace(".rc",".res");
-	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
-	project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
-    }
-    if(!project->variables()["RES_FILE"].isEmpty())
-	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    processRcFileVar();
 
     // Base class init!
     MakefileGenerator::init();
@@ -542,23 +493,5 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
     }
 
-    QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-	QString tmp_out = project->variables()[(*it) + ".output"].first();
-	if(tmp_out.isEmpty())
-	    continue;
-	QStringList &tmp = project->variables()[(*it) + ".input"];
-	for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-	    QStringList &inputs = project->variables()[(*it2)];
-	    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-		QFileInfo fi(Option::fixPathToLocalOS((*input)));
-		QString in = Option::fixPathToTargetOS((*input), FALSE),
-		       out = tmp_out;
-		out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-		out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-		if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-		    project->variables()["OBJCOMP"] += out;
-	    }
-	}
-    }
+    processExtraWinCompilersVar();
 }
