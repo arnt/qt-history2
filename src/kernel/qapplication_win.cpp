@@ -54,22 +54,22 @@
 #include <ctype.h>
 
 #if defined(QT_WINTAB_SUPPORT)
-#define PACKETDATA      (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
- 						 PK_ORIENTATION | PK_CURSOR )
-#define PACKETMODE		0
+#define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
+		      PK_ORIENTATION | PK_CURSOR )
+#define PACKETMODE  0
+
 #include <wintab.h>
 #include <pktdef.h>
 #include <math.h>
 
-#define NPACKETQSIZE	32	// minimum size of queue
+#define NPACKETQSIZE	32	// minimum size of queue.
 
-PACKET localPacketBuf[NPACKETQSIZE];
-LOGCONTEXT lcMine;
-extern HCTX hTab;
+PACKET localPacketBuf[NPACKETQSIZE];  // our own tablet packet queue.
+LOGCONTEXT lcMine;   // the logical context for the tablet ( describes capapilities )
+HCTX hTab;  // the hardware context for the tablet ( like a window handle )
 bool tilt_support;
-UINT ScanExts(UINT wTag);
-void prsInit(void);
-UINT prsAdjust(PACKET p);
+void prsInit(HCTX hTab);
+UINT prsAdjust(PACKET p, HCTX hTab);
 #endif
 
 #if defined(__CYGWIN32__)
@@ -769,12 +769,11 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     }
     // build our context from the default context
     WTInfo( WTI_DEFSYSCTX, 0, &lcMine );
-    lcMine.lcOptions |= CXO_MESSAGES;
+    lcMine.lcOptions |= CXO_MESSAGES | CXO_CSRMESSAGES;
     lcMine.lcPktData = PACKETDATA;
     lcMine.lcPktMode = PACKETMODE;
     lcMine.lcMoveMask = PACKETDATA;
 
-    // these are done in the syspress example, I don't know if we need them
     lcMine.lcOutOrgX = 0;
     lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
     lcMine.lcOutOrgY = 0;
@@ -821,6 +820,9 @@ void qt_cleanup()
     OleUninitialize();
 #endif
 
+#if defined(QT_WINTAB_SUPPORT)
+    WTClose( hTab );
+#endif
     delete activeBeforePopup;
     activeBeforePopup = 0;
     delete imeComposition;
@@ -1045,6 +1047,11 @@ static void unregWinClasses()
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
+#if defined (QT_WINTAB_SUPPORT)
+    hTab = WTOpen( main_widget->winId(), &lcMine, TRUE );
+    if ( hTab == NULL )
+	qWarning( "Failed to open the tablet" );
+#endif
 }
 
 Qt::WindowsVersion QApplication::winVersion()
@@ -2044,6 +2051,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 
 	    case WM_ACTIVATE:
+#if defined (QT_WINTAB_SUPPORT)
+		// cooperate with other tablet applications, but when
+		// we get focus, I want to use the tablet...
+		if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
+		    if ( WTEnable(hTab, TRUE) )
+			if ( !WTOverlap(hTab, TRUE) )
+			    qWarning( "Failed to re-enable tablet context" );
+
+		}
+#endif
 		if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
 		     QWidget::find((HWND)lParam) == 0 ) {
 		    // Another application was activated while our popups are open,
@@ -2061,7 +2078,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_PALETTECHANGED:			// our window changed palette
 		if ( QColor::hPal() && (WId)wParam == widget->winId() )
 		    RETURN(0);			// otherwise: FALL THROUGH!
-		// FALL THROUGH
+		// FALL THROUGHf
 	    case WM_QUERYNEWPALETTE:		// realize own palette
 		if ( QColor::hPal() ) {
 		    HDC hdc = GetDC( widget->winId() );
@@ -2217,7 +2234,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			IAccessible *iface = qt_createWindowsAccessible( acc );
 			acc->release();
 			LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
-			iface->Release(); // the client will release the object again, and then it will destroy itself
+			face->Release(); // the client will release the object again, and then it will destroy itself
 
 			if ( res > 0 )
 			    RETURN(res);
@@ -2227,29 +2244,14 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 #endif
 #if defined (QT_WINTAB_SUPPORT)
-//	case WM_ACTIVATE:
-//		qDebug( "ACTIVATE MESSAGE" );
-//		break;
-//	case WM_DESTROY:
-//		qDebug( "DESTROY MESSAGE" );
 	case WT_PACKET:
-//		widget = (QETWidget*)QWidget::find( hwnd );
-		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
-			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
-		}
-		break;
+	    if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+		result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+	    }
+	    break;
 	case WT_PROXIMITY:
-		// flush the Queue we really don't care about all the older values...
-		WTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
-		break;
-//	case WM_LBUTTONUP:
-//		processPackets = FALSE;
-//	case WM_LBUTTONDOWN:
-		// remove stale tablet packets
-//		WTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
-//		qDebug("removing packets");
-		// get ready to process them
-//		processPackets = TRUE;
+	    WTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+	    break;
 #endif
 
 	default:
@@ -3478,7 +3480,7 @@ static UINT wActiveCsr = 0,  wOldCsr = (UINT)-1;
 static BYTE wPrsBtn;
 static UINT prsYesBtnOrg, prsYesBtnExt, prsNoBtnOrg, prsNoBtnExt;
 /* -------------------------------------------------------------------------- */
-void prsInit(void)
+void prsInit( HCTX hTab)
 {
     /* browse WinTab's many info items to discover pressure handling. */
     AXIS np;
@@ -3512,7 +3514,7 @@ void prsInit(void)
     prsYesBtnExt = (UINT)np.axMax - btnMarks[1];
 }
 /* -------------------------------------------------------------------------- */
-UINT prsAdjust(PACKET p)
+UINT prsAdjust(PACKET p, HCTX hTab)
 {
     UINT wResult;
 
@@ -3520,7 +3522,7 @@ UINT prsAdjust(PACKET p)
     if (wActiveCsr != wOldCsr) {
 
 	/* re-init on cursor change. */
-	prsInit();
+	prsInit( hTab );
 	wOldCsr = wActiveCsr;
     }
 
@@ -3547,7 +3549,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 {
     static POINT ptOrg, ptOld, ptNew;
     static DWORD btnOld, btnNew;
-    static UINT prsOld, prsNew;
+    static UINT prsNew;
     static ORIENTATION ort;
     int i;
     int dev;
@@ -3567,12 +3569,9 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	btnOld = btnNew;
 	btnNew = localPacketBuf[i].pkButtons;
 	btnChange = btnOld ^ btnNew;
-//	if ( btnNew & btnChange )
-//	    qDebug( "button changed" );
 
 	if ( btnNew ) {
 	    ptOld = ptNew;
-	    prsOld = prsNew;
 
 	    ptNew.x = (UINT)localPacketBuf[i].pkX;
 	    ptNew.y = (UINT)localPacketBuf[i].pkY;
@@ -3580,12 +3579,12 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    ptNew.x -= ptOrg.x;
 	    ptNew.y -= ptOrg.y;
 
-	    prsNew = prsAdjust( localPacketBuf[i] );
+	    prsNew = prsAdjust( localPacketBuf[i], hTab );
 	}
 	QPoint globalPos( ptNew.x, ptNew.y );
 
 	// make sure the tablet event get's sent to the proper widget...
-	QWidget *w = QApplication::widgetAt( globalPos, TRUE );
+	QWidget *w = QApplication::widgetAt( globalPos, TRUE );	
 	if ( w == NULL )
 	    w = this;
 	if ( !tilt_support )
@@ -3599,8 +3598,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    double tmpX = cos(radAzim) * tmpZ;
 	    double tmpY = cos(radAzim) * cos(radAlt);
 
-	    
-
+	    // ### this value is WRONG but it is close until I regain my math skills...
 	    double degX = (radAlt - (PI / 2)) * sin(radAzim);
 	    double degY = atan( tmpY / tmpZ );
 	    tiltX = -degX * ( 180 / PI );
