@@ -40,6 +40,7 @@ public:
     QSound(const QString& filename, QObject* parent=0, const char* name=0);
     ~QSound();
 
+public slots:
     void play();
 
 private:
