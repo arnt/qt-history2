@@ -1077,6 +1077,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_ToolBarFrameWidth  Width of the frame around toolbars
     \value PM_ToolBarHandleExtent Width of a toolbar handle in a
         horizontal toolbar and the height of the handle in a vertical toolbar
+    \value PM_ToolBarItemMargin  Spacing between the toolbar frame and the items
     \value PM_ToolBarItemSpacing  Spacing between toolbar items
     \value PM_ToolBarSeparatorExtent Width of a toolbar separator in a
         horizontal toolbar and the height of a separator in a vertical toolbar

@@ -400,6 +400,7 @@ public:
         PM_ToolBarFrameWidth,
         PM_ToolBarHandleExtent,
         PM_ToolBarItemSpacing,
+        PM_ToolBarItemMargin,
         PM_ToolBarSeparatorExtent,
         PM_ToolBarExtensionExtent,
 

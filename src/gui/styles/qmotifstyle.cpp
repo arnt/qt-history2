@@ -1491,7 +1491,11 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         break;
 
     case PM_ToolBarFrameWidth:
-        ret = 2;
+        ret = pixelMetric(PM_DefaultFrameWidth);
+        break;
+
+    case PM_ToolBarItemMargin:
+        ret = 1;
         break;
 
     case PM_ButtonShiftHorizontal:

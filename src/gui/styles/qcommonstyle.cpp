@@ -2676,6 +2676,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 1;
         break;
 
+    case PM_ToolBarItemMargin:
+        ret = 0;
+        break;
+
     case PM_ToolBarItemSpacing:
         ret = 4;
         break;
