@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#181 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -136,7 +136,7 @@ public:
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
     bool	sendKeyEvent( QEvent::Type type, int code, int ascii,
-			      int state, bool grab );
+			      int state, bool grab, bool autor=FALSE );
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
@@ -2047,57 +2047,57 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 #include "qkeycode.h"
 
 static ushort KeyTbl[] = {			// keyboard mapping table
-    VK_ESCAPE,		Key_Escape,		// misc keys
-    VK_TAB,		Key_Tab,
-    VK_BACK,		Key_Backspace,
-    VK_RETURN,		Key_Return,
-    VK_INSERT,		Key_Insert,
-    VK_DELETE,		Key_Delete,
-//  VK_CLEAR,		Key_Clear,
-    VK_PAUSE,		Key_Pause,
-    VK_SNAPSHOT,	Key_Print,
-    VK_HOME,		Key_Home,		// cursor movement
-    VK_END,		Key_End,
-    VK_LEFT,		Key_Left,
-    VK_UP,		Key_Up,
-    VK_RIGHT,		Key_Right,
-    VK_DOWN,		Key_Down,
-    VK_PRIOR,		Key_Prior,
-    VK_NEXT,		Key_Next,
-    VK_SHIFT,		Key_Shift,		// modifiers
-    VK_CONTROL,		Key_Control,
-//  VK_????,		Key_Meta,
-//  VK_????,		Key_Meta,
-    VK_MENU,		Key_Alt,
-    VK_CAPITAL,		Key_CapsLock,
-    VK_NUMLOCK,		Key_NumLock,
-    VK_SCROLL,		Key_ScrollLock,
-    VK_NUMPAD0,		Key_0,			// numeric keypad
-    VK_NUMPAD1,		Key_1,
-    VK_NUMPAD2,		Key_2,
-    VK_NUMPAD3,		Key_3,
-    VK_NUMPAD4,		Key_4,
-    VK_NUMPAD5,		Key_5,
-    VK_NUMPAD6,		Key_6,
-    VK_NUMPAD7,		Key_7,
-    VK_NUMPAD8,		Key_8,
-    VK_NUMPAD9,		Key_9,
-    VK_MULTIPLY,	Key_Asterisk,
-    VK_ADD,		Key_Plus,
-    VK_SEPARATOR,	Key_Comma,
-    VK_SUBTRACT,	Key_Minus,
-    VK_DECIMAL,		Key_Period,
-    VK_DIVIDE,		Key_Slash,
+    VK_ESCAPE,		Qt::Key_Escape,		// misc keys
+    VK_TAB,		Qt::Key_Tab,
+    VK_BACK,		Qt::Key_Backspace,
+    VK_RETURN,		Qt::Key_Return,
+    VK_INSERT,		Qt::Key_Insert,
+    VK_DELETE,		Qt::Key_Delete,
+//  VK_CLEAR,		Qt::Key_Clear,
+    VK_PAUSE,		Qt::Key_Pause,
+    VK_SNAPSHOT,	Qt::Key_Print,
+    VK_HOME,		Qt::Key_Home,		// cursor movement
+    VK_END,		Qt::Key_End,
+    VK_LEFT,		Qt::Key_Left,
+    VK_UP,		Qt::Key_Up,
+    VK_RIGHT,		Qt::Key_Right,
+    VK_DOWN,		Qt::Key_Down,
+    VK_PRIOR,		Qt::Key_Prior,
+    VK_NEXT,		Qt::Key_Next,
+    VK_SHIFT,		Qt::Key_Shift,		// modifiers
+    VK_CONTROL,		Qt::Key_Control,
+//  VK_????,		Qt::Key_Meta,
+//  VK_????,		Qt::Key_Meta,
+    VK_MENU,		Qt::Key_Alt,
+    VK_CAPITAL,		Qt::Key_CapsLock,
+    VK_NUMLOCK,		Qt::Key_NumLock,
+    VK_SCROLL,		Qt::Key_ScrollLock,
+    VK_NUMPAD0,		Qt::Key_0,			// numeric keypad
+    VK_NUMPAD1,		Qt::Key_1,
+    VK_NUMPAD2,		Qt::Key_2,
+    VK_NUMPAD3,		Qt::Key_3,
+    VK_NUMPAD4,		Qt::Key_4,
+    VK_NUMPAD5,		Qt::Key_5,
+    VK_NUMPAD6,		Qt::Key_6,
+    VK_NUMPAD7,		Qt::Key_7,
+    VK_NUMPAD8,		Qt::Key_8,
+    VK_NUMPAD9,		Qt::Key_9,
+    VK_MULTIPLY,	Qt::Key_Asterisk,
+    VK_ADD,		Qt::Key_Plus,
+    VK_SEPARATOR,	Qt::Key_Comma,
+    VK_SUBTRACT,	Qt::Key_Minus,
+    VK_DECIMAL,		Qt::Key_Period,
+    VK_DIVIDE,		Qt::Key_Slash,
     0,			0
 };
 
-static int translateKeyCode( int key )		// get Key_... code
+static int translateKeyCode( int key )		// get Qt::Key_... code
 {
     int code;
     if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') ) {
 	code = 0;
     } else if ( key >= VK_F1 && key <= VK_F24 ) {
-	code = Key_F1 + (key - VK_F1);		// function keys
+	code = Qt::Key_F1 + (key - VK_F1);		// function keys
     } else {
 	int i = 0;				// any other keys
 	code = 0;
@@ -2210,9 +2210,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
 		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
-				       state, grab);
+				       state, grab, TRUE);
 		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
-				       state, grab );
+				       state, grab, TRUE);
 		}
 	    } else {
 		store_key_rec( msg.wParam, wm_char.wParam );
@@ -2274,14 +2274,14 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
 static bool isModifierKey(int code)
 {
-    return code >= Key_Shift && code <= Key_ScrollLock;
+    return code >= Qt::Key_Shift && code <= Qt::Key_ScrollLock;
 }
 
 bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
-			      int state, bool grab )
+			      int state, bool grab, bool autor )
 {
     if ( type == QEvent::KeyPress && !grab ) {	// send accel event to tlw
-	QKeyEvent a( QEvent::Accel, code, ascii, state );
+	QKeyEvent a( QEvent::Accel, code, ascii, state, autor );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
@@ -2289,7 +2289,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     }
     if ( !isEnabled() )
 	return FALSE;
-    QKeyEvent e( type, code, ascii, state );
+    QKeyEvent e( type, code, ascii, state, autor );
     QApplication::sendEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
       && type == QEvent::KeyPress && !e.isAccepted() )

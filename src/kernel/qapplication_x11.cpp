@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#356 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#357 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3163,6 +3163,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     char   ascii[16]; // ##### Needs to be Unicode (XIM work)
     int	   count = 0;
     int	   state;
+    bool   autor = FALSE;
     KeySym key = 0;
 
     if ( !keyDict ) {
@@ -3261,8 +3262,27 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
     }
 
+    // was this the last auto-repeater?
+    static uint curr_autorep = 0;
+    if ( event->type == XKeyPress ) {
+	if ( curr_autorep == event->xkey.keycode ) {
+	    autor = TRUE;
+	    curr_autorep = 0;
+	}
+    } else {
+	// look ahead for auto-repeat
+	XEvent nextpress;
+	if (XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,&nextpress)) {
+	    autor = nextpress.xkey.time == event->xkey.time;
+	    // Put it back... we COULD send the event now and not need
+	    // the static curr_autorep variable.
+	    XPutBackEvent(dpy,&nextpress);
+	}
+	curr_autorep = autor ? event->xkey.keycode : 0;
+    }
+
     // process accelerates before popups
-    QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
+    QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state, autor );
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel event to tlw if the keyboard is not grabbed
 	QKeyEvent a( QEvent::Accel, code, count > 0 ? ascii[0] : 0, state );
