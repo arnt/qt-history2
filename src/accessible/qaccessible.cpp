@@ -26,7 +26,7 @@
 #include "qwidget.h"
 
 /*!
-    \class QAccessible qaccessible.h
+    \class QAccessible
     \brief The QAccessible class provides enums and static functions
     relating to accessibility.
     \ingroup misc
@@ -347,7 +347,7 @@ inline void InterfaceCache::remove(QObject *object)
 #include "qaccessible.moc"
 
 static InterfaceCache *qInterfaceCache = 0;
-static QList<void*> *qAccessibleFactories;
+static QList<QAccessible::InterfaceFactory> qAccessibleFactories;
 static bool cleanupAdded = FALSE;
 
 QAccessible::UpdateHandler QAccessible::updateHandler = 0;
@@ -362,8 +362,7 @@ static void qAccessibleCleanup()
     qInterfaceCache = 0;
     delete qAccessibleManager;
     qAccessibleManager = 0;
-    delete qAccessibleFactories;
-    qAccessibleFactories = 0;
+    qAccessibleFactories.clear();
 }
 
 void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface)
@@ -433,17 +432,14 @@ void QAccessible::installFactory(InterfaceFactory factory)
     if (!factory)
 	return;
 
-    if (!qAccessibleFactories) {
-	qAccessibleFactories = new QList<void*>();
-	if (!cleanupAdded) {
-	    qAddPostRoutine(qAccessibleCleanup);
-	    cleanupAdded = TRUE;
-	}
+    qAccessibleFactories.ensure_constructed();
+    if (!cleanupAdded) {
+	qAddPostRoutine(qAccessibleCleanup);
+	cleanupAdded = TRUE;
     }
-
-    if (qAccessibleFactories->contains((void*)factory))
+    if (qAccessibleFactories.contains(factory))
 	return;
-    qAccessibleFactories->append((void*)factory);
+    qAccessibleFactories.append(factory);
 }
 
 /*!
@@ -451,10 +447,8 @@ void QAccessible::installFactory(InterfaceFactory factory)
 */
 void QAccessible::removeFactory(InterfaceFactory factory)
 {
-    if (!qAccessibleFactories || !factory)
-	return;
-
-    qAccessibleFactories->remove((void*)factory);
+    qAccessibleFactories.ensure_constructed();
+    qAccessibleFactories.remove(factory);
 }
 
 /*!
@@ -522,16 +516,14 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
     const QMetaObject *mo = object->metaObject();
     while ( mo ) {
 	const QString cn(mo->className());
-	if (qAccessibleFactories) {
-	    for (int i = qAccessibleFactories->count(); i > 0; --i) {
-		InterfaceFactory factory = (InterfaceFactory)qAccessibleFactories->at(i-1);
-		QAccessibleInterface *aiface = factory(cn, object);
-		if (aiface) {
-		    aiface->addRef();
-		    *iface = aiface;
-		    qInsertAccessibleObject(object, *iface);
-		    return TRUE;
-		}
+	for (int i = qAccessibleFactories.count(); i > 0; --i) {
+	    InterfaceFactory factory = qAccessibleFactories.at(i - 1);
+	    QAccessibleInterface *aiface = factory(cn, object);
+	    if (aiface) {
+		aiface->addRef();
+		*iface = aiface;
+		qInsertAccessibleObject(object, *iface);
+		return TRUE;
 	    }
 	}
 	if ( !qAccessibleManager ) {
@@ -599,7 +591,7 @@ bool QAccessible::isActive()
 
 
 /*!
-    \class QAccessibleInterface qaccessible.h
+    \class QAccessibleInterface
     \brief The QAccessibleInterface class defines an interface that exposes information
     about accessible objects.
     \ingroup misc
