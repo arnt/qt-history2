@@ -775,7 +775,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
     QRect baseRect = f->boundingRect( baseChar );
     int baseOffset = f->textWidth( str, pos, 1 );
 
-    qDebug("positioning marks from %d len %d", pos,  nmarks );
+    //qDebug("positioning marks from %d len %d", pos,  nmarks );
     //qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
     int offset = f->actual.pixelSize / 10 + 1;
     //qDebug("offset = %d", offset );
