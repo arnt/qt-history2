@@ -3513,7 +3513,7 @@ void QWidget::show()
 	    qt_enter_modal( this );
 	}
 
-	bool winQNPChildWidget = false;
+	bool winQNPChildWidget = FALSE;
 #if defined(_WS_WIN_)
 	if (parentWidget())
 	    winQNPChildWidget = parentWidget()->inherits("QNPWidget");
