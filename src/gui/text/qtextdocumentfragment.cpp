@@ -386,11 +386,15 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 
     res.d = new QTextDocumentFragmentPrivate;
 
-    QStringList blocks = plainText.split(QChar::ParagraphSeparator);
+    // split for [\n{ParagraphSeparator}]
+    QString s = QString::fromLatin1("[\\na]");
+    s[3] = QChar::ParagraphSeparator;
+
+    QStringList blocks = plainText.split(QRegExp(s));
     for (int i = 0; i < blocks.count(); ++i) {
         if (i > 0)
             res.d->appendText(QString(QChar::ParagraphSeparator), -1, -1);
-        // -1 as format idx means reuse current chat format when inserting/pasting
+        // -1 as format idx means reuse current char format when inserting/pasting
         res.d->appendText(blocks.at(i), -1);
     }
 

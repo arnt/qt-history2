@@ -258,7 +258,11 @@ void TextEdit::load(const QString &f)
         return;
 
     QByteArray data = file.readAll();
-    edit->setHtml(data);
+    QString str = QString::fromLatin1(data);
+    if (QText::mightBeRichText(str))
+        edit->setHtml(data); // use data to keep and obey encoding
+    else
+        edit->setPlainText(str); // assume plain text is latin1 encoded
 
     filenames.insert(edit, f);
 }
