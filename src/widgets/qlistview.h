@@ -551,7 +551,7 @@ public:
 	Expandable =		0x00000400,
 	NotExpandable =		0x00000800,
 	Checked =		0x00001000,
-	NotChecked =		0x00002000,
+	NotChecked =		0x00002000
     };
 
     QListViewItemIterator();
