@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#17 $
 **
 ** Definition of QPainter class
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -138,6 +138,7 @@ public:
     void	drawPolygon( const QPointArray &, bool winding=FALSE,
 			     int index=0, int npoints=-1 );
     void	drawPixMap( int x, int y, const QPixMap & );
+    void	drawPixMap( const QPoint &, const QPixMap & );
     void	drawPicture( const QPicture & );
 
     void	fillRect( int x, int y, int w, int h, const QColor & );
@@ -351,6 +352,11 @@ inline void QPainter::drawPie( const QRect &r, int a1, int a2 )
 inline void QPainter::drawChord( const QRect &r, int a1, int a2 )
 {
     drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+}
+
+inline void QPainter::drawPixMap( const QPoint &p, const QPixMap &pm )
+{
+    drawPixMap( p.x(), p.y(), pm );
 }
 
 inline void QPainter::fillRect( const QRect &r, const QColor &c )

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#14 $
 **
 ** Implementation of QPainter class
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file containts the platform independent implementation of the
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#14 $";
 #endif
 
 
@@ -390,6 +390,11 @@ void QPainter::drawPie( const QRect &r, int a1, int a2 )
 void QPainter::drawChord( const QRect &r, int a1, int a2 )
 {
     drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+}
+
+void QPainter::drawPixMap( const QPoint &p, const QPixMap &pm )
+{
+    drawPixMap( p.x(), p.y(), pm );
 }
 
 void QPainter::fillRect( const QRect &r, const QColor &c )
