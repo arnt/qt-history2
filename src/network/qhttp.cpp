@@ -1678,7 +1678,7 @@ void QHttp::slotClosed()
 	return;
 
     if ( d->state == Reading ) {
-	if ( d->response.value("connection")!="close" || d->response.hasKey( "content-length" ) ) {
+	if ( d->response.hasKey( "content-length" ) ) {
 	    // We got Content-Length, so did we get all bytes ?
 	    if ( d->bytesDone+bytesAvailable() != d->response.contentLength() ) {
 		finishedWithError( tr("Wrong content length"), WrongContentLength );
