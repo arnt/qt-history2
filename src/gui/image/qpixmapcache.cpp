@@ -19,8 +19,7 @@
 /*!
     \class QPixmapCache
 
-    \brief The QPixmapCache class provides an application-global cache for
-    pixmaps.
+    \brief The QPixmapCache class provides an application-wide cache for pixmaps.
 
     \ingroup environment
     \ingroup multimedia
@@ -28,7 +27,7 @@
     This class is a tool for optimized drawing with QPixmap. You can
     use it to store temporary pixmaps that are expensive to generate
     without using more storage space than cacheLimit(). Use insert()
-    to insert pixmaps, find() to find them and clear() to empty the
+    to insert pixmaps, find() to find them, and clear() to empty the
     cache.
 
     For example, QRadioButton has a non-trivial visual representation
@@ -43,11 +42,11 @@
     finally insert the pixmap in the global pixmap cache, using the
     key above. The bitBlt() is ten times faster than drawing the
     radio button. All radio buttons in the program share the cached
-    pixmap since QPixmapCache is application-global.
+    pixmap since QPixmapCache is global.
 
     QPixmapCache contains no member data, only static functions to
-    access the global pixmap cache. It creates an internal QCache for
-    caching the pixmaps.
+    access the global pixmap cache. It creates an internal QCache
+    object for caching the pixmaps.
 
     The cache associates a pixmap with a string (key). If two pixmaps
     are inserted into the cache using equal keys, then the last pixmap
@@ -55,14 +54,13 @@
     exactly the same.
 
     The cache becomes full when the total size of all pixmaps in the
-    cache exceeds cacheLimit(). The initial cache limit is 1024 KByte
-    (1 MByte); it is changed with setCacheLimit(). A pixmap takes
-    roughly width*height*depth/8 bytes of memory.
+    cache exceeds cacheLimit(). The initial cache limit is 1024 KB (1
+    MB); it is changed with setCacheLimit(). A pixmap takes roughly
+    (\e{width} * \e{height} * \e{depth})/8 bytes of memory.
 
     See the \l QCache documentation for more details about the cache
     mechanism.
 */
-
 
 static int cache_limit = 1024;                        // 1024 KB cache limit
 
