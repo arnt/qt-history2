@@ -266,7 +266,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
     QWidget * f = w->focusWidget();
-    while ( f && f->parent() != this )
+    while ( f && f != w && f->parent() != this )
 	f = f->parentWidget();
     if ( f && f->parent() == this ) {
 	if ( !focusWidgets )
