@@ -17,6 +17,7 @@
 #include <QtGui/qcolor.h>
 #include <QtGui/qfont.h>
 #include <QtCore/qshareddata.h>
+#include <QtCore/qvector.h>
 
 class QString;
 class QVariant;

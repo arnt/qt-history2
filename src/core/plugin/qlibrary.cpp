@@ -29,6 +29,7 @@
 #include <errno.h>
 #endif // NO_ERROR_H
 #include <qdebug.h>
+#include <qvector.h>
 
 #ifdef QT_NO_DEBUG
 #  define QLIBRARY_AS_DEBUG false

@@ -900,6 +900,40 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \internal
 */
 
+/*! \fn QList<T> QVector<T>::toList() const
+
+    Returns a QList object with the data contained in this QVector.
+
+    Example:
+
+    \code
+        QVector<double> vect;
+        vect << "red" << "green" << "blue" << "black";
+
+        QList<double> list = vect.toList();
+        // list: ["red", "green", "blue", "black"]
+    \endcode
+
+    \sa fromList(), QList::fromVector()
+*/
+
+/*! \fn QVector<T> QVector<T>::fromList(const QList<T> &list)
+
+    Returns a QVector object with the data contained in \a list.
+
+    Example:
+
+    \code
+        QStringList list;
+        list << "Sven" << "Kim" << "Ola";
+
+        QVector<QString> vect = QVector<QString>::fromList(list);
+        // vect: ["Sven", "Kim", "Ola"]
+    \endcode
+
+    \sa toList(), QList::toVector()
+*/
+
 /*! \fn QDataStream &operator<<(QDataStream &out, const QVector<T> &vector)
     \relates QVector
 

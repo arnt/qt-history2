@@ -367,7 +367,7 @@
     \fn QSet<T> &QSet::operator|=(const QSet<T> &other)
     \fn QSet<T> &QSet::operator+=(const QSet<T> &other)
 
-    Syntactic sugar for merge().
+    Syntactic sugar for merge(\a other).
 
     \sa operator|(), operator&=(), operator-=()
 */
@@ -375,7 +375,7 @@
 /*!
     \fn QSet<T> &QSet::operator&=(const QSet<T> &other)
 
-    Syntactic sugar for intersect().
+    Syntactic sugar for intersect(\a other).
 
     \sa operator&(), operator|=(), operator-=()
 */
@@ -383,7 +383,7 @@
 /*!
     \fn QSet<T> &QSet::operator-=(const QSet<T> &other)
 
-    Syntactic sugar for subtract().
+    Syntactic sugar for subtract(\a other).
 
     \sa operator-(), operator|=(), operator&=()
 */
@@ -507,12 +507,7 @@
     Constructs a copy of \a other.
 */
 
-/*! \fn QSet::const_iterator::const_iterator(iterator other)
-
-    Constructs a copy of \a other.
-*/
-
-/*! fn QSet::const_iterator &QSet::const_iterator::operator=(const const_iterator &other)
+/*! \fn QSet::const_iterator &QSet::const_iterator::operator=(const const_iterator &other)
 
     Assigns \a other to this iterator.
 */
@@ -625,6 +620,45 @@
     This operation can be slow for large \a j values.
 
     \sa operator+=(), operator-()
+*/
+
+/*! \fn QList<T> QSet<T>::toList() const
+
+    Returns a QList object with the data contained in this QSet. The
+    order of the elements in the QList is undefined.
+
+    Example:
+
+    \code
+        QSet<double> set;
+        set << "red" << "green" << "blue" << ... << "black";
+
+        QList<double> list = set.toList();
+        qSort(list);
+    \endcode
+
+    \sa fromList(), QList::fromSet(), qSort()
+*/
+
+/*! \fn QSet<T> QSet<T>::fromList(const QList<T> &list)
+
+    Returns a QSet object with the data contained in \a list.
+    Since QSet doesn't allow duplicates, the resulting QSet might
+    be smaller than the original \a list was.
+
+    Example:
+
+    \code
+        QStringList list;
+        list << "Julia" << "Mike" << "Mike" << "Julia" << "Julia";
+
+        QSet<QString> set = QSet<QString>::fromList(list);
+        set.contains("Julia");  // returns true
+        set.contains("Mike");   // returns true
+        set.size();             // returns 2
+    \endcode
+
+    \sa toList(), QList::toSet()
 */
 
 /*!

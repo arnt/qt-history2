@@ -377,14 +377,6 @@ void **QListData::erase(void **xi)
     \sa operator=()
 */
 
-/*! \fn QList::QList(const QVector<T> &vector)
-
-    Constructs a copy of \a vector.
-
-    This constructor makes a deep copy of the data stored in
-    \a vector.
-*/
-
 /*! \fn QList::~QList()
 
     Destroys the list. References to the values in the list and all
@@ -1560,3 +1552,75 @@ void **QListData::erase(void **xi)
     Use indexOf() instead.
 */
 
+/*! \fn QList<T> QList<T>::fromVector(const QVector<T> &vector)
+
+    Returns a QList object with the data contained in \a vector.
+
+    Example:
+
+    \code
+        QVector<double> vect;
+        vect << "red" << "green" << "blue" << "black";
+
+        QList<double> list = QVector<T>::fromVector(vect);
+        // list: ["red", "green", "blue", "black"]
+    \endcode
+
+    \sa fromSet(), toVector(), QVector::toList()
+*/
+
+/*! \fn QVector<T> QList<T>::toVector() const
+
+    Returns a QVector object with the data contained in this QList.
+
+    Example:
+
+    \code
+        QStringList list;
+        list << "Sven" << "Kim" << "Ola";
+
+        QVector<QString> vect = list.toVector();
+        // vect: ["Sven", "Kim", "Ola"]
+    \endcode
+
+    \sa toSet(), fromVector(), QVector::fromList()
+*/
+
+/*! \fn QList<T> QList<T>::fromSet(const QSet<T> &set)
+
+    Returns a QList object with the data contained in \a set. The
+    order of the elements in the QList is undefined.
+
+    Example:
+
+    \code
+        QSet<double> set;
+        set << "red" << "green" << "blue" << ... << "black";
+
+        QList<double> list = QList<double>::fromSet(set);
+        qSort(list);
+    \endcode
+
+    \sa fromVector(), toSet(), QSet::toList(), qSort()
+*/
+
+/*! \fn QSet<T> QList<T>::toSet() const
+
+    Returns a QSet object with the data contained in this QList.
+    Since QSet doesn't allow duplicates, the resulting QSet might be
+    smaller than the original list was.
+
+    Example:
+
+    \code
+        QStringList list;
+        list << "Julia" << "Mike" << "Mike" << "Julia" << "Julia";
+
+        QSet<QString> set = list.toSet();
+        set.contains("Julia");  // returns true
+        set.contains("Mike");   // returns true
+        set.size();             // returns 2
+    \endcode
+
+    \sa toVector(), fromSet(), QSet::fromList()
+*/

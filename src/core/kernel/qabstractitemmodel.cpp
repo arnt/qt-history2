@@ -18,6 +18,7 @@
 #include <qsize.h>
 #include <qmimedata.h>
 #include <qdebug.h>
+#include <qvector.h>
 #include <private/qabstractitemmodel_p.h>
 
 QPersistentModelIndexData QPersistentModelIndexData::shared_null;
@@ -56,7 +57,7 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 }
 
 /*!
-  \class QPersistentModelIndex qabstractitemmodel.h
+  \class QPersistentModelIndex
 
   \brief The QPersistentModelIndex class is used to locate data in a data model.
 

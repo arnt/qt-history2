@@ -15,8 +15,8 @@
 #define QTABLEWIDGET_H
 
 #include <QtGui/qtableview.h>
-#include <QtCore/qlist.h>
 #include <QtCore/qvariant.h>
+#include <QtCore/qvector.h>
 
 class Q_GUI_EXPORT QTableWidgetSelectionRange
 {

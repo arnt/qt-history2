@@ -193,10 +193,10 @@
     return types (i.e. use \c void).
 
     A note about arguments. Our experience shows that signals and slots
-    are more reusable if they do \e not use special types. If \l
+    are more reusable if they do not use special types. If
     QScrollBar::valueChanged() were to use a special type such as the
-    hypothetical \c QRangeControl::Range, it could only be connected to
-    slots designed specifically for QRangeControl. Something as simple as
+    hypothetical QScrollBar::Range, it could only be connected to
+    slots designed specifically for QScrollBar. Something as simple as
     the program in \l{tutorial/t5}{Tutorial 5} would be impossible.
 
     \section1 Slots

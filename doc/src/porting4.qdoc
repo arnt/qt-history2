@@ -1512,6 +1512,14 @@
 
     \omit ### mention virtual functions that aren't virtual anymore \endomit
 
+    \omit
+    \section1 QFile
+
+    The QFile::readLine(QString&, Q_ULONG) method from qt3 has been removed
+    in qt4, but this change in the QFile interface is not documented in the
+    porting documentation as of qt-4.0.0-b1.
+    \endomit
+
     \section1 QFileDialog
 
     The QFileDialog class in Qt 4 has been totally rewritten. It

@@ -65,6 +65,7 @@
 //#define QTCPSERVER_DEBUG
 
 #include "private/qobject_p.h"
+#include "qalgorithms.h"
 #include "qhostaddress.h"
 #include "qlist.h"
 #include "qpointer.h"

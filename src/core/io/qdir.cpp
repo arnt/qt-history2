@@ -19,6 +19,7 @@
 #include <qdatetime.h>
 #include <qstring.h>
 #include <qregexp.h>
+#include <qvector.h>
 
 #include <stdlib.h>
 
@@ -1777,7 +1778,6 @@ void QDir::setNameFilter(const QString &nameFilter)
     d->filterSepChar = QDirPrivate::getFilterSepChar(nameFilter);
     setNameFilters(QDirPrivate::splitFilters(nameFilter, d->filterSepChar));
 }
-#endif
 
 /*!
     \fn QString QDir::absPath() const
@@ -1788,7 +1788,25 @@ void QDir::setNameFilter(const QString &nameFilter)
 /*!
     \fn QString QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
 
-    Use absoluteFilePath() instead.
+    Use absoluteFilePath(\a fileName) instead.
+
+    The \a acceptAbsPath parameter is ignored.
+*/
+
+/*!
+    \fn bool QDir::mkdir(const QString &dirName, bool acceptAbsPath) const
+
+    Use mkdir(\a dirName) instead.
+
+    The \a acceptAbsPath parameter is ignored.
+*/
+
+/*!
+    \fn bool QDir::rmdir(const QString &dirName, bool acceptAbsPath) const
+
+    Use rmdir(\a dirName) instead.
+
+    The \a acceptAbsPath parameter is ignored.
 */
 
 /*!
@@ -1830,3 +1848,4 @@ void QDir::setNameFilter(const QString &nameFilter)
 
     Use cleanPath() instead.
 */
+#endif

@@ -688,7 +688,7 @@ QObject::~QObject()
                 objectName().local8Bit(), newPrecision);
     \endcode
 
-    \sa className()
+    \sa metaObject(), QMetaObject::className()
 */
 
 QString QObject::objectName() const

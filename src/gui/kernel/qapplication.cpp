@@ -1226,10 +1226,6 @@ void QApplication::setStyle(QStyle *style)
   "compact". Depending on the platform, "windowsxp", "aqua" or
   "macintosh" may be available.
 
-  A later call to the QApplication constructor will override the
-  requested style when a "-style" option is passed in as a commandline
-  parameter.
-
   Returns 0 if an unknown \a style is passed, otherwise the QStyle object
   returned is set as the application's GUI style.
 */

@@ -17,6 +17,7 @@
 #include "QtCore/qiterator.h"
 #include "QtCore/qatomic.h"
 #include "QtCore/qalgorithms.h"
+#include "QtCore/qlist.h"
 
 struct Q_CORE_EXPORT QVectorData
 {
@@ -143,7 +144,7 @@ public:
     inline reference back() { return last(); }
     inline const_reference back() const { return last(); }
 
-    //comfort
+    // comfort
     QVector &operator+=(const QVector &l);
     inline QVector operator+(const QVector &l) const
     { QVector n = *this; n += l; return n; }
@@ -153,6 +154,10 @@ public:
     { append(t); return *this; }
     inline QVector &operator<<(const QVector &l)
     { *this += l; return *this; }
+
+    QList<T> toList() const;
+
+    static QVector<T> fromList(const QList<T> &list);
 
 private:
     void detach_helper();
@@ -535,7 +540,7 @@ int QVector<T>::count(const T &t) const
     return c;
 }
 
-template<typename T>
+template <typename T>
 Q_OUTOFLINE_TEMPLATE QVector<T> QVector<T>::mid(int pos, int length) const
 {
     if (length < 0)
@@ -548,6 +553,36 @@ Q_OUTOFLINE_TEMPLATE QVector<T> QVector<T>::mid(int pos, int length) const
     for (int i = pos; i < pos + length; ++i)
         copy += at(i);
     return copy;
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE QList<T> QVector<T>::toList() const
+{
+    QList<T> result;
+    for (int i = 0; i < size(); ++i)
+        result.append(at(i));
+    return result;
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE QVector<T> QList<T>::toVector() const
+{
+    QVector<T> result(size());
+    for (int i = 0; i < size(); ++i)
+        result[i] = at(i);
+    return result;
+}
+
+template <typename T>
+QVector<T> QVector<T>::fromList(const QList<T> &list)
+{
+    return list.toVector();
+}
+
+template <typename T>
+QList<T> QList<T>::fromVector(const QVector<T> &vector)
+{
+    return vector.toList();
 }
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(Vector)

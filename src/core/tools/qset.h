@@ -113,6 +113,10 @@ public:
     inline QSet<T> operator-(const QSet<T> &other)
         { QSet<T> result = *this; result -= other; return result; }
 
+    QList<T> toList() const;
+
+    static QSet<T> fromList(const QList<T> &list);
+
 private:
     Hash q_hash;
 };
@@ -155,6 +159,40 @@ Q_INLINE_TEMPLATE QSet<T> &QSet<T>::subtract(const QSet<T> &other)
             remove(*i);
     }
     return *this;
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE QList<T> QSet<T>::toList() const
+{
+    QList<T> result;
+    QSet<T>::const_iterator i = constBegin();
+    while (i != constEnd()) {
+        result.append(*i);
+        ++i;
+    }
+    return result;
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE QSet<T> QList<T>::toSet() const
+{
+    QSet<T> result;
+    result.reserve(size());
+    for (int i = 0; i < size(); ++i)
+        result.insert(at(i));
+    return result;
+}
+
+template <typename T>
+QSet<T> QSet<T>::fromList(const QList<T> &list)
+{
+    return list.toSet();
+}
+
+template <typename T>
+QList<T> QList<T>::fromSet(const QSet<T> &set)
+{
+    return set.toList();
 }
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(Set)

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "phrasemodel.h"
+#include <QtAlgorithms>
 
 static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;

@@ -16,6 +16,7 @@
 #include <qheaderview.h>
 #include <qpainter.h>
 #include <qitemdelegate.h>
+#include <qvector.h>
 #include <private/qtreeview_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)

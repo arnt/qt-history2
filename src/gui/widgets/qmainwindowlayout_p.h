@@ -28,6 +28,7 @@
 #include "qmainwindow.h"
 
 #include <qlayout.h>
+#include <qvector.h>
 
 class QToolBar;
 class QDockWindow;

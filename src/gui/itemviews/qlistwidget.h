@@ -15,8 +15,8 @@
 #define QLISTWIDGET_H
 
 #include <QtGui/qlistview.h>
-#include <QtCore/qlist.h>
 #include <QtCore/qvariant.h>
+#include <QtCore/qvector.h>
 
 class QListWidget;
 class QListModel;

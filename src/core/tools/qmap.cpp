@@ -426,14 +426,6 @@ void QMapData::dump()
     Assigns \a other to this map and returns a reference to this map.
 */
 
-/*! \fn QMap<Key, T> &QMap::operator=(const typename std::map<Key,T> &other)
-
-    \overload
-
-    This function is only available if Qt is configured with STL
-    compabitility enabled.
-*/
-
 /*! \fn bool QMap::operator==(const QMap<Key, T> &other) const
 
     Returns true if \a other is equal to this map; otherwise returns

@@ -516,7 +516,7 @@
 //
 
 #if defined(Q_NO_BOOL_TYPE)
-#error "Compiler doesn't support the 'bool' type!"
+#error "Compiler doesn't support the bool type"
 #endif
 
 typedef unsigned char uchar;
@@ -861,7 +861,7 @@ class QDataStream;
 #    warning "Support for this version of Mac OS X is still preliminary."
 #  endif
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_4)
-#    error "This version is unsupported."
+#    error "This version of Mac OS X is unsupported"
 #  endif
 #endif
 
@@ -1014,7 +1014,7 @@ public:
 #  elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
         , ByteOrder = LittleEndian
 #  else
-#    error "undefined byte order"
+#    error "Undefined byte order"
 #  endif
 #endif
     };
@@ -1023,7 +1023,7 @@ public:
     // needed to bootstrap qmake
     static const int ByteOrder;
 #  else
-#    error "Qt not configured correctly, please run configure."
+#    error "Qt not configured correctly, please run configure"
 #  endif
 #endif
 #ifdef Q_WS_WIN

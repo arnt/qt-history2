@@ -220,11 +220,10 @@ QWidget *QViewport::viewport() const
 
 
 /*!
-... still thinking about the name ###
-
 Returns the size of the viewport as if the scroll bars had no valid
 scrolling range.
 */
+// ### still thinking about the name
 QSize QViewport::maximumViewportSize() const
 {
     int hsbExt = d->hbar->sizeHint().height();
@@ -264,7 +263,7 @@ void QViewport::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 /*!
   Returns the vertical scroll bar.
 
-  \sa verticalScrollBarPolicy,  verticalScrollBar()
+  \sa verticalScrollBarPolicy, horizontalScrollBar()
  */
 QScrollBar *QViewport::verticalScrollBar() const
 {
@@ -295,7 +294,7 @@ void QViewport::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 /*!
   Returns the horizontal scroll bar.
 
-  \sa horizontalScrollBarPolicy,  verticalScrollBar()
+  \sa horizontalScrollBarPolicy, verticalScrollBar()
  */
 QScrollBar *QViewport::horizontalScrollBar() const
 {

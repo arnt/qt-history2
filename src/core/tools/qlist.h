@@ -16,7 +16,9 @@
 
 #include "QtCore/qiterator.h"
 #include "QtCore/qatomic.h"
-#include "QtCore/qvector.h"
+
+template <typename T> class QVector;
+template <typename T> class QSet;
 
 struct Q_CORE_EXPORT QListData {
     struct Data {
@@ -64,7 +66,6 @@ class QList
 public:
     inline QList() : d(&QListData::shared_null) { ++d->ref; }
     inline QList(const QList &l) : d(l.d) { ++d->ref; if (!d->sharable) detach_helper(); }
-    QList(const QVector<T> &vector);
     ~QList();
     QList &operator=(const QList &l);
     bool operator==(const QList &l) const;
@@ -229,6 +230,12 @@ public:
     { append(t); return *this; }
     inline QList &operator<<(const QList &l)
     { *this += l; return *this; }
+
+    QVector<T> toVector() const;
+    QSet<T> toSet() const;
+
+    static QList<T> fromVector(const QVector<T> &vector);
+    static QList<T> fromSet(const QSet<T> &set);
 
 private:
     void detach_helper();
@@ -538,17 +545,6 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::count(const T &t) const
         if (i->t() == t)
             ++c;
     return c;
-}
-
-template <typename T>
-Q_OUTOFLINE_TEMPLATE QList<T>::QList(const QVector<T> &vector)
-    : d(&QListData::shared_null)
-{
-    ++d->ref;
-    detach_helper();
-    p.realloc(vector.size());
-    for (int i = 0; i < vector.size(); ++i)
-        append(vector.at(i));
 }
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(List)

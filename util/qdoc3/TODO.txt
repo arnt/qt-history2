@@ -2,6 +2,11 @@ From Jasmin:
 
   * Don't use "..." in enums for just one value
   * #include <const_iterator> is wrong
+  * don't let \obsolete override QT3_SUPPORT
+  * Drop return type in "List of all members" pages.
+  * \enum Qt::ScrollBarPolicy (qviewport.cpp contains documentation for  \enum Qt::ScrollBarPolicy, and it 
+  does show up in the docs, but not as a link from the properties in QViewport)
+  * qhboxwidget.html#sizeHint is broken (apparently)
 
 --
 

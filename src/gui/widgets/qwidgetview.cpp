@@ -49,7 +49,7 @@ public:
     the setWidgetResizable() function.
 
     When using a widget view to display the contents of a custom widget,
-    it is important to ensure that the \l{QWidget::sizeHint} size hint of the
+    it is important to ensure that the \l{QWidget::sizeHint}{size hint} of the
     child widget is set to a suitable value. If a standard QWidget is used
     for the child widget, it may be necessary to call
     \l{QWidget::setMinimumSize} to ensure that the contents of the widget are
