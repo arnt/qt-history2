@@ -1535,8 +1535,8 @@ static void err_info_about_objects(const char * func,
                                     const QObject * sender,
                                     const QObject * receiver)
 {
-    QString a = sender->objectName();
-    QString b = receiver->objectName();
+    QString a = sender ? sender->objectName() : QString();
+    QString b = receiver ? receiver->objectName() : QString();
     if (!a.isEmpty())
         qWarning("Object::%s:  (sender name:   '%s')", func, a.local8Bit());
     if (!b.isEmpty())
