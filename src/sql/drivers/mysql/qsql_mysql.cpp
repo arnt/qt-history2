@@ -543,7 +543,7 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
-    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit(), 0);
     if ( !r ) {
 	return fil;
     }
@@ -584,7 +584,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
     QSqlRecordInfo info;
     if ( !isOpen() )
 	return info;
-    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit(), 0);
     if ( !r ) {
 	return info;
     }
