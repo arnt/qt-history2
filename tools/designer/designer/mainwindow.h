@@ -179,6 +179,7 @@ public:
     void showSourceLine( QObject *o, int line, LineMode lm );
 
     void shuttingDown();
+    void showGUIStuff( bool b );
 
 public slots:
     void showProperties( QObject *w );
@@ -408,7 +409,8 @@ private:
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
     QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu, *recentlyFilesMenu, *recentlyProjectsMenu;
-    QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2;
+    QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2, *toolsToolBar;
+    QList<QToolBar> widgetToolBars;
 
     Preferences *prefDia;
     QMap<QString,QString> propertyDocumentation;

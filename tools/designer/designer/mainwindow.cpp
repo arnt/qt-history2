@@ -3550,3 +3550,32 @@ void MainWindow::shuttingDown()
 {
     outputWindow()->shuttingDown();
 }
+
+void MainWindow::showGUIStuff( bool b )
+{
+    if ( !b ) {
+	setAppropriate( (QDockWindow*)toolBox->parentWidget(), FALSE );
+	toolBox->parentWidget()->hide();
+	for ( QToolBar *tb = widgetToolBars.first(); tb; tb = widgetToolBars.next() ) {
+	    tb->hide();
+	    setAppropriate( tb, FALSE );
+	}
+	propertyEditor->setPropertyEditorEnabled( FALSE );
+	setAppropriate( layoutToolBar, FALSE );
+	layoutToolBar->hide();
+	setAppropriate( toolsToolBar, FALSE );
+	toolsToolBar->hide();
+    } else {
+	setAppropriate( (QDockWindow*)toolBox->parentWidget(), TRUE );
+	toolBox->parentWidget()->show();
+	for ( QToolBar *tb = widgetToolBars.first(); tb; tb = widgetToolBars.next() ) {
+	    setAppropriate( tb, TRUE );
+	    tb->hide();
+	}
+	propertyEditor->setPropertyEditorEnabled( TRUE );
+	setAppropriate( layoutToolBar, TRUE );
+	layoutToolBar->show();
+	setAppropriate( toolsToolBar, TRUE );
+	toolsToolBar->show();
+    }
+}

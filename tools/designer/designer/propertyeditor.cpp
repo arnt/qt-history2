@@ -3642,3 +3642,8 @@ EventList *PropertyEditor::eventList() const
 {
     return eList;
 }
+
+void PropertyEditor::setPropertyEditorEnabled( bool b )
+{
+    setTabEnabled( listview, b );
+}

@@ -426,6 +426,7 @@ void MainWindow::setupToolActions()
     QToolBar *tb = new QToolBar( this, "Tools" );
     tb->setCloseMode( QDockWindow::Undocked );
 #endif
+    toolsToolBar = tb;
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 
     addToolBar( tb, tr( "Tools" ), QMainWindow::DockTop, FALSE );
@@ -462,6 +463,7 @@ void MainWindow::setupToolActions()
 	QToolBar *tb = new QToolBar( this, grp.latin1() );
 	tb->setCloseMode( QDockWindow::Undocked );
 #endif
+	widgetToolBars.append( tb );
 	bool plural = grp[(int)grp.length()-1] == 's';
 	if ( plural ) {
 	    QWhatsThis::add( tb, tr( "<b>The %1</b>%2" ).arg(grp).arg(tr(toolbarHelp).
@@ -539,6 +541,7 @@ void MainWindow::setupToolActions()
 				 "or double click to insert multiple widgets.") )) );
 	addToolBar( tb, "Custom" );
 	tb->hide();
+	widgetToolBars.append( tb );
 	customWidgetToolBar = tb;
 	QPopupMenu *menu = new QPopupMenu( this, "Custom Widgets" );
 	mmenu->insertItem( "Custom", menu );

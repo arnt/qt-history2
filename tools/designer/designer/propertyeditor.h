@@ -604,6 +604,8 @@ public:
 
     void resetFocus();
 
+    void setPropertyEditorEnabled( bool b );
+
 signals:
     void hidden();
 
