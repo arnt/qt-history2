@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#3 $
 **
 ** Definition of QMetaFile class
 **
@@ -29,12 +29,12 @@ public:
     bool save( const char *fileName );		// write to file
 
 public:
-#if defined(_WS_X11_)
     bool cmd( int, QPDevCmdParam * );
-#endif
 
 private:
     QBuffer mfbuf;
+    long    trecs;
+    bool exec( QPainter *, QDataStream &s, long );
 };
 
 
