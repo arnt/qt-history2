@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#6 $
 **
 ** Definition of the QtTextView class
 **
@@ -29,28 +29,24 @@
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
-    : ref( 1 )
+    : ref( 1 ), customItem_( 0 )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
     : font_( format.font_ ), color_( format.color_ ),
-      key( format.key ), ref( 1 )
+      key( format.key ), ref( 1 ), customItem_( 0 )
 {
 }
 
-QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
-    : font_( f ), color_( c ), ref( 1 )
+QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci )
+    : font_( f ), color_( c ), ref( 1 ), customItem_( ci )
 {
     key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
           arg( c.red() ).arg( c.green() ).arg( c.blue() ).
           arg( f.family() ).arg( f.pointSize() ).arg( f.weight() ).
           arg( (int)f.underline() ).arg( (int)f.italic() );
     qDebug( "create key: %s", key.latin1() );
-}
-
-QtTextCharFormat::~QtTextCharFormat()
-{
 }
 
 
@@ -60,6 +56,9 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     color_ = fmt.color_;
     key = fmt.key;
     ref = 1;
+    customItem_ = fmt.customItem_;
+    
+    return *this;
 }
 
 QColor QtTextCharFormat::color() const
@@ -70,6 +69,11 @@ QColor QtTextCharFormat::color() const
 QFont QtTextCharFormat::font() const
 {
     return font_;
+}
+
+QtTextCustomItem *QtTextCharFormat::customItem() const 
+{ 
+    return customItem_; 
 }
 
 int QtTextCharFormat::addRef()
@@ -101,20 +105,26 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
     return format;
 }
 
-QtTextCustomItem::~QtTextCustomItem()
-{
-}
-
 QtTextFormatCollection::QtTextFormatCollection()
+    : lastRegisterKey( QString::null ), lastRegisterIndex( 0 ),
+      lastFormatIndex( 0 ), lastFormatFormat( 0 )
 {
 }
 
 ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
+    if ( !lastRegisterKey.isEmpty() ) {
+        if ( format.key == lastRegisterKey )
+            return lastRegisterIndex;
+    }
+    
     if ( cKey.contains( format.key ) ) {
         cKey[ format.key ]->addRef();
         qDebug( "registerFormat (%s): found at index %d", format.key.latin1(), cKeyIndex[ format.key ] );
-        return cKeyIndex[ format.key ];
+        int i = cKeyIndex[ format.key ];
+        lastRegisterKey = format.key;
+        lastRegisterIndex = i;
+        return i;
     } else {
         QtTextCharFormat *f = new QtTextCharFormat( format );
         cKey[ f->key ] = f;
@@ -122,6 +132,8 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
         cIndex[ i ] = f;
         cKeyIndex[ f->key ] = i;
         qDebug( "registerFormat (%s): added at index %d", format.key.latin1(), i );
+        lastRegisterKey = format.key;
+        lastRegisterIndex = i;
         return i;
     }
 }
@@ -145,6 +157,12 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
 
 QtTextCharFormat QtTextFormatCollection::format( ushort index )
 {
-    return *cIndex[ index ];
+    if ( lastFormatIndex == index && lastFormatFormat )
+        return *lastFormatFormat;
+
+    lastFormatFormat = cIndex[ index ];
+    lastFormatIndex = index;
+    
+    return *lastFormatFormat;
 }
 

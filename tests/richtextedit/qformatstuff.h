@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#5 $
 **
 ** Definition of the QtTextView class
 **
@@ -32,6 +32,7 @@
 #include <qstring.h>
 
 class QStyleSheetItem;
+class QtTextCustomItem;
 
 class QtTextCharFormat
 {
@@ -40,8 +41,7 @@ class QtTextCharFormat
 public:
     QtTextCharFormat();
     QtTextCharFormat( const QtTextCharFormat &format );
-    QtTextCharFormat( const QFont &f, const QColor &c );
-    virtual ~QtTextCharFormat();
+    QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci = 0 );
     QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt );
 
     QtTextCharFormat makeTextFormat( const QStyleSheetItem *item );
@@ -49,27 +49,26 @@ public:
     QColor color() const;
     QFont font() const;
 
-    virtual bool isCustomItem() { return FALSE; }
+    bool isCustomItem() { return customItem_ != 0; }
 
     int addRef();
     int removeRef();
 
+    QtTextCustomItem *customItem() const;
+    
 protected:
     QFont font_;
     QColor color_;
     QString key;
     int ref;
+    QtTextCustomItem *customItem_;
 
 };
 
-class QtTextCustomItem : public QtTextCharFormat
+class QtTextCustomItem
 {
 public:
-    QtTextCustomItem() : QtTextCharFormat() {}
-    virtual ~QtTextCustomItem();
-
-    bool isCustomItem() { return TRUE; }
-
+    QtTextCustomItem() {}
 };
 
 class QtTextFormatCollection
@@ -88,6 +87,11 @@ protected:
     QMap< int, QtTextCharFormat* > cIndex;
     QMap< QString, int > cKeyIndex;
 
+    QString lastRegisterKey;
+    ushort lastRegisterIndex;
+    ushort lastFormatIndex;
+    QtTextCharFormat *lastFormatFormat;
+    
 };
 
 #endif
