@@ -197,6 +197,6 @@ inline Q_CORE_EXPORT bool qInvokeMetaMember(QObject *obj, const char *member,
                              val1, val2, val3, val4, val5, val6, val7, val8, val9);
 }
 
-#endif QT_NO_QOBJECT
+#endif
 
 #endif // QSIGNAL_H
