@@ -47,6 +47,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "REDO" ] = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
     dictionary[ "BIG_CODECS" ] = "yes";
+    dictionary[ "TABLET" ] = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -209,6 +210,10 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "BIG_CODECS" ] = "no";
 	else if( (*args) == "-big-codecs" )
 	    dictionary[ "BIG_CODECS" ] = "yes";
+	else if( (*args) == "-tablet" )
+	    dictionary[ "TABLET" ] = "yes";
+	else if( (*args) == "-no-tablet" )
+	    dictionary[ "TABLET" ] = "no";
 	else if( ( (*args) == "-override-version" ) || ( (*args) == "-version-override" ) ){
 	    ++args;
 	    dictionary[ "VERSION" ] = (*args);
@@ -320,6 +325,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-no-stl           * Disable STL support." << endl;
 	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
 	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl;
+	cout << "-tablet             Enable tablet support." << endl;
+	cout << "-no-tablet        * Disable tablet support." << endl;
 	cout << "-big-codecs         Enable the building of big codecs." << endl;
 	cout << "-no-big-codecs      Disable the building of big codecs." << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
@@ -404,6 +411,8 @@ void ConfigureApp::generateOutputVars()
 	qmakeConfig += "no-png";
     if( dictionary[ "BIG_CODECS" ] == "yes" )
 	qmakeConfig += "bigcodecs";
+    if( dictionary[ "TABLET" ] == "yes" )
+	qmakeConfig += "tablet";
 
     if( !dictionary[ "QMAKESPEC" ].length() ) {
 	cout << "QMAKESPEC must either be defined as an environment variable, or specified" << endl;
