@@ -9,7 +9,8 @@ Thank you for choosing to evaluate Qt!
 This CD contains evaluation versions of Qt/X11, Qt/Windows, Qt/Mac, 
 and Qt/Embedded. Qt/X11 is supported on Linux, Solaris, HP-UX, Irix, AIX, 
 Tru64, and most other Unix systems. Qt/Windows is supported on 
-Microsoft Windows 95, 98, NT, 2000, and XP. Qt/Mac is supported on Mac OS X 10.2. Qt/Embedded is supported on embedded Linux.
+Microsoft Windows 95, 98, NT, 2000, and XP. Qt/Mac is supported on Mac OS X 10.2. 
+Qt/Embedded is supported on embedded Linux.
 
 Installation instructions for each platform are given below. Please read 
 the file LICENSE, found in the package for each platform, and agree to its 
@@ -45,7 +46,7 @@ selected and follow the instructions in the installation wizard.
 You will be asked to enter the following information:
 Name:    Qt Evaluator
 Company: CD
-Serial:  2beemfpv92c2
+Serial:  <enter serial key printed on the back of the CD cover>
 
 Note: all fields are case-sensitive!
 
@@ -59,13 +60,14 @@ Installation instructions for Qt/Mac
 You will find the Qt/Mac evaluation version in the MacOS directory on 
 this CD.
 
-Start the installation by double-clicking on the QtMac-Eval-3.1.1.sit
-package to unstuff it. Then double-click the QtMac-Eval-3.1.1 application.
+Start the installation by copying the QtMac-Eval-3.1.1.sit package to your
+hard disk and then double-clicking it to unstuff it. Once it is unstuffed,
+double-click the QtMac-Eval-3.1.1 application.
 
 The installation wizard will ask you for the following information:
 Name:    Qt Evaluator
 Company: CD
-Serial:  2beemfpv92c2
+Serial:  <enter serial key printed on the back of the CD cover>
 
 Note: all fields are case-sensitive!
 
@@ -147,4 +149,4 @@ for 30 days of evaluation support at
 http://www.trolltech.com/products/qt/evaluate.html
 
 
-Copyright (c) 2002 Trolltech AS. Qt is a trademark of Trolltech AS.
+Copyright (c) 2003 Trolltech AS. Qt is a trademark of Trolltech AS.
