@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#49 $
 **
 ** Global functions
 **
@@ -16,20 +16,17 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#48 $");
-
-
-#define QT_VERSION "1.2"
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#49 $");
 
 
 /*!
   \relates QApplication
-  Returns the Qt version number for the library, typically "1.2".
+  Returns the Qt version number for the library, typically "1.3".
 */
 
 const char *qVersion()
 {
-    return QT_VERSION;
+    return QT_VERSION_STR;
 }
 
 
