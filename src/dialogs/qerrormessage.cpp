@@ -11,6 +11,7 @@
 
 #include "qerrormessage.h"
 
+#include "qstringlist.h"
 #include "qpushbutton.h"
 #include "qcheckbox.h"
 #include "qlabel.h"
