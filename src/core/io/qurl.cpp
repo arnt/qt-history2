@@ -1224,7 +1224,7 @@ QByteArray QUrlPrivate::toEncoded() const
     return url;
 }
 
-#define qToLower(ch) ((ch|32 >= 'a' && ch|32 <= 'z') ? ch|32 : ch)
+#define qToLower(ch) (((ch|32) >= 'a' && (ch|32) <= 'z') ? (ch|32) : ch)
 
 const QByteArray & QUrlPrivate::normalized()
 {
