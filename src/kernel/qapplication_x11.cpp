@@ -1899,11 +1899,13 @@ void qt_init_internal( int *argcptr, char **argv,
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
-#if defined(QT_THREAD_SUPPORT)
-	QThread::initialize();
-#endif
     }
-    gettimeofday( &watchtime, 0 );
+
+#if defined(QT_THREAD_SUPPORT)
+    QThread::initialize();
+#endif
+
+	gettimeofday( &watchtime, 0 );
 
     if( qt_is_gui_used ) {
 	qApp->setName( appName );
