@@ -1124,7 +1124,7 @@ void TrWindow::about()
 
 void TrWindow::aboutQt()
 {
-    QMessageBox::aboutQt( this );
+    QMessageBox::aboutQt( this, tr("Qt Linguist") );
 }
 
 void TrWindow::setupPhrase()

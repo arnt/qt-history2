@@ -24,6 +24,7 @@
 <include location="global" impldecl="in implementation">qcombobox.h</include>
 <include location="global" impldecl="in implementation">qaccel.h</include>
 <include location="global" impldecl="in implementation">qfontdatabase.h</include>
+<include location="global" impldecl="in implementation">qmessagebox.h</include>
 <forward>class HelpDialog;</forward>
 <forward>class HelpWindow;</forward>
 <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
@@ -485,6 +486,7 @@
     <function name="about()" >{
 }</function>
     <function name="aboutQt()" >{
+    QMessageBox::aboutQt( this, tr( "Qt Assistant" ) );
 }</function>
     <function name="find()" >{
     if ( !findDialog ) {
