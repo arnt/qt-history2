@@ -618,7 +618,7 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 
     /* take care of the alpha */
     if(tex_psm == 0) {
-	if(alphatype == SeparateAlpha || (alphatype == LittleEndianMask || alphatype == BigEndianMask)) {
+	if(alphatype != IgnoreAlpha) {
 	    unsigned int rgb;
 	    if(srctype == SourcePen) {
 		usePen();
@@ -638,20 +638,14 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 			    a = a >> (x % 8);
 			else
 			    a = a >> (7 - (x % 8));
-			if(a & 0x01)
-			    printf("+");
-			else
-			    printf(" ");
-			if(x == tex_width -1)
-			    printf("\n");
 			out[dy+x] = ((a & 0x01) ? 0xFF000000 : 0) | rgb;
 		    }	
-		    else 
+		    else if(alphatype == SeparateAlpha)
 			out[dy+x] = ((alphabits[sy+x]) << 24) | rgb;
+		    else
+			out[dy+x] = (qAlpha(rgb) / 2) << 24 | rgb;
 		}
 	    }
-	    printf("\n");
-	    fflush(stdout);
 	}
     }
 
@@ -708,19 +702,11 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
     gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 
 		    2, (GSOS_GIF_REG_XYZ2<<4) | GSOS_GIF_REG_UV);
 
+    gsosSetPacket4(GSOS_SUBPIX_OFST(0), GSOS_SUBPIX_OFST(0),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST(x), GSOS_SUBPIX_OFST(y),0,0);
 
-    int f1=0, f2=0, f3=0, f4=0;
-    if(const char *g = getenv("FUCKERY1"))
-	sscanf(g, "%dx%dx%dx%d", &f1, &f2, &f3, &f4);
-
-    gsosSetPacket4(GSOS_SUBPIX_OFST(0+f1), GSOS_SUBPIX_OFST(0+f2),0,0);
-    gsosSetPacket4(GSOS_SUBPIX_OFST(x+f3), GSOS_SUBPIX_OFST(y+f4),0,0);
-
-    f1 = f2 = f3 = f4 = 0;
-    if(const char *g = getenv("FUCKERY2"))
-	sscanf(g, "%dx%dx%dx%d", &f1, &f2, &f3, &f4);
-    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)+f1), GSOS_SUBPIX_OFST(h+f2),0,0);
-    gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)+f3), GSOS_SUBPIX_OFST((y+h)+f4),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)), GSOS_SUBPIX_OFST(h),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)+1),0,0);
 
     gsosExec();
 
@@ -942,9 +928,11 @@ void QPS2Cursor::set(const QImage& image,int hx,int hy)
 	uchar  *b = image.scanLine(i);
 	for(uint *end = p + (mydata->d.width * 4); p < end; b++, p++) {
 	    if(*b >= image.numColors())
-		*p = qRgba(255,255,255,0);
-	    else
-		*p = image.color(*b);
+		*p = qRgba(128,255,255,0);
+	    else {
+		QRgb rgb = image.color(*b);
+		*p = qRgba(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb) / 2);
+	    }
 	}
     }
 
@@ -1020,7 +1008,7 @@ void QPS2Cursor::drawCursor()
 
     gsosMakeGiftag( 6, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
     gsosSetPacketAddrData(GSOS_ALPHA_1, GsosAlphaData(0, 1, 0, 1, 0));
-    gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( 1, 4, 0xFF, 0, 0, 0, 0, 0 ));
+    gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( 1, 7, 0, 0, 0, 0, 0, 0 ));
     gsosSetPacketAddrData(GSOS_TEX0_1, GsosTex0Data(0x3000, 1, 0, 10, 10, 1, 1, 0, 0, 0, 0, 0 ));
     gsosSetPacketAddrData4(GSOS_SCISSOR_1, 
 			   (GSOSbit64)(mydata->d.x - mydata->d.hotx), 
@@ -1028,7 +1016,7 @@ void QPS2Cursor::drawCursor()
 			   (GSOSbit64)(mydata->d.y - mydata->d.hoty), 
 			   (GSOSbit64)((mydata->d.y - mydata->d.hoty) + mydata->d.height));
 
-    gsosSetPacketAddrData(GSOS_PRMODE, GsosPrmodeData( 0, 1, 0, /*1*/0, 0, 1, 0, 0 ) ) ;
+    gsosSetPacketAddrData(GSOS_PRMODE, GsosPrmodeData( 0, 1, 0, 1, 0, 1, 0, 0 ) ) ;
     gsosSetPacketAddrData(GSOS_PRIM, GSOS_PRIM_SPRITE ) ;
 
     gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 2,

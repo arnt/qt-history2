@@ -1,4 +1,5 @@
 #include "qwsmanager_qws.h"
+#include "qcursor.h"
 
 #ifndef QT_NO_QWS_MANAGER
 

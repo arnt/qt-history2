@@ -33,6 +33,7 @@
 #define gettimeofday	_qt_hide_gettimeofday
 
 #include "qglobal.h"
+#include "qcursor.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qwidget.h"
