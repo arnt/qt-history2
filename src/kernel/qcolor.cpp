@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#36 $
 **
 ** Implementation of QColor class
 **
@@ -13,13 +13,13 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
   \class QColor qcolor.h
   \brief The QColor class provides colors based on RGB.
-  \ingroup colors
+  \ingroup color
 
   A color is normally specified in terms of RGB (red,green and blue)
   components, but it is also possible to specify HSV (hue,saturation and
@@ -44,14 +44,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#35 $")
   that is, whenever the pixel() function is called:
 
   <ol>
-  <li> Is the pixel value valid? If it is, just return it, otherwise,
+  <li>Is the pixel value valid? If it is, just return it, otherwise,
   allocate a pixel value.
-  <li> Check an internal hash table to see if we allocated an equal RGB
+  <li>Check an internal hash table to see if we allocated an equal RGB
   value earlier. If we did, set the pixel value and return.
-  <li> Try to allocate the RGB value. If we succeed, we get a pixel value
+  <li>Try to allocate the RGB value. If we succeed, we get a pixel value
   which we save in the internal table with the RGB value.
   Return the pixel value.
-  <li> The color could not be allocated. Find the closest matching
+  <li>The color could not be allocated. Find the closest matching
   color and save it in the internal table.
   </ol>
 
@@ -136,6 +136,7 @@ void QColor::initglobals()
 /*----------------------------------------------------------------------------
   Constructs an invalid color with the RGB value (0,0,0). An invalid color
   is a color that is not properly set up for the underlying window system.
+  \sa isValid()
  ----------------------------------------------------------------------------*/
 
 QColor::QColor()
@@ -146,11 +147,38 @@ QColor::QColor()
 
 /*----------------------------------------------------------------------------
   Constructs a color with the RGB value (r,g,b).
+
+  \e r, \e g and \e b must be in the rangle 0..255.
+
+  \sa setRgb()
  ----------------------------------------------------------------------------*/
 
 QColor::QColor( int r, int g, int b )
 {
     setRgb( r, g, b );
+}
+
+/*----------------------------------------------------------------------------
+  Constructs a color with the RGB \e or HSV value \e (x,y,z).
+
+  The \e (x,y,z) triplet defines an RGB value if \e colorSpec == \c
+  QColor::Rgb.  \e x (red), \e y (green) and \e z (blue) must be in the
+  range 0..255.
+
+  The \e (x,y,z) triplet defines an HSV value if \e colorSpec == \c
+  QColor::Hsv.  \e x (hue) must be in the range -1..360 (-1 means
+  achromatic), and \e y (saturation) and \e z (value) must be in the range
+  0..255.
+
+  \sa setRgb(), setHsv()
+ ----------------------------------------------------------------------------*/
+
+QColor::QColor( int x, int y, int z, Spec colorSpec )
+{
+    if ( colorSpec == Hsv )
+	setHsv( x, y, z );
+    else
+	setRgb( x, y, z );
 }
 
 /*----------------------------------------------------------------------------
@@ -190,29 +218,17 @@ QColor &QColor::operator=( const QColor &c )
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QColor::lazyAlloc()
-  Returns TRUE if lazy color allocation is enabled (on-demand allocation),
-  or FALSE if it is disabled (immediate allocation).
-  \sa setLazyAlloc()
+  \fn bool QColor::isValid() const
+  Returns TRUE if the color is invalid, i.e. it was constructed using the
+  default constructor.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Enables or disables lazy color allocation.
-
-  If lazy allocation is enabled, colors will be allocated the first time
-  they are used (upon calling the pixel() function).  If lazy allocation
-  is disabled, colors will be allocated when they are constructed or when
-  setRgb() or setHsv() are called.
-
-  The default setting is to enable lazy color allocation.
-
-  \sa lazyAlloc()
+  \fn bool QColor::isDirty() const
+  Returns TRUE if the color is dirty, i.e. lazy allocation is enabled and
+  an RGB/HSV value has been set but not allocated.
+  \sa setLazyAlloc(), alloc(), pixel()
  ----------------------------------------------------------------------------*/
-
-void QColor::setLazyAlloc( bool enable )
-{
-    lalloc = enable;
-}
 
 
 #undef max
@@ -225,15 +241,15 @@ void QColor::setLazyAlloc( bool enable )
   \arg \e *s, saturation.
   \arg \e *v, value.
 
-  The hue defines the color. Its range is 0-359 if the color is
-  chromatic and -1 if the color is achromatic.  The saturation and value
-  both vary between 0 and 255 inclusive.
+  The hue defines the color. Its range is 0..359 if the color is chromatic
+  and -1 if the color is achromatic.  The saturation and value both vary
+  between 0 and 255 inclusive.
 
-  \sa setHsv()
+  \sa setHsv(), rgb()
  ----------------------------------------------------------------------------*/
 
 void QColor::hsv( int *h, int *s, int *v ) const
-{						// get HSV value
+{
     int r = (int)(rgbVal & 0xff);
     int g = (int)((rgbVal >> 8) & 0xff);
     int b = (int)((rgbVal >> 16) & 0xff);
@@ -286,10 +302,10 @@ void QColor::hsv( int *h, int *s, int *v ) const
   \arg \e s, saturation (0..255).
   \arg \e v, value (0..255).
 
-  \sa hsv()
+  \sa hsv(), setRgb()
  ----------------------------------------------------------------------------*/
 
-void QColor::setHsv( int h, int s, int v )	// set HSV value
+void QColor::setHsv( int h, int s, int v )
 {
     int r, g, b;
 #if defined(CHECK_RANGE)
@@ -352,7 +368,7 @@ void QColor::rgb( int *r, int *g, int *b ) const
   \sa rgb(), setHsv()
  ----------------------------------------------------------------------------*/
 
-void QColor::setRgb( ulong rgb )		// set RGB value directly
+void QColor::setRgb( ulong rgb )
 {
     int r = (int)(rgb & 0xff);
     int g = (int)((rgb >> 8) & 0xff);
@@ -428,7 +444,7 @@ QColor QColor::light( int factor ) const
   \sa light()
  ----------------------------------------------------------------------------*/
 
-QColor QColor::dark( int factor ) const		// get dark color
+QColor QColor::dark( int factor ) const
 {
     if ( factor <= 0 )				// invalid darkness factor
 	return *this;
@@ -444,15 +460,6 @@ QColor QColor::dark( int factor ) const		// get dark color
 
 
 /*----------------------------------------------------------------------------
-  \fn ulong QColor::pixel() const
-  Returns the pixel value.
-
-  This value is used by the underlying window system to refer to a color.
-  It can be thought of as an index into the display hardware's color table.
- ----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------
   \fn bool QColor::operator==( const QColor &c ) const
   Returns TRUE if this color has the same RGB value as \e c,
   or FALSE if they have different RGB values.
@@ -462,6 +469,41 @@ QColor QColor::dark( int factor ) const		// get dark color
   \fn bool QColor::operator!=( const QColor &c ) const
   Returns TRUE if this color has different RGB value from \e c,
   or FALSE if they have equal RGB values.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn bool QColor::lazyAlloc()
+  Returns TRUE if lazy color allocation is enabled (on-demand allocation),
+  or FALSE if it is disabled (immediate allocation).
+  \sa setLazyAlloc()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Enables or disables lazy color allocation.
+
+  If lazy allocation is enabled, colors will be allocated the first time
+  they are used (upon calling the pixel() function).  If lazy allocation
+  is disabled, colors will be allocated when they are constructed or when
+  setRgb() or setHsv() are called.
+
+  The default setting is to enable lazy color allocation.
+
+  \sa lazyAlloc()
+ ----------------------------------------------------------------------------*/
+
+void QColor::setLazyAlloc( bool enable )
+{
+    lalloc = enable;
+}
+
+
+/*----------------------------------------------------------------------------
+  \fn ulong QColor::pixel() const
+  Returns the pixel value.
+
+  This value is used by the underlying window system to refer to a color.
+  It can be thought of as an index into the display hardware's color table.
  ----------------------------------------------------------------------------*/
 
 
@@ -493,3 +535,54 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
     c.setRgb( rgb );
     return s;
 }
+
+
+/*****************************************************************************
+  QColor global functions (documentation only)
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \fn int QRED( ulong rgb )
+  \relates QColor
+  Returns the red component of an encoded RGB value \e rgb.
+  \sa QRGB(), QColor::red()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QGREEN( ulong rgb )
+  \relates QColor
+  Returns the green component of an encoded RGB value \e rgb.
+  \sa QRGB(), QColor::green()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QBLUE( ulong rgb )
+  \relates QColor
+  Returns the blue component of an encoded RGB value \e rgb.
+  \sa QRGB(), QColor::blue()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn ulong QRGB( int r, int g, int b )
+  \relates QColor
+  Returns an encoded RGB value from the \e (r,g,b) triplet.
+
+  Bits 0-7 = \e r, bits 8-15 = \e g, bits 16-23 = \e b.
+
+  \sa QRED(), QGREEN(), QBLUE()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QGRAY( int r, int g, int b )
+  \relates QColor
+  Returns a gray value 0..255 from the \e (r,g,b) triplet.
+
+  The gray value is calculated using the formula:
+  <code>(r*11 + g*16 + b*5)/32</code>.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int QGRAY( ulong rgb )
+  \relates QColor
+  Returns a gray value 0..255 from the composite \e rgb value.
+ ----------------------------------------------------------------------------*/
