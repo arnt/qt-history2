@@ -2026,7 +2026,7 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 	case SC_ComboBoxArrow:
 	    return QRect(xpos, y+1, 16, he-2);
 	case SC_ComboBoxEditField:
-	    return QRect(x+2, y+2, wi-2-16, he-4);
+	    return QRect(x+2, y+2, wi-3-16, he-4);
 	case SC_ComboBoxListBoxPopup:
 	    return option.rect();
 	default:
