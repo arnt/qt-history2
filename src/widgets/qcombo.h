@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#10 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#11 $
 **
 ** Definition of QComboBox class
 **
@@ -77,7 +77,6 @@ protected:
     void	popup();
 
 private:
-    void	init();
     void	reIndex();
     void	currentChanged();
 
