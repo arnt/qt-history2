@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#104 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#105 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1142,7 +1142,6 @@ sub readc {
 		$def = $1;
 		$doc = $2;
 	    }
-	    $overload = 1 if ( $doc =~ /overloaded/is );
 
 	    ($name, $args) = split(/\s*\((?=[^\(]+\s*$ )/x, $def);
 #	    ((?:\w+::)?\s*
