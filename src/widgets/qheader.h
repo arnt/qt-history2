@@ -171,13 +171,14 @@ private:
     void resizeArrays( int size );
     void setIsATableHeader( bool b );
     int		offs;
-    int		oldHandleIdx, handleIdx;
+    int		handleIdx;
     int		oldHIdxSize;
     int		moveToIdx;
     enum State { Idle, Sliding, Pressed, Moving, Blocked };
     State	state;
     QCOORD	clickPos;
     bool	trackingIsOn;
+    int oldHandleIdx;
     int	cachedPos; // not used
     Orientation orient;
 

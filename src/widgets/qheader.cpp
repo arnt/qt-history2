@@ -389,7 +389,7 @@ void QHeader::init( int n )
     offs = 0;
     if( reverse() )
 	offs = d->lastPos - width();
-    oldHIdxSize = handleIdx = 0;
+    oldHandleIdx = oldHIdxSize = handleIdx = 0;
 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
