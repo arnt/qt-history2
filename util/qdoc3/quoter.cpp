@@ -124,8 +124,8 @@ QString Quoter::getLine()
     int n = t.contains( '\n' );
     for ( int i = 0; i < n; i++ )
 	codeLocation.advance( '\n' );
-    plainLines.remove( plainLines.begin() );
-    markedLines.remove( markedLines.begin() );
+    plainLines.removeFirst();
+    markedLines.removeFirst();
     return t;
 }
 
@@ -144,7 +144,7 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 				 .arg(rx.pattern()) );
 	    silent = TRUE;
 	}
-	return str.indexOf( rx ) != -1 || trimWhiteSpace( str ).indexOf( rx ) != -1;
+	return str.indexOf( rx ) != -1;
     } else {
 	return trimWhiteSpace( str ).indexOf( trimWhiteSpace(pattern) ) != -1;
     }

@@ -22,7 +22,7 @@
 #include "qx11info_x11.h"
 
 /*!
-    \class QPaintDevice qpaintdevice.h
+    \class QPaintDevice
     \brief The QPaintDevice class is the base class of objects that
     can be painted.
 
@@ -177,7 +177,15 @@ int QPaintDevice::metric(int) const
 #ifdef QT_COMPAT
 
 /*!
-###
+    Use QX11Info::display() instead.
+
+    \oldcode
+        Display *display = widget->x11Display();
+    \newcode
+        Display *display = widget->x11Info().display();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 Display *QPaintDevice::x11Display() const
 {
@@ -185,7 +193,15 @@ Display *QPaintDevice::x11Display() const
 }
 
 /*!
-    Use QX11Info::appScreen() instead.
+    Use QX11Info::screen() instead.
+
+    \oldcode
+        int screen = widget->x11Screen();
+    \newcode
+        int screen = widget->x11Info().screen();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11Screen() const
 {
@@ -196,7 +212,15 @@ int QPaintDevice::x11Screen() const
 }
 
 /*!
-    Use QX11Info::appVisual() instead.
+    Use QX11Info::visual() instead.
+
+    \oldcode
+        void *visual = widget->x11Visual();
+    \newcode
+        void *visual = widget->x11Info().visual();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 void *QPaintDevice::x11Visual() const
 {
@@ -207,7 +231,15 @@ void *QPaintDevice::x11Visual() const
 }
 
 /*!
-    Use QX11Info::appDepth() instead.
+    Use QX11Info::depth() instead.
+
+    \oldcode
+        int depth = widget->x11Depth();
+    \newcode
+        int depth = widget->x11Info().depth();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11Depth() const
 {
@@ -218,7 +250,15 @@ int QPaintDevice::x11Depth() const
 }
 
 /*!
-    Use QX11Info::appCells() instead.
+    Use QX11Info::cells() instead.
+
+    \oldcode
+        int cells = widget->x11Cells();
+    \newcode
+        int cells = widget->x11Info().cells();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11Cells() const
 {
@@ -229,7 +269,15 @@ int QPaintDevice::x11Cells() const
 }
 
 /*!
-    Use QX11Info::appColormap() instead.
+    Use QX11Info::colormap() instead.
+
+    \oldcode
+        unsigned long screen = widget->x11Colormap();
+    \newcode
+        unsigned long screen = widget->x11Info().colormap();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 Qt::HANDLE QPaintDevice::x11Colormap() const
 {
@@ -240,7 +288,15 @@ Qt::HANDLE QPaintDevice::x11Colormap() const
 }
 
 /*!
-    Use QX11Info::appDefaultColormap() instead.
+    Use QX11Info::isDefaultColormap() instead.
+
+    \oldcode
+        bool isDefault = widget->x11DefaultColormap();
+    \newcode
+        bool isDefault = widget->x11Info().isDefaultColormap();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 bool QPaintDevice::x11DefaultColormap() const
 {
@@ -251,7 +307,15 @@ bool QPaintDevice::x11DefaultColormap() const
 }
 
 /*!
-    Use QX11Info::appDefaultVisual() instead.
+    Use QX11Info::isDefaultVisual() instead.
+
+    \oldcode
+        bool isDefault = widget->x11DefaultVisual();
+    \newcode
+        bool isDefault = widget->x11Info().isDefaultVisual();
+    \endcode
+
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 bool QPaintDevice::x11DefaultVisual() const
 {
@@ -262,67 +326,133 @@ bool QPaintDevice::x11DefaultVisual() const
 }
 
 /*!
-    Use QX11Info::appVisual() instead.
+    Use QX11Info::visual() instead.
+
+    \oldcode
+        void *visual = QPaintDevice::x11AppVisual(screen);
+    \newcode
+        void *visual = qApp->x11Info(screen).visual();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 void *QPaintDevice::x11AppVisual(int screen)
 { return QX11Info::appVisual(screen); }
 
 /*!
-    Use QX11Info::appColormap() instead.
+    Use QX11Info::colormap() instead.
+
+    \oldcode
+        unsigned long colormap = QPaintDevice::x11AppColormap(screen);
+    \newcode
+        unsigned long colormap = qApp->x11Info(screen).colormap();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
 { return QX11Info::appColormap(screen); }
 
 /*!
     Use QX11Info::display() instead.
+
+    \oldcode
+        Display *display = QPaintDevice::x11AppDisplay();
+    \newcode
+        Display *display = qApp->x11Info().display();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 Display *QPaintDevice::x11AppDisplay()
 { return QX11Info::display(); }
 
 /*!
-    Use QX11Info::appScreen() instead.
+    Use QX11Info::screen() instead.
+
+    \oldcode
+        int screen = QPaintDevice::x11AppScreen();
+    \newcode
+        int screen = qApp->x11Info().screen();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 int QPaintDevice::x11AppScreen()
 { return QX11Info::appScreen(); }
 
 /*!
-    Use QX11Info::appDepth() instead.
+    Use QX11Info::depth() instead.
+
+    \oldcode
+        int depth = QPaintDevice::x11AppDepth(screen);
+    \newcode
+        int depth = qApp->x11Info(screen).depth();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 int QPaintDevice::x11AppDepth(int screen)
 { return QX11Info::appDepth(screen); }
 
 /*!
-    Use QX11Info::appCells() instead.
+    Use QX11Info::cells() instead.
+
+    \oldcode
+        int cells = QPaintDevice::x11AppCells(screen);
+    \newcode
+        int cells = qApp->x11Info(screen).cells();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 int QPaintDevice::x11AppCells(int screen)
 { return QX11Info::appCells(screen); }
 
 /*!
-    Use QX11Info::appRootWindow() instead.
+    Use QX11Info::rootWindow() instead.
+
+    \oldcode
+        unsigned long window = QPaintDevice::x11AppRootWindow(screen);
+    \newcode
+        unsigned long window = qApp->x11Info(screen).rootWindow();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 Qt::HANDLE QPaintDevice::x11AppRootWindow(int screen)
 { return QX11Info::appRootWindow(screen); }
 
 /*!
-    Use QX11Info::appDefaultColormap() instead.
+    Use QX11Info::isDefaultColormap() instead.
+
+    \oldcode
+        bool isDefault = QPaintDevice::x11AppDefaultColormap(screen);
+    \newcode
+        bool isDefault = qApp->x11Info(screen).isDefaultColormap();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 bool QPaintDevice::x11AppDefaultColormap(int screen)
 { return QX11Info::appDefaultColormap(screen); }
 
 /*!
-    Use QX11Info::appDefaultVisual() instead.
+    Use QX11Info::isDefaultVisual() instead.
+
+    \oldcode
+        bool isDefault = QPaintDevice::x11AppDefaultVisual(screen);
+    \newcode
+        bool isDefault = qApp->x11Info(screen).isDefaultVisual();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 bool QPaintDevice::x11AppDefaultVisual(int screen)
 { return QX11Info::appDefaultVisual(screen); }
 
 /*!
-    Sets the value returned by x11AppDpiX() to \a dpi for screen
-    \a screen. The default is determined by the display configuration.
-    Changing this value will alter the scaling of fonts and many other
-    metrics and is not recommended. Using this function is not
-    portable.
-
-    \sa x11SetAppDpiY()
+    Use QX11Info::setDpiX() instead.
 */
 void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
 {
@@ -330,13 +460,7 @@ void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
 }
 
 /*!
-    Sets the value returned by x11AppDpiY() to \a dpi for screen
-    \a screen. The default is determined by the display configuration.
-    Changing this value will alter the scaling of fonts and many other
-    metrics and is not recommended. Using this function is not
-    portable.
-
-    \sa x11SetAppDpiX()
+    Use QX11Info::setDpiY() instead.
 */
 void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
 {
@@ -345,12 +469,15 @@ void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
 
 
 /*!
-    Returns the horizontal DPI of the X display (X11 only) for screen
-    \a screen. Using this function is not portable. See
-    QPaintDeviceMetrics for portable access to related information.
-    Using this function is not portable.
+    Use QX11Info::dpiX() instead.
 
-    \sa x11AppDpiY(), x11SetAppDpiX(), QPaintDeviceMetrics::logicalDpiX()
+    \oldcode
+        bool isDefault = QPaintDevice::x11AppDpiX(screen);
+    \newcode
+        bool isDefault = qApp->x11Info(screen).dpiX();
+    \endcode
+
+    \sa QApplication::x11Info()
 */
 int QPaintDevice::x11AppDpiX(int screen)
 {

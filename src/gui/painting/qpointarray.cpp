@@ -175,18 +175,22 @@ void QPointArray::point(int index, int *x, int *y) const
 */
 
 /*!
-  \internal
-  Resizes the array to \a nPoints and sets the points in the array to
-  the values taken from \a points.
+    Resizes the array to \a nPoints and sets the points in the array to
+    the values taken from \a points.
 
-  The example code creates an array with two points (1,2) and (3,4):
-  \code
-    static QCOORD points[] = { 1,2, 3,4 };
-    QPointArray a;
-    a.setPoints(2, points);
-  \endcode
+    The example code creates an array with two points (10, 20) and
+    (30, 40):
 
-  \sa resize(), putPoints()
+    \code
+        static const QCOORD points[] = { 10, 20, 30, 40 };
+        QPointArray a;
+        a.setPoints(2, points);
+    \endcode
+
+    \c QCOORD is a typedef for a signed integer type with at least 32
+    bits.
+
+    \sa resize()
 */
 
 void QPointArray::setPoints(int nPoints, const QCOORD *points)
@@ -205,11 +209,12 @@ void QPointArray::setPoints(int nPoints, const QCOORD *points)
     Resizes the array to \a nPoints and sets the points in the array
     to the values taken from the variable argument list.
 
-    The example code creates an array with two points (1,2) and (3,4):
+    The example code creates an array with two points (10, 20) and
+    (30, 40):
 
     \code
         QPointArray a;
-        a.setPoints(2, 1,2, 3,4);
+        a.setPoints(2, 10, 20, 30, 40);
     \endcode
 
     The points are given as a sequence of integers, starting with \a
@@ -332,7 +337,7 @@ void QPointArray::putPoints(int index, int nPoints, const QPointArray & from, in
 
 /*!
     Returns the bounding rectangle of the points in the array, or
-    QRect(0,0,0,0) if the array is empty.
+    QRect(0, 0, 0, 0) if the array is empty.
 */
 
 QRect QPointArray::boundingRect() const
@@ -414,22 +419,22 @@ static void qtr_elips(QPointArray& a, int off, double dxP, double dyP, double dx
     int i;
     int vx, ux, vy, uy, xJ, yJ;
 
-    vx = xK - xQ;                 // displacements from center
+    vx = xK - xQ;                   // displacements from center
     ux = xK - xP;
     vy = yK - yQ;
     uy = yK - yP;
-    xJ = xP - vx + HALF;          // center of ellipse J
+    xJ = xP - vx + HALF;            // center of ellipse J
     yJ = yP - vy + HALF;
 
     int r;
     ux -= (r = ux >> (2 * m + 3));  // cancel 2nd-order error
     ux -= (r >>= (2 * m + 4));      // cancel 4th-order error
     ux -= r >> (2 * m + 3);         // cancel 6th-order error
-    ux += vx >> (m + 1);          // cancel 1st-order error
+    ux += vx >> (m + 1);            // cancel 1st-order error
     uy -= (r = uy >> (2 * m + 3));  // cancel 2nd-order error
     uy -= (r >>= (2 * m + 4));      // cancel 4th-order error
     uy -= r >> (2 * m + 3);         // cancel 6th-order error
-    uy += vy >> (m + 1);          // cancel 1st-order error
+    uy += vy >> (m + 1);            // cancel 1st-order error
 
     const int qn = a.size() / 4;
     for (i = 0; i < qn; ++i) {
@@ -456,11 +461,11 @@ static void qtr_elips(QPointArray& a, int off, double dxP, double dyP, double dx
     sufficient resolution for pixel accuracy.
 
     Angles are specified in 16ths of a degree, i.e. a full circle
-    equals 5760 (16*360). Positive values mean counter-clockwise,
-    whereas negative values mean the clockwise direction. Zero degrees
-    is at the 3 o'clock position.
+    equals 5760 (16 * 360). Positive values mean counter-clockwise,
+    whereas negative values mean the clockwise direction. Zero
+    degrees is at the 3 o'clock position.
 
-    See the \link qcanvas.html#anglediagram angle diagram\endlink.
+    \sa \link qcanvas.html#anglediagram angle diagram\endlink
 */
 void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMatrix &xf)
 {

@@ -2403,7 +2403,7 @@ bool QImage::isGrayscale() const
 */
 
 /*!
-  \fn QImage QImage::xsmoothScale(const QSize& s, Qt::AspectRatioMode mode) const
+    \fn QImage QImage::smoothScale(const QSize &s, Qt::AspectRatioMode mode) const
 
     \overload
 
@@ -2411,24 +2411,25 @@ bool QImage::isGrayscale() const
 */
 
 /*!
-  \fn QImage QImage::scale(int w, int h, Qt::AspectRatioMode mode) const
+    \fn QImage QImage::scale(int w, int h, Qt::AspectRatioMode aspectRatioMode,
+                             Qt::TransformationMode transformMode) const
 
     Returns a copy of the image scaled to a rectangle of width \a w
-    and height \a h according to the Qt::AspectRatioMode \a mode.
+    and height \a h according to \a aspectRatioMode.
 
     \list
-    \i If \a mode is \c Qt::IgnoreAspectRatio, the image is scaled to (\a w,
-       \a h).
-    \i If \a mode is \c Qt::KeepAspectRatio, the image is scaled to a rectangle
-       as large as possible inside (\a w, \a h), preserving the aspect
-       ratio.
-    \i If \a mode is \c Qt::KeepAspectRatioByExpanding, the image is scaled to a rectangle
-       as small as possible outside (\a w, \a h), preserving the aspect
-       ratio.
+    \i If \a aspectRatioMode is \c Qt::IgnoreAspectRatio, the image
+       is scaled to (\a w, \a h).
+    \i If \a aspectRatioMode is \c Qt::KeepAspectRatio, the image is
+       scaled to a rectangle as large as possible inside (\a w, \a
+       h), preserving the aspect ratio.
+    \i If \a aspectRatioMode is \c Qt::KeepAspectRatioByExpanding,
+       the image is scaled to a rectangle as small as possible
+       outside (\a w, \a h), preserving the aspect ratio.
     \endlist
 
-    If either the width \a w or the height \a h is 0 or negative, this
-    function returns a \link isNull() null\endlink image.
+    If either the width \a w or the height \a h is zero or negative,
+    this function returns a \l{isNull()}{null} image.
 
     \sa scaleWidth() scaleHeight() xForm()
 */

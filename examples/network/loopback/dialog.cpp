@@ -50,10 +50,11 @@ void Dialog::start()
     bytesReceived = 0;
 
     while (!tcpServer.isListening() && !tcpServer.listen()) {
-        int ret = QMessageBox::critical(this, tr("Unable to start the test"),
-                                        tcpServer.errorString(),
-                                        QMessageBox::Cancel,
-                                        QMessageBox::Retry);
+        int ret = QMessageBox::critical(this, tr("Loopback"),
+                                        tr("Unable to start the test: %1.")
+					.arg(tcpServer.errorString()),
+                                        QMessageBox::Retry,
+					QMessageBox::Cancel);
         if (ret == QMessageBox::Cancel)
             return;
     }

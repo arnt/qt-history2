@@ -281,7 +281,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, 
     }
     return out;
 }
-#ifdef QDOC
+#ifdef qdoc
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
 #else

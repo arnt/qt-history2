@@ -99,7 +99,7 @@
     argument in case the style needs it to perform special effects
     (such as animated default buttons on Mac OS X), but it isn't
     mandatory. In fact, you can use QStyle to draw on any paint
-    device, not just widgets, by setting up the QPainter properly.
+    device, not just widgets, by setting the QPainter properly.
 
     QStyleOption has various subclasses for the various types of
     graphical elements that can be drawn. For example, \c
@@ -107,9 +107,8 @@
     documented for each enum value.
 
     To ensure that drawing operations are as fast as possible,
-    QStyleOption and its subclasses are "plain old data" classes,
-    with public data members. See the QStyleOption class
-    documentation for details on how to use it.
+    QStyleOption and its subclasses have public data members. See the
+    QStyleOption class documentation for details on how to use it.
 
     \section1 Creating a Custom Style
 
@@ -135,8 +134,10 @@
     reimplement drawPrimitive() to draw them differently:
 
     \quotefile customstyle/customstyle.cpp
-    \skipto ::drawPrimitive
-    \printuntil /^\}/
+    \skipto CustomStyle::drawPrimitive
+    \printuntil QWindowsStyle::drawPrimitive
+    \printline }
+    \printline }
 
     Notice that we don't use the \c widget argument, except to pass
     it on to QWindowStyle::drawPrimitive(). As mentioned earlier, the

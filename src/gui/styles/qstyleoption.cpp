@@ -23,8 +23,8 @@
     QStyle functions need to draw a graphical element.
 
     For performance reasons, there are few member functions and the
-    access to the variables is direct. The "low-level" feel makes the
-    structures use straightforward and empahsizes that these are
+    access to the variables is direct. This "low-level" feel makes the
+    structures use straightforward and emphasizes that these are
     simply parameters used by the style functions. As a downside, it
     forces developers to be careful to initialize all the variables.
 
@@ -66,9 +66,6 @@
             }
         }
     \endcode
-
-    Unless you implement a custom style, you don't need to use
-    QStyleOption or any of its subclasses.
 
     \sa QStyle
 */

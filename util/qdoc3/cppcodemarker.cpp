@@ -262,13 +262,13 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes )
 
 QString CppCodeMarker::functionBeginRegExp( const QString& funcName )
 {
-    return "^[ \t]*" + QRegExp::escape(funcName) + "[^\n]*(\n[ \t][^\n]*)*\\{";
+    return "^" + QRegExp::escape(funcName) + "$";
 
 }
 
 QString CppCodeMarker::functionEndRegExp( const QString& /* funcName */ )
 {
-    return "^}";
+    return "^\\}$";
 }
 
 QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle style, Status status)

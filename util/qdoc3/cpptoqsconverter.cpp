@@ -129,7 +129,7 @@ QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code,
 	comment = convertComment( qsTree, comment, classesWithNoQ );
 	comments.append( comment );
 
-	int n = indentForBottomLine( program, QChar::null );
+	int n = indentForBottomLine( program, QChar::Null );
 	for ( int i = 0; i < n; i++ )
 	    program.last().prepend( " " );
 
@@ -227,8 +227,8 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	if ( !params.isEmpty() && params != "void" ) {
 	    result += " ";
 	    int i = funcPrototypeRegExp.pos( 4 );
-	    while ( (i = paramRegExp.search(code, i,
-					    QRegExp::CaretAtOffset)) != -1 ) {
+	    while ( (i = paramRegExp.indexIn(code, i,
+					     QRegExp::CaretAtOffset)) != -1 ) {
 		QString dataType = paramRegExp.cap( 1 );
 		QString paramName = paramRegExp.cap( 2 );
 		QString comma = paramRegExp.cap( 3 );

@@ -49,13 +49,6 @@
 #endif
 
 
-/*!
-  \class QPixmap::QPixmapData
-  \brief The QPixmap::QPixmapData class is an internal class.
-  \internal
-*/
-
-
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.
 
@@ -433,23 +426,6 @@ int QPixmap::defaultDepth()
     return QX11Info::appDepth();
 }
 
-
-/*!
-    \fn QPixmap::Optimization QPixmap::optimization() const
-
-    Returns the optimization setting for this pixmap.
-
-    The default optimization setting is \c QPixmap::NormalOptim. You
-    can change this setting in two ways:
-    \list
-    \i Call setDefaultOptimization() to set the default optimization
-    for all new pixmaps.
-    \i Call setOptimization() to set the optimization for individual
-    pixmaps.
-    \endlist
-
-    \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
-*/
 
 /*!
     Sets pixmap drawing optimization for this pixmap.

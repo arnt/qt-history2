@@ -5,7 +5,7 @@
 #ifndef PAGEGENERATOR_H
 #define PAGEGENERATOR_H
 
-#include <qptrstack.h>
+#include <QStack>
 #include <qtextstream.h>
 
 #include "generator.h"
@@ -35,7 +35,7 @@ protected:
 private:
     void generateInnerNode( const InnerNode *node, CodeMarker *marker );
 
-    QPtrStack<QTextStream> outStreamStack;
+    QStack<QTextStream *> outStreamStack;
 };
 
 #endif

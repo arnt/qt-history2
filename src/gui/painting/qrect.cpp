@@ -45,7 +45,7 @@
     positive x axis is from left to right.
 
     A QRect can be constructed with a set of left, top, width and
-    height integers, from two QPoints or from a QPoint and a QSize.
+    height integers, from two \l{QPoint}s or from a QPoint and a QSize.
     After creation the dimensions can be changed, e.g. with setLeft(),
     setRight(), setTop() and setBottom(), or by setting sizes, e.g.
     setWidth(), setHeight() and setSize(). The dimensions can also be
@@ -929,7 +929,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 */
 
 /*!
-    \fn QRectF::QRectF(const QPoint &topLeft, const QPoint &bottomRight)
+    \fn QRectF::QRectF(const QPointF &topLeft, const QPointF &bottomRight)
 
     Constructs a rectangle with \a topLeft as the top-left corner and
     \a bottomRight as the bottom-right corner.
@@ -937,7 +937,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
 
 /*!
-    \fn QRectF::QRectF(const QPoint &topLeft, const QSize &size)
+    \fn QRectF::QRectF(const QPointF &topLeft, const QSize &size)
 
     Constructs a rectangle with \a topLeft as the top-left corner and
     \a size as the rectangle size.
@@ -1062,7 +1062,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QCOORD &QRectF::rLeft()
+    \fn float &QRectF::rLeft()
 
     Returns a reference to the x-coordinate at the left edge of the rectangle.
 
@@ -1070,27 +1070,11 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QCOORD &QRectF::rTop()
+    \fn float &QRectF::rTop()
 
     Returns a reference to the y-coordinate at the top edge of the rectangle.
 
     \sa rLeft(),  rRight(), rBottom()
-*/
-
-/*!
-    \fn QCOORD &QRectF::rRight()
-
-    Returns a reference to the x-coordinate at the right edge of the rectangle.
-
-    \sa rLeft(), rTop(), rBottom()
-*/
-
-/*!
-    \fn QCOORD &QRectF::rBottom()
-
-    Returns a reference to the y-coordinate at the bottom edge of the rectangle.
-
-    \sa rLeft(), rTop(), rRight()
 */
 
 /*!
@@ -1174,7 +1158,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::setTopLeft(const QPoint &point)
+    \fn void QRectF::setTopLeft(const QPointF &point)
 
     Sets the position of the rectangle's top-left corner to lie at the given
     \a point. The size of the rectangle may change. The rectangle's bottom
@@ -1184,7 +1168,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::setBottomRight(const QPoint &point)
+    \fn void QRectF::setBottomRight(const QPointF &point)
 
     Sets the position of the rectangle's bottom-right corner to lie at the given
     \a point. The size of the rectangle may change. The rectangle's top and
@@ -1194,7 +1178,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::setTopRight(const QPoint &point)
+    \fn void QRectF::setTopRight(const QPointF &point)
 
     Sets the position of the rectangle's top-right corner to lie at the given
     \a point. The size of the rectangle may change. The rectangle's bottom
@@ -1204,7 +1188,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn void QRectF::setBottomLeft(const QPoint &point)
+    \fn void QRectF::setBottomLeft(const QPointF &point)
 
     Sets the position of the rectangle's bottom-left corner to lie at the given
     \a point. The size of the rectangle may change. The rectangle's top and
@@ -1214,7 +1198,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QPoint QRectF::topLeft() const
+    \fn QPointF QRectF::topLeft() const
 
     Returns the top-left position of the rectangle.
 
@@ -1222,7 +1206,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QPoint QRectF::bottomRight() const
+    \fn QPointF QRectF::bottomRight() const
 
     Returns the bottom-right position of the rectangle.
 
@@ -1230,7 +1214,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QPoint QRectF::topRight() const
+    \fn QPointF QRectF::topRight() const
 
     Returns the top-right position of the rectangle.
 
@@ -1238,7 +1222,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QPoint QRectF::bottomLeft() const
+    \fn QPointF QRectF::bottomLeft() const
 
     Returns the bottom-left position of the rectangle.
 
@@ -1246,7 +1230,7 @@ QRectF QRectF::normalize() const
 */
 
 /*!
-    \fn QPoint QRectF::center() const
+    \fn QPointF QRectF::center() const
 
     Returns the center point of the rectangle.
 
@@ -1328,7 +1312,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::moveTopLeft(const QPoint &point)
+    \fn void QRectF::moveTopLeft(const QPointF &point)
 
     Moves the rectangle so that the position of its top-left corner
     lies at the given \a point. The size of the rectangle is unchanged.
@@ -1338,7 +1322,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::moveBottomRight(const QPoint &point)
+    \fn void QRectF::moveBottomRight(const QPointF &point)
 
     Moves the rectangle so that the position of its bottom-right corner
     lies at the given \a point. The size of the rectangle is unchanged.
@@ -1348,7 +1332,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::moveTopRight(const QPoint &point)
+    \fn void QRectF::moveTopRight(const QPointF &point)
 
     Moves the rectangle so that the position of its top-right corner
     lies at the given \a point. The size of the rectangle is unchanged.
@@ -1358,7 +1342,7 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::moveBottomLeft(const QPoint &point)
+    \fn void QRectF::moveBottomLeft(const QPointF &point)
 
     Moves the rectangle so that the position of its bottom-left corner
     lies at the given \a point. The size of the rectangle is unchanged.
@@ -1369,8 +1353,6 @@ QRectF QRectF::normalize() const
 
 
 /*!
-    \fn void QRectF::moveCenter(const QPointF &point)
-
     Moves the rectangle so that the position of its center point lies at the
     given \a point. The size of the rectangle is unchanged.
 
@@ -1396,7 +1378,7 @@ void QRectF::moveCenter(const QPointF &p)
 
 
 /*!
-    \fn void QRectF::moveBy(const QPoint &p)
+    \fn void QRectF::moveBy(const QPointF &p)
 
     \overload
 
@@ -1485,35 +1467,22 @@ void QRectF::moveCenter(const QPointF &p)
 
 
 /*!
-    \fn void QRectF::setSize(const QSize &s)
+    \fn void QRectF::setSize(const QSizeF &size)
 
-    Sets the \a size of the rectangle. The top-left corner is not moved.
+    Sets the size of the rectangle to \a size. The top-left corner is
+    not moved.
 
     \sa size(), setWidth(), setHeight()
 */
 
 
 /*!
-    \fn bool QRectF::contains(const QPoint &point, bool proper) const
+    \fn bool QRectF::contains(const QPointF &point) const
 
     Returns true if the given \a point is inside or on the edge of the
     rectangle; otherwise returns false.
-
-    If \a proper is true, this function returns true only if the point is
-    inside the rectangle (not on the edge).
 */
 
-
-/*!
-    \fn bool QRectF::contains(float x, float y, bool proper) const
-    \overload
-
-    Returns true if the point (\a x, \a y) is inside this rectangle;
-    otherwise returns false.
-
-    If \a proper is true, this function returns true only if the point
-    is entirely inside the rectangle (not on the edge).
-*/
 
 /*!
     \fn bool QRectF::contains(float x, float y) const

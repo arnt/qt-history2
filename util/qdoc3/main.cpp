@@ -2,10 +2,12 @@
   main.cpp
 */
 
-#include <qapplication.h>
-#include <qdict.h>
+#include <QtAlgorithms>
+#include <QCoreApplication>
 #include <qdir.h>
+#include <QHash>
 #include <qtranslator.h>
+
 #include <stdlib.h>
 
 #include "ccodeparser.h"
@@ -40,11 +42,11 @@ static const struct {
     { 0, 0 }
 };
 
-static QDict<Tree> trees;
+static QHash<QString, Tree *> trees;
 
 static Tree *treeForLanguage(const QString &lang)
 {
-    Tree *tree = trees[lang];
+    Tree *tree = trees.value(lang);
     if ( tree == 0 ) {
 	tree = new Tree;
 	trees.insert( lang, tree );
@@ -68,7 +70,7 @@ static void printVersion()
     Location::information( tr("qdoc version 3.0") );
 }
 
-static void processQdocFile(const QString &fileName)
+static void processQdocconfFile(const QString &fileName)
 {
     QList<QTranslator *> translators;
 
@@ -84,8 +86,8 @@ static void processQdocFile(const QString &fileName)
     config.load( fileName );
     Location::terminate();
 
-    QString prevCurrentDir = QDir::currentDirPath();
-    QString dir = QFileInfo( fileName ).dirPath();
+    QString prevCurrentDir = QDir::currentPath();
+    QString dir = QFileInfo( fileName ).path();
     if ( !dir.isEmpty() )
 	QDir::setCurrent( dir );
 
@@ -104,7 +106,7 @@ static void processQdocFile(const QString &fileName)
 	if ( !translator->load(*fn) )
 	    config.lastLocation().error( tr("Cannot load translator '%1'")
 					 .arg(*fn) );
-	qApp->installTranslator( translator );
+	QCoreApplication::instance()->installTranslator( translator );
 	translators.append( translator );
 	++fn;
     }
@@ -172,9 +174,7 @@ static void processQdocFile(const QString &fileName)
 
 int main( int argc, char **argv )
 {
-    QApplication app( argc, argv, FALSE );
-
-    trees.setAutoDelete( TRUE );
+    QCoreApplication app(argc, argv);
 
     PolyArchiveExtractor qsaExtractor( QStringList() << "qsa",
 				       "qsauncompress \1 \2" );
@@ -239,12 +239,9 @@ int main( int argc, char **argv )
 	return EXIT_FAILURE;
     }
 
-    QStringList::Iterator qf = qdocFiles.begin();
-    while ( qf != qdocFiles.end() ) {
-	processQdocFile( *qf );
-	++qf;
-    }
+    foreach (QString qf, qdocFiles)
+	processQdocconfFile( qf );
 
-    trees.clear();
+    qDeleteAll(trees);
     return EXIT_SUCCESS;
 }

@@ -208,7 +208,7 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
   operation. If QIOevice::UnspecifiedError is returned, QIODevice will
   use its own idea of the error status.
 
-  \sa QIODeivce::Status, errorString
+  \sa QIODevice::Status, errorString
  */
 QIODevice::Status QFileEngine::errorStatus() const
 {
@@ -228,8 +228,6 @@ QString QFileEngine::errorString() const
 }
 
 /*!
-  \fn uchar *QIOEngine::map(Q_LONGLONG offset, Q_LONGLONG len)
-
   Maps the file contents from \a offset for the given \a number of
   bytes, returning a pointer (uchar *) to the contents. If this fails,
   0 is returned.
@@ -237,25 +235,20 @@ QString QFileEngine::errorString() const
   The default implementation falls back to block reading/writing if
   this function returns 0.
 
-  \sa QFileEngine::unmap()
- */
+  \sa unmap()
+*/
 
-uchar 
-*QFileEngine::map(Q_LONGLONG, Q_LONGLONG) 
+uchar *QFileEngine::map(Q_LONGLONG, Q_LONGLONG) 
 { 
     return 0; 
 }
 
 /*!
-   \fn void QIOEngine::unmap(uchar *data)
-
    Unmap previously mapped file \a data from memory.
 
    \sa QFileEngine::map()
- */
-
-void 
-QFileEngine::unmap(uchar * /*data*/) 
+*/
+void  QFileEngine::unmap(uchar * /*data*/) 
 { 
 }
 

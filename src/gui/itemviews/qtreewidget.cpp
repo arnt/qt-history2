@@ -180,7 +180,7 @@ QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the model index with the given \a row,
   \a column and \a parent.
@@ -217,7 +217,7 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the parent model index of the index given as
   the \a child.
@@ -236,7 +236,7 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the number of rows in the \a parent model index.
 */
@@ -253,7 +253,7 @@ int QTreeModel::rowCount(const QModelIndex &parent) const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the number of columns in the item referred to by
   the given \a index.
@@ -267,7 +267,7 @@ int QTreeModel::columnCount(const QModelIndex &index) const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the data corresponding to the given model \a index
   and \a role.
@@ -285,7 +285,7 @@ QVariant QTreeModel::data(const QModelIndex &index, int role) const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Sets the data for the item specified by the \a index and \a role
   to that referred to by the \a value.
@@ -308,7 +308,7 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the header data corresponding to the given header \a section,
   \a orientation and data \a role.
@@ -323,7 +323,7 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Sets the header data for the item specified by the header \a section,
   \a orientation and data \a role to the given \a value.
@@ -396,7 +396,7 @@ bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns the flags for the item refered to the given \a index.
 */
@@ -413,7 +413,7 @@ QAbstractItemModel::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Returns if the model is sortable, otherwise returns false.
 */
@@ -425,7 +425,7 @@ bool QTreeModel::isSortable() const
 
 /*!
   \internal
-  \reimpl
+  \reimp
 
   Sorts one level of the tree with the given \a parent
   in the given \a order by the values in the given \a column.
@@ -1560,7 +1560,7 @@ void QTreeWidget::removeItem(QTreeWidgetItem *item)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 
 void QTreeWidget::setModel(QAbstractItemModel *model)

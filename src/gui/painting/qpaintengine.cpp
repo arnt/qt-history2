@@ -105,10 +105,10 @@
 */
 
 /*!
-    \fn void QPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+    \fn void QPaintEngine::drawPolygon(const QPolygon &polygon, PolygonDrawMode mode)
 
-    Reimplement this pure virtual function to draw a polygon based on
-    the points in \a pa using the given drawing \a mode.
+    Reimplement this pure virtual function to draw \a polygon using
+    the drawing mode \a mode.
 */
 
 
@@ -171,12 +171,6 @@
 */
 
 /*!
-    \fn void QPaintEngine::drawPoint(const QPoint &point)
-
-    Reimplement this function to draw the given \a point.
-*/
-
-/*!
     Calls drawPoint() to draw every point in the point array \a pa.
 */
 
@@ -187,21 +181,21 @@ void QPaintEngine::drawPoints(const QPolygon &p)
 }
 
 /*!
-    \fn void QPaintEngine::drawEllipse(const QRectF &rectangle)
+    \fn void QPaintEngine::drawEllipse(const QRectF &rect)
 
     Reimplement this function to draw the largest ellipse that can be
-    contained within the given \a rectangle.
+    contained within rectangle \a rect.
 
-    The default implementation calls drawPolygon
+    The default implementation calls drawPolygon().
 
     \sa drawPolygon
 */
 
-void QPaintEngine::drawEllipse(const QRectF &r)
+void QPaintEngine::drawEllipse(const QRectF &rect)
 {
     QPainterPath path;
-    path.moveTo(r.width(), r.height()/2);
-    path.arcTo(r, 0, 360);
+    path.moveTo(rect.width(), rect.height()/2);
+    path.arcTo(rect, 0, 360);
     drawPolygon(path.toFillPolygon(), ConvexMode);
 }
 
@@ -270,15 +264,12 @@ void qt_draw_tile(QPaintEngine *gc, float x, float y, float w, float h,
 
 
 /*!
-    \fn void QPaintEngine::drawTiledPixmap(const QRectF &rectangle, const
-    QPixmap &pixmap, const QPoint &point, Qt::PixmapDrawingMode mode)
-
     Reimplement this function to draw the \a pixmap in the given \a
     rectangle, starting at the given \a point. The pixmap will be
     drawn repeatedly until the \a rectangle is filled using the given
     \a mode.
 */
-void QPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
+void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, const QPointF &p,
                                    Qt::PixmapDrawingMode mode)
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
@@ -286,11 +277,11 @@ void QPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const
     int sw = pixmap.width();
     int sh = pixmap.height();
 
-    if (sw*sh < 8192 && sw*sh < 16*r.width()*r.height()) {
+    if (sw*sh < 8192 && sw*sh < 16*rect.width()*rect.height()) {
         int tw = sw, th = sh;
-        while (tw*th < 32678 && tw < r.width()/2)
+        while (tw*th < 32678 && tw < rect.width()/2)
             tw *= 2;
-        while (tw*th < 32678 && th < r.height()/2)
+        while (tw*th < 32678 && th < rect.height()/2)
             th *= 2;
         QPixmap tile;
         if (pixmap.hasAlphaChannel()) {
@@ -307,9 +298,9 @@ void QPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const
             qt_fill_tile(&tilemask, *mask);
             tile.setMask(tilemask);
         }
-        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y(), mode);
+        qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), tile, p.x(), p.y(), mode);
     } else {
-        qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y(), mode);
+        qt_draw_tile(this, rect.x(), rect.y(), rect.width(), rect.height(), pixmap, p.x(), p.y(), mode);
     }
 }
 
@@ -753,7 +744,7 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, bool enabled)
 
 
 /*!
-  \fn QPaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
+  \fn QPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 
   This function is called when the engine needs to be updated with
   a new brush, specified with \a brush. \a origin describes the brush origin.

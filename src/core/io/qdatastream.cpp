@@ -678,6 +678,7 @@ QDataStream &QDataStream::operator>>(Q_INT64 &i)
 }
 
 
+#if !defined(Q_OS_WIN64)
 /*!
     \fn QDataStream &QDataStream::operator>>(Q_ULONG &i)
     \overload
@@ -686,7 +687,6 @@ QDataStream &QDataStream::operator>>(Q_INT64 &i)
     stream, into \a i, and returns a reference to the stream.
 */
 
-#if !defined(Q_OS_WIN64)
 /*!
     \overload
 
@@ -1016,6 +1016,7 @@ QDataStream &QDataStream::operator<<(Q_INT64 i)
     return *this;
 }
 
+#if !defined(Q_OS_WIN64)
 /*!
     \fn QDataStream &QDataStream::operator<<(Q_ULONG i)
     \overload
@@ -1024,7 +1025,6 @@ QDataStream &QDataStream::operator<<(Q_INT64 i)
     the stream and returns a reference to the stream.
 */
 
-#if !defined(Q_OS_WIN64)
 /*!
     \overload
 

@@ -1,7 +1,5 @@
-TEMPLATE = app
 DEFINES += QDOC2_COMPAT
-QT += compat
-CONFIG  += console
+QT = core
 CONFIG -= resource_fork
 HEADERS += archiveextractor.h \
 	   atom.h \
@@ -78,4 +76,4 @@ SOURCES += archiveextractor.cpp \
 	   tokenizer.cpp \
 	   tree.cpp \
 	   uncompressor.cpp \
-	   $(QTDIR)/tools/designer/editor/yyindent.cpp
+	   yyindent.cpp

@@ -147,6 +147,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024)
 /*!
     \enum QPixmap::ColorMode
 
+    \compat
+
     This enum type defines the color modes that exist for converting
     QImage objects to QPixmap.
 
@@ -186,15 +188,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024)
 
     We recommend using \c DefaultOptim.
 
-*/
-
-/*!
-    \fn HDC QPixmap::winHDC() const
-
-    Returns the pixmap's handle to the device context.
-
-    \warning This function is Windows-specific; using it is
-    non-portable.
 */
 
 QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
@@ -1052,6 +1045,13 @@ QPixmap QPixmap::grabWidget(QWidget * widget, int x, int y, int w, int h)
 
 
 #ifndef Q_WS_WIN
+/*!
+    Returns the pixmap's handle to the device context.
+
+    \warning This function is Windows-specific; using it is
+    non-portable.
+*/
+
 Qt::HANDLE QPixmap::handle() const
 {
     return data->hd;

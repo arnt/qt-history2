@@ -747,9 +747,9 @@ QFile::ungetch(int character)
 */
 
 Q_LONGLONG
-QFile::readLine(char *data, Q_LONGLONG maxlen)
+QFile::readLine(char *data, Q_LONGLONG maxSize)
 {
-    if (maxlen <= 0) // nothing to do
+    if (maxSize <= 0) // nothing to do
         return 0;
     Q_CHECK_PTR(data);
     if (!isOpen()) {
@@ -765,10 +765,10 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
     bool foundEnd = false;
     Q_LONGLONG ret = 0;
     //from buffer
-    while(!foundEnd && !d->buffer.isEmpty() && ret < maxlen) {
-        uint buffered = qMin(maxlen, (Q_LONGLONG)d->buffer.used()), len = 0;
+    while(!foundEnd && !d->buffer.isEmpty() && ret < maxSize) {
+        uint buffered = qMin(maxSize, (Q_LONGLONG)d->buffer.used()), len = 0;
         char *buffer = d->buffer.take(buffered, &buffered);
-        for( ; len < buffered && len < maxlen-ret; len++) {
+        for( ; len < buffered && len < maxSize-ret; len++) {
             if(*(buffer+len) == '\n') {
                 foundEnd = true;
                 len++;
@@ -781,7 +781,7 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
         d->buffer.free(len);
     }
     //from the device
-    while(!foundEnd && ret < maxlen) {
+    while(!foundEnd && ret < maxSize) {
         char *buffer = d->buffer.alloc(read_cache_size);
         Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
         if(got == -1) {
@@ -792,7 +792,7 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
         if(got < read_cache_size)
             d->buffer.truncate(read_cache_size - got);
         uint len = 0;
-        for( ; len < got && len < maxlen-ret; len++) {
+        for( ; len < got && len < maxSize-ret; len++) {
             if(*(buffer+len) == '\n') {
                 foundEnd = true;
                 len++;
@@ -804,17 +804,15 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
         ret += len;
         d->buffer.free(len);
     }
-    if(ret > 0 && ret != maxlen) 
+    if(ret > 0 && ret != maxSize) 
         *(data + ret) = '\0';
     return ret;
 #else
-    return QIODevice::readLine(data, maxlen);
+    return QIODevice::readLine(data, maxSize);
 #endif
 }
 
 /*!
-    \fn Q_LONG QFile::readLine(QString &string, Q_LONG maximum)
-
     Reads a line of text.
 
     Reads bytes from the file into the \a string until end-of-line or
@@ -832,11 +830,11 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
 */
 
 Q_LONGLONG
-QFile::readLine(QString &s, Q_LONGLONG maxlen)
+QFile::readLine(QString &s, Q_LONGLONG maxSize)
 {
     QByteArray ba;
-    ba.resize(maxlen);
-    Q_LONGLONG l = readLine(ba.data(), maxlen);
+    ba.resize(maxSize);
+    Q_LONGLONG l = readLine(ba.data(), maxSize);
     if (l > 0)
         s = QString::fromLatin1(ba);
     return l;

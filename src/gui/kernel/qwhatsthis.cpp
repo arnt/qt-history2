@@ -47,7 +47,7 @@
 #endif
 
 /*!
-    \class QWhatsThis qwhatsthis.h
+    \class QWhatsThis
     \brief The QWhatsThis class provides a simple description of any
     widget, i.e. answering the question "What's this?".
 
@@ -85,8 +85,8 @@
     See QStyleSheet::defaultSheet() and
     QStyleSheet::mightBeRichText() for details.
 
-    \quotefile action/application.cpp
-    \skipto fileOpenText
+    \quotefile snippets/whatsthis/whatsthis.cpp
+    \skipto newAct = 
     \printuntil setWhatsThis
 
     An alternative way to enter "What's this?" mode is to use the

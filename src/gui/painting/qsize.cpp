@@ -507,9 +507,9 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn QSizeF::QSizeF(int w, int h)
+    \fn QSizeF::QSizeF(float width, float height)
 
-    Constructs a size with width \a w and height \a h.
+    Constructs a size with width \a width and height \a height.
 */
 
 /*!
@@ -556,17 +556,17 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
-    \fn void QSizeF::setWidth(int w)
+    \fn void QSizeF::setWidth(float width)
 
-    Sets the width to \a w.
+    Sets the width to \a width.
 
     \sa width() setHeight() expandedTo() boundedTo() scale() transpose()
 */
 
 /*!
-    \fn void QSizeF::setHeight(int h)
+    \fn void QSizeF::setHeight(float height)
 
-    Sets the height to \a h.
+    Sets the height to \a height.
 
     \sa height() setWidth() expandedTo() boundedTo() scale() transpose()
 */
@@ -794,7 +794,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(double c, const QSizeF &s)
+    \fn const QSizeF operator*(float c, const QSizeF &s)
 
     \overload
     \relates QSizeF
@@ -814,7 +814,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator/=(double c)
+    \fn QSizeF &QSizeF::operator/=(float c)
 
     \overload
 
@@ -837,7 +837,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator/(const QSizeF &s, double c)
+    \fn const QSizeF operator/(const QSizeF &s, float c)
 
     \relates QSizeF
     \overload

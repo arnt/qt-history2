@@ -32,12 +32,6 @@ extern const uchar *qt_get_bitflip_array();                // defined in qimage.
 
 static bool mcp_system_unstable = false;
 
-/*!
-  \class QPixmap::QMCPI
-  \brief The QPixmap::QMCPI class is an internal class.
-  \internal
-*/
-
 /*
   The QMultiCellPixmap class is strictly internal and used to
   implement the setOptimization(MemoryOptim) feature for Win9x.

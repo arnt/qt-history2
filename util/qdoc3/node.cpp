@@ -42,7 +42,7 @@ Node::Status Node::inheritedStatus() const
     Status parentStatus = Commendable;
     if (par)
 	parentStatus = inheritedStatus();
-    return QMIN( sta, parentStatus );
+    return (Status)qMin((int)sta, (int)parentStatus);
 }
 
 Node::ThreadSafeness Node::threadSafeness() const
@@ -215,7 +215,7 @@ int InnerNode::overloadNumber( const FunctionNode *func ) const
     if ( primaryFunctionMap[func->name()] == node ) {
 	return 1;
     } else {
-	return secondaryFunctionMap[func->name()].findIndex( node ) + 2;
+	return secondaryFunctionMap[func->name()].indexOf(node) + 2;
     }
 }
 
@@ -265,8 +265,10 @@ void InnerNode::addChild( Node *child )
     children.append( child );
     if ( child->type() == Function ) {
 	FunctionNode *func = (FunctionNode *) child;
-	if ( *primaryFunctionMap.insert(func->name(), func, FALSE) != func ) {
-	    NodeList& secs = secondaryFunctionMap[func->name()];
+	if (!primaryFunctionMap.contains(func->name())) {
+            primaryFunctionMap.insert(func->name(), func);
+	} else {
+	    NodeList &secs = secondaryFunctionMap[func->name()];
 	    secs.append( func );
 	}
     } else {
@@ -283,10 +285,9 @@ void InnerNode::removeChild( Node *child )
 	NodeList& secs = secondaryFunctionMap[child->name()];
 	if ( *prim == child ) {
 	    if ( secs.isEmpty() ) {
-		primaryFunctionMap.remove( child->name() );
+		primaryFunctionMap.remove(child->name());
 	    } else {
-		primaryFunctionMap.replace( child->name(), secs.first() );
-		secs.erase( secs.begin() );
+		primaryFunctionMap.insert(child->name(), secs.takeFirst());
 	    }
 	} else {
 	    secs.removeAll( child );

@@ -395,7 +395,7 @@
 */
 
 /*!
-    \fn QDataStream &operator<<(QDataStream &out, QStringList &list)
+    \fn QDataStream &operator<<(QDataStream &out, const QStringList &list)
 
     Writes the string list \a list to stream \a out.
 

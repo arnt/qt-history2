@@ -198,85 +198,8 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
 #endif
 
-
-/*****************************************************************************
-  Debug output routines
- *****************************************************************************/
-
-/*!
-    \fn void qDebug(const char *msg, ...)
-
-    \relates QApplication
-
-    Calls the message handler with the debug message \a msg. If no
-    message handler has been installed, the message is printed to
-    stderr. Under Windows, the message is sent to the debugger. This
-    function does nothing if \c QT_NO_DEBUG was defined during
-    compilation.
-
-    A more convenient syntax is also available:
-    \code
-        qDebug() << "Brush:" << myQBrush << "Other value:" << i;
-    \endcode
-    This syntax automatically puts a single space between each item,
-    and outputs a newline at the end. It supports many C++ and Qt
-    types.
-
-    If you pass the function a format string and a list of arguments,
-    it works in similar way to the C printf() function.
-
-    Example:
-    \code
-        qDebug("my window handle = %x", myWidget->id());
-    \endcode
-
-    \warning The internal buffer is limited to 8196 bytes (including
-    the '\0'-terminator).
-
-    \warning Passing (const char *)0 as argument to qDebug might lead
-    to crashes on certain platforms due to the platforms printf implementation.
-
-    \sa qWarning(), qFatal(), qInstallMsgHandler(),
-        \link debug.html Debugging\endlink
-*/
-
-/*!
-    \fn void qWarning(const char *msg, ...)
-
-    \relates QApplication
-
-    Calls the message handler with the warning message \a msg. If no
-    message handler has been installed, the message is printed to
-    stderr. Under Windows, the message is sent to the debugger. This
-    function does nothing if \c QT_NO_DEBUG was defined during
-    compilation; it exits if the environment variable \c
-    QT_FATAL_WARNINGS is defined.
-
-    This function takes a format string and a list of arguments,
-    similar to the C printf() function.
-
-    Example:
-    \code
-        void f(int c)
-        {
-            if (c > 200)
-                qWarning("f: bad argument, c == %d", c);
-        }
-    \endcode
-
-    \warning The internal buffer is limited to 8196 bytes (including
-    the '\0'-terminator).
-
-    \warning Passing (const char *)0 as argument to qWarning might lead
-    to crashes on certain platforms due to the platforms printf implementation.
-
-    \sa qDebug(), qFatal(), qSystemWarning(), qInstallMsgHandler(),
-    \link debug.html Debugging\endlink
-*/
-
-
 static QtMsgHandler handler = 0;                // pointer to debug handler
-static const int QT_BUFFER_LENGTH = 8196;        // internal buffer length
+static const int QT_BUFFER_LENGTH = 8192;       // internal buffer length
 
 #ifdef Q_CC_MWERKS
 
@@ -298,8 +221,6 @@ static void mac_default_handler(const char *msg)
 
 
 /*!
-    \fn void qFatal(const char *msg, ...)
-
     \relates QApplication
 
     Prints a fatal error message \a msg and exits, or calls the
@@ -314,15 +235,15 @@ static void mac_default_handler(const char *msg)
         {
             if (b == 0)                                // program error
                 qFatal("divide: cannot divide by zero");
-            return a/b;
+            return a / b;
         }
     \endcode
 
     Under X11, the text is printed to stderr. Under Windows, the text
     is sent to the debugger.
 
-    \warning The internal buffer is limited to 8196 bytes (including
-    the '\0'-terminator).
+    \warning The internal buffer is limited to 8192 bytes, including
+    the '\0'-terminator.
 
     \warning Passing (const char *)0 as argument to qFatal might lead
     to crashes on certain platforms due to the platforms printf implementation.
@@ -422,30 +343,28 @@ Q_CORE_EXPORT QString qt_errorstr(int errorCode)
 }
 
 /*!
-  \fn void qSystemWarning(const char *msg, ...)
-  \relates QApplication
+    \relates QApplication
 
-  Prints the message \a msg together with the system's last error
-  message (if available), or calls the message handler (if it has been
-  installed). Use this method to notify the user of failures that are
-  outside the control of the application.
+    Prints the message \a msg together with the system's last error
+    message (if available), or calls the message handler (if it has been
+    installed). Use this method to notify the user of failures that are
+    outside the control of the application.
 
-  This function takes a format string and a list of arguments, similar
-  to the C printf() function.
+    This function takes a format string and a list of arguments, similar
+    to the C printf() function.
 
-  Under X11, the text is printed to stderr. Under Windows, the text is
-  sent to the debugger.
+    Under X11, the text is printed to stderr. Under Windows, the text is
+    sent to the debugger.
 
-  \warning The internal buffer is limited to 8196 bytes (including the
-  '\0'-terminator).
+    \warning The internal buffer is limited to 8192 bytes, including
+    the '\0'-terminator.
 
-  \warning Passing (const char *)0 as argument to qSystemWarning might
-  lead to crashes on certain platforms due to the platforms printf
-  implementation.
+    \warning Passing (const char *)0 as argument to qSystemWarning might
+    lead to crashes on certain platforms due to the platforms printf
+    implementation.
 
-  \sa qDebug(), qFatal(), qWarning(), qInstallMsgHandler(), \link
-  debug.html Debugging\endlink
-
+    \sa qDebug(), qFatal(), qWarning(), qInstallMsgHandler(), \link
+    debug.html Debugging\endlink
 */
 void qSystemWarning(const char *msg, ...)
 {
@@ -728,6 +647,40 @@ void *qMemCopy(void *dest, const void *src, size_t n) { return memcpy(dest, src,
 void *qMemSet(void *dest, int c, size_t n) { return memset(dest, c, n); }
 
 #undef qDebug
+/*!
+    \relates QApplication
+
+    Calls the message handler with the debug message \a msg. If no
+    message handler has been installed, the message is printed to
+    stderr. Under Windows, the message is sent to the debugger. This
+    function does nothing if \c QT_NO_DEBUG was defined during
+    compilation.
+
+    A more convenient syntax is also available:
+    \code
+        qDebug() << "Brush:" << myQBrush << "Other value:" << i;
+    \endcode
+    This syntax automatically puts a single space between each item,
+    and outputs a newline at the end. It supports many C++ and Qt
+    types.
+
+    If you pass the function a format string and a list of arguments,
+    it works in similar way to the C printf() function.
+
+    Example:
+    \code
+        qDebug("my window handle = %x", myWidget->id());
+    \endcode
+
+    \warning The internal buffer is limited to 8192 bytes, including
+    the '\0'-terminator.
+
+    \warning Passing (const char *)0 as argument to qDebug might lead
+    to crashes on certain platforms due to the platform's printf() implementation.
+
+    \sa qWarning(), qFatal(), qInstallMsgHandler(),
+        \link debug.html Debugging\endlink
+*/
 void qDebug(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
@@ -754,6 +707,39 @@ void qDebug(const char *msg, ...)
 }
 
 #undef qWarning
+
+/*!
+    \relates QApplication
+
+    Calls the message handler with the warning message \a msg. If no
+    message handler has been installed, the message is printed to
+    stderr. Under Windows, the message is sent to the debugger. This
+    function does nothing if \c QT_NO_DEBUG was defined during
+    compilation; it exits if the environment variable \c
+    QT_FATAL_WARNINGS is defined.
+
+    This function takes a format string and a list of arguments,
+    similar to the C printf() function.
+
+    Example:
+    \code
+        void f(int c)
+        {
+            if (c > 200)
+                qWarning("f: bad argument, c == %d", c);
+        }
+    \endcode
+
+    \warning The internal buffer is limited to 8192 bytes, including
+    the '\0'-terminator.
+
+    \warning Passing (const char *)0 as argument to qWarning might lead
+    to crashes on certain platforms due to the platforms printf implementation.
+
+    \sa qDebug(), qFatal(), qSystemWarning(), qInstallMsgHandler(),
+    \link debug.html Debugging\endlink
+*/
+
 void qWarning(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];

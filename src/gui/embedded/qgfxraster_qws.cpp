@@ -2421,17 +2421,15 @@ void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
+    \internal
 
-\internal
-
-This is an internal method used to optimise blt's from paletted to paletted
-data, where the palettes are different for each. A lookup table
-indexed by the source value providing the destination value is
-filled in. \a cols is the source data's color lookup table,
-\a numcols the number of entries in it. If \a cols is 0 some default
-values are put in (this is for 1bpp sources which don't have
-a palette).
+    This is an internal method used to optimise blt's from paletted to paletted
+    data, where the palettes are different for each. A lookup table
+    indexed by the source value providing the destination value is
+    filled in. \a cols is the source data's color lookup table,
+    \a numcols the number of entries in it. If \a cols is 0 some default
+    values are put in (this is for 1bpp sources which don't have
+    a palette).
 */
 
 template <const int depth, const int type>
@@ -3867,26 +3865,21 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1,int x2,
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
-                                                    unsigned char* l,
-                                                    unsigned char * srcdata,
-                                                    unsigned char * alphas)
+    \internal
 
-\internal
+    This is similar to hImageLineUnclipped but handles the more complex
+    alpha blending modes (InlineAlpha, SeparateAlpha, SolidAlpha).
+    Blending is a simple averaging between the source and destination r, g and b
+    values using the 8-bit source alpha value -
+    that is, for each of r, g and b the result is
 
-This is similar to hImageLineUnclipped but handles the more complex
-alpha blending modes (InlineAlpha, SeparateAlpha, SolidAlpha).
-Blending is a simple averaging between the source and destination r, g and b
-values using the 8-bit source alpha value -
-that is, for each of r, g and b the result is
+    (source - destination * alpha) / 256 + destination
 
-(source - destination * alpha) / 256 + destination
-
-Note that since blending requires some per-pixel computation and a read-write
-access on the destination it tends to be slower than the simpler alpha
-blending modes. \a x1 and \a x2 specify where to draw in the destination,
-\a l is the pointer to the scanline to draw into, \a srcdata is the source
-pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
+    Note that since blending requires some per-pixel computation and a read-write
+    access on the destination it tends to be slower than the simpler alpha
+    blending modes. \a x1 and \a x2 specify where to draw in the destination,
+    \a l is the pointer to the scanline to draw into, \a srcdata is the source
+    pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
 */
 
 template <const int depth, const int type>
@@ -6050,11 +6043,10 @@ template class QGfxRaster<32,0>;
 #endif
 
 /*!
-\fn Qfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
-Creates a gfx on an arbitrary buffer \a bytes, width \a w and height \a h in
-pixels, depth \a d and \a linestep (length in bytes of each line in the
-buffer). Accelerated drivers can check to see if \a bytes points into
-graphics memory and create an accelerated Gfx.
+    Creates a gfx on an arbitrary buffer \a bytes, width \a w and height \a h in
+    pixels, depth \a d and \a linestep (length in bytes of each line in the
+    buffer). Accelerated drivers can check to see if \a bytes points into
+    graphics memory and create an accelerated Gfx.
 */
 
 QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)

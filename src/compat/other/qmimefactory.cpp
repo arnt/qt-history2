@@ -26,19 +26,6 @@
 #include "qcleanuphandler.h"
 #include "private/qtextimagehandler_p.h"
 
-/*!
-    \class QMimeSource
-    \brief The QMimeSource class is an abstraction of objects which provide formatted data of a certain MIME type.
-
-    \compat
-
-    \link dnd.html Drag-and-drop\endlink and
-    \link QClipboard clipboard\endlink use this abstraction.
-
-    \sa \link http://www.isi.edu/in-notes/iana/assignments/media-types/
-            IANA list of MIME media types\endlink
-*/
-
 static QMimeSourceFactory* defaultfactory = 0;
 static QSingleCleanupHandler<QMimeSourceFactory> qmime_cleanup_factory;
 

@@ -1347,11 +1347,6 @@ void QPainter::setClipPath(const QPainterPath &path)
 }
 
 /*!
-  \internal
-
-*/
-
-/*!
     Draws the outline (strokes) the path \a path with the pen specified
     by \a pen
 */
@@ -2905,12 +2900,6 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
 
 
 /*!
-  \internal
-*/
-
-
-
-/*!
     Sets the render hints supplied in \a hints. Several render hints
     can be OR'ed together in \a hints.
 */
@@ -3997,7 +3986,8 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \fn void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr, int conversionFlags = 0)
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr,
+                                 Qt::ImageConversionFlags conversionFlags = 0)
 
     Draw a pixmap instead.
 
@@ -4023,7 +4013,9 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \fn void QPainter::drawImage(int x, int y, const QImage &image, int sx, int sy, int sw, int sh, int conversionFlags)
+    \fn void QPainter::drawImage(int x, int y, const QImage &image,
+                                 int sx, int sy, int sw, int sh,
+                                 Qt::ImageConversionFlags conversionFlags)
 
     Draw a pixmap instead.
 

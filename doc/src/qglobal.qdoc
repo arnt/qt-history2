@@ -1,4 +1,4 @@
-/*! \headerfile <qglobal.h>
+/*! \headerfile <QtGlobal>
 
 */
 
@@ -54,10 +54,10 @@
 /*! \typedef Q_ULONG
 */
 
-/*! \typedef Q_LLONG
+/*! \typedef Q_LONGLONG
 */
 
-/*! \typedef Q_ULLONG
+/*! \typedef Q_ULONGLONG
 */
 
 /*! \macro Q_INT64_C(constant)

@@ -335,7 +335,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     openedCommands.push( CMD_OMIT );
     quoter.reset();
 
-    CodeMarker *marker;
+    CodeMarker *marker = 0;
     QString link;
     QString x;
     QStack<bool> preprocessorSkipping;
@@ -2226,7 +2226,7 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
 	}
     }
 
-    QString dirPath = QFileInfo(filePath).dirPath();
+    QString dirPath = QFileInfo(filePath).path();
     CodeMarker *marker = CodeMarker::markerForFileName(fileName);
     quoter.quoteFromFile(userFriendlyFilePath, code, marker->markedUpCode(code, 0, dirPath));
     return marker;

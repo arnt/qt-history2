@@ -110,7 +110,7 @@
 
     If the user presses the Esc key in a dialog, QDialog::reject()
     will be called. This will cause the window to close: the \link
-    QCloseEvent closeEvent \endlink cannot be \link
+    QCloseEvent close event \endlink cannot be \link
     QCloseEvent::ignore() ignored \endlink.
 
     \target extensibility
@@ -130,7 +130,7 @@
     showExtension().
 
     \target return
-    \section1 Return value (modal dialogs)
+    \section1 Return Value (Modal Dialogs)
 
     Modal dialogs are often used in situations where a return value is
     required, e.g. to indicate whether the user pressed "OK" or
@@ -141,28 +141,18 @@
     been destroyed.
 
     \target examples
-    \section1 Examples
+    \section1 Code Examples
 
-    A modal dialog.
+    A modal dialog:
 
-    \quotefile network/networkprotocol/view.cpp
-    \skipto QFileDialog *dlg
-    \printuntil return
+    \quotefunction snippets/dialogs/dialogs.cpp void EditorWindow::countWords()
 
-    A modeless dialog. After the show() call, control returns to the main
-    event loop.
-    \quotefile life/main.cpp
-    \skipto argv
-    \printuntil QApplication
-    \skipto scale
-    \printline
-    \skipto LifeDialog
-    \printuntil show
-    \skipto exec
-    \printuntil }
+    A modeless dialog:
 
-    \sa QTabDialog QWidget QProgressDialog
-    \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
+    \quotefunction snippets/dialogs/dialogs.cpp void EditorWindow::find()
+
+    \sa QTabDialog, QWidget, QProgressDialog,
+        \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
 */
 
 /*! \enum QDialog::DialogCode
@@ -171,7 +161,6 @@
 
     \value Accepted
     \value Rejected
-
 */
 
 /*!

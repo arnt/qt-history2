@@ -1733,6 +1733,16 @@ QString QDir::nameFilter() const
 
 /*!
     Use setNameFilters() instead.
+
+    \oldcode
+        QString filter = "*.cpp *.cxx *.cc";
+        dir.setNameFilter(filter);
+    \newcode
+        QString filter = "*.cpp *.cxx *.cc";
+	dir.setNameFitlers(filter.split(' '));
+    \endcode
+
+    \omit ### Explain the semicolon behavior \endomit
 */
 void QDir::setNameFilter(const QString &nameFilter)
 {

@@ -25,7 +25,7 @@
 
 
 /*!
-    \class QProcess qprocess.h
+    \class QProcess
 
     \brief The QProcess class is used to start external programs and
     to communicate with them.
@@ -81,39 +81,6 @@
     you \e really want to terminate the program, without it having any
     chance to clean up, you can use kill().
 
-    As an example, suppose we want to start the \c uic command (a Qt
-    command line tool used with \e{Qt Designer}) and perform some
-    operations on the output (the \c uic outputs the code it generates
-    to standard output by default). Suppose further that we want to
-    run the program on the file "small_dialog.ui" with the command
-    line options "-tr i18n". On the command line we would write:
-    \code
-    uic -tr i18n small_dialog.ui
-    \endcode
-
-    \quotefile process/process.cpp
-
-    A code snippet for this with the QProcess class might look like
-    this:
-
-    \skipto UicManager::UicManager()
-    \printline UicManager::UicManager()
-    \printline {
-    \skipto proc = new QProcess(this);
-    \printline proc = new QProcess(this);
-    \skipto proc->addArgument("uic");
-    \printuntil this, SLOT(readFromStdout()));
-    \skipto if (!proc->start()) {
-    \printuntil // error handling
-    \skipto }
-    \printline }
-    \printline }
-
-    \skipto void UicManager::readFromStdout()
-    \printuntil // Bear in mind that the data might be output in chunks.
-    \skipto }
-    \printline }
-
     Although you may need quotes for a file named on the command line
     (e.g. if it contains spaces) you shouldn't use extra quotes for
     arguments passed to addArgument() or setArguments().
@@ -148,7 +115,7 @@
     pine and mutt) but also programs which require the user to enter a password
     (like su and ssh).
 
-    \section1 Notes for Windows users
+    \section1 Notes for Windows Users
 
     Some Windows commands, for example, \c dir, are not provided by
     separate applications, but by the command interpreter.

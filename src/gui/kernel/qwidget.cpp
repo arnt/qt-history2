@@ -1154,7 +1154,6 @@ QRect QWidgetPrivate::clipRect() const
 
 /*!
     \fn void QPixmap::fill(const QWidget *widget, const QPoint &offset)
-    \overload
 
     Fills the pixmap with the \a widget's background color or pixmap.
 
@@ -1167,16 +1166,6 @@ QRect QWidgetPrivate::clipRect() const
     the background color of the widget.
 */
 
-
-/*!
-  \fn void QPixmap::fill( const QWidget *widget, const QPoint &offset )
-
-    \overload
-
-    Fills the pixmap with the \a widget's background color or pixmap.
-    If the background is empty, nothing is done. \a offset is
-    an offset in the widget.
-*/
 void QPixmap::fill( const QWidget *widget, const QPoint &offset )
 {
     QPoint offs = offset;
