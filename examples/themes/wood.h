@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/wood.h#1 $
+** $Id: //depot/qt/main/examples/themes/wood.h#2 $
 **
 ** Definition of something or other
 **
@@ -13,11 +13,6 @@
 #define WOOD_H
 
 #include <qmotifstyle.h>
-
-#ifdef _CC_MSVC_
-//workaround for Visual C++ overloaded function bug
-#include "qapplication.h"
-#endif
 
 class NorwegianWoodStyle : public QMotifStyle
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/metal.h#1 $
+** $Id: //depot/qt/main/examples/themes/metal.h#2 $
 **
 ** Definition of something or other
 **
@@ -14,11 +14,6 @@
 
 #include <qwindowsstyle.h>
 #include <qpalette.h>
-
-#ifdef _CC_MSVC_
-//workaround for Visual C++ overloaded function bug
-#include "qapplication.h"
-#endif
 
 class MetalStyle : public QWindowsStyle
 {
