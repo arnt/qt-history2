@@ -116,8 +116,8 @@ for (var p in validPlatforms) {
   	    print("Copying checkout...");
   	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
   	    var platDir = distDir + "/" + platName;
-  	    Process.execute(["cp", "-r", checkoutDir, platDir]);
-	    Process.execute(["chmod", "-R", "ug+w", platDir]);
+  	    execute(["cp", "-r", checkoutDir, platDir]);
+	    execute(["chmod", "-R", "ug+w", platDir]);
 
 	    //copying dist files
 	    print("Copying dist files...");
@@ -137,6 +137,10 @@ for (var p in validPlatforms) {
 		       getFileList(platDir),
   		       [].concat(platformRemove[platform]).concat(editionRemove[edition]),
   		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
+
+	    // replace tags (like THISYEAR etc.)
+	    print("Traversing all txt files and replacing tags...");
+	    replaceTags(platDir, getFileList(platDir), platform, edition);
 
   	    // package directory
 	    print("Compressing and packaging file(s)...")
@@ -256,13 +260,13 @@ function initialize()
 function checkTools()
 {
     try {
-	Process.execute([qmakeCommand, "-help"]);
-	Process.execute("zip -help");
-	Process.execute("tar --help");
-	Process.execute("gzip -h");
-	Process.execute("bzip2 -h");
-	Process.execute("cp --help");
-	Process.execute(p4Command);
+	execute([qmakeCommand, "-help"]);
+	execute("zip -help");
+	execute("tar --help");
+	execute("gzip -h");
+ 	execute("bzip2 -h");
+	execute("cp --help");
+	execute(p4Command);
     } catch (e) {
 	throw "Tool failed: %1".arg(e);
     }
@@ -275,26 +279,13 @@ function buildQdoc()
 {
     var dir = new Dir(qdocDir);
     dir.setCurrent();
-    Process.execute("%1 qdoc.pro".arg(qmakeCommand));
-    if (Process.execute("make") != 0)
+    execute("%1 qdoc.pro".arg(qmakeCommand));
+    if (execute("make") != 0)
 	throw "Failed to build qdoc:\n %1".arg(Process.stderr);
     // test qdoc
-    Process.execute( [qdocCommand, "-help"] );
+    execute( [qdocCommand, "--help"] );
 }
 
-/************************************************************
- * Builds and checks qpkg
- */
-function buildQpkg()
-{
-    var dir = new Dir(qpkgDir);
-    dir.setCurrent();
-    Process.execute("%1 package.pro".arg(qmakeCommand));
-    if (Process.execute("make") != 0)
-	throw "Failed to build qpkg:\n %1".arg(Process.stderr);
-    // test qpkg
-    Process.execute( [qpkgCommand, "-help"] );
-}
 
 /************************************************************
  * checkouts from P4 and puts everything in checkoutDir
@@ -303,19 +294,19 @@ function checkout()
 {
     // check that the branch exist
     var branchPath = "//depot/qt/" + options["branch"];
-    Process.execute([p4Command, "fstat", branchPath + "/configure"]);
+    execute([p4Command, "fstat", branchPath + "/configure"]);
     if (Process.stdout.find("depotFile") == -1)
 	throw "Branch: " + branchPath + " does not exist.";
     
     // check that the label exists
     var label = "qt/" + options["version"];
-    Process.execute([p4Command, "labels", branchPath + "/configure"]);
+    execute([p4Command, "labels", branchPath + "/configure"]);
     if (Process.stdout.find("Label " + label + " ") == -1)
 	throw "Label: " + label + " does not exist, or not in this branch.";
 
     // generate clientSpec
     var tmpClient="qt-release-tmp-" + user;
-    Process.execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
+    execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
     var clientSpec = Process.stdout.split("\n");
     for (var i in clientSpec) {
 	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + distDir);
@@ -324,10 +315,10 @@ function checkout()
     }
     // save clientSpec
     clientSpec = clientSpec.join("\n");
-    Process.execute([p4Command, "client", "-i"], clientSpec);
+    execute([p4Command, "client", "-i"], clientSpec);
 
     // checkout
-    Process.execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + label]);
+    execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + label]);
 
     // test for checkoutDir
     if (!File.exists(checkoutDir))
@@ -422,21 +413,21 @@ function compress(packageDir, platform, edition)
 	    // add the binary and text files to the zip file in in two big goes
 	    dir.setCurrent(); //  current dir is parent of packageDir
 	    if (binaryFiles.length > 0)
-		Process.execute(["zip", "-9q", zipFile, "-@"], binaryFiles.join("\n"));
+		execute(["zip", "-9q", zipFile, "-@"], binaryFiles.join("\n"));
 	    if (textFiles.length > 0)
-		Process.execute(["zip", "-l9q", zipFile, "-@"], textFiles.join("\n"));
+		execute(["zip", "-l9q", zipFile, "-@"], textFiles.join("\n"));
 	}
     } else {
 	var tarFile = outputDir + "/" + packageName + ".tar";
-	Process.execute(["tar", "-cf", tarFile, packageName]);
+	execute(["tar", "-cf", tarFile, packageName]);
 	if (!File.exists(tarFile))
 	    throw "Failed to produce %1.".arg(tarFile);
 	
  	if (options["bzip"]) {
- 	    Process.execute(["bzip2", "-zkf", tarFile]);
+ 	    execute(["bzip2", "-zkf", tarFile]);
  	}
  	if (options["gzip"]) {
- 	    Process.execute(["gzip", "-f", tarFile]);
+ 	    execute(["gzip", "-f", tarFile]);
  	}
 	// remove .tar
 	if (File.exists(tarFile))
@@ -514,19 +505,19 @@ function copyDist(packageDir, platform, edition)
     //copies changes file to root
     var changesFile = packageDir + "/dist/changes-" + options["version"];
     if (File.exists(changesFile))
-	Process.execute(["cp", changesFile, packageDir]);
+	execute(["cp", changesFile, packageDir]);
     
     //copies default README to root
     var readmeFile = packageDir + "/dist/README";
     if (File.exists(readmeFile))
-	Process.execute(["cp", readmeFile, packageDir]);
+	execute(["cp", readmeFile, packageDir]);
 
     // copies any platform specific files
     for (var i in platformFiles) {
 	var fileName = platformFiles[i];
 	var absFileName = packageDir + "/dist/" + platform + "/" + fileName;
 	if (File.exists(absFileName) && File.isFile(absFileName))
-	    Process.execute(["cp", absFileName, packageDir + "/" + fileName]);
+	    execute(["cp", absFileName, packageDir + "/" + fileName]);
     }
 
     // copies any edition specific files
@@ -534,7 +525,7 @@ function copyDist(packageDir, platform, edition)
 	var fileName = editionFiles[i];
 	var absFileName = packageDir + "/dist/" + edition + "/" + fileName;
 	if (File.exists(absFileName) && File.isFile(absFileName))
-	    Process.execute(["cp", absFileName, packageDir + "/" + fileName]);
+	    execute(["cp", absFileName, packageDir + "/" + fileName]);
     }
 
     // rename any LICENSE and LICENSE-US to hidden . files
@@ -566,9 +557,9 @@ function syncqt(packageDir, platform)
     System.setenv("QTDIR", packageDir);
     var syncqtCommand = packageDir + "/bin/syncqt";
     if (platform == "win")
-	Process.execute([syncqtCommand, "-windows"]);
+	execute([syncqtCommand, "-windows"]);
     else
-	Process.execute([syncqtCommand]);
+	execute([syncqtCommand]);
 }
 
 /************************************************************
@@ -579,7 +570,20 @@ function qdoc(packageDir)
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    Process.execute([qdocCommand, packageDir + "/util/qdoc/qdoc.conf"]);
+    execute([qdocCommand, qtDir + "/util/qdoc/qdoc.conf"]);
+}
+
+/************************************************************
+ * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
+ */
+function replaceTags(packageDir, fileList, platform, edition)
+{
+    var fileName = new String();
+    var absFileName = new String();
+    for (var i in fileList) {
+	fileName = fileList[i];
+	absFileName = packageDir + "/" + fileName;
+    }
 }
 
 /************************************************************
@@ -618,4 +622,15 @@ function binaryFile(fileName)
 	}
     }
     return false;
+}
+
+
+/************************************************************
+ * runs the command and throws an exception if stderror is not empty 
+ */
+function execute(command, stdin) {
+    var error = Process.execute(command, stdin);
+    if (Process.stderr.length > 0)
+	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(40)))
+    return error;
 }
