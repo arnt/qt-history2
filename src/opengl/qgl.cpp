@@ -34,6 +34,11 @@ static QGLFormat* qgl_default_overlay_format = 0;
 static void *gl_pixmap_visual = 0;
 #endif
 
+#if defined(Q_WS_MAC)
+#include <AGL/agl.h>
+#include "qgl_mac_p.h"
+#endif
+
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
@@ -871,6 +876,7 @@ void QGLContext::init( QPaintDevice *dev )
     cmap = 0;
 #endif
 #ifdef Q_WS_MAC
+    qt_resolve_gl_symbols();
     d->oldR = QRect(1, 1, 1, 1);
 #endif
     d->crWin = FALSE;
