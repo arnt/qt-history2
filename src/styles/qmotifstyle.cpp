@@ -464,8 +464,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawPolygon( a );
 	p->restore();
 	break; }
-    
-    // just pass it on...
+
     default:
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
@@ -508,52 +507,57 @@ void QMotifStyle::drawControl( ControlElement element,
 	}
 	break; }
     case CE_PushButton: {
-	int dw,
-	    x1, y1, x2, y2;
-	QPushButton *btn;
-	btn = ( QPushButton * )widget;
-	p->setPen( cg.foreground() );
-	p->setBrush( QBrush( cg.button(), NoBrush ) );
-	dw = pixelMetric( PM_ButtonDefaultIndicator );
-	r.coords( &x1, &y1, &x2, &y2 );
-	if ( btn->isDefault() || btn->autoDefault() ) {
-	    x1 += dw;
-	    y1 += dw;
-	    x2 -= dw;
-	    y2 -= dw;
-	}
-	QBrush fill;
-	if ( btn->isDown() )
-	    fill = cg.brush( QColorGroup::Mid );
-	else if ( btn->isOn() )
-	    fill = QBrush( cg.mid(), Dense4Pattern );
-	else
-	    fill = cg.brush( QColorGroup::Button );
+ 	int diw,
+ 	    x1, y1, x2, y2;
+ 	QPushButton *btn;
+	QColorGroup newCg = cg;
+ 	btn = ( QPushButton * )widget;
+ 	p->setPen( cg.foreground() );
+ 	p->setBrush( QBrush( cg.button(), NoBrush ) );
+ 	diw = pixelMetric( PM_ButtonDefaultIndicator );
+ 	r.coords( &x1, &y1, &x2, &y2 );
+ 	if ( btn->isDefault() || btn->autoDefault() ) {
+ 	    x1 += diw;
+ 	    y1 += diw;
+ 	    x2 -= diw;
+ 	    y2 -= diw;
+ 	}
+ 	QBrush fill;
+ 	if ( btn->isDown() )
+ 	    fill = newCg.brush( QColorGroup::Mid );
+ 	else if ( btn->isOn() )
+ 	    fill = QBrush( newCg.mid(), Dense4Pattern );
+ 	else
+ 	    fill = newCg.brush( QColorGroup::Button );
 	
-	if ( btn->isDefault() ) {
-	    if ( dw == 0 ) {
+	newCg.setBrush( QColorGroup::Button, fill );
+ 	if ( btn->isDefault() ) {
+ 	    if ( diw == 0 ) {
 		QPointArray a;
 		a.setPoints( 9,
-			     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1 + 1,
-			     x2 - 1, y1 + 1, x2 - 1, y2 -1, x1 + 1, y2 - 1,
-			     x1 + 1, y1 + 1 );
-		p->setPen( cg.shadow() );
-		p->drawPolygon( a );
-		x1 += 2;
-		y1 += 2;
-		x2 -= 2;
-		y2 -= 2;
-	    } else {
-		qDrawShadePanel( p, r, cg, TRUE );
-	    }
-	}
-	
-	if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
+			     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+			     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+ 		p->setPen( newCg.shadow() );
+ 		p->drawPolygon( a );
+ 		x1 += 2;
+ 		y1 += 2;
+ 		x2 -= 2;
+ 		y2 -= 2;
+ 	    } else {
+ 		qDrawShadePanel( p, r, newCg, TRUE );
+ 	    }
+ 	}
+ 	if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
+	    QRect tmp( x1, y1, x2 - x1 + 1, y2 - y1 + 1 );
+	    PFlags flags = PStyle_Default;
+	    if ( btn->isOn() || btn->isDown() )
+		flags |= PStyle_Sunken;
 	    drawPrimitive( PO_ButtonCommand, p,
-			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1 ), cg,
-			   PStyle_Default | PStyle_Sunken );
-	if ( p->brush().style() != NoBrush )
-	    p->setBrush( NoBrush );
+			   tmp, newCg,
+ 			   flags );
+	}
+ 	if ( p->brush().style() != NoBrush )
+ 	    p->setBrush( NoBrush );
 	break; }
     case CE_TabBarTab: {
 	QRect br = r;
@@ -699,7 +703,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
     case SC_SpinWidgetDown: {
 	QSpinWidget * sw = (QSpinWidget *) w;
 	PFlags flags = PStyle_Default;
-	PrimitiveOperation op = (subCtrl == SC_SpinWidgetUp) ? 
+	PrimitiveOperation op = (subCtrl == SC_SpinWidgetUp) ?
 	                        PO_SpinWidgetUp : PO_SpinWidgetDown;
 
 	flags |= PStyle_Enabled;
@@ -718,7 +722,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 			 &cg.brush( QColorGroup::Button ) );
 	drawPrimitive(op, p, r, cg, flags);
     	break; }
-    
+
     case SC_SpinWidgetFrame:
 	qDrawShadePanel( p, r, cg, TRUE, pixelMetric( PM_DefaultFrameWidth) );
 	break;
@@ -732,15 +736,15 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
      int ret;
 
-//     switch( metric ) {
-//     case PM_ButtonDefaultIndicator:
-//     case PM_ButtonShiftHorizontal:
-//     case PM_ButtonShiftVertical:
-// #define Q_NICE_MOTIF_DEFAULT_BUTTON
-// #ifdef Q_NICE_MOTIF_DEFAULT_BUTTON	
-// 	ret = 3;
-// #endif	
-// 	break;
+    switch( metric ) {
+    case PM_ButtonDefaultIndicator:
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
+#define Q_NICE_MOTIF_DEFAULT_BUTTON
+#ifdef Q_NICE_MOTIF_DEFAULT_BUTTON	
+	ret = 3;
+#endif	
+	break;
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
 // 	QScrollBar *sb = (QScrollBar*) widget;
@@ -788,13 +792,10 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 // 	}
 // 	break; }
 //     case
-	
-	
-	
-	
-	
-    // cheat
-    ret =  QCommonStyle::pixelMetric( metric, widget );
+    default:
+	ret =  QCommonStyle::pixelMetric( metric, widget );
+	break;
+    }
     return ret;
 }
 
@@ -836,7 +837,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
 	    break;
 	case SC_SpinWidgetFrame:
-	    rect.setRect( widget->x(), widget->y(), 
+	    rect.setRect( widget->x(), widget->y(),
 			  widget->width() - bs.width(),
 			  widget->height() );
 	default:
@@ -847,7 +848,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
     default:
 	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
     }
-    
+
     return rect;
 }
 
@@ -1099,7 +1100,7 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 /*!\reimp
 */
 void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken, const QBrush* fill)
+			      const QColorGroup &g, bool sunken, const QBrush* fill)
 {
     drawPrimitive( PO_ButtonCommand, p, QRect( x, y, w, h), g,
 		   sunken ? PStyle_Sunken : PStyle_Default );
