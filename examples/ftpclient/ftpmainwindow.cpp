@@ -502,7 +502,7 @@ void FtpMainWindow::slotLocalMkdir()
     // create a dir on the local filesystem
 
     bool ok = FALSE;
-    QString name = QInputDialog::getText( tr( "Directory Name:" ), QString::null, QString::null, &ok, this );
+    QString name = QInputDialog::getText( tr( "Directory Name:" ), QString::null, QLineEdit::Normal, QString::null, &ok, this );
 
     if ( !name.isEmpty() && ok )
 	localOperator.mkdir( name );
@@ -517,7 +517,7 @@ void FtpMainWindow::slotRemoteMkdir()
     // create a dir on the remote filesystem (FTP server)
 
     bool ok = FALSE;
-    QString name = QInputDialog::getText( tr( "Directory Name:" ), QString::null, QString::null, &ok, this );
+    QString name = QInputDialog::getText( tr( "Directory Name:" ), QString::null, QLineEdit::Normal, QString::null, &ok, this );
 
     if ( !name.isEmpty() && ok )
 	remoteOperator.mkdir( name );
