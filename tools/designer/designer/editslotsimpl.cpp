@@ -56,7 +56,7 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
 	i->setText( 1, (*it).returnType );
 	i->setText( 2, (*it).specifier );
 	i->setText( 3, (*it).access  );
-	if ( MetaDataBase::isSlotUsed( formWindow, (*it).slot ) )
+	if ( MetaDataBase::isSlotUsed( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 	    i->setText( 4, tr( "Yes" ) );
 	else
 	    i->setText( 4, tr( "No" ) );
@@ -242,7 +242,7 @@ void EditSlots::currentTextChanged( const QString &txt )
 	return;
 
     slotListView->currentItem()->setText( 0, txt );
-    if ( MetaDataBase::isSlotUsed( formWindow, txt.utf8() ) )
+    if ( MetaDataBase::isSlotUsed( formWindow, MetaDataBase::normalizeSlot( txt.latin1() ).latin1() ) )
 	slotListView->currentItem()->setText( 4, tr( "Yes" ) );
     else
 	slotListView->currentItem()->setText( 4, tr( "No" ) );
