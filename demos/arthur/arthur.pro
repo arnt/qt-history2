@@ -17,7 +17,8 @@ SOURCES = \
 	warpix.cpp \
 	textoutline.cpp \
   	mandelbrotwidget.cpp \
-	renderthread.cpp
+	renderthread.cpp \
+	items.cpp
 
 HEADERS = \
 	alphashade.h \
@@ -31,7 +32,8 @@ HEADERS = \
 	rotatinggradient.h \
 	warpix.h \
 	mandelbrotwidget.h \
-	renderthread.h
+	renderthread.h \
+	items.h
 
 contains(QT_CONFIG, opengl) {
 	HEADERS += glpainter.h

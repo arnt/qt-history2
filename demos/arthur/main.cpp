@@ -25,6 +25,7 @@
 #endif
 #include "textoutline.h"
 #include "mandelbrotwidget.h"
+#include "items.h"
 
 #include <qapplication.h>
 
@@ -41,6 +42,7 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("On the road", new Roads, "roads.cpp");
     viewer.addDemoWidget("Stretched Pixmap", new Warpix, "warpix.cpp");
     viewer.addDemoWidget("Threaded Mandelbrot", new MandelbrotWidget, "mandelbrotwidget.cpp");
+    viewer.addDemoWidget("Items", new Items, "items.cpp");
 #if !(defined(QT_NO_XFT) && defined(Q_WS_X11))
     viewer.addDemoWidget("Outline", new TextOutline, "textoutline.cpp");
 #endif
