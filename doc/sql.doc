@@ -197,8 +197,8 @@ API layer is supported by QSqlError, QSqlField, QSqlIndex and
 QSqlRecord.
 
 <em>Driver Layer.</em> This comprises three classes, \l QSqlResult, \l
-QSqlDriver and \l QSqlDriverInterface. This layer provides the low
-level bridge between the database and the SQL classes. This layer is
+QSqlDriver and QSqlDriverInterface. This layer provides the low level
+bridge between the database and the SQL classes. This layer is
 documented separately since it is only relevant to driver writers, and
 is rarely used in standard database application programming.
 
@@ -305,11 +305,11 @@ the "ORACLE" database that we want to retrieve records from. Both the
 database connections were set up in the createConnections() function we
 wrote earlier.
 
-After creating the initial \c SELECT statement, \l isActive() is
-checked to see if the query executed successfully. The \l next()
-function is used to iterate through the query results. The value()
-function returns the contents of fields as QVariants. The insertions
-are achieved by creating and executing queries against the default
+After creating the initial \c SELECT statement, isActive() is checked
+to see if the query executed successfully. The next() function is
+used to iterate through the query results. The value() function
+returns the contents of fields as QVariants. The insertions are
+achieved by creating and executing queries against the default
 database using the \c target QSqlQuery.
 
 \walkthrough sql/overview/basicbrowsing2/main.cpp
@@ -322,8 +322,8 @@ database using the \c target QSqlQuery.
 </h5>
 
 The above code introduces a count of how many records are successfully
-inserted. Note that \l isActive() returns FALSE if the query, e.g. the
-insertion, fails. \l numRowsAffected() returns -1 if the number of rows
+inserted. Note that isActive() returns FALSE if the query, e.g. the
+insertion, fails. numRowsAffected() returns -1 if the number of rows
 cannot be determined, e.g. if the query fails.
 
 <h2><a name="Basic_Data_Manipulation">Basic Data Manipulation</a></h2> 
@@ -348,14 +348,14 @@ Once a \c SELECT query has been executed successfully we have access
 to the result set of records that matched the query criteria. We have
 already used one of the navigation functions, next(), which can be
 used alone to step sequentially through the records. \l QSqlQuery also
-provides \l first(), \l last(), \l next() and \l prev(). After any of
-these commands we can check that we are on a valid record location by
-calling \l isValid().
+provides first(), last(), next() and prev(). After any of these
+commands we can check that we are on a valid record location by
+calling isValid().
 
-We can also navigate to any arbitrary record using \l seek(). The
+We can also navigate to any arbitrary record using seek(). The
 first record in the dataset is zero. The number of the last record is
 <tt>size() - 1</tt>. Note that not all databases provide the size of a
-\c SELECT query and in such cases \l size() returns -1.
+\c SELECT query and in such cases size() returns -1.
 
 \walkthrough sql/overview/navigating/main.cpp
 \skipto if (
@@ -398,7 +398,7 @@ retrieve data from it.
 Note that if you wish to iterate through the record set in order the
 only navigation function you need is next().
 
-Tip: The \l lastQuery() function returns the text of the last query
+Tip: The lastQuery() function returns the text of the last query
 executed. This can be useful to check that the query you think is being
 executed is the one actually being executed.
 
@@ -612,7 +612,7 @@ href="#Navigating_Result_Sets">cursor navigation</a> functions.
 The primeInsert(), primeUpdate() and primeDelete() methods all return
 a pointer to the internal edit buffer, however each method can
 potentially perform different operations on the edit buffer before
-returning it.  By default, \l QSqlCursor::primeInsert() clears all the
+returning it.  By default,  QSqlCursor::primeInsert() clears all the
 field values in the edit buffer (see \l QSqlRecord::clearValues()).
 Both \l QSqlCursor::primeUpdate() and QSqlCursor::primeDelete()
 initialize the edit buffer with the current contents of the cursor
@@ -643,7 +643,7 @@ changes to the database are accurately reflected in the cursor.
 
 In this example we create a cursor on the "prices" table. Next we
 create a list of product names which we iterate over. For each
-iteration we call the cursor's \l primeInsert() method. This method
+iteration we call the cursor's primeInsert() method. This method
 returns a pointer to a \l QSqlRecord buffer in which all the fields
 are set to \c NULL. (Note that QSqlCursor::primeInsert() is virtual,
 and can be customized by derived classes.  See \l QSqlCursor). Next we

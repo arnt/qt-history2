@@ -186,9 +186,8 @@ QSqlPropertyMap::~QSqlPropertyMap()
     delete d;
 }
 
-/*!
+/*!  Returns the mapped property of \a widget as a QVariant.
 
-  Returns the \a widget's property as a QVariant.
 */
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
@@ -202,7 +201,7 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 
 /*!
 
-  Sets the \a widget's property to \a value.
+  Sets the property of \a widget to \a value.
 
 */
 void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
@@ -226,9 +225,7 @@ void QSqlPropertyMap::insert( const QString & classname,
     d->propertyMap[ classname ] = property;
 }
 
-/*!
-
-  Removes \a classname's classname/property pair from the map.
+/*!  Removes \a classname from the map.
 
 */
 void QSqlPropertyMap::remove( const QString & classname )

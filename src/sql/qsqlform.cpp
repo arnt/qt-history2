@@ -197,6 +197,8 @@ void QSqlForm::remove( const QString& field )
 }
 
 /*!
+  \overload
+
   Insert a \a widget, and the \a field it is to be mapped to, into
   the form.
 
@@ -255,7 +257,7 @@ uint QSqlForm::count() const
 
 /*!
 
-  Returns the i'th widget in the form. Useful for traversing the widgets
+  Returns the \a i 'th widget in the form. Useful for traversing the widgets
   in the form.
 */
 QWidget * QSqlForm::widget( uint i ) const

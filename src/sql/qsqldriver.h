@@ -68,8 +68,8 @@ public:
     virtual bool          commitTransaction();
     virtual bool          rollbackTransaction();
     virtual QStringList   tables( const QString& user ) const;
-    virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
-    virtual QSqlRecord    record( const QString& tablename ) const;
+    virtual QSqlIndex     primaryIndex( const QString& tableName ) const;
+    virtual QSqlRecord    record( const QString& tableName ) const;
     virtual QSqlRecord    record( const QSqlQuery& query ) const;
     virtual QString       nullText() const;
     virtual QString       formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;

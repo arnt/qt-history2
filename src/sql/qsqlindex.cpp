@@ -42,7 +42,9 @@
 
 /*!
     \class QSqlIndex qsqlindex.h
-    \brief This class provides functions to manipulate and describe QSqlCursor and QSqlDatabase indexes.
+
+    \brief The QSqlIndex class provides functions to manipulate and
+    describe QSqlCursor and QSqlDatabase indexes.
 
     \module sql
 
@@ -121,7 +123,9 @@ void QSqlIndex::append( const QSqlField& field )
     append( field, FALSE );
 }
 
-/*!  Appends the field \a field to the list of indexed fields.  The
+/*!  \overload
+
+  Appends the field \a field to the list of indexed fields.  The
   field is appended with an ascending sort order, unless \a desc is TRUE.
 
 */
@@ -165,7 +169,7 @@ void QSqlIndex::setDescending( int i, bool desc )
   isGenerated() ). If a \a prefix is specified, e.g. a table name, it is
   prepended before all field names in the form:
 
-  "\a prefix.\a fieldname"
+  "\a prefix. <fieldname>"
 
   If \a sep is specified, each field is separated by \a sep.  If \a
   verbose is TRUE (the default), each field contains a suffix
@@ -192,7 +196,7 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
   fields are included in the list (see isGenerated() ). If a \a prefix
   is specified, e.g. a table name, all fields are prefixed in the form:
 
-  "\a prefix.\a fieldname"
+  "\a prefix. <fieldname>"
 
   If \a verbose is TRUE (the default), each field contains a
   suffix indicating an ASCending or DESCending sort order.
@@ -207,6 +211,10 @@ QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
 }
 
 /*! \internal
+
+  Creates a string representing the field number \a i using prefix \a
+  prefix.  If \a verbose is TRUE, ASC or DESC is included in the field
+  description if the field is sorted in ASCending or DESCending order.
 */
 
 QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) const

@@ -38,6 +38,8 @@
 
 #ifndef QT_NO_SQL
 
+#define QT_DEBUG_SQL
+
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldatabase.h"
@@ -51,8 +53,8 @@ QSqlResultShared::~QSqlResultShared()
 
 /*! \class QSqlQuery qsqlquery.h
 
-    \brief This class provides a means of executing and manipulating SQL
-    statements
+    \brief The QSqlQuery class provides a means of executing and
+    manipulating SQL statements.
 
     \module sql
 

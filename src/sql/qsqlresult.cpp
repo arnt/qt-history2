@@ -51,7 +51,8 @@ public:
 
 /*! \class QSqlResult qsqlresult.h
 
-  \brief This class provides an abstract interface for accessing data from SQL databases
+  \brief The QSqlResult class provides an abstract interface for
+  accessing data from SQL databases.
 
   \module sql
 
@@ -156,8 +157,10 @@ void QSqlResult::setAt( int at )
 }
 
 
-/*!  Protected function provided for derived classes to indicate whether
-  or not the current statement is an SQL SELECT statement.
+/*!  Protected function provided for derived classes to indicate
+  whether or not the current statement is an SQL SELECT statement.
+  The \a s parameter should indicate TRUE if the statement is a SELECT
+  statement, otherwise FALSE.
 */
 
 void QSqlResult::setSelect( bool s )

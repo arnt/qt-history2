@@ -251,7 +251,9 @@ public:
 
 /*!
     \class QSqlDatabase qsqldatabase.h
-    \brief This class is used to create SQL database connections and provide transaction handling
+
+    \brief The QSqlDatabase class is used to create SQL database
+    connections and provide transaction handling.
 
     \module sql
 
@@ -267,14 +269,17 @@ public:
 
 */
 
-/*!  Adds a database to the list of database connections.  The
-  database connection is referred to by \name.  A pointer to the newly
-  added database connection is returned.  This pointer is owned by
-  QSqlDatabase and will be deleted on program exit or when
-  removeDatabase() is called.  If \a connectionName is not specified,
-  the newly added database connection becomes the default database
-  connection for the application, and subsequent calls to database()
-  (without a database name parameter) will return a pointer to it.
+/*!  Adds a database to the list of database connections using the
+  driver \a type and the connection name \a connectionName.
+
+  The database connection is referred to by \connectionName.  A
+  pointer to the newly added database connection is returned.  This
+  pointer is owned by QSqlDatabase and will be deleted on program exit
+  or when removeDatabase() is called.  If \a connectionName is not
+  specified, the newly added database connection becomes the default
+  database connection for the application, and subsequent calls to
+  database() (without a database name parameter) will return a pointer
+  to it.
 
   \sa database() removeDatabase()
 
@@ -284,13 +289,14 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& con
     return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, connectionName ), connectionName );
 }
 
-/*! Returns a pointer to the database connection named \a name.  The
-  database connection must have been previously added with database().
-  If \a open is TRUE (the default) and the database connection is not
-  already open it is opened now.  If no \a connectionName is specified
-  the default connection is used. If \a connectionName does not exist
-  in the list of databases, 0 is returned.  The pointer returned is
-  owned by QSqlDatabase and should \e not be deleted.
+/*! Returns a pointer to the database connection named \a
+  connectionName.  The database connection must have been previously
+  added with database().  If \a open is TRUE (the default) and the
+  database connection is not already open it is opened now.  If no \a
+  connectionName is specified the default connection is used. If \a
+  connectionName does not exist in the list of databases, 0 is
+  returned.  The pointer returned is owned by QSqlDatabase and should
+  \e not be deleted.
 
 */
 
@@ -357,7 +363,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
 
 
 /*!  Creates a QSqlDatabase connection named \a name that uses the
-     driver referred to by \a driver.  If the \a driver is not recognized,
+     driver referred to by \a driver, with the parent \a parent and
+     the object name \a objname.  If the \a driver is not recognized,
      the database connection will have no functionality.
 
      The currently available drivers are:
@@ -382,6 +389,8 @@ QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject 
 
 /*!
   \internal
+
+  Iniitializes the database with driver \a type and name \a name.
 */
 void QSqlDatabase::init( const QString& type, const QString&  )
 {
@@ -490,7 +499,9 @@ bool QSqlDatabase::open()
 				d->hname);
 }
 
-/*! Opens the database connection using \a user name and \a password.  Returns
+/*! \overload
+
+  Opens the database connection using \a user name and \a password.  Returns
  TRUE on success, and FALSE if there was an error.  Error information
  can be retrieved using the lastError() function.
 
@@ -728,7 +739,8 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 }
 
 
-/*!
+/*! \overload
+
   Returns a QSqlRecord populated with the names of all the fields used
   in the SQL \a query. If the query is a "SELECT *" the order in which
   fields are returned is undefined.

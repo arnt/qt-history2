@@ -123,8 +123,9 @@ QSqlRecordShared::~QSqlRecordShared()
 
 /*!
     \class QSqlRecord qsqlfield.h
-    \brief This class encapsulates a database record, i.e. a set of
-    database fields.
+
+    \brief The QSqlRecord class encapsulates a database record, i.e. a
+    set of database fields.
 
     \module sql
 
@@ -222,9 +223,10 @@ QVariant QSqlRecord::value( int i ) const
     return field(i)->value();
 }
 
-/*!  Returns the value of the field named \a name in the record.
-    If field \a name does not exist the resultant behaviour is
-    undefined. 
+/*!  \overlaod
+
+  Returns the value of the field named \a name in the record.  If
+  field \a name does not exist the resultant behaviour is undefined.
 
 */
 
@@ -251,7 +253,7 @@ QString QSqlRecord::fieldName( int i ) const
 
 /*!  Returns the position of the field named \a name within the
   record, or -1 if it cannot be found.  Field names are not
-  case-sensitive. 
+  case-sensitive.
 
 */
 
@@ -284,9 +286,11 @@ QSqlField* QSqlRecord::field( int i )
     return &sh->d->fieldInfo( i )->field;
 }
 
-/*!  Returns a pointer to the field with name \a name within the
+/*!  \overload
+
+  Returns a pointer to the field with name \a name within the
   record, or 0 if it cannot be found.  Field names are not
-  case-sensitive. 
+  case-sensitive.
 */
 
 QSqlField* QSqlRecord::field( const QString& name )
@@ -314,6 +318,10 @@ const QSqlField* QSqlRecord::field( int i ) const
 }
 
 /*!  \overload
+
+  Returns a pointer to the field with name \a name within the
+  record, or 0 if it cannot be found.  Field names are not
+  case-sensitive.
 
 */
 
@@ -377,7 +385,7 @@ bool QSqlRecord::isEmpty() const
 
 
 /*!  Returns TRUE if there is a field in the record called \a name,
-    otherwise returns FALSE. 
+    otherwise returns FALSE.
 
 */
 
@@ -437,13 +445,15 @@ bool QSqlRecord::isGenerated( const QString& name ) const
     return !sh->d->fieldInfo( position( name ) )->nogen;
 }
 
-/*!  Returns a comma-separated list of all the record's field names as a
-    string. Note that fields which have generated set to FALSE are \e
-    not included. (See isGenerated() ). The string is suitable, for
-    example, for generating SQL SELECT statements.  If a \a prefix is
-    specified, e.g. a table name, all fields are prefixed in the form:
+/*!  Returns a list of all the record's field names as a string
+    separated by \a sep.
 
-  "\a prefix.\a fieldname"
+    Note that fields which are not generated are \e not included (see
+    isGenerated() ). The returned string is suitable, for example, for
+    generating SQL SELECT statements.  If a \a prefix is specified,
+    e.g. a table name, all fields are prefixed in the form:
+
+  "\a prefix. <fieldname>"
 */
 
 QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
@@ -461,13 +471,14 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
     return pflist;
 }
 
-/*!
-  Returns a list of all the record's field names.  Note that fields
-  which have generated set to FALSE are \e not included. (See
-  isGenerated() ). If \a prefix is supplied, e.g. a table name, all
-  fields are prefixed in the form:
+/*!  Returns a list of all the record's field names, each having the
+  prefix \a prefix.
 
-  "\a prefix.\a fieldname"
+  Note that fields which have generated set to FALSE are \e not
+  included. (See isGenerated() ). If \a prefix is supplied, e.g. a
+  table name, all fields are prefixed in the form:
+
+  "\a prefix. <fieldname>"
 
 */
 
@@ -517,7 +528,9 @@ void QSqlRecord::setValue( int i, const QVariant& val )
 }
 
 
-/*!  Sets the value of field \a name to \a val.  If the field does not
+/*!  \overload
+
+  Sets the value of field \a name to \a val.  If the field does not
   exist, nothing happens.
 */
 

@@ -56,7 +56,9 @@ public:
 /*!
 
   \class QDataBrowser qdatabrowser.h
-  \brief This class provides data manipulation and navigation for data entry forms.
+
+  \brief The QDataBrowser class provides data manipulation and
+  navigation for data entry forms.
 
   \module sql
 
@@ -96,6 +98,11 @@ public:
 
   \value AfterEnd  the browser is positioned after the end of the
   available records.
+*/
+
+/*! Constructs a data browser which is a child of \a parent, with the
+  name \a name and widget flags set to \a fl.
+
 */
 
 QDataBrowser::QDataBrowser( QWidget *parent, const char *name, WFlags fl )
@@ -190,7 +197,9 @@ void QDataBrowser::setSort( const QSqlIndex& sort )
 }
 
 
-/*! Sets the browser's sort to the string list \a sort.  To apply the new
+/*! \overload
+
+  Sets the browser's sort to the string list \a sort.  To apply the new
   sort, use refresh().
 
 */
@@ -257,10 +266,11 @@ void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
 }
 
 
-/*! Sets the default cursor used by the browser to \a cursor. This
-   function is a wrapper for setCursor() and is provided purely for
-   consistency with sqlCursor(). We recommend using setCursor()
-   directly.
+/*! Sets the default cursor used by the browser to \a cursor. If \a
+   autoDelete is TRUE, the browser will take ownership of the \a
+   cursor and delete it when appropriate.  This function is a wrapper
+   for setCursor() and is provided purely for consistency with
+   sqlCursor(). We recommend using setCursor() directly.
 
   \sa sqlCursor()
 */
@@ -457,7 +467,7 @@ bool QDataBrowser::autoEdit() const
 
 */
 
-/*! void QDataBrowser::lastRecordAvailable( bool available )
+/*! \fn void QDataBrowser::lastRecordAvailable( bool available )
 
   This signal is emitted whenever the position of the cursor
   changes.  The \a available parameter indicates whether or not the
@@ -851,7 +861,7 @@ void QDataBrowser::writeFields()
 }
 
 
-/*! Clears all the values in the form. 
+/*! Clears all the values in the form.
 
     All the edit buffer field values are set to their 'zero state', e.g.
     0 for numeric fields, "" for string fields. Then the widgets are
@@ -1012,6 +1022,8 @@ bool QDataBrowser::currentEdited()
 }
 
 /*! \internal
+
+  Pre-navigation checking.
 */
 
 bool QDataBrowser::preNav()
@@ -1061,6 +1073,8 @@ bool QDataBrowser::preNav()
 }
 
 /*! \internal
+
+  Handles post-navigation according to \a primeUpd.
 */
 
 void QDataBrowser::postNav( bool primeUpd )
@@ -1142,6 +1156,11 @@ void QDataBrowser::updateBoundary()
 	}
     }
 }
+
+/*! Virtual function which handles the error \a error.  The default
+implementation warns the user with a message box.
+
+*/
 
 void QDataBrowser::handleError( const QSqlError& error )
 {

@@ -166,7 +166,7 @@ signals:
 
 protected:
     bool event( QEvent *e );
-    void timerEvent ( QTimerEvent *e );
+    void timerEvent ( QTimerEvent * );
     void stepUp();
     void stepDown();
     QString sectionFormattedText( int sec );

@@ -47,7 +47,9 @@
 
 /*!
   \class QSqlDriver qsqldriver.h
-    \brief This is an abstract base class for accessing SQL databases
+
+  \brief The QSqlDriver class is an abstract base class for accessing
+  SQL databases.
 
   \module sql
 
@@ -77,10 +79,14 @@ QSqlDriver::~QSqlDriver()
 {
 }
 
-/*! \fn bool QSqlDriver::open( const QString& db, const QString& user, const QString& password, const QString& host )
-    Derived classes must reimplement this abstract virtual function in
-    order to open a database connection. Return TRUE on success, FALSE
-    on failure.
+/*! \fn bool QSqlDriver::open( const QString& db, const QString& user,
+    const QString& password, const QString& host, int port ) Derived
+    classes must reimplement this abstract virtual function in order
+    to open a database connection on database \a db, using user name
+    \a user, password \a password, host \a host and port \a
+    port.. 
+    
+    The function must TRUE on success, FALSE on failure.
 
     \sa setOpen()
 
@@ -280,8 +286,10 @@ QSqlRecord QSqlDriver::record( const QString&  ) const
     return QSqlRecord();
 }
 
-/*!  Returns a QSqlRecord populated with the names of the fields in the
-    SQL \a query. The default implementation returns an empty record.
+/*! \overload
+
+  Returns a QSqlRecord populated with the names of the fields in the
+  SQL \a query. The default implementation returns an empty record.
 
 */
 

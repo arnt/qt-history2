@@ -105,18 +105,6 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 }
 #endif
 
-
-/*! \enum QDataTable::Confirm
-
-  This enum type describes edit confirmations.
-
-  The currently defined values are:
-
-  \value Yes
-  \value No
-  \value Cancel
-*/
-
 /*! \enum QDataTable::Refresh
 
   This enum type describes refresh options.
@@ -124,7 +112,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   The currently defined values are:
 
   \value RefreshData  refresh the data
-  \value RefreshColumn  refresh the list of fields, e.g. the column headings
+  \value RefreshColumns  refresh the list of fields, e.g. the column headings
   \value RefreshAll  refresh both the data and the list of fields
 */
 
@@ -181,7 +169,8 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
 */
 
-/*!  Constructs a table.
+/*! Constructs a data table which is a child of \a parent, with the
+  name \a name.
 
 */
 
@@ -191,14 +180,17 @@ QDataTable::QDataTable ( QWidget * parent, const char * name )
     init();
 }
 
-/*!  Constructs a table using the cursor \a cursor.  If \a
-  autoPopulate is TRUE (the default is FALSE), columns are
+/*!  Constructs a table which is a child of \a parent, with the name
+  \a name using the cursor \a cursor.
+
+  If \a autoPopulate is TRUE (the default is FALSE), columns are
   automatically created based upon the fields in the \a cursor record.
   Note that \a autoPopulate only governs the creation of columns; to
-  load the cursor's data into the table use refresh(). If the \a
-  cursor is read only, the table becomes read only.  In addition, the
-  table adopts the cursor's driver's definition for representing NULL
-  values as strings.
+  load the cursor's data into the table use refresh().
+
+  If the \a cursor is read only, the table also becomes read only.  In
+  addition, the table adopts the cursor's driver's definition for
+  representing NULL values as strings.
 */
 
 QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
@@ -236,11 +228,14 @@ QDataTable::~QDataTable()
 }
 
 
-/*!  Adds \a fieldName as the next column to be diplayed.  If \a label
-  is specified, it is used as the column header label, otherwise the
-  field's display label is used when setCursor() is called. The \a
-  iconset is used to set the icon used by the column header; by default
-  there is no icon.
+/*!  Adds the next column to be displayed using the field \a
+  fieldName, column label \a label, width \a width and iconset \a
+  iconset.
+
+  If \a label is specified, it is used as the column header label,
+  otherwise the field's display label is used when setCursor() is
+  called. The \a iconset is used to set the icon used by the column
+  header; by default there is no icon.
 
   \sa setCursor() refresh()
 
@@ -257,9 +252,13 @@ void QDataTable::addColumn( const QString& fieldName,
     d->fldWidth += width;
 }
 
-/*!  Sets column \a col to display field \a fieldName.  If \a label is
-  specified, it is used as the column header label, otherwise the
-  field's display label is used when setCursor() is called.
+/*!  Sets the \a col column to display using the field \a fieldName,
+  column label \a label, width \a width and iconset \a iconset.
+
+  If \a label is specified, it is used as the column header label,
+  otherwise the field's display label is used when setCursor() is
+  called. The \a iconset is used to set the icon used by the column
+  header; by default there is no icon.
 
   \sa setCursor() refresh()
 
@@ -354,7 +353,9 @@ void QDataTable::setSort( const QStringList& sort )
     d->cur.setSort( sort );
 }
 
-/*! Sets the sort to be used on the displayed data to \a sort.  If
+/*! \overload
+
+  Sets the sort to be used on the displayed data to \a sort.  If
   there is no current cursor, nothing happens. A QSqlIndex contains
   field names and their ordering (ASC or DESC); these are used to
   compose the ORDER BY clause.
@@ -926,6 +927,8 @@ bool QDataTable::insertCurrent()
 }
 
 /*! \internal
+
+  Updates the row \a row.
 */
 
 void QDataTable::updateRow( int row )
@@ -1426,6 +1429,8 @@ void QDataTable::loadNextPage()
 }
 
 /*! \internal
+
+  Loads a line of data at \a l.
 */
 
 void QDataTable::loadLine( int )
@@ -1474,6 +1479,9 @@ void QDataTable::columnClicked ( int col )
 }
 
 /*!  \reimp
+
+  Repaints the cell at \a row, \a col.
+
 */
 void QDataTable::repaintCell( int row, int col )
 {
@@ -1538,8 +1546,8 @@ void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 
 /*! Paints the \a field on the painter \a p. The painter has already
    been translated to the appropriate cell's origin where the \a field
-   is to be rendered. \a cr describes the cell coordinates in the content
-   coordinate system.
+   is to be rendered. \a cr describes the cell coordinates in the
+   content coordinate system.  The \a selected parameter is ignored.
 
    If you want to draw custom field content you have to reimplement
    paintField() to do the custom drawing.  The default implementation
@@ -1643,7 +1651,7 @@ void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDele
 }
 
 
-/*!  Protected virtual function which is called when an error has
+/*!  Protected virtual function which is called when an error \a e has
   occurred on the current cursor().  The default implementation
   displays a warning message to the user with information about the
   error.
@@ -1702,11 +1710,11 @@ void QDataTable::takeItem ( QTableItem * )
 
 }
 
-/*!  Installs a new SQL editor factory. This enables the user to
+/*!  Installs a new SQL editor factory \a f. This enables the user to
   create and instantiate their own editors for use in cell editing.
-  Note that QDataTable takes ownership of this pointer, and will delete
-  it when it is no longer needed or when installEditorFactory() is
-  called again.
+  Note that QDataTable takes ownership of this pointer, and will
+  delete it when it is no longer needed or when installEditorFactory()
+  is called again.
 
   \sa QSqlEditorFactory
 */
@@ -1719,11 +1727,11 @@ void QDataTable::installEditorFactory( QSqlEditorFactory * f )
     }
 }
 
-/*!  Installs a new property map. This enables the user to create and
-  instantiate their own property maps for use in cell editing.  Note
-  that QDataTable takes ownership of this pointer, and will delete it
-  when it is no longer needed or when installPropertMap() is called
-  again.
+/*!  Installs a new property map \a m. This enables the user to create
+  and instantiate their own property maps for use in cell editing.
+  Note that QDataTable takes ownership of this pointer, and will
+  delete it when it is no longer needed or when installPropertMap() is
+  called again.
 
   \sa QSqlPropertyMap
 
@@ -1738,6 +1746,8 @@ void QDataTable::installPropertyMap( QSqlPropertyMap* m )
 }
 
 /*!  \internal
+
+  Sets the current selection to \a row, \a col.
 */
 
 void QDataTable::setCurrentSelection( int row, int )
@@ -1849,7 +1859,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     }
 }
 
-/*! \overload
+/*!
 
   Refreshes the table.  The cursor is refreshed using the current
   filter, the current sort, and the currently defined columns.
@@ -1862,6 +1872,10 @@ void QDataTable::refresh()
 }
 
 /*!  \reimp
+
+  Selects the record in the table using the current cursor edit buffer
+  and the fields specified by the index \a idx.  If \a atHint is
+  specified, it will be used as a hint about where to begin searching.
 
 */
 

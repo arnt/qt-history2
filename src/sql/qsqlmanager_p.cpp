@@ -196,8 +196,6 @@ bool QSqlCursorManager::autoDelete() const
 
 */
 
-/*! \internal
- */
 void QSqlCursorManager::setCursor( QSqlCursor* cursor, bool autoDelete )
 {
     if ( d->autoDelete )
@@ -639,7 +637,7 @@ public:
 
 /*!  \internal
 
-  Constructs an empty data handler
+  Constructs an empty data handler.
 
 */
 

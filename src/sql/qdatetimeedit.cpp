@@ -33,7 +33,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-/*! \example datetime/main.cpp */
+/*! \file datetime/main.cpp */
 
 #include "qdatetimeedit.h"
 
@@ -341,6 +341,8 @@ void QDateTimeEditBase::updateArrows()
 
 /*! \internal
 
+  Lays out the arrows according to the size \a s.
+
 */
 
 void QDateTimeEditBase::layoutArrows( const QSize& s )
@@ -517,7 +519,7 @@ void QDateTimeEditBase::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*! Appends a number section to the editor.
+/*! Appends the number section \a sec to the editor.
 
 */
 
@@ -746,8 +748,8 @@ public:
 */
 
 
-/*!  Constructs an empty date editor with parent \a parent and name \a
-   name.
+/*! Constructs an empty date editor which is a child of \a parent and the
+  name \a name.
 
 */
 
@@ -757,8 +759,10 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
     init();
 }
 
-/*!  Constructs a date editor with the initial value \a date.
+/*!  Constructs a  date editor with parent \a parent and name \a
+   name.
 
+   The date editor is initialize with \a date.
 */
 
 QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
@@ -803,7 +807,7 @@ QDateEdit::~QDateEdit()
     delete d;
 }
 
-/*! \fn void setMinValue( const QDate& d )
+/*! \fn void QDateEdit::setMinValue( const QDate& d )
 
   Sets the minimum date value to \a d.  Equivalent to calling
   QDateEdit::setRange( d, maxValue() );
@@ -819,7 +823,7 @@ QDate QDateEdit::minValue() const
     return d->min;
 }
 
-/*! \fn void setMaxValue( const QDate& d )
+/*! \fn void QDateEdit::setMaxValue( const QDate& d )
 
   Sets the maximum date value to \a d.  Equivalent to calling
   QDateEdit::setRange( minValue(), d );
@@ -934,6 +938,8 @@ QString QDateEdit::sectionText( int sec )
 }
 
 /*! \internal
+
+  Returns the end of the section offset \a sec.
 
 */
 
@@ -1424,7 +1430,7 @@ void QDateEdit::timerEvent( QTimerEvent * )
 
 /*! \fn void QDateEdit::valueChanged( const QDate& date )
 
-  This signal is emitted whenever the editor's value changes.  The date
+  This signal is emitted whenever the editor's value changes.  The \a date
   parameter is the new value.
 
 */
@@ -1486,8 +1492,10 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     init();
 }
 
-/*!  Constructs a time edit with the initial value \a time.
+/*! Constructs a time table which is a child of \a parent, with the
+  name \a name.
 
+  The time edit is initialized with \a time.
 */
 
 QTimeEdit::QTimeEdit( const QTime& time, QWidget * parent, const char * name )
@@ -1527,7 +1535,7 @@ QTimeEdit::~QTimeEdit()
     delete d;
 }
 
-/*! \fn void setMinValue( const QTime& d )
+/*! \fn void QTimeEdit::setMinValue( const QTime& d )
 
   Sets the minimum time value to \a d.  Equivalent to calling
   QTimeEdit::setRange( d, maxValue() );
@@ -1543,7 +1551,7 @@ QTime QTimeEdit::minValue() const
     return d->min;
 }
 
-/*! \fn void setMaxValue( const QTime& d )
+/*! \fn void QTimeEdit::setMaxValue( const QTime& d )
 
   Sets the maximum time value to \a d.  Equivalent to calling
   QTimeEdit::setRange( minValue(), d );
@@ -1639,8 +1647,8 @@ bool QTimeEdit::autoAdvance() const
 
 /*! \fn void QTimeEdit::valueChanged( const QTime& time )
 
-  This signal is emitted whenever the editor's value changes.  The time
-  parameter is the new value.
+  This signal is emitted whenever the editor's value changes.  The \a
+  time parameter is the new value.
 
 */
 
@@ -1809,6 +1817,8 @@ void QTimeEdit::setSecond( int s )
 
 /*! \internal
 
+  Returns the text of section \a sec.
+
 */
 
 QString QTimeEdit::sectionText( int sec )
@@ -1828,6 +1838,8 @@ QString QTimeEdit::sectionText( int sec )
     return txt;
 }
 
+/*! Returns TRUE if \a h, \a m, \a s is out of range.
+ */
 
 bool QTimeEdit::outOfRange( int h, int m, int s ) const
 {
@@ -2013,9 +2025,8 @@ public:
   \sa QDateEdit QTimeEdit
 */
 
-/*!
-  Constructs an empty datetime edit with parent \a parent and name \a
-  name.
+/*!  Constructs an empty datetime edit with parent \a parent and name
+  \a name.
 
 */
 QDateTimeEdit::QDateTimeEdit( QWidget * parent, const char * name )
@@ -2175,12 +2186,14 @@ QString QDateTimeEdit::timeSeparator() const
 
 /*! \fn void QDateTimeEdit::valueChanged( const QDateTime& datetime )
 
-  This signal is emitted every time the date/time changes.  The
-  argument is the new date/time.
+  This signal is emitted every time the date/time changes.  The \a
+  datetime argument is the new date/time.
 */
 
 
 /*! \internal
+
+  Re-emits the value \a d.
  */
 
 void QDateTimeEdit::newValue( const QDate& )
@@ -2190,6 +2203,8 @@ void QDateTimeEdit::newValue( const QDate& )
 }
 
 /*! \internal
+  \overload
+  Re-emits the value \a t.
  */
 
 void QDateTimeEdit::newValue( const QTime& )

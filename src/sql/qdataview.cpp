@@ -51,7 +51,8 @@ public:
 /*!
 
   \class QDataView qdataview.h
-  \brief This class provides read-only SQL forms
+
+  \brief The QDataView class provides read-only SQL forms.
 
   \module sql
 
@@ -62,7 +63,8 @@ public:
 
 */
 
-/*! Creates a data view.
+/*! Constructs a data view which is a child of \a parent, with the
+  name \a name and widget flags set to \a fl.
 
 */
 
@@ -120,8 +122,8 @@ QSqlForm* QDataView::form()
 
 
 /*! Sets the record used by the data view to \a record.  If a form has
-  already been assigned to the data view, the form will display this \a
-  record's data.
+  already been assigned to the data view, the form will display the
+  data from \a record.
 
   \sa record()
 
@@ -169,10 +171,10 @@ void QDataView::writeFields()
     d->frm.writeFields();
 }
 
-/*! Causes the default form to display the contents of \a record.  The
-  \a record also becomes the default record for all subsequent calls
-  to readFields() and writefields() .  If there is no default form,
-  nothing happens.  This slot is equivelant to calling:
+/*! Causes the default form to display the contents of \a buf.  If
+  there is no default form, nothing happens.The \a buf also becomes
+  the default record for all subsequent calls to readFields() and
+  writefields().  This slot is equivelant to calling:
 
   \code
   myView.setRecord( record );

@@ -43,8 +43,9 @@
 
 /*!
   \class QSqlEditorFactory qsqleditorfactory.h
-  \brief This class is used to create the editor factories used by
-  QSqlDataTable and QSqlForm.
+
+  \brief The QSqlEditorFactory class is used to create the editors
+  used by QSqlDataTable and QSqlForm.
 
   \module sql
 
@@ -121,7 +122,12 @@ void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
 /*!
 
   Creates and returns the appropriate editor widget for the QVariant
-  \a variant.  If \a variant is invalid, 0 is returned.
+  \a variant.
+
+  The widget that is returned has the parent \a parent (which may be
+  zero).  If \a variant is invalid, 0 is returned.
+
+
 */
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
@@ -130,7 +136,7 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
     return QEditorFactory::createEditor( parent, variant );
 }
 
-/*!
+/*! \overload
 
   Creates and returns the appropriate editor for the QSqlField \a field.
 
