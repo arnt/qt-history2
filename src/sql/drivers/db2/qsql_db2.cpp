@@ -963,21 +963,12 @@ QVariant QDB2Result::data( int field )
 
     QVariant* v = 0;
     switch ( info.type() ) {
-	case QVariant::Int: {
-	    if ( info.typeID() == SQL_BIGINT ) {
-		QString val = qGetStringData( d->hStmt, field, info.length(), isNull );
-		if ( !isNull )
-		    v = new QVariant( val );
-	    } else {
-		int val = qGetIntData( d->hStmt, field, isNull );
-		if ( !isNull )
-		    v = new QVariant( val );
-	    }
-	    if ( isNull ) {
-		v = new QVariant();
-		v->cast( QVariant::Int );
-	    }
-	    break; }
+	case QVariant::Int:
+	    if ( info.typeID() == SQL_BIGINT )
+		v = new QVariant( qGetStringData( d->hStmt, field, info.length(), isNull ) );
+	    else
+		v = new QVariant( qGetIntData( d->hStmt, field, isNull ) );
+	    break;
 	case QVariant::Date: {
 	    DATE_STRUCT dbuf;
 	    r = SQLGetData( d->hStmt,
@@ -986,11 +977,13 @@ QVariant QDB2Result::data( int field )
 			    (SQLPOINTER) &dbuf,
 			    0,
 			    &lengthIndicator );
-	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) )
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		v = new QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
-	    else
+	    } else {
 		v = new QVariant( QDate() );
-	break; }
+		isNull = TRUE;
+	    }
+	    break; }
 	case QVariant::Time: {
 	    TIME_STRUCT tbuf;
 	    r = SQLGetData( d->hStmt,
@@ -999,11 +992,13 @@ QVariant QDB2Result::data( int field )
 			    (SQLPOINTER) &tbuf,
 			    0,
 			    &lengthIndicator );
-	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) )
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		v = new QVariant( QTime( tbuf.hour, tbuf.minute, tbuf.second ) );
-	    else
+	    } else {
 		v = new QVariant( QTime() );
-	break; }
+		isNull = TRUE;
+	    }
+	    break; }
 	case QVariant::DateTime: {
 	    TIMESTAMP_STRUCT dtbuf;
 	    r = SQLGetData( d->hStmt,
@@ -1012,36 +1007,33 @@ QVariant QDB2Result::data( int field )
 			    (SQLPOINTER) &dtbuf,
 			    0,
 			    &lengthIndicator );
-	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) )
+	    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) && ( lengthIndicator != SQL_NULL_DATA ) ) {
 		v = new QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ),
 					     QTime( dtbuf.hour, dtbuf.minute, dtbuf.second, dtbuf.fraction / 1000000 ) ) );
-	    else
+	    } else {
 		v = new QVariant( QDateTime() );
-	break; }
+		isNull = TRUE;
+	    }
+	    break; }
         case QVariant::ByteArray:
 	    v = new QVariant( qGetBinaryData( d->hStmt, field, lengthIndicator, isNull ) );
 	    break;
 	case QVariant::Double:
-	    if ( info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC ) {
+	    if ( info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC )
 		// length + 1 for the comma
-		QString val = qGetStringData( d->hStmt, field, info.length() + 1, isNull );
-		if ( !isNull )
-		    v = new QVariant( val );
-	    } else {
-		double val = qGetDoubleData( d->hStmt, field, isNull );
-		if ( !isNull )
-		    v = new QVariant( val );
-	    }
-	    if ( isNull ) {
-                v = new QVariant();
-                v->cast( QVariant::Double );
-	    }
+		v = new QVariant( qGetStringData( d->hStmt, field, info.length() + 1, isNull ) );
+	    else
+		v = new QVariant( qGetDoubleData( d->hStmt, field, isNull ) );
 	    break;
 	case QVariant::String:
 	case QVariant::CString:
 	default:
 	    v = new QVariant( qGetStringData( d->hStmt, field, info.length(), isNull ) );
 	    break;
+    }
+    if ( isNull ) {
+	*v = QVariant();
+	v->cast( info.type() );
     }
     d->valueCache.insert( field, v );
     return *v;
