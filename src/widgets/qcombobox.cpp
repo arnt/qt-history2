@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#173 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#174 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -295,7 +295,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->listBox = new QListBox( 0, 0, WType_Popup );
     d->listBox->setAutoScrollBar( FALSE );
     d->listBox->setBottomScrollBar( FALSE );
-    d->listBox->setAutoBottomScrollBar( FALSE );
+    d->listBox->setAutoBottomScrollBar( TRUE );
     d->listBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox->setLineWidth( 1 );
     d->listBox->resize( 100, 10 );
@@ -1237,6 +1237,9 @@ void QComboBox::popup()
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox->resize( width(),
 			    listHeight( d->listBox, d->sizeLimit ) + 2 );
+	if (d->listBox->bottomScrollBar() )
+	    d->listBox->resize( width(),
+				listHeight( d->listBox, d->sizeLimit ) + 2 + 16 ); //### hardcoded scrollbar height 16
 	QWidget *desktop = QApplication::desktop();
 	int sw = desktop->width();			// screen width
 	int sh = desktop->height();			// screen height
