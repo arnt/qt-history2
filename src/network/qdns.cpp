@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#31 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#32 $
 **
 ** Implementation of QDns class.
 **
@@ -48,12 +48,7 @@
 // which includes <features.h>.  So _BSD_SOURCE has to be defined
 // before "qdns.h".
 #  define _BSD_SOURCE
-#endif
-#if defined(Q_OS_OSF)
-// Exact same problem here: 'u_char' and other BSD unsigned things
-// used in <arpa/nameser.h> are undefined on Tru64 4.0f unless we
-// define _OSF_SOURCE before "qdns.h".
-#  define _OSF_SOURCE
+#  define _GNU_SOURCE
 #endif
 
 #include "qdns.h"
