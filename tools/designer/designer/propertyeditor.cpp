@@ -2439,6 +2439,7 @@ void PropertyKeysequenceItem::hideEditor()
 
 bool PropertyKeysequenceItem::eventFilter( QObject *o, QEvent *e )
 {
+    Q_UNUSED( o );
     if ( e->type() == QEvent::KeyPress ) {
         QKeyEvent *k = (QKeyEvent *)e;
         handleKeyEvent( k );
