@@ -118,7 +118,7 @@ static QString textNoAccel( const QString& text)
 }
 
 
-MainWindow::MainWindow( bool asClient )
+MainWindow::MainWindow( bool asClient, bool single )
 #if defined(HAVE_KDE)
     : KMainWindow( 0, "mainwindow", WType_TopLevel | WDestructiveClose | WGroupLeader ),
 #else
@@ -154,7 +154,7 @@ MainWindow::MainWindow( bool asClient )
     currentProject = 0;
     wspace = 0;
     oWindow = 0;
-    singleProject = FALSE;
+    singleProject = single;
 
     statusBar()->clear();
 #if defined(QT_NON_COMMERCIAL)

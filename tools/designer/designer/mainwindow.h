@@ -85,7 +85,7 @@ class MainWindow : public QMainWindow
 #undef QMainWindow
 
 public:
-    MainWindow( bool asClient );
+    MainWindow( bool asClient, bool single = FALSE );
     ~MainWindow();
 
     HierarchyView *objectHierarchy() const;

@@ -572,10 +572,12 @@ void MainWindow::setupFileActions()
     a->setStatusTip( tr( "Opens an existing project, form or source file ") );
     a->setWhatsThis( whatsThisFrom( "File|Open" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
-    a->addTo( tb );
-    a->addTo( fileMenu );
+    if ( !singleProject ) {
+	a->addTo( tb );
+	a->addTo( fileMenu );
+	fileMenu->insertSeparator();
+    }
 
-    fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
     a->setText( tr( "Close" ) );
@@ -584,7 +586,8 @@ void MainWindow::setupFileActions()
     a->setWhatsThis(whatsThisFrom( "File|Close" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( fileMenu );
+    if ( !singleProject )
+	a->addTo( fileMenu );
 
     fileMenu->insertSeparator();
 
@@ -607,7 +610,8 @@ void MainWindow::setupFileActions()
     a->setWhatsThis( whatsThisFrom( "File|Save As" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
     connect( this, SIGNAL( hasActiveWindow(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( fileMenu );
+    if ( !singleProject )
+	a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
     a->setText( tr( "Save All" ) );
@@ -616,7 +620,8 @@ void MainWindow::setupFileActions()
     a->setWhatsThis( whatsThisFrom( "File|Save All" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAll() ) );
     connect( this, SIGNAL( hasActiveWindowOrProject(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( fileMenu );
+    if ( !singleProject )
+	a->addTo( fileMenu );
 
     fileMenu->insertSeparator();
 
@@ -626,15 +631,19 @@ void MainWindow::setupFileActions()
     a->setStatusTip( tr( "Creates a new template" ) );
     a->setWhatsThis( whatsThisFrom( "File|Create Template" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileCreateTemplate() ) );
-    a->addTo( fileMenu );
+    if ( !singleProject )
+	a->addTo( fileMenu );
 
-    fileMenu->insertSeparator();
+    if ( !singleProject )
+	fileMenu->insertSeparator();
 
     recentlyFilesMenu = new QPopupMenu( this );
     recentlyProjectsMenu = new QPopupMenu( this );
 
-    fileMenu->insertItem( tr( "Recently opened files " ), recentlyFilesMenu );
-    fileMenu->insertItem( tr( "Recently opened projects" ), recentlyProjectsMenu );
+    if ( !singleProject ) {
+	fileMenu->insertItem( tr( "Recently opened files " ), recentlyFilesMenu );
+	fileMenu->insertItem( tr( "Recently opened projects" ), recentlyProjectsMenu );
+    }
 
     connect( recentlyFilesMenu, SIGNAL( aboutToShow() ),
 	     this, SLOT( setupRecentlyFilesMenu() ) );
@@ -645,7 +654,8 @@ void MainWindow::setupFileActions()
     connect( recentlyProjectsMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( recentlyProjectsMenuActivated( int ) ) );
 
-    fileMenu->insertSeparator();
+    if ( !singleProject )
+	fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
     a->setText( tr( "Exit" ) );
@@ -676,7 +686,8 @@ void MainWindow::setupProjectActions()
     ag->addTo( projectToolBar );
     actionGroupProjects = ag;
 
-    projectMenu->insertSeparator();
+    if ( !singleProject )
+	projectMenu->insertSeparator();
 
     a = new QAction( tr( "Add File" ), QPixmap(), tr( "&Add File..." ), 0, this, 0 );
     a->setStatusTip( tr("Adds a file to the current project") );
@@ -684,7 +695,8 @@ void MainWindow::setupProjectActions()
     connect( a, SIGNAL( activated() ), this, SLOT( projectInsertFile() ) );
     a->setEnabled( FALSE );
     connect( this, SIGNAL( hasNonDummyProject(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( projectMenu );
+    if ( !singleProject )
+	a->addTo( projectMenu );
 
     QAction* actionEditPixmapCollection = new QAction( tr( "Image Collection..." ), QPixmap(),
 					  tr( "&Image Collection..." ), 0, this, 0 );
@@ -703,7 +715,8 @@ void MainWindow::setupProjectActions()
     connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
     //actionEditDatabaseConnections->setEnabled( FALSE );
     //connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditDatabaseConnections, SLOT( setEnabled(bool) ) );
-    actionEditDatabaseConnections->addTo( projectMenu );
+    if ( !singleProject )
+	actionEditDatabaseConnections->addTo( projectMenu );
 #endif
 
     QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
