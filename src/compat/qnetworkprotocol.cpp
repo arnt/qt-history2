@@ -1711,5 +1711,6 @@ static void registerProtocols()
     }
 }
 
+#include "qnetworkprotocol.moc"
 
 #endif
