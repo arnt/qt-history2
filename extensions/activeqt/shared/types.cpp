@@ -78,37 +78,39 @@ QFont IFontToQFont( IFont *f )
 
 IPictureDisp *QPixmapToIPicture( const QPixmap &pixmap )
 {
-    if ( pixmap.isNull() )
-	return 0;
-
-    HDC hdc = ::CreateCompatibleDC( pixmap.handle() );
-    if ( !hdc ) {
-#if defined(QT_CHECK_STATE)
-	qSystemWarning( "QPixmapToIPicture: Failed to create compatible device context" );
-#endif
-	return 0;
-    }
-    HBITMAP hbm = ::CreateCompatibleBitmap( pixmap.handle(), pixmap.width(), pixmap.height() );
-    if ( !hbm ) {
-#if defined(QT_CHECK_STATE)
-	qSystemWarning( "QPixmapToIPicture: Failed to create compatible bitmap" );
-#endif
-	return 0;
-    }
-    ::SelectObject( hdc, hbm );
-    BOOL res = ::BitBlt( hdc, 0, 0, pixmap.width(), pixmap.height(), pixmap.handle(), 0, 0, SRCCOPY );
-
-    ::DeleteObject( hdc );
+    IPictureDisp *pic = 0;
 
     PICTDESC desc;
     desc.cbSizeofstruct = sizeof(PICTDESC);
     desc.picType = PICTYPE_BITMAP;
 
-    desc.bmp.hbitmap = hbm;
+    desc.bmp.hbitmap = 0;
     desc.bmp.hpal = QColor::hPal();
 
-    IPictureDisp *pic = 0;
-    HRESULT hres = OleCreatePictureIndirect( &desc, IID_IPictureDisp, TRUE, (void**)&pic );
+    if ( !pixmap.isNull() ) {
+	HDC hdc = ::CreateCompatibleDC( pixmap.handle() );
+	if ( !hdc ) {
+#if defined(QT_CHECK_STATE)
+	    qSystemWarning( "QPixmapToIPicture: Failed to create compatible device context" );
+#endif
+	    return 0;
+	}
+	HBITMAP hbm = ::CreateCompatibleBitmap( pixmap.handle(), pixmap.width(), pixmap.height() );
+	if ( !hbm ) {
+#if defined(QT_CHECK_STATE)
+	    qSystemWarning( "QPixmapToIPicture: Failed to create compatible bitmap" );
+#endif
+	    return 0;
+	}
+	::SelectObject( hdc, hbm );
+	BOOL res = ::BitBlt( hdc, 0, 0, pixmap.width(), pixmap.height(), pixmap.handle(), 0, 0, SRCCOPY );
+	
+	::DeleteObject( hdc );
+	
+	desc.bmp.hbitmap = hbm;
+    }
+
+    OleCreatePictureIndirect( &desc, IID_IPictureDisp, TRUE, (void**)&pic );
     return pic;
 }
 
@@ -392,22 +394,69 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
 
     case VT_DATE: // DATE -> QDateTime
-	static_QUType_ptr.set( obj, new QDateTime( DATEToQDateTime( arg.date ) ) );
+	static_QUType_varptr.set( obj, new QDateTime( DATEToQDateTime( arg.date ) ) );
 	break;
     case VT_DATE|VT_BYREF:
-	static_QUType_ptr.set( obj, new QDateTime( DATEToQDateTime( *arg.pdate ) ) );
+	{
+	    QDateTime *reference = (QDateTime*)static_QUType_ptr.get( obj );
+	    if ( reference )
+		*reference = DATEToQDateTime( *arg.pdate );
+	    else
+		reference = new QDateTime(DATEToQDateTime( *arg.pdate ));
+	    static_QUType_ptr.set( obj, reference );
+	}
 	break;
+    case VT_DISPATCH:
+    case VT_DISPATCH|VT_BYREF:
+	{
+	    // pdispVal and ppdispVal are a union
+	    IDispatch *disp = arg.pdispVal;
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Font ) {
+		IFont *ifont = 0;
+		QFont qfont;
+		QFont *reference = (QFont*)static_QUType_ptr.get( obj );
+		if ( disp )
+		    disp->QueryInterface( IID_IFont, (void**)&ifont );
+		if ( ifont ) {
+		    qfont = IFontToQFont( ifont );
+		    ifont->Release();
+		} else {
+		    qfont = QFont();
+		}
+		if ( reference )
+		    *reference = qfont;
+		else
+		    reference = new QFont( qfont );
+		static_QUType_ptr.set( obj, reference );
+	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Pixmap ) {
+		IPicture *ipic = 0;
+		QPixmap qpixmap;
+		QPixmap *reference = (QPixmap*)static_QUType_ptr.get( obj );
+		if ( disp )
+		    disp->QueryInterface( IID_IPicture, (void**)&ipic );
+		if ( ipic ) {
+		    qpixmap = IPictureToQPixmap( ipic );
+		    ipic->Release();
+		} else {
+		    qpixmap = QPixmap();
+		}
+		if ( reference )
+		    *reference = qpixmap;
+		else
+		    reference = new QPixmap();
+		static_QUType_ptr.set( obj, reference );
+	    } else {
+		disp->AddRef();
+		static_QUType_ptr.set( obj, disp );
+	    }
+	}
+	break;
+
     case VT_UNKNOWN:  // IUnknown -> void*
 	static_QUType_ptr.set( obj, arg.punkVal );
 	break;
     case VT_UNKNOWN|VT_BYREF:
 	static_QUType_ptr.set( obj, *arg.ppunkVal );
-	break;
-    case VT_DISPATCH: // IDispatch -> void*
-	static_QUType_ptr.set( obj, arg.pdispVal );
-	break;
-    case VT_DISPATCH|VT_BYREF:
-	static_QUType_ptr.set( obj, *arg.ppdispVal );
 	break;
     default:
 	break;
@@ -519,33 +568,38 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_R8|VT_BYREF:
 	var = *arg.pdblVal;
 	break;
-
     case VT_DATE:
 	var = DATEToQDateTime( arg.date );
 	break;
+    case VT_DATE|VT_BYREF:
+	var = DATEToQDateTime( *arg.pdate );
+	break;
+
     case VT_DISPATCH:
+    case VT_DISPATCH|VT_BYREF:
 	{
+	    // pdispVal and ppdispVal are a union
 	    IDispatch *disp = arg.pdispVal;
-	    if ( disp ) {
+	    if ( !qstrcmp( hint, "QFont" ) ) {
 		IFont *ifont = 0;
-		disp->QueryInterface( IID_IFont, (void**)&ifont );
+		if ( disp )
+		    disp->QueryInterface( IID_IFont, (void**)&ifont );
 		if ( ifont ) {
 		    var = IFontToQFont( ifont );
 		    ifont->Release();
-		    break;
+		} else {
+		    var = QFont();
 		}
-
+	    } else if ( !qstrcmp( hint, "QPixmap" ) ) {
 		IPicture *ipic = 0;
-		disp->QueryInterface( IID_IPicture, (void**)&ipic );
+		if ( disp )
+		    disp->QueryInterface( IID_IPicture, (void**)&ipic );
 		if ( ipic ) {
 		    var = IPictureToQPixmap( ipic );
 		    ipic->Release();
-		}
-	    } else if ( hint ) {
-		if ( !qstrcmp( hint, "QPixmap" ) )
+		} else {
 		    var = QPixmap();
-		else if ( !qstrcmp( hint, "QFont" ) )
-		    var = QFont();
+		}
 	    }
 	}
 	break;
@@ -618,12 +672,11 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
     case QVariant::Color:
 	static_QUType_varptr.set( &obj, new QColor( var.toColor() ) );
 	break;
-
     case QVariant::Font:
-	static_QUType_ptr.set( &obj, QFontToIFont( var.toFont() ) );
+	static_QUType_ptr.set( &obj, new QFont( var.toFont() ) );
 	break;
     case QVariant::Pixmap:
-	static_QUType_ptr.set( &obj, QPixmapToIPicture( var.toPixmap() ) );
+	static_QUType_ptr.set( &obj, new QPixmap( var.toPixmap() ) );
 	break;
     case QVariant::Date:
 	static_QUType_ptr.set( &obj, new QDateTime( var.toDate() ) );
@@ -701,6 +754,11 @@ static inline void makeReference( VARIANT &arg )
     case VT_R8:
 	arg.pdblVal = new double(arg.dblVal);
 	break;
+    case VT_DATE:
+	arg.pdate = new DATE(arg.date);
+	break;
+    case VT_DISPATCH:
+	break;
     }
     arg.vt |= VT_BYREF;
 }
@@ -749,10 +807,11 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
     } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
 	arg.vt = VT_I4;
 	arg.lVal = static_QUType_enum.get( obj );
-    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) && param ) {
 	QVariant value = static_QUType_QVariant.get( obj );
 	const char *vartype;
-	if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+	if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ||
+	     QUType::isEqual( param->type, &static_QUType_varptr ) ) {
 	    if ( param->typeExtra )
 		vartype = QVariant::typeToName( (QVariant::Type)*(int*)param->typeExtra );
 	    else
@@ -763,29 +822,52 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    vartype = param->type->desc();
 
 	QVariantToVARIANT( value, arg, vartype );
-    } else if ( QUType::isEqual( obj->type, &static_QUType_varptr ) && param ) {
-	void *ptrval = static_QUType_varptr.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_varptr ) ||
+		QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
+	void *ptrvalue = static_QUType_varptr.get( obj );
+	const char *vartype;
 	QVariant value;
 
-	if ( param->typeExtra ) switch( (QVariant::Type)*(int*)param->typeExtra ) {
-	case QVariant::Color:
-	    value = *(QColor*)ptrval;
-	    break;
-	}
-
-	const char *vartype;
-	if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ||
+	    QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+	    QVariant::Type vart;
 	    if ( param->typeExtra )
-		vartype = QVariant::typeToName( (QVariant::Type)*(int*)param->typeExtra );
+		vart = (QVariant::Type)*(int*)param->typeExtra ;
 	    else
-		vartype = value.typeName();
-	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
+		vart = value.type();
+
+	    switch( vart ) {
+	    case QVariant::Color:
+		value = *(QColor*)ptrvalue;
+		break;
+	    case QVariant::Date:
+		value = *(QDate*)ptrvalue;
+		break;
+	    case QVariant::Time:
+		value = *(QTime*)ptrvalue;
+		break;
+	    case QVariant::DateTime:
+		value = *(QDateTime*)ptrvalue;
+		break;
+	    case QVariant::Pixmap:
+		value = *(QPixmap*)ptrvalue;
+		break;
+	    case QVariant::Font:
+		value = *(QFont*)ptrvalue;
+		break;
+	    default:
+		break;
+	    }
+	    vartype = QVariant::typeToName( vart );
+	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 	    vartype = (const char*)param->typeExtra;
-	else
+	} else {
 	    vartype = param->type->desc();
+	}
 
 	QVariantToVARIANT( value, arg, vartype );
     } else {
+	qDebug( "QUObjectToVARIANT: Unhandled QUType %s!", obj->type->desc() );
 	arg.vt = VT_EMPTY;
     }
     if ( byref && !(arg.vt & VT_BYREF) )
