@@ -11,7 +11,7 @@
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Macintosh may use this file in accordance with the Qt Commercial
-** License Agreement provided with the Software. This file and its contents may 
+** License Agreement provided with the Software. This file and its contents may
 ** not be distributed onto any other platform or included in any other licensed
 ** package unless explicit permission is granted.
 **
@@ -11746,6 +11746,286 @@ static const char * const aqua_spinbtn_up_off_xpm[] = {
 "irstfuvwvuftsr",
 "ixy}zA')'Az}yx",
 "iBCDAEFGFEADCB"};
+/* XPM */
+static char * aqua_focus_t_xpm[] = {
+"68 5 22 1",
+" 	c None",
+".	c #CEDEE7",
+"+	c #C6D6DE",
+"@	c #D6DEEF",
+"#	c #D6E7EF",
+"$	c #CED6E7",
+"%	c #BDD6EF",
+"&	c #BDCEEF",
+"*	c #BDDEFF",
+"=	c #BDD6F7",
+"-	c #8CB5D6",
+";	c #94B5D6",
+">	c #94B5DE",
+",	c #94BDDE",
+"'	c #7B94AD",
+")	c #7B8CAD",
+"!	c #849CB5",
+"~	c #A5B5B5",
+"{	c #ADB5C6",
+"]	c #ADBDC6",
+"^	c #B5B5BD",
+"/	c #A5B5BD",
+".+@..@++#+$@..++.+@..@++#+$@..++.+@..@++#+$@..++.+@..@++#+$@..++.+@.",
+"%&%&%%%%%%%*%%%=%&%&%%%%%%%*%%%=%&%&%%%%%%%*%%%=%&%&%%%%%%%*%%%=%&%&",
+"--;---;->->,,-->--;---;->->,,-->--;---;->->,,-->--;---;->->,,-->--;-",
+"''')'')'!'''''''''')'')'!'''''''''')'')'!'''''''''')'')'!'''''''''')",
+"~{]^]{/]~]]]]]]]{{]^]{/]~]]]]]]]{{]^]{/]~]]]]]]]{{]^]{/]~]]]]]]]{{]^"};
+/* XPM */
+static char * aqua_focus_l_xpm[] = {
+"5 16 29 1",
+" 	c None",
+".	c #D6EFF7",
+"+	c #BDD6EF",
+"@	c #9CC6E7",
+"#	c #9CB5CE",
+"$	c #C6CEDE",
+"%	c #CEDEE7",
+"&	c #B5CEE7",
+"*	c #8CB5D6",
+"=	c #C6D6DE",
+"-	c #ADC6DE",
+";	c #9CADCE",
+">	c #CEDEEF",
+",	c #94B5DE",
+"'	c #8CB5CE",
+")	c #DEEFF7",
+"!	c #94BDDE",
+"~	c #9CB5D6",
+"{	c #B5CED6",
+"]	c #94B5D6",
+"^	c #CED6E7",
+"/	c #BDD6F7",
+"(	c #94B5CE",
+"_	c #BDCED6",
+":	c #D6DEEF",
+"<	c #DEF7FF",
+"[	c #D6D6DE",
+"}	c #D6E7EF",
+"|	c #B5C6E7",
+".+@#$",
+"%&*#%",
+"=-*;=",
+">&,'=",
+")+!#=",
+"=&*~=",
+"{&];=",
+"=&*#^",
+")/!#%",
+">&,(=",
+"_-*#^",
+":&,#%",
+"<+!#[",
+"%+*#}",
+"_&]#=",
+"=|*#%"};
+/* XPM */
+static char * aqua_focus_r_xpm[] = {
+"5 16 30 1",
+" 	c None",
+".	c #C6D6DE",
+"+	c #9CB5CE",
+"@	c #9CBDE7",
+"#	c #BDD6EF",
+"$	c #D6E7EF",
+"%	c #8CB5D6",
+"&	c #B5D6EF",
+"*	c #CEDEE7",
+"=	c #9CADCE",
+"-	c #B5D6F7",
+";	c #BDCED6",
+">	c #CED6E7",
+",	c #8CB5CE",
+"'	c #B5C6E7",
+")	c #94BDDE",
+"!	c #9CB5D6",
+"~	c #B5CEE7",
+"{	c #CED6DE",
+"]	c #ADBDDE",
+"^	c #94B5DE",
+"/	c #D6DEE7",
+"(	c #CEDEDE",
+"_	c #BDCEEF",
+":	c #D6EFF7",
+"<	c #94B5CE",
+"[	c #9CBDDE",
+"}	c #DEEFF7",
+"|	c #ADC6DE",
+"1	c #D6DEEF",
+".+@#$",
+".+%&.",
+"*=%-;",
+">,%'.",
+"*+)#$",
+".!%~.",
+"{=%];",
+"*+^~/",
+"(+)_:",
+"*<%~.",
+".+^~;",
+"*+%~.",
+".+[#}",
+".+^~.",
+"{+%|;",
+"*+^~1"};
+/* XPM */
+static char * aqua_focus_b_xpm[] = {
+"70 5 24 1",
+" 	c None",
+".	c #D6DEEF",
+"+	c #D6E7EF",
+"@	c #CEDEE7",
+"#	c #DEEFF7",
+"$	c #D6E7F7",
+"%	c #DEFFFF",
+"&	c #D6EFF7",
+"*	c #ADD6DE",
+"=	c #ADC6DE",
+"-	c #ADCEDE",
+";	c #ADBDDE",
+">	c #94B5DE",
+",	c #8CB5D6",
+"'	c #94B5D6",
+")	c #BDD6EF",
+"!	c #BDCEEF",
+"~	c #BDDEFF",
+"{	c #BDD6F7",
+"]	c #C6D6DE",
+"^	c #C6D6D6",
+"/	c #CED6E7",
+"(	c #CED6DE",
+"_	c #D6D6DE",
+".+@#+@+$++%+++++&+@#+@+$++%+++++&+@#+@+$++%+++++&+@#+@+$++%+++++&+@#+@",
+"*==-==-;===;==;=*==-==-;===;==;=*==-==-;===;==;=*==-==-;===;==;=*==-==",
+">,>>,',,,,',,>,,>,>>,',,,,',,>,,>,>>,',,,,',,>,,>,>>,',,,,',,>,,>,>>,'",
+")))!~)!{){)!)){))))!~)!{){)!)){))))!~)!{){)!)){))))!~)!{){)!)){))))!~)",
+"@]@]@^/]@(&].]_]@]@]@^/]@(&].]_]@]@]@^/]@(&].]_]@]@]@^/]@(&].]_]@]@]@^"};
+/* XPM */
+static char * aqua_focus_tl_xpm[] = {
+"5 5 22 1",
+" 	c None",
+".	c #F7F7F7",
+"+	c #E7E7EF",
+"@	c #D6DEE7",
+"#	c #CED6E7",
+"$	c #FFFFFF",
+"%	c #EFF7F7",
+"&	c #D6E7EF",
+"*	c #CEDEF7",
+"=	c #BDD6F7",
+"-	c #D6DEEF",
+";	c #B5CEE7",
+">	c #94BDD6",
+",	c #94B5DE",
+"'	c #CED6DE",
+")	c #BDCEDE",
+"!	c #9CBDD6",
+"~	c #739CB5",
+"{	c #7B9CB5",
+"]	c #8CB5D6",
+"^	c #8CADC6",
+"/	c #9CB5CE",
+"..+@#",
+"$%&*=",
+"+-;>,",
+"')!~{",
+"#;]^/"};
+/* XPM */
+static char * aqua_focus_tr_xpm[] = {
+"5 5 23 1",
+" 	c None",
+".	c #D6DEEF",
+"+	c #D6DEE7",
+"@	c #E7E7EF",
+"#	c #F7F7F7",
+"$	c #EFEFEF",
+"%	c #B5CEE7",
+"&	c #CEDEF7",
+"*	c #DEF7F7",
+"=	c #EFF7F7",
+"-	c #FFFFFF",
+";	c #8CB5D6",
+">	c #94BDD6",
+",	c #B5C6E7",
+"'	c #CEDEE7",
+")	c #7B9CB5",
+"!	c #739CB5",
+"~	c #BDCEDE",
+"{	c #CED6DE",
+"]	c #94ADC6",
+"^	c #8CADC6",
+"/	c #94B5DE",
+"(	c #ADC6D6",
+".+@#$",
+"%&*=-",
+";>,'@",
+")!>~{",
+"]^/(."};
+/* XPM */
+static char * aqua_focus_bl_xpm[] = {
+"5 5 22 1",
+" 	c None",
+".	c #D6DEEF",
+"+	c #ADC6DE",
+"@	c #8CB5D6",
+"#	c #94B5CE",
+"$	c #CED6DE",
+"%	c #BDCEDE",
+"&	c #94BDD6",
+"*	c #8CADCE",
+"=	c #9CBDD6",
+"-	c #EFEFF7",
+";	c #CEDEE7",
+">	c #B5CEE7",
+",	c #FFFFFF",
+"'	c #EFF7F7",
+")	c #D6E7EF",
+"!	c #CEDEF7",
+"~	c #EFEFEF",
+"{	c #F7F7F7",
+"]	c #E7E7EF",
+"^	c #D6DEF7",
+"/	c #CED6E7",
+".+@#+",
+"$%&*=",
+"-;>@@",
+",')!>",
+"~{]^/"};
+/* XPM */
+static char * aqua_focus_br_xpm[] = {
+"5 5 21 1",
+" 	c None",
+".	c #ADC6DE",
+"+	c #94B5CE",
+"@	c #8CB5D6",
+"#	c #B5CEDE",
+"$	c #CED6E7",
+"%	c #9CBDD6",
+"&	c #8CADCE",
+"*	c #94BDD6",
+"=	c #BDD6DE",
+"-	c #CED6DE",
+";	c #94B5DE",
+">	c #B5CEE7",
+",	c #D6E7EF",
+"'	c #E7E7EF",
+")	c #CEDEF7",
+"!	c #EFF7F7",
+"~	c #FFFFFF",
+"{	c #D6DEF7",
+"]	c #F7F7F7",
+"^	c #EFEFEF",
+".+@#$",
+"%&*=-",
+";@>,'",
+">),!~",
+"${']^"};
+
 
 
 static int qAquaGetNum( const QString & s)
@@ -11848,7 +12128,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         int frame = s.mid(i-1, 1).toInt(); 	//frame
 	QPixmap left, mid, right; 	//get pixmap
 	switch( frame ){
-	case 0: 
+	case 0:
 	    left  = QPixmap((const char **) aqua_btn_def_left_xpm);
 	    mid   = QPixmap((const char **) aqua_btn_def_mid_xpm);
 	    right = QPixmap((const char **) aqua_btn_def_right_xpm);
@@ -12483,7 +12763,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     } else if( s.contains("toolbtn_off") ){
         // Normal state buttons
         QPixmap off_l( (const char **) aqua_toolbtn_off_left_xpm ),
-	    off_m( (const char **) aqua_toolbtn_off_mid_xpm ), 
+	    off_m( (const char **) aqua_toolbtn_off_mid_xpm ),
 	    off_r( (const char **) aqua_toolbtn_off_right_xpm );
         int width = 0, height = 0, j;
         i = s.findRev( '_' );
@@ -12591,6 +12871,27 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 			      px );
     }
 
+    // Focus widget highlight
+    if( s.contains("focus_") ){
+	QPixmap focus_t( (const char **) aqua_focus_t_xpm );
+	QPixmap focus_l( (const char **) aqua_focus_l_xpm );
+	QPixmap focus_r( (const char **) aqua_focus_r_xpm );
+	QPixmap focus_b( (const char **) aqua_focus_b_xpm );
+	QPixmap focus_tl( (const char **) aqua_focus_tl_xpm );
+	QPixmap focus_bl( (const char **) aqua_focus_bl_xpm );
+	QPixmap focus_tr( (const char **) aqua_focus_tr_xpm );
+	QPixmap focus_br( (const char **) aqua_focus_br_xpm );
+
+        QPixmapCache::insert( "$qt_aqua_focus_t", focus_t );
+        QPixmapCache::insert( "$qt_aqua_focus_l", focus_l );
+        QPixmapCache::insert( "$qt_aqua_focus_r", focus_r );
+        QPixmapCache::insert( "$qt_aqua_focus_b", focus_b );
+        QPixmapCache::insert( "$qt_aqua_focus_tl", focus_tl );
+        QPixmapCache::insert( "$qt_aqua_focus_bl", focus_bl );
+        QPixmapCache::insert( "$qt_aqua_focus_tr", focus_tr );
+        QPixmapCache::insert( "$qt_aqua_focus_br", focus_br );
+    }
+
     if(aquaMode == AquaModeGraphite || aquaMode == AquaModeLime ||
 	aquaMode == AquaModeCherry) { //take that!!
 	QPixmap mp;
@@ -12609,7 +12910,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 			c = qRgb(b, g, r);
 		    else
 			c = qRgb(r, b, g);
-		} 
+		}
 		im.setPixel(x, y, c);
 	    }
 	    p = im;

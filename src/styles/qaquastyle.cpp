@@ -61,6 +61,7 @@
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
 #include "qpopupmenu.h"
+#include "qaquastyle_p.h"
 #ifdef Q_WS_MAC
 #  include <string.h>
 #  include <qt_mac.h>
@@ -77,6 +78,109 @@ static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 );
 static bool scrollbar_arrows_together = TRUE;
+
+class QAquaFocusWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    QAquaFocusWidget( );
+    ~QAquaFocusWidget() {}
+    void setFocusWidget( QWidget * widget );
+    QWidget* widget() { return d; }
+    QSize sizeHint() { return QSize( 0, 0 ); }
+    
+public slots:
+    void objDestroyed(QObject *);
+
+protected:
+    bool eventFilter( QObject * o, QEvent * e );
+    void paintEvent( QPaintEvent * );
+    
+private:
+    QWidget *d;
+    QPixmap pmt, pmb, pml, pmr, pmtl, pmtr, pmbl, pmbr;
+};
+
+QAquaFocusWidget::QAquaFocusWidget( )
+    : QWidget( NULL, "magicFocusWidget" ), d( NULL )
+{
+    qAquaPixmap( "focus_t", pmt );
+    qAquaPixmap( "focus_l", pml );
+    qAquaPixmap( "focus_b", pmb );
+    qAquaPixmap( "focus_r", pmr );
+    qAquaPixmap( "focus_tl", pmtl );
+    qAquaPixmap( "focus_bl", pmbl );
+    qAquaPixmap( "focus_tr", pmtr );
+    qAquaPixmap( "focus_br", pmbr );
+}
+
+void QAquaFocusWidget::setFocusWidget( QWidget * widget )
+{
+    if (d == widget)
+	return;
+    hide();
+    if (d)
+	d->removeEventFilter( this );
+    if (widget && widget->parentWidget()) {
+	d = widget;
+	reparent( d->parentWidget(), pos() );
+	raise();
+	d->installEventFilter( this );
+	setGeometry( widget->x() - 3, widget->y() - 3, widget->width() + 6, widget->height() + 6 );
+	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );  
+	show();
+    } else {
+	d = NULL;
+    }
+}
+
+void QAquaFocusWidget::objDestroyed(QObject * o)
+{
+    if (o == d) {
+	hide();
+	d = NULL;
+    }
+}
+
+bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
+{
+    if (o != d)
+	return FALSE;
+    switch (e->type()) {
+    case QEvent::Move: {
+	QMoveEvent *me = (QMoveEvent*)e;
+	move( me->pos().x() - 2, me->pos().y() - 2 );
+	break;
+    }
+    case QEvent::Resize: {
+	QResizeEvent *re = (QResizeEvent*)e;
+	resize( re->size().width() + 4, re->size().height() + 4 );
+	break;
+    }
+    case QEvent::Reparent: {
+	QWidget *w = (QWidget*)o;
+	reparent( w->parentWidget(), pos() );
+	raise();
+	break;
+    }
+    default:
+	break;
+    }
+    return FALSE;
+}
+
+void QAquaFocusWidget::paintEvent( QPaintEvent *e )
+{
+    QPainter p( this );
+    p.drawTiledPixmap( 4, 0, width() - 8, pmt.height(), pmt );
+    p.drawTiledPixmap( 4, height() - pmb.height(), width() - 8, pmb.height(), pmb );
+    p.drawTiledPixmap( 0, 5, pml.width(), height() - 10, pml );
+    p.drawTiledPixmap( width() - pmr.width(), 5, pml.width(), height() - 10, pmr );
+    p.drawPixmap( 0, 0, pmtl );
+    p.drawPixmap( 0, height() - pmbl.height(), pmbl );
+    p.drawPixmap( width() - pmtr.width(), 0, pmtr );
+    p.drawPixmap( width() - pmbr.width(), height() - pmbr.height(), pmbr );
+}
 
 class QAquaStylePrivate : public QObject
 {
@@ -97,23 +201,17 @@ public:
     int progressTimerId;
     int progressOff;
     //big focus rects
-    QFrame *focusWidget;
-    QFrame::Shape oldFrameShape;
-    QFrame::Shadow oldFrameShadow;
-    int oldFrameWidth;
+    QAquaFocusWidget *focusWidget;
 
 public slots:
     void objDestroyed(QObject *);
 };
-#include "qaquastyle_p.h"
 #include "qaquastyle.moc"
 
 void QAquaStylePrivate::objDestroyed(QObject *o)
 {
     if(o == defaultButton)
 	defaultButton = NULL;
-    if(o == focusWidget)
-	focusWidget = NULL;
 }
 
 // NOT REVISED
@@ -170,7 +268,7 @@ void QAquaStyle::polish( QApplication* app )
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
 
     pal.setColor( QColorGroup::HighlightedText, Qt::black);
-    
+
     app->setPalette( pal, TRUE );
 }
 
@@ -259,14 +357,8 @@ void QAquaStyle::unPolish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WidgetOrigin );
     }
 
-    if(w == d->focusWidget) {
-	if(w->inherits("QFrame")) {
-	    d->focusWidget->setFrameShape(d->oldFrameShape);
-	    d->focusWidget->setFrameShadow(d->oldFrameShadow);
-	    d->focusWidget->setLineWidth(d->oldFrameWidth);
-	}
-	d->focusWidget = NULL;
-    }
+    if(d->focusWidget && d->focusWidget->widget() == w)
+	d->focusWidget->hide();
 }
 
 /*! \reimp
@@ -291,31 +383,20 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 /*! \reimp */
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
-    if(d->focusWidget && ((e->type() == QEvent::FocusOut && d->focusWidget == o) ||
-			  (e->type() == QEvent::FocusIn && d->focusWidget != o)))  { //restore it
+    if(d->focusWidget && d->focusWidget->widget()  &&
+       ((e->type() == QEvent::FocusOut && d->focusWidget->widget() == o) ||
+	(e->type() == QEvent::FocusIn && d->focusWidget->widget() != o)))  { //restore it
 	/* I do this game with inherits() & className() because once the QFrame is destructed it
 	   becomes a QWidget. Then in ~QWidget() it does clearFocus() so by the time this gets
 	   called inherits("QFrame") returns TRUE, but classname will be wrong. Hackyness. */
-	if(o != d->focusWidget || (o->inherits("QFrame") && strcmp(o->className(), "QWidget"))) {
-	    d->focusWidget->setFrameShape(d->oldFrameShape);
-	    d->focusWidget->setFrameShadow(d->oldFrameShadow);
-	    d->focusWidget->setLineWidth(d->oldFrameWidth);
-	    d->focusWidget->repaint();
-	}
-	d->focusWidget = NULL;
+	if(o != d->focusWidget->widget() || (o->inherits("QFrame") && strcmp(o->className(), "QWidget")))
+	    d->focusWidget->setFocusWidget( NULL );
     }
     if( o && e->type() == QEvent::FocusIn ) {
 	if( o != d->focusWidget && o->inherits("QFrame") ) {
-	    //save it
-	    d->focusWidget = (QFrame *)o;
-	    d->oldFrameShape = d->focusWidget->frameShape();
-	    d->oldFrameShadow = d->focusWidget->frameShadow();
-	    d->oldFrameWidth = d->focusWidget->lineWidth();
-	    //set it
-	    d->focusWidget->setFrameShape(QFrame::Panel);
-	    d->focusWidget->setFrameShadow(QFrame::Plain);
-	    d->focusWidget->setLineWidth(2);
-	    d->focusWidget->repaint();
+	    if (!d->focusWidget)
+		d->focusWidget = new QAquaFocusWidget();
+	    d->focusWidget->setFocusWidget( (QWidget*)o );
 	} else if( o->inherits("QPushButton") ) { // Kb Focus received - make this the default button
 	    d->defaultButton = (QPushButton *) o;
 	}
@@ -423,11 +504,11 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_FocusRect:
 	break;     // The Mac Aqua style doesn't use focus rectangles
 
-    case PE_DockWindowHandle: 
+    case PE_DockWindowHandle:
 	{
 	    p->save();
 	    p->translate( r.x(), r.y() );
-	    
+	
 	    bool highlight = flags & Style_On;
 	    QColor dark( cg.dark() );
 	    QColor light( cg.light() );
@@ -460,7 +541,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 		    if ( highlight )
 			p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
 		    QPointArray a( 2 * ((w-6)/3) );
-		    
+		
 		    int x = 3 + (w%3)/2;
 		    p->setPen( dark );
 		    p->drawLine( 1, 8, w-2, 8 );
@@ -480,7 +561,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 		p->restore();
 	    }
 	}
-	break; 
+	break;
 
     case PE_DockWindowSeparator: {
 	QPixmap px;
@@ -488,7 +569,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    qAquaPixmap( "tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
 	else
 	    qAquaPixmap( "tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
-	    
+	
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
 
