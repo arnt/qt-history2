@@ -791,6 +791,19 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
     \fn int QTreeWidgetItem::columnCount() const
 */
 
+/*!
+    \fn void QTreeWidgetItem::hide()
+
+    Hides the item so that its parent tree widget does not display it.
+
+    \sa QTreeWidget::isHidden()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::show()
+
+    Makes the item visible so that its parent displays it normally.
+*/
 
 /*!
   \internal
