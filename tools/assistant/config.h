@@ -88,8 +88,8 @@ public:
     bool isLinkUnderline() const { return linkUnder; }
     void setLinkUnderline( bool ul ) { linkUnder = ul; }
 
-    QString mainWindowLayout() const { return mainWinLayout; }
-    void setMainWindowLayout( const QString &layout ) { mainWinLayout = layout; }
+    QByteArray mainWindowState() const { return mainWinState; }
+    void setMainWindowState( const QByteArray &state ) { mainWinState = state; }
 
     QString assistantDocPath() const;
 
@@ -119,7 +119,7 @@ private:
     QString fontFix;
     QString linkCol;
     QStringList src;
-    QString mainWinLayout;
+    QByteArray mainWinState;
     QRect geom;
     int sideBar;
     int fontSiz;

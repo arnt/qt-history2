@@ -87,13 +87,7 @@ MainWindow::MainWindow()
         }
     }
 
-    QString mainWindowLayout = config->mainWindowLayout();
-
-#if 0 // ### port me
-    QTextStream ts(&mainWindowLayout, IO_ReadOnly);
-    ts >> *this;
-#endif
-
+    restoreState(config->mainWindowState());
     if (config->sideBarHidden())
         dw->hide();
 
@@ -164,9 +158,11 @@ void MainWindow::setup()
     Config *config = Config::configuration();
 
     setupBookmarkMenu();
-#if 0 /// ### port me
-    ui.PopupMenu->addMenu(tr("Vie&ws"), createDockWindowMenu());
-#endif
+
+    QAction *viewsAction = createPopupMenu()->menuAction();
+    viewsAction->setText(tr("Views"));
+    ui.PopupMenu->addAction(viewsAction);
+
     helpDock->tabWidget()->setCurrentPage(config->sideBarPage());
 
     qApp->restoreOverrideCursor();
@@ -561,16 +557,9 @@ void MainWindow::showSettingsDialog(int page)
     showLink(tabs->currentBrowser()->source());
 }
 
-void MainWindow::hide()
-{
-    saveToolbarSettings();
-    QMainWindow::hide();
-}
-
 MainWindow* MainWindow::newWindow()
 {
     saveSettings();
-    saveToolbarSettings();
     MainWindow *mw = new MainWindow;
     mw->move(geometry().topLeft());
     if (isMaximized())
@@ -593,6 +582,7 @@ void MainWindow::saveSettings()
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());
+    config->setMainWindowState(saveState());
 
     // Create list of the tab urls
     QStringList lst;
@@ -601,16 +591,6 @@ void MainWindow::saveSettings()
         lst << browser->source();
     config->setSource(lst);
     config->save();
-}
-
-void MainWindow::saveToolbarSettings()
-{
-#if 0 /// ### port me
-    QString mainWindowLayout;
-    QTextStream ts(&mainWindowLayout, IO_WriteOnly);
-    ts << *this;
-    Config::configuration()->setMainWindowLayout(mainWindowLayout);
-#endif
 }
 
 TabbedBrowser* MainWindow::browsers() const

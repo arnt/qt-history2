@@ -117,7 +117,8 @@ void Config::load()
                       settings.value( key + QLatin1String("GeometryHeight"), 600 ).toInt() );
         maximized = settings.value( key + QLatin1String("GeometryMaximized"), false ).toBool();
     }
-    mainWinLayout = settings.value( key + QLatin1String("MainwindowLayout") ).toString();
+    mainWinState = settings.value(key + QLatin1String("MainWindowState")).toByteArray();
+    mainWinState = QByteArray::fromBase64(mainWinState);
     rebuildDocs = settings.value( key + QLatin1String("RebuildDocDB"), true ).toBool();
 
     profileNames = settings.value( key + QLatin1String("Profile") ).toStringList();
@@ -153,8 +154,7 @@ void Config::saveSettings()
         settings.setValue( key + QLatin1String("Size"),  fontSiz );
         settings.setValue( key + QLatin1String("FixedFamily"), fontFix );
     }
-    if ( !hideSidebar )
-        settings.setValue( key + QLatin1String("MainwindowLayout"), mainWinLayout );
+    settings.setValue( key + QLatin1String("MainWindowState"), mainWinState.toBase64() );
     settings.setValue( key + QLatin1String("RebuildDocDB"), rebuildDocs );
 }
 

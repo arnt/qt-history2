@@ -41,11 +41,9 @@ public:
 public slots:
     MainWindow *newWindow();
 
-    void hide();
     void setup();
     void showLink(const QString &link);
     void showLinks(const QStringList &links);
-    void saveToolbarSettings();
     void saveSettings();
     void updateBookmarkMenu();
 

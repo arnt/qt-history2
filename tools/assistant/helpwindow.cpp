@@ -52,7 +52,6 @@ void HelpWindow::setSource(const QString &name)
         c.clearSelection();
         setTextCursor(c);
         mw->saveSettings();
-        mw->saveToolbarSettings();
         MainWindow *nmw = new MainWindow;
 
         QFileInfo currentInfo(source());
@@ -143,10 +142,10 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    setText(QLatin1String("<body bgcolor=\"") 
-        + palette().color(backgroundRole()).name() 
+    setText(QLatin1String("<body bgcolor=\"")
+        + palette().color(backgroundRole()).name()
         + QLatin1String("\">"));
-        
+
     QTextBrowser::setSource(name);
 }
 
