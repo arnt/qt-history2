@@ -2612,7 +2612,7 @@ void generatePropsStrings()
 			if ( lit.current()->name == p->type && lit.current()->set )
 			    set = TRUE;
 
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writeable.\n",
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writable.\n",
 			     g->fileName.data(), p->lineNo, (const char*) p->name );
 		    fprintf( stderr, "   Have been looking for public set functions \n");
 		    if ( !set && p->oredEnum != 1 ) {
@@ -2710,7 +2710,7 @@ int generateProps()
 	    if ( it.current()->getfunc )
 		flags += "QMetaProperty::Readable|";
 	    if ( it.current()->setfunc )
-		flags += "QMetaProperty::Writeable|";
+		flags += "QMetaProperty::Writable|";
 	    if ( it.current()->stdSet() )
 		flags += "QMetaProperty::StdSet|";
 
@@ -2726,7 +2726,7 @@ int generateProps()
 		if ( !it.current()->getfunc )
 		    flags += "QMetaProperty::Readable|";
 		if ( !it.current()->setfunc )
-		    flags += "QMetaProperty::Writeable|QMetaProperty::StdSet|";
+		    flags += "QMetaProperty::Writable|QMetaProperty::StdSet|";
 		if ( flags[ (int) flags.length() - 1] == '|' )
 		    flags.remove( flags.length()-1, 1);
 		if (!flags.isEmpty() ) {
