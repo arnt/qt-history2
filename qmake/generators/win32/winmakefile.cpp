@@ -255,7 +255,6 @@ void Win32MakefileGenerator::fixTargetExt()
 
 void Win32MakefileGenerator::processRcFileVar()
 {
-    const bool mingw = (project->first("MAKEFILE_GENERATOR") == "MINGW");
     if (!project->variables()["RC_FILE"].isEmpty()) {
         if (!project->variables()["RES_FILE"].isEmpty()) {
             fprintf(stderr, "Both .rc and .res file specified.\n");
@@ -263,7 +262,7 @@ void Win32MakefileGenerator::processRcFileVar()
             exit(666);
         }
         project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-        project->variables()["RES_FILE"].first().replace(".rc", mingw ? ".o" : ".res");
+        project->variables()["RES_FILE"].first().replace(".rc", ".res");
         if (!project->variables()["OBJECTS_DIR"].isEmpty())
             project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + "\\");
         project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
