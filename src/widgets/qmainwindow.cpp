@@ -157,8 +157,8 @@ public:
 	dockable[ (int)QMainWindow::Unmanaged ] = TRUE;
 	dockable[ (int)QMainWindow::Hidden ] = TRUE;
 	dockable[ (int)QMainWindow::TornOff ] = TRUE;
-	lLeft = lRight = 0;
-	
+	lLeft = lRight = lTop = lBottom = 0;
+	lastTopHeight = -1;
 	movable = TRUE;
     }
 
@@ -198,7 +198,7 @@ public:
     }
 
     ToolBarDock * top, * left, * right, * bottom, * tornOff, * unmanaged, *hidden;
-    QToolLayout *lLeft, *lRight;
+    QToolLayout *lLeft, *lRight, *lTop, *lBottom;
 
     QMenuBar * mb;
     QStatusBar * sb;
@@ -224,7 +224,8 @@ public:
     QMainWindow::ToolBarDock oldDock, origDock;
     HideDock *hideDock;
     QPoint cursorOffset;
-
+    int lastTopHeight;
+    
     bool movable;
     bool opaque;
 
@@ -925,11 +926,19 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 	dl = d->left;
 	if ( d->lLeft )
 	    dy = d->lLeft->geometry().y();
+	if ( d->lLeft && d->lastTopHeight != -1 && !dy )
+	    dy = d->lastTopHeight;
+	else
+	    d->lastTopHeight = dy;
 	break;
     case QMainWindow::Right:
 	dl = d->right;
 	if ( d->lRight )
 	    dy = d->lRight->geometry().y();
+	if ( d->lRight && d->lastTopHeight != -1 && !dy )
+	    dy = d->lastTopHeight;
+	else
+	    d->lastTopHeight = dy;
 	break;
     case QMainWindow::Top:
 	dl = d->top;
@@ -1867,7 +1876,7 @@ void QMainWindow::setUpLayout()
 	d->hideDock->hide();
     }
 
-    (void)new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
+    d->lTop = new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
 
     QMainWindowLayout *mwl = new QMainWindowLayout( d->tll );
 
@@ -1881,7 +1890,7 @@ void QMainWindow::setUpLayout()
     d->lRight = new QToolLayout( mwl, d->right, QBoxLayout::LeftToRight, d->justify );
     mwl->setRightDock( d->lRight );
 
-    (void)new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
+    d->lBottom = new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
 
     if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) ) {
 	d->tll->addWidget( d->sb, 0 );
