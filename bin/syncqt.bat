@@ -25,7 +25,6 @@ goto endofperl
 #
 ############################################################################
 
-use Config;
 use strict;
 
 die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
@@ -70,10 +69,12 @@ undef $/;
 mkdir $includedir, 0777;
 mkdir $privatedir, 0777;
 
+my @ignore_files = ( "qconfig.h", "qmodules.h", "qttableview.h", "qtmultilineedit.h" );
+
 opendir SRC, "$basedir/src";
 my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
 closedir SRC;
-@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "extensions/activeqt/control", "extensions/activeqt/container", "extensions/motif/src/", "tools/designer/uilib", "tools/assistant/lib" );
+@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "extensions/activeqt/control", "extensions/activeqt/container", "extensions/motif/src", "tools/designer/uilib", "tools/assistant/lib" );
 
 push @dirs, "mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"}; 
 
@@ -83,14 +84,38 @@ my $p;
 foreach $p ( @dirs ) {
     if ( -d "$basedir/$p" ) {
 	chdir "$basedir/$p";
-	my @ff = find_files( ".", "^[-a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
-	my @pf = find_files( ".", "^[-a-z0-9]*[_][p]\\.h\$" , 0 );
-	foreach ( @ff ) { $_ = "$p/$_"; }
-	foreach ( @pf ) { $_ = "$p/$_"; }
-	push @files, @ff;
-	push @pfiles, @pf;
+	my @ff = find_files( ".", "^[-a-z0-9]*(?:_[^p]*)?\\.h\$" , 0 );
+	my @pf = find_files( ".", "^[-a-z0-9_]*[_][p]\\.h\$" , 0 );
+	foreach ( @ff ) { 
+	  my $file = "$p/$_"; 
+	  my $h = $file; 
+	  $h =~ s-.*/--g;
+	  
+	  foreach ( @ignore_files ) { 
+	    if( "$h" eq "$_" ) {
+	      $file = 0;
+	    }
+	  }
+	  if( "$file" ) {
+	    push @files, $file
+	  }
+	}
+	foreach ( @pf ) { 
+	  my $file = "$p/$_"; 
+	  my $h = $file;
+	  $h =~ s-.*/--g;
+	  
+	  foreach ( @ignore_files ) { 
+	    if( "$h" eq "$_" ) {
+	      $file = 0;
+	    }
+	  }
+	  if( "$file" ) {
+	    push @pfiles, $file
+	  }
+	}
     }
-}
+  }
 
 if ( $showonly ) {
     foreach ( @files ) {
@@ -115,11 +140,7 @@ if ( check_unix() ) {
 	    unlink $h;
 	}
 	if ( ! -l $h ) {
-	    if (  $h eq "qconfig.h" || $h eq "qmodules.h" ) {
-	      ;
-	    } else {
-	        symlink_files($basedir . "/" . $f, $h);
-            }
+	  symlink_files($basedir . "/" . $f, $h);
 	}
     }
     chdir $privatedir;
@@ -273,12 +294,17 @@ sub find_files {
 
 sub check_unix {
     my($r);
-    $r = 1;
+    $r = 0;
     if ( $force_win != 0) {
 	return 0;
     }
-    $_ = $Config{'osname'};
-    $r = 0 if( /(ms)|(cyg)win/i );
+    if ( -f "/bin/uname" ) {
+	$r = 1;
+	(-f "\\bin\\uname") && ($r = 0);
+    } elsif ( -f "/usr/bin/uname" ) {
+        $r = 1;
+	(-f "\\usr\\bin\\uname") && ($r = 0);
+    }
     return $r;
 }
 __END__
