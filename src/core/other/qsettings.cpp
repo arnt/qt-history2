@@ -1804,7 +1804,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
 {
     QString value = readEntry( key, QString::null, ok );
-    if ( ok && !*ok )
+    if ( (ok && !*ok) || value.isEmpty() )
 	return QStringList();
 
     return value.split(separator);
