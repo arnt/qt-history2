@@ -1,5 +1,5 @@
 CC="gcc"
-CFLAGS="-O2 -fno-strength-reduce -Wall -W"
+CFLAGS="-O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include"
 LFLAGS="-lqt"
 SHELL="/bin/sh"
 LIBCFLAGS="-fPIC"
