@@ -193,7 +193,7 @@ struct QEdge {
     QPointF p1, p2;
     qreal m;
     qreal b;
-    char winding;
+    signed char winding;
 };
 
 Q_DECLARE_TYPEINFO(QEdge, Q_PRIMITIVE_TYPE);
