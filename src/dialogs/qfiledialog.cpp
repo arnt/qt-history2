@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#356 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#357 $
 **
 ** Implementation of QFileDialog class
 **
@@ -562,8 +562,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 	setFocus();
 
     if ( e->button() != LeftButton ) {
-	if ( filedialog->mode() != QFileDialog::ExistingFiles )
-	    QListBox::viewportMousePressEvent( e );
+	QListBox::viewportMousePressEvent( e );
 	firstMousePressEvent = FALSE;
 	return;
     }
@@ -593,12 +592,6 @@ void QFileListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 {
     QListBox::viewportMouseReleaseEvent( e );
     mousePressed = FALSE;
-    if ( e->button() == RightButton ) {
-	QListBoxItem *i = item( currentItem() );
-	if ( !itemRect( i ).contains( e->pos() ) )
-	    setSelected( i, FALSE );
-	//filedialog->popupContextMenu( i, mapToGlobal( e->pos() ) );
-    }
 }
 
 void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
@@ -993,8 +986,7 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 	setFocus();
 
     if ( e->button() != LeftButton ) {
-	if ( filedialog->mode() != QFileDialog::ExistingFiles )
-	    QListView::viewportMousePressEvent( e );
+	QListView::viewportMousePressEvent( e );
 	firstMousePressEvent = FALSE;
 	return;
     }
@@ -2844,6 +2836,8 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 				    int )
 {
+    if ( d->mode == ExistingFiles )
+	return;
     if ( item ) {
 	files->setCurrentItem( item );
 	files->setSelected( item, TRUE );
@@ -2875,10 +2869,6 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 	sortFilesBy = (int)QDir::Time;
 	sortAscending = TRUE;
 	resortDir();
-//     } else if ( action == PA_SortType ) {
-// 	sortFilesBy = 0x16;
-// 	sortAscending = TRUE;
-// 	resortDir();
     } else if ( action == PA_SortUnsorted ) {
 	sortFilesBy = (int)QDir::Unsorted;
 	sortAscending = TRUE;
@@ -2889,6 +2879,9 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 {
+    if ( d->mode == ExistingFiles )
+	return;
+
     PopupAction action;
     popupContextMenu( item ? item->text() : QString::null, FALSE, action, p );
 
@@ -2915,10 +2908,6 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 	sortFilesBy = (int)QDir::Time;
 	sortAscending = TRUE;
 	resortDir();
-//     } else if ( action == PA_SortType ) {
-// 	sortFilesBy = 0x16;
-// 	sortAscending = TRUE;
-// 	resortDir();
     } else if ( action == PA_SortUnsorted ) {
 	sortFilesBy = (int)QDir::Unsorted;
 	sortAscending = TRUE;
@@ -3172,7 +3161,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     QString result;
     if ( dir.isEmpty() )
 	dialog->setSelection( "." );
-    
+
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
 	*workingDirectory = result;
