@@ -984,7 +984,8 @@ void QImageDrag::setImage( QImage image )
 const char * QImageDrag::format(int i) const
 {
     if ( i < (int)ofmts.count() ) {
-	static QByteArray str("image/");
+	static const QByteArray img("image/");
+	QByteArray str(img);
 	str += (((QImageDrag*)this)->ofmts).at(i);
 	str = str.lower();
 	if ( str == "image/pbmraw" )
