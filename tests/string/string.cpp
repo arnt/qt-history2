@@ -2,28 +2,49 @@
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
+#include <qdatastream.h>
+#include <qtextstream.h>
 
 main(int argc, char** argv)
 {
     QApplication app(argc,argv);
 
     // Tests every QString function.
+    #define USE_Qt200_QString // or Q2String if you prefer
 
-    #define TEST(A,E) if ( (A)!=(E) ) printf("TEST(%s,%s) failed at %d\n",#A,#E,__LINE__);
+    int err=0;
+    #define TEST(A,E) /*printf("%d\n",__LINE__);*/\
+	if ( (A)!=(E) ) { err++; printf("TEST(%s,%s) failed at %d\n",#A,#E,__LINE__); }
 
     // In a perfect world, these would all be defined, and QString would work.
     //
-    //#define IMPLICIT
-    //#define MAXLEN_EXCLUDES_NULL
-    //#define RELATIONS_WORK
-    //#define TOSHORT_WORKS
-    //#define TOUINT_WORKS
+    #ifdef USE_Qt200_QString
+	#define QString Q2String
+
+	#define IMPLICIT
+	//#define MAXLEN_EXCLUDES_NULL   // Needs discussion
+	#define RELATIONS_WORK
+	//#define TOSHORT_WORKS          // Needs discussion
+	//#define TOUINT_WORKS           // Needs discussion
+	#define SAFE_INDEXING
+	#define SELF_INSERT_WORKS
+    #else
+	//#define IMPLICIT
+	//#define MAXLEN_EXCLUDES_NULL
+	//#define RELATIONS_WORK
+	//#define TOSHORT_WORKS
+	//#define TOUINT_WORKS
+	//#define SAFE_INDEXING
+	//#define SELF_INSERT_WORKS
+    #endif
 
     #ifndef IMPLICIT
 	printf("WARNING: Testing assuming EXPLICIT SHARING\n");
     #endif
     #ifndef MAXLEN_EXCLUDES_NULL
 	printf("WARNING: Testing assuming maxlen constructor includes NULL in maxlen\n");
+	// Let's just SCRAP this constructor - it's TOO DANGEROUS, as it acts as
+	// a CAST from int!
     #endif
     #ifndef RELATIONS_WORK
 	printf("WARNING: Not testing <, <=, etc, because they don't compile\n");
@@ -34,9 +55,16 @@ main(int argc, char** argv)
     #ifndef TOUINT_WORKS
 	printf("WARNING: Expecting toUInt() to give broken result for big valid uints\n");
     #endif
+    #ifndef SAFE_INDEXING
+	printf("WARNING: Not indexing outside allocated space - it's broken\n");
+    #endif
+    #ifndef SELF_INSERT_WORKS
+	printf("WARNING: Not inserting into self - it's broken\n");
+    #endif
 
     QString a;
     QString b(10);
+    QString bb((int)0);
     QString c("String C");
     #ifdef MAXLEN_EXCLUDES_NULL
 	QString d("String D[last bit should not be seen]",8);
@@ -50,8 +78,10 @@ main(int argc, char** argv)
 
     TEST(a.isNull(),TRUE)
     TEST(b.isNull(),FALSE)
+    TEST(bb.isNull(),TRUE)
     TEST(a.isEmpty(),TRUE)
     TEST(b.isEmpty(),TRUE)
+    TEST(bb.isEmpty(),TRUE)
     TEST(c.isEmpty(),FALSE)
     TEST(a.length(),0)
     TEST(b.length(),0)
@@ -102,6 +132,19 @@ main(int argc, char** argv)
     TEST(a,"%1")
     TEST(a.sprintf("X%dY",2),"X2Y")
 
+    a="";
+    #ifdef SAFE_INDEXING
+	a[0]='A';
+	TEST(a,"A");
+	TEST(a.length(),1);
+	a[1]='B';
+	TEST(a,"AB");
+	TEST(a.length(),2);
+	a[2]='C';
+	TEST(a,"ABC");
+	TEST(a.length(),3);
+    #endif
+
     a="ABCDEFGHIEfGEFG"; // 15 chars
     TEST(a.find('A'),0)
     TEST(a.find('C'),2)
@@ -124,6 +167,7 @@ main(int argc, char** argv)
     TEST(a.find(QRegExp("[EFG][EFG]"),4),4)
     TEST(a.find(QRegExp("[EFG][EFG]"),5),5);
     TEST(a.find(QRegExp("[EFG][EFG]"),6),11);
+    TEST(a.find(QRegExp("G"),14),14);
 
     TEST(a.findRev('G'),14)
     TEST(a.findRev('G',14),14)
@@ -215,9 +259,16 @@ main(int argc, char** argv)
     TEST(a.simplifyWhiteSpace(),"a b");
 
     a="ABC";
+    TEST(a.insert(5,"DEF"),"ABC  DEF");
+    a="ABC";
     TEST(a.insert(0,"ABC"),"ABCABC");
     TEST(a,"ABCABC");
-    TEST(a.insert(0,a),"ABCABCABCABC");
+    #ifdef SELF_INSERT_WORKS
+	TEST(a.insert(0,a),"ABCABCABCABC");
+    #else
+	a="ABCABCABCABC";
+    #endif
+
     TEST(a,"ABCABCABCABC");
     TEST(a.insert(0,'<'),"<ABCABCABCABC");
     TEST(a.insert(1,'>'),"<>ABCABCABCABC");
@@ -334,6 +385,7 @@ main(int argc, char** argv)
 
     a="ABC";
     b="ABC";
+    c="ACB";
     d="ABCD";
     TEST(a==b,1);
     TEST(a==d,0);
@@ -341,10 +393,14 @@ main(int argc, char** argv)
     TEST(a!=d,1);
     #ifdef RELATIONS_WORK
 	TEST(a<b,0);
+	TEST(a<c,1);
 	TEST(a<d,1);
 	TEST(d<a,0);
+	TEST(c<a,0);
 	TEST(a<=b,1);
 	TEST(a<=d,1);
+	TEST(a<=c,1);
+	TEST(c<=a,0);
 	TEST(d<=a,0);
     #endif
     TEST(a+b,"ABCABC");
@@ -352,4 +408,26 @@ main(int argc, char** argv)
     TEST(a+'X',"ABCX");
     TEST("XXXX"+a,"XXXXABC");
     TEST('X'+a,"XABC");
+
+    QByteArray ar;
+    {
+	QDataStream out(ar,IO_WriteOnly);
+	out << QString("Test Text");
+    }
+    {
+	QDataStream in(ar,IO_ReadOnly);
+	in >> a;
+	TEST(a,"Test Text");
+    }
+    {
+	QTextStream out(ar,IO_WriteOnly);
+	out << QString("This is Test Text");
+    }
+    {
+	QTextStream in(ar,IO_ReadOnly);
+	in >> a;
+	TEST(a,"This");
+    }
+
+    printf("\n%d error%s\n",err,"s"+(err==1));
 }
