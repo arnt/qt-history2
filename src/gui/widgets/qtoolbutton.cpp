@@ -69,11 +69,13 @@
     iconSize() is Qt::LargeIconSize, then the pixmap will be set to 32x32.
 
     A tool button can offer additional choices in a popup menu. The
-    feature is sometimes used with the "Back" button in a web browser.
-    After pressing and holding the button down for a while, a menu
-    pops up showing a list of possible pages to jump to. With
-    QToolButton you can set a popup menu using setMenu(). The default
-    delay is 600ms; you can adjust it with setPopupDelay().
+    popup menu can be set using setMenu(). Use setPopupMode() to
+    configure the different modes available for tool buttons with a
+    menu set. The default mode is DelayedPopupMode which is sometimes
+    used with the "Back" button in a web browser.  After pressing and
+    holding the button down for a while, a menu pops up showing a list
+    of possible pages to jump to. The default delay is 600ms; you can
+    adjust it with setPopupDelay().
 
     \img qdockwindow.png Toolbar with Toolbuttons \caption A floating
     QToolbar with QToolbuttons
@@ -782,6 +784,21 @@ int QToolButton::popupDelay() const
 {
     return d->delay;
 }
+
+/*! \enum QToolButton::ToolButtonPopupMode
+
+    Describes how a menu should be popped up for tool buttons that has
+    a menu set.
+
+    \value InstantPopupMode The menu is displayed, without delay, when
+    the tool button is pressed.
+    \value DelayedPopupMode After pressing and holding the tool button
+    down for a certain amount of time (the timeout is style
+    dependant), the menu is displayed.
+    \value MenuButtonPopupMode In this mode the tool button displays a
+    special arrow to indicate that a menu is present. The menu is
+    displayed when the arrow part of the button is pressed.
+*/
 
 void QToolButton::setPopupMode(QToolButton::ToolButtonPopupMode mode)
 {
