@@ -18,6 +18,35 @@ public slots:
     virtual void requestSetProperty( const QCString&, const QVariant& ) = 0;
     virtual void requestSignal( const char*, QObject*, const char* ) = 0;
     virtual void requestEvents( QObject* ) = 0;
+    
+    /* 
+    Some ideas for on-demand connections.
+    It's quite reasonable to assume that an application won't
+    provide the same interface all the time (as the accessed objects
+    change).
+    
+    The application interface should create the interface
+    if it wants to, and the plugin can use its clientInterface 
+    function to access it (this way, no pointer has to be 
+    passed from the application to the plugin!)
+
+    E.g. We have a stable connection to the Designer application
+    interface, and we want to access the active form -> the client
+    interface sends a request to the application interface, which
+    creates the forminterface for the active form. Now the plugin
+    can try to get the new interface using the clientInterface()
+    function!
+    */
+    virtual void requestInterface( const QCString& ) {}
+    /*
+    The other way round. The plugin doesn't need the interface
+    any more, so the application can delete it.
+    Hmmm... maybe the clientinterface-dict of the plugin should
+    be a QDict<<QGuardedPtr<QClientInterface>>, then the application
+    can cut an interface (e.g. when the form the interface accesses
+    is closed) without leaving the plugin in an undefined state!
+    */
+    virtual void abortInterface( const QCString& ) {}
 };
 
 class QClientInterface : public QDualInterface
