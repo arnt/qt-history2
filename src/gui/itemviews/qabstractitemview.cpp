@@ -999,11 +999,9 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
                                   QAbstractItemDelegate::StartEditAction action,
                                   QEvent *event)
 {
-    QAbstractItemDelegate::EditorType editorType = itemDelegate()->editorType(index);
     if (d->shouldEdit(action, index)) {
-        if (editorType == QAbstractItemDelegate::Events && itemDelegate()->event(event, index))
-            d->state = Editing;
-        else if (d->createEditor(action, event, index))
+        itemDelegate()->event(event, index);
+        if (d->requestEditor(action, event, index))
             d->state = Editing;
     }
     return d->state == Editing;
@@ -1368,15 +1366,6 @@ void QAbstractItemView::fetchMore()
 }
 
 /*!
-    Clears the area specified by \a rect with the palette's base color
-    using the given \a painter.
-*/
-void QAbstractItemView::clearArea(QPainter *painter, const QRect &rect) const
-{
-    painter->fillRect(rect, palette().brush(QPalette::Base));
-}
-
-/*!
     Returns true if this view supports drag and drop; otherwise
     returns false.
 
@@ -1652,8 +1641,8 @@ bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
         || (area.right() - pos.x() < autoScrollMargin);
 }
 
-QWidget *QAbstractItemViewPrivate::createEditor(QAbstractItemDelegate::StartEditAction action,
-                                                QEvent *event, const QModelIndex &index)
+QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::StartEditAction action,
+                                                 QEvent *event, const QModelIndex &index)
 {
     if (delegate->editorType(index) == QAbstractItemDelegate::Events)
         return 0;

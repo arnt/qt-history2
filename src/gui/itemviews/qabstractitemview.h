@@ -75,8 +75,6 @@ public:
     void setAutoScroll(bool b);
     bool autoScroll() const;
 
-    bool eventFilter(QObject *object, QEvent *event);
-
     virtual void keyboardSearch(const QString &search);
     void setKeyboardInputInterval(int msec);
     int keyboardInputInterval() const;
@@ -95,10 +93,10 @@ public:
 
 public slots:
     virtual void setRoot(const QModelIndex &index);
-    virtual void edit(const QModelIndex &index);
     virtual void doItemsLayout();
+    void edit(const QModelIndex &index);
     void clearSelections();
-    void setCurrentItem(const QModelIndex &data);
+    void setCurrentItem(const QModelIndex &index);
 
 protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -124,6 +122,8 @@ signals:
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
 
+    bool eventFilter(QObject *object, QEvent *event);
+
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
                         MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
@@ -141,11 +141,9 @@ protected:
     QWidget *currentEditor() const;
 
     virtual int selectionCommand(ButtonState state,
-                                 const QModelIndex &item = QModelIndex(),
+                                 const QModelIndex &index = 0,
                                  QEvent::Type type = QEvent::None,
                                  Qt::Key key = Qt::Key_unknown) const;
-
-    void clearArea(QPainter *painter, const QRect &rect) const;
 
     virtual bool supportsDragAndDrop() const;
     virtual QDragObject *dragObject();
@@ -159,7 +157,7 @@ protected:
 
     void startAutoScroll();
     void stopAutoScroll();
-    void doAutoScroll();    
+    void doAutoScroll();
 
     bool event(QEvent *e);
     void mousePressEvent(QMouseEvent *e);

@@ -18,8 +18,8 @@ public:
     bool shouldEdit(QAbstractItemDelegate::StartEditAction action, const QModelIndex &index);
     bool shouldAutoScroll(const QPoint &pos);
 
-    QWidget *createEditor(QAbstractItemDelegate::StartEditAction action,
-                          QEvent *event, const QModelIndex &index);
+    QWidget *requestEditor(QAbstractItemDelegate::StartEditAction action,
+                           QEvent *event, const QModelIndex &index);
     QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
