@@ -326,7 +326,7 @@ translated in the Phrases and guesses area.
 @Begin
 @Figure
     @Caption { Phrase Book Dialog }
- 0.5 @Scale @IncludeGraphic { "images/phrasebookdialog.eps.gz" }
+ 0.45 @Scale @IncludeGraphic { "images/phrasebookdialog.eps.gz" }
 @LP
 A @QLT phrase book is a set of source phrases, target
 (translated) phrases, and optional definitions. Phrase Books
