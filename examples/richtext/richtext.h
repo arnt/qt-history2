@@ -16,7 +16,7 @@
 
 #include <qvbox.h>
 
-class QTextView;
+class QTextEdit;
 class QPushButton;
 
 class MyRichText : public QVBox
@@ -24,10 +24,10 @@ class MyRichText : public QVBox
     Q_OBJECT
 
 public:
-    MyRichText( QWidget *parent = 0, const char *name = 0 );
+    MyRichText(QWidget *parent = 0);
 
 protected:
-    QTextView *view;
+    QTextEdit *view;
     QPushButton *bClose, *bNext, *bPrev;
     int num;
 

@@ -16,8 +16,8 @@
 #include <qhbox.h>
 #include <qhbox.h>
 #include <qpushbutton.h>
-#include <qtextview.h>
-#include <qbrush.h>
+#include <qtextedit.h>
+#include <qpixmap.h>
 #include <qapplication.h>
 
 static const char* sayings[] = {
@@ -78,21 +78,22 @@ static const char* sayings[] = {
 };
 
 
-MyRichText::MyRichText( QWidget *parent, const char *name )
-    : QVBox( parent, name )
+MyRichText::MyRichText(QWidget *parent)
+    : QVBox(parent)
 {
     setMargin( 5 );
 
-    view = new QTextView( this );
-    view->setText( "This is a <b>Test</b> with <i>italic</i> <u>stuff</u>" );
-    QBrush paper;
-    paper.setPixmap( QPixmap( "../richtext/marble.png" ) );
-    if ( paper.pixmap() != 0 )
-	view->setPaper( paper );
-    else
-	view->setPaper( Qt::white );
+    view = new QTextEdit( this );
+    view->setReadOnly(true);
 
-    view->setText( sayings[0] );
+    QPixmap background( "../richtext/marble.png" );
+    if (!background.isNull()) {
+        QPalette p = view->viewport()->palette();
+        p.setBrush(view->viewport()->backgroundRole(), QBrush(background));
+        view->viewport()->setPalette(p);
+    }
+
+    view->setHtml( QString::fromLatin1(sayings[0]) );
     view->setMinimumSize( 450, 250 );
 
     QHBox *buttons = new QHBox( this );
@@ -118,7 +119,7 @@ void MyRichText::prev()
 
     num--;
 
-    view->setText( sayings[num] );
+    view->setHtml( QString::fromLatin1(sayings[num]) );
 
     if ( num == 0 )
         bPrev->setEnabled( FALSE );
@@ -131,7 +132,7 @@ void MyRichText::next()
     if ( !sayings[++num] )
         return;
 
-    view->setText( sayings[num] );
+    view->setHtml( QString::fromLatin1(sayings[num]) );
 
     if ( !sayings[num + 1] )
         bNext->setEnabled( FALSE );
