@@ -72,6 +72,7 @@ HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsocketnotifier.h \
+		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwidgetintdict.h \
@@ -192,6 +193,7 @@ SOURCES		= dialogs/qfiledialog.cpp \
 		  kernel/qsignalmapper.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsocketnotifier.cpp \
+		  kernel/qstyle.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwindow.cpp \
