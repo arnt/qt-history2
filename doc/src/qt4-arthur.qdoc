@@ -234,7 +234,7 @@
 
     In Qt 4, all widgets are double-buffered by default.
 
-    In previous versions of Qt double-buffereing was acheived by
+    In previous versions of Qt double-buffereing was achieved by
     painting to an off-screen pixmap then copying the pixmap to the
     screen. e.g.
 
