@@ -1,5 +1,5 @@
 mac {
-   QMAKE_LFLAGS_PREBIND    = -prebind -seg1addr 0x20000000
+   macx-g++:QMAKE_LFLAGS_PREBIND    = -prebind -seg1addr 0x20000000
    macx:LIBS += -framework Carbon -framework QuickTime
    *-mwerks:INCLUDEPATH += compat
    mac9 {
