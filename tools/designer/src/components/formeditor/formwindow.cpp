@@ -2094,6 +2094,11 @@ AbstractFormWindowTool *FormWindow::tool(int index) const
     return m_tools.at(index);
 }
 
+void FormWindow::registerTool(AbstractFormWindowTool *tool)
+{
+    qDebug() << "FormWindow::registerTool:" << tool << "-- not implemented yet!";
+}
+
 int FormWindow::currentTool() const
 {
     return m_currentTool;
@@ -2134,5 +2139,26 @@ void FormWindow::checkSelectionNow()
             updateChildSelections(widget);
     }
 }
+
+QString FormWindow::author() const
+{
+    return m_author;
+}
+
+QString FormWindow::comment() const
+{
+     return m_comment;
+}
+
+void FormWindow::setAuthor(const QString &author)
+{
+    m_author = author;
+}
+
+void FormWindow::setComment(const QString &comment)
+{
+    m_comment = comment;
+}
+
 
 #include "formwindow.moc"

@@ -39,9 +39,9 @@ AbstractFormWindow *AbstractFormWindow::findFormWindow(QWidget *w)
             /* skip */
         } else if (w->isWindow())
             break;
-            
+
         w = w->parentWidget();
     }
-    
+
     return 0;
 }

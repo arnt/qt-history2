@@ -91,12 +91,6 @@ class QT_FORMEDITOR_EXPORT FormWindow: public AbstractFormWindow
 {
     Q_OBJECT
 public:
-    enum // ### remove
-    {
-        DefaultMargin = 11,
-        DefaultSpacing = 6
-    };
-
     enum HighlightMode
     {
         Restore,
@@ -114,6 +108,7 @@ public:
     virtual int toolCount() const;
     virtual int currentTool() const;
     virtual AbstractFormWindowTool *tool(int index) const;
+    virtual void registerTool(AbstractFormWindowTool *tool);
 
     virtual bool hasFeature(Feature f) const;
     virtual Feature features() const;
@@ -122,17 +117,22 @@ public:
     virtual EditMode editMode() const;
     virtual void setEditMode(EditMode mode);
 
-    QString fileName() const;
-    void setFileName(const QString &fileName);
+    virtual QString author() const;
+    virtual QString comment() const;
+    virtual void setAuthor(const QString &author);
+    virtual void setComment(const QString &comment);
 
-    QString contents() const;
-    void setContents(const QString &contents);
-    void setContents(QIODevice *dev);
+    virtual QString fileName() const;
+    virtual void setFileName(const QString &fileName);
 
-    inline QPoint grid() const { return m_grid; }
-    inline void setGrid(const QPoint &grid) { m_grid = grid; }
+    virtual QString contents() const;
+    virtual void setContents(const QString &contents);
+    virtual void setContents(QIODevice *dev);
 
-    QWidget *mainContainer() const;
+    virtual QPoint grid() const { return m_grid; }
+    virtual void setGrid(const QPoint &grid) { m_grid = grid; }
+
+    virtual QWidget *mainContainer() const;
     void setMainContainer(QWidget *mainContainer);
     bool isMainContainer(const QWidget *w) const;
 
@@ -358,6 +358,9 @@ private:
 
     int m_currentTool;
     QList<AbstractFormWindowTool*> m_tools;
+
+    QString m_comment;
+    QString m_author;
 
 #ifdef DESIGNER_VIEW3D
     View3D *m_view_3d;

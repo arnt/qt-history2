@@ -62,13 +62,14 @@ public:
     virtual int toolCount() const = 0;
     virtual int currentTool() const = 0;
     virtual AbstractFormWindowTool *tool(int index) const = 0;
+    virtual void registerTool(AbstractFormWindowTool *tool) = 0;
 
     virtual QString fileName() const = 0;
 
-    QString author() const { return m_author; }
-    QString comment() const { return m_comment; }
-    void setAuthor(const QString &author) { m_author = author; }
-    void setComment(const QString &comment) { m_comment = comment; }
+    virtual QString author() const = 0;
+    virtual QString comment() const = 0;
+    virtual void setAuthor(const QString &author) = 0;
+    virtual void setComment(const QString &comment) = 0;
 
     virtual QString contents() const = 0;
     virtual void setContents(QIODevice *dev) = 0;
@@ -118,9 +119,6 @@ signals:
     void featureChanged(Feature f);
     void widgetRemoved(QWidget *w);
     void widgetsChanged();
-
-private:
-    QString m_comment, m_author;
 };
 
 #endif // ABSTRACTFORMWINDOW_H

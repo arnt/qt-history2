@@ -58,7 +58,9 @@ void BuddyEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
     Q_ASSERT(formWindow != 0);
     Q_ASSERT(m_tools.contains(formWindow) == false);
 
-    m_tools[formWindow] = new BuddyEditorTool(formWindow, this);
+    BuddyEditorTool *tool = new BuddyEditorTool(formWindow, this);
+    m_tools[formWindow] = tool;
+    formWindow->registerTool(tool);
 }
 
 void BuddyEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
@@ -68,6 +70,7 @@ void BuddyEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
 
     BuddyEditorTool *tool = m_tools.value(formWindow);
     m_tools.remove(formWindow);
+    // ### FIXME disable the tool
 
     delete tool;
 }
