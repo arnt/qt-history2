@@ -1034,6 +1034,9 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
 
 int QGenericTreeView::columnSizeHint(int column) const
 {
+    if (d->items.count() <= 0)
+        return 0;
+    
     QItemOptions options = viewOptions();
     QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
