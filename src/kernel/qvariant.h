@@ -36,7 +36,6 @@ qvaluelist.h before qvariant.h"
 #ifndef QT_H
 #include "qstring.h"
 #include "qshared.h"
-#include "qdatastream.h"
 #endif // QT_H
 
 class QString;
@@ -94,9 +93,9 @@ public:
     };
 
     QVariant();
+    ~QVariant();
     QVariant( const QVariant& );
     QVariant( QDataStream& s );
-    ~QVariant();
 
     QVariant( const QString& );
     QVariant( const QCString& );
@@ -121,6 +120,7 @@ public:
     QVariant( double );
 
     QVariant& operator= ( const QVariant& );
+    
     void setValue( const QString& );
     void setValue( const QCString& );
     void setValue( const char* );

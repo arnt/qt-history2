@@ -35,6 +35,7 @@
 #include "qcolor.h"
 #include "qpalette.h"
 #include "qiconset.h"
+#include "qdatastream.h"
 
 // REVISED: warwick
 /*!
@@ -983,7 +984,9 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*! \fn Type QVariant::type() const
   Returns the stoarge type of the value stored in the
-  variant currently.
+  variant currently. Usually you may want to test with
+  canCast() wether the variant can deliver the data type you
+  are interested in.
 */
 
 /*! \fn bool QVariant::isValid() const
@@ -1039,7 +1042,7 @@ QStringList QVariant::toStringList() const
 
 /*!
   \fn QMap<QString, QVariant> QVariant::toMap () const
-    
+
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
   Map, or an empty map otherwise.
 */
