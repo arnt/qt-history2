@@ -1774,7 +1774,10 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	v = QPalette( p );
     } else if ( e.tagName() == "enum" && p && p->isEnumType() ) {
 	QString key( v.toString() );
-	v = QVariant( p->keyToValue( key ) );
+	int vi = p->keyToValue( key );
+	if ( p->valueToKey( vi ) != key )
+	    return; // ignore invalid properties
+	v = QVariant( vi );
     } else if ( e.tagName() == "set" && p && p->isSetType() ) {
 	QString keys( v.toString() );
 	QStringList lst = QStringList::split( '|', keys );
