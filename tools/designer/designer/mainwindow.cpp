@@ -1996,6 +1996,11 @@ void MainWindow::writeConfig()
 	config.writeEntry( keybase + "CustomWidgets/Widget" + QString::number( j++ ), l, ',' );
 	w->pixmap->save( QDir::home().absPath() + "/.designer/" + w->className, "XPM" );
     }
+
+    QStringList l;
+    for ( QAction *a = commonWidgetsPage.first(); a; a = commonWidgetsPage.next() )
+	l << a->text();
+    config.writeEntry( keybase + "ToolBox/CommonWidgets", l );
 }
 
 static QString fixArgs2( const QString &s2 )
@@ -2133,6 +2138,24 @@ void MainWindow::readConfig()
 	f.close();
     }
     rebuildCustomWidgetGUI();
+
+    QStringList l = config.readListEntry( keybase + "ToolBox/CommonWidgets" );
+    if ( !l.isEmpty() ) {
+	QPtrList<QAction> lst;
+	commonWidgetsPage.clear();
+	for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	    for ( QAction *a = toolActions.first(); a; a = toolActions.next() ) {
+		if ( *it == a->text() ) {
+		    lst.append( a );
+		    break;
+		}
+	    }
+	}
+	if ( lst != commonWidgetsPage ) {
+	    commonWidgetsPage = lst;
+	    rebuildCommonWidgetsToolBoxPage();
+	}
+    }
 }
 
 void MainWindow::readOldConfig()
