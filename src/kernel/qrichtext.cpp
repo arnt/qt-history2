@@ -4763,6 +4763,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 	qch++;
 	ch++;
     }
+    int x = startChar->x;
 
     QPtrList<QTextRun> *runs;
     runs = QComplexText::bidiReorderLine(control, str, 0, last - start + 1, 
@@ -4770,10 +4771,6 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 
     // now construct the reordered string out of the runs...
 
-    int left = parag->document() ? parag->leftMargin() : 0;
-    int x = left + ( parag->document() ? parag->firstLineMargin() : 0 );
-    if ( parag->document() )
-	x = parag->document()->flow()->adjustLMargin( parag->rect().y(), parag->rect().height(), left, 4 );
     int numSpaces = 0;
     // set the correct alignment. This is a bit messy....
     if( align == Qt::AlignAuto ) {
