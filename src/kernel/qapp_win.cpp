@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#75 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#75 $");
 
 
 /*****************************************************************************
@@ -51,7 +51,7 @@ static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets= 0;		// list of popup widgets
-static QWidget     *popupButtonFocus = 0;
+static QWidget	   *popupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 
 static HANDLE	autoCaptureWnd = 0;
@@ -278,7 +278,9 @@ void qt_cleanup()
 
 static void msgHandler( QtMsgType, const char *str )
 {
-    OutputDebugString( str );
+    QString s = str;
+    s += "\n";
+    OutputDebugString( s.data() );
 }
 
 
@@ -647,8 +649,8 @@ static QSNDict *sn_except = 0;
 
 static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
 
-static uint	sn_msg    = 0;			// socket notifier message
-static QWidget *sn_win    = 0;			// win msg via this window
+static uint	sn_msg	  = 0;			// socket notifier message
+static QWidget *sn_win	  = 0;			// win msg via this window
 
 
 static void sn_init()
@@ -750,7 +752,7 @@ int QApplication::exec()
 
 bool QApplication::processNextEvent( bool canWait )
 {
-    MSG  msg;
+    MSG	 msg;
 
     if ( postedEvents && postedEvents->count() )
 	sendPostedEvents();
@@ -902,10 +904,10 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 	    case FD_WRITE:
 	    case FD_CONNECT:
-	    	type = 1;
+		type = 1;
 		break;
 	    case FD_OOB:
-	    	type = 2;
+		type = 2;
 		break;
 	}
 	if ( type >= 0 )
@@ -915,7 +917,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( widget->isEnabled() ) {
 	    if ( message == WM_LBUTTONDOWN &&
 		 (widget->focusPolicy() & QWidget::ClickFocus) )
-		widget->setFocus(); 
+		widget->setFocus();
 	    widget->translateMouseEvent( msg ); // mouse event
 	}
     }
@@ -998,7 +1000,6 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( widget->translateCloseEvent(msg) )
 		delete widget;
 	    return 0;				// always handled
-	    break;
 
 	case WM_DESTROY:			// destroy window
 	    if ( hwnd == curWin ) {
@@ -1767,8 +1768,8 @@ bool QETWidget::translateCloseEvent( const MSG & )
 	    // to emit the lastWindowClosed() signal when the last top
 	    // level widget is closed.
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) ) {
-	    QWidgetList *list   = qApp->topLevelWidgets();
-	    QWidget     *widget = list->first();
+	    QWidgetList *list	= qApp->topLevelWidgets();
+	    QWidget	*widget = list->first();
 	    while ( widget ) {
 		if ( widget->isVisible() )
 		    break;
