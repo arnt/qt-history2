@@ -149,10 +149,11 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 
 	$text .= 'all: ';
        	ExpandGlue("ALL_DEPS",""," "," ");
-	$text .= '$(DESTDIR)' . $targ . "\n";
+	$text .= '$(DESTDIR)' . $targ . "\n\n";
 
 	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
 	Expand("TARGETDEPS");
+	$text .= "\n\t";
 
 	if ( Project('TEMPLATE') eq "lib" ) {
 	    if ( Config('staticlib') ) {
