@@ -12,10 +12,15 @@
 
 #include "launcher.h"
 #include "quickbutton.h"
-//#include "sourceviewer.h"
+#include "sourceviewer.h"
 #include "infotext.h"
 #include "commands.h"
 #include "qprocess.h"
+
+// change this to adjust the font settings
+const char fontName[]       = "nimbus sans l";
+const int  fontSizeDefault  = 22;
+const int  fontSizeInfoText = 28;
 
 static QColor qtgreen(0xa1,0xc4,0x10);
 
@@ -33,12 +38,11 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
     pal.setColor( QColorGroup::ButtonText, Qt::black );
     pal.setColor( QColorGroup::Highlight, pal.color( QPalette::Active, QColorGroup::Dark ) );
     setPalette( pal );
-     setFont( QFont( "monofonto", 22 ) );
+    setFont( QFont( fontName, fontSizeDefault ) );
 
     // set images for later use in the info text
     for ( i=0; images[i].label!=0; i++ ) {
-	QMimeSourceFactory::defaultFactory()
-	    ->setImage( QString(images[i].label), QString(images[i].file) );
+	QMimeSourceFactory::defaultFactory()->setImage( QString(images[i].label), QString(images[i].file) );
     }
 
     // layout stuff
@@ -48,7 +52,7 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
 
     // the info text
     info = new QLabel( vb );
-    info->setFont( QFont( "monofonto", 28 ) );
+    info->setFont( QFont( fontName, fontSizeInfoText ) );
     info->setBackgroundColor( black );
     info->setAlignment( AlignVCenter );
     nextInfo();
@@ -74,7 +78,7 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
 	lb->insertItem( other_command[i].label );
     }
     lb->setMaximumHeight(qb->height()*8);
-//    connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)) );
+    connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)) );
     connect(lb, SIGNAL(selected(int)), this, SLOT(executeOther(int)) );
     connect(lb, SIGNAL(rightButtonClicked( QListBoxItem *, const QPoint &)),
 	    this, SLOT(sourceOther(QListBoxItem *, const QPoint &)) );
@@ -117,7 +121,9 @@ void Launcher::run( const char*path, const char* cmd )
     p2.cd( path );
     proc.setWorkingDirectory( p2 );
 
-    proc.start();
+    if ( !proc.start() ) {
+	qWarning( "Cannot start %s", cmd );
+    }
 }
 
 void Launcher::execute()
@@ -135,9 +141,9 @@ void Launcher::showSource( const char* path )
 {
     QDir p( baseDir );
     p.cd( path );
-//    SourceViewer *sv = new SourceViewer( p );
-//    sv->resize( 650, 700 );
-//    sv->show();
+    SourceViewer *sv = new SourceViewer( p );
+    sv->resize( 650, 700 );
+    sv->show();
 }
 
 void Launcher::source()

@@ -2,10 +2,7 @@
 #include <qdir.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
-
-#define QTEXTEDIT_OPEN_API
-#include "qtextedit.h"
-#include "qcppsyntaxhighlighter.h"
+#include <qtextedit.h>
 
 class SourceViewer : public QVBox
 {

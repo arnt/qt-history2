@@ -1,8 +1,9 @@
 #include <qtextstream.h>
+#include <qstringlist.h>
 
 #include "sourceviewer.h"
 
-SourceViewer::SourceViewer( const QDir &directory, QWidget *parent, const char *name, WFlags f, bool allowLines ) 
+SourceViewer::SourceViewer( const QDir &directory, QWidget *parent, const char *name, WFlags /*f*/, bool allowLines ) 
     : QVBox( parent, name, allowLines ) 
 {
     init( directory );
@@ -20,7 +21,7 @@ void SourceViewer::init( const QDir &directory )
     sourceSel->insertStringList( slist );
 
     sourceCode = new QTextEdit( this );
-    sourceCode->document()->setSyntaxHighlighter( new QCppSyntaxHighlighter( sourceCode->document() ) );
+//    sourceCode->document()->setSyntaxHighlighter( new QCppSyntaxHighlighter( sourceCode->document() ) );
     if ( !sourceSel->currentText().isEmpty() )
 	setSource( sourceSel->currentText() );
 
