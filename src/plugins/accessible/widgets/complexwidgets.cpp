@@ -73,6 +73,8 @@ QString QAccessibleHeader::text(Text t, int child) const
             if (QApplication::sendEvent(widget(), &event))
                 str = event.value();
             break; }
+        default:
+            break;
         }
     }
     if (str.isEmpty())
@@ -173,11 +175,15 @@ QString QAccessibleTabBar::text(Text t, int child) const
         switch (t) {
         case Name:
             return left ? QTabBar::tr("Scroll Left") : QTabBar::tr("Scroll Right");
+        default:
+            break;
         }
     } else if (child > 0) {
         switch (t) {
         case Name:
             return qacc_stripAmp(tabBar()->tabText(child - 1));
+        default:
+            break;
         }
     }
 
