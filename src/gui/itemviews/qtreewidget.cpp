@@ -416,10 +416,153 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 */
 
 /*!
-  Constructs a tree view item. The item will need to be inserted
+    \fn const QTreeWidgetItem *QTreeWidgetItem::parent() const
+
+    Returns this tree widget item's parent (which is 0 if this item is
+    a top-level item).
+
+    \sa childCount() child()
+*/
+
+
+/*!
+    \fn const QTreeWidgetItem *QTreeWidgetItem::child(int index) const
+
+    Returns this tree widget item's \a{index}-th child, or 0 if there
+    is no such child.
+
+    \sa childCount() parent()
+*/
+
+
+/*!
+    \fn QTreeWidgetItem *QTreeWidgetItem::child(int index)
+
+    \overload
+*/
+
+
+/*!
+    \fn int QTreeWidgetItem::childCount() const
+
+    Returns the number of children this tree widget item has; it may
+    be 0.
+
+    \sa parent() child()
+*/
+
+
+/*!
+    \fn int QTreeWidgetItem::columnCount() const
+
+    Returns the number of columns that this item occupies.
+
+    \sa text() iconSet()
+*/
+
+
+/*!
+    \fn QString QTreeWidgetItem::text(int column) const
+
+    Returns the text from the given \a column.
+
+    \sa setText() iconSet() columnCount()
+*/
+
+
+/*!
+    \fn QIconSet QTreeWidgetItem::iconSet(int column) const
+
+    Returns the iconset from the given \a column.
+
+    \sa setIconSet() text() columnCount()
+*/
+
+
+/*!
+    \fn bool QTreeWidgetItem::isEditable() const
+
+    Returns true if this tree widget item is editable; otherwise
+    returns false.
+
+    \sa setEditable()
+*/
+
+
+/*!
+    \fn bool QTreeWidgetItem::isSelectable() const
+
+    Returns true if this tree widget item is selectable; otherwise
+    returns false.
+
+    \sa setSelectable()
+*/
+
+
+/*!
+    \fn void QTreeWidgetItem::setText(int column, const QString &text)
+
+    Sets the given \a column to hold the given \a text.
+
+    \sa text() setIconSet()
+*/
+
+
+/*!
+    \fn void QTreeWidgetItem::setIconSet(int column, const QIconSet &iconSet)
+
+    Sets the given \a column to hold the given \a iconSet.
+
+    \sa iconSet() setText()
+*/
+
+
+/*!
+    \fn void QTreeWidgetItem::setEditable(bool editable)
+
+    If \a editable is true, sets this tree widget item to be editable;
+    otherwise sets it to be read-only.
+
+    \sa isEditable()
+*/
+
+
+/*!
+    \fn void QTreeWidgetItem::setSelectable(bool selectable)
+
+    If \a selectable is true, sets this tree widget item to be
+    selectable; otherwise sets it to be impossible for the user to
+    select.
+
+    \sa isSelectable()
+*/
+
+
+/*!
+    \fn bool QTreeWidgetItem::operator==(const QTreeWidgetItem &other) const
+
+    Returns true if this tree widget item is the same as the \a other
+    tree widget item, i.e. has the same text and iconset in every
+    column; otherwise returns false.
+*/
+
+
+/*!
+    \fn bool QTreeWidgetItem::operator!=(const QTreeWidgetItem &other) const
+
+    Returns true if this tree widget item has at least one column
+    where its text or iconset is different from the \a other tree
+    widget item; otherwise returns false.
+*/
+
+
+
+/*!
+  Constructs a tree widget item. The item must be inserted
   into a tree view.
 
-  \sa QTreeModel::append() QTreeWidget::append()*/
+  \sa QTreeModel::append() QTreeWidget::append()
+*/
 
 QTreeWidgetItem::QTreeWidgetItem()
     : par(0), view(0), c(0), edit(true), select(true)
@@ -427,9 +570,10 @@ QTreeWidgetItem::QTreeWidgetItem()
 }
 
 /*!
-  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
+    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 
-  Constructs a tree view item and inserts it into the tree \a view.
+    Constructs a tree widget item and inserts it into the given tree
+    \a view.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *v)
@@ -440,7 +584,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *v)
 }
 
 /*!
-  Constructs a tree view item with a \a parent tree view item.
+    Constructs a tree widget item with the given \a parent.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
@@ -453,7 +597,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 }
 
 /*!
-  Destroys this tree view item.
+  Destroys this tree widget item.
 */
 
 QTreeWidgetItem::~QTreeWidgetItem()
@@ -463,7 +607,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-  Sets the number of \a columns in the tree view item.
+    Sets the number of \a columns in the tree widget item.
 */
 
 void QTreeWidgetItem::setColumnCount(int columns)
@@ -473,9 +617,10 @@ void QTreeWidgetItem::setColumnCount(int columns)
 }
 
 /*!
-  Returns the data stored in the \a column with the given \a role.
+    Returns the data stored in the \a column with the given \a role.
 
-  \sa QAbstractItemModel::Role*/
+  \sa QAbstractItemModel::Role
+*/
 
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
@@ -491,10 +636,11 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 }
 
 /*!
-  Sets the data for the item specified by the \a column and \a role to
-  that referred to by the \a value.
+    Sets the data for the item specified by the \a column and \a role
+    to the given \a value.
 
-  Returns true if successful; otherwise returns false.*/
+    Returns true if successful; otherwise returns false.
+*/
 
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {

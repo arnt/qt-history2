@@ -288,6 +288,13 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
+    \enum QListView::ViewMode
+
+    \value ListMode
+    \value IconMode
+*/
+
+/*!
   \enum QListView::Movement
 
   \value Static The items cannot be moved by the user.
@@ -324,7 +331,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 /*!
   \enum QListView::LayoutMode
 
-  \value Instant The items are laid out all at once.
+  \value SinglePass The items are laid out all at once.
   \value Batched The items are laid out in batches of 100 items.
 */
 
@@ -563,7 +570,7 @@ QSize QListView::gridSize() const
 }
 
 /*!
-    \property QListView::ViewMode
+    \property QListView::viewMode
     \brief the view mode of the QListView.
 
     This property will change the other unset properties to conform
@@ -615,6 +622,9 @@ QListView::ViewMode QListView::viewMode() const
     return d->viewMode;
 }
 
+/*!
+    Clears the property flags. See \l{viewMode}.
+*/
 void QListView::clearPropertyFlags()
 {
     d->modeProperties = 0;
