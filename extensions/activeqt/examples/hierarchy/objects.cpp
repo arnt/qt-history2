@@ -18,7 +18,7 @@
 
 /* Implementation of QParentWidget */
 QParentWidget::QParentWidget(QWidget *parent)
-: QVBox(parent)
+: QVBoxWidget(parent)
 {
 }
 
