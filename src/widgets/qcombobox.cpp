@@ -1107,10 +1107,14 @@ void QComboBox::internalClickTimeout()
 void QComboBox::setPalette( const QPalette &palette )
 {
     QWidget::setPalette( palette );
-    if ( d->usingListBox() )
-	d->listBox()->setPalette( palette );
-    else
-	d->popup()->setPalette( palette );
+    if( d ) {
+	if ( d->usingListBox() ) {
+	    if(d->listBox())
+		d->listBox()->setPalette( palette );
+	} else if(d->popup()) {
+	    d->popup()->setPalette( palette );
+	}
+    }
 }
 
 /*!
