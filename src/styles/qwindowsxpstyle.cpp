@@ -1,7 +1,7 @@
 #include "qwindowsxpstyle.h"
 
 #if !defined (Q_WS_WIN)
-#error "This style can only be compiled on Windows XP"
+#error "This style can only be compiled on Windows!"
 #endif
 
 #ifndef QT_NO_STYLE_WINDOWSXP
@@ -26,6 +26,7 @@
 #include <qlistview.h>
 #include <qcleanuphandler.h>
 #include <qbitmap.h>
+#include <qlibrary.h>
 
 #include <qt_windows.h>
 #include <uxtheme.h>
@@ -36,6 +37,54 @@ static ulong ref = 0;
 static bool use_xp  = FALSE;
 static bool init_xp = FALSE;
 static QMap<QString,HTHEME> *handleMap = 0;
+
+typedef bool ( WINAPI *PtrIsAppThemed )();
+typedef bool ( WINAPI *PtrIsThemeActive )();
+typedef HRESULT ( WINAPI *PtrGetThemePartSize )( HTHEME hTheme, HDC hdc, int iPartId, int iStateId, 
+    OPTIONAL RECT *prc, enum THEMESIZE eSize, OUT SIZE *psz );
+typedef HTHEME ( WINAPI *PtrOpenThemeData )( HWND hwnd, LPCWSTR pszClassList );
+typedef HRESULT ( WINAPI *PtrCloseThemeData )( HTHEME hTheme );
+typedef HRESULT ( WINAPI *PtrDrawThemeBackground )(HTHEME hTheme, HDC hdc, 
+    int iPartId, int iStateId, const RECT *pRect, OPTIONAL const RECT *pClipRect);
+typedef HRESULT ( WINAPI *PtrGetThemeColor )(HTHEME hTheme, int iPartId, 
+    int iStateId, int iPropId, OUT COLORREF *pColor);
+typedef HRESULT ( WINAPI *PtrGetThemeBackgroundRegion )( HTHEME hTheme, OPTIONAL HDC hdc,  
+    int iPartId, int iStateId, const RECT *pRect, OUT HRGN *pRegion );
+typedef BOOL ( WINAPI *PtrIsThemeBackgroundPartiallyTransparent )(HTHEME hTheme, 
+    int iPartId, int iStateId);
+
+
+static PtrIsAppThemed		    pIsAppThemed = 0;
+static PtrIsThemeActive		    pIsThemeActive = 0;
+static PtrGetThemePartSize	    pGetThemePartSize = 0;
+static PtrOpenThemeData		    pOpenThemeData = 0;
+static PtrCloseThemeData	    pCloseThemeData = 0;
+static PtrDrawThemeBackground	    pDrawThemeBackground = 0;
+static PtrGetThemeColor		    pGetThemeColor = 0;
+static PtrGetThemeBackgroundRegion  pGetThemeBackgroundRegion = 0;
+static PtrIsThemeBackgroundPartiallyTransparent	pIsThemeBackgroundPartiallyTransparent = 0;
+
+bool QWindowsXPStyle::resolveSymbols()
+{
+    static bool tried = FALSE;
+    if ( !tried ) {
+	tried = TRUE;
+	QLibrary lib( "uxtheme.dll" );
+	lib.setAutoUnload( FALSE );
+
+	pIsAppThemed = (PtrIsAppThemed)lib.resolve( "IsAppThemed" );
+	pIsThemeActive = (PtrIsThemeActive)lib.resolve( "IsThemeActive" );
+	pGetThemePartSize = (PtrGetThemePartSize)lib.resolve( "GetThemePartSize" );
+	pOpenThemeData = (PtrOpenThemeData)lib.resolve( "OpenThemeData" );
+	pCloseThemeData = (PtrCloseThemeData)lib.resolve( "CloseThemeData" );
+	pDrawThemeBackground = (PtrDrawThemeBackground)lib.resolve( "DrawThemeBackground" );
+	pGetThemeColor = (PtrGetThemeColor)lib.resolve( "GetThemeColor" );
+	pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)lib.resolve( "GetThemeBackgroundRegion" );
+	pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)lib.resolve( "IsThemeBackgroundPartiallyTransparent" );
+    }
+    
+    return pGetThemePartSize != 0;
+}
 
 class QWindowsXPStylePrivate
 {
@@ -59,7 +108,7 @@ public:
 
         if ( !init_xp ) {
 	    init_xp = TRUE;
-	    use_xp = IsThemeActive() && IsAppThemed();
+	    use_xp = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
 	}
 	if ( use_xp )
 	    ref++;
@@ -78,7 +127,7 @@ public:
 		if ( handleMap ) {
 		    QMap<QString, HTHEME>::Iterator it;
 		    for ( it = handleMap->begin(); it != handleMap->end(); ++it )
-			CloseThemeData( it.data() );
+			pCloseThemeData( it.data() );
 		    delete handleMap;
 		    handleMap = 0;
 		}		
@@ -151,7 +200,7 @@ struct XPThemeData
 	    static wchar_t nm[256];
 	    wcscpy( nm, (wchar_t*)name.unicode() );
 	    nm[name.length()] = 0;
-            htheme = OpenThemeData( QWindowsXPStylePrivate::winId( widget ), nm );
+            htheme = pOpenThemeData( QWindowsXPStylePrivate::winId( widget ), nm );
 	    if ( htheme ) {
 		if ( !handleMap )
 		    handleMap = new QMap<QString, HTHEME>;
@@ -180,9 +229,9 @@ struct XPThemeData
     
     HRGN mask()
     {
-	if ( IsThemeBackgroundPartiallyTransparent( handle(), partId, stateId ) ) {
+	if ( pIsThemeBackgroundPartiallyTransparent( handle(), partId, stateId ) ) {
 	    HRGN hrgn;
-	    GetThemeBackgroundRegion( handle(), painter ? painter->handle() : 0, partId, stateId, &rect(), &hrgn );
+	    pGetThemeBackgroundRegion( handle(), painter ? painter->handle() : 0, partId, stateId, &rect(), &hrgn );
 	    return hrgn;
 	}
 	return 0;
@@ -211,11 +260,11 @@ struct XPThemeData
 	    QPixmap pm( rec.size() );
 	    QPainter p( &pm );
 	    p.eraseRect( 0, 0, rec.width(), rec.height() );
-	    DrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
+	    pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
 	    rec = oldrec;
 	    painter->drawPixmap( rec.x(), rec.y(), pm );
 	} else {
-	    ulong res = DrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	}
     }
 
@@ -238,7 +287,7 @@ const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
 	QPainter painter( tabbody );
 	XPThemeData theme( widget, &painter, "TAB", TABP_BODY, 0 );
 	SIZE sz;
-	GetThemePartSize( theme.handle(), painter.handle(), TABP_BODY, 0, 0, TS_TRUE, &sz );
+	pGetThemePartSize( theme.handle(), painter.handle(), TABP_BODY, 0, 0, TS_TRUE, &sz );
 	painter.end();
 	tabbody->resize( sz.cx, sz.cy );
 	painter.begin( tabbody );
@@ -321,7 +370,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	XPThemeData theme( widget, 0, "MENUBAR", 0, 0 );
 	if ( theme.isValid() ) {
 	    COLORREF cref;
-	    GetThemeColor( theme.handle(), 0, 0, TMT_MENUBAR, &cref );
+	    pGetThemeColor( theme.handle(), 0, 0, TMT_MENUBAR, &cref );
 	    QColor menubar( qRgb(GetRValue(cref),GetGValue(cref),GetBValue(cref)) );
 	    pal.setColor( QColorGroup::Button, menubar );
 	} else {
@@ -1563,7 +1612,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		if ( metric == PM_IndicatorWidth )
 		    return size.cx+2;
 		return size.cy+2;
@@ -1578,7 +1627,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		if ( metric == PM_ExclusiveIndicatorWidth )
 		    return size.cx+2;
 		return size.cy+2;
@@ -1592,7 +1641,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		return size.cx;
 	    }
 	}
@@ -1604,7 +1653,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		return size.cy;
 	    }
 	}
@@ -1616,7 +1665,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		return size.cy;
 	    }
 	}
@@ -1628,7 +1677,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		return size.cy;
 	    }
 	}
@@ -1640,7 +1689,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
 	    if ( theme.isValid() ) {
 		SIZE size;
-		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
+		pGetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
 		return size.cx;
 	    }
 	}

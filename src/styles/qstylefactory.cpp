@@ -48,6 +48,7 @@
 #include "qplatinumstyle.h"
 #include "qsgistyle.h"
 #include "qcompactstyle.h"
+#include "qwindowsxpstyle.h"
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -115,6 +116,11 @@ QStyle *QStyleFactory::create( const QString& key )
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
         return new QWindowsStyle;
+    else
+#endif
+#ifndef QT_NO_STYLE_WINDOWSXP
+    if ( style == "windowsxp" )
+	return new QWindowsXPStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MOTIF
@@ -189,6 +195,10 @@ QStringList QStyleFactory::keys()
 #ifndef QT_NO_STYLE_WINDOWS
     if ( !list.contains( "Windows" ) )
 	list << "Windows";
+#endif
+#ifndef QT_NO_STYLE_WINDOWSXP
+    if ( !list.contains( "WindowsXP" ) && QWindowsXPStyle::resolveSymbols() )
+	list << "WindowsXP";
 #endif
 #ifndef QT_NO_STYLE_MOTIF
     if ( !list.contains( "Motif" ) )

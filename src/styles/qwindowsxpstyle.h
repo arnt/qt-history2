@@ -84,6 +84,10 @@ protected slots:
 private:
     QWindowsXPStylePrivate *d;
 
+    friend class QStyleFactory;
+    friend class QWindowsXPStylePrivate;
+    static bool resolveSymbols();
+
 #if defined(Q_DISABLE_COPY)
     QWindowsXPStyle( const QWindowsXPStyle & );
     QWindowsXPStyle& operator=( const QWindowsXPStyle & );
