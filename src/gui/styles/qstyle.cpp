@@ -1128,32 +1128,30 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn int QStyle::pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
+    \fn int QStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt = 0, const QWidget *widget = 0) const;
 
-    \warning This function will be replaced in Qt 4.0
-
-    The functionality will be replaced by a new pixelMetric() that is
-    not dependent on the \a widget argument.
-
-    Returns the pixel metric for the given \a metric. The \a widget
-    argument is a pointer to a QWidget or one of its subclasses. The
-    widget can be cast to the appropriate type based on the value of
-    \a metric. Note that \a widget may be zero even for PixelMetrics
-    that can make use of \a widget. See the table below for the
-    appropriate \a widget casts:
+    Returns the pixel metric for the given \a metric. The \a opt and
+    \a widget can be used for calculating the metric.
+    The \a opt can be qt_cast to the appropriate type based on the value of
+    \a metric. Note that \a opt may be zero even for PixelMetrics
+    that can make use of \a opt. See the table below for the
+    appropriate \a opt casts:
 
     \table
-    \header \i PixelMetric \i Widget Cast
-    \row \i \l PM_SliderControlThickness \i (const \l QSlider *)
-    \row \i \l PM_SliderLength           \i (const \l QSlider *)
-    \row \i \l PM_SliderTickmarkOffset   \i (const \l QSlider *)
-    \row \i \l PM_SliderSpaceAvailable   \i (const \l QSlider *)
-    \row \i \l PM_TabBarTabOverlap       \i (const \l QTabBar *)
-    \row \i \l PM_TabBarTabHSpace        \i (const \l QTabBar *)
-    \row \i \l PM_TabBarTabVSpace        \i (const \l QTabBar *)
-    \row \i \l PM_TabBarBaseHeight       \i (const \l QTabBar *)
-    \row \i \l PM_TabBarBaseOverlap      \i (const \l QTabBar *)
+    \header \i PixelMetric \i Option Cast
+    \row \i \l PM_SliderControlThickness \i (const \l QStyleOptionSlider *)
+    \row \i \l PM_SliderLength           \i (const \l QStyleOptionSlider *)
+    \row \i \l PM_SliderTickmarkOffset   \i (const \l QStyleOptionSlider *)
+    \row \i \l PM_SliderSpaceAvailable   \i (const \l QStyleOptionSlider *)
+    \row \i \l PM_ScrollBarExtent        \i (const \l QStyleOptionSlider *)
+    \row \i \l PM_TabBarTabOverlap       \i (const \l QStyleOptionTab *)
+    \row \i \l PM_TabBarTabHSpace        \i (const \l QStyleOptionTab *)
+    \row \i \l PM_TabBarTabVSpace        \i (const \l QStyleOptionTab *)
+    \row \i \l PM_TabBarBaseHeight       \i (const \l QStyleOptionTab *)
+    \row \i \l PM_TabBarBaseOverlap      \i (const \l QStyleOptionTab *)
     \endtable
+
+    In general, the \a widget argument is not used.
 */
 
 /*!

@@ -225,14 +225,14 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         // slider (i.e., the non-tickmark portion). The remaining space is shared
         // equally between the tickmark regions.
     case PM_SliderControlThickness:
-        {
-            const QSlider * sl = (const QSlider *) widget;
-            int space = (sl->orientation() == Qt::Horizontal) ? sl->height()
-                        : sl->width();
-            int ticks = sl->tickmarks();
+        if (const QStyleOptionSlider *sl = qt_cast<const QStyleOptionSlider *>(opt)) {
+            int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height() : sl->rect.width();
+            int ticks = sl->tickmarks;
             int n = 0;
-            if (ticks & QSlider::TickMarksAbove) n++;
-            if (ticks & QSlider::TickMarksBelow) n++;
+            if (ticks & QSlider::TickMarksAbove)
+                ++n;
+            if (ticks & QSlider::TickMarksBelow)
+                ++n;
             if (!n) {
                 ret = space;
                 break;
@@ -240,14 +240,16 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 
             int thick = 6;        // Magic constant to get 5 + 16 + 5
             if (ticks != QSlider::TickMarksBoth && ticks != QSlider::NoTickMarks)
-                thick += pixelMetric(PM_SliderLength, opt, sl) / 4;
+                thick += pixelMetric(PM_SliderLength, sl, widget) / 4;
 
             space -= thick;
             if (space > 0)
                 thick += (space * 2) / (n + 2);
             ret = thick;
-            break;
+        } else {
+            ret = 0;
         }
+        break;
 #endif // QT_NO_SLIDER
 
     case PM_MenuBarFrameWidth:

@@ -2840,35 +2840,32 @@ QSize QMacStylePrivate::HIThemeSizeFromContents(QStyle::ContentsType ct, const Q
 int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                                          const QWidget *widget) const
 {
-    SInt32 ret;
+    SInt32 ret = 0;
     switch(metric) {
-    case QStyle::PM_TitleBarHeight: {
-        if (!widget)
-            break;
-        const QTitleBar *titlebar = static_cast<const QTitleBar *>(widget);
-        HIThemeWindowDrawInfo wdi;
-        wdi.version = qt_mac_hitheme_version;
-        wdi.state = kThemeStateActive;
-        wdi.windowType = QtWinType;
-        if (titlebar->window()) {
-            if (titlebar->window()->isMinimized())
-                wdi.attributes |= kThemeWindowIsCollapsed;
-            if (titlebar->window()->isWindowModified())
-                wdi.attributes |= kThemeWindowHasDirty;
-            wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
-                | kThemeWindowHasCollapseBox;
-        } else if (titlebar->testWFlags(Qt::WStyle_SysMenu)) {
-            wdi.attributes |= kThemeWindowHasCloseBox;
+    case QStyle::PM_TitleBarHeight:
+        if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
+            HIThemeWindowDrawInfo wdi;
+            wdi.version = qt_mac_hitheme_version;
+            wdi.state = kThemeStateActive;
+            wdi.windowType = QtWinType;
+            if (tb->titleBarState) {
+                if (tb->titleBarState & Qt::WindowMinimized)
+                    wdi.attributes |= kThemeWindowIsCollapsed;
+                wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                                  | kThemeWindowHasCollapseBox;
+            } else if (tb->titleBarFlags & Qt::WStyle_SysMenu) {
+                wdi.attributes |= kThemeWindowHasCloseBox;
+            }
+            wdi.titleHeight = tb->rect.height();
+            wdi.titleWidth = tb->rect.width();
+            QCFType<HIShapeRef> region;
+            HIRect hirect = qt_hirectForQRect(tb->rect);
+            HIThemeGetWindowShape(&hirect, &wdi, kWindowTitleBarRgn, &region);
+            HIRect rect;
+            HIShapeGetBounds(region, &rect);
+            ret = int(rect.size.height);
         }
-        wdi.titleHeight = titlebar->height();
-        wdi.titleWidth = titlebar->width();
-        QCFType<HIShapeRef> region;
-        HIRect hirect = qt_hirectForQRect(titlebar->rect());
-        HIThemeGetWindowShape(&hirect, &wdi, kWindowTitleBarRgn, &region);
-        HIRect rect;
-        HIShapeGetBounds(region, &rect);
-        ret = int(rect.size.height);
-         break; }
+        break;
     default:
         ret = q->QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
@@ -4461,28 +4458,29 @@ int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyle
 {
     SInt32 ret = 0;
     switch (metric) {
-    case QStyle::PM_TitleBarHeight: {
-        if(!widget)
-            break;
-        QTitleBar *tbar = (QTitleBar*)widget;
-        ThemeWindowMetrics twm;
-        memset(&twm, '\0', sizeof(twm));
-        twm.metricSize = sizeof(twm);
-        twm.titleWidth = tbar->width();
-        twm.titleHeight = tbar->height();
-        ThemeWindowAttributes twa = kThemeWindowHasTitleText;
-        if(tbar->window())
-            twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-        else if(tbar->testWFlags(Qt::WStyle_SysMenu))
-            twa |= kThemeWindowHasCloseBox;
+    case QStyle::PM_TitleBarHeight:
+        if (const QStyleOptionTitleBar *tbar = qt_cast<const QStyleOptionTitleBar *>(opt)) {
+            ThemeWindowMetrics twm;
+            memset(&twm, '\0', sizeof(twm));
+            twm.metricSize = sizeof(twm);
+            twm.titleWidth = tbar->rect.width();
+            twm.titleHeight = tbar->rect.height();
+            ThemeWindowAttributes twa = kThemeWindowHasTitleText;
+            if(tbar->titleBarState)
+                twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                       | kThemeWindowHasCollapseBox;
+            else if(tbar->titleBarFlags & Qt::WStyle_SysMenu)
+                twa |= kThemeWindowHasCloseBox;
 
-        Rect r;
-        RgnHandle rgn = qt_mac_get_rgn();
-        GetThemeWindowRegion(QtWinType, qt_glb_mac_rect(tbar->rect()), kThemeStateActive, &twm, twa, kWindowTitleBarRgn, rgn);
-        GetRegionBounds(rgn, &r);
-        ret = (r.bottom - r.top);
-        qt_mac_dispose_rgn(rgn);
-        break; }
+            Rect r;
+            RgnHandle rgn = qt_mac_get_rgn();
+            GetThemeWindowRegion(QtWinType, qt_glb_mac_rect(tbar->rect), kThemeStateActive,
+                                 &twm, twa, kWindowTitleBarRgn, rgn);
+            GetRegionBounds(rgn, &r);
+            ret = (r.bottom - r.top);
+            qt_mac_dispose_rgn(rgn);
+        }
+        break;
     default:
         ret = q->QWindowsStyle::pixelMetric(metric, opt, widget);
         break;

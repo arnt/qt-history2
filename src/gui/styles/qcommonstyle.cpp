@@ -2166,15 +2166,15 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 16;
         break;
     case PM_TitleBarHeight: {
-        if (widget) {
-            if (widget->testWFlags(Qt::WStyle_Tool)) {
-                ret = qMax(widget->fontMetrics().lineSpacing(), 16);
+        if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
+            if (tb->titleBarFlags & Qt::WStyle_Tool) {
+                ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 16);
 #ifndef QT_NO_MAINWINDOW
             } else if (qt_cast<const QDockWindow*>(widget)) {
                 ret = qMax(widget->fontMetrics().lineSpacing(), 13);
 #endif
             } else {
-                ret = qMax(widget->fontMetrics().lineSpacing(), 18);
+                ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 18);
             }
         } else {
             ret = 0;
@@ -2194,10 +2194,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_MenuButtonIndicator:
-        if (! widget)
+        if (!opt)
             ret = 12;
         else
-            ret = qMax(12, (widget->height() - 4) / 3);
+            ret = qMax(12, (opt->rect.height() - 4) / 3);
         break;
 
     case PM_ButtonShiftHorizontal:
@@ -2221,14 +2221,13 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 
 #ifndef QT_NO_SCROLLBAR
     case PM_ScrollBarExtent:
-        if (!widget) {
-            ret = 16;
-        } else {
-            const QScrollBar *bar = (const QScrollBar*)widget;
-            int s = bar->orientation() == Qt::Horizontal ?
+        if (const QStyleOptionSlider *sb = qt_cast<const QStyleOptionSlider *>(opt)) {
+            int s = sb->orientation == Qt::Horizontal ?
                     QApplication::globalStrut().height()
                     : QApplication::globalStrut().width();
             ret = qMax(16, s);
+        } else {
+            ret = 16;
         }
         break;
 #endif
@@ -2242,17 +2241,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_SliderTickmarkOffset:
-        {
-            if (! widget) {
-                ret = 0;
-                break;
-            }
-
-            const QSlider * sl = (const QSlider *) widget;
-            int space = (sl->orientation() == Qt::Horizontal) ? sl->height() :
-                        sl->width();
-            int thickness = pixelMetric(PM_SliderControlThickness, opt, sl);
-            int ticks = sl->tickmarks();
+        if (const QStyleOptionSlider *sl = qt_cast<const QStyleOptionSlider *>(opt)) {
+            int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height()
+                                                            : sl->rect.width();
+            int thickness = pixelMetric(PM_SliderControlThickness, sl, widget);
+            int ticks = sl->tickmarks;
 
             if (ticks == QSlider::Both)
                 ret = (space - thickness) / 2;
@@ -2260,17 +2253,20 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
                 ret = space - thickness;
             else
                 ret = 0;
-            break;
+        } else {
+            ret = 0;
         }
+        break;
 
     case PM_SliderSpaceAvailable:
-        {
-            const QSlider * sl = (const QSlider *) widget;
-            if (sl->orientation() == Qt::Horizontal)
-                ret = sl->width() - pixelMetric(PM_SliderLength, opt, sl);
+        if (const QStyleOptionSlider *sl = qt_cast<const QStyleOptionSlider *>(opt)) {
+            if (sl->orientation == Qt::Horizontal)
+                ret = sl->rect.width() - pixelMetric(PM_SliderLength, sl, widget);
             else
-                ret = sl->height() - pixelMetric(PM_SliderLength, opt, sl);
+                ret = sl->rect.height() - pixelMetric(PM_SliderLength, sl, widget);
             break;
+        } else {
+            ret = 0;
         }
 #endif // QT_NO_SLIDER
 
@@ -2321,16 +2317,13 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
 #ifndef QT_NO_TABBAR
-    case PM_TabBarTabVSpace:
-        {
-            const QTabBar * tb = (const QTabBar *) widget;
-            if (tb && (tb->shape() == QTabBar::RoundedAbove ||
-                         tb->shape() == QTabBar::RoundedBelow))
-                ret = 10;
-            else
-                ret = 0;
-            break;
-        }
+    case PM_TabBarTabVSpace: {
+        const QStyleOptionTab *tb = qt_cast<const QStyleOptionTab *>(opt);
+        if (tb && (tb->shape == QTabBar::RoundedAbove || tb->shape == QTabBar::RoundedBelow))
+            ret = 10;
+        else
+            ret = 0;
+        break; }
 #endif
 
     case PM_ProgressBarChunkWidth:
