@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: pictures.doc,v 2.8 1999/06/16 09:38:54 warwick Exp $
+** $Id: pictures.doc,v 2.9 1999/06/16 09:40:56 warwick Exp $
 **
 ** Pictures of Most Widgets in Qt
 **
@@ -21,7 +21,7 @@
 **
 *****************************************************************************/
 
-// $Id: pictures.doc,v 2.8 1999/06/16 09:38:54 warwick Exp $
+// $Id: pictures.doc,v 2.9 1999/06/16 09:40:56 warwick Exp $
 
 /*! \page pictures.html
 
@@ -32,7 +32,8 @@
 <h1 align=center>Pictures of Most Widgets in Qt</h1><br clear="all">
 
 <p>Most of these widgets are pictured in either Motif or Windows
-style.  They all support both, but for clarity we've chosen to cut
+style.  All widgets are supported in both styles (plus other
+\link QStyle styles\endlink), but for clarity we've chosen to cut
 down on the number of repeated images.
 
 <h2><a href="qbuttongroup.html">QButtonGroup</a></h2>
@@ -86,7 +87,7 @@ Hierarchical list view (multi-column tree view)
 
 <h2><a href="qmessagebox.html">QMessageBox</a></h2>
 <img src=qmsgbox-m.png align=top>&nbsp;Motif
-<br clear="all">
+
 <img src=qmsgbox-w.png align=top>&nbsp;Windows
 
 <h2><a href="qmultilineedit.html">QMultiLineEdit</a></h2>
