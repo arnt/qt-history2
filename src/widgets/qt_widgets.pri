@@ -86,11 +86,11 @@ widgets {
 		  $$WIDGETS_CPP/qpushbutton.cpp \
 		  $$WIDGETS_CPP/qradiobutton.cpp \
 		  $$WIDGETS_CPP/qrangecontrol.cpp \
-		  $$WIDGETS_CPP/qrangecontrolwidget.cpp \
 		  $$WIDGETS_CPP/qscrollbar.cpp \
 		  $$WIDGETS_CPP/qscrollview.cpp \
 		  $$WIDGETS_CPP/qslider.cpp \
 		  $$WIDGETS_CPP/qspinbox.cpp \
+		  $$WIDGETS_CPP/qspinwidget.cpp \
 		  $$WIDGETS_CPP/qsplitter.cpp \
 		  $$WIDGETS_CPP/qstatusbar.cpp \
 		  $$WIDGETS_CPP/qtabbar.cpp \
