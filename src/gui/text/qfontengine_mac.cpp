@@ -176,16 +176,16 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     if(w && textFlags != 0) {
         QBrush oldBrush = p->painter()->brush();
         p->painter()->setBrush(p->painter()->pen().color());
-        const int lw = lineThickness();
+        const float lw = lineThickness();
         if(textFlags & Qt::TextUnderline)
-            p->painter()->drawRect(QRect(req_x, req_y+underlinePosition(),
-                                         si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(),
+                                          si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextOverline)
-            p->painter()->drawRect(QRect(req_x, req_y - (ascent() + 1),
-                                         si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1),
+                                          si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextStrikeOut)
-            p->painter()->drawRect(QRect(req_x, req_y - (ascent() / 3),
-                                         si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3),
+                                          si.right_to_left ? -w : w, lw));
         p->painter()->setBrush(oldBrush);
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
@@ -547,6 +547,85 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     if(ctx_port)
         QDEndCGContext(ctx_port, &ctx);
     return ret;
+}
+
+struct PathData
+{
+    float x;
+    float y;
+    QPainterPath *path;
+};
+
+OSStatus qt_CubicLineToProc(const Float32Point *pt,
+                            void *callBackDataPtr)
+
+{
+    PathData *pd = static_cast<PathData *>(callBackDataPtr);
+    pd->path->lineTo(pd->x + pt->x, pd->y + pt->y);
+    return noErr;
+}
+
+OSStatus qt_CubicCurveToProc (const Float32Point *cp1,
+                               const Float32Point *cp2,
+                               const Float32Point *ep,
+                               void *callBackDataPtr)
+
+{
+    PathData *pd = static_cast<PathData *>(callBackDataPtr);
+    pd->path->curveTo(pd->x + cp1->x, pd->y + cp1->y,
+                pd->x + cp2->x, pd->y + cp2->y,
+                pd->x + ep->x, pd->y + ep->y);
+    return noErr;
+}
+
+
+OSStatus qt_CubicMoveToProc(const Float32Point *pt, void * callBackDataPtr)
+{
+    PathData *pd = static_cast<PathData *>(callBackDataPtr);
+    pd->path->moveTo(pd->x + pt->x, pd->y + pt->y);
+    return noErr;
+}
+
+
+OSStatus qt_CubicClosePathProc(void * callBackDataPtr)
+{
+    static_cast<PathData *>(callBackDataPtr)->path->closeSubpath();
+    return noErr;
+}
+
+
+void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
+                                      QPainterPath *path)
+{
+    // ### Apply X and Y to painter path.
+    ATSCubicMoveToUPP iMoveToProc = NewATSCubicMoveToUPP(qt_CubicMoveToProc);
+    ATSCubicLineToUPP iLineToProc = NewATSCubicLineToUPP(qt_CubicLineToProc);
+    ATSCubicCurveToUPP iCurveToProc = NewATSCubicCurveToUPP(qt_CubicCurveToProc);
+    ATSCubicClosePathUPP iClosePathProc = NewATSCubicClosePathUPP(qt_CubicClosePathProc);
+
+    PathData pd;
+    pd.x = x;
+    pd.y = y;
+    pd.path = path;
+    QATSUStyle *st = getFontStyle();
+    ATSGlyphIdealMetrics idealMetrics;
+    for (int i = 0; i < numGlyphs; ++i) {
+        /*
+        Q_ASSERT_X(glyphs[i].glyph != kATSDeletedGlyphCode, "QFontEngineMac::addOutlineToPath",
+                   "Text layout should have stripped this for us.");
+                   */
+        OSStatus result;
+        ATSUGlyphGetCubicPaths(st->style, glyphs[i].glyph, iMoveToProc, iLineToProc,
+                                iCurveToProc, iClosePathProc, &pd, &result);
+        ATSUGlyphGetIdealMetrics(st->style, 1, (GlyphID*)&glyphs[i].glyph, 0, &idealMetrics);
+
+        pd.x += idealMetrics.advance.x;
+    }
+    DisposeATSCubicMoveToUPP(iMoveToProc);
+    DisposeATSCubicLineToUPP(iLineToProc);
+    DisposeATSCubicCurveToUPP(iCurveToProc);
+    DisposeATSCubicClosePathUPP(iClosePathProc);
+
 }
 
 // box font engine
