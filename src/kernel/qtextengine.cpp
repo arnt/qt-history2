@@ -1124,3 +1124,14 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
     }
     return gm;
 }
+
+int QTextEngine::findItem(int strPos) const
+{
+    // ##### use binary search
+    int item;
+    for ( item = items.size()-1; item > 0; --item ) {
+	if ( items[item].position <= strPos )
+	    break;
+    }
+    return item;
+}

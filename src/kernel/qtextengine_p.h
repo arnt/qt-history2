@@ -316,6 +316,8 @@ public:
     }
 
 
+    int findItem(int strPos) const;
+
     mutable QScriptItemArray items;
     mutable QScriptLineArray lines;
 

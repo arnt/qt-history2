@@ -16,6 +16,7 @@
 #include <qfont.h>
 #include <qapplication.h>
 #include <qpainter.h>
+#include <qstackarray.h>
 
 #include "qfontengine_p.h"
 
@@ -668,7 +669,7 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
     const QCharAttributes *attributes = d->attributes();
 
-    qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
+//     qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
     while (item < d->items.size()) {
 	d->shape(item);
 	const QScriptItem &current = d->items[item];
@@ -709,17 +710,17 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 		spacew += glyphs[gp].advance;
 		++gp;
 	    }
-	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d",
-		   current.position + next, pos, next, tmpw, spacew);
+// 	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d",
+// 		   current.position + next, pos, next, tmpw, spacew);
 
 	    if (line.length && line.textWidth + tmpw > line.width) {
-		qDebug("found break");
+// 		qDebug("found break");
 		goto found;
 	    }
 	    line.textWidth += tmpw + spacew;
 	    line.length += next - pos + 1;
 	    if (d->string[current.position+pos] == QChar_linesep) {
-		qDebug("found hard break");
+// 		qDebug("found hard break");
 		goto found;
 	    }
 	    pos = next + 1;
@@ -727,7 +728,7 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	++item;
     }
  found:
-    qDebug("line length = %d, ascent=%d, descent=%d", line.length, line.ascent, line.descent);
+//     qDebug("line length = %d, ascent=%d, descent=%d", line.length, line.ascent, line.descent);
 
     int l = d->lines.size();
     d->lines.append(line);
@@ -800,28 +801,33 @@ void QTextLine::draw( QPainter *p, int x, int y )
 {
     const QScriptLine &line = eng->lines[i];
 
-    int item;
-    for ( item = eng->items.size()-1; item > 0; --item ) {
-	if ( eng->items[item].position <= line.from )
-	    break;
-    }
+    if (!line.length)
+	return;
+
+    int firstItem = eng->findItem(line.from);
+    int lastItem = eng->findItem(line.from + line.length - 1);
+    int nItems = lastItem-firstItem+1;
 
     int lineEnd = line.from + line.length;
 
     x += line.x;
     y += line.y;
 
+    // ########## Justification
     if (eng->textFlags & Qt::AlignRight)
 	x += line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
 	x += (line.width - line.textWidth)/2;
 
-    // ####### BiDi reordering!
+    QStackArray<int> visualOrder(nItems);
+    QStackArray<unsigned char> levels(nItems);
+    for (int i = 0; i < nItems; ++i)
+	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
+    QTextEngine::bidiReorder(nItems, levels, visualOrder);
 
-    while (item < eng->items.size()) {
-	const QScriptItem &si = eng->items[item];
-	if (si.position >= lineEnd)
-	    break;
+    for (int i = 0; i < nItems; ++i) {
+	int item = visualOrder[i]+firstItem;
+	QScriptItem &si = eng->items[item];
 
 	if ( si.isTab || si.isObject ) {
 	    x += si.width;
