@@ -111,7 +111,7 @@ public:
     QObjectUserData* userData(uint id) const;
 #endif // QT_NO_USERDATA
 
-    bool isAncestorOf(QObject *child) const;
+    bool isAncestorOf(const QObject *child) const;
 
 signals:
     void destroyed(QObject * = 0);
@@ -185,7 +185,7 @@ private: // Disabled copy constructor and operator=
 #endif
 };
 
-inline bool QObject::isAncestorOf(QObject *child) const
+inline bool QObject::isAncestorOf(const QObject *child) const
 {
     while (child) {
 	child = child->parentObj;
