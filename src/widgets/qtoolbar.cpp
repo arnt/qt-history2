@@ -87,7 +87,7 @@ class QToolBarExtensionWidget;
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ), toggleButtonExclusive( FALSE ) {
+    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ) {
 	extensionSubMenues.setAutoDelete(TRUE);
     }
 
@@ -96,7 +96,6 @@ public:
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
     QObjectList extensionSubMenues;
-    bool toggleButtonExclusive;
 };
 
 
@@ -527,9 +526,6 @@ bool QToolBar::event( QEvent * e )
 	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
 	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	    if ( ((QWidget*)child)->inherits( "QButton" ) )
-		connect( (QWidget*)child, SIGNAL( toggled( bool ) ),
-			 this, SLOT( updateToggleButtons( bool ) ) );
 	    if ( isVisible() && ((QWidget*)child)->testWState( WState_CreatedHidden ) ) {
 		( (QWidget*)child )->show();
 		// We resize the toolbar in case it is too small to show all the icons
@@ -608,23 +604,6 @@ QSize QToolBar::minimumSizeHint() const
 	return QSize( 0, QDockWindow::minimumSizeHint().height() );
     return QSize( QDockWindow::minimumSizeHint().width(), 0 );
 }
-
-/*!
-    \property QToolBar::toggleButtonExclusive
-    \brief whether the toggle buttons in the toolbar are exclusive
-*/
-
-void QToolBar::setToggleButtonExclusive( bool exclusive ) {
-    if ( d->toggleButtonExclusive == exclusive )
-	return;
-
-    d->toggleButtonExclusive = exclusive;
-}
-
-bool QToolBar::isToggleButtonExclusive() const {
-    return d->toggleButtonExclusive;
-}
-
 
 void QToolBar::createPopup()
 {
@@ -728,32 +707,6 @@ void QToolBar::createPopup()
     delete childlist;
 }
 
-
-/*
-  Sets all but the currently toggled toggle button off ( setOn( FALSE ) )
-*/
-void QToolBar::updateToggleButtons( bool on ) {
-    // return if toggleButtonExclusive was not set or we are not called with on == TRUE
-    if ( !d->toggleButtonExclusive || !on )
-	return;
-
-    const QObject *obj = sender();
-    QButton *toggledButton = 0;
-    // find the togglebutton that was set to on, return otherwise
-    if ( obj->isWidgetType() && obj->inherits("QButton" ) && ((QButton*)obj)->isToggleButton() )
-	toggledButton = (QButton*)obj;
-    else
-	return;
-
-    // iterate over all but the toggled one and set them off (if they are toggledButtons )
-    QObjectList *buttons = queryList( "QButton" );
-    QButton *childButton = (QButton*)buttons->first();
-    while( childButton ) {
-	if ( childButton->isToggleButton() && childButton != toggledButton )
-	    childButton->setOn( FALSE );
-	childButton = (QButton*)buttons->next();
-    }
-}
 
 /*!
     \reimp
