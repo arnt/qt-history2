@@ -109,31 +109,31 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     a rendering context. One is to create a QGLFormat and make it the
     default for the entire application:
     \code
-    QGLFormat f;
-    f.setAlpha(true);
-    f.setStereo(true);
-    QGLFormat::setDefaultFormat(f);
+    QGLFormat fmt;
+    fmt.setAlpha(true);
+    fmt.setStereo(true);
+    QGLFormat::setDefaultFormat(fmt);
     \endcode
 
     Or you can specify the desired format when creating an object of
     your QGLWidget subclass:
     \code
-    QGLFormat f;
-    f.setDoubleBuffer(false);                 // single buffer
-    f.setDirectRendering(false);              // software rendering
-    MyGLWidget* myWidget = new MyGLWidget(f, ...);
+    QGLFormat fmt;
+    fmt.setDoubleBuffer(false);                 // single buffer
+    fmt.setDirectRendering(false);              // software rendering
+    MyGLWidget* myWidget = new MyGLWidget(fmt, ...);
     \endcode
 
     After the widget has been created, you can find out which of the
     requested features the system was able to provide:
     \code
-    QGLFormat f;
-    f.setOverlay(true);
-    f.setStereo(true);
-    MyGLWidget* myWidget = new MyGLWidget(f, ...);
-    if (!w->format().stereo()) {
+    QGLFormat fmt;
+    fmt.setOverlay(true);
+    fmt.setStereo(true);
+    MyGLWidget* myWidget = new MyGLWidget(fmt, ...);
+    if (!myWidget->format().stereo()) {
         // ok, goggles off
-        if (!w->format().hasOverlay()) {
+        if (!myWidget->format().hasOverlay()) {
             qFatal("Cool hardware required");
         }
     }
