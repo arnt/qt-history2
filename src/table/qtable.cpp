@@ -3129,7 +3129,7 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 	return;
 
     itm = oldIitem;
-    if ( itm && itm->editType() != QTableItem::Always )
+    if ( itm && itm->editType() != QTableItem::Always && itm->editType() != QTableItem::Never )
 	endEdit( curRow, curCol, TRUE, FALSE );
     int oldRow = curRow;
     int oldCol = curCol;
