@@ -1185,9 +1185,15 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 #endif
 }
 
-QRect QPainter::boundingRect(int, int, int, int, int, const QString&, int, QTextParag **)
+QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len,
+			     QTextParag **internal)
 {
-    return QRect();
+    QRect brect;
+    if ( str.isEmpty() )
+	brect.setRect( x,y, 0,0 );
+    else
+	drawText(QRect(x, y, w, h), flags | DontPrint, str, len, &brect, internal);
+    return brect;
 }
 
 
