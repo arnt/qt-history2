@@ -172,12 +172,12 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	}
 	$text .= 'all: ';
        	ExpandGlue("ALL_DEPS",""," "," ");
-	$text .= 'localsubs ';
+	#$text .= 'localsubs ';
 	$text .= '$(DESTDIR)' . $targ . "\n\n";
-	$text .= "LOCALSUBS = kernel widgets tools utils dialogs\n\n";
-	$text .= "localsubs:\n\tfor d in \$(LOCALSUBS); do \\\n";
-	$text .= "\t\ttest -d \$\$d || mkdir \$\$d || exit 1 ; \\\n";
-	$text .= "\tdone\n\n";
+	#$text .= "LOCALSUBS = kernel widgets tools utils dialogs\n\n";
+	#$text .= "localsubs:\n\tfor d in \$(LOCALSUBS); do \\\n";
+	#$text .= "\t\ttest -d \$\$d || mkdir \$\$d || exit 1 ; \\\n";
+	#$text .= "\tdone\n\n";
 	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
