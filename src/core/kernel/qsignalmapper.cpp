@@ -157,6 +157,27 @@ void QSignalMapper::setMapping(const QObject *sender, const QString &id)
     rec.str_id = id;
 }
 
+
+QObject *QSignalMapper::mapping(int id) const
+{
+    QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
+    while (i != d->hash.end()) {
+        if (i->has_int && i->int_id == id)
+            return const_cast<QObject*>(i.key());
+        ++i;
+    }
+}
+
+QObject *QSignalMapper::mapping(const QString &id) const
+{
+    QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
+    while (i != d->hash.end()) {
+        if (i->has_str && i->str_id == id)
+            return const_cast<QObject*>(i.key());
+        ++i;
+    }
+}
+
 /*!
     Removes all mappings for \a sender.
 

@@ -24,7 +24,7 @@ public:
     uint mlbDown :1;
     uint blockRefresh :1;
 
-    Q4ButtonGroup* group;
+    QButtonGroup* group;
     QBasicTimer repeatTimer;
     QBasicTimer animateTimer;
 

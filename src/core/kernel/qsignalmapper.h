@@ -27,12 +27,15 @@ class Q_CORE_EXPORT QSignalMapper : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSignalMapper)
 public:
-    QSignalMapper(QObject *parent);
+    QSignalMapper(QObject *parent = 0);
     ~QSignalMapper();
 
-    virtual void setMapping(const QObject *sender, int id);
-    virtual void setMapping(const QObject *sender, const QString &id);
+    void setMapping(const QObject *sender, int id);
+    void setMapping(const QObject *sender, const QString &id);
     void removeMappings(const QObject *sender);
+
+    QObject *mapping(int id) const;
+    QObject *mapping(const QString &id) const;
 
 signals:
     void mapped(int);

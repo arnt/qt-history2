@@ -25,8 +25,7 @@
 #include "qcheckbox.h"
 #include "qcombobox.h"
 #include "qlayout.h"
-#include "qvgroupbox.h"
-#include "qhgroupbox.h"
+#include "qgroupbox.h"
 #include "qlabel.h"
 #include "qapplication.h"
 #include "qfontdatabase.h"
@@ -85,12 +84,12 @@ public:
     QLineEdit * sizeEdit;
     QListBox * sizeList;
 
-    QVGroupBox * effects;
+    QGroupBox * effects;
     QCheckBox * strikeout;
     QCheckBox * underline;
     QComboBox * color;
 
-    QHGroupBox * sample;
+    QGroupBox * sample;
     QLineEdit * sampleEdit;
 
     QLabel * scriptAccel;
@@ -163,19 +162,24 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->sizeAccel->setIndent(2);
 
     // effects box
-    d->effects = new QVGroupBox(tr("Effects"), this, "font effects");
+    d->effects = new QGroupBox(tr("Effects"), this, "font effects");
+    QVBoxLayout *vbox = new QVBoxLayout(d->effects);
     d->strikeout = new QCheckBox(d->effects, "strikeout on/off");
     d->strikeout->setText(tr("Stri&keout"));
+    vbox->addWidget(d->strikeout);
     d->underline = new QCheckBox(d->effects, "underline on/off");
     d->underline->setText(tr("&Underline"));
+    vbox->addWidget(d->underline);
 
-    d->sample = new QHGroupBox(tr("Sample"), this, "sample text");
+    d->sample = new QGroupBox(tr("Sample"), this, "sample text");
+    QHBoxLayout *hbox = new QHBoxLayout(d->effects);
     d->sampleEdit = new QLineEdit(d->sample, "r/w sample text");
     d->sampleEdit->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
     d->sampleEdit->setAlignment(AlignCenter);
     // Note that the sample text is *not* translated with tr(), as the
     // characters used depend on the charset encoding.
     d->sampleEdit->setText("AaBbYyZz");
+    hbox->addWidget(d->sampleEdit);
 
     d->scriptCombo = new QComboBox(false, this, "font encoding");
 

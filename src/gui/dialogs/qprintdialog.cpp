@@ -42,6 +42,9 @@
 #if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
 #include "qlibrary.h"
 #endif
+#include "qgroupbox.h"
+#include "qsignalmapper.h"
+#include "qmap.h"
 
 #ifndef QT_NO_NIS
 
@@ -67,6 +70,41 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+class QPrintDialogButtonGroup : public QObject
+{
+    Q_OBJECT
+public:
+    QPrintDialogButtonGroup(QObject *parent);
+
+    inline void hide(){}
+    void insert(QAbstractButton *, int id = -1);
+    void setButton(int id);
+signals:
+    void clicked(int);
+private:
+    QSignalMapper mapper;
+    QButtonGroup group;
+};
+
+
+QPrintDialogButtonGroup::QPrintDialogButtonGroup(QObject *parent)
+    :QObject(parent)
+{
+    connect(&mapper, SIGNAL(mapped(int)), this, SIGNAL(clicked(int)));
+}
+
+void QPrintDialogButtonGroup::setButton(int id)
+{
+    if (QAbstractButton *button = static_cast<QAbstractButton*>(mapper.mapping(id)))
+        button->click();
+}
+
+void QPrintDialogButtonGroup::insert(QAbstractButton *button, int id)
+{
+    group.addButton(button);
+    mapper.setMapping(button, id);
+    connect(button, SIGNAL(clicked()), &mapper, SLOT(map()));
+}
 
 class QPrintDialogSpinBox : public QSpinBox
 {
@@ -92,14 +130,14 @@ class QPrintDialogPrivate
 public:
     QPrinter * printer;
 
-    QButtonGroup * printerOrFile;
+    QPrintDialogButtonGroup * printerOrFile;
 
     bool outputToFile;
     QListView * printers;
     QLineEdit * fileName;
     QPushButton * browse, *ok;
 
-    QButtonGroup * printRange;
+    QPrintDialogButtonGroup * printRange;
     QLabel * firstPageLabel;
     QPrintDialogSpinBox * firstPage;
     QLabel * lastPageLabel;
@@ -113,10 +151,10 @@ public:
     QPrinter::PageSize pageSize;
     QPrinter::Orientation orientation;
 
-    QButtonGroup * pageOrder;
+    QPrintDialogButtonGroup * pageOrder;
     QPrinter::PageOrder pageOrder2;
 
-    QButtonGroup * colorMode;
+    QPrintDialogButtonGroup * colorMode;
     QPrinter::ColorMode colorMode2;
 
     QPrintDialogSpinBox * copies;
@@ -957,35 +995,37 @@ void QPrintDialog::setGlobalPrintDialog(QPrintDialog *pd)
 
 QGroupBox * QPrintDialog::setupPrinterSettings()
 {
-    QGroupBox * g = new QGroupBox(1, Horizontal, tr("Printer settings"),
-                                   this, "settings group box");
+    QGroupBox * g = new QGroupBox(tr("Printer settings"), this, "settings group box");
 
-    d->colorMode = new QButtonGroup(this);
+    QBoxLayout * tll = new QBoxLayout(g, QBoxLayout::Down);
+    d->colorMode = new QPrintDialogButtonGroup(this);
     d->colorMode->hide();
     connect(d->colorMode, SIGNAL(clicked(int)),
-             this, SLOT(colorModeSelected(int)));
+            this, SLOT(colorModeSelected(int)));
 
     QRadioButton *rb;
     rb = new QRadioButton(tr("Print in color if available"),
                            g, "color");
     d->colorMode->insert(rb, QPrinter::Color);
     rb->setChecked(true);
+    tll->addWidget(rb);
 
     rb = new QRadioButton(tr("Print in grayscale"),
                            g, "graysacle");
     d->colorMode->insert(rb, QPrinter::GrayScale);
+    tll->addWidget(rb);
 
     return g;
 }
 
 QGroupBox * QPrintDialog::setupDestination()
 {
-    QGroupBox * g = new QGroupBox(0, Horizontal, tr("Print destination"),
+    QGroupBox * g = new QGroupBox(tr("Print destination"),
                                    this, "destination group box");
 
-    QBoxLayout * tll = new QBoxLayout(g->layout(), QBoxLayout::Down);
+    QBoxLayout * tll = new QBoxLayout(g, QBoxLayout::Down);
 
-    d->printerOrFile = new QButtonGroup(this);
+    d->printerOrFile = new QPrintDialogButtonGroup(this);
     d->printerOrFile->hide();
     connect(d->printerOrFile, SIGNAL(clicked(int)),
              this, SLOT(printerOrFileSelected(int)));
@@ -1154,22 +1194,18 @@ QGroupBox * QPrintDialog::setupDestination()
 
 QGroupBox * QPrintDialog::setupOptions()
 {
-    QGroupBox * g = new QGroupBox(0, Horizontal, tr("Options"),
+    QGroupBox * g = new QGroupBox(tr("Options"),
                                    this, "options group box");
 
-    QBoxLayout * tll = new QBoxLayout(g->layout(), QBoxLayout::Down);
+    QBoxLayout *lay = new QBoxLayout(g, QBoxLayout::LeftToRight);
+    QBoxLayout *tll = new QBoxLayout(lay, QBoxLayout::Down);
 
-    QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight);
-    tll->addLayout(lay);
-
-    tll = new QBoxLayout(lay, QBoxLayout::Down);
-
-    d->printRange = new QButtonGroup(this);
+    d->printRange = new QPrintDialogButtonGroup(this);
     d->printRange->hide();
     connect(d->printRange, SIGNAL(clicked(int)),
              this, SLOT(printRangeSelected(int)));
 
-    d->pageOrder = new QButtonGroup(this);
+    d->pageOrder = new QPrintDialogButtonGroup(this);
     d->pageOrder->hide();
     connect(d->pageOrder, SIGNAL(clicked(int)),
              this, SLOT(pageOrderSelected(int)));
@@ -1272,24 +1308,28 @@ void isc(QPrintDialogPrivate * d,
 
 QGroupBox * QPrintDialog::setupPaper()
 {
-    QGroupBox * g = new QGroupBox(1, Horizontal, tr("Paper format"),
+    QGroupBox * g = new QGroupBox(tr("Paper format"),
                                    this, "Paper format");
+
+    QBoxLayout * tll = new QBoxLayout(g, QBoxLayout::Down, 12, 0);
     d->pageSize = QPrinter::A4;
 
     // page orientation
     d->orientationCombo = new QComboBox(false, g);
     d->orientationCombo->insertItem(tr("Portrait"), -1);
     d->orientationCombo->insertItem(tr("Landscape"), -1);
+    tll->addWidget(d->orientationCombo);
 
     d->orientation = QPrinter::Portrait;
 
-    g->addSpace(8);
+    tll->addSpacing(8);
 
     connect(d->orientationCombo, SIGNAL(activated(int)),
              this, SLOT(orientSelected(int)));
 
     // paper size
     d->sizeCombo = new QComboBox(false, g);
+    tll->addWidget(d->sizeCombo);
 
     int n;
     for(n=0; n<QPrinter::NPageSize; n++)
@@ -1586,16 +1626,13 @@ void QPrintDialog::setPrinter(QPrinter * p, bool pickUpSettings)
         QPrinter::PrintRange range = p->printRange();
         switch (range) {
         case QPrinter::AllPages:
-            d->printAllButton->setChecked(true);
-            printRangeSelected(d->printRange->id(d->printAllButton));
+            d->printAllButton->click();
             break;
         case QPrinter::Selection:
-            d->printSelectionButton->setChecked(true);
-            printRangeSelected(d->printRange->id(d->printSelectionButton));
+            d->printSelectionButton->click();
             break;
         case QPrinter::PageRange:
-            d->printRangeButton->setChecked(true);
-            printRangeSelected(d->printRange->id(d->printRangeButton));
+            d->printRangeButton->click();
             break;
         }
     }
@@ -1644,4 +1681,5 @@ void QPrintDialog::fileNameEditChanged(const QString &text)
         d->ok->setEnabled(!text.isEmpty());
 }
 
+#include "qprintdialog.moc"
 #endif

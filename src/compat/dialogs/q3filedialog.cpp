@@ -43,7 +43,7 @@
 #include "qbitmap.h"
 #include "qpopupmenu.h"
 #include "qwidgetstack.h"
-#include "qbuttongroup.h"
+#include "q3buttongroup.h"
 #include "qptrvector.h"
 #include "qregexp.h"
 #include "qstrlist.h"
@@ -901,7 +901,7 @@ public:
 
     QToolButton * cdToParent, *newFolder, * detailView, * mcView,
         *previewInfo, *previewContents, *goBack;
-    QButtonGroup * modeButtons;
+    Q3ButtonGroup * modeButtons;
 
     QString currentFileName;
     QListViewItem *last;
@@ -2526,7 +2526,7 @@ void Q3FileDialog::init()
     connect(d->newFolder, SIGNAL(clicked()),
              this, SLOT(newFolderClicked()));
 
-    d->modeButtons = new QButtonGroup(0, "invisible group");
+    d->modeButtons = new Q3ButtonGroup(0, "invisible group");
     connect(d->modeButtons, SIGNAL(destroyed()),
              this, SLOT(modeButtonsDestroyed()));
     d->modeButtons->setExclusive(true);

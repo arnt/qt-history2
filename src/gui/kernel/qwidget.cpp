@@ -3909,7 +3909,7 @@ void QWidget::showChildren(bool spontaneous)
         if (!object->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isTopLevel() ) 
+        if (widget->isTopLevel() )
             continue;
         if (widget->testWState(WState_Hidden))
             continue;
@@ -4312,6 +4312,8 @@ QSize QWidget::sizeHint() const
     if (d->layout)
         return d->layout->totalSizeHint();
 #endif
+    if (d->leftmargin || d->rightmargin || d->topmargin || d->bottommargin)
+        return QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
     return QSize(-1, -1);
 }
 

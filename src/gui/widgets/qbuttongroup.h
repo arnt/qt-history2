@@ -15,24 +15,22 @@
 #ifndef QBUTTONGROUP_H
 #define QBUTTONGROUP_H
 
-
 #ifndef QT_H
 #include "qobject.h"
-#include "qmap.h"
 #endif
 
 class QAbstractButton;
 class QAbstractButtonPrivate;
-class Q4ButtonGroupPrivate;
+class QButtonGroupPrivate;
 
-class Q_GUI_EXPORT Q4ButtonGroup : public QObject
+class Q_GUI_EXPORT QButtonGroup : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4ButtonGroup)
+    Q_DECLARE_PRIVATE(QButtonGroup)
     Q_PROPERTY(bool exlusive READ exclusive WRITE setExclusive)
 public:
-    Q4ButtonGroup(QObject *parent = 0);
-    ~Q4ButtonGroup();
+    QButtonGroup(QObject *parent = 0);
+    ~QButtonGroup();
 
     void setExclusive(bool);
     bool exclusive() const;
@@ -54,76 +52,5 @@ private:
 };
 
 
-#ifndef QT_H
-#include "qgroupbox.h"
-#endif // QT_H
-
-#ifndef QT_NO_BUTTONGROUP
-
-class QAbstractButton;
-
-class Q_GUI_EXPORT QButtonGroup : public QGroupBox
-{
-    Q_OBJECT
-    Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)
-    Q_PROPERTY(bool radioButtonExclusive READ isRadioButtonExclusive WRITE setRadioButtonExclusive)
-    Q_PROPERTY(int selectedId READ selectedId WRITE setButton)
-
-public:
-    QButtonGroup(QWidget* parent=0, const char* name=0);
-    QButtonGroup(const QString &title,
-                  QWidget* parent=0, const char* name=0);
-    QButtonGroup(int columns, Orientation o,
-                  QWidget* parent=0, const char* name=0);
-    QButtonGroup(int columns, Orientation o, const QString &title,
-                  QWidget* parent=0, const char* name=0);
-    ~QButtonGroup();
-
-    bool        isExclusive() const;
-    bool        isRadioButtonExclusive() const { return radio_excl; }
-    virtual void setExclusive(bool);
-    virtual void setRadioButtonExclusive(bool);
-
-public:
-    int                insert(QAbstractButton *, int id=-1);
-    void        remove(QAbstractButton *);
-    QAbstractButton    *find(int id) const;
-    int                id(QAbstractButton *) const;
-    int                count() const;
-
-    virtual void setButton(int id);
-
-    QAbstractButton    *selected() const;
-    int    selectedId() const;
-
-signals:
-    void        pressed(int id);
-    void        released(int id);
-    void        clicked(int id);
-
-protected slots:
-    void        buttonPressed();
-    void        buttonReleased();
-    void        buttonClicked();
-
-protected:
-    bool         event(QEvent * e);
-
-private:
-    void        init();
-
-    bool        excl_grp;
-    bool        radio_excl;
-    QMap<int, QAbstractButton*> buttonIds;
-    Q4ButtonGroup group;
-
-private:
-#if defined(Q_DISABLE_COPY)
-    QButtonGroup(const QButtonGroup &);
-    QButtonGroup &operator=(const QButtonGroup &);
-#endif
-};
-
-#endif // QT_NO_BUTTONGROUP
 
 #endif // QBUTTONGROUP_H

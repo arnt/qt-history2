@@ -22,7 +22,7 @@
 #endif // QT_H
 
 
-class Q4ButtonGroup;
+class QButtonGroup;
 class QAbstractButtonPrivate;
 
 class Q_GUI_EXPORT QAbstractButton : public QWidget
@@ -65,7 +65,7 @@ public:
     void setAutoExclusive(bool);
     bool autoExclusive() const;
 
-    Q4ButtonGroup *group() const;
+    QButtonGroup *group() const;
 
 public slots:
     void animateClick(int msec = 100);
@@ -115,7 +115,7 @@ public:
 #endif
 
 private:
-    friend class Q4ButtonGroup;
+    friend class QButtonGroup;
 };
 
 

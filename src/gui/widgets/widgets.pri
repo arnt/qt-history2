@@ -16,9 +16,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qgrid.h \
 	widgets/qgridview.h \
 	widgets/qgroupbox.h \
-	widgets/qhbuttongroup.h \
 	widgets/qheader.h \
-	widgets/qhgroupbox.h \
 	widgets/qhbox.h \
 	widgets/qlabel.h \
 	widgets/qlcdnumber.h \
@@ -60,8 +58,6 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qtoolbutton.h \
 	widgets/qvalidator.h \
 	widgets/qvbox.h \
-	widgets/qvbuttongroup.h \
-	widgets/qvgroupbox.h \
 	widgets/qwidgetstack.h \
 	widgets/qdatetimeedit.h \
 	widgets/qwidgetinterface_p.h \
@@ -83,9 +79,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qgrid.cpp \
 	widgets/qgridview.cpp \
 	widgets/qgroupbox.cpp \
-	widgets/qhbuttongroup.cpp \
 	widgets/qheader.cpp \
-	widgets/qhgroupbox.cpp \
 	widgets/qhbox.cpp \
 	widgets/qlabel.cpp \
 	widgets/qlcdnumber.cpp \
@@ -124,8 +118,6 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qtoolbutton.cpp \
 	widgets/qvalidator.cpp \
 	widgets/qvbox.cpp \
-	widgets/qvbuttongroup.cpp \
-	widgets/qvgroupbox.cpp \
 	widgets/qwidgetstack.cpp \
 	widgets/qdatetimeedit.cpp \
 	widgets/qeffects.cpp \

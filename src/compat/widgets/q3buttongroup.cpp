@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QButtonGroup class.
+** Implementation of Q3ButtonGroup class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qbuttongroup.h"
-#ifndef QT_NO_BUTTONGROUP
+#include "q3buttongroup.h"
 #include "qbutton.h"
 #include "qmap.h"
 #include "qapplication.h"
@@ -22,8 +21,8 @@
 
 
 /*!
-    \class QButtonGroup qbuttongroup.h
-    \brief The QButtonGroup widget organizes QButton widgets in a group.
+    \class Q3ButtonGroup qbuttongroup.h
+    \brief The Q3ButtonGroup widget organizes QButton widgets in a group.
 
     \ingroup organizers
     \ingroup geomanagement
@@ -49,8 +48,8 @@
     \i The button group is the parent widget of a number of buttons,
     i.e. the button group is the parent argument in the button
     constructor. The buttons are assigned identifiers 0, 1, 2, etc.,
-    in the order they are created. A QButtonGroup can display a frame
-    and a title because it inherits QGroupBox.
+    in the order they are created. A Q3ButtonGroup can display a frame
+    and a title because it inherits Q3GroupBox.
     \i The button group is an invisible widget and the contained
     buttons have some other parent widget. In this usage, each button
     must be manually inserted, using insert(), into the button group
@@ -69,7 +68,7 @@
 */
 
 /*!
-    \property QButtonGroup::exclusive
+    \property Q3ButtonGroup::exclusive
     \brief whether the button group is exclusive
 
     If this property is true, then the buttons in the group are
@@ -78,7 +77,7 @@
 */
 
 /*!
-    \property QButtonGroup::radioButtonExclusive
+    \property Q3ButtonGroup::radioButtonExclusive
     \brief whether the radio buttons in the group are exclusive
 
     If this property is true (the default), the \link QRadioButton
@@ -93,8 +92,8 @@
     constructor.
 */
 
-QButtonGroup::QButtonGroup(QWidget *parent, const char *name)
-    : QGroupBox(parent, name)
+Q3ButtonGroup::Q3ButtonGroup(QWidget *parent, const char *name)
+    : Q3GroupBox(parent, name)
 {
     init();
 }
@@ -106,9 +105,9 @@ QButtonGroup::QButtonGroup(QWidget *parent, const char *name)
     constructor.
 */
 
-QButtonGroup::QButtonGroup(const QString &title, QWidget *parent,
+Q3ButtonGroup::Q3ButtonGroup(const QString &title, QWidget *parent,
                             const char *name)
-    : QGroupBox(title, parent, name)
+    : Q3GroupBox(title, parent, name)
 {
     init();
 }
@@ -122,9 +121,9 @@ QButtonGroup::QButtonGroup(const QString &title, QWidget *parent,
     constructor.
 */
 
-QButtonGroup::QButtonGroup(int strips, Orientation orientation,
+Q3ButtonGroup::Q3ButtonGroup(int strips, Orientation orientation,
                             QWidget *parent, const char *name)
-    : QGroupBox(strips, orientation, parent, name)
+    : Q3GroupBox(strips, orientation, parent, name)
 {
     init();
 }
@@ -138,10 +137,10 @@ QButtonGroup::QButtonGroup(int strips, Orientation orientation,
     constructor.
 */
 
-QButtonGroup::QButtonGroup(int strips, Orientation orientation,
+Q3ButtonGroup::Q3ButtonGroup(int strips, Orientation orientation,
                             const QString &title, QWidget *parent,
                             const char *name)
-    : QGroupBox(strips, orientation, title, parent, name)
+    : Q3GroupBox(strips, orientation, title, parent, name)
 {
     init();
 }
@@ -150,7 +149,7 @@ QButtonGroup::QButtonGroup(int strips, Orientation orientation,
     Initializes the button group.
 */
 
-void QButtonGroup::init()
+void Q3ButtonGroup::init()
 {
     excl_grp = false;
     radio_excl = true;
@@ -158,16 +157,16 @@ void QButtonGroup::init()
 
 /*! \reimp */
 
-QButtonGroup::~QButtonGroup()
+Q3ButtonGroup::~Q3ButtonGroup()
 {
 }
 
-bool QButtonGroup::isExclusive() const
+bool Q3ButtonGroup::isExclusive() const
 {
     return excl_grp;
 }
 
-void QButtonGroup::setExclusive(bool enable)
+void Q3ButtonGroup::setExclusive(bool enable)
 {
     excl_grp = enable;
 }
@@ -194,7 +193,7 @@ void QButtonGroup::setExclusive(bool enable)
     \sa find(), remove(), setExclusive()
 */
 
-int QButtonGroup::insert(QAbstractButton *button, int id)
+int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 {
     remove(button);
     group.addButton(button);
@@ -213,7 +212,7 @@ int QButtonGroup::insert(QAbstractButton *button, int id)
 /*!
     Returns the number of buttons in the group.
 */
-int QButtonGroup::count() const
+int Q3ButtonGroup::count() const
 {
     return group.count();
 }
@@ -224,7 +223,7 @@ int QButtonGroup::count() const
     \sa insert()
 */
 
-void QButtonGroup::remove(QAbstractButton *button)
+void Q3ButtonGroup::remove(QAbstractButton *button)
 {
     QMap<int, QAbstractButton*>::Iterator it = buttonIds.begin();
     while (it != buttonIds.end()) {
@@ -244,14 +243,14 @@ void QButtonGroup::remove(QAbstractButton *button)
     the button was not found.
 */
 
-QAbstractButton *QButtonGroup::find(int id) const
+QAbstractButton *Q3ButtonGroup::find(int id) const
 {
     return buttonIds.value(id);
 }
 
 
 /*!
-    \fn void QButtonGroup::pressed(int id)
+    \fn void Q3ButtonGroup::pressed(int id)
 
     This signal is emitted when a button in the group is \link
     QButton::pressed() pressed\endlink. The \a id argument is the
@@ -261,7 +260,7 @@ QAbstractButton *QButtonGroup::find(int id) const
 */
 
 /*!
-    \fn void QButtonGroup::released(int id)
+    \fn void Q3ButtonGroup::released(int id)
 
     This signal is emitted when a button in the group is \link
     QButton::released() released\endlink. The \a id argument is the
@@ -271,7 +270,7 @@ QAbstractButton *QButtonGroup::find(int id) const
 */
 
 /*!
-    \fn void QButtonGroup::clicked(int id)
+    \fn void Q3ButtonGroup::clicked(int id)
 
     This signal is emitted when a button in the group is \link
     QButton::clicked() clicked\endlink. The \a id argument is the
@@ -287,7 +286,7 @@ QAbstractButton *QButtonGroup::find(int id) const
   QButton::pressed() signal.
 */
 
-void QButtonGroup::buttonPressed()
+void Q3ButtonGroup::buttonPressed()
 {
     QAbstractButton *senderButton = ::qt_cast<QAbstractButton *>(sender());
     Q_ASSERT(senderButton);
@@ -302,7 +301,7 @@ void QButtonGroup::buttonPressed()
   QButton::released() signal.
 */
 
-void QButtonGroup::buttonReleased()
+void Q3ButtonGroup::buttonReleased()
 {
     QAbstractButton *senderButton = ::qt_cast<QAbstractButton *>(sender());
     Q_ASSERT(senderButton);
@@ -317,7 +316,7 @@ void QButtonGroup::buttonReleased()
   QButton::clicked() signal.
 */
 
-void QButtonGroup::buttonClicked()
+void Q3ButtonGroup::buttonClicked()
 {
     QAbstractButton *senderButton = ::qt_cast<QAbstractButton *>(sender());
     Q_ASSERT(senderButton);
@@ -326,14 +325,14 @@ void QButtonGroup::buttonClicked()
         emit clicked(senderId);
 }
 
-void QButtonGroup::setButton(int id)
+void Q3ButtonGroup::setButton(int id)
 {
     QAbstractButton *b = find(id);
     if (b)
         b->setOn(true);
 }
 
-void QButtonGroup::setRadioButtonExclusive(bool on)
+void Q3ButtonGroup::setRadioButtonExclusive(bool on)
 {
     radio_excl = on;
 }
@@ -346,7 +345,7 @@ void QButtonGroup::setRadioButtonExclusive(bool on)
     \sa selectedId()
 */
 
-QAbstractButton *QButtonGroup::selected() const
+QAbstractButton *Q3ButtonGroup::selected() const
 {
     QAbstractButton *candidate = 0;
     QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
@@ -362,7 +361,7 @@ QAbstractButton *QButtonGroup::selected() const
 }
 
 /*!
-    \property QButtonGroup::selectedId
+    \property Q3ButtonGroup::selectedId
     \brief The id of the selected toggle button.
 
     If no toggle button is selected, id() returns -1.
@@ -374,7 +373,7 @@ QAbstractButton *QButtonGroup::selected() const
     \sa selected()
 */
 
-int QButtonGroup::selectedId() const
+int Q3ButtonGroup::selectedId() const
 {
     return id(selected());
 }
@@ -387,7 +386,7 @@ int QButtonGroup::selectedId() const
     \sa selectedId();
 */
 
-int QButtonGroup::id(QAbstractButton *button) const
+int Q3ButtonGroup::id(QAbstractButton *button) const
 {
     QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
     while (it != buttonIds.constEnd()) {
@@ -402,7 +401,7 @@ int QButtonGroup::id(QAbstractButton *button) const
 /*!
     \reimp
 */
-bool QButtonGroup::event(QEvent * e)
+bool Q3ButtonGroup::event(QEvent * e)
 {
     if (e->type() == QEvent::ChildInserted) {
         QChildEvent * ce = (QChildEvent *) e;
@@ -412,7 +411,6 @@ bool QButtonGroup::event(QEvent * e)
                 insert(button);
         }
     }
-    return QGroupBox::event(e);
+    return Q3GroupBox::event(e);
 }
 
-#endif

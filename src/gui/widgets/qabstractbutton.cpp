@@ -132,12 +132,12 @@
   \sa QButtonGroup
 */
 
-class Q4ButtonGroupPrivate: public QObjectPrivate
+class QButtonGroupPrivate: public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(Q4ButtonGroup)
+    Q_DECLARE_PUBLIC(QButtonGroup)
 
 public:
-    Q4ButtonGroupPrivate():exclusive(true){}
+    QButtonGroupPrivate():exclusive(true){}
     QList<QAbstractButton *> buttonList;
     QPointer<QAbstractButton> checkedButton;
     void notifyChecked(QAbstractButton *button);
@@ -153,31 +153,31 @@ QAbstractButtonPrivate::QAbstractButtonPrivate()
      down(false), mlbDown(false), blockRefresh(false), group(0)
 {}
 
-Q4ButtonGroup::Q4ButtonGroup(QObject *parent)
-    : QObject(*new Q4ButtonGroupPrivate, parent)
+QButtonGroup::QButtonGroup(QObject *parent)
+    : QObject(*new QButtonGroupPrivate, parent)
 {
 }
 
-Q4ButtonGroup::~Q4ButtonGroup()
+QButtonGroup::~QButtonGroup()
 {
     for (int i = 0; i < d->buttonList.count(); ++i)
         d->buttonList.at(i)->d->group = 0;
 }
 
 
-bool Q4ButtonGroup::exclusive() const
+bool QButtonGroup::exclusive() const
 {
     return d->exclusive;
 }
 
-void Q4ButtonGroup::setExclusive(bool exclusive)
+void QButtonGroup::setExclusive(bool exclusive)
 {
     d->exclusive = exclusive;
 }
 
-void Q4ButtonGroup::addButton(QAbstractButton *button)
+void QButtonGroup::addButton(QAbstractButton *button)
 {
-    if (Q4ButtonGroup *previous = button->d->group)
+    if (QButtonGroup *previous = button->d->group)
         if (previous && previous != this)
             previous->removeButton(button);
     button->d->group = this;
@@ -186,7 +186,7 @@ void Q4ButtonGroup::addButton(QAbstractButton *button)
         button->d->notifyChecked();
 }
 
-void Q4ButtonGroup::removeButton(QAbstractButton *button)
+void QButtonGroup::removeButton(QAbstractButton *button)
 {
     if (d->checkedButton == button)
         d->checkedButton = 0;
@@ -199,12 +199,12 @@ void Q4ButtonGroup::removeButton(QAbstractButton *button)
 /*!
     Returns the number of buttons in the group.
 */
-int Q4ButtonGroup::count() const
+int QButtonGroup::count() const
 {
     return d->buttonList.count();
 }
 
-QAbstractButton *Q4ButtonGroup::checkedButton() const
+QAbstractButton *QButtonGroup::checkedButton() const
 {
     return d->checkedButton;
 }
@@ -623,7 +623,7 @@ bool QAbstractButton::autoExclusive() const
 
   \sa QButtonGroup
 */
-Q4ButtonGroup *QAbstractButton::group() const
+QButtonGroup *QAbstractButton::group() const
 {
     return d->group;
 }

@@ -12,22 +12,19 @@
 **
 ****************************************************************************/
 
-#ifndef QGROUPBOX_H
-#define QGROUPBOX_H
+#ifndef Q3GROUPBOX_H
+#define Q3GROUPBOX_H
 
 #ifndef QT_H
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_GROUPBOX
+class Q3GroupBoxPrivate;
 
-
-class QGroupBoxPrivate;
-
-class Q_GUI_EXPORT QGroupBox : public QWidget
+class Q_GUI_EXPORT Q3GroupBox : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGroupBox)
+    Q_DECLARE_PRIVATE(Q3GroupBox)
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
@@ -37,14 +34,14 @@ class Q_GUI_EXPORT QGroupBox : public QWidget
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
 public:
-    QGroupBox(QWidget* parent=0, const char* name=0);
-    QGroupBox(const QString &title,
+    Q3GroupBox(QWidget* parent=0, const char* name=0);
+    Q3GroupBox(const QString &title,
                QWidget* parent=0, const char* name=0);
-    QGroupBox(int strips, Orientation o,
+    Q3GroupBox(int strips, Orientation o,
                QWidget* parent=0, const char* name=0);
-    QGroupBox(int strips, Orientation o, const QString &title,
+    Q3GroupBox(int strips, Orientation o, const QString &title,
                QWidget* parent=0, const char* name=0);
-    ~QGroupBox();
+    ~Q3GroupBox();
 
     virtual void setColumnLayout(int strips, Orientation o);
 
@@ -101,12 +98,10 @@ private:
 private:
 
 #if defined(Q_DISABLE_COPY)
-    QGroupBox(const QGroupBox &);
-    QGroupBox &operator=(const QGroupBox &);
+    Q3GroupBox(const Q3GroupBox &);
+    Q3GroupBox &operator=(const Q3GroupBox &);
 #endif
 };
 
 
-#endif // QT_NO_GROUPBOX
-
-#endif // QGROUPBOX_H
+#endif // Q3GROUPBOX_H

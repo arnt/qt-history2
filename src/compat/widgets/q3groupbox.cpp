@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QGroupBox widget class.
+** Implementation of Q3GroupBox widget class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qgroupbox.h"
-#ifndef QT_NO_GROUPBOX
+#include "q3groupbox.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qbitmap.h"
@@ -30,12 +29,12 @@
 
 #include <private/qwidget_p.h>
 
-class QGroupBoxPrivate : public QWidgetPrivate
+class Q3GroupBoxPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QGroupBox)
+    Q_DECLARE_PUBLIC(Q3GroupBox)
 public:
 
-    QGroupBoxPrivate():
+    Q3GroupBoxPrivate():
         spacer(0),
         checkbox(0),
         topMargin(0){}
@@ -75,8 +74,8 @@ public:
 
 
 /*!
-    \class QGroupBox qgroupbox.h
-    \brief The QGroupBox widget provides a group box frame with a title.
+    \class Q3GroupBox qgroupbox.h
+    \brief The Q3GroupBox widget provides a group box frame with a title.
 
     \ingroup organizers
     \ingroup geomanagement
@@ -98,7 +97,7 @@ public:
     layout support and manage the layout yourself. You can add 'empty'
     spaces to the group box with addSpace().
 
-    QGroupBox also lets you set the title() (normally set in the
+    Q3GroupBox also lets you set the title() (normally set in the
     constructor) and the title's alignment().
 
     You can change the spacing used by the group box with
@@ -108,7 +107,7 @@ public:
 
     <img src=qgrpbox-w.png>
 
-    \sa QButtonGroup
+    \sa Q3ButtonGroup
 */
 
 
@@ -122,8 +121,8 @@ public:
     This constructor does not do automatic layout.
 */
 
-QGroupBox::QGroupBox(QWidget *parent, const char *name)
-    : QWidget(*new QGroupBoxPrivate, parent, 0)
+Q3GroupBox::Q3GroupBox(QWidget *parent, const char *name)
+    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
 {
     setObjectName(name);
     d->init();
@@ -138,8 +137,8 @@ QGroupBox::QGroupBox(QWidget *parent, const char *name)
     This constructor does not do automatic layout.
 */
 
-QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
-    : QWidget(*new QGroupBoxPrivate, parent, 0)
+Q3GroupBox::Q3GroupBox(const QString &title, QWidget *parent, const char *name)
+    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
 {
     setObjectName(name);
     d->init();
@@ -155,9 +154,9 @@ QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     constructor.
 */
 
-QGroupBox::QGroupBox(int strips, Orientation orientation,
+Q3GroupBox::Q3GroupBox(int strips, Orientation orientation,
                     QWidget *parent, const char *name)
-    : QWidget(*new QGroupBoxPrivate, parent, 0)
+    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
 {
     setObjectName(name);
     d->init();
@@ -173,10 +172,10 @@ QGroupBox::QGroupBox(int strips, Orientation orientation,
     constructor.
 */
 
-QGroupBox::QGroupBox(int strips, Orientation orientation,
+Q3GroupBox::Q3GroupBox(int strips, Orientation orientation,
                     const QString &title, QWidget *parent,
                     const char *name)
-    : QWidget(*new QGroupBoxPrivate, parent, 0)
+    : QWidget(*new Q3GroupBoxPrivate, parent, 0)
 {
     setObjectName(name);
     d->init();
@@ -187,11 +186,11 @@ QGroupBox::QGroupBox(int strips, Orientation orientation,
 /*!
     Destroys the group box.
 */
-QGroupBox::~QGroupBox()
+Q3GroupBox::~Q3GroupBox()
 {
 }
 
-void QGroupBoxPrivate::init()
+void Q3GroupBoxPrivate::init()
 {
     align = AlignAuto;
 #ifndef QT_NO_ACCEL
@@ -207,7 +206,7 @@ void QGroupBoxPrivate::init()
     bFlat = false;
 }
 
-void QGroupBoxPrivate::setTextSpacer()
+void Q3GroupBoxPrivate::setTextSpacer()
 {
     if (!spacer)
         return;
@@ -245,7 +244,7 @@ void QGroupBoxPrivate::setTextSpacer()
 }
 
 
-void QGroupBox::setTitle(const QString &title)
+void Q3GroupBox::setTitle(const QString &title)
 {
     if (d->str == title)                                // no change
         return;
@@ -276,7 +275,7 @@ void QGroupBox::setTitle(const QString &title)
 }
 
 /*!
-    \property QGroupBox::title
+    \property Q3GroupBox::title
     \brief the group box title text.
 
     The group box title text will have a focus-change keyboard
@@ -291,13 +290,13 @@ void QGroupBox::setTitle(const QString &title)
     There is no default title text.
 */
 
-QString QGroupBox::title() const
+QString Q3GroupBox::title() const
 {
     return d->str;
 }
 
 /*!
-    \property QGroupBox::alignment
+    \property Q3GroupBox::alignment
     \brief the alignment of the group box title.
 
     The title is always placed on the upper frame line. The horizontal
@@ -316,12 +315,12 @@ QString QGroupBox::title() const
 
     \sa Qt::AlignmentFlags
 */
-int QGroupBox::alignment() const
+int Q3GroupBox::alignment() const
 {
     return d->align;
 }
 
-void QGroupBox::setAlignment(int alignment)
+void Q3GroupBox::setAlignment(int alignment)
 {
     d->align = alignment;
     d->updateCheckBoxGeometry();
@@ -330,7 +329,7 @@ void QGroupBox::setAlignment(int alignment)
 
 /*! \reimp
 */
-void QGroupBox::resizeEvent(QResizeEvent *e)
+void Q3GroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
     if (d->align & AlignRight || d->align & AlignCenter ||
@@ -342,7 +341,7 @@ void QGroupBox::resizeEvent(QResizeEvent *e)
 /*! \reimp
 */
 
-void QGroupBox::paintEvent(QPaintEvent *event)
+void Q3GroupBox::paintEvent(QPaintEvent *event)
 {
     QPainter paint(this);
 
@@ -412,11 +411,11 @@ void QGroupBox::paintEvent(QPaintEvent *event)
     Use this method to separate the widgets in the group box or to
     skip the next free cell. For performance reasons, call this method
     after calling setColumnLayout() or by changing the \l
-    QGroupBox::columns or \l QGroupBox::orientation properties. It is
+    Q3GroupBox::columns or \l Q3GroupBox::orientation properties. It is
     generally a good idea to call these methods first (if needed at
     all), and insert the widgets and spaces afterwards.
 */
-void QGroupBox::addSpace(int size)
+void Q3GroupBox::addSpace(int size)
 {
     QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 
@@ -436,21 +435,21 @@ void QGroupBox::addSpace(int size)
 }
 
 /*!
-    \property QGroupBox::columns
-    \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
+    \property Q3GroupBox::columns
+    \brief the number of columns or rows (depending on \l Q3GroupBox::orientation) in the group box
 
     Usually it is not a good idea to set this property because it is
     slow (it does a complete layout). It is best to set the number
     of columns directly in the constructor.
 */
-int QGroupBox::columns() const
+int Q3GroupBox::columns() const
 {
     if (d->dir == Horizontal)
         return d->nCols;
     return d->nRows;
 }
 
-void QGroupBox::setColumns(int c)
+void Q3GroupBox::setColumns(int c)
 {
     setColumnLayout(c, d->dir);
 }
@@ -466,7 +465,7 @@ void QGroupBox::setColumns(int c)
 
     \sa setInsideMargin(), orientation
 */
-int QGroupBox::insideMargin() const
+int Q3GroupBox::insideMargin() const
 {
     return d->marg;
 }
@@ -482,7 +481,7 @@ int QGroupBox::insideMargin() const
 
     \sa setInsideSpacing(), orientation
 */
-int QGroupBox::insideSpacing() const
+int Q3GroupBox::insideSpacing() const
 {
     return d->spac;
 }
@@ -492,7 +491,7 @@ int QGroupBox::insideSpacing() const
 
     \sa insideMargin()
 */
-void QGroupBox::setInsideMargin(int m)
+void Q3GroupBox::setInsideMargin(int m)
 {
     d->marg = m;
     setColumnLayout(columns(), d->dir);
@@ -504,14 +503,14 @@ void QGroupBox::setInsideMargin(int m)
 
     \sa insideSpacing()
 */
-void QGroupBox::setInsideSpacing(int s)
+void Q3GroupBox::setInsideSpacing(int s)
 {
     d->spac = s;
     setColumnLayout(columns(), d->dir);
 }
 
 /*!
-    \property QGroupBox::orientation
+    \property Q3GroupBox::orientation
     \brief the group box's orientation
 
     A horizontal group box arranges it's children in columns, while a
@@ -521,12 +520,12 @@ void QGroupBox::setInsideSpacing(int s)
     slow (it does a complete layout). It is better to set the
     orientation directly in the constructor.
 */
-QGroupBox::Orientation QGroupBox::orientation() const
+Q3GroupBox::Orientation Q3GroupBox::orientation() const
 {
     return d->dir;
 }
 
-void QGroupBox::setOrientation(Qt::Orientation o)
+void Q3GroupBox::setOrientation(Qt::Orientation o)
 {
     setColumnLayout(columns(), o);
 }
@@ -541,7 +540,7 @@ void QGroupBox::setOrientation(Qt::Orientation o)
 
     \sa orientation columns
 */
-void QGroupBox::setColumnLayout(int strips, Orientation direction)
+void Q3GroupBox::setColumnLayout(int strips, Orientation direction)
 {
     if (layout())
         delete layout();
@@ -602,7 +601,7 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 
 
 /*! \reimp  */
-bool QGroupBox::event(QEvent * e)
+bool Q3GroupBox::event(QEvent * e)
 {
     if (e->type() == QEvent::LayoutHint && layout())
         d->setTextSpacer();
@@ -610,7 +609,7 @@ bool QGroupBox::event(QEvent * e)
 }
 
 /*!\reimp */
-void QGroupBox::childEvent(QChildEvent *c)
+void Q3GroupBox::childEvent(QChildEvent *c)
 {
     if (c->type() != QEvent::ChildInserted || !c->child()->isWidgetType())
         return;
@@ -633,7 +632,7 @@ void QGroupBox::childEvent(QChildEvent *c)
     d->insertWid(w);
 }
 
-void QGroupBoxPrivate::insertWid(QWidget* w)
+void Q3GroupBoxPrivate::insertWid(QWidget* w)
 {
     if (row >= nRows || col >= nCols)
         grid->expand(row+1, col+1);
@@ -643,7 +642,7 @@ void QGroupBoxPrivate::insertWid(QWidget* w)
 }
 
 
-void QGroupBoxPrivate::skip()
+void Q3GroupBoxPrivate::skip()
 {
     // Same as QGrid::skip()
     if (dir == Horizontal) {
@@ -671,7 +670,7 @@ void QGroupBoxPrivate::skip()
     focus, and gives the focus to that widget.
 */
 
-void QGroupBoxPrivate::fixFocus()
+void Q3GroupBoxPrivate::fixFocus()
 {
     QWidget *fw = q->focusWidget();
     if (!fw) {
@@ -711,7 +710,7 @@ void QGroupBoxPrivate::fixFocus()
     Sets the right frame rect depending on the title. Also calculates
     the visible part of the title.
 */
-void QGroupBoxPrivate::calculateFrame()
+void Q3GroupBoxPrivate::calculateFrame()
 {
     lenvisible = str.length();
 
@@ -745,7 +744,7 @@ void QGroupBoxPrivate::calculateFrame()
 
 /*! \reimp
  */
-void QGroupBox::focusInEvent(QFocusEvent *)
+void Q3GroupBox::focusInEvent(QFocusEvent *)
 { // note no call to super
     d->fixFocus();
 }
@@ -755,7 +754,7 @@ void QGroupBox::focusInEvent(QFocusEvent *)
   \reimp
 */
 
-QSize QGroupBox::sizeHint() const
+QSize Q3GroupBox::sizeHint() const
 {
     QFontMetrics fm(font());
     int tw, th;
@@ -783,7 +782,7 @@ QSize QGroupBox::sizeHint() const
 }
 
 /*!
-    \property QGroupBox::flat
+    \property Q3GroupBox::flat
     \brief whether the group box is painted flat or has a frame
 
     By default a group box has a surrounding frame, with the title
@@ -793,12 +792,12 @@ QSize QGroupBox::sizeHint() const
 
     \sa title
 */
-bool QGroupBox::isFlat() const
+bool Q3GroupBox::isFlat() const
 {
     return d->bFlat;
 }
 
-void QGroupBox::setFlat(bool b)
+void Q3GroupBox::setFlat(bool b)
 {
     if ((bool)d->bFlat == b)
         return;
@@ -808,7 +807,7 @@ void QGroupBox::setFlat(bool b)
 
 
 /*!
-    \property QGroupBox::checkable
+    \property Q3GroupBox::checkable
     \brief Whether the group box has a checkbox in its title.
 
     If this property is true, the group box has a checkbox. If the
@@ -819,7 +818,7 @@ void QGroupBox::setFlat(bool b)
     checkbox, and isCheckable() controls whether the checkbox is
     checked or not.
 */
-void QGroupBox::setCheckable(bool b)
+void Q3GroupBox::setCheckable(bool b)
 {
     if ((d->checkbox != 0) == b)
         return;
@@ -846,20 +845,20 @@ void QGroupBox::setCheckable(bool b)
     update();
 }
 
-bool QGroupBox::isCheckable() const
+bool Q3GroupBox::isCheckable() const
 {
     return (d->checkbox != 0);
 }
 
 
-bool QGroupBox::isChecked() const
+bool Q3GroupBox::isChecked() const
 {
     return d->checkbox && d->checkbox->isChecked();
 }
 
 
 /*!
-    \fn void QGroupBox::toggled(bool on)
+    \fn void Q3GroupBox::toggled(bool on)
 
     If the group box has a check box (see \l isCheckable()) this signal
     is emitted when the check box is toggled. \a on is true if the check
@@ -867,7 +866,7 @@ bool QGroupBox::isChecked() const
 */
 
 /*!
-    \property QGroupBox::checked
+    \property Q3GroupBox::checked
     \brief Whether the group box's checkbox is checked.
 
     If the group box has a check box (see \l isCheckable()), and the
@@ -875,7 +874,7 @@ bool QGroupBox::isChecked() const
     are enabled. If the checkbox is unchecked the children are
     disabled.
 */
-void QGroupBox::setChecked(bool b)
+void Q3GroupBox::setChecked(bool b)
 {
     if (d->checkbox)
         d->checkbox->setChecked(b);
@@ -885,7 +884,7 @@ void QGroupBox::setChecked(bool b)
   sets all children of the group box except the qt_groupbox_checkbox
   to either disabled/enabled
 */
-void QGroupBoxPrivate::setChildrenEnabled(bool b)
+void Q3GroupBoxPrivate::setChildrenEnabled(bool b)
 {
     QObjectList childs = q->children();
     if (childs.isEmpty())
@@ -910,7 +909,7 @@ void QGroupBoxPrivate::setChildrenEnabled(bool b)
 }
 
 /*! \reimp */
-void QGroupBox::changeEvent(QEvent *ev)
+void Q3GroupBox::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::EnabledChange) {
         if (!d->checkbox || !isEnabled())
@@ -930,7 +929,7 @@ void QGroupBox::changeEvent(QEvent *ev)
 /*
   recalculates and sets the checkbox setGeometry
 */
-void QGroupBoxPrivate::updateCheckBoxGeometry()
+void Q3GroupBoxPrivate::updateCheckBoxGeometry()
 {
     if (d->checkbox) {
         QSize cbSize = d->checkbox->sizeHint();
@@ -960,6 +959,5 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
 }
 
 
-#include "moc_qgroupbox.cpp"
+#include "moc_q3groupbox.cpp"
 
-#endif //QT_NO_GROUPBOX
