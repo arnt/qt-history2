@@ -753,7 +753,9 @@ void VcprojGenerator::initConfiguration()
     // Only on configuration per build
     bool isDebug = project->isActiveConfig("debug");
 
-    conf.Name = isDebug ? "Debug" : "Release";
+    conf.Name = project->values("BUILD_NAME").join(" ");
+    if (conf.Name.isEmpty())
+        conf.Name = isDebug ? "Debug" : "Release";
     conf.Name += (conf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32");
     conf.ATLMinimizesCRunTimeLibraryUsage = (project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True);
     conf.BuildBrowserInformation = triState(temp.isEmpty() ? (short)unset : temp.toShort());

@@ -157,7 +157,9 @@ MakefileGenerator
         QMakeProject *build_proj = new QMakeProject(project->properities());
         build_proj->read(project->projectFile());
         Option::user_configs = old_user_config;
+        QStringList buildname = project->values(build + ".name");
         build_proj->variables()["BUILD_PASS"] = QStringList(build); //for the generators
+        build_proj->variables()["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
         build_proj->variables()["CONFIG"] += "no_autoqmake";
         return createMakefileGenerator(build_proj);
     }
