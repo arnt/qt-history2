@@ -21,7 +21,6 @@
 #include <private/qmenubar_p.h>
 #include <qaccel.h>
 #include <qapplication.h>
-#include <qdockarea.h>
 #include <qdockwindow.h>
 #include <qpointer.h>
 #include <qhash.h>
@@ -588,7 +587,7 @@ bool Q3MenuBar::macUpdateMenuBar()
         mb = menubars.value(w);
         if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop())
            && ::qt_cast<QDockWindow *>(w)) {
-            if(QWidget *area = ((QDockWindow*)w)->area()) {
+            if(QWidget *area = ((QDockWindow*)w)->mainWindow()) {
                 QWidget *areaTL = area->topLevelWidget();
                 if((mb = menubars.value(areaTL)))
                     w = areaTL;

@@ -549,9 +549,8 @@ void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
                "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
 
 #ifdef Q_WS_MAC
-#if 0 // fix tomorrow...
     extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
-    if (qt_mac_is_macdrawer(dockwindow)) {
+    if (qt_mac_is_macdrawer(this)) {
         Qt::Dock x;
         switch (area) {
         case Qt::DockWindowAreaLeft:
@@ -571,10 +570,9 @@ void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
         }
         // from qwidget_mac.cpp
         extern bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock edge);
-        qt_mac_set_drawer_preferred_edge(dockwindow, x);
+        qt_mac_set_drawer_preferred_edge(this, x);
         return;
     }
-#endif
 #endif
 
     d->currentArea = area;

@@ -36,6 +36,7 @@
 #include "qvariant.h"
 #include "qwidget.h"
 #include "qmenubar.h"
+#include "qdockwindow.h"
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -1258,11 +1259,9 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
-#ifndef QT_NO_MAINWINDOW
             if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
                !qt_mac_is_macsheet(widget) && (widget->isModal() || !::qt_cast<QDockWindow *>(widget)))
                 widget->setActiveWindow();
-#endif
         }
     }
     if(windowPart == inContent)
@@ -1855,11 +1854,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     w = w->focusProxy();
                 QWidget *tlw = w->topLevelWidget();
                 tlw->raise();
-#ifndef QT_NO_MAINWINDOW
                 if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && !qt_mac_is_macsheet(tlw) &&
                    (tlw->isModal() || !::qt_cast<QDockWindow *>(tlw)))
                     tlw->setActiveWindow();
-#endif
             }
         }
         mouse_button_state = after_state;

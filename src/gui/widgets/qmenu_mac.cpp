@@ -17,6 +17,8 @@
 #include "qapplication.h"
 #include "qt_mac.h"
 #include "qregexp.h"
+#include "qdockwindow.h"
+#include "qtoolbar.h"
 
 #include "private/qmenu_p.h"
 #include "private/qmenubar_p.h"
@@ -748,14 +750,16 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
         } else {
             QWidget *tlw = q->topLevelWidget();
             QMacMenuBarPrivate::menubars.ensure_constructed();
-#ifndef QT_NO_MAINWINDOW
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.find(tlw)) &&
-               (((parent->isDialog() || ::qt_cast<QMainWindow *>(parent)) && parent == tlw) ||
+               (((parent->isDialog() 
+#ifndef QT_NO_MAINWINDOW
+                  || ::qt_cast<QMainWindow *>(parent)
+#endif
+                     ) && parent == tlw) ||
                 ::qt_cast<QToolBar *>(parent) || tlw == qApp->mainWidget() || !qApp->mainWidget())) {
                 QMacMenuBarPrivate::menubars.insert(tlw, q);
                 mac_menubar = new QMacMenuBarPrivate;
             }
-#endif
         }
     }
 }
