@@ -1519,6 +1519,7 @@ void QWorkspace::showMaximizeControls()
 	d->active = (QWorkspaceChild*)d->becomeActive->parentWidget();
 	d->active->setActive( TRUE );
 	d->becomeActive = 0;
+	emit windowActivated( d->active->windowWidget() );
     }
     if ( d->active && ( d->menuId == -1 || b->indexOf( d->menuId ) == -1 ) ) {
 	if ( !d->maxtools ) {
