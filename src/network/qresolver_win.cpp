@@ -1,6 +1,5 @@
 #include "qresolver_p.h"
 #include <qsocketdevice.h>
-#include <qt_windows.h>
 
 /*****************************************************************
  *
@@ -24,7 +23,7 @@ QResolverManager::~QResolverManager()
 {
 #if !defined(QT_NO_IPV6)
     if ( resolverThread ) {
-	if ( resolverThread->running() ) {
+	if ( resolverThread->isRunning() ) {
 	    resolverThread->terminate();
 	    resolverThread->wait();
 	}
@@ -39,7 +38,7 @@ void QResolverManager::startNextQuery()
     QResolverDispatcher *dispatcher = queries.first();
     if ( dispatcher ) {
 #if !defined(QT_NO_IPV6)
-	if ( qWinVersion() == WV_XP ) {
+	if ( QSysInfo::WindowsVersion == WV_XP ) {
 	    if ( !resolverThread )
 		resolverThread = new QResolverSync;
 	    resolverThread->hostName = dispatcher->hostName;

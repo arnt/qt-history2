@@ -4,7 +4,10 @@ TARGET = qnetwork
 DEFINES += QT_BUILD_NETWORK_LIB
 
 include(../qbase.pri)
-QCONFIG = core
+QCONFIG = core 
+
+// ### Don't link against gui
+win32:QCONFIG+=gui
 
 # Qt network module
 

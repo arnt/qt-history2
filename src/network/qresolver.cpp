@@ -39,7 +39,7 @@ void QResolverSync::run()
 	}
 #if defined(Q_WS_WIN)
 	QT_WA( {
-	    event->resData.errorString = QString::fromUcs2( (ushort*)gai_strerrorW( err ) );
+	    event->resData.errorString = QString::fromUtf16( (ushort*)gai_strerrorW( err ) );
 	} , {
 	    event->resData.errorString = QString::fromLocal8Bit( gai_strerrorA( err ) );
 	} );

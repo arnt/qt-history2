@@ -5,7 +5,7 @@
 #include <qhostaddress.h>
 #include <qlist.h>
 
-class QResolver
+class Q_NETWORK_EXPORT QResolver
 {
 public:
     enum Error { NoError, HostNotFound, UnknownError };
