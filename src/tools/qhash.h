@@ -12,18 +12,29 @@
 #include <iterator>
 #endif
 
+#define QT_NO_QHASH_BACKWARD_ITERATORS
+
 class QByteArray;
 class QString;
 
 inline uint qHash(char key) { return (uint)key; }
 inline uint qHash(signed char key) { return (uint)key; }
-inline uint qHash(unsigned char key) { return (uint)key; }
-inline uint qHash(signed short key) { return (uint)key; }
-inline uint qHash(unsigned short key) { return (uint)key; }
-inline uint qHash(signed int key) { return (uint)key; }
-inline uint qHash(unsigned int key) { return (uint)key; }
-inline uint qHash(signed long key) { return (uint)key; }
-inline uint qHash(unsigned long key) { return (uint)key; }
+inline uint qHash(uchar key) { return (uint)key; }
+inline uint qHash(short key) { return (uint)key; }
+inline uint qHash(ushort key) { return (uint)key; }
+inline uint qHash(int key) { return (uint)key; }
+inline uint qHash(uint key) { return (uint)key; }
+inline uint qHash(Q_LLONG key) { return (uint)((key >> 32) ^ key); }
+inline uint qHash(Q_ULLONG key) { return (uint)((key >> 32) ^ key); }
+inline uint qHash(long key)
+{
+    if (sizeof(long) > sizeof(int)) {
+	return qHash((Q_LLONG)key);
+    } else {
+	return qHash((int)key);
+    }
+}
+inline uint qHash(ulong key) { return qHash((long)key); }
 
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
