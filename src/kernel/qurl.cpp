@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
@@ -64,7 +64,7 @@ struct QUrlPrivate
   for other network protocols, an implementation of the
   required protocol has to be registered. For more information
   about this, see the QNetworkProtocol documentation.
-  
+
   Mention that URL has some restrictions regarding the path
   encoding. URL works intern with the decoded path and
   and encoded query. For example in
@@ -1292,6 +1292,11 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	d->dir = QDir( d->path );
 	d->dir.setNameFilter( nameFilter );
 	d->dir.setMatchAllDirs( TRUE );
+	if ( !d->dir.isReadable() ) {
+	    QString msg = QUrl::tr( "Could not read directory\n" + d->path );
+	    emit error( ReadDir, msg );
+	    return;
+	}
 	
 	const QFileInfoList *filist = d->dir.entryInfoList( filterSpec, sortSpec );
 	if ( !filist ) {
