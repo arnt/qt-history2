@@ -29,7 +29,6 @@ private:
     int totalFiles;
     QProcess configure;
     QProcess make;
-    QProcess integrator;
     QProcess cleaner;
 
     QString programsFolder;
@@ -54,15 +53,12 @@ private slots:
     void cleanDone();
     void configDone();
     void makeDone();
-    void integratorDone();
     void readConfigureOutput();
     void readConfigureError();
     void readCleanerOutput();
     void readCleanerError();
     void readMakeOutput();
     void readMakeError();
-    void readIntegratorOutput();
-    void readIntegratorError();
     void timerFired();
     void optionSelected( QListViewItem * );
     void optionClicked( QListViewItem * );
@@ -123,7 +119,6 @@ private:
     QMap<QString,QString> licenseInfo;
     QTimer autoContTimer;
     int timeCounter;
-    bool triedToIntegrate;
     QStringList allModules;
 
     QCheckListItem *accOn, *accOff;

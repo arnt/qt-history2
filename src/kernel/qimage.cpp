@@ -6100,7 +6100,7 @@ QValueList<QImageTextKeyLang> QImage::textList() const
     Records string \a s for the keyword \a key.  The \a key should be
     a portable keyword recognizable by other software - some suggested
     values can be found in
-    \link http://www.cdrom.com/pub/png/spec/PNG-Chunks.html#C.tEXt
+    \link http://www.libpng.org/pub/png/spec/PNG-Chunks.html#C.Anc-text
     the PNG specification\endlink.  \a s can be any text.  \a lang should
     specify the language code (see
     \link ftp://ftp.isi.edu/in-notes/1766 RFC 1766\endlink) or 0.

@@ -359,7 +359,6 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     setTitleFont( f );
 
     totalFiles = 0;
-    triedToIntegrate = false;
 
     // try to read the archive header information and use them instead of
     // QT_VERSION_STR if possible
@@ -405,6 +404,31 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	clickedSystem( sysGroupButton );
     }
     readLicense( QDir::homeDirPath() + "/.qt-license" );
+}
+
+static bool copyFile( const QString& src, const QString& dest )
+{
+    int len;
+    const int buflen = 4096;
+    char buf[buflen];
+    QFileInfo info( src );
+    QFile srcFile( src ), destFile( dest );
+    if (!srcFile.open( IO_ReadOnly ))
+	return false;
+    destFile.remove();
+    if (!destFile.open( IO_WriteOnly )) {
+	srcFile.close();
+	return false;
+    }
+    while (!srcFile.atEnd()) {
+	len = srcFile.readBlock( buf, buflen );
+	if (len <= 0)
+	    break;
+	if (destFile.writeBlock( buf, len ) != len)
+	    return false;
+    }
+    destFile.flush();
+    return true;
 }
 
 void SetupWizardImpl::initPages()
@@ -526,8 +550,6 @@ void SetupWizardImpl::stopProcesses()
 	configure.kill();
     if( make.isRunning() )
 	make.kill();
-    if( integrator.isRunning() )
-	integrator.kill();
 }
 
 void SetupWizardImpl::clickedPath()
@@ -609,11 +631,6 @@ void SetupWizardImpl::readMakeOutput()
     updateOutputDisplay( &make );
 }
 
-void SetupWizardImpl::readIntegratorOutput()
-{
-    updateOutputDisplay( &integrator );
-}
-
 void SetupWizardImpl::readCleanerError()
 {
     updateOutputDisplay( &cleaner );
@@ -627,11 +644,6 @@ void SetupWizardImpl::readConfigureError()
 void SetupWizardImpl::readMakeError()
 {
     updateOutputDisplay( &make );
-}
-
-void SetupWizardImpl::readIntegratorError()
-{
-    updateOutputDisplay( &integrator );
 }
 
 void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
@@ -863,12 +875,26 @@ void SetupWizardImpl::doFinalIntegration()
     buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 }
 
-void SetupWizardImpl::integratorDone()
+void SetupWizardImpl::makeDone()
 {
-    if( ( !integrator.normalExit() || ( integrator.normalExit() && integrator.exitStatus() ) ) && ( triedToIntegrate ) ) {
-	logOutput( "The integration process failed.\n", true );
+    if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
+	logOutput( "The build process failed!\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
+	QMessageBox::critical( this, "Error", "The build process failed!" );
+	setAppropriate( progressPage, false );
     } else {
+	QDir installDir( optionsPage->installPath->text() );
+	if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
+	    QDir addinsDir( QEnvironment::getEnv("MSDEVDIR") );
+	    addinsDir.cd( "Addins" );
+	    if ( !copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
+		logOutput( "WARNING: The installation of the QMsDev Developer Studio-Add-In failed: could not copy the file qmsdev.dll" );
+	    } else {
+		installDir.remove( "qmsdev.dll" );
+	    }
+	} else {
+	    installDir.remove( "qmsdev.dll" );
+	}
 	// We still have some more items to do in order to finish all the
 	// integration stuff.
 	if ( !globalInformation.reconfig() ) {
@@ -997,31 +1023,6 @@ void SetupWizardImpl::saveSet( QListView* list )
 		settings.writeEntry( "/Trolltech/Qt/" + p->text(0), lst, ',' );
 	}
     }
-}
-
-static bool copyFile( const QString& src, const QString& dest )
-{
-    int len;
-    const int buflen = 4096;
-    char buf[buflen];
-    QFileInfo info( src );
-    QFile srcFile( src ), destFile( dest );
-    if (!srcFile.open( IO_ReadOnly ))
-	return false;
-    destFile.remove();
-    if (!destFile.open( IO_WriteOnly )) {
-	srcFile.close();
-	return false;
-    }
-    while (!srcFile.atEnd()) {
-	len = srcFile.readBlock( buf, buflen );
-	if (len <= 0)
-	    break;
-	if (destFile.writeBlock( buf, len ) != len)
-	    return false;
-    }
-    destFile.flush();
-    return true;
 }
 
 void SetupWizardImpl::showPage( QWidget* newPage )
@@ -1262,6 +1263,29 @@ void SetupWizardImpl::showPageProgress()
 	    QStringList dlls = lib.entryList( "*.dll" );
 	    for ( it=dlls.begin(); it!=dlls.end(); ++it ) {
 		copyFile( lib.absFilePath(*it), QDir::cleanDirPath(lib.absFilePath("../bin/"+*it)) );
+	    }
+	    // delete the non-wanted database drivers
+	    QDir plugins( optionsPage->installPath->text() );
+	    plugins.cd( "plugins" );
+	    plugins.cd( "sqldrivers" );
+	    QDir bin( optionsPage->installPath->text() );
+	    bin.cd( "bin" );
+	    if ( mysqlPluginInstall && !mysqlPluginInstall->isOn() ) {
+		plugins.remove( "qsqlmysql.dll" );
+		bin.remove( "libmySQL.dll" );
+	    }
+	    if ( ociPluginInstall && !ociPluginInstall->isOn() ) {
+		plugins.remove( "qsqloci.dll" );
+	    }
+	    if ( odbcPluginInstall && !odbcPluginInstall->isOn() ) {
+		plugins.remove( "qsqlodbc.dll" );
+	    }
+	    if ( psqlPluginInstall && !psqlPluginInstall->isOn() ) {
+		plugins.remove( "qsqlpsql.dll" );
+		bin.remove( "libpq.dll" );
+	    }
+	    if ( tdsPluginInstall && !tdsPluginInstall->isOn() ) {
+		plugins.remove( "qsqltds.dll" );
 	    }
 #endif
 	    logFiles( tr("All files have been installed.\n"

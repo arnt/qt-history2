@@ -17,7 +17,7 @@
 
   <embed src=\"pnglogo.png\" width=256 height=192>
 
-  This plugin displays a \link http://www.cdrom.com/pub/png/
+  This plugin displays a \link http://www.libpng.org/pub/png/
   PNG format \endlink image.
 
   New image format can be supported by adding new image I/O handlers

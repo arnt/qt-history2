@@ -150,7 +150,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   and setPassword().
 
   Because path is always encoded internally you must not use "%00"
-  in the path, although this it is okay (but not recommended) for the
+  in the path, although this is okay (but not recommended) for the
   query.
 
   QUrl is normally used like this:

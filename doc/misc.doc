@@ -52,7 +52,7 @@ Qt is supported on the following platforms:
 
 \list
  \i <b>MS/Windows</b> - 95, 98, NT 4.0, ME, and 2000
- \i <b>Unix/X11</b> - Linux, Sun Solaris, HP-UX, Digital Unix,
+ \i <b>Unix/X11</b> - Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
 	    IBM AIX, SGI IRIX and a wide range of others
  \i <b>Macintosh</b> - Mac OS X
  \i <b>Embedded</b> - Linux platforms with framebuffer support.
