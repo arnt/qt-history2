@@ -199,9 +199,26 @@
     examples show how to write a UDP sender and a UDP receiver using
     Qt.
 
-    \omit
     \section1 Resolving Host Names with QDns
 
-    inline eksempel
-    \endomit
+    Before establishing a network connection, QTcpSocket and
+    QUdpSocket perform a name lookup, translating the host name you're
+    connecting to into an IP address. This operation is known as a DNS
+    (Domain Name Service) lookup.
+
+    QDns provides a static function that lets you perform such a
+    lookup yourself. By passing a host name to QDns::getHostByName()
+    together with a QObject pointer and a slot signature, QDns will
+    perform the name lookup and invoke the given slot when the results
+    are ready. The actual lookup is done in a separate thread, making
+    use of the operating system's own methods for performing name
+    lookups.
+
+    QDns also provides an overload of the same function that takes
+    only the host name as argument, and returns the results
+    immediately.  The name lookup is then performed in the same thread
+    as the caller. The overloaded function is useful for non-GUI
+    applications or for doing name lookups in a separate, non-GUI
+    thread. Calling this function in a GUI thread may cause your user
+    interface to freeze.
 */
