@@ -848,7 +848,7 @@ public:
 class QPSPrintEngineFontPrivate {
 public:
     QPSPrintEngineFontPrivate(QFontEngine *fe);
-    virtual ~QPSPrintEngineFontPrivate() {}
+    virtual ~QPSPrintEngineFontPrivate();
     virtual QString postScriptFontName() { return psname; }
     virtual QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
                              QPSPrintEnginePrivate *ptr);
@@ -884,6 +884,10 @@ protected:
     bool downloaded;
     bool symbol;
 };
+
+QPSPrintEngineFontPrivate::~QPSPrintEngineFontPrivate()
+{
+}
 
 // ------------------- end of class declarations ---------------------------
 
@@ -1506,13 +1510,12 @@ typedef struct {
 } charproc_data;
 
 
-class QPSPrintEngineFontTTF
-    : public QPSPrintEngineFontPrivate {
+class QPSPrintEngineFontTTF : public QPSPrintEngineFontPrivate {
 public:
     QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& data);
     virtual void    download(QTextStream& s, bool global);
     virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti);
-    //  virtual ~QPSPrintEngineFontTTF();
+    ~QPSPrintEngineFontTTF();
 
     virtual bool embedded() { return true; }
 private:
@@ -1583,6 +1586,10 @@ private:
     int indexToLocFormat;         /* short or long offsets */
 
 };
+
+QPSPrintEngineFontTTF::~QPSPrintEngineFontTTF()
+{
+}
 
 
 static ULONG getULONG(const BYTE *p)
