@@ -1175,7 +1175,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // buddies
     bool firstBuddy = TRUE;
-    for ( QValueList<Buddy>::Iterator buddy = buddies.begin(); buddy != buddies.end(); ++buddy ) {
+    for ( QList<Buddy>::Iterator buddy = buddies.begin(); buddy != buddies.end(); ++buddy ) {
 	if ( isObjectRegistered( (*buddy).buddy ) ) {
 	    if ( firstBuddy ) {
 		out << endl << indent << "// buddies" << endl;
