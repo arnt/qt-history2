@@ -26,7 +26,7 @@ const int numCols = 10;
 
 int main( int argc, char **argv )
 {
-    QApplication app( argc, argv );			
+    QApplication app( argc, argv );
 
     QTable table( numRows, numCols );
 
@@ -48,7 +48,7 @@ int main( int argc, char **argv )
 	QComboTableItem * item = new QComboTableItem( &table, comboEntries, FALSE );
 	item->setCurrentItem( i % 4 );
 	table.setItem( i, 5, item );
-    }	
+    }
     for ( int j = 0; j < numRows; ++j )
 	table.setItem( j, 1, new QCheckTableItem( &table, "Check me" ) );
 
