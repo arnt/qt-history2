@@ -161,7 +161,7 @@ bool QTextCommandHistory::isUndoAvailable()
 
 bool QTextCommandHistory::isRedoAvailable()
 {
-   return current > -1 || history.count() > 0;
+   return current > -1 && current < (int)history.count() - 1 || current == -1 && history.count() > 0;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
