@@ -1318,7 +1318,6 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
     case CC_ScrollBar: {
 	const QScrollBar *sb;
 	sb = (const QScrollBar *)widget;
-	int sliderStart = sb->sliderStart();
 	int sbextent = pixelMetric( PM_ScrollBarExtent, widget );
 	int maxlen = ((sb->orientation() == Qt::Horizontal) ?
 		      sb->width() : sb->height()) - ( sbextent * 2 );
@@ -1339,6 +1338,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	} else {
 	    sliderlen = maxlen;
 	}
+	int sliderstart = sb->positionFromValue(sb->sliderPosition(), maxlen - sliderlen);
 
 	switch ( sc ) {
 	case SC_ScrollBarSubLine:
@@ -1359,16 +1359,20 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	    }
 	case SC_ScrollBarSubPage:
 	    if ( sb->orientation() == Qt::Horizontal )
-		return QRect( 1, 0, sliderStart, sbextent );
-	    return QRect( 0, 1, sbextent, sliderStart );
+		return QRect( 1, 0, sliderstart, sbextent );
+	    return QRect( 0, 1, sbextent, sliderstart );
 	case SC_ScrollBarAddPage:
 	    if ( sb->orientation() == Qt::Horizontal )
-		return QRect( sliderStart + sliderlen, 0, maxlen - sliderStart - sliderlen, sbextent );
-	    return QRect( 0, sliderStart + sliderlen, sbextent, maxlen - sliderStart - sliderlen );
+		return QRect( sliderstart + sliderlen, 0, maxlen - sliderstart - sliderlen, sbextent );
+	    return QRect( 0, sliderstart + sliderlen, sbextent, maxlen - sliderstart - sliderlen );
 	case SC_ScrollBarGroove:
 	    if ( sb->orientation() == Qt::Horizontal )
 		return QRect( 1, 0, sb->width() - sbextent * 2, sb->height() );
 	    return QRect( 0, 1, sb->width(), sb->height() - sbextent * 2 );
+	case SC_ScrollBarSlider:
+	    if (sb->orientation() == Qt::Horizontal)
+		return QRect(sliderstart, 0, sliderlen, sbextent);
+	    return QRect(0, sliderstart, sbextent, sliderlen);
 	default:
 	    break;
 	}

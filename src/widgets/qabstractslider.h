@@ -1,0 +1,139 @@
+/****************************************************************************
+**
+** Definition of QAbstractSlider class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef QABSTRACTSLIDER_H
+#define QABSTRACTSLIDER_H
+
+#ifndef QT_H
+#include "qwidget.h"
+#include "qrangecontrol.h"
+#endif // QT_H
+
+class QAbstractSliderPrivate;
+
+class Q_GUI_EXPORT QAbstractSlider : public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY( int minimum READ minimum WRITE setMinimum )
+    Q_PROPERTY( int maximum READ maximum WRITE setMaximum )
+    Q_PROPERTY( int singleStep READ singleStep WRITE setSingleStep )
+    Q_PROPERTY( int pageStep READ pageStep WRITE setPageStep )
+    Q_PROPERTY( int value READ value WRITE setValue )
+    Q_PROPERTY( bool tracking READ hasTracking WRITE setTracking )
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
+    QDOC_PROPERTY( bool sliderDown READ isSliderDown WRITE setSliderDown )
+
+public:
+    QAbstractSlider(QWidget *parent=0);
+    ~QAbstractSlider();
+
+    void setOrientation(Orientation);
+    Orientation orientation() const;
+
+    void setMinimum(int);
+    int minimum() const;
+
+    void setMaximum(int);
+    int maximum() const;
+
+    void setSingleStep(int);
+    int singleStep() const;
+
+    void setPageStep(int);
+    int pageStep() const;
+
+    void setTracking(bool enable);
+    bool hasTracking() const;
+
+    void setSliderDown(bool);
+    bool isSliderDown();
+
+    void setSliderPosition(int);
+    int sliderPosition() const;
+
+    enum SliderAction {
+	SliderNoAction,
+	SliderSingleStepAdd,
+	SliderSingleStepSub,
+	SliderPageStepAdd,
+	SliderPageStepSub,
+	SliderToMinimum,
+	SliderToMaximum,
+	SliderMove
+    };
+
+    int value() const;
+
+    void triggerAction(SliderAction action);
+    int positionFromValue( int val, int space ) const;
+    int valueFromPosition( int pos, int space ) const;
+
+public slots:
+    void setValue(int);
+
+signals:
+    void valueChanged(int value);
+
+    void sliderPressed();
+    void sliderMoved(int position);
+    void sliderReleased();
+
+    void actionTriggered(int action);
+
+protected:
+    void setRepeatAction(SliderAction action, int thresholdTime = 500, int repeatTime = 50);
+    SliderAction repeatAction() const;
+
+    enum SliderChange {
+	SliderRangeChange,
+	SliderOrientationChange,
+	SliderStepsChange,
+	SliderValueChange
+    };
+    virtual void sliderChange(SliderChange change);
+
+    void timerEvent(QTimerEvent *);
+    void wheelEvent( QWheelEvent * e );
+
+protected:
+    QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent);
+
+private:
+    Q_DECL_PRIVATE(QAbstractSlider);
+
+#ifdef QT_COMPAT
+public:
+    inline QT_COMPAT int minValue() const { return minimum(); }
+    inline QT_COMPAT int maxValue() const { return maximum(); }
+    inline QT_COMPAT int lineStep() const { return singleStep(); }
+    inline QT_COMPAT void setMinValue(int v) { setMinimum(v); }
+    inline QT_COMPAT void setMaxValue(int v) { setMaximum(v); }
+    inline QT_COMPAT void setLineStep(int v) { setSingleStep(v); }
+    inline QT_COMPAT void setRange(int min, int max) { setMinimum(min); setMaximum(max); }
+    inline QT_COMPAT void setSteps(int single, int page) { setSingleStep(single); setPageStep(page); }
+    inline QT_COMPAT void addPage() { triggerAction(SliderPageStepAdd); }
+    inline QT_COMPAT void subtractPage() { triggerAction(SliderPageStepSub); }
+    inline QT_COMPAT void addLine() { triggerAction(SliderSingleStepAdd); }
+    inline QT_COMPAT void subtractLine() { triggerAction(SliderSingleStepSub); }
+#endif
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QAbstractSlider(const QAbstractSlider &);
+    QAbstractSlider &operator=(const QAbstractSlider &);
+#endif
+
+
+};
+
+#endif // QABSTRACTSLIDER_H

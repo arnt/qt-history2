@@ -987,7 +987,7 @@ void QCommonStyle::drawControl( ControlElement element,
 			    int fh = p->fontMetrics().height();
 			    pr.addCoords( 0, 1, 0, -fh-3 );
 			    tr.addCoords( 0, pr.bottom(), 0, -3 );
-			    drawItem( p, pr, AlignCenter, pal, 
+			    drawItem( p, pr, AlignCenter, pal,
 				      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
 			    int alignment = AlignCenter | ShowPrefix;
 			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
@@ -1000,7 +1000,7 @@ void QCommonStyle::drawControl( ControlElement element,
 			    QRect pr = rect, tr = rect;
 			    pr.setWidth( pm.width() + 8 );
 			    tr.addCoords( pr.right(), 0, 0, 0 );
-			    drawItem( p, pr, AlignCenter, pal, 
+			    drawItem( p, pr, AlignCenter, pal,
 				      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm );
 			    int alignment = AlignLeft | AlignVCenter | ShowPrefix;
 			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
@@ -1008,7 +1008,7 @@ void QCommonStyle::drawControl( ControlElement element,
 			    drawItem( p, tr, alignment, pal, flags & Style_Enabled, toolbutton->textLabel(), -1, &btext);
 			}
 		    } else
-			drawItem( p, rect, AlignCenter, pal, 
+			drawItem( p, rect, AlignCenter, pal,
 				  mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
 		}
 	    }
@@ -1034,7 +1034,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		QRect pixRect = rect;
 		pixRect.setY( rect.center().y() - (pixh - 1) / 2 );
-		drawItem ( p, pixRect, AlignVCenter, pal, 
+		drawItem ( p, pixRect, AlignVCenter, pal,
 			   (flags & Style_Enabled) || !icon->isGenerated(QIconSet::Small, QIconSet::Disabled ), pixmap );
 		rect.setLeft( rect.left() + pixw + 2 );
 	    }
@@ -1934,17 +1934,14 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar: {
 	const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	int sliderstart = 0;
 	int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
 		      scrollbar->width() : scrollbar->height()) - (sbextent * 2);
 	int sliderlen;
 
-	sliderstart = scrollbar->sliderStart();
-
 	// calculate slider length
-	if (scrollbar->maxValue() != scrollbar->minValue()) {
-	    uint range = scrollbar->maxValue() - scrollbar->minValue();
+	if (scrollbar->maximum() != scrollbar->minimum()) {
+	    uint range = scrollbar->maximum() - scrollbar->minimum();
 	    sliderlen = (scrollbar->pageStep() * maxlen) /
 			(range + scrollbar->pageStep());
 
@@ -1956,6 +1953,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	} else
 	    sliderlen = maxlen;
 
+	int sliderstart = sbextent + scrollbar->positionFromValue(scrollbar->sliderPosition(), maxlen - sliderlen);
 	switch (sc) {
 	case SC_ScrollBarSubLine:	    // top/left button
 	    if (scrollbar->orientation() == Qt::Horizontal) {
@@ -2683,7 +2681,7 @@ QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, const QStyleOpti
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap, 
+QPixmap QCommonStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
 				   const QPalette &pal, const QStyleOption & ) const
 {
     switch(pixmaptype) {

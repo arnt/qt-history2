@@ -37,6 +37,7 @@ widgets {
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
 		  $$WIDGETS_H/qslider.h \
+		  $$WIDGETS_H/qabstractslider.h \
 		  $$WIDGETS_H/qsplashscreen.h \
 		  $$WIDGETS_H/qspinbox.h \
 		  $$WIDGETS_H/qsplitter.h \
@@ -46,6 +47,7 @@ widgets {
 		  $$WIDGETS_P/qsyntaxhighlighter_p.h \
 		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_P/qtitlebar_p.h \
+		  $$WIDGETS_P/qabstractslider_p.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbox.h \
 		  $$WIDGETS_H/qtoolbutton.h \
@@ -98,6 +100,7 @@ widgets {
 		  $$WIDGETS_CPP/qscrollbar.cpp \
 		  $$WIDGETS_CPP/qscrollview.cpp \
 		  $$WIDGETS_CPP/qslider.cpp \
+		  $$WIDGETS_CPP/qabstractslider.cpp \
 		  $$WIDGETS_CPP/qsplashscreen.cpp \
 		  $$WIDGETS_CPP/qspinbox.cpp \
 		  $$WIDGETS_CPP/qspinwidget.cpp \

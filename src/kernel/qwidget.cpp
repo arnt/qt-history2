@@ -3289,11 +3289,13 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
     else
 	updateGeometry();
 
-    //trigger resize event
-    QResizeEvent e(crect.size(), crect.size());
-    QApplication::sendEvent(this, &e);
-    if (testAttribute(WA_PendingResizeEvent))
-	setAttribute(WA_PendingResizeEvent, false);
+    if ( isVisible() ) {
+	update();
+	QResizeEvent e(crect.size(), crect.size());
+	QApplication::sendEvent(this, &e);
+    } else {
+	setAttribute(WA_PendingResizeEvent, true);
+    }
 }
 
 /*
@@ -3305,7 +3307,7 @@ QRect QWidget::contentsRect() const
 {
     return QRect(QPoint(d->leftmargin, d->topmargin),
 		 QPoint(crect.width() - 1 - d->rightmargin, crect.height() -1 - d->bottommargin));
-    
+
  }
 
 /*!

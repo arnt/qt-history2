@@ -293,7 +293,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
         {
 #ifndef QT_NO_SCROLLBAR
 	    if ( qt_cast<QScrollBar*>(widget) ) {
-		d->lastScrollbarRect.rect = ((QScrollBar*)widget)->sliderRect();
+		d->lastScrollbarRect.rect = querySubControlMetrics(QStyle::CC_ScrollBar, widget,  QStyle::SC_ScrollBarSlider);
 		d->lastScrollbarRect.scrollbar = ((QScrollBar*)widget);
 		widget->repaint();
 	    } else
@@ -301,7 +301,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	    {
 #ifndef QT_NO_SLIDER
 		if ( qt_cast<QSlider*>(widget) ) {
-		    d->lastSliderRect.rect = ((QSlider*)widget)->sliderRect();
+		    d->lastScrollbarRect.rect = querySubControlMetrics(QStyle::CC_Slider, widget,  QStyle::SC_SliderHandle);
 		    d->lastSliderRect.slider = ((QSlider*)widget);
 		    widget->repaint();
 		}

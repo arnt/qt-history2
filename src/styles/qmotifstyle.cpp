@@ -1572,7 +1572,6 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    return QRect();
 
 	const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	int sliderstart = scrollbar->sliderStart();
 	int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	int fw = pixelMetric(PM_DefaultFrameWidth, widget);
 	int buttonw = sbextent - (fw * 2);
@@ -1594,6 +1593,8 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		sliderlen = maxlen;
 	} else
 	    sliderlen = maxlen;
+
+	int sliderstart = sbextent + scrollbar->positionFromValue(scrollbar->sliderPosition(), maxlen - sliderlen);
 
 	switch (sc) {
 	case SC_ScrollBarSubLine:
