@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#67 $
 **
 ** Implementation of QScrollView class
 **
@@ -684,6 +684,8 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
     if (!d) return FALSE; // we are destructing
     if ( obj == &d->viewport ) {
 	switch ( e->type() ) {
+
+	/* Forward many events to viewport...() functions */
 	case QEvent::Paint:
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
@@ -699,6 +701,23 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
+        case QEvent::DragEnter:
+	    viewportDragEnterEvent( (QDragEnterEvent*)e );
+	    break;
+        case QEvent::DragMove:
+	    viewportDragMoveEvent( (QDragMoveEvent*)e );
+	    break;
+        case QEvent::DragLeave:
+	    viewportDragLeaveEvent( (QDragLeaveEvent*)e );
+	    break;
+        case QEvent::Drop:
+	    viewportDropEvent( (QDropEvent*)e );
+	    break;
+        case QEvent::Wheel:
+	    viewportWheelEvent( (QWheelEvent*)e );
+	    break;
+
+
 	case QEvent::ChildRemoved:
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
 	    break;
@@ -734,6 +753,8 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 /*!
   To provide simple processing of events on the contents, this method receives all mouse
   press events sent to the viewport.
+
+  \sa QWidget::mousePressEvent()
 */
 void QScrollView::viewportMousePressEvent( QMouseEvent* )
 {
@@ -743,6 +764,8 @@ void QScrollView::viewportMousePressEvent( QMouseEvent* )
   To provide simple processing of events on the contents,
   this method receives all mouse
   release events sent to the viewport.
+
+  \sa QWidget::mouseReleaseEvent()
 */
 void QScrollView::viewportMouseReleaseEvent( QMouseEvent* )
 {
@@ -752,6 +775,8 @@ void QScrollView::viewportMouseReleaseEvent( QMouseEvent* )
   To provide simple processing of events on the contents,
   this method receives all mouse
   double click events sent to the viewport.
+
+  \sa QWidget::mouseDoubleClickEvent()
 */
 void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* )
 {
@@ -761,11 +786,67 @@ void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* )
   To provide simple processing of events on the contents,
   this method receives all mouse
   move events sent to the viewport.
+
+  \sa QWidget::mouseMoveEvent()
 */
 void QScrollView::viewportMouseMoveEvent( QMouseEvent* )
 {
 }
 
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all drag enter
+  events sent to the viewport.
+
+  \sa QWidget::dragEnterEvent()
+*/
+void viewportDragEnterEvent( QDragEnterEvent * )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all drag move
+  events sent to the viewport.
+
+  \sa QWidget::dragMoveEvent()
+*/
+void viewportDragMoveEvent( QDragMoveEvent * )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all drag leave
+  events sent to the viewport.
+
+  \sa QWidget::dragLeaveEvent()
+*/
+void viewportDragLeaveEvent( QDragLeaveEvent * )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all drop
+  events sent to the viewport.
+
+  \sa QWidget::dropEvent()
+*/
+void viewportDropEvent( QDropEvent * )
+{
+}
+
+/*!
+  To provide simple processing of events on the contents,
+  this method receives all wheel
+  events sent to the viewport.
+
+  \sa QWidget::wheelEvent()
+*/
+void viewportWheelEvent( QWheelEvent * )
+{
+}
 
 /*!
  Returns the component horizontal scrollbar.  It is made available to allow
