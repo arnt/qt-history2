@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#268 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#269 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -931,6 +931,15 @@ bool QPainter::end()				// end painting
     if ( testf(FontInf) )			// remove references to this
 	QFontInfo::reset( this );
 
+    //#### This should not be necessary:
+    if ( pdev->devType() == PDT_WIDGET  && 
+	 ((QWidget*)pdev)->testWFlags(WPaintUnclipped) ) {
+	if ( gc )
+	    XSetSubwindowMode( dpy, gc, ClipByChildren );
+	if ( gc_brush )
+	    XSetSubwindowMode( dpy, gc_brush, ClipByChildren );
+    }
+    
     if ( gc_brush ) {				// restore brush gc
 	if ( brushRef ) {
 	    release_gc( brushRef );
