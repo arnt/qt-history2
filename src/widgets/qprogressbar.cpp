@@ -128,7 +128,7 @@ void QProgressBar::reset()
     progress_val = -1;
     percentage = -1;
     setIndicator(progress_str, progress_val, total_steps);
-    update();
+    repaint( FALSE );
     if ( autoMask() )
 	updateMask();
 }
@@ -145,11 +145,10 @@ void QProgressBar::reset()
 
 void QProgressBar::setTotalSteps( int totalSteps )
 {
-    bool clear = ( totalSteps != total_steps ) || !totalSteps;
     total_steps = totalSteps;
     if ( isVisible() ) {
 	if ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) {
-	    repaint( clear );
+	    repaint( FALSE );
 	    if ( autoMask() )
 		updateMask();
 	}
@@ -174,7 +173,7 @@ void QProgressBar::setProgress( int progress )
 
     setIndicator( progress_str, progress_val, total_steps );
 
-    update();
+    repaint( FALSE );
 
     if ( !isVisible() )
 	return;
@@ -218,7 +217,7 @@ void QProgressBar::setCenterIndicator( bool on )
 	return;
     auto_indicator   = FALSE;
     center_indicator = on;
-    repaint( TRUE );
+    repaint( FALSE );
     if ( autoMask() )
 	updateMask();
 }
@@ -235,7 +234,7 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
     if ( on == auto_indicator )
 	return;
     auto_indicator = on;
-    repaint( TRUE );
+    repaint( FALSE );
     if ( autoMask() )
 	updateMask();
 }
@@ -249,7 +248,7 @@ void QProgressBar::setPercentageVisible( bool on )
     if ( on == percentage_visible )
 	return;
     percentage_visible = on;
-    repaint( TRUE );
+    repaint( FALSE );
 }
 
 /*!
