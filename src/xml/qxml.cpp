@@ -18,7 +18,7 @@
 #include "qregexp.h"
 #include "qptrstack.h"
 #include "qmap.h"
-#include "qvaluestack.h"
+#include "qstack.h"
 
 // needed for QT_TRANSLATE_NOOP:
 #include "qobject.h"
@@ -342,12 +342,12 @@ public:
 
     ~QXmlNamespaceSupportPrivate()
     {
-	nsStack.setAutoDelete( TRUE );
-	nsStack.clear();
+	nsList.setAutoDelete( TRUE );
+	nsList.clear();
 	delete ns;
     }
 
-    QPtrStack<QMap<QString, QString> > nsStack;
+    QList<QMap<QString, QString> *> nsList;
     QMap<QString, QString> *ns;
 };
 
@@ -579,7 +579,7 @@ QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 */
 void QXmlNamespaceSupport::pushContext()
 {
-    d->nsStack.push( new QMap<QString, QString>(*d->ns) );
+    d->nsList.prepend(new QMap<QString, QString>(*d->ns));
 }
 
 /*!
@@ -594,8 +594,8 @@ void QXmlNamespaceSupport::pushContext()
 void QXmlNamespaceSupport::popContext()
 {
     delete d->ns;
-    if( !d->nsStack.isEmpty() )
-	d->ns = d->nsStack.pop();
+    if(!d->nsList.isEmpty())
+	d->ns = d->nsList.takeLast();
 }
 
 /*!
@@ -2197,7 +2197,7 @@ private:
     }
 
     // used to determine if elements are correctly nested
-    QValueStack<QString> tags;
+    QStack<QString> tags;
 
     // used for entity declarations
     struct ExternParameterEntity
@@ -2226,8 +2226,8 @@ private:
     QMap<QString,QString> entities;
 
     // used for parsing of entity references
-    QValueStack<QString> xmlRef;
-    QValueStack<QString> xmlRefName;
+    QStack<QString> xmlRef;
+    QStack<QString> xmlRefName;
 
     // used for standalone declaration
     enum Standalone { Yes, No, Unknown };

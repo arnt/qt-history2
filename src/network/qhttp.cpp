@@ -19,6 +19,7 @@
 #include "qsocket.h"
 #include "qtextstream.h"
 #include "qmap.h"
+#include "qlist.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qcstring.h"
@@ -48,7 +49,7 @@ public:
     }
 
     QSocket socket;
-    QPtrList<QHttpRequest> pending;
+    QList<QHttpRequest *> pending;
 
     QHttp::State state;
     QHttp::Error error;
@@ -1379,7 +1380,7 @@ QHttp::~QHttp()
 */
 void QHttp::abort()
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( r == 0 )
 	return;
 
@@ -1448,7 +1449,7 @@ QByteArray QHttp::readAll()
 */
 int QHttp::currentId() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( r == 0 )
 	return 0;
     return r->id;
@@ -1464,7 +1465,7 @@ int QHttp::currentId() const
 */
 QHttpRequestHeader QHttp::currentRequest() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( r != 0 && r->hasRequestHeader() )
 	return r->requestHeader();
     return QHttpRequestHeader();
@@ -1482,7 +1483,7 @@ QHttpRequestHeader QHttp::currentRequest() const
 */
 QIODevice* QHttp::currentSourceDevice() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( !r )
 	return 0;
     return r->sourceDevice();
@@ -1500,7 +1501,7 @@ QIODevice* QHttp::currentSourceDevice() const
 */
 QIODevice* QHttp::currentDestinationDevice() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( !r )
 	return 0;
     return r->destinationDevice();
@@ -1531,7 +1532,7 @@ void QHttp::clearPendingRequests()
 {
     QHttpRequest *r = 0;
     if ( d->pending.count() > 0 )
-	r = d->pending.take( 0 );
+	r = d->pending.takeAt(0);
     d->pending.clear();
     if ( r )
 	d->pending.append( r );
@@ -1756,7 +1757,7 @@ int QHttp::addRequest( QHttpRequest *req )
 
 void QHttp::startNextRequest()
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( r == 0 )
 	return;
 
@@ -1791,7 +1792,7 @@ void QHttp::sendRequest()
 
 void QHttp::finishedWithSuccess()
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( r == 0 )
 	return;
 
@@ -1806,7 +1807,7 @@ void QHttp::finishedWithSuccess()
 
 void QHttp::finishedWithError( const QString& detail, int errorCode )
 {
-    QHttpRequest *r = d->pending.getFirst();
+    QHttpRequest *r = d->pending.isEmpty() ? 0 : d->pending.first();
     if ( r == 0 )
 	return;
 

@@ -16,9 +16,9 @@
 
 #ifndef QT_NO_DOM
 
+#include "qhash.h"
 #include "qxml.h"
-#include "qptrlist.h"
-#include "qdict.h"
+#include "qlist.h"
 #include "qtextstream.h"
 #include "qtextcodec.h"
 #include "qiodevice.h"
@@ -177,7 +177,7 @@ public:
     QDomNodePrivate* node_impl;
     QString tagname;
     QString nsURI;
-    QPtrList<QDomNodePrivate> list;
+    QList<QDomNodePrivate*> list;
     long timestamp;
 };
 
@@ -222,7 +222,7 @@ public:
     QDomNamedNodeMapPrivate* clone( QDomNodePrivate* parent );
 
     // Variables
-    QDict<QDomNodePrivate> map;
+    QHash<QString, QDomNodePrivate *> map;
     QDomNodePrivate* parent;
     bool readonly;
     bool appendToParent;
@@ -2469,9 +2469,9 @@ QDomNamedNodeMapPrivate* QDomNamedNodeMapPrivate::clone( QDomNodePrivate* p )
     m->readonly = readonly;
     m->appendToParent = appendToParent;
 
-    QDictIterator<QDomNodePrivate> it ( map );
-    for ( ; it.current(); ++it )
-	m->setNamedItem( it.current()->cloneNode() );
+    QHash<QString, QDomNodePrivate*>::Iterator it = map.begin();
+    for (; it != map.end(); ++it)
+	m->setNamedItem((*it)->cloneNode());
 
     // we are no longer interested in ownership
     m->deref();
@@ -2482,10 +2482,10 @@ void QDomNamedNodeMapPrivate::clearMap()
 {
     // Dereference all of our children if we took references
     if ( !appendToParent ) {
-	QDictIterator<QDomNodePrivate> it( map );
-	for ( ; it.current(); ++it )
-	    if ( it.current()->deref() )
-		delete it.current();
+	QHash<QString, QDomNodePrivate *>::Iterator it = map.begin();
+	for (; it != map.end(); ++it)
+	    if ((*it)->deref())
+		delete (*it);
     }
 
     map.clear();
@@ -2499,17 +2499,16 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::namedItem( const QString& name ) const
 
 QDomNodePrivate* QDomNamedNodeMapPrivate::namedItemNS( const QString& nsURI, const QString& localName ) const
 {
-    QDictIterator<QDomNodePrivate> it( map );
-    QDomNodePrivate *n = it.current();
-    while ( n ) {
+    QHash<QString, QDomNodePrivate *>::ConstIterator it = map.begin();
+    QDomNodePrivate *n = *it;
+    for (; it != map.end(); ++it) {
+	n = *it;
 	if ( !n->prefix.isNull() ) {
 	    // node has a namespace
 	    if ( n->namespaceURI==nsURI && n->name==localName ) {
 		return n;
 	    }
 	}
-	++it;
-	n = it.current();
     }
     return 0;
 }
@@ -2525,7 +2524,7 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItem( QDomNodePrivate* arg )
     QDomNodePrivate *n = map[ arg->nodeName() ];
     // We take a reference
     arg->ref();
-    map.insert( arg->nodeName(), arg );
+    map.insertMulti(arg->nodeName(), arg);
     return n;
 }
 
@@ -2542,7 +2541,7 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItemNS( QDomNodePrivate* arg )
 	QDomNodePrivate *n = namedItemNS( arg->namespaceURI, arg->name );
 	// We take a reference
 	arg->ref();
-	map.insert( arg->nodeName(), arg );
+	map.insertMulti(arg->nodeName(), arg);
 	return n;
     } else {
 	// ### check the following code if it is ok
@@ -2572,10 +2571,10 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::item( int index ) const
     if ( (uint)index >= length() )
 	return 0;
 
-    QDictIterator<QDomNodePrivate> it( map );
+    QHash<QString, QDomNodePrivate *>::ConstIterator it = map.begin();
     for ( int i = 0; i < index; ++i, ++it )
 	;
-    return it.current();
+    return *it;
 }
 
 uint QDomNamedNodeMapPrivate::length() const
@@ -2877,10 +2876,10 @@ QDomDocumentTypePrivate::QDomDocumentTypePrivate( QDomDocumentTypePrivate* n, bo
     while ( p ) {
 	if ( p->isEntity() )
 	    // Dont use normal insert function since we would create infinite recursion
-	    entities->map.insert( p->nodeName(), p );
+	    entities->map.insertMulti(p->nodeName(), p);
 	if ( p->isNotation() )
 	    // Dont use normal insert function since we would create infinite recursion
-	    notations->map.insert( p->nodeName(), p );
+	    notations->map.insertMulti(p->nodeName(), p);
     }
 }
 
@@ -2918,9 +2917,9 @@ QDomNodePrivate* QDomDocumentTypePrivate::insertBefore( QDomNodePrivate* newChil
     QDomNodePrivate* p = QDomNodePrivate::insertBefore( newChild, refChild );
     // Update the maps
     if ( p && p->isEntity() )
-	entities->map.insert( p->nodeName(), p );
+	entities->map.insertMulti(p->nodeName(), p);
     else if ( p && p->isNotation() )
-	notations->map.insert( p->nodeName(), p );
+	notations->map.insertMulti(p->nodeName(), p);
 
     return p;
 }
@@ -2931,9 +2930,9 @@ QDomNodePrivate* QDomDocumentTypePrivate::insertAfter( QDomNodePrivate* newChild
     QDomNodePrivate* p = QDomNodePrivate::insertAfter( newChild, refChild );
     // Update the maps
     if ( p && p->isEntity() )
-	entities->map.insert( p->nodeName(), p );
+	entities->map.insertMulti(p->nodeName(), p);
     else if ( p && p->isNotation() )
-	notations->map.insert( p->nodeName(), p );
+	notations->map.insertMulti(p->nodeName(), p);
 
     return p;
 }
@@ -2950,9 +2949,9 @@ QDomNodePrivate* QDomDocumentTypePrivate::replaceChild( QDomNodePrivate* newChil
 	    notations->map.remove( oldChild->nodeName() );
 
 	if ( p->isEntity() )
-	    entities->map.insert( p->nodeName(), p );
+	    entities->map.insertMulti(p->nodeName(), p);
 	else if ( p->isNotation() )
-	    notations->map.insert( p->nodeName(), p );
+	    notations->map.insertMulti(p->nodeName(), p);
     }
 
     return p;
@@ -2994,13 +2993,13 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int, int indent ) const
     if ( entities->length()>0 || notations->length()>0 ) {
 	s << " [ " << endl;
 
-	QDictIterator<QDomNodePrivate> it2( notations->map );
-	for ( ; it2.current(); ++it2 )
-	    it2.current()->save( s, 0, indent );
+	QHash<QString, QDomNodePrivate *>::ConstIterator it2 = notations->map.begin();
+	for (; it2 != notations->map.end(); ++it2)
+	    (*it2)->save(s, 0, indent);
 
-	QDictIterator<QDomNodePrivate> it( entities->map );
-	for ( ; it.current(); ++it )
-	    it.current()->save( s, 0, indent );
+	QHash<QString, QDomNodePrivate *>::ConstIterator it = entities->map.begin();
+	for (; it != entities->map.end(); ++it)
+	    (*it)->save( s, 0, indent );
 
 	s << " ]";
     }
@@ -4029,9 +4028,9 @@ void QDomElementPrivate::save( QTextStream& s, int depth, int indent ) const
 
     if ( !m_attr->map.isEmpty() ) {
 	s << " ";
-	QDictIterator<QDomNodePrivate> it( m_attr->map );
-	for ( ; it.current(); ++it ) {
-	    it.current()->save( s, 0, indent );
+	QHash<QString, QDomNodePrivate *>::ConstIterator it = m_attr->map.begin();
+	for (; it != m_attr->map.end(); ++it) {
+	    (*it)->save( s, 0, indent );
 	    s << " ";
 	}
     }
