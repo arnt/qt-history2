@@ -29,6 +29,8 @@
 #include "qtoolbutton.h"
 #include "qlabel.h"
 #include "qvbox.h"
+#include "qaccel.h"
+#include "qpopupmenu.h"
 
 #if defined(_WS_WIN_)
 #include "qt_windows.h"
@@ -233,6 +235,9 @@ static const char * normalize_xpm[] = {
 
 
 
+static bool resizeHorizontalDirectionFixed = FALSE;
+static bool resizeVerticalDirectionFixed = FALSE;
+
 class Q_EXPORT QWorkspaceChildTitleBar : public QWidget
 {
     Q_OBJECT
@@ -255,6 +260,7 @@ signals:
     void doClose();
     void doMaximize();
     void doMinimize();
+    void showOperationMenu( const QPoint& );
 
 protected:
     void resizeEvent( QResizeEvent * );
@@ -270,7 +276,6 @@ private:
     QLabel* titleL;
     QLabel* iconL;
     bool buttonDown;
-    int mode;
     QPoint moveOffset;
     QWorkspace* workspace;
     bool imode;
@@ -293,6 +298,12 @@ public:
     QWidget* clientWidget() const;
     QWidget* iconWidget() const;
 
+    void doResize();
+    void doMove();
+
+signals:
+    void showOperationMenu(const QPoint&);
+
  public slots:
     void activate();
     void showMinimized();
@@ -306,6 +317,7 @@ protected:
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
     void childEvent( QChildEvent* );
+    void keyPressEvent( QKeyEvent * );
 
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
@@ -313,8 +325,20 @@ protected:
 private:
     QWidget* clientw;
     bool buttonDown;
-    int mode;
+    enum MousePosition {
+	Nowhere, TopLeft , BottomRight, BottomLeft, TopRight, Top, Bottom, Left, Right, Center
+    };
+    MousePosition mode;
+    bool moveResizeMode;
+    void setMouseCursor( MousePosition m );
+    bool isMove() const {
+	return moveResizeMode && mode == Center;
+    }
+    bool isResize() const {
+	return moveResizeMode && !isMove();
+    }
     QPoint moveOffset;
+    QPoint invertedMoveOffset;
     bool act;
     QWorkspaceChildTitleBar* titlebar;
     QWorkspaceChildTitleBar* iconw;
@@ -327,6 +351,7 @@ class QWorkspaceData {
 public:
     QWorkspaceChild* active;
     QList<QWorkspaceChild> windows;
+    QList<QWorkspaceChild> focus;
     QList<QWidget> icons;
     QWorkspaceChild* maxClient;
     QRect maxRestore;
@@ -440,6 +465,15 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
     topLevelWidget()->installEventFilter( this );
 
+    QAccel* a = new QAccel( this );
+    a->connectItem( a->insertItem( ALT + Key_Minus), this, SLOT( showOperationMenu() ) );
+    a->connectItem( a->insertItem( ALT + Key_W), this, SLOT( closeActiveClient() ) );
+    a->connectItem( a->insertItem( ALT + Key_F6), this, SLOT( activateNextClient() ) );
+    a->connectItem( a->insertItem( CTRL + Key_Tab), this, SLOT( activateNextClient() ) );
+    a->connectItem( a->insertItem( CTRL +  ALT + Key_Tab), this, SLOT( activateNextClient() ) );
+    a->connectItem( a->insertItem( ALT + SHIFT + Key_F6), this, SLOT( activatePreviousClient() ) );
+    a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab), this, SLOT( activatePreviousClient() ) );
+    a->connectItem( a->insertItem( CTRL +  ALT + SHIFT + Key_Tab), this, SLOT( activatePreviousClient() ) );
 }
 
 /*!
@@ -462,12 +496,17 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    return; 	    // nothing to do
 
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
+	connect( child, SIGNAL( showOperationMenu(const QPoint&) ), this,
+		 SLOT( showOperationMenu(const QPoint&) ) );
 	d->windows.append( child );
+	d->focus.append( child );
 	place( child );
 	child->raise();
+	activateClient( w );
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
-	    d->windows.remove( (QWorkspaceChild*)e->child() );
+	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
+	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
 	    if ( d->windows.isEmpty() )
 		hideMaximizeControls();
 	    if ( d->icons.contains( (QWidget*)e->child() ) ){
@@ -492,7 +531,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 
 
-void QWorkspace::activateClient( QWidget* w)
+void QWorkspace::activateClient( QWidget* w, bool change_focus )
 {
     if ( !isVisible() ) {
 	d->becomeActive = w;
@@ -516,6 +555,10 @@ void QWorkspace::activateClient( QWidget* w)
 
     d->active->raise();
 
+    if ( change_focus ) {
+	d->focus.removeRef( d->active );
+	d->focus.append( d->active );
+    }
     emit clientActivated( w );
 }
 
@@ -630,7 +673,6 @@ void QWorkspace::minimizeClient( QWidget* w)
 	    d->maxClient = 0;
 	    hideMaximizeControls();
 	}
-
     }
 }
 
@@ -723,6 +765,11 @@ void QWorkspace::showMaximizeControls()
 	d->maxcontrols = new QHBox( topLevelWidget() );
 	if ( !win32 )
 	    d->maxcontrols->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+	QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
+	iconB->setFocusPolicy( NoFocus );
+	iconB->setIconSet( QPixmap( minimize_xpm ));
+ 	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	connect( iconB, SIGNAL( clicked() ), this, SLOT( minimizeActiveClient() ) );
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( QPixmap( normalize_xpm ));
@@ -735,13 +782,14 @@ void QWorkspace::showMaximizeControls()
 	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActiveClient() ) );
 
 	if ( !win32 ) {
+	    iconB->setAutoRaise( TRUE );
 	    restoreB->setAutoRaise( TRUE );
 	    closeB->setAutoRaise( TRUE );
 	}
 	//d->maxcontrols->adjustSize();
 
 	//### layout doesn't work
-	d->maxcontrols->setFixedSize( 2* BUTTON_WIDTH+2*d->maxcontrols->frameWidth(),
+	d->maxcontrols->setFixedSize( 3* BUTTON_WIDTH+2*d->maxcontrols->frameWidth(),
 				    BUTTON_HEIGHT+2*d->maxcontrols->frameWidth() );
     }
 
@@ -767,6 +815,118 @@ void QWorkspace::normalizeActiveClient()
 {
     if  ( d->active )
 	d->active->showNormal();
+}
+
+void QWorkspace::minimizeActiveClient()
+{
+    if  ( d->active )
+	d->active->showMinimized();
+}
+
+void QWorkspace::showOperationMenu()
+{
+    showOperationMenu( QPoint(0,0) );
+}
+
+void QWorkspace::showOperationMenu( const QPoint& pos)
+{
+    if ( sender()->inherits("QWorkspaceChild") && d->active != sender() )
+	activateClient( ( (QWorkspaceChild*)sender())->clientWidget() );
+    if  ( !d->active )
+	return;
+    if ( pos != QPoint(0,0) )
+	popupOperationMenu( pos );
+    else if ( !d->active->isVisible() )
+	popupOperationMenu( d->active->iconWidget()->mapToGlobal( QPoint(0,0) ), FALSE );
+    else
+	popupOperationMenu( d->active->clientWidget()->mapToGlobal( QPoint(0,0) ) );
+}
+
+
+void QWorkspace::popupOperationMenu( const QPoint& pos, bool down)
+{
+    if ( !d->active )
+	return;
+
+    QPopupMenu* p = new QPopupMenu;
+    p->insertItem(tr("&Restore"), 1);
+    p->insertItem(tr("&Move"), 2);
+    p->insertItem(tr("&Size"), 3);
+    p->insertItem(tr("Mi&nimize"), 4);
+    p->insertItem(tr("Ma&ximize"), 5);
+    p->insertSeparator();
+    p->insertItem(tr("Close")+"\t"+QAccel::keyToString( CTRL+Key_W),
+		  this, SLOT( closeActiveClient() ) );
+
+    if ( d->active == d->maxClient ) {
+	p->setItemEnabled( 2, FALSE );
+	p->setItemEnabled( 3, FALSE );
+	p->setItemEnabled( 5, FALSE );
+    } else if ( d->active->isVisible() ){
+	p->setItemEnabled( 1, FALSE );
+    } else {
+	p->setItemEnabled( 2, FALSE );
+	p->setItemEnabled( 3, FALSE );
+	p->setItemEnabled( 4, FALSE );
+    }
+
+    QPoint realpos = pos;
+    if ( !down )
+	realpos.ry() -= p->sizeHint().height();
+
+    switch ( p->exec( realpos ) ) {
+    case 1:
+	d->active->showNormal();
+	break;
+    case 2:
+	d->active->doMove();
+	break;
+    case 3:
+	d->active->doResize();
+	break;
+    case 4:
+	d->active->showMinimized();
+	break;
+    case 5:
+	d->active->showMaximized();
+	break;
+    default:
+	break;
+    }
+}
+
+void QWorkspace::activateNextClient()
+{
+    if ( d->focus.isEmpty() )
+	return;
+    if ( !d->active ) {
+	activateClient( d->focus.first()->clientWidget(), FALSE );
+	return;
+    }
+
+    int a = d->focus.find( d->active );
+    if ( a <= 0 )
+	a = d->focus.count()-1;
+    else
+	a--;
+    activateClient( d->focus.at( a )->clientWidget(), FALSE );
+}
+
+void QWorkspace::activatePreviousClient()
+{
+    if ( d->focus.isEmpty() )
+	return;
+    if ( !d->active ) {
+	activateClient( d->focus.last()->clientWidget(), FALSE );
+	return;
+    }
+
+    int a = d->focus.find( d->active );
+    if ( a < 0  || a >= int(d->focus.count())-1 )
+	a = 0;
+    else
+	a++;
+    activateClient( d->focus.at( a )->clientWidget(), FALSE );
 }
 
 
@@ -817,7 +977,7 @@ bool QWorkspace::maximizeControls() const
 
 
 
-QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent, 
+QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent,
 						  const char* name, bool iconMode )
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
@@ -870,6 +1030,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 
     iconL = new QLabel( this, "left" );
     iconL->setFocusPolicy( NoFocus );
+    iconL->installEventFilter( this );
 }
 
 QWorkspaceChildTitleBar::~QWorkspaceChildTitleBar()
@@ -882,6 +1043,8 @@ void QWorkspaceChildTitleBar::mousePressEvent( QMouseEvent * e)
 	buttonDown = TRUE;
 	moveOffset = mapToParent( e->pos() );
 	emit doActivate();
+    } else if ( e->button() == RightButton ) {
+	emit showOperationMenu( e->globalPos() );
     }
 }
 
@@ -943,8 +1106,15 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	    else
 		mouseMoveEvent( &ne );
 	}
-	else if ( e->type() == QEvent::MouseButtonDblClick )
-	    emit doNormal();
+	else if ( ((QMouseEvent*)e)->button() == LeftButton && e->type() == QEvent::MouseButtonDblClick ) {
+	    if ( imode )
+		emit doNormal();
+	    else
+		emit doMaximize();
+	}
+    } else if ( o == iconL ) {
+	if ( e->type() == QEvent::MouseButtonPress )
+	    emit showOperationMenu( QPoint(0,0) );
     }
     return FALSE;
 }
@@ -1035,7 +1205,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     : QFrame( parent, name,
 	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
 {
-    mode = 0;
+    mode = Nowhere;
     buttonDown = FALSE;
     setMouseTracking( TRUE );
     act = FALSE;
@@ -1050,6 +1220,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	     this, SLOT( showMinimized() ) );
     connect( titlebar, SIGNAL( doMaximize() ),
 	     this, SLOT( showMaximized() ) );
+    connect( titlebar, SIGNAL( showOperationMenu( const QPoint& ) ),
+	     this, SIGNAL( showOperationMenu( const QPoint& ) ) );
 
     setFrameStyle( QFrame::WinPanel | QFrame::Raised );
     setMinimumSize( 128, 96 );
@@ -1065,7 +1237,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     int th = titlebar->sizeHint().height();
 
     bool hasBeenResize = clientw->testWState( WState_Resized );
-    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, 
+    clientw->reparent( this, QPoint( contentsRect().x()+BORDER,
 				     th + BORDER + TITLEBAR_SEPARATION + contentsRect().y() ), TRUE  );
 
     if ( !hasBeenResize ) {
@@ -1074,7 +1246,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION+2*BORDER );
 	resize( s );
     } else {
-	resize( clientw->width() + 2*frameWidth() + 2*BORDER, 
+	resize( clientw->width() + 2*frameWidth() + 2*BORDER,
 		clientw->height() + 2*frameWidth() + th +2*BORDER);
     }
 
@@ -1200,6 +1372,7 @@ void QWorkspaceChild::mousePressEvent( QMouseEvent * e)
 	mouseMoveEvent( e );
 	buttonDown = TRUE;
 	moveOffset = e->pos();
+	invertedMoveOffset = rect().bottomRight() - e->pos();
     }
 }
 
@@ -1208,100 +1381,84 @@ void QWorkspaceChild::mouseReleaseEvent( QMouseEvent * e)
     if ( e->button() == LeftButton ) {
 	buttonDown = FALSE;
 	releaseMouse();
+	releaseKeyboard();
     }
 }
 
 void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 {
     if ( !buttonDown ) {
-	if ( e->pos().y() <= RANGE && e->pos().x() <= RANGE) {
-	    setCursor(  sizeFDiagCursor );
-	    mode = 1;
-	}
-	else if ( e->pos().y() >= height()-RANGE && e->pos().x() >= width()-RANGE) {
-	    setCursor(  sizeFDiagCursor );
-	    mode = 2;
-	}
-	else if ( e->pos().y() >= height()-RANGE && e->pos().x() <= RANGE) {
-	    setCursor(  sizeBDiagCursor );
-	    mode = 3;
-	}
-	else if ( e->pos().y() <= RANGE && e->pos().x() >= width()-RANGE) {
-	    setCursor(  sizeBDiagCursor );
-	    mode = 4;
-	}
-	else if ( e->pos().y() <= RANGE || e->pos().y() >= height()-RANGE ) {
-	    setCursor(  sizeVerCursor );
-	    mode = 5;
-	}
-	else if ( e->pos().x() <= RANGE || e->pos().x() >= width()-RANGE ) {
-	    setCursor(  sizeHorCursor );
-	    mode = 6;
-	}
-	else {
-	    setCursor( arrowCursor );
-	    mode = 7;
-	}
+	if ( e->pos().y() <= RANGE && e->pos().x() <= RANGE)
+	    mode = TopLeft;
+	else if ( e->pos().y() >= height()-RANGE && e->pos().x() >= width()-RANGE)
+	    mode = BottomRight;
+	else if ( e->pos().y() >= height()-RANGE && e->pos().x() <= RANGE)
+	    mode = BottomLeft;
+	else if ( e->pos().y() <= RANGE && e->pos().x() >= width()-RANGE)
+	    mode = TopRight;
+	else if ( e->pos().y() <= RANGE )
+	    mode = Top;
+	else if ( e->pos().y() >= height()-RANGE )
+	    mode = Bottom;
+	else if ( e->pos().x() <= RANGE )
+	    mode = Left;
+	else if (  e->pos().x() >= width()-RANGE )
+	    mode = Right;
+	else
+	    mode = Right;
+	setMouseCursor( mode );
 	return;
     }
 
     if ( testWState(WState_ConfigPending) )
 	return;
 
-    QPoint p = parentWidget()->mapFromGlobal( e->globalPos() );
+    QPoint globalPos = parentWidget()->mapFromGlobal( e->globalPos() );
+    QPoint p = globalPos + invertedMoveOffset;
+    QPoint pp = globalPos - moveOffset;
 
-    if ( !parentWidget()->rect().contains(p) ) {
-	if ( p.x() < 0 )
-	    p.rx() = 0;
-	if ( p.y() < 0 )
-	    p.ry() = 0;
-	if ( p.x() > parentWidget()->width() )
-	    p.rx() = parentWidget()->width();
-	if ( p.y() > parentWidget()->height() )
-	    p.ry() = parentWidget()->height();
-    }
-
-
-    QPoint pp = p - moveOffset;
     QPoint mp( QMIN( pp.x(), geometry().right() - minimumWidth() +1 ),
 	       QMIN( pp.y(), geometry().bottom() - minimumHeight() + 1 ) );
     mp = QPoint( QMAX( mp.x(), geometry().right() - maximumWidth() +1 ),
 		 QMAX( mp.y(), geometry().bottom() -maximumHeight() +1) );
 
 
+    QRect geom = geometry();
+
     switch ( mode ) {
-    case 1:
-	setGeometry( QRect( mp, geometry().bottomRight() ) );
+    case TopLeft:
+	geom =  QRect( mp, geometry().bottomRight() ) ;
 	break;
-    case 2:
-	setGeometry( QRect( geometry().topLeft(), p ) );
+    case BottomRight:
+	geom =  QRect( geometry().topLeft(), p ) ;
 	break;
-    case 3:
-	setGeometry( QRect( QPoint(mp.x(), geometry().y() ), QPoint( geometry().right(), p.y()) ) );
+    case BottomLeft:
+	geom =  QRect( QPoint(mp.x(), geometry().y() ), QPoint( geometry().right(), p.y()) ) ;
 	break;
-    case 4:
-	setGeometry( QRect( QPoint(geometry().x(), mp.y() ), QPoint( p.x(), geometry().bottom()) ) );
+    case TopRight:
+	geom =  QRect( QPoint(geometry().x(), mp.y() ), QPoint( p.x(), geometry().bottom()) ) ;
 	break;
-    case 5:
-	if (moveOffset.y() < RANGE+2) {
-	    setGeometry( QRect( QPoint( geometry().left(), mp.y() ), geometry().bottomRight() ) );
-	} else {
-	    setGeometry( QRect( geometry().topLeft(), QPoint( geometry().right(), p.y() ) ) );
-	}
+    case Top:
+	geom =  QRect( QPoint( geometry().left(), mp.y() ), geometry().bottomRight() ) ;
 	break;
-    case 6:
-	if (moveOffset.x() < RANGE+2) {
-	    setGeometry( QRect( QPoint( mp.x(), geometry().top() ), geometry().bottomRight() ) );
-	} else {
-	    setGeometry( QRect( geometry().topLeft(), QPoint( p.x(), geometry().bottom() ) ) );
-	}
+    case Bottom:
+	geom =  QRect( geometry().topLeft(), QPoint( geometry().right(), p.y() ) ) ;
 	break;
-    case 7:
-	move( pp );
+    case Left:
+	geom =  QRect( QPoint( mp.x(), geometry().top() ), geometry().bottomRight() ) ;
+	break;
+    case Right:
+	geom =  QRect( geometry().topLeft(), QPoint( p.x(), geometry().bottom() ) ) ;
+	break;
+    case Center:
+	geom.moveTopLeft( pp );
 	break;
     default:
 	break;
     }
+
+    if ( parentWidget()->rect().intersects( geom ) )
+	setGeometry( geom );
 
 #ifdef _WS_WIN_
     MSG msg;
@@ -1310,6 +1467,8 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 #endif
     QApplication::syncX();
 }
+
+
 
 void QWorkspaceChild::enterEvent( QEvent * )
 {
@@ -1387,6 +1546,8 @@ QWidget* QWorkspaceChild::iconWidget() const
 		 this, SLOT( showNormal() ) );
 	connect( iconw, SIGNAL( doMaximize() ),
 		 this, SLOT( showMaximized() ) );
+	connect( iconw, SIGNAL( showOperationMenu( const QPoint& ) ),
+		 this, SIGNAL( showOperationMenu( const QPoint& ) ) );
     }
     iconw->setText( clientWidget()->caption() );
     return iconw->parentWidget();
@@ -1408,7 +1569,6 @@ void QWorkspaceChild::showNormal()
 }
 
 
-
 void QWorkspaceChild::adjustToFullscreen()
 {
     setGeometry( -clientw->x(), -clientw->y(),
@@ -1416,5 +1576,178 @@ void QWorkspaceChild::adjustToFullscreen()
 		 parentWidget()->height() + height() - clientw->height() );
 }
 
+
+/*!
+  Sets an appropriate cursor shape for the logical mouse position \a m
+
+  \sa QWidget::setCursor()
+ */
+void QWorkspaceChild::setMouseCursor( MousePosition m )
+{
+    switch ( m ) {
+    case TopLeft:
+    case BottomRight:
+	setCursor( sizeFDiagCursor );
+	break;
+    case BottomLeft:
+    case TopRight:
+	setCursor( sizeBDiagCursor );
+	break;
+    case Top:
+    case Bottom:
+	setCursor( sizeVerCursor );
+	break;
+    case Left:
+    case Right:
+	setCursor( sizeHorCursor );
+	break;
+    default:
+	setCursor( arrowCursor );
+	break;
+    }
+}
+
+void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
+{
+    if ( !isMove() && !isResize() )
+	return;
+    bool is_control = e->state() & ControlButton;
+    int delta = is_control?1:8;
+    QPoint pos = QCursor::pos();
+    QPoint invertedMoveOffset; //TODO
+    switch ( e->key() ) {
+    case Key_Left:
+	pos.rx() -= delta;
+	if ( pos.x() <= QApplication::desktop()->geometry().left() ) {
+	    if ( mode == TopLeft || mode == BottomLeft ) {
+		moveOffset.rx() += delta;
+		invertedMoveOffset.rx() += delta;
+	    } else {
+		moveOffset.rx() -= delta;
+		invertedMoveOffset.rx() -= delta;
+	    }
+	}
+	if ( isResize() && !resizeHorizontalDirectionFixed ) {
+	    resizeHorizontalDirectionFixed = TRUE;
+	    if ( mode == BottomRight )
+		mode = BottomLeft;
+	    else if ( mode == TopRight )
+		mode = TopLeft;
+	    setMouseCursor( mode );
+	    grabMouse( cursor() );
+	}
+	break;
+    case Key_Right:
+	pos.rx() += delta;
+	if ( pos.x() >= QApplication::desktop()->geometry().right() ) {
+	    if ( mode == TopRight || mode == BottomRight ) {
+		moveOffset.rx() += delta;
+		invertedMoveOffset.rx() += delta;
+	    } else {
+		moveOffset.rx() -= delta;
+		invertedMoveOffset.rx() -= delta;
+	    }
+	}
+	if ( isResize() && !resizeHorizontalDirectionFixed ) {
+	    resizeHorizontalDirectionFixed = TRUE;
+	    if ( mode == BottomLeft )
+		mode = BottomRight;
+	    else if ( mode == TopLeft )
+		mode = TopRight;
+	    setMouseCursor( mode );
+	    grabMouse( cursor() );
+	}
+	break;
+    case Key_Up:
+	pos.ry() -= delta;
+	if ( pos.y() <= QApplication::desktop()->geometry().top() ) {
+	    if ( mode == TopLeft || mode == TopRight ) {
+		moveOffset.ry() += delta;
+		invertedMoveOffset.ry() += delta;
+	    } else {
+		moveOffset.ry() -= delta;
+		invertedMoveOffset.ry() -= delta;
+	    }
+	}
+	if ( isResize() && !resizeVerticalDirectionFixed ) {
+	    resizeVerticalDirectionFixed = TRUE;
+	    if ( mode == BottomLeft )
+		mode = TopLeft;
+	    else if ( mode == BottomRight )
+		mode = TopRight;
+	    setMouseCursor( mode );
+	    grabMouse( cursor() );
+	}
+	break;
+    case Key_Down:
+	pos.ry() += delta;
+	if ( pos.y() >= QApplication::desktop()->geometry().bottom() ) {
+	    if ( mode == BottomLeft || mode == BottomRight ) {
+		moveOffset.ry() += delta;
+		invertedMoveOffset.ry() += delta;
+	    } else {
+		moveOffset.ry() -= delta;
+		invertedMoveOffset.ry() -= delta;
+	    }
+	}
+	if ( isResize() && !resizeVerticalDirectionFixed ) {
+	    resizeVerticalDirectionFixed = TRUE;
+	    if ( mode == TopLeft )
+		mode = BottomLeft;
+	    else if ( mode == TopRight )
+		mode = BottomRight;
+	    setMouseCursor( mode );
+	    grabMouse( cursor() );
+	}
+	break;
+    case Key_Space:
+    case Key_Return:
+    case Key_Enter:
+	moveResizeMode = FALSE;
+	releaseMouse();
+	releaseKeyboard();
+	buttonDown = FALSE;
+	break;
+    default:
+	return;
+    }
+    QCursor::setPos( pos );
+}
+
+
+void QWorkspaceChild::doResize()
+{
+    moveResizeMode = TRUE;
+    buttonDown = TRUE;
+    moveOffset = mapFromGlobal( QCursor::pos() );
+    if ( moveOffset.x() < width()/2) {
+	if ( moveOffset.y() < height()/2)
+	    mode = TopLeft;
+	else
+	    mode = BottomLeft;
+    } else {
+	if ( moveOffset.y() < height()/2)
+	    mode = TopRight;
+	else
+	    mode = BottomRight;
+    }
+    invertedMoveOffset = rect().bottomRight() - moveOffset;
+    setMouseCursor( mode );
+    grabMouse( cursor()  );
+    grabKeyboard();
+    resizeHorizontalDirectionFixed = FALSE;
+    resizeVerticalDirectionFixed = FALSE;
+}
+
+void QWorkspaceChild::doMove()
+{
+    mode = Center;
+    moveResizeMode = TRUE;
+    buttonDown = TRUE;
+    moveOffset = mapFromGlobal( QCursor::pos() );
+    invertedMoveOffset = rect().bottomRight() - moveOffset;
+    grabMouse( arrowCursor );
+    grabKeyboard();
+}
 
 #include "qworkspace.moc"

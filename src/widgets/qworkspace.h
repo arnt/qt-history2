@@ -44,7 +44,7 @@ public:
 
     QWidget* activeClient() const;
     QWidgetList clientList() const;
-    
+
     void setMaximizeControls( bool );
     bool maximizeControls() const;
 
@@ -60,6 +60,11 @@ protected:
 private slots:
     void closeActiveClient();
     void normalizeActiveClient();
+    void minimizeActiveClient();
+    void showOperationMenu(const QPoint&);
+    void showOperationMenu();
+    void activateNextClient();
+    void activatePreviousClient();
 
 private:
     void insertIcon( QWidget* w);
@@ -71,11 +76,12 @@ private:
     void hideMaximizeControls();
     void layoutIcons();
     QWorkspaceData* d;
-    void activateClient( QWidget* w);
+    void activateClient( QWidget* w, bool change_focus = FALSE);
     void showClient( QWidget* w);
     void maximizeClient( QWidget* w);
     void minimizeClient( QWidget* w);
     void normalizeClient( QWidget* w);
+    void popupOperationMenu( const QPoint&, bool down = TRUE );
     friend QWorkspaceChild;
 
 
