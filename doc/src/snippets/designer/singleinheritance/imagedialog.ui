@@ -112,8 +112,8 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="insertionPolicy" >
-        <enum>QComboBox::AtBottom</enum>
+       <property name="insertPolicy" >
+        <enum>QComboBox::InsertAtBottom</enum>
        </property>
       </widget>
      </item>
