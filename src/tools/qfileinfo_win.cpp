@@ -368,6 +368,7 @@ uint QFileInfo::groupId() const
 bool QFileInfo::permission( int p ) const
 {
     if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
+	PSID pOwner = 0;
 	PSID pGroup = 0;
 	PACL pDacl;
 	PSECURITY_DESCRIPTOR pSD;
@@ -379,13 +380,13 @@ bool QFileInfo::permission( int p ) const
 	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
 	    DWORD res = ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT,
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-		0, &pGroup, &pDacl, 0, &pSD );
+		&pOwner, &pGroup, &pDacl, 0, &pSD );
 
 	    if ( res == ERROR_SUCCESS ) {
 		TRUSTEE_W trustee;
 		if ( p & ( ReadUser | WriteUser | ExeUser) ) {
 		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &currentUserTrusteeW, &access_mask ) != ERROR_SUCCESS )
-			access_mask = (ACCESS_MASK)-1; // ###
+			access_mask = (ACCESS_MASK)-1;
 		    if ( ( p & ReadUser ) && !( access_mask & ReadMask )   ||
 			( p & WriteUser ) && !( access_mask & WriteMask ) ||
 			( p & ExeUser ) && !( access_mask & ExecMask )      ) {
@@ -393,10 +394,21 @@ bool QFileInfo::permission( int p ) const
 			return FALSE;
 		    }
 		}
+		if ( p & ( ReadOwner | WriteOwner | ExeOwner) ) {
+		    ptrBuildTrusteeWithSidW( &trustee, pOwner );
+		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &trustee, &access_mask ) != ERROR_SUCCESS )
+			access_mask = (ACCESS_MASK)-1;
+		    if ( ( p & ReadOwner ) && !( access_mask & ReadMask )   ||
+			( p & WriteOwner ) && !( access_mask & WriteMask ) ||
+			( p & ExeOwner ) && !( access_mask & ExecMask )      ) {
+			LocalFree( pSD );
+			return FALSE;
+		    }
+		}
 		if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
 		    ptrBuildTrusteeWithSidW( &trustee, pGroup );
 		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &trustee, &access_mask ) != ERROR_SUCCESS )
-			access_mask = (ACCESS_MASK)-1; // ###
+			access_mask = (ACCESS_MASK)-1;
 		    if ( ( p & ReadGroup ) && !( access_mask & ReadMask )   ||
 			( p & WriteGroup ) && !( access_mask & WriteMask ) ||
 			( p & ExeGroup ) && !( access_mask & ExecMask )      ) {
