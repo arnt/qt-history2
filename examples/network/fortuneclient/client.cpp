@@ -39,6 +39,7 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(statusLabel, 2, 0);
     mainLayout->addLayout(buttonLayout, 3, 0, 1, 2);
 
+    getFortuneButton->setFocus();
     setWindowTitle(tr("Fortune client"));
 }
 
@@ -51,14 +52,27 @@ void Client::requestNewFortune()
         return;
     }
 
+    blockSize = 0;
     tcpSocket->connectToHost(hostLineEdit->text(),
                              portLineEdit->text().toInt());
 }
 
 void Client::readFortune()
 {
-    QString nextFortune;
+    if (blockSize == 0) {
+        if (tcpSocket->bytesAvailable() < sizeof(Q_UINT16))
+            return;
 
+        Q_UINT16 blockSize;
+        QDataStream in(tcpSocket);
+        in.setVersion(7);
+        in >> blockSize;
+    }
+
+    if (tcpSocket->bytesAvailable() < blockSize)
+        return;
+
+    QString nextFortune;
     QDataStream in(tcpSocket);
     in >> nextFortune;
 
@@ -66,6 +80,7 @@ void Client::readFortune()
         requestNewFortune();
         return;
     }
+
     currentFortune = nextFortune;
     statusLabel->setText(currentFortune);
 }

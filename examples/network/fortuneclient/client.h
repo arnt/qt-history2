@@ -23,6 +23,7 @@ public slots:
 private:
     void showMessage(const QString &title, const QString &text);
 
+    int blockSize;
     QLabel *portLabel;
     QLabel *hostLabel;
     QLineEdit *portLineEdit;
