@@ -13,6 +13,7 @@ protected:
 
 private:
     void showTime();
+
     bool showingColon;
 };
 

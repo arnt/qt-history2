@@ -1,17 +1,17 @@
-#include <QTime>
+#include <QtCore>
 
 #include "digitalclock.h"
 
 DigitalClock::DigitalClock(QWidget *parent)
     : QLCDNumber(parent)
 {
-    setWindowTitle(tr("Qt Example - Digital Clock"));
     showingColon = true;
     showTime();
     startTimer(1000);
+    setWindowTitle(tr("Digital Clock"));
 }
 
-void DigitalClock::timerEvent(QTimerEvent * /*event*/)
+void DigitalClock::timerEvent(QTimerEvent *)
 {
     showTime();
 }

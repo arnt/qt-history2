@@ -1,7 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui>
+#include <QMainWindow>
+
+class QLabel;
+class QMenu;
 
 class MainWindow : public QMainWindow
 {
