@@ -27,6 +27,7 @@
 #include "qstylesheet.h"
 #include "qstyle.h"
 #include "qframe_p.h"
+#include <limits.h>
 #include "../text/qtextdocumentlayout_p.h"
 
 class QLabelPrivate : public QFramePrivate
