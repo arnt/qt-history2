@@ -698,7 +698,9 @@ bool QButton::hitButton( const QPoint &pos ) const
 
     \sa drawButtonLabel(), paintEvent()
 */
-
+#if (QT_VERSION-0 >= 0x040000)
+#error "QButton. Make pure virtual"
+#endif
 void QButton::drawButton( QPainter * )
 {
     return;
