@@ -1010,8 +1010,13 @@ QFileInfo::size() const
 /*!
     Returns the date and time when the file was created.
 
-    On platforms where this information is not available, returns the
-    same as lastModified().
+    On most Unix systems, this function returns the time of the last
+    status change. A status change occurs when the file is created,
+    but it also occurs whenever the user writes or sets inode
+    information (for example, changing the file permissions).
+
+    If neither creation time nor "last status change" time are not
+    available, returns the same as lastModified().
 
     \sa created() lastModified() lastRead()
 */
