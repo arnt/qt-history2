@@ -1122,7 +1122,7 @@ void QFontPrivate::computeLineWidth()
     if ( nlw < 2 && score >= 1050 ) nlw = 2;
     if ( nlw == 0 ) nlw = 1;
 
-    if (nlw > lineWidth) lineWidth = nlw;
+    if (nlw > lWidth) lWidth = nlw;
 }
 
 
@@ -2677,5 +2677,5 @@ int QFontMetrics::lineWidth() const
     // lazy computation of linewidth
     d->computeLineWidth();
     
-    return d->lineWidth;
+    return d->lWidth;
 }
