@@ -1857,7 +1857,12 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	}
 	if ( !reverse )
 	    r += iconWidth;
-	p->drawText( r, 0, width-marg-r, height(), align, t );
+
+	if ( !mlenabled ) {
+	    p->drawText( r, 0, width-marg-r, height(), align, t );
+	} else {
+	    p->drawText( r, marg, width-marg-r, height(), align, t );
+	}
     }
 }
 
