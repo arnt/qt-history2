@@ -89,6 +89,7 @@
 #include "qcleanuphandler.h"
 #include "qstyle.h"
 #include "qcursor.h"
+#include "qlibrary.h"
 
 #ifndef Q_OS_TEMP
 #include <time.h>
@@ -4876,6 +4877,20 @@ static void initPixmap( QPixmap &pm )
     pm.fill( Qt::white );
 }
 
+#ifdef UNICODE
+typedef UINT(WINAPI*PtrExtractIconExW)(LPCTSTR, int, HICON*, HICON*, UINT);
+static PtrExtractIconExW ptr_ExtractIconExW = 0;
+static PtrExtractIconExW ptrExtractIconExW()
+{
+    static bool tried = FALSE;
+    if ( !tried && !ptr_ExtractIconExW ) {
+	tried = TRUE;
+	ptr_ExtractIconExW = (PtrExtractIconExW)QLibrary::resolve( "shell32.dll", "ExtractIconExW" );
+    }
+    return ptr_ExtractIconExW;
+}
+#endif
+
 QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     : QFileIconProvider( parent, name )
 {
@@ -4906,8 +4921,8 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	QStringList lst = QStringList::split( ",", s );
 
 #ifdef UNICODE
-	if ( qt_winunicode ) 
-	    res = (UINT)ExtractIconEx( lst[ 0 ].simplifyWhiteSpace().ucs2(),
+	if ( qt_winunicode && ptrExtractIconExW() )
+	    res = (UINT)ptr_ExtractIconExW( lst[ 0 ].simplifyWhiteSpace().ucs2(),
 				  lst[ 1 ].simplifyWhiteSpace().toInt(),
 				  0, &si, 1 );
 	else
@@ -4934,8 +4949,8 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 
     //------------------------------- get default file pixmap
 #ifdef UNICODE
-    if ( qt_winunicode )
-	res = (UINT)ExtractIconEx( L"shell32.dll",
+	if ( qt_winunicode && ptrExtractIconExW() )
+	res = (UINT)ptr_ExtractIconExW( L"shell32.dll",
 				 0, 0, &si, 1 );
     else
 #endif
@@ -4957,8 +4972,8 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 
     //------------------------------- get default exe pixmap
 #ifdef UNICODE
-if ( qt_winunicode )
-	res = (UINT)ExtractIconEx( L"shell32.dll",
+    if ( qt_winunicode && ptrExtractIconExW() )
+	res = (UINT)ptr_ExtractIconExW( L"shell32.dll",
 			      2, 0, &si, 1 );
     else
 #endif
@@ -5049,8 +5064,8 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	}
 
 #ifdef UNICODE
-	if ( qt_winunicode )
-	    res = (UINT)ExtractIconEx( filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
+	if ( qt_winunicode && ptrExtractIconExW() )
+	    res = (UINT)ptr_ExtractIconExW( filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
 				  NULL, &si, 1 );
 	else
 #endif
@@ -5075,8 +5090,8 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	HICON si;
 	UINT res;
 #ifdef UNICODE
-	if ( qt_winunicode )
-	    res = (UINT)ExtractIconEx( fi.absFilePath().ucs2(), -1,
+	if ( qt_winunicode && ptrExtractIconExW() )
+	    res = (UINT)ptr_ExtractIconExW( fi.absFilePath().ucs2(), -1,
 				  0, 0, 1 );
 	else
 #endif
@@ -5087,8 +5102,8 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    return &defaultExe;
 	} else {
 #ifdef UNICODE
-	    if ( qt_winunicode )
-		res = (UINT)ExtractIconEx( fi.absFilePath().ucs2(), res - 1,
+	    if ( qt_winunicode && ptrExtractIconExW() )
+		res = (UINT)ptr_ExtractIconExW( fi.absFilePath().ucs2(), res - 1,
 				      0, &si, 1 );
 	    else
 #endif
