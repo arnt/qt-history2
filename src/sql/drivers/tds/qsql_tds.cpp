@@ -337,7 +337,8 @@ bool QTDSResult::reset ( const QString& query )
     setAt( QSql::BeforeFirst );
     dbcanquery( d->dbproc );
     dbfreebuf( d->dbproc );
-    if ( dbcmd( d->dbproc , query.local8Bit().data() ) == FAIL ) {
+    QByteArray s( query.local8Bit() );
+    if ( dbcmd( d->dbproc , s.detach() ) == FAIL ) {
 	setLastError( d->lastError );
 	return FALSE;
     }
@@ -512,11 +513,14 @@ bool QTDSDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
-    DBSETLPWD( d->login, password.local8Bit().data() );
-    DBSETLUSER( d->login, user.local8Bit().data() );
+    QByteArray s( password.local8Bit() );
+    DBSETLPWD( d->login, s.detach() );
+    s = user.local8Bit();
+    DBSETLUSER( d->login, s.detach() );
 //    DBSETLAPP( d->login, "QTDS7"); // we could set the name of the application here
 
-    d->dbproc = dbopen( d->login, host.local8Bit().data() );
+    s = host.local8Bit();
+    d->dbproc = dbopen( d->login, s.detach() );
     if ( !d->dbproc ) {
 	// we have to manually set the error here because the error handler won't fire when no dbproc exists
 	setLastError( QSqlError( QString::null,
@@ -525,7 +529,8 @@ bool QTDSDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
-    if ( dbuse( d->dbproc, db.local8Bit().data() ) == FAIL ) {
+    s = db.local8Bit();
+    if ( dbuse( d->dbproc, s.detach() ) == FAIL ) {
 	setLastError( QSqlError( QString::null,
 				 qApp->translate( "QSql", "Could not open database" ),
 				 QSqlError::Connection ) );
@@ -559,8 +564,9 @@ QSqlQuery QTDSDriver::createQuery() const
 {
     QTDSPrivate d2;
     d2.login = d->login;
-    
-    d2.dbproc = dbopen( d2.login, hostName.local8Bit().data() );
+
+    QByteArray s( hostName.local8Bit() );
+    d2.dbproc = dbopen( d2.login, s.detach() );
     if ( !d2.dbproc ) {
 	return QSqlQuery( (QSqlResult *) 0 );
     }
@@ -758,7 +764,7 @@ QString QTDSDriver::formatValue( const QSqlField* field,
 	QByteArray ba = field->value().toByteArray();
 	QString res;
 	static const char hexchars[] = "0123456789abcdef";
-	for ( uint i = 0; i < ba.size(); ++i ) {
+	for ( uint i = 0; i < (uint)ba.size(); ++i ) {
 	    uchar s = (uchar) ba[(int)i];
 	    res += hexchars[s >> 4];
 	    res += hexchars[s & 0x0f];
