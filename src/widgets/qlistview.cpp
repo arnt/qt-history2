@@ -2554,6 +2554,8 @@ void QListView::init()
 	     this, SLOT(triggerUpdate()) );
     connect( d->h, SIGNAL(sectionClicked( int )),
 	     this, SLOT(changeSortColumn( int )) );
+    connect( d->h, SIGNAL(sectionHandleDoubleClicked( int )),
+	     this, SLOT(adjustColumn( int )) );
     connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)),
 	     d->h, SLOT(setOffset(int)) );
     connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
@@ -7778,6 +7780,32 @@ void QListView::windowActivationChange( bool oldActive )
 void QListView::hideColumn( int column )
 {
     setColumnWidth( column, 0 );
+}
+
+/*! Adjusts the column \a col to its preferred width */
+
+void QListView::adjustColumn( int col )
+{
+    if ( d->h->isStretchEnabled( col ) )
+	return;
+
+    int oldw = d->h->sectionSize( col );
+
+    int w = d->h->sectionSizeHint( col, fontMetrics() ).width();
+    if ( d->h->iconSet( col ) )
+	w += d->h->iconSet( col )->pixmap().width();
+    w = QMAX( w, 20 );
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	int iw = it.current()->width( fontMetrics(), this, col );
+	iw += itemMargin() + ( it.current()->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1;
+	w = QMAX( w, iw );
+	++it;
+    }
+    w = QMAX( w, QApplication::globalStrut().width() );
+    setColumnWidth( col, w );
+
+    d->h->adjustHeaderSize( oldw - w );
 }
 
 #endif // QT_NO_LISTVIEW

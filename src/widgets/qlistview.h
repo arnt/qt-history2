@@ -362,6 +362,7 @@ public slots:
     virtual void selectAll( bool select );
     void triggerUpdate();
     void setContentsPos( int x, int y );
+    void adjustColumn( int col );
 
 signals:
     void selectionChanged();

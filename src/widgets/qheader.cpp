@@ -336,6 +336,13 @@ void QHeader::showEvent( QShowEvent *e )
 */
 
 /*!
+    \fn void QHeader::sectionHandleDoubleClicked( int section )
+
+    This signal is emitted when the user doubleclicks on the edge
+    (handle) of section \a section.
+*/
+
+/*!
   \obsolete
 
   Use sectionPos() instead.
@@ -810,6 +817,23 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+/*! \reimp */
+
+void QHeader::mouseDoubleClickEvent( QMouseEvent *e )
+{
+    int c = orient == Horizontal ? e->pos().x() : e->pos().y();
+    c += offset();
+    if( reverse() )
+	c = d->lastPos - c;
+
+    int sec = -1;
+    if ( handleIdx != -1 )
+	sec = d->i2s[handleIdx];
+    else
+	sec = d->sectionAt( c );
+    emit sectionHandleDoubleClicked( sec );
+}
+
 /*
   Handles resizing of sections. This means it redraws the relevant parts
   of the header.
@@ -819,7 +843,8 @@ void QHeader::handleColumnResize( int index, int c, bool final, bool recalcAll )
 {
     int section = d->i2s[index];
     int lim = d->positions[index] +  2*GRIPMARGIN;
-    if ( c == lim ) return;
+    if ( c == lim )
+	return;
     if ( c < lim ) c = lim;
     int oldSize = d->sizes[section];
     int newSize = c - d->positions[index];

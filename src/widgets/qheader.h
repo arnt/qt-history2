@@ -54,6 +54,7 @@ class Q_EXPORT QHeader : public QWidget
 {
     friend class QTable;
     friend class QTableHeader;
+    friend class QListView;
 
     Q_OBJECT
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
@@ -132,6 +133,7 @@ signals:
     void	indexChange( int section, int fromIndex, int toIndex );
     void	sectionClicked( int ); // obsolete, do not use
     void	moved( int, int ); // obsolete, do not use
+    void	sectionHandleDoubleClicked( int section );
 
 protected:
     void	paintEvent( QPaintEvent * );
@@ -147,6 +149,7 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
+    void	mouseDoubleClickEvent( QMouseEvent * );
 
     void	keyPressEvent( QKeyEvent * );
     void	keyReleaseEvent( QKeyEvent * );
