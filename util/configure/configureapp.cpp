@@ -457,7 +457,17 @@ bool ConfigureApp::displayHelp()
 	cout << "                    " << modules.join( " " ) << endl << endl;
 
 	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
-	cout << "                    " << modules.join( " " ) << endl << endl << endl;
+	cout << "                    " << modules.join( " " ) << endl << endl;
+
+	cout << "-qt-sql-*	     Build the specified Sql driver into Qt" << endl;
+	cout << "-plugin-sql-*	     Build the specified Sql driver into a plugin" << endl;
+	cout << "-no-sql-*	   * Don't build the specified Sql driver" << endl;
+	cout << "		     where sql driver is one of mysql, psql, oci, odbc, tds" << endl << endl;
+	
+	cout << "-qt-style-*	   * Build the specified style into Qt" << endl;
+	cout << "-plugin-style-*     Build the specified style into a plugin" << endl;
+	cout << "-no-style-*	     Don't build the specified style" << endl;
+	cout << "                    where style is one of windows, motif, cde, sgi, motifplus, platinum" << endl << endl;
 
 	cout << "-redo               Run configure with the same parameters as last time." << endl << endl;
 	return true;
