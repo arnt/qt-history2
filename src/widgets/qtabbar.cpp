@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#34 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#34 $");
 
 
 QTab::~QTab()
@@ -503,7 +503,7 @@ void QTabBar::show()
   the user can see the relevant page, or that the tab \link
   isTabEnabled() is enabled.\endlink
 
-  When when you need to display something, the return value from this
+  When you need to display something, the return value from this
   function represents the best page to display.  That's all.
 
   \sa selected()
