@@ -269,6 +269,15 @@ void QProcess::clearArguments()
   is the command to be executed. The other elements in the list are the
   arguments to the command. Any previous arguments are deleted.
 
+  QProcess does not make any substitution of the arguments: if you specify "*"
+  or "$DISPLAY", these values are passed to the process literally. If you want
+  to have the same behavior as on the shell, you have to do the substitution
+  yourself; i.e. instead of specifying a "*" you have to specify the list of
+  all filenames and instead of the "$DISPLAY" you have to specify the value of
+  the environment variable \c DISPLAY. The same applies for Windows, although a
+  literal "*" as an argument is usually understood and substituted by Windows
+  programs.
+
   \sa arguments() addArgument()
 */
 void QProcess::setArguments( const QStringList& args )
