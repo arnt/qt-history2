@@ -220,19 +220,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
     }
 
-    char title[2];
-    title[0]=0;
-    title[1]='\0';
-    unsigned char visible=0;
-    short procid;
-    if ( popup || testWFlags(WStyle_Tool ) ) {
-	procid = plainDBox;
-    } else {
-	procid = zoomDocProc;
-    }
-
-    WindowPtr behind = (WindowPtr)-1;
-    unsigned char goaway=true;
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
@@ -253,9 +240,47 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
     } else if( !parentWidget() || (popup || dialog) ) {
 	own_id = 1; //I created it, I own it
-	SetRect( &boundsRect, 50, 50, 600, 200 );
-	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
-			      visible, procid, behind, goaway, 0);
+
+	Rect r; 
+	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
+
+
+	WindowClass wclass = kSheetWindowClass;
+	if(testWFlags( WStyle_Tool ) || testWFlags(WType_Popup) ) 
+	    wclass = kSheetWindowClass;
+	else if(testWFlags(WType_Modal)) 
+	    wclass = kModalWindowClass;
+	else if(testWFlags(WType_TopLevel)) 
+	    wclass = kDocumentWindowClass;
+	else if(testWFlags(WType_Desktop)) 
+	    wclass = kDesktopWindowClass;
+
+	WindowAttributes wattr = kWindowNoAttributes;
+	if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
+	    if(wclass == kDocumentWindowClass ) 
+		wattr |= kWindowStandardDocumentAttributes;	
+	} else if( testWFlags(WStyle_Customize) ) {
+	    if(testWFlags( WStyle_NoBorder ) || testWFlags( WStyle_NoBorderEx) ) 
+		wclass = kSheetWindowClass;
+
+	    //FIXME need to handle stays on top flag
+#if 0
+	    if( testWFlags( WStyle_StaysOnTop ) ) {
+		wclass = kFloatingWindowClass;
+		if(!testWFlags( WStyle_NoBorder) && !testWFlags( WStyle_NoBorderEx) ) 
+		    wattr |= kWindowStandardFloatingAttributes;
+	    }
+#endif
+
+	    if( testWFlags( WStyle_Maximize ) ) 
+		wattr |= kWindowFullZoomAttribute;
+	    if( testWFlags( WStyle_Minimize ) ) 
+		wattr |= kWindowCollapseBoxAttribute;
+	    if( testWFlags( WStyle_SysMenu ) ) 
+		wattr |= kWindowCloseBoxAttribute;
+	}
+	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
+
 	hd = (void *)id;
 	setWinId(id);
 	InstallWindowContentPaintProc((WindowPtr)hd, macSpecialErase, 0, this);
@@ -280,10 +305,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     dirtyClippedRegion(TRUE);
     macDropEnabled = false;
 
-    if ( destroyw ) {
-	qDebug("Disposing of window %d %s %s %s:%d", destroyw, name(), className(), __FILE__, __LINE__);
+    if ( destroyw ) 
 	DisposeWindow((WindowPtr)destroyw);
-    }
 }
 
 void qt_mac_destroy_widget(QWidget *w);
@@ -316,10 +339,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	} else {
-	    if ( destroyWindow && isTopLevel() && hd && own_id) {
-		qDebug("Disposing of window %d %s %s %s:%d", hd, name(), className(), __FILE__, __LINE__);
+	    if ( destroyWindow && isTopLevel() && hd && own_id) 
 	        DisposeWindow( (WindowPtr)hd );
-	    }
 	}
 
     }
@@ -359,10 +380,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
-    if ( old_winid && own_id && isTopLevel() ) {
-	qDebug("Disposing of window %d %s %s %s:%d", old_winid, name(), className(), __FILE__, __LINE__);
+    if ( old_winid && own_id && isTopLevel() ) 
 	DisposeWindow( (WindowPtr)old_winid );
-    }
 
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
