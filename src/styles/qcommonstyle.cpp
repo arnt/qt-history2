@@ -372,7 +372,6 @@ void QCommonStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, c
 
 void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb )
 {
-    QRect		r = gb->frameRect();
     QPoint		p1, p2;
     QFrame::Shape	type  = gb->frameShape();
     QFrame::Shadow	cstyle = gb->frameShadow();
@@ -382,54 +381,53 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, c
     switch ( type ) {
     case QFrame::Box:
         if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
         else
-            qDrawShadeRect( p, r, g, cstyle == QFrame::Sunken, lwidth,
-                            mlwidth );
+            qDrawShadeRect( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth, mlwidth );
         break;
 
     case QFrame::StyledPanel:
         if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
         else
-            drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == QFrame::Sunken, lwidth );
+            drawPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
         break;
 
     case QFrame::PopupPanel:
         if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
         else
-            drawPopupPanel( p, r.x(), r.y(), r.width(), r.height(), g, lwidth );
+            drawPopupPanel( p, x, y, w, h, g, lwidth );
         break;
 
     case QFrame::Panel:
         if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
         else
-            qDrawShadePanel( p, r, g, cstyle == QFrame::Sunken, lwidth );
+            qDrawShadePanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
         break;
 
     case QFrame::WinPanel:
         if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, r, g.foreground(), 2 );
+            qDrawPlainRect( p, x, y, w, h, g.foreground(), 2 );
         else
-            qDrawWinPanel( p, r, g, cstyle == QFrame::Sunken );
+            qDrawWinPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken );
         break;
     case QFrame::MenuBarPanel:
-        drawMenuBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+        drawMenuBarPanel( p, x, y, w, h, g );
         break;
     case QFrame::ToolBarPanel:
-        drawToolBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+        drawToolBarPanel( p, x, y, w, h, g );
         break;
     case QFrame::HLine:
     case QFrame::VLine:
         if ( type == QFrame::HLine ) {
-            p1 = QPoint( r.x(), r.height()/2 );
-            p2 = QPoint( r.x()+r.width(), p1.y() );
+            p1 = QPoint( x, h/2 );
+            p2 = QPoint( x+w, p1.y() );
         }
         else {
-            p1 = QPoint( r.x()+r.width()/2, 0 );
-            p2 = QPoint( p1.x(), r.height() );
+            p1 = QPoint( x+w/2, 0 );
+            p2 = QPoint( p1.x(), h );
         }
         if ( cstyle == QFrame::Plain ) {
             QPen oldPen = p->pen();
