@@ -8,5 +8,5 @@
 \input qmake-tutorial.leaf
 \input qmake-concepts.leaf
 \input qmake-advanced.leaf
-\input qmake-commandreference.leaf
 \input qmake-pch.leaf
+\input qmake-commandreference.leaf
