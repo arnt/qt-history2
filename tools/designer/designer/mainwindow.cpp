@@ -89,6 +89,7 @@
 #include <qtimer.h>
 #include <qlistbox.h>
 #include <stdlib.h>
+#include <qdockwidget.h>
 
 static int forms = 0;
 
@@ -172,7 +173,9 @@ MainWindow::MainWindow( bool asClient )
     setupHierarchyView();
     setupFormList();
 
-    resize( QSize( 1000, 800 ).boundedTo( qApp->desktop()->size() ) );
+    QSize as( qApp->desktop()->size() );
+    as -= QSize( 30, 30 );
+    resize( QSize( 1000, 800 ).boundedTo( as ) );
 
     connect( qApp->clipboard(), SIGNAL( dataChanged() ),
 	     this, SLOT( clipboardChanged() ) );
@@ -964,8 +967,14 @@ void MainWindow::setupHelpActions()
 
 void MainWindow::setupPropertyEditor()
 {
-    propertyEditor = new PropertyEditor( workspace );
-    propertyEditor->resize( 300, 600 );
+    QDockWidget *dw = new QDockWidget;
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseEnabled( TRUE );
+    propertyEditor = new PropertyEditor( dw );
+    addToolBar( dw, Qt::Left );
+    dw->setWidget( propertyEditor );
+    dw->setFixedExtendWidth( 300 );
+    dw->setFixedExtendHeight( 600 );
     QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
 					"<p>You can change the appearance and behaviour of the selected widget in the "
 					"property editor.</p>"
@@ -985,9 +994,15 @@ void MainWindow::setupHierarchyView()
 {
     if ( hierarchyView )
 	return;
-    hierarchyView = new HierarchyView( workSpace() );
+    QDockWidget *dw = new QDockWidget;
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseEnabled( TRUE );
+    hierarchyView = new HierarchyView( dw );
+    addToolBar( dw, Qt::Right );
+    dw->setWidget( hierarchyView );
+    
     hierarchyView->setCaption( tr( "Object Hierarchy" ) );
-    hierarchyView->resize( 300, 500 );
+    dw->setFixedExtendWidth( 300 );
     hvGeom = QRect( -1, -1, 300, 500 );
     QWhatsThis::add( hierarchyView, tr("<b>The Hierarchy View</b>"
 				      "<p>The object hierarchy gives a quick overview about the relations "
@@ -1002,9 +1017,15 @@ void MainWindow::setupHierarchyView()
 
 void MainWindow::setupFormList()
 {
-    formList = new FormList( workSpace(), this );
+    QDockWidget *dw = new QDockWidget;
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseEnabled( TRUE );
+    formList = new FormList( dw, this );
+    addToolBar( dw, Qt::Left );
+    dw->setWidget( formList );
+    dw->show();
+    
     formList->setCaption( tr( "Forms" ) );
-    formList->resize( 600, 300 );
     flGeom = QRect( -1, -1, 600, 300 );
     QWhatsThis::add( formList, tr("<b>The Form List</b>"
 				  "<p>The Form List displays the filenames of all open forms, and a flag indicates "
