@@ -607,6 +607,8 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
 }
 
+#ifndef QT_NO_COMPAT
+
 QIconSet QToolButton::onIconSet() const
 {
     return iconSet();
@@ -616,6 +618,7 @@ QIconSet QToolButton::offIconSet( ) const
 {
     return iconSet();
 }
+
 
 /*!
   \property QToolButton::onIconSet
@@ -665,6 +668,8 @@ void QToolButton::setOffIconSet( const QIconSet& set )
     setIconSet( set );
 }
 
+#endif
+
 /*! \property QToolButton::iconSet
     \brief the icon set providing the icon shown on the button
 
@@ -694,11 +699,16 @@ void QToolButton::setIconSet( const QIconSet & set )
 
   \sa iconSet QIconSet::State
 */
+
+#ifndef QT_NO_COMPAT
+
 void QToolButton::setIconSet( const QIconSet & set, bool /* on */ )
 {
     setIconSet( set );
     qWarning( "QToolButton::setIconSet(): 'on' parameter ignored" );
 }
+
+#endif
 
 QIconSet QToolButton::iconSet() const
 {
@@ -721,6 +731,7 @@ QIconSet QToolButton::iconSet() const
     return QIconSet();
 }
 
+#ifndef QT_NO_COMPAT
 /*! \overload
     \obsolete
 
@@ -735,6 +746,8 @@ QIconSet QToolButton::iconSet( bool /* on */ ) const
 {
     return iconSet();
 }
+
+#endif
 
 #ifndef QT_NO_POPUPMENU
 /*!

@@ -394,7 +394,7 @@ QAction::QAction( const QString& text, const QString& menuText, QKeySequence acc
 void QAction::init()
 {
     if ( parent() && parent()->inherits("QActionGroup") ) {
-	((QActionGroup*) parent())->insert( this );		// insert into action group
+	((QActionGroup*) parent())->add( this );		// insert into action group
     }
 }
 

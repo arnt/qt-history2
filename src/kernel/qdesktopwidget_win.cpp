@@ -103,7 +103,7 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
-    rects = new QArray<QRect>();
+    rects = new QMemArray<QRect>();
     if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
 	rects->resize( screenCount );

@@ -743,7 +743,7 @@ void QFDProgressAnimation::paintEvent( QPaintEvent * )
 }
 
 
-class QFDProgressDialog : public QSemiModal
+class QFDProgressDialog : public QDialog
 {
     Q_OBJECT
 
@@ -766,7 +766,7 @@ private:
 };
 
 QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int steps )
-    : QSemiModal( parent, "", TRUE )
+    : QDialog( parent, "", TRUE )
 {
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setCaption( QFileDialog::tr( "Copy or Move a File" ) );
@@ -1125,7 +1125,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     int i = currentItem();
     bool wasSelected = FALSE;
     if ( i != -1 )
-	wasSelected = item( i )->selected();
+	wasSelected = item( i )->isSelected();
     QListBox::viewportMousePressEvent( e );
 
     QFileDialogPrivate::MCItem *i1 = (QFileDialogPrivate::MCItem*)item( currentItem() );
@@ -1272,7 +1272,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     }
 
     QStrList l;
-    QUrlDrag::decode( e, l );
+    QUriDrag::decode( e, l );
 
     bool move = e->action() == QDropEvent::Move;
 //     bool supportAction = move || e->action() == QDropEvent::Copy;
@@ -1681,7 +1681,7 @@ void QFileDialogQFileListView::viewportDropEvent( QDropEvent *e )
     }
 
     QStringList l;
-    QUrlDrag::decodeToUnicodeUris( e, l );
+    QUriDrag::decodeToUnicodeUris( e, l );
 
     bool move = e->action() == QDropEvent::Move;
 //     bool supportAction = move || e->action() == QDropEvent::Copy;
@@ -3699,7 +3699,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	detailViewSelectionChanged();
     } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
-	if ( !i->i->selected() ) {
+	if ( !i->i->isSelected() ) {
 	    d->moreFiles->blockSignals( TRUE );
 	    d->moreFiles->setSelected( i->i, TRUE );
 	    d->moreFiles->blockSignals( FALSE );
@@ -3721,7 +3721,7 @@ void QFileDialog::detailViewSelectionChanged()
     d->moreFiles->blockSignals( TRUE );
     while( i ) {
 	if ( d->moreFiles && isVisible() ) {
-	    if ( ( (QFileDialogPrivate::File *)i )->i->selected() != i->isSelected() )
+	    if ( ( (QFileDialogPrivate::File *)i )->i->isSelected() != i->isSelected() )
 		d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)i )->i, i->isSelected() );
 	}
 	if ( i->isSelected() && !( (QFileDialogPrivate::File *)i )->info.isDir() )
@@ -3759,8 +3759,8 @@ void QFileDialog::listBoxSelectionChanged()
     files->blockSignals( TRUE );
     while( i ) {
 	if ( files && isVisible() ) {
-	    if ( ( (QFileDialogPrivate::MCItem *)i )->i->isSelected() != i->selected() )
-		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
+	    if ( ( (QFileDialogPrivate::MCItem *)i )->i->isSelected() != i->isSelected() )
+		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->isSelected() );
 	}
 	if ( d->moreFiles->isSelected( i )
 	&& !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
@@ -3792,7 +3792,7 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
 	return;
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
     if ( d->mode != ExistingFiles ) {
-	i->i->listView()->setSelected( i->i, i->selected() );
+	i->i->listView()->setSelected( i->i, i->isSelected() );
 	updateFileNameEdit( i->i );
     }
 }
@@ -3869,7 +3869,7 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 	return;
 
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    i->i->listView()->setSelected( i->i, i->selected() );
+    i->i->listView()->setSelected( i->i, i->isSelected() );
     selectDirectoryOrFile( i->i );
 }
 
@@ -5028,7 +5028,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
-	if ( ( nameEdit->cursorPosition() == (int)nameEdit->text().length() || nameEdit->hasMarkedText() ) &&
+	if ( ( nameEdit->cursorPosition() == (int)nameEdit->text().length() || nameEdit->hasSelectedText() ) &&
 	     isprint(((QKeyEvent *)e)->ascii()) ) {
 #if defined(_WS_WIN_)
 	    QString nt( nameEdit->text().lower() );
@@ -5709,7 +5709,7 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 	delete d->infoPreviewer;
     d->infoPreviewWidget = w;
     d->infoPreviewer = preview;
-    w->recreate( d->preview, 0, QPoint( 0, 0 ) );
+    w->reparent( d->preview, 0, QPoint( 0, 0 ) );
 }
 
 /*!
@@ -5767,7 +5767,7 @@ void QFileDialog::setContentsPreview( QWidget *w, QFilePreview *preview )
 	delete d->contentsPreviewer;
     d->contentsPreviewWidget = w;
     d->contentsPreviewer = preview;
-    w->recreate( d->preview, 0, QPoint( 0, 0 ) );
+    w->reparent( d->preview, 0, QPoint( 0, 0 ) );
 }
 
 /*!

@@ -814,7 +814,7 @@ QWidget::~QWidget()
     // Remove myself and all children from the can-take-focus list
     QFocusData *f = focusData( FALSE );
     if ( f ) {
-	QListIterator<QWidget> it(f->focusWidgets);
+	QPtrListIterator<QWidget> it(f->focusWidgets);
 	QWidget *w;
 	while ( (w = it.current()) ) {
 	    ++it;
@@ -3455,9 +3455,9 @@ void QWidget::show()
 		    s.setHeight( heightForWidth( s.width() ) );
 		exp = sizePolicy().expanding();
 	    }
-	if ( exp & QSizePolicy::Horizontal )
+	if ( exp & QSizePolicy::Horizontally )
 	    s.setWidth( QMAX( s.width(), 200 ) );
-	if ( exp & QSizePolicy::Vertical )
+	if ( exp & QSizePolicy::Vertically )
 	    s.setHeight( QMAX( s.height(), 150 ) );
 	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
 	s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
@@ -3616,7 +3616,7 @@ void QWidget::hide()
 
     sendHideEventsToChildren( FALSE );
 
-    if ( testWFlags(WType_Modal) )
+    if ( testWFlags(WType_Dialog) && testWFlags(WShowModal) )
 	qt_leave_modal( this );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -5270,7 +5270,7 @@ void QWidget::showFullScreen()
     }
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
-    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorderEx |
+    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 	      // preserve some widget flags
 	      (getWFlags() & 0xffff0000),
 	      QPoint(0,0) );

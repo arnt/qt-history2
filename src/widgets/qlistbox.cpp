@@ -1915,7 +1915,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	 && !( e->state() & ControlButton ) )
 	clearSelection();
 
-    d->select = d->selectionMode == Multi ? ( i ? !i->selected() : FALSE ) : TRUE;
+    d->select = d->selectionMode == Multi ? ( i ? !i->isSelected() : FALSE ) : TRUE;
     d->pressedSelected = i && i->s;
 
     if ( i )
@@ -1935,7 +1935,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	    if ( i ) {
 		if ( !(e->state() & QMouseEvent::ShiftButton) &&
 		     !(e->state() & QMouseEvent::ControlButton) ) {
-		    if ( !i->selected() ) {
+		    if ( !i->isSelected() ) {
 			bool b = signalsBlocked();
 			blockSignals( TRUE );
 			clearSelection();
@@ -1943,7 +1943,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		    }
 		    setSelected( i, TRUE );
 		} else if ( e->state() & ControlButton ) {
-		    setSelected( i, !i->selected() );
+		    setSelected( i, !i->isSelected() );
 		    d->pressedSelected = FALSE;
 		} else if ( e->state() & ShiftButton ) {
 		    d->pressedSelected = FALSE;
@@ -2822,7 +2822,7 @@ void QListBox::invertSelection()
     bool b = signalsBlocked();
     blockSignals( TRUE );
     for ( int i = 0; i < (int)count(); i++ )
-	setSelected( i, !item( i )->selected() );
+	setSelected( i, !item( i )->isSelected() );
     blockSignals( b );
     emit selectionChanged();
 }
@@ -3555,7 +3555,7 @@ void QListBox::refreshSlot()
 	top++;
     QListBoxItem * i = item( col * numRows() );
 
-    while ( i && (int)col < numCols() &&
+    while ( i && (int)col < numColumns() &&
 	    d->columnPos[col] < x + visibleWidth()  ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
 	while ( i && row < top ) {
@@ -3624,7 +3624,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     const QColorGroup & g = colorGroup();
     p.setPen( g.text() );
     p.setBackgroundColor( g.base() );
-    while ( i && (int)col < numCols() && d->columnPos[col] < x + w ) {
+    while ( i && (int)col < numColumns() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
 	while ( i && row < top ) {
 	    i = i->n;
@@ -3764,6 +3764,8 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 }
 
 
+#ifndef QT_NO_COMPAT
+
 /*!
   \obsolete
 
@@ -3796,7 +3798,6 @@ int QListBox::inSort( const QListBoxItem * lbi )
     return c;
 }
 
-
 /*!
   \obsolete
   \overload
@@ -3817,6 +3818,8 @@ int QListBox::inSort( const QString& text )
     qObsolete( "QListBox", "inSort", "insertItem" );
     return inSort( new QListBoxText(text) );
 }
+
+#endif 
 
 
 /*! \reimp */
@@ -3917,7 +3920,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 
 	style().drawPrimitive( QStyle::PE_FocusRect, p, QRect( 0, 0, cw, ch ), g,
 			       QStyle::Style_FocusAtBorder,
-				QStyleOption(i->selected() ? g.highlight() : g.base()) );
+				QStyleOption(i->isSelected() ? g.highlight() : g.base()) );
     }
 
     p->restore();
@@ -3951,6 +3954,8 @@ void QListBox::showEvent( QShowEvent * )
     ensureCurrentVisible();
 }
 
+#ifndef QT_NO_COMPAT
+
 /*!
   \obsolete
 
@@ -3969,6 +3974,7 @@ bool QListBox::itemYPos( int index, int *yPos ) const
     return TRUE;
 }
 
+#endif
 
 /*! \fn bool QListBoxItem::isSelected() const
   Returns TRUE if the item is selected; otherwise returns FALSE.
@@ -4220,11 +4226,11 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 	ir = itemRect( i );
 	if ( ir == QRect( 0, 0, -1, -1 ) )
 	    continue;
-	if ( i->selected() && !ir.intersects( rubber ) && ir.intersects( old ) ) {
+	if ( i->isSelected() && !ir.intersects( rubber ) && ir.intersects( old ) ) {
 	    i->s = FALSE;
 	    pr = pr.unite( ir );
 	    changed = TRUE;
-	} else if ( !i->selected() && ir.intersects( rubber ) ) {
+	} else if ( !i->isSelected() && ir.intersects( rubber ) ) {
 	    if ( i->isSelectable() ) {
 		i->s = TRUE;
 		pr = pr.unite( ir );

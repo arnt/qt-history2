@@ -2369,7 +2369,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 	QString result;
 	while( (mf = it.current()) != 0 ) {
 	    ++it;
-	    result = mf->find( context, sourceText, comment );
+	    result = mf->findMessage( context, sourceText, comment ).translation();
 	    if ( !result.isNull() )
 		return result;
 	}

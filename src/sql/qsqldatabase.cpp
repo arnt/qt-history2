@@ -514,7 +514,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
     if ( !d->driver ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QSqlDatabase warning: %s driver not loaded", type.data() );
+	qWarning( "QSqlDatabase warning: %s driver not loaded", type.latin1() );
 	qWarning( "QSqlDatabase: available drivers: " + drivers().join(" ") );
 #endif
 	d->driver = new QNullDriver();

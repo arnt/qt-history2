@@ -3459,7 +3459,7 @@ bool QRegExp::exactMatch( const QString& str ) const
   \sa QString::mid() QConstString
 */
 int QRegExp::match( const QString& str, int index, int *len,
-		    bool indexIsStart )
+		    bool indexIsStart ) const
 {
     int pos;
     if ( indexIsStart ) {
@@ -3558,7 +3558,7 @@ int QRegExp::searchRev( const QString& str, int start ) const
 
   \sa exactMatch() search() searchRev()
 */
-int QRegExp::matchedLength()
+int QRegExp::matchedLength() const
 {
     return priv->captured[1];
 }

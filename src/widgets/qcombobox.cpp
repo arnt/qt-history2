@@ -1962,9 +1962,8 @@ void QComboBox::setUpListBox()
 {
     d->setListBox( new QListBox( this, "in-combo", WType_Popup ) );
     d->listBox()->setFont( font() );
-    d->listBox()->setAutoScrollBar( FALSE );
-    d->listBox()->setBottomScrollBar( FALSE );
-    d->listBox()->setAutoBottomScrollBar( FALSE );
+    d->listBox()->setVScrollBarMode( QListBox::AlwaysOff );
+    d->listBox()->setHScrollBarMode( QListBox::AlwaysOff );
     d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox()->setLineWidth( 1 );
     d->listBox()->resize( 100, 10 );

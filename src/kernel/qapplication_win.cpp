@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#552 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#553 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2592,7 +2592,7 @@ void QApplication::closePopup( QWidget *popup )
 // Internal data structure for timers
 //
 
-#include "qvector.h"
+#include "qptrvector.h"
 #include "qintdict.h"
 
 struct TimerInfo {				// internal timer info
@@ -2601,7 +2601,7 @@ struct TimerInfo {				// internal timer info
     bool     zero;				// - zero timing
     QObject *obj;				// - object to receive events
 };
-typedef QVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
+typedef QPtrVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
 typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
 
 static TimerVec  *timerVec  = 0;		// timer vector

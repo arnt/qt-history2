@@ -1062,6 +1062,8 @@ bool QFont::rawMode() const
 }
 
 
+#ifndef QT_NO_COMPAT
+
 /*! \obsolete
 
   Please use QApplication::font() instead.
@@ -1082,7 +1084,7 @@ void  QFont::setDefaultFont( const QFont &f )
 }
 
 
-
+#endif
 
 
 

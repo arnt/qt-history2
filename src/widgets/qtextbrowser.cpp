@@ -415,9 +415,9 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     // how many window system problems it skirts around.
 
     QPainter p( popup );
-    p.setPen( QApplication::palette().normal().foreground() );
+    p.setPen( QApplication::palette().active().foreground() );
     p.drawRect( 0, 0, w, h );
-    p.setPen( QApplication::palette().normal().mid() );
+    p.setPen( QApplication::palette().active().mid() );
     p.setBrush( QColor( 255, 255, 240 ) );
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );

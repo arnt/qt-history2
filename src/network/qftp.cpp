@@ -386,7 +386,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     QDate date;
     int month = 1, day;
     for ( uint i = 1; i <= 12; ++i ) {
-	if ( date.monthName( i ) == lst[ 5 ] ) {
+	if ( date.shortMonthName( i ) == lst[ 5 ] ) {
 	    month = i;
 	    break;
 	}

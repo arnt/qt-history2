@@ -41,7 +41,7 @@
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
-#include "qqueue.h"
+#include "qptrqueue.h"
 #include "qtimer.h"
 #include "qregexp.h"
 #include "qt_windows.h"
@@ -122,7 +122,7 @@ public:
     QByteArray bufStdout;
     QByteArray bufStderr;
 
-    QQueue<QByteArray> stdinBuf;
+    QPtrQueue<QByteArray> stdinBuf;
 
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];

@@ -13926,7 +13926,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
     QRegExp sep(reg);
     sep.setCaseSensitive(!(flags & SectionCaseInsensitiveSeps));
 
-    QList<section_chunk> l;
+    QPtrList<section_chunk> l;
     l.setAutoDelete(TRUE);
     int n = length(), m = 0, last_m = 0, end = 0, last_len = 0;
 

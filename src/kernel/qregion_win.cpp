@@ -373,9 +373,9 @@ QRect QRegion::boundingRect() const
 }
 
 
-QArray<QRect> QRegion::rects() const
+QMemArray<QRect> QRegion::rects() const
 {
-    QArray<QRect> a;
+    QMemArray<QRect> a;
     if ( data->rgn == 0 )
 	return a;
 
@@ -393,7 +393,7 @@ QArray<QRect> QRegion::rects() const
 	return a;
     }
 
-    a = QArray<QRect>( rd->rdh.nCount );
+    a = QMemArray<QRect>( rd->rdh.nCount );
     RECT *r = (RECT*)rd->Buffer;
     for ( int i=0; i<(int)a.size(); i++ ) {
 	a[i].setCoords( r->left, r->top, r->right, r->bottom);

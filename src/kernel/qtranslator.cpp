@@ -803,7 +803,7 @@ void QTranslator::unsqueeze()
 bool QTranslator::contains( const char* context, const char* sourceText,
 			    const char* comment ) const
 {
-    return find( context, sourceText, comment ) != QString::null;
+    return findMessage( context, sourceText, comment ).translation() != QString::null;
 }
 
 

@@ -75,11 +75,11 @@ public:
     bool exactMatch( const QString& str ) const;
 #ifndef QT_NO_COMPAT
     int match( const QString& str, int index = 0, int *len = 0,
-	       bool indexIsStart = TRUE );
+	       bool indexIsStart = TRUE ) const;
 #endif
     int search( const QString& str, int start = 0 ) const;
     int searchRev( const QString& str, int start = -1 ) const;
-    int matchedLength();
+    int matchedLength() const;
 #ifndef QT_NO_REGEXP_CAPTURE
     QStringList capturedTexts();
     QString cap( int nth = 0 );
