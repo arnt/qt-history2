@@ -461,8 +461,6 @@ private:
 	Type type;
 	QTextDocument *doc;
 	QByteArray styleInformation;
-	int padInt[3];
-	void *padPointer[2];
     };
 
 private:
