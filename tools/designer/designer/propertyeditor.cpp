@@ -639,19 +639,12 @@ void PropertyTextItem::childValueChanged( PropertyItem *child )
     listview->propertyEditor()->formWindow()->commandHistory()->setModified( TRUE );
 }
 
-static QString to_string( const QVariant &v, bool accel )
-{
-    if ( !accel )
-	return v.toString();
-    return QAccel::keyToString( v.toInt() );
-}
-
 void PropertyTextItem::showEditor()
 {
     PropertyItem::showEditor();
     if ( !lin || lin->text().length() == 0 ) {
 	lined()->blockSignals( TRUE );
-	lined()->setText( to_string( value(), accel ) );
+	lined()->setText( value().toString() );
 	lined()->blockSignals( FALSE );
     }
 
@@ -713,12 +706,12 @@ void PropertyTextItem::setValue( const QVariant &v )
 	lined()->blockSignals( TRUE );
 	int oldCursorPos;
 	oldCursorPos = lin->cursorPosition();
-	lined()->setText( to_string( v, accel ) );
+	lined()->setText( v.toString() );
 	if ( oldCursorPos < (int)lin->text().length() )
 	    lin->setCursorPosition( oldCursorPos );
 	lined()->blockSignals( FALSE );
     }
-    setText( 1, to_string( v, accel ) );
+    setText( 1, v.toString() );
     PropertyItem::setValue( v );
 }
 
@@ -726,10 +719,13 @@ void PropertyTextItem::setValue()
 {
     setText( 1, lined()->text() );
     QVariant v;
-    if ( accel )
-	v = QAccel::stringToKey( lined()->text() );
-    else
+    if ( accel ) {
+	v = QVariant( QKeySequence( lined()->text() ) );
+	if ( v.toString().isNull() )
+	    return; // not yet valid input
+    } else {
 	v = lined()->text();
+    }
     PropertyItem::setValue( v );
     notifyValueChange();
 }
