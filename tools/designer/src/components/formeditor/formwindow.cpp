@@ -163,7 +163,7 @@ FormWindow::~FormWindow()
     qDeleteAll(selections);
 }
 
-FormEditor *FormWindow::core() const
+AbstractFormEditor *FormWindow::core() const
 {
     return m_core;
 }
@@ -1838,7 +1838,8 @@ bool FormWindow::canBeBuddy(QWidget *w) const
 
 QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
 {
-    if (!isChildOf(w, this) || w == this)
+    if (!isChildOf(w, this) 
+        || const_cast<const QWidget *>(w) == this)
         return 0;
 
     AbstractWidgetFactory *widgetFactory = core()->widgetFactory();

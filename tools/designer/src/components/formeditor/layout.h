@@ -127,7 +127,7 @@ public:
     {  return a->y() < b->y(); }
 
     void sort()
-    { qSort(begin(), end(), VerticalLayoutList::lessThan); }
+    { qSort(*this, lessThan); }
 };
 
 class HorizontalLayoutList : public QList<QWidget*>
@@ -136,11 +136,11 @@ public:
     HorizontalLayoutList(const QList<QWidget*> &l)
         : QList<QWidget*>(l) {}
 
-    static bool lessThan(const QWidget *a, const QWidget *b)
+    static bool hLessThan(const QWidget *a, const QWidget *b)
     { return a->x() < b->x(); }
 
     void sort()
-    { qSort(begin(), end(), HorizontalLayoutList::lessThan); }
+    { qSort(*this, hLessThan); }
 };
 
 namespace Utils // ### fix the namespace

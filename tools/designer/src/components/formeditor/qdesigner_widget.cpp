@@ -495,7 +495,7 @@ void QLayoutSupport::insertWidget(QWidget *widget)
 {
     QPoint pos = widget->pos();
     
-    FormEditor *core = formWindow()->core();
+    AbstractFormEditor *core = formWindow()->core();
     LayoutInfo::Type lt = LayoutInfo::layoutType(core, layout());
     switch (lt) {
         case LayoutInfo::VBox: {

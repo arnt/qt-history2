@@ -47,7 +47,7 @@ public:
     UndoManager(FormEditor *core, QObject *parent);
     virtual ~UndoManager();
 
-    virtual FormEditor *core() const
+    virtual AbstractFormEditor *core() const
     { return m_core; }
 
 private:

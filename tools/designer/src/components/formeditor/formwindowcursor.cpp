@@ -21,7 +21,7 @@ FormWindowCursor::~FormWindowCursor()
 {
 }
 
-FormWindow *FormWindowCursor::formWindow() const
+AbstractFormWindow *FormWindowCursor::formWindow() const
 {
     return m_formWindow;
 }

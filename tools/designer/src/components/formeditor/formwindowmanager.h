@@ -42,12 +42,12 @@ public:
     inline QAction *actionBreakLayout() const { return m_actionBreakLayout; }
     inline QAction *actionAdjustSize() const { return m_actionAdjustSize; }
 
-    FormWindow *activeFormWindow() const;
+    AbstractFormWindow *activeFormWindow() const;
 
     int formWindowCount() const;
-    FormWindow *formWindow(int index) const;
+    AbstractFormWindow *formWindow(int index) const;
 
-    FormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WFlags flags = 0);
+    AbstractFormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WFlags flags = 0);
 
     bool eventFilter(QObject *o, QEvent *e);
 

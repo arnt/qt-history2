@@ -64,7 +64,7 @@ public:
     
     virtual AbstractFormEditor *core() const;    
     
-    virtual WidgetDataBaseItem *item(int index) const;
+    virtual AbstractWidgetDataBaseItem *item(int index) const;
     int indexOfObject(QObject *o, bool resolveName = true) const;
     
 public slots:

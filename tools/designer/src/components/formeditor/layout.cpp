@@ -29,7 +29,7 @@
 #include <qbitmap.h>
 #include <qsplitter.h>
 #include <qmainwindow.h>
-#include <qalgorithms.h>
+//#include <qalgorithms.h>
 
 bool operator<(const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
 {

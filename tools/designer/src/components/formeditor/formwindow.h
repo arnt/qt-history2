@@ -72,7 +72,7 @@ public:
     FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WFlags flags = 0);
     virtual ~FormWindow();
 
-    virtual FormEditor *core() const;
+    virtual AbstractFormEditor *core() const;
 
     virtual AbstractFormWindowCursor *cursor() const;
 

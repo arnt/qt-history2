@@ -11,7 +11,7 @@
 class DomCustomWidgets;
 
 class FormWindow;
-class FormEditor;
+class AbstractFormEditor;
 
 class QDesignerTabWidget;
 class QDesignerStackedWidget;
@@ -73,7 +73,7 @@ protected:
 private:
     FormWindow *m_formWindow;
     bool m_isMainWidget;
-    FormEditor *m_core;
+    AbstractFormEditor *m_core;
     QHash<QString, QString> m_internal_to_qt;
     QHash<QString, QString> m_qt_to_internal;
     QHash<QString, QString> m_internal_to_qlayout;

@@ -57,7 +57,7 @@ public:
 
     virtual AbstractFormEditor *core() const;
 
-    virtual MetaDataBaseItem *item(QObject *object) const;
+    virtual AbstractMetaDataBaseItem *item(QObject *object) const;
     virtual void add(QObject *object);
     virtual void remove(QObject *object);
 

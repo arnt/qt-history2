@@ -15,7 +15,7 @@ public:
     FormWindowCursor(FormWindow *fw, QObject *parent = 0);
     virtual ~FormWindowCursor();
 
-    virtual FormWindow *formWindow() const;
+    virtual AbstractFormWindow *formWindow() const;
 
     virtual bool movePosition(MoveOperation op, MoveMode mode);
 

@@ -106,10 +106,10 @@ public:
     { m_support.adjustIndicator(pos, index); }
     
     inline void insertWidget(QWidget *widget)
-    { return m_support.insertWidget(widget); }
+    { m_support.insertWidget(widget); }
     
     inline void removeWidget(QWidget *widget)
-    { return m_support.removeWidget(widget); }
+    { m_support.removeWidget(widget); }
 
 protected:
     virtual bool event(QEvent *e);
@@ -121,16 +121,16 @@ protected:
     { return m_support.widgets(layout); }
     
     inline void insertRow(QGridLayout *gridLayout, int row)
-    { return m_support.insertRow(gridLayout, row); }
+    { m_support.insertRow(gridLayout, row); }
     
     inline void insertColumn(QGridLayout *gridLayout, int column)
-    { return m_support.insertColumn(gridLayout, column); }
+    { m_support.insertColumn(gridLayout, column); }
     
     inline void computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *layout)
-    { return m_support.computeGridLayout(gridLayout, layout); }
+    { m_support.computeGridLayout(gridLayout, layout); }
     
     inline void rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLayoutItem*, QRect> &layout)
-    { return m_support.rebuildGridLayout(gridLayout, layout); }
+    { m_support.rebuildGridLayout(gridLayout, layout); }
     
 private:
     FormWindow *m_formWindow;

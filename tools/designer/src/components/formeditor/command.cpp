@@ -501,7 +501,7 @@ void BreakLayoutCommand::undo()
     formWindow()->clearSelection(false);
     m_layout->doLayout();
 
-    FormEditor *core = formWindow()->core();
+    AbstractFormEditor *core = formWindow()->core();
     
     QWidget *container = core->widgetFactory()->containerOfWidget(m_layoutBase);
 
@@ -593,7 +593,7 @@ void AddToolBoxPageCommand::init(QToolBox *toolBox)
     
     setDescription(tr("Add Page"));
     
-    FormEditor *core = formWindow()->core();    
+    AbstractFormEditor *core = formWindow()->core();    
     core->metaDataBase()->add(m_widget);
 }
 
@@ -689,7 +689,7 @@ void AddTabPageCommand::init(QTabWidget *tabWidget)
     
     setDescription(tr("Add Page"));
     
-    FormEditor *core = formWindow()->core();    
+    AbstractFormEditor *core = formWindow()->core();    
     core->metaDataBase()->add(m_widget);
 }
 
@@ -781,7 +781,7 @@ void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
     
     setDescription(tr("Add Page"));
     
-    FormEditor *core = formWindow()->core();    
+    AbstractFormEditor *core = formWindow()->core();    
     core->metaDataBase()->add(m_widget);
 }
 

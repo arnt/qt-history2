@@ -65,7 +65,7 @@ AbstractFormEditor *FormWindowManager::core() const
     return m_core;
 }
 
-FormWindow *FormWindowManager::activeFormWindow() const
+AbstractFormWindow *FormWindowManager::activeFormWindow() const
 {
     return m_activeFormWindow;
 }
@@ -75,7 +75,7 @@ int FormWindowManager::formWindowCount() const
     return m_formWindows.size();
 }
 
-FormWindow *FormWindowManager::formWindow(int index) const
+AbstractFormWindow *FormWindowManager::formWindow(int index) const
 {
     return m_formWindows.at(index);
 }
@@ -396,32 +396,32 @@ void FormWindowManager::setupActions()
 
 void FormWindowManager::slotActionCutActivated()
 {
-    activeFormWindow()->cut();
+    m_activeFormWindow->cut();
 }
 
 void FormWindowManager::slotActionCopyActivated()
 {
-    activeFormWindow()->copy();
+    m_activeFormWindow->copy();
 }
 
 void FormWindowManager::slotActionPasteActivated()
 {
-    activeFormWindow()->paste();
+    m_activeFormWindow->paste();
 }
 
 void FormWindowManager::slotActionDeleteActivated()
 {
-    activeFormWindow()->deleteWidgets();
+    m_activeFormWindow->deleteWidgets();
 }
 
 void FormWindowManager::slotActionLowerActivated()
 {
-    activeFormWindow()->lowerWidgets();
+    m_activeFormWindow->lowerWidgets();
 }
 
 void FormWindowManager::slotActionRaiseActivated()
 {
-    activeFormWindow()->lowerWidgets();
+    m_activeFormWindow->lowerWidgets();
 }
 
 void FormWindowManager::slotActionHorizontalLayoutActivated()
@@ -429,7 +429,7 @@ void FormWindowManager::slotActionHorizontalLayoutActivated()
     if (m_layoutChilds)
         layoutContainerHorizontal();
     else if (m_layoutSelected)
-        activeFormWindow()->layoutHorizontal();
+        m_activeFormWindow->layoutHorizontal();
 }
 
 void FormWindowManager::slotActionVerticalLayoutActivated()
@@ -437,7 +437,7 @@ void FormWindowManager::slotActionVerticalLayoutActivated()
     if (m_layoutChilds)
         layoutContainerVertical();
     else if (m_layoutSelected)
-        activeFormWindow()->layoutVertical();
+        m_activeFormWindow->layoutVertical();
 }
 
 void FormWindowManager::slotActionGridLayoutActivated()
@@ -445,7 +445,7 @@ void FormWindowManager::slotActionGridLayoutActivated()
     if (m_layoutChilds)
         layoutContainerGrid();
     else if (m_layoutSelected)
-        activeFormWindow()->layoutGrid();
+        m_activeFormWindow->layoutGrid();
 }
 
 void FormWindowManager::slotActionSplitHorizontalActivated()
@@ -453,7 +453,7 @@ void FormWindowManager::slotActionSplitHorizontalActivated()
     if (m_layoutChilds)
         ; // no way to do that
     else if (m_layoutSelected)
-        activeFormWindow()->layoutHorizontalSplit();
+        m_activeFormWindow->layoutHorizontalSplit();
 }
 
 void FormWindowManager::slotActionSplitVerticalActivated()
@@ -461,22 +461,22 @@ void FormWindowManager::slotActionSplitVerticalActivated()
     if (m_layoutChilds)
         ; // no way to do that
     else if (m_layoutSelected)
-        activeFormWindow()->layoutVerticalSplit();
+        m_activeFormWindow->layoutVerticalSplit();
 }
 
 void FormWindowManager::slotActionBreakLayoutActivated()
 {
     if (!m_breakLayout)
         return;
-    QWidget *w = activeFormWindow()->mainContainer();
-    if (activeFormWindow()->currentWidget())
-        w = activeFormWindow()->currentWidget();
+    QWidget *w = m_activeFormWindow->mainContainer();
+    if (m_activeFormWindow->currentWidget())
+        w = m_activeFormWindow->currentWidget();
     if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
          w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-        activeFormWindow()->breakLayout(w);
+        m_activeFormWindow->breakLayout(w);
         return;
     } else {
-        QList<QWidget*> widgets = activeFormWindow()->selectedWidgets();
+        QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
         for (int i = 0; i < widgets.size(); ++i) {
             QWidget *w = widgets.at(i);
             if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
@@ -484,25 +484,25 @@ void FormWindowManager::slotActionBreakLayoutActivated()
                 break;
         }
         if (w) {
-            activeFormWindow()->breakLayout(w);
+            m_activeFormWindow->breakLayout(w);
             return;
         }
     }
 
-    w = activeFormWindow()->mainContainer();
+    w = m_activeFormWindow->mainContainer();
     if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
          w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout)
-        activeFormWindow()->breakLayout(w);
+        m_activeFormWindow->breakLayout(w);
 }
 
 void FormWindowManager::slotActionAdjustSizeActivated()
 {
-    activeFormWindow()->adjustSize();
+    m_activeFormWindow->adjustSize();
 }
 
 void FormWindowManager::slotActionSelectAllActivated()
 {
-    activeFormWindow()->selectAll();
+    m_activeFormWindow->selectAll();
 }
 
 void FormWindowManager::slotUpdateActions()
@@ -511,8 +511,8 @@ void FormWindowManager::slotUpdateActions()
     m_layoutSelected = false;
     m_breakLayout = false;
 
-    if (!activeFormWindow() 
-            || activeFormWindow()->editMode() != AbstractFormWindow::WidgetEditMode) {
+    if (!m_activeFormWindow 
+            || m_activeFormWindow->editMode() != AbstractFormWindow::WidgetEditMode) {
         m_actionCut->setEnabled(false);
         m_actionCopy->setEnabled(false);
         m_actionPaste->setEnabled(false);
@@ -531,7 +531,7 @@ void FormWindowManager::slotUpdateActions()
         return;
     }
 
-    QList<QWidget*> widgets = activeFormWindow()->selectedWidgets();
+    QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
     int selectedWidgets = widgets.size();
 
     bool enable = selectedWidgets > 0;
@@ -572,7 +572,7 @@ void FormWindowManager::slotUpdateActions()
     } else if (selectedWidgets == 1) {
         QWidget *w = widgets.first();
         bool isContainer = core()->widgetDataBase()->isContainer(w)
-            || w == activeFormWindow()->mainContainer();
+            || w == m_activeFormWindow->mainContainer();
 
         m_actionAdjustSize->setEnabled(!w->parentWidget()
             || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout);
@@ -589,7 +589,7 @@ void FormWindowManager::slotUpdateActions()
             }
         } else {
             if (LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
-                if (!activeFormWindow()->hasInsertedChildren(w)) {
+                if (!m_activeFormWindow->hasInsertedChildren(w)) {
                     m_actionHorizontalLayout->setEnabled(false);
                     m_actionVerticalLayout->setEnabled(false);
                     m_actionGridLayout->setEnabled(false);
@@ -615,9 +615,9 @@ void FormWindowManager::slotUpdateActions()
         }
     } else if (selectedWidgets == 0) {
         m_actionAdjustSize->setEnabled(true);
-        QWidget *w = activeFormWindow()->mainContainer();
+        QWidget *w = m_activeFormWindow->mainContainer();
         if (LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
-            if (!activeFormWindow()->hasInsertedChildren(w)) {
+            if (!m_activeFormWindow->hasInsertedChildren(w)) {
                 m_actionHorizontalLayout->setEnabled(false);
                 m_actionVerticalLayout->setEnabled(false);
                 m_actionGridLayout->setEnabled(false);
@@ -646,38 +646,38 @@ void FormWindowManager::slotUpdateActions()
 
 void FormWindowManager::layoutContainerHorizontal()
 {
-    QWidget *w = activeFormWindow()->mainContainer();
-    QList<QWidget*> l(activeFormWindow()->selectedWidgets());
+    QWidget *w = m_activeFormWindow->mainContainer();
+    QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
     if (l.count() == 1)
         w = l.first();
 
     if (w)
-        activeFormWindow()->layoutHorizontalContainer(w);
+        m_activeFormWindow->layoutHorizontalContainer(w);
 }
 
 void FormWindowManager::layoutContainerVertical()
 {
-    QWidget *w = activeFormWindow()->mainContainer();
-    QList<QWidget*> l(activeFormWindow()->selectedWidgets());
+    QWidget *w = m_activeFormWindow->mainContainer();
+    QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
     if (l.count() == 1)
         w = l.first();
 
     if (w)
-        activeFormWindow()->layoutVerticalContainer(w);
+        m_activeFormWindow->layoutVerticalContainer(w);
 }
 
 void FormWindowManager::layoutContainerGrid()
 {
-    QWidget *w = activeFormWindow()->mainContainer();
-    QList<QWidget*> l(activeFormWindow()->selectedWidgets());
+    QWidget *w = m_activeFormWindow->mainContainer();
+    QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
     if (l.count() == 1)
         w = l.first();
 
     if (w)
-        activeFormWindow()->layoutGridContainer(w);
+        m_activeFormWindow->layoutGridContainer(w);
 }
 
-FormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WFlags flags)
+AbstractFormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WFlags flags)
 {
     FormWindow *formWindow = new FormWindow(qt_cast<FormEditor*>(core()), parentWidget, flags);
     addFormWindow(formWindow);

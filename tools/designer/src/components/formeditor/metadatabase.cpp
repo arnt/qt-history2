@@ -112,7 +112,7 @@ MetaDataBase::~MetaDataBase()
     qDeleteAll(m_items);
 }
 
-MetaDataBaseItem *MetaDataBase::item(QObject *object) const
+AbstractMetaDataBaseItem *MetaDataBase::item(QObject *object) const
 {
     MetaDataBaseItem *i = m_items.value(object);
     if (i == 0 || !i->enabled())

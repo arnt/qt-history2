@@ -132,20 +132,21 @@ WidgetDataBase::WidgetDataBase(AbstractFormEditor *core, QObject *parent)
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerCompatWidget")));
 
 // ### remove me
-    item(indexOfClassName("QTabWidget"))->setContainer(true);
-    item(indexOfClassName("QGroupBox"))->setContainer(true);
-    item(indexOfClassName("QStackedWidget"))->setContainer(true);
-    item(indexOfClassName("QToolBox"))->setContainer(true);
-    item(indexOfClassName("QFrame"))->setContainer(true);
-    item(indexOfClassName("QLayoutWidget"))->setContainer(true);
-    item(indexOfClassName("QDesignerWidget"))->setContainer(true);
-    item(indexOfClassName("QDesignerDialog"))->setContainer(true);
-    item(indexOfClassName("QDesignerCompatWidget"))->setContainer(true);
-    item(indexOfClassName("QSplitter"))->setContainer(true);
-    item(indexOfClassName("QMainWindow"))->setContainer(true);
+    // ### check the casts
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QTabWidget")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QGroupBox")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QStackedWidget")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QToolBox")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QFrame")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QLayoutWidget")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerWidget")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerDialog")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerCompatWidget")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QSplitter")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QMainWindow")))->setContainer(true);
 
-    item(indexOfClassName("QWidget"))->setForm(true);
-    item(indexOfClassName("QDialog"))->setForm(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setForm(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setForm(true);
 }
 
 WidgetDataBase::~WidgetDataBase()
@@ -164,10 +165,9 @@ int WidgetDataBase::indexOfObject(QObject *object, bool resolveName) const
     return AbstractWidgetDataBase::indexOfObject(object, resolveName);
 }
 
-WidgetDataBaseItem *WidgetDataBase::item(int index) const
+AbstractWidgetDataBaseItem *WidgetDataBase::item(int index) const
 {
-    // ### check the cast
-    return (WidgetDataBaseItem *) AbstractWidgetDataBase::item(index);
+    return AbstractWidgetDataBase::item(index);
 }
 
 void WidgetDataBase::loadPlugins()
