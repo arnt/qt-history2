@@ -127,7 +127,9 @@ bool QPrinter::newPage()
 	if ( (qt_winver& Qt::WV_DOS_based) ) {
 	    if ( fullPage() ) {
 		QSize margs = margins();
-		OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
+                // ### Why do we send minus the width and height?  It doesn't print in some cases if we do.
+                // OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 ); 
+                OffsetViewportOrgEx( hdc, margs.width(), margs.height(), 0 );
 	    }
 	    SetTextAlign( hdc, TA_BASELINE );
 	}
@@ -696,8 +698,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    ok = FALSE;
 	if ( ok && fullPage() && !viewOffsetDone ) {
 	    QSize margs = margins();
-	    OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
-	    //### CS097 viewOffsetDone = TRUE;
+
+            // ### Why do we send minus the width and height?  It doesn't print in some cases if we do.
+            // OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 ); 
+            OffsetViewportOrgEx( hdc, margs.width(), margs.height(), 0 );
+            //### CS097 viewOffsetDone = TRUE;
+
 	}
 	if ( !ok ) {
 	    if ( hdc ) {
