@@ -38,7 +38,9 @@
 // included by <resolv.h>. Note that <arpa/nameser.h> must be included
 // before <resolv.h>.
 #include <netinet/in.h>
+#define class r_class // SCO OpenServer 5.0.6
 #include <arpa/nameser.h>
+#undef class
 #include <resolv.h>
 
 
