@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#7 $
 **
 ** Implementation of QObject class
 **
@@ -12,11 +12,11 @@
 
 #include "qobject.h"
 #include "qobjcoll.h"
-#include "qpart.h"
 #include "qview.h"
+#include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#7 $";
 #endif
 
 
@@ -40,14 +40,10 @@ QObject::QObject( QObject *parent, const char *name )
 	objname = name;				// set object name
     sender = 0;					// no sender yet
     connections = 0;				// no connections yet
-    isPType = FALSE;				// assume not a parent type
+    childObjects = 0;				// no children yet
     isWidget = FALSE;				// assume not a widget
-    if ( parentObj ) {				// add object to parent
-	if ( parentObj->isWidget )
-	    ((QView*)parentObj)->insertObject( this );
-	else
-	    ((QPart*)parentObj)->insertObject( this );
-    }
+    if ( parentObj )				// add object to parent
+	parentObj->insertChild( this );
     hasTimer = FALSE;				// has no timer yet
 }
 
@@ -55,13 +51,24 @@ QObject::~QObject()
 {
     if ( hasTimer )				// might be pending timers
 	qKillTimer( (QObject *)this );
-    if ( parentObj ) {				// remove it from parent object
-	if ( parentObj->isWidget )
-	    ((QView*)parentObj)->removeObject( this );
-	else
-	    ((QPart*)parentObj)->removeObject( this );
-    }
+    if ( parentObj )				// remove it from parent object
+	parentObj->removeChild( this );
     delete connections;				// delete all connections
+    if ( childObjects ) {
+	register QObject *obj = childObjects->first();
+	while ( obj ) {				// delete all child objects
+	    obj->parentObj = 0;			// object should not remove
+	    delete obj;				//   itself from the list
+	    obj = childObjects->next();
+	}
+	delete childObjects;
+    }
+}
+
+
+void QObject::setName( const char *name )	// set object name
+{
+    objname = name;
 }
 
 
@@ -101,6 +108,67 @@ void QObject::killTimers()			// kill all timers for object
 QConnection *QObject::receiver( const char *signal ) const
 {						// get receiver
     return connections ? connections->find( signal ) : 0;
+}
+
+
+void QObject::insertChild( QObject *obj )	// add object object
+{
+    if ( !childObjects ) {
+	childObjects = new QObjectList;
+	CHECK_PTR( childObjects );
+    }
+#if defined(CHECK_RANGE)
+    else if ( childObjects->findRef(obj) >= 0 ) {
+	warning( "QObject::insertChild: Duplicate %ss in list",
+		 obj->className() );
+	return;
+    }
+#endif
+    obj->parentObj = this;
+    childObjects->append( obj );
+}
+
+void QObject::removeChild( QObject *obj )	// remove child object
+{
+    if ( childObjects && childObjects->findRef(obj) )
+	childObjects->remove();			// does not delete object
+}
+
+
+
+static char *rmWS( char *dest, const char *src )// remove white space
+{
+    register char *d = dest;
+    register char *s = (char *)src;
+    while ( *s ) {
+	if ( !isspace(*s) )
+	    *d++ = *s;
+	s++;
+    }
+    *d = '\0';
+    return dest;
+}
+
+
+bool QObject::connect( QObject *sigobj, const char *signal,
+		       const QObject *obj, const char *member )
+{						// connect signal to method
+    char *s=strdup(signal), *m=strdup(member);
+    rmWS( s, signal );
+    rmWS( m, member );
+    bool result = sigobj->bind( s, obj, m );
+    delete s;
+    delete m;
+    return result;
+}
+
+bool QObject::disconnect( QObject *obj, const char *signal )
+{
+    char *s = strdup(signal);
+    rmWS( s, signal );
+    bool result = obj->unbind( s );
+    delete s;
+    return result;
 }
 
 
@@ -228,4 +296,29 @@ const char *QObject::className() const		// get name of class
 void QObject::initMetaObject()			// initialize meta object
 {
     metaObj = new QMetaObject( "QObject", "", 0, 0, 0, 0, 0, 0 );
+}
+
+
+static void dumpRecursive( int level, QObject *object )
+{
+#if defined(DEBUG)
+    if ( object ) {
+	QString buf;
+	buf.fill( '\t', level );
+	const char *name = object->name() ? object->name() : "????";
+	debug( "%s%s::%s", (char*)buf, object->className(), name );
+	if ( object->children() ) {
+	    QObjectListIt it(*object->children());
+	    while ( it ) {
+		dumpRecursive( level+1, it );
+		++it;
+	    }
+	}
+    }
+#endif
+}
+
+void QObject::dumpObjectTree()
+{
+    dumpRecursive( 0, this );
 }

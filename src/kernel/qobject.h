@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#4 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#5 $
 **
 ** Definition of QObject class
 **
@@ -19,7 +19,6 @@
 
 class QObject					// base class for Q objects
 {
-friend class QPart;
 friend class QView;
 public:
     QObject( QObject *parent=0, const char *name=0 );
@@ -31,7 +30,7 @@ public:
     virtual const char *className() const;	// get name of class
 
     const char *name()		  const { return (const char *)objname; }
-    bool	isParentType()	  const { return isPType; }
+    void	setName( const char *name );
     bool	isWidgetType()	  const { return isWidget; }
 
     bool	signalsBlocked()  const { return blockSig; }
@@ -41,16 +40,25 @@ public:
     void	killTimer( int id );		// kill timer event
     void	killTimers();			// kill all timers for object
 
+    QObjectList *children() const { return childObjects; }
+
+    void	dumpObjectTree();		// NOTE!!! For debugging
+
 protected:
     QObject	*parent() const { return parentObj; }
     QConnection *receiver( const char *signal) const;
 
-    virtual void initMetaObject();		// initialize meta object
+    void    	insertChild( QObject * );	// add child object
+    void	removeChild( QObject * );	// remove child object
 
+    bool    	connect( QObject *, const char *, const char * );
+    bool    	connect( QObject *, const char *, const QObject*, const char*);
+    bool    	disconnect( QObject *, const char * );
     bool	bind( const char *, const QObject *, const char * );
     bool	unbind( const char * );
 
-    uint	isPType	   : 1;			// is parent type
+    virtual void initMetaObject();		// initialize meta object
+
     uint	isWidget   : 1;			// is widget
     uint	hasTimer   : 1;			// receives timer events
     uint	blockSig   : 1;			// blocking signals
@@ -59,9 +67,17 @@ protected:
 
 private:
     static QMetaObject *metaObj;		// meta object for class
-    QString	objname;			// object name
+    QString	  objname;			// object name
     QConnections *connections;			// signal connections
+    QObjectList  *childObjects;			// list of children
 };
+
+
+inline bool QObject::connect( QObject *sigobj, const char *signal,
+			      const char *member )
+{
+    return connect( sigobj, signal, this, member );
+}
 
 
 class QSenderObject : public QObject		// object for sending signals
