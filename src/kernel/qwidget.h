@@ -220,14 +220,14 @@ public:
     BackgroundMode	backgroundMode() const;
     virtual void	setBackgroundMode( BackgroundMode );
 
-    const QColor &	foregroundColor() const;
-    virtual void	setForegroundColor( const QColor & );
+    virtual const QColor &	foregroundColor() const;
+    virtual void		setForegroundColor( const QColor & );
 
-    const QColor &	backgroundColor() const;
-    virtual void	setBackgroundColor( const QColor & );
+    virtual const QColor &	backgroundColor() const;
+    virtual void		setBackgroundColor( const QColor & );
 
-    const QPixmap *	backgroundPixmap() const;
-    virtual void	setBackgroundPixmap( const QPixmap & );
+    virtual const QPixmap *	backgroundPixmap() const;
+    virtual void		setBackgroundPixmap( const QPixmap & );
 
     const QColor &	eraseColor() const;
     virtual void	setEraseColor( const QColor & );

@@ -78,7 +78,7 @@ public:
     int childX(QWidget* child);
     int childY(QWidget* child);
     bool childIsVisible(QWidget* child) { return child->isVisible(); } // obsolete functions
-    void showChild(QWidget* child, bool yes=TRUE) { 
+    void showChild(QWidget* child, bool yes=TRUE) {
 	if ( yes )
 	    child->show();
 	else
@@ -126,6 +126,15 @@ public:
     void	setStaticBackground( bool y );
     bool	hasStaticBackground() const;
 
+    virtual const QColor &	foregroundColor() const;
+    virtual void		setForegroundColor( const QColor & );
+
+    virtual const QColor &	backgroundColor() const;
+    virtual void		setBackgroundColor( const QColor & );
+
+    virtual const QPixmap *	backgroundPixmap() const;
+    virtual void		setBackgroundPixmap( const QPixmap & );
+
     QSize	viewportSize( int, int ) const;
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
@@ -156,7 +165,7 @@ protected:
     virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
-    
+
 
     virtual void contentsMousePressEvent( QMouseEvent* );
     virtual void contentsMouseReleaseEvent( QMouseEvent* );
@@ -199,7 +208,7 @@ protected:
 
     virtual void setHBarGeometry(QScrollBar& hbar, int x, int y, int w, int h);
     virtual void setVBarGeometry(QScrollBar& vbar, int x, int y, int w, int h);
-    
+
     void	resizeEvent(QResizeEvent*);
     void 	mousePressEvent( QMouseEvent * );
     void 	mouseReleaseEvent( QMouseEvent * );
@@ -208,7 +217,7 @@ protected:
     void 	wheelEvent( QWheelEvent * );
     void	contextMenuEvent( QContextMenuEvent * );
     bool	eventFilter( QObject *, QEvent *e );
-    
+
 
 private:
     virtual void drawContents( QPainter* );

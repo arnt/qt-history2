@@ -1601,7 +1601,7 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 /*!\internal
 
   To provide simple processing of events on the contents, this function
-  receives all wheel events sent to the viewport, translates the 
+  receives all wheel events sent to the viewport, translates the
   event and calls contentsWheelEvent().
 
   \sa QWidget::wheelEvent()
@@ -1620,7 +1620,7 @@ void QScrollView::viewportWheelEvent( QWheelEvent* e )
 /*! \internal
 
   To provide simple processing of events on the contents, this function
-  receives all context menu events sent to the viewport, translates the 
+  receives all context menu events sent to the viewport, translates the
   event and calls contentsContextMenuEvent().
 */
 void QScrollView::viewportContextMenuEvent( QContextMenuEvent *e )
@@ -2302,6 +2302,54 @@ void  QScrollView::setStaticBackground(bool y)
 bool QScrollView::hasStaticBackground() const
 {
     return d->static_bg;
+}
+
+/*!
+  \reimp
+*/
+const QColor & QScrollView::foregroundColor() const
+{
+    return viewport()->foregroundColor();
+}
+
+/*!
+  \reimp
+*/
+void QScrollView::setForegroundColor( const QColor & color )
+{
+    viewport()->setForegroundColor(color);
+}
+
+/*!
+  \reimp
+*/
+const QColor & QScrollView::backgroundColor() const
+{
+    return viewport()->backgroundColor();
+}
+
+/*!
+  \reimp
+*/
+void QScrollView::setBackgroundColor( const QColor & color )
+{
+    viewport()->setBackgroundColor(color);
+}
+
+/*!
+  \reimp
+*/
+const QPixmap* QScrollView::backgroundPixmap() const
+{
+    return viewport()->backgroundPixmap();
+}
+
+/*!
+  \reimp
+*/
+void QScrollView::setBackgroundPixmap( const QPixmap & pixmap )
+{
+    viewport()->setBackgroundPixmap(pixmap);
 }
 
 /*!
