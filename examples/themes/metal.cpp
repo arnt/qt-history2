@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/metal.cpp#3 $
+** $Id: //depot/qt/main/examples/themes/metal.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -47,7 +47,7 @@ void MetalStyle::polish( QApplication *app)
     // we simply create a nice QColorGroup with a couple of fancy
     // pixmaps here and apply to it all widgets
 
-    QFont f = app->font();
+    QFont f("times", app->font().pointSize() );
     f.setBold( TRUE );
     f.setItalic( TRUE );
     app->setFont( f, TRUE, "QMenuBar");
@@ -131,8 +131,9 @@ void MetalStyle::polish( QApplication *app)
 		     QBrush(backCol, background)
 		     );
     active.setColor( QColorGroup::ButtonText,  Qt::white  );
-   app->setPalette(QPalette(nor, disabled, active), TRUE );
-
+   
+    QPalette newPalette( nor, disabled, active );
+    app->setPalette( newPalette, TRUE );
 }
 
 /*!
@@ -143,8 +144,7 @@ void MetalStyle::polish( QApplication *app)
 void MetalStyle::unPolish( QApplication *app)
 {
     app->setPalette(oldPalette, TRUE);
-    app->setFont( app->font(), TRUE, "QMenuBar");
-    app->setFont( app->font(), TRUE, "QPopupMenu");
+    app->setFont( app->font(), TRUE );
 }
 
 /*!
