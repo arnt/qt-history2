@@ -16,6 +16,7 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_toolwindow.h"
 #include "qdesigner_formwindow.h"
+#include "qdesigner_actions.h"
 
 // sdk
 #include <abstractformeditor.h>
@@ -45,6 +46,8 @@ void QDesignerMainWindow::initialize()
 {
     m_workbench = new QDesignerWorkbench(this);
     m_workbench->setMainWindow(this);
+
+    m_actionManager = new QDesignerActions(this);
 
     m_fileMenu = menuBar()->addMenu(tr("&File"));
     m_fileMenu->addAction(tr("New Form"), workbench(), SLOT(createFormWindow()));

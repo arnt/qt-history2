@@ -13,7 +13,8 @@ HEADERS += \
     qdesigner_widgetbox.h \
     qdesigner_propertyeditor.h \
     qdesigner_objectinspector.h \
-    qdesigner_integration.h
+    qdesigner_integration.h \
+    qdesigner_actions.h
 
 SOURCES += main.cpp \
     qdesigner.cpp \
@@ -27,6 +28,7 @@ SOURCES += main.cpp \
     qdesigner_widgetbox.cpp \
     qdesigner_propertyeditor.cpp \
     qdesigner_objectinspector.cpp \
-    qdesigner_integration.cpp
+    qdesigner_integration.cpp \
+    qdesigner_actions.cpp
 
 

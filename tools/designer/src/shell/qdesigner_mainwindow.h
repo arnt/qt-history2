@@ -24,6 +24,7 @@ class QMenu;
 class AbstractFormEditor;
 class QDesignerFormWindowManager;
 class QDesignerFormWindow;
+class QDesignerActions;
 
 class QDesignerMainWindow: public QMainWindow
 {
@@ -50,6 +51,7 @@ private:
 
 private:
     QDesignerWorkbench *m_workbench;
+    QDesignerActions *m_actionManager;
     QMenu *m_fileMenu;
     QMenu *m_toolMenu;
     QMenu *m_windowMenu;

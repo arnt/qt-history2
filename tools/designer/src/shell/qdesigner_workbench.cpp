@@ -348,8 +348,7 @@ int QDesignerWorkbench::marginHint() const
 void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
 {
     if (QDesignerFormWindow *fw = qt_cast<QDesignerFormWindow*>(widget)) {
-        AbstractFormWindow *widget = qt_cast<AbstractFormWindow*>(fw->centralWidget());
-        core()->formWindowManager()->setActiveFormWindow(widget);
+        core()->formWindowManager()->setActiveFormWindow(fw->editor());
     }
 }
 
