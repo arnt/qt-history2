@@ -209,9 +209,9 @@ public:
     QPoint pos() const;
     QSize frameSize() const;
     QSize size() const;
-    int width() const;
-    int height() const;
-    QRect rect() const;
+    inline int width() const;
+    inline int height() const;
+    inline QRect rect() const;
     QRect childrenRect() const;
     QRegion childrenRegion() const;
 
@@ -367,7 +367,7 @@ public slots:
     void repaint();
 
 public:
-    void update(int x, int y, int w, int h);
+    inline void update(int x, int y, int w, int h);
     void update(const QRect&);
     void update(const QRegion&);
 
@@ -398,7 +398,7 @@ public:
     void move(const QPoint &);
     void resize(int w, int h);
     void resize(const QSize &);
-    void setGeometry(int x, int y, int w, int h);
+    inline void setGeometry(int x, int y, int w, int h);
     void setGeometry(const QRect &);
     void adjustSize();
     bool isVisible() const;
