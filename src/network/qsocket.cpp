@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#22 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#23 $
 **
 ** Implementation of QSocket class.
 **
@@ -1175,8 +1175,10 @@ void QSocket::setSocketIntern( int socket )
     d->state = Idle;
  
     d->socket->setSocket(socket, QSocketDevice::Stream );
+    delete d->rsn;
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
                                   this, "read" );
+    delete d->wsn;
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
                                   this, "write" );
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
