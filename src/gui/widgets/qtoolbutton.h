@@ -36,8 +36,8 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 
 public:
     enum ToolButtonPopupMode {
-        InstantPopupMode,
         DelayedPopupMode,
+        InstantPopupMode,
         MenuButtonPopupMode
     };
 
