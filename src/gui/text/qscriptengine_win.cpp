@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-const q_scriptEngine scriptEngines[] = {
+const q_scriptEngine qt_scriptEngines[] = {
         // Latin,
     { basic_shape, basic_attributes },
         // Greek,

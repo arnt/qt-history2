@@ -42,6 +42,6 @@ struct q_scriptEngine {
     AttributeFunction charAttributes;
 };
 
-extern const q_scriptEngine scriptEngines[];
+extern const q_scriptEngine qt_scriptEngines[];
 
 #endif

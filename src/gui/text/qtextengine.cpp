@@ -923,7 +923,7 @@ const QCharAttributes *QTextEngine::attributes()
         int len = length(i);
         int script = si.analysis.script;
         Q_ASSERT(script < QFont::NScripts);
-        scriptEngines[si.analysis.script].charAttributes(script, string, from, len, charAttributes);
+        qt_scriptEngines[si.analysis.script].charAttributes(script, string, from, len, charAttributes);
     }
 
     calcLineBreaks(string, charAttributes);

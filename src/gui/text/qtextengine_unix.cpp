@@ -13,7 +13,6 @@
 
 #include <assert.h>
 
-
 #if (FREETYPE_MAJOR == 2) && (FREETYPE_MINOR == 1) && (FREETYPE_PATCH < 3)
 #  define FT_KERNING_DEFAULT ft_kerning_default
 #  define FT_KERNING_UNFITTED ft_kerning_unfitted
@@ -56,7 +55,7 @@ void QTextEngine::shapeText(int item) const
 //          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
         shaper_item.glyphs = glyphs(&si);
         shaper_item.log_clusters = logClusters(&si);
-        if (scriptEngines[shaper_item.script].shape(&shaper_item))
+        if (qt_scriptEngines[shaper_item.script].shape(&shaper_item))
             break;
     }
 

@@ -2827,7 +2827,7 @@ static void hangul_attributes(int script, const QString &text, int from, int len
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-const q_scriptEngine scriptEngines[] = {
+const q_scriptEngine qt_scriptEngines[] = {
         // Latin,
     { basic_shape, basic_attributes },
         // Greek,

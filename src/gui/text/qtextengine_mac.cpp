@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qtextengine_p.h"
+
 void QTextEngine::shapeText(int item) const
 {    assert(item < items.size());
     QScriptItem &si = items[item];
@@ -46,7 +47,7 @@ void QTextEngine::shapeText(int item) const
         //      qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
         shaper_item.glyphs = glyphs(&si);
         shaper_item.log_clusters = logClusters(&si);
-        if (scriptEngines[shaper_item.script].shape(&shaper_item))
+        if (qt_scriptEngines[shaper_item.script].shape(&shaper_item))
             break;
     }
 
