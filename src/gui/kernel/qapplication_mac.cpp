@@ -1459,6 +1459,8 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
     switch(eclass) {
     case kEventClassMouse:
+        if(!top->isActiveWindow())
+            top->setActiveWindow();
         block_event = true;
         break;
     case kEventClassKeyboard:
@@ -1469,7 +1471,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
         break;
     }
 
-    if(!top->parentWidget() && (block_event || paint_event))
+    if(top->isTopLevel() && (block_event || paint_event)) 
         top->raise();
 #if 0 //This is really different than Qt behaves, but it is correct for Aqua, what do I do? -Sam
     if(block_event && qt_mac_is_macsheet(top)) {

@@ -846,11 +846,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         }
         if(testWFlags(Qt::WMacMetal))
             wattr |= kWindowMetalAttribute;
-        if(testWFlags(Qt::WStyle_Tool))
+        if(testWFlags(Qt::WStyle_Tool) && testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !isModal())
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
-        if(testWFlags(Qt::WStyle_Tool) && testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash)
-            wattr |= kWindowHideOnSuspendAttribute;
 
 #ifdef DEBUG_WINDOW_CREATE
 #define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
@@ -937,7 +935,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
                                       window_events, static_cast<void *>(qApp), &d->window_event);
         }
-	if(testWFlags(Qt::WStyle_StaysOnTop))
+	if(testWFlags(Qt::WStyle_StaysOnTop)) 
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(this) && parentWidget())
             SetDrawerParent(window, qt_mac_window_for(parentWidget()));
