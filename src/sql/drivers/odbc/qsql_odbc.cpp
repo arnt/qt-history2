@@ -782,7 +782,7 @@ QVariant QODBCResult::data( int field )
 	const QSqlFieldInfo info = d->rInf[ current ];
 	switch ( info.type() ) {
 	case QVariant::LongLong:
-	    fieldCache[ current ] = QVariant( (Q_LLONG) qGetBigIntData( d->hStmt, field, isNull ) );
+	    fieldCache[ current ] = QVariant( (Q_LLONG) qGetBigIntData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Int:
