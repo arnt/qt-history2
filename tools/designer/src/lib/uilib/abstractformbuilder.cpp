@@ -1391,4 +1391,4 @@ QString AbstractFormBuilder::relativeToDir(const QString &_dir, const QString &_
 }
 
 
-#include "resource.moc"
+#include "abstractformbuilder.moc"
