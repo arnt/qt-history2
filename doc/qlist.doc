@@ -1,0 +1,61 @@
+/****************************************************************************
+** $Id: qlist.doc,v 1.1 1995/12/12 08:48:38 hanord Exp $
+**
+** QList and QListIterator class documentation
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+
+/*----------------------------------------------------------------------------
+  \class QList qlist.h
+  \brief The QList class is a template collection for doubly linked lists.
+
+  \ingroup collection
+
+  The list class is indexable and has a current index and a current node.
+
+  Use the QListIterator class for traversing the list.
+
+  \code
+    // Template instantiation:
+        QList<QWidget>  widgetList;	// list of pointers to QWidget
+
+    // Macro instantiation:
+        declare(QListM,QWidget);	// declare it once
+	QListM(QWidget) widgetList;	// wherever it is used
+  \endcode
+
+  \sa \link collectionclasses collection classes\endlink
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn QList::QList()
+  Constructs an empty list.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QList::QList( const QList<type> &list )
+  Constructs a list that is a copy of the objects in \e list.
+
+  All objects in \e list are inserted into this list.  
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QList::~QList()
+  Removes all objects from the list and destroys the list.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QList &QList::operator=(const QList &list)
+  Assigns \e list to this list and returns a reference to this list.
+
+  All objects in \e list are inserted into this list.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QList QList::count() const
+  Returns the number of objects in the collection.
+ ----------------------------------------------------------------------------*/
