@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#150 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -600,7 +600,8 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 
 	int curXPos = margin + 2;
 	if ( echoMode() != NoEcho )
-	    curXPos += fm.width( displayText, cursorPos - offset ) - 1;
+	    curXPos += offset > cursorPos ? -1 : // ?: for scrolling case
+			    fm.width( displayText, cursorPos - offset ) - 1;
 	int curYPos   = ypos - fm.ascent();
 	d->cursorRepaintRect.setRect( curXPos-2, curYPos, 5, fm.height() );
 	d->pmDirty = FALSE;
@@ -1362,7 +1363,8 @@ bool QLineEdit::validateAndSet( const char * newText, int newPos,
 	    tbuf = t;
 	    d->pmDirty = TRUE;
 	    QFontMetrics fm = fontMetrics();
-	    int x = fm.width( t.mid( offset, cursorPos - offset ) );
+	    int x = offset > cursorPos ? 0 // ?: for scrolling
+			: fm.width( t.mid( offset, cursorPos - offset ) );
 	    int margin = frame() ? 2 : 0;
 	    if ( x >= width() - margin ) {
 		while( x >= width() - margin ) {
