@@ -1166,7 +1166,7 @@ static void qt_get_net_supported()
     int format;
     long offset = 0;
     unsigned long nitems, after;
-    unsigned char *data;
+    unsigned char *data = 0;
 
     int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
                                ATOM(_NET_SUPPORTED), 0, 0,
