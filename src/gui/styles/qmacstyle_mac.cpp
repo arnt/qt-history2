@@ -1647,18 +1647,15 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
-            HIThemeTabPaneDrawInfo tpdi;
-            tpdi.version = qt_mac_hitheme_tab_version();
-            tpdi.state = tds;
             QRect paneRect = twf->rect;
-            tpdi.direction = getTabDirection(twf->shape);
-            switch (tpdi.direction) {
+            ThemeTabDirection ttd = getTabDirection(twf->shape);
+            switch (ttd) {
             case kThemeTabSouth:
                 paneRect.setHeight(paneRect.height() + 7);
                 break;
             case kThemeTabNorth:
                 paneRect.setTop(paneRect.top() - 6);
-                paneRect.setHeight(paneRect.height() + 6);
+                paneRect.setHeight(paneRect.height() + 3);
                 break;
             case kThemeTabWest:
                 paneRect.setLeft(paneRect.left() - 6);
@@ -1668,15 +1665,29 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 paneRect.setWidth(paneRect.width() + 4);
                 break;
             }
-            tpdi.size = kHIThemeTabSizeNormal;
+            HIRect hirect = qt_hirectForQRect(paneRect, p);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-            if (tpdi.version == 1) {
-                tpdi.kind = kHIThemeTabKindNormal;
-                tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+                HIThemeTabPaneDrawInfo tpdi;
+                tpdi.version = qt_mac_hitheme_tab_version();
+                tpdi.state = tds;
+                tpdi.direction = ttd;
+                tpdi.size = kHIThemeTabSizeNormal;
+                if (tpdi.version == 1) {
+                    tpdi.kind = kHIThemeTabKindNormal;
+                    tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
+                }
+                HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
+            } else
+#else
+            {
+                HIThemeGroupBoxDrawInfo gdi;
+                gdi.version = qt_mac_hitheme_version;
+                gdi.state = tds;
+                gdi.kind = kHIThemeGroupBoxKindSecondary;
+                HIThemeDrawGroupBox(&hirect, &gdi, cg, kHIThemeOrientationNormal);
             }
 #endif
-            HIRect hirect = qt_hirectForQRect(paneRect, p);
-            HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
         }
         break;
     case QStyle::PE_FrameTabBarBase:
@@ -3208,89 +3219,104 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     case QStyle::PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
-            // This tab pane with Appearance Manager is a real pain (no joke).
-            // First, it can't handle drawing tabs at different positions.
-            // Second, it draws outside my rectangle AND provides to function to return the area.
-            // Third, it connects with the base, so I need to draw everything.
-            // So, I must "guess" the size of the panel and do some transformations to make it work.
-
-
-            const int TabPaneShadowWidth = 2; // The offset where we really start drawing the pane.
-            const int TabPaneShadowHeight = 10; // The amount of pixels to for the drop shadow
-            QRect wholePane = twf->rect;
-            // we need to draw the whole thing, so add in the height.
             int baseHeight = q->pixelMetric(QStyle::PM_TabBarBaseHeight, twf, w);
             int overlap = q->pixelMetric(QStyle::PM_TabBarBaseOverlap, twf, w);
-            if (twf->shape != QTabBar::RoundedNorth
-                && twf->shape != QTabBar::TriangularNorth) {
-                p->save();
-                int newX, newY, newRot;
-                if (twf->shape == QTabBar::RoundedWest || twf->shape == QTabBar::RoundedEast
-                    || twf->shape == QTabBar::TriangularWest
-                    || twf->shape == QTabBar::TriangularWest) {
-                    wholePane.setRect(wholePane.left() + overlap - baseHeight, wholePane.y(),
-                                      wholePane.height(), wholePane.width());
-                    wholePane.setWidth(baseHeight + wholePane.width());
+            QRect wholePane = twf->rect;
+            ThemeTabDirection ttd = getTabDirection(twf->shape);
+            if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3) {
+                // This tab pane with Appearance Manager is a real pain (pun not intended).
+                // First, it can't handle drawing tabs at different positions.
+                // Second, it draws outside my rectangle AND provides to function to return the area.
+                // Third, it connects with the base, so I need to draw everything.
+                // So, I must "guess" the size of the panel and do some transformations to make it work.
+                const int TabPaneShadowWidth = 2; // The offset where we really start drawing the pane.
+                const int TabPaneShadowHeight = 10; // The amount of pixels to for the drop shadow
+                // we need to draw the whole thing, so add in the height.
+                if (ttd != kThemeTabNorth) {
+                    p->save();
+                    int newX, newY, newRot;
+                    if (twf->shape == QTabBar::RoundedWest || twf->shape == QTabBar::RoundedEast
+                        || twf->shape == QTabBar::TriangularWest
+                        || twf->shape == QTabBar::TriangularWest) {
+                        wholePane.setRect(wholePane.left() + overlap - baseHeight, wholePane.y(),
+                                          wholePane.height(), wholePane.width());
+                        wholePane.setWidth(baseHeight + wholePane.width());
+                    } else {
+                        wholePane.setHeight(baseHeight + wholePane.height() - overlap - 1);
+                    }
+                    QRect finalRect = wholePane;
+                    QSize pixSize;
+                    switch (ttd) {
+                    default:
+                        break;
+                    case kThemeTabSouth:
+                        newX = wholePane.x() + wholePane.width();
+                        newY = wholePane.y() + wholePane.height();
+                        newRot = 180;
+                        wholePane.setRect(TabPaneShadowWidth, 0,
+                                          wholePane.width() - 2 * TabPaneShadowWidth,
+                                          wholePane.height());
+                        pixSize = wholePane.size();
+                        break;
+                    case kThemeTabWest:
+                        newX = wholePane.x();
+                        newY = wholePane.height();
+                        newRot = -90;
+                        wholePane.setRect(TabPaneShadowWidth, 0,
+                                          wholePane.height() - 2 * TabPaneShadowWidth,
+                                          wholePane.width());
+                        pixSize = wholePane.size();
+                        break;
+                    case kThemeTabEast:
+                        newX = wholePane.width();
+                        newY = wholePane.y();
+                        newRot = 90;
+                        wholePane.setRect(TabPaneShadowWidth, 0,
+                                          wholePane.height() - 2 * TabPaneShadowWidth,
+                                          wholePane.width());
+                        pixSize = wholePane.size();
+                        break;
+                    }
+                    QPixmap pix(pixSize, 32);
+                    QPainter pixPainter(&pix);
+                    qt_mac_set_port(&pixPainter);
+                    Rect macRect;
+                    SetRect(&macRect, 0, 0, pix.width(), pix.height());
+                    ApplyThemeBackground(kThemeBackgroundTabPane, &macRect, tds, 32, true);
+                    EraseRect(&macRect);
+                    DrawThemeTabPane(qt_glb_mac_rect(wholePane, &pixPainter), tds);
+                    QMatrix m;
+                    m.translate(newX, newY);
+                    m.rotate(newRot);
+                    p->setMatrix(m);
+                    p->drawPixmap(wholePane, pix);
+                    p->restore();
                 } else {
-                    wholePane.setHeight(baseHeight + wholePane.height() - overlap - 1);
+                    wholePane.setTop(wholePane.top() + overlap - baseHeight);
+                    wholePane.setLeft(wholePane.left() + TabPaneShadowWidth);
+                    wholePane.setWidth(wholePane.width() - 2 * TabPaneShadowWidth);
+                    wholePane.setHeight(baseHeight + wholePane.height() - TabPaneShadowHeight);
+                    qt_mac_set_port(p);
+                    DrawThemeTabPane(qt_glb_mac_rect(wholePane, p), tds);
                 }
-                QRect finalRect = wholePane;
-                QSize pixSize;
-                switch (twf->shape) {
-                default:
-                    break;
-                case QTabBar::RoundedSouth:
-                case QTabBar::TriangularSouth:
-                    newX = wholePane.x() + wholePane.width();
-                    newY = wholePane.y() + wholePane.height();
-                    newRot = 180;
-                    wholePane.setRect(TabPaneShadowWidth, 0,
-                                      wholePane.width() - 2 * TabPaneShadowWidth,
-                                      wholePane.height());
-                    pixSize = wholePane.size();
-                    break;
-                case QTabBar::RoundedWest:
-                case QTabBar::TriangularWest:
-                    newX = wholePane.x();
-                    newY = wholePane.height();
-                    newRot = -90;
-                    wholePane.setRect(TabPaneShadowWidth, 0,
-                                      wholePane.height() - 2 * TabPaneShadowWidth,
-                                      wholePane.width());
-                    pixSize = wholePane.size();
-                    break;
-                case QTabBar::RoundedEast:
-                case QTabBar::TriangularEast:
-                    newX = wholePane.width();
-                    newY = wholePane.y();
-                    newRot = 90;
-                    wholePane.setRect(TabPaneShadowWidth, 0,
-                                      wholePane.height() - 2 * TabPaneShadowWidth,
-                                      wholePane.width());
-                    pixSize = wholePane.size();
-                    break;
-                }
-                QPixmap pix(pixSize, 32);
-                QPainter pixPainter(&pix);
-                qt_mac_set_port(&pixPainter);
-                Rect macRect;
-                SetRect(&macRect, 0, 0, pix.width(), pix.height());
-                ApplyThemeBackground(kThemeBackgroundTabPane, &macRect, tds, 32, true);
-                EraseRect(&macRect);
-                DrawThemeTabPane(qt_glb_mac_rect(wholePane, &pixPainter), tds);
-                QMatrix m;
-                m.translate(newX, newY);
-                m.rotate(newRot);
-                p->setMatrix(m);
-                p->drawPixmap(wholePane, pix);
-                p->restore();
             } else {
-                wholePane.setTop(wholePane.top() + overlap - baseHeight);
-                wholePane.setLeft(wholePane.left() + TabPaneShadowWidth);
-                wholePane.setWidth(wholePane.width() - 2 * TabPaneShadowWidth);
-                wholePane.setHeight(baseHeight + wholePane.height() - TabPaneShadowHeight);
-                qt_mac_set_port(p);
-                DrawThemeTabPane(qt_glb_mac_rect(wholePane, p), tds);
+                switch (ttd) {
+                case kThemeTabSouth:
+                    wholePane.setHeight(wholePane.height() + 7);
+                    break;
+                case kThemeTabNorth:
+                    wholePane.setTop(wholePane.top() - 6);
+                    wholePane.setHeight(wholePane.height() + 3);
+                    break;
+                case kThemeTabWest:
+                    wholePane.setLeft(wholePane.left() - 6);
+                    wholePane.setWidth(wholePane.width());
+                    break;
+                case kThemeTabEast:
+                    wholePane.setWidth(wholePane.width() + 4);
+                    break;
+                }
+                DrawThemeSecondaryGroup(qt_glb_mac_rect(wholePane, p), tds);
             }
         }
         break;
