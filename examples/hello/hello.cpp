@@ -25,7 +25,7 @@
 Hello::Hello( const char *text, QWidget *parent, const char *name )
     : QWidget(parent,name), t(text), b(0)
 {
-    setAttribute(WA_PaintOnScreen);
+    setAttribute(Qt::WA_PaintOnScreen);
     QTimer *timer = new QTimer(this);
     connect( timer, SIGNAL(timeout()), SLOT(animate()) );
     timer->start( 40 );
