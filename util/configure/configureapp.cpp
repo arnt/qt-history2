@@ -1152,7 +1152,7 @@ void Configure::generateConfigfiles()
 		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
 	outStream << "static const char QT_INSTALL_DATA   [267] = \"qt_datpath="
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_TRANSLATIONS [267] = \"qt_trapath="
+	outStream << "static const char QT_INSTALL_TRANSLATIONS [267] = \"qt_trnpath="
 		  << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" )  << "\";" << endl;
 
 	outStream << endl;
