@@ -13,7 +13,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../../lib/uilib \
     ../../lib/extension
 
-#PRECOMPILED_HEADER=signalsloteditor_pch.h
+PRECOMPILED_HEADER=signalsloteditor_pch.h
 HEADERS += \
     default_membersheet.h \
     signalsloteditor.h \

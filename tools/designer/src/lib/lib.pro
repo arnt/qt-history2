@@ -16,7 +16,7 @@ include(extension/extension.pri)
 include(sdk/sdk.pri)
 include(uilib/uilib.pri)
 include(shared/shared.pri)
-#PRECOMPILED_HEADER=lib_pch.h
+PRECOMPILED_HEADER=lib_pch.h
 
 ### include(propertyeditor/propertyeditor.pri)
 

@@ -15,7 +15,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../tabordereditor
 
 
-#PRECOMPILED_HEADER=tabordereditor_pch.h
+PRECOMPILED_HEADER=tabordereditor_pch.h
 HEADERS += \
     tabordereditor.h \
     tabordereditor_plugin.h \
