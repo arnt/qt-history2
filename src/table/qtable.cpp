@@ -92,6 +92,8 @@ public:
     void setSectionStretchable( int s, bool b );
     bool isSectionStretchable( int s ) const;
 
+    void updateCache();
+
 signals:
     void sectionSizeChanged( int s );
 
@@ -4000,6 +4002,7 @@ void QTable::setNumRows( int r )
 	curRow = -1;
 	setCurrentCell( r, curCol );
     }
+    leftHeader->updateCache();
 }
 
 void QTable::setNumCols( int c )
@@ -4065,6 +4068,7 @@ void QTable::setNumCols( int c )
 	curRow = -1;
 	setCurrentCell( r, curCol );
     }
+    topHeader->updateCache();
 }
 
 /*! This function returns the widget which should be used as an editor for
@@ -5787,7 +5791,7 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 
 int QTableHeader::sectionSize( int section ) const
 {
-    if ( count() <= 0 || section < 0 )
+    if ( count() <= 0 || section < 0 || section >= count() )
 	return -1;
     if ( caching )
 	 return sectionSizes[ section ];
@@ -5804,7 +5808,7 @@ int QTableHeader::sectionSize( int section ) const
 
 int QTableHeader::sectionPos( int section ) const
 {
-    if ( count() <= 0 || section < 0 )
+    if ( count() <= 0 || section < 0 || section >= count() )
 	return -1;
     if ( caching )
 	return sectionPoses[ section ];
@@ -5839,6 +5843,18 @@ int QTableHeader::sectionAt( int pos ) const
 	 pos <= sectionPoses[i] + sectionSizes[ mapToSection( i ) ] )
 	return mapToSection( i );
     return -1;
+}
+
+void QTableHeader::updateCache()
+{
+    sectionPoses.resize( count() );
+    sectionSizes.resize( count() );
+    if ( !caching )
+	return;
+    for ( int i = 0; i < count(); ++i ) {
+	sectionSizes[ i ] = QHeader::sectionSize( i );
+	sectionPoses[ i ] = QHeader::sectionPos( i );
+    }
 }
 
 void QTableHeader::setCaching( bool b )
