@@ -1710,11 +1710,11 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw,
     // calc width and height of the tb depending on the orientation it _would_ have
     if ( o == Qt::Horizontal ) {
 	if ( ipos == QMainWindowPrivate::TotalAfter &&
-	     t->t->x() + t->t->width() + 10 > mw->width() )
+	     t && t->t->x() + t->t->width() + 10 > mw->width() )
 	    ipos = QMainWindowPrivate::After;
     } else {
 	if ( ipos == QMainWindowPrivate::TotalAfter &&
-	     t->t->y() + t->t->height() + 10 > mw->height() )
+	     t && t->t->y() + t->t->height() + 10 > mw->height() )
 	    ipos = QMainWindowPrivate::After;
     }
     int w = o == tb->orientation() ? tb->width() : tb->height();
