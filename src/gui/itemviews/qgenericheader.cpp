@@ -257,6 +257,8 @@ int QGenericHeader::indexAt(int position) const
 int QGenericHeader::sectionAt(int position) const
 {
     int idx = indexAt(position);
+    if (idx < 0)
+	return -1;
     int p = d->sections.at(idx).position;
     int s = d->sections.at(idx).section;
     if (position >= p && position <= p + sectionSize(s))
@@ -266,7 +268,7 @@ int QGenericHeader::sectionAt(int position) const
 
 int QGenericHeader::sectionSize(int section) const
 {
-    if (section < 0 || section > d->sections.count())
+    if (section < 0 || section >= d->sections.count())
  	return 0;
     int idx = index(section);
     return d->sections.at(idx + 1).position - d->sections.at(idx).position;
@@ -274,7 +276,7 @@ int QGenericHeader::sectionSize(int section) const
 
 int QGenericHeader::sectionPosition(int section) const
 {
-    if (section < 0 || section > d->sections.count())
+    if (section < 0 || section >= d->sections.count())
 	return 0;
     return d->sections.at(index(section)).position;
 }
@@ -394,11 +396,13 @@ void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelInd
 
 void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    QModelIndex parent = model()->parent(topLeft);
-    if (orientation() == Horizontal)
-	initializeSections(topLeft.column(), bottomRight.column());
-    else
-	initializeSections(topLeft.row(), bottomRight.row());
+    if (topLeft.isValid() && bottomRight.isValid()) {
+	QModelIndex parent = model()->parent(topLeft);
+	if (orientation() == Horizontal)
+	    initializeSections(topLeft.column(), bottomRight.column());
+	else
+	    initializeSections(topLeft.row(), bottomRight.row());
+    }
 }
 
 void QGenericHeader::contentsRemoved(const QModelIndex &parent,
@@ -708,7 +712,7 @@ int QGenericHeader::count() const
 
 int QGenericHeader::index(int section) const
 {
-    if (d->indices.count() == 0)
+    if (d->indices.count() <= 0)
 	return section; // nothing has been moved yet
     if (section < 0 || section >= d->indices.count())
 	return 0;
@@ -751,11 +755,15 @@ void QGenericHeader::setResizeMode(ResizeMode mode)
 
 void QGenericHeader::setResizeMode(ResizeMode mode, int section)
 {
+    if (section >= d->sections.count())
+	return;
     d->sections[index(section)].mode = mode;
 }
 
 QGenericHeader::ResizeMode QGenericHeader::resizeMode(int section) const
 {
+    if (section >= d->sections.count())
+	return NoResize;
     return d->sections.at(index(section)).mode;
 }
 
@@ -801,7 +809,6 @@ void QGenericHeaderPrivate::updateSectionIndictaor()
 	return;
     }
     QRect geometry = sectionHandleRect(target);
-    qDebug("target %d", target);
     sectionIndicator->setGeometry(geometry);
     sectionIndicator->show();
 }

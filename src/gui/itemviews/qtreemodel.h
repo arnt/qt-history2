@@ -36,10 +36,12 @@ public:
     virtual void setIconSet(int column, const QIconSet &iconSet);
     virtual void setEditable(bool editable) { edit = editable; }
     virtual void setSelectable(bool selectable) { select = selectable; }
-
+    
     inline bool operator ==(const QTreeModelItem &other) const
 	{ return par == other.par && children == other.children; }
     inline bool operator !=(const QTreeModelItem &other) const { return !operator==(other); }
+
+    inline QTreeModel *model() const { return mod; }
 
 private:
     QTreeModelItem();
@@ -47,6 +49,7 @@ private:
     QList< QExplicitSharedPointer<QTreeModelItem> > children;
     QVector<QString> txt;
     QVector<QIconSet> icn;
+    QTreeModel *mod;
     int c;
     uint edit : 1;
     uint select : 1;
@@ -82,8 +85,6 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
-
-    bool hasChildren(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int element) const;
     void setData(const QModelIndex &index, int element, const QVariant &variant);

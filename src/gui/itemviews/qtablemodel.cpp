@@ -32,10 +32,15 @@ void QTableModel::setRowCount(int rows)
         leftHeader[j] = item;
     }
 
+    int top = qMax(r - 1, 0);
+    int bottom = qMax(r - 1, 0);
+    int right = qMax(c - 1, 0);
+    QModelIndex topLeft = index(top, 0, 0);
+    QModelIndex bottomRight = index(bottom, right, 0);
     if (r > _r)
-	emit contentsInserted(index(_r - 1, 0, 0), index(r - 1, c - 1, 0));
+	emit contentsInserted(topLeft, bottomRight);
     else
-	emit contentsRemoved(0, index(r - 1, 0, 0), index(_r - 1, c - 1, 0));
+	emit contentsRemoved(0, topLeft, bottomRight);
 }
 
 void QTableModel::setColumnCount(int columns)
@@ -57,10 +62,15 @@ void QTableModel::setColumnCount(int columns)
         topHeader[j] = item;
     }
 
+    int left = qMax(_c - 1, 0);
+    int bottom = qMax(r - 1, 0);
+    int right = qMax(c - 1, 0);
+    QModelIndex topLeft = index(0, left, 0);
+    QModelIndex bottomRight = index(bottom, right, 0);
     if (c > _c)
-	emit contentsInserted(index(0, _c - 1, 0), index(r - 1, c - 1, 0));
+	emit contentsInserted(topLeft, bottomRight);
     else
-	emit contentsRemoved(0, index(0, c - 1, 0), index(r - 1, _c - 1, 0));
+	emit contentsRemoved(0, topLeft, bottomRight);
 }
 
 void QTableModel::setText(int row, int column, const QString &text)

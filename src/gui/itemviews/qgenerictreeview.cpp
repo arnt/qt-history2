@@ -356,21 +356,26 @@ void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModel
 	    d->open(pi);
 	}
     } else {
+#if 0
 	qDebug("contentsInserted top %d bottom %d ", topLeft.row(), bottomRight.row());
 	// FIXME: this won't work if there are open branches
-	int count = bottomRight.row() - topLeft.row();
+	int count = bottomRight.row() - topLeft.row() + 1;
 	qDebug("count %d", count);
 	expand<QGenericTreeViewItem>(d->items, topLeft.row() - 1, count);
 	QGenericTreeViewItem *items = d->items.data();
 	for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
 	    items[i].index = model()->index(i, 0, 0);
-// 	    index[i].open = false;
-// 	    index[i].hidden = false;
-// 	    index[i].total = 0;
-// 	    index[i].level = 0;
 	}
 	resizeContents(contentsHeight() + d->itemHeight * count, contentsWidth());
 	updateContents();
+#else
+	resizeContents(0, contentsWidth());
+	d->items.resize(0);
+	d->layout_parent_index = -1;
+	d->layout_from_index = -1;
+	d->layout_count = model()->rowCount(root());
+	startItemsLayout();
+#endif
     }
 }
 

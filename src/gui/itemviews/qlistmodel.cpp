@@ -140,5 +140,7 @@ void QListModel::append(QListModelItem *item)
 {
     lst.push_back(item);
     int r = lst.count();
-    emit contentsInserted(index(r - 2, 0, 0), index(r - 1, 0, 0));
+    int bottom = qMax(r - 1, 0);
+    QModelIndex idx = index(bottom, 0, 0);
+    emit contentsInserted(idx, idx);
 }
