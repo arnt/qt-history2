@@ -546,8 +546,8 @@ associated with Glade files.
 might work with later versions as well.
 </para>
 <para>
-Although Glade does not target Qt, the layout system and the
-widget set of GTK+ are similar to that of Qt, so the filter will retain
+Although Glade does not target Qt, the layout system and the widget
+set of GTK+ are similar to those of Qt, so the filter will retain
 most of the information in the \f[.glade] file.
 </para>
 <para>
@@ -660,8 +660,8 @@ as listed below:
     Incorrectly-justified text after conversion
     </para>
     <para>
-    The "hAlign" property is sometimes set wrongly, and then you have
-    to change it manually. It is caused by a quirk in Glade.
+    The "hAlign" property is sometimes set wrongly, in which case you
+    have to change it manually. It is caused by a quirk in Glade.
     </para>
     \List
 </sect2>
