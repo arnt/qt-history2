@@ -1503,6 +1503,15 @@ QTableWidgetItem *QTableWidget::visualItem(int visualRow, int visualColumn) cons
 }
 
 /*!
+  Returns a pointer to the item at the coordinates \a x, \a y.
+*/
+
+QTableWidgetItem *QTableWidget::itemAt(int x, int y) const
+{
+    return d->model()->item(indexAt(x, y));
+}
+
+/*!
   Returns true if the \a item is in the viewport, otherwise returns false.
 */
 

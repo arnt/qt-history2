@@ -195,6 +195,9 @@ public:
     int visualColumn(const QTableWidgetItem *item) const;
     QTableWidgetItem *visualItem(int visualRow, int visualColumn) const;
 
+    QTableWidgetItem *itemAt(int x, int y) const;
+    inline QTableWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+
     bool isItemVisible(const QTableWidgetItem *item) const;
 
     QTableWidgetItemCreatorBase *itemCreator() const;

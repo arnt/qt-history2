@@ -155,6 +155,9 @@ public:
     QTreeWidgetItem *currentItem() const;
     void setCurrentItem(QTreeWidgetItem *item);
 
+    QTreeWidgetItem *itemAt(int x, int y) const;
+    inline QTreeWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+
     void sortItems(int column, Qt::SortOrder order);
     void setSortingEnabled(bool enable);
     bool isSortingEnabled() const;

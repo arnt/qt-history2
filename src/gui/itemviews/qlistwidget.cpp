@@ -955,7 +955,21 @@ QListWidgetItem *QListWidget::currentItem() const
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
     selectionModel()->setCurrentIndex(d->model()->index(item),
-                                      d->selectionMode == SingleSelection ? QItemSelectionModel::ClearAndSelect : QItemSelectionModel::NoUpdate);
+                                      d->selectionMode == SingleSelection
+                                      ? QItemSelectionModel::ClearAndSelect
+                                      : QItemSelectionModel::NoUpdate);
+}
+
+/*!
+  Returns a pointer to the item at the coordinates \a x, \a y.
+*/
+
+QListWidgetItem *QListWidget::itemAt(int x, int y) const
+{
+    QModelIndex index = indexAt(x, y);
+    if (index.isValid())
+        return d->model()->at(index.row());
+    return 0;
 }
 
 /*!

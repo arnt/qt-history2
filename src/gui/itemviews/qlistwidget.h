@@ -131,8 +131,11 @@ public:
     QListWidgetItem *currentItem() const;
     void setCurrentItem(QListWidgetItem *item);
 
-    void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
+    QListWidgetItem *itemAt(int x, int y) const;
+    inline QListWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
 
+    void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
+    
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
 

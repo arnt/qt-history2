@@ -1630,6 +1630,15 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 }
 
 /*!
+  Returns a pointer to the item at the coordinates \a x, \a y.
+*/
+
+QTreeWidgetItem *QTreeWidget::itemAt(int x, int y) const
+{
+    return d->model()->item(indexAt(x, y));
+}
+
+/*!
   Sorts the items in the widget in the specified \a order by the values in
   the given \a column.
 */
