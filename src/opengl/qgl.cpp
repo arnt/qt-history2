@@ -1634,6 +1634,11 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
   If the GL rendering context and the desktop have different
   bit depths, the result will most likely look surprising.
+  
+  Note that the creation of display lists, modifications of the view
+  frustum etc. should be done from within initializeGL(). If this is
+  not done, the temporary QGLContext will not be initialized properly,
+  and the rendered pixmap may be incomplete/corrupted.
 */
 
 QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
