@@ -9,7 +9,7 @@ tools {
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
 		  $$TOOLS_H/qcleanuphandler.h \
-		  $$TOOLS_H/qcomponentfactory_p.h \
+		  $$TOOLS_P/qcomponentfactory_p.h \
 		  $$TOOLS_P/qcomlibrary_p.h \
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
@@ -26,7 +26,7 @@ tools {
 		  $$TOOLS_H/qgeneric.h \
 		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
-		  $$TOOLS_H/qgpluginmanager_p.h \
+		  $$TOOLS_P/qgpluginmanager_p.h \
 		  $$TOOLS_H/qgvector.h \
 		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
