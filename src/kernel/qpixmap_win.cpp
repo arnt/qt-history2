@@ -405,17 +405,24 @@ QImage QPixmap::convertToImage() const
     if ( data->realAlphaBits ) {
 	GdiFlush();
 	memcpy( image.bits(), data->realAlphaBits, image.numBytes() );
+	image.setAlphaBuffer( TRUE );
 
 	// Windows has premultiplied alpha, so revert it
-	image.setAlphaBuffer( TRUE );
-	int l = image.numBytes();
-	uchar *b = image.bits();
-	// ### is it right to assume that we have 32bpp?
-	for ( int i=0; i+3<l; i+=4 ) {
-	    if ( b[i+3] != 0 ) {
-		b[i]   = ((int)b[i]  *255)/b[i+3];
-		b[i+1] = ((int)b[i+1]*255)/b[i+3];
-		b[i+2] = ((int)b[i+2]*255)/b[i+3];
+	uchar *p = image.bits();
+	uchar *end = p + image.numBytes();
+	uchar alphaByte;
+	while ( p < end ) {
+	    alphaByte = *(p+3);
+	    if ( alphaByte == 0 || alphaByte == 255 ) {
+		p += 4;
+	    } else {
+		*p = ( (int)(*p) * 255 ) / alphaByte;
+		++p;
+		*p = ( (int)(*p) * 255 ) / alphaByte;
+		++p;
+		*p = ( (int)(*p) * 255 ) / alphaByte;
+		++p;
+		++p;
 	    }
 	}
 	return image;
