@@ -67,17 +67,23 @@ variables: Makefile
 
 EOF
 
-# Implicit...
-echo '%: configs/%'
-echo '	./propagate configs/$*'
-echo
-#
 # Explicit rules, for sucky makes...
 for a in $(cd configs; ls); do
 	echo ${a}: Makefile
 	echo '	./propagate configs/'${a}
 	echo
 done
+
+# Implicit...
+echo '%-static: configs/%-shared'
+echo '	./propagate configs/$*'
+echo
+echo '%-static: configs/%-shared'
+echo '	./propagate configs/$*'
+echo
+echo '%-debug: configs/%-debug'
+echo '	./propagate configs/$*'
+echo
 
 cat <<EOF
 
