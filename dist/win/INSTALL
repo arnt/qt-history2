@@ -73,8 +73,11 @@ B   BUILDING THE LIBRARY MANUALLY
        C:\Qt\3.0.0\
 
     2. Copy the license file from your account on dist.trolltech.com
-       into the directory where you installed the Qt files and rename it
-       to .qt-license
+       into your home directory (this may be known as the userprofile
+       environment variable) and rename it to .qt-license 
+
+       For example on Windows 2000, %USERPROFILE% should be something
+       like c:\documents and settings\andy
 
     3. You need to set up certain environment variables for Qt:
 
