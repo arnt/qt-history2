@@ -36,6 +36,7 @@ class QVBoxLayout;
 class EditorPage;
 class MetaTranslator;
 class QMenu;
+class MessageEditor;
 
 class SourceTextEdit : public QTextEdit
 {
@@ -164,7 +165,7 @@ class EditorPage : public QFrame
 {
     Q_OBJECT
 public:
-    EditorPage(QWidget *parent = 0, const char *name = 0);
+    EditorPage(MessageEditor *parent = 0, const char *name = 0);
 
 protected:
     void resizeEvent(QResizeEvent *);

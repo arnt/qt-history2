@@ -45,6 +45,7 @@
 #include <qtextdocumentfragment.h>
 #include <qtextcursor.h>
 #include <QTextBlock>
+#include <QAbstractTextDocumentLayout>
 
 static const int MaxCandidates = 5;
 
@@ -179,6 +180,7 @@ void SourceTextEdit::contextMenuEvent(QContextMenuEvent *e)
 ShadowWidget::ShadowWidget(QWidget *parent)
     : QWidget(parent), sWidth(10), wMargin(3), childWgt(0)
 {
+
 }
 
 ShadowWidget::ShadowWidget(QWidget *child, QWidget *parent)
@@ -241,7 +243,7 @@ void ShadowWidget::paintEvent(QPaintEvent *e)
    A frame that contains the source text, translated text and any
    source code comments and hints.
 */
-EditorPage::EditorPage(QWidget *parent, const char *name)
+EditorPage::EditorPage(MessageEditor *parent, const char *name)
     : QFrame(parent)
 {
     setObjectName(name);
@@ -259,7 +261,8 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
                 p.color(QPalette::Inactive, QPalette::Base));
     p.setColor(QPalette::Disabled, QPalette::Background,
                 p.color(QPalette::Disabled, QPalette::Base));
-    setPalette(p);
+
+    parent->setPalette(p);
 
     srcTextLbl = new QLabel(tr("Source text"), this);
     transLbl   = new QLabel(tr("Translation"), this);
@@ -412,7 +415,7 @@ void EditorPage::handleCommentChanges()
 */
 void EditorPage::calculateFieldHeight(QTextEdit *field)
 {
-    int contentsHeight = field->heightForWidth(field->width());
+    int contentsHeight = field->document()->documentLayout()->documentSize().height();
 
     if (contentsHeight != field->height()) {
         int oldHeight = field->height();
@@ -607,9 +610,10 @@ void MessageEditor::updatePageHeight(int height)
     sw->resize(sw->width(), height + sw->margin() + sw->shadowWidth());
 }
 
-void MessageEditor::resizeEvent(QResizeEvent *)
+void MessageEditor::resizeEvent(QResizeEvent *e)
 {
     sw->resize(viewport()->width(), sw->height());
+    QScrollArea::resizeEvent(e);
 }
 
 QTreeView *MessageEditor::sourceTextView() const
