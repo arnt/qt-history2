@@ -121,12 +121,24 @@ public:
 					   SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
+		    case QVariant::String: {
+			// ### unicode!
+			QCString * str = new QCString( it.data().asString().local8Bit() );
+			tmpStorage.append( str );
+			r = OCIBindByName( sql, &hbnd, err,
+					   (text *) it.key().local8Bit().data(),
+					   it.key().length()+1,
+					   (ub1 *) str->data(),
+					   str->length()+1,
+					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
 		    default:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   it.key().length()+1,
 					   (ub1 *) it.data().asString().local8Bit().data(),
-					   it.data().asString().length() + 1,
+					   it.data().asString().length()+1,
 					   SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
@@ -188,11 +200,22 @@ public:
 					  SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
+		    case QVariant::String: {
+			// ### unicode!
+			QCString * str = new QCString( val.asString().local8Bit() );
+			tmpStorage.append( str );
+			r = OCIBindByPos( sql, &hbnd, err,
+					  it.key() + 1,
+					  (ub1 *) str->data(),
+					  str->length() + 1, // oracle uses this as a limit to find the terminating 0..
+					  SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
+					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+			break; }
 		    default:
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) val.asString().local8Bit().data(),
-					  val.asString().length() + 1,
+					  (ub1 *) val.asCString().data(),
+					  val.asCString().length() + 1, // oracle uses this as a limit to find the terminating 0..
 					  SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
