@@ -301,7 +301,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    d->extra->topextra->fright = 0;
 	    d->extra->topextra->fbottom = 0;
 	}
-	updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
+	//updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
     }
 }
 
@@ -751,6 +751,9 @@ void QWidget::showWindow()
 void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
+
+    if (req_region.isEmpty())	// Already invisible?
+	return;
 
     if ( testWFlags(WType_TopLevel) ) {
 	releaseMouse();

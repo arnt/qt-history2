@@ -5615,7 +5615,7 @@ void QWidget::repaint(const QRect &r)
 */
 void QWidget::erase_helper( int x, int y, int w, int h )
 {
-    if (testAttribute(WA_NoSystemBackground))
+    if (testAttribute(WA_NoSystemBackground) || !testWState(WState_Visible))
 	return;
     if ( w < 0 )
 	w = crect.width()  - x;
@@ -5636,7 +5636,7 @@ void QWidget::erase_helper( int x, int y, int w, int h )
 */
 void QWidget::erase( const QRegion& rgn )
 {
-    if (testAttribute(WA_NoSystemBackground))
+    if (testAttribute(WA_NoSystemBackground)||!testWState(WState_Visible))
 	return;
 
     QPainter p(this);

@@ -398,6 +398,8 @@ void QWSManager::handleMove()
 
 void QWSManager::paintEvent(QPaintEvent *)
 {
+    if (!managed->isVisible())
+	return;
     QWSDecoration &dec = QApplication::qwsDecoration();
     if (managed->testWState(WState_InPaintEvent))
 	qWarning("QWSManager::paintEvent() recursive paint event detected");
@@ -565,6 +567,8 @@ void QWSManager::setOn(QWSButton *b, bool o)
 
 void QWSManager::repaintButton(QWSButton *b)
 {
+    if (!managed->isVisible())
+	return;
     QWSDecoration &dec = QApplication::qwsDecoration();
     if (managed->testWState(WState_InPaintEvent))
 	qWarning("QWSManager::repaintButton() recursive paint event detected");
