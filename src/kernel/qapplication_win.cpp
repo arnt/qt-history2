@@ -1887,9 +1887,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !widget )				// don't know this widget
 	goto do_default;
 
-    if ( message == WM_MOUSEACTIVATE && widget->isTopLevel() && widget->inherits( "QDockWindow" ) )
-	return MA_NOACTIVATE;
-
     if ( app_do_modal )	{			// modal event handling
 	int ret = 0;
 	if ( !qt_try_modal(widget, &msg, ret ) ) {
@@ -2113,6 +2110,14 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			popup->close();
 		}
 		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
+		break;
+
+	    case WM_MOUSEACTIVATE:
+		if ( widget->isTopLevel() && widget->inherits( "QDockWindow" ) ) {
+		    if ( widget->focusWidget() )
+			RETURN(MA_ACTIVATE);
+		    RETURN(MA_NOACTIVATE);
+		}
 		break;
 
 	    case WM_PALETTECHANGED:			// our window changed palette
