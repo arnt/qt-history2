@@ -1155,11 +1155,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    qDebug("Handling mouse: %d", ekind == kEventMouseDown);
 	}
 #endif
-	int keys;
 	QEvent::Type etype = QEvent::None;
+	UInt32 modifiers;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL,
-			  sizeof(keys), NULL, &keys);
-	keys = get_modifiers(keys);
+			  sizeof(modifiers), NULL, &modifiers);
+	int keys = get_modifiers(modifiers);
 	int button=QEvent::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
 	if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
 	    EventMouseButton mb;
@@ -1284,7 +1284,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    bool was_context = FALSE;
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
-		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
+		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
 		QApplication::sendSpontaneousEvent(popupwidget, &cme);
 		was_context = cme.isAccepted();
@@ -1393,7 +1393,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    bool was_context = FALSE;
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
-		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
+		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
 		QApplication::sendSpontaneousEvent(widget, &cme);
 		was_context = cme.isAccepted();
@@ -1551,27 +1551,32 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
-	//map it into qt keys
-	UInt32 state = 0L;
-	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
-		   (modif & (shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
+	static UInt32 state = 0L;
+	char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
+		   (modif & (rightOptionKeyBit|optionKey|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
 	if(!chr || (chr == kClearCharCode && keyc == 0x47)) 
 	    break;
+
+	//map it into qt keys
 	int modifiers = get_modifiers(modif), mychar=get_key(modifiers, chr, keyc);
 	static QTextCodec *c = NULL;
 	if(!c)
 	    c = QTextCodec::codecForName("Apple Roman");
        	QString mystr = c->toUnicode(&chr, 1);
-	//now get the real ascii value
-	UInt32 tmp_mod = 0L;
-	if(modifiers & Qt::ShiftButton)
-	    tmp_mod |= shiftKey;
-	if(modifiers & Qt::ControlButton)
-	    tmp_mod |= controlKey;
-	if(modif & alphaLock)
-	    tmp_mod |= alphaLock;
-	chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
-			   tmp_mod | keyc, &state);
+	{ 	//now get the real ascii value
+	    UInt32 tmp_mod = 0L;
+	    static UInt32 tmp_state = 0L;
+	    if(modifiers & Qt::ShiftButton)
+		tmp_mod |= shiftKey;
+	    if(modifiers & Qt::ControlButton)
+		tmp_mod |= controlKey;
+	    if(modif & alphaLock)
+		tmp_mod |= alphaLock;
+	    if(modifiers & Qt::AltButton)
+		tmp_mod |= optionKey;
+	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
+			       tmp_mod | keyc, &tmp_state);
+	}
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 	if(mac_keyboard_grabber)
@@ -1636,10 +1641,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(!CallNextEventHandler(er, event)) {
 		    handled_event = TRUE;
 		    break;
-		}
-		if(modifiers & Qt::AltButton) {
-		    mystr = QString();
-		    chr = 0;
 		}
 #ifdef DEBUG_KEY_MAPS
 		qDebug("KeyEvent: Sending %s to %s::%s: %04x %c %s %d",
