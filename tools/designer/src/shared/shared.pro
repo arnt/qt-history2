@@ -12,7 +12,7 @@ INCLUDEPATH += \
 
 LIBS += \
     -lQtDesigner \
-    -L../../lib \
+    -L$(QTDIR)/tools/designer/lib \
     -luilib
 
 unix:!mac:LIBS += -lm
