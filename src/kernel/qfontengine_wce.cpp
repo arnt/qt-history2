@@ -286,8 +286,10 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 
     unsigned int options =  0;
 
-    QGlyphLayout *glyphs = si->glyphs;
+    QGlyphLayout *glyphs = si.glyphs;
 
+#if 0
+    // #### should move to the printer GC
     if(p->pdev->devType() == QInternal::Printer) {
 	// some buggy printer drivers can't handle glyph indices correctly for latin1
 	// If the string is pure latin1, we output the string directly, not the glyph indices.
@@ -306,12 +308,12 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 	    options = 0;
 	}
     }
+#endif
 
     int xo = x;
 
     y -= ascent();
     if ( !(si.analysis.bidiLevel % 2) ) {
-	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
 	bool haveOffsets = FALSE;
 	int w = 0;
 	for( int i = 0; i < si.num_glyphs; i++ ) {

@@ -148,7 +148,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int te
 	mgc->setupQDFont();
     }
 
-    QGlyphLayout *glyphs = si->glyphs;
+    QGlyphLayout *glyphs = si.glyphs;
     if(p->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
 	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());

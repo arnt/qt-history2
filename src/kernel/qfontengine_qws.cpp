@@ -190,7 +190,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QGlyphFragment &si, int
     if ( si.isSpace )
 	return;
 
-    QGlyphLayout *glyphs = si->glyphs;
+    QGlyphLayout *glyphs = si.glyphs;
 
     struct Pos {
 	int x;
