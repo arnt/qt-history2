@@ -25,6 +25,7 @@
 #ifndef   __netwm_def_h
 #define   __netwm_def_h
 
+#include <X11/Xmd.h>
 
 /**
   Simple point class.
