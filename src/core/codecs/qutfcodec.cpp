@@ -199,7 +199,7 @@ int QUtf8Codec::mibEnum() const
     return 106;
 }
 
-enum { Swap = 0, Data = 1 };
+enum { Endian = 0, Data = 1 };
 
 QUtf16Codec::~QUtf16Codec()
 {
@@ -207,21 +207,44 @@ QUtf16Codec::~QUtf16Codec()
 
 QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
+    Endianness endian = e;
     int length =  2*len;
+    bool writeHeader = false;
     if (state) {
         if (state->flags & WriteHeader)
             length += 2;
+        writeHeader = true;
+    } else if (e == Detect) {
+        length += 2;
+        endian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? BE : LE;
+        writeHeader = true;
     }
 
     QByteArray d;
     d.resize(length);
     char *data = d.data();
-    if (state && state->flags & WriteHeader) {
+    if (writeHeader) {
         QChar bom(QChar::ByteOrderMark);
-        memcpy(d.data(), &bom, 2);
-        d += 2;
+        if (endian == BE) {
+            data[0] = bom.row();
+            data[1] = bom.cell();
+        } else {
+            data[0] = bom.cell();
+            data[1] = bom.row();
+        }
+        data += 2;
     }
-    memcpy(data, uc, len);
+    if (endian == BE) {
+        for (int i = 0; i < len; ++i) {
+            *(data++) = uc[i].row();
+            *(data++) = uc[i].cell();
+        }
+    } else {
+        for (int i = 0; i < len; ++i) {
+            *(data++) = uc[i].cell();
+            *(data++) = uc[i].row();
+        }
+    }
 
     if (state) {
         state->remainingChars = 0;
@@ -232,15 +255,13 @@ QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 
 QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState *state) const
 {
-    bool headerdone = false;
-    bool swap = false;
+    Endianness endian = e;
     bool half = false;
     uchar buf = 0;
     if (state) {
-        if (state->flags & KeepHeader)
-            headerdone = true;
-        if (state->state_data[Swap])
-            swap = true;
+        if ((state->flags & KeepHeader) && state->state_data[Endian] == Detect)
+            state->state_data[Endian] = (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? BE : LE;
+        endian = (Endianness)state->state_data[Endian];
         if (state->remainingChars) {
             half = true;
             buf = state->state_data[Data];
@@ -250,27 +271,29 @@ QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState
     QString result;
     result.resize(len); // worst case
     QChar *qch = (QChar *)result.unicode();
-    QChar ch;
     while (len--) {
         if (half) {
-            if (swap) {
+            QChar ch;
+            if (endian == LE) {
                 ch.setRow(*chars++);
                 ch.setCell(buf);
             } else {
                 ch.setRow(buf);
                 ch.setCell(*chars++);
             }
-            if (!headerdone) {
+            if (endian == Detect) {
                 if (ch == QChar::ByteOrderSwapped) {
-                    swap = !swap;
+                    endian = LE;
                 } else if (ch == QChar::ByteOrderMark) {
-                    // Ignore ZWNBSP
+                    // ignore BOM
+                    endian = BE;
                 } else {
+                    endian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? BE : LE;
                     *qch++ = ch;
                 }
-                headerdone = true;
-            } else
+            } else {
                 *qch++ = ch;
+            }
             half = false;
         } else {
             buf = *chars++;
@@ -281,7 +304,7 @@ QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState
 
     if (state) {
         state->flags |= KeepHeader;
-        state->state_data[Swap] = swap;
+        state->state_data[Endian] = e;
         if (half) {
             state->remainingChars = 1;
             state->state_data[Data] = buf;
@@ -307,6 +330,38 @@ QList<QByteArray> QUtf16Codec::aliases() const
 {
     QList<QByteArray> list;
     list << "ISO-10646-UCS-2";
+    return list;
+}
+
+int QUtf16BECodec::mibEnum() const
+{
+    return 1013;
+}
+
+QByteArray QUtf16BECodec::name() const
+{
+    return "UTF-16BE";
+}
+
+QList<QByteArray> QUtf16BECodec::aliases() const
+{
+    QList<QByteArray> list;
+    return list;
+}
+
+int QUtf16LECodec::mibEnum() const
+{
+    return 1014;
+}
+
+QByteArray QUtf16LECodec::name() const
+{
+    return "UTF-16LE";
+}
+
+QList<QByteArray> QUtf16LECodec::aliases() const
+{
+    QList<QByteArray> list;
     return list;
 }
 

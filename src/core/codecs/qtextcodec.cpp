@@ -452,6 +452,8 @@ static void setup()
 #endif // Q_OS_WIN32
 
     (void)new QUtf16Codec;
+    (void)new QUtf16BECodec;
+    (void)new QUtf16LECodec;
     (void)new QLatin15Codec;
     (void)new QLatin1Codec;
     (void)new QUtf8Codec;

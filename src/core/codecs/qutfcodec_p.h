@@ -41,7 +41,14 @@ public:
 };
 
 class QUtf16Codec : public QTextCodec {
+protected:
+    enum Endianness {
+        Detect,
+        BE,
+        LE
+    };
 public:
+    QUtf16Codec() { e = Detect; }
     ~QUtf16Codec();
 
     QByteArray name() const;
@@ -50,6 +57,25 @@ public:
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+
+protected:
+    Endianness e;
+};
+
+class QUtf16BECodec : public QUtf16Codec {
+public:
+    QUtf16BECodec() : QUtf16Codec() { e = BE; }
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
+    int mibEnum() const;
+};
+
+class QUtf16LECodec : public QUtf16Codec {
+public:
+    QUtf16LECodec() : QUtf16Codec() { e = LE; }
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
+    int mibEnum() const;
 };
 
 #endif
