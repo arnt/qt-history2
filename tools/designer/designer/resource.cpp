@@ -867,7 +867,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "<widget class=\"" << className << "\"" << attributes << ">" << endl;
 	    ++indent;
 	}
-	if ( WidgetFactory::hasItems(classID) )
+	if ( WidgetFactory::hasItems(classID, obj) )
 	    saveItems( obj, ts, indent );
 	saveObjectProperties( obj, ts, indent );
     } else {
@@ -2002,7 +2002,7 @@ void Resource::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool 
 
 void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem *i )
 {
-    if ( !widget || !WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) )
+    if ( !widget || !WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ), widget ) )
 	return;
 
     if ( ::qt_cast<QListBox*>(widget) || ::qt_cast<QComboBox*>(widget) ) {
@@ -3049,7 +3049,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 			const char *className = WidgetFactory::classNameOf( w );
 			if ( w->isA( "CustomWidget" ) )
 			    usedCustomWidgets << QString( className );
-			if ( WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) )
+			if ( WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ), w ) )
 			    saveItems( w, ts, indent );
 			saveObjectProperties( w, ts, indent );
 			indent--;

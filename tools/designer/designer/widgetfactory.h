@@ -78,8 +78,8 @@ public:
 
     static void initChangedProperties( QObject *o );
 
-    static bool hasSpecialEditor( int id );
-    static bool hasItems( int id );
+    static bool hasSpecialEditor( int id, QObject *editorWidget );
+    static bool hasItems( int id, QObject *editorWidget );
     static void editWidget( int id, QWidget *parent, QWidget *editWidget, FormWindow *fw );
 
     static bool canResetProperty( QObject *w, const QString &propName );

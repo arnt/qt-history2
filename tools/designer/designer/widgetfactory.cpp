@@ -1353,7 +1353,7 @@ void WidgetFactory::initChangedProperties( QObject *o )
     }
 }
 
-bool WidgetFactory::hasSpecialEditor( int id )
+bool WidgetFactory::hasSpecialEditor( int id, QObject *editorWidget )
 {
     QString className = WidgetDatabase::className( id );
 
@@ -1367,19 +1367,19 @@ bool WidgetFactory::hasSpecialEditor( int id )
 	return TRUE;
     if ( className == "QTextEdit" || className == "QMultiLineEdit" )
 	return TRUE;
-    if ( className.contains( "Table" ) )
+    if ( ::qt_cast<QTable*>(editorWidget) != 0 )
 	return TRUE;
 
     return FALSE;
 }
 
-bool WidgetFactory::hasItems( int id )
+bool WidgetFactory::hasItems( int id, QObject *editorWidget )
 {
     QString className = WidgetDatabase::className( id );
 
     if ( className.contains( "ListBox" ) || className.contains( "ListView" ) ||
 	 className.contains( "IconView" )  || className.contains( "ComboBox" ) ||
-	 className.contains( "Table" ) )
+	 ::qt_cast<QTable*>(editorWidget) != 0 )
 	return TRUE;
 
     return FALSE;
@@ -1435,7 +1435,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	return;
     }
 #ifndef QT_NO_TABLE
-    if ( className.contains( "Table" ) ) {
+    if (::qt_cast<QTable*>(editWidget) != 0) {
 	TableEditor *e = new TableEditor( parent, editWidget, fw );
 	e->exec();
 	delete e;

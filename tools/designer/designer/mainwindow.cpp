@@ -1667,7 +1667,7 @@ void MainWindow::setupRMBSpecialCommands( QList<uint> &ids,
     }
 
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
-			  idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
+			  idFromClassName( WidgetFactory::classNameOf( w ) ), w ) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator( 0 );
 	ids << ( id = rmbWidgets->insertItem( tr("Edit..."), -1, 0 ) );
@@ -1920,7 +1920,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
     }
 
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
-				  idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
+				  idFromClassName( WidgetFactory::classNameOf( w ) ), w ) ) {
 	if ( id == commands[ "edit" ] )
 	    WidgetFactory::editWidget( WidgetDatabase::
 		       idFromClassName( WidgetFactory::classNameOf( w ) ), this, w, formWindow() );
@@ -2583,7 +2583,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	return TRUE;
     }
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
-					  idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
+					  idFromClassName( WidgetFactory::classNameOf( w ) ), w ) ) {
 	statusBar()->message( tr( "Edit %1..." ).arg( w->className() ) );
 	WidgetFactory::editWidget( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ),
 				   this, w, formWindow() );
