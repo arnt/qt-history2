@@ -486,6 +486,9 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 
             info.item = new QWidgetItem(toolbar);
             toolbar->setVisible(shown);
+            toolbar->setOrientation((lineInfo.pos == LEFT  || lineInfo.pos == RIGHT)
+                                    ? Qt::Vertical
+                                    : Qt::Horizontal);
             lineInfo.list << info;
         }
         toolBarState << lineInfo;
