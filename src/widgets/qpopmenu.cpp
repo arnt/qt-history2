@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#141 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#141 $");
 
 // Motif style parameters
 
@@ -1097,18 +1097,20 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		QString k;
 		k.sprintf( "$qt-drawitem-%x", pixmap->serialNumber() );
 		QPixmap * mask = QPixmapCache::find(k);
+		bool del = FALSE;
 		if ( !mask ) {
 		    if ( pixmap->mask() )
 			mask = new QPixmap( *pixmap->mask() );
 		    else
 			mask = new QPixmap( pixmap->createHeuristicMask() );
 		    mask->setMask( *((QBitmap*)mask) );
-		    QPixmapCache::insert( k, mask );
+		    del = !QPixmapCache::insert( k, mask );
 		}
 		p->setPen( itemg.light() );
 		p->drawPixmap( pmr.left()+1, pmr.top()+1, *mask );
 		p->setPen( itemg.text() );
 		p->drawPixmap( pmr.topLeft(), *mask );
+		if ( del ) delete mask;
 	    } else {
 		p->setPen( itemg.text() );
 		p->drawPixmap( pmr.topLeft(), *pixmap );

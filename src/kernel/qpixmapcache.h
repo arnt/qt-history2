@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.h#8 $
 **
 ** Definition of QPixmapCache class
 **
@@ -23,7 +23,9 @@ public:
     static  int		cacheLimit();
     static  void	setCacheLimit( int );
     static  QPixmap    *find( const char *key );
+    static  bool	find( const char *key, QPixmap& );
     static  bool	insert( const char *key, QPixmap * );
+    static  void	insert( const char *key, const QPixmap& );
     static  void	clear();
 };
 

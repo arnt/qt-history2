@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#231 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#230 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#231 $");
 
 
 /*****************************************************************************
@@ -750,14 +750,16 @@ static uchar *pat_tbl[] = {
 	    QString key;
 	    key.sprintf( "$qt-brush$%d", bs );
 	    pm = QPixmapCache::find( key );
+	    bool del = FALSE;
 	    if ( !pm ) {			// not already in pm dict
 		pm = new QBitmap( d, d, pat, TRUE );
 		CHECK_PTR( pm );
-		QPixmapCache::insert( key, pm );
+		del = !QPixmapCache::insert( key, pm );
 	    }
 	    if ( cbrush.data->pixmap )
 		delete cbrush.data->pixmap;
 	    cbrush.data->pixmap = new QPixmap( *pm );
+	    if (del) delete pm;
 	}
 	pm = cbrush.data->pixmap;
 	if ( pm->depth() == 1 ) {

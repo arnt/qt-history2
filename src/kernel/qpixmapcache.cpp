@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#14 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -12,7 +12,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#14 $");
 
 
 /*!
@@ -60,6 +60,26 @@ static int cache_limit	  = 1024;		// 1024 KB cache limit
 /*!
   Returns the pixmap associated with \e key in the cache, or null if there
   is no such pixmap.
+  <strong>
+    NOTE: if valid, you should copy the pixmap immediately (this is quick
+    since QPixmaps are \link hclass.html implicitly shared\endlink), because
+    subsequent insertions into the cache could cause the pointer to become
+    invalid.  For this reason, we recommend you use
+    find(const char*, QPixmap&) instead.
+  </strong>
+
+  Example:
+  \code
+    QPixmap* pp;
+    QPixmap p;
+    if ( (pp=QPixmapCache::find("my_previous_copy", pm)) ) {
+	p = *pp;
+    } else {
+	p.load("bigimage.gif");
+	QPixmapCache::insert("my_previous_copy", new QPixmap(p));
+    }
+    painter->drawPixmap(0, 0, p);
+  \endcode
 */
 
 QPixmap *QPixmapCache::find( const char *key )
@@ -67,11 +87,61 @@ QPixmap *QPixmapCache::find( const char *key )
     return pm_cache ? pm_cache->find(key) : 0;
 }
 
+
+/*!
+  Sets \a pm to the cached pixmap associated with \e key in the cache and
+  returns TRUE.  If FALSE is returned, no cached copy was found, and
+  \a pm is unchanged.
+
+  Example:
+  \code
+    QPixmap p;
+    if ( !QPixmapCache::find("my_previous_copy", pm) ) {
+	pm.load("bigimage.gif");
+	QPixmapCache::insert("my_previous_copy", pm);
+    }
+    painter->drawPixmap(0, 0, p);
+  \endcode
+*/
+
+bool QPixmapCache::find( const char *key, QPixmap& pm )
+{
+    QPixmap* p = pm_cache ? pm_cache->find(key) : 0;
+    if ( p ) pm = *p;
+    return !!p;
+}
+
 /*!
   Inserts the pixmap \e pm associated with \e key into the cache.
   Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
 
-  All pixmaps inserted by the Qt library has a key starting with "$qt..".
+  <strong>
+    NOTE: If this function returns FALSE, you must delete \a pm yourself.
+    Additionally, be very careful about using \a pm after calling this
+    function, as any other insertions into the cache, from anywhere in
+    the application, or within Qt itself, could cause the pixmap to be
+    discarded from the cache, and the pointer to become invalid.
+
+    Due to these dangers, we strongly recommend that you use
+    insert(const char*, const QPixmap&) instead.
+  </strong>
+*/
+
+bool QPixmapCache::insert( const char *key, QPixmap *pm )
+{
+    if ( !pm_cache ) {				// create pixmap cache
+	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
+	CHECK_PTR( pm_cache );
+	pm_cache->setAutoDelete( TRUE );
+    }
+    return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
+}
+
+/*!
+  Inserts a copy of the pixmap \e pm associated with \e key into the cache.
+  Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
+
+  All pixmaps inserted by the Qt library have a key starting with "$qt..".
   Use something else for you pixmaps.
 
   When a pixmap is inserted and the cache is about to exceed its limit, it
@@ -83,14 +153,16 @@ QPixmap *QPixmapCache::find( const char *key )
   \sa setCacheLimit().
 */
 
-bool QPixmapCache::insert( const char *key, QPixmap *pm )
+void QPixmapCache::insert( const char *key, const QPixmap& pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
 	CHECK_PTR( pm_cache );
 	pm_cache->setAutoDelete( TRUE );
     }
-    return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
+    QPixmap *p = new QPixmap(pm);
+    if ( !pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 ) )
+	delete p;
 }
 
 /*!

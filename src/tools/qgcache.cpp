@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#33 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#33 $");
 
 
 /*!
@@ -282,6 +282,14 @@ void QGCache::setMaxCost( int maxCost )
 /*!
   \internal
   Inserts an item into the cache.
+
+  <strong>
+    NOTE: If this function returns FALSE, you must delete \a data yourself.
+    Additionally, be very careful about using \a data after calling this
+    function, as any other insertions into the cache, from anywhere in
+    the application, or within Qt itself, could cause the data to be 
+    discarded from the cache, and the pointer to become invalid.
+  </strong>
 */
 
 bool QGCache::insert( const char *key, GCI data, int cost, int priority )

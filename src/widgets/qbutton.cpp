@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#102 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#102 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -34,15 +34,19 @@ static const int drawingPixHeight = 100;
   pixmap is used by paintEvent for flicker-free drawing.
  */
 
+static QPixmap *drawpm = 0;
+static void cleanupButtonPm()
+{
+    delete drawpm;
+}
 static QPixmap *getDrawingPixmap()
 {
-    QPixmap *pm = QPixmapCache::find( "$qt-button-drawpix" );
-    if ( !pm ) {
-	pm = new QPixmap( drawingPixWidth, drawingPixHeight );
-	CHECK_PTR( pm );
-	QPixmapCache::insert( "$qt-button-drawpix", pm );
+    if ( !drawpm ) {
+	qAddPostRoutine( cleanupButtonPm );
+	drawpm = new QPixmap( drawingPixWidth, drawingPixHeight );
+	CHECK_PTR( drawpm );
     }
-    return pm;
+    return drawpm;
 }
 
 
