@@ -1322,8 +1322,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 	    drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
 	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
 								   data ), cb );
-	    qDrawArrow( p, DownArrow, MotifStyle, FALSE, ar.x(), ar.y(),
-			ar.width(), ar.height(), cg, TRUE );
+	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags | PStyle_Enabled );
 
 	    QRect tr = r;
 	    tr.addCoords( fw, fw, -fw, -fw );
