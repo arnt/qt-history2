@@ -20,7 +20,7 @@
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Unix/X11 may use this file in accordance with the Qt Commercial
-** License Agreement provided with the Software.
+** License Agreement prqovided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -283,14 +283,6 @@ public:
 };
 
 
-extern QDragManager * qt_dnd_manager;
-
-void qt_xdnd_set_current_widget( QWidget * w )
-{
-    qt_xdnd_current_widget = w;
-}
-
-
 static bool qt_xdnd_enable( QWidget* w, bool on )
 {
     if ( on ) {
@@ -520,7 +512,7 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
 	((XEvent*)xe)->xany.window = extra->xDndProxy;
 	XSendEvent( QPaintDevice::x11AppDisplay(), extra->xDndProxy, False, NoEventMask,
 		    (XEvent*)xe );
-	qt_xdnd_set_current_widget( w );
+	qt_xdnd_current_widget = w;
 	return TRUE;
     }
     current_embedding_widget = 0;
@@ -623,7 +615,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 		QApplication::sendEvent( qt_xdnd_current_widget, &e );
 	    }
 	    if ( c->acceptDrops() ) {
-		qt_xdnd_set_current_widget( c );
+		qt_xdnd_current_widget = c;
 		qt_xdnd_current_position = p;
 		//NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
@@ -643,10 +635,10 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 	}
 
 	if ( !c->acceptDrops() ) {
-	    qt_xdnd_set_current_widget( 0 );
+	    qt_xdnd_current_widget = 0;
 	    answerRect = QRect( p, QSize( 1, 1 ) );
 	} else if ( xdndaction_to_qtaction(l[4]) < QDropEvent::Private ) {
-	    qt_xdnd_set_current_widget( c );
+	    qt_xdnd_current_widget = c;
 	    qt_xdnd_current_position = p;
 	    //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
@@ -733,7 +725,7 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe, bool /*passive*/ )
 
     if (checkEmbedded(current_embedding_widget, xe)) {
 	current_embedding_widget = 0;
-	qt_xdnd_set_current_widget( 0 );
+	qt_xdnd_current_widget = 0;
 	return;
     }
 
@@ -746,13 +738,13 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe, bool /*passive*/ )
 	// This often happens - leave other-process window quickly
 	//qDebug( "xdnd drag leave from unexpected source (%08lx not %08lx",
 	       //l[0], qt_xdnd_dragsource_xid );
-	qt_xdnd_set_current_widget( 0 );
+	qt_xdnd_current_widget = 0;
 	return;
     }
 
     qt_xdnd_dragsource_xid = 0;
     qt_xdnd_types[0] = 0;
-    qt_xdnd_set_current_widget( 0 );
+    qt_xdnd_current_widget = 0;
 }
 
 
@@ -801,7 +793,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
     if (!passive && checkEmbedded(qt_xdnd_current_widget, xe)){
 	current_embedding_widget = 0;
 	qt_xdnd_dragsource_xid = 0;
-	qt_xdnd_set_current_widget( 0 );
+	qt_xdnd_current_widget = 0;
 	return;
     }
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
@@ -838,7 +830,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 	QApplication::sendEvent( qt_xdnd_current_widget, &e );
     }
     qt_xdnd_dragsource_xid = 0;
-    qt_xdnd_set_current_widget( 0 );
+    qt_xdnd_current_widget = 0;
 }
 
 
@@ -1333,7 +1325,7 @@ bool qt_xdnd_handle_badwindow()
 	if ( qt_xdnd_current_widget ) {
 	    QDragLeaveEvent e;
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
-	    qt_xdnd_set_current_widget( 0 );
+	    qt_xdnd_current_widget = 0;
 	}
 	return TRUE;
     }

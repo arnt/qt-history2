@@ -530,10 +530,6 @@ void QDragManager::updatePixmap()
 {
 }
 
-void QDragManager::resetPointer()
-{
-}
-
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
     updateDragMode(theDrag);

@@ -300,11 +300,6 @@ void QDragManager::drop()
     // not used in windows implementation
 }
 
-void QDragManager::resetPointer()
-{
-    // not used in windows implementation
-}
-
 
 bool QDropEvent::provides( const char* mimeType ) const
 {
