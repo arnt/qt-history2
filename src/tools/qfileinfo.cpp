@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#7 $
 **
 ** Implementation of QFileInfo class
 **
@@ -20,7 +20,7 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#7 $";
 #endif
 
 struct QFileInfoCache 
@@ -47,13 +47,13 @@ struct QFileInfoCache
   
   A QFileInfo can point to a file using either a relative or an absolute
   file path. Absolute file paths begin with the directory separator
-  (e.g. '/' under UNIX) or a drive specification (not applicable to UNIX).
+  ('/') or a drive specification (not applicable to UNIX).
   Relative file names begin with a directory name or a file name and specify
-  a path relative to the current directory. Under UNIX, an example of
-  a relative path is the string "/tmp/quartz", a relative path might look like
+  a path relative to the current directory. An example of
+  an absolute path is the string "/tmp/quartz", a relative path might look like
   "src/fatlib". You can use the function isRelative() to check if a QFileInfo
   is using a relative or an absolute file path. You can call the function
-  convertToAbsolute() to convert a relative QFileInfo to an absolute one.
+  convertToAbs() to convert a relative QFileInfo to an absolute one.
 
   If you need to read and traverse directories, see the QDir class.
   */
@@ -124,11 +124,15 @@ QFileInfo::QFileInfo( const QFile &file )
   /*!
   Constructs a new QFileInfo that gives information about the file
   named \e fileName in the directory \e d.
+
   If the directory has a relative path, the QFileInfo will also have one.
+
+  \sa isRelative()
   */
+
 QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
 {
-    fn    = d.pathName( fileName );
+    fn    = d.filePath( fileName );
     fic   = 0;    
     cache = TRUE;
 }
@@ -139,9 +143,9 @@ QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
   \sa bool setFile(const char*), isRelative(),
   QDir::setCurrent, QDir::isRelativePath
   */
-QFileInfo::QFileInfo( const char *relativeOrAbsoluteFileName )
+QFileInfo::QFileInfo( const char *relativeOrAbsFilePath )
 {
-    fn    = relativeOrAbsoluteFileName;
+    fn    = relativeOrAbsFilePath;
     fic   = 0;
     cache = TRUE;
 }
@@ -215,7 +219,7 @@ void QFileInfo::setFile( const QFile &file )
   */
 void QFileInfo::setFile( const  QDir &d, const char *fileName )
 {
-    fn  = d.pathName( fileName );
+    fn  = d.filePath( fileName );
     delete fic;
     fic = 0;    
 }
@@ -233,24 +237,24 @@ void QFileInfo::setFile( const  QDir &d, const char *fileName )
   #include <qfileinf.h>
 
   void test() {
-                                  // expands to "/liver/aorta" under UNIX:
-      const char *absolute = Q_SEPARATOR "liver" Q_SEPARATOR "aorta";
-      const char *relative = "liver" Q_SEPARATOR "aorta";
+      const char *absolute = "/liver/aorta";
+      const char *relative = "liver/aorta";
       QFileInfo fi1( absolute );
       QFileInfo fi2( relative );
   
-      QDir::setCurrent( QDir::rootDirString() );
-                              // fi1 and fi2 now point to the same file
-      QDir::setCurrent( Q_SEPARATOR "tmp" );
-                              // fi1 now points to "/liver/aorta",
-                              // while fi2 points to "/tmp/liver/aorta"
+      QDir::setCurrent( QDir::rootDirPath() );
+      				// fi1 and fi2 now point to the same file
+
+      QDir::setCurrent( "/tmp" );
+                                // fi1 now points to "/liver/aorta",
+                                // while fi2 points to "/tmp/liver/aorta"
   }
   \endcode
   \sa isRelative(), QDir::setCurrent, QDir::isRelativePath
   */
-void QFileInfo::setFile( const char *relativeOrAbsoluteFileName )
+void QFileInfo::setFile( const char *relativeOrAbsFilePath )
 {
-    fn = relativeOrAbsoluteFileName;
+    fn = relativeOrAbsFilePath;
     delete fic;
     fic = 0;
 }
@@ -259,9 +263,9 @@ void QFileInfo::setFile( const char *relativeOrAbsoluteFileName )
   Returns the name, i.e. the file name including the path (which can be
   absolute or relative). 
  
-  \sa isRelative(), fullPathName()
+  \sa isRelative(), absFilePath()
   */
-const char * QFileInfo::name() const
+const char * QFileInfo::filePath() const
 {
     return fn.data();
 }
@@ -269,8 +273,15 @@ const char * QFileInfo::name() const
   /*!
   Returns the name of the file, the file path is NOT included.
 
-  \sa isRelative(), name(), baseName(), extension()
+  Example:
+  \code
+     QFileInfo fi( "/tmp/abdomen.lower" );
+     QString tmp = fi.fileName();	// tmp = "abdomen.lower"
+  \endcode
+
+  \sa isRelative(), filePath(), baseName(), extension()
   */
+
 QString QFileInfo::fileName() const
 {
     int pos = fn.findRev( QDir::separator() );
@@ -281,18 +292,18 @@ QString QFileInfo::fileName() const
 }
 
   /*!
-  Returns the full path name, i.e. the file name including the full
+  Returns the absolute path name, i.e. the file name including the
   absolute path. If the QFileInfo is absolute (i.e. not relative) this
-  function will return the same string as name(). Note that this
+  function will return the same string as filePath(). Note that this
   function can be time-consuming under UNIX. (in the order of milliseconds
   on a 486 DX2/66 running Linux).
  
-  \sa isRelative(), name()
+  \sa isRelative(), filePath()
   */
-QString QFileInfo::fullPathName() const
+QString QFileInfo::absFilePath() const
 {
     if ( QDir::isRelativePath(fn) ) {
-        QString tmp = QDir::currentDirString();
+        QString tmp = QDir::currentDirPath();
         tmp.detach();
         tmp += QDir::separator();
         tmp += fn;
@@ -306,8 +317,15 @@ QString QFileInfo::fullPathName() const
   Returns the base name of the file, i.e. all characters in the file name
   up to (but not including) the first '.' character. The path is NOT included.
 
+  Example:
+  \code
+     QFileInfo fi( "/tmp/abdomen.lower" );
+     QString tmp = fi.baseName();	// tmp = "abdomen"
+  \endcode
+
   \sa fileName(), extension()
   */
+
 QString QFileInfo::baseName() const
 {
     QString tmp = fileName();
@@ -324,8 +342,15 @@ QString QFileInfo::baseName() const
 
   For a file named "yo.tar.gz" this function will return "tar.gz".
 
+  Example:
+  \code
+     QFileInfo fi( "/tmp/abdomen.lower" );
+     QString tmp = fi.extension();	// tmp = "lower"
+  \endcode
+
   \sa fileName(), baseName()
   */
+
 QString QFileInfo::extension() const
 {
     QString tmp = fileName();
@@ -337,15 +362,17 @@ QString QFileInfo::extension() const
 }
 
   /*!
-  Returns the name of the directory containing the file, i.e. the path of
-  the file (which can be absolute or relative). If fullPath is TRUE an
+  Returns the name of the directory containing the file, i.e. the
+  directory path of
+  the file (which can be absolute or relative). If absPath is TRUE an
   absolute path is always returned.
 
-  \sa name(), fileName(), isRelative()
+  \sa filePath(), fileName(), isRelative()
   */
-QString QFileInfo::dirName( bool fullPath ) const
+
+QString QFileInfo::dirPath( bool absPath ) const
 {
-    QString tmp = fullPath ? fullPathName() : fn;
+    QString tmp = absPath ? absFilePath() : fn;
     int pos = tmp.findRev( QDir::separator() );
     if ( pos == -1 )
         return ".";
@@ -355,14 +382,14 @@ QString QFileInfo::dirName( bool fullPath ) const
 
   /*!
   Returns the directory that contains the file. If the QFileInfo is relative
-  and fullPath is FALSE, the QDir will be relative, otherwise it will be
+  and absPath is FALSE, the QDir will be relative, otherwise it will be
   absolute.
 
-  \sa name(), fileName(), dirName(), isRelative()
+  \sa filePath(), fileName(), dirPath(), isRelative()
   */
-QDir QFileInfo::dir( bool fullPath ) const
+QDir QFileInfo::dir( bool absPath ) const
 {
-    return QDir( dirName(fullPath) );
+    return QDir( dirPath(absPath) );
 }
 
   /*!
@@ -420,12 +447,12 @@ bool QFileInfo::isRelative() const
   Converts the file path name to an absolute path. If it is already
   absolute nothing is done.
 
-  \sa name(), isRelative()
+  \sa filePath(), isRelative()
   */
-bool QFileInfo::convertToAbsolute()
+bool QFileInfo::convertToAbs()
 {
     if ( isRelative )
-        fn = fullPathName();
+        fn = absFilePath();
     return QDir::isRelativePath( fn.data() );    
 }
 
@@ -562,7 +589,7 @@ uint QFileInfo::groupId() const
   always returns TRUE.
 
   \code
-  QFileInfo fi( Q_SEPARATOR "tmp" Q_SEPARATOR "tonsils" );
+  QFileInfo fi( "/tmp/tonsils" );
   if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
       warning( "Tonsils can be changed by me, and the group can read them." );
   if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
@@ -570,6 +597,7 @@ uint QFileInfo::groupId() const
   \endcode
   \sa isReadable(), isWritable(), isExecutable()
   */
+
 bool QFileInfo::permission( int permissionSpec ) const
 {
 #if defined(UNIX)
@@ -612,9 +640,10 @@ bool QFileInfo::permission( int permissionSpec ) const
 }
 
   /*!
-  Returns the file size in bytes, if the file does not exist or the size
-  cannot be fetched this function returns -1.
+  Returns the file size in bytes. If the file does not exist, or the size
+  cannot be fetched, this function returns -1.
   */
+
 long QFileInfo::size() const
 {
     if ( !fic || !cache )
@@ -630,6 +659,7 @@ long QFileInfo::size() const
 
   \sa lastRead()
   */
+
 QDateTime QFileInfo::lastModified() const
 {
     QDateTime dt;
