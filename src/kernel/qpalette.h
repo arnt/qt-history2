@@ -25,6 +25,7 @@
 #ifndef QT_NO_PALETTE
 
 class QColorGroup;
+class QPalettePrivate;
 
 class Q_EXPORT QPalette
 {
@@ -106,7 +107,10 @@ public:
     inline bool operator!=(const QPalette &p) const { return !(operator==(p)); }
     bool isCopyOf(const QPalette &p);
 
-    int	serialNumber() const { return d->ser_no; }
+    int serialNumber() const;
+
+    QPalette resolve( const QPalette & ) const;
+    uint mask() const;
 
 private:
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
@@ -121,23 +125,15 @@ private:
     QColorGroup createColorGroup(ColorGroup) const;
 #endif
     void init();
-    void detach() { if (d->ref != 1) detach_helper(); }
-    void detach_helper();
+    void detach();
 
-    struct QPaletteData {
-	QAtomic ref;
-	QBrush br[NColorGroups][NColorRoles];
-	int	    ser_no;
-    };
-    QPaletteData *d;
+    QPalettePrivate *d;
     ColorGroup current_group : 4;
 #ifndef QT_NO_COMPAT
     friend class QColorGroup;
     uint is_colorgroup : 1;
 #endif
     friend Q_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
-    static QPaletteData *shared_default;
-    static int palette_count;
 };
 
 #ifndef QT_NO_COMPAT

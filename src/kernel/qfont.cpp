@@ -541,8 +541,7 @@ void QFont::detach()
       fontdef mask to zero to indicate that *nothing* has been
       explicitly set by the programmer.
     */
-    const QFont appfont = QApplication::font();
-    if ( old_d == appfont.d )
+    if (old_d == QApplication::font().d)
 	d->mask = 0;
 
     if ( old_d->deref() )
@@ -556,8 +555,7 @@ void QFont::detach()
 */
 QFont::QFont()
 {
-    const QFont appfont = QApplication::font();
-    d = appfont.d;
+    d = QApplication::font().d;
     d->ref();
 }
 
@@ -1332,13 +1330,19 @@ QFont QFont::resolve( const QFont &other ) const
       fontdef mask to zero to indicate that *nothing* has been
       explicitly set by the programmer.
     */
-    const QFont appfont = QApplication::font();
-    if ( d == appfont.d )
+    if (d == QApplication::font().d)
 	font.d->mask = 0;
 
     font.d->resolve( other.d );
 
     return font;
+}
+
+/*!\internal
+ */
+uint QFont::mask() const
+{
+    return d->mask;
 }
 
 #ifndef QT_NO_COMPAT

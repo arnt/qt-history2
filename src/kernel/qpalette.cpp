@@ -13,10 +13,30 @@
 ****************************************************************************/
 
 #include "qpalette.h"
-
+#include "qapplication.h"
 #ifndef QT_NO_PALETTE
 #include "qdatastream.h"
 #include "qcleanuphandler.h"
+
+static QAtomic qt_palette_count = Q_ATOMIC_INIT(1);
+class QPalettePrivate {
+public:
+    QPalettePrivate():ser_no(++qt_palette_count), mask(0xffffffff){ ref = 1; }
+    QAtomic ref;
+    QBrush br[QPalette::NColorGroups][QPalette::NColorRoles];
+    int ser_no;
+    uint mask;
+    void resolve( const QPalettePrivate *other );
+};
+
+void QPalettePrivate::resolve( const QPalettePrivate *other )
+{
+    qDebug("resolve palette with mask %d to other with mask %d", mask, other->mask);
+    for(int role = 0; role < (int)QPalette::NColorRoles; role++)
+	if (!(mask & (1<<role)))
+	    for(int grp = 0; grp < (int)QPalette::NColorGroups; grp++)
+		br[grp][role] = other->br[grp][role];
+}
 
 static QColor qt_mix_colors(QColor a, QColor b)
 {
@@ -418,23 +438,14 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \img palette.png Color Roles
 */
 
-int QPalette::palette_count = 0;
-QPalette::QPaletteData *QPalette::shared_default = 0;
-
 /*!
-    Constructs a palette that consists of color groups with only black
-    colors.
+    Constructs a palette object that uses the application's default palette.
+
+    \sa QApplication::setPalette(), QApplication::palette()
 */
 QPalette::QPalette()
 {
-    if(!shared_default) {
-	shared_default = new QPaletteData;
-	shared_default->ref = 1;
-	shared_default->ser_no = palette_count++;
-	static QCleanupHandler<QPaletteData> defPalCleanup;
-	defPalCleanup.add(&shared_default);
-    }
-    d = shared_default;
+    d = QApplication::palette().d;
     ++d->ref;
     current_group = Active; //as a default..
 #ifndef QT_NO_COMPAT
@@ -568,9 +579,7 @@ QPalette::~QPalette()
 
 /*!\internal*/
 void QPalette::init() {
-    d = new QPaletteData;
-    d->ref = 1;
-    d->ser_no = palette_count++;
+    d = new QPalettePrivate;
 #ifndef QT_NO_COMPAT
     is_colorgroup = 0;
 #endif
@@ -587,7 +596,7 @@ void QPalette::init() {
 */
 QPalette &QPalette::operator=(const QPalette &p)
 {
-    QPaletteData *x = p.d;
+    QPalettePrivate *x = p.d;
     ++x->ref;
     current_group = p.current_group;
 #ifndef QT_NO_COMPAT
@@ -643,11 +652,11 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 {
     Q_ASSERT(cr < NColorRoles);
     detach();
-    d->ser_no = palette_count++;
     if(cg >= (int)NColorGroups) {
 	if(cg == All) {
 	    for(int i = 0; i < (int)NColorGroups; i++)
 		d->br[i][cr] = b;
+	    d->mask |= (1<<cr);
 	    return;
 	} else if(cg == Current) {
 	    cg = current_group;
@@ -657,6 +666,7 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 	}
     }
     d->br[cg][cr] = b;
+    d->mask |= (1<<cr);
 }
 
 
@@ -678,18 +688,26 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
     Calling this should generally not be necessary; QPalette calls it
     itself when necessary.
 */
-void QPalette::detach_helper()
+void QPalette::detach()
 {
-    QPaletteData *x = new QPaletteData;
-    x->ref = 1;
-    for(int grp = 0; grp < (int)NColorGroups; grp++) {
-	for(int role = 0; role < (int)NColorRoles; role++)
-	    x->br[grp][role] = d->br[grp][role];
+    if (d->ref != 1) {
+	QPalettePrivate *x = new QPalettePrivate;
+	for(int grp = 0; grp < (int)NColorGroups; grp++) {
+	    for(int role = 0; role < (int)NColorRoles; role++)
+		x->br[grp][role] = d->br[grp][role];
+	}
+	x->mask = d->mask;
+	/*
+	  if this palette is a copy of the application default palette, set the
+	  palettedef mask to zero to indicate that *nothing* has been
+	  explicitly set by the programmer.
+	*/
+	if (d == QApplication::palette().d)
+	    x->mask = 0;
+	x = qAtomicSetPtr(&d, x);
+	if(!--x->ref)
+	    delete x;
     }
-    x->ser_no = palette_count++;
-    x = qAtomicSetPtr(&d, x);
-    if(!--x->ref)
-	delete x;
 }
 
 /*!
@@ -761,6 +779,41 @@ bool QPalette::isEqual(QPalette::ColorGroup grp1, QPalette::ColorGroup grp2) con
 
     \sa QPixmap QPixmapCache QCache
 */
+int QPalette::serialNumber() const
+{
+    return d->ser_no;
+}
+
+/*!
+    Returns a new QPalette that has attributes copied from \a other.
+*/
+QPalette QPalette::resolve( const QPalette &other ) const
+{
+    if ( *this == other && d->mask == other.d->mask )
+	return *this;
+
+    QPalette palette( *this );
+    palette.detach();
+
+    /*
+      if this palette is a copy of the application default palette, set the
+      palettedef mask to zero to indicate that *nothing* has been
+      explicitly set by the programmer.
+    */
+    if ( d == QApplication::palette().d )
+	palette.d->mask = 0;
+
+    palette.d->resolve( other.d );
+
+    return palette;
+}
+
+/*!\internal
+ */
+uint QPalette::mask() const
+{
+    return d->mask;
+}
 
 /*****************************************************************************
   QPalette stream functions
@@ -871,7 +924,6 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
 			const QBrush &link, const QBrush &link_visited)
 {
     detach();
-    d->ser_no = palette_count++;
     setBrush(cg, Foreground, foreground);
     setBrush(cg, Button, button);
     setBrush(cg, Light, light);

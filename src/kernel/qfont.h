@@ -279,6 +279,7 @@ public:
 #endif // QT_NO_COMPAT
 
     QFont resolve( const QFont & ) const;
+    uint mask() const;
 
 protected:
     // why protected?

@@ -263,6 +263,7 @@ issues using these methods.
 
 QColorGroup has been removed, its API has been merged into QPalette. You should
 now use a QPalette to implement all things that were used by QColorGroup.
+A default QPalette is no longer all-black, but uses the application palette.
 
 \section1 QRegion
 

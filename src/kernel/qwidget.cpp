@@ -40,7 +40,6 @@
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
 #endif
-#include "qfontdata_p.h"
 #include "qpainter.h"
 
 #include "qwidget_p.h"
@@ -438,8 +437,12 @@ static QFont qt_naturalWidgetFont( QWidget* w ) {
 #ifndef QT_NO_PALETTE
 static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     QPalette naturalpalette = QApplication::palette( w );
-    if ( !w->isTopLevel() && naturalpalette.isCopyOf( QApplication::palette() ) )
-	naturalpalette = w->parentWidget()->palette();
+    if ( ! w->isTopLevel() ) {
+	if ( ! naturalpalette.isCopyOf( QApplication::palette() ) )
+	    naturalpalette = naturalpalette.resolve( w->parentWidget()->palette() );
+	else
+	    naturalpalette = w->parentWidget()->palette();
+    }
     return naturalpalette;
 }
 #endif
@@ -753,11 +756,10 @@ void QWidgetPrivate::init(Qt::WFlags f)
     q->in_show_maximized = 0;
     q->im_enabled = FALSE;
     q->create();					// platform-dependent init
-#ifndef QT_NO_PALETTE
-    q->pal = q->isTopLevel() ? QApplication::palette() : q->parentWidget()->palette();
-#endif
-    if ( ! q->isTopLevel() )
-	q->fnt = q->parentWidget()->font();
+    if (!q->isTopLevel()) {
+	q->pal = q->parentWidget()->pal;
+	q->fnt = q->parentWidget()->fnt;
+    }
 #if defined(Q_WS_X11)
     q->fnt.x11SetScreen( q->x11Screen() );
 #endif // Q_WS_X11
@@ -1066,17 +1068,15 @@ void QWidgetPrivate::propagatePaletteChange()
 	    if(!w->isWidgetType() || w->isTopLevel())
 		continue;
 #ifndef QT_NO_PALETTE
-	    if(!w->testAttribute(QWidget::WA_SetPalette))
-		w->pal = qt_naturalWidgetPalette(w);
+	    if (w->testAttribute(QWidget::WA_SetPalette))
+		w->setPalette_helper(w->pal.resolve(qt_naturalWidgetPalette(w)));
+	    else
+		w->setPalette_helper(qt_naturalWidgetPalette(w));
 #endif
-	    w->d->updateSystemBackground();
-	    w->d->propagatePaletteChange();
 	}
     }
-#ifndef QT_NO_COMPAT
-#ifndef QT_NO_PALETTE
+#if !defined(QT_NO_COMPAT) && !defined(QT_NO_PALETTE)
     q->paletteChange(q->palette()); // compatibility
-#endif
 #endif
 }
 
@@ -2519,10 +2519,10 @@ void QWidget::setPalette( const QPalette &palette )
 
 void QWidget::setPalette_helper( const QPalette &palette )
 {
-    if ( pal == palette )
+    if (pal == palette && pal.mask() == palette.mask())
 	return;
     QPalette old = pal;
-    pal = palette;
+    pal = palette.resolve( qt_naturalWidgetPalette( this ) );
     d->updateSystemBackground();
     d->propagatePaletteChange();
 }
@@ -2574,10 +2574,8 @@ void QWidget::setFont( const QFont &font )
 
 void QWidget::setFont_helper( const QFont &font )
 {
-#undef d
-    if ( fnt == font && fnt.d->mask == font.d->mask )
+    if (fnt == font && fnt.mask() == font.mask())
 	return;
-#define d d_func()
 
     QFont old = fnt;
     fnt = font.resolve( qt_naturalWidgetFont( this ) );
@@ -5329,6 +5327,8 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 #ifndef QT_NO_PALETTE
     if (!testAttribute(WA_SetPalette))
 	unsetPalette();
+    else
+	setPalette_helper( pal.resolve( qt_naturalWidgetPalette( this ) ) );
 #endif
 }
 
