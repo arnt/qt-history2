@@ -19,7 +19,7 @@ DLLDESTDIR	= ../bin
 # This is duplicated in examples.pro
 MODULES_BASE	= tools kernel widgets dialogs
 MODULES_PRO	= iconview workspace
-MODULES_ENT	= network canvas table xml opengl database
+MODULES_ENT	= network canvas table xml opengl sql
 MODULES		= $$MODULES_BASE $$MODULES_PRO
 enterprise:MODULES	+= $$MODULES_ENT
 
