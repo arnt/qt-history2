@@ -1689,6 +1689,11 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
     layout.setBoundary(pos + len);
 
     QTextEngine *engine = layout.d;
+    if(dir != Auto) {
+	int level = (dir == RTL) ? 1 : 0;
+	for(int i = engine->items.size(); i >= 0; i--)
+	    engine->items[i].analysis.bidiLevel = level;
+    }
     // small hack to force skipping of unneeded items
     int start = 0;
     while(engine->items[start].position < pos)
