@@ -249,7 +249,7 @@ void QWidgetStack::raiseWidget( int id )
 
 void QWidgetStack::raiseWidget( QWidget * w )
 {
-    if ( !w || !isMyChild( w ) )
+    if ( !w || w == invisible || w->parent() != this )
 	return;
 
     topWidget = w;
@@ -349,26 +349,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
     w->show();
 }
 
-
-/*!  Returns TRUE if \a w is a child of this widget; otherwise returns FALSE. */
-
-bool QWidgetStack::isMyChild( QWidget * w )
-{
-    const QObjectList * c = children();
-    if ( !c || !w || w == invisible )
-	return FALSE;
-    QObjectListIt it( *c );
-    QObject * o;
-
-    while( (o=it.current()) != 0 ) {
-	++it;
-	if ( o->isWidgetType() && o == w )
-	    return TRUE;
-    }
-    return FALSE;
-}
-
-
 /*! \reimp */
 
 void QWidgetStack::frameChanged()
@@ -446,7 +426,7 @@ QWidget * QWidgetStack::widget( int id ) const
 
 int QWidgetStack::id( QWidget * widget ) const
 {
-    if ( !widget || !dict )
+    if ( !widget )
 	return -1;
 
     QIntDictIterator<QWidget> it( *dict );
@@ -498,24 +478,19 @@ QSize QWidgetStack::sizeHint() const
 {
     constPolish();
 
-    QSize size(0,0);
-    if ( children() ) {
-	const QObjectList * c = children();
-	QObjectListIt it( *c );
-	QObject * o;
+    QSize size( 0, 0 );
 
-	while( (o=it.current()) != 0 ) {
-	    ++it;
-	    if ( o->isWidgetType() && o != invisible ) {
-		QWidget *w = (QWidget*)o;
-		QSize sh = w->sizeHint();
-		if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
-		    sh.rwidth() = 0;
-		if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
-		    sh.rheight() = 0;
-		size = size.expandedTo( sh ).expandedTo(w->minimumSize());
-	    }
-	}
+    QIntDictIterator<QWidget> it( *dict );
+    QWidget *w;
+
+    while ( (w = it.current()) != 0 ) {
+	++it;
+	QSize sh = w->sizeHint();
+	if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
+	    sh.rwidth() = 0;
+	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
+	    sh.rheight() = 0;
+	size = size.expandedTo( sh ).expandedTo( w->minimumSize() );
     }
     if ( size.isNull() )
 	size = QSize( 128, 64 );
@@ -529,24 +504,19 @@ QSize QWidgetStack::minimumSizeHint() const
 {
     constPolish();
 
-    QSize size(0,0);
-    if ( children() ) {
-	const QObjectList * c = children();
-	QObjectListIt it( *c );
-	QObject * o;
+    QSize size( 0, 0 );
 
-	while( (o=it.current()) != 0 ) {
-	    ++it;
-	    if ( o->isWidgetType() &&  o != invisible ) {
-		QWidget *w = (QWidget*)o;
-		QSize sh = w->minimumSizeHint();
-		if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
-		    sh.rwidth() = 0;
-		if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
-		    sh.rheight() = 0;
-		size = size.expandedTo( sh ).expandedTo(w->minimumSize());
-	    }
-	}
+    QIntDictIterator<QWidget> it( *dict );
+    QWidget *w;
+
+    while ( (w = it.current()) != 0 ) {
+	++it;
+	QSize sh = w->minimumSizeHint();
+	if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
+	    sh.rwidth() = 0;
+	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
+	    sh.rheight() = 0;
+	size = size.expandedTo( sh ).expandedTo( w->minimumSize() );
     }
     if ( size.isNull() )
 	size = QSize( 64, 32 );

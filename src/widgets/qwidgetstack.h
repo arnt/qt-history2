@@ -89,7 +89,6 @@ protected:
     void childEvent( QChildEvent * );
 
 private:
-    bool isMyChild( QWidget * );
     void init();
 
     QWidgetStackPrivate * d;
