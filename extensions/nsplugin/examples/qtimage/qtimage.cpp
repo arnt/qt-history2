@@ -4,6 +4,7 @@
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qmsgbox.h>
+#include <qpopmenu.h>
 #include "qpngio.h"
 
 #include <math.h>
@@ -12,6 +13,15 @@
 
 class ImageView : public QNPWidget {
 public:
+    ImageView()
+    {
+	popup = new QPopupMenu;
+	popup->insertItem("Test 1");
+	popup->insertItem("Test 2");
+	popup->insertItem("Test 3");
+	popup->insertItem("Test 4");
+    }
+
     void paintEvent(QPaintEvent* event)
     {
 	QPainter p(this);
@@ -30,15 +40,21 @@ public:
 	}
     }
 
+    void mousePressEvent(QMouseEvent* e)
+    {
+	popup->popup(mapToGlobal(e->pos()));
+    }
+
     void showImage(const QImage& image)
     {
-	pm.convertFromImage(image, QPixmap::Color, TRUE);
+	pm.convertFromImage(image, QPixmap::Color);
 	repaint( FALSE );
     }
 
 private:
     QPixmap pm;
     QPixmap pmScaled;
+    QPopupMenu* popup;
 };
 
 class ImageLoader : public QNPInstance {

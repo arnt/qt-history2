@@ -22,7 +22,7 @@ INCPATH	=	-I$(INCDIR)
 CFLAGSX =	$(CFLAGS) $(LIBCFLAGS) -DPNG_SUPPORT
 LINK	=	gcc
 LFLAGS	=	-shared -Wl,-soname,$(TARGET)
-LIBS	=	-L$(QTDIR)/lib -L/usr/X11/lib -lqnp -lqt -lXt -lX11 -lm
+LIBS	=	-L$(QTDIR)/lib -L/usr/X11/lib -lqnp -lqimgio -lqt -lXt -lX11 -lm
 
 ####### Files
 
