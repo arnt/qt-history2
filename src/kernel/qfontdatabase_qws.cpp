@@ -36,29 +36,6 @@
 
 extern QString qws_topdir();
 
-static void qt_setFontWeight( int &weight, QString &weightString )
-{
-    if ( weight <= QFont::Light ) {
-	weight = QFont::Light;
-	weightString = "Light";
-    } else if ( weight <= QFont::Normal ) {
-	weight = QFont::Normal;
-	weightString = "Normal";
-    } else if ( weight <= QFont::DemiBold ) {
-	weight = QFont::DemiBold;
-	weightString = "DemiBold";
-    } else if ( weight <= QFont::Bold ) {
-	weight = QFont::Bold;
-	weightString = "Bold";
-    } else {
-	weight = QFont::Black;
-	weightString = "Black";
-    }
-}
-
-static QtFontFoundry *qt_ttffoundry=0;
-static QtFontFoundry *qt_bdffoundry=0;
-
 /*!
     \internal
 */
@@ -67,56 +44,29 @@ void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf )
     if ( !db )
 	return;
 
-    QString familyname=qdf->name;
-    QtFontFoundry *foundry = qt_ttffoundry;
+    QString familyname = qdf->name;
+    QString foundryname = "truetype";
     if ( qdf->factory->name() == "BDF" )
-	foundry = qt_bdffoundry;
-    QtFontFamily * family=foundry->familyDict.find(familyname);
-    if(!family) {
-	family=new QtFontFamily(foundry,familyname);
-	foundry->addFamily(family);
-    }
-    QString weightString;
-    int weight=qdf->weight;
-    qt_setFontWeight( weight, weightString );
-    QString style;
-    if(qdf->italic) {
-	style=weightString+" Italic";
-    } else {
-	style=weightString;
-    }
-    QtFontStyle * mystyle=family->styleDict.find(style);
-    if(!mystyle) {
-	mystyle=new QtFontStyle(family,style);
-	mystyle->ital=qdf->italic;
-	mystyle->lesserItal=FALSE;
-	mystyle->weightString=weightString;
-	mystyle->weightVal=weight;
-	mystyle->weightDirty=FALSE;
-	family->addStyle(mystyle);
-    }
-    if ( qdf->factory->name() == "FT" || qdf->size == 0 )
-	mystyle->setSmoothlyScalable();
-    else
-	mystyle->addPointSize( qdf->size/10 );
+	foundryname = "bdf";
+    int weight = qdf->weight;
+    bool italic = qdf->italic;
+    QtFontStyle::Key styleKey;
+    styleKey.italic = italic;
+    styleKey.oblique = false;
+    styleKey.weight = weight;
+
+    QtFontFamily *f = db->family( familyname, true );
+    QtFontFoundry *foundry = f->foundry( foundryname, true );
+    QtFontStyle *style = foundry->style( styleKey,  TRUE );
+    style->smoothScalable = (qdf->factory->name() == "FT" || qdf->size == 0);
+    if ( !style->smoothScalable )
+	style->pixelSize( qdf->size/10, TRUE );
 }
 
 void QFontDatabase::createDatabase()
 {
     if ( db ) return;
     db = new QFontDatabasePrivate;
-
-    if ( !qt_ttffoundry ) {
-	qt_ttffoundry=new QtFontFoundry( "truetype" );
-	db->addFoundry(qt_ttffoundry);
-    }
-
-    if ( !qt_bdffoundry ) {
-	qt_bdffoundry = new QtFontFoundry( "bdf" );
-	db->addFoundry(qt_bdffoundry);
-    }
-
-    QtFontFoundry *foundry = qt_ttffoundry;
 
     if(!qt_fontmanager)
         qt_fontmanager=new QFontManager();
@@ -128,8 +78,6 @@ void QFontDatabase::createDatabase()
     }
 
 #ifndef QT_NO_DIR
-    foundry=new QtFontFoundry( "qt" );
-    db->addFoundry( foundry );
 
     QDir dir(qws_topdir()+"/lib/fonts/","*.qpf");
     for (int i=0; i<(int)dir.count(); i++) {
@@ -164,31 +112,18 @@ void QFontDatabase::createDatabase()
 	int pointSize = dir[i].mid(u0+1,u1-u0-1).toInt()/10;
 	bool italic = dir[i].mid(u2-1,1) == "i";
 	int weight = dir[i].mid(u1+1,u2-u1-1-(italic?1:0)).toInt();
-	QtFontFamily *family = foundry->familyDict.find( familyname );
-	if ( !family ) {
-	    family=new QtFontFamily(foundry,familyname);
-	    foundry->addFamily(family);
-	}
-	QString weightString;
-	qt_setFontWeight( weight, weightString );
-	QString style;
-	if(italic) {
-	    style=weightString+" Italic";
-	} else {
-	    style=weightString;
-	}
-	QtFontStyle * mystyle=family->styleDict.find(style);
-	if(!mystyle) {
-	    mystyle=new QtFontStyle(family,style);
-	    mystyle->ital=italic;
-	    mystyle->lesserItal=FALSE;
-	    mystyle->weightString=weightString;
-	    mystyle->weightVal=weight;
-	    mystyle->weightDirty=FALSE;
-	    family->addStyle(mystyle);
-	}
-	mystyle->addPointSize( pointSize/10 );
+	QtFontFamily *f = db->family( familyname, true );
+	QtFontFoundry *foundry = f->foundry( "qt", true );
+	QtFontStyle::Key styleKey;
+	styleKey.italic = italic;
+	styleKey.oblique = false;
+	styleKey.weight = weight;
+	QtFontStyle *style = foundry->style( styleKey,  TRUE );
+	style->smoothScalable = FALSE;
+	style->pixelSize( pointSize, TRUE );
     }
 #endif
 }
 
+static inline void load(const QString & = QString::null, 
+			int = -1 ) {}
