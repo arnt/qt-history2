@@ -29,13 +29,18 @@ class QProcess;
 class QAssistantClient : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY( bool open READ isOpen )
+
 public:
     QAssistantClient( const QString &path, QObject *parent = 0, const char *name = 0 );
     ~QAssistantClient();
+
+    bool isOpen() const;
+
+public slots:
     virtual void openAssistant();
     virtual void closeAssistant();
     virtual void showPage( const QString &page );
-    bool isOpen() const;
 
 signals:
     void assistantOpened();
