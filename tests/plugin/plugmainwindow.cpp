@@ -206,16 +206,24 @@ void PlugMainWindow::runWidget( int id )
     if ( !menuIDs.contains(id) )
 	return;
     QString wname = menuIDs[id];
-    if ( centralWidget() )
-	delete centralWidget();
+    QWidget* pwidget = this;
+    if ( centralWidget() && widgetManager->isContainer( centralWidget()->className() ) && !widgetManager->isContainer( wname ) ) {
+	pwidget = centralWidget();
+    } else {
+	if ( centralWidget() )
+	    delete centralWidget();
+	setCentralWidget( 0 );
+    }
 
     widgetManager->selectFeature( wname);
-    QWidget* w = widgetManager->create( wname, this );
+    QWidget* w = widgetManager->create( wname, pwidget );
     if ( !w ) {
 	QMessageBox::information( this, "Error", tr("Couldn't create widget\n%1").arg( wname ) );
 	return;
     }
-    setCentralWidget( w );
+    if ( !centralWidget() )
+	setCentralWidget( w );
+    w->show();
     QToolTip::add( w, widgetManager->toolTip( wname ) );
 }
 
