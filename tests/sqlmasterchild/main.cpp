@@ -17,15 +17,19 @@ int main( int argc, char **argv )
     db->exec("create table qsql_master "
 	     "(id numeric(10) primary key,"
 	     "name char(30));");
+    
+    QSqlRecord* buf;
+    
     QSqlCursor master( "qsql_master" );
-    master["id"] = 1;
-    master["name"] = "Trolltech";
+    buf = master.editBuffer( TRUE );
+    buf->setValue( "id", 1 );
+    buf->setValue( "name", "Trolltech" );
     master.insert();
-    master["id"] = 2;
-    master["name"] = "ACME";
+    buf->setValue( "id", 2 );
+    buf->setValue( "name", "ACME" );
     master.insert();
-    master["id"] = 3;
-    master["name"] = "MS";
+    buf->setValue( "id", 3 );
+    buf->setValue( "name", "MS" );
     master.insert();
 
     db->exec("create table qsql_child "
@@ -33,42 +37,42 @@ int main( int argc, char **argv )
 	     "masterid numeric(10),"
 	     "name char(30));");
     QSqlCursor child( "qsql_child" );
-    child["id"] = 1;
-    child["masterid"] = 1;
-    child["name"] = "db";
+    buf = child.editBuffer( TRUE );
+    
+    buf->setValue( "id", 1 );
+    buf->setValue( "masterid", 1 );
+    buf->setValue( "name", "db" );
     child.insert();
 
-    child["id"] = 2;
-    child["masterid"] = 1;
-    child["name"] = "trond";
+    buf->setValue( "id", 2 );
+    buf->setValue( "masterid", 1 );
+    buf->setValue( "name", "trond" );
     child.insert();
 
-    child["id"] = 3;
-    child["masterid"] = 2;
-    child["name"] = "roadrunner";
+    buf->setValue( "id", 3 );
+    buf->setValue( "masterid", 2 );
+    buf->setValue( "name", "roadrunner" );
     child.insert();
 
-    child["id"] = 4;
-    child["masterid"] = 2;
-    child["name"] = "coyote";
+    buf->setValue( "id", 4 );
+    buf->setValue( "masterid", 2 );
+    buf->setValue( "name", "coyote" );
     child.insert();
 
-    child["id"] = 5;
-    child["masterid"] = 2;
-    child["name"] = "chicken";
+    buf->setValue( "id", 5 );
+    buf->setValue( "masterid", 2 );
+    buf->setValue( "name", "chicken" );
     child.insert();
 
-
-    child["id"] = 6;
-    child["masterid"] = 3;
-    child["name"] = "bill";
+    buf->setValue( "id", 6 );
+    buf->setValue( "masterid", 3 );
+    buf->setValue( "name", "bill" );
     child.insert();
 
-    child["id"] = 7;
-    child["masterid"] = 3;
-    child["name"] = "steve";
+    buf->setValue( "id", 7 );
+    buf->setValue( "masterid", 3 );
+    buf->setValue( "name", "steve" );
     child.insert();
-
 
     MainWindow* w = new MainWindow();
     a.setMainWidget( w );

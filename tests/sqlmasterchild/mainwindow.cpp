@@ -11,7 +11,7 @@ MainWindow::MainWindow ( QWidget * parent, const char * name, WFlags f )
     masterTable->setSorting( TRUE );
     childTable->setSorting( TRUE );
     masterTable->setCursor( &master );
-    child.field("masterid")->setVisible( FALSE );
+    child.setVisible( "masterid", FALSE );
     reloadChildTable( 1 );
     connect( masterTable, SIGNAL( currentChanged(const QSqlRecord*)),
 	     SLOT( newMasterSelection(const QSqlRecord*)));
