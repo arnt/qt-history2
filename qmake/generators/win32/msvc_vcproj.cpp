@@ -1146,11 +1146,12 @@ void VcprojGenerator::initExtraCompilerOutputs()
         } else {
             // One output file per input
             QStringList tmp_in = project->variables()[project->first((*it) + ".input")];
-            for (int i = 0; i < tmp_in.count(); ++i)
+            for (int i = 0; i < tmp_in.count(); ++i) {
                 const QString &filename = tmp_in.at(i);
                 if (extraCompilerSources.contains(filename))
                     extraCompile.addFile(
                         Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString::null), false));
+            }
         }
         extraCompile.Project = this;
         extraCompile.Config = &(vcProject.Configuration);
