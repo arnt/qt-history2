@@ -58,9 +58,6 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_editActions = new QActionGroup(this);
     m_editActions->setExclusive(false);
 
-    m_editModeActions = new QActionGroup(this);
-    m_editModeActions->setExclusive(true);
-
     m_formActions = new QActionGroup(this);
     m_formActions->setExclusive(false);
 
@@ -174,26 +171,6 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
         }
     }
 
-    m_editWidgets = new QAction(tr("Edit Widgets"), this);
-    m_editWidgets->setShortcut(tr("F2"));
-    m_editWidgets->setCheckable(true);
-    m_editModeActions->addAction(m_editWidgets);
-
-    m_editConnections = new QAction(tr("Edit Connections"), this);
-    m_editConnections->setShortcut(tr("F3"));
-    m_editConnections->setCheckable(true);
-    m_editModeActions->addAction(m_editConnections);
-
-    m_editTabOrders= new QAction(tr("Edit Tab Orders"), this);
-    m_editTabOrders->setShortcut(tr("F4"));
-    m_editTabOrders->setCheckable(true);
-    m_editModeActions->addAction(m_editTabOrders);
-
-    m_editBuddies = new QAction(tr("Edit Buddies"), this);
-    m_editBuddies->setShortcut(tr("F5"));
-    m_editBuddies->setCheckable(true);
-    m_editModeActions->addAction(m_editBuddies);
-
 //
 // form actions
 //
@@ -236,9 +213,6 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 //
 // connections
 //
-    connect(editModeActions(), SIGNAL(triggered(QAction*)),
-            this, SLOT(updateEditMode(QAction*)));
-
     fixActionContext();
 }
 
@@ -263,9 +237,6 @@ QActionGroup *QDesignerActions::fileActions() const
 
 QActionGroup *QDesignerActions::editActions() const
 { return m_editActions; }
-
-QActionGroup *QDesignerActions::editModeActions() const
-{ return m_editModeActions; }
 
 QActionGroup *QDesignerActions::formActions() const
 { return m_formActions; }
@@ -351,18 +322,6 @@ QAction *QDesignerActions::adjustSizeAction() const
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
 
-QAction *QDesignerActions::editWidgets() const
-{ return m_editWidgets; }
-
-QAction *QDesignerActions::editConnections() const
-{ return m_editConnections; }
-
-QAction *QDesignerActions::editBuddies() const
-{ return m_editBuddies; }
-
-QAction *QDesignerActions::editTabOrders() const
-{ return m_editTabOrders; }
-
 QAction *QDesignerActions::showWorkbenchAction() const
 { return m_showWorkbenchAction; }
 
@@ -372,30 +331,6 @@ void QDesignerActions::editWidgets()
     for (int i=0; i<formWindowManager->formWindowCount(); ++i) {
         AbstractFormWindow *formWindow = formWindowManager->formWindow(i);
         formWindow->editWidgets();
-    }
-}
-
-void QDesignerActions::updateEditMode(QAction *action)
-{
-    Q_ASSERT(m_editModeActions->actions().contains(action) == true);
-
-    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
-    AbstractFormWindow::EditMode mode = AbstractFormWindow::WidgetEditMode;
-
-    if (action == m_editWidgets)
-        mode = AbstractFormWindow::WidgetEditMode;
-    else if (action == m_editConnections)
-        mode = AbstractFormWindow::ConnectionEditMode;
-    else if (action == m_editTabOrders)
-        mode = AbstractFormWindow::TabOrderEditMode;
-    else if (action == m_editBuddies)
-        mode = AbstractFormWindow::BuddyEditMode;
-    else
-        Q_ASSERT(0);
-
-    for (int i=0; i<formWindowManager->formWindowCount(); ++i) {
-        AbstractFormWindow *formWindow = formWindowManager->formWindow(i);
-        formWindow->setEditMode(mode);
     }
 }
 
@@ -543,7 +478,7 @@ void QDesignerActions::fixActionContext()
     QList<QAction*> actions;
     actions += m_fileActions->actions();
     actions += m_editActions->actions();
-    actions += m_editModeActions->actions();
+    actions += m_toolActions->actions();
     actions += m_formActions->actions();
     actions += m_windowActions->actions();
 

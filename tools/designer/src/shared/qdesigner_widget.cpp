@@ -134,7 +134,7 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
     if (!m_formWindow->hasFeature(AbstractFormWindow::GridFeature))
         return;
 
-    if (m_formWindow->editMode() != AbstractFormWindow::WidgetEditMode)
+    if (!m_formWindow->currentTool() != 0)
         return;
 
     QPainter p(this);

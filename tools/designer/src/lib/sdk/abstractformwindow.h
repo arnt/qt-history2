@@ -28,17 +28,6 @@ class QT_SDK_EXPORT AbstractFormWindow: public QWidget
 {
     Q_OBJECT
 public:
-    enum EditMode
-    {
-        WidgetEditMode,
-        ConnectionEditMode,
-        TabOrderEditMode,
-        BuddyEditMode
-#ifdef DESIGNER_VIEW3D
-        ,View3DEditMode
-#endif
-    };
-
     enum FeatureFlag
     {
         EditFeature = 0x01,
@@ -86,9 +75,6 @@ public:
 
     static AbstractFormWindow *findFormWindow(QWidget *w);
 
-    virtual void setEditMode(EditMode mode) = 0;
-    virtual EditMode editMode() const = 0;
-
     virtual QtUndoStack *commandHistory() const = 0;
     virtual void beginCommand(const QString &description) = 0;
     virtual void endCommand() = 0;
@@ -117,9 +103,6 @@ signals:
     void featureChanged(Feature f); // ### rename me
     void selectionChanged();
     void geometryChanged();
-
-    void editModeChanged(EditMode editMode); // ### remove me
-
 
     void widgetManaged(QWidget *widget);
     void widgetUnmanaged(QWidget *widget);

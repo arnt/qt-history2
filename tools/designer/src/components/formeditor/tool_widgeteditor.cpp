@@ -95,16 +95,9 @@ bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEve
 
 // ### remove me
 
-#define IGNORE_CONNECTION_TOOL() \
-  if (m_formWindow->editMode() == FormWindow::ConnectionEditMode \
-       || m_formWindow->editMode() == FormWindow::BuddyEditMode) \
-    return false;
-
 bool WidgetEditorTool::handleContextMenu(QWidget *widget, QWidget *managedWidget, QContextMenuEvent *e)
 {
     Q_UNUSED(widget);
-
-    IGNORE_CONNECTION_TOOL();
 
     m_formWindow->handleContextMenu(managedWidget, e);
     return true;
@@ -114,8 +107,6 @@ bool WidgetEditorTool::handleMouseButtonDblClickEvent(QWidget *widget, QWidget *
 {
     Q_UNUSED(widget);
 
-    IGNORE_CONNECTION_TOOL();
-
     m_formWindow->handleMouseButtonDblClickEvent(managedWidget, e);
     return true;
 }
@@ -123,8 +114,6 @@ bool WidgetEditorTool::handleMouseButtonDblClickEvent(QWidget *widget, QWidget *
 bool WidgetEditorTool::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
     Q_UNUSED(widget);
-
-    IGNORE_CONNECTION_TOOL();
 
     m_formWindow->handleMousePressEvent(managedWidget, e);
     return true;
@@ -134,8 +123,6 @@ bool WidgetEditorTool::handleMouseMoveEvent(QWidget *widget, QWidget *managedWid
 {
     Q_UNUSED(widget);
 
-    IGNORE_CONNECTION_TOOL();
-
     m_formWindow->handleMouseMoveEvent(managedWidget, e);
     return true;
 }
@@ -143,8 +130,6 @@ bool WidgetEditorTool::handleMouseMoveEvent(QWidget *widget, QWidget *managedWid
 bool WidgetEditorTool::handleMouseReleaseEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
     Q_UNUSED(widget);
-
-    IGNORE_CONNECTION_TOOL();
 
     m_formWindow->handleMouseReleaseEvent(managedWidget, e);
     return true;
@@ -154,8 +139,6 @@ bool WidgetEditorTool::handleKeyPressEvent(QWidget *widget, QWidget *managedWidg
 {
     Q_UNUSED(widget);
 
-    IGNORE_CONNECTION_TOOL();
-
     m_formWindow->handleKeyPressEvent(managedWidget, e);
     return true;
 }
@@ -163,8 +146,6 @@ bool WidgetEditorTool::handleKeyPressEvent(QWidget *widget, QWidget *managedWidg
 bool WidgetEditorTool::handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
 {
     Q_UNUSED(widget);
-
-    IGNORE_CONNECTION_TOOL();
 
     m_formWindow->handleKeyReleaseEvent(managedWidget, e);
     return true;
@@ -175,8 +156,6 @@ bool WidgetEditorTool::handlePaintEvent(QWidget *widget, QWidget *managedWidget,
     Q_UNUSED(widget);
     Q_UNUSED(managedWidget);
     Q_UNUSED(e);
-
-    IGNORE_CONNECTION_TOOL();
 
     return false;
 }
@@ -189,6 +168,11 @@ QWidget *WidgetEditorTool::editor() const
 
 void WidgetEditorTool::activated()
 {
+    if (m_formWindow == 0)
+        return;
+    QList<QWidget*> sel = m_formWindow->selectedWidgets();
+    foreach (QWidget *w, sel)
+        m_formWindow->raiseSelection(w);
 }
 
 void WidgetEditorTool::deactivated()

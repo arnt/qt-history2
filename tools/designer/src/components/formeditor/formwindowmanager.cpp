@@ -133,8 +133,8 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     }
 
     if (isPassiveInteractor(widget)) {
-        if (fw->editMode() == FormWindow::TabOrderEditMode)
-            fw->updateOrderIndicators();
+/*        if (fw->editMode() == FormWindow::TabOrderEditMode)
+            fw->updateOrderIndicators(); */
 
         return false;
     }
@@ -480,7 +480,7 @@ void FormWindowManager::slotUpdateActions()
     m_breakLayout = false;
 
     if (!m_activeFormWindow
-            || m_activeFormWindow->editMode() != AbstractFormWindow::WidgetEditMode) {
+            || m_activeFormWindow->currentTool() != 0) {
         m_actionCut->setEnabled(false);
         m_actionCopy->setEnabled(false);
         m_actionPaste->setEnabled(false);

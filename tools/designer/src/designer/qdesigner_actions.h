@@ -43,7 +43,6 @@ public:
 
     QActionGroup *fileActions() const;
     QActionGroup *editActions() const;
-    QActionGroup *editModeActions() const;
     QActionGroup *formActions() const;
     QActionGroup *windowActions() const;
     QActionGroup *toolActions() const;
@@ -101,7 +100,6 @@ public:
     QAction *showWorkbenchAction() const;
 
 private slots:
-    void updateEditMode(QAction *action);
     void setWorkbenchVisible(bool visible);
     void createForm();
     void openForm();
@@ -125,7 +123,6 @@ private:
 
     QActionGroup *m_fileActions;
     QActionGroup *m_editActions;
-    QActionGroup *m_editModeActions;
     QActionGroup *m_formActions;
     QActionGroup *m_windowActions;
     QActionGroup *m_toolActions;
@@ -150,12 +147,6 @@ private:
 
     QAction *m_preferencesSeparator;
     QAction *m_preferences;
-
-    QAction *m_editWidgets;
-    QAction *m_editTabOrders;
-    QAction *m_editConnections;
-    QAction *m_editBuddies;
-
 
     QAction *m_layoutHorizontallyAction;
     QAction *m_layoutVerticallyAction;

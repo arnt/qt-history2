@@ -96,9 +96,6 @@ public:
     virtual Feature features() const;
     virtual void setFeatures(Feature f);
 
-    virtual EditMode editMode() const;
-    virtual void setEditMode(EditMode mode);
-
     virtual QString author() const;
     virtual QString comment() const;
     virtual void setAuthor(const QString &author);
@@ -240,7 +237,6 @@ private:
 
     QList<QWidget*> checkSelectionsForMove(QWidget *w);
 
-    QLabel *sizePreview() const;
     void checkPreviewGeometry(QRect &r);
 
     void handleContextMenu(QWidget *w, QContextMenuEvent *e);
@@ -281,7 +277,6 @@ private:
     FormWindowCursor *m_cursor;
     QWidget *m_mainContainer;
     QWidget *m_currentWidget;
-    mutable QLabel *sizePreviewLabel;
     QPoint m_grid;
 
     bool drawRubber;
@@ -328,8 +323,6 @@ private:
 
     int m_dirty;
     int m_lastIndex;
-
-    EditMode m_editMode;
 
     WidgetToActionMap m_widget_to_action_map;
     ActionList m_action_list;

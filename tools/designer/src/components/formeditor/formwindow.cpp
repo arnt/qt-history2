@@ -114,7 +114,7 @@ AbstractFormWindowCursor *FormWindow::cursor() const
 bool FormWindow::hasFeature(Feature f) const
 {
     if (f == EditFeature)
-        return f & m_feature && m_editMode == WidgetEditMode;
+        return f & m_feature;
     return f & m_feature;
 }
 
@@ -202,7 +202,6 @@ void FormWindow::init()
     connect(m_widgetStack, SIGNAL(currentToolChanged(int)), this, SIGNAL(toolChanged(int)));
     layout->addWidget(m_widgetStack);
 
-    m_editMode = WidgetEditMode;
     m_feature = DefaultFeature;
 
     m_selectionChangedTimer = new QTimer(this);
@@ -226,7 +225,6 @@ void FormWindow::init()
 
     m_mainContainer = 0;
     m_currentWidget = 0;
-    sizePreviewLabel = 0;
     oldRectValid = false;
     drawRubber = false;
     checkedSelectionsForMove = false;
@@ -277,8 +275,6 @@ void FormWindow::setMainContainer(QWidget *w)
 
     manageWidget(m_mainContainer);
 
-    m_editMode = WidgetEditMode;
-
     if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(core()->extensionManager(), m_mainContainer)) {
         sheet->setVisible(sheet->indexOf("windowTitle"), true);
         // ### generalize
@@ -315,54 +311,43 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
 void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 {
     checkedSelectionsForMove = false;
-    if (!sizePreviewLabel) {
-        sizePreviewLabel = new QLabel(this);
-        sizePreviewLabel->hide();
-
-        QPalette p = sizePreviewLabel->palette();
-        p.setColor(backgroundRole(), QColor(255, 255, 128));
-        sizePreviewLabel->setPalette(p);
-        sizePreviewLabel->setFrameStyle(QFrame::Plain | QFrame::Box);
-    }
-
-    switch (editMode()) {
-    case WidgetEditMode:
+        
         // if the dragged widget is not in a layout, raise it
-        if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
-            w->raise();
+    if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
+        w->raise();
 
-        if (isMainContainer(w)) { // press was on the formwindow
-            if (e->button() == Qt::LeftButton) { // left button: start rubber selection and show formwindow properties
-                drawRubber = true;
-                if (!(e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))) {
-                    clearSelection(false);
-                    QWidget *opw = m_currentWidget;
-                    setCurrentWidget(mainContainer());
-                    if (opw)
-                        repaintSelection(opw);
-                }
-                currRect = QRect(0, 0, -1, -1);
-                startRectDraw(e->globalPos(), this, Rubber);
+    if (isMainContainer(w)) { // press was on the formwindow
+        if (e->button() == Qt::LeftButton) { // left button: start rubber selection and show formwindow properties
+            drawRubber = true;
+            if (!(e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))) {
+                clearSelection(false);
+                QWidget *opw = m_currentWidget;
+                setCurrentWidget(mainContainer());
+                if (opw)
+                    repaintSelection(opw);
             }
-        } else {
-            startPos = mapFromGlobal(e->globalPos());
-            bool sel = isWidgetSelected(w);
+            currRect = QRect(0, 0, -1, -1);
+            startRectDraw(e->globalPos(), this, Rubber);
+        }
+    } else {
+        startPos = mapFromGlobal(e->globalPos());
+        bool sel = isWidgetSelected(w);
 
-            if (e->button() == Qt::LeftButton) {
-                if (e->modifiers() & Qt::ShiftModifier) {
-                    // shift-click - toggle selection state of widget
-                    selectWidget(w, !sel);
-                } else {
-                    if (!sel)
-                        clearSelection(false);
+        if (e->button() == Qt::LeftButton) {
+            if (e->modifiers() & Qt::ShiftModifier) {
+                // shift-click - toggle selection state of widget
+                selectWidget(w, !sel);
+            } else {
+                if (!sel)
+                    clearSelection(false);
 
-                    raiseChildSelections(w);
-                    selectWidget(w);
-                }
+                raiseChildSelections(w);
+                selectWidget(w);
             }
         }
-        break;
+    }
 
+/*
     case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
 
@@ -390,10 +375,7 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
             commandHistory()->push(cmd);
         }
         break;
-
-    default:
-        break;
-    }
+*/
 }
 
 void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
@@ -403,52 +385,41 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
     QPoint pos = mapFromGlobal(e->globalPos());
 
-    switch (editMode()) {
-    case WidgetEditMode:
-        if (drawRubber) { // draw rubber if we are in rubber-selection mode
-            continueRectDraw(e->globalPos(), this, Rubber);
-        } else if ((e->modifiers() == 0 || e->modifiers() & Qt::ControlModifier)
-                && (startPos - pos).manhattanLength() > QApplication::startDragDistance()){
+    if (drawRubber) { // draw rubber if we are in rubber-selection mode
+        continueRectDraw(e->globalPos(), this, Rubber);
+    } else if ((e->modifiers() == 0 || e->modifiers() & Qt::ControlModifier)
+            && (startPos - pos).manhattanLength() > QApplication::startDragDistance()){
 
-            // if widget is laid out, find the first non-laid out super-widget
-            QWidget *c = w;
-            while ( c->parentWidget() &&
-                ( LayoutInfo::layoutType(m_core, c->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(c) ) )
-                    c = c->parentWidget();
-            selectWidget(c);
+        // if widget is laid out, find the first non-laid out super-widget
+        QWidget *c = w;
+        while ( c->parentWidget() &&
+            ( LayoutInfo::layoutType(m_core, c->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(c) ) )
+                c = c->parentWidget();
+        selectWidget(c);
 
-            QDesignerResource res(this);
+        QDesignerResource res(this);
 
-            QList<QWidget*> sel = checkSelectionsForMove(w);
+        QList<QWidget*> sel = checkSelectionsForMove(w);
 
-            QList<AbstractDnDItem*> item_list;
-            foreach (QWidget *widget, sel) {
-                QWidget *container = findTargetContainer(widget);
-                if (container && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout) {
-                    widget = container;
-                    selectWidget(widget, true);
-                }
-                if (e->modifiers() & Qt::ControlModifier) {
-                    QDesignerResource builder(this);
-                    DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
-                    item_list.append(new FormWindowDnDItem(dom_ui, widget, e->globalPos()));
-                } else {
-                    item_list.append(new FormWindowDnDItem(widget, e->globalPos()));
-                    widget->hide();
-                }
+        QList<AbstractDnDItem*> item_list;
+        foreach (QWidget *widget, sel) {
+            QWidget *container = findTargetContainer(widget);
+            if (container && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout) {
+                widget = container;
+                selectWidget(widget, true);
             }
-
-            if (sel.count())
-                core()->formWindowManager()->dragItems(item_list, this);
+            if (e->modifiers() & Qt::ControlModifier) {
+                QDesignerResource builder(this);
+                DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
+                item_list.append(new FormWindowDnDItem(dom_ui, widget, e->globalPos()));
+            } else {
+                item_list.append(new FormWindowDnDItem(widget, e->globalPos()));
+                widget->hide();
+            }
         }
-        break;
 
-    case TabOrderEditMode:
-        break;
-
-    default: // we are in an insert-widget tool
-        break;
-
+        if (sel.count())
+            core()->formWindowManager()->dragItems(item_list, this);
     }
 }
 
@@ -457,22 +428,12 @@ void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
     if (e->button() != Qt::LeftButton)
         return;
 
-    switch (editMode()) {
-    case WidgetEditMode:
-        if (drawRubber) { // we were drawing a rubber selection
-            endRectDraw(); // get rid of the rectangle
-            bool block = blockSignals(true);
-            selectWidgets(); // select widgets which intersect the rect
-            blockSignals(block);
-            emitSelectionChanged(); // inform about selection changes
-        }
-        break;
-
-    case TabOrderEditMode:
-        break;
-
-    default:
-        break;
+    if (drawRubber) { // we were drawing a rubber selection
+        endRectDraw(); // get rid of the rectangle
+        bool block = blockSignals(true);
+        selectWidgets(); // select widgets which intersect the rect
+        blockSignals(block);
+        emitSelectionChanged(); // inform about selection changes
     }
 
     drawRubber = false;
@@ -544,20 +505,6 @@ QWidget *FormWindow::currentWidget() const
 void FormWindow::setCurrentWidget(QWidget *currentWidget)
 {
     m_currentWidget = currentWidget;
-}
-
-QLabel *FormWindow::sizePreview() const
-{
-    if (!sizePreviewLabel) {
-        sizePreviewLabel = new QLabel(const_cast<FormWindow*>(this));
-        sizePreviewLabel->hide();
-        QPalette palette = sizePreviewLabel->palette();
-        palette.setColor(backgroundRole(), QColor(255, 255, 128));
-        sizePreviewLabel->setPalette(palette);
-        sizePreviewLabel->setFrameStyle(QFrame::Plain | QFrame::Box);
-    }
-    return sizePreviewLabel;
-
 }
 
 void FormWindow::selectWidget(QWidget* w, bool select)
@@ -1329,11 +1276,9 @@ void FormWindow::lowerWidgets()
 
 void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
 {
-    switch (editMode()) {
-    case WidgetEditMode:
-        emit activated(w);
-        break;
+    emit activated(w);
 
+/*    
     case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
             orderedWidgets.clear();
@@ -1354,25 +1299,20 @@ void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
             commandHistory()->push(cmd);
         }
     break;
-
-    default:
-        break;
-    }
+*/
 }
 
 void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
 {
-    switch (editMode()) {
-    case WidgetEditMode: {
-        if (!isMainContainer(w)) { // press on a child widget
-            raiseChildSelections(w); // raise selections and select widget
-            selectWidget(w);
+    if (!isMainContainer(w)) { // press on a child widget
+        raiseChildSelections(w); // raise selections and select widget
+        selectWidget(w);
 
-            // if widget is laid out, find the first non-laid out super-widget
-            QWidget *realWidget = w; // but store the original one
+        // if widget is laid out, find the first non-laid out super-widget
+        QWidget *realWidget = w; // but store the original one
 
-            if (qt_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
-                e->accept();
+        if (qt_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
+            e->accept();
 #ifndef VS_CTX_MENU
             QMenu *menu = createPopupMenu(this);
             if (menu) {
@@ -1382,35 +1322,30 @@ void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
 #else
             emit showContextMenu(this, e->globalPos());
 #endif
-            } else {
-                e->accept();
-#ifndef VS_CTX_MENU
-                QMenu *menu = createPopupMenu(realWidget);
-                if (menu) {
-                    menu->exec(e->globalPos());
-                    delete menu;
-                }
-#else
-                emit showContextMenu(realWidget, e->globalPos());
-#endif
-            }
         } else {
             e->accept();
-            clearSelection();
 #ifndef VS_CTX_MENU
-            QMenu *menu = createPopupMenu(this);
+            QMenu *menu = createPopupMenu(realWidget);
             if (menu) {
                 menu->exec(e->globalPos());
                 delete menu;
             }
 #else
-            emit showContextMenu(this, e->globalPos());
+            emit showContextMenu(realWidget, e->globalPos());
 #endif
         }
-    } break;
-
-    default:
-        break;
+    } else {
+        e->accept();
+        clearSelection();
+#ifndef VS_CTX_MENU
+        QMenu *menu = createPopupMenu(this);
+        if (menu) {
+            menu->exec(e->globalPos());
+            delete menu;
+        }
+#else
+        emit showContextMenu(this, e->globalPos());
+#endif
     }
 }
 
@@ -1683,8 +1618,8 @@ void FormWindow::repositionOrderIndicators()
 
 void FormWindow::resizeEvent(QResizeEvent *e)
 {
-    if (editMode() == TabOrderEditMode)
-        repositionOrderIndicators();
+/*    if (editMode() == TabOrderEditMode)
+        repositionOrderIndicators(); */
 
     m_geometryChangedTimer->start(10);
 
@@ -1889,48 +1824,6 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
         int index = g->findItemAt(pt);
         g->adjustIndicator(pt, index);
     }
-}
-
-FormWindow::EditMode FormWindow::editMode() const
-{
-    return m_editMode;
-}
-
-void FormWindow::setEditMode(EditMode mode)
-{
-    if (m_editMode == mode)
-        return;
-
-    if (mode == TabOrderEditMode)
-        hideOrderIndicators();
-
-    m_editMode = mode;
-
-    switch (m_editMode) {
-        case WidgetEditMode: {
-            m_widgetStack->setCurrentTool(m_widgetEditor);
-
-            QList<QWidget*> sel = selectedWidgets();
-            foreach (QWidget *w, sel)
-                raiseSelection(w);
-
-            break;
-        }
-
-        case BuddyEditMode: {
-//            setCurrentTool(1);
-        } break;
-
-        case ConnectionEditMode: {
-//            setCurrentTool(2);
-        } break;
-
-        case TabOrderEditMode:
-            showOrderIndicators();
-            break;
-    }
-
-    emit editModeChanged(mode);
 }
 
 DomConnections *FormWindow::saveConnections()

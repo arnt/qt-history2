@@ -345,8 +345,6 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
 
     e->accept();
 
-    formWindow->sizePreview()->hide();
-
     if (!formWindow->hasFeature(FormWindow::EditFeature))
         return;
 
