@@ -2379,7 +2379,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( painter->hasClipping() )
 	    reg = painter->clipRegion();
 	reg = reg.unite( rect );
-	reg.translate( painter->translationX(), painter->translationY() );
+	reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	painter->setClipRegion( reg );
   	painter->translate( xoff, yoff);
 	parag->paint( *painter, cg );
