@@ -18,7 +18,7 @@ create your own applications using these widgets you need access to
 a SQL database and a Qt database driver that can connect to the
 database. The current drivers that Qt supports are QODBC (Open Database
 Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL
-7) and QMYSQL (MySQL). 
+7) and QMYSQL3 (MySQL).
 </para>
 
 <para>
@@ -29,7 +29,7 @@ of SQL is highly recommended. We assume some familiarity with
 understanding of the concepts of normalisation and of primary and
 foreign keys. A standard text covering SQL databases is <citetitle
 pubwork="book">An Introduction to Database Systems (7th ed.)</> by C. J.
-Date, ISBN 0201385902. 
+Date, ISBN 0201385902.
 </para>
 
 <para>
@@ -39,7 +39,7 @@ in-place record editing and drilldown from one &st; to another. It also
 demonstrates how to create &sd;s for data-aware forms. A great deal of
 functionality is available from the classes directly in &qd;, but
 where extra power is required, for example for foreign key handling,
-we explain how to subclass to achieve finer control. 
+we explain how to subclass to achieve finer control.
 <screenshot>
 <graphic format="jpg" fileref="images/book.jpg"></graphic>
 </screenshot>
@@ -51,7 +51,7 @@ Note that the examples in this chapter all use the tables, views and
 records which are defined in the
 <filename>qt/tools/designer/eg/book.sql</> file. This file has been
 tested with PostgreSQL 6. You may need to modify the SQL in this file to
-recreate the example database on your own system. 
+recreate the example database on your own system.
 <example><title>Schema <literal>CREATE TABLE</> Statements</><programlisting>
 \scan eg/book.sql /CREATE TABLE\s*author/ /CREATE TABLE\s*format/
 </programlisting></example>
@@ -99,7 +99,7 @@ a single field, in a combobox for example.
 	<guibutton>Connect</>. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
-	will remain in force until you change or delete them or quit &qd;. 
+	will remain in force until you change or delete them or quit &qd;.
 	</para>
 
 	<para>
@@ -131,7 +131,7 @@ a single field, in a combobox for example.
 
 	<para>
 	The applications you create must make their own connections to
-	the SQL database. 
+	the SQL database.
 <example><title>createConnections() function</><programlisting>
 \scan eg/book1/main.cpp /bool createConnections..$/ /^}/
 </programlisting></example>
@@ -139,7 +139,7 @@ a single field, in a combobox for example.
 	driver we wish to use. We then set the connection information by
 	calling the <literal>set...</> functions. Finally we attempt to
 	open the connection. If we succeed we return TRUE, otherwise we
-	output some error information and return FALSE. 
+	output some error information and return FALSE.
 <example><title>From <filename>qt/tools/designer/eg/book1/main.cpp</></><programlisting>
 \scan eg/book1/main.cpp /int main/ /^}/
 </programlisting></example>
@@ -153,7 +153,7 @@ a single field, in a combobox for example.
 	url="http://doc.trolltech.com/sql.html">Qt SQL Module
 	documentation</>.
 	</para>
-	
+
 	<para>
 	Note that we do not need to keep a reference to database
 	connections. If you use a single database connection, the
@@ -176,7 +176,7 @@ a single field, in a combobox for example.
     provide default values. If we wish to present records using a form
     view (perhaps combining several tables and views) we would use a
     &sd;; see <xref linkend="using-qdialog-to-create-data-aware-forms">
-    "Using &sd; to Create Data-Aware Forms". 
+    "Using &sd; to Create Data-Aware Forms".
     </para>
 
     <sect2 id="quickly-viewing-a-database-table">
@@ -204,14 +204,14 @@ a single field, in a combobox for example.
 	with a number of form templates to choose from. Choose the
 	'Dialog' form, <emphasis>not</> 'SQL Dialog', and click &ok;.
 	Now click <guimenuitem>File|Save</>. You will be prompted for a
-	filename, call it <filename>book.ui</>. 
+	filename, call it <filename>book.ui</>.
 	</para>
 
 	<para>
 	To place a &st; widget on the form either click
 	<guimenuitem>Tools|Views|QSqlTable</> or click the &st; toolbar
 	button. Click on the form and the SQL Table Wizard dialog will
-	appear. 
+	appear.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -227,7 +227,7 @@ a single field, in a combobox for example.
 		Click the connection you wish to use, listed in the left hand
 		list box, e.g. "(default)". The tables and views will appear in
 		the right hand Table list box. Click the book_view view and then
-		click the <guibutton>Next</> button. 
+		click the <guibutton>Next</> button.
 		</para>
 	    </listitem>
 
@@ -240,7 +240,7 @@ a single field, in a combobox for example.
 		Displayed Fields list box. The left and right blue arrow buttons
 		can be used to move fields between the Displayed Fields and the
 		Available Fields list boxes. The blue up and down arrow buttons
-		are used to select the display order of the displayed fields. 
+		are used to select the display order of the displayed fields.
 		</para>
 
 		<para>
@@ -254,7 +254,7 @@ a single field, in a combobox for example.
 		<para>
 		The <emphasis>Table Properties</> wizard page
 		provides convenient access to the database-related properties of
-		the &st;. 
+		the &st;.
 		</para>
 
 		<para>
@@ -339,11 +339,11 @@ a single field, in a combobox for example.
 	Databases often have pairs of tables that are related. For
 	example an invoice table might list the numbers, dates and
 	customers for invoices, but not the actual invoice items which
-	the invoiceitem table might store. In the book database we 
+	the invoiceitem table might store. In the book database we
 	wish to have a &st; that we can use to browse
 	through the authors and a second &st; to show
 	the books they've written. To achieve this using &qd; we will
-	need to subclass. 
+	need to subclass.
 	</para>
 
 	<para>
@@ -360,7 +360,7 @@ a single field, in a combobox for example.
 	<para>
 	Open the book project if it isn't already in &qd;. We will
 	modify this project to show two &st;s that
-	relate the author table to the book_view view. 
+	relate the author table to the book_view view.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -384,17 +384,17 @@ a single field, in a combobox for example.
 		since we will be referring to them in code. Click the book_view
 		&st; and change its name to "BookQSqlTable". Click the form and
 		change its name to "BookFormBase". (Our subclass will be called
-		"BookForm".) 
+		"BookForm".)
 		</para>
 	    </listitem>
-		
+
 	    <listitem>
 		<para>
 		Now click on the &st; toolbutton and click on the top
 		half of the form. The SQL Table Wizard will appear.
 		(This Wizard is explained in <xref
 		linkend="quickly-viewing-a-database-table"> "Quickly
-		Viewing a Database Table".) 
+		Viewing a Database Table".)
 		<orderedlist numeration="arabic" inheritnum="inherit">
 		    <listitem>
 			<para>
@@ -443,14 +443,14 @@ a single field, in a combobox for example.
 		<para>
 		Shift+Click the bottom &st; so that both &st;s
 		are selected and then click the <guibutton>Lay out Vertically
-		(in Splitter)</> toolbar button. 
+		(in Splitter)</> toolbar button.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
 		Click on the form and click the <guibutton>Lay
-		out Vertically</> toolbar button. 
+		out Vertically</> toolbar button.
 		</para>
 	    </listitem>
 	</orderedlist>
@@ -462,7 +462,7 @@ a single field, in a combobox for example.
 	and all the books are displayed in the bottom
 	&st;. Unfortunately we only want the books of the currently
 	selected author showing in the bottom &st;: we will achieve this
-	through subclassing. 
+	through subclassing.
 	</para>
 
 	<sidebar><title>Using the Table Editor</>
@@ -485,7 +485,7 @@ a single field, in a combobox for example.
 		<para>
 		Click the <guibutton>New Column</> button
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
@@ -504,7 +504,7 @@ a single field, in a combobox for example.
 	    <listitem>
 	    <para>
 		<emphasis>Optionally</> edit the Label if the default
-		isn't appropriate 
+		isn't appropriate
 	    </para>
 	    </listitem>
 
@@ -536,7 +536,7 @@ a single field, in a combobox for example.
 	book_view &st; will show all the books. &qd; has put most of the
 	pieces in place but to make the new slot work we need to
 	subclass the form so that we can set up a signal/slot connection
-	between the author &st; and the book_view &st;. 
+	between the author &st; and the book_view &st;.
 	</para>
 
     </sect2>
@@ -568,7 +568,7 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 	</para>
 
 	<para>
-<example><title>BookForm newAuthor from 
+<example><title>BookForm newAuthor from
 <filename>qt/tools/designer/eg/book2/bookform.cpp</></><programlisting>
 \scan eg/book2/bookform.cpp /BookForm::newAuthor/ /^}/
 </programlisting></example>
@@ -588,14 +588,14 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 	matching authorid are shown. We want to show only the relevant
 	books, even when the form is initally run, but to achieve this
 	we need control of the underlying cursor which subclassing the
-	form alone does not provide. 
+	form alone does not provide.
 	</para>
 
 	<para>
 <example><title>AuthorCursor from <filename>qt/tools/designer/eg/book3/bookform.h</></><programlisting>
 \scan eg/book3/bookform.h /class AuthorCursor/ /^};/
 </programlisting></example>
-	We create our own cursor subclass based on <classname>QSqlCursor</>. 
+	We create our own cursor subclass based on <classname>QSqlCursor</>.
 	</para>
 
 	<para>
@@ -716,7 +716,7 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 	pop-up dialog which contains the details of the book the user
 	wishes to edit. To achieve this we need to make the book_view
 	read only, set up some buttons which the user can press to
-	invoke the dialog and finally create the dialog itself. 
+	invoke the dialog and finally create the dialog itself.
 	</para>
 
 	<para>
@@ -762,7 +762,7 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 		<guibutton>New Slot</> button again and replace the default slot
 		with <literal>updateBook()</>. Create one more slot called
 		<literal>deleteBook()</>. Click &ok; to save the
-		new slots. 
+		new slots.
 		</para>
 	    </listitem>
 
@@ -780,10 +780,10 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 		deleteBook() slot.
 		</para>
 	    </listitem>
-	
+
 	</orderedlist>
 	</para>
-	
+
 	<para>
 	The buttons will invoke a &sd; through which
 	the user will be able to &i;, &u; or &d; records in the book
@@ -797,7 +797,7 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 	them. For now we will just put stub functions in the
 	implementation file:
 <example><title>BookForm from <filename>qt/tools/designer/eg/book5/bookform.cpp</></><programlisting>
-\scan eg/book5/bookform.cpp /void BookForm::insert/ 0 
+\scan eg/book5/bookform.cpp /void BookForm::insert/ 0
 \scan /void BookForm::update/ 0
 \scan /void BookForm::delete/ 0
 </programlisting></example>
@@ -805,7 +805,7 @@ uic -o bookform.cpp -subimpl BookForm book.cpp book.ui
 	created the pop-up dialog which the user will use to edit the
 	book table: this is covered in <xref
 	linkend="subclassing-the-qsqldialog-form"> "Subclassing the &sd;
-	Form". 
+	Form".
 	</para>
 
 	</sect3>
@@ -851,7 +851,7 @@ dialog and integrate it with the book_view &st;.
 		Click the connection you wish to use, listed in the left hand
 		list box, e.g. "(default)". The tables and views will appear in
 		the right hand Table list box. Click the book table and then
-		click the <guibutton>Next</> button. 
+		click the <guibutton>Next</> button.
 		</para>
 	    </listitem>
 
@@ -864,7 +864,7 @@ dialog and integrate it with the book_view &st;.
 		Displayed Fields list box. The left and right blue arrow buttons
 		can be used to move fields between the Displayed Fields and the
 		Available Fields list boxes. The blue up and down arrow buttons
-		are used to select the display order of the displayed fields. 
+		are used to select the display order of the displayed fields.
 		</para>
 
 		<para>
@@ -880,10 +880,10 @@ dialog and integrate it with the book_view &st;.
 		us to choose which navigation and editing buttons should
 		appear on the form.
 		</para>
-		
+
 		<para>
 		We will accept the defaults and simply click the
-		<guibutton>Next</> button. 
+		<guibutton>Next</> button.
 		</para>
 	    </listitem>
 
@@ -893,7 +893,7 @@ dialog and integrate it with the book_view &st;.
 		the &st;'s Filter and Sort properties. The Filter is an SQL
 		<literal>WHERE</> clause (without the word 'WHERE'). For
 		example, to only list books that cost less than 50 (of our
-		currency, e.g. dollars), we 
+		currency, e.g. dollars), we
 		would enter <literal>price < 50</>. The Available Fields
 		list box lists all the fields. The Sort By list box lists the
 		fields that the &st; is to sort by and the direction of their
@@ -933,7 +933,7 @@ dialog and integrate it with the book_view &st;.
     </important>
 
     <para>
-    To make our &sd; available to the user we must update our code slightly: 
+    To make our &sd; available to the user we must update our code slightly:
 <example><title>insertBook from <filename>qt/tools/designer/eg/book6/bookform.cpp</></><programlisting>
 \scan eg/book6/bookform.cpp /void BookForm::insertBook/ /^}/
 </programlisting></example>
@@ -978,7 +978,7 @@ dialog and integrate it with the book_view &st;.
 
 		<para>
 <example><title><filename>qt/tools/designer/eg/book7/editbookform.cpp</></><programlisting>
-\scan eg/book7/editbookform.cpp /^#include/ /^$/ 
+\scan eg/book7/editbookform.cpp /^#include/ /^$/
 \scan /^EditBookForm/ /break/
 	// ...
 </programlisting></example>
@@ -1038,7 +1038,7 @@ dialog and integrate it with the book_view &st;.
 		ability to perform inserts. Start up &qd; and load in
 		the book project. Click on the EditBookFormBase form in
 		the Form List. (Click <guimenuitem>Window|Form List</>
-		to get the list to appear.) 
+		to get the list to appear.)
 		<orderedlist numeration="arabic">
 		    <listitem>
 			<para>
@@ -1069,7 +1069,7 @@ dialog and integrate it with the book_view &st;.
 			Drag the buttons below the title and price and
 			drag the bottom of the form up to make it
 			smaller. Click the form itself and click the
-			<guibutton>Lay Out Vertically</> toolbar button. 
+			<guibutton>Lay Out Vertically</> toolbar button.
 			</para>
 		    </listitem>
 		</orderedlist>
@@ -1078,7 +1078,7 @@ dialog and integrate it with the book_view &st;.
 		<para>
 		We now need to update our code so that only the
 		appropriate button is enabled. Save the form in &qd; and
-		edit the <filename>editbookform.cpp</> file. 
+		edit the <filename>editbookform.cpp</> file.
 		We need the id of the current book from the
 		EditBookForm constructor, so we need to update its
 		signature and ensure that it uses the book id we've

@@ -34,7 +34,6 @@
 **
 **********************************************************************/
 
-#define Q_UUIDIMPL
 #include "../../qsqldriverinterface.h"
 #include "qsql_mysql.h"
 
@@ -85,13 +84,12 @@ unsigned long QMYSQLDriverPlugin::release()
 	delete this;
 	return 0;
     }
-
     return ref;
 }
 
 QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
 {
-    if ( name == "QMYSQL" )
+    if ( name.upper() == "QMYSQL3" )
 	return new QMYSQLDriver();
     return 0;
 }
@@ -99,7 +97,7 @@ QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
 QStringList QMYSQLDriverPlugin::featureList() const
 {
     QStringList l;
-    l.append("QMYSQL");
+    l  << "QMYSQL3";
     return l;
 }
 

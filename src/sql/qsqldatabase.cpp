@@ -321,7 +321,7 @@ QStringList QSqlDatabase::drivers()
     l << "QPSQL6" << "QPSQL7";
 #endif
 #ifdef QT_SQL_MYSQL
-    l << "QMYSQL";
+    l << "QMYSQL3";
 #endif
 #ifdef QT_SQL_ODBC
     l << "QODBC";
@@ -367,9 +367,9 @@ bool QSqlDatabase::contains( const QString& connectionName )
      <li>QOCI - Oracle Call Interface Driver
      <li>QPSQL6 - PostgreSQL v6.x Driver
      <li>QPSQL7 - PostgreSQL v7.x Driver
-     <li>QMYSQL - MySQL Driver
+     <li>QMYSQL3 - MySQL Driver
      </ul>
-     
+
      Note that additional 3rd party drivers can be loaded dynamically.  See
 
 */
@@ -399,7 +399,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #endif
 
 #ifdef QT_SQL_MYSQL
-	if ( type == "QMYSQL" )
+	if ( type == "QMYSQL3" )
 	    d->driver = new QMYSQLDriver();
 #endif
 

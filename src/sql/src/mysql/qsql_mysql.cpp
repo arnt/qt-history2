@@ -39,7 +39,7 @@
 #include <qdatetime.h>
 #include <qmap.h>
 
-#define QMYSQL_DRIVER_NAME "QMYSQL"
+#define QMYSQL_DRIVER_NAME "QMYSQL3"
 
 class QMYSQLDriverPrivate
 {
