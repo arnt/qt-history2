@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#25 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#26 $
 **
 ** Definition of QMetaObject class
 **
@@ -40,8 +40,6 @@ struct QMetaData				// member function meta data
 #ifdef QT_BUILDER
 
 class QPixmap;
-class QInspector;
-typedef QInspector* (*QInspectorFactory)( QObject* );
 // Takes a pointer to the parent as parameter
 typedef QObject* (*QObjectFactory)( QObject* );
 
@@ -72,6 +70,12 @@ struct QMetaProperty
     char         setSpec; // 'c' = class, 'r' = reference, '!' = QObject::setName exception
 };
 
+struct QMetaMetaProperty
+{
+    const char *name;
+    const char *value;
+};
+
 #endif // QT_BUILDER
 
 class Q_EXPORT QMetaObject				// meta object class
@@ -82,7 +86,8 @@ public:
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 		 QMetaProperty *prop_data = 0, int n_props = 0,
-		 QMetaEnum *enum_data = 0, int n_enums = 0 );
+		 QMetaEnum *enum_data = 0, int n_enums = 0,
+		 QMetaMetaProperty* meta_prop_data = 0, int n_meta_props = 0 );
 #else // QT_BUILDER
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
@@ -107,18 +112,23 @@ public:
 
 #ifdef QT_BUILDER
     bool inherits( const char* _class ) const;
+    
     int            nProperties( bool=FALSE ) const;
     QMetaProperty *property( int index ) const;
     QMetaProperty *property( const char* name, bool super = FALSE ) const;
-    QStringList    propertyNames();
+    QStringList    propertyNames( bool=TRUE ) const;
     QMetaEnum     *enumerator( const char* name, bool super = FALSE ) const;
-    QInspector    *inspector( QObject* ) const;
+    
+    int		       nMetaProperties( bool=FALSE ) const;
+    QMetaMetaProperty *metaProperty( int index ) const;
+    const char        *metaProperty( const char* name, bool super = FALSE ) const;
+    QStringList        metaPropertyNames( bool=TRUE ) const;
+    
     QString	   comment() const;
     QPixmap	   pixmap() const;
     QObjectFactory factory() const;
     void setPixmap( const char* _pixmap[] );
     void setComment( const char* _comment );
-    void setInspector( QInspectorFactory f );
     void setFactory( QObjectFactory f );
     void fixProperty( QMetaProperty* prop, bool fix_enum_type = FALSE );
 
@@ -126,7 +136,8 @@ public:
 					QMetaData *, int,
 					QMetaData *, int,
 					QMetaProperty *prop_data = 0, int n_props = 0,
-					QMetaEnum *enum_data = 0, int n_enums = 0 );
+					QMetaEnum *enum_data = 0, int n_enums = 0,
+					QMetaMetaProperty* meta_prop_data = 0, int n_meta_props = 0 );
 #else // QT_BUILDER
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
@@ -154,7 +165,8 @@ private:
     int		   nEnumData;
     QMetaProperty *propData;                    // property meta data
     int            nPropData;
-    QInspectorFactory  inspectorFactory;
+    QMetaMetaProperty *metaPropData;
+    int		   nMetaPropData;
     QObjectFactory     objectFactory;
     const char	*commentData;
     const char **pixmapData;

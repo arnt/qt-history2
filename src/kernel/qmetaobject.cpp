@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#55 $
 **
 ** Implementation of QMetaObject class
 **
@@ -100,7 +100,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
 			  QMetaProperty *prop_data, int n_props,
-			  QMetaEnum *enum_data, int n_enums )
+			  QMetaEnum *enum_data, int n_enums,
+			  QMetaMetaProperty* meta_prop_data, int n_meta_props )
 #else // QT_BUILDER
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,
@@ -126,7 +127,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     nPropData = n_props;
     enumData = enum_data;
     nEnumData = n_enums;
-    inspectorFactory = 0;
+    metaPropData = meta_prop_data;
+    nMetaPropData = n_meta_props;
     objectFactory = 0;
     commentData = 0;
     pixmapData = 0;
@@ -190,6 +192,20 @@ int QMetaObject::nProperties( bool super ) const	// number of properties
     }
     return n;
 }
+
+int QMetaObject::nMetaProperties( bool super ) const	// number of meta properties
+{
+    if ( !super )
+	return nMetaPropData;
+    int n = 0;
+    register QMetaObject *meta = (QMetaObject *)this;
+    while ( meta ) {				// for all super classes...
+      n += meta->nMetaPropData;
+      meta = meta->superclass;
+    }
+    return n;
+}
+
 #endif // QT_BUILDER
 
 QMetaData *QMetaObject::slot( const char *n, bool super ) const
@@ -218,11 +234,12 @@ QMetaObject *QMetaObject::new_metaobject( const char *class_name,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
 					  QMetaProperty *prop_data, int n_props,
-					  QMetaEnum *enum_data, int n_enums )
+					  QMetaEnum *enum_data, int n_enums,
+					  QMetaMetaProperty* meta_prop_data, int n_meta_props )
 {
     return new QMetaObject( class_name, superclass_name, slot_data, n_slots,
 			    signal_data, n_signals, prop_data, n_props,
-			    enum_data, n_enums );
+			    enum_data, n_enums, meta_prop_data, n_meta_props );
 }
 #else // QT_BUILDER
 QMetaObject *QMetaObject::new_metaobject( const char *class_name,
@@ -381,7 +398,7 @@ QMetaEnum* QMetaObject::enumerator( const char* _name, bool _super ) const
   QMetaObject* super = superclass;
   while( super )
   {
-    QMetaEnum* e = super->enumerator( _name );
+    QMetaEnum* e = super->enumerator( _name, _super );
     if ( e )
       return e;
     super = super->superClass();
@@ -394,7 +411,7 @@ QMetaProperty* QMetaObject::property( int index ) const
 {
     if ( index >= nPropData || index < 0 )
 	return 0;
-    
+
     return &propData[ index ];
 }
 
@@ -410,19 +427,12 @@ QMetaProperty* QMetaObject::property( const char* _name, bool _super ) const
   QMetaObject* super = superclass;
   while( super )
   {
-    QMetaProperty* p = super->property( _name );
+    QMetaProperty* p = super->property( _name, _super );
     if ( p )
       return p;
     super = super->superClass();
   }
 
-  return 0;
-}
-
-QInspector* QMetaObject::inspector( QObject* _obj ) const
-{
-  if ( inspectorFactory )
-    return inspectorFactory( _obj );
   return 0;
 }
 
@@ -451,25 +461,20 @@ void QMetaObject::setComment( const char* _comment )
   commentData = _comment;
 }
 
-void QMetaObject::setInspector( QInspectorFactory _ins )
-{
-  inspectorFactory = _ins;
-}
-
 void QMetaObject::setFactory( QObjectFactory f )
 {
   objectFactory = f;
 }
 
-QStringList QMetaObject::propertyNames()
+QStringList QMetaObject::propertyNames( bool _super ) const
 {
   QStringList l;
   for( int i = 0; i < nPropData; ++i )
     l.append( propData[i].name );
 
-  if ( superclass )
+  if ( superclass && _super )
   {
-    QStringList super = superclass->propertyNames();
+    QStringList super = superclass->propertyNames( _super );
     l += super;
   }
 
@@ -514,6 +519,56 @@ QStringList QMetaEnum::enumeratorNames()
 
   return l;
 }
+
+QMetaMetaProperty* QMetaObject::metaProperty( int index ) const
+{
+    if ( index >= nMetaPropData || index < 0 )
+	return 0;
+
+    return &metaPropData[ index ];
+}
+
+const char* QMetaObject::metaProperty( const char* _name, bool _super ) const
+{
+  for( int i = 0; i < nMetaPropData; ++i )
+    if ( strcmp( metaPropData[i].name, _name ) == 0 )
+      return metaPropData[i].value;
+
+  if ( !_super )
+    return 0;
+
+  QMetaObject* super = superclass;
+  while( super )
+  {
+    const char* p = super->metaProperty( _name, _super );
+    if ( p )
+      return p;
+    super = super->superClass();
+  }
+
+  return 0;
+}
+
+QStringList QMetaObject::metaPropertyNames( bool _super ) const
+{
+  QStringList l;
+  for( int i = 0; i < nMetaPropData; ++i )
+    l.append( metaPropData[i].name );
+
+  if ( superclass && _super )
+  {
+    QStringList super = superclass->metaPropertyNames( _super );
+    l += super;
+  }
+
+  if ( l.count() < 2 )
+    return l;
+
+  qBubbleSort( l );
+
+  return l;
+}
+
 #endif // QT_BUILDER
 
 #ifdef QT_BUILDER
