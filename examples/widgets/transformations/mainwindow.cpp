@@ -100,9 +100,9 @@ void MainWindow::setupShapes()
     clock.lineTo(2, -2);
     clock.lineTo(0, 0);
     clock.moveTo(0, 0);
-    clock.lineTo(2.732, -0.732);
-    clock.lineTo(24.495, 14.142);
-    clock.lineTo(0.732, 2.732);
+    clock.lineTo(2.732f, -0.732f);
+    clock.lineTo(24.495f, 14.142f);
+    clock.lineTo(0.732f, 2.732f);
     clock.lineTo(0, 0);
 
     QPainterPath house;
