@@ -540,7 +540,7 @@ public:
 
 /*!
   Sets the MIME subtype of the text begin dragged. The default subtype
-  is "plain", this the default MIME type of the text is "text/plain".
+  is "plain", thus the default MIME type of the text is "text/plain".
   You might use this to declare that the text is "text/html" by
   calling setSubtype("html").
 */
