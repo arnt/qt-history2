@@ -510,6 +510,8 @@ MakefileGenerator::init()
                     }
                 } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
                     project->variables()["OBJECTS"] += tmp_out; //auto link it in
+                } else {
+                    project->variables()["UNUSED_SOURCES"] += tmp_out;
                 }
             }
         } else {
@@ -535,6 +537,8 @@ MakefileGenerator::init()
                         }
                     } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
                         project->variables()["OBJECTS"] += out; //auto link it in
+                    } else {
+                        project->variables()["UNUSED_SOURCES"] += out;
                     }
                 }
             }
@@ -2141,6 +2145,7 @@ MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, 
 
 struct FileFixifyCacheKey
 {
+    mutable uint hash;
     QString in_d, out_d;
     QString file, pwd;
     MakefileGenerator::FileFixifyType fixType;
@@ -2148,6 +2153,7 @@ struct FileFixifyCacheKey
     FileFixifyCacheKey(const QString &f, const QString &od, const QString &id,
                    MakefileGenerator::FileFixifyType ft, bool c)
     {
+        hash = 0;
         pwd = qmake_getpwd();
         file = f;
         if(od.isNull())
@@ -2174,16 +2180,19 @@ struct FileFixifyCacheKey
                 f.out_d == out_d &&
                 f.pwd == pwd);
     }
+    uint hashCode() const {
+        if(!hash)
+            hash = uint(canonicalize) |
+                   uint(fixType) |
+                   qHash(file) |
+                   qHash(pwd) |
+                   qHash(in_d) |
+                   qHash(out_d);
+        return hash;
+    }
 };
 
-uint qHash(const FileFixifyCacheKey &f) {
-    return (uint(f.canonicalize) |
-            uint(f.fixType) |
-            qHash(f.file) |
-            qHash(f.pwd) |
-            qHash(f.in_d) |
-            qHash(f.out_d));
-}
+uint qHash(const FileFixifyCacheKey &f) { return f.hashCode(); }
 
 QString
 MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const QString &in_d,
