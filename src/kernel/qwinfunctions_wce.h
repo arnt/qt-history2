@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Compatibility functionality for different Windows platforms 
+** Compatibility functionality for different Windows platforms
 **
 ** Created : 010613
 **
@@ -32,5 +32,7 @@
 
 #ifndef QT_H
 #endif // QT_H
+
+#include "qfunctions_wce.h"
 
 #endif // QWINFUNCTIONS_WCE_H
