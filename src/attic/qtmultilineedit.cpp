@@ -2385,7 +2385,7 @@ void QtMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 	paste();		// Will repaint the cursor line.
 #else
 #ifndef QT_NO_COMPAT
-	if ( style() == MotifStyle )
+	if ( style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle )
 	    paste();
 #endif	    
 #endif
