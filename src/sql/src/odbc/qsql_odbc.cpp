@@ -192,6 +192,10 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
     if ( r != SQL_SUCCESS )
 		qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
 #endif
+    // SQLDescribeCol may return 0 if size cannot be determined
+    if (!colSize) {
+	colSize = 255;
+    }
     SQLCHAR* buf = new SQLTCHAR[ colSize + 1 ];
     while ( TRUE ) {
 		r = SQLGetData( hStmt,
