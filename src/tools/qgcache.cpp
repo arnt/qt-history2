@@ -519,7 +519,7 @@ void QGCache::clear()
 
 
 /*!
-  Finds an item in the cache.
+  Finds an item for \a key in the cache and adds a reference if \a ref is TRUE.
 */
 
 QPtrCollection::Item QGCache::find_string( const QString &key, bool ref ) const
@@ -542,7 +542,7 @@ QPtrCollection::Item QGCache::find_string( const QString &key, bool ref ) const
 
 
 /*!
-  Finds an item in the cache.
+  Finds an item for \a key in the cache and adds a reference if \a ref is TRUE.
 */
 
 QPtrCollection::Item QGCache::find_other( const char *key, bool ref ) const

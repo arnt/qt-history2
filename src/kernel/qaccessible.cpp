@@ -12,6 +12,7 @@
   \class QAccessible qaccessible.h
   \ingroup misc
   \brief The QAccessible class is provide a set of enums and static functions.
+
   \preliminary
 */
 
@@ -196,7 +197,7 @@
 
   \a reason designates the cause of this change, e.g. ValueChange when the position of e.g. 
   a slider has been changed. \a control is the ID of the child element that has changed. When 
-  \a control is NULL, the object itself has changed.
+  \a control is null, the object itself has changed.
 
   Emit this signal whenever the state of your accessible object or one of it's subelements
   has been changed either programmatically (e.g. by calling QLabel::setText() ) or by user 
@@ -216,6 +217,7 @@
   \class QAccessibleInterface qaccessible.h
   \ingroup misc
   \brief The QAccessibleInterface class is an interface that exposes information about accessible objects.
+
   \preliminary
 */
 
@@ -243,7 +245,7 @@
 
   Sets \a iface to point to the address of the QAccessibleInterface for the child specified
   with \a control. If the child doesn't provide accessibility information on it's own, the 
-  value of \a iface is set to NULL. For those elements, this object is responsible for exposing 
+  value of \a iface is set to null. For those elements, this object is responsible for exposing 
   the child's properties.
 
   All objects provide this information.
@@ -255,7 +257,7 @@
   \fn QRESULT QAccessibleInterface::queryParent( QAccessibleInterface **iface ) const
 
   Sets \a iface to point to the address of the QAccessibleInterface implementation of the 
-  parent object, or to NULL if there is no such object.
+  parent object, or to null if there is no such object.
 
   All objects provide this information.
 

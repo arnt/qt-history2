@@ -1491,7 +1491,7 @@ QRect QPlatinumStyle::subRect( SubRect r, const QWidget *widget ) const
 }
 
 /*!
-  Mixes two colors to a new color.
+  Mixes two colors \a c1 and \a c2 to a new color.
   */
 QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 {
@@ -1502,51 +1502,53 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 }
 
 /*!
-  Draws the nifty Macintosh decoration used on sliders.
+  Draws the nifty Macintosh decoration used on sliders using painter \a p and
+  colorgroup \a g. \a x, \a y, \a w, \a h and \a horizontal specify the geometry
+  and orientation of the riffles.
   */
 void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 				  const QColorGroup &g, bool horizontal ) const
 {
-	if (!horizontal) {
-	    if (h > 20) {
-		y += (h-20)/2 ;
-		h = 20;
+    if (!horizontal) {
+	if (h > 20) {
+	    y += (h-20)/2 ;
+	    h = 20;
+	}
+	if (h > 8) {
+	    int n = h / 4;
+	    int my = y+h/2-n;
+	    int i ;
+	    p->setPen(g.light());
+	    for (i=0; i<n; i++) {
+		p->drawLine(x+3, my+2*i, x+w-5, my+2*i);
 	    }
-	    if (h > 8) {
-		int n = h / 4;
-		int my = y+h/2-n;
-		int i ;
-		p->setPen(g.light());
-		for (i=0; i<n; i++) {
-		    p->drawLine(x+3, my+2*i, x+w-5, my+2*i);
-		}
-		p->setPen(g.dark());
-		my++;
-		for (i=0; i<n; i++) {
-		    p->drawLine(x+4, my+2*i, x+w-4, my+2*i);
-		}
+	    p->setPen(g.dark());
+	    my++;
+	    for (i=0; i<n; i++) {
+		p->drawLine(x+4, my+2*i, x+w-4, my+2*i);
 	    }
 	}
-	else {
-	    if (w > 20) {
-		x += (w-20)/2 ;
-		w = 20;
+    }
+    else {
+	if (w > 20) {
+	    x += (w-20)/2 ;
+	    w = 20;
+	}
+	if (w > 8) {
+	    int n = w / 4;
+	    int mx = x+w/2-n;
+	    int i ;
+	    p->setPen(g.light());
+	    for (i=0; i<n; i++) {
+		p->drawLine(mx+2*i, y+3, mx + 2*i, y+h-5);
 	    }
-	    if (w > 8) {
-		int n = w / 4;
-		int mx = x+w/2-n;
-		int i ;
-		p->setPen(g.light());
-		for (i=0; i<n; i++) {
-		    p->drawLine(mx+2*i, y+3, mx + 2*i, y+h-5);
-		}
-		p->setPen(g.dark());
-		mx++;
-		for (i=0; i<n; i++) {
-		    p->drawLine(mx+2*i, y+4, mx + 2*i, y+h-4);
-		}
+	    p->setPen(g.dark());
+	    mx++;
+	    for (i=0; i<n; i++) {
+		p->drawLine(mx+2*i, y+4, mx + 2*i, y+h-4);
 	    }
 	}
+    }
 }
 
 

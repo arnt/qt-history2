@@ -612,7 +612,7 @@ static bool qLogEq( bool a, bool b )
 <strong>Win32 only</strong> This virtual function chooses a pixel format
 that matches the OpenGL \link setFormat() format\endlink. Reimplement this function in a subclass if you need a custom context.
 
-  \warning The \a pdc pointer is really a \c PIXELFORMATDESCRIPTOR*.
+  \warning The \a dummyPfd pointer and \a pdc are used as a \c PIXELFORMATDESCRIPTOR*.
   We use \c void to avoid using Windows-specific types in our header files.
 
   \sa chooseContext() */
