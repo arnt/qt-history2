@@ -16,7 +16,8 @@ main.cpp
 Provides the main function for the RSS news reader example.
 */
 
-#include <qapplication.h>
+#include <QtGui>
+
 #include "rsslisting.h"
 
 /*!
@@ -29,10 +30,10 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    RSSListing rsslisting;
-    rsslisting.show();
+    RSSListing *rsslisting = new RSSListing;
+    rsslisting->show();
 
-    app.setMainWidget(&rsslisting);
+    app.setMainWidget(rsslisting);
 
     return app.exec();
 }

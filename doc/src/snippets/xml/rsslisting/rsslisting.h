@@ -13,20 +13,23 @@
 #ifndef RSSLISTING_H
 #define RSSLISTING_H
 
-#include <qhttp.h>
-#include <qlineedit.h>
-#include <qlistview.h>
-#include <qpushbutton.h>
-#include <qwidget.h>
-#include <qxml.h>
+#include <QHttp>
+#include <QWidget>
+#include <QXmlInputSource>
+#include <QXmlSimpleReader>
 
 #include "handler.h"
+
+class QLineEdit;
+class QTreeWidget;
+class QTreeWidgetItem;
+class QPushButton;
 
 class RSSListing : public QWidget
 {
     Q_OBJECT
 public:
-    RSSListing(QWidget *widget = 0, const char *name = 0, WFlags flags = 0);
+    RSSListing(QWidget *widget = 0);
 
 public slots:
     void addItem(QString &title, QString &link);
@@ -35,9 +38,9 @@ public slots:
     void readData(const QHttpResponseHeader &);
 
 private:
-    QXmlSimpleReader xmlReader;
-    QXmlInputSource xmlInput;
     Handler *handler;
+    QXmlInputSource xmlInput;
+    QXmlSimpleReader xmlReader;
 
     bool newInformation;
 
@@ -45,8 +48,8 @@ private:
     int connectionId;
 
     QLineEdit *lineEdit;
-    QListView *listView;
-    QListViewItem *lastItemCreated;
+    QTreeWidget *treeWidget;
+    QTreeWidgetItem *lastItemCreated;
     QPushButton *abortButton;
     QPushButton *fetchButton;
 };

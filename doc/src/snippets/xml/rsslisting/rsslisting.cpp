@@ -26,14 +26,15 @@ its operation, and also allows very large data sources to be read.
 */
 
 
-#include <qhbox.h>
-#include <qlayout.h>
-#include <qurl.h>
+#include <QtCore>
+#include <QtGui>
+#include <QtNetwork>
+#include <QtXml>
 
 #include "rsslisting.h"
 
 
-/*!
+/*
     Constructs an RSSListing widget with a simple user interface, and sets
     up the XML reader to use a custom handler class.
 
@@ -43,21 +44,19 @@ its operation, and also allows very large data sources to be read.
     news.
 */
 
-RSSListing::RSSListing(QWidget *parent, const char *name, WFlags flags)
-    : QWidget(parent, name, flags)
+RSSListing::RSSListing(QWidget *parent)
+    : QWidget(parent)
 {
-    setCaption(tr("RSS listing example"));
-
     lineEdit = new QLineEdit(this);
 
     fetchButton = new QPushButton(tr("Fetch"), this);
     abortButton = new QPushButton(tr("Abort"), this);
     abortButton->setEnabled(false);
 
-    listView = new QListView(this);
-    listView->addColumn(tr("Title"));
-    listView->addColumn(tr("Link"));
-    listView->setSorting(-1);
+    treeWidget = new QTreeWidget(this);
+    QStringList headerLabels;
+    headerLabels << tr("Title") << tr("Link");
+    treeWidget->setHeaderLabels(headerLabels);
 
     handler = 0;
 
@@ -79,10 +78,12 @@ RSSListing::RSSListing(QWidget *parent, const char *name, WFlags flags)
     hboxLayout->addWidget(abortButton);
 
     layout->addLayout(hboxLayout);
-    layout->addWidget(listView);
+    layout->addWidget(treeWidget);
+
+    setWindowTitle(tr("RSS listing example"));
 }
 
-/*!
+/*
     Starts fetching data from a news source specified in the line
     edit widget.
 
@@ -107,7 +108,7 @@ void RSSListing::fetch()
     lineEdit->setReadOnly(true);
     fetchButton->setEnabled(false);
     abortButton->setEnabled(true);
-    listView->clear();
+    treeWidget->clear();
 
     lastItemCreated = 0;
 
@@ -126,10 +127,10 @@ void RSSListing::fetch()
     QUrl url(lineEdit->text());
 
     http.setHost(url.host());
-    connectionId = http.get(url.encodedPathAndQuery());
+    connectionId = http.get(url.path());
 }
 
-/*!
+/*
     Reads data received from the RDF source.
 
     We read all the available data, and pass it to the XML
@@ -162,7 +163,7 @@ void RSSListing::readData(const QHttpResponseHeader &resp)
     }
 }
 
-/*!
+/*
     Finishes processing an HTTP request.
 
     The default behavior is to keep the text edit read only.
@@ -197,7 +198,7 @@ void RSSListing::finished(int id, bool error)
     }
 }
 
-/*!
+/*
     Adds an item to the list view as it is reported by the handler.
 
     We keep a record of the last item created to ensure that the
@@ -206,9 +207,9 @@ void RSSListing::finished(int id, bool error)
 
 void RSSListing::addItem(QString &title, QString &link)
 {
-    QListViewItem *item;
+    QTreeWidgetItem *item;
 
-    item = new QListViewItem(listView, lastItemCreated);
+    item = new QTreeWidgetItem(treeWidget, lastItemCreated);
     item->setText(0, title);
     item->setText(1, link);
 

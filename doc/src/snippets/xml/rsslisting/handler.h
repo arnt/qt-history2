@@ -13,9 +13,9 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
-#include <qobject.h>
-#include <qstring.h>
-#include <qxml.h>
+#include <QObject>
+#include <QString>
+#include <QXmlDefaultHandler>
 
 /* Note that QObject must precede QXmlDefaultHandler in the following list. */
 

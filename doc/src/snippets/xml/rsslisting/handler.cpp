@@ -25,9 +25,11 @@ link information. This may be used by user interfaces for the purpose of
 displaying items as they are read.
 */
 
+#include <QtGui>
+
 #include "handler.h"
 
-/*!
+/*
     Reset the state of the handler to ensure that new documents are
     read correctly.
 
@@ -43,7 +45,7 @@ bool Handler::startDocument()
     return true;
 }
 
-/*!
+/*
     Process each starting element in the XML document.
 
     Nested item, title, or link elements are not allowed, so we return false
@@ -54,7 +56,7 @@ bool Handler::startDocument()
     attributes in item elements.
 
     For all cases not explicitly checked for, we return true to indicate that
-    the element is  acceptable, and that parsing should continue. By doing
+    the element is acceptable, and that parsing should continue. By doing
     this, we can ignore elements in which we are not interested.
 */
 
@@ -90,7 +92,7 @@ bool Handler::startElement(const QString &, const QString &,
     return true;
 }
 
-/*!
+/*
     Process each ending element in the XML document.
 
     For recognized elements, we reset flags to ensure that we can read new
@@ -118,7 +120,7 @@ bool Handler::endElement(const QString &, const QString &,
     return true;
 }
 
-/*!
+/*
     Collect characters when reading the contents of title or link elements
     when they occur within an item element.
 
@@ -135,7 +137,7 @@ bool Handler::characters (const QString &chars)
     return true;
 }
 
-/*!
+/*
     Report a fatal parsing error, and return false to indicate to the reader
     that parsing should stop.
 */
