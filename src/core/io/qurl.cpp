@@ -17,7 +17,9 @@
 #include <qstringlist.h>
 #include <qstack.h>
 #include <qstringlist.h>
-#include <qtextcodec.h>
+#ifndef QT_NO_TEXTCODEC
+# include <qtextcodec.h>
+#endif
 #include <qvarlengtharray.h>
 #include "qurl.h"
 
@@ -1130,6 +1132,7 @@ QByteArray QUrlPrivate::toEncoded() const
             url += "@";
         }
 
+#ifndef QT_NO_TEXTCODEC
         // IDNA / rfc3490 describes these four delimiters used for
         // separating labels in unicode international domain
         // names.
@@ -1146,6 +1149,9 @@ QByteArray QUrlPrivate::toEncoded() const
             QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
             url += codec->fromUnicode(label);
         }
+#else
+        url += host;
+#endif
 
         if (port != -1) {
             url += ":";
