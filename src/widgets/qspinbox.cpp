@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#86 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -760,7 +760,7 @@ void QSpinBox::textChanged()
   display value \a v.  The default implementation returns a string
   containing \a v printed in the standard way.
 
-  Override this function in in a subclass if you want a specialized
+  Reimplement this function in in a subclass if you want a specialized
   spin box, handling something else than integers.  This function need
   not be concerned with \link setPrefix() prefix \endlink or \link
   setSuffix() suffix \endlink or \link setSpecialValueText()
@@ -784,7 +784,7 @@ QString QSpinBox::mapValueToText( int v )
   implementation tries to interpret it as an integer in the standard
   way, and returns the integer value.
 
-  Override this function in in a subclass if you want a specialized
+  Reimplement this function in in a subclass if you want a specialized
   spin box, handling something else than integers.  It should call
   text() (or cleanText() ) and return the value corresponding to that
   text.  If the text does not represent a legal value

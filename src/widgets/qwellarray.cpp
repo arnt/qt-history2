@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#22 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -49,8 +49,8 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 		  popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : 0 )
 {
     d = 0;
-    setFocusPolicy( StrongFocus );		
-    setBackgroundMode( PaletteButton );	
+    setFocusPolicy( StrongFocus );
+    setBackgroundMode( PaletteButton );
     nCols = 7;
     nRows = 7;
     int w = 24;		// cell width
@@ -66,14 +66,14 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 	setMargin( 1 );
 	setLineWidth( 2 );
     }
-    setNumCols( nCols );			
-    setNumRows( nRows );			
-    setCellWidth( w );			
-    setCellHeight( h );			
-    /*    setTableFlags( Tbl_vScrollBar |		
-	  Tbl_hScrollBar |		
-	  Tbl_clipCellPainting |	
-	  Tbl_smoothScrolling);	
+    setNumCols( nCols );
+    setNumRows( nRows );
+    setCellWidth( w );
+    setCellHeight( h );
+    /*    setTableFlags( Tbl_vScrollBar |
+	  Tbl_hScrollBar |
+	  Tbl_clipCellPainting |
+	  Tbl_smoothScrolling);
 	  */
 
     curCol = 0;
@@ -121,7 +121,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     if ( !smallStyle && row ==selRow && col == selCol &&
 	 style() != MotifStyle ) {
 	int n = 2;
-	p->drawRect( n, n, w-2*n, h-2*n );	
+	p->drawRect( n, n, w-2*n, h-2*n );
     }
 
 
@@ -134,7 +134,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 	    qDrawShadePanel( p, b, b ,  w - 2*b,  h - 2*b,
 			     g, TRUE, 2 );
 	    b += 2;
-	} else {	
+	} else {
 	    int t = ( row == selRow && col == selCol ) ? 3 : 0;
 	    b -= t;
 	    qDrawShadePanel( p, b, b ,  w - 2*b,  h - 2*b,
@@ -147,9 +147,9 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     if ( (row == curRow) && (col == curCol) ) {
 	if ( smallStyle ) {
 	    p->setPen ( white );
-	    p->drawRect( 1, 1, w-2, h-2 );	
+	    p->drawRect( 1, 1, w-2, h-2 );
 	    p->setPen ( black );
-	    p->drawRect( 0, 0, w, h );	
+	    p->drawRect( 0, 0, w, h );
 	    p->drawRect( 2, 2, w-4, h-4 );
 	    b = 3;
 	} else if ( hasFocus() ) {
@@ -175,7 +175,7 @@ void QWellArray::drawContents( QPainter *p )
 }
 
 /*!
-  Override this function to change the contents of the well array.
+  Reimplement this function to change the contents of the well array.
  */
 void QWellArray::drawContents( QPainter *p, int row, int col, const QRect &r )
 {
@@ -278,7 +278,7 @@ void QWellArray::setSelected( int row, int col )
 
     if ( isVisible() && parentWidget() && parentWidget()->inherits("QPopupMenu") )
 	parentWidget()->close();
-	
+
 }
 
 
@@ -310,8 +310,8 @@ void QWellArray::setDimension( int rows, int cols )
 	delete d;
 	d = 0;
     }
-    setNumCols( nCols );			
-    setNumRows( nRows );			
+    setNumCols( nCols );
+    setNumRows( nRows );
 }
 
 void QWellArray::setCellBrush( int row, int col, const QBrush &b )
@@ -403,7 +403,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	break;
     default:				// If not an interesting key,
 	e->ignore();			// we don't accept the event
-	return;	
+	return;
     }
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#85 $
 **
 ** Implementation of QMainWindow class
 **
@@ -840,15 +840,14 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 }
 
 
-/*!  Sets up the \link QBoxLayout geometry management \endlink of this
-  window.  Called automatically when needed, so you should never need
-  to call this.
+/*!  Sets up the geometry management of this window.  Called
+  automatically when needed, so you should never need to call this.
 */
 
 void QMainWindow::setUpLayout()
 {
     if ( !d->mb ) {
-	// slightly evil hack here.  reconsider this after 1.40.
+	// slightly evil hack here.  reconsider this after 2.0
 	QObjectList * l
 	    = ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
 	if ( l && l->count() )
@@ -878,14 +877,15 @@ void QMainWindow::setUpLayout()
 			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE,
 			d->justify, style() );
     QBoxLayout * mwl = new QBoxLayout( QBoxLayout::LeftToRight );
-    d->tll->addLayout( mwl, 1 );
+    d->tll->addLayout( mwl, 100 );
     addToolBarToLayout( d->left, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
 			d->justify, style() );
-    if ( centralWidget() && !centralWidget()->testWState(Qt::WState_ForceHide) )
-	mwl->addWidget( centralWidget(), 1 );
+    if ( centralWidget() &&
+	 !centralWidget()->testWState(Qt::WState_ForceHide) )
+	mwl->addWidget( centralWidget(), 100 );
     else
-	mwl->addStretch( 1 );
+	mwl->addStretch( 100 );
     addToolBarToLayout( d->right, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
 			d->justify, style() );
@@ -893,8 +893,11 @@ void QMainWindow::setUpLayout()
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			d->justify, style() );
 
-    if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) )
+    if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) ) {
 	d->tll->addWidget( d->sb, 0 );
+	// make the sb stay on top of tool bars if there isn't enough space
+	d->sb->raise();
+    }
     //debug( "act %d, %d", x(), y() );
     d->tll->activate();
 

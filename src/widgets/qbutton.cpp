@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#155 $
 **
 ** Implementation of QButton widget class
 **
@@ -90,7 +90,7 @@ void QButton::ensureData()
   returns 0.
 
   \sa setGroup() QButtonGroup
-*/  
+*/
 
 QButtonGroup *QButton::group() const
 {
@@ -566,7 +566,7 @@ void QButton::animateClick()
   toggle() as well if you need to do that.  The pressed() and
   released() signals are not emitted by this function.
 
-  This method is provided in case you need to override the mouse event
+  This method is provided in case you need to reimplement the mouse event
   handlers.
 
   \sa isDown(), setOn(), toggle(), toggled()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#480 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#481 $
 **
 ** Implementation of QWidget class
 **
@@ -321,7 +321,8 @@
   when a key has been held down long enough for it to auto-repeat.
   Note that the Tab and shift-Tab keys are only passed to the widget
   if they are not used by the focus-change mechanisms.  To force those
-  keys to be processed by your widget, you must override QWidget::event().
+  keys to be processed by your widget, you must reimplement
+  QWidget::event().
 
   <li> focusInEvent() - called when the widget gains keyboard focus
   (assuming you have called setFocusPolicy(), of course). Well
@@ -348,7 +349,7 @@
   event for every repeat.  Note that the Tab and shift-Tab keys are
   only passed to the widget if they are not used by the focus-change
   mechanisms.  To force those keys to be processed by your widget, you
-  must override QWidget::event().
+  must reimplement QWidget::event().
 
   <li> wheelEvent() -- called whenever the user turns the mouse wheel
   while the widget has the focus.
@@ -2856,15 +2857,14 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
   The \e policy can be:
   <ul>
-  <li> \c QWidget::TabFocus, the widget accepts focus by tabbing.
-  <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
-  <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
+  <li> \c QWidget::TabFocus - the widget accepts focus by tabbing.
+  <li> \c QWidget::ClickFocus - the widget accepts focus by clicking.
+  <li> \c QWidget::StrongFocus - the widget accepts focus by both tabbing
   and clicking.
-  <li> \c QWidget::WheelFocus, like StrongFocus plus the widget accepts
+  <li> \c QWidget::WheelFocus - like StrongFocus plus the widget accepts
   focus by using the mouse wheel.
-  <li> \c QWidget::NoFocus, the widget does not accept focus
+  <li> \c QWidget::NoFocus - the widget does not accept focus.
   </ul>
-
 */
 
 /*!
@@ -3246,8 +3246,8 @@ bool QWidget::close( bool alsoDelete )
 	}
     }
     if ( accept  ) {	// last window closed?
-	if ( checkLastWindowClosed 
-	     && qApp->receivers(SIGNAL(lastWindowClosed())) 
+	if ( checkLastWindowClosed
+	     && qApp->receivers(SIGNAL(lastWindowClosed()))
 	     && noMoreToplevels() )
 	    emit qApp->lastWindowClosed();
 	if ( isMain )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#49 $
 **
 ** Implementation of QBuffer class
 **
@@ -41,7 +41,7 @@
   existing byte array.  The byte array can also be set with setBuffer().
   Writing to the QBuffer will modify the original byte array, since
   QByteArray is \link shclass.html explicitly shared.\endlink
-    
+
   Use open() to open the buffer before use, and to set the mode
   (read-only,write-only, etc.).  close() closes the buffer. The buffer
   must be closed before reopening or calling setBuffer().
@@ -286,7 +286,7 @@ int QBuffer::readBlock( char *p, uint len )
 
 /*!
   \reimp
-  
+
   Writes \a len bytes from \a p into the buffer at the current index,
   overwriting any characters there and extending the buffer if necessary.
   Returns the number of bytes actually written.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#130 $
 **
 ** Implementation of QScrollView class
 **
@@ -237,7 +237,7 @@ outside the normal coordinate range (but they are still limited in
 size).
 
 To provide content for the widget, inherit from QScrollView and
-override drawContentsOffset(), and use resizeContents() to set the size
+reimplement drawContentsOffset(), and use resizeContents() to set the size
 of the viewed area.  Use addChild() / moveChild() to position widgets
 on the view.  For large numbers of such child widgets, consider using
 packChildWidgets() to improve performance.
@@ -283,15 +283,14 @@ do.
 
 <img src=qscrollview-vp.png>
 
-The second usage of QScrollView depicated above is
-appropriate when few, if any, widgets are on a very large scrolling area
-that is potentially larger than 4000 pixels in either dimension. In this
-usage, you call resizeContents() to set the size of the area, and override
-drawContents() to paint the contents.  You may also add some widgets,
-by making them children of the viewport() and adding them with
-addChild() (this is the same as the process for the single large
-widget in the previous example):
-\code
+The second usage of QScrollView depicated above is appropriate when
+few, if any, widgets are on a very large scrolling area that is
+potentially larger than 4000 pixels in either dimension. In this
+usage, you call resizeContents() to set the size of the area, and
+reimplement drawContents() to paint the contents.  You may also add
+some widgets, by making them children of the viewport() and adding
+them with addChild() (this is the same as the process for the single
+large widget in the previous example): \code
     QScrollView* sv = new QScrollView(...);
     QLabel* child1 = new QLabel("CHILD", sv->viewport());
     sv->addChild(child1);
@@ -314,7 +313,7 @@ the scrollview moves the child widgets individually.
 The final usage of QScrollView depicated above is
 appropriate when many widgets are on a very large scrolling area
 that is potentially larger than 4000 pixels in either dimension. In this
-usage, you call resizeContents() to set the size of the area, and override
+usage, you call resizeContents() to set the size of the area, and reimplement
 drawContents() to paint the contents.  You then call enableClipper(TRUE)
 and add widgets, again
 by making them children of the viewport() and adding them with
@@ -354,8 +353,8 @@ relative to the contents - use the function mapToContents() for this.
 
 To handle mouse events on the scrolling area, subclass scrollview as
 you would subclass other widgets, but rather than overriding
-mousePressEvent(), override viewportMousePressEvent() instead (if you
-override mousePressEvent() you'll only get called when part of the
+mousePressEvent(), reimplement viewportMousePressEvent() instead (if
+you reimplement mousePressEvent() you'll only get called when part of the
 QScrollView is clicked - and the only such part is the "corner" (if
 you don't set a cornerWidget()) and the frame, everything else being
 covered up by the viewport, clipper, or scrollbars.
@@ -391,7 +390,7 @@ Constructs a QScrollView.
 
 If you intend to add child widgets, you may see improved refresh
 if you include \c WPaintClever in the widgets flags, \a f.  \c WPaintClever
-as well as \c WNorthWestGravity and \c WRepaintNoErase 
+as well as \c WNorthWestGravity and \c WRepaintNoErase
 is propagated to the viewport() widget.
 */
 
@@ -727,8 +726,9 @@ void QScrollView::updateScrollBars()
 }
 
 
-/*!
-An override - ensures scrollbars are correct size upon showing.
+/*! \reimp
+  
+  Ensures that scrollbars have the correct size when the widget is shown.
 */
 void QScrollView::show()
 {
@@ -738,8 +738,9 @@ void QScrollView::show()
     d->hideOrShowAll(this);
 }
 
-/*!
-An override - ensures scrollbars are correct size upon resize.
+/*! \reimp
+  
+  Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resize( int w, int h )
 {
@@ -762,16 +763,18 @@ void QScrollView::resize( int w, int h )
     */
 }
 
-/*!
-An override - ensures scrollbars are correct size upon resize.
+/*! \reimp
+  
+  Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resize( const QSize& s )
 {
     resize(s.width(),s.height());
 }
 
-/*!
-An override - ensures scrollbars are correct size upon resize.
+/*! \reimp
+  
+  Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resizeEvent( QResizeEvent* event )
 {
@@ -790,8 +793,8 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 }
 
 
-/*!
-An override - pass wheel events to the vertical scrollbar
+/*! \reimp
+Pass wheel events to the vertical scrollbar.
 */
 void QScrollView::wheelEvent( QWheelEvent *e ){
     if (verticalScrollBar())
@@ -955,8 +958,7 @@ void QScrollView::removeChild(QWidget* child)
     if ( r ) d->deleteChildRec( r );
 }
 
-/*!
-  Just an override to keep QObject::removeChild() accessible.
+/*! \reimp
 */
 void QScrollView::removeChild(QObject* child)
 {
@@ -1202,7 +1204,7 @@ void QScrollView::contentsWheelEvent( QWheelEvent * )
 
 /*!
   This is a low-level painting routine that draws the viewport
-  contents.  Override this if drawContentsOffset() is too high-level.
+  contents.  Reimplement this if drawContentsOffset() is too high-level.
   (for example, if you don't want to open a QPainter on the viewport).
 */
 void QScrollView::viewportPaintEvent( QPaintEvent* pe )
@@ -1835,8 +1837,8 @@ void QScrollView::drawContents(QPainter*, int, int, int, int)
 {
 }
 
-/*!
-An override - ensures scrollbars are correct size when frame style changes.
+/*! \reimp
+Ensures that scrollbars have the correct size when the frame style changes.
 */
 void QScrollView::frameChanged()
 {
@@ -1894,10 +1896,10 @@ void QScrollView::changeFrameRect(const QRect& r)
 
 
 /*!
-  Sets the margins around the scrolling area.  This is useful for applications
-  such as spreadsheets with `locked' rows and columns.  The marginal space
-  is \e inside the frameRect() and is left blank - override drawContents()
-  or put widgets in the unused area.
+  Sets the margins around the scrolling area.  This is useful for
+  applications such as spreadsheets with `locked' rows and columns.
+  The marginal space is \e inside the frameRect() and is left blank -
+  reimplement drawContents() or put widgets in the unused area.
 
   By default all margins are zero.
 
@@ -1910,7 +1912,7 @@ void QScrollView::setMargins(int left, int top, int right, int bottom)
 	 right == d->r_marg &&
 	 bottom == d->b_marg )
 	return;
-	
+
     d->l_marg = left;
     d->t_marg = top;
     d->r_marg = right;
@@ -1923,7 +1925,7 @@ void QScrollView::setMargins(int left, int top, int right, int bottom)
   Returns the current left margin.
   \sa setMargins()
 */
-int QScrollView::leftMargin() const	
+int QScrollView::leftMargin() const
 {
     return d->l_marg;
 }
@@ -1933,7 +1935,7 @@ int QScrollView::leftMargin() const
   Returns the current top margin.
   \sa setMargins()
 */
-int QScrollView::topMargin() const	
+int QScrollView::topMargin() const
 {
     return d->t_marg;
 }
@@ -1943,7 +1945,7 @@ int QScrollView::topMargin() const
   Returns the current right margin.
   \sa setMargins()
 */
-int QScrollView::rightMargin() const	
+int QScrollView::rightMargin() const
 {
     return d->r_marg;
 }
@@ -1953,14 +1955,15 @@ int QScrollView::rightMargin() const
   Returns the current bottom margin.
   \sa setMargins()
 */
-int QScrollView::bottomMargin() const	
+int QScrollView::bottomMargin() const
 {
     return d->b_marg;
 }
 
-/*!
-  Override so that traversal moves among child widgets, even if they
-  are not visible, scrolling to make them so.
+/*! \reimp
+
+  Makes sure that the new focus widget is on-screen, if necessary by
+  scrolling the scroll view.
 */
 bool QScrollView::focusNextPrevChild( bool next )
 {

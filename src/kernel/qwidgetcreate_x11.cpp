@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#8 $
 **
 ** Implementation of Qt calls to X11
 **
@@ -29,8 +29,8 @@
 
 /*
   Internal Qt functions to create X windows.  We have put them in
-  separate functions to allow the programmer to override them by custom
-  versions.
+  separate functions to allow the programmer to reimplement them by
+  custom versions.
 */
 
 Window qt_XCreateWindow( const QWidget*, Display *display, Window parent,

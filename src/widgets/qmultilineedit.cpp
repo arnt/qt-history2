@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#86 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -240,7 +240,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     d->scrollTime = 0;
 
     dummy = TRUE;
-    
+
     int w  = textWidth( QString::fromLatin1("") );
     contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
     setNumRows( 1 );
@@ -454,7 +454,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 		       fillxpos2 - fillxpos1, cellHeight(row) );
 	p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row),
 		    g.brush( QColorGroup::Highlight ) );
-	p.setPen( g.highlightedText() );	
+	p.setPen( g.highlightedText() );
 	p.drawText( x,  yPos, cellWidth()-d->lr_marg-x, cellHeight(),
 		    d->align == AlignLeft?ExpandTabs:0, s );
 	p.setClipping( FALSE );
@@ -802,8 +802,8 @@ void QMultiLineEdit::append( const QString &s )
     emit textChanged();
 }
 
-/*!
-An override - pass wheel events to the vertical scrollbar
+/*! \reimp
+Passes wheel events to the vertical scrollbar.
 */
 void QMultiLineEdit::wheelEvent( QWheelEvent *e ){
     QApplication::sendEvent( verticalScrollBar(), e);
@@ -1586,7 +1586,7 @@ void QMultiLineEdit::del()
 
 	    for( int i = markBeginY + 1 ; i <= markEndY ; i++ )
 		contents->remove( markBeginY + 1 );
-	
+
 	    if ( contents->isEmpty() )
 		insertLine( QString::fromLatin1(""), -1 );
 
@@ -1771,7 +1771,7 @@ void QMultiLineEdit::setCursorPixelPosition(QPoint p, bool clear_mark)
 	    repaintDelayed( FALSE );
 	    d->isHandlingEvent = FALSE;
 	    return;
-	}	
+	}
     }
     if ( cursorY != newY ) {
 	int oldY = cursorY;
@@ -3054,7 +3054,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	}
 	if ( lastSpace <= a )
 	    lastw = linew;
-	
+
 	++i;
     }
     if ( a < int(s.length()) ){

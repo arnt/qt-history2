@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#65 $
 **
 ** Implementation of QToolButton class
 **
@@ -42,6 +42,7 @@ static QToolButton * threeDeeButton = 0;
 
 class QToolButtonPrivate
 {
+    // ### add tool tip magic here
 public:
     QPopupMenu* popup;
     QTimer* popupTimer;
@@ -357,7 +358,8 @@ void QToolButton::toggle()
 void QToolButton::drawButton( QPainter * p )
 {
     if ( uses3D() || isDown() || (isOn()&&!son) ) {
-	style().drawToolButton( p, 0, 0, width(), height(), colorGroup(), (isOn()&&!son)||isDown(),
+	style().drawToolButton( p, 0, 0, width(), height(), colorGroup(),
+				(isOn()&&!son)||isDown(),
 				&colorGroup().brush( QColorGroup::Button ) );
     }
     drawButtonLabel( p );
@@ -385,7 +387,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
     if (isDown() || (isOn()&&!son) )
 	style().getButtonShift(sx, sy);
     if ( !text().isNull() ) {
-	
+
 	style().drawItem( p, 1 + sx, 1 + sy, width()-2, height()-2,
 			  AlignCenter + ShowPrefix,
 			  colorGroup(), isEnabled(),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#13 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -705,7 +705,7 @@ QList<QWindowsMime> QWindowsMime::all()
 
   Returns a name for the convertor.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -714,7 +714,7 @@ QList<QWindowsMime> QWindowsMime::all()
   Returns the number of Windows Clipboard formats supported by this
   convertor.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -725,7 +725,7 @@ QList<QWindowsMime> QWindowsMime::all()
   the first Windows Clipboard format supported, cf(countCf()-1) returns
   the last.  Return values out of range are undefined.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -734,7 +734,7 @@ QList<QWindowsMime> QWindowsMime::all()
   Returns TRUE if the convertor can convert (both ways) between
   \a mime and \a cf.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -743,7 +743,7 @@ QList<QWindowsMime> QWindowsMime::all()
   Returns the MIME type used for Windows Clipboard format \a cf, or
   0 if this convertor does not support \a cf.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -752,7 +752,7 @@ QList<QWindowsMime> QWindowsMime::all()
   Returns the Windows Clipboard type used for MIME type \a mime, or
   0 if this convertor does not support \a mime.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -764,7 +764,7 @@ QList<QWindowsMime> QWindowsMime::all()
   Note that Windows Clipboard formats must all be self-terminating.  The
   input \a data may contain trailing data.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 
 /*!
@@ -776,6 +776,6 @@ QList<QWindowsMime> QWindowsMime::all()
   Note that Windows Clipboard formats must all be self-terminating.  The
   return value may contain trailing data.
 
-  All subclasses must override this purely virtual function.
+  All subclasses must reimplement this purely virtual function.
 */
 

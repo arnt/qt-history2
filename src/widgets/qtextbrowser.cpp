@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#16 $
 **
 ** Implementation of the QTextView class
 **
@@ -323,9 +323,7 @@ void QTextBrowser::keyPressEvent( QKeyEvent * e )
     QTextView::keyPressEvent(e);
 }
 
-/*!
-  \e override to press anchors.
-*/
+/*! \reimp */
 void QTextBrowser::viewportMousePressEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
@@ -334,9 +332,7 @@ void QTextBrowser::viewportMousePressEvent( QMouseEvent* e )
     }
 }
 
-/*!
-  \e override to activate anchors.
-*/
+/*! \reimp */
 void QTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {

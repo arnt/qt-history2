@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#344 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#345 $
 **
 ** Implementation of QListView widget class
 **
@@ -1567,7 +1567,7 @@ void QListViewPrivate::Root::setup()
   column it should be sorted.</ul>
 
   To handle events such as mouse-presses on the listview, derived classes
-  can override the QScrollView functions
+  can reimplement the QScrollView functions
 \link QScrollView::contentsMousePressEvent() contentsMousePressEvent\endlink,
 \link QScrollView::contentsMouseReleaseEvent() contentsMouseReleaseEvent\endlink,
 \link QScrollView::contentsMouseDoubleClickEvent() contentsMouseDoubleClickEvent\endlink,

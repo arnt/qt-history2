@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#20 $
 **
 ** Implementation of MIME support
 **
@@ -54,7 +54,7 @@ QMimeSource::~QMimeSource()
   Returns the encoded payload of this object, in the specified
   MIME format.
 
-  Subclasses must override this function.
+  Subclasses must reimplement this function.
 */
 
 
@@ -198,7 +198,7 @@ static QMimeSource* data_internal(const QString& abs_name,
     QMimeSource* r = 0;
     QFileInfo fi(abs_name);
     if ( fi.isReadable() ) {
-	
+
 	// get the right mimetype
 	QString e = fi.extension(FALSE);
 	QCString mimetype = "application/octet-stream";
@@ -207,7 +207,7 @@ static QMimeSource* data_internal(const QString& abs_name,
 	    mimetype = extensions[e].latin1();
 	else if ( ( imgfmt = QImage::imageFormat( abs_name ) ) )
 	    mimetype = QCString("image/")+QCString(imgfmt).lower();
-	
+
 	QFile f(abs_name);
 	if ( f.open(IO_ReadOnly) ) {
 	    QByteArray ba(f.size());

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#38 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#39 $
 **
 ** Implementation of QWizard class.
 **
@@ -199,7 +199,7 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	qDebug( "already added %s/%s to %s/%s",
 	       page->className(), page->name(),
 	       className(), name() );
-#endif	
+#endif
 	return;
     }
     int i = d->pages.size();
@@ -488,8 +488,8 @@ QPushButton * QWizard::nextButton() const
 /*!
   Returns the Finish button of the dialog.
 
-  By default, this button is connected to the QDialog::accept()
-  slot, which is virtual so you may override it in a QWizard subclass.
+  By default, this button is connected to the QDialog::accept() slot,
+  which is virtual so you may reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::finishButton() const
 {
@@ -500,8 +500,8 @@ QPushButton * QWizard::finishButton() const
 /*!
   Returns the Cancel button of the dialog.
 
-  By default, this button is connected to the QDialog::reject()
-  slot, which is virtual so you may override it in a QWizard subclass.
+  By default, this button is connected to the QDialog::reject() slot,
+  which is virtual so you may reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::cancelButton() const
 {

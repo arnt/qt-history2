@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#84 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#85 $
 **
 ** Implementation of QTextCodec class
 **
@@ -599,7 +599,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
 /*!
   \fn const char* QTextCodec::name() const
-  Subclasses of QTextCodec must override this function.  It returns
+  Subclasses of QTextCodec must reimplement this function.  It returns
   the name of the encoding supported by the subclass.  When choosing
   a name for an encoding, consider these points:
   <ul>
@@ -617,7 +617,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 /*!
   \fn int QTextCodec::mibEnum() const
 
-  Subclasses of QTextCodec must override this function.  It returns the
+  Subclasses of QTextCodec must reimplement this function.  It returns the
   MIBenum (see
   <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets>
   the IANA character-sets encoding file</a> for more information).
@@ -629,7 +629,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 /*!
   \fn int QTextCodec::heuristicContentMatch(const char* chars, int len) const
 
-  Subclasses of QTextCodec must override this function.  It examines
+  Subclasses of QTextCodec must reimplement this function.  It examines
   the first \a len bytes of \a chars and returns a value indicating how
   likely it is that the string is a prefix of text encoded in the
   encoding of the subclass.  Any negative return value indicates that the text
@@ -674,7 +674,7 @@ QTextEncoder* QTextCodec::makeEncoder() const
 
 
 /*!
-  Subclasses of QTextCodec must override this function or
+  Subclasses of QTextCodec must reimplement this function or
   makeDecoder().  It converts the first \a len characters of \a chars
   to Unicode.
 
@@ -694,7 +694,7 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
 
 
 /*!
-  Subclasses of QTextCodec must override either this function or
+  Subclasses of QTextCodec must reimplement either this function or
   makeEncoder().  It converts the first \a lenInOut characters of \a
   uc from Unicode to the encoding of the subclass.  If \a lenInOut
   is negative or too large, the length of \a uc is used instead.

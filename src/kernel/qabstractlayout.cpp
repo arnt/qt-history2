@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#79 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1238,7 +1238,7 @@ bool QLayout::activate()
 		      "main widget.",
 		     QObject::className(), QObject::name() );
 
-#endif	
+#endif
 	return FALSE;
     }
     activated = TRUE;
@@ -1269,7 +1269,7 @@ bool QLayout::activate()
   The size policy of a widget is an expression of its willingness to
   be resized in various ways.
 
-  Widgets which override QWidget::sizePolicy() return a QSizePolicy
+  Widgets which reimplement QWidget::sizePolicy() return a QSizePolicy
   describing the horizontal and vertical resizing policy best used
   when laying out the widget.  Only <a href="#interesting">one of the
   constructors</a> is of interest in most applications.

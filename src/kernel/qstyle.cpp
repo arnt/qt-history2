@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#49 $
 **
 ** Implementation of QStyle class
 **
@@ -52,7 +52,7 @@
   Qt 2.0, this notion has been expanded to allow the look to be
   specified by virtual drawing functions.
 
-  Derived classes may override some or all of the drawing functions
+  Derived classes may reimplement some or all of the drawing functions
   to modify the look of all widgets which utilize those functions.
 */
 
@@ -63,7 +63,7 @@
 
   <li> \c SubLine - control to scroll one line up, usually an arrow button
 
-  <li> \c AddPage - control to scroll one page down 
+  <li> \c AddPage - control to scroll one page down
 
   <li> \c SubPage - control to scroll one page up
 
@@ -540,7 +540,7 @@ TODO
   \fn void QStyle::drawSlider( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, Orientation, bool tickAbove, bool tickBelow)
   Draws a slider.
-			
+
 */
 
 /*! \fn void QStyle::drawSliderMask( QPainter *p,
@@ -557,8 +557,8 @@ TODO
   Draws a slider groove
 
 */
-		
-		
+
+
 
 /*! \fn void QStyle::drawSliderGrooveMask( QPainter *p,
 				   int x, int y, int w, int h,
@@ -599,14 +599,14 @@ TODO
 
   \sa splitterWidth()
 */
-			
+
 
 /*! \fn void drawCheckMark( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g,
 				bool act, bool dis )
-				
+
 Draws a checkmark suitable for checkboxes and checkable menu items.
-				
+
 */
 /*  \fn void polishPopupMenu( QPopupMenu* p)
 
@@ -638,7 +638,7 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
 /* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h);
-				
+
  Draws the menu item \a mi using the painter \a p. The painter is
  preset to the right font. \a maxpmw is the
  maximium width of all iconsets within a check column. \a tab
