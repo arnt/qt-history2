@@ -4717,7 +4717,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
 
-    tf = QStyle::visualAlignment(painter ? painter->layoutDirection() : QApplication::layoutDirection(), QFlag(tf));
+    tf = QStyle::visualAlignment(painter ? painter->layoutDirection() : Qt::LeftToRight, QFlag(tf));
 
     bool isRightToLeft = str.isRightToLeft();
     bool expandtabs = ((tf & Qt::TextExpandTabs) &&

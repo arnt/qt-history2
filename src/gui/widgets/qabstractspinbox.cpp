@@ -835,6 +835,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
+    QStyle *style = this->style();
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox opt = d->styleOption();
@@ -843,11 +844,13 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
         d->dragging = true;
     }
     if (d->spinclicktimerid != -1) {
-        if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                            QStyle::SC_SpinBoxUp, this).contains(p)) {
+        if ((se & StepUpEnabled)
+            && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                                 QStyle::SC_SpinBoxUp, this)).contains(p)) {
             d->updateState(true);
-        } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                     QStyle::SC_SpinBoxDown, this).contains(p)) {
+        } else if ((se & StepDownEnabled)
+                   && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                                        QStyle::SC_SpinBoxDown, this)).contains(p)) {
             d->updateState(false);
         } else {
             d->resetState();
@@ -1073,8 +1076,8 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
         QStyleOptionSpinBox opt = styleOption();
-        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                             QStyle::SC_SpinBoxButtonField, q));
+        q->update(QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                                         QStyle::SC_SpinBoxButtonField, q)));
     }
 }
 
@@ -1088,8 +1091,8 @@ void QAbstractSpinBoxPrivate::updateSlider()
 {
     if (q) {
         QStyleOptionSpinBox opt = styleOption();
-        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                             QStyle::SC_SpinBoxSlider, q));
+        q->update(QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                                         QStyle::SC_SpinBoxSlider, q)));
     }
 }
 
@@ -1218,7 +1221,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 QCoreVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox opt = styleOption();
-    QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q);
+    QRect r = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q));
 
     double percentage = (double)pos / r.width();
 

@@ -118,7 +118,7 @@ QGroupBox::~QGroupBox()
 
 void QGroupBoxPrivate::init()
 {
-    align = Qt::AlignAuto;
+    align = Qt::AlignLeft;
     shortcutId = 0;
     bFlat = false;
     calculateFrame();
@@ -177,14 +177,12 @@ QString QGroupBox::title() const
 
     The alignment is one of the following flags:
     \list
-    \i \c Qt::AlignAuto aligns the title according to the language,
-    usually to the left.
     \i \c Qt::AlignLeft aligns the title text to the left.
     \i \c Qt::AlignRight aligns the title text to the right.
     \i \c Qt::AlignHCenter aligns the title text centered.
     \endlist
 
-    The default alignment is \c Qt::AlignAuto.
+    The default alignment is \c Qt::AlignLeft.
 
     \sa Qt::Alignment
 */
@@ -205,9 +203,7 @@ void QGroupBox::setAlignment(int alignment)
 void QGroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-    if (d->align & Qt::AlignRight || d->align & Qt::AlignCenter ||
-         (isRightToLeft() && !(d->align & Qt::AlignLeft)))
-        d->updateCheckBoxGeometry();
+    d->updateCheckBoxGeometry();
 }
 
 /*! \reimp
@@ -233,21 +229,9 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         QFontMetrics fm = paint.fontMetrics();
         int h = fm.height();
         int tw = fm.width(d->title + QLatin1Char(' '));
-        int x;
-        int marg = d->bFlat ? 0 : 8;
-        if (d->align & Qt::AlignHCenter)                // center alignment
-            x = frameRect.width()/2 - tw/2;
-        else if (d->align & Qt::AlignRight)        // right alignment
-            x = frameRect.width() - tw - marg;
-        else if (d->align & Qt::AlignLeft)                 // left alignment
-            x = marg;
-        else { // auto align
-            if(isRightToLeft())
-                x = frameRect.width() - tw - marg;
-            else
-                x = marg;
-        }
-        QRect r(x, 0, tw, h);
+        int marg = d->bFlat ? 0 : (8 + fm.width(QLatin1Char(' ')));
+        QRect rect = this->rect().adjusted(marg, 0, -marg, 0);
+        QRect r = QStyle::alignedRect(opt.direction, QFlag(d->align | Qt::AlignTop), QSize(tw, h), rect);
         int va = style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
             r.translate(0, -fm.descent());
@@ -558,26 +542,9 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
 {
     if (d->checkbox) {
         QSize cbSize = d->checkbox->sizeHint();
-        QRect cbRect(QPoint(0,0), cbSize);
-        QRect rect = q->rect();
-        if (!bFlat)
-            rect.setLeft(q->fontMetrics().width(QLatin1Char(' ')));
-        int marg = bFlat ? 0 : 8;
-
-        if (align & Qt::AlignHCenter) {
-            cbRect.moveCenter(rect.center());
-            cbRect.moveTop(0);
-        } else if (align & Qt::AlignRight) {
-            cbRect.moveRight(rect.right() - marg);
-        } else if (align & Qt::AlignLeft) {
-            cbRect.moveLeft(rect.left() + marg);
-        } else { // auto align
-            if(q->isRightToLeft())
-                cbRect.moveRight(rect.right() - marg);
-            else
-                cbRect.moveLeft(rect.left() + marg);
-        }
-
+        int marg = bFlat ? 0 : (8 + q->fontMetrics().width(QLatin1Char(' ')));
+        QRect rect = q->rect().adjusted(marg, 0, -marg, 0);
+        QRect cbRect = QStyle::alignedRect(q->layoutDirection(), QFlag(this->align | Qt::AlignTop), cbSize, rect);
         d->checkbox->setGeometry(cbRect);
     }
 }

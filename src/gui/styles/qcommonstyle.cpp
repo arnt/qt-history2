@@ -976,15 +976,15 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
     case CE_RadioButtonLabel:
     case CE_CheckBoxLabel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            uint alignment = opt->direction == Qt::RightToLeft ? Qt::AlignRight : Qt::AlignLeft;
+            uint alignment = Qt::AlignLeft | Qt::AlignVCenter;
             if (!styleHint(SH_UnderlineShortcut, btn, widget))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
             if (!btn->icon.isNull()) {
                 pix = btn->icon.pixmap(Qt::SmallIconSize, btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled);
-                drawItemPixmap(p, btn->rect, alignment | Qt::AlignVCenter, btn->palette, pix);
+                drawItemPixmap(p, btn->rect, alignment, btn->palette, pix);
             } else {
-                drawItemText(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                drawItemText(p, btn->rect, alignment | Qt::TextShowMnemonic,
                              btn->palette, btn->state & State_Enabled, btn->text);
             }
         }
