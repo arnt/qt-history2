@@ -2278,7 +2278,8 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	    }
 	}
     }
-
+    if ( doc->oTextValid )
+	doc->invalidateOriginalText();
     emit textChanged();
     if ( !removeSelected ) {
 	doc->setSelectionStart( QTextDocument::Standard, &oldCursor );
@@ -3706,6 +3707,8 @@ void QTextEdit::append( const QString &text )
  	*cursor = oldc;
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = FALSE;
+	if ( doc->oTextValid )
+	    doc->invalidateOriginalText();
 	emit textChanged();
     } else if ( f == RichText ) {
 	doc->setRichTextInternal( text );

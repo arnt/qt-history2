@@ -181,7 +181,6 @@ public:
 
     static QString toString( const QMemArray<QTextStringChar> &data );
     QString toString() const;
-    QString toReverseString() const;
 
     QTextStringChar &at( int i ) const;
     int length() const;
@@ -903,7 +902,7 @@ public:
     bool hasFocusParagraph() const;
     QString focusHref() const;
 
-    void invalidateOriginalText() { oTextValid = FALSE; }
+    void invalidateOriginalText() { oTextValid = FALSE; oText = ""; }
 
 signals:
     void minimumWidthChanged( int );

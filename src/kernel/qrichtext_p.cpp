@@ -428,27 +428,6 @@ QString QTextString::toString() const
     return toString( data );
 }
 
-QString QTextString::toReverseString() const
-{
-    QString s;
-    int l = length();
-    s.setUnicode(0, l);
-    QTextStringChar *c = data.data() + (l-1);
-    QChar *uc = (QChar *)s.unicode();
-    while ( l-- ) {
-	*uc = c->c;
-	// ### workaround so that non-breaking whitespaces are drawn
-	// properly, actually this should be fixed in QFont somewhere
-	if ( *uc == (char)0xa0 )
-	    *uc = 0x20;
-	uc++;
-	c--;
-    }
-
-    return s;
-}
-
-
 void QTextParag::setSelection( int id, int start, int end )
 {
     QMap<int, QTextParagSelection>::ConstIterator it = selections().find( id );
