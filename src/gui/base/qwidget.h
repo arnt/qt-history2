@@ -717,11 +717,11 @@ public:
 private:
     void drawText_helper(int x, int y, const QString &);
     void erase_helper(int x, int y, int w, int h);
+#endif
 
 private slots:
     void actionChanged();
 
-#endif
 protected:
 #ifndef QT_NO_STYLE
     virtual void styleChange( QStyle& ) { }
