@@ -2520,7 +2520,7 @@ void QFileDialog::setDir( const QString & pathstr )
     QString dr = pathstr;
     if ( dr.isEmpty() )
 	return;
-    
+
 #if defined(UNIX)
     if ( dr.length() && dr[0] == '~' ) {
 	struct passwd *pw;
@@ -2907,10 +2907,17 @@ void QFileDialog::okClicked()
 	QUrlInfo f;
 	QFileDialogPrivate::File * c
 	    = (QFileDialogPrivate::File *)files->currentItem();
-	if ( c && files->isSelected(c) )
-	    f = c->info;
-	else
+	QFileDialogPrivate::MCItem * m
+	    = (QFileDialogPrivate::MCItem *)d->moreFiles->item( d->moreFiles->currentItem() );
+	if ( c && files->isVisible() && files->hasFocus() ||
+	     m && d->moreFiles->isVisible() && d->moreFiles->hasFocus() ) {
+	    if ( c && files->isVisible() )
+		f = c->info;
+	    else
+		f = ( (QFileDialogPrivate::File*)m->i )->info; 
+	} else {
 	    f = QUrlInfo( d->url, nameEdit->text() );
+	}
 	if ( f.isDir() ) {
 	    setUrl( QUrlOperator( d->url, f.name() + "/" ) );
 	    d->checkForFilter = TRUE;
