@@ -475,9 +475,9 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     }
     return 0;
 }
-static bool qt_mac_is_macsheet(QWidget *w)
+bool qt_mac_is_macsheet(QWidget *w)
 {
-#ifdef Q_WS_MACX
+#if defined( Q_WS_MACX )
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
        w->parentWidget()->topLevelWidget()->isVisible() &&
@@ -1078,7 +1078,7 @@ void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isPopup() || tlw->isDesktop() 
-       || tlw->testWFlags( WStyle_Tool ))
+       || tlw->testWFlags(WStyle_Tool))
 	return;
     if(IsWindowActive((WindowPtr)tlw->handle()))
 	ActivateWindow((WindowPtr)tlw->handle(), true);
@@ -1149,14 +1149,10 @@ void QWidget::showWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-#if defined( Q_WS_MACX ) //handle transition
 	if(qt_mac_is_macsheet(this))
-	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
-				      kWindowSheetTransitionEffect,
-				      kWindowShowTransitionAction, NULL);
-#endif
-	//now actually show it
-	ShowHide((WindowPtr)hd, 1);
+	    ShowSheetWindow((WindowPtr)hd, (WindowPtr)parentWidget()->hd);
+	else
+	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
 #if 0 
         /*This causes problems with the menubar, this is Apple's bug
           but I will workaround it for now (see below) */
@@ -1182,7 +1178,10 @@ void QWidget::hideWindow()
 	if(testWFlags(WShowModal))
 	    EndAppModalStateForWindow((WindowRef)hd);
 #endif
-	ShowHide((WindowPtr)hd, 0);
+	if(qt_mac_is_macsheet(this))
+	    HideSheetWindow((WindowPtr)hd);
+	else
+	    ShowHide((WindowPtr)hd, 0); //now we hide
 
 	if(isActiveWindow()) {
 	    QWidget *w = NULL;

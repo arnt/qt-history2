@@ -293,7 +293,8 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
     }
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
-	QWidget modal_widg(NULL, __FILE__ "__modal_dlg");
+	QWidget modal_widg(parent, __FILE__ "__modal_dlg", 
+			   WType_TopLevel | WStyle_Customize | WStyle_DialogBorder);
 	qt_enter_modal(&modal_widg);
 	while(g_nav_blocking) 
 	    qApp->processEvents();
@@ -408,7 +409,8 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
     }
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
-	QWidget modal_widg(NULL, __FILE__ "__modal_dlg");
+	QWidget modal_widg(parent, __FILE__ "__modal_dlg", 
+			   WType_TopLevel | WStyle_Customize | WStyle_DialogBorder);
 	qt_enter_modal(&modal_widg);
 	while(g_nav_blocking) 
 	    qApp->processEvents();

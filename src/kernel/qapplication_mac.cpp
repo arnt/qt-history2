@@ -159,6 +159,7 @@ static void	cleanupTimers();
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
+extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 
 //special case popup handlers - look where these are used, they are very hacky,
@@ -1698,6 +1699,10 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 {
    if(qApp->activePopupWidget())
 	return TRUE;
+    // a bit of a hack: use WStyle_Tool as a general ignore-modality
+    // allow tool windows; disallow tear off popups
+    if (widget->testWFlags(Qt::WStyle_Tool) && widget->inherits( "QPopupMenu"))	
+	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
 
@@ -1734,9 +1739,9 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 
     UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
     switch(eclass) {
-    case kEventClassMouse:
+    case kEventClassMouse: 
 	block_event = ekind != kEventMouseMoved;
-	break;
+	break; 
     case kEventClassKeyboard:
 	block_event = TRUE;
 	break;
@@ -1747,7 +1752,16 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 
     if (!top->parentWidget() && (block_event || paint_event))
 	top->raise();
-
+#if 1 //This is really different than Qt behaves, but it is correct for Aqua, what do I do? -Sam
+    if(block_event && qt_mac_is_macsheet(top)) {
+	for(QWidget *w = top->parentWidget(); w; w = w->parentWidget()) {
+	    w = w->topLevelWidget();
+	    if(w == widget || w->isModal())
+		return FALSE;
+	}
+	return TRUE;
+    }
+#endif
     return !block_event;
 }
 
@@ -1823,7 +1837,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		delete list;
 	    } 
 	} else if(ekind == kEventQtRequestWakeup) {
-	    wakeup_pending = FALSE; 	    //do nothing else , we just woke up!
+	    wakeup_pending = FALSE; 	    //do nothing else, we just woke up!
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = FALSE;
@@ -1894,7 +1908,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 #ifdef DEBUG_MOUSE_MAPS
-	else qDebug("Handling mouse: %d", ekind == kEventMouseDown);
+	else if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
+	    qDebug("Handling mouse: %d", ekind == kEventMouseDown);
+	}
 #endif
 	int keys;
 	QEvent::Type etype = QEvent::None;
@@ -1992,6 +2008,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	//although it looks hacky it is VERY intentional..
 	if (widget && app_do_modal && !qt_try_modal(widget, event)) {
 	    mouse_button_state = after_state;
+	    if(ekind == kEventMouseDown && qt_mac_is_macsheet(activeModalWidget())) {
+		activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
+		if(!app->do_mouse_down(&where)) 
+		    mouse_button_state = 0;
+	    }
 #ifdef DEBUG_MOUSE_MAPS
 	    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
 #endif
@@ -2144,14 +2165,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		switch(ekind) {
 		case kEventMouseDown: event_desc = "MouseButtonPress"; break;
 		case kEventMouseUp: event_desc = "MouseButtonRelease"; break;
-		case kEventMouseDragged:
-		case kEventMouseMoved: event_desc = "MouseMove"; break;
+		case kEventMouseDragged: case kEventMouseMoved: event_desc = "MouseMove"; break;
 		case kEventMouseWheelMoved: event_desc = "MouseWheelMove"; break;
 		}
 	    }
-	    qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
-		   plocal.x(), plocal.y(), event_desc, widget->name(), widget->className(),
-		   button, state|keys, wheel_delta);
+	    if(event_desc)
+		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
+		       plocal.x(), plocal.y(), event_desc, widget->name(), widget->className(),
+		       button, state|keys, wheel_delta);
 #endif
 	    if(!was_context) {
 		if(etype == QEvent::MouseButtonPress) {
@@ -2472,7 +2493,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		return 1;
 
 	    if(widget) {
-		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || 
 							    !tlw->testWFlags(WStyle_Tool)))
