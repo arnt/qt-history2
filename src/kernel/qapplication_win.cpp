@@ -2637,9 +2637,6 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
-    // allow tool windows, but not undocked docking windows; this is different in X11.
-    if ( widget->testWFlags(Qt::WStyle_Tool) && !widget->inherits( "QDockWindowTitleBar" ) )
-	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
     int	 type  = msg->message;

@@ -1697,10 +1697,6 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 {
    if(qApp->activePopupWidget())
 	return TRUE;
-    // a bit of a hack: use WStyle_Tool as a general ignore-modality
-    // flag, also for complex widgets with children.
-    if(widget->testWFlags(Qt::WStyle_Tool))	// allow tool windows
-	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
 
