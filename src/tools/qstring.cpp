@@ -13626,6 +13626,8 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
 		if(!++start)
 		    break;
 	    } else {
+		if(start == -1 && begin == uc)
+		    break;
 		begin--;
 	    }
 	} else {
@@ -13634,6 +13636,8 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
 		    break;
 		begin += sep_len;
 	    } else {
+		if(start == 1 && begin == uc + n)
+		    break;
 		begin++;
 	    }
 	}
