@@ -119,9 +119,9 @@ public:
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
 
     virtual QPainter::RenderHints supportedRenderHints() const;
-    virtual QPainter::RenderHints renderHints() const;
-    virtual void setRenderHints(QPainter::RenderHints hints);
-    virtual void clearRenderHints(QPainter::RenderHints hints);
+    QPainter::RenderHints renderHints() const;
+    void setRenderHints(QPainter::RenderHints hints);
+    void clearRenderHints(QPainter::RenderHints hints);
 
     enum Type {
         //X11

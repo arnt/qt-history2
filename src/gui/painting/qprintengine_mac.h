@@ -102,6 +102,7 @@ public:
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     virtual void updateXForm(const QWMatrix &matrix);
     virtual void updateClipRegion(const QRegion &region, bool clipEnabled);
+    virtual void updateRenderHints(QPainter::RenderHints hints);
     virtual void drawLine(const QPoint &p1, const QPoint &ps);
     virtual void drawRect(const QRect &r);
     virtual void drawPoint(const QPoint &p);
@@ -122,9 +123,6 @@ public:
 				 Qt::PixmapDrawingMode mode);
     virtual void drawPath(const QPainterPath &);
     virtual QPainter::RenderHints supportedRenderHints() const;
-    virtual QPainter::RenderHints renderHints() const;
-    virtual void setRenderHints(QPainter::RenderHints hints);
-    virtual void clearRenderHints(QPainter::RenderHints hints);
 
 
 private:

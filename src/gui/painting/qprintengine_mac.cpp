@@ -308,7 +308,7 @@ QRect QMacPrintEngine::paperRect() const
         r.setCoords((int)macrect.left, (int)macrect.top, (int)macrect.right, (int)macrect.bottom);
         r.moveBy(-r.x(), -r.y());
     }
-    
+
     return r;
 }
 
@@ -586,6 +586,12 @@ void QMacPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
     d->paintEngine->updateClipRegion(region, clipEnabled);
 }
 
+void QMacPrintEngnine::updateRenderHints(QPainter::RenderHints hints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateRenderHints(hints);
+}
+
 void QMacPrintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     Q_ASSERT(d->state == QPrinter::Active);
@@ -699,24 +705,6 @@ QPainter::RenderHints QMacPrintEngine::supportedRenderHints() const
 {
     Q_ASSERT(d->state == QPrinter::Active);
     return d->paintEngine->supportedRenderHints();
-}
-
-QPainter::RenderHints QMacPrintEngine::renderHints() const
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    return d->paintEngine->renderHints();
-}
-
-void QMacPrintEngine::setRenderHints(QPainter::RenderHints hints)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->setRenderHints(hints);
-}
-
-void QMacPrintEngine::clearRenderHints(QPainter::RenderHints hints)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->clearRenderHints(hints);
 }
 
 
