@@ -758,7 +758,7 @@ void qt_mac_event_release(QWidget *w)
 }
 
 /* watched events */
-static EventTypeSpec events[] = {
+static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestTimer },
     { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestSelect },
@@ -804,7 +804,7 @@ static EventTypeSpec events[] = {
 void qt_init_app_proc_handler()
 {
     InstallEventHandler(GetApplicationEventTarget(), app_proc_handlerUPP,
-                        GetEventTypeCount(events), events, (void *)qApp,
+                        GetEventTypeCount(app_events), app_events, (void *)qApp,
                         &app_proc_handler);
 }
 
