@@ -378,10 +378,25 @@ QStringList QColor::colorNames()
 }
 
 /*!
-    \fn void QColor::getHsv(float *h, float *s, float *v, float *a) const
-
     \overload
 */
+void QColor::getHsv(float *h, float *s, float *v, float *a) const
+{
+        if (!h || !s || !v)
+        return;
+
+    if (cspec != Invalid && cspec != Hsv) {
+        toHsv().getHsv(h, s, v, a);
+        return;
+    }
+
+    *h = ahsv.hue == USHRT_MAX ? -1.0f : ahsv.hue / 100.0f;
+    *s = ahsv.saturation / float(USHRT_MAX);
+    *v = ahsv.value / float(USHRT_MAX);
+
+    if (a)
+        *a = ahsv.alpha / float(USHRT_MAX);
+}
 
 /*!
     Returns the current RGB value as HSV. The contents of the \a h, \a
@@ -416,13 +431,28 @@ void QColor::getHsv(int *h, int *s, int *v, int *a) const
 }
 
 /*!
-    \fn void QColor::setHsv(float h, float s, float v, float a);
-
     \overload
 
     The value of \a s, \a v, and \a a must all be in the range
     0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
 */
+void QColor::setHsv(float h, float s, float v, float a)
+{
+    if (((h < 0.0f || h >= 360.0f) && h != -1.0f)
+        || (s < 0.0f || s > 1.0f)
+        || (v < 0.0f || v > 1.0f)
+        || (a < 0.0f || a > 1.0f)) {
+        qWarning("QColor::setHsv: HSV parameters out of range");
+        return;
+    }
+
+    cspec = Hsv;
+    ahsv.alpha      = ushort(a * USHRT_MAX);
+    ahsv.hue        = h == -1.0f ? USHRT_MAX : ushort(h * 100);
+    ahsv.saturation = ushort(s * USHRT_MAX);
+    ahsv.value      = ushort(v * USHRT_MAX);
+    ahsv.pad        = 0;
+}
 
 /*!
     Sets a HSV color value; \a h is the hue, \a s is the saturation,
@@ -451,10 +481,26 @@ void QColor::setHsv(int h, int s, int v, int a)
 }
 
 /*!
-    \fn void QColor::getRgb(float *r, float *g, float *b, float *a) const
-
     \overload
 */
+void QColor::getRgb(float *r, float *g, float *b, float *a) const
+{
+    if (!r || !g || !b)
+        return;
+
+    if (cspec != Invalid && cspec != Rgb) {
+        toRgb().getRgb(r, g, b, a);
+        return;
+    }
+
+    *r = argb.red   / float(USHRT_MAX);
+    *g = argb.green / float(USHRT_MAX);
+    *b = argb.blue  / float(USHRT_MAX);
+
+    if (a)
+        *a = argb.alpha / float(USHRT_MAX);
+
+}
 
 /*!
     Sets the contents pointed to by \a r, \a g, \a b, and \a a, to the
@@ -805,7 +851,7 @@ float QColor::cyanF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
         return toCmyk().cyanF();
-    return acmyk.cyan / float(10000);
+    return acmyk.cyan / float(USHRT_MAX);
 }
 
 /*!
@@ -817,7 +863,7 @@ float QColor::magentaF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
         return toCmyk().magentaF();
-    return acmyk.magenta / float(10000);
+    return acmyk.magenta / float(USHRT_MAX);
 }
 
 /*!
@@ -829,7 +875,7 @@ float QColor::yellowF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
         return toCmyk().yellowF();
-    return acmyk.yellow / float(10000);
+    return acmyk.yellow / float(USHRT_MAX);
 }
 
 /*!
@@ -841,7 +887,7 @@ float QColor::blackF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
         return toCmyk().blackF();
-    return acmyk.black / float(10000);
+    return acmyk.black / float(USHRT_MAX);
 }
 
 /*!
@@ -1165,20 +1211,52 @@ QColor QColor::fromHsv(float h, float s, float v, float a)
 }
 
 /*!
-    \fn void QColor::getCmyk(int *c, int *m, int *y, int *k, int *a)
-
     Sets the contents pointed to by \a c, \a m, \a y, \a k, and \a a,
     to the cyan, magenta, yellow, black, and alpha-channel
     (transparency) components of the CMYK value.
 
     \sa setCmyk() getRgb() getHsv()
 */
+void QColor::getCmyk(int *c, int *m, int *y, int *k, int *a)
+{
+    if (!c || !m || !y || !k)
+        return;
+
+    if (cspec != Invalid && cspec != Cmyk) {
+        toCmyk().getCmyk(c, m, y, k, a);
+        return;
+    }
+
+    *c = acmyk.cyan >> 8;
+    *m = acmyk.magenta >> 8;
+    *y = acmyk.yellow >> 8;
+    *k = acmyk.black >> 8;
+
+    if (a)
+        *a = acmyk.alpha >> 8;
+}
 
 /*!
-    \fn void QColor::getCmyk(float *c, float *m, float *y, float *k, float *a)
-
     \overload
 */
+void QColor::getCmyk(float *c, float *m, float *y, float *k, float *a)
+{
+    if (!c || !m || !y || !k)
+        return;
+
+    if (cspec != Invalid && cspec != Cmyk) {
+        toCmyk().getCmyk(c, m, y, k, a);
+        return;
+    }
+
+    *c = acmyk.cyan    / float(USHRT_MAX);
+    *m = acmyk.magenta / float(USHRT_MAX);
+    *y = acmyk.yellow  / float(USHRT_MAX);
+    *k = acmyk.black   / float(USHRT_MAX);
+
+    if (a)
+        *a = acmyk.alpha / float(USHRT_MAX);
+}
 
 /*!
     Sets the color to CMYK values, \a c (cyan), \a m (magenta), \a y (yellow),
@@ -1223,13 +1301,12 @@ void QColor::setCmyk(float c, float m, float y, float k, float a)
         return;
     }
 
-    QColor color;
-    color.cspec = Cmyk;
-    color.acmyk.alpha   = ushort(a * USHRT_MAX);
-    color.acmyk.cyan    = ushort(c * USHRT_MAX);
-    color.acmyk.magenta = ushort(m * USHRT_MAX);
-    color.acmyk.yellow  = ushort(y * USHRT_MAX);
-    color.acmyk.black   = ushort(k * USHRT_MAX);
+    cspec = Cmyk;
+    acmyk.alpha   = ushort(a * USHRT_MAX);
+    acmyk.cyan    = ushort(c * USHRT_MAX);
+    acmyk.magenta = ushort(m * USHRT_MAX);
+    acmyk.yellow  = ushort(y * USHRT_MAX);
+    acmyk.black   = ushort(k * USHRT_MAX);
 }
 
 /*!
