@@ -301,7 +301,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QMo
     QDirModelPrivate::QDirNode *n = d->node(row, p);
     if (!n)
 	return QModelIndex();
-    return QModelIndex(row, column, n, type);
+    return createIndex(row, column, n, type);
 }
 
 QModelIndex QDirModel::parent(const QModelIndex &child) const
@@ -314,7 +314,7 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
     QDirModelPrivate::QDirNode *p = d->parent(n);
     if (!p)
 	return QModelIndex();
-    return QModelIndex(d->idx(p), 0, p);
+    return createIndex(d->idx(p), 0, p);
 }
 
 int QDirModel::rowCount(const QModelIndex &parent) const
@@ -532,8 +532,8 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
         for (; it != files.end(); ++it)
             success = qt_move_file(*it, to + QFileInfo(*it).fileName()) && success;
         break;
-//     case default:
-//         return false;
+    default:
+        return false;
     }
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     if (p)
@@ -603,16 +603,6 @@ void QDirModel::setSorting(int spec)
 QDir::SortSpec QDirModel::sorting() const
 {
     return d->root.sorting();
-}
-
-void QDirModel::setMatchAllDirs(bool enable)
-{
-    d->root.setMatchAllDirs(enable);
-}
-
-bool QDirModel::matchAllDirs() const
-{
-    return d->root.matchAllDirs();
 }
 
 void QDirModel::refresh(const QModelIndex &parent)
@@ -794,7 +784,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
 {
     if (parent && parent->info.isDir() || !parent) {
         QDir dir = parent ? QDir(parent->info.filePath()) : root;
-        dir.setMatchAllDirs(root.matchAllDirs());
+        dir.setFilter(dir.filter() | QDir::AllDirs);
         const QFileInfoList info = dir.entryInfoList(root.nameFilters(),
                                                      root.filter(),
                                                      root.sorting());

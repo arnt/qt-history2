@@ -10,14 +10,14 @@ public:
     void setItem(int row, const QListViewItem &item);
     void append(const QListViewItem &item);
 
-    int rowCount(const QModelIndex &parent = 0) const;
-    int columnCount(const QModelIndex &parent = 0) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
-    bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
+    bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -107,7 +107,7 @@ bool QListModel::isEditable(const QModelIndex &index) const
 void QListModel::append(const QListViewItem &item)
 {
     lst.append(item);
-    QModelIndex idx(lst.count() - 1, 0);
+    QModelIndex idx = createIndex(lst.count() - 1, 0);
     emit contentsInserted(idx, idx);
 }
 

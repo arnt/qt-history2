@@ -617,11 +617,11 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
     emit primeInsert(row, d->editBuffer);
 #define UGLY_WORKAROUND
 #ifdef UGLY_WORKAROUND
-    emit contentsRemoved(QModelIndex(row, 0), bottomRight());
-    emit contentsInserted(QModelIndex(row, 0), QModelIndex(rowCount() + 1, columnCount() - 1));
+    emit contentsRemoved(createIndex(row, 0), bottomRight());
+    emit contentsInserted(createIndex(row, 0), createIndex(rowCount() + 1, columnCount() - 1));
 #else
     // broken atm
-    emit contentsInserted(QModelIndex(row, 0), QModelIndex(row, columnCount() - 1));
+    emit contentsInserted(createIndex(row, 0), createIndex(row, columnCount() - 1));
 #endif
     return true;
 }
@@ -642,7 +642,7 @@ QModelIndex QSqlTableModel::dataIndex(const QModelIndex &it) const
 {
     QModelIndex item = QSqlModel::dataIndex(it);
     if (d->insertIndex >= 0 && item.row() >= d->insertIndex)
-        return QModelIndex(item.row() - 1, item.column(), item.data(), item.type());
+        return createIndex(item.row() - 1, item.column(), item.data(), item.type());
     return item;
 }
 

@@ -394,10 +394,10 @@ void QGenericTableView::updateGeometries()
     getViewOptions(&options);
 
     int h = d->viewport->height();
-    int row = model()->rowCount(0);
+    int row = model()->rowCount();
     if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && row > 0)
         h -= d->leftHeader->sectionSize(--row);
@@ -407,7 +407,7 @@ void QGenericTableView::updateGeometries()
     verticalScrollBar()->setRange(0, max);
 
     int w = d->viewport->width();
-    int col = model()->columnCount(0);
+    int col = model()->columnCount();
     int factor = horizontalFactor();
     if (def.width() && factor)
         horizontalScrollBar()->setPageStep(w / def.width() * factor);
@@ -515,7 +515,7 @@ bool QGenericTableView::showGrid() const
 
 void QGenericTableView::setGridStyle(Qt::PenStyle style)
 {
-    d->gridStyle;
+    d->gridStyle = style;
 }
 
 QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
@@ -673,7 +673,7 @@ void QGenericTableView::verticalScrollbarAction(int action)
 
         // go down to the bottom of the page
         int h = d->viewport->height();
-        while (y < h && row < d->model->rowCount(0))
+        while (y < h && row < d->model->rowCount())
             y += d->leftHeader->sectionSize(row++);
         value = row * factor; // i is now the last item on the page
         if (y > h && row)
@@ -707,7 +707,7 @@ void QGenericTableView::horizontalScrollbarAction(int action)
 
         // go down to the right of the page
         int w = d->viewport->width();
-        while (x < w && column < d->model->columnCount(0))
+        while (x < w && column < d->model->columnCount())
             x += d->topHeader->sectionSize(column++);
         value = column * factor; // i is now the last item on the page
         if (x > w && column)

@@ -858,7 +858,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     QModelIndex current = currentItem();
     if (!current.isValid()) {
         hadCurrent = false;
-        setCurrentItem(model()->index(0, 0, 0));
+        setCurrentItem(model()->index(0, 0, QModelIndex()));
     }
     QModelIndex newCurrent = current;
     if (hadCurrent) {

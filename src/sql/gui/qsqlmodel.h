@@ -31,15 +31,15 @@ public:
     QSqlModel(QObject *parent = 0);
     virtual ~QSqlModel();
 
-    int rowCount(const QModelIndex &parent = 0) const;
-    int columnCount(const QModelIndex &parent = 0) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QSqlRecord record() const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
-    bool removeColumn(int column, const QModelIndex &parent = 0, int count = 1);
+    bool insertColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
+    bool removeColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
 
     virtual void setQuery(const QSqlQuery &query);
     const QSqlQuery query() const;

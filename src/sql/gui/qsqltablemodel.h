@@ -59,11 +59,11 @@ public:
     QString filter() const;
     virtual void setFilter(const QString &filter);
 
-    int rowCount(const QModelIndex &parent = 0) const;
-    bool removeColumn(int column, const QModelIndex &parent = 0);
-    bool removeRow(int row, const QModelIndex &parent = 0);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    bool removeColumn(int column, const QModelIndex &parent = QModelIndex());
+    bool removeRow(int row, const QModelIndex &parent = QModelIndex());
 
-    bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
+    bool insertRow(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
 
 public slots:
     virtual bool submitChanges();

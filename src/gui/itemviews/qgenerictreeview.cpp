@@ -450,7 +450,7 @@ int QGenericTreeView::verticalOffset() const
     // gives an estimate
     QItemOptions options;
     getViewOptions(&options);
-    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
+    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0)).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
 }
@@ -478,7 +478,7 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
     case QAbstractItemView::MovePageDown:
         return d->modelIndex(d->pageDown(vi));
     case QAbstractItemView::MoveHome:
-        return model()->index(0, 0, 0);
+        return model()->index(0, 0);
     case QAbstractItemView::MoveEnd:
         return d->modelIndex(d->last());
     }
@@ -682,8 +682,8 @@ void QGenericTreeView::updateGeometries()
     int item = d->items.count();
     if (h <= 0 || item <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QModelIndex index = model()->index(0, 0, 0);
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
+    QModelIndex index = model()->index(0, 0);
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && item > 0)
         h -= itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(--item)).height();
@@ -694,7 +694,7 @@ void QGenericTreeView::updateGeometries()
     verticalScrollBar()->setRange(0, max);
 
     int w = viewport()->width();
-    int col = model()->columnCount(0);
+    int col = model()->columnCount();
     if (w <= 0 || col <= 0 || def.isEmpty()) // if we have no viewport or no columns, there is nothing to do
         return;
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
@@ -762,7 +762,7 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
 
         // go down to the right of the page
         int w = d->viewport->width();
-        while (x < w && column < d->model->columnCount(0))
+        while (x < w && column < d->model->columnCount())
             x += d->header->sectionSize(column++);
         value = column * factor; // i is now the last item on the page
         if (x > w && column)

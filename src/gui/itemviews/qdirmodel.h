@@ -42,7 +42,7 @@ public:
     QDirModel(const QDir &directory, QObject *parent = 0);
     ~QDirModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = 0,
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
 
@@ -79,10 +79,8 @@ public:
     QDir::FilterSpec filter() const;
     void setSorting(int spec);
     QDir::SortSpec sorting() const;
-    void setMatchAllDirs(bool enable);
-    bool matchAllDirs() const;
 
-    void refresh(const QModelIndex &parent = 0);
+    void refresh(const QModelIndex &parent = QModelIndex());
 
     QModelIndex index(const QString &path) const;
     QString path(const QModelIndex &index) const;

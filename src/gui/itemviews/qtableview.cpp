@@ -11,11 +11,11 @@ public:
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
 
-    virtual bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
 
     virtual void setText(int row, int column, const QString &text);
     virtual void setIconSet(int row, int column, const QIconSet &iconSet);
@@ -36,11 +36,11 @@ public:
     QTableViewItem item(int row, int column) const;
     QTableViewItem item(const QModelIndex &index) const;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = 0,
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;
 
-    int rowCount(const QModelIndex &parent = 0) const;
-    int columnCount(const QModelIndex &parent = 0) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -82,8 +82,8 @@ void QTableModel::setRowCount(int rows)
     int top = qMax(r - 1, 0);
     int bottom = qMax(r - 1, 0);
     int right = qMax(c - 1, 0);
-    QModelIndex topLeft = index(top, 0, 0);
-    QModelIndex bottomRight = index(bottom, right, 0);
+    QModelIndex topLeft = index(top, 0);
+    QModelIndex bottomRight = index(bottom, right);
     if (r > _r)
         emit contentsInserted(topLeft, bottomRight);
     else
@@ -106,8 +106,8 @@ void QTableModel::setColumnCount(int columns)
     int left = qMax(_c - 1, 0);
     int bottom = qMax(r - 1, 0);
     int right = qMax(c - 1, 0);
-    QModelIndex topLeft = index(0, left, 0);
-    QModelIndex bottomRight = index(bottom, right, 0);
+    QModelIndex topLeft = index(0, left, QModelIndex());
+    QModelIndex bottomRight = index(bottom, right, QModelIndex());
     if (c > _c)
         emit contentsInserted(topLeft, bottomRight);
     else
@@ -144,74 +144,74 @@ bool QTableModel::removeColumns(int, const QModelIndex &, int)
 
 void QTableModel::setText(int row, int column, const QString &text)
 {
-    QModelIndex index(row, column, 0);
+    QModelIndex index = createIndex(row, column);
     setData(index, QAbstractItemModel::Display, QVariant(text));
 }
 
 void QTableModel::setIconSet(int row, int column, const QIconSet &iconSet)
 {
-    QModelIndex index(row, column, 0);
+    QModelIndex index = createIndex(row, column);
     setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::text(int row, int column) const
 {
-    QModelIndex index(row, column, 0);
+    QModelIndex index = createIndex(row, column);
     return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTableModel::iconSet(int row, int column) const
 {
-    QModelIndex index(row, column, 0);
+    QModelIndex index = createIndex(row, column);
     return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setRowText(int row, const QString &text)
 {
-    QModelIndex idx(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(idx, QAbstractItemModel::Decoration, QVariant(text));
+    QModelIndex index = QAbstractItemModel::createIndex(row, 0, 0, QModelIndex::VerticalHeader);
+    setData(index, QAbstractItemModel::Decoration, QVariant(text));
 }
 
 void QTableModel::setRowIconSet(int row, const QIconSet &iconSet)
 {
-    QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
+    QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
     setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::rowText(int row) const
 {
-    QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
+    QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
     return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTableModel::rowIconSet(int row) const
 {
-    QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
+    QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
     return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setColumnText(int column, const QString &text)
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     setData(index, QAbstractItemModel::Display, QVariant(text));
 }
 
 void QTableModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     setData(index, QAbstractItemModel::Decoration, QVariant(iconSet));
 }
 
 QString QTableModel::columnText(int column) const
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     return data(index, QAbstractItemModel::Display).toString();
 }
 
 QIconSet QTableModel::columnIconSet(int column) const
 {
-    QModelIndex idx(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(idx, QAbstractItemModel::Decoration).toIconSet();
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
+    return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
 void QTableModel::setItem(int row, int column, const QTableViewItem &item)
@@ -240,7 +240,7 @@ QTableViewItem QTableModel::item(const QModelIndex &index) const
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelIndex::Type type) const
 {
     if (row >= 0 && row < r && column >= 0 && column < c)
-        return QModelIndex(row, column, 0, type);
+        return createIndex(row, column, 0, type);
     return QModelIndex();
 }
 

@@ -142,8 +142,8 @@ class QPrinterModel : public QAbstractItemModel
 public:
     QPrinterModel(const QList<QPrinterDescription> &printers, QObject *parent);
 
-    int rowCount(const QModelIndex &parent = 0) const;
-    int columnCount(const QModelIndex &parent = 0) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
     bool isSelectable(const QModelIndex &index) const;
 

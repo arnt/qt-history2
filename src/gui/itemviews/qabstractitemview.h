@@ -142,7 +142,7 @@ protected:
     QWidget *currentEditor() const;
 
     virtual int selectionCommand(ButtonState state,
-                                 const QModelIndex &index = 0,
+                                 const QModelIndex &index = QModelIndex(),
                                  QEvent::Type type = QEvent::None,
                                  Qt::Key key = Qt::Key_unknown) const;
 

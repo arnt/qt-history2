@@ -132,7 +132,6 @@ QSize QGenericHeader::sizeHint() const
 {
     if (d->sections.isEmpty())
             return QSize();
-    QModelIndex br = model()->bottomRight(root());
     QItemOptions options;
     getViewOptions(&options);
     int row = orientation() == Horizontal ? 0 : section(count() - 1);
@@ -140,7 +139,7 @@ QSize QGenericHeader::sizeHint() const
     QModelIndex::Type type = orientation() == Horizontal
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
-    QModelIndex item(row, col, 0, type);
+    QModelIndex item = model()->index(row, col, QModelIndex(), type);
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), options, item);
     if (orientation() == Vertical)
         return QSize(hint.width() + border, size());
@@ -158,7 +157,7 @@ int QGenericHeader::sectionSizeHint(int section) const
     QModelIndex::Type type = orientation() == Horizontal ?
                              QModelIndex::HorizontalHeader :
                              QModelIndex::VerticalHeader;
-    QModelIndex header = model()->index(row, col, 0, type);
+    QModelIndex header = model()->index(row, col, QModelIndex(), type);
     if (orientation() == Vertical) {
         QSize size = delegate->sizeHint(fontMetrics(), options, header);
         hint = size.height();
@@ -212,7 +211,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             if (sections[i].hidden)
                 continue;
             section = sections[i].section;
-            item = model()->index(0, section, 0, QModelIndex::HorizontalHeader);
+            item = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
             options.itemRect.setRect(sectionPosition(section) - offset, 0,
                                      sectionSize(section), height);
             paintSection(&painter, &options, item);
@@ -229,7 +228,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             if (sections[i].hidden)
                 continue;
             section = sections[i].section;
-            item = model()->index(section, 0, 0, QModelIndex::VerticalHeader);
+            item = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
             options.itemRect.setRect(0, sectionPosition(section) - offset,
                                      width, sectionSize(section));
             paintSection(&painter, &options, item);
@@ -697,8 +696,8 @@ bool QGenericHeader::isSectionHidden(int section) const
 QModelIndex QGenericHeader::itemAt(int x, int y) const
 {
     return (orientation() == Horizontal ?
-            model()->index(0, sectionAt(x + offset()), 0, QModelIndex::HorizontalHeader) :
-            model()->index(sectionAt(y + offset()), 0, 0, QModelIndex::VerticalHeader));
+            model()->index(0, sectionAt(x + offset()), QModelIndex(), QModelIndex::HorizontalHeader) :
+            model()->index(sectionAt(y + offset()), 0, QModelIndex(), QModelIndex::VerticalHeader));
 }
 
 int QGenericHeader::horizontalOffset() const
@@ -734,15 +733,14 @@ QRect QGenericHeader::itemViewportRect(const QModelIndex &item) const
 QModelIndex QGenericHeader::item(int section) const
 {
     if (orientation() == Horizontal)
-        return model()->index(0, section, 0, QModelIndex::HorizontalHeader);
-    return model()->index(section, 0, 0, QModelIndex::VerticalHeader);
+        return model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
+    return model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
 }
 
 QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) const
 {
-    QModelIndex bottomRight = model()->bottomRight(0);
     if (orientation() == Horizontal) {
-        int left = bottomRight.column();
+        int left = model()->columnCount() - 1;
         int right = 0;
         int rangeLeft, rangeRight;
 
@@ -768,7 +766,7 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Vertical
-    int top = bottomRight.row();
+    int top = model()->rowCount() - 1;
     int bottom = 0;
     int rangeTop, rangeBottom;
 

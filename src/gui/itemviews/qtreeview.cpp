@@ -20,7 +20,7 @@ public:
     QTreeViewItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QTreeViewItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent,
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
@@ -29,8 +29,8 @@ public:
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
-    bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
+    bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -87,11 +87,11 @@ void QTreeModel::setColumnCount(int columns)
     topHeader.setColumnCount(c);
     for (int i = _c; i < c; ++i)
         topHeader.setText(i, QString::number(i));
-    int r = rowCount(0);
+    int r = rowCount(QModelIndex());
     if (c > _c)
-        emit contentsInserted(index(0, _c - 1, 0), index(r - 1, c - 1, 0));
+        emit contentsInserted(index(0, _c - 1), index(r - 1, c - 1));
     else
-        emit contentsRemoved(index(0, c - 1, 0), index(r - 1, _c - 1, 0));
+        emit contentsRemoved(index(0, c - 1), index(r - 1, _c - 1));
 }
 
 /*!
@@ -107,7 +107,7 @@ int QTreeModel::columnCount() const
 
 void QTreeModel::setColumnText(int column, const QString &text)
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     setData(index, QAbstractItemModel::Display, text);
 }
 
@@ -117,7 +117,7 @@ void QTreeModel::setColumnText(int column, const QString &text)
 
 void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     setData(index, QAbstractItemModel::Decoration, iconSet);
 }
 
@@ -126,7 +126,7 @@ void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
 
 QString QTreeModel::columnText(int column) const
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     return data(index, QAbstractItemModel::Display).toString();
 }
 
@@ -135,7 +135,7 @@ QString QTreeModel::columnText(int column) const
 
 QIconSet QTreeModel::columnIconSet(int column) const
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
+    QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
     return data(index, QAbstractItemModel::Decoration).toIconSet();
 }
 
@@ -162,7 +162,7 @@ QModelIndex QTreeModel::index(QTreeViewItem *item) const
         return QModelIndex();
     const QTreeViewItem *par = item->parent();
     int row = par ? par->children.indexOf(item) : tree.indexOf(item);
-    return QModelIndex(row, 0, item);
+    return createIndex(row, 0, item);
 }
 
 /*!
@@ -178,14 +178,14 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
     if (!parent.isValid()) {// toplevel
         QTreeViewItem *itm = const_cast<QTreeModel*>(this)->tree.at(row);
         if (itm)
-            return QModelIndex(row, column, itm, type);
+            return createIndex(row, column, itm, type);
         return QModelIndex();
     }
     QTreeViewItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
         QTreeViewItem *itm = static_cast<QTreeViewItem *>(parentItem->child(row));
         if (itm)
-            return QModelIndex(row, column, itm, type);
+            return createIndex(row, column, itm, type);
         return QModelIndex();
     }
     return QModelIndex();
@@ -330,8 +330,8 @@ void QTreeModel::append(QTreeViewItem *item)
 {
     tree.push_back(item);
     int r = tree.count();
-    QModelIndex topLeft = index(r - 1, 0, 0);
-    QModelIndex bottomRight = index(r - 1, c - 1, 0);
+    QModelIndex topLeft = index(r - 1, 0);
+    QModelIndex bottomRight = index(r - 1, c - 1);
     emit contentsInserted(topLeft, bottomRight);
 }
 

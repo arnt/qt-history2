@@ -26,10 +26,10 @@ class QAbstractItemModel;
 
 class Q_GUI_EXPORT QModelIndex
 {
+    friend class QAbstractItemModel;
 public:
     enum Type { View, HorizontalHeader, VerticalHeader };
-    inline QModelIndex(int row = -1, int column = -1, void *data = 0, Type type = View)
-        : r(row), c(column), d(data), t(type) {}
+    inline QModelIndex() : r(-1), c(-1), d(0), t(View) {}
     inline QModelIndex(const QModelIndex &other)
         : r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
     inline ~QModelIndex() { d = 0; }
@@ -42,6 +42,8 @@ public:
     { return (other.r == r && other.c == c && other.d == d && other.t == t); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
 private:
+    inline QModelIndex(int row, int column, void *data, Type type)
+        : r(row), c(column), d(data), t(type) {}
     int r, c;
     void *d;
     Type t;
@@ -112,23 +114,23 @@ public:
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = 0,
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                               QModelIndex::Type type = QModelIndex::View) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
 
-    inline QModelIndex topLeft(const QModelIndex &parent = 0) const
+    inline QModelIndex topLeft(const QModelIndex &parent = QModelIndex()) const
         { return index(0, 0, parent); }
-    inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
+    inline QModelIndex bottomRight(const QModelIndex &parent = QModelIndex()) const
         { return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
         { return index(row, column, parent(idx), idx.type()); }
 
-    virtual int rowCount(const QModelIndex &parent = 0) const = 0;
-    virtual int columnCount(const QModelIndex &parent = 0) const = 0;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const = 0;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
-    virtual bool decode(QDropEvent *e, const QModelIndex &parent = 0);
+    virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex());
     virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
     virtual QVariant data(const QModelIndex &index, int role = Display) const = 0;
@@ -139,10 +141,10 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeRows(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = 0, int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
 
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;
@@ -169,8 +171,12 @@ signals:
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
+    
+    inline QModelIndex createIndex(int row = -1, int column = -1, void *data = 0,
+                                   QModelIndex::Type type = QModelIndex::View) const
+        { return QModelIndex(row, column, data, type); }
 
-    void invalidatePersistentIndexes(const QModelIndex &parent = 0);
+    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
     int persistentIndexesCount() const;
     QModelIndex persistentIndexAt(int position) const;
     void setPersistentIndex(int position, const QModelIndex &index);
