@@ -484,7 +484,7 @@ MakefileGenerator::init()
     //moc files
     if(mocAware()) {
         if(!project->isEmpty("MOC_DIR"))
-            project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
+            project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR").replace(QRegExp("\\\\$"),""));
         QStringList &srcmoc = v["SRCMOC"], &hdrmoc = v["HDRMOC"];
         const QStringList &mocables = v["MOCABLES"];
         for(int i = 0; i < mocables.count(); i++) {
