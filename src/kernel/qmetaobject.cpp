@@ -909,8 +909,7 @@ bool QMetaProperty::stored( QObject* o ) const
 	return TRUE;
 
     typedef bool (QObject::*ProtoBool)() const;
-    ProtoBool m;
-    m = *((ProtoBool*)&store);
+    ProtoBool m = (ProtoBool)store;
 
     return (o->*m)();
 }
