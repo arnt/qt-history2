@@ -534,14 +534,14 @@ bool createConnections()
 	<para>
 	The default user-interface behaviour for \class[QDataTable]s is as follows:
 	    \list[*]
-		\item\p
+		<listitem><para>
 		Users can move to records by clicking the scrollbar and
 		clicking records with the mouse. They can also use the
 		keyboard's navigation keys, e.g. the arrow keys, Page Up
 		and Page Down, Home and End.
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\ins is initiated by right-clicking the record and
 		clicking Insert or by pressing the Ins (Insert) key. The
 		user moves between fields using Tab and Shift+Tab. The
@@ -552,9 +552,9 @@ bool createConnections()
 		autoEdit is FALSE navigating to another record also
 		cancels the \ins. Setting confirmInsert to TRUE will
 		require the user to confirm each \ins.
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\upd is initiated by right-clicking the record and clicking
 		Update or by pressing F2. The update will take place if
 		the user presses Return or Tabs off the last
@@ -564,14 +564,14 @@ bool createConnections()
 		navigating to another record also cancels the \upd.
 		Setting confirmUpdate to TRUE will require the user to
 		confirm each \upd.
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\del is achieved by right-clicking the record and
 		clicking Delete or by pressing the <keycap>Delete</> key.
 		Setting confirmDelete to TRUE will require the user to
 		confirm each \del.
-		\P\Item
+		</para></listitem>
 
 	    </itemizedlist>
 
@@ -968,7 +968,7 @@ bool createConnections()
 		Filter is an SQL <literal>WHERE</> clause (without the
 		word 'WHERE'). For example, to only list book that
 		cost less than 50 (of some currency, e.g. dollars), we
-		would enter <literal>price < 50</>. We will leave the
+		would enter <literal>price &lt; 50</>. We will leave the
 		filter empty. The Available Fields list box lists all
 		the fields. The Sort By list box lists the fields that
 		the \class[QDataBrowser] is to sort by and the
@@ -1047,28 +1047,28 @@ bool createConnections()
 	The user-interface behaviour for \class[QDataBrowser]s
 	is created by connecting slots and signals. The slots provided are:
 	    \list[*]
-		\item\p
+		<listitem><para>
 		\fn[insert()], \fn[update()] and \fn[del()] for editing;
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\fn[first()], \fn[next()], \fn[prev()], and \fn[last()] for
 		navigation;
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\fn[refresh()] to refresh the cursor from the database;
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\fn[readFields()] to read data from the cursor's edit
 		buffer and \fn[writeFields()] to write the form's data to
 		the cursor's edit buffer;
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\fn[clearValues()] to clear the form's values.
-		\P\Item
+		</para></listitem>
 
 	    </itemizedlist>
 	</para>
@@ -1080,7 +1080,7 @@ bool createConnections()
 	The behaviour of these buttons is set up using the slots
 	described above to provide the following functionality:
 	    \list[*]
-		\item\p
+		<listitem><para>
 		\ins is initiated by pressing the Insert button. The
 		user moves between fields using Tab and Shift+Tab. If
 		the user presses the Update button the \ins will take
@@ -1095,9 +1095,9 @@ bool createConnections()
 		FALSE then navigating to another record also cancels the
 		\ins. Setting confirmInsert to TRUE will require the
 		user to confirm each \ins.
-		\P\Item
+		</para></listitem>
 
-		\item\p
+		<listitem><para>
 		\upd is automatically initiated whenever the user
 		navigates to a record. An update will take place if the
 		user presses the Update button. If autoEdit is TRUE the
@@ -1107,13 +1107,13 @@ bool createConnections()
 		key or by pressing the Delete button. If autoEdit is
 		FALSE then navigating to another record also cancels the
 		\upd. Setting confirmUpdate to TRUE will require the
-		user to confirm each \upd. \P\Item
+		user to confirm each \upd. </para></listitem>
 
-		\item\p
+		<listitem><para>
 		\del is achieved by pressing the Delete button.
 		Setting confirmDelete to TRUE will require the user to
 		confirm each \del.
-		\P\Item
+		</para></listitem>
 
 	    </itemizedlist>
 	</para>
@@ -1158,7 +1158,7 @@ bool createConnections()
 </programlisting>
 		</para>
 
-		\p We create our dialog as before. We also create a
+		<para> We create our dialog as before. We also create a
 		cursor over the book table and set the dialog's
 		\class[QDataBrowser], BookDataBrowser, to use this new
 		cursor. We set the \class[QDataBrowser]'s filter and
@@ -1169,7 +1169,7 @@ bool createConnections()
 		dialog and delete it when the user has finished with
 		it. Finally we update the BookDataTable in the main
 		form to reflect any changes that were made in the
-		dialog.  \P
+		dialog.  </para>
 	    </listitem>
 
 	    <listitem>
@@ -1282,7 +1282,7 @@ bool createConnections()
 	visual design we'll write the code to make it all work.
 
 	\list[1]
-	\item\p
+	<listitem><para>
 	First we'll add the new widgets. Click the BookDataBrowser and
 	click the \button[Break Layout] toolbar button. Resize the form
 	to make it larger and drag each set of buttons down to make some
@@ -1293,35 +1293,35 @@ bool createConnections()
 	on the form beneath the price QLineEdit. In the Property Window
 	change the ComboBox's name to ComboBoxAuthor and change its
 	sizePolicy hSizeType to Expanding.
-	\P\Item
+	</para></listitem>
 
-	\item\p
+	<listitem><para>
 	Now we'll lay out the dialog. Shift+Click the Author label and
 	the ComboBox then click the \button[Lay Out Horizontally]
 	toolbar button. Now click the BookDataBrowser and click the
 	\button[Lay Out in a Grid] toolbar button.
-	\P\Item
+	</para></listitem>
 	\List1
+	</para>
 
-	\p
+	<para>
 	We need to write some code so that the ComboBox will be
 	populated with author names and scroll to the current book's
 	author. We also need to ensure that we put the author's id into
 	the book table's authorid field when a book record is inserted
 	or updated. We'll ensure the code is executed at the right time
 	by putting it in slots and connecting signals to our slots.
-	\P
 
 	\list[1]
-	\item\p
+	<listitem><para>
 	Create two new slots called \fn[beforeUpdateBook(QSqlRecord
 	*buffer)] and \fn[primeUpdateBook(QSqlRecord *buffer)]. (Click
 	\menu[Edit|Slots], then in the Edit Slots dialog click New Slot
 	and enter the first new slot. Click New Slot again and enter the
 	second slot then click \ok.)
-	\P\Item
+	</para></listitem>
 
-	\item\p
+	<listitem><para>
 	When the user navigates through the dialog, each time they move
 	to a new record, a \fn[primeUpdate()] signal is emitted. We connect
 	to this so that we can update the ComboBox's display. Just
@@ -1330,23 +1330,23 @@ bool createConnections()
 	connect our \fn[beforeUpdateBook()] slot to both these signals so
 	that we can ensure that the book's authorid field is correctly
 	populated.
-	\P
+	</para>
 
-	\p
+	<para>
 	Click the BookDataBrowser and drag the mouse to the form;
 	release the mouse and the Edit Connections dialog will appear.
 	Connect the \fn[beforeUpdate()] signal to our
 	\fn[beforeUpdateBook()] slot. Connect the \fn[beforeInsert()] signal
 	to our \fn[beforeUpdateBook()] slot. Finally connect the
 	\fn[primeUpdate()] signal to our \fn[primeUpdateBook()] slot.
-	\P\Item
+	</para></listitem>
 
-	\item\p
+	<listitem><para>
 	All that remains is to write the underlying code. All the
 	code snippets are taken from
 	\f[qt/tools/designer/eg/book/book7/editbook.ui].
 	    \list[1,1]
-	    \item\p
+	    <listitem><para>
 	    We start with
 	    the \fn[init()] function; this is called after the dialog is
 	    constructed and we will use it to populate the ComboBox with
@@ -1356,9 +1356,9 @@ bool createConnections()
 </programlisting>
 	    Here we execute a query to get a list of author names and
 	    insert each one into the ComboBox.
-	    \P\Item
+	    </para></listitem>
 
-	    \item\p
+	    <listitem><para>
 	    We next write the code which will be executed just before a
 	    record is updated (or inserted) in the database.
 <programlisting>
@@ -1366,9 +1366,9 @@ bool createConnections()
 </programlisting>
 	    We look up the id of the ComboBox's current author and place
 	    it in the update (or insert) buffer's authorid field.
-	    \P\Item
+	    </para></listitem>
 
-	    \item\p
+	    <listitem><para>
 	    As the user navigates through the records we ensure
 	    that the ComboBox reflects the current author.  
 <programlisting>
@@ -1377,13 +1377,13 @@ bool createConnections()
 	    Firstly we look up the book's author and secondly we iterate
 	    through the ComboBox's items until we find the author and
 	    set the ComboBox's current item to the matching author.
-	    \P\Item
+	    </para></listitem>
 	    \List1
-	\P
+	</para>
 	\List1
     </para>
 
-    \p
+    <para>
     If the author name has changed or been deleted the query will
     fail and no author id will be inserted into the buffer causing the \ins
     to fail.  An alternative is to record
@@ -1405,24 +1405,24 @@ bool createConnections()
 	    'QMap&lt;QString,int&gt; authorMap;'.
 	    </para>
 	    </listitem>
-	    \item\p
+	    <listitem><para>
 	    We now record the author id's in the \fn[init()] function.
 <programlisting>
 \scan eg/book/book8/editbook.cpp /EditBookForm::init/ /^}$/
 </programlisting>
 	    After inserting each author's name into the ComboBox we
 	    populate a \class[QMap] with the author's name and id.
-	    \P\Item
+	    </para></listitem>
 
-	    \item\p
+	    <listitem><para>
 	    Instead of looking up the author's id in the database we
 	    look it up in the \class[QMap].
 <programlisting>
 \scan eg/book/book8/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/
 </programlisting>
-	    \P\Item
+	    </para></listitem>
 
-	    \item\p
+	    <listitem><para>
 	    We use a single function for storing author id's and
 	    returning them so that we can use a static data structure.
 <programlisting>
@@ -1431,18 +1431,18 @@ bool createConnections()
 	    If the populate flag is TRUE, we store the author's name and
 	    id in the \class[QMap], otherwise we look up the given
 	    author name and set id appropriately.
-	    \P\Item
+	    </para></listitem>
 	    \List1
-    \P
+    </para>
 
-\p
+<para>
 Another approach which is especially useful if the same foreign key
 lookups are required in different parts of the application is to
 subclass a cursor and use this for our lookups. This is described in the
 <ulink url="http://doc.trolltech.com/sql.html">Qt SQL Module
 documentation</>, particulary the section on subclassing
 \class[QSqlCursor].
-\P
+</para>
 
 <para>
 The 'book' example demonstrates the basic techniques needed for SQL
