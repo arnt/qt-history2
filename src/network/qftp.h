@@ -96,7 +96,7 @@ public:
 	Mkdir,
 	Rmdir,
 //###	Rename,
-	FtpCommand
+	RawCommand
     };
 
     int connectToHost( const QString &host, Q_UINT16 port=21 );

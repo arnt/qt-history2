@@ -1457,7 +1457,7 @@ int QFtp::rmdir( const QString &dir )
 int QFtp::rawCommand( const QString &command )
 {
     QString cmd = command.stripWhiteSpace() + "\r\n";
-    return addCommand( new QFtpCommand( FtpCommand, QStringList(cmd) ) );
+    return addCommand( new QFtpCommand( RawCommand, QStringList(cmd) ) );
 }
 
 /*!
@@ -1786,7 +1786,7 @@ void QFtp::piConnectState( int state )
 
 void QFtp::piFtpReply( int code, const QString &text )
 {
-    if ( currentCommand() == FtpCommand )
+    if ( currentCommand() == RawCommand )
 	emit rawCommandReply( code, text );
 }
 
