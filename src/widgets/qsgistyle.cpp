@@ -56,8 +56,8 @@ static const int sgiSepHeight		= 1;	// separator item height
 static const int sgiItemHMargin		= 3;	// menu item hor text margin
 static const int sgiItemVMargin 	= 2;	// menu item ver text margin
 static const int sgiArrowHMargin	= 6;	// arrow horizontal margin
-static const int sgiTabSpacing		= 12;	// space between text and tab
-static const int sgiCheckMarkHMargin	= 2;	// horiz. margins of check mark
+// static const int sgiTabSpacing		= 12;	// space between text and tab ### not used?!?
+// static const int sgiCheckMarkHMargin	= 2;	// horiz. margins of check mark ### not used?!?
 static const int sgiCheckMarkSpace	= 20;
 
 static bool sliderMoving		= FALSE;

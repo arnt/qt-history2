@@ -353,6 +353,9 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    break;
 	}	
     }
+#if defined(Q_MISSING_RETURN_STATEMENT)
+    return QString::null;
+#endif
 }
 
 /*!
@@ -1280,6 +1283,9 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	    break;
 	}	
     }
+#if defined(Q_MISSING_RETURN_STATEMENT)
+    return QString::null;
+#endif
 }
 
 /*!

@@ -265,15 +265,16 @@ void QDateTimeEditBase::layoutWidgets( int numDigits )
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
 
     int y = style() == WindowsStyle ? frameWidth() : 0;
-    int x, lx, rx;
+    int x, lx;
+    // int rx; ### never used ?!?
     if ( QApplication::reverseLayout() ) {
 	x = y;
 	lx = x + bs.width() + frameWidth();
-	rx = width() - frameWidth();
+//	rx = width() - frameWidth(); ### never used ?!?
     } else {
 	x = width() - y - bs.width();
 	lx = frameWidth();
-	rx = x - frameWidth();
+//	rx = x - frameWidth(); ### never used ?!?
     }
 
     if ( style() == WindowsStyle )

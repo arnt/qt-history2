@@ -170,6 +170,8 @@
 #  define _CC_KAI_
 // does not define __EDG__
 #  define Q_HAS_BOOL_TYPE
+#  define Q_STATEMENT_NOT_REACHED
+#  define Q_MISSING_RETURN_STATEMENT
 #elif defined(applec)
 #  define _CC_MPW_
 #elif defined(__MWERKS__)
@@ -223,10 +225,10 @@
 #  define _CC_USLC_
 #elif defined(__EDG__) || defined(__EDG)
 // one documented by EDG, the other documented by SGI
+#  define _CC_EDG_
 #  if defined(_BOOL)
 #    define Q_HAS_BOOL_TYPE
 #  endif
-#  define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 // defines __EDG__?
 #  define _CC_OC_

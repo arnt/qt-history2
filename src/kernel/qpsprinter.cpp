@@ -2386,7 +2386,6 @@ QByteArray compress( const QImage & image ) {
 	if ( bestCandidate != None ) {
 	    emitBits( out, outOffset, outBit,
 		      1, 1 );
-	    int x = 0;
 	    if ( bestLength < 5 ) {
 		emitBits( out, outOffset, outBit,
 			  quoteSize, bestLength - 1 );

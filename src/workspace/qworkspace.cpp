@@ -1093,7 +1093,9 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		}
 		return TRUE;
 	    }
+#if !defined(Q_STATEMENT_NOT_REACHED)
 	    break;
+#endif
 	default:
 	    break;
 	}
