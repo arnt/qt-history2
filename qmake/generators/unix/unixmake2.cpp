@@ -476,10 +476,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	if (! project->isActiveConfig("plugin")) {
 	    t << "staticlib: $(TARGETA)" << endl << endl;
-	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" <<
-		var("TARGETDEPS") << "\n\t"
+	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)";
+	    if(do_incremental)
+		t << " $(INCREMENTAL_OBJECTS)";
+	    t << var("TARGETDEPS") << "\n\t"
 	      << "-rm -f $(TARGETA) " << "\n\t"
-	      << var("QMAKE_AR_CMD") << varGlue("QMAKE_RANLIB","\n\t"," "," $(TARGETA)")
+	      << var("QMAKE_AR_CMD");
+	    if(do_incremental)
+		t << " $(INCREMENTAL_OBJECTS)";
+	    t << varGlue("QMAKE_RANLIB","\n\t"," "," $(TARGETA)")
 	      << endl << endl;
 	}
     } else {
