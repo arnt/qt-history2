@@ -1,0 +1,24 @@
+//
+// Qt Tutorial 2
+//
+//
+
+#include <qapp.h>
+#include <qpushbt.h>
+#include <qfont.h>
+
+
+int main( int argc, char **argv )
+{
+    QApplication a( argc, argv );
+
+    QPushButton quit( "Quit!" );
+    quit.resize( 120, 40 );
+    quit.setFont( QFont( "Times", 18, QFont::Bold ) );
+
+    QObject::connect( &quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+
+    a.setMainWidget( &quit );
+    quit.show();
+    return a.exec();
+}

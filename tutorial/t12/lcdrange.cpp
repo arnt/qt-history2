@@ -1,0 +1,70 @@
+/****************************************************************************
+** Implementation of LCDRange class, Qt tutorial 12
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#include "lcdrange.h"
+
+LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
+        : QWidget( parent, name )
+{
+    init();
+}
+
+LCDRange::LCDRange( const char *s, QWidget *parent=0, const char *name=0 )
+        : QWidget( parent, name )
+{
+    init();
+    setText( s );
+}
+
+void LCDRange::init()
+{
+    lcd  = new QLCDNumber( 2, this, "lcd"  );
+    lcd->move( 0, 0 );
+    sBar = new QScrollBar( 0, 99, 1, 10, 0, QScrollBar::Horizontal, 
+                           this, "scrollbar" );
+    label  = new QLabel( this, "label"  );
+    label->setAlignment( AlignCenter );
+    connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
+
+}
+
+int LCDRange::value() const
+{
+    return sBar->value();
+}
+
+const char *LCDRange::text() const
+{
+    return label->text();
+}
+
+void LCDRange::setValue( int value )
+{
+    sBar->setValue( value );
+}
+
+void LCDRange::setRange( int min, int max )
+{
+    sBar->setRange( min, max );
+}
+
+void LCDRange::setText( const char *s )
+{
+    label->setText( s );
+}
+
+void LCDRange::resizeEvent( QResizeEvent *e )
+{
+    lcd->resize( width(), height() - 41 - 5 );
+    sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );
+    label->setGeometry( 0, lcd->height() + 21, width(), 20 );
+}
+
+
+
+
