@@ -894,8 +894,8 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
 void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::drawTextItem(), (%d,%d), flags=%x, string=%s\n",
-           int(p.x()), int(p.y()), textFlags, QString::fromRawData(ti.chars, ti.num_chars).latin1());
+    printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), flags=%x, string=%s\n",
+           p.x(), p.y(), textFlags, QString::fromRawData(ti.chars, ti.num_chars).latin1());
 #endif
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawTextItem(p, ti, textFlags);

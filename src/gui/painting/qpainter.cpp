@@ -3006,7 +3006,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawText(), pos=[%d,%d], str='%s'\n", p.x(), p.y(), str.latin1());
+        printf("QPainter::drawText(), pos=[%.2f,%.2f], str='%s'\n", p.x(), p.y(), str.latin1());
 #endif
 
     if (!isActive())
