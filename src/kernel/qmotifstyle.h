@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#9 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#10 $
 **
 ** Definition of something or other
 **
@@ -60,10 +60,8 @@ public:
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
 			   Orientation );
-
-    private: 
-    bool highlightCols;;
-    
+private: 
+    bool highlightCols;
 };
 
 #endif
