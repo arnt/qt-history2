@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#42 $
 **
 ** Implementation of QStatusBar class
 **
@@ -205,17 +205,19 @@ void QStatusBar::reformat()
     QStatusBarPrivate::StatusBarPrivateItem * i;
     d->items.first();
     int space = 1;
-
+    int h = 0;
     while( (i=d->items.current()) != 0 ) {
 	d->items.next();
 	l->addSpacing( space );
 	space = 4;
 	l->addWidget( i->w, i->s );
+	h = QMAX( h, i->w->sizeHint().height() );
     }
     if ( space == 1 ) {
 	l->addStretch( 1 );
-	l->addStrut( 3 + fontMetrics().height() + 3 );
+	h = QMAX( h,  3 + fontMetrics().height() + 3 );
     }
+    l->addStrut( h );
     l->addSpacing( 2 );
     l->addWidget( d->resizer, 0, AlignBottom );
     d->box->addSpacing( 2 );
