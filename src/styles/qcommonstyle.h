@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#18 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#19 $
 **
 ** Definition of QCommonStyle class
 **
@@ -68,6 +68,13 @@ public:
     int menuButtonIndicatorWidth( int h ) const {
 	return h;
     }
+    void scrollBarMetrics( const QScrollBar*,
+			   int&, int&, int&, int&) const { }
+    void drawScrollBarControls( QPainter*,  const QScrollBar*,
+				int , uint ,
+				uint  )  { }
+    ScrollControl scrollBarPointOver( const QScrollBar*,
+				      int , const QPoint& ) { return NoScroll; }
     // ### 8<
 
     virtual void drawPrimitive( PrimitiveOperation op,
@@ -114,8 +121,8 @@ public:
 				    void *data = 0 ) const;
 
     virtual int styleHint( StyleHint sh,
-			  const QWidget *w = 0,
-			  void **returnData = 0 ) const;
+			   const QWidget *w = 0,
+			   void **returnData = 0 ) const;
 
 
 

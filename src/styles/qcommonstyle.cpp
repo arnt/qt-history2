@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#44 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#45 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -707,73 +707,74 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
     QRect rect;
 
     switch ( control ) {
-	case CC_SpinWidget: {
-	    if ( !w )
-		return QRect();
-	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
-	    QSize bs;
-	    bs.setHeight( w->height()/2 - fw );
-	    if ( bs.height() < 8 )
-		bs.setHeight( 8 );
-	    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 -approximate golden mean
-	    bs = bs.expandedTo( QApplication::globalStrut() );
-	    int y = fw;
-	    int x, lx, rx;
-	    if ( QApplication::reverseLayout() ) {
-		x = y;
-		lx = x + bs.width() + fw;
-		rx = w->width() - fw;
-	    } else {
-		x = w->width() - y - bs.width();
-		lx = fw;
-		rx = x - fw;
-	    }
-	    switch ( sc ) {
-		case SC_SpinWidgetUp:
-		    return QRect(x, y, bs.width(), bs.height());
-		    break;
-		case SC_SpinWidgetDown:
-		    return QRect(x, y + bs.height(), bs.width(), bs.height());
-		    break;
-		case SC_SpinWidgetButtonField:
-		    return QRect(x, y, bs.width(), w->height() - 2*fw);
-		    break;
-		case SC_SpinWidgetEditField:
-		    return QRect(lx, fw, rx, w->height() - 2*fw);
-		    break;
-		case SC_SpinWidgetFrame:
-		    return w->rect();
-		default: break;
-	    }
-	    break; }
-	
-	case CC_ComboBox: {
-	    int x = 0, y = 0, wi = w->width(), he = w->height();
-	    int xpos = x;
-	    bool reverse = QApplication::reverseLayout();
-	    QRect re;
-	    
-	    if ( !reverse )
-		xpos += wi - 2 - 16;
-	    
-	    switch ( sc ) {
-		case SC_ComboBoxButton:
-		    return QRect(0, 0, wi, he);
-		    break;
-		case SC_ComboBoxArrow:
-		    return QRect(xpos, y+2, 16, he-4);
-		    break;
-		case SC_ComboBoxFocusRect:
-		case SC_ComboBoxEditField:
-		    re.setRect(x+3, y+3, wi-6-16, he-6);
-		    if( reverse )
-			re.moveBy( 2 + 16, 0 );
-		    return re;
-		default: break;
-	    }
+    case CC_SpinWidget: {
+	if ( !w )
+	    break;
+	int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	QSize bs;
+	bs.setHeight( w->height()/2 - fw );
+	if ( bs.height() < 8 )
+	    bs.setHeight( 8 );
+	bs.setWidth( bs.height() * 8 / 5 ); // 1.6 -approximate golden mean
+	bs = bs.expandedTo( QApplication::globalStrut() );
+	int y = fw;
+	int x, lx, rx;
+	if ( QApplication::reverseLayout() ) {
+	    x = y;
+	    lx = x + bs.width() + fw;
+	    rx = w->width() - fw;
+	} else {
+	    x = w->width() - y - bs.width();
+	    lx = fw;
+	    rx = x - fw;
+	}
+	switch ( sc ) {
+	case SC_SpinWidgetUp:
+	    rect.setRect(x, y, bs.width(), bs.height());
+	    break;
+	case SC_SpinWidgetDown:
+	    rect.setRect(x, y + bs.height(), bs.width(), bs.height());
+	    break;
+	case SC_SpinWidgetButtonField:
+	    rect.setRect(x, y, bs.width(), w->height() - 2*fw);
+	    break;
+	case SC_SpinWidgetEditField:
+	    rect.setRect(lx, fw, rx, w->height() - 2*fw);
+	    break;
+	case SC_SpinWidgetFrame:
+	    return w->rect();
+	default:
+	    break;
+	}
+
 	break; }
 
-	default: break;
+    case CC_ComboBox: {
+	int x = 0, y = 0, wi = w->width(), he = w->height();
+	int xpos = x;
+	bool reverse = QApplication::reverseLayout();
+
+	if ( !reverse )
+	    xpos += wi - 2 - 16;
+
+	switch ( sc ) {
+	case SC_ComboBoxButton:
+	    rect.setRect(0, 0, wi, he);
+	    break;
+	case SC_ComboBoxArrow:
+	    rect.setRect(xpos, y+2, 16, he-4);
+	    break;
+	case SC_ComboBoxFocusRect:
+	case SC_ComboBoxEditField:
+	    rect.setRect(x+3, y+3, wi-6-16, he-6);
+	    if( reverse )
+		rect.moveBy( 2 + 16, 0 );
+	    break;
+	default:
+	    break;
+	}
+
+	break; }
 
     case CC_ScrollBar: {
 	if (! w)
