@@ -21,15 +21,14 @@
  *****************************************************************************/
 //#define DEBUG_FILEDIALOG_FILTERS
 
-#include "qapplication.h"
+#include <qapplication.h>
 #include <private/qapplication_p.h>
-#include "qt_mac.h"
-#include "qregexp.h"
-#include "qbuffer.h"
-#include "qstringlist.h"
-#include "qtextcodec.h"
-#include "qdesktopwidget.h"
-#include "qcstring.h"
+#include <qt_mac.h>
+#include <qregexp.h>
+#include <qbuffer.h>
+#include <qstringlist.h>
+#include <qtextcodec.h>
+#include <qdesktopwidget.h>
 #include <stdlib.h>
 
 static UInt8 *str_buffer = NULL;
@@ -41,13 +40,14 @@ static void cleanup_str_buffer()
     }
 }
 
-extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
+extern const char *qt_file_dialog_filter_reg_exp; // defined in q4filedialog.cpp
 
 // Returns the wildcard part of a filter.
 struct qt_mac_filter_name {
     QString description, regxp, filter;
 };
-static qt_mac_filter_name *extractFilter(const QString& rawFilter)
+
+static qt_mac_filter_name *qt_mac_extract_filter(const QString &rawFilter)
 {
     qt_mac_filter_name *ret = new qt_mac_filter_name;
     ret->filter = rawFilter;
@@ -65,14 +65,14 @@ static qt_mac_filter_name *extractFilter(const QString& rawFilter)
 }
 
 // Makes a list of filters from ;;-separated text.
-static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
+static QList<qt_mac_filter_name*> qt_mac_make_filters_list(const QString &filter)
 {
 #ifdef DEBUG_FILEDIALOG_FILTERS
     qDebug("QFileDialog:%d - Got filter (%s)", __LINE__, filter.latin1());
 #endif
     QString f(filter);
     if(f.isEmpty())
-        f = QFileDialog::tr("All Files (*)");
+        f = QObject::tr("All Files (*)");
     if(f.isEmpty())
         return QList<qt_mac_filter_name*>();
     QString sep(";;");
@@ -86,7 +86,7 @@ static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
     QList<qt_mac_filter_name*> ret;
     QStringList filts = f.split(sep);
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it) {
-        qt_mac_filter_name *filter = extractFilter((*it));
+        qt_mac_filter_name *filter = qt_mac_extract_filter((*it));
 #ifdef DEBUG_FILEDIALOG_FILTERS
         qDebug("QFileDialog:%d Split out filter (%d) '%s' '%s'", __LINE__, ret.count(),
                filter->regxp.latin1(), filter->description.latin1());
@@ -143,7 +143,7 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     }
     QStringList reg = fn->regxp.split(";");
     for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
-        QRegExp rg((*it), false, true);
+        QRegExp rg(*it);//QRegExp rg((*it), false, true); // not case sensitive, with wildcard
 #ifdef DEBUG_FILEDIALOG_FILTERS
         qDebug("QFileDialog:%d, asked to filter.. %s (%s)", __LINE__,
                file.latin1(), (*it).latin1());
@@ -204,14 +204,13 @@ static const NavEventUPP make_navProcUPP()
     return mac_navProcUPP = NewNavEventUPP(qt_mac_filedialog_event_proc);
 }
 
-
 const unsigned char * p_str(const char *, int len=-1);
 OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal.cpp
 
-QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd,
-                                             QWidget *parent, const char* /*name*/,
-                                             const QString& caption, QString *selectedFilter,
-                                             bool multi, bool directory)
+QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
+                                       QWidget *parent, const QString &caption,
+                                       QString *selectedFilter,
+                                       bool multi, bool directory)
 {
     OSErr err;
     QStringList retstrl;
@@ -256,7 +255,7 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
         }
     }
 
-    QList<qt_mac_filter_name*> filts = makeFiltersList(filter);
+    QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(filter);
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
@@ -295,8 +294,7 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
 
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
-        QWidget modal_widg(parent, __FILE__ "__modal_dlg",
-                           WType_TopLevel | WStyle_Customize | WStyle_DialogBorder);
+        QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
         qt_enter_modal(&modal_widg);
         while(g_nav_blocking)
             qApp->processEvents();
@@ -340,39 +338,9 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
     return retstrl;
 }
 
-// Copious copy and paste from qfiledialog.cpp. Fix in 4.0.
-static QString encodeFileName(const QString &fName)
-{
-    QString newStr;
-    QCString cName = fName.utf8();
-    const QCString sChars(
-            "<>#@\"&%$:,;?={}|^~[]\'`\\*"
-           );
-
-    int len = cName.length();
-    if (!len)
-        return QString::null;
-    for (int i = 0; i < len ;++i) {
-        uchar inCh = (uchar)cName[i];
-        if (inCh >= 128 || sChars.contains(inCh))
-        {
-            newStr += QChar('%');
-            ushort c = inCh / 16;
-            c += c > 9 ? 'A' - 10 : '0';
-            newStr += (char)c;
-            c = inCh % 16;
-            c += c > 9 ? 'A' - 10 : '0';
-            newStr += (char)c;
-        } else {
-            newStr += (char)inCh;
-        }
-    }
-    return newStr;
-}
-
-QString QFileDialog::macGetSaveFileName(const QString &start, const QString &filter,
-                                         QString *, QWidget *parent, const char* /*name*/,
-                                         const QString& caption, QString *selectedFilter)
+QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
+                                  QString *pwd, QWidget *parent, const QString &caption,
+                                  QString *selectedFilter)
 {
     OSErr err;
     QString retstr;
@@ -384,26 +352,10 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     options.location.h = options.location.v = -1;
     QString workingDir;
     QString initialSelection;
-    if (!start.isEmpty()) {
-        QUrlOperator u(encodeFileName(start));
-        if (u.isLocalFile() && QFileInfo(u.path()).isDir()) {
-            workingDir = start;
-        } else {
-            if (u.isLocalFile()) {
-                QFileInfo fi(u.dirPath());
-                if (fi.exists()) {
-                    workingDir = u.dirPath();
-                    initialSelection = u.fileName();
-                }
-            } else {
-                workingDir = u.toString();
-            }
-        }
-        if (!initialSelection.isEmpty())
-            options.saveFileName = CFStringCreateWithCharacters(0,
-                                                            (UniChar *)initialSelection.unicode(),
-                                                            initialSelection.length());
-    }
+    if (!start.isEmpty())
+        options.saveFileName = CFStringCreateWithCharacters(0,
+                                                            (UniChar *)start.unicode(),
+                                                            start.length());
     if(!caption.isEmpty())
         options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(),
                                                            caption.length());
@@ -435,7 +387,7 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
         }
     }
 
-    QList<qt_mac_filter_name*> filts = makeFiltersList(filter);
+    QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(filter);
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
@@ -465,8 +417,7 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     }
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
-        QWidget modal_widg(parent, __FILE__ "__modal_dlg",
-                           WType_TopLevel | WStyle_Customize | WStyle_DialogBorder);
+        QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
         qt_enter_modal(&modal_widg);
         while(g_nav_blocking)
             qApp->processEvents();
