@@ -521,7 +521,6 @@ void QDesignerActions::previewForm()
         QDialog *fakeTopLevel = new QDialog(fw);
         QHBoxLayout *layout = new QHBoxLayout(fakeTopLevel);
         layout->setMargin(0);
-        fakeTopLevel->hide();
 
         QDesignerFormBuilder builder(core());
 
@@ -530,6 +529,11 @@ void QDesignerActions::previewForm()
 
         QWidget *widget = builder.load(&buffer, fakeTopLevel);
         Q_ASSERT(widget);
+
+        if (QDialog *dlg = qobject_cast<QDialog *>(widget)) {
+            dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+            connect(dlg, SIGNAL(destroyed()), fakeTopLevel, SLOT(accept()));
+        }
 
         QSize size = widget->size();
 
