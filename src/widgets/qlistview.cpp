@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#34 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#34 $");
 
 
 const int Unsorted = 32767;
@@ -1450,7 +1450,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( e->pos() );
-    if ( !i );
+    if ( !i )
 	return;
 
     if ( (i->isExpandable() || i->children()) &&
@@ -1461,9 +1461,9 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	    ++it;
 
 	if ( it.current() ) {
-	     x1 -= treeStepSize() * (it.current()->l - 2);
-	     if ( x1 >= 0 && x1 < treeStepSize() )
-		 i->setOpen( !i->isOpen() );
+	    x1 -= treeStepSize() * (it.current()->l - 2);
+	    if ( x1 >= 0 && x1 < treeStepSize() )
+		i->setOpen( !i->isOpen() );
 	}
     }
 
@@ -1608,6 +1608,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     }
 
     QRect r( itemRect( i ) );
+    QListViewItem * i2;
 
     switch( e->key() ) {
     case Key_Enter:
@@ -1621,17 +1622,31 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	i = i->itemAbove();
 	break;
     case Key_Next:
-	// this is window style.  mostif style is probably different.
-	if ( !r.isValid() ||
-	     !viewport()->rect().contains( itemRect( i->itemBelow() ) ) )
-	    verticalScrollBar()->addPage();
-	i = itemAt( QPoint( 0, contentsY() + viewport()->height() - 1 ) );
+	i2 = itemAt( QPoint( 0, viewport()->height()-1 ) );
+	if ( i2 == i || !r.isValid() ||
+	     viewport()->height() <= itemRect( i ).bottom() ) {
+	    i = i2;
+	    int left = viewport()->height();
+	    while( (i2 = i->itemBelow()) != 0 && left > i2->height() ) {
+		left -= i2->height();
+		i = i2;
+	    }
+	} else {
+	    i = i2;
+	}
 	break;
     case Key_Prior:
-	// this is window style.  mostif style is probably different.
-	if ( !r.isValid() || r.top() <= 0 )
-	    verticalScrollBar()->subtractPage();
-	i = itemAt( QPoint( 0, contentsY() ) );
+	i2 = itemAt( QPoint( 0, 0 ) );
+	if ( i == i2 || !r.isValid() || r.top() <= 0 ) {
+	    i = i2;
+	    int left = viewport()->height();
+	    while( (i2 = i->itemAbove()) != 0 && left > i2->height() ) {
+		left -= i2->height();
+		i = i2;
+	    }
+	} else {
+	    i = i2;
+	}
 	break;
     case Key_Right:
 	if ( i->isOpen() && i->childItem ) {
