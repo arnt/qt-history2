@@ -471,6 +471,19 @@ bool FileDriver::mark()
     return TRUE;
 }
 
+bool FileDriver::unmark()
+{
+    if ( !isOpen() )
+	return FALSE;
+#ifdef VERBOSE_DEBUG_XBASE
+    env->output() << "FileDriver::unmark: unmarking record " << d->file.GetCurRecNo() << endl;
+#endif
+    if ( d->marked.find( d->file.GetCurRecNo() ) == d->marked.end() )
+	return TRUE;
+    d->marked.remove( d->marked.find( d->file.GetCurRecNo() ) );
+    return TRUE;
+}
+
 bool FileDriver::deleteMarked()
 {
 #ifdef DEBUG_XBASE

@@ -51,6 +51,7 @@ public:
     int at() const { return internalAt; }
     bool next();
     bool mark();
+    bool unmark();
     bool deleteMarked();
     bool commit();
     bool field( uint i, QVariant& v );

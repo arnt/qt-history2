@@ -128,6 +128,7 @@ namespace localsql {
 	virtual bool insert( const List& data ) = 0;
 	virtual int at() const = 0;
 	virtual bool mark() = 0;
+	virtual bool unmark() = 0;
 	virtual bool deleteMarked() = 0;
 	virtual bool commit() = 0;
 	virtual bool updateMarked( const List& data ) = 0;

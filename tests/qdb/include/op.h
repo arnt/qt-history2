@@ -911,5 +911,21 @@ public:
     }
 };
 
+/* UnMarks the current record of the file identified by 'id'.  The file
+must be open and positioned on a valid record.
+*/
+
+class UnMark : public Op
+{
+public:
+    UnMark( int id )
+	: Op( id ) {}
+    QString name() const { return "unmark"; }
+    int exec( localsql::Environment* env )
+    {
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
+	return drv->unmark();
+    }
+};
 
 #endif
