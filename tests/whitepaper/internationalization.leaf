@@ -154,8 +154,8 @@ translated language, or vice versa. The argument to \Func tr() is
 converted to Unicode from the application's default encoding.
 
   \index QObject
-  \index comments!for translation
-  \index contexts!for translation
+  \index comments (for translation)
+  \index contexts (for translation)
   \index source texts
 
 \Func tr()'s general syntax is

@@ -99,7 +99,7 @@ that can be called like any other function, and which can also be
 connected to signals.
 
   \index emitting a signal
-  \index preprocessor!C++
+  \index preprocessor (C++)
 
 Here's the implementation of the slot \Func setBalance():
 \code

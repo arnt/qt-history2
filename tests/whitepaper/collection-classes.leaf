@@ -29,7 +29,7 @@ implemented as a thin layer over these private classes.
 \section1 Value-based Collections
 
   \index QTL
-  \index algorithms!STL
+  \index algorithms
   \index lists
   \index maps
   \index stacks

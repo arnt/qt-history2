@@ -4,12 +4,21 @@
 
 \section2 The Main Window
 
+  \index GUI applications
+  \index main window
+
 Qt provides the widgets needed by most modern GUI applications. The
 \Class QMainWindow class pulls together a set of related widgets to
 provide a framework for typical application main windows.
 
   \index size grip
   \img main-window.png An application main window
+
+  \index SDI
+  \index Single Document Interface
+  \index central area
+  \index status bar
+  \index toolbars
 
 Visually, the main window contains a handful of standard widgets. A
 menu bar appears at the top of the main window. Toolbars appear below
@@ -23,10 +32,19 @@ provide balloon help for the user-interface elements.
 
 \section2 Menus
 
+  \index context menus
+  \index menus
+  \index pop-up menus
+  \index sub-menus
+  \index tear-off handles
+
 The \Class QPopupMenu widget presents menu items to the user in a
 vertical list. Pop-up menus can be standalone (e.g. a context menu),
 can appear in a menu bar or can be a sub-menu of another pop-up menu.
 Menus can also have tear-off handles.
+
+  \index icons
+  \index separator items
 
 Each menu item can have an icon, a checkbox and an accelerator. Menu
 items usually correspond to actions (e.g. Save). Separator items are
@@ -45,6 +63,9 @@ Here's an example that creates a \Menu File menu with \NEW, \OPEN and
 			  CTRL+Key_Q );
 \endcode
 When a menu item is chosen, the corresponding slot is executed.
+
+  \index Macintosh
+  \index menu bar
 
 The \Class QMenuBar class implements a menu bar. It automatically
 sets its geometry to the top of its parent widget (typically a \Class
@@ -68,6 +89,10 @@ QCustomMenuItem.
 
 \section2 Toolbars
 
+  \index icons
+  \index toolbars
+  \index toggle buttons
+
 The \Class QToolButton class implements a tool button with an icon, a
 3D frame and an optional label. Toggle tool buttons turn features on
 and off. Other tool buttons simply execute a command. Different icons
@@ -85,8 +110,13 @@ almost any type, for example \Class {QComboBox}es and \Class
 
 \section2 Balloon Help
 
+  \index balloon help
+  \index hover help
+
 Modern applications provide balloon help that explain the role of
 user-interface elements.
+
+  \index tool tips
 
 Tool tips are small, usually yellow, rectangles that appear
 automatically when the mouse pointer hovers over a widget. Tool tips
@@ -98,6 +128,8 @@ a 'Save' tool button:
 \endcode
 It is also possible to set a longer text to be displayed in the
 status bar when the tool tip is shown.
+
+  \index What's this?
 
 "What's this?" help is similar to tool tips, except that the user
 must request it, for example by pressing \Key Shift+F1 and by
@@ -115,8 +147,10 @@ of the mouse within the widget.
 
 \section2 The Status Bar
 
-\Class QStatusBar implements a status bar. The status bar displays three kinds of
-indicators:
+  \index status bar
+
+\Class QStatusBar implements a status bar. The status bar displays
+three kinds of indicators:
 \list
 \i \e {Temporary messages.} These are displayed to the left.
    Temporary messages vanish after a certain amount of time, or when
@@ -131,6 +165,12 @@ indicators:
 
 \section2 Actions
 
+  \index QAction
+  \index accelerators
+  \index actions
+  \index commands
+  \index connections
+
 Applications usually provide the user with several different ways of
 performing a particular action. For example, most applications
 provide a 'Save' action available from the menu (\Menu File|Save),
@@ -140,7 +180,8 @@ QAction class. It allows programmers to define an action in one place
 and then add that action to a menu or toolbar. Actions that only make
 sense as menu options can be added to menus directly.
 
-### check the code
+  \index menu bar
+  \index toolbars
 
 In previous subsections, we have seen how to create individual menu
 items and tool buttons, for example:
@@ -177,6 +218,8 @@ accordingly and vice versa.
 
 \section2 The Central Widget
 
+  \index central widget
+
 The central area of a \Class QMainWindow can be occupied by any
 widget. A text-editor application might, for example, use a \Class
 QTextEdit as its central widget:
@@ -187,16 +230,26 @@ QTextEdit as its central widget:
 
 \section1 Multiple Document Interface
 
+  \index MDI
+  \index Multiple Document Interface
+  \index workspace
+
 The \Class QWorkspace class provides Multiple Document Interface
 (MDI) in Qt. \Class QWorkspace is typically used as the central
 widget of a \Class QMainWindow, but it can be used like any other Qt
 widget.
+
+  \index captions
+  \index frames
 
 Child widgets of \Class QWorkspace are also ordinary widgets and can
 be of any type. They are rendered with a frame similar to the frame
 around top-level widgets. Functions such as \Func show(), \Func
 hide(), \Func showMaximized() and \Func setCaption() work in the same
 way for child MDI widgets as for ordinary top-level widgets.
+
+  \index cascade
+  \index tile
 
 \Class QWorkspace provides positioning strategies such as \e cascade
 and \e tile. If the child widgets extend outside the MDI area,
@@ -206,16 +259,30 @@ menu bar.
 
 \section1 Dialogs
 
+  \index Windows
+  \index dialogs
+  \index native dialogs
+
 Most GUI applications use dialog boxes to interact with the user for
 certain operations. Qt includes ready-made dialog classes with static
 convenience functions for the most common tasks. Many aspects of the
 dialogs can be configured, for example the buttons and texts in a
 \Class QMessageBox. On Windows, the native dialogs can be used.
 
+  \index about boxes
+  \index errors
+  \index fatal errors
+  \index information
+  \index message box
+  \index warnings
+
 \Class QMessageBox is used to provide the user with information or to
 present the user with simple choices (e.g. 'Yes' or 'No').
 
   \img qmessagebox.png QMessageBox
+
+  \index file dialog
+  \index directories
 
 \Class QFileDialog is a sophisticated file selection dialog. It can
 be used to select single or multiple files, and includes
@@ -225,6 +292,8 @@ which makes it far easier to view long file names and large
 directories.
 
   \img qfiledialog.png QFileDialog
+
+  \index progress bars
 
 \Class QProgressDialog displays a progress bar and a 'Cancel' button.
 
@@ -246,16 +315,22 @@ directories.
 
   \img qwizard.png QWizard
 
-\Class QFontDialog and \Class QColorDialog are
-specialized dialogs to select a font or a color.
+  \index color dialog
+  \index font dialog
+
+\Class QFontDialog and \Class QColorDialog are sophisticated dialogs
+to select a font and a color.
 
   \img qfontdialog-etc.png QFontDialog and QColorDialog
+
+  \index print dialog
 
 \Class QPrintDialog allows the user to select printing options.
 
   \img qprintdialog.png QPrintDialog
 
-  \index about boxes
+  \index modal dialogs
+  \index semi-modal dialogs
 
 Dialogs operate in one of three ways:
 \list
@@ -286,17 +361,22 @@ QDialog, which inherits \Class QWidget.
 
 \section1 Dock Windows
 
+  \index dock windows
+
 Dock windows are windows that the user can move inside a dock area or
 from one dock area to another. The user can undock a dock window and
 make it float on top of the application or minimize it. Dock windows
 and areas are provided by the \Class QDockWindow and \Class QDockArea
 classes.
 
+  \index central widget
+  \index toolbars
+
 Qt provides one \Class QDockWindow subclass, \Class QToolBar, and
 \Class QMainWindow automatically provides four dock areas one on each
 side of the central widget.
 
-Developers can create custom dock windows by instanciating a \Class
+Developers can create custom dock windows by instantiating a \Class
 QDockWindow object and by adding widgets to it. The widgets are laid
 out side by side if the dock area is horizontal (e.g. at the top of
 the main window) and above each other if the area is vertical (e.g.
@@ -305,6 +385,11 @@ at the left of the main window).
 Dock areas are not bound to \Class QMainWindow; developers can use
 \Class QDockArea in any custom widget. Toolbars and other dock
 windows can be used with any dock area.
+
+  \index Designer
+  \index Linguist
+  \index Qt Designer
+  \index Qt Linguist
 
 Some applications, including \l {Qt Designer} and \l {Qt Linguist},
 use dock windows extensively. This gives the user full control over
@@ -315,10 +400,21 @@ restore the user's preferences.
 
 \section1 Settings
 
+  \index configuration
+  \index defaults
+  \index preferences
+  \index registry
+  \index settings
+  \index system registry
+  \index user settings
+
 User settings and other application settings can easily be stored on
 disk using the \Class QSettings class. On Windows, \Class QSettings
 makes use of the system registry; on other platforms, settings are
 stored in text files.
+
+  \index Unicode
+  \index Zooper
 
 A particular setting is stored using a key. For example, the key \c
 {/SoftwareInc/Zooper/RecentFiles} might contain the list of

@@ -95,12 +95,12 @@ mechanisms:
 
   \index Designer
   \index Qt Designer
-  \index margin!in layouts
-  \index spacing!in layouts
+  \index margin (in layouts)
+  \index spacing (in layouts)
 
 The \e spacing between child widgets managed by a layout and the \e
 margin around the whole layout can also be set by the programmer. By
-default, \e {Qt Designer} sets industry-standard values based on the
+default, \l {Qt Designer} sets industry-standard values based on the
 context.
 
   \index Arabic
