@@ -131,7 +131,7 @@ void QMacStyleFocusWidget::paintEvent(QPaintEvent *)
     QRect r(focusOutset(), focusOutset(), 
 	    width() - (focusOutset()*2),
 	    height() - (focusOutset()*2));
-    DrawThemeFocusRect(qt_glb_mac_rect(r, this), true);
+    DrawThemeFocusRect(qt_glb_mac_rect(r, this, TRUE, QRect(1, 1, 1, 1)), true);
 }
 int QMacStyleFocusWidget::focusOutset()
 {
