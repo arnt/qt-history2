@@ -104,7 +104,7 @@ private:
     QConfFile(const QString &name);
 };
 
-class QCoreSettingsPrivate
+class Q_CORE_EXPORT QCoreSettingsPrivate
 {
     Q_DECLARE_PUBLIC(QCoreSettings);
 
