@@ -118,17 +118,20 @@ void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, Qt::Fill
 #endif
     q->save();
     QRect bounds = draw_helper_setclip(data, fillRule, type);
-    QMatrix m = state->worldMatrix;
+    QMatrix m = state->matrix;
     q->resetMatrix();
     bounds = (QPointArray(bounds) * m).boundingRect();
 
-    QPointF p1 = state->brush.gradientStart() - bounds.topLeft() + redirection_offset;
-    QPointF p2 = state->brush.gradientStop() - bounds.topLeft() + redirection_offset;
+    QPointF p1 = state->brush.gradientStart() - bounds.topLeft();
+    QPointF p2 = state->brush.gradientStop() - bounds.topLeft();
 
     QPixmap image = qt_image_linear_gradient(bounds,
                                              p1, state->brush.color(),
                                              p2, state->brush.gradientColor());
-    q->drawPixmap(bounds.x(), bounds.y(), image);
+    engine->drawPixmap(QRectF(bounds.topLeft(), image.size()),
+                       image,
+                       QRectF(0, 0, image.width(), image.height()),
+                       Qt::ComposePixmap);
     q->restore();
 }
 
@@ -246,11 +249,18 @@ void QPainterPrivate::draw_helper_stroke_normal(const void *data, ShapeType shap
     q->setBrush(Qt::NoBrush);
     engine->updateState(state);
     if (shape == PathShape) {
-        Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
-                   "PathShape is only used when engine supports painterpaths.");
-        engine->drawPath(emulate & QPaintEngine::CoordTransform
-                         ? *reinterpret_cast<const QPainterPath *>(data) * state->matrix
-                         : *reinterpret_cast<const QPainterPath *>(data));
+        if (engine->hasFeature(QPaintEngine::PainterPaths)) {
+            engine->drawPath(emulate & QPaintEngine::CoordTransform
+                             ? *reinterpret_cast<const QPainterPath *>(data) * state->matrix
+                             : *reinterpret_cast<const QPainterPath *>(data));
+        } else {
+            QList<QPolygon> polygons = reinterpret_cast<const QPainterPath *>(data)->toSubpathPolygons();
+            for (int i=0; i<polygons.size(); ++i) {
+                engine->drawPolygon(emulate & QPaintEngine::CoordTransform
+                                    ? polygons.at(i) * state->matrix
+                                    : polygons.at(i), QPaintEngine::PolylineMode);
+            }
+        }
     } else {
         if (emulate & QPaintEngine::CoordTransform) {
             // Engine cannot transform
@@ -306,7 +316,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
     int txop = state->txop;
     if (state->pen.width() == 0) {
         if (state->txop != TxNone) {
-            path = path * state->worldMatrix;
+            path = path * state->matrix;
             txop = TxNone;
         }
         width = 1;
@@ -321,11 +331,20 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
     QPainterPath stroke = stroker.createStroke(path);
 
     if (txop > TxNone)
-        stroke = stroke * state->worldMatrix;
+        stroke = stroke * state->matrix;
 
     q->save();
     q->resetMatrix();
-    q->fillPath(stroke, QBrush(state->pen.color()));
+    q->setPen(Qt::NoPen);
+    q->setBrush(state->pen.color());
+    engine->syncState();
+    if (engine->hasFeature(QPaintEngine::PainterPaths)) {
+        engine->drawPath(stroke);
+    } else {
+        QList<QPolygon> polygons = stroke.toFillPolygons();
+        for (int i=0; i<polygons.size(); ++i)
+            engine->drawPolygon(polygons.at(i), QPaintEngine::WindingMode);
+    }
     q->restore();
 }
 
@@ -359,6 +378,7 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
             {    0x0800, "AlphaPixmap "},
             {    0x1000, "PainterPaths "},
             {    0x2000, "ClipTransform "},
+            {    0x4000, "LineAntialiasing "},
             {0x10000000, "UsesFontEngine "},
             {0x20000000, "PaintOutsidePaintEvent "},
             {       0x0, 0x0},
@@ -1893,11 +1913,9 @@ void QPainter::drawPath(const QPainterPath &path)
 
     uint emulationSpecifier = d->engine->emulationSpecifier;
     QMatrix convertMatrix;
-    QPoint tmpRedir = d->redirection_offset;
     if (emulationSpecifier & QPaintEngine::CoordTransform) {
         emulationSpecifier &= ~QPaintEngine::CoordTransform;
         convertMatrix = d->state->matrix;
-        d->redirection_offset = QPoint();
     }
 
     save();
@@ -1914,6 +1932,8 @@ void QPainter::drawPath(const QPainterPath &path)
     if (d->state->brush.style() != Qt::NoBrush) {
         QList<QPolygon> fills = path.toFillPolygons(convertMatrix);
         save();
+        QPoint tmpRedir = d->redirection_offset;
+        d->redirection_offset = QPoint();
         resetMatrix();
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
@@ -1925,6 +1945,7 @@ void QPainter::drawPath(const QPainterPath &path)
                 d->engine->drawPolygon(fills.at(i), QPaintEngine::PolygonDrawMode(path.fillRule()));
             }
         }
+        d->redirection_offset = tmpRedir;
         restore();
     }
 
@@ -1933,13 +1954,8 @@ void QPainter::drawPath(const QPainterPath &path)
         d->engine->updateState(d->state);
         // Only use helper if we have other than xform.
         if (d->engine->emulationSpecifier
-            && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)
-            && (d->engine->hasFeature(QPaintEngine::PainterPaths)
-                || (d->engine->emulationSpecifier & QPaintEngine::LineAntialiasing)
-                || (d->engine->emulationSpecifier & QPaintEngine::PenWidthTransform))) {
-            QMatrix m(1, 0, 0, 1, -tmpRedir.x(), -tmpRedir.y());
-            QPainterPath redirectedPath = path * m;
-            d->draw_helper(&redirectedPath, redirectedPath.fillRule(), QPainterPrivate::PathShape,
+            && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)) {
+            d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape,
                            QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
         } else {
             QList<QPolygon> polygons = path.toSubpathPolygons(convertMatrix);
@@ -1949,7 +1965,6 @@ void QPainter::drawPath(const QPainterPath &path)
 	}
     }
 
-    d->redirection_offset = tmpRedir;
     restore();
 }
 
@@ -3320,7 +3335,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len,
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawText(), r=[%d,%d,%d,%d], flags=%d, str='%s'\n",
+        printf("QPainter::drawText(), r=[%.2f,%.2f,%.2f,%.2f], flags=%d, str='%s'\n",
            r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
 #endif
 
@@ -3475,7 +3490,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawTiledPixmap(), target=[%d,%d,%d,%d], pix=[%d,%d], offset=[%d,%d], mode=%d\n",
+        printf("QPainter::drawTiledPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], offset=[%.2f,%.2f], mode=%d\n",
            r.x(), r.y(), r.width(), r.height(),
            pixmap.width(), pixmap.height(),
            sp.x(), sp.y(), mode);
