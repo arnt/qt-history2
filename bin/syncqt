@@ -222,7 +222,15 @@ sub sync_classnames {
 		if($showonly) {
 		    print "SYMBOL: $symbol\n";
 		} else {
-#		    print "$iheader: $symbol\n";
+		    my $header = "$includedir/$library/$symbol";
+		    my $header_dir = dirname($header);
+		    mkdir $header_dir, 0777;
+
+		    #write it
+		    my $iheader_out = fix_paths($iheader, $header);
+		    open HEADER, ">$header" || die "Could not open $header for writing!\n";
+		    print HEADER "#include \"$iheader_out\"\n";
+		    close HEADER;
 		}
 	    }
 	}
