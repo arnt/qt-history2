@@ -4723,7 +4723,7 @@ void QTable::adjustRow( int row )
     int h = 20;
     h = QMAX( h, leftHeader->fontMetrics().height() );
     if ( leftHeader->iconSet( row ) )
-	h += leftHeader->iconSet( row )->pixmap().height();
+	h = QMAX( h, leftHeader->iconSet( row )->pixmap().height() );
     for ( int i = 0; i < numCols(); ++i ) {
 	QTableItem *itm = item( row, i );
 	if ( !itm )
