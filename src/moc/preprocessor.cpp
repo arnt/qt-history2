@@ -186,6 +186,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
             symbols += Symbol(lineNum, PP_DEFINED, QByteArray());
             continue;
         case PP_QUOTE:
+            ++data;
             while (*data && (*data != '\"'
                              || (*(data-1)=='\\'
                                   && *(data-2)!='\\')))
@@ -195,6 +196,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
             token = PP_STRING_LITERAL;
             break;
         case PP_SINGLEQUOTE:
+            ++data;
             while (*data && (*data != '\''
                              || (*(data-1)=='\\'
                                   && *(data-2)!='\\')))

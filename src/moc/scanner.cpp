@@ -46,6 +46,7 @@ Symbols Scanner::scan(const QByteArray &input)
         if (token > SPECIAL_TREATMENT_MARK) {
             switch (token) {
             case QUOTE:
+                ++data;
                 while (*data && (*data != '\"'
                                  || (*(data-1)=='\\'
                                      && *(data-2)!='\\')))
@@ -55,6 +56,7 @@ Symbols Scanner::scan(const QByteArray &input)
                 token = STRING_LITERAL;
                 break;
             case SINGLEQUOTE:
+                ++data;
                 while (*data && (*data != '\''
                                  || (*(data-1)=='\\'
                                      && *(data-2)!='\\')))
@@ -111,8 +113,9 @@ Symbols Scanner::scan(const QByteArray &input)
                 continue; //ignore
             }
         }
+
         symbols += Symbol(lineNum, token, input, lexem-begin, data-lexem);
-//      qDebug("%d (%d): %s", lineNum, token, QByteArray(lexem, data-lexem).constData());
+        //qDebug("%d (%d): %s", lineNum, token, QByteArray(lexem, data-lexem).constData());
     }
 
     symbols += Symbol(); // eof symbol
