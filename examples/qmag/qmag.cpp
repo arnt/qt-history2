@@ -64,6 +64,7 @@ private:
 };
 
 
+#ifdef COMPLEX_GUI
 static const char *zoomfactors[] = {
     "100%", "200%", "300%", "400%", "500%",
     "600%", "700%", "800%", "1600%", 0 };
@@ -72,6 +73,7 @@ static const char *refreshrates[] = {
     "No autorefresh", "50 per second", "4 per second", "3 per second", "2 per second",
     "Every second", "Every two seconds", "Every three seconds",
     "Every five seconds", "Every ten seconds", 0 };
+#endif
 
 static const int timer[] = {
     0, 20, 250, 333, 500, 1000, 2000, 3000, 5000, 10000 };
@@ -83,9 +85,9 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
     z = 1;			// default zoom (100%)
     r = 0;			// default refresh (none)
 
+#ifdef COMPLEX_GUI
     int w=0, x=0, n;
 
-#ifdef COMPLEX_GUI
     zoom = new QComboBox( FALSE, this );
     CHECK_PTR(zoom);
     zoom->insertStrList( zoomfactors, 9 );
