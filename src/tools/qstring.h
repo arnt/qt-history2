@@ -48,6 +48,7 @@
 
 #ifndef QT_NO_STL
 #include <string>
+#include <wstring>
 #if defined(Q_WRONG_SB_CTYPE_MACROS) && defined(_SB_CTYPE_MACROS)
 #undef _SB_CTYPE_MACROS
 #endif
@@ -933,7 +934,7 @@ inline QString &QString::operator+=( const QByteArray &s )
 #endif
 
 #ifndef QT_NO_STL
-inline QString &QString::operator=( const std::string& str ) 
+inline QString &QString::operator=( const std::string& str )
 { return operator=(str.c_str()); }
 inline QString &QString::operator+=( const std::string& s )
 { return operator+=(s.c_str()); }
@@ -942,7 +943,7 @@ inline QString &QString::append( const std::string& s )
 inline QString &QString::prepend( const std::string& s )
 { return insert(0, s); }
 
-inline QString &QString::operator=( const std::wstring& str ) 
+inline QString &QString::operator=( const std::wstring& str )
 { return operator=(QString((QChar*)str.data(), str.length())); }
 inline QString &QString::operator+=( const std::wstring& str )
 { return operator+=(QString((QChar*)str.data(), str.length())); }
