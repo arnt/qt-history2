@@ -1657,6 +1657,7 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
 
 void QAquaStyle::appearanceChanged()
 {
+    AquaMode old_mode = aquaMode;
 #ifdef Q_WS_MAC
     Collection c=NewCollection();
     GetTheme(c);
@@ -1674,6 +1675,8 @@ void QAquaStyle::appearanceChanged()
 #else
     aquaMode = AquaModeAqua;
 #endif
+    if(aquaMode != old_mode && qApp->style().inherits("QAquaStyle")) 
+	qApp->setStyle(new QAquaStyle);
 }
 
 
