@@ -278,7 +278,9 @@ static int getToken()
 		    if ( yyCh == '\\' ) {
 			yyCh = getChar();
 
-			if ( yyCh == 'x' ) {
+			if ( yyCh == '\n' ) {
+			    yyCh = getChar();
+			} else if ( yyCh == 'x' ) {
 			    QCString hex = "0";
 
 			    yyCh = getChar();
