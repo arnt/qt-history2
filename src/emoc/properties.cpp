@@ -18,9 +18,18 @@ static const char* TorbensHack[] = {
 
   "+", "QGridLayout", "A grid layout", "", "",
 
+  "+", "QLayout", "Basic layout", "", "",
+  "void", "setMargin", "", "int", ")",
+  "int", "margin", "const", ")",
+  "void", "setSpacing", "", "int", ")",
+  "int", "spacing", "const", ")",
   0
 };
 
 static const char* TorbensLayout[] = {
   "QLayout", "QGridLayout", "QHBoxLayout", "QVBoxLayout", 0
+};
+
+static const char* TorbensAbstract[] = {
+  "QLayout", 0
 };
