@@ -28,7 +28,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
     while (pos < endPos) {
         QTextDocumentPrivate::FragmentIterator fragIt = pieceTable->find(pos);
-        const QTextFragment * const frag = fragIt.value();
+        const QTextFragmentData * const frag = fragIt.value();
 
         const int inFragmentOffset = qMax(0, pos - fragIt.position());
         int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);

@@ -56,7 +56,7 @@ QTextLayout *QTextBlockIterator::layout() const
     if (!pt || !n)
         return 0;
 
-    const QTextBlock *b = pt->blockMap().fragment(n);
+    const QTextBlockData *b = pt->blockMap().fragment(n);
     if (!b->layout) {
         b->layout = new QTextLayout();
         b->layout->setFormatCollection(pt->formatCollection());
@@ -75,7 +75,7 @@ QTextLayout *QTextBlockIterator::layout() const
             int lastFormatIdx = it.value()->format;
 
             for (; it != end; ++it) {
-                const QTextFragment * const frag = it.value();
+                const QTextFragmentData * const frag = it.value();
 
                 const int formatIndex = frag->format;
                 if (formatIndex != lastFormatIdx) {
@@ -135,7 +135,7 @@ QString QTextBlockIterator::blockText() const
     QTextDocumentPrivate::FragmentIterator it = pt->find(position());
     QTextDocumentPrivate::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
     for (; it != end; ++it) {
-        const QTextFragment * const frag = it.value();
+        const QTextFragmentData * const frag = it.value();
         text += QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
     }
 

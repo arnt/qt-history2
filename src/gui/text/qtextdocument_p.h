@@ -30,7 +30,7 @@ class QAbstractTextDocumentLayout;
 class QTextDocument;
 class QTextFrame;
 
-class QTextFragment : public QFragment
+class QTextFragmentData : public QFragment
 {
 public:
     inline void initialize() {}
@@ -40,7 +40,7 @@ public:
     int format;
 };
 
-class QTextBlock : public QFragment
+class QTextBlockData : public QFragment
 {
 public:
     inline void initialize()
@@ -100,9 +100,9 @@ class QTextDocumentPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocument)
 public:
-    typedef QFragmentMap<QTextFragment> FragmentMap;
+    typedef QFragmentMap<QTextFragmentData> FragmentMap;
     typedef FragmentMap::ConstIterator FragmentIterator;
-    typedef QFragmentMap<QTextBlock> BlockMap;
+    typedef QFragmentMap<QTextBlockData> BlockMap;
 
     QTextDocumentPrivate();
     ~QTextDocumentPrivate();
@@ -160,7 +160,7 @@ public:
     const BlockMap &blockMap() const { return blocks; }
     const FragmentMap &fragmentMap() const { return fragments; }
 
-    static const QTextBlock *block(const QTextBlockIterator &it) { return it.pt->blocks.fragment(it.n); }
+    static const QTextBlockData *block(const QTextBlockIterator &it) { return it.pt->blocks.fragment(it.n); }
 
     inline QTextDocumentConfig *config() { return &docConfig; }
     inline const QTextDocumentConfig *config() const { return &docConfig; }

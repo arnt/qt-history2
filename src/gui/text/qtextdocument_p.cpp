@@ -35,12 +35,6 @@
   START_OF_FRAME :== 0xfdd0
   END_OF_FRAME := 0xfdd1
 
-  The START_OF_FRAME used in the TABLE rule should maybe be a
-  different char (START_OF_TABLE_CELL), to disambiguate the rules
-  (currently the object() of the charFormat associated with the
-  START_OF_FRAME decides whether it's a frame or a table). But that
-  would make the code a bit more complex a few places.
-
   Note also that LIST_OF_BLOCKS can be empty. Nevertheless, there is
   at least one valid cursor position there where you could start
   typing. The block format is in this case determined by the last
@@ -55,10 +49,14 @@
   how it looks currently:
 
   FRAGMENT: one charFormat associated
+
   END_OF_PARA: one charFormat, and a blockFormat for the _next_ block.
+
   START_OF_FRAME: one char format, and a blockFormat (for the next
-  block). The object() of the charFormat decides whether this is a
-  frame or table and it's properties
+  block). The format associated with the objectIndex() of the
+  charFormat decides whether this is a frame or table and it's
+  properties
+
   END_OF_FRAME: one charFormat and a blockFormat (for the next
   block). The object() of the charFormat is the same as for the
   corresponding START_OF_BLOCK.
@@ -177,7 +175,7 @@ void QTextDocumentPrivate::insert_string(int pos, uint strPos, uint length, int 
 
     split(pos);
     uint x = fragments.insert_single(pos, length);
-    QTextFragment *X = fragments.fragment(x);
+    QTextFragmentData *X = fragments.fragment(x);
     X->format = format;
     X->stringPosition = strPos;
     uint w = fragments.prev(x);
@@ -202,7 +200,7 @@ void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int bl
 {
     split(pos);
     uint x = fragments.insert_single(pos, 1);
-    QTextFragment *X = fragments.fragment(x);
+    QTextFragmentData *X = fragments.fragment(x);
     X->format = format;
     X->stringPosition = strPos;
     // no need trying to unite, since paragraph separators are always in a fragment of their own
@@ -225,7 +223,7 @@ void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int bl
         size += oldSize - (block_pos-key);
     }
     int b = blocks.insert_single(block_pos, size);
-    QTextBlock *B = blocks.fragment(b);
+    QTextBlockData *B = blocks.fragment(b);
     B->format = blockFormat;
 
     Q_ASSERT(blocks.length() == fragments.length());
@@ -400,7 +398,7 @@ void QTextDocumentPrivate::remove(int pos, int length, UndoCommand::Operation op
         uint key = fragments.position(x);
         uint b = blocks.findNode(key+1);
 
-        QTextFragment *X = fragments.fragment(x);
+        QTextFragmentData *X = fragments.fragment(x);
         UndoCommand c = { UndoCommand::Removed, true,
                           op, X->format, X->stringPosition, key, { X->size } };
 
@@ -447,7 +445,7 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
         FragmentMap::Iterator it = fragments.find(pos);
         Q_ASSERT(!it.atEnd());
 
-        QTextFragment *fragment = it.value();
+        QTextFragmentData *fragment = it.value();
 
         Q_ASSERT(formats.format(fragment->format).type() == QTextFormat::CharFormat);
 
@@ -553,12 +551,12 @@ bool QTextDocumentPrivate::split(int pos)
         if (k != pos) {
             Q_ASSERT(k <= pos);
             // need to resize the first fragment and add a new one
-            QTextFragment *X = fragments.fragment(x);
+            QTextFragmentData *X = fragments.fragment(x);
             int oldsize = X->size;
             fragments.setSize(x, pos-k);
             uint n = fragments.insert_single(pos, oldsize-(pos-k));
             X = fragments.fragment(x);
-            QTextFragment *N = fragments.fragment(n);
+            QTextFragmentData *N = fragments.fragment(n);
             N->stringPosition = X->stringPosition + pos-k;
             N->format = X->format;
             return true;
@@ -573,8 +571,8 @@ bool QTextDocumentPrivate::unite(uint f)
     if (!n)
         return false;
 
-    QTextFragment *ff = fragments.fragment(f);
-    QTextFragment *nf = fragments.fragment(n);
+    QTextFragmentData *ff = fragments.fragment(f);
+    QTextFragmentData *nf = fragments.fragment(n);
 
     if (nf->format == ff->format && (ff->stringPosition + (int)ff->size == nf->stringPosition)) {
         if (isValidBlockSeparator(text.at(ff->stringPosition))
@@ -842,7 +840,7 @@ QString QTextDocumentPrivate::plainText() const
 {
     QString result;
     for (QTextDocumentPrivate::FragmentIterator it = begin(); it != end(); ++it) {
-        const QTextFragment *f = *it;
+        const QTextFragmentData *f = *it;
         result += QString::fromRawData(text.unicode() + f->stringPosition, f->size);
     }
     // remove trailing block separator
