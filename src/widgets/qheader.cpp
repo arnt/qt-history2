@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#22 $
 **
 **  Table header
 **
@@ -249,6 +249,7 @@ void QHeader::init( int n )
 	setNumCols( 1 );
 	setNumRows( n );
     }
+    handleIdx = 0;
     //################
     labels[n] = 0; 
     sizes[n] = 0;
