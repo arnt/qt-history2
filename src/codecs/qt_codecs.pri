@@ -2,27 +2,27 @@
 
 tools {
 	CODECS_P		= codecs
-	HEADERS += $$TOOLS_H/qbig5codec.h \
-		  $$TOOLS_H/qeucjpcodec.h \
-		  $$TOOLS_H/qeuckrcodec.h \
-		  $$TOOLS_H/qgbkcodec.h \
-		  $$TOOLS_H/qjiscodec.h \
-		  $$TOOLS_H/qjpunicode.h \
-		  $$TOOLS_H/qrtlcodec.h \
-		  $$TOOLS_H/qsjiscodec.h \
-		  $$TOOLS_H/qtextcodec.h \
-		  $$TOOLS_H/qtsciicodec.h \
-		  $$TOOLS_H/qutfcodec.h
+	HEADERS += $$CODECS_H/qbig5codec.h \
+		  $$CODECS_H/qeucjpcodec.h \
+		  $$CODECS_H/qeuckrcodec.h \
+		  $$CODECS_H/qgbkcodec.h \
+		  $$CODECS_H/qjiscodec.h \
+		  $$CODECS_H/qjpunicode.h \
+		  $$CODECS_H/qrtlcodec.h \
+		  $$CODECS_H/qsjiscodec.h \
+		  $$CODECS_H/qtextcodec.h \
+		  $$CODECS_H/qtsciicodec.h \
+		  $$CODECS_H/qutfcodec.h
 
-	SOURCES += $$TOOLS_CPP/qbig5codec.cpp \
-		  $$TOOLS_CPP/qeucjpcodec.cpp \
-		  $$TOOLS_CPP/qeuckrcodec.cpp \
-		  $$TOOLS_CPP/qgbkcodec.cpp \
-		  $$TOOLS_CPP/qjiscodec.cpp \
-		  $$TOOLS_CPP/qjpunicode.cpp \
-		  $$TOOLS_CPP/qrtlcodec.cpp \
-		  $$TOOLS_CPP/qsjiscodec.cpp \
-		  $$TOOLS_CPP/qtextcodec.cpp \
-		  $$TOOLS_CPP/qtsciicodec.cpp \
-		  $$TOOLS_CPP/qutfcodec.cpp
+	SOURCES += $$CODECS_CPP/qbig5codec.cpp \
+		  $$CODECS_CPP/qeucjpcodec.cpp \
+		  $$CODECS_CPP/qeuckrcodec.cpp \
+		  $$CODECS_CPP/qgbkcodec.cpp \
+		  $$CODECS_CPP/qjiscodec.cpp \
+		  $$CODECS_CPP/qjpunicode.cpp \
+		  $$CODECS_CPP/qrtlcodec.cpp \
+		  $$CODECS_CPP/qsjiscodec.cpp \
+		  $$CODECS_CPP/qtextcodec.cpp \
+		  $$CODECS_CPP/qtsciicodec.cpp \
+		  $$CODECS_CPP/qutfcodec.cpp
 }
