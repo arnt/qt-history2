@@ -17,24 +17,56 @@ then
     fi
 fi
 
+function mk {
+    platform=$1
+    config=$2
+    sysconf=$QTDIR/configs/$platform-$config
+    TMAKEPATH=$QTDIR/tmake:$TMAKEDIR/lib/$platform:$TMAKEPATH \
+	tmake -t $config /dev/null >$sysconf
+    if [ ! -s $sysconf  ]
+    then
+	rm $sysconf
+    fi
+}
+
+function hasconf {
+    grep -q '^[	 ]*'$2'[	 ]*=[	 ]*[^	 ]' $1
+}
+
 for platform in `(cd $TMAKEDIR/lib; /bin/ls -d *-*)`
 do
   case "$platform" in
    win32*)
       true;
   ;; *)
-      if [ -f $TMAKEDIR/lib/$platform/tmake.conf ]
+      tmconf=$TMAKEDIR/lib/$platform/tmake.conf
+      if [ -f $tmconf ]
       then
-          for i in static static-debug shared shared-debug
-          do
-	    sysconf=$QTDIR/configs/$platform-$i
-	    TMAKEPATH=$QTDIR/tmake:$TMAKEDIR/lib/$platform:$TMAKEPATH \
-		tmake -t $i /dev/null >$sysconf
-	    if [ ! -s $sysconf  ]
+	# Everything can link statically
+	mk $platform static
+
+	# Static, with debugging?
+	if hasconf $tmconf 'TMAKE_[CL]FLAGS_DEBUG'
+	then
+	    mk $platform static-debug
+	else
+	    echo "$platform cannot do static-debug"
+	fi
+
+	# Dynamic linking?
+	if hasconf $tmconf 'TMAKE_LINK_SHLIB'
+	then
+	    mk $platform shared
+	    # Dynamic, with debugging?
+	    if hasconf $tmconf 'TMAKE_[CL]FLAGS_DEBUG'
 	    then
-		rm $sysconf
+		mk $platform shared-debug
+	    else
+		echo "$platform cannot do shared-debug"
 	    fi
-          done
+	else
+	    echo "$platform cannot do shared (or shared-debug)"
+	fi
       fi
   esac
 done
