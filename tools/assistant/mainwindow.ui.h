@@ -244,7 +244,7 @@ void MainWindow::about()
 		 " with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF"
 		 " DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
 		 "</p>" );
-    box.setCaption( tr( "About Qt Assistant" ) );
+    box.setCaption( tr( "Qt Assistant" ) );
     box.setIcon( QMessageBox::NoIcon );
     box.exec();
 }
