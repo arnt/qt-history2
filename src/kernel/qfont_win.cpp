@@ -96,17 +96,7 @@ QFontStruct::QFontStruct( const QString &key )
 	cache_cost = 1;
 }
 
-inline bool QFontStruct::dirty() const
-{
-    return hfont == 0;
-}
-
-inline QString QFontStruct::key() const
-{
-    return k;
-}
-
-inline HDC QFontStruct::dc() const
+HDC QFontStruct::dc() const
 {
     if ( qt_winver & Qt::WV_NT_based )
 	return hdc;
@@ -118,26 +108,16 @@ inline HDC QFontStruct::dc() const
     return shared_dc;
 }
 
-inline HFONT QFontStruct::font() const
-{
-    return hfont;
-}
-
-inline TEXTMETRICA *QFontStruct::textMetricA() const
+TEXTMETRICA *QFontStruct::textMetricA() const
 {
     QFontStruct *that = (QFontStruct *)this;
     return &that->tm.a;
 }
 
-inline TEXTMETRICW *QFontStruct::textMetricW() const
+TEXTMETRICW *QFontStruct::textMetricW() const
 {
     QFontStruct *that = (QFontStruct *)this;
     return &that->tm.w;
-}
-
-inline const QFontDef *QFontStruct::spec() const
-{
-    return &s;
 }
 
 void QFontStruct::reset()

@@ -119,13 +119,13 @@ class QFontStruct : public QShared
 public:
 	QFontStruct( const QString &key );
 	~QFontStruct() { reset(); }
-    bool	    dirty()      const;
+    bool	    dirty()      const { return hfont == 0; }
     HDC		    dc()	 const;
-    HFONT	    font()	 const;
+    HFONT	    font()	 const { return hfont; }
     TEXTMETRICA	   *textMetricA() const;
     TEXTMETRICW	   *textMetricW() const;
-    const QFontDef *spec()	 const;
-	QString key() const;
+    const QFontDef *spec()	 const { return &s; }
+	QString key() const  { return k; }
     void	    reset();
 
     QString	k;
