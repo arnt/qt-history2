@@ -347,18 +347,6 @@ Related new classes:
 	QHttpResponseHeader
 	QHttpRequestHeader
 
-QOCIResult
-------------------
-New functions:
-	bool prepare( const QString& query )
-	bool exec()
-
-QODBCResult
-------------------
-New functions:
-	bool prepare( const QString& query )
-	bool exec()
-
 QSqlDriver
 ------------------
 New enum values:
