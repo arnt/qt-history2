@@ -84,7 +84,8 @@ public:
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
     void setKeywords( const StringSet& keywords ) { kwords = keywords; }
     void setGroups( const StringSet& groups ) { gr = groups; }
-    void setContainsExamples( const StringSet& examples ) { ex = examples; }
+    void setContainsExamples( const StringSet& included,
+			      const StringSet& thruwalked );
     void setDependsOn( const StringSet& dependsOn ) { deps = dependsOn; }
     void setHtmlMustQuote( const QString& quote ) { q = quote; }
     void setLink( const QString& link, const QString& title );
@@ -129,7 +130,7 @@ private:
     StringSet kwords;
     StringSet gr;
     StringSet deps;
-    StringSet ex;
+    StringSet incl, thru;
     QString lnk;
 
     static const Resolver *res;

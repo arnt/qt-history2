@@ -71,7 +71,7 @@ QString Walkthrough::printline( const QString& substr, const Location& docLoc )
 {
     int lineNo0 = walkloc.lineNum();
     QString t = xline( substr, docLoc, QString("printline") );
-    incrementScores( FALSE, lineNo0, 20 );
+    incrementScores( FALSE, lineNo0, 200 );
     return t;
 }
 
@@ -80,7 +80,8 @@ QString Walkthrough::printto( const QString& substr, const Location& docLoc )
     int lineNo0 = walkloc.lineNum();
     QString t = xto( substr, docLoc, QString("printto") );
     for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
-	incrementScores( FALSE, i, 9 + 20 / (walkloc.lineNum() - lineNo0 + 1) );
+	incrementScores( FALSE, i,
+			 90 + 200 / (walkloc.lineNum() - lineNo0 + 1) );
     return t;
 }
 
@@ -89,7 +90,8 @@ QString Walkthrough::printuntil( const QString& substr, const Location& docLoc )
     int lineNo0 = walkloc.lineNum();
     QString t = xuntil( substr, docLoc, QString("printuntil") );
     for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
-	incrementScores( FALSE, i, 9 + 20 / (walkloc.lineNum() - lineNo0 + 1) );
+	incrementScores( FALSE, i,
+			 90 + 200 / (walkloc.lineNum() - lineNo0 + 1) );
     return t;
 }
 
@@ -202,7 +204,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 	if ( include ) {
 	    int numLines = code.contains( QChar('\n') );
 	    for ( int i = 0; i < numLines; i++ )
-		incrementScores( TRUE, i, 9 );
+		incrementScores( TRUE, i, 90 );
 	}
 	includeText = code;
     } else {

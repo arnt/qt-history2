@@ -293,7 +293,7 @@ static QString getArgument( const QString& in, int& pos )
     }
 }
 
-// evil global variables
+// ### evil global variables
 
 // QMap<example file, LinkMap>
 static QMap<QString, LinkMap> includeLinkMaps;
@@ -302,8 +302,12 @@ static QMap<QString, LinkMap> walkthroughLinkMaps;
 // QMap<function link, QMap<score, ExampleLocation> >
 static QMap<QString, QMap<int, ExampleLocation> > megaExampleMap;
 
-// QMap<example file, example links>
-static QMap<QString, StringSet> exampleLinks;
+static StringSet includedExamples;
+static StringSet thruwalkedExamples;
+
+// QMap<example file, example link>
+static QMap<QString, QString> includedExampleLinks;
+static QMap<QString, QString> thruwalkedExampleLinks;
 
 /*
   The DocParser class is an internal class that implements the first
@@ -323,8 +327,8 @@ private:
 #endif
 
     const Location& location();
-    void flushWalkthrough( const Walkthrough& walkthrough,
-			   StringSet *examples );
+    void flushWalkthrough( const Walkthrough& walk, StringSet *included,
+			   StringSet *thruwalked );
     void setKind( Doc::Kind kind, const QString& thanksToCommand );
     void setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand );
 
@@ -367,7 +371,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     yyOut.truncate( 0 );
     yyInWalkthroughSnippet = FALSE;
 
-    Walkthrough walkthrough;
+    Walkthrough walk;
     QString substr;
     QString arg, brief;
     QString className;
@@ -385,7 +389,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QString value;
     QString x;
 
-    StringSet groups, headers, keywords, examples;
+    StringSet included, thruwalked;
+    StringSet groups, headers, keywords;
     StringSet documentedParams, documentedValues;
     QStringList seeAlso, important;
     bool obsolete = FALSE;
@@ -657,13 +662,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    consume( "include" );
 		    x = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
-		    flushWalkthrough( walkthrough, &examples );
+		    flushWalkthrough( walk, &included, &thruwalked );
 
 		    if ( x.isEmpty() )
 			warning( 2, location(),
 				 "Expected file name after '\\include'" );
 		    else
-			walkthrough.includePass1( x, Doc::resolver() );
+			walk.includePass1( x, Doc::resolver() );
 		    yyOut += QString( "\\include " ) + x + QChar( '\n' );
 		} else {
 		    consume( "ingroup" );
@@ -789,7 +794,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'p', 7 ):
 		consume( "printto" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.printto( substr, location() );
+		walk.printto( substr, location() );
 		enterWalkthroughSnippet();
 		yyOut += QString( "\\printto " ) + substr + QChar( '\n' );
 		leaveWalkthroughSnippet();
@@ -812,7 +817,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		} else {
 		    consume( "printline" );
 		    substr = getRestOfLine( yyIn, yyPos );
-		    walkthrough.printline( substr, location() );
+		    walk.printline( substr, location() );
 		    enterWalkthroughSnippet();
 		    yyOut += QString( "\\printline " ) + substr + QChar( '\n' );
 		    leaveWalkthroughSnippet();
@@ -821,7 +826,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'p', 10 ):
 		consume( "printuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.printuntil( substr, location() );
+		walk.printuntil( substr, location() );
 		enterWalkthroughSnippet();
 		yyOut += QString( "\\printuntil " ) + substr + QChar( '\n' );
 		leaveWalkthroughSnippet();
@@ -856,19 +861,19 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 's', 6 ):
 		consume( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.skipto( substr, location() );
+		walk.skipto( substr, location() );
 		yyOut += QString( "\\skipto " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 8 ):
 		consume( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.skipline( substr, location() );
+		walk.skipline( substr, location() );
 		yyOut += QString( "\\skipline " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 9 ):
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.skipuntil( substr, location() );
+		walk.skipuntil( substr, location() );
 		yyOut += QString( "\\skipuntil " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 't', 5 ):
@@ -923,14 +928,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "walkthrough" );
 		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
-		if ( x != walkthrough.fileName() )
-		    flushWalkthrough( walkthrough, &examples );
+		if ( x != walk.fileName() )
+		    flushWalkthrough( walk, &included, &thruwalked );
 
 		if ( x.isEmpty() )
 		    warning( 2, location(),
 			     "Expected file name after '\\walkthrough'" );
 		else
-		    walkthrough.startPass1( x, Doc::resolver() );
+		    walk.startPass1( x, Doc::resolver() );
 
 		yyOut += QString( "\\walkthrough " ) + x + QChar( '\n' );
 	    }
@@ -978,7 +983,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     if ( numBugs > 0 || inValue )
 	yyOut += QString( "</ul>" );
-    flushWalkthrough( walkthrough, &examples );
+    flushWalkthrough( walk, &included, &thruwalked );
 
     yyOut += QChar( '\n' );
 
@@ -1053,7 +1058,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     doc->setSeeAlso( seeAlso );
     doc->setKeywords( keywords );
     doc->setGroups( groups );
-    doc->setContainsExamples( examples );
+    doc->setContainsExamples( included, thruwalked );
     if ( mustquoteBegin >= 0 )
 	doc->setHtmlMustQuote( yyOut.mid(mustquoteBegin,
 					 mustquoteEnd - mustquoteBegin)
@@ -1072,37 +1077,60 @@ static const int AbsoluteMaxExamples = 7;
 
 static int xunique = 1;
 
-void DocParser::flushWalkthrough( const Walkthrough& walkthrough,
-				  StringSet *examples )
+void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
+				  StringSet *thruwalked )
 {
-    if ( walkthrough.fileName().isEmpty() )
+    if ( walk.fileName().isEmpty() )
 	return;
 
-    if ( examples->contains(walkthrough.fileName()) )
-	return;
-    examples->insert( walkthrough.fileName() );
+    bool alreadyIncluded = includedExamples.contains( walk.fileName() );
+    bool alreadyThruwalked = thruwalkedExamples.contains( walk.fileName() );
 
-    ScoreMap scoreMap = walkthrough.scoreMap();
+    bool onlyInclude = TRUE;
+    bool onlyWalkthrough = TRUE;
+
+    ScoreMap scoreMap = walk.scoreMap();
     ScoreMap::ConstIterator score = scoreMap.begin();
     while ( score != scoreMap.end() ) {
 	// score.key() is qaction.html#setWhatsThis, (*score) is a HighScore
-	ExampleLocation exloc( walkthrough.fileName(), (*score).inInclude(),
-			       (*score).lineNum(), xunique++ );
-	int total = (*score).total();
 
-	QMap<QString, QMap<int, ExampleLocation> >::Iterator entry =
-		megaExampleMap.find( score.key() );
-	if ( entry == megaExampleMap.end() ) {
-	    megaExampleMap[score.key()].insert( total, exloc );
-	} else {
-	    // avoid collisions by incrementing score slightly
-	    while ( (*entry).contains(total) )
-		total++;
-	    (*entry).insert( total, exloc );
-	    if ( (int) (*entry).count() > AbsoluteMaxExamples )
-		(*entry).remove( (*entry).begin() );
+	if ( ((*score).inInclude() && !alreadyIncluded) ||
+	     (!(*score).inInclude() && !alreadyThruwalked) ) {
+	    if ( (*score).inInclude() )
+		onlyWalkthrough = FALSE;
+	    else
+		onlyInclude = FALSE;
+
+	    ExampleLocation exloc( walk.fileName(), (*score).inInclude(),
+				   (*score).lineNum(), xunique++ );
+	    int total = (*score).total();
+
+	    QMap<QString, QMap<int, ExampleLocation> >::Iterator entry =
+		    megaExampleMap.find( score.key() );
+	    if ( entry == megaExampleMap.end() ) {
+		megaExampleMap[score.key()].insert( total, exloc );
+	    } else {
+		// avoid collisions by incrementing score gently
+		while ( (*entry).contains(total) )
+		    total++;
+		(*entry).insert( total, exloc );
+		if ( (int) (*entry).count() > AbsoluteMaxExamples )
+		    (*entry).remove( (*entry).begin() );
+	    }
 	}
+
 	++score;
+    }
+
+qDebug( "%s onlyInc %d onlyWalk %d", walk.fileName().latin1(), onlyInclude,
+onlyWalkthrough );
+
+    if ( !alreadyIncluded && onlyInclude ) {
+	included->insert( walk.fileName() );    
+	includedExamples.insert( walk.fileName() );
+    } else if ( !alreadyThruwalked && onlyWalkthrough ) {
+	thruwalked->insert( walk.fileName() );    
+	thruwalkedExamples.insert( walk.fileName() );
     }
 }
 
@@ -1718,6 +1746,13 @@ Doc::Doc( Kind kind, const Location& loc, const QString& htmlText,
 {
 }
 
+void Doc::setContainsExamples( const StringSet& included,
+			       const StringSet& thruwalked )
+{
+    incl = included;
+    thru = thruwalked;
+}
+
 void Doc::setLink( const QString& link, const QString& title )
 {
     QString kwordLnk;
@@ -1771,9 +1806,16 @@ void Doc::setLink( const QString& link, const QString& title )
 	}
     }
 
-    StringSet::ConstIterator exfile = ex.begin();
-    while ( exfile != ex.end() ) {
-	exampleLinks[*exfile].insert( link );
+    StringSet::ConstIterator exfile;
+    exfile = incl.begin();
+    while ( exfile != incl.end() ) {
+	includedExampleLinks.insert( *exfile, link );
+	++exfile;
+    }
+
+    exfile = thru.begin();
+    while ( exfile != thru.end() ) {
+	thruwalkedExampleLinks.insert( *exfile, link );
 	++exfile;
     }
 
@@ -1789,6 +1831,9 @@ QString Doc::htmlSeeAlso() const
     while ( s != sa.end() ) {
 	QString name = *s;
 	QString text;
+
+	if ( name.right(1) != QChar(')') && resolver()->resolvefn(name) )
+	    name += QString( "()" );
 
 	if ( name.left(5) == QString("\\link") ) {
 	    QStringList toks =
@@ -1856,7 +1901,7 @@ QString Doc::finalHtml() const
     int begin;
     int end;
 
-    Walkthrough walkthrough;
+    Walkthrough walk;
     QString substr;
     QString fileName;
     QString link;
@@ -1934,11 +1979,11 @@ QString Doc::finalHtml() const
 
 		if ( !fileName.isEmpty() ) {
 		    yyOut += QString( "<pre>" );
-		    yyOut += walkthrough.includePass2( fileName, resolver(),
-				     includeLinkMaps[fileName],
-				     walkthroughLinkMaps[fileName] );
+		    yyOut += walk.includePass2( fileName, resolver(),
+						includeLinkMaps[fileName],
+						walkthroughLinkMaps[fileName] );
 		    yyOut += QString( "</pre>" );
-		    dependsOn.insert( walkthrough.filePath() );
+		    dependsOn.insert( walk.filePath() );
 		}
 		break;
 	    case hash( 'l', 1 ):
@@ -1971,17 +2016,17 @@ QString Doc::finalHtml() const
 	    case hash( 'p', 7 ):
 		consume( "printto" );
 		substr = getRestOfLine( yyIn, yyPos );
-		yyOut += walkthrough.printto( substr, location() );
+		yyOut += walk.printto( substr, location() );
 		break;
 	    case hash( 'p', 9 ):
 		consume( "printline" );
 		substr = getRestOfLine( yyIn, yyPos );
-		yyOut += walkthrough.printline( substr, location() );
+		yyOut += walk.printline( substr, location() );
 		break;
 	    case hash( 'p', 10 ):
 		consume( "printuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
-		yyOut += walkthrough.printuntil( substr, location() );
+		yyOut += walk.printuntil( substr, location() );
 		break;
 	    case hash( 'q', 9 ):
 		consume( "quotelist" );
@@ -1994,17 +2039,17 @@ QString Doc::finalHtml() const
 	    case hash( 's', 6 ):
 		consume( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.skipto( substr, location() );
+		walk.skipto( substr, location() );
 		break;
 	    case hash( 's', 8 ):
 		consume( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.skipline( substr, location() );
+		walk.skipline( substr, location() );
 		break;
 	    case hash( 's', 9 ):
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
-		walkthrough.skipuntil( substr, location() );
+		walk.skipuntil( substr, location() );
 		break;
 	    case hash( 'v', 7 ):
 		consume( "version" );
@@ -2016,9 +2061,9 @@ QString Doc::finalHtml() const
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( !fileName.isEmpty() ) {
-		    walkthrough.startPass2( fileName, resolver(),
-					    walkthroughLinkMaps[fileName] );
-		    dependsOn.insert( walkthrough.filePath() );
+		    walk.startPass2( fileName, resolver(),
+				     walkthroughLinkMaps[fileName] );
+		    dependsOn.insert( walk.filePath() );
 		    /// ### put dependsOn in first pass
 		}
 	    }
@@ -2131,22 +2176,20 @@ QString Doc::finalHtml() const
 						QString(".\n") );
 	QValueList<ExampleLocation>::ConstIterator e = examples.begin();
 	while ( e != examples.end() ) {
-	    /*
-	      An example file is usually included only once. If it's
-	      more than that, we are confused.
-	    */
-	    StringSet links = exampleLinks[(*e).exampleFile()];
-	    if ( links.count() == 1 ) {
-		QString link = links.first();
-		int k = link.find( QChar('#') );
-		if ( k != -1 )
-		    link.truncate( k );
-		link += QString( "#x%1" ).arg( (*e).uniqueNum() );
+	    QString link;
+	    if ( (*e).inInclude() )
+		link = includedExampleLinks[(*e).exampleFile()];
+	    else
+		link = thruwalkedExampleLinks[(*e).exampleFile()];
 
-		yyOut += QString( "<a href=\"%1\">%2</a>" )
-			 .arg( link ).arg( (*e).exampleFile() );
-		yyOut += seps.pop();
-	    }
+	    int k = link.find( QChar('#') );
+	    if ( k != -1 )
+		link.truncate( k );
+	    link += QString( "#x%1" ).arg( (*e).uniqueNum() );
+
+	    yyOut += QString( "<a href=\"%1\">%2</a>" )
+		     .arg( link ).arg( (*e).exampleFile() );
+	    yyOut += seps.pop();
 	    ++e;
 	}
     }
