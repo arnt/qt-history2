@@ -743,17 +743,18 @@ for plat in mac win x11 embedded; do
 	    [ ! -d $d ] && mkdir -p $d
 	    if [ -e "$DISTDIR/qt/$a" ]; then
 	      ln "$DISTDIR/qt/$a" "$d/`basename $a`" && [ ! -L "$d/`basename $a`" ] && chmod ug+w "$d/`basename $a`"
-            fi
+	    fi
 	done
 	#clean the tree a little
 	status "First cleanup.."
 	case $edition in
 	free)
 	    #remove non-GPL sql stuff
-	    #and stuff not ready for release
-	    for f in src/sql/src/oci src/sql/src/tds src/sql/src/shared plugins/src/sqldrivers/oci plugins/src/sqldrivers/tds; do
-		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
-	    done
+	    rm -rf $PLATDIR/src/sql/src/oci
+	    rm -rf $PLATDIR/src/sql/src/tds
+	    rm -rf $PLATDIR/src/sql/src/shared 
+	    rm -rf $PLATDIR/plugins/src/sqldrivers/oci 
+	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    ;;
 	esac
 	if [ "$plat" != "embedded" ]; then
