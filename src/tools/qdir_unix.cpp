@@ -66,8 +66,8 @@ QString QDir::canonicalPath() const
 {
     QString r;
 
-    char cur[PATH_MAX];
-    char tmp[PATH_MAX];
+    char cur[PATH_MAX+1];
+    char tmp[PATH_MAX+1];
     QT_GETCWD( cur, PATH_MAX );
     if ( QT_CHDIR(QFile::encodeName(dPath)) >= 0 ) {
 	QT_GETCWD( tmp, PATH_MAX );
