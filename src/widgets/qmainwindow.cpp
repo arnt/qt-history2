@@ -140,10 +140,13 @@ public:
     struct ToolBar {
 	ToolBar() : t(0), nl(FALSE) {}
 	ToolBar( QToolBar * tb, bool n=FALSE )
-	    : t(tb), nl(n), tmpnl( FALSE ), oldDock( QMainWindow::Top ), oldIndex( 0 )  {}
+	    : t(tb), nl(n), oldDock( QMainWindow::Top ), oldIndex( 0 )  {}
 	QToolBar * t;
+	bool stretchable() const 
+	    { return t->orientation() == Qt::Horizontal && t->stretchable(); }
+	bool fullwidth() const 
+	    { return t->orientation() == Qt::Horizontal && t->fullwidth(); }
 	bool nl;
-	bool tmpnl;
 	QValueList<int> disabledDocks;
 	QMainWindow::ToolBarDock oldDock;
 	int oldIndex;
@@ -373,7 +376,7 @@ public:
 		 QBoxLayout::Direction dd, bool justify,
 		 int space=-1, const char *name=0 )
 	: QLayout( parent, space, name ), dock(d), dir(dd), fill(justify)
-	{ init(); fill = justify; }
+	{ init(); }
 
     ~QToolLayout();
 
@@ -430,9 +433,7 @@ bool QToolLayout::hasHeightForWidth() const
 
 void QToolLayout::init()
 {
-
     array = 0;
-    fill = FALSE;
     cached_width = 0;
 }
 
@@ -469,31 +470,20 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int n = dock->count();
     if ( n == 0 )
 	return 0;
-    // #### Reggie: We have to do the full calculation also in test mode, because even if the
-    // #### width has not changed the order of the toolbars may has changed which means we
-    // #### the whole geometry has changed and we have to recalculate everything
+    //#####  We have to do the full calculation also in test mode, ??????
+
 //     if ( !testonly ) {
     if ( !array || array->size() != dock->count() ) {
 	delete array;
 	array = new QArray<QLayoutStruct>(n);
-	QMainWindowPrivate::ToolBar *prev = 0;
 	for (int i = 0; i < n; i++ ) {
 	    QLayoutStruct &a = (*array)[i];
 	    QMainWindowPrivate::ToolBar *tb = dock->at(i);
 	    a.init();
 	    a.empty = FALSE;
 	    a.sizeHint = tb->t->sizeHint().width();
-	    a.expansive = tb->t->orientation() == Qt::Horizontal && tb->t->stretchable() || fill;
+	    a.expansive = tb->stretchable() || fill;
 		
-	    tb->tmpnl = FALSE;
-		
-	    if ( tb->t->orientation() == Qt::Horizontal ) {
-		if ( prev && prev->t->stretchable() )
-		    tb->tmpnl = TRUE;
-		if ( tb->t->stretchable() )
-		    tb->tmpnl = TRUE;
-	    }		
-	    prev = tb;
 	}
     }
 //     }
@@ -507,9 +497,11 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 
     QMainWindowPrivate::ToolBar *next = dock->first();
     QSize nsh = next->t->sizeHint();
-    bool fillLine = fill || next->t->orientation() == Qt::Horizontal && next->t->stretchable();
-    while ( idx < n ) {
+    bool fillLine = fill;
+    while ( next ) {
 	QSize sh = nsh;
+	fillLine = fillLine || next->stretchable();
+	bool fullwidth = next->fullwidth();
 	idx++;
 	if ( idx < n ) {
 	    next = dock->at(idx);
@@ -520,7 +512,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	}
 	linew = linew + sh.width() + spacing();
 	lineh = QMAX( lineh, sh.height() );
-	if ( !next || next->nl || next->tmpnl || idx > start && linew + nsh.width() > r.width() ) {
+	if ( !next || next->nl ||fullwidth||next->fullwidth()
+	     || idx > start && linew + nsh.width() > r.width() ) {
 	    //linebreak
 	    int width = fillLine ? r.width() : linew - spacing();
 	    qGeomCalc( *array, start, idx-start, r.left(), width,
@@ -539,8 +532,6 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    start = idx;
 	    fillLine = fill;
 	}
-	if ( next )
-	    fillLine = fillLine || next->t->orientation() == Qt::Horizontal && next->t->stretchable();
     }
 
     return y - r.y() - spacing();
@@ -1241,7 +1232,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->x() > tmp->t->x() ) {
+		if ( !t || t->nl || t->t->x() > tmp->t->x() || t->t->stretchable() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1616,7 +1607,7 @@ bool QMainWindow::rightJustification() const
 
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
-    deleteLayout = TRUE;
+    //    deleteLayout = TRUE; //############## Reggie did this. Why?
     if ( deleteLayout ) {
 	delete d->tll;
 	d->tll = 0;

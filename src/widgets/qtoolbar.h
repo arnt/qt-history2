@@ -57,9 +57,13 @@ public:
 
     QMainWindow * mainWindow();
 
+    enum StretchMode {NoStretch,Stretchable,FullWidth};
+    
     virtual void setStretchableWidget( QWidget * );
-    void setStretchable( bool );
+    void setStretchMode( StretchMode );
+    StretchMode stretchMode() const;
     bool stretchable() const;
+    bool fullwidth() const;
 
     bool event( QEvent * e );
     bool eventFilter( QObject *, QEvent * );
