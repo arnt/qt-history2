@@ -18,12 +18,16 @@
     using a spin box widget.
 */
 
-#include <QAbstractItemModel>
-#include <QSpinBox>
-#include <QStyleOptionViewItem>
-#include <QWidget>
+#include <QtGui>
 
 #include "delegate.h"
+
+
+SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
+    : QItemDelegate(parent)
+{
+    spinBox = 0;
+}
 
 /*!
     Returns the same editor type (a widget) for every model and index
@@ -51,9 +55,13 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
     const QAbstractItemModel * /* model */,
     const QModelIndex & /* index */)
 {
-    QSpinBox *spinBox = new QSpinBox(parent);
+    if (spinBox)
+        cancelEditing(spinBox);
+
+    spinBox = new QSpinBox(parent);
     spinBox->setMinimum(0);
     spinBox->setMaximum(100);
+    //spinBox->installEventFilter(this);
 
     return spinBox;
 }
@@ -65,9 +73,6 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
 
 void SpinBoxDelegate::releaseEditor(QWidget *editor)
 {
-// ### Where does the data get written back to the model?
-//    setModelData(editor, model, index);
-
     delete editor;
 }
 
@@ -92,10 +97,9 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                   const QModelIndex &index) const
 {
     int value = static_cast<QSpinBox *>(editor)->value();
-#if 1
-    // ### Remove this following line before the second Technology Preview.
+
+// ### Remove this before TP2:
     value = static_cast<QSpinBox *>(editor)->cleanText().toInt();
-#endif
 
     model->setData(index, QAbstractItemModel::EditRole, value);
 }
@@ -111,4 +115,43 @@ void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
     const QModelIndex & /* index */) const
 {
     editor->setGeometry(option.rect);
+}
+
+void SpinBoxDelegate::acceptEditing(QWidget *editor)
+{
+    emit commitData(editor);
+    emit doneEditing(editor);
+}
+
+void SpinBoxDelegate::cancelEditing(QWidget *editor)
+{
+    emit doneEditing(editor);
+}
+
+bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == spinBox) {
+    
+        if (event->type() == QEvent::KeyPress) {
+
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+            switch (keyEvent->key()) {
+                case Qt::Key_Return:
+                    acceptEditing(spinBox);
+                    return true;
+
+                case Qt::Key_Escape:
+                    cancelEditing(spinBox);
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+        else
+            return false;
+    }
+
+    return QItemDelegate::eventFilter(object, event);
 }

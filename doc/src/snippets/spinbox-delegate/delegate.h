@@ -23,8 +23,9 @@
 class SpinBoxDelegate : public QItemDelegate
 {
     Q_OBJECT
+
 public:
-    SpinBoxDelegate(QObject *parent = 0) : QItemDelegate(parent) {}
+    SpinBoxDelegate(QObject *parent = 0);
 
     QItemDelegate::EditorType editorType(const QAbstractItemModel *model,
         const QModelIndex &index) const;
@@ -43,6 +44,15 @@ public:
     void updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QAbstractItemModel* model,
         const QModelIndex &index) const;
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
+
+private:
+    void acceptEditing(QWidget *editor);
+    void cancelEditing(QWidget *editor);
+
+    QSpinBox *spinBox;
 };
 
 #endif
