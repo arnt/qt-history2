@@ -24,10 +24,10 @@ public:
     {};
     ~StatsCanvas() {};
 signals:
-    void signalNewPressure( int newPressure );
-    void signaleNewTilt( int newTX, int newTY );
-    void signalNewDev( int newDev );
-    void signalNewLoc( int newX, int newY );
+    void signalNewPressure( int );
+    void signalNewTilt( int, int );
+    void signalNewDev( int );
+    void signalNewLoc( int, int );
 
 protected:
     void tabletEvent( QTabletEvent *e );

@@ -26,6 +26,10 @@ void StatsCanvas::tabletEvent( QTabletEvent *e )
     
 
     bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
+    emit signalNewTilt( e->xTilt(), e->yTilt() );
+    emit signalNewDev( e->device() );
+    emit signalNewLoc( e->x(), e->y() );
+    emit signalNewPressure( e->pressure() );
 }
 
 void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
@@ -37,9 +41,6 @@ void StatsCanvas::mouseMoveEvent( QMouseEvent *e )
 TabletStats::TabletStats( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
-	
-	
-    
 	QGridLayout *layout = new QGridLayout( this, 4, 5 );
 	
 	QLabel *lbl = new QLabel( "X Tilt:", this );
@@ -53,7 +54,7 @@ TabletStats::TabletStats( QWidget *parent, const char *name )
 	layout->addWidget( lbl, 1, 0 );
 	lblYTilt = new QLabel( "Don't Know", this );
 	lblYTilt->setMinimumSize( lblYTilt->sizeHint() );
-	layout->addWidget( lblYTilt, 1, 2 );
+	layout->addWidget( lblYTilt, 1, 1 );
 	lbl = new QLabel( "Pressure: ", this );
 	lbl->setMinimumSize( lbl->sizeHint() );
 	layout->addWidget( lbl, 2, 0 );
@@ -69,6 +70,15 @@ TabletStats::TabletStats( QWidget *parent, const char *name )
 	statCan->setMinimumSize( 100, 100 );
 	layout->addMultiCellWidget(statCan, 0, 3, 2, 4 );
 	layout->activate();
+
+	QObject::connect( statCan, SIGNAL(signalNewTilt(int, int)),
+			  this, SLOT(slotTiltChanged(int, int)) );
+	QObject::connect( statCan, SIGNAL(signalNewPressure(int)),
+			  this, SLOT(slotPressureChanged(int)) );
+	QObject::connect( statCan, SIGNAL(signalNewDev(int)),
+			  this, SLOT(slotDevChanged(int)) );
+	QObject::connect( statCan, SIGNAL(signalNewLoc(int,int)),
+			  this, SLOT( slotLocationChanged(int,int)) );
 }
 
 TabletStats::~TabletStats()
@@ -77,18 +87,27 @@ TabletStats::~TabletStats()
 
 void TabletStats::slotDevChanged( int newDev )
 {
+    if ( newDev == QTabletEvent::Stylus )
+	lblDev->setText( "Stylus" );
+    else if ( newDev == QTabletEvent::Eraser )
+	lblDev->setText( "Eraser" );
 }
 
 void TabletStats::slotLocationChanged( int newX, int newY )
 {
+
 }
 
 void TabletStats::slotTiltChanged( int newTiltX, int newTiltY )
 {
+    lblXTilt->setNum( newTiltX );
+    lblYTilt->setNum( newTiltY );
+
 }
 
 void TabletStats::slotPressureChanged( int newP )
 {
+    lblPressure->setNum( newP );
 }
 
 /*

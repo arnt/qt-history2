@@ -1,3 +1,13 @@
+/****************************************************************************
+** $Id: $
+**
+** Copyright ( C ) 1992-2001 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
 #include "canvas.h"
 
 #include <qapplication.h>
@@ -18,7 +28,6 @@ Canvas::Canvas( QWidget *parent, const char *name )
 #ifndef QT_NO_CURSOR
     setCursor( Qt::crossCursor );
 #endif
-    //    pen.setCapStyle( Qt::SquareCap );
 }
 
 void Canvas::save( const QString &filename, const QString &format )
@@ -132,4 +141,3 @@ void Canvas::paintEvent( QPaintEvent *e )
 	bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
     }
 }
-
