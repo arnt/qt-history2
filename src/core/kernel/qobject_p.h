@@ -30,8 +30,7 @@
 #include "qobject.h"
 #include "qpointer.h"
 #include "qcoreevent.h"
-
-#include <qlist.h>
+#include "qlist.h"
 #include <private/qspinlock_p.h>
 
 
