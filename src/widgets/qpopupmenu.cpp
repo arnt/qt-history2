@@ -51,7 +51,7 @@
 #include "qguardedptr.h"
 #include "qeffects_p.h"
 #include "qcursor.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 #include <ctype.h>
 
 //#define ANIMATED_POPUP
@@ -478,6 +478,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     {
 	show();
     }
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::PopupMenuStart );
+#endif
 }
 
 /*!
@@ -1074,7 +1077,9 @@ void QPopupMenu::hide()
 	qApp->exit_loop();
 	syncMenu = 0;
     }
-
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::PopupMenuEnd );
+#endif
 }
 
 

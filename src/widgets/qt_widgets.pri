@@ -3,7 +3,8 @@
 widgets {
 	WIDGETS_P	= widgets
 
-	HEADERS += $$WIDGETS_H/qbuttongroup.h \
+	HEADERS += $$WIDGETS_H/qaccessiblewidget.h \
+	      $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcombobox.h \
@@ -55,7 +56,8 @@ widgets {
 		  $$WIDGETS_H/qtextbrowser.h \
 		  $$WIDGETS_H/qtextedit.h
 
-	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
+	SOURCES += $$WIDGETS_CPP/qaccessiblewidget.cpp \
+	      $$WIDGETS_CPP/qbuttongroup.cpp \
 		  $$WIDGETS_CPP/qbutton.cpp \
 		  $$WIDGETS_CPP/qcheckbox.cpp \
 		  $$WIDGETS_CPP/qcombobox.cpp \

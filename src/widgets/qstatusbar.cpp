@@ -45,7 +45,7 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qsizegrip.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 // REVISED: warwick
 /*!

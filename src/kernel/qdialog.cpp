@@ -47,7 +47,7 @@
 #include "qsizegrip.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qpopupmenu.h" // ######## dependency
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 
 // REVISED: arnt
@@ -502,6 +502,9 @@ void QDialog::show()
 	move( p );
     }
     QWidget::show();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::DialogStart );
+#endif
 }
 
 /*! \reimp */
@@ -513,6 +516,9 @@ void QDialog::hide()
 	in_loop = FALSE;
 	qApp->exit_loop();
     }
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::DialogEnd );
+#endif
 }
 
 

@@ -39,6 +39,7 @@
 #ifndef QT_NO_LCDNUMBER
 #include "qbitarray.h"
 #include "qpainter.h"
+#include "qaccessiblewidget.h"
 
 
 // NOT REVISED
@@ -1124,5 +1125,13 @@ QSize QLCDNumber::sizeHint() const
 {
     return QSize( 10 + 9 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 23 );
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QLCDNumber::accessibleInterface()
+{
+    return new QAccessibleDisplay( this, QAccessible::StaticText );
+}
+#endif
 
 #endif // QT_NO_LCDNUMBER

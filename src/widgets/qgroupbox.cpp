@@ -46,7 +46,7 @@
 #include "qobjectlist.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 // REVISED: arnt
 /*!
@@ -215,6 +215,9 @@ void QGroupBox::setTitle( const QString &title )
 
     update();
     updateGeometry();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::NameChanged );
+#endif
 }
 
 /*!

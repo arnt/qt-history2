@@ -102,6 +102,10 @@ signals:
 protected:
     void    drawContents( QPainter * );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private:
     void    init();
     void    internalDisplay( const QString &);

@@ -44,7 +44,7 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 /*!
   \class QCheckBox qcheckbox.h

@@ -52,7 +52,7 @@
 #include <ctype.h>
 #include "../kernel/qrichtext_p.h"
 #include "../kernel/qinternal_p.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
@@ -336,6 +336,9 @@ void QLineEdit::setText( const QString &text )
     update();
     if ( oldText != text ) {
 	emit textChanged( text );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
     }
 }
 
@@ -1184,6 +1187,9 @@ void QLineEdit::backspace()
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
     update();
     emit textChanged( text() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 }
 
 /*!
@@ -1210,6 +1216,9 @@ void QLineEdit::del()
     update();
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
     emit textChanged( text() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 }
 
 /*!  Moves the text cursor to the beginning of the line. If mark is TRUE,
@@ -1653,6 +1662,9 @@ void QLineEdit::insert( const QString &newText )
 	    removeSelectedText();
 	d->cursor->insert( t, FALSE );
 	emit textChanged( text() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
     } else {
 	QString text = d->parag->string()->toString();
 	text.remove( text.length() - 1, 1 );

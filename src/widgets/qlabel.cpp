@@ -49,7 +49,7 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 #include "qlineedit.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 
 class QLabelPrivate
@@ -1232,7 +1232,7 @@ void QLabel::setFont( const QFont &f )
 /*! \reimp */
 QAccessibleInterface *QLabel::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::StaticText );
+    return new QAccessibleDisplay( this, QAccessible::StaticText );
 }
 #endif
 

@@ -41,7 +41,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qtimer.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 #include <limits.h>
 
 /*!
@@ -345,6 +345,9 @@ void QScrollBar::valueChange()
 	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage,
 		      pressedControl );
     emit valueChanged(value());
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 }
 
 /*!
@@ -546,6 +549,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	sliderStartPos = sliderPos;
 	drawControls( pressedControl, pressedControl );
 	emit sliderPressed();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ScrollingStart );
+#endif
     } else if ( pressedControl != QStyle::NoScroll ) {
 	drawControls( pressedControl, pressedControl );
 	action( (QStyle::ScrollControl) pressedControl );
@@ -574,8 +580,15 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     if (tmp == QStyle::Slider) {
 	directSetValue( calculateValueFromSlider() );
 	emit sliderReleased();
-	if ( value() != prevValue() )
+	if ( value() != prevValue() ) {
 	    emit valueChanged( value() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
+	}
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ScrollingEnd );
+#endif
     }
     drawControls( tmp, pressedControl );
     if ( e->button() == MidButton )
@@ -629,6 +642,9 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	if ( track && newVal != value() ) {
 	    directSetValue( newVal ); // Set directly, painting done below
 	    emit valueChanged( value() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 	}
 	slidePrevVal = newVal;
 	sliderPos = (QCOORD)newSliderPos;
@@ -745,10 +761,16 @@ void QScrollBar::action( QStyle::ScrollControl control )
 	break;
     case QStyle::First:
 	emit valueChanged( minValue() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 	setValue( minValue() );
 	break;
     case QStyle::Last:
 	emit valueChanged( maxValue() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 	setValue( maxValue() );
 	break;
     default:

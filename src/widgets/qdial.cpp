@@ -44,7 +44,7 @@
 #include "qcolor.h"
 #include "qapplication.h"
 #include "qregion.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 #include <math.h> // sin(), cos(), atan()
 //### Forutsetter linking med math lib - Jfr kommentar i qpainter_x11.cpp!
@@ -488,8 +488,12 @@ void QDial::valueChange()
 {
     d->lines.resize( 0 );
     repaintScreen();
-    if ( d->tracking || !d->doNotEmit )
+    if ( d->tracking || !d->doNotEmit ) {
 	emit valueChanged( value() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
+    }
 }
 
 

@@ -58,7 +58,7 @@
 #include "qbitmap.h"
 #include "qdockarea.h"
 #include "qstringlist.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 /* QMainWindowLayout, respects widthForHeight layouts (like the left
   and right docks are)

@@ -41,7 +41,7 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 static bool globally_enabled = TRUE;
 

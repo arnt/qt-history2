@@ -50,7 +50,7 @@
 #include "qeffects_p.h"
 #include "qstringlist.h"
 #include "qcombobox.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 #include <limits.h>
 
 // NOT REVISED

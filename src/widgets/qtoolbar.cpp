@@ -53,7 +53,7 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 #include "qwidgetlist.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 static const char * arrow_v_xpm[] = {
     "7 9 3 1",

@@ -9,7 +9,7 @@
 #include "qdatetime.h"
 #include "qpainter.h"
 #include "../kernel/qinternal_p.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 #ifndef QT_NO_WORKSPACE
 #include <qworkspace.h>
 #endif

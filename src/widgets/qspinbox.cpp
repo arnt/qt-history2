@@ -48,7 +48,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qtimer.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 class QSpinBoxPrivate
 {
@@ -629,6 +629,9 @@ void QSpinBox::valueChange()
     updateDisplay();
     emit valueChanged( value() );
     emit valueChanged( currentValueText() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::ValueChanged );
+#endif
 }
 
 

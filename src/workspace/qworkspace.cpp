@@ -56,7 +56,7 @@
 #include "qtooltip.h"
 #include "qwmatrix.h"
 #include "qimage.h"
-#include "qaccessible.h"
+#include "qaccessiblewidget.h"
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
