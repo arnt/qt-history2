@@ -61,8 +61,8 @@ like this:
 \endcode
 
 Note that a precompiled header file needs to separate C includes from
-CPP includes, since C files and CPP files cannot share the same
-precompiled header file.
+CPP includes, since the precompiled header file for C files may not
+contain C++ code.
 
 
 \target PROJECT_OPTIONS
@@ -74,28 +74,20 @@ your project settings (.pro), is to include the PRECOMPILED_HEADER option:
 	PRECOMPILED_HEADER = stable.h
 \endcode
 \e qmake will handle the rest, to ensure the creation and use of the
-precompiled header file. 
+precompiled header file. You do not need to include the precompiled
+header file in HEADERS, as qmake will do this if the configuration
+supports PCH.
 
-
-\target ADVANCED_WINDOWS_OPTION
-\section3 Advanced Windows option
-
-\e{This is used on Windows only}
-
-On the Windows platform, it is common to generate the precompiled
-header file, based on a specified \c{.cpp} file. This is because MSVC
-also lets you precompile functions and whole classes, to further
-increase compilation speed.
-
-You can  specify your own \c{.cpp} file like this:
+All platforms that support precompiled headers have the configuration
+option \Bold precompile_header set. Using this option, you may trigger
+conditional blocks in your .pro file, to add settings when using PCH.
+For example:
 \code
-	PRECOMPILED_SOURCE = stable.cpp
-\endcode
+	precompile_header {
+	    DEFINES += USING_PCH
+	}
 
-Note that with qmake, you don't have to specify this \c{.cpp} file,
-since \e qmake will generate one for you, which will include the
-header file specified in \c PRECOMPILED_HEADER. Do not use this feature for
-multiplatform projects.
+\endcode
 
 \target EXAMPLE_PROJECT
 \section1 Example project
