@@ -1317,58 +1317,73 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		QListViewItem *item = opt.listViewItem(),
 			     *child = item->firstChild();
 
-		int linetop = 0, linebot = 0, y = r.y();
-		// each branch needs at most two lines, ie. four end points
-		int dotoffset = (item->itemPos() + item->height() - y) %2;
-		QPointArray dotlines( item->childCount() * 4 );
-		int c = 0;
+		int y = r.y();
+		int c;
+		int dotoffset;
+		QPointArray dotlines;
+		if ( subActive == SC_All && sub == SC_ListViewExpand ) {
+		    c = 2;
+		    dotlines.resize(2);
+		    dotlines[0] = QPoint( r.right(), r.top() );
+		    dotlines[1] = QPoint( r.right(), r.bottom() );
+		} else {
+		    int linetop = 0, linebot = 0;
+		    // each branch needs at most two lines, ie. four end points
+		    dotoffset = (item->itemPos() + item->height() - y) %2;
+		    dotlines.resize( item->childCount() * 4 );
+		    c = 0;
 
-		// skip the stuff above the exposed rectangle
-		while ( child && y + child->height() <= 0 ) {
-		    y += child->totalHeight();
-		    child = child->nextSibling();
-		}
-
-		int bx = 6;
-
-		// paint stuff in the magical area
-		while ( child && y < r.height() ) {
-		    linebot = y + child->height()/2;
-		    if ( (child->isExpandable() || child->childCount()) &&
-			 (child->height() > 0) ) {
-			// needs a box
-			p->setPen( cg.mid() );
-			p->drawRect( bx-4, linebot-4, 9, 9 );
-			// plus or minus
-			p->setPen( cg.text() );
-			p->drawLine( bx - 2, linebot, bx + 2, linebot );
-			if ( !child->isOpen() )
-			    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
-			// dotlinery
-			p->setPen( cg.mid() );
-			dotlines[c++] = QPoint( bx, linetop );
-			dotlines[c++] = QPoint( bx, linebot - 5 );
-			dotlines[c++] = QPoint( bx + 5, linebot );
-			dotlines[c++] = QPoint( r.width(), linebot );
-			linetop = linebot + 5;
-		    } else {
-			// just dotlinery
-			dotlines[c++] = QPoint( bx+1, linebot );
-			dotlines[c++] = QPoint( r.width(), linebot );
+		    // skip the stuff above the exposed rectangle
+		    while ( child && y + child->height() <= 0 ) {
+			y += child->totalHeight();
+			child = child->nextSibling();
 		    }
 
-		    y += child->totalHeight();
-		    child = child->nextSibling();
+		    int bx = r.width() / 2;
+
+		    // paint stuff in the magical area
+		    QListView* v = item->listView();
+		    int lh = QMAX( p->fontMetrics().height() + 2 * v->itemMargin(),
+				   QApplication::globalStrut().height() );
+		    if ( lh % 2 > 0 )
+			lh++;
+		    while ( child && y < r.height() ) {
+			linebot = y + lh/2;
+			if ( (child->isExpandable() || child->childCount()) &&
+			     (child->height() > 0) ) {
+			    // needs a box
+			    p->setPen( cg.mid() );
+			    p->drawRect( bx-4, linebot-4, 9, 9 );
+			    // plus or minus
+			    p->setPen( cg.text() );
+			    p->drawLine( bx - 2, linebot, bx + 2, linebot );
+			    if ( !child->isOpen() )
+				p->drawLine( bx, linebot - 2, bx, linebot + 2 );
+			    // dotlinery
+			    p->setPen( cg.mid() );
+			    dotlines[c++] = QPoint( bx, linetop );
+			    dotlines[c++] = QPoint( bx, linebot - 5 );
+			    dotlines[c++] = QPoint( bx + 5, linebot );
+			    dotlines[c++] = QPoint( r.width(), linebot );
+			    linetop = linebot + 5;
+			} else {
+			    // just dotlinery
+			    dotlines[c++] = QPoint( bx+1, linebot );
+			    dotlines[c++] = QPoint( r.width(), linebot );
+			}
+
+			y += child->totalHeight();
+			child = child->nextSibling();
+		    }
+
+		    if ( child ) // there's a child, so move linebot to edge of rectangle
+			linebot = r.height();
+
+		    if ( linetop < linebot ) {
+			dotlines[c++] = QPoint( bx, linetop );
+			dotlines[c++] = QPoint( bx, linebot );
+		    }
 		}
-
-		if ( child ) // there's a child, so move linebot to edge of rectangle
-		    linebot = r.height();
-
-		if ( linetop < linebot ) {
-		    dotlines[c++] = QPoint( bx, linetop );
-		    dotlines[c++] = QPoint( bx, linebot );
-		}
-
 		p->setPen( cg.dark() );
 
 		static QBitmap *verticalLine = 0, *horizontalLine = 0;

@@ -1936,6 +1936,21 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    p->drawText( r, marg, width-marg-r, height(), align, t );
 	}
     }
+
+    if ( mlenabled && column == 0 && isOpen() && childCount() ) {
+	int textheight = fm.size( align, t ).height() + 2 * lv->itemMargin();
+	textheight = QMAX( textheight, QApplication::globalStrut().height() );
+	if ( textheight % 2 > 0 )
+	    textheight++;
+	if ( textheight < height() ) {
+	    int w = lv->treeStepSize() / 2;
+	    lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
+					    QRect( 0, textheight, w + 1, height() - textheight + 1 ), cg,
+					    lv->isEnabled() ? QStyle::Style_Enabled : QStyle::Style_Default,
+					    QStyle::SC_ListViewExpand,
+					    QStyle::SC_All, QStyleOption( this ) );
+	}
+    }
 }
 
 /*!
@@ -4784,7 +4799,7 @@ bool QListView::isMultiSelection() const
  */
 
 void QListView::setSelectionMode( SelectionMode mode )
-{    
+{
     if ( isMultiSelection() && ( mode == QListView::Single || mode == QListView::NoSelection ) ){
 	clearSelection();
 	if ( mode == QListView::Single )
