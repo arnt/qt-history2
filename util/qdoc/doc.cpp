@@ -1659,17 +1659,6 @@ QString Doc::finalHtml() const
 		consume( "classhierarchy" );
 		yyOut += htmlClassHierarchy();
 		break;
-	    case hash( 'd', 11 ):
-		consume( "dontinclude" );
-		fileName = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
-
-		if ( fileName.isEmpty() )
-		    warning( 2, location(),
-			     "Expected file name after '\\dontinclude'" );
-		else
-		    walkthrough.dontstart( fileName, resolver() );
-		break;
 	    case hash( 'e', 13 ):
 		consume( "extensionlist" );
 		yyOut += htmlExtensionList();
@@ -1692,7 +1681,7 @@ QString Doc::finalHtml() const
 			     "Expected file name after '\\include'" );
 		} else {
 		    yyOut += QString( "<pre>" );
-		    yyOut += walkthrough.start( fileName, resolver() );
+		    yyOut += walkthrough.include( fileName, resolver() );
 		    yyOut += QString( "</pre>" );
 		}
 		break;
@@ -1764,6 +1753,26 @@ QString Doc::finalHtml() const
 	    case hash( 'v', 7 ):
 		consume( "version" );
 		yyOut += config->version();
+		break;
+#if 1
+	    case hash( 'd', 11 ):
+		consume( "dontinclude" );
+		warning( 2, location(),
+			 "Command '\\dontinclude' has been renamed"
+			 " '\\walkthrough'" );
+		command = QString( "walkthrough" );
+		/* fall through */
+#endif
+	    case hash( 'w', 11 ):
+		consume( "walkthrough" );
+		fileName = getWord( yyIn, yyPos );
+		skipRestOfLine( yyIn, yyPos );
+
+		if ( fileName.isEmpty() )
+		    warning( 2, location(),
+			     "Expected file name after '\\walkthrough'" );
+		else
+		    walkthrough.start( fileName, resolver() );
 	    }
 	    if ( !consumed ) {
 		yyOut += QString( "\\" );

@@ -31,13 +31,10 @@ class Resolver;
 class Walkthrough
 {
 public:
-    Walkthrough() : shutUp( FALSE ) { }
-    Walkthrough( const Walkthrough& w );
+    Walkthrough() : shutUp( FALSE ), justIncluded( TRUE ) { }
 
-    Walkthrough& operator=( const Walkthrough& w );
-
-    QString start( const QString& filePath, const Resolver *resolver = 0 );
-    void dontstart( const QString& filePath, const Resolver *resolver = 0 );
+    QString include( const QString& fileName, const Resolver *resolver = 0 );
+    void start( const QString& fileName, const Resolver *resolver = 0 );
 
     QString printline( const QString& substr, const Location& docLoc );
     QString printto( const QString& substr, const Location& docLoc );
@@ -47,7 +44,12 @@ public:
     void skipuntil( const QString& substr, const Location& docLoc );
 
 private:
-    QString start( bool localLinks, const QString& filePath,
+#if defined(QT_DISABLE_COPY)
+    Walkthrough( const Walkthrough& w );
+    Walkthrough& operator=( const Walkthrough& w );
+#endif
+
+    QString start( bool localLinks, const QString& fileName,
 		   const Resolver *resolver );
 
     QString xline( const QString& substr, const Location& docLoc,
@@ -56,12 +58,15 @@ private:
 		   const QString& command );
     QString xuntil( const QString& substr, const Location& docLoc,
 		   const QString& command );
-    QString getNextLine();
+    QString getNextLine( const Location& docLoc );
 
+    QString currentFilePath;
+    QString fancyText;
     QStringList plainlines;
     QStringList fancylines;
     Location walkloc;
     bool shutUp;
+    bool justIncluded;
 };
 
 #endif

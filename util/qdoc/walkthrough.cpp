@@ -20,29 +20,17 @@ static QString stripTrailingBlankLine( const QString& s )
 	return s;
 }
 
-Walkthrough::Walkthrough( const Walkthrough& w )
-    : plainlines( w.plainlines ), fancylines( w.fancylines ),
-      walkloc( w.walkloc ), shutUp( w.shutUp )
+QString Walkthrough::include( const QString& fileName,
+			      const Resolver *resolver )
 {
+    QString t = start( TRUE, fileName, resolver );
+    justIncluded = TRUE;
+    return t;
 }
 
-Walkthrough& Walkthrough::operator=( const Walkthrough& w )
+void Walkthrough::start( const QString& fileName, const Resolver *resolver )
 {
-    plainlines = w.plainlines;
-    fancylines = w.fancylines;
-    walkloc = w.walkloc;
-    shutUp = w.shutUp;
-    return *this;
-}
-
-QString Walkthrough::start( const QString& filePath, const Resolver *resolver )
-{
-    return start( TRUE, filePath, resolver );
-}
-
-void Walkthrough::dontstart( const QString& filePath, const Resolver *resolver )
-{
-    start( FALSE, filePath, resolver );
+    start( FALSE, fileName, resolver );
 }
 
 QString Walkthrough::printline( const QString& substr, const Location& docLoc )
@@ -75,7 +63,6 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
     xuntil( substr, docLoc, QString("skipuntil") );
 }
 
-
 QString Walkthrough::start( bool localLinks, const QString& fileName,
 			    const Resolver *resolver )
 {
@@ -84,15 +71,23 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     static QRegExp manyNLs( QString("\n+") );
     static QRegExp aname( QString("<a name=[^>]*></a>") );
 
-    *this = Walkthrough();
+    if ( justIncluded && fileName == currentFilePath ) {
+	/*
+	  It's already started. This happens with \include followed with
+	  \walkthrough. If we restarted again, we would lose the local links.
+	*/
+	justIncluded = FALSE;
+	return fancyText;
+    }
+    currentFilePath = fileName;
 
     QString filePath = config->findDepth( fileName, config->exampleDirList() );
     if ( filePath.isEmpty() ) {
-	warning( 1, "Cannot find example file '%s'", fileName.latin1() );
+	warning( 1, "Cannot find example file '%s'", filePath.latin1() );
 	return QString::null;
     }
 
-    QFile f( config->findDepth(fileName, config->exampleDirList()) );
+    QFile f( config->findDepth(filePath, config->exampleDirList()) );
     if ( !f.open(IO_ReadOnly) ) {
 	warning( 1, "Cannot open example file '%s'", filePath.latin1() );
 	return QString::null;
@@ -108,8 +103,8 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
 
     fullText.replace( trailingSpacesPlusNL, QChar('\n') );
 
-    QString fancyText = processCodeHtml( fullText, resolver, localLinks,
-					 QFileInfo(f).dirPath() );
+    fancyText = processCodeHtml( fullText, resolver, localLinks,
+				 QFileInfo(f).dirPath() );
 
     /*
       Split the source code into logical lines.  Empty lines are handled
@@ -158,6 +153,7 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     }
 
     walkloc = Location( filePath );
+    shutUp = FALSE;
     return fancyText;
 }
 
@@ -193,7 +189,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	    shutUp = TRUE;
 	}
     } else {
-	s = getNextLine();
+	s = getNextLine( docLoc );
 	shutUp = FALSE;
     }
     return stripTrailingBlankLine( s );
@@ -214,7 +210,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
     while ( !plainlines.isEmpty() ) {
 	if ( plainlines.first().simplifyWhiteSpace().find(subs) != -1 )
 	    return stripTrailingBlankLine( s );
-	s += getNextLine();
+	s += getNextLine( docLoc );
     }
     if ( !shutUp ) {
 	warning( 2, docLoc, "Command '\\%s %s' failed at end of '%s'",
@@ -229,13 +225,20 @@ QString Walkthrough::xuntil( const QString& substr, const Location& docLoc,
 			     const QString& command )
 {
     QString s = xto( substr, docLoc, command );
-    s += getNextLine();
+    s += getNextLine( docLoc );
     return stripTrailingBlankLine( s );
 }
 
-QString Walkthrough::getNextLine()
+QString Walkthrough::getNextLine( const Location& docLoc )
 {
     QString s;
+
+    if ( !shutUp && justIncluded ) {
+	warning( 2, docLoc,
+		 "Command '\\walkthrough' needed after '\\include'" );
+	shutUp = TRUE;
+    }
+
     if ( !plainlines.isEmpty() ) {
 	s = fancylines.first();
 
