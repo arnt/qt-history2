@@ -150,6 +150,7 @@ private:
 template class Q_EXPORT QVector<QTableItem>;
 template class Q_EXPORT QVector<QWidget>;
 template class Q_EXPORT QList<QTableSelection>;
+template class Q_EXPORT QIntDict<int>;
 // MOC_SKIP_END
 #endif
 
