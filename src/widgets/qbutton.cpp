@@ -5,7 +5,7 @@
 **
 ** Created : 940206
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -578,12 +578,12 @@ void QButton::setAutoRepeatPeriod( int period )
     d->repeatPeriod = period;
 }
 
-inline int QButton::autoRepeatDelay() const
+int QButton::autoRepeatDelay() const
 {
     return d->repeatDelay;
 }
 
-inline int QButton::autoRepeatPeriod() const
+int QButton::autoRepeatPeriod() const
 {
     return d->repeatPeriod;
 }
