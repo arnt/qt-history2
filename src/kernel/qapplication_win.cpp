@@ -1602,6 +1602,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 	    case SC_MAXIMIZE:
 		QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		widget->clearWState(Qt::WState_Minimized);
 		widget->setWState(Qt::WState_Maximized);
 		result = FALSE;
 		break;
@@ -1612,7 +1613,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 	    case SC_RESTORE:
 		QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
-		widget->clearWState(Qt::WState_Minimized|Qt::WState_Maximized);
+		if (widget->isMinimized())
+		    widget->clearWState(Qt::WState_Minimized);
+		else
+		    widget->clearWState(Qt::WState_Maximized);
 		result = FALSE;
 		break;
 	    default:
@@ -1634,10 +1638,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #ifndef Q_OS_TEMP
 	case WM_NCLBUTTONDBLCLK:
 	    if ( wParam == HTCAPTION ) {
-		if ( widget->isMaximized() )
+		if ( widget->isMaximized() ) {
 		    QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
-		else
+		    widget->clearWState(Qt::WState_Maximized);
+		} else if (widget->testWFlags(Qt::WStyle_Maximize)){
 		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		    widget->setWState(Qt::WState_Maximized);
+		}
 	    }
 	    result = FALSE;
 	    break;
