@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#18 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#19 $
 **
 ** Definition of QLabel widget class
 **
@@ -20,8 +20,9 @@ class QLabel : public QFrame
 {
     Q_OBJECT
 public:
-    QLabel( QWidget *parent=0, const char *name=0 );
-    QLabel( const char *text, QWidget *parent=0, const char *name=0 );
+    QLabel( QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QLabel( const char *text, QWidget *parent=0, const char *name=0,
+	    WFlags f=0 );
    ~QLabel();
 
     const char *text()		const	{ return ltext; }
@@ -30,12 +31,12 @@ public:
     int		alignment()	const	{ return align; }
     void	setAlignment( int );
 
+    int		margin()	const	{ return marg; }
+    void	setMargin( int );
+
     bool	autoResize()	const	{ return autoresize; }
     void	setAutoResize( bool );
     void	adjustSize();
-
-    int		margin() const { return m; }
-    void	setMargin( int );
 
 public slots:
     void	setText( const char * );
@@ -50,7 +51,7 @@ private:
     void	updateLabel();
     QString	ltext;
     QPixmap    *lpixmap;
-    int		m;
+    int		marg;
     int		align;
     bool	autoresize;
 };

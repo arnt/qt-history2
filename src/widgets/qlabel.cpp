@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#34 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -55,12 +55,13 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#33 $")
   See QFrame for details about the label's frame.
  ----------------------------------------------------------------------------*/
 
-QLabel::QLabel( QWidget *parent, const char *name )
-	: QFrame( parent, name )
+QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
+    : QFrame( parent, name, f )
 {
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
+    marg       = 0;
     autoresize = FALSE;
 }
 
@@ -73,12 +74,13 @@ QLabel::QLabel( QWidget *parent, const char *name )
   See QFrame for details about the label's frame.
  ----------------------------------------------------------------------------*/
 
-QLabel::QLabel( const char *text, QWidget *parent, const char *name )
-	: QFrame( parent, name ), ltext(text)
+QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
+	: QFrame( parent, name, f ), ltext(text)
 {
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
+    marg       = 0;
     autoresize = FALSE;
 }
 
@@ -249,6 +251,36 @@ void QLabel::setAlignment( int alignment )
 
 
 /*----------------------------------------------------------------------------
+  \fn int QLabel::margin() const
+
+  Returns the margin of the label in pixels.
+
+  The margin applies to the left edge if alignment() is \c AlignLeft,
+  to the right edge if alignment() is \c AlignRight, to the top edge
+  if alignment() is \c AlignTop, and to to the bottom edge if
+  alignment() is \c AlignBottom.
+
+  \sa setMargin()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Sets the margin of the label to \e pixels.
+
+  The margin applies to the left edge if alignment() is \c AlignLeft,
+  to the right edge if alignment() is \c AlignRight, to the top edge
+  if alignment() is \c AlignTop, and to to the bottom edge if
+  alignment() is \c AlignBottom.
+
+  \sa margin()
+ ----------------------------------------------------------------------------*/
+
+void QLabel::setMargin( int pixels )
+{
+    marg = pixels >= 0 ? pixels : 0;
+}
+
+
+/*----------------------------------------------------------------------------
   \fn bool QLabel::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
@@ -278,7 +310,7 @@ void QLabel::setAutoResize( bool enable )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Adjusts the size of the label to fit the contents.  The top left
   corner is not moved.
 
@@ -288,8 +320,7 @@ void QLabel::setAutoResize( bool enable )
   \bug Does not work well with the WordBreak flag
 
   \sa setAutoResize()
-
-  */
+ ----------------------------------------------------------------------------*/
 
 void QLabel::adjustSize()
 {
@@ -306,32 +337,6 @@ void QLabel::adjustSize()
 }
 
 
-/*! \fn int QLabel::margin()
-
-  Returns the margin of the label in pixels.
-
-  The margin applies to the left edge if alignment() is \c AlignLeft,
-  to the right edge if alignment() is \c AlignRight, to the top edge
-  if alignment() is \c AlignTop, and to to the bottom edge if
-  alignment() is \c AlignBottom.
-
-  \sa setMargin() */
-
-
-/*! Sets the margin of the label to \e pixels.
-
-  The margin applies to the left edge if alignment() is \c AlignLeft,
-  to the right edge if alignment() is \c AlignRight, to the top edge
-  if alignment() is \c AlignTop, and to to the bottom edge if
-  alignment() is \c AlignBottom.
-
-  \sa margin() */
-
-void QLabel::setMargin( int pixels ) {
-    m = pixels >= 0 ? pixels : 0;
-}
-
-
 /*----------------------------------------------------------------------------
   Draws the label contents using the painter \e p.
  ----------------------------------------------------------------------------*/
@@ -341,13 +346,13 @@ void QLabel::drawContents( QPainter *p )
     p->setPen( colorGroup().text() );
     QRect cr = contentsRect();
     if ( align & AlignLeft )
-	cr.setLeft( cr.left() + m );
+	cr.setLeft( cr.left() + marg );
     if ( align & AlignRight )
-	cr.setRight( cr.right() - m );
+	cr.setRight( cr.right() - marg );
     if ( align & AlignTop )
-	cr.setTop( cr.top() + m );
+	cr.setTop( cr.top() + marg );
     if ( align & AlignBottom )
-	cr.setBottom( cr.bottom() - m );
+	cr.setBottom( cr.bottom() - marg );
     if ( lpixmap ) {
 	int fw = frameWidth();
 	int x, y, w, h;
