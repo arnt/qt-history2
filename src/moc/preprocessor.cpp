@@ -740,7 +740,9 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
             else
                 break;
             output += sym.lexem().mid(1);
-            break;
+            secondlast = last;
+            last = PP_STRING_LITERAL;
+            continue;
         default:
             break;
         }

@@ -175,9 +175,7 @@ void Generator::generateCode()
     }
 
     QByteArray qualifiedClassNameIdentifier = cdef->qualified;
-    for (i = 0; i < qualifiedClassNameIdentifier.length(); ++i)
-        if (qualifiedClassNameIdentifier[i] == ':')
-            qualifiedClassNameIdentifier[i] = '_';
+    qualifiedClassNameIdentifier.replace(':', '_');
 
     int index = 12;
     fprintf(out, "static const uint qt_meta_data_%s[] = {\n", qualifiedClassNameIdentifier.constData());
@@ -285,7 +283,7 @@ void Generator::generateCode()
     fprintf(out, "    if (!_clname) return 0;\n");
     fprintf(out, "    if (!strcmp(_clname, qt_meta_stringdata_%s))\n"
                   "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
-            qualifiedClassNameIdentifier.constData(),  qualifiedClassNameIdentifier.constData());
+            qualifiedClassNameIdentifier.constData(),  cdef->qualified.constData());
     for (i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
         const char *cname = cdef->superclassList.at(i);
         fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
