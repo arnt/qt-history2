@@ -288,7 +288,7 @@ void WidgetDatabase::setupDataBase( int id )
     r = new WidgetDatabaseRecord;
     r->iconSet = "multilineedit.xpm";
     r->name = "QMultiLineEdit";
-    r->group = widgetGroup( "Input" );
+    r->group = widgetGroup( "Temp" );
     r->toolTip = "Multi Line Edit";
 
     append( r );
