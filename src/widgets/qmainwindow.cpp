@@ -83,7 +83,8 @@
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
   <li> setRightJustification() determines whether QMainWindow
-  should ensure that the toolbars fill the available space (see also QToolBar::setStretchable()),
+  should ensure that the toolbars fill the available space 
+  (see also QToolBar::setStretchable()),
   <li>  setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
   about that),
@@ -100,20 +101,12 @@
   moves the mouse cursor onto such a handle, the label of the toolbar
   is displayed in a tool tip (see QToolBar::label()).
 
-  An application with multiple toolbars should always save the layout
-  of the toolbars (docking area and position there) and restore that
-  when loading the application again. To get the information about the
-  docking area and position for each toolbar, use the getLocation()
-  and toolBars() methods. To move the toolbar again to a position of a
-  docking area when restoring, use one of the moveToolBar() methods.
-  When saving and restoring this layout, you have to be careful to
-  save and restore it in the same order to make it working
-  correctly. So, it's suggested to get first the toolbars of each
-  docking area with toolBars(). Then get all information of each of
-  these toolbars with getLocation() for each toolbar in each list and
-  save it in the order of the list you got from toolBars().  When
-  restoring the layout, create the toolbars exactly in the order in
-  which the infos are loaded.
+  An application with multiple toolbars can choose to save the current
+  toolbar layout in order to restore it in the next session. To do so,
+  use getLocation() on each toolbar, store the data and restore the
+  layout using moveToolBar() on each toolbar again. When restoring,
+  ensure to move the toolbars in exactly the same order in which you
+  got the information.
 
   For multidocument interfaces (MDI), use a QWorkspace as central
   widget.
@@ -1578,9 +1571,11 @@ void QMainWindow::setUsesTextLabel( bool enable )
 */
 
 /*!
-  Sets this main window to expand its toolbars to fill all
-  available space if \a enable is TRUE, and to give the toolbars just
-  the space they need if \a enable is FALSE.
+  Sets this main window to right-justifies its toolbars if \a enable
+  is TRUE. If enable is FALSE, only stretchable toolbars are expanded,
+  while non-stretchable toolbars get just the space they need. Given
+  that most toolbars are not stretchable, this usually results in a
+  ragged right edge.
 
   The default is FALSE.
 

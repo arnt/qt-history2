@@ -45,33 +45,42 @@ public:
 // NOT REVISED
 /*! \class QToolBar qtoolbar.h
 
-  \brief The QToolBar class provides a simple tool bar.
+  \brief The QToolBar class provides a tool bar.
 
   \ingroup realwidgets
   \ingroup application
+  
+  A toolbar is a panel that contains a set of controls, usually
+  represented by small icons.  It's purpose is to provide quick access
+  to frequently used commands or options. Within a main window, the
+  user can drag toolbars freely around and hide them with a click on
+  the toolbar handle.
 
   To use QToolBar, you simply create a QToolBar as child of a
   QMainWindow, create a number of QToolButton widgets (or other
   widgets) in left to right (or top to bottom) order, call
   addSeparator() when you want a separator, and that's all.
-
+  
   The application/application.cpp example does precisely this.
+  
+  You may use any kind of widget within a toolbar, with QToolButton
+  and QComboBox being the two most common ones.
 
   Each QToolBar lives in a \link QMainWindow dock \endlink in a
   QMainWindow, and can optionally start a new line in its dock.  Tool
   bars that start a new line are always positioned at the left end or
   top of the tool bar dock; others are placed next to the previous
   tool bar and word-wrapped as necessary.
-  Also you can specify if a toolbar should fill a whole row of a dock
-  (if the toolbar is Horizontal) or not, with setStretchable(), by default
-  it is set to FALSE. Normally you want to set it to fill a full row,
-  if you have a stretchable widget in the toolbar (see setStretchableWidget()).
+  
+  Usually, a toolbar gets just the space it needs. However, with
+  setStretchable() or setStretchableWidget() you can advise the main
+  window to expand the toolbar horizontally to fill all available width.
 
-  The tool bar is able to arrange its buttons horizontally or
-  vertically (see setOrientation() for details) and draws the
-  appropriate frames around the tool button in Windows and Motif
-  style.  Generally, QMainWindow will set the orientation correctly
-  for you.
+  The tool bar arranges its buttons either horizontally or vertically
+  (see setOrientation() for details). Generally, QMainWindow will set
+  the orientation correctly for you. The toolbar emits a signal
+  orientationChanged() each time the orientation changes, in case some
+  child widgets need adjustification.
 
   \sa QToolButton QMainWindow
   <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design,</a>
@@ -205,6 +214,10 @@ void QToolBar::addSeparator()
 /*!  Sets this toolbar to organize its content vertically if \a
   newOrientation is \c Vertical and horizontally if \a newOrientation
   is \c Horizontal.
+  
+  Emits the orientationChanged() signal.
+  
+  \sa orientation()
 */
 
 void QToolBar::setOrientation( Orientation newOrientation )
@@ -212,6 +225,7 @@ void QToolBar::setOrientation( Orientation newOrientation )
     if ( o != newOrientation ) {
 	o = newOrientation;
 	setUpGM();
+	emit orientationChanged( newOrientation );
     }
 }
 
@@ -425,11 +439,14 @@ void QToolBar::endMoving( QToolBar *tb )
 }
 
 /*!
-  If \a b is TRUE, the toolbar will be resized to fill a whole row of
-  a toolbar dock in the mainwindow if the orientation() is
-  Horizontal. If \a b is FALSE, the toolbar will just take the size it actually
-  needs.
+  Sets the toolbar to be stretchable if \a b is TRUE, or
+  non-stretchable otherwise.
 
+  A stretchable toolbar fills all available width in a toolbar dock. A
+  non-stretchable toolbar usually gets just the space it needs.
+  
+  The default is FALSE.
+  
   \sa QMainWindow::setRightJustification()
 */
 
@@ -453,6 +470,15 @@ bool QToolBar::stretchable() const
 {
     return d->fullWidth;
 }
+
+
+/*!
+  \fn void QToolBar::orientationChanged( Qt::Orientation newOrientation )
+
+  This signal is emitted when the toolbar changed its orientation to
+  \a newOrientation.
+*/
+
 
 /* from chaunsee:
 

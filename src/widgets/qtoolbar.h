@@ -58,6 +58,8 @@ public:
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );
+    void setStretchable( bool b );
+    bool stretchable() const;
 
     bool event( QEvent * e );
     bool eventFilter( QObject *, QEvent * );
@@ -65,14 +67,14 @@ public:
     virtual void setLabel( const QString & );
     QString label() const;
 
-    void setStretchable( bool b );
-    bool stretchable() const;
-
     void clear();
 
 protected:
     void paintEvent( QPaintEvent * );
 
+signals:
+    void orientationChanged( Orientation );
+    
 protected slots:
     void startMoving( QToolBar *tb );
     void endMoving( QToolBar *tb );
