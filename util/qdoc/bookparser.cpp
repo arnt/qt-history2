@@ -1453,16 +1453,16 @@ void SgmlSynthetizer::processFootnoteEnd()
 {
 }
 
-void SgmlSynthetizer::processImg( const QString& fileName, const QString& alt,
-				  bool inParagraph )
+void SgmlSynthetizer::processImg( const QString& /* fileName */, const QString& /* alt */,
+				  bool /* inParagraph */ )
 {
 }
 
-void SgmlSynthetizer::processIndex( const QString& text )
+void SgmlSynthetizer::processIndex( const QString& /* text */ )
 {
 }
 
-void SgmlSynthetizer::processLink( const QString& name, const QString& text )
+void SgmlSynthetizer::processLink( const QString& /* name */, const QString& /* text */ )
 {
 }
 
@@ -1499,17 +1499,17 @@ void SgmlSynthetizer::processQuoteEnd()
 {
 }
 
-void SgmlSynthetizer::processSectionBegin( int level, int topLevel )
+void SgmlSynthetizer::processSectionBegin( int level, int /* topLevel */ )
 {
     w.puts( QString("<sect%1><title>").arg(level).latin1() );
 }
 
-void SgmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
+void SgmlSynthetizer::processSectionHeadingEnd( int /* level */, int /* topLevel */ )
 {
     w.puts( "</title>\n" );
 }
 
-void SgmlSynthetizer::processSectionEnd( int level, int topLevel )
+void SgmlSynthetizer::processSectionEnd( int level, int /* topLevel */ )
 {
     w.puts( QString("</sect%1>\n").arg(level).latin1() );
 }
@@ -1534,7 +1534,7 @@ void SgmlSynthetizer::processString( const QString& str )
     w.puts( sgmlProtect(str).latin1() );
 }
 
-void SgmlSynthetizer::processTarget( const QString& target )
+void SgmlSynthetizer::processTarget( const QString& /* target */ )
 {
 }
 
