@@ -70,6 +70,7 @@ static QToolButton *createToolButton(QWidget *parent, const QString &text,
     result->setText(text);
     result->setIcon(createIconSet(icon_path));
     QObject::connect(result, SIGNAL(clicked()), parent, slot);
+    result->setAutoRaise(true);
     return result;
 }
 
@@ -79,7 +80,9 @@ ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
     m_form = form;
 
     connect(form, SIGNAL(mainContainerChanged(QWidget*)),
-            this, SLOT(updateQrcList()));
+            this, SLOT(updateQrcStack()));
+    connect(form, SIGNAL(fileNameChanged(const QString &)),
+            this, SLOT(updateQrcPaths()));
 
     QVBoxLayout *layout1 = new QVBoxLayout(this);
 
@@ -137,22 +140,39 @@ ResourceEditor::ResourceEditor(AbstractFormWindow *form, QWidget *parent)
     updateUi();
 }
 
-int ResourceEditor::qrcCount()
+int ResourceEditor::qrcCount() const
 {
     return m_qrc_stack->count();
 }
 
+QTreeView *ResourceEditor::view(int i) const
+{
+    if (i >= qrcCount() || i < 0)
+        return 0;
+    return qobject_cast<QTreeView*>(m_qrc_stack->widget(i));
+}
+
+ResourceModel *ResourceEditor::model(int i) const
+{
+    if (i >= qrcCount() || i < 0)
+        return 0;
+    return qobject_cast<ResourceModel*>(view(i)->model());    
+}
+
 QTreeView *ResourceEditor::currentView() const
 {
-    return qobject_cast<QTreeView*>(m_qrc_stack->currentWidget());
+    int idx = currentIndex();
+    if (idx == -1)
+        return 0;
+    return view(idx);
 }
 
 ResourceModel *ResourceEditor::currentModel() const
 {
-    QTreeView *view = currentView();
-    if (view == 0)
+    int idx = currentIndex();
+    if (idx == -1)
         return 0;
-    return qobject_cast<ResourceModel*>(view->model());
+    return model(idx);
 }
 
 void ResourceEditor::getCurrentItem(QString &prefix, QString &file)
@@ -289,7 +309,7 @@ void ResourceEditor::setCurrentIndex(int i)
     updateUi();
 }
 
-void ResourceEditor::updateQrcList()
+void ResourceEditor::updateQrcStack()
 {
     m_qrc_combo->clear();
     while (m_qrc_stack->count() > 0) {
@@ -305,6 +325,21 @@ void ResourceEditor::updateQrcList()
     updateUi();
 }
 
+QString ResourceEditor::qrcName(const QString &path) const
+{
+    if (path.isEmpty())
+        return tr("Untitled");
+    return m_form->relativePath(path);
+}
+
+void ResourceEditor::updateQrcPaths()
+{
+    for (int i = 0; i < m_qrc_stack->count(); ++i) {
+        ResourceModel *model = this->model(i);
+        m_qrc_combo->setItemText(i, qrcName(model->fileName()));
+    }
+}
+
 void ResourceEditor::addView(const QString &qrc_file)
 {
     int idx = qrcCount();
@@ -315,12 +350,7 @@ void ResourceEditor::addView(const QString &qrc_file)
         return;
     view->setModel(model);
     view->header()->hide();
-    QString name;
-    if (qrc_file.isEmpty())
-        name = tr("Unnamed");
-    else
-        name = m_form->relativePath(qrc_file);
-    m_qrc_combo->addItem(name);
+    m_qrc_combo->addItem(qrcName(qrc_file));
     m_qrc_stack->addWidget(view);
     connect(view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateUi()));

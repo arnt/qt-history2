@@ -23,25 +23,25 @@ public:
     ResourceEditor(AbstractFormWindow *form, QWidget *parent = 0);
 
     AbstractFormWindow *form() const { return m_form; }
-    int qrcCount();
+    int qrcCount() const;
     
-public slots:
-    void updateQrcList();
+public slots:    
+    void saveCurrentView();
+    void removeCurrentView();
+    void reloadCurrentView();
+    void newView();
+    void openView();
+    
+private slots:
+    void updateQrcPaths();
+    void updateQrcStack();
     void updateUi();
     void addPrefix();
     void addFiles();
     void deleteItem();
     void setCurrentPrefix(const QString &prefix);
     void setCurrentIndex(int i);
-    int currentIndex() const;
-    
     void addView(const QString &file_name);
-    
-    void saveCurrentView();
-    void removeCurrentView();
-    void reloadCurrentView();
-    void newView();
-    void openView();
     
 private:
     QToolButton *m_new_button;
@@ -62,7 +62,11 @@ private:
     void getCurrentItem(QString &prefix, QString &file);
     QTreeView *currentView() const;
     ResourceModel *currentModel() const;
+    QTreeView *view(int i) const;
+    ResourceModel *model(int i) const;
     int indexOfView(QTreeView *view);
+    QString qrcName(const QString &path) const;
+    int currentIndex() const;
 };
 
 #endif // RESOURCEEDITOR_H

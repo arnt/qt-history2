@@ -427,7 +427,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             if (d == -1)
                 result = m_resource_file.prefix(index.row());
             else
-                result = m_resource_file.file(d, index.row());
+                result = QFileInfo(m_resource_file.file(d, index.row())).fileName();
             break;
         case DecorationRole:
             if (d != -1) {
@@ -436,6 +436,11 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                     result = icon;
             }
             break;
+        case ToolTipRole:
+            if (d != -1)
+                result = m_resource_file.relativePath(m_resource_file.file(d, index.row()));
+            break;
+            
         default:
             break;
     };
