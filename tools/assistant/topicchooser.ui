@@ -19,8 +19,6 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<include location="local" implDecl="in declaration">topicchooser.ui.h</include>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>TopicChooserBase</cstring>
@@ -85,17 +83,6 @@
                 <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>buttonHelp</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Help</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
-                </widget>
                 <spacer>
                     <property name="name">
                         <cstring>Horizontal Spacing2</cstring>
@@ -149,31 +136,34 @@
     </vbox>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>buttonDisplay</sender>
         <signal>clicked()</signal>
         <receiver>TopicChooserBase</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>TopicChooserBase</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listbox</sender>
         <signal>doubleClicked(QListBoxItem*)</signal>
         <receiver>TopicChooserBase</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listbox</sender>
         <signal>returnPressed(QListBoxItem*)</signal>
         <receiver>TopicChooserBase</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
