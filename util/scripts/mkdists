@@ -803,6 +803,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf "$PLATDIR/mkspecs/qws"
 	    rm -rf "$PLATDIR/plugins/src/gfxdrivers"
 	    rm -rf "$PLATDIR/plugins/gfxdrivers"
+	    rm -rf "$PLATDIR/examples/directpainter"
 	fi
 	rm -f "$PLATDIR/mkspecs/README"
 	rm -rf "$PLATDIR/examples/kiosk"
