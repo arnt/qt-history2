@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#15 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -419,7 +419,7 @@ bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 /*!
   Returns TRUE if \a u1 is equal \a u2, else FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
-  to be one of  QDir::Name, QDir::Time and QDir::Size.
+  to be one of QDir::Name, QDir::Time and QDir::Size.
 */
 
 bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
