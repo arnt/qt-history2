@@ -61,7 +61,6 @@ public:
 
     enum DialogCode { Rejected, Accepted };
 
-    int		exec();
     int		result()  const { return rescode; }
 
     void	show();
@@ -84,6 +83,9 @@ public:
 
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
+
+public slots:
+    int exec();
 
 protected slots:
     virtual void done( int );
