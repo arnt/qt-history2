@@ -119,17 +119,21 @@ void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses)
     QString filePath;
     //check QLibraryInfo::DataPath/filename
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
-    
+
     //check QLibraryInfo::PrefixPath/tools/porting/src/filename
     if (!QFile::exists(filePath))
         filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
-    
-    
+
+    // for bootstrapping, look in the rules file in a location
+    // relative to where it would be in the source tree
+    if (!QFile::exists(filePath))
+        filePath = QDir::cleanPath(QApplication::instance()->applicationDirPath() + "/../tools/porting/src/" + fileName);
+
     if (!QFile::exists(filePath)) {
         std::cout << "Error: Could not find rules file: " << fileName.latin1() << std::endl;
         Q_ASSERT(0);
     }
-    
+
     ContentHandler handler;
 
     QXmlSimpleReader reader;
