@@ -325,7 +325,7 @@ public:
     void addItem( QLayoutItem * );
     void addItem( QLayoutItem *item, int row, int col );
     void addMultiCell( QLayoutItem *, int fromRow, int toRow,
-			       int fromCol, int toCol, int align = 0 );
+		       int fromCol, int toCol, int align = 0 );
 
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
@@ -392,8 +392,10 @@ public:
 		       int alignment = 0 );
     void insertLayout( int index, QLayout *layout, int stretch = 0 );
 
-    bool setStretchFactor( QWidget*, int stretch );
+    bool setStretchFactor( QWidget *w, int stretch );
     bool setStretchFactor( QLayout *l, int stretch );
+    bool setAlignment( QWidget *w, int alignment );
+    bool setAlignment( QLayout *l, int alignment );
 
     QSize sizeHint() const;
     QSize minimumSize() const;

@@ -2192,6 +2192,8 @@ int QBoxLayout::findWidget( QWidget* w )
     Sets the stretch factor for widget \a w to \a stretch and returns
     TRUE if \a w is found in this layout (not including child
     layouts); otherwise returns FALSE.
+
+    \sa setAlignment()
 */
 bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 {
@@ -2229,6 +2231,51 @@ bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
     }
     return FALSE;
 }
+
+/*!
+    Sets the alignment for widget \a w to \a alignment and returns
+    TRUE if \a w is found in this layout (not including child
+    layouts); otherwise returns FALSE.
+
+    \sa setStretchFactor()
+*/
+bool QBoxLayout::setAlignment( QWidget *w, int alignment )
+{
+    QPtrListIterator<QBoxLayoutItem> it( data->list );
+    QBoxLayoutItem *box;
+    while ( (box=it.current()) != 0 ) {
+	++it;
+	if ( box->item->widget() == w ) {
+	    box->item->setAlignment( alignment );
+	    invalidate();
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+/*!
+  \overload
+
+  Sets the alignment for the layout \a l to \a alignment and
+  returns TRUE if \a l is found in this layout (not including child
+  layouts); otherwise returns FALSE.
+*/
+bool QBoxLayout::setAlignment( QLayout *l, int alignment )
+{
+    QPtrListIterator<QBoxLayoutItem> it( data->list );
+    QBoxLayoutItem *box;
+    while ( (box=it.current()) != 0 ) {
+	++it;
+	if ( box->item->layout() == l ) {
+	    box->item->setAlignment( alignment );
+	    invalidate();
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
 
 /*!
     Sets the direction of this layout to \a direction.
