@@ -281,7 +281,6 @@ private:
     Q3CanvasChunk& chunkContaining(int x, int y) const;
 
     QRect changeBounds(const QRect& inarea);
-    void drawChanges(const QRect& inarea);
 
     void ensureOffScrSize(int osw, int osh);
     QPixmap offscr;
@@ -331,7 +330,7 @@ public:
     bool setWorldMatrix(const QMatrix &);
 
 protected:
-    void drawContents(QPainter*, int cx, int cy, int cw, int ch);
+    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
     QSize sizeHint() const;
 
 private:
@@ -342,7 +341,6 @@ private:
     friend void qt_unview(Q3Canvas* c);
 
 private slots:
-    void cMoving(int,int);
     void updateContentsSize();
 
 private:

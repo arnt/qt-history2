@@ -39,13 +39,11 @@ public:
 
 class Q3CanvasViewData {
 public:
-    Q3CanvasViewData() : repaint_from_moving(false), update_outside_paintevent(false) {}
+    Q3CanvasViewData() {}
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix xform;
     QMatrix ixform;
 #endif
-    bool repaint_from_moving;
-    bool update_outside_paintevent;
 };
 
 // clusterizer
@@ -60,8 +58,8 @@ public:
     void add(const QRect& rect);
 
     void clear();
-    int clusters() { return count; }
-    const QRect& operator[](int i);
+    int clusters() const { return count; }
+    const QRect& operator[](int i) const;
 
 private:
     QRect* cluster;
@@ -243,7 +241,7 @@ void Q3CanvasClusterizer::add(const QRect& rect)
     // and rephrase it as pre-/post-conditions.
 }
 
-const QRect& Q3CanvasClusterizer::operator[](int i)
+const QRect& Q3CanvasClusterizer::operator[](int i) const
 {
     return cluster[i];
 }
@@ -589,7 +587,7 @@ void Q3Canvas::init(int w, int h, int chunksze, int mxclusters)
     grid = 0;
     htiles = 0;
     vtiles = 0;
-    dblbuf = true;
+    dblbuf = false;
     debug_redraw_areas = false;
 }
 
@@ -1039,7 +1037,7 @@ void Q3Canvas::advance()
 /*!
   \internal
 */
-void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bool dbuf)
+void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bool)
 {
     QPoint tl = view->contentsToViewport(QPoint(0,0));
 
@@ -1077,42 +1075,27 @@ void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bo
 	    QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
 	    qt_setclipregion(p, QRegion(cvr)-QRegion(a));
 	    p->fillRect(vr,view->viewport()->palette()
-		.brush(QPalette::Active,QColorGroup::Background));
+                        .brush(QPalette::Active,QColorGroup::Background));
 	}
 	qt_setclipregion(p, a);
     }
 
-    if (dbuf) {
-	ensureOffScrSize(vr.width(), vr.height());
-	QPainter dbp(&offscr);
-#ifndef QT_NO_TRANSFORMATIONS
-	twm.translate(-vr.x(),-vr.y());
-	twm.translate(-tl.x(),-tl.y());
-	dbp.setWorldMatrix(wm*twm, true);
-#else
-	dbp.translate(-vr.x()-tl.x(),-vr.y()-tl.y());
-#endif
-	qt_setcliprect(&dbp, QRect(0,0,vr.width(), vr.height()));
-	drawCanvasArea(ivr,&dbp,false);
-	p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
+    QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
+    if (!all.contains(ivr)) {
+        QRegion inside = p->clipRegion() & r;
+        //QRegion outside = p->clipRegion() - r;
+        //p->setClipRegion(outside);
+        //p->fillRect(outside.boundingRect(),red);
+        qt_setclipregion(p, inside);
     } else {
-	QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
-	if (!all.contains(ivr)) {
-	    QRegion inside = p->clipRegion() & r;
-	    //QRegion outside = p->clipRegion() - r;
-	    //p->setClipRegion(outside);
-	    //p->fillRect(outside.boundingRect(),red);
-	    qt_setclipregion(p, inside);
-	} else {
-	    qt_setcliprect(p, r);
-	}
+        qt_setcliprect(p, r);
+    }
 #ifndef QT_NO_TRANSFORMATIONS
-	p->setWorldMatrix(wm*twm);
+    p->setWorldMatrix(wm*twm);
 #else
 #endif
-	p->setBrushOrigin(tl.x(), tl.y());
-	drawCanvasArea(ivr,p,false);
-    }
+    p->setBrushOrigin(tl.x(), tl.y());
+    drawCanvasArea(ivr,p,false);
 }
 
 /*!
@@ -1122,7 +1105,7 @@ void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bo
 */
 void Q3Canvas::update()
 {
-    Q3CanvasClusterizer clusterizer(d->viewList.count());
+    // ##### fix QT_NO_TRANSFORMATIONS
 #ifndef QT_NO_TRANSFORMATIONS
     Q3PtrList<QRect> doneareas;
     doneareas.setAutoDelete(true);
@@ -1139,25 +1122,17 @@ void Q3Canvas::update()
 		   view->visibleWidth(),view->visibleHeight());
 	if (area.width()>0 && area.height()>0) {
 #ifndef QT_NO_TRANSFORMATIONS
-	    if (!wm.isIdentity()) {
-		// r = Visible area of the canvas where there are changes
-		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
-		if (!r.isEmpty()) {
-                    QRect tr = wm.map(r);
-                    tr.moveBy(-view->contentsX(), -view->contentsY());
-                    view->viewport()->repaint(tr);
-		    doneareas.append(new QRect(r));
-		}
-	    } else
+            // r = Visible area of the canvas where there are changes
+            QRect r = changeBounds(view->inverseWorldMatrix().map(area));
+            if (!r.isEmpty()) {
+                QRect tr = wm.map(r);
+                tr.moveBy(-view->contentsX(), -view->contentsY());
+                view->viewport()->update(tr);
+                doneareas.append(new QRect(r));
+            }
 #endif
-	    {
-		clusterizer.add(area);
-	    }
 	}
     }
-
-    for (int i=0; i<clusterizer.clusters(); i++)
-	drawChanges(clusterizer[i]);
 
 #ifndef QT_NO_TRANSFORMATIONS
     for (QRect* r=doneareas.first(); r != 0; r=doneareas.next())
@@ -1165,10 +1140,6 @@ void Q3Canvas::update()
 #endif
 }
 
-
-// ### warwick - setAllChanged() is not a set function. please rename
-// it. ditto setChanged(). markChanged(), perhaps?
-// ### unfortunately this function is virtual, which makes renaming more difficult. Lars
 
 /*!
     Marks the whole canvas as changed.
@@ -1274,54 +1245,6 @@ QRect Q3Canvas::changeBounds(const QRect& inarea)
     return result;
 }
 
-/*!
-\internal
-Redraws the area \a inarea of the Q3Canvas.
-*/
-void Q3Canvas::drawChanges(const QRect& inarea)
-{
-    QRect area=inarea.intersect(QRect(0,0,width(),height()));
-
-    Q3CanvasClusterizer clusters(maxclusters);
-
-    int mx = (area.x()+area.width()+chunksize)/chunksize;
-    int my = (area.y()+area.height()+chunksize)/chunksize;
-    if (mx > chwidth)
-	mx=chwidth;
-    if (my > chheight)
-	my=chheight;
-
-    int x=area.x()/chunksize;
-    while(x<mx) {
-	int y=area.y()/chunksize;
-	while(y<my) {
-	    Q3CanvasChunk& ch=chunk(x,y);
-	    if (ch.hasChanged())
-		clusters.add(x,y);
-	    y++;
-	}
-	x++;
-    }
-
-    for (int i=0; i<clusters.clusters(); i++) {
-	QRect elarea=clusters[i];
-	elarea.setRect(
-	    elarea.left()*chunksize,
-	    elarea.top()*chunksize,
-	    elarea.width()*chunksize,
-	    elarea.height()*chunksize
-	);
-        for (Q3CanvasView* view = d->viewList.first(); view != 0; view = d->viewList.next()) {
-	    // this is necessary to avoid reworking the entire canvas
-	    // update scheme
-	    view->d->update_outside_paintevent = true;
-	    elarea.moveBy(-view->contentsX(), -view->contentsY());
- 	    view->viewport()->repaint(elarea);
-	    view->d->update_outside_paintevent = false;
-	}
-    }
-}
-
 void Q3Canvas::ensureOffScrSize(int osw, int osh)
 {
     if (osw > offscr.width() || osh > offscr.height())
@@ -1351,17 +1274,15 @@ void Q3Canvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
 	drawCanvasArea(clip, painter, dbuf);
 }
 
+#include <qdebug.h>
 /*!
   \internal
 */
-void Q3Canvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffer)
+void Q3Canvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool /*double_buffer*/)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
-    if (!dblbuf)
-	double_buffer = false;
-
-    if (!d->viewList.first() && !p) return; // Nothing to do.
+    if (!p) return; // Nothing to do.
 
     int lx=area.x()/chunksize;
     int ly=area.y()/chunksize;
@@ -1389,7 +1310,7 @@ void Q3Canvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buff
 		if (chunk(x,y).takeChange()) {
 		    // ### should at least make bands
 		    rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
-				    chunksize,chunksize);
+                                   chunksize,chunksize);
 		    allvisible += *chunk(x,y).listPtr();
 		}
 	    } else {
@@ -1399,62 +1320,9 @@ void Q3Canvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buff
     }
     allvisible.sort();
 
-    if (double_buffer)
-	ensureOffScrSize(area.width(), area.height());
-
-    if (double_buffer && !offscr.isNull()) {
-	QPainter painter;
-	painter.begin(&offscr);
-	painter.translate(-area.x(),-area.y());
-	if (p) {
-	    qt_setcliprect(&painter, QRect(0,0,area.width(),area.height()));
-	} else {
-	    qt_setclipregion(&painter, rgn);
-	}
-	drawBackground(painter,area);
-	allvisible.drawUnique(painter);
-	drawForeground(painter,area);
-	painter.end();
-	if (p) {
-	    p->drawPixmap(area.x(), area.y(), offscr,
-		0, 0, area.width(), area.height());
-	    return;
-	}
-    } else if (p) {
-	drawBackground(*p,area);
-	allvisible.drawUnique(*p);
-	drawForeground(*p,area);
-	return;
-    }
-
-    QPoint trtr; // keeps track of total translation of rgn
-
-    trtr -= area.topLeft();
-
-    for (Q3CanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
-#ifndef QT_NO_TRANSFORMATIONS
-	if (!view->worldMatrix().isIdentity())
-	    continue; // Cannot paint those here (see callers).
-#endif
-	QPainter painter(view->viewport());
-	QPoint tr = view->contentsToViewport(area.topLeft());
-	QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
-	QPoint rtr = nrtr - trtr; // extra translation of rgn
-	trtr += rtr; // add to total
-	if (double_buffer) {
-	    rgn.translate(rtr.x(),rtr.y());
-	    qt_setclipregion(&painter, rgn);
-	    painter.drawPixmap(tr,offscr, QRect(QPoint(0,0),area.size()));
-	} else {
-	    painter.translate(nrtr.x(),nrtr.y());
-	    rgn.translate(rtr.x(),rtr.y());
-	    qt_setclipregion(&painter, rgn);
-	    drawBackground(painter,area);
-	    allvisible.drawUnique(painter);
-	    drawForeground(painter,area);
-	    painter.translate(-nrtr.x(),-nrtr.y());
-	}
-    }
+    drawBackground(*p,area);
+    allvisible.drawUnique(*p);
+    drawForeground(*p,area);
 }
 
 /*!
@@ -3470,12 +3338,8 @@ Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, Qt::WFlags f)
     : Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new Q3CanvasViewData;
-    viewport()->setAttribute(Qt::WA_PaintOnScreen);
-    viewport()->setAttribute(Qt::WA_NoSystemBackground);
-    viewport()->setAttribute(Qt::WA_NoBackground);
     viewing = 0;
     setCanvas(0);
-    connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
 
 /*!
@@ -3488,13 +3352,8 @@ Q3CanvasView::Q3CanvasView(Q3Canvas* canvas, QWidget* parent, const char* name, 
     : Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new Q3CanvasViewData;
-    viewport()->setAttribute(Qt::WA_PaintOnScreen);
-    viewport()->setAttribute(Qt::WA_NoSystemBackground);
-    viewport()->setAttribute(Qt::WA_NoBackground);
     viewing = 0;
     setCanvas(canvas);
-
-    connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
 
 /*!
@@ -3521,6 +3380,9 @@ Q3CanvasView::~Q3CanvasView()
 */
 void Q3CanvasView::setCanvas(Q3Canvas* canvas)
 {
+    if (viewing == canvas)
+        return;
+
     if (viewing) {
 	disconnect(viewing);
 	viewing->removeView(this);
@@ -3532,6 +3394,7 @@ void Q3CanvasView::setCanvas(Q3Canvas* canvas)
     }
     if (d) // called by d'tor
         updateContentsSize();
+    update();
 }
 
 #ifndef QT_NO_TRANSFORMATIONS
@@ -3610,14 +3473,6 @@ void Q3CanvasView::updateContentsSize()
     }
 }
 
-void Q3CanvasView::cMoving(int x, int y)
-{
-    // A little kludge to smooth up repaints when scrolling
-    int dx = x - contentsX();
-    int dy = y - contentsY();
-    d->repaint_from_moving = QABS(dx) < width()/8 && QABS(dy) < height()/8;
-}
-
 /*!
     Repaints part of the Q3Canvas that the canvas view is showing
     starting at \a cx by \a cy, with a width of \a cw and a height of \a
@@ -3627,11 +3482,7 @@ void Q3CanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-	if (d->update_outside_paintevent)
-	    viewing->drawCanvasArea(r);
-	else
-	    viewing->drawViewArea(this,p,r,!d->repaint_from_moving);
-	d->repaint_from_moving = false;
+        viewing->drawViewArea(this,p,r,false);
     } else {
 	p->eraseRect(r);
     }
