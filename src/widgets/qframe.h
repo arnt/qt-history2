@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#9 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#10 $
 **
 ** Definition of QFrame widget class
 **
@@ -20,18 +20,19 @@ class QFrame : public QWidget			// frame class
 {
     Q_OBJECT
 public:
-    QFrame( QWidget *parent=0, const char *name=0, WFlags f=0 );
+    QFrame( QWidget *parent=0, const char *name=0, WFlags f=0,
+	    bool allowLines=TRUE );
 
     enum { NoFrame  = 0,			// no frame
 	   Box	    = 0x0001,			// rectangular box
 	   Panel    = 0x0002,			// rectangular panel
 	   HLine    = 0x0003,			// horizontal line
 	   VLine    = 0x0004,			// vertical line
-	   MType    = 0x000f,
+	   MShape   = 0x000f,
 	   Plain    = 0x0010,			// plain line
 	   Raised   = 0x0020,			// raised shadow effect
 	   Sunken   = 0x0030,			// sunken shadow effect
-	   MStyle   = 0x00f0 };
+	   MShadow  = 0x00f0 };
 
     int		frameStyle()	const { return fstyle; }
     void	setFrameStyle( int );
@@ -56,11 +57,12 @@ protected:
 
 private:
     void	updateFrameWidth();
-    QRect	frect;				// frame rectangle
-    int		fstyle;				// frame type/style
-    short	lwidth;				// line width
-    short	mwidth;				// mid line width
-    short	fwidth;				// frame width
+    QRect	frect;
+    int		fstyle;
+    short	lwidth;
+    short	mwidth;
+    short	fwidth;
+    short	lineok;
 };
 
 
