@@ -25,8 +25,8 @@ public:
     QString type;
 
     QRect geom;
-    QPtrList<QPixmap> images;
-    QPtrList<QRect> clips;
+    QDict<QPixmap> images;
+    QDict<QRect> clips;
 
     bool hasMask;
     QBitmap mask;
@@ -45,6 +45,8 @@ public:
     }
     QPtrList<QSkinStyleItem> specials;
 
+    // FIXME.  Should only use the 'class-only' item if no class
+    // and name item exists.
     QSkinStyleItem * getItem(const QWidget *w) 
     { 
 	if(specials.count() > 0) {
@@ -161,6 +163,7 @@ static int last_width = 0;
 static int last_height = 0;
 static int count = 0;
 static QString last_string;
+static QString eName;
 
 QSkinStyleHandler::QSkinStyleHandler() 
 {
@@ -197,11 +200,17 @@ bool QSkinStyleHandler::startElement(const QString &, const QString &,
 	    break;
 	case S_Main:
 	    if (qName == "widget") {
-		if(!atts.value("type") || !atts.value("name")) {
+
+		QString name = atts.value("name");
+		QString type = atts.value("type");
+
+		if(!name && !type) {
 		    errorProt += "missing attributes: ";
 		    return FALSE;
 		}
-		i = new QSkinStyleItem(atts.value("type"), atts.value("name"));
+
+		i = new QSkinStyleItem(type, name);
+
 		if(atts.value("dragable") == "true")
 		    i->isDragable = TRUE;
 		state.push(S_Widget);
@@ -274,6 +283,11 @@ bool QSkinStyleHandler::startElement(const QString &, const QString &,
 	    return FALSE;
 	case S_Widget:
 	    if (qName == "image") {
+		eName = atts.value("name");
+		if(!eName) {
+		    errorProt += "missing attributes: ";
+		    return FALSE;
+		}
 		state.push(S_Pixmap);
 		return TRUE;
 	    }
@@ -430,18 +444,24 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 		     qWarning(QString("could not find image %1").arg(last_string));
 		     return FALSE;
 		 }
-		 i->images.append(im);
-		 i->clips.append(new QRect(last_x, last_y, 
+		 if (i->images.count() == 0) {
+		     i->images.replace("Default", im);
+		     i->clips.replace("Defualt", new QRect(last_x, last_y, 
+				 last_width, last_height));
+		 }
+		 i->images.replace(eName, im);
+		 i->clips.replace(eName, new QRect(last_x, last_y, 
 			     last_width, last_height));
 
 		 /* re-init for next round */
 		 last_x = last_y = last_width = last_height = 0;
-		 last_string = QString::null;
+		 eName = last_string = QString::null;
 		 state.pop();
 	     }
 	     break;
 	 case S_PixmapSet:
 	     {
+#if 0
 		 /* push image and clipping onto 'i' */
 		 QPixmap *im = d->images.find(last_string);
 		 if(!im) {
@@ -462,6 +482,7 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 		     previous_y += last_y;
 		 }
 
+#endif
 		 /* re-init for next round */
 		 previous_x = previous_y =last_x = last_y 
 		     = last_width = last_height = 0;
@@ -649,29 +670,6 @@ bool QSkinStyleHandler::fatalError(const QXmlParseException &e)
 /* later, remove this function */
 QSkinStyle::QSkinStyle() : QWindowsStyle()
 {
-#if 0
-    /* later, parse desc for XML description */
-    d = new QSkinStylePrivate();
-    QSkinStyleItem *i = new QSkinStyleItem("QPushButton", "funny1");
-
-    i->geom = QRect(0,0,20,20);
-    i->images.append(new QPixmap("skin.png"));
-    i->images.append(new QPixmap("skin.png"));
-    i->images.append(new QPixmap("skin.png"));
-    i->clips.append(new QRect(0,0,20,20));
-    i->clips.append(new QRect(20,0,20,20));
-    i->clips.append(new QRect(40,0,20,20));
-
-    d->specials.append(i);
-
-    i = new QSkinStyleItem("QSkinLayout", "usit");
-
-    i->geom = QRect(0,0,200,200);
-    i->children.insert("el1", new QRect(0,0, 150, 150));
-    i->children.insert("el2", new QRect(200,10, 150, 150));
-
-    d->specials.append(i);
-#endif
     d = 0;
 }
 
@@ -798,16 +796,16 @@ int QSkinStyle::countImages(const QWidget *w) const
    return (d->getItem(w)->images.count());
 }
 
-QPixmap QSkinStyle::image(const QWidget *w, int i) const
+QPixmap QSkinStyle::image(const QWidget *w, const QString &i) const
 {
    if(!defined(w))
        return 0;
 
-   QPixmap retval(d->getItem(w)->images.at(i)->convertToImage().copy(*d->getItem(w)->clips.at(i)));
+   QPixmap retval(d->getItem(w)->images.find(i)->convertToImage().copy(*d->getItem(w)->clips.find(i)));
    return retval;
 }
 
-void QSkinStyle::drawImage(QPainter *p, const QWidget *w, int i) const
+void QSkinStyle::drawImage(QPainter *p, const QWidget *w, const QString &i) const
 {
     if(!defined(w))
 	return;
@@ -815,7 +813,7 @@ void QSkinStyle::drawImage(QPainter *p, const QWidget *w, int i) const
     if (i >= d->getItem(w)->images.count())
 	return;
 
-    p->drawPixmap(QPoint(0,0), *d->getItem(w)->images.at(i), *d->getItem(w)->clips.at(i));
+    p->drawPixmap(QPoint(0,0), *d->getItem(w)->images.find(i), *d->getItem(w)->clips.find(i));
 }
 
 void QSkinStyle::drawControl(ControlElement element,
@@ -834,67 +832,107 @@ void QSkinStyle::drawControl(ControlElement element,
 
     QSkinStyleItem *i = d->getItem(widget);
     if(i) {
-	int count = i->images.count();
 	switch(element) {
 	    case CE_PushButton: 
 		{
-		    if (count < 2) {
+		    /* flag		named	backup
+		       Raised		Up
+		       Down		Down
+		       On		OnUp	Down
+		       On & Down	OnDown	Down
+		       Disabled 	Default
+		     */
+		    QPixmap *pix = 0;
+		    QRect   *clip = 0;
+		    if(flags & Style_Enabled) {
+			if (flags & Style_Down) {
+			    pix = i->images.find("Down");
+			    clip = i->clips.find("Down");
+			    if ((flags & Style_On) 
+				    && i->clips.find("OnDown") 
+				    && i->images.find("OnDown")) 
+			    {
+				pix = i->images.find("OnDown");
+				clip = i->clips.find("OnDown");
+			    }
+			} else {
+			    if (flags & Style_On) {
+				pix = i->images.find("OnUp");
+				clip = i->clips.find("OnUp");
+				if (!pix || !clip) {
+				    pix = i->images.find("Down");
+				    clip = i->clips.find("Down");
+			        }
+			    } else {
+				pix = i->images.find("Up");
+				clip = i->clips.find("Up");
+			    }
+			}
+		    } else {
+			pix = i->images.find("Disabled");
+			clip = i->clips.find("Disabled");
+		    }
+
+		    /* fall backs */
+		    if (!(pix && clip)) {
+			pix = i->images.find("Default");
+			clip = i->clips.find("Default");
+		    }
+		    if (!(pix && clip)) {
 			QWindowsStyle::drawControl(element, p, widget, r, cg, 
 				flags, data);
 			return;
 		    }
-		    /* For a push button the images are
-		       flag		image	(backup)
-		       Raised	0	0
-		       Down		1	1
-		       On & raised	2	1
-		       On & down	3	2
-		       Disabled		4	0
-		       Focus&Raised 	5	0
-		       Focus&Down   	6	1
-		       etc.
 
-		     */
-		    int ind = 0;
-		    if (flags & Style_On && count > 2)
-			ind += 2;
-		    if (flags & Style_Down)
-			ind += 1;
-		    /* disabled overides on/off/down/raise */
-		    if (count > 5) 
-			if (!(flags & Style_Enabled))
-			ind = 5;
-		    /* focus images only if all others already present */
-		    if (flags & Style_HasFocus && count > 9)
-			ind += 5;
-
-		    i->clips.first();
-		    i->images.first();
-		    while(ind--) {
-			i->images.next();
-			i->clips.next();
-		    }
-
-		    if(!i->images.current()) {
-			i->clips.last();
-			i->images.last();
-		    }
-
-		    p->drawPixmap(r.topLeft(), 
-			    *(i->images.current()), *(i->clips.current()));
+		    p->drawPixmap(r.topLeft(), *pix, *clip);
 		}
 		break;
 	    case CE_PushButtonLabel:
 		/* we don't draw a label */
-		if (i->images.count() < 2) {
+		if (i->images.count() == 0) {
 		    /* Unless of course we didn't draw the button */
 		    QWindowsStyle::drawControl(element, p, widget, r, cg, 
 			    flags, data);
 			return;
 	        }
 		break;
+	    case CE_CheckBox: 
+		{
+		    QPixmap *pix = 0;
+		    QRect   *clip = 0;
+		    if(flags & Style_Enabled) {
+			if (flags & Style_On) {
+			    pix = i->images.find("On");
+			    clip = i->clips.find("On");
+			} else if (flags & Style_Off) {
+			    pix = i->images.find("Off");
+			    clip = i->clips.find("Off");
+			} else {
+			    pix = i->images.find("NoChange");
+			    clip = i->clips.find("NoChange");
+			}
+		    } else {
+			pix = i->images.find("Disabled");
+			clip = i->clips.find("Disabled");
+		    }
+
+		    /* fall backs */
+		    if (!(pix && clip)) {
+			pix = i->images.find("Default");
+			clip = i->clips.find("Default");
+		    }
+		    if (!(pix && clip)) {
+			QWindowsStyle::drawControl(element, p, widget, r, cg, 
+				flags, data);
+			return;
+		    }
+
+		    p->drawPixmap(r.topLeft(), 
+			    *pix, *clip);
+		}
+		break;
 	    default:
-		/* don't know how to draw this...  Could be a custom widget */
+		/* don't know how to draw this */
 		QWindowsStyle::drawControl(element, p, widget, r, cg, 
 			flags, data);
 	}
@@ -923,7 +961,9 @@ void QSkinStyle::polish( QWidget *widget )
 	    widget->setErasePixmap(*(d->backgroundPixmap));
 	    widget->setBackgroundOrigin(QWidget::WindowOrigin);
 	}
-	widget->setFixedSize(i->geom.size());
+
+	if (i->geom.width() > 0 && i->geom.height() > 0)
+	    widget->setFixedSize(i->geom.size());
 
 	if (i->isDragable) {
 	    /* install the event filter on its ass. */
@@ -1098,7 +1138,8 @@ QSize QSkinLayout::minimumSize() const
 
 void QSkinDial::repaintScreen( const QRect *cr = 0 )
 {
-
+    QDial::repaintScreen(cr);
+#if 0
     QStyle &s = QApplication::style();
    
     /* if not skin style */
@@ -1135,5 +1176,5 @@ void QSkinDial::repaintScreen( const QRect *cr = 0 )
 
     //QPixmap px = ss->image(this, i); 
     ss->drawImage(&p, this, i);
-    //p.drawPixmap(0,0, px);
+#endif
 }

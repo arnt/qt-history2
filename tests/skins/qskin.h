@@ -31,8 +31,8 @@ public:
     QRect getGeometry(const QLayout *, const QWidget *) const;
 
     int countImages(const QWidget *) const;
-    QPixmap image(const QWidget *, int) const;
-    void drawImage(QPainter *p, const QWidget *, int) const;
+    QPixmap image(const QWidget *, const QString &) const;
+    void drawImage(QPainter *p, const QWidget *, const QString &) const;
 
 #if 0
     void drawPrimitive(PrimitiveElement pe,
