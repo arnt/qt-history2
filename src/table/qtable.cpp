@@ -3381,12 +3381,23 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    } else {
 		bool currentInSelection = tmpRow == oldRow && isSelected( tmpRow, tmpCol, FALSE );
 		if ( !currentInSelection ) {
-		    clearSelection();
+		    bool hasOldSel = FALSE;
+		    QTableSelection oldSelection;
+		    if ( selectionMode() == MultiRow ) {
+			clearSelection();
+		    } else {
+			if ( currentSel ) {
+			    oldSelection = *currentSel;
+			    hasOldSel = TRUE;
+			    selections.removeRef( currentSel );
+			    leftHeader->setSectionState( oldSelection.topRow(), QTableHeader::Normal );
+			}
+		    }
 		    currentSel = new QTableSelection();
 		    selections.append( currentSel );
 		    currentSel->init( tmpRow, 0 );
 		    currentSel->expandTo( tmpRow, numCols() - 1 );
-		    repaintSelections( 0, currentSel );
+		    repaintSelections( hasOldSel ? &oldSelection : 0, currentSel, !hasOldSel );
 		}
 	    }
 	}
