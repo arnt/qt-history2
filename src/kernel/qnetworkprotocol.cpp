@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#35 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -38,6 +38,7 @@ struct QNetworkProtocolPrivate
     QTimer *opStartTimer, *removeTimer;
     int removeInterval;
     bool autoDelete;
+    QNetworkOperation *old;
 };
 
 // NOT REVISED
@@ -197,6 +198,7 @@ QNetworkProtocol::QNetworkProtocol()
     d->operationQueue.setAutoDelete( FALSE );
     d->autoDelete = FALSE;
     d->removeInterval = 10000;
+    d->old = 0;
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
     connect( d->removeTimer, SIGNAL( timeout() ),
@@ -228,10 +230,10 @@ QNetworkProtocol::QNetworkProtocol()
 
 QNetworkProtocol::~QNetworkProtocol()
 {
-    if ( d->opInProgress )
-	delete d->opInProgress;
+    delete d->opInProgress;
     d->operationQueue.setAutoDelete( TRUE );
     delete d->opStartTimer;
+    delete d->old;
     delete d;
 }
 
@@ -612,8 +614,8 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 {
     d->removeTimer->stop();
 
-    if ( old )
-	delete old;
+    delete d->old;
+    d->old = old;
 
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;

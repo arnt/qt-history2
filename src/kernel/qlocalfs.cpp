@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#10 $
 **
 ** Implementation of QLocalFs class
 **
@@ -116,7 +116,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 void QLocalFs::operationRemove( QNetworkOperation *op )
 {
     op->setState( StInProgress );
-    QString name = op->arg1();
+    QString name = QUrl( op->arg1() ).path();
 
     dir = QDir( url()->path( FALSE ) );
     if ( dir.remove( name ) ) {

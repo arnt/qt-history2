@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#57 $
 **
 ** Implementation of QUrl class
 **
@@ -121,7 +121,7 @@ bool QUrl::isRelativeUrl( const QString &url )
     int colon = url.find( ":" );
     int slash = url.find( "/" );
 
-    return ( colon == -1 || ( slash != -1 && colon > slash ) );
+    return ( slash != 0 && ( colon == -1 || ( slash != -1 && colon > slash ) ) );
 }
 
 /*!
