@@ -163,9 +163,9 @@ public:
     void setVisible( bool b );
     bool isVisible() const;
 
-    void setRenameEnabled( bool b );
+    virtual void setRenameEnabled( bool b );
     bool renameEnabled() const;
-    void startRename();
+    virtual void startRename();
 
 protected:
     virtual void enforceSortOrder() const;
@@ -182,8 +182,8 @@ protected:
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
-    void okRename();
-    void cancelRename();
+    virtual void okRename();
+    virtual void cancelRename();
 
     int ownHeight;
     int maybeTotalHeight;
