@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#10 $
 **
 ** Implementation of QTableView class
 **
@@ -11,7 +11,7 @@
 ** --------------------------------------------------------------------
 ** NOTE: The hSbActive and vSbActive flags must be set and reset ONLY
 **	 in the setHorScrollBar and setVerScrollBar functions. If not,
-**	 scrollbar update optimizing will not work and strange things
+**	 scroll bar update optimizing will not work and strange things
 **	 might happen.
 ***********************************************************************/
 
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#10 $")
 
 
 const int sbDim = 16;
@@ -83,11 +83,12 @@ void CornerSquare::paintEvent( QPaintEvent * )
   Constructs a table view.  All the arguments are passed to the
   QFrame constructor.
 
-  The Tbl_autoVScrollBar, Tbl_autoHScrollBar and Tbl_clipCellPainting
-  flags are set, all other flags are reset.
+  The \link setTableFlags() table flags\endlink are all cleared (set to zero).
+  Set \c Tbl_autoVScrollBar or \c Tbl_autoHScrollBar to get automatic scroll
+  bars and \c Tbl_clipCellPainting to get safe clipping.
 
-  The \link setCellHeight() cell height\endlink and
-  \link setCellWidth() cell width\endlink are set to 0.
+  The \link setCellHeight() cell height\endlink and \link setCellWidth()
+  cell width\endlink are set to 0.
 
   Frame line shapes (QFrame::HLink and QFrame::VLine) are disallowed,
   see QFrame::setStyle().
@@ -103,12 +104,9 @@ QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
     xCellDelta		 = yCellDelta = 0;	// zero cell offset
     xOffs		 = yOffs      = 0;	// zero total pixel offset
     cellH		 = cellW      = 0;	// user defined cell size
-    tFlags		 = Tbl_autoVScrollBar |
-			   Tbl_autoHScrollBar |
-			   Tbl_clipCellPainting;
-
+    tFlags		 = 0;
     doUpdate		 = TRUE;
-    vScrollBar		 = hScrollBar = 0;	// no scrollbars
+    vScrollBar		 = hScrollBar = 0;	// no scroll bars
     cornerSquare	 = 0;
     sbDirty		 = 0;
     eraseInPaint	 = FALSE;
@@ -153,7 +151,7 @@ void QTableView::setBackgroundColor( const QColor &c )
   Sets the palette for the scroll bars, too.
  ----------------------------------------------------------------------------*/
 
-void QTableView::setPalette(	const QPalette &p )
+void QTableView::setPalette( const QPalette &p )
 {
     QWidget::setPalette( p );
     if ( cornerSquare )
@@ -232,7 +230,7 @@ void QTableView::setNumRows( int rows )
 	return;
     int oldRows = nRows;
     nRows = rows;
-    if ( doUpdate && isVisible() ) {
+    if ( autoUpdate() && isVisible() ) {
 	int maxRow  = lastRowVisible();
 	if ( maxRow < oldRows || maxRow < nRows )
 	    repaint();
@@ -266,7 +264,7 @@ void QTableView::setNumCols( int cols )
 	return;
     int oldCols = nCols;
     nCols = cols;
-    if ( doUpdate && isVisible() ) {
+    if ( autoUpdate() && isVisible() ) {
 	int maxCol = lastColVisible();
 	if ( maxCol < oldCols || maxCol < nCols )
 	    repaint();
@@ -283,8 +281,8 @@ void QTableView::setNumCols( int cols )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Scrolls the table such that \e row becomes the top row.  \sa
-  setYOffset(), setTopLeftCell(), setLeftCell()
+  Scrolls the table such that \e row becomes the top row.
+  \sa setYOffset(), setTopLeftCell(), setLeftCell()
   ----------------------------------------------------------------------------*/
 
 void QTableView::setTopCell( int row )
@@ -353,15 +351,16 @@ void QTableView::setTopLeftCell( int row, int col )
   \fn int QTableView::xOffset()
 
   const Returns the coordinate in pixels of the table point which is
-  currently on the left edge of the view.  \sa setXOffset(),
-  yOffset(), leftCell()
+  currently on the left edge of the view.
+
+  \sa setXOffset(), yOffset(), leftCell()
   ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Scrolls the table such that \e x becomes the leftmost pixel in the view.
 
   The interaction with \link setTableFlags() Tbl_snapToHGrid
-  \endlink is tricky.  If \e updateScrBars is TRUE, the scrollbars are
+  \endlink is tricky.  If \e updateScrBars is TRUE, the scroll bars are
   updated.
 
   \sa xOffset(), setYOffset(), setOffset(), setLeftCell()
@@ -384,8 +383,9 @@ void QTableView::setXOffset( int x )
   Scrolls the table such that \e y becomes the top pixel in the view.
 
   The interaction with \link setTableFlags() Tbl_snapToVGrid
-  \endlink is tricky.  If \e updateScrBars is TRUE, the scrollbars are
+  \endlink is tricky.  If \e updateScrBars is TRUE, the scroll bars are
   updated.
+
   \sa yOffset(), setXOffset(), setOffset(), setTopCell()
  ----------------------------------------------------------------------------*/
 
@@ -398,8 +398,9 @@ void QTableView::setYOffset( int y )
   Scrolls the table such that \e (x,y) becomes the top left pixel in the view.
 
   The interaction with \link setTableFlags() Tbl_snapTo*Grid
-  \endlink is tricky.  If \e updateScrBars is TRUE, the scrollbars are
+  \endlink is tricky.  If \e updateScrBars is TRUE, the scroll bars are
   updated.
+
   \sa xOffset(), yOffset(), setXOffset(), setYOffset(), setTopLeftCell()
  ----------------------------------------------------------------------------*/
 
@@ -468,7 +469,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
     int dy = (y - yOffs);
     xOffs = x;
     yOffs = y;
-    if ( doUpdate && isVisible() )
+    if ( autoUpdate() && isVisible() )
 	scroll( dx, dy );
     if ( updateScrBars )
 	updateScrollBars( verValue | horValue );
@@ -520,7 +521,7 @@ void QTableView::setCellWidth( int cellWidth )
     }
 #endif
     cellW = (short)cellWidth;
-    if ( doUpdate && isVisible() )
+    if ( autoUpdate() && isVisible() )
 	repaint();
     updateScrollBars( horSteps | horRange );
 }
@@ -570,7 +571,7 @@ void QTableView::setCellHeight( int cellHeight )
     }
 #endif
     cellH = (short)cellHeight;
-    if ( doUpdate && isVisible() )
+    if ( autoUpdate() && isVisible() )
 	repaint();
     updateScrollBars( verSteps | verRange );
 }
@@ -642,11 +643,11 @@ int QTableView::totalHeight()
   flags for convenience. Here is a complete list:
 
   <dl compact>
-  <dt> Tbl_vScrollBar <dd> The table has a vertical scrollbar.
-  <dt> Tbl_hScrollBar <dd> The table has a horizontal scrollbar.
-  <dt> Tbl_autoVScrollBar <dd> The table has a vertical scrollbar if
+  <dt> Tbl_vScrollBar <dd> The table has a vertical scroll bar.
+  <dt> Tbl_hScrollBar <dd> The table has a horizontal scroll bar.
+  <dt> Tbl_autoVScrollBar <dd> The table has a vertical scroll bar if
   and only if the contents are taller than the view.
-  <dt> Tbl_autoHScrollBar <dd> The table has a horizontal scrollbar if
+  <dt> Tbl_autoHScrollBar <dd> The table has a horizontal scroll bar if
   and only if the contents are wider than the view.
   <dt> Tbl_autoScrollBars <dd> The union of the previous two flags.
   <dt> Tbl_clipCellPainting <dd> The table uses QPainter::clipRect() to
@@ -694,10 +695,10 @@ int QTableView::totalHeight()
 
 void QTableView::setTableFlags( ulong f )
 {
-    f = (f ^ tFlags) & f;		// clear flags that are already set
+    f = (f ^ tFlags) & f;			// clear flags already set
     tFlags |= f;
 
-    bool updateOn = doUpdate;
+    bool updateOn = autoUpdate();
     setAutoUpdate( FALSE );
 
     ulong repaintMask = Tbl_cutCellsV | Tbl_cutCellsH;
@@ -714,10 +715,10 @@ void QTableView::setTableFlags( ulong f )
     if ( f & Tbl_autoHScrollBar ) {
 	updateScrollBars( horRange );
     }
-    if ( f & Tbl_scrollLastHCell    ) {
+    if ( f & Tbl_scrollLastHCell ) {
 	updateScrollBars( horRange );
     }
-    if ( f & Tbl_scrollLastVCell    ) {
+    if ( f & Tbl_scrollLastVCell ) {
 	updateScrollBars( verRange );
     }
     if ( f & Tbl_snapToHGrid ) {
@@ -731,13 +732,13 @@ void QTableView::setTableFlags( ulong f )
 	     (f & Tbl_snapToVGrid) != 0 && yCellDelta != 0 ) {
 	    snapToGrid( (f & Tbl_snapToHGrid) != 0,	// do snapping
 			(f & Tbl_snapToVGrid) != 0 );
-	    repaintMask |= Tbl_snapToGrid;		// repaint table
+	    repaintMask |= Tbl_snapToGrid;	// repaint table
 	}
     }
 
     if ( updateOn ) {
 	setAutoUpdate( TRUE );
-	updateScrollBars();	     // returns immediately if nothing to do
+	updateScrollBars();
 	if ( isVisible() && (f & repaintMask) )
 	    repaint();
     }
@@ -763,7 +764,7 @@ void QTableView::clearTableFlags( ulong f )
     f = (f ^ ~tFlags) & f;		// clear flags that are already 0
     tFlags &= ~f;
 
-    bool updateOn = doUpdate;
+    bool updateOn = autoUpdate();
     setAutoUpdate( FALSE );
 
     ulong repaintMask = Tbl_cutCellsV | Tbl_cutCellsH;
@@ -913,14 +914,14 @@ int QTableView::lastRowVisible() const
 {
     int cellMaxY;
     int row = findRawRow( maxViewY(), &cellMaxY );
-    if ( row == -1 ) {	  // maxViewY() past end of list?
-	row = nRows - 1;  // Yes, return last row.
+    if ( row == -1 ) {				// maxViewY() past end?
+	row = nRows - 1;			// yes: return last row
     } else {
 	if ( testTableFlags(Tbl_cutCellsV) && cellMaxY > maxViewY() ) {
-	    if ( row == yCellOffs )	// is first cell cut by bottom margin?
-		return -1;		// yes, nothing is in the view (!)
+	    if ( row == yCellOffs )		// cut by right margin?
+		return -1;			// yes, nothing in the view
 	    else
-	       row = row - 1;		//  cell cut by bottom margin, one up
+	       row = row - 1;			// cut by margin, one back
 	}
     }
     return row;
@@ -940,14 +941,14 @@ int QTableView::lastColVisible() const
 {
     int cellMaxX;
     int col = findRawCol( maxViewX(), &cellMaxX );
-    if ( col == -1 ) {	  // maxViewX() past end of list?
-	col = nCols - 1;  // Yes, return last col.
+    if ( col == -1 ) {				// maxViewX() past end?
+	col = nCols - 1;			// yes: return last col
     } else {
 	if ( testTableFlags(Tbl_cutCellsH) && cellMaxX > maxViewX() ) {
-	    if ( col == xCellOffs )	// is first cell cut by bottom margin?
-		return -1;		// yes, nothing is in the view (!)
+	    if ( col == xCellOffs )		// cut by bottom margin?
+		return -1;			// yes, nothing in the view
 	    else
-	       col = col - 1;		//  cell cut by bottom margin, one up
+	       col = col - 1;			// cell by margin, one back
 	}
     }
     return col;
@@ -976,8 +977,8 @@ bool QTableView::colIsVisible( int col ) const
 
 /*----------------------------------------------------------------------------
   \internal
-  Called when both scrollbars are active at the same time. Covers the
-  bottom left corner between the two scrollbars with an empty widget.
+  Called when both scroll bars are active at the same time. Covers the
+  bottom left corner between the two scroll bars with an empty widget.
  ----------------------------------------------------------------------------*/
 
 void QTableView::coverCornerSquare( bool enable )
@@ -990,7 +991,7 @@ void QTableView::coverCornerSquare( bool enable )
 				   maxViewY() + frameWidth() + 2,
 				   sbDim, sbDim );
     }
-    if ( doUpdate && cornerSquare ) {
+    if ( autoUpdate() && cornerSquare ) {
 	if ( enable )
 	    cornerSquare->show();
 	else
@@ -1036,9 +1037,11 @@ void QTableView::snapToGrid( bool horizontal, bool vertical )
 
 /*----------------------------------------------------------------------------
   \internal
+  This internal slot is connected to the horizontal scroll bar's
+  QScrollBar::valueChanged() signal.
+
   Moves the table horizontally to offset \e val without updating the
-  scrollbar.  The table internally connects the horizontal scrollbar's
-  valueChanged() to this slot.
+  scroll bar.
  ----------------------------------------------------------------------------*/
 
 void QTableView::horSbValue( int val )
@@ -1055,20 +1058,19 @@ void QTableView::horSbValue( int val )
 
 /*----------------------------------------------------------------------------
   \internal
-  horSbSliding temporarily disables \link setTableFlags()
-  Tbl_snapToHGrid \endlink and horSbSlidingDone reenables it.  The
-  table internally connects the horizontal scrollbar's sliderMoved()
-  and sliderReleased() signals to these slots.
-  \sa QScrollBar
+  This internal slot is connected to the horizontal scroll bar's
+  QScrollBar::sliderMoved() signal.
+
+  Scrolls the table smoothly horizontally even if \c Tbl_snapToHGrid is set.
  ----------------------------------------------------------------------------*/
 
 void QTableView::horSbSliding( int val )
 {
     if ( testTableFlags(Tbl_snapToHGrid) &&
 	 testTableFlags(Tbl_smoothHScrolling) ) {
-	tFlags &= ~Tbl_snapToHGrid; // turn off snapping while sliding
+	tFlags &= ~Tbl_snapToHGrid;	// turn off snapping while sliding
 	setOffset( val, yOffs, FALSE );
-	tFlags |= Tbl_snapToHGrid; // turn on snapping again
+	tFlags |= Tbl_snapToHGrid;	// turn on snapping again
     } else {
 	setOffset( val, yOffs, FALSE );
     }
@@ -1076,12 +1078,8 @@ void QTableView::horSbSliding( int val )
 
 /*----------------------------------------------------------------------------
   \internal
-  horSbSliding temporarily disables \link setTableFlags()
-  Tbl_snapToHGrid \endlink and horSbSlidingDone reenables it.  The
-  table internally connects the horizontal scrollbar's sliderMoved()
-  and sliderReleased() signals to these slots.
-
-  \sa QScrollBar
+  This internal slot is connected to the horizontal scroll bar's
+  QScrollBar::sliderReleased() signal.
  ----------------------------------------------------------------------------*/
 
 void QTableView::horSbSlidingDone( )
@@ -1093,9 +1091,11 @@ void QTableView::horSbSlidingDone( )
 
 /*----------------------------------------------------------------------------
   \internal
+  This internal slot is connected to the vertical scroll bar's
+  QScrollBar::valueChanged() signal.
+
   Moves the table vertically to offset \e val without updating the
-  scrollbar.  The table internally connects the vertical scrollbar's
-  valueChanged() to this slot.
+  scroll bar.
  ----------------------------------------------------------------------------*/
 
 void QTableView::verSbValue( int val )
@@ -1112,10 +1112,10 @@ void QTableView::verSbValue( int val )
 
 /*----------------------------------------------------------------------------
   \internal
-  This slot scrolls the table smoothly vertically even if
-  Tbl_snapToVGrid is set.  The table connects this to the vertical
-  scrollbar's sliderMoved() signal.
-  \sa QScrollBar
+  This internal slot is connected to the vertical scroll bar's
+  QScrollBar::sliderMoved() signal.
+
+  Scrolls the table smoothly vertically even if \c Tbl_snapToVGrid is set.
  ----------------------------------------------------------------------------*/
 
 void QTableView::verSbSliding( int val )
@@ -1132,8 +1132,8 @@ void QTableView::verSbSliding( int val )
 
 /*----------------------------------------------------------------------------
   \internal
-  The table connects this to the vertical scrollbar's
-  sliderReleased() signal.
+  This internal slot is connected to the vertical scroll bar's
+  QScrollBar::sliderReleased() signal.
  ----------------------------------------------------------------------------*/
 
 void QTableView::verSbSlidingDone( )
@@ -1208,8 +1208,8 @@ void QTableView::paintEvent( QPaintEvent *e )
     }
     int	  maxX	= updateR.right();
     int	  maxY	= updateR.bottom();
-    int   row	= firstRow;
-    int   col;
+    int	  row	= firstRow;
+    int	  col;
     int	  yPos	= yStart;
     int	  xPos;
     int	  nextX;
@@ -1279,10 +1279,10 @@ void QTableView::paintEvent( QPaintEvent *e )
 
 void QTableView::resizeEvent( QResizeEvent * )
 {
-    bool update = doUpdate;
+    bool update = autoUpdate();
     setAutoUpdate( FALSE );
-    int maxX	=  maxXOffset();		// dyyyyyrrrrttttt!!! ###
-    int maxY	=  maxYOffset();
+    int maxX = maxXOffset();			// ### can be slow
+    int maxY = maxYOffset();
     if ( xOffs > maxX )
 	setXOffset( maxX );
     if ( yOffs > maxY )
@@ -1319,7 +1319,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	    sbDirty |= horMask | verMask;
 	if ( testTableFlags( Tbl_vScrollBar ) )
 	    coverCornerSquare( TRUE );
-	if ( doUpdate ) {
+	if ( autoUpdate() ) {
 	    hScrollBar->show();
 	    if ( isVisible() )
 		erase( frameWidth(), height() - sbDim - 1,
@@ -1330,13 +1330,13 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	if ( !hScrollBar )
 	    return;
 	coverCornerSquare( FALSE );
-	if ( doUpdate )
+	if ( autoUpdate() )
 	    hScrollBar->hide();
 	if ( update )
 	    updateScrollBars( verMask );
 	else
 	    sbDirty |= verMask;
-	if ( doUpdate && isVisible() )
+	if ( autoUpdate() && isVisible() )
 	    repaint( frameWidth(), height() - frameWidth() - sbDim - 1,
 		     viewWidth(), sbDim + frameWidth() );
     }
@@ -1363,7 +1363,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	    sbDirty |= horMask | verMask;
 	if ( testTableFlags( Tbl_hScrollBar ) )
 	    coverCornerSquare( TRUE );
-	if ( doUpdate ) {
+	if ( autoUpdate() ) {
 	    vScrollBar->show();
 	    if ( isVisible() )
 		erase( width() - sbDim - 1, frameWidth(),
@@ -1374,13 +1374,13 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	if ( !vScrollBar )
 	    return;
 	coverCornerSquare( FALSE );
-	if ( doUpdate )
+	if ( autoUpdate() )
 	    vScrollBar->hide();
 	if ( update )
 	    updateScrollBars( horMask );
 	else
 	    sbDirty |= horMask;
-	if ( doUpdate && isVisible() )
+	if ( autoUpdate() && isVisible() )
 	    repaint( width() - frameWidth() - sbDim - 1, frameWidth(),
 		     sbDim + frameWidth(), viewHeight() );
     }
@@ -1501,7 +1501,7 @@ bool QTableView::rowYPos( int row, int *yPos ) const
 		return FALSE;
 	    y = (row - yCellOffs)*cellH + frameWidth() - yCellDelta;
 	} else {
-	    y = frameWidth() - yCellDelta;  // y pos of leftmost cell in view
+	    y = frameWidth() - yCellDelta;	// y of leftmost cell in view
 	    int r = yCellOffs;
 	    QTableView *tw = (QTableView *)this;
 	    int maxY = maxViewY();
@@ -1529,7 +1529,7 @@ bool QTableView::colXPos( int col, int *xPos ) const
 		return FALSE;
 	    x = (col - xCellOffs)*cellW + frameWidth() - xCellDelta;
 	} else {
-	    x = frameWidth() - xCellDelta; // x pos of uppermost cell in view
+	    x = frameWidth() - xCellDelta;	// x of uppermost cell in view
 	    int c = xCellOffs;
 	    QTableView *tw = (QTableView *)this;
 	    int maxX = maxViewX();
@@ -1674,7 +1674,7 @@ int QTableView::viewHeight() const
 
 void QTableView::doAutoScrollBars()
 {
-    int viewW = width()  - frameWidth()*2;
+    int viewW = width()	 - frameWidth()*2;
     int viewH = height() - frameWidth()*2;
     bool vScrollOn = testTableFlags(Tbl_vScrollBar);
     bool hScrollOn = testTableFlags(Tbl_hScrollBar);
@@ -1733,8 +1733,8 @@ void QTableView::updateScrollBars( uint f )
     if ( testTableFlags(Tbl_autoHScrollBar) && (sbDirty & horRange) ||
 	 testTableFlags(Tbl_autoVScrollBar) && (sbDirty & verRange) )
 					// if range change and auto
-	doAutoScrollBars();		// turn scrollbars on/off if needed
-    if ( !doUpdate || !isVisible() ) {
+	doAutoScrollBars();		// turn scroll bars on/off if needed
+    if ( !autoUpdate() || !isVisible() ) {
 	inSbUpdate = FALSE;
 	return;
     }
@@ -1900,7 +1900,7 @@ int QTableView::maxRowOffset()
 
 void QTableView::showOrHideScrollBars()
 {
-    if ( !doUpdate )
+    if ( !autoUpdate() )
 	return;
     if ( vScrollBar ) {
 	if ( testTableFlags(Tbl_vScrollBar) ) {
