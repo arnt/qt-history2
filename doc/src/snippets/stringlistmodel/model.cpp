@@ -42,6 +42,9 @@ QVariant StringListModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
+    if (index.row() < 0 || index.row() >= stringList.size())
+        return QVariant();
+
     if (role == Qt::DisplayRole)
         return stringList.at(index.row());
     else

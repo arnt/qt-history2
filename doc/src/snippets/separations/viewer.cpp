@@ -78,11 +78,21 @@ void Viewer::createMenus()
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
     quitAction->setShortcut(QKeySequence("Ctrl+Q"));
 
-    menuMap[brightnessMenu->addAction(tr("&0%"))] = None;
-    menuMap[brightnessMenu->addAction(tr("&25%"))] = Quarter;
-    menuMap[brightnessMenu->addAction(tr("&50%"))] = Half;
-    menuMap[brightnessMenu->addAction(tr("&75%"))] = ThreeQuarters;
+    QAction *noBrightness = brightnessMenu->addAction(tr("&0%"));
+    noBrightness->setCheckable(true);
+    QAction *quarterBrightness = brightnessMenu->addAction(tr("&25%"));
+    quarterBrightness->setCheckable(true);
+    QAction *halfBrightness = brightnessMenu->addAction(tr("&50%"));
+    halfBrightness->setCheckable(true);
+    QAction *threeQuartersBrightness = brightnessMenu->addAction(tr("&75%"));
+    threeQuartersBrightness->setCheckable(true);
     QAction *fullBrightness = brightnessMenu->addAction(tr("&100%"));
+    fullBrightness->setCheckable(true);
+
+    menuMap[noBrightness] = None;
+    menuMap[quarterBrightness] = Quarter;
+    menuMap[halfBrightness] = Half;
+    menuMap[threeQuartersBrightness] = ThreeQuarters;
     menuMap[fullBrightness] = Full;
 
     currentBrightness = fullBrightness;
@@ -214,8 +224,7 @@ void Viewer::openImageFile(QString &imageFile)
         brightnessMenu->setEnabled(true);
 
         /* Note: the ScaleMin value may be different for Qt 4. */
-        scaledImage = originalImage.convertDepth(32).scaled(256, 256,
-            Qt::KeepAspectRatio);
+        scaledImage = originalImage.scaled(256, 256, Qt::KeepAspectRatio);
 
         cyanWidget->setImage(scaledImage);
         magentaWidget->setImage(scaledImage);

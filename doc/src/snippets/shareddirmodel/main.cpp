@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
     list->setRootIndex(model->index(QDir::currentPath()));
 
     QItemSelectionModel *selection = new QItemSelectionModel(model);
-
     tree->setSelectionModel(selection);
     list->setSelectionModel(selection);
 
