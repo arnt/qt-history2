@@ -568,7 +568,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 24;		// moc output format revision
+const int formatRevision = 25;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -3290,7 +3290,12 @@ void generateClass()		      // generate C++ source code for a class
 //
 
     fprintf( out, "\nbool %s::qt_property( int id, int f, QVariant* v)\n{\n", qualifiedClassName().data() );
-    fprintf( out, "\treturn qt_static_property(this, id, f, v);\n}\n");
+    fprintf( out, "    if ( id >= staticMetaObject()->propertyOffset() )\n");
+    fprintf( out, "\treturn qt_static_property(this, id, f, v);\n");
+    if ( !g->superClassName.isEmpty()  && !isQObject )
+	fprintf( out, "    return %s::qt_property( id, f, v );\n}\n", (const char *) purestSuperClassName() );
+    else
+	fprintf( out, "    return FALSE;\n}\n" );
 
     fprintf( out, "\nbool %s::qt_static_property( QObject* oo, int id, int f, QVariant* v)\n{\n", qualifiedClassName().data() );
 
@@ -3404,7 +3409,7 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "\treturn %s::qt_static_property( o, id, f, v );\n",
+	    fprintf( out, "\treturn %s::staticMetaObject()->qt_static_property( o, id, f, v );\n",
 		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
@@ -3412,12 +3417,12 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    return TRUE;\n" );
 
 	if ( need_resolve )
-	    fprintf( out, "resolve:\n    return %s::qt_static_property( o, staticMetaObject()->resolveProperty(id), f, v );\n",
+	    fprintf( out, "resolve:\n    return %s::staticMetaObject()->qt_static_property( o, staticMetaObject()->resolveProperty(id), f, v );\n",
 		     (const char *) purestSuperClassName() );
 	fprintf( out, "}\n" );
     } else {
 	if ( !g->superClassName.isEmpty() &&  !isQObject )
-	    fprintf( out, "    return %s::qt_static_property( oo, id, f, v);\n}\n",
+	    fprintf( out, "    return %s::staticMetaObject()->qt_static_property( oo, id, f, v);\n}\n",
 		     (const char *) purestSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );

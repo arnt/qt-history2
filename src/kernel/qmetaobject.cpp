@@ -792,7 +792,14 @@ bool QMetaObject::qt_static_property( QObject* o, int id, int f, QVariant* v)
 	return d->qt_static_property( o, id, f, v );
     else if ( o ) // compatibility
 	return o->qt_property( id, f, v );
-    return FALSE;
+    else if ( superclass )
+	return superclass->qt_static_property( o, id, f, v );
+    switch ( f ) {
+    case 3: case 4: case 5:
+	return TRUE;
+    default:
+	return FALSE;
+    }
 }
 
 
