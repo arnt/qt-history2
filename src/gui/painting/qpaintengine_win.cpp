@@ -1641,15 +1641,13 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     gdiplusEngine->state = q->state;
     gdiplusInUse = true;
 
-    bool dirtyClipRegion = q->testDirty(QPaintEngine::DirtyClip);
-    bool dirtyClipPath   = q->testDirty(QPaintEngine::DirtyClipPath);
+    if (q->painter()->hasClipping()) {
+        q->state->tmpClipOp = Qt::ReplaceClip;
+        // Should be clip path
+        q->state->tmpClipRegion = q->painter()->clipRegion();
+    }
 
     q->setDirty(QPaintEngine::AllDirty);
-
-    if (!dirtyClipRegion)
-        q->clearDirty(QPaintEngine::DirtyClip);
-    if (!dirtyClipPath)
-        q->clearDirty(QPaintEngine::DirtyClipPath);
 
     q->updateState(q->state);
 }
