@@ -214,30 +214,27 @@ class Q_CORE_EXPORT QCoreVariant
     struct PrivateShared
     {
         inline PrivateShared() : ref(1) { }
-        inline PrivateShared(void *v) : ref(1) { value.ptr = v; }
-        union
-        {
-            void *ptr;
-            Q_LONGLONG ll;
-            Q_ULONGLONG ull;
-            double d;
-        } value;
+        inline PrivateShared(void *v) : ref(1) { ptr = v; }
+        void *ptr;
         QAtomic ref;
     };
     struct Private
     {
         inline Private(): type(Invalid), is_shared(false), is_null(true) { data.ptr = 0; }
-        uint type : 30;
-        uint is_shared : 1;
-        uint is_null : 1;
-        union
+        union Data
         {
             int i;
             uint u;
             bool b;
+            double d;
+            Q_LONGLONG ll;
+            Q_ULONGLONG ull;
             void *ptr;
             PrivateShared *shared;
         } data;
+        uint type : 30;
+        uint is_shared : 1;
+        uint is_null : 1;
     };
  public:
     typedef void (*f_construct)(Private *, const void *);

@@ -92,72 +92,24 @@ template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v)
 template <typename T>
 inline static const T *v_cast(const QCoreVariant::Private *d, T * = 0)
 {
-    if (QTypeInfo<T>::isLarge)
+    if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
         // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<const T*>(d->data.shared->value.ptr);
+        return reinterpret_cast<const T*>(d->data.shared->ptr);
     return reinterpret_cast<const T*>(&d->data.ptr);
-}
-
-template<>
-inline static const double *v_cast(const QCoreVariant::Private *d, double *)
-{
-    if (QTypeInfo<double>::isLarge)
-        return &d->data.shared->value.d;
-    return reinterpret_cast<const double *>(&d->data.ptr);
-}
-
-template<>
-inline static const Q_LONGLONG *v_cast(const QCoreVariant::Private *d, Q_LONGLONG *)
-{
-    if (QTypeInfo<Q_LONGLONG>::isLarge)
-        return &d->data.shared->value.ll;
-    return reinterpret_cast<const Q_LONGLONG *>(&d->data.ptr);
-}
-
-template<>
-inline static const Q_ULONGLONG *v_cast(const QCoreVariant::Private *d, Q_ULONGLONG *)
-{
-    if (QTypeInfo<Q_ULONGLONG>::isLarge)
-        return &d->data.shared->value.ull;
-    return reinterpret_cast<const Q_ULONGLONG *>(&d->data.ptr);
 }
 
 template <typename T>
 inline static T *v_cast(QCoreVariant::Private *d, T * = 0)
 {
-    if (QTypeInfo<T>::isLarge)
+    if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
         // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<T*>(d->data.shared->value.ptr);
+        return reinterpret_cast<T*>(d->data.shared->ptr);
     return reinterpret_cast<T*>(&d->data.ptr);
-}
-
-template<>
-inline static double *v_cast(QCoreVariant::Private *d, double *)
-{
-    if (QTypeInfo<double>::isLarge)
-        return &d->data.shared->value.d;
-    return reinterpret_cast<double *>(&d->data.ptr);
-}
-
-template<>
-inline static Q_LONGLONG *v_cast(QCoreVariant::Private *d, Q_LONGLONG *)
-{
-    if (QTypeInfo<Q_LONGLONG>::isLarge)
-        return &d->data.shared->value.ll;
-    return reinterpret_cast<Q_LONGLONG *>(&d->data.ptr);
-}
-
-template<>
-inline static Q_ULONGLONG *v_cast(QCoreVariant::Private *d, Q_ULONGLONG *)
-{
-    if (QTypeInfo<Q_ULONGLONG>::isLarge)
-        return &d->data.shared->value.ull;
-    return reinterpret_cast<Q_ULONGLONG *>(&d->data.ptr);
 }
 
 
 #define QCONSTRUCT(vType) \
-    if (QTypeInfo<vType >::isLarge) {\
+    if (sizeof(vType) > sizeof(QCoreVariant::Private::Data)) {\
         x->data.shared = new QCoreVariant::PrivateShared(new vType( \
                     *static_cast<const vType *>(copy))); \
         x->is_shared = true; \
@@ -165,7 +117,7 @@ inline static Q_ULONGLONG *v_cast(QCoreVariant::Private *d, Q_ULONGLONG *)
         new (&x->data.ptr) vType(*static_cast<const vType *>(copy))
 
 #define QCONSTRUCT_EMPTY(vType) \
-    if (QTypeInfo<vType >::isLarge) { \
+    if (sizeof(vType) > sizeof(QCoreVariant::Private::Data)) { \
         x->data.shared = new QCoreVariant::PrivateShared(new vType); \
         x->is_shared = true; \
     } else \
@@ -231,31 +183,13 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             x->data.b = *static_cast<const bool *>(copy);
             break;
         case QCoreVariant::Double:
-            if (QTypeInfo<double>::isLarge) {
-                x->is_shared = true;
-                x->data.shared = new QCoreVariant::PrivateShared();
-                x->data.shared->value.d = *static_cast<const double *>(copy);
-            } else {
-                new (&x->data.ptr) double(*static_cast<const double *>(copy));
-            }
+            x->data.d = double(*static_cast<const double*>(copy));
             break;
         case QCoreVariant::LongLong:
-            if (QTypeInfo<Q_LONGLONG>::isLarge) {
-                x->is_shared = true;
-                x->data.shared = new QCoreVariant::PrivateShared();
-                x->data.shared->value.ll = *static_cast<const Q_LONGLONG *>(copy);
-            } else {
-                new (&x->data.ptr) Q_LONGLONG(*static_cast<const Q_LONGLONG *>(copy));
-            }
+            x->data.ll = Q_LONGLONG(*static_cast<const Q_LONGLONG *>(copy));
             break;
         case QCoreVariant::ULongLong:
-            if (QTypeInfo<Q_ULONGLONG>::isLarge) {
-                x->is_shared = true;
-                x->data.shared = new QCoreVariant::PrivateShared();
-                x->data.shared->value.ull = *static_cast<const Q_ULONGLONG *>(copy);
-            } else {
-                new (&x->data.ptr) Q_ULONGLONG(*static_cast<const Q_LONGLONG *>(copy));
-            }
+            x->data.ull = Q_ULONGLONG(*static_cast<const Q_ULONGLONG *>(copy));
             break;
         case QCoreVariant::Invalid:
         case QCoreVariant::UserType:
@@ -263,7 +197,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         default:
             x->is_shared = true;
             x->data.shared = new QCoreVariant::PrivateShared(QMetaType::construct(x->type, copy));
-            Q_ASSERT_X(x->data.shared->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
+            Q_ASSERT_X(x->data.shared->ptr, "QCoreVariant::construct()", "Unknown datatype");
             break;
         }
         x->is_null = false;
@@ -326,44 +260,26 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             x->data.b = 0;
             break;
         case QCoreVariant::Double:
-            if (QTypeInfo<double>::isLarge) {
-                x->is_shared = true;
-                x->data.shared = new QCoreVariant::PrivateShared();
-                x->data.shared->value.d = 0.0;
-            } else {
-                new (&x->data.ptr) double(0.0);
-            }
+            x->data.d = 0.0;
             break;
         case QCoreVariant::LongLong:
-            if (QTypeInfo<Q_LONGLONG>::isLarge) {
-                x->is_shared = true;
-                x->data.shared = new QCoreVariant::PrivateShared();
-                x->data.shared->value.ll = Q_INT64_C(0);
-            } else {
-                new (&x->data.ptr) Q_LONGLONG(0);
-            }
+            x->data.ll = Q_INT64_C(0);
             break;
         case QCoreVariant::ULongLong:
-            if (QTypeInfo<Q_ULONGLONG>::isLarge) {
-                x->is_shared = true;
-                x->data.shared = new QCoreVariant::PrivateShared();
-                x->data.shared->value.ull = Q_UINT64_C(0);
-            } else {
-                new (&x->data.ptr) Q_ULONGLONG(0);
-            }
+            x->data.ull = Q_UINT64_C(0);
             break;
         default:
             x->is_shared = true;
             x->data.shared = new QCoreVariant::PrivateShared(QMetaType::construct(x->type, copy));
-            Q_ASSERT_X(x->data.shared->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
+            Q_ASSERT_X(x->data.shared->ptr, "QCoreVariant::construct()", "Unknown datatype");
             break;
         }
     }
 }
 
 #define QCLEAR(vType) \
-    if (QTypeInfo<vType >::isLarge) {\
-        delete static_cast<vType *>(d->data.shared->value.ptr); \
+    if (sizeof(vType) > sizeof(QCoreVariant::Private::Data)) {\
+        delete static_cast<vType *>(d->data.shared->ptr); \
         delete d->data.shared; \
     } else { \
         reinterpret_cast<vType *>(&d->data.ptr)->~vType(); \
@@ -419,8 +335,6 @@ static void clear(QCoreVariant::Private *d)
     case QCoreVariant::LongLong:
     case QCoreVariant::ULongLong:
     case QCoreVariant::Double:
-        if (d->is_shared)
-            delete d->data.shared;
         break;
     case QCoreVariant::Invalid:
     case QCoreVariant::UserType:
@@ -430,7 +344,7 @@ static void clear(QCoreVariant::Private *d)
         break;
     default:
         if (QMetaType::isRegistered(d->type)) {
-            QMetaType::destroy(d->type, d->data.shared->value.ptr);
+            QMetaType::destroy(d->type, d->data.shared->ptr);
             delete d->data.shared;
         } else {
             qFatal("QCoreVariant::clear: type %d unknown to QCoreVariant.", d->type);
@@ -533,10 +447,10 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         s >> d->data.u;
         break;
     case QCoreVariant::LongLong:
-        s >> *v_cast<Q_LONGLONG>(d, 0);
+        s >> d->data.ll;
         break;
     case QCoreVariant::ULongLong:
-        s >> *v_cast<Q_ULONGLONG>(d, 0);
+        s >> d->data.ull;
         break;
     case QCoreVariant::Bool: {
         Q_INT8 x;
@@ -545,7 +459,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
     }
         break;
     case QCoreVariant::Double:
-        s >> *v_cast<double>(d, 0);
+        s >> d->data.d;
         break;
     case QCoreVariant::Date:
         s >> *v_cast<QDate>(d);
@@ -564,7 +478,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         break;
     default:
         if (QMetaType::isRegistered(d->type)) {
-            if (!QMetaType::load(s, d->type, d->data.shared->value.ptr))
+            if (!QMetaType::load(s, d->type, d->data.shared->ptr))
                 qFatal("QCoreVariant::load: no streaming operators registered for type %d.", d->type);
             break;
         } else {
@@ -612,16 +526,16 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         s << d->data.u;
         break;
     case QCoreVariant::LongLong:
-        s << *v_cast<Q_LONGLONG>(d, 0);
+        s << d->data.ll;
         break;
     case QCoreVariant::ULongLong:
-        s << *v_cast<Q_ULONGLONG>(d, 0);
+        s << d->data.ull;
         break;
     case QCoreVariant::Bool:
         s << (Q_INT8)d->data.b;
         break;
     case QCoreVariant::Double:
-        s << *v_cast<double>(d, 0);
+        s << d->data.d;
         break;
     case QCoreVariant::Date:
         s << *v_cast<QDate>(d);
@@ -643,7 +557,7 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         break;
     default:
         if (QMetaType::isRegistered(d->type)) {
-            if (!QMetaType::save(s, d->type, d->data.shared->value.ptr))
+            if (!QMetaType::save(s, d->type, d->data.shared->ptr))
                 qFatal("QCoreVariant::save: no streaming operators registered for type %d.", d->type);
             break;
         } else {
@@ -694,13 +608,13 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::UInt:
         return a->data.u == b->data.u;
     case QCoreVariant::LongLong:
-        return *v_cast<Q_LONGLONG>(a, 0) == *v_cast<Q_LONGLONG>(b, 0);
+        return a->data.ll == b->data.ll;
     case QCoreVariant::ULongLong:
-        return *v_cast<Q_ULONGLONG>(a, 0) == *v_cast<Q_ULONGLONG>(b, 0);
+        return a->data.ull == b->data.ull;
     case QCoreVariant::Bool:
         return a->data.b == b->data.b;
     case QCoreVariant::Double:
-        return *v_cast<double>(a, 0) == *v_cast<double>(b, 0);
+        return a->data.d == b->data.d;
     case QCoreVariant::Date:
         return *v_cast<QDate>(a) == *v_cast<QDate>(b);
     case QCoreVariant::Time:
@@ -718,7 +632,7 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     }
     if (!QMetaType::isRegistered(a->type))
         qFatal("QCoreVariant::compare: type %d unknown to QCoreVariant.", a->type);
-    return a->data.shared->value.ptr == b->data.shared->value.ptr;
+    return a->data.shared->ptr == b->data.shared->ptr;
 }
 
 static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
@@ -738,13 +652,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *str = QString::number(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *str = QString::number(*v_cast<Q_LONGLONG>(d, 0));
+            *str = QString::number(d->data.ll);
             break;
         case QCoreVariant::ULongLong:
-            *str = QString::number(*v_cast<Q_ULONGLONG>(d, 0));
+            *str = QString::number(d->data.ull);
             break;
         case QCoreVariant::Double:
-            *str = QString::number(*v_cast<double>(d, 0), 'g', DBL_DIG);
+            *str = QString::number(d->data.d, 'g', DBL_DIG);
             break;
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
         case QCoreVariant::Date:
@@ -867,13 +781,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *i = int(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *i = int(*v_cast<Q_LONGLONG>(d, 0));
+            *i = int(d->data.ll);
             break;
         case QCoreVariant::ULongLong:
-            *i = int(*v_cast<Q_ULONGLONG>(d, 0));
+            *i = int(d->data.ull);
             break;
         case QCoreVariant::Double:
-            *i = qRound(*v_cast<double>(d, 0));
+            *i = qRound(d->data.d);
             break;
         case QCoreVariant::Bool:
             *i = (int)d->data.b;
@@ -903,13 +817,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *u = d->data.u;
             break;
         case QCoreVariant::LongLong:
-            *u = uint(*v_cast<Q_LONGLONG>(d, 0));
+            *u = uint(d->data.ll);
             break;
         case QCoreVariant::ULongLong:
-            *u = uint(*v_cast<Q_ULONGLONG>(d, 0));
+            *u = uint(d->data.ull);
             break;
         case QCoreVariant::Double:
-            *u = qRound(*v_cast<double>(d, 0));
+            *u = qRound(d->data.d);
             break;
         case QCoreVariant::Bool:
             *u = uint(d->data.b);
@@ -939,13 +853,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = Q_LONGLONG(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *l = *v_cast<Q_LONGLONG>(d, 0);
+            *l = d->data.ll;
             break;
         case QCoreVariant::ULongLong:
-            *l = Q_LONGLONG(*v_cast<Q_ULONGLONG>(d, 0));
+            *l = Q_LONGLONG(d->data.ull);
             break;
         case QCoreVariant::Double:
-            *l = qRoundLL(*v_cast<double>(d, 0));
+            *l = qRoundLL(d->data.d);
             break;
         case QCoreVariant::Bool:
             *l = Q_LONGLONG(d->data.b);
@@ -966,13 +880,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = Q_ULONGLONG(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *l = Q_ULONGLONG(*v_cast<Q_LONGLONG>(d, 0));
+            *l = Q_ULONGLONG(d->data.ll);
             break;
         case QCoreVariant::ULongLong:
-            *l = *v_cast<Q_ULONGLONG>(d, 0);
+            *l = d->data.ull;
             break;
         case QCoreVariant::Double:
-            *l = qRoundLL(*v_cast<double>(d, 0));
+            *l = qRoundLL(d->data.d);
             break;
         case QCoreVariant::Bool:
             *l = Q_ULONGLONG(d->data.b);
@@ -996,7 +910,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         bool *b = static_cast<bool *>(result);
         switch(d->type) {
         case QCoreVariant::Double:
-            *b = d->data.shared->value.d != 0.0;
+            *b = d->data.d != 0.0;
             break;
         case QCoreVariant::Int:
             *b = d->data.i != 0;
@@ -1005,10 +919,10 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *b = d->data.u != 0;
             break;
         case QCoreVariant::LongLong:
-            *b = *v_cast<Q_LONGLONG>(d, 0) != Q_INT64_C(0);
+            *b = d->data.ll != Q_INT64_C(0);
             break;
         case QCoreVariant::ULongLong:
-            *b = *v_cast<Q_ULONGLONG>(d, 0) != Q_UINT64_C(0);
+            *b = d->data.ull != Q_UINT64_C(0);
             break;
         case QCoreVariant::String:
         {
@@ -1035,7 +949,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *f = v_cast<QByteArray>(d)->toDouble(ok);
             break;
         case QCoreVariant::Double:
-            *f = *v_cast<double>(d, 0);
+            *f = d->data.d;
             break;
         case QCoreVariant::Int:
             *f = double(d->data.i);
@@ -1047,13 +961,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *f = double(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *f = double(*v_cast<Q_LONGLONG>(d, 0));
+            *f = double(d->data.ll);
             break;
         case QCoreVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-            *f = (double)(Q_LONGLONG)*v_cast<Q_ULONGLONG>(d, 0);
+            *f = (double)(Q_LONGLONG)d->data.ull;
 #else
-            *f = double(*v_cast<Q_ULONGLONG>(d, 0));
+            *f = double(d->data.ull);
 #endif
             break;
         default:
@@ -2099,7 +2013,7 @@ Q_LONGLONG QCoreVariant::toLongLong(bool *ok) const
     if (d.type == LongLong) {
         if (ok)
             *ok = true;
-        return *v_cast<Q_LONGLONG>(&d, 0);
+        return d.data.ll;
     }
 
     bool c = canCast(LongLong);
@@ -2127,7 +2041,7 @@ Q_ULONGLONG QCoreVariant::toULongLong(bool *ok) const
     if (d.type == ULongLong) {
         if (ok)
             *ok = true;
-        return *v_cast<Q_ULONGLONG>(&d, 0);
+        return d.data.ull;
     }
 
     bool c = canCast(ULongLong);
@@ -2171,7 +2085,7 @@ double QCoreVariant::toDouble(bool *ok) const
     if (d.type == Double) {
         if (ok)
         *ok = true;
-        return *v_cast<double>(&d, 0);
+        return d.data.d;
     }
 
     bool c = canCast(Double);
@@ -2300,15 +2214,17 @@ const void *QCoreVariant::constData() const
 {
     switch(d.type) {
     case Int:
+        return &d.data.i;
     case UInt:
+        return &d.data.u;
     case Bool:
-        return &d.data;
+        return &d.data.b;
     case LongLong:
-        return v_cast<Q_LONGLONG>(&d, 0);
+        return &d.data.ll;
     case ULongLong:
-        return v_cast<Q_ULONGLONG>(&d, 0);
+        return &d.data.ull;
     case Double:
-        return v_cast<double>(&d, 0);
+        return &d.data.d;
     case String:
         return v_cast<QString>(&d);
     case Char:
@@ -2340,7 +2256,7 @@ const void *QCoreVariant::constData() const
     case QCoreVariant::BitArray:
         return v_cast<QBitArray>(&d);
     default:
-        return d.is_shared ? d.data.shared->value.ptr : d.data.ptr;
+        return d.is_shared ? d.data.shared->ptr : d.data.ptr;
     }
 }
 

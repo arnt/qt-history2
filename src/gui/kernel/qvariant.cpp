@@ -42,7 +42,7 @@ template <typename T>
 inline static const T *v_cast(const QCoreVariant::Private *d)
 {
     if (QTypeInfo<T>::isLarge)
-        return reinterpret_cast<const T*>(d->data.shared->value.ptr);
+        return reinterpret_cast<const T*>(d->data.shared->ptr);
     return reinterpret_cast<const T*>(&d->data.ptr);
 }
 
@@ -151,7 +151,7 @@ static void construct(QVariant::Private *x, const void *v)
         case QVariant::Brush:
             x->data.shared = new QCoreVariant::PrivateShared(new QBrush);
             // ## Force a detach
-            // ((QBrush*)value.ptr)->setColor(((QBrush*)value.ptr)->color());
+            // ((QBrush*)ptr)->setColor(((QBrush*)ptr)->color());
             break;
         case QVariant::Color:
             x->data.shared = new QCoreVariant::PrivateShared(new QColor);
@@ -203,60 +203,60 @@ static void clear(QVariant::Private *p)
 {
     switch (p->type) {
     case QVariant::Bitmap:
-        delete static_cast<QBitmap *>(p->data.shared->value.ptr);
+        delete static_cast<QBitmap *>(p->data.shared->ptr);
         break;
     case QVariant::Cursor:
-        delete static_cast<QCursor *>(p->data.shared->value.ptr);
+        delete static_cast<QCursor *>(p->data.shared->ptr);
         break;
     case QVariant::Region:
-        delete static_cast<QRegion *>(p->data.shared->value.ptr);
+        delete static_cast<QRegion *>(p->data.shared->ptr);
         break;
     case QVariant::Polygon:
-        delete static_cast<QPolygon *>(p->data.shared->value.ptr);
+        delete static_cast<QPolygon *>(p->data.shared->ptr);
         break;
     case QVariant::Font:
-        delete static_cast<QFont *>(p->data.shared->value.ptr);
+        delete static_cast<QFont *>(p->data.shared->ptr);
         break;
     case QVariant::Pixmap:
-        delete static_cast<QPixmap *>(p->data.shared->value.ptr);
+        delete static_cast<QPixmap *>(p->data.shared->ptr);
         break;
     case QVariant::Image:
-        delete static_cast<QImage *>(p->data.shared->value.ptr);
+        delete static_cast<QImage *>(p->data.shared->ptr);
         break;
     case QVariant::Brush:
-        delete static_cast<QBrush *>(p->data.shared->value.ptr);
+        delete static_cast<QBrush *>(p->data.shared->ptr);
         break;
     case QVariant::Color:
-        delete static_cast<QColor *>(p->data.shared->value.ptr);
+        delete static_cast<QColor *>(p->data.shared->ptr);
         break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-        delete static_cast<QPalette *>(p->data.shared->value.ptr);
+        delete static_cast<QPalette *>(p->data.shared->ptr);
         break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-        delete static_cast<QColorGroup *>(p->data.shared->value.ptr);
+        delete static_cast<QColorGroup *>(p->data.shared->ptr);
         break;
 #endif
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon:
-        delete static_cast<QIcon *>(p->data.shared->value.ptr);
+        delete static_cast<QIcon *>(p->data.shared->ptr);
         break;
 #endif
     case QVariant::TextLength:
-        delete static_cast<QTextLength *>(p->data.shared->value.ptr);
+        delete static_cast<QTextLength *>(p->data.shared->ptr);
         break;
     case QVariant::SizePolicy:
-        delete static_cast<QSizePolicy *>(p->data.shared->value.ptr);
+        delete static_cast<QSizePolicy *>(p->data.shared->ptr);
         break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-        delete static_cast<QKeySequence *>(p->data.shared->value.ptr);
+        delete static_cast<QKeySequence *>(p->data.shared->ptr);
         break;
 #endif
     case QVariant::Pen:
-        delete static_cast<QPen *>(p->data.shared->value.ptr);
+        delete static_cast<QPen *>(p->data.shared->ptr);
         break;
     default:
         qcoreVariantHandler()->clear(p);
@@ -274,18 +274,18 @@ static bool isNull(const QVariant::Private *d)
 {
     switch(d->type) {
     case QVariant::Bitmap:
-        return static_cast<QBitmap *>(d->data.shared->value.ptr)->isNull();
+        return static_cast<QBitmap *>(d->data.shared->ptr)->isNull();
     case QVariant::Region:
-        return static_cast<QRegion *>(d->data.shared->value.ptr)->isEmpty();
+        return static_cast<QRegion *>(d->data.shared->ptr)->isEmpty();
     case QVariant::Polygon:
-        return static_cast<QPolygon *>(d->data.shared->value.ptr)->isEmpty();
+        return static_cast<QPolygon *>(d->data.shared->ptr)->isEmpty();
     case QVariant::Pixmap:
-        return static_cast<QPixmap *>(d->data.shared->value.ptr)->isNull();
+        return static_cast<QPixmap *>(d->data.shared->ptr)->isNull();
     case QVariant::Image:
-        return static_cast<QImage *>(d->data.shared->value.ptr)->isNull();
+        return static_cast<QImage *>(d->data.shared->ptr)->isNull();
 #ifndef QT_NO_ICON
     case QVariant::Icon:
-        return static_cast<QIcon *>(d->data.shared->value.ptr)->isNull();
+        return static_cast<QIcon *>(d->data.shared->ptr)->isNull();
 #endif
     case QVariant::TextLength:
     case QVariant::Cursor:
@@ -317,44 +317,44 @@ static void load(QVariant::Private *d, QDataStream &s)
     switch (d->type) {
 #ifndef QT_NO_CURSOR
     case QVariant::Cursor:
-        s >> *static_cast<QCursor *>(d->data.shared->value.ptr);
+        s >> *static_cast<QCursor *>(d->data.shared->ptr);
         break;
 #endif
 #ifndef QT_NO_IMAGEIO
     case QVariant::Bitmap: {
-        s >> *static_cast<QBitmap *>(d->data.shared->value.ptr);
+        s >> *static_cast<QBitmap *>(d->data.shared->ptr);
         break;
 #endif
     case QVariant::Region:
-        s >> *static_cast<QRegion *>(d->data.shared->value.ptr);
+        s >> *static_cast<QRegion *>(d->data.shared->ptr);
         break;
     case QVariant::Polygon:
-        s >> *static_cast<QPolygon *>(d->data.shared->value.ptr);
+        s >> *static_cast<QPolygon *>(d->data.shared->ptr);
         break;
     case QVariant::Font:
-        s >> *static_cast<QFont *>(d->data.shared->value.ptr);
+        s >> *static_cast<QFont *>(d->data.shared->ptr);
         break;
 #ifndef QT_NO_IMAGEIO
     case QVariant::Pixmap:
-        s >> *static_cast<QPixmap *>(d->data.shared->value.ptr);
+        s >> *static_cast<QPixmap *>(d->data.shared->ptr);
         break;
     case QVariant::Image:
-        s >> *static_cast<QImage *>(d->data.shared->value.ptr);
+        s >> *static_cast<QImage *>(d->data.shared->ptr);
         break;
 #endif
     case QVariant::Brush:
-        s >> *static_cast<QBrush *>(d->data.shared->value.ptr);
+        s >> *static_cast<QBrush *>(d->data.shared->ptr);
         break;
     case QVariant::Color:
-        s >> *static_cast<QColor *>(d->data.shared->value.ptr);
+        s >> *static_cast<QColor *>(d->data.shared->ptr);
         break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-        s >> *static_cast<QPalette *>(d->data.shared->value.ptr);
+        s >> *static_cast<QPalette *>(d->data.shared->ptr);
         break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-        qt_stream_in_qcolorgroup(s, *static_cast<QColorGroup *>(d->data.shared->value.ptr));
+        qt_stream_in_qcolorgroup(s, *static_cast<QColorGroup *>(d->data.shared->ptr));
         break;
 #endif
 #endif
@@ -362,32 +362,32 @@ static void load(QVariant::Private *d, QDataStream &s)
     case QVariant::Icon:
         QPixmap x;
         s >> x;
-        *static_cast<QIcon *>(d->data.shared->value.ptr) = QIcon(x);
+        *static_cast<QIcon *>(d->data.shared->ptr) = QIcon(x);
         break;
     }
 #endif
     case QVariant::TextLength: {
         QTextLength x;
         s >> x;
-        *static_cast<QTextLength *>(d->data.shared->value.ptr) = x;
+        *static_cast<QTextLength *>(d->data.shared->ptr) = x;
         break;
     }
     case QVariant::SizePolicy: {
         int h, v;
         Q_INT8 hfw;
         s >> h >> v >> hfw;
-        QSizePolicy *sp = static_cast<QSizePolicy *>(d->data.shared->value.ptr);
+        QSizePolicy *sp = static_cast<QSizePolicy *>(d->data.shared->ptr);
         *sp = QSizePolicy(QSizePolicy::SizeType(h), QSizePolicy::SizeType(v));
         sp->setHeightForWidth(bool(hfw));
         break;
     }
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-        s >> *static_cast<QKeySequence *>(d->data.shared->value.ptr);
+        s >> *static_cast<QKeySequence *>(d->data.shared->ptr);
         break;
 #endif // QT_NO_ACCEL
     case QVariant::Pen:
-        s >> *static_cast<QPen *>(d->data.shared->value.ptr);
+        s >> *static_cast<QPen *>(d->data.shared->ptr);
         break;
     default:
         qcoreVariantHandler()->load(d, s);
@@ -400,71 +400,71 @@ static void save(const QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
     case QVariant::Cursor:
-        s << *static_cast<QCursor *>(d->data.shared->value.ptr);
+        s << *static_cast<QCursor *>(d->data.shared->ptr);
         break;
     case QVariant::Bitmap:
 #ifndef QT_NO_IMAGEIO
-        s << *static_cast<QBitmap *>(d->data.shared->value.ptr);
+        s << *static_cast<QBitmap *>(d->data.shared->ptr);
 #endif
         break;
     case QVariant::Polygon:
-        s << *static_cast<QPolygon *>(d->data.shared->value.ptr);
+        s << *static_cast<QPolygon *>(d->data.shared->ptr);
         break;
     case QVariant::Region:
-        s << *static_cast<QRegion *>(d->data.shared->value.ptr);
+        s << *static_cast<QRegion *>(d->data.shared->ptr);
         break;
     case QVariant::Font:
-        s << *static_cast<QFont *>(d->data.shared->value.ptr);
+        s << *static_cast<QFont *>(d->data.shared->ptr);
         break;
     case QVariant::Pixmap:
 #ifndef QT_NO_IMAGEIO
-        s << *static_cast<QPixmap *>(d->data.shared->value.ptr);
+        s << *static_cast<QPixmap *>(d->data.shared->ptr);
 #endif
         break;
     case QVariant::Image:
 #ifndef QT_NO_IMAGEIO
-        s << *static_cast<QImage *>(d->data.shared->value.ptr);
+        s << *static_cast<QImage *>(d->data.shared->ptr);
 #endif
         break;
     case QVariant::Brush:
-        s << *static_cast<QBrush *>(d->data.shared->value.ptr);
+        s << *static_cast<QBrush *>(d->data.shared->ptr);
         break;
     case QVariant::Color:
-        s << *static_cast<QColor *>(d->data.shared->value.ptr);
+        s << *static_cast<QColor *>(d->data.shared->ptr);
         break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-        s << *static_cast<QPalette *>(d->data.shared->value.ptr);
+        s << *static_cast<QPalette *>(d->data.shared->ptr);
         break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-        qt_stream_out_qcolorgroup(s, *static_cast<QColorGroup *>(d->data.shared->value.ptr));
+        qt_stream_out_qcolorgroup(s, *static_cast<QColorGroup *>(d->data.shared->ptr));
         break;
 #endif
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon:
         //### add stream operator to icon
-        s << static_cast<QIcon *>(d->data.shared->value.ptr)->pixmap();
+        s << static_cast<QIcon *>(d->data.shared->ptr)->pixmap();
         break;
 #endif
     case QVariant::TextLength:
-        s << *static_cast<QTextLength *>(d->data.shared->value.ptr);
+        s << *static_cast<QTextLength *>(d->data.shared->ptr);
         break;
     case QVariant::SizePolicy:
         {
-            QSizePolicy *p = static_cast<QSizePolicy *>(d->data.shared->value.ptr);
+            QSizePolicy *p = static_cast<QSizePolicy *>(d->data.shared->ptr);
             s << (int) p->horizontalData() << (int) p->verticalData()
               << (Q_INT8) p->hasHeightForWidth();
         }
         break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-        s << *static_cast<QKeySequence *>(d->data.shared->value.ptr);
+        s << *static_cast<QKeySequence *>(d->data.shared->ptr);
         break;
 #endif
     case QVariant::Pen:
-        s << *static_cast<QPen *>(d->data.shared->value.ptr);
+        s << *static_cast<QPen *>(d->data.shared->ptr);
         break;
     default:
         qcoreVariantHandler()->save(d, s);
@@ -479,62 +479,62 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     switch(a->type) {
     case QVariant::Cursor:
 #ifndef QT_NO_CURSOR
-        return static_cast<QCursor *>(a->data.shared->value.ptr)->shape()
-            == static_cast<QCursor *>(b->data.shared->value.ptr)->shape();
+        return static_cast<QCursor *>(a->data.shared->ptr)->shape()
+            == static_cast<QCursor *>(b->data.shared->ptr)->shape();
 #endif
     case QVariant::Bitmap:
-        return static_cast<QBitmap *>(a->data.shared->value.ptr)->serialNumber()
-            == static_cast<QBitmap *>(b->data.shared->value.ptr)->serialNumber();
+        return static_cast<QBitmap *>(a->data.shared->ptr)->serialNumber()
+            == static_cast<QBitmap *>(b->data.shared->ptr)->serialNumber();
     case QVariant::Polygon:
-        return *static_cast<QPolygon *>(a->data.shared->value.ptr)
-            == *static_cast<QPolygon *>(b->data.shared->value.ptr);
+        return *static_cast<QPolygon *>(a->data.shared->ptr)
+            == *static_cast<QPolygon *>(b->data.shared->ptr);
     case QVariant::Region:
-        return *static_cast<QRegion *>(a->data.shared->value.ptr)
-            == *static_cast<QRegion *>(b->data.shared->value.ptr);
+        return *static_cast<QRegion *>(a->data.shared->ptr)
+            == *static_cast<QRegion *>(b->data.shared->ptr);
     case QVariant::Font:
-        return *static_cast<QFont *>(a->data.shared->value.ptr)
-            == *static_cast<QFont *>(b->data.shared->value.ptr);
+        return *static_cast<QFont *>(a->data.shared->ptr)
+            == *static_cast<QFont *>(b->data.shared->ptr);
     case QVariant::Pixmap:
-        return static_cast<QPixmap *>(a->data.shared->value.ptr)->serialNumber()
-            == static_cast<QPixmap *>(b->data.shared->value.ptr)->serialNumber();
+        return static_cast<QPixmap *>(a->data.shared->ptr)->serialNumber()
+            == static_cast<QPixmap *>(b->data.shared->ptr)->serialNumber();
     case QVariant::Image:
-        return *static_cast<QImage *>(a->data.shared->value.ptr)
-            == *static_cast<QImage *>(b->data.shared->value.ptr);
+        return *static_cast<QImage *>(a->data.shared->ptr)
+            == *static_cast<QImage *>(b->data.shared->ptr);
     case QVariant::Brush:
-        return *static_cast<QBrush *>(a->data.shared->value.ptr)
-            == *static_cast<QBrush *>(b->data.shared->value.ptr);
+        return *static_cast<QBrush *>(a->data.shared->ptr)
+            == *static_cast<QBrush *>(b->data.shared->ptr);
     case QVariant::Color:
-        return *static_cast<QColor *>(a->data.shared->value.ptr)
-            == *static_cast<QColor *>(b->data.shared->value.ptr);
+        return *static_cast<QColor *>(a->data.shared->ptr)
+            == *static_cast<QColor *>(b->data.shared->ptr);
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-        return *static_cast<QPalette *>(a->data.shared->value.ptr)
-            == *static_cast<QPalette *>(b->data.shared->value.ptr);
+        return *static_cast<QPalette *>(a->data.shared->ptr)
+            == *static_cast<QPalette *>(b->data.shared->ptr);
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-        return *static_cast<QColorGroup *>(a->data.shared->value.ptr)
-            == *static_cast<QColorGroup *>(b->data.shared->value.ptr);
+        return *static_cast<QColorGroup *>(a->data.shared->ptr)
+            == *static_cast<QColorGroup *>(b->data.shared->ptr);
 #endif
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon:
-        return static_cast<QIcon *>(a->data.shared->value.ptr)->pixmap().serialNumber()
-            == static_cast<QIcon *>(b->data.shared->value.ptr)->pixmap().serialNumber();
+        return static_cast<QIcon *>(a->data.shared->ptr)->pixmap().serialNumber()
+            == static_cast<QIcon *>(b->data.shared->ptr)->pixmap().serialNumber();
 #endif
     case QVariant::TextLength:
-        return *static_cast<QTextLength *>(a->data.shared->value.ptr)
-            == *static_cast<QTextLength *>(b->data.shared->value.ptr);
+        return *static_cast<QTextLength *>(a->data.shared->ptr)
+            == *static_cast<QTextLength *>(b->data.shared->ptr);
     case QVariant::SizePolicy:
-        return *static_cast<QSizePolicy *>(a->data.shared->value.ptr)
-            == *static_cast<QSizePolicy *>(b->data.shared->value.ptr);
+        return *static_cast<QSizePolicy *>(a->data.shared->ptr)
+            == *static_cast<QSizePolicy *>(b->data.shared->ptr);
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-        return *static_cast<QKeySequence *>(a->data.shared->value.ptr)
-            == *static_cast<QKeySequence *>(b->data.shared->value.ptr);
+        return *static_cast<QKeySequence *>(a->data.shared->ptr)
+            == *static_cast<QKeySequence *>(b->data.shared->ptr);
 #endif
     case QVariant::Pen:
-        return *static_cast<QPen *>(a->data.shared->value.ptr)
-            == *static_cast<QPen *>(b->data.shared->value.ptr);
+        return *static_cast<QPen *>(a->data.shared->ptr)
+            == *static_cast<QPen *>(b->data.shared->ptr);
     default:
         break;
     }
@@ -553,16 +553,16 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
         switch (d->type) {
 #ifndef QT_NO_ACCEL
         case QVariant::KeySequence:
-            *str = QString(*static_cast<QKeySequence *>(d->data.shared->value.ptr));
+            *str = QString(*static_cast<QKeySequence *>(d->data.shared->ptr));
             converted = true;
             break;
 #endif
         case QVariant::Font:
-            *str = static_cast<QFont *>(d->data.shared->value.ptr)->toString();
+            *str = static_cast<QFont *>(d->data.shared->ptr)->toString();
             converted = true;
             break;
         case QVariant::Color:
-            *str = static_cast<QColor *>(d->data.shared->value.ptr)->name();
+            *str = static_cast<QColor *>(d->data.shared->ptr)->name();
             converted = true;
             break;
         default:
@@ -573,7 +573,7 @@ static void cast(const QCoreVariant::Private *d, QVariant::Type t,
 #ifndef QT_NO_ACCEL
     case QVariant::Int:
         if (d->type == QVariant::KeySequence) {
-            *static_cast<int *>(result) = (int)(*(static_cast<QKeySequence*>(d->data.shared->value.ptr)));
+            *static_cast<int *>(result) = (int)(*(static_cast<QKeySequence*>(d->data.shared->ptr)));
             converted = true;
         }
         break;
@@ -1087,7 +1087,7 @@ const QImage QVariant::toImage() const
     if (d.type != Image)
         return QImage();
 
-    return *static_cast<QImage *>(d.data.shared->value.ptr);
+    return *static_cast<QImage *>(d.data.shared->ptr);
 }
 
 QBrush QVariant::toBrush() const
@@ -1095,7 +1095,7 @@ QBrush QVariant::toBrush() const
     if (d.type != Brush)
         return QBrush();
 
-    return *static_cast<QBrush *>(d.data.shared->value.ptr);
+    return *static_cast<QBrush *>(d.data.shared->ptr);
 }
 
 
@@ -1105,7 +1105,7 @@ QPalette QVariant::toPalette() const
     if (d.type != Palette)
         return QPalette();
 
-    return *static_cast<QPalette *>(d.data.shared->value.ptr);
+    return *static_cast<QPalette *>(d.data.shared->ptr);
 }
 
 #ifdef QT_COMPAT
@@ -1117,7 +1117,7 @@ QColorGroup QVariant::toColorGroup() const
 {
     if (d.type != ColorGroup)
         return QColorGroup();
-    return *static_cast<QColorGroup *>(d.data.shared->value.ptr);
+    return *static_cast<QColorGroup *>(d.data.shared->ptr);
 }
 #endif
 #endif //QT_NO_PALETTE
@@ -1127,13 +1127,13 @@ QPen QVariant::toPen() const
     if (d.type != Pen)
         return QPen();
 
-    return *static_cast<QPen*>(d.data.shared->value.ptr);
+    return *static_cast<QPen*>(d.data.shared->ptr);
 }
 
 QSizePolicy QVariant::toSizePolicy() const
 {
     if (d.type == SizePolicy)
-        return *static_cast<QSizePolicy *>(d.data.shared->value.ptr);
+        return *static_cast<QSizePolicy *>(d.data.shared->ptr);
 
     return QSizePolicy();
 }
@@ -1144,7 +1144,7 @@ QCursor QVariant::toCursor() const
     if (d.type != Cursor)
         return QCursor();
 
-    return *static_cast<QCursor *>(d.data.shared->value.ptr);
+    return *static_cast<QCursor *>(d.data.shared->ptr);
 }
 #endif
 
@@ -1153,7 +1153,7 @@ QRegion QVariant::toRegion() const
     if (d.type != Region)
         return QRegion();
 
-    return *static_cast<QRegion *>(d.data.shared->value.ptr);
+    return *static_cast<QRegion *>(d.data.shared->ptr);
 }
 
 QBitmap QVariant::toBitmap() const
@@ -1161,7 +1161,7 @@ QBitmap QVariant::toBitmap() const
     if (d.type != Bitmap)
         return QBitmap();
 
-    return *static_cast<QBitmap *>(d.data.shared->value.ptr);
+    return *static_cast<QBitmap *>(d.data.shared->ptr);
 
 }
 
@@ -1170,7 +1170,7 @@ const QPolygon QVariant::toPolygon() const
     if (d.type != Polygon)
         return QPolygon();
 
-    return *static_cast<QPolygon *>(d.data.shared->value.ptr);
+    return *static_cast<QPolygon *>(d.data.shared->ptr);
 }
 
 #ifndef QT_NO_ICON
@@ -1179,7 +1179,7 @@ QIcon QVariant::toIcon() const
     if (d.type != Icon)
         return QIcon();
 
-    return *static_cast<QIcon *>(d.data.shared->value.ptr);
+    return *static_cast<QIcon *>(d.data.shared->ptr);
 }
 #ifdef QT_COMPAT
 /*!
@@ -1195,14 +1195,14 @@ QTextLength QVariant::toTextLength() const
     if (d.type != TextLength)
         return QTextLength();
 
-    return *static_cast<QTextLength *>(d.data.shared->value.ptr);
+    return *static_cast<QTextLength *>(d.data.shared->ptr);
 }
 
 
 #define Q_VARIANT_TO(f) \
 Q##f QVariant::to##f() const { \
     if (d.type == f) \
-        return *static_cast<Q##f *>(d.data.shared->value.ptr); \
+        return *static_cast<Q##f *>(d.data.shared->ptr); \
     static const Handler *h = qRegisterGuiVariantHandler(handler); \
     Q_UNUSED(h); \
     Q##f ret; \
@@ -1221,7 +1221,7 @@ QPixmap QVariant::toPixmap() const
     if (d.type != Pixmap)
         return QPixmap();
 
-    return *static_cast<QPixmap *>(d.data.shared->value.ptr);
+    return *static_cast<QPixmap *>(d.data.shared->ptr);
 }
 
 #ifndef QT_NO_DEBUG_OUTPUT
