@@ -2569,12 +2569,14 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     ScriptItemArray items;
     layout->itemize( items,  str );
     int i = 0;
-    while ( pos > items[i].position )
+    while ( pos >= items[i].position )
 	i++;
+    i--;
     ShapedItem shaped;
     layout->shape( shaped, QFont( d ), str, items, i );
+    layout->position( shaped );
 
-    // ### need xToCursor here!!!!
+    return layout->width( shaped, pos-items[i].position, 1 );
 }
 
 
@@ -2597,7 +2599,19 @@ int QFontMetrics::width( const QString &str, int len ) const
     if (len == 0)
 	return 0;
 
-    return 0; //####
+    const TextLayout *layout = TextLayout::instance();
+    ScriptItemArray items;
+    layout->itemize( items,  str );
+    ShapedItem shaped;
+    int width = 0;
+    int nchars;
+    for ( int i = 0; i < items.size() && (nchars = len-items[i].position) > 0; i++ ) {
+	layout->shape( shaped, QFont( d ), str, items, i );
+	layout->position( shaped );
+
+	width += layout->width( shaped, 0, nchars );
+    }
+    return width;
 }
 
 

@@ -28,6 +28,38 @@ class FontEngineIface;
 class QFont;
 class QString;
 
+// this uses the same coordinate system as Qt, but a different one to freetype and Xft.
+// * y is usually negative, and is equal to the ascent.
+// * negative yoff means the following stuff is drawn higher up.
+// the characters bounding rect is given by QRect( x,y,width,height), it's advance by
+// xoo and yoff
+struct QGlyphInfo
+{
+    QGlyphInfo() {
+	x = 100000;
+	y = 100000;
+	width = 0;
+	height = 0;
+	xoff = 0;
+	yoff = 0;
+    }
+    QGlyphInfo( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
+	x = _x;
+	y = _y;
+	width = _width;
+	height = _height;
+	xoff = _xoff;
+	yoff = _yoff;
+    }
+    int x;
+    int y;
+    int width;
+    int height;
+    int xoff;
+    int yoff;
+};
+
+
 struct ScriptAnalysis
 {
     int script : 10;
@@ -227,6 +259,7 @@ public:
     virtual int xToCursor( ShapedItem &shaped, int x ) const = 0;
 
     virtual int width( ShapedItem &shaped ) const = 0;
+    virtual int width( ShapedItem &shaped, int charFrom, int numChars ) const = 0;
     virtual bool split( ScriptItemArray &items, int item, ShapedItem &, CharAttributesArray &, int width ) const = 0;
 
 //    static ScriptProperties scriptProperties( int script );

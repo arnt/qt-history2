@@ -106,6 +106,7 @@ public:
     int xToCursor( ShapedItem &shaped, int x ) const;
 
     int width( ShapedItem &shaped ) const;
+    int width( ShapedItem &shaped, int charFrom, int numChars ) const;
     bool split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const;
 };
 
@@ -270,6 +271,32 @@ int TextLayoutQt::width( ShapedItem &shaped ) const
 {
     int width = 0;
     for ( int i = 0; i < shaped.d->num_glyphs; i++ )
+	width += shaped.d->advances[i].x;
+    return width;
+}
+
+int TextLayoutQt::width( ShapedItem &shaped, int charFrom, int numChars ) const
+{
+    if ( charFrom + numChars > shaped.d->length )
+	numChars = shaped.d->length - charFrom;
+    if ( numChars <= 0 )
+	return 0;
+
+    // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
+    int glyphStart = shaped.d->logClusters[charFrom];
+    int charEnd = charFrom + numChars;
+    if ( charFrom > 0 && shaped.d->logClusters[charFrom-1] == glyphStart ) {
+	while ( charFrom < shaped.d->length && shaped.d->logClusters[charFrom] == glyphStart )
+	    charFrom++;
+	glyphStart = shaped.d->logClusters[charFrom];
+    }
+    int glyphEnd = shaped.d->logClusters[charEnd];
+    while ( charEnd < shaped.d->length && shaped.d->logClusters[charEnd] == glyphEnd )
+	charEnd++;
+    glyphEnd = shaped.d->logClusters[charEnd];
+
+    int width = 0;
+    for ( int i = glyphStart; i < glyphEnd; i++ )
 	width += shaped.d->advances[i].x;
     return width;
 }
