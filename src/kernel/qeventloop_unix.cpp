@@ -14,7 +14,7 @@
 
 #include "qeventloop_p.h" // includes qplatformdefs.h
 #include "qeventloop.h"
-#include "qapplication.h"
+#include "qcoreapplication.h"
 #include "qbitarray.h"
 #include "qcoreevent.h"
 #include "qmutex.h"
@@ -452,7 +452,7 @@ int QEventLoop::activateTimers()
 
 	// send event
 	QTimerEvent e(t->id);
-	QApplication::sendEvent(t->obj, &e);
+	QCoreApplication::sendEvent(t->obj, &e);
 
 	if (!d->timerList->contains(begin)) begin = 0;
     }
@@ -471,7 +471,7 @@ int QEventLoop::activateSocketNotifiers()
 	QSockNot *sn = d->sn_pending_list.takeAt(0);
 	if ( FD_ISSET(sn->fd, sn->queue) ) {
 	    FD_CLR( sn->fd, sn->queue );
-	    QApplication::sendEvent( sn->obj, &event );
+	    QCoreApplication::sendEvent( sn->obj, &event );
 	    n_act++;
 	}
     }
@@ -572,7 +572,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     if ( d->shortcut )
 	return FALSE;
 
-    QApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents();
 
     // don't block if exitLoop() or exit()/quit() has been called.
     bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
