@@ -452,11 +452,11 @@ void QRollEffect::scroll()
             elapsed = tempel;
 
 	if ( currentWidth != totalWidth ) {
-	    currentWidth = totalWidth * elapsed / (double)duration;
+	    currentWidth = (int)( totalWidth * elapsed / (double)duration );
 	    done = (currentWidth >= totalWidth);
 	}
 	if ( currentHeight != totalHeight ) {
-	    currentHeight = totalHeight * elapsed / (double)duration;
+	    currentHeight = (int)( totalHeight * elapsed / (double)duration );
 	    done = (currentHeight >= totalHeight);
 	}
 	done = ( ( currentHeight >= totalHeight ) && 
