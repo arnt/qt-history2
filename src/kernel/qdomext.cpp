@@ -107,10 +107,9 @@ QLayout* QDomElement::toLayout( QLayout* _parent, QWidget* mainwidget ) const
   if ( isNull() )
     return 0;
 
-  QWidget* pw = mainwidget;
-  if ( !pw )
-    pw = mainwidget = _parent->mainWidget();
-  if ( !pw )
+  if ( _parent && !mainwidget )
+    mainwidget = _parent->mainWidget();
+  if ( !mainwidget )
   {
     qDebug("QDomElement::toLayout  Can not proceed without mainwidget\n");
     return 0;
@@ -150,10 +149,10 @@ QLayout* QDomElement::toLayout( QLayout* _parent, QWidget* mainwidget ) const
     return 0;
   }
 
-  if ( ! w->setConfiguration( *this, pw ) )
+  if ( !w->setConfiguration( *this, mainwidget ) )
   {
-    delete w;
-    return 0;
+      delete w;
+      return 0;
   }
 
   return w;

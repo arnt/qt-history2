@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#120 $
 **
 ** Implementation of layout classes
 **
@@ -1319,7 +1319,7 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 			if ( !w )
 			    return FALSE;
 		    }
-		    else if ( cell.tagName() == "Layout" )
+		    else if ( child.tagName() == "Layout" )
 		    {
 			l = res.toLayout( 0, mainwidget );
 			if ( !l )
