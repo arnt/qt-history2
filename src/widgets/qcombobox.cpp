@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#70 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#70 $");
 
 
 /*!
@@ -139,7 +139,6 @@ struct QComboData
     int		sizeLimit;
     QLineEdit * ed;  // /bin/ed rules!
     QComboBox::Policy p;
-    bool	edEmpty;
     bool	usingListBox;
     bool	autoresize;
     bool	poppedUp;
@@ -233,7 +232,6 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 	connect( d->popup, SIGNAL(highlighted(int)),
 		           SLOT(internalHighlight(int)) );
     }
-    d->edEmpty               = TRUE;
     d->ed                    = 0;
     d->current               = 0;
     d->maxCount              = INT_MAX;
@@ -276,7 +274,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     connect( d->listBox, SIGNAL(highlighted(int)),
 	     SLOT(internalHighlight(int)));
 
-    d->edEmpty = TRUE;
     d->current = 0;
     d->maxCount = INT_MAX;
     d->sizeLimit = 10;
@@ -366,6 +363,15 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	else
 	    d->popup->insertItem( tmp, index++ );
     }
+    if ( index != count() )
+	reIndex();
+    if ( index <= d->current ) {
+	if ( d->ed )
+	    d->ed->setText( text( d->current ) );
+	else
+	    repaint();
+    }
+	
     if ( updcur )
 	currentChanged();
 }
@@ -403,6 +409,14 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 	    d->popup->insertItem( strings[i], index++ );
 	i++;
     }
+    if ( index != count() )
+	reIndex();
+    if ( index <= d->current ) {
+	if ( d->ed )
+	    d->ed->setText( text( d->current ) );
+	else
+	    repaint();
+    }
     if ( updcur )
 	currentChanged();
 }
@@ -413,17 +427,23 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
   \e index is negative.
 */
 
-void QComboBox::insertItem( const char *text, int index )
+void QComboBox::insertItem( const char *t, int index )
 {
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", cnt, &index ) )
 	return;
     if ( d->usingListBox )
-        d->listBox->insertItem( text, index );
+        d->listBox->insertItem( t, index );
     else
-        d->popup->insertItem( text, index );
+        d->popup->insertItem( t, index );
     if ( index != cnt )
 	reIndex();
+    if ( index == d->current ) {
+	if ( d->ed )
+	    d->ed->setText( text( d->current ) );
+	else
+	    repaint();
+    }
     if ( index == d->current )
 	currentChanged();
 }
@@ -470,6 +490,12 @@ void QComboBox::removeItem( int index )
 	d->popup->removeItemAt( index );
     if ( index != cnt-1 )
 	reIndex();
+    if ( index == d->current ) {
+	if ( d->ed )
+	    d->ed->setText( text( d->current ) );
+	else
+	    repaint();
+    }
     if ( index == d->current )
 	currentChanged();
 }
@@ -486,6 +512,8 @@ void QComboBox::clear()
     else
 	d->popup->clear();
     d->current = 0;
+    if ( d->ed )
+	d->ed->setText( "" );
     currentChanged();
 }
 
@@ -522,14 +550,16 @@ const QPixmap *QComboBox::pixmap( int index ) const
   Replaces the item at position \e index with a text.
 */
 
-void QComboBox::changeItem( const char *text, int index )
+void QComboBox::changeItem( const char *t, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
     if ( d->usingListBox )
-	d->listBox->changeItem( text, index );
+	d->listBox->changeItem( t, index );
     else
-	d->popup->changeItem( text, index );
+	d->popup->changeItem( t, index );
+    if ( index == d->current && d->ed )
+	d->ed->setText( text( d->current ) );
 }
 
 /*!  
@@ -1143,12 +1173,6 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	return TRUE;
     else if ( object == (QObject *)(d->ed) ) {
 	if ( event->type() == Event_Paint ) {
-	    if ( d->edEmpty ) {
-		d->edEmpty = FALSE;
-		d->ed->setText( text( currentItem() ) );
-		return TRUE; // we'll get another paint event right away
-	    }
-
 	    if ( style() == WindowsStyle ) {
 		QLineEdit * le = (QLineEdit *) object;
 		QPainter p;
