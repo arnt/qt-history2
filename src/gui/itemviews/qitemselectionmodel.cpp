@@ -80,7 +80,7 @@ QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
 }
 
 /*!
-  Merges selection \a other with this QItemSelection using the \a update mode.
+  Merges selection \a other with this QItemSelection using the \a selectionCommand.
   This method guarantees that no ranges are overlapping.
 
   Note: Only QItemSelectionModel::Select,
@@ -168,30 +168,81 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 /*!
   \class QItemSelectionModel
 
-  \brief QItemSelectionModel keeps a list of QItemSelection objects.
+  \brief QItemSelectionModel keeps track of a views selected items and
+  it's current item.
+
+  QItemSelectionModel keeps track of a view, or several views,
+  selected items. It also keeps track of a views current item.
+
+  The selected items are stored using ranges. Whenever you want to
+  modify the selected items use select() and provide either a
+  QItemSelection or a QModelIndex and a
+  QItemSelectionModel::SelectionCommand.
+
+  The QItemSelectionModel has a two layer approach internally, the
+  commited selected items, and the current selected items. The current
+  selected items are the items part of the current interactive
+  selection (for example with rubber-band selection or keyboard-shift
+  selections). To update the current selected items use the
+  QItemSelectionModel::Current selectionCommand or'ed with any of the
+  other SelectionCommands. If you omit the
+  QItemSelectionModel::Current command, a new current selection will
+  be started and the previous one added to the commited selected
+  items. All functions operate on both layers, so for instance
+  selectedItems() will return items from both layers.
 */
 
+/*!
+  Constructs a selectionmodel that operates on the itemmodel \a model.
+*/
 QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *parent)
     : QObject(*new QItemSelectionModelPrivate, parent)
 {
     d->model = model;
 }
 
+/*!
+  \internal
+*/
 QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent)
     : QObject(dd, parent)
 {
     d->model = model;
 }
 
+/*!
+  Destroys the selectionmodel.
+*/
 QItemSelectionModel::~QItemSelectionModel()
 {
 }
 
+/*!
+  Selects the index \a item using \a selectionCommand and emits selectionChanged().
+
+  \sa QItemSelectionModel::SelectionCommand
+*/
 void QItemSelectionModel::select(const QModelIndex &item, int selectionCommand)
 {
     QItemSelection selection(item, item, model());
     select(selection, selectionCommand);
 }
+
+/*!
+   \fn void QItemSelectionModel::currentChanged()
+
+   This signal is emitted whenever the current item changes.
+
+    \sa currentItem() setCurrentItem()
+*/
+
+/*!
+   \fn void QItemSelectionModel::selectionChanged()
+
+   This signal is emitted whenever the selection changes.
+
+    \sa select()
+*/
 
 /*!
   \enum QItemSelectionModel::SelectionCommand
@@ -213,6 +264,11 @@ void QItemSelectionModel::select(const QModelIndex &item, int selectionCommand)
   \value ClearAndSelect Convenience combination of Clear and Select
 */
 
+/*!
+  Selects the itemselection \a selection using \a selectionCommand and emits selectionChanged().
+
+  \sa QItemSelectionModel::SelectionCommand
+*/
 void QItemSelectionModel::select(const QItemSelection &selection, int selectionCommand)
 {
     if (selectionCommand == NoUpdate)
@@ -252,6 +308,9 @@ void QItemSelectionModel::select(const QItemSelection &selection, int selectionC
     return;
 }
 
+/*!
+  Clears the selectionmodel. Emits selectionChanged().
+*/
 void QItemSelectionModel::clear()
 {
     if (d->ranges.count() == 0 && d->currentSelection.count() == 0)
@@ -263,6 +322,16 @@ void QItemSelectionModel::clear()
     emit selectionChanged(selection, QItemSelection());
 }
 
+
+/*!
+  Sets \a item to be the current item and emits currentChanged().The
+  current item is used for keyboard navigation and focus indication;
+  it is independent of any selected items, although a selected item
+  can also be the current item.
+
+  Depending on the \a selectionCommand a selection can also be performed.
+  \sa select()
+*/
 void QItemSelectionModel::setCurrentItem(const QModelIndex &item, int selectionCommand)
 {
     if (selectionCommand != NoUpdate)
@@ -274,11 +343,17 @@ void QItemSelectionModel::setCurrentItem(const QModelIndex &item, int selectionC
     emit currentChanged(old, item);
 }
 
+/*!
+  Returns the index for the current item, or an invalid index if there is none.
+*/
 QModelIndex QItemSelectionModel::currentItem() const
 {
     return d->currentItem;
 }
 
+/*!
+  Returns true if \a item is selected.
+*/
 bool QItemSelectionModel::isSelected(const QModelIndex &item) const
 {
     bool selected = false;
@@ -299,6 +374,11 @@ bool QItemSelectionModel::isSelected(const QModelIndex &item) const
     return selected;
 }
 
+/*!
+  Returns true if all items in \a row with parent \a parent are selected.
+
+  Note: This function is usually faster then calling isSelected() on all items in the same row.
+*/
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
 {
     // return false if row exist in currentSelection (Deselect)
@@ -340,6 +420,11 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
     return true;
 }
 
+/*!
+  Returns true if all items in \a column with parent \a parent are selected.
+
+  Note: This function is usually faster then calling isSelected() on all items in the same column.
+*/
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
     // return false if column exist in currentSelection (Deselect)
@@ -386,11 +471,17 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
      return true;
 }
 
+/*!
+  Returns the itemmodel the selectionmodel operates on.
+*/
 QAbstractItemModel *QItemSelectionModel::model() const
 {
     return d->model;
 }
 
+/*!
+  Returns a list of all selected items. The list contains no duplicates and is not sorted.
+*/
 QModelIndexList QItemSelectionModel::selectedItems() const
 {
     QItemSelection selected = d->ranges;
@@ -399,8 +490,8 @@ QModelIndexList QItemSelectionModel::selectedItems() const
 }
 
 /*!
-  compares the two selections \a oldSelection and \a newSelection and
-  emits selectionChanged with the deselected and selected items.
+  Compares the two selections \a oldSelection and \a newSelection
+  and emits selectionChanged with the deselected and selected items.
 */
 void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelection,
                                                const QItemSelection &newSelection )

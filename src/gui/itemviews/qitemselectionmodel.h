@@ -79,6 +79,8 @@ class Q_GUI_EXPORT QItemSelectionModel : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QItemSelectionModel);
 
+    Q_SETS(SelectionCommand);
+
 public:
 
     enum SelectionCommand {
@@ -120,7 +122,6 @@ protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model, QObject *parent = 0);
     void emitSelectionChanged(const QItemSelection &oldSelection,
                               const QItemSelection &newSelection);
-    void mergeCurrentSelection();
 };
 
 #endif
