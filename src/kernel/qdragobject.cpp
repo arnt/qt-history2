@@ -620,6 +620,9 @@ QTextCodec* findcodec(const QMimeSource* e)
 }
 
 
+/*!
+  \reimp
+*/
 QByteArray QTextDrag::encodedData(const char* mime) const
 {
     QCString r;
@@ -804,6 +807,9 @@ const char * QImageDrag::format(int i) const
     }
 }
 
+/*!
+  \reimp
+*/
 QByteArray QImageDrag::encodedData(const char* fmt) const
 {
     if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
