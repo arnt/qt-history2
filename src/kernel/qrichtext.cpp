@@ -4340,7 +4340,7 @@ int QTextParagraph::leftGap() const
 	( (QTextParagraph*)this )->format();
 
     int line = 0;
-    int x = str->at(0).x;  /* set x to x of first char */
+    int x = str->length() ? str->at(0).x : 0;  /* set x to x of first char */
     if ( str->isBidi() ) {
 	for ( int i = 1; i < str->length()-1; ++i )
 	    x = QMIN(x, str->at(i).x);
