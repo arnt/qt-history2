@@ -95,7 +95,7 @@
   {
 
     /* sanity check */
-    assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
+      //assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
 
     if ( out->pos + num_out > out->allocated )
 	TT_GSUB_String_Allocate( out, out->pos + num_out );
@@ -108,6 +108,8 @@
       FT_UShort *dest_lig = out->ligIDs + out->pos;
       FT_Int *dest_log = out->logClusters + out->pos;
       FT_Int src_log = in->logClusters[in->pos];
+      FT_UShort p_in = in->properties[in->pos];
+      FT_UShort *p_out = out->properties + out->pos;
 
       if ( component == 0xFFFF )
         component = in->components[in->pos];
@@ -119,17 +121,9 @@
 	  *(dest_comp++) = component;
 	  *(dest_lig++) = ligID;
 	  *(dest_log++) = src_log;
-      }
-
-      if ( in->properties )
-      {
-        FT_UShort p_in = in->properties[in->pos];
-        FT_UShort *p_out = out->properties + out->pos;
-	FT_UShort i;
-
-        for ( i = 0; i < num_out; i++ )
           *(p_out++) = p_in;
       }
+
       out->pos += num_out;
     }
 
@@ -151,7 +145,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 {
 
     /* sanity check */
-    assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
+    //assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
 
     if ( out->pos >= out->allocated )
 	TT_GSUB_String_Allocate( out, out->pos + 1 );
@@ -160,8 +154,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     out->components[out->pos] = component;
     out->ligIDs[out->pos] = ligID;
     out->logClusters[out->pos] = in->logClusters[in->pos];
-    if ( in->properties )
-	out->properties[out->pos] = in->properties[in->pos];
+    out->properties[out->pos] = in->properties[in->pos];
     out->pos++;
     in->pos  += num_in;
     out->length = out->pos;
