@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.21 1999/05/24 23:43:45 agulbra Exp $
+** $Id: examples.doc,v 2.22 1999/05/28 15:11:59 reggie Exp $
 **
 ** Documentation for the examples
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.21 1999/05/24 23:43:45 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.22 1999/05/28 15:11:59 reggie Exp $";
 #endif
 
 
@@ -62,7 +62,7 @@ static char ident[] = "$Id: examples.doc,v 2.21 1999/05/24 23:43:45 agulbra Exp 
 */	
 
 
-/*! \example connect/connect.cpp
+/*! \example drawlines/connect.cpp
 
   <h1 align=center>Connect the Points</h1><br clear="all">
 
@@ -205,16 +205,6 @@ static char ident[] = "$Id: examples.doc,v 2.21 1999/05/24 23:43:45 agulbra Exp 
 */
 
 
-/*! \example pref/pref.cpp
-
-  <h1 align=center>Preferences</h1><br clear="all">
-
-  This example displays a simple (and ugly) tab dialog and then
-  options the user chooses.  It illustrates hello-world usage of
-  QTabDialog, QGridLayout and QBoxLayout.
-*/
-
-
 /*! \example progress/progress.cpp
 
   <h1 align=center>Progress Bar and Dialog Example</h1><br clear="all">
@@ -288,17 +278,6 @@ magnified area as a .bmp file. */
   It displays two blue and one red rectangle.  The blue ones move every
   time you click on them, the red one is static.  There are dynamic
   tool tips on the blue rectangles and a static tool tip on the red one.
-*/
-
-
-/*! \example widgets/widgets.cpp
-
-  <h1 align=center>Widgets Demo</h1><br clear="all">
-
-  This example creates a window with many Qt widgets and two custom
-  example widgets; aclock and dclock.
-
-  It also shows how to connect widget signals to internal slots.
 */
 
 
