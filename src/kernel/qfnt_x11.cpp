@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#58 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#57 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#58 $")
 
 
 static const int fontFields = 14;
@@ -510,8 +510,8 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 	     return 0; // Dirty way of avoiding common 16 bit charsets ###
     }
 
-#undef IS_ZERO
-#define IS_ZERO(X) ((strlen(X) == 1) && X[0] == '0')
+#undef  IS_ZERO
+#define IS_ZERO(X) (X[0] == '0' && X[1] == 0)
 
     if ( IS_ZERO(tokens[Weight_]) ||
 	 IS_ZERO(tokens[Slant])	  ||
