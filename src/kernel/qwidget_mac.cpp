@@ -943,26 +943,30 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	extra->topextra->icon = new QPixmap( pixmap );
 #ifdef Q_WS_MACX
     if(isTopLevel()) {
-	if(pixmap.isNull()) {
-	    RestoreApplicationDockTileImage();
-	} else {
-	    QImage i = pixmap.convertToImage().convertDepth(32).smoothScale(40, 40);
-	    for(int y = 0; y < i.height(); y++) {
-		uchar *l = i.scanLine(y);
-		for(int x = 0; x < i.width(); x+=4)
-		    *(l+x) = 255;
+	if(this == qApp->mainWidget()) {
+	    if(pixmap.isNull()) {
+		RestoreApplicationDockTileImage();
+	    } else {
+		QImage i = pixmap.convertToImage().convertDepth(32).smoothScale(40, 40);
+		for(int y = 0; y < i.height(); y++) {
+		    uchar *l = i.scanLine(y);
+		    for(int x = 0; x < i.width(); x+=4)
+			*(l+x) = 255;
+		}
+		CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+		CGDataProviderRef dp = CGDataProviderCreateWithData(NULL, i.bits(), i.numBytes(), NULL);
+		CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32, i.bytesPerLine(),
+					      cs, kCGImageAlphaNoneSkipFirst, dp,
+					      0, 0, kCGRenderingIntentDefault);
+		//cleanup
+		SetApplicationDockTileImage(ir);
+		CGImageRelease(ir);
+		CGColorSpaceRelease(cs);
+		CGDataProviderRelease(dp);
 	    }
-	    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-	    CGDataProviderRef dp = CGDataProviderCreateWithData(NULL, i.bits(), i.numBytes(), NULL);
-	    CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32, i.bytesPerLine(),
-					  cs, kCGImageAlphaNoneSkipFirst, dp,
-					  0, 0, kCGRenderingIntentDefault);
-	    //cleanup
-	    SetApplicationDockTileImage(ir);
-	    CGImageRelease(ir);
-	    CGColorSpaceRelease(cs);
-	    CGDataProviderRelease(dp);
 	}
+    } else {
+
     }
 #endif
 }
