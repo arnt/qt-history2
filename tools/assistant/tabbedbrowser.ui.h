@@ -7,6 +7,8 @@
 ** place of a destructor.
 *****************************************************************************/
 
+#include "docuparser.h"
+
 void TabbedBrowser::forward()
 {
     currentBrowser()->forward();
@@ -137,25 +139,24 @@ void TabbedBrowser::initHelpWindow( HelpWindow * win )
 void TabbedBrowser::setup( const QSettings &settings )
 {
     QString base( qInstallPathDocs() );
-    QString keybase("/Qt Assistant/3.1/"); // ### Factor out to mainwindow
 
     QFont fnt( font() );
     QFontInfo fntInfo( fnt );
-    fnt.setFamily( settings.readEntry( keybase + "Family", fntInfo.family() ) );
-    fnt.setPointSize( settings.readNumEntry( keybase + "Size", fntInfo.pointSize() ) );
+    fnt.setFamily( settings.readEntry( DocuParser::DocumentKey + "Family", fntInfo.family() ) );
+    fnt.setPointSize( settings.readNumEntry( DocuParser::DocumentKey + "Size", fntInfo.pointSize() ) );
     setFont( fnt );
 
     QPalette pal = palette();
-    QColor lc( settings.readEntry( keybase + "LinkColor",
+    QColor lc( settings.readEntry( DocuParser::DocumentKey + "LinkColor",
 	       pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
     pal.setColor( QPalette::Active, QColorGroup::Link, lc );
     pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
     pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
     setPalette( pal );
 
-    tabLinkUnderline = settings.readBoolEntry( keybase + "LinkUnderline", TRUE );
+    tabLinkUnderline = settings.readBoolEntry( DocuParser::DocumentKey + "LinkUnderline", TRUE );
 
-    QString family = settings.readEntry( keybase + "FixedFamily",
+    QString family = settings.readEntry( DocuParser::DocumentKey + "FixedFamily",
 					 tabStyleSheet->item( "pre" )->fontFamily() );
     tabStyleSheet->item( "pre" )->setFontFamily( family );
     tabStyleSheet->item( "code" )->setFontFamily( family );

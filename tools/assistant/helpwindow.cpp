@@ -20,6 +20,7 @@
 
 #include "helpwindow.h"
 #include "mainwindow.h"
+#include "docuparser.h"
 #include "tabbedbrowser.h"
 
 #include <qurl.h>
@@ -70,7 +71,7 @@ void HelpWindow::setSource( const QString &name )
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
 	QSettings settings;
 	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-	QString webbrowser = settings.readEntry( "/Qt Assistant/3.1/Webbrowser" );
+	QString webbrowser = settings.readEntry( DocuParser::DocumentKey + "Webbrowser" );
 	if ( webbrowser.isEmpty() ) {
 #if defined(Q_OS_WIN32)
 	    QT_WA( {
@@ -83,7 +84,7 @@ void HelpWindow::setSource( const QString &name )
 	    if ( result == 0 ) {
 		emit chooseWebBrowser();
 		QSettings freshSettings;
-		webbrowser = freshSettings.readEntry( "/Qt Assistant/3.1/Webbrowser" );
+		webbrowser = freshSettings.readEntry( DocuParser::DocumentKey + "Webbrowser" );
 	    }
 #endif
 	    if ( webbrowser.isEmpty() )
@@ -100,7 +101,7 @@ void HelpWindow::setSource( const QString &name )
 	QSettings settings;
 	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 	QString pdfbrowser =
-	    settings.readEntry( "/Qt Assistant/3.1/PDFApplication" );
+	    settings.readEntry( DocuParser::DocumentKey + "PDFApplication" );
 	if ( pdfbrowser.isEmpty() ) {
 	    QMessageBox::information( mw,
 				      tr( "Help" ),

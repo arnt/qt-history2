@@ -117,9 +117,9 @@ void SettingsDialog::init()
     changed = FALSE;
     selectionChanged = FALSE;
 
-    browserApp->setText( settings.readEntry( "/Qt Assistant/3.1/Webbrowser", "" ) );
-    homePage->setText( settings.readEntry( "/Qt Assistant/3.1/Homepage", "" ) );
-    pdfApp->setText( settings.readEntry( "/Qt Assistant/3.1/PDFApplication", "" ) );
+    browserApp->setText( settings.readEntry( DocuParser::DocumentKey + "Webbrowser", "" ) );
+    homePage->setText( settings.readEntry( DocuParser::DocumentKey + "Homepage", "" ) );
+    pdfApp->setText( settings.readEntry( DocuParser::DocumentKey + "PDFApplication", "" ) );
 
     docuFileBox->clear();
     docuFileList = settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocFiles" );
@@ -405,9 +405,9 @@ void SettingsDialog::accept()
     settings->writeEntry( DocuParser::DocumentKey + "AdditionalDocTitles", docuTitleList );
     settings->writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", catListAvail );
 
-    settings->writeEntry( "/Qt Assistant/3.1/Webbrowser", browserApp->text() );
-    settings->writeEntry( "/Qt Assistant/3.1/Homepage", homePage->text() );
-    settings->writeEntry( "/Qt Assistant/3.1/PDFApplication", pdfApp->text() );
+    settings->writeEntry( DocuParser::DocumentKey + "Webbrowser", browserApp->text() );
+    settings->writeEntry( DocuParser::DocumentKey + "Homepage", homePage->text() );
+    settings->writeEntry( DocuParser::DocumentKey + "PDFApplication", pdfApp->text() );
 
     hide();
 

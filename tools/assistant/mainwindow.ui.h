@@ -59,16 +59,14 @@ void MainWindow::init()
     setObjectsEnabled( FALSE );
 
     // read geometry configuration
-    QString keybase("/Qt Assistant/3.1/");
-
     setupGoActions( settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocFiles" ),
 		    settings.readListEntry( DocuParser::DocumentKey + "CategoriesSelected" ) );
-    if ( !settings.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
+    if ( !settings.readBoolEntry( DocuParser::DocumentKey + "GeometryMaximized", FALSE ) ) {
 	QRect r( pos(), size() );
-	r.setX( settings.readNumEntry( keybase + "GeometryX", r.x() ) );
-	r.setY( settings.readNumEntry( keybase + "GeometryY", r.y() ) );
-	r.setWidth( settings.readNumEntry( keybase + "GeometryWidth", r.width() ) );
-	r.setHeight( settings.readNumEntry( keybase + "GeometryHeight", r.height() ) );
+	r.setX( settings.readNumEntry( DocuParser::DocumentKey + "GeometryX", r.x() ) );
+	r.setY( settings.readNumEntry( DocuParser::DocumentKey + "GeometryY", r.y() ) );
+	r.setWidth( settings.readNumEntry( DocuParser::DocumentKey + "GeometryWidth", r.width() ) );
+	r.setHeight( settings.readNumEntry( DocuParser::DocumentKey + "GeometryHeight", r.height() ) );
 
 	QRect desk = QApplication::desktop()->geometry();
 	QRect inter = desk.intersect( r );
@@ -78,7 +76,7 @@ void MainWindow::init()
 	}
     }
 
-    QString mainWindowLayout = settings.readEntry( keybase + "MainwindowLayout" );
+    QString mainWindowLayout = settings.readEntry( DocuParser::DocumentKey + "MainwindowLayout" );
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
 
@@ -127,21 +125,19 @@ void MainWindow::setup()
 		    helpDock, SLOT( toggleSearch() ) );
 
     QSettings settings;
-    QString keybase("/Qt Assistant/3.1/"); // ### include in setPath??
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     tabs->setup( settings );
 
     setupBookmarkMenu();
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
-    helpDock->tabWidget->setCurrentPage( settings.readNumEntry( keybase
-					 + "SideBarPage", 0 ) );
+    helpDock->tabWidget->setCurrentPage( settings.readNumEntry( DocuParser::DocumentKey + "SideBarPage", 0 ) );
 
     setObjectsEnabled( TRUE );
 
-    if ( settings.readBoolEntry( "/Qt Assistant/3.1/NewDoc/", FALSE ) ) {
+    if ( settings.readBoolEntry( DocuParser::DocumentKey + "NewDoc/", FALSE ) ) {
 	QTimer::singleShot( 0, helpDock, SLOT( generateNewDocu() ));
-	settings.writeEntry( "/Qt Assistant/3.1/NewDoc/", FALSE );
+	settings.writeEntry( DocuParser::DocumentKey + "NewDoc/", FALSE );
     }
 
 }
@@ -265,7 +261,7 @@ void MainWindow::goHome()
     QSettings settings;
 
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString home = settings.readEntry( "/Qt Assistant/3.1/Homepage" );
+    QString home = settings.readEntry( DocuParser::DocumentKey + "Homepage" );
 
     if ( home.isEmpty() )
 	showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
@@ -484,22 +480,21 @@ MainWindow* MainWindow::newWindow()
 
 void MainWindow::saveSettings()
 {
-    QString keybase("/Qt Assistant/3.1/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( keybase + "Family",  tabs->font().family() );
-    config.writeEntry( keybase + "Size",  tabs->font().pointSize() );
-    config.writeEntry( keybase + "FixedFamily", tabs->styleSheet()->item( "pre" )->fontFamily() );
-    config.writeEntry( keybase + "LinkUnderline", tabs->linkUnderline() );
-    config.writeEntry( keybase + "LinkColor", tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
-    config.writeEntry( keybase + "Source", tabs->currentBrowser()->source() );
-    //    config.writeEntry( keybase + "Title", browser->caption() );
-    config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
-    config.writeEntry( keybase + "GeometryX", x() );
-    config.writeEntry( keybase + "GeometryY", y() );
-    config.writeEntry( keybase + "GeometryWidth", width() );
-    config.writeEntry( keybase + "GeometryHeight", height() );
-    config.writeEntry( keybase + "GeometryMaximized", isMaximized() );
+    config.writeEntry( DocuParser::DocumentKey + "Family",  tabs->font().family() );
+    config.writeEntry( DocuParser::DocumentKey + "Size",  tabs->font().pointSize() );
+    config.writeEntry( DocuParser::DocumentKey + "FixedFamily", tabs->styleSheet()->item( "pre" )->fontFamily() );
+    config.writeEntry( DocuParser::DocumentKey + "LinkUnderline", tabs->linkUnderline() );
+    config.writeEntry( DocuParser::DocumentKey + "LinkColor", tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
+    config.writeEntry( DocuParser::DocumentKey + "Source", tabs->currentBrowser()->source() );
+    //    config.writeEntry( DocuParser::DocumentKey + "Title", browser->caption() );
+    config.writeEntry( DocuParser::DocumentKey + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
+    config.writeEntry( DocuParser::DocumentKey + "GeometryX", x() );
+    config.writeEntry( DocuParser::DocumentKey + "GeometryY", y() );
+    config.writeEntry( DocuParser::DocumentKey + "GeometryWidth", width() );
+    config.writeEntry( DocuParser::DocumentKey + "GeometryHeight", height() );
+    config.writeEntry( DocuParser::DocumentKey + "GeometryMaximized", isMaximized() );
 }
 
 void MainWindow::saveToolbarSettings()
@@ -509,7 +504,7 @@ void MainWindow::saveToolbarSettings()
     ts << *this;
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    config.writeEntry( "/Qt Assistant/3.1/MainwindowLayout", mainWindowLayout );
+    config.writeEntry( DocuParser::DocumentKey + "MainwindowLayout", mainWindowLayout );
 }
 
 

@@ -183,7 +183,7 @@ void EditDocs::addItemToList( const QString &rcEntry, const QString &item )
     }
     list << item;
     settings.writeEntry( rcEntry, list );
-    settings.writeEntry( "/Qt Assistant/3.1/NewDoc", TRUE );
+    settings.writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
 }
 
 void EditDocs::removeDocFile( const QString &file )
@@ -198,8 +198,7 @@ void EditDocs::initDocFiles()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString keybase = "/Qt Assistant/3.1/";
-    QString firstRunString = settings.readEntry( keybase + "FirstRunString" );
+    QString firstRunString = settings.readEntry( DocuParser::DocumentKey + "FirstRunString" );
     if ( firstRunString == QString( QT_VERSION_STR ) )
 	return;
     QString path = QString( qInstallPathDocs() ) + "/html/";
@@ -219,8 +218,8 @@ void EditDocs::initDocFiles()
     settings.writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", lst );
     lst.prepend( "all" );
     settings.writeEntry( DocuParser::DocumentKey + "CategoriesSelected", lst );
-    settings.writeEntry( keybase + "FirstRunString", QString( QT_VERSION_STR ) );
-    settings.writeEntry( keybase + "NewDoc", TRUE );
+    settings.writeEntry( DocuParser::DocumentKey + "FirstRunString", QString( QT_VERSION_STR ) );
+    settings.writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
 }
 
 int main( int argc, char ** argv )
@@ -291,7 +290,6 @@ int main( int argc, char ** argv )
 	}
     }
 
-    QString keybase("/Qt Assistant/3.1/");
     QSettings *config = new QSettings();
     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
     QStringList oldSelected = config->readListEntry( DocuParser::DocumentKey
@@ -313,16 +311,16 @@ int main( int argc, char ** argv )
 				+ "CategoriesSelectedOld", selected );
 	}
 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", buf );
-	config->writeEntry( keybase + "NewDoc", TRUE );
+	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
     } else if ( !oldSelected.isEmpty() ) {
 	config->removeEntry( DocuParser::DocumentKey + "CategoriesSelectedOld" );
 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", oldSelected );
-	config->writeEntry( keybase + "NewDoc", TRUE );
+	config->writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
     }
-    bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
-    QString link = config->readEntry( keybase + "Source", "" );
+    bool max = config->readBoolEntry( DocuParser::DocumentKey  + "GeometryMaximized", FALSE );
+    QString link = config->readEntry( DocuParser::DocumentKey + "Source", "" );
 
-    QString firstRunString = config->readEntry( keybase + "FirstRunString" );
+    QString firstRunString = config->readEntry( DocuParser::DocumentKey + "FirstRunString" );
     if ( firstRunString != QString( QT_VERSION_STR ) ) {
 	EditDocs ed;
 	ed.initDocFiles();
