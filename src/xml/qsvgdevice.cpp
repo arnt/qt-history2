@@ -1243,10 +1243,10 @@ void QSvgDevice::drawPath( const QString &data )
 	case 8: {				// 'T' smooth shorthand
 	    quad.setPoint( 0, int(x), int(y) );
 	    // if possible, reflect last control point if smooth shorthand
-	    if ( mode == 'S' || mode == 'T' ) {
+	    if ( mode == 6 || mode == 8 ) { 	// smooth 'S' and 'T'
 		bool cont = mode == lastMode ||
-		     mode == 'S' && lastMode == 'C' ||
-		     mode == 'T' && lastMode == 'Q';
+		     mode == 6 && lastMode == 5 || 	// 'S' and 'C'
+		     mode == 8 && lastMode == 7;	// 'T' and 'Q'
 		x = cont ? 2*x-controlX : x;
 		y = cont ? 2*y-controlY : y;
 		quad.setPoint( 1, int(x), int(y) );
@@ -1261,7 +1261,7 @@ void QSvgDevice::drawPath( const QString &data )
 	    controlX = quad[ 2 ].x();
 	    controlY = quad[ 2 ].y();
 	    // transform quadratic into cubic Bezier
-	    if ( mode == 'Q' || mode == 'T' ) {
+	    if ( mode == 7 || mode == 8 ) {	// cubic 'Q' and 'T'
 		int x31 = quad[0].x()+int(2.0*(quad[2].x()-quad[0].x())/3.0);
 		int y31 = quad[0].y()+int(2.0*(quad[2].y()-quad[0].y())/3.0);
 		int x32 = quad[2].x()+int(2.0*(quad[3].x()-quad[2].x())/3.0);
