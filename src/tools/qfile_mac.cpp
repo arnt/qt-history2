@@ -79,3 +79,7 @@ int QFile::handle() const
 {
     return 0;
 }
+
+void QFile::close()
+{
+}

@@ -567,3 +567,48 @@ int QFile::handle() const
     else
 	return fd;
 }
+
+/*!
+  Closes an open file.
+
+  The file is not closed if it was opened with an existing file handle.
+  If the existing file handle is a \c FILE*, the file is flushed.
+  If the existing file handle is an \c int file descriptor, nothing
+  is done to the file.
+
+  Some "write-behind" filesystems may report an unspecified error on
+  closing the file. These errors only indiciate that something may
+  have gone wrong since the previous open(). In such a case status()
+  reports IO_UnspecifiedError after close(), otherwise IO_Ok.
+
+  \sa open(), flush()
+*/
+
+/*!
+  Flushes the file buffer to the disk.
+
+  close() also flushes the file buffer.
+*/
+
+void QFile::close()
+{
+    bool ok = FALSE;
+    if ( isOpen() ) {				// file is not open
+	if ( fh ) {				// buffered file
+	    if ( ext_f )
+		ok = fflush( fh ) != -1;	// flush instead of closing
+	    else
+		ok = fclose( fh ) != -1;
+	} else {				// raw file
+	    if ( ext_f )
+		ok = TRUE;			// cannot close
+	    else
+		ok = CLOSE( fd ) != -1;
+	}
+	init();					// restore internal state
+    }
+    if (!ok)
+	setStatus (IO_UnspecifiedError);
+
+    return;
+}

@@ -352,3 +352,26 @@ int QFile::handle() const
     else
 	return fd;
 }
+
+void QFile::close()
+{
+    bool ok = FALSE;
+    if ( isOpen() ) {				// file is not open
+	if ( fh ) {				// buffered file
+	    if ( ext_f )
+		ok = fflush( fh ) != -1;	// flush instead of closing
+	    else
+		ok = fclose( fh ) != -1;
+	} else {				// raw file
+	    if ( ext_f )
+		ok = TRUE;			// cannot close
+	    else
+		ok = CLOSE( fd ) != -1;
+	}
+	init();					// restore internal state
+    }
+    if (!ok)
+	setStatus (IO_UnspecifiedError);
+
+    return;
+}
