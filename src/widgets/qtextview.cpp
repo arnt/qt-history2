@@ -269,6 +269,7 @@ void QTextView::append( const QString& text )
     } else
 	updateLayout();
     updateContents( contentsX(), y-h, visibleWidth(), h );
+    d->original_txt += text;
 }
 
 /*!
