@@ -1590,9 +1590,11 @@ void TrWindow::newPhraseBook()
 
 void TrWindow::openPhraseBook()
 {
-    QString name = QFileDialog::getOpenFileName( QString::null,
+    QString qtdirenv = getenv("QTDIR");
+    QString name = QFileDialog::getOpenFileName( QString( qtdirenv + "/tools/linguist/phrasebooks" ),
 	    tr("Qt phrase books (*.qph)\n"
-	       "All files (*)") );
+	       "All files (*)"), 0, "open_phrasebook", 
+	       tr("Open phrase book") );
 
     if ( !name.isEmpty() && !phraseBookNames.contains(name) ) {
 	if ( openPhraseBook(name) ) {
