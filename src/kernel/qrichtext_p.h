@@ -81,7 +81,7 @@ class QTextBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-struct QTextBidiStatus {
+struct Q_EXPORT QTextBidiStatus {
     QTextBidiStatus() {
 	eor = QChar::DirON;
 	lastStrong = QChar::DirON;
@@ -92,7 +92,7 @@ struct QTextBidiStatus {
     QChar::Direction last		: 5;
 };
 
-class QTextBidiContext {
+class Q_EXPORT QTextBidiContext {
 public:
     QTextBidiContext( uchar level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = FALSE );
     ~QTextBidiContext();
@@ -112,7 +112,15 @@ public:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextCursor
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QValueStack<int>;
+template class Q_EXPORT QValueStack<QTextParag*>;
+template class Q_EXPORT QValueStack<bool>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextCursor
 {
 public:
     QTextCursor( QTextDocument *d );
@@ -193,7 +201,7 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextCommand
+class Q_EXPORT QTextCommand
 {
 public:
     enum Commands { Invalid, Insert, Delete, Format };
@@ -210,7 +218,13 @@ protected:
 
 };
 
-class QTextCommandHistory
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QList<QTextCommand>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextCommandHistory
 {
 public:
     QTextCommandHistory( int s ) : current( -1 ), steps( s ) { history.setAutoDelete( TRUE ); }
@@ -236,7 +250,7 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextDeleteCommand : public QTextCommand
+class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
     QTextDeleteCommand( QTextDocument *d, int i, int idx, const QString &str )
@@ -255,7 +269,7 @@ protected:
 
 };
 
-class QTextInsertCommand : public QTextDeleteCommand
+class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
     QTextInsertCommand( QTextDocument *d, int i, int idx, const QString &str )
@@ -269,7 +283,7 @@ public:
 
 };
 
-class QTextFormatCommand : public QTextCommand
+class Q_EXPORT QTextFormatCommand : public QTextCommand
 {
 public:
     QTextFormatCommand( QTextDocument *d, int selId, QTextFormat *f, int flags );
@@ -288,7 +302,7 @@ protected:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextCustomItem
+class Q_EXPORT QTextCustomItem
 {
 public:
     QTextCustomItem( QTextDocument *p )
@@ -340,7 +354,13 @@ public:
     QTextDocument *parent;
 };
 
-class QTextImage : public QTextCustomItem
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QMap<QString, QString>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextImage : public QTextCustomItem
 {
 public:
     QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
@@ -363,7 +383,7 @@ private:
 
 };
 
-class QTextHorizontalLine : public QTextCustomItem
+class Q_EXPORT QTextHorizontalLine : public QTextCustomItem
 {
 public:
     QTextHorizontalLine( QTextDocument *p );
@@ -379,7 +399,13 @@ private:
 
 };
 
-class QTextFlow
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QList<QTextCustomItem>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextFlow
 {
     friend class QTextDocument;
     friend class QTextTableCell;
@@ -421,7 +447,7 @@ private:
 
 class QTextTable;
 
-class QTextTableCell : public QLayoutItem
+class Q_EXPORT QTextTableCell : public QLayoutItem
 {
     friend QTextTable;
 
@@ -481,7 +507,14 @@ private:
 
 };
 
-class QTextTable: public QTextCustomItem
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QList<QTextTableCell>;
+template class Q_EXPORT QMap<QTextCursor*, int>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextTable: public QTextCustomItem
 {
     friend class QTextTableCell;
 
@@ -542,7 +575,15 @@ private:
 
 class QTextTableCell;
 class QTextParag;
-class QTextDocument : public QObject
+
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QMap<int, QColor>;
+template class Q_EXPORT QMap<int, bool>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
 
@@ -731,7 +772,7 @@ private:
 	bool swapped;
     };
 
-    struct Focus {
+    struct Q_EXPORT Focus {
 	QTextParag *parag;
 	int start, len;
 	QString href;
@@ -902,7 +943,13 @@ inline bool QTextString::isRightToLeft() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextParag
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QVector<QStyleSheetItem>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextParag
 {
     friend class QTextDocument;
 
@@ -1094,7 +1141,7 @@ private:
     bool newLinesAllowed : 1;
     bool splittedInside : 1;
     bool lastInFrame : 1;
-      QMap<int, Selection> selections;
+    QMap<int, Selection> selections;
     int state, id;
     QTextString *str;
     int align;
@@ -1118,7 +1165,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextFormatter
+class Q_EXPORT QTextFormatter
 {
 public:
     QTextFormatter();
@@ -1151,7 +1198,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextFormatterBreakInWords : public QTextFormatter
+class Q_EXPORT QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakInWords();
@@ -1161,7 +1208,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextFormatterBreakWords : public QTextFormatter
+class Q_EXPORT QTextFormatterBreakWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakWords();
@@ -1171,7 +1218,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextIndent
+class Q_EXPORT QTextIndent
 {
 public:
     QTextIndent();
@@ -1181,7 +1228,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextPreProcessor
+class Q_EXPORT QTextPreProcessor
 {
 public:
     enum Ids {
@@ -1196,7 +1243,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextFormat
+class Q_EXPORT QTextFormat
 {
     friend class QTextFormatCollection;
 
@@ -1292,7 +1339,13 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextFormatCollection
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QDict<QTextFormat>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QTextFormatCollection
 {
     friend class QTextDocument;
 

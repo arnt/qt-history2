@@ -7,7 +7,7 @@
 
 class QTextString;
 
-class QComplexText {
+class Q_EXPORT QComplexText {
 public:
     enum Shape {
         XIsolated,
