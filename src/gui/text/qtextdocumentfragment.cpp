@@ -21,7 +21,7 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollecti
             int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
 
             formats[idx] = groupFormat;
-            references[format.groupIndex()] = idx;
+            groups[format.groupIndex()] = idx;
         }
 
         formats[formatIdx] = format;
@@ -32,13 +32,13 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
 {
     QMap<int, int> formatIndexMap;
 
-    // maps from reference value used in formats to real reference index
-    ReferenceMap insertedReferences;
+    // maps from group index used in formats to real group index
+    GroupMap insertedGroups;
 
-    for (ReferenceMap::ConstIterator it = references.begin(); it != references.end(); ++it) {
+    for (GroupMap::ConstIterator it = groups.begin(); it != groups.end(); ++it) {
         QTextFormat format = formats[it.value()];
 
-        insertedReferences[it.key()] = collection->indexForGroup(collection->createGroup(format));
+        insertedGroups[it.key()] = collection->indexForGroup(collection->createGroup(format));
     }
 
     for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
@@ -46,7 +46,7 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
 
         int groupIndex = format.groupIndex();
         if (groupIndex != -1) {
-            groupIndex = insertedReferences.value(groupIndex, -1);
+            groupIndex = insertedGroups.value(groupIndex, -1);
             format.setGroupIndex(groupIndex);
         }
 

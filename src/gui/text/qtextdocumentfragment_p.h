@@ -22,21 +22,21 @@ public:
     QMap<int, int> insertIntoOtherCollection(QTextFormatCollection *collection) const;
 
     typedef QMap<Q_INT32, QTextFormat> FormatMap;
-    typedef QMap<Q_INT32, Q_INT32> ReferenceMap;
+    typedef QMap<Q_INT32, Q_INT32> GroupMap;
 
     FormatMap formats;
-    // maps from reference index to index (key) in 'formats' map
-    ReferenceMap references;
+    // maps from group index to index (key) in 'formats' map
+    GroupMap groups;
 };
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextFormatCollectionState &state)
 {
-    stream << state.formats << state.references; return stream;
+    stream << state.formats << state.groups; return stream;
 }
 
 inline QDataStream &operator>>(QDataStream &stream, QTextFormatCollectionState &state)
 {
-    stream >> state.formats >> state.references; return stream;
+    stream >> state.formats >> state.groups; return stream;
 }
 
 class QTextDocumentFragmentPrivate
