@@ -376,7 +376,7 @@ void P4Interface::connectTo( QUnknownInterface *ai )
     }
 }
 
-bool P4Interface::location( const QString &actionname, Location l ) const
+bool P4Interface::location( const QString &/*actionname*/, Location /*l*/ ) const
 {
     return TRUE;
 }
