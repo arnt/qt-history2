@@ -546,10 +546,10 @@ void QGenericTreeView::updateGeometries()
 {
     int margin = QApplication::reverseLayout() ? rightMargin() : leftMargin();
     QRect r(margin + frameWidth(), frameWidth(), visibleWidth(), topMargin());
-    d->header->setGeometry(QStyle::visualRect(r, rect()));
+    d->header->setGeometry(QStyle::visualRect(r, rect())); // this may update the header size, if it has stretch sections
     QSize hint = d->header->sizeHint();
     setMargins(0, hint.height(), 0, 0);
-    resizeContents(hint.width(), contentsHeight());
+    resizeContents(hint.width(), contentsHeight()); // because the header may have changed size, we must resize the contents
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
 }

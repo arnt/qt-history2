@@ -308,9 +308,11 @@ void QGenericTableView::updateGeometries()
 
     QRect lr(frameWidth(), topMargin() + frameWidth(), verticalMargin, visibleHeight() + topMargin());
     d->leftHeader->setGeometry(QStyle::visualRect(lr, rect()));
+//    QSize leftHint = d->leftHeader->sizeHint();
 
     QRect tr(verticalMargin + frameWidth(), frameWidth(), visibleWidth() + verticalMargin, topMargin());
     d->topHeader->setGeometry(QStyle::visualRect(tr, rect()));
+//    QSize topHint = d->topHeader->sizeHint();
 
     QRect tl(frameWidth(), frameWidth(), verticalMargin, topMargin());
     d->cornerWidget->setGeometry(QStyle::visualRect(tl, rect()));
