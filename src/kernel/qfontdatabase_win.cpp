@@ -35,7 +35,7 @@ extern HDC   shared_dc;		// common dc for all fonts
 extern HFONT stock_sysfont  = 0;
 
 // #define QFONTDATABASE_DEBUG
-#define FONT_MATCH_DEBUG
+// #define FONT_MATCH_DEBUG
 
 // see the Unicode subset bitfields in the MSDN docs
 static int requiredUnicodeBits[QFont::NScripts][2] = {
