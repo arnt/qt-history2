@@ -590,6 +590,8 @@ void Uic::createFormDecl( const QDomElement &e )
 
     nl = e.parentNode().toElement().elementsByTagName( "variable" );
     if ( nl.length() > 0 ) {
+	if ( !needProtected )
+	    out << "protected:" << endl;
 	out << endl;
 	for ( i = 0; i < (int) nl.length(); i++ ) {
 	    QString v = nl.item( i ).firstChild().toText().data();
