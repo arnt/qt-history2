@@ -148,19 +148,23 @@ bool qax_stopServer()
     return true;
 }
 
+#if defined(Q_OS_TEMP)
+extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
+#else
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<char *> &);
+#endif
+
 #if defined(QT_NEEDS_QMAIN)
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 int qMain(int, char **);
 #define main qMain
 #else
-#if defined(Q_OS_TEMP)
-extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
-EXTERN_C int __cdecl main(int, char **);
+#ifdef Q_OS_TEMP
+extern "C" int __cdecl main(int, char **);
 #else
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
-EXTERN_C int main(int, char **);
+extern "C" int main(int, char **);
 #endif
 #endif
+
 
 EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
                             HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -226,7 +230,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
         
         HRESULT hRes = CoInitialize(0);
         
-        QVector<pchar> argv(8);
+        QVector<char*> argv(8);
         qWinMain(hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv);
         qAxInit();
         if (runServer)
