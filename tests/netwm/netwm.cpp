@@ -887,11 +887,19 @@ void NETRootInfo::update(unsigned long dirty) {
 
     dirty = dirty & p->protocols;
 
-    if (dirty & ClientList)
+    if (dirty & ClientList) {
+#ifdef    DEBUG
+	fprintf(stderr, "NETRootInfo::update: ClientLIst dirty, rereading...\n");
+#endif
+	
 	if (XGetWindowProperty(p->display, p->root, net_client_list,
 			       0l, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
 			       &format_ret, &nitems_ret, &unused, &data_ret)
-	    == Success)
+	    == Success) {
+#ifdef    DEBUG
+	    fprintf(stderr, "\tgot property, reading data...\n");
+#endif
+	    
 	    if (data_ret) {
 		if (type_ret == XA_WINDOW && format_ret == 32) {
 		    Window *wins = (Window *) data_ret;
@@ -922,8 +930,12 @@ void NETRootInfo::update(unsigned long dirty) {
 			}
 
 			delete [] p->clients;
+		    } else {
+			unsigned long n;
+			for (n = 0; n < nitems_ret; n++)
+			    addClient(wins[n]);
 		    }
-
+		    
 #ifdef    DEBUG
 		    fprintf(stderr,"NETRootInfo::update: ClientList updated, "
 			    "have %ld clients\n", nitems_ret);
@@ -935,7 +947,8 @@ void NETRootInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
-
+	}
+    }
 
     if (dirty & KDEDockingWindows)
 	if (XGetWindowProperty(p->display, p->root, net_kde_docking_windows,
@@ -1041,7 +1054,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		XFree(data_ret);
 	    }
         } else
-          p->geometry = p->rootSize;
+	    p->geometry = p->rootSize;
 
     if (dirty & DesktopViewport)
 	if (XGetWindowProperty(p->display, p->root, net_desktop_viewport,
@@ -1059,7 +1072,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		XFree(data_ret);
 	    }
         } else
-          p->viewport.x = p->viewport.y = 0;
+	    p->viewport.x = p->viewport.y = 0;
 
     if (dirty & CurrentDesktop)
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
