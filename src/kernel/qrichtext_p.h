@@ -111,7 +111,7 @@ public:
     uint canBreak : 1;
     Type type : 2;
     uint startOfRun : 1;
-    
+
     int x;
     int height() const;
     int ascent() const;
@@ -1325,9 +1325,9 @@ public:
 	Size = 16,
 	Color = 32,
 	Misspelled = 64,
-	HAlign = 128,
+	VAlign = 128,
 	Font = Bold | Italic | Underline | Family | Size,
-	Format = Font | Color | Misspelled | HAlign
+	Format = Font | Color | Misspelled | VAlign
     };
 
     enum VerticalAlignment { AlignNormal, AlignSubScript, AlignSuperScript };
@@ -1341,7 +1341,7 @@ public:
     QColor color() const;
     QFont font() const;
     bool isMisspelled() const;
-    VerticalAlignment hAlign() const;
+    VerticalAlignment vAlign() const;
     int minLeftBearing() const;
     int minRightBearing() const;
     int width( const QChar &c ) const;
@@ -1362,13 +1362,13 @@ public:
     void setFont( const QFont &f );
     void setColor( const QColor &c );
     void setMisspelled( bool b );
-    void setHAlign( VerticalAlignment a );
+    void setVAlign( VerticalAlignment a );
 
     bool operator==( const QTextFormat &f ) const;
     QTextFormatCollection *parent() const;
     QString key() const;
 
-    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm, VerticalAlignment hAlign );
+    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm, VerticalAlignment vAlign );
 
     void addRef();
     void removeRef();
@@ -1832,7 +1832,7 @@ inline bool QTextFormat::isMisspelled() const
     return missp;
 }
 
-inline QTextFormat::VerticalAlignment QTextFormat::hAlign() const
+inline QTextFormat::VerticalAlignment QTextFormat::vAlign() const
 {
     return ha;
 }
@@ -1925,7 +1925,7 @@ inline void QTextFormat::generateKey()
        << (int)isMisspelled()
        << anchor_href
        << anchor_name
-       << (int)hAlign();
+       << (int)vAlign();
 }
 
 inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled,

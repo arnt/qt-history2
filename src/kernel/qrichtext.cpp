@@ -3315,7 +3315,7 @@ void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollecti
 	       f->font().pointSize() != of->font().pointSize() ||
 	       f->font().weight() != of->font().weight() ||
 	       f->font().italic() != of->font().italic() ||
-	       f->hAlign() != of->hAlign() ) ) {
+	       f->vAlign() != of->vAlign() ) ) {
 	    invalidate( 0 );
 	}
 	if ( flags == -1 || flags == QTextFormat::Format || !fc ) {
@@ -3601,14 +3601,14 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
     if ( rightToLeft )
 	dir = QPainter::RTL;
     if ( str[start] != '\t' ) {
-	if ( lastFormat->hAlign() == QTextFormat::AlignNormal ) {
+	if ( lastFormat->vAlign() == QTextFormat::AlignNormal ) {
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
-	} else if ( lastFormat->hAlign() == QTextFormat::AlignSuperScript ) {
+	} else if ( lastFormat->vAlign() == QTextFormat::AlignSuperScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
 	    painter.drawText( startX, lastY + baseLine - ( h - painter.fontMetrics().height() ), str, start, len, dir );
-	} else if ( lastFormat->hAlign() == QTextFormat::AlignSubScript ) {
+	} else if ( lastFormat->vAlign() == QTextFormat::AlignSubScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
@@ -4785,7 +4785,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 	cres->col = nf->col;
     if ( flags & QTextFormat::Misspelled )
 	cres->missp = nf->missp;
-    if ( flags & QTextFormat::HAlign )
+    if ( flags & QTextFormat::VAlign )
 	cres->ha = nf->ha;
     cres->update();
 
@@ -4915,7 +4915,7 @@ void QTextFormat::setMisspelled( bool b )
     update();
 }
 
-void QTextFormat::setHAlign( VerticalAlignment a )
+void QTextFormat::setVAlign( VerticalAlignment a )
 {
     if ( a == ha )
 	return;
