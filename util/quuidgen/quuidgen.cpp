@@ -81,7 +81,7 @@ void QUuidGen::formatChanged()
 
     switch ( f ) {
     case 0: // define a macro
-	text = "// {" + result.upper() + "} \n#ifndef " + name + "\n#define " + name + " QUuid( " + l + ", " + i1 +", " + i2 + ", "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+");\n#endif";
+	text = "// {" + result.upper() + "} \n#ifndef " + name + "\n#define " + name + " QUuid( " + l + ", " + i1 +", " + i2 + ", "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+")\n#endif";
 	break;
     case 1: // static const QUuid ...
 	text = "// {" + result.upper() + "} \nstatic const QUuid " + name + " = QUuid( "+ l + ", " + i1 + ", " + i2 + ", "+b1+", "+b2+", "+b3+", "+b4+", "+b5+", "+b6+", "+b7+", "+b8+" );";
