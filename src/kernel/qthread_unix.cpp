@@ -3,7 +3,7 @@
 **
 ** QThread class for Unix
 **
-** Created : 931107
+** Created : 20000913
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
