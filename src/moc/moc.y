@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#18 $
+** $Id: //depot/qt/main/src/moc/moc.y#19 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -42,7 +42,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#19 $";
 #endif
 
 
@@ -52,7 +52,7 @@ enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
 struct Argument					// single arg meta data
 {
     Argument( char *name, char *ptr )
-    	{ typeName=name; ptrType=ptr; }
+	{ typeName=name; ptrType=ptr; }
     QString typeName;
     QString ptrType;
 };
@@ -236,7 +236,7 @@ decl_specifiers:	  decl_specs_opt simple_type_name decl_specs_opt
 						{ $$ = $2; }
 			;
 
-decl_specs_opt:		  	/* empty */
+decl_specs_opt:			/* empty */
 			| decl_specs
 			;
 
@@ -338,7 +338,7 @@ fct_name:		  IDENTIFIER		/* NOTE: simplified! */
 
 fct_name_decl:		  fct_name		{ tmpFunc->name = $1;
 						  tmpFunc->ptrType  = "";
-					      	  $$ = tmpFunc; }
+						  $$ = tmpFunc; }
 			| ptr_operator fct_name_decl
 						{ tmpFunc->name = $2->name;
 						  tmpFunc->ptrType =
@@ -354,7 +354,7 @@ ptr_operator:		  '*' cv_qualifier_list_opt { $$="*"; }
 			  cv_qualifier_list_opt	{ $$=stradd($1,"*"); }
 			;
 
-cv_qualifier_list_opt:	   	/* empty */
+cv_qualifier_list_opt:		/* empty */
 			| cv_qualifier_list
 			;
 
@@ -366,7 +366,7 @@ cv_qualifier:		  CONST
 			| VOLATILE
 			;
 
-fct_body_opt:		  	/* empty */
+fct_body_opt:			/* empty */
 			| fct_body
 			;
 
@@ -390,11 +390,11 @@ class_head:		  class_key
 			  opt_base_spec		{ superclassName = $4; }
 			;
 
-opt_base_spec:		  	/* empty */	{ $$ = NULL; }
+opt_base_spec:			/* empty */	{ $$ = NULL; }
 			| base_spec		{ $$ = $1; }
 			;
 
-opt_obj_member_list:	  	/* empty */
+opt_obj_member_list:		/* empty */
 			| obj_member_list
 			;
 
@@ -422,10 +422,10 @@ method_declarations:	  method_declarations method_declaration
 
 method_declaration:	  decl_specifiers fct_decl optional_semicolon
 						{ addMember($1,'m'); }
-		 	| error ';'		{ yyerrok; }
+			| error ';'		{ yyerrok; }
 			;
 
-opt_signal_declarations:  	/* empty */
+opt_signal_declarations:	/* empty */
 			| signal_declarations
 			;
 
@@ -449,7 +449,7 @@ slot_declaration:	  decl_specifiers fct_decl optional_semicolon
 						{ addMember($1,'t'); }
 			;
 
-optional_semicolon:	  	/* empty */
+optional_semicolon:		/* empty */
 			| ';'
 			;
 
@@ -489,6 +489,7 @@ void init();					// initialize
 void generate();				// generate C++ source code
 
 QString	  fileName;				// file name
+QString   ofileName;				// output file name
 QString	  className;				// name of parsed class
 QString	  superclassName;			// name of super class
 FuncList  methods;				// method interface (public)
@@ -502,12 +503,20 @@ int yyparse();
 
 int main( int argc, char **argv )		// program starts here
 {
+    if ( argc == 4 && !strcmp(argv[2],"-o") ) {
+	ofileName = argv[3];
+	out = fopen( ofileName, "w" );		// create output file
+	if ( !out ) {
+	    fprintf( stderr, "moc: Cannot create %s", (pcchar)ofileName );
+	    return 1;
+	}
+    }
+    else
     if ( argc != 2 ) {
 	fprintf( stderr, "Quasar meta object compiler\n" );
-	fprintf( stderr, "Usage:  moc <header-file>\n" );
+	fprintf( stderr, "Usage:  moc <header-file> [-o output]\n" );
 	return 1;
     }
-
     fileName = argv[1];
     yyin = fopen( fileName, "r" );
     if ( !yyin ) {
@@ -516,6 +525,9 @@ int main( int argc, char **argv )		// program starts here
     }
     init();
     yyparse();
+    fclose( yyin );
+    if ( !ofileName.isNull() )
+	fclose( out );
 
     return 0;
 }
@@ -549,11 +561,12 @@ lineNo );
 	fprintf( stderr, "moc: %s, line %d\n", msg, lineNo );
 }
 
+#ifndef yywrap
 int yywrap()					// more files?
 {
     return 1;					// end of file
 }
-
+#endif
 
 char *stradd( const char *s1, const char *s2 )	// adds two strings
 {
@@ -585,7 +598,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    typstr += a->ptrType;
 	    a = f->args->next();
 	}
-	fprintf( out, "    typedef %s %s(%s::*m%d_t%d)(%s);\n",
+	fprintf( out, "	   typedef %s %s(%s::*m%d_t%d)(%s);\n",
 		 (pcchar)f->type, (pcchar)f->ptrType,
 		 (pcchar)className, num, list->at(),(pcchar)typstr );
 	if ( num == Signal_Num && (f->type != "void" || f->ptrType != "" ) )
@@ -601,17 +614,17 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	f->type += ")";
     }
     for ( f=list->first(); f; f=list->next() )
-	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
+	fprintf( out, "	   m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
 		 num, list->at(), (pcchar)className, (pcchar)f->name);
     if ( list->count() )
-	fprintf( out, "    QMetaData *%s_tbl = new QMetaData[%d];\n",
+	fprintf( out, "	   QMetaData *%s_tbl = new QMetaData[%d];\n",
 		 functype, list->count() );
     for ( f=list->first(); f; f=list->next() )
-	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
+	fprintf( out, "	   %s_tbl[%d].name = \"%s\";\n",
 		 functype, list->at(), (pcchar)f->type );
     for ( f=list->first(); f; f=list->next() )
-	fprintf( out, "    %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
-	         functype, list->at(), num, list->at() );
+	fprintf( out, "	   %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
+		 functype, list->at(), num, list->at() );
 }
 
 void generate()					// generate C++ source code
@@ -639,11 +652,11 @@ void generate()					// generate C++ source code
 	fprintf( out, "#include \"%s\"\n\n\n", (pcchar)fileName );
     }
     else
-        fprintf( out, "\n\n" );
+	fprintf( out, "\n\n" );
 
     fprintf( out, "class QObject__%s : public QObject\n{\npublic:",
 	     (pcchar)className );
-    fprintf( out, "\n    void setSender( QObject *s ) { sender=s; }\n};\n\n" );
+    fprintf( out, "\n	 void setSender( QObject *s ) { sender=s; }\n};\n\n" );
 
     fprintf( out, "char *%s::className() const\n{\n    ", (pcchar)className );
     fprintf( out, "return \"%s\";\n}\n\n", (pcchar)className );
@@ -661,7 +674,7 @@ void generate()					// generate C++ source code
 //
 // Call to initialize parent meta object
 //
-    fprintf( out, "if ( metaObject(\"%s\") == 0 )\n",(pcchar)superclassName );
+    fprintf( out, "if ( %s::metaObject() == 0 )\n",(pcchar)superclassName );
     fprintf( out, "\t%s::initMetaObject();\n", (pcchar)superclassName );
 //
 // Build methods array in initMetaObject()
@@ -683,15 +696,15 @@ void generate()					// generate C++ source code
     if ( methods.count() )
 	fprintf( out, "\tmethod_tbl, %d,\n", methods.count() );
     else
-        fprintf( out, "\t0, 0,\n" );
+	fprintf( out, "\t0, 0,\n" );
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
     else
-        fprintf( out, "\t0, 0,\n" );
+	fprintf( out, "\t0, 0,\n" );
     if ( signals.count() )
 	fprintf( out, "\tsignal_tbl, %d );\n", signals.count());
     else
-        fprintf( out, "\t0, 0 );\n" );
+	fprintf( out, "\t0, 0 );\n" );
     fprintf( out, "}\n" );
 
 //
@@ -731,15 +744,15 @@ void generate()					// generate C++ source code
 	}
 
 	fprintf( out, "%s )\n{\n", (pcchar)argstr );
-	fprintf( out, "    typedef void (QObject::*RT)(%s);\n",(pcchar)typstr);
-	fprintf( out, "    QConnection *c = receiver(\"%s(%s)\");\n",
+	fprintf( out, "	   typedef void (QObject::*RT)(%s);\n",(pcchar)typstr);
+	fprintf( out, "	   QConnection *c = receiver(\"%s(%s)\");\n",
 		 (pcchar)f->name, (pcchar)typstr );
-	fprintf( out, "    if ( !c )\n\treturn;\n" );
-	fprintf( out, "    RT r = (RT)(*(c->member()));\n" );
-	fprintf( out, "    QObject__%s *object = (QObject__%s*)c->object();\n",
+	fprintf( out, "	   if ( !c )\n\treturn;\n" );
+	fprintf( out, "	   RT r = (RT)(*(c->member()));\n" );
+	fprintf( out, "	   QObject__%s *object = (QObject__%s*)c->object();\n",
 		 (pcchar)className, (pcchar)className );
-	fprintf( out, "    object->setSender( this );\n" );
-	fprintf( out, "    (object->*r)(%s);\n}\n", (pcchar)valstr );
+	fprintf( out, "	   object->setSender( this );\n" );
+	fprintf( out, "	   (object->*r)(%s);\n}\n", (pcchar)valstr );
 /*
 	fprintf( out, "	   Part_%s *owner = (Part_%s*)getOwner();\n",
 		 (pcchar)className, (pcchar)className );
