@@ -22,7 +22,7 @@ SOURCES		= editor.cpp \
 		  cindent.cpp \
 		  yyindent.cpp
 
-INTERFACES	= preferences.ui
+FORMS		= preferences.ui
 		
 TARGET		= editor
 DESTDIR		= ../../../lib

@@ -1,6 +1,6 @@
 SOURCES	+= main.cpp 
 TARGET	= book
-INTERFACES	= book.ui editbook.ui 
+FORMS	= book.ui editbook.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= book.db

@@ -3,7 +3,6 @@ CONFIG+= qt warn_on release plugin
 HEADERS		= glwidget.h
 SOURCES		= main.cpp \
 		  glwidget.cpp
-INTERFACES	=
 DESTDIR		= ../../../../plugins/designer
 INCLUDEPATH     += ../../interfaces
 

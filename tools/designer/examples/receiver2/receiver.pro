@@ -1,7 +1,7 @@
 SOURCES	+= main.cpp  receiver.cpp
 HEADERS	+= receiver.h 
 TARGET      = receiver
-INTERFACES	= mainform.ui 
+FORMS	= mainform.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 INCLUDEPATH	+= $(QTDIR)/tools/designer/uilib

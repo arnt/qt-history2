@@ -25,6 +25,8 @@ SOURCES		= frame.cpp \
 		  ../aclock/aclock.cpp \
 		  main.cpp
 
+FORMS		= dnd/dndbase.ui
+
 DEFINES		+= QT_INTERNAL_ICONVIEW
 DEFINES		+= QT_INTERNAL_WORKSPACE
 DEFINES		+= QT_INTERNAL_CANVAS
@@ -84,6 +86,5 @@ TRANSLATIONS	= translations/demo_de.ts \
 TARGET		= demo
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
-INTERFACES	+= dnd/dndbase.ui
-unix:LIBS += -lm
-REQUIRES=full-config nocrosscompiler
+unix:LIBS	+= -lm
+REQUIRES	= full-config nocrosscompiler

@@ -1,6 +1,6 @@
 SOURCES	+= main.cpp 
 TARGET	= multiclip
-INTERFACES	= multiclip.ui 
+FORMS	= multiclip.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= multiclip.db
