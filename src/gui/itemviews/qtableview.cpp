@@ -1017,7 +1017,7 @@ void QTableView::selectRow(int row, Qt::MouseButton button, Qt::KeyboardModifier
     if (row >= 0 && row < model()->rowCount(root())) {
         QModelIndex index = model()->index(row, 0, root());
         QMouseEvent event(QEvent::MouseButtonPress, QPoint(), button, Qt::NoButton, modifiers);
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index, &event);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex::Null, &event);
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
         } else {
@@ -1043,7 +1043,7 @@ void QTableView::selectColumn(int column, Qt::MouseButton button, Qt::KeyboardMo
     if (column >= 0 && column < model()->columnCount(root())) {
         QModelIndex index = model()->index(0, column, root());
         QMouseEvent event(QEvent::MouseButtonPress, QPoint(), button, Qt::NoButton, modifiers);
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index, &event);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex::Null, &event);
         if (selectionMode() == SingleSelection) {
             selectionModel()->setCurrentIndex(index, command);
         } else {
