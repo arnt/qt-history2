@@ -15,8 +15,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>366</width>
-            <height>275</height>
+            <width>362</width>
+            <height>273</height>
         </rect>
     </property>
     <property name="caption">
@@ -231,8 +231,10 @@
     project-&gt;pixmapCollection()-&gt;addPixmap( pixmap );
     updateView();
     QIconViewItem *item = viewPixmaps-&gt;findItem( pixmap.name );
-    if ( item )
+    if ( item ) {
 	viewPixmaps-&gt;setCurrentItem( item );
+	viewPixmaps-&gt;ensureItemVisible( item );
+    }
 }</function>
     <function name="removePixmap()" >{
     if ( !project || !viewPixmaps-&gt;currentItem() )
