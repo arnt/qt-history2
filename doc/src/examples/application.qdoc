@@ -1,4 +1,172 @@
 /*!
     \example mainwindows/application
     \title Application Example
+
+    The Application example shows how to implement a standard GUI
+    application with menus, toolbars, and a status bar. The
+    application is a simple text editor built around QTextEdit.
+
+    \image application.png Screenshot of the Application example
+
+    This example can only load one file at a time. The
+    \l{mainwindows/sdi}{SDI} and \l{mainwindows/mdi}{MDI} examples
+    show how to lift these restrictions.
+
+    Nearly all of the code for the Application example is in the \c
+    MainWindow class, which inherits QMainWindow. QMainWindow
+    provides the framework for windows that have menus, toolbars,
+    dock windows, and a status bar.
+
+    The application provides \menu{File}, \menu{Edit}, and
+    \menu{Help} entries in the menu bar, with the following popup
+    menus:
+
+    \image application-menus.png The Application example's menu system
+
+    The status bar at the bottom of the main window shows a
+    description of the menu item or toolbar button under the cursor,
+    as well as a \gui{MOD} indicator that is visible when the file
+    has unsaved changes.
+
+    \section1 MainWindow Class Definition
+
+    Here's the class definition:
+
+    \include mainwindows/application/mainwindow.h
+
+    The public API is restricted to the constructor. In the \c
+    protected section, we reimplement QWidget::closeEvent() to detect
+    when the user attempts to close the window, and warn the user
+    about unsaved changes. In the \c{private slots} section, we
+    declare slots that correspond to menu entries, as well as a
+    mysterious \c documentWasModified() slot. Finally, in the \c
+    private section of the class, we have various members that will
+    be explained in due time.
+
+    \section1 MainWindow Class Implementation
+
+    \quotefromfile mainwindows/application/mainwindow.cpp
+    \printline #include <QtGui>
+    \printline #include "mainwindow.h"
+
+    We start by including \c <QtGui>, a header file that contains the
+    definition of all classes in the \c QtCore and \c QtGui
+    libraries. This saves us from the trouble of having to include
+    every class individually. We also include \c mainwindow.h.
+
+    You might wonder why we don't include \c <QtGui> in \c
+    mainwindow.h and be done with it. The reason is that including
+    such a large header from another header file can rapidly degrade
+    performances. Here, it wouldn't do any harm, but it's still
+    generally a good idea to include only the header files that are
+    strictly necessary from another header file.
+
+    \printline ::MainWindow(
+    \printuntil /^\}/
+
+    In the constructor, we start by creating a QTextEdit widget as a
+    child of the main window (the \c this object). Then we call
+    QMainWindow::setCentralWidget() to tell that this is going to be
+    the widget that occupies the central area of the main window,
+    between the toolbars and the status bar.
+
+    Then we call \c createActions(), \c createMenus(), \c
+    createToolBars(), and \c createStatusBar(), four private
+    functions that set up the user interface. After that, we call \c
+    readSettings() to restore the user's preferences.
+
+    We establish a signal-slot connection between the QTextEdit's
+    document object and our \c documentWasModified() slot. Whenever
+    the user modifies the text in the QTextEdit, we want to update
+    the \gui{MOD} status indicator.
+
+    At the end, we set the window title to "Application", the
+    name of our program.
+
+    \printline ::closeEvent(
+    \printuntil /^\}/
+
+    When the user attempts to close the window, we call the private
+    function \c maybeSave() to give the user the possibility to save
+    pending changes. The function returns true if the user wants the
+    application to close; otherwise, it returns false. In the first
+    case, we save the user's preferences to disk and accept the close
+    event; in the second case, we ignore the close event, meaning
+    that the application will stay up and running as if nothing
+    happened.
+
+    \printline ::newFile(
+    \printuntil /^\}/
+
+    The \c newFile() slot is invoked when the user selects
+    \menu{File|New} from the menu. We call \c maybeSave() to save any
+    pending changes and if the user accepts to go on, we clear the
+    QTextEdit and call the private function \c setCurrentFile() to
+    update the window title and clear the \gui{MOD} indicator.
+
+    \printline ::open(
+    \printuntil /^\}/
+
+    The \c open() slot is invoked when the user clicks
+    \menu{File|Open}. We pop up a QFileDialog asking the user to
+    choose a file. If the user chooses a file (i.e., \c fileName is
+    not an empty string), we call the private function \c loadFile()
+    to actually load the file.
+
+    \printline ::save(
+    \printuntil /^\}/
+
+    \printline ::saveAs(
+    \printuntil /^\}/
+
+    \printline ::about(
+    \printuntil /^\}/
+
+    \printline ::documentWasModified(
+    \printuntil /^\}/
+
+    \printline ::createActions(
+    \printuntil /^\}/
+
+    \printline ::createMenus(
+    \printuntil /^\}/
+
+    \printline ::createToolBars(
+    \printuntil /^\}/
+
+    \printline ::createStatusBar(
+    \printuntil /^\}/
+
+    \printline ::readSettings(
+    \printuntil /^\}/
+
+    \printline ::writeSettings(
+    \printuntil /^\}/
+
+    \printline ::maybeSave(
+    \printuntil /^\}/
+
+    \printline ::loadFile(
+    \printuntil /^\}/
+
+    \printline ::saveFile(
+    \printuntil /^\}/
+
+    \printline ::setCurrentFile(
+    \printuntil /^\}/
+
+    \printline ::strippedName(
+    \printuntil /^\}/
+
+    \section1 The main() Function
+
+    \include mainwindows/application/main.cpp
+
+    \section1 The Resource File
+
+    \include mainwindows/application/application.qrc
+
+    \quotefromfile mainwindows/application/application.pro
+    \skipto RESOURCES
+    \printline RESOURCES
 */
