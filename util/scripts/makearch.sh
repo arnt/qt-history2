@@ -81,7 +81,7 @@ for a in `make -s showdirs` ; do
 done
 ln ${BASE}/tutorial/Makefile ${BASE}/arch/template/tutorial/Makefile
 cd ${BASE}/arch/template/moc
-ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/moc.cpp ../../../src/moc/lex.yy.c .
+ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/moc_gen.cpp ../../../src/moc/lex.yy.c .
 sed -e 's-\.\./tools/-../library/-' < ../../../src/moc/Makefile > Makefile
 
 # woo hoo
