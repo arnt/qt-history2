@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#181 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#182 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -691,9 +691,9 @@ QString QString::arg(QChar a, int fieldwidth) const
 */
 QString QString::arg(double a, int fieldwidth, char fmt, int prec)
 {
-    QString d;
-    d.setNum(a,fmt,prec);
-    return arg(d,fieldwidth);
+    QString dec;
+    dec.setNum(a,fmt,prec);
+    return arg(dec,fieldwidth);
 }
 
 
