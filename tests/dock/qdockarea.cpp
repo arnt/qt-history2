@@ -24,14 +24,22 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
 
 private:
+    void startLineDraw();
+    void endLineDraw();
+    void drawLine( const QPoint &globalPos );
+    
+private:
     Qt::Orientation orient;
     QDockArea *s;
     QWidgetList widgetList;
-
+    bool mousePressed;
+    QPainter *unclippedPainter;
+    QPoint lastPos;
+    
 };
 
 QDockAreaHandle::QDockAreaHandle( Qt::Orientation o, QDockArea *parent, const QWidgetList &wl, const char * name )
-    : QWidget( parent, name ), widgetList( wl )
+    : QWidget( parent, name ), widgetList( wl ), mousePressed( FALSE ), unclippedPainter( 0 )
 {
     s = parent;
     setOrientation(o);
@@ -57,14 +65,26 @@ void QDockAreaHandle::setOrientation( Qt::Orientation o )
 
 void QDockAreaHandle::mousePressEvent( QMouseEvent *e )
 {
+    mousePressed = TRUE;
+    startLineDraw();
+    lastPos = e->globalPos();
+    drawLine( e->globalPos() );
 }
 
 void QDockAreaHandle::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( !mousePressed )
+	return;
+    drawLine( lastPos );
+    lastPos = e->globalPos();
+    drawLine( e->globalPos() );
 }
 
-void QDockAreaHandle::mouseReleaseEvent( QMouseEvent *e )
+void QDockAreaHandle::mouseReleaseEvent( QMouseEvent * )
 {
+    drawLine( lastPos );
+    endLineDraw();
+    mousePressed = FALSE;
 }
 
 void QDockAreaHandle::paintEvent( QPaintEvent * )
@@ -73,7 +93,36 @@ void QDockAreaHandle::paintEvent( QPaintEvent * )
     style().drawSplitter( &p, 0, 0, width(), height(), colorGroup(), orientation() );
 }
 
+void QDockAreaHandle::startLineDraw()
+{
+    if ( unclippedPainter )
+	endLineDraw();
+    bool unclipped = QApplication::desktop()->testWFlags( WPaintUnclipped );
+    ( (QDockAreaHandle*)QApplication::desktop() )->setWFlags( WPaintUnclipped );
+    unclippedPainter = new QPainter;
+    unclippedPainter->begin( QApplication::desktop() );
+    if ( !unclipped )
+	( (QDockAreaHandle*)QApplication::desktop() )->clearWFlags( WPaintUnclipped );
+    unclippedPainter->setPen( QPen( gray, orientation() == Horizontal ? height() : width() ) );
+    unclippedPainter->setRasterOp( XorROP );
+}
 
+void QDockAreaHandle::endLineDraw()
+{
+    if ( !unclippedPainter )
+	return;
+    delete unclippedPainter;
+    unclippedPainter = 0;
+}
+
+void QDockAreaHandle::drawLine( const QPoint &globalPos )
+{
+    QPoint start = mapToGlobal( QPoint( 0, 0 ) );
+    if ( orientation() == Horizontal )
+	unclippedPainter->drawLine( start.x(), globalPos.y(), start.x() + width(), globalPos.y() );
+    else
+	unclippedPainter->drawLine( globalPos.x(), start.y(), globalPos.x(), start.y() + height() );
+}
 
 
 
