@@ -398,13 +398,13 @@ void QProcessPrivate::notified()
     }
 
     if (!writeBuffer.isEmpty())
-        readyWrite();
+        canWrite();
 
     if (bytesAvailableFromStdout())
-        readyReadStandardOutput();
+        canReadStandardOutput();
 
     if (bytesAvailableFromStderr())
-        readyReadStandardError();
+        canReadStandardError();
 
     notifier->start(NOTIFYTIMEOUT);
 }
