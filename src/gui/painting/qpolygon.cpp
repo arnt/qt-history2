@@ -41,8 +41,7 @@ const qreal Q_PI = qreal(3.14159265358979323846);
 
     For geometry operations use boundingRect() and translate(). There
     is also the QMatrix::map() function for more general
-    transformations of QPolygons. You can also create arcs and
-    ellipses with makeArc() and makeEllipse().
+    transformations of QPolygons.
 
     Among others, QPolygon is used by QPainter::drawLineSegments(),
     QPainter::drawPolyline(), QPainter::drawPolygon() and
@@ -420,8 +419,7 @@ QDebug operator<<(QDebug dbg, const QPolygon &a)
 
     For geometry operations use boundingRect() and translate(). There
     is also the QMatrix::map() function for more general
-    transformations of QPolygonFs. You can also create arcs and
-    ellipses with makeArc() and makeEllipse().
+    transformations of QPolygonFs.
 
     Among others, QPolygonF is used by QPainter::drawLineSegments(),
     QPainter::drawPolyline(), QPainter::drawPolygon() and
