@@ -426,14 +426,6 @@ void QGenericListView::contentsRemoved(const QModelIndex &topLeft, const QModelI
 
     if (isVisible())
         doItemsLayout();
-
-    bool needMore = false;
-    if ((d->flow == TopToBottom && !d->wrap) || (d->flow == LeftToRight && d->wrap))
-        needMore = viewport()->height() >= d->contentsSize.height();
-    else
-        needMore = viewport()->width() >= d->contentsSize.width();
-    if (needMore)
-        emit this->needMore();
 }
 
 void QGenericListView::mouseMoveEvent(QMouseEvent *e)

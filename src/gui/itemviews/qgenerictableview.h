@@ -73,7 +73,6 @@ protected:
     void scrollContentsBy(int dx, int dy);
 
     void paintEvent(QPaintEvent *e);
-    bool event(QEvent *e);
 
     int horizontalOffset() const;
     int verticalOffset() const;

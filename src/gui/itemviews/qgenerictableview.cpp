@@ -253,14 +253,6 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
-bool QGenericTableView::event(QEvent *e)
-{
-    if (e->type() == QEvent::Show) {
-        emit needMore();
-    }
-    return QAbstractItemView::event(e);
-}
-
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
     return model()->index(rowAt(y), columnAt(x), root());
@@ -374,8 +366,6 @@ void QGenericTableView::rowCountChanged(int, int)
 {
     updateGeometries();
     d->viewport->update();
-    if (d->viewport->height() >= d->topHeader->size())
-        emit needMore();
 }
 
 void QGenericTableView::columnCountChanged(int, int)

@@ -75,8 +75,8 @@ public:
     void setKeyboardInputInterval(int msec);
     int keyboardInputInterval() const;
 
-    virtual QRect itemViewportRect(const QModelIndex &item) const = 0;
-    virtual void ensureItemVisible(const QModelIndex &item) = 0;
+    virtual QRect itemViewportRect(const QModelIndex &index) const = 0;
+    virtual void ensureItemVisible(const QModelIndex &index) = 0;
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
     virtual QModelIndex itemAt(int x, int y) const = 0;
 
@@ -106,7 +106,6 @@ protected slots:
     virtual void horizontalScrollbarAction(int action);
 
 signals:
-    void needMore();
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
     void pressed(const QModelIndex &index, int button);
     void clicked(const QModelIndex &index, int button);
@@ -137,13 +136,13 @@ protected:
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
-    virtual bool startEdit(const QModelIndex &item,
+    virtual bool startEdit(const QModelIndex &index,
                            QAbstractItemDelegate::StartEditAction action, QEvent *event);
-    virtual void endEdit(const QModelIndex &item, bool accept);
+    virtual void endEdit(const QModelIndex &index, bool accept);
     QWidget *currentEditor() const;
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
-                                                                 const QModelIndex &index = QModelIndex(),
+                                                                 const QModelIndex &index,
                                                                  QEvent::Type type = QEvent::None,
                                                                  Qt::Key key = Qt::Key_unknown) const;
 
@@ -176,9 +175,6 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void showEvent(QShowEvent *e);
     void timerEvent(QTimerEvent *e);
-
-private slots:
-    void fetchMore();
 };
 
 #endif /* QABSTRACTITEMVIEW_H */
