@@ -53,23 +53,25 @@ showheaders:
 showsources:
 	@echo $(SOURCES)
 
+moc: $(SRCMETA)
+
 depend: $(SRCMETA)
 	makedepend -I$(INCDIR) $(SOURCES) $(SRCMETA) 2> /dev/null
 
 clean:
-	rm -f *.o *.bak *BAK *~ *% #*
+	rm -f *.o *.bak *~ *% #*
 	rm -f $(SRCMETA)
 
 #######	Meta classes
 
 mfiledlg.cpp: qfiledlg.h
-	$(QTDIR)/bin/moc qfiledlg.h -o mfiledlg.cpp
+	moc qfiledlg.h -o mfiledlg.cpp
 
 mmsgbox.cpp: qmsgbox.h
-	$(QTDIR)/bin/moc qmsgbox.h -o mmsgbox.cpp
+	moc qmsgbox.h -o mmsgbox.cpp
 
 mprndlg.cpp: qprndlg.h
-	$(QTDIR)/bin/moc qprndlg.h -o mprndlg.cpp
+	moc qprndlg.h -o mprndlg.cpp
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

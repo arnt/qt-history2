@@ -67,11 +67,13 @@ showheaders:
 showsources:
 	@echo $(SOURCES)
 
+moc:
+
 depend:
 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
-	rm -f *.o *.bak *BAK *~ *% #*
+	rm -f *.o *.bak *~ *% #*
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

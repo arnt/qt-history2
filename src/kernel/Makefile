@@ -88,38 +88,40 @@ showheaders:
 showsources:
 	@echo $(SOURCES)
 
+moc: $(SRCMETA)
+
 depend: $(SRCMETA)
 	makedepend -I$(INCDIR) $(SOURCES) $(SRCMETA) 2> /dev/null
 
 clean:
-	rm -f *.o *.bak *BAK *~ *% #*
+	rm -f *.o *.bak *~ *% #*
 	rm -f $(SRCMETA)
 
 ####### Meta classes
 
 maccel.cpp: qaccel.h
-	$(QTDIR)/bin/moc qaccel.h -o maccel.cpp
+	moc qaccel.h -o maccel.cpp
 
 mapp.cpp: qapp.h
-	$(QTDIR)/bin/moc qapp.h -o mapp.cpp
+	moc qapp.h -o mapp.cpp
 
 mclipbrd.cpp: qclipbrd.h
-	$(QTDIR)/bin/moc qclipbrd.h -o mclipbrd.cpp
+	moc qclipbrd.h -o mclipbrd.cpp
 
 mdialog.cpp: qdialog.h
-	$(QTDIR)/bin/moc qdialog.h -o mdialog.cpp
+	moc qdialog.h -o mdialog.cpp
 
 msocknot.cpp: qsocknot.h
-	$(QTDIR)/bin/moc qsocknot.h -o msocknot.cpp
+	moc qsocknot.h -o msocknot.cpp
 
 mtimer.cpp: qtimer.h
-	$(QTDIR)/bin/moc qtimer.h -o mtimer.cpp
+	moc qtimer.h -o mtimer.cpp
 
 mwidget.cpp: qwidget.h
-	$(QTDIR)/bin/moc qwidget.h -o mwidget.cpp
+	moc qwidget.h -o mwidget.cpp
 
 mwindow.cpp: qwindow.h
-	$(QTDIR)/bin/moc qwindow.h -o mwindow.cpp
+	moc qwindow.h -o mwindow.cpp
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
