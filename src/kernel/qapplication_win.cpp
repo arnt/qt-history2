@@ -1331,7 +1331,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
     drawTile( hdc, x, y, w, h, pm, off_x, off_y );
     if ( tile )
 	delete tile;
-    }
 }
 
 
