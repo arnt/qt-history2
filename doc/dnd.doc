@@ -56,9 +56,9 @@ with Other Applications</a></li>
 </ul>
 
   For drag and drop examples see (in increasing order of
-  sophistication): \c examples/iconview/simple_dd, \c examples/dragdrop
-  and \c examples/fileiconview. See also the QMultiLineEdit widget
-  source code.
+  sophistication): \c qt/examples/iconview/simple_dd, \c
+  qt/examples/dragdrop and \c qt/examples/fileiconview. See also the
+  QMultiLineEdit widget source code.
 
 
   <h3><a name="dragging">Dragging</a></h3>
