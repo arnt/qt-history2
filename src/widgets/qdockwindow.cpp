@@ -1005,6 +1005,8 @@ void QDockWindow::init()
     glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
     glayout->addMultiCellWidget( vHandleRight,  0, 2, 2, 2 );
     glayout->addLayout( hbox, 1, 1 );
+    glayout->setRowStretch( 1, 1 );
+    glayout->setColStretch( 1, 1 );
 
     hHandleBottom->hide();
     vHandleRight->hide();
