@@ -32,8 +32,6 @@ public:
     ~QTextFormatProperty()
     { free(); }
 
-    bool isValid() const { return type != QTextFormat::Undefined; }
-
     bool operator==(const QTextFormatProperty &rhs) const;
     bool operator!=(const QTextFormatProperty &rhs) const
     { return !operator==(rhs); }
@@ -176,9 +174,7 @@ void QTextFormat::merge(const QTextFormat &other)
 	return;
     }
 
-    for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
-	 it != other.d->properties.end(); ++it)
-	d->properties.insert(it.key(), it.value());
+    d->properties += other.d->properties;
 }
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
