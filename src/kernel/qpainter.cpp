@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#25 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#25 $";
 #endif
 
 
@@ -54,8 +54,8 @@ Here is some code which draws some text (copied from QLabel, actually):
 QPaintDevice *QPainter::pdev_ov = 0;
 
 /*! Redirects the paint-command stream from the device you tell
-begin() to \e pd.  Some neat tricks become possible, but we think it's
-not a good idea and will probably remove it shortly. */
+  begin() to \e pd.  Some neat tricks become possible, but we think
+  it's not a good idea and will probably remove it shortly. */
 
 bool QPainter::redirect( const QPaintDevice *pd )
 {
@@ -156,7 +156,7 @@ void QPainter::killPStack()
 \link    QPoint	 bro \endlink,
 \link    QRect	 wr, vr \endlink,
 \link    Q2DMatrix	 wm \endlink,
-\link    	 vxf \endlink,
+\link vetikkehvor   	 vxf \endlink,
 whether world transform is being used,
 \link    QRegion clip region \endlink,
 whether clipping is used,
@@ -202,7 +202,7 @@ void QPainter::save()				// save/push painter state
 }
 
 /*! Restore the painter state from the stack.  The state is defined in
-the documentation for save(). \sa save() and killPStack().
+the documentation for save(). \sa save() and killPStack(). */
 
 void QPainter::restore()			// restore/pop painter state
 {
