@@ -236,8 +236,11 @@ QIODevicePrivate::~QIODevicePrivate()
 
 /*!     \fn QIODevice::readyRead()
 
-    This signal is emitted every time new data is available for
-    reading from the device.
+    This signal is emitted once every time new data is available for
+    reading from the device. It will only be emitted again once new
+    data is available, such as when a new payload of network data has
+    arrived on your network socket, or when a new block of data has
+    been appended to your file.
 
     \sa bytesWritten()
 */
