@@ -22,10 +22,10 @@ where you choose to install Qt.
 
 
 2.  Set some environment variables in the file .profile (or .login,
-    depending on your shell) in your home directory. (Create the
-    file if it is not there already.)
+    depending on your shell) in your home directory. Create the
+    file if it is not there already.
 
-	QTDIR		   - wherever you installed Qt
+	QTDIR		   - the directory in which you're building Qt
 	PATH		   - to locate the moc program and other Qt tools
 	MANPATH 	   - to access the Qt man pages
 	LD_LIBRARY_PATH	   - for the shared Qt library
