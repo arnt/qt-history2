@@ -343,7 +343,7 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
     r.setWidth( view->d->fm->boundingRect( item->itemText ).width() + 4 );
     r = QRect( view->contentsToViewport( QPoint( r.x(), r.y() ) ), QSize( r.width(), r.height() ) );
     QRect r2( item->pixmapRect( FALSE ) );
-    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );   
+    r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
     tip( r, r2, item->itemText );
 }
 #endif
@@ -2103,7 +2103,7 @@ void QIconViewItem::calcTmpText()
     while ( view->d->fm->width( tmpText + itemText[ i ] ) < w )
 	tmpText += itemText[ i++ ];
     tmpText.remove( 0, 3 );
-    tmpText += "...";   
+    tmpText += "...";
 }
 
 /*! \internal */
@@ -4284,11 +4284,9 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
  emit_signals:
     if ( !d->rubber ) {
-	if ( !d->context_menu ) {
-	    emit mouseButtonPressed( e->button(), item, e->globalPos() );
-	    emit pressed( item );
-	    emit pressed( item, e->globalPos() );
-	}
+	emit mouseButtonPressed( e->button(), item, e->globalPos() );
+	emit pressed( item );
+	emit pressed( item, e->globalPos() );
 
 	if ( e->button() == RightButton ) {
 	    if ( !d->context_menu )

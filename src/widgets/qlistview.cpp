@@ -2906,7 +2906,7 @@ void QListView::clear()
     bool wasUpdatesEnabled = viewport()->isUpdatesEnabled();
     viewport()->setUpdatesEnabled( FALSE );
     setContentsPos( 0, 0 );
-    viewport()->setUpdatesEnabled( wasUpdatesEnabled );   
+    viewport()->setUpdatesEnabled( wasUpdatesEnabled );
     bool block = signalsBlocked();
     blockSignals( TRUE );
     d->clearing = TRUE;
@@ -4050,13 +4050,11 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedItem = i;
 
     int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
-    if ( !d->context_menu ) {
-	if ( !i || ( i && i->isEnabled() ) ) {
-	    emit pressed( i );
-	    emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
-	}
-        emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
+    if ( !i || ( i && i->isEnabled() ) ) {
+	emit pressed( i );
+	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
     }
+    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
 
     if ( e->button() == RightButton && i == d->pressedItem ) {
 	if ( !i )

@@ -1927,11 +1927,16 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 	updateItem( d->head );
     }
 
+    if ( !i && ( d->selectionMode != Single || e->button() == RightButton )
+	 && !( e->state() & ControlButton ) )
+	clearSelection();
+
     d->select = d->selectionMode == Multi ? ( i ? !i->isSelected() : FALSE ) : TRUE;
     d->pressedSelected = i && i->s;
 
-    if ( i && (e->button() == LeftButton) ) {
+    if ( i )
 	d->selectAnchor = i;
+    if ( i ) {
 	switch( selectionMode() ) {
 	default:
 	case Single:
@@ -1943,49 +1948,51 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 	    }
 	    break;
 	case Extended:
-	    if ( !(e->state() & QMouseEvent::ShiftButton) &&
-		 !(e->state() & QMouseEvent::ControlButton) ) {
-		if ( !i->isSelected() ) {
-		    bool b = signalsBlocked();
-		    blockSignals( TRUE );
-		    clearSelection();
-		    blockSignals( b );
-		}
-		setSelected( i, TRUE );
-		d->dragging = TRUE; // always assume dragging
-	    } else if ( e->state() & ControlButton ) {
-		setSelected( i, !i->isSelected() );
-		d->pressedSelected = FALSE;
-	    } else if ( e->state() & ShiftButton ) {
-		d->pressedSelected = FALSE;
-		QListBoxItem *oldCurrent = item( currentItem() );
-		bool down = index( oldCurrent ) < index( i );
+	    if ( i ) {
+		if ( !(e->state() & QMouseEvent::ShiftButton) &&
+		     !(e->state() & QMouseEvent::ControlButton) ) {
+		    if ( !i->isSelected() ) {
+			bool b = signalsBlocked();
+			blockSignals( TRUE );
+			clearSelection();
+			blockSignals( b );
+		    }
+		    setSelected( i, TRUE );
+		    d->dragging = TRUE; // always assume dragging
+		} else if ( e->state() & ControlButton ) {
+		    setSelected( i, !i->isSelected() );
+		    d->pressedSelected = FALSE;
+		} else if ( e->state() & ShiftButton ) {
+		    d->pressedSelected = FALSE;
+		    QListBoxItem *oldCurrent = item( currentItem() );
+		    bool down = index( oldCurrent ) < index( i );
 
-		QListBoxItem *lit = down ? oldCurrent : i;
-		bool select = d->select;
-		bool blocked = signalsBlocked();
-		blockSignals( TRUE );
-		for ( ;; lit = lit->n ) {
-		    if ( !lit ) {
-			triggerUpdate( FALSE );
-			break;
+		    QListBoxItem *lit = down ? oldCurrent : i;
+		    bool select = d->select;
+		    bool blocked = signalsBlocked();
+		    blockSignals( TRUE );
+		    for ( ;; lit = lit->n ) {
+			if ( !lit ) {
+			    triggerUpdate( FALSE );
+			    break;
+			}
+			if ( down && lit == i ) {
+			    setSelected( i, select );
+			    triggerUpdate( FALSE );
+			    break;
+			}
+			if ( !down && lit == oldCurrent ) {
+			    setSelected( oldCurrent, select );
+			    triggerUpdate( FALSE );
+			    break;
+			}
+			setSelected( lit, select );
 		    }
-		    if ( down && lit == i ) {
-			setSelected( i, select );
-			triggerUpdate( FALSE );
-			break;
-		    }
-		    if ( !down && lit == oldCurrent ) {
-			setSelected( oldCurrent, select );
-			triggerUpdate( FALSE );
-			break;
-		    }
-		    setSelected( lit, select );
+		    blockSignals( blocked );
+		    emit selectionChanged();
 		}
-		blockSignals( blocked );
-		emit selectionChanged();
+		setCurrentItem( i );
 	    }
-	    setCurrentItem( i );
 	    break;
 	case Multi:
 	    //d->current = i;
@@ -1997,6 +2004,7 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 	    break;
 	}
     } else {
+	bool unselect = TRUE;
 	if ( e->button() == LeftButton ) {
 	    if ( d->selectionMode == Multi ||
 		 d->selectionMode == Extended ) {
@@ -2010,11 +2018,10 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 
 		if ( d->selectionMode == Extended && !( e->state() & ControlButton ) )
 		    selectAll( FALSE );
+		unselect = FALSE;
 	    }
-	} else if ( e->button() == RightButton ) {
-	    clearSelection();
-	    if ( !d->context_menu )
-		emit rightButtonPressed( i, e->globalPos() );
+	    if ( unselect && ( e->button() == RightButton || isMultiSelection() ) )
+		clearSelection();
 	}
     }
 
@@ -2031,12 +2038,14 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
     d->ignoreMoves = FALSE;
 
     d->pressedItem = i;
-    if ( !d->context_menu ) {
-	emit pressed( i, e->globalPos() );
-	emit mouseButtonPressed( e->button(), i, e->globalPos() );
-    } else {
+    emit pressed( i );
+    emit pressed( i, e->globalPos() );
+    emit mouseButtonPressed( e->button(), i, e->globalPos() );
+
+    if ( d->context_menu )
 	emit contextMenuRequested( i, e->globalPos() );
-    }
+    else
+	emit rightButtonPressed( i, e->globalPos() );
 }
 
 
