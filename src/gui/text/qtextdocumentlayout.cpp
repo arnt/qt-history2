@@ -788,7 +788,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     td->cellPadding = fmt.cellPadding();
     const int margin = td->margin + td->border + td->padding;
 
-    int totalWidth = fmt.width().value(td->contentsWidth);
+    int initialTotalWidth = fmt.width().value(td->contentsWidth);
+    int totalWidth = initialTotalWidth;
     // two (vertical) borders per cell per column
     totalWidth -= columns * 2 * td->border;
     // inter-cell spacing
@@ -866,7 +867,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     // set percentage values
     {
-        const int totalPercentagedWidth = totalWidth * totalPercentage / 100;
+        const int totalPercentagedWidth = initialTotalWidth * totalPercentage / 100;
         for (int i = 0; i < columns; ++i)
             if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength) {
                 const int percentWidth = totalPercentagedWidth * columnWidthConstraints.at(i).rawValue() / totalPercentage;
