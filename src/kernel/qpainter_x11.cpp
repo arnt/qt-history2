@@ -2994,12 +2994,12 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
         }
 
         if ( testf(ExtDev) ) {
-            QPDevCmdParam param[3];
+	    QPDevCmdParam param[3];
 	    QPoint p(x, y);
 	    QString string = str.mid( pos,  len );
 	    param[0].point = &p;
 	    param[1].str = &string;
-	    param[2].ival = QFont::Latin;// #######
+	    param[2].ival = QFont::Latin;
 	    bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
             if ( !retval || !hd )
                 return;

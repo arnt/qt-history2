@@ -234,6 +234,7 @@ public:
     bool canRender( const QChar *string,  int len );
 
     Type type() const;
+    XftPattern *pattern() const { return _pattern; }
 
 private:
     friend class QFontPrivate;

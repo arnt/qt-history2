@@ -98,6 +98,8 @@
 #ifdef Q_WS_X11
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
+#include "qtextlayout_p.h"
+#include "qtextengine_p.h"
 extern bool qt_has_xft;
 #endif
 
@@ -1790,48 +1792,48 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex, bool *glyph
 		switch ( unicode ) {
 		    // some glyph names are duplicate in postscript. Make sure we give the
 		    // duplicate a different name to avoid infinite recursion
-		    case 0x0394:
-			other = 0x2206;
-			break;
-		    case 0x03a9:
-			other = 0x2126;
-			break;
-		    case 0x0162:
-			other = 0x021a;
-			break;
-		    case 0x2215:
-			other = 0x2044;
-			break;
-		    case 0x00ad:
-			other = 0x002d;
-			break;
-		    case 0x02c9:
-			other = 0x00af;
-			break;
-		    case 0x03bc:
-			other = 0x00b5;
-			break;
-		    case 0x2219:
-			other = 0x00b7;
-			break;
-		    case 0x00a0:
-			other = 0x0020;
-			break;
-		    case 0x0163:
-			other = 0x021b;
-			break;
-		    default:
-			break;
+		case 0x0394:
+		    other = 0x2206;
+		    break;
+		case 0x03a9:
+		    other = 0x2126;
+		    break;
+		case 0x0162:
+		    other = 0x021a;
+		    break;
+		case 0x2215:
+		    other = 0x2044;
+		    break;
+		case 0x00ad:
+		    other = 0x002d;
+		    break;
+		case 0x02c9:
+		    other = 0x00af;
+		    break;
+		case 0x03bc:
+		    other = 0x00b5;
+		    break;
+		case 0x2219:
+		    other = 0x00b7;
+		    break;
+		case 0x00a0:
+		    other = 0x0020;
+		    break;
+		case 0x0163:
+		    other = 0x021b;
+		    break;
+		default:
+		    break;
 		}
 		if ( other ) {
 		    int oglyph = glyph_for_unicode( other );
 		    if( oglyph && oglyph != glyphindex && glyphSet[oglyph] ) {
-			glyphname = "uni";
-			glyphname += toHex( unicode );
+ 			glyphname = "uni";
+ 			glyphname += toHex( unicode );
 		    }
 		}
 	    }
-	} else {
+ 	} else {
 	    glyphname = "uni";
 	    glyphname += toHex( unicode );
 	}
@@ -4680,13 +4682,12 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     bool xlfd = FALSE;
     if ( priv->embedFonts ) {
 	QFontEngine *engine = f.d->engineForScript( (QFont::Script) script );
-	//qDebug("engine = %p, script=%d", engine, script);
+	//qDebug("engine = %p name=%s, script=%d", engine, engine ? engine->name() : "(null)", script);
 
 #ifndef QT_NO_XFTFREETYPE
 	if ( qt_has_xft && engine && engine->type() == QFontEngine::Xft ) {
 	    // ### cache filename directly!
-	    //qDebug("fontstruct name: %s", engine->name.data());
-	    XftPattern *pattern = XftNameParse(engine->name());
+	    XftPattern *pattern = static_cast<QFontEngineXft *>( engine )->pattern();
 	    //qDebug("xfthandle=%p", font);
 	    char *filename = 0;
 	    XftResult res;
@@ -4698,7 +4699,6 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		xfontname = fontfilename;
 	    }
 	    XftPatternDestroy( f );
-	    XftPatternDestroy( pattern );
 	} else
 #endif
 	{
@@ -4712,6 +4712,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		    index = rawName.find('-',index+1);
 		}
 		xfontname = rawName.mid(0,index);
+		if ( xfontname.endsWith( "*" ) )
+		     xfontname.truncate( xfontname.length() - 1 );
 		xlfd = TRUE;
 	    }
 	}
@@ -4811,7 +4813,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     }
 #endif
 
-    //qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
+    //qDebug("font=%s, fontname=%s, file=%s, p=%p", f.family().latin1(), xfontname.latin1(), fontfilename.latin1(), p);
 
 	// memory mapping would be better here
     if (fontfilename.length() > 0) { // maybe there is no file name
@@ -4862,22 +4864,22 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    else if ( script == QFont::Han ) {
 		QTextCodec *lc = QTextCodec::codecForLocale();
 		switch( lc->mibEnum() ) {
-		    case 2025: // GB2312
-		    case 57: // gb2312.1980-0
-		    case 113: // GBK
-		    case -113: // gbk-0
-		    case 114: // GB18030
-		    case -114: // gb18030-0
-			p = new QPSPrinterFontSimplifiedChinese( f );
-			break;
-		    case 2026: // Big5
-		    case -2026: // big5-0, big5.eten-0
-		    case 2101: // Big5-HKSCS
-		    case -2101: // big5hkscs-0, hkscs-1
-			p = new QPSPrinterFontTraditionalChinese( f );
-			break;
-		    default:
-			p = new QPSPrinterFontJapanese( f );
+		case 2025: // GB2312
+		case 57: // gb2312.1980-0
+		case 113: // GBK
+		case -113: // gbk-0
+		case 114: // GB18030
+		case -114: // gb18030-0
+		    p = new QPSPrinterFontSimplifiedChinese( f );
+		    break;
+		case 2026: // Big5
+		case -2026: // big5-0, big5.eten-0
+		case 2101: // Big5-HKSCS
+		case -2101: // big5hkscs-0, hkscs-1
+		    p = new QPSPrinterFontTraditionalChinese( f );
+		    break;
+		default:
+		    p = new QPSPrinterFontJapanese( f );
 		}
 	    } else
 #endif
@@ -6170,21 +6172,40 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcDrawText2: {
         uint spaces = 0;
         QString tmp = *p[1].str;
-        int script = p[2].ival;
-        while( spaces < tmp.length() && tmp[(int)spaces] == ' ' )
-            spaces++;
-        if ( spaces )
-            tmp = tmp.mid( spaces, tmp.length() );
-        while ( tmp.length() > 0 && tmp[(int)tmp.length()-1].isSpace() )
-            tmp.truncate( tmp.length()-1 );
-        if( tmp.length() == 0 )
-            break;
-        if ( d->currentSet != d->currentUsed || d->scriptUsed != script || !d->currentFontFile ) {
-            d->currentUsed = d->currentSet;
-            d->setFont( d->currentSet, script );
-        }
-        if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-            d->currentFontFile->drawText( d->pageStream, spaces, *p[0].point, tmp, d, paint);
+	QTextLayout layout( tmp, paint );
+	layout.beginLayout();
+	layout.beginLine( 0xfffffff );
+	while ( !layout.atEnd() )
+	    layout.addCurrentItem();
+	int ascent;
+	layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
+	QTextEngine *engine = layout.d;
+	for ( int i = 0; i < layout.numItems(); i++ ) {
+	    QScriptItem &si = engine->items[i];
+
+	    QFontEngine *fe = si.fontEngine;
+	    assert( fe );
+	    QShapedItem *shaped = si.shaped;
+	    assert( shaped );
+
+	    int xpos = p[0].point->x() + si.x;
+	    int ypos = p[0].point->y() + si.y - ascent;
+
+	    //bool rightToLeft = si.analysis.bidiLevel % 2;
+
+	    if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
+		d->currentUsed = d->currentSet;
+		d->setFont( d->currentSet, si.analysis.script );
+	    }
+	    QPoint point( xpos, ypos );
+	    if( d->currentFontFile ) // better not crash in case somethig goes wrong.
+		d->currentFontFile->drawText( d->pageStream, spaces, point ,
+					      tmp.mid(si.position, engine->length( i ) ), d, paint);
+#if 0
+	    fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
+		      shaped->offsets, shaped->num_glyphs, rightToLeft );
+#endif
+	}
         break;
     }
     case PdcDrawText2Formatted:

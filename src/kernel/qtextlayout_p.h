@@ -107,6 +107,7 @@ private:
 
     friend class QTextItem;
     friend class QPainter;
+    friend class QPSPrinter;
     QTextEngine *d;
 };
 
