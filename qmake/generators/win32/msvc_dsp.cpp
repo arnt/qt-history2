@@ -202,7 +202,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "# Begin Custom Build - lupdate'ing " + (*it) + "...\n"
 				    "InputPath=.\\" + (*it) + "\n\n"
 				    "\"" + (*it) + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lupdate " + project->projectFile() + "\n\n"
+				    "\t$(QTDIR)\\bin\\lupdate " + project->projectFile() + " -ts " + (*it) + "\n\n"
 				    "# End Custom Build\n\n";
 
 		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << endl;
@@ -231,7 +231,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "# Begin Custom Build - lrelease'ing " + (*it) + "...\n"
 				    "InputPath=.\\" + qmfile + "\n\n"
 				    "\"" + qmfile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lrelease " + project->projectFile() + "\n\n"
+				    "\t$(QTDIR)\\bin\\lrelease " + (*it) + "\n\n"
 				    "# End Custom Build\n\n";
 		    
 		    t << "# Begin Source File\n\nSOURCE=.\\" << qmfile << endl;
