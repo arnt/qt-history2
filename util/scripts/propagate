@@ -2,7 +2,7 @@
 
 MAKEFILES=`find . -name Makefile.in -print | sort`;
 
-if cmp "$QTDIR/LICENSE" "$PWD/LICENSE" 2>/dev/null
+if cmp "$QTDIR/LICENSE" "$PWD/LICENSE" || cmp "$QTDIR/LICENSE" `pwd`/LICENSE || cmp "$QTDIR/LICENSE" "$CWD/LICENSE" 2>/dev/null
 then
     true
 else
