@@ -3390,7 +3390,7 @@ void QTable::doAutoScroll()
 	}
 	setCurrentCell( tmpRow, tmpCol, FALSE );
 	repaintSelections( useOld ? &oldSelection : 0, currentSel );
-	if ( oldSelection != *currentSel )
+	if ( !currentSel && oldSelection != *currentSel )
 	    emit selectionChanged();
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE );
@@ -5070,7 +5070,7 @@ void QTable::adjustRow( int row )
 void QTable::setColumnStretchable( int col, bool stretch )
 {
     topHeader->setSectionStretchable( col, stretch );
-    
+
     if ( stretch && d->hiddenCols.find(col) )
 	topHeader->numStretches--;
 }
@@ -5089,7 +5089,7 @@ void QTable::setColumnStretchable( int col, bool stretch )
 void QTable::setRowStretchable( int row, bool stretch )
 {
     leftHeader->setSectionStretchable( row, stretch );
-    
+
     if ( stretch && d->hiddenRows.find(row) )
 	leftHeader->numStretches--;
 }
@@ -6031,7 +6031,7 @@ void QTableHeader::updateStretches()
 	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	for ( i = 0; i < (int)stretchable.count(); ++i ) {
-	    if ( !stretchable[ i ] || 
+	    if ( !stretchable[ i ] ||
 		 ( stretchable[i] && table->d->hiddenCols[ i ] ) )
 		continue;
 	    pw += sectionSize( i );
