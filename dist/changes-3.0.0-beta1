@@ -333,12 +333,15 @@ for browsing the help documentation.
 QMake
 ========================================
 
-#####
+To easy portability qmake has been offered to take up where tmake has left
+off. QMake is a C++ version of tmake which uses Qt and offers extended
+syntax as well as functionallity difficult to reproduce in tmake. TrollTech
+uses qmake in its build system for Qt and related products and we have
+released it as free software.
 
 
-
-
-
+Qt Functions
+========================================
 
 QAction:
 
