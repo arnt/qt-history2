@@ -110,7 +110,7 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
     combo4->insertItem( "No mask" );
     combo4->insertItem( "Phone number" );
     combo4->insertItem( "ISO date" );
-    combo4->insertItem( "License number" );
+    combo4->insertItem( "License key" );
 
     // ...this time we use the activated( const QString & ) signal
     connect( combo4, SIGNAL( activated( int ) ),
