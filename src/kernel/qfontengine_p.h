@@ -18,10 +18,10 @@ public:
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
 
     virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
-				    const offset_t *advances, const offset_t *offsets, int numGlyphs );
+				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
     QGlyphMetrics boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -57,10 +57,10 @@ public:
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
 
     virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
-				    const offset_t *advances, const offset_t *offsets, int numGlyphs );
+				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
     QGlyphMetrics boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -93,10 +93,10 @@ public:
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
 
     virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
-				    const offset_t *advances, const offset_t *offsets, int numGlyphs );
+				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
     QGlyphMetrics boundingBox( glyph_t glyph );
 
     int ascent() const;

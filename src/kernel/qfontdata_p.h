@@ -105,6 +105,7 @@ struct QGlyphMetrics;
 class QChar;
 typedef unsigned short glyph_t;
 struct offset_t;
+typedef offset_t advance_t;
 class QOpenType;
 
 class QFontEngine : public QShared
@@ -130,10 +131,10 @@ public:
     virtual int cmap() const = 0;
 
     virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-		       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
+		       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
 
     virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
-				    const offset_t *advances, const offset_t *offsets, int numGlyphs ) = 0;
+				    const advance_t *advances, const offset_t *offsets, int numGlyphs ) = 0;
     virtual QGlyphMetrics boundingBox( glyph_t glyph ) = 0;
 
     virtual int ascent() const = 0;

@@ -54,6 +54,8 @@ struct offset_t {
     short y;
 };
 
+typedef offset_t advance_t;
+
 struct QShapedItem;
 struct QCharAttributes;
 
@@ -164,7 +166,7 @@ struct QShapedItem
     ~QShapedItem();
     int num_glyphs;
     glyph_t *glyphs;
-    offset_t *advances;
+    advance_t *advances;
     offset_t *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;

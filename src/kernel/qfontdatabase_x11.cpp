@@ -771,7 +771,7 @@ static inline void tag_to_string( char *string, Q_UINT32 tag )
     string[4] = 0;
 }
 
-static Q_UINT16 getglyph_t( unsigned char *table, Q_UINT16 format, unsigned short unicode )
+static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned short unicode )
 {
     if ( format == 0 ) {
 	if ( unicode < 256 )
@@ -894,8 +894,8 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
 	    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
 		QChar ch = sampleCharacter( (QFont::Script)i );
-		if ( getglyph_t( unicode_table, format, ch.unicode() ) ) {
-		    // qDebug("font can render script %d",  i );
+		if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
+		    // 		qDebug("font can render script %d",  i );
 		    family->scripts[i] = QtFontFamily::Supported;
 		} else {
 		    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
