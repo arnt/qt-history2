@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#147 $
 **
 ** Definition of QIconView widget class
 **
@@ -1303,7 +1303,7 @@ void QIconViewItem::rename()
   Compares this iconview item to \a i. Returns -1 if this item
   is less than \a i, 0 if they are equal and 1 if this iconview item
   is greater than \a i.
-  
+
   The default implementation uses QIconViewItem::key() to compare the
   items. A reimplementation may use different values.
 */
@@ -2457,9 +2457,10 @@ void QIconView::setContentsPos( int x, int y )
 
 void QIconView::showEvent( QShowEvent * )
 {
-    resizeContents( viewport()->width(), viewport()->height() );
-    if ( d->dirty )
+    if ( d->dirty ) {
+	resizeContents( viewport()->width(), viewport()->height() );
 	orderItemsInGrid();
+    }
     QScrollView::show();
 }
 
