@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#207 $
 **
 ** Implementation of QApplication class
 **
@@ -765,7 +765,7 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
 	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		 && w->testWState(WState_FontFixed) ) // (and except fixed fonts)
+		 && !w->testWState(WState_FontFixed) ) // (and except fixed fonts)
 		w->setFont( *QApplication::font( w ) );
 	}
     }
