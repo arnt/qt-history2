@@ -277,7 +277,8 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
         break;
     }
     Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
-    d->layout->corners[corner] = area;
+    if (valid)
+        d->layout->corners[corner] = area;
 }
 
 /*!
@@ -522,26 +523,6 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     if (isVisible())
         d->layout->relayout();
     return restored;
-}
-
-/*! \reimp */
-void QMainWindow::childEvent(QChildEvent *event)
-{
-    if (event->polished()) {
-	QMenuBar *menubar;
-	QStatusBar *statusbar;
-	if ((menubar = qt_cast<QMenuBar *>(event->child()))) {
-	    QMenuBar *mb = qt_cast<QMenuBar*>(d->layout->menuBar());
-	    Q_ASSERT(mb == 0 || mb == menubar);
-	    if (!mb)
-                d->layout->setMenuBar(menubar);
-	} else if ((statusbar = qt_cast<QStatusBar *>(event->child()))) {
-	    QStatusBar *sb = d->layout->statusBar();
-	    Q_ASSERT(sb == 0 || sb == statusbar);
-	    if (!sb)
-                d->layout->setStatusBar(statusbar);
-	}
-    }
 }
 
 /*! \reimp */

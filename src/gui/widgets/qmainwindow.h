@@ -86,7 +86,6 @@ signals:
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:
-    void childEvent(QChildEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
     bool event(QEvent *event);
 
