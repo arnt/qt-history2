@@ -485,7 +485,7 @@ void TPanelHandlerPrivate::readMouseData()
  * Virtual framebuffer mouse driver
  */
 
-#ifdef QFEATURE_QWS_VFB
+#if QT_FEATURE_QWS_VFB
 #include "../../util/qvfb/qvfbhdr.h"
 #endif
 
@@ -505,7 +505,7 @@ private slots:
 
 QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDev )
 {
-#ifdef QFEATURE_QWS_VFB
+#if QT_FEATURE_QWS_VFB
     if ( mouseDev.isEmpty() )
 	mouseDev = QT_VFB_MOUSE_PIPE;
 
@@ -535,7 +535,7 @@ QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDe
 
 QVFbMouseHandlerPrivate::~QVFbMouseHandlerPrivate()
 {
-#ifdef QFEATURE_QWS_VFB
+#if QT_FEATURE_QWS_VFB
     if (mouseFD >= 0)
 	close(mouseFD);
 #endif
@@ -543,7 +543,7 @@ QVFbMouseHandlerPrivate::~QVFbMouseHandlerPrivate()
 
 void QVFbMouseHandlerPrivate::readMouseData()
 {
-#ifdef QFEATURE_QWS_VFB
+#if QT_FEATURE_QWS_VFB
     int n;
     do {
 	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );

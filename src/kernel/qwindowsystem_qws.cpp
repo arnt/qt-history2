@@ -1288,7 +1288,7 @@ void QWSServer::openMouse()
     if ( mice.isEmpty() ) {
 #ifdef __MIPSEL__
 	mice = "TPanel:/dev/tpanel";
-#elif defined(QFEATURE_QWS_VFB)
+#elif QT_FEATURE_QWS_VFB
 	mice = "QVFbMouse";
 #else
 	mice = "MouseMan:/dev/mouse";
@@ -1325,7 +1325,7 @@ void QWSServer::openKeyboard()
     if ( keyboards.isEmpty() ) {
 #ifdef __MIPSEL__
 	keyboards = "Buttons";
-#elif defined(QFEATURE_QWS_VFB)
+#elif QT_FEATURE_QWS_VFB
 	keyboards = "QVFbKeyboard";
 #else
 	keyboards = "TTY";
