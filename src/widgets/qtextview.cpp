@@ -992,8 +992,8 @@ void QTextView::drawCursor( bool visible )
     cursor->parag()->document()->nextDoubleBuffered = TRUE;
     if ( !cursor->nestedDepth() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX() + cursor->x(),
-			r.y() - cursor->totalOffsetY() + cursor->y(), 2, h, pix, cg, visible, cursor );
+	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX() + cursor->x() - 5,
+			r.y() - cursor->totalOffsetY() + cursor->y(), 10, h, pix, cg, visible, cursor );
     } else {
 	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
 			r.y() - cursor->totalOffsetY(), r.width(), r.height(),
