@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#95 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#95 $");
 
 
 /*!
@@ -545,7 +545,7 @@ void QApplication::exit( int retcode )
 	return;
     if ( qApp->quit_now )			// don't overwrite quit code
 	return;
-    qApp->quit_now = TRUE;
+    qApp->quit_now  = TRUE;
     qApp->quit_code = retcode;
 }
 
