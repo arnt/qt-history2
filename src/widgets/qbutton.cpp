@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#44 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#44 $")
 
 
 /*----------------------------------------------------------------------------
@@ -229,21 +229,15 @@ void QButton::setAutoResize( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QButton::isOn() const
-  Returns TRUE if this toggle button is switched on, or FALSE if it is
-  switched off.
-  \sa setOn(), toggleButton()
- ----------------------------------------------------------------------------*/
-
-
-/*! Set the state of the button to \e pressed and redraw it if
+  Set the state of the button to \e pressed and redraw it if
   necessary.  If the button is a toggle button, it is \e not toggled,
   call toggle() as well if you need to do that.
 
   This method is provided in case you need to override the mouse event
   handlers.
 
-  \sa setOn(), isDown(), toggle(), toggled() */
+  \sa isDown(), setOn(), toggle(), toggled()
+ ----------------------------------------------------------------------------*/
 
 void QButton::setDown( bool pressed )
 {
@@ -253,6 +247,13 @@ void QButton::setDown( bool pressed )
     }
 }
 
+
+/*----------------------------------------------------------------------------
+  \fn bool QButton::isOn() const
+  Returns TRUE if this toggle button is switched on, or FALSE if it is
+  switched off.
+  \sa setOn(), toggleButton()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Switches a toggle button on if \e enable is TRUE or off if \e enable is
@@ -274,14 +275,11 @@ void QButton::setOn( bool enable )
 }
 
 
-
-
 /*----------------------------------------------------------------------------
   \fn bool QButton::isToggleButton() const
   Returns TRUE if the button is a toggle button.
   \sa setToggleButton()
  ----------------------------------------------------------------------------*/
-
 
 /*----------------------------------------------------------------------------
   Makes the button a toggle button if \e enable is TRUE, or a normal button
