@@ -43,12 +43,12 @@
 #include "qutfcodec.h"
 #include "qrtlcodec.h"
 #include "qtsciicodec.h"
+#include "qtextcodecfactory.h"
 #endif
 
 #include "qfile.h"
 #include "qstrlist.h"
 #include "qstring.h"
-#include "qtextcodecfactory.h"
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -356,12 +356,18 @@ QTextCodec* QTextCodec::codecForMib(int mib)
             break;
     }
 
+#ifndef QT_NO_CODECS
+#ifndef QT_NO_COMPONENT
+
     if (result->mibEnum() != mib) {
 	QTextCodec *codec = QTextCodecFactory::createForMib(mib);
 
 	if (codec)
 	    result = codec;
     }
+
+#endif // QT_NO_COMPONENT
+#endif // QT_NO_CODECS
 
     return result;
 }
@@ -652,10 +658,14 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
         }
     }
 
-    if (! result && localeMapper) {
-	qDebug("no codec for %s, localeMapper %p", name, localeMapper);
+#ifndef QT_NO_CODECS
+#ifndef QT_NO_COMPONENT
+
+    if (! result && localeMapper)
 	result = QTextCodecFactory::createForName(name);
-    }
+
+#endif // QT_NO_COMPONENT
+#endif // QT_NO_CODECS
 
     return result;
 }
