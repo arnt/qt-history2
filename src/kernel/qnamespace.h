@@ -350,6 +350,8 @@ public:
 	Key_Hyper_L = 0x1056,
 	Key_Hyper_R = 0x1057,
 	Key_Help = 0x1058,
+	Key_Direction_L = 0x1059,
+	Key_Direction_R = 0x1060,
 	Key_Space = 0x20,		// 7 bit printable ASCII
 	Key_Any = Key_Space,
 	Key_Exclam = 0x21,

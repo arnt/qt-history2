@@ -861,7 +861,8 @@ static QChar::Direction basicDirection(const QString &str, int start = 0)
 
 // transforms one line of the paragraph to visual order
 // the caller is responisble to delete the returned list of QTextRuns.
-QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QString &text, int start, int len )
+QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QString &text, int start, int len,
+						   QChar::Direction basicDir )
 {
     int last = start + len - 1;
     //printf("doing BiDi reordering from %d to %d!\n", start, last);
@@ -874,7 +875,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	// first line
 	if( start != 0 )
 	    qDebug( "bidiReorderLine::internal error");
-	if( text.isRightToLeft() ) {
+	if( basicDir == QChar::DirR || (basicDir == QChar::DirON && text.isRightToLeft() ) ) {
 	    context = new QBidiContext( 1, QChar::DirR );
 	    control->status.last = QChar::DirR;
 	} else {
@@ -898,7 +899,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		c = c->parent;
 	    dirCurrent = c->dir;
 	} else if ( current == last ) {
-	    dirCurrent = basicDirection( text, current );
+	    dirCurrent = ( basicDir != QChar::DirON ? basicDir : basicDirection( text, current ) );
 	} else
 	    dirCurrent = text.at(current).direction();
 

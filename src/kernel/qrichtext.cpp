@@ -3225,47 +3225,23 @@ void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
 
 void QTextString::checkBidi() const
 {
+    if ( rightToLeft ) {
+	    ((QTextString *)this)->bidi = TRUE;
+	    return;
+    }
     int len = data.size();
     const QTextStringChar *c = data.data();
     ((QTextString *)this)->bidi = FALSE;
-    ((QTextString *)this)->rightToLeft = FALSE;
     while( len ) {
 	uchar row = c->c.row();
 	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
 	    ((QTextString *)this)->bidi = TRUE;
-	    basicDirection();
 	    return;
 	}
 	len--;
 	++c;
     }
 }
-
-void QTextString::basicDirection() const
-{
-    int pos = 0;
-    ((QTextString *)this)->rightToLeft = FALSE;
-    while ( pos < length() ) {
-	switch ( at(pos).c.direction() )
-	{
-	case QChar::DirL:
-	case QChar::DirLRO:
-	case QChar::DirLRE:
-	    return;
-	case QChar::DirR:
-	case QChar::DirAL:
-	case QChar::DirRLO:
-	case QChar::DirRLE:
-	    ((QTextString *)this)->rightToLeft = TRUE;
-	    return;
-	default:
-	    break;
-	}
-	++pos;
-    }
-    return;
-}
-
 
 void QTextDocument::setStyleSheet( QStyleSheet *s )
 {
@@ -4659,6 +4635,25 @@ void QTextParag::hide()
     visible = FALSE;
 }
 
+void QTextParag::setDirection( QChar::Direction d )
+{  
+    if ( str ) {
+	str->setRightToLeft( (d == QChar::DirR) );
+	setChanged( TRUE );
+	invalidate( 0 );
+	format( -1, TRUE );
+    }
+}
+ 
+QChar::Direction QTextParag::direction() const
+{
+    QChar::Direction d = QChar::DirL;
+    if ( str )
+	d = (str->isRightToLeft() ? QChar::DirR : QChar::DirL);
+    return d;
+}
+
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -4745,7 +4740,8 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
     }
 
     QPtrList<QTextRun> *runs;
-    runs = QComplexText::bidiReorderLine(control, str, 0, last - start + 1);
+    runs = QComplexText::bidiReorderLine(control, str, 0, last - start + 1, 
+					 (text->isRightToLeft() ? QChar::DirR : QChar::DirL) );
 
     // now construct the reordered string out of the runs...
 

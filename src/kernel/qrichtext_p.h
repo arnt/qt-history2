@@ -207,6 +207,7 @@ public:
     bool isTextChanged() const { return textChanged; }
     bool isBidi() const;
     bool isRightToLeft() const;
+    void setRightToLeft( bool rtl ) { rightToLeft = rtl; }
 
     QMemArray<QTextStringChar> subString( int start = 0, int len = 0xFFFFFF ) const;
     QMemArray<QTextStringChar> rawData() const { return data; }
@@ -217,8 +218,7 @@ public:
 
 private:
     void checkBidi() const;
-    void basicDirection() const;
-
+    
     QMemArray<QTextStringChar> data;
     uint textChanged : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
@@ -234,8 +234,6 @@ inline bool QTextString::isBidi() const
 
 inline bool QTextString::isRightToLeft() const
 {
-     if ( textChanged )
-	checkBidi();
     return rightToLeft;
 }
 
@@ -1282,6 +1280,9 @@ public:
     void setMovedDown( bool b ) { movedDown = b; }
     bool wasMovedDown() const { return movedDown; }
 
+    void setDirection( QChar::Direction d );
+    QChar::Direction direction() const;
+    
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,

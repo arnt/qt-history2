@@ -885,6 +885,18 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     case Key_F20:  // Cut key on Sun keyboards
 	cut();
 	break;
+    case Key_Direction_L:
+	if ( !cursor->parag() || cursor->parag()->direction() == QChar::DirL )
+	    return;
+	cursor->parag()->setDirection( QChar::DirL );
+	repaintChanged();
+	break;
+    case Key_Direction_R:
+	if ( !cursor->parag() || cursor->parag()->direction() == QChar::DirR )
+	    return;
+	cursor->parag()->setDirection( QChar::DirR );
+	repaintChanged();
+	break;
     default: {
 	    if ( e->text().length() &&
 //		 !( e->state() & AltButton ) && !( e->state() & MetaButton ) &&
