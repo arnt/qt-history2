@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#9 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,9 +15,18 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#9 $");
 
-// what comes out of the dict
+// magic value meaning an entire widget - if someone tries to insert a
+// tool tip on this part of a widget it will be interpreted as the
+// entire widget
+
+static inline const QRect entireWidget() {
+    return QRect( QCOORD_MIN, QCOORD_MIN,
+		  QCOORD_MAX-QCOORD_MIN, QCOORD_MAX-QCOORD_MIN );
+}
+
+// what comes out of the dict in QTipManager
 struct QTip
 {
     QRect rect;
@@ -43,8 +52,9 @@ public:
 	      QToolTipGroup *, const char *,
 	      bool );
     void remove( QWidget *, const QRect & );
+    void remove( QWidget * );
 
-    void remove( QToolTipGroup * );
+    void removeFromGroup( QToolTipGroup * );
 
 public slots:
     void someWidgetDestroyed();
@@ -84,7 +94,24 @@ QTipManager::QTipManager()
 
 QTipManager::~QTipManager()
 {
-    delete tips;
+    if ( tips ) {
+	QIntDictIterator<QTip> i( *tips );
+	QTip * t, * n;
+	long k;
+
+	while( (t = i.current()) != 0 ) {
+	    k = i.currentKey();
+	    ++i;
+	    tips->take( k );
+	    while ( t ) {
+		n = t->next;
+		delete t;
+		t = n;
+	    }
+	}
+	delete tips;
+    }
+
     delete label;
 }
 
@@ -125,7 +152,7 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	return;
 
     if ( t->rect == r ) {
-	(void) tips->remove( (long)w );
+	(void) tips->take( (long)w );
 	if ( t->next )
 	    tips->insert( (long)w, t->next );
 	else
@@ -134,9 +161,12 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	while( t->next && t->next->rect != r )
 	    t = t->next;
 	if ( t->next ) {
-	    delete t->next;
-	    t->next = 0;
+	    QTip * d = t->next;
+	    t->next = t->next->next;
+	    t = d;
 	}
+
+	delete t;
     }
 
     if ( tips->isEmpty() ) {
@@ -145,6 +175,44 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	tipManager = 0;
     }
 }
+
+
+void QTipManager::remove( QWidget *w )
+{
+    QTip * t = (*tips)[ (long)w ];
+    if ( t == 0 )
+	return;
+
+    (void) tips->take( (long)w );
+    QTip * d;
+    while ( t ) {
+	d = t->next;
+	delete t;
+	t = d;
+    }
+
+    if ( tips->isEmpty() ) {
+	delete tipManager;
+	tipManager = 0;
+    }
+}
+
+
+void QTipManager::removeFromGroup( QToolTipGroup * g )
+{
+    QIntDictIterator<QTip> i( *tips );
+    QTip * t;
+
+    while( (t = i.current()) != 0 ) {
+	++i;
+	while ( t ) {
+	    if ( t->group == g )
+		t->group = 0;
+	    t = t->next;
+	}
+    }
+}
+
 
 
 bool QTipManager::eventFilter( QObject * o, QEvent * e )
@@ -312,10 +380,7 @@ void QTipManager::hideTip()
 }
 
 
-void QTipManager::remove( QToolTipGroup * )
-{
-    // hanord! implementer, vær så snill!
-}
+
 
 
 
@@ -363,58 +428,75 @@ void QTipManager::remove( QToolTipGroup * )
   rectangle you supply, and \e not \e reappear - maybeTip() will be
   called again if the user lets the mouse rest within the same
   rectangle again.  You can forcibly remove the tip by calling
-  remove() with no arguments.  This is handy if the widget scrolls.  */
+  remove() with no arguments.  This is handy if the widget scrolls.
+*/
 
 
 /*!  Creates a tool tip object.	 This is necessary only if you need
   tool tips on regions that can move within the widget (most often
   because the widget's contents can scroll).
 
+  \a parent is widget you want to add dynamic tool tips to and \a
+  group is the tool tip group they should belong to, if any.
+
   \sa maybeHit().
 */
 
-QToolTip::QToolTip( QWidget * )
+QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
 {
-    if ( !tipManager )
-	tipManager = new QTipManager();
-    // stuff and nonsense
+    p = parent;
+    g = group;
 }
 
 
-/*!  Adds a tool tip to an entire widget.  \e widget
+/*!  Adds a tool tip to the entire \e widget.  \e text is the text to
+  be shown in the tool tip.  QToolTip makes a deep copy of this
+  string.
 
-  The normal entry point to the QToolTip class.
-
-
+  This is the most common entry point to the QToolTip class.
 */
 void QToolTip::add( QWidget * widget, const char * text )
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( widget, QRect( QCOORD_MIN, QCOORD_MIN,
-				    QCOORD_MAX-QCOORD_MIN,
-				    QCOORD_MAX-QCOORD_MIN ),
-		     text, 0, 0, FALSE );
+    tipManager->add( widget, entireWidget(), text, 0, 0, FALSE );
 }
 
 
-/*!
+/*!  Adds a tool tip to an entire \a widget, and to tool tip group \a
+  group.
 
+  \e text is the text shown in the tool tip and \a longText is the
+  text emitted from \a group.  QToolTip makes deep copies of both
+  strings.
+
+  Normally, \a longText is shown in a status bar or similar.
 */
 
-void QToolTip::add( QWidget *, const char *,
-		    QToolTipGroup *, const char * )
+void QToolTip::add( QWidget * widget, const char * text,
+		    QToolTipGroup * group, const char * longText )
 {
-    
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( widget, entireWidget(), text, group, longText, FALSE );
 }
+
+/*! Remove the tool tip from \e widget.
+
+  If there are more than one tool tip on \a widget, only the one
+  covering the entire widget is removed.
+*/
 
 void QToolTip::remove( QWidget * widget )
 {
     if ( tipManager )
-	tipManager->remove( widget, QRect( QCOORD_MIN, QCOORD_MIN,
-					   QCOORD_MAX-QCOORD_MIN,
-					   QCOORD_MAX-QCOORD_MIN ) );
+	tipManager->remove( widget, entireWidget() );
 }
+
+/*! Adds a tool tip to a fixed rectangle within \a widget.  \a text is
+  the text shown in the tool tip.  QToolTip makes a deep copy of this
+  string.
+*/
 
 void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 {
@@ -424,8 +506,14 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 }
 
 
-/*!
+/*!  Adds a tool tip to an entire \a widget, and to tool tip group \a
+  group.
 
+  \e text is the text shown in the tool tip and \a longText is the
+  text emitted from \a group.  QToolTip make deep copies of both
+  strings.
+
+  Normally, \a longText is shown in a status bar or similar.
 */
 
 void QToolTip::add( QWidget * widget, const QRect & rect,
@@ -437,7 +525,11 @@ void QToolTip::add( QWidget * widget, const QRect & rect,
     tipManager->add( widget, rect, text, group, groupText, FALSE );
 }
 
+/*! Remove the tool tip for \e rect from \e widget.
 
+  If there are more than one tool tip on \a widget, only the one
+  covering rectangle \e rect is removed.
+*/
 
 void QToolTip::remove( QWidget * widget, const QRect & rect )
 {
@@ -448,13 +540,42 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 
 /*! \fn virtual void QToolTip::maybeTip( const QPoint &);
 
+  This pure virtual function is half of the most versatile interface
+  QToolTip offers.
 */
 
 
-void QToolTip::tip( const QRect &, const char * )
+/*! Pop up a tip saying \a text right now, and remove that tip once
+  the cursor moves out of rectangle \a rect.
+
+  The tip will not come back if the cursor moves back; your maybeTip()
+  has to reinstate it each time.
+*/
+
+void QToolTip::tip( const QRect & rect, const char * text )
 {
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( parentWidget(), rect, text, 0, 0, TRUE );
 }
 
+/*! Pop up a tip saying \a text right now, and remove that tip once
+  the cursor moves out of rectangle \a rect.
+
+  The tip will not come back if the cursor moves back; your maybeTip()
+  has to reinstate it each time.
+*/
+
+void QToolTip::tip( const QRect & rect, const char * text,
+		    const char * groupText )
+{
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( parentWidget(), rect, text, group(), groupText, TRUE );
+}
+
+
+/*! Remove all tool tips for this widget immediately. */
 
 void QToolTip::clear()
 {
@@ -480,5 +601,5 @@ QToolTipGroup::QToolTipGroup( QObject * parent, const char * name )
 QToolTipGroup::~QToolTipGroup()
 {
     if ( tipManager )
-	tipManager->remove( this );
+	tipManager->removeFromGroup( this );
 }
