@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#43 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -41,7 +41,8 @@ extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
   This API will be exposed to Windows users when it matures.
   We might need to use FORMATETC objects rather than simple CLIPFORMAT.
 */
-class QWindowsMime {
+
+class Q_EXPORT QWindowsMime {
 public:
     QWindowsMime();
     virtual ~QWindowsMime();
