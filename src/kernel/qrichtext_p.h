@@ -966,7 +966,7 @@ private:
     QString oText;
     QPtrList<QTextDocument> childList;
     QColor linkColor;
-
+    double scaleFontsFactor;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1495,7 +1495,7 @@ public:
     QTextFormat( const QStyleSheetItem *s );
     QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent = 0 );
     QTextFormat( const QTextFormat &fm );
-    QTextFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr ) const;
+    QTextFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr, double scaleFontsFactor ) const;
     QTextFormat& operator=( const QTextFormat &fm );
     QColor color() const;
     QFont font() const;
