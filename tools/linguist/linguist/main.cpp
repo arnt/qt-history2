@@ -39,11 +39,7 @@ int main( int argc, char **argv )
     translator.load( QString( "linguist_" ) + QTextCodec::locale(), "." );
     app.installTranslator( &translator );
 
-    QTimer timer;
     bool showSplash = TRUE;
-
-     if ( showSplash )
-	timer.start( 1000, TRUE );
 
     QString keybase("/Qt Linguist/3.1/");
     QSettings config;
@@ -56,9 +52,11 @@ int main( int argc, char **argv )
     r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight", r.height() ) );
 
     QSplashScreen *splash = 0;
-    if ( showSplash )
+    if ( showSplash ) {
 	splash = new QSplashScreen( QPixmap::fromMimeSource("splash.png"),
 				    Qt::WDestructiveClose );
+	splash->show();
+    }
 
     TrWindow *tw = new TrWindow;
     app.setMainWidget( tw );
@@ -72,8 +70,6 @@ int main( int argc, char **argv )
 	tw->show();
     if ( splash )
 	splash->finish( tw );
-    while ( timer.isActive() ) // evil loop
-	app.processEvents();
     QApplication::restoreOverrideCursor();
 
     return app.exec();

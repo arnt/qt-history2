@@ -36,7 +36,6 @@
 #include "qsplashscreen.h"
 
 #include "qapplication.h"
-#include "qlabel.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 
@@ -48,8 +47,6 @@ public:
     QColor currColor;
     int currAlign;
 };
-
-
 
 /*!
    \class QSplashScreen qsplashscreen.h
@@ -80,6 +77,7 @@ public:
        QApplication app( argc, argv );
        QPixmap pixmap( "splash.png" );
        QSplashScreen *splash = new QSplashScreen( pixmap );
+       splash->show();
        QMainWindow *mainWin = new QMainWindow;
        ...
        app.setMainWidget( mainWin );
@@ -104,6 +102,7 @@ public:
 
    \code
    QSplashScreen *splash = new QSplashScreen( "splash.png" );
+   splash->show();
    ... // Loading some items
    splash->setStatus( "Loaded modules" );
    qApp->processEvents();
@@ -125,7 +124,6 @@ QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
     d = new QSplashScreenPrivate();
     d->pixmap = pixmap;
     setPixmap( d->pixmap );  // Does an implicit repaint
-    show();
 }
 
 /*!
