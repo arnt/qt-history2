@@ -1609,8 +1609,22 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     Q_ASSERT(isActive());
     if(pm.isNull())
 	return;
-    qDebug("Must implement (correct) drawPixmap!!");
-    bitBlt(d->pdev, r.x(), r.y(), &pm, sr.x(), sr.y(), sr.width(), sr.height(), CopyROP, false);
+    
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    const uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pm.handle()));
+    CGDataProviderRef provider = CGDataProviderCreateWithData(0, GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pm.handle())), bpl, 0);
+    CGImageRef image = CGImageCreate(pm.width(), pm.height(), 8, pm.depth(), bpl, colorspace, kCGImageAlphaNoneSkipFirst,
+				     provider, 0, 0, kCGRenderingIntentDefault);
+
+    CGContextSaveGState((CGContextRef)d->hd);
+    QRegion rgn(r); qt_mac_clip_cg((CGContextRef)d->hd, rgn, 0);
+    CGRect rect = CGRectMake(r.x()-sr.x(), r.y()-sr.y(), pm.width(), pm.height());
+    HIViewDrawCGImage((CGContextRef)d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
+    CGContextRestoreGState((CGContextRef)d->hd);
+
+    CGImageRelease(image);
+    CGColorSpaceRelease(colorspace);
+    CGDataProviderRelease(provider);
 }
 
 Qt::HANDLE
