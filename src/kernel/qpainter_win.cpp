@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#157 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1972,7 +1972,7 @@ static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
 				    const QString &str, int len )
 {
     QString k = "$qt$";
-    k += QString( str, len );
+    k += str.left( len );
     k += font.key();
     // Here we put binary data directly into the QString key
     double mv[6];
@@ -2003,7 +2003,18 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if ( !isActive() )
 	return;
-    bool nat_xf = qt_winver == WV_NT && txop >= TxScale;
+// ############################
+// ############################
+// ############################
+// ############################
+// ############################
+// ############################
+// ############################
+// ############################
+// ############################
+// ############################
+
+    bool nat_xf = FALSE && qt_winver == WV_NT && txop >= TxScale;
     if ( len < 0 )
 	len = str.length();
     if ( len == 0 )				// empty string

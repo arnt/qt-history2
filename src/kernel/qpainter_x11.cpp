@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#303 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#304 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2491,7 +2491,7 @@ static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
 				    const QString &str, int len )
 {
     QString k = "$qt$";
-    k += QString( str, len );
+    k += str.left(len);
     k += font.key();
     // Here we put binary data directly into the QString key
     double mv[6];
