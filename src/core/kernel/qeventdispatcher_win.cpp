@@ -234,7 +234,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
         DWORD nCount = d->winEventNotifierList.count();
         Q_ASSERT(nCount < MAXIMUM_WAIT_OBJECTS - 1);
 
-        for (int i=0; i<nCount; i++)
+        for (int i=0; i<(int)nCount; i++)
             pHandles[i] = d->winEventNotifierList.at(i)->handle();
         DWORD waitRet = WAIT_OBJECT_0 + nCount;
         MSG msg;
