@@ -169,7 +169,6 @@ void QPainter::cleanup()
 
 void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 {
-    qDebug("Need to test this! %s:%d", __FILE__, __LINE__);
     if ( pdev_dict == 0 ) {
 	if ( replacement == 0 )
 	    return;
