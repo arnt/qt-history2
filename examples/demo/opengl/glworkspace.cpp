@@ -74,7 +74,7 @@ void GLWorkspace::setupSceneActions()
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintMedRes() ) );
     a = new QAction( tr( "High Resolution" ), tr( "&High Resolution" ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintHighRes() ) );
-//    printGroup->insertSeparator();
+    printGroup->addSeparator();
     a = new QAction( tr( "Setup" ), tr( "&Setup..." ), 0, printGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrintSetup() ) );
     da->addTo( tb );
