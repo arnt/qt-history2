@@ -710,7 +710,7 @@ void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed ) {
+    if ( !mousePressed || e->state() == NoButton ) {
 	QMenuBar::mouseMoveEvent( e );
 	return;
     }
