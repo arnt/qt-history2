@@ -437,7 +437,7 @@ INCLUDEPATH += $(QTDIR)/tools/designer/uilib
 We do \e not include the
 \File creditformbase.ui file since this file will be read
 at runtime, as we'll see shortly. We must include the
-\Func qresource library since the functionality we
+\c qui library since the functionality we
 require is not part of the standard Qt library.
 
 \section2 Creating main.cpp
@@ -529,12 +529,12 @@ directly in \QD.
 \index Includes
 We'll now add the code to invoke the credit dialog. Before we can do
 this we need to add the widget factory's header file to the form. Click
-the Source tab in the Object Hierarchy. Right click Included (in
-Implementation), then click \Button New. Type in
+the Source tab in the Object Hierarchy. Right click Includes (in
+Implementation), then click \Menu New. Type in
 '\c {<qwidgetfactory.h>}', then press
 \Key Enter. Because we will need to access the spin box in
-the dynamic dialog we must add its header file. Right click Included
-(in Implmentation), then click New. Type in
+the dynamic dialog we must add its header file. Right click Includes
+(in Implmentation), then click \Menu New. Type in
 '\c {<qspinbox.h>}', then press
 \Key Enter.
 
@@ -638,6 +638,11 @@ through our \Func setParent() function. The remainder of
 the function is the same as before except that we delete our receiver
 object.
 
+Since we are using the 'Receiver' subclass in our main form we must
+include its header file. In \Widget{Object Explorer}'s Members tab,
+right click Includes (in Implmentation), then click \Menu New. Type in
+'\c {receiver.h}', then press \Key Enter.
+
 \index Dynamic Dialogs
 We'll now look at the implementation of our 'Receiver' subclass. The code
 is taken from
@@ -654,6 +659,11 @@ we're using signals and slots it must include the
 \c {Q_OBJECT} macro. We declare a function and the
 \Func setAmount() slot that we wish to implement as well
 as a private \Class QDialog pointer.
+
+The implementation requires the header files of the classes it uses:
+\quotefile receiver2/receiver.cpp
+\skipto #include
+\printuntil receiver
 
 We'll discuss the implementation of each function in \File
 receiver.cpp separately.
