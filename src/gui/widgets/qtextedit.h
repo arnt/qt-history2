@@ -254,37 +254,6 @@ public:
     inline QT_COMPAT QString family() const { return fontFamily(); }
     inline QT_COMPAT int pointSize() const { return (int)(fontPointSize()+0.5); }
 
-    // small helper for compat methods
-    // ### compat
-    /*
-    QTextBlock blockAt(int parag) const;
-
-    QT_COMPAT void setCursorPosition(int para, int index);
-
-    QT_COMPAT void getCursorPosition(int *parag, int *index) const;
-
-    inline QT_COMPAT QString text(int parag) const
-    // ###  html case
-    { return blockAt(parag).text(); }
-
-    QT_COMPAT int paragraphs() const;
-    QT_COMPAT int lines() const;
-    inline QT_COMPAT int linesOfParagraph(int parag) const
-    { return blockAt(parag).layout()->numLines(); }
-    QT_COMPAT int paragraphLength(int parag) const
-    { return blockAt(parag).length(); }
-
-//    QT_COMPAT int lineOfChar(int parag, int index) const;
-
-    QT_COMPAT void getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *indexTo) const;
-
-    inline QT_COMPAT QRect paragraphRect(int parag) const
-    { return blockAt(parag).layout()->rect(); }
-
-    QT_COMPAT int paragraphAt(const QPoint &pos) const;
-    QT_COMPAT int charAt(const QPoint &pos, int *parag) const;
-    */
-
     inline QT_COMPAT bool hasSelectedText() const
     { return textCursor().hasSelection(); }
     inline QT_COMPAT QString selectedText() const
@@ -294,11 +263,6 @@ public:
     { return document()->isUndoAvailable(); }
     inline QT_COMPAT bool isRedoAvailable() const
     { return document()->isRedoAvailable(); }
-    /*
-    inline QT_COMPAT QColor paragraphBackgroundColor(int parag) const
-    { return blockAt(parag).blockFormat().backgroundColor(); }
-    QT_COMPAT void setParagraphBackgroundColor(int parag, const QColor &col);
-    */
 
     inline QT_COMPAT void insert(const QString &text)
     { insertPlainText(text); }
