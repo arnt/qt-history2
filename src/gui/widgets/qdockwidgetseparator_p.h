@@ -27,16 +27,16 @@
 
 #include <qwidget.h>
 
-class QDockWindow;
-class QDockWindowLayout;
+class QDockWidget;
+class QDockWidgetLayout;
 class QPainter;
 
-class QDockWindowSeparator : public QWidget
+class QDockWidgetSeparator : public QWidget
 {
     Q_OBJECT
 
 public:
-    QDockWindowSeparator(QDockWindowLayout *l, QWidget *parent);
+    QDockWidgetSeparator(QDockWidgetLayout *l, QWidget *parent);
 
     QRect calcRect(const QPoint &point);
 
@@ -45,7 +45,7 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
 
-    QDockWindowLayout *layout;
+    QDockWidgetLayout *layout;
 
     struct DragState {
 	QPoint origin, last;

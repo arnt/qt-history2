@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdockwindow.h"
+#include "qdockwidget.h"
 #include "qmainwindow.h"
 
 #include <qapplication.h>
@@ -28,13 +28,13 @@
 
 #include <private/qwidgetresizehandler_p.h>
 
-#include "qdockwindow_p.h"
+#include "qdockwidget_p.h"
 #include "qmainwindowlayout_p.h"
-#include "qdockwindowlayout_p.h"
+#include "qdockwidgetlayout_p.h"
 
 
-inline bool hasFeature(QDockWindow *dockwindow, QDockWindow::DockWindowFeature feature)
-{ return (dockwindow->features() & feature) == feature; }
+inline bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
+{ return (dockwidget->features() & feature) == feature; }
 
 
 /*
@@ -48,7 +48,7 @@ inline bool hasFeature(QDockWindow *dockwindow, QDockWindow::DockWindowFeature f
     +-------------------------------+
     |                               |
     | place to put the single       |
-    | QDockWindow child (this space |
+    | QDockWidget child (this space |
     | does not yet have a name)     |
     |                               |
     |                               |
@@ -70,14 +70,14 @@ inline bool hasFeature(QDockWindow *dockwindow, QDockWindow::DockWindowFeature f
   Tool window title
 */
 
-class QDockWindowTitle;
+class QDockWidgetTitle;
 
-class QDockWindowTitleButton : public QAbstractButton
+class QDockWidgetTitleButton : public QAbstractButton
 {
     Q_OBJECT
 
 public:
-    QDockWindowTitleButton(QDockWindowTitle *title);
+    QDockWidgetTitleButton(QDockWidgetTitle *title);
 
     QSize sizeHint() const;
     inline QSize minimumSizeHint() const
@@ -88,12 +88,12 @@ public:
     void paintEvent(QPaintEvent *event);
 };
 
-class QDockWindowTitle : public QWidget
+class QDockWidgetTitle : public QWidget
 {
     Q_OBJECT
 
 public:
-    QDockWindowTitle(QDockWindow *tw);
+    QDockWidgetTitle(QDockWidget *tw);
 
     void styleChange(QStyle &);
 
@@ -106,19 +106,19 @@ public:
     void updateButtons();
     void updateWindowTitle();
 
-    QDockWindow *dockwindow;
+    QDockWidget *dockwidget;
 
     QSpacerItem *spacer;
-    QDockWindowTitleButton *floatButton;
-    QDockWindowTitleButton *closeButton;
+    QDockWidgetTitleButton *floatButton;
+    QDockWidgetTitleButton *closeButton;
 
     QBoxLayout *box;
 
     struct DragState {
 	QRubberBand *rubberband;
         QRect origin;   // starting position
-	QRect current;  // current size of the dockwindow (can be either placed or floating)
-	QRect floating; // size of the floating dockwindow
+	QRect current;  // current size of the dockwidget (can be either placed or floating)
+	QRect floating; // size of the floating dockwidget
         QPoint offset;
 	bool canDrop;
     };
@@ -128,11 +128,11 @@ public slots:
     void toggleTopLevel();
 };
 
-QDockWindowTitleButton::QDockWindowTitleButton(QDockWindowTitle *title)
+QDockWidgetTitleButton::QDockWidgetTitleButton(QDockWidgetTitle *title)
     : QAbstractButton(title)
 { }
 
-QSize QDockWindowTitleButton::sizeHint() const
+QSize QDockWidgetTitleButton::sizeHint() const
 {
     ensurePolished();
 
@@ -145,19 +145,19 @@ QSize QDockWindowTitleButton::sizeHint() const
     return QSize(dim + 4, dim + 4);
 }
 
-void QDockWindowTitleButton::enterEvent(QEvent *event)
+void QDockWidgetTitleButton::enterEvent(QEvent *event)
 {
     if (isEnabled()) update();
     QAbstractButton::enterEvent(event);
 }
 
-void QDockWindowTitleButton::leaveEvent(QEvent *event)
+void QDockWidgetTitleButton::leaveEvent(QEvent *event)
 {
     if (isEnabled()) update();
     QAbstractButton::leaveEvent(event);
 }
 
-void QDockWindowTitleButton::paintEvent(QPaintEvent *)
+void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
@@ -185,15 +185,15 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
     style()->drawItemPixmap(&p, r, Qt::AlignCenter, pm);
 }
 
-QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
-    : QWidget(tw), dockwindow(tw), floatButton(0), closeButton(0), state(0)
+QDockWidgetTitle::QDockWidgetTitle(QDockWidget *tw)
+    : QWidget(tw), dockwidget(tw), floatButton(0), closeButton(0), state(0)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
     spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     box = new QBoxLayout(QBoxLayout::LeftToRight, this);
-    box->setMargin(style()->pixelMetric(QStyle::PM_DockWindowFrameWidth));
+    box->setMargin(style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));
     box->setSpacing(0);
     box->addItem(spacer);
 
@@ -201,9 +201,9 @@ QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
     updateWindowTitle();
 }
 
-void QDockWindowTitle::styleChange(QStyle &)
+void QDockWidgetTitle::styleChange(QStyle &)
 {
-    box->setMargin(style()->pixelMetric(QStyle::PM_DockWindowFrameWidth));
+    box->setMargin(style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));
 
     updateWindowTitle();
 
@@ -214,16 +214,16 @@ void QDockWindowTitle::styleChange(QStyle &)
         closeButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
 }
 
-void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
+void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
 
     // check if the tool window is movable... do nothing if it is not
-    if (!::hasFeature(dockwindow, QDockWindow::DockWindowMovable))
+    if (!::hasFeature(dockwidget, QDockWidget::DockWidgetMovable))
         return;
 
     QMainWindowLayout *layout =
-        qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
+        qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
         return;
     layout->saveLayoutInfo();
@@ -236,24 +236,24 @@ void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
                                         QApplication::desktop()->screen(screen_number));
 
     // the current location of the tool window in global coordinates
-    state->origin = QRect(dockwindow->mapToGlobal(QPoint(0, 0)), dockwindow->size());
+    state->origin = QRect(dockwidget->mapToGlobal(QPoint(0, 0)), dockwidget->size());
     state->current = state->origin;
 
     // like the above, except using the tool window's size hint
-    state->floating = dockwindow->isWindow()
+    state->floating = dockwidget->isWindow()
                       ? state->current
-                      : QRect(state->current.topLeft(), dockwindow->sizeHint());
+                      : QRect(state->current.topLeft(), dockwidget->sizeHint());
 
     // the offset is the middle of the titlebar in a window of floating.size()
-    state->offset = mapFrom(dockwindow, QPoint(state->floating.width() / 2, 0));
-    state->offset = mapTo(dockwindow, QPoint(state->offset.x(), height() / 2));
+    state->offset = mapFrom(dockwidget, QPoint(state->floating.width() / 2, 0));
+    state->offset = mapTo(dockwidget, QPoint(state->offset.x(), height() / 2));
     state->canDrop = true;
 
     state->rubberband->setGeometry(state->current);
     state->rubberband->show();
 }
 
-void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
+void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
 {
     if (!state) return;
 
@@ -272,13 +272,13 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 
 	if (widget) {
             QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
-            if (mainwindow && mainwindow == dockwindow->parentWidget()) {
+            if (mainwindow && mainwindow == dockwidget->parentWidget()) {
 		QMainWindowLayout *layout =
-                    qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
+                    qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
-		target = layout->placeDockWindow(dockwindow, request, event->globalPos());
+		target = layout->placeDockWidget(dockwidget, request, event->globalPos());
                 layout->resetLayoutInfo();
 	    }
 	}
@@ -286,7 +286,7 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 
     state->canDrop = target.isValid();
     if (!state->canDrop) {
-        if (hasFeature(dockwindow, QDockWindow::DockWindowFloatable)) {
+        if (hasFeature(dockwidget, QDockWidget::DockWidgetFloatable)) {
             /*
               main window refused to accept the tool window,
               recalculate absolute position as if the tool window
@@ -309,12 +309,12 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
     state->current = target;
 }
 
-void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
+void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
 
     QMainWindowLayout *layout =
-        qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
+        qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
         return;
     layout->discardLayoutInfo();
@@ -343,30 +343,30 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 
         if (widget) {
             QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
-            if (mainwindow && mainwindow == dockwindow->parentWidget()) {
+            if (mainwindow && mainwindow == dockwidget->parentWidget()) {
                 QMainWindowLayout *layout =
-                    qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
+                    qt_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
-                layout->dropDockWindow(dockwindow, request, event->globalPos());
+                layout->dropDockWidget(dockwidget, request, event->globalPos());
                 dropped = true;
             }
         }
     }
 
-    if (!dropped && hasFeature(dockwindow, QDockWindow::DockWindowFloatable)) {
+    if (!dropped && hasFeature(dockwidget, QDockWidget::DockWidgetFloatable)) {
         target = state->floating;
         target.moveTopLeft(event->globalPos() - state->offset);
 
-        if (!dockwindow->isWindow()) {
-            dockwindow->hide();
-            dockwindow->setTopLevel();
-            dockwindow->setGeometry(target);
-            dockwindow->show();
+        if (!dockwidget->isWindow()) {
+            dockwidget->hide();
+            dockwidget->setTopLevel();
+            dockwidget->setGeometry(target);
+            dockwidget->show();
         } else {
             // move to new location
-            dockwindow->setGeometry(target);
+            dockwidget->setGeometry(target);
         }
     }
 
@@ -377,7 +377,7 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
     state = 0;
 }
 
-void QDockWindowTitle::contextMenuEvent(QContextMenuEvent *event)
+void QDockWidgetTitle::contextMenuEvent(QContextMenuEvent *event)
 {
     if (state)
         event->accept();
@@ -385,11 +385,11 @@ void QDockWindowTitle::contextMenuEvent(QContextMenuEvent *event)
         QWidget::contextMenuEvent(event);
 }
 
-void QDockWindowTitle::paintEvent(QPaintEvent *)
+void QDockWidgetTitle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
-    QStyleOptionDockWindow opt;
+    QStyleOptionDockWidget opt;
     opt.rect = rect();
     opt.palette = palette();
     if (isEnabled()) {
@@ -397,24 +397,24 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
         if (underMouse())
             opt.state |= QStyle::State_MouseOver;
     }
-    opt.title = dockwindow->windowTitle();
-    opt.closable = hasFeature(dockwindow, QDockWindow::DockWindowClosable);
-    opt.moveable = hasFeature(dockwindow, QDockWindow::DockWindowMovable);
-    opt.floatable = hasFeature(dockwindow, QDockWindow::DockWindowFloatable);
-    style()->drawControl(QStyle::CE_DockWindowTitle, &opt, &p, this);
+    opt.title = dockwidget->windowTitle();
+    opt.closable = hasFeature(dockwidget, QDockWidget::DockWidgetClosable);
+    opt.moveable = hasFeature(dockwidget, QDockWidget::DockWidgetMovable);
+    opt.floatable = hasFeature(dockwidget, QDockWidget::DockWidgetFloatable);
+    style()->drawControl(QStyle::CE_DockWidgetTitle, &opt, &p, this);
 }
 
-void QDockWindowTitle::updateButtons()
+void QDockWidgetTitle::updateButtons()
 {
-    if (hasFeature(dockwindow, QDockWindow::DockWindowFloatable)) {
+    if (hasFeature(dockwidget, QDockWidget::DockWidgetFloatable)) {
         if (!floatButton) {
-            floatButton = new QDockWindowTitleButton(this);
+            floatButton = new QDockWidgetTitleButton(this);
             floatButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
             connect(floatButton, SIGNAL(clicked()), SLOT(toggleTopLevel()));
 
             box->insertWidget(1, floatButton);
 
-            if (!dockwindow->isExplicitlyHidden())
+            if (!dockwidget->isExplicitlyHidden())
                 floatButton->show();
         }
     } else {
@@ -422,15 +422,15 @@ void QDockWindowTitle::updateButtons()
         floatButton = 0;
     }
 
-    if (hasFeature(dockwindow, QDockWindow::DockWindowClosable)) {
+    if (hasFeature(dockwidget, QDockWidget::DockWidgetClosable)) {
         if (!closeButton) {
-            closeButton = new QDockWindowTitleButton(this);
+            closeButton = new QDockWidgetTitleButton(this);
             closeButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
-            connect(closeButton, SIGNAL(clicked()), dockwindow, SLOT(close()));
+            connect(closeButton, SIGNAL(clicked()), dockwidget, SLOT(close()));
 
             box->insertWidget(2, closeButton);
 
-            if (!dockwindow->isExplicitlyHidden())
+            if (!dockwidget->isExplicitlyHidden())
                 closeButton->show();
         }
     } else {
@@ -439,26 +439,26 @@ void QDockWindowTitle::updateButtons()
     }
 }
 
-void QDockWindowTitle::updateWindowTitle()
+void QDockWidgetTitle::updateWindowTitle()
 {
     const QFontMetrics fm(font());
-    spacer->changeSize(fm.width(dockwindow->windowTitle()) + box->margin() * 2, fm.lineSpacing(),
+    spacer->changeSize(fm.width(dockwidget->windowTitle()) + box->margin() * 2, fm.lineSpacing(),
                        QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     update();
 }
 
-void QDockWindowTitle::toggleTopLevel()
+void QDockWidgetTitle::toggleTopLevel()
 {
-    QPoint p = dockwindow->mapToGlobal(QPoint(height(), height()));
-    bool visible = dockwindow->isVisible();
+    QPoint p = dockwidget->mapToGlobal(QPoint(height(), height()));
+    bool visible = dockwidget->isVisible();
     if (visible)
-        dockwindow->hide();
-    dockwindow->setTopLevel(!dockwindow->isWindow());
-    if (dockwindow->isWindow())
-        dockwindow->move(p);
+        dockwidget->hide();
+    dockwidget->setTopLevel(!dockwidget->isWindow());
+    if (dockwidget->isWindow())
+        dockwidget->move(p);
     if (visible)
-        dockwindow->show();
+        dockwidget->show();
 }
 
 
@@ -469,8 +469,8 @@ void QDockWindowTitle::toggleTopLevel()
   Private class
 */
 
-void QDockWindowPrivate::init() {
-    Q_Q(QDockWindow);
+void QDockWidgetPrivate::init() {
+    Q_Q(QDockWidget);
 
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
@@ -478,7 +478,7 @@ void QDockWindowPrivate::init() {
     top->setMargin(2);
     top->setSpacing(2);
 
-    title = new QDockWindowTitle(q);
+    title = new QDockWidgetTitle(q);
     top->insertWidget(0, title);
 
     box = new QVBoxLayout(top);
@@ -493,9 +493,9 @@ void QDockWindowPrivate::init() {
     QObject::connect(toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
-void QDockWindowPrivate::toggleView(bool b)
+void QDockWidgetPrivate::toggleView(bool b)
 {
-    Q_Q(QDockWindow);
+    Q_Q(QDockWidget);
     if (b == q->isExplicitlyHidden()) {
         if (b)
             q->show();
@@ -507,15 +507,15 @@ void QDockWindowPrivate::toggleView(bool b)
 
 
 /*!
-    \class QDockWindow
+    \class QDockWidget
 
-    \brief The QDockWindow class provides a widget that can be docked
+    \brief The QDockWidget class provides a widget that can be docked
     inside a QMainWindow or floated as a top-level window on the
     desktop.
 
     \ingroup application
 
-    QDockWindow provides the concept of dock windows, also know as
+    QDockWidget provides the concept of dock windows, also know as
     tool palettes or utility windows.  Dock windows are secondary
     windows placed in the \e {dock window area} around the \link
     QMainWindow::centerWidget() center widget\endlink in a
@@ -526,32 +526,32 @@ void QDockWindowPrivate::toggleView(bool b)
 
     Dock windows can be moved inside their current area, moved into
     new areas and floated (e.g. undocked) by the end-user.  The
-    QDockWindow API allows the programmer to restrict the dock windows
+    QDockWidget API allows the programmer to restrict the dock windows
     ability to move, float and close, as well as the areas in which
     they can be placed.
 
     \section1 Appearance
 
-    A QDockWindow consists of a title bar and the content area.  The
+    A QDockWidget consists of a title bar and the content area.  The
     titlebar displays the dock windows \link QWidget::windowTitle()
     window title\endlink, a \e float button and a \e close button.
-    Depending on the state of the QDockWindow, the \e float and \e
+    Depending on the state of the QDockWidget, the \e float and \e
     close buttons may be either disabled or not shown at all.
 
     The visual appearance of the title bar and buttons is \link QStyle
     style \endlink dependent.
 
-    ### \e {screenshot of QDockWindow in a few styles should go here}
+    ### \e {screenshot of QDockWidget in a few styles should go here}
 
     \section1 Behavior
 
     \list
 
-    \i behaviour of QDockWindow while docked in QMainWindow:
+    \i behaviour of QDockWidget while docked in QMainWindow:
 
-    \i behaviour of QDockWindow while floated:
+    \i behaviour of QDockWidget while floated:
 
-    \i behaviour while dragging QDockWindow:
+    \i behaviour while dragging QDockWidget:
 
         \list
 
@@ -569,40 +569,40 @@ void QDockWindowPrivate::toggleView(bool b)
 */
 
 /*!
-    \enum QDockWindow::DockWindowFeature
+    \enum QDockWidget::DockWidgetFeature
 
-    \value DockWindowClosable   The dock window can be closed.
-    \value DockWindowMovable    The dock window can be moved between docks
+    \value DockWidgetClosable   The dock window can be closed.
+    \value DockWidgetMovable    The dock window can be moved between docks
                                 by the user.
-    \value DockWindowFloatable  The dock window can be detached from the
+    \value DockWidgetFloatable  The dock window can be detached from the
                                 main window, and floated as an independent
                                 window.
 
-    \value AllDockWindowFeatures  The dock window can be closed, moved,
+    \value AllDockWidgetFeatures  The dock window can be closed, moved,
                                   and floated.
-    \value NoDockWindowFeatures   The dock window cannot be closed, moved,
+    \value NoDockWidgetFeatures   The dock window cannot be closed, moved,
                                   or floated.
 
-    \omitvalue DockWindowFeatureMask
+    \omitvalue DockWidgetFeatureMask
     \omitvalue Reserved
 */
 
 /*!
-    Constructs a QDockWindow with parent \a parent and widget flags \a
+    Constructs a QDockWidget with parent \a parent and widget flags \a
     flags.  The dock window will be placed in the left dock window
     area.
 */
-QDockWindow::QDockWindow(QWidget *parent, Qt::WFlags flags)
-    : QFrame(*new QDockWindowPrivate, parent, flags)
+QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
+    : QFrame(*new QDockWidgetPrivate, parent, flags)
 {
-    Q_D(QDockWindow);
+    Q_D(QDockWidget);
     d->init();
 }
 
 /*!
     Destroys the dock window.
 */
-QDockWindow::~QDockWindow()
+QDockWidget::~QDockWidget()
 { }
 
 /*!
@@ -611,9 +611,9 @@ QDockWindow::~QDockWindow()
 
     \sa setWidget()
 */
-QWidget *QDockWindow::widget() const
+QWidget *QDockWidget::widget() const
 {
-    Q_D(const QDockWindow);
+    Q_D(const QDockWidget);
     return d->widget;
 }
 
@@ -622,9 +622,9 @@ QWidget *QDockWindow::widget() const
 
     \sa widget()
 */
-void QDockWindow::setWidget(QWidget *widget)
+void QDockWidget::setWidget(QWidget *widget)
 {
-    Q_D(QDockWindow);
+    Q_D(QDockWidget);
     if (d->widget)
         d->box->removeWidget(d->widget);
     d->widget = widget;
@@ -633,16 +633,16 @@ void QDockWindow::setWidget(QWidget *widget)
 }
 
 /*!
-    \property QDockWindow::features
+    \property QDockWidget::features
     \brief whether the dock window is movable, closable, and floatable
 
-    \sa DockWindowFeature
+    \sa DockWidgetFeature
 */
 
-void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
+void QDockWidget::setFeatures(QDockWidget::DockWidgetFeatures features)
 {
-    Q_D(QDockWindow);
-    features &= DockWindowFeatureMask;
+    Q_D(QDockWidget);
+    features &= DockWidgetFeatureMask;
     if (d->features == features)
         return;
     d->features = features;
@@ -651,18 +651,18 @@ void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
     emit featuresChanged(d->features);
 }
 
-QDockWindow::DockWindowFeatures QDockWindow::features() const
+QDockWidget::DockWidgetFeatures QDockWidget::features() const
 {
-    Q_D(const QDockWindow);
+    Q_D(const QDockWidget);
     return d->features;
 }
 
 /*!
     Sets the doc window to be \a topLevel.
 */
-void QDockWindow::setTopLevel(bool topLevel)
+void QDockWidget::setTopLevel(bool topLevel)
 {
-    Q_D(QDockWindow);
+    Q_D(QDockWidget);
     if (topLevel == isWindow())
         return;
 
@@ -684,41 +684,41 @@ void QDockWindow::setTopLevel(bool topLevel)
 }
 
 /*!
-    \property QDockWindow::allowedAreas
+    \property QDockWidget::allowedAreas
     \brief areas where the dock window may be placed
 
-    The default is \c Qt::AllDockWindowAreas.
+    The default is \c Qt::AllDockWidgetAreas.
 
-    \sa QDockWindow::area
+    \sa QDockWidget::area
 */
 
-void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
+void QDockWidget::setAllowedAreas(Qt::DockWidgetAreas areas)
 {
-    Q_D(QDockWindow);
-    areas &= Qt::DockWindowArea_Mask;
+    Q_D(QDockWidget);
+    areas &= Qt::DockWidgetArea_Mask;
     if (areas == d->allowedAreas)
         return;
     d->allowedAreas = areas;
     emit allowedAreasChanged(d->allowedAreas);
 }
 
-Qt::DockWindowAreas QDockWindow::allowedAreas() const
+Qt::DockWidgetAreas QDockWidget::allowedAreas() const
 {
-    Q_D(const QDockWindow);
+    Q_D(const QDockWidget);
     return d->allowedAreas;
 }
 
 /*!
-    \fn bool QDockWindow::isAreaAllowed(Qt::DockWindowArea area) const
+    \fn bool QDockWidget::isAreaAllowed(Qt::DockWidgetArea area) const
 
     Returns true if this dock window can be placed in the given \a area;
     otherwise returns false.
 */
 
 /*! \reimp */
-void QDockWindow::changeEvent(QEvent *event)
+void QDockWidget::changeEvent(QEvent *event)
 {
-    Q_D(QDockWindow);
+    Q_D(QDockWidget);
     switch (event->type()) {
     case QEvent::WindowTitleChange:
         d->title->updateWindowTitle();
@@ -731,17 +731,17 @@ void QDockWindow::changeEvent(QEvent *event)
 }
 
 /*! \reimp */
-void QDockWindow::closeEvent(QCloseEvent *event)
+void QDockWidget::closeEvent(QCloseEvent *event)
 {
-    Q_D(QDockWindow);
-    if (!(d->features & DockWindowClosable))
+    Q_D(QDockWidget);
+    if (!(d->features & DockWidgetClosable))
         event->ignore();
 }
 
 /*! \reimp */
-bool QDockWindow::event(QEvent *event)
+bool QDockWidget::event(QEvent *event)
 {
-    Q_D(QDockWindow);
+    Q_D(QDockWidget);
     switch (event->type()) {
     case QEvent::Show:
     case QEvent::Hide:
@@ -762,15 +762,15 @@ bool QDockWindow::event(QEvent *event)
 
   \sa QAction::text QWidget::windowTitle
  */
-QAction * QDockWindow::toggleViewAction() const
+QAction * QDockWidget::toggleViewAction() const
 {
-    Q_D(const QDockWindow);
+    Q_D(const QDockWidget);
     return d->toggleViewAction;
 }
 
-#include "qdockwindow.moc"
+#include "qdockwidget.moc"
 
 // for private slots
 #define d d_func()
 
-#include "moc_qdockwindow.cpp"
+#include "moc_qdockwidget.cpp"

@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qdockwindowseparator_p.h"
+#include "qdockwidgetseparator_p.h"
 
-#include "qdockwindow.h"
-#include "qdockwindowlayout_p.h"
+#include "qdockwidget.h"
+#include "qdockwidgetlayout_p.h"
 
 #include <qapplication.h>
 #include <qevent.h>
@@ -23,7 +23,7 @@
 #include <qstyleoption.h>
 
 
-QDockWindowSeparator::QDockWindowSeparator(QDockWindowLayout *l, QWidget *parent)
+QDockWidgetSeparator::QDockWidgetSeparator(QDockWidgetLayout *l, QWidget *parent)
     : QWidget(parent), layout(l), state(0)
 { setCursor(layout->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor); }
 
@@ -32,7 +32,7 @@ QDockWindowSeparator::QDockWindowSeparator(QDockWindowLayout *l, QWidget *parent
     orientation is used to calculate a rectangle that is appropriate
     for use while the user is moving the separator.
  */
-QRect QDockWindowSeparator::calcRect(const QPoint &point)
+QRect QDockWidgetSeparator::calcRect(const QPoint &point)
 {
     int pos = pick(layout->orientation, point);
     int ext = pick(layout->orientation, size());
@@ -42,7 +42,7 @@ QRect QDockWindowSeparator::calcRect(const QPoint &point)
 	    QRect(0, pos - (ext/2), sz, ext));
 }
 
-void QDockWindowSeparator::mousePressEvent(QMouseEvent *event)
+void QDockWidgetSeparator::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton)
         return;
@@ -60,7 +60,7 @@ void QDockWindowSeparator::mousePressEvent(QMouseEvent *event)
     layout->saveLayoutInfo();
 }
 
-void QDockWindowSeparator::mouseReleaseEvent(QMouseEvent *event)
+void QDockWidgetSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton)
         return;
@@ -79,7 +79,7 @@ void QDockWindowSeparator::mouseReleaseEvent(QMouseEvent *event)
     state = 0;
 }
 
-void QDockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
+void QDockWidgetSeparator::mouseMoveEvent(QMouseEvent *event)
 {
     Q_ASSERT(state != 0);
 
@@ -96,7 +96,7 @@ void QDockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
     layout->relayout();
 }
 
-void QDockWindowSeparator::paintEvent(QPaintEvent *)
+void QDockWidgetSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt(0);
@@ -107,5 +107,5 @@ void QDockWindowSeparator::paintEvent(QPaintEvent *)
 	opt.state |= QStyle::State_Horizontal;
     opt.rect = rect();
     opt.palette = palette();
-    style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);
 }

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWINDOWLAYOUT_P_H
-#define QDOCKWINDOWLAYOUT_P_H
+#ifndef QDOCKWIDGETLAYOUT_P_H
+#define QDOCKWIDGETLAYOUT_P_H
 
 //
 //  W A R N I N G
@@ -28,10 +28,10 @@
 #include <qlayout.h>
 #include <qlist.h>
 
-class QDockWindow;
-class QDockWindowSeparator;
+class QDockWidget;
+class QDockWidgetSeparator;
 
-struct QDockWindowLayoutInfo
+struct QDockWidgetLayoutInfo
 {
     QLayoutItem *item;
 
@@ -44,26 +44,26 @@ struct QDockWindowLayoutInfo
     uint is_dropped : 1;
     uint reserved   : 13;
 
-    inline QDockWindowLayoutInfo(QLayoutItem *i)
+    inline QDockWidgetLayoutInfo(QLayoutItem *i)
 	: item(i), cur_pos(-1), cur_size(-1), min_size(1), max_size(-1),
 	  is_sep(0), is_dropped(0), reserved(0)
     { }
 };
 
-class QDockWindowLayout : public QLayout
+class QDockWidgetLayout : public QLayout
 {
     Q_OBJECT
 
 public:
-    Qt::DockWindowArea area;
+    Qt::DockWidgetArea area;
     Qt::Orientation orientation;
-    QList<QDockWindowLayoutInfo> layout_info;
-    QList<QDockWindowLayoutInfo> *save_layout_info;
+    QList<QDockWidgetLayoutInfo> layout_info;
+    QList<QDockWidgetLayoutInfo> *save_layout_info;
     mutable QSize minSize;
     mutable QSize szHint;
 
-    QDockWindowLayout(Qt::DockWindowArea a, Qt::Orientation o);
-    ~QDockWindowLayout();
+    QDockWidgetLayout(Qt::DockWidgetArea a, Qt::Orientation o);
+    ~QDockWidgetLayout();
 
     enum { // sentinel values used to validate state data
         Marker = 0xfc,
@@ -87,7 +87,7 @@ public:
 
     void setOrientation(Qt::Orientation o);
     QLayoutItem *find(QWidget *widget);
-    QDockWindowLayoutInfo &insert(int index, QLayoutItem *layoutitem);
+    QDockWidgetLayoutInfo &insert(int index, QLayoutItem *layoutitem);
 
     void dump();
 
@@ -95,18 +95,18 @@ public:
     void resetLayoutInfo();
     void discardLayoutInfo();
 
-    QPoint constrain(QDockWindowSeparator *sep, int delta);
+    QPoint constrain(QDockWidgetSeparator *sep, int delta);
 
     struct Location {
         int index;
-        Qt::DockWindowArea area;
+        Qt::DockWidgetArea area;
     };
     Location locate(const QPoint &mouse) const;
-    QRect place(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
-    void drop(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
+    QRect place(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
+    void drop(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
 
-    void extend(QDockWindow *dockwindow, Qt::Orientation direction);
-    void split(QDockWindow *existing, QDockWindow *with, Qt::DockWindowArea area);
+    void extend(QDockWidget *dockwidget, Qt::Orientation direction);
+    void split(QDockWidget *existing, QDockWidget *with, Qt::DockWidgetArea area);
 
 signals:
     void emptied();
@@ -124,4 +124,4 @@ static inline int pick_perp(Qt::Orientation o, const QPoint &p)
 static inline int pick_perp(Qt::Orientation o, const QSize &s)
 { return o == Qt::Vertical ? s.width() : s.height(); }
 
-#endif // QDOCKWINDOWLAYOUT_P_H
+#endif // QDOCKWIDGETLAYOUT_P_H

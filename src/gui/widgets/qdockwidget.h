@@ -16,55 +16,55 @@
 
 #include <QtGui/qframe.h>
 
-class QDockWindowLayout;
-class QDockWindowPrivate;
+class QDockWidgetLayout;
+class QDockWidgetPrivate;
 class QMainWindow;
 
-class Q_GUI_EXPORT QDockWindow : public QFrame
+class Q_GUI_EXPORT QDockWidget : public QFrame
 {
     Q_OBJECT
 
-    Q_FLAGS(DockWindowFeatures)
-    Q_PROPERTY(DockWindowFeatures features READ features WRITE setFeatures)
-    Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
+    Q_FLAGS(DockWidgetFeatures)
+    Q_PROPERTY(DockWidgetFeatures features READ features WRITE setFeatures)
+    Q_PROPERTY(Qt::DockWidgetAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
 
 public:
-    explicit QDockWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
-    ~QDockWindow();
+    explicit QDockWidget(QWidget *parent = 0, Qt::WFlags flags = 0);
+    ~QDockWidget();
 
     QWidget *widget() const;
     void setWidget(QWidget *widget);
 
-    enum DockWindowFeature {
-        DockWindowClosable    = 0x01,
-        DockWindowMovable     = 0x02,
-        DockWindowFloatable   = 0x04,
+    enum DockWidgetFeature {
+        DockWidgetClosable    = 0x01,
+        DockWidgetMovable     = 0x02,
+        DockWidgetFloatable   = 0x04,
 
-        DockWindowFeatureMask = 0x07,
-        AllDockWindowFeatures = DockWindowFeatureMask,
-        NoDockWindowFeatures  = 0x00,
+        DockWidgetFeatureMask = 0x07,
+        AllDockWidgetFeatures = DockWidgetFeatureMask,
+        NoDockWidgetFeatures  = 0x00,
 
         Reserved              = 0xff
     };
-    Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
+    Q_DECLARE_FLAGS(DockWidgetFeatures, DockWidgetFeature)
 
-    void setFeatures(DockWindowFeatures features);
-    DockWindowFeatures features() const;
+    void setFeatures(DockWidgetFeatures features);
+    DockWidgetFeatures features() const;
 
     void setTopLevel(bool topLevel = true);
 
-    void setAllowedAreas(Qt::DockWindowAreas areas);
-    Qt::DockWindowAreas allowedAreas() const;
+    void setAllowedAreas(Qt::DockWidgetAreas areas);
+    Qt::DockWidgetAreas allowedAreas() const;
 
-    inline bool isAreaAllowed(Qt::DockWindowArea area) const
+    inline bool isAreaAllowed(Qt::DockWidgetArea area) const
     { return (allowedAreas() & area) == area; }
 
     QAction *toggleViewAction() const;
 
 signals:
-    void featuresChanged(DockWindowFeatures features);
+    void featuresChanged(DockWidgetFeatures features);
     void topLevelChanged(bool topLevel);
-    void allowedAreasChanged(Qt::DockWindowAreas allowedAreas);
+    void allowedAreasChanged(Qt::DockWidgetAreas allowedAreas);
 
 protected:
     void changeEvent(QEvent *event);
@@ -72,12 +72,12 @@ protected:
     bool event(QEvent *event);
 
 private:
-    Q_DECLARE_PRIVATE(QDockWindow)
-    Q_DISABLE_COPY(QDockWindow)
+    Q_DECLARE_PRIVATE(QDockWidget)
+    Q_DISABLE_COPY(QDockWidget)
     Q_PRIVATE_SLOT(d, void toggleView(bool))
-    friend class QDockWindowLayout;
+    friend class QDockWidgetLayout;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWindow::DockWindowFeatures)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
 
 #endif // QDOCKWINDOW_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWINDOW_P_H
-#define QDOCKWINDOW_P_H
+#ifndef QDOCKWIDGET_P_H
+#define QDOCKWIDGET_P_H
 
 //
 //  W A R N I N G
@@ -28,20 +28,20 @@
 #include "qframe_p.h"
 
 class QBoxLayout;
-class QDockWindowTitle;
+class QDockWidgetTitle;
 class QWidgetResizeHandler;
 
-class QDockWindowPrivate : public QFramePrivate
+class QDockWidgetPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QDockWindow)
+    Q_DECLARE_PUBLIC(QDockWidget)
 
 public:
-    inline QDockWindowPrivate()
+    inline QDockWidgetPrivate()
 	: QFramePrivate(), widget(0),
-          features(QDockWindow::DockWindowClosable
-                   | QDockWindow::DockWindowMovable
-                   | QDockWindow::DockWindowFloatable),
-          allowedAreas(Qt::AllDockWindowAreas), top(0), box(0), title(0), resizer(0)
+          features(QDockWidget::DockWidgetClosable
+                   | QDockWidget::DockWidgetMovable
+                   | QDockWidget::DockWidgetFloatable),
+          allowedAreas(Qt::AllDockWidgetAreas), top(0), box(0), title(0), resizer(0)
     { }
 
     void init();
@@ -49,15 +49,15 @@ public:
 
     QWidget *widget;
 
-    QDockWindow::DockWindowFeatures features;
-    Qt::DockWindowAreas allowedAreas;
+    QDockWidget::DockWidgetFeatures features;
+    Qt::DockWidgetAreas allowedAreas;
 
     QBoxLayout *top, *box;
-    QDockWindowTitle *title;
+    QDockWidgetTitle *title;
 
     QWidgetResizeHandler *resizer;
 
     QAction *toggleViewAction;
 };
 
-#endif // QDOCKWINDOW_P_H
+#endif // QDOCKWIDGET_P_H
