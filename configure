@@ -290,47 +290,149 @@ QT_INSTALL_DATA=
 # parse the arguments, setting things to "yes" or "no"
 while [ -n "$1" ]
 do
+    CURRENT_OPT="$1"
     case $1 in
-    -no-lazydeps)
-	CFG_LAZY_DEPS_ALLOWED=no
+    #Autoconf style options
+    --enable-*|--disable-*)
+	VAR=`echo $1 | sed "s,^--.*-\(.*\),\1,"`
+	VAL=yes
+	[ `echo $1 | sed "s,^--\(.*\)-.*,\1,"` = "disable" ] && VAL=no
 	;;
-    -prefix)
+    --*=*)
+	VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
+	VAL=`echo $1 | sed "s,^--.*=\(.*\),\1,"`
+	;;
+    --*)
+	VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
+	VAL=yes
+	;;
+    #Qt plugin options
+    -no-*-*|-plugin-*-*|-qt-*-*)
+	VAR=`echo $1 | sed "s,^-\([^-]*\).*,\1,"`
+	VAL=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
+	;;
+    #Qt style no options
+    -no-*)
+	VAR=`echo $1 | sed "s,^-no-(.*\),\1,"`
+	VAL=no
+	;;
+    #Qt style yes options
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerma|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-remote|-h|-help|-v|-debug|-static|-verbose|-fast)
+	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+	VAL=yes
+	;;
+    #Qt style options that pass an argument
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-embedded|-depths|-make|-nomake|-qconfig|-platform|-xplatform)
+	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	shift
-	QT_INSTALL_PREFIX=$1
+	VAL=$1
 	;;
-    -docdir)
-	shift
-	QT_INSTALL_DOCS=$1
+    #Qt style complex options in one command
+    -enable-*|-disable-*)
+	VAR=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
+	VAL=`echo $1 | sed "s,^-.*-\(.*\),\1,"`
 	;;
-    -headerdir)
-	shift
-	QT_INSTALL_HEADERS=$1
+    #Qt Builtin/System style options
+    -qt-*|-system-*|-no-*)
+	VAR=`echo $1 | sed "s,^-.*-\(.*\),\1,"`
+	VAL=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
 	;;
-    -plugindir)
-        shift
-	QT_INSTALL_PLUGINS=$1
-	;;
-    -datadir)
-        shift
-	QT_INSTALL_DATA=$1
-	;;
-    -libdir)
-	shift
-	QT_INSTALL_LIBS=$1
-	;;
-    -bindir)
-	shift
-	QT_INSTALL_BINS=$1
-	;;
-    -embedded)
+    #Options that cannot be generalized
+    -embedded) 	
+	VAR=embedded
 	# this option may or may not be followed by an argument
 	if [ -z $2 ] || echo $2 | grep '^-' >/dev/null 2>&1
 	then
-	    CFG_EMBEDDED=auto
+	    VAL=auto
 	else
 	    shift;
-	    CFG_EMBEDDED=$1
+	    VAL=$1
 	fi
+	;;
+    -j?*)
+	VAR="concurrent"
+	VAL="`echo $1 | sed 's,-j,,'`"
+	;;
+    -D?*|-D)
+	VAR="define"
+	if [ "$1" = "-D" ]; then
+	    shift
+	    VAL="$1"
+	else
+	    VAL=`echo $1 | sed 's,-D,,'`
+        fi
+	;;
+    -I?*|-I)
+	VAR="ipath"
+	if [ "$1" = "-I" ]; then
+	    shift
+	    VAL="$1"
+	else
+	    VAL=`echo $1 | sed 's,-I,,'`
+        fi
+	;;
+    -L?*|-L)
+	VAR="lpath"
+	if [ "$1" = "-L" ]; then
+	    shift
+	    VAL="$1"
+	else
+	    VAL=`echo $1 | sed 's,-L,,'`
+        fi
+	;;
+    -R?*|-R)
+	VAR="rpath"
+	if [ "$1" = "-R" ]; then
+	    shift
+	    VAL="$1"
+	else
+	    VAL=`echo $1 | sed 's,-R,,'`
+        fi
+	;;
+    -l?*)
+	VAR="link"
+	VAL=`echo $1 | sed 's,-l,,'`
+	;;
+    *)
+	echo "${1}: unknown argument"
+	OPT_HELP=yes
+	ERROR=yes
+	shift
+	continue
+    esac
+    shift #advance
+
+    UNKNOWN_OPT=no
+    case $VAR in
+    lazydeps)
+	CFG_LAZY_DEPS_ALLOWED="$VAL"
+	;;
+    prefix)
+	QT_INSTALL_PREFIX="$VAL"
+	;;
+    docdir)
+	QT_INSTALL_DOCS="$VAL"
+	;;
+    headerdir)
+	QT_INSTALL_HEADERS="$VAL"
+	;;
+    plugindir)
+	QT_INSTALL_PLUGINS="$VAL"
+	;;
+    datadir)
+	QT_INSTALL_DATA="$VAL"
+	;;
+    libdir)
+	QT_INSTALL_LIBS="$VAL"
+	;;
+    qconfig)
+	CFG_QCONFIG=$VAL
+	;;
+    bindir)
+	QT_INSTALL_BINS="$VAL"
+	;;
+    embedded)
+	CFG_EMBEDDED="$VAL"
 	if [ "$PLATFORM_QNX" != "no" -o "$PLATFORM_QWS" != "no" ]
 	then
 	    if [ "$PLATFORM_QNX" = "maybe" ]
@@ -345,202 +447,220 @@ do
 	    CFG_EMBEDDED=no
 	fi
 	;;
-    -depths)
-	shift;
-	CFG_QWS_DEPTHS=$1;
+    depths)
+	CFG_QWS_DEPTHS="$VAL"
 	;;
-    -no-incremental)
-	CFG_INCREMENTAL=no
+    incremental)
+	CFG_INCREMENTAL="$VAL"
 	;;
-    -incremental)
-	CFG_INCREMENTAL=yes
-	;;
-    -qconfig)
-	shift
-	CFG_QCONFIG=$1
-	;;
-    -nomake|-no-make)
-	shift
-	QMAKE_IGNORE_PROJECTS="$QMAKE_IGNORE_PROJECTS $1"
-	;;
-    -make)
-	shift
-	if [ -f $relpath/$1 ]
-	then
-	    QMAKE_PROJECTS="$QMAKE_PROJECTS $relpath/$1"
+    qvfb) # left for commandline compatibility, not documented
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    [ "$VAL" = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\""
 	else
-	    if [ -d $relpath/$1 ]
+	    UNKNOWN_OPT=yes
+        fi
+	;;
+    qconfig)
+	CFG_QCONFIG="$VAL"
+	;;
+    nomake)
+	QMAKE_IGNORE_PROJECTS="$QMAKE_IGNORE_PROJECTS $VAL"
+	;;
+    make)
+	if [ -f $relpath/$VAL ]
+	then
+	    QMAKE_PROJECTS="$QMAKE_PROJECTS $relpath/$VAL"
+	else
+	    if [ -d $relpath/$VAL ]
 	    then
-		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
+		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$VAL -name '*.pro' -print`"
 	    else
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/. -name '*.pro' -print`"
 	    fi
 	fi
 	;;
-    -profile)
-	QMAKE_VARS="$QMAKE_VARS QMAKE_CFLAGS+=-pg QMAKE_CXXFLAGS+=-pg"
-	QMAKE_VARS="$QMAKE_VARS QMAKE_LFLAGS+=-pg"
-	;;
-    -no-g++-exceptions|-no-exceptions)
-	CFG_EXCEPTION_SUPPORT=no
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
-	;;
-    -platform)
-	shift
-	PLATFORM=$1
-	;;
-    -xplatform)
-	shift
-	XPLATFORM=$1
-	;;
-    -release)
-	CFG_DEBUG=no
-	;;
-    -debug)
-	CFG_DEBUG=yes
-	;;
-    -shared)
-	CFG_SHARED=yes
-	;;
-    -static)
-	CFG_SHARED=no
-	;;
-    -no-gif)
-	CFG_GIF=no
-	;;
-    -qt-gif)
-	CFG_GIF=yes
-	;;
-    -no-sm)
-	CFG_SM=no
-	;;
-    -sm)
-	CFG_SM=yes
-	;;
-    -no-thread)
-	CFG_THREAD=no
-	;;
-    -thread)
-	CFG_THREAD=yes
-	;;
-    -no-xinerama)
-	CFG_XINERAMA=no
-	;;
-    -xinerama)
-	CFG_XINERAMA=yes
-	;;
-    -no-tablet)
-	CFG_TABLET=no
-	;;
-    -tablet)
-	CFG_TABLET=yes
-	;;
-    -stl)
-	CFG_STL=yes
-	;;
-    -no-stl)
-	CFG_STL=no
-	;;
-    -freetype)
-	CFG_QWS_FREETYPE=yes
-	;;
-    -no-freetype)
-	CFG_QWS_FREETYPE=no
-	;;
-    -no-zlib)
-	CFG_ZLIB=no
-	CFG_LIBPNG=no
-	;;
-    -qt-zlib)
-	CFG_ZLIB=yes
-	;;
-    -system-zlib)
-	CFG_ZLIB=system
-	;;
-    -no-libpng) # left for commandline compatibility, not documented
-	echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
-	CFG_PNG=no
-	;;
-    -qt-libpng)
-	CFG_LIBPNG=qt
-	;;
-    -system-libpng)
-	CFG_LIBPNG=system
-	;;
-    -no-mng) # left for commandline compatibility, not documented
-	echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
-        CFG_MNG=no
-	;;
-    -qt-libmng)
-        CFG_LIBMNG=qt
-	;;
-    -system-libmng)
-	CFG_LIBMNG=system
-	;;
-    -no-jpeg) # left for commandline compatibility, not documented
-	echo "-no-jpeg is left for compatibility, in the future please use -no-imgfmt-jpeg"
-        CFG_JPEG=no
-	;;
-    -qt-jpeg|-qt-libjpeg)
-	if [ "$1" = "-qt-jpeg" ]
-	then
-	    echo "-qt-jpeg is left for compatibility, in the future please use -qt-libjpeg"
+    profile)
+	if [ "$VAL" = "yes" ]; then
+	    QMAKE_VARS="$QMAKE_VARS QMAKE_CFLAGS+=-pg QMAKE_CXXFLAGS+=-pg"
+	    QMAKE_VARS="$QMAKE_VARS QMAKE_LFLAGS+=-pg"
+	else
+	    UNKNOWN_OPT=yes
 	fi
-	CFG_LIBJPEG=qt
 	;;
-    -system-jpeg|-system-libjpeg)
-	if [ "$1" = "-system-jpeg" ]
-	then
-	    echo "-system-jpeg is left for compatibility, in the future please use -system-libjpeg"
+    g++-exceptions|exceptions)
+	if [ "$VAL" = "no" ]; then
+	    CFG_EXCEPTION_SUPPORT=no
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
+	else
+	    UNKNOWN_OPT=yes
 	fi
-	CFG_LIBJPEG=system
 	;;
-    -no-nas-sound)
-	CFG_NAS=no
+    platform)
+	PLATFORM="$VAL"
 	;;
-    -system-nas-sound)
-	CFG_NAS=yes
+    xplatform)
+	XPLATFORM="$VAL"
 	;;
-    -no-big-codecs)
-	CFG_BIG_CODECS=no
+    release|debug)
+	CFG_DEBUG="$VAL"
 	;;
-    -big-codecs)
-	CFG_BIG_CODECS=yes
+    shared|static)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_SHARED="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
 	;;
-    -no-xrender)
-	CFG_XRENDER=no
+    gif)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_GIF="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
 	;;
-    -xrender)
-	CFG_XRENDER=yes
+    sm)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_SM="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
+
 	;;
-    -no-xft)
-	CFG_FREETYPE=no
+    thread)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_THREAD="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -xft)
-	CFG_FREETYPE=yes
+    xinerama)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_XINERAMA="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -no-xkb)
-	CFG_XKB=no
+    tablet)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_TABLET="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -xkb)
-	CFG_XKB=yes
+    stl)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_STL="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -no-nis)
-	CFG_NIS=no
+    freetype)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_QWS_FREETYPE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -nis)
-	CFG_NIS=yes
+    zlib)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_ZLIB="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	[ "$VAL" = "no" ] && CFG_LIBPNG=no
 	;;
-    -remote)
-        CFG_REMOTE=yes
+    libpng)
+	[ "$VAL" = "yes" ] && VAL=qt
+	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
+	    echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
+	    CFG_PNG=no
+	fi
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
+	    CFG_LIBPNG="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -no-remote)
-	CFG_REMOTE=no
+    libmng)
+	[ "$VAL" = "yes" ] && VAL=qt
+	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
+	    echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
+	    CFG_PNG=no
+	fi
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
+	    CFG_LIBMNG="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -enable-*) #left for commandline compatibility, not documented
-	MODULE=`echo $1 | sed "s/-enable-//"`
+    jpeg|libjpeg)
+	[ "$VAL" = "yes" ] && VAL=qt
+	if [ "$VAR" = "jpeg" ]; then
+	    echo "-${VAL}-jpeg is left for compatibility, in the future please use -${VAL}-libjpeg"
+	fi
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
+	    CFG_LIBJPEG="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
+	    echo "-no-jpeg is left for compatibility, in the future please use -no-imgfmt-jpeg"
+	    CFG_JPEG=no
+	fi
+	;;
+    nas-sound)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_NAS="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    big-codecs)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_BIG_CODECS="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    xrender)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_XRENDER="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    xft)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_FREETYPE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    xkb)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_XKB="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    nis)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_NIS="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    remote)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_REMOTE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    enable) #left for commandline compatibility, not documented
+	MODULE="$VAL"
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
 	    if echo "${MODULES}" | grep $MODULE >/dev/null 2>&1
@@ -549,8 +669,8 @@ do
 	    fi
 	fi
 	;;
-    -disable-*)
-	MODULE=`echo $1 | sed -e "s/-disable-//"`
+    disable)
+	MODULE="$VAL"
 	if [ -d "$relpath/src/$MODULE" ]
 	then
 	    MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
@@ -558,13 +678,21 @@ do
 	    echo "Unknown module disabled: $MODULE"
 	fi
 	;;
-    -h | -help | --help)
-	OPT_HELP=yes
+    h|help)
+	if [ "$VAL" = "yes" ]; then
+	    OPT_HELP="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -no-*-*|-plugin-*-*|-qt-*-*)
-	OPT=`echo $1 | sed "s,^-\([^-]*\).*,\1,"`
-	VAR=`echo $1 | sed "s,^-[^-]*-\([^-]*\).*,\1,"`
-	VAL=`echo $1 | sed "s,^-[^-]*-[^-]*-\([^-]*\).*,\1,"`
+    imgfmt-*|style-*|sql-*)
+	[ "$VAL" = "yes" ] && VAL=qt
+	if [ "$VAL" != "no" ] && [ "$VAL" != "qt" ] && [ "$VAL" != "plugin" ]; then
+	    UNKNOWN_OPT=yes
+	fi
+	OPT="$VAL"
+	VAL=`echo $VAR | sed "s,^[^-]*-\([^-]*\).*,\1,"`
+	VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
 	if [ "$VAR" = "imgfmt" ]
 	then
 	    [ "$OPT" = "qt" ] && OPT=yes
@@ -606,59 +734,49 @@ do
 	   OPT_HELP=yes;
 	fi
 	;;
-    -qvfb) # left for commandline compatibility, not documented
-	 QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\""
-	;;
-    -no-qvfb) # left for commandline compatibility, not documented
-	;;
-    -fast)
-	CONFIG_FAST=yes
-	;;
-    -no-fast)
-	CONFIG_FAST=no
-	;;
-    -v)
+    v|verbose)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    OPT_VERBOSE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	# takes two verboses to turn on qmake debugs
 	[ "$OPT_VERBOSE" = "yes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
-	OPT_VERBOSE=yes
 	;;
-    -j?*)
-	OPT_CONCURRENT="`echo $1 | sed 's,-j,,'`"
+    fast)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CONFIG_FAST=yes
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
-    -D?*)
-	D_FLAGS="$D_FLAGS `echo $1 | sed 's,-D,,'`"
+    concurrent)
+	OPT_CONCURRENT="$VAL"
 	;;
-    -I?*)
-	I_FLAGS="$I_FLAGS $1"
+    define)
+	D_FLAGS="$D_FLAGS $VAL"
 	;;
-    -L?*)
-	L_FLAGS="$L_FLAGS $1"
+    ipath)
+	I_FLAGS="$I_FLAGS -I${VAL}"
 	;;
-    -R?*)
-	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}`echo $1 | sed 's,-R,,'`"
+    lpath)
+	L_FLAGS="$L_FLAGS -L${VAL}"
 	;;
-    -l?*)
-	l_FLAGS="$l_FLAGS $1"
+    rpath)
+	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${VAL}"
 	;;
-    -I)
-	shift
-	I_FLAGS="$I_FLAGS -I$1"
-	;;
-    -L)
-	shift
-	L_FLAGS="$L_FLAGS -L$1"
-	;;
-    -R)
-	shift
-	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}`echo $1 | sed 's,-R,,'`"
+    -link)
+	l_FLAGS="$l_FLAGS -l${VAL}"
 	;;
     *)
-	echo "$1: unknown argument"
-	OPT_HELP=yes;
-	ERROR=yes
+	UNKNOWN_OPT=yes
 	;;
     esac
-    shift
+    if [ "$UNKNOWN_OPT" = "yes" ]; then
+	echo "${CURRENT_OPT}: invalid command-line switch"
+	OPT_HELP=yes
+	ERROR=yes
+    fi
 done
 
 
