@@ -1716,6 +1716,9 @@ void qt_init_internal( int *argcptr, char **argv,
 	Visual *vis;
 	if (! visual) {
 	    // use the default visual
+	    QPaintDevice::x_appdepth = DefaultDepth(appDpy,appScreen);
+	    QPaintDevice::x_appcells = DisplayCells(appDpy,appScreen);
+
 	    vis = DefaultVisual(appDpy,appScreen);
 	    QPaintDevice::x_appdefvisual = TRUE;
 	    QPaintDevice::x_appdefvisual_arr[appScreen] = TRUE;
@@ -1790,6 +1793,16 @@ void qt_init_internal( int *argcptr, char **argv,
 	} else {
 	    // use the provided visual
 	    vis = (Visual *) visual;
+
+	    // figure out the depth of the visual we are using
+	    ulong depth_bits = vis->red_mask | vis->green_mask | vis->blue_mask;
+	    QPaintDevice::x_appdepth = 0;
+	    while ( depth_bits & 1 ) {
+		++QPaintDevice::x_appdepth;
+		depth_bits >>= 1;
+	    }
+
+	    QPaintDevice::x_appcells = vis->map_entries;
 	    QPaintDevice::x_appvisual = vis;
 	    QPaintDevice::x_appdefvisual = FALSE;
 	    QPaintDevice::x_appvisual_arr[appScreen] = vis;
