@@ -37,7 +37,8 @@ public:
     QList<QResource *> children() const;
     const QResource *parent() const;
 
-    static QResource *find(const QString &path);
+    static QResource *find(const QString &resource);
+    static void addSearchPath(const QString &path);
 
 private:
     friend class QMetaResource;

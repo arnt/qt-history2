@@ -25,6 +25,7 @@ enum {
     Compressed = 0x01
 };
 static QResource *qt_resource_root = 0;
+static QStringList qt_resource_search_paths;
 
 
 /* ******************** QResource ***************** */
@@ -74,7 +75,27 @@ protected:
         delete decompressed;
         q_ptr = 0;
     }
+    static QResource *locateResource(const QString &resource);
 };
+
+QResource *QResourcePrivate::locateResource(const QString &resource)
+{
+    QResource *ret = qt_resource_root;
+    QStringList chunks = QDir::cleanPath(resource).split(QLatin1Char('/'), QString::SkipEmptyParts);
+    for(int i = 0; i < chunks.size(); i++) {
+        QResource *parent = ret;
+        ret = 0;
+        for(int subi = 0; subi < parent->d->children.size(); subi++) {
+            if(parent->d->children.at(subi)->d->name == chunks[i]) {
+                ret = parent->d->children.at(subi);
+                break;
+            }
+        }
+        if(!ret)
+            break;
+    }
+    return ret;
+}
 
 /*!
   \internal
@@ -186,37 +207,48 @@ QResource::children() const
 }
 
 /*!
-    Returns the resource located at path \a path, or 0 if no resource
-    is found. The \a path must be absolute, i.e. it \bold{must} start
-    with "/". Resources are separated from their containing resource
-    with forward slashes ('/') regardless of local file system.
+    Returns the resource located at path \a resource, or 0 if no
+    resource is found. Relative resources will be searched for through
+    the search path. Resources are separated from their containing
+    resource with forward slashes ('/') regardless of local file
+    system.
+
+    \sa QResource::addSearchPath()
 */
 QResource
-*QResource::find(const QString &path)
+*QResource::find(const QString &resource)
 {
     if(!qt_resource_root)
         return 0;
-    if(path.isEmpty() || path[0] != QLatin1Char('/')) {
-        qWarning("Invalid resource path: %s", path.latin1());
-        return 0;
+    if(resource[0] == QLatin1Char('/'))
+        return QResourcePrivate::locateResource(resource);
+    QStringList searchPaths = qt_resource_search_paths;
+    if(searchPaths.isEmpty())
+        searchPaths = QString("/");
+    for(int i = 0; i < searchPaths.count(); i++) {
+        if(QResource *ret = QResourcePrivate::locateResource(searchPaths.at(i) + "/" + resource))
+            return ret;
     }
-
-    QResource *ret = qt_resource_root;
-    QStringList chunks = QDir::cleanPath(path).split(QLatin1Char('/'), QString::SkipEmptyParts);
-    for(int i = 0; i < chunks.size(); i++) {
-        QResource *parent = ret;
-        ret = 0;
-        for(int subi = 0; subi < parent->d->children.size(); subi++) {
-            if(parent->d->children.at(subi)->d->name == chunks[i]) {
-                ret = parent->d->children.at(subi);
-                break;
-            }
-        }
-        if(!ret)
-            return 0;
-    }
-    return ret;
+    return 0;
 }
+
+/*!
+  Adds \a path to the search paths searched in to find resources that
+  are not specified with an absolute path. The default search path is
+  to search only in the root ('/').
+
+  \sa QResource::find()
+*/
+void
+QResource::addSearchPath(const QString &path)
+{
+    if(path[0] != QLatin1Char('/')) {
+        qWarning("QResource::addSearchPath: Search paths must be absolute (start with /) [%s]", path.latin1());
+        return;
+    }
+    qt_resource_search_paths.append(path);
+}
+
 
 /* ******************** QMetaResource ***************** */
 // ### DOC: A class is \internal or public; it can't be "sort of" both.
