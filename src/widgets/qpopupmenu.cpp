@@ -439,16 +439,17 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    x = mouse.x();
 	if ( y < sy )
 	    y = sh - h;
-    } else {
-	if ( x+w > sw )				// the complete widget must
-	    x = sw - w;				//   be visible
-	if ( y+h > sh )
-	    y = sh - h;
-	if ( x < sx )
-	    x = sx;
-	if ( y < sy )
-	    y = sy;
     }
+
+    if ( x+w > sw )				// the complete widget must
+	x = sw - w;				//   be visible
+    if ( y+h > sh )
+	y = sh - h;
+    if ( x < sx )
+	x = sx;
+    if ( y < sy )
+	y = sy;
+
     move( x, y );
     motion=0;
     actItem = -1;
