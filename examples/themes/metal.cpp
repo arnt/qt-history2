@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/metal.cpp#4 $
+** $Id: //depot/qt/main/examples/themes/metal.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -131,7 +131,7 @@ void MetalStyle::polish( QApplication *app)
 		     QBrush(backCol, background)
 		     );
     active.setColor( QColorGroup::ButtonText,  Qt::white  );
-   
+
     QPalette newPalette( nor, disabled, active );
     app->setPalette( newPalette, TRUE );
 }
@@ -158,7 +158,7 @@ void MetalStyle::polish( QWidget* w)
     // the polish function will set some widgets to transparent mode,
     // to get the full benefit from the nice pixmaps in the color
     // group.
-    
+
 
     if (w->inherits("QPushButton")){
 	w->setBackgroundMode( QWidget::NoBackground );
@@ -204,7 +204,7 @@ void MetalStyle::unPolish( QWidget* w)
 	w->setBackgroundMode( QWidget::PaletteButton );
 	return;
     }
-    
+
     return; // we don't need this thanks to the fancy stone pixmap
 
     if (w->inherits("QTipLabel")){
@@ -255,7 +255,7 @@ void MetalStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     QColorGroup g2;
     g2.setColor( QColorGroup::Light,  white  );
     g2.setColor( QColorGroup::Dark,  black  );
-    qDrawShadePanel( p, x, y, w, h, g2, sunken, sunken?3:1);
+    qDrawShadePanel( p, x, y, w, h, g2, sunken, sunken?2:1);
 	
 
 //    static QPixmap* darkpixmap = 0;
