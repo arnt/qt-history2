@@ -30,7 +30,12 @@ int QFontMetrics::lineWidth() const
 }
 
 #undef FI
+#if 1
 #define FI (painter ? painter->cfont.d->fin->info : fin->info)
+#else
+#define FI foo()
+FontInfo foo() { FontInfo bar; GetFontInfo(&bar); return bar; }
+#endif
 
 int QFontMetrics::leading() const
 {
