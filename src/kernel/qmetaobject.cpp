@@ -444,7 +444,7 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
  */
 int QMetaObject::numClassInfo( bool super ) const
 {
-    return d->numClassInfo + (super && superclass)?superclass->numClassInfo(super):0;
+    return d->numClassInfo + ((super && superclass)?superclass->numClassInfo(super):0);
 }
 
 /*!
