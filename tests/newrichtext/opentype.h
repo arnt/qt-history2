@@ -2,7 +2,7 @@
 #define OPENTYPEIFACE_H
 
 #include <freetype/freetype.h>
-#include "opentype/ftxopen.h"
+#include "ftxopen.h"
 
 class QScriptItem;
 

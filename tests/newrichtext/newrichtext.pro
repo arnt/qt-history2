@@ -14,8 +14,6 @@ HEADERS += qfont.h \
            qtextlayout.h \
            scriptengine.h \
 	   opentype.h \
-	opentype/fterrcompat.h  opentype/ftxgpos.h  opentype/ftxopen.h \
-	opentype/ftxgdef.h      opentype/ftxgsub.h  opentype/ftxopenf.h \
 	editwidget.h
 
 SOURCES += qfont.cpp \
@@ -32,10 +30,11 @@ SOURCES += qfont.cpp \
            scriptenginebengali.cpp \
            scriptenginetamil.cpp \
 	   opentype.cpp \
-	opentype/ftxgdef.c  opentype/ftxgpos.c  opentype/ftxgsub.c  opentype/ftxopen.c \
            test.cpp editwidget.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared-mt
 MOC_DIR=.moc/debug-shared-mt
 
 DEFINES += NEW_FONT
+
+INCLUDEPATH += ../../src/3rdparty/opentype
