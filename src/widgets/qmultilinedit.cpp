@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#111 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1879,6 +1879,7 @@ void QMultiLineEdit::clear()
     while ( contents->remove() )
 	;
     cursorX = cursorY = 0;
+    setCellWidth( 1 );
     insertLine( "", -1 );
     dummy = TRUE;
     markIsOn = FALSE;
@@ -2143,8 +2144,8 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
 void QMultiLineEdit::setFixedVisibleLines( int lines )
 {
     //##################### should use sizeHint instead!!!!!!!!!
-    
-    
+
+
     // #### What about auto-scrollbars?
     int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
     setFixedHeight( frameWidth()*2 + ls*lines );
@@ -2195,9 +2196,9 @@ QSize QMultiLineEdit::sizeHint() const
     int h = fm.height()*6;
     int w = fm.width( "This should be about 30-40 chars." );
 
-    int maxh = maximumSize().height();    
+    int maxh = maximumSize().height();
     if ( maxh < QLayout::unlimited )
 	h = maxh;
-    
+
     return QSize( w, h );
 }
