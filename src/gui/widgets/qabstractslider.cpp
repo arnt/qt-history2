@@ -448,9 +448,12 @@ of \a repeatTime, after an initial delay of \a thresholdTime.
  */
 void QAbstractSlider::setRepeatAction(SliderAction action, int thresholdTime, int repeatTime)
 {
-    d->repeatAction = action;
-    d->repeatActionTime = repeatTime;
-    d->repeatActionTimer.start(thresholdTime, this);
+    if ((d->repeatAction = action) == SliderNoAction) {
+	d->repeatActionTimer.stop();
+    } else {
+	d->repeatActionTime = repeatTime;
+	d->repeatActionTimer.start(thresholdTime, this);
+    }
 }
 
 /*!
@@ -505,7 +508,7 @@ void QAbstractSlider::wheelEvent( QWheelEvent * e )
     if ((e->state() & ControlButton) || (e->state() & ShiftButton))
 	step = d->pageStep;
     offset += -e->delta()*step/120;
-    
+
     if (QABS(offset)<1)
 	return;
     setValue(d->value + int(offset));
