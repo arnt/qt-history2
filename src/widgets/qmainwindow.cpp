@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#86 $
 **
 ** Implementation of QMainWindow class
 **
@@ -91,6 +91,9 @@
   The current release of QMainWindow does not provide draggable
   toolbars.  This feature is planned for inclusion in one of the next
   releases.
+  
+  For multidocument interfaces (MDI), use a QWorkspace as central
+  widget.
 
   <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
 
