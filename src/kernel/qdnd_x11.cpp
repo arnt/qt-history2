@@ -110,7 +110,7 @@ Atom qt_xdnd_leave;
 Atom qt_xdnd_drop;
 Atom qt_xdnd_finished;
 Atom qt_xdnd_type_list;
-int qt_xdnd_version = 4;
+const int qt_xdnd_version = 4;
 
 // Actions
 //
@@ -198,10 +198,10 @@ static int qt_xdnd_current_screen = -1;
 bool qt_xdnd_dragging = FALSE;
 
 // dict of payload data, sorted by type atom
-QIntDict<QByteArray> * qt_xdnd_target_data = 0;
+static QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 
 // first drag object, or 0
-QDragObject * qt_xdnd_source_object = 0;
+static QDragObject * qt_xdnd_source_object = 0;
 
 // Motif dnd
 extern void qt_motifdnd_enable( QWidget *, bool );
@@ -267,7 +267,7 @@ public:
     }
 };
 
-QShapedPixmapWidget * qt_xdnd_deco = 0;
+static QShapedPixmapWidget * qt_xdnd_deco = 0;
 
 static QWidget* desktop_proxy = 0;
 
