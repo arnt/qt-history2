@@ -50,12 +50,12 @@ int main(int argc, char * argv[])
     QByteArray pchFile;
     QCoreApplication app(argc, argv);
 
-    QString keybase(QLatin1String("/Qt Designer/") 
-        + QString::number((QT_VERSION >> 16) & 0xff) 
-        + QLatin1String(".") 
-        + QString::number((QT_VERSION >> 8) & 0xff) 
+    QString keybase(QLatin1String("/Qt Designer/")
+        + QString::number((QT_VERSION >> 16) & 0xff)
+        + QLatin1String(".")
+        + QString::number((QT_VERSION >> 8) & 0xff)
         + QLatin1String("/"));
-        
+
     QSettings config;
     config.insertSearchPath(QSettings::Windows, QLatin1String("/Trolltech"));
     QStringList pluginPaths = config.readListEntry(keybase + QLatin1String("PluginPaths"));
@@ -222,7 +222,7 @@ int main(int argc, char * argv[])
     }
 
     if (imagecollection_tmpfile) {
-        QFile ifile(QString::fromUtf8(image_tmpfile));
+        QFile ifile(QFile::decodeName(image_tmpfile));
         if (ifile.open(IO_ReadOnly)) {
             QTextStream ts(&ifile);
             QString s = ts.read();
@@ -235,7 +235,7 @@ int main(int argc, char * argv[])
 
     QFile fileOut;
     if (!outputFile.isEmpty()) {
-        fileOut.setFileName(QString::fromUtf8(outputFile));
+        fileOut.setFileName(QFile::decodeName(outputFile));
         if (!fileOut.open(IO_WriteOnly)) {
             fprintf(stderr, "%s: Could not open output file '%s'\n", argv[0], outputFile.data());
             return 1;
@@ -256,7 +256,7 @@ int main(int argc, char * argv[])
 
     out.setEncoding(QTextStream::UnicodeUTF8);
 
-    QFile file(QString::fromUtf8(fileName));
+    QFile file(QFile::decodeName(fileName));
     if (!file.open(IO_ReadOnly)) {
         fprintf(stderr, "%s: Could not open file '%s'\n", argv[0], fileName);
         return 1;
@@ -293,13 +293,13 @@ int main(int argc, char * argv[])
     }
 
     if (convert) {
-        ui3.generateUi4(QString::fromUtf8(fileName), QString::fromUtf8(outputFile), doc);
+        ui3.generateUi4(QFile::decodeName(fileName), QFile::decodeName(outputFile), doc);
         return 0;
     }
 
     QString protector;
     if (subcl && className && !impl)
-        protector = QString::fromLocal8Bit(className).toUpper() + QLatin1String("_H");
+        protector = QString::fromUtf8(className).toUpper() + QLatin1String("_H");
 
     if (!protector.isEmpty()) {
         out << "#ifndef " << protector << endl;
@@ -316,16 +316,16 @@ int main(int argc, char * argv[])
 
     QString uiData;
     if (uiHeaderFile)
-        uiData = QString::fromUtf8(uiHeaderFile);
+        uiData = QFile::decodeName(uiHeaderFile);
 
-    ui3.generate(uiData, 
-        QString::fromLocal8Bit(fileName), 
-        QString::fromLocal8Bit(outputFile), 
-        doc, 
-        !impl, 
-        subcl, 
-        QString::fromLocal8Bit(trmacro), 
-        QString::fromLocal8Bit(className), 
+    ui3.generate(uiData,
+        QFile::decodeName(fileName),
+        QFile::decodeName(outputFile),
+        doc,
+        !impl,
+        subcl,
+        QString::fromUtf8(trmacro),
+        QString::fromUtf8(className),
         nofwd);
 
     if (!protector.isEmpty()) {

@@ -324,13 +324,13 @@ void WriteInitialization::accept(DomSpacer *node)
     QHash<QString, DomProperty *> properties = propertyMap(node->elementProperty());
     QString varName = driver->findOrInsertSpacer(node);
 
-    DomSize *sizeHint = properties.contains(QLatin1String("sizeHint")) 
+    DomSize *sizeHint = properties.contains(QLatin1String("sizeHint"))
         ? properties.value(QLatin1String("sizeHint"))->elementSize() : 0;
-        
-    QString sizeType = properties.contains(QLatin1String("sizeType")) 
+
+    QString sizeType = properties.contains(QLatin1String("sizeType"))
         ? properties.value(QLatin1String("sizeType"))->elementEnum() : QLatin1String("Expanding");
-        
-    bool isVspacer = properties.contains(QLatin1String("orientation")) 
+
+    bool isVspacer = properties.contains(QLatin1String("orientation"))
         ? properties.value(QLatin1String("orientation"))->elementEnum().toLower() == QLatin1String("vertical") : false;
 
     output << option.indent << varName << " = new QSpacerItem(";
@@ -979,10 +979,14 @@ QString WriteInitialization::pixCall(const QString &pix) const
         if (uic->hasExternalPixmap() || !declaredPix)
             s = QLatin1String("\"") + s + QLatin1String("\"");
 
-        if (uic->pixmapFunction().size())
-            s = uic->pixmapFunction() + QLatin1String("(") + s + QLatin1String(")");
+        QString pixFunc = uic->pixmapFunction();
+        if (pixFunc.isEmpty())
+            pixFunc = QLatin1String("QString::fromUtf8");
 
-        return QString::fromLatin1("QPixmap(%1)").arg(s);
+        s = pixFunc + QLatin1String("(") + s + QLatin1String(")");
+        s = QLatin1String("QPixmap(") + s + QLatin1String(")");
+
+        return s;
     }
 
     return QLatin1String("icon(") + s + QLatin1String("_ID)");

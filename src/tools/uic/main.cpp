@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
                 showHelp(argv[0]);
                 return 1;
             }
-            driver.option().outputFile = QString::fromUtf8(argv[arg]);
+            driver.option().outputFile = QFile::decodeName(argv[arg]);
         } else if (opt == QLatin1String("-p") || opt == QLatin1String("-no-protection")) {
             driver.option().headerProtection = false;
         } else if (opt == QLatin1String("-tr") || opt == QLatin1String("-translate")) {
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
             }
             driver.option().translateFunction = QLatin1String(argv[arg]);
         } else if (!fileName) {
-            fileName = argv[arg];
+            fileName = QFile::decodeName(argv[arg]);
         } else {
             showHelp(argv[0]);
             return 1;
