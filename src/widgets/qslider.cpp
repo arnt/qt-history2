@@ -375,8 +375,12 @@ void QSlider::paintEvent( QPaintEvent * )
     if (hasFocus())
 	flags |= QStyle::Style_HasFocus;
 
+    QStyle::SCFlags sub = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
+    if ( tickmarks() != NoMarks )
+	sub |= QStyle::SC_SliderTickmarks;
+
     style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(), colorGroup(),
-				flags, QStyle::SC_All, state == Dragging ? QStyle::SC_SliderHandle : QStyle::SC_None );
+				flags, sub, state == Dragging ? QStyle::SC_SliderHandle : QStyle::SC_None );
 }
 
 
