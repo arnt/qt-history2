@@ -49,6 +49,7 @@
 
 class QUrlOperatorPrivate
 {
+public:
     QUrlOperatorPrivate()
     {
 	oldOps.setAutoDelete( FALSE );
