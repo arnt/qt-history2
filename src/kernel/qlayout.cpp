@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#126 $
 **
 ** Implementation of layout classes
 **
@@ -105,6 +105,10 @@ public:
 	{ setSize( QMAX(rows,rr), QMAX(cols,cc) ); }
     void setRowStretch( int r, int s ) { expand(r+1,0); rowData[r].stretch=s; }
     void setColStretch( int c, int s ) { expand(0,c+1); colData[c].stretch=s; }
+    int rowStretch( int r ) const { return rowData[r].stretch; }
+    int colStretch( int c ) const { return colData[c].stretch; }
+
+
 
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
@@ -1187,6 +1191,8 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
   The default stretch factor is 0.
   If the stretch factor is 0 and no other row in this table can
   grow at all, the row may still grow.
+
+  \sa rowStretch(), addRowSpacing(), setColStretch()
 */
 
 void QGridLayout::setRowStretch( int row, int stretch )
@@ -1194,6 +1200,27 @@ void QGridLayout::setRowStretch( int row, int stretch )
     array->setRowStretch( row, stretch );
 }
 
+
+/*!
+  Returns the stretch factor for row \a row.
+  \sa setRowStretch()
+*/
+
+int QGridLayout::rowStretch( int row ) const
+{
+    return array->rowStretch( row );
+}
+
+
+/*!
+  Returns the stretch factor for column \a col.
+  \sa setColStretch()
+*/
+
+int QGridLayout::colStretch( int col ) const
+{
+    return array->colStretch( col );
+}
 
 /*!
   Sets the stretch factor of column \a col to \a stretch.
@@ -1205,6 +1232,8 @@ void QGridLayout::setRowStretch( int row, int stretch )
   The default stretch factor is 0.
   If the stretch factor is 0 and no other column in this table can
   grow at all, the column may still grow.
+
+  \sa colStretch(), addColSpacing(), setRowStretch()
 */
 
 void QGridLayout::setColStretch( int col, int stretch )
@@ -1445,6 +1474,10 @@ QLayoutIterator QGridLayout::iterator()
 
   See also the <a href="layout.html">Layout Overview</a> documentation.
 */
+
+
+
+
 
 static inline bool horz( QBoxLayout::Direction dir )
 {
@@ -1792,6 +1825,22 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 }
 
 
+/*! \enum QBoxLayout::Direction
+  
+  This type is used to determine the direction of
+  a box layout. The possible values are:
+
+  <ul>
+  <li>\c LeftToRight - Horizontal, from left to right
+  <li>\c RightToLeft - Horizontal, from right to left
+  <li>\c TopToBottom - Vertical, from top to bottom
+  <li>\c Down - An alias for \c TopToBottom
+  <li>\c BottomToTop - Vertical, from bottom to top
+  <li>\c Up - An alias for \c BottomToTop
+  </ul>   
+ */
+
+
 /*!
   \fn QBoxLayout::Direction QBoxLayout::direction() const
 
@@ -2058,3 +2107,5 @@ bool QVBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 }
 
 #endif // QT_BUILDER
+
+

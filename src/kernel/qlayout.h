@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#46 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#47 $
 **
 ** Definition of layout classes
 **
@@ -52,7 +52,9 @@ public:
 
     virtual void setRowStretch( int row, int stretch );
     virtual void setColStretch( int col, int stretch );
-
+    int rowStretch( int row ) const;
+    int colStretch( int col ) const;
+    
     int numRows() const;
     int numCols() const;
 
