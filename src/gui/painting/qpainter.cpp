@@ -4834,7 +4834,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     if (tf & Qt::AlignBottom)
         yoff = r.height() - height;
     else if (tf & Qt::AlignVCenter)
-        yoff = (r.height() - height)/2;
+        yoff = r.height()/2 - (height+1)/2 - fm.leading(); // ### the -fm.leading() is truly evil, but without we draw EVERY vertically centered text too low.
     if (tf & Qt::AlignRight)
         xoff = r.width() - width;
     else if (tf & Qt::AlignHCenter)

@@ -1057,16 +1057,13 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             break; }
 
     case CE_MenuBarItem:
-        if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            if (opt->state & State_Selected)  // active item
-                qDrawShadePanel(p, opt->rect, opt->palette, false, motifItemFrame,
-                                &opt->palette.brush(QPalette::Button));
-            else  // other item
-                p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
-            QStyleOptionMenuItem newMbi = *mbi;
-            newMbi.rect.addCoords(0, -motifItemFrame, 0, 0);
-            QCommonStyle::drawControl(element, &newMbi, p, widget);
-        } break;
+        if (opt->state & State_Selected)  // active item
+            qDrawShadePanel(p, opt->rect, opt->palette, false, motifItemFrame,
+                            &opt->palette.brush(QPalette::Button));
+        else  // other item
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+        QCommonStyle::drawControl(element, opt, p, widget);
+        break;
 
     case CE_HeaderSection: {
         QBrush fill;
@@ -1688,7 +1685,7 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             sz = QCommonStyle::sizeFromContents(ct, opt, contentsSize, widget);
             if (!btn->text.isEmpty() && (btn->features & (QStyleOptionButton::AutoDefaultButton|QStyleOptionButton::DefaultButton)))
-                sz.setWidth(qMax(80, sz.width()));
+                sz.setWidth(qMax(75, sz.width()));
             sz += QSize(0, 1); // magical extra pixel
         }
         break;

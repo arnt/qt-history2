@@ -1697,7 +1697,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setBrushOrigin(p->brushOrigin() - QPoint(1, 1));
                 }
             }
-            newMbi.rect.addCoords(0, -1, 0, 0);
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
@@ -2465,8 +2464,8 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             int defwidth = 0;
             if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 defwidth = 2 * pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
-            if (w < 80 + defwidth && btn->icon.isNull())
-                w = 80 + defwidth;
+            if (w < 75 + defwidth && btn->icon.isNull())
+                w = 75 + defwidth;
             if (h < 23 + defwidth)
                 h = 23 + defwidth;
             sz = QSize(w, h);
