@@ -1,17 +1,38 @@
 
 /****************************************************************************
+** $Id$
 **
-** Implementation of QLocale class.
+** Implementation of the QLocale class
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include <sys/types.h>
 #include <ctype.h>
@@ -37,12 +58,40 @@
 #   undef INFINITY
 #endif
 
+#if defined (Q_CC_MIPS)
+#   define isinf(d) (!finite(d) && !isnan(d))
+#endif
+
+#if defined (Q_OS_SOLARIS)
+#   include <ieeefp.h>
+#   define isinf(d) (!finite(d) && !isnan(d))
+#endif
+
+enum {
+    LittleEndian,
+    BigEndian
+
+#ifdef Q_BYTE_ORDER
+#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
+    , ByteOrder = BigEndian
+#  elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+    , ByteOrder = LittleEndian
+#  else
+#    error "undefined byte order"
+#  endif
+};
+#else
+};
+static const unsigned int one = 1;
+static const bool ByteOrder = ((*((unsigned char *) &one) == 0) ? BigEndian : LittleEndian);
+#endif
+
 #if !defined(INFINITY)
 static const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
 static const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
 static inline double inf()
 {
-    return (QSysInfo::ByteOrder == QSysInfo::BigEndian ?
+    return (ByteOrder == BigEndian ?
 	    *((const double *) be_inf_bytes) :
 	    *((const double *) le_inf_bytes));
 }
@@ -54,7 +103,7 @@ static const unsigned char be_nan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
 static const unsigned char le_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
 static inline double nan()
 {
-    return (QSysInfo::ByteOrder == QSysInfo::BigEndian ?
+    return (ByteOrder == BigEndian ?
 	    *((const double *) be_nan_bytes) :
 	    *((const double *) le_nan_bytes));
 }
@@ -2595,7 +2644,7 @@ static char digitToCLocale(QChar zero, QChar d)
 	return '0' + d.unicode() - zero.unicode();
 
     qWarning("QLocalePrivate::digitToCLocale(): bad digit: row=%d, cell=%d", d.row(), d.cell());
-    return 0;
+    return QChar(0);
 }
 
 static QString qulltoa(Q_ULLONG l, int base, const QLocalePrivate &locale)
@@ -2652,7 +2701,7 @@ static QString &decimalForm(QString &digits, int decpt, uint precision,
     	    digits.prepend(locale.zero());
     	decpt = 0;
     }
-    else if (decpt > digits.length()) {
+    else if ((uint)decpt > digits.length()) {
     	for (uint i = digits.length(); i < (uint)decpt; ++i)
 	    digits.append(locale.zero());
     }
@@ -2669,7 +2718,7 @@ static QString &decimalForm(QString &digits, int decpt, uint precision,
     else { // pm == PMChopTrailingZeros
     }
 
-    if (always_show_decpt || decpt < digits.length())
+    if (always_show_decpt || (uint)decpt < digits.length())
     	digits.insert(decpt, locale.decimal());
 
     if (thousands_group) {
@@ -2761,8 +2810,8 @@ QString QLocalePrivate::doubleToString(double d,
 	QString digits = qdtoa(d, mode, pr, &decpt, &sign, &rve, &buff);
 
     	if (zero().unicode() != '0') {
-	    for (int i = 0; i < digits.length(); ++i)
-	    	digits[i] = digits.at(i).unicode() + zero().unicode() - '0';
+	    for (uint i = 0; i < digits.length(); ++i)
+	    	digits.ref(i).unicode() += zero().unicode() - '0';
 	}
 
 	if (buff != 0)
@@ -2824,7 +2873,7 @@ QString QLocalePrivate::doubleToString(double d,
     	num_str.prepend(' ');
 
     if (flags & QLocalePrivate::CapitalEorX)
-    	num_str = num_str.toUpper();
+    	num_str = num_str.upper();
 
     return num_str;
 }
@@ -2909,7 +2958,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     	num_str.prepend(' ');
 
     if (flags & CapitalEorX)
-    	num_str = num_str.toUpper();
+    	num_str = num_str.upper();
 
     return num_str;
 }
@@ -2968,14 +3017,14 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
     	num_str.prepend("0x");
 
     if (flags & CapitalEorX)
-    	num_str = num_str.toUpper();
+    	num_str = num_str.upper();
 
     return num_str;
 }
 
-static bool compareSubstr(const QString &s1, int idx, const QString &s2)
+static bool compareSubstr(const QString &s1, uint idx, const QString &s2)
 {
-    int i = 0;
+    uint i = 0;
     for (; i + idx < s1.length() && i < s2.length(); ++i) {
         if (s1.unicode()[i + idx] != s2.unicode()[i])
             return false;
@@ -2991,7 +3040,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
     if (languageId() == QLocale::C)
 	return l_num;
 
-    int idx = 0;
+    uint idx = 0;
 
     // skip leading white space
     while (idx < l_num.length() && l_num.unicode()[idx].isSpace())
@@ -3003,19 +3052,20 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += nan().length();
 	    break;
 	}
-	else if (compareSubstr(l_num, idx, nan().toUpper())) {
-	    for (int i = idx; i < idx + nan().length(); ++i)
-	    	l_num[i] = l_num.unicode()[i].toLower();
+	else if (compareSubstr(l_num, idx, nan().upper())) {
+	    for (uint i = idx; i < idx + nan().length(); ++i)
+	    	l_num.ref(i) = l_num.unicode()[i].lower();
 	    idx += nan().length();
 	    break;
 	}
+	QChar &c = l_num.ref(idx);
 
-	if (l_num.at(idx) == plus()) {
-    	    l_num[idx] = QChar('+');
+	if (c == plus()) {
+    	    c.unicode() = '+';
     	    ++idx;
     	}
-	else if (l_num.at(idx) == minus()) {
-            l_num[idx] = QChar('-');
+	else if (c == minus()) {
+            c.unicode() = '-';
     	    ++idx;
 	}
 
@@ -3023,15 +3073,15 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += infinity().length();
 	    break;
 	}
-	else if (compareSubstr(l_num, idx, infinity().toUpper())) {
-	    for (int i = idx; i < idx + infinity().length(); ++i)
-	    	l_num[i] = l_num.unicode()[i].toLower();
+	else if (compareSubstr(l_num, idx, infinity().upper())) {
+	    for (uint i = idx; i < idx + infinity().length(); ++i)
+	    	l_num.ref(i) = l_num.unicode()[i].lower();
 	    idx += infinity().length();
 	    break;
 	}
 
 	while (idx < l_num.length()) {
-            QChar c = l_num.at(idx);
+            QChar &c = l_num.ref(idx);
 
             if (isDigit(c))
 		c = digitToCLocale(zero(), c);
@@ -3043,7 +3093,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
         	c = '.';
             else if (c == group())
 	    	c = ',';
-	    else if (c == exponential() || c == exponential().toUpper())
+	    else if (c == exponential() || c == exponential().upper())
     		c = 'e';
             else if (c.unicode() == 'x' || c.unicode() == 'X') // hex number
 		c = 'x';
@@ -3053,7 +3103,6 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 		c = '%';
 	    else
 		break;
-	    l_num[idx] = c;
 
 	    ++idx;
 	}
@@ -3105,7 +3154,7 @@ double QLocalePrivate::stringToDouble(QString num,
 Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
                                     bool *ok) const
 {
-    num = num.trimmed();
+    num = num.stripWhiteSpace();
     if (num.isEmpty()) {
 	if (ok != 0)
             *ok = false;
@@ -3133,7 +3182,7 @@ Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
 Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString num, int base,
                                     bool *ok) const
 {
-    num = num.trimmed();
+    num = num.stripWhiteSpace();
     if (num.isEmpty()) {
 	if (ok != 0)
             *ok = false;
@@ -3472,8 +3521,8 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 
 #if defined(__m68k__)    || defined(__sparc__) || defined(__i386__) || \
      defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
-     defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || \
-     defined(mips) || defined(Q_OS_AIX)
+     defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || defined(Q_OS_MACX) || \
+     defined(mips) || defined(Q_OS_AIX) || defined(Q_OS_SOLARIS)
 #   	define IEEE_BIG_OR_LITTLE_ENDIAN 1
 #endif
 
@@ -3512,8 +3561,9 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #endif
 
 
-#define word0(x) ((volatile ULong *)&x)[QSysInfo::ByteOrder == QSysInfo::BigEndian ? 0 : 1]
-#define word1(x) ((volatile ULong *)&x)[QSysInfo::ByteOrder == QSysInfo::BigEndian ? 1 : 0]
+#define word0(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 0 : 1]
+#define word1(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 1 : 0]
+
 
 /* The following definition of Storeinc is appropriate for MIPS processors.
  * An alternative that might be better on some machines is
@@ -3545,7 +3595,7 @@ static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 #   	define USE_IEEE 0
 #   endif
 
-    if (QSysInfo::ByteOrder == QSysInfo::LittleEndian && USE_IEEE || USE_LITTLE_ENDIAN) {
+    if (ByteOrder == LittleEndian && USE_IEEE || USE_LITTLE_ENDIAN) {
 	((unsigned short *)a)[1] = (unsigned short)b;
 	((unsigned short *)a)[0] = (unsigned short)c;
     } else {
@@ -5107,6 +5157,10 @@ static int quorem(Bigint *b, Bigint *S)
  *	   calculation.
  */
 
+
+/* This actually sometimes returns a pointer to a string literal
+   cast to a char*. Do NOT try to modify the return value. */
+
 static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
     /*
@@ -5196,7 +5250,7 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
     if (d == g_double_zero)
 	{
 	    *decpt = 1;
-	    s = "0";
+	    s = (char*) "0";
 	    if (rve)
 		*rve = s + 1;
 	    return s;

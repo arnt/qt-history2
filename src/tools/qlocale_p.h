@@ -37,7 +37,7 @@ public:
     const QChar &list() const { return (QChar&)m_list; }
     const QChar &percent() const { return (QChar&)m_percent; }
     const QChar &zero() const { return (QChar&)m_zero; }
-    const QChar plus() const { return QChar('+'); }
+    QChar plus() const { return QChar('+'); }
     const QChar &minus() const { return (QChar&)m_minus; }
     const QChar &exponential() const { return (QChar&)m_exponential; }
     QString infinity() const;
