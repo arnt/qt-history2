@@ -807,8 +807,8 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    const QToolBox *tb = (const QToolBox*)widget;
 
-	    if ( flags & Style_Selected && tb->currentItem() )
-		p->setBrush( tb->currentItem()->paletteBackgroundColor() );
+	    if ( flags & Style_Selected && tb->item(tb->currentIndex()) )
+		p->setBrush( tb->item(tb->currentIndex())->paletteBackgroundColor() );
 	    else
 		p->setBrush( pal.background() );
 
@@ -1232,17 +1232,14 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    }
 	    QRect cr = subRect(SR_CheckBoxContents, widget);
 
-	    // don't create a painter if we have an active one
-	    QPainter *p = 0;
-	    if (! activePainter)
-		p = new QPainter(checkbox);
-	    rect = itemRect((activePainter ? activePainter : p),
-			    cr, AlignLeft | AlignVCenter | ShowPrefix,
-			    checkbox->isEnabled(),
-			    checkbox->pixmap(),
-			    checkbox->text());
+	    if(checkbox->pixmap()) {
+		rect = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix, *checkbox->pixmap());
+	    } else {
+		QFontMetrics fm = widget->fontMetrics();
+		rect = itemRect(fm, cr, AlignLeft | AlignVCenter | ShowPrefix,
+				checkbox->isEnabled(), checkbox->text());
+	    }
 
-	    delete p;
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
@@ -1277,16 +1274,14 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    }
 	    QRect cr = subRect(SR_RadioButtonContents, widget);
 
-	    // don't create a painter if we have an active one
-	    QPainter *p = 0;
-	    if (! activePainter)
-		p = new QPainter(radiobutton);
-	    rect = itemRect((activePainter ? activePainter : p),
-			    cr, AlignLeft | AlignVCenter | ShowPrefix,
-			    radiobutton->isEnabled(),
-			    radiobutton->pixmap(),
-			    radiobutton->text());
-	    delete p;
+	    if(radiobutton->pixmap()) {
+		rect = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix, *radiobutton->pixmap());
+	    } else {
+		QFontMetrics fm = widget->fontMetrics();
+		rect = itemRect(fm, cr, AlignLeft | AlignVCenter | ShowPrefix,
+				radiobutton->isEnabled(),
+				radiobutton->text());
+	    }
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
