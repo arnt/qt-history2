@@ -3245,18 +3245,6 @@ QByteArray QByteArray::toBase64() const
     \sa toUShort()
 */
 
-/*! \fn QByteArray &QByteArray::setNum(long n, int base)
-    \overload
-
-    \sa toLong()
-*/
-
-/*! \fn QByteArray &QByteArray::setNum(ulong n, int base)
-    \overload
-
-    \sa toULong()
-*/
-
 /*!
     \overload
 

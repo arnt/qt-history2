@@ -3501,12 +3501,12 @@ QString QString::trimmed() const
     Same as at(\a i).
 */
 
-/*! \fn QCharRef QString::operator[](int i)
+/*! \fn QCharRef QString::operator[](uint i)
 
     \overload
 */
 
-/*! \fn const QChar QString::operator[](int i) const
+/*! \fn const QChar QString::operator[](uint i) const
 
     \overload
 */

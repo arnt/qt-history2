@@ -403,6 +403,16 @@ void QMapData::dump()
 
     This function is only available if Qt is configured with STL
     compabitility enabled.
+
+    \sa toStdMap()
+*/
+
+/*! \fn std::map<Key, T> QMap::toStdMap() const
+
+    Returns an STL map equivalent to this QMap.
+
+    This function is only available if Qt is configured with STL
+    compabitility enabled.
 */
 
 /*! \fn QMap::~QMap()
