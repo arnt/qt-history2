@@ -1370,23 +1370,22 @@ void QWidget::repaint(const QRegion &r)
 	else
 	    p.fillRect(rr, bg.color());
 
-	if (!parents)
-	    return;
-
-	w = parents.pop();
-	QRegion prgn = rgn;
-	prgn.translate(offset);
-	for (;;) {
-	    if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-		qt_set_paintevent_clipping(w, prgn, q);
-		QPaintEvent e(prgn);
-		QApplication::sendEvent(w, &e);
-		qt_clear_paintevent_clipping(w);
-	    }
-	    if (!parents)
-		break;
+	if (!!parents) {
 	    w = parents.pop();
-	    prgn.translate(-w->pos());
+	    QRegion prgn = rgn;
+	    prgn.translate(offset);
+	    for (;;) {
+		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+		    qt_set_paintevent_clipping(w, prgn, q);
+		    QPaintEvent e(prgn);
+		    QApplication::sendEvent(w, &e);
+		    qt_clear_paintevent_clipping(w);
+		}
+		if (!parents)
+		    break;
+		w = parents.pop();
+		prgn.translate(-w->pos());
+	    }
 	}
     }
     QPaintEvent e(rgn);
