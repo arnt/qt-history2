@@ -219,7 +219,6 @@ private:
     void	reinit();
     void	freeBits();
     static void	warningIndexRange( const char *, int );
-    QSize	scaleSize( const QSize &s, ScaleMode mode ) const;
 
     struct QImageData : public QShared {	// internal image data
 	int	w;				// image width
@@ -291,7 +290,7 @@ public:
     void	setDescription( const QString & );
     void	setParameters( const char * );
     void	setGamma( float );
-	
+
     bool	read();
     bool	write();
 

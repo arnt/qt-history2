@@ -39,25 +39,35 @@
 #define QSIZE_H
 
 #ifndef QT_H
-#include "qpoint.h" // ### change to windowdefs.h?
+#include "qpoint.h" // ### change to qwindowdefs.h?
 #endif // QT_H
 
-
 class Q_EXPORT QSize
+// ### Make QSize inherit Qt in Qt 4.0
 {
 public:
+    // ### Move this enum to qnamespace.h in Qt 4.0
+    enum ScaleMode {
+	ScaleFree,
+	ScaleMin,
+	ScaleMax
+    };
+
     QSize();
     QSize( int w, int h );
 
-    bool   isNull()	const;
-    bool   isEmpty()	const;
-    bool   isValid()	const;
+    bool isNull() const;
+    bool isEmpty() const;
+    bool isValid() const;
 
-    int	   width()	const;
-    int	   height()	const;
-    void   setWidth( int w );
-    void   setHeight( int h );
-    void   transpose();
+    int width() const;
+    int height() const;
+    void setWidth( int w );
+    void setHeight( int h );
+    void transpose();
+
+    void scale( int w, int h, ScaleMode mode );
+    void scale( const QSize &s, ScaleMode mode );
 
     QSize expandedTo( const QSize & ) const;
     QSize boundedTo( const QSize & ) const;
@@ -72,8 +82,8 @@ public:
     QSize &operator/=( int c );
     QSize &operator/=( double c );
 
-    friend inline bool	operator==( const QSize &, const QSize & );
-    friend inline bool	operator!=( const QSize &, const QSize & );
+    friend inline bool operator==( const QSize &, const QSize & );
+    friend inline bool operator!=( const QSize &, const QSize & );
     friend inline const QSize operator+( const QSize &, const QSize & );
     friend inline const QSize operator-( const QSize &, const QSize & );
     friend inline const QSize operator*( const QSize &, int );

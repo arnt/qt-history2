@@ -67,7 +67,7 @@
 
 
 /*!
-    \class QImage qimage.h
+    \class QImage
     \brief The QImage class provides a hardware-independent pixmap
     representation with direct access to the pixel data.
 
@@ -112,7 +112,7 @@
     if ( image.bitOrder() == QImage::LittleEndian )
 	*(image.scanLine(y) + (x >> 3)) |= 1 << (x & 7);
     else
-	*(image.scanLine(y) + (x >> 3)) |= 1 << (7 -(x & 7));
+	*(image.scanLine(y) + (x >> 3)) |= 1 << (7 - (x & 7));
     \endcode
 
     If this looks complicated, it might be a good idea to convert the
@@ -644,12 +644,15 @@ void QImage::detach()
 
 QImage QImage::copy() const
 {
-    QImage image;
-    if ( !isNull() ) {
+    if ( isNull() ) {
+	// maintain the fields of invalid QImages when copied
+	return QImage( NULL, width(), height(), depth(), colorTable(), numColors(), bitOrder() );
+    } else {
+	QImage image;
 	image.create( width(), height(), depth(), numColors(), bitOrder() );
 	memcpy( image.bits(), bits(), numBytes() );
-	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
-	image.setAlphaBuffer(hasAlphaBuffer());
+	memcpy( image.colorTable(), colorTable(), numColors() * sizeof(QRgb) );
+	image.setAlphaBuffer( hasAlphaBuffer() );
 	image.data->dpmx = dotsPerMeterX();
 	image.data->dpmy = dotsPerMeterY();
 	image.data->offset = offset();
@@ -659,12 +662,8 @@ QImage QImage::copy() const
 	    *image.data->misc = misc();
 	}
 #endif
-    } else {
-	// Maintain the fields of invalid QImages when copied (this is required in some special cases).
-	QImage nullImageCopy( NULL, width(), height(), depth(), colorTable(), numColors(), bitOrder() );
-	return nullImageCopy;
+	return image;
     }
-    return image;
 }
 
 /*!
@@ -1233,7 +1232,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
     if ( data->ncols != numColors )		// could not alloc color table
 	return FALSE;
 
-// Qt/Embedded doesn't want to waste memory on un-necessary padding.
+// Qt/Embedded doesn't waste memory on unnecessary padding.
 #ifdef Q_WS_QWS
     const int bpl = (width*depth+7)/8;		// bytes per scanline
     const int pad = 0;
@@ -2305,7 +2304,7 @@ QImage QImage::convertBitOrder( Endian bitOrder ) const
 	return nullImage;
     }
     if ( data->bitordr == bitOrder )		// nothing to do
-	return *this;
+	return copy();
 
     QImage image( data->w, data->h, 1, data->ncols, bitOrder );
     register uchar *p;
@@ -2736,42 +2735,48 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::smoothScale: Image is a null image" );
 #endif
-	return *this;
+	return copy();
     }
 
-    QSize ss = scaleSize( s, mode );
-    if ( ss == size() )
-	return copy(); // nothing to do
+    QSize newSize = size();
+    newSize.scale( s, (QSize::ScaleMode)mode ); // ### remove cast in Qt 4.0
+    if ( newSize == size() )
+	return copy();
 
     if ( depth() == 32 ) {
-	QImage img( ss, 32 );
+	QImage img( newSize, 32 );
 	// 32-bpp to 32-bpp
 	pnmscale( *this, img );
 	return img;
     } else if ( depth() != 16 && allGray() && !hasAlphaBuffer() ) {
 	// Inefficient
-	return convertDepth(32).smoothScale(ss,mode).convertDepth(8);
+	return convertDepth(32).smoothScale(newSize, mode).convertDepth(8);
     } else {
 	// Inefficient
-	return convertDepth(32).smoothScale(ss,mode);
+	return convertDepth(32).smoothScale(newSize, mode);
     }
 }
 #endif
 
 /*!
-    Returns a scaled copy of the image. The returned image has a size
-    of width \a w by height \a h pixels if \a mode is \c ScaleFree.
-    The modes \c ScaleMin and \c ScaleMax may be used to preserve the
-    ratio of the image: if \a mode is \c ScaleMin, the returned image
-    is guaranteed to fit into the rectangle specified by \a w and \a h
-    (it is as large as possible within the constraints); if \a mode is
-    \c ScaleMax, the returned image fits at least into the specified
-    rectangle (it is a small as possible within the constraints).
+    Returns a copy of the image scaled to a rectangle of width \a w
+    and height \a h according to the ScaleMode \a mode.
+
+    \list
+    \i If \a mode is \c ScaleFree, the image is scaled to (\a w,
+       \a h).
+    \i If \a mode is \c ScaleMin, the image is scaled to a rectangle
+       as large as possible inside (\a w, \a h), preserving the aspect
+       ratio.
+    \i If \a mode is \c ScaleMax, the image is scaled to a rectangle
+       as small as possible outside (\a w, \a h), preserving the aspect
+       ratio.
+    \endlist
 
     If either the width \a w or the height \a h is 0 or negative, this
     function returns a \link isNull() null\endlink image.
 
-    This function uses a rather simple algorithm; if you need better
+    This function uses a simple, fast algorithm. If you need better
     quality, use smoothScale() instead.
 
     \sa scaleWidth() scaleHeight() smoothScale() xForm()
@@ -2795,22 +2800,23 @@ QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::scale: Image is a null image" );
 #endif
-	return *this;
+	return copy();
     }
-    if ( s.width()<=0 || s.height()<=0 )
+    if ( s.isEmpty() )
 	return QImage();
 
-    QSize ss = scaleSize( s, mode );
-    if ( ss == size() )
-	return *this; // nothing to do
+    QSize newSize = size();
+    newSize.scale( s, (QSize::ScaleMode)mode ); // ### remove cast in Qt 4.0
+    if ( newSize == size() )
+	return copy();
 
     QImage img;
     QWMatrix wm;
-    wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
+    wm.scale( (double)newSize.width() / width(), (double)newSize.height() / height() );
     img = xForm( wm );
     // ### I should test and resize the image if it has not the right size
-//    if ( img.width() != ss.width() || img.height() != ss.height() )
-//	img.resize( ss.width(), ss.height() );
+//    if ( img.width() != newSize.width() || img.height() != newSize.height() )
+//	img.resize( newSize.width(), newSize.height() );
     return img;
 }
 #endif
@@ -2832,7 +2838,7 @@ QImage QImage::scaleWidth( int w ) const
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::scaleWidth: Image is a null image" );
 #endif
-	return *this;
+	return copy();
     }
     if ( w <= 0 )
 	return QImage();
@@ -2861,7 +2867,7 @@ QImage QImage::scaleHeight( int h ) const
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::scaleHeight: Image is a null image" );
 #endif
-	return *this;
+	return copy();
     }
     if ( h <= 0 )
 	return QImage();
@@ -2873,34 +2879,6 @@ QImage QImage::scaleHeight( int h ) const
 }
 #endif
 
-
-/*!
-    This private function calculates the size that is actually used
-    for scaling with the scale mode \a mode. \a size is the requested
-    size, specified to the scaling function scale() or smoothScale().
-*/
-QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
-{
-    if ( mode == ScaleFree ) {
-	return size;
-    }
-
-    bool useHeight = TRUE;
-    double ratio = (double)width() / height();
-    int rw = (int)( ratio * size.height() );
-
-    if ( mode == ScaleMin ) {
-	if ( rw > size.width() )
-	    useHeight = FALSE;
-    } else if ( mode == ScaleMax ) {
-	if ( rw < size.width() )
-	    useHeight = FALSE;
-    }
-
-    if ( useHeight )
-	return QSize( rw, size.height() );
-    return QSize( size.width(), (int)(size.width()/ratio) );
-}
 
 /*!
     Returns a copy of the image that is transformed using the
@@ -2915,15 +2893,15 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::xForm( const QWMatrix &matrix ) const
 {
-    // This function uses the same algorithm (and quite some code) as
-    // QPixmap::xForm().
+    // This function uses the same algorithm as (and steals quite some
+    // code from) QPixmap::xForm().
 
     if ( isNull() )
 	return copy();
 
     if ( depth() == 16 ) {
 	// inefficient
-	return convertDepth(32).xForm( matrix );
+	return convertDepth( 32 ).xForm( matrix );
     }
 
     // source image data
@@ -2941,15 +2919,14 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     // compute size of target image
     QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
     if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
-	if ( mat.m11() == 1.0F && mat.m22() == 1.0F ) {
-	    return *this;			// identity matrix
-	}
-	hd = qRound( mat.m22()*hs );
-	wd = qRound( mat.m11()*ws );
+	if ( mat.m11() == 1.0F && mat.m22() == 1.0F ) // identity matrix
+	    return copy();
+	hd = qRound( mat.m22() * hs );
+	wd = qRound( mat.m11() * ws );
 	hd = QABS( hd );
 	wd = QABS( wd );
     } else {					// rotation or shearing
-	QPointArray a( QRect(0,0,ws,hs) );
+	QPointArray a( QRect(0, 0, ws, hs) );
 	a = mat.map( a );
 	QRect r = a.boundingRect().normalize();
 	wd = r.width();
@@ -2958,10 +2935,8 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
-    if ( hd == 0 || wd == 0 || !invertible ) {	// error, return null image
-	QImage im;
-	return im;
-    }
+    if ( hd == 0 || wd == 0 || !invertible )	// error, return null image
+	return QImage();
 
     // create target image (some of the code is from QImage::copy())
     QImage dImage( wd, hd, depth(), numColors(), bitOrder() );
@@ -2999,11 +2974,8 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     else
 	type = QT_XFORM_TYPE_LSBFIRST;
     int dbpl = dImage.bytesPerLine();
-    qt_xForm_helper( mat, 0, type, bpp,
-	    dImage.bits(),
-	    dbpl,
-	    0,
-	    hd, sptr, sbpl, ws, hs );
+    qt_xForm_helper( mat, 0, type, bpp, dImage.bits(), dbpl, 0, hd, sptr, sbpl,
+		     ws, hs );
     return dImage;
 }
 #endif
@@ -3030,7 +3002,7 @@ QImage QImage::createAlphaMask( int conversion_flags ) const
     }
 
     if ( isNull() || !hasAlphaBuffer() )
-	return QImage(); // null image
+	return QImage();
 
     if ( depth() == 1 ) {
 	// A monochrome pixmap, with alpha channels on those two colors.
@@ -3180,8 +3152,8 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 {
     int w = width();
     int h = height();
-    if (w <= 1 && h <= 1 || (!horizontal && !vertical))
-	return *this;
+    if ( (w <= 1 && h <= 1) || (!horizontal && !vertical) )
+	return copy();
 
     // Create result image, copy colormap
     QImage result(w, h, depth(), numColors(), bitOrder());
@@ -6177,11 +6149,8 @@ void QImage::setOffset(const QPoint& p)
 */
 QImageDataMisc& QImage::misc() const
 {
-    if ( !data->misc ) {
-	QImage* that = (QImage*)this;
-	that->data->misc = new QImageDataMisc;
-	return *that->data->misc;
-    }
+    if ( !data->misc )
+	data->misc = new QImageDataMisc;
     return *data->misc;
 }
 

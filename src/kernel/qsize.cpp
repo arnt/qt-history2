@@ -40,7 +40,7 @@
 
 
 /*!
-  \class QSize qsize.h
+  \class QSize
   \brief The QSize class defines the size of a two-dimensional object.
 
   \ingroup images
@@ -48,9 +48,9 @@
 
   A size is specified by a width and a height.
 
-  The coordinate type is QCOORD (defined in qwindowdefs.h as \c int).
+  The coordinate type is QCOORD (defined in \c <qwindowdefs.h> as \c int).
   The minimum value of QCOORD is QCOORD_MIN (-2147483648) and the maximum
-  value is  QCOORD_MAX (2147483647).
+  value is QCOORD_MAX (2147483647).
 
   The size can be set in the constructor and changed with setWidth()
   and setHeight(), or using operator+=(), operator-=(), operator*=()
@@ -129,6 +129,82 @@ void QSize::transpose()
     QCOORD tmp = wd;
     wd = ht;
     ht = tmp;
+}
+
+/*! \enum QSize::ScaleMode
+
+    This enum type defines the different ways of scaling a size.
+
+    \value ScaleFree  The size is scaled freely. The ratio is not preserved.
+    \value ScaleMin  The size is scaled to a rectangle as large as possible
+                     inside a given rectangle, preserving the aspect ratio.
+    \value ScaleMax  The size is scaled to a rectangle as small as possible
+                     outside a given rectangle, preserving the aspect ratio.
+
+    \sa QSize::scale(), QImage::scale(), QImage::smoothScale()
+*/
+
+/*!
+    Scales the size to a rectangle of width \a w and height \a h according
+    to the ScaleMode \a mode.
+
+    \list
+    \i If \a mode is \c ScaleFree, the size is set to (\a w, \a h).
+    \i If \a mode is \c ScaleMin, the current size is scaled to a rectangle
+       as large as possible inside (\a w, \a h), preserving the aspect ratio.
+    \i If \a mode is \c ScaleMax, the current size is scaled to a rectangle
+       as small as possible outside (\a w, \a h), preserving the aspect ratio.
+    \endlist
+
+    Example:
+    \code
+    QSize t1( 10, 12 );
+    t1.scale( 60, 60, QSize::ScaleFree );
+    // t1 is (60, 60)
+
+    QSize t2( 10, 12 );
+    t2.scale( 60, 60, QSize::ScaleMin );
+    // t2 is (50, 60)
+
+    QSize t3( 10, 12 );
+    t3.scale( 60, 60, QSize::ScaleMax );
+    // t3 is (60, 72)
+    \endcode
+*/
+void QSize::scale( int w, int h, ScaleMode mode )
+{
+    if ( mode == ScaleFree ) {
+	wd = (QCOORD)w;
+	ht = (QCOORD)h;
+    } else {
+	bool useHeight = TRUE;
+	double ratio = (double)width() / height();
+	int rw = (int)( ratio * h );
+
+	if ( mode == ScaleMin ) {
+	    useHeight = ( rw <= w );
+	} else { // mode == ScaleMax
+	    useHeight = ( rw >= w );
+	}
+
+	if ( useHeight ) {
+	    wd = (QCOORD)rw;
+	    ht = (QCOORD)h;
+	} else {
+	    wd = (QCOORD)w;
+	    ht = (QCOORD)( w / ratio );
+	}
+    }
+}
+
+/*!
+    \overload
+
+    Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
+*/
+void QSize::scale( const QSize &s, ScaleMode mode )
+{
+    scale( s.width(), s.height(), mode );
 }
 
 /*!
