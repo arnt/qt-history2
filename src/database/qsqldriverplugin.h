@@ -13,7 +13,7 @@ class Q_EXPORT QSqlDriverPlugIn : public QSqlDriverInterface, public QPlugIn
 {
 public:
     QSqlDriverPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn=0 );
-    QCString queryPlugInInterface() const { return "QSqlDriverInterface"; }
+    QString queryInterface() const { return "QSqlDriverInterface"; }
     QStringList featureList();
 
     QSqlDriver* create( const QString& name );

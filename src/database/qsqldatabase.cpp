@@ -118,7 +118,7 @@ void QSqlDatabase::init( const QString& type )
     //    QPlugIn* pi;
     //    if ( d->plugIns->selectFeature( type ) )
     //	pi = d->plugIns->plugIn( type );
-    if ( pi && pi->queryPlugInInterface() == "QSqlDriverInterface" )
+    if ( pi && pi->queryInterface() == "QSqlDriverInterface" )
      	d->driver = ((QSqlDriverPlugIn*)pi)->create( type );
     if ( !d->driver ) {
 #ifdef CHECK_RANGE
