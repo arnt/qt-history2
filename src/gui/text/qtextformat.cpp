@@ -282,8 +282,8 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     \value Color
 
     \value IsAnchor
-    \value Qt::AnchorHref
-    \value Qt::AnchorName
+    \value AnchorHref
+    \value AnchorName
 
     \value ObjectType
 
