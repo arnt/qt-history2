@@ -864,7 +864,7 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
     if ( ( o == this || o == viewport() ) ) {
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
-	    return FALSE;
+	    return TRUE;
 	} else if ( e->type() == QEvent::FocusOut ) {
 	    blinkTimer->stop();
 	    drawCursor( FALSE );
