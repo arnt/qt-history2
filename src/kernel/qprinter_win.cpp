@@ -897,6 +897,9 @@ void QPrinter::setPrinterName( const QString &name )
     int tpg = to_pg;
     int mxpg = max_pg;
     int mnpg = min_pg;
+    bool outputToFile = output_file;
+    QString creatorName = creator_name;
+    bool fullPage = to_edge;
 
     setDefaultPrinter( name, &hdevmode, &hdevnames );
 
@@ -941,6 +944,9 @@ void QPrinter::setPrinterName( const QString &name )
     to_pg = tpg;
     mxpg = max_pg;
     mnpg = min_pg;
+    output_file = outputToFile;
+    creator_name = creatorName;
+    to_edge = fullPage;
 
     reinit();
 }
