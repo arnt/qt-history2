@@ -2360,22 +2360,23 @@ void QApplication::setActiveWindow( QWidget* act )
 	if ( w->topLevelWidget() == old_active || w->topLevelWidget()==active_window ) {
 	    QColorGroup acg = w->palette().active();
 	    QColorGroup icg = w->palette().inactive();
-	    if ( acg.background() != icg.background() ||
-		 acg.base() != icg.base() ||
-		 acg.button() != icg.button() ||
-		 acg.text() != icg.text() ||
-		 acg.foreground() != icg.foreground() ||
-		 acg.brightText() != icg.brightText() ||
-		 acg.buttonText() != icg.buttonText() ||
-		 acg.dark() != icg.dark() ||
-		 acg.light() != icg.light() ||
-		 acg.mid() != icg.mid() ||
-		 acg.midlight() != icg.midlight() ||
-		 acg.shadow() != icg.shadow() ||
-		( w->parentWidget() && w->parentWidget()->inherits( "QScrollView" ) && 
-		( qstrcmp( w->name(), "qt_clipped_viewport" ) == 0 ||
-  		  qstrcmp( w->name(), "qt_viewport" ) == 0 ) ) )
-		    w->update();
+	    if ( acg != icg && 
+		 ( acg.background() != icg.background() ||
+		   acg.base() != icg.base() ||
+		   acg.button() != icg.button() ||
+		   acg.text() != icg.text() ||
+		   acg.foreground() != icg.foreground() ||
+		   acg.brightText() != icg.brightText() ||
+		   acg.buttonText() != icg.buttonText() ||
+		   acg.dark() != icg.dark() ||
+		   acg.light() != icg.light() ||
+		   acg.mid() != icg.mid() ||
+		   acg.midlight() != icg.midlight() ||
+		   acg.shadow() != icg.shadow() ||
+		   (  w->parentWidget() && w->parentWidget()->inherits( "QScrollView" ) &&
+		      ( qstrcmp( w->name(), "qt_clipped_viewport" ) == 0 ||
+			qstrcmp( w->name(), "qt_viewport" ) == 0 ) ) ) )
+		w->update();
 	}
     }
 #endif
