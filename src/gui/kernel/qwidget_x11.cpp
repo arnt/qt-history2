@@ -297,6 +297,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 {
     Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
+    QWidget *parentWidget = q->parentWidget();
 
     if (type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
@@ -329,6 +330,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (popup)
         flags |= Qt::WindowStaysOnTopHint;
 
+    if(topLevel && parentWidget) { // if our parent stays on top, so must we
+        QWidget *ptl = parentWidget->window();
+        if(ptl && (ptl->windowFlags() & Qt::WindowStaysOnTopHint))
+            flags |= Qt::WindowStaysOnTopHint;
+    }
+
     Window parentw, destroyw = 0;
     WId id;
 
@@ -342,8 +349,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // desktop on a certain screen other than the default requested
         QX11InfoData *xd = &X11->screens[qt_x11_create_desktop_on_screen];
         xinfo.setX11Data(xd);
-    } else if (q->parentWidget() &&  q->parentWidget()->d->xinfo.screen() != d->xinfo.screen()) {
-        xinfo = q->parentWidget()->d->xinfo;
+    } else if (parentWidget &&  parentWidget->d->xinfo.screen() != d->xinfo.screen()) {
+        xinfo = parentWidget->d->xinfo;
     }
 
     //get display, screen number, root window and desktop geometry for
@@ -363,7 +370,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         q->data->crect.setRect(0, 0, 100, 30);
     }
 
-    parentw = topLevel ? root_win : q->parentWidget()->winId();
+    parentw = topLevel ? root_win : parentWidget->winId();
 
     XSetWindowAttributes wsa;
 
@@ -458,7 +465,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     mwmhints.input_mode = 0L;
     mwmhints.status = 0L;
 
-    if (topLevel && ! (desktop || popup)) {
+    if (topLevel) {
         ulong wsa_mask = 0;
 
         if (customize) {
@@ -481,10 +488,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 if (flags & Qt::WindowMaximizeButtonHint)
                     mwmhints.decorations |= MWM_DECOR_MAXIMIZE;
             }
+        } else if (desktop || popup) {
         } else if (dialog) {
             flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint;
-        }
-        else if (type == Qt::SplashScreen) {
+        } else if (type == Qt::SplashScreen) {
             if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
                 flags &= ~Qt::X11BypassWindowManagerHint;
                 net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
@@ -540,7 +547,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             create_wm_client_leader();
 
         // real parent
-        QWidget *p = q->parentWidget();
+        QWidget *p = parentWidget;
         if (p)
             p = p->window();
 
@@ -666,7 +673,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     // (0,0) position. If the parent uses wrect mapping to expand the
     // coordinate system, we must also adjust this widget's window
     // system position
-    if (!topLevel && !q->parentWidget()->data->wrect.topLeft().isNull())
+    if (!topLevel && !parentWidget->data->wrect.topLeft().isNull())
         d->setWSGeometry();
 
 #if !defined(QT_NO_IM)
