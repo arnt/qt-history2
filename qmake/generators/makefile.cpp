@@ -228,15 +228,18 @@ MakefileGenerator::initCompiler(const MakefileGenerator::Compiler &comp)
     QStringList &l = v[comp.variable_in], vpath;
     if(!init_compiler_already.contains(comp.variable_in)) {
         init_compiler_already.insert(comp.variable_in, true);
-        for(int val_it = 0; val_it < l.count(); val_it++) {
+        for(int val_it = 0; val_it < l.count(); ) {
+            bool remove_file = false;
             QString &val = l[val_it];
             if(!val.isEmpty()) {
                 QString file = fileFixify(val, qmake_getpwd(), Option::output_dir);
                 if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
                     file = file.mid(1, file.length() - 2);
 
-                if(exists(file))
+                if(exists(file)) {
+                    ++val_it;
                     continue;
+                }
                 bool found = false;
                 if(QDir::isRelativePath(val)) {
                     if(vpath.isEmpty())
@@ -272,17 +275,14 @@ MakefileGenerator::initCompiler(const MakefileGenerator::Compiler &comp)
                             debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                       __FILE__, __LINE__,
                                       val.toLatin1().constData(), vpath.join("::").toLatin1().constData());
-                            if(!(comp.flags & Compiler::CompilerIgnoreNoExist))
+                            if((comp.flags & Compiler::CompilerRemoveNoExist))
+                                remove_file = true;
+                            else
                                 warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
-                            continue;
                         } else {
-                            for(int i = (int)files.count()-1; i >= 0; i--) {
-                                QString file = fileFixify(dir + files[i]);
-                                if(!i)
-                                    val = file;
-                                else
-                                    l.insert(val_it+1, file);
-                            }
+                            l.removeAt(val_it);
+                            for(int i = (int)files.count()-1; i >= 0; i--)
+                                l.insert(val_it, fileFixify(dir + files[i]));
                             val_it += files.count();
                         }
                     } else {
@@ -290,11 +290,17 @@ MakefileGenerator::initCompiler(const MakefileGenerator::Compiler &comp)
                                   __FILE__, __LINE__, real_dir.toLatin1().constData(),
                                   QDir::separator().toLatin1(),
                                   regex.toLatin1().constData(), real_dir.toLatin1().constData());
-                        if(!(comp.flags & Compiler::CompilerIgnoreNoExist))
+                        if((comp.flags & Compiler::CompilerRemoveNoExist))
+                            remove_file = true;
+                        else
                             warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                     }
                 }
             }
+            if(remove_file)
+                l.removeAt(val_it);
+            else
+                ++val_it;
         }
     }
     //add to dependency engine
@@ -452,7 +458,7 @@ MakefileGenerator::init()
                     compiler.variable_in = inputs.at(x);
                     compiler.flags = Compiler::CompilerNoFlags;
                     if(v[(*it) + ".CONFIG"].indexOf("ignore_no_exist") != -1)
-                        compiler.flags |= Compiler::CompilerIgnoreNoExist;
+                        compiler.flags |= Compiler::CompilerRemoveNoExist;
                     if(v[(*it) + ".CONFIG"].indexOf("no_dependencies") != -1)
                         compiler.flags |= Compiler::CompilerNoCheckDeps;
 

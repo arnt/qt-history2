@@ -87,7 +87,7 @@ protected:
             CompilerNoFlags       = 0x00,
             CompilerBuiltin       = 0x01,
             CompilerNoCheckDeps   = 0x02,
-            CompilerIgnoreNoExist = 0x04,
+            CompilerRemoveNoExist = 0x04,
         };
         uint flags, type;
     };
