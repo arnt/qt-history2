@@ -250,6 +250,11 @@ public:
 	Tagbanwa,
 
 	KatakanaHalfWidth,
+
+	// from Unicode 4.0
+	Limbu,
+	TaiLe,
+
 	// End
 #if !defined(Q_QDOC)
 	NScripts,
