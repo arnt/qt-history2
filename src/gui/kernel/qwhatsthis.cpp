@@ -490,8 +490,8 @@ class QWhatsThisButton : public QToolButton
 public:
     QWhatsThisButton(QWidget *p) : QToolButton(p, "automatic what's this? button") {
         setToggleButton(true);
-        QPixmap p( (const char**)button_image );
-        setIcon( p );
+        QPixmap pix( (const char**)button_image );
+        setIcon( pix );
         QObject::connect(this, SIGNAL(toggled(bool)), this, SLOT(whatToggled(bool)));
         setAutoRaise(true);
         setFocusPolicy(Qt::NoFocus);
