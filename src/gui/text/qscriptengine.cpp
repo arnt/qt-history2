@@ -1242,7 +1242,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     const unsigned short *uc = (const unsigned short *)item->string->unicode() + item->from;
 
     QVarLengthArray<ArabicProperties> properties(item->num_glyphs);
-    getArabicProperties(uc, item->length, properties);
+    getArabicProperties(uc, item->length, properties.data());
 
     QVarLengthArray<bool> apply(item->num_glyphs);
 
@@ -1278,7 +1278,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
         for (int j = 0; j < 4; ++j) {
             for (int i = 0; i < item->num_glyphs; i++)
                 apply[i] = (properties[i].shape == features[j].shape);
-            openType->applyGSUBFeature(features[j].tag, apply);
+            openType->applyGSUBFeature(features[j].tag, apply.data());
         }
     } else {
         const struct {
@@ -1296,7 +1296,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
         for (int j = 0; j < 7; ++j) {
             for (int i = 0; i < item->num_glyphs; i++)
                 apply[i] = (properties[i].shape == features[j].shape);
-            openType->applyGSUBFeature(features[j].tag, apply);
+            openType->applyGSUBFeature(features[j].tag, apply.data());
         }
     }
     const int commonFeatures[] = {

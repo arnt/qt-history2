@@ -1486,11 +1486,11 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         // glyph in the syllable.
         QVarLengthArray<unsigned short> logClusters(len);
         QVarLengthArray<bool> where(len);
-        memset(where, 0, len*sizeof(bool));
+        memset(where.data(), 0, len*sizeof(bool));
         for (i = 0; i < len; ++i)
             logClusters[i] = i;
 
-        item->log_clusters = logClusters;
+        item->log_clusters = logClusters.data();
         openType->init(item);
 
         // substitutions
@@ -1498,17 +1498,17 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
 
         where[0] = true;
-        openType->applyGSUBFeature(FT_MAKE_TAG('i', 'n', 'i', 't'), where);
+        openType->applyGSUBFeature(FT_MAKE_TAG('i', 'n', 'i', 't'), where.data());
         openType->applyGSUBFeature(FT_MAKE_TAG('n', 'u', 'k', 't'));
 
         for (i = 0; i <= base; ++i)
             where[i] = true;
-        openType->applyGSUBFeature(FT_MAKE_TAG('a', 'k', 'h', 'n'), where);
+        openType->applyGSUBFeature(FT_MAKE_TAG('a', 'k', 'h', 'n'), where.data());
 
-        memset(where, 0, len*sizeof(bool));
+        memset(where.data(), 0, len*sizeof(bool));
         if (reph >= 0) {
             where[reph] = where[reph+1] = true;
-            openType->applyGSUBFeature(FT_MAKE_TAG('r', 'p', 'h', 'f'), where);
+            openType->applyGSUBFeature(FT_MAKE_TAG('r', 'p', 'h', 'f'), where.data());
             where[reph] = where[reph+1] = false;
         }
 
@@ -1527,8 +1527,8 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                 }
             }
         }
-        openType->applyGSUBFeature(FT_MAKE_TAG('b', 'l', 'w', 'f'), where);
-        memset(where, 0, len*sizeof(bool));
+        openType->applyGSUBFeature(FT_MAKE_TAG('b', 'l', 'w', 'f'), where.data());
+        memset(where.data(), 0, len*sizeof(bool));
         for (i = 0; i < base; ++i)
             where[i] = true;
         if (control) {
@@ -1542,11 +1542,11 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                 }
             }
         }
-        openType->applyGSUBFeature(FT_MAKE_TAG('h', 'a', 'l', 'f'), where);
-        memset(where, 0, len*sizeof(bool));
+        openType->applyGSUBFeature(FT_MAKE_TAG('h', 'a', 'l', 'f'), where.data());
+        memset(where.data(), 0, len*sizeof(bool));
         for (i = base+1; i < len; ++i)
             where[i] = true;
-        openType->applyGSUBFeature(FT_MAKE_TAG('p', 's', 't', 'f'), where);
+        openType->applyGSUBFeature(FT_MAKE_TAG('p', 's', 't', 'f'), where.data());
         openType->applyGSUBFeature(FT_MAKE_TAG('v', 'a', 't', 'u'));
 
         // Conjunkts and typographical forms
@@ -1556,7 +1556,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
         if (reordered[len-1] != halant || base != len-2) {
             where[base] = true;
-            openType->applyGSUBFeature(FT_MAKE_TAG('p', 's', 't', 's'), where);
+            openType->applyGSUBFeature(FT_MAKE_TAG('p', 's', 't', 's'), where.data());
         }
 
         // halant forms
@@ -1911,7 +1911,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         QVarLengthArray<unsigned short> logClusters(len);
         for (i = 0; i < len; ++i)
             logClusters[i] = i;
-        item->log_clusters = logClusters;
+        item->log_clusters = logClusters.data();
 
         openType->init(item);
 
@@ -2619,6 +2619,8 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
 
     int len = item->length;
     QChar c(composed);
+
+    // ### icc says 'chars' is unused
     const QChar *chars = ch;
 
     // if we have a modern hangul use the composed form
@@ -2644,7 +2646,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         QVarLengthArray<unsigned short> logClusters(len);
         for (i = 0; i < len; ++i)
             logClusters[i] = i;
-        item->log_clusters = logClusters;
+        item->log_clusters = logClusters.data();
 
         openType->init(item);
 

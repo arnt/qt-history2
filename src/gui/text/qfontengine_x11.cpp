@@ -1474,7 +1474,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     int i = 0;
     while (i < nGlyphs) {
         int toDraw = qMin(64, nGlyphs-i);
-        XftDrawGlyphSpec(draw, &col, fnt, glyphSpec+i, toDraw);
+        XftDrawGlyphSpec(draw, &col, fnt, glyphSpec.data()+i, toDraw);
         i += toDraw;
     }
 
