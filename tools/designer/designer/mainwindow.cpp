@@ -2250,7 +2250,8 @@ QObjectList *MainWindow::runProject()
 	iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
 	if ( iiface ) {
 	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
-	    iiface->onFinish( this, SLOT( finishedRun( QObject *, int, const QString & ) ) );
+	    iiface->onShowError( this, SLOT( showErrorMessage( QObject *, int, const QString & ) ) );
+	    iiface->onFinish( this, SLOT( finishedRun() ) );
 	}
     }
 
@@ -4537,18 +4538,20 @@ void MainWindow::showDebugStep( QObject *o, int line )
     showSourceLine( o, line, FALSE );
 }
 
-void MainWindow::finishedRun( QObject *o, int errorLine, const QString &errorMessage )
+void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &errorMessage )
+{
+    QValueList<int> l;
+    l << errorLine;
+    QStringList l2;
+    l2 << errorMessage;
+    oWindow->setErrorMessages( l2, l, TRUE );
+    showSourceLine( o, errorLine, TRUE );
+}
+
+void MainWindow::finishedRun()
 {
     inDebugMode = FALSE;
     debuggingForms.clear();
-    if ( o && errorLine != -1 ) {
-	QValueList<int> l;
-	l << errorLine;
-	QStringList l2;
-	l2 << errorMessage;
-	oWindow->setErrorMessages( l2, l, TRUE );
-	showSourceLine( o, errorLine, TRUE );
-    }
 }
 
 void MainWindow::showSourceLine( QObject *o, int line, bool error )

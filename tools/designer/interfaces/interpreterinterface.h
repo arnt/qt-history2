@@ -36,6 +36,7 @@ struct InterpreterInterface : public QUnknownInterface
     virtual void setBreakPoints( QObject *obj, const QValueList<int> &lst ) = 0;
 
     virtual void onShowDebugStep( QObject *obj, const char *slot ) = 0;
+    virtual void onShowError( QObject *obj, const char *slot ) = 0;
     virtual void onFinish( QObject *obj, const char *slot ) = 0;
 };
 

@@ -153,7 +153,8 @@ public slots:
     void updateProperties( QObject *w );
     void showDialogHelp();
     void showDebugStep( QObject *o, int line );
-    void finishedRun( QObject *o, int errorLine, const QString &errorMessage );
+    void showErrorMessage( QObject *o, int line, const QString &errorMessage );
+    void finishedRun();
     void breakPointsChanged();
 
 signals:
