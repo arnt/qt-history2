@@ -2,7 +2,7 @@
 #define FONTENGINEIFACE_H
 
 #include <qshared.h>
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include <qrect.h>
 
 class QChar;

@@ -3,7 +3,7 @@
 #include "editwidget.h"
 #include "fontengine.h"
 
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include <qmemarray.h>
 
 #include <qdatetime.h>
@@ -189,7 +189,7 @@ void EditWidget::recalculate()
 	layout->shape( shaped, d->font, d->text, d->items, i );
 	int cw = layout->width( shaped );
 // 	qDebug("width(%d)=%d", i, cw );
-	if ( lw + cw > w ) {
+	if ( 0 && lw + cw > w ) {
 	    // need to split the current item
 	    CharAttributesArray attrs;
 	    layout->attributes( attrs, d->text, d->items, i );
@@ -229,5 +229,5 @@ void EditWidget::recalculate()
     d->lineBreaks[line].ascent = ascent;
     d->lineBreaks[line].descent = descent;
     d->lineBreaks.resize( line+1 );
-    qDebug("recalulate took %d ms",  t.elapsed() );
+    qDebug("recalulate took %d ms (%dus/char)",  t.elapsed(), t.elapsed()*1000/d->text.length() );
 }

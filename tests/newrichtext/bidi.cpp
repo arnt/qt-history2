@@ -128,8 +128,6 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
     item.analysis.script = script;
     item.analysis.bidiLevel = level;
     item.analysis.override = control.override();
-    item.analysis.linkBefore = FALSE;
-    item.analysis.linkAfter = FALSE;
     item.analysis.reserved = 0;
 
     items.append( item );
@@ -142,8 +140,6 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
 	    item.analysis.script = s;
 	    item.analysis.bidiLevel = level;
 	    item.analysis.override = control.override();
-	    item.analysis.linkBefore = FALSE;
-	    item.analysis.linkAfter = FALSE;
 	    item.analysis.reserved = 0;
 
 	    items.append( item );

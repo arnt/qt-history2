@@ -3,9 +3,6 @@
 
 #include "qfontdatabase.h"
 
-#include "qrtstring.h"
-#include "qtextlayout.h"
-
 #include <private/qcomplextext_p.h>
 #include <qdatetime.h>
 #include "editwidget.h"
@@ -38,21 +35,28 @@ const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,
 // const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
 
 // Devanagari
-// const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
+const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा. रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
 
 
 // Bengali
 // const char * s = "অাবার অাসিব ফিরে ধানসিড়িটির তীরে - এই বাংলায় হয়তো মানুষ নয় - হয়তো বা শঙ্খচিল শালিখের বেশে, হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে  কুয়াশার বুকে ভেসে একদিন অাসিব এই কাঁঠাল - ছায়ায়, হয়তো বা হাঁস হব - কিশোরীর - ঘুঙুর রহিবে লাল পায়ে, সারাদিন কেটে যাবে কলমীর গন্ধ ভরা জলে ভেসে ভেসে, অাবার অাসিব অামি বাংলার নদী মাঠ ক্ষেত ভালোবেসে জলঙ্গীর ঢেউয়ে ভেজা বাংলার এ সবুজ করুণ ডাঙায়";
 
 // mixed
-const char *s =
-"Thai: ทำไมเขาถึงไม่พูด "
-"Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
-"Arabic: أوروبا, برمجيات الحاسوب "
-"Hebrew: תוכנה והאינטרנט "
-"Devanagari: रूस के राष्ट्रपति "
-"Bengali: অাবার অাসিব ফিরে "
-;
+// const char *s =
+// "Thai: ทำไมเขาถึงไม่พูด "
+// "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
+// "Arabic: أوروبا, برمجيات الحاسوب "
+// "Hebrew: תוכנה והאינטרנט "
+// "Devanagari: रूस के राष्ट्रपति "
+// "Bengali: অাবার অাসিব ফিরে "
+// ;
+
+// latin
+// const char *s =
+// "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technological superiority of the Unix operating system. KDE is an Internet project that is truly open in every sense. Development takes place on the Internet and is discussed on our mailing lists, USENET news groups, and IRC channels to which we invite and welcome everyone."
+// ;
+
+
 
 // const char *s = "";
 
@@ -62,34 +66,19 @@ int main( int argc, char **argv )
 
     QFontDatabase fdb;
 
-#if 0
-    // QFontDatabase test
-    QFontDatabase fdb;
 
-    QString family = "Arial";
-    QString foundry;
-    int weight = 50;
-    bool italic = FALSE;
-    bool oblique = FALSE;
-    int pixelSize = 11;
-    bool reg;
-    bool fixed;
-    QCString encoding;
-
-    if ( QFontDatabase::findFont( QFont::Unicode, QFont::PreferDefault,
-				  family, foundry, weight, italic, oblique, pixelSize,
-				  fixed, reg, encoding ) ) {
-	qDebug( "found a font:" );
-	qDebug( "family: %s\nfoundry: %s\nweight %d\nitalic %d\noblique %d\n",
-		family.latin1(), foundry.latin1(), weight, italic, oblique );
-	qDebug( "pixelSize: %d\nregular: %d\nencoding: %s",
-		pixelSize, reg, encoding.data() );
-    }
-
-    return 0;
-#endif
+    QFont f( family );
+    f.setPointSize( 24 );
+    a.setFont( f );
 
 #if 0
+    QString str = QString::fromUtf8( s );
+    QTime t;
+    t.start();
+    QFontMetrics fm( f );
+    (void)fm.width( str );
+    qDebug("loading took %d ms",  t.elapsed() );
+
     QStringList list1, list2;
     QStringList::const_iterator it1, end1, it2, end2;
 
@@ -119,44 +108,17 @@ int main( int argc, char **argv )
     return 0;
 #endif
 
-    QFont f( family );
-    f.setPointSize( 24 );
-    a.setFont( f );
+    QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::SingleLine, QString::fromUtf8( s ) );
+    QTime t;
+    t.start();
+    QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::WordBreak, QString::fromUtf8( s ) );
+    qDebug("fm.boundingrect() took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/QString::fromUtf8( s ).length() );
 
-#if 1
     EditWidget *w = new EditWidget( 0, 0 );
     w->setText( QString::fromUtf8( s ) );
     w->resize( 600, 300 );
     w->show();
     a.setMainWidget ( w );
-#else
-
-    MyWidget *w = new MyWidget;
-    w->resize( 700,  300 );
-    w->show();
-
-
-    {
-	QString string = QString::fromUtf8( s );
-#if 1
-	w->string = string;
-#else
-	QTime t;
-	t.start();
-	const TextLayout * const textLayout = TextLayout::instance();
-	for ( int i = 0; i < 1000; i++ ) {
-	    ScriptItemArray items;
-	    textLayout->itemize( items, string );
-	}
-	qDebug("itemize: %dms", t.elapsed() );
-// 	t.start();
-// 	for ( int i = 0; i < 1000; i++ ) {
-// 	    QString str = QComplexText::bidiReorderString( string.qstring() );
-// 	}
-// 	qDebug("itemize: %dms", t.elapsed() );
-#endif
-    }
-#endif
 
     a.exec();
     delete w;

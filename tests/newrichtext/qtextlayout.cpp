@@ -1,4 +1,4 @@
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 
 #include "scriptengine.h"
 #include "scriptenginebasic.h"

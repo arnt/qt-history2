@@ -2,7 +2,7 @@
 #include "opentype/ftxopen.h"
 
 #include <qglobal.h>
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include "qfont.h"
 #include "scriptenginebasic.h"
 

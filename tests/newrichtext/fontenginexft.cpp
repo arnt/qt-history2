@@ -6,7 +6,7 @@
 #include <qpaintdevice.h>
 #include "qpainter.h"
 #include <qt_x11.h>
-#include "qtextlayout.h"
+#include "qtextlayout_p.h"
 #include "opentype.h"
 
 #include <stdlib.h>
