@@ -292,7 +292,7 @@ void QSqlFieldList::prepend( const QSqlField* field )
 
 }
 
-/*!  Inserts a copy of \q field before \a pos.  If \a pos does not
+/*!  Inserts a copy of \a field before \a pos.  If \a pos does not
   exist, it is appended to the end of the list.
 
 */
