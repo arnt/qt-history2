@@ -34,7 +34,7 @@ class Q_CORE_EXPORT QTextCodecPlugin : public QObject, public QTextCodecFactoryI
     Q_OBJECT
     Q_INTERFACES(QTextCodecFactoryInterface:QFactoryInterface)
 public:
-    QTextCodecPlugin(QObject *parent = 0);
+    explicit QTextCodecPlugin(QObject *parent = 0);
     ~QTextCodecPlugin();
 
     virtual QList<QByteArray> names() const = 0;

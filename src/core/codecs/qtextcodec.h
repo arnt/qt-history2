@@ -112,7 +112,7 @@ inline void QTextCodec::setCodecForCStrings(QTextCodec *c) { QString::codecForCS
 
 class Q_CORE_EXPORT QTextEncoder {
 public:
-    QTextEncoder(const QTextCodec *codec) : c(codec) {}
+    explicit QTextEncoder(const QTextCodec *codec) : c(codec) {}
     ~QTextEncoder();
     QByteArray fromUnicode(const QString& str);
     QByteArray fromUnicode(const QChar *uc, int len);
@@ -126,7 +126,7 @@ private:
 
 class Q_CORE_EXPORT QTextDecoder {
 public:
-    QTextDecoder(const QTextCodec *codec) : c(codec) {}
+    explicit QTextDecoder(const QTextCodec *codec) : c(codec) {}
     ~QTextDecoder();
     QString toUnicode(const char* chars, int len);
     QString toUnicode(const QByteArray &ba);
@@ -136,4 +136,5 @@ private:
 };
 
 #endif // QT_NO_TEXTCODEC
+
 #endif // QTEXTCODEC_H

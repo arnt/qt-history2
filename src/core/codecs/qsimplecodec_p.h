@@ -31,7 +31,7 @@ class QSimpleTextCodec: public QTextCodec
 {
 public:
     enum { numSimpleCodecs = 30 };
-    QSimpleTextCodec(int);
+    explicit QSimpleTextCodec(int);
     ~QSimpleTextCodec();
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
@@ -50,4 +50,4 @@ private:
 #endif
 };
 
-#endif
+#endif // QSIMPLECODEC_P_H

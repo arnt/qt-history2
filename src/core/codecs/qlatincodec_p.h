@@ -55,4 +55,4 @@ public:
     int mibEnum() const;
 };
 
-#endif
+#endif // QLATINCODEC_P_H

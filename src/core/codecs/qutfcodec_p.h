@@ -54,4 +54,4 @@ public:
 
 #endif
 
-#endif
+#endif // QUTFCODEC_P_H
