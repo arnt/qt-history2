@@ -1222,9 +1222,9 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
     if ( !style )
 	return 0;
     if ( style->name() == s_img )
-	return new QTextImage( doc, attr, context, (QMimeSourceFactory&)factory);
+	return new QTextImage( doc, attr, context, (QMimeSourceFactory&)factory );
     if ( style->name() == s_hr )
-	return new QTextHorizontalLine( doc );
+	return new QTextHorizontalLine( doc, attr, context, (QMimeSourceFactory&)factory  );
    return 0;
 }
 

@@ -443,7 +443,7 @@ class Q_EXPORT QTextImage : public QTextCustomItem
 {
 public:
     QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
-		QMimeSourceFactory &factory);
+		QMimeSourceFactory &factory );
     virtual ~QTextImage();
 
     Placement placement() const { return place; }
@@ -468,7 +468,8 @@ private:
 class Q_EXPORT QTextHorizontalLine : public QTextCustomItem
 {
 public:
-    QTextHorizontalLine( QTextDocument *p );
+    QTextHorizontalLine( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
+			 QMimeSourceFactory &factory );
     virtual ~QTextHorizontalLine();
 
     void adjustToPainter( QPainter* );
@@ -479,6 +480,7 @@ public:
 
 private:
     int tmpheight;
+    QColor color;
 
 };
 

@@ -5922,10 +5922,16 @@ void QTextHorizontalLine::adjustToPainter( QPainter* p )
 }
 
 
-QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p )
+QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p, const QMap<QString, QString> &attr,
+					  const QString &,
+					  QMimeSourceFactory & )
     : QTextCustomItem( p )
 {
     height = tmpheight = 8;
+    if ( attr.find( "color" ) != attr.end() )
+	color = QColor( *attr.find( "color" ) );
+    else if ( attr.find( "COLOR" ) != attr.end() )
+	color = QColor( *attr.find( "COLOR" ) );
 }
 
 QTextHorizontalLine::~QTextHorizontalLine()
@@ -5942,13 +5948,19 @@ void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int
     QRect r( x, y, width, height);
     if ( is_printer( p ) ) {
 	QPen oldPen = p->pen();
-	p->setPen( QPen( cg.text(), height/8 ) );
+	if ( !color.isValid() )
+	    p->setPen( QPen( cg.text(), height/8 ) );
+	else
+	    p->setPen( QPen( color, height/8 ) );
 	p->drawLine( r.left()-1, y + height / 2, r.right() + 1, y + height / 2 );
 	p->setPen( oldPen );
     } else {
+	QColorGroup g( cg );
+	if ( color.isValid() )
+	    g.setColor( QColorGroup::Dark, color );
 	if ( selected )
-	    p->fillRect( r.left(), y, r.right(), y + height, cg.highlight() );	
-	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, cg, TRUE, height / 8 );
+	    p->fillRect( r.left(), y, r.right(), y + height, g.highlight() );	
+	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, g, TRUE, height / 8 );
     }
 }
 
