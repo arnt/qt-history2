@@ -416,7 +416,8 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
 
 
 /*!
-  Special-purpose function that detaches the pixmap from shared pixmap data.
+  This is a special-purpose function that detaches the pixmap from shared 
+  pixmap data.
 
   A pixmap is automatically detached by Qt whenever its contents is about
   to change.  This is done in all QPixmap member functions that modify the
@@ -575,7 +576,7 @@ int QPixmap::metric( int m ) const
 }
 
 /*!
-  Converts the pixmap to an image. Returns a null image if the operation
+  Converts the pixmap to a QImage. Returns a null image if the operation
   failed.
 
   If the pixmap has 1-bit depth, the returned image will also be 1

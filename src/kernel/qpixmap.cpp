@@ -127,9 +127,10 @@
   speed/memory tradeoffs:
 
   \value DefaultOptim  whatever QPixmap::defaultOptimization()
-  returns.  A pixmap with this optimization mode set always has the
-  default optimization type, even if the default is changed with
-  setDefaultOptimization().
+  returns.  A pixmap with this optimization will have whatever the current
+  default optimization is.  If the default optimization is changed using 
+  setDefaultOptimization, then this will not effect any pixmaps that have
+  already been created.
 
   \value NoOptim  no optimization (currently the same as \c MemoryOptim).
 
@@ -143,6 +144,7 @@
   \c NormalOptim and may provide a little better speed.
 
   We recommend sticking with \c DefaultOptim.
+
 */
 
 
@@ -222,10 +224,10 @@ QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
   Constructs a pixmap from the file \e fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
-  The parameters are passed on to load(), i.e. the data in \e fileName
-  are not compiled into the binary. If \e fileName contains a relative
-  path (e.g. the filename only) the relevant file has to be found relative
-  to the runtime working directory.
+  The parameters are passed on to load().  This means that the data in 
+  \e fileName is not compiled into the binary.  If \e fileName contains a 
+  relative path (e.g. the filename only) the relevant file has to be found 
+  relative to the runtime working directory.
 
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
@@ -243,9 +245,9 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
   The parameters are passed on to load(). This means that the data
-  in \e fileName are not compiled into the binary. Thus you have to make
-  sure that \e fileName can be found from the working directory where
-  your application is called.
+  in \e fileName is not compiled into the binary. If \e fileName contains a 
+  relative path (e.g. the filename only) the relevant file has to be found 
+  relative to the runtime working directory.
 
   \sa isNull(), load(), loadFromData(), save(), imageFormat()
 */
@@ -560,7 +562,7 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 
 /*!
   Resizes the pixmap to \e w width and \e h height.  If either \e w
-  or \e h is less than 1, the pixmap becomes a null pixmap.
+  or \e h is 0, the pixmap becomes a null pixmap.
 
   If both \e w and \e h are greater than 0, a valid pixmap is created.
   New pixels will be uninitialized (random) if the pixmap is expanded.
@@ -612,7 +614,7 @@ void QPixmap::resize( int w, int h )
   and pixel value 0 means transparent. The mask must have the same size as
   this pixmap.
 
-  Setting a \link isNull() null\endlink mask resets the mask,
+  Setting a \link isNull() null\endlink mask resets the mask.
 
   \sa mask(), createHeuristicMask(), QBitmap
 */
@@ -878,7 +880,8 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
   Returns a number that uniquely identifies the contents of this QPixmap object.
   This means that multiple QPixmaps objects can have the same serial number
   as long as they refer to the same contents.
-  The serial number is very useful for caching,for example.
+  
+  An example of where this is useful is for caching QPixmaps.
 
   \sa QPixmapCache
 */
@@ -951,7 +954,8 @@ static QPixmap grabChildWidgets( QWidget * w )
 
 /*!  Creates a pixmap and paints \a widget in it.
 
-  If \a widget has children they are painted, too, appropriately located.
+  If the \a widget has any children, then they are also painted in the
+  appropriate positions.
 
   If you specify \a x, \a y, \a w or \a h, only the rectangle you
   specify is painted.  The defaults are 0, 0 (top-left corner) and
@@ -963,13 +967,13 @@ static QPixmap grabChildWidgets( QWidget * w )
 
   If \a widget is 0, or if the rectangle defined by \a x, \a y, the
   modified \a w and the modified \a h does not overlap the \a
-  widget->rect(), this function returns a null QPixmap.
+  widget->rect(), this function will return a null QPixmap.
 
   This function actually asks \a widget to paint itself (and its
   children to paint themselves).  QPixmap::grabWindow() grabs pixels
   off the screen, which is a bit faster and picks up \e exactly what's
   on-screen.  This function works by calling paintEvent() with painter
-  redirection turned on. If there are overlying windows, grabWindow()
+  redirection turned on. If there are overlaying windows, grabWindow()
   will see them, but not this function.
 
   If there is overlap, it returns a pixmap of the size you want,
