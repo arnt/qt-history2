@@ -28,6 +28,19 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+// on embedded, we do not compress image data. Rationale: by mapping
+// the ready-only data directly into memory we are both faster and
+// more memory efficient
+#ifdef Q_WS_QWS
+#define QT_NO_IMAGE_COMPRESSION
+#endif
+
+
+#ifndef QT_NO_IMAGE_COMPRESSION
+#include <zlib.h>
+#endif
+
+
 struct EmbedImage
 {
     int width, height, depth;
@@ -36,6 +49,9 @@ struct EmbedImage
     QString name;
     QString cname;
     bool alpha;
+#ifndef QT_NO_IMAGE_COMPRESSION
+    ulong compressed, uncompressed;
+#endif
 };
 
 static QString convertToCIdentifier( const char *s )
@@ -52,25 +68,39 @@ static QString convertToCIdentifier( const char *s )
 }
 
 
-static void embedData( QTextStream& out, const uchar* input, int nbytes )
+static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
 {
+#ifndef QT_NO_IMAGE_COMPRESSION
+    ulong len = nbytes * 2;
+    QByteArray bazip( len );
+    ::compress(  (uchar*) bazip.data(), &len, (uchar*) input, nbytes );
+#else
+    ulong len = nbytes;
+#endif
     static const char hexdigits[] = "0123456789abcdef";
     QString s;
-    for ( int i=0; i<nbytes; i++ ) {
+    for ( int i=0; i<(int)len; i++ ) {
 	if ( (i%14) == 0 ) {
 	    s += "\n    ";
 	    out << (const char*)s;
 	    s.truncate( 0 );
 	}
-	uint v = input[i];
+	uint v = (uchar)
+#ifndef QT_NO_IMAGE_COMPRESSION
+		 bazip
+#else		
+		 input
+#endif		
+		 [i];
 	s += "0x";
 	s += hexdigits[(v >> 4) & 15];
 	s += hexdigits[v & 15];
-	if ( i < nbytes-1 )
+	if ( i < (int)len-1 )
 	    s += ',';
     }
     if ( s.length() )
 	out << (const char*)s;
+    return len;
 }
 
 static void embedData( QTextStream& out, const QRgb* input, int n )
@@ -111,6 +141,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#include <qdict.h>" << endl;
     out << "#include <qmime.h>" << endl;
     out << "#include <qdragobject.h>" << endl;
+    out << "#include <zlib.h>" << endl;
 
 
     QPtrList<EmbedImage> list_image;
@@ -135,17 +166,15 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	list_image.append( e );
 	out << "// " << *it << endl;
 	QString s;
-	if ( e->depth == 32 ) {
-	    out << s.sprintf( "static const QRgb %s_data[] = {",
-			      (const char *)e->cname );
-	    embedData( out, (QRgb*)img.bits(), e->width*e->height );
-	} else {
-	    if ( e->depth == 1 )
-		img = img.convertBitOrder(QImage::BigEndian);
-	    out << s.sprintf( "static const unsigned char %s_data[] = {",
-			      (const char *)e->cname );
+	if ( e->depth == 1 )
+	    img = img.convertBitOrder(QImage::BigEndian);
+	out << s.sprintf( "static const unsigned char %s_data[] = {",
+			  (const char *)e->cname );
+#ifndef QT_NO_IMAGE_COMPRESSION
+	e->uncompressed = img.numBytes();
+	e->compressed =
+#endif	
 	    embedData( out, img.bits(), img.numBytes() );
-	}
 	out << "\n};\n\n";
 	if ( e->numColors ) {
 	    out << s.sprintf( "static const QRgb %s_ctable[] = {",
@@ -159,6 +188,9 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "static struct EmbedImage {\n"
 	    "    int width, height, depth;\n"
 	    "    const unsigned char *data;\n"
+#ifndef QT_NO_IMAGE_COMPRESSION
+	    "    ulong compressed, uncompressed;\n"
+#endif	
 	    "    int numColors;\n"
 	    "    const QRgb *colorTable;\n"
 	    "    bool alpha;\n"
@@ -171,6 +203,10 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 		<< e->height << ", "
 		<< e->depth << ", "
 		<< "(const unsigned char*)" << e->cname << "_data, "
+#ifndef QT_NO_IMAGE_COMPRESSION
+		<< e->compressed << ", "
+		<< e->uncompressed << ", "
+#endif		
 		<< e->numColors << ", ";
 	    if ( e->numColors )
 		out << e->cname << "_ctable, ";
@@ -183,21 +219,24 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    out << "\"" << e->name << "\" },\n";
 	    e = list_image.next();
 	}
+#ifndef QT_NO_IMAGE_COMPRESSION
+	out << "    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
+#else	
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
+#endif	
 
 	out << "\n"
-	    "static QDict<QImage> *" << cProject << "image_dict = 0;\n"
-	    "static QImage& uic_findImage_" << cProject << "( const QString& name )\n"
+	    "static QImage uic_findImage( const QString& name )\n"
 	    "{\n"
-	    "    if ( !" << cProject << "image_dict ) {\n"
-	    "        " << cProject << "image_dict = new QDict<QImage>;\n"
-	    "        " << cProject << "image_dict->setAutoDelete( TRUE );\n"
-	    "    }\n"
-	    "    QImage* img = " << cProject << "image_dict->find(name);\n"
-	    "    if ( !img ) {\n"
-	    "        for (int i=0; embed_image_vec[i].data; i++) {\n"
+	    "    for (int i=0; embed_image_vec[i].data; i++) {\n"
 	    "	if ( QString::fromUtf8(embed_image_vec[i].name) == name ) {\n"
-	    "	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
+#ifndef QT_NO_IMAGE_COMPRESSION
+	    "	    ulong len = 5 * embed_image_vec[i].uncompressed;\n"
+	    "	    QByteArray baunzip( len );\n"
+	    "	    ::uncompress( (uchar*) baunzip.data(), &len, \n"
+	    "		(uchar*)embed_image_vec[i].data, \n"
+	    "		embed_image_vec[i].compressed );\n"
+	    "	    QImage img((uchar*)baunzip.data(),\n"
 	    "			embed_image_vec[i].width,\n"
 	    "			embed_image_vec[i].height,\n"
 	    "			embed_image_vec[i].depth,\n"
@@ -205,62 +244,57 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "			embed_image_vec[i].numColors,\n"
 	    "			QImage::BigEndian\n"
 	    "		);\n"
+	    "	    img = img.copy();\n"
+#else
+	    "	    QImage img((uchar*)embed_image_vec[i].data,\n"
+	    "			embed_image_vec[i].width,\n"
+	    "			embed_image_vec[i].height,\n"
+	    "			embed_image_vec[i].depth,\n"
+	    "			(QRgb*)embed_image_vec[i].colorTable,\n"
+	    "			embed_image_vec[i].numColors,\n"
+	    "			QImage::BigEndian\n"
+	    "		);\n"
+#endif	
 	    "	    if ( embed_image_vec[i].alpha )\n"
-	    "	        img->setAlphaBuffer(TRUE);\n"
-	    "	    break;\n"
-	    "	}\n"
-	    "        }\n"
-	    "        if ( !img ) {\n"
-	    "            static QImage dummy;\n"
-	    "            return dummy;\n"
-	    "        } else {\n"
-	    "            " << cProject << "image_dict->insert( name, img );\n"
+	    "	        img.setAlphaBuffer(TRUE);\n"
+	    "	    return img;\n"
 	    "        }\n"
 	    "    }\n"
-	    "    return *img;\n"
+	    "    return QImage();\n"
 	    "}\n\n";
 
-	out << "class DesignerMimeSourceFactory_" << cProject << " : public QMimeSourceFactory" << endl;
+	out << "class MimeSourceFactory_" << cProject << " : public QMimeSourceFactory" << endl;
 	out << "{" << endl;
 	out << "public:" << endl;
-	out << "    DesignerMimeSourceFactory_" << cProject << "() {}" << endl;
-
+	out << "    MimeSourceFactory_" << cProject << "() {}" << endl;
+	out << "    ~MimeSourceFactory_" << cProject << "() {}" << endl;
 	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
-	out << "\tQImage img;" << endl;
-	out << "\tif ( !!abs_name )" << endl;
-	out << "\t    img = uic_findImage_" << cProject << "( abs_name );" << endl;
-	out << "\tif ( !img.isNull() ) {" << endl;
-	out << "\t    QMimeSourceFactory::defaultFactory()->setImage( abs_name, img );" << endl;
-	out << "\t    return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
-	out << "\t} else {" << endl;
-	out << "\t    QMimeSourceFactory::removeFactory( (QMimeSourceFactory*)this );" << endl;
-	out << "\t    const QMimeSource *s = QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
-	out << "\t    QMimeSourceFactory::addFactory( (QMimeSourceFactory*)this );" << endl;
-	out << "\t    return s;" << endl;
-	out << "\t}" << endl;
-	out << "\treturn 0;" << endl;
+	out << "\tconst QMimeSource* d = QMimeSourceFactory::data( abs_name );" << endl;
+	out << "\tif ( d || abs_name.isNull() ) return d;" << endl;
+	out << "\tQImage img = uic_findImage( abs_name );" << endl;
+	out << "\tif ( !img.isNull() )" << endl;
+	out << "\t    ((QMimeSourceFactory*)this)->setImage( abs_name, img );" << endl;
+	out << "\treturn QMimeSourceFactory::data( abs_name );" << endl;
 	out << "    };" << endl;
 	out << "};" << endl;
 
-	out << "static DesignerMimeSourceFactory_" << cProject <<"  *designerMimeSourceFactory = 0;" << endl;
+	out << "static QMimeSourceFactory* factory = 0;" << endl;
 
 	out << "void qInitImages_" << cProject << "()" << endl;
 	out << "{" << endl;
-	out << "    if ( designerMimeSourceFactory )" << endl;
-	out << "	return;" << endl;
-	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactory_" << cProject << ";" << endl;
-	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
+	out << "    if ( !factory ) {" << endl;
+	out << "\tfactory = new MimeSourceFactory_" << cProject << ";" << endl;
+	out << "\tQMimeSourceFactory::defaultFactory()->addFactory( factory );" << endl;
+	out << "    }" <<  endl;
 	out << "}" << endl;
 
 	out << "void qCleanupImages_" << cProject << "()" << endl;
 	out << "{" << endl;
-	out << "    delete " << cProject << "image_dict;" << endl;
-	out << "    " << cProject << "image_dict = 0;" << endl;
-	out << "    if ( !designerMimeSourceFactory )" << endl;
-	out << "	return;" << endl;
-	out << "    QMimeSourceFactory::defaultFactory()->removeFactory( designerMimeSourceFactory );" << endl;
-	out << "    delete designerMimeSourceFactory;" << endl;
-	out << "    designerMimeSourceFactory = 0;" << endl;
+	out << "    if ( factory ) {" << endl;
+	out << "\tQMimeSourceFactory::defaultFactory()->removeFactory( factory );" << endl;
+	out << "\tdelete factory;" << endl;
+	out << "\tfactory = 0;" << endl;
+	out << "    }" <<  endl;
 	out << "}" << endl;
 
 	out << "class StaticInitImages_" << cProject << endl;
