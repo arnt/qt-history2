@@ -246,10 +246,12 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
             if(child) {
                 if(child == last) 
                     break;
-                GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
-                wpos = posInWindow(child);
-                OffsetRgn(macr, wpos.x(), wpos.y());
-                ret -= qt_mac_convert_mac_region(macr);
+                if(child->isVisible()) {
+                    GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
+                    wpos = posInWindow(child);
+                    OffsetRgn(macr, wpos.x(), wpos.y());
+                    ret -= qt_mac_convert_mac_region(macr);
+                }
             }
         }
         if(!widget->parentWidget())
@@ -433,28 +435,25 @@ protected:
     void windowChanged() { context->d->updatePaintDevice(); }
 };
 
-OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
+OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
-    bool handled_event = true;
     QMacGLWindowChangeEvent *change = static_cast<QMacGLWindowChangeEvent*>(data);
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
     case kEventClassControl:
-        handled_event = false;
         if(ekind == kEventControlOwningWindowChanged
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
            || ekind == kEventControlVisibilityChanged 
 #endif
-           || ekind == kEventControlBoundsChanged) 
-            change->context->d->updatePaintDevice();
-        break;
+           || ekind == kEventControlBoundsChanged) {
+            extern void qt_event_request_window_change(); //qapplication_mac.cpp
+            qt_event_request_window_change();
+        }
+        break; 
     default:
-        handled_event = false;
         break;
     }
-    if(!handled_event) //let the event go through
-        return eventNotHandledErr;
-    return noErr; //we eat the event
+    return CallNextEventHandler(er, event);
 }
 
 void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
