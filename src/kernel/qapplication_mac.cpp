@@ -165,6 +165,7 @@ void qt_remove_postselect_handler( VFPTR handler )
 //timer stuff
 static void	initTimers();
 static void	cleanupTimers();
+static int      activateNullTimers();
 
 // one day in the future we will be able to have static objects in libraries....
 struct QScrollInProgress {
@@ -442,8 +443,12 @@ int QApplication::exec()
 /* timer code */
 struct TimerInfo {
     QObject *obj;
-    EventLoopTimerRef id;
+
+    enum { TIMER_ZERO, TIMER_MAC } type;
+    EventLoopTimerRef mac_timer;
+    int id;
 };
+static int zero_timer_count = 0;
 typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
 static TimerList *timerList	= 0;		// timer list
 
@@ -451,7 +456,7 @@ static TimerList *timerList	= 0;		// timer list
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     TimerInfo *t = (TimerInfo *)data;
-    QTimerEvent e( (int)t->id );
+    QTimerEvent e( t->id );
     QApplication::sendEvent( t->obj, &e );	// send event
 }
 
@@ -463,14 +468,32 @@ static void initTimers()			// initialize timers
     timerList = new TimerList;
     Q_CHECK_PTR( timerList );
     timerList->setAutoDelete( TRUE );
+    zero_timer_count = 0;
 }
 
 static void cleanupTimers()			// cleanup timer data structure
 {
+    zero_timer_count = 0;
     if ( timerList ) {
 	delete timerList;
 	timerList = 0;
     }
+}
+
+static int activateNullTimers() 
+{
+    if(!zero_timer_count)
+	return 0;
+
+    int ret = 0;
+    for(register TimerInfo *t = timerList->first(); ret != zero_timer_count && t; t = timerList->next()) {
+	if(t->type == TimerInfo::TIMER_ZERO) {
+	    ret++;
+	    QTimerEvent e( t->id );
+	    QApplication::sendEvent( t->obj, &e );	// send event
+	}
+    }
+    return ret;
 }
 
 //
@@ -482,15 +505,26 @@ int qStartTimer( int interval, QObject *obj )
 	initTimers();
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
-    EventTimerInterval mint = (((EventTimerInterval)interval) / 1000) + 0.00001;
-if(! InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
-			       NewEventLoopTimerUPP(qt_activate_timers), t, &t->id) ) {
-	t->obj = obj;
-	timerList->append(t);
-	return (int)t->id;
+    if(interval == 0) {
+	t->mac_timer = NULL;
+	timeval tv;
+	gettimeofday(&tv, NULL);
+	t->id = tv.tv_usec;
+	zero_timer_count++;
+    } else {
+	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
+	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
+				 NewEventLoopTimerUPP(qt_activate_timers), t, &t->mac_timer) ) {
+
+	    delete t;
+	    return 0;
+	}
+	t->id = (int)t->mac_timer;
     }
-    delete t;
-    return 0;
+    t->type = interval ? TimerInfo::TIMER_MAC : TimerInfo::TIMER_ZERO;
+    t->obj = obj;
+    timerList->append(t);
+    return (int)t->id;
 }
 
 bool qKillTimer( int id )
@@ -498,10 +532,13 @@ bool qKillTimer( int id )
     if ( !timerList || id <= 0)
 	return FALSE;				// not init'd or invalid timer
     register TimerInfo *t = timerList->first();
-    while ( t && t->id != (EventLoopTimerRef)id ) // find timer info in list
+    while ( t && (t->id != id) ) // find timer info in list
 	t = timerList->next();
     if ( t ) { 					// id found
-	RemoveEventLoopTimer(t->id);
+	if(t->type == TimerInfo::TIMER_MAC)
+	    RemoveEventLoopTimer(t->mac_timer);
+	else
+	    zero_timer_count--;
 	return timerList->remove();
     }
     return FALSE; // id not found
@@ -514,7 +551,10 @@ bool qKillTimer( QObject *obj )
     register TimerInfo *t = timerList->first();
     while ( t ) {				// check all timers
 	if ( t->obj == obj ) {			// object found
-	    RemoveEventLoopTimer(t->id);
+	    if(t->type == TimerInfo::TIMER_MAC)
+		RemoveEventLoopTimer(t->mac_timer);
+	    else
+		zero_timer_count--;
 	    timerList->remove();
 	    t = timerList->current();
 	} else {
@@ -727,8 +767,7 @@ bool QApplication::processNextEvent( bool  )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 
-	/* this gives QD a chance to flush buffers, I don't like doing it
-	   FIXME!! */
+	/* this gives QD a chance to flush buffers, I don't like doing it! FIXME!! */
 	EventRecord ev;
 	EventAvail(everyEvent, &ev);
 
@@ -742,9 +781,19 @@ bool QApplication::processNextEvent( bool  )
 	EventRef event;
 	OSStatus ret;
 	do {
-	    ret = ReceiveNextEvent( 0, 0, 0.01, TRUE, &event );
+#ifdef Q_WS_MAC9
+#define QMAC_EVENT_WAIT 0.01
+#else
+#define QMAC_EVENT_WAIT kEventDurationNoWait
+#endif
+	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_WAIT, TRUE, &event );
+#undef QMAC_EVENT_WAIT
+	    //try to send null timers..
+	    activateNullTimers();
+
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		break;
+
 	    ret = SendEventToApplication(event);
 	    ReleaseEvent(event);
 	    if(ret != noErr)
