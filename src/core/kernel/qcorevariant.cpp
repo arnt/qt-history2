@@ -965,21 +965,21 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 
     \code
     QDataStream out(...);
-    QCoreVariant v(123);          // The variant now contains an int
-    int x = v.toInt();        // x = 123
-    out << v;                 // Writes a type tag and an int to out
-    v = QCoreVariant("hello");    // The variant now contains a QByteArray
-    v = QCoreVariant(tr("hello"));// The variant now contains a QString
-    int y = v.toInt();        // y = 0 since v cannot be converted to an int
-    QString s = v.toString(); // s = tr("hello")  (see QObject::tr())
-    out << v;                 // Writes a type tag and a QString to out
+    QCoreVariant v(123);            // The variant now contains an int
+    int x = v.toInt();              // x = 123
+    out << v;                       // Writes a type tag and an int to out
+    v = QCoreVariant("hello");      // The variant now contains a QByteArray
+    v = QCoreVariant(tr("hello"));  // The variant now contains a QString
+    int y = v.toInt();              // y = 0 since v cannot be converted to an int
+    QString s = v.toString();       // s = tr("hello")  (see QObject::tr())
+    out << v;                       // Writes a type tag and a QString to out
     ...
-    QDataStream in(...);      // (opening the previously written stream)
-    in >> v;                  // Reads an Int variant
-    int z = v.toInt();        // z = 123
-    qDebug("Type is %s",      // prints "Type is int"
+    QDataStream in(...);            // (opening the previously written stream)
+    in >> v;                        // Reads an Int variant
+    int z = v.toInt();              // z = 123
+    qDebug("Type is %s",            // prints "Type is int"
             v.typeName());
-    v.asInt() += 100;              // The variant now hold the value 223.
+    v.asInt() += 100;               // The variant now hold the value 223.
     v = QCoreVariant(QStringList());
     v.asStringList().append("Hello");
     \endcode
@@ -995,7 +995,9 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \code
     QCoreVariant x, y(QString()), z(QString(""));
     x.asInt();
-    // x.isNull() == true, y.isNull() == true, z.isNull() == false
+    // x.isNull() == true,
+    // y.isNull() == true, z.isNull() == false
+    // y.isEmpty() == true, z.Empty() == true
     \endcode
 */
 

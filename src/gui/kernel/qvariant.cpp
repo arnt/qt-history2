@@ -694,12 +694,20 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-    \fn QVariant::QVariant(Type type, void *v)
+    \fn QVariant::QVariant(Type type, const void *v)
 
     \internal
 
     Constructs a variant of type \a type, and initializes with \a v if
     \a v is not 0.
+*/
+
+/*!
+    \fn QVariant::QVariant(Type type)
+
+    \internal
+
+    Constructs a variant of type \a type with no value.
 */
 
 /*!
@@ -712,12 +720,6 @@ const QVariant::Handler qt_gui_variant_handler = {
     \fn QVariant::QVariant(const QCoreVariant &other)
 
     Constructs a variant with the value of \a other.
-*/
-
-/*!
-    \fn QVariant::QVariant(const UserData &)
-
-    \internal
 */
 
 /*!
