@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -41,11 +41,11 @@ struct QUrlOperatorPrivate
   \fn void QUrlOperator::newChild( const QUrlInfo &i, QNetworkOperation *op )
 
   This signal is emitted after listChildren() was called and
-  a new child (e.g. file) has been read from the list of files. \a i
-  holds the information about the new child. 
+  a new child (e.g. file) has been read from e.g. a list of files. \a i
+  holds the information about the new child.
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -57,7 +57,7 @@ struct QUrlOperatorPrivate
   This signal is emitted always, this means on success and on failure.
   \a op is the pointer to the operation object, which contains all infos
   of the operation which has been finished, including the state and so on.
-  To check if the operation was successful or not, check the state and 
+  To check if the operation was successful or not, check the state and
   error code of the operation object.
 
   \sa QNetworkOperation::QNetworkOperation()
@@ -70,7 +70,7 @@ struct QUrlOperatorPrivate
   when they start.
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -82,7 +82,7 @@ struct QUrlOperatorPrivate
   about the new directory.
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -96,7 +96,7 @@ struct QUrlOperatorPrivate
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -104,13 +104,13 @@ struct QUrlOperatorPrivate
   \fn void QUrlOperator::itemChanged( QNetworkOperation *op )
 
   This signal is emitted whenever a file, which is a child of this URL,
-  has been changed e.g. by successfully calling rename(). \a op holds 
+  has been changed e.g. by successfully calling rename(). \a op holds
   the original and the new filenames in the first and second arguments.
   You get them with op->arg1() and op->arg1().
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -122,7 +122,7 @@ struct QUrlOperatorPrivate
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -139,7 +139,7 @@ struct QUrlOperatorPrivate
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
-  
+
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -204,10 +204,10 @@ struct QUrlOperatorPrivate
   the operation methodes creates an QNetworkOperation object
   which describes the operation and puts it into the operation
   queue of the network protocol.
-  If no fitting protocol could be found (is not registered), 
-  the url operator emits errors. Also not each protocol supports 
+  If no fitting protocol could be found (is not registered),
+  the url operator emits errors. Also not each protocol supports
   each operation - but the error  handling deals with this problem.
-  
+
   \sa QNetworkProtocol::QNetworkProtocol()
 */
 
@@ -273,12 +273,12 @@ QUrlOperator::~QUrlOperator()
 }
 
 /*!
-  Starts listing a directory. The signal start( QNetworkOperation * ) 
-  is emitted, before the first entry is listed, and after the last one 
+  Starts listing a directory. The signal start( QNetworkOperation * )
+  is emitted, before the first entry is listed, and after the last one
   finished( QNetworkOperation * ) is emitted.
   For each new entry, the newChild( QUrlInfo &, QNetworkOperation * )
   signals is emitted.
-  If an error occures, also the signal finished( QNetworkOperation * ) 
+  If an error occures, also the signal finished( QNetworkOperation * )
   is emitted, so check the state of the network operation pointer!
 */
 
@@ -312,7 +312,7 @@ const QNetworkOperation *QUrlOperator::listChildren()
 /*!
   Tries to create a directory with the name \a dirname.
   If it has been successful an newChild( QUrlInfo &, QNetworkOperation * )
-  signal with the new file is emitted, and the 
+  signal with the new file is emitted, and the
   createdDirectory( QUrlInfo &, QNetworkOperation * ) with
   the information about the new directory is emitted too.
   Also finished( QNetworkOperation * ) (on success or failure) is emitted,
