@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#15 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#16 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -18,8 +18,8 @@
 
 // Painter device cmd() identifiers (for programmable, extended devices)
 
-#define PDC_RESERVED_START	0		// codes 0-99 are reserved
-#define PDC_RESERVED_STOP	99		//   for Troll Tech
+#define PDC_RESERVED_START	0		// codes 0-999 are reserved
+#define PDC_RESERVED_STOP	999		//   for Troll Tech
 
 #define PDC_NOP			0		//  <void>
 #define PDC_DRAW_FIRST		1
