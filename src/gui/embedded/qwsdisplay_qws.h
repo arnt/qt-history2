@@ -88,7 +88,7 @@ public:
     void grabMouse(QWidget *w, bool grab);
     void grabKeyboard(QWidget *w, bool grab);
     void playSoundFile(const QString&);
-    void registerChannel(const QByteArray& channel);
+    void registerChannel(const QByteArray &channel);
     void sendMessage(const QByteArray &channel, const QByteArray &msg,
                        const QByteArray &data);
 #ifndef QT_NO_QWS_REPEATER

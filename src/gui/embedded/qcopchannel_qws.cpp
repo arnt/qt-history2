@@ -32,7 +32,7 @@ static QCopClientMap *qcopClientMap = 0;
 class QCopChannelPrivate
 {
 public:
-    QCString channel;
+    QByteArray channel;
 };
 
 /*!
@@ -67,7 +67,7 @@ public:
     are passed on to the QObject constructor.
 */
 
-QCopChannel::QCopChannel(const QCString& channel, QObject* parent, const char* name) :
+QCopChannel::QCopChannel(const QByteArray& channel, QObject* parent, const char* name) :
     QObject(parent, name)
 {
     d = new QCopChannelPrivate;
@@ -124,7 +124,7 @@ QCopChannel::~QCopChannel()
     Returns the name of the channel.
 */
 
-QCString QCopChannel::channel() const
+QByteArray QCopChannel::channel() const
 {
     return d->channel;
 }
@@ -140,7 +140,7 @@ QCString QCopChannel::channel() const
 
     Example:
     \code
-    void MyClass::receive(const QCString &msg, const QByteArray &data)
+    void MyClass::receive(const QByteArray &msg, const QByteArray &data)
     {
         QDataStream stream(data, IO_ReadOnly);
         if (msg == "execute(QString,QString)") {
@@ -164,13 +164,13 @@ QCString QCopChannel::channel() const
 
     \sa send()
  */
-void QCopChannel::receive(const QCString &msg, const QByteArray &data)
+void QCopChannel::receive(const QByteArray &msg, const QByteArray &data)
 {
     emit received(msg, data);
 }
 
 /*!
-    \fn void QCopChannel::received(const QCString &msg, const QByteArray &data)
+    \fn void QCopChannel::received(const QByteArray &msg, const QByteArray &data)
 
     This signal is emitted with the \a msg and \a data whenever the
     receive() function gets incoming data.
@@ -182,7 +182,7 @@ void QCopChannel::receive(const QCString &msg, const QByteArray &data)
     Returns true if \a channel is registered; otherwise returns false.
 */
 
-bool QCopChannel::isRegistered(const QCString& channel)
+bool QCopChannel::isRegistered(const QByteArray& channel)
 {
     QByteArray data;
     QDataStream s(data, IO_WriteOnly);
@@ -204,7 +204,7 @@ bool QCopChannel::isRegistered(const QCString& channel)
     \sa receive()
 */
 
-bool QCopChannel::send(const QCString &channel, const QCString &msg)
+bool QCopChannel::send(const QByteArray &channel, const QByteArray &msg)
 {
     QByteArray data;
     return send(channel, msg, data);
@@ -239,7 +239,7 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg)
     \sa receive()
 */
 
-bool QCopChannel::send(const QCString &channel, const QCString &msg,
+bool QCopChannel::send(const QByteArray &channel, const QByteArray &msg,
                        const QByteArray &data)
 {
     if (!qt_fbdpy) {
@@ -330,22 +330,22 @@ void QCopChannel::detach(QWSClient *cl)
     specified channel.
 */
 
-void QCopChannel::answer(QWSClient *cl, const QCString &ch,
-                          const QCString &msg, const QByteArray &data)
+void QCopChannel::answer(QWSClient *cl, const QByteArray &ch,
+                          const QByteArray &msg, const QByteArray &data)
 {
     // internal commands
     if (ch.isEmpty()) {
         if (msg == "isRegistered()") {
-            QCString c;
+            QByteArray c;
             QDataStream s(data, IO_ReadOnly);
             s >> c;
             bool known = qcopServerMap && qcopServerMap->contains(c)
                         && !((*qcopServerMap)[c]).isEmpty();
-            QCString ans = known ? "known" : "unkown";
+            QByteArray ans = known ? "known" : "unkown";
             QWSServer::sendQCopEvent(cl, "", ans, data, true);
             return;
         } else if (msg == "detach()") {
-            QCString c;
+            QByteArray c;
             QDataStream s(data, IO_ReadOnly);
             s >> c;
             Q_ASSERT(qcopServerMap);
@@ -386,7 +386,7 @@ void QCopChannel::answer(QWSClient *cl, const QCString &ch,
     Client side: distribute received event to the QCop instance managing the
     channel.
 */
-void QCopChannel::sendLocally(const QCString &ch, const QCString &msg,
+void QCopChannel::sendLocally(const QByteArray &ch, const QByteArray &msg,
                                 const QByteArray &data)
 {
     Q_ASSERT(qcopClientMap);

@@ -18,7 +18,6 @@
 
 #include "qdrawutil.h"
 #include "qapplication.h"
-#include "qaccel.h"
 #include "qstyle.h"
 #include "qwidget.h"
 #include "qpopupmenu.h"

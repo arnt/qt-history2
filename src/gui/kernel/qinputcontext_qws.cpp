@@ -46,7 +46,6 @@ static QWidget* prevFocusW = 0;
 
 bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event); //in qapplication_qws.cpp
 
-#include <qmultilineedit.h>
 #include <qlineedit.h>
 
 void QInputContext::retrieveMarkedText(QWidget *)
