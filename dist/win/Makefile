@@ -79,7 +79,7 @@ clean:
 	cd examples
 	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..
-	cd src\codecs\src
+	cd plugins\src\codecs
 	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..\..\..
 
