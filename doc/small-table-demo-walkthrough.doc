@@ -39,12 +39,13 @@
 
 \title Walkthrough: A short demonstration of the Qt table module
 
-The following example shows how to populate the cells of a spreadsheet with
+The \link small-table-demo-example.html following example \endlink
+shows how to populate the cells of a spreadsheet with
 pixmaps and text, combo boxes and check boxes.
 
 Our aim is a table that consists of 100 columns and 100 rows, 
-with the entire second column filled with check boxes and
-the sixth column filled with combo boxes where
+with the entire second column filled with check boxes.
+The sixth column is filled with combo boxes where
 users might choose between four items.
 The third cell in the fourth row contains a pixmap and a string.
 
@@ -56,7 +57,7 @@ The third cell in the fourth row contains a pixmap and a string.
 
 All we need to implement this are five classes: \l QApplication
 (overall it's a GUI program), \l QTable for the spreadsheet, \l QImage to
-load and scale the icon, \l QPixmap for the icon to show and \l QStringList
+load and scale the icon, \l QPixmap to show it, and \l QStringList
 to store the combo box items.
 
 \skipto qtlogo.xpm
@@ -82,19 +83,24 @@ Then we create a \e table widget of the defined size.
 \printline img
 
 Next we load the pixmap we want to show. We use a QImage for this purpose
-since we have to scale it first so that it will fit into the table cell.
-Such an operation should always be done in QImage because this is more
-efficient: a QPixmap is stored by the windowing system and if you do the
-transformation on the QPixmap, Qt has to get it first, then do the
-transformation and put the transformed pixmap back again.
+because we don't know whether the icon fits into the table cell.
+
+Scaling and other transformation operations are efficiently applied to 
+QImage objects whilst to transform
+a QPixmap Qt has to obtain it from the windowing system where
+QPixmaps are stored, do the
+transformation, and hand the transformed pixmap back 
+to the windowing system.
 
 \printline pix
 
-Then we scale it that it will fit into the cell. We want to put it into the
-fourth row, so the limiting factor is the height of the row (keep in mind
-that row and column numbering in QTable start with zero so that the fourth
-row is denoted by 3). We assign the resulting QImage to a QPixmap. This
-puts the pixmap to the windowing system, so that we can use it finally for
+We scale the image to fit into the cell. As we want to place it in the
+fourth row, the limiting factor is the height of this row (keep in mind
+that row and column numbering in QTable starts with zero so that the fourth
+row is denoted by \e{3}). 
+
+We assign the resulting QImage to a QPixmap. This
+hands the pixmap over to the windowing system, so that we can use it for
 displaying purposes.
 
 \printline table.setPixmap
@@ -126,8 +132,8 @@ with the last row (i.e. no. \e{numRows-1}) ...
 
 \printuntil TRUE
 
-... we populate the sixth column with identical combo boxes that
-show the entries \e one, \e two, \e three and \e four. With
+... we populate the sixth column with identical combo boxes 
+showing the entries \e one, \e two, \e three and \e four. With
 the last parameter set to TRUE the user has the possibility to
 change the text of the combo box entries. \l QComboTableItem
 is a special class to fill table cells with combo boxes.
