@@ -24,6 +24,7 @@ QWS_QVFB=prompted
 QWS_DEPTHS=prompted
 HELP=
 GPLUSPLUS_EXCEPTIONS=unspecified
+CONFIG_FAST=no
 #platform
 X11_PLATFORM=no
 MAC_PLATFORM=no
@@ -198,7 +199,7 @@ else
 		read LicenseKey
 	    fi
 	fi
-	if echo $LicenseKey | grep "....-....-...." >/dev/null 2>&1
+	if echo $LicenseKey | grep -q "....-....-...." >/dev/null 2>&1
 	then
 	    # get the first character of the key
 	    keyTest=`echo $LicenseKey | cut -b1`
@@ -321,9 +322,6 @@ else
 	exit 1
     fi
 fi
-
-# Remove the build options file
-[ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
 
 fi # help
 
@@ -639,7 +637,7 @@ do
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
 
-	    if echo "${MODULES}" | grep $MODULE >/dev/null 2>&1
+	    if echo "${MODULES}" | grep -q $MODULE >/dev/null 2>&1
 	    then
 		MODULES="$MODULES $MODULE"
 	    fi
@@ -694,6 +692,15 @@ do
 	   echo $1: unknown argument
 	   HELP=yes;
 	fi
+	;;
+   -fast)
+	# only run qmake for moc, qt, lib and subdir targets, generate dummy makefiles
+	# for everything else, so that configure is nice and fast
+	CONFIG_FAST=yes
+	;;
+   -no-fast)
+	# disable any previous -fast
+	CONFIG_FAST=no
 	;;
    -v)
 	#takes two verboses to turn on qmake debugs
@@ -772,7 +779,7 @@ then
     UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
     ARCH=""
-    if echo $QMAKE_CONFIG | grep embedded >/dev/null 2>&1
+    if echo $QMAKE_CONFIG | grep -q embedded >/dev/null 2>&1
     then
 	# This is a Qt/Embedded distribution
 	SM=no
@@ -909,7 +916,7 @@ if [ "$LAZY_DEPS_ALLOWED" = "yes" ]; then
     ${MAKE} --version | grep GNU >/dev/null 2>&1 && QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
 fi
 
-if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
+if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep -q '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
     CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
 fi
 
@@ -968,7 +975,7 @@ fi
 echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && QWS_PLATFORM=yes
 
 # Find default thread option for target
-if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
+if grep -q >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
 then
     AUTOTHREAD=yes
     AUTOTHREAD=no  ####### leave off for now
@@ -995,7 +1002,7 @@ fi
 unixtests=$relpath/config.tests/unix
 
 # Auto-detect SQL-modules support
-if echo $MODULES | grep sql >/dev/null
+if echo $MODULES | grep -q sql >/dev/null
 then
     SQL_AVAIL=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     SQL_AVAIL=`echo $SQL_AVAIL`
@@ -1038,7 +1045,7 @@ then
     x11tests=$relpath/config.tests/x11
 
     # Auto-detect OpenGL support
-    if echo $MODULES | grep opengl >/dev/null
+    if echo $MODULES | grep -q opengl >/dev/null
     then
 	$x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE $L_FLAGS $I_FLAGS && MODULES=`echo $MODULES | sed -e 's/opengl//'`
     fi
@@ -1136,7 +1143,17 @@ Usage:  $relconf [-prefix dir] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] \\
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
-	[-disable-<module>] [-with-<module setting>] [-without-<module setting>]
+	[-disable-<module>] [-with-<module setting>] [-without-<module setting>] \\
+	[-fast] [-no-fast]
+
+Configure options:
+    -fast .............. Configure Qt quickly by generating Makefiles only for
+			  library and subdirectory targets.  All other Makefiles
+			  are created as wrappers, which first run qmake to
+			  generate the correct Makefile, and then run make with
+			  the newly generated Makefile.
+ *  -no-fast ........... Configure Qt normally by generating Makefiles for all
+			  project files.
 
 Installation options:
 
@@ -1714,8 +1731,7 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE "$Products"
 EOF
-QCONF_CHANGES=`diff $outpath/include/qconfig.h $outpath/include/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f $outpath/include/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
+if [ -f $outpath/include/qconfig.h ] && diff -q $outpath/include/qconfig.h $outpath/include/qconfig.h.new >/dev/null 2>&1
 then
     rm -f $outpath/include/qconfig.h.new
 else
@@ -1834,13 +1850,12 @@ then
     fi
 fi
 
-[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
 if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]; then
     QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
 if [ '!' -z "$R_FLAGS" ]; then
-    if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
+    if grep -q QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
     then
 	echo # Using -R/-rpath, so no need to warn
     else
@@ -1905,8 +1920,7 @@ QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing...
-QMOD_CHANGES=`diff $outpath/include/qmodules.h $outpath/include/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f $outpath/include/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
+if [ -f $outpath/include/qmodules.h ] && diff -q $outpath/include/qmodules.h $outpath/include/qmodules.h.new >/dev/null 2>&1
 then
     rm -f $outpath/include/qmodules.h.new
 else
@@ -1918,8 +1932,8 @@ fi
 ##
 # Create the .qmake.cache file
 CACHEFILE=$outpath/.qmake.cache
-[ -f $CACHEFILE ] && rm -f $CACHEFILE
-cat >>$CACHEFILE <<EOF
+[ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
+cat >>$CACHEFILE.tmp <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
@@ -1932,16 +1946,16 @@ for i in $QMAKE_VARS; do
   if [ "$quoted" = "no" ]
   then
     case "$i" in
-      \"*\") echo $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE ;;
+      \"*\") echo $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE.tmp ;;
       \"*) quoted=yes ; tmp=$i ;;
-      *) echo $i >>CACHEFILE ;;
+      *) echo $i >>CACHEFILE.tmp ;;
     esac
   else
     case "$i" in
       *\") quoted=no
-	   echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE
+	   echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE.tmp
 	   tmp="" ;;
-      *) tmp="$tmp $i" >>$CACHEFILE ;;
+      *) tmp="$tmp $i" >>$CACHEFILE.tmp ;;
     esac
   fi
 done
@@ -1959,9 +1973,13 @@ then
 	#done
 	INCREMENTAL="$INCREMENTAL `basename $f | sed 's,.cpp,.o,'`"
     done
-    [ '!' -z "$INCREMENTAL" ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE
-    [ -r "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >> $CACHEFILE
+    [ '!' -z "$INCREMENTAL" ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE.tmp
+    [ -r "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >> $CACHEFILE.tmp
 fi
+
+# replace .qmake.cache if it differs from the newly created temp file
+diff -q $CACHEFILE $CACHEFILE.tmp >/dev/null 2>&1 || mv -f $CACHEFILE.tmp $CACHEFILE
+rm -f $CACHEFILE.tmp
 
 ##
 # Give feedback...
@@ -2035,28 +2053,142 @@ fi
 echo
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
-echo "Creating makefiles ..."
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
 PIPE=""
 EXEC=""
 
-# Work around a segfaulting uniq(1)
-rm -f .sorted.projects
+echo "Finding project files. Please wait..."
+[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
+
+# projects to process
+rm -f .projects
+# qt and moc
+rm -f .projects.1
+# subdirs and libs
+rm -f .projects.2
+# the rest when doing normal configure
+rm -f .projects.3
+# the rest when doing fast configure
+rm -f .projects.fast
+
+cat >projects.awk <<EOF
+BEGIN {
+    files = 0
+    target_file = ""
+    input_file = ""
+}
+
+FNR == 1 {
+    if ( input_file ) {
+	if ( ! target_file )
+	    target_file = fast == "yes" ? fastfile : third
+	printf "%s\n", input_file > target_file
+    }
+
+    matched_target = 0
+    template_lib = 0
+    input_file = FILENAME
+    target_file = ""
+}
+
+/^(TARGET.*=)/ {
+    if ( \$3 == "qt" || \$3 == "moc" ) {
+	target_file = first
+        matched_target = 1
+    }
+}
+
+matched_target == 0 && /^(TEMPLATE[[:space:]]*?=[[:space:]])/ {
+    if ( \$3 == "subdirs" ) 
+	target_file = second
+    else if ( \$3 == "lib" ) 
+	template_lib = 1
+    else 
+	target_file = ( fast == "yes" ) ? fastfile : third
+}
+
+matched_target == 0 && template_lib == 1 && /^(CONFIG.*=.*)/ {
+    if ( \$0 ~ /plugin/ )
+	target_file = ( fast == "yes" ) ? fastfile : third
+    else 
+	target_file = second
+}
+
+END {
+    if ( input_file ) {
+	if ( ! target_file )
+	    target_file = fast == "yes" ? fastfile : third
+	printf "%s\n", input_file > target_file
+    }
+}
+
+EOF
+
+rm -f .projects.all
 for p in `echo $QMAKE_PROJECTS`
 do
-    echo $p >> .sorted.projects
+    echo $p >> .projects.all
 done
+
+# if you get errors about the length of the command line to awk, change the -l arg
+# to split below
+split -l 600 .projects.all .projects.all.
+for p in .projects.all.*
+do
+    awk -f projects.awk first=.projects.1.tmp second=.projects.2.tmp third=.projects.3.tmp fast=$CONFIG_FAST fastfile=.projects.fast.tmp `cat $p`
+    [ -f .projects.1.tmp ]    && cat .projects.1.tmp >> .projects.1
+    [ -f .projects.2.tmp ]    && cat .projects.2.tmp >> .projects.2
+    [ -f .projects.3.tmp ]    && cat .projects.3.tmp >> .projects.3
+    [ -f .projects.fast.tmp ] && cat .projects.fast.tmp >> .projects.fast
+    rm -f .projects.1.tmp .projects.2.tmp .projects.3.tmp .projects.fast.tmp
+    rm -f $p
+done
+rm -f .projects.all
+rm -f projects.awk
+
+# why do we sort? just for looks?
+# for n in 3 2 1 fast
+# do
+#    if [ -f .projects.$n ]
+#    then
+#	# Work around a segfaulting uniq(1)
+#	sort .projects.$n > .tmp
+#	mv -f .tmp .projects.$n
+#	uniq .projects.$n > .tmp
+#	mv -f .tmp .projects.$n
+#    fi
+#done
+
+[ -f .projects.3 ] && cat .projects.3 >> .projects.2
+[ -f .projects.2 ] && cat .projects.2 >> .projects.1
+[ -f .projects.1 ] && cat .projects.1 >> .projects
+rm -f .projects.3 .projects.2 .projects.1
+
 for p in `echo $QMAKE_IGNORE_PROJECTS`
 do
-    grep -v $p .sorted.projects > .sorted.projects.new
-    mv -f .sorted.projects.new .sorted.projects
+    if [ -f .projects ]
+    then
+	grep -v $p .projects > .tmp
+	mv -f .tmp .projects
+    fi
+    if [ -f .projects.fast ]
+    then
+	grep -v $p .projects.fast > .tmp
+	mv -f .tmp .projects.fast
+    fi
 done
-sort .sorted.projects > .sorted.projects.new
-mv -f .sorted.projects.new .sorted.projects
-uniq .sorted.projects > .sorted.projects.new
-mv -f .sorted.projects.new .sorted.projects
-for a in `cat .sorted.projects`
+
+NORM_PROJECTS=0
+FAST_PROJECTS=0
+[ -f .projects ] && NORM_PROJECTS=`cat .projects | wc -l | sed -e "s, ,,g"`
+[ -f .projects.fast ] && FAST_PROJECTS=`cat .projects.fast | wc -l | sed -e "s, ,,g"`
+echo "  `expr $NORM_PROJECTS + $FAST_PROJECTS` projects found."
+echo
+
+echo "Creating makefiles. Please wait..."
+# these need to be processed *now*
+for a in `cat .projects`
 do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
@@ -2074,6 +2206,16 @@ do
     dir=`dirname $a | sed -e "s;$sepath;.;g"`
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
+    if [ "$CONFIG_FAST" = "yes" ] && [ $N -nt $a ]
+    then
+	# fast configure - the makefile exists and is newer than the .pro file,
+	# skip it
+	    if [ "x$VERBOSE" = "xyes" ]
+	    then
+		echo "  skipping $a, Makefile is new enough."
+	    fi
+	continue
+    fi
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
     if [ "$SPEC" != "$QMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $QMAKESPEC`" ]
     then
@@ -2095,7 +2237,7 @@ do
 	fi
     fi
 
-    if echo '\c' | grep '\c' >/dev/null
+    if echo '\c' | grep -q '\c' >/dev/null
     then
 	echo -n "  for $a"
     else
@@ -2123,6 +2265,68 @@ done
 #this is just incase the concurrant task is not a multiple of the number of tasks
 [ '!' -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
 
+if [ "$CONFIG_FAST" = "yes" ]
+then
+    echo
+    echo "Quickly creating Makefiles for the remaining $FAST_PROJECTS project(s)..."
+    # we can create these *fast* by delaying running qmake
+    for a in `cat .projects.fast`
+    do
+	case $a in
+	*-kde.pro|*qtmain.pro) continue ;;
+	*/qmake/qmake.pro) continue ;;
+	*-pro.pro)
+	    if [ "x$Edition" != "xpro" ]
+	    then
+		continue
+	    fi
+	    ;;
+	*moc*) SPEC=$QMAKESPEC ;;
+	*) SPEC=$XQMAKESPEC ;;
+	esac
+	file=`basename $a`
+	dir=`dirname $a | sed -e "s;$sepath;.;g"`
+	test -d $dir || mkdir -p $dir
+	N=$outpath/$dir/Makefile
+	QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
+	if [ "$SPEC" != "$QMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $QMAKESPEC`" ]
+	then
+	    echo "USING $SPEC FOR QMAKE"
+	    QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
+	fi
+
+	if [ $N -nt $a ]
+	then
+	    # fast configure - the makefile exists and is newer than the .pro file,
+	    # skip it
+	    if [ "x$VERBOSE" = "xyes" ]
+	    then
+		echo "  skipping $a, Makefile is new enough."
+	    fi
+	    continue
+	fi
+
+	# The Makefile either doesn't exist, or is older then the .pro file - so
+	# we need to generate one
+	echo "  for $a, fast"
+
+	cat >$N <<EOF
+# $N: generated by configure
+#
+# WARNING: This makefile will be replaced with a real makefile.
+# All changes made to this file will be lost.
+
+all clean install qmake Makefile: FORCE
+	$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N.new $a
+	mv -f $N.new $N
+	\$(MAKE) -f $N \$@
+
+FORCE:
+
+EOF
+    done
+fi
+
 if echo "$LD_LIBRARY_PATH" | grep >/dev/null $outpath/lib
 then
     echo
@@ -2137,7 +2341,8 @@ else
 	echo
     fi
 fi
-rm -f .sorted.projects
+rm -f .projects
+rm -f .projects.fast
 
 #finally put the executed command to another script...
 [ -f $outpath/config.status ] && rm -f $outpath/config.status
