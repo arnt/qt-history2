@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#41 $
 **
 ** Implementation of QML classes
 **
@@ -942,7 +942,7 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( this, "qml" );
     style->setDisplayMode( QMLStyle::DisplayBlock );
-    style->setMargin( QMLStyle::MarginAll, 4 );
+    //style->setMargin( QMLStyle::MarginAll, 4 );
 
     style = new QMLStyle( this, "a" );
     style->setColor( Qt::blue );
@@ -1136,9 +1136,9 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
 class QMLDocument : public QMLBox
 {
 public:
-    QMLDocument( const QString &doc, const QWidget* w = 0);
-    QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w = 0);
-    QMLDocument( const QString &doc,  QMLProvider& provider, const QMLStyleSheet& sheet, const QWidget* w = 0);
+    QMLDocument( const QString &doc, const QWidget* w = 0, int margin = 8 );
+    QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w = 0, int margin = 8);
+    QMLDocument( const QString &doc,  QMLProvider& provider, const QMLStyleSheet& sheet, const QWidget* w = 0, int margin = 8);
     ~QMLDocument();
 
 
@@ -1147,7 +1147,7 @@ public:
     void dump();
 
 private:
-    void init( const QString& doc, const QWidget* w = 0 );
+    void init( const QString& doc, const QWidget* w = 0, int margin = 8 );
 
     bool parse (QMLContainer* current, QMLNode* lastChild, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos);
@@ -3000,34 +3000,34 @@ QString QMLProvider::path() const
 //************************************************************************
 
 
-QMLDocument::QMLDocument( const QString &doc, const QWidget* w)
+QMLDocument::QMLDocument( const QString &doc, const QWidget* w, int margin )
     :QMLBox( (base = new QMLStyle( 0, "")) )
 {
     provider_ = QMLProvider::defaultProvider(); // for access during parsing only
     sheet_ = QMLStyleSheet::defaultSheet();// for access during parsing only
-    init( doc, w );
+    init( doc, w, margin );
     provider_ = 0;
 }
 
-QMLDocument::QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w)
+QMLDocument::QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w, int margin)
     :QMLBox( (base = new QMLStyle(0, "")) )
 {
     provider_ = &provider; // for access during parsing only
     sheet_ = QMLStyleSheet::defaultSheet();// for access during parsing only
-    init( doc, w );
+    init( doc, w, margin );
 }
 
 QMLDocument::QMLDocument(const QString &doc,  QMLProvider& provider,
-			 const QMLStyleSheet& sheet, const QWidget* w )
+			 const QMLStyleSheet& sheet, const QWidget* w, int margin )
     :QMLBox( (base = new QMLStyle(0, "")) )
 {
 
     provider_ = &provider; // for access during parsing only
     sheet_ = &sheet; // for access during parsing only
-    init( doc, w );
+    init( doc, w, margin );
 }
 
-void QMLDocument::init( const QString& doc, const QWidget* w )
+void QMLDocument::init( const QString& doc, const QWidget* w, int margin )
 {
     //set up base style
     base->setDisplayMode(QMLStyle::DisplayInline);
@@ -3036,7 +3036,7 @@ void QMLDocument::init( const QString& doc, const QWidget* w )
     base->setFontItalic( f.italic() );
     base->setFontWeight( f.weight() );
     base->setFontSize( f.pointSize() );
-    base->setMargin( QMLStyle::MarginAll, 8 );
+    base->setMargin( QMLStyle::MarginAll, margin );
 
     valid = TRUE;
     int pos = 0;
@@ -4343,7 +4343,7 @@ void QMLBrowser::setDocument(const QString& name)
 	provider()->setReferenceDocument( main );
 	if ( isVisible() ) {
 	    QString firstTag = doc.left( doc.find('>' )+1 );
-	    QMLDocument tmp( firstTag );
+	    QMLDocument tmp( firstTag, 0, 0 );
 	    if (tmp.attributes() && tmp.attributes()->find("type") && *tmp.attributes()->find("type") == "detail" ) {
 		popupDetail( doc, d->lastClick );
 		return;
@@ -4564,8 +4564,8 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 {
 
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-    const int normalMargin = 2; // *2
-    const int leftMargin = 0;   // *3
+    const int normalMargin = 12; // *2
+    const int leftMargin = 18;   // *3
 
     QWidget* popup = new QMLDetailPopup;
     popup->setBackgroundMode( QWidget::NoBackground );
@@ -4699,7 +4699,7 @@ public:
 QMLSimpleDocument::QMLSimpleDocument( const QString& contents, const QWidget* w)
 {
     d  = new QMLSimpleDocumentData;
-    d->doc = new QMLDocument( contents, w );
+    d->doc = new QMLDocument( contents, w, 0 );
 }
 
 /*!
