@@ -69,7 +69,7 @@ private slots:
 	}
     }
     void discardClient()
-    { with this client.
+    {
 	QSocket* socket = (QSocket*)sender();
 	delete socket;
 	emit endConnect();
