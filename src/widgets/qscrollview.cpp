@@ -1409,19 +1409,25 @@ void QScrollView::moveChild(QWidget* child, int x, int y)
 /*!
     Returns the X position of the given \a child widget. Use this
     rather than QWidget::x() for widgets added to the view.
+
+    This function returns 0 if \a child has not been added to the view.
 */
 int QScrollView::childX(QWidget* child)
 {
-    return d->rec(child)->x;
+    QSVChildRec *r = d->rec(child);
+    return r ? r->x : 0;
 }
 
 /*!
     Returns the Y position of the given \a child widget. Use this
     rather than QWidget::y() for widgets added to the view.
+
+    This function returns 0 if \a child has not been added to the view.
 */
 int QScrollView::childY(QWidget* child)
 {
-    return d->rec(child)->y;
+    QSVChildRec *r = d->rec(child);
+    return r ? r->y : 0;
 }
 
 /*! \fn bool QScrollView::childIsVisible(QWidget*)
