@@ -363,7 +363,7 @@ should be converted into
 (Within character classes, the backslash is not necessary in front of certain
 characters, e.g. <tt>|</tt>, but it doesn't hurt.)
 
-However, wildcard patterns need no conversion.  Here are two examples:
+Wildcard patterns need no conversion.  Here are two examples:
 \code
     QRegExp wild( "(*.*)" );
     wild.setWildcard( TRUE );
@@ -372,6 +372,12 @@ However, wildcard patterns need no conversion.  Here are two examples:
     // TRUE as third argument means wildcard
     QRegExp wild( "(*.*)", FALSE, TRUE );
 \endcode
+However, when they are used, make sure to use QRegExp::exactMatch()
+rather than the obsolete QRegExp::match(). QRegExp::match(), like
+QRegExp::find(), tries to find a match somewhere in the target
+string, while QRegExp::exactMatch() tries to match the whole target
+string.
+
 Usually, QRegExp is easy to spot in programs.  However, in one unfortunate case,
 it is subtle: as the first argument to \l QString::replace().  Code like
 \code
