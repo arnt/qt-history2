@@ -1,15 +1,15 @@
 #include "environment.h"
-#include <stdlib.h>
-#if defined(Q_OS_WIN32)
-#include <windows.h>
-#elif defined(Q_OS_UNIX)
-#include <errno.h>
-#endif
 #include <qnamespace.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qfileinfo.h>
 #include <qdir.h>
+#if defined(Q_OS_WIN32)
+#include <windows.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
@@ -152,7 +152,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     }
 #else
     if( envBlock & LocalEnv )
-	putenv( varName + QString( "=" ) + varValue );
+	setenv( varName, varValue, 1 );
 #endif
 }
 
