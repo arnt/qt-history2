@@ -2695,7 +2695,7 @@ void QApplication::setGlobalMouseTracking( bool enable )
 		    w->clearWState( WState_MouseTracking );
 		}
 	    } else {				// switch off
-		if ( w->testWState(WState_MouseTracking) ) {
+		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setWState( WState_MouseTracking );
 		    w->setMouseTracking( FALSE );
 		}
