@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#3 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#3 $");
 
 
 struct QFontDialogPrivate
@@ -73,6 +73,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
     d->familyList->setFocusPolicy( NoFocus );
+    d->familyList->setAutoScrollBar( FALSE );
+    d->familyList->setScrollBar( TRUE );
     d->familyAccel
 	= new QLabel( d->familyEdit, "&Font", this, "family accelerator" );
     d->familyAccel->setMargin( 2 );
@@ -80,7 +82,9 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleEdit = new QLineEdit( this, "font style I" );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
-    d->styleList->setFocusPolicy( NoFocus );
+    d->styleList->setFocusPolicy( NoFocus ); 
+    d->styleList->setAutoScrollBar( FALSE );
+    d->styleList->setScrollBar( TRUE );
     d->styleAccel
 	= new QLabel( d->styleEdit, "Font st&yle", this, "style accelerator" );
     d->styleAccel->setMargin( 2 );
@@ -89,6 +93,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
     d->sizeList->setFocusPolicy( NoFocus );
+    d->sizeList->setAutoScrollBar( FALSE );
+    d->sizeList->setScrollBar( TRUE );
     d->sizeAccel
 	= new QLabel ( d->sizeEdit, "&Size", this, "size accelerator" );
     d->sizeAccel->setMargin( 2 );
@@ -97,7 +103,9 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->effects = new QGroupBox( this, "font effects" );
     d->effects->setTitle( "Effects" );
     d->strikeout = new QCheckBox( d->effects, "strikeout on/off" );
+    d->strikeout->setText( "Strikeout" );
     d->underline = new QCheckBox( d->effects, "underline on/off" );
+    d->underline->setText( "Underline" );
     d->color = new QComboBox( TRUE, d->effects, "pen color" );
     d->colorAccel
 	= new QLabel( d->color, "&Color", d->effects, "color label" );
@@ -138,7 +146,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sampleEditLayout->addWidget( d->sampleEdit );
 
     // top-level and grid layout
-    d->topLevelLayout = new QBoxLayout( this, QBoxLayout::Down, 5 );
+    d->topLevelLayout = new QBoxLayout( this, QBoxLayout::Down, 12 );
     QGridLayout * mainGrid = new QGridLayout( 5, 7, 0 );
 
     d->topLevelLayout->addLayout( mainGrid );
@@ -159,13 +167,13 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     mainGrid->setRowStretch( 4, 2 );
     // next numbers must match with those in updateGeometry()
     mainGrid->setColStretch( 0, 94 );
-    mainGrid->addColSpacing( 1, 16);
+    mainGrid->addColSpacing( 1, 14 );
     mainGrid->setColStretch( 2, 64 );
     mainGrid->addColSpacing( 3, 14 );
     mainGrid->setColStretch( 4, 32 );
     mainGrid->addColSpacing( 5, 14 );
 
-    mainGrid->addRowSpacing( 3, 10 );
+    mainGrid->addRowSpacing( 3, 18 );
 
     mainGrid->addWidget( d->effects, 4, 0 );
 
@@ -263,6 +271,7 @@ void QFontDialog::updateFontFamilies()
     l->insertItem( "Helvetica" );
     l->insertItem( "Courier" );
     l->insertItem( "Palatino" );
+    l->insertItem( "Gill Sans" );
 }
 
 
@@ -284,7 +293,7 @@ void QFontDialog::updateFontStyles()
 {
     QListBox * l = fontStyleListBox();
     l->clear();
-    l->insertItem( "Normal" );
+    l->insertItem( "Roman" );
     l->insertItem( "Italic" );
     l->insertItem( "Oblique" );
 }
@@ -467,7 +476,8 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 void QFontDialog::familyHighlighted( const char * t )
 {
     d->familyEdit->setText( t );	
-    d->familyEdit->selectAll();
+    if ( style() == WindowsStyle && d->familyEdit->hasFocus() )
+	d->familyEdit->selectAll();
 }
 
 
@@ -478,7 +488,8 @@ void QFontDialog::familyHighlighted( const char * t )
 void QFontDialog::styleHighlighted( const char * t )
 {
     d->styleEdit->setText( t );	
-    d->styleEdit->selectAll();
+    if ( style() == WindowsStyle && d->styleEdit->hasFocus() )
+	d->styleEdit->selectAll();
 }
 
 
@@ -488,6 +499,7 @@ void QFontDialog::styleHighlighted( const char * t )
 
 void QFontDialog::sizeHighlighted( const char * t )
 {
-    d->sizeEdit->setText( t );	
-    d->sizeEdit->selectAll();
+    d->sizeEdit->setText( t );
+    if ( style() == WindowsStyle && d->sizeEdit->hasFocus() )
+	d->sizeEdit->selectAll();
 }
