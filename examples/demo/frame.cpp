@@ -115,7 +115,7 @@ Frame::Frame( QWidget *parent, const char *name )
     QSignalMapper *styleMapper = new QSignalMapper( this );
     connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
 
-    QStringList list = QStyleFactory::styles();
+    QStringList list = QStyleFactory::keys();
     list.sort();
     QDict<int> stylesDict( 17, FALSE );
     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
@@ -128,7 +128,7 @@ Frame::Frame( QWidget *parent, const char *name )
 		    styleAccel = styleAccel.insert( i, '&' );
 		    break;
 		}
-	    }   
+	    }
 	} else {
 	    stylesDict.insert(styleAccel.left(1), (const int *)1);
 	    styleAccel = "&"+styleAccel;
