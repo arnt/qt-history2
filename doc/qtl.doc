@@ -38,7 +38,9 @@ Standard Template Library (STL).
 It currently provides the containers \l QMap, \l QValueList and \l
 QValueStack plus a set of iterators and algorithms operating on these
 classes. For convenience, it also includes a predefined class \l
-QStringList that stores a list of unicode string.
+QStringList that stores a list of unicode string with useful
+string-specific functions such as QStringList::grep(),
+QStringList::split(), and QStringList::join().
 
 While QCollection and friends store pointers to objects, these classes
 store copies of the actual objects,
