@@ -171,13 +171,13 @@ void QMutex::lock()
     void *none = 0;
 
     ++d->waiters;
-    if (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
+    if (!d->owner.testAndSet(none, self)) {
         if (!d->recursive || d->owner != self) {
             if (d->owner == self)
                 qWarning("QMutex::lock(): Deadlock detected in Thread %p", d->owner);
 
             report_error(pthread_mutex_lock(&d->mutex), "QMutex::lock()", "mutex lock");
-            while (!q_atomic_test_and_set_ptr(&d->owner, none, self))
+            while (!d->owner.testAndSet(none, self))
                 report_error(pthread_cond_wait(&d->cond, &d->mutex), "QMutex::lock()", "cv wait");
             report_error(pthread_mutex_unlock(&d->mutex), "QMutex::lock()", "mutex unlock");
         }
@@ -202,7 +202,7 @@ bool QMutex::tryLock()
     void *self = (void *) pthread_self();
     void *none = 0;
 
-    if (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
+    if (!d->owner.testAndSet(none, self)) {
         if (!d->recursive || d->owner != self)
             return false;
     }
@@ -226,7 +226,7 @@ void QMutex::unlock()
                "A mutex must be unlocked in the same thread that locked it.");
 
     if (!--d->count) {
-        (void) q_atomic_set_ptr(&d->owner, none);
+        (void) d->owner.exchange(none);
         if (d->waiters != 0) {
             pthread_mutex_lock(&d->mutex);
             pthread_cond_signal(&d->cond);
