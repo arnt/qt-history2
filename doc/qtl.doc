@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qtl.doc,v 1.2 1999/07/12 19:16:13 warwick Exp $
+** $Id: qtl.doc,v 1.3 1999/07/12 19:19:47 warwick Exp $
 **
 ** Qt template library classes documentation
 **
@@ -51,7 +51,7 @@ since it depends on the kind of data you want to store.
 If you can not make copies of the objects you want to store then
 you are better off with QCollection and friends because they are
 designed to handle such pointer semantics. This applies if you deal
-with all classes derived from QObject. These classes dont have
+with all classes derived from QObject. These classes don't have
 a copy constructor, so you can not use them in the STL as storage type.
 Of course you could store pointers to a QObject in a QValueList, but using
 QList directly seems to be the better choice usually.
@@ -67,12 +67,12 @@ QPoint, QSize and of call all trivial C++ types like int, bool, double and so on
 The QTL classes are designed for speed. That means that not all of
 the error checking can be done that you are used to from the QList class
 for example. Especially the iterators of the QTL are fast, but since the
-QTL containers dont know about their iterators, certain checks cant be
+QTL containers don't know about their iterators, certain checks cant be
 made automatically.
 
 <h2> Iterators </h2>
 
-Since QTL containers dont deal with pointers, there is no way of not using
+Since QTL containers don't deal with pointers, there is no way of not using
 iterators. QTL iterators how ever are very fast and slim. Their size matches
 the size of a normal pointer, that means 32 or 64 bits depending on your
 CPU architecture.
@@ -87,12 +87,12 @@ If you want to iterate over some container, you can do it like this:
 \endcode
 
 The most important facts here are, that begin() delivers the iterator pointing
-at the first element while end() returns an iterator pointing behin the last
+at the first element while end() returns an iterator pointing behind the last
 element. It follows from that, that you may not use the item referenced by end()
 iterator, since the end() iterator points behind the last item in the list.
 
 In the above example you should especially notice that the prefix increment
-operator is used for the iterator instead of the posix one. The reason is
+operator is used for the iterator instead of the postfix one. The reason is
 that the prefix one is faster. In addition you should notice the term
 List::Iterator. You could have used QValueListIterator<int> instead but is not
 as convenient to use with typedefs. To sum it up: The official Qt style of
@@ -123,8 +123,8 @@ an Interator is not allowed since that would break the const semantics.
 <h2> Template functions </h2>
 
 There is more to the QTL then container classes. Since the QTL containers
-are templates this means that the code is instantied for every kind of
-incarnation. For example QValueList<int> and QValueList<double> course the
+are templates this means that the code is instantiated for every kind of
+incarnation. For example QValueList<int> and QValueList<double> cause the
 QValueList code to appear twice in your applications code. To avoid bloating
 the template classes are as slim as possible. More advanced or complex
 functionality is implemented in template functions. There is another advantage.
@@ -154,10 +154,10 @@ like this;
 
 The first example sorts the complete list. The second one
 sorts the elements 100, 1234 and 12. That means all elements
-enclosed in the two iterators. In fact the first useage of qHeapSort
+enclosed in the two iterators. In fact the first usage of qHeapSort
 is just a convenience function. The third example shows that
 iterators are just pointers. So you can just use them like iterators.
-Mention, that the sorting templates wont work with ConstIterators.
+Notice that the sorting templates won't work with ConstIterators.
 
 A second utility is qSwap. It exchanges the values of two variables:
 
@@ -180,9 +180,9 @@ Using this class you can easily print out a list.
 	qCopy( l, QTextOStreamIterator( str ) );
 \endcode
 
-In addition you can use ususal iterators as OutputIterator. But you
-have to make shure that right hand of the iterator there are as many
-elements present as you want to insert. The follwing example illustrates
+In addition you can use usual iterators as OutputIterator. But you
+have to make sure that right hand of the iterator there are as many
+elements present as you want to insert. The following example illustrates
 that:
 
 \code
