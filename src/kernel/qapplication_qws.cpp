@@ -2964,3 +2964,11 @@ void QApplication::flush()
     sendPostedEvents();
     (void)qt_fbdpy->eventPending(); // flush
 }
+
+
+void QApplication::setArgs(int c, char **v)
+{
+    d->argc = c;
+    d->argv = v;
+}
+

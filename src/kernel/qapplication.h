@@ -354,14 +354,6 @@ private: // Disabled copy constructor and operator=
     Q_DECL_PRIVATE(QApplication);
 };
 
-#if defined(Q_WS_QWS)
-inline void QApplication::setArgs(int c, char **v)
-{
-        app_argc = c;
-	    app_argv = v;
-}
-#endif
-
 #ifndef QT_NO_CURSOR
 inline QCursor *QApplication::overrideCursor()
 {

@@ -35,6 +35,8 @@
 #include "qinputcontext_p.h"
 
 #include "qwidget_p.h"
+#define d d_func()
+#define q q_func()
 
 void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
 int  qt_sip_count( QWidget* );			// --- "" ---

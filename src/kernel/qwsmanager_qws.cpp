@@ -68,6 +68,8 @@ QWSDefaultDecoration *new_Hydro_WMDecorations() { return new QWSHydroDecoration(
 
 #include "qwsdefaultdecoration_qws.h"
 QWSDefaultDecoration *new_Default_WMDecorations() { return new QWSDefaultDecoration(); }
+#define d d_func()
+#define q q_func()
 
 
 struct WMStyleFactoryItem {

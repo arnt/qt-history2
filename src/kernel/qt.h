@@ -224,6 +224,7 @@
 #include <qstackarray.h>
 #include <qstatusbar.h>
 #include "qbasictimer.h"
+#include <qkernelapplication.h>
 #include <qapplication.h>
 #include "qurl.h"
 #include <qstrvec.h>
