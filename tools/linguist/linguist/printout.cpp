@@ -114,6 +114,7 @@ void PrintOut::breakPage()
 	pr->newPage();
     voffset = 0;
 
+    p.setFont( f10 );
     r1 = QRect( hmargin, voffset, 3 * hsize / 4, vsize );
     r2 = QRect( r1.x() + r1.width(), voffset, hsize - r1.width(), vsize );
     h1 = p.boundingRect( r1, LeftAlign, pr->docName() ).height();
@@ -123,12 +124,9 @@ void PrintOut::breakPage()
     voffset += QMAX( h1, h2 );
 
     r1 = QRect( hmargin, voffset, hsize / 2, LeftAlign );
-    r2 = QRect( r1.x() + r1.width(), voffset, hsize - r1.width(), RightAlign );
     p.setFont( f8 );
     h1 = p.boundingRect( r1, LeftAlign, dateTime.toString() ).height();
     p.drawText( r1, LeftAlign, dateTime.toString() );
-    h2 = p.boundingRect( r2, RightAlign, g ).height();
-    p.drawText( r2, RightAlign, g );
     p.setFont( f10 );
     voffset += QMAX( h1, h2 );
 
