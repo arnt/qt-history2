@@ -12,7 +12,7 @@
 #include "textedit.h"
 
 #include <qtextedit.h>
-#include <qaction.h>
+#include <q3action.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qtoolbar.h>
@@ -58,32 +58,32 @@ void TextEdit::setupFileActions()
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&File" ), menu );
 
-    QAction *a;
-    a = new QAction( QPixmap::fromMimeSource( "filenew.xpm" ), tr( "&New..." ), CTRL + Key_N, this, "fileNew" );
+    Q3Action *a;
+    a = new Q3Action( QPixmap::fromMimeSource( "filenew.xpm" ), tr( "&New..." ), CTRL + Key_N, this, "fileNew" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( QPixmap::fromMimeSource( "fileopen.xpm" ), tr( "&Open..." ), CTRL + Key_O, this, "fileOpen" );
+    a = new Q3Action( QPixmap::fromMimeSource( "fileopen.xpm" ), tr( "&Open..." ), CTRL + Key_O, this, "fileOpen" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( QPixmap::fromMimeSource( "filesave.xpm" ), tr( "&Save..." ), CTRL + Key_S, this, "fileSave" );
+    a = new Q3Action( QPixmap::fromMimeSource( "filesave.xpm" ), tr( "&Save..." ), CTRL + Key_S, this, "fileSave" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSave() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Save &As..." ), 0, this, "fileSaveAs" );
+    a = new Q3Action( tr( "Save &As..." ), 0, this, "fileSaveAs" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( QPixmap::fromMimeSource( "fileprint.xpm" ), tr( "&Print..." ), CTRL + Key_P, this, "filePrint" );
+    a = new Q3Action( QPixmap::fromMimeSource( "fileprint.xpm" ), tr( "&Print..." ), CTRL + Key_P, this, "filePrint" );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrint() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "&Close" ), 0, this, "fileClose" );
+    a = new Q3Action( tr( "&Close" ), 0, this, "fileClose" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     a->addTo( menu );
-    a = new QAction( tr( "E&xit" ), 0, this, "fileExit" );
+    a = new Q3Action( tr( "E&xit" ), 0, this, "fileExit" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileExit() ) );
     a->addTo( menu );
 }
@@ -95,25 +95,25 @@ void TextEdit::setupEditActions()
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Edit" ), menu );
 
-    QAction *a;
-    a = new QAction( QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this, "editUndo" );
+    Q3Action *a;
+    a = new Q3Action( QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this, "editUndo" );
     connect( a, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this, "editRedo" );
+    a = new Q3Action( QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this, "editRedo" );
     connect( a, SIGNAL( activated() ), this, SLOT( editRedo() ) );
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( QPixmap::fromMimeSource( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this, "editCopy" );
+    a = new Q3Action( QPixmap::fromMimeSource( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this, "editCopy" );
     connect( a, SIGNAL( activated() ), this, SLOT( editCopy() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( QPixmap::fromMimeSource( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this, "editCut" );
+    a = new Q3Action( QPixmap::fromMimeSource( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this, "editCut" );
     connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( QPixmap::fromMimeSource( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
+    a = new Q3Action( QPixmap::fromMimeSource( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
     connect( a, SIGNAL( activated() ), this, SLOT( editPaste() ) );
     a->addTo( tb );
     a->addTo( menu );
@@ -142,33 +142,33 @@ void TextEdit::setupTextActions()
 	     this, SLOT( textSize( const QString & ) ) );
     comboSize->lineEdit()->setText( QString::number( QApplication::font().pointSize() ) );
 
-    actionTextBold = new QAction( QPixmap::fromMimeSource( "textbold.xpm" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
+    actionTextBold = new Q3Action( QPixmap::fromMimeSource( "textbold.xpm" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
     connect( actionTextBold, SIGNAL( activated() ), this, SLOT( textBold() ) );
     actionTextBold->addTo( tb );
     actionTextBold->addTo( menu );
     actionTextBold->setToggleAction( TRUE );
-    actionTextItalic = new QAction( QPixmap::fromMimeSource( "textitalic.xpm" ), tr( "&Italic" ), CTRL + Key_I, this, "textItalic" );
+    actionTextItalic = new Q3Action( QPixmap::fromMimeSource( "textitalic.xpm" ), tr( "&Italic" ), CTRL + Key_I, this, "textItalic" );
     connect( actionTextItalic, SIGNAL( activated() ), this, SLOT( textItalic() ) );
     actionTextItalic->addTo( tb );
     actionTextItalic->addTo( menu );
     actionTextItalic->setToggleAction( TRUE );
-    actionTextUnderline = new QAction( QPixmap::fromMimeSource( "textunder.xpm" ), tr( "&Underline" ), CTRL + Key_U, this, "textUnderline" );
+    actionTextUnderline = new Q3Action( QPixmap::fromMimeSource( "textunder.xpm" ), tr( "&Underline" ), CTRL + Key_U, this, "textUnderline" );
     connect( actionTextUnderline, SIGNAL( activated() ), this, SLOT( textUnderline() ) );
     actionTextUnderline->addTo( tb );
     actionTextUnderline->addTo( menu );
     actionTextUnderline->setToggleAction( TRUE );
     menu->insertSeparator();
 
-    QActionGroup *grp = new QActionGroup( this );
-    connect( grp, SIGNAL( selected( QAction* ) ), this, SLOT( textAlign( QAction* ) ) );
+    Q3ActionGroup *grp = new Q3ActionGroup( this );
+    connect( grp, SIGNAL( selected( Q3Action* ) ), this, SLOT( textAlign( Q3Action* ) ) );
 
-    actionAlignLeft = new QAction( QPixmap::fromMimeSource( "textleft.xpm" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
+    actionAlignLeft = new Q3Action( QPixmap::fromMimeSource( "textleft.xpm" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
     actionAlignLeft->setToggleAction( TRUE );
-    actionAlignCenter = new QAction( QPixmap::fromMimeSource( "textcenter.xpm" ), tr( "C&enter" ), CTRL + Key_E, grp, "textCenter" );
+    actionAlignCenter = new Q3Action( QPixmap::fromMimeSource( "textcenter.xpm" ), tr( "C&enter" ), CTRL + Key_E, grp, "textCenter" );
     actionAlignCenter->setToggleAction( TRUE );
-    actionAlignRight = new QAction( QPixmap::fromMimeSource( "textright.xpm" ), tr( "&Right" ), CTRL + Key_R, grp, "textRight" );
+    actionAlignRight = new Q3Action( QPixmap::fromMimeSource( "textright.xpm" ), tr( "&Right" ), CTRL + Key_R, grp, "textRight" );
     actionAlignRight->setToggleAction( TRUE );
-    actionAlignJustify = new QAction( QPixmap::fromMimeSource( "textjustify.xpm" ), tr( "&Justify" ), CTRL + Key_J, grp, "textjustify" );
+    actionAlignJustify = new Q3Action( QPixmap::fromMimeSource( "textjustify.xpm" ), tr( "&Justify" ), CTRL + Key_J, grp, "textjustify" );
     actionAlignJustify->setToggleAction( TRUE );
 
     grp->addTo( tb );
@@ -178,7 +178,7 @@ void TextEdit::setupTextActions()
 
     QPixmap pix( 16, 16 );
     pix.fill( black );
-    actionTextColor = new QAction( pix, tr( "&Color..." ), 0, this, "textColor" );
+    actionTextColor = new Q3Action( pix, tr( "&Color..." ), 0, this, "textColor" );
     connect( actionTextColor, SIGNAL( activated() ), this, SLOT( textColor() ) );
     actionTextColor->addTo( tb );
     actionTextColor->addTo( menu );
@@ -196,6 +196,7 @@ void TextEdit::load( const QString &f )
     if ( !file.open( IO_ReadOnly ) )
 	return;
     QTextStream ts( &file );
+    ts.setEncoding(QTextStream::UnicodeUTF8);
     QString txt = ts.read();
     if ( !QStyleSheet::mightBeRichText( txt ) )
 	txt = QStyleSheet::convertFromPlainText( txt, QStyleSheetItem::WhiteSpacePre );
@@ -407,7 +408,7 @@ void TextEdit::textColor()
     actionTextColor->setIconSet( pix );
 }
 
-void TextEdit::textAlign( QAction *a )
+void TextEdit::textAlign( Q3Action *a )
 {
     if ( !currentEditor() )
 	return;

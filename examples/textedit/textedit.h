@@ -16,7 +16,7 @@
 #include <qmainwindow.h>
 #include <qmap.h>
 
-class QAction;
+class Q3Action;
 class QComboBox;
 class QTabWidget;
 class QTextEdit;
@@ -57,7 +57,7 @@ private slots:
     void textFamily( const QString &f );
     void textSize( const QString &p );
     void textColor();
-    void textAlign( QAction *a );
+    void textAlign( Q3Action *a );
 
     void fontChanged( const QFont &f );
     void colorChanged( const QColor &c );
@@ -65,7 +65,7 @@ private slots:
     void editorChanged( QWidget * );
 
 private:
-    QAction *actionTextBold,
+    Q3Action *actionTextBold,
 	*actionTextUnderline,
 	*actionTextItalic,
 	*actionTextColor,
