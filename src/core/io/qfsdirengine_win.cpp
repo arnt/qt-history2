@@ -11,7 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
+#include <sys/types.h>
 #define _POSIX_
 #include <qdirengine.h>
 #include "qdirengine_p.h"
@@ -40,21 +40,27 @@
 extern QString qt_fixToQtSlashes(const QString &path);
 extern QByteArray qt_win95Name(const QString s);
 
-bool QFSDirEnginePrivate::sysExists(const QString &dirName) const 
+bool QFSDirEnginePrivate::sysExists(const QString &dirName) const
 {
     int r = 0;
     QT_STATBUF st;
+
+    QString other = dirName;
+    if (other.length() == 2 && other.at(1) == ':') {
+        other += '\\';
+    }
+
     QT_WA({
-        r = QT_TSTAT((TCHAR*)dirName.utf16(), (QT_STATBUF4TSTAT*)&st);
+        r = QT_TSTAT((TCHAR*)other.utf16(), (QT_STATBUF4TSTAT*)&st);
     } , {
-        r = QT_STAT(qt_win95Name(dirName), &st);
+        r = QT_STAT(qt_win95Name(other), &st);
     });
-    if (r == 0) 
+    if (r == 0)
         return ((st.st_mode & S_IFMT) == S_IFDIR);
     return false;
 }
 
-bool 
+bool
 QFSDirEngine::mkdir(const QString &dirName) const
 {
     QT_WA({
@@ -64,7 +70,7 @@ QFSDirEngine::mkdir(const QString &dirName) const
     });
 }
 
-bool 
+bool
 QFSDirEngine::rmdir(const QString &dirName) const
 {
  QT_WA({
@@ -74,7 +80,7 @@ QFSDirEngine::rmdir(const QString &dirName) const
     });
 }
 
-bool 
+bool
 QFSDirEngine::rename(const QString &name, const QString &newName) const
 {
     QT_WA({
@@ -84,7 +90,7 @@ QFSDirEngine::rename(const QString &name, const QString &newName) const
     });
 }
 
-QStringList 
+QStringList
 QFSDirEngine::entryList(int filterSpec, const QStringList &filters) const
 {
     QStringList ret;
@@ -146,7 +152,7 @@ QFSDirEngine::entryList(int filterSpec, const QStringList &filters) const
         ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     });
 
-    if (ff == FF_ERROR) 
+    if (ff == FF_ERROR)
         return ret; // cannot read the directory
 
     for (;;) {
@@ -229,20 +235,20 @@ QFSDirEngine::entryList(int filterSpec, const QStringList &filters) const
     return ret;
 }
 
-bool 
+bool
 QFSDirEngine::caseSensitive() const
 {
     return false;
 }
 
-bool 
+bool
 QFSDirEngine::isRoot() const
 {
     return d->path == "/" || d->path == "//" ||
 		    (d->path[0].isLetter() && d->path.mid(1,d->path.length()) == ":/");
 }
 
-bool 
+bool
 QFSDirEngine::setCurrentDirPath(const QString &path)
 {
     int r;
@@ -254,12 +260,12 @@ QFSDirEngine::setCurrentDirPath(const QString &path)
     return r >= 0;
 }
 
-QString 
+QString
 QFSDirEngine::currentDirPath(const QString &fileName)
 {
     QString ret;
     //if filename is a drive: then get the pwd of that drive
-    if (fileName.length() >=2 && 
+    if (fileName.length() >=2 &&
         fileName.at(0).isLetter() && fileName.at(1) == ':') {
         int drv = fileName.toUpper().at(0).latin1() - 'A' + 1;
         if (_getdrive() != drv) {
@@ -290,7 +296,7 @@ QFSDirEngine::currentDirPath(const QString &fileName)
     return qt_fixToQtSlashes(ret);
 }
 
-QString 
+QString
 QFSDirEngine::homeDirPath()
 {
     QString ret = QString::fromLocal8Bit(getenv("HOME"));
