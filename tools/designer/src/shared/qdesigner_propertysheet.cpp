@@ -18,7 +18,7 @@
 #include <QMetaProperty>
 #include <QImage>
 #include <QPixmap>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),

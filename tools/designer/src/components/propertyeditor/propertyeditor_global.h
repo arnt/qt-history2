@@ -14,7 +14,7 @@
 #ifndef PROPERTYEDITOR_GLOBAL_H
 #define PROPERTYEDITOR_GLOBAL_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #ifdef Q_OS_WIN
 #ifdef QT_PROPERTYEDITOR_LIBRARY

@@ -7,7 +7,7 @@
 #include <QPainter>
 #include <QApplication>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 #include "qextensionmanager.h"
 #include "abstractmetadatabase.h"

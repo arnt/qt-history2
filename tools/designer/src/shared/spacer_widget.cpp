@@ -18,7 +18,7 @@
 
 #include <QLayout>
 #include <QPainter>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 Spacer::Spacer(QWidget *parent)
     : QWidget(parent),

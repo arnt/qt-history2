@@ -19,7 +19,7 @@
 #include <customwidget.h>
 
 #include <qalgorithms.h>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 // ----------------------------------------------------------
 WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group)

@@ -66,7 +66,7 @@ void QDesignerServer::sendOpenRequest(int port, const QStringList &files)
 
 void QDesignerServer::readFromClient()
 {
-    QString file = QString::null;
+    QString file = QString();
     while (m_socket->canReadLine())
         file = QString::fromUtf8(m_socket->readLine());
     if (!file.isNull())

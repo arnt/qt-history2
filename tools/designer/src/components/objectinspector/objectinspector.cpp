@@ -33,7 +33,7 @@
 #include <QPainter>
 #include <QVBoxLayout>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 Q_DECLARE_METATYPE(QObject *)
 

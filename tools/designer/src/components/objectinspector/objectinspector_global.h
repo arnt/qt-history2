@@ -14,7 +14,7 @@
 #ifndef OBJECTINSPECTOR_GLOBAL_H
 #define OBJECTINSPECTOR_GLOBAL_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #ifdef Q_OS_WIN
 #ifdef QT_OBJECTINSPECTOR_LIBRARY

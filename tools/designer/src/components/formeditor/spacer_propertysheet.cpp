@@ -21,7 +21,7 @@
 #include <QLayout>
 #include <QMetaObject>
 #include <QMetaProperty>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)

@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qpropertyeditor_model_p.h"
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 using namespace QPropertyEditor;
 
@@ -147,7 +147,7 @@ QString Model::columnText(int col) const
     switch (col) {
         case 0: return QLatin1String("Property");
         case 1: return QLatin1String("Value");
-        default: return QString::null;
+        default: return QString();
     }
 }
 

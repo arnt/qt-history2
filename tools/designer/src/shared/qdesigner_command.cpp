@@ -116,7 +116,7 @@ void AbstractFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidg
 
 // ---- SetPropertyCommand ----
 SetPropertyCommand::SetPropertyCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow),
+    : AbstractFormWindowCommand(QString(), formWindow),
       m_index(-1),
       m_propertySheet(0),
       m_changed(false)
@@ -214,7 +214,7 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
 
 // ---- InsertWidgetCommand ----
 InsertWidgetCommand::InsertWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -290,7 +290,7 @@ void InsertWidgetCommand::undo()
 
 // ---- RaiseWidgetCommand ----
 RaiseWidgetCommand::RaiseWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -311,7 +311,7 @@ void RaiseWidgetCommand::undo()
 
 // ---- LowerWidgetCommand ----
 LowerWidgetCommand::LowerWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -332,7 +332,7 @@ void LowerWidgetCommand::undo()
 
 // ---- DeleteWidgetCommand ----
 DeleteWidgetCommand::DeleteWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -423,7 +423,7 @@ void DeleteWidgetCommand::undo()
 
 // ---- ReparentWidgetCommand ----
 ReparentWidgetCommand::ReparentWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -459,7 +459,7 @@ void ReparentWidgetCommand::undo()
 
 // ---- LayoutCommand ----
 LayoutCommand::LayoutCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -590,7 +590,7 @@ void BreakLayoutCommand::undo()
 
 // ---- ToolBoxCommand ----
 ToolBoxCommand::ToolBoxCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -686,7 +686,7 @@ void AddToolBoxPageCommand::undo()
 
 // ---- TabWidgetCommand ----
 TabWidgetCommand::TabWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -820,7 +820,7 @@ void MoveTabPageCommand::undo()
 
 // ---- StackedWidgetCommand ----
 StackedWidgetCommand::StackedWidgetCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -1002,7 +1002,7 @@ void AddDockWidgetCommand::undo()
 
 // ---- AdjustWidgetSizeCommand ----
 AdjustWidgetSizeCommand::AdjustWidgetSizeCommand(AbstractFormWindow *formWindow)
-    : AbstractFormWindowCommand(QString::null, formWindow)
+    : AbstractFormWindowCommand(QString(), formWindow)
 {
 }
 

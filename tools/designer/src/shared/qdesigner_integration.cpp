@@ -24,7 +24,7 @@
 
 #include <QtCore/QVariant>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 QDesignerIntegration::QDesignerIntegration(AbstractFormEditor *core, QObject *parent)
     : QObject(parent),

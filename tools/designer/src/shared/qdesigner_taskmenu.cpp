@@ -30,7 +30,7 @@
 #include <QtGui/QDockWidget>
 #include <QtCore/QVariant>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),

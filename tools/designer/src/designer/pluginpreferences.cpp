@@ -28,7 +28,7 @@
 #include <pluginmanager.h>
 
 #include <qevent.h>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 class AbstractFormEditor;
 

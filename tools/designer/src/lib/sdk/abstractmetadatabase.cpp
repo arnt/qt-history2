@@ -20,7 +20,7 @@
 #include <propertysheet.h>
 
 // Qt
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 AbstractMetaDataBase::AbstractMetaDataBase(QObject *parent)
     : QObject(parent)

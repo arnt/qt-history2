@@ -34,7 +34,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolBar>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 QDesignerMainWindow::QDesignerMainWindow(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),

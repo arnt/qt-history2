@@ -29,7 +29,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QStylePainter>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 WidgetHandle::WidgetHandle(FormWindow *parent, WidgetHandle::Type t, WidgetSelection *s)
     : QWidget(parent)

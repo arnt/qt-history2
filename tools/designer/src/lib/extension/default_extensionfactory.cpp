@@ -14,7 +14,7 @@
 #include "default_extensionfactory.h"
 #include "qextensionmanager.h"
 #include <qpointer.h>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 DefaultExtensionFactory::DefaultExtensionFactory(QExtensionManager *parent)
     : QObject(parent)

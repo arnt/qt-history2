@@ -22,9 +22,9 @@ class QT_SHARED_EXPORT QtCommand : public QObject
     public:
         enum Type { Command, MacroBegin, MacroEnd };
 
-        QtCommand(Type type, const QString &description = QString::null,
+        QtCommand(Type type, const QString &description = QString(),
                         bool canMerge = false);
-        QtCommand(const QString &description = QString::null,
+        QtCommand(const QString &description = QString(),
                         bool canMerge = true);
 
         virtual void redo() {};

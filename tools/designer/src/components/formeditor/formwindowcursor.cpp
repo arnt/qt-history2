@@ -19,7 +19,7 @@
 #include <qextensionmanager.h>
 #include <qdesigner_command.h>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 FormWindowCursor::FormWindowCursor(FormWindow *fw, QObject *parent)
     : QObject(parent),

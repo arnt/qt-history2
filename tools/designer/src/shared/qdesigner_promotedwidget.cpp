@@ -5,7 +5,7 @@
 #include <QEvent>
 #include <QVBoxLayout>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 PromotedWidgetPropertySheet::PromotedWidgetPropertySheet(QDesignerPromotedWidget *promoted,
                                 QExtensionManager *extension_manager, QObject *parent)

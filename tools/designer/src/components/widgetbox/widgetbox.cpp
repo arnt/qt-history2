@@ -25,7 +25,7 @@
 #include <sheet_delegate.h>
 
 #include <QtGui/QtGui>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 /*******************************************************************************
 ** Tools
@@ -65,8 +65,8 @@ static QIcon createIconSet(const QString &name)
 }
 
 static QDomElement childElement(QDomNode node, const QString &tag,
-                                const QString &attr_name = QString::null,
-                                const QString &attr_value = QString::null)
+                                const QString &attr_name = QString(),
+                                const QString &attr_value = QString())
 {
     if (node.isElement()) {
         QDomElement elt = node.toElement();
@@ -222,12 +222,12 @@ public:
     Category category(int cat_idx) const;
     void addCategory(const Category &cat);
     void removeCategory(int cat_idx);
-    
+
     int widgetCount(int cat_idx) const;
     Widget widget(int cat_idx, int wgt_idx) const;
     void addWidget(int cat_idx, const Widget &wgt);
     void removeWidget(int cat_idx, int wgt_idx);
-    
+
     Widget widget(const QModelIndex &index) const;
     Widget widget(const QString &name) const;
     bool widgetIdx(const QString &name, int *cat_idx, int *wgt_idx) const;
@@ -273,7 +273,7 @@ WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *
 
 //    dumpModel();
 }
-    
+
 void WidgetCollectionModel::dumpModel()
 {
     qDebug() << "WidgetCollectionModel::dumpModel():";
@@ -357,9 +357,9 @@ WidgetCollectionModel::CategoryList WidgetCollectionModel::xmlToModel(const QDom
 WidgetCollectionModel::Category WidgetCollectionModel::xmlToCategory(const QDomElement &cat_elt)
 {
     Category result(cat_elt.attribute(QLatin1String("name")));
-    
+
     QDomElement widget_elt = cat_elt.firstChildElement();
-    for (; !widget_elt.isNull(); widget_elt = widget_elt.nextSiblingElement()) {        
+    for (; !widget_elt.isNull(); widget_elt = widget_elt.nextSiblingElement()) {
         Widget w(widget_elt.attribute(QLatin1String("name")),
                     domToString(widget_elt),
                     createIconSet(widget_elt.attribute(QLatin1String("icon"))));
@@ -394,7 +394,7 @@ WidgetCollectionModel::Category WidgetCollectionModel::loadCustomCategory()
             continue;
         result.addWidget(Widget(c->name(), dom_xml, c->icon()));
     }
-        
+
     return result;
 }
 
@@ -430,7 +430,7 @@ WidgetCollectionModel::Widget WidgetCollectionModel::widget(int cat_idx, int wgt
 
     if (wgt_idx >= cat.widgetCount())
         return Widget();
-        
+
     return cat.widget(wgt_idx);
 }
 
@@ -724,12 +724,12 @@ void WidgetBoxListView::handleMousePress(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
-    
+
     if (!m_model->parent(index).isValid()) {
         m_list->setExpanded(index, !m_list->isExpanded(index));
         return;
     }
-    
+
     WidgetCollectionModel::Widget wgt = m_model->widget(index);
     if (wgt.isNull())
         return;

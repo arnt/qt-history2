@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "abstractwidgetdatabase.h"
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 #include <qalgorithms.h>
 
 AbstractWidgetDataBase::AbstractWidgetDataBase(QObject *parent)

@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QAction>
 #include <qalgorithms.h>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 #include "qtundo.h"
 

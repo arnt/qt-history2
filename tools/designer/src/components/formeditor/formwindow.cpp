@@ -1029,7 +1029,7 @@ QString FormWindow::contents() const
 {
     QBuffer b;
     if (!b.open(QIODevice::WriteOnly))
-        return QString::null;
+        return QString();
 
     QDesignerResource resource(const_cast<FormWindow*>(this));
     resource.save(&b, mainContainer());
@@ -1243,7 +1243,7 @@ void FormWindow::beginCommand(const QString &description)
 
 void FormWindow::endCommand()
 {
-    m_commandHistory->push(new QtCommand(QtCommand::MacroEnd, QString::null));
+    m_commandHistory->push(new QtCommand(QtCommand::MacroEnd, QString()));
 }
 
 void FormWindow::raiseWidgets()

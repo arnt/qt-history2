@@ -44,7 +44,7 @@
 #include <QTabBar>
 #include <QtXml/QDomDocument>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())

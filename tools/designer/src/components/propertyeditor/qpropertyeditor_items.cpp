@@ -26,7 +26,7 @@
 #include <QDateTimeEdit>
 #include <QBitmap>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 #include <limits.h>
 
 Q_GLOBAL_STATIC(QFontDatabase, fontDatabase)
@@ -175,7 +175,7 @@ void PropertyCollection::setValue(const QVariant &value)
 
 QString PropertyCollection::toString() const
 {
-    return QString::null;
+    return QString();
 }
 
 bool PropertyCollection::hasEditor() const
@@ -968,7 +968,7 @@ QString CursorProperty::cursorName(int shape)
     case Qt::ForbiddenCursor: return QString::fromLatin1("Forbidden");
     case Qt::WhatsThisCursor: return QString::fromLatin1("Whats This");
     case Qt::BusyCursor: return QString::fromLatin1("Busy");
-    default: return QString::null;
+    default: return QString();
     }
 }
 

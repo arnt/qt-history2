@@ -5,7 +5,7 @@ int
 main(int argc, char **argv)
 {
 #if 0
-    QMakeInterface qmake(argc == 2 ? QString(argv[1]) : QString::null);
+    QMakeInterface qmake(argc == 2 ? QString(argv[1]) : QString());
 #else
     QMakeInterface qmake(false, argc, argv);
 #endif

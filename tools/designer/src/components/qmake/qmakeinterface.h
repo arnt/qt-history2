@@ -41,10 +41,10 @@ public:
 
     QStringList buildStyles() const;
 
-    QStringList compileFlags(const QString &buildStyle = QString::null, bool cplusplus=true) const;
-    QStringList defines(const QString &buildStyle = QString::null) const;
-    QStringList linkFlags(const QString &buildStyle = QString::null) const;
-    QStringList libraries(const QString &buildStyle = QString::null) const;
+    QStringList compileFlags(const QString &buildStyle = QString(), bool cplusplus=true) const;
+    QStringList defines(const QString &buildStyle = QString()) const;
+    QStringList linkFlags(const QString &buildStyle = QString()) const;
+    QStringList libraries(const QString &buildStyle = QString()) const;
 
     bool addVariable(const QString &);
     inline bool addVariable(const QString &var, const QString &val) 

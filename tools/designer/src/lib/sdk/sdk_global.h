@@ -14,7 +14,7 @@
 #ifndef SDK_GLOBAL_H
 #define SDK_GLOBAL_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #ifdef Q_OS_WIN
 #ifdef QT_SDK_LIBRARY

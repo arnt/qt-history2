@@ -32,7 +32,7 @@
 #include <QToolBar>
 #include <QMenuBar>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 #include <limits.h>
 
@@ -995,7 +995,7 @@ bool Resource::checkProperty(QObject *obj, const QString &prop) const
 
 QString Resource::toString(const DomString *str)
 {
-    return str ? str->text() : QString::null;
+    return str ? str->text() : QString();
 }
 
 void Resource::applyTabStops(QWidget *widget, DomTabStops *tabStops)

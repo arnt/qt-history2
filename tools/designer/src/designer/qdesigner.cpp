@@ -13,7 +13,7 @@
 
 #include <QtGui/QFileOpenEvent>
 #include <QtGui/QCloseEvent>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 // designer
 #include "qdesigner.h"

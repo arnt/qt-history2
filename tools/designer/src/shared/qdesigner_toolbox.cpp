@@ -43,7 +43,7 @@ void QDesignerToolBox::setCurrentItemText(const QString &itemText)
 QString QDesignerToolBox::currentItemName() const
 {
     if (currentIndex() == -1)
-        return QString::null;
+        return QString();
 
     return widget(currentIndex())->objectName();
 }

@@ -33,7 +33,7 @@
 #include <customwidget.h>
 
 #include <QtGui/QtGui>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 WidgetFactory::WidgetFactory(AbstractFormEditor *core, QObject *parent)
     : AbstractWidgetFactory(parent),

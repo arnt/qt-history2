@@ -14,7 +14,7 @@
 #ifndef FORMEDITOR_GLOBAL_H
 #define FORMEDITOR_GLOBAL_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #ifdef Q_OS_WIN
 #ifdef QT_FORMEDITOR_LIBRARY

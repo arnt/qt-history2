@@ -27,7 +27,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QCheckBox>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 /*******************************************************************************
 ** SignalSlotDialog

@@ -38,10 +38,10 @@ public:
     { return QLatin1String("Compat"); }
     
     virtual QString toolTip() const
-    { return QString::null; }
+    { return QString(); }
     
     virtual QString whatsThis() const
-    { return QString::null; }
+    { return QString(); }
     
     virtual QString includeFile() const
     { return QLatin1String("q3listview.h"); }
@@ -72,7 +72,7 @@ public:
     }
     
     virtual QString codeTemplate() const
-    { return QString::null; }
+    { return QString(); }
 
     virtual QString domXml() const
     { return QLatin1String("\

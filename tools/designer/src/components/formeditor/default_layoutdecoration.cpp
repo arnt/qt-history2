@@ -16,7 +16,7 @@
 #include "qdesigner_widget.h"
 
 #include <QLayout>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 // ---- QDesignerLayoutDecoration ----
 QDesignerLayoutDecoration::QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent)

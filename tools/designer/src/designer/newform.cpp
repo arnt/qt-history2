@@ -121,6 +121,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         f.close();
 
         widget->ensurePolished();
+        qApp->processEvents();
 
         QPixmap pix = QPixmap::grabWidget(widget);
         QImage image = pix.toImage();

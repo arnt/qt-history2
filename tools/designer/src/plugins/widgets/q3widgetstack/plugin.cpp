@@ -22,7 +22,7 @@
 #include <Q3WidgetStack>
 
 #include <qplugin.h>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 class Q3WidgetStackContainer: public QObject, public IContainer
 {
@@ -108,10 +108,10 @@ public:
     { return QLatin1String("Compat"); }
     
     virtual QString toolTip() const
-    { return QString::null; }
+    { return QString(); }
     
     virtual QString whatsThis() const
-    { return QString::null; }
+    { return QString(); }
     
     virtual QString includeFile() const
     { return QLatin1String("q3widgetstack.h"); }
@@ -144,7 +144,7 @@ public:
     }
     
     virtual QString codeTemplate() const
-    { return QString::null; }
+    { return QString(); }
     
     virtual QString domXml() const
     { return QLatin1String("\

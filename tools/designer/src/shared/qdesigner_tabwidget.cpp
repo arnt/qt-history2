@@ -21,7 +21,7 @@
 #include <QAction>
 #include <QMouseEvent>
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     : QTabWidget(parent)
@@ -53,7 +53,7 @@ QString QDesignerTabWidget::currentTabName() const
 {
     return currentWidget()
         ? currentWidget()->objectName()
-        : QString::null;
+        : QString();
 }
 
 void QDesignerTabWidget::setCurrentTabName(const QString &tabName)

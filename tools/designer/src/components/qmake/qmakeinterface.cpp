@@ -38,7 +38,7 @@ QMakeInterface::~QMakeInterface()
 QStringList
 QMakeInterface::buildStyles() const
 {
-    if(QMakeProject *p = getBuildStyle(QString::null))
+    if(QMakeProject *p = getBuildStyle(QString()))
         return p->values("BUILDS");
     return QStringList();
 }
@@ -103,7 +103,7 @@ QMakeProject
                 if(!QDir::setCurrent(fileinfo.filePath()))
                     fprintf(stderr, "Cannot find directory: %s\n", 
                             fileinfo.filePath().latin1());
-                fn = QString::null;
+                fn = QString();
             } else if(fileinfo.path() != ".") {
                 if(!QDir::setCurrent(fileinfo.path()))
                     fprintf(stderr, "Cannot find directory: %s\n", 

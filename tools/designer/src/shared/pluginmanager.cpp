@@ -18,7 +18,7 @@
 #include <QMap>
 #include <QPluginLoader>
 #include <QLibraryInfo>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 static QStringList unique(const QStringList &list)
 {

@@ -26,8 +26,8 @@ class QObject;
 
 struct QT_SHARED_EXPORT WidgetDataBaseItem: public AbstractWidgetDataBaseItem
 {
-    WidgetDataBaseItem(const QString &name = QString::null,
-                       const QString &group = QString::null);
+    WidgetDataBaseItem(const QString &name = QString(),
+                       const QString &group = QString());
 
     QString name() const;
     void setName(const QString &name);
