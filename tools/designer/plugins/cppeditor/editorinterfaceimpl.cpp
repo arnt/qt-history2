@@ -284,6 +284,8 @@ bool EditorInterfaceImpl::eventFilter( QObject *o, QEvent *e )
 {
     if ( e->type() == QEvent::KeyPress )
 	updateTimer->stop();
+    else if ( e->type() == QEvent::FocusOut )
+	update();
 
     return QObject::eventFilter( o, e );
 }

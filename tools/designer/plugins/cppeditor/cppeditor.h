@@ -42,6 +42,8 @@ public:
     bool supportsBreakPoints() const { return FALSE; }
     QPopupMenu *createPopupMenu();
 
+    void paste();
+
 private slots:
     void addInclDecl();
     void addInclImpl();

@@ -143,3 +143,9 @@ void CppEditor::addVar()
     lst << s;
     form->setVariables( lst );
 }
+
+void CppEditor::paste()
+{
+    Editor::paste();
+    emit intervalChanged();
+}
