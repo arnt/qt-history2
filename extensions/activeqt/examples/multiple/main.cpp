@@ -25,15 +25,6 @@ public:
 
 	return 0;
     }
-    QMetaObject *metaObject( const QString &key ) const
-    {
-	if ( key == "QAxWidget1" )
-	    return QAxWidget1::staticMetaObject();
-	if ( key == "QAxWidget2" )
-	    return QAxWidget2::staticMetaObject();
-
-	return 0;
-    }
     QUuid classID( const QString &key ) const
     {
 	if ( key == "QAxWidget1" )
