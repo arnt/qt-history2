@@ -735,6 +735,15 @@ public:
 
     QBrush *background() const;
 
+    void setDocumentRect( const QRect &r );
+    int documentWidth() const;
+    int documentVisibleWidth() const;
+    int documentX() const;
+    int documentY() const;
+    QTextFormatCollection *formatCollection() const;
+    QTextFormatter *formatter() const;
+    int minimumWidth() const;
+    
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -770,7 +779,10 @@ private:
     bool fullWidth;
     QTextTableCell *tc;
     int numCustomItems;
-
+    QRect docRect;
+    QTextFormatCollection *fCollection;
+    QTextFormatter *pFormatter;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2058,7 +2070,7 @@ inline QStyleSheetItem::ListStyle QTextParag::listStyle() const
 
 inline void QTextParag::setFormat( QTextFormat *fm )
 {
-    defFormat = doc->formatCollection()->format( fm );
+    defFormat = formatCollection()->format( fm );
 }
 
 inline QTextFormat *QTextParag::paragFormat() const
@@ -2096,6 +2108,54 @@ inline QBrush *QTextParag::background() const
     return tc ? tc->backGround() : 0;
 };
 
+
+inline void QTextParag::setDocumentRect( const QRect &r )
+{
+    docRect = r;
+}
+
+inline int QTextParag::documentWidth() const
+{
+    return doc ? doc->width() : docRect.width();
+}
+
+inline int QTextParag::documentVisibleWidth() const
+{
+    return doc ? doc->visibleWidth() : docRect.width();
+}
+
+inline int QTextParag::documentX() const
+{
+    return doc ? doc->x() : docRect.x();
+}
+
+inline int QTextParag::documentY() const
+{
+    return doc ? doc->y() : docRect.y();
+}
+
+inline QTextFormatCollection *QTextParag::formatCollection() const
+{
+    if ( doc )
+	return doc->formatCollection();
+    if ( fCollection )
+	return fCollection;
+    return ( ( (QTextParag*)this )->fCollection = new QTextFormatCollection );
+}
+
+inline QTextFormatter *QTextParag::formatter() const
+{
+    if ( doc )
+	return doc->formatter();
+    if ( pFormatter )
+	return pFormatter;
+    return ( ( (QTextParag*)this )->pFormatter = new QTextFormatterBreakWords );
+}
+
+inline int QTextParag::minimumWidth() const
+{
+    return doc ? doc->minimumWidth() : 0;
+}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
