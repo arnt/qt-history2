@@ -110,6 +110,7 @@ signals:
     void returnPressed(const QModelIndex &index);
     void spacePressed(const QModelIndex &index);
     void deletePressed(const QModelIndex &index);
+    void contextMenuRequested(const QModelIndex &index, const QPoint &position);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
@@ -152,6 +153,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
     void focusInEvent(QFocusEvent *e);

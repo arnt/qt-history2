@@ -522,7 +522,6 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
             return;
         }
         case QGenericHeaderPrivate::NoState: {
-            //int hx = pos + offset();
             int handle = d->sectionHandleAt(pos + offset());
             if (handle != -1 && resizeMode(handle) == Interactive)
                 setCursor(orientation() == Horizontal ? SplitHCursor : SplitVCursor);
@@ -532,7 +531,7 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
         }
 
         case QGenericHeaderPrivate::SelectSection:
-            qDebug("SelectSection is not implemented");
+            //qDebug("SelectSection is not implemented");
             break; // FIXME: not implemented
     }
 }
@@ -678,8 +677,8 @@ bool QGenericHeader::isSectionHidden(int section) const
 QModelIndex QGenericHeader::itemAt(int x, int y) const
 {
     return (orientation() == Horizontal ?
-            model()->index(0, sectionAt(x), 0, QModelIndex::HorizontalHeader) :
-            model()->index(sectionAt(y), 0, 0, QModelIndex::VerticalHeader));
+            model()->index(0, sectionAt(x + offset()), 0, QModelIndex::HorizontalHeader) :
+            model()->index(sectionAt(y + offset()), 0, 0, QModelIndex::VerticalHeader));
 }
 
 int QGenericHeader::horizontalOffset() const

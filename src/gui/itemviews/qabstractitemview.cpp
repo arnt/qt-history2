@@ -250,24 +250,24 @@ bool QAbstractItemView::event(QEvent *e)
     case QEvent::ToolTip: {
         if (!isActiveWindow())
             break;
-        QPoint pos = static_cast<QHelpEvent*>(e)->globalPos();
-        QModelIndex index = itemAt(pos);
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        QModelIndex index = itemAt(he->pos());
         if (!index.isValid())
             break;
         QString tooltip = model()->data(index, QAbstractItemModel::ToolTip).toString();
-        QToolTip::showText(pos, tooltip, this);
+        QToolTip::showText(he->globalPos(), tooltip, this);
         return true; }
     case QEvent::WhatsThis: {
-        QPoint pos = static_cast<QHelpEvent*>(e)->globalPos();
-        QModelIndex index = itemAt(pos);
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        QModelIndex index = itemAt(he->pos());
         if (!index.isValid())
             break;
         QString whatsthis = model()->data(index, QAbstractItemModel::ToolTip).toString();
-        QWhatsThis::showText(pos, whatsthis, this);
+        QWhatsThis::showText(he->globalPos(), whatsthis, this);
         return true; }
     case QEvent::StatusTip: {
-        QPoint pos = static_cast<QHelpEvent*>(e)->globalPos();
-        QModelIndex index = itemAt(pos);
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        QModelIndex index = itemAt(he->pos());
         if (!index.isValid())
             break;
         QString statustip = model()->data(index, QAbstractItemModel::ToolTip).toString();
@@ -356,12 +356,14 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
-    QModelIndex item = itemAt(pos);
-    d->selectionModel->select(item, selectionCommand(e->state(), item, e->type()));
+    QModelIndex index = itemAt(pos);
+    d->selectionModel->select(index, selectionCommand(e->state(), index, e->type()));
     d->rubberBand->hide();
     setState(NoState);
-    if (item == d->pressedItem)
-        emit clicked(item, e->button());
+    if (index == d->pressedItem)
+        emit clicked(index, e->button());
+    if (e->button() == RightButton)
+        emit contextMenuRequested(index, pos);
 }
 
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
@@ -371,6 +373,13 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
         return;
     emit doubleClicked(item, e->button());
     startEdit(item, QAbstractItemDelegate::DoubleClicked, e);
+}
+
+void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
+{
+    QPoint position = e->pos();
+    QModelIndex index = itemAt(position);
+    emit contextMenuRequested(index, position);
 }
 
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
