@@ -907,7 +907,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	return;
     }
 #endif
-    if ( !( e->state() && ShiftButton ) ) {
+    if ( !( e->state() & ShiftButton ) ) {
 	d->selectionStart = c->index();
 	d->parag->setSelection( QTextDocument::Standard, d->selectionStart, d->selectionStart );
     } else {
