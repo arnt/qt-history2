@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#17 $
 **
 ** Implementation of the QTextView class
 **
@@ -120,9 +120,7 @@ QTextView::QTextView( const QString& text, const QString& context,
     : QScrollView( parent, name)
 {
     init();
-    d->contxt = context;
-    d->original_txt = text;
-    d->txt = text;
+    setText( text, context );
 }
 
 

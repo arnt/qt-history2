@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#372 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#373 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1048,7 +1048,9 @@ QWidget *QWidget::keyboardGrabber()
   focus.
 
   This function performs the same operation as clicking the mouse on
-  the title bar of a top-level window.
+  the title bar of a top-level window, at least on Windows. On X11,
+  the result depends on the Window Manager. If you want to ensure that
+  the window is stacked on top as well, call raise() in addition.
 
   \sa isActiveWindow(), topLevelWidget()
 */

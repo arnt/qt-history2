@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#229 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#230 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -516,11 +516,14 @@ void QPopupMenu::setFirstItemActive()
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
+    int lastActItem = actItem;
     actItem = 0;
     while ( (mi=it.current()) ) {
 	++it;
 	if ( !mi->isSeparator() ) {
-	    repaint( FALSE );
+	    if ( lastActItem != actItem )
+		updateRow( lastActItem );
+	    updateRow( actItem );
 	    hilitSig( mi->id() );
 	    return;
 	}
@@ -931,15 +934,16 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item activated
 	actItem = item;
-	repaint( FALSE );
+	updateRow( actItem );
 	hilitSig( mi->id() );
     }
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
 	if ( popup->isVisible() ) {		// sub menu already open
+	    int pactItem = popup->actItem;
 	    popup->actItem = -1;
 	    popup->hidePopups();
-	    popup->repaint( FALSE );
+	    popup->updateRow( pactItem );
 	} else {				// open sub menu
 	    hidePopups();
 	    popupSubMenuLater( 20, this );
@@ -965,7 +969,6 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
 	    return;
     }
-    repaint( FALSE );
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
@@ -1309,6 +1312,8 @@ void QPopupMenu::updateRow( int row )
 	update();
 	return;
     }
+    if ( !isVisible() )
+	return;
     QPainter p(this);
     QMenuItemListIt it(*mitems);
     QMenuItem *mi;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#21 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -259,8 +259,16 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     while ( it != end  && !it->isBox && it->isContainer) {
 	++it;
     }	
+    
+    if ( it == end ) {
+	fill = 0;
+	first = last = 0;
+	parent = 0;
+	return;
+    }
 
     first = *it;
+
     parent = it.parentNode();
 
     int tx = 0;
@@ -1109,11 +1117,17 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 	    row = new QTextRow(p, fm, it,
 			       colwidth-marginhorizontal - label_offset, min,
 			       alignment() );
-	    rows.append(row);
-	    row->x = marginleft + label_offset;
-	    row->y = h;
-	    h += row->height;
-	    widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
+	    if ( !row->first ) {
+		delete row;
+		break;
+	    }
+	    else {
+		rows.append(row);
+		row->x = marginleft + label_offset;
+		row->y = h;
+		h += row->height;
+		widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
+	    }
 	}
     }
 
@@ -2098,6 +2112,39 @@ bool QRichText::lookAhead(const QString& doc, int& pos, QChar c)
 }
 
 
+static QMap<QCString, QChar> *html_map = 0;
+static void qt_cleanup_html_map()
+{
+    delete html_map;
+    html_map = 0;
+}
+
+QMap<QCString, QChar> *htmlMap()
+{
+    if ( !html_map ){
+	html_map = new QMap<QCString, QChar>;
+	qAddPostRoutine( qt_cleanup_html_map );
+  	html_map->insert("lt", '<');
+  	html_map->insert("gt", '>');
+  	html_map->insert("amp", '&');
+  	html_map->insert("nbsp", 0x00a0U);
+  	html_map->insert("aring", 'å');
+  	html_map->insert("oslash", 'ø');
+  	html_map->insert("ouml", 'ö');
+  	html_map->insert("auml", 'ä');
+  	html_map->insert("uuml", 'ü');
+  	html_map->insert("Ouml", 'Ö');
+  	html_map->insert("Auml", 'Ä');
+  	html_map->insert("Uuml", 'Ü');
+  	html_map->insert("szlig", 'ß');
+  	html_map->insert("copy", '©');
+  	html_map->insert("deg", '°');
+  	html_map->insert("mico", 'µ');
+  	html_map->insert("plusmn", '±');
+    }
+    return html_map;
+}
+
 QChar QRichText::parseHTMLSpecialChar(const QString& doc, int& pos)
 {
     QCString s;
@@ -2112,24 +2159,15 @@ QChar QRichText::parseHTMLSpecialChar(const QString& doc, int& pos)
 	return '&';
     }
     pos++;
-    if ( s == "lt")
-	return '<';
-    if ( s == "gt")
-	return '>';
-    if ( s == "amp")
-	return '&';
-    if ( s == "nbsp")
-	return 0x00a0U;
-    if ( s == "aring")
-	return 'å';
-    if ( s == "oslash")
-	return 'ø';
-    if ( s == "ouml")
-	return 'ö';
-    if ( s == "auml")
-	return 'ä';
-    if ( s == "uuml")
-	return 'ü';
+
+    if ( s.length() > 1 && s[0] == '?') {
+	return s.mid(1).toInt();
+    }
+
+    QMap<QCString, QChar>::Iterator it = htmlMap()->find(s);
+    if ( it != htmlMap()->end() ) {
+	return *it;
+    }
 
     pos = recoverpos;
     return '&';

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#426 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#427 $
 **
 ** Implementation of QWidget class
 **
@@ -2994,6 +2994,7 @@ void QWidget::hide()
 	focusNextPrevChild( TRUE );
 
     if ( isTopLevel() ) {			// last TLW hidden?
+	qDebug("hide toplevel");
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
 	    emit qApp->lastWindowClosed();
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#45 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -438,7 +438,7 @@ QSize QWidgetStack::sizeHint() const
     }
     if ( size.isNull() )
 	return QSize(100,50); //### paul did not like this one
-    return size;
+    return QSize( size.width() + 2*frameWidth(), size.height() + 2*frameWidth() );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#11 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -696,8 +696,8 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     <li>\c &lt;blockquote&gt;...&lt;/blockquote&gt;
 	- An indented paragraph, useful for quotes.
 
-    <li>\c &lt;multicolumn \c cols=\a n \c &gt;...&lt;/multicolumn&gt;
-	- Multicolumn display with \a n columns
+    <li>\c &lt;multicol \c cols=\a n \c &gt;...&lt;/multicol&gt;
+	- Multicol display with \a n columns
 
     <li>\c &lt;twocolumn&gt;...&lt;/twocolumn&gt;
 	- Two-column display.
