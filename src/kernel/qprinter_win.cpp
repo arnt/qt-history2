@@ -47,9 +47,9 @@
 
 // QPrinter states
 
-#define PST_IDLE	0
-#define PST_ACTIVE	1
-#define PST_ABORTED	2
+#define PST_IDLE        0
+#define PST_ACTIVE      1
+#define PST_ABORTED     2
 
 
 
@@ -69,36 +69,36 @@ QPrinter::QPrinter( PrinterMode m )
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
     output_file = FALSE;
-    to_edge	= FALSE;
+    to_edge     = FALSE;
     viewOffsetDone = FALSE;
     painter     = 0;
     doc_name = "document1";
 
     if ( qt_winver & Qt::WV_NT_based ) {
-	PRINTDLG pd;
-	memset( &pd, 0, sizeof(PRINTDLG) );
-	pd.lStructSize = sizeof(PRINTDLG);
-	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
-	if ( PrintDlg( &pd ) != 0 )
-	    readPdlg( &pd );
+        PRINTDLG pd;
+        memset( &pd, 0, sizeof(PRINTDLG) );
+        pd.lStructSize = sizeof(PRINTDLG);
+        pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
+        if ( PrintDlg( &pd ) != 0 )
+            readPdlg( &pd );
     }
     else {
-	PRINTDLGA pd;
-	memset( &pd, 0, sizeof(PRINTDLGA) );
-	pd.lStructSize = sizeof(PRINTDLGA);
-	pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
-	if ( PrintDlgA( &pd ) != 0 )
-	    readPdlgA( &pd );
+        PRINTDLGA pd;
+        memset( &pd, 0, sizeof(PRINTDLGA) );
+        pd.lStructSize = sizeof(PRINTDLGA);
+        pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
+        if ( PrintDlgA( &pd ) != 0 )
+            readPdlgA( &pd );
     }
     switch ( m ) {
-	case ScreenResolution:
-	    res = 96; // ### is this true in all cases?
-	    break;
-	case Compatible:
-	    devFlags |= QInternal::CompatibilityMode;
-	case PrinterResolution:
-	case HighResolution:
-	    res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+        case ScreenResolution:
+            res = 96; // ### is this true in all cases?
+            break;
+        case Compatible:
+            devFlags |= QInternal::CompatibilityMode;
+        case PrinterResolution:
+        case HighResolution:
+            res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     }
 }
 
@@ -114,8 +114,8 @@ QPrinter::~QPrinter()
     }
 
     if ( hdc ) {
-	DeleteDC( hdc );
-	hdc = 0;
+        DeleteDC( hdc );
+        hdc = 0;
     }
 }
 
@@ -124,26 +124,24 @@ bool QPrinter::newPage()
 {
     bool success = FALSE;
     if ( hdc && state == PST_ACTIVE ) {
-	bool restorePainter = FALSE;
-	if ( (qt_winver& Qt::WV_DOS_based) && painter && painter->isActive() ) {
-	    painter->save();               // EndPage/StartPage ruins the DC
-	    restorePainter = TRUE;
-	}
-	if ( EndPage(hdc) != SP_ERROR && StartPage(hdc) != SP_ERROR )
-	    success = TRUE;
-	else
-	    state = PST_ABORTED;
-	if ( restorePainter )
-	    painter->restore();
-	if ( (qt_winver& Qt::WV_DOS_based) ) {
-	    if ( fullPage() ) {
-		QSize margs = margins();
-                // ### Why do we send minus the width and height?  It doesn't print in some cases if we do.
-                // OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 ); 
-                OffsetViewportOrgEx( hdc, margs.width(), margs.height(), 0 );
-	    }
-	    SetTextAlign( hdc, TA_BASELINE );
-	}
+        bool restorePainter = FALSE;
+        if ( (qt_winver& Qt::WV_DOS_based) && painter && painter->isActive() ) {
+            painter->save();               // EndPage/StartPage ruins the DC
+            restorePainter = TRUE;
+        }
+        if ( EndPage(hdc) != SP_ERROR && StartPage(hdc) != SP_ERROR )
+            success = TRUE;
+        else
+            state = PST_ABORTED;
+        if ( restorePainter )
+            painter->restore();
+        if ( (qt_winver& Qt::WV_DOS_based) ) {
+            if ( fullPage() ) {
+                QSize margs = margins();
+                OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
+            }
+            SetTextAlign( hdc, TA_BASELINE );
+        }
     }
     return success;
 }
@@ -162,7 +160,7 @@ void QPrinter::setIdle()
 bool QPrinter::abort()
 {
     if ( state == PST_ACTIVE )
-	state = PST_ABORTED;
+        state = PST_ABORTED;
     return state == PST_ABORTED;
 }
 
@@ -191,7 +189,7 @@ static PaperSourceNames sources[] = {
     { DMBIN_LARGEFMT,       QPrinter::LargeFormat },
     { DMBIN_LARGECAPACITY,  QPrinter::LargeCapacity },
     { DMBIN_CASSETTE,       QPrinter::Cassette },
-    { DMBIN_FORMSOURCE,     QPrinter::FormSource }    
+    { DMBIN_FORMSOURCE,     QPrinter::FormSource }
 };
 
 static QPrinter::PaperSource mapDevmodePaperSource( int s )
@@ -218,82 +216,82 @@ typedef struct
 } PageSizeNames;
 
 static PageSizeNames names[] = {
-	  { DMPAPER_LETTER,		QPrinter::Letter },
-	  { DMPAPER_LETTERSMALL,	QPrinter::Letter },
-	  { DMPAPER_TABLOID,		QPrinter::Tabloid },
-	  { DMPAPER_LEDGER,		QPrinter::Ledger },
-	  { DMPAPER_LEGAL,		QPrinter::Legal },
-	  //	  { DMPAPER_STATEMENT,		QPrinter:: },
-	  { DMPAPER_EXECUTIVE,		QPrinter::Executive },
-	  { DMPAPER_A3,			QPrinter::A3 },
-	  { DMPAPER_A4,			QPrinter::A4 },
-	  { DMPAPER_A4SMALL,		QPrinter::A4 },
-	  { DMPAPER_A5,			QPrinter::A5 },
-	  { DMPAPER_B4,			QPrinter::B4 },
-	  { DMPAPER_B5,			QPrinter::B5 },
-	  { DMPAPER_FOLIO,		QPrinter::Folio },
-	  //{ DMPAPER_QUARTO,		QPrinter:: },
-	  //{ DMPAPER_10X14,		QPrinter:: },
-	  //{ DMPAPER_11X17,		QPrinter:: },
-	  //{ DMPAPER_NOTE,		QPrinter:: },
-	  //{ DMPAPER_ENV_9,		QPrinter:: },
-	  { DMPAPER_ENV_10,		QPrinter::Comm10E },
-	  //{ DMPAPER_ENV_11,		QPrinter:: },
-	  //{ DMPAPER_ENV_12,		QPrinter:: },
-	  //{ DMPAPER_ENV_14,		QPrinter:: },
-	  //{ DMPAPER_CSHEET,		QPrinter:: },
-	  //{ DMPAPER_DSHEET,		QPrinter:: },
-	  //{ DMPAPER_ESHEET,		QPrinter:: },
-	  { DMPAPER_ENV_DL,		QPrinter::DLE },
-	  //{ DMPAPER_ENV_C5,		QPrinter:: },
-	  { DMPAPER_ENV_C3,		QPrinter::C5E },
-	  //{ DMPAPER_ENV_C4,		QPrinter:: },
-	  //{ DMPAPER_ENV_C6,		QPrinter:: },
-	  //{ DMPAPER_ENV_C65,		QPrinter:: },
-	  //{ DMPAPER_ENV_B4,		QPrinter:: },
-	  //{ DMPAPER_ENV_B5,		QPrinter:: },
-	  //{ DMPAPER_ENV_B6,		QPrinter:: },
-	  //{ DMPAPER_ENV_ITALY,		QPrinter:: },
-	  //{ DMPAPER_ENV_MONARCH,	QPrinter:: },
-	  //{ DMPAPER_ENV_PERSONAL,	QPrinter:: },
-	  //{ DMPAPER_FANFOLD_US,		QPrinter:: },
-	  //{ DMPAPER_FANFOLD_STD_GERMAN,	QPrinter:: },
-	  //{ DMPAPER_FANFOLD_LGL_GERMAN,	QPrinter:: },
-	  //{ DMPAPER_ISO_B4,		QPrinter:: },
-	  //{ DMPAPER_JAPANESE_POSTCARD,	QPrinter:: },
-	  //{ DMPAPER_9X11,		QPrinter:: },
-	  //{ DMPAPER_10X11,		QPrinter:: },
-	  //{ DMPAPER_15X11,		QPrinter:: },
-	  //{ DMPAPER_ENV_INVITE,		QPrinter:: },
-	  //{ DMPAPER_RESERVED_48,	QPrinter:: },
-	  //{ DMPAPER_RESERVED_49,	QPrinter:: },
-	  { DMPAPER_LETTER_EXTRA,	QPrinter::Letter },
-	  { DMPAPER_LEGAL_EXTRA,	QPrinter::Legal },
-	  { DMPAPER_TABLOID_EXTRA,	QPrinter::Tabloid },
-	  { DMPAPER_A4_EXTRA,		QPrinter::A4},
-	  { DMPAPER_LETTER_TRANSVERSE,	QPrinter::Letter},
-	  { DMPAPER_A4_TRANSVERSE,	QPrinter::A4},
-	  { DMPAPER_LETTER_EXTRA_TRANSVERSE,	QPrinter::Letter },
-	  { DMPAPER_A_PLUS,		QPrinter::A4 },
-	  { DMPAPER_B_PLUS,		QPrinter::A3 },
-	  { DMPAPER_LETTER_PLUS,	QPrinter::Letter },
-	  { DMPAPER_A4_PLUS,		QPrinter::A4 },
-	  { DMPAPER_A5_TRANSVERSE,	QPrinter::A5 },
-	  { DMPAPER_B5_TRANSVERSE,	QPrinter::B5 },
-	  { DMPAPER_A3_EXTRA,		QPrinter::A3 },
-	  { DMPAPER_A5_EXTRA,		QPrinter::A5 },
-	  { DMPAPER_B5_EXTRA,		QPrinter::B5 },
-	  { DMPAPER_A2,			QPrinter::A2 },
-	  { DMPAPER_A3_TRANSVERSE,	QPrinter::A3 },
-	  { DMPAPER_A3_EXTRA_TRANSVERSE,	QPrinter::A3 },
-	  { -1, QPrinter::A4 }
+          { DMPAPER_LETTER,             QPrinter::Letter },
+          { DMPAPER_LETTERSMALL,        QPrinter::Letter },
+          { DMPAPER_TABLOID,            QPrinter::Tabloid },
+          { DMPAPER_LEDGER,             QPrinter::Ledger },
+          { DMPAPER_LEGAL,              QPrinter::Legal },
+          //      { DMPAPER_STATEMENT,          QPrinter:: },
+          { DMPAPER_EXECUTIVE,          QPrinter::Executive },
+          { DMPAPER_A3,                 QPrinter::A3 },
+          { DMPAPER_A4,                 QPrinter::A4 },
+          { DMPAPER_A4SMALL,            QPrinter::A4 },
+          { DMPAPER_A5,                 QPrinter::A5 },
+          { DMPAPER_B4,                 QPrinter::B4 },
+          { DMPAPER_B5,                 QPrinter::B5 },
+          { DMPAPER_FOLIO,              QPrinter::Folio },
+          //{ DMPAPER_QUARTO,           QPrinter:: },
+          //{ DMPAPER_10X14,            QPrinter:: },
+          //{ DMPAPER_11X17,            QPrinter:: },
+          //{ DMPAPER_NOTE,             QPrinter:: },
+          //{ DMPAPER_ENV_9,            QPrinter:: },
+          { DMPAPER_ENV_10,             QPrinter::Comm10E },
+          //{ DMPAPER_ENV_11,           QPrinter:: },
+          //{ DMPAPER_ENV_12,           QPrinter:: },
+          //{ DMPAPER_ENV_14,           QPrinter:: },
+          //{ DMPAPER_CSHEET,           QPrinter:: },
+          //{ DMPAPER_DSHEET,           QPrinter:: },
+          //{ DMPAPER_ESHEET,           QPrinter:: },
+          { DMPAPER_ENV_DL,             QPrinter::DLE },
+          //{ DMPAPER_ENV_C5,           QPrinter:: },
+          { DMPAPER_ENV_C3,             QPrinter::C5E },
+          //{ DMPAPER_ENV_C4,           QPrinter:: },
+          //{ DMPAPER_ENV_C6,           QPrinter:: },
+          //{ DMPAPER_ENV_C65,          QPrinter:: },
+          //{ DMPAPER_ENV_B4,           QPrinter:: },
+          //{ DMPAPER_ENV_B5,           QPrinter:: },
+          //{ DMPAPER_ENV_B6,           QPrinter:: },
+          //{ DMPAPER_ENV_ITALY,                QPrinter:: },
+          //{ DMPAPER_ENV_MONARCH,      QPrinter:: },
+          //{ DMPAPER_ENV_PERSONAL,     QPrinter:: },
+          //{ DMPAPER_FANFOLD_US,               QPrinter:: },
+          //{ DMPAPER_FANFOLD_STD_GERMAN,       QPrinter:: },
+          //{ DMPAPER_FANFOLD_LGL_GERMAN,       QPrinter:: },
+          //{ DMPAPER_ISO_B4,           QPrinter:: },
+          //{ DMPAPER_JAPANESE_POSTCARD,        QPrinter:: },
+          //{ DMPAPER_9X11,             QPrinter:: },
+          //{ DMPAPER_10X11,            QPrinter:: },
+          //{ DMPAPER_15X11,            QPrinter:: },
+          //{ DMPAPER_ENV_INVITE,               QPrinter:: },
+          //{ DMPAPER_RESERVED_48,      QPrinter:: },
+          //{ DMPAPER_RESERVED_49,      QPrinter:: },
+          { DMPAPER_LETTER_EXTRA,       QPrinter::Letter },
+          { DMPAPER_LEGAL_EXTRA,        QPrinter::Legal },
+          { DMPAPER_TABLOID_EXTRA,      QPrinter::Tabloid },
+          { DMPAPER_A4_EXTRA,           QPrinter::A4},
+          { DMPAPER_LETTER_TRANSVERSE,  QPrinter::Letter},
+          { DMPAPER_A4_TRANSVERSE,      QPrinter::A4},
+          { DMPAPER_LETTER_EXTRA_TRANSVERSE,    QPrinter::Letter },
+          { DMPAPER_A_PLUS,             QPrinter::A4 },
+          { DMPAPER_B_PLUS,             QPrinter::A3 },
+          { DMPAPER_LETTER_PLUS,        QPrinter::Letter },
+          { DMPAPER_A4_PLUS,            QPrinter::A4 },
+          { DMPAPER_A5_TRANSVERSE,      QPrinter::A5 },
+          { DMPAPER_B5_TRANSVERSE,      QPrinter::B5 },
+          { DMPAPER_A3_EXTRA,           QPrinter::A3 },
+          { DMPAPER_A5_EXTRA,           QPrinter::A5 },
+          { DMPAPER_B5_EXTRA,           QPrinter::B5 },
+          { DMPAPER_A2,                 QPrinter::A2 },
+          { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
+          { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
+          { -1, QPrinter::A4 }
 };
 
 static QPrinter::PageSize mapDevmodePageSize( int s )
 {
     int i = 0;
     while ( (names[i].winSizeName > 0) && (names[i].winSizeName != s) )
-	i++;
+        i++;
     return names[i].qtSizeName;
 }
 
@@ -321,43 +319,43 @@ void QPrinter::readPdlg( void* pdv )
        DeleteDC( hdc );
        viewOffsetDone = FALSE;
     }
-    hdc	= pd->hDC;
+    hdc = pd->hDC;
     if ( pd->hDevMode ) {
-	DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
-	if ( dm ) {
-	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-		setOrientation( Portrait );
-	    else
-		setOrientation( Landscape );
-	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+        DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
+        if ( dm ) {
+            if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+                setOrientation( Portrait );
+            else
+                setOrientation( Landscape );
+            setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
-	    ncopies = dm->dmCopies;
-	}
-	GlobalUnlock( pd->hDevMode );
+            ncopies = dm->dmCopies;
+        }
+        GlobalUnlock( pd->hDevMode );
     }
 
     if ( pd->hDevNames ) {
-	DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
-	if ( dn ) {
-	    TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
-	    setPrinterName( qt_winQString( prName ) );
-	    TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
-	    setPrintProgram( qt_winQString( drName ) );
-	}
-	GlobalUnlock( pd->hDevNames );
+        DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
+        if ( dn ) {
+            TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
+            setPrinterName( qt_winQString( prName ) );
+            TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
+            setPrintProgram( qt_winQString( drName ) );
+        }
+        GlobalUnlock( pd->hDevNames );
     }
 
     if ( pd->hDevMode ) {
-	if ( hdevmode )
-	    GlobalFree( hdevmode );
-	hdevmode = pd->hDevMode;
-	pd->hDevMode = 0;
+        if ( hdevmode )
+            GlobalFree( hdevmode );
+        hdevmode = pd->hDevMode;
+        pd->hDevMode = 0;
     }
     if ( pd->hDevNames ) {
-	if ( hdevnames )
-	    GlobalFree( hdevnames );
-	hdevnames = pd->hDevNames;
-	pd->hDevNames = 0;
+        if ( hdevnames )
+            GlobalFree( hdevnames );
+        hdevnames = pd->hDevNames;
+        pd->hDevNames = 0;
     }
 }
 
@@ -374,44 +372,44 @@ void QPrinter::readPdlgA( void* pdv )
        DeleteDC( hdc );
        viewOffsetDone = FALSE;
     }
-    hdc	= pd->hDC;
+    hdc = pd->hDC;
     if ( pd->hDevMode ) {
-	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
-	if ( dm ) {
-	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-		setOrientation( Portrait );
-	    else
-		setOrientation( Landscape );
-	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+        DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
+        if ( dm ) {
+            if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+                setOrientation( Portrait );
+            else
+                setOrientation( Landscape );
+            setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
             setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
-	    ncopies = pd->nCopies;
-	}
-	GlobalUnlock( pd->hDevMode );
+            ncopies = pd->nCopies;
+        }
+        GlobalUnlock( pd->hDevMode );
     }
 
     if ( pd->hDevNames ) {
-	DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
-	// (There is no DEVNAMESA)
-	if ( dn ) {
-	    char* prName = ((char*)dn) + dn->wDeviceOffset;
-	    setPrinterName( QString::fromLocal8Bit( prName ) );
-	    char* drName = ((char*)dn) + dn->wDriverOffset;
-	    setPrintProgram( QString::fromLocal8Bit( drName ) );
-	}
-	GlobalUnlock( pd->hDevNames );
+        DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
+        // (There is no DEVNAMESA)
+        if ( dn ) {
+            char* prName = ((char*)dn) + dn->wDeviceOffset;
+            setPrinterName( QString::fromLocal8Bit( prName ) );
+            char* drName = ((char*)dn) + dn->wDriverOffset;
+            setPrintProgram( QString::fromLocal8Bit( drName ) );
+        }
+        GlobalUnlock( pd->hDevNames );
     }
 
     if ( pd->hDevMode ) {
-	if ( hdevmode )
-	    GlobalFree( hdevmode );
-	hdevmode = pd->hDevMode;
-	pd->hDevMode = 0;
+        if ( hdevmode )
+            GlobalFree( hdevmode );
+        hdevmode = pd->hDevMode;
+        pd->hDevMode = 0;
     }
     if ( pd->hDevNames ) {
-	if ( hdevnames )
-	    GlobalFree( hdevnames );
-	hdevnames = pd->hDevNames;
-	pd->hDevNames = 0;
+        if ( hdevnames )
+            GlobalFree( hdevnames );
+        hdevnames = pd->hDevNames;
+        pd->hDevNames = 0;
     }
 }
 
@@ -420,8 +418,8 @@ static void setDefaultPrinter(const QString &printerName)
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
     if (! OpenPrinter((TCHAR *)qt_winTchar(printerName,TRUE),&hPrinter,NULL)) {
-    	qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
-     	return;
+        qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
+        return;
     }
 
     // Obtain PRINTER_INFO_2 and close printer afterwords
@@ -431,12 +429,12 @@ static void setDefaultPrinter(const QString &printerName)
     BOOL callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
     ClosePrinter(hPrinter);
     if (! callOk) {
-	    qDebug("GetPrinter() failed, error %d",GetLastError());
- 	    GlobalFree(pinf2);
- 	    return;
+            qDebug("GetPrinter() failed, error %d",GetLastError());
+            GlobalFree(pinf2);
+            return;
     }
 
-    
+
     // There are drivers with no pDevMode structure!
     if ( pinf2->pDevMode ) {
         // Allocate a global HANDLE for a DEVMODE Structure
@@ -460,8 +458,8 @@ static void setDefaultPrinter(const QString &printerName)
     DWORD   lPrntName = lstrlen(pinf2->pPrinterName) + 1;
     DWORD   lPortName = lstrlen(pinf2->pPortName) + 1;
     if ( hdevnames ) {
-    	GlobalFree( hdevnames );
-	    hdevnames = 0;
+        GlobalFree( hdevnames );
+            hdevnames = 0;
     }
     hdevnames = GlobalAlloc(GHND,(lDrvrName + lPrntName + lPortName) * sizeof(TCHAR) + sizeof(DEVNAMES));
     Q_ASSERT(hdevnames != 0);
@@ -495,48 +493,48 @@ static void setDefaultPrinter(const QString &printerName)
 bool QPrinter::setup( QWidget *parent )
 {
     if ( parent )
-	parent = parent->topLevelWidget();
+        parent = parent->topLevelWidget();
     else
-	parent = qApp->mainWidget();
+        parent = qApp->mainWidget();
 
     bool result = FALSE;
 
     if ( !printerName().isEmpty() )
         setDefaultPrinter( printerName() );
-    
+
     // Must handle the -A and -W versions separately; they're incompatible
     if ( qt_winver & Qt::WV_NT_based ) {
-	PRINTDLG pd;
-	memset( &pd, 0, sizeof(PRINTDLG) );
-	pd.lStructSize = sizeof(PRINTDLG);
+        PRINTDLG pd;
+        memset( &pd, 0, sizeof(PRINTDLG) );
+        pd.lStructSize = sizeof(PRINTDLG);
 
         pd.hDevMode   = hdevmode;
         pd.hDevNames  = hdevnames;
         if (pd.hDevMode)
             result = TRUE;
         else {
-	    pd.Flags = PD_RETURNDEFAULT;
-	    result = PrintDlg( &pd ) != 0;
+            pd.Flags = PD_RETURNDEFAULT;
+            result = PrintDlg( &pd ) != 0;
         }
 
-	if ( result ) {
-	    // writePdlg {
-	    pd.Flags = PD_RETURNDC;
-	    if ( outputToFile() )
-		pd.Flags |= PD_PRINTTOFILE;
-	    pd.hwndOwner = parent ? parent->winId() : 0;
-	    pd.nFromPage = QMAX(from_pg,min_pg);
-	    pd.nToPage	 = QMIN(to_pg,max_pg);
-	    if ( pd.nFromPage > pd.nToPage )
-		pd.nFromPage = pd.nToPage = 0;
-	    pd.nMinPage	 = min_pg;
-	    pd.nMaxPage	 = max_pg;
-	    pd.nCopies	 = ncopies;
+        if ( result ) {
+            // writePdlg {
+            pd.Flags = PD_RETURNDC;
+            if ( outputToFile() )
+                pd.Flags |= PD_PRINTTOFILE;
+            pd.hwndOwner = parent ? parent->winId() : 0;
+            pd.nFromPage = QMAX(from_pg,min_pg);
+            pd.nToPage   = QMIN(to_pg,max_pg);
+            if ( pd.nFromPage > pd.nToPage )
+                pd.nFromPage = pd.nToPage = 0;
+            pd.nMinPage  = min_pg;
+            pd.nMaxPage  = max_pg;
+            pd.nCopies   = ncopies;
 
-	    if ( pd.hDevMode ) {
-		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
-		if ( dm ) {
-		    if ( orient == Portrait )
+            if ( pd.hDevMode ) {
+                DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
+                if ( dm ) {
+                    if ( orient == Portrait )
                 dm->dmOrientation = DMORIENT_PORTRAIT;
             else
                 dm->dmOrientation = DMORIENT_LANDSCAPE;
@@ -548,43 +546,43 @@ bool QPrinter::setup( QWidget *parent )
             else
                 dm->dmColor = DMCOLOR_MONOCHROME;
             GlobalUnlock( pd.hDevMode );
-		}
-	    }
-	    // } writePdlg
-	    result = PrintDlg( &pd );
-	    if ( result && pd.hDC == 0 )
-		result = FALSE;
-	    if ( result )				// get values from dlg
-		readPdlg( &pd );
-	}
+                }
+            }
+            // } writePdlg
+            result = PrintDlg( &pd );
+            if ( result && pd.hDC == 0 )
+                result = FALSE;
+            if ( result )                               // get values from dlg
+                readPdlg( &pd );
+        }
     }
     else {
-	// Win95/98 A version; identical to the above!
-	PRINTDLGA pd;
-	memset( &pd, 0, sizeof(PRINTDLGA) );
-	pd.lStructSize = sizeof(PRINTDLGA);
+        // Win95/98 A version; identical to the above!
+        PRINTDLGA pd;
+        memset( &pd, 0, sizeof(PRINTDLGA) );
+        pd.lStructSize = sizeof(PRINTDLGA);
 
-	pd.hDevMode   = hdevmode;
-	pd.hDevNames  = hdevnames;
-	if (pd.hDevMode)
-	    result = TRUE;
+        pd.hDevMode   = hdevmode;
+        pd.hDevNames  = hdevnames;
+        if (pd.hDevMode)
+            result = TRUE;
         else {
-	    pd.Flags         = PD_RETURNDEFAULT;
-	    result = PrintDlgA( &pd ) != 0;
+            pd.Flags         = PD_RETURNDEFAULT;
+            result = PrintDlgA( &pd ) != 0;
         }
 
-	if ( result ) {
-	    pd.Flags = PD_RETURNDC;
-	    if ( outputToFile() )
-		pd.Flags |= PD_PRINTTOFILE;
-	    pd.hwndOwner = parent ? parent->winId() : 0;
-	    pd.nFromPage = QMAX(from_pg,min_pg);
-	    pd.nToPage	 = QMIN(to_pg,max_pg);
-	    if ( pd.nFromPage > pd.nToPage )
-		pd.nFromPage = pd.nToPage = 0;
-	    pd.nMinPage	 = min_pg;
-	    pd.nMaxPage	 = max_pg;
-	    pd.nCopies	 = ncopies;
+        if ( result ) {
+            pd.Flags = PD_RETURNDC;
+            if ( outputToFile() )
+                pd.Flags |= PD_PRINTTOFILE;
+            pd.hwndOwner = parent ? parent->winId() : 0;
+            pd.nFromPage = QMAX(from_pg,min_pg);
+            pd.nToPage   = QMIN(to_pg,max_pg);
+            if ( pd.nFromPage > pd.nToPage )
+                pd.nFromPage = pd.nToPage = 0;
+            pd.nMinPage  = min_pg;
+            pd.nMaxPage  = max_pg;
+            pd.nCopies   = ncopies;
 
         if ( pd.hDevMode ) {
             DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
@@ -603,17 +601,17 @@ bool QPrinter::setup( QWidget *parent )
                 GlobalUnlock( pd.hDevMode );
             }
         }
-	    result = PrintDlgA( &pd );
-	    if ( result && pd.hDC == 0 )
-		result = FALSE;
-	    if ( result )
-		readPdlgA( &pd );
-	}
+            result = PrintDlgA( &pd );
+            if ( result && pd.hDC == 0 )
+                result = FALSE;
+            if ( result )
+                readPdlgA( &pd );
+        }
     }
 
-    SetMapMode(hdc, MM_ANISOTROPIC); 
-    SetWindowExtEx(hdc, res, res, NULL); 
-    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL); 
+    SetMapMode(hdc, MM_ANISOTROPIC);
+    SetWindowExtEx(hdc, res, res, NULL);
+    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
 
     return result;
 }
@@ -622,60 +620,60 @@ bool QPrinter::setup( QWidget *parent )
 
 
 static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
-					 const QImage &image )
+                                         const QImage &image )
 {
     int w, h, d, ncols=2;
     if ( !pixmap.isNull() ) {
-	w = pixmap.width();
-	h = pixmap.height();
-	d = pixmap.depth();
+        w = pixmap.width();
+        h = pixmap.height();
+        d = pixmap.depth();
     } else {
-	w = image.width();
-	h = image.height();
-	d = image.depth();
+        w = image.width();
+        h = image.height();
+        d = image.depth();
     }
 
-    if ( w == 0 || h == 0 || d == 0 )		// invalid image or pixmap
-	return 0;
+    if ( w == 0 || h == 0 || d == 0 )           // invalid image or pixmap
+        return 0;
 
-    if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
-	d = 8;					//   2..7 ==> 8
-	ncols = 256;
+    if ( d > 1 && d <= 8 ) {                    // set to nearest valid depth
+        d = 8;                                  //   2..7 ==> 8
+        ncols = 256;
     }
     else if ( d > 8 ) {
-	d = 32;					//   > 8  ==> 32
-	ncols = 0;
+        d = 32;                                 //   > 8  ==> 32
+        ncols = 0;
     }
 
-    int   bpl = ((w*d+31)/32)*4;    		// bytes per line
-    int	  bmi_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
+    int   bpl = ((w*d+31)/32)*4;                // bytes per line
+    int   bmi_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = (char *)malloc( bmi_len );
     memset( bmi_data, 0, bmi_len );
-    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
+    BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
-    bmh->biWidth	  = w;
+    bmh->biSize           = sizeof(BITMAPINFOHEADER);
+    bmh->biWidth          = w;
     if ( !pixmap.isNull() && pixmap.isQBitmap() )
-      bmh->biHeight	  = h;
+      bmh->biHeight       = h;
     else
-      bmh->biHeight	  = -h;
-    bmh->biPlanes	  = 1;
-    bmh->biBitCount	  = d;
-    bmh->biCompression	  = BI_RGB;
-    bmh->biSizeImage	  = bpl*h;
-    bmh->biClrUsed	  = ncols;
-    bmh->biClrImportant	  = 0;
+      bmh->biHeight       = -h;
+    bmh->biPlanes         = 1;
+    bmh->biBitCount       = d;
+    bmh->biCompression    = BI_RGB;
+    bmh->biSizeImage      = bpl*h;
+    bmh->biClrUsed        = ncols;
+    bmh->biClrImportant   = 0;
 
-    if ( ncols > 0  && !image.isNull()) {	// image with color map
-	RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
-	ncols = QMIN(ncols,image.numColors());
-	for ( int i=0; i<ncols; i++ ) {
-	    QColor c = image.color(i);
-	    r[i].rgbRed = c.red();
-	    r[i].rgbGreen = c.green();
-	    r[i].rgbBlue = c.blue();
-	    r[i].rgbReserved = 0;
-	}
+    if ( ncols > 0  && !image.isNull()) {       // image with color map
+        RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
+        ncols = QMIN(ncols,image.numColors());
+        for ( int i=0; i<ncols; i++ ) {
+            QColor c = image.color(i);
+            r[i].rgbRed = c.red();
+            r[i].rgbGreen = c.green();
+            r[i].rgbBlue = c.blue();
+            r[i].rgbReserved = 0;
+        }
     }
 
     return bmi;
@@ -684,158 +682,156 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
-    if ( c ==  PdcBegin ) {			// begin; start printing
-	bool ok = state == PST_IDLE;
-	if ( ok && !hdc ) {
-	    setup( 0 );
-	    if ( !hdc )
-		ok = FALSE;
-	}
-	if ( qt_winver & Qt::WV_NT_based ) {
-	    DOCINFO di;
-	    memset( &di, 0, sizeof(DOCINFO) );
-	    di.cbSize = sizeof(DOCINFO);
-	    di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
-	    if ( ok && StartDoc(hdc, &di) == SP_ERROR )
-		ok = FALSE;
-	} else {
-	    DOCINFOA di;
-	    memset( &di, 0, sizeof(DOCINFO) );
-	    di.cbSize = sizeof(DOCINFO);
+    if ( c ==  PdcBegin ) {                     // begin; start printing
+        bool ok = state == PST_IDLE;
+        if ( ok && !hdc ) {
+            setup( 0 );
+            if ( !hdc )
+                ok = FALSE;
+        }
+        if ( qt_winver & Qt::WV_NT_based ) {
+            DOCINFO di;
+            memset( &di, 0, sizeof(DOCINFO) );
+            di.cbSize = sizeof(DOCINFO);
+            di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
+            if ( ok && StartDoc(hdc, &di) == SP_ERROR )
+                ok = FALSE;
+        } else {
+            DOCINFOA di;
+            memset( &di, 0, sizeof(DOCINFO) );
+            di.cbSize = sizeof(DOCINFO);
 #if defined(__MINGW32__)
-	    di.lpszDocName = (const TCHAR*)doc_name.unicode();
+            di.lpszDocName = (const TCHAR*)doc_name.unicode();
 #else
- 	    di.lpszDocName = doc_name.ascii();
+            di.lpszDocName = doc_name.ascii();
 #endif
-	    if ( ok && StartDocA(hdc, &di) == SP_ERROR )
-		ok = FALSE;
-	}
-	if ( ok && StartPage(hdc) == SP_ERROR )
-	    ok = FALSE;
-	if ( ok && fullPage() && !viewOffsetDone ) {
-	    QSize margs = margins();
+            if ( ok && StartDocA(hdc, &di) == SP_ERROR )
+                ok = FALSE;
+        }
+        if ( ok && StartPage(hdc) == SP_ERROR )
+            ok = FALSE;
+        if ( ok && fullPage() && !viewOffsetDone ) {
+            QSize margs = margins();
 
-            // ### Why do we send minus the width and height?  It doesn't print in some cases if we do.
-            // OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 ); 
-            OffsetViewportOrgEx( hdc, margs.width(), margs.height(), 0 );
+            OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
 
-	}
-	if ( !ok ) {
-	    if ( hdc ) {
-		DeleteDC( hdc );
-		hdc = 0;
-	    }
-	    state = PST_IDLE;
-	    return FALSE;
-	} else {
-	    state = PST_ACTIVE;
-	    painter = paint;
-	}
+        }
+        if ( !ok ) {
+            if ( hdc ) {
+                DeleteDC( hdc );
+                hdc = 0;
+            }
+            state = PST_IDLE;
+            return FALSE;
+        } else {
+            state = PST_ACTIVE;
+            painter = paint;
+        }
     } else if ( c == PdcEnd ) {
-	if ( hdc ) {
-	    if ( state == PST_ABORTED ) {
-		AbortDoc( hdc );
-	    } else {
-		EndPage( hdc );			// end; printing done
-		EndDoc( hdc );
-	    }
-	}
-	state = PST_IDLE;
-    } else {					// all other commands...
-	if ( state != PST_ACTIVE )		// aborted or error
-	    return FALSE;
-	if ( hdc == 0 ) {			// device unexpectedly reset
-	    state = PST_ABORTED;
-	    return FALSE;
-	}
-	if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
-	    QPoint  pos	   = *p[0].point;
-	    QPixmap pixmap;
-	    QImage  image;
+        if ( hdc ) {
+            if ( state == PST_ABORTED ) {
+                AbortDoc( hdc );
+            } else {
+                EndPage( hdc );                 // end; printing done
+                EndDoc( hdc );
+            }
+        }
+        state = PST_IDLE;
+    } else {                                    // all other commands...
+        if ( state != PST_ACTIVE )              // aborted or error
+            return FALSE;
+        if ( hdc == 0 ) {                       // device unexpectedly reset
+            state = PST_ABORTED;
+            return FALSE;
+        }
+        if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
+            QPoint  pos    = *p[0].point;
+            QPixmap pixmap;
+            QImage  image;
 
-	    int w;
-	    int h;
+            int w;
+            int h;
 
-	    if ( c == PdcDrawPixmap ) {
-		pixmap = *p[1].pixmap;
-		w = pixmap.width();
-		h = pixmap.height();
-		if ( pixmap.isQBitmap() ) {
-		    QColor bg = paint->backgroundColor();
-		    QColor fg = paint->pen().color();
-		    if ( (bg != Qt::white) || (fg != Qt::black) ) {
-			image = pixmap;
-			image.convertDepth( 8 );
-			image.setColor( 0, bg.rgb() );
-			image.setColor( 1, fg.rgb() );
-			pixmap = QPixmap();
-		    }
-		}
-	    } else {
-		image = *p[1].image;
-		w = image.width();
-		h = image.height();
-	    }
+            if ( c == PdcDrawPixmap ) {
+                pixmap = *p[1].pixmap;
+                w = pixmap.width();
+                h = pixmap.height();
+                if ( pixmap.isQBitmap() ) {
+                    QColor bg = paint->backgroundColor();
+                    QColor fg = paint->pen().color();
+                    if ( (bg != Qt::white) || (fg != Qt::black) ) {
+                        image = pixmap;
+                        image.convertDepth( 8 );
+                        image.setColor( 0, bg.rgb() );
+                        image.setColor( 1, fg.rgb() );
+                        pixmap = QPixmap();
+                    }
+                }
+            } else {
+                image = *p[1].image;
+                w = image.width();
+                h = image.height();
+            }
 
-	    double xs = 1.0;			// x stretch
-	    double ys = 1.0;			// y stretch
-	    if ( paint ) {
-		bool wxf = paint->hasWorldXForm();
-		bool vxf = paint->hasViewXForm();
-		if ( wxf || vxf ) {		// map position
-		    pos = paint->xForm( pos );
-		}
-		if ( wxf ) {
-		    QWMatrix m = paint->worldMatrix();
-		    xs = m.m11();
-		    ys = m.m22();
-		}
-		if ( vxf ) {
-		    QRect vr = paint->viewport();
-		    QRect wr = paint->window();
-		    xs = xs * vr.width() / wr.width();
-		    ys = ys * vr.height() / wr.height();
-		}
-	    }
-	    int dw = qRound( xs * w );
-	    int dh = qRound( ys * h );
-	    BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
-	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-	    uchar *bits;
+            double xs = 1.0;                    // x stretch
+            double ys = 1.0;                    // y stretch
+            if ( paint ) {
+                bool wxf = paint->hasWorldXForm();
+                bool vxf = paint->hasViewXForm();
+                if ( wxf || vxf ) {             // map position
+                    pos = paint->xForm( pos );
+                }
+                if ( wxf ) {
+                    QWMatrix m = paint->worldMatrix();
+                    xs = m.m11();
+                    ys = m.m22();
+                }
+                if ( vxf ) {
+                    QRect vr = paint->viewport();
+                    QRect wr = paint->window();
+                    xs = xs * vr.width() / wr.width();
+                    ys = ys * vr.height() / wr.height();
+                }
+            }
+            int dw = qRound( xs * w );
+            int dh = qRound( ys * h );
+            BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
+            BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+            uchar *bits;
 
-	    if ( image.isNull() ) {
-		bits = new uchar[bmh->biSizeImage];
-		// We are guaranteed that the QPainter does not pass
-		// a multi cell pixmap, therefore we can access hbm().
-		GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
-			   bits, bmi, DIB_RGB_COLORS );
-	    } else {
-		bits = image.bits();
-	    }
-	    int rc = GetDeviceCaps(hdc,RASTERCAPS);
-	    if ( (rc & RC_STRETCHDIB) != 0 ) {
-		// StretchDIBits supported
-		StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
-			       bits, bmi, DIB_RGB_COLORS, SRCCOPY );
-	    } else if ( (rc & RC_STRETCHBLT) != 0 ) {
-		// StretchBlt supported
-		HDC     hdcPrn = CreateCompatibleDC( hdc );
-		HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
-						 bits, bmi, DIB_RGB_COLORS );
-		HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
-		StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
-			    hdcPrn, 0, 0, w, h, SRCCOPY );
-		SelectObject( hdcPrn, oldHbm );
-		DeleteObject( hbm );
-		DeleteObject( hdcPrn );
-	    }
-	    if ( image.isNull() ) {
-		delete [] bits;
-	    }
-	    free( bmi );
-	    return FALSE;			// don't bitblt
-	}
+            if ( image.isNull() ) {
+                bits = new uchar[bmh->biSizeImage];
+                // We are guaranteed that the QPainter does not pass
+                // a multi cell pixmap, therefore we can access hbm().
+                GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
+                           bits, bmi, DIB_RGB_COLORS );
+            } else {
+                bits = image.bits();
+            }
+            int rc = GetDeviceCaps(hdc,RASTERCAPS);
+            if ( (rc & RC_STRETCHDIB) != 0 ) {
+                // StretchDIBits supported
+                StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
+                               bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+            } else if ( (rc & RC_STRETCHBLT) != 0 ) {
+                // StretchBlt supported
+                HDC     hdcPrn = CreateCompatibleDC( hdc );
+                HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
+                                                 bits, bmi, DIB_RGB_COLORS );
+                HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
+                StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
+                            hdcPrn, 0, 0, w, h, SRCCOPY );
+                SelectObject( hdcPrn, oldHbm );
+                DeleteObject( hbm );
+                DeleteObject( hdcPrn );
+            }
+            if ( image.isNull() ) {
+                delete [] bits;
+            }
+            free( bmi );
+            return FALSE;                       // don't bitblt
+        }
     }
     return TRUE;
 }
@@ -843,57 +839,57 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 int QPrinter::metric( int m ) const
 {
-    if ( hdc == 0 )			// not ready
-	return 0;
+    if ( hdc == 0 )                     // not ready
+        return 0;
     int val;
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
-	val = res * GetDeviceCaps( hdc, fullPage() ? PHYSICALWIDTH : HORZRES ) / GetDeviceCaps( hdc, LOGPIXELSX ); 
-	break;
+        val = res * GetDeviceCaps( hdc, fullPage() ? PHYSICALWIDTH : HORZRES ) / GetDeviceCaps( hdc, LOGPIXELSX );
+        break;
     case QPaintDeviceMetrics::PdmHeight:
-	val = res * GetDeviceCaps( hdc, fullPage() ? PHYSICALHEIGHT : VERTRES ) / GetDeviceCaps( hdc, LOGPIXELSY );
-	break;
+        val = res * GetDeviceCaps( hdc, fullPage() ? PHYSICALHEIGHT : VERTRES ) / GetDeviceCaps( hdc, LOGPIXELSY );
+        break;
     case QPaintDeviceMetrics::PdmDpiX:
-	val = res; 
-	break;
+        val = res;
+        break;
     case QPaintDeviceMetrics::PdmDpiY:
-	val = res; 
-	break;
+        val = res;
+        break;
     case QPaintDeviceMetrics::PdmPhysicalDpiX:
-	val = GetDeviceCaps( hdc, LOGPIXELSX );
-	break;
+        val = GetDeviceCaps( hdc, LOGPIXELSX );
+        break;
     case QPaintDeviceMetrics::PdmPhysicalDpiY:
-	val = GetDeviceCaps( hdc, LOGPIXELSY );
-	break;
+        val = GetDeviceCaps( hdc, LOGPIXELSY );
+        break;
     case QPaintDeviceMetrics::PdmWidthMM:
-	if ( !fullPage() ) {
-	    val = GetDeviceCaps( hdc, HORZSIZE );
-	}
-	else {
-	    float wi = 25.4 * GetDeviceCaps( hdc, PHYSICALWIDTH );
-	    val = qRound( wi / GetDeviceCaps( hdc,  LOGPIXELSX ) );
-	}
-	break;
+        if ( !fullPage() ) {
+            val = GetDeviceCaps( hdc, HORZSIZE );
+        }
+        else {
+            float wi = 25.4 * GetDeviceCaps( hdc, PHYSICALWIDTH );
+            val = qRound( wi / GetDeviceCaps( hdc,  LOGPIXELSX ) );
+        }
+        break;
     case QPaintDeviceMetrics::PdmHeightMM:
-	if ( !fullPage() ) {
-	    val = GetDeviceCaps( hdc, VERTSIZE );
-	}
-	else {
-	    float hi = 25.4 * GetDeviceCaps( hdc, PHYSICALHEIGHT );
-	    val = qRound( hi / GetDeviceCaps( hdc,  LOGPIXELSY ) );
-	}
-	break;
+        if ( !fullPage() ) {
+            val = GetDeviceCaps( hdc, VERTSIZE );
+        }
+        else {
+            float hi = 25.4 * GetDeviceCaps( hdc, PHYSICALHEIGHT );
+            val = qRound( hi / GetDeviceCaps( hdc,  LOGPIXELSY ) );
+        }
+        break;
     case QPaintDeviceMetrics::PdmNumColors:
-	val = GetDeviceCaps( hdc, NUMCOLORS );
-	break;
+        val = GetDeviceCaps( hdc, NUMCOLORS );
+        break;
     case QPaintDeviceMetrics::PdmDepth:
-	val = GetDeviceCaps( hdc, PLANES );
-	break;
+        val = GetDeviceCaps( hdc, PLANES );
+        break;
     default:
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QPrinter::metric: Invalid metric command" );
+        qWarning( "QPrinter::metric: Invalid metric command" );
 #endif
-	return 0;
+        return 0;
     }
     return val;
 }
@@ -901,10 +897,10 @@ int QPrinter::metric( int m ) const
 
 QSize QPrinter::margins() const
 {
-    if ( handle() == 0 )			// not ready
-	return QSize( 0, 0 );
+    if ( handle() == 0 )                        // not ready
+        return QSize( 0, 0 );
     return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ) * res / GetDeviceCaps( hdc, LOGPIXELSX ),
-		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
+                  GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
 
 #endif // QT_NO_PRINTER
