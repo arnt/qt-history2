@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#308 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#309 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -351,16 +351,9 @@ static void qt_set_windows_resources()
 	messageFont = LOGFONT_AorW_to_QFont((LOGFONT&)ncm.lfMessageFont);
     }
 
-    if (menuFont != QApplication::font() || 
-	QApplication::font("QPopupMenu") != menuFont ||
-	QApplication::font("QMenuBar") != menuFont ) {
-	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
-	QApplication::setFont( menuFont, TRUE, "QMenuBar");
-    }
-    if (messageFont != QApplication::font() ||
-	QApplication::font("QMessageBoxLabel") != messageFont ) {
-	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
-    }
+    QApplication::setFont( menuFont, TRUE, "QPopupMenu");
+    QApplication::setFont( menuFont, TRUE, "QMenuBar");
+    QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
 
     // Same technique could apply to set the statusbar or tooltip
     // font, but since windows does not allow to change them, we do
