@@ -29,9 +29,6 @@ X11_PLATFORM=no
 MAC_PLATFORM=no
 QWS_PLATFORM=no
 
-mv $relpath/src/tools/qconfig.h qconfig.h-hold
-echo "// All features enabled while configuring" >$relpath/src/tools/qconfig.h
-
 if [ -d mkspecs/qws ]
 then
     QWS_CANDIDATE="yes"
@@ -83,14 +80,16 @@ then
     rm -f $outpath/mkspecs
     ln -s $relpath/mkspecs $outpath/mkspecs
 
-    # symlink the include directory
-    rm -f $outpath/include
-    ln -s $relpath/include $outpath/include
+    # create the include directory (will hold links and a real qconfig.h)
+    mkdir $outpath/include
+
     # symlink the doc directory
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
 
-    #let qmake see qconfig/qmodules.h
+    # let qt.h see "../*/*_p.h" files
+    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$relpath/src/kernel\""
+
     #binaries from qt
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
@@ -124,6 +123,11 @@ else
     fi
     rm .test.qt.
 fi
+
+mv $outpath/include/qconfig.h qconfig.h-hold
+echo "// All features enabled while configuring" >$outpath/include/qconfig.h
+echo $outpath/include/qconfig.h
+
 
 if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
 then
@@ -1164,7 +1168,12 @@ fi
 fi
 
 #do the qmake..
-[ -x "$relpath/bin/syncqt" ] && $relpath/bin/syncqt
+
+if [ -x "$relpath/bin/syncqt" ]
+then
+    QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
+fi
+
 if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     # look for platforms without libdl
@@ -1317,7 +1326,7 @@ then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
 
-mv qconfig.h-hold $relpath/src/tools/qconfig.h
+mv qconfig.h-hold $outpath/include/qconfig.h
 
 case "$QCONFIG" in
   minimal|small|medium|large|full)
@@ -1341,28 +1350,28 @@ case "$QCONFIG" in
 esac
 case "$QCONFIG" in
   full)
-    echo "// Everything" >$relpath/src/tools/qconfig.h.new
+    echo "// Everything" >$outpath/include/qconfig.h.new
     ;;
   *)
     QCONFIGFILE=qconfig-$QCONFIG.h
-    echo "// Copied from $QCONFIGFILE" >$relpath/src/tools/qconfig.h.new
-    cat $relpath/src/tools/$QCONFIGFILE >>$relpath/src/tools/qconfig.h.new
+    echo "// Copied from $QCONFIGFILE" >$outpath/include/qconfig.h.new
+    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/include/qconfig.h.new
     ;;
 esac
-cat >> $relpath/src/tools/qconfig.h.new <<EOF
+cat >> $outpath/include/qconfig.h.new <<EOF
 // from configure
 #define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE "$Products"
 EOF
-QCONF_CHANGES=`diff $relpath/src/tools/qconfig.h $relpath/src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f $relpath/src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
+QCONF_CHANGES=`diff $outpath/include/qconfig.h $outpath/include/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f $outpath/include/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
 then
-    rm -f $relpath/src/tools/qconfig.h.new
+    rm -f $outpath/include/qconfig.h.new
 else
-    [ -f $relpath/src/tools/qconfig.h ] && chmod +w $relpath/src/tools/qconfig.h
-    mv $relpath/src/tools/qconfig.h.new $relpath/src/tools/qconfig.h
-    chmod -w $relpath/src/tools/qconfig.h
+    [ -f $outpath/include/qconfig.h ] && chmod +w $outpath/include/qconfig.h
+    mv $outpath/include/qconfig.h.new $outpath/include/qconfig.h
+    chmod -w $outpath/include/qconfig.h
 fi
 
 
@@ -1399,9 +1408,8 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
-else
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 fi
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
 [ "x$SHARED" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG dll"

@@ -110,7 +110,7 @@ embedded {
 
 	!ft:DEFINES += QT_NO_FREETYPE
 
-	PRECOMPH=$(QTDIR)/src/kernel/qt.h
+	PRECOMPH=$(QTDIR)/include/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
 }
 
