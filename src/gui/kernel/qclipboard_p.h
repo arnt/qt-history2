@@ -63,7 +63,7 @@ public:
 };
 
 inline QMimeSourceWrapper::QMimeSourceWrapper(QClipboardPrivate *priv, QClipboard::Mode m)
-    : QMimeData(0)
+    : QMimeData()
 {
     d = priv;
     mode = m;

@@ -204,7 +204,7 @@ QDragManager::QDragManager()
     restoreCursor = false;
     willDrop = false;
     eventLoop = 0;
-    dropData = new QDropData(this);
+    dropData = new QDropData();
 }
 
 
@@ -216,6 +216,7 @@ QDragManager::~QDragManager()
 #endif
     instance = 0;
     delete [] pm_cursor;
+    delete dropData;
 }
 
 QDragManager *QDragManager::self()
@@ -228,8 +229,8 @@ QDragManager *QDragManager::self()
 #endif
 
 
-QDropData::QDropData(QObject *parent)
-    : QMimeData(parent)
+QDropData::QDropData()
+    : QMimeData()
 {
 }
 

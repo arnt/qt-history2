@@ -18,8 +18,9 @@
 
 
 QDrag::QDrag(QWidget *dragSource)
+    : QObject(*new QDragPrivate, dragSource)
 {
-    d = new QDragPrivate;
+    Q_D(QDrag);
     d->source = dragSource;
     d->target = 0;
     d->data = 0;
@@ -30,6 +31,7 @@ QDrag::QDrag(QWidget *dragSource)
 
 QDrag::~QDrag()
 {
+    Q_D(QDrag);
     QDragManager *manager = QDragManager::self();
     if (manager && manager->object == d)
         manager->cancel(false);
@@ -44,36 +46,43 @@ QDrag::~QDrag()
 
 void QDrag::setMimeData(QMimeData *data)
 {
+    Q_D(QDrag);
     d->data = data;
 }
 
 QMimeData *QDrag::mimeData() const
 {
+    Q_D(const QDrag);
     return d->data;
 }
 
 void QDrag::setPixmap(const QPixmap &pixmap)
 {
+    Q_D(QDrag);
     d->pixmap = pixmap;
 }
 
 QPixmap QDrag::pixmap() const
 {
+    Q_D(const QDrag);
     return d->pixmap;
 }
 
 void QDrag::setHotSpot(const QPoint& hotspot)
 {
+    Q_D(QDrag);
     d->hotspot = hotspot;
 }
 
 QPoint QDrag::hotSpot() const
 {
+    Q_D(const QDrag);
     return d->hotspot;
 };
 
 QWidget *QDrag::source() const
 {
+    Q_D(const QDrag);
     return d->source;
 }
 
@@ -84,6 +93,7 @@ QWidget *QDrag::target() const
 
 QDrag::DropAction QDrag::start(QDrag::DropAction request)
 {
+    Q_D(QDrag);
     QDragManager *manager = QDragManager::self();
     d->request_action = request;
     if (manager)

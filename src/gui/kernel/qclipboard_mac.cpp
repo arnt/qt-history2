@@ -117,7 +117,7 @@ static QClipboardData *clipboardData()
     return internalCbData;
 }
 
-QClipboardWatcher::QClipboardWatcher() : QMimeData(0)
+QClipboardWatcher::QClipboardWatcher() : QMimeData()
 {
     setupOwner();
 }

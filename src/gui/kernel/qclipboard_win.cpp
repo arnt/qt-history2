@@ -98,8 +98,8 @@ void QClipboard::connectNotify(const char *signal)
 
 class QClipboardWatcher : public QMimeData {
 public:
-    QClipboardWatcher() 
-        : QMimeData(0)
+    QClipboardWatcher()
+        : QMimeData()
     {
     }
 
@@ -396,7 +396,7 @@ void QClipboard::clear(Mode mode)
 
 const QMimeData *QClipboard::mimeData(Mode mode) const
 {
-    if (mode != Clipboard) 
+    if (mode != Clipboard)
         return 0;
 
     QClipboardData *d = clipboardData();
@@ -407,7 +407,7 @@ extern bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData * src);
 
 void QClipboard::setMimeData(QMimeData *src, Mode mode)
 {
-    if (mode != Clipboard) 
+    if (mode != Clipboard)
         return;
 
     if (!OpenClipboard(clipboardOwner()->winId())) {

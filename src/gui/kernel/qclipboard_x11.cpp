@@ -1110,7 +1110,7 @@ bool QClipboard::event(QEvent *e)
 
 
 QClipboardWatcher::QClipboardWatcher(QClipboard::Mode mode)
-    : QMimeData(0)
+    : QMimeData()
 {
     switch (mode) {
     case QClipboard::Selection:

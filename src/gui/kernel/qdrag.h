@@ -14,7 +14,7 @@
 #ifndef QDRAG_H
 #define QDRAG_H
 
-#include "qglobal.h"
+#include "qobject.h"
 
 class QMimeData;
 class QDragPrivate;
@@ -23,8 +23,10 @@ class QPixmap;
 class QPoint;
 class QDragManager;
 
-class Q_GUI_EXPORT QDrag
+class Q_GUI_EXPORT QDrag : public QObject
 {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QDrag)
 public:
     QDrag(QWidget *dragSource);
     ~QDrag();
@@ -53,8 +55,10 @@ public:
 
     DropAction start(DropAction request = DefaultAction);
 
+signals:
+    void defaultActionChanged(DropAction action);
+
 private:
-    QDragPrivate *d;
     friend class QDragManager;
     Q_DISABLE_COPY(QDrag)
 };

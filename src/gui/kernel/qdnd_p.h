@@ -15,6 +15,7 @@
 #define QDND_P_H
 
 #include "qobject.h"
+#include "private/qobject_p.h"
 #include "qmime.h"
 #include "qdrag.h"
 #include "qpixmap.h"
@@ -22,7 +23,7 @@
 
 class QEventLoop;
 
-class QDragPrivate
+class QDragPrivate : public QObjectPrivate
 {
 public:
     QWidget *source;
@@ -38,7 +39,7 @@ class QDropData : public QMimeData
 {
     Q_OBJECT
 public:
-    QDropData(QObject *parent);
+    QDropData();
     ~QDropData();
 
     bool hasFormat(const QString &mimetype) const;

@@ -49,8 +49,8 @@ public:
     QMap<QString, QVariant> data;
 };
 
-QMimeData::QMimeData(QObject *parent)
-    : QObject(*new QMimeDataPrivate, parent)
+QMimeData::QMimeData()
+    : QObject(*new QMimeDataPrivate, 0)
 {
 }
 

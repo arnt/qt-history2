@@ -88,7 +88,7 @@ public:
 class QDragMime : public QMimeData
 {
 public:
-    QDragMime(QDragObject *parent) : QMimeData(parent) { dragObject = parent; }
+    QDragMime(QDragObject *parent) : QMimeData() { dragObject = parent; }
 
     QByteArray data(const QString &mimetype) const;
     bool hasFormat(const QString &mimetype) const;
@@ -131,7 +131,7 @@ QDragObject::QDragObject(QWidget * dragSource, const char * name)
     : QObject(*(new QDragObjectPrivate), dragSource)
 {
     setObjectName(QLatin1String(name));
-    d->data = new QMimeData(dragSource);
+    d->data = new QDragMime(this);
 }
 
 /*! \internal */
@@ -139,7 +139,7 @@ QDragObject::QDragObject(QDragObjectPrivate &dd, QWidget *dragSource)
     : QObject(dd, dragSource)
 {
     d->pm_cursor = 0;
-    d->data = new QMimeData(dragSource);
+    d->data = new QDragMime(this);
 }
 
 /*!
