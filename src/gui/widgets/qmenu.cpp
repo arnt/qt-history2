@@ -475,6 +475,8 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
 #endif
         action->showStatusText(q);
+    } else if(action_e == QAction::Trigger) {
+        hideUpToMenuBar();
     }
 
     for(QWidget *caused = q; caused;) {
@@ -1571,15 +1573,10 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 #endif
             if(!d->currentAction->action->isEnabled() && !whats_this_mode)
                 break;
-            if(d->currentAction->action->menu()) {
+            if(d->currentAction->action->menu()) 
                 d->popupAction(d->currentAction, 20, true);
-            } else {
-                d->hideUpToMenuBar();
-                if ( d->currentAction)
-                    d->activateAction(d->currentAction->action, QAction::Trigger);
-                else
-                    qWarning("QMenu::keyPressEvent(): no current action.");
-            }
+            else
+                d->activateAction(d->currentAction->action, QAction::Trigger);
             key_consumed = true;
             break; }
 
@@ -1632,7 +1629,6 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 d->setCurrentAction(next_action, 20, true);
                 if(!next_action->action->menu()) {
                     key_consumed = true;
-                    d->hideUpToMenuBar();
                     d->activateAction(next_action->action, QAction::Trigger);
                 }
             }
