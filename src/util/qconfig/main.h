@@ -14,6 +14,7 @@ public:
     void loadConfig(const QString& filename);
 private:
     QMap<QString,QStringList> dependencies;
+    QMap<QString,QStringList> rdependencies;
     QMap<QString,QString> section;
     QMap<QString,ChoiceItem*> item;
     QMap<QString,QListViewItem*> sectionitem;
@@ -23,4 +24,6 @@ private:
 
 private slots:
     void showInfo(QListViewItem* i);
+    void open();
+    void save();
 };

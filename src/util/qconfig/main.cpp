@@ -8,6 +8,12 @@
 #include <qhbox.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
+#include <qpopupmenu.h>
+#include <qmenubar.h>
+#include <qstatusbar.h>
+#include <qsplitter.h>
+
+#define FIXED_LAYOUT
 
 class ChoiceItem : public QCheckListItem {
 public:
@@ -19,6 +25,7 @@ public:
 	id(i)
     {
 	setOpen(TRUE);
+	label = text(0);
     }
 
     // We reverse the logic
@@ -56,34 +63,68 @@ public:
 	}
     }
 
-    void setInfo(const QString& d)
+    void setInfo(const QString& l, const QString& d)
     {
+	label = l;
 	doc = d;
+	setText(0,label);
     }
+
+    QString label;
 
     QString info() const
     {
-	return "<h1>"+id+"</h1>"+doc;
+	return "<h2>"+label+"</h2>"+doc;
     }
+
 private:
     QString doc;
 };
 
 Main::Main()
 {
-    QHBox* hbox = new QHBox(this);
+#ifdef FIXED_LAYOUT
+    QHBox* horizontal = new QHBox(this);
+#else
+    QSplitter* horizontal = new QSplitter(this);
+#endif
 
-    lv = new QListView(hbox);
+    lv = new QListView(horizontal);
     lv->setSorting(-1);
     lv->setRootIsDecorated(TRUE);
     lv->addColumn("ID");
 
-    info = new QLabel(hbox);
+    info = new QLabel(horizontal);
+    info->setBackgroundMode(PaletteBase);
+    info->setMargin(10);
+    info->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
+    info->setAlignment(AlignTop);
+
+#ifdef FIXED_LAYOUT
+    horizontal->setStretchFactor(info,2);
+#endif
 
     connect(lv,SIGNAL(selectionChanged(QListViewItem*)),
 	  this,SLOT(showInfo(QListViewItem*)));
 
-    setCentralWidget(hbox);
+    setCentralWidget(horizontal);
+
+    QPopupMenu* file = new QPopupMenu( menuBar() );
+    file->insertItem( "&Open",  this, SLOT(open()), CTRL+Key_O );
+    file->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
+    file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
+
+    menuBar()->insertItem("&File",file);
+
+    statusBar()->message("Ready");
+}
+
+void Main::open()
+{
+}
+
+void Main::save()
+{
 }
 
 // ##### should be in QMap?
@@ -104,9 +145,11 @@ void Main::loadFeatures(const QString& filename)
     QRegExp qt_no_xxx("QT_NO_[A-Z_0-9]*");
     QStringList deps;
     QString sec;
+    QString lab;
     QString doc;
     bool on = FALSE;
     bool docmode = FALSE;
+    QMap<QString,QString> label;
     QMap<QString,QString> documentation;
     QStringList sections;
 
@@ -118,14 +161,20 @@ void Main::loadFeatures(const QString& filename)
 	    if ( docmode ) {
 		if ( token[0] == "*/" )
 		    docmode = FALSE;
+		else if ( lab.isEmpty() )
+		    lab = line.stripWhiteSpace();
 		else
-		    doc += line;
+		    doc += line.simplifyWhiteSpace() + "\n";
 	    } else if ( token[0] == "//#define" || token[0] == "#define" ) {
 		dependencies[token[1]] = deps;
+		for (QStringList::ConstIterator it = deps.begin(); it!=deps.end(); ++it)
+		    rdependencies[*it].append(token[1]);
 		section[token[1]] = sec;
 		documentation[token[1]] = doc;
+		label[token[1]] = lab;
 		choices.append(token[1]);
 		doc = "";
+		lab = "";
 	    } else if ( token[0] == "/*!" ) {
 		docmode = TRUE;
 	    } else if ( token[0] == "//" ) {
@@ -140,7 +189,8 @@ void Main::loadFeatures(const QString& filename)
 			int len;
 			index = qt_no_xxx.match(token[i],0,&len);
 			if ( index >= 0 ) {
-			    deps.append(token[i].mid(index,len));
+			    QString d = token[i].mid(index,len);
+			    deps.append(d);
 			}
 		    }
 		}
@@ -169,8 +219,13 @@ void Main::loadFeatures(const QString& filename)
 	}
 	ChoiceItem* ci = new ChoiceItem(*ch,parent);
 	item[*ch] = ci;
-	ci->setInfo(documentation[*ch]);
+	if ( !label[*ch].isEmpty() )
+	    ci->setInfo(label[*ch],documentation[*ch]);
     }
+
+#ifdef FIXED_LAYOUT
+    lv->setFixedWidth(lv->sizeHint().width());
+#endif
 }
 
 void Main::loadConfig(const QString& filename)
@@ -204,7 +259,32 @@ void Main::showInfo(QListViewItem* i)
 	// section. do nothing for now
     } else {
 	ChoiceItem* choice = (ChoiceItem*)i;
-	info->setText(choice->info());
+	QString i = choice->info();
+	QStringList deps = dependencies[choice->id];
+	if ( !deps.isEmpty() ) {
+	    i += "<h3>Requires:</h3><ul>";
+	    for (QStringList::ConstIterator it = deps.begin();
+		    it != deps.end(); ++it)
+	    {
+		ChoiceItem* d = item[*it];
+		if ( d )
+		    i += "<li>"+d->label;
+	    }
+	    i += "</ul>";
+	}
+	QStringList rdeps = rdependencies[choice->id];
+	if ( !rdeps.isEmpty() ) {
+	    i += "<h3>Required for:</h3><ul>";
+	    for (QStringList::ConstIterator it = rdeps.begin();
+		    it != rdeps.end(); ++it)
+	    {
+		ChoiceItem* d = item[*it];
+		if ( d )
+		    i += "<li>"+d->label;
+	    }
+	    i += "</ul>";
+	}
+	info->setText(i);
     }
 }
 
@@ -226,6 +306,7 @@ main(int argc, char** argv)
     }
     m.loadFeatures(qfeatures);
     m.loadConfig(qconfig);
+    m.resize(m.sizeHint()+QSize(500,300));
     app.setMainWidget(&m);
     m.show();
     return app.exec();

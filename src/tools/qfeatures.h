@@ -34,25 +34,29 @@
 
 // Images
 /*!
-    The Windows Bitmap (BMP) image format common on MS-Windows.
+    BMP image I/O
+    <p>The Windows Bitmap (BMP) image format is common on MS-Windows.
     <p>This is an uncompressed image format
     offering few advantages over PNG or JPEG.
 */
 //#define QT_NO_IMAGEIO_BMP
 /*!
-    The Portable PixMap (PPM) image format common on Unix.
+    PPM image I/O
+    <p>The Portable PixMap (PPM) image format is common on Unix.
     <p>This is an uncompressed image format
     offering few advantages over PNG or JPEG.
 */
 //#define QT_NO_IMAGEIO_PPM
 /*!
-    The X11 BitMap (XBM) image format common on X11.
+    XBM image I/O
+    <p>The X11 BitMap (XBM) image format is common on X11.
     <p>This is an uncompressed monochrome image format.
     Qt uses this format for some internal images (eg. mouse cursors).
 */
 //#define QT_NO_IMAGEIO_XBM
 /*!
-    The X11 PixMap (XPM) image format common on X11.
+    XPM image I/O
+    <p>The X11 PixMap (XPM) image format is common on X11.
     <p>This is an uncompressed image format.
     XPM images have the small advantage that they can be trivially
     included in source files as they are C code.
@@ -60,26 +64,34 @@
 */
 //#define QT_NO_IMAGEIO_XPM
 /*!
-   The Portable Network Graphics (PNG) image format.
-   <p>This is a compressed image format.
-   <p>See <a href=http://www.libpng.org/pub/png/>The PNG Home Site</a> for
-   details of the format.
+    PNG image I/O
+    <p>The Portable Network Graphics (PNG) is a compressed image format.
+    <p>See <a href=http://www.libpng.org/pub/png/>The PNG Home Site</a> for
+    details of the format.
 */
 //#define QT_NO_IMAGEIO_PNG
 /*!
-   The Joint Photographic Experts Group (JPEG) image format.
-   <p>This is a compressed lossy image format that gives high compression
+    JPEG image I/O
+    <p>The Joint Photographic Experts Group (JPEG) is a compressed lossy image format that gives high compression
 	for real-world and photo-realistic images.
-   <p><b>Note: this currently also requires <tt>QT_JPEG_SUPPORT</tt> to
+    <p><b>Note: this currently also requires <tt>QT_JPEG_SUPPORT</tt> to
 	be defined when building Qt.</b>
 */
 //#define QT_NO_IMAGEIO_JPEG // currently also requires QT_JPEG_SUPPORT
 
+/*!
+    Asynchronous I/O
+    <p>Allows push-driven data processing.
+*/
 //#define QT_NO_ASYNC_IO
+/*!
+    Asynchronous image I/O
+    <p>Allows push-driven images.
+*/
 //#define QT_NO_ASYNC_IMAGE_IO
 #if defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO)
     /*!
-	Animated images.
+	Animated images
 	<p>This includes animated GIFs.
 	<p><b>Note: this currently also requires <tt>QT_BUILTIN_GIF_READER</tt> to
 	be defined when building Qt.</b>
@@ -88,139 +100,348 @@
 #endif
 
 // Fonts
+/*!
+    TrueType font files
+    <p>Scalable font format common on MS-Windows and becoming common on Unix.
+    <p>Only supported on Qt/Embedded.
+*/
 //#define QT_NO_TRUETYPE
+/*!
+    BDF font files
+    <p>The Bitmap Distribution Format (BDF) font file format, common
+	on Unix.
+    <p>Only supported on Qt/Embedded.
+*/
 //#define QT_NO_BDF
+/*!
+    QFontDatabase
+*/
 //#define QT_NO_FONTDATABASE
 
 // Internationalization
 
+/*!
+    QObject::tr()
+*/
 //#define QT_NO_TRANSLATION
+/*!
+    QTextCodec classes
+    <p>This includes some large conversion tables.
+*/
 //#define QT_NO_CODECS
 
 #if defined(QT_LITE_UNICODE)
+    /*!
+	Unicode property tables
+	<p>These include some large tables.
+    */
     #define QT_NO_UNICODETABLES
 #endif
 
 // MIME-typed data
+/*!
+    MIME
+*/
 //#define QT_NO_MIME
 #if defined(QT_NO_MIME)
+    /*!
+	RichText (HTML) display
+    */
     #define QT_NO_RICHTEXT
+    /*!
+	Drag and drop
+    */
     #define QT_NO_DRAGANDDROP
+    /*!
+	Cut and paste
+    */
     #define QT_NO_CLIPBOARD
 #endif
 
 // Sound
+/*!
+    QSound
+*/
 //#define QT_NO_SOUND
 
 // Scripting
+/*!
+    Properties
+*/
 //#define QT_NO_PROPERTIES
 
 // Qt/Embedded-specific
+/*!
+    Visible cursor
+*/
 //#define QT_NO_QWS_CURSOR
+/*!
+    Alpha-blended cursor
+*/
 //#define QT_NO_QWS_ALPHA_CURSOR
+/*!
+    Mach64 acceleration
+*/
 #define QT_NO_QWS_MACH64
+/*!
+    Voodoo3 acceleration
+*/
 #define QT_NO_QWS_VOODOO3
+/*!
+    Virtual frame buffer
+*/
 //#define QT_NO_QWS_VFB
+/*!
+    8-bit grayscale
+*/
 #define QT_NO_QWS_DEPTH_8GRAYSCALE
+/*!
+    8-bit color
+*/
 //#define QT_NO_QWS_DEPTH_8
+/*!
+    15-bit color
+*/
 #define QT_NO_QWS_DEPTH_15
+/*!
+    16-bit color
+*/
 //#define QT_NO_QWS_DEPTH_16
+/*!
+    32-bit color
+*/
 //#define QT_NO_QWS_DEPTH_32
 
+/*!
+    Drawing utility functions
+*/
 //#define QT_NO_DRAWUTIL
-//#define QT_NO_IMAGE_32_BIT
+/*!
+    TrueColor QImage
+*/
+//#define QT_NO_IMAGE_TRUECOLOR
+/*!
+    Smooth QImage scaling
+*/
 //#define QT_NO_IMAGE_SMOOTHSCALE
+/*!
+    Image file text strings
+*/
 //#define QT_NO_IMAGE_TEXT
 
 #if defined QT_NO_IMAGE_TRUECOLOR
+    /*!
+	16-bit QImage
+    */
     #define QT_NO_IMAGE_16_BIT
 #endif
 #if defined(QT_NO_QWS_CURSOR) && defined(_WS_QWS_)
+    /*!
+	Cursors
+    */
     #define QT_NO_CURSOR
 #endif
 
 
 
 // Networking
+/*!
+    DNS
+*/
 //#define QT_NO_DNS
+/*!
+    Network file access
+*/
 //#define QT_NO_NETWORKPROTOCOL
 #if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
+    /*!
+	FTP file access
+    */
     #define QT_NO_NETWORKPROTOCOL_FTP
+    /*!
+	HTTP file access
+    */
     #define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 // Painting
+/*!
+    Named colors
+*/
 //#define QT_NO_COLORNAMES
+/*!
+    Scaling and rotation
+*/
 //#define QT_NO_TRANSFORMATIONS
 
 // Printing
+/*!
+    PostScript printing
+*/
 //#define QT_NO_PSPRINTER
 #if defined(QT_NO_PSPRINTER) && !defined(_WS_WIN_)
+    /*!
+	Printing
+    */
     #define QT_NO_PRINTER
 #endif
 
 // Metafiles
+/*!
+    QPicture
+*/
 //#define QT_NO_PICTURE
 
+// Layout
+/*!
+    Automatic widget layout
+*/
 //#define QT_NO_LAYOUT
 
 // Widgets
 #if defined(QT_NO_PALETTE)
+    /*!
+	Pre-defined widgets
+    */
     #define QT_NO_WIDGETS
 #endif
 #if defined(QT_NO_WIDGETS) || defined(QT_NO_RICHTEXT)
+    /*!
+	QTextView
+    */
     #define QT_NO_TEXTVIEW
 #endif
 #if defined(QT_NO_TEXTVIEW)
+    /*!
+	QTextBrowser
+    */
     #define QT_NO_TEXTBROWSER
 #endif
 
 #if defined(QT_NO_WIDGETS) || defined(QT_NO_DRAGANDDROP)
+    /*!
+	QIconView
+    */
     #define QT_NO_ICONVIEW
 #endif
 
 #if defined(QT_NO_WIDGETS)
+    /*!
+	QAccel
+    */
     #define QT_NO_ACCEL
+    /*!
+	QStyle
+    */
     #define QT_NO_STYLE
+    /*!
+	QIconSet
+    */
     #define QT_NO_ICONSET
 
+    /*!
+	QSizeGrip
+    */
     #define QT_NO_SIZEGRIP
+    /*!
+	QListView
+    */
     #define QT_NO_LISTVIEW
+    /*!
+	QCanvas
+    */
     #define QT_NO_CANVAS
+    /*!
+	QDial
+    */
     #define QT_NO_DIAL
+    /*!
+	QWorkSpace
+    */
     #define QT_NO_WORKSPACE
+    /*!
+	QLCDNumber
+    */
     #define QT_NO_LCDNUMBER
+    /*!
+	QAction
+    */
     #define QT_NO_ACTION
+    /*!
+	Built-in dialogs
+    */
     #define QT_NO_DIALOGS
 
+    /*!
+	Windows style
+    */
     #define QT_NO_STYLE_WINDOWS
+    /*!
+	Motif style
+    */
     #define QT_NO_STYLE_MOTIF
+    /*!
+	Platinum style
+    */
     #define QT_NO_STYLE_PLATINUM
 #endif
 
 #if defined(QT_NO_STYLE_MOTIF)
+    /*!
+	CDE style
+    */
     #define QT_NO_STYLE_CDE
+    /*!
+	SGI style
+    */
     #define QT_NO_STYLE_SGI
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL)
+    /*!
+	QFileDialog
+    */
     #define QT_NO_FILEDIALOG
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_FONTDATABASE)
+    /*!
+	QFontDialog
+    */
     #define QT_NO_FONTDIALOG
 #endif
 
 #if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER)
+    /*!
+	QPrintDialog
+    */
     #define QT_NO_PRINTDIALOG
 #endif
 
 #if defined(QT_NO_DIALOGS)
+    /*!
+	QColorDialog
+    */
     #define QT_NO_COLORDIALOG
+    /*!
+	QInputDialog
+    */
     #define QT_NO_INPUTDIALOG
+    /*!
+	QMessageBox
+    */
     #define QT_NO_MESSAGEBOX
+    /*!
+	QProgressDialog
+    */
     #define QT_NO_PROGRESSDIALOG
+    /*!
+	QTabDialog
+    */
     #define QT_NO_TABDIALOG
+    /*!
+	QWizard
+    */
     #define QT_NO_WIZARD
 #endif
 
