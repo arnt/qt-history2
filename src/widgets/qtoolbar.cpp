@@ -611,11 +611,12 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	    }
 	    QWidget *w = (QWidget*)it.current();
 	    hide = FALSE;
+	    QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
 	    if ( orientation() == Horizontal ) {
-		if ( w->x() + w->width() > e->size().width()-d->extension->width()/2 )
+		if ( p.x() > e->size().width()-d->extension->width()/2 )
 		    hide = TRUE;
 	    } else {
-		if ( w->y() + w->height() > e->size().height()-d->extension->height()/2 )
+		if ( p.y() > e->size().height()-d->extension->height()/2 )
 		    hide = TRUE;
 	    }
 	    if ( hide ) {
