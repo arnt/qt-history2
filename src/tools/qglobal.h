@@ -282,10 +282,10 @@
 
 #if defined( Q_OS_MACX )
 #  define Q_WS_MACX
-#  define Q_PASCAL
+#  define QMAC_PASCAL
 #elif defined( Q_OS_MAC9 )
 #  define Q_WS_MAC9
-#  define Q_PASCAL pascal
+#  define QMAC_PASCAL pascal
 #elif defined(Q_OS_MSDOS)
 #  define Q_WS_WIN16
 #  error "Qt requires Win32 and does not work with Windows 3.x"

@@ -459,7 +459,7 @@ protected:
 
     //mac event functions
     void propagateUpdates();
-    friend Q_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
+    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
 
 #elif defined(Q_WS_WIN)
     virtual bool winEvent( MSG * );		// Windows event

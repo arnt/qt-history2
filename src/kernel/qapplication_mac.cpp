@@ -436,7 +436,7 @@ typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
 static TimerList *timerList	= 0;		// timer list
 
 /* timer call back */
-Q_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
+QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     TimerInfo *t = (TimerInfo *)data;
     QTimerEvent e( (int)t->id );
@@ -1043,7 +1043,7 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 }
 
 
-Q_PASCAL OSStatus 
+QMAC_PASCAL OSStatus 
 QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;

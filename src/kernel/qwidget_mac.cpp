@@ -158,7 +158,7 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
-Q_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
+QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
 			 RgnHandle, void *w)
 {
     QWidget *widget = (QWidget *)w;

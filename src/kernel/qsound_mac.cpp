@@ -84,7 +84,7 @@ QAuServerMac::~QAuServerMac()
 
 // The FSpLocationFromFullPath function is descended from Apple Source Code,
 // but changes have been made.
-Q_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
+QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 				      const void *fullPath,
 				      FSSpec *spec)
 {
