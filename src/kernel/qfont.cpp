@@ -1638,7 +1638,8 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 #endif
 
     painter->setf(QPainter::FontMet);
-    painter->updateFont();
+    if ( painter->testf(QPainter::DirtyFont) )
+                painter->updateFont();
     if ( painter->pfont )
 	d = painter->pfont->d;
     else
@@ -1976,7 +1977,8 @@ QFontInfo::QFontInfo( const QPainter *p )
 #endif
 
     painter->setf( QPainter::FontInf );
-    painter->updateFont();
+    if ( painter->testf(QPainter::DirtyFont) )
+	painter->updateFont();
     if ( painter->pfont )
 	d = painter->pfont->d;
     else
