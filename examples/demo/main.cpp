@@ -363,7 +363,9 @@ int main( int argc, char **argv )
 
     QPtrList<CategoryInterface> categories;
     categories.append( new WidgetCategory( frame.widgetStack() ) );
+#if defined(QT_MODULE_SQL)
     categories.append( new DatabaseCategory( frame.widgetStack() ) );
+#endif
     categories.append( new CanvasCategory( frame.widgetStack() ) );
 #if defined(QT_MODULE_OPENGL)
     categories.append( new OpenGLCategory( frame.widgetStack() ) );
