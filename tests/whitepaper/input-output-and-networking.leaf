@@ -151,6 +151,7 @@ use \Class QTextStream and \Class QDataStream on a socket.
 live currency converter application illustrates this:
 
   \img converter.png
+  \caption Live currency converter
 
 The application uses the fictional protocol CCP (Currency Conversion
 Protocol) to access the latest exchange rates from a server. Only

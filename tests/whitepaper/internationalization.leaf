@@ -231,7 +231,7 @@ Trolltech provides French and German translations.
 Qt applications.
 
   \img linguist-wp.png
-  \caption Qt Linguist
+  \caption \e {Qt Linguist}
 
 Translators can edit \File .ts files by hand, or more conveniently
 using \e {Qt Linguist}. The \File .ts file's contexts are listed in

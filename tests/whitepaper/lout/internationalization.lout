@@ -228,7 +228,7 @@ german @Index { German }
 Qt Linguist is a Qt application that helps translators translate
 Qt applications.
 @Figure
-    @Caption { Qt Linguist }
+    @Caption { @I{Qt Linguist} }
 @Scale @IncludeGraphic { "../images/linguist-wp.eps" }
 @PP
 Translators can edit @File .ts files by hand, or more conveniently

@@ -48,7 +48,8 @@ Rendering}.
 
 \section1 A 'Hello' Example
 
-  \img hello.png Hello Qt!
+  \img hello.png
+  \caption Hello Qt!
 
 The complete source code for a program that displays "Hello Qt!"
 follows:
@@ -148,6 +149,7 @@ Developers can create their own widgets and dialogs by subclassing
 the complete code for a digital clock widget is presented.
 
   \img clock.png
+  \caption Clock widget
 
   \index Clock
   \index LCD

@@ -50,7 +50,8 @@ The \Class QMainWindow class lays out a set of related widgets to
 provide a framework for typical application main windows.
 
   \index size grip
-  \img mainwindow.png An application main window
+  \img mainwindow.png
+  \caption An application main window
 
   \index MDI
   \index SDI
@@ -300,7 +301,8 @@ Screenshots of some of Qt's standard dialogs are presented below.
   \index message box
   \index warnings
 
-  \img qmessagebox.png QMessageBox
+  \img qmessagebox.png
+  \caption A \Class QMessageBox
 
 \Class QMessageBox is used to provide the user with information or to
 present the user with simple choices (e.g. 'Yes' or 'No').
@@ -308,7 +310,8 @@ present the user with simple choices (e.g. 'Yes' or 'No').
   \index file dialog
   \index directories
 
-  \img qfiledialog.png QFileDialog
+  \img qfiledialog.png
+  \caption A \Class QFileDialog
 
 \Class QFileDialog is a sophisticated file selection dialog. It can
 be used to select single or multiple local or remote files (e.g.
@@ -319,7 +322,8 @@ names and large directories.
 
   \index progress bars
 
-  \img qprogressdialog.png QProgressDialog
+  \img qprogressdialog.png
+  \caption A \Class QProgressDialog
 
 \Class QProgressDialog displays a progress bar and a 'Cancel' button.
 
@@ -327,7 +331,8 @@ names and large directories.
   \index property boxes
   \index tab widgets
 
-  \img qtabdialog.png QTabDialog
+  \img qtabdialog.png
+  \caption A \Class QTabDialog
 
 \Class QTabDialog provides a framework for settings dialogs.
 
@@ -335,14 +340,16 @@ names and large directories.
   \index druids
   \index wizards
 
-  \img qwizard.png QWizard
+  \img qwizard.png
+  \caption A \Class QWizard
 
 \Class QWizard provides a framework for wizard dialogs.
 
   \index color dialog
   \index font dialog
 
-  \img qfontdialog-etc.png QFontDialog 
+  \img qfontdialog.png
+  \caption A \Class QFontDialog 
 
 \Class QFontDialog is used to select a font.
 

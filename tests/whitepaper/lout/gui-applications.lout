@@ -316,14 +316,14 @@ messagebox @Index { Message box }
 warnings @Index { Warnings }
 @PP
 @Figure
-    @Caption { QMessageBox }
+    @Caption { A @Class QMessageBox }
 @IncludeGraphic { "../images/qmessagebox.eps" }
 @PP
 @Class QMessageBox is used to provide the user with information or to
 present the user with simple choices (e.g. `Yes' or `No').
 @PP
 @Figure
-    @Caption { QFileDialog }
+    @Caption { A @Class QFileDialog }
 @IncludeGraphic { "../images/qfiledialog.eps" }
 @PP
 @Class QFileDialog is a sophisticated file selection dialog. It can
@@ -336,14 +336,14 @@ filedialog @Index { File dialog }
 directories @Index { Directories }
 @PP
 @Figure
-    @Caption { QProgressDialog }
+    @Caption { A @Class QProgressDialog }
 @IncludeGraphic { "../images/qprogressdialog.eps" }
 @PP
 @Class QProgressDialog displays a progress bar and a `Cancel' button.
 progressbars @Index { progress bars }
 @PP
 @Figure
-    @Caption { QTabDialog }
+    @Caption { A @Class QTabDialog }
 @IncludeGraphic { "../images/qtabdialog.eps" }
 @PP
 @Class QTabDialog provides a framework for settings dialogs.
@@ -352,7 +352,7 @@ propertyboxes @Index { Property boxes }
 tabwidgets @Index { Tab widgets }
 @PP
 @Figure
-    @Caption { QWizard }
+    @Caption { A @Class QWizard }
 @Scale @IncludeGraphic { "../images/qwizard.eps" }
 @PP
 @Class QWizard provides a framework for wizard dialogs.
@@ -361,7 +361,7 @@ druids @Index { Druids }
 wizards @Index { Wizards }
 @PP
 @Figure
-    @Caption { QFontDialog }
+    @Caption { A @Class QFontDialog }
 @Scale @IncludeGraphic { "../images/qfontdialog.eps" }
 @PP
 @Class QFontDialog is used to select a font.

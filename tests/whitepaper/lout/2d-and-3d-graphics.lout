@@ -286,7 +286,7 @@ that accept a @Class QColor argument and work in any mode.
 @Begin
 @PP
 @Figure
-    @Caption { 3D Box }
+    @Caption { 3D box }
 @IncludeGraphic { "../images/box3d.eps" }
 @PP
 The complete code for an application that draws a 3D box, with

@@ -41,7 +41,8 @@ push button:
   \skipuntil quote
   \printto endquote
 
-  \img icon.png An icon on a button
+  \img icon.png
+  \caption An icon on a button
 
   \index alpha channel
   \index palette
@@ -120,6 +121,7 @@ uses the \Func width(), \Func height() and \Func rect() functions.
 The widget produced by this code is shown below.
 
   \img painting.png
+  \caption Custom widget
 
 \Class QPainter supports clipping using a region composed of
 rectangles, polygons, ellipses and bitmaps. Complex regions may be
@@ -254,6 +256,7 @@ that accept a \Class QColor argument and work in any mode.
 \section1 A 3D Example
 
   \img box3d.png
+  \caption 3D box
 
 The complete code for an application that draws a 3D box, with
 sliders to rotate the box around the X, Y and Z axes, is presented

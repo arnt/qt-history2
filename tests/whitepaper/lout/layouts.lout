@@ -38,15 +38,15 @@ qhboxlayout @Index { QHBoxLayout }
 qpackerlayout @Index { QPackerLayout }
 qvboxlayout @Index { QVBoxLayout }
 @Figure
-    @Caption { QHBox with five child widgets }
+    @Caption { @Class QHBoxLayout with five child widgets }
 @IncludeGraphic { "../images/qhbox.eps" }
 @PP
 @Figure
-    @Caption { QVBox with five child widgets }
+    @Caption { @Class QVBoxLayout with five child widgets }
 @IncludeGraphic { "../images/qvbox.eps" }
 @PP
 @Figure
-    @Caption { QGrid with five child widgets }
+    @Caption { @Class QGridLayout with five child widgets }
 @IncludeGraphic { "../images/qgrid.eps" }
 @PP
 @Class QHBoxLayout organizes the managed widgets in a single

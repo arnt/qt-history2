@@ -10,7 +10,7 @@ to speed up development.
 \endquote
 
   \img designer-wp.png
-  \caption Qt Designer
+  \caption \QD
 
 Designing a form with \QD is a simple process. Developers click a
 toolbar button representing the widget they want, then click on a
@@ -83,7 +83,7 @@ Assistant} applies an intelligent indexing algorithm to provide fast
 searching for words and phrases that occur in the documentation.
 
   \img assistant-wp.png
-  \caption Qt Assistant
+  \caption \e {Qt Assistant}
 
 Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
@@ -100,6 +100,20 @@ that are created with the \Class QStyleSheet class.
 \section1 GUI Application Example
 
   \img hierarchy.png
+  \caption Class hierarchy application
+
+The class hierarchy application is a classic dialog-style application
+where the user chooses some options, in this case paths, and then
+carries out some processing based on those options.
+
+The complete code for the application is presented below. The visual
+design  was done using \l {Qt Designer} and is stored in a \File .ui
+file. The \File .ui file is converted into C++ by \Cmd uic, leaving
+the developer free to focus on the application's functionality.
+
+The \Func addSearchPath(), \Func removeSearchPath() and \Func
+updateHierarchy() functions are all slots. They have been visually
+connected to the appropriate buttons using \l {Qt Designer}.
 
   \quotefile hierarchy/classhierarchy.ui.h
   \skipto ClassHierarchy

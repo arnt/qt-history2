@@ -35,9 +35,14 @@ widgets using layout managers.
 Qt's built-in layout managers are \Class QHBoxLayout, \Class
 QVBoxLayout and \Class QGridLayout.
 
-  \img qhbox.png QHBox with five child widgets
-  \img qvbox.png QVBox with five child widgets
-  \img qgrid.png QGrid with five child widgets
+  \img qhbox.png
+  \caption \Class QHBoxLayout with five child widgets
+
+  \img qvbox.png
+  \caption \Class QVBoxLayout with five child widgets
+
+  \img qgrid.png
+  \caption \Class QGridLayout with five child widgets
 
   \index grid layout
   \index hbox
@@ -122,8 +127,10 @@ Layouts can be nested to arbitrary levels. Here's an example of a
 dialog box, shown at two different sizes:
 
   \img countries-small.png
+  \caption Small dialog
 
   \img countries-large.png
+  \caption Large dialog
 
 The dialog uses three layouts: a \Class QVBoxLayout that groups the
 push buttons, a \Class QHBoxLayout that groups the country listbox

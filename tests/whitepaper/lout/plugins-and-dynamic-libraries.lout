@@ -89,7 +89,7 @@ automatically.
 Companies already provide Qt components in source form, as
 precompiled dynamic libraries or as plugins.
 @Figure
-    @Caption { One of Karl{@Char{adieresis}}lvdalens Datakonsult's
+    @Caption { One of Klar{@Char{adieresis}}lvdalens Datakonsult's
 	       many commercial components }
 @IncludeGraphic { "../images/klaralvdalen.eps" }
 @End @SubSection
