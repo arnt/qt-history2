@@ -18,11 +18,10 @@
 
 #include <qpainter.h>
 
-
 class Test : public QWidget {
     Q_OBJECT
 public:
-    Test(QWidget* parent=0, const char* name=0, WFlags f=0);
+    Test(QWidget* parent=0, const char* name=0);
     void paintEvent(QPaintEvent* e);
 private:
 };
@@ -30,8 +29,8 @@ private:
 
 
 
-Test::Test(QWidget* parent, const char* name, WFlags f) :
-    QWidget(parent, name, f)
+Test::Test(QWidget* parent, const char* name) :
+    QWidget(parent, name)
 {
 
 }
@@ -64,9 +63,9 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 
-    QSplitter *s1 = new QSplitter( QSplitter::Vertical, 0 , "main" );
+    QSplitter *s1 = new QSplitter( Qt::Vertical, 0 , "main" );
 
-    QSplitter *s2 = new QSplitter( QSplitter::Horizontal, s1, "top" );
+    QSplitter *s2 = new QSplitter( Qt::Horizontal, s1, "top" );
 
     Test *t1 = new Test( s2, "topLeft" );
     t1->setBackgroundColor( QColor(Qt::blue).light( 180 ) );
@@ -77,7 +76,7 @@ int main( int argc, char ** argv )
     s2->setResizeMode( t2, QSplitter::KeepSize );
     s2->moveToFirst( t2 );
 
-    QSplitter *s3 = new QSplitter( QSplitter::Horizontal,  s1, "bottom" );
+    QSplitter *s3 = new QSplitter( Qt::Horizontal,  s1, "bottom" );
 
     Test *t3 = new Test( s3, "bottomLeft" );
     t3->setBackgroundColor( Qt::red );
