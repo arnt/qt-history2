@@ -292,12 +292,11 @@ void QFontPrivate::load( QFont::Script script )
     Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
 #endif // QT_CHECK_STATE
 
-    int px = int( pixelSize( request, paintdevice, screen ) + .5 );
     QFontDef req = request;
+    int px = int( pixelSize( req, paintdevice, screen ) + .5 );
     req.pixelSize = px;
     req.pointSize = 0;
     req.underline = req.strikeOut = 0;
-    req.mask = 0;
 
     if ( ! engineData ) {
 	QFontCache::Key key( req, QFont::NoScript, screen );
@@ -322,7 +321,7 @@ void QFontPrivate::load( QFont::Script script )
     //    double scale = 1.0; // ### TODO: fix the scale calculations
 
     // list of families to try
-    QStringList family_list = QStringList::split( ',', request.family );
+    QStringList family_list = QStringList::split( ',', req.family );
 
     // append the substitute list for each family in family_list
     QStringList subs_list;
@@ -332,11 +331,11 @@ void QFontPrivate::load( QFont::Script script )
     family_list += subs_list;
 
     // append the default fallback font for the specified script
-    // family_list << ... ;
+    // family_list << ... ; ###########
 
     // add the default family
     QString defaultFamily = QApplication::font().family();
-    if ( !family_list.contains( defaultFamily ) )
+    if ( ! family_list.contains( defaultFamily ) )
 	family_list << defaultFamily;
 
     // add QFont::defaultFamily() to the list, for compatibility with
@@ -364,8 +363,6 @@ void QFontPrivate::load( QFont::Script script )
 
     engine->ref();
     engineData->engines[script] = engine;
-    // initFontInfo( script, scale );
-    // request.dirty = FALSE;
 }
 
 /*!
@@ -801,7 +798,12 @@ int QFontMetrics::leading() const
 */
 int QFontMetrics::lineSpacing() const
 {
-    return leading() + height();
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->leading() + engine->ascent() + engine->descent();
 }
 
 /*! \fn int QFontMetrics::width( char c ) const
@@ -994,6 +996,9 @@ int QFontMetrics::maxWidth() const
 {
     if ( ! d->engineData )
 	d->load( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( d->engineData != 0 );
+#endif // QT_CHECK_STATE
 
     QFontEngine *engine;
     int w = 0;
@@ -1041,7 +1046,9 @@ int QFontMetrics::lineWidth() const
 {
     if ( ! d->engineData )
 	d->load( (QFont::Script) fscript );
-
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( d->engineData != 0 );
+#endif // QT_CHECK_STATE
     return d->engineData->lineWidth;
 }
 
