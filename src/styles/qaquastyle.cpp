@@ -11840,7 +11840,7 @@ void QAquaStyle::polish( QWidget * w )
     }
 
     if( w->inherits("QFrame") && w->parentWidget() &&
-	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") )
+	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") && !w->inherits("QMenuBar") )
 	w->installEventFilter( this );
 }
 
