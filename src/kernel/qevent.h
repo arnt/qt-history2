@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#56 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#57 $
 **
 ** Definition of event classes
 **
@@ -26,8 +26,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
-#include "qrect.h"
-#include "qstring.h"
+#include "qregion.h"
 #endif // QT_H
 
 
@@ -191,11 +190,19 @@ public:
 class QPaintEvent : public QEvent		// widget paint event
 {
 public:
+    QPaintEvent( const QRegion& paintRegion )
+	: QEvent(Event_Paint),
+	  rec(paintRegion.boundingRect()),
+	  reg(paintRegion) {}
     QPaintEvent( const QRect &paintRect )
-	: QEvent(Event_Paint), r(paintRect) {}
-    const QRect &rect() const	{ return r; }
+	: QEvent(Event_Paint),
+	  rec(paintRect),
+          reg(paintRect) {}
+    const QRect &rect() const	{ return rec; }
+    const QRegion &region() const	{ return reg; }
 protected:
-    QRect r;
+    QRect rec;
+    QRegion reg;
 };
 
 #define Q_PAINT_EVENT(x)	((QPaintEvent*)x)

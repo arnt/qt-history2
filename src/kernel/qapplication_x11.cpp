@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#329 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#330 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3352,6 +3352,8 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.config = 0;
     bool should_clip = translateBySips( this, paintRect );
 
+    QRegion paintRegion( paintRect );
+
     if ( merging_okay ) {
 	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info)
 	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
@@ -3364,7 +3366,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 				   xevent.xexpose.height);
 		    if ( translateBySips( this, exposure ) )
 			should_clip = TRUE;
-		    paintRect = paintRect.unite( exposure );
+		    paintRegion = paintRegion.unite( exposure );
 		} else {
 		    translateScrollDoneEvent( &xevent );
 		}
@@ -3381,16 +3383,16 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	c->width  = w;				// send resize event first
 	c->height = h;
 	translateConfigEvent( (XEvent*)c );	// will clear window
-	paintRect = QRect( 0, 0, w, h );
+	paintRegion = QRect( 0, 0, w, h );
     }
 
     if ( should_clip ) {
-	paintRect = paintRect.intersect( rect() );
-	if ( paintRect.isEmpty() )
+	paintRegion = paintRegion.intersect( rect() );
+	if ( paintRegion.isEmpty() )
 	    return TRUE;
     }
 
-    QPaintEvent e( paintRect );
+    QPaintEvent e( paintRegion );
     setWFlags( WState_PaintEvent );
     QApplication::sendEvent( this, &e );
     clearWFlags( WState_PaintEvent );

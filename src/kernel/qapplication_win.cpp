@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#162 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2138,10 +2138,9 @@ bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
 bool QETWidget::translatePaintEvent( const MSG & )
 {
     PAINTSTRUCT ps;
-    RECT rect;
-    GetUpdateRect( winId(), &rect, FALSE );
-    QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
-    QPaintEvent e( r );
+    HRGN reg = CreateRectRgn(0,0,1,1); // empty would do
+    GetUpdateRgn( winId(), reg, FALSE );
+    QPaintEvent e( reg );
     setWFlags( WState_PaintEvent );
     hdc = BeginPaint( winId(), &ps );
     QApplication::sendEvent( this, &e );
