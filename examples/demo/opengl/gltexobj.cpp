@@ -184,7 +184,8 @@ void GLTexobj::animate()
     impY -= impY * 0.05;
     impZ -= impZ * 0.05;
 
-    if ( impX > 0.1 || impY > 0.1 || impZ > 0.1 )
+    if ( impX > 0.1 || impY > 0.1 || impZ > 0.1 || 
+	 impX < -0.1 || impY < -0.1 || impZ < -0.1 )
 	updateGL();
 }
 
