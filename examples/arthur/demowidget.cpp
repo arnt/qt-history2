@@ -10,12 +10,24 @@
 #define M_PI 3.14259
 #endif
 
+/*!
+  \class Attributes
+
+  This class contains the attributes that should be used by the demo widget when
+  painting.
+*/
+
+/*!
+  \class DemoWidget
+
+  The DemoWidget class provides conveninence functionality for the
+  various demowidgets in the Arthur painter demo.
+*/
 
 DemoWidget::DemoWidget(QWidget *parent)
     : QWidget(parent),
       timeoutRate(50),
-      animationStep(0),
-      animationLoopStep(360)
+      animationStep(0)
 {
     srand((uint) time(0));
     a = rand() / (double)RAND_MAX;
@@ -40,8 +52,6 @@ void DemoWidget::stopAnimation()
 void DemoWidget::timerEvent(QTimerEvent *)
 {
     ++animationStep;
-    if (animationStep == animationLoopStep)
-        animationStep = 0;
     update();
 }
 

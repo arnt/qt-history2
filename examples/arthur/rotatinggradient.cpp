@@ -7,12 +7,11 @@ RotatingGradient::RotatingGradient(QWidget *parent)
 {
     timeoutRate = 25;
     animationStep = 0;
-    animationLoopStep = 511;
 }
 
 void RotatingGradient::timerEvent(QTimerEvent *e)
 {
-    m.rotate(1);
+    matrix.rotate(1);
     DemoWidget::timerEvent(e);
 }
 
@@ -27,31 +26,27 @@ void RotatingGradient::paintEvent(QPaintEvent *)
     if (attributes->alpha)
         fillBackground(&p);
 
-    QPoint p1(-width()/4, 0);
-    QPoint p2(+width()/4, 0);
+    // Define a value that will move from 0 to 255 then down to 0
+    // again. fade in, fade out
+    int fade = animationStep % 512;
+    if (fade > 255)
+        fade = 511 - fade;
 
-    int cb = animationStep;
-    if (cb > 255)
-        cb = 511 - cb;
-
-    p1 = m*p1 + QPoint(cb/2 + width()/2, height()/2);
-    p2 = m*p2 + QPoint(width()/2, cb/2+height()/2);
+    // Create two points that rotate around origo at radius w/4 and
+    // move them to the center of the widget. We also add the fade
+    // factor to the widgets to tilt them away from the static circle
+    // motion.
+    QPoint p1 = matrix*QPoint(-w/4, 0) + QPoint(fade/2 + width()/2, height()/2);
+    QPoint p2 = matrix*QPoint(w/4, 0)  + QPoint(width()/2, fade/2+height()/2);
 
     int alpha1 = 255;
-    int alpha2 = attributes->alpha ? cb : 255;
+    int alpha2 = attributes->alpha ? fade : 255;
 
-    QBrush gradient = QBrush(p1, QColor(cb, 0, 255-cb, alpha1),
-                             p2, QColor(0, 255-cb, cb, alpha2));
-
+    // Define the gradient brush. The colors will fade from blue and green to
+    // red and blue
+    QBrush gradient = QBrush(p1, QColor(fade, 0, 255-fade, alpha1),
+                             p2, QColor(0, 255-fade, fade, alpha2));
     p.setBrush(gradient);
+
     p.drawRect(0, 0, width(), height());
-
-    p.setPen(Qt::black);
-    p.drawLine(p1, p2);
-}
-
-
-QString RotatingGradient::description() const
-{
-    return "Description of rotating gradient...";
 }

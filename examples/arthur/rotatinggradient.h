@@ -9,13 +9,10 @@ class RotatingGradient : public DemoWidget
 {
 public:
     RotatingGradient(QWidget *parent=0);
-
     void paintEvent(QPaintEvent *);
     void timerEvent(QTimerEvent *e);
-
-    QString description() const;
 private:
-    QWMatrix m;
+    QWMatrix matrix;
     QPixmap pixmap;
 };
 

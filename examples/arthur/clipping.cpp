@@ -9,7 +9,6 @@ Clipping::Clipping(QWidget *parent)
     : DemoWidget(parent)
 {
     pressPoint = QPoint(-1, -1);
-    animationLoopStep = -1;
 
     const int rectCount = 10;
 

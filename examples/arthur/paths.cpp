@@ -6,7 +6,6 @@
 Paths::Paths(QWidget *parent)
     : DemoWidget(parent)
 {
-    animationLoopStep = -1;
 }
 
 

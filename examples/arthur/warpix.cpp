@@ -9,8 +9,6 @@ Warpix::Warpix(QWidget *parent)
 {
     setPixmap(QPixmap("chux.png"));
 
-    animationLoopStep = -1;
-
     beat = new QSound("beat.wav");
     beat->setLoops(-1);
 

@@ -1,0 +1,162 @@
+/*!
+  \page arthur.html
+
+  \ingroup examples
+
+  \title Arthur, The Paint Engine
+
+  \section1 Introduction
+
+  The purpose of this example is to sum up the features available by
+  the Qt painting API. Some of these features are new in Qt 4, and some
+  were present in Qt 3.x.
+
+  \section2 The DemoWidget class
+
+  We have implemented a the conveninece class DemoWidget for
+  displaying the different sides of this demo. Each of the different
+  topics in this demo are implemented as a subclass of DemoWidget.
+
+  Most of the widgets in the demo have some animation. DemoWidget
+  provides two functions DemoWidget::startAnimation() and
+  DemoWidget::stopAnimation(). When the widget is running it will
+  trigger a repaint on given intervals.
+
+  Since most of the demos have motion, we provided a semirandom
+  cosinus/sinus based function for continous modulation. The x and y
+  coordinate of this function are available in DemoWidget::xfunc() and
+  DemoWidget::yfunc().
+
+  The demo has a set of options that can be chosen by the user. These objects
+  are available in the Attributes class. The function DemoWidget::fillBackground()
+  takes care of background based on what the user has selected. LineAntialising
+  and Alpha blended primitives is handled in each separate paint event.
+
+  DemoWidget also provides some protected membervariables that we
+  make use of in the demos.
+  \list
+
+  \i \c timeoutRate; The number of milliseconds between each timeout.
+
+  \i \c animationStep; This value is incremented by one for each
+  timeout, so it counts the number of steps onto the animation we are.
+
+  \endlist
+
+
+  \section1 Alphablended primitives
+
+  The purpose of this demo is tho demonstrate how alpha blending works
+  with Qt 4.0. This example also makes heavy use of transformations in
+  QPainter. We are drawing two shapes in this example. The first is a
+  rotating square with a drop shadow. The second is a "snake" of
+  primitives that move around the screen. The implementation of the
+  example is located in the file \l alphashade.cpp
+
+  In addition to to showing alphablending this examples also draws
+  with antialiased lines on the platforms where this is supported
+  (Windows and Mac). This is done in AlphaShade::paintEvent() using
+  the lines:
+
+  \quotefile arthur/alphashade.cpp
+
+  \skipto if (attributes->antialias)
+
+  \printto p.setRenderHint
+
+  \section2 A rotating rectangle with drop shadow.
+
+  We start by setting a world transform for the painter that does what
+  we need. The easiest way to get rotating behavour is to move the
+  origin of the painter to the center of the screen. Then rotate it
+  our given angle (we use animation step, which means one more degree
+  pr repaint) and then translate the origin back 1/4 to get the origin
+  rotating at an ellipse of rouhgly 1/4 the widget size.
+
+  \skipto // Get painter into position
+
+  \printto int offset
+
+  We then specify the color of the drop shadow. We want it to be a
+  semitransparent black, so we set the color and specify an alpha
+  value of 31 (this is roughly 1/8 opacity).
+
+  \skipto // Tr
+  \printto for (int x=0
+
+  Then we want to draw the drop shadow. To get the effect blurry edges
+  we draw a number of rectangles instead of just one. Each of the
+  rectangles is offseted by a small number of pixels. Since the shadow
+  should appear below the rectangle we transform the painter thus.
+
+  \printto // The solid
+
+  Then we draw the rectangle on top and restore.
+
+  \printto // p.restore()
+
+  \section2 A snake of primitives
+
+  The snake of primitives drawn by using the motion function described
+  in DemoWidget above. We use the animationStep and the each
+  primitives index to modulate the function. This displaces each drawn
+  primitive in such away that it appears as a snake. We also use the
+  primitives index to decide its color. We have defined a colormap for
+  this.
+
+  \quotefile arthur/alphashade.cpp
+  \skipto for (int i=0; i<count
+
+  \printuntil } // for
+
+  \section2 Comparasison to Qt 3.x
+
+  Alphablending is a new feature in Qt 4, so to acheive these
+  particular effects with Qt 3.x we would have to manipulate pixels
+  directly in a QImage in draw that instead. This would have been
+  fairly complex given the world matrix and the complexity of some of
+  the polygons. In addition it would be rather slow, since we could
+  not take advantage of alphablending in hardware were present. The
+  transformation code on the other hand, is identical to how it would
+  be done in Qt 3.x
+
+
+  \section1 Rotating gradient
+
+  Qt 4.0 has support for filling using linear gradients. This means
+  that you can specify a linear gradient brush and use it to fill any
+  primitive type drawn by QPainter. The linear gradients in Qt are
+  implemented using two arbitrary points with a color attached to
+  each. The area between the points is filled with colors gradually
+  shifting from the color of the first point to the color of the next
+  point. The areas on each side of the gradient area is covered with
+  the color on that respective side.
+
+  In this example we want to have two points that move in circular
+  motion around each other.
+
+  \quotefile rotatinggradient.cpp
+
+  \skipto // Define
+  \printuntil fade = 511
+
+  We define a value that moves up and down beween 0 and 255. This value
+  is used later in the function for several purposes.
+
+  \printuntil QPoint p2
+
+
+  \section1 Clip regions
+    - show clip region.
+
+  \section1 Paths
+
+  \section1 Stretched Pixmap
+
+  The purpose of this example is to demonstrate how pixmaps can be
+  stretched using the function QPainter::drawPixmap().
+
+    - show drawPixmap() with stretching.
+    - available in 3.3 but potentially faster now.
+
+*/

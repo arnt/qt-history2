@@ -10,8 +10,6 @@ class DemoWidget : public QWidget
 public:
     DemoWidget(QWidget *w=0);
 
-    virtual QString description() const { return QString(); }
-
     virtual void startAnimation();
     virtual void stopAnimation();
 
@@ -28,7 +26,6 @@ public:
 protected:
     int timeoutRate;
     int animationStep;
-    int animationLoopStep;
 
     Attributes *attributes;
 

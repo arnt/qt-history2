@@ -4,18 +4,19 @@
 #include "demowidget.h"
 
 #include <qpixmap.h>
+#include <qpointarray.h>
 
 class AlphaShade : public DemoWidget
 {
 public:
     AlphaShade(QWidget *parent=0);
     void paintEvent(QPaintEvent *e);
-    QString description() const;
+    void drawPrimitives(QPainter *p);
 
 private:
     int iterations;
     int spread;
-    QPixmap pattern;
+    QPointArray polygon;
 };
 
 #endif // ALPHASHADE_H
