@@ -8,6 +8,7 @@
 
 #if (defined(_WIN32) || defined(__NT__))
 #  define QT_UNDEF_MACROS_IN_PCH
+#  define _WINSCARD_H_
 #  define _POSIX_ 	/* Make sure PATH_MAX et al. are defined    */
 #  include <limits.h>
 #  undef _POSIX_  	/* Don't polute                             */
@@ -46,6 +47,7 @@
 #endif
 
 #if defined(QT_UNDEF_MACROS_IN_PCH)
-#undef max /*  These are defined in windef.h, but                   */
-#undef min /*  we don't want them when building Qt                  */
+#  undef max /*  These are defined in windef.h, but                   */
+#  undef min /*  we don't want them when building Qt                  */
+#  undef _WINSCARD_H_
 #endif
