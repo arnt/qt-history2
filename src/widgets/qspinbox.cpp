@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#15 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -214,7 +214,7 @@ void QSpinBox::setCurrent( double value )
 }
 
 
-/*! \fn void QSpinBox::selected( const char * )
+/*! \fn void QSpinBox::selected( double )
 
   This signal is emitted every time the value of the spin box changes
   (by setCurrent(), by a keyboard accelerator, by mouse clicks, or by

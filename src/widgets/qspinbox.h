@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#8 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#9 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -42,7 +42,6 @@ public slots:
     virtual void prev();
 
 signals:
-    void selected( int );
     void selected( double );
 
 protected:
