@@ -61,8 +61,8 @@ public:
         clearIndex();;
     }
 
-    void positionalToNamedBinding();
-    void namedToPositionalBinding();
+    QString positionalToNamedBinding();
+    QString namedToPositionalBinding();
     QString holderAt(int index) const;
 
 public:
@@ -93,7 +93,7 @@ QString QSqlResultPrivate::holderAt(int index) const
     return indexes.key(index);
 }
 
-void QSqlResultPrivate::positionalToNamedBinding()
+QString QSqlResultPrivate::positionalToNamedBinding()
 {
     QRegExp rx(QLatin1String("'[^']*'|\\?"));
     QString q = sql;
@@ -103,10 +103,10 @@ void QSqlResultPrivate::positionalToNamedBinding()
             q = q.replace(i, 1, QLatin1String(":f") + QString::number(++cnt));
         i += rx.matchedLength();
     }
-    executedQuery = q;
+    return q;
 }
 
-void QSqlResultPrivate::namedToPositionalBinding()
+QString QSqlResultPrivate::namedToPositionalBinding()
 {
     QRegExp rx(QLatin1String("'[^']*'|:([a-zA-Z0-9_]+)"));
     QString q = sql;
@@ -118,11 +118,11 @@ void QSqlResultPrivate::namedToPositionalBinding()
             // record the index of the placeholder - needed
             // for emulating named bindings with ODBC
             indexes[rx.cap(0)]= ++cnt;
-            q = q.replace(i, rx.matchedLength(), QLatin1String("?"));
+            q.replace(i, rx.matchedLength(), QLatin1String("?"));
             ++i;
         }
     }
-    executedQuery = q;
+    return q;
 }
 
 /*!
@@ -382,7 +382,7 @@ QSqlError QSqlResult::lastError() const
     \fn bool QSqlResult::fetch(int index)
 
     Positions the result to an arbitrary (zero-based) row \a index.
-    
+
     This function is only called if the result is in an active state.
     Derived classes must reimplement this function and position the
     result to the row \a index, and call setAt() with an appropriate
@@ -494,10 +494,13 @@ bool QSqlResult::savePrepare(const QString& query)
     if (!driver()->hasFeature(QSqlDriver::PreparedQueries))
         return prepare(query);
 
-    if (driver()->hasFeature(QSqlDriver::NamedPlaceholders))
-        d->positionalToNamedBinding();
-    else
+    if (driver()->hasFeature(QSqlDriver::NamedPlaceholders)) {
+        // parse the query to memorize parameter location
         d->namedToPositionalBinding();
+        d->executedQuery = d->positionalToNamedBinding();
+    } else {
+        d->executedQuery = d->namedToPositionalBinding();
+    }
     return prepare(d->executedQuery);
 }
 
