@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#4 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#4 $";
 #endif
 
 
@@ -32,6 +32,7 @@ QButton::QButton( QView *parent ) : QWidget( parent )
     onOffButton = FALSE;			// button is not on/off
     buttonDown = FALSE;				// button is up
     buttonOn = FALSE;				// button is off
+    mlbDown = FALSE;				// mouse left button up
 }
 
 
@@ -55,7 +56,7 @@ void QButton::savePixmap( const char *key, const QPixMap *pm )
     if ( !pmdict ) {				// create pixmap dict
 	pmdict = new QPixMapDict( 31 );
 	CHECK_PTR( pmdict );
-	qAddCleanupRoutine( delPixmaps );
+	qAddPostRoutine( delPixmaps );
     }
     pmdict->insert( key, pm );			// insert into dict
     pmsize += pm->size().width()*pm->size().height();
@@ -124,10 +125,11 @@ void QButton::drawButton( QPainter * )
 
 void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || mlbDown )
 	return;
     bool hit = hitButton( e->pos() );
     if ( hit ) {				// mouse press on button
+	mlbDown = TRUE;				// left mouse button down
 	buttonDown = TRUE;
 	emit pressed();
 	paintEvent(0);
@@ -136,8 +138,9 @@ void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || !mlbDown )
 	return;
+    mlbDown = FALSE;				// left mouse button up
     bool hit = hitButton( e->pos() );
     buttonDown = FALSE;
     emit released();
@@ -151,8 +154,8 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
 
 void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
 {
-    if ( !(e->state() & LeftButton) )		// left button is up
-	return;
+    if ( !((e->state() & LeftButton) && mlbDown) )
+	return;					// left mouse button is up
     bool hit = hitButton( e->pos() );
     if ( hit ) {				// mouse move in button
 	if ( !buttonDown ) {

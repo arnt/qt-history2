@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#3 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#4 $
 **
 ** Definition of QButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940206
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The QButton class is an abstract button. It is super class for QPushButton,
@@ -68,6 +68,7 @@ private:
     uint    onOffButton	: 1;
     uint    buttonDown	: 1;
     uint    buttonOn	: 1;
+    uint    mlbDown	: 1;
 };
 
 
