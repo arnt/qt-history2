@@ -114,6 +114,7 @@ public slots:
     void setTextLabel( const QString & );
 
 protected:
+    void mousePressEvent( QMouseEvent * );
     void drawButton( QPainter * );
     void drawButtonLabel( QPainter * );
 

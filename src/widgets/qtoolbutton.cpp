@@ -182,8 +182,6 @@ void QToolButton::init()
     setFocusPolicy( NoFocus );
     setBackgroundMode( PaletteButton);
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
-
-    installEventFilter( this );
 }
 
 
@@ -540,7 +538,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
     if ( d->popup && !d->delay ) {
 	bool sunken = ( isOn() && !son ) || isDown();
 	if ( sunken || uses3D() )
-	    style().drawSeparator( p, w+1, y, w+1, y+h, colorGroup() );
+	    style().drawSeparator( p, w+1, y+style().defaultFrameWidth(), w+1, y+h-2*style().defaultFrameWidth(), colorGroup() );
 	style().drawArrow( p, Qt::DownArrow, FALSE, w+2, y, 13, h, colorGroup(), TRUE );
     }
 }
@@ -587,18 +585,21 @@ void QToolButton::moveEvent( QMoveEvent * )
 
 /*!\reimp
 */
+void QToolButton::mousePressEvent( QMouseEvent *e )
+{
+    if ( d->popup && e->pos().x() > ( width() - 15 ) ) {
+	setDown( TRUE );
+	popupTimerDone();
+	return;
+    }
+    QButton::mousePressEvent( e );
+}
+
+/*!\reimp
+*/
 bool QToolButton::eventFilter( QObject *o, QEvent *e )
 {
-    if ( o == this ) {
-	if ( e->type() == QEvent::MouseButtonPress && !d->delay && d->popup ) {
-	    QMouseEvent *me = (QMouseEvent*)e;
-	    if ( me->pos().x() > ( width() - 15 ) ) {
-		setDown( TRUE );
-		popupTimerDone();
-		return TRUE;
-	    }
-	}
-    } else if ( !d->delay && o == d->popup ) {
+    if ( !d->delay && o == d->popup ) {
 	if ( e->type() == QEvent::MouseButtonRelease ) {
 	    popupReleased();
 	    setDown( FALSE );
