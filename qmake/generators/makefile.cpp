@@ -65,13 +65,16 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already
 	    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 		path += Option::dir_sep;
 
-	    QString build;
-	    if(path.left(1) == Option::dir_sep)
-		build = Option::dir_sep;
+	    QDir d;
+	    if(path.left(1) == Option::dir_sep) 
+	      d.cd(Option::dir_sep);
+
 	    QStringList subs = QStringList::split(Option::dir_sep, path);
 	    for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
-		build += (*subit) + QDir::separator();
-		QDir::current().mkdir(build);
+		if(!d.cd(*subit)) {
+		    d.mkdir((*subit));
+		    d.cd((*subit));
+		}
 	    }
 	}
     }
