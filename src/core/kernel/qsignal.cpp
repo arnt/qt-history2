@@ -125,17 +125,7 @@ static const uint qt_meta_data_QSignalEmitter[] = {
 
 QSignalEmitter::QSignalEmitter(const char *type)
 {
-    static const char *signalData = "QSignalEmitter\0\0activated(";
-    static const int signalDataLen = 26; /* don't use sizeof()! */
-
-    /* We can't use QByteArray's 'const char *s, int size' ctor as it
-     * calls strlen() and uses the minimum length, which breaks with
-     * our string deliberately having a zero termination inbetween
-     */
-    stringdata.resize(signalDataLen + 1);
-    qMemCopy(stringdata.data(), signalData, signalDataLen);
-    stringdata[signalDataLen] = '\0';
-
+    stringdata = QByteArray("QSignalEmitter\0\0activated(", 26);
     if (type)
         stringdata += type;
     stringdata += ')';
@@ -164,14 +154,14 @@ void QSignalEmitter::activate(void *_t1)
 
 bool QSignalEmitter::connect(const QObject *receiver, const char *member, ConnectionType type)
 {
-    QByteArray signal = stringdata.data() + 16;
+    QByteArray signal = stringdata.constData() + 16;
     signal.prepend('0' + QSIGNAL_CODE);
     return QObject::connect(this, signal, receiver, member, type);
 }
 
 bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
 {
-    QByteArray signal = stringdata.data() + 16;
+    QByteArray signal = stringdata.constData() + 16;
     signal.prepend('0' + QSIGNAL_CODE);
     return QObject::disconnect(this, signal, receiver, member);
 }
