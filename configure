@@ -1495,7 +1495,11 @@ fi
 #mac
 if [ "$PLATFORM_MAC" = "yes" ]; then
     mactests=$relpath/config.tests/mac
-    $mactests/mac102.test "$OPT_VERBOSE" "$relpath" "$outpath" && D_FLAGS="$D_FLAGS MACOSX_102" #10.2?
+    if $mactests/mac102.test "$OPT_VERBOSE" "$relpath" "$outpath"; then
+	D_FLAGS="$D_FLAGS MACOSX_102" #10.2 (Jaguar)
+    else
+	D_FLAGS="$D_FLAGS MACOSX_101" #10.1
+    fi
 fi
 
 # x11

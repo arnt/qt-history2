@@ -90,12 +90,12 @@ class QWidgetListIt;
 // Window system dependent definitions
 
 #if defined(Q_WS_MAC)
-#ifdef MACOSX_102
-typedef struct __EventLoopTimer*        EventLoopTimerRef;
-typedef struct OpaqueMenuRef*        MenuRef;
-#else
+#ifdef MACOSX_101
 typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
 typedef struct OpaqueMenuHandle *MenuRef;
+#else
+typedef struct __EventLoopTimer*        EventLoopTimerRef;
+typedef struct OpaqueMenuRef*        MenuRef;
 #endif
 
 #ifndef Q_WS_MACX
