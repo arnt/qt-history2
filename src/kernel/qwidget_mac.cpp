@@ -1075,7 +1075,6 @@ void QWidget::showMaximized()
 	SetRect(&bounds, r.x(), r.y(), r.right(), r.bottom());
 	SetWindowStandardState((WindowPtr)hd, &bounds);
 	ZoomWindow( (WindowPtr)hd, inZoomOut, FALSE);
-	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
 	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
 	QRect orect(geometry().x(), geometry().y(), width(), height());
