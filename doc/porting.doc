@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.33 1999/03/26 19:05:13 agulbra Exp $
+** $Id: porting.doc,v 1.34 1999/03/26 21:17:41 agulbra Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -739,14 +739,27 @@ much testing of its values.
 
 <h3>All the removed functions</h3>
 
-All these functions have been removed in Qt 2.0.  Most are simply
-cases where "const char*" has changed to "const QString&", or when
-an enumeration type has moved into the Qt:: namespace (which, technically,
-is a new name, but your code will compile just the same anyway).  This
-list is here for completeness.
+All <a href="removed20.html">these functions</a> have been removed in
+Qt 2.0.  Most are simply cases where "const char*" has changed to
+"const QString&", or when an enumeration type has moved into the Qt::
+namespace (which, technically, is a new name, but your code will
+compile just the same anyway).  This list is here for completeness.
 
-<!-- warwick can regenerate this with his qt-2-report -->
-<blockquote><pre>
+*/
+
+// I split this to work around limitations in perl's regexp parser. --Arnt
+
+// warwick can regenerate this with his qt-2-report
+
+/*! \page remove20.html
+
+<title>Qt 2.0 - Removed functions</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Functions removed in  Qt 2.0 </h1><br clear="all">
+
+<pre>
 
 QFileDialog::fileHighlighted(const char *)
 QFileDialog::fileSelected(const char *)
@@ -1100,6 +1113,6 @@ QWhatsThis::add(QWidget *, const char *, bool)
 QWhatsThis::textFor(QWidget *)
 QWidgetStack::event(QEvent *)
 
-</pre></blockquote>
+</pre>
 
 */
