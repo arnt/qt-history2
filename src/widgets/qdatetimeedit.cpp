@@ -2237,8 +2237,17 @@ QString QTimeEdit::sectionText( int sec )
 	txt = QString::number( d->s );
 	break;
     case 3:
-	txt = d->h < 12 ? ( lAM ? *lAM : QString::fromLatin1( "AM" ) )
-	                : ( lPM ? *lPM : QString::fromLatin1( "PM" ) );
+	if ( d->h < 12 ) {
+	    if ( lAM )
+		txt = *lAM;
+	    else
+		txt = QString::fromLatin1( "AM" );
+	} else {
+	    if ( lPM )
+		txt = *lPM;
+	    else
+		txt = QString::fromLatin1( "PM" );
+	}
 	break;
     default:
 	break;
@@ -2422,9 +2431,13 @@ QSize QTimeEdit::sizeHint() const
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
-	d->controls->upRect().width() + fw * 4 +
-	    ( (d->display&AMPM) ? fm.width( ( lAM? *lAM : QString::fromLatin1( "AM" ) ) ) +
-	     4 : 0 );
+	d->controls->upRect().width() + fw * 4;
+    if ( d->display & AMPM ) {
+	if ( lAM )
+	    w += fm.width( *lAM ) + 4;
+	else
+	    w += fm.width( QString::fromLatin1( "AM" ) ) + 4;
+    }
 
     return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
