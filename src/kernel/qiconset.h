@@ -43,6 +43,7 @@ public:
 
     QIconSet();
     QIconSet( const QPixmap &, Size = Automatic );
+    QIconSet( const QPixmap &small, const QPixmap &large );
     QIconSet( const QIconSet & );
     virtual ~QIconSet();
 
@@ -56,7 +57,7 @@ public:
     bool isGenerated( Size, Mode ) const;
 
     bool isNull() const;
-    
+
     void detach();
 
     QIconSet &operator=( const QIconSet & );

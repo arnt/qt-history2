@@ -231,6 +231,17 @@ QIconSet::QIconSet( const QIconSet& other )
 	d->ref();
 }
 
+/*!  Creates an iconset which uses the pixmap \a small for for
+  displaying small a small icon, and \a large for displaying a large
+  one.
+*/
+
+QIconSet::QIconSet( const QPixmap &small, const QPixmap &large )
+{
+    d = 0;
+    reset( small, Small );
+    reset( large, Large );
+}
 
 /*!
   Destructs the icon set and frees any allocated resources.
