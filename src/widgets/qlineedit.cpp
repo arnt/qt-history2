@@ -2374,7 +2374,8 @@ void QLineEditPrivate::removeSelectedText()
 
 void QLineEditPrivate::parseInputMask( const QString &maskFields )
 {
-    if ( maskFields.isEmpty() || maskFields.section( ';', 0, 0 ).isEmpty() ) {
+    int delimiter = maskFields.indexOf(';');
+    if ( maskFields.isEmpty() || delimiter == 0 ) {
 	if ( maskData ) {
 	    delete [] maskData;
 	    maskData = 0;
@@ -2384,10 +2385,13 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 	return;
     }
 
-    inputMask =  maskFields.section( ';', 0, 0 );
-    blank = maskFields.section( ';', 1, 1 ).at(0);
-    if ( blank.isNull() )
+    if (delimiter == -1) {
 	blank = ' ';
+	inputMask = maskFields;
+    } else {
+	inputMask = maskFields.left(delimiter);
+	blank = (delimiter + 1 < maskFields.length()) ? maskFields[delimiter + 1] : ' ';
+    }
 
     // calculate maxLength / maskData length
     maxLength = 0;
