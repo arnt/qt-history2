@@ -3653,6 +3653,8 @@ void QListView::setCurrentItem( QListViewItem * i )
 	if ( prev )
 	    repaintItem( prev );
 	emit currentChanged( i );
+	if ( d->selectionMode == Single )
+	    setSelected( i, TRUE );
     }
 }
 
