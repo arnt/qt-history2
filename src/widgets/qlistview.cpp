@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#109 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#109 $");
 
 
 const int Unsorted = 16383;
@@ -1059,13 +1059,16 @@ void QListViewPrivate::Root::setup()
   select one or many items, sort the list in increasing or decreasing
   order by any column, and so on.
 
-  The simplest mode of usage is to create a QListView, create one or
-  more QListViewItem objects with the QListView as parent, set up the
-  list view, and show() it.
+  The simplest mode of usage is to create a QListView, add some column
+  headers using addColumn(), create one or more QListViewItem objects
+  with the QListView as parent, set up the list view, and show() it.
 
   The main setup functions are <ul>
 
-  <li>setColumn() - sets the header text and width of a column.
+  <li>addColumn() - adds a column, with text and perhaps width.
+
+  <li>setColumnWidthMode() - sets the column to be resized
+  automatically or not.
 
   <li>setMultiSelection() - decides whether one can select one or many
   objects in this list view.  The default is FALSE (selecting one item
@@ -1548,23 +1551,25 @@ void QListView::clear()
 
 /*!
   Adds a new column at the right end of the widget, with the header \a
-  label.
+  label, and returns the index of the column.
 
   If \a width is negative, the new column will have WidthMode Maximum,
   otherwise it will be Manual at \a width pixels wide.
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
-void QListView::addColumn( const char * label, int width )
+int QListView::addColumn( const char * label, int width )
 {
     int c = d->h->addLabel( label, width );
     d->column.resize( c+1 );
     d->column.insert( c, new QListViewPrivate::Column );
     d->column[c]->wmode = width >=0 ? Manual : Maximum;
+    return c;
 }
 
 /*!
-  Sets the heading text of column \a column to \a label.
+  Sets the heading text of column \a column to \a label.  The leftmost
+  colum is number 0.
 */
 void QListView::setColumnText( int column, const char * label )
 {
@@ -1573,9 +1578,9 @@ void QListView::setColumnText( int column, const char * label )
 }
 
 /*!
-  Sets the width of column \a column to \a w pixels.  Note that
-  if the column has a WidthMode other than Manual, this width
-  setting may be subsequently overridden.
+  Sets the width of column \a column to \a w pixels.  Note that if the
+  column has a WidthMode other than Manual, this width setting may be
+  subsequently overridden.  The leftmost colum is number 0.
 */
 void QListView::setColumnWidth( int column, int w )
 {

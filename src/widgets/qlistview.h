@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#47 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#48 $
 **
 ** Definition of QListView widget class
 **
@@ -58,7 +58,7 @@ public:
 
     virtual void setPixmap( int, const QPixmap & );
     virtual const QPixmap * pixmap( int ) const;
-    
+
     virtual const char * key( int, bool ) const;
     virtual void sortChildItems( int, bool );
 
@@ -138,7 +138,7 @@ public:
     virtual void insertItem( QListViewItem * );
     virtual void clear();
 
-    virtual void addColumn( const char * label, int size = -1);
+    virtual int addColumn( const char * label, int size = -1);
     virtual void setColumnText( int column, const char * label );
     const char* columnText( int column ) const;
     virtual void setColumnWidth( int column, int width );
@@ -149,7 +149,7 @@ public:
 
     virtual void setColumnAlignment( int, int );
     int columnAlignment( int ) const;
-    
+
     void show();
 
     QListViewItem * itemAt( const QPoint & screenPos ) const;
