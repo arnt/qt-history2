@@ -487,7 +487,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you HAVE to change it in qmetaobject.h too
-const int  formatRevision = 14;		// moc output format revision
+const int  formatRevision = 15;		// moc output format revision
 
 %}
 
@@ -2843,7 +2843,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "#include \"%s\"\n", (const char*)g->includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
-	fprintf( out, "#include <%squcom.h>\n", (const char*)g->qtPath );
+	fprintf( out, "#include <%squcomextra.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
 	fprintf( out, "#error \"This file was generated using the moc from %s."
 		 " It\"\n#error \"cannot be used with the include files from"

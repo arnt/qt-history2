@@ -1,13 +1,13 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QBuffer class
+** Definition of extra QUcom classes
 **
-** Created : 930812
+** Created : 990101
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the tools module of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
@@ -35,66 +35,39 @@
 **
 **********************************************************************/
 
-#ifndef QBUFFER_H
-#define QBUFFER_H
+#ifndef QUCOMEXTRA_H
+#define QUCOMEXTRA_H
 
 #ifndef QT_H
-#include "qiodevice.h"
 #include "qucom.h"
 #endif // QT_H
 
 
-class Q_EXPORT QBuffer : public QIODevice, public QUBuffer
+class QVariant;
+
+#ifndef  QT_NO_VARIANT
+// 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
+extern const QUuid TID_QUType_QVariant;
+
+
+struct Q_EXPORT QUType_QVariant : public QUType
 {
-public:
-    QBuffer();
-    QBuffer( QByteArray );
-   ~QBuffer();
+    const QUuid *uuid() const;
+    const char *desc() const;
 
-    QByteArray buffer() const;
-    bool  setBuffer( QByteArray );
+    void set( QUObject *, const QVariant & );
+    QVariant &get( QUObject * o );
 
-    bool  open( int );
-    void  close();
-    void  flush();
-
-    Offset size() const;
-    Offset at() const;
-    bool  at( Offset );
-
-    Q_LONG	  readBlock( char *p, Q_ULONG );
-    Q_LONG	  writeBlock( const char *p, Q_ULONG );
-    Q_LONG	  writeBlock( const QByteArray& data )
-	      { return QIODevice::writeBlock(data); }
-    Q_LONG	  readLine( char *p, Q_ULONG );
-
-    int	  getch();
-    int	  putch( int );
-    int	  ungetch( int );
-
-protected:
-    QByteArray a;
-
-private:
-    uint  a_len;
-    uint  a_inc;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QBuffer( const QBuffer & );
-    QBuffer &operator=( const QBuffer & );
-#endif
+    bool canConvertFrom( QUObject *, QUType * );
+    bool canConvertTo( QUObject *, QUType * );
+    bool convertFrom( QUObject *, QUType * );
+    bool convertTo( QUObject *, QUType * );
+    void clear( QUObject * );
+    int serializeTo( QUObject *, QUBuffer * );
+    int serializeFrom( QUObject *, QUBuffer * );
 };
+extern Q_EXPORT QUType_QVariant * pQUType_QVariant;
+#endif //QT_NO_VARIANT
 
+#endif // QUCOMEXTRA_H
 
-inline QByteArray QBuffer::buffer() const
-{ return a; }
-
-inline QIODevice::Offset QBuffer::size() const
-{ return (Offset)a.size(); }
-
-inline QIODevice::Offset QBuffer::at() const
-{ return ioIndex; }
-
-
-#endif // QBUFFER_H

@@ -56,6 +56,7 @@ tools {
 		  $$TOOLS_H/qvaluevector.h \
 		  $$TOOLS_H/qwaitcondition.h \
 		  $$TOOLS_H/qcom.h \
+		  $$TOOLS_H/qucom.h \
 		  $$TOOLS_H/quuid.h
 
 
@@ -83,8 +84,8 @@ tools {
 		  $$TOOLS_CPP/qsettings_unix.cpp \
 		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
-	!mac:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp 
-	mac:SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
+	!mac:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp
+	mac:SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
@@ -109,5 +110,6 @@ tools {
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp \
+		  $$TOOLS_CPP/qucom.cpp \
 		  $$TOOLS_CPP/quuid.cpp
 }
