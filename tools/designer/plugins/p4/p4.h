@@ -32,6 +32,7 @@ struct P4Info
     Action action;
     bool controlled : 1;
     bool uptodate : 1;
+    bool ignoreEdit : 1;
 
     static QString userName;
     static QString clientName;

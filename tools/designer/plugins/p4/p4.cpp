@@ -108,8 +108,10 @@ bool P4FStat::execute()
 
 void P4FStat::processExited()
 {
+    bool wasIgnore = FALSE;
     P4Info *old = P4Info::files[ fileName() ];
     if ( old ) {
+	wasIgnore = old->ignoreEdit;
 	P4Info::files.remove( fileName() );
 	delete old;
     }
@@ -119,6 +121,7 @@ void P4FStat::processExited()
 
     p4i->controlled = FALSE;
     p4i->action = P4Info::None;
+    p4i->ignoreEdit = wasIgnore;
 
     if ( data().find( "clientFile" ) != -1 ) {						    // The file is somehow known
 	QStringList dfEntry = entries.grep( "depotFile" );
@@ -211,18 +214,21 @@ void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
     P4Info::files.insert( filename, p4i );
     if ( !p4i->controlled ) {
 	if ( silent )
-	    QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file\n%1\nfor edit failed!" ).arg( fileName() ) );
+	    QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file<pre>%1</pre>for edit failed!" ).arg( fileName() ) );
 	else
 	    emit showStatusBarMessage( tr( "P4: Opening file %1 for edit failed!" ).arg( fileName() ) );
 	return;
     } 
     if ( p4i->action == P4Info::None ) {
 	if ( !silent ) {
-	    if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The file\n%1\nis under Perforce Source Control and not " 
-								   "opened for edit.\n"
+	    if ( p4i->ignoreEdit )
+		return;
+	    if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The file<pre>%1</pre>is under Perforce Source Control "
+								   "and not opened for edit.\n"
 								   "Do you want to open it for edit?" ).
 					   arg( fileName() ),
 					   tr( "&Yes" ), tr( "&No" ) ) == 1 ) {
+		p4i->ignoreEdit = TRUE;
 		return;
 	    }
 	} else {
