@@ -160,7 +160,7 @@ one-button mouse support.
 
 \section2 Menubar
 
-<p>Qt/Mac will automatically detect your menubars for you and turn them
+Qt/Mac will automatically detect your menubars for you and turn them
 into Mac native menubars. Fitting this into your existing Qt application
 will normally be automatic, however, if you have special needs the Qt/Mac
 implementation currently selects a menubar by starting at the active window

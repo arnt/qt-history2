@@ -601,7 +601,7 @@ These classes are used for manipulating images.
 These classes provide powerful graphics drawing primitives for both 2D
 and (with OpenGL) 3D.
 
-<p>See also this introduction to the \link coordsys.html Qt
+See also this introduction to the \link coordsys.html Qt
 coordinate system. \endlink
 
 */
@@ -645,7 +645,7 @@ seem heavyweight.
 
 These classes provide system-independent date and time abstractions.
 
-<p>Also available: \link y2k.html Qt Year 2000 Compliance Statement \endlink.
+Also available: \link y2k.html Qt Year 2000 Compliance Statement \endlink.
 */
 
 

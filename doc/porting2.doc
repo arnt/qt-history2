@@ -15,7 +15,6 @@
 
 \title Porting to Qt 2.x
 
-<p>
 You're probably looking at this page because you want to port
 your application from Qt 1.x to Qt 2.x, but to be sure, let's
 review the good reasons to do this:
@@ -38,7 +37,6 @@ review the good reasons to do this:
 	so that your Wheel Mouse works!
 </ul>
 
-<p>
 The Qt 2.x series is not binary compatible with the 1.x series.
 This means programs compiled for Qt 1.x must be recompiled to work
 with Qt 2.x.  Qt 2.x is also not completely <em>source</em> compatible
@@ -68,8 +66,6 @@ To port code using Qt 1.x to use Qt 2.x:
 Many very major projects, such as <a href="http://www.kde.org/">KDE</a>
 have been port, so there is plenty of expertise in the collective conscious
 that is the Qt Developer Community!
-</p>
-
 
 <hr>
 
@@ -120,7 +116,7 @@ that is the Qt Developer Community!
 
 <h3><a name="Namespace">Namespace</a></h3>
 
-<p> Qt 2.x is namespace-clean, unlike 1.x. Qt now uses very few
+Qt 2.x is namespace-clean, unlike 1.x. Qt now uses very few
 global identifiers. Identifiers like <code>red, blue, LeftButton,
 AlignRight, Key_Up, Key_Down, NoBrush</code> etc. are now part of a
 special class <code>Qt</code> (defined in qnamespace.h),
@@ -131,7 +127,7 @@ etc. are totally unaffected, but code that is
 you must qualify these identifiers like this: <code>Qt::red,
 Qt::LeftButton, Qt::AlignRight</code>, etc.
 
-<p>The <code>qt/bin/qt20fix</code> script helps to fix the code that
+The <code>qt/bin/qt20fix</code> script helps to fix the code that
 needs adaption, though most code does not need changing.
 
 Compiling with -DQT1COMPATIBILITY will help you get going with Qt 2.x
@@ -159,7 +155,7 @@ below.
 
 <h3><a name="Virtual">Virtual Functions</a></h3>
 
-<p> Some virtual functions have changed signature in Qt 2.x.
+Some virtual functions have changed signature in Qt 2.x.
 If you override them in derived classes, you must change the signature
 of your functions accordingly.
 
@@ -195,29 +191,29 @@ function that is not in a subclass of QListViewItem).
 
 <h3><a name="Collection">Collection classes</a></h3>
 
-<p> The collection classes include generic
+The collection classes include generic
 classes such as QGDict, QGList, and
 the subclasses such as QDict and QList.
 
-<p> The macro-based Qt collection classes are obsolete; use the
+The macro-based Qt collection classes are obsolete; use the
 template-based classes instead. Simply remove includes of qgeneric.h and
 replace e.g. Q_DECLARE(QCache,QPixmap) with QCache<QPixmap>.
 
-<p> The GCI global typedef is replaced by QCollection::Item.  Only if you
+The GCI global typedef is replaced by QCollection::Item.  Only if you
 make your own subclasses of the undocumented generic collection classes
 will you have GCI in your code.
 This change has been made to avoid collisions with other namespaces.
 
-<p> The GCF global typedef is removed (it was not used in Qt).
+The GCF global typedef is removed (it was not used in Qt).
 
 
 
 <h3><a name="DebugVsRelease">Debug vs. Release</a></h3>
 
-<p>The Q_ASSERT macro is now a null expression if the QT_CHECK_STATE flag
+The Q_ASSERT macro is now a null expression if the QT_CHECK_STATE flag
 is not set (i.e. if the QT_NO_CHECK flag is defined).
 
-<p>The debug() function now outputs nothing if Qt was compiled with
+The debug() function now outputs nothing if Qt was compiled with
 the QT_NO_DEBUG macro defined.
 
 
@@ -229,7 +225,6 @@ The Qt 1.x QString class has been renamed to QCString in Qt 2.x, though if
 you use that you will incur a performance penalty since all Qt functions
 that took const char* now take const QString&.
 
-<p>
 To take full advantage of the new Internationalization
 functionality in Qt 2.x, the following steps are required:
 
@@ -247,7 +242,6 @@ functionality in Qt 2.x, the following steps are required:
             8-bit data, use QCString; if it is unterminated (ie.
             contains NULs) 8-bit data, use QByteArray; if it is text,
             use QString.
-	    </p>
 
      <li> Put a breakpoint in \code QString::latin1()\endcode
 	    to catch places where
@@ -257,14 +251,12 @@ functionality in Qt 2.x, the following steps are required:
 	    alternative, compile your code with QT_NO_ASCII_CAST defined,
 	    which hides the automatic conversion of QString to const char*,
 	    so you can catch problems at compile time.
-	    </p>
 
      <li> See the Qt \link i18n.html Internationalization page\endlink
 	    for information about the full process of internationalizing
 	    your software.
     </ul>
 
-<p>
 Points to note about the new QString are:
 
 <dl compact>
@@ -338,7 +330,7 @@ The QString constructor taking an integer is now private.  This function
 is not meaningful anymore, since QString does all space allocation
 automatically.  99% of cases can simple be changed to use the
 default constructor, QString().
-<p>
+
 In Qt 1.x the constructor was used in two ways:  accidentally,
 by attempting to convert a char to a QString (the char converts to int!) -
 giving strange bugs, and as a way to make a QString big enough prior to
@@ -358,7 +350,6 @@ that version, mystr = 'X' would <em>not</em> produce the expected
 results and was always a programming error; in Qt 2.x, it works - making
 a single-character string.
 
-<p>
 Also see <a href="#QStrList">QStrList</a>.
 
 <dt><b>Signals and Slots</b></dt>
@@ -460,7 +451,7 @@ This means that inserting a 0-character
 
 <dt><b>QString or Standard C++ string?</b></dt>
 <dd>
-<p>
+
 The Standard C++ Library string is not Unicode.  Nor is wstring defined
 to be so (for the small number of platforms where it is defined at all).
 This is the same mistake made over and over
@@ -515,7 +506,6 @@ PrivateColor and TrueColor are obsolete.  Use ManyColor instead.
 
 <h3><a name="QColor">QColor</a></h3>
 
-<p>
 All colors
 (color0,
 color1,
@@ -561,11 +551,11 @@ strange color results - use QColor::rgb() if you want a QRgb.
 
 <h3><a name="QDataStream">QDataStream</a></h3>
 
-<p>The QDatastream serialization format of most Qt classes is changed
+The QDatastream serialization format of most Qt classes is changed
 in Qt 2.x. Use \code QDataStream::setVersion( 1 )\endcode to get a
 datastream object that can read and write Qt 1.x format data streams.
 
-<p>If you want to write Qt 1.x format datastreams, note the following
+If you want to write Qt 1.x format datastreams, note the following
 compatibility issues:
 	<ul>
 	<li>QString: Qt 1.x has no Unicode support, so strings will be
@@ -578,11 +568,11 @@ compatibility issues:
 <h3><a name="QWidget">QWidget</a></h3>
 
 <h4>QWidget::recreate()</h4>
-<p>
+
 This function is now called \link QWidget::reparent() reparent()\endlink.
 
 <h4>QWidget::setAcceptFocus(bool)</h4>
-<p>
+
 This function is removed.
 Calls like QWidget::setAcceptFocus(TRUE) should be replaced by
     \code QWidget::setFocusPolicy(StrongFocus)\endcode, and
@@ -592,12 +582,12 @@ Additional policies are TabFocus and ClickFocus.
 
 
 <h4>QWidget::paintEvent()</h4>
-<p>
+
 paintEvent(0) is not permitted - subclasses need not check for
 a null event, and might crash.
 Never pass 0 as the argument to paintEvent().  You probably
 just want repaint() or update() instead.
-<p>
+
 When processing a paintEvent, painting is only permitted within
 the update region specified in the event. Any painting outside will be
 clipped away. This shouldn't break any code (it was always like this
@@ -607,7 +597,7 @@ consistency, the change is likely to reduce flicker and to make Qt
 event slightly faster.
 
 <h3><a name="QIODevice">QIODevice</a></h3>
-<p>
+
 The protected member QIODevice::index is renamed to QIODevice::ioIndex
 to avoid warnings and to allow compilation with bad C libraries that
 #define index to strchr.  If you have made a subclass of QIODevice,
@@ -618,14 +608,14 @@ that need to be changed.
 <h3><a name="QLabel">QLabel</a></h3>
 
 <h4>\code QLabel::setMargin()\endcode</h4>
-<p>
+
 \code QLabel::setMargin()\endcode and\code QLabel::margin()\endcode
 have been renamed to \code QLabel::setIndent()\endcode and
 \code QLabel::indent()\endcode, respectively. This was done to avoid
 collision with QFrame::setMargin(), which is now virtual.
 
 <h4>\code QLabel::setMovie()\endcode</h4>
-<p>
+
 Previously, setting a movie on a label cleared the value of text().
 Now it doesn't.  If you somehow used <tt>QLabel::text()</tt>
 to detect if a
@@ -634,7 +624,7 @@ movie was set, you might have trouble.  This is unlikely.
 
 <h3><a name="QDialog">QDialog</a></h3>
 
-<p> The semantics of the parent pointer changed for modeless dialogs:
+The semantics of the parent pointer changed for modeless dialogs:
 In Qt-2.x, dialogs are always top level windows. The parent, however,
 takes the ownership of the dialog, i.e. it will delete the dialog at
 destruction if it has not been explicitly deleted
@@ -642,7 +632,6 @@ already. Furthermore, the window system will be able to tell that both
 the dialog and the parent belong together. Some X11 window managers
 will for instance provide a common taskbar entry in that case.
 
-<p>
 If the dialog belongs to a top level main window
 of your application, pass this main window as parent to the dialog's
 constructor. Old code (with 0 pointer) will still run. Old code that
@@ -704,42 +693,41 @@ QFont::substitutions()</tt>.
 
 <h3><a name="QLayout">QLayout</a></h3>
 
-<p> Calling resize(0,0) or resize(1,1) will no longer work magically.
+Calling resize(0,0) or resize(1,1) will no longer work magically.
 Remove all such calls. The default size of top level widgets will be their
 \link QWidget::sizeHint() sizeHint()\endlink.
 
-<p> The default implementation of QWidget::sizeHint() will no longer
+The default implementation of QWidget::sizeHint() will no longer
 return just an invalid size; if the widget has a layout, it will return
 the layout's preferred size.
 
-<p> The special maximum MaximumHeight/Width is now QWIDGETSIZE_MAX,
+The special maximum MaximumHeight/Width is now QWIDGETSIZE_MAX,
 not QCOORD_MAX.
 
-<p> \link QBoxLayout::addWidget() QBoxLayout::addWidget()\endlink
+\link QBoxLayout::addWidget() QBoxLayout::addWidget()\endlink
 now interprets the \e alignment parameter more aggressively.  A
 non-default alignment now indicates that the widget should not grow to
 fill the available space, but should be sized according to sizeHint().
 If a widget is too small, set the alignment to 0. (Zero indicates no
 alignment, and is the default.)
 
-<p> The class QGManager is removed. Subclasses of QLayout need to be rewritten
+The class QGManager is removed. Subclasses of QLayout need to be rewritten
 to use the new, much simpler \link QLayout QLayout API\endlink.
 
-<p> For typical layouts, all use of
+For typical layouts, all use of
 \link QWidget::setMinimumSize() setMinimumSize()\endlink
 and
 \link QWidget::setFixedSize() setFixedSize()\endlink
 can be removed.
 \link QLayout::activate() activate()\endlink is no longer necessary.
 
-<p>
 You might like to look at the QGrid, QVBox, and QHBox widgets - they offer
 a simple way to build nested widget structures.
 
 
 <h3><a name="QListView">QListView</a></h3>
 
-<p>In Qt 1.x mouse events to the viewport where redirected to the
+In Qt 1.x mouse events to the viewport where redirected to the
 event handlers for the listview; in Qt 2.x, this functionality is
 in QScrollView where mouse (and other position-oriented) events are
 redirected to viewportMousePressEvent() etc, which in turn translate
@@ -753,13 +741,12 @@ viewportMouseDoubleClickEvent(), viewportMouseMoveEvent(), or
 viewportMouseReleaseEvent() respectively.  New code will usually override
 contentsMousePressEvent() etc.
 
-<p>The signal QListView::selectionChanged(QListViewItem *) can now be
+The signal QListView::selectionChanged(QListViewItem *) can now be
 emitted with a null pointer as parameter. Programs that use the
 argument without checking for 0, may crash.
 
 <h3><a name="QMultiLineEdit">QMultiLineEdit</a></h3>
 
-<p>
 The protected function
 \code QMultiLineEdit::textWidth(QString*)\endcode
 changed to
@@ -770,7 +757,6 @@ if you called it.
 
 <h3><a name="QClipboard">QClipboard</a></h3>
 
-<p>
 \code QClipboard::pixmap()\endcode now returns a QPixmap, not a QPixmap*.
 The pixmap
 will be \link QPixmap::isNull() null\endlink if no pixmap is on the
@@ -815,7 +801,6 @@ described for <a href="#QDropSite">QDropSite</a>.
 
 <h3><a name="QTextStream">QTextStream</a></h3>
 
-<p>
 \code operator<<(QTextStream&, QChar&)\endcode does not skip whitespace.
 \code operator<<(QTextStream&, char&)\endcode does,
     as was the case with Qt 1.x.  This is for backward compatibility.
@@ -833,12 +818,12 @@ QUrlDrag::setUrls() and QUrlDrag::urlToLocalFile().
 
 <h3><a name="QPainter">QPainter</a></h3>
 
-<p> The GrayText painter flag has been removed. Use
+The GrayText painter flag has been removed. Use
 \link QPainter::setPen() setPen( palette().disabled().foreground() )\endlink
 instead.
 
 
-<p> The RasterOp enum
+The RasterOp enum
 (CopyROP,
         OrROP,
         XorROP,
@@ -862,16 +847,16 @@ use it outside a member function, you'll need to prefix with Qt::.
 
 <h3><a name="QPicture">QPicture</a></h3>
 
-<p>The binary storage format of QPicture is changed, but the Qt 2.x
+The binary storage format of QPicture is changed, but the Qt 2.x
 QPicture class can both read and write Qt 1.x format QPictures. No
 special handling is required for reading; QPicture will automatically
 detect the version number. In order to write a Qt 1.x format QPicture,
 set the formatVersion parameter to 1 in the QPicture constructor.
 
-<p>For writing Qt 1.x format QPictures, the compatibility issues of <a
+For writing Qt 1.x format QPictures, the compatibility issues of <a
 href="#QDataStream">QDataStream</a> applies.
 
-<p>It is safe to try to read a QPicture file generated with Qt 2.x
+It is safe to try to read a QPicture file generated with Qt 2.x
 (without formatVersion set to 1) with a program compiled with Qt
 1.x. The program will not crash, it will just issue the warning
 "QPicture::play: Incompatible version 2.x" and refuse to load the
@@ -881,11 +866,11 @@ picture.
 
 <h3><a name="QPoint">QPoint, QPointArray, QSize and QRect</a></h3>
 
-<p>The basic coordinate datatype in these classes, QCOORD, is now 32
+The basic coordinate datatype in these classes, QCOORD, is now 32
 bit (int) instead of a 16 bit (short). The const values QCOORD_MIN and
 QCOORD_MAX have changed accordingly.
 
-<p>QPointArray is now actually, not only seemingly, a QArray of QPoint
+QPointArray is now actually, not only seemingly, a QArray of QPoint
 objects. The semi-internal workaround classes QPointData and QPointVal
 are removed since they are no longer needed; QPoint is used directly
 instead. The function \code QPointArray::shortPoints()\endcode
@@ -906,7 +891,6 @@ this, you may be able to simplify your code.  If you made assumptions
 about the previous undefined behavior, the symptom will be inverted
 bitmaps (eg. "inside-out" masks).
 
-<p>
 \code QPixmap::optimize(TRUE)\endcode
 is replaced by
 \code QPixmap::setOptimization(QPixmap::NormalOptim)\endcode
@@ -997,7 +981,7 @@ removed.  If you used it, do a global search-and-replace of the word
 
 <h3><a name="QEvent">QEvent</a></h3>
 
-<p> The global #define macros in qevent.h have been replaced by an
+The global #define macros in qevent.h have been replaced by an
 enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint. Same
 for all of:
 Event_None,
@@ -1037,7 +1021,7 @@ Event_DeactivateControl,
 and
 Event_User.
 
-<p> The Q_*_EVENT macros in qevent.h have been deleted.  Use an
+The Q_*_EVENT macros in qevent.h have been deleted.  Use an
 explicit cast instead. The macros were:
 Q_TIMER_EVENT,
 Q_MOUSE_EVENT,
@@ -1052,7 +1036,7 @@ Q_HIDE_EVENT,
 and
 Q_CUSTOM_EVENT.
 
-<p> QChildEvents are now sent for all QObjects, not just QWidgets.
+QChildEvents are now sent for all QObjects, not just QWidgets.
 You may need to add extra checking if you use a QChildEvent without
 much testing of its values.
 

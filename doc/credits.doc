@@ -15,7 +15,7 @@
 
 \title Thanks!
 
-<p>The following (and probably many others) have provided bug reports,
+The following (and probably many others) have provided bug reports,
 suggestions, patches, beta testing, or done us other favors.  We thank
 you all:
 
@@ -290,9 +290,9 @@ yleffler <i>at</i> ucis.vill.edu<br>
 
 </blockquote>
 
-<p>We hope there are not too many omissions from the list.  Any
+We hope there are not too many omissions from the list.  Any
 omissions are <b>bugs</b> and should be reported to
-<a href="mailto:qt-bugs@trolltech.com">qt-bugs@trolltech.com</a>
+\link mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com \endlink
 like other bugs in the Qt code or documentation.
 
 */
