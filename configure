@@ -2775,6 +2775,7 @@ if [ "x$PLATFORM_MAC" = "xyes" ]; then
 fi
 if [ "$CFG_ZLIB" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_COMPRESS"
 elif [ "$CFG_ZLIB" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 elif [ "$CFG_ZLIB" = "system" ]; then
