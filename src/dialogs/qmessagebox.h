@@ -159,6 +159,10 @@ protected:
     void	keyPressEvent( QKeyEvent * );
     void	styleChanged( QStyle& );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 private slots:
     void	buttonClicked();
 

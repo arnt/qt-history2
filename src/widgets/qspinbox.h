@@ -144,6 +144,10 @@ protected:
 
     void		styleChange( QStyle& );
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 protected slots:
     void		textChanged();
 
