@@ -85,8 +85,8 @@ void usage(char **argv)
     cout << "and compatibility functions in the core library." << endl;
     cout << endl;
     cout << "qt3to4 has two usage modes: " << endl;
-    cout << "* File mode:     port infile.cpp/h" << endl;
-    cout << "* Project mode:  port infile.pro " << endl;
+    cout << "* File mode:     qt3to4 infile.cpp/h" << endl;
+    cout << "* Project mode:  qt3to4 infile.pro " << endl;
     cout << endl;
     cout << "In file mode a single file is ported, while in project mode all files specified" << endl;
     cout << "in the .pro file is ported." << endl;
