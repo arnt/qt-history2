@@ -1618,6 +1618,18 @@ void qt_init_internal( int *argcptr, char **argv,
 	    vis = DefaultVisual(appDpy,appScreen);	    
 	    QPaintDevice::x_appdefvisual = TRUE;
 	    
+	    if ( qt_visual_option == TrueColor ||
+		 QApplication::colorSpec() == QApplication::ManyColor ) {
+		// find custom visual
+		vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
+					     &QPaintDevice::x_appcells );
+
+		QPaintDevice::x_appdefvisual =
+		    (XVisualIDFromVisual(vis) ==
+		     XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
+		QPaintDevice::x_appvisual = vis;
+	    }
+
 #if defined( QT_MODULE_OPENGL )
 	    // If we are using OpenGL widgets we HAVE to make sure that
 	    // the default visual is GL enabled, otherwise it will wreck
@@ -1642,7 +1654,9 @@ void qt_init_internal( int *argcptr, char **argv,
 		    memset( &visInfo, 0, sizeof(XVisualInfo) );
 		    visInfo.screen = appScreen;
 		    visInfo.c_class = vi->c_class;
+		    visInfo.depth = vi->depth;
 		    visuals = XGetVisualInfo( appDpy, VisualClassMask | 
+					      VisualDepthMask |
 					      VisualScreenMask, &visInfo, 
 					      &nvis );
 		    if ( visuals ) {
@@ -1666,18 +1680,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	    vis = (Visual *) visual;
 	    QPaintDevice::x_appvisual = vis;
 	    QPaintDevice::x_appdefvisual = FALSE;
-	}
-
-	if ( qt_visual_option == TrueColor ||
-	     QApplication::colorSpec() == QApplication::ManyColor ) {
-	    // find custom visual
-	    vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
-					 &QPaintDevice::x_appcells );
-
-	    QPaintDevice::x_appdefvisual =
-		(XVisualIDFromVisual(vis) ==
-		 XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
-	    QPaintDevice::x_appvisual = vis;
 	}
 
 	if (! colormap) {
