@@ -71,11 +71,7 @@ public:
 
     QString library() const;
 
-    QString name();
-    QString description();
-    QString author();
-
-    QUnknownInterface *queryInterface( const QString& );
+    QUnknownInterface *queryInterface( const QString& = QString::null );
 
 private:
     bool use();
