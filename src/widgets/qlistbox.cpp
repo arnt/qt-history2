@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#145 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1944,7 +1944,7 @@ QSize QListBox::sizeHint() const
 
     // For when setFixedVisibleLines is used
     int h = maximumSize().height();
-    if ( h ) sz.setHeight(h);
+    if ( h<1000 ) sz.setHeight(h);
 
     return sz;
 }
