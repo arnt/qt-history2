@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#155 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1967,33 +1967,30 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
 //
-static QCString gen_xbm_key( const QWMatrix &m, const QFont &font,
-			    const char *str, int len )
+
+static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
+				    const QString &str, int len )
 {
-    QCString s = str;
+    QString s = str;
     s.truncate( len );
     QString fd = font.key();
-    QCString k;
-    k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", s.data(),
-	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
-	       fd.data() );
+    QString k;
+    k.sprintf( "$qt$%g,%g,%g,%g,%g,%g",
+	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy() );
+    k += fd;
+    k += QChar(',');
+    k += s;
     return k;
 }
 
-
-static QBitmap *get_text_bitmap( const QWMatrix &m, const QFont &font,
-				 const char *str, int len )
+static QBitmap *get_text_bitmap( const QString &key )
 {
-    QCString k = gen_xbm_key( m, font, str, len );
-    return (QBitmap*)QPixmapCache::find( k );
+    return (QBitmap*)QPixmapCache::find( key );
 }
 
-
-static void ins_text_bitmap( const QWMatrix &m, const QFont &font,
-			     const char *str, int len, QBitmap *bm )
+static void ins_text_bitmap( const QString &key, QBitmap *bm )
 {
-    QString k = gen_xbm_key( m, font, str, len );
-    if ( !QPixmapCache::insert(k,bm) )		// cannot insert pixmap
+    if ( !QPixmapCache::insert(key,bm) )	// cannot insert pixmap
 	delete bm;
 }
 
@@ -2052,7 +2049,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		ah = h;
 	    }
 	    bool empty = aw == 0 || ah == 0;
-	    QBitmap *wx_bm = get_text_bitmap( mat2, dfont, str.utf8(), len );
+	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
+	    QBitmap *wx_bm = get_text_bitmap( bm_key );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
 		QBitmap bm( aw, ah, TRUE, QPixmap::NormalOptim );
@@ -2116,7 +2114,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		DeleteObject( SelectObject(hdc, b) );
 	    }
 	    if ( create_new_bm )
-		ins_text_bitmap( mat2, dfont, str.utf8(), len, wx_bm );
+		ins_text_bitmap( bm_key, wx_bm );
 	    return;
 	}
 	if ( nat_xf )
