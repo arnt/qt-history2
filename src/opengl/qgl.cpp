@@ -2650,7 +2650,14 @@ QImage QGLWidget::convertToGLFormat(const QImage& img)
     \sa colormap()
 */
 
-int QGLWidget::displayListBase(const QFont & fnt, int listBase)
+
+/*!
+    Returns the value of the first display list that is generated for
+    the characters in font \a fnt. \a listBase indicates the base
+    value used when generating the display lists for the font. The
+    default value is 2000.
+*/
+int QGLWidget::fontDisplayListBase(const QFont & fnt, int listBase)
 {
     int base;
 
@@ -2732,7 +2739,7 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt,
     glEnable(GL_BLEND);
     glRasterPos2i(0, 0);
     glBitmap(0, 0, 0, 0, x, -y, NULL);
-    glListBase(displayListBase( fnt, listBase ));
+    glListBase(fontDisplayListBase(fnt, listBase));
     glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
 
     glPopMatrix();
@@ -2756,7 +2763,7 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
     glRasterPos3d(x, y, z);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glListBase(displayListBase(fnt, listBase));
+    glListBase(fontDisplayListBase(fnt, listBase));
     glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
     glPopAttrib();
 }

@@ -308,9 +308,7 @@ protected:
 
     virtual void glInit();
     virtual void glDraw();
-
-private:
-    int displayListBase(const QFont & fnt, int listBase);
+    int fontDisplayListBase(const QFont & fnt, int listBase = 2000);
 
 private:
     Q_DISABLE_COPY(QGLWidget)
