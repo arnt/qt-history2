@@ -1446,7 +1446,9 @@ QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 	}
 	break;
-    default: break; 
+	case CC_ScrollBar:
+	    return QCommonStyle::querySubControlMetrics( control, widget, sub, opt );
+	default: break; 
     }
     return QMotifStyle::querySubControlMetrics( control, widget, sub, opt );
 }
