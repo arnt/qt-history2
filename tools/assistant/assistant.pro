@@ -62,7 +62,8 @@ IMAGES	= images/editcopy.png \
 	images/zoomout.png \
 	images/splash.png \
 	images/appicon.png \
-	images/newtab.png
+	images/addtab.png \
+	images/closetab.png
 	
 TEMPLATE	=app
 CONFIG	+= qt warn_off

@@ -132,7 +132,7 @@ void TabbedBrowser::init()
     tab->setCornerWidget( newTabButton, Qt::TopLeft );
     newTabButton->setCursor( arrowCursor );
     newTabButton->setAutoRaise( TRUE );
-    newTabButton->setPixmap( QPixmap::fromMimeSource( "newtab.png" ) );
+    newTabButton->setPixmap( QPixmap::fromMimeSource( "addtab.png" ) );
     newTabButton->setFixedSize( s, s );
     QObject::connect( newTabButton, SIGNAL( clicked() ), this, SLOT( newTab() ) );
 
@@ -140,7 +140,7 @@ void TabbedBrowser::init()
     tab->setCornerWidget( closeTabButton, Qt::TopRight );
     closeTabButton->setCursor( arrowCursor );
     closeTabButton->setAutoRaise( TRUE );
-    closeTabButton->setPixmap( style().stylePixmap( QStyle::SP_TitleBarCloseButton, closeTabButton ) );
+    closeTabButton->setPixmap( QPixmap::fromMimeSource( "closetab.png" ) );
     closeTabButton->setFixedSize( s, s );
     QObject::connect( closeTabButton, SIGNAL( clicked() ), this, SLOT( closeTab() ) );
 }
