@@ -40,7 +40,7 @@
 \title Walkthrough: How to use the Qt SAX2 classes
 
 For a general discussion of the XML topics in Qt please refer to
-the document \link xml.html Qt XML Module. \endlink
+the document \link xml.html XML Module. \endlink
 To learn more about SAX2  see the document describing
 \link xml.html#sax2 the Qt SAX2 implementation. \endlink
 

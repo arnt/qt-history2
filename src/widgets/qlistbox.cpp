@@ -813,15 +813,11 @@ int QListBoxPixmap::rtti() const
   then append itself. When you delete an item it is automatically
   removed from the list box.
 
-  The list of items can be arbitrarily big; if necessary, QListBox
-  adds scroll bars.  It can be single-column (as most list boxes are)
-  or multi-column, and offers both single and multiple selection.
-  (QListBox does not support multiple-column items, however; use
-  QListView if you require such functionality.) Also, a listbox can
-  display items arranged in a tree. But this is quite limited, and if
-  you really want to display and work with a tree you should use a
-  QListView. The tree support in the QListBox is supported only
-  because it's needed in a few comboboxes.
+  The list of items can be arbitrarily large; QListBox will add scroll
+  bars if necessary. QListBox can display a single-column (the common
+  case) or multiple-columns, and offers both single and multiple
+  selection. (QListBox does not support multiple-column items, or tree
+  hierarchies; use QListView if you require such functionality.)
 
   The list box items can be accessed both as QListBoxItem objects
   (recommended) and using integer indexes (the original QListBox

@@ -34,16 +34,16 @@
 
 /*! \page sql-driver.html
  
-\title Qt SQL Module - Drivers
+\title SQL Module - Drivers
 
 \tableofcontents
 
 \target Introduction
 \section1 Introduction
 
-The <a href="sql.html">Qt SQL Module</a> uses driver <a
+The <a href="sql.html">SQL Module</a> uses driver <a
 href="component.html">plugins</a> in order to communicate with
-different database APIs.  Since the Qt SQL Module API is
+different database APIs.  Since the SQL Module API is
 database-independent, all database-specific code is contained within
 these drivers.  Several drivers are supplied with Qt and other drivers
 can be added. The driver source code is supplied and can be used as a

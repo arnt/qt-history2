@@ -52,7 +52,7 @@ with each Edition.
 
 /*! \page iconview.html
 
-\title Qt IconView Module
+\title IconView Module
 
 The icon view module provides a powerful visualization widget dubbed
 \l QIconView. API and feature-wise it is similar to \l QListView and
@@ -67,7 +67,7 @@ details.
 
 /*! \page workspace.html
 
-\title Qt Workspace Module
+\title Workspace Module
 
 The workspace module provides a workspace window that can contain
 decorated document windows for Multi Document Interfaces (MDI).
