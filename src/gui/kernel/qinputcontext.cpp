@@ -515,7 +515,8 @@ QList<QAction *> QInputContext::actions()
 
 QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
 {
-    const QPalette &pal = focusWidget()->palette();
+    QWidget *focus = focusWidget();
+    const QPalette &pal = focus ? focus->palette() : qApp->palette();
 
     QTextCharFormat fmt;
     QColor bg;

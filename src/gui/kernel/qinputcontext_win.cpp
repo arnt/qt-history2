@@ -18,6 +18,7 @@
 #include "qapplication.h"
 #include "qlibrary.h"
 #include "qevent.h"
+#include "qtextformat.h"
 
 //#define Q_IME_DEBUG
 
@@ -443,8 +444,8 @@ bool QInputContext::endComposition(QWidget *fw)
         fw = qApp->focusWidget();
 
     if (fw) {
-//         QInputMethodEvent e(QEvent::InputMethodEnd, QString::null, -1);
-//         result = qt_sendSpontaneousEvent(fw, &e);
+        QInputMethodEvent e(QString::null, QString::null, QList<QInputMethodEvent::Attribute>());
+        result = qt_sendSpontaneousEvent(fw, &e);
     }
 
     if (imeComposition)
@@ -463,8 +464,9 @@ void QInputContext::accept(QWidget *fw)
 #endif
 
     if (fw && imePosition != -1) {
-//         QInputMethodEvent e(QEvent::InputMethodEnd, imeComposition ? *imeComposition : QString(), -1);
-//         qt_sendSpontaneousEvent(fw, &e);
+        QInputMethodEvent e(QString::null, imeComposition ? *imeComposition : QString(), 
+                            QList<QInputMethodEvent::Attribute>());
+         qt_sendSpontaneousEvent(fw, &e);
     }
 
     if (imeComposition)
@@ -493,12 +495,41 @@ bool QInputContext::startComposition()
 
     QWidget *fw = qApp->focusWidget();
     if (fw) {
-//         QInputMethodEvent e(QEvent::InputMethodStart, QString::null, -1);
-//         result = qt_sendSpontaneousEvent(fw, &e);
         imePosition = 0;
     }
-    return result;
+    return fw != 0;
 }
+
+enum StandardFormat {
+    PreeditFormat,
+    SelectionFormat
+};
+
+static QTextFormat standardFormat(StandardFormat s, QWidget *focusWidget)
+{
+    const QPalette &pal = focusWidget ? focusWidget->palette() : qApp->palette();
+
+    QTextCharFormat fmt;
+    QColor bg;
+    switch (s) {
+    case PreeditFormat: {
+        fmt.setFontUnderline(true);
+        int h1, s1, v1, h2, s2, v2;
+        pal.color(QPalette::Base).getHsv(&h1, &s1, &v1);
+        pal.color(QPalette::Background).getHsv(&h2, &s2, &v2);
+        bg.setHsv(h1, s1, (v1 + v2) / 2);
+        break;
+    }
+    case SelectionFormat: {
+        bg = pal.text().color();
+        fmt.setTextColor(pal.background().color());
+        break;
+    }
+    }
+    fmt.setBackgroundColor(bg);
+    return fmt;
+}
+
 
 bool QInputContext::composition(LPARAM lParam)
 {
@@ -536,9 +567,9 @@ bool QInputContext::composition(LPARAM lParam)
             // a fixed result, return the converted string
             *imeComposition = getString(imc, GCS_RESULTSTR);
             imePosition = -1;
-//             QInputMethodEvent e(QEvent::InputMethodEnd, *imeComposition, imePosition);
+            QInputMethodEvent e(QString(), *imeComposition, QList<QInputMethodEvent::Attribute>());
             *imeComposition = QString::null;
-//             result = qt_sendSpontaneousEvent(fw, &e);
+            result = qt_sendSpontaneousEvent(fw, &e);
         }
         else if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
             if (imePosition == -1) {
@@ -558,8 +589,19 @@ bool QInputContext::composition(LPARAM lParam)
            if (selLength != 0)
                 imePosition = selStart;
 
-//             QInputMethodEvent e(QEvent::InputMethodCompose, *imeComposition, imePosition, selLength);
-//             result = qt_sendSpontaneousEvent(fw, &e);
+           QList<QInputMethodEvent::Attribute> attrs;
+           if (imePosition > 0)
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, imePosition,
+                                                     standardFormat(PreeditFormat, fw));
+           if (selLength)
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition, selLength,
+                                                     standardFormat(SelectionFormat, fw));
+           if (imePosition + selLength < imeComposition->length())
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition + selLength, 
+                                                     imeComposition->length() - imePosition - selLength,
+                                                     standardFormat(PreeditFormat, fw));
+           QInputMethodEvent e(*imeComposition, QString(), attrs);
+           result = qt_sendSpontaneousEvent(fw, &e);
         }
         releaseContext(fw->winId(), imc);
     }
