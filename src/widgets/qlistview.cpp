@@ -620,15 +620,21 @@ void QListViewItem::setVisible( bool b )
 {
     if ( b == (bool)visible )
 	return;
+    QListView *lv = listView();
+    if ( !lv )
+	return;
     visible = b;
     configured = FALSE;
     setHeight( 0 );
     invalidateHeight();
-    QListView *lv = listView();
-    if ( lv )
-	lv->triggerUpdate();
+    if ( parent() )
+	parent()->invalidateHeight();
+    else
+	lv->d->r->invalidateHeight();
     for ( QListViewItem *i = childItem; i; i = i->siblingItem )
 	i->setVisible( b );
+    if ( lv )
+	lv->triggerUpdate();
 }
 
 /*! Returns TRUE if the item is visible; otherwise returns FALSE.
