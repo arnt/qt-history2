@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#19 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#20 $
 **
 ** Definition of QDragObject
 **
@@ -52,10 +52,10 @@ class QStoredDrag: public QDragObject {
 
 public:
     QStoredDrag( const char * mimeType,
-	QWidget * dragSource = 0, const char * name = 0 );
+		 QWidget * dragSource = 0, const char * name = 0 );
     ~QStoredDrag();
 
-    void setEncodedData( QByteArray & );
+    void setEncodedData( const QByteArray & );
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
@@ -65,8 +65,8 @@ class QTextDrag: public QStoredDrag {
     Q_OBJECT
 public:
     QTextDrag( const char *,
-		     QWidget * parent = 0, const char * name = 0 );
-    QTextDrag( QWidget * parent = 0, const char * name = 0 );
+	       QWidget * dragSource = 0, const char * name = 0 );
+    QTextDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QTextDrag();
 
     void setText( const char * );
@@ -83,8 +83,8 @@ class QImageDrag: public QDragObject {
 
 public:
     QImageDrag( QImage image,
-		      QWidget * parent = 0, const char * name = 0 );
-    QImageDrag( QWidget * parent = 0, const char * name = 0 );
+		QWidget * dragSource = 0, const char * name = 0 );
+    QImageDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QImageDrag();
 
     void setImage( QImage image );

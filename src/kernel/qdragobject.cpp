@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#35 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -227,23 +227,23 @@ QWidget * QDragObject::source()
 */
 
 
-/*!  Creates a text drag object and sets it to \a text.  \a parent
+/*!  Creates a text drag object and sets it to \a text.  \a dragSource
   must be the drag source, \a name is the object name. */
 
 QTextDrag::QTextDrag( const char * text,
-				  QWidget * parent, const char * name )
-    : QStoredDrag( "text/plain", parent, name )
+		      QWidget * dragSource, const char * name )
+    : QStoredDrag( "text/plain", dragSource, name )
 {
     setText( text );
 }
 
 
-/*!  Creates a default text drag object.  \a parent must be the drag
+/*!  Creates a default text drag object.  \a dragSource must be the drag
   source, \a name is the object name.
 */
 
-QTextDrag::QTextDrag( QWidget * parent, const char * name )
-    : QStoredDrag( "text/plain", parent, name )
+QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
+    : QStoredDrag( "text/plain", dragSource, name )
 {
 }
 
@@ -310,22 +310,22 @@ bool QTextDrag::decode( QDropEvent* e, QString& str )
 */
 
 
-/*!  Creates an image drag object and sets it to \a image.  \a parent
+/*!  Creates an image drag object and sets it to \a image.  \a dragSource
   must be the drag source, \a name is the object name. */
 
 QImageDrag::QImageDrag( QImage image,
-				  QWidget * parent, const char * name )
-    : QDragObject( parent, name )
+			QWidget * dragSource, const char * name )
+    : QDragObject( dragSource, name )
 {
     setImage( image );
 }
 
-/*!  Creates a default text drag object.  \a parent must be the drag
+/*!  Creates a default text drag object.  \a dragSource must be the drag
   source, \a name is the object name.
 */
 
-QImageDrag::QImageDrag( QWidget * parent, const char * name )
-    : QDragObject( parent, name )
+QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
+    : QDragObject( dragSource, name )
 {
 }
 
@@ -489,10 +489,9 @@ const char * QStoredDrag::format(int i) const
   has been called.
 */
 
-void QStoredDrag::setEncodedData( QByteArray & encodedData )
+void QStoredDrag::setEncodedData( const QByteArray & encodedData )
 {
-    d->enc = encodedData;
-    d->enc.detach();
+    d->enc = encodedData.copy();
 }
 
 /*!
@@ -507,5 +506,3 @@ QByteArray QStoredDrag::encodedData(const char* m) const
     else
 	return QByteArray();
 }
-
-
