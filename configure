@@ -589,7 +589,8 @@ then
     for L in $LIBS
     do
 	F=
-	for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC` /usr/lib /lib
+	### fix (search for OpenGL libraries in X11 directory as well)
+	for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC` /usr/lib /lib /usr/X11R6/lib
 	do
 	    if [ "`echo $LIB/lib$L.*`" != "$LIB"/lib$L.\* ]
 	    then
