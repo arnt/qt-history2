@@ -1555,7 +1555,6 @@ QOCIDriver::QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* pare
 void QOCIDriver::init()
 {
     d = new QOCIPrivate();
-#ifdef QOCI_USES_VERSION_9
     int r = OCIEnvCreate(&d->env,
                             OCI_UTF16 | OCI_OBJECT,
                             NULL,
@@ -1565,21 +1564,6 @@ void QOCIDriver::init()
                             0,
                             NULL);
     d->utf16bind = true;
-#else
-    // this call is deprecated in Oracle >= 8.1.x, but still works
-    int r = OCIInitialize(OCI_DEFAULT | OCI_OBJECT,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL);
-    if (r != 0)
-        qOraWarning("QOCIDriver: unable to initialize environment:", d);
-    r = OCIEnvInit(&d->env,
-                    OCI_DEFAULT,
-                    0,
-                    NULL);
-    d->utf16bind = false;
-#endif  //QOCI_USES_VERSION_9
     if (r != 0)
         qOraWarning("QOCIDriver: unable to create environment:", d);
     r = OCIHandleAlloc((dvoid *) d->env,
@@ -1635,15 +1619,15 @@ bool QOCIDriver::open(const QString & db,
 {
     if (isOpen())
         close();
-    int r = OCILogon(       d->env,
-                        d->err,
-                        &d->svc,
-                        (OraText*) user.unicode(),
-                        user.length() * sizeof(QChar),
-                        (OraText*)password.unicode(),
-                        password.length() * sizeof(QChar),
-                        (OraText*)db.unicode(),
-                        db.length() * sizeof(QChar));
+    int r = OCILogon(d->env,
+                     d->err,
+                     &d->svc,
+                     (OraText*) user.unicode(),
+                     user.length() * sizeof(QChar),
+                     (OraText*)password.unicode(),
+                     password.length() * sizeof(QChar),
+                     (OraText*)db.unicode(),
+                     db.length() * sizeof(QChar));
     if (r != 0) {
         setLastError(qMakeError(QLatin1String("Unable to logon"), QSqlError::ConnectionError, d));
         setOpenError(true);
