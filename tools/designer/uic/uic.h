@@ -30,8 +30,8 @@
 class Uic : public Qt
 {
 public:
-    Uic( QTextStream& out, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subclname,
-	 bool omitForwardDecls );
+    Uic( const QString &fn, QTextStream& out, QDomDocument doc, bool decl, bool subcl,
+	 const QString &trm, const QString& subclname, bool omitForwardDecls );
 
     void createFormDecl( const QDomElement &e );
     void createFormImpl( const QDomElement &e );
@@ -138,6 +138,8 @@ private:
     static QString mkStdSet( const QString& prop );
     static QString getComment( const QDomNode& n );
     int defSpacing, defMargin;
+    QString fileName;
+    bool writeSlotImpl;
 
 };
 

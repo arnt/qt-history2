@@ -584,7 +584,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
     localIncludes = unique( localIncludes );
     for ( it = localIncludes.begin(); it != localIncludes.end(); ++it ) {
-	if ( !(*it).isEmpty() )
+	if ( !(*it).isEmpty() && *it != QString( fileName + ".h" ) )
 	    out << "#include \"" << *it << "\"" << endl;
     }
 
@@ -600,6 +600,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "#include <qmenubar.h>" << endl;
 	out << "#include <qpopupmenu.h>" << endl;
 	out << "#include <qtoolbar.h>" << endl;
+    }
+
+    if ( QFile::exists( fileName + ".h" ) ) {
+	out << "#include \"" << fileName << ".h\"" << endl;
+	writeSlotImpl = FALSE;
     }
 
     // find out what images are required
@@ -1059,7 +1064,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
 
     // create public additional slots as pure-virtual functions
-    if ( !publicSlots.isEmpty() ) {
+    if ( !publicSlots.isEmpty() && writeSlotImpl ) {
 	QStringList::Iterator it2;
 	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(); it != publicSlots.end(); ++it, ++it2 ) {
 	    QString type = *it2;
@@ -1086,7 +1091,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // create protected additional slots as pure-virtual functions
-    if ( !protectedSlots.isEmpty() ) {
+    if ( !protectedSlots.isEmpty() && writeSlotImpl ) {
 	QStringList::Iterator it2;
 	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(); it != protectedSlots.end(); ++it, ++it2 ) {
 	    QString type = *it2;

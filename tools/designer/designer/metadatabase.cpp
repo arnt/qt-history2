@@ -553,6 +553,25 @@ bool MetaDataBase::isSlotUsed( QObject *o, const QCString &slot )
     return FALSE;
 }
 
+void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString &newName )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
+	Slot s = *it;
+	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
+	    (*it).slot = newName;
+	    return;
+	}
+    }
+}
+
 bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
 {
     setupDataBase();

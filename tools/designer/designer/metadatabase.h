@@ -159,6 +159,7 @@ public:
     static QValueList<Slot> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasSlot( QObject *o, const QCString &slot );
+    static void changeSlot( QObject *o, const QCString &slot, const QCString &newName );
     static QString languageOfSlot( QObject *o, const QCString &slot );
     static void setSlotList( QObject *o, const QValueList<Slot> &slotList );
 

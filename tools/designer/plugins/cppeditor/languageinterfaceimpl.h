@@ -50,15 +50,15 @@ public:
 		       const QStringList &,
 		       const QStringList &,
 		       const QStringList &,
-		       const QValueList<Connection> & ) {}
+		       const QValueList<Connection> & );
     void loadFormCode( const QString &, const QString &,
 		       QValueList<Function> &,
 		       QStringList &,
 		       QStringList &,
 		       QStringList &,
 		       QStringList &,
-		       QValueList<Connection> & ) {}
-    QString formCodeExtension() const { return ".cpp"; }
+		       QValueList<Connection> & );
+    QString formCodeExtension() const { return ".h"; }
     bool canConnect( const QString &signal, const QString &slot );
 
 private:

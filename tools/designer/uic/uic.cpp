@@ -89,10 +89,13 @@ QString Uic::mkStdSet( const QString& prop )
 
   The class Uic encapsulates the user interface compiler (uic).
  */
-Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subClass,
+Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
+	  bool decl, bool subcl, const QString &trm, const QString& subClass,
 	  bool omitForwardDecls )
     : out( outStream ), trmacro( trm ), nofwd( omitForwardDecls )
 {
+    fileName = fn;
+    writeSlotImpl = TRUE;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
     externPixmaps = FALSE;
@@ -1343,7 +1346,7 @@ int main( int argc, char * argv[] )
 	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "trUtf8", className, nofwd );
+    Uic( fileName, out, doc, !impl, subcl, trmacro ? trmacro : "trUtf8", className, nofwd );
 
     if ( !protector.isEmpty() ) {
 	out << endl;

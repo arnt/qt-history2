@@ -22,6 +22,7 @@
 #include "languageinterfaceimpl.h"
 #include <qobject.h>
 #include <designerinterface.h>
+#include <qfile.h>
 #include "yyreg.h"
 
 LanguageInterfaceImpl::LanguageInterfaceImpl()
@@ -158,6 +159,8 @@ bool LanguageInterfaceImpl::supports( Support s ) const
 	return TRUE;
     if ( s == AdditionalFiles )
 	return FALSE;
+    if ( s == SaveFormCodeExternal )
+	return TRUE;
     return FALSE;
 }
 
@@ -173,4 +176,47 @@ bool LanguageInterfaceImpl::canConnect( const QString &signal, const QString &sl
 {
     CheckObject o;
     return o.checkConnectArgs( signal.latin1(), slot.latin1() );
+}
+
+void LanguageInterfaceImpl::saveFormCode( const QString &form, const QString &filename,
+					       const QValueList<Function> &functions,
+					       const QStringList &,
+					       const QStringList &,
+					       const QStringList &,
+					       const QStringList &,
+					       const QValueList<Connection> & )
+{
+    QFile f( filename );
+    if ( !f.open( IO_WriteOnly ) )
+	return;
+    QTextStream ts( &f );
+
+    if ( !functions.isEmpty() ) {
+	for ( QValueList<Function>::ConstIterator it = functions.begin();
+	      it != functions.end(); ++it ) {
+	    if ( (*it).returnType.isEmpty() )
+		ts << "void ";
+	    else
+		ts << (*it).returnType << " ";
+	    ts << form << "::" << (*it).name << endl;;
+	    ts <<  (*it).body;
+	    ts << endl << endl;
+	}
+    }
+}
+
+void LanguageInterfaceImpl::loadFormCode( const QString &, const QString &filename,
+					       QValueList<Function> &functions,
+					       QStringList &,
+					       QStringList &,
+					       QStringList &,
+					       QStringList &,
+					       QValueList<Connection> & )
+{
+    QFile f( filename );
+    if ( !f.open( IO_ReadOnly ) )
+	return;
+    QTextStream ts( &f );
+    QString code( ts.read() );
+    this->functions( code, &functions );
 }
