@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#27 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#28 $
 **
 ** Definition of QIODevice class
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#include "qcstring.h"
 #endif // QT_H
 
 
