@@ -1220,13 +1220,7 @@ static void qt_set_input_encoding()
 	input_mapper = QTextCodec::codecForLocale();
 
     } else {
-#if defined(Q_OS_QNX)
-	QString str( data );
-	str = str.lower();
-	if ( !str.compare( "locale" ) )
-#else
-	if ( !strcasecmp( data, "locale" ) )
-#endif
+	if ( !qstricmp( data, "locale" ) )
 	    input_mapper = QTextCodec::codecForLocale();
 	else
 	    input_mapper = QTextCodec::codecForName( data );
