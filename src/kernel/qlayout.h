@@ -167,8 +167,6 @@ public:
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
-    const QSize &widgetSizeHint() const;
-
 private:
     QWidget *wid;
 };
