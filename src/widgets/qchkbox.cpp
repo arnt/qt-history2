@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#51 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#51 $");
 
 
 /*!
@@ -158,7 +158,12 @@ void QCheckBox::drawButton( QPainter *paint )
 #endif
 
     if ( gs == WindowsStyle ) {			// Windows check box
-	QBrush fill( g.base() );
+	QColor fillColor;
+	if ( isDown() )
+	    fillColor = g.background();
+	else
+	    fillColor = g.base();
+	QBrush fill( fillColor );
 	qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
 	if ( isOn() ) {
 	    QPointArray a( 7*2 );
