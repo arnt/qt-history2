@@ -12,19 +12,20 @@
 **
 ****************************************************************************/
 
-#include "qstring.h"
 #include "qfont.h"
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
-#include "qpaintdevicemetrics.h"
-#include "qfontmetrics.h"
 #include "qfontinfo.h"
-#include "qt_mac.h"
+#include "qfontmetrics.h"
 #include "qpaintdevice.h"
-#include <qdict.h>
-#include <qapplication.h>
-#include <qpainter.h>
+#include "qpaintdevicemetrics.h"
+#include "qstring.h"
+#include "qt_mac.h"
 #include <private/qunicodetables_p.h>
+#include <qapplication.h>
+#include <qdict.h>
+#include <qpainter.h>
+#include "qtextengine_p.h"
 #include <stdlib.h>
 
 QString pstring2qstring(const unsigned char *c);

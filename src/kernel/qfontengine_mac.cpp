@@ -10,16 +10,19 @@
 **
 ****************************************************************************/
 
-#include <qglobal.h>
-#include <qpixmapcache.h>
-#include <qbitmap.h>
-#include <qgc_mac.h>
-#include <private/qpainter_p.h>
 #include <private/qapplication_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
-#include <qpixmap.h>
+#include <private/qpainter_p.h>
+#include <private/qtextengine_p.h>
+#include <qbitmap.h>
+#include <qgc_mac.h>
+#include <qglobal.h>
 #include <qpaintdevicemetrics.h>
+#include <qpixmap.h>
+#include <qpixmapcache.h>
+#include <qstackarray.h>
+
 #include <ApplicationServices/ApplicationServices.h>
 
 //Externals
@@ -83,7 +86,7 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
     }
     *nglyphs = len;
     for(int i = 0; i < len; i++) {
-	glyphs[i].glyph = str[i];
+	glyphs[i].glyph = str[i].unicode();
 	if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()])
 	    glyphs[i].advance = widthCache[str[i].unicode()];
 	else
@@ -163,11 +166,11 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int te
 	glyphs += si.num_glyphs;
 	for(int i = 0; i < si.num_glyphs; i++) {
 	    glyphs--;
-	    w += doTextTask((QChar*)glyphs->glyph, 0, 1, 1, task, x, y, p);
+	    w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
 	    x += glyphs->advance;
 	}
     } else {
-	QStackArray<unsigned short>g(si.num_glyphs);
+	QStackArray<unsigned short> g(si.num_glyphs);
 	for (int i = 0; i < si.num_glyphs; ++i)
 	    g[i] = glyphs[i].glyph;
 	w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);

@@ -96,7 +96,6 @@ QRegion qt_mac_convert_mac_region(RgnHandle rgn)
     return ret;
 }
 
-#ifdef USE_CORE_GRAPHICS
 QRegion qt_mac_convert_mac_region(HIShapeRef shape)
 {
     RgnHandle rgn = qt_mac_get_rgn();
@@ -105,7 +104,6 @@ QRegion qt_mac_convert_mac_region(HIShapeRef shape)
     qt_mac_dispose_rgn(rgn);
     return ret;
 }
-#endif
 
 /*!
     \internal

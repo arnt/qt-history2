@@ -60,7 +60,6 @@ bool QGLFormat::hasOpenGLOverlays()
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
-void qgl_delete_d(const QGLWidget *); //qgl.cpp
 QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
@@ -607,14 +606,10 @@ void QGLWidget::macInternalRecreateContext(QGLContext *ctx, const QGLContext *sh
 		delete d->gl_pix;
 	    }
 	    d->gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
-	    if(oldcx)
-		qgl_delete_d(this);
 	    setContext(ctx, share_ctx ? share_ctx : d->slcx, FALSE);
 	}
     } else {
 	setEraseColor(black);
-	if(oldcx)
-	    qgl_delete_d(this);
 	setContext(ctx, share_ctx ? share_ctx : d->slcx, FALSE);
 	d->glcx->fixBufferRect();
     }

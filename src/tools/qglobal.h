@@ -1347,7 +1347,9 @@ Q_DECLARE_TYPEINFO(Q_LLONG, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(Q_ULLONG, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(long double, Q_PRIMITIVE_TYPE); // remove this line if you get compiler problems
+#ifndef Q_OS_DARWIN
+Q_DECLARE_TYPEINFO(long double, Q_PRIMITIVE_TYPE);
+#endif
 
 template <> inline void qInit<bool>(bool &t) { t = false; }
 template <> inline void qInit<char>(char &t) { t = 0; }
@@ -1363,7 +1365,9 @@ template <> inline void qInit<Q_LLONG>(Q_LLONG &t) { t = 0; }
 template <> inline void qInit<Q_ULLONG>(Q_ULLONG &t) { t = 0; }
 template <> inline void qInit<float>(float &t) { t = 0.0f; }
 template <> inline void qInit<double>(double &t) { t = 0.0; }
-template <> inline void qInit<long double>(long double &t) { t = 0.0; } // ditto
+#ifndef Q_OS_DARWIN
+template <> inline void qInit<long double>(long double &t) { t = 0.0; }
+#endif
 
 /*
   void*, const void* and function pointers are special, since deleting
