@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#76 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#76 $");
 
 
 /*!
@@ -1355,7 +1355,7 @@ const char *QImageIO::imageFormat( const char *fileName )
 const char *QImageIO::imageFormat( QIODevice *d )
 {
     const int buflen = 14;
-    char buf[buflen+1];
+    char buf[buflen];
     if ( imageHandlers == 0 )
 	init_image_handlers();
     int pos   = d->at();			// save position
@@ -1363,7 +1363,6 @@ const char *QImageIO::imageFormat( QIODevice *d )
     for ( int n = 0; n<rdlen; n++ )
 	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
-    buf[rdlen] = '\0';
     const char *format = 0;
     if ( d->status() == IO_Ok && rdlen == buflen ) {
 	QImageHandler *p = imageHandlers->first();
