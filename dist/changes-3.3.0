@@ -92,6 +92,10 @@ Sun CC 5.0.
 - QSound
 	Windows: Support loop related APIs
 
+- QStatusBar
+	Draw messages with the foreground() color of the palette, not with
+	text().
+
 - QSql
 	Support for Interbase and SQLite
 
