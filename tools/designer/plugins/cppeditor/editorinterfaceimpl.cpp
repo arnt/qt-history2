@@ -88,7 +88,10 @@ QString EditorInterfaceImpl::text() const
 {
     if ( !viewManager || !viewManager->currentView() )
 	return QString::null;
-    return ( (CppEditor*)viewManager->currentView() )->text();
+    QString txt = ( (CppEditor*)viewManager->currentView() )->text();
+    if ( !txt.isEmpty() && !txt.endsWith("\n") )
+	txt += "\n";
+    return txt;
 }
 
 void EditorInterfaceImpl::undo()
