@@ -109,7 +109,7 @@ public:
         AlignCenter                = AlignVCenter | AlignHCenter
     };
 
-    Q_DECLARE_FLAGS(Alignment, AlignmentFlag);
+    Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
 
     // documented in qnamespace.doc
     enum TextFlags {
@@ -174,7 +174,7 @@ public:
         WState_Reserved2        = 0x00800000 // was HasMouse
     };
 
-    Q_DECLARE_FLAGS(WState, WStateFlag);
+    Q_DECLARE_FLAGS(WState, WStateFlag)
 
     // Widget flags2; documented in qwidget.cpp
 
@@ -254,7 +254,7 @@ public:
 #endif
     };
 
-    Q_DECLARE_FLAGS(WFlags, WFlag);
+    Q_DECLARE_FLAGS(WFlags, WFlag)
 
     enum WindowState {
         WindowNoState   = 0x00000000,
@@ -338,7 +338,7 @@ public:
         PreferDither                = 0x00000040,
         AvoidDither                = 0x00000080
     };
-    Q_DECLARE_FLAGS(ImageConversionFlags, ImageConversionFlag);
+    Q_DECLARE_FLAGS(ImageConversionFlags, ImageConversionFlag)
 
     // documented in qnamespace.doc
     enum BGMode        {                                // background mode
@@ -880,7 +880,7 @@ public:
         NDockWindowAreas     = 4
     };
 
-    Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea);
+    Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea)
 
     // Documented in qnamespace.doc
     enum ToolBarArea {
@@ -895,7 +895,7 @@ public:
         NToolBarAreas     = 4
     };
 
-    Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea);
+    Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea)
 
     // Documented in qmainwindow.cpp
     enum Dock {
@@ -1032,7 +1032,7 @@ public:
         BottomEdge      = 0x0008
     };
 
-    Q_DECLARE_FLAGS(RectangleEdges, RectangleEdge);
+    Q_DECLARE_FLAGS(RectangleEdges, RectangleEdge)
 
     // Documented in qcoresettings.cpp
     enum SettingsFormat {
