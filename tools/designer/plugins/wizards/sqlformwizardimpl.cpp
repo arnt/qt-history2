@@ -235,37 +235,43 @@ void SqlFormWizard::accept()
 
     }
 
-    qDebug( "%s", widget->parentWidget()->className() );
     if ( checkBoxNavig->isChecked() ) {
 	if ( checkBoxFirst->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First", QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First",
+					     QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "firstRecord()" );
 	}
 	if ( checkBoxPrev->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev", QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev",
+					     QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "prevRecord()" );
 	}
 	if ( checkBoxNext->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>", QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>",
+					     QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "nextRecord()" );
 	}
 	if ( checkBoxLast->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|", QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
+					     QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "lastRecord()" );
 	}
     }
 
     if ( checkBoxEdit->isChecked() ) {
 	if ( checkBoxInsert->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert", QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert",
+					     QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "insertRecord()" );
 	}
 	if ( checkBoxUpdate->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update", QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update",
+					     QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "updateRecord()" );
 	}
 	if ( checkBoxDelete->isChecked() ) {
-	    QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete", QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
+	    QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete",
+					     QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "deleteRecord()" );
 	}
     }
