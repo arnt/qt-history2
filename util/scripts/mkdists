@@ -35,7 +35,7 @@ for $a ( @ARGV ) {
 	$notplatform{$1}=1;
 	print "Will not generate \u$1\U platform.\n";
     } else {
-	$version = $1;
+	$version = $a;
     }
 }
 
@@ -354,7 +354,7 @@ for $platform ( "x11", "windows", "qws" ) {
 for $platform ( "x11", "qws" ) {
     next if $notplatform{$platform};
 
-    print "Processing \u$platform\U ($distdir/$platform)\n";
+    print "Processing \U$platform\E ($distdir/$platform)\n";
 
     $qtdir = "$distdir/$platform/qt-$version$type";
 
