@@ -1469,11 +1469,11 @@ bool QOCIResult::prepare( const QString& query )
     }
     QCString cleanQuery( query.local8Bit() );
     if ( query.endsWith( ";" ) )
-	cleanQuery.resize( cleanQuery.size() - 1 );
+	cleanQuery.truncate( cleanQuery.length() - 1 );
     r = OCIStmtPrepare( d->sql,
 			d->err,
 			(unsigned char*)cleanQuery.data(),
-			cleanQuery.size(),
+			cleanQuery.length(),
 			OCI_NTV_SYNTAX,
 			OCI_DEFAULT );
     if ( r != 0 ) {
@@ -2021,11 +2021,11 @@ bool QOCIDriver::open( const QString & db,
 			d->err,
 			&d->svc,
 			(unsigned char*)user8.data(),
-			user8.size(),
+			user8.length(),
 			(unsigned char*)password8.data(),
-			password8.size(),
+			password8.length(),
 			(unsigned char*)db8.data(),
-			db8.size() );
+			db8.length() );
     if ( r != 0 ) {
 	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
 	return FALSE;
