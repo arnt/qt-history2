@@ -102,17 +102,16 @@ public:
 #define d d_func()
 #define q q_func()
 
-QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
+QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, UsesFontEngine)
 {
     d->pdev = pdev;
 //        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
-QWSPaintEngine::QWSPaintEngine(QPaintDevice *pdev)
+QWSPaintEngine::QWSPaintEngine()
     : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine)
 {
-    d->pdev = pdev;
 //        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 

@@ -97,17 +97,14 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 /*****************************************************************************
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintDevice *pdev)
+QQuickDrawPaintEngine::QQuickDrawPaintEngine()
     : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), PaintEngineFeatures(UsesFontEngine|PixmapScale))
 {
-    d->pdev = pdev;
 }
 
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev,
-                                             PaintEngineFeatures devcaps)
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps)
     : QPaintEngine(dptr, devcaps)
 {
-    d->pdev = pdev;
 }
 
 QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
@@ -970,17 +967,15 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev,
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
+    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
                             PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
-    d->pdev = pdev;
 }
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
+    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
-    d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()

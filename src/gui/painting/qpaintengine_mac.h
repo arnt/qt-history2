@@ -28,7 +28,7 @@ class QQuickDrawPaintEngine : public QPaintEngine
     Q_DECLARE_PRIVATE(QQuickDrawPaintEngine)
 
 public:
-    QQuickDrawPaintEngine(QPaintDevice *);
+    QQuickDrawPaintEngine();
     ~QQuickDrawPaintEngine();
 
     bool begin(QPaintDevice *pdev);
@@ -66,7 +66,7 @@ public:
     static void cleanup();
 
 protected:
-    QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *, PaintEngineFeatures devcaps);
+    QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps);
     void drawPolyInternal(const QPointArray &a, bool close=true);
     void setClippedRegionInternal(QRegion *);
 
@@ -91,7 +91,7 @@ class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine //for now we inclu
     Q_DECLARE_PRIVATE(QCoreGraphicsPaintEngine)
 
 public:
-    QCoreGraphicsPaintEngine(QPaintDevice *);
+    QCoreGraphicsPaintEngine();
     ~QCoreGraphicsPaintEngine();
 
     bool begin(QPaintDevice *pdev);
@@ -132,7 +132,7 @@ public:
 
 protected:
     void setupCGClip(const QRegion *);
-    QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
+    QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr);
     void drawPolyInternal(const QPointArray &a, bool close=true);
 
 private:

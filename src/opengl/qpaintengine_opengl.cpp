@@ -44,7 +44,7 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush);
 
 #define dgl d->dev
 
-QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
+QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
                    PaintEngineFeatures(CoordTransform
 				       | PenWidthTransform

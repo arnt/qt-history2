@@ -24,7 +24,7 @@ class QX11PaintEngine : public QPaintEngine
     Q_DECLARE_PRIVATE(QX11PaintEngine)
 
 public:
-    QX11PaintEngine(QPaintDevice *);
+    QX11PaintEngine();
     ~QX11PaintEngine();
 
     bool begin(QPaintDevice *pdev);
@@ -66,7 +66,7 @@ public:
     static void cleanup();
 
 protected:
-    QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *);
+    QX11PaintEngine(QX11PaintEnginePrivate &dptr);
 
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);

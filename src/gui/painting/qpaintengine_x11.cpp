@@ -497,7 +497,7 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
  * QX11PaintEngine members
  */
 
-QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
+QX11PaintEngine::QX11PaintEngine()
     : QPaintEngine(*(new QX11PaintEnginePrivate), DrawRects | UsesFontEngine | SolidAlphaFill)
 {
     d->dpy = 0;
@@ -505,10 +505,9 @@ QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
     d->hd = 0;
     d->xft_hd = 0;
     d->xinfo = 0;
-    d->pdev = target;
 }
 
-QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *target)
+QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     : QPaintEngine(dptr, DrawRects | UsesFontEngine | SolidAlphaFill)
 {
     d->dpy = 0;
@@ -516,7 +515,6 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *tar
     d->hd = 0;
     d->xft_hd = 0;
     d->xinfo = 0;
-    d->pdev = target;
 }
 
 QX11PaintEngine::~QX11PaintEngine()

@@ -2044,19 +2044,19 @@ QPaintEngine *QWidget::paintEngine() const
     if (!qt_widget_paintengine) {
 #if !defined(QMAC_NO_COREGRAPHICS)
         if(!getenv("QT_MAC_USE_QUICKDRAW"))
-            qt_widget_paintengine = new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this));
+            qt_widget_paintengine = new QCoreGraphicsPaintEngine();
         else
 #endif
-            qt_widget_paintengine = new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
+            qt_widget_paintengine = new QQuickDrawPaintEngine();
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
     if (qt_widget_paintengine->isActive()) {
         QPaintEngine *engine =
 #if !defined(QMAC_NO_COREGRAPHICS)
         !getenv("QT_MAC_USE_QUICKDRAW")
-            ? new QCoreGraphicsPaintEngine(const_cast<QWidget *>(this)) :
+            ? new QCoreGraphicsPaintEngine() :
 #endif
-            new QQuickDrawPaintEngine(const_cast<QWidget *>(this));
+            new QQuickDrawPaintEngine();
         engine->setAutoDestruct(true);
         return engine;
     }

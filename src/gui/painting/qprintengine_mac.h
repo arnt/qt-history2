@@ -27,7 +27,7 @@ class QMacPrintEngine : public QPrintEngine, public QCoreGraphicsPaintEngine
 {
     Q_DECLARE_PRIVATE(QMacPrintEngine);
 public:
-    QMacPrintEngine(QPaintDevice *dev, QPrinter::PrinterMode mode);
+    QMacPrintEngine(QPrinter::PrinterMode mode);
 
     bool begin(QPaintDevice *dev);
     bool end();

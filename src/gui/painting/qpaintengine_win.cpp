@@ -284,20 +284,16 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen        release_obj
 #define release_brush        release_obj
 
-QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target,
+QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr,
                                      PaintEngineFeatures caps)
     : QPaintEngine(dptr, caps)
 {
-    // ### below is temp hack to survive pixmap gc construction
-    d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
     d->flags |= IsStartingUp;
 }
 
-QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
+QWin32PaintEngine::QWin32PaintEngine()
     : QPaintEngine(*(new QWin32PaintEnginePrivate), qt_decide_paintengine_features())
 {
-    // ### below is temp hack to survive pixmap gc construction
-    d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
     d->flags |= IsStartingUp;
 }
 
@@ -1781,7 +1777,7 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     SelectClipRgn(hdc, 0);
 
     if (!d->gdiplusEngine)
-        d->gdiplusEngine = new QGdiplusPaintEngine(pdev);
+        d->gdiplusEngine = new QGdiplusPaintEngine();
     d->gdiplusEngine->begin(pdev);
     d->gdiplusInUse = true;
     q->setDirty(QPaintEngine::AllDirty);
@@ -2088,10 +2084,9 @@ static const int qt_hatchstyle_map[] = {
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *ref = 0);
 
-QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
-    : QPaintEngine(*(new QGdiplusPaintEnginePrivate), 0)
+QGdiplusPaintEngine::QGdiplusPaintEngine()
+    : QPaintEngine(*(new QGdiplusPaintEnginePrivate))
 {
-    d->pdev = dev;
 }
 
 QGdiplusPaintEngine::~QGdiplusPaintEngine()

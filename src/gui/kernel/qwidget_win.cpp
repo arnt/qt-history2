@@ -1951,12 +1951,12 @@ static QWin32PaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QWin32PaintEngine(const_cast<QWidget*>(this));
+        qt_widget_paintengine = new QWin32PaintEngine();
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
 
     if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *extraEngine = new QWin32PaintEngine(const_cast<QWidget *>(this));
+        QPaintEngine *extraEngine = new QWin32PaintEngine();
         extraEngine->setAutoDestruct(true);
         return extraEngine;
     }

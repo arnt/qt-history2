@@ -20,8 +20,8 @@
 #define d d_func()
 #define q q_func()
 
-QMacPrintEngine::QMacPrintEngine(QPaintDevice *dev, QPrinter::PrinterMode mode) 
-    : QCoreGraphicsPaintEngine(*(new QMacPrintEnginePrivate), dev)
+QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode)
+    : QCoreGraphicsPaintEngine(*(new QMacPrintEnginePrivate))
 {
     d->mode = mode;
     d->initialize();
@@ -178,8 +178,8 @@ void QMacPrintEngine::setPageSize(QPrinter::PageSize ps)
     PaperSize newSize = sizes[ps];
     QCFType<CFArrayRef> formats;
     PMPrinter printer;
-    
-    if (PMSessionGetCurrentPrinter(d->session, &printer) == noErr 
+
+    if (PMSessionGetCurrentPrinter(d->session, &printer) == noErr
         && PMSessionCreatePageFormatList(d->session, printer, &formats) == noErr) {
         CFIndex total = CFArrayGetCount(formats);
         PMPageFormat tmp;
@@ -195,7 +195,7 @@ void QMacPrintEngine::setPageSize(QPrinter::PageSize ps)
                 break;
             }
         }
-    }    
+    }
 }
 
 QPrinter::PageSize QMacPrintEngine::pageSize() const
@@ -418,13 +418,13 @@ void QMacPrintEnginePrivate::initialize()
 
     if (PMCreateSession(&session) != noErr)
         session = 0;
-    
+
     PMTag res;
     if (mode == QPrinter::HighResolution)
         res = kPMMaxSquareResolution;
     else
         res = kPMDefaultResolution;
-    
+
     PMPrinter printer;
     if (session && PMSessionGetCurrentPrinter(session, &printer) == noErr) {
         OSStatus ret = PMPrinterGetPrinterResolution(printer, res, &resolution);
@@ -435,7 +435,7 @@ void QMacPrintEnginePrivate::initialize()
     bool settingsOK = PMCreatePrintSettings(&settings) == noErr;
     if (settingsOK)
         settingsOK = PMSessionDefaultPrintSettings(session, settings) == noErr;
-    
+
 
     bool formatOK = PMCreatePageFormat(&format) == noErr;
     if (formatOK) {
@@ -443,7 +443,7 @@ void QMacPrintEnginePrivate::initialize()
         formatOK = PMSetResolution(format, &resolution) == noErr;
     }
 
-    
+
     CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
     QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
                                                      reinterpret_cast<const void **>(strings),
@@ -461,7 +461,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
 {
     Q_ASSERT(d->state == QPrinter::Active);
     bool ret = true;
-    
+
     if (PMSessionError(session) != noErr) {
         abort();
         return false;
@@ -469,8 +469,8 @@ bool QMacPrintEnginePrivate::newPage_helper()
     OSStatus err = PMSessionBeginPage(session, format, 0);
     err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
                                       reinterpret_cast<void **>(&hd));
-    
-    
+
+
     if (err != noErr) {
         state = QPrinter::Error;
         ret = false;

@@ -1765,11 +1765,11 @@ static QWSPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QWSPaintEngine(const_cast<QWidget*>(this));
+        qt_widget_paintengine = new QWSPaintEngine();
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
     if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *engine = new QWSPaintEngine(const_cast<QWidget *>(this));
+        QPaintEngine *engine = new QWSPaintEngine();
         engine->setAutoDestruct(true);
         return engine;
     }

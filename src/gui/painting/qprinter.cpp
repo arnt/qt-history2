@@ -325,11 +325,11 @@ QPrinter::QPrinter(PrinterMode mode)
       d_ptr(new QPrinterPrivate)
 {
 #if defined (Q_WS_WIN)
-    d->printEngine = new QWin32PrintEngine(this, mode);
+    d->printEngine = new QWin32PrintEngine(mode);
 #elif defined (Q_WS_MAC)
-    d->printEngine = new QMacPrintEngine(this, mode);
+    d->printEngine = new QMacPrintEngine(mode);
 #elif defined (Q_OS_UNIX)
-    d->printEngine = new QPSPrintEngine(this, mode);
+    d->printEngine = new QPSPrintEngine(mode);
 #endif
 }
 

@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QWin32PaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PaintEngine)
 public:
-    QWin32PaintEngine(QPaintDevice *target);
+    QWin32PaintEngine();
     ~QWin32PaintEngine();
 
     bool begin(QPaintDevice *pdev);
@@ -80,7 +80,7 @@ public:
     QPainter::RenderHints supportedRenderHints() const;
 
 protected:
-    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, PaintEngineFeatures caps);
+    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, PaintEngineFeatures caps);
 
 private:
     void drawPolyInternal(const QPointArray &a, bool close);
@@ -94,7 +94,7 @@ class QGdiplusPaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QGdiplusPaintEngine)
 public:
-    QGdiplusPaintEngine(QPaintDevice *pdev);
+    QGdiplusPaintEngine();
     ~QGdiplusPaintEngine();
 
     bool begin(QPaintDevice *pdev);

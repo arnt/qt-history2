@@ -2252,7 +2252,7 @@ static QOpenGLPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QGLWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QOpenGLPaintEngine(const_cast<QGLWidget*>(this));
+        qt_widget_paintengine = new QOpenGLPaintEngine();
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
 
     }

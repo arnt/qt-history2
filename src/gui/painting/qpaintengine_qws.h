@@ -29,7 +29,7 @@ class QWSPaintEngine : public QPaintEngine
     Q_DECLARE_PRIVATE(QWSPaintEngine)
 
 public:
-    QWSPaintEngine(QPaintDevice *);
+    QWSPaintEngine();
     ~QWSPaintEngine();
 
     bool begin(QPaintDevice *pdev);
@@ -72,7 +72,7 @@ public:
     QGfx *gfx();
 
 protected:
-    QWSPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
+    QWSPaintEngine(QPaintEnginePrivate &dptr);
 
     void drawPolyInternal(const QPointArray &a, bool close=true);
 

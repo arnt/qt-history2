@@ -2796,8 +2796,8 @@ void QWidgetPrivate::setWindowRole(const char *role)
 Q_GLOBAL_STATIC_WITH_ARGS(QX11PaintEngine, qt_widget_paintengine, (0))
 QPaintEngine *QWidget::paintEngine() const
 {
-    if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *engine = new QX11PaintEngine(this);
+    if (qt_widget_paintengine()->isActive()) {
+        QPaintEngine *engine = new QX11PaintEngine();
         engine->setAutoDestruct(true);
         return engine;
     }

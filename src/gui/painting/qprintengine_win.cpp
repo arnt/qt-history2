@@ -182,8 +182,8 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
     return bmi;
 }
 
-QWin32PrintEngine::QWin32PrintEngine(QPaintDevice *target, QPrinter::PrinterMode mode)
-    : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), target, PaintEngineFeatures(CoordTransform
+QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
+    : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(CoordTransform
                                                                                      | PenWidthTransform
                                                                                      | PixmapTransform
                                                                                      | PixmapScale

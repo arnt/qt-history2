@@ -28,7 +28,7 @@ class QWin32PrintEngine : public QWin32PaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PrintEngine);
 public:
-    QWin32PrintEngine(QPaintDevice *dev, QPrinter::PrinterMode mode);
+    QWin32PrintEngine(QPrinter::PrinterMode mode);
 
     // override QWin32PaintEngine
     bool begin(QPaintDevice *dev);

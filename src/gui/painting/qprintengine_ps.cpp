@@ -758,7 +758,7 @@ class QPSPrintEngineFontPrivate;
 
 class QPSPrintEnginePrivate : public QPaintEnginePrivate {
 public:
-    QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMode m);
+    QPSPrintEnginePrivate(QPrinter::PrinterMode m);
     ~QPSPrintEnginePrivate();
 
     void orientationSetup();
@@ -4536,8 +4536,8 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMod
     firstPage = true;
     paperRect = QRect(0, 0, 595, 842);
     pageRect = QRect(0, 0, 595, 842);
+    printer = 0;
 
-    printer = prt;
     currentFontFile = 0;
     scale = 1.;
     scriptUsed = -1;
@@ -5429,8 +5429,8 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 
 // ================ PSPrinter class ========================
 
-QPSPrintEngine::QPSPrintEngine(QPrinter *prt, QPrinter::PrinterMode m)
-    : QPaintEngine(*(new QPSPrintEnginePrivate(prt, m)),
+QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
+    : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
                    CoordTransform | PenWidthTransform | PatternTransform | PixmapTransform)
 {
 }
@@ -5477,6 +5477,7 @@ static void ignoreSigPipe(bool b)
 
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
+    d->printer = static_cast<QPrinter*>(pdev);
     if (d->outputToFile) {
         if (d->outputFileName.isEmpty())
             d->outputFileName = "print.ps";
@@ -5614,6 +5615,7 @@ bool QPSPrintEngine::end()
     delete d->outDevice;
     d->outDevice = 0;
     setActive(false);
+    d->printer = 0;
 
     return true;
 }

@@ -22,7 +22,7 @@ class QOpenGLPaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QOpenGLPaintEngine)
 public:
-    QOpenGLPaintEngine(const QPaintDevice *);
+    QOpenGLPaintEngine();
     ~QOpenGLPaintEngine();
 
     bool begin(QPaintDevice *pdev);
