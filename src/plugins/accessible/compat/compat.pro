@@ -14,6 +14,6 @@ SOURCES  += main.cpp \
             qaccessiblecompat.cpp
 
 HEADERS  += qaccessiblecompat.h \
-            q3complexwidgets.cpp \
+            q3complexwidgets.h \
             q3simplewidgets.h
 
