@@ -984,46 +984,12 @@ QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
 
 void QDesignerPopupMenu::contextMenuEvent( QContextMenuEvent *e )
 {
-    Q_UNUSED( e );
-#if 0
+#if defined( Q_WS_MAC ) //the mac needs us to use context menu rather than right click
     e->accept();
-    int itm = itemAtPos( e->pos(), FALSE );
-    if ( itm == -1 )
-	return;
-    QPopupMenu menu( 0 );
-    const int ID_DELETE = 1;
-    const int ID_SEP = 2;
-    QAction *a = actionList.at( itm );
-    if ( a && a->inherits( "QSeparatorAction" ) )
-	menu.insertItem( tr( "Delete Separator" ), ID_DELETE );
-    else
-	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
-    menu.insertItem( tr( "Insert Separator" ), ID_SEP );
-    int res = menu.exec( e->globalPos() );
-    if ( res == ID_DELETE ) {
-	QAction *a = actionList.at( itm );
-	if ( !a )
-	    return;
-	RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
-									     tr( "Delete Action '%1' from Popup Menu '%2'" ).
-									     arg( a->name() ).arg( caption() ),
-									     formWindow, a, this, itm );
-	formWindow->commandHistory()->addCommand( cmd );
-	cmd->execute();
-    } else if ( res == ID_SEP ) {
-	QPoint p( pos() );
-	calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
-	QAction *a = new QSeparatorAction( 0 );
-	AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
-								   tr( "Add Separator to Popup Menu '%1'" ).
-								   arg( name() ),
-								   formWindow, a, this, insertAt );
-	formWindow->commandHistory()->addCommand( cmd );
-	cmd->execute();
-	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
-	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
-	popup( p );
-    }
+    QMouseEvent me( MouseButtonPress, e->pos(), e->globalPos(), RightButton, RightButton );
+    mousePressed(&me);
+#else
+    Q_UNUSED( e );
 #endif
 }
 
