@@ -31,7 +31,7 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t
 	return OutOfMemory;
     }
     if ( mirrored ) {
-	for(int i = 0; i < len; i++ ) {
+	for(int i = 0; i < len; i++ )
 	    glyphs[i] = ::mirroredChar(str[i]).unicode();
     } else {
 	for(int i = 0; i < len; i++ )
