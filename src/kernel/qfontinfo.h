@@ -60,6 +60,7 @@ public:
     int			weight()	const;
     bool		bold()		const;
     bool		underline()	const;
+    bool                overline()      const;
     bool		strikeOut()	const;
     bool		fixedPitch()	const;
     QFont::StyleHint	styleHint()	const;

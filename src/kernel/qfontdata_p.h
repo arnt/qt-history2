@@ -63,8 +63,8 @@ struct QFontDef
     QFontDef()
 	: family_hash( 0 ), pointSize( -1 ), pixelSize( -1 ),
 	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
-	  weight( 50 ), italic( FALSE ), underline( FALSE ), strikeOut( FALSE ),
-	  fixedPitch( FALSE ), stretch( 100 ), mask( 0 )
+	  weight( 50 ), italic( FALSE ), underline( FALSE ), overline( FALSE ),
+	  strikeOut( FALSE ), fixedPitch( FALSE ), stretch( 100 ), mask( 0 )
     {
     }
 
@@ -84,9 +84,12 @@ struct QFontDef
     uint weight     :  7; // 0-99
     uint italic     :  1;
     uint underline  :  1;
+    uint overline   :  1;
     uint strikeOut  :  1;
     uint fixedPitch :  1;
     uint stretch    : 12; // 0-400
+
+    uint reserved   : 16; // for future extensions
 
     enum {
 	Family        = 0x0001,
@@ -96,10 +99,11 @@ struct QFontDef
 	Weight        = 0x0010,
 	Italic        = 0x0020,
 	Underline     = 0x0040,
-	StrikeOut     = 0x0080,
-	FixedPitch    = 0x0100,
-	Stretch       = 0x0200,
-	Complete      = 0x03ff,
+	Overline      = 0x0080,
+	StrikeOut     = 0x0100,
+	FixedPitch    = 0x0200,
+	Stretch       = 0x0400,
+	Complete      = 0x07ff,
 
 	RawMode       = 0x10000000
     };
@@ -112,6 +116,7 @@ struct QFontDef
 	if ( weight != other.weight ) return weight < other.weight;
 	if ( italic != other.italic ) return italic < other.italic;
 	if ( underline != other.underline ) return underline < other.underline;
+	if ( overline != other.overline ) return overline < other.overline;
 	if ( fixedPitch != other.fixedPitch ) return fixedPitch < other.fixedPitch;
 	if ( stretch != other.stretch ) return stretch < other.stretch;
 	if ( styleHint != other.styleHint ) return styleHint < other.styleHint;
@@ -135,6 +140,7 @@ struct QFontDef
 		 weight        == other.weight        &&
 		 italic        == other.italic        &&
 		 underline     == other.underline     &&
+		 overline      == other.overline      &&
 		 strikeOut     == other.strikeOut     &&
 		 fixedPitch    == other.fixedPitch    &&
 		 stretch       == other.stretch       &&
@@ -172,6 +178,9 @@ struct QFontDef
 
 	if ( ! ( mask & Underline ) )
 	    underline = other.underline;
+
+	if ( ! ( mask & Overline ) )
+	    overline = other.overline;
 
 	if ( ! ( mask & StrikeOut ) )
 	    strikeOut = other.strikeOut;

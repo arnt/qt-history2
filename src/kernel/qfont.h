@@ -127,6 +127,9 @@ public:
     bool underline() const;
     void setUnderline( bool );
 
+    bool overline() const;
+    void setOverline( bool );
+
     bool strikeOut() const;
     void setStrikeOut( bool );
 

@@ -24,7 +24,7 @@ QFontEngine::~QFontEngine()
 }
 
 //Mac (ATSUI) engine
-QFontEngine::Error 
+QFontEngine::Error
 QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs) const
 {
     if(*nglyphs < len) {
@@ -35,18 +35,18 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
 	glyphs[i] = str[i].unicode();
     *nglyphs = len;
     if(advances) {
-	for(int i = 0; i < len; i++) 
+	for(int i = 0; i < len; i++)
 	    advances[i] = doTextTask(str+i, 0, 1, 1, WIDTH);
     }
     return NoError;
 }
 
-void 
+void
 QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 		      const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse)
 {
     uchar task = DRAW;
-    if(fontDef.underline || fontDef.strikeOut) 
+    if(fontDef.underline || fontDef.strikeOut)
 	task |= WIDTH; //I need the width for these..
     int w = 0;
     const QRegion &rgn = qt_mac_update_painter(p, FALSE);
@@ -66,12 +66,21 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 	MoveTo(x, y);
 	w = doTextTask((QChar*)glyphs, 0, numGlyphs, numGlyphs, task, x, y, p->device(), &rgn);
     }
-    if(w && (fontDef.underline || fontDef.strikeOut)) { 
+    if(w && (fontDef.underline || fontDef.strikeOut)) {
 	int lineWidth = p->fontMetrics().lineWidth();
 	if(fontDef.underline) {
 	    Rect r;
-	    SetRect(&r, x, (y + 2) - (lineWidth / 2), 
+	    SetRect(&r, x, (y + 2) - (lineWidth / 2),
 		    x + w, (y + 2) + (lineWidth / 2));
+	    if(!(r.bottom - r.top))
+		r.bottom++;
+	    PaintRect(&r);
+	}
+	if(fontDef.overline) {
+	    int spos = ascent() + 1;
+	    Rect r;
+	    SetRect(&r, x, (y - spos) - (lineWidth / 2),
+		    x + w, (y - spos) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
 	    PaintRect(&r);
@@ -81,16 +90,16 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 	    if(!spos)
 		spos = 1;
 	    Rect r;
-	    SetRect(&r, x, (y - spos) - (lineWidth / 2), 
+	    SetRect(&r, x, (y - spos) - (lineWidth / 2),
 		    x + w, (y - spos) + (lineWidth / 2));
 	    if(!(r.bottom - r.top))
 		r.bottom++;
 	    PaintRect(&r);
 	}
-    } 
+    }
     }
 
-glyph_metrics_t 
+glyph_metrics_t
 QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const offset_t *, int numGlyphs)
 {
     int w = 0;
@@ -100,14 +109,14 @@ QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const of
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
 
-glyph_metrics_t 
+glyph_metrics_t
 QFontEngineMac::boundingBox(glyph_t glyph)
 {
     int w = doTextTask((QChar*)&glyph, 0, 1, 1, WIDTH);
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0 );
 }
 
-bool 
+bool
 QFontEngineMac::canRender(const QChar *string,  int len)
 {
     return doTextTask(string, 0, len, len, EXISTS);
@@ -121,7 +130,7 @@ QFontEngineMac::calculateCost()
     cache_cost = ( ascent() + descent() ) * maxCharWidth() * 1024;
 }
 
-int 
+int
 QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int, int y,
 			   QPaintDevice *dev, const QRegion *rgn) const
 {
@@ -139,7 +148,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     int ret = 0;
     QMacSetFontInfo fi(this, dev);
     QMacFontInfo::QATSUStyle *st = fi.atsuStyle();
-    if(!st) 
+    if(!st)
 	return 0;
     if(task & DRAW) {
 	RGBColor fcolor;
@@ -161,16 +170,16 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     ATSUTextLayout alayout;
     const UniCharCount count = use_len;
 #if 0
-    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s), pos, 
-						    count, len, 1, &count, 
+    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s), pos,
+						    count, len, 1, &count,
 						    &st->style, &alayout)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
 	return 0;
     }
 #else
     Q_UNUSED(len);
-    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s)+pos, 0, 
-						    count, use_len, 1, &count, 
+    if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s)+pos, 0,
+						    count, use_len, 1, &count,
 						    &st->style, &alayout)) {
 	qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	return 0;
@@ -185,10 +194,10 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading | kATSLineFractDisable;
 
 #ifdef MACOSX_102
-    if(qMacVersion() == Qt::MV_10_DOT_1) 
+    if(qMacVersion() == Qt::MV_10_DOT_1)
 	layopts |= kATSLineIsDisplayOnly;
-    else 
-	layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | 
+    else
+	layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations |
 		   kATSLineUseDeviceMetrics;
 #else
     layopts |= kATSLineIsDisplayOnly;
@@ -201,9 +210,9 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     CGrafPtr port = NULL;
     CGContextRef ctx = NULL;
     if(dev) {
-	if(dev->devType() == QInternal::Widget) 
+	if(dev->devType() == QInternal::Widget)
 	    port = GetWindowPort((WindowPtr)dev->handle());
-	else 
+	else
 	    port = (CGrafPtr)dev->handle();
     } else {
 	static QPixmap *p = NULL;
@@ -212,7 +221,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	port = (CGrafPtr)p->handle();
     }
     RgnHandle rgnh = NULL;
-    if(rgn && !rgn->isNull() && !rgn->isEmpty()) 
+    if(rgn && !rgn->isNull() && !rgn->isEmpty())
 	rgnh = rgn->handle(TRUE);
     if(QDBeginCGContext(port, &ctx)) {
 	qDebug("Qt: internal: WH0A, QDBeginCGContext failed. %s:%d", __FILE__, __LINE__);
@@ -221,7 +230,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     }
     Rect clipr;
     GetPortBounds(port, &clipr);
-    if(rgnh) 
+    if(rgnh)
 	ClipCGContextToRegion(ctx, &clipr, rgnh);
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
@@ -243,7 +252,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     if(task & WIDTH) {
 	ATSUTextMeasurement left, right, bottom, top;
 #if defined(MACOSX_102)
-	if(qMacVersion() >= Qt::MV_10_DOT_2) 
+	if(qMacVersion() >= Qt::MV_10_DOT_2)
 	    ATSUGetUnjustifiedBounds(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 				     &left, &right, &bottom, &top);
 	else
@@ -251,15 +260,15 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	    ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 			    &left, &right, &bottom, &top);
 #if 0
-	qDebug("(%s) (%s): %p %d %d %d (%d %d == %d)", 
+	qDebug("(%s) (%s): %p %d %d %d (%d %d == %d)",
 	       QString(s+pos, use_len).latin1(), QString(s, len).latin1(),
-	       s, pos, use_len, len, FixRound(left), FixRound(right), 
+	       s, pos, use_len, len, FixRound(left), FixRound(right),
 	       FixRound(right) - FixRound(left));
 #endif
 	ret = FixRound(right-left);
     }
     if(task & DRAW) {
-	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 #if defined(QMAC_FONT_ANTIALIAS)
 		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
 #else

@@ -296,7 +296,6 @@ void QFontPrivate::load( QFont::Script script )
     int px = int( pixelSize( req, paintdevice, screen ) + .5 );
     req.pixelSize = px;
     req.pointSize = 0;
-    req.underline = req.strikeOut = 0;
 
     if ( ! engineData ) {
 	QFontCache::Key key( req, QFont::NoScript, screen );
@@ -1023,7 +1022,7 @@ int QFontMetrics::maxWidth() const
     Returns the distance from the base line to where an underscore
     should be drawn.
 
-    \sa strikeOutPos(), lineWidth()
+    \sa overlinePos(), strikeOutPos(), lineWidth()
 */
 int QFontMetrics::underlinePos() const
 {
@@ -1032,10 +1031,22 @@ int QFontMetrics::underlinePos() const
 }
 
 /*!
+    Returns the distance from the base line to where an overline
+    should be drawn.
+
+    \sa underlinePos(), strikeOutPos(), lineWidth()
+*/
+int QFontMetrics::overlinePos() const
+{
+    int pos = ascent() + 1;
+    return pos ? pos : 1;
+}
+
+/*!
     Returns the distance from the base line to where the strikeout
     line should be drawn.
 
-    \sa underlinePos(), lineWidth()
+    \sa underlinePos(), overlinePos(), lineWidth()
 */
 int QFontMetrics::strikeOutPos() const
 {
@@ -1047,7 +1058,7 @@ int QFontMetrics::strikeOutPos() const
     Returns the width of the underline and strikeout lines, adjusted
     for the point size of the font.
 
-    \sa underlinePos(), strikeOutPos()
+    \sa underlinePos(), overlinePos(), strikeOutPos()
 */
 int QFontMetrics::lineWidth() const
 {

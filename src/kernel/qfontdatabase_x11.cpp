@@ -1788,6 +1788,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	fe->fontDef.weight        = best_style->key.weight;
 	fe->fontDef.italic        = best_style->key.italic;
 	fe->fontDef.underline     = request.underline;
+	fe->fontDef.overline      = request.overline;
 	fe->fontDef.strikeOut     = request.strikeOut;
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;

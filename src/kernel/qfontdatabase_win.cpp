@@ -244,7 +244,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	}
 
 	family->fixedPitch = fixed;
-	
+
 	bool hasScript = false;
 	if ( !family->scriptCheck && type & TRUETYPE_FONTTYPE ) {
 	    FONTSIGNATURE signature;
@@ -252,7 +252,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	    QT_WA( {
 		signature = textmetric->ntmFontSig;
 	    }, {
-		// the textmetric structure we get from EnumFontFamiliesEx on Win9x has 
+		// the textmetric structure we get from EnumFontFamiliesEx on Win9x has
 		// a FONTSIGNATURE, but that one is uninitialized and doesn't work. Have to go
 		// the hard way and load the font to find out.
 		HDC hdc = GetDC( 0 );
@@ -661,7 +661,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	    if ( !hfont )
 		qSystemWarning( "CreateFontIndirect with stretch failed" );
 #endif
-	}    
+	}
 
 #ifndef Q_OS_TEMP
 	if ( hfont == 0 ) {
@@ -673,7 +673,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
     }
 
     QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont );
-    if ( paintdevice ) 
+    if ( paintdevice )
 	fe->paintDevice = TRUE;
     return fe;
 }
@@ -846,7 +846,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 			  QtFontFoundry **best_foundry, QtFontStyle **best_style,
 			  QtFontSize **best_size
 #ifdef Q_WS_X11
-			  , QtFontEncoding **best_encoding 
+			  , QtFontEncoding **best_encoding
 #endif
 			  )
 {
@@ -1066,7 +1066,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 			     family, foundry_name, styleKey, request.pixelSize, pitch,
 			     &best_foundry, &best_style, &best_size
 #ifdef Q_WS_X11
-			     , &best_encoding 
+			     , &best_encoding
 #endif
 			     );
 	    if ( best_foundry == 0 ) {
@@ -1076,7 +1076,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 					QString::null, styleKey, request.pixelSize,
 					pitch, &best_foundry, &best_style, &best_size
 #ifdef Q_WS_X11
-					, &best_encoding 
+					, &best_encoding
 #endif
 					);
 	    }
@@ -1092,9 +1092,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	    break;
     }
 
-    if ( best_family == 0 || best_foundry == 0 || best_style == 0 
+    if ( best_family == 0 || best_foundry == 0 || best_style == 0
 #ifdef Q_WS_X11
-	 || best_size == 0 || best_encoding == 0 
+	 || best_size == 0 || best_encoding == 0
 #endif
 	 ) {
 #ifdef FONT_MATCH_DEBUG
@@ -1112,9 +1112,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	    best_family->name.latin1(),
 	    best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
 	    best_style->key.weight, best_style->key.italic, best_style->key.oblique,
-	    best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff, 
+	    best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff,
 #ifdef Q_WS_X11
-	    best_encoding->pitch 
+	    best_encoding->pitch
 #else
 	    'p'
 #endif
@@ -1123,7 +1123,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 
     fe = loadEngine( script, request, best_family, best_foundry, best_style
 #ifdef Q_WS_X11
-		     , best_size, best_encoding, x11Screen 
+		     , best_size, best_encoding, x11Screen
 #endif
 		     );
 
@@ -1168,6 +1168,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int x11S
 	fe->fontDef.weight        = best_style->key.weight;
 	fe->fontDef.italic        = best_style->key.italic;
 	fe->fontDef.underline     = request.underline;
+	fe->fontDef.overline      = request.overline;
 	fe->fontDef.strikeOut     = request.strikeOut;
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;

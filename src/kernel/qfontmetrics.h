@@ -91,6 +91,7 @@ public:
 		      int *tabarray=0, QTextParag **intern=0 ) const;
 
     int		underlinePos()	const;
+    int         overlinePos()   const;
     int		strikeOutPos()	const;
     int		lineWidth()	const;
 

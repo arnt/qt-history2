@@ -147,8 +147,6 @@ void QFontPrivate::load( QFont::Script script )
     QFontDef req = request;
     req.pixelSize = px;
     req.pointSize = 0;
-    req.underline = req.strikeOut = 0;
-    req.mask = 0;
 
     if ( ! engineData ) {
 	QFontCache::Key key( req, QFont::NoScript, screen );

@@ -150,13 +150,14 @@ QFontEngineData::~QFontEngineData()
     The attributes set in the constructor can also be set later, e.g.
     setFamily(), setPointSize(), setPointSizeFloat(), setWeight() and
     setItalic(). The remaining attributes must be set after
-    contstruction, e.g. setBold(), setUnderline(), setStrikeOut() and
-    setFixedPitch(). QFontInfo objects should be created \e after the
-    font's attributes have been set. A QFontInfo object will not
-    change, even if you change the font's attributes. The
-    corresponding "get" functions, e.g. family(), pointSize(), etc.,
-    return the values that were set, even though the values used may
-    differ. The actual values are available from a QFontInfo object.
+    contstruction, e.g. setBold(), setUnderline(), setOverline(),
+    setStrikeOut() and setFixedPitch(). QFontInfo objects should be
+    created \e after the font's attributes have been set. A QFontInfo
+    object will not change, even if you change the font's
+    attributes. The corresponding "get" functions, e.g. family(),
+    pointSize(), etc., return the values that were set, even though
+    the values used may differ. The actual values are available from a
+    QFontInfo object.
 
     If the requested font family is unavailable you can influence the
     \link #fontmatching font matching algorithm\endlink by choosing a
@@ -845,6 +846,32 @@ void QFont::setUnderline( bool enable )
 }
 
 /*!
+    Returns TRUE if overline has been set; otherwise returns FALSE.
+
+    \sa setOverline()
+*/
+bool QFont::overline() const
+{
+    return d->request.overline;
+}
+
+/*
+  If \a enable is TRUE, sets overline on; otherwise sets overline off.
+
+  \sa overline(), QFontInfo
+*/
+void QFont::setOverline( bool enable )
+{
+    if ( ( d->request.mask & QFontDef::Overline ) &&
+	 (bool) d->request.overline == enable )
+	return;
+
+    detach();
+    d->request.overline = enable;
+    d->request.mask |= QFontDef::Overline;
+}
+
+/*!
     Returns TRUE if strikeout has been set; otherwise returns FALSE.
 
     \sa setStrikeOut()
@@ -1425,6 +1452,8 @@ static Q_UINT8 get_font_bits( const QFontDef &f )
 	bits |= 0x01;
     if ( f.underline )
 	bits |= 0x02;
+    if ( f.overline )
+	bits |= 0x40;
     if ( f.strikeOut )
 	bits |= 0x04;
     if ( f.fixedPitch )
@@ -1447,6 +1476,7 @@ static void set_font_bits( Q_UINT8 bits, QFontDef *f )
 {
     f->italic        = (bits & 0x01) != 0;
     f->underline     = (bits & 0x02) != 0;
+    f->overline      = (bits & 0x40) != 0;
     f->strikeOut     = (bits & 0x04) != 0;
     f->fixedPitch    = (bits & 0x08) != 0;
     // f->hintSetByUser = (bits & 0x10) != 0;
@@ -1486,7 +1516,8 @@ QString QFont::toString() const
 	QString::number( (int) underline() ) + comma +
 	QString::number( (int) strikeOut() ) + comma +
 	QString::number( (int)fixedPitch() ) + comma +
-	QString::number( (int)   rawMode() );
+	QString::number( (int)   rawMode() ) + comma +
+	QString::number( (int)  overline() );
 }
 
 
@@ -1508,14 +1539,14 @@ bool QFont::fromString(const QString &descrip)
     QString l[11];
     int from = 0;
     int to = descrip.find( ',' );
-    while ( to > 0 && count < 10 ) {
+    while ( to > 0 && count < 11 ) {
 	l[count] = descrip.mid( from, to-from );
 	count++;
 	from = to+1;
 	to = descrip.find( ',', from );
     }
 #endif // QT_NO_STRINGLIST
-    if ( !count || ( count > 2 && count < 9 ) || count > 10 ) {
+    if ( !count || ( count > 2 && count < 9 ) || count > 11 ) {
 
 #ifdef QT_CHECK_STATE
 	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
@@ -1535,7 +1566,7 @@ bool QFont::fromString(const QString &descrip)
 	setStrikeOut(l[6].toInt());
 	setFixedPitch(l[7].toInt());
 	setRawMode(l[8].toInt());
-    } else if ( count == 10 ) {
+    } else if ( count >= 10 ) {
 	if ( l[2].toInt() > 0 )
 	    setPixelSize( l[2].toInt() );
 	setStyleHint((StyleHint) l[3].toInt());
@@ -1545,6 +1576,8 @@ bool QFont::fromString(const QString &descrip)
 	setStrikeOut(l[7].toInt());
 	setFixedPitch(l[8].toInt());
 	setRawMode(l[9].toInt());
+        if ( count == 11 )
+	    setOverline( l[10].toInt() );
     }
 
     return TRUE;
@@ -1702,10 +1735,10 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
 
     There are several functions that operate on the font: ascent(),
     descent(), height(), leading() and lineSpacing() return the basic
-    size properties of the font. The underlinePos(), strikeOutPos()
-    and lineWidth() functions, return the properties of the line that
-    underlines or strikes out the characters. These functions are all
-    fast.
+    size properties of the font. The underlinePos(), overlinePos(),
+    strikeOutPos() and lineWidth() functions, return the properties of
+    the line that underlines, overlines or strikes out the
+    characters. These functions are all fast.
 
     There are also some functions that operate on the set of glyphs in
     the font: minLeftBearing(), minRightBearing() and maxWidth().
@@ -2193,6 +2226,21 @@ int QFontInfo::weight() const
 bool QFontInfo::underline() const
 {
     return d->request.underline;
+}
+
+/*!
+    Returns the overline value of the matched window system font.
+
+    \sa QFont::overline()
+
+    \internal
+
+    Here we read the overline flag directly from the QFont.
+    This is OK for X11 and for Windows because we always get what we want.
+*/
+bool QFontInfo::overline() const
+{
+    return d->request.overline;
 }
 
 /*!

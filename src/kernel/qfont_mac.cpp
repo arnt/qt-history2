@@ -472,16 +472,15 @@ void QFontPrivate::load(QFont::Script script)
     QFontDef req = request;
     req.pixelSize = qt_mac_pixelsize(request, paintdevice);
     req.pointSize = 0;
-    req.mask = 0;
     QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
-    
+
     if(!(engineData = QFontCache::instance->findEngineData(key))) {
 	engineData = new QFontEngineData;
 	QFontCache::instance->insertEngineData(key, engineData);
     } else {
 	engineData->ref();
     }
-    
+
     if ( engineData->engine ) // already loaded
 	return;
 
@@ -489,14 +488,14 @@ void QFontPrivate::load(QFont::Script script)
 	Q_ASSERT(e->type() == QFontEngine::Mac);
 	engine = (QFontEngineMac*)e;
 	engine->ref();
-	
+
 	// the font info and fontdef should already be filled
 	return;
     }
-    
+
     engine = new QFontEngineMac;
     engineData->engine = engine;
-    
+
     if(engine->fnum == -1) {
 	//find the font
 	QStringList family_list = QStringList::split( ',', request.family );
@@ -518,7 +517,7 @@ void QFontPrivate::load(QFont::Script script)
 						       kTextEncodingDefaultVariant,
 						       kTextEncodingDefaultFormat);
 	    qstring_to_pstring((*it), (*it).length(), request_str, encoding);
-	    
+
 #if 0
 	    short fnum = FMGetFontFamilyFromName(request_str);
 #else
