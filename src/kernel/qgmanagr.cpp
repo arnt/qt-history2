@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#11 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#11 $");
 
 
 
@@ -501,6 +501,7 @@ QGManager::QGManager( QWidget *parent, const char *name )
     border = 0;
     frozen = FALSE;
     menuBar = 0;
+    menuBarHeight = 0;
 
     xC = new QParChain( LeftToRight );
     yC = new QParChain( Down );
@@ -659,7 +660,7 @@ bool QGManager::activate()
     
     menuBarHeight = menuBar ? menuBar->height() : 0;
 
-    int ys = yC->minSize() + 2*border + menuBarHeight + 3;
+    int ys = yC->minSize() + 2*border + menuBarHeight;
     int xs = xC->minSize() + 2*border;
 
     main->setMinimumSize( xs, ys );
@@ -719,9 +720,11 @@ void QGManager::resizeAll()
      int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
      int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
  
-     if(menuBar)
+     if ( menuBar )
      {
-       menuBar->setGeometry(0,menuBar->y(),ww,hh);
+	 //### workaround; don't try this at home, kids
+	 QResizeEvent e( QSize( ww, hh ), QSize( 1, 1 ) );
+	 menuBar->eventFilter( main, &e );
      }
  
     int mbh = menuBar ? menuBar->height() : 0;
@@ -733,7 +736,6 @@ void QGManager::resizeAll()
 	if ( max.height() < unlimited )
 	    main->setMaximumSize( max.width(), max.height() + mbh - ombh );
     }
-
     ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
 
