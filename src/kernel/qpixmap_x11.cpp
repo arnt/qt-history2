@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#13 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#13 $";
 #endif
 
 
@@ -43,20 +43,21 @@ obtain flicker-free drawing.
 
 The code may look like this:
 \code
-  QWidget  w;				\/ any widget
-  QPixmap  pm( w.width(), w.height());	\/ create pixmap
-  QPainter p;				\/ our painter
-  pm.fill( w.backgroundColor() );	\/ initialize pixmap
-  p.begin( &pm );			\/ paint inside pixmap
-  ...					\/ do complex drawing
-  p.end();				\/ painting done
-  bitBlt( &w, 0, 0, &pm, 0, 0, -1, -1 );\/ copy pixmap to widget
+void CoolWidget::paintWidget( QPaintEvent * e) {
+  QPixmap  pm( width(), height());	// create pixmap
+  QPainter p;				// our painter
+  pm.fill( backgroundColor() );		// initialize pixmap
+  p.begin( &pm );			// paint inside pixmap
+  ...					// do complex drawing
+  p.end();				// painting done
+  bitBlt( this, 0, 0, &pm, 0, 0, -1, -1 );// copy pixmap to widget
+}
 \endcode
 
-The bitBlt() function is expained in the QPaintDevice documentation.
+The bitBlt() function is explained in the QPaintDevice documentation.
 
 Pixel data in a pixmap is internal and managed by the underlying window system.
-Pixels can only be accessed through QPainter functions and the bitBlt.
+Pixels can only be accessed through QImage, Painter functions and the bitBlt.
 
 A pixmap can be converted to a QImage to get direct access to the pixels.
 A QImage can also be converted back to a pixmap.
