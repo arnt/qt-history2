@@ -1506,7 +1506,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         }
         //FALL THROUGH
     case Key_Left: {
-        if(key == Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
+        if(key == Key_Left && columnCount() == 1 && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
             hide();
             key_consumed = true;
         } else if(d->currentAction && !d->scroll) {
