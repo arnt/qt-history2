@@ -618,7 +618,7 @@ void Project::save()
 	    return;
     }
 
-    
+
     //#### FORMS
     /*
     for ( FormFile *ff = forms.first(); ff; ff = forms.next() ) {
@@ -1256,4 +1256,23 @@ void Project::writePlatformSettings( QString &contents, const QString &setting,
 	    continue;
 	contents += p + setting + "\t+= " + *it + "\n";
     }
+}
+
+void Project::addFormFile( FormFile *ff )
+{
+    formfiles.append( ff );
+    modified = TRUE;
+    emit formFileAdded( ff );
+}
+
+bool Project::removeFormFile( FormFile *ff )
+{
+    if ( !formfiles.containsRef( ff ) )
+	return FALSE;
+    if ( !ff->close() )
+	return FALSE;
+    formfiles.removeRef( ff );
+    modified = TRUE;
+    emit formFileRemoved( ff );
+    return TRUE;
 }

@@ -30,6 +30,7 @@
 #include <qpluginmanager.h>
 #include "../interfaces/projectsettingsiface.h"
 #include "sourcefile.h"
+#include "formfile.h"
 
 class FormWindow;
 class QObjectList;
@@ -175,6 +176,10 @@ public:
     void addSourceFile( SourceFile *sf );
     bool removeSourceFile( SourceFile *sf );
 
+    QPtrListIterator<FormFile> formFiles() const { return QPtrListIterator<FormFile>(formfiles); }
+    void addFormFile( FormFile *ff );
+    bool removeFormFile( FormFile *ff );
+
     QPtrList<FormWindow> unnamedForms() const;
     QPtrList<FormWindow> forms() const;
 
@@ -198,6 +203,8 @@ signals:
     void projectModified();
     void sourceFileAdded( SourceFile* );
     void sourceFileRemoved( SourceFile* );
+    void formFileAdded( FormFile* );
+    void formFileRemoved( FormFile* );
 
 private:
     void parse();
@@ -228,6 +235,7 @@ private:
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     PixmapCollection *pixCollection;
     QPtrList<SourceFile> sources;
+    QPtrList<FormFile> formfiles;
     QMap<QString, QString> inclPath, defs, lbs, cfg;
     QString templ;
     bool isDummyProject;
