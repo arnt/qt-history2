@@ -40,7 +40,7 @@ uic3 {
     QMAKE_EXTRA_COMPILERS += uic3_impl
 
     ### add a moc step
-    uic3_moc.commands = $(DEFINES) $(INCPATH) ${QMAKE_FILE_BASE}.h -o ${QMAKE_FILE_OUT}
+    uic3_moc.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) ${QMAKE_FILE_BASE}.h -o ${QMAKE_FILE_OUT}
     isEmpty(MOC_DIR):MOC_DIR = . #we just default to .
     uic3_moc.output = $$MOC_DIR/moc_${QMAKE_FILE_BASE}.cpp
     uic3_moc.depends = ${QMAKE_FILE_BASE}.h
