@@ -2621,10 +2621,32 @@ void QApplication::flush()
 //    sendPostedEvents();
     if(qApp) {
 	if(QWidgetList *list = qApp->topLevelWidgets()) {
-	    for(QWidget *widget = list->first(); widget; widget = list->next()) {
-		if(widget->isVisible()) {
-		    widget->propagateUpdates();
-		    QMacSavedPortInfo::flush(widget);
+	    for(QWidget *tlw = list->first(); tlw; tlw = list->next()) {
+		if(tlw->isVisible()) {
+		    for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
+			it != request_updates_pending_list.end(); ++it) {
+			QWidget *widget = QWidget::find((*it));
+			if(widget && widget->extra && widget->extra->has_dirty_area &&
+			   widget->topLevelWidget() == tlw) {
+			    widget->extra->has_dirty_area = FALSE;
+			    QRegion r = widget->extra->dirty_area;
+			    widget->extra->dirty_area = QRegion();
+			    QRegion cr = widget->clippedRegion();
+			    if(!widget->isTopLevel()) {
+				QPoint point(posInWindow(widget));
+				cr.translate(-point.x(), -point.y());
+			    }
+			    r &= cr;
+			    if(!r.isEmpty())
+				widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
+
+			    it = request_updates_pending_list.remove(it);
+			    if(it == request_updates_pending_list.end())
+				break;
+			}
+		    }
+		    tlw->propagateUpdates();
+		    QMacSavedPortInfo::flush(tlw);
 		}
 	    }
 	    delete list;
