@@ -228,7 +228,7 @@ kernel {
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
 
-	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory.cpp
+	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory_p.cpp
 
 
 	accessibility {

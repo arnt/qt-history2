@@ -44,7 +44,7 @@
 
 #ifndef QT_NO_QWS_VNC
 
-#include "qsharedmemory.h"
+#include "qsharedmemory_p.h"
 
 class QVNCServer;
 class QVNCHeader;

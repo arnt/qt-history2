@@ -30,7 +30,7 @@
 **
 **********************************************************************/
 
-#include <qsharedmemory.h>
+#include <qsharedmemory_p.h>
 
 #if !defined(QT_QWS_NO_SHM)
 
