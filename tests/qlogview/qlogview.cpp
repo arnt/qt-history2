@@ -129,7 +129,6 @@ void QLogView::append( const QString & str )
     if ( str.isEmpty() || str.isNull() )
 	return;
     
-    int oldLines = d->numLines -1 > 0 ? d->numLines - 1 : 0;
     d->len += str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QStringList::Iterator it = strl.begin();
@@ -180,9 +179,9 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
     QFontMetrics fm( font() );
     int startLine = clipy / fm.lineSpacing();
     
-    // we always have to fetch at least 2 lines for drawing because the
-    // painter may be translated so that parts of two lines are displayed
-    // in the area of a single line
+    // we always have to fetch at least two lines for drawing because the
+    // painter may be translated so that parts of two lines cover the area
+    // of a single line
     int nLines = (cliph / fm.lineSpacing()) + 2;
     int endLine = startLine + nLines;
     
@@ -201,38 +200,36 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
     doc->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
     doc->formatter()->setWrapEnabled( FALSE );
 
-    QTextCursor c1( doc );
-    QTextCursor c2( doc );
-    int selStart = d->selStart.line;
-    int idxStart = d->selStart.index;
-    int selEnd = d->selEnd.line;
-    int idxEnd = d->selEnd.index;
-    if ( selEnd < selStart ) {
-	selStart = d->selEnd.line;
-	idxStart = d->selEnd.index;
-	selEnd = d->selStart.line;
-	idxEnd = d->selStart.index;
-    }
-    // find start parag and index for selection
-    if ( selStart != -1 && selEnd != -1 ) {
+    // if there is a selection, make sure that the selection in the
+    // part we need to redraw is correct
+    if ( d->selStart.line != -1 && d->selEnd.line != -1 ) {
+	QTextCursor c1( doc );
+	QTextCursor c2( doc );
+	int selStart = d->selStart.line;
+	int idxStart = d->selStart.index;
+	int selEnd = d->selEnd.line;
+	int idxEnd = d->selEnd.index;
+	if ( selEnd < selStart ) {
+	    selStart = d->selEnd.line;
+	    idxStart = d->selEnd.index;
+	    selEnd = d->selStart.line;
+	    idxEnd = d->selStart.index;
+	}
 	if ( startLine <= selStart && endLine >= selEnd )
 	{
-// 	    qWarning("case 1");
 	    // case 1: area to paint covers entire selection
 	    int paragS = selStart - startLine;
 	    int paragE = paragS + (selEnd - selStart);
 	    QTextParag * parag = doc->paragAt( paragS );
 	    c1.setParag( parag );
-	    if ( doc->text( paragS ).length() >= idxStart )
+	    if ( doc->text( paragS ).length() >= (uint) idxStart )
 		c1.setIndex( idxStart );
 	    parag = doc->paragAt( paragE );
 	    if ( parag ) {
 		c2.setParag( parag );
-		if ( doc->text( paragE ).length() >= idxEnd )
+		if ( doc->text( paragE ).length() >= (uint) idxEnd )
 		    c2.setIndex( idxEnd );
 	    }
-	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
-	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
 	} else if ( startLine > selStart && endLine < selEnd )
 	{
 	    // case 2: area to paint is all part of the selection
@@ -240,7 +237,6 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 	} else if ( startLine > selStart && endLine >= selEnd &&
 		    startLine <= selEnd )
 	{
-// 	    qWarning("case 3");
 	    // case 3: area to paint starts inside a selection, ends past it
 	    c1.setParag( doc->firstParag() );
 	    c1.setIndex( 0 );
@@ -248,15 +244,12 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 	    QTextParag * parag = doc->paragAt( paragE );
 	    if ( parag ) {
 		c2.setParag( parag );
-		if ( doc->text( paragE ).length() >= idxEnd )
+		if ( doc->text( paragE ).length() >= (uint) idxEnd )
 		    c2.setIndex( idxEnd );
 	    }
-	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
-	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
 	} else if ( startLine <= selStart && endLine < selEnd &&
 		    endLine > selStart )
 	{
-// 	    qWarning("case 4");
 	    // case 4: area to paint starts before a selection, ends inside it
 	    int paragS = selStart - startLine;
 	    QTextParag * parag = doc->paragAt( paragS );
@@ -265,6 +258,9 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 	    c2.setParag( doc->lastParag() );
 	    c2.setIndex( doc->lastParag()->string()->toString().length() - 1 );
 	    
+	}
+	// previously selected?
+	if ( !doc->hasSelection( QTextDocument::Standard ) ) {
 	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
 	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
 	}
@@ -277,7 +273,6 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
     QRect r( clipx, 0, clipw, cliph + offset );
     p->translate( 0, clipy - offset );
     doc->draw( p, r.x(), r.y(), r.width(), r.height(), colorGroup() );
-
     p->translate( 0, -(clipy - offset) );
     delete doc;
 }
@@ -353,8 +348,7 @@ void QLogView::doAutoScroll()
     // find out how much we have to scroll in either dir.
     if ( pos.x() < 0 || pos.x() > viewport()->width() ||
 	 pos.y() < 0 || pos.y() > viewport()->height() ) {
-	int my = contentsY() + pos.y();
-	
+	int my = yy;
 	if ( pos.x() < 0 )
 	    xx = contentsX() - fm.width( 'w');
 	else if ( pos.x() > viewport()->width() )
