@@ -224,6 +224,5 @@ int main( int argc, char *argv[] )
 	    mw->openFile( arg );
     }
 
-    a.setMainWidget( mw );
     return a.exec();
 }

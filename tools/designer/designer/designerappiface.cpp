@@ -38,6 +38,8 @@ QComponentInterface *DesignerMainWindowInterface::requestInterface( const QCStri
 DesignerFormWindowInterface::DesignerFormWindowInterface( MainWindow *mw )
     : QComponentInterface( mw ), mainWindow( mw )
 {
+    connect( mw, SIGNAL( formWindowsChanged() ),
+	     this, SLOT( reconnect() ) );
 }
 
 QVariant DesignerFormWindowInterface::requestProperty( const QCString& p )
@@ -56,29 +58,21 @@ bool DesignerFormWindowInterface::requestSetProperty( const QCString& p, const Q
 
 bool DesignerFormWindowInterface::requestConnect( const char* signal, QObject* target, const char* slot )
 {
-    QObjectList *l = mainWindow->queryList( "FormWindow" );
-    if ( !l || l->isEmpty() ) {
-	delete l;
-	return FALSE;
-    }
-
-    for ( QObject *o = l->first(); o; o = l->next() )
-	connect( (FormWindow*)o, signal, target, slot );
-    delete l;
+    Connect1 c;
+    c.signal = signal;
+    c.target = target;
+    c.slot = slot;
+    connects1.append( c );
     return TRUE;
 }
 
 bool DesignerFormWindowInterface::requestConnect( QObject *sender, const char* signal, const char* slot )
 {
-    QObjectList *l = mainWindow->queryList( "FormWindow" );
-    if ( !l || l->isEmpty() ) {
-	delete l;
-	return FALSE;
-    }
-
-    for ( QObject *o = l->first(); o; o = l->next() )
-	connect( sender, signal, (FormWindow*)o, slot );
-    delete l;
+    Connect2 c;
+    c.signal = signal;
+    c.sender = sender;
+    c.slot = slot;
+    connects2.append( c );
     return TRUE;
 }
 
@@ -96,6 +90,21 @@ bool DesignerFormWindowInterface::requestEvents( QObject* f )
     return TRUE;
 }
 
+void DesignerFormWindowInterface::reconnect()
+{
+    QObjectList *l = mainWindow->queryList( "FormWindow" );
+    if ( !l || l->isEmpty() ) {
+	delete l;
+	return;
+    }
+
+    for ( QObject *o = l->first(); o; o = l->next() ) {
+	for ( QValueList<Connect1>::Iterator it = connects1.begin(); it != connects1.end(); ++it )
+	    connect( (FormWindow*)o, (*it).signal, (*it).target, (*it).slot );
+	for ( QValueList<Connect2>::Iterator it = connects2.begin(); it != connects2.end(); ++it )
+	    connect( (*it).sender, (*it).signal, (FormWindow*)o, (*it).slot );
+    }
+}
 
 
 

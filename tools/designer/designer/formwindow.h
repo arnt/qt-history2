@@ -173,6 +173,7 @@ signals:
 			  const QString &undoCmd, const QString &redoCmd );
     void selectionChanged();
     void modificationChanged( bool m, FormWindow *fw );
+    void modificationChanged( bool m, const QString &s );
     void fileNameChanged( const QString &s, FormWindow *fw );
 
 protected:

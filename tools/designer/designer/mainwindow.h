@@ -109,7 +109,8 @@ signals:
     void currentToolChanged();
     void hasActiveForm( bool );
     void formModified( bool );
-
+    void formWindowsChanged();
+    
 protected:
     bool eventFilter( QObject *o, QEvent *e );
     void closeEvent( QCloseEvent *e );

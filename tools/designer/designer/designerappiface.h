@@ -39,6 +39,8 @@ private:
 
 class DesignerFormWindowInterface : public QComponentInterface
 {
+    Q_OBJECT
+    
 public:
     DesignerFormWindowInterface( MainWindow *mw );
 
@@ -48,9 +50,25 @@ public:
     bool requestConnect( QObject *sender, const char* signal, const char* slot );
     bool requestEvents( QObject* o );
 
+private slots:
+    void reconnect();
+    
 private:
     MainWindow *mainWindow;
-
+    struct Connect1 
+    {
+	QCString signal, slot;
+	QGuardedPtr<QObject> target;
+    };
+    
+    struct Connect2
+    {
+	QGuardedPtr<QObject> sender;
+	QCString signal, slot;
+    };
+    
+    QValueList<Connect1> connects1;
+    QValueList<Connect2> connects2;
 };
 
 class DesignerStatusBarInterface : public QComponentInterface
@@ -60,7 +78,7 @@ public:
 
 private:
     QStatusBar *statusBar;
-    
+
 };
 
 #endif

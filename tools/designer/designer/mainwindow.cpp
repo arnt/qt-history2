@@ -130,6 +130,7 @@ MainWindow::MainWindow( bool asClient )
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       docPath( "$QTDIR/doc/html" ), client( asClient )
 {
+    qApp->setMainWidget( this );
     self = this;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
 
@@ -2169,6 +2170,7 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 	fw->setCaption( fw->name() );
     fw->mainContainer()->setCaption( fw->caption() );
     activeWindowChanged( fw );
+    emit formWindowsChanged();
 }
 
 bool MainWindow::unregisterClient( FormWindow *w )

@@ -1997,6 +1997,7 @@ void FormWindow::setFileName( const QString &fn )
 void FormWindow::modificationChanged( bool m )
 {
     emit modificationChanged( m, this );
+    emit modificationChanged( m, fileName() );
 }
 
 bool FormWindow::unify( QWidget *w, QString &s, bool changeIt )
