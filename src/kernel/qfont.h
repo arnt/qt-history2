@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#4 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#5 $
 **
 ** Definition of QFont class
 **
@@ -59,6 +59,14 @@ private:
 #endif
     } *data;
 };
+
+
+// --------------------------------------------------------------------------
+// QFont stream functions
+//
+
+QDataStream &operator<<( QDataStream &, const QFont & );
+QDataStream &operator>>( QDataStream &, QFont & );
 
 
 #endif // QFONT_H
