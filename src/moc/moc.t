@@ -7,7 +7,7 @@
 ####### Lex/yacc programs and options
 
 LEX	=	flex
-YACC	=	#$ $text = ($is_unix ? "yacc -d" : "byacc -d");
+YACC	=	#$ $text = ($is_unix ? "yacc -d" : "byacc -d") . '$(SYSCONF_YACCCFLAGS)';
 
 ####### Lex/yacc files
 

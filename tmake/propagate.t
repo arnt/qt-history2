@@ -63,6 +63,9 @@
     if ( Config("dll") ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_SHOBJ)' );
     }
+    if ( Config("yacc") ) {
+	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_YACC)' );
+    }
     if ( Project('TEMPLATE') eq "lib" ) {
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_LIB)' );
     } else {

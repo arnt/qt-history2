@@ -3,10 +3,18 @@
 #############################################################################
 
 ####### BEGIN
-CFLAGS	=	-O2
-CC	=	gcc
-YACCCFLAGS = -Wno-unused -Wno-parentheses
+SYSCONF_CFLAGS_QT	=	-O2
+SYSCONF_CC	=	gcc
+SYSCONF_YACCCFLAGS = -Wno-unused -Wno-parentheses
 ####### END
+
+####### Compiler, tools and options
+
+CC      =       $(SYSCONF_CC)
+CFLAGS  =       $(SYSCONF_CFLAGS_QT) $(SYSCONF_YACCCFLAGS) $(SYSCONF_CFLAGS_X11) $(SYSCONF_CFLAGS_LIB)
+LFLAGS  =       $(SYSCONF_LFLAGS_X11)
+LIBS    =       $(SYSCONF_LIBS_X11)
+MOC     =       $(SYSCONF_MOC)
 
 ####### Extra Inlcude Directories
 
