@@ -15,6 +15,7 @@
 #include "qaxfactory.h"
 
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qmetaobject.h>
 #include <qsettings.h>
 #include <qwidget.h>
@@ -510,6 +511,33 @@ extern bool qAxIsServer;
 bool QAxFactory::isServer()
 {
     return qAxIsServer;
+}
+
+extern char qAxModuleFilename[MAX_PATH];
+
+/*!
+    Returns the directory that contains the server binary.
+
+    For out-of-process servers this is the same as 
+    QApplication::applicationDirPath(). For in-process servers
+    that function returns the directory that contains the hosting
+    application.
+*/
+QString QAxFactory::serverDirPath()
+{
+    return QFileInfo(QString::fromLocal8Bit(qAxModuleFilename)).dirPath();
+}
+
+/*!
+    Returns the file path of the server binary.
+
+    For out-of-process servers this is the same as 
+    QApplication::applicationFilePath(). For in-process servers
+    that function returns the file path of the hosting application.
+*/
+QString QAxFactory::serverFilePath()
+{
+    return QString::fromLocal8Bit(qAxModuleFilename);
 }
 
 /*!
