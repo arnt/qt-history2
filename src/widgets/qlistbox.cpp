@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#113 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#113 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -540,6 +540,8 @@ void QListBox::insertStrList( const QStrList *list, int index )
 	++it;
 	insert( new QListBoxText(txt), index++, FALSE );
     }
+    if ( currentItem() < 0 && numRows() > 0 && hasFocus() )
+	setCurrentItem( 0 );
     updateNumRows( TRUE );
     if ( autoUpdate() && isVisible() )
 	repaint();
@@ -573,6 +575,8 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 	i++;
     }
     updateNumRows( TRUE );
+    if ( currentItem() < 0 && numRows() > 0 && hasFocus() )
+	setCurrentItem( 0 );
     if ( autoUpdate() && isVisible() )
 	repaint();
 }
@@ -603,6 +607,8 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
     }
     insert( lbi, index, TRUE );
     updateNumRows( FALSE );
+    if ( currentItem() < 0 && numRows() > 0 && hasFocus() )
+	setCurrentItem( 0 );
     if ( autoUpdate() )
 	repaint();
 }
@@ -627,6 +633,8 @@ void QListBox::insertItem( const char *text, int index )
     }
     insert( new QListBoxText(text), index, TRUE );
     updateNumRows( FALSE );
+    if ( currentItem() < 0 && numRows() > 0 && hasFocus() )
+	setCurrentItem( 0 );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
 	colXPos( 0, &x );
@@ -653,6 +661,8 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
     }
     insert( new QListBoxPixmap(pixmap), index, TRUE );
     updateNumRows( FALSE );
+    if ( currentItem() < 0 && numRows() > 0 && hasFocus() )
+	setCurrentItem( 0 );
     if ( autoUpdate() && itemVisible(index) ) {
 	int x, y;
 	colXPos( index, &x );
