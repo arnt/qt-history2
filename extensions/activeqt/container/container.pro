@@ -30,8 +30,5 @@ shared {
     SOURCES     += plugin.cpp
     DLLDESTDIR  += $$QT_BUILD_TREE/plugins/designer
 }
-!shared {
-    DEFINES     += QAX_NODLL
-}
 
 win32-borland:INCLUDEPATH += $(BCB)/include/Atl

@@ -21,4 +21,3 @@ SOURCES     = qaxserverbase.cpp \
 	      ../shared/types.cpp
 
 DESTDIR     = $$QT_BUILD_TREE\lib
-DEFINES     += QAX_NODLL

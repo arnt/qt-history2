@@ -35,16 +35,6 @@
 #include <private/qcom_p.h>
 #include <private/qucomextra_p.h>
 
-#ifndef QAX_NODLL
-#if defined(QT_PLUGIN)
-#define QAX_EXPORT __declspec(dllexport)
-#else
-#define QAX_EXPORT __declspec(dllimport)
-#endif
-#else
-#define QAX_EXPORT
-#endif
-
 /*! 
     Helper functions 
 */
@@ -71,15 +61,15 @@ static inline BSTR QStringToBSTR( const QString &str )
     return bstrVal;
 }
 
-extern QAX_EXPORT QDateTime DATEToQDateTime( DATE ole );
-extern QAX_EXPORT DATE QDateTimeToDATE( const QDateTime &dt );
+extern QDateTime DATEToQDateTime( DATE ole );
+extern DATE QDateTimeToDATE( const QDateTime &dt );
 extern void VARIANTToQUObject( VARIANT arg, QUObject *obj );
 
 struct IFont;
 struct IFontDisp;
 
-extern QAX_EXPORT IFontDisp *QFontToIFont( const QFont &font );
-extern QAX_EXPORT QFont IFontToQFont( IFont *f );
+extern IFontDisp *QFontToIFont( const QFont &font );
+extern QFont IFontToQFont( IFont *f );
 
 static uint QColorToOLEColor( const QColor &col )
 {
@@ -91,9 +81,9 @@ static QColor OLEColorToQColor( uint col )
     return QColor( qBlue(col), qGreen(col), qRed(col) );
 }
 
-extern QAX_EXPORT VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 );
-extern QAX_EXPORT QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint = 0 );
-extern QAX_EXPORT void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra = 0 );
-extern QAX_EXPORT void QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
+extern VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 );
+extern QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint = 0 );
+extern void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra = 0 );
+extern void QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
 
 #endif //TYPES_H
