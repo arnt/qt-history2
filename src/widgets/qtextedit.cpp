@@ -1887,6 +1887,10 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	drawCursor( TRUE );
 	if ( !cursor->nestedDepth() ) {
 	    insert( text, FALSE, TRUE, FALSE );
+	    // emit appropriate signals.
+	    emit selectionChanged();
+	    emit cursorPositionChanged( cursor );
+	    emit cursorPositionChanged( cursor->parag()->paragId(), cursor->index() );
 	} else {
 	    if ( intern )
 		undo();
