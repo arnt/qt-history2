@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#6 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#7 $
 **
 ** Definition of QSlider class
 **
@@ -60,6 +60,8 @@ protected:
     void	paintSlider( QPainter *, const QRect& );
 
 private:
+
+    void	drawWinBackground( QPainter*, QColorGroup & );
     void	init();
     int		positionFromValue( int ) const;
     int		valueFromPosition( int ) const;

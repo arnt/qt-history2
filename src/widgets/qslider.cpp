@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#11 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#11 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30
@@ -360,29 +360,35 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
 void QSlider::paintSlider( int oldPos, int newPos )
 {
-    if ( style() == WindowsStyle ) {
-	repaint(); //#######
-	return;
-    }
-	
     QPainter p;
     p.begin( this );
 
     QColorGroup g = colorGroup();
     QRect sliderR = sliderRect();
+    int c,d;
+    //### a bit wasteful if the slider moves more than one slider width
     switch ( style() ) {
     case WindowsStyle:
+	d = newPos - oldPos;
+	if ( oldPos < newPos ) {
+	    c = oldPos;
+	} else {
+	    c = newPos + WIN_WIDTH;
+	}
+	if ( orient == Horizontal )
+	    p.fillRect( c, 0, d, height(), backgroundColor() );
+	else
+	    p.fillRect( 0, c, width(), d, backgroundColor() ); 
+	drawWinBackground( &p, g );
 	paintSlider( &p, sliderR );
 	break;
     default:
     case MotifStyle:
-	int c,d;
+	d = newPos - oldPos;
 	if ( oldPos < newPos ) {
 	    c = oldPos + SLIDE_BORDER;
-	    d = newPos - oldPos;
 	} else {
 	    c = newPos + MOTIF_WIDTH + SLIDE_BORDER;
-	    d = oldPos - newPos;
 	}
 	if ( orient == Horizontal )
 	    p.fillRect( c, SLIDE_BORDER, d, 
@@ -397,6 +403,23 @@ void QSlider::paintSlider( int oldPos, int newPos )
 }
 
 
+
+/*!
+  Draws the "groove" on which the slider moves.
+*/
+
+void QSlider::drawWinBackground( QPainter *p, QColorGroup &g )
+{
+	if ( orient == Horizontal ) {
+	    qDrawWinPanel( p, 0, height()/2 - 2,  width(), 4 , g, TRUE );
+	    p->setPen( black );
+	    p->drawLine( 1, height()/2 - 1, width() - 3, height()/2 - 1 );
+	} else {
+	    qDrawWinPanel( p, width()/2 - 2, 0, 4, height(), g, TRUE );
+	    p->setPen( black );
+	    p->drawLine( width()/2 - 1, 1, width()/2 - 1, height() - 3 );
+	}
+}
 
 
 
@@ -415,15 +438,7 @@ void QSlider::paintEvent( QPaintEvent * )
     case WindowsStyle:
 	if ( hasFocus() )
 	    p.drawWinFocusRect( 0, 0, width(), height() );
-	if ( orient == Horizontal ) {
-	    qDrawWinPanel( &p, 0, height()/2 - 2,  width(), 4 , g, TRUE );
-	    p.setPen( black );
-	    p.drawLine( 1, height()/2 - 1, width() - 3, height()/2 - 1 );
-	} else {
-	    qDrawWinPanel( &p, width()/2 - 2, 0, 4, height(), g, TRUE );
-	    p.setPen( black );
-	    p.drawLine( width()/2 - 1, 1, width()/2 - 1, height() - 3 );
-	}
+	drawWinBackground( &p, g );
 	paintSlider( &p, sliderR );
 	break;
     default:
@@ -615,3 +630,4 @@ int QSlider::slideWidth() const
 	return MOTIF_WIDTH;
     }
 }
+
