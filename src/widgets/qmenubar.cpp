@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#109 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#109 $");
 
 
 /*!
@@ -259,7 +259,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	if ( f ) { // ### this thinks alt and meta are the same
 	    if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
 		if ( windowsaltactive || actItem >= 0 ) {
-		    ke->accept();
 		    setWindowsAltMode( FALSE, -1 );
 		} else {
 		    windowsaltactive = 1;
@@ -297,7 +296,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		tlw->installEventFilter( this );
 	    }
 	    QKeyEvent * ke = (QKeyEvent *) event;
-	    ke->accept();
 	    return TRUE;
 	} else if ( (event->type() == Event_KeyPress ||
 		     event->type() == Event_KeyRelease) &&
@@ -952,7 +950,6 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
-    e->accept();
 }
 
 
