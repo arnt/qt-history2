@@ -2,8 +2,8 @@ make			- same as "make debug"
 make debug		- builds the current target, debug version
 make release		- builds the current target, release version
 make RELEASE=[0|1]	- same as "make [debug|release]"
-make static-debug	- builds, uses a static Qt debug library (Windows)
-make static-release	- builds, uses a static Qt release library (Windows)
+make static-debug	- builds, uses a static Qt debug library
+make static-release	- builds, uses a static Qt release library
 make <dir>		- builds the target in a sub directory, debug version
 make <dir> RELEASE=1	- builds the target in a sub directory, release version
 
