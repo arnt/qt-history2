@@ -137,6 +137,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.ascent = -1;
     item.descent = -1;
     item.shaped = 0;
+    item.fontEngine = 0;
 
     items.append( item );
     for ( int i = start+1; i <= stop; i++ ) {
@@ -149,6 +150,14 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
 	    item.analysis.bidiLevel = level;
 	    item.analysis.override = control.override();
 	    item.analysis.reserved = 0;
+	    item.x = 0;
+	    item.y = 0;
+	    item.baselineAdjustment = 0;
+	    item.width = -1;
+	    item.ascent = -1;
+	    item.descent = -1;
+	    item.shaped = 0;
+	    item.fontEngine = 0;
 
 	    items.append( item );
 	    script = s;

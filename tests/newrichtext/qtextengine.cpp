@@ -17,14 +17,16 @@ QScriptItemArray::~QScriptItemArray()
 
 void QScriptItemArray::clear()
 {
-    for ( unsigned int i = 0; i < d->size; i++ ) {
-	QScriptItem &si = d->items[i];
-	if ( si.fontEngine )
-	    si.fontEngine->deref();
-	if ( si.shaped )
-	    delete si.shaped;
+    if ( d ) {
+	for ( unsigned int i = 0; i < d->size; i++ ) {
+	    QScriptItem &si = d->items[i];
+	    if ( si.fontEngine )
+		si.fontEngine->deref();
+	    if ( si.shaped )
+		delete si.shaped;
+	}
+	d->size = 0;
     }
-    d->size = 0;
 }
 
 void QScriptItemArray::resize( int s )
@@ -52,8 +54,12 @@ void QScriptItemArray::split( int pos )
     if ( numMove > 0 )
 	memmove( d->items + itemToSplit+2, d->items +itemToSplit+1, numMove*sizeof( QScriptItem ) );
     d->size++;
-    d->items[itemToSplit+1] = d->items[itemToSplit];
+    QScriptItem &newItem = d->items[itemToSplit+1];
+    QScriptItem &oldItem = d->items[itemToSplit];
+    newItem = oldItem;
     d->items[itemToSplit+1].position = pos;
+    newItem.fontEngine->ref();
+
 //     qDebug("split at position %d itempos=%d", pos, itemToSplit );
 }
 
@@ -174,6 +180,7 @@ QShapedItem *QTextEngine::shape( int item ) const
 	si.shaped = new QShapedItem();
     if ( !si.fontEngine )
 	si.fontEngine = fnt->engineForScript( script );
+    si.fontEngine->ref();
 
     if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
 	scriptEngines[script]->shape( string, from, len, &si );

@@ -164,6 +164,11 @@ QTextLayout::QTextLayout( const QString &string, QPainter *p = 0 )
     d = new QTextEngine( string, f );
 }
 
+QTextLayout::QTextLayout( const QString &string, const QFont &fnt )
+{
+    d = new QTextEngine( string, fnt.d );
+}
+
 QTextLayout::~QTextLayout()
 {
     delete d;
@@ -198,14 +203,20 @@ void QTextLayout::beginLayout()
     d->items.clear();
     d->itemize();
     d->currentItem = -1;
+    d->firstItemInLine = -1;
 }
 
 void QTextLayout::beginLine( int width )
 {
     d->lineWidth = width;
     d->widthUsed = 0;
+    d->firstItemInLine = -1;
 }
 
+bool QTextLayout::hasNextItem() const
+{
+    return d->currentItem < d->items.size() - 1;
+}
 
 QTextItem QTextLayout::nextItem()
 {
@@ -230,6 +241,9 @@ int QTextLayout::availableWidth() const
 QTextLayout::Result QTextLayout::addCurrentItem()
 {
     QScriptItem &current = d->items[d->currentItem];
+
+    if ( d->firstItemInLine == -1 )
+	d->firstItemInLine = d->currentItem;
 
     int width = d->lineWidth - d->widthUsed;
     if ( current.width < width ) {
@@ -306,6 +320,9 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 
 void QTextLayout::endLine( int x, int y, Qt::AlignmentFlags alignment )
 {
+    if ( d->firstItemInLine == -1 )
+	return;
+
     // position the objects in the line
     int available = d->lineWidth - d->widthUsed;
 

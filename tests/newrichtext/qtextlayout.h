@@ -48,6 +48,7 @@ class Q_EXPORT QTextLayout
 public:
     // does itemization
     QTextLayout( const QString &string, QPainter * = 0 );
+    QTextLayout( const QString &string, const QFont &f );
     virtual ~QTextLayout();
 
     enum LineBreakStrategy {
@@ -66,6 +67,7 @@ public:
     void beginLayout();
     void beginLine( int width );
 
+    bool hasNextItem() const;
     QTextItem nextItem();
     /* ## maybe also currentItem() */
     void setLineWidth( int newWidth );

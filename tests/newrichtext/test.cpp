@@ -66,8 +66,6 @@ int main( int argc, char **argv )
 
     QFontDatabase fdb;
 
-    return 0;
-
     QFont f( family );
     f.setPointSize( 24 );
     a.setFont( f );
@@ -109,11 +107,11 @@ int main( int argc, char **argv )
     return 0;
 #endif
 
-    QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::SingleLine, QString::fromUtf8( s ) );
-    QTime t;
-    t.start();
-    QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::WordBreak, QString::fromUtf8( s ) );
-    qDebug("fm.boundingrect() took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/QString::fromUtf8( s ).length() );
+//     QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::SingleLine, QString::fromUtf8( s ) );
+//     QTime t;
+//     t.start();
+//     QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::WordBreak, QString::fromUtf8( s ) );
+//     qDebug("fm.boundingrect() took %dms (%dus/char)", t.elapsed(), t.elapsed()*1000/QString::fromUtf8( s ).length() );
 
     EditWidget *w = new EditWidget( 0, 0 );
     w->setText( QString::fromUtf8( s ) );
