@@ -3100,6 +3100,13 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    const char *coclass = metaObject()->classInfo( "CoClass" );
 	    qWarning( "QAxBase::internalInvoke: %s: No such method in %s [%s].", (const char*)name, control().latin1(),
 		coclass ? coclass: "unknown" );
+
+	    function = function.left(function.find('('));
+	    for (int i = 0; i < metaObject()->numSlots(TRUE); ++i) {
+		const QMetaData *slot = metaObject()->slot(i, TRUE);
+		if (QString(slot->name).startsWith(function))
+		    qWarning("\tDid you mean %s?", slot->name);
+	    }
 #endif
 	    return FALSE;
 	}
