@@ -58,6 +58,7 @@ public:
 	QString help = QString::null );
 
     bool	doDefaultAction( int who );
+    QString	defaultAction( int who ) const;
     QString	accelerator( int who ) const;
     QString	name( int who ) const;
     State	state( int who ) const;
