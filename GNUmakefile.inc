@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#2 $
+# $Id: //depot/qt/main/GNUmakefile.inc#3 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -30,11 +30,20 @@ project: $(PROJECT).pro
 $(PROJECT).pro:
 	progen -o "$(PROJECT).pro" -n "$(PROJECT)"
 
+static: GNUmakefile.static $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.static
+
 debug: GNUmakefile.debug $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.debug
 
 release: GNUmakefile.release $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.release
+
+GNUmakefile.static: $(PROJECT).pro GNUmakefile
+	syncqt
+	@mkdir -p .obj/static
+	tmake $(PROJECT).pro -o GNUmakefile.static \
+	    "CONFIG+=staticlib" "OBJECTS_DIR=.obj/static"
 
 GNUmakefile.debug: $(PROJECT).pro GNUmakefile
 	syncqt
