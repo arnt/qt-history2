@@ -329,12 +329,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    writeHeader(mkt);
 	    mkt << "SUBLIBS= ";
 	    tmp = project->variables()["SUBLIBS"];
-	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it)
+	    QStringList::Iterator it;
+	    for( it = tmp.begin(); it != tmp.end(); ++it)
 		t << "tmp/lib" << (*it) << ".a ";
 	    t << endl << endl;
 	    mkt << "sublibs: $(SUBLIBS)" << endl << endl;
 	    tmp = project->variables()["SUBLIBS"];
-	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it)
+	    for(it = tmp.begin(); it != tmp.end(); ++it)
 		t << "tmp/lib" << (*it) << ".a" << ":\n\t"
 		  << var(QString("MAKELIB") + (*it)) << endl << endl;
 	    mkf.close();
@@ -748,6 +749,7 @@ ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t)
 	  << "distclean:" << varGlue("SUBDIRS", " distclean-", " distclean-", "")  << endl << endl;
     }
     t <<"FORCE:" << endl << endl;
+    return TRUE;
 }
 
 
