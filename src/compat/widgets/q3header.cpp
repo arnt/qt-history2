@@ -1433,7 +1433,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     opt.rect = fr;
 
     if (section < 0) {
-        style()->drawControl(QStyle::CE_Header, &opt, p, this);
+        style()->drawControl(QStyle::CE_HeaderSection, &opt, p, this);
         return;
     }
 
@@ -1458,7 +1458,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         opt.state |= QStyle::State_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
-        style()->drawControl(QStyle::CE_Header, &opt, p, this);
+        style()->drawControl(QStyle::CE_HeaderSection, &opt, p, this);
     } else {
         p->save();
         p->setClipRect(fr); // hack to keep styles working
