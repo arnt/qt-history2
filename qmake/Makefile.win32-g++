@@ -8,9 +8,9 @@ CFLAGS	    =	-c -o$@ -O \
 		-I..\src\core\arch\generic \
 		-I..\include -I ..\include\QtCore \
 		-I..\src\tools -I..\mkspecs\win32-g++ \
-		-DUNICODE -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
-	        -DQT_NO_COMPRESS -DQT_BUILD_QMAKE -DQT_NO_UNICODETABLE \
-		-DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QFILE_QOBJECT
+		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT \
+	       	-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
+	       	-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =
 LIBS	    = -lole32 -luuid
@@ -54,14 +54,14 @@ QTOBJS= \
 	qunicodetables.o \
 	quuid.o \
 	qvector.o \
-	qsettings.obj \
-	qcorevariant.obj \
-        qurl.obj \
-	qsettings_win.obj \
-	qrect.obj \
-	qpoint.obj \
-	qsize.obj \
-        qmetatype.o
+	qurl.o \
+	qrect.o \
+	qpoint.o \
+	qsize.o \
+	qsettings.o \
+	qsettings_win.o \
+	qcorevariant.o \
+	qmetatype.o
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
@@ -82,25 +82,25 @@ distclean:: clean
 qconfig.o: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
-qsettings_win.obj: ..\src\io\qsettings_win.cpp
+qsettings_win.o: ..\src\core\io\qsettings_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
 
-qsettings.obj: ..\src\io\qsettings.cpp
+qsettings.o: ..\src\core\io\qsettings.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
 
-qcorevariant.obj: ..\src\kernel\qcorevariant.cpp
+qcorevariant.o: ..\src\core\kernel\qcorevariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
 
-qurl.obj: ..\src\core\io\qurl.cpp
+qurl.o: ..\src\core\io\qurl.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp
 
-qrect.obj: ..\src\tools\qrect.cpp
+qrect.o: ..\src\core\tools\qrect.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
 
-qpoint.obj: ..\src\tools\qpoint.cpp
+qpoint.o: ..\src\core\tools\qpoint.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp
 
-qsize.obj: ..\src\tools\qsize.cpp
+qsize.o: ..\src\core\tools\qsize.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qsize.cpp
 
 qtextstream.o: ..\src\core\io\qtextstream.cpp
