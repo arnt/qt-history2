@@ -22,7 +22,7 @@ class QMenus : public QMainWindow
     Q_OBJECT
 
 public:
-    QMenus( QWidget *parent = 0, const char *name = 0 );
+    QMenus(QWidget *parent = 0);
 
 public slots:
     void fileOpen();

@@ -14,15 +14,15 @@
 #include <qaxfactory.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
-#include <qt3compat/qtextedit.h>
+#include <qtextedit.h>
 
 #include "menus.h"
 
 #include "fileopen.xpm"
 #include "filesave.xpm"
 
-QMenus::QMenus(QWidget *parent, const char *name) 
-    : QMainWindow(parent, name, 0) // QMainWindow's default flag is WType_TopLevel
+QMenus::QMenus(QWidget *parent) 
+    : QMainWindow(parent, 0) // QMainWindow's default flag is WType_TopLevel
 {
     QAction *action;
 
