@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#208 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#207 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#208 $");
 
 
 /*****************************************************************************
@@ -492,7 +492,7 @@ QPainter::QPainter()
   \sa begin(), end()
 */
 
-QPainter::QPainter( const QPaintDevice *pdev )
+QPainter::QPainter( const QPaintDevice *pd )
 {
     init();
     begin( pd );
