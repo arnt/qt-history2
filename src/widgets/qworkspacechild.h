@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#9 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#10 $
 **
 ** Definition of the QChildWindow class
 **
@@ -53,7 +53,7 @@ public:
     ~QWorkspaceChildTitleBar();
 
     bool isActive() const;
-
+    
  public slots:
     void setActive( bool );
     void setText( const QString& title );
@@ -95,6 +95,8 @@ public:
 
     void setActive( bool );
     bool isActive() const;
+
+    void adjustToFullscreen();
 
     QWidget* clientWidget() const;
     QWidget* iconWidget() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#18 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -326,10 +326,11 @@ bool QWorkspaceChildTitleBar::isActive() const
     return act;
 }
 
-class QGetWFlagsWidget : public QWidget
+class QProtectedWidget : public QWidget
 {
 public:
     WFlags getWFlags() const { return QWidget::getWFlags(); }
+    void reasonableFocus() { (void) focusNextPrevChild( TRUE ); }
 };
 
 
@@ -362,7 +363,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     titlebar->setText( clientw->caption() );
 
-    clientw->reparent( this, ((QGetWFlagsWidget*)clientw)->getWFlags(), QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
+    clientw->reparent( this, ((QProtectedWidget*)clientw)->getWFlags(), QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
     clientw->show();
 
     resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER);
@@ -397,7 +398,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
 void QWorkspaceChild::activate()
 {
-    setActive( TRUE );
+    ((QWorkspace*)parentWidget())->activateClient( clientWidget() );
 }
 
 
@@ -405,8 +406,9 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 {
 
     if ( !isActive() ) {
-	if ( e->type() == QEvent::MouseButtonPress || e->type() == QEvent::FocusIn ) {
-	    setActive( TRUE );
+	if ( e->type() == QEvent::MouseButtonPress/* || e->type() == QEvent::FocusIn */) {
+	    qDebug("focus in %s",  clientw->caption().latin1() );
+	    activate();
 	}
     }
 
@@ -415,6 +417,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     switch ( e->type() ) {
     case QEvent::Show:
+	if ( isVisibleTo( parentWidget() ) )
+	    break;
 	if ( TRUE ) { // ######### hack for broken layout
 	    QSize cs = clientw->sizeHint();
 	    if ( cs != clientSize ){
@@ -424,7 +428,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    }
 	
 	}
-	show();
+	((QWorkspace*)parentWidget())->showClient( clientWidget() );
 	break;
     case QEvent::Hide:
 	if ( !clientw->isVisibleTo( this ) ) {
@@ -591,6 +595,8 @@ void QWorkspaceChild::setActive( bool b)
     if ( b == act || !clientw)
 	return;
 
+    qDebug("setActive for %s => %d",  clientw->caption().latin1(), b );
+
     act = b;
 
     titlebar->setActive( act );
@@ -601,13 +607,14 @@ void QWorkspaceChild::setActive( bool b)
 	QObjectList* ol = clientw->queryList( "QWidget" );
 	for (QObject* o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
-	((QWorkspace*)parentWidget())->activateClient( clientWidget() );
 	bool hasFocus = FALSE;
 	for (QObject* o = ol->first(); o; o = ol->next() ) {
 	    hasFocus |= ((QWidget*)o)->hasFocus();
 	}
 	if ( !hasFocus ) {
 	    clientw->setFocus(); // insufficient, need toplevel semantics ########
+	    if ( !clientw->isFocusEnabled() )
+		( (QProtectedWidget*)clientw)->reasonableFocus();
 	}
 	delete ol;
 	
@@ -671,3 +678,10 @@ void QWorkspaceChild::showNormal()
 }
 
 
+
+void QWorkspaceChild::adjustToFullscreen()
+{
+    setGeometry( -clientw->x(), -clientw->y(), 
+		 parentWidget()->width() + width() - clientw->width(),
+		 parentWidget()->height() + height() - clientw->height() );
+}

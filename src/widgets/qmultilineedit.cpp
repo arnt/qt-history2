@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#71 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -563,8 +563,10 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
     stopAutoScroll();
     killTimer( blinkTimer );
     blinkTimer = 0;
-    if ( cursorOn )
+    if ( cursorOn ) {
+	cursorOn = FALSE;
 	updateCell( cursorY, 0, FALSE );
+    }
 }
 
 
@@ -3130,10 +3132,10 @@ int QMultiLineEdit::wrapColumnOrWidth() const
 
 /*!
   Returns wether \a row is the last row in a paragraph.
-  
+
   This function is only interesting in word wrap mode, otherwise its
   return value is always TRUE.
-  
+
   \sa setWordWrap()
  */
 bool QMultiLineEdit::isEndOfParagraph( int row ) const
