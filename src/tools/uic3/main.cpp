@@ -334,18 +334,6 @@ int main(int argc, char * argv[])
         fprintf(stderr, "%s: Error writing to file\n", argv[0]);
         if (!outputFile.isEmpty())
             remove(outputFile);
-    } else {
-        if (!(subcl || impl) && fileName) {   // ### please, remove me!
-            // generate the ui data file
-            BlockingProcess p;
-            p.addArgument("uic4");
-            p.addArgument("-o");
-            p.addArgument(uiData);
-            p.addArgument(QFile::encodeName(fileName));
-            p.start();
-            if (p.err.size())
-                fprintf(stderr, "%s\n", p.err.data());
-        }
     }
 
     return 0;
