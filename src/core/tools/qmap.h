@@ -233,9 +233,7 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT iterator replace(const Key &key, const T &value) { return insert(key, value); }
 #endif
-    QMap<Key, T> &operator+=(const QMap<Key, T> &other);
-    inline QMap<Key, T> operator+(const QMap<Key, T> &other) const
-    { QMap<Key, T> result = *this; result += other; return result; }
+    QMap<Key, T> &merge(const QMap<Key, T> &other);
 
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
@@ -427,7 +425,7 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::find(const Key &
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator+=(const QMap<Key, T> &other)
+Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::merge(const QMap<Key, T> &other)
 {
     const_iterator it = other.end();
     while (it != other.begin()) {
@@ -680,6 +678,24 @@ Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const typename std::map<
     return *this;
 }
 #endif
+
+template <class Key, class T>
+class QMultiMap : public QMap<Key, T>
+{
+public:
+    QMultiMap() {}
+    QMultiMap(const QMap<Key, T> &other) : QMap<Key, T>(other) {}
+
+    inline iterator replace(const Key &key, const T &value)
+    { return QMap<Key, T>::insert(key, value); }
+    inline iterator insert(const Key &key, const T &value)
+    { return QMap<Key, T>::insertMulti(key, value); }
+
+    inline QMultiMap<Key, T> &operator+=(const QMultiMap<Key, T> &other)
+    { merge(other); return *this; }
+    inline QMultiMap<Key, T> operator+(const QMultiMap<Key, T> &other) const
+    { QMultiMap<Key, T> result = *this; result += other; return result; }
+};
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)
 

@@ -294,9 +294,7 @@ public:
     const_iterator find(const Key &key) const;
     iterator insert(const Key &key, const T &value);
     iterator insertMulti(const Key &key, const T &value);
-    QHash<Key, T> &operator+=(const QHash<Key, T> &other);
-    inline QHash<Key, T> operator+(const QHash<Key, T> &other) const
-    { QHash<Key, T> result = *this; result += other; return result; }
+    QHash<Key, T> &merge(const QHash<Key, T> &other);
 
     // STL compatibility
     inline bool empty() const { return isEmpty(); }
@@ -332,7 +330,7 @@ QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNod
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator+=(const QHash<Key, T> &other)
+Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::merge(const QHash<Key, T> &other)
 {
     const_iterator it = other.end();
     while (it != other.begin()) {
@@ -645,6 +643,24 @@ Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) 
     }
     return true;
 }
+
+template <class Key, class T>
+class QMultiHash : public QHash<Key, T>
+{
+public:
+    QMultiHash() {}
+    QMultiHash(const QHash<Key, T> &other) : QHash<Key, T>(other) {}
+
+    inline iterator replace(const Key &key, const T &value)
+    { return QHash<Key, T>::insert(key, value); }
+    inline iterator insert(const Key &key, const T &value)
+    { return QHash<Key, T>::insertMulti(key, value); }
+
+    inline QMultiHash<Key, T> &operator+=(const QMultiHash<Key, T> &other)
+    { merge(other); return *this; }
+    inline QMultiHash<Key, T> operator+(const QMultiHash<Key, T> &other) const
+    { QMultiHash<Key, T> result = *this; result += other; return result; }
+};
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)
 

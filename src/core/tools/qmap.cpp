@@ -241,20 +241,20 @@ void QMapData::dump()
     using a Java-style iterator:
 
     \code
-	QMapIterator<QString, int> it(hash);
-        while (it.hasNext()) {
-	    it.next();
-            cout << it.key() << ": " << it.value() << endl;
+	QMapIterator<QString, int> i(hash);
+        while (i.hasNext()) {
+	    i.next();
+            cout << i.key() << ": " << i.value() << endl;
         }
     \endcode
 
     Here's the same code, but using an STL-style iterator this time:
 
     \code
-	QMap<QString, int>::const_iterator it = map.constBegin();
-        while (it != map.constEnd()) {
-	    cout << it.key() << ": " << it.value() << endl;
-	    ++it;
+	QMap<QString, int>::const_iterator i = map.constBegin();
+        while (i != map.constEnd()) {
+	    cout << i.key() << ": " << i.value() << endl;
+	    ++i;
         }
     \endcode
 
@@ -272,9 +272,10 @@ void QMapData::dump()
     \endcode
 
     However, you can store multiple values per key by using
-    insertMulti() instead of insert(). If you want to retrieve all
-    the values for a single key, you can use values(const T &key),
-    which returns a QList<T>:
+    insertMulti() instead of insert() (or using the convenience
+    subclass QMultiMap). If you want to retrieve all the values for a
+    single key, you can use values(const Key &key), which returns a
+    QList<T>:
 
     \code
 	QList<int> values = map.values("plenty");
@@ -289,9 +290,9 @@ void QMapData::dump()
     QMapMutableIterator::findNextKey():
 
     \code
-	QMapIterator<QString, int> it(map);
-        while (it.findNextKey("plenty"))
-	    cout << it.value() << endl;
+	QMapIterator<QString, int> i(map);
+        while (i.findNextKey("plenty"))
+	    cout << i.value() << endl;
     \endcode
 
     If you prefer the STL-style iterators, you can call find() to get
@@ -299,10 +300,10 @@ void QMapData::dump()
     there:
 
     \code
-	QMap<QString, int>::iterator it = map.find("plenty");
-        while (it != map.end() && it.key() == "plenty") {
-	    cout << it.value() << endl;
-	    ++it;
+	QMap<QString, int>::iterator i = map.find("plenty");
+        while (i != map.end() && i.key() == "plenty") {
+	    cout << i.value() << endl;
+	    ++i;
         }
     \endcode
 
@@ -659,9 +660,9 @@ void QMapData::dump()
     \sa constBegin(), end()
 */
 
-/*! \fn QMap::iterator QMap::erase(iterator it)
+/*! \fn QMap::iterator QMap::erase(iterator pos)
 
-    Removes the (key, value) pair associated with the iterator \a it
+    Removes the (key, value) pair associated with the iterator \a pos
     from the map, and returns an iterator to the next item in the
     map.
 
@@ -685,10 +686,10 @@ void QMapData::dump()
     \code
 	QMap<QString, int> map;
         ...
-	QMap<QString, int>::const_iterator it = map.find("HDR");
-        while (it != map.end() && it.key() == "HDR") {
-	    cout << it.value() << endl;
-	    ++it;
+	QMap<QString, int>::const_iterator i = map.find("HDR");
+        while (i != map.end() && i.key() == "HDR") {
+	    cout << i.value() << endl;
+	    ++i;
         }
     \endcode
 
@@ -725,22 +726,13 @@ void QMapData::dump()
     \sa insert(), values()
 */
 
-/*! \fn QMap<Key, T> &QMap::operator+=(const QMap<Key, T> &other)
+/*! \fn QMap<Key, T> &QMap::merge(const QMap<Key, T> &other)
 
     Inserts all the items in the \a other map into this map. If a
     key is common to both maps, the resulting map will contain the
     key multiple times.
 
-    \sa operator+(), insertMulti()
-*/
-
-/*! \fn QMap<Key, T> QMap::operator+(const QMap<Key, T> &other) const
-
-    Returns a map that contains all the items in this map in
-    addition to all the items in \a other. If a key is common to both
-    maps, the resulting map will contain the key multiple times.
-
-    \sa operator+=(), insertMulti()
+    \sa insertMulti()
 */
 
 /*! \typedef QMap::Iterator
@@ -765,19 +757,19 @@ void QMapData::dump()
 */
 
 /*! \class QMap::iterator
-    \brief The QMap::iterator class provides an STL-style non-const iterator for QMap.
+    \brief The QMap::iterator class provides an STL-style non-const iterator for QMap and QMultiMap.
 
-    QMap provides both \l{STL-style iterators} and \l{Java-style
+    QMap features both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
     cumbersome to use; on the other hand, they are slightly faster
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QMap::iterator allows you to iterate over a QMap and to modify
-    the value (but not the key) stored under a particular key. If you
-    want to iterate over a const QMap, you should use
-    QMap::const_iterator. It is generally good practice to use
-    QMap::const_iterator on a non-const QMap as well, unless you
+    QMap::iterator allows you to iterate over a QMap (or QMultiMap)
+    and to modify the value (but not the key) stored under a
+    particular key. If you want to iterate over a const QMap, you
+    should use QMap::const_iterator. It is generally good practice to
+    use QMap::const_iterator on a non-const QMap as well, unless you
     need to change the QMap through the iterator. Const iterators are
     slightly faster, and can improve code readability.
 
@@ -903,8 +895,8 @@ void QMapData::dump()
     the left side of an assignment, for example:
 
     \code
-	if (it.key() == "Hello")
-	    it.value() = "Bonjour";
+	if (i.key() == "Hello")
+	    i.value() = "Bonjour";
     \endcode
 
     \sa key(), operator*()
@@ -937,7 +929,7 @@ void QMapData::dump()
 
 /*! \fn QMap::iterator QMap::iterator::operator++()
 
-    The prefix ++ operator (\c{++it}) advances the iterator to the
+    The prefix ++ operator (\c{++i}) advances the iterator to the
     next item in the map and returns an iterator to the new current
     item.
 
@@ -950,14 +942,14 @@ void QMapData::dump()
 
     \overload
 
-    The postfix ++ operator (\c{it++}) advances the iterator to the
+    The postfix ++ operator (\c{i++}) advances the iterator to the
     next item in the map and returns an iterator to the previously
     current item.
 */
 
 /*! \fn QMap::iterator QMap::iterator::operator--()
 
-    The prefix -- operator (\c{--it}) makes the preceding item
+    The prefix -- operator (\c{--i}) makes the preceding item
     current and returns an iterator pointing to the new current item.
 
     Calling this function on QMap::begin() leads to undefined
@@ -970,26 +962,26 @@ void QMapData::dump()
 
     \overload
 
-    The prefix -- operator (\c{--it}) makes the preceding item
+    The prefix -- operator (\c{--i}) makes the preceding item
     current and returns an iterator pointing to the previously
     current item.
 */
 
 /*! \class QMap::const_iterator
-    \brief The QMap::const_iterator class provides an STL-style const iterator for QMap.
+    \brief The QMap::const_iterator class provides an STL-style const iterator for QMap and QMultiMap.
 
-    QMap provides both \l{STL-style iterators} and \l{Java-style
+    QMap features both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
     cumbersome to use; on the other hand, they are slightly faster
     and, for developers who already know STL, have the advantage of
     familiarity.
 
-    QMap::const_iterator allows you to iterate over a QMap. If you
-    want to modify the QMap as you iterate over it, you must use
-    QMap::iterator instead. It is generally good practice to use
-    QMap::const_iterator on a non-const QMap as well, unless you
-    need to change the QMap through the iterator. Const iterators are
-    slightly faster, and can improve code readability.
+    QMap::const_iterator allows you to iterate over a QMap (or a
+    QMultiMap). If you want to modify the QMap as you iterate over
+    it, you must use QMap::iterator instead. It is generally good
+    practice to use QMap::const_iterator on a non-const QMap as well,
+    unless you need to change the QMap through the iterator. Const
+    iterators are slightly faster, and can improve code readability.
 
     The default QMap::const_iterator constructor creates an
     uninitialized iterator. You must initialize it using a QMap
@@ -1004,7 +996,7 @@ void QMapData::dump()
         ...
         map.insert("December", 12);
 
-        map<QString, int>::const_iterator i;
+        QMap<QString, int>::const_iterator i;
         for (i = map.constBegin(); i != map.constEnd(); ++i)
 	    cout << i.key() << ": " << i.value() << endl;
     \endcode
@@ -1088,7 +1080,7 @@ void QMapData::dump()
 
 /*! \fn QMap::const_iterator QMap::const_iterator::operator++()
 
-    The prefix ++ operator (\c{++it}) advances the iterator to the
+    The prefix ++ operator (\c{++i}) advances the iterator to the
     next item in the map and returns an iterator to the new current
     item.
 
@@ -1101,14 +1093,14 @@ void QMapData::dump()
 
     \overload
 
-    The postfix ++ operator (\c{it++}) advances the iterator to the
+    The postfix ++ operator (\c{i++}) advances the iterator to the
     next item in the map and returns an iterator to the previously
     current item.
 */
 
 /*! \fn QMap::const_iterator &QMap::const_iterator::operator--()
 
-    The prefix -- operator (\c{--it}) makes the preceding item
+    The prefix -- operator (\c{--i}) makes the preceding item
     current and returns an iterator pointing to the new current item.
 
     Calling this function on QMap::begin() leads to undefined
@@ -1121,7 +1113,7 @@ void QMapData::dump()
 
     \overload
 
-    The postfix -- operator (\c{it--}) makes the preceding item
+    The postfix -- operator (\c{i--}) makes the preceding item
     current and returns an iterator pointing to the previously
     current item.
 */
@@ -1146,4 +1138,140 @@ void QMapData::dump()
     operator>>().
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+/*! \class QMultiMap
+    \brief The QMultiMap class is a convenience QMap subclass that provides multi-valued maps.
+
+    \ingroup qtl
+    \ingroup tools
+    \ingroup shared
+    \mainclass
+    \reentrant
+
+    QMultiMap\<Key, T\> is one of Qt's generic \l{container classes}.
+    It inherits QMap and extends it with a few convenience functions
+    that make it more suitable than QMap for storing multi-valued
+    maps. A multi-valued map is a map that allows multiple values
+    with the same key; QMap normally doesn't allow that, unless you
+    call QMap::insertMulti().
+
+    Because QMultiMap inherits QMap, all of QMap's functionality also
+    applies to QMultiMap. For example, you can use isEmpty() to test
+    whether the map is empty, and you can traverse a QMultiMap using
+    QMap's iterator classes (for example, QMapIterator). But in
+    addition, it provides an insert() function that corresponds to
+    QMap::insertMulti(), and a replace() function that corresponds to
+    QMap::insert(). It also provides convenient operator+() and
+    operator+=().
+
+    Example:
+    \code
+	QMultiMap<QString, int> map1, map2, map3;
+
+	map1.insert("plenty", 100);
+        map1.insert("plenty", 2000);
+        // map1.size() == 2
+
+	map2.insert("plenty", 5000);
+        // map2.size() == 1
+
+	map3 = map1 + map2;
+        // map3.size() == 3
+    \endcode
+
+    If you want to retrieve all the values for a single key, you can
+    use values(const Key &key), which returns a QList<T>:
+
+    \code
+	QList<int> values = map.values("plenty");
+        for (int i = 0; i < values.size(); ++i)
+	    cout << values.at(i) << endl;
+    \endcode
+
+    The items that share the same key are available from most
+    recently to least recently inserted.
+
+    A more efficient approach is to use QMapIterator::findNextKey() or
+    QMapMutableIterator::findNextKey():
+
+    \code
+	QMapIterator<QString, int> i(map);
+        while (i.findNextKey("plenty"))
+	    cout << i.value() << endl;
+    \endcode
+
+    If you prefer the STL-style iterators, you can call find() to get
+    the iterator for the first item with a key and iterate from
+    there:
+
+    \code
+	QMultiMap<QString, int>::iterator i = map.find("plenty");
+        while (i != map.end() && i.key() == "plenty") {
+	    cout << i.value() << endl;
+	    ++i;
+        }
+    \endcode
+
+    QMultiMap's key and value data types must be \l{assignable data
+    types}. This covers most data types you are likely to encounter,
+    but the compiler won't let you, for example, store a QWidget as a
+    value; instead, store a QWidget *. In addition, QMultiMap's key type
+    must provide operator<(). See the QMap documentation for details.
+
+    \sa QMap, QMapIterator, QMapMutableIterator, QMultiHash
+*/
+
+/*! \fn QMultiMap::QMultiMap()
+
+    Constructs an empty map.
+*/
+
+/*! \fn QMultiMap::QMultiMap(const QMap<Key, T> &other)
+
+    Constructs a copy of \a other (which can be a QMap or a
+    QMultiMap).
+
+    \sa operator=()
+*/
+
+/*! \fn QMultiMap::iterator QMultiMap::replace(const Key &key, const T &value)
+
+    Inserts a new item with the key \a key and a value of \a value.
+
+    If there is already an item with the key \a key, that item's value
+    is replaced with \a value.
+
+    If there are multiple items with the key \a key, the most
+    recently inserted item's value is replaced with \a value.
+
+    \sa insert()
+*/
+
+/*! \fn QMultiMap::iterator QMultiMap::insert(const Key &key, const T &value)
+
+    Inserts a new item with the key \a key and a value of \a value.
+
+    If there is already an item with the same key in the map, this
+    function will simply create a new one. (This behavior is
+    different from replace(), which overwrites the value of an
+    existing item.)
+
+    \sa replace()
+*/
+
+/*! \fn QMultiMap<Key, T> &QMultiMap::operator+=(const QMultiMap<Key, T> &other)
+
+    Inserts all the items in the \a other map into this map.
+
+    \sa insert()
+*/
+
+/*! \fn QMultiMap<Key, T> QMultiMap::operator+(const QMultiMap<Key, T> &other) const
+
+    Returns a map that contains all the items in this map in
+    addition to all the items in \a other. If a key is common to both
+    maps, the resulting map will contain the key multiple times.
+
+    \sa operator+=()
 */
