@@ -651,7 +651,7 @@ bool QAccel::ignoreWhatsThis() const
 Applications invariably need to define accelerator keys for actions.
 Qt fully supports accelerators, for example with \l QAccel::shortcutKey().
 
-Here are Microsoft's recommendations for accelerator keys, with
+Below are Microsoft's recommendations for accelerator keys, with
 comments about the Open Group's recommendations where they exist and
 differ.  For most commands, the Open Group either has no advice or
 agrees with Microsoft.

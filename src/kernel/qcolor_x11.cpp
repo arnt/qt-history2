@@ -582,6 +582,8 @@ uint QColor::alloc()
 }
 
 /*!
+    \overload
+
   Returns the pixel value for screen \a screen.
 
   This value is used by the underlying window system to refer to a color.
