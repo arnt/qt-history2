@@ -6144,26 +6144,25 @@ const QPixmap *QWidget::icon() const
     explicit background role. This is set/cleared by
     QWidget::setBackgroundRole().
 
-    \value WA_NoBackground Indicates that the widget paints all
-    its pixels when it receives a paint event. It is thus not required
-    for operations like updating, resizing, scrolling and focus
-    changes to call erase the widget before generating paint
-    events. Using WA_NoBackground is a small optimization. It can help
-    to reduce flicker on systems that do not provide double buffer
-    support, and it avoids the computational cycles necessary to erase
-    the background prior to paint. NOTE: Unlike WA_NoSystemBackground,
-    newly exposed areas are automatically filled with the background
-    (e.g. when showing a window for the first time). This is
-    set/cleared by the widget's author.
+    \value WA_NoBackground Indicates that the widget paints all its
+    pixels when it receives a paint event. It is thus not required for
+    operations like updating, resizing, scrolling and focus changes to
+    call erase the widget before generating paint events. Using
+    WA_NoBackground is a small optimization. It can help to reduce
+    flicker on systems that do not provide double buffer support, and
+    it avoids the computational cycles necessary to erase the
+    background prior to paint. NOTE: Unlike WA_NoSystemBackground,
+    WA_NoBackground makes an effort to avoid transparent window
+    backgrounds. This is set/cleared by the widget's author.
 
     \value WA_NoSystemBackground Indicates that the widget has no
     background, i.e. when the widget receives paint events, the
     background is not automatically repainted. NOTE: Unlike
-    WA_NoBackground, newly exposed areas are \e not automatically
-    filled with the background (e.g after showing a window for the
-    first time). Setting this flag implicitly disables double
-    buffering for the widget. This is set/cleared by the widget's
-    author.
+    WA_NoBackground, newly exposed areas are \e never filled with the
+    background (e.g after showing a window for the first time the user
+    can see "through" it until the application processes the paint
+    events). Setting this flag implicitly disables double buffering
+    for the widget. This is set/cleared by the widget's author.
 
     \value WA_StaticContents Indicates that the widget contents
     are north-west aligned and static. On resize, such a widget will

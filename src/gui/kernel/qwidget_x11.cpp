@@ -1898,6 +1898,15 @@ void QWidget::show_sys()
     if (testAttribute(Qt::WA_OutsideWSRange))
         return;
     setAttribute(Qt::WA_Mapped);
+
+    if (!isTopLevel()
+        && (testAttribute(Qt::WA_NoBackground)
+            || palette().brush(q->backgroundRole()).style() == Qt::LinearGradientPattern)) {
+        XSetWindowBackgroundPixmap(X11->display, winId(), XNone);
+        XMapWindow(d->xinfo.display(), winId());
+        d->updateSystemBackground();
+        return;
+    }
     XMapWindow(d->xinfo.display(), winId());
 }
 
