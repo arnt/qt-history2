@@ -71,8 +71,6 @@ class QTextFormatPrivate : public QSharedObject
 public:
     typedef QMap<int, QTextFormatProperty> PropertyMap;
 
-    bool operator==(const QTextFormatPrivate &rhs) const;
-
     PropertyMap properties;
 };
 
@@ -118,21 +116,6 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 	case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
 	case QTextFormat::String: return stringValue() == rhs.stringValue();
     }
-
-    return true;
-}
-
-bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
-{
-    if (properties.size() != rhs.properties.size())
-	return false;
-
-    PropertyMap::ConstIterator lhsIt = properties.begin();
-    PropertyMap::ConstIterator rhsIt = rhs.properties.begin();
-    for (; lhsIt != properties.end(); ++lhsIt, ++rhsIt)
-	if ((lhsIt.key() != rhsIt.key()) ||
-	    (lhsIt.value() != rhsIt.value()))
-	    return false;
 
     return true;
 }
@@ -351,7 +334,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     if (!rhs.d)
 	return false;
 
-    return *d == *rhs.d;
+    return d->properties == rhs.d->properties;
 }
 
 void QTextCharFormat::setFont(const QFont &font)
