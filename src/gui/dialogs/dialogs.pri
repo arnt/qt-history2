@@ -24,7 +24,7 @@ win32 {
 	       dialogs/qpagesetupdialog_win.cpp \
 	       dialogs/qprintdialog_win.cpp 
 }
-win32:LIBS += shell32.lib 	# the filedialog needs this library
+win32:LIBS += -lshell32 	# the filedialog needs this library
 
 mac {
 	SOURCES += dialogs/qprintdialog_mac.cpp \
