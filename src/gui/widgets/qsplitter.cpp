@@ -516,7 +516,7 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool spl
     */
     int minSize = pick(verySmartMinSize(w));
     if (!w->isHidden() && s <= 0 && minSize > 0) {
-        sls->collapsed = splitterMoved && minSize > 1;
+        sls->collapsed = minSize > 1;
         r.moveTopLeft(QPoint(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX));
     }
     w->setGeometry(r);
