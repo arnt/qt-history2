@@ -4047,7 +4047,6 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::MouseButtonPress:
-	    qDebug( "MouseButtonPress for widget %s", className() );
 	    resetInputContext();
 	    mousePressEvent( (QMouseEvent*)e );
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
@@ -4055,21 +4054,18 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::MouseButtonRelease:
-	    qDebug( "MouseButtonRelease for widget %s", className() );
 	    mouseReleaseEvent( (QMouseEvent*)e );
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
 		return FALSE;
 	    break;
 
 	case QEvent::MouseButtonDblClick:
-	    qDebug( "MouseButtonDblClick for widget %s", className() );
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
 		return FALSE;
 	    break;
 #ifndef QT_NO_WHEELEVENT
 	case QEvent::Wheel:
-	    qDebug( "Wheel for widget %s", className() );
 	    wheelEvent( (QWheelEvent*)e );
 	    if ( ! ((QWheelEvent*)e)->isAccepted() )
 		return FALSE;
@@ -4176,7 +4172,6 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 	case QEvent::ContextMenu: {
-	    qDebug( "ContextMenu for widget %s", className() );
 	    QContextMenuEvent *c = (QContextMenuEvent *)e;
 	    contextMenuEvent( c );
 	    if ( !c->isAccepted() )
