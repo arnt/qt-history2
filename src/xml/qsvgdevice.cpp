@@ -1117,6 +1117,15 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 	    pen->setJoinStyle( Qt::RoundJoin );
 	else if ( val == "bevel" )
 	    pen->setJoinStyle( Qt::BevelJoin );
+    } else if ( prop == "stroke-dasharray" ) {
+	if ( val == "18,6" )
+	    pen->setStyle( Qt::DashLine );
+	else if ( val == "3" )
+	    pen->setStyle( Qt::DotLine );
+	else if ( val == "9,6,3,6" )
+	    pen->setStyle( Qt::DashDotLine );
+	else if ( val == "9,3,3" )
+	    pen->setStyle( Qt::DashDotDotLine );
     } else if ( prop == "fill" ) {
 	if ( val == "none" )
 	    pt->setBrush( Qt::NoBrush );
@@ -1427,6 +1436,14 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	if ( c == PdcDrawLine )
 	    pw /= (QABS(pt->worldMatrix().m11()) + QABS(pt->worldMatrix().m22())) / 2.0;
 	s += QString( "stroke-width:%1;" ).arg( pw );
+	if ( pt->pen().style() == Qt::DashLine )
+	    s+= QString( "stroke-dasharray:18,6;" );
+	else if ( pt->pen().style() == Qt::DotLine )
+	    s+= QString( "stroke-dasharray:3;" );
+	else if ( pt->pen().style() == Qt::DashDotLine )
+	    s+= QString( "stroke-dasharray:9,6,3,6;" );
+	else if ( pt->pen().style() == Qt::DashDotDotLine )
+	    s+= QString( "stroke-dasharray:9,3,3;" );
 	if ( pt->brush().style() == Qt::NoBrush || c == PdcDrawPolyline ||
 	     c == PdcDrawCubicBezier )
 	    s += "fill:none;"; // Qt polylines use no brush, neither do Beziers
