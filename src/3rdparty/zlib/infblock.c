@@ -246,7 +246,7 @@ int r;
         s->sub.trees.blens[border[s->sub.trees.index++]] = 0;
       s->sub.trees.bb = 7;
       t = inflate_trees_bits(s->sub.trees.blens, &s->sub.trees.bb,
-                             &s->sub.trees.tb, s->hufts, z);
+                             (const inflate_huft * FAR *)&s->sub.trees.tb, s->hufts, z);
       if (t != Z_OK)
       {
         r = t;
