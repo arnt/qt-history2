@@ -14,7 +14,7 @@ LFLAGS+=
 
 qmake: $(OBJS) $(QTOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
-	ln -s -f $@ $(QTDIR)/bin/$@
+	ln -s -f $(shell pwd)/$@ $(QTDIR)/bin/$@
 
 DEPDIR:=$(shell [ -d .deps/ ] || mkdir -p .deps/)
 -include $(OBJS:.o=.dep)
