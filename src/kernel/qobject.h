@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#9 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#10 $
 **
 ** Definition of QObject class
 **
@@ -50,8 +50,8 @@ public:
 			 const char *member ) const;
     static bool disconnect( QObject *sender, const char *signal,
 			    const QObject *receiver, const char *member );
-    bool	disconnect( const char *signal,
-			    const QObject *receiver, const char *member=0 );
+    bool	disconnect( const char *signal=0,
+			    const QObject *receiver=0, const char *member=0 );
     bool	disconnect( const QObject *receiver, const char *member=0 );
 
     void	dumpObjectTree();		// NOTE!!! For debugging
