@@ -40,7 +40,7 @@ public:
     QString tableName() const;
 
     bool isModelReadOnly() const { return false; }
-    bool isEditable(const QModelIndex &) const { return true; }
+    bool isEditable(const QModelIndex &) const;
 
     QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
