@@ -100,6 +100,7 @@ main(int argc, char** argv)
     QApplication app(argc, argv);
 
     Main m;
+    m.resize( 400, 600 );
     m.show();
 
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
