@@ -66,7 +66,8 @@
   item.
 
   There are also methods to remove() or take() an object from the
-  cache. Calling setAutoDelete(TRUE) tells the cache to delete
+  cache. Calling \link QPtrCollection::setAutoDelete()
+  setAutoDelete(TRUE)\endlink tells the cache to delete
   items that are removed. The default is to not delete items when
   then are removed (i.e., remove() and take() are equivalent).
 
@@ -79,7 +80,7 @@
 
   When removing a cache item the virtual function
   QPtrCollection::deleteItem() is called. Its default implementation
-  in QAsciiCache is to delete the item if \link setAutoDelete()
+  in QAsciiCache is to delete the item if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
 
   There is a QAsciiCacheIterator which may be used to traverse the
@@ -218,7 +219,8 @@
   was present in the cache; otherwise returns FALSE.
 
   The item is deleted if auto-deletion has been enabled, i.e., if you
-  have called setAutoDelete(TRUE).
+  have called \link QPtrCollection::setAutoDelete()
+  setAutoDelete(TRUE)\endlink.
 
   If there are two or more items with equal keys, the one that
   was inserted last is removed.
@@ -249,7 +251,7 @@
   \fn void QAsciiCache::clear()
 
   Removes all items from the cache, and deletes them if \link
-  setAutoDelete() auto-deletion\endlink has been enabled.
+  QPtrCollection::setAutoDelete() auto-deletion\endlink has been enabled.
 
   All cache iterators that operate on this cache are reset.
 
