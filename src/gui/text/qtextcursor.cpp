@@ -547,7 +547,7 @@ int QTextCursor::anchor() const
 }
 
 /*!
-  Moves the cursor by MoveOperation \op, using MoveMode \a mode.
+  Moves the cursor \a n times by MoveOperation \op, using MoveMode \a mode.
 
   Using KeepAnchor as the \a mode, makes it possible to have a
   selection in the cursor. It corresponds to moving the cursor with a
@@ -555,11 +555,24 @@ int QTextCursor::anchor() const
 
   \sa MoveOperation, MoveMode
 */
-bool QTextCursor::moveTo(MoveOperation op, MoveMode mode)
+bool QTextCursor::moveTo(MoveOperation op, MoveMode mode, int n)
 {
     if (!d)
         return false;
-    return d->moveTo(op, mode);
+    switch (op) {
+        case Start:
+        case StartOfLine:
+        case End:
+        case EndOfLine:
+            n = 1;
+            break;
+        default: break;
+    }
+    for (; n > 0; --n) {
+        if (!d->moveTo(op, mode))
+            return false;
+    }
+    return true;
 }
 
 /*!

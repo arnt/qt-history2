@@ -73,7 +73,7 @@ public:
         WordRight
     };
 
-    bool moveTo(MoveOperation op, MoveMode = MoveAnchor);
+    bool moveTo(MoveOperation op, MoveMode = MoveAnchor, int n = 1);
 
     void deleteChar();
     void deletePreviousChar();
