@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#219 $
 **
 ** Implementation of QObject class
 **
@@ -215,7 +215,7 @@ static inline bool isSpace( char x )
 #endif
 }
 
-QCString qt_rmWS( const char *src )
+static QCString qt_rmWS( const char *src )
 {
     QCString result( strlen(src)+1 );
     char *d = result.data();
