@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#54 $
 **
 ** Implementation of QPicture class
 **
@@ -28,6 +28,7 @@
 #include "qimage.h"
 #include "qfile.h"
 #include "qdatastream.h"
+
 
 /*!
   \class QPicture qpicture.h
@@ -243,13 +244,15 @@ bool QPicture::play( QPainter *painter )
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 {
+#if defined(DEBUG)
+    int		strm_pos;
+#endif
     UINT8	c;				// command id
     UINT8	tiny_len;			// 8-bit length descriptor
     INT32	len;				// 32-bit length descriptor
     INT16	i_16, i1_16, i2_16;		// parameters...
     INT8	i_8;
     UINT32	ul;
-    int		strm_pos;
     Q1String	str1;
     QString	str;
     QPoint	p, p1, p2;
