@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#25 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#25 $";
 #endif
 
 
@@ -83,8 +83,7 @@ QObject::QObject( QObject *parent, const char *name )
 {
     if ( !objectDict )				// will create object dict
 	initMetaObject();
-    if ( name )
-	objname = name;				// set object name
+    objname = name ? strdup(name) : 0;		// set object name
     parentObj = parent;				// set parent
     childObjects = 0;				// no children yet
     connections = 0;				// no connections yet
@@ -103,6 +102,8 @@ QObject::QObject( QObject *parent, const char *name )
 
 QObject::~QObject()
 {
+    if ( objname )
+	delete objname;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
     if ( pendEvent )				// pending posted events
@@ -173,7 +174,9 @@ const char *QObject::className() const		// get name of class
 
 void QObject::setName( const char *name )	// set object name
 {
-    objname = name;
+    if ( objname )
+	delete objname;
+    objname = name ? strdup(name) : 0;
 }
 
 
