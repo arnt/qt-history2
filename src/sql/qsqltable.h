@@ -64,10 +64,12 @@ protected slots:
     virtual bool updateCurrent();
     virtual bool deleteCurrent();
     virtual bool beginInsert();
+    virtual bool beginUpdate();
 
 protected:
+    QWidget*     beginEdit ( int row, int col, bool replace );
     void         columnWidthChanged( int col );
-    
+
     virtual bool primeInsert( QSqlView* view );
     virtual bool primeUpdate( QSqlView* view );
     virtual bool primeDelete( QSqlView* view );
@@ -102,6 +104,7 @@ private:
     void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();
+    void         endUpdate();
     QSqlTablePrivate* d;
 };
 

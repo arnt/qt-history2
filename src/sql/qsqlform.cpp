@@ -10,7 +10,7 @@
 /*!
   \class QSqlPropertyMap qsqlform.h
   \brief Class used for mapping SQL editor values to SQL fields and vice versa
-  
+
   \module sql
 
   This class is used to associate a class with a specific property. This
@@ -34,42 +34,43 @@ QSqlPropertyMap::QSqlPropertyMap()
 }
 
 /*!
-  
+
   Returns the QVariant which is a property of \a object.
 */
 QVariant QSqlPropertyMap::property( QObject * object )
 {
     if( !object ) return QVariant();
-    
+
     return object->property( propertyMap[ object->metaObject()->className() ] );
 }
 
 /*!
-  
+
   Sets the property associated with \a object to \a value.
 */
 void QSqlPropertyMap::setProperty( QObject * object, const QVariant & value )
 {
     if( !object ) return;
-    
-    object->setProperty( propertyMap[ object->metaObject()->className() ], 
+
+    qDebug("setting property for " + QString(object->name()) + " to value of type:" + QString(value.typeName()) + " of value:" + value.toString() );
+    object->setProperty( propertyMap[ object->metaObject()->className() ],
 			 value );
 }
 
 /*!
-  
+
   Insert a new classname/property pair, which is used for custom SQL
   field editors. Remember to add a Q_PROPERTY clause in the \a classname
   class declaration.
 */
-void QSqlPropertyMap::insert( const QString & classname, 
+void QSqlPropertyMap::insert( const QString & classname,
 			      const QString & property )
 {
     propertyMap[ classname ] = property;
 }
 
 /*!
-  
+
   Removes a classname/property pair from the map.
 */
 void QSqlPropertyMap::remove( const QString & classname )
@@ -81,7 +82,7 @@ void QSqlPropertyMap::remove( const QString & classname )
 /*!
   \class QSqlFormMap qsqlform.h
   \brief Class used for mapping SQL fields to Qt widgets and vice versa
-  
+
   \module sql
 
   This class is used to associate a class with a specific property. This
@@ -90,7 +91,7 @@ void QSqlPropertyMap::remove( const QString & classname )
  */
 
 /*!
-  
+
   Constructs a QSqlFormMap.
 */
 QSqlFormMap::QSqlFormMap()
@@ -99,17 +100,17 @@ QSqlFormMap::QSqlFormMap()
 }
 
 /*!
-  
+
   Destructor.
 */
 QSqlFormMap::~QSqlFormMap()
 {
-    if( m ) 
+    if( m )
 	delete m;
 }
 
 /*!
-  
+
   Installs a custom QSqlPropertyMap. This is useful if you plan to
   create your own custom editor widgets. NB! QSqlFormMap takes
   possession of the \a map, and \a map is deleted when the object goes
@@ -119,7 +120,7 @@ void QSqlFormMap::installPropertyMap( QSqlPropertyMap * pmap )
 {
     if( m )
 	delete m;
-    
+
     if( pmap )
 	m = pmap;
     else
@@ -135,7 +136,7 @@ void QSqlFormMap::insert( QWidget * widget, QSqlField * field )
 {
     map[widget] = field;
 }
-    
+
 /*!
 
   Remove a widget/field pair from the map.
@@ -150,7 +151,7 @@ void QSqlFormMap::remove( QWidget * widget )
 
   Returns the field number widget \a widget is mapped to.
 */
-QSqlField * QSqlFormMap::whichField( QWidget * widget ) const 
+QSqlField * QSqlFormMap::whichField( QWidget * widget ) const
 {
     if( map.contains( widget ) )
 	return map[widget];
@@ -173,7 +174,7 @@ QWidget * QSqlFormMap::whichWidget( QSqlField * field ) const
 }
 
 /*!
-  
+
   Update the widgets in the map with values from the actual database
   fields.
 */
@@ -181,35 +182,35 @@ void QSqlFormMap::syncWidgets()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-	 
+
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = whichField( it.key() );
 	if( !f ) continue;
 	m->setProperty( it.key(), f->value() );
-    }       
+    }
 }
 
 /*!
-  
+
   Update the actual database fields with values from the widgets.
-*/  
+*/
 void QSqlFormMap::syncFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-	 
+
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = whichField( it.key() );
 	if( !f ) continue;
 	f->setValue( m->property( it.key() ) );
-    }       
+    }
 }
 
 /*!
-  
+
   \class QSqlForm qsqlform.h
   \brief Class used for creating SQL forms
-  
+
   \module sql
   
   This class is used to create SQL forms for accessing, updating,
@@ -247,7 +248,7 @@ void QSqlFormMap::syncFields()
 */
 
 /*!
-  
+
   Constructs a SQL form.
 */
 QSqlForm::QSqlForm( QWidget * parent, const char * name )
@@ -257,7 +258,6 @@ QSqlForm::QSqlForm( QWidget * parent, const char * name )
     map = new QSqlFormMap();
 }
 /*!
-  
   Destructs the form.
 */
 QSqlForm::~QSqlForm()
@@ -266,7 +266,7 @@ QSqlForm::~QSqlForm()
 }
 
 /*!
-  
+
   This function is used to associate a widget with a database field.
 */
 void QSqlForm::associate( QWidget * widget, QSqlField * field )
@@ -275,10 +275,10 @@ void QSqlForm::associate( QWidget * widget, QSqlField * field )
 }
 
 /*!
-  
+
   Set the SQL view that the widgets in the form should be associated
   with. <em> Do not delete the \a view until the QSqlForm goes out of
-  scope.<\em> 
+  scope.<\em>
 */
 void QSqlForm::setView( QSqlView * view )
 {
@@ -286,7 +286,7 @@ void QSqlForm::setView( QSqlView * view )
 }
 
 /*!
-  
+
   Returns the QSqlView that this form is associated with.
 */
 QSqlView * QSqlForm::view() const
@@ -295,7 +295,6 @@ QSqlView * QSqlForm::view() const
 }
 
 /*!
-
  Installs a custom QSqlPropertyMap. Used together with custom
  field editors. Please note that the QSqlForm class will
  take ownership of the propery map, so don't delete it!
@@ -321,7 +320,7 @@ void QSqlForm::syncWidgets()
 }
 
 /*!
-  
+
   Refresh the SQL fields with values from the associated widgets.
 */
 void QSqlForm::syncFields()
@@ -360,7 +359,7 @@ void QSqlForm::last()
 */
 void QSqlForm::next()
 {
-    
+
     if( v ){
 	v->next();
 	if( v->at() == QSqlResult::AfterLast ){

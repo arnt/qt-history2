@@ -15,6 +15,7 @@ public:
     QSqlIndex         srt;
     QString           ftr;
     int               md;
+    QSqlIndex         priIndx;
 };
 
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
@@ -55,6 +56,8 @@ QSqlView::QSqlView( const QSqlView & s )
     d->nm = s.d->nm;
     d->srt = s.d->srt;
     d->ftr = s.d->ftr;
+    d->priIndx = s.d->priIndx;
+    setMode( s.mode() );
 }
 
 QSqlView::~QSqlView()
@@ -78,6 +81,8 @@ QSqlView& QSqlView::operator=( const QSqlView& s )
     d->nm = s.d->nm;
     d->srt = s.d->srt;
     d->ftr = s.d->ftr;
+    d->priIndx = s.d->priIndx;
+    setMode( s.mode() );
     return *this;
 }
 
@@ -107,8 +112,10 @@ QString QSqlView::filter() const
 void QSqlView::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
-    if ( autopopulate )
+    if ( autopopulate ) {
 	*this = driver()->fields( name );
+	d->priIndx = driver()->primaryIndex( name );
+    }
 }
 
 /*!  Returns the name of the view.
@@ -137,7 +144,18 @@ QSqlFieldList & QSqlView::operator=( const QSqlFieldList & list )
 
 QSqlIndex QSqlView::primaryIndex() const
 {
-    return driver()->primaryIndex( name() );
+    return d->priIndx;
+}
+
+/*!  Sets the primary index associated with the view.  Note that this
+  index must be able to identify a unique record within the underlying
+  table or view.
+
+*/
+
+void QSqlView::setPrimaryIndex( QSqlIndex idx )
+{
+    d->priIndx = idx;
 }
 
 /*!

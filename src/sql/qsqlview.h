@@ -30,6 +30,7 @@ public:
 
     QVariant          value( int i );
     QSqlIndex         primaryIndex() const;
+    void              setPrimaryIndex( QSqlIndex idx );
     virtual int       insert( bool invalidate = TRUE );
     virtual int       update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
     virtual int       del( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );

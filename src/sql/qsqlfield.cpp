@@ -86,7 +86,12 @@ QVariant QSqlField::value() const
 void QSqlField::setValue( const QVariant& value )
 {
     val = value;
+    setIsNull( FALSE );
 }
+
+/*! \fn void QSqlField::clear()
+  Clears the value of the field.
+*/
 
 /*! \fn void QSqlField::setName( const QString& name )
   Sets the name of the field to \a name,
@@ -324,8 +329,11 @@ void QSqlFieldList::clear()
 
 void QSqlFieldList::clearValues()
 {
-    for ( uint i = 0; i < count(); ++i )
-	field( i )->setValue( QVariant( field( i )->type() ) );
+    for ( uint i = 0; i < count(); ++i ) {
+	QVariant v;	
+	v.cast( field( i )->type() );
+	field( i )->setValue( v );
+    }
 }
 
 /*!  Returns a comma-separated list of field names as a string.  This

@@ -23,6 +23,7 @@ public:
 
     QVariant           value() const;
     void               setValue( const QVariant& value );
+    void               clear() { val.clear(); }
 
     void               setName( const QString& name ) { nm = name; }
     QString            name() const { return nm; }
