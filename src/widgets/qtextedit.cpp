@@ -4687,7 +4687,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	    if ( start < end )
 		t = t.mid( start, end - start );
 	    else
-		t = "";
+		t = t.mid( start );
 	    lastFormatted = cursor->paragraph();
 	    if ( lastFormatted->prev() )
 		lastFormatted = lastFormatted->prev();
