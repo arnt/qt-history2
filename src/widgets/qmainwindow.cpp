@@ -851,6 +851,47 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
     moveToolBar( toolBar, edge, 0, TRUE );
 }
 
+/*!
+  Moves \a toolBar to the position \a index of \a edge.
+
+  If \a toolBar is already managed by some main window, it is moved from
+  that window to this and set to \e not start a new line.
+*/
+
+void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
+{
+    QMainWindowPrivate::ToolBarDock * dl = 0;
+    switch ( edge ) {
+    case Left:
+	dl = d->left;
+	break;
+    case Right:
+	dl = d->right;
+	break;
+    case Top:
+	dl = d->top;
+	break;
+    case Bottom:
+	dl = d->bottom;
+	break;
+    case Unmanaged:
+	dl = d->unmanaged;
+	break;
+    case TornOff:
+	dl = d->tornOff;
+	break;
+    }
+	
+    if ( !dl ) {
+	moveToolBar( toolBar, edge, 0, TRUE );
+    } else {
+	QMainWindowPrivate::ToolBar *tb = dl->at( index );
+	if ( !tb ) 
+	    moveToolBar( toolBar, edge, 0, TRUE );
+	else
+	    moveToolBar( toolBar, edge, tb->t, FALSE );
+    }
+}
 
 /*!  Removes \a toolBar from this main window, if \a toolBar is
   non-null and known by this main window.
@@ -1653,7 +1694,7 @@ void QMainWindow::whatsThis()
 
 
 /*!
-\reimp
+  \reimp
 */
 
 void QMainWindow::styleChange( QStyle& old )
@@ -1662,3 +1703,40 @@ void QMainWindow::styleChange( QStyle& old )
     QWidget::styleChange( old );
 }
 
+/*!
+  Finds and gives back the \a dock and the \a index there of the toolbar \a tb. \a dock is
+  set to the dock of the mainwindow in which \a tb is and \a index is set to the 
+  position of the toolbar in this dock.
+  
+  This method returns TRUE if the information could be found out, otherwise FALSE
+  (e.g. because the toolbar \a tb was not found in this mainwindow)
+*/
+
+bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index ) const
+{
+    if ( !tb )
+	return FALSE;
+    
+    QMainWindowPrivate::ToolBarDock *td;
+    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb, td );
+    
+    if ( !td || !t )
+	return FALSE;
+    
+    if ( td == d->left )
+	dock = Left;
+    else if ( td == d->right )
+	dock = Right;
+    else if ( td == d->top )
+	dock = Top;
+    else if ( td == d->bottom )
+	dock = Bottom;
+    else if ( td == d->unmanaged )
+	dock = Unmanaged;
+    else if ( td == d->tornOff )
+	dock = TornOff;
+    
+    index = td->findRef( t );
+    
+    return TRUE;
+}

@@ -29,6 +29,8 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
+#include <qobjectlist.h>
+#include <qmap.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -52,6 +54,16 @@ ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
 
+    QFile f( ".tbconfig" );
+    bool tbconfig = f.open( IO_ReadOnly );
+    QMap< QString, int > docks;
+    QMap< QString, int > indices;
+    if ( tbconfig ) {
+	QDataStream s( &f );
+	s >> docks;
+	s >> indices;
+    }
+    
     // Tool bar 1:
 
     QPixmap openIcon, saveIcon, printIcon;
@@ -80,7 +92,11 @@ ApplicationWindow::ApplicationWindow()
     QWhatsThis::add( fileSave, fileSaveText );
     QWhatsThis::add( filePrint, filePrintText );
 
-
+    if ( docks.contains( fileTools->name() ) &&
+	 indices.contains( fileTools->name() ) ) 
+	moveToolBar( fileTools, (ToolBarDock)docks[ fileTools->name() ],
+		     indices[ fileTools->name() ] );
+        
     // Tool bar 2:
 
     QPixmap openIcon2, saveIcon2, printIcon2;
@@ -100,6 +116,11 @@ ApplicationWindow::ApplicationWindow()
 			   this, SLOT(print2()), fileTools2, "print file2" );
 
     addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
+
+    if ( docks.contains( fileTools2->name() ) &&
+	 indices.contains( fileTools2->name() ) ) 
+	moveToolBar( fileTools2, (ToolBarDock)docks[ fileTools2->name() ],
+		     indices[ fileTools2->name() ] );
 
     // Tool bar 3:
 
@@ -123,6 +144,11 @@ ApplicationWindow::ApplicationWindow()
 
     addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
 
+    if ( docks.contains( fileTools2->name() ) &&
+	 indices.contains( fileTools2->name() ) ) 
+	moveToolBar( fileTools2, (ToolBarDock)docks[ fileTools2->name() ],
+		     indices[ fileTools2->name() ] );
+
     // Tool bar 4:
 
     fileTools2 = new QToolBar( this, "file4 operations" );
@@ -142,6 +168,11 @@ ApplicationWindow::ApplicationWindow()
 			   this, SLOT(print2()), fileTools2, "print file2" );
 
     addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
+
+    if ( docks.contains( fileTools2->name() ) &&
+	 indices.contains( fileTools2->name() ) ) 
+	moveToolBar( fileTools2, (ToolBarDock)docks[ fileTools2->name() ],
+		     indices[ fileTools2->name() ] );
 
     // Menus:
 
@@ -208,6 +239,25 @@ ApplicationWindow::ApplicationWindow()
 
 ApplicationWindow::~ApplicationWindow()
 {
+    QObjectList *l = queryList( "QToolBar" );
+    if ( l && l->first() ) {
+	QToolBar *tb = 0;
+	QMap< QString, int > docks;
+	QMap< QString, int > indices;
+	QMainWindow::ToolBarDock dock;
+	int index;
+	for ( tb = (QToolBar*)l->first(); tb; tb = (QToolBar*)l->next() ) {
+	    if ( findDockAndIndexOfToolbar( tb, dock, index ) ) {
+		docks[ tb->name() ] = dock;
+		indices[ tb->name() ] = index;
+	    }
+	}
+	QFile file( ".tbconfig" );
+	file.open( IO_WriteOnly );
+	QDataStream s( &file );
+	s << docks;
+	s << indices;
+    }
 }
 
 
