@@ -16,8 +16,6 @@
   A simple model that uses a QStringList as its data source.
 */
 
-#include <qgenerictableview.h>
-
 #include "model.h"
 
 /*!

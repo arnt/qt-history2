@@ -13,11 +13,11 @@
 /*!
     The main function for the string list model example. This creates and
     populates a model with values from a string list then displays the
-    contents of the model using a QGenericListView widget.
+    contents of the model using a QListView widget.
 */
 
 #include <qapplication.h>
-#include <qgenericlistview.h>
+#include <qlistview.h>
 
 #include "model.h"
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     numbers << "One" << "Two" << "Three" << "Nine" << "Ten" << "Ten" << "Ten";
 
     QAbstractItemModel *model = new StringListModel(numbers);
-    QAbstractItemView *view = new QGenericListView();
+    QAbstractItemView *view = new QListView();
     view->setWindowTitle("View onto a string list model");
     view->setModel(model);
 
