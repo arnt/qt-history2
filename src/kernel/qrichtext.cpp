@@ -467,7 +467,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		bool recover = FALSE;
 		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos,
 			   nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
-			   nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
+			   nstyle->whiteSpaceMode() : wsm) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -506,7 +506,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 	    else { // containers and empty tags
 		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos,
 			    nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
-			    nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
+			    nstyle->whiteSpaceMode() : wsm) ) {
 		    CLOSE_TAG
 		    if ( current->child && current->lastChild()->style == nullstyle )
 			dummy = current->lastChild();
