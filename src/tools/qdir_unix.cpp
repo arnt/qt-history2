@@ -237,8 +237,6 @@ void QDir::readDirEntries( const QString &nameFilter,
 
 QFileInfoList QDir::drives()
 {
-    // at most one instance of QFileInfoList is leaked, and this variable
-    // points to that list
     static QFileInfoList drives;
     static bool initialized = false;
 
@@ -249,12 +247,10 @@ QFileInfoList QDir::drives()
 			     qt_global_mutexpool->get( &drives ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
-	if ( !initialized ) {
-	    initialized = true;
-	    drives.ensure_constructed();
-	    // non-win32 versions both use just one root directory
-	    drives.append(rootDirPath());
-	}
+	initialized = true;
+	drives.ensure_constructed();
+	// non-win32 versions both use just one root directory
+	drives.append(rootDirPath());
     }
 
     return drives;

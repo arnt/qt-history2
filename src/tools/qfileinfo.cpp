@@ -122,6 +122,7 @@ QFileInfo::QFileInfo()
 QFileInfo::QFileInfo( const QString &file )
 {
     d = new QFileInfoPrivate(file);
+    ++d->ref;
 }
 
 /*!
@@ -137,6 +138,7 @@ QFileInfo::QFileInfo( const QString &file )
 QFileInfo::QFileInfo( const QFile &file )
 {
     d = new QFileInfoPrivate(file.name());
+    ++d->ref;
 }
 
 /*!
@@ -152,6 +154,7 @@ QFileInfo::QFileInfo( const QFile &file )
 QFileInfo::QFileInfo( const QDir &dir, const QString &fileName )
 {
     d = new QFileInfoPrivate(dir.filePath( fileName ));
+    ++d->ref;
 }
 #endif
 /*!
