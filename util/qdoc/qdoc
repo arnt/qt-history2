@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#28 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#29 $
 #
 # this is a massive hack, written very quickly
 #
@@ -246,7 +246,7 @@ sub manglefn {
 		&& $type{$anchor{$class . "::" . $&}} eq "enum") {
 		sprintf("%s::%s", $class, $&);
 	    } else {
-		sprintf("%s", %&);
+		sprintf("%s", $&);
 	    }
 	/egsx;
 
@@ -268,7 +268,7 @@ sub manglefn {
 
 sub storeclass {
     local($filename, $sig, $def) = @_;
-    local($url, $name, $inh);
+    local($url, $name, $inh, $enum);
 
     ($name, $inh) = split(/\s*:\s*/, $sig);
 
@@ -284,8 +284,10 @@ sub storeclass {
     $def =~ s/;\s*$//s;
 
     while ($def =~ /(?:\b|^)enum\s+(\w+)\b/gs) {
-	$type{$url . "#" . $1} = "enum";
-	$name{$url . "#" . $1} = $name . "::" . $1;
+	$enum = $url . "#" . $1;
+	$type{$enum} = "enum";
+	$name{$enum} = $name . "::" . $1;
+	$anchor{$name{$enum}} = $enum unless (defined($anchor{$name{$enum}}));
     }
 
     $members{$url} = $def;
@@ -344,54 +346,6 @@ sub readc {
 
     study $c;
 
-# find all the defined functions
-    while ($c =~ m@
-	   (?:/\*\![-\s]*
-	    ((?:[^\*]|(?:\*[^/]))*)
-	    \*/)\s*
-	   ((?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b@gsx) {
-	my ($doc, $def);
-	$doc = $1;
-	$def = $2;
-	if (!($doc =~ /\\class /) &&
-	    ($def =~ m@
-	     ^((?:[\w:]+\s*)*[\*\&\s])?(?# return type 
-					)
-	     (?:(\w+)\s*::\s*)? (?# class name and :: 
-				 )
-	     ((?:\~?\w+)|       (?# function name, or *gasp* operator
-				 )
-	      (?:operator(?:
-			  (?:[^\s\(]{1,3})|
-			  (?:\s+new)|
-			  (?:\s+delete))))\s*
-	     \(\s*([^\)]*?)\s*\) (?# arg list
-				  )
-	     \s*(const)?\s*(?::[\s\w,\(\)]+)?$@gsxo)) {
-	    my ($type, $class, $name, $args, $const);
-	    $type = $1;
-	    $class = $2;
-	    $name = $3;
-	    $args = $4;
-	    $const = $5;
-	    if (!($type =~ /\bstatic\b/)) {
-		if ($args =~ /[()]/) {
-		    print STDERR "function prototype in argument\n", $def;
-		} else {
-		    my ($url);
-		    $url = &manglefn($type, $class, $name, $args, $const);
-		    $name{$url} = $class . "::" . $name;
-		    $type{$url} = "fn";
-		    $doc{$url} = $doc;
-		    $class .= "::" if ($class ne "");
-		    $const = " " . const if ($const ne "");
-		    $def{$url} = $type." ".$class.$name."(".$args.")".$const;
-		    print "url: ", $url, "\n" if ($debug);
-		}
-	    }
-	}
-    }
-
 # find all class documentation entries
     while ($c =~ m;
 	   /\*\![-\s]*	      (?# documentation prologue
@@ -419,6 +373,56 @@ sub readc {
 	$doc{$url} = $doc;
 	$includefile{$url} = $hfile;
 	$includefile{$url} =~ s/\.doc/.h/;
+    }
+
+# find all the defined functions
+    while ($c =~ m@
+	   (?:/\*\![-\s]*
+	    ((?:[^\*]|(?:\*[^/]))*)
+	    \*/)\s*
+	   ([A-Za-z_](?:[^\{;\*]|(?:\*[^/]))+)\s*\x7b@gsx) {
+	my ($doc, $def, $type, $class, $name, $args, $const, $skip);
+	$skip = 0;
+
+	$doc = $1;
+	$def = $2;
+	($name, $args) = split(/\s*\(\s*/, $def);
+	if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+)/s) {
+	    $type = $1;
+	    $class = $2;
+	    $name = $3;
+	    $class =~ s/:://;
+	    $type =~ s/^\s+//;
+	    $type =~ s/\s+$//;
+	} else {
+	    $skip = 1;
+	}
+	$args =~ s/([^:]):[^:].*/$1/s;
+	if ($args =~ /^(.*?)\s*\)\s*((?:const)?)\s*?$/s) {
+	    $args = $1;
+	    $const = $2;
+	} else {
+	    $skip = 1;
+	}
+
+	if (!($doc =~ /\\class /) &&
+	    ($skip == 0)) {
+	    if (!($type =~ /\bstatic\b/)) {
+		if ($args =~ /[()]/) {
+		    print STDERR "function prototype in argument\n", $def;
+		} else {
+		    my ($url);
+		    $url = &manglefn($type, $class, $name, $args, $const);
+		    $name{$url} = $class . "::" . $name;
+		    $type{$url} = "fn";
+		    $doc{$url} = $doc;
+		    $class .= "::" if ($class ne "");
+		    $const = " " . const if ($const ne "");
+		    $def{$url} = $type." ".$class.$name."(".$args.")".$const;
+		    print "url: ", $url, "\n" if ($debug);
+		}
+	    }
+	}
     }
 
 # and function documentation
