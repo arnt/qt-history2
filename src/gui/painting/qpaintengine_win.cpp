@@ -2228,10 +2228,11 @@ void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, Qt::ClipOperat
     } else {
         if (op == Qt::ReplaceClip)
             GdipResetClip(d->graphics);
+
+        QRegion qtRegion = qtClip.isEmpty() ? QRegion(-0x1000000, -0x1000000, 1, 1) : qtClip;
         QtGpRegion *region = 0;
-        GdipCreateRegionHrgn(qtClip.handle(), &region);
-        GdipSetClipRegion(d->graphics
-                          , region,
+        GdipCreateRegionHrgn(qtRegion.handle(), &region);
+        GdipSetClipRegion(d->graphics, region,
                           op-1  // Same enum values in GDI+, but +1 due to Qt::NoClip
                           );
         GdipDeleteRegion(region);
