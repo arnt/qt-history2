@@ -30,6 +30,7 @@
 #define QT_NO_SOUND
 //#define QT_NO_PROPERTIES
 #define QT_NO_QWS_CURSOR
+#define QT_NO_CURSOR
 #define QT_NO_QWS_GFX_SPEED
 #define QT_NO_NETWORK
 #define QT_NO_COLORNAMES
@@ -95,3 +96,4 @@
 #endif
 
 #define QT_NO_DATESTRING
+#define QT_NO_WMATRIX
