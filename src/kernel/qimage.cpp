@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#118 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#118 $");
 
 
 /*!
@@ -913,7 +913,8 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		}
 #undef DITHER
 	    } else if ( ( conversion_flags & Dither_Mask ) == OrderedDither ) {
-#define DITHER(p,d,m) ((uchar) ((((256 * (m) + 1)) * (p) + (d)) / 65536 ))
+#define DITHER(p,d,m) ((uchar) ((((256 * (m) + (m) + 1)) * (p) + (d)) / 65536 ))
+
 		while ( p < end ) {
 		    uint d = bm[y&15][x&15];
 
