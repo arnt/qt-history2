@@ -44,11 +44,15 @@
     \row \i \l{QList}\<T\>
     \i This is by far the most commonly used container class. It
     stores a list of values of a given type (T) that can be accessed
-    by index. Items can be added at either end of the list using
+    by index. Internally, the QList is implemented using an array,
+    ensuring that index-based access is very fast.
+
+    Items can be added at either end of the list using
     QList::append() and QList::prepend(), or they can be inserted in
     the middle using QList::insert(). More than any other container
     class, QList is highly optimized to expand to as little code as
-    possible in the executable. QStringList inherits from QList<QString>.
+    possible in the executable. QStringList inherits from
+    QList<QString>.
 
     \row \i \l{QLinkedList}\<T\>
     \i This is similar to QList, except that it uses
@@ -101,6 +105,13 @@
 
     \endtable
 
+    Containers can be nested. For example, it is perfectly possible
+    to use a QMap\<QString, QList\<int\> \>, where the key type is
+    QString and the value type QList\<int\>. The only pitfall is that
+    you must insert a space between the closing angle brackets (\>);
+    otherwise the C++ compiler will misinterpret the two \>'s as a
+    right-shift operator (\>\>) and report a syntax error.
+
     \keyword {assignable data type}
 
     The values stored in the various containers can be of any
@@ -115,18 +126,6 @@
     constructor and assignment operators are disabled. If you want to
     store these kinds of objects in a container, store them as
     pointers, for example as QList\<QWidget *\>.
-
-    \keyword {default-constructed values}
-
-    The documentation of certain container class functions refer to
-    \e{default-constructed values}; for example, QVector
-    automatically initializes its items with default-constructed
-    values, and QMap::value() returns a default-constructed value if
-    the specified key isn't in the map. For most value types, this
-    simply means that a value is created using the default
-    constructor (e.g. an empty string for QString). But for built-in    types like \c{int} and \c{double}, as well as for pointer types,
-    the C++ language doesn't specify any initialization; in those
-    cases, Qt's containers automatically initialize the value to 0.
 
     Here's an example custom data type that meets the requirement of
     an assignable data type:
@@ -195,6 +194,19 @@
             return in;
         }
     \endcode
+
+    \keyword {default-constructed values}
+
+    The documentation of certain container class functions refer to
+    \e{default-constructed values}; for example, QVector
+    automatically initializes its items with default-constructed
+    values, and QMap::value() returns a default-constructed value if
+    the specified key isn't in the map. For most value types, this
+    simply means that a value is created using the default
+    constructor (e.g. an empty string for QString). But for built-in
+    types like \c{int} and \c{double}, as well as for pointer types,
+    the C++ language doesn't specify any initialization; in those
+    cases, Qt's containers automatically initialize the value to 0.
 
     \section1 The Iterator Classes
 
@@ -640,8 +652,9 @@
             cout << str.ascii() << endl;
     \endcode
 
-    And like any other C++ loop construct, you can use braces
-    around the body of a \c foreach loop:
+    And like any other C++ loop construct, you can use braces around
+    the body of a \c foreach loop, and you can use \c break to leave
+    the loop:
 
     \code
         QLinkedList<QString> list;
@@ -655,8 +668,8 @@
 
     With QMap and QHash, \c foreach accesses the value component of
     the (key, value) pairs. If you want to iterate over both the keys
-    and the values, you can either use iterators, or you can write
-    code like this:
+    and the values, you can use iterators (which are fastest), or you
+    can write code like this:
 
     \code
         QMap<QString, int> map;
@@ -690,8 +703,8 @@
         DEFINES += QT_KEYWORDS
     \endcode
 
-    Without the \c QT_KEYWORDS symbol defined, \c foreach is
-    accessible under the name \c Q_FOREACH.
+    (Without the \c QT_KEYWORDS symbol defined, \c foreach is
+    accessible under the name \c{Q_FOREACH}.)
 
     In addition to \c foreach, the \c QT_KEYWORDS symbol also defines
     a \c forever pseudo-keyword for infinite loops:
@@ -701,6 +714,115 @@
             ...
         }
     \endcode
+
+    \section1 Other Container-Like Classes
+
+    Qt includes three template classes that resemble containers in
+    some respects. These classes don't provide iterators and cannot
+    be used with the \c foreach keyword.
+
+    \list
+    \i QVarLengthArray\<T, Prealloc\> provides a low-level
+       variable-length array. It can be used instead of QVector in
+       places where speed is particularly important.
+
+    \i QCache\<Key, T\> provides a cache to store objects of a certain
+       type T associated with keys of type Key.
+
+    \i QPair\<T1, T2\> stores a pair of elements.
+    \endlist
+
+    Additional non-template types that compete with Qt's template
+    containers are QBitArray, QByteArray, QString, and QStringList.
+
+    \section1 Growth Strategies
+
+    QVector\<T\>, QString, and QByteArray store their items
+    contiguously in memory; QList\<T\> maintains an array of pointers
+    to the items it stores to provide fast index-based access (unless
+    T is a pointer type or a basic type of the size of a pointer, in
+    which case the value itself is stored in the array); QHash\<Key,
+    T\> keeps a hash table whose size is proportional to the number
+    of items in the hash. To avoid reallocating the data every single
+    time an item is added at the end of the container, these classes
+    typically allocate more memory than necessary.
+
+    Consider the following code, which builds a QString from another
+    QString:
+
+    \code
+        QString onlyLetters(const QString &in)
+        {
+            QString out;
+            for (int j = 0; j < in.size(); ++j) {
+                if (in[j].isLetter())
+                    out += in[j];
+            }
+            return out;
+        }
+    \endcode
+
+    We build the string \c out dynamically by appending one character
+    to it at a time. Let's assume that we append 15000 characters to
+    the QString string. Then the following 18 reallocations (out of a
+    possible 15000) occur when QString runs out of space: 4, 8, 12,
+    16, 20, 52, 116, 244, 500, 1012, 2036, 4084, 6132, 8180, 10228,
+    12276, 14324, 16372. At the end, the QString has 16372 Unicode
+    characters allocated, 15000 of which are occupied.
+
+    The values above may seem a bit strange, but here are the guiding
+    priciples:
+    \list
+    \i QString allocates 4 characters at a time until it reaches size 20.
+    \i From 20 to 4084, it advances by doubling the size each time.
+       More precisely, it advances to the next power of two, minus
+       12. (Some memory allocators perform worst when requested exact
+       powers of two, because they use a few bytes per block for
+       book-keeping.)
+    \i From 4084 on, it advances by blocks of 2048 characters (4096
+       bytes). This makes sense because modern operating systems
+       don't copy the entire data when reallocating a buffer; the
+       physical memory pages are simply reordered, and only the data
+       on the first and last pages actually needs to be copied.
+    \endlist
+
+    QByteArray and QList\<T\> use more or less the same algorithm as
+    QString.
+
+    QVector\<T\> also uses that algorithm for data types that can be
+    moved around in memory using memcpy() (including the basic C++
+    types, the pointer types, and Qt's \l{shared classes}) but uses a
+    different algorithm for data types that can only be moved by
+    calling the copy constructor and a destructor. Since the cost of
+    reallocating is higher in that case, QVector\<T\> reduces the
+    number of reallocations by always doubling the memory when
+    running out of space.
+
+    QHash\<Key, T\> is a totally different case. QHash's internal
+    hash table grows by powers of two, and each time it grows, the
+    items are relocated in a new bucket, computed as qHash(\e key) %
+    QHash::capacity() (the number of buckets).
+
+    For most applications, the default growing algorithm provided by
+    Qt does the trick. If you need more control, QVector\<T\>,
+    QHash\<Key, T\>, QString, and QByteArray provide a trio of
+    functions that allow you to check and specify how much memory to
+    use to store the items:
+
+    \list
+    \i \link QString::capacity() capacity()\endlink returns the
+       number of items for which memory is allocated (for QHash, the
+       number of buckets in the hash table).
+    \i \link QString::reserve() reserve(\e size)\endlink explicitly
+       preallocates memory for \e size items.
+    \i \link QString::squeeze() squeeze()\endlink frees any memory
+       not required to store the items.
+    \endlist
+
+    If you know approximately how many items you will store in a
+    container, you can start by calling reserve(), and when you are
+    done populating the container, you can call squeeze() to release
+    the extra preallocated memory.
 
     \section1 Performance Terminology
 
@@ -741,24 +863,4 @@
        executes in a time that is proportional to the square of the
        number of items stored in the container.
     \endlist
-
-    \section1 Other Container-Like Classes
-
-    Qt includes three template classes that resemble containers in
-    some respects. These classes don't provide iterators and cannot
-    be used with the \c foreach keyword.
-
-    \list
-    \i QVarLengthArray\<T, Prealloc\> provides a low-level
-       variable-length array. It can be used instead of QVector in
-       places where speed is particularly important.
-
-    \i QCache\<Key, T\> provides a cache to store objects of a certain
-       type T associated with keys of type Key.
-
-    \i QPair\<T1, T2\> stores a pair of elements.
-    \endlist
-
-    Additional non-template types that compete with Qt's template
-    containers are QBitArray, QByteArray, QString, and QStringList.
 */
