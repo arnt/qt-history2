@@ -290,7 +290,7 @@ Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &key) const
     }
 
     if (next != e && concrete(next)->key == key) {
-	d->cachedNode = next;
+	(void) qAtomicSetPtr(&d->cachedNode, next);
 	return next;
     } else {
 	return e;
