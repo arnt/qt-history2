@@ -200,6 +200,14 @@ QWidget::setIcon() need second parameter
   caption bar.  The large icon is for the task manager when you hit ALT + TAB. 
   (qt-bugs/arc-08/17124)
 
+QIconView::mask()
+  A KDE developer asked if we could make this function protected rather than private.
+  (qt-bugs/arc-08/17228)
+
+QIconViewItem::calcTmpTxt()
+  A KDE developer asked if we could make the return value (tmpTxt) protected instead of private.
+  (qt-bugs/arc-08/17228)
+
 
 New functionality
 -----------------
