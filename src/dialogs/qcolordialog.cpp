@@ -1142,6 +1142,7 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     connect( rEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
     connect( gEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
     connect( bEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
+    connect( alphaEd, SIGNAL(textChanged(const QString&)), this, SLOT(rgbEd()) );
 }
 
 void QColorShower::showCurrentColor()
@@ -1153,7 +1154,11 @@ void QColorShower::showCurrentColor()
 void QColorShower::rgbEd()
 {
     rgbOriginal = TRUE;
-    curCol = qRgb( rEd->val(), gEd->val(), bEd->val() );
+    if ( alphaEd->isVisible() )
+	curCol = qRgba( rEd->val(), gEd->val(), bEd->val(), currentAlpha() );
+    else
+	curCol = qRgb( rEd->val(), gEd->val(), bEd->val() );
+
     rgb2hsv(currentColor(), hue, sat, val );
 
     hEd->setNum( hue );
@@ -1197,6 +1202,11 @@ void QColorShower::setRgb( QRgb rgb )
     bEd->setNum( qBlue(currentColor()) );
 
     showCurrentColor();
+
+    QColorDialog *dialog = (QColorDialog*)parentWidget();
+    dialog->colorSelected( curCol );
+    if ( alphaLab->isVisible() )
+	dialog->rgbaSelected( qRgba( qRed(curCol), qGreen(curCol), qBlue(curCol), currentAlpha() ) );
 }
 
 void QColorShower::setHsv( int h, int s, int v )
@@ -1213,8 +1223,12 @@ void QColorShower::setHsv( int h, int s, int v )
     gEd->setNum( qGreen(currentColor()) );
     bEd->setNum( qBlue(currentColor()) );
 
-
     showCurrentColor();
+
+    QColorDialog *dialog = (QColorDialog*)parentWidget();
+    dialog->colorSelected( curCol );
+    if ( alphaLab->isVisible() )
+	dialog->rgbaSelected( qRgba( qRed(curCol), qGreen(curCol), qBlue(curCol), currentAlpha() ) );
 }
 
 class QColorDialogPrivate : public QObject
@@ -1239,7 +1253,7 @@ public slots:
 public:
     QWellArray *custom;
     QWellArray *standard;
-private:
+
     QColorPicker *cp;
     QColorLuminancePicker *lp;
     QColorShower *cs;
@@ -1428,16 +1442,50 @@ void QColorDialogPrivate::addCustom()
     <img src=qcolordlg-w.png>
 */
 
-/*!  Constructs a default color dialog with parent \a parent and called \a
- name. If \a modal is TRUE the dialog will be modal. Use setColor() to
- set an initial value.
+/*!
+    Constructs a color dialog with the color \a initial, parent \a parent 
+    and called \a name. If \a modal is TRUE the dialog will be modal. \a f is 
+    propagated to the QDialog constructor.
+*/
+QColorDialog::QColorDialog( const QColor &initial, QWidget *parent, const char *name, bool modal, WFlags f )
+: QDialog( parent, name, modal, f )
+{
+    init();
+    if ( initial.isValid() )
+	setColor( initial );
+    connect( d->cs, SIGNAL(newCol(QRgb)), this, SLOT(newCol(QRgb)) );
+}
 
-  \sa getColor()
+/*!
+    Constructs a color dialog with the color+alpha set to \a initial, parent \a parent 
+    and called \a name. If \a modal is TRUE the dialog will be modal. \a f is 
+    propagated to the QDialog constructor.
+*/
+QColorDialog::QColorDialog( QRgb initial, QWidget *parent, const char *name, bool modal, WFlags f )
+: QDialog( parent, name, modal, f )
+{
+    init();
+    setColor( initial );
+    setSelectedAlpha( qAlpha(initial) );
+    connect( d->cs, SIGNAL(newCol(QRgb)), this, SLOT(newRgb(QRgb)) );
+}
+
+/*!
+    Constructs a default color dialog with parent \a parent and called \a
+    name. If \a modal is TRUE the dialog will be modal. Use setColor() to
+    set an initial value.
+
+    \sa getColor()
 */
 
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     QDialog(parent, name, modal, (  WType_Dialog | WStyle_Customize | WStyle_Title |
                                     WStyle_DialogBorder | WStyle_SysMenu ) )
+{
+    init();
+}
+
+void QColorDialog::init()
 {
     setSizeGripEnabled( FALSE );
     d = new QColorDialogPrivate( this );
@@ -1455,7 +1503,6 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     }
 #endif
 }
-
 
 /*!
   Pops up a modal color dialog, lets the user choose a color, and
@@ -1636,6 +1683,34 @@ bool QColorDialog::selectColor( const QColor& col )
 	}
     }
     return FALSE;
+}
+
+/*!
+    \fn void QColorDialog::colorSelected( const QColor &col )
+
+    This signal gets emitted when the color \a col has been 
+    selected in the color dialog.
+
+    \sa rgbaSelected()
+*/
+
+void QColorDialog::newCol( QRgb rgb )
+{
+    emit colorSelected( rgb );
+}
+
+/*!
+    \fn void QColorDialog::rgbaSelected( QRgb rgba )
+
+    This signal gets emitted when a color+alpha \a rgba has been
+    selected in the color dialog that allows alpha channel editing.
+
+    \sa colorSelected()
+*/
+void QColorDialog::newRgb( QRgb rgb )
+{
+    emit colorSelected( rgb );
+    emit rgbaSelected( qRgba( qRed(rgb), qGreen(rgb), qBlue(rgb), selectedAlpha() ) );
 }
 
 #include "qcolordialog.moc"
