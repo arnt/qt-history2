@@ -26,8 +26,8 @@ class Q_GUI_EXPORT QFileIconProvider
 public:
     QFileIconProvider();
     virtual ~QFileIconProvider();
-    virtual QIconSet computerIcons() const;
-    virtual QIconSet icons(const QFileInfo &info) const;
+    virtual QIconSet computerIcon() const;
+    virtual QIconSet icon(const QFileInfo &info) const;
     virtual QString type(const QFileInfo &info) const;
 protected:
     QIconSet file;
@@ -98,7 +98,7 @@ public:
     QModelIndex index(const QString &path) const;
     QString path(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
-    QIconSet icons(const QModelIndex &index) const;
+    QIconSet icon(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
     bool isDir(const QModelIndex &index) const;

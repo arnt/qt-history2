@@ -1503,16 +1503,16 @@ void QFileDialogPrivate::setup(const QString &directory,
     lookIn->setAutoCompletion(false);
 
     // insert the paths
-    lookIn->insertItem(model->icons(QModelIndex::Null), model->path(QModelIndex::Null)); // root
+    lookIn->insertItem(model->icon(QModelIndex::Null), model->path(QModelIndex::Null)); // root
     for (int r = 0; r < model->rowCount(QModelIndex::Null); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex::Null);
         QString path = model->path(index);
-        QIconSet icons = model->icons(index);
+        QIconSet icons = model->icon(index);
         lookIn->insertItem(icons, path);
     }
     QModelIndex home = model->index(QDir::homePath());
-    lookIn->insertItem(model->icons(home), QDir::homePath());
-    lookIn->insertItem(model->icons(current), directory);
+    lookIn->insertItem(model->icon(home), QDir::homePath());
+    lookIn->insertItem(model->icon(current), directory);
     int c = lookIn->findItem(directory, QAbstractItemModel::MatchExactly);
     lookIn->setCurrentItem(c >= 0 ? c : 0);
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
@@ -1611,7 +1611,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     QString pth = d->model->path(index);
-    QIconSet icn = d->model->icons(index);
+    QIconSet icn = d->model->icon(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {

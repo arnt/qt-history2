@@ -59,7 +59,7 @@ static bool qt_move_file(const QString &from, const QString &to)
 /*!
   \class QFileIconProvider
 
-  \brief The QFileIconProvider class provides file icons for the QDirModel class.
+  \brief The QFileIconProvider class provides file icon for the QDirModel class.
 
 
 */
@@ -102,7 +102,7 @@ QFileIconProvider::~QFileIconProvider()
   Returns an icon set for the computer.
 */
 
-QIconSet QFileIconProvider::computerIcons() const
+QIconSet QFileIconProvider::computerIcon() const
 {
     return computer;
 }
@@ -111,7 +111,7 @@ QIconSet QFileIconProvider::computerIcons() const
   Returns an icon set for the file described by \a info.
 */
 
-QIconSet QFileIconProvider::icons(const QFileInfo &info) const
+QIconSet QFileIconProvider::icon(const QFileInfo &info) const
 {
     if (info.isRoot())
         return driveHD;
@@ -172,8 +172,8 @@ public:
         { return rootIsVirtual ? QObject::tr("My Computer") : root.info.absoluteFilePath(); }
     inline QString rootName() const
         { return rootIsVirtual ? QObject::tr("My Computer") : root.info.fileName(); }
-    inline QIconSet rootIcons() const
-        { return rootIsVirtual ? iconProvider->computerIcons() : iconProvider->icons(root.info); }
+    inline QIconSet rootIcon() const
+        { return rootIsVirtual ? iconProvider->computerIcon() : iconProvider->icon(root.info); }
 
     mutable QDirNode root;
     bool rootIsVirtual;
@@ -226,7 +226,7 @@ public:
   about the underlying files and directories related to items in the model.
   Directories can be created and removed using mkdir(), rmdir(), and the
   model will be automatically updated to take the changes into account.
-  The icons() function returns the icons that are supplied to views.
+  The icon() function returns the icons that are supplied to views.
 
 
   nameFilters(), setFilter(), filter()
@@ -416,7 +416,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == DecorationRole && index.column() == 0)
-        return d->iconProvider->icons(node->info);
+        return d->iconProvider->icon(node->info);
     return QVariant();
 }
 
@@ -961,11 +961,11 @@ QString QDirModel::name(const QModelIndex &index) const
   \a index.
 */
 
-QIconSet QDirModel::icons(const QModelIndex &index) const
+QIconSet QDirModel::icon(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return d->rootIcons();
-    return d->iconProvider->icons(fileInfo(index));
+        return d->rootIcon();
+    return d->iconProvider->icon(fileInfo(index));
 }
 
 /*!
