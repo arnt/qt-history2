@@ -114,8 +114,8 @@ public:
     QListViewItem * nextSibling() const { return siblingItem; }
     QListViewItem * parent() const;
 
-    QListViewItem * itemAbove();
-    QListViewItem * itemBelow();
+    QListViewItem * itemAbove() const;
+    QListViewItem * itemBelow() const;
 
     int itemPos() const;
 

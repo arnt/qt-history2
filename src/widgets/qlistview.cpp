@@ -3804,7 +3804,7 @@ int QListViewItem::depth() const
     \sa itemBelow() QListView::itemRect()
 */
 
-QListViewItem * QListViewItem::itemAbove()
+QListViewItem * QListViewItem::itemAbove() const
 {
     if ( !parentItem )
 	return 0;
@@ -3842,7 +3842,7 @@ QListViewItem * QListViewItem::itemAbove()
     \sa itemAbove() QListView::itemRect()
 */
 
-QListViewItem * QListViewItem::itemBelow()
+QListViewItem * QListViewItem::itemBelow() const
 {
     QListViewItem * c = 0;
     if ( isOpen() && childItem ) {
@@ -3850,7 +3850,7 @@ QListViewItem * QListViewItem::itemBelow()
     } else if ( siblingItem ) {
 	c = siblingItem;
     } else if ( parentItem ) {
-	c = this;
+	c = const_cast<QListViewItem*>(this);
 	do {
 	    c = c->parentItem;
 	} while( c->parentItem && !c->siblingItem );
