@@ -57,7 +57,9 @@
 \omit
     Qt provides implementations of the QAccessibleInterface for most
     widget classes in a plugin. This plugin is located in the \e
-    accessibility subdirectory of QTDIR/plugins. Calling
+    accessibility subdirectory of the plugins installation directory.
+    The default installation directory for plugins is \c INSTALL/plugins,
+    where \c INSTALL is the directory where Qt was installed.  Calling
     queryAccessibleInterface( QObject *object, QAccessibleInterface
     **iface ) will ask all plugins located in this directory for an
     implementation that exposes the information for objects of the
@@ -66,7 +68,7 @@
     To make a Qt application accessible you have to distribute the
     accessibility plugin provded with Qt together with your
     application. Simply add the plugins created in
-    QTDIR/plugins/accessibility to your distribution process. Use \l
+    INSTALL/plugins/accessibility to your distribution process. Use \l
     QApplication::addLibraryPath() to specify a plugin directory for
     your application, and copy the files into an \e accessibility
     subdirectory of one of those plugin directories. Qt's
