@@ -52,7 +52,7 @@
 #include "qpainter_p.h"
 #include "qtextengine_p.h"
 
-#define QFONTCACHE_DEBUG
+// #define QFONTCACHE_DEBUG
 
 
 
