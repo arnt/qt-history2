@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#265 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#266 $
 **
 ** Implementation of QApplication class
 **
@@ -927,13 +927,14 @@ const QFont& QApplication::font( const QWidget* w )
 void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char* className )
 {
     if (!className) {
-	delete app_font;
-	app_font = new QFont( font );
-	CHECK_PTR( app_font );
+	if ( !( app_font && font == *app_font ) ) {
+	    delete app_font;
+	    app_font = new QFont( font );
+	    CHECK_PTR( app_font );
+	}
 	delete app_fonts;
 	app_fonts = 0;
-    }
-    else {
+    } else {
 	if (!app_fonts){
 	    app_fonts = new QAsciiDict<QFont>;
 	    CHECK_PTR( app_fonts );
@@ -983,7 +984,7 @@ void QApplication::polish(QWidget* w)
 	if ( font( w ) != font() )
 	    w->setFont( font( w ) );
     }
-    
+
     app_style->polish( w );
 }
 
