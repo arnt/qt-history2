@@ -218,6 +218,7 @@ struct QNetworkProtocolPrivate
   <li> \c StInProgress - The operation is just processed
   <li> \c StDone - The operation has been processed succesfully
   <li> \c StFailed - The operation has been processed but an error occured
+  <li> \c StStopped - The operation has been processed but has been stopped before it finished
   </ul>
 */
 
