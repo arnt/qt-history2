@@ -37,7 +37,7 @@
 
 #include "qnetwork.h"
 
-#ifndef QT_NO_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORK
 
 #include "qnetworkprotocol.h"
 

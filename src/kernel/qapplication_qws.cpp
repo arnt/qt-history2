@@ -1444,7 +1444,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 #endif
 
 
-#ifndef QT_NO_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORK
     qInitNetworkProtocols();
 #endif
 
