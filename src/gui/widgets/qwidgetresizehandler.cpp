@@ -35,7 +35,7 @@ QWidgetResizeHandler::QWidgetResizeHandler(QWidget *parent, QWidget *cw)
       fw(0), extrahei(0), buttonDown(false), moveResizeMode(false), sizeprotect(true), movingEnabled(true)
 {
     mode = Nowhere;
-    widget->setMouseTracking(true);
+    //widget->setMouseTracking(true);
     QFrame *frame = qobject_cast<QFrame*>(widget);
     range = frame ? frame->frameWidth() : RANGE;
     range = qMax(RANGE, range);
@@ -87,6 +87,11 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
          ee->type() != QEvent::ShortcutOverride)
         return false;
 
+    if (o != widget
+        && ee->type() != QEvent::ShortcutOverride
+        && ee->type() != QEvent::KeyPress)
+        return false;
+
     QWidget *w = childOf(widget, (QWidget*)o);
     if (!w
 #ifndef QT_NO_SIZEGRIP
@@ -130,10 +135,10 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
         if (w->isMaximized())
             break;
         bool me = movingEnabled;
-        movingEnabled = (me && o == widget);
+        movingEnabled = (me && o == widget && buttonDown);
         mouseMoveEvent(e);
         movingEnabled = me;
-        if (buttonDown && mode != Center)
+        if (mode != Center)
             return true;
     } break;
     case QEvent::KeyPress:

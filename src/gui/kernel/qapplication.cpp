@@ -2787,9 +2787,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     w->setAttribute(Qt::WA_NoMouseReplay, false);
                     res = notify_helper(w, w == receiver ? mouse : &me);
                     e->spont = false;
-                    if (res && (w == receiver ? mouse : &me)->isAccepted())
-                        break;
                 }
+                if (res && (w == receiver ? mouse : &me)->isAccepted())
+                    break;
                 if (w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
                 relpos += w->pos();

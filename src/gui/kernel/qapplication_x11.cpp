@@ -3475,6 +3475,18 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             qt_button_down = 0;
             qt_popup_down = 0;
         }
+        if (!qApp->inPopupMode()) {
+             if (type != QEvent::MouseButtonRelease && !buttons &&
+                 QWidget::find((WId)mouseActWindow)) {
+                 manualGrab = true;                // need to manually grab
+                 XGrabPointer(X11->display, mouseActWindow, False,
+                              (uint)(ButtonPressMask | ButtonReleaseMask |
+                                     ButtonMotionMask |
+                                     EnterWindowMask | LeaveWindowMask),
+                              GrabModeAsync, GrabModeAsync,
+                              XNone, XNone, CurrentTime);
+             }
+        }
 
     } else {
         QWidget *widget = this;
@@ -4271,7 +4283,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     uint keystate = event->xkey.state;
     // remove the modifiers where mode_switch exists... HPUX machines seem
     // to have alt *AND* mode_switch both in Mod1Mask, which causes
-    // XLookupString to return things like 'ÅÂ' (aring) for Qt::ALT-A.  This
+    // XLookupString to return things like 'ÔøΩ (aring) for Qt::ALT-A.  This
     // completely breaks modifiers.  If we remove the modifier for Mode_switch,
     // then things work correctly...
     xkeyevent.state &= ~qt_mode_switch_remove_mask;
