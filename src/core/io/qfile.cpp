@@ -494,7 +494,7 @@ int QFile::ungetch( int ch )
 
     if ( isSequentialAccess() && !fh) {
 	// pipe or similar => we cannot ungetch, so do it manually
-	ungetchBuffer += QChar(ch);
+	ungetchBuffer += ch;
 	return ch;
     }
 
