@@ -724,7 +724,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
                     if(images[i].mac_type == kThumbnail8BitMask) {
                         for(int y = 0, h = 0; y < im.height(); y++) {
                             for(int x = 0; x < im.width(); x++)
-                                *((*hdl)+(h++)) = im.pixel(x, y) ? 0 : 255;
+                                *((*hdl)+(h++)) = qGray(im.pixel(x, y));
                         }
                     }
                 } else {
