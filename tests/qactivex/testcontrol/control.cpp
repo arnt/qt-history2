@@ -25,6 +25,7 @@
 #define SET_PROP_SLOT(prop) m_##prop = prop;
 #define GET_AND_SET(prop, type) type old = m_##prop; m_##prop = prop; prop = old; return m_##prop;
 #define EMIT_REF(prop, type) type old = m_##prop; emit prop##RefSignal( m_##prop ); return old;
+#define PROP_POINTER(prop) m_##prop = *prop;
 
 class QTestControl : public QWidget, public QAxBindable
 {
@@ -184,6 +185,22 @@ public slots:
     void setBetaSlot( Alpha beta ) { SET_PROP_SLOT(beta) }
     Alpha getAndSetBetaSlot( Alpha& beta ) { GET_AND_SET(beta, Alpha) }
     Alpha emitBetaRefSignal() { EMIT_REF(beta, Alpha) }
+
+
+    void unicodePointerSlot( QString *unicode ) { PROP_POINTER(unicode) }
+    void textPointerSlot( QCString *text ) { PROP_POINTER(text) }
+    void boolPointerSlot( bool *boolval ) { PROP_POINTER(boolval) }
+    void numberPointerSlot( int *number ) { PROP_POINTER(number) }
+    void posnumberPointerSlot( uint *posnumber ) { PROP_POINTER(posnumber) }
+    void realPointerSlot( double *real ) { PROP_POINTER(real) }
+    void colorPointerSlot( QColor *color ) { PROP_POINTER(color) }
+    void datePointerSlot( QDateTime *date ) { PROP_POINTER(date) }
+    void timePointerSlot( QDateTime *time ) { PROP_POINTER(time) }
+    void datetimePointerSlot( QDateTime *datetime ) { PROP_POINTER(datetime) }
+    void fontPointerSlot( QFont *font ) { PROP_POINTER(font) }
+    void pixmapPointerSlot( QPixmap *pixmap) { PROP_POINTER(pixmap) }
+    void listPointerSlot( QValueList<QVariant> *list) { PROP_POINTER(list) }
+    void betaPointerSlot( Alpha *beta ) { PROP_POINTER(beta) }
 
 /*
     short getShortnumberSlot() const { GET_PROP_SLOT(shortnumber) }

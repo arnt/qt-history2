@@ -286,14 +286,44 @@ public:
 	    // Set the container back to containerValue
 	    setProperty( prop->name(), containerValue );
 	}
-	// here, all properties of object and container are defvalue
+	// here, all properties of object are defvalue, and of the container containerValue
 
 	emit setUnicodeSlot( m_unicode );
-	Q_ASSERT( object->property( "unicode" ).toString() == m_unicode );
+	VERIFY_EQUAL( object->property( "unicode" ), m_unicode );
 	QString unicodeSlot;
 	emit getAndSetUnicodeSlot( unicodeSlot );
-	Q_ASSERT( object->property( "unicode" ).toString() == QString() );
+	VERIFY_EQUAL( object->property( "unicode" ).toString(), QString::null );
 
+	qDebug( "\nEmitting signals to pointer slots..." );
+	emit unicodePointerSlot( m_unicode );
+	VERIFY_EQUAL( object->property( "unicode" ), m_unicode );
+	emit textPointerSlot( m_text );
+	VERIFY_EQUAL( object->property( "text" ), m_text );
+	emit boolPointerSlot( m_boolval );
+	VERIFY_EQUAL( object->property( "boolval" ), m_boolval );
+	emit numberPointerSlot( m_number );
+	VERIFY_EQUAL( object->property( "number" ), m_number );
+	emit posnumberPointerSlot( m_posnumber );
+	VERIFY_EQUAL( object->property( "posnumber" ), m_posnumber );
+	emit realPointerSlot( m_real );
+	VERIFY_EQUAL( object->property( "real" ), m_real );
+	emit datePointerSlot( m_date );
+	VERIFY_EQUAL( object->property( "date" ), m_date );
+	emit timePointerSlot( m_time );
+	VERIFY_EQUAL( object->property( "time" ), m_time );
+	emit datetimePointerSlot( m_datetime );
+	VERIFY_EQUAL( object->property( "datetime" ), m_datetime );
+	emit fontPointerSlot( m_font );
+	VERIFY_EQUAL( object->property( "font" ), m_font );
+	emit pixmapPointerSlot( m_pixmap );
+	VERIFY_EQUAL( object->property( "pixmap" ), m_pixmap );
+	emit listPointerSlot( m_list );
+	VERIFY_EQUAL( object->property( "list" ), m_list );
+
+/*	Difficult to support
+	emit betaPointerSlot( m_beta );
+	VERIFY_EQUAL( object->property( "beta" ), m_beta );
+*/
 	return 0;
     }
 
@@ -402,6 +432,21 @@ public slots:
 signals:
     void setUnicodeSlot( const QString &string );
     void getAndSetUnicodeSlot( QString &string );
+
+    void unicodePointerSlot( const QString &string );
+    void textPointerSlot( const QString &string );
+    void boolPointerSlot( bool boolval );
+    void numberPointerSlot( int number );
+    void posnumberPointerSlot( uint posnumber );
+    void realPointerSlot( double real );
+    void colorPointerSlot( const QColor &color );
+    void datePointerSlot( const QDateTime &date );
+    void timePointerSlot( const QDateTime &time );
+    void datetimePointerSlot( const QDateTime &datetime );
+    void fontPointerSlot( const QFont &font );
+    void pixmapPointerSlot( const QPixmap &pixmap );
+    void listPointerSlot( const QValueList<QVariant> &list );
+    void betaPointerSlot( Alpha beta );
 
 private:
     QAxObject *object;
