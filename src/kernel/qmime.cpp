@@ -420,7 +420,7 @@ void QMimeSourceFactory::addFilePath( const QString& p )
 */
 void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimetype )
 {
-    d->extensions.replace(ext, mimetype);
+    d->extensions.insert(ext, mimetype);
 }
 
 /*!
@@ -509,7 +509,7 @@ void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
 {
     if ( d->stored.contains(abs_name) )
 	delete d->stored[abs_name];
-    d->stored.replace(abs_name,data);
+    d->stored.insert(abs_name,data);
 }
 
 
