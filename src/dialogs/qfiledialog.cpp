@@ -4768,6 +4768,8 @@ void QFileDialog::urlStart( QNetworkOperation *op )
     if ( !op )
 	return;
 
+    files->setEnabled( FALSE );
+    d->moreFiles->setEnabled( FALSE );
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( isRoot( d->url ) )
 	    d->cdToParent->setEnabled( FALSE );
@@ -4863,6 +4865,8 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	delete d->progressDia;
 	d->progressDia = 0;
     }
+    files->setEnabled( TRUE );
+    d->moreFiles->setEnabled( TRUE );
 }
 
 void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
