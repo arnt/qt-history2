@@ -457,19 +457,30 @@ The \l QSqlCursor class provides a high level interface to browsing and
 editing records in SQL database tables or views without the need to
 write your own SQL.
 
-QSqlCursors can do almost everything that QSqlQuery can, with two
+QSqlCursor can do almost everything that QSqlQuery can, with two
 exceptions. Since cursors represent tables or views within the
 database, by default, \l QSqlCursor objects retrieve all the fields of
-each record in the table or view. If only some fields are relevant
-simply confine your processing to those and ignore the others. Or,
-manually disable the generation of certain fields using
-QSqlRecord::setGenerated().  However, if you really don't want to
-retrieve all fields in the cursor then you should use a \l QSqlQuery
-instead, and customize the query to suit your needs.  You can edit
-records using a \l QSqlCursor providing that the table or view has a
-primary index that uniquely distinguishes each record. If this condition
-is not met then you'll need to use a \l QSqlQuery for edits. (Note that
-not all databases support editable views.) 
+each record in the table or view whenever navigating to a new
+record. If only some fields are relevant simply confine your
+processing to those and ignore the others. Or, manually disable the
+generation of certain fields using QSqlRecord::setGenerated().
+However, if you really don't want to retrieve all fields in the cursor
+then you should use a \l QSqlQuery instead, and customize the query to
+suit your needs.  You can edit records using a \l QSqlCursor providing
+that the table or view has a primary index that uniquely distinguishes
+each record. If this condition is not met then you'll need to use a \l
+QSqlQuery for edits. (Note that not all databases support editable
+views.)
+
+QSqlCursor operates on a single record at a time.  Whenever performing
+an insert, update or delete using QSqlCursor, only a single record in
+the database is affected.  When navigating through records in the
+cursor, only one record at a time is available in application code.
+In addition, QSqlCursor maintains a separate 'edit buffer' which is
+used to make changes to a single record in the database.  The edit
+buffer is maintained in a separate memory area, and is unnaffected by
+the 'navigation buffer' which changes as the cursor moves from record
+to record.
 
 Before we can use \l QSqlCursor objects we must first create and open
 a database connection. Connecting is described in the <a
