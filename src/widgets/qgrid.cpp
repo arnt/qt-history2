@@ -43,6 +43,7 @@
 
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
     The grid places its widgets either in a single column or in a single
     row. If you want a multi-column, multi-row grid use \l{QGridLayout}.

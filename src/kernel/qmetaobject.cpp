@@ -78,6 +78,7 @@
   \brief The QMetaObject class contains meta information about Qt objects.
 
   \ingroup objectmodel
+  \ingroup mainclasses
 
   The Meta Object System in Qt is responsible for the signal/slot
   mechanism for communication between objects, runtime type
@@ -621,6 +622,7 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
 
   \brief The QMetaProperty class stores meta data about a property.
   \ingroup objectmodel
+  \ingroup mainclasses
 
   Property meta data includes type(), name(), and whether a property is
   writeable(), designable() or stored().

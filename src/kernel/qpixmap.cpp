@@ -52,6 +52,7 @@
 
   \ingroup graphics images
   \ingroup shared
+  \ingroup mainclasses
 
   QPixmap is one of the two classes Qt provides for dealing with images;
   the other is QImage.  QPixmap is designed and optimized for

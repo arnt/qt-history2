@@ -79,9 +79,9 @@ public:
     QLayoutItem *item() { return item_; }
     QLayoutItem *takeItem() { QLayoutItem *i = item_; item_ = 0; return i; }
 
-    int hStretch() { return (item_->widget()) ? 
+    int hStretch() { return (item_->widget()) ?
 			 item_->widget()->sizePolicy().horStretch() : 0; }
-    int vStretch() { return (item_->widget()) ? 
+    int vStretch() { return (item_->widget()) ?
 			 item_->widget()->sizePolicy().verStretch() : 0; }
 
 
@@ -460,7 +460,7 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
     QSize hint = box->sizeHint();
     QSize minS = box->minimumSize();
     QSize maxS = box->maximumSize();
-    
+
 
     if ( c ) {
 	if ( !cStretch[box->col] )
@@ -627,7 +627,7 @@ void QGridLayoutData::setupLayoutData( int spacing )
 		addData( box, TRUE, FALSE );
 	    } else {
 		distributeMultiBox( rowData, spacing, r1, r2,
-				    min.height(), hint.height(), 
+				    min.height(), hint.height(),
 				    rStretch, box->vStretch() );
 	    }
 	    if ( c1 == c2 ) {
@@ -850,6 +850,7 @@ private:
 
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   QGridLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into rows and columns, and puts
@@ -1178,7 +1179,7 @@ static bool checkWidget( QLayout *l, QWidget *w )
 		      "%s/%s", w->className(), w->name(),
 		      w->parentWidget()->className(), w->parentWidget()->name(),
 		      l->mainWidget()->className(), l->mainWidget()->name() );
-	else 
+	else
 	    qWarning( "Warning: adding %s/%s (top-level widget) to layout for"
 		      " %s/%s", w->className(), w->name(),
 		      l->mainWidget()->className(), l->mainWidget()->name() );
@@ -1406,9 +1407,9 @@ struct QBoxLayoutItem
 	    return item->sizeHint().height();
     }
     QLayoutItem *item;
-    int hStretch() { if (stretch == 0 && item->widget()) 
+    int hStretch() { if (stretch == 0 && item->widget())
 	return item->widget()->sizePolicy().horStretch(); else return stretch;}
-    int vStretch() { if (stretch == 0 && item->widget()) 
+    int vStretch() { if (stretch == 0 && item->widget())
 	return item->widget()->sizePolicy().verStretch(); else return stretch;}
     int stretch;
     bool magic;
@@ -1478,6 +1479,7 @@ private:
 
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   QBoxLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into a row of boxes, and makes each
@@ -2256,6 +2258,7 @@ int QBoxLayout::calcHfw( int w )
 
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   This class is used to construct horizontal box layout
   objects.  See \l QBoxLayout for more details.
@@ -2341,6 +2344,7 @@ QHBoxLayout::~QHBoxLayout()
 
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   This class is used to construct vertical box layout objects.  See
   QBoxLayout for more details.

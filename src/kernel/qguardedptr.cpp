@@ -42,11 +42,12 @@
   \brief The QGuardedPtr class is a template class that provides guarded pointers to QObjects.
 
   \ingroup objectmodel
+  \ingroup mainclasses
 
   A guarded pointer, QGuardedPtr\<<em>X</em>\>,
   behaves like a normal C++ pointer \e X*, except that
   it is automatically set to null when the referenced object is destroyed
-  (unlike normal C++ pointers, which become "dangling pointers" in that case).
+  (unlike normal C++ pointers, which become "dangling pointers" in such cases).
   \e X must be a subclass of QObject.
 
   Guarded pointers are useful whenever you need to store a pointer to a
@@ -123,7 +124,7 @@
 
   Destroys the guarded pointer.
   Just like a normal pointer, destroying a guarded pointer does \e not
-  destroy the object being pointed to. 
+  destroy the object being pointed to.
 */
 
 /*!
@@ -136,7 +137,7 @@
 /*!
   \fn QGuardedPtr<T> & QGuardedPtr::operator=(T* p)
   \overload
-  Assignment operator.  This guarded pointer then points to same object as 
+  Assignment operator.  This guarded pointer then points to same object as
   \a p points to.
 */
 

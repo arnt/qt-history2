@@ -58,6 +58,7 @@
   \ingroup graphics
   \ingroup images
   \ingroup shared
+  \ingroup mainclasses
 
   A picture serializes painter commands to an IO device in a
   platform-independent format.	A picture created under Windows

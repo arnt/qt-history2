@@ -45,6 +45,7 @@
   \ingroup organizers
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   All the horizontal box's children will be placed alongside each
   other and sized according to their sizeHint()s.

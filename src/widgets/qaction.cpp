@@ -54,6 +54,7 @@
 /*! \class QAction qaction.h
     \ingroup basic
     \ingroup application
+  \ingroup mainclasses
   \brief The QAction class provides an abstract user interface action that can
   appear both in menus and tool bars.
 
@@ -1061,6 +1062,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 /*! \class QActionGroup qaction.h
     \ingroup basic
     \ingroup application
+  \ingroup mainclasses
 
   \brief The QActionGroup class groups actions together.
 
@@ -1416,7 +1418,7 @@ bool QActionGroup::removeFrom( QWidget* w )
     for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it ) {
 	it.current()->removeFrom( w );
     }
- 
+
 #ifndef QT_NO_TOOLBAR
     if ( w->inherits( "QToolBar" ) ) {
 	QPtrListIterator<QComboBox> cb( d->comboboxes );

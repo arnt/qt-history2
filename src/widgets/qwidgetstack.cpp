@@ -67,6 +67,7 @@ public:
   user can see only the top widget.
 
   \ingroup organizers
+  \ingroup mainclasses
 
   The application programmer can move any widget to the top of the
   stack at any time using the slot raiseWidget(), and add or remove
@@ -94,7 +95,7 @@ public:
 
 
 /*!  Constructs an empty widget stack with parent \a parent and called
-    \a name. 
+    \a name.
 */
 
 QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
@@ -181,9 +182,9 @@ void QWidgetStack::raiseWidget( int id )
 }
 
 
-/*!  
+/*!
     \overload
-    Raises \a w to the top of the widget stack. 
+    Raises \a w to the top of the widget stack.
 */
 
 void QWidgetStack::raiseWidget( QWidget * w )

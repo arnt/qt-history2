@@ -44,6 +44,7 @@
 /*!
   \class QSqlEditorFactory qsqleditorfactory.h
     \ingroup database
+  \ingroup mainclasses
 
   \brief The QSqlEditorFactory class is used to create the editors
   used by QSqlDataTable and QSqlForm.

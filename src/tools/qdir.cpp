@@ -53,6 +53,7 @@
   \brief The QDir class provides access to directory structures and their contents in a platform-independent way.
 
   \ingroup io
+  \ingroup mainclasses
 
     A QDir is used to manipulate path names, access information
     regarding paths and files, and manipulate the underlying file system.
@@ -70,7 +71,7 @@
 
   An example of an absolute path is the string "/tmp/quartz", a relative
   path might look like "src/fatlib". You can use the function isRelative()
-  to check if a QDir is using a relative or an absolute file path. 
+  to check if a QDir is using a relative or an absolute file path.
   Call convertToAbs() to convert a relative QDir to an absolute one. For
   a simplified path use cleanDirPath(). To obtain a path which has no
   symbolic links or redundant ".." elements use canonicalPath(). The
@@ -92,15 +93,15 @@
     etc.), and a sort order. The filters and sort may be set with calls
     to setNameFilter(), setFilter() and setSorting(). They may also be
     specified in the entryList() and entryInfoList()'s arguments.
-  
+
     Create a new directory with mkdir(), rename a directory with
     rename() and remove an existing directory with rmdir(). Remove a
     file with remove(). You can interrogate a directory with exists(),
-    isReadable() and isRoot(). 
+    isReadable() and isRoot().
 
     To get a path with a filename use filePath(), and to get a directory
     name use dirName(); neither of these functions checks for the
-    existence of the file or directory. 
+    existence of the file or directory.
 
     The list of root directories is provided by drives(); on Unix
     systems this returns a list containing one root directory, "/"; on
@@ -168,7 +169,7 @@ QDir::QDir()
     init();
 }
 
-/*!  
+/*!
     Constructs a QDir for with path \a path that filters its entries by
     name with \a nameFilter and by attributes with \a filterSpec. It
     also sorts the names using \a sortSpec.
@@ -260,7 +261,7 @@ QDir::~QDir()
   Unix). Relative file names begin with a directory name or a file name
   and specify a path relative to the current directory. An example of an
   absolute path is the string "/tmp/quartz", a relative path might look
-  like "src/fatlib". 
+  like "src/fatlib".
 
   \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
       absFilePath(), isRelative(), convertToAbs()
@@ -418,8 +419,8 @@ QString QDir::convertSeparators( const QString &pathName )
 
 
 /*!
-  Changes the QDir's directory to directory \a dirName. 
-  
+  Changes the QDir's directory to directory \a dirName.
+
   If \a acceptAbsPath is TRUE a path starting with separator "/" will
   cause the function to change to the absolute directory. If \a
   acceptAbsPath is FALSE any number of separators at the beginning of \a
@@ -455,7 +456,7 @@ bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 }
 
 /*!
-  Changes directory by moving one directory up from the QDir's 
+  Changes directory by moving one directory up from the QDir's
   current directory.
 
   Returns TRUE if the new directory exists and is readable. Note that the
@@ -482,8 +483,8 @@ bool QDir::cdUp()
   The \a nameFilter is a wildcard (globbing) filter that understands "*"
   and "?" wildcards. (See \link qregexp.html#wildcard-matching QRegExp
   wildcard matching.\endlink) You may specify several filter entries all
-  separated by a single space " " or by a semi-colon ";". 
-  
+  separated by a single space " " or by a semi-colon ";".
+
   For example, if you want entryList() and entryInfoList() to list all
   files ending with ".cpp" and all files ending with ".h", you would use
   either dir.setNameFilter("*.cpp *.h") or
@@ -583,8 +584,8 @@ void QDir::setFilter( int filterSpec )
   \value IgnoreCase  Sort case-insensitively.
   \value DefaultSort Internal flag.
 
-  You can only specify one of the first four.  
-  
+  You can only specify one of the first four.
+
   If you specify both \c DirsFirst and \c Reversed, directories are
   still put first, but in reverse order; the files will be listed after
   the directories, again in reverse order.
@@ -616,7 +617,7 @@ void QDir::setSorting( int sortSpec )
   \sa setMatchAllDirs()
 */
 
-/*! 
+/*!
     If \a enable is TRUE then all directories are included (e.g. in
     entryList()), and the nameFilter() is only applied to the files. If
     \a enable is FALSE then the nameFilter() is applied to both
@@ -890,8 +891,8 @@ QDir &QDir::operator=( const QString &path )
 /*!
   \fn bool QDir::operator!=( const QDir &d ) const
   Returns TRUE if directory \a d and this directory have different paths
-  or different sort or filter settings; otherwise returns FALSE. 
-    
+  or different sort or filter settings; otherwise returns FALSE.
+
     Example:
     \code
     // The current directory is "/usr/local"
@@ -1011,7 +1012,7 @@ QDir QDir::current()
   Returns the home directory.
 
     Under Windows NT/2000 the function forms the path by concatenating
-    the \c HOMEDRIVE and \c HOMEPATH environment variables. 
+    the \c HOMEDRIVE and \c HOMEPATH environment variables.
 
     Under Windows 9x and non-Windows operating systems the \c HOME
     environment variable is used.

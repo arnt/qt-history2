@@ -54,6 +54,7 @@
   on the local file system.
 
   \ingroup io
+  \ingroup mainclasses
 
   \module network
 
@@ -179,7 +180,7 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
     bool deleted = FALSE;
 
     dir = QDir( url()->path() );
-    
+
     QFileInfo fi( dir, name );
     if ( fi.isDir() ) {
 	if ( dir.rmdir( name ) )

@@ -134,6 +134,7 @@ static const char * const qtlogo_xpm[] = {
 \class QMessageBox qmessagebox.h
 \brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
 \ingroup dialogs
+  \ingroup mainclasses
 
 A message box is a modal dialog that displays an icon, some text and up
 to three push buttons.  It's used for simple messages and questions.

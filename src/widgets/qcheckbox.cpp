@@ -51,6 +51,7 @@
   \brief The QCheckBox widget provides a checkbox with a text label.
 
   \ingroup basic
+  \ingroup mainclasses
 
   QCheckBox and QRadioButton are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ

@@ -6,12 +6,13 @@
   \class QPluginManager qpluginmanager.h
   \brief The QPluginManager class provides basic functions to access a certain kind of functionality in libraries.
   \ingroup componentmodel
+  \ingroup mainclasses
 
   A common usage of components is to extend the existing functionality in an application using plugins. The application
   defines interfaces that abstract a certain group of functionality, and a plugin provides a specialized implementation
   of one or more of those interfaces.
 
-  The QPluginManager template has to be instantiated with an interface definition and the IID for this interface. 
+  The QPluginManager template has to be instantiated with an interface definition and the IID for this interface.
 
   \code
   QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>( IID_MyPluginInterface );
@@ -31,7 +32,7 @@
   \code
   QString QComponentInterface::name() const
   \endcode
-  
+
   respectively, can then be used to access the component that provides the requested feature:
 
   \code
@@ -41,7 +42,7 @@
       iface->execute( "feature" );
   \endcode
 
-  The application can use a QPluginManager instance to create parts of the user interface based on the list of features 
+  The application can use a QPluginManager instance to create parts of the user interface based on the list of features
   found in plugins:
 
   \code
@@ -61,9 +62,9 @@
 /*!
   \fn QPluginManager::QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 
-  Creates an QPluginManager for interfaces \a id that will load all shared library files in \a path, 
+  Creates an QPluginManager for interfaces \a id that will load all shared library files in \a path,
   setting the default policy to \a pol. If \a cs is, FALSE the manager will handle feature strings case insensitive.
-  
+
   \warning
   Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
   to be handled with care and documented very well.
@@ -74,7 +75,7 @@
 /*!
   \fn void QPluginManager::addLibraryPath( const QString& path )
 
-  Calls addLibrary for all shared library files in \a path. 
+  Calls addLibrary for all shared library files in \a path.
   The current library policy will be used for all new QLibrary objects.
 
   \sa addLibrary(), setDefaultPolicy()
@@ -86,7 +87,7 @@
   Tries to load the library \a file, adds the library to the managed list and
   returns the created QLibrary object if successful, otherwise returns 0. If
   there is already a QLibrary object for \a file, this object will be returned.
-  The library will stay in memory if the default policy is Immediately, otherwise 
+  The library will stay in memory if the default policy is Immediately, otherwise
   it gets unloaded again.
 
   Note that \a file does not have to include the platform dependent file extension.
@@ -142,7 +143,7 @@
 /*!
   \fn QStringList QPluginManager::featureList() const
 
-  Returns a list of all features provided by the interfaces managed by this 
+  Returns a list of all features provided by the interfaces managed by this
   interface manager.
 
   \sa library(), queryInterface()
@@ -254,7 +255,7 @@ QStringList QGPluginManager::featureList() const
 	that->addLibrary( lib );
     }
 
-    QStringList list;    
+    QStringList list;
     QDictIterator<QLibrary> pit( plugDict );
     while( pit.current() ) {
 	list << pit.currentKey();

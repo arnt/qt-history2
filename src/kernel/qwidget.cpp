@@ -66,6 +66,7 @@
   \brief The QWidget class is the base class of all user interface objects.
 
   \ingroup abstractwidgets
+  \ingroup mainclasses
 
   The widget is the atom of the user interface: It receives mouse,
   keyboard and other events from the window system, and paints a
@@ -525,7 +526,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 This enum type is used to specify various window-system properties
 of the widget.  They are fairly unusual but necessary in a
-few cases.  Some of these flags depend on whether the underlying window 
+few cases.  Some of these flags depend on whether the underlying window
 manager supports them.
 
 The main types are
@@ -3519,8 +3520,8 @@ void QWidget::show()
 #endif
 	// do not show the window directly, but post a showWindow
 	// request to reduce flicker with laid out widgets
-	if ( !isTopLevel() && !parentWidget()->in_show 
-	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is nessary 
+	if ( !isTopLevel() && !parentWidget()->in_show
+	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is nessary
 	    sendShowWindowRequest = TRUE;
 	else
 	    showWindow();

@@ -45,6 +45,7 @@
 
   \ingroup time
   \ingroup events
+  \ingroup mainclasses
 
   It uses \link QTimerEvent timer events\endlink internally to provide a
   more versatile timer.	 QTimer is very easy to use: create a QTimer, call

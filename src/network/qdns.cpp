@@ -1439,10 +1439,11 @@ void QDnsSocket::answer()
 
 
 /*! \class QDns qdns.h
-    \ingroup io
   \brief The QDns class provides asynchronous DNS lookups.
 
   \module network
+  \ingroup mainclasses
+    \ingroup io
 
   Both Windows and Unix provide synchronous DNS lookups; Windows
   provides some asynchronous support too.  At the time of writing neither
@@ -1764,7 +1765,7 @@ bool QDns::isWorking() const
     if ( d->noEventLoop )
 	return TRUE;
 #endif
-    
+
     QPtrList<QDnsRR> * ll = QDnsDomain::cached( this );
     int queries = n.count();
     while( ll->current() != 0 ) {
@@ -2221,7 +2222,7 @@ static void doResInit()
 #ifndef Q_OS_TEMP
     if ( QApplication::winVersion() == Qt::WV_98 ||
 	 QApplication::winVersion() == Qt::WV_2000 ||
-	 QApplication::winVersion() == Qt::WV_XP ) 
+	 QApplication::winVersion() == Qt::WV_XP )
 #endif
 	{
 	// for 98 and 2000 try the API call GetNetworkParams()

@@ -8,6 +8,7 @@
 
   \preliminary
   \ingroup componentmodel
+  \ingroup mainclasses
 
   All interfaces in the component object model are derived from the QUnknownInterface. This 
   interface provides control of the object's lifetime and the ability to navigate a component 
@@ -119,6 +120,7 @@
 
   \preliminary
   \ingroup componentmodel
+  \ingroup mainclasses
 
   This interface defines the functions name(), description(), 
   author() and version(), all of which return a string containing 
@@ -156,6 +158,7 @@
 
   \preliminary
   \ingroup componentmodel
+  \ingroup mainclasses
 */
 
 /*!
@@ -172,6 +175,7 @@
 
   \preliminary
   \ingroup componentmodel
+  \ingroup mainclasses
 */
 
 /*!
@@ -201,6 +205,7 @@
 
   \preliminary
   \ingroup componentmodel
+  \ingroup mainclasses
 */
 
 /*!
@@ -216,6 +221,7 @@
 
   \preliminary
   \ingroup componentmodel
+  \ingroup mainclasses
 
   This interface defines two functions, registerComponents() and unregisterComponents().
 

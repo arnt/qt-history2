@@ -93,6 +93,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
 /*! \class QSqlCursor qsqlcursor.h
     \ingroup database
+  \ingroup mainclasses
 
     \brief The QSqlCursor class provides browsing and editing of SQL
     tables and views.

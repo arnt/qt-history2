@@ -50,6 +50,7 @@
   \ingroup tools
   \ingroup shared
   \ingroup text
+  \ingroup mainclasses
 
   It is used to store and manipulate strings that logically belong
   together.  Basically QStringList is a QValueList of QString

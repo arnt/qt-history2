@@ -46,6 +46,7 @@
 
   \ingroup collection
   \ingroup tools
+  \ingroup mainclasses
 
   \important autoDelete setAutoDelete
 

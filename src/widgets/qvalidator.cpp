@@ -49,12 +49,13 @@
   \brief The QValidator class provides validation of input text.
 
   \ingroup misc
+  \ingroup mainclasses
 
   The class itself is abstract. Two subclasses, \l QIntValidator and
   \l QDoubleValidator, provide rudimentary numeric-range checking,
   and \l QRegExpValidator provides general checking using a custom
   regular expression (\l QRegExp).
-  
+
   If the built-in validators aren't sufficient, you can subclass
   QValidator. The class has two virtual functions: validate()
   and fixup().
@@ -194,7 +195,7 @@ void QValidator::fixup( QString & ) const
 
   Example of use:
 
-  \code 
+  \code
     //...
     #include <qlineedit.h>
     #include <qvalidator.h>
@@ -202,18 +203,18 @@ void QValidator::fixup( QString & ) const
     QIntValidator v( 0, 100, this );
     QLineEdit* edit = new QLineEdit( this );
     // the edit lineedit will only accept integers between 0 and 100
-    edit->setValidator( &v );	
+    edit->setValidator( &v );
   \endcode
 
   Below we present some examples of validators. In practice they would
-  normally be associated with a widget as in the example above. 
+  normally be associated with a widget as in the example above.
 
-  \code 
+  \code
     QString s;
     // a validator that will only accept integers between 0 and 100
-    QIntValidator v( 0, 100, this );	
+    QIntValidator v( 0, 100, this );
 
-    s = "10"; 
+    s = "10";
     v.validate( a, 0 );	// Returns Acceptable
     s = "35";
     v.validate( a, 0 );	// Returns Acceptable
@@ -274,7 +275,7 @@ QIntValidator::~QIntValidator()
 }
 
 
-/*!  
+/*!
   Returns \c Acceptable if the \a input is an integer within the valid
   range, \c Intermediate if the \a input is an integer outside the
   valid range and \c Invalid if the \a input is not an integer.
@@ -308,7 +309,7 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 }
 
 
-/*!  
+/*!
   Sets the range of the validator to accept only integers between \a minimum and
   \a maximum inclusive.
 */
@@ -400,14 +401,14 @@ QDoubleValidator::~QDoubleValidator()
 }
 
 
-/*!  
+/*!
     Returns \c Acceptable if the string \a input contains a double that is
-    within the valid range and is in the correct format. 
-    
+    within the valid range and is in the correct format.
+
     Returns \c Intermediate if \a input contains a double that is outside the
     range or is in the wrong format, e.g. with too many digits after the
-    decimal point or is empty. 
-    
+    decimal point or is empty.
+
     Returns \c Invalid if the \a input is not a double.
 */
 
@@ -469,7 +470,7 @@ void QDoubleValidator::setRange( double minimum, double maximum, int decimals )
 
 /*! \property QDoubleValidator::bottom
     \brief the validator's minimum acceptable value
-    
+
     \sa setRange()
 */
 
@@ -481,7 +482,7 @@ void QDoubleValidator::setBottom( double bottom )
 
 /*! \property QDoubleValidator::top
     \brief the validator's maximum acceptable value
-    
+
     \sa setRange()
 */
 
@@ -492,7 +493,7 @@ void QDoubleValidator::setTop( double top )
 
 /*! \property QDoubleValidator::decimals
     \brief the validator's maximum number of digits after the decimal point
-    
+
     \sa setRange()
 */
 
@@ -528,11 +529,11 @@ void QDoubleValidator::setDecimals( int decimals )
     #include <qvalidator.h>
     //...
     // Regexp: optional '-' followed by between 1 and 3 digits
-    QRegExp rx( "-?\\d{1,3}" ); 
+    QRegExp rx( "-?\\d{1,3}" );
     QRegExpValidator validator( rx, 0 );
     QLineEdit *edit   = new QLineEdit( split );
     // edit widget will only accept numbers -999 to 999
-    edit->setValidator( &validator ); 
+    edit->setValidator( &validator );
   \endcode
 
   Below we present some examples of validators. In practice they would
@@ -542,7 +543,7 @@ void QDoubleValidator::setDecimals( int decimals )
     // Integers 1 to 9999, i.e. a digit between 1 and 9 followed by up to 3 digits
     QRegExp rx( "[1-9]\\d{0,3}" );
     // The validator treats the regexp as "^[1-9]\\d{0,3}$"
-    QRegExpValidator v( rx, 0 ); 
+    QRegExpValidator v( rx, 0 );
     QString s;
 
     s = "0";     v.validate( s, 0 ); // Returns Invalid

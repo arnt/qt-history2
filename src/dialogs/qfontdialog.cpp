@@ -59,6 +59,7 @@
 /*!
   \class QFontDialog qfontdialog.h
   \ingroup dialogs
+  \ingroup mainclasses
   \brief The QFontDialog class provides a dialog widget for selecting a font.
 
   The usual way to use this class is to call one of the static convenience

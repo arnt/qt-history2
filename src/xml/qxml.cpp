@@ -2091,6 +2091,7 @@ private:
 /*!
   \class QXmlReader qxml.h
   \ingroup xml-tools
+  \ingroup mainclasses
   \brief The QXmlReader class provides an interface for XML readers (i.e.
   parsers).
 
@@ -2280,6 +2281,7 @@ private:
 /*!
   \class QXmlSimpleReader qxml.h
   \ingroup xml-tools
+  \ingroup mainclasses
   \brief The QXmlSimpleReader class provides an implementation of a simple XML
   reader (i.e. parser).
 

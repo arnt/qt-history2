@@ -73,6 +73,7 @@ static bool inMenu = FALSE;
   \brief The QMenuBar class provides a horizontal menu bar.
 
   \ingroup application
+  \ingroup mainclasses
 
   A menu bar consists of a list of pull-down menu items.
   You add menu items with \link QMenuData::insertItem()
@@ -692,7 +693,7 @@ void QMenuBar::show()
 	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
 	    all_hidden = irects[i].isEmpty();
     }
-    if(all_hidden) 
+    if(all_hidden)
 	QWidget::hide();
     else
 	QWidget::show();

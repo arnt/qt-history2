@@ -272,7 +272,7 @@ void read_png_image(QImageIO* iio)
 
     QImage image;
     setup_qt(image, png_ptr, info_ptr, iio->gamma());
-	
+
 
     png_uint_32 width;
     png_uint_32 height;
@@ -600,6 +600,7 @@ void write_png_image(QImageIO* iio)
   \class QPNGImagePacker qpngio.h
   \ingroup images
   \ingroup graphics
+  \ingroup mainclasses
   \brief The QPNGImagePacker class creates well-compressed PNG animations.
 
   By using transparency, QPNGImagePacker allows you to build a PNG image

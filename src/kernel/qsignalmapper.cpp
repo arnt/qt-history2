@@ -66,6 +66,7 @@ public:
 /*!
   \class QSignalMapper qsignalmapper.h
   \ingroup io
+  \ingroup mainclasses
   \brief The QSignalMapper class bundles signals from identifiable senders.
 
   This class collects a set of parameterless signals, and re-emits

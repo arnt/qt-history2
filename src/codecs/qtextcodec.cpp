@@ -168,8 +168,9 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 /*!
   \class QTextCodec qtextcodec.h
-  \ingroup i18n
   \brief The QTextCodec class provides conversion between text encodings.
+  \ingroup i18n
+  \ingroup mainclasses
 
   Qt uses Unicode to store, draw and manipulate strings. In many
   situations you may wish to deal with data that uses a different

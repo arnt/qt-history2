@@ -68,6 +68,7 @@
   \brief The QCommonStyle class encapsulates the common Look and Feel of a GUI.
 
   \ingroup appearance
+  \ingroup mainclasses
 
   This abstract class implements some of the widget's look and feel
   that is common to all GUI styles provided and shipped as part of Qt.
@@ -1262,7 +1263,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 	    if ( controls & SC_TitleBarLabel ) {
-		QColorGroup cgroup = titlebar->isActive() || !titlebar->window() ? 
+		QColorGroup cgroup = titlebar->isActive() || !titlebar->window() ?
 		    titlebar->palette().active() : titlebar->palette().inactive();
 
 		QColor left = cgroup.highlight();
@@ -1308,7 +1309,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    pm = stylePixmap(SP_TitleBarCloseButton, widget);
 		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 				  down ? Style_Down : Style_Raised);
-		    
+
 		    if( down )
 			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
@@ -1321,7 +1322,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
 		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 				  down ? Style_Down : Style_Raised);
-		    
+
 		    if( down )
 			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
@@ -1769,7 +1770,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		{
 		    const QTitleBar *titlebar = (QTitleBar*)widget;
 		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if( titlebar->window() ) { 
+		    if( titlebar->window() ) {
 			if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
 			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
@@ -1777,7 +1778,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 			} else {
 			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
-				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0, 
+				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
 					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
 			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
 				ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
@@ -1893,7 +1894,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 			ret = QStyle::SC_TitleBarNormalButton;
 		}
 	    }
-#endif 
+#endif
 	    break;
 	}
 

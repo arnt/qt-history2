@@ -201,6 +201,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
   \brief The QDate class provides date functions.
 
   \ingroup time
+  \ingroup mainclasses
 
   A QDate object contains a calendar date, i.e. year, month, and day
   numbers in the modern western (Gregorian) calendar. It can read the
@@ -949,6 +950,7 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
   \brief The QTime class provides clock time functions.
 
   \ingroup time
+  \ingroup mainclasses
 
   A QTime object contains a clock time, i.e. the number of hours,
   minutes, seconds, and milliseconds since midnight. It can read the
@@ -1488,6 +1490,7 @@ int QTime::elapsed()
   \brief The QDateTime class provides date and time functions.
 
   \ingroup time
+  \ingroup mainclasses
 
   A QDateTime object contains a calendar date and a clock time (a
   "datetime"). It is a combination of the QDate and QTime classes. It

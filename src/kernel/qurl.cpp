@@ -96,6 +96,9 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   \ingroup io
   \ingroup misc
+  \ingroup mainclasses
+
+  \module network
 
   The QUrl class is provided for simple work with URLs.
   It can parse, decode, encode, etc.

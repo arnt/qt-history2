@@ -433,6 +433,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
   \brief The QDockArea class manages and lays out QDockWindows.
 
   \ingroup application
+  \ingroup mainclasses
 
   A QDockArea is a container which manages a list of QDockWindows which
   it lays out within its area. In cooperation with the QDockWindows it

@@ -154,6 +154,7 @@ static bool isRowSelection( QTable::SelectionMode selMode )
 
 /*! \class QTableSelection qtable.h
     \ingroup advanced
+  \ingroup mainclasses
   \brief The QTableSelection class provides access to a selected area in a
   QTable.
 
@@ -1274,6 +1275,7 @@ int QCheckTableItem::rtti() const
 /*! \file table/statistics/statistics.cpp */
 
 /*! \class QTable qtable.h
+  \ingroup mainclasses
     \ingroup advanced
   \module table
 
@@ -5203,6 +5205,7 @@ void QTable::setEnabled( bool b )
 
 /* \class QTableHeader qtable.h
     \ingroup advanced
+  \ingroup mainclasses
   module table
 
   \brief The QTableHeader class allows for creation and manipulation of

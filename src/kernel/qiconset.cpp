@@ -99,6 +99,7 @@ public:
   \ingroup graphics
   \ingroup images
   \ingroup shared
+  \ingroup mainclasses
 
   A QIconSet can generate smaller, larger, active, and disabled pixmaps
   from the set of icons it is given. Such pixmaps are used by

@@ -978,7 +978,7 @@ public:
 #else
 	sChars = "<>#@\"&%$:,;?={}|^~[]\'`\\*";
 #endif
-	
+
 	int len = fName.length();
 	if ( !len )
 	    return QString::null;
@@ -1978,6 +1978,7 @@ static QStringList makeFiltersList( const QString &filter )
   \class QFileDialog qfiledialog.h
   \brief The QFileDialog class provides dialogs that allow users to select files or directories.
   \ingroup dialogs
+  \ingroup mainclasses
 
   The QFileDialog class enables a user to traverse their file system in
   order to select one or many files or a directory.
@@ -2709,7 +2710,7 @@ void QFileDialog::changeMode( int id )
 
 QFileDialog::~QFileDialog()
 {
-    // since clear might call setContentsPos which would emit 
+    // since clear might call setContentsPos which would emit
     // a signal and thus cause a recompute of sizes...
     files->blockSignals( TRUE );
     d->moreFiles->blockSignals( TRUE );
@@ -2803,10 +2804,10 @@ void QFileDialog::setSelectedFilter( const QString& mask )
 
   If one or more files were selected selectedFiles contains the
   names of the selected files including their absolute paths. If no
-  files were selected or the mode wasn't ExistingFiles selectedFiles 
+  files were selected or the mode wasn't ExistingFiles selectedFiles
   is an empty list.
 
-  It is more convenient to use selectedFile() if the mode is 
+  It is more convenient to use selectedFile() if the mode is
   \c ExistingFile, \c Directory or \c DirectoryOnly.
 
   \sa selectedFile, selectedFilter, QValueList::isEmpty()
@@ -3982,7 +3983,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 		m.setItemEnabled( ok, FALSE );
 	    m.setItemEnabled( rename, FALSE );
 	    m.setItemEnabled( del, FALSE );
-	} 
+	}
 
 	if ( mode() == QFileDialog::ExistingFiles )
 	    m.setItemEnabled( rename, FALSE );
@@ -4716,7 +4717,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 
 #ifdef Q_OS_TEMP
     // ---------- get default folder pixmap
-    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, 
+    r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
 		       L"folder\\DefaultIcon",
 		       0, KEY_READ, &k );
 #else

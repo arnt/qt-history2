@@ -66,6 +66,7 @@ public:
   \brief The QSpinBox class provides a spin box widget (spin button).
 
   \ingroup basic
+  \ingroup mainclasses
 
   QSpinBox allows the user to choose a value either by
   clicking the up/down buttons to increase/decrease the value

@@ -51,6 +51,7 @@
   \ingroup environment
   \ingroup graphics
   \ingroup images
+  \ingroup mainclasses
 
   This class is a tool for optimized drawing with QPixmap.  You can
   use it to store temporary pixmaps that are expensive to generate

@@ -53,6 +53,7 @@
   \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
 
   \ingroup basic
+  \ingroup mainclasses
 
   A scroll bar allows the user to control a value within a
   program-definable range and gives users a visible indication of
@@ -546,7 +547,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	  pressedControl == QStyle::SC_ScrollBarSubPage ||
 	  pressedControl == QStyle::SC_ScrollBarSlider ) &&
 	 midButtonAbsPos && e->button() == MidButton ) {
- 
+
 	QRect sr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
 						  QStyle::SC_ScrollBarSlider ),
 	      gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,

@@ -46,6 +46,7 @@
   provides a vector (array).
 
   \ingroup tools
+  \ingroup mainclasses
 
   \important autoDelete setAutoDelete
 

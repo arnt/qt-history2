@@ -46,6 +46,7 @@
   \ingroup graphics
   \ingroup images
   \ingroup shared
+  \ingroup mainclasses
 
   The QBitmap class is a monochrome off-screen paint device used
   mainly for creating custom QCursor and QBrush objects, in

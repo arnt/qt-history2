@@ -43,6 +43,7 @@
 
   \ingroup collection
   \ingroup tools
+  \ingroup mainclasses
 
   The QPtrCollection class is an abstract base class for the Qt \link
   collection.html collection classes\endlink QDict, QPtrList, etc. Qt

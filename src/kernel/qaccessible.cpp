@@ -11,7 +11,8 @@
 /*!
   \class QAccessible qaccessible.h
   \ingroup misc
-  \brief The QAccessible class is provide a set of enums and static functions.
+  \brief The QAccessible class provides enums and static functions
+  relating to accessibility.
 
 */
 

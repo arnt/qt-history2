@@ -418,6 +418,7 @@ static int scm(int a, int b)
 \ingroup abstractwidgets
 \ingroup graphics
 \ingroup images
+\ingroup mainclasses
 \module canvas
 
 The QCanvas class manages its 2D graphic area and all the canvas items
@@ -435,30 +436,30 @@ for this purpose.
 Although a canvas may appear to be similar to a widget with child
 widgets, there are several notable differences:
 
-<ul>
-<li> Canvas items are usually far faster to manipulate and redraw than
+\list
+\i Canvas items are usually far faster to manipulate and redraw than
 child widgets, with the speed advantage becoming especially great when
 there are \e many canvas items and non-rectangular items. In most
 situations canvas items are also a lot more memory efficient than child
 widgets.
 
-<li> It's easy to detect overlapping items (collision detection).
+\i It's easy to detect overlapping items (collision detection).
 
-<li> The canvas can be larger than a widget. A million-by-million canvas
+\i The canvas can be larger than a widget. A million-by-million canvas
 is perfectly possible. Although a widget might be very inefficient at
 this size and some window systems might not support it at all, QCanvas
 scales well. Even with a billion pixels and a million items finding a
 particular canvas item, detecting collisions, etc. is still fast.
 
-<li> Two or more QCanvasView objects can view the same canvas.
+\i Two or more QCanvasView objects can view the same canvas.
 
-<li> An arbitrary transformation matrix can be set on each QCanvasView
+\i An arbitrary transformation matrix can be set on each QCanvasView
 which makes it easy to zoom, rotate or sheer the viewed canvas.
 
-<li> Widgets provide a lot more functionality, such as input (QKeyEvent,
+\i Widgets provide a lot more functionality, such as input (QKeyEvent,
 QMouseEvent etc.) and layout management (QGridLayout etc.).
 
-</ul>
+\endlist
 
 A canvas consists of a background, a number of canvas items organized by
 x, y and z coordinates, and a foreground. A canvas item's z coordinate

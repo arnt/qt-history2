@@ -43,6 +43,7 @@
 /*!
     \class QSqlIndex qsqlindex.h
     \ingroup database
+  \ingroup mainclasses
 
     \brief The QSqlIndex class provides functions to manipulate and
     describe QSqlCursor and QSqlDatabase indexes.

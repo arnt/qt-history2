@@ -67,7 +67,6 @@ public:
 
   \ingroup io
   \ingroup misc
-  \ingroup network
 
   This class is just a container for storing information about
   URLs, which is why all information must be passed in the

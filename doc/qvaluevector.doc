@@ -44,6 +44,7 @@
   \ingroup qtl
   \ingroup tools
   \ingroup shared
+  \ingroup mainclasses
   
   QValueVector is a Qt implementation of an STL-like vector container.  It
   can be used in your application if the standard vector<> is not

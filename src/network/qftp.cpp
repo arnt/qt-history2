@@ -53,6 +53,7 @@
 /*!
   \class QFtp qftp.h
     \ingroup io
+  \ingroup mainclasses
   \brief The QFtp class provides an implementation of the FTP protocol.
 
   \module network
@@ -941,7 +942,7 @@ void QFtp::error( int code )
 	QNetworkOperation *op = operationInProgress();
 	if ( op ) {
 	    QString msg;
-	    if ( code == QSocket::ErrHostNotFound ) 
+	    if ( code == QSocket::ErrHostNotFound )
 		msg = tr( "Host %1 not found" ).arg( url()->host() );
 	    else
 		msg = tr( "Connection refused to host %1" ).arg( url()->host() );

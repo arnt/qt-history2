@@ -59,6 +59,7 @@
   widget, e.g., answering the question "What's this?".
 
   \ingroup helpsystem
+  \ingroup mainclasses
 
   "What's this?" help is part of an application's online help system
   that provides users with information about functionality, usage,
@@ -965,14 +966,14 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos, QWi
 
 /*!
   Display \a text in a help window at the global screen position
-  \a  pos. 
-  
+  \a  pos.
+
   If widget \a w is not NULL and has its own dedicated QWhatsThis
   object, this object will receive clicked() messages when the user
   clicks on hyperlinks inside the help text.
-  
+
   \sa QWhatsThis::clicked()
-  
+
 */
 void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
 {

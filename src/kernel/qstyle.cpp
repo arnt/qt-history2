@@ -60,6 +60,7 @@ public:
   \brief The QStyle class specifies the look and feel of a GUI.
   \preliminary
   \ingroup appearance
+  \ingroup mainclasses
 
     A large number of GUI elements are common to many widgets. The
     QStyle class allows the look of these elements to be modified

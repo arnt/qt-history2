@@ -88,6 +88,7 @@ public:
   \brief The QDial class provides a rounded range control (like a speedometer or potentiometer).
 
   \ingroup basic
+  \ingroup mainclasses
 
   QDial is used when the user needs to control a value within a
   program-definable range, and the range either wraps around

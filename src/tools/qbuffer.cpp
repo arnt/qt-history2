@@ -43,6 +43,7 @@
   \class QBuffer qbuffer.h
   \ingroup io
   \ingroup collection
+  \ingroup mainclasses
   \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
   QBuffer is used to read and write to a memory buffer. It is normally

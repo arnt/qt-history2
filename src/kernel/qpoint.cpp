@@ -45,6 +45,7 @@
 
   \ingroup images
   \ingroup graphics
+  \ingroup mainclasses
 
   A point is specified by an x coordinate and a y coordinate.
 

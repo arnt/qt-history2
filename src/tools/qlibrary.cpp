@@ -39,7 +39,7 @@
 #include <private/qlibrary_p.h>
 
 // uncomment this to get error messages
-//#define QT_DEBUG_COMPONENT 1 
+//#define QT_DEBUG_COMPONENT 1
 // uncomment this to get error and success messages
 //#define QT_DEBUG_COMPONENT 2
 
@@ -131,6 +131,7 @@ void QLibraryPrivate::killTimer()
 
   \brief The QLibrary class provides a wrapper for handling shared libraries.
   \ingroup componentmodel
+  \ingroup mainclasses
 
   An instance of a QLibrary object can handle a single shared library and provide
   access to the functionality in the library in a platform independent way. If the

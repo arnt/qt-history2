@@ -49,6 +49,7 @@
   \brief The QClipboard class provides access to the window system clipboard.
 
   \ingroup io environment
+  \ingroup mainclasses
 
   The clipboard offers a simple mechanism to copy and paste data between
   applications.
@@ -57,7 +58,7 @@
   similar mechanisms. For advanced clipboard usage, you should read
   \link dnd.html the drag-and-drop documentation\endlink.
 
-  There is a single QClipboard object in an application, and you can 
+  There is a single QClipboard object in an application, and you can
   access it using QApplication::clipboard().
 
   Example:
@@ -75,7 +76,7 @@
   \endcode
 
   QClipboard features some convenience functions to access common data
-  types: setText() allows the exchange of Unicode text and 
+  types: setText() allows the exchange of Unicode text and
   setPixmap() and setImage() allows the exchange of QPixmaps
   and QImages between applications. The setData() function is the
   ultimate in flexibility: it allows you to add any QMimeSource into the

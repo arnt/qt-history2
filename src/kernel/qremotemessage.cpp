@@ -48,9 +48,12 @@
   Qt application and it's remote control. A typical use of such a remote functionality
   is testing. Hence the msg_type QRemoteMessage.
 
-	Detailed description
+  \ingroup mainclasses
+  \ingroup io
 
-   <strong>Groups of functions:</strong>
+\section1 Detailed description
+
+\section2 Groups of functions:
   \list
 
   \i Construction:

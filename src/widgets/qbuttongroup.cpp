@@ -50,6 +50,7 @@
   \ingroup organizers
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   A button group widget makes it easier to deal with groups of
   buttons.  Each button in a button group has a unique

@@ -75,6 +75,7 @@
   flow and main settings.
 
   \ingroup application
+  \ingroup mainclasses
 
   It contains the main event loop, where all events from the window
   system and other sources are processed and dispatched.  It also
@@ -3292,6 +3293,7 @@ bool QApplication::reverseLayout()
 
   \ingroup application
   \ingroup environment
+  \ingroup mainclasses
 
   The session manager is responsible for session management, most
   importantly for interruption and resumption. A "session" is a kind

@@ -91,7 +91,9 @@ public:
 
   \ingroup io
   \ingroup misc
-  \ingroup network
+  \ingroup mainclasses
+
+  \module network
 
   This class operates on hierarchical structures (such as filesystems) using
   URLs. Its API allows all the common operations (listing children,

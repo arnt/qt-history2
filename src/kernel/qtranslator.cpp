@@ -213,6 +213,7 @@ public:
 
   \ingroup i18n
   \ingroup environment
+  \ingroup mainclasses
 
   An object of this class contains a set of QTranslatorMessage
   objects, each of which specifies a translation from a source

@@ -47,6 +47,7 @@ extern bool qt_file_access( const QString& fn, int t );
   \brief The QFile class is an I/O device that operates on files.
 
   \ingroup io
+  \ingroup mainclasses
 
   QFile is an I/O device for reading and writing binary and text files.	A
   QFile may be used by itself or more conveniently with a QDataStream or

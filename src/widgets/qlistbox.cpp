@@ -760,6 +760,7 @@ int QListBoxPixmap::rtti() const
   \brief The QListBox widget provides a list of selectable, read-only items.
 
   \ingroup advanced
+  \ingroup mainclasses
 
   This is typically a single-column list in which zero or one item
   is selected, but it can also be used in many other ways.
@@ -3875,8 +3876,8 @@ void QListBox::adjustItems()
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
     QColorGroup g;
-    bool drawActiveSelection = hasFocus() || 
-	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) || 
+    bool drawActiveSelection = hasFocus() ||
+	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 	( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
     if ( !drawActiveSelection )
 	g = palette().inactive();

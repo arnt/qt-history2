@@ -51,16 +51,17 @@
   binary data to a QIODevice.
 
   \ingroup io
+  \ingroup mainclasses
 
   A data stream is a binary stream of encoded information which is 100%
   independent of the host computer's operating system, CPU or byte
   order. For example a data stream that is written by a PC under Windows
-  can be read by a Sun SPARC running Solaris. 
-  
+  can be read by a Sun SPARC running Solaris.
+
   You can also use a data stream to read/write <a href="#raw">raw
   unencoded binary data</a>. If you want a "parsing" input stream, see
-  QTextStream. 
-  
+  QTextStream.
+
   The QDataStream class implements serialization of primitive types, like
   \c char, \c short, \c int, \c char* etc.  Serialization of more complex
   data is accomplished by breaking up the data into primitive units.
@@ -100,19 +101,19 @@
   all the characters of the string including the NUL byte. When reading
   a \c char* string, 4 bytes are read to create the 32-bit length value,
   then that many characters for the \c char* string including the NUL
-  are read. 
+  are read.
 
   The initial IODevice is usually set in the constructor, but can be
   changed with setDevice(). If you've reached the end of the data (or if
-  there is no IODevice set) atEnd() will return TRUE. 
+  there is no IODevice set) atEnd() will return TRUE.
 
   If you want the data to be compatible with an earlier version of Qt
   use setVersion().
- 
+
   If you want the data to be human-readable, e.g. for debugging, you can
   set the data stream into printable data mode with setPrintableData().
   The data is then written slower, in a bloated but human readable
-  format. 
+  format.
 
   If you are producing a new binary data format, such as a file format
   for documents created by your application, you could use a QDataStream
@@ -176,7 +177,7 @@
     data stream directly. Data may be read from the stream into a
     preallocated char* using readRawBytes(). Similarly data can be
     written to the stream using writeRawBytes(). Notice that any
-    encoding/decoding of the data must be done by you. 
+    encoding/decoding of the data must be done by you.
 
     A similar pair of functions is readBytes() and writeBytes(). These
     differ from their \e raw counterparts as follows: readBytes() reads
@@ -184,7 +185,7 @@
     then that number of bytes is read into the preallocated char*;
     writeBytes() writes a Q_UINT32 containing the length of the data,
     followed by the data. Notice that any encoding/decoding of the data
-    (apart from the length Q_UINT32) must be done by you. 
+    (apart from the length Q_UINT32) must be done by you.
 
 
   \sa QTextStream QVariant
@@ -193,7 +194,7 @@
 /*!
     \enum QDataStream::ByteOrder
 
-    The byte order used for reading/writing the data. 
+    The byte order used for reading/writing the data.
 
     \value BigEndian the default
     \value LittleEndian
@@ -223,7 +224,7 @@ static const int DefaultStreamVersion = 4;
 // 1 is the Qt 1.x format
 
 /*!
-  Constructs a data stream that has no IO device. 
+  Constructs a data stream that has no IO device.
 
   \sa setDevice()
 */

@@ -56,6 +56,7 @@
 
   \ingroup io
   \ingroup misc
+  \ingroup mainclasses
 
   You can write to the started program's standard input, and can read
   the program's standard output and standard error. You can pass

@@ -11326,6 +11326,7 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 /*! \class QChar qstring.h
   \ingroup text
+  \ingroup mainclasses
 
 \brief The QChar class provides a lightweight Unicode character.
 
@@ -12379,6 +12380,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \ingroup tools
   \ingroup shared
   \ingroup text
+  \ingroup mainclasses
 
   QString uses \link shclass.html implicit sharing\endlink, which makes it
   very efficient and easy to use.
@@ -15797,6 +15799,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 /*!
   \class QConstString qstring.h
   \ingroup text
+  \ingroup mainclasses
   \brief The QConstString class provides string objects using constant Unicode data.
 
   In order to minimize copying, highly optimized applications can use

@@ -703,6 +703,7 @@ static QStringList emptyList;
 
 /*! \class QFontDatabase qfontdatabase.h
     \ingroup graphics
+  \ingroup mainclasses
 
   \brief The QFontDatabase class provides information about the fonts available in the underlying window system.
   \ingroup environment

@@ -72,6 +72,7 @@
 
   \ingroup images
   \ingroup graphics
+  \ingroup mainclasses
   \ingroup shared
 
   It is one of the two classes Qt provides for dealing with images,
@@ -3566,6 +3567,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   \ingroup images
   \ingroup graphics
   \ingroup io
+  \ingroup mainclasses
 
   QImageIO contains a QIODevice object that is used for image data I/O.
   The programmer can install new image file formats in addition to those
@@ -4034,8 +4036,8 @@ void QImageIO::setParameters( const char *parameters )
 }
 
 /*!
-  Sets the gamma value at which the image will be viewed to \a gamma. If the 
-  image format stores a gamma value for which the image is intended to be used, 
+  Sets the gamma value at which the image will be viewed to \a gamma. If the
+  image format stores a gamma value for which the image is intended to be used,
   then this setting will be used to modify the image. Setting to 0.0 will disable
   gamma correction (ie. any specification in the file will be ignored).
 

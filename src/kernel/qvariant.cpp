@@ -144,11 +144,11 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QColorGroup( *((QColorGroup*)d->value.ptr) );
 	    break;
 #endif
-#ifndef QT_NO_ICONSET	
+#ifndef QT_NO_ICONSET
 	case QVariant::IconSet:
 	    value.ptr = new QIconSet( *((QIconSet*)d->value.ptr) );
 	    break;
-#endif	
+#endif
 #ifndef QT_NO_TEMPLATE_VARIANT
 	case QVariant::Map:
 	    value.ptr = new QMap<QString,QVariant>( *((QMap<QString,QVariant>*)d->value.ptr) );
@@ -312,6 +312,7 @@ void QVariant::Private::clear()
 
   \ingroup objectmodel
   \ingroup misc
+  \ingroup mainclasses
 
   Because C++ forbids unions from including types that have non-default
   constructors or destructors, most interesting Qt classes cannot be used
@@ -957,7 +958,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
-#endif	
+#endif
     case Cursor:
 	{
 #ifndef QT_NO_CURSOR
@@ -1205,7 +1206,7 @@ void QVariant::save( QDataStream& s ) const
     case Map:
 	s << *((QMap<QString,QVariant>*)d->value.ptr);
 	break;
-#endif	
+#endif
     case String:
 	s << *((QString*)d->value.ptr);
 	break;
@@ -2322,7 +2323,7 @@ bool QVariant::canCast( Type t ) const
 	}
 	return TRUE;
     }
-#endif	
+#endif
     return FALSE;
 }
 
@@ -2347,7 +2348,7 @@ bool QVariant::cast( Type t )
     case QVariant::List:
 	asList();
 	break;
-#endif	
+#endif
     case QVariant::String:
 	asString();
 	break;
@@ -2476,7 +2477,7 @@ bool QVariant::operator==( const QVariant &v ) const
 	}
 	return TRUE;
     }
-#endif	
+#endif
     case String:
 	return v.toString() == toString();
     case CString:

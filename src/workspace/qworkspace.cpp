@@ -73,6 +73,7 @@
 
   \ingroup application
   \ingroup organizers
+  \ingroup mainclasses
 
   An MDI application has one main window with a menu bar.  The central
   widget of this window is a workspace.  The workspace itself contains

@@ -65,6 +65,7 @@ class QObjectPrivate
   that need to be global-like.
 
   \ingroup misc
+  \ingroup mainclasses
 
   Normally, you can ignore this class.  QObject and a few other
   classes inherit it, so all the identifiers in the Qt namespace
@@ -92,6 +93,7 @@ class QObjectPrivate
   \brief The QObject class is the base class of all Qt objects.
 
   \ingroup objectmodel
+  \ingroup mainclasses
 
   QObject is the heart of the \link object.html Qt object model.
   \endlink The central feature in this model is a very powerful

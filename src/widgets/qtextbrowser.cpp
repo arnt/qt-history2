@@ -62,6 +62,7 @@
   \ingroup advanced
   \ingroup helpsystem
   \ingroup text
+  \ingroup mainclasses
 
   This class extends QTextEdit (in read-only mode), adding some
   navigation functionality so that users can follow links in hypertext

@@ -47,6 +47,7 @@
   \ingroup organizers
   \ingroup geomanagement
   \ingroup appearance
+  \ingroup mainclasses
 
   QHButtonGroup is a convenience class that offers a thin layer on top of
   QButtonGroup. Think of it as a QHBox that offers a frame with a title

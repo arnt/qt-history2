@@ -1511,8 +1511,8 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
 
   \module XML
 
-  Many functions in the DOM return a QDomNode. 
-  
+  Many functions in the DOM return a QDomNode.
+
   You can find out the type of a node using isAttr(), isCDATASection(),
   isDocumentFragment(), isDocument(), isDocumentType(), isElement(),
   isEntityReference(), isText(), isEntity(), isNotation(),
@@ -1537,9 +1537,9 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
   nextSibling() to traverse. QDomNode also provides lastChild(),
   previousSibling() and parentNode(). To find the first child node with a
   particular node name use namedItem().
-  
+
   To find out if a node has children use hasChildNodes() and to get a list of
-  all of a node's children use childNodes(). 
+  all of a node's children use childNodes().
 
   The node's name and value (the meaning of which varies depending on its
   type) is returned by nodeName() and nodeValue() respectively. The node's
@@ -1723,20 +1723,20 @@ void QDomNode::setNodeValue( const QString& v )
   \enum QDomNode::NodeType
 
   This enum defines the type of the node:
-  \value ElementNode  
-  \value AttributeNode  
-  \value TextNode  
-  \value CDATASectionNode  
-  \value EntityReferenceNode  
-  \value EntityNode  
-  \value ProcessingInstructionNode  
-  \value CommentNode  
-  \value DocumentNode  
-  \value DocumentTypeNode  
-  \value DocumentFragmentNode  
-  \value NotationNode  
+  \value ElementNode
+  \value AttributeNode
+  \value TextNode
+  \value CDATASectionNode
+  \value EntityReferenceNode
+  \value EntityNode
+  \value ProcessingInstructionNode
+  \value CommentNode
+  \value DocumentNode
+  \value DocumentTypeNode
+  \value DocumentFragmentNode
+  \value NotationNode
   \value BaseNode  A QDomNode object, i.e. not a QDomNode subclass.
-  \value CharacterDataNode  
+  \value CharacterDataNode
 */
 /*!
   Returns the type of the node.
@@ -1949,7 +1949,7 @@ QString QDomNode::namespaceURI() const
   Returns the namespace prefix of the node; if a node has no namespace prefix,
   this function returns QString::null.
 
-  Only nodes of type \link QDomNode::NodeType ElementNode\endlink or 
+  Only nodes of type \link QDomNode::NodeType ElementNode\endlink or
   \link QDomNode::NodeType AttributeNode\endlink can have namespaces. A
   namespace prefix must be specified at creation time. If a node was
   created with a namespace prefix, you can change it later with setPrefix().
@@ -1958,7 +1958,7 @@ QString QDomNode::namespaceURI() const
   QDomDocument::createAttribute(), the prefix will be null. If you use
   QDomDocument::createElementNS() or QDomDocument::createAttributeNS()
   instead, the prefix will not be null - although it might be an empty string
-  if the name does not have a prefix. 
+  if the name does not have a prefix.
 
   \sa setPrefix() localName() namespaceURI() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -2582,7 +2582,7 @@ bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & 
   are inserted with setNamedItem() or setNamedItem() and removed with
   removeNamedItem() or removeNamedItemNS(). Use contains() to see if an item
   with the given name is in the named node map. The number of items is
-  returned by length(). 
+  returned by length().
 
   Terminology: in this class we use "item" and "node" interchangeably.
 
@@ -3971,6 +3971,7 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 /*!
   \class QDomElement qdom.h
   \ingroup xml-tools
+  \ingroup mainclasses
   \brief The QDomElement class represents one element in the DOM tree.
 
   \module XML
@@ -4008,7 +4009,7 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
     Note that we attempt to convert each node to a text node and use
     text() rather than using firstChild().toText().data() or
     n.toText().data() directly on the node, because the node may not be
-    a text element. 
+    a text element.
 
   You can get a list of all the decendents of an element which have a
   specified tag name with elementsByTagName() or  elementsByTagNameNS().
@@ -5789,7 +5790,8 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
 /*!
   \class QDomDocument qdom.h
   \ingroup xml-tools
-  \brief The QDomDocument class is the representation of an XML document.
+  \ingroup mainclasses
+  \brief The QDomDocument class represents an XML document.
 
   \module XML
 
@@ -5855,7 +5857,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   QDomNode n = docElem.firstChild();
   while( !n.isNull() ) {
       QDomElement e = n.toElement(); // try to convert the node to an element.
-      if( !e.isNull() ) { 
+      if( !e.isNull() ) {
 	  cout << e.tagName() << endl; // the node really is an element.
       }
       n = n.nextSibling();
@@ -6142,8 +6144,8 @@ QDomDocumentFragment QDomDocument::createDocumentFragment()
 
 /*!
   Creates a text node for the string \a value that can be inserted into the
-  document tree, e.g. using QDomNode::appendChild(). 
-  
+  document tree, e.g. using QDomNode::appendChild().
+
   \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomText QDomDocument::createTextNode( const QString& value )
@@ -6155,8 +6157,8 @@ QDomText QDomDocument::createTextNode( const QString& value )
 
 /*!
   Creates a new comment for the string \a value that can be inserted into the
-  document, e.g. using QDomNode::appendChild(). 
-  
+  document, e.g. using QDomNode::appendChild().
+
   \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomComment QDomDocument::createComment( const QString& value )
@@ -6168,8 +6170,8 @@ QDomComment QDomDocument::createComment( const QString& value )
 
 /*!
   Creates a new CDATA section for the string \a value that can be inserted into
-  the document, e.g. using QDomNode::appendChild(). 
-  
+  the document, e.g. using QDomNode::appendChild().
+
   \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomCDATASection QDomDocument::createCDATASection( const QString& value )
@@ -6210,8 +6212,8 @@ QDomAttr QDomDocument::createAttribute( const QString& name )
 
 /*!
   Creates a new entity reference called \a name that can be inserted
-  into the document, e.g. using QDomNode::appendChild(). 
-  
+  into the document, e.g. using QDomNode::appendChild().
+
   \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomEntityReference QDomDocument::createEntityReference( const QString& name )
