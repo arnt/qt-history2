@@ -178,19 +178,32 @@ void WriteInitialization::accept(DomWidget *node)
     if (attributes.contains("id"))
         id = attributes.value("id")->elementNumber();
 
-    if (uic->customWidgetsInfo()->extends(parentClass, "QStackedBox"))
+    if (uic->customWidgetsInfo()->extends(parentClass, "QStackedBox")) {
         output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
-    else if (uic->customWidgetsInfo()->extends(parentClass, "QWidgetStack"))
+    } else if (uic->customWidgetsInfo()->extends(parentClass, "QWidgetStack")) {
         output << option.indent << parentWidget << "->addWidget(" << varName << ", " << id << ");\n";
-    else if (uic->customWidgetsInfo()->extends(parentClass, "QToolBox"))
+    } else if (uic->customWidgetsInfo()->extends(parentClass, "QToolBox")) {
         output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label, className) << ");\n";
-    else if (uic->customWidgetsInfo()->extends(parentClass, "QTabWidget"))
+
+        refreshOut << option.indent << parentWidget << "->setItemText("
+                   << parentWidget << "->indexOf(" << varName << "), " << trCall(label, className) << ");\n";
+
+    } else if (uic->customWidgetsInfo()->extends(parentClass, "QTabWidget")) {
         output << option.indent << parentWidget << "->addTab(" << varName << ", " << trCall(title, className) << ");\n";
-    else if (uic->customWidgetsInfo()->extends(parentClass, "QWizard"))
+
+        refreshOut << option.indent << parentWidget << "->setTabText("
+                   << parentWidget << "->indexOf(" << varName << "), " << trCall(title, className) << ");\n";
+
+    } else if (uic->customWidgetsInfo()->extends(parentClass, "QWizard")) {
         output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title, className) << ");\n";
-    else if (uic->customWidgetsInfo()->extends(parentClass, "QMenuBar")
-            || uic->customWidgetsInfo()->extends(parentClass, "QMenu") && uic->customWidgetsInfo()->extends(className, "QMenu"))
+
+        refreshOut << option.indent << parentWidget << "->setTitle("
+                   << varName << ", " << trCall(title, className) << ");\n";
+
+    } else if (uic->customWidgetsInfo()->extends(parentClass, "QMenuBar")
+            || uic->customWidgetsInfo()->extends(parentClass, "QMenu") && uic->customWidgetsInfo()->extends(className, "QMenu")) {
         output << option.indent << parentWidget << "->addMenu(" << trCall(title, className) << ", " << varName << ");\n";
+    }
 
     if (node->elementLayout().isEmpty())
         m_layoutChain.pop();
