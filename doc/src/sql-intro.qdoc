@@ -12,306 +12,222 @@
 **
 ****************************************************************************/
 
-/*! \page sql.html
-
-\title SQL Module
-
-\if defined(commercial)
-This module is part of the \link commercialeditions.html Qt Enterprise Edition
-\endlink.
-\endif
-
-\table
-\row
-\i \l QSql
-\i \l QSqlDatabase
-\i \l QSqlDriver
-\i \l QSqlDriverPlugin
-\row
-\i \l QSqlEditorFactory
-\i \l QSqlError
-\i \l QSqlField
-\i \l QSqlForm
-\row
-\i \l QSqlIndex
-\i \l QSqlPropertyMap
-\i \l QSqlQuery
-\i \l QSqlRecord
-\row
-\i \l QSqlResult
-\i \l QSqlModel
-\i \l QSqlTableModel
-\row
-\i31 See also: \link sql-driver.html Supported Drivers\endlink
-\endtable
-
-\tableofcontents
-
-\target Introduction
-\section1 Introduction
-
-Qt's SQL classes help you provide seamless database integration to
-your Qt applications.
-
-\quote
-This overview assumes that you have at least a basic knowledge of SQL.
-You should be able to understand simple \c SELECT, \c INSERT, \c UPDATE
-and \c DELETE commands. Although the \l QSqlTableModel class provides an
-interface to database browsing and editing that does not \e require a
-knowledge of SQL, a basic understanding of SQL is highly recommended. A
-standard text covering SQL databases is \e {An Introduction to Database
-Systems (7th ed.)} by C. J. Date, ISBN 0201385902.
-\endquote
-
-This document is divided into six sections:
-
-\link #Architecture SQL Module Architecture \endlink. This describes
-how the classes fit together.
-
-\link #Connecting_to_Databases Connecting to Databases \endlink. 
-This section explains how to set up database connections using the \l
-QSqlDatabase class.
-
-\link #Executing_SQL_commands Executing SQL Commands \endlink. This
-section demonstrates how to issue the standard data manipulation
-commands, \c SELECT, \c INSERT, \c UPDATE and \c DELETE on tables in
-the database (although any valid SQL statement can be sent to the
-database). The focus is purely on database interaction using \l
-QSqlQuery.
-
-\link #Using_QSqlModel Using Model classes \endlink. This section explains
-how to use the QSqlModel and QSqlTableModel classes which provide a simpler API
-than the raw SQL used with \l QSqlQuery.
-
-\link #Data-Aware_Widgets Data-Aware Widgets \endlink. This section shows
-how to programmatically link your database to the user interface.
-
-All the examples in this document use the tables defined in the
-\link #Example_Tables Example Tables\endlink section.
-
-\target Architecture
-\section1 SQL Module Architecture
-
-The SQL classes are divided into three layers:
-
-\e {User Interface Layer.} These classes link the data from a
-database to data-aware widgets. These classes include QSqlModel
-and QSqlTableModel.
-
-\e {SQL API Layer.} These classes provide access to databases.
-Connections are made using the \l QSqlDatabase class. Database
-interaction is achieved by using the QSqlQuery class.
-In addition to \l QSqlDatabase and \l QSqlQuery, the SQL
-API layer is supported by QSqlError, QSqlField,
-QSqlIndex, and QSqlRecord.
-
-\e {Driver Layer.} This comprises three classes, \l QSqlResult, \l
-QSqlDriver and QSqlDriverFactoryInterface. This layer provides the
-low level bridge between the database and the SQL classes. This layer
-is \link sql-driver.html documented separately \endlink since it is
-only relevant to driver writers, and is rarely used in standard
-database application programming. See \link sql-driver.html here
-\endlink for more information on implementing a Qt SQL driver plugin.
-
-\target Plugins
-\section1 SQL Driver Plugins
-
-The Qt SQL module can dynamically load new drivers at runtime using
-the \link plugins-howto.html Plugins \endlink.
-
-The \link sql-driver.html SQL driver documentation\endlink describes
-how to build plugins for specific database management systems.
-
-Once a plugin is built, Qt will automatically load it, and the driver
-will be available for use by QSqlDatabase (see QSqlDatabase::drivers()
-for more information).
-
-\target Connecting_to_Databases
-\section1 Connecting to Databases
-
-At least one database connection must be created and opened before the
-\l QSqlQuery or \l QSqlModel classes can be used.
-
-If the application only needs a single database connection, the \l
-QSqlDatabase class can create a connection which is used by default
-for all SQL operations. If multiple database connections are required
-these can easily be set up.
-
-\l QSqlDatabase requires the \c qsqldatabase.h header file.
-
-\target Connecting_to_a_Single_Database
-\section1 Connecting to a Single Database
-
-Making a database connection is a simple three step process: activate
-the driver, set up the connection information, and open the
-connection.
-
-\quotefile sql/connection.h
-\skipto QSqlDatabase
-\printuntil }
-\caption From \l sql/connection.h
-
-First we activate the driver by calling \l QSqlDatabase::addDatabase(),
-passing the name of the driver we wish to use for this connection. At
-the time of writing the available drivers are: QODBC (Open Database
-Connectivity, includes Microsoft SQL Server support), QOCI (Oracle 8, 9 and 10),
-QTDS (Sybase Adaptive Server), QPSQL (PostgreSQL 7 and 8),
-QMYSQL (MySQL), QDB2 (IBM DB2), QSQLITE (SQLite) and QIBASE (Interbase).
-Note that some of these drivers aren't included in the Qt Open Source
-Edition; see the \c README files for details.
-
-The connection which is created becomes the application's default 
-database connection and will be used by the Qt SQL classes if no 
-other database is specified. 
-
-Second we can call setDatabaseName(), setUserName(), setPassword() and
-setHostName() to initialize the connection information. Note that for
-the QOCI (Oracle 8, 9 and 10) driver the TNS Service Name must be passed
-to setDatbaseName(). When connecting to ODBC data sources the Data
-Source Name (DSN) should be used in the setDatabaseName() call.
-In this example we use an in-memory database, setting the user name or
-password is not neccessary.
-
-Third we call open() to open the database and give us access to the
-data. If this call fails it will return false; error information can
-be obtained from \l QSqlDatabase::lastError().
-
-\target Connecting_to_Multiple_Databases
-\section2 Connecting to Multiple Databases
-
-Connecting to multiple databases is achieved using the two argument form
-of \l QSqlDatabase::addDatabase() where the second argument is a unique
-identifier distinguishing the connection.
-
-\code
-    QSqlDatabase db2 = QSqlDatabase::addDatabase("QPSQL", "SALES");
-    QSqlDatabase db3 = QSqlDatabase::addDatabase("QMYSQL", "ORDERS");
-\endcode
-
-
-The static function \l QSqlDatabase::database() can be called from
-anywhere to provide a pointer to a database connection. If we call it
-without a parameter it will return the default connection. If called
-with the identifier we've used for a connection, e.g. "SALES", in the
-above example, it will return a reference to the specified connection.
-
-Note that \l QSqlDatabase objects are only smart pointers to a database
-connection, meaning they are very leightweight and can be passed around on
-the stack. \l QSqlDatabase keeps track of the pointers. To remove a database,
-first close the database with QSqlDatabase::close, and then remove it using
-the static method QSqlDatabase::removeDatabase(). Note that if you try to
-remove a database connection that is still in use, QSqlDatabase will issue
-a warning.
-
-\target Executing_SQL_commands
-\section1 Executing SQL Commands Using QSqlQuery
-
-The \l QSqlQuery class provides an interface for executing SQL commands.
-It also has functions for navigating through the result sets of \c SELECT
-queries and for retrieving individual records and field values.
-
-The \l QSqlModel and QSqlTableModel classes described in the next section
-provide a higher level interface for database access.  Programmers unfamiliar
-with SQL can safely skip this section and use the \l QSqlTableModel class.
-
-\target Transactions
-\section2 Transactions
-
-If the underlying database engine supports transactions
-QSqlDriver::hasFeature( QSqlDriver::Transactions ) will return true.
-You can use QSqlDatabase::transaction() to initiate a transaction,
-followed by the SQL commands you want to execute within the context of
-the transaction, and then either QSqlDatabase::commit() or
-\l{QSqlDatabase::rollback()}.
-
-\section2 Basic Browsing
-
-\code
-    QSqlQuery query("SELECT name FROM people");
-    while (query.next())
-        qDebug("name: %s", query.value(0).toString().ascii());
-\endcode
-
-In the example above we create one query using the default connection
-that selects the field called \c name from the table \c people.
-
-We then iterate over the entire result using the next() function
-and output each value using the value() function. value() returns
-all values as QVariant, so we have to call toString() to get the
-value as a string and ascii() to convert it from unicode to ascii
-so we can output it with qDebug().
-
-\code
-    QSqlQuery query("INSERT INTO people (id, name) values (1, 'Smith')");
-    if (query.isActive())
-        qDebug("Query ok, number of rows affected: %d", query.numRowsAffected());
-\endcode
-
-The above code introduces a count of how many records are successfully
-inserted. Note that isActive() returns false if the query, e.g. the
-insertion, fails. numRowsAffected() returns -1 if the number of rows
-cannot be determined, e.g. if the query fails.
-
-\target Navigating_Result_Sets
-\section2 Navigating Result Sets
-
-Once a \c SELECT query has been executed successfully we have access
-to the result set of records that matched the query criteria. We have
-already used one of the navigation functions, next(), which can be
-used alone to step sequentially through the records. \l QSqlQuery also
-provides first(), last() and prev(). After any of these commands we
-can check that we are on a valid record by calling isValid().
-
-We can also navigate to any arbitrary record using seek(). The
-first record in the dataset is zero. The number of the last record is
-size() - 1. Note that not all databases provide the size of a
-\c SELECT query and in such cases size() returns -1.
-
-    \code
-    QSqlQuery query("SELECT id, name FROM people ORDER BY name");
-    if (!query.isActive())
-        return; // Query failed
-    int i;
-    i = query.size();               // In this example we have 9 records; i == 9.
-    query.first();                  // Moves to the first record.
-    i = query.at();                 // i == 0
-    query.last();                   // Moves to the last record.
-    i = query.at();                 // i == 8
-    query.seek( query.size() / 2 ); // Moves to the middle record.
-    i = query.at();                 // i == 4
-    \endcode
-
-The example above shows some of the navigation functions in use. 
-
-Not all drivers support size(), but we can interrogate the driver to
-find out:
-
-\code
-    QSqlDatabase defaultDB = QSqlDatabase::database();
-    if (defaultDB.driver()->hasFeature(QSqlDriver::QuerySize)) {
-	// QSqlQuery::size() supported
-    } else {
-	// QSqlQuery::size() cannot be relied upon
-    }
-\endcode
-
-
-Once we have located the record we are interested in we may wish to
-retrieve data from it. 
-
-\code
-    QSqlQuery query("select id, name from person");
-    while (query.next()) {
-        qDebug("The id is: %d", query.value(0).toInt());
-        qDebug("The name is: %s", query.value(1).toString().ascii());
-    }
-\endcode
-
-Note that if you wish to iterate through the record set in order the
-only navigation function you need is next().
-
-Tip: The lastQuery() function returns the text of the last query
-executed. This can be useful to check that the query you think is being
-executed is the one actually being executed.
+/*! \page sql-intro.html
+
+    \title Introduction to the SQL Module
+
+    \if defined(commercial)
+    This module is part of the \link commercialeditions.html Qt Enterprise Edition
+    \endlink.
+    \endif
+
+    \table
+    \row \o QSql \o QSqlDatabase \o QSqlDriver \o QSqlDriverCreator
+    \row \o QSqlDriverCreatorBase \o QSqlDriverPlugin \o QSqlError \o QSqlField
+    \row \o QSqlIndex \o QSqlQuery \o QSqlQueryModel \o QSqlRecord
+    \row \o QSqlRelation \o QSqlRelationalDelegate \o QSqlRelationalTableModel \o QSqlResult
+    \row \o QSqlTableModel \o{3,1} See also: \l{sql-driver.html}{Supported Database Drivers}
+    \endtable
+
+    Qt's SQL classes help you provide seamless database integration
+    to your Qt applications.
+
+    This document is divided into six sections:
+
+    \list
+    \o \l{SQL Module Architecture}. This section describes how the
+    classes fit together.
+
+    \o \l{Connecting to Databases}. This section explains how to set
+    up database connections using the \l QSqlDatabase class.
+
+    \o \l{Executing SQL Statements}. This section demonstrates how to
+    issue standard data manipulation statements (\c SELECT, \c
+    INSERT, \c UPDATE, and \c DELETE) on tables in the database using
+    QSqlQuery.
+
+    \o \l{Using SQL Model Classes}. This section explains how to use
+    the QSqlQueryModel and QSqlTableModel classes, which provide a
+    higher-level API than the raw SQL used with \l QSqlQuery.
+
+    \o \l{Presenting Data in a Table View}. This section shows how to
+    display SQL data using a QTableView.
+
+    \o \l{Creating Data-Aware Forms}. This section shows how to
+    create more complex user interfaces based on a database.
+    \endlist
+
+    This overview assumes that you have at least a basic knowledge of
+    SQL. You should be able to understand simple \c SELECT, \c
+    INSERT, \c UPDATE, and \c DELETE statements. Although the \l
+    QSqlTableModel class provides an interface to database browsing
+    and editing that does not \e require a knowledge of SQL, a basic
+    understanding of SQL is highly recommended. A standard text
+    covering SQL databases is \e {An Introduction to Database Systems
+    (7th Ed.)} by C. J. Date, ISBN 0201385902.
+
+    \section1 SQL Module Architecture
+
+    The SQL classes are divided into three layers:
+
+    \table
+    \row \i \bold{Driver Layer}
+         \i This comprises three classes: QSqlResult, QSqlDriver, and
+            QSqlDriverFactoryInterface. This layer provides the
+            low-level bridge between the specific databases and the
+            SQL API layer. This layer is
+            \l{sql-driver.html}{documented separately} since it is
+            only relevant to driver writers.
+
+    \row \i \bold{SQL API Layer}
+         \i These classes provide access to databases. Connections
+            are made using the QSqlDatabase class. Database
+            interaction is achieved by using the QSqlQuery class. In
+            addition to QSqlDatabase and QSqlQuery, the SQL API layer
+            is supported by QSqlError, QSqlField, QSqlIndex, and
+            QSqlRecord.
+
+    \row \i \bold{User Interface Layer}
+         \i These classes link the data from a database to data-aware
+            widgets. They include QSqlQueryModel, QSqlTableModel, and
+            QSqlRelationalTableModel. These classes are designed to
+            work with Qt's \l{model/view classes}.
+    \endtable
+
+    \section1 Connecting to Databases
+
+    Before you can use QSqlQuery or QSqlQueryModel to access a
+    database, you must create at least one database connection.
+
+    Database connections are identified by arbitrary strings.
+    QSqlDatabase also supports the concept of a \e{default
+    connection}, which is used by the Qt SQL class if no other
+    connection is specified. This mechanism is very convenient in
+    applications that use only one database connection.
+
+    The following code establishes a connection to a MySQL database
+    called \c flightdb on the local host:
+
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto sql_intro_snippets
+    \skipto QSqlDatabase db =
+    \printuntil ok = db.open()
+
+    The first argument to QSqlDatabase::addDatabase() is the name of
+    the driver. See the
+    \l{QSqlDatabase::addDatabase()}{addDatabase()} documentation for
+    a list of drivers. We call setHostName(), setDatabaseName(),
+    setUserName(), and setPassword() to initialize the connection
+    information.
 
+    Since no name was specified for the connection, the connection
+    serves as the default connection. To specify a name, pass it as
+    the second argument to QSqlDatabase::addDatabase(). For example:
+
+    \skipto firstDB
+    \printuntil secondDB
+
+    At the end, we call QSqlDatabase::open() to open the database and
+    give us access to the data. If this call fails it will return
+    false; error information can be obtained from
+    QSqlDatabase::lastError().
+
+    Once a connection is established, we can call the static function
+    QSqlDatabase::database() from anywhere to get a pointer to a
+    database connection. If we call it without a parameter, it will
+    return the default connection. If called with the identifier used
+    for a connection, it will return a reference to the specified
+    connection. For example:
+
+    \skipto ::database()
+    \printline defaultDB =
+    \printline firstDB =
+    \printline secondDB =
+
+    To remove a database connection, first close the database using
+    QSqlDatabase::close(), then remove it using the static method
+    QSqlDatabase::removeDatabase().
+
+    \section1 Executing SQL Statements
+
+    The QSqlQuery class provides an interface for executing SQL
+    statements and navigating through the result set of a query.
+
+    The QSqlQueryModel and QSqlTableModel classes described in the
+    \l{Using SQL Model Classes}{next section} provide a higher-level
+    interface for accessing databases. If you are unfamiliar with
+    SQL, you might want to skip this section and use these classes
+    instead.
+
+    \section2 Executing a Query
+
+    To execute an SQL statement, simply create a QSqlQuery object and
+    call QSqlQuery::exec() with the statement:
+
+    \skipto SELECT1
+    \printuntil exec(
+
+    The QSqlQuery constructor accepts an optional QSqlDatabase object
+    that specifies which database connection to use. In the example
+    above, we don't specify any connection; the default connection is
+    used.
+
+    To check if an error occurred, we can call QSqlQuery::isActive().
+    The error is available as QSqlQuery::lastError(). For example:
+
+    \printline isActive
+    \printline showMessage
+
+    \section2 Navigating the Result Set
+
+    QSqlQuery provides access to the result set one record at a time.
+    After the call to \l{QSqlQuery::exec()}{exec()}, QSqlQuery's
+    internal pointer is located one position \e{before} the first
+    record. We must call QSqlQuery::next() once to
+    advance to the first record, then \l{QSqlQuery::next()}{next()}
+    again repeatedly to access the other records, until it returns
+    false:
+
+    \skipto while (query.next())
+    \printuntil }
+
+    The QSqlQuery::value() function returns the value of a field in
+    the current record. Fields are specified as zero-based indexes.
+
+    You can iterate back and forth using QSqlQuery::next(),
+    QSqlQuery::previous(), QSqlQuery::first(), QSqlQuery::last(), and
+    QSqlQuery::seek(). The current row index is returned by
+    QSqlQuery::at(), and the total number of rows in the result set
+    is avaliable as QSqlQuery::size() for databases that support it.
+
+    To determine whether a database driver supports a given feature,
+    use QSqlDriver::hasFeature() as follows:
+
+    \skipto FEATURE
+    \skipto defaultDB
+    \printuntil }
+
+    If you iterate through a result set only using next() and seek()
+    with positive values, you can call
+    QSqlQuery::setForwardOnly(true) before calling exec(). This is an
+    easy optimization that will speed up the query significantly when
+    operating on large datasets.
+
+    \section2 Inserting, Updating, and Deleting Records
+
+
+
+    \section2 Transactions
+
+
+    \section1 Using SQL Model Classes
+
+    \section1 Presenting Data in a Table View
+
+    \section1 Creating Data-Aware Forms
+
+    \e{The Qt 4.0 beta 2 release will include some classes that will
+    make it easy to create data-aware forms, i.e. forms that get
+    their data from a database. For the moment, there is no such
+    support in Qt.}
 */
