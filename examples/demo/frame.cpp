@@ -22,6 +22,7 @@
 #include <qaction.h>
 #include <qsignalmapper.h>
 #include <qdict.h>
+#include <qdir.h>
 #include <qtextcodec.h>
 #include <stdlib.h>
 
@@ -225,12 +226,6 @@ void Frame::updateTranslators()
     }
 
     QString base = QString( qInstallPathData() ) + "/translations";
-    // if $QTDIR is set, then use that instead
-    const char *qtdirenv = getenv( "QTDIR" );
-    if ( qtdirenv ) {
-	base = QString( qtdirenv ) + "/translations";
-    }
-
     qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), base );
     translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
 }
