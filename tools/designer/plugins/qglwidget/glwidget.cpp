@@ -7,8 +7,8 @@
 GLWidget::GLWidget( QWidget* parent, const char* name )
     : QGLWidget( parent, name )
 {
-    xRot = yRot = zRot = 25;		// default object rotation
-    scale = 1.25;			// default object scale
+    xrot = yrot = zrot = 25;		// default object rotation
+    scale_ = 1.25;			// default object scale
     object = 0;
 }
 
@@ -33,11 +33,11 @@ void GLWidget::paintGL()
 
     glLoadIdentity();
     glTranslatef( 0.0, 0.0, -10.0 );
-    glScalef( scale, scale, scale );
+    glScalef( scale_, scale_, scale_ );
 
-    glRotatef( xRot, 1.0, 0.0, 0.0 ); 
-    glRotatef( yRot, 0.0, 1.0, 0.0 ); 
-    glRotatef( zRot, 0.0, 0.0, 1.0 );
+    glRotatef( xrot, 1.0, 0.0, 0.0 ); 
+    glRotatef( yrot, 0.0, 1.0, 0.0 ); 
+    glRotatef( zrot, 0.0, 0.0, 1.0 );
 
     glCallList( object );
 }
@@ -109,4 +109,28 @@ GLuint GLWidget::makeObject()
     glEndList();
 
     return list;
+}
+
+void GLWidget::setXRot( double x )
+{
+    xrot = x;
+    update();
+}
+
+void GLWidget::setYRot( double y )
+{
+    yrot = y;
+    update();
+}
+
+void GLWidget::setZRot( double z )
+{
+    zrot = z;
+    update();
+}
+
+void GLWidget::setScale( double s )
+{
+    scale_ = s;
+    update();
 }

@@ -34,7 +34,7 @@ QStringList OpenGLWidgetInterface::featureList() const
 {
     QStringList list;
 
-    list << "QGLWidget";
+    list << "GLWidget";
 
     return list;
 }
@@ -43,7 +43,7 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
 {
     QWidget* w = 0;
 
-    if ( description == "QGLWidget" )
+    if ( description == "GLWidget" )
 	w = new GLWidget( parent, name );
 
     objects.add( w );
@@ -52,7 +52,7 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
 
 QString OpenGLWidgetInterface::group( const QString& description ) const
 {
-    if ( description == "QGLWidget" )
+    if ( description == "GLWidget" )
 	return "Views";
     return QString::null;
 }
@@ -64,21 +64,21 @@ QIconSet OpenGLWidgetInterface::iconSet( const QString& ) const
 
 QString OpenGLWidgetInterface::includeFile( const QString& description ) const
 {
-    if ( description == "QGLWidget" )
+    if ( description == "GLWidget" )
         return "qgl.h";
     return QString::null;
 }
 
 QString OpenGLWidgetInterface::toolTip( const QString& description ) const
 {
-    if ( description == "QGLWidget" )
+    if ( description == "GLWidget" )
 	return QT_TR_NOOP("OpenGL Widget");
     return QString::null;
 }
 
 QString OpenGLWidgetInterface::whatsThis( const QString& description ) const
 {
-    if ( description == "QGLWidget" )
+    if ( description == "GLWidget" )
 	return "A widget for OpenGL rendering";
     return QString::null;
 }
