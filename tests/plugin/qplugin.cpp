@@ -211,6 +211,13 @@ bool QPlugIn::loadInterface()
 	delete ifc;
 	ifc = 0;
 	return FALSE;
+    } else {
+	QClientInterface* ci = plugInterface()->requestClientInterface( queryPlugInInterface() );
+	QApplicationInterface* ai = qApp->requestApplicationInterface( queryPlugInInterface() );
+	if ( ci && ai ) {
+	    QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
+	    QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
+	}
     }
 
 #if defined(_WS_WIN_)
@@ -274,27 +281,6 @@ QStringList QPlugIn::featureList()
     QStringList list = plugInterface()->featureList();
 
     return list;
-}
-
-/*!
-  Requests an implementation of application interface \a request
-  from the plugin and returns the result. Returns null when the
-  plugin does not provide the requested interface.
-*/
-QApplicationInterface* QPlugIn::requestApplicationInterface( const QCString& request )
-{
-    if ( !use() )
-	return 0;
-    QApplicationInterface* ai = plugInterface()->requestApplicationInterface( request );
-    QApplicationInterface* appai;
-    if ( ai && ( appai = qApp->requestInterface( request )) ) {
-	QObject::connect( ai, SIGNAL(setProperty(const QCString&, const QVariant&)), appai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
-
-	QObject::connect( ai, SIGNAL(getProperty(const QCString&)), appai, SLOT(requestProperty(const QCString&)) );
-	QObject::connect( appai, SIGNAL(setProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
-    }
-
-    return ai;
 }
 
 /*!
