@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#14 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#15 $
 **
 ** Implementation of Network Extension Library
 **
@@ -206,9 +206,10 @@ bool QSocketDevice::blocking() const
   to be responsive.
 
   \warning On Windows, this function does nothing since the
-  ioctlsocket() function is broken.  Whenever you use a
-  QSocketNotifier on Windows, the socket is immediately made
-  nonblocking.
+  ioctlsocket() function is broken.
+
+  Whenever you use a QSocketNotifier on Windows, the socket is immediately
+  made nonblocking.
 
   \sa blocking(), isValid()
 */
@@ -569,10 +570,13 @@ int QSocketDevice::bytesAvailable() const
 /*!
   Wait up to \a msecs milliseconds for more data to be available.
   If \a msecs is -1 the call will block indefinitely.
+
   This is a blocking call and should be avoided in event driven
   applications.
+
   Returns the number of bytes available for reading, or -1 if an
   error occurred.
+
   \sa bytesAvailable()
 */
 int QSocketDevice::waitForMore( int msecs ) const
@@ -672,8 +676,10 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 
 
 /*!
-  Writes \a len bytes from the socket from \a data and returns
+  Writes \a len bytes to the socket from \a data and returns
   the number of bytes written.  Returns -1 if an error occurred.
+
+  This is used for \c QSocketDevice::Stream sockets.
 */
 int QSocketDevice::writeBlock( const char *data, uint len )
 {
@@ -740,7 +746,11 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 
 
 /*!
-  Fnord???
+  Writes \a len bytes to the socket from \a data and returns
+  the number of bytes written.  Returns -1 if an error occurred.
+
+  This is used for \c QSocketDevice::Datagram sockets. You have to specify the
+  \a host and \a port of the destination of the data.
 */
 int QSocketDevice::writeBlock( const char * data, uint len,
 			       const QHostAddress & host, uint port )
@@ -831,7 +841,7 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 /*!
   Fetches information about both ends of the connection - whatever
   is available.
- */
+*/
 void QSocketDevice::fetchConnectionParameters()
 {
     if ( !isValid() ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#23 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#24 $
 **
 ** Implementation of Network Extension Library
 **
@@ -45,11 +45,11 @@ public:
   \extension Network
 
   This class is not really meant for use outside Qt.  It can be used
-  for to achieve some things that QSocket does not provide, but it's
+  to achieve some things that QSocket does not provide, but it's
   not particularly easy to understand or use.
 
   The basic purpose of the class is to provide a QIODevice that works
-  on sockets.  As such, it reimplements the
+  on sockets.
 
   \sa QSocket, QSocketNotifier, QHostAddress
 */
@@ -315,7 +315,8 @@ int QSocketDevice::ungetch( int )
 }
 
 
-/*!  Returns TRUE if the address of this socket can be used by other
+/*!
+  Returns TRUE if the address of this socket can be used by other
   sockets at the same time, and FALSE if this socket claims exclusive
   ownership.
 
@@ -327,8 +328,9 @@ bool QSocketDevice::addressReusable() const
 }
 
 
-/*!  Sets the address of this socket to be usable by other sockets too
-  if \a enable is TRYE, and to be used exclusively by this socket if
+/*!
+  Sets the address of this socket to be usable by other sockets too
+  if \a enable is TRUE, and to be used exclusively by this socket if
   \a enable is FALSE.
 
   When a socket is reusable, other sockets can use the same port
@@ -345,7 +347,8 @@ void QSocketDevice::setAddressReusable( bool enable )
 }
 
 
-/*!  Returns the size of the OS receive buffer.
+/*!
+  Returns the size of the OS receive buffer.
 
   \sa setReceiveBufferSize()
 */
@@ -355,7 +358,8 @@ int QSocketDevice::receiveBufferSize() const
 }
 
 
-/*!  Sets the size of the OS receive buffer to \a size.
+/*!
+  Sets the size of the OS receive buffer to \a size.
 
   The OS receive buffer size effectively limits two things: How much
   data can be in transit at any one moment, and how much data can be

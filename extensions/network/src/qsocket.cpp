@@ -93,11 +93,10 @@ QSocketPrivate::~QSocketPrivate()
 
 /*!
   \class QSocket qsocket.h
-  \brief The QSocket class provides a buffered socket connection.
+  \brief The QSocket class provides a buffered TCP connection over a socket.
 
   \extension network
 
-  This class provides a buffered TCP connection over a socket.
   Both read and write operations are buffered.
 
   \sa QSocketDevice, QHostAddress, QSocketNotifier
@@ -391,11 +390,12 @@ void QSocket::tryConnecting()
 /*!
   \fn void QSocket::delayedCloseFinished()
 
-  This signal is emitted when a delayed close is finished. If you call
-  close() and there is buffered output data to be written, QSocket goes
-  into the \c QSocket::Closing state and returns immediately.  It will
-  then keep writing to the socket until all the data has been written.
-  Then, the delayCloseFinished() signal is emitted.
+  This signal is emitted when a delayed close is finished.
+
+  If you call close() and there is buffered output data to be written, QSocket
+  goes into the \c QSocket::Closing state and returns immediately. It will
+  then keep writing to the socket until all the data has been written. Then,
+  the delayCloseFinished() signal is emitted.
 
   \sa close()
 */
@@ -449,7 +449,8 @@ bool QSocket::open( int m )
 
 /*!
   Closes the socket.
-  The mode to \c QSocket::Binary and the read buffer is cleared.
+
+  The mode is set to \c QSocket::Binary and the read buffer is cleared.
 
   If the output buffer is empty, the state is set to \c QSocket::Idle
   and the connection is terminated immediately.  If the output buffer
@@ -698,7 +699,7 @@ void QSocket::flush()
 
 uint QSocket::size() const
 {
-    return d->rsize;
+    return bytesAvailable();
 }
 
 
@@ -746,6 +747,7 @@ bool QSocket::atEnd() const
 /*!
   Returns the number of incoming bytes that can be read, i.e. the
   size of the input buffer.  Equivalent to size().
+
   \sa bytesToWrite()
 */
 
@@ -762,10 +764,13 @@ int QSocket::bytesAvailable() const
 
 /*!
   Wait up to \a msecs milliseconds for more data to be available.
+
   If \a msecs is -1 the call will block indefinitely.
   This is a blocking call and should be avoided in event driven
   applications.
+
   Returns the number of bytes available.
+
   \sa bytesAvailable()
 */
 
@@ -783,6 +788,7 @@ int QSocket::waitForMore( int msecs ) const
 /*!
   Returns the number of bytes that are waiting to be written, i.e. the
   size of the output buffer.
+
   \sa bytesAvailable()
 */
 
@@ -941,6 +947,7 @@ bool QSocket::canReadLine() const
 /*!
   Returns a line of text including a terminating newline character (\n).
   Returns "" if canReadLine() returns FALSE.
+
   \sa canReadLine()
 */
 
@@ -1095,12 +1102,13 @@ void QSocket::tryConnection()
 int QSocket::socket() const
 {
     if ( d->socket == 0 )
-	return 0;
+	return -1;
     return d->socket->socket();
 }
 
 
-/*!  Sets the socket to use \a socket and the state() to \c Connected.
+/*!
+  Sets the socket to use \a socket and the state() to \c Connected.
 */
 
 void QSocket::setSocket( int socket )
