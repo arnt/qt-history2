@@ -466,15 +466,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   appropriate type based on the value of \a element:
 
   \list
-    \i \e CE_PushButton, \e CE_PushButtonLabel  \a widget can be cast to a QPushButton.
-    \i \e CE_CheckBox, \e CE_CheckBoxLabel  \a widget can be cast to a QCheckBox.
-    \i \e CE_RadioButton, \e CE_RadioButtonLabel  \a widget can be cast to a
+    \i \e CE_PushButton, \e CE_PushButtonLabel - \a widget can be cast to a QPushButton.
+    \i \e CE_CheckBox, \e CE_CheckBoxLabel - \a widget can be cast to a QCheckBox.
+    \i \e CE_RadioButton, \e CE_RadioButtonLabel - \a widget can be cast to a
        QRadioButton.
-    \i \e CE_TabBarTab, CE_TabBarLabel  \a widget can be cast to a QTabBar.
+    \i \e CE_TabBarTab, \e CE_TabBarLabel - \a widget can be cast to a QTabBar.
     \i \e CE_ProgressBarGroove, \e CE_ProgressBarContents, \e CE_ProgressBarLabel
-       \a widget can be cast to a QProgressBar.
-    \i \e CE_PopupMenuItem  \a widget can be cast to a QPopupMenu.
-    \i \e CE_MenuBarItem  \a widget can be cast to a QMenuBar.
+       - \a widget can be cast to a QProgressBar.
+    \i \e CE_PopupMenuItem - \a widget can be cast to a QPopupMenu.
+    \i \e CE_MenuBarItem - \a widget can be cast to a QMenuBar.
   \endlist
 
   The \a data argument can be used to pass extra information required when drawing
