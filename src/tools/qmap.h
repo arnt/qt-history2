@@ -500,6 +500,9 @@ Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::erase(Iterato
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
 
+    if (it == Iterator(e))
+	return it;
+
     for (int i = d->topLevel; i >= 0; i--) {
 	while ((next = cur->forward[i]) != e && concrete(next)->key < it.key())
 	    cur = next;

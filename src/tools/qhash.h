@@ -559,6 +559,9 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::erase(Iterator it)
 {
+    if (it == Iterator(e))
+	return it;
+
     Iterator ret = it;
     ++ret;
 
