@@ -3,6 +3,7 @@
 
 int main( int argc, char **argv )
 {
+    QApplication a(argc,argv);
 #if defined(_OS_AIX_)
     printf("Operating system: _OS_AIX_\n");
 #endif

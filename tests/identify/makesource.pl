@@ -12,6 +12,7 @@ while ( <F> ) {
 close(F);
 print "#include <qapplication.h>\n#include <stdio.h>\n\n";
 print "int main( int argc, char **argv )\n{\n";
+print "    QApplication a(argc,argv);\n";
 foreach $f ( sort keys %os ) {
     print "#if defined($f)\n    printf(\"Operating system: $f\\n\");\n#endif\n";
 }
