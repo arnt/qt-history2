@@ -2430,7 +2430,7 @@ void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_
 bool QObject::setProperty(const char *name, const QCoreVariant &value)
 {
     const QMetaObject* meta = metaObject();
-    if (!value.isValid() || !meta)
+    if (!name || !meta)
         return false;
 
     int id = meta->indexOfProperty(name);
