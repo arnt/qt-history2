@@ -13,6 +13,7 @@
 
 #include <qaxobject.h>
 #include <qfile.h>
+#include <qmetaobject.h>
 #include <qtextstream.h>
 #include <qsettings.h>
 #include <quuid.h>
@@ -404,12 +405,10 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
 
             uint flags = 0;
             uint vartype = property.type();
-            if (vartype != QVariant::Invalid)
+            if (vartype != QVariant::Invalid && vartype != QVariant::UserType)
                 flags = vartype << 24;
             else if (QByteArray(property.typeName()) == "QVariant")
                 flags |= 0xff << 24;
-            else if (QByteArray(property.typeName()).endsWith('*'))
-                flags |= QVariant::UserType << 24;
 
             if (property.isReadable())
                 flags |= Readable;
