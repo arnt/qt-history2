@@ -64,31 +64,14 @@ class TextLayoutQt : public TextLayout
 {
 public:
 
-    void itemize( ScriptItemArray &items, const QRTString & ) const;
     void itemize( ScriptItemArray &items, const QString & ) const;
 
     void attributes( CharAttributesArray &attributes, const QString &string,
 		     const ScriptItemArray &items, int item ) const;
 
-    void shape( ShapedItem &shaped, const QRTString &string,
-		const ScriptItemArray &items, int item ) const;
     void shape( ShapedItem &shaped, const QFont &font, const QString &string,
 		const ScriptItemArray &items, int item ) const;
 };
-
-
-void TextLayoutQt::itemize( ScriptItemArray &items, const QRTString &string ) const
-{
-    if ( !items.d ) {
-	int size = 0;//string.formats.numFormats() + 1;
-	items.d = (ScriptItemArrayPrivate *)malloc( sizeof( ScriptItemArrayPrivate ) +
-					      sizeof( ScriptItem ) * size );
-	items.d->alloc = size;
-	items.d->size = 0;
-    }
-
-    bidiItemize( string.qstring(), items, QChar::DirON, 0 ); //&string.formats );
-}
 
 
 void TextLayoutQt::itemize( ScriptItemArray &items, const QString &string ) const
@@ -101,7 +84,7 @@ void TextLayoutQt::itemize( ScriptItemArray &items, const QString &string ) cons
 	items.d->size = 0;
     }
 
-    bidiItemize( string, items, QChar::DirON, 0 );
+    bidiItemize( string, items, QChar::DirON );
 }
 
 
@@ -119,23 +102,6 @@ void TextLayoutQt::attributes( CharAttributesArray &attrs, const QString &string
     scriptEngines[si.analysis.script]->charAttributes( string, from, len, attrs.d->attributes );
 }
 
-
-void TextLayoutQt::shape( ShapedItem &shaped, const QRTString &string,
-	    const ScriptItemArray &items, int item ) const
-{
-    // ###
-#if 0
-    const ScriptItem &si = items[item];
-    int from = si.position;
-    item++;
-    int len = ( item < items.size() ? items[item].position : string.length() ) - from;
-
-    // ###
-    QFont f;
-    scriptEngines[si.analysis.script]->shape( f, string.qstring(), from, len, si.analysis, &shaped );
-#endif
-}
-
 void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			 const ScriptItemArray &items, int item ) const
 {
@@ -147,7 +113,7 @@ void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &str
 
     shaped.d->fontEngine = f.engineForScript( script );
     shaped.d->analysis = si.analysis;
-    if ( shaped.d->fontEngine )
+    if ( shaped.d->fontEngine && shaped.d->fontEngine != (FontEngineIface*)-1 )
 	scriptEngines[script]->shape( string, from, len, &shaped );
 }
 

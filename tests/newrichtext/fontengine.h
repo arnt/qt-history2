@@ -34,7 +34,7 @@ public:
     virtual ~FontEngineIface() = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs ) const = 0;
+    virtual Error stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const = 0;
 
     virtual const OpenTypeIface *openTypeIface() const { return 0; }
     virtual int cmap() const = 0;
@@ -51,6 +51,8 @@ public:
     virtual int maxCharWidth() const = 0;
 
     virtual const char *name() const = 0;
+
+    virtual bool canRender( const QChar *string,  int len ) = 0;
 };
 
 

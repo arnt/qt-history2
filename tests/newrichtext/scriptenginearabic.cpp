@@ -26,11 +26,10 @@ void ScriptEngineArabic::shape( const QString &text, int from, int len, ShapedIt
 
     d->num_glyphs = len;
     d->glyphs = (int *)realloc( d->glyphs, d->num_glyphs*sizeof( int ) );
-    int error = d->fontEngine->stringToCMap( shaped.unicode(), len,
-						 d->glyphs, &d->num_glyphs );
+    int error = d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
     if ( error == FontEngineIface::OutOfMemory ) {
 	d->glyphs = (int *)realloc( d->glyphs, d->num_glyphs*sizeof( int ) );
-	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs );
+	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
     }
     d->offsets = new Offset[d->num_glyphs];
 }

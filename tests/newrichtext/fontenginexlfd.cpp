@@ -10,10 +10,9 @@
 #include <stdlib.h>
 
 // returns TRUE if the character doesn't exist (ie. zero bounding box)
-static inline bool charNonExistent(XCharStruct *xcs)
+static inline bool charNonExistent(const XCharStruct *xcs)
 {
-    return (xcs == (XCharStruct *) -1 || !xcs ||
-	    (xcs->width == 0 && xcs->ascent + xcs->descent == 0));
+    return (!xcs || (xcs->width == 0 && xcs->ascent + xcs->descent == 0));
 }
 
 
@@ -80,7 +79,7 @@ FontEngineXLFD::~FontEngineXLFD()
 
 }
 
-FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs ) const
+FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -93,12 +92,28 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
 	QCString cstr = _codec->fromUnicode( string );
 
 	// ### doesn't work with chinese!
-	for ( int i = 0; i < len; i++ ) {
-	    glyphs[i] = cstr[i];
+	if ( reverse ) {
+	    int pos = len - 1;
+	    for ( int i = 0; i < len; i++ ) {
+		glyphs[i] = (uchar)cstr[pos];
+		pos--;
+	    }
+	} else {
+	    for ( int i = 0; i < len; i++ ) {
+		glyphs[i] = (uchar)cstr[i];
+	    }
 	}
     } else {
-	for ( int i = 0; i < len; i++ ) {
-	    glyphs[i] = str[i];
+	if ( reverse ) {
+	    int pos = len - 1;
+	    for ( int i = 0; i < len; i++ ) {
+		glyphs[i] = str[pos].unicode();
+		pos--;
+	    }
+	} else {
+	    for ( int i = 0; i < len; i++ ) {
+		glyphs[i] = str[i].unicode();
+	    }
 	}
     }
     *nglyphs = len;
@@ -107,7 +122,7 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
 
 void FontEngineXLFD::draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs )
 {
-    qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
+//     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
     // ### add offset handling!!!
 
@@ -166,6 +181,7 @@ int FontEngineXLFD::width( const int *glyphs, const Offset *offsets, int numGlyp
 
     for (int i = 0; i < numGlyphs; i++) {
 	XCharStruct *xcs = charStruct( _fs, glyphs[i] );
+// 	qDebug("xcs = %p glyph=%d", xcs, glyphs[i] );
 	if (xcs) {
 	    width += xcs->width;
 	} else {
@@ -244,3 +260,25 @@ const char *FontEngineXLFD::name() const
     return _name;
 }
 
+bool FontEngineXLFD::canRender( const QChar *string,  int len )
+{
+    int glyphs[256];
+    int nglyphs = 255;
+    int *g = glyphs;
+    if ( stringToCMap( string, len, g, &nglyphs, FALSE ) == OutOfMemory ) {
+	g = (int *)malloc( nglyphs*sizeof(int) );
+	stringToCMap( string, len, g, &nglyphs, FALSE );
+    }
+
+    bool allExist = TRUE;
+    for ( int i = 0; i < nglyphs; i++ ) {
+	if ( !charStruct( _fs, g[i] ) ) {
+	    allExist = FALSE;
+	    break;
+	}
+    }
+
+    if ( nglyphs > 255 )
+	free( g );
+	return allExist;
+}

@@ -9,8 +9,6 @@ HEADERS += fontengine.h \
            qfont.h \
            qfontdata_p.h \
            qpainter.h \
-           qrtformat.h \
-           qrtstring.h \
            qtextdata.h \
            qtextlayout.h \
            scriptengine.h \
@@ -20,8 +18,6 @@ HEADERS += fontengine.h \
 SOURCES += qfont.cpp \
 	   qfont_x11.cpp \
            qpainter_x11.cpp \
-           qrtformat.cpp \
-           qrtstring.cpp \
            qtextdata.cpp \
            qtextlayout.cpp \
            scriptenginearabic.cpp \

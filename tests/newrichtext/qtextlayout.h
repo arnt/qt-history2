@@ -18,11 +18,11 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 #ifndef QTEXTLAYOUT_H
 #define QTEXTLAYOUT_H
 
-#include "qrtstring.h"
-#include <qmemarray.h>
+#include <qglobal.h>
 #include <stdlib.h>
 class FontEngineIface;
-
+class QFont;
+class QString;
 
 struct ScriptAnalysis
 {
@@ -149,15 +149,15 @@ class TextLayout
 {
 public:
 
-    virtual void itemize( ScriptItemArray &items, const QRTString & ) const = 0;
+//     virtual void itemize( ScriptItemArray &items, const QRTString & ) const = 0;
     virtual void itemize( ScriptItemArray &items, const QString & ) const = 0;
 
     virtual void attributes( CharAttributesArray &attrs, const QString &string,
 		     const ScriptItemArray &items, int item ) const = 0;
-    void attributes( CharAttributesArray &attrs, const QRTString &string,
-		     const ScriptItemArray &items, int item ) const {
-	attributes( attrs, string.qstring(), items, item );
-    }
+//     void attributes( CharAttributesArray &attrs, const QRTString &string,
+// 		     const ScriptItemArray &items, int item ) const {
+// 	attributes( attrs, string.qstring(), items, item );
+//     }
 
 
     static const TextLayout *instance();
@@ -166,8 +166,8 @@ public:
     void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
 
     // ScriptShape && ScriptPlace
-    virtual void shape( ShapedItem &shaped, const QRTString &string,
-			const ScriptItemArray &items, int item ) const = 0;
+//     virtual void shape( ShapedItem &shaped, const QRTString &string,
+// 			const ScriptItemArray &items, int item ) const = 0;
     virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			const ScriptItemArray &items, int item ) const = 0;
 

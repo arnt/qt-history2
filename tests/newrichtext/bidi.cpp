@@ -157,8 +157,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
 
 
 // creates the next Script items.
-static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Direction dir = QChar::DirON,
-			 const QRTFormatArray *formats = 0 )
+static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Direction dir = QChar::DirON )
 {
     if ( dir == QChar::DirON )
 	dir = basicDirection( text );
