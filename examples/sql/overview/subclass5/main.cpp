@@ -14,15 +14,15 @@
 InvoiceItemCursor::InvoiceItemCursor() :
     QSqlCursor( "invoiceitem" )
 {
-    QSqlField productName( "productname", QVariant::String );
+    QSqlFieldInfo productName( "productname", QVariant::String );
     append( productName );
     setCalculated( productName.name(), TRUE );
 
-    QSqlField productPrice( "price", QVariant::Double );
+    QSqlFieldInfo productPrice( "price", QVariant::Double );
     append( productPrice );
     setCalculated( productPrice.name(), TRUE );
 
-    QSqlField productCost( "cost", QVariant::Double );
+    QSqlFieldInfo productCost( "cost", QVariant::Double );
     append( productCost );
     setCalculated( productCost.name(), TRUE );
 }

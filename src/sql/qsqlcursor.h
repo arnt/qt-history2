@@ -79,9 +79,10 @@ public:
     QSqlIndex		index( const char* fieldName ) const;
     virtual void	setPrimaryIndex( const QSqlIndex& idx );
 
-    void		append( const QSqlFieldInfo& fieldInfo );
-    void		insert( int pos, const QSqlFieldInfo& fieldInfo );
+    virtual void	append( const QSqlFieldInfo& fieldInfo );
+    virtual void	insert( int pos, const QSqlFieldInfo& fieldInfo );
     void		remove( int pos );
+    void		clear();
     void		setGenerated( const QString& name, bool generated );
     void		setGenerated( int i, bool generated );
 
@@ -137,6 +138,8 @@ private:
     void		sync();
     int			apply( const QString& q, bool invalidate );
     QSqlRecord&		operator=( const QSqlRecord & list );
+    void 		append( const QSqlField& field );
+    void 		insert( int pos, const QSqlField& field );
 
     QSqlCursorPrivate*	d;
 };

@@ -14,7 +14,7 @@
 InvoiceItemCursor::InvoiceItemCursor() :
     QSqlCursor( "invoiceitem" )
 {
-    QSqlField productName( "productname", QVariant::String );
+    QSqlFieldInfo productName( "productname", QVariant::String );
     append( productName );
     setCalculated( productName.name(), TRUE );
 }

@@ -396,8 +396,18 @@ void QSqlCursor::append( const QSqlFieldInfo& fieldInfo )
 }
 
 /*!
-    \overload
+  Removes all fields from the cursor.
+  Note that all references to the cursor edit buffer become invalidated.
+*/
+void QSqlCursor::clear()
+{
+    d->editBuffer.clear();
+    d->infoBuffer.clear();
+    QSqlRecord::clear();
+}
 
+
+/*!
     Insert a copy of \a fieldInfo at position \a pos.  If a field already
   exists at \a pos, it is removed.  Note that all references to the
   cursor edit buffer become invalidated.
@@ -1276,5 +1286,21 @@ QVariant QSqlCursor::value( const QString& name ) const
 {
     return QSqlRecord::value( name );
 }
+
+/*! \internal
+  cursors should be filled with QSqlFieldInfos...
+*/
+void QSqlCursor::append( const QSqlField& field )
+{
+    append( QSqlFieldInfo( field ) );
+}
+/*! \internal
+  cursors should be filled with QSqlFieldInfos...
+*/
+void QSqlCursor::insert( int pos, const QSqlField& field )
+{
+    insert( pos, QSqlFieldInfo( field ) );
+}
+
 
 #endif
