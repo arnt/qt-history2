@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#233 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#234 $
 #
 # this is a massive hack, written very quickly
 #
@@ -949,7 +949,7 @@ sub getfile {
 	    push @defines, $ifdef;
 	    $ifdef = 1 if (
 		!/_H_?$/
-		&& ( !/QT_NO_/ || /QT_NO_COMPAT$/ )
+		&& ( !/QT_NO_/ || /QT_NO_COMPAT\b/ )
 		&& !/QT_MOC_CPP/ );
 	}
 	if ( !$ifdef ) {
