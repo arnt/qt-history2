@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#84 $
 **
 ** Implementation of QScrollView class
 **
@@ -87,6 +87,7 @@ struct QScrollViewData {
 	vbar.setSteps( 20, 1/*set later*/ );
 	hbar.setSteps( 20, 1/*set later*/ );
 	policy = QScrollView::Default;
+	signal_choke = FALSE;
     }
     ~QScrollViewData()
     {
@@ -160,6 +161,12 @@ struct QScrollViewData {
     QScrollView::ResizePolicy policy;
     QScrollView::ScrollBarMode	vMode;
     QScrollView::ScrollBarMode	hMode;
+
+    // This variable allows ensureVisible to move the contents then
+    // update both the sliders.  Otherwise, updating the sliders would
+    // cause two image scrolls, creating ugly flashing.
+    //
+    bool signal_choke;
 };
 
 /*!
@@ -222,15 +229,10 @@ QScrollView::~QScrollView()
     delete d2;
 }
 
-// This variable allows ensureVisible to move the contents then
-// update both the sliders.  Otherwise, updating the sliders would
-// cause two image scrolls, creating ugly flashing.
-//
-static bool signal_choke=FALSE;
 
 void QScrollView::hslide( int pos )
 {
-    if ( !signal_choke ) {
+    if ( !d->signal_choke ) {
 	moveContents( -pos, -contentsY() );
 	QApplication::syncX();
     }
@@ -238,7 +240,7 @@ void QScrollView::hslide( int pos )
 
 void QScrollView::vslide( int pos )
 {
-    if ( !signal_choke ) {
+    if ( !d->signal_choke ) {
 	moveContents( -contentsX(), -pos );
 	QApplication::syncX();
     }
@@ -962,12 +964,12 @@ void QScrollView::setContentsPos( int x, int y )
     if ( x < 0 ) x = 0;
     if ( y < 0 ) y = 0;
     // Choke signal handling while we update BOTH sliders.
-    signal_choke=TRUE;
+    d->signal_choke=TRUE;
     moveContents( -x, -y );
     d->vbar.setValue( y );
     d->hbar.setValue( x );
     updateScrollBars();
-    signal_choke=FALSE;
+    d->signal_choke=FALSE;
     updateScrollBars();
 }
 
