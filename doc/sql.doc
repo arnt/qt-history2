@@ -138,13 +138,17 @@ widgets that can be connected to tables or views in the database. End
 users can interact directly with these widgets to browse or edit
 data. <em>Qt Designer</em> is fully integrated with the SQL classes and
 can be used to create data-aware forms. The data-aware widgets can also
-be programmed directly with your own C++ code. 
+be programmed directly with your own C++ code. The classes that support
+this layer include QSqlDialog, QSqlEditorFactory, QSqlForm,
+QSqlPropertyMap, QSqlTable and QSqlWidget.
 
 <em>SQL API Layer.</em> These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
 interaction is achieved either by using the QSqlQuery class and
 executing SQL commands directly or by using the high level \l
-QSqlCursor class which composes SQL commands automatically.
+QSqlCursor class which composes SQL commands automatically. In addition
+to QSqlDatabase, QSqlCursor and QSqlQuery, the SQL API layer is
+supported by QSqlError, QSqlField, QSqlIndex and QSqlRecord.
 
 <em>Driver Layer.</em> This comprises three classes, \l QSqlResult,
 \l QSqlDriver and \l QSqlDriverInterface. This layer provides the low
@@ -170,17 +174,17 @@ powerful API than the raw SQL used with \l QSqlQuery.
 
 <a href="#Data-Aware_Widgets">Data-Aware Widgets</a>. This section shows
 how to programmatically link your database to the user interface. In
-this section we introduce the \l QSqlTable, \l QSqlForm, and \l
-QSqlPropertyMap classes and demonstrate how to use custom data-aware
-widgets. <em>Qt Designer</em> provides an easy visual way of achieving
-the same thing.  See the <em>Qt Designer</em> manual, \l QSqlDialog and
-\l QSqlWidget for more information.
+this section we introduce the \l QSqlTable, \l QSqlForm, \l
+QSqlPropertyMap and QSqlEditorFactory classes and demonstrate how to use
+custom data-aware widgets. <em>Qt Designer</em> provides an easy visual
+way of achieving the same thing.  See the <em>Qt Designer</em> manual,
+\l QSqlDialog and \l QSqlWidget for more information.
 
 <a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
 used to provide default and calculated values for fields, and to
 display calculated data, e.g. showing names rather than ids of foreign
-keys.
+keys. 
 
 <h1><a name="Connecting_to_Databases">Connecting to Databases</a></h1> 
 
