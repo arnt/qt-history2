@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#19 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#19 $";
 #endif
 
 
@@ -96,7 +96,7 @@ void QMenuData::menuDelPopup( QPopupMenu * )	// reimplemented in subclass
 }
 
 
-void QMenuData::insertAny( const char *string, QPixmap *pixmap,
+void QMenuData::insertAny( const char *string, const QPixmap *pixmap,
 			   QPopupMenu *popup, int id, int index )
 {						// insert pixmap + sub menu
     if ( index > (int)mitems->count() ) {
