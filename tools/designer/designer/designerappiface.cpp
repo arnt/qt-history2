@@ -10,7 +10,7 @@ DesignerApplicationInterface::DesignerApplicationInterface()
 {
 }
 
-QComponentInterface * DesignerApplicationInterface::requestInterface( const QCString &request )
+QComponentInterface * DesignerApplicationInterface::queryInterface( const QCString &request )
 {
     if ( request == "DesignerMainWindowInterface" )
 	return mwIface ? mwIface : ( mwIface = new DesignerMainWindowInterface( (MainWindow*)qApp->mainWidget() ) );
@@ -24,7 +24,7 @@ DesignerMainWindowInterface::DesignerMainWindowInterface( MainWindow *mw )
 {
 }
 
-QComponentInterface *DesignerMainWindowInterface::requestInterface( const QCString &request )
+QComponentInterface *DesignerMainWindowInterface::queryInterface( const QCString &request )
 {
     if ( request == "DesignerFormWindowInterface" )
 	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( mainWindow ) );
