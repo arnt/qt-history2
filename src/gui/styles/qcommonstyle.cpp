@@ -635,7 +635,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             break;
         }
     default:
-        qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
+        break;
     }
 }
 
@@ -1247,7 +1247,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         r.addCoords(0, 0, -30, 0);
         break;
     default:
-        qWarning("QCommonStyle::SubRect case not handled %d", sr);
+        break;
     }
     return r;
 }

@@ -92,6 +92,7 @@ protected:
     void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *);
+    void paintEvent(QPaintEvent *);
     void setTabBar(QTabBar *);
     QTabBar* tabBar() const;
     void changeEvent(QEvent *);

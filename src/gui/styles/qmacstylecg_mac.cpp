@@ -618,8 +618,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 p->fillRect(btn->rect, Qt::color1);
                 p->setClipRegion(saveRegion);
             } else {
-                HIThemeDrawButton(&macRect, &bdi, cg,
-                                  kHIThemeOrientationNormal, 0);
+                HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             }
         }
         break;
@@ -651,8 +650,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         else
             pdi.size = kThemeArrow9pt;
         HIRect macRect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawPopupArrow(&macRect, &pdi, cg,
-                              kHIThemeOrientationNormal);
+        HIThemeDrawPopupArrow(&macRect, &pdi, cg, kHIThemeOrientationNormal);
         break; }
     case PE_FocusRect:
         // Use the our own focus widget stuff.
@@ -664,8 +662,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         sdi.adornment = qt_mac_is_metal(w) ? kHIThemeSplitterAdornmentMetal
                                            : kHIThemeSplitterAdornmentNone;
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawPaneSplitter(&hirect, &sdi, cg,
-                                kHIThemeOrientationNormal);
+        HIThemeDrawPaneSplitter(&hirect, &sdi, cg, kHIThemeOrientationNormal);
         break; }
     case PE_TreeBranch: {
         if (!(opt->state & Style_Children))
@@ -679,8 +676,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         bi.value = opt->state & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
         bi.adornment = kThemeAdornmentNone;
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
-        HIThemeDrawButton(&hirect, &bi, cg,
-                          kHIThemeOrientationNormal, 0);
+        HIThemeDrawButton(&hirect, &bi, cg, kHIThemeOrientationNormal, 0);
         break; }
     case PE_RubberBandMask:
         p->fillRect(opt->rect, Qt::color1);
@@ -747,8 +743,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment = kThemeAdornmentFocus;
             HIRect hirect = qt_hirectForQRect(ir, p);
-            HIThemeDrawButton(&hirect, &bdi, cg,
-                              kHIThemeOrientationNormal, 0);
+            HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
         }
         break;
     case PE_PanelGroupBox:
@@ -761,8 +756,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             else
                 gdi.kind = kHIThemeGroupBoxKindPrimary;
             HIRect hirect = qt_hirectForQRect(frame->rect, p);
-            HIThemeDrawGroupBox(&hirect, &gdi, cg,
-                                kHIThemeOrientationNormal);
+            HIThemeDrawGroupBox(&hirect, &gdi, cg, kHIThemeOrientationNormal);
         }
         break;
     case PE_Panel:
@@ -795,12 +789,23 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                                                   QRect(frame_size, frame_size,
                                                         frame_size * 2, frame_size * 2));
 
-                HIThemeDrawFrame(&hirect, &fdi, cg,
-                                 kHIThemeOrientationNormal);
+                HIThemeDrawFrame(&hirect, &fdi, cg, kHIThemeOrientationNormal);
                 break;
+            } else {
+                QWindowsStyle::drawPrimitive(pe, opt, p, w);
             }
-            // Fall through!
         }
+    case PE_TabBarBase: {
+        HIThemeTabPaneDrawInfo tpdi;
+        tpdi.version = 0;
+        tpdi.state = tds;
+        tpdi.direction = kThemeTabNorth;
+        if (opt->state & Style_Bottom)
+            tpdi.direction = kThemeTabSouth;
+        tpdi.size = kHIThemeTabSizeNormal;
+        HIRect hirect = qt_hirectForQRect(opt->rect, p);
+        HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
+        break; }
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }

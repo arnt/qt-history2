@@ -1037,6 +1037,10 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         static_cast<QMacStyleQDPainter *>(p)->setport();
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
+    case PE_TabBarBase:
+        static_cast<QMacStyleQDPainter *>(p)->setport();
+        DrawThemeTabPane(qt_glb_mac_rect(opt->rect, p), tds);
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
