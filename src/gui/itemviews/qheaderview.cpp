@@ -481,7 +481,9 @@ int QHeaderView::sectionSize(int section) const
     if (section < 0 || section >= d->sections.count() - 1 || isSectionHidden(section))
         return 0;
     int idx = index(section);
+//    if (idx + 1 < d->sections.count())
     return d->sections.at(idx + 1).position - d->sections.at(idx).position;
+//    return 0;
 }
 
 /*!
@@ -740,8 +742,8 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         if (d->section == -1)
             return;
         d->state = QHeaderViewPrivate::MoveSection;
-        d->setupSectionIndicator();
-        d->updateSectionIndicator();
+        d->setupSectionIndicator(d->section, pos);
+        d->updateSectionIndicator(d->section, pos);
         d->viewport->grabMouse();
     } else {
         int handle = d->sectionHandleAt(pos + offset());
@@ -788,7 +790,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             if (loc > sectionSize(sec) / 2)
                 sec = d->sections.at(qMin(idx + 1, d->sections.count() - 1)).section;
             d->target = sec;
-            d->updateSectionIndicator();
+            d->updateSectionIndicator(d->section, pos);
             return;
         }
         case QHeaderViewPrivate::NoState: {
@@ -808,18 +810,17 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 
 void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
 {
-    switch (d->state) {
-    case QHeaderViewPrivate::MoveSection:
+    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+    switch (d->state)
+    case QHeaderViewPrivate::MoveSection: {
         moveSection(index(d->section), index(d->target));
         d->section = d->target = -1;
-        d->updateSectionIndicator();
+        d->updateSectionIndicator(d->section, pos);
         d->viewport->releaseMouse();
         break;
-    case QHeaderViewPrivate::NoState: {
-        int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
-        int sec = sectionAt(pos + offset());
-        emit sectionClicked(sec, e->state());
-        break; }
+    case QHeaderViewPrivate::NoState:
+        emit sectionClicked(sectionAt(pos + offset()), e->state());
+        break;
     case QHeaderViewPrivate::ResizeSection:
         d->viewport->releaseMouse();
         break;
@@ -880,14 +881,14 @@ void QHeaderView::moveSection(int from, int to)
     // move positions
     if (to > from) {
         for (idx = from; idx < to; ++idx)
-            sections[idx+1].position -= sectionSize(section(idx))
-                                        - sectionSize(section(idx + 1));
+            sections[idx + 1].position -= sectionSize(section(idx))
+                                          - sectionSize(section(idx + 1));
     } else {
         int tmp;
         int size = sectionSize(section(from));
         for (idx = to; idx < from; ++idx) {
             tmp = sectionSize(section(idx));
-            sections[idx+1].position = sections[idx].position + size;
+            sections[idx + 1].position = sections[idx].position + size;
             size = tmp;
         }
     }
@@ -1384,36 +1385,46 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
     return -1;
 }
 
-void QHeaderViewPrivate::setupSectionIndicator()
+void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
 {
     if (!sectionIndicator) {
-        sectionIndicator = new QWidget(q->d->viewport);
-        sectionIndicator->setBackgroundRole(QPalette::Text);
+        sectionIndicator = new QLabel(viewport);
+        sectionIndicator->setWindowOpacity(0.75);
     }
+
+    int x, y, w, h;
+    int p = q->sectionPosition(section);
+    if (orientation == Qt::Horizontal) {
+        x = p;
+        y = 0;
+        w = q->sectionSize(section);
+        h = viewport->height();
+    } else {
+        x = 0;
+        y = p;
+        w = viewport->width();
+        h = q->sectionSize(section);
+    }
+    sectionIndicator->resize(w, h);
+    QPixmap pix = QPixmap::grabWidget(viewport, x, y, w, h);
+    sectionIndicator->setPixmap(pix);
+    d->sectionIndicatorOffset = position - qMax(p - offset, 0);
+
 }
 
-void QHeaderViewPrivate::updateSectionIndicator()
+void QHeaderViewPrivate::updateSectionIndicator(int section, int position)
 {
     if (section == -1 || target == -1 ) {
         sectionIndicator->hide();
         return;
     }
-    QRect geometry = sectionHandleRect(target);
-    sectionIndicator->setGeometry(geometry);
-    sectionIndicator->show();
-}
 
-QRect QHeaderViewPrivate::sectionHandleRect(int section)
-{
-    QRect rect;
-    static const int padding = 1;
-    int size = 2 * padding + 1;
-    int position = qMax(q->sectionPosition(section) - q->offset() - padding - 1, 0);
-    if (q->orientation() == Qt::Horizontal)
-        rect.setRect(position, 0, size, q->height());
+    if (orientation == Qt::Horizontal)
+        sectionIndicator->move(position - d->sectionIndicatorOffset, 0);
     else
-        rect.setRect(0, position, q->width(), size);
-    return rect;
+        sectionIndicator->move(0, position - d->sectionIndicatorOffset);
+
+    sectionIndicator->show();
 }
 
 QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const

@@ -16,6 +16,7 @@
 
 #include <private/qabstractitemview_p.h>
 #include <qapplication.h>
+#include <qlabel.h>
 
 class QHeaderViewPrivate: public QAbstractItemViewPrivate
 {
@@ -32,12 +33,12 @@ public:
           clickableSections(false),
           highlightCurrent(false),
           stretchSections(0),
+          sectionIndicatorOffset(0),
           sectionIndicator(0) {}
 
-    int sectionHandleAt(int pos);
-    void setupSectionIndicator();
-    void updateSectionIndicator();
-    QRect sectionHandleRect(int section);
+    int sectionHandleAt(int position);
+    void setupSectionIndicator(int section, int position);
+    void updateSectionIndicator(int section, int position);
 
     inline bool reverse() const
         { return QApplication::reverseLayout() && orientation == Qt::Horizontal; }
@@ -68,7 +69,8 @@ public:
     bool clickableSections;
     bool highlightCurrent;
     int stretchSections;
-    QWidget *sectionIndicator;//, *sectionIndicator2;
+    int sectionIndicatorOffset;
+    QLabel *sectionIndicator;
     QStyleOptionHeader getStyleOption() const;
 };
 
