@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#24 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#25 $
 **
 ** Definition of QFileDialog class
 **
@@ -56,9 +56,9 @@ public:
     static QString getExistingDirectory( const char *dir = 0,
 					 QWidget *parent = 0,
 					 const char *name = 0 );
-    
+
     // other static functions
-    
+
     static void setIconProvider( QFileIconProvider * );
     static QFileIconProvider * iconProvider();
 
@@ -77,7 +77,7 @@ public:
     enum Mode { AnyFile, ExistingFile, Directory };
     void setMode( Mode );
     Mode mode() const;
-    
+
     bool eventFilter( QObject *, QEvent * );
 
 public slots:
@@ -119,7 +119,6 @@ private:
     void init();
     void updatePathBox( const char * );
     bool trySetSelection( const QFileInfo&, bool );
-    friend class QNoisyLineEdit;
 
     QDir cwd;
     QString fileName;
