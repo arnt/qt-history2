@@ -79,9 +79,16 @@ private:
     inline void setPath(const QString &p)
     {
         detach();
-        if(!data->fileEngine || !QDir::isRelativePath(p))
-            initFileEngine(p);
-        data->fileEngine->setFileName(p);
+        QString path = p;
+        if ((path.endsWith("/") || path.endsWith("\\")) && path.length() > 1) {
+#ifdef Q_OS_WIN
+            if (!(path.length() == 3 && path.at(1) == ':'))
+#endif
+                path.truncate(path.length() - 1);
+        }
+        if(!data->fileEngine || !QDir::isRelativePath(path))
+            initFileEngine(path);
+        data->fileEngine->setFileName(path);
         data->path = p;
         data->clear();
     }
