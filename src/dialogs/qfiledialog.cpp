@@ -4259,7 +4259,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	    initialDir = dir;
     } else
 	initialDir = QString::null;
-    if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
+    if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle && dirOnly )
         return winGetExistingDirectory( initialDir, parent, name, caption );
 #endif
 #if defined(Q_WS_MAC)

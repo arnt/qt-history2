@@ -822,6 +822,10 @@ bool QPrinter::setup( QWidget *parent )
 #endif // Q_OS_TEMP
 
     SetMapMode(hdc, MM_ANISOTROPIC);
+    // The following two lines are the cause of problems on Windows 9x, 
+    // for some reason, either one of these functions or both don't 
+    // have an effect.  This appears to be a bug with the Windows API 
+    // and as of yet I can't find a workaround.
     SetWindowExtEx(hdc, res, res, NULL);
     SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
 
