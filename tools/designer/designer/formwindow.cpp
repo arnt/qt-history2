@@ -867,7 +867,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	make_move_command:
 	    QWidgetList widgets; // collect the widgets and its old and new positions which have been moved
 	    QValueList<QPoint> oldPos, newPos;
-	    for ( QMap<ulong, QPoint>::Iterator it = moving.begin(); it != moving.end(); ++it ) {
+	    for ( it = moving.begin(); it != moving.end(); ++it ) {
 		widgets.append( (QWidget*)it.key() );
 		oldPos.append( *it );
 		newPos.append( ( (QWidget*)it.key() )->pos() );
