@@ -38,10 +38,49 @@ static const CFStringRef no_ampersands(QString i) {
 QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point pt, SInt16 *idx)
 {
     qDebug("foo.. %d", msg);
+    switch(msg) {
+    case kMenuDrawMsg:
+    case kMenuSizeMsg:
+    case kMenuPopUpMsg:
+    case kMenuCalcItemMsg:
+    case kMenuThemeSavvyMsg:
+	*(idx) = kThemeSavvyMenuResponse;
+    }
 
     if(pdict) {
 	short id = (short)mr;
 	if(MacPopupBinding *mpb = pdict->find((int)id)) {
+	    QPopupMenu *qp = mpb->qpopup;
+	    switch(msg) {
+	    case kMenuSizeMsg:
+	    {
+		int width=0, height=0;
+		QMenuItem *item;
+		for(int x = 0; x < (int)qp->count(); x++) {
+		    short w, h;
+		    item = qp->findItem(qp->idAt(x));
+		    if(item->custom()) {
+			QSize sz = item->custom()->sizeHint();
+			w = sz.width();
+			h = sz.height();
+		    } else if(item->isSeparator()) {
+			w = 0;
+			GetThemeMenuSeparatorHeight(&h);
+		    } else {
+			GetThemeMenuItemExtra(item->popup() ? kThemeMenuItemHierarchical : kThemeMenuItemPlain,
+					      &h, &w);
+			w = 100;
+			h = 100;
+		    }
+		    if(w > width)
+			width = w;
+		    height += h;
+		}
+		qDebug("For size msg I got %d %d", width, height);
+		SetRect(menuRect, 0, 0, width, height);
+	    }
+	    break;
+#if 0
 	    QMenuItem *item = mpb->qpopup->findItem((int)*(idx));
 	    if(item && item->custom()) {
 		qDebug("blah..");
@@ -54,9 +93,10 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 		    break;
 		}
 	    }
+#endif
+	    }
 	}
     }
-    *(idx) = 0;
 }
 #endif
 
