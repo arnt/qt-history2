@@ -58,7 +58,7 @@
 */
 
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type, const QString& displayLabel )
-    : nm(fieldName), label(displayLabel), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE), gen(TRUE)
+    : nm(fieldName), label(displayLabel), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE)
 {
     if ( label.isNull() )
 	label = fieldName;
@@ -75,7 +75,7 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type, const QStri
 }
 
 QSqlField::QSqlField( const QSqlField& other )
-    : nm( other.nm ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf ), af( other.af ), gen( other.gen )
+    : nm( other.nm ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), af( other.af )
 {
 }
 
@@ -88,9 +88,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     nul = other.nul;
     pIdx = other.pIdx;
     iv = other.iv;
-    cf = other.cf;
     af = other.af;
-    gen = other.gen;
     return *this;
 }
 
@@ -102,9 +100,7 @@ bool QSqlField::operator==(const QSqlField& other) const
 	     ro == other.ro &&
 	     nul == other.nul &&
 	     pIdx == other.pIdx &&
-	     iv == other.iv &&
-	     cf == other.cf &&
-	     gen == other.gen );
+	     iv == other.iv );
 }
 
 

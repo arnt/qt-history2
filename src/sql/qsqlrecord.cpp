@@ -35,11 +35,26 @@
 **********************************************************************/
 
 #include "qsqlrecord.h"
-#include "qregexp.h"
-
 
 #ifndef QT_NO_SQL
 
+#include "qregexp.h"
+#include "qmap.h"
+
+class QSqlRecordPrivate
+{
+public:
+    QSqlRecordPrivate() {}
+    QSqlRecordPrivate& operator=( const QSqlRecordPrivate& other )
+    {
+	fieldList = other.fieldList;
+	nogenFields = other.nogenFields;
+	return *this;
+    }
+    QValueList< QSqlField > fieldList;    
+    QMap< int, bool >  nogenFields;    
+};
+ 
 /*!
     \class QSqlRecord qsqlfield.h
     \brief Template class used for manipulating a list of SQL database fields.
@@ -55,7 +70,7 @@
 
 QSqlRecord::QSqlRecord()
 {
-
+    init();
 }
 
 /*!  Constructs a copy of \a other.
@@ -63,14 +78,19 @@ QSqlRecord::QSqlRecord()
 */
 
 QSqlRecord::QSqlRecord( const QSqlRecord& other )
-    : fieldList( other.fieldList )
 {
+    init();
+    *d = *other.d;
+}
 
+void QSqlRecord::init()
+{
+    d = new QSqlRecordPrivate();
 }
 
 QSqlRecord& QSqlRecord::operator=( const QSqlRecord& other )
 {
-    fieldList = other.fieldList;
+    *d = *other.d;
     return *this;
 }
 
@@ -81,7 +101,7 @@ QSqlRecord& QSqlRecord::operator=( const QSqlRecord& other )
 
 QSqlRecord::~QSqlRecord()
 {
-
+    delete d;
 }
 
 /*!
@@ -126,22 +146,22 @@ int QSqlRecord::position( const QString& name ) const
 
 QSqlField* QSqlRecord::field( int i )
 {
-    return &fieldList[ i ];
+    return &d->fieldList[ i ];
 }
 
 const QSqlField* QSqlRecord::field( int i ) const
 {
-    return &fieldList[ i ];
+    return &d->fieldList[ i ];
 }
 
 QSqlField* QSqlRecord::field( const QString& name )
 {
-    return &fieldList[ position( name ) ];
+    return &d->fieldList[ position( name ) ];
 }
 
 const QSqlField* QSqlRecord::field( const QString& name ) const
 {
-    return &fieldList[ position( name ) ];
+    return &d->fieldList[ position( name ) ];
 }
 
 
@@ -152,7 +172,7 @@ const QSqlField* QSqlRecord::field( const QString& name ) const
 
 void QSqlRecord::append( const QSqlField& field )
 {
-    fieldList.append( field );
+    d->fieldList.append( field );
 }
 
 /*!
@@ -162,7 +182,7 @@ void QSqlRecord::append( const QSqlField& field )
 
 void QSqlRecord::prepend( const QSqlField& field )
 {
-    fieldList.prepend( field );
+    d->fieldList.prepend( field );
 
 }
 
@@ -173,7 +193,7 @@ void QSqlRecord::prepend( const QSqlField& field )
 
 void QSqlRecord::insert( int pos, const QSqlField& field )
 {
-    fieldList.insert( fieldList.at( pos ), field );
+    d->fieldList.insert( d->fieldList.at( pos ), field );
 }
 
 /*!  Removes all the field at \a pos.  If \a pos does not exist,
@@ -183,7 +203,7 @@ void QSqlRecord::insert( int pos, const QSqlField& field )
 
 void QSqlRecord::remove( int pos )
 {
-    fieldList.remove( fieldList.at( pos ) );
+    d->fieldList.remove( d->fieldList.at( pos ) );
 }
 
 /*!
@@ -193,7 +213,17 @@ void QSqlRecord::remove( int pos )
 
 void QSqlRecord::clear()
 {
-    fieldList.clear();
+    d->fieldList.clear();
+}
+
+/*!  Returns TRUE if there are no fields in the record, otherwise
+  FALSE is returned.
+
+*/
+
+bool QSqlRecord::isEmpty() const
+{
+    return d->fieldList.isEmpty();
 }
 
 /*!  Clears the value of all fields in the record.  If \a nullify is
@@ -212,8 +242,22 @@ void QSqlRecord::clearValues( bool nullify )
     }
 }
 
-/*!  Returns a comma-separated list of field names as a string.  This
-  string is suitable for use in, for example, generating a select
+void QSqlRecord::setGenerated( const QString& name, bool generated )
+{
+    if ( !field( name ) )
+	return;
+    d->nogenFields[ position( name ) ] = generated;
+}
+
+bool QSqlRecord::isGenerated( const QString& name ) const
+{
+    if ( !field( name ) )
+	return FALSE;
+    return !d->nogenFields[ position( name ) ];
+}
+
+/*!  Returns a comma-separated list of all field names as a string.
+  This string is suitable for example in generating a select
   statement.  If a \a prefix is specified, it is prepended before all
   field names.
 
@@ -223,14 +267,14 @@ QString QSqlRecord::toString( const QString& prefix ) const
 {
     QString pflist;
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
-    int actualFields = 0;
-    
+    bool comma = FALSE;
+
     for ( uint i = 0; i < count(); ++i ){
-	if ( !field(i)->isCalculated() ) {
-	    if( actualFields > 0 )
+	if ( isGenerated( field(i)->name() ) ) {
+	    if( comma )
 		pflist += ", ";
 	    pflist += pfix + field(i)->name();
-	    actualFields++;
+	    comma = TRUE;
 	}
     }
     return pflist;
@@ -244,7 +288,7 @@ QString QSqlRecord::toString( const QString& prefix ) const
 
 uint QSqlRecord::count() const
 {
-    return fieldList.count();
+    return d->fieldList.count();
 }
 
 /*!
@@ -256,12 +300,12 @@ const QSqlField* QSqlRecord::findField( int i ) const
 {
 #ifdef QT_CHECK_RANGE
     static QSqlField dbg;
-    if( (unsigned int) i > fieldList.count() ){
+    if( (unsigned int) i > d->fieldList.count() ){
 	qWarning( "QSqlRecord::findField: index out of range" );
 	return &dbg;
     }
 #endif // QT_CHECK_RANGE
-    return &fieldList[ i ];
+    return &d->fieldList[ i ];
 }
 
 /*!
@@ -273,12 +317,12 @@ QSqlField* QSqlRecord::findField( int i )
 {
 #ifdef QT_CHECK_RANGE
     static QSqlField dbg;
-    if( (unsigned int) i > fieldList.count() ){
+    if( (unsigned int) i > d->fieldList.count() ){
 	qWarning( "QSqlRecord::findField: index out of range" );
 	return &dbg;
     }
 #endif // QT_CHECK_RANGE
-    return &fieldList[ i ];
+    return &d->fieldList[ i ];
 }
 
 /*!
@@ -290,12 +334,12 @@ const QSqlField* QSqlRecord::findField( const QString& name ) const
 {
 #ifdef QT_CHECK_RANGE
     static QSqlField dbg;
-    if( (unsigned int) position( name ) > fieldList.count() ){
+    if( (unsigned int) position( name ) > d->fieldList.count() ){
 	qWarning( "QSqlRecord::findField : index out of range" );
 	return &dbg;
     }
 #endif // QT_CHECK_RANGE
-    return &fieldList[ position( name ) ];
+    return &d->fieldList[ position( name ) ];
 }
 
 
@@ -308,12 +352,12 @@ QSqlField* QSqlRecord::findField( const QString& name )
 {
 #ifdef QT_CHECK_RANGE
     static QSqlField dbg;
-    if( (unsigned int) position( name ) > fieldList.count() ){
+    if( (unsigned int) position( name ) > d->fieldList.count() ){
 	qWarning( "QSqlRecord::findField : index out of range" );
 	return &dbg;
     }
 #endif // QT_CHECK_RANGE
-    return &fieldList[ position( name ) ];
+    return &d->fieldList[ position( name ) ];
 }
 
 /*! Sets the value of the field at position \a i with \a val.  If the field does

@@ -41,6 +41,7 @@
 #include "qsqlresult.h"
 #include "qdatetime.h"
 #include "qsqldatabase.h"
+#include "qmap.h"
 
 class QSqlCursorPrivate
 {
@@ -55,6 +56,7 @@ public:
     int               md;
     QSqlIndex         priIndx;
     QSqlRecord        editBuffer;
+    QMap< int, bool >  calcFields;
 };
 
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
@@ -169,6 +171,28 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 QString QSqlCursor::name() const
 {
     return d->nm;
+}
+
+/*
+  \reimpl
+*/
+
+QString QSqlCursor::toString( const QString& prefix = QString::null ) const
+{
+    QString pflist;
+    QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
+    bool comma = FALSE;
+
+    for ( uint i = 0; i < count(); ++i ){
+	const QString fname = field( i )->name();
+	if ( !isCalculated( fname ) && isGenerated( fname ) ) {
+	    if( comma )
+		pflist += ", ";
+	    pflist += pfix + fname;
+	    comma = TRUE;
+	}
+    }
+    return pflist;
 }
 
 /*!
@@ -366,6 +390,33 @@ int QSqlCursor::mode() const
     return d->md;
 }
 
+/* Sets field \a name to \a calculated.  If the field \a name does not
+  exist, nothing happens.  The value of calculated fields are set by
+  the calculateField() virtual function.  Calculated fields are not
+  generated in SQL statements sent to the database.
+  
+  \sa calculateField() QSqlRecord::setGenerated()
+*/
+
+void QSqlCursor::setCalculated( const QString& name, bool calculated )
+{
+    if ( !field( name ) )
+	return;
+    d->calcFields[ position( name ) ] = calculated;
+    setGenerated( name, FALSE );
+}
+
+/* Returns true if the field \a name is calculated, otherwise FALSE is
+  returned. If the field \a name does not exist, FALSE is returned.
+*/
+
+bool QSqlCursor::isCalculated( const QString& name ) const
+{
+    if ( !field( name ) )
+	return FALSE;
+    return d->calcFields[ position( name ) ];
+}
+
 /*
    Returns TRUE if the cursor is read-only, FALSE otherwise.
 
@@ -429,23 +480,24 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
 {
     QString filter;
     int k = i.count();
-    int actualFields = 0;
-
+    bool sep = FALSE;
     if ( k ) { /* use index */
 	for( int j = 0; j < k; ++j ){
-	    if( j > 0 )
+	    if( sep )
 		filter += " " + fieldSep + " " ;
 	    QString fn = i.field(j)->name();
 	    QSqlField* f = rec->field( fn );
 	    filter += qMakeFieldValue( driver(), prefix, f );
+	    sep = FALSE;
 	}
     } else { /* use all fields */
  	for ( uint j = 0; j < count(); ++j ) {
-	    if ( !rec->field(j)->isCalculated() ) {
-		if ( actualFields > 0 )
+	    QSqlField* f = rec->field( j );
+	    if ( !isCalculated( f->name() ) ) {
+		if ( sep )
 		    filter += " " + fieldSep + " " ;
-		filter += qMakeFieldValue( driver(), prefix, rec->field( j ) );
-		actualFields++;
+		filter += qMakeFieldValue( driver(), prefix, f );
+		sep = TRUE;
 	    }
 	}
     }
@@ -507,12 +559,14 @@ int QSqlCursor::insert( bool invalidate )
     str += " (" + d->editBuffer.toString() + ")";
     str += " values (";
     QString vals;
+    bool comma = FALSE;
     for( int j = 0; j < k; ++j ){
-	if ( !d->editBuffer.field(j)->isCalculated() ) {
-	    if( actualFields > 0 )
+	QSqlField* f = d->editBuffer.field( j );
+	if ( !isCalculated( f->name() ) ) {
+	    if( comma )
 		vals += ",";
-	    vals += driver()->formatValue( d->editBuffer.field(j) );
-	    actualFields++;
+	    vals += driver()->formatValue( f );
+	    comma = TRUE;
 	}
     }
     str += vals + ");";
@@ -696,7 +750,7 @@ bool QSqlCursor::exec( const QString & str )
     return isActive();
 }
 
-QVariant QSqlCursor::calculateField( uint )
+QVariant QSqlCursor::calculateField( const QString& )
 {
     return QVariant();
 }
@@ -713,7 +767,8 @@ void QSqlCursor::sync()
 	d->lastAt = at();
 	uint i = 0, j = 0;
 	for ( ; i < count(); ++i ){
-	    if ( !field( i )->isCalculated() ){
+	    QSqlField* f = field( i );
+	    if ( !isCalculated( f->name() ) ){
 		QSqlRecord::setValue( i, QSqlQuery::value( j ) );
 		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
 		j++;
@@ -721,8 +776,9 @@ void QSqlCursor::sync()
 	}
 	i = 0;
 	for ( ; i < count(); ++i ){
-	    if ( field(i)->isCalculated() )
-		QSqlRecord::setValue( i, calculateField( i ) );
+	    QSqlField* f = field( i );	    
+	    if ( isCalculated( f->name() ) )
+		QSqlRecord::setValue( i, calculateField( f->name() ) );
 	}
     }
 }

@@ -54,6 +54,8 @@ template class Q_EXPORT QMap< QString, int >;
 // MOC_SKIP_END
 #endif
 
+class QSqlRecordPrivate;
+
 class Q_EXPORT QSqlRecord
 {
 public:
@@ -76,18 +78,22 @@ public:
     virtual void         insert( int pos, const QSqlField& field );
     virtual void         remove( int pos );
 
-    bool                 isEmpty() const { return fieldList.isEmpty(); }
+    bool                 isEmpty() const;
     void                 clear();
     void                 clearValues( bool nullify = FALSE );
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null ) const;
+    
+    void                 setGenerated( const QString& name, bool generated );
+    bool                 isGenerated( const QString& name ) const;
 
 private:
+    void                 init();
     const QSqlField*     findField( int i ) const;
     QSqlField*           findField( int i );
     const QSqlField*     findField( const QString& name ) const;
     QSqlField*           findField( const QString& name );
-    QValueList< QSqlField > fieldList;
+    QSqlRecordPrivate*   d;
 };
 
 #endif	// QT_NO_SQL

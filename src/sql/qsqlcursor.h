@@ -82,6 +82,8 @@ public:
 
     void              setMode( int flags );
     int               mode() const;
+    void              setCalculated( const QString& name, bool calculated );
+    bool              isCalculated( const QString& name ) const;
     bool              isReadOnly() const;
     bool              canInsert() const;
     bool              canUpdate() const;
@@ -95,7 +97,8 @@ public:
     QString           filter() const;
     virtual void      setName( const QString& name, bool autopopulate = TRUE );
     QString           name() const;
-
+    QString           toString( const QString& prefix = QString::null ) const;  
+    
 protected:
     void              afterSeek();
     bool              exec( const QString & str );
@@ -103,7 +106,7 @@ protected:
     virtual void      primeInsert( QSqlRecord* buf );
     virtual void      primeUpdate( QSqlRecord* buf );
 
-    virtual QVariant  calculateField( uint fieldNumber );
+    virtual QVariant  calculateField( const QString& name );
     virtual int       update( const QString & filter, bool invalidate = TRUE );
     virtual int       del( const QString & filter, bool invalidate = TRUE );
 

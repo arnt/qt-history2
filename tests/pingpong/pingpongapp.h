@@ -17,8 +17,8 @@ public:
     MatchCursor();
 
 protected:
-    QVariant calculateField( uint fieldNumber );
-    void     primeInsert( QSqlRecord* buf );    
+    QVariant calculateField( const QString& name );
+    void     primeInsert( QSqlRecord* buf );
 
     QSqlCursor * teamCr;
 };

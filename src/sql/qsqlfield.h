@@ -73,12 +73,8 @@ public:
     bool               isPrimaryIndex() const { return pIdx; }
     void               setVisible( bool visible ) { iv = visible; }
     bool               isVisible() const { return iv; }
-    void               setCalculated( bool calculated ) { cf = calculated; }
-    bool               isCalculated() const { return cf; }
     void               setAlignment( int align ) { af = align; }
     int                alignment() const { return af; }
-    void               setGenerated( bool generated ) { gen = generated; }
-    bool               isGenerated() const { return gen; }
 
 private:
     QString       nm;
@@ -88,9 +84,7 @@ private:
     bool          nul;
     bool          pIdx;
     bool          iv;
-    bool          cf;
     int           af;
-    bool          gen;
     QSqlFieldPrivate* d;
 };
 

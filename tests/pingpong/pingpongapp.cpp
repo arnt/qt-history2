@@ -33,29 +33,31 @@ MatchCursor::MatchCursor()
 
     // add lookup field
 
-    QSqlField loser("loser", QVariant::String );
-    loser.setDisplayLabel("Loser");
-    loser.setCalculated( TRUE );
-    prepend( loser );
-
     QSqlField winner("winner", QVariant::String );
     winner.setDisplayLabel("Winner");
-    winner.setCalculated( TRUE );
     prepend( winner );
+    
+    QSqlField loser("loser", QVariant::String );
+    loser.setDisplayLabel("Loser");
+    prepend( loser );
+    
+    setCalculated( loser.name(), TRUE );    
+    setCalculated( winner.name(), TRUE );    
 }
 
-QVariant MatchCursor::calculateField( uint fieldNumber )
+QVariant MatchCursor::calculateField( const QString& name )
 {
-    if( field( fieldNumber )->name() == "winner" ){ // Winner team
+    if( name == "winner" )
 	teamCr->setValue( "id", field("winnerid")->value() );
-    } else if( field( fieldNumber )->name() == "loser" ){ // Looser team
+    else if( name == "loser" )
 	teamCr->setValue( "id", field("loserid")->value() );
-    }
+    else
+	return QVariant( QString::null );
+	
     teamCr->select( teamCr->primaryIndex(), teamCr->primaryIndex() );
     if( teamCr->next() )
 	return teamCr->value( "name" );
-    else
-	return QVariant( QString::null );
+    return QVariant( QString::null );
 }
 
 void MatchCursor::primeInsert( QSqlRecord* buf )
