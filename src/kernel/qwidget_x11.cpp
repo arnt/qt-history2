@@ -2097,7 +2097,9 @@ void QWidget::setBaseSize( int basew, int baseh )
     that is read but not written. For example, when scrolling 10
     pixels rightwards, the leftmost ten pixels of the widget need
     repainting. The paint event may be delivered immediately or later,
-    depending on some heuristics.
+    depending on some heuristics (note that you might have to force
+    processing of paint events using QApplication::sendPostedEvents()
+    when using scroll() and move() in combination).
 
     \sa QScrollView erase() bitBlt()
 */
