@@ -87,8 +87,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 
     int total_size_read;
     for(int have_read = total_size_read = 0;
-	(have_read = read(file, big_buffer + total_size_read,\
-			  fst.st_size - total_size_read) > 0);
+	(have_read = read(file, big_buffer + total_size_read,
+			  fst.st_size - total_size_read));
 	total_size_read += have_read);
     close(file);
 
@@ -188,7 +188,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
     int total_size_read;
     for(int have_read = total_size_read = 0;
 	(have_read = read(file, big_buffer + total_size_read,
-			  fst.st_size - total_size_read) > 0);
+			  fst.st_size - total_size_read));
 	total_size_read += have_read);
     close(file);
 
