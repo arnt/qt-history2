@@ -9,7 +9,7 @@
 **
 ** WARNING:
 **      A separate license from Unisys may be required to use the gif
-**      reader. See http://corp2.unisys.com/LeadStory/lzwfaq.html
+**      reader. See http://www.unisys.com/unisys/lzw/
 **      for information from Unisys
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
