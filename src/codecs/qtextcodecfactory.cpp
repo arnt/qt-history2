@@ -41,7 +41,7 @@
 
 #ifndef QT_NO_COMPONENT
 #include "qapplication.h"
-#include "qpluginmanager.h"
+#include <private/qpluginmanager_p.h>
 #include "qtextcodecinterface.h"
 
 #include <stdlib.h>

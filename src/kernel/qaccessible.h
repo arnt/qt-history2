@@ -38,7 +38,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qcom.h"
+#include <private/qcom_p.h>
 #include "qrect.h"
 #include "qguardedptr.h"
 #include "qmemarray.h"

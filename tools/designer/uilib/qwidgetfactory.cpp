@@ -37,7 +37,7 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 #include <qobjectlist.h>
-#include <qpluginmanager.h>
+#include <private/qpluginmanager_p.h>
 #include <qmime.h>
 #include <qdragobject.h>
 #include <zlib.h>

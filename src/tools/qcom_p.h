@@ -2,8 +2,8 @@
 #define QCOM_H
 
 #ifndef QT_H
-#include <qstringlist.h>
-#include <quuid.h>
+#include "qstringlist.h"
+#include "quuid_p.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT

@@ -63,76 +63,17 @@
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
-/* Platform independent QLibraryPrivate implementations */
-#ifndef QT_LITE_COMPONENT
-
-#include "qtimer.h"
-
-extern Q_EXPORT QApplication *qApp;
-
 QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
-    : QObject( 0, lib->library().latin1() ), pHnd( 0 ), libIface( 0 ), unloadTimer( 0 ), library( lib )
+    : pHnd( 0 ), library( lib )
 {
 }
 
-QLibraryPrivate::~QLibraryPrivate()
-{
-    if ( libIface )
-	libIface->release();
-    killTimer();
-}
-
-/*
-  Only components that implement the QLibraryInterface can
-  be unloaded automatically.
-*/
-void QLibraryPrivate::tryUnload()
-{
-    if ( library->policy() == QLibrary::Manual || !pHnd || !libIface )
-	return;
-
-    if ( !libIface->canUnload() )
-	return;
-
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-    if ( library->unload() )
-	qDebug( "%s has been automatically unloaded", library->library().latin1() );
-#else
-    library->unload();
-#endif
-}
-
-#else // QT_LITE_COMPOINENT
-
-QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
-    : pHnd( 0 ), libIface( 0 ), library( lib )
-{
-}
-
-#endif // QT_LITE_COMPOINENT
-
-void QLibraryPrivate::startTimer()
-{
-#ifndef QT_LITE_COMPONENT
-    unloadTimer = new QTimer( this );
-    connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
-    unloadTimer->start( 5000, FALSE );
-#endif
-}
-
-void QLibraryPrivate::killTimer()
-{
-#ifndef QT_LITE_COMPONENT
-    delete unloadTimer;
-    unloadTimer = 0;
-#endif
-}
 
 /*!
   \class QLibrary qlibrary.h
 
   \brief The QLibrary class provides a wrapper for handling shared libraries.
-  \ingroup componentmodel
+
   \mainclass
 
   An instance of a QLibrary object can handle a single shared library and provide
@@ -166,35 +107,6 @@ void QLibraryPrivate::killTimer()
     myFunction();
   }
   \endcode
-
-  Using this mechanism is only safe when the correct type of the function in the
-  shared object is guaranteed - a wrong type might crash the application or leave
-  it in an unstable state. Keeping a reference to the function pointer is also
-  dangerous, as the library might be unloaded.
-
-  A safe and thus commonly used architecture for explicit linking of symbols is
-  to use \link component.html interfaces and components \endlink. QLibrary supports
-  the component model in Qt with the queryInterface function.
-
-  \code
-  MySpecialInterface *iface = 0;
-
-  QLibrary myLib( "mylib" );
-  if ( myLib.queryInterface( IID_MySpecial, (QUnknownInterface**)&iface ) == QS_OK ) {
-      iface->myFunction();
-      iface->release();
-  }
-  \endcode
-
-  The shared object "mylib", which now acts as a component server, is guaranteed to
-  provide a pointer to the correct interface type, so that it becomes safe to use
-  unknown libraries in an application. Since the lifetime of the interface is reference
-  controlled it is also impossible to unload the library when there are references to
-  memory allocated in the library.
-
-  If provided by the component, QLibrary uses the QLibraryInterface implementation to
-  control the initializing and unloading of the library. For more information, see the
-  implementation of this interface in the style plugins that ship with Qt.
 */
 
 /*!
@@ -234,7 +146,7 @@ void QLibraryPrivate::killTimer()
   \sa setPolicy(), unload()
 */
 QLibrary::QLibrary( const QString& filename, Policy pol )
-    : libfile( filename ), libPol( pol ), entry( 0 )
+    : libfile( filename ), libPol( pol )
 {
     libfile.replace( QRegExp("\\\\"), "/" );
     d = new QLibraryPrivate( this );
@@ -251,112 +163,10 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 */
 QLibrary::~QLibrary()
 {
-    if ( libPol == Manual || !unload() ) {
-	if ( entry ) {
-	    entry->release();
-	    entry = 0;
-	}
-    }
+    if ( libPol != Manual )
+	unload();
+
     delete d;
-}
-
-void QLibrary::createInstanceInternal()
-{
-    if ( libfile.isEmpty() )
-	return;
-
-    if ( !d->pHnd ) {
-	Q_ASSERT( entry == 0 );
-	load();
-    }
-
-    if ( d->pHnd && !entry ) {
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-	qWarning( "%s has been loaded.", library().latin1() );
-#endif
-#ifndef QT_LITE_COMPONENT
-#  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMInitProc)(QApplication*, bool*, bool* );
-#  else
-	typedef int (*UCMInitProc)(QApplication*, bool*, bool* );
-#  endif
-#else
-#  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMInitProc)(void*, bool*, bool* );
-#  else
-	typedef int (*UCMInitProc)(void*, bool*, bool* );
-#  endif
-#endif
-	UCMInitProc ucmInitProc;
-	ucmInitProc = (UCMInitProc) resolve( "ucm_initialize" );
-
-	bool ucm_init = TRUE;
-	if ( ucmInitProc ) {
-	    bool plugQtThreaded;
-	    bool plugQtDebug;
-#ifndef QT_LITE_COMPONENT
-	    int plugQtVersion = ucmInitProc( qApp, &plugQtThreaded, &plugQtDebug );
-#else
-	    int plugQtVersion = ucmInitProc( 0, &plugQtThreaded, &plugQtDebug );
-#endif
-	    if ( QABS(plugQtVersion - QT_VERSION ) > 99 ) {
-#if defined(QT_DEBUG_COMPONENT)
-		qWarning( "Conflict in %s: Plugin links against incompatible Qt library (%d)!", library().latin1(), plugQtVersion );
-#endif
-		ucm_init = FALSE;
-	    }
-	    if ( plugQtThreaded != QT_THREADED_BUILD ) {
-#if defined(QT_DEBUG_COMPONENT)
-		qWarning( "Conflict in %s: Plugin uses %s Qt library!", library().latin1(), plugQtThreaded ? "multi threaded" : "single threaded" );
-#endif
-		// the plugin is threaded, but the application is not. If we live long enough to cancel the load, do it...
-		if ( plugQtThreaded )
-		    ucm_init = FALSE;
-	    }
-#if defined(QT_DEBUG_COMPONENT)
-	    if ( plugQtDebug != QT_DEBUG_BUILD )
-		qWarning( "Possible conflict in %s: Plugin %s debug symbols!", library().latin1(), plugQtDebug ? "has" : "has no" );
-#endif
-	}
-	if ( !ucm_init ) {
-	    unload();
-	    return;
-	}
-
-#ifdef Q_CC_BOR
-	typedef QUnknownInterface* __stdcall (*UCMInstanceProc)();
-#else
-	typedef QUnknownInterface* (*UCMInstanceProc)();
-#endif
-	UCMInstanceProc ucmInstanceProc;
-	ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
-#if defined(QT_DEBUG_COMPONENT)
-	if ( !ucmInstanceProc )
-	    qWarning( "%s: Not a UCOM library.", library().latin1() );
-#endif
-	entry = ucmInstanceProc ? ucmInstanceProc() : 0;
-	if ( entry ) {
-	    entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&d->libIface);
-	    if ( d->libIface ) {
-		if ( !d->libIface->init() ) {
-#if defined(QT_DEBUG_COMPONENT)
-		    qWarning( "%s: QLibraryInterface::init() failed.", library().latin1() );
-#endif
-		    unload();
-		    return;
-		}
-
-		d->killTimer();
-		if ( libPol != Manual )
-		    d->startTimer();
-	    }
-	} else {
-#if defined(QT_DEBUG_COMPONENT)
-	    qWarning( "%s: No exported component provided.", library().latin1() );
-#endif
-	    unload();
-	}
-    }
 }
 
 /*!
@@ -436,12 +246,6 @@ bool QLibrary::load()
   Unloads the library and returns TRUE if the library could be unloaded,
   otherwise returns FALSE.
 
-  Any component referenced by the QLibrary object is being released before
-  the library is unloaded. If the component implements the QLibraryInterface,
-  the \link QLibraryInterface::cleanup() cleanup() \endlink function is called. if
-  the subsequent call to \link QLibraryInterface::canUnload() canUnload() \endlink
-  return FALSE, unloading will be cancelled.
-
   This function is called by the destructor if the policy is not Manual.
 
   \sa queryInterface(), resolve()
@@ -450,35 +254,6 @@ bool QLibrary::unload()
 {
     if ( !d->pHnd )
 	return TRUE;
-
-    if ( entry ) {
-	if ( d->libIface ) {
-	    d->libIface->cleanup();
-	    bool can = d->libIface->canUnload();
-	    can = ( d->libIface->release() <= 1 ) && can;
-	    // the "entry" member must be the last reference to the component
-	    if ( can ) {
-		d->libIface = 0;
-	    } else {
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-		qWarning( "%s prevents unloading!", library().latin1() );
-#endif
-		d->libIface->addRef();
-		return FALSE;
-	    }
-	}
-
-	if ( entry->release() ) {
-#if defined(QT_DEBUG_COMPONENT)
-	    qWarning( "%s is still in use!", library().latin1() );
-#endif
-	    entry->addRef();
-	    return FALSE;
-	}
-	d->killTimer();
-
-	entry = 0;
-    }
 
 // ### this is a hack to solve problems with plugin unloading und KAI C++
 // (other compilers may have the same problem)
@@ -563,23 +338,6 @@ QString QLibrary::library() const
 #endif
 
     return filename;
-}
-
-/*!
-  Forwards the query to the component and returns the result. \a request and \a iface
-  are propagated to the component's queryInterface implementation.
-
-  The library gets loaded if necessary.
-
-  \sa QUnknownInterface::queryInterface()
-*/
-QRESULT QLibrary::queryInterface( const QUuid& request, QUnknownInterface** iface )
-{
-    if ( !entry ) {
-	createInstanceInternal();
-    }
-
-    return entry ? entry->queryInterface( request, iface ) : QE_NOCOMPONENT;
 }
 
 #endif // QT_NO_COMPONENT

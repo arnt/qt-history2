@@ -56,63 +56,18 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
-#ifndef QT_LITE_COMPONENT
-#include "qobject.h"
-#endif
 #endif // QT_H
 
-class QTimer;
-
-/*
-  Private helper class that saves the platform dependent handle
-  and does the unload magic using a QTimer.
-*/
-#ifndef QT_LITE_COMPONENT
-class QLibraryPrivate : public QObject
-{
-    Q_OBJECT
-public:
-    QLibraryPrivate( QLibrary *lib );
-    ~QLibraryPrivate();
- 
-    void startTimer();
-    void killTimer();
-
-#ifdef Q_WS_WIN
-    HINSTANCE pHnd;
-#else
-    void *pHnd;
-#endif
-
-    QLibraryInterface *libIface;
-
-    bool loadLibrary();
-    bool freeLibrary();
-    void *resolveSymbol( const char * );
-
-private slots:
-    void tryUnload();
-
-private:
-    QTimer *unloadTimer;
-    QLibrary *library;
-};
-
-#else // QT_LITE_COMPONENT
 class QLibraryPrivate
 {
 public:
     QLibraryPrivate( QLibrary *lib );
 
-    void startTimer();
-    void killTimer();
-
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
 #else
     void *pHnd;
 #endif
-    QLibraryInterface *libIface;
 
     bool loadLibrary();
     bool freeLibrary();
@@ -121,7 +76,6 @@ public:
 private:
     QLibrary *library;
 };
-#endif // QT_LITE_COMPONENT
 
 #endif // QT_NO_COMPONENT
 

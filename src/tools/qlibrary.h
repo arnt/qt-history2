@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <qcom.h>
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT
@@ -71,19 +70,14 @@ public:
 
     QString library() const;
 
-    virtual QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-
 protected:
     bool load();
 
 private:
-    void createInstanceInternal();
-
     QLibraryPrivate *d;
 
     QString libfile;
     Policy libPol;
-    QUnknownInterface *entry;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

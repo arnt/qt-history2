@@ -35,11 +35,11 @@
 **
 **********************************************************************/
 
-#include "qcomponentfactory.h"
+#include "qcomponentfactory_p.h"
 
 #ifndef QT_NO_COMPONENT
 #include "qsettings.h"
-#include "qlibrary.h"
+#include <private/qcomlibrary_p.h>
 #include "qdir.h"
 #include "qapplication.h"
 
@@ -100,7 +100,7 @@
 */
 
 
-static QPtrList<QLibrary> *libraries = 0;
+static QPtrList<QComLibrary> *libraries = 0;
 
 static void cleanup()
 {
@@ -108,10 +108,10 @@ static void cleanup()
     libraries = 0;
 }
 
-static QPtrList<QLibrary> *liblist()
+static QPtrList<QComLibrary> *liblist()
 {
     if ( !libraries ) {
-	libraries = new QPtrList<QLibrary>();
+	libraries = new QPtrList<QComLibrary>();
 	libraries->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup );
     }
@@ -164,7 +164,7 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     if ( !ok )
 	return res;
 
-    QLibrary *library = new QLibrary( file, QLibrary::Manual );
+    QComLibrary *library = new QComLibrary( file, QLibrary::Manual );
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
@@ -197,7 +197,7 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
 */
 QRESULT QComponentFactory::registerServer( const QString &filename )
 {
-    QLibrary lib( filename, QLibrary::Immediately );
+    QComLibrary lib( filename, QLibrary::Immediately );
     QComponentRegistrationInterface *iface = 0;
     QRESULT res = lib.queryInterface( IID_QComponentRegistration, (QUnknownInterface**)&iface );
     if ( res != QS_OK )
@@ -219,7 +219,7 @@ QRESULT QComponentFactory::registerServer( const QString &filename )
 */
 QRESULT QComponentFactory::unregisterServer( const QString &filename )
 {
-    QLibrary lib( filename, QLibrary::Immediately );
+    QComLibrary lib( filename, QLibrary::Immediately );
     QComponentRegistrationInterface *iface = 0;
     QRESULT res = lib.queryInterface( IID_QComponentRegistration, (QUnknownInterface**)&iface );
     if ( res != QS_OK )

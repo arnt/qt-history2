@@ -34,7 +34,7 @@
 //
 //
 
-#include <qcom.h>
+#include <private/qcom_p.h>
 #include <qwidgetlist.h>
 #include <qcstring.h>
 

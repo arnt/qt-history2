@@ -1,6 +1,5 @@
 #include "projectsettingsinterfaceimpl.h"
 #include "projectsettings.h"
-#include <qcom.h>
 
 ProjectSettingsInterfaceImpl::ProjectSettingsInterfaceImpl()
 {

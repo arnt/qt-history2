@@ -37,7 +37,7 @@
 #include <qwidgetlist.h>
 #include <qmainwindow.h>
 #include <qregexp.h>
-#include <qpluginmanager.h>
+#include <private/qpluginmanager_p.h>
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qfileinfo.h>

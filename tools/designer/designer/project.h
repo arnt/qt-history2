@@ -27,7 +27,7 @@
 #include <qstringlist.h>
 #include <qptrlist.h>
 #include <qmap.h>
-#include <qpluginmanager.h>
+#include <private/qpluginmanager_p.h>
 #include "../interfaces/projectsettingsiface.h"
 #include "sourcefile.h"
 #include "formfile.h"

@@ -24,7 +24,7 @@
 #include <qiconset.h>
 #include <qstring.h>
 #include "../interfaces/widgetinterface.h" // up here for GCC 2.7.* compatibility
-#include <qpluginmanager.h>
+#include <private/qpluginmanager_p.h>
 
 
 extern QPluginManager<WidgetInterface> *widgetManager();

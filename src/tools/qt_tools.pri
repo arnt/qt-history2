@@ -9,7 +9,8 @@ tools {
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
 		  $$TOOLS_H/qcleanuphandler.h \
-		  $$TOOLS_H/qcomponentfactory.h \
+		  $$TOOLS_H/qcomponentfactory_p.h \
+		  $$TOOLS_P/qcomlibrary_p.h \
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
@@ -25,7 +26,7 @@ tools {
 		  $$TOOLS_H/qgeneric.h \
 		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
-		  $$TOOLS_H/qgpluginmanager.h \
+		  $$TOOLS_H/qgpluginmanager_p.h \
 		  $$TOOLS_H/qgvector.h \
 		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
@@ -36,7 +37,7 @@ tools {
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qmutex.h \
 		  $$TOOLS_P/qmutex_p.h \
-		  $$TOOLS_H/qpluginmanager.h \
+		  $$TOOLS_H/qpluginmanager_p.h \
 		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qptrqueue.h \
@@ -56,9 +57,9 @@ tools {
 		  $$TOOLS_H/qvaluestack.h \
 		  $$TOOLS_H/qvaluevector.h \
 		  $$TOOLS_H/qwaitcondition.h \
-		  $$TOOLS_H/qcom.h \
-		  $$TOOLS_H/qucom.h \
-		  $$TOOLS_H/quuid.h
+		  $$TOOLS_H/qcom_p.h \
+		  $$TOOLS_H/qucom_p.h \
+		  $$TOOLS_H/quuid_p.h
 
 
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
@@ -91,6 +92,7 @@ tools {
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
 		  $$TOOLS_CPP/qcomponentfactory.cpp \
+		  $$TOOLS_CPP/qcomlibrary.cpp \
 		  $$TOOLS_CPP/qcstring.cpp \
 		  $$TOOLS_CPP/qdatastream.cpp \
 		  $$TOOLS_CPP/qdatetime.cpp \

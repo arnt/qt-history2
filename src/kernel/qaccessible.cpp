@@ -39,7 +39,7 @@
 
 #include "qptrdict.h"
 #include "qmetaobject.h"
-#include "qpluginmanager.h"
+#include <private/qpluginmanager_p.h>
 #include "qapplication.h"
 #include <stdlib.h>
 

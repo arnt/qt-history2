@@ -50,7 +50,7 @@
 #include "qpointarray.h"
 #include "qcursor.h"
 #include "qdatetime.h"
-#include "qucom.h"
+#include <private/qucom_p.h>
 
 #include <ctype.h>
 

@@ -21,7 +21,7 @@
 #ifndef WIDGETINTERFACE_H
 #define WIDGETINTERFACE_H
 
-#include <qcom.h>
+#include <private/qcom_p.h>
 #include <qiconset.h>
 
 class QWidget;

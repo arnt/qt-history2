@@ -43,7 +43,7 @@
 
 #include <qmap.h>
 #include <qguardedptr.h>
-#include <qpluginmanager.h>
+#include <private/qpluginmanager_p.h>
 #include <qobjectlist.h>
 
 class PropertyEditor;

@@ -34,7 +34,7 @@
 //
 //
 
-#include <qcom.h>
+#include <private/qcom_p.h>
 #include <qstring.h>
 
 // {1b3446a4-1c71-424b-8789-1f34eb5697d8}

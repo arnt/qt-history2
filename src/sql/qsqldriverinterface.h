@@ -38,7 +38,7 @@
 #define QSQLDRIVERINTERFACE_H
 
 #ifndef QT_H
-#include "qcom.h"
+#include <private/qcom_p.h>
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )

@@ -6,7 +6,7 @@
 #include <qsignalmapper.h>
 #include <qsettings.h>
 
-#include <qcomponentfactory.h>
+#include <private/qcomponentfactory_p.h>
 
 class TestComponent : public QObject, 
 		      public ActionInterface, 

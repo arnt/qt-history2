@@ -40,7 +40,7 @@
 #ifndef QT_NO_STYLE
 
 #include "qapplication.h"
-#include "qpluginmanager.h"
+#include <private/qpluginmanager_p.h>
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"

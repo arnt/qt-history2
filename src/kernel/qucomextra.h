@@ -39,7 +39,7 @@
 #define QUCOMEXTRA_H
 
 #ifndef QT_H
-#include "qucom.h"
+#include <private/qucom_p.h>
 #endif // QT_H
 
 

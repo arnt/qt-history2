@@ -34,7 +34,7 @@
 //
 //
 
-#include <qcom.h>
+#include <private/qcom_p.h>
 #include <qmap.h>
 
 // {87ced303-884f-449a-881a-ae8104932e3e}

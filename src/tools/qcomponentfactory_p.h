@@ -39,7 +39,7 @@
 #define QCOMPONENTFACTORY_H
 
 #ifndef QT_H
-#include <qcom.h>
+#include "qcom_p.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT

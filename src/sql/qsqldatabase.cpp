@@ -58,7 +58,7 @@
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverinterface.h"
-#include "qpluginmanager.h"
+#include <private/qpluginmanager_p.h>
 #include "qobject.h"
 #include "qdict.h"
 #include <stdlib.h>
