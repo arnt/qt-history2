@@ -506,7 +506,11 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
     \reimp
 */
 #ifndef QT_NO_WHEELEVENT
-void QSlider::wheelEvent( QWheelEvent * e){
+void QSlider::wheelEvent( QWheelEvent * e )
+{
+    if ( e->orientation()!=orientation() )
+	return;
+
     static float offset = 0;
     static QSlider* offset_owner = 0;
     if (offset_owner != this){
