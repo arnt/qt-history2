@@ -27,8 +27,7 @@ HEADERS += \
 	text/qtextdocumentfragment_p.h \
 	text/qtextimagehandler_p.h \
 	text/qtexttable.h \
-	text/qtextlist.h \
-	text/qstylesheet.h
+	text/qtextlist.h 
 
 SOURCES += \
 	text/qfont.cpp \

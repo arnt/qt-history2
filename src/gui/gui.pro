@@ -32,7 +32,6 @@ include(itemviews/itemviews.pri)
 
 embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
 # ##### this should go away eventually
-INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt3Compat
 include(compat.pri)
 
 QMAKE_LIBS += $$QMAKE_LIBS_GUI

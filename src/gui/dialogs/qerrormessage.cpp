@@ -23,11 +23,11 @@
 #include "qmessagebox.h"
 #include "qpushbutton.h"
 #include "qstringlist.h"
-#include "qstylesheet.h"
 #include "qtextedit.h"
 #include "qdialog_p.h"
 #include "qpixmap.h"
-#include <qmap.h>
+#include <qhash.h>
+#include <Qt3Compat/qstylesheet.h> // ### remove when > TP
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +41,7 @@ public:
     QTextEdit * errors;
     QLabel * icon;
     QStringList pending;
-    QMap<QString, int> doNotShow;
+    QHash<QString, int> doNotShow;
 
     bool nextPending();
 };

@@ -7,8 +7,8 @@
 #include <qfont.h>
 #include <private/qtextformat_p.h>
 #include <private/qtextdocument_p.h>
+#include <Qt3Compat/qstylesheet.h> // ### remove when > TP
 
-#include "qstylesheet.h"
 #include "qtextdocument.h"
 #include "qtextcursor.h"
 #endif // QT_H
