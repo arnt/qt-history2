@@ -166,7 +166,7 @@ uint QColor::alloc()
 	    const int tr = r << red_shift;
 	    d.d32.pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
 	}
-	return 0xff000000 | d.d32.pix;
+	return d.d32.pix |= 0xff000000;
      } default: {
 	GET
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
