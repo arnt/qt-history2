@@ -755,7 +755,7 @@ void QWorkspace::showMaximizeControls()
 {
 
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
-						   FALSE, FALSE );
+						   FALSE, TRUE );
     QMenuBar * b = 0;
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();
@@ -820,7 +820,7 @@ void QWorkspace::showMaximizeControls()
 
 void QWorkspace::hideMaximizeControls()
 {
-    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0, FALSE, FALSE );
+    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0, FALSE, TRUE );
     QMenuBar * b = 0;
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();

@@ -55,6 +55,10 @@ public:
 
     bool customWhatsThis() const;
 
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize minimumSizeHint() const;
+    
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );

@@ -55,6 +55,11 @@ ApplicationWindow::ApplicationWindow()
 {
     int id;
 
+    QToolBar *tb = new QToolBar( this );
+    addToolBar( tb, "Menubar", Top, FALSE );
+    QMenuBar *mb = new QMenuBar( tb );
+    tb->setStretchableWidget( mb );
+
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
 
@@ -82,7 +87,7 @@ ApplicationWindow::ApplicationWindow()
     QWhatsThis::add( filePrint, filePrintText );
 
     QPopupMenu * file = new QPopupMenu( this );
-    menuBar()->insertItem( "&File", file );
+    mb->insertItem( "&File", file );
 
     file->insertItem( "&New", this, SLOT(newDoc()), CTRL+Key_N );
 
@@ -107,11 +112,11 @@ ApplicationWindow::ApplicationWindow()
     windowsMenu->setCheckable( TRUE );
     connect( windowsMenu, SIGNAL( aboutToShow() ),
 	     this, SLOT( windowsMenuAboutToShow() ) );
-    menuBar()->insertItem( "&Windows", windowsMenu );
+    mb->insertItem( "&Windows", windowsMenu );
 
-    menuBar()->insertSeparator();
+    mb->insertSeparator();
     QPopupMenu * help = new QPopupMenu( this );
-    menuBar()->insertItem( "&Help", help );
+    mb->insertItem( "&Help", help );
 
     help->insertItem( "&About", this, SLOT(about()), Key_F1);
     help->insertItem( "About&Qt", this, SLOT(aboutQt()));

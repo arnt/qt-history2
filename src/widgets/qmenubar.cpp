@@ -31,6 +31,7 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qmainwindow.h"
+#include "qlayout.h"
 #include <ctype.h>
 
 class QMenuDataData {
@@ -271,6 +272,8 @@ void QMenuBar::menuContentsChanged()
 	update();
 	if ( parent() && parent()->inherits( "QMainWindow" ) )
 	    ( (QMainWindow*)parent() )->triggerLayout();
+	if ( parentWidget() && parentWidget()->layout() )
+	    parentWidget()->layout()->invalidate();
     }
 }
 
@@ -1180,5 +1183,29 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 	setAltMode( FALSE );
 }
 
+/*!
+  \reimp
+*/
 
+QSize QMenuBar::sizeHint() const
+{
+    QSize s( 0, 0 );
+    if ( irects ) {
+	for ( int i = 0; i < (int)mitems->count(); ++i )
+	    s.setWidth( s.width() + irects[ i ].width() + 2 );
+    }
+    s.setHeight( height() + 2 );
+    return s;
+}
 
+QSize QMenuBar::minimumSize() const
+{
+    if ( parent() && parent()->inherits( "QToolBar" ) )
+	return sizeHint();
+    return QFrame::minimumSize();
+}
+
+QSize QMenuBar::minimumSizeHint() const
+{
+    return minimumSize();
+}
