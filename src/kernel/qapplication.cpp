@@ -3154,22 +3154,3 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   \sa isPhase2()
 */
-
-#ifndef QT_NO_PLUGIN
-/*!
-  Returns the application interface, or null if this application doesn't provide
-  an interface. There can only be one interface, and it will be deleted when
-  the application object is destroyed.
-
-  Plugins can use this function to get access to application components using
-  queryInterface on the provided QApplicationInterface
-
-  The default implementation returns null.
-
-  \sa QComponentInterface, QPlugInInterface
-*/
-QApplicationInterface* QApplication::queryInterface()
-{
-    return 0;
-}
-#endif

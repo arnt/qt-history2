@@ -64,10 +64,6 @@ class QMutex;
 // REMOVE IN 3.0 (just here for moc source compatibility)
 #define QNonBaseApplication QApplication
 
-#ifndef QT_NO_PLUGIN
-class QApplicationInterface;
-#endif
-
 class Q_EXPORT QApplication : public QObject
 {
     Q_OBJECT
@@ -237,10 +233,6 @@ public:
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);
     bool 	     locked();
-#endif
-
-#ifndef QT_NO_PLUGIN
-    virtual QApplicationInterface* queryInterface();
 #endif
 
 signals:
