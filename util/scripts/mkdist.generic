@@ -69,6 +69,7 @@ make moc.cpp
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
+  perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
   mv -f makefile.win Makefile
   echo "Moving include files" >&2
   cd ${DISTDIR}/qt/src
