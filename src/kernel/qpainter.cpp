@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $");
 
 
 /*!
@@ -494,9 +494,9 @@ void QPainter::setTabArray( int *ta )
 		tabarraylen++;
 	    tabarray = new int[tabarraylen];	// duplicate ta
 	    memcpy( tabarray, ta, sizeof(int)*tabarraylen );
-	}
-	else
+	} else {
 	    tabarray = 0;
+	}
     }
     if ( isActive() && testf(ExtDev) ) {	// tell extended device
 	QPDevCmdParam param[2];

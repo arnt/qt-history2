@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#78 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#78 $");
 
 
 /*****************************************************************************
@@ -1169,7 +1169,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 
     if ( type == WM_NCHITTEST ) {
 	block_event = TRUE;
-	QApplication::beep();
+	// QApplication::beep();
     } else if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
 	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) ) {
 	block_event = TRUE;
