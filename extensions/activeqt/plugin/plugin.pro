@@ -1,3 +1,4 @@
+TARGET = qaxwidget
 TEMPLATE = lib
 
 include($$QT_SOURCE_TREE/tools/designer/src/plugins/plugins.pri)
