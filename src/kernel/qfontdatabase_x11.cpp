@@ -183,82 +183,85 @@ void QFontDatabase::createDatabase()
 
 	XftFontSetDestroy (foundries);
     }
+    else
 #endif
+	{
+	    int fontCount;
+	    // force the X server to give us XLFDs
+	    char **fontList = XListFonts( qt_xdisplay(), "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
+					  32767, &fontCount );
 
+	    if ( fontCount >= 32767 )
+		qWarning( "More than 32k fonts, please notify qt-bugs@trolltech.com" );
 
-    int fontCount;
-    // force the X server to give us XLFDs
-    char **fontList = XListFonts( qt_xdisplay(), "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
-				  32767, &fontCount );
+	    char *tokens[QFontPrivate::NFontFields];
 
-    if ( fontCount >= 32767 )
-	qWarning( "More than 32k fonts, please notify qt-bugs@trolltech.com" );
+	    for( int i = 0 ; i < fontCount ; i++ ) {
 
-    char *tokens[QFontPrivate::NFontFields];
+		QCString fontName = fontList[i];
 
-    for( int i = 0 ; i < fontCount ; i++ ) {
+		if ( QFontPrivate::parseXFontName( fontName, tokens ) ) {
+		    // get foundry and insert it into the database if not present
+		    QString foundryName = tokens[QFontPrivate::Foundry];
+		    QtFontFoundry *foundry = db->foundryDict.find( foundryName );
+		    if ( !foundry ) {
+			foundry = new QtFontFoundry( foundryName );
+			Q_CHECK_PTR(foundry);
+			db->addFoundry( foundry );
+		    }
 
-	QCString fontName = fontList[i];
+		    // get family and insert it into the database if not present
+		    QString familyName = tokens[QFontPrivate::Family];
+		    QtFontFamily *family = foundry->familyDict.find( familyName );
+		    if ( !family ) {
+			family = new QtFontFamily( foundry, familyName );
+			Q_CHECK_PTR(family);
+			foundry->addFamily( family );
+		    }
 
-	if ( QFontPrivate::parseXFontName( fontName, tokens ) ) {
-	    // get foundry and insert it into the database if not present
-	    QString foundryName = tokens[QFontPrivate::Foundry];
-	    QtFontFoundry *foundry = db->foundryDict.find( foundryName );
-	    if ( !foundry ) {
-		foundry = new QtFontFoundry( foundryName );
-		Q_CHECK_PTR(foundry);
-		db->addFoundry( foundry );
+		    // get style
+		    bool italic;
+		    bool lesserItalic;
+		    QString styleName = getStyleName( tokens, &italic, &lesserItalic );
+		    QtFontStyle *style = family->styleDict.find( styleName );
+		    if ( !style ) {
+			style = new QtFontStyle( family, styleName );
+			Q_CHECK_PTR( style );
+			style->ital         = italic;
+			style->lesserItal   = lesserItalic;
+			style->weightString = tokens[QFontPrivate::Weight];
+
+			family->addStyle(style);
+		    }
+
+		    if ( QFontPrivate::isScalable(tokens) ) {
+			if ( QFontPrivate::isSmoothlyScalable( tokens ) )
+			    style->setSmoothlyScalable();
+			else
+			    style->setBitmapScalable();
+		    } else {
+			QCString ps = tokens[QFontPrivate::PointSize];
+			int pSize = ps.toInt()/10;
+			int r = atoi(tokens[QFontPrivate::ResolutionY]);
+			if ( r && QPaintDevice::x11AppDpiY() &&
+			     r != QPaintDevice::x11AppDpiY() ) {
+			    // not "0" or "*", or required DPI
+			    // calculate actual pointsize for display DPI
+			    pSize = ( 2*pSize*r + QPaintDevice::x11AppDpiY() ) /
+				    (QPaintDevice::x11AppDpiY() * 2);
+			}
+
+			if ( pSize != 0 )
+			    style->addPointSize( pSize );
+		    }
+
+		    if (QFontPrivate::isFixedPitch(tokens))
+			style->setFixedPitch();
+		}
 	    }
 
-	    // get family and insert it into the database if not present
-	    QString familyName = tokens[QFontPrivate::Family];
-	    QtFontFamily *family = foundry->familyDict.find( familyName );
-	    if ( !family ) {
-		family = new QtFontFamily( foundry, familyName );
-		Q_CHECK_PTR(family);
-		foundry->addFamily( family );
-	    }
-
-	    // get style
-	    bool italic;
-	    bool lesserItalic;
-	    QString styleName = getStyleName( tokens, &italic, &lesserItalic );
-	    QtFontStyle *style = family->styleDict.find( styleName );
-	    if ( !style ) {
-		style = new QtFontStyle( family, styleName );
-		Q_CHECK_PTR( style );
-		style->ital         = italic;
-		style->lesserItal   = lesserItalic;
-		style->weightString = tokens[QFontPrivate::Weight];
-
-		family->addStyle(style);
-	    }
-
-	    if ( QFontPrivate::isScalable(tokens) ) {
-		if ( QFontPrivate::isSmoothlyScalable( tokens ) )
-		    style->setSmoothlyScalable();
-		else
-		    style->setBitmapScalable();
-	    } else {
-		QCString ps = tokens[QFontPrivate::PointSize];
-		int pSize = ps.toInt()/10;
-                int r = atoi(tokens[QFontPrivate::ResolutionY]);
-                if ( r && QPaintDevice::x11AppDpiY() && r != QPaintDevice::x11AppDpiY() ) { // not "0" or "*", or required DPI
-                    // calculate actual pointsize for display DPI
-                    pSize = ( 2*pSize*r + QPaintDevice::x11AppDpiY() ) / (QPaintDevice::x11AppDpiY() * 2);
-                }
-
-		if ( pSize != 0 )
-		    style->addPointSize( pSize );
-	    }
-
-	    if (QFontPrivate::isFixedPitch(tokens))
-		style->setFixedPitch();
+	    XFreeFontNames( fontList );
 	}
-    }
-
-    XFreeFontNames( fontList );
-
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
