@@ -148,9 +148,11 @@ public:
     { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
 };
 
+#if !defined(Q_OS_IRIX)
 template<> inline void QAsciiDict<const QMetaData>::deleteItem( Item )
 {
 }
+#endif
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,
