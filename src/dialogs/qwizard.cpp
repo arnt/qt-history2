@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#3 $
 **
 ** Implementation of something useful.
 **
@@ -49,9 +49,19 @@ class QWizardPrivate
 public:
     struct Page {
 	Page( QWidget * widget, const QString & title ):
-	    w( widget ), t( title ) {}
+	    w( widget ), t( title ), back( 0 ),
+	    backEnabled( TRUE ), nextEnabled( TRUE ), helpEnabled( FALSE ),
+	    isLast( FALSE ), isHelpEnabled( TRUE ), appropriate( TRUE )
+	{}
 	QWidget * w;
 	QString t;
+	QWidget * back;
+	bool backEnabled;
+	bool nextEnabled;
+	bool helpEnabled;
+	bool isLast;
+	bool isHelpEnabled;
+	bool appropriate;
     };
 
     class Title: public QWidget {
@@ -79,12 +89,25 @@ public:
     QPushButton * backButton;
     QPushButton * nextButton;
     QPushButton * helpButton;
+
+    Page * page( const QWidget * w )
+    {
+	if ( !w )
+	    return 0;
+	int i = pages.count();
+	while( --i >= 0 && pages[i] && pages[i]->w != w )
+	    ;
+	return i >= 0 ? pages[i] : 0;
+    }
+
 };
+
 
 QSizePolicy QWizardPrivate::Title::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
+
 
 QSize QWizardPrivate::Title::sizeHint() const
 {
@@ -188,6 +211,14 @@ void QWizard::addPage( QWidget * page, const QString & title )
 {
     if ( !page )
 	return;
+    if ( d->page( page ) ) {
+#if defined(CHECK_STATE)
+	debug( "already added %s/%s to %s/%s",
+	       page->className(), page->name(),
+	       className(), name() );
+#endif	
+	return;
+    }
     int i = count();
     d->ws->addWidget( page, i );
     d->pages.resize( i+1 );
@@ -226,9 +257,11 @@ int QWizard::count() const
 
 void QWizard::back()
 {
-    bool okay = d->currentPage > 0;
-    if ( okay )
-	showPage( d->ws->widget( d->currentPage - 1 ) );
+    QWizardPrivate::Page * p = d->pages[d->currentPage];
+    if ( p )
+	p = d->page( p->back );
+    if ( p )
+	showPage( p->w );
 }
 
 
@@ -236,27 +269,42 @@ void QWizard::back()
 
 */
 
+
+
+
+
+
 void QWizard::next()
 {
-    bool okay = d->currentPage < (int)d->pages.count()-1;
-    if ( okay )
-	showPage( d->ws->widget( d->currentPage + 1 ) );
+    int i = d->currentPage + 1;
+    while( i < (int)d->pages.count()-1 && !appropriate( d->pages[i]->w ) )
+	i++;
+    if ( i < (int)d->pages.count() ) {
+	d->pages[i]->back = d->pages[d->currentPage]->w;
+	showPage( d->pages[i]->w );
+    }
 }
 
 
-/*!
-
+/*!  This slot either makes the wizard help you, if it can.  The only
+way it knows is to emit the helpClicked() signal, and perhaps the
+QWizardPage::helpClicked() signal too, if a QWizardPage is currently
+being displayed.
 */
 
 void QWizard::help()
 {
-    fatal( "sex" );
+    QWidget * page = d->ws->visibleWidget();
+    if ( !page )
+	return;
+
+#if 0
+    if ( page->inherits( "QWizardPage" ) )
+	emit ((QWizardPage *)page)->helpClicked();
+#endif
+    emit helpClicked();
 }
 
-
-/*!
-
-*/
 
 void QWizard::setBackEnabled( bool enable )
 {
@@ -264,13 +312,15 @@ void QWizard::setBackEnabled( bool enable )
 }
 
 
-/*!
-
-*/
-
 void QWizard::setNextEnabled( bool enable )
 {
     d->nextButton->setEnabled( enable );
+}
+
+
+void QWizard::setHelpEnabled( bool enable )
+{
+    d->helpButton->setEnabled( enable );
 }
 
 
@@ -278,7 +328,98 @@ void QWizard::setNextEnabled( bool enable )
 
 */
 
-void QWizard::setHelpEnabled( bool enable )
+void QWizard::setFinish( QWidget * w, bool isLast )
 {
-    d->helpButton->setEnabled( enable );
+    QWizardPrivate::Page * p = d->page( w );
+    if ( !p )
+	return;
+
+    p->isLast = isLast;
+    updateButtons();
+}
+
+
+/*!
+
+*/
+
+void QWizard::setBackEnabled( QWidget * w, bool enable )
+{
+    QWizardPrivate::Page * p = d->page( w );
+    if ( !p )
+	return;
+
+    p->backEnabled = enable;
+    updateButtons();
+}
+
+
+/*!
+
+*/
+
+void QWizard::setNextEnabled( QWidget * w, bool enable )
+{
+    QWizardPrivate::Page * p = d->page( w );
+    if ( !p )
+	return;
+
+    p->nextEnabled = enable;
+    updateButtons();
+}
+
+
+/*!
+
+*/
+
+void QWizard::setHelpEnabled( QWidget * w, bool enable )
+{
+    QWizardPrivate::Page * p = d->page( w );
+    if ( !p )
+	return;
+
+    p->helpEnabled = enable;
+    updateButtons();
+}
+
+
+/*!  This virtual function returns TRUE if \a w is appropriate for
+display in the current context of the wizard, and FALSE if QWizard
+should go on.
+
+It is called when the Next button is clicked.
+
+\warning The last page of a wizard will be displayed if nothing else wants
+to, and the Next button was enabled when the user clicked.
+
+The default implementation returns whatever was set using
+setApproprate().  The ultimate default is TRUE.
+*/
+
+bool QWizard::appropriate( QWidget * w ) const
+{
+    QWizardPrivate::Page * p = d->page( w );
+    return p ? p->appropriate : TRUE;
+}
+
+
+/*!
+
+*/
+
+void QWizard::setApproprate( QWidget * w, bool enable )
+{
+    QWizardPrivate::Page * p = d->page( w );
+    if ( p )
+	p->appropriate = enable;
+}
+
+
+void QWizard::updateButtons() const
+{
+    QWizardPrivate::Page * p = d->pages[d->currentPage];
+    d->backButton->setEnabled( p->backEnabled );
+    d->nextButton->setEnabled( p->nextEnabled );
+    d->helpButton->setEnabled( p->helpEnabled );
 }
