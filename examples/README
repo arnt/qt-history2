@@ -6,8 +6,8 @@
   using a very simple addressbook as example.
 
 - biff (Unix only)
-  Biff is a simple graphical program to indicate whether there is new
-  mail; it looks exactly like xbiff but is much shorter.
+  Biff is a simple graphical program to indicate whether there is new mail;
+  it looks exactly like xbiff but is much shorter.
 
 - dclock
   This example displays a digital LCD clock and can switch between time
@@ -19,7 +19,7 @@
   widget of the DirectoryView example to display the directory tree.
 
 - life
-   An implementation of the life game. Very UNIX-ish GUI design ;-)
+  An implementation of the life game.  Very UNIX-ish GUI design ;-)
 
 - helpviewer
   The HelpViewer example implements a simple HTML help browser using
@@ -30,9 +30,9 @@
   QLabel classes.
 
 - qdir
-   Shows how to use and customize Qt's file dialog. See
-	qdir --help
-   for details
+  Shows how to use and customize Qt's file dialog.  See
+  	qdir --help
+  for details
 
 - qfd
   This example program displayes all characters of a font.
@@ -48,11 +48,11 @@
   magnified area as a .bmp file.
 
 - qwerty
-  Small text editor to test  different character encodings.
+  Small text editor to test different character encodings.
 
 - scribble
-  This example implements the famous scribble example. You can draw around
-  in the canvas with different pens and save the result as picture.
+  This example implements the famous scribble example.  You can draw
+  around in the canvas with different pens and save the result as picture.
 
 - showimg
   This example reads and displays an image in any supported image
@@ -70,36 +70,36 @@
   widget.
 
 - application
-  This example program looks like a complete modern application.  It
-  has a menu bar, it has a tool bar, it has a status bar and works
-  like a simple text editor.
+  This example program looks like a complete modern application.  It has
+  a menu bar, it has a tool bar, it has a status bar and works like a
+  simple text editor.
 
 - buttongroups
-  This examples shows different types of Groupboxes (Buttongroups, etc.) and lots
-  of different kinds of Buttons (Checkboxes, Radiobuttons, Pushbuttons, etc.)
+  This examples shows different types of Groupboxes (Buttongroups, etc.)
+  and lots of different kinds of Buttons (Checkboxes, Radiobuttons,
+  Pushbuttons, etc.)
 
 - checklists
-  This example program shows how to use Listviews with different types of
-  checkable Items.
+  This example program shows how to use Listviews with different types
+  of checkable Items.
 
 - cursor
   This example shows how to set a mouse cursor for a widget.
 
 - customlayout
-  This examples desmonstrates how to write a customized layout (geometry) manager,
-  like a Card-Layout, Border-Layout and Flow-Layout.
+  This examples desmonstrates how to write a customized layout (geometry)
+  manager, like a Card-Layout, Border-Layout and Flow-Layout.
 
 - desktop
-  The desktop demo contains three routines, each of which draws
-  something on the desktop.  It does some nice stuff with QPainter,
-  and also demonstrates how one can treat the desktop as a widget like
-  any other.
+  The desktop demo contains three routines, each of which draws something
+  on the desktop.  It does some nice stuff with QPainter, and also
+  demonstrates how one can treat the desktop as a widget like any other.
 
 - dirview
-  This example program demonstrates how to use a ListView and
-  ListView Items to build a multi-column hierarchical, memory- and
-  CPU-efficient directory browser. It also demonstrates how to use
-  Drag'n'Drop in a Listview.
+  This example program demonstrates how to use a ListView and ListView
+  Items to build a multi-column hierarchical, memory- and CPU-efficient
+  directory browser. It also demonstrates how to use Drag'n'Drop in a
+  Listview.
 
 - dragdrop
   This examples shows how to work with Qt's Drag'n'Drop.
@@ -125,9 +125,9 @@
 
 - i18n
   This example shows how to internationalize applications. Start it with
-  # i18n de
+  	# i18n de
   to get a german version and with
-  # i18n en
+  	# i18n en
   to get the english version.
 
 - iconview
@@ -144,13 +144,13 @@
   how to use different Echo Modes and Validators.
 
 - listboxcombo
-  This example program desmonstrates how to use Listboxes (with single selection
-  and multi selection) and Comboboxes (editable and non-editable).
+  This example program desmonstrates how to use Listboxes (with single
+  selection and multi selection) and Comboboxes (editable and non-editable).
 
 - listviews
-  This examples shows how to work with Listviews (hirarchical and multi-columns).
-  It also shows how to subclass Listview Items for sepcial reasons. It looks
-  and works like the mainwindow of a mail client.
+  This examples shows how to work with Listviews (hirarchical and
+  multi-columns).  It also shows how to subclass Listview Items for
+  sepcial reasons. It looks and works like the mainwindow of a mail client.
 
 - mdi
   This example program is just like the application example, but designed as
@@ -183,7 +183,7 @@
 
 - richtext
   In this examples it's demonstrated how to display rich text, using
-  Qt, in a widget. In this example some sayings taken from the famous
+  Qt, in a widget.  In this example some sayings taken from the famous
   Unix "Fortune" are displayed nicely formatted.
 
 - rot13
@@ -192,33 +192,32 @@
   the rot13 algorithm.
 
 - scrollview
-  This example shows how to use Qt's Scrollview. This is a widget
+  This example shows how to use Qt's Scrollview.  This is a widget
   which can contain a very large contents and is very optimized for
-  that. Also child widgets can be inserted.
+  that.  Also child widgets can be inserted.
 
 - splitter
-  This example shows how to use Splitters. Splitters can contain
-  multiple child items and using the Splitter the user can
-  decide herself/himself, how much space each child should get.
+  This example shows how to use Splitters.  Splitters can contain
+  multiple child items and using the Splitter the user can decide
+  herself/himself, how much space each child should get.
 
 - tabdialog
-  This example shows how to use a dialog with multiple tabs
-  (pages). When starting it you have to specify a filename
-  as first argument. The dialog shows then infos about that
-  file seperated into some tabs.
+  This example shows how to use a dialog with multiple tabs (pages).
+  When starting it you have to specify a filename as first argument.
+  The dialog shows then infos about that file seperated into some tabs.
 
 - table
-  The table program displays a spreadsheet-like table. It is an example of
-  how to inherit the QScrollView widget for presentations of 2D data arrays.
+  The table program displays a spreadsheet-like table.  It is an example
+  of how to inherit the QScrollView widget for presentations of 2D data
+  arrays.
 
-  Left-click the mouse to set a current cell. Press the arrow buttons to
-  move the current mark around. Type something to edit a cell's
-  contents.
+  Left-click the mouse to set a current cell.  Press the arrow buttons to
+  move the current mark around.  Type something to edit a cell's contents.
 
 - themes
   This examples demonstrates how to let widgets draw in different
-  styles (themes). As example, themes looking like wood and metal
-  are implemented. You can switch between the different styles
+  styles (themes).  As example, themes looking like wood and metal
+  are implemented.  You can switch between the different styles
   during runtime using the pulldown menu.
 
 - tooltip
