@@ -548,7 +548,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_HeaderArrow: //drawn in HeaderSection rather than separately..
 	break;
     case PE_HeaderSection: {
-	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentDefault };
 	if(qAquaActive(cg)) {
 	    if(!(flags & Style_Enabled)) 
 		info.state = kThemeStateUnavailable;
@@ -574,7 +574,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	break; }
     case PE_ExclusiveIndicatorMask:
     case PE_ExclusiveIndicator: {
-	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
 	if(flags & Style_On)
 	    info.value = kThemeButtonOn;
 	ThemeButtonKind bkind = kThemeRadioButton;
@@ -595,7 +595,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	break; }
     case PE_IndicatorMask:
     case PE_Indicator: {
-	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
 	if(flags & Style_NoChange)
 	    info.value = kThemeButtonMixed;
 	else if(flags & Style_On)
@@ -942,9 +942,7 @@ void QMacStyle::drawControl(ControlElement element,
 	}
 
 	ThemeButtonKind bkind = kThemePushButton;
-	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	if(btn->isFlat())
-	    info.adornment = kThemeAdornmentNoShadow;
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDefault };
 
 	QRect off_rct(0, 0, 0, 0);
         { //The AppManager draws outside my rectangle, so account for that difference..
@@ -1046,7 +1044,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 	if(sub & SC_ToolButton) {
 	    if(bflags & (Style_Down | Style_On | Style_Raised)) {
-		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDefault };
 		if(toolbutton->isOn() || toolbutton->isDown())
 		    info.value |= kThemeStatePressed;
 
@@ -1072,7 +1070,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	}
 
 	if(sub & SC_ToolButtonMenu) {
-	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDefault };
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
 	    ((QMacPainter *)p)->setport();
@@ -1591,7 +1589,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
     switch(r) {
     case SR_PushButtonContents: {
 	ThemeButtonKind bkind = kThemePushButton;
-	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentDefault };
 	Rect macRect, myRect;
 	SetRect(&myRect, 0, 0, w->width(), w->height());
 	GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
@@ -1602,6 +1600,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 	myRect.top    += offy;
 	myRect.right  -= offw;
 	myRect.bottom -= offh;
+	myRect.bottom -= 2; //account for the shadow of the pushbutton? ##Sam
 	GetThemeButtonContentBounds(&myRect, bkind, &info, &macRect);
 	ret.setRect(macRect.left - offx, macRect.top - offy, 
 		    (macRect.right + offw) - (macRect.left - offx), macRect.bottom + offh);
@@ -1815,7 +1814,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    ThemeButtonKind bkind = kThemePushButton;
 	    if(contents == CT_ToolButton)
 	      bkind = kThemeBevelButton;
-	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentDefault };
 	    Rect macRect, myRect;
 	    SetRect(&myRect,0, 0, sz.width(), sz.height());
 	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
