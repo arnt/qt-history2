@@ -84,8 +84,6 @@ public:
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
 
-    virtual void showPage( QWidget * );
-    virtual void removePage( QWidget * );
     QString tabLabel( QWidget * ) const;
     void setTabLabel( QWidget *p, const QString &l );
 
@@ -93,7 +91,6 @@ public:
     QWidget *page( int ) const;
     QString label( int ) const;
     int currentPageIndex() const;
-    void setCurrentPage( int );
     int indexOf( QWidget * ) const;
 
     QSize sizeHint() const;
@@ -110,11 +107,13 @@ public:
     int margin() const;
     void setMargin( int );
 
-    int tabAlignment() const;
-    void setTabAlignment( int );
-
     int count() const;
 
+public slots:
+    void setCurrentPage( int );
+    virtual void showPage( QWidget * );
+    virtual void removePage( QWidget * );
+    
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );
