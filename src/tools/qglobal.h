@@ -325,7 +325,7 @@
 
 #if !defined(Q_HAS_BOOL_TYPE)
 #  if defined(Q_CC_MSVC)
-#    define Q_CC_BOOLDEF_
+#    define Q_CC_BOOLDEF
 #    define bool int
 #  else
 enum { false, true } bool;

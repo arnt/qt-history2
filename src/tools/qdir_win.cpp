@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if defined(Q_CC_BOOLDEF_)
+#if defined(Q_CC_BOOLDEF)
 #undef	bool
 #include <windows.h>
 #define bool int
