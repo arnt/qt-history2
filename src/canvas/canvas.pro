@@ -8,7 +8,5 @@ DEFINES += QT_BUILD_CANVAS_LIB
 include(../qbase.pri)
 QT = core gui
 
-canvas {
-	HEADERS += qcanvas.h
-	SOURCES += qcanvas.cpp
-}
+HEADERS += qcanvas.h
+SOURCES += qcanvas.cpp
