@@ -136,8 +136,6 @@ public:
 
     void placeCursor(const QPoint &pos);
 
-    void ensureCursorVisible();
-
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     void selectionChanged();
@@ -213,7 +211,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 				   ? QTextCursor::KeepAnchor
 				   : QTextCursor::MoveAnchor;
     cursor.movePosition(op, mode);
-    ensureCursorVisible();
+    q->ensureCursorVisible();
 
     if (cursor.hasSelection() != hadSelection)
         selectionChanged();
@@ -348,7 +346,7 @@ void QTextEditPrivate::placeCursor(const QPoint &pos)
 void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 {
     cursor.setPosition(pos, mode);
-    ensureCursorVisible();
+    q->ensureCursorVisible();
     updateCurrentCharFormat();
     selectionChanged();
 }
@@ -441,7 +439,7 @@ void QTextEdit::setCursor(const QTextCursor &cursor)
 {
     d->cursor = cursor;
     d->updateCurrentCharFormat();
-    d->ensureCursorVisible();
+    ensureCursorVisible();
     d->selectionChanged();
 }
 
@@ -720,7 +718,7 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
     e->accept();
     d->cursorOn = true;
 
-    d->ensureCursorVisible();
+    ensureCursorVisible();
 
     if (updateCurrentFormat)
 	d->updateCurrentCharFormat();
@@ -984,8 +982,16 @@ bool QTextEdit::isReadOnly() const
 
 void QTextEdit::setReadOnly(bool ro)
 {
+    if (d->readOnly == ro)
+        return;
+
     d->readOnly = ro;
     viewport()->setCursor(d->readOnly ? ArrowCursor : IbeamCursor);
+
+    if (ro)
+        d->cursorBlinkTimer.stop();
+    else
+        d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
 }
 
 /*!
