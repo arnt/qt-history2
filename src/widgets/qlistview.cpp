@@ -4097,6 +4097,7 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( item, mapToGlobal( p ), -1 );
 	}
     } else {
+	d->buttonDown = FALSE;
 	QPoint vp = contentsToViewport( e->pos() );
 	QListViewItem * i = itemAt( vp );
 	int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
