@@ -163,11 +163,11 @@ private:
     virtual void addToChunks();
     virtual void removeFromChunks();
     virtual void changeChunks();
-    virtual bool collidesWith(   const QCanvasSprite*,
-				 const QCanvasPolygonalItem*,
-				 const QCanvasRectangle*,
-				 const QCanvasEllipse*,
-				 const QCanvasText* ) const=0;
+    virtual bool collidesWith( const QCanvasSprite*,
+			       const QCanvasPolygonalItem*,
+			       const QCanvasRectangle*,
+			       const QCanvasEllipse*,
+			       const QCanvasText* ) const=0;
     // End of friend stuff
 
     QCanvas* cnv;
@@ -425,15 +425,15 @@ protected:
     int width() const;
     int height() const;
 
-    int absX() const;
-    int absY() const;
-    int absX2() const;
-    int absY2() const;
+    int leftEdge() const;
+    int topEdge() const;
+    int rightEdge() const;
+    int bottomEdge() const;
 
-    int absX(int nx) const;
-    int absY(int ny) const;
-    int absX2(int nx) const;
-    int absY2(int ny) const;
+    int leftEdge(int nx) const;
+    int topEdge(int ny) const;
+    int rightEdge(int nx) const;
+    int bottomEdge(int ny) const;
     QCanvasPixmap* image() const
 	{ return images->image(frm); }
     virtual QCanvasPixmap* imageAdvanced() const;
@@ -452,7 +452,7 @@ private:
 		       const QCanvasEllipse*,
 		       const QCanvasText* ) const;
 
-    friend bool qt_testCollision( const QCanvasSprite* s1, 
+    friend bool qt_testCollision( const QCanvasSprite* s1,
 				  const QCanvasSprite* s2 );
 
     QCanvasPixmapArray* images;
