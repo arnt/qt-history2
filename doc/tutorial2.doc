@@ -1,0 +1,129 @@
+/*! \file /home/mark/p4/qt-3.0/examples/chart/chart.pro */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/element.h */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/element.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/main.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/canvastext.h */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/canvasview.h */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/canvasview.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform.h */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform_canvas.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/chartform_files.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/optionsform.h */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/optionsform.cpp */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/setdataform.h */
+/*! \file /home/mark/p4/qt-3.0/examples/chart/setdataform.cpp */
+
+/*!
+
+\page tutorial2.html
+
+\title Tutorial #2
+
+\tableofcontents
+
+
+\target introduction
+\section1 Introduction
+
+This tutorial presents a more "real world" example of Qt programming
+than the first tutorial. It introduces many aspects of Qt programming,
+including the creation of menus (including a recent files list),
+toolbars and dialogs, loading and saving user settings, etc. 
+
+In this tutorial we will develop a single application \c chart, which
+is used to display simple pie and bar charts based on data that the
+user enters. 
+
+The tutorial gives an overview of the development of the application
+and includes code snippets and accompanying explanations. The complete
+source for the application is in \c examples/chart.
+
+\img chart-main.png The chart application
+
+\target the-big-picture
+\section1 The 'Big Picture'
+
+The \c chart program allows users to create, save, load and visualise
+simple data sets. Each data element that the user enters can be given
+a color and pattern for the pie segment or bar, some label text and
+the text's position and colour. 
+
+The program consists of a simple \c main.cpp that loads the chart
+form. The chart form has a menubar and toolbar which provide access to
+the program's functionality. The program provides two dialogs, one to
+set options (preferences), and the other to create and edit a data
+set. Both dialogs are launched from chart form menu options or toolbar
+buttons.
+
+The chart form's main widget is a QCanvasView which displays the
+QCanvas on which we draw the pie chart or bar graph. We subclass
+QCanvasView to obtain some specialised behaviour. Similarly we
+subclass the QCanvasText class (used to place text items on a canvas)
+since we require slightly more than the standard class provides.
+
+The project file, \c chart.pro, is used to create the Makefile that is
+used to build the application.
+
+\target data-elements
+\section1 Data Elements
+
+We will use a C++ class called \c Element to store data elements.
+
+\quotefile chart/element.h
+\skipto #include
+\printto class
+
+The \c Element class is a purely internal data class, yet it
+\c{#include}s four Qt classes. Although Qt is often perceived as a GUI
+toolkit it provides many non-GUI classes to support most aspects of
+application programming. We use \c qcolor.h so that we can hold the
+paint color and text color in the \c Element class. The use of \c
+qnamespace.h is more obscure. Most Qt classes are derived from the Qt
+superclass which contains various enumerations. The \c Element class
+does not derive from Qt, so we need to include \c qnamespace.h to have
+access to the Qt enum names. An alternative approach would have been
+to have made \c Element a Qt subclass. We include \c qstring.h to make
+use of Qt's Unicode strings. As a convenience we will \c typedef a
+vector container for Elements, which is why we pull in the \c
+qvaluevector.h.
+
+\skipto QValueVector
+\printline
+
+Qt provides a number of containers, some value based like
+QValueVector, and others pointer based. (See \link collection.html
+Collection Classes\endlink.) Here we've just typedefed one container
+type; we will keep each data set of elements in one \c ElementVector.
+
+\skipto const double EPSILON
+\printline
+
+Elements may only have positive values. Because we hold values as
+doubles we cannot readily compare them with zero. Instead we specify a
+value, \c EPSILON, which is close to zero, and consider any value
+greater than \c EPSILON to be positive and valid.
+
+\skipto class
+\printto Element(
+
+We define three public enums for Elements. \c INVALID is used by the
+isValid() function. It is useful because we are going to used a fixed
+size vector of Elements, and can mark unused Elements by giving them
+\c INVALID values. The \c NO_POSITION enum is used to signify that the
+user has not positioned the Element's label; any positive position
+value is taken to be the position. 
+
+The \c MAX_POINTS enum is problematic. We need to store the (x, y)
+position for the text label for every chart type. And we have chosen
+to store these positions in a fixed-size array. Because of this we
+must specify the maximum number of points needed. This value must be
+changed if we change the number of chart types, which means that the
+\c Element class is strongly coupled to the number of chart types
+provided by the \c ChartForm class. In a realistic example we might
+have used a vector to store these points and dynamically resized it
+depending on how many chart types are available. 
+
+\printto Element()
+
+*/
