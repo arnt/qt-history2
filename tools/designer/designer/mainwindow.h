@@ -38,6 +38,7 @@
 #include "../interfaces/projectsettingsiface.h"
 #include "../interfaces/sourcetemplateiface.h"
 #include "sourceeditor.h"
+#include "formwindow.h"
 
 #include <qaction.h>
 #include <qmainwindow.h>

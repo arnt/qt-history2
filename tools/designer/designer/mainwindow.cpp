@@ -1122,7 +1122,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    if ( lastActiveFormWindow && lastActiveFormWindow->project() ) {
 		QStringList lst =
 		    MetaDataBase::fakeProperty( lastActiveFormWindow, "database" ).toStringList();
-		lastActiveFormWindow->project()->closeDatabase( lst[ 0 ] );
+		if (!lst.isEmpty())
+		    lastActiveFormWindow->project()->closeDatabase( lst[ 0 ] );
 	    }
 	}
 	break;
