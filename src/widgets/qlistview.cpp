@@ -3547,7 +3547,7 @@ QListViewItem * QListViewItem::itemAbove()
   its next younger sibling, its parent's next younger sibling,
   grandparent's, etc., or something else if anyoftheabove->height()
   returns 0.  Returns a null pointer if there is no item immediately
-  above this item.
+  below this item.
 
   This function assumes that all parents of this item are open
   (i.e. that this item is visible or can be made visible by

@@ -525,8 +525,10 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
        are \c motif, \c windows, and \c platinum. If you compiled Qt
        with additional styles or have additional styles as plugins these
        will be available to the \c -style command line option.
+  \i -style \e style, is the same as listed above.
   \i -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
+  \i -session \e session, is the same as listed above.
   \endlist
 
   The X11 version of Qt also supports some traditional X11

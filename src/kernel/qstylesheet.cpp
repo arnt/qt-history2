@@ -285,10 +285,10 @@ void QStyleSheetItem::setAlignment( int f )
 }
 
 
-/*!  
+/*!
   Returns the vertical alignment of the style. Possible values are
   VAlignBaseline, VAlignSub and VAlignSuper.
-  
+
   psa setVerticalAlignment()
  */
 QStyleSheetItem::VerticalAlignment QStyleSheetItem::verticalAlignment() const
@@ -312,12 +312,12 @@ QStyleSheetItem::VerticalAlignment QStyleSheetItem::verticalAlignment() const
 */
 
 
-/*!  
+/*!
   Sets the vertical alignment to \a valign. Possible values are
   VAlignBaseline, VAlignSub and VAlignSuper.
-  
+
   The vertical alignment property is not inherited.
-  
+
   \sa verticalAlignment()
  */
 void QStyleSheetItem::setVerticalAlignment( VerticalAlignment valign )
@@ -841,7 +841,7 @@ int QStyleSheetItem::lineSpacing() const
 	- A list item. This tag can be used only within the context of
 	\c ol or \c ul.
     \i \c{<pre>...</pre>}
-	- For larger junks of code. Whitespaces in the contents are preserved.
+	- For larger chunks of code. Whitespaces in the contents are preserved.
 	For small bits of code use the inline-style \c code.
    \endlist
 
