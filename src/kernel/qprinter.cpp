@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#29 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#29 $");
 
 
 /*!
@@ -25,14 +25,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#28 $");
   printer drivers.  For X11, Qt provides PostScript (tm)
   printing.
 
-  drawPixmap(), clipping, even-odd filling, landscape orientation/page
-  size support and pixmap brushes are all either unimplemented or
-  badly broken.
+  Clipping and even-odd filling are not supported.
 
   Font support is limited to Times, Helvetica, Courier and Symbol, and
-  will be for "a few weeks" (which is a six-month old quote from
-  Adobe's FTP server about AFM file availability) and font metrics
-  even for these four fonts can be inaccurate.
+  font metrics for these four fonts can be inaccurate.
 
   Drawing graphics on a printer is almost identical to drawing graphics
   in a widget or a pixmap.  The only difference is that the programmer
