@@ -3504,12 +3504,12 @@ void QTextParag::move( int &dy )
 	i->ypos += dy;
     if ( p )
 	p->lastInFrame = TRUE;
-    
+
     // do page breaks if required
     if ( doc && doc->isPageBreakEnabled() ) {
 	int shift;
 	if ( ( shift = doc->formatter()->formatVertically(  doc, this ) ) ) {
-	    if ( p ) 
+	    if ( p )
 		p->setChanged( TRUE );
 	    dy += shift;
 	}
@@ -3546,7 +3546,7 @@ void QTextParag::format( int start, bool doMove )
     int y = formatter()->format( doc, this, start, oldLineStarts );
     r.setWidth( QMAX( r.width(), minimumWidth() ) );
     QMap<int, QTextParagLineStart*>::Iterator it = oldLineStarts.begin();
-    
+
     for ( ; it != oldLineStarts.end(); ++it )
 	delete *it;
 
@@ -4857,7 +4857,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     bool fullWidth = TRUE;
     int minw = 0;
     bool wrapEnabled = isWrapEnabled( parag );
-    
+
     start = 0;    //######### what is the point with start?! (Matthias)
     if ( start == 0 )
 	c = &parag->string()->at( 0 );
@@ -4913,7 +4913,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
-	    
+	
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    if ( x != left )
 		fullWidth = FALSE;
@@ -5893,17 +5893,7 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
     }
 
     if ( is_printer( p ) ) {
-#ifndef QT_NO_TRANSFORMATIONS
-	p->saveWorldMatrix();
-	QPaintDeviceMetrics metrics( p->device() );
-	p->translate( x, y );
-	p->scale( scale_factor( metrics.logicalDpiY() ),
-		  scale_factor( metrics.logicalDpiY() ) );
-	p->drawPixmap( 0, 0, pm );
-	p->restoreWorldMatrix();
-#else
-	p->drawPixmap( x, y, pm );
-#endif
+	p->drawPixmap( QRect( x, y, width, height ), pm );
 	return;
     }
 
@@ -6406,7 +6396,7 @@ void QTextFlow::registerFloatingItem( QTextCustomItem* item )
     if ( item->placement() == QTextCustomItem::PlaceRight ) {
 	if ( !rightItems.contains( item ) )
 	    rightItems.append( item );
-    } else if ( item->placement() == QTextCustomItem::PlaceLeft && 
+    } else if ( item->placement() == QTextCustomItem::PlaceLeft &&
 		!leftItems.contains( item ) ) {
 	leftItems.append( item );
     }
