@@ -23127,7 +23127,9 @@ class DesignerMimeSourceFactory : public QMimeSourceFactory
 public:
     DesignerMimeSourceFactory() {}
     const QMimeSource* data( const QString& abs_name ) const {
-	QImage img = uic_findImage_Wizards( abs_name );
+	QImage img;
+	if ( !!abs_name )
+	    img = uic_findImage_Wizards( abs_name );
 	if ( !img.isNull() ) {
 	    QPixmap pix;
 	    pix.convertFromImage( img );
