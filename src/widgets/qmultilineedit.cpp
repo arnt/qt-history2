@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#61 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1764,7 +1764,12 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 
     int newX, newY;
     pixelPosToCursorPos( m->pos(), &newX, &newY );
-    if ( inMark(newX, newY) && echoMode() == Normal ) {
+    if (
+	inMark(newX, newY)		// Click on highlighted text
+	&& echoMode() == Normal		// No DnD of passwords, etc.
+	&& m->pos().y() < totalHeight() // Click past the end is not dragging
+    )
+    {
 	// The user might be trying to drag
 	mlData->dnd_primed = TRUE;
 	mlData->dnd_timer = startTimer( 250 );
@@ -1779,10 +1784,12 @@ void QMultiLineEdit::pixelPosToCursorPos(QPoint p, int* x, int* y) const
 {
     *y = findRow( p.y() );
     if ( *y < 0 ) {
-	if ( p.y() < lineWidth() )
+	if ( p.y() < lineWidth() ) {
 	    *y = topCell();
-	else
+	} else {
 	    *y = lastRowVisible();
+	    p.setX(cellWidth());
+	}
     }
     *y = QMIN( (int)contents->count() - 1, *y );
     QFontMetrics fm( font() );
