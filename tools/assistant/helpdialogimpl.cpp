@@ -279,7 +279,7 @@ void HelpDialog::showChangedDocu()
     contentsInserted = FALSE;
     QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
     setupTitleMap();
-    insertContents();
+    QTimer::singleShot( 0, this, SLOT( insertContents() ) );
 }
 
 QString HelpDialog::generateFileNumber()
@@ -584,7 +584,7 @@ void HelpDialog::currentTabChanged( const QString &s )
 	    insertBookmarks();
     } else if ( s.contains( tr( "Con&tents" ) ) ) {
 	if ( !contentsInserted )
-	    insertContents();
+	    QTimer::singleShot( 0, this, SLOT( insertContents() ) );
     } else if ( s.contains( tr( "&Search" ) ) ) {
 	    QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
     }
@@ -771,6 +771,7 @@ void HelpDialog::insertContents()
 	return;
     contentsInserted = TRUE;
     listContents->clear();
+    setCursor( waitCursor );
     if ( !contentsDone )
 	setupTitleMap();
 
@@ -899,6 +900,7 @@ void HelpDialog::insertContents()
 	}
     }
     delete lst;
+    setCursor( arrowCursor );
 
 #ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,

@@ -71,6 +71,7 @@ public:
 
 protected slots:
     void loadIndexFile();
+    void insertContents();
     void currentTabChanged( const QString &s );
     void currentIndexChanged( QListBoxItem *i );
     void generateNewDocu();
@@ -103,7 +104,6 @@ private:
     void showIndexTopic();
     void showBookmarkTopic();
     void insertBookmarks();
-    void insertContents();
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
