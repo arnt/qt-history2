@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#5 $
 **
 ** Implementation of the QtTextView class
 **
@@ -136,7 +136,6 @@ QtTextBrowser::~QtTextBrowser()
 */
 void QtTextBrowser::setSource(const QString& name)
 {
-    qDebug("setSource %s", name.latin1() );
     if ( isVisible() )
 	qApp->setOverrideCursor( waitCursor );
     QString source = name;
@@ -165,19 +164,18 @@ void QtTextBrowser::setSource(const QString& name)
 	    }
 	}
 
-	//#### TODO
-// 	if ( isVisible() ) {
-// 	    QString firstTag = txt.left( txt.find('>' )+1 );
-// 	    QRichText tmp( firstTag );
-// 	    static QString s_type = QString::fromLatin1("type");
-// 	    static QString s_detail = QString::fromLatin1("detail");
-// 	    if (tmp.attributes() && tmp.attributes()->contains(s_type)
-// 		&& (*tmp.attributes())[s_type] == s_detail ) {
-// 		popupDetail( txt, d->lastClick );
-// 		qApp->restoreOverrideCursor();
-// 		return;
-// 	    }
-// 	}
+ 	if ( isVisible() ) {
+ 	    QString firstTag = txt.left( txt.find('>' )+1 );
+ 	    QtRichText tmp( firstTag );
+ 	    static QString s_type = QString::fromLatin1("type");
+ 	    static QString s_detail = QString::fromLatin1("detail");
+ 	    if ( tmp.attributes().contains(s_type)
+ 		&& tmp.attributes()[s_type] == s_detail ) {
+ 		popupDetail( txt, d->lastClick );
+ 		qApp->restoreOverrideCursor();
+ 		return;
+ 	    }
+ 	}
 
 	d->curmain = url;
 	setText( txt, url );
@@ -337,7 +335,7 @@ void QtTextBrowser::keyPressEvent( QKeyEvent * e )
 void QtTextBrowser::viewportMousePressEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
-	d->buttonDown = formatAt( e->pos() ).anchorHref();
+	d->buttonDown = anchorAt( e->pos() );
 	d->lastClick = e->globalPos();
     }
 }
@@ -348,7 +346,7 @@ void QtTextBrowser::viewportMousePressEvent( QMouseEvent* e )
 void QtTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
-	if ( !d->buttonDown.isEmpty() && formatAt( e->pos() ).anchorHref() == d->buttonDown ) {
+	if ( !d->buttonDown.isEmpty() && anchorAt( e->pos() ) == d->buttonDown ) {
 	    setSource( d->buttonDown );
 	}
     }
@@ -360,7 +358,7 @@ void QtTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 */
 void QtTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 {
-    QString act = formatAt( e->pos() ).anchorHref();
+    QString act = anchorAt( e->pos() );
     if (d->highlight != act) {
 	if ( !act.isEmpty() ){
 	    emit highlighted( act );
@@ -375,47 +373,13 @@ void QtTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 }
 
 
-QtTextCharFormat QtTextBrowser::formatAt(const QPoint& pos)
+QString QtTextBrowser::anchorAt(const QPoint& pos)
 {
-    QtTextCharFormat format;
-    QPoint realPos( contentsX() + pos.x(), contentsY() + pos.y() );
     QPainter p( viewport() );
-    QFontMetrics fm( p.fontMetrics() );
-    QtTextCursor tc( richText() );
-    tc.gotoParagraph( &p, &richText() );
-    QtTextParagraph* b = tc.paragraph;
-    while ( b && tc.referenceTop() <= contentsY() + visibleWidth() ) {
-	if ( b && b->dirty ){
-	    tc.initParagraph( &p, b );
-	    tc.doLayout( &p, tc.referenceBottom() );
-	}
-
-	tc.gotoParagraph( &p, b );
-
-	if ( tc.referenceBottom() > contentsY() ) {
-	    do {
-		tc.makeLineLayout( &p, fm );
-		QRect geom( tc.lineGeometry() );
-		if ( geom.contains( realPos ) ) {
-		    tc.gotoLineStart( &p, fm );
-		    while ( !tc.atEndOfLine() && geom.left() + tc.currentx < realPos.x() )
-			tc.right( &p );
-		    if ( geom.left() + tc.currentx > realPos.x() )
-			tc.left( &p );
-		    format = *(tc.currentFormat());
-		    goto out;
-		}
-	    }
-	    while ( tc.gotoNextLine( &p, fm ) );
-	}
-	b = b->nextInDocument();
-    };
-    
- out:
-    if ( format.customItem() ) {
-	//#### TODO: check custom item for format
-    }
-    return format;
+    return richText().anchorAt( &p, contentsX() + pos.x(), 
+					   contentsY() + pos.y(),
+					   contentsY(),
+					   contentsY() + visibleHeight() );
 }
 
 

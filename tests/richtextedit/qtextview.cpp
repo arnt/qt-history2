@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#16 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#17 $
 **
 ** Implementation of the QtTextView class
 **
@@ -231,7 +231,7 @@ void QtTextView::setText( const QString& text, const QString& context)
 	    }
 	}
 	setContentsPos( 0, 0 );
-	resizeContents( flow->widthUsed-1, flow->height );
+	resizeContents( QMAX( flow->widthUsed-1, vs.width() ), flow->height );
 	d->resizeTimer->start( 0, TRUE );
 	viewport()->repaint( FALSE );
     }
@@ -559,7 +559,7 @@ void QtTextView::doResize()
     if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
 	d->resizeTimer->start( 0, TRUE );
     QtTextFlow* flow = richText().flow();
-    resizeContents( flow->widthUsed-1, flow->height );
+    resizeContents( QMAX( flow->widthUsed-1, viewport()->width() ), flow->height );
 }
 
 
@@ -605,7 +605,7 @@ void QtTextView::resizeEvent( QResizeEvent* e )
 	}
     }
     setContentsPos( 0, 0 );
-    resizeContents( flow->widthUsed-1, flow->height );
+    resizeContents( QMAX( flow->widthUsed-1, vs.width() ), flow->height  );
     d->resizeTimer->start( 0, TRUE );
     viewport()->repaint( FALSE );
 }

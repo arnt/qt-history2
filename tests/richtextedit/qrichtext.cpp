@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#21 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#22 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -40,6 +40,7 @@
 #include <qimage.h>
 #include <qdragobject.h>
 #include <qdatetime.h>
+#include <qdrawutil.h>
 
 
 
@@ -179,6 +180,8 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
     base->setFontSize( font.pointSize() );
     base->setLogicalFontSize( 3 );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
+    
+    keep_going = TRUE;
     init( doc, pos );
 
     // clear references that are no longer needed
@@ -193,7 +196,7 @@ QtRichText::QtRichText( const QMap<QString, QString> &attr, const QString &doc, 
 			const QString& context,
 			int margin,  const QMimeSourceFactory* factory, const QtStyleSheet* sheet  )
     :QtTextParagraph( 0, new QtTextFormatCollection(),
-	    QtTextCharFormat( fmt ), ( base = new QStyleSheetItem(*style) ) )
+	    QtTextCharFormat( fmt ), ( base = new QStyleSheetItem(*style) ), attr )
 {
     contxt = context;
 
@@ -202,16 +205,9 @@ QtRichText::QtRichText( const QMap<QString, QString> &attr, const QString &doc, 
     // for access during parsing only
     sheet_ = sheet? sheet : (QtStyleSheet*)QtStyleSheet::defaultSheet();
 
-     if ( attr.contains("align") ) {
- 	QString align = attr["align"].lower();
- 	qDebug("align=%s", align.latin1());
- 	if ( align  == "center" )
- 	    base->setAlignment( Qt::AlignCenter );
- 	else if ( align == "right" )
- 	    base->setAlignment( Qt::AlignRight );
-     }
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
+    keep_going = FALSE;
     init( doc, pos );
 
      // clear references that are no longer needed
@@ -309,7 +305,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 	    QMap<QString, QString> attr;
 	    bool emptyTag = FALSE;
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
-	
+	    
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
  	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
  		pos = beforePos;
@@ -357,6 +353,9 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
 		) {
 		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
+		
+		if ( current == this && !child && text.isEmpty() )
+		    attributes_ = attr; // propagate attributes
 		
 		if ( !current->text.isEmpty()
 		     || ( !current->child && subparagraph->flow() != flow_ )  ){
@@ -433,6 +432,16 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
     return TRUE;
 }
 
+static bool qt_is_cell_in_use( QList<QtTextTableCell>& cells, int row, int col )
+{
+    for ( QtTextTableCell* c = cells.first(); c; c = cells.next() ) {
+	if ( row >= c->row() && row < c->row() + c->rowspan() 
+	     && col >= c->column() && col < c->column() + c->colspan() )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
 QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, const QtTextCharFormat &fmt, const QString &doc, int& pos )
 {
 
@@ -441,9 +450,12 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
     int col = -1;
 
     QString rowbgcolor;
+    QString tablebgcolor = attr["bgcolor"];
     
+    QList<QtTextTableCell> multicells;
+
     QString tagname;
-    (void) eatSpace(doc, pos); \
+    (void) eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
@@ -459,19 +471,29 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 		tagname = parseOpenTag( doc, pos, attr2, emptyTag );
 		if ( tagname == "tr" ) {
 		    rowbgcolor = attr2["bgcolor"];
-		    ++row;
+		    row++;
 		    col = -1;
 		}
 		else if ( tagname == "td" || tagname == "th" ) {
-		    ++col;
+		    col++;
+		    while ( qt_is_cell_in_use( multicells, row, col ) ) {
+			col++;
+		    }
+		    
 		    if ( row >= 0 && col >= 0 ) {
 			const QStyleSheetItem* style = sheet_->item(tagname);
-			if ( !attr2.contains("bgcolor") && !rowbgcolor.isEmpty() )
-			    attr2["bgcolor"] = rowbgcolor;
+			if ( !attr2.contains("bgcolor") ) {
+			    if (!rowbgcolor.isEmpty() )
+				attr2["bgcolor"] = rowbgcolor;
+			    else if (!tablebgcolor.isEmpty() )
+				attr2["bgcolor"] = tablebgcolor;
+			}
 			QtTextTableCell* cell  = new QtTextTableCell( table, row, col,
 			      attr2, style,
 			      fmt.makeTextFormat( style, attr2, 0 ),
 			      contxt, *factory_, sheet_, doc, pos );
+			if ( cell->colspan() > 1 || cell->rowspan() > 1 )
+			    multicells.append( cell );
 			col += cell->colspan()-1;
 		    }
 		}
@@ -538,6 +560,7 @@ QMap<QCString, QChar> *htmlMap()
   	html_map->insert("deg", '°');
   	html_map->insert("micro", 'µ');
   	html_map->insert("plusmn", '±');
+  	html_map->insert("middot", '*');
     }
     return html_map;
 }
@@ -789,7 +812,52 @@ void QtRichText::doLayout( QPainter* p, int nwidth ) {
     fc.doLayout( p );
 }
 
+// convenience function
+QString QtRichText::anchorAt( QPainter* p, int x, int y, int fromY, int toY ) const
+{
+    QFontMetrics fm( p->fontMetrics() );
+    QtTextCursor tc( *((QtRichText*)this) );
+    tc.gotoParagraph( p, (QtRichText*)this );
+    QtTextParagraph* b = tc.paragraph;
+    while ( b && ( toY < 0 || tc.referenceTop() <= toY ) ) {
+	if ( b && b->dirty ){
+	    tc.initParagraph( p, b );
+	    tc.doLayout( p, tc.referenceBottom() );
+	}
 
+	tc.gotoParagraph( p, b );
+
+	if ( tc.referenceBottom() > fromY ) {
+	    do {
+		tc.makeLineLayout( p, fm );
+		QRect geom( tc.lineGeometry() );
+		if ( geom.contains( QPoint(x,y) ) ) {
+		    tc.gotoLineStart( p, fm );
+		    while ( !tc.atEndOfLine() && geom.left() + tc.currentx < x ) {
+			tc.right( p );
+		    }
+		    if ( geom.left() + tc.currentx > x )
+			tc.left( p );
+		    QtTextCharFormat format( *tc.currentFormat() );
+		    if ( format.customItem() ) {
+			// custom items may have anchors as well
+			int h = format.customItem()->height;
+			int nx = x - geom.x() - tc.currentx;
+			int ny = y - geom.y() - tc.base + h;
+			QString anchor = format.customItem()->anchorAt( p, nx, ny );
+			if ( !anchor.isNull() )
+			    return anchor;
+		    }
+		    return format.anchorHref();
+		}
+	    }
+	    while ( tc.gotoNextLine( p, fm ) );
+	}
+	b = b->nextInDocument();
+    }
+
+    return QString::null;
+}
 
 QtStyleSheet::QtStyleSheet( QObject *parent, const char *name )
     : QStyleSheet( parent, name )
@@ -916,6 +984,18 @@ void QtTextParagraph::init()
     }
     else
 	flow_ = 0;
+    
+    align = QStyleSheetItem::Undefined;
+    
+    if ( attributes_.contains("align") ) {
+ 	QString s = attributes_["align"].lower();
+ 	if ( s  == "center" )
+ 	    align = Qt::AlignCenter;
+ 	else if ( s == "right" )
+ 	    align = Qt::AlignRight;
+	else
+	    align = Qt::AlignLeft;
+    }
 }
 
 QtTextParagraph::~QtTextParagraph()
@@ -1746,6 +1826,9 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     }
 
     last = lastSpace;
+    if ( last == paragraph->text.length() ) { // can happen with break behind custom expanders
+	last--;
+    }
 
     rh = lastHeight;
     rasc = lastAsc;
@@ -1853,7 +1936,8 @@ QRect QtTextCursor::lineGeometry() const
 {
     int gx, gy;
     flow->mapToView( y_, gx, gy );
-    return QRect( gx, gy, widthUsed, height );
+    int realWidth = QMAX( width, widthUsed );
+    return QRect( gx, gy, realWidth, height );
 }
 
 
@@ -2002,10 +2086,36 @@ void QtTextFlow::countFlow( int yp, int w, int h, bool pages )
 
 
 
-QtTextTable::QtTextTable(const QMap<QString, QString> &/*attr*/  )
+QtTextTable::QtTextTable(const QMap<QString, QString> & attr  )
 {
     cells.setAutoDelete( TRUE );
-    layout = new QGridLayout; // todo: attributes
+    
+    cellspacing = 2;
+    if ( attr.contains("cellspacing") )
+	cellspacing = attr["cellspacing"].toInt();
+    cellpadding = 1;
+    if ( attr.contains("cellpadding") )
+	cellpadding = attr["cellpadding"].toInt();
+    border = 0;
+    if ( attr.contains("border" ) ) {
+	QString s( attr["border"] );
+	if ( s == "true" )
+	    border = 1;
+	else
+	    border = attr["border"].toInt();
+    }
+    
+    outerborder = cellspacing + border;
+    layout = new QGridLayout( 1, 1, cellspacing + (border > 0 ? 1 : 0 ) );
+    
+    fixwidth = 0;
+    if ( attr.contains("width") ) {
+	bool b;
+	int w = attr["width"].toInt( &b );
+	if ( b )
+	    fixwidth = w;
+    }
+    
     cachewidth = 0;
 }
 
@@ -2029,8 +2139,26 @@ void QtTextTable::draw(QPainter* p, int x, int y,
 {
     painter = p;
     for (QtTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	if ( y + cell->geometry().top() < cy+ch && y + cell->geometry().bottom() > cy )
-	    cell->draw( x, y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to);
+	if ( y + cell->geometry().top() < cy+ch && y + 2*outerborder + cell->geometry().bottom() > cy ) {
+	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to);
+	    if ( border ) {
+		const int w = 1;
+		qDrawShadePanel( p, QRect( x+outerborder+cell->geometry().x()-w-ox, 
+					   y+outerborder+cell->geometry().y()-w-oy,
+					   cell->geometry().width()+2*w,
+					   cell->geometry().height()+2*w), 
+				 cg, TRUE );
+// 		QRect r(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w, 
+// 			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
+// 		backgroundRegion = backgroundRegion.subtract( r );
+		
+	    }
+	}
+    }
+    if ( border ) {
+	QRect r ( x-ox, y-oy, width, height );
+	qDrawShadePanel( p, QRect( x-ox, y-oy, width, height ), cg, FALSE, border );
+	backgroundRegion = backgroundRegion.subtract( r );
     }
 }
 
@@ -2041,23 +2169,41 @@ void QtTextTable::resize( QPainter* p, int nwidth )
     cachewidth = nwidth;
     painter = p;
 
-    int shw = layout->sizeHint().width();
-    int mw = layout->minimumSize().width();
+    width = nwidth + 2*outerborder;
+    int shw = layout->sizeHint().width() + 2*outerborder;
+    int mw = layout->minimumSize().width() + 2*outerborder;
     width = QMAX( mw, QMIN( nwidth, shw ) );
+    
+    if ( fixwidth )
+	width = fixwidth;
 
-    int h = layout->heightForWidth( width );
-    layout->setGeometry( QRect(0, 0, width, h)  );
-    height = layout->geometry().height();
+    int h = layout->heightForWidth( width-2*outerborder );
+    layout->setGeometry( QRect(0, 0, width-2*outerborder, h)  );
+    height = layout->geometry().height()+2*outerborder;
 };
+
+QString QtTextTable::anchorAt( QPainter* p, int x, int y )
+{
+    painter = p;
+    for (QtTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	if ( cell->geometry().contains( QPoint(x,y) ) )
+	    return cell->anchorAt( x+outerborder, y+outerborder );
+    }
+    return QString::null;
+}
 
 
 
 void QtTextTable::addCell( QtTextTableCell* cell )
 {
     cells.append( cell );
-     //qDebug("multi cell %d %d", cell->rowspan(), cell->colspan() );
     layout->addMultiCell( cell, cell->row(), cell->row() + cell->rowspan()-1,
 			  cell->column(), cell->column() + cell->colspan()-1 );
+//     if ( cell->stretch() ) {
+// 	qDebug("colstrech %d to %d", cell->column(), cell->stretch() );
+// 	//### other columns when colspan
+// 	layout->setColStretch( cell->column(), cell->stretch() );
+//     }
 }
 
 QtTextTableCell::QtTextTableCell(QtTextTable* table,
@@ -2073,8 +2219,9 @@ QtTextTableCell::QtTextTableCell(QtTextTable* table,
     parent = table;
     row_ = row;
     col_ = column;
+    stretch_ = 0;
     richtext = new QtRichText( attr, doc, pos, style,
-			       fmt, context, 0, &factory, sheet );
+ 			       fmt, context, parent->cellpadding, &factory, sheet );
     rowspan_ = 1;
     colspan_ = 1;
     if ( attr.contains("colspan") )
@@ -2086,7 +2233,22 @@ QtTextTableCell::QtTextTableCell(QtTextTable* table,
     if ( attr.contains("bgcolor") ) {
 	background = new QBrush(QColor( attr["bgcolor"] ));
     }
-
+    
+    hasFixedWidth = FALSE;
+    if ( attr.contains("width") ) {
+	bool b;
+	QString s( attr["width"] );
+	int w = s.toInt( &b );
+	if ( b ) {
+	    maxw = w;
+	    minw = maxw;
+	    hasFixedWidth = TRUE;
+	} else {
+ 	    s = s.stripWhiteSpace();
+ 	    if ( s.length() > 1 && s[ s.length()-1 ] == '%' )
+		stretch_ = s.left( s.length()-1).toInt();
+	}
+    }
 
     parent->addCell( this );
 }
@@ -2150,11 +2312,11 @@ int QtTextTableCell::heightForWidth( int w ) const
 void QtTextTableCell::realize()
 {
 
-    // #### do basic calculations: minimum size, maximium size, etc.
+    if ( hasFixedWidth )
+	return;
 
     richtext->doLayout(painter(), QWIDGETSIZE_MAX );
     maxw = richtext->flow()->widthUsed + 6;
-
     richtext->doLayout(painter(), 0 );
     minw = richtext->flow()->widthUsed;
 }
@@ -2189,3 +2351,7 @@ void QtTextTableCell::draw(int x, int y,
     backgroundRegion = backgroundRegion.subtract( r );
 }
 
+QString QtTextTableCell::anchorAt( int x, int y ) const
+{
+    return richtext->anchorAt( painter(), x - geometry().x(), y - geometry().y() );
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.h#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.h#2 $
 **
 ** Definition of the QTextBrowser class
 **
@@ -70,7 +70,7 @@ protected:
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );
-    QtTextCharFormat formatAt(const QPoint& pos);
+    QString anchorAt(const QPoint& pos);
     QtTextBrowserData *d;
 
 };

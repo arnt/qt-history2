@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#16 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#17 $
 **
 ** Internal rich text classes
 **
@@ -208,6 +208,8 @@ public:
     QStyleSheetItem::ListStyle listStyle();
     inline int alignment() const
     {
+	if ( align != QStyleSheetItem::Undefined )
+	    return align;
 	if ( style->alignment() != QStyleSheetItem::Undefined )
 	    return style->alignment();
 	return parent?parent->alignment():QStyleSheetItem::AlignLeft;
@@ -218,6 +220,7 @@ public:
 
 private:
     void init();
+    int align;
 protected:
     QtTextFlow* flow_;
 };
@@ -239,6 +242,9 @@ public:
     virtual bool noErase() const { return FALSE; };
     virtual bool expandsHorizontally() const { return FALSE; }
     virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
+    
+    virtual QString anchorAt( QPainter* /*p*/, int /*x*/, int /*y*/)  { return QString::null; }
+
     int width;
     int height;
 };
@@ -263,8 +269,8 @@ class QtTextTableCell : public QLayoutItem
 public:
     QtTextTableCell(QtTextTable* table,
       int row, int column, 		
-      const QMap<QString, QString> &attr, 
-      const QStyleSheetItem* style, 
+      const QMap<QString, QString> &attr,
+      const QStyleSheetItem* style,
       const QtTextCharFormat& fmt, const QString& context,
       const QMimeSourceFactory &factory, const QtStyleSheet *sheet, const QString& doc, int& pos );
     ~QtTextTableCell();
@@ -285,10 +291,14 @@ public:
     int column() const { return col_; }
     int rowspan() const { return rowspan_; }
     int colspan() const { return colspan_; }
+    int stretch() const { return stretch_; }
 
     void draw( int x, int y,
 	       int ox, int oy, int cx, int cy, int cw, int ch,
 	       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+    
+    QString anchorAt( int x, int y ) const;
+    
 private:
 
     QPainter* painter() const;
@@ -300,8 +310,10 @@ private:
     int col_;
     int rowspan_;
     int colspan_;
+    int stretch_;
     int maxw;
     int minw;
+    bool hasFixedWidth;
 };
 
 class QtTextTable: public QtTextCustomItem
@@ -317,6 +329,7 @@ public:
     bool noErase() const { return TRUE; };
     bool expandsHorizontally() const { return TRUE; }
     void resize( QPainter*, int nwidth );
+    QString anchorAt( QPainter* p, int x, int y );
 
 private:
     QGridLayout* layout;
@@ -326,6 +339,11 @@ private:
     void addCell( QtTextTableCell* cell );
     QPainter* painter;
     int cachewidth;
+    int fixwidth;
+    int cellpadding;
+    int cellspacing;
+    int border;
+    int outerborder;
 };
 
 
@@ -454,7 +472,7 @@ public:
     QtRichText( const QString &doc, const QFont& fnt = QApplication::font(),
 		const QString& context = QString::null,
 		int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
-    QtRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos, 
+    QtRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos,
 		const QStyleSheetItem* style, const QtTextCharFormat& fmt,
 		const QString& context = QString::null,
 		int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
@@ -470,6 +488,7 @@ public:
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
 
     void doLayout( QPainter* p, int nwidth );
+    QString anchorAt( QPainter* p, int x, int y, int fromY = 0, int toY = -1 ) const;
 
 
 
@@ -498,6 +517,7 @@ private:
 
     QtTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QtTextCharFormat &fmt, const QString &doc, int& pos );
 
+    bool keep_going;
 
 };
 
