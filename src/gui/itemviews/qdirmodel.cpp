@@ -933,17 +933,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     if (path.isEmpty() || path == QObject::tr("My Computer"))
         return QModelIndex();
 
-    if (!QFileInfo(path).exists()) {
-#if 0
-        QString converted = QDir::convertSeparators(path);
-        QString warn = QString("index: the path '%1'does not exist\n").arg(converted);
-        qWarning(warn.toLatin1().constData());
-#endif
-        return QModelIndex();
-    }
-
     QString absolutePath = QDir(path).absolutePath();
     QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
+    if (pathElements.isEmpty() || !QFileInfo(path).exists())
+        return QModelIndex();
+
     QModelIndex idx; // start with "My Computer"
 #ifdef Q_OS_WIN
     if (absolutePath.startsWith("//")) { // UNC path
@@ -967,9 +961,6 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         }
         idx = index(r, 0, QModelIndex());
         pathElements.pop_front();
-    } else {
-        // a path that only consists of "/" is illegal on windows
-        Q_ASSERT(!pathElements.isEmpty());
     }
 #else
     // add the "/" item, since it is a valid path element on unix

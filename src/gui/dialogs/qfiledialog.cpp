@@ -1137,12 +1137,17 @@ void QFileDialogPrivate::updateFileName(const QItemSelection &selection)
 
 void QFileDialogPrivate::autoCompleteFileName(const QString &text)
 {
+    // if we hanve no filename or the last character is '/', then don't autocomplete
+    if (text.isEmpty() || text.at(text.length() - 1) == QDir::separator())
+        return;
+#ifdef Q_OS_WIN
+    // autocompleting the <host> part of UNC paths is just too slow
+    if (text.at(0) == QDir::separator() && text.count(QDir::separator()) < 3)
+        return;
+#endif
     QFileInfo info(toInternal(text));
     // the user is not typing  or the text is a valid file, there is no need for autocompletion
     if (!fileNameEdit->hasFocus() || info.exists())
-        return;
-    // if we hanve no filename or the last character is '/', then don't autocomplete
-    if (text.isEmpty() || text[text.length() - 1] == QDir::separator())
         return;
     // if the user is removing text, don't autocomplete
     int key = fileNameEdit->lastKeyPressed();
@@ -1187,20 +1192,25 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
 
 void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
 {
+    // if we hanve no path or the last character is '/', then don't autocomplete
+    if (text.isEmpty() || text.at(text.length() - 1) == QDir::separator())
+        return;
+#ifdef Q_OS_WIN
+    // autocompleting the <host> part of UNC paths is just too slow
+    if (text.at(0) == QDir::separator() && text.count(QDir::separator()) < 3)
+        return;
+#endif
     // if the user is not typing or the text is a valid path, there is no need for autocompletion
     if (!lookInEdit->hasFocus() || QFileInfo(toInternal(text)).exists())
-        return;
-    // if we hanve no path or the last character is '/', then don't autocomplete
-    if (text.isEmpty() || text[text.length() - 1] == QDir::separator())
         return;
     // if the user is removing text, don't autocomplete
     int key = lookInEdit->lastKeyPressed();
     if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
         return;
     // do autocompletion; text is the local path format (on windows separator is '\\')
-    QString path = text.left(text.lastIndexOf(QDir::separator()));
+    QString path = toInternal(text.left(text.lastIndexOf(QDir::separator())));
     QString name = text.section(QDir::separator(), -1);
-    QModelIndex parent = model->index(toInternal(path));
+    QModelIndex parent = model->index(path);
     QModelIndex result = matchDir(name, model->index(0, 0, parent));
     // did we find a valid autocompletion ?
     if (result.isValid()) {
