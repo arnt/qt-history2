@@ -81,10 +81,10 @@
 #endif // QT_NO_SHAPE
 
 // the wacom tablet ( Currently just the IRIX version )
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
 #  include <X11/extensions/XInput.h>
 #  include <wacom.h>  // wacom driver defines for IRIX (quite handy)
-#endif  // QT_NO_XINPUT
+#endif  // QT_TABLET_SUPPORT
 
 // #define QT_NO_XINERAMA
 #ifndef QT_NO_XINERAMA

@@ -265,7 +265,7 @@ static bool sm_blockUserInput = FALSE;		// session management
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
 // since XInput event classes aren't created until we actually open an XInput
 // device, here is a static list that we will use later on...
 const int INVALID_EVENT = -1;
@@ -469,7 +469,7 @@ public:
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
     bool translateWheelEvent( int global_x, int global_y, int delta, int state, Orientation orient );
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
     bool translateXinputEvent( const XEvent* );
 #endif
 
@@ -1814,7 +1814,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
 
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
     int ndev, i, j;
     XDeviceInfo *devices;
     XInputClassInfo *ip;
@@ -1824,14 +1824,14 @@ void qt_init_internal( int *argcptr, char **argv,
 
 
     if ( (devices = XListInputDevices( appDpy, &ndev)) == NULL ) {
-	qDebug( "Failed to get list of devices\n" );
+	qWarning( "Failed to get list of devices" );
 	ndev = -1;
     }
     for ( i = 0; i < ndev; i++, devices++ ) {
 	if ( !strncmp( devices->name, WACOM_NAME, sizeof(WACOM_NAME) - 1 ) ) {
 	    dev = XOpenDevice( appDpy, devices->id );
 	    if ( dev == NULL ) {
-		qDebug( "Failed to open device" );
+		qWarning( "Failed to open device" );
 	    }
 	    if ( dev->num_classes > 0 ) {
 		for ( ip = dev->classes, j = 0; j < devices->num_classes;
@@ -1884,10 +1884,8 @@ void qt_init_internal( int *argcptr, char **argv,
 	    break;
 	}
     }
-    //    QTabletEvent::setMaxPressure( 1023 );
-    //    QTabletEvent::setMinPressure( 16 );
     XFreeDeviceList( devices );
-#endif // QT_NO_XINPUT
+#endif // QT_TABLET_SUPPORT
 
 #if defined(Q_OS_UNIX)
     pipe( qt_thread_pipe );
@@ -1990,7 +1988,7 @@ void qt_cleanup()
     QThread::cleanup();
 #endif
 
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
     if ( dev != NULL )
 	XCloseDevice( appDpy, dev );
 #endif
@@ -3489,7 +3487,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( widget->x11Event(event) )		// send through widget filter
 	return 1;
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
     // Right now I'm only caring about the valuator (MOTION) events, so I'll
     // check them and let the rest go through as mouse events...
     if ( event->type == xinput_motion ) {
@@ -4658,7 +4656,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 //
 // XInput Translation Event
 //
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
 bool QETWidget::translateXinputEvent( const XEvent *ev )
 {
 #if defined (Q_OS_IRIX)

@@ -112,7 +112,7 @@ extern bool qt_broken_wm;
 extern bool qt_net_supports(Atom);
 extern unsigned long *qt_net_virtual_root_list;
 
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
 extern XDevice *dev;
 extern XEventClass event_list[7];
 extern int curr_xinput_events;
@@ -1004,7 +1004,7 @@ void QWidget::setMouseTracking( bool enable )
     } else {
 	XSelectInput( x11Display(), winId(),
 		      m | stdWidgetEventMask );
-#ifndef QT_NO_XINPUT
+#if defined (QT_TABLET_SUPPORT)
 	if ( dev != NULL ) {
 	    XSelectExtensionEvent( x11Display(), winId(), event_list,
 				   curr_xinput_events );
