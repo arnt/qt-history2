@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#125 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#126 $
 **
 ** Definition of QWidget class
 **
@@ -206,6 +206,8 @@ public:
 
   // Misc. functions
 
+    QWidget     *focusWidget() const;
+
 public:
     QWidget	*parentWidget() const;
     bool	 testWFlags( WFlags n ) const;
@@ -292,7 +294,6 @@ private:
     void	 cancelMove();
     void	 cancelResize();
     void	 sendDeferredEvents();
-    QWidget     *focusWidget() const;
     void 	 reparentFocusWidgets( QWidget *parent );
     QFocusData  *focusData( bool create = FALSE );
     void	 setBackgroundColorFromMode(bool);
