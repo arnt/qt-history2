@@ -595,23 +595,8 @@ void QSocket::close()
 
 
 /*!
-    This function consumes \a nbytes bytes of data from the read
-    buffer and copies it into \a sink.
-*/
-
-bool QSocket::consumeReadBuf( Q_ULONG nbytes, char *sink )
-{
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): consumeReadBuf %d bytes", name(), (int)nbytes );
-#endif
-    return d->rba.consumeBytes( nbytes, sink );
-}
-
-
-/*!
     This function consumes \a nbytes bytes of data from the write
-    buffer. It is similar to consumeReadBuf() above, except that it
-    does not copy the data into another buffer.
+    buffer.
 */
 
 bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
@@ -638,20 +623,6 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
     return TRUE;
 }
 
-
-
-/*!
-    Scans for any occurrence of '\n' in the read buffer. If \a store
-    is not 0 the text up to the first '\n' (or terminating 0) is
-    written to \a store, and a terminating 0 is appended to \a store
-    if necessary. Returns TRUE if a '\n' was found; otherwise returns
-    FALSE.
-*/
-
-bool QSocket::scanNewline( QByteArray *store )
-{
-    return d->rba.scanNewline( store );
-}
 
 
 /*!
@@ -764,7 +735,7 @@ bool QSocket::at( Offset index )
 {
     if ( index > d->rba.size() )
 	return FALSE;
-    consumeReadBuf( (Q_ULONG)index, 0 );			// throw away data 0..index-1
+    d->rba.consumeBytes( (Q_ULONG)index, 0 );			// throw away data 0..index-1
     return TRUE;
 }
 
@@ -887,7 +858,7 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
-    consumeReadBuf( maxlen, data );
+    d->rba.consumeBytes( maxlen, data );
     return maxlen;
 }
 
@@ -961,7 +932,7 @@ int QSocket::getch()
 {
     if ( isOpen() && d->rba.size() > 0 ) {
 	uchar c;
-	consumeReadBuf( 1, (char*)&c );
+	d->rba.consumeBytes( 1, (char*)&c );
 	return c;
     }
     return -1;
@@ -1020,10 +991,10 @@ int QSocket::ungetch( int ch )
 
 bool QSocket::canReadLine() const
 {
-    if ( ((QSocket*)this)->scanNewline( 0 ) )
+    if ( ((QSocket*)this)->d->rba.scanNewline( 0 ) )
 	return TRUE;
     return ( bytesAvailable() > 0 &&
-	     ((QSocket*)this)->scanNewline( 0 ) );
+	     ((QSocket*)this)->d->rba.scanNewline( 0 ) );
 }
 
 /*!
@@ -1046,7 +1017,7 @@ Q_LONG QSocket::readLine( char *data, Q_ULONG maxlen )
 QString QSocket::readLine()
 {
     QByteArray a(256);
-    bool nl = scanNewline( &a );
+    bool nl = d->rba.scanNewline( &a );
     QString s;
     if ( nl ) {
 	at( a.size() );				// skips the data read

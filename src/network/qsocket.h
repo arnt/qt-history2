@@ -135,9 +135,7 @@ private slots:
 private:
     QSocketPrivate *d;
 
-    bool	 consumeReadBuf( Q_ULONG nbytes, char * );
     bool	 consumeWriteBuf( Q_ULONG nbytes );
-    bool	 scanNewline( QByteArray * = 0 );
     void	 tryConnection();
     void         setSocketIntern( int socket );
 

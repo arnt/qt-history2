@@ -637,9 +637,15 @@ void QSharedDoubleBuffer::cleanup()
 // QMembuf declaration and implementation
 // *******************************************************************
 
-/* \internal
-   This class implements an efficient buffering of data that is often used by
-   asynchronous IO classes like QSocket, QHttp and QProcess.
+/*  \internal
+    This class implements an efficient buffering of data that is often used by
+    asynchronous IO classes like QSocket, QHttp and QProcess.
+*/
+
+/*! \internal
+    This function consumes \a nbytes bytes of data from the
+    buffer and copies it into \a sink. If \a sink is a 0 pointer
+    the data goes into the nirvana.
 */
 bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 {
@@ -671,6 +677,13 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
     return TRUE;
 }
 
+/*! \internal
+    Scans for any occurrence of '\n' in the buffer. If \a store
+    is not 0 the text up to the first '\n' (or terminating 0) is
+    written to \a store, and a terminating 0 is appended to \a store
+    if necessary. Returns TRUE if a '\n' was found; otherwise returns
+    FALSE.
+*/
 bool QMembuf::scanNewline( QByteArray *store )
 {
     if ( _size == 0 )
