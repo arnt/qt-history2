@@ -250,7 +250,7 @@ void QMenuBar::styleChange( QStyle& old )
 
 
 /*!
-  Destroys the menu bar.
+  Destructs the menu bar.
 */
 
 QMenuBar::~QMenuBar()
@@ -527,8 +527,8 @@ void QMenuBar::openActPopup()
     if( reverse ) {
 	pos = r.bottomRight() + QPoint(0,1);
 	pos.rx() -= popup->sizeHint().width();
-    } 
-    
+    }
+
     int ph = popup->sizeHint().height();
     pos = mapToGlobal(pos);
     int sh = QApplication::desktop()->height();
@@ -537,7 +537,7 @@ void QMenuBar::openActPopup()
 	if( reverse ) {
 	    t = mapToGlobal( r.topRight() );
 	    t.rx() -= popup->sizeHint().width();
-	} 
+	}
 	t.ry() -= (QCOORD)ph;
 	if ( !defaultup || t.y() >= 0 )
 	    pos = t;
@@ -669,7 +669,7 @@ int QMenuBar::calculateRects( int max_width )
 	x += motifBarHMargin;
 	y += motifBarVMargin;
     }
-    if ( reverse ) 
+    if ( reverse )
 	x = max_width - x;
 	
     int i = 0;
@@ -858,7 +858,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    QRect r = irects[i];
 	    e = mi->isEnabled();
 	    if ( e )
-		g = isEnabled() ? ( isActiveWindow() ? palette().active() : 
+		g = isEnabled() ? ( isActiveWindow() ? palette().active() :
 		    palette().inactive() ) : palette().disabled();
 	    else
 		g = palette().disabled();

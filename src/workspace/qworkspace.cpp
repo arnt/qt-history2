@@ -287,7 +287,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     topLevelWidget()->installEventFilter( this );
 }
 
-/*!  Destroys the object and frees any allocated resources. */
+/*!  Destructs the workspace and frees any allocated resources. */
 
 QWorkspace::~QWorkspace()
 {

@@ -86,7 +86,7 @@ static void paint_children(QWidget * p,const QRegion& r)
 		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
 			wr.translate(-w->x(),-w->y());
-			QApplication::postEvent(w,new QPaintEvent(wr, 
+			QApplication::postEvent(w,new QPaintEvent(wr,
 				   !w->testWFlags(QWidget::WRepaintNoErase) ) );
 			paint_children(w,wr);
 		    }
@@ -150,9 +150,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
-    bool modal = testWFlags(WType_Modal);
-    if ( modal )
-	setWFlags(WStyle_Dialog);
+    bool dialog = testWFlags(WType_Dialog);
     bool desktop = testWFlags(WType_Desktop);
     WId	   id;
     QWSDisplay* dpy = qwsDisplay();
@@ -178,13 +176,13 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	sh = dpy->height();
     }
 
-    if ( modal || popup || desktop ) {		// these are top-level, too
+    if ( dialog || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
 
     if ( desktop ) {				// desktop widget
-	modal = popup = FALSE;			// force these flags off
+	dialog = popup = FALSE;			// force these flags off
 	crect.setRect( 0, 0, sw, sh );
     } else if ( topLevel ) {			// calc pos/size from screen
 	crect.setRect( 0, 0, sw/2, 4*sh/10 );
@@ -317,7 +315,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
-	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
+	if ( testWFlags(WShowModal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qApp->closePopup( this );
@@ -354,7 +352,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
-	if ( old_winid && testWFlags(WType_TopLevel) ) 
+	if ( old_winid && testWFlags(WType_TopLevel) )
 	    qwsDisplay()->destroyRegion( old_winid );
     }
     if ( parent ) {				// insert into new parent

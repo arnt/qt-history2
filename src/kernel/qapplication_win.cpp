@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#426 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#427 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1804,7 +1804,7 @@ static bool qt_blocked_modal( QWidget *widget )
     QWidget *modal=0, *top=qt_modal_stack->getFirst();
 
     widget = widget->topLevelWidget();
-    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
 	modal = widget;
     if ( !top || modal == top )				// don't block event
 	return FALSE;
@@ -1824,7 +1824,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
-    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
 	modal = widget;
 
     if ( !top || modal == top )			// don't block event

@@ -92,7 +92,7 @@ public:
     // Text formatting flags for QPainter::drawText and QLabel
     // the following four enums can be combined to one integer which
     // is passed as textflag to drawText and qt_format_text.
-    
+
     // documented in qpainter.cpp
     enum AlignmentFlags {
 	AlignAuto		= 0x0000, 	// text alignment
@@ -107,7 +107,7 @@ public:
 	AlignVertical_Mask 	= AlignTop | AlignBottom | AlignVCenter,
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
-    
+
     // ### document me!!!
     enum TextFlags {
 	SingleLine	= 0x0080,		// misc. flags
@@ -132,7 +132,7 @@ public:
 	AtWhiteSpace 	= AtWordBoundary, // deprecated, don't use
 	Anywhere 	= 0x8000
     };
-  
+
     // QWidget state flags (internal, not documented but should be)
     enum WidgetState {
 	WState_Created		= 0x00000001,
@@ -166,14 +166,14 @@ public:
     // documented in qwidget.cpp
     enum WidgetFlags {
 	WType_TopLevel		= 0x00000001,	// widget type flags
-	WType_Modal		= 0x00000002,
+	WType_Dialog		= 0x00000002,
 	WType_Popup		= 0x00000004,
 	WType_Desktop		= 0x00000008,
 	WType_Mask		= 0x0000000f,
 
 	WStyle_Customize	= 0x00000010,	// window style flags
 	WStyle_NormalBorder	= 0x00000020,
-	WStyle_DialogBorder	= 0x00000040,
+	WStyle_DialogBorder	= 0x00000040, // MS-Windows only
 	WStyle_NoBorder		= 0x00000000,
 	WStyle_Title		= 0x00000080,
 	WStyle_SysMenu		= 0x00000100,
@@ -182,9 +182,8 @@ public:
 	WStyle_MinMax		= WStyle_Minimize | WStyle_Maximize,
 	WStyle_Tool		= 0x00000800,
 	WStyle_StaysOnTop	= 0x00001000,
-	WStyle_Dialog 		= 0x00002000,
+	WStyle_Reserved 		= 0x00002000,
 	WStyle_ContextHelp	= 0x00004000,
-	WStyle_NoBorderEx	= 0x00008000, // ## NoBorder in 3.0
 	WStyle_Mask		= 0x0000fff0,
 
 	WDestructiveClose	= 0x00010000,	// misc flags
@@ -194,12 +193,18 @@ public:
 	WResizeNoErase		= 0x00100000,
 	WMouseNoMask		= 0x00200000,
 	WStaticContents		= 0x00400000,
-#ifndef QT_NO_COMPAT
-	WNorthWestGravity	= WStaticContents,
-#endif
 	WRepaintNoErase		= 0x00800000,
 	WX11BypassWM		= 0x01000000,
-	WGroupLeader 		= 0x02000000
+	WGroupLeader 		= 0x02000000,
+	WShowModal 	       	= 0x04000000,
+	WNoMousePropagation	= 0x08000000
+#ifndef QT_NO_COMPAT
+	,
+	WNorthWestGravity	= WStaticContents,
+	WType_Modal		= WType_Dialog | WShowModal,
+	WStyle_Dialog 		= WType_Dialog,
+	WStyle_NoBorderEx	= WStyle_NoBorder
+#endif	
     };
 
     // Image conversion flags.  The unusual ordering is caused by
@@ -654,7 +659,7 @@ public:
     enum Dock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
     // compatibility
     typedef Dock ToolBarDock;
-    
+
     enum DateFormat {
 	TextDate,      // default Qt
 	ISODate,       // ISO 8601

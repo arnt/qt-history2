@@ -235,10 +235,6 @@ signals:
     void onViewport();
 
 protected:
-    void viewportMousePressEvent( QMouseEvent * );
-    void viewportMouseReleaseEvent( QMouseEvent * );
-    void viewportMouseDoubleClickEvent( QMouseEvent * );
-    void viewportMouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );

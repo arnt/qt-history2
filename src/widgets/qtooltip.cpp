@@ -62,8 +62,7 @@ class QTipLabel : public QLabel
     Q_OBJECT
 public:
     QTipLabel(const QString& text) : QLabel( 0, "toolTipTip",
-			  WStyle_StaysOnTop +
-			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool )
+	     WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM )
     {
 	setMargin(1);
 	setIndent(0);

@@ -1488,7 +1488,7 @@ void QApplication::exit( int retcode )
   It's common to connect the lastWindowClosed() signal to quit(), and
   you also often connect e.g. QButton::clicked() or signals in
   QAction, QPopupMenu or QMenuBar to it.
-  
+
   Example:
   \code
     QPushButton *quitButton = new QPushButton( "Quit" );
@@ -1694,6 +1694,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
 	{
 	    QWidget* w = (QWidget*)receiver;
@@ -1702,13 +1703,18 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    while ( w ) {
 		ev->accept();
 		internalNotify( w, ev );
-		if ( mouse->isAccepted() || w->isTopLevel() )
+		if ( ev->isAccepted() || w->isTopLevel() )
 		    break;
 		t = ev;
 		ev = new QMouseEvent( t->type(), t->pos() + w->pos(), t->globalPos(), t->button(), t->state() );
 		if ( t != mouse )
 		    delete t;
 		w = w->parentWidget();
+		
+		if ( w && w->testWFlags( WNoMousePropagation ) ) {
+		    mouse->accept();
+		    break;
+		}
 	    }
 	    if ( ev != e ) {
 		if ( ev->isAccepted() )
@@ -1735,6 +1741,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		if ( t != wheel )
 		    delete t;
 		w = w->parentWidget();
+		if ( w && w->testWFlags( WNoMousePropagation ) ) {
+		    wheel->accept();
+		    break;
+		}
 	    }
 	    if ( e != wheel ) {
 		if ( ev->isAccepted() )

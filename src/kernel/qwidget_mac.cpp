@@ -123,7 +123,7 @@ QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 
 static WId qt_root_win() {
-    WindowPtr ret = NULL; 
+    WindowPtr ret = NULL;
 #if 0
     //my desktop hacks, trying to figure out how to get a desktop, this doesn't work
     //but I'm going to leave it for now so I can test some more FIXME!!!
@@ -139,7 +139,7 @@ static OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
-    if ( widget ) 
+    if ( widget )
 	widget->erase(0, 0, widget->width(), widget->height());
     return 0;
 }
@@ -162,7 +162,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     static int sw = -1, sh = -1;                // screen size
     bool topLevel = testWFlags( WType_TopLevel );
     bool popup = testWFlags( WType_Popup );
-    bool modal = testWFlags( WType_Modal );
+    bool dialog = testWFlags( WType_Dialog );
     bool desktop = testWFlags( WType_Desktop );
     WId    id;
 
@@ -177,7 +177,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
     bg_col = pal.normal().background();
 
-    if ( modal || popup || desktop ) {          // these are top-level, too
+    if ( dialog || popup || desktop ) {          // these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
@@ -185,7 +185,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     Rect boundsRect;
 
     if ( desktop ) {                            // desktop widget
-	modal = popup = FALSE;                  // force these flags off
+	dialog = popup = FALSE;                  // force these flags off
 	crect.setRect( 0, 0, sw, sh );
     } else if ( topLevel ) {                    // calc pos/size from screen
 	crect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
@@ -251,7 +251,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	} else {
 	    setWinId( id );
 	}
-    } else if( !parentWidget() || (popup || modal) ) {
+    } else if( !parentWidget() || (popup || dialog) ) {
 	own_id = 1; //I created it, I own it
 	SetRect( &boundsRect, 50, 50, 600, 200 );
 	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
@@ -310,7 +310,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	if ( acceptDrops() )
 	    setAcceptDrops(FALSE);
 
-        if ( testWFlags(WType_Modal) )          // just be sure we leave modal
+        if ( testWFlags(WShowModal) )          // just be sure we leave modal
             qt_leave_modal( this );
         else if ( testWFlags(WType_Popup) )
             qApp->closePopup( this );
@@ -355,7 +355,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( parentObj ) {				// remove from parent
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
-	if(oldp->isWidgetType()) 
+	if(oldp->isWidgetType())
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
@@ -376,8 +376,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     widget_flags = f;
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
     if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
-	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents 
-    if(dropable) 
+	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
+    if(dropable)
 	setAcceptDrops(FALSE);
     create();
     setGeometry( p.x(), p.y(), s.width(), s.height() );
@@ -450,7 +450,7 @@ void QWidget::setMicroFocusHint(int, int, int, int, bool )
 void QWidget::setFontSys()
 {
 }
- 
+
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
@@ -638,7 +638,7 @@ void QWidget::update( int x, int y, int w, int h )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w && h ) 
+	if ( w && h )
 	    QApplication::postEvent( this, new QPaintEvent( QRect(x, y, w, h), !testWFlags( WRepaintNoErase ) ) );
     }
 }
@@ -717,7 +717,7 @@ bool QWidget::isMaximized() const
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
-	if ( isVisible() ) { 
+	if ( isVisible() ) {
 	    qDebug("showMinimized need to do this %s:%d", __FILE__, __LINE__);
         } else {
 	    topData()->showMode = 1;
@@ -849,7 +849,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	MoveWindow( (WindowPtr)winid, x, y, 1);
 
     bool isResize = (olds != size());
-    if ( isTopLevel() && winid && own_id ) 
+    if ( isTopLevel() && winid && own_id )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if ( isVisible() ) {
@@ -868,7 +868,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    paint_children( parentWidget(), upd );
 	}
     } else {
-	if ( isMove ) 
+	if ( isMove )
 	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
 	if ( isResize )
 	    QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
@@ -971,7 +971,7 @@ void QWidget::erase( const QRegion& reg )
 	if ( !extra->bg_pix->isNull() ) {
 	    QPoint point(xoff%extra->bg_pix->width(), yoff%extra->bg_pix->height());
 	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
-	} 
+	}
     } else {
 	p.fillRect(rr, bg_col);
     }
@@ -1191,7 +1191,7 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 void QWidget::dirtyClippedRegion(bool tell_parent)
 {
-    if(extra) 
+    if(extra)
 	extra->child_dirty = extra->clip_dirty = TRUE;
     if(const QObjectList *chldnlst=children()) {
 	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
@@ -1204,15 +1204,15 @@ void QWidget::dirtyClippedRegion(bool tell_parent)
 	}
     }
 
-    if(tell_parent && !isTopLevel() && parentWidget()) 
+    if(tell_parent && !isTopLevel() && parentWidget())
 	parentWidget()->dirtyClippedRegion(TRUE);
 }
 
 bool QWidget::isClippedRegionDirty()
 {
-    if(!extra || extra->clip_dirty) 
+    if(!extra || extra->clip_dirty)
 	return TRUE;
-    if((parentWidget() && parentWidget()->isClippedRegionDirty())) 
+    if((parentWidget() && parentWidget()->isClippedRegionDirty()))
 	return TRUE;
     return FALSE;
 }
@@ -1220,7 +1220,7 @@ bool QWidget::isClippedRegionDirty()
 QRegion QWidget::clippedRegion(bool do_children)
 {
     if(extra && !isClippedRegionDirty() && (!do_children || !extra->child_dirty)) {
-	if(!do_children) 
+	if(!do_children)
 	    return extra->clip_sibs;
 	return extra->clip_saved;
     }
@@ -1270,7 +1270,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 		    if((*it)->isWidgetType()) {
 			QWidget *sw = (QWidget *)(*it);
 			QRect sr(tmp.x()+sw->x(), tmp.y()+sw->y(), sw->width(), sw->height());
-			if(sw->topLevelWidget() == topLevelWidget() && 
+			if(sw->topLevelWidget() == topLevelWidget() &&
 			   sw->isVisible() && extra->clip_sibs.contains(sr)) {
 			    QRegion sibrgn(sr);
 			    if(sw->extra && !sw->extra->mask.isNull()) {
@@ -1285,7 +1285,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    }
 	}
 
-	if(!isTopLevel() && parentWidget()) 
+	if(!isTopLevel() && parentWidget())
 	    extra->clip_sibs &= parentWidget()->clippedRegion(FALSE);
     }
 
@@ -1296,7 +1296,7 @@ QRegion QWidget::clippedRegion(bool do_children)
     extra->clip_saved = extra->clip_sibs & chldrgns;
 
 
-    if(do_children) 
+    if(do_children)
 	return extra->clip_saved;
     return extra->clip_sibs;
 }

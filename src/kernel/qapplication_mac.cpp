@@ -228,7 +228,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     char *p;
 
     // Set application name
-   
+
     p = strrchr( argv[0], '/' );
     appName = p ? p + 1 : argv[0];
 
@@ -246,7 +246,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     }
     Microseconds( &thesecs );
     if ( qt_is_gui_used ) {
-        qApp->setName( appName );   
+        qApp->setName( appName );
     }
 }
 
@@ -380,11 +380,11 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
 {
     // Keep looking until we find ourselves in a widget with no kiddies
     // where the x,y is
-    if(!widg) 
+    if(!widg)
 	return 0;
 
     const QObjectList *objl=widg->children();
-    if(!objl) // No children 
+    if(!objl) // No children
 	return widg;
 
     QObjectListIt it(*objl);
@@ -396,7 +396,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
 		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 		    return recursive_match(curwidg,x-wx,y-wy);
-		} 
+		}
 	    }
 	}
     }
@@ -892,7 +892,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     if(qt_is_gui_used) {
 	sendPostedEvents();
-	EventRecord event;    
+	EventRecord event;
 	do {
 	    do {
 		if(app_exit_loop)
@@ -906,7 +906,7 @@ bool QApplication::processNextEvent( bool canWait )
 	    } while(EventAvail(everyEvent, &event));
 	} while(EventAvail(everyEvent, &event));
 	sendPostedEvents(); //let them accumulate
-    } 
+    }
 
 #ifndef QT_NO_CLIPBOARD
     //manufacture an event so the clipboard can see if it has changed
@@ -915,7 +915,7 @@ bool QApplication::processNextEvent( bool canWait )
 	QApplication::sendEvent(qt_clipboard, &ev);
     }
 #endif
-  
+
     if ( quit_now || app_exit_loop )
 	return FALSE;
     sendPostedEvents();
@@ -967,7 +967,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     nevents += qt_activate_timers();		// activate timers
     //  qt_reset_color_avail();			// color approx. optimization
-  
+
     return (nevents > 0);
 }
 
@@ -1065,7 +1065,7 @@ bool QApplication::do_mouse_down( EventRecord* es )
   case inGrow:
     Rect limits;
     widget = QWidget::find( (WId)wp );
-   
+
     if( widget ) {
       if ( widget->extra ) {
 	SetRect( &limits, widget->extra->minw, widget->extra->minh,
@@ -1079,7 +1079,7 @@ bool QApplication::do_mouse_down( EventRecord* es )
       int nw = LoWord( growWindowSize );
       int nh = HiWord( growWindowSize );
 
-      // FIXME: Replace hard coded constants with display size 
+      // FIXME: Replace hard coded constants with display size
       if( nw < 1600 && nw > 0 && nh < 1200 && nh > 0 ) {
 	if( widget ) {
 	  int ow = widget->width(), oh = widget->height();
@@ -1168,7 +1168,7 @@ static bool qt_try_modal( QWidget *widget, EventRecord *event )
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
-    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
 	modal = widget;
     if ( !top || modal == top )			// don't block event
 	return TRUE;
@@ -1243,58 +1243,58 @@ int QApplication::macProcessEvent(MSG * m)
 	    EndUpdate((WindowPtr)widget->handle());
 	}
     } else if(er->what == keyDown) {
-	if( mac_keyboard_grabber ) 
+	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
 	else if(focus_widget)
 	    widget = focus_widget;
 	else //last ditch effort
 	    widget = QApplication::widgetAt(er->where.h, er->where.v, true);
-    
+
 	if(widget) {
 	    if ( app_do_modal && !qt_try_modal(widget, er) )
 		return 1;
 
 	    int mychar=get_key(er->message & charCodeMask);
-	    QKeyEvent ke(QEvent::KeyPress,mychar, mychar, 
+	    QKeyEvent ke(QEvent::KeyPress,mychar, mychar,
 			 get_modifiers(er->modifiers), QString(QChar(mychar)));
 	    QApplication::sendEvent(widget,&ke);
-	} 
+	}
     } else if(er->what == keyUp) {
-	if( mac_keyboard_grabber ) 
+	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
 	else if(focus_widget)
 	    widget = focus_widget;
 	else //last ditch effort
 	    widget = QApplication::widgetAt(er->where.h, er->where.v, true);
-    
+
 	if(widget) {
 	    if ( app_do_modal && !qt_try_modal(widget, er) )
 		return 1;
 
 	    int mychar=get_key(er->message & charCodeMask);
-	    QKeyEvent ke(QEvent::KeyRelease,mychar, mychar, 
+	    QKeyEvent ke(QEvent::KeyRelease,mychar, mychar,
 			 get_modifiers(er->modifiers), QString(QChar(mychar)));
 	    QApplication::sendEvent(widget,&ke);
-	} 
+	}
     } else if(er->what == activateEvt) {
 	widget = QWidget::find( (WId)er->message );	
-	if(widget && (er->modifiers & 0x01)) 
+	if(widget && (er->modifiers & 0x01))
 	    setActiveWindow(widget);
     } else if( er->what == mouseDown  || er->what == mouseUp ) {
 	short part = FindWindow( er->where, &wp );
 	if( part == inContent ) {
 	    QEvent::Type etype = QEvent::None;
 	    int keys = get_modifiers(er->modifiers);
-	    int button, state=0; 
+	    int button, state=0;
 	    if ( keys & Qt::ControlButton )
-		button = QMouseEvent::RightButton; 
+		button = QMouseEvent::RightButton;
 	    else
 		button = QMouseEvent::LeftButton;
 		
 	    if(er->what == mouseDown) {
 		//check if this is the second click, there must be a way to make the
 		//mac do this for us, FIXME!!
-		if(qt_last_mouse_down.when && 
+		if(qt_last_mouse_down.when &&
 		   (er->when - qt_last_mouse_down.when <= (uint)mouse_double_click_time)) {
 		    int x = er->where.h, y = er->where.v;
 		    if(x >= (qt_last_mouse_down.x-2) && x <= (qt_last_mouse_down.x+4) &&
@@ -1330,14 +1330,14 @@ int QApplication::macProcessEvent(MSG * m)
 		QPoint plocal(popupwidget->mapFromGlobal( p ));
 		QMouseEvent qme( etype, plocal, p, button | (keys & Qt::ControlButton), state | (keys & Qt::ControlButton) );
 		QApplication::sendEvent( popupwidget, &qme );
-	    } 
-	    
+	    }
+	
 	    //figure out which widget to send it to
 	    if( er->what == mouseUp && qt_button_down )
 	     	widget = qt_button_down;
             else if( mac_mouse_grabber )
 		widget = mac_mouse_grabber;
-	    else 
+	    else
 		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
 
 	    //setup the saved widget
@@ -1368,7 +1368,7 @@ int QApplication::macProcessEvent(MSG * m)
 	}
 
 	//mousedown's will effect stuff outside InContent as well
-	if(er->what == mouseDown) 
+	if(er->what == mouseDown)
 	    do_mouse_down( er ); //do resize/move stuff
 
     } else if(er->what == osEvt) {
@@ -1394,13 +1394,13 @@ int QApplication::macProcessEvent(MSG * m)
 
 		    //set the cursor up
 		    Cursor *n = NULL;
-		    if(widget->extra && widget->extra->curs) 
+		    if(widget->extra && widget->extra->curs)
 			n = (Cursor *)widget->extra->curs->handle();
 		    else if(cursorStack)
 			n = (Cursor *)app_cursor->handle();
 		    if(!n)
 			n = (Cursor *)arrowCursor.handle(); //I give up..
-		    if(currentCursor != n) 
+		    if(currentCursor != n)
 			SetCursor(currentCursor = n);
 		    if ( qt_mouseover != widget ) {
 			qt_dispatchEnterLeave( widget, qt_mouseover );
@@ -1410,7 +1410,7 @@ int QApplication::macProcessEvent(MSG * m)
 		    //ship the event
 		    QPoint p( er->where.h, er->where.v );
 		    QPoint plocal(widget->mapFromGlobal( p ));
-		    QMouseEvent qme( QEvent::MouseMove, plocal, p, 
+		    QMouseEvent qme( QEvent::MouseMove, plocal, p,
 				     QMouseEvent::NoButton, mouse_button_state);
 		    QApplication::sendEvent( widget, &qme );
 		}

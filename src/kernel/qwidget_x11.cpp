@@ -160,9 +160,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
-    bool modal = testWFlags(WType_Modal);
-    if ( modal )
-	setWFlags(WStyle_Dialog);
+    bool dialog = testWFlags(WType_Dialog);
     bool desktop = testWFlags(WType_Desktop);
     Window root_win = qt_xrootwin(); // ## should be in paintdevice, depends on x11Display and x11Screen
     Window parentw, destroyw = 0;
@@ -180,13 +178,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	sh = DisplayHeight(dpy,scr);
     }
 
-    if ( modal || popup || desktop ) {		// these are top-level, too
+    if ( dialog || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
 
     if ( desktop ) {				// desktop widget
-	modal = popup = FALSE;			// force these flags off
+	dialog = popup = FALSE;			// force these flags off
 	crect.setRect( 0, 0, sw, sh );
     } else if ( topLevel ) {			// calc pos/size from screen
 	crect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
@@ -247,8 +245,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		;				// ok, we already have it
-	    } else if ( testWFlags( WStyle_NoBorderEx ) ){ // Style_NoBorderEx, sets Motif hint
-		// ### this should really be WStyle_NoBorder in 3.0
+	    } else { // Style_NoBorder, sets Motif hint
 		struct {
 		    ulong flags;
 		    ulong functions;
@@ -261,8 +258,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		XChangeProperty (dpy, id, qt_xa_motif_wm_hints,
 				 qt_xa_motif_wm_hints, 32, PropModeReplace,
 				 (unsigned char*) &hints, 5 );
-	    } else { // Style_NoBorder
-		setWFlags( WX11BypassWM ); // ### compatibility
 	    }
 	    if ( testWFlags(WStyle_Tool) ) {
 		wsa.save_under = TRUE;
@@ -297,7 +292,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    p = p->topLevelWidget();
 	if ( testWFlags(WStyle_DialogBorder)
 	     || testWFlags(WStyle_StaysOnTop)
-	     || testWFlags(WStyle_Dialog)
+	     || dialog
 	     || testWFlags(WStyle_Tool) ) {
 	    if ( testWFlags( WStyle_StaysOnTop ) )
 		XSetTransientForHint( dpy, id, None );
@@ -434,7 +429,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    releaseKeyboard();
 	if ( testWState( WType_TopLevel ) )
 	    qt_deferred_map_take( this );
-	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
+	if ( testWFlags(WShowModal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qApp->closePopup( this );
@@ -534,7 +529,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			dndchild = w ;
 		} else if ( w->isPopup()
 			    || w->testWFlags(WStyle_DialogBorder)
-			    || w->testWFlags(WStyle_Dialog)
+			    || w->testWFlags(WType_Dialog)
 			    || w->testWFlags(WStyle_Tool) ) {
 		    XSetTransientForHint( x11Display(), w->winId(), winId() );
 		}
@@ -704,7 +699,7 @@ void QWidget::setFontSys()
 #ifndef NO_XIM
 
 #ifndef Q_SUPERFONT
-    
+
     QWidget* tlw = topLevelWidget();
     if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
 	XIC xic = (XIC)tlw->extra->topextra->xic;
@@ -725,7 +720,7 @@ void QWidget::setFontSys()
 	XFree(status_att);
 
     }
-    
+
 #endif // Q_SUPERFONT
 
 #endif // NO_XIM
@@ -2123,18 +2118,18 @@ void QWidget::createTLSysExtra()
 				XNFontSet, fontset,
 				NULL);
 #endif // Q_SUPERFONT
-	 
+	
 	extra->topextra->xic =
 	    (void*)XCreateIC( qt_xim,
 			      XNInputStyle, qt_xim_style,
 			      XNClientWindow, winId(),
 			      XNFocusWindow, winId(),
 			      XNPreeditAttributes, preedit_att,
-			      
+			
 #ifndef Q_SUPERFONT
 			      XNStatusAttributes, status_att,
 #endif // Q_SUPERFONT
-			      
+			
 			      0 );
 
 	XFree(preedit_att);
@@ -2142,7 +2137,7 @@ void QWidget::createTLSysExtra()
 #ifndef Q_SUPERFONT
 	XFree(status_att);
 #endif // Q_SUPERFONT
-	 
+	
     } else {
 	extra->topextra->xic = 0;
     }

@@ -71,12 +71,13 @@ static QWidget *childOf( QWidget *w, QWidget *child )
 bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 {
     if ( !o || !ee || !active || !o->isWidgetType() )
-	return qApp->eventFilter( o, ee );
+	return FALSE;
 
     QWidget *w = childOf( widget, (QWidget*)o );
     if ( !w )
-	return qApp->eventFilter( o, ee );
+	return FALSE;
 
+    
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
@@ -113,7 +114,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     default:
 	break;
     }
-    return qApp->eventFilter( o, ee );
+    return FALSE;
 }
 
 void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )

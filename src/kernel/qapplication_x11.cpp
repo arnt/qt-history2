@@ -702,11 +702,11 @@ static bool qt_set_desktop_properties()
     if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
-    
+
 #ifndef Q_SUPERFONT
     font.setCharSet(QFont::charSetForLocale());
 #endif // Q_SUPERFONT
-    
+
     if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
     }
@@ -3122,7 +3122,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
-    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
 	modal = widget;
     if ( !top || modal == top )			// don't block event
 	return TRUE;

@@ -282,10 +282,8 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
     setFocusPolicy( TabFocus );
 }
 
-/*!
-  Destructs the button, deleting all its child widgets.
-*/
-
+/*! Destructs the button.
+ */
 QButton::~QButton()
 {
     if ( group() )

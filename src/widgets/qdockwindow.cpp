@@ -425,7 +425,7 @@ public:
     QDockWindowTitleBar( QDockWindow *dw );
     void updateGui();
     void setOpaqueMoving( bool b ) { opaque = b; }
-    
+
 protected:
     void resizeEvent( QResizeEvent *e );
     void mousePressEvent( QMouseEvent *e );
@@ -616,7 +616,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
+    : QFrame( parent, name, f | ( p == OutsideDock ? (WType_Dialog | WStyle_Customize | WStyle_NoBorder) : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
       moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWindowData( 0 ),
       lastPos( -1, -1 ), opaque( FALSE )
@@ -663,7 +663,6 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 	( (QDockArea*)parent )->moveDockWindow( this );
     } else if ( p == InDock ) {
 	p = OutsideDock;
-	setWFlags( WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog );
     }
 }
 
@@ -1267,10 +1266,10 @@ bool QDockWindow::opaqueMoving() const
     return opaque;
 }
 
-void QDockWindow::setCaption( const QString &s ) 
-{ 
+void QDockWindow::setCaption( const QString &s )
+{
     titleBar->setText( s );
     QFrame::setCaption( s );
 }
- 
+
 #include "qdockwindow.moc"

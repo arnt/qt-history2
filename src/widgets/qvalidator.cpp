@@ -133,7 +133,7 @@ QValidator::QValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Destroys the validator, freeing any storage and other resources
+  Destucts the validator, freeing any storage and other resources
   used.
 */
 
@@ -217,7 +217,7 @@ QIntValidator::QIntValidator( int bottom, int top,
 
 
 /*!
-  Destroys the validator, freeing any storage and other resources
+  Destructs the validator, freeing any storage and other resources
   used.
 */
 
@@ -342,7 +342,7 @@ QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
 
 
 /*!
-  Destroys the validator, freeing any storage and other resources
+  Destructs the validator, freeing any storage and other resources
   used.
 */
 
@@ -521,7 +521,7 @@ QRegExpValidator::QRegExpValidator( const QRegExp& rx, QWidget *parent,
 }
 
 /*!
-  Destroys the validator, freeing any storage and other resources used.
+  Destructs the validator, freeing any storage and other resources used.
 */
 
 QRegExpValidator::~QRegExpValidator()

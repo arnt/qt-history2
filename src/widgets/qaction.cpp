@@ -122,7 +122,7 @@ public:
 
     enum Update { Everything, Icons, State }; // Everything means everything but icons and state
     void update( Update upd = Everything );
-    
+
     QString menuText() const;
     QString toolTip() const;
     QString statusTip() const;
@@ -328,7 +328,7 @@ void QAction::init()
     }
 }
 
-/*! Destroys the object and frees any allocated resources. */
+/*! Destructs the object and frees any allocated resources. */
 
 QAction::~QAction()
 {
@@ -720,7 +720,7 @@ void QAction::menuStatusText( int id )
 	    break;
 	}
     }
-    
+
     if ( !text.isEmpty() )
 	showStatusText( text );
 }
@@ -910,7 +910,7 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
 
-/*! Destroys the object and frees any allocated resources. */
+/*! Destructs the object and frees any allocated resources. */
 
 QActionGroup::~QActionGroup()
 {
@@ -946,8 +946,8 @@ bool QActionGroup::isExclusive() const
     return d->exclusive;
 }
 
-/*! 
-  When \a enable is TRUE, the group will add the actions to a 
+/*!
+  When \a enable is TRUE, the group will add the actions to a
   logical subwidget of widgets it gets added to, e.g. a submenu in
   a popup menu.
   Changing this setting does only effect subsequent calls to addTo.
@@ -960,7 +960,7 @@ void QActionGroup::setUsesDropDown( bool enable )
     d->dropdown = enable;
 }
 
-/*! 
+/*!
   Returns whether this group uses a subwidget to represent the actions.
 
   \sa setUsesDropDown

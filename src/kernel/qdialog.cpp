@@ -143,7 +143,7 @@ public:
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( parent, name,
-	       (modal ? (f|WType_Modal) : f) | WType_TopLevel | WStyle_Dialog )
+	       (modal ? (f|WShowModal) : f) | WType_Dialog )
 {
     rescode = 0;
     did_move = FALSE;
@@ -454,7 +454,7 @@ void QDialog::show()
 	if ( w ) {
 	    // Use mapToGlobal rather than geometry() in case w might
 	    // be embedded in another application
-	    QPoint pp = w->mapToGlobal( QPoint(0,0) ); 
+	    QPoint pp = w->mapToGlobal( QPoint(0,0) );
 	    p = QPoint( pp.x() + w->width()/2,
 			pp.y() + w->height()/ 2 );
 	} else {

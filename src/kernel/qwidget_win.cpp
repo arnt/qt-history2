@@ -83,7 +83,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
-    bool modal = testWFlags(WType_Modal);
+    bool dialog = testWFlags(WType_Dialog);
     bool desktop  = testWFlags(WType_Desktop);
     HINSTANCE appinst  = qWinAppInst();
     HWND   parentw, destroyw = 0;
@@ -98,8 +98,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
 
-    if ( modal )
-	setWFlags( WStyle_Dialog );
 
     if ( sw < 0 ) {				// get the screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
@@ -113,13 +111,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	bg_col = white;
     }
 
-    if ( modal || popup || desktop ) {		// these are top-level, too
+    if ( dialog || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
 
     if ( desktop ) {				// desktop widget
-	//modal = FALSE; NOT USED		// force this flags off
 	popup = FALSE;				// force this flags off
 	fpos = QPoint(0, 0);
 	crect = QRect( fpos, QSize(sw, sh) );
@@ -316,7 +313,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
-	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
+	if ( testWFlags(WShowModal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qApp->closePopup( this );

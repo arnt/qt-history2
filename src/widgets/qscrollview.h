@@ -148,9 +148,10 @@ public slots:
     void	setEnabled( bool enable );
 
 protected:
-    void	resizeEvent(QResizeEvent*);
-    void 	wheelEvent( QWheelEvent * );
-    bool	eventFilter( QObject *, QEvent *e );
+    virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
+    virtual void drawContentsOffset(QPainter*, int ox, int oy,
+		    int cx, int cy, int cw, int ch);
+    
 
     virtual void contentsMousePressEvent( QMouseEvent* );
     virtual void contentsMouseReleaseEvent( QMouseEvent* );
@@ -163,6 +164,7 @@ protected:
     virtual void contentsDropEvent( QDropEvent * );
 #endif
     virtual void contentsWheelEvent( QWheelEvent * );
+
 
     virtual void viewportPaintEvent( QPaintEvent* );
     virtual void viewportResizeEvent( QResizeEvent* );
@@ -178,9 +180,6 @@ protected:
 #endif
     virtual void viewportWheelEvent( QWheelEvent * );
 
-    virtual void drawContentsOffset(QPainter*, int ox, int oy,
-		    int cx, int cy, int cw, int ch);
-    virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     void	frameChanged();
 
     virtual void setMargins(int left, int top, int right, int bottom);
@@ -193,6 +192,15 @@ protected:
 
     virtual void setHBarGeometry(QScrollBar& hbar, int x, int y, int w, int h);
     virtual void setVBarGeometry(QScrollBar& vbar, int x, int y, int w, int h);
+    
+    void	resizeEvent(QResizeEvent*);
+    void 	mousePressEvent( QMouseEvent * );
+    void 	mouseReleaseEvent( QMouseEvent * );
+    void 	mouseDoubleClickEvent( QMouseEvent * );
+    void 	mouseMoveEvent( QMouseEvent * );
+    void 	wheelEvent( QWheelEvent * );
+    bool	eventFilter( QObject *, QEvent *e );
+    
 
 private:
     virtual void drawContents( QPainter* );

@@ -190,7 +190,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 
 
 /*!
-  Destroys the tab control, freeing memory used.
+  Destructs the tab control, freeing memory used.
 */
 
 QTabBar::~QTabBar()
@@ -414,7 +414,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     QRect tr = r;
     if ( t->id == currentTab() )
  	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
-    
+
     if ( t->enabled && isEnabled()  ) {
 #if defined(Q_WS_WIN32)
 	if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )

@@ -540,16 +540,17 @@ The main types are <ul>
 <li> \c WType_TopLevel - indicates that this widget is a top-level
 widget, usually with a window-system frame and so on.
 
-<li> \c WType_Modal - indicates that this widget is a modal top-level
-widget, ie. that it prevents widgets in all other top-level widget
-from getting any input.  \c WType_Modal inplies \c WStyle_Dialog.
+<li> \c WType_Dialog - indicates that this widget is a secondary
+top-level widget.  In combination with WShowModal, the dialog becomes
+a modal dialog ie. it prevents widgets in all other top-level widget
+from getting any input. \cWType_Dialog implies WType_TopLevel.
 
 <li> \c WType_Popup - indicates that this widget is a popup top-level
 window, ie. that it is modal, but has a window system frame
-appropriate for popup menus.
+appropriate for popup menus.\cWType_Popup implies WType_TopLevel.
 
 <li> \c WType_Desktop - indicates that this widget is the desktop.
-See also \c WPaintDesktop below.
+See also \c WPaintDesktop below. \cWType_Desktop implies WType_TopLevel.
 
 </ul> There are also a number of flags to let you customize the
 appearance of top-level windows.  These have no effect on other
@@ -565,16 +566,6 @@ be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
 Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 
 <li> \c WStyle_NoBorder - gives a borderless window.  Note that the
-user cannot move or resize a borderless window via the window system.
-Cannot be combined with \c WStyle_NormalBorder or \c
-WStyle_DialogBorder. On Windows, the flag works fine. On X11, it
-bypasses the window manager completely. This results in a borderless
-window, but also in a window that is not managed at all (i.e. for
-example no keyboard focus unless you call setActiveWindow()
-manually. ) For compatibility, the flag was not changed for Qt-2.1. We
-suggest using WStyle_NoBorderEx instead.
-
-<li> \c WStyle_NoBorderEx - gives a borderless window.  Note that the
 user cannot move or resize a borderless window via the window system.
 Cannot be combined with \c WStyle_NormalBorder or \c
 WStyle_DialogBorder. On X11, the result of the flag is depending on
@@ -3339,7 +3330,7 @@ void QWidget::show()
 	QShowEvent e(FALSE);
 	QApplication::sendEvent( this, &e );
 
-	if ( testWFlags(WType_Modal) ) {
+	if ( testWFlags(WShowModal) ) {
 	    // qt_enter_modal *before* show, otherwise the initial
 	    // stacking might be wrong
 	    qt_enter_modal( this );
@@ -4953,7 +4944,7 @@ void QWidget::showFullScreen()
     }
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
-    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorderEx | WStyle_StaysOnTop,
+    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
 	      QPoint(0,0) );
     topData()->fullscreen = 1;
     resize( qApp->desktop()->size() );

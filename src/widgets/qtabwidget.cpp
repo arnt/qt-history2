@@ -186,8 +186,7 @@ void QTabWidget::init()
     setFocusProxy( d->tabs );
 }
 
-/*!
-  Destructs the tab widget.
+/*!\reimp
 */
 QTabWidget::~QTabWidget()
 {

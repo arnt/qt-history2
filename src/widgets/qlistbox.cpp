@@ -773,7 +773,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 QListBox * QListBox::changedListBox = 0;
 
 /*!
-  Destroys the list box.  Deletes all list box items.
+  Destructs the list box.  Deletes all list box items.
 */
 
 QListBox::~QListBox()
@@ -1632,16 +1632,6 @@ bool QListBox::itemVisible( const QListBoxItem * item )
 
 /*! \reimp */
 
-void QListBox::viewportMousePressEvent( QMouseEvent *e )
-{
-    // ### this (and the others) assume that the coordinates of this
-    // and viewport() are the same.
-    mousePressEvent( e );
-}
-
-
-/*! \reimp */
-
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
@@ -1775,14 +1765,6 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 
 /*! \reimp */
 
-void QListBox::viewportMouseReleaseEvent( QMouseEvent *e )
-{
-    mouseReleaseEvent( e );
-}
-
-
-/*! \reimp */
-
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( d->rubber ) {
@@ -1827,14 +1809,6 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
 
 /*! \reimp */
 
-void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * e )
-{
-    mouseDoubleClickEvent( e );
-}
-
-
-/*! \reimp */
-
 void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
     bool ok = TRUE;
@@ -1853,14 +1827,6 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 	    emit selected( tmp );
 	emit doubleClicked( i );
     }
-}
-
-
-/*! \reimp */
-
-void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
-{
-    mouseMoveEvent( e );
 }
 
 

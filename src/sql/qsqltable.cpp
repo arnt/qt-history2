@@ -107,11 +107,11 @@ public:
     int lastAt;
 };
 
-/*! \enum Confirm 
-  
+/*! \enum Confirm
+
   This enum type describes edit confirmations.
-  
-  The currently defined values are: 
+
+  The currently defined values are:
 
   <ul>
   <li> \c Yes
@@ -120,11 +120,11 @@ public:
   </ul>
 */
 
-/*! \enum Mode 
+/*! \enum Mode
 
   This enum type describes table editing modes.
-  
-  The currently defined values are: 
+
+  The currently defined values are:
 
   <ul>
   <li> \c None
@@ -163,11 +163,11 @@ public:
   Different editor factories can be used by calling
   installEditorFactory(). Cell editing can be cancelled by hitting the
   escape key.
-  
+
   Columns in the table can be created automatically based on the
   cursor (see setCursor()), or manually (see addColumn() and
   removeColumn()).
-  
+
   The table automatically uses the properties of the cursor record to
   format the display of data within cells (alignment, visibility,
   etc.).  You can change the appearance of cells by reimplementing
@@ -206,7 +206,7 @@ void QSqlTable::init()
 {
     setFocusProxy( viewport() );
     viewport()->setFocusPolicy( StrongFocus );
-    
+
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
     d->trueTxt = tr( "True" );
@@ -680,13 +680,13 @@ void QSqlTable::endUpdate()
 /*! Protected virtual function called when editing is about to begin on
    a new record.  If the table is read-only, or the cursor does not
    allow inserts, nothing happens.
-   
+
    Editing takes place using the cursor's edit buffer (see
    QSqlCursor::insertBuffer()).
-   
+
    When editing begins, a new row is created in the table marked with
    a '*' in the vertical header.
-   
+
 */
 
 bool QSqlTable::beginInsert()
@@ -731,10 +731,10 @@ bool QSqlTable::beginInsert()
 
 /*! Protected virtual function called when editing is about to begin on
    an existing row.  If the table is read-only, nothing happens.
-   
+
    Editing takes place using the cursor's edit buffer (see
    QSqlCursor::updateBuffer()).
-   
+
 */
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
@@ -1448,7 +1448,7 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
     p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
 }
 
-/*! Returns the alignment for \a field. 
+/*! Returns the alignment for \a field.
 */
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
@@ -1592,7 +1592,7 @@ void QSqlTable::takeItem ( QTableItem * )
 /*! Refreshes the table using the current cursor.  If \a idx is
   specified, the first record matching the index is selected.
 */
-  
+
 void QSqlTable::refresh( QSqlIndex idx )
 {
     if ( d->cursor )
@@ -1685,11 +1685,11 @@ QSqlRecord QSqlTable::currentFieldSelection() const
 */
 
 /*! \fn void QSqlTable::beforeUpdate( QSqlRecord* buf )
-  This signal is emitted just before the cursor's edit buffer is updated in the database.  
+  This signal is emitted just before the cursor's edit buffer is updated in the database.
 */
 
 /*! \fn void QSqlTable::beforeDelete( QSqlRecord* buf )
-  This signal is emitted just before the currently selected record is deleted from the database.  
+  This signal is emitted just before the currently selected record is deleted from the database.
 */
 
 /*! \fn void QSqlTable::cursorChanged( QSqlCursor::Mode mode )

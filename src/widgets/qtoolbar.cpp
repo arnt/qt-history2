@@ -131,7 +131,7 @@ QSize QToolBarSeparator::sizeHint() const
   A toolbar is a panel that contains a set of controls, usually
   represented by small icons.  Its purpose is to provide quick access
   to frequently used commands or options.
-  
+
   A QToolBar is a special QDockWindow, and so provides also all
   functionality of a QDockWindow. This means a toolbar can be dragged
   around in a mainwindow and also undocked/docked from/into it.
@@ -150,12 +150,12 @@ QSize QToolBarSeparator::sizeHint() const
   contains four QDockAreas, one on each edge. So normally you create a
   QToolBar as child of a QMainWindow, an then it is managed in the
   QDockAreas of this mainwindow, or can be made floating by undocking it.
-  
+
   When docked, the QToolBars are together with other QDockWindows
   arranged in rows or columns in one of the mainwindow's
   QDockAreas. Fur further details about that see the QDockArea
   documentation.
-  
+
   The main window can be resized to a smaller size than a toolbar
   would need to show all items. If this happens QToolbar shows a
   little arrow button at the right or bottom end. When clicking on
@@ -253,7 +253,7 @@ void QToolBar::init()
     setFocusPolicy( NoFocus );
 }
 
-/*! Destructs the object and frees any allocated resources. */
+/*! \reimp */
 
 QToolBar::~QToolBar()
 {
@@ -349,7 +349,7 @@ bool QToolBar::event( QEvent * e )
 }
 
 
-/*!  Sets the label of this tool bar to \a label. 
+/*!  Sets the label of this tool bar to \a label.
 
 Whenever a user drags the toolbar and drops it elsewhere
 on the desktop, the toolbar becomes a window on its own with

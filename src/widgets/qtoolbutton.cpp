@@ -265,7 +265,7 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 }
 
 
-/*! Destroys the object and frees any allocated resources. */
+/*! Destructs the object and frees any allocated resources. */
 
 QToolButton::~QToolButton()
 {
@@ -843,7 +843,7 @@ void QToolButton::popupTimerDone()
 
 void QToolButton::popupReleased()
 {
-    if ( !d->delay ) 
+    if ( !d->delay )
 	QTimer::singleShot( 0, this, SLOT(releaseTimerDone()) );
 }
 
