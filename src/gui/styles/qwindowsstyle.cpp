@@ -2319,7 +2319,9 @@ int QWindowsStyle::styleHint(StyleHint hint,
 #if defined(Q_WS_WIN)
     case SH_UnderlineShortcut:
         ret = 1;
-        if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
+        if (QSysInfo::WindowsVersion != QSysInfo::WV_95
+            && QSysInfo::WindowsVersion != QSysInfo::WV_98
+            && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
             BOOL cues;
             SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &cues, 0);
             ret = cues ? 1 : 0;
