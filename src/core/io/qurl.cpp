@@ -68,16 +68,21 @@
 /*!
     \enum QUrl::FormattingOptions
 
-    \value None
-    \value RemoveScheme
-    \value RemovePassword
-    \value RemoveUserInfo
-    \value RemovePort
-    \value RemoveAuthority
-    \value RemovePath
-    \value RemoveQuery
-    \value RemoveFragment
-    \value StripTrailingSlash
+    The formatting options define how the URL is formatted when written out
+    as text.
+
+    \value None          The URL is left unchanged.
+    \value RemoveScheme  The scheme is removed from the URL.
+    \value RemovePassword  Any password in the URL is removed.
+    \value RemoveUserInfo  Any user information in the URL is removed.
+    \value RemovePort      Any specified port is removed from the URL.
+    \value RemoveAuthority 
+    \value RemovePath   The URL's path is removed, leaving only the scheme,
+                        host address, and port (if present).
+    \value RemoveQuery  The query part of the URL (following a '?' character)
+                        is removed.
+    \value RemoveFragment  
+    \value StripTrailingSlash  The trailing slash is removed if one is present.
 */
 
 #include <private/qunicodetables_p.h>
