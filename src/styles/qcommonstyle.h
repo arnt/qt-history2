@@ -116,22 +116,6 @@ public:
 			   void **returnData = 0 ) const;
 
 
-
-
-
-
-
-
-    // tabbars
-    void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
-    void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-
-    // groupbox
-    void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );
-    void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb );
-
-    void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
-
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );

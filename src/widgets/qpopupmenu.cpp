@@ -732,9 +732,20 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 
     QMenuItem *mi;
     QMenuItemListIt it( *mitems );
+    QSize sz;
+    void *data[2];
     while ( (mi=it.current()) ) {
 	++it;
-	int itemh = itemHeight( row );
+	int itemh = itemHeight( mi );
+
+	data[0] = mi;
+	data[1] = (void *) &maxPMWidth;
+	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+				      QSize(0, itemh), data);
+	sz = sz.expandedTo(QSize(itemw, sz.height()));
+	itemw = sz.width();
+	itemh = sz.height();
+
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -758,6 +769,8 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 QRect QPopupMenu::itemGeometry( int index )
 {
     QMenuItem *mi;
+    QSize sz;
+    void *data[2];
     int row = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
@@ -766,6 +779,15 @@ QRect QPopupMenu::itemGeometry( int index )
     while ( (mi=it.current()) ) {
 	++it;
 	int itemh = itemHeight( mi );
+
+	data[0] = mi;
+	data[1] = &maxPMWidth;
+	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+				      QSize(0, itemh), data);
+	sz = sz.expandedTo(QSize(itemw, sz.height()));
+	itemw = sz.width();
+	itemh = sz.height();
+
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -804,7 +826,6 @@ void QPopupMenu::updateSize()
     maxPMWidth = 0;
     int maxWidgetWidth = 0;
     tab = 0;
-    int arrow_width = style().popupSubmenuIndicatorWidth( fm );
 
     bool hasWidgetItems = FALSE;
 
@@ -836,47 +857,53 @@ void QPopupMenu::updateSize()
 	    if ( s.width()  > maxWidgetWidth )
 		maxWidgetWidth = s.width();
 	    itemHeight = s.height();
-	} else {
+	} else if (! mi->isSeparator()) {
 	    if ( mi->custom() ) {
 		if ( mi->custom()->fullSpan() ) {
-		    maxWidgetWidth = QMAX( maxWidgetWidth, mi->custom()->sizeHint().width() );
+		    maxWidgetWidth = QMAX( maxWidgetWidth,
+					   mi->custom()->sizeHint().width() );
 		} else {
 		    QSize s ( mi->custom()->sizeHint() );
 		    w += s.width();
 		}
 	    }
 
-	    if ( !mi->text().isNull() && !mi->isSeparator() ) {
+	    w += maxPMWidth;
+
+	    if (! mi->text().isNull()) {
 		QString s = mi->text();
 		int t;
-		if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
+		if ( (t = s.find('\t')) >= 0 ) { // string contains tab
 		    w += fm.width( s, t );
-		    w -= s.contains('&')*fm.width('&');
-		    w += s.contains("&&")*fm.width('&');
-		    int tw = fm.width( s.mid(t+1) );
+		    w -= s.contains('&') * fm.width('&');
+		    w += s.contains("&&") * fm.width('&');
+		    int tw = fm.width( s.mid(t + 1) );
 		    if ( tw > tab)
 			tab = tw;
 		} else {
 		    w += fm.width( s );
-		    w -= s.contains('&')*fm.width('&');
-		    w += s.contains("&&")*fm.width('&');
+		    w -= s.contains('&') * fm.width('&');
+		    w += s.contains("&&") * fm.width('&');
 		}
-	    }
-	}
+	    } else if (mi->pixmap())
+		w += mi->pixmap()->width();
 
-	w += style().extraPopupMenuItemWidth( checkable, maxPMWidth, mi, fm );
+	    void *data[2];
+	    data[0] = (void *) mi;
+	    data[1] = (void *) &maxPMWidth;
+	    QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+						QSize(w, itemHeight), data);
 
-	if ( mi->popup() ) { // submenu indicator belong in the right tab area
-	    if ( arrow_width > tab )
-		tab = arrow_width;
-	}
-
+	    w = sz.width();
+	    itemHeight = sz.height();
 
 #if defined(QT_CHECK_NULL)
-	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() && !mi->widget() && !mi->custom() )
-	    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
-		     name( "unnamed" ) );
+	    if ( mi->text().isNull() && !mi->pixmap() &&
+		 !mi->isSeparator() && !mi->widget() && !mi->custom() )
+		qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
+			  name( "unnamed" ) );
 #endif
+	}
 
 	height += itemHeight;
 	if ( height + 2*frameWidth()  >= dh ) {
@@ -905,19 +932,29 @@ void QPopupMenu::updateSize()
 
     badSize = FALSE;
 
-
     if ( hasWidgetItems ) {
 	// Position the widget items. It could be done in drawContents
 	// but this way we get less flicker.
 	QMenuItemListIt it(*mitems);
 	QMenuItem *mi;
+	QSize sz;
+	void *data[2];
 	int row = 0;
 	int x = contentsRect().x();
 	int y = contentsRect().y();
 	int itemw = contentsRect().width() / ncols;
 	while ( (mi=it.current()) ) {
 	    ++it;
-	    int itemh = itemHeight( row );
+	    int itemh = itemHeight( mi );
+
+	    data[0] = mi;
+	    data[1] = &maxPMWidth;
+	    sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+					  QSize(0, itemh), data);
+	    sz = sz.expandedTo(QSize(itemw, sz.height()));
+	    itemw = sz.width();
+	    itemh = sz.height();
+
 	    if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 		y = contentsRect().y();
 		x +=itemw;
@@ -1113,13 +1150,26 @@ int QPopupMenu::itemHeight( int row ) const
 int QPopupMenu::itemHeight( QMenuItem *mi ) const
 {
     if  ( mi->widget() )
-	return QMAX( mi->widget()->height(), QApplication::globalStrut().height() );
+	return mi->widget()->height();
     if ( mi->custom() && mi->custom()->fullSpan() )
-	return QMAX( mi->custom()->sizeHint().height(), QApplication::globalStrut().height() );
-    if ( mi->isSeparator() )
-	return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
+	return mi->custom()->sizeHint().height();
 
-    return QMAX( style().popupMenuItemHeight( checkable, mi, fontMetrics() ), QApplication::globalStrut().height() );
+    QFontMetrics fm(fontMetrics());
+    int h = 0;
+    if ( mi->isSeparator() ) // separator height
+        h = 2;
+    else if ( mi->pixmap() ) // pixmap height
+        h = mi->pixmap()->height();
+    else                     // text height
+        h = fm.height();
+
+    if ( !mi->isSeparator() && mi->iconSet() != 0 )
+        h = QMAX(h, mi->iconSet()->pixmap( QIconSet::Small,
+					   QIconSet::Normal ).height());
+    if ( mi->custom() )
+        h = QMAX(h, mi->custom()->sizeHint().height());
+
+    return h;
 }
 
 
@@ -1135,15 +1185,29 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
     bool dis = !mi->isEnabled();
+    QColorGroup cg;
+
+    if (dis)
+	cg = palette().disabled();
+    else
+	cg = colorGroup();
+
+    void *data[3];
+    data[0] = mi;
+    data[1] = &tab_;
+    data[2] = &maxPMWidth;
+
     if ( mi->custom() && mi->custom()->fullSpan() ) {
 	QMenuItem dummy;
-	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, &dummy, palette(),
-				  act, !dis, x, y, w, h);
-	mi->custom()->paint( p, colorGroup(), act, !dis, x, y, w, h );
-    }
-    else
-	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
-				  act, !dis, x, y, w, h);
+	data[0] = &dummy;
+	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
+			    (act ? QStyle::CStyle_Selected : QStyle::CStyle_Default),
+			    data);
+	mi->custom()->paint( p, cg, act, !dis, x, y, w, h );
+    } else
+	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
+			    (act ? QStyle::CStyle_Selected : QStyle::CStyle_Default),
+			    data);
 }
 
 
@@ -1158,13 +1222,29 @@ void QPopupMenu::drawContents( QPainter* p )
     int x = contentsRect().x();
     int y = contentsRect().y();
     int itemw = contentsRect().width() / ncols;
+    QSize sz;
+    void *data[3];
     while ( (mi=it.current()) ) {
 	++it;
-	int itemh = itemHeight( row );
+	int itemh = itemHeight( mi );
+
+	data[0] = mi;
+	data[1] = &maxPMWidth;
+	data[2] = 0;
+	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+				      QSize(0, itemh), data);
+	sz = sz.expandedTo(QSize(itemw, sz.height()));
+	itemw = sz.width();
+	itemh = sz.height();
+
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    if ( y < contentsRect().bottom() ) {
-		style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, 0, palette(),
-					  FALSE, TRUE, x, y, itemw, contentsRect().bottom()-y);
+		data[0] = 0;
+		data[1] = &tab;
+		data[2] = &maxPMWidth;
+		style().drawControl(QStyle::CE_PopupMenuItem, p, this,
+				    QRect(x, y, itemw, contentsRect().bottom() - y),
+				    colorGroup(), QStyle::CStyle_Default, data);
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -1173,9 +1253,14 @@ void QPopupMenu::drawContents( QPainter* p )
 	y += itemh;
 	++row;
     }
-    if ( y < contentsRect().bottom() )
-	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, 0, palette(),
-				  FALSE, TRUE, x, y, itemw, contentsRect().bottom()-y);
+    if ( y < contentsRect().bottom() ) {
+	data[0] = 0;
+	data[1] = &tab;
+	data[2] = &maxPMWidth;
+	style().drawControl(QStyle::CE_PopupMenuItem, p, this,
+			    QRect(x, y, itemw, contentsRect().bottom() - y),
+			    colorGroup(), QStyle::CStyle_Default, data);
+    }
 }
 
 
@@ -1684,11 +1769,10 @@ void QPopupMenu::subMenuTimer() {
 	if ( left )
 	    p.setX( mapToGlobal( r.topLeft() ).x() - ps.width() );
     }
-    if (p.y() + ps.height() > QApplication::desktop()->height()
-	&& p.y() - ps.height()
-	+ (QCOORD)(popup->itemHeight( popup->count()-1)) >= 0)
-	p.setY( p.y() - ps.height()
-		+ (QCOORD)(popup->itemHeight( popup->count()-1)));
+    QRect pr = popup->itemGeometry(popup->count() - 1);
+    if (p.y() + ps.height() > QApplication::desktop()->height() &&
+	p.y() - ps.height() + (QCOORD) pr.height() >= 0)
+	p.setY( p.y() - ps.height() + (QCOORD) pr.height());
 
     popupActive = actItem;
     popup->popup( p );
@@ -1711,13 +1795,24 @@ void QPopupMenu::updateRow( int row )
     QPainter p(this);
     QMenuItemListIt it(*mitems);
     QMenuItem *mi;
+    QSize sz;
+    void *data[2];
     int r = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
     int itemw = contentsRect().width() / ncols;
     while ( (mi=it.current()) ) {
 	++it;
-	int itemh = itemHeight( r );
+	int itemh = itemHeight( mi );
+
+	data[0] = mi;
+	data[1] = &maxPMWidth;
+	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+				      QSize(0, itemh), data);
+	sz = sz.expandedTo(QSize(itemw, sz.height()));
+	itemw = sz.width();
+	itemh = sz.height();
+
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
 	    x +=itemw;

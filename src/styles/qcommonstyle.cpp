@@ -94,177 +94,6 @@ QCommonStyle::~QCommonStyle()
 {
 }
 
-/*! \reimp */
-void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
-				  int& overlap) const
-{
-#ifndef QT_NO_TABBAR
-    overlap = 3;
-    hframe = 24;
-    vframe = 0;
-    if ( t->shape() == QTabBar::RoundedAbove || t->shape() == QTabBar::RoundedBelow )
-	vframe += 10;
-#endif
-}
-
-/*! \reimp */
-void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
-{
-#ifndef QT_NO_TABBAR
-    if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
-	// triangular, above or below
-	int y;
-	int x;
-	QRect r = t->rect();
-	QPointArray a( 10 );
-	a.setPoint( 0, 0, -1 );
-	a.setPoint( 1, 0, 0 );
-	y = r.height()-2;
-	x = y/3;
-	a.setPoint( 2, x++, y-1 );
-	a.setPoint( 3, x++, y );
-	a.setPoint( 3, x++, y++ );
-	a.setPoint( 4, x, y );
-
-	int i;
-	int right = r.width() - 1;
-	for ( i = 0; i < 5; i++ )
-	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
-
-	if ( tb->shape() == QTabBar::TriangularAbove )
-	    for ( i = 0; i < 10; i++ )
-		a.setPoint( i, a.point(i).x(),
-			    r.height() - 1 - a.point( i ).y() );
-
-	a.translate( r.left(), r.top() );
-
-	if ( selected )
-	    p->setBrush( tb->colorGroup().base() );
-	else
-	    p->setBrush( tb->colorGroup().background() );
-	p->setPen( tb->colorGroup().foreground() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
-    }
-#endif
-}
-
-/*! \reimp */
-void QCommonStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled )
-{
-    drawItem( p, QRect(x, y, w, h), AlignCenter + ShowPrefix, g, enabled, 0, text );
-}
-
-/*! \reimp */
-void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb )
-{
-    QPoint		p1, p2;
-    QFrame::Shape	type  = gb->frameShape();
-    QFrame::Shadow	cstyle = gb->frameShadow();
-    int			lwidth = gb->lineWidth();
-    int			mlwidth = gb->midLineWidth();
-
-    switch ( type ) {
-    case QFrame::Box:
-	if ( cstyle == QFrame::Plain )
-	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-	else
-	    qDrawShadeRect( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth, mlwidth );
-	break;
-
-    case QFrame::StyledPanel:
-	if ( cstyle == QFrame::Plain )
-	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-	// else
-	// drawPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
-	break;
-
-    case QFrame::PopupPanel:
-	if ( cstyle == QFrame::Plain )
-	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-	// else
-	// drawPopupPanel( p, x, y, w, h, g, lwidth );
-	break;
-
-    case QFrame::Panel:
-	if ( cstyle == QFrame::Plain )
-	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-	else
-	    qDrawShadePanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
-	break;
-
-    case QFrame::WinPanel:
-	if ( cstyle == QFrame::Plain )
-	    qDrawPlainRect( p, x, y, w, h, g.foreground(), 2 );
-	else
-	    qDrawWinPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken );
-	break;
-    case QFrame::MenuBarPanel:
-	// drawMenuBarPanel( p, x, y, w, h, g );
-	break;
-    case QFrame::ToolBarPanel:
-	// drawToolBarPanel( p, x, y, w, h, g );
-	break;
-    case QFrame::HLine:
-    case QFrame::VLine:
-	if ( type == QFrame::HLine ) {
-	    p1 = QPoint( x, h/2 );
-	    p2 = QPoint( x+w, p1.y() );
-	}
-	else {
-	    p1 = QPoint( x+w/2, 0 );
-	    p2 = QPoint( p1.x(), h );
-	}
-	if ( cstyle == QFrame::Plain ) {
-	    QPen oldPen = p->pen();
-	    p->setPen( QPen(g.foreground(),lwidth) );
-	    p->drawLine( p1, p2 );
-	    p->setPen( oldPen );
-	}
-	else
-	    qDrawShadeLine( p, p1, p2, g, cstyle == QFrame::Sunken,
-			    lwidth, mlwidth );
-	break;
-    default:
-	break;
-    }
-}
-
-/*! \reimp */
-void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
-{
-    p->save();
-    int sw = QMIN( h,w );
-    if ( h > w )
-	p->translate( 0, h - w );
-    else
-	p->translate( w - h, 0 );
-
-    int sx = x;
-    int sy = y;
-    int s = sw / 3;
-
-    for ( int i = 0; i < 4; ++i ) {
-	p->setPen( QPen( g.light(), 1 ) );
-	p->drawLine(  sx-1, sw, sw,  sy-1 );
-	p->setPen( QPen( g.dark(), 1 ) );
-	p->drawLine(  sx, sw, sw,  sy );
-	p->setPen( QPen( g.dark(), 1 ) );
-	p->drawLine(  sx+1, sw, sw,  sy+1 );
-	sx += s;
-	sy += s;
-    }
-
-    p->restore();
-}
-
-#endif
-
-
-
-
-
-
 
 
 #define TITLEBAR_PAD 3
@@ -506,6 +335,72 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	}
 	break; }
 
+    case PO_SizeGrip: {
+	p->save();
+
+	int x, y, w, h;
+	r.rect(&x, &y, &w, &h);
+
+	int sw = QMIN( h,w );
+	if ( h > w )
+	    p->translate( 0, h - w );
+	else
+	    p->translate( w - h, 0 );
+
+	int sx = x;
+	int sy = y;
+	int s = sw / 3;
+
+	for ( int i = 0; i < 4; ++i ) {
+	    p->setPen( QPen( cg.light(), 1 ) );
+	    p->drawLine(  sx-1, sw, sw,  sy-1 );
+	    p->setPen( QPen( cg.dark(), 1 ) );
+	    p->drawLine(  sx, sw, sw,  sy );
+	    p->setPen( QPen( cg.dark(), 1 ) );
+	    p->drawLine(  sx+1, sw, sw,  sy+1 );
+	    sx += s;
+	    sy += s;
+	}
+
+	p->restore();
+	break; }
+
+    case PO_CheckMark: {
+	const int markW = r.width() > 7 ? 7 : r.width();
+	const int markH = markW;
+	int posX = r.x() + ( r.width() - markW )/2 + 1;
+	int posY = r.y() + ( r.height() - markH )/2;
+
+	// Could do with some optimizing/caching...
+	QPointArray a( markH*2 );
+	int i, xx, yy;
+	xx = posX;
+	yy = 3 + posY;
+	for ( i=0; i<markW/2; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy++;
+	}
+	yy -= 2;
+	for ( ; i<markH; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy--;
+	}
+	if ( ! ((flags & PStyle_Enabled) && (flags & PStyle_On))) {
+	    int pnt;
+	    p->setPen( cg.highlightedText() );
+	    QPoint offset(1,1);
+	    for ( pnt = 0; pnt < (int)a.size(); pnt++ )
+		a[pnt] += offset;
+	    p->drawLineSegments( a );
+	    for ( pnt = 0; pnt < (int)a.size(); pnt++ )
+		a[pnt] -= offset;
+	}
+	p->setPen( cg.text() );
+	p->drawLineSegments( a );
+	break; }
+
     case PO_GroupBoxFrame: {
 	void ** sdata = (void **) data;
 	if ( !sdata )
@@ -520,7 +415,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	int y = r.y();
 	int w = r.width();
 	int h = r.height();
-	
+
 	switch ( type ) {
 	case QFrame::Box:
 	    if ( cstyle == QFrame::Plain )
@@ -557,7 +452,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	default:
 	    break;
 	}
-    break; }
+	break; }
 
     default:
 	break;
@@ -575,8 +470,6 @@ void QCommonStyle::drawControl( ControlElement element,
 				CFlags how,
 				void *data ) const
 {
-    Q_UNUSED(how);
-
     PFlags flags = PStyle_Default;
     if (widget->isEnabled())
 	flags |= PStyle_Enabled;
@@ -1278,7 +1171,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    break;
 	}
 	break;
-	
+
     case CC_Slider:
 	switch ( controls ) {
 	case SC_SliderTickmarks: {
@@ -1330,7 +1223,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				     tickOffset+thickness+1 + available-2 );
 		    else
 			p->drawLine( tickOffset+thickness+1, pos,
-				     tickOffset+thickness+1 + available-2, 
+				     tickOffset+thickness+1 + available-2,
 				     pos );
 		    v += interval;
 		}
@@ -1340,7 +1233,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    break; }
 	}
 	break;
-	
+
     default:
 	break;
     }
@@ -1749,10 +1642,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	QSlider * sl = (QSlider *) widget;
 	if ( sl->orientation() == Horizontal )
 	    ret = sl->width() - pixelMetric( PM_SliderLength, sl );
-	else 
+	else
 	    ret = sl->height() - pixelMetric( PM_SliderLength, sl );
 	break; }
-    
+
     case PM_DockWindowSeparatorExtent:
 	ret = 6;
 	break;
@@ -1813,7 +1706,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 QSize QCommonStyle::sizeFromContents(ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
-				     void * ) const
+				     void *data ) const
 {
     QSize sz(contentsSize);
 
@@ -1858,6 +1751,39 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
 	break; }
 
+    case CT_PopupMenuItem: {
+	if (! widget || ! data)
+	    break;
+
+	QPopupMenu *popup = (QPopupMenu *) widget;
+	bool checkable = popup->isCheckable();
+      	void **sdata = (void **) data;
+	QMenuItem *mi = (QMenuItem *) sdata[0];
+	int maxpmw = *((int *) sdata[1]);
+	int w = sz.width(), h = sz.height() + 8;
+
+	if (mi->isSeparator()) {
+	    w = 10;
+	    h = 2;
+	    break;
+	}
+
+	if (! mi->text().isNull()) {
+	    if (mi->text().find('\t') >= 0)
+		w += 12;
+	}
+
+	if (maxpmw)
+	    w += maxpmw + 6;
+	if (checkable && maxpmw < 20)
+	    w += 20 - maxpmw;
+	if (checkable || maxpmw > 0)
+	    w += 2;
+	w += 12;
+
+	sz = QSize(w, h);
+	break; }
+
     case CT_ProgressBar:
 	// just return the contentsSize for now
 	// fall through intended
@@ -1889,3 +1815,5 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void **) const
 
     return ret;
 }
+
+#endif // QT_NO_STYLE

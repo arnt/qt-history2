@@ -85,6 +85,8 @@ public:
 
     virtual void polish( QPalette & );
 
+    virtual void polishPopupMenu( QPopupMenu* ) = 0;
+
     virtual QRect itemRect( QPainter *p, const QRect &r,
 			    int flags, bool enabled,
 			    const QPixmap *pixmap,
@@ -133,14 +135,16 @@ public:
 
 	PO_HeaderSection,
 	PO_StatusBarSection,
-	
+
 	PO_GroupBoxFrame,
 
-	PO_Separator
+	PO_Separator,
+
+	PO_SizeGrip,
+
+	PO_CheckMark
 
         /*
-	  PO_CheckMark,
-
 	  PO_ScrollBarLineUp,
 	  PO_ScrollBarLineDown,
 	  PO_ScrollBarLinePageUp,
@@ -192,11 +196,9 @@ public:
 	CE_Splitter,
 
 	CE_ProgressBar,
-	CE_ProgressBarLabel
+	CE_ProgressBarLabel,
 
-        /*
-	  CE_MenuBarItem,
-	*/
+	CE_PopupMenuItem
     };
 
     enum ControlElementFlags{
@@ -257,10 +259,6 @@ public:
 	CC_ToolButton,
 	CC_TitleBar,
 	CC_ListView
-
-	/*
-	  CC_MenuItem,
-	*/
     };
 
     enum SubControl {
@@ -303,13 +301,6 @@ public:
 	SC_ListView              =      0x00000001,
 	SC_ListViewBranch        =      0x00000002,
 	SC_ListViewExpand        =      0x00000004
-
-	/*
-	  SC_MenuItemCheck =		0x00000001,
-	  SC_MenuItemLabel =		0x00000002,
-	  SC_MenuItemAccel =		0x00000004,
-	  SC_MenuItemSubMenu =		0x00000008,
-	*/
     };
     typedef uint SCFlags;
 
@@ -379,8 +370,6 @@ public:
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
 
-	  PM_MenuItemSeparation,
-
 	  PM_ComboBoxAdditionalWidth,
 	  PM_ComboBoxAdditionalHeight,
 
@@ -401,7 +390,8 @@ public:
 	CT_ComboBox,
 	CT_Splitter,
 	CT_DockWindow,
-	CT_ProgressBar
+	CT_ProgressBar,
+	CT_PopupMenuItem
     };
 
     virtual QSize sizeFromContents( ContentsType contents,
@@ -439,53 +429,11 @@ public:
 
     GUIStyle guiStyle() const { return gs; }
 
-    // abstract section
-
-    // concrete section depending on Qt's widget cluster ( The line is
-    // hard to draw sometimes)
-
-    // tab bars
-    virtual void tabbarMetrics( const QTabBar*,
-				int&, int&, int& ) const = 0;
-    virtual void drawTab( QPainter*, const QTabBar*, QTab*,
-			  bool selected ) = 0;
-    virtual void tabBarExtensionMetrics( const QTabWidget *, int & w, int & h,
-					 int & overlap ) const;
-    virtual void drawTabBarExtension( QPainter * p, int x, int y, int w, int h,
-				      const QColorGroup & cg,
-				      const QTabWidget * tw );
-
-    // popup menus
-    virtual void drawCheckMark( QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &g,
-				bool act, bool dis ) = 0;
-    virtual void polishPopupMenu( QPopupMenu* ) = 0;
-
-    virtual int extraPopupMenuItemWidth( bool checkable, int maxpmw,
-					 QMenuItem* mi,
-					 const QFontMetrics& fm ) const = 0;
-    virtual int popupSubmenuIndicatorWidth(
-	const QFontMetrics& fm ) const;
-    virtual int popupMenuItemHeight( bool checkable,
-				     QMenuItem* mi,
-				     const QFontMetrics& fm ) const = 0;
-    virtual void drawPopupMenuItem( QPainter* p, bool checkable,
-				    int maxpmw, int tab, QMenuItem* mi,
-				    const QPalette& pal,
-				    bool act, bool enabled,
-				    int x, int y, int w, int h) = 0;
-
     // title bar
     // titleBarPixmap - how would we do something like this in the new api? use
     // styleHint and return pointers to pixmaps?
     virtual QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const = 0;
 
-
-    // groupbox
-    virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;
-    virtual void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb ) = 0;
-
-    virtual void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
 
 protected:
     static const QWidget *contextWidget();

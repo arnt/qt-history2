@@ -62,6 +62,8 @@ public:
     virtual void polish( QWidget * );
     virtual void unPolish( QWidget * );
 
+    virtual void polishPopupMenu( QPopupMenu* );
+
     // new stuff
     void drawPrimitive( PrimitiveOperation op,
 			QPainter *p,
@@ -111,40 +113,9 @@ public:
 
 
     // old stuff
-    void drawFocusRect( QPainter*,
-			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
-
-    void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
-    void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-
-    int splitterWidth() const;
-    void drawSplitter( QPainter *p, int x, int y, int w, int h,
-		       const QColorGroup &g, Orientation);
-
-    void drawCheckMark( QPainter *p, int x, int y, int w, int h,
-			const QColorGroup &g,
-			bool act, bool dis );
-
-    void polishPopupMenu( QPopupMenu* );
-
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
-                                 const QFontMetrics& fm ) const;
-    int popupMenuItemHeight( bool checkable, QMenuItem* mi,
-                             const QFontMetrics& fm ) const;
-    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab,
-                            QMenuItem* mi, const QPalette& pal, bool act,
-                            bool enabled, int x, int y, int w, int h);
-
-    // progressbar
-    int progressChunkWidth() const;
-    void drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
-    void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
     // title bar
     QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const;
-
-    // listview item
-    void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );
 
 
 protected:
