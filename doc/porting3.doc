@@ -231,25 +231,12 @@ supported.
 \section2 QDate
 
 Two member functions of QDate were virtual in Qt 2.0 and are not anymore
-in Qt 3.0. The information here is relevent only if you subclassed
+in Qt 3.0. The information here is relevant only if you subclassed
 QDate and reimplemented these functions:
 
 <dl>
 <p><dt><b>QString QDate::monthName( int month ) const</b></dt>
-   <dd>To override the default English short month names
-       ("Jan", "Feb", ..., "Dec"), you can now
-       translate the English strings (in the
-       "QDate::shortMonth" context, see
-       \link i18n.html Internationalization with Qt\endlink
-       for details) or even call QDate::setShortMonthNames().
-   </dd>
 <p><dt><b>QString QDate::dayName( int weekday ) const</b></dt>
-   <dd>To override the default English short day names
-       ("Mon", "Tue", ..., "Sun"), you can now
-       translate the English strings (in the
-       "QDate::shortDay" context) or even call
-       QDate::setShortDayNames().
-   </dd>
 </dl>
 
 Apart from losing their virtualness, QDate::monthName() and

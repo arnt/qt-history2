@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#236 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#237 $
 **
 ** Definition of QApplication class
 **
@@ -274,7 +274,6 @@ public slots:
 
 private:
     void	     construct( int &argc, char **argv, Type );
-    void	     updateQtToolsTranslations( QTranslator *mf );
     bool	     processNextEvent( bool );
     void	     initialize( int, char ** );
     void	     init_precmdline();
