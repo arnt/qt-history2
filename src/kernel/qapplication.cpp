@@ -706,12 +706,6 @@ QApplication::QApplication( int &argc, char **argv )
   initialized, regardless of the value of GUIenabled. This may change in
   future versions of Qt.
 
-  For threaded configurations (i.e. when Qt has been built as a threaded
-  library), the application global mutex will be locked in the constructor
-  and unlocked when entering the event loop with exec(). You must unlock
-  the mutex explicitly if you don't call exec(), otherwise you might
-  get warnings on application exit.
-
   The following example shows how to create an application that
   uses a graphical interface when available.
   \code
@@ -2690,7 +2684,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
-  When Qt is built with thread support, this function is threadsafe,
+  When Qt is built with thread support, this function is thread-safe,
   and you may call it from any running thread.
 
   \sa sendEvent(), notify()
@@ -2906,7 +2900,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
   be aware that killing events may cause \a receiver to break one or
   more invariants.
 
-  When Qt is built with thread support, this function is threadsafe,
+  When Qt is built with thread support, this function is thread-safe,
   and you may call it from any running thread.
 */
 
@@ -2945,7 +2939,7 @@ void QApplication::removePostedEvents( QObject *receiver )
   \warning This function can be \e really slow. Avoid using it, if
   possible.
 
-  When Qt is built with thread support, this function is threadsafe,
+  When Qt is built with thread support, this function is thread-safe,
   and you may call it from any running thread.
 */
 
@@ -2964,7 +2958,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 
 #ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( postevent_mutex );
-#endif
+#endif // QT_THREAD_SUPPORT
 
     QPostEventListIt it( *globalPostedEvents );
     QPostEvent * pe;
@@ -3290,7 +3284,7 @@ bool QApplication::desktopSettingsAware()
 
 /*! \fn void QApplication::lock()
 
-  Lock the Qt library mutex. If another thread has already locked the
+  Lock the Qt Library Mutex. If another thread has already locked the
   mutex, the calling thread will block until the other thread has
   unlocked the mutex.
 
@@ -3300,7 +3294,7 @@ bool QApplication::desktopSettingsAware()
 
 /*! \fn void QApplication::unlock(bool wakeUpGui)
 
-  Unlock the Qt library mutex. If \a wakeUpGui is TRUE (the default),
+  Unlock the Qt Library Mutex. If \a wakeUpGui is TRUE (the default),
   then the GUI thread will be woken with QApplication::wakeUpGuiThread().
 
   \sa lock(), locked() \link threads.html Thread Support in Qt\endlink
@@ -3309,7 +3303,7 @@ bool QApplication::desktopSettingsAware()
 
 /*! \fn bool QApplication::locked()
 
-  Returns TRUE if the Qt library mutex is locked by a different thread;
+  Returns TRUE if the Qt Library Mutex is locked by a different thread;
   otherwise returns FALSE.
 
   \warning Due to different implementations of recursive mutexes on
@@ -3321,7 +3315,7 @@ bool QApplication::desktopSettingsAware()
 
 /*! \fn bool QApplication::tryLock()
 
-  Attempts to lock the Qt library mutex, and returns immediately. If
+  Attempts to lock the Qt Library Mutex, and returns immediately. If
   the lock was obtained, this function returns TRUE. If another thread
   has locked the mutex, this function returns FALSE, instead of
   waiting for the lock to become available.
