@@ -127,6 +127,10 @@
     referenced in native code (the garbage collector can after all
     delete the object living in bytecode any moment), so there is no 
     simple way to communicate in that direction.
+    \footnote
+    Visual Studio.NET includes a template class \c gcroot that allows
+    __gc-members in native classes.
+    \endfootnote
 
     \printuntil }
 
