@@ -36,8 +36,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>926</width>
-            <height>770</height>
+            <width>922</width>
+            <height>768</height>
         </rect>
     </property>
     <property name="caption">
@@ -119,7 +119,7 @@
             <string>Exit</string>
         </property>
         <property name="menuText">
-            <string>&amp;Exit</string>
+            <string>E&amp;xit</string>
         </property>
     </action>
     <action>
