@@ -13,6 +13,7 @@
 
 #include "qt_windows.h"
 #include "qvector.h"
+#include "qbytearray.h"
 
 /*
   This file contains the code in the qtmain library for Windows.
