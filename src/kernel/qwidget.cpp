@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#25 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#25 $";
 #endif
 
 
@@ -280,6 +280,8 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     while ( w ) {
 	p += w->crect.topLeft();
 	w = w->parentWidget();
+	if ( w && w->testFlag(WType_Overlap) )
+	    break;
     }
     return p;
 }
@@ -291,6 +293,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     while ( w ) {
 	p -= w->crect.topLeft();
 	w = w->parentWidget();
+	if ( w && w->testFlag(WType_Overlap) )
+	    break;
     }
     return p;
 }
