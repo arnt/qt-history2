@@ -523,8 +523,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
-    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console") &&
-       project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
+    if(!project->isActiveConfig("console") && project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
 	QString grp("Bundle Resources"), key = keyFor(grp);
 	project->variables()["QMAKE_PBX_BUILDPHASES"].append(key);
 	t << "\t\t" << key << " = {" << "\n"
@@ -709,6 +708,24 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
+    if(project->first("TEMPLATE") == "app") {
+	QString file = Option::mkfile::qmakespec + Option::dir_sep + "Info.plist.app";
+	if(QFile::exists(file)) {
+	    QFile plist_in_file(file);
+	    if(plist_in_file.open(IO_ReadOnly)) {
+		QTextStream plist_in(&plist_in_file);
+		QString plist_in_text = plist_in.read();
+		if(!project->isEmpty("RC_FILE"))
+		    plist_in_text = plist_in_text.replace("application.icns", project->first("RC_FILE").section(Option::dir_sep, -1));
+		QFile plist_out_file("Info.plist");
+		if(plist_out_file.open(IO_WriteOnly | IO_Translate)) {
+		    QTextStream plist_out(&plist_out_file);
+		    plist_out << plist_in_text;
+		    t << "\t\t\t\t" << "INFOPLIST_FILE = \"Info.plist\";" << "\n";
+		}
+	    }
+	}
+    }
 #if 1
     t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
 #endif
@@ -732,12 +749,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(!project->isEmpty("OBJECTS_DIR"))
 	    t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
     }
+#if 0
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t\t" << "SYMROOT = \"" << project->first("DESTDIR") << "\";" << "\n";
     else
 	t << "\t\t\t\t" << "SYMROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
+#endif
     if(project->first("TEMPLATE") == "app") {
-	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
+	if(ideType() == MAC_PBUILDER && !project->isActiveConfig("console"))
 	    t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n";
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
@@ -779,11 +798,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    else
 		t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
 	} else {
-	    if(ideType() == MAC_XCODE) {
+	    if(ideType() == MAC_XCODE)
 		t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
-	    } else {
+	    else
 		t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
-	    }
 	    t << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
 	      << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
 	      << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
@@ -809,6 +827,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t\t\t\t" << "<true/>" << "\n"
 	      << "\t\t\t\t" << "</dict>" << "\n"
 	      << "\t\t\t\t" << "</plist>" << "\";" << "\n";
+
 	}
 	t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
