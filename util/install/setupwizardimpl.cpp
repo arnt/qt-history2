@@ -34,6 +34,15 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     tmpPath( QEnvironment::getTempPath() )
 {
     totalFiles = 0;
+    // Disable the HELP button
+    setHelpEnabled( introPage, false );
+    setHelpEnabled( licensePage, false );
+    setHelpEnabled( optionsPage, false );
+    setHelpEnabled( configPage, false );
+    setHelpEnabled( progressPage, false );
+    setHelpEnabled( buildPage, false );
+    setHelpEnabled( finishPage, false );
+
     setNextEnabled( introPage, false );
     setNextEnabled( licensePage, false );
     setBackEnabled( progressPage, false );
