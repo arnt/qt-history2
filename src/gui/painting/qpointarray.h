@@ -50,13 +50,15 @@ public:
     void putPoints(int index, int nPoints, int firstx, int firsty, ...);
     void putPoints(int index, int nPoints, const QPointArray & from, int fromIndex=0);
 
-    void makeEllipse(int x, int y, int w, int h);
+#ifdef QT_COMPAT
+    QT_COMPAT void makeEllipse(int x, int y, int w, int h);
 #ifndef QT_NO_WMATRIX
-    void makeArc(int x, int y, int w, int h, int a1, int a2);
-    void makeArc(int x, int y, int w, int h, int a1, int a2, const QMatrix &matrix);
+    QT_COMPAT void makeArc(int x, int y, int w, int h, int a1, int a2);
+    QT_COMPAT void makeArc(int x, int y, int w, int h, int a1, int a2, const QMatrix &matrix);
 #endif
 #ifndef QT_NO_BEZIER
-    QPointArray cubicBezier() const;
+    QT_COMPAT QPointArray cubicBezier() const;
+#endif
 #endif
 };
 
