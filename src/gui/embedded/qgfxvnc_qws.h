@@ -17,13 +17,8 @@
 #ifndef QT_H
 #endif // QT_H
 
-#if defined(Q_OS_QNX6)
-#define VNCSCREEN_BASE QQnxScreen
-#include "qwsgfx_qnx.h"
-#else
 #define VNCSCREEN_BASE QLinuxFbScreen
 #include "qgfxlinuxfb_qws.h"
-#endif
 
 #ifndef QT_NO_QWS_VNC
 

@@ -196,12 +196,7 @@ const QWSKeyMap *QWSPC101KeyboardHandler::keyMap() const
     return pc101KeyM;
 }
 
-#ifdef Q_OS_QNX6
-void QWSPC101KeyboardHandler::doKey(uchar code){};
-void QWSQnxKeyboardHandler::doKey(uchar code)
-#else
 void QWSPC101KeyboardHandler::doKey(uchar code)
-#endif
 {
     int keyCode = Qt::Key_unknown;
     bool release = false;

@@ -50,7 +50,6 @@ UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 PLATFORM_X11=no
 PLATFORM_MAC=no
 PLATFORM_QWS=no
-PLATFORM_QNX=no
 
 if [ -f $relpath/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
@@ -63,12 +62,7 @@ elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
     # ~ src/gui/base/qapplication_qws.cpp is present
     # ~ this is the free or commercial edition
     # ~ this is the internal edition and Qt/Embedded is explicitly enabled
-    # ~ this is the internal edition and the OS is QNX
-    if [ "$UNAME_SYSTEM" = "QNX" ]; then
-	PLATFORM_QNX=maybe
-    else
-	PLATFORM_QWS=maybe
-    fi
+    PLATFORM_QWS=maybe
 fi
 
 
@@ -100,10 +94,9 @@ elif [ -f $relpath/LICENSE.EVAL ]; then
     Licensee="Evaluation"
     Products="qt-eval"
 # Internal Trolltech edition.
-# Qt/X11, Qt/Embedded, Qt/Mac, Qt/QNX
+# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.TROLL ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
-    [ "$PLATFORM_QNX" = "maybe" ] && PLATFORM_QNX=yes
     Edition="troll"
     Licensee="Trolltech"
     Products="qt-internal"
@@ -509,10 +502,8 @@ while [ "$#" -gt 0 ]; do
 	;;
     embedded)
 	CFG_EMBEDDED="$VAL"
-	if [ "$PLATFORM_QNX" != "no" -o "$PLATFORM_QWS" != "no" ]; then
-	    if [ "$PLATFORM_QNX" = "maybe" ]; then
-		PLATFORM_QNX=yes
-	    elif [ "$PLATFORM_QWS" = "maybe" ]; then
+	if [ "$PLATFORM_QWS" != "no" ]; then
+	    if [ "$PLATFORM_QWS" = "maybe" ]; then
 		PLATFORM_QWS=yes
 	    fi
 	else
@@ -1259,16 +1250,6 @@ fi ### help
 [ "$PLATFORM_QWS" = "yes" -a "$CFG_EMBEDDED" = "no" ] && CFG_EMBEDDED=auto
 if [ "$CFG_EMBEDDED" != "no" ]; then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
-    QNX:*)
-        [ -z "$PLATFORM" ] && PLATFORM=qws/qnx-rtp-g++
-#	[ "$CFG_EMBEDDED" = "qnx4" ] && PLATFORM_QNX=qws/qnx4-cc
-	if [ -z "$XPLATFORM" ]; then
-	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
-	    XPLATFORM="$PLATFORM"
-        fi
-	CFG_STL=no
-	CFG_QWS_QVFB=no
-	;;
     Darwin:*)
 	[ -z "$PLATFORM" ] && PLATFORM=qws/macx-generic-g++
 	if [ -z "$XPLATFORM" ]; then
@@ -1319,7 +1300,6 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
 	echo "Qt/Embedded is not supported on this platform. Disabling."
 	CFG_EMBEDDED=no
 	PLATFORM_QWS=no
-	PLATFORM_QNX=no
 	;;
     esac
 fi
@@ -1342,9 +1322,6 @@ if [ -z "$PLATFORM" ]; then
 	PLATFORM_NOTES="
 	    - Also available for AIX: aix-g++ aix-g++-64 aix-xlc-64
 	"
-	;;
-     QNX:*)
-	PLATFORM=qnx-g++
 	;;
      GNU:*)
 	PLATFORM=hurd-g++
@@ -1473,7 +1450,7 @@ if [ -z "$PLATFORM" ]; then
     esac
 fi
 
-if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
+if [ "$PLATFORM_QWS" = "yes" ]; then
     CFG_SM=no
     PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
 else
@@ -2269,7 +2246,7 @@ Qt/X11 only:
 EOF
 fi
 
-if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
+if [ "$PLATFORM_QWS" = "yes" ]; then
     cat << EOF
 
 Qt/Embedded only:
@@ -2389,9 +2366,7 @@ if [ "$Edition" = "free" ]; then
 	fi
     done
 elif [ "$Edition" = "preview" ]; then
-    if [ "$PLATFORM_QNX" = "yes" ]; then
-	Platform="Qt/QNX"
-    elif [ "$PLATFORM_QWS" = "yes" ]; then
+    if [ "$PLATFORM_QWS" = "yes" ]; then
 	Platform="Qt/Embedded"
     elif [ "$PLATFORM_MAC" = "yes" ]; then
 	Platform="Qt/Mac"
@@ -2488,9 +2463,7 @@ elif [ "$Edition" = "eval" ]; then
 	fi
     done
 elif [ "$Edition" = "troll" ]; then
-    if [ "$PLATFORM_QNX" = "yes" ]; then
-	Platform="Qt/QNX"
-    elif [ "$PLATFORM_QWS" = "yes" ]; then
+    if [ "$PLATFORM_QWS" = "yes" ]; then
 	Platform="Qt/Embedded"
     elif [ "$PLATFORM_MAC" = "yes" ]; then
 	Platform="Qt/Mac"
@@ -2663,11 +2636,6 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
 	    EXTRA_SOURCES="qurl.o qsettings_mac.o qcore_mac.o"
-        elif [ "$PLATFORM_QNX" = "yes" ]; then
-	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
-	  echo "QNX_CFLAGS += -lcpp" >>$mkfile
-	  EXTRA_LFLAGS="$EXTRA_CFLAGS \$(QNX_LFLAGS)"
-	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QNX_CFLAGS)"
 	fi
 	[ "$CFG_EMBEDDED" != "no" ] && EXTRA_CFLAGS="$EXTRA_CFLAGS -DQWS"
 	if [ '!' -z "$D_FLAGS" ]; then
@@ -2888,7 +2856,7 @@ elif [ "$CFG_SHARED" = "no" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-static"
     QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
 fi
-if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
+if [ "$PLATFORM_QWS" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$CFG_EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes

@@ -59,10 +59,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &device)
 {
     QString driver = key.toLower();
-#ifdef Q_OS_QNX6
-    if (driver == "qnx" || driver.isEmpty())
-        return new QWSQnxMouseHandler(key, device);
-#endif
 #ifndef QT_NO_QWS_MOUSE_LINUXTP
     if (driver == "linuxtp" || driver.isEmpty())
         return new QWSLinuxTPMouseHandler(key, device);
@@ -106,10 +102,6 @@ QStringList QMouseDriverFactory::keys()
 {
     QStringList list;
 
-#ifdef Q_OS_QNX6
-    if (!list.contains("Qnx"))
-        list << "Qnx";
-#endif
 #ifndef QT_NO_QWS_MOUSE_LINUXTP
     if (!list.contains("LinuxTP"))
         list << "LinuxTP";

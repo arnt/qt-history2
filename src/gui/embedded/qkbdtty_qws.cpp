@@ -32,10 +32,6 @@
 #include <signal.h>
 #include <termios.h>
 
-#ifdef Q_OS_QNX6
-#include "qwskeyboard_qnx.cpp"
-#endif
-
 #ifdef Q_OS_LINUX
 #include <sys/kd.h>
 #include <sys/vt.h>

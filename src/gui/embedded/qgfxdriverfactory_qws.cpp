@@ -25,9 +25,6 @@
 #include "qgfxvga16_qws.h"
 #include "qgfxshadowfb_qws.h"
 #include "qgfxrepeater_qws.h"
-#ifdef Q_OS_QNX6
-# include "qwsgfx_qnx6.h"
-#endif
 #include <stdlib.h>
 #include "private/qfactoryloader_p.h"
 #include "qgfxdriverplugin_qws.h"
@@ -69,10 +66,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 {
     QString driver = key.toLower();
-#ifdef Q_OS_QNX6
-    if (driver == "qnxfb" || driver.isEmpty())
-        return new QQnxScreen(displayId);
-#endif
 #ifndef QT_NO_QWS_VFB
     if (driver == "qvfb" || driver.isEmpty())
         return new QVFbScreen(displayId);
@@ -134,10 +127,6 @@ QStringList QGfxDriverFactory::keys()
 {
     QStringList list;
 
-#ifdef Q_OS_QNX6
-    if (!list.contains("QnxFb"))
-        list << "QnxFb";
-#endif
 #ifndef QT_NO_QWS_VFB
     if (!list.contains("QVFb"))
         list << "QVFb";
