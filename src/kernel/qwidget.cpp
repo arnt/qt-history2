@@ -3433,8 +3433,7 @@ bool QWidget::close( bool alsoDelete )
 {
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
-    bool checkLastWindowClosed = isTopLevel() && !isPopup() &&
-				 !testWFlags(WStyle_Dialog);
+    bool checkLastWindowClosed = isTopLevel() && !isPopup();
     QCloseEvent e;
     QApplication::sendEvent( this, &e );
     bool accept = e.isAccepted();
