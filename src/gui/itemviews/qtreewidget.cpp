@@ -1203,7 +1203,9 @@ bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
 void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
-    selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+    selectionModel()->select(index, (select ? QItemSelectionModel::Select
+                                     : QItemSelectionModel::Deselect)
+                             |QItemSelectionModel::Rows);
 }
 
 /*!
