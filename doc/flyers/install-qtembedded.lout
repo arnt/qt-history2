@@ -1,0 +1,59 @@
+@Include { flyer.lout }
+@Doc @Text @Begin
+@Place 
+    x { right - 4.5cm }
+    y { foot + 1cm }
+{ darkgrey @Colour 9p @Font INST200404NO-10"/"00 }
+@CD @Heading { How to Install Qt"/"Embedded }
+You may need to be root, depending on the permissions of the directories where
+you choose to install Qt.  
+@NumberedList
+@LI { Unpack the archive using:
+@LD @F @Verbatim {
+cd /usr/local
+cp /cdrom/Embedded/qt-embedded-commercial-3.0.0.tar.gz .
+gunzip qt-embedded-commercial-3.0.0.tar.gz
+tar xf qt-embedded-commercial-3.0.0.tar
+}
+This will create the directory @F "/usr/local/qt-embedded-commercial-3.0.0" which
+will contain the files from the archive, and where @F "/usr/local" is
+an example of where you wish to install Qt and @F "/cdrom/Embedded" is
+an example of where the Qt"/"Embedded directory would be depending on
+how your CD-ROM is mounted.
+}
+@LI { You must set up certain environment variables for Qt"/"Embedded:
+    @AlphaList
+    @LI { Set @F QTDIR to the directory where the Qt"/"Embedded files have been
+    installed.  All other paths needed by the build system or by the
+    Qt"/"Embedded development tools will be derived from this
+    variable. }
+    @LI { Add @F "$QTDIR/bin" to the @F PATH variable. }
+    @LI { Add @F "$QTDIR/doc/man" to the @F MANPATH variable. }
+    @LI { Add @F "$QTDIR/lib" to the @F LD_LIBRARY_PATH variable. }
+    @EndList
+Depending on which shell you use, add the relevant lines to your profile file
+or login file (for example, @F{.bash_profile}  or @F{.login}).
+@PP
+After you have done this, you must either login again, or re-source the file
+you've just edited before continuing, so that @F{$QTDIR} is set.
+}
+@LI { Execute the configure tool at the command prompt with your preferred
+options. 
+@PP
+For example, use @F "./configure -release -shared" to build Qt"/"Embedded
+as a shared library, without debug information.  Type @F "./configure -help"
+to get a list of all available options.  
+}
+@LI { When prompted, enter in your license key as it appears on the CD cover.  
+@PP
+You must accept the license to continue.  The configure tool will scan all the
+Qt sub-directories and generate makefiles appropriate to your configuration.
+}
+@LI { Type @F make }
+@EndList
+If you wish to customize how you install Qt"/"Embedded or if you encounter
+problems with installing Qt"/"Embedded then refer to the @F INSTALL file in
+@F{$QTDIR} for more information.
+@CD { That's all!  Qt"/"Embedded and Qt"/"Embedded's tools are now installed. }
+@End @Text
+

@@ -1621,6 +1621,9 @@ QLayout::ResizeMode QLayout::resizeMode() const
 
   autoAdd() is disabled by default.
 
+  Note that a top-level layout is not necessarily associated with the
+  top-level widget.
+
   \sa setAutoAdd()
 */
 
