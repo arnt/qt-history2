@@ -33,14 +33,14 @@ typedef void (*VFPTR)();
 typedef QList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-Q_KERNEL_EXPORT void qAddPostRoutine(QtCleanUpFunction p)
+void qAddPostRoutine(QtCleanUpFunction p)
 {
     if ( !postRList )
 	postRList = new QVFuncList;
     postRList->prepend( p );
 }
 
-Q_KERNEL_EXPORT void qRemovePostRoutine(QtCleanUpFunction p)
+void qRemovePostRoutine(QtCleanUpFunction p)
 {
     if ( !postRList ) return;
     QVFuncList::Iterator it = postRList->begin();
