@@ -56,7 +56,8 @@ char *qstrdup(const char *src)
     \relates QByteArray
 
     Copies all the characters up to and including the '\\0' from \a
-    src into \a dst and returns a pointer to \a dst.
+    src into \a dst and returns a pointer to \a dst. If \a src is 0,
+    it immediately returns 0.
 
     This function assumes that \a dst is large enough to hold the
     contents of \a src.
@@ -439,15 +440,17 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \brief The QByteArray class provides an array of bytes.
 
     \ingroup tools
+    \ingroup shared
+    \ingroup text
     \mainclass
     \reentrant
 
-    QByteArray can be used to store both raw bytes (including '\\0's),
+    QByteArray can be used to store both raw bytes (including '\\0's)
     and traditional 8-bit '\\0'-terminated strings. Using QByteArray
-    is much more convenient than using \c{const char *}. It always
-    ensures that the data is followed by a '\\0' terminator, and uses
-    \l{implicit sharing} (copy-on-write) to reduce memory usage and
-    avoid needless copying of data.
+    is much more convenient than using \c{const char *}. Behind the
+    scenes, it always ensures that the data is followed by a '\\0'
+    terminator, and uses \l{implicit sharing} (copy-on-write) to
+    reduce memory usage and avoid needless copying of data.
 
     In addition to QByteArray, Qt also provides the QString class to
     store string data. For most purposes, QString is the class you
@@ -478,7 +481,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
     Another approach is to set the size of the array using resize()
     and to initialize the data byte per byte. QByteArray uses 0-based
-    indexes, just like C++ arrays. To access the item at a particular
+    indexes, just like C++ arrays. To access the byte at a particular
     index position, you can use operator[](). On non-const byte
     arrays, operator[]() returns a reference to a byte that can be
     used on the left side of an assignment. For example:
@@ -519,7 +522,10 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     To obtain a pointer to the actual character data, call data() or
     constData(). These functions return a pointer to the beginning of
     the data. The pointer is guaranteed to remain valid until a
-    non-const function is called on the QByteArray.
+    non-const function is called on the QByteArray. It is also
+    guaranteed that the data ends with a '\\0' byte. This '\\0' byte
+    is automatically provided by QByteArray and is not counted in
+    size().
 
     QByteArray provides the following basic functions for modifying
     the byte data: append(), prepend(), insert(), replace(), and
@@ -596,9 +602,9 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     empty byte arrays. For example, data() returns a pointer to a
     '\\0' character for a null byte array (not a null pointer), and
     QByteArray() compares equal to QByteArray(""). We recommend that
-    you always use isEmpty(), and avoid isNull().
+    you always use isEmpty() and avoid isNull().
 
-    \sa QConstByteArray, QString
+    \sa QConstByteArray, QBitArray, QString
 */
 
 /*! \typedef QByteArray::ConstIterator
@@ -755,10 +761,19 @@ QByteArray &QByteArray::operator=(const char *str)
 
     Returns the number of bytes in this byte array.
 
-    The last byte in the byte array is at position size() - 1; the
-    byte at position size() is always '\\0'--this is maintained for
-    the benefit of functions that access the underlying data, e.g. the
-    data() functions.
+    The last byte in the byte array is at position size() - 1. In
+    addition, QByteArray ensures that the byte at position size() is
+    always '\\0', so that you can use the return value of data() and
+    constData() as arguments to functions that expect
+    '\\0'-terminated strings.
+
+    Example:
+    \code
+        QByteArray ba("Hello");
+        ba.data()[0];               // returns 'H'
+        ba.data()[4];               // returns 'o'
+        ba.data()[5];               // returns '\0'
+    \endcode
 
     \sa isEmpty(), resize()
 */
@@ -825,11 +840,11 @@ QByteArray &QByteArray::operator=(const char *str)
     as the array isn't reallocated.
 
     This operator is mostly useful to pass a byte array to a function
-    that accepts a char *.
+    that accepts a \c{const char *}.
 
-    Note: A QByteArray can store any byte values including '\\0's, but
-    most functions that take char * arguments assume that the data
-    ends at the first '\\0' they encounter.
+    Note: A QByteArray can store any byte values including '\\0's,
+    but most functions that take \c{char *} arguments assume that the
+    data ends at the first '\\0' they encounter.
 
     \sa constData()
 */
@@ -864,11 +879,11 @@ QByteArray &QByteArray::operator=(const char *str)
     reallocated.
 
     This function is mostly useful to pass a byte array to a function
-    that accepts a char *.
+    that accepts a \c{const char *}.
 
-    Note: A QByteArray can store any byte values including '\\0's, but
-    most functions that take char * arguments assume that the data
-    ends at the first '\\0' they encounter.
+    Note: A QByteArray can store any byte values including '\\0's,
+    but most functions that take \c{char *} arguments assume that the
+    data ends at the first '\\0' they encounter.
 
     \sa constData(), operator[]()
 */
@@ -886,11 +901,11 @@ QByteArray &QByteArray::operator=(const char *str)
     as the vector isn't reallocated.
 
     This function is mostly useful to pass a byte array to a function
-    that accepts a const char *.
+    that accepts a \c{const char *}.
 
-    Note: A QByteArray can store any byte values including '\\0's, but
-    most functions that take char * arguments assume that the data
-    ends at the first '\\0' they encounter.
+    Note: A QByteArray can store any byte values including '\\0's,
+    but most functions that take \c{char *} arguments assume that the
+    data ends at the first '\\0' they encounter.
 
     \sa data(), operator[]()
 */
@@ -931,6 +946,11 @@ QByteArray &QByteArray::operator=(const char *str)
         // ba == "ABCDEFGHIJ"
     \endcode
 
+    The return value is of type QByteRef, a helper class for
+    QByteArray. When you get an object of type QByteRef, you can
+    assign to it, and the assignent will apply to the character in
+    the QByteArray from which you got the reference.
+
     \sa at()
 */
 
@@ -941,12 +961,12 @@ QByteArray &QByteArray::operator=(const char *str)
     Same as at(\a i).
 */
 
-/*! \fn char QByteArray::operator[](uint i) const
+/*! \fn QByteRef QByteArray::operator[](uint i)
 
     \overload
 */
 
-/*! \fn QByteRef QByteArray::operator[](uint i)
+/*! \fn char QByteArray::operator[](uint i) const
 
     \overload
 */
@@ -1181,6 +1201,7 @@ void QByteArray::resize(int size)
     is different from -1 (the default), the byte array is resized to
     size \a size beforehand.
 
+    Example:
     \code
         QByteArray ba("Istambul");
         ba.fill("o");
@@ -1231,10 +1252,19 @@ void QByteArray::expand(int i)
 /*!
     Prepends the byte array \a ba to this byte array.
 
+    Example:
+    \code
+        QByteArray ba("dom");
+        ba.prepend("free");
+        // ba == "freedom"
+    \endcode
+
+    This is the same as insert(0, \a ba).
+
     \sa append(), insert()
 */
 
-QByteArray& QByteArray::prepend(const QByteArray &ba)
+QByteArray &QByteArray::prepend(const QByteArray &ba)
 {
     if (d == &shared_null || d == &shared_empty) {
         *this = ba;
@@ -1292,6 +1322,8 @@ QByteArray &QByteArray::prepend(char ch)
         ba.append("dom");
         // ba == "freedom"
     \endcode
+
+    This is the same as insert(size(), \a ba).
 
     \sa operator+=(), prepend(), insert()
 */
@@ -1432,7 +1464,7 @@ QByteArray &QByteArray::insert(int i, char ch)
     index, and returns a reference to the array.
 
     If \a index is out of range, nothing happens. If \a index is
-    valid, but \a index + \a len is larger than the length of the
+    valid, but \a index + \a len is larger than the size of the
     array, the array is truncated at position \a index.
 
     Example:
@@ -1771,10 +1803,10 @@ int QByteArray::indexOf(char ch, int from) const
     \code
         QByteArray x("question");
         QByteArray y("sti");
-        x.indexOf(y);               // returns 3
-        x.indexOf(y, 8);            // returns 3
-        x.indexOf(y, 3);            // returns 3
-        x.indexOf(y, 2);            // returns -1
+        x.lastIndexOf(y);           // returns 3
+        x.lastIndexOf(y, 8);        // returns 3
+        x.lastIndexOf(y, 3);        // returns 3
+        x.lastIndexOf(y, 2);        // returns -1
     \endcode
 
     \sa indexOf(), contains(), count()
@@ -2085,9 +2117,9 @@ QByteArray QByteArray::right(int len) const
     Returns a byte array containing \a len bytes from this byte array,
     starting at position \a pos.
 
-    If \a len is 0xFFFFFFFF (the default), or \a pos + \a len >=
-    size(), returns a byte array containing all bytes starting
-    at position \a pos until the end of the byte array.
+    If \a len is -1 (the default), or \a pos + \a len >= size(),
+    returns a byte array containing all bytes starting at position \a
+    pos until the end of the byte array.
 
     Example:
     \code
@@ -2173,7 +2205,7 @@ QByteArray QByteArray::toUpper() const
 
     Clears the contents of the byte array and makes it empty.
 
-    \sa resize() isEmpty()
+    \sa resize(), isEmpty()
 */
 
 void QByteArray::clear()
@@ -2242,7 +2274,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is equal to string \a str;
     otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool QByteArray::operator!=(const QString &str) const
@@ -2250,7 +2282,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is not equal to string \a str;
     otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool QByteArray::operator<(const QString &str) const
@@ -2258,7 +2290,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is lexically less than string \a
     str; otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool QByteArray::operator>(const QString &str) const
@@ -2266,7 +2298,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is lexically greater than string
     \a str; otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool QByteArray::operator<=(const QString &str) const
@@ -2274,7 +2306,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is lexically less than or equal
     to string \a str; otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool QByteArray::operator>=(const QString &str) const
@@ -2282,7 +2314,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is greater than or equal to string
     \a str; otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool operator==(const QByteArray &a1, const QByteArray &a2)
@@ -2291,27 +2323,19 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if byte array \a a1 is equal to byte array \a a2;
     otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool operator==(const QByteArray &a1, const char *a2)
     \relates QByteArray
+
     \overload
-
-    Returns true if byte array \a a1 is equal to string \a a2;
-    otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator==(const char *a1, const QByteArray &a2)
     \relates QByteArray
+
     \overload
-
-    Returns true if string \a a1 is equal to string \a a2;
-    otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator!=(const QByteArray &a1, const QByteArray &a2)
@@ -2320,29 +2344,19 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if byte array \a a1 is not equal to byte array \a a2;
     otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool operator!=(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if byte array \a a1 is not equal to string \a a2;
-    otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator!=(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if string \a a1 is not equal to byte array \a a2;
-    otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator<(const QByteArray &a1, const QByteArray &a2)
@@ -2351,29 +2365,19 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if byte array \a a1 is lexically less than byte array
     \a a2; otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn inline bool operator<(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if byte array \a a1 is lexically less than string
-    \a a2; otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator<(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if string \a a1 is lexically less than byte array
-    \a a2; otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator<=(const QByteArray &a1, const QByteArray &a2)
@@ -2382,29 +2386,19 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if byte array \a a1 is lexically less than or equal
     to byte array \a a2; otherwise returns false.
 
-    The comparison is exact (i.e. case sensitive).
+    The comparison is case sensitive.
 */
 
 /*! \fn bool operator<=(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if byte array \a a1 is lexically less than or equal
-    to string \a a2; otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator<=(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if string \a a1 is lexically less than or equal
-    to byte array \a a2; otherwise returns false.
-
-    The comparison is exact (i.e. case sensitive).
 */
 
 /*! \fn bool operator>(const QByteArray &a1, const QByteArray &a2)
@@ -2418,18 +2412,12 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     \relates QByteArray
 
     \overload
-
-    Returns true if byte array \a a1 is lexically greater than string
-    \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if string \a a1 is lexically greater than byte
-    array \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>=(const QByteArray &a1, const QByteArray &a2)
@@ -2443,18 +2431,12 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     \relates QByteArray
 
     \overload
-
-    Returns true if byte array \a a1 is lexically greater than or
-    equal to string \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>=(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
-
-    Returns true if string \a a1 is lexically greater than or
-    equal to byte array \a a2; otherwise returns false.
 */
 
 /*! \fn const QByteArray operator+(const QByteArray &a1, const QByteArray &a2)
@@ -2489,15 +2471,6 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
 
     \overload
 */
-
-QConstByteArray::QConstByteArray(const char *chars, int length)
-    : QByteArray((Data *)qMalloc(sizeof(Data)), 0)
-{
-    d->ref = 1;
-    d->alloc = d->size = length;
-    d->data = chars ? (char *)chars : d->array;
-    *d->array = '\0';
-}
 
 /*!
     Returns a byte array that has whitespace removed from the start
@@ -2597,7 +2570,7 @@ bool QByteArray::ensure_constructed()
 }
 
 /*!
-    Returns a byte array of size() \a width that contains this byte
+    Returns a byte array of size \a width that contains this byte
     array padded by the \a fill character.
 
     If \a truncate is false and the size() of the byte array is more
@@ -2608,6 +2581,7 @@ bool QByteArray::ensure_constructed()
     than \a width, then any bytes in a copy of the byte array
     after position \a width are removed, and the copy is returned.
 
+    Example:
     \code
         QByteArray x("apple");
         QByteArray y = x.leftJustified(8, '.');   // y == "apple..."
@@ -2636,17 +2610,18 @@ QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
 }
 
 /*!
-    Returns a byte array of size() \a width that contains the \a fill
+    Returns a byte array of size \a width that contains the \a fill
     character followed by this byte array.
 
-    If \a truncate is false and the size() of the byte array is more
+    If \a truncate is false and the size of the byte array is more
     than \a width, then the returned byte array is a copy of this byte
     array.
 
-    If \a truncate is true and the size() of the byte array is more
+    If \a truncate is true and the size of the byte array is more
     than \a width, then the resulting byte array is truncated at
     position \a width.
 
+    Example:
     \code
         QString x("apple");
         QString y = x.rightJustified(8, '.');     // y == "...apple"
@@ -3204,10 +3179,8 @@ QByteArray QByteArray::number(Q_ULLONG n, int base)
     significant digits (trailing zeroes are omitted).
 
     \code
-        double d = 12.34;
-        QByteArray ba = QByteArray("'E' format, precision 3, gives %1")
-                        .arg(d, 0, 'E', 3);
-        // ba == "'E' format, precision 3, gives 1.234E+001"
+        QByteArray ba = QByteArray::number(12.3456, 'E', 3);
+        // ba == 1.235E+01
     \endcode
 
     \sa toDouble()
@@ -3217,4 +3190,62 @@ QByteArray QByteArray::number(double n, char f, int prec)
     QByteArray s;
     s.setNum(n, f, prec);
     return s;
+}
+
+/*! \class QConstByteArray
+    \brief The QConstByteArray class provides a QByteArray object using constant byte data.
+
+    \ingroup tools
+    \reentrant
+
+    To minimize copying, highly optimized applications can use
+    QConstByteArray to create a QByteArray-compatible object from
+    existing byte data. It is then the programmer's responsability to
+    ensure that the byte data exists for the entire lifetime of the
+    QConstByteArray object.
+
+    The resulting QConstByteArray object can be used as a const
+    QByteArray. Any attemps to modify copies of the QConstByteArray
+    will cause it to create a deep copy of the data, ensuring that
+    the raw data isn't modified. The QConstByteArray object itself
+    should never be modified.
+
+    Here's an example of how we can read data using a QDataStream on
+    raw data in memory without requiring to copy the data into a
+    QByteArray:
+
+    \code
+	static const char mydata[] = {
+            0x00, 0x00, 0x03, 0x84, 0x78, 0x9c, 0x3b, 0x76,
+            0xec, 0x18, 0xc3, 0x31, 0x0a, 0xf1, 0xcc, 0x99,
+	    ...
+            0x6d, 0x5b
+        };
+
+	QConstByteArray data(mydata, sizeof(mydata));
+        QBuffer buffer(data);
+        buffer.open(IO_ReadOnly);
+        QDataStream in(&buffer);
+	...
+    \endcode
+
+    \sa QConstString
+*/
+
+/*!
+    Constructs a QConstByteArray that uses the first \a size characters
+    in the array \a bytes.
+
+    Only a pointer to the data in \a bytes is copied. The caller must
+    be able to guarantee that \a bytes will not be delete or modified
+    during the QConstByteArray's lifetime.
+*/
+
+QConstByteArray::QConstByteArray(const char *bytes, int size)
+    : QByteArray((Data *)qMalloc(sizeof(Data)), 0)
+{
+    d->ref = 1;
+    d->alloc = d->size = size;
+    d->data = bytes ? (char *)bytes : d->array;
+    *d->array = '\0';
 }
