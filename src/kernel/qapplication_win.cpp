@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#476 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#477 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -39,6 +39,7 @@
 #include "qsessionmanager.h"
 #include "qmime.h"
 #include "qguardedptr.h"
+#include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
 #include <ctype.h>
 #include "qt_windows.h"
@@ -207,7 +208,6 @@ static int	translateKeyCode( int );
 
 Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
-QObject	       *qt_clipboard   = 0;
 static QString *imeComposition = 0;
 static int	imePosition    = 0;
 extern QCursor *qt_grab_cursor();

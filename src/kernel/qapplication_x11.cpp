@@ -337,7 +337,6 @@ static XIMStyle	xim_preferred_style	= XIMPreeditCallbacks | XIMStatusNothing;
 static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
-QObject	       *qt_clipboard = 0;
 Time		qt_x_time = CurrentTime;
 extern bool     qt_check_clipboard_sentinel( XEvent* ); //def in qclipboard_x11.cpp
 extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11.cpp

@@ -105,7 +105,6 @@ static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 static char    *appName;                        // application name
 static Qt::HANDLE currentCursor;                  //current cursor
-QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)

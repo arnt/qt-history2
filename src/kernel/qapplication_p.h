@@ -57,6 +57,7 @@
 
 class QWidget;
 class QObject;
+class QClipboard;
 class QKeyEvent;
 class QMouseEvent;
 class QWheelEvent;
@@ -66,7 +67,7 @@ extern void qt_enter_modal( QWidget* );
 extern void qt_leave_modal( QWidget* );
 
 extern bool qt_is_gui_used;
-extern QObject *qt_clipboard;
+extern QClipboard *qt_clipboard;
 
 #if defined (Q_OS_WIN32)
 extern Qt::WindowsVersion qt_winver;

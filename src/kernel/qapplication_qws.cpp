@@ -306,8 +306,6 @@ timeval		*qt_wait_timer();
 timeval	*qt_wait_timer_max = 0;
 int	        qt_activate_timers();
 
-QObject	       *qt_clipboard = 0;
-
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 static WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 

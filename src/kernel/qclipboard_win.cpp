@@ -46,14 +46,13 @@
 
 static HWND nextClipboardViewer = 0;
 static bool inClipboardChain = FALSE;
-
+static QWidget *qt_cb_owner = 0;
 
 static QWidget *clipboardOwner()
 {
-    static QWidget *owner = 0;
-    if ( !owner )
-	owner = new QWidget( 0, "internal clipboard owner" );
-    return owner;
+    if ( !qt_cb_owner )
+	qt_cb_owner = new QWidget( 0, "internal clipboard owner" );
+    return qt_cb_owner;
 }
 
 
@@ -166,7 +165,7 @@ public:
 		int cf = 0;
 		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
-                    if ( qt_winver & Qt::WV_NT_based && cf == CF_TEXT )
+                    if ( qWinVersion() & Qt::WV_NT_based && cf == CF_TEXT )
 			sawSBText = true;
 		    else {
 			mime = QWindowsMime::cfToMime(cf);
@@ -182,7 +181,7 @@ public:
 
 		// If we did not find a suitable mime type, yet skipped
 		// CF_TEXT due to the priorities above, give it a shot
-                if ( qt_winver & Qt::WV_NT_based && !mime && sawSBText ) {
+                if ( qWinVersion() & Qt::WV_NT_based && !mime && sawSBText ) {
 		    mime = QWindowsMime::cfToMime( CF_TEXT );
 		    if ( mime ) {
 			n--;
@@ -349,6 +348,12 @@ static void renderAllFormats()
     // ###### Warwick?
 }
 
+QClipboard::~QClipboard()
+{
+    renderAllFormats();
+    delete qt_cb_owner;
+    qt_cb_owner = 0;
+}
 
 bool QClipboard::event( QEvent *e )
 {
@@ -380,7 +385,7 @@ bool QClipboard::event( QEvent *e )
 	    break;
     }
     if ( propagate && nextClipboardViewer ) {
-	if ( qt_winver & Qt::WV_NT_based )
+	if ( qWinVersion() & Qt::WV_NT_based )
 	    SendMessage( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
 	else

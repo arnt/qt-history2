@@ -47,6 +47,7 @@
 #include "qtextcodec.h"
 #include "qpngio.h"
 #include "qsessionmanager.h"
+#include "qclipboard.h"
 #include "qcursor.h"
 #include "qstylefactory.h"
 
@@ -336,6 +337,7 @@ QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 static bool makeqdevel	 = FALSE;	// developer tool needed?
 static QDesktopWidget *desktopWidget = 0;	// root window widgets
+QClipboard	      *qt_clipboard = 0;	// global clipboard object
 #ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
 #endif
@@ -819,8 +821,6 @@ QWidget *QApplication::activeModalWidget()
     return qt_modal_stack ? qt_modal_stack->getFirst() : 0;
 }
 
-
-
 /*!
   Cleans up any window system resources that were allocated by this
   application.  Sets the global variable \c qApp to null.
@@ -847,6 +847,10 @@ QApplication::~QApplication()
 #ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
+#endif
+#ifndef QT_NO_CLIPBOARD
+    delete qt_clipboard;
+    qt_clipboard = 0;
 #endif
     qt_cleanup();
 #ifndef QT_NO_CURSOR
@@ -2696,6 +2700,19 @@ QDesktopWidget *QApplication::desktop()
 	Q_CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
+}
+
+/*!
+  Returns a pointer to the application global clipboard.
+*/
+
+QClipboard *QApplication::clipboard()
+{
+    if ( qt_clipboard == 0 ) {
+	qt_clipboard = new QClipboard;
+	Q_CHECK_PTR( qt_clipboard );
+    }
+    return qt_clipboard;
 }
 
 /*!
