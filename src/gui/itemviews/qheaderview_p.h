@@ -35,7 +35,7 @@ public:
           pressed(-1),
           movableSections(false),
           clickableSections(false),
-          highlightCurrent(false),
+          highlightSelected(false),
           stretchSections(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
@@ -73,7 +73,7 @@ public:
     int pressed;
     bool movableSections;
     bool clickableSections;
-    bool highlightCurrent;
+    bool highlightSelected;
     int stretchSections;
     int sectionIndicatorOffset;
     QLabel *sectionIndicator;

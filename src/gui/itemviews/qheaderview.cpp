@@ -146,8 +146,8 @@
 */
 
 /*!
-    \property QHeaderView::highlightCurrentSection
-    \brief whether the current selection is highlighted
+    \property QHeaderView::highlightSections
+    \brief whether the selections containing selected items are highlighted
 */
 
 /*!
@@ -623,14 +623,14 @@ bool QHeaderView::isClickable() const
     return d->clickableSections;
 }
 
-void QHeaderView::setHighlightCurrentSection(bool highlight)
+void QHeaderView::setHighlightSections(bool highlight)
 {
-    d->highlightCurrent = highlight;
+    d->highlightSelected = highlight;
 }
 
-bool QHeaderView::highlightCurrentSection() const
+bool QHeaderView::highlightSections() const
 {
-    return d->highlightCurrent;
+    return d->highlightSelected;
 }
 
 /*!
@@ -1048,7 +1048,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int width = d->viewport->width();
     int height = d->viewport->height();
     QModelIndex current = selectionModel()->currentIndex();
-    bool focus = d->highlightCurrent && (parentWidget() && parentWidget()->hasFocus());
     bool highlight = false;
     QFont fnt(painter.font()); // save the painter font
     for (int i = start; i <= end; ++i) {
@@ -1057,10 +1056,10 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         logical = sections.at(i).logical;
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionPosition(logical) - offset, 0, sectionSize(logical), height);
-            highlight = (focus && d->selectionModel->columnIntersectsSelection(i, root()));
+            highlight = d->highlightSelected && d->selectionModel->columnIntersectsSelection(i, root());
         } else {
             rect.setRect(0, sectionPosition(logical) - offset, width, sectionSize(logical));
-            highlight = (focus && d->selectionModel->rowIntersectsSelection(i, root()));
+            highlight = d->highlightSelected && d->selectionModel->rowIntersectsSelection(i, root());
         }
         if (highlight) {
             QFont bf(fnt);

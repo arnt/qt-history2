@@ -23,7 +23,7 @@ class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QHeaderView)
     Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE setSortIndicatorShown)
-    Q_PROPERTY(bool highlightCurrentSection READ highlightCurrentSection WRITE setHighlightCurrentSection)
+    Q_PROPERTY(bool highlightSections READ highlightSections WRITE setHighlightSections)
     Q_ENUMS(ResizeMode)
 
 public:
@@ -78,8 +78,8 @@ public:
     void setClickable(bool clickable);
     bool isClickable() const;
 
-    void setHighlightCurrentSection(bool highlight);
-    bool highlightCurrentSection() const;
+    void setHighlightSections(bool highlight);
+    bool highlightSections() const;
 
     void setResizeMode(ResizeMode mode);
     void setResizeMode(ResizeMode mode, int logicalIndex);

@@ -32,14 +32,14 @@ void QTableViewPrivate::init()
     vertical->setModel(model);
     vertical->setSelectionModel(selectionModel);
     vertical->setClickable(true);
-    vertical->setHighlightCurrentSection(true);
+    vertical->setHighlightSections(true);
     q->setVerticalHeader(vertical);
 
     QHeaderView *horizontal = new QHeaderView(Qt::Horizontal, q);
     horizontal->setModel(model);
     horizontal->setSelectionModel(selectionModel);
     horizontal->setClickable(true);
-    horizontal->setHighlightCurrentSection(true);
+    horizontal->setHighlightSections(true);
     q->setHorizontalHeader(horizontal);
 }
 
@@ -622,8 +622,8 @@ void QTableView::updateGeometries()
     setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 
     QRect vg = d->viewport->geometry();
-//     if (QApplication::reverseLayout())
-//         d->horizontalHeader->setOffset(vg.width() - topHint.width());
+//    if (QApplication::reverseLayout())
+//        d->horizontalHeader->setOffset(vg.width() - topHint.width());
 
     int verticalLeft = reverse ? vg.right() : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
