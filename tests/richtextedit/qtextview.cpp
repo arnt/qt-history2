@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#7 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#8 $
 **
 ** Implementation of the QtTextView class
 **
@@ -88,6 +88,7 @@ class QtTextViewData
 public:
     QStyleSheet* sheet_;
     QtRichText* doc_;
+    int viewId;
     QMimeSourceFactory* factory_;
     QString original_txt;
     QString txt;
@@ -99,8 +100,16 @@ public:
     bool linkunderline;
     QTimer* resizeTimer;
     Qt::TextFormat textformat;
-    QtTextFormatContext* fc;
-    QtTextFormatContext* fcresize;
+    QtTextCursor* fc;
+    QtTextCursor* fcresize;
+};
+
+class QtTextEditData
+{
+public:
+    bool cursor_hidden;
+    QTimer* cursorTimer;
+    QtTextCursor* cursor;
 };
 
 
@@ -146,6 +155,7 @@ void QtTextView::init()
 //     setHScrollBarMode( AlwaysOff );
 
     d->doc_ = 0;
+    d->viewId = 0;
     d->sheet_ = 0;
     d->factory_ = 0;
     d->txt = QString::fromLatin1("<p></p>");
@@ -186,6 +196,7 @@ void QtTextView::setText( const QString& text, const QString& context)
 {
     delete d->doc_;
     d->doc_ = 0;
+    d->viewId = 0;
 
     d->original_txt = text;
     d->contxt = context;
@@ -203,26 +214,40 @@ void QtTextView::setText( const QString& text, const QString& context)
     else // rich text
 	d->txt = text;
 
-    if ( isVisible() ) {
-	QPainter * p = new QPainter( this );
-	// first try to use the full width of the viewport
-	QSize vs( viewportSize( 1,1 ) );
-	richText().setWidth( p, vs.width() );
-	// if we'll need to scroll vertically, and the only reason we'll
-	// need to scroll horizontally is the vertical scroll bar, try
-	// to reformat so we won't need to scroll horizontally at all
-	if ( richText().height > vs.height() &&
-	     richText().width <= vs.width() &&
-	     richText().width + /*###*/ 16 /*###*/ > vs.width() )
-	    richText().setWidth( p, vs.width()-16 );
-	delete p;
-	resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
-	viewport()->update();
-	viewport()->setCursor( arrowCursor );
-    }
+//     if ( isVisible() ) {
+// 	QPainter * p = new QPainter( this );
+// 	// first try to use the full width of the viewport
+// 	QSize vs( viewportSize( 1,1 ) );
+// 	richText().setWidth( p, vs.width() );
+// 	// if we'll need to scroll vertically, and the only reason we'll
+// 	// need to scroll horizontally is the vertical scroll bar, try
+// 	// to reformat so we won't need to scroll horizontally at all
+// 	if ( richText().height > vs.height() &&
+// 	     richText().width <= vs.width() &&
+// 	     richText().width + /*###*/ 16 /*###*/ > vs.width() )
+// 	    richText().setWidth( p, vs.width()-16 );
+// 	delete p;
+// 	resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
+// 	viewport()->update();
+// 	viewport()->setCursor( arrowCursor );
+//     }
 
     delete d->fc;
-    d->fc = new QtTextFormatContext( richText() );
+    d->fc = 0;
+}
+
+void QtTextView::setView( QtTextView* other )
+{
+    delete d->doc_;
+    d->doc_ =  &other->richText();
+    qDebug("set view %p", d->doc_ );
+    d->viewId = d->doc_->registerView( this );
+    qDebug("register view %d (%p)", d->viewId, this );
+
+    d->original_txt = other->d->original_txt;
+    d->contxt = other->d->contxt;
+   delete d->fc;
+    d->fc = new QtTextCursor( *d->doc_, d->viewId );
 }
 
 
@@ -254,6 +279,10 @@ void QtTextView::createRichText()
 
     d->doc_ = new QtRichText( d->txt, viewport()->font(), d->contxt,
 			     8, mimeSourceFactory(), (QtStyleSheet*)styleSheet() );
+    qDebug("create rich text for %p = %p", this, d->doc_ );
+    d->viewId = d->doc_->registerView( this );
+    qDebug("register view %d (%p)", d->viewId, this );
+    d->fc = new QtTextCursor( richText(), d->viewId );
     if (d->doc_->attributes().contains("bgcolor")){
 	QColor  col ( d->doc_->attributes()["bgcolor"].latin1() );
 	if ( col.isValid() )
@@ -442,13 +471,14 @@ QString QtTextView::documentTitle() const
 */
 int QtTextView::heightForWidth( int w ) const
 {
-    QtRichText doc ( d->txt, viewport()->font(), d->contxt,
-		    8, mimeSourceFactory(), (QtStyleSheet*)styleSheet() );
-    {
-	QPainter p( this );
-	doc.setWidth(&p, w);
-    }
-    return doc.height;
+//     QtRichText doc ( d->txt, viewport()->font(), d->contxt,
+// 		    8, mimeSourceFactory(), (QtStyleSheet*)styleSheet() );
+//     {
+// 	QPainter p( this );
+// 	doc.setWidth(&p, w);
+//     }
+//     return doc.height;
+    return w;
 }
 
 /*!
@@ -488,17 +518,17 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     while ( b->child )
 	b = b->child;
 
-    while ( b && !b->dirty && b->y + b->height < cy ) {
-	y = b->y + b->height;
+    while ( b && !b->dirty[d->viewId] && b->y[d->viewId] + b->height[d->viewId] < cy ) {
+	y = b->y[d->viewId] + b->height[d->viewId];
 	b = b->nextInDocument();
     }
 
     QFontMetrics fm( p->fontMetrics() );
     while ( b && y <= cy + ch ) {
-	b->x =0;
-	b->y = y;
-	b->width = viewport()->width();
-	d->fc->gotoBox( p, b );
+	b->x[d->viewId] =b->margin( QStyleSheetItem::MarginLeft );
+	b->y[d->viewId] = y;
+	b->width[d->viewId] = viewport()->width();
+	d->fc->gotoParagraph( p, b );
 	do {
 	    d->fc->makeLineLayout( p, fm );
 	    if ( d->fc->y() + d->fc->height >= cy )
@@ -506,34 +536,18 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	}
 	while ( d->fc->gotoNextLine( p, fm ) );
 	y = d->fc->y();
-	b->height = y - b->y;
-	b->dirty = FALSE;
+	b->height[d->viewId] = y - b->y[d->viewId];
+	b->dirty[ d->viewId] = FALSE;
 	b = b->nextInDocument();
     };
-    
-    
+
+
 //     if ( y >= contentsHeight() ) {
 // 	bool u = viewport()->isUpdatesEnabled();
 // 	viewport()->setUpdatesEnabled( FALSE );
 // 	resizeContents( viewport()->width(), y + (b ? 500:0) );
 // 	viewport()->setUpdatesEnabled( u );
 //     }
-    
-    p->setClipRegion(r);
-
-    if ( paper().pixmap() )
-	p->drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-			   *paper().pixmap(), ox, oy);
-    else
-	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
-
-    qApp->syncX();
-
-    p->setClipping( FALSE );
-    return;
-    
-    //QRegion r(cx-ox, cy-oy, cw, ch);
-    richText().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions( &paper() )); //## todo linkcolor
 
     p->setClipRegion(r);
 
@@ -543,15 +557,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     else
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
 
-    qApp->syncX();
-
     p->setClipping( FALSE );
-    int pagesize = 600;
-    for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
-	p->setPen( DotLine );
-	p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page* pagesize - oy );
-    }
-
 }
 
 /*!
@@ -574,70 +580,43 @@ void QtTextView::doResize()
 	    d->resizeTimer->start( 0, TRUE );
 	resizeContents( viewport()->width(), d->fcresize->y() );
     }
-    return;
-    QSize vw = viewportSize( QMAX( richText().widthUsed,
-				   richText().width),
-			     richText().height );
-    {		
-	QPainter p(this);
-	richText().setWidth( &p, vw.width() );
-    }
-    resizeContents( QMAX( richText().widthUsed,
-			  richText().width),
-		    richText().height );
-    viewport()->update();
 }
 
 
+
+
+void QtTextView::paragraphChanged( QtTextParagraph* b)
+{
+    QPainter p( viewport() );
+    QFontMetrics fm( p.fontMetrics() );
+    d->fc->gotoParagraph( &p, b );
+    d->fc->makeLineLayout( &p, fm );
+    d->fc->updateParagraph( &p );
+}
 
 /*!
   \reimp
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
-    
+
+    if ( !d->fc ) {
+	qDebug("resizeEvent: nothing to do");
+	return;
+    }
     viewport()->setUpdatesEnabled( FALSE );
     QScrollView::resizeEvent( e );
    viewport()->setUpdatesEnabled( TRUE );
-    richText().invalidateLayout();
+    richText().invalidateLayout( d->viewId );
     {
 	QPainter p( viewport() );
-	d->fc->gotoBox( &p, &richText() );
+	d->fc->gotoParagraph( &p, &richText() );
 	d->fc->doLayout( &p, viewport()->width(), viewport()->height() + contentsY() );
 	delete d->fcresize;
-	d->fcresize = new QtTextFormatContext( *d->fc );
+	d->fcresize = new QtTextCursor( *d->fc );
 	d->resizeTimer->start( 0, TRUE );
     }
     viewport()->repaint( FALSE );
-    return;
-    
-    
-    if ( FALSE && contentsHeight() > 4 * height() ) {
-      // large document, do deferred resize
-      d->resizeTimer->start( 200, TRUE );
-      QScrollView::resizeEvent( e );
-    }
-    else {
-      // small document, resize immediately
-      QSize vw = viewportSize( QMAX( richText().widthUsed,
-				     richText().width),
-			       richText().height );
-      {
-	  QPainter p( this );
-	  richText().setWidth( &p, vw.width()-2 );
-      }
-      double ratio = double( contentsY() ) / contentsHeight();
-      bool u = viewport()->isUpdatesEnabled();
-      viewport()->setUpdatesEnabled( FALSE );
-      resizeContents( QMAX( richText().widthUsed,
-			    richText().width),
-		      richText().height );
-      QScrollView::resizeEvent( e );
-      setContentsPos( contentsX(), int( ratio * contentsHeight() ) );
-      viewport()->setUpdatesEnabled( u );
-      if ( isVisibleToTLW() )
-	  viewport()->repaint( viewport()->visibleRect(), FALSE );
-    }
 }
 
 
@@ -744,11 +723,13 @@ QtTextEdit::QtTextEdit(QWidget *parent, const char *name)
 {
     setKeyCompression( TRUE );
     setVScrollBarMode( AlwaysOn );
-    cursor_hidden = FALSE;
-    cursorTimer = new QTimer( this );
-    cursorTimer->start(200, TRUE);
-    connect( cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
-    cursor = 0;
+    d = new QtTextEditData;
+    d->cursor = 0;
+    d->cursor_hidden = FALSE;
+    d->cursorTimer = new QTimer( this );
+    d->cursorTimer->start(200, TRUE);
+    connect( d->cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
+    setKeyCompression( TRUE );
 }
 
 QtTextEdit::~QtTextEdit()
@@ -763,8 +744,15 @@ QtTextEdit::~QtTextEdit()
 void QtTextEdit::setText( const QString& text, const QString& context  )
 {
     QtTextView::setText( text, context );
-    delete cursor;
-    cursor = new QtTextCursor(richText());
+    delete d->cursor;
+    d->cursor = new QtTextCursor( richText(), richText().viewId( this ) );
+}
+
+void QtTextEdit::setView( QtTextView* other )
+{
+    QtTextView::setView( other );
+    delete d->cursor;
+    d->cursor = new QtTextCursor( richText(), richText().viewId( this ) );
 }
 
 /*!
@@ -779,19 +767,32 @@ QString QtTextEdit::text()
 void QtTextEdit::keyPressEvent( QKeyEvent * e )
 {
 
+    if ( !d->cursor )
+	return;
     bool select = e->state() & Qt::ShiftButton;
     hideCursor();
     QPainter p( viewport() );
     switch (e->key()) {
     case Key_Right:
-	cursor->right(&p, select);
+	d->cursor->right( &p );
 	break;
     case Key_Left:
-	cursor->left(&p, select);
+	d->cursor->left( &p );
 	break;
+    case Key_Up:
+	d->cursor->up( &p );
+	break;
+    case Key_Down:
+	d->cursor->down( &p );
+	break;
+    default:	
+	if (!e->text().isEmpty() ) {
+	    d->cursor->insert( &p, e->text() ); // the painter will be closed
+	}
     };
-    p.end();
-    ensureVisible(cursor->x, cursor->y);
+    if ( p.isActive() )
+	p.end();
+    ensureVisible( d->cursor->x(), d->cursor->y() );
     showCursor();
 
 //     if (e->key() == Key_Plus)
@@ -962,12 +963,15 @@ void QtTextEdit::updateSelection(int oldY, int newY)
 
 void QtTextEdit::viewportMousePressEvent( QMouseEvent * e )
 {
+    if ( !d->cursor )
+	return;
      hideCursor();
+     e = 0; //#####
 //      cursor->clearSelection();
 //      updateSelection();
      {
- 	QPainter p( viewport() );
- 	cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+//  	QPainter p( viewport() );
+//  	cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
      }
      showCursor();
 }
@@ -981,7 +985,7 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * )
 {
 //     if (e->state() & LeftButton) {
 // 	hideCursor();
-// 	QtTextRow*  oldCursorRow = cursor->row;
+// 	QtTextRow*  oldCursorRow =c ursor->row;
 // 	{
 // 	    QPainter p(viewport());
 // 	    cursor->goTo( &p, e->pos().x() + contentsX(),
@@ -1005,20 +1009,19 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 {
     QtTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
     return;
-    if (!cursor_hidden)
- 	cursor->draw(p, ox, oy, cx, cy, cw, ch);
+//     if (!d->cursor_hidden)
+//  	cursor->draw(p, ox, oy, cx, cy, cw, ch);
 }
 
 void QtTextEdit::cursorTimerDone()
 {
-    return;// TODO
-    if ( !cursor )
+    if ( !d->cursor )
 	return;
-     if (cursor_hidden) {
+     if (d->cursor_hidden) {
  	if (QtTextEdit::hasFocus())
  	    showCursor();
  	else
- 	    cursorTimer->start(400, TRUE);
+ 	    d->cursorTimer->start(400, TRUE);
      }
      else {
  	hideCursor();
@@ -1027,22 +1030,24 @@ void QtTextEdit::cursorTimerDone()
 
 void QtTextEdit::showCursor()
 {
-    cursor_hidden = FALSE;
+    d->cursor_hidden = FALSE;
     QPainter p( viewport() );
-    cursor->draw(&p, contentsX(), contentsY(),
- 		 contentsX(), contentsY(),
- 		 viewport()->width(), viewport()->height());
-    cursorTimer->start(400, TRUE);
+    d->cursor->draw(&p, contentsX(), contentsY(),
+		 contentsX(), contentsY(),
+  		 viewport()->width(), viewport()->height());
+    d->cursorTimer->start(400, TRUE);
 }
 
 void QtTextEdit::hideCursor()
 {
-    if (cursor_hidden)
+    if (d->cursor_hidden)
  	return;
-    cursor_hidden = TRUE;
-    repaintContents(cursor->x, cursor->y,
- 		    cursor->width(), cursor->height);
-    cursorTimer->start(300, TRUE);
+    d->cursor_hidden = TRUE;
+
+    QRect r( d->cursor->geometry() );
+    repaintContents(r.x(), r.y(), r.width(), r.height() );
+
+    d->cursorTimer->start(300, TRUE);
 }
 
 
@@ -1052,6 +1057,7 @@ void QtTextEdit::hideCursor()
 */
 void QtTextEdit::updateScreen()
 {
+    /*
     {
 	QPainter p( viewport() );
 	QRegion r(0, 0, viewport()->width(), viewport()->height());
@@ -1069,15 +1075,21 @@ void QtTextEdit::updateScreen()
     showCursor();
     resizeContents( QMAX( richText().widthUsed, richText().width ), richText().height );
     ensureVisible(cursor->x, cursor->y);
+    */
+}
+
+void QtTextEdit::resizeEvent( QResizeEvent* e )
+{
+    QtTextView::resizeEvent( e );
+    if ( d->cursor ) {
+ 	QPainter p( this );
+  	d->cursor->update(&p); //##### it may be on a dirty paragraph
+    }
 }
 
 void QtTextEdit::viewportResizeEvent(QResizeEvent* e)
 {
     QtTextView::viewportResizeEvent(e);
-    {
-	QPainter p( this );
- 	cursor->calculatePosition(&p);
-    }
 }
 
 

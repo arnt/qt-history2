@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#11 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#12 $
 **
 ** Definition of the QtTextView class
 **
@@ -54,11 +54,13 @@ public:
     inline QFont font() const;
     inline QString anchorHref() const;
     inline QString anchorName() const;
+    
+    QtTextCharFormat formatWithoutCustom();
 
     int addRef();
     int removeRef();
 
-    inline QtTextCustomItem *customItem();
+    inline QtTextCustomItem *customItem() const;
 
 protected:
     QFont font_;
@@ -112,7 +114,7 @@ inline QString QtTextCharFormat::anchorName() const
     return anchor_name;
 }
 
-inline QtTextCustomItem * QtTextCharFormat::customItem()
+inline QtTextCustomItem * QtTextCharFormat::customItem() const
 {
     return custom;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#5 $
 **
 ** Definition of the QtTextView class
 **
@@ -32,8 +32,9 @@
 #include "qcolor.h"
 
 class QtRichText;
+class QtTextParagraph;
 class QtTextViewData;
-class QtTextContainer;
+class QtTextEditData;
 class QStyleSheet;
 class QMimeSourceFactory;
 
@@ -56,6 +57,8 @@ public:
 
     QStyleSheet* styleSheet() const;
     void setStyleSheet( QStyleSheet* styleSheet );
+    
+    void setView( QtTextView* other ); // ###cannot be virtual in 2.1!!!
 
 
     // convenience functions
@@ -99,13 +102,13 @@ private slots:
 private:
     void init();
     void createRichText();
+    friend class QtRichText;
     QtTextViewData* d;
+    void paragraphChanged( QtTextParagraph* );
 };
 
 
 
-class QtTextCursor;
-class QFC;
 
 class Q_EXPORT QtTextEdit : public QtTextView
 {
@@ -117,6 +120,8 @@ public:
     void setText( const QString& text, const QString& context = QString::null );
     QString text();
 
+    void setView( QtTextView* other ); // ###cannot be virtual in 2.1!!!
+
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,
 			    int cx, int cy, int cw, int ch);
@@ -124,6 +129,7 @@ protected:
     void viewportMouseReleaseEvent( QMouseEvent* );
     void viewportMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent * );
+    void resizeEvent(QResizeEvent*);
     void viewportResizeEvent(QResizeEvent*);
 
     void showCursor();
@@ -133,14 +139,10 @@ private slots:
     void cursorTimerDone();
 
 private:
-    bool cursor_hidden;
-    QTimer* cursorTimer;
-    QtTextCursor* cursor;
-
     void updateSelection(int oldY=-1, int newY=-1);
 
     void updateScreen();
-    void* d;
+    QtTextEditData* d;
 };
 
 

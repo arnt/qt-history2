@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#14 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#15 $
 **
 ** Definition of the QtTextView class
 **
@@ -126,6 +126,15 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 
     format.createKey();
     return format;
+}
+
+
+QtTextCharFormat QtTextCharFormat::formatWithoutCustom()
+{
+    QtTextCharFormat fm( *this );
+    fm.custom = 0;
+    fm.createKey();
+    return fm;
 }
 
 QtTextFormatCollection::QtTextFormatCollection()
