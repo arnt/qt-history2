@@ -1121,7 +1121,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
-	}
+	} 
 	drawItem( p, tab, mi, row == actItem, x, y, itemw, itemh );
 	y += itemh;
 	++row;
@@ -1569,10 +1569,35 @@ void QPopupMenu::subMenuTimer() {
 
 
     QRect r( itemGeometry( actItem ) );
-    QPoint p( r.right() - motifArrowHMargin, r.top() + motifArrowVMargin );
-    p = mapToGlobal( p );
-
+    QPoint p;
     QSize ps = popup->sizeHint();
+    if( QApplication::reverseLayout() ) {
+	p = QPoint( r.left() + motifArrowHMargin - ps.width(), r.top() - motifArrowVMargin );
+	p = mapToGlobal( p );
+
+	bool right = FALSE;
+	if ( ( parentMenu && parentMenu->isPopupMenu &&
+	       ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
+	     p.x() < 0 )
+	    right = TRUE;
+	if ( right && (ps.width() > QApplication::desktop()->width() - mapToGlobal( r.topRight() ).x() ) )
+	    right = FALSE;
+	if ( right )
+	    p.setX( mapToGlobal( r.topRight() ).x() );
+    } else {
+	p = QPoint( r.right() - motifArrowHMargin, r.top() + motifArrowVMargin );
+	p = mapToGlobal( p );
+
+	bool left = FALSE;
+	if ( ( parentMenu && parentMenu->isPopupMenu &&
+	       ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
+	     p.x() + ps.width() > QApplication::desktop()->width() )
+	    left = TRUE;
+	if ( left && (ps.width() > mapToGlobal( r.topLeft() ).x() ) )
+	    left = FALSE;
+	if ( left )
+	    p.setX( mapToGlobal( r.topLeft() ).x() - ps.width() );
+    }
     if (p.y() + ps.height() > QApplication::desktop()->height()
 	&& p.y() - ps.height()
 	+ (QCOORD)(popup->itemHeight( popup->count()-1)) >= 0)
@@ -1580,15 +1605,6 @@ void QPopupMenu::subMenuTimer() {
 		+ (QCOORD)(popup->itemHeight( popup->count()-1)));
 
     popupActive = actItem;
-    bool left = FALSE;
-    if ( ( parentMenu && parentMenu->isPopupMenu &&
-	   ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
-	 p.x() + ps.width() > QApplication::desktop()->width() )
-	left = TRUE;
-    if ( left && (ps.width() > mapToGlobal( r.topLeft() ).x() ) )
-	left = FALSE;
-    if ( left )
-	p.setX( mapToGlobal( r.topLeft() ).x() - ps.width() );
     popup->popup( p );
 }
 

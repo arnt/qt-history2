@@ -516,7 +516,10 @@ QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h ) const
  */
 QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
 {
-    return QRect(x+3, y+3, w-6-16, h-6);
+    QRect r(x+3, y+3, w-6-16, h-6);
+    if( QApplication::reverseLayout() )
+	r.moveBy( 2 + 16, 0 );
+    return r;
 }
 
 
@@ -624,8 +627,8 @@ void QWindowsStyle::drawTabMask( QPainter* p,  const QTabBar* tb, QTab* t, bool 
 
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL
-#define MOTIF_BORDER	2
-#define SLIDER_MIN	9 // ### wtf does this have to do with motif?
+#define WINDOWS_BORDER	2
+#define SLIDER_MIN	9 // ### wtf does this have to do with windows?
 
 /*!\reimp
  */
@@ -1072,13 +1075,13 @@ void QWindowsStyle::drawSplitter( QPainter *p,  int x, int y, int w, int h,
 
 
 
-static const int motifItemFrame		= 2;	// menu item frame width
-static const int motifSepHeight		= 2;	// separator item height
-static const int motifItemHMargin	= 3;	// menu item hor text margin
-static const int motifItemVMargin	= 2;	// menu item ver text margin
-static const int motifArrowHMargin	= 6;	// arrow horizontal margin
-static const int motifTabSpacing	= 12;	// space between text and tab
-static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
+static const int windowsItemFrame		= 2;	// menu item frame width
+static const int windowsSepHeight		= 2;	// separator item height
+static const int windowsItemHMargin	= 3;	// menu item hor text margin
+static const int windowsItemVMargin	= 2;	// menu item ver text margin
+static const int windowsArrowHMargin	= 6;	// arrow horizontal margin
+static const int windowsTabSpacing	= 12;	// space between text and tab
+static const int windowsCheckMarkHMargin	= 2;	// horiz. margins of check mark
 static const int windowsRightBorder	= 12;       // right border on windows
 static const int windowsCheckMarkWidth = 12;       // checkmarks width on windows
 
@@ -1145,7 +1148,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
 					    const QFontMetrics& /*fm*/ ) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
-    int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
+    int w = 2*windowsItemHMargin + 2*windowsItemFrame; // a little bit of border can never harm
 
     if ( mi->isSeparator() )
 	return 10; // arbitrary
@@ -1154,7 +1157,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
 
     if ( !mi->text().isNull() ) {
 	if ( mi->text().find('\t') >= 0 )	// string contains tab
-	    w += motifTabSpacing;
+	    w += windowsTabSpacing;
     }
 
     if ( maxpmw ) { // we have iconsets
@@ -1167,7 +1170,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
     }
 
     if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
-	w += motifCheckMarkHMargin; // add space to separate the columns
+	w += windowsCheckMarkHMargin; // add space to separate the columns
 
     w += windowsRightBorder; // windows has a strange wide border on the right side
 
@@ -1183,17 +1186,17 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
 #ifndef QT_NO_COMPLEXWIDGETS
     int h = 0;
     if ( mi->isSeparator() )			// separator height
-	h = motifSepHeight;
+	h = windowsSepHeight;
     else if ( mi->pixmap() )		// pixmap height
-	h = mi->pixmap()->height() + 2*motifItemFrame;
+	h = mi->pixmap()->height() + 2*windowsItemFrame;
     else					// text height
-	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+	h = fm.height() + 2*windowsItemVMargin + 2*windowsItemFrame;
 
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
-	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
+	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*windowsItemFrame );
     }
     if ( mi->custom() )
-	h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame );
+	h = QMAX( h, mi->custom()->sizeHint().height() + 2*windowsItemVMargin + 2*windowsItemFrame );
     return h;
 #endif
 }
@@ -1236,16 +1239,21 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     if ( !mi )
 	return;
 
+    bool reverse = QApplication::reverseLayout();
+
+    int xpos = x;
+    if ( reverse )
+	xpos += w - checkcol;
     if ( mi->isChecked() ) {
 	if ( act && !dis ) {
-	    qDrawShadePanel( p, x, y, checkcol, h,
+	    qDrawShadePanel( p, xpos, y, checkcol, h,
 			     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
 	} else {
-	    qDrawShadePanel( p, x, y, checkcol, h,
+	    qDrawShadePanel( p, xpos, y, checkcol, h,
 			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
 	}
     } else if ( !act ) {
-	p->fillRect(x, y, checkcol , h,
+	p->fillRect(xpos, y, checkcol , h,
 		    g.brush( QColorGroup::Button ));
     }
 
@@ -1258,10 +1266,10 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	int pixh = pixmap.height();
 	if ( act && !dis ) {
 	    if ( !mi->isChecked() )
-		qDrawShadePanel( p, x, y, checkcol, h, g, FALSE, 1,
+		qDrawShadePanel( p, xpos, y, checkcol, h, g, FALSE, 1,
 				 &g.brush( QColorGroup::Button ) );
 	}
-	QRect cr( x, y, checkcol, h );
+	QRect cr( xpos, y, checkcol, h );
 	QRect pmr( 0, 0, pixw, pixh );
 	pmr.moveCenter( cr.center() );
 	p->setPen( itemg.text() );
@@ -1269,13 +1277,22 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 
 	QBrush fill = act? g.brush( QColorGroup::Highlight ) :
 			      g.brush( QColorGroup::Button );
-	p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
+	int xp;
+	if ( reverse )
+	    xp = x;
+	else
+	    xp = xpos + checkcol + 1;
+	p->fillRect( xp, y, w - checkcol - 1, h, fill);
     } else  if ( checkable ) {	// just "checking"...
-	int mw = checkcol + motifItemFrame;
-	int mh = h - 2*motifItemFrame;
+	int mw = checkcol + windowsItemFrame;
+	int mh = h - 2*windowsItemFrame;
 	if ( mi->isChecked() ) {
-	    drawCheckMark( p, x + motifItemFrame,
-			   y+motifItemFrame, mw, mh, itemg, act, dis );
+	    int xp = xpos;
+	    if( reverse )
+		xp += windowsItemFrame;
+	    else
+		xp -= windowsItemFrame;
+	    drawCheckMark( p, xp, y+windowsItemFrame, mw, mh, itemg, act, dis );
 	}
     }
 
@@ -1287,15 +1304,19 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	p->setPen( discol );
     }
 
-    int xm = motifItemFrame + checkcol + motifItemHMargin;
-
+    int xm = windowsItemFrame + checkcol + windowsItemHMargin;
+    if ( reverse )
+	xpos = windowsItemFrame + tab;
+    else
+	xpos += xm;
+    
     if ( mi->custom() ) {
-	int m = motifItemVMargin;
+	int m = windowsItemVMargin;
 	p->save();
 	if ( dis && !act ) {
 	    p->setPen( g.light() );
 	    mi->custom()->paint( p, itemg, act, enabled,
-				 x+xm+1, y+m+1, w-xm-tab+1, h-2*m );
+				 xpos+1, y+m+1, w-xm-tab+1, h-2*m );
 	    p->setPen( discol );
 	}
 	mi->custom()->paint( p, itemg, act, enabled,
@@ -1305,34 +1326,45 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     QString s = mi->text();
     if ( !s.isNull() ) {			// draw text
 	int t = s.find( '\t' );
-	int m = motifItemVMargin;
+	int m = windowsItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t >= 0 ) {				// draw tab text
+	    int xp;
+	    if( reverse )
+		xp = x + windowsRightBorder+windowsItemHMargin+windowsItemFrame - 1;
+	    else
+		xp = x + w - tab - windowsRightBorder-windowsItemHMargin-windowsItemFrame+1;
 	    if ( dis && !act ) {
 		p->setPen( g.light() );
-		p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame+1,
-			     y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
+		p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
 		p->setPen( discol );
 	    }
-	    p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame,
-			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+	    p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
 	}
 	if ( dis && !act ) {
 	    p->setPen( g.light() );
-	    p->drawText( x+xm+1, y+m+1, w-xm+1, h-2*m, text_flags, s, t );
+	    p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
 	    p->setPen( discol );
 	}
-	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+	p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
     } else if ( mi->pixmap() ) {			// draw pixmap
 	QPixmap *pixmap = mi->pixmap();
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
+	p->drawPixmap( xpos, y+windowsItemFrame, *pixmap );
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
     }
     if ( mi->popup() ) {			// draw sub menu arrow
-	int dim = (h-2*motifItemFrame) / 2;
+	int dim = (h-2*windowsItemFrame) / 2;
+	ArrowType arrow;
+	if ( reverse ) {
+	    arrow = LeftArrow;
+	    xpos = x + windowsArrowHMargin + windowsItemFrame;
+	} else { 
+	    arrow = RightArrow;
+	    xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
+	}
 	if ( act ) {
 	    if ( !dis )
 		discol = white;
@@ -1340,13 +1372,12 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 			    white, white,
 			    dis ? discol : white,
 			    discol, white );
-	    drawArrow( p, RightArrow, FALSE,
-			       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
+	    drawArrow( p, arrow, FALSE,
+			       xpos,  y+h/2-dim/2,
 			       dim, dim, g2, TRUE );
 	} else {
-	    drawArrow( p, RightArrow,
-			       FALSE,
-			       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
+	    drawArrow( p, arrow, FALSE,
+			       xpos,  y+h/2-dim/2,
 			       dim, dim, g, mi->isEnabled() );
 	}
     }
