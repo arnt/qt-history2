@@ -115,6 +115,7 @@ public:
 
     void drawLine(const QPoint &pt1, const QPoint &pt2);
     void drawRect(const QRect &r);
+    void drawRects(const QList<QRect> &rects);
     void drawPoint(const QPoint &pt);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
     void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &penColor);

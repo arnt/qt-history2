@@ -1300,7 +1300,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     } else if(bs != NoBrush) {
         const QColor &col = ps->brush.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                                 qt_mac_convert_color_to_cg(col.green()), 
+                                 qt_mac_convert_color_to_cg(col.green()),
                                  qt_mac_convert_color_to_cg(col.blue()), 1.0);
     }
 }
@@ -1385,6 +1385,21 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
     CGContextBeginPath(d->hd);
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextAddRect(d->hd, mac_rect);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+}
+
+void
+QCoreGraphicsPaintEngine::drawRects(const QRect &rects)
+{
+    Q_ASSERT(isActive());
+
+    CGContextBeginPath(d->hdc);
+    QVarLengthArray<CGRect> macRects(rects.size());
+    for (int i=0; i<rects.size(); ++i) {
+        macRects[i] = CGRectMake(rects.at(i).x(), rects.at(i).y(),
+                                 rects.at(i).width(), rects.at(i).height());
+    }
+    CGContextAddRects(d->hd, macRects.constData(), rects.size());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
@@ -1616,7 +1631,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     if(pm.isNull())
         return;
 
-    const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();        
+    const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
 
     CGContextSaveGState(d->hd);
