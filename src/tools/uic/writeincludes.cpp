@@ -13,11 +13,12 @@
 #include "writeincludes.h"
 #include "driver.h"
 #include "ui4.h"
+#include "uic.h"
 
 #include <qtextstream.h>
 
-WriteIncludes::WriteIncludes(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option())
+WriteIncludes::WriteIncludes(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
 }
 

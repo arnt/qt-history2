@@ -13,6 +13,7 @@
 #include "writeicondata.h"
 #include "driver.h"
 #include "ui4.h"
+#include "uic.h"
 
 static QByteArray unzipXPM(QString data, ulong& length)
 {
@@ -45,8 +46,8 @@ static QByteArray unzipXPM(QString data, ulong& length)
     return baunzip;
 }
 
-WriteIconData::WriteIconData(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option())
+WriteIconData::WriteIconData(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
 }
 

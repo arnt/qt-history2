@@ -14,7 +14,6 @@
 #define WRITEINITIALIZATION_H
 
 #include "treewalker.h"
-#include "databaseinfo.h"
 
 #include <qpair.h>
 #include <qhash.h>
@@ -22,12 +21,12 @@
 
 class QTextStream;
 class Driver;
-
+class Uic;
 struct Option;
 
 struct WriteInitialization : public TreeWalker
 {
-    WriteInitialization(Driver *driver);
+    WriteInitialization(Uic *uic);
 
 //
 // widgets
@@ -91,7 +90,6 @@ private:
 
 private:
     Driver *driver;
-    DatabaseInfo databaseInfo;
     QTextStream &output;
     const Option &option;
 

@@ -13,6 +13,8 @@
 #ifndef UIC_H
 #define UIC_H
 
+#include "databaseinfo.h"
+
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qhash.h>
@@ -37,6 +39,18 @@ public:
     Uic(Driver *driver);
     ~Uic();
 
+    inline Driver *driver() const
+    { return drv; }
+
+    inline QTextStream &output()
+    { return out; }
+
+    inline const Option &option() const
+    { return opt; }
+
+    inline const DatabaseInfo *databaseInfo() const
+    { return &info; }
+
     bool write(QIODevice *in);
     bool write(DomUI *ui);
 
@@ -49,9 +63,10 @@ private:
     void writeHeaderProtectionEnd();
 
 private:
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
+    Driver *drv;
+    QTextStream &out;
+    const Option &opt;
+    DatabaseInfo info;
 };
 
 #endif // UIC_H

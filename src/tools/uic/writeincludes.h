@@ -18,12 +18,13 @@
 
 class QTextStream;
 class Driver;
+class Uic;
 
 struct Option;
 
 struct WriteIncludes : public TreeWalker
 {
-    WriteIncludes(Driver *driver);
+    WriteIncludes(Uic *uic);
 
     void accept(DomUI *node);
     void accept(DomWidget *node);

@@ -14,12 +14,14 @@
 #include "writeicondeclaration.h"
 #include "driver.h"
 #include "ui4.h"
+#include "uic.h"
 
 #include <qtextstream.h>
 
-WriteDeclaration::WriteDeclaration(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option())
+WriteDeclaration::WriteDeclaration(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
+    this->uic = uic;
 }
 
 void WriteDeclaration::accept(DomUI *node)
@@ -41,7 +43,7 @@ void WriteDeclaration::accept(DomUI *node)
             << "protected:\n"
             << option.indent << "enum IconID\n"
             << option.indent << "{\n";
-        WriteIconDeclaration(driver).accept(node);
+        WriteIconDeclaration(uic).accept(node);
 
         output << option.indent << option.indent << "unknown_ID\n"
             << option.indent << "};\n";

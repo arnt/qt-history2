@@ -35,10 +35,11 @@
 #include <qt_windows.h>
 #endif
 
-Uic::Uic(Driver *drv)
-     : driver(drv),
-       output(driver->output()),
-       option(driver->option())
+Uic::Uic(Driver *d)
+     : drv(d),
+       out(d->output()),
+       opt(d->option()),
+       info(d)
 {
 }
 
@@ -50,7 +51,7 @@ void Uic::writeCopyrightHeader(DomUI *ui)
 {
     QString comment = ui->elementComment();
     if (comment.size())
-        output << "/*\n" << comment << "\n*/\n";
+        out << "/*\n" << comment << "\n*/\n";
 }
 
 bool Uic::write(QIODevice *in)
@@ -67,13 +68,13 @@ bool Uic::write(QIODevice *in)
     if (version < 4.0) {
         delete ui;
 
-        if (option.inputFile.isEmpty()) {
+        if (opt.inputFile.isEmpty()) {
             fprintf(stderr, "impossible to convert a file from the stdin\n");
             return false;
         }
-        //qWarning("converting file '%s'", option.inputFile.latin1());
+        //qWarning("converting file '%s'", opt.inputFile.latin1());
         BlockingProcess uic3;
-        uic3.setArguments(QStringList() << "uic3" << "-convert" << option.inputFile);
+        uic3.setArguments(QStringList() << "uic3" << "-convert" << opt.inputFile);
         if (!uic3.start()) {
             fprintf(stderr, "Couldn't start uic3\n");
             return false;
@@ -99,26 +100,26 @@ bool Uic::write(DomUI *ui)
     if (!ui || !ui->elementWidget())
         return false;
 
-    if (option.copyrightHeader)
+    if (opt.copyrightHeader)
         writeCopyrightHeader(ui);
 
-    if (option.headerProtection)
+    if (opt.headerProtection)
         writeHeaderProtectionStart();
 
-    WriteIncludes(driver).accept(ui);
+    WriteIncludes(this).accept(ui);
 
-    if (option.generateNamespace)
-        output << "namespace Ui {\n\n";
+    if (opt.generateNamespace)
+        out << "namespace Ui {\n\n";
 
-    Validator(driver).accept(ui);
-    WriteDeclaration(driver).accept(ui);
-    WriteInitialization(driver).accept(ui);
-    WriteIconInitialization(driver).accept(ui);
+    Validator(this).accept(ui);
+    WriteDeclaration(this).accept(ui);
+    WriteInitialization(this).accept(ui);
+    WriteIconInitialization(this).accept(ui);
 
-    if (option.generateNamespace)
-        output << "}\n\n";
+    if (opt.generateNamespace)
+        out << "}\n\n";
 
-    if (option.headerProtection)
+    if (opt.headerProtection)
         writeHeaderProtectionEnd();
 
     return true;
@@ -126,13 +127,13 @@ bool Uic::write(DomUI *ui)
 
 void Uic::writeHeaderProtectionStart()
 {
-    QString h = driver->headerFileName();
-    output << "#ifndef " << h << "\n"
+    QString h = drv->headerFileName();
+    out << "#ifndef " << h << "\n"
            << "#define " << h << "\n\n";
 }
 
 void Uic::writeHeaderProtectionEnd()
 {
-    QString h = driver->headerFileName();
-    output << "#endif // " << h << "\n\n";
+    QString h = drv->headerFileName();
+    out << "#endif // " << h << "\n\n";
 }

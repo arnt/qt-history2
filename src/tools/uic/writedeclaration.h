@@ -17,12 +17,13 @@
 
 class QTextStream;
 class Driver;
+class Uic;
 
 struct Option;
 
 struct WriteDeclaration : public TreeWalker
 {
-    WriteDeclaration(Driver *driver);
+    WriteDeclaration(Uic *uic);
 
     void accept(DomUI *node);
     void accept(DomWidget *node);
@@ -32,6 +33,7 @@ struct WriteDeclaration : public TreeWalker
     void accept(DomAction *node);
 
 private:
+    Uic *uic;
     Driver *driver;
     QTextStream &output;
     const Option &option;

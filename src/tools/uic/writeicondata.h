@@ -17,13 +17,14 @@
 
 class QTextStream;
 class Driver;
+class Uic;
 
 struct Option;
 
 class WriteIconData : public TreeWalker
 {
 public:
-    WriteIconData(Driver *driver);
+    WriteIconData(Uic *uic);
 
     void accept(DomUI *node);
     void accept(DomImages *images);

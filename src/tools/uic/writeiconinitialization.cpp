@@ -15,10 +15,12 @@
 #include "driver.h"
 #include "ui4.h"
 #include "utils.h"
+#include "uic.h"
 
-WriteIconInitialization::WriteIconInitialization(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option())
+WriteIconInitialization::WriteIconInitialization(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
+    this->uic = uic;
 }
 
 void WriteIconInitialization::accept(DomUI *node)
@@ -31,7 +33,7 @@ void WriteIconInitialization::accept(DomUI *node)
     output << "inline QPixmap " << className << "::icon(" << className << "::IconID id)\n"
            << "{\n";
 
-    WriteIconData(driver).accept(node);
+    WriteIconData(uic).accept(node);
 
     output << option.indent << "switch (id) {\n";
 

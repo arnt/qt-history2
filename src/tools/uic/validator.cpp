@@ -13,11 +13,12 @@
 #include "validator.h"
 #include "driver.h"
 #include "ui4.h"
+#include "uic.h"
 
 #include <qtextstream.h>
 
-Validator::Validator(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option())
+Validator::Validator(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
 }
 

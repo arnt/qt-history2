@@ -13,9 +13,10 @@
 #include "writeicondeclaration.h"
 #include "driver.h"
 #include "ui4.h"
+#include "uic.h"
 
-WriteIconDeclaration::WriteIconDeclaration(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option())
+WriteIconDeclaration::WriteIconDeclaration(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
 }
 

@@ -17,12 +17,13 @@
 
 class QTextStream;
 class Driver;
+class Uic;
 
 struct Option;
 
 struct Validator : public TreeWalker
 {
-    Validator(Driver *driver);
+    Validator(Uic *uic);
 
     void accept(DomUI *node);
     void accept(DomWidget *node);

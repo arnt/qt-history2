@@ -14,20 +14,19 @@
 #include "driver.h"
 #include "ui4.h"
 #include "utils.h"
+#include "uic.h"
 
 #include <qtextstream.h>
 #include <qdebug.h>
 
-WriteInitialization::WriteInitialization(Driver *drv)
-    : driver(drv), databaseInfo(drv), output(drv->output()), option(drv->option()),
+WriteInitialization::WriteInitialization(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option()),
       m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true)
 {
 }
 
 void WriteInitialization::accept(DomUI *node)
 {
-    databaseInfo.accept(node);
-
     m_actionGroupChain.push(0);
     m_widgetChain.push(0);
     m_layoutChain.push(0);

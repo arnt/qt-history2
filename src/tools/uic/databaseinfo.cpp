@@ -40,19 +40,21 @@ void DatabaseInfo::accept(DomWidget *node)
     DomProperty *db = properties.value("database", 0);
     if (db && db->elementStringList()) {
         QStringList info = db->elementStringList()->elementString();
-        QString connection = info.size() > 0 ? info.at(0) : QString();
-        QString table = info.size() > 1 ? info.at(1) : QString();
-        QString field = info.size() > 2 ? info.at(2) : QString();
 
-        if (connection.size()) {
-            m_connections.append(connection);
-            if (table.size()) {
-                m_cursors[connection].append(table);
-                if (field.size()) {
-                    m_fields[connection].append(field);
-                }
-            }
-        }
+        QString connection = info.size() > 0 ? info.at(0) : QString();
+        if (connection.isEmpty())
+            return;
+        m_connections.append(connection);
+
+        QString table = info.size() > 1 ? info.at(1) : QString();
+        if (table.isEmpty())
+            return;
+        m_cursors[connection].append(table);
+
+        QString field = info.size() > 2 ? info.at(2) : QString();
+        if (field.isEmpty())
+            return;
+        m_fields[connection].append(field);
     }
 
     TreeWalker::accept(node);
