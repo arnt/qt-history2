@@ -332,7 +332,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         if (_sopen_s(fixPathForFile(file->file, true).local().toLatin1().constData(),
             _O_RDONLY, _SH_DENYRW, _S_IREAD, &fd) != 0)
-            fd = -1;        
+            fd = -1;
 #else
         fd = open(fixPathForFile(file->file, true).local().toLatin1().constData(), O_RDONLY);
 #endif
@@ -605,7 +605,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         if (_sopen_s(fixPathForFile(file->file, true).local().toLocal8Bit().constData(),
             _O_RDONLY, _SH_DENYRW, _S_IREAD, &fd) != 0)
-            fd = -1;        
+            fd = -1;
 #else
         fd = open(fixPathForFile(file->file, true).local().toLocal8Bit().constData(), O_RDONLY);
 #endif
@@ -619,6 +619,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     }
 
     debug_msg(2, "findMocs: %s", file->file.local().toLatin1().constData());
+    char tmp;
     int line_count = 1;
     bool ignore_qobject = false, ignore_qgadget = false;
  /* qmake ignore Q_GADGET */
@@ -626,39 +627,47 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
  /* qmake ignore Q_OBJECT */
 #define Q_OBJECT_LEN 8 //strlen("Q_OBJECT")
     for(int x = 0; x < (buffer_len-Q_OBJECT_LEN); x++) {
-        while(x < buffer_len && *(buffer+x) != 'Q') {
+        while(x < buffer_len) {
             if(*(buffer + x) == '/') {
                 x++;
                 if(buffer_len >= x) {
-                    if(*(buffer + x) == '/') { //c++ style comment
-                        for(;x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
+                    tmp = *(buffer + x);
+                    if(tmp == '/') { //c++ style comment
+                        for(;x < buffer_len && !qmake_endOfLine(tmp); tmp = *(buffer+(++x)));
                         ++line_count;
-                    } else if(*(buffer + x) == '*') { //c style comment
-                        for(;x < buffer_len; x++) {
-                            if(*(buffer + x) == 't' || *(buffer + x) == 'q') { //ignore
+                    } else if(tmp == '*') { //c style comment
+                        for(;x < buffer_len; tmp = *(buffer+(++x))) {
+                            if(tmp == 't' || tmp == 'q') { //ignore
                                 if(buffer_len >= (x + 20) &&
                                    !strncmp(buffer + x + 1, "make ignore Q_OBJECT", 20)) {
                                     debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
                                               file->file.real().toLatin1().constData(), line_count);
-                                    x += 20;
+                                    tmp = *(buffer+(x+=20));
                                     ignore_qobject = true;
                                 } else if(buffer_len >= (x + 20) &&
                                           !strncmp(buffer + x + 1, "make ignore Q_GADGET", 20)) {
                                     debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_GADGET\"",
                                               file->file.real().toLatin1().constData(), line_count);
-                                    x += 20;
+                                    tmp = *(buffer+(x+=20));
                                     ignore_qgadget = true;
                                 }
-                            } else if(*(buffer + x) == '*') {
+                            } else if(tmp == '*') {
                                 if(buffer_len >= (x+1) && *(buffer + (x+1)) == '/') {
-                                    x += 2;
+                                    tmp = *(buffer+(x+=2));
                                     break;
                                 }
-                            } else if(Option::debug_level && qmake_endOfLine(*(buffer + x))) {
+                            } else if(Option::debug_level && qmake_endOfLine(tmp)) {
                                 ++line_count;
                             }
                         }
                     }
+                }
+            } else {
+                if(buffer_len > x+1 && *(buffer+x+1) == 'Q' &&
+                    ((tmp >= 'a' && tmp <= 'z') || (tmp >= 'A' && tmp <= 'Z') ||
+                     (tmp >= '0' && tmp <= '9') || tmp == '_')) {
+                    tmp = *(buffer+(++x));
+                    break;
                 }
             }
             if(Option::debug_level && qmake_endOfLine(*(buffer+x)))
@@ -668,7 +677,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
         if(x >= buffer_len)
             break;
 
-        bool interesting = *(buffer+x) == 'Q' &&
+        bool interesting = tmp == 'Q' &&
                            (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) ||
                             !strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN));
         if(interesting) {
