@@ -1835,7 +1835,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
+    p->fillRect( 0, 0, width, height(), lv->backgroundBrush() );
 
     // (lars) what does this do???
 #if 0 // RS: ####

@@ -3909,7 +3909,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     p->save();
     if ( i->s ) {
 	if ( i->custom_highlight ) {
-	    p->fillRect( 0, 0, cw, ch, g.base() );
+	    p->fillRect( 0, 0, cw, ch, backgroundBrush() );
 	    p->setPen( g.highlightedText() );
 	    p->setBackgroundColor( g.highlight() );
 	}
@@ -3925,7 +3925,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	    p->setBackgroundColor( g.highlight() );
 	}
     } else {
-	p->fillRect( 0, 0, cw, ch, g.base() );
+	p->fillRect( 0, 0, cw, ch, backgroundBrush() );
     }
 
     i->paint( p );
