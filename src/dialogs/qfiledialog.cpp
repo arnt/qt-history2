@@ -5369,7 +5369,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    d->progressDia = 0;
 	}
 
-	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
+	QMessageBox::critical( this, tr( "Error" ), op->protocolDetail() );
 
 	int ecode = op->errorCode();
 	if ( ecode == QNetworkProtocol::ErrListChildren || ecode == QNetworkProtocol::ErrParse ||
