@@ -511,14 +511,9 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	emitReturnPressed();
 	break;
     case Key_Delete:
-	if ( doc->hasSelection( QTextDocument::Standard ) ) {
-	    if ( doc->selectionStartCursor( QTextDocument::Standard ) !=
-		 doc->selectionEndCursor( QTextDocument::Standard ) ) {
-		 removeSelectedText();
-		 break;
-	    } else {
-		doc->removeSelection( QTextDocument::Standard );
-	    }
+	if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
+	    removeSelectedText();
+	    break;
 	}
 
 	doKeyboardAction( ActionDelete );
@@ -526,14 +521,9 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
 	break;
     case Key_Backspace:
-	if ( doc->hasSelection( QTextDocument::Standard ) ) {
-	    if ( doc->selectionStartCursor( QTextDocument::Standard ) !=
-		 doc->selectionEndCursor( QTextDocument::Standard ) ) {
-		removeSelectedText();
-		break;
-	    } else {
-		doc->removeSelection( QTextDocument::Standard );
-	    }
+	if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
+	    removeSelectedText();
+	    break;
 	}
 
 	if ( !cursor->parag()->prev() &&
@@ -3123,8 +3113,8 @@ QPopupMenu *QTextView::createPopupMenu()
     popup->setItemEnabled( d->id[ IdUndo ], !isReadOnly() && doc->commands()->isUndoAvailable() );
     popup->setItemEnabled( d->id[ IdRedo ], !isReadOnly() && doc->commands()->isRedoAvailable() );
 #ifndef QT_NO_CLIPBOARD
-    popup->setItemEnabled( d->id[ IdCut ], !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) );
-    popup->setItemEnabled( d->id[ IdCopy ], doc->hasSelection( QTextDocument::Standard ) );
+    popup->setItemEnabled( d->id[ IdCut ], !isReadOnly() && doc->hasSelection( QTextDocument::Standard, TRUE ) );
+    popup->setItemEnabled( d->id[ IdCopy ], doc->hasSelection( QTextDocument::Standard, TRUE ) );
     popup->setItemEnabled( d->id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text().isEmpty() );
 #endif
     popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !text().isEmpty() );

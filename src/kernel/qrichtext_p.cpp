@@ -114,9 +114,12 @@ int QTextCursor::y() const
     return string->lineY( line );
 }
 
-bool QTextDocument::hasSelection( int id ) const
+bool QTextDocument::hasSelection( int id, bool visible ) const
 {
-    return selections.find( id ) != selections.end();
+    return ( selections.find( id ) != selections.end() &&
+	     ( !visible ||
+	       ( (QTextDocument*)this )->selectionStartCursor( id ) !=
+	       ( (QTextDocument*)this )->selectionEndCursor( id ) ) );
 }
 
 void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )

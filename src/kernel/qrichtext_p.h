@@ -707,7 +707,7 @@ public:
     bool invertSelectionText( int id ) const;
     void setSelectionColor( int id, const QColor &c );
     void setInvertSelectionText( int id, bool b );
-    bool hasSelection( int id ) const;
+    bool hasSelection( int id, bool visible = FALSE ) const;
     void setSelectionStart( int id, QTextCursor *cursor );
     bool setSelectionEnd( int id, QTextCursor *cursor );
     void selectAll( int id );
