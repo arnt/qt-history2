@@ -368,9 +368,28 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_Splitter:
+	if (flags & Style_Horizontal)
+	    flags &= ~Style_Horizontal;
+	else
+	    flags |= Style_Horizontal;
+	// fallthrough intended
+
     case PE_DockWindowResizeHandle:
-	qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
-	break;
+	{
+	    QPen oldPen = p->pen();
+	    p->setPen( cg.light() );
+	    if ( flags & Style_Horizontal ) {
+		p->drawLine( r.x(), r.y(), r.width(), r.y() );
+		p->setPen( cg.shadow() );
+		p->drawLine( r.x(), r.bottom(), r.width(), r.bottom() );
+	    } else { 
+		p->drawLine( r.x(), r.y(), r.x(), r.height() );
+		p->setPen( cg.shadow() );
+		p->drawLine( r.right(), r.y(), r.right(), r.height() );
+	    }
+	    p->setPen( oldPen );
+	    break;
+	}
 
     case PE_ScrollBarSubLine:
 	if (use2000style) {
