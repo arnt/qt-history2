@@ -65,9 +65,8 @@
      BSDI	- BSD/OS
      IRIX	- SGI Irix
      OSF	- Compaq Tru64
-     SCO	- SCO OpenServer 5, Open UNIX
-     UNIXWARE7	- UnixWare 7
-     UNIXWARE	- UnixWare 2
+     SCO	- SCO OpenServer, Open UNIX 8
+     UNIXWARE	- UnixWare
      AIX	- AIX
      HURD	- GNU Hurd
      DGUX	- DG/UX
@@ -87,6 +86,8 @@
 #  define Q_OS_MACX
 #elif defined(macintosh)
 #  define Q_OS_MAC9
+#elif defined(__CYGWIN__)
+#  define Q_OS_CYGWIN
 #elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
 #  define Q_OS_MSDOS
 #elif defined(OS2) || defined(_OS2) || defined(__OS2__)
@@ -102,22 +103,20 @@
 #  define Q_OS_WIN32
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #  define Q_OS_WIN32
-#elif defined(__CYGWIN__)
-#  define Q_OS_CYGWIN
-#elif defined(sun)
+#elif defined(__sun) || defined(sun)
 #  if defined(__svr4__) || defined(__SVR4)
 #    define Q_OS_SOLARIS
 #  else
 #    define Q_OS_SUN
 #    define Q_OS_BSD4
 #  endif
-#elif defined(hpux) || defined(__hpux) || defined(__hpux__)
+#elif defined(hpux) || defined(__hpux)
 #  define Q_OS_HPUX
-#elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
+#elif defined(__ultrix) || defined(ultrix)
 #  define Q_OS_ULTRIX
 #elif defined(sinix)
 #  define Q_OS_RELIANT
-#elif defined(linux) || defined(__linux) || defined(__linux__)
+#elif defined(__linux__) || defined(__linux)
 #  define Q_OS_LINUX
 #elif defined(__FreeBSD__)
 #  define Q_OS_FREEBSD
@@ -147,20 +146,20 @@
 #  define Q_OS_QNX6
 #elif defined(__QNX__)
 #  define Q_OS_QNX
-#elif defined(UNIXWARE2)
-#  define Q_OS_UNIXWARE
-#elif defined(_SCO_DS)
-#  define Q_OS_SCO
-#elif defined(sco) || defined(_UNIXWARE7)
-#  define Q_OS_UNIXWARE7
-#elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
-#  define Q_OS_UNIXWARE7
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
 #elif defined(__H3050R)
 #  define Q_OS_HITACHI
+#elif defined(_SCO_DS)      /* SCO OpenServer */
+#  define Q_OS_SCO
+#elif defined(__UNIXWARE__) /* UnixWare + GCC */
+#  define Q_OS_UNIXWARE
+#  define Q_OS_UNIXWARE7
+#elif defined(__USLC__)     /* UnixWare + UDK */
+#  define Q_OS_UNIXWARE
+#  define Q_OS_UNIXWARE7
 #elif defined(__svr4__)
-/*   generic fallback for the rest of svr4 systems, e.g. g++ on UnixWare7.*/
+/* generic fallback for the rest of svr4 systems */
 #  define Q_OS_SVR4
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
@@ -201,12 +200,13 @@
      INTEL	- Intel C++
      HIGHC	- MetaWare High C/C++
      PGI	- Portland Group C++
+     GHS	- Green Hills Optimizing C++ Compilers
 
    Should be sorted most to least authoritative.
 */
 
-/* Symantec C++ is now Digital Mars? */
-#if defined(__DMC__) || defined(__SC__) || defined(__ZTC__)
+/* Symantec C++ is now Digital Mars */
+#if defined(__DMC__) || defined(__SC__)
 #  define Q_CC_SYM
 /* "explicit" semantics implemented in 8.1e but keyword recognized since 7.5 */
 #  if defined(__SC__) && __SC__ < 0x750
@@ -242,7 +242,7 @@
 
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
-#  if __BORLANDC__ < 0x500
+#  if __BORLANDC__ < 0x502
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
@@ -331,8 +331,6 @@
    it separately anyway. */
 #elif defined(__DECCXX)
 #  define Q_CC_DEC
-/* Compaq C++ V6 compilers are EDG-based but I'm not sure about older
-   DEC C++ V5 compilers. */
 #  if defined(__EDG__)
 #    define Q_CC_EDG
 #  endif
@@ -367,35 +365,48 @@
 #  if !defined(_BOOL) && !defined(__BOOL_DEFINED)
 #    define Q_NO_BOOL_TYPE
 #  endif
+
+/* EDG compiler */
+/* The Portland Group compiler is based on EDG and does define __EDG__ */
 #  if defined(__COMO__)
 #    define Q_CC_COMEAU
 #    define Q_C_CALLBACKS
+
 /* Using the `using' keyword avoids KAI C++ warnings */
 #  elif defined(__KCC)
 #    define Q_CC_KAI
 #    if !defined(_EXCEPTIONS)
 #      define Q_NO_EXCEPTIONS
 #    endif
+
 /* Using the `using' keyword avoids Intel C++ warnings */
 #  elif defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
 #    if !defined(__EXCEPTIONS)
 #      define Q_NO_EXCEPTIONS
 #    endif
+
 /* The Portland Group compiler is based on EDG and does define __EDG__ */
 #  elif defined(__PGI)
 #    define Q_CC_PGI
 #    if !defined(__EXCEPTIONS)
 #      define Q_NO_EXCEPTIONS
 #    endif
+
+/* Never tested! */
+#  elif defined(__ghs)
+#    define Q_CC_GHS
+
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #  elif defined(__USLC__)
 #    define Q_CC_USLC
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
+
 /* Never tested! */
 #  elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
 #    define Q_CC_OC
 #    define Q_NO_USING_KEYWORD
+
 /* CDS++ is not documented to define __EDG__ or __EDG in the Reliant
    documentation but we suppose it does, in any case it does follow
    conventions like _BOOL */
@@ -405,9 +416,10 @@
 #    if defined(__cplusplus) && (__cplusplus < 2) /* Cfront C++ mode */
 #      define Q_NO_EXCEPTIONS
 #    endif
+
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
-#  elif defined(sgi) || defined(__sgi)
+#  elif defined(__sgi)
 #    define Q_CC_MIPS
 #    if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
 #      define Q_TYPENAME
