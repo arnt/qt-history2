@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.5 1997/06/26 19:38:44 hanord Exp $
+** $Id: qlist.doc,v 2.6 1997/06/28 18:54:17 warwick Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -900,7 +900,7 @@
 */
 
 /*!
-  \fn QStrList &QStrList::operator=( const QStrList &list )
+  \fn QStrList& QStrList::operator=( const QStrList& list )
   Assigns \e list to this list and returns a reference to this list.
 
   If \e list has deep copies, this list will also get deep copies.
