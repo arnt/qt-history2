@@ -17,6 +17,7 @@ ICONVIEW_CPP	= iconview
 NETWORK_CPP	= network
 OPENGL_CPP	= opengl
 TOOLS_CPP	= tools
+CODECS_CPP	= codecs
 WORKSPACE_CPP	= workspace
 XML_CPP	        = xml
 STYLES_CPP	= styles
@@ -32,6 +33,7 @@ win32 {
 	NETWORK_H	= $$WIN_ALL_H
 	OPENGL_H	= $$WIN_ALL_H
 	TOOLS_H	        = $$WIN_ALL_H
+	CODECS_H	        = $$WIN_ALL_H
 	WORKSPACE_H	= $$WIN_ALL_H
 	XML_H	        = $$WIN_ALL_H
 	CANVAS_H	= $$WIN_ALL_H
@@ -57,6 +59,7 @@ unix {
 	NETWORK_H	= $$NETWORK_CPP
 	OPENGL_H	= $$OPENGL_CPP
 	TOOLS_H	        = $$TOOLS_CPP
+	CODECS_H	        = $$CODECS_CPP
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H	        = $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
@@ -67,7 +70,7 @@ unix {
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
-DEPENDPATH += $$ICONVIEW_H:$$OPENGL_H:$$TOOLS_H:$$WORKSPACE_H:$$XML_H:$$CANVAS_H:$$STYLES_H
+DEPENDPATH += $$ICONVIEW_H:$$OPENGL_H:$$TOOLS_H:$$CODECS_H:$$WORKSPACE_H:$$XML_H:$$CANVAS_H:$$STYLES_H
 
 thread {
 	TARGET = qt-mt
@@ -102,4 +105,5 @@ include($$OPENGL_CPP/qt_opengl.pri)
 include($$SQL_CPP/qt_sql.pri)
 include($$KERNEL_CPP/qt_gfx.pri)
 include($$TOOLS_CPP/qt_tools.pri)
+include($$CODECS_CPP/qt_codecs.pri)
 include($$STYLES_CPP/qt_styles.pri)
