@@ -515,7 +515,7 @@ public:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, QString>;
+//Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, QString>;
 // MOC_SKIP_END
 #endif
 
@@ -770,7 +770,7 @@ struct Q_EXPORT QTextDocumentSelection
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QColor>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, bool>;
+//Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, bool>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextDocumentSelection>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextDocument>;
 // MOC_SKIP_END

@@ -45,8 +45,8 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<QWidget>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDictIterator<QWidget>;
+//Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<QWidget>;
+//Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDictIterator<QWidget>;
 #endif
 
 
