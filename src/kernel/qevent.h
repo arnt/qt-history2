@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#6 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#7 $
 **
 ** Definition of QEvent classes
 **
@@ -45,13 +45,13 @@ class QEvent					// event base class
 {
 public:
     QEvent( int type )		{ t=type; posted=FALSE; }
-   ~QEvent()			{ if ( posted ) peErrMsg( t ); }
+   ~QEvent()			{ if ( posted ) peErrMsg(); }
     int	  type()	const	{ return t; }	// event type
 protected:
     int	  t;
     bool  posted;
 private:
-    static void peErrMsg( int );
+    void  peErrMsg();
 };
 
 
