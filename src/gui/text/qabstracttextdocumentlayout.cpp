@@ -121,6 +121,11 @@ QSize QAbstractTextDocumentLayout::sizeUsed() const
 */
 
 /*!
+    \class QAbstractTextDocumentLayout::PaintContext
+    \internal
+*/
+
+/*!
     Creates a new text document layout for the given \a document.
 */
 QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QTextDocument *document)
@@ -301,11 +306,17 @@ QRect QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
     return QRect();
 }
 
+/*!
+    Sets the default \a font to use in the document layout.
+*/
 void QAbstractTextDocumentLayout::setDefaultFont(const QFont &font)
 {
     d->defaultFont = font;
 }
 
+/*!
+    Returns the default font to be used in the document layout.
+*/
 QFont QAbstractTextDocumentLayout::defaultFont() const
 {
     return d->defaultFont;

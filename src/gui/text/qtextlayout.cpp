@@ -755,6 +755,11 @@ int QTextLayout::maximumWidth() const
 }
 
 
+/*!
+    \fn void QTextLayout::setDirection(QChar::Direction direction)
+
+    Sets the \a direction of the text flow in the layout.
+*/
 void QTextLayout::setDirection(QChar::Direction dir)
 {
     d->direction = dir;
@@ -880,6 +885,10 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
     d->nSelections = 0;
 }
 
+/*!
+    \class QTextLayout::Selection
+    \internal
+*/
 
 /*!
     \class QTextLine

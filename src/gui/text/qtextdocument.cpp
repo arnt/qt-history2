@@ -287,6 +287,16 @@ bool QTextDocument::isUndoRedoEnabled() const
 */
 
 /*!
+    \enum QTextDocument::FindDirection
+
+    This enum is used to specify the search direction when searching
+    for text with the find() function.
+
+    \value FindForward
+    \value FindBackward
+*/
+
+/*!
     Returns true is undo is available; otherwise returns false.
 */
 bool QTextDocument::isUndoAvailable() const
@@ -406,17 +416,20 @@ void QTextDocument::setHtml(const QString &html)
 */
 
 /*!
-    \fn QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options) const
+    \fn QTextCursor QTextDocument::find(const QString &expr, int position, FindFlags options, FindDirection direction) const
 
     \overload
 
-    Finds the next occurrence of the string, \a expr, starting at
-    position \a from, using the given \a options. Returns a cursor
-    with the match selected if \a expr was found; otherwise returns a
-    null cursor.
+    Finds the next occurrence of the string, \a expr, in the document.
+    The search starts at the given \a position, and proceeds in the
+    \a direction specified. The \a options control the type of search
+    performed.
 
-    If \a from is 0 (the default) the search begins from the beginning
-    of the document; otherwise from the specified position.
+    Returns a cursor with the match selected if \a expr was found; otherwise
+    returns a null cursor.
+
+    If the \a position is 0 (the default) the search begins from the beginning
+    of the document; otherwise it begins at the specified position.
 */
 QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options, FindDirection direction) const
 {
@@ -502,15 +515,21 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
 }
 
 /*!
-    Finds the next occurrence of the string, \a expr, starting at
-    position \a from, using the given \a options. Returns a cursor
-    with the match selected if \a expr was found; otherwise returns a
-    null cursor.
+    \fn QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &cursor, FindFlags options, FindDirection direction) const
 
-    If the \a from cursor has a selection the search begins after the
-    selection; otherwise from the position of the cursor.
+    Finds the next occurrence of the string, \a expr, in the document.
+    The search starts at the position of the given \a cursor, and proceeds
+    in the \a direction specified. The \a options control the type
+    of search performed.
 
-    By default the search is case-sensitive, and can match anywhere.
+    Returns a cursor with the match selected if \a expr was found; otherwise
+    returns a null cursor.
+
+    If the given \a cursor has a selection, the search begins after the
+    selection; otherwise it begins at the cursor's position.
+
+    By default the search is case-sensitive, and can match text anywhere in the
+    document.
 */
 QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options, FindDirection direction) const
 {

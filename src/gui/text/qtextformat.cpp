@@ -438,9 +438,12 @@ uint QTextFormatPrivate::recalcHash() const
 /*!
     \enum QTextTableFormat::TableColumnConstraint
 
-    \value FixedLength
-    \value VariableLength
-    \value PercentageLength
+    This enum describes the types of constraint that can be applied to a column
+    in a table:
+
+    \value FixedLength       a fixed width column
+    \value VariableLength    a variable width column
+    \value PercentageLength  a width based on the width of the surrounding block
 */
 
 /*!
@@ -1824,22 +1827,43 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn void QTextTableFormat::setTableColumnConstraints(const QList<int> &constraintTypes, const QList<int> &values)
+
+    Sets the column constraints for the table, assigning each constraint from
+    the list of \a constraintTypes a value from the list of \a values.
+
+    \sa tableColumnConstraintTypes() tableColumnConstraintValues()
 */
 
 /*!
     \fn QList<int> QTextTableFormat::tableColumnConstraintTypes() const
+
+    Returns a list of constraint types used by this table format to control
+    the appearance of columns in a table.
+
+    \sa tableColumnConstraintValues() setTableColumnConstraints()
 */
 
 /*!
     \fn QList<int> QTextTableFormat::tableColumnConstraintValues() const
+
+    Returns a list of constraint values used by this table format to control
+    the appearance of columns in a table.
+
+    \sa tableColumnConstraintTypes() setTableColumnConstraints()
 */
 
 /*!
     \fn int QTextTableFormat::cellSpacing() const
+
+    Returns the table's cell spacing. This describes the distance between
+    adjacent cells.
 */
 
 /*!
     \fn void QTextTableFormat::setCellSpacing(int spacing)
+
+    Sets the cell \a spacing for the table. This determines the distance
+    between adjacent cells.
 */
 
 
