@@ -42,11 +42,16 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-// NOT REVISED
 
 /*!
-  \relates QApplication
-  Returns the Qt version number for the library, typically "1.44" or "2.3.0".
+    \relates QApplication
+
+    Returns the Qt version number as a string, for example, "2.3.0" or
+    "3.0.5".
+
+    The \c QT_VERSION define has the numeric value in the form:
+    0xmmiibb (m = major, i = minor, b = bugfix). For example, Qt
+    3.0.5's \c QT_VERSION is 0x030005.
 */
 
 const char *qVersion()
@@ -64,16 +69,17 @@ static int  si_wordSize;
 static bool si_bigEndian;
 
 /*!
-  \relates QApplication
-  Obtains information about the system.
+    \relates QApplication
 
-  The system's word size in bits (typically 32) is returned in \a wordSize.
-  The \a bigEndian is set to TRUE if this is a big-endian machine,
-  or to FALSE if this is a little-endian machine.
+    Obtains information about the system.
 
-  In debug mode, this function calls qFatal() with a message if the computer is
-  truly weird (i.e. different endianness for 16 bit and 32 bit integers), in
-  release mode it returns FALSE.
+    The system's word size in bits (typically 32) is returned in \a
+    *wordSize. The \a *bigEndian is set to TRUE if this is a big-endian
+    machine, or to FALSE if this is a little-endian machine.
+
+    In debug mode, this function calls qFatal() with a message if the
+    computer is truly weird (i.e. different endianness for 16 bit and
+    32 bit integers); in release mode it returns FALSE.
 */
 
 bool qSysInfo( int *wordSize, bool *bigEndian )
@@ -212,87 +218,90 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
  *****************************************************************************/
 
 /*!
-  \fn void qDebug( const char *msg, ... )
+    \fn void qDebug( const char *msg, ... )
 
-  \relates QApplication
-  Prints a debug message \a msg, or calls the message handler (if it has been
-  installed).
+    \relates QApplication
 
-  This function takes a format string and a list of arguments, similar to
-  the C printf() function.
+    Prints a debug message \a msg, or calls the message handler (if it
+    has been installed).
 
-  Example:
-  \code
-    qDebug( "my window handle = %x", myWidget->id() );
-  \endcode
+    This function takes a format string and a list of arguments,
+    similar to the C printf() function.
 
-  Under X11, the text is printed to stderr.  Under Windows, the text is
-  sent to the debugger.
+    Example:
+    \code
+	qDebug( "my window handle = %x", myWidget->id() );
+    \endcode
 
-  \warning The internal buffer is limited to 8196 bytes (including the
-  0-terminator).
+    Under X11, the text is printed to stderr. Under Windows, the text
+    is sent to the debugger.
 
-  \sa qWarning(), qFatal(), qInstallMsgHandler(),
-  \link debug.html Debugging\endlink
+    \warning The internal buffer is limited to 8196 bytes (including
+    the '\0'-terminator).
+
+    \sa qWarning(), qFatal(), qInstallMsgHandler(), \link debug.html
+    Debugging\endlink
 */
 
 /*!
-  \fn void qWarning( const char *msg, ... )
+    \fn void qWarning( const char *msg, ... )
 
-  \relates QApplication
-  Prints a warning message \a msg, or calls the message handler (if it has been
-  installed).
+    \relates QApplication
 
-  This function takes a format string and a list of arguments, similar to
-  the C printf() function.
+    Prints a warning message \a msg, or calls the message handler (if
+    it has been installed).
 
-  Example:
-  \code
-    void f( int c )
-    {
-	if ( c > 200 )
-	    qWarning( "f: bad argument, c == %d", c );
-    }
-  \endcode
+    This function takes a format string and a list of arguments,
+    similar to the C printf() function.
 
-  Under X11, the text is printed to stderr.  Under Windows, the text is
-  sent to the debugger.
+    Example:
+    \code
+	void f( int c )
+	{
+	    if ( c > 200 )
+		qWarning( "f: bad argument, c == %d", c );
+	}
+    \endcode
 
-  \warning The internal buffer is limited to 8196 bytes (including the
-  0-terminator).
+    Under X11, the text is printed to stderr. Under Windows, the text
+    is sent to the debugger.
 
-  \sa qDebug(), qFatal(), qInstallMsgHandler(),
-  \link debug.html Debugging\endlink
+    \warning The internal buffer is limited to 8196 bytes (including
+    the '\0'-terminator).
+
+    \sa qDebug(), qFatal(), qInstallMsgHandler(),
+    \link debug.html Debugging\endlink
 */
 
 /*!
-  \fn void qFatal( const char *msg, ... )
+    \fn void qFatal( const char *msg, ... )
 
-  \relates QApplication
-  Prints a fatal error message \a msg and exits, or calls the message handler (if it
-  has been installed).
+    \relates QApplication
 
-  This function takes a format string and a list of arguments, similar to
-  the C printf() function.
+    Prints a fatal error message \a msg and exits, or calls the
+    message handler (if it has been installed).
 
-  Example:
-  \code
-    int divide( int a, int b )
-    {
-	if ( b == 0 )				// program error
-	    qFatal( "divide: cannot divide by zero" );
-	return a/b;
-    }
-  \endcode
+    This function takes a format string and a list of arguments,
+    similar to the C printf() function.
 
-  Under X11, the text is printed to stderr.  Under Windows, the text is
-  sent to the debugger.
+    Example:
+    \code
+	int divide( int a, int b )
+	{
+	    if ( b == 0 )				// program error
+		qFatal( "divide: cannot divide by zero" );
+	    return a/b;
+	}
+    \endcode
 
-  \warning The internal buffer is limited to 8196 bytes (including the
-  0-terminator).
+    Under X11, the text is printed to stderr. Under Windows, the text
+    is sent to the debugger.
 
-  \sa qDebug(), qWarning(), qInstallMsgHandler(),
-  \link debug.html Debugging\endlink
+    \warning The internal buffer is limited to 8196 bytes (including
+    the '\0'-terminator).
+
+    \sa qDebug(), qWarning(), qInstallMsgHandler(),
+    \link debug.html Debugging\endlink
 */
 
 
@@ -525,12 +534,12 @@ void fatal( const char *msg, ... )
 /*!
   \relates QApplication
 
-  Prints the message \a msg and uses \a code to get a system
-  specific error message. When \a code is -1 (default), the system's last
-  error code will be used if possible.
-  Use this method to handle failures in platform specific API calls.
+  Prints the message \a msg and uses \a code to get a system specific
+  error message. When \a code is -1 (the default), the system's last
+  error code will be used if possible. Use this method to handle
+  failures in platform specific API calls.
 
-  This function does nothing when Qt is built with QT_NO_DEBUG
+  This function does nothing when Qt is built with \c QT_NO_DEBUG
   defined.
 */
 void qSystemWarning( const char* msg, int code )
@@ -580,58 +589,63 @@ void qSystemWarning( const char* msg, int code )
 }
 
 /*!
-  \fn void Q_ASSERT( bool test )
-  \relates QApplication
-  Prints a warning message containing the source code file name and line number
-  if \a test is FALSE.
+    \fn void Q_ASSERT( bool test )
 
-  This is really a macro defined in qglobal.h.
+    \relates QApplication
 
-  Q_ASSERT is useful for testing required conditions in your program.
+    Prints a warning message containing the source code file name and
+    line number if \a test is FALSE.
 
-  Example:
-  \code
-    //
-    // File: div.cpp
-    //
+    This is really a macro defined in \c qglobal.h.
 
-    #include <qglobal.h>
+    Q_ASSERT is useful for testing pre- and post-conditions.
 
-    int divide( int a, int b )
-    {
-	Q_ASSERT( b != 0 );			// this is line 9
-	return a/b;
-    }
-  \endcode
+    Example:
+    \code
+	//
+	// File: div.cpp
+	//
 
-  If \c b is zero, the Q_ASSERT statement will output the following message
-  using the qWarning() function:
-  \code
-    ASSERT: "b == 0" in div.cpp (9)
-  \endcode
+	#include <qglobal.h>
 
-  \sa qWarning(), \link debug.html Debugging\endlink
+	int divide( int a, int b )
+	{
+	    Q_ASSERT( b != 0 );			// this is line 9
+	    return a/b;
+	}
+    \endcode
+
+    If \c b is zero, the Q_ASSERT statement will output the following
+    message using the qWarning() function:
+    \code
+	ASSERT: "b == 0" in div.cpp (9)
+    \endcode
+
+    \sa qWarning(), \link debug.html Debugging\endlink
 */
 
 
 /*!
-  \fn void Q_CHECK_PTR( void *p )
-  \relates QApplication
-  If \a p is null, a fatal messages says that the program ran out of memory
-  and exits.  If \e p is not null, nothing happens.
+    \fn void Q_CHECK_PTR( void *p )
 
-  This is really a macro defined in qglobal.h.
+    \relates QApplication
 
-  Example:
-  \code
-    int *a;
-    Q_CHECK_PTR( a = new int[80] );	// never do this!
-      // do this instead:
-    a = new int[80];
-    Q_CHECK_PTR( a );			// this is fine
-  \endcode
+    If \a p is null, a fatal messages says that the program ran out of
+    memory and exits. If \e p is not null, nothing happens.
 
-  \sa qFatal(), \link debug.html Debugging\endlink
+    This is really a macro defined in \c qglobal.h.
+
+    Example:
+    \code
+	int *a;
+
+	Q_CHECK_PTR( a = new int[80] );  // WRONG!
+
+	a = new int[80];                 // Right
+	Q_CHECK_PTR( a );
+    \endcode
+
+    \sa qFatal(), \link debug.html Debugging\endlink
 */
 
 
@@ -718,56 +732,58 @@ void qObsolete(	 const char *message )
 
 
 /*!
-  \relates QApplication
-  Installs a Qt message handler \a h.  Returns a pointer to the message handler
-  previously defined.
+    \relates QApplication
 
-  The message handler is a function that prints out debug messages,
-  warnings and fatal error messages.  The Qt library (debug version)
-  contains hundreds of warning messages that are printed when internal
-  errors (usually invalid function arguments) occur.  If you implement
-  your own message handler, you get total control of these messages.
+    Installs a Qt message handler \a h. Returns a pointer to the
+    message handler previously defined.
 
-  The default message handler prints the message to the standard output
-  under X11 or to the debugger under Windows.  If it is a fatal message,
-  the application aborts immediately.
+    The message handler is a function that prints out debug messages,
+    warnings and fatal error messages. The Qt library (debug version)
+    contains hundreds of warning messages that are printed when
+    internal errors (usually invalid function arguments) occur. If you
+    implement your own message handler, you get total control of these
+    messages.
 
-  Only one message handler can be defined, since this is usually done on
-  an application-wide basis to control debug output.
+    The default message handler prints the message to the standard
+    output under X11 or to the debugger under Windows. If it is a
+    fatal message, the application aborts immediately.
 
-  To restore the message handler, call \c qInstallMsgHandler(0).
+    Only one message handler can be defined, since this is usually
+    done on an application-wide basis to control debug output.
 
-  Example:
-  \code
-    #include <qapplication.h>
-    #include <stdio.h>
-    #include <stdlib.h>
+    To restore the message handler, call \c qInstallMsgHandler(0).
 
-    void myMessageOutput( QtMsgType type, const char *msg )
-    {
-	switch ( type ) {
-	    case QtDebugMsg:
-		fprintf( stderr, "Debug: %s\n", msg );
-		break;
-	    case QtWarningMsg:
-		fprintf( stderr, "Warning: %s\n", msg );
-		break;
-	    case QtFatalMsg:
-		fprintf( stderr, "Fatal: %s\n", msg );
-		abort();			// dump core on purpose
+    Example:
+    \code
+	#include <qapplication.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+
+	void myMessageOutput( QtMsgType type, const char *msg )
+	{
+	    switch ( type ) {
+		case QtDebugMsg:
+		    fprintf( stderr, "Debug: %s\n", msg );
+		    break;
+		case QtWarningMsg:
+		    fprintf( stderr, "Warning: %s\n", msg );
+		    break;
+		case QtFatalMsg:
+		    fprintf( stderr, "Fatal: %s\n", msg );
+		    abort();			// deliberately core dump
+	    }
 	}
-    }
 
-    int main( int argc, char **argv )
-    {
-	qInstallMsgHandler( myMessageOutput );
-	QApplication a( argc, argv );
-	...
-	return a.exec();
-    }
-  \endcode
+	int main( int argc, char **argv )
+	{
+	    qInstallMsgHandler( myMessageOutput );
+	    QApplication a( argc, argv );
+	    ...
+	    return a.exec();
+	}
+    \endcode
 
-  \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
+    \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
 */
 
 QtMsgHandler qInstallMsgHandler( QtMsgHandler h )

@@ -567,7 +567,7 @@ already have a unique color (which they can change of course).
 \section2 okToClear()
 
 \skipto ::okToClear()
-\printuntil return true;
+\printuntil return TRUE;
 \printline
 
 The okToClear() function is used to prompt the user to save their
@@ -999,7 +999,7 @@ draw the chart and mark it as unchanged.
 \printline
 \printline
 \skipto QFile
-\printuntil false
+\printuntil FALSE
 \printline
 
 Saving data is equally easy. We open the file and create a text

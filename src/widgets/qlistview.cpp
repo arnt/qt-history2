@@ -2511,7 +2511,7 @@ bool QListView::showToolTips() const
   be one of the following: \c NoColumn (the default), \c AllColumns or
   \c LastColumn.
 
-  \note Setting the resize mode should be done after all necessary
+    Note: Setting the resize mode should be done after all necessary
   columns have been added to the listview, otherwise the behavior is
   undefined.
 
@@ -5968,7 +5968,7 @@ bool QListView::rootIsDecorated() const
 
 void QListView::ensureItemVisible( const QListViewItem * i )
 {
-    if ( !i || !isVisible() )
+    if ( !i )
 	return;
 
     QListViewItem *parent = i->parent();

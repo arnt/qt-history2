@@ -60,12 +60,12 @@
     system.
 
     A QDir can point to a file using either a relative or an absolute
-    path. Absolute paths begin with the directory separator "/" (or
-    with a drive specification under Windows). If you always use "/"
-    as a directory separator, Qt will translate your paths to conform
-    to the underlying operating system. Relative file names begin with
-    a directory name or a file name and specify a path relative to the
-    current directory.
+    path. Absolute paths begin with the directory separator "/"
+    (optionally preceded by a drive specification under Windows). If
+    you always use "/" as a directory separator, Qt will translate
+    your paths to conform to the underlying operating system. Relative
+    file names begin with a directory name or a file name and specify
+    a path relative to the current directory.
 
     The "current" path refers to the application's working directory.
     A QDir's own path is set and retrieved with setPath() and path().
@@ -259,11 +259,11 @@ QDir::~QDir()
     to ensure that a directory with this path exists.
 
     The path can be either absolute or relative. Absolute paths begin
-    with the directory separator "/" (or with a drive specification
-    under Windows). Relative file names begin with a directory name or a
-    file name and specify a path relative to the current directory. An
-    example of an absolute path is the string "/tmp/quartz", a
-    relative path might look like "src/fatlib".
+    with the directory separator "/" (optionally preceded by a drive
+    specification under Windows). Relative file names begin with a
+    directory name or a file name and specify a path relative to the
+    current directory. An example of an absolute path is the string
+    "/tmp/quartz", a relative path might look like "src/fatlib".
 
     \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
       absFilePath(), isRelative(), convertToAbs()
@@ -1013,8 +1013,8 @@ bool QDir::exists( const QString &name, bool acceptAbsPath ) //### const in 4.0
 }
 
 /*!
-    Returns the native directory separator; "/" under UNIX, "\" under
-    Windows, and ":" under Mac OS.
+    Returns the native directory separator; "/" under UNIX (including
+    Mac OS X) and "\" under Windows.
 
     You do not need to use this function to build file paths. If you
     always use "/", Qt will translate your paths to conform to the
