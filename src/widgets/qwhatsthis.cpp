@@ -349,7 +349,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		return FALSE; // ignore these keys, they are used for context menus
 	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta )  // not a modifier key
 		leaveWhatsThisMode();
-	    
+	
 	}
 	break;
     case Inactive:
@@ -411,6 +411,9 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int vMargin = 8;
     const int hMargin = 12;
+    
+    if ( text.isEmpty() )
+	return;
 
     // make the widget, and set it up
     if ( !whatsThat ) {
