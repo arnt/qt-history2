@@ -266,7 +266,7 @@ else
 	    fi
 	    ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g"`
 	    NOW=`date +%Y%m%d`
-	    if [ "$NOW" -gt "$ExpiryDate" ]
+	    if [ "$NOW" -gt "0$ExpiryDate" ]
 	    then
 		echo
 		echo "WARNING  WARNING  WARNING  WARNING"
