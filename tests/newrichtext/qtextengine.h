@@ -192,11 +192,11 @@ struct QScriptAnalysis
 struct QScriptItem
 {
     int position;
-    QScriptAnalysis analysis;
-    short x;
+    int x;
     int y;
+    int width;
+    QScriptAnalysis analysis;
     short baselineAdjustment;
-    short width;
     short ascent;
     short descent;
     QFontEngine *fontEngine;
