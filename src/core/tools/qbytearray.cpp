@@ -609,40 +609,6 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \sa QConstByteArray, QBitArray, QString
 */
 
-/*! \typedef QByteArray::ConstIterator
-
-    \internal
-
-    Qt-style synonym for QByteArray::const_iterator.
-*/
-
-/*! \typedef QByteArray::Iterator
-
-    \internal
-
-    Qt-style synonym for QByteArray::iterator.
-*/
-
-/*! \typedef QByteArray::const_iterator
-
-    \internal
-
-    The QByteArray::const_iterator typedef provides an STL-style
-    const iterator for QByteArray.
-
-    \sa QByteArray::iterator
-*/
-
-/*! \typedef QByteArray::iterator
-
-    \internal
-
-    The QByteArray::iterator typedef provides an STL-style
-    non-const iterator for QByteArray.
-
-    \sa QByteArray::const_iterator
-*/
-
 /*! \fn QByteArray::iterator QByteArray::begin()
 
     \internal
@@ -2514,89 +2480,115 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
 /*! \fn bool operator==(const QByteArray &a1, const QByteArray &a2)
     \relates QByteArray
 
+    \overload
+
     Returns true if byte array \a a1 is equal to byte array \a a2;
     otherwise returns false.
-
-    The comparison is case sensitive.
 */
 
 /*! \fn bool operator==(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if byte array \a a1 is equal to string \a a2;
+    otherwise returns false.
 */
 
 /*! \fn bool operator==(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if string \a a1 is equal to byte array \a a2;
+    otherwise returns false.
 */
 
 /*! \fn bool operator!=(const QByteArray &a1, const QByteArray &a2)
     \relates QByteArray
 
+    \overload
+
     Returns true if byte array \a a1 is not equal to byte array \a a2;
     otherwise returns false.
-
-    The comparison is case sensitive.
 */
 
 /*! \fn bool operator!=(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if byte array \a a1 is not equal to string \a a2;
+    otherwise returns false.
 */
 
 /*! \fn bool operator!=(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if string \a a1 is not equal to byte array \a a2;
+    otherwise returns false.
 */
 
 /*! \fn bool operator<(const QByteArray &a1, const QByteArray &a2)
     \relates QByteArray
 
+    \overload
+
     Returns true if byte array \a a1 is lexically less than byte array
     \a a2; otherwise returns false.
-
-    The comparison is case sensitive.
 */
 
 /*! \fn inline bool operator<(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if byte array \a a1 is lexically less than string
+    \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator<(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if string \a a1 is lexically less than byte array
+    \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator<=(const QByteArray &a1, const QByteArray &a2)
     \relates QByteArray
 
+    \overload
+
     Returns true if byte array \a a1 is lexically less than or equal
     to byte array \a a2; otherwise returns false.
-
-    The comparison is case sensitive.
 */
 
 /*! \fn bool operator<=(const QByteArray &a1, const char *a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if byte array \a a1 is lexically less than or equal
+    to string \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator<=(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if string \a a1 is lexically less than or equal
+    to byte array \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>(const QByteArray &a1, const QByteArray &a2)
     \relates QByteArray
+
+    \overload
 
     Returns true if byte array \a a1 is lexically greater than byte
     array \a a2; otherwise returns false.
@@ -2606,16 +2598,24 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     \relates QByteArray
 
     \overload
+
+    Returns true if byte array \a a1 is lexically greater than string
+    \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if string \a a1 is lexically greater than byte array
+    \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>=(const QByteArray &a1, const QByteArray &a2)
     \relates QByteArray
+
+    \overload
 
     Returns true if byte array \a a1 is lexically greater than or
     equal to byte array \a a2; otherwise returns false.
@@ -2625,12 +2625,18 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     \relates QByteArray
 
     \overload
+
+    Returns true if byte array \a a1 is lexically greater than or
+    equal to string \a a2; otherwise returns false.
 */
 
 /*! \fn bool operator>=(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns true if string \a a1 is lexically greater than or
+    equal to byte array \a a2; otherwise returns false.
 */
 
 /*! \fn const QByteArray operator+(const QByteArray &a1, const QByteArray &a2)

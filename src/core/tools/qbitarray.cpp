@@ -10,10 +10,12 @@
     \ingroup shared
     \reentrant
 
-    A QBitArray is an array that offers access to individual bits and
-    provides operators (AND, OR, XOR, and NOT) that work on entire
-    arrays of bits. It uses \l{implicit sharing} (copy-on-write) to
-    reduce memory usage and avoid needless copying of data.
+    A QBitArray is an array that gives access to individual bits and
+    provides operators (\link operator&() AND\endlink, \link
+    operator|() OR\endlink, \link operator^() XOR\endlink, and \link
+    operator~() NOT\endlink) that work on entire arrays of bits. It
+    uses \l{implicit sharing} (copy-on-write) to reduce memory usage
+    and to avoid the needless copying of data.
 
     The following code constructs a QBitArray containing 200 bits
     initialized to false (0):
@@ -50,10 +52,12 @@
         ba.setBit(2, true);
     \endcode
 
-    QBitArray supports \c{&} (AND), \c{|} (OR), \c{^} (XOR), \c{~}
-    (NOT), as well as \c{&=}, \c{|=}, and \c{^=}. These operators
-    work in the same way as the built-in C++ bitwise operators of the
-    same name. For example:
+    QBitArray supports \c{&} (\link operator&() AND\endlink), \c{|}
+    (\link operator|() OR\endlink), \c{^} (\link operator^()
+    XOR\endlink), \c{~} (\link operator~() NOT\endlink), as well as
+    \c{&=}, \c{|=}, and \c{^=}. These operators work in the same way
+    as the built-in C++ bitwise operators of the same name. For
+    example:
 
     \code
         QBitArray x(5);
@@ -88,7 +92,7 @@
 
     All functions except isNull() treat null bit arrays the same as
     empty bit arrays; for example, QBitArray() compares equal to
-    QBitArray(""). We recommend that you always use isEmpty() and
+    QBitArray(0). We recommend that you always use isEmpty() and
     avoid isNull().
 
     \sa QByteArray, QVector
@@ -103,7 +107,7 @@
 
 /*!
     Constructs a bit array containing \a size bits. The bits are
-    initialized with \a value.
+    initialized with \a value, which defaults to false (0).
 */
 QBitArray::QBitArray(int size, bool value)
 {
@@ -182,11 +186,6 @@ void QBitArray::resize(int size)
     and this can be determined using isEmpty().
 
     \sa isEmpty()
-*/
-
-/*! \fn bool QBitArray::isNull() const
-
-    \internal
 */
 
 /*! \fn bool QBitArray::ensure_constructed()
@@ -531,7 +530,8 @@ QBitArray QBitArray::operator~() const
 /*!
     \relates QBitArray
 
-    Returns the AND result between the bit arrays \a a1 and \a a2.
+    Returns a bit array that is the AND of the bit arrays \a a1 and \a
+    a2.
 
     The result has the length of the longest of the two bit arrays,
     with any missing bits (if one array is shorter than the other)
@@ -558,7 +558,10 @@ QBitArray operator&(const QBitArray &a1, const QBitArray &a2)
 }
 
 /*!
-    Returns the OR result between the bit arrays \a a1 and \a a2.
+    \relates QBitArray
+
+    Returns a bit array that is the OR of the bit arrays \a a1 and \a
+    a2.
 
     The result has the length of the longest of the two bit arrays,
     with any missing bits (if one array is shorter than the other)
@@ -587,7 +590,8 @@ QBitArray operator|(const QBitArray &a1, const QBitArray &a2)
 /*!
     \relates QBitArray
 
-    Returns the XOR result between the bit arrays \a a1 and \a a2.
+    Returns a bit array that is the XOR of the bit arrays \a a1 and \a
+    a2.
 
     The result has the length of the longest of the two bit arrays,
     with any missing bits (if one array is shorter than the other)
@@ -661,7 +665,7 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 /*!
     \relates QBitArray
 
-    Writes bit array \a a to stream \a out.
+    Writes bit array \a ba to stream \a out.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
