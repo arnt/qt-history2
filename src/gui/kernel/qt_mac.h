@@ -76,37 +76,8 @@ public:
         { return setClipRegion(w->d_func()->clippedRegion()); }
     static bool setPaintDevice(QPaintDevice *);
     static bool setPaintDevice(QWidget *, bool set_clip=false, bool with_child=true);
-    static bool flush(QPaintDevice *);
-    static bool flush(QPaintDevice *, QRegion r, bool force=false);
     static void setWindowAlpha(QWidget *, float);
 };
-
-inline bool
-QMacSavedPortInfo::flush(QPaintDevice *pdev)
-{
-    if(pdev->devType() == QInternal::Widget) {
-        QWidget *w = (QWidget *)pdev;
-        if(!w->isHidden() && QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
-            QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), NULL);
-            return true;
-        }
-    }
-    return false;
-}
-
-inline bool
-QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force)
-{
-    if(pdev->devType() == QInternal::Widget) {
-        QWidget *w = (QWidget *)pdev;
-        r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
-        if(!w->isHidden() || QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
-            QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), r.handle(force));
-            return true;
-        }
-    }
-    return false;
-}
 
 extern "C" {
     typedef struct CGSConnection *CGSConnectionRef;
