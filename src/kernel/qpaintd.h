@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#17 $
 **
 ** Definition of QPaintDevice class
 **
@@ -61,7 +61,7 @@ public:
 #endif
 
 protected:
-    QPaintDevice( uint devtype )    { devFlags = devtype; }
+    QPaintDevice( uint devflags );
 				
 #if defined(_WS_WIN_)
     HDC	     hdc;				// device context
