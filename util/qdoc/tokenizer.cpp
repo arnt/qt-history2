@@ -12,7 +12,7 @@
 #include "messages.h"
 #include "tokenizer.h"
 
-/* tmake ignore Q_OBJECT */
+/* make ignore Q_OBJECT */
 
 /*
   If you change this, make sure to change tokenizer.h as well.

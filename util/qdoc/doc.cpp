@@ -212,6 +212,26 @@ static QString getRestOfLine( const QString& in, int& pos )
     return t;
 }
 
+static QString getRestOfParagraph( const QString& in, int& pos )
+{
+    int numNLsInRow = 0;
+
+    skipSpaces( in, pos );
+    int begin = pos;
+    while ( pos < (int) in.length() && numNLsInRow < 2 ) {
+	QChar ch = in[pos];
+        if ( ch.unicode() == '\n' )
+	    numNLsInRow++;
+	else if ( !ch.isSpace() )
+	    numNLsInRow = 0;
+	pos++;
+    }
+
+    QString t = in.mid( begin, pos - begin );
+    skipSpacesOrNL( in, pos );
+    return t;
+}
+
 static QString getPrototype( const QString& in, int& pos )
 {
     skipSpaces( in, pos );
@@ -432,7 +452,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QString propName;
 
     QString enumPrefix;
-    QString propShortDesc;
     QString title;
     QString heading;
     QString prototype;
@@ -913,7 +932,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'p', 8 ):
 		consume( "property" );
 		propName = getWord( yyIn, yyPos );
-		propShortDesc = getRestOfLine( yyIn, yyPos );
 
 		if ( propName.isEmpty() ) {
 		    warning( 2, location(),
@@ -923,13 +941,22 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKind( Doc::Property, command );
 		}
 
-		if ( propShortDesc.isEmpty() )
+		skipSpacesOrNL( yyIn, yyPos );
+		while ( yyPos < (int) yyIn.length() &&
+			yyIn[yyPos].unicode() == '\n' ) {
+		    yyPos++;
+		    skipSpacesOrNL( yyIn, yyPos );
+		}
+		if ( yyIn.mid(yyPos, 6) == QString("\\brief") ) {
+		    yyPos += 6;
+		    brief = getRestOfParagraph( yyIn, yyPos ).stripWhiteSpace();
+		    yyOut += QString( "<p>Represents " ) + brief +
+			     QString( ".\n<p>" );
+		} else {
 		    warning( 2, location(),
-			     "Expected short property description after "
-			     "'\\property %s'", propName.latin1() );
-		else
-		    yyOut += QString( "<p>This property represents the " ) +
-			     propShortDesc + QString( ".\n" );
+			    "Expected '\\brief' after '\\property %s'",
+			    propName.latin1() );
+		}
 		break;
 	    case hash( 'p', 9 ):
 		if ( command.length() != 9 )
@@ -1201,7 +1228,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	doc = new EnumDoc( loc, yyOut, enumName, documentedValues );
 	break;
     case Doc::Property:
-	doc = new PropertyDoc( loc, yyOut, propName, propShortDesc );
+	doc = new PropertyDoc( loc, yyOut, propName, brief );
 	break;
     case Doc::Page:
 	sanitize( fileName );
@@ -2492,8 +2519,8 @@ EnumDoc::EnumDoc( const Location& loc, const QString& html,
 }
 
 PropertyDoc::PropertyDoc( const Location& loc, const QString& html,
-			  const QString& name, const QString& shortDesc )
-    : Doc( Property, loc, html, name ), sdesc( shortDesc )
+			  const QString& name, const QString& brief )
+    : Doc( Property, loc, html, name ), bf( brief )
 {
 }
 

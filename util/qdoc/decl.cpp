@@ -202,6 +202,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		    ++f;
 		}
 
+#if 0
 		if ( prop->stored() != prop->storedDefault() ) {
 		    out.puts( "This property is" );
 		    if ( !prop->stored() )
@@ -214,6 +215,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 			out.puts( "not " );
 		    out.puts( "designable.\n" );
 		}
+#endif
 	    }
 
 	    ++m;
@@ -931,47 +933,49 @@ void ClassDecl::fillInDocsForThis()
 		QString html;
 		StringSet documentedParams;
 
+		QString brief = (*q)->propertyDoc()->brief()
+				.simplifyWhiteSpace();
+		bool whether = brief.startsWith( QString("whether ") );
+		if ( whether )
+		    brief = QString( "if " ) + brief.mid( 8 );
+
 		/*
 		  The function has the right name. Let's see if it
 		  also has the right parameter type.
 		*/
 		if ( func->name() == (*q)->readFunction() ) {
-		    if ( func->parameters().count() == 0 )
-			html = QString( "<p>Returns the %1. See also the"
-					" <a href=\"#%2\"><tt>%3</tt></a>"
-					" property documentation." )
-			       .arg( (*q)->propertyDoc()->shortDesc() )
-			       .arg( (*q)->ref() )
-			       .arg( (*q)->name() );
+		    if ( whether )
+			html = QString( "Returns TRUE %1, otherwise returns"
+					 " FALSE" );
+		    else
+			html = QString( "Returns %1" );
 		} else if ( func->name() == (*q)->resetFunction() ) {
-		    if ( func->parameters().count() == 0 )
-			html = QString( "<p>Resets the %1. See also the"
-					" <a href=\"#%2\"><tt>%3</tt></a>"
-					" property documentation." )
-			       .arg( (*q)->propertyDoc()->shortDesc() )
-			       .arg( (*q)->ref() )
-			       .arg( (*q)->name() );
+		    html = QString( "Resets %1" );
 		} else {
-		    if ( func->parameters().count() == 1 &&
+		    if ( func->parameters().count() > 0 &&
 			 func->parameters().first().dataType().toString()
-				 .find((*q)->dataType().toString()) != -1 &&
-			 func->parameterNames().count() == 1 ) {
-			html = QString( "<p>Sets the %1 to <em>%2</em>. See"
-					" also the <a href=\"#%3\"><tt>%4</tt>"
-					"</a> property documentation." )
-			       .arg( (*q)->propertyDoc()->shortDesc() )
-			       .arg( func->parameterNames().first() )
-			       .arg( (*q)->ref() )
-			       .arg( (*q)->name() );
-			documentedParams.insert( func->parameterNames()
-						 .first() );
+				 .find((*q)->dataType().toString()) != -1 ) {
+			html = QString( "Sets %1" );
+			if ( !func->parameters().first().name().isEmpty() )
+			    html += QString( " to " ) +
+				    func->parameters().first().name();
 		    }
 		}
 
-		if ( !html.isEmpty() )
+		// pretend all parameters are documented, for now
+		documentedParams = func->parameterNames();
+
+		if ( !html.isEmpty() ) {
+		    html.prepend( QString("<p>") );
+		    html += QString( ". See also the documentation for"
+				     " property <a href=\"#%2\">\"%3\"</a>." );
+		    html = html.arg( brief ).arg( (*q)->ref() )
+			       .arg( (*q)->name() );
+
 		    func->setDoc( new FnDoc((*q)->location(), html,
 					    QString::null, QString::null,
 					    documentedParams, FALSE) );
+		}
 	    }
 	}
 	++child;
@@ -1506,12 +1510,14 @@ void PropertyDecl::printHtmlShort( HtmlWriter& out ) const
     dataType().printHtml( out );
     out.puts( " " );
     printHtmlShortName( out, this );
-    if ( propertyDoc() != 0 && !propertyDoc()->shortDesc().isEmpty() ) {
+    if ( propertyDoc() != 0 && !propertyDoc()->brief().isEmpty() ) {
 	out.puts( " - " );
-	out.putsMeta( propertyDoc()->shortDesc() );
+	out.putsMeta( propertyDoc()->brief() );
     }
+#if 0
     if ( writeFunction().isEmpty() )
-	out.puts( "&nbsp; (read only)" );
+	out.putsMeta( "&nbsp; <em>(read only)</em>" );
+#endif
 }
 
 void PropertyDecl::printHtmlLong( HtmlWriter& out ) const

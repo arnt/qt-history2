@@ -220,12 +220,12 @@ class PropertyDoc : public Doc
 {
 public:
     PropertyDoc( const Location& loc, const QString& html, const QString& name,
-		 const QString& shortDesc );
+		 const QString& brief );
 
-    const QString& shortDesc() const { return sdesc; }
+    const QString& brief() const { return bf; }
 
 private:
-    QString sdesc;
+    QString bf;
 };
 
 class PageLikeDoc : public Doc

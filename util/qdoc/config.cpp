@@ -294,9 +294,6 @@ Config::Config( int argc, char **argv )
 	}
     }
 
-    if ( onlyfn.pattern().isEmpty() || !onlyfn.isValid() )
-	onlyfn.setPattern( QString(".*") );
-
     onlyfn.setPattern( QString("(?:") + onlyfn.pattern() + QString(").*") );
 
     setMaxSimilarMessages( maxSim );
