@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#15 $
 **
 ** Implementation of QConnection class
 **
@@ -11,7 +11,7 @@
 
 #include "qconnect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#15 $");
 
 
 /*!
@@ -27,7 +27,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#14 $");
   outside world.
 */
 
-
+/*!
+  \internal
+*/
 QConnection::QConnection( const QObject *object, QMember member,
 			  const char *memberName )
 {
@@ -44,3 +46,33 @@ QConnection::QConnection( const QObject *object, QMember member,
 	}
     }
 }
+
+/*!
+ \fn QConnection::~QConnection()
+ \internal
+*/
+
+/*!
+  \fn bool QConnection::isConnected() const
+  \internal
+*/
+
+/*!
+  \fn QObject *QConnection::object() const
+  \internal
+*/
+
+/*!
+  \fn QMember *QConnection::member() const
+  \internal
+*/
+
+/*!
+  \fn const char *QConnection::memberName() const
+  \internal
+*/
+
+/*!
+  \fn int QConnection::numArgs() const
+  \internal
+*/
