@@ -35,15 +35,15 @@
 #include "qcursor.h"
 
 /*!
-    \class QTextBrowser qtextbrowser.h
-    \brief The QTextBrowser class provides a rich text browser with hypertext navigation.
+    \class Q3TextBrowser q3textbrowser.h
+    \brief The Q3TextBrowser class provides a rich text browser with hypertext navigation.
 
     \compat
 
     This class extends Q3TextEdit (in read-only mode), adding some
     navigation functionality so that users can follow links in
     hypertext documents. The contents of Q3TextEdit is set with
-    setText(), but QTextBrowser has an additional function,
+    setText(), but Q3TextBrowser has an additional function,
     setSource(), which makes it possible to set the text to a named
     document. The name is looked up in the text view's mime source
     factory. If a document name ends with an anchor (for example, "\c
@@ -53,7 +53,7 @@
     value as argument. You can track the current source by connetion
     to the sourceChanged() signal.
 
-    QTextBrowser provides backward() and forward() slots which you can
+    Q3TextBrowser provides backward() and forward() slots which you can
     use to implement Back and Forward buttons. The home() slot sets
     the text to the very first document displayed. The linkClicked()
     signal is emitted when the user clicks a link.
@@ -72,7 +72,7 @@
     This is to ensure that the factory is able to resolve the document
     names.
 
-    QTextBrowser interprets the tags it processes in accordance with
+    Q3TextBrowser interprets the tags it processes in accordance with
     the default style sheet. Change the style sheet with
     \l{setStyleSheet()}; see QStyleSheet for details.
 
@@ -102,7 +102,7 @@ public:
 
 
 /*!
-    Constructs an empty QTextBrowser called \a name, with parent \a
+    Constructs an empty Q3TextBrowser called \a name, with parent \a
     parent.
 */
 Q3TextBrowser::Q3TextBrowser(QWidget *parent, const char *name)
@@ -221,11 +221,11 @@ void Q3TextBrowser::setSource(const QString& name)
         const QMimeSource* m =
                     mimeSourceFactory()->data(source, context());
         if (!m){
-            qWarning("QTextBrowser: no mimesource for %s", source.latin1());
+            qWarning("Q3TextBrowser: no mimesource for %s", source.latin1());
         }
         else {
             if (!QTextDrag::decode(m, txt)) {
-                qWarning("QTextBrowser: cannot decode %s", source.latin1());
+                qWarning("Q3TextBrowser: cannot decode %s", source.latin1());
             }
         }
         if (isVisible()) {
