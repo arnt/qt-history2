@@ -214,7 +214,7 @@ QGLFormat::QGLFormat()
     // The rendering in MyGLWidget depends on using
     // stencil buffer and alpha channel
     MyGLWidget::MyGLWidget(QWidget* parent)
-        : QGLWidget(QGLFormat(StencilBuffer | AlphaChannel), parent)
+        : QGLWidget(QGLFormat(QGL::StencilBuffer | QGL::AlphaChannel), parent)
     {
         if (!format().stencil())
             qWarning("Could not get stencil buffer; results will be suboptimal");
