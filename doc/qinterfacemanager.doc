@@ -47,10 +47,11 @@
 */
 
 /*!
-  \fn QInterfaceManager::QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QApplicationInterface* appIface = 0, QLibrary::Policy pol = QLibrary::Default )
+  \fn QInterfaceManager::QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Default )
 
-  Creates an QInterfaceManager that will try to load all library files in \a path that match \a filter. If the library provides an
-  interface that matches \a, id the functionality of that interface will be available using \code queryInterface( "feature" ) \endcode.
+  Creates an QInterfaceManager that will load all library files in \a path that match \a filter. If the library provides an
+  interface that matches \a id, the functionality of that interface will be available using \code queryInterface( "feature" ) \endcode.
+  All managed libraries will stay in memory if the default policy is OptimizeSpeed, otherwise they are unloaded again.
 
   The \a appIface and \a pol parameters are propagated to the QLibrary object created for each library.
 */
@@ -58,17 +59,18 @@
 /*!
   \fn void QInterfaceManager::addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so" )
 
-  Tries to load all library files in \a path that match \a filter, and adds all successfully loaded libraries
-  to the managed list. The current library policy will be propagated to all new QPlugIn objects created.
+  Calls addLibrary for all files in \a path that match \a filter. 
+  The current library policy will be used for all new QLibrary objects.
 
   \sa addLibrary, setDefaultPolicy
 */
 
 /*!
-  \fn QPlugIn* QInterfaceManager::addLibrary( const QString& file )
+  \fn QLibrary* QInterfaceManager::addLibrary( const QString& file )
 
   Tries to load the library file \a file, adds the library to the managed list and
-  returns the created QPlugIn object if successful, otherwise returns 0.
+  returns the created QLibrary object if successful, otherwise returns 0.
+  The library will stay in memory if the default policy is OptimizeSpeed, otherwise it gets unloaded again.
 
   \sa removeLibrary, addLibraryPath
 */
@@ -86,7 +88,7 @@
   \fn void QInterfaceManager::setDefaultPolicy( QLibrary::Policy pol )
 
   Sets the default policy for this library manager to \a pol. The default policy is
-  propagated to all newly created QPlugIn objects.
+  propagated to all newly created QLibrary objects.
 
   \sa defaultPolicy
 */
@@ -104,13 +106,13 @@
 
   Returns a pointer to the interface providing \a feature.
 
-  \sa plugIn
+  \sa featureList, library
 */
 
 /*!
-  \fn QPlugIn* QInterfaceManager::plugIn( const QString& feature ) const
+  \fn QLibrary* QInterfaceManager::library( const QString& feature ) const
 
-  Returns a pointer to the QPlugIn for the library providing \a feature.
+  Returns a pointer to the QLibrary representing the library providing \a feature.
 
   \sa featureList, libraryList
 */
@@ -121,13 +123,15 @@
   Returns a list of all features provided by the interfaces managed through this 
   interface manager.
 
-  \sa plugIn, selectFeature, unloadFeature, queryInterface
+  \sa library, queryInterface
 */
 
 /*!
-  \fn QPlugIn* QInterfaceManager::plugInFromFile( const QString& fileName ) const
+  \fn QLibrary* QInterfaceManager::libraryFromFile( const QString& fileName ) const
 
-  Returns a pointer to the QPlugIn object for the library \a fileName.
+  Returns a pointer to the QLibrary object representing library \a fileName.
+
+  \sa library, libraryList
 */
 
 /*!
@@ -135,5 +139,5 @@
 
   Returns a list of all libraries managed through this interface manager.
 
-  \sa plugInFromFile
+  \sa libraryFromFile
 */

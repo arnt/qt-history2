@@ -127,8 +127,7 @@ public:
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		plugDict.remove( *f );
 	    }
-	    if ( !iFace->release() )
-		return FALSE;
+	    iFace->release();
 	}
 	bool unloaded = plugin->unload();
 
@@ -160,7 +159,7 @@ public:
 	return (Type*)plugin->queryInterface( interfaceId );
     }
 
-    QLibrary* plugIn( const QString& feature ) const
+    QLibrary* library( const QString& feature ) const
     {
 	if ( feature.isEmpty() )
 	    return 0;
@@ -180,7 +179,7 @@ public:
 	return list;
     }
 
-    QLibrary* plugInFromFile( const QString& fileName ) const
+    QLibrary* libraryFromFile( const QString& fileName ) const
     {
 	if ( fileName.isEmpty() )
 	    return 0;

@@ -238,7 +238,7 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 
   When the library policy is not Manual, the library will be unloaded.
 
-  \sa unload()
+  \sa setPolicy(), unload()
 */
 QLibrary::~QLibrary()
 {
@@ -247,14 +247,14 @@ QLibrary::~QLibrary()
 }
 
 /*!
-  Loads the shared library and initializes the connection to the QComponentInterface.
-  Returns a pointer to the QComponentInterface if the library was loaded successfully,
-  otherwise returns null.
+  Loads the shared library and initializes the connection to the component.
+  Returns a pointer to the QUnknownInterface provided by the component if the 
+  library was loaded successfully, otherwise returns null.
 
   This function gets called automatically if the policy is not Manual.
   Otherwise you have to make sure that the library has been loaded before usage.
 
-  \sa setPolicy()
+  \sa setPolicy(), unload()
 */
 QUnknownInterface* QLibrary::load()
 {
@@ -292,6 +292,8 @@ QUnknownInterface* QLibrary::load()
 
 /*!
   Returns TRUE if the library is loaded.
+
+  \sa load
 */
 bool QLibrary::isLoaded() const
 {
@@ -299,7 +301,7 @@ bool QLibrary::isLoaded() const
 }
 
 /*!
-  Releases the QComponentInterface and unloads the library when successful.
+  Releases the component and unloads the library when successful.
   Returns TRUE if the library could be unloaded, otherwise FALSE.
 
   \warning
@@ -359,6 +361,8 @@ void QLibrary::setPolicy( Policy pol )
 
 /*!
   Returns the current policy.
+
+  \sa setPolicy
 */
 QLibrary::Policy QLibrary::policy() const
 {
@@ -374,7 +378,7 @@ QString QLibrary::library() const
 }
 
 /*!
-  Forwards the query to the QComponentInterface and returns the result.
+  Forwards the query to the component and returns the result.
   If the current policy is not Manual, load() gets called if necessary.
 
   \sa QUnknownInterface::queryInterface
