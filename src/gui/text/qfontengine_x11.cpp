@@ -277,7 +277,7 @@ QFontEngineXLFD::~QFontEngineXLFD()
 
 QFontEngine::FECaps QFontEngineXLFD::capabilites() const
 {
-    return NoTransformations;
+    return FullTransformations;
 }
 
 bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
@@ -363,8 +363,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
     if (!si.num_glyphs)
         return;
 
-    // since we advocate we can't do translations this should hold.
-    Q_ASSERT(p->painterState()->txop <= QPainter::TxTranslate);
+    int txop = p->painterState()->txop;
 
 //     qDebug("QFontEngineXLFD::draw(%d, %d, numglyphs=%d", x, y, si.num_glyphs);
 
@@ -376,6 +375,53 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
     int yorig = ypos;
 
     Qt::HANDLE font_id = _fs->fid;
+    if ( txop > QPainter::TxTranslate || _scale < 0.9999 || _scale > 1.0001  ) {
+        // XServer or font don't support server side transformations, need to do it by hand
+        int w = qRound(si.width/_scale), h = qRound((si.ascent + si.descent + 1)/_scale);
+        QMatrix mat1 = p->painterState()->worldMatrix;
+        mat1.scale(_scale, _scale);
+        if (w == 0 || h == 0)
+            return;
+        float tmp = _scale;
+        _scale = 1;
+        QMatrix mat2 = QPixmap::trueMatrix(mat1, w, h);
+        QBitmap bm(w, h, TRUE);     // create bitmap
+        QPainter paint;
+        paint.begin( &bm );             // draw text in bitmap
+        paint.d->engine->updateState(paint.d->state);
+        QTextItem nsi = si;
+        QVarLengthArray<QGlyphLayout> nglyphs(si.num_glyphs);
+        memcpy(nglyphs, si.glyphs, si.num_glyphs*sizeof(QGlyphLayout));
+        for (int i = 0; i < si.num_glyphs; ++i) {
+            nglyphs[i].advance.rx() /= tmp;
+            nglyphs[i].advance.ry() /= tmp;
+        }
+        nsi.glyphs = nglyphs;
+        nsi.ascent = qRound(nsi.ascent/tmp);
+        nsi.descent = qRound(nsi.descent/tmp);
+        nsi.width = qRound(nsi.width/tmp);
+        draw( paint.d->engine, 0, qRound(si.ascent/tmp), nsi, textFlags );
+        paint.end();
+        _scale = tmp;
+        QBitmap wx_bm( bm.xForm(mat2) ); // transform bitmap
+        if ( wx_bm.isNull() )
+            return;
+
+        double fx=xpos, fy=ypos - si.ascent, nfx, nfy;
+        p->painterState()->worldMatrix.map( fx,fy, &nfx,&nfy );
+        double tfx=0, tfy=0, dx, dy;
+        mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+        xpos = qRound(nfx-dx);
+        ypos = qRound(nfy-dy);
+
+        XSetFillStyle( dpy, gc, FillStippled );
+        XSetStipple( dpy, gc, wx_bm.handle() );
+        XSetTSOrigin( dpy, gc, xpos, ypos );
+        XFillRectangle( dpy, hd, gc, xpos, ypos, wx_bm.width(), wx_bm.height() );
+        XSetTSOrigin( dpy, gc, 0, 0 );
+        XSetFillStyle( dpy, gc, FillSolid );
+        return;
+    }
     if (p->painterState()->txop == QPainter::TxTranslate)
         p->painter()->map(xpos, ypos, &xpos, &ypos);
 
@@ -490,9 +536,9 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
             overall.y = qMin(overall.y, y);
             xmax = qMax(xmax, overall.xoff + glyphs[i].offset.x() + xcs->rbearing);
             ymax = qMax(ymax, y + xcs->ascent + xcs->descent);
-            overall.xoff += glyphs[i].advance.x();
+            overall.xoff += glyphs[i].advance.x()/_scale;
         } else {
-            float size = ascent();
+            float size = _fs->ascent;
             overall.x = qMin(overall.x, overall.xoff);
             overall.y = qMin(overall.y, overall.yoff - size);
             ymax = qMax(ymax, overall.yoff);
@@ -694,7 +740,7 @@ QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
 
 QFontEngine::FECaps QFontEngineLatinXLFD::capabilites() const
 {
-    return NoTransformations;
+    return FullTransformations;
 }
 
 void QFontEngineLatinXLFD::findEngine(const QChar &ch)
@@ -1493,7 +1539,7 @@ glyph_metrics_t QFontEngineXft::boundingBox(const QGlyphLayout *glyphs, int numG
         overall.y = qMin(overall.y, y);
         xmax = qMax(xmax, x + xgi.width);
         ymax = qMax(ymax, y + xgi.height);
-        overall.xoff += glyphs[i].advance.x();
+        overall.xoff += qRound(glyphs[i].advance.x()/_scale);
     }
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;
