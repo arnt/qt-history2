@@ -6,6 +6,7 @@ $Id$
 #define PRODUCTLIST_H
 
 #include <qtable.h>
+#include <qstring.h>
 
 class ProductList: public QTable
 {
@@ -20,6 +21,10 @@ private slots:
 private:
     double calcPrice( int );
     double sumUp( int );
+
+    int discountRow;
+    int totalRow;
+    QString suffix;
 };
 
 #endif

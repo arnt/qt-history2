@@ -4,7 +4,6 @@ $Id$
 
 #include "spinboxitem.h"
 #include <qspinbox.h>
-#include <qstring.h>
 #include <qregexp.h>
 
 SpinBoxItem::SpinBoxItem( QTable * myTable, const int value, 
@@ -12,7 +11,7 @@ SpinBoxItem::SpinBoxItem( QTable * myTable, const int value,
            : QTableItem( table, WhenCurrent, "" )
 {
    table = myTable;
-   suffix = " " + text;
+   suffix = text;
    setText( QString::number( value ) + suffix );
 }
 
@@ -37,12 +36,11 @@ int SpinBoxItem::getValue() const
 
     if ( ok )
 	return number;
-    else
-	return 0;
+
+    return 0;
 }
 
 void SpinBoxItem::setContentFromEditor( QWidget * spinbox )
 {
-    setText( ( ( QSpinBox *) spinbox )->text() ); 
+    setText( ( (QSpinBox *) spinbox )->text() ); 
 }
-

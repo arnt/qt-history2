@@ -454,9 +454,17 @@ void QTableItem::setPixmap( const QPixmap &p )
 }
 
 /*! Changes the text of the item to \a str. Note that the cell is not
- repainted.
+  repainted.
 
- \sa QTable::setText() text() setPixmap() QTable::updateCell()
+  \walkthrough table/wineorder2/spinboxitem.cpp
+  \skipto suffix
+  \printline suffix
+  \printline setText
+
+  (Code taken from \link wineorder2-example.html
+  table/wineorder2/spinboxitem.cpp \endlink ) 
+
+  \sa QTable::setText() text() setPixmap() QTable::updateCell()
 */
 
 void QTableItem::setText( const QString &str )
@@ -509,7 +517,17 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
   have QTable::viewport() as parent.
 
   If you reimplement this function, you probably also need to
-  reimplement setContentFromEditor().
+  reimplement setContentFromEditor():
+
+  \walkthrough table/wineorder2/spinboxitem.cpp
+  \skipto createEditor()
+  \printline createEditor()
+  \printuntil new QSpinBox
+  \skipto return
+  \printuntil }
+
+  (Code taken from \link wineorder2-example.html 
+  table/wineorder2/spinboxitem.cpp \endlink )
 
   \sa QTable::createEditor() setContentFromEditor() QTable::viewport()
 */
@@ -529,6 +547,14 @@ QWidget *QTableItem::createEditor() const
 
   You probably \e must reimplement this function if you reimplement
   createEditor() and return something that is not a QLineEdit.
+
+  \walkthrough table/wineorder2/spinboxitem.cpp
+  \skipto setContentFromEditor
+  \printline setContentFromEditor
+  \printuntil }
+ 
+  (Code taken from \link wineorder2-example.html
+  table/wineorder2/spinboxitem.cpp \endlink )     
 
   \sa QTable::setContentFromEditor()
 */

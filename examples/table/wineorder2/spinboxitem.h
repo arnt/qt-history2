@@ -2,12 +2,11 @@
 $Id$
 */
 
-#ifndef SPIXBOXITEM_H
-#define SPIXBOXITEM_H
+#ifndef SPINBOXITEM_H
+#define SPINBOXITEM_H
 
 #include <qtable.h>
-
-class QString;
+#include <qstring.h>
 
 class SpinBoxItem: public QTableItem
 {

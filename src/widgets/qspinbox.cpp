@@ -335,9 +335,16 @@ void QSpinBox::setPrefix( const QString &text )
   displayed value.  Typical use is to indicate the unit of measurement
   to the user. For example:
 
-  \code
-    sb->setSuffix("cm");
-  \endcode
+  \walkthrough table/wineorder2/productlist.cpp
+  \skipto suffix
+  \printline suffix
+  \walkthrough table/wineorder2/spinboxitem.cpp
+  \skipto setSuffix
+  \printline setSuffix
+ 
+  (Code taken from \link wineorder2-example.html
+  table/wineorder2/spinboxitem.cpp and 
+  table/wineorder2/productlist.cpp \endlink )      
 
   To turn off the suffix display, call this function with an empty
   string as \a text.  The default is no suffix.
@@ -487,9 +494,9 @@ void QSpinBox::arrangeWidgets()
 //	vi->setGeometry( lx, 0, rx, height() );
 }
 
-/*!
-  Sets the current value of the spin box to \a value.  This is
-  QRangeControl::setValue() made available as a slot.
+/*! Sets the current value of the spin box to \a value.
+
+  This is QRangeControl::setValue() made available as a slot.
 */
 
 void QSpinBox::setValue( int value )
@@ -1043,6 +1050,13 @@ void QSpinBox::setMinValue( int i )
 /*!
   A convenience function that just calls
   setRange( minValue(), i ).
+  
+  \walkthrough table/wineorder2/spinboxitem.cpp
+  \skipto setMaxValue
+  \printline MaxValue
+ 
+  (Code taken from \link wineorder2-example.html
+  table/wineorder2/spinboxitem.cpp \endlink )      
 
   \sa setRange()
 */
