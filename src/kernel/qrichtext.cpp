@@ -394,7 +394,7 @@ void QTextCursor::restoreState()
 	pop();
 }
 
-void QTextCursor::place( const QPoint &pos, QTextParag *s )
+bool QTextCursor::place( const QPoint &pos, QTextParag *s )
 {
     QRect r;
     while ( s ) {
@@ -406,7 +406,7 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     }
 
     if ( !s )
-	return;
+	return FALSE;
 
     setParag( s, FALSE );
     int y = s->rect().y();
@@ -421,7 +421,7 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 	cy = s->lineY( i );
 	ch = s->lineHeight( i );
 	if ( !chr )
-	    return;
+	    return FALSE;
 	if ( pos.y() >= y + cy && pos.y() <= y + cy + ch )
 	    break;
     }
@@ -433,17 +433,20 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
     i = index;
     int x = s->rect().x();
     int cw;
-    int curpos = i;
-    int dist = QABS(s->at(i)->x + x - pos.x());
+    int curpos = s->length()-1;
+    int dist = 10000000;
     bool inCustom = FALSE;
     while ( i < nextLine ) {
 	chr = s->at(i);
 	int cpos = x + chr->x;
 	cw = s->string()->width( i );
-	if ( chr->isCustom && chr->customItem()->isNested() ) {
+	if ( chr->isCustom ) { 
 	    if ( pos.x() >= cpos && pos.x() <= cpos + cw &&
-		 pos.y() >= y + cy && pos.y() <= y + cy + ch )
+		 pos.y() >= y + cy && pos.y() <= y + cy + chr->height() ) {
 		inCustom = TRUE;
+		curpos = i;
+		break;
+	    }
 	} else {
 	    if( chr->rightToLeft )
 		cpos += cw;
@@ -456,14 +459,15 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 	}
 	i++;
     }
-
     setIndex( curpos, FALSE );
 
     if ( inCustom && doc && parag()->at( curpos )->isCustom && parag()->at( curpos )->customItem()->isNested() ) {
 	gotoIntoNested( pos );
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
-	place( p, document()->firstParag() );
+	if ( !place( p, document()->firstParag() ) )
+	    pop();
     }
+    return TRUE;
 }
 
 void QTextCursor::processNesting( Operation op )
