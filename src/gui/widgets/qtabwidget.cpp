@@ -81,7 +81,7 @@
     Tab widgets can be a very good way to split up a complex dialog.
     An alternative is to use a QStackedWidget for which you provide some
     means of navigating between pages, for example, a QToolBar or a
-    QListBox.
+    QListWidget.
 
     Most of the functionality in QTabWidget is provided by a QTabBar
     (at the top, providing the tabs) and a QStackedWidget (most of the
