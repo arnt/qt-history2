@@ -1202,7 +1202,7 @@ void QGenericTreeViewPrivate::close(int i, bool update)
 
     int idx = i;
     QModelIndex tmp = index;
-    while (tmp.isValid()) {
+    while (tmp.isValid() && tmp != d->root) {
         items[idx].total -= total;
         tmp = model->parent(tmp);
         idx = viewIndex(tmp);
