@@ -112,7 +112,7 @@ public:
   A QUrlOperator can be used like this e.g. for downloading a file:
   \code
   QUrlOperator op;
-  op.copy( QStringList("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
+  op.copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
            "file:/tmp" );
   \endcode
 
