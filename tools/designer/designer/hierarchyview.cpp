@@ -173,6 +173,7 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
 		this, SLOT( changeSortColumn( int ) ) );
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( AlwaysOn );
     if ( doConnects ) {
 	connect( this, SIGNAL( clicked( QListViewItem * ) ),
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
