@@ -103,10 +103,16 @@ struct QWSCommand : QWSProtocolItem
         SetIMFont,
         ResetIM,
         SetIMInfo,
-        IMMouse
+        IMMouse,
+        PositionCursor
     };
     static QWSCommand *factory(int type);
 };
+
+#ifndef QT_NO_DEBUG
+class QDebug;
+QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp);
+#endif // QT_NO_DEBUG
 
 /*********************************************************************
  *
@@ -381,6 +387,18 @@ struct QWSSelectCursorCommand : public QWSCommand
     struct SimpleData {
         int windowid;
         int id;
+    } simpleData;
+};
+
+struct QWSPositionCursorCommand : public QWSCommand
+{
+    QWSPositionCursorCommand() :
+        QWSCommand(QWSCommand::PositionCursor,
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
+
+    struct SimpleData {
+        int newX;
+        int newY;
     } simpleData;
 };
 

@@ -176,7 +176,6 @@ static int current_IM_winId=-1;
     setActiveWindow().
 */
 
-
 /*!
     \fn int QWSWindow::winId() const
 
@@ -240,7 +239,6 @@ static int current_IM_winId=-1;
     or by the bounds of the screen; otherwise returns false.
 */
 
-
 QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), alloc_region_idx(-1), modified(false), needAck(false),
             onTop(false), c(client), last_focus_time(0)
@@ -296,7 +294,6 @@ void QWSWindow::setName(const QString &n)
 /*!
   Sets the window's caption to \a c.
 */
-
 void QWSWindow::setCaption(const QString &c)
 {
     rgnCaption = c;
@@ -544,21 +541,6 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
  *
  *********************************************************************/
 
-
-struct QWSCommandStruct
-{
-    QWSCommandStruct(QWSCommand *c, QWSClient *cl) :command(c),client(cl){}
-    QWSCommand *command;
-    QWSClient *client;
-};
-
-
-
-
-static void ignoreSignal(int)
-{
-}
-
 /*!
     \class QWSServer qwindowsystem_qws.h
     \brief The QWSServer class provides server-specific functionality in Qt/Embedded.
@@ -652,6 +634,8 @@ static void ignoreSignal(int)
 */
 
 /*!
+    \fn QWSServer::QWSServer(int flags, QObject *parent)
+
     Construct a QWSServer object.
 
     \warning This class is instantiated by QApplication for
@@ -661,6 +645,13 @@ static void ignoreSignal(int)
     The \a flags are used for keyboard and mouse setting. The server's
     parent is \a parent.
 */
+
+struct QWSCommandStruct
+{
+    QWSCommandStruct(QWSCommand *c, QWSClient *cl) :command(c),client(cl){}
+    QWSCommand *command;
+    QWSClient *client;
+};
 
 QWSServer::QWSServer(int flags, QObject *parent) :
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -689,6 +680,9 @@ QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
     initServer(flags);
 }
 #endif
+
+
+static void ignoreSignal(int) {} // Used to eat SIGPIPE signals below
 
 void QWSServer::initServer(int flags)
 {
@@ -1059,6 +1053,9 @@ void QWSServer::doClient(QWSClient *client)
         case QWSCommand::SelectCursor:
             invokeSelectCursor((QWSSelectCursorCommand*)cs->command, cs->client);
             break;
+        case QWSCommand::PositionCursor:
+            invokePositionCursor((QWSPositionCursorCommand*)cs->command, cs->client);
+            break;
 #endif
         case QWSCommand::GrabMouse:
             invokeGrabMouse((QWSGrabMouseCommand*)cs->command, cs->client);
@@ -1141,7 +1138,6 @@ void QWSServer::hideCursor()
     If \a e is true, painting on the display is enabled; if \a e is
     false, painting is disabled.
 */
-
 void QWSServer::enablePainting(bool e)
 {
 // ### don't like this
@@ -1187,7 +1183,6 @@ void QWSServer::refresh(QRegion & r)
 
     \sa QWidget::showMaximized()
 */
-
 void QWSServer::setMaxWindowRect(const QRect& r)
 {
     QRect tr = qt_screen->mapToDevice(r,
@@ -1220,7 +1215,6 @@ void QWSServer::setDefaultMouse(const char *m)
     Set the keyboard driver to \a k, e.g. if \c $QWS_KEYBOARD is not
     defined. The default is platform-dependent.
 */
-
 void QWSServer::setDefaultKeyboard(const char *k)
 {
     defaultKeyboard = k;
@@ -1229,7 +1223,7 @@ void QWSServer::setDefaultKeyboard(const char *k)
 static bool prevWin;
 
 /*!
-    \internal
+  \internal
 
   Send a mouse event. \a pos is the screen position where the mouse
   event occurred and \a state is a mask indicating which buttons are
@@ -1291,7 +1285,6 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     if (isPress && current_IM && current_IM_winId != -1) {
         QWSWindow *kbw = keyboardGrabber ? keyboardGrabber :
                          qwsServer->focusw;
-
 
         //checking for virtual keyboards ### could be better
         QWidget *target = winClient == serverClient ?
@@ -1409,7 +1402,6 @@ void QWSServer::sendQCopEvent(QWSClient *c, const QByteArray &ch,
     Returns the window containing the point \a pos or 0 if there is no
     window under the point.
 */
-
 QWSWindow *QWSServer::windowAt(const QPoint& pos)
 {
     for (int i=0; i<windows.size(); ++i) {
@@ -1442,7 +1434,6 @@ static int keyUnicode(int keycode)
     user has held the key down and this is the second or subsequent
     key event being sent).
 */
-
 void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
@@ -1607,7 +1598,6 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
   request, the server will emit the markedText() signal at a later time
   (ie. asynchronously).
 */
-
 void QWSServer::requestMarkedText()
 {
     if (!qwsServer)
@@ -1633,8 +1623,6 @@ void QWSServer::requestMarkedText()
 
 }
 
-
-
 /*!
     \internal
 
@@ -1658,7 +1646,6 @@ void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
 
     \internal
 */
-
 #endif //QT_NO_QWS_IM
 
 #ifndef QT_NO_QWS_PROPERTIES
@@ -1671,6 +1658,7 @@ void QWSServer::sendPropertyNotifyEvent(int property, int state)
         (*it)->sendPropertyNotifyEvent(property, state);
 }
 #endif
+
 void QWSServer::invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client)
 {
     client->setIdentity(cmd->id);
@@ -1785,7 +1773,6 @@ void QWSServer::invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, QWSClien
     delete changingw;
 }
 
-
 void QWSServer::invokeSetFocus(const QWSRequestFocusCommand *cmd, QWSClient *client)
 {
     int winId = cmd->simpleData.windowid;
@@ -1889,6 +1876,7 @@ void QWSServer::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
     }
 
 }
+
 #ifndef QT_NO_QWS_PROPERTIES
 void QWSServer::invokeAddProperty(QWSAddPropertyCommand *cmd)
 {
@@ -2020,6 +2008,13 @@ void QWSServer::invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *clien
         setCursor(curs);
     }
 }
+
+void QWSServer::invokePositionCursor(QWSPositionCursorCommand *cmd, QWSClient *client)
+{
+    QPoint newPos(cmd->simpleData.newX, cmd->simpleData.newY);
+    if (newPos != mousePosition)
+        sendMouseEvent(newPos, qwsServer->d->mouseState);
+}
 #endif
 
 void QWSServer::invokeGrabMouse(QWSGrabMouseCommand *cmd, QWSClient *client)
@@ -2078,7 +2073,6 @@ void QWSServer::invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client)
 }
 
 #endif
-
 
 #ifndef QT_NO_QWS_IM
 void QWSServer::invokeSetIMInfo(const QWSSetIMInfoCommand *cmd,
@@ -2140,7 +2134,6 @@ void QWSServer::invokeResetIM(const QWSResetIMCommand *cmd,
 */
 #endif
 
-
 void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
                                     QWSClient *)
 {
@@ -2148,7 +2141,6 @@ void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
     r1.setRects(cmd->rectangles,cmd->simpleData.numrects);
     refresh(r1);
 }
-
 
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
@@ -2628,7 +2620,6 @@ void QWSServer::name_region(const QWSRegionNameCommand *cmd)
     invokeRegionName(cmd, client[-1]);
 }
 
-
 #ifndef QT_NO_QWS_IM
 void QWSServer::set_im_info(const QWSSetIMInfoCommand *cmd)
 {
@@ -2652,7 +2643,6 @@ void QWSServer::send_im_mouse(const QWSIMMouseCommand *cmd)
 }
 #endif
 
-
 void QWSServer::openDisplay()
 {
     qt_init_display();
@@ -2664,14 +2654,12 @@ void QWSServer::openDisplay()
     qwsServer->paintEngine->begin(qt_screen);
 }
 
-
 void QWSServer::closeDisplay()
 {
     paintEngine->end();
     delete paintEngine;
     qt_screen->shutdownDevice();
 }
-
 
 void QWSServer::paintServerRegion()
 {
@@ -2710,7 +2698,6 @@ void QWSServer::clearRegion(const QRegion &r, const QColor &c)
     }
 }
 
-
 void QWSServer::refreshBackground()
 {
     QRegion r(0, 0, swidth, sheight);
@@ -2723,12 +2710,10 @@ void QWSServer::refreshBackground()
     paintBackground(r);
 }
 
-
 /*!
     Sets the image \a img to be used as the background in the absence
     of obscuring windows.
 */
-
 void QWSServer::setDesktopBackground(const QImage &img)
 {
 
@@ -2747,7 +2732,6 @@ void QWSServer::setDesktopBackground(const QImage &img)
     Sets the color \a c to be used as the background in the absence of
     obscuring windows.
 */
-
 void QWSServer::setDesktopBackground(const QColor &c)
 {
     if (!bgColor)
@@ -2775,7 +2759,6 @@ void QWSServer::startup(int flags)
     (void)new QWSServer(flags);
 }
 
-
 /*!
   \internal
 */
@@ -2786,7 +2769,6 @@ void QWSServer::closedown()
     delete qwsServer;
     qwsServer = 0;
 }
-
 
 void QWSServer::emergency_cleanup()
 {
@@ -2854,8 +2836,7 @@ void QWSServer::removeKeyboardFilter()
          return;
      delete keyFilters->takeAt(0);
 }
-
-#endif
+#endif // QT_NO_QWS_KEYBOARD
 
 /*!
     Sets an array of timeouts for the screensaver to a list of \a ms
@@ -3019,7 +3000,6 @@ void QWSServer::updateClientCursorPos()
         sendMouseEvent(mousePosition, d->mouseState);
 }
 
-
 #ifndef QT_NO_QWS_IM
 
 /*!
@@ -3068,8 +3048,6 @@ QWSInputMethod::~QWSInputMethod()
         current_IM = 0;
 }
 
-
-
 /*!
     \fn bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 
@@ -3092,12 +3070,10 @@ QWSInputMethod::~QWSInputMethod()
 /*!
     Implemented in subclasses to reset the state of the input method.
 */
-
 void QWSInputMethod::reset()
 {
 
 }
-
 
 /*!
     \fn void QWSInputMethod::setMicroFocus(int x, int y)
@@ -3107,12 +3083,10 @@ void QWSInputMethod::reset()
     cursor position.
 
 */
-
 void QWSInputMethod::setMicroFocus(int, int)
 {
 
 }
-
 
 /*!
   \fn void QWSInputMethod::mouseHandler(int x, int state)
@@ -3151,7 +3125,6 @@ QRect QWSInputMethod::inputRect() const
     return r;
 }
 
-
 /*!
     \fn QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 
@@ -3166,7 +3139,6 @@ QRect QWSInputMethod::inputRect() const
     the composition string (starting at \a cpos) that should be
     marked as selected by the input widget receiving the event.
 */
-
 #endif
 
 /*!

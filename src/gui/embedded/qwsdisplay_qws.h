@@ -84,6 +84,7 @@ public:
     void defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
                         int hotX, int hotY);
     void selectCursor(QWidget *w, unsigned int id);
+    void setCursorPosition(int x, int y);
     void grabMouse(QWidget *w, bool grab);
     void grabKeyboard(QWidget *w, bool grab);
     void playSoundFile(const QString&);

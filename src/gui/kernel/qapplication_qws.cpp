@@ -443,8 +443,6 @@ public:
 
     QWSEvent *readMore();
 
-
-
     int takeId()
     {
         // top up bag
@@ -1253,6 +1251,15 @@ void QWSDisplay::selectCursor(QWidget *w, unsigned int cursId)
         d->sendCommand(cmd);
         d->flush();
     }
+}
+
+void QWSDisplay::setCursorPosition(int x, int y)
+{
+    QWSPositionCursorCommand cmd;
+    cmd.simpleData.newX = x;
+    cmd.simpleData.newY = y;
+    d->sendCommand(cmd);
+    d->flush();
 }
 
 void QWSDisplay::grabMouse(QWidget *w, bool grab)

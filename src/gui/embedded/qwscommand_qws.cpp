@@ -19,57 +19,137 @@
  *
  *********************************************************************/
 
-//#define QWSCOMMAND_DEBUG
+#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
 #ifdef QWSCOMMAND_DEBUG
-#include <stdio.h>
-
-static void hexDump(char * data, int len)
+#include <qhexdump.h>
+QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
 {
-    fprintf(stderr, "(%d bytes) ", len);
-
-    for (int i = 0; i < len; i++) {
-        uint c = (uchar)data[i];
-        fprintf(stderr, "%02x %c ", c, (c >' ' && c < '~') ? c : ' ');
+    const char *typeStr;
+    switch(tp) {
+        case QWSCommand::Create:
+            typeStr = "Create";
+            break;
+        case QWSCommand::Destroy:
+            typeStr = "Destroy";
+            break;
+        case QWSCommand::Region:
+            typeStr = "Region";
+            break;
+        case QWSCommand::RegionMove:
+            typeStr = "RegionMove";
+            break;
+        case QWSCommand::RegionDestroy:
+            typeStr = "RegionDestroy";
+            break;
+        case QWSCommand::SetProperty:
+            typeStr = "SetProperty";
+            break;
+        case QWSCommand::AddProperty:
+            typeStr = "AddProperty";
+            break;
+        case QWSCommand::RemoveProperty:
+            typeStr = "RemoveProperty";
+            break;
+        case QWSCommand::GetProperty:
+            typeStr = "GetProperty";
+            break;
+        case QWSCommand::SetSelectionOwner:
+            typeStr = "SetSelectionOwner";
+            break;
+        case QWSCommand::ConvertSelection:
+            typeStr = "ConvertSelection";
+            break;
+        case QWSCommand::RequestFocus:
+            typeStr = "RequestFocus";
+            break;
+        case QWSCommand::ChangeAltitude:
+            typeStr = "ChangeAltitude";
+            break;
+        case QWSCommand::DefineCursor:
+            typeStr = "DefineCursor";
+            break;
+        case QWSCommand::SelectCursor:
+            typeStr = "SelectCursor";
+            break;
+        case QWSCommand::GrabMouse:
+            typeStr = "GrabMouse";
+            break;
+        case QWSCommand::PlaySound:
+            typeStr = "PlaySound";
+            break;
+        case QWSCommand::QCopRegisterChannel:
+            typeStr = "QCopRegisterChannel";
+            break;
+        case QWSCommand::QCopSend:
+            typeStr = "QCopSend";
+            break;
+        case QWSCommand::RegionName:
+            typeStr = "RegionName";
+            break;
+        case QWSCommand::Identify:
+            typeStr = "Identify";
+            break;
+        case QWSCommand::GrabKeyboard:
+            typeStr = "GrabKeyboard";
+            break;
+        case QWSCommand::RepaintRegion:
+            typeStr = "RepaintRegion";
+            break;
+        case QWSCommand::SetIMFont:
+            typeStr = "SetIMFont";
+            break;
+        case QWSCommand::ResetIM:
+            typeStr = "ResetIM";
+            break;
+        case QWSCommand::SetIMInfo:
+            typeStr = "SetIMInfo";
+            break;
+        case QWSCommand::IMMouse:
+            typeStr = "IMMouse";
+            break;
+        case QWSCommand::PositionCursor:
+            typeStr = "PositionCursor";
+            break;
+        case QWSCommand::Unknown:
+        default:
+            typeStr = "Unknown";
+            break;
     }
-    fprintf(stderr, "\n");
-}
+    dbg << typeStr;
+    return dbg.space();
+};
 #endif
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-void qws_write_command(QWSSocket *socket, int type,
-                               char *simpleData, int simpleLen, char *rawData, int rawLen)
+void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simpleLen,
+                       char *rawData, int rawLen)
 {
 #ifdef QWSCOMMAND_DEBUG
-    fprintf(stderr, "writing type %d\n", type);
-    fprintf(stderr, "simpleData "); hexDump(simpleData, simpleLen);
-    fprintf(stderr, "rawData "); hexDump(rawData, rawLen);
+    qDebug() << "simpleData " << QHexDump(simpleData, simpleLen);
+    qDebug() << "rawData " << QHexDump(rawData, rawLen);
 #endif
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
-    if (simpleData && simpleLen) {
+
+    // Add total lenght of command here, allowing for later command expansion...
+    // qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
+
+    if (simpleData && simpleLen)
         socket->writeBlock(simpleData, simpleLen);
-#ifdef QWSCOMMAND_DEBUG
-        qDebug("writing simpleLen %d", simpleLen);
-#endif
-    }
-    if (rawLen && rawData) {
+
+    if (rawLen && rawData)
         socket->writeBlock(rawData, rawLen);
-#ifdef QWSCOMMAND_DEBUG
-        qDebug("writing rawLen %d", rawLen);
-#endif
-    }
 }
 
 bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
-                              char *&rawData, int &rawLen,
-                              int &bytesRead)
+                      char *&rawData, int &rawLen, int &bytesRead)
 {
     if (rawLen == -1) {
         if (socket->size() < sizeof(rawLen))
             return false;
         rawLen = qws_read_uint(socket);
 #ifdef QWSCOMMAND_DEBUG
-        fprintf(stderr, "qws_read_command rawLen %d\n", rawLen);
+        qDebug() << "qws_read_command rawLen " << rawLen;
 #endif
     }
 
@@ -79,13 +159,13 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
                 return false;
             bytesRead = socket->readBlock(simpleData, simpleLen);
 #ifdef QWSCOMMAND_DEBUG
-            fprintf(stderr, "simpleData ");
-            hexDump(simpleData, bytesRead);
+            qDebug() << "simpleData " << QHexDump(simpleData, bytesRead);
 #endif
-        } else
+        } else {
             bytesRead = 1; // hack!
+        }
 #ifdef QWSCOMMAND_DEBUG
-        fprintf(stderr, "simpleLen %d, bytesRead %d\n", simpleLen, bytesRead);
+        qDebug() << "simpleLen " << simpleLen << ", bytesRead " << bytesRead;
 #endif
     }
 
@@ -97,42 +177,46 @@ bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
         rawData = new char[rawLen];
         bytesRead += socket->readBlock(rawData, rawLen);
 #ifdef QWSCOMMAND_DEBUG
-        fprintf(stderr, "rawData ");
-        hexDump(rawData, rawLen);
-        fprintf(stderr, "==== bytesRead %d\n", bytesRead);
+        qDebug() << "rawData " << QHexDump(rawData, rawLen);
+        qDebug() << "==== bytesRead " << bytesRead;
 #endif
         return true;
     }
     return false;
 }
 #endif
+
 /*********************************************************************
  *
  * QWSCommand base class - only use derived classes from that
  *
  *********************************************************************/
-
-
-QWSProtocolItem::~QWSProtocolItem() { if (deleteRaw) delete [] rawDataPtr; }
+QWSProtocolItem::~QWSProtocolItem() {
+    if (deleteRaw)
+        delete []rawDataPtr;
+}
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 void QWSProtocolItem::write(QWSSocket *s) {
 #ifdef QWSCOMMAND_DEBUG
-    qDebug("QWSProtocolItem::write sending type %d", type);
+    qDebug() << "QWSProtocolItem::write sending type " << static_cast<QWSCommand::Type>(type);
 #endif
     qws_write_command(s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen);
 }
 
 bool QWSProtocolItem::read(QWSSocket *s) {
-    bool b = qws_read_command(s, simpleDataPtr, simpleLen,
-                               rawDataPtr, rawLen, bytesRead);
+#ifdef QWSCOMMAND_DEBUG
+    qDebug() << "QWSProtocolItem::read sending type " << static_cast<QWSCommand::Type>(type);
+#endif
+    bool b = qws_read_command(s, simpleDataPtr, simpleLen, rawDataPtr, rawLen, bytesRead);
     if (b) {
         setData(rawDataPtr, rawLen, false);
         deleteRaw = true;
     }
     return b;
 }
-#endif
+#endif // QT_NO_QWS_MULTIPROCESS
+
 void QWSProtocolItem::copyFrom(const QWSProtocolItem *item) {
     if (this == item)
         return;
@@ -246,6 +330,9 @@ QWSCommand *QWSCommand::factory(int type)
         break;
     case QWSCommand::IMMouse:
         command = new QWSIMMouseCommand;
+        break;
+    case QWSCommand::PositionCursor:
+        command = new QWSPositionCursorCommand;
         break;
 #endif
     default:

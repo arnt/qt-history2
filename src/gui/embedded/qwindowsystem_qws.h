@@ -27,6 +27,7 @@
 
 #include "qkbd_qws.h"
 
+struct QWSWindowData;
 struct SWCursorData;
 class QWSCursor;
 class QWSClient;
@@ -36,16 +37,12 @@ class QWSServerData;
 
 class QWSInternalWindowInfo
 {
-
 public:
-
     int winid;
     unsigned int clientid;
     QString name;   // Corresponds to QObject name of top-level widget
-
 };
 
-struct QWSWindowData;
 
 class QWSScreenSaver
 {
@@ -54,6 +51,7 @@ public:
     virtual void restore()=0;
     virtual bool save(int level)=0;
 };
+
 
 class QWSWindow
 {
@@ -119,6 +117,7 @@ private:
 #endif
 };
 
+
 #ifndef QT_NO_SOUND
 class QWSSoundServer;
 #ifdef QT_USE_OLD_QWS_SOUND
@@ -137,11 +136,6 @@ private:
 };
 #endif
 #endif
-
-
-
-
-
 
 
 /*********************************************************************
@@ -175,7 +169,6 @@ public:
     enum ServerFlags { DisableKeyboard = 0x01,
                        DisableMouse = 0x02 };
 
-
     enum GUIMode { NoGui = false, NormalGUI = true, Server };
 
     static void sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
@@ -203,7 +196,6 @@ public:
     };
 
     static const KeyMap *keyMap();
-
     static void setOverrideKeys(const KeyOverride*);
 
     class KeyboardFilter
@@ -215,6 +207,7 @@ public:
     static void addKeyboardFilter(KeyboardFilter *f);
     static void removeKeyboardFilter();
 #endif
+
 #ifndef QT_NO_QWS_IM
     static void setCurrentInputMethod(QWSInputMethod *im);
     static void resetInputMethod();
@@ -311,7 +304,7 @@ private:
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);
 #ifndef QT_NO_QWS_IM
-///////    void set_micro_focus(const QWSSetMicroFocusCommand *);
+    // void set_micro_focus(const QWSSetMicroFocusCommand *);
 
     void set_im_info(const QWSSetIMInfoCommand *);
     void reset_im(const QWSResetIMCommand *);
@@ -352,6 +345,7 @@ private:
 #ifndef QT_NO_QWS_CURSOR
     void invokeDefineCursor(QWSDefineCursorCommand *cmd, QWSClient *client);
     void invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *client);
+    void invokePositionCursor(QWSPositionCursorCommand *cmd, QWSClient *client);
 #endif
     void invokeGrabMouse(QWSGrabMouseCommand *cmd, QWSClient *client);
     void invokeGrabKeyboard(QWSGrabKeyboardCommand *cmd, QWSClient *client);
@@ -371,10 +365,9 @@ private:
     void invokeSetIMFont(const QWSSetIMFontCommand *cmd,
                           QWSClient *client);
 
-
-    //       void invokeSetMicroFocus(const QWSSetMicroFocusCommand *cmd,
+    // void invokeSetMicroFocus(const QWSSetMicroFocusCommand *cmd,
     //                          QWSClient *client);
-    //  void invokeResetIM(const QWSResetIMCommand *cmd,
+    // void invokeResetIM(const QWSResetIMCommand *cmd,
     //                          QWSClient *client);
 #endif
 
@@ -440,7 +433,7 @@ private:
     int swidth, sheight, sdepth;
 #ifndef QT_NO_QWS_CURSOR
     bool haveviscurs;
-    QWSCursor *cursor;            // cursor currently shown
+    QWSCursor *cursor;      // cursor currently shown
     QWSCursor *nextCursor;  // cursor to show once grabbing is off
 #endif
     QRegion screenRegion;   // the entire display region
@@ -491,7 +484,6 @@ private:
 
 extern QWSServer *qwsServer; //there can be only one
 
-
 #ifndef QT_NO_QWS_IM
     class QWSInputMethod : public QObject
     {
@@ -508,21 +500,14 @@ extern QWSServer *qwsServer; //there can be only one
         QRect inputRect() const;
     protected:
         void sendIMEvent(QWSServer::IMState, const QString& txt, int cpos, int selLen = 0);
-
-
-
-//////        virtual void setFont(const QFont&);
+        // virtual void setFont(const QFont&);
     };
 
 inline void QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 {
     qwsServer->sendIMEvent(state, txt, cpos, selLen);
-
 }
-
-
-#endif
-
+#endif // QT_NO_QWS_IM
 
 
 
@@ -561,7 +546,7 @@ public:
 
     int clientId() const { return cid; }
 
-    QWSCursorMap cursors;        // cursors defined by this client
+    QWSCursorMap cursors; // cursors defined by this client
 signals:
     void connectionClosed();
     void readyRead();

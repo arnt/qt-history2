@@ -120,6 +120,5 @@ void QCursor::setPos(int x, int y)
     //
     if (pos() == QPoint(x, y))
         return;
-
-    // XXX XWarpPointer(qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y);
+    QPaintDevice::qwsDisplay()->setCursorPosition(x, y);
 }
