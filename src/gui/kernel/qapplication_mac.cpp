@@ -2691,10 +2691,14 @@ void QApplication::openPopup(QWidget *popup)
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
     QFocusEvent::setReason(QFocusEvent::Popup);
-    if(popup->focusWidget())
+    if(popup->focusWidget()) {
         popup->focusWidget()->setFocus();
-    else
-        popup->setFocus();
+    } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
+        if (QWidget *fw = focusWidget()) {
+            QFocusEvent e(QEvent::FocusOut);
+            sendEvent(fw, &e);
+        }
+    }
     QFocusEvent::resetReason();
 }
 
@@ -2719,10 +2723,14 @@ void QApplication::closePopup(QWidget *popup)
         QApplicationPrivate::popupWidgets = 0;
         if (QApplicationPrivate::active_window) {
             QFocusEvent::setReason(QFocusEvent::Popup);
-            if (QApplicationPrivate::active_window->focusWidget())
-                QApplicationPrivate::active_window->focusWidget()->setFocus();
-            else
-                QApplicationPrivate::active_window->setFocus();
+            if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
+                if (fw != focusWidget()) {
+                    fw->setFocus();
+                } else {
+                    QFocusEvent e(QEvent::FocusIn);
+                    sendEvent(fw, &e);
+                }
+            }
             QFocusEvent::resetReason();
         }
     } else {
@@ -2732,10 +2740,8 @@ void QApplication::closePopup(QWidget *popup)
         // the focus.
         QApplicationPrivate::active_window = QApplicationPrivate::popupWidgets->last();
         QFocusEvent::setReason(QFocusEvent::Popup);
-        if(QApplicationPrivate::active_window->focusWidget())
-            QApplicationPrivate::active_window->focusWidget()->setFocus();
-        else
-            QApplicationPrivate::active_window->setFocus();
+        if (QWidget *fw = QApplicationPrivate::active_window->focusWidget())
+            fw->setFocus();
         QFocusEvent::resetReason();
     }
 }
