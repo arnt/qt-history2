@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#181 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#182 $
 **
 ** Implementation of QFileDialog class
 **
@@ -342,12 +342,9 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 
     int i = currentItem();
     QListBox::viewportMousePressEvent( e );
-    QString file = filedialog->selectedFile();
-    if ( file.isEmpty() )
-        file = filedialog->dirPath() + "/" + item( currentItem() )->text();
 
     if ( i == currentItem() && currentItem() != -1 &&
-         QFileInfo( file ).isWritable() && item( currentItem() )->text() != ".." ) {
+         QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." ) {
         i = currentItem();
         QRect r = itemRect( item( i ) );
         int d = item( i )->pixmap() ?
@@ -383,7 +380,7 @@ void QFileListBox::rename()
             file = filedialog->dirPath() + "/" + item( currentItem() )->text();
 
         QString oldfile( filedialog->dirPath() + "/" + lined->text() );
-        
+
         if ( oldfile != file ) {
             QDir dir( filedialog->dirPath() );
             if ( QFile::exists( oldfile ) || !dir.rename( file, lined->text() ) ) {
@@ -438,12 +435,9 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 
     QListViewItem *i = currentItem();
     QListView::viewportMousePressEvent( e );
-    QString file = filedialog->selectedFile();
-    if ( file.isEmpty() )
-        file = filedialog->dirPath() + "/" + i->text( 0 );
 
     if ( i == currentItem() && currentItem() &&
-         QFileInfo( file ).isWritable() && currentItem()->text( 0 ) != ".." ) {
+         QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." ) {
         i = currentItem();
 
         QRect r = itemRect( i );
@@ -480,7 +474,7 @@ void QFileListView::rename()
             file = filedialog->dirPath() + "/" + currentItem()->text( 0 );
 
         QString oldfile( filedialog->dirPath() + "/" + lined->text() );
-        
+
         if ( oldfile != file ) {
             QDir dir( filedialog->dirPath() );
             if ( QFile::exists( oldfile ) || !dir.rename( file, lined->text() ) ) {
