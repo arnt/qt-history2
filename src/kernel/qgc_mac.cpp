@@ -746,7 +746,7 @@ QQuickDrawGC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 Qt::HANDLE
 QQuickDrawGC::handle() const
 {
-    return 0;
+    return d->pdev->handle();
 }
 
 void
