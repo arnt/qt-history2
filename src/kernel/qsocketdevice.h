@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#6 $
 **
 ** Definition of QSocketDevice class
 **
@@ -109,9 +109,9 @@ public:
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
 
-    int		getch() { return 0; }
-    int		putch( int ) { return 0; }
-    int		ungetch(int) { return 0; }
+    int		 getch();
+    int		 putch( int );
+    int		 ungetch(int);
 
 #if defined(_OS_WIN32_)
     static bool	initWinSock();

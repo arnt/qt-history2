@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#9 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -276,6 +276,10 @@ bool QSocketDevice::initWinSock()
 QSocketDevice::QSocketDevice( Type type )
     : sock_fd(-1)
 {
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice: Created QSocketDevice object %p, type %d",
+	   this, type );
+#endif    
 #if defined(_OS_WIN32_)
     ::initWinSock();
 #endif
@@ -283,17 +287,9 @@ QSocketDevice::QSocketDevice( Type type )
     switch ( type ) {				// create a socket
 	case Stream:
 	    s = ::socket( AF_INET, SOCK_STREAM, 0 );
-#if defined(QSOCKETDEVICE_DEBUG)
-	    debug( "QSocketDevice::QSocketDevice: Created stream socket %x",
-		   s );
-#endif
 	    break;
 	case Datagram:
 	    s = ::socket( AF_INET, SOCK_DGRAM, 0 );
-#if defined(QSOCKETDEVICE_DEBUG)
-	    debug( "QSocketDevice::QSocketDevice: Created datagram socket %x",
-		   s );
-#endif
 	    break;
 	default:
 #if defined(CHECK_RANGE)
@@ -321,6 +317,10 @@ QSocketDevice::QSocketDevice( Type type )
 QSocketDevice::QSocketDevice( int socket, Type type )
     : sock_fd(-1)
 {
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
+	   this, socket, type );
+#endif
     setSocket( socket, type );
 }
 
@@ -332,6 +332,9 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 QSocketDevice::~QSocketDevice()
 {
     close();
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice: Destroyed QSocketDevice %p", this );
+#endif
 }
 
 
@@ -380,6 +383,9 @@ void QSocketDevice::setSocket( int socket, Type type )
 {
     if ( sock_fd != -1 )			// close any open socket
 	close();
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice::setSocket: socket %x, type %d", socket, type );
+#endif
     sock_type = type;
     sock_fd = socket;
     setFlags( IO_Sequential );
@@ -400,6 +406,9 @@ bool QSocketDevice::open( int mode )
 {
     if ( isOpen() || !isValid() )
 	return FALSE;
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice::open: mode %x", mode );
+#endif
     setMode( mode & IO_ReadWrite );
     setState( IO_Open );
     return TRUE;
@@ -419,7 +428,7 @@ void QSocketDevice::close()
     setStatus( IO_Ok );
 #if defined(_OS_WIN32_)
     ::closesocket( sock_fd );
-#else
+#elif defined(UNIX)
     ::close( sock_fd );
 #endif
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -502,7 +511,7 @@ bool QSocketDevice::nonblocking() const
 	return FALSE;
 #if defined(_OS_WIN32_)
     return FALSE;
-#else
+#elif defined(UNIX)
     int s = fcntl(sock_fd, F_GETFL, 0);
     return s >= 0 && ((s & FNDELAY) != 0);
 #endif
@@ -530,7 +539,7 @@ void QSocketDevice::setNonblocking( bool enable )
 	return;
 #if defined(_OS_WIN32_)
     // Do nothing
-#else
+#elif defin(UNIX)
     int s = fcntl(sock_fd, F_GETFL, 0);
     if ( s >= 0 ) {
 	if ( enable )
@@ -658,15 +667,21 @@ void QSocketDevice::setOption( Option opt, int v )
 
 
 /*!
-  ### TODO: Documentation.
+  Connects to the IP address and port specified by \a addr.
+  Returns FALSE if a connection could not be established.
 */
 
 bool QSocketDevice::connect( const QSocketAddress &addr )
 {
     if ( !isValid() )
 	return FALSE;
-    return ::connect(sock_fd, (struct sockaddr*)addr.data(),
-		     addr.length()) == 0;
+    int r = ::connect(sock_fd, (struct sockaddr*)addr.data(),
+		      addr.length());
+#if defined(_OS_WIN32_)
+    return r != SOCKET_ERROR;
+#elif defined(UNIX)
+    return r == 0 || errno == EWOULDBLOCK || errno == EINPROGRESS;
+#endif
 }
 
 
@@ -738,15 +753,14 @@ int QSocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
-#if defined(UNIX)
-    int nbytes = 0;
-    if ( ::ioctl(sock_fd, FIONREAD, (char*)&nbytes) < 0 )
-	return -1;
-    return nbytes;
-#endif
 #if defined(_OS_WIN32_)
     u_long nbytes = 0;
     if ( ::ioctlsocket(sock_fd, FIONREAD, &nbytes) < 0 )
+	return -1;
+    return nbytes;
+#elif defined(UNIX)
+    int nbytes = 0;
+    if ( ::ioctl(sock_fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
     return nbytes;
 #endif
@@ -760,12 +774,11 @@ int QSocketDevice::bytesAvailable() const
 
 int QSocketDevice::readBlock( char *data, uint maxlen )
 {
-    if ( data == 0 && maxlen != 0 ) {
 #if defined(CHECK_NULL)
+    if ( data == 0 && maxlen != 0 ) {
 	warning( "QSocketDevice::readBlock: Null pointer error" );
-#endif
-	return -1;
     }
+#endif
 #if defined(CHECK_STATE)
     if ( !isValid() ) {
 	warning( "QSocketDevice::readBlock: Invalid socket" );
@@ -779,14 +792,10 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	warning( "QSocketDevice::readBlock: Read operation not permitted" );
 	return -1;
     }
-#else
-    if ( !isValid() || !isOpen() || !isReadable() )
-	return -1;
 #endif
 #if defined(_OS_WIN32_)
     return ::recv( sock_fd, data, maxlen, 0 );
-#endif
-#if defined(UNIX)
+#elif defined(UNIX)
     return ::read( sock_fd, data, maxlen );
 #endif
 }
@@ -799,12 +808,11 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 
 int QSocketDevice::writeBlock( const char *data, uint len )
 {
-    if ( data == 0 && len != 0 ) {
 #if defined(CHECK_NULL)
+    if ( data == 0 && len != 0 ) {
 	warning( "QSocketDevice::writeBlock: Null pointer error" );
-#endif
-	return -1;
     }
+#endif
 #if defined(CHECK_STATE)
     if ( !isValid() ) {
 	warning( "QSocketDevice::writeBlock: Invalid socket" );
@@ -818,14 +826,61 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 	warning( "QSocketDevice::writeBlock: Write operation not permitted" );
 	return -1;
     }
-#else
-    if ( !isValid() || !isOpen() || !isWritable() )
-	return -1;
 #endif
 #if defined(_OS_WIN32_)
     return ::send( sock_fd, data, len, 0 );
-#endif
-#if defined(UNIX)
+#elif defined(UNIX)
     return ::write( sock_fd, data, len );
 #endif
+}
+
+
+/*!
+  Reads a single byte/character from the socket.
+  Returns the byte/character read, or -1 if there is nothing
+  to be read.
+
+  \warning This function, which is an implementation of the
+  virtual abstract QIODevice::getch(), is very inefficient
+  when reading from a socket.  We recommend that you use the
+  readBlock() function instead.
+
+  \sa putch()
+*/
+
+int QSocketDevice::getch()
+{
+    char buf[2];
+    return  readBlock(buf,1) == 1 ? buf[0] : -1;
+}
+
+
+/*!
+  Writes the character \e ch to the socket.
+  Returns \e ch, or -1 if some error occurred.
+
+  \warning Like getch(), this function is very inefficient
+  when writing to a socket.  We recommend that you use the
+  writeBlock() function instead.
+
+  \sa getch()
+*/
+
+int QSocketDevice::putch( int ch )
+{
+    char buf[2];
+    buf[0] = ch;
+    return writeBlock(buf, 1) == 1 ? ch : -1;
+}
+
+
+/*!
+  This implementation of the virtual function QIODevice::ungetch() always
+  returns -1 (error) because a socket is a sequential device and does not
+  allow any ungetch operation.
+*/
+
+int QSocketDevice::ungetch( int ch )
+{
+    return -1;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#7 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#8 $
 **
 ** Definition of QSocket class
 **
@@ -50,7 +50,7 @@ public:
     Mode	 mode() const;
     void	 setMode( Mode );
 
-    void	 connectToHost( const QString &host, int port );
+    bool	 connectToHost( const QString &host, int port );
     QString	 host() const;
     int		 port() const;
 
@@ -67,9 +67,9 @@ public:
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
 
-    int		 getch()	{ return 0; }
-    int		 putch( int )	{ return 0; }
-    int		 ungetch(int)	{ return 0; }
+    int		 getch();
+    int		 putch( int );
+    int		 ungetch(int);
 
     bool	 canReadLine() const;
     QString	 readLine();
@@ -79,7 +79,7 @@ signals:
     void	 connected();
     void	 closed();
     void	 readyRead();
-    void	 readyWrite();
+    void	 error();
 
 protected slots:
     virtual void sn_read();
@@ -87,6 +87,7 @@ protected slots:
 
 protected:
     QSocketDevice *socketDevice();
+    void	  timerEvent( QTimerEvent * );
 
 private:
     QSocketPrivate *d;
