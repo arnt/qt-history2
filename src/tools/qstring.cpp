@@ -12863,14 +12863,14 @@ void QString::setLength( uint newLen )
 
   \sa QObject::tr()
 */
-QString QString::arg(const QString& a, int fieldwidth) const
+QString QString::arg( const QString& a, int fieldwidth ) const
 {
     int pos, len;
     QString r = *this;
 
     if ( !findArg( pos, len ) ) {
         qWarning( "QString::arg(): Argument missing: %s, %s",
-                  (const char *)this, (const char *)a );
+                  this.latin1(), a.latin1() );
         // Make sure the text at least appears SOMEWHERE
         r += ' ';
         pos = r.length();
