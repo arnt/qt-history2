@@ -64,6 +64,9 @@ public:
     const QRect& screenGeometry( int screen = -1 ) const;
     const QRect& availableGeometry( int screen = -1 ) const;
 
+protected:
+    void resizeEvent( QResizeEvent *e );
+
 private:
     QDesktopWidgetPrivate *d;
 };

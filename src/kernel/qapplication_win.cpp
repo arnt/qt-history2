@@ -1877,8 +1877,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     }
     case WM_DISPLAYCHANGE:
 	if ( qt_desktopWidget ) {
-	    delete qt_desktopWidget;
-	    qt_desktopWidget = 0;
+	    QMoveEvent mv( QPoint(GetSystemMetrics( 76 ), GetSystemMetrics( 77 )), qt_desktopWidget->pos() );
+	    QApplication::sendEvent( qt_desktopWidget, &mv );
+	    QResizeEvent re( QSize(GetSystemMetrics( 78 ), GetSystemMetrics( 79 )), qt_desktopWidget->size() );
+	    QApplication::sendEvent( qt_desktopWidget, &re );
 	}
 	break;
 #endif
