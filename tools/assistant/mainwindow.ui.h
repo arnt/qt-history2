@@ -170,7 +170,7 @@ void MainWindow::print()
 	QRect body( margin*dpix/72, margin*dpiy/72,
 		    metrics.width()-margin*dpix/72*2,
 		    metrics.height()-margin*dpiy/72*2 );
-	QFont font( "times", 10 );
+	QFont font( browser->font() );
 	QStringList filePaths = browser->mimeSourceFactory()->filePath();
 	QString file;
 	QStringList::Iterator it = filePaths.begin();
