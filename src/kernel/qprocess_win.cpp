@@ -371,9 +371,19 @@ bool QProcess::start( QStringList *env )
     return TRUE;
 }
 
+BOOL CALLBACK qt_terminateApp( HWND hwnd, LPARAM procId )
+{
+  DWORD procId_win;
+  GetWindowThreadProcessId( hwnd, &procId_win );
+  if( procId_win == (DWORD)procId )
+     PostMessage( hwnd, WM_CLOSE, 0, 0 );
+
+  return TRUE;
+}
+
 void QProcess::tryTerminate() const
 {
-    // ### how to do it?
+    EnumWindows( qt_terminateApp, (LPARAM)d->pid->dwProcessId );
 }
 
 void QProcess::kill() const
