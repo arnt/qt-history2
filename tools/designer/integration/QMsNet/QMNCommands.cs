@@ -29,9 +29,20 @@ namespace QMsNet
 		VCProject vp = (VCProject)vitm.Project;
 		IVCCollection myFiles = (IVCCollection)vp.files;
 		VCFile vf = (VCFile)myFiles.Item( doc.FullName );
+
+		string[] fileparts = vf.Name.Split( new Char[] {'.'}, 2 );
+		string filename = fileparts.Length > 0 ? fileparts[0] : "";
+		string ext = fileparts.Length > 1 ? fileparts[1] : "";
+
 		foreach ( VCFileConfiguration vfc in (IVCCollection)vf.FileConfigurations ) {
 		    VCCustomBuildTool cbt = (VCCustomBuildTool)vfc.Tool;
-		    // Modify custom build step...
+		    cbt.Description		= "Moc'ing " + vf.Name + "...";
+		    cbt.AdditionalDependencies  = "$(QTDIR)\\bin\\moc.exe";
+		    cbt.Outputs			= "$(IntDir)\\moc\\moc_" + filename + ".cpp";
+		    cbt.CommandLine		= cbt.AdditionalDependencies + " " +
+						  vf.FullPath + " " +
+						  "-o " +
+						  cbt.Outputs;
 		}
 
 		Connect.applicationObject.StatusBar.Text = "Moc step added to file...";
