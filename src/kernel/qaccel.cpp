@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#6 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#6 $";
 #endif
 
 
@@ -127,6 +127,15 @@ Returns TRUE is the accelerator is disabled (grayed out, if you wish).
 
 
 /*!
+Returns the number of accelerator items.
+*/
+int QAccel::count() const
+{
+    return aitems->count();
+}
+
+
+/*!
 Inserts an accelerator item.
 
 \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
@@ -156,6 +165,16 @@ void QAccel::removeItem( int id )
 {
     if ( find_id(aitems, id) )
 	aitems->remove();
+}
+
+
+/*!
+Removes all accelerator items.
+*/
+
+void QAccel::clear()
+{
+    aitems->clear();
 }
 
 
