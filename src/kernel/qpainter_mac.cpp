@@ -708,13 +708,19 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	updateBrush();
         QPixmap *pm = cbrush.data->pixmap;
 	if(pm && !pm->isNull()) {
-	    QRegion savedrgn = crgn; //save current region
-	    QRegion newrgn(x, y, w, h); 
-	    if(!crgn.isNull())
+	    RgnHandle savedrgn = NewRgn();
+	    GetClip(savedrgn); //save current region
+
+	    QRegion newrgn(x+offx, y+offy, w, h); 
+	    if(testf(ClipOn) && !crgn.isNull())
 		newrgn &= crgn;
-	    setClipRegion(newrgn); 
-	    drawTiledPixmap(x, y, w, h, *pm, bro.x(), bro.y()); 
-	    setClipRegion(savedrgn); //restore region
+	    if(!clippedreg.isNull()) 
+		newrgn &= clippedreg;
+	    SetClip((RgnHandle)newrgn.handle());
+	    drawTiledPixmap(x, y, w, h, *pm, 0, 0);
+
+	    SetClip(savedrgn);
+	    DisposeRgn(savedrgn);
 	}
     }
 
@@ -1218,6 +1224,11 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     int sh = pixmap.height();
     if (!sw || !sh )
 	return;
+
+    // huh?
+    sx += x - bro.x();
+    sy += y - bro.y();
+
     if ( sx < 0 )
         sx = sw - -sx % sw;
     else
@@ -1226,6 +1237,8 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
         sy = sh - -sy % sh;
     else
         sy = sy % sh;
+
+
     /*
       Requirements for optimizing tiled pixmaps:
       - not an external device
