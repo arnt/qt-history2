@@ -1,5 +1,7 @@
 #include <QtGui>
 
+#include <math.h>
+
 #include "renderthread.h"
 
 uint RenderThread::colormap[ColormapSize];
