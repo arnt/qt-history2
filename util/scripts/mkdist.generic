@@ -39,7 +39,7 @@ BRANCH=${VERSION%.*}
 LABEL="qt/$VERSION"
 
 
-DISTDIR=/tmp/qt-$VERSION-`whoami`
+DISTDIR=/tmp/qt-$VERSION-$disttype-$platform-`whoami`
 
 unset LANG || true
 unset goodparam1 || true
