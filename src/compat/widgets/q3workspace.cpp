@@ -1281,6 +1281,10 @@ void Q3WorkspacePrivate::showMaximizeControls()
 void Q3WorkspacePrivate::hideMaximizeControls()
 {
 #ifndef QT_NO_MENUBAR
+    if (d->maxmenubar) {
+        d->maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
+        d->maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
+    }
     delete d->maxcontrols;
     d->maxcontrols = 0;
     delete d->maxtools;
