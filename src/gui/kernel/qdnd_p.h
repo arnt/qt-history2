@@ -79,15 +79,12 @@ public:
     void updatePixmap();
     QWidget *source() { return object ? object->d_func()->source : 0; }
     QDragPrivate *dragPrivate() { return object ? object->d_func() : 0; }
-    void setCurrentAction(QDrag::DropAction action);
-    void setCurrentTarget(QWidget *target);
+    
     static QDragManager *self();
     QDrag::DropAction defaultAction(QDrag::DropActions possibleActions) const;
 
     QDrag *object;
-    QWidget *currentTarget;
-    QDrag::DropAction currentAction;
-
+    
 #if defined(Q_WS_QWS)
     void updateMode(Qt::KeyboardModifiers newstate);  // #### get rid of me
 #endif

@@ -212,7 +212,7 @@ QString dragActionsToString(QDrag::DropActions actions)
             str += " | ";
         str += "MoveAction";
     }
-    if (actions & QDrag::TargetMoveAction ) {
+    if ((actions & QDrag::TargetMoveAction) == QDrag::TargetMoveAction ) {
         if (!str.isEmpty())
             str += " | ";
         str += "TargetMoveAction";
@@ -281,22 +281,6 @@ QDragManager *QDragManager::self()
     if (!instance && qApp)
         instance = new QDragManager;
     return instance;
-}
-
-void QDragManager::setCurrentAction(QDrag::DropAction action)
-{
-    if (object && currentAction != action) {
-        currentAction = action;
-        emit object->actionChanged(currentAction);
-    }
-}
-
-void QDragManager::setCurrentTarget(QWidget *target)
-{
-    if (object && currentTarget != target) {
-        currentTarget = target;
-        emit object->targetChanged(currentTarget);
-    }
 }
 
 QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions) const
