@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#75 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#76 $
 **
 ** Implementation of QRegExp class
 **
@@ -350,16 +350,9 @@ static bool matchcharclass( uint *rxd, QChar c )
 }
 
 
-/*!
-  \internal
-  Recursively match string.
-*/
 
-
-
-/*!
-  \internal
-  Recursively match string.
+/*
+  Internal: Recursively match string.
 */
 
 static int matchstring( uint *rxd, const QChar *str, uint strlength,
@@ -564,10 +557,16 @@ static int matchstring( uint *rxd, const QChar *str, uint strlength,
 }
 
 
+/*!
+  \internal
+  Recursively match string.
+*/
+
 // This is obsolete now, but since it is protected (not private), it
 // is still implemented on the off-chance that somebody has made a
 // class derived from QRegExp and calls this directly.
 // Qt 3.0: Remove this?
+
 
 const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 				const QChar *bol ) const
@@ -1031,6 +1030,6 @@ void QRegExp::compile()
     CHECK_PTR( rxdata );
     memcpy( rxdata, rxarray, len*sizeof(uint) );
 #if defined(DEBUG)
-    //dump( rxdata );	// uncomment this line for debugging
+    dump( rxdata );	// uncomment this line for debugging
 #endif
 }
