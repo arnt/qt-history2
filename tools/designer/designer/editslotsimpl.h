@@ -49,8 +49,6 @@ protected slots:
     void currentTypeChanged( const QString &type );
 
 private:
-
-private:
     FormWindow *formWindow;
     QMap<QListViewItem*, QString> oldSlotNames;
     QStringList removedSlots;
