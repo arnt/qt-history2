@@ -497,10 +497,10 @@ QString QInputDialog::getItem(const QString &caption, const QString &label, cons
 #endif
     if (editable) {
         dlg->editableComboBox()->insertStringList(list);
-        dlg->editableComboBox()->setCurrentIndex(current);
+        dlg->editableComboBox()->setCurrentItem(current);
     } else {
         dlg->comboBox()->insertStringList(list);
-        dlg->comboBox()->setCurrentIndex(current);
+        dlg->comboBox()->setCurrentItem(current);
     }
 
     bool ok_ = false;

@@ -778,7 +778,7 @@ void QFileDialog::selectFilter(const QString &filter)
 {
     int i = d->fileType->findItem(filter, QAbstractItemModel::MatchExactly);
     if (i >= 0)
-        d->fileType->setCurrentIndex(i);
+        d->fileType->setCurrentItem(i);
 }
 
 /*!
@@ -1491,7 +1491,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     lookIn->insertItem(model->icons(home), QDir::homePath());
     lookIn->insertItem(model->icons(current), directory);
     int c = lookIn->findItem(directory, QAbstractItemModel::MatchExactly);
-    lookIn->setCurrentIndex(c >= 0 ? c : 0);
+    lookIn->setCurrentItem(c >= 0 ? c : 0);
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
@@ -1592,10 +1592,10 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {
-        lookIn->setCurrentIndex(i);
+        lookIn->setCurrentItem(i);
     } else {
         lookIn->insertItem(icn, pth);
-        lookIn->setCurrentIndex(lookIn->count() - 1);
+        lookIn->setCurrentItem(lookIn->count() - 1);
     }
     lookIn->blockSignals(block);
 }

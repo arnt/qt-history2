@@ -141,7 +141,7 @@ private:
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)
             menuOption.state |= QStyle::Style_Active;
-        if (mCombo->currentIndex() == index.row())
+        if (mCombo->currentItem() == index.row())
             menuOption.checkState = QStyleOptionMenuItem::Checked;
         else
             menuOption.checkState = QStyleOptionMenuItem::Unchecked;

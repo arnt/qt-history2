@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QString currentText READ currentText WRITE setCurrentText DESIGNABLE false)
-    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
+    Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem)
     Q_PROPERTY(int sizeLimit READ sizeLimit WRITE setSizeLimit)
     Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
     Q_PROPERTY(InsertionPolicy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy)
@@ -91,8 +91,8 @@ public:
     QModelIndex root() const;
     void setRoot(const QModelIndex &index);
 
-    int currentIndex() const;
-    void setCurrentIndex(int row);
+    int currentItem() const;
+    void setCurrentItem(int row);
 
     QString currentText() const;
     void setCurrentText(const QString&);

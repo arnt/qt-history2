@@ -428,7 +428,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     removeItem() and all items can be removed with clear(). The text
     of the current item is returned by currentText(), and the text of
     a numbered item is returned with text(). The current item can be
-    set with setCurrentIndex() or setCurrentText(). The number of items
+    set with setCurrentItem() or setCurrentText(). The number of items
     in the combobox is returned by count(); the maximum number of
     items can be set with setMaxCount(). You can allow editing using
     setEditable(). For editable comboboxes you can set auto-completion
@@ -463,7 +463,7 @@ void QComboBoxPrivate::init()
     container->setParent(q, Qt::WType_Popup);
     q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    q->setCurrentIndex(0);
+    q->setCurrentItem(0);
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style().styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
         l->setItemDelegate(new MenuDelegate(l, q));
@@ -502,7 +502,7 @@ void QComboBoxPrivate::updateLineEditGeometry()
     QRect editorRect = QStyle::visualRect(q->style().querySubControlMetrics(
                                               QStyle::CC_ComboBox, &opt,
                                               QStyle::SC_ComboBoxEditField, q), q);
-    const QPixmap &pix = q->pixmap(q->currentIndex());
+    const QPixmap &pix = q->pixmap(q->currentItem());
     if (!pix.isNull())
         editorRect.setLeft(editorRect.left() + pix.width() + 4);
     lineEdit->setGeometry(editorRect);
@@ -529,11 +529,11 @@ void QComboBoxPrivate::returnPressed()
             if (!d->model->rowCount(q->root()) || !currentIndex.isValid())
                 row = 0;
             else if (insertionPolicy == QComboBox::AtCurrent)
-                q->setItemText(text, q->currentIndex());
+                q->setItemText(text, q->currentItem());
             else if (insertionPolicy == QComboBox::AfterCurrent)
-                row = q->currentIndex() + 1;
+                row = q->currentItem() + 1;
             else if (insertionPolicy == QComboBox::BeforeCurrent)
-                row = q->currentIndex();
+                row = q->currentItem();
             break;
         case QComboBox::NoInsertion:
         default:
@@ -541,7 +541,7 @@ void QComboBoxPrivate::returnPressed()
         }
         if (row >= 0) {
             q->insertItem(text, row);
-            q->setCurrentIndex(row);
+            q->setCurrentItem(row);
         }
     }
 }
@@ -575,7 +575,7 @@ void QComboBoxPrivate::complete()
 void QComboBoxPrivate::itemSelected(const QModelIndex &item)
 {
     if (item != currentIndex) {
-        q->setCurrentIndex(item.row());
+        q->setCurrentItem(item.row());
     } else if (q->isEditable()) {
         if (lineEdit) {
             lineEdit->selectAll();
@@ -912,15 +912,15 @@ void QComboBox::setRoot(const QModelIndex &index)
 }
 
 /*!
-    \property QComboBox::currentIndex
+    \property QComboBox::currentItem
 */
 
-int QComboBox::currentIndex() const
+int QComboBox::currentItem() const
 {
     return d->currentIndex.row();
 }
 
-void QComboBox::setCurrentIndex(int row)
+void QComboBox::setCurrentItem(int row)
 {
     QModelIndex index = model()->index(row, 0, root());
     if (!index.isValid() || index == d->currentIndex)
@@ -998,7 +998,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
         }
     }
     if (!d->currentIndex.isValid())
-        setCurrentIndex(row);
+        setCurrentItem(row);
 }
 
 /*!
@@ -1023,7 +1023,7 @@ void QComboBox::insertItem(const QString &text, int row)
         }
     }
     if (!d->currentIndex.isValid())
-        setCurrentIndex(row);
+        setCurrentItem(row);
 }
 
 /*!
@@ -1042,7 +1042,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
         model()->setData(item, QAbstractItemModel::DecorationRole, icon);
     }
     if (!d->currentIndex.isValid())
-        setCurrentIndex(row);
+        setCurrentItem(row);
 }
 
 /*!
@@ -1064,7 +1064,7 @@ void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
         model()->setItemData(item, values);
     }
     if (!d->currentIndex.isValid())
-        setCurrentIndex(row);
+        setCurrentItem(row);
 }
 
 /*!
@@ -1370,7 +1370,7 @@ void QComboBox::paintEvent(QPaintEvent *)
     // draw the icon and text
     if (d->currentIndex.isValid()) {
         QString txt = model()->data(d->currentIndex, QAbstractItemModel::DisplayRole).toString();
-        const QPixmap &pix = pixmap(currentIndex());
+        const QPixmap &pix = pixmap(currentItem());
         QRect editField = QStyle::visualRect(q->style().querySubControlMetrics(
                                                  QStyle::CC_ComboBox, &opt,
                                                  QStyle::SC_ComboBoxEditField, this), q);
@@ -1438,7 +1438,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_PageUp:
     case Qt::Key_Up:
-        newRow = currentIndex() - 1;
+        newRow = currentItem() - 1;
         e->accept();
         break;
     case Qt::Key_Down:
@@ -1448,7 +1448,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         }
         // fall through
     case Qt::Key_PageDown:
-        newRow = currentIndex() + 1;
+        newRow = currentItem() + 1;
         e->accept();
         break;
     case Qt::Key_Home:
@@ -1484,11 +1484,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             listView()->keyboardSearch(e->text());
             if (listView()->currentIndex().isValid()
                 && listView()->currentIndex() != d->currentIndex)
-                setCurrentIndex(listView()->currentIndex().row());
+                setCurrentItem(listView()->currentIndex().row());
         }
         break;
     }
-    setCurrentIndex(newRow);
+    setCurrentItem(newRow);
 }
 
 /*!
