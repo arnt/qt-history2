@@ -858,9 +858,11 @@ void QPainter::updateBrush()
     }
 
     int  bs      = cbrush.style();
+    int x, y;
+    map( bro.x(), bro.y(), &x, &y );
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (bs == NoBrush || bs == SolidPattern) &&
-	           bro.x() == 0 && bro.y() == 0 && rop == CopyROP;
+	           x == 0 && y == 0 && rop == CopyROP;
 
     bool obtained = FALSE;
     bool internclipok = hasClipping();
@@ -1418,6 +1420,7 @@ void QPainter::setBrushOrigin( int x, int y )
     }
     if ( brushRef )
         updateBrush();                          // get non-cached brush GC
+    map(x, y, &x, &y);
     XSetTSOrigin( dpy, gc_brush, x, y );
 }
 

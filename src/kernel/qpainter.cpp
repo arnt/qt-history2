@@ -1621,6 +1621,7 @@ void QPainter::updateXForm()
 	setf(DirtyFont);
 #endif
     }
+    setBrushOrigin( bro.x(), bro.y() );
 }
 
 
