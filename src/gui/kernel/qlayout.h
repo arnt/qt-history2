@@ -301,6 +301,8 @@ public:
     void addItem(QLayoutItem *item, int row, int column, int rowSpan = 1, int columnSpan = 1, Qt::Alignment = 0);
 
     void setDefaultPositioning(int n, Qt::Orientation orient);
+    void getItemPosition(int idx, int *row, int *column, int *rowSpan, int *columnSpan);
+
 protected:
     bool findWidget(QWidget* w, int *r, int *c);
     void addItem(QLayoutItem *);

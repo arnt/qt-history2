@@ -160,6 +160,23 @@ public:
         return item;
     }
 
+    void getItemPosition(int index, int *row, int *column, int *rowSpan, int *columnSpan) {
+        if (index < things.count()) {
+            QGridBox *b =  things.at(index);
+            *row = b->row;
+            *column = b->col;
+            *rowSpan = 1;
+            *columnSpan = 1;
+        } else if (index - things.count() < multi.count()) {
+            QGridMultiBox *b = multi.at(index - things.count());
+            *row = b->box()->row;
+            *column = b->box()->col;
+            int toRow = b->torow < 0 ? rr-1 : b->torow;
+            int toCol = b->tocol  < 0 ? cc-1 : b->tocol;
+            *rowSpan = toRow - *row + 1;
+            *columnSpan = toCol - *column +1;
+        }
+    }
     void deleteAll();
 
 private:
@@ -1104,6 +1121,14 @@ QLayoutItem *QGridLayout::itemAt(int index) const
 QLayoutItem *QGridLayout::takeAt(int index)
 {
     return d->takeAt(index);
+}
+
+/*!
+  Returns the position information of the item with index \a idx.
+ */
+void QGridLayout::getItemPosition(int idx, int *row, int *column, int *rowSpan, int *columnSpan)
+{
+    d->getItemPosition(idx, row, column, rowSpan, columnSpan);
 }
 
 
