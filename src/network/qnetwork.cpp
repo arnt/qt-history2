@@ -43,11 +43,15 @@
 
 // protocols
 #include "qftp.h"
+#include "qhttp.h"
 
 void qInitNetworkProtocols()
 {
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
     QNetworkProtocol::registerNetworkProtocol( "ftp", new QNetworkProtocolFactory< QFtp > );
+#endif
+#ifndef QT_NO_NETWORKPROTOCOL_HTTP
+    QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttp > );
 #endif
 };
 
