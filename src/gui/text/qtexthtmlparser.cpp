@@ -770,24 +770,24 @@ void QTextHtmlParser::parseExclamationTag()
 }
 
 // parses an entity after "&", and returns it
-QChar QTextHtmlParser::parseEntity()
+QString QTextHtmlParser::parseEntity()
 {
     int recover = pos;
     QString entity;
     while (pos < len) {
         QChar c = txt.at(pos++);
         if (c.isSpace() || pos - recover > 8) {
-            pos = recover;
-            return QLatin1Char('&');
+            goto error;
         }
         if (c == QLatin1Char(';'))
             break;
         entity += c;
     }
-
-    QChar resolved = resolveEntity(entity);
-    if (!resolved.isNull())
-        return resolved;
+    {
+        QChar resolved = resolveEntity(entity);
+        if (!resolved.isNull())
+            return QString(resolved);
+    }
     if (entity.length() > 1 && entity.at(0) == QLatin1Char('#')) {
         entity.remove(0, 1); // removing leading #
 
@@ -799,15 +799,27 @@ QChar QTextHtmlParser::parseEntity()
             base = 16;
         }
 
-        int num = entity.toInt(&ok, base);
+        int uc = entity.toInt(&ok, base);
         if (ok) {
-            if (num == 151) // ### hack for designer manual
-                num = '-';
-            return num;
+            if (uc == 151) // ### hack for designer manual
+                uc = '-';
+            QString str;
+            if (uc > 0xffff) {
+                // surrogate pair
+                uc -= 0x10000;
+                ushort high = uc/0x400 + 0xd800;
+                ushort low = uc%0x400 + 0xdc00;
+                str.append(QChar(high));
+                str.append(QChar(low));
+            } else {
+                str.append(QChar(uc));
+            }
+            return str;
         }
     }
+error:
     pos = recover;
-    return QLatin1Char('&');
+    return QLatin1String("&");
 }
 
 // parses one word, possibly quoted, and returns it
@@ -1062,6 +1074,9 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_th:
             fontWeight = QFont::Bold;
             alignment = Qt::AlignCenter;
+            break;
+        case Html_td:
+            alignment = Qt::AlignLeft;
             break;
         case Html_sub:
             verticalAlignment = QTextCharFormat::AlignSubScript;

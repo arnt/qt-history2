@@ -260,7 +260,7 @@ protected:
     void parseTag();
     void parseCloseTag();
     void parseExclamationTag();
-    QChar parseEntity();
+    QString parseEntity();
     QString parseWord();
     void resolveParent();
     void resolveNode();

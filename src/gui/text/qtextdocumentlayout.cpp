@@ -999,13 +999,13 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
             lastTotalWidth = totalWidth;
         }
 
-        if (totalWidth > 0 && !anySizeColumns.isEmpty()
-                // don't unnecessarily grow variable length sized tables
-                && fmt.width().type() != QTextLength::VariableLength) {
-            const qreal widthPerAnySizedCol = totalWidth / anySizeColumns.count();
-            for (int k = 0; k < anySizeColumns.count(); ++k) {
-                const int col = anySizeColumns[k];
-                td->widths[col] += widthPerAnySizedCol;
+        if (totalWidth > 0
+            // don't unnecessarily grow variable length sized tables
+            && fmt.width().type() != QTextLength::VariableLength) {
+            const qreal widthPerAnySizedCol = totalWidth / variableCols;
+            for (int col = 0; col < columns; ++col) {
+                if (columnWidthConstraints.at(col).type() == QTextLength::VariableLength)
+                    td->widths[col] += widthPerAnySizedCol;
             }
         }
     }
@@ -1105,7 +1105,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
                 continue;
 
             if (rspan > 1 && cell.row() != r)
-                    continue;
+                continue;
 
             const qreal x = td->columnPositions.at(c) + td->cellPadding;
             setCellPosition(table, cell, QPointF(x, y));
@@ -1117,8 +1117,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 //                             td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
     td->contentsWidth = td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin;
     qreal height = td->contentsHeight == -1
-                 ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing + margin
-                 : td->contentsHeight + 2*margin;
+                   ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing + margin
+                   : td->contentsHeight + 2*margin;
     td->size = QSizeF(td->contentsWidth + 2*margin, height);
     td->sizeDirty = false;
 }
