@@ -29,157 +29,85 @@
 
 #include "qt_windows.h"
 
+#define QFONTDATABASE_DEBUG
+
 static
 int CALLBACK
-storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int /*type*/, LPARAM /*p*/ )
+storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int /*type*/, LPARAM /*p*/ )
 {
-    // QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
-    newWinFont( (void*) f );
-    return 1; // Keep enumerating.
-}
+    const int script = QFont::Unicode;
+    const QString foundryName;
+    const bool smoothScalable = TRUE;
+    const bool oblique = FALSE;
 
-static
-void add_style( QtFontFamily *family,
-                bool italic, bool lesserItalic, int weight )
-{
-    QString weightString;
-    if ( weight <= QFont::Light ) {
-        weight = QFont::Light;
-        weightString = "Light";
-    } else if ( weight <= QFont::Normal ) {
-        weight = QFont::Normal;
-        weightString = "Normal";
-    } else if ( weight <= QFont::DemiBold ) {
-        weight = QFont::DemiBold;
-        weightString = "DemiBold";
-    } else if ( weight <= QFont::Bold ) {
-        weight = QFont::Bold;
-        weightString = "Bold";
-    } else {
-        weight = QFont::Black;
-        weightString = "Black";
-    }
-
-    QString sn;
-    
-    if ( weight != QFont::Normal || (!italic && !lesserItalic) ) {
-	sn = weightString;
-	sn += " ";
-    }
-    if ( italic || lesserItalic ) {
-        sn += "Italic";
-    }
-#if 0
-    if ( lesserItalic ) {
-        // Windows doesn't tell the user, so we don't either
-        //  sn += "Oblique ";
-        sn += "Italic";
-    }
-#endif
-    sn = sn.stripWhiteSpace();
-    QtFontStyle *style = family->styleDict.find( sn );
-    if ( !style ) {
-        // qWarning( "New style[%s] for [%s][%s][%s]",
-        // (const char*)styleName, (const char*)charSetName,
-        // (const char*)familyName, (const char *)foundryName );
-        style = new QtFontStyle( family, sn );
-        Q_CHECK_PTR( style );
-        style->ital         = italic;
-        style->lesserItal   = lesserItalic;
-        style->weightString = weightString;
-        style->weightVal    = weight;
-        style->weightDirty  = FALSE;
-        family->addStyle( style );
-    }
-
-    //#### eiriken?
-#if 0
-else
-qDebug("Already got it");
-#endif
-
-    style->setSmoothlyScalable();  // cowabunga
-}
-
-
-static
-void newWinFont( void * p )
-{
-    ENUMLOGFONTEX* f = (ENUMLOGFONTEX*)p;
-
-    static QtFontFoundry *foundry = 0;
-
-    if ( !foundry ) {
-        foundry = new QtFontFoundry( "MS" ); // One foundry on Windows
-        // (and only one db)
-        db->addFoundry(foundry);
-    }
-
-    const TCHAR* tc = f->elfLogFont.lfFaceName;
-
+    bool italic = FALSE;
     QString familyName;
-    QT_WA( {
-        familyName = QString::fromUcs2( (ushort*)tc );
-    } , {
-        familyName = QString::fromLocal8Bit((const char*)tc);
-    } );
+    int weight;
+    bool fixed;
 
+    // ### make non scalable fonts work
+
+    QT_WA( {
+	familyName = QString::fromUcs2( (ushort*)f->elfLogFont.lfFaceName );
+	italic = f->elfLogFont.lfItalic;
+	weight = f->elfLogFont.lfWeight;
+	TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
+	fixed = (tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+    } , {
+	ENUMLOGFONTEXA* fa = (ENUMLOGFONTEXA *)f;
+	familyName = QString::fromLocal8Bit( fa->elfLogFont.lfFaceName );
+	italic = fa->elfLogFont.lfItalic;
+	weight = fa->elfLogFont.lfWeight;
+	TEXTMETRICA *tm = (TEXTMETRICA *)textmetric;
+	fixed = (tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+    } );
     // the "@family" fonts are just the same as "family". Ignore them.
-    if ( familyName[0] == '@' )
-	return;
+    if ( familyName[0] != '@' ) {
+	QtFontStyle::Key styleKey;
+	styleKey.italic = italic;
+	styleKey.oblique = oblique;
+	if ( weight < 400 )
+	    styleKey.weight = QFont::Light;
+	else if ( weight < 600 )
+	    styleKey.weight = QFont::Normal;
+	else if ( weight < 700 )
+	    styleKey.weight = QFont::DemiBold;
+	else if ( weight < 800 )
+	    styleKey.weight = QFont::Bold;
+	else 
+	    styleKey.weight = QFont::Black;
 
-    QtFontFamily *family = foundry->familyDict.find( familyName.lower() );
-    if ( !family ) {
-        //qWarning( "New font family [%s]", (const char*) familyName );
-        family = new QtFontFamily( foundry, familyName );
-        Q_CHECK_PTR(family);
-        foundry->addFamily( family );
+	QtFontFamily *family = db->scripts[script].family( familyName, TRUE );
+	QtFontFoundry *foundry = family->foundry( foundryName,  TRUE );
+	QtFontStyle *style = foundry->style( styleKey,  TRUE );
+	style->smoothScalable = TRUE;
+
+	// add fonts windows can generate for us:
+	if ( styleKey.weight <= QFont::DemiBold ) {
+	    QtFontStyle::Key key( styleKey );
+	    key.weight = QFont::Bold;
+	    QtFontStyle *style = foundry->style( key,  TRUE );
+	    style->smoothScalable = TRUE;
+	}
+	if ( !styleKey.italic ) {
+	    QtFontStyle::Key key( styleKey );
+	    key.italic = TRUE;
+	    QtFontStyle *style = foundry->style( key,  TRUE );
+	    style->smoothScalable = TRUE;
+	}
+	if ( styleKey.weight <= QFont::DemiBold && !styleKey.italic ) {
+	    QtFontStyle::Key key( styleKey );
+	    key.weight = QFont::Bold;
+	    key.italic = TRUE;
+	    QtFontStyle *style = foundry->style( key,  TRUE );
+	    style->smoothScalable = TRUE;
+	}
+
+	family->fixedPitch = fixed;
     }
-    bool italic = f->elfLogFont.lfItalic;
-    int weight = f->elfLogFont.lfWeight/10;
 
-    tc = (TCHAR*)f->elfStyle;
-
-    QString styleName;
-    QT_WA( {
-        styleName = QString::fromUcs2( (ushort*)tc );
-    } , {
-        styleName = QString::fromLocal8Bit((const char*)tc);
-    } );
-
-    if ( styleName.isEmpty() ) {
-        // Not TTF, we enumerate the
-        // transformed fonts that Windows can generate.
-
-#if 0
-qDebug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
-#endif
-
-        add_style( family, FALSE, FALSE, weight );
-        add_style( family, FALSE, TRUE, weight );
-
-        if ( weight < QFont::DemiBold ) {
-            // Can make bolder
-            add_style( family, FALSE, FALSE, QFont::Bold );
-            add_style( family, FALSE, TRUE, QFont::Bold );
-        }
-    } else {
-        if ( italic ) {
-            add_style( family, italic, FALSE, weight );
-        } else {
-            add_style( family, italic, FALSE, weight );
-            add_style( family, italic, TRUE, weight );
-        }
-        if ( weight < QFont::DemiBold ) {
-            // Can make bolder
-            if ( italic )
-                add_style( family, italic, FALSE, QFont::Bold );
-            else {
-                add_style( family, FALSE, FALSE, QFont::Bold );
-                add_style( family, FALSE, TRUE, QFont::Bold );
-            }
-        }
-    }
+    // keep on enumerating
+    return 1;
 }
 
 static
@@ -216,15 +144,41 @@ void populate_database(const QString& fam)
     } );
 
     ReleaseDC(0, dummy);
-
-    // ##### Should add Italic if none already
-    // ##### Should add Bold and Bold Italic if any less-than-bold exists
 }
 
 void QFontDatabase::createDatabase()
 {
     if ( db ) return;
+
     db = new QFontDatabasePrivate;
-    populate_database(QString::null);
+    populate_database( QString::null );
+
+#ifdef QFONTDATABASE_DEBUG
+    // print the database
+    for ( int i = 0; i < QFont::NScripts; i++ ) {
+	QtFontScript &script = db->scripts[i];
+	qDebug("Script %s", QFontDatabase::scriptName( (QFont::Script)i ).latin1() );
+	if ( !script.count ) {
+	    qDebug("    No fonts found!");
+	    continue;
+	}
+	for ( int f = 0; f < script.count; f++ ) {
+	    QtFontFamily *family = script.families[f];
+	    qDebug("    %s", family->name.latin1() );
+	    populate_database( family->name );
+
+	    for ( int fd = 0; fd < family->count; fd++ ) {
+		QtFontFoundry *foundry = family->foundries[fd];
+		qDebug("        %s", foundry->name.latin1() );
+		for ( int s = 0; s < foundry->count; s++ ) {
+		    QtFontStyle *style = foundry->styles[s];
+		    qDebug("            style: italic=%d oblique=%d weight=%d",  style->key.italic,
+			   style->key.oblique, style->key.weight );
+		}
+	    }
+	}
+    }
+#endif // QFONTDATABASE_DEBUG
+
 }
 
