@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#184 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -315,7 +315,6 @@ void qWinMain( HANDLE instance, HANDLE prevInstance, LPSTR cmdParam,
 }
 
 
-
 /*****************************************************************************
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
@@ -545,7 +544,7 @@ const char* qt_reg_winclass( int type )		// register window class
 	wc.hCursor	 = 0;
 	wc.hbrBackground = 0;
 	wc.lpszMenuName	 = 0;
-	wc.lpszClassName = tcn; //className; // tcn;
+	wc.lpszClassName = tcn;
 	RegisterClass( &wc );
     }
     return className;
@@ -1154,6 +1153,7 @@ void qt_draw_tiled_pixmap( HANDLE hdc, int x, int y, int w, int h,
 }
 
 
+#if defined(QT_BASEAPP)
 typedef (*qt_ebg_fn)( HANDLE, int, int, int, int, const QColor &,
 		      const QPixmap *, int, int );
 
@@ -1163,6 +1163,11 @@ Q_EXPORT void qt_ebg( void *p )
 {
     qt_ebg_inst = (qt_ebg_fn)p;
 }
+#else
+
+#define QT_ERASE_BACKGROUND
+
+#endif
 
 
 /*****************************************************************************
@@ -1378,11 +1383,16 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_ERASEBKGND: {			// erase window background
 	    RECT r;
 	    GetClientRect( hwnd, &r );
+#if defined(QT_ERASE_BACKGROUND)
+	    qt_erase_background
+#else
 	    if ( qt_ebg_inst )
-		(*qt_ebg_inst)( (HANDLE)wParam, r.left, r.top,
-				r.right-r.left, r.bottom-r.top,
-				widget->backgroundColor(),
-				widget->backgroundPixmap(), 0, 0 );
+		(*qt_ebg_inst)
+#endif
+		    ( (HANDLE)wParam, r.left, r.top,
+		      r.right-r.left, r.bottom-r.top,
+		      widget->backgroundColor(),
+		      widget->backgroundPixmap(), 0, 0 );
 	    }
 	    break;
 
@@ -1734,8 +1744,8 @@ struct TimerInfo {				// internal timer info
     bool     zero;				// - zero timing
     QObject *obj;				// - object to receive events
 };
-typedef QVector<TimerInfo>  TimerVec; // vector of TimerInfo structs
-typedef QIntDict<TimerInfo> TimerDict;// fast dict of timers
+typedef QVector<TimerInfo>  TimerVec;		// vector of TimerInfo structs
+typedef QIntDict<TimerInfo> TimerDict;		// fast dict of timers
 
 static TimerVec  *timerVec  = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict

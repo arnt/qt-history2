@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#94 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#95 $
 **
 ** Definition of QApplication class
 **
@@ -158,7 +158,6 @@ private:
     bool	     processNextEvent( bool );
     void	     initialize( int, char ** );
     void	     init_precmdline();
-
 
     int		     app_argc;
     char	   **app_argv;
