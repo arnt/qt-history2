@@ -93,7 +93,7 @@
 
   Then we draw the rectangle on top and restore.
 
-  \printto // p.restore()
+  \printto p.restore()
 
   \section2 A snake of primitives
 
@@ -109,7 +109,7 @@
 
   \printuntil } // for
 
-  \section2 Comparasison to Qt 3.x
+  \section2 Comparison to Qt 3.x
 
   Alphablending is a new feature in Qt 4, so to acheive these
   particular effects with Qt 3.x we would have to manipulate pixels
@@ -135,7 +135,7 @@
   In this example we want to have two points that move in circular
   motion around each other.
 
-  \quotefile rotatinggradient.cpp
+  \quotefile arthur/rotatinggradient.cpp
 
   \skipto // Define
   \printuntil fade = 511
@@ -145,18 +145,177 @@
 
   \printuntil QPoint p2
 
+  We create two points on oposide sides of origo and multiply them
+  with a matrix. The matrix is rotated one degree clockwise (in
+  RotatingGradient::timerEvent()) so the points will then move in a
+  circle around the upper left corner of the widget. We then add the
+  widget center to the points so that they rotate around the center of
+  the widget.
+
+  \skipto // Define
+
+  \printuntil p.setBrush
+
+  We then create a brush from p1 to p2. We use the fade value to let
+  the colors vary. Then we set the brush on the painter.
+
+  \printuntil p.drawRect
+
+  Now that the fill mode of the widget is set to a rotating gradient,
+  we can fill the contents using QPainter::drawRect(). Note that once
+  a gradient brush is set, any QPainter::drawxxx call can be used to
+  fill.
+
+  \section2 Comparison to Qt 3.x
+
+  Like Alpha blended primitives, Qt 3.x did not support gradient
+  filling using brushes, so this would have to be done manually by the
+  programmer.
 
   \section1 Clip regions
-    - show clip region.
+
+  The purpuse of this example is to demonstrate use of complex clip
+  regions. This is acheived using QRegion and some of its
+  operators. It is possible to add to a region by joining it with
+  another region. This is done using QRegion::unite() or
+  QRegion::operator|=. It is also possible to invert regions by using
+  QRegion::eor() QRegion::operator=^().
+
+  In this example we have a number of rectangles. We want to move
+  these around in the widget and unite them in one region. The
+  DemoWidget class supports animation through a timerEvent, so we
+  reimplement the timerEvent function and move the rects
+  there. Another thing we wanted to acheive is that the user can draw
+  up a rectangle using the mouse. We then invert the region in the area
+  of the mouse rect. This produces a nice and complex clip region.
+
+  We then take a look at the paintEvent to see how the region is
+  created.
+
+  \quotefile arthur/clipping.cpp
+
+  \skipto // Start with an
+
+  \printuntil QRegion region
+
+  We start out with an empty region.
+
+  \printto // If the mouse
+
+  Then we iterate through all the rectangles in our list of rects. The
+  rectangles are united with the region using the
+  QRegion::operator|=. Also, just to make the region a bit more
+  interresting, we create an elliptical region of some of them. The \c
+  i%4==0 will make every fourth rectangle an ellipse instead of a
+  region.
+
+  \printto // Create
+
+  We then add the rectangle defined by the mouse if dragged. We've
+  reimplemnted QWidget::mousePressEvent() and
+  QWidget::mouseReleaseEvent() to get the mouse positions. \c
+  pressPoint describes where the drag started and currentPoint
+  describes where the cursor currently is. We create a rectangle based
+  on this and use it to invert the region using QRegion::operator^=().
+
+  \printuntil pt.setClip
+
+  We now want to create the clip region that covers the entire widget,
+  except the pieces covered by the region we have built up. We do this
+  by creating a widget of same size as the widget, and inverting it
+  with the built up region.
+
+  \printuntil pt.drawRect
+
+  The we set the painters brush to the widgets background color and
+  fill it.
+
+  \section2 Comparison to Qt 3.x
+
+  The class QRegion that we used in this example has not changed
+  behaviour since Qt 3.x so using complex regions in this way
+  would be similar if done in Qt 3.x.
 
   \section1 Paths
+
+  In this example we want to show how to use paths for filling and
+  outlining. Paths is a new way of drawing introduced in Qt 4.0, see
+  the class documentation for QPainterPath for more info.
+
+  In this example we want to create a path based on a simple shape (a
+  rectangle in this case) and a more complex shape (some bezier
+  curves).
+
+  \quotefile arthur/paths.cpp
+
+  \skipuntil // Define some
+
+  \printto // Create the
+
+  The first thing we do is to create some semirandom points. These
+  will be used to modulate the bezier curves.
+
+  \printto // Add the bez
+
+  Then we create the path
+
+  \printuntil path.closeSubpath
+
+  We now want to add the bezier curves to the path. We want these to
+  compose a closed shape, so we start by opening a subpath. (Opening a
+  subpath is not strictly necessary in this case since QPainterPath
+  always starts out with a subpath that can be added to). After that
+  we add the points and close the subpath. This will connect that last
+  point added to the first point in the subpath, causing a closed
+  shape.
+
+  \printuntil path.addRect
+
+  We then add a rect at the center of the widget.
+
+  \printuntil p.drawPath
+
+  Finally, we draw the path, using the current pen and brush.
+
+  \section2 Comparison to Qt 3.x
+
+  Painter paths are a new feature in Qt 4.0, but it was to some degree
+  possible to acheive the same results using QRegion operations as we
+  did in the clipping example above in combination with QPaintArray
+  and clipped filling. QPainterPath has several advantages over this
+  approach. One is that a QPainterPath is scalable, meaning that when
+  you draw on a painter with a world matrix, you don't loose precision
+  when zooming in. QPainterPath will also in most cases be
+  significantly faster since performing operations on QRegions is
+  heavy if the region is complex. And finally, the QPainterPath API is
+  much easier to use.
 
   \section1 Stretched Pixmap
 
   The purpose of this example is to demonstrate how pixmaps can be
-  stretched using the function QPainter::drawPixmap().
+  stretched using the function QPainter functionallity.
 
-    - show drawPixmap() with stretching.
-    - available in 3.3 but potentially faster now.
+  What we want to do in this pixmap is to take a pixmap and make
+  stretch it a bit in different directions. The approach choosen for
+  this is to split the pixmap into four equally large parts and split
+  the widget into four unequal parts. We let each of the pixmap parts
+  cover one of the pixmaps. The size of the widget parts is selected
+  by using either the mouse position currently pressed by the user or
+  just a semirandom one.
+
+  \quotefile arthur/warpix.cpp
+
+  \skipto p.drawPixmap(
+
+  The above lines are the relevant parts of the paint event that
+  stretch and draw the pixmaps.
+
+  \section2 Comparison to Qt 3.x
+
+  The functionality shown in this example has not changed since Qt
+  3.x. What has changed is how the function might perform on certain
+  platforms. In Qt we make use native transformations if the
+  underlying platform supports it. This means that the time spend on
+  these type of operations may be significantly reduced.
 
 */

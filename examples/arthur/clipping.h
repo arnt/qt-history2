@@ -13,15 +13,12 @@ public:
     Clipping(QWidget *parent = 0);
 
     void paintEvent(QPaintEvent *e);
-
-    void resizeEvent(QResizeEvent *e);
+    void timerEvent(QTimerEvent *e);
 
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
 
 private:
-    QPixmap bgFill;
-
     QList<QRect> rects;
     QList<QPoint> rectDirection;
 

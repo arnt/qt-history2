@@ -24,20 +24,16 @@ Clipping::Clipping(QWidget *parent)
     }
 }
 
-void Clipping::paintEvent(QPaintEvent *)
+void Clipping::timerEvent(QTimerEvent *e)
 {
     int w = width(), h = height();
 
-    QPainter pt(this);
-
-    fillBackground(&pt);
-
-    QRegion region;
     for (int i=0; i<rects.size(); ++i) {
         QRect r = rects.at(i);
         QPoint d = rectDirection.at(i);
         r.moveBy(d);
 
+        // Move rect horizontally
         if (r.left() < 0) {
             r.setRect(0, r.y(), r.width(), r.height());
             d.setX(-d.x());
@@ -46,6 +42,7 @@ void Clipping::paintEvent(QPaintEvent *)
             d.setX(-d.x());
         }
 
+        // Move rect vertically
         if (r.top() < 0) {
             r.setRect(r.x(), 0, r.width(), r.height());
             d.setY(-d.y());
@@ -54,36 +51,50 @@ void Clipping::paintEvent(QPaintEvent *)
             d.setY(-d.y());
         }
 
-        if (i%4 == 0)
-            region |= QRegion(r, QRegion::Ellipse);
-        else
-            region |= r;
-
+        // Store the moved rect and direction
         rects[i] = r;
         rectDirection[i] = d;
     }
 
+    // Call baseclass implementation
+    DemoWidget::timerEvent(e);
+}
+
+void Clipping::paintEvent(QPaintEvent *)
+{
+    int w = width(), h = height();
+
+    QPainter pt(this);
+
+    fillBackground(&pt);
+
+    // Start with an empty region
+    QRegion region;
+
+    for (int i=0; i<rects.size(); ++i) {
+        // Make every fourth rect an ellipse and add them to the region
+        if (i%4 == 0)
+            region |= QRegion(rects.at(i), QRegion::Ellipse);
+        else
+            region |= rects.at(i);
+    }
+
+    // If the mouse is pressed
     if (pressPoint != QPoint(-1, -1)) {
         QRect mouseRect = QRect(pressPoint, currentPoint);
         region ^= mouseRect.normalize();
     }
 
+    // Create the region used for clipping.
     QRegion clip(0, 0, w, h);
     clip ^= region;
     pt.setClipRegion(clip);
 
-//     pt.setBrush(QBrush(QPoint(0, 0), QColor(220, 220, 255, attributes->alpha ? 191 : 255),
-//                        QPoint(0, h), QColor(63, 63, 150, attributes->alpha ? 191 : 255)));
     QColor bg = palette().color(QPalette::Background);
     pt.setPen(Qt::NoPen);
     pt.setBrush(QColor(bg.red(), bg.green(), bg.blue(), attributes->alpha ? 191 : 255));
 
     pt.drawRect(rect());
-}
-
-void Clipping::resizeEvent(QResizeEvent *)
-{
-    bgFill = QPixmap();
 }
 
 void Clipping::mousePressEvent(QMouseEvent *e)
