@@ -409,8 +409,10 @@ typename QVector<T>::iterator QVector<T>::erase(iterator begin, iterator end)
         qCopy(d->array+l, d->array+d->size, d->array+f);
         T *i = d->array+d->size;
         T* b = d->array+d->size-n;
-        while (i != b)
-            (--i)->~T();
+        while (i != b) {
+            --i;
+            i->~T();
+        }
     } else {
         memmove(d->array + f, d->array + l, (d->size-l)*sizeof(T));
     }
