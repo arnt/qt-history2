@@ -803,6 +803,12 @@ void QGLWidget::init( const QGLFormat& fmt, const QGLWidget* shareWidget )
 }
 
 
+void QGLWidget::setMouseTracking( bool enable )
+{
+    QWidget::setMouseTracking( enable );
+}
+
+
 void QGLWidget::resizeEvent( QResizeEvent * )
 {
     makeCurrent();

@@ -593,7 +593,7 @@ class QGLOverlayWidget : public QGLWidget
 public:
     QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
 		      const char* name=0 );
-    
+
 protected:
     void		initializeGL();
     void		paintGL();
@@ -604,6 +604,7 @@ protected:
     void		mouseReleaseEvent( QMouseEvent* e );
     void		mouseDoubleClickEvent( QMouseEvent* e );
 
+    
 private:
     QGLWidget*		realWidget;
 
@@ -621,6 +622,7 @@ QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
 {
     realWidget = parent;
 }
+
 
 
 void QGLOverlayWidget::initializeGL()
@@ -702,6 +704,15 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     else {
 	olw = 0;
     }
+}
+
+
+void QGLWidget::setMouseTracking( bool enable )
+{
+    if ( olw )
+	olw->setMouseTracking( enable );
+    else
+	QWidget::setMouseTracking( enable );
 }
 
 

@@ -251,6 +251,8 @@ public:
     virtual void	makeOverlayCurrent();
     const QGLContext*	overlayContext() const;
 
+    void		setMouseTracking( bool enable );
+
 public slots:
     virtual void	updateGL();
     virtual void	updateOverlayGL();

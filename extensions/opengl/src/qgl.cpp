@@ -1501,6 +1501,12 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 
 /*!
+  \fn void QGLWidget::setMouseTracking( bool enable )
+  \reimp
+*/
+
+
+/*!
   Renders the current scene on a pixmap and returns it.
 
   You may use this method on both visible and invisible QGLWidgets.
