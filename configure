@@ -2162,6 +2162,14 @@ if [ "$Edition" = "free" ]; then
 	    echo "the GNU General Public License (GPL)."
 	    echo
 	    affix="the"
+	elif [ "$PLATFORM_MAC" = "yes" ]; then
+	    echo
+	    echo "This is the Qt/Mac Free Edition."
+	    echo
+	    echo "You are licensed to use this software under the terms of"
+	    echo "the GNU General Public License (GPL)."
+	    echo
+	    affix="the"
 	elif [ "$PLATFORM_X11" = "yes" ]; then
 	    echo
 	    echo "This is the Qt/X11 Free Edition."
