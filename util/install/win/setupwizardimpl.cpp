@@ -1555,7 +1555,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	motifplusPlugin->setEnabled( true );
 	motifPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
-	xpPlugin->setEnabled( findXPSupport() );
+	xpPlugin->setEnabled( true );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( true );
 	    ociPlugin->setEnabled( true );

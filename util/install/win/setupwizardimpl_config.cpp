@@ -800,10 +800,10 @@ void SetupWizardImpl::showPageConfig()
     xpOff->setOn( entry == "Off" || !canXPStyle );
     xpPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     xpPlugin->setOn( entry == "Plugin" && canXPStyle );
-    xpPlugin->setEnabled( canXPStyle );
+    xpPlugin->setEnabled( true );
     xpDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     xpDirect->setOn( entry == "Direct" && canXPStyle );
-    xpDirect->setEnabled( canXPStyle );
+    xpDirect->setEnabled( true );
 
     folder = new QCheckListItem( stfolder, "Windows" );
     folder->setOpen( true );
