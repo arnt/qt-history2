@@ -249,9 +249,9 @@ void QTextStream::init()
     fstrm = owndev = FALSE;
     mapper = 0;
     d = new QTextStreamPrivate;
-    doUnicodeHeader = TRUE;	 //default to autodetect
-    latin1 = TRUE;		 // ### should use local?
-    internalOrder = FALSE;	//default to network order
+    doUnicodeHeader = TRUE;
+    latin1 = TRUE;
+    littleEndian = FALSE;
 }
 
 /*!
@@ -660,7 +660,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
     int ungetHack = EOF;
 
     if ( doUnicodeHeader ) {
-	doUnicodeHeader = FALSE; //only at the top
+	doUnicodeHeader = FALSE; // only at the top
 	int c1 = dev->getch();
 	if ( c1 == EOF )
 	    return rnum;
@@ -668,23 +668,23 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    internalOrder = FALSE;   //network order
+	    littleEndian = FALSE;
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    internalOrder = TRUE;   //reverse network order
+	    littleEndian = TRUE;
 	} else {
 	    if ( c2 != EOF ) {
 	 	dev->ungetch( c2 );
 		ungetHack = c1;
 	    } else {
+		/*
+		  A small bug might hide here. If only the first byte
+		  of a file has made it so far, and that first byte
+		  is half of the byte-order mark, then the utfness
+		  will not be detected.
+		*/
 	 	dev->ungetch( c1 );
-		// note that a small possible bug might hide here
-		// here, if only the first byte of a file has made it
-		// so far, and that first byte is half of the
-		// byte-order mark, then the utfness will not be
-		// detected.  whether or not this is a bug depends on
-		// taste.  I can't really decide.
 	    }
 	}
     }
@@ -796,10 +796,10 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    int c2 = dev->getch();
 	    if ( c2 == EOF )
 		return rnum;
-	    if ( !internalOrder )
-		*buf = QChar( c2, c1 );
-	    else
+	    if ( littleEndian )
 		*buf = QChar( c1, c2 );
+	    else
+		*buf = QChar( c2, c1 );
 	    buf++;
 	    rnum++;
 	} else {
@@ -821,7 +821,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		    if ( !dev->atEnd() )
 			dev->ungetch( cbuf[--rlen] );
 		uint i = 0;
-		if ( !internalOrder ) {
+		if ( !littleEndian ) {
 		    while( i < rlen ) {
 			*buf = QChar( cbuf[i+1], cbuf[i] );
 			buf++;
@@ -956,7 +956,7 @@ void QTextStream::ts_putc( QChar c )
 #endif
     if ( latin1 ) {
 	if ( c.row() )
-	    dev->putch( '?' ); //######unknown character???
+	    dev->putch( '?' ); // unknown character
 	else
 	    dev->putch( c.cell() );
     } else {
@@ -964,14 +964,12 @@ void QTextStream::ts_putc( QChar c )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
-	if ( internalOrder ) {
-	    dev->writeBlock( (char*)&c, sizeof(QChar) );
-	} else if ( !internalOrder ) {
-	    dev->putch(c.row());
-	    dev->putch(c.cell());
+	if ( littleEndian ) {
+	    dev->putch( c.cell() );
+	    dev->putch( c.row() );
 	} else {
-	    dev->putch(c.cell());
-	    dev->putch(c.row());
+	    dev->putch( c.row() );
+	    dev->putch( c.cell() );
 	}
     }
 }
@@ -1050,7 +1048,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
     //All QCStrings and const char* are defined to be in Latin1
     if ( !mapper && latin1 ) {
 	dev->writeBlock( p, len );
-    } else if ( !mapper && internalOrder ) {
+    } else if ( !mapper && littleEndian ) {
 	QChar *u = new QChar[len];
 	for (uint i=0; i<len; i++)
 	    u[i] = p[i];
@@ -1079,7 +1077,7 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	char *str = QString::unicodeToAscii( p, len );
 	dev->writeBlock( str, len );
 	delete [] str;
-    } else if ( internalOrder ) {
+    } else if ( littleEndian ) {
 	if ( doUnicodeHeader ) {
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
@@ -1091,8 +1089,6 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
     }
     return *this;
 }
-
-
 
 /*!
   Resets the text stream.
@@ -1114,7 +1110,6 @@ void QTextStream::reset()
     fillchar = ' ';
     fprec = 6;
 }
-
 
 /*!
   \fn QIODevice *QTextStream::device() const
@@ -2398,14 +2393,14 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = TRUE;
+	littleEndian = TRUE;
 	break;
     case UnicodeUTF8:
 #ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForMib( 106 );
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = TRUE;
+	littleEndian = TRUE;
 #else
 	mapper = 0;
 	latin1 = TRUE;
@@ -2416,32 +2411,32 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = FALSE;
+	littleEndian = FALSE;
 	break;
     case UnicodeReverse:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = TRUE;   //reverse network ordered
+	littleEndian = TRUE;
 	break;
     case RawUnicode:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = FALSE;
-	internalOrder = TRUE;
+	littleEndian = TRUE;
 	break;
     case Locale:
-	latin1 = TRUE; 				// fallback to Latin 1
+	latin1 = TRUE; 				// fallback to Latin-1
 #ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForLocale();
 #if defined(Q_OS_WIN32)
 	if ( GetACP() == 1252 )
-	    mapper = 0;				// Optimized latin1 processing
+	    mapper = 0;				// optimized Latin-1 processing
 #endif
 	if ( mapper && mapper->mibEnum() == 4 )
 #endif
-	    mapper = 0;				// Optimized latin1 processing
-	doUnicodeHeader = TRUE; // If it reads as Unicode, accept it
+	    mapper = 0;				// optimized Latin-1 processing
+	doUnicodeHeader = TRUE;
 	break;
     case Latin1:
 	mapper = 0;
@@ -2459,7 +2454,7 @@ void QTextStream::setEncoding( Encoding e )
   Note that this function should be called before any data is read
   to/written from the stream.
 
-  \sa setEncoding()
+  \sa setEncoding(), codec()
 */
 
 void QTextStream::setCodec( QTextCodec *codec )
@@ -2472,6 +2467,26 @@ void QTextStream::setCodec( QTextCodec *codec )
 	mapper = 0;
     doUnicodeHeader = FALSE;
 }
+
+/*!
+  Returns the codec actually used for this stream.
+
+  If Unicode is automatically detected in input, a codec with \link
+  QTextCodec::name() name() \endlink "ISO-10646-UCS-2" is returned.
+
+  \sa setCodec()
+*/
+
+QTextCodec *QTextStream::codec()
+{
+    if ( mapper ) {
+	return mapper;
+    } else {
+	// 4 is "ISO 8859-1", 1000 is "ISO-10646-UCS-2"
+	return QTextCodec::codecForMib( latin1 ? 4 : 1000 );
+    }
+}
+
 #endif
 
 #endif // QT_NO_TEXTSTREAM

@@ -59,9 +59,8 @@ public:
     void	setEncoding( Encoding );
 #ifndef QT_NO_TEXTCODEC
     void	setCodec( QTextCodec* );
+    QTextCodec *codec();
 #endif
-
-    //    Encoding encoding() const { return cmode; }
 
     QTextStream();
     QTextStream( QIODevice * );
@@ -156,7 +155,7 @@ private:
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
 #ifndef QT_NO_COMPAT    
-    bool	isNetworkOrder() { return internalOrder == FALSE; }
+    bool	isNetworkOrder() { return !littleEndian; }
 #endif
 
     int		 fflags;
@@ -169,7 +168,7 @@ private:
     QTextStreamPrivate * d;
     QChar	ungetcBuf;
     bool	latin1;
-    bool 	internalOrder;
+    bool 	littleEndian;
     bool	doUnicodeHeader;
     void	*reserved_ptr;
 
