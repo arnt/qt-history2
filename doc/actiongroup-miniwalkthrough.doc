@@ -57,6 +57,7 @@ might be called from outside the class.
 
 \dontinclude action/actiongroup/editor.cpp
 
+\skipto include
 \printuntil qaction.h
 
 It's not that much that we need for our tiny editor: QTextEdit, QMenuBar,
@@ -82,7 +83,7 @@ QAction::text() reading \e black, a QAction::menuText() reading
 <em>Font color: black</em>, a QAction::iconSet()
 derived from the file \e black.xpm and \e ALT+B as keyboard accelerator.
 (Note that with this QPixmap constructor \e black.xpm must be found in the 
-working directory when the tiny_editor binary is called. If you wish to compile the pixmap
+working directory when the \e tiny_editor binary is called. If you wish to compile the pixmap
 into the binary the 
 <A HREF="simple-application.html#ApplicationWindow">Simple Application Walkthrough</A>
 shows how to do this.)
