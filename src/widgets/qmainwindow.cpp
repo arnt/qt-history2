@@ -84,7 +84,7 @@ public:
 
     QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
 
-    QPtrList<QDockWindow> dockWindows;
+    QList<QDockWindow *> dockWindows;
     QMap<Qt::Dock, bool> docks;
     QStringList disabledDocks;
     QHideDock *hideDock;
@@ -1104,7 +1104,7 @@ bool QMainWindow::isDockEnabled( QDockArea *area ) const
 
 void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
 {
-    if ( d->dockWindows.find( dw ) == -1 ) {
+    if (d->dockWindows.contains( dw )) {
 	d->dockWindows.append( dw );
 	connect( dw, SIGNAL( placeChanged(QDockWindow::Place) ),
 		 this, SLOT( slotPlaceChanged() ) );
@@ -1203,7 +1203,7 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 #endif
     moveDockWindow( dockWindow, edge );
     dockWindow->setNewLine( newLine );
-    if ( d->dockWindows.find( dockWindow ) == -1 ) {
+    if (d->dockWindows.contains( dockWindow )) {
 	d->dockWindows.append( dockWindow );
 	connect( dockWindow, SIGNAL( placeChanged(QDockWindow::Place) ),
 		 this, SLOT( slotPlaceChanged() ) );
@@ -1371,7 +1371,7 @@ void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 #endif
 
     dockWindow->hide();
-    d->dockWindows.removeRef( dockWindow );
+    d->dockWindows.remove( dockWindow );
     disconnect( dockWindow, SIGNAL( placeChanged(QDockWindow::Place) ),
 		this, SLOT( slotPlaceChanged() ) );
     dockWindow->removeEventFilter( this );
@@ -1448,10 +1448,8 @@ void QMainWindow::show()
 
     // show all floating dock windows not explicitly hidden
     if (!isVisible()) {
-	QPtrListIterator<QDockWindow> it(d->dockWindows);
-	while ( it.current() ) {
-	    QDockWindow *dw = it.current();
-	    ++it;
+	for (int i = 0; i < d->dockWindows.size(); ++i) {
+	    QDockWindow *dw = d->dockWindows.at(i);
 	    if ( dw->isTopLevel() && !dw->isVisible() && !dw->testWState(WState_ForceHide) )
 		dw->show();
 	}
@@ -1467,10 +1465,8 @@ void QMainWindow::show()
 void QMainWindow::hide()
 {
     if ( isVisible() ) {
-	QPtrListIterator<QDockWindow> it(d->dockWindows);
-	while ( it.current() ) {
-	    QDockWindow *dw = it.current();
-	    ++it;
+	for (int i = 0; i < d->dockWindows.size(); ++i) {
+	    QDockWindow *dw = d->dockWindows.at(i);
 	    if ( dw->isTopLevel() && dw->isVisible() ) {
 		dw->hide(); // implicit hide, so clear forcehide
 		((QMainWindow*)dw)->clearWState(WState_ForceHide);
@@ -1851,12 +1847,12 @@ bool QMainWindow::getLocation( QDockWindow *dw, Dock &dock, int &index, bool &nl
     \sa dockWindows()
 */
 
-QPtrList<QToolBar> QMainWindow::toolBars( Dock dock ) const
+QList<QToolBar *> QMainWindow::toolBars( Dock dock ) const
 {
-    QPtrList<QDockWindow> lst = dockWindows( dock );
-    QPtrList<QToolBar> tbl;
-    for ( QDockWindow *w = lst.first(); w; w = lst.next() ) {
-	QToolBar *tb = qt_cast<QToolBar*>(w);
+    QList<QDockWindow *> lst = dockWindows( dock );
+    QList<QToolBar *> tbl;
+    for (int i = 0; i < lst.size(); ++i) {
+	QToolBar *tb = qt_cast<QToolBar *>(lst.at(i));
 	if ( tb )
 	    tbl.append( tb );
     }
@@ -1873,9 +1869,9 @@ QPtrList<QToolBar> QMainWindow::toolBars( Dock dock ) const
     windows.
 */
 
-QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
+QList<QDockWindow *> QMainWindow::dockWindows( Dock dock ) const
 {
-    QPtrList<QDockWindow> lst;
+    QList<QDockWindow *> lst;
     switch ( dock ) {
     case DockTop:
 	return d->topDock->dockWindowList();
@@ -1886,7 +1882,8 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     case DockRight:
 	return d->rightDock->dockWindowList();
     case DockTornOff: {
-	for ( QDockWindow *w = d->dockWindows.first(); w; w = d->dockWindows.next() ) {
+	for (int i = 0; i < d->dockWindows.size(); ++i) {
+	    QDockWindow *w = d->dockWindows.at(i);
 	    if ( !w->area() && w->place() == QDockWindow::OutsideDock )
 		lst.append( w );
 	}
@@ -1915,7 +1912,7 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     (e.g. irrespective of whether they are visible or not).
 */
 
-QPtrList<QDockWindow> QMainWindow::dockWindows() const
+QList<QDockWindow *> QMainWindow::dockWindows() const
 {
     return d->dockWindows;
 }
@@ -2230,7 +2227,7 @@ QDockArea *QMainWindow::dockingArea( const QPoint &p )
 
 bool QMainWindow::hasDockWindow( QDockWindow *dw )
 {
-    return d->dockWindows.findRef( dw ) != -1;
+    return d->dockWindows.contains(dw);
 }
 
 /*!
@@ -2361,8 +2358,9 @@ void QMainWindow::setAppropriate( QDockWindow *dw, bool a )
 #ifndef QT_NO_TEXTSTREAM
 static void saveDockArea( QTextStream &ts, QDockArea *a )
 {
-    QPtrList<QDockWindow> l = a->dockWindowList();
-    for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+    QList<QDockWindow *> l = a->dockWindowList();
+    for (int i = 0; i < l.size(); ++i) {
+	QDockWindow *dw = l.at(i);
 	ts << QString( dw->windowTitle() );
 	ts << ",";
     }
@@ -2385,21 +2383,23 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
 
 QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
 {
-    QPtrList<QDockWindow> l = mainWindow.dockWindows( Qt::DockMinimized );
-    QDockWindow *dw = 0;
-    for ( dw = l.first(); dw; dw = l.next() ) {
+    QList<QDockWindow *> l = mainWindow.dockWindows( Qt::DockMinimized );
+    for (int i = 0; i < l.size(); ++i) {
+	QDockWindow *dw = l.at(i);
 	ts << dw->windowTitle();
 	ts << ",";
     }
     ts << endl;
 
     l = mainWindow.dockWindows( Qt::DockTornOff );
-    for ( dw = l.first(); dw; dw = l.next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QDockWindow *dw = l.at(i);
 	ts << dw->windowTitle();
 	ts << ",";
     }
     ts << endl;
-    for ( dw = l.first(); dw; dw = l.next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QDockWindow *dw = l.at(i);
 	ts << "[" << dw->windowTitle() << ","
 	   << (int)dw->geometry().x() << ","
 	   << (int)dw->geometry().y() << ","
@@ -2416,10 +2416,11 @@ QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
     return ts;
 }
 
-static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QPtrList<QDockWindow> &l, QMainWindow *mw, QTextStream &ts )
+static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QList<QDockWindow *> &l, QMainWindow *mw, QTextStream &ts )
 {
     for ( QStringList::ConstIterator it = names.begin(); it != names.end(); ++it ) {
-	for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+	for (int i = 0; i < l.size(); ++i) {
+	    QDockWindow *dw = l.at(i);
 	    if ( dw->windowTitle() == *it ) {
 		mw->addDockWindow( dw, d );
 		break;
@@ -2446,7 +2447,8 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 		continue;
 	    }
 	    if ( state == Visible && c == ']' ) {
-		for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+		for (int i = 0; i < l.size(); ++i) {
+		    QDockWindow *dw = l.at(i);
 		    if ( QString( dw->windowTitle() ) == name ) {
 			if ( !qt_cast<QToolBar*>(dw) )
 			    dw->setGeometry( x.toInt(), y.toInt(), w.toInt(), h.toInt() );
@@ -2499,7 +2501,7 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 
 QTextStream &operator>>( QTextStream &ts, QMainWindow &mainWindow )
 {
-    QPtrList<QDockWindow> l = mainWindow.dockWindows();
+    QList<QDockWindow *> l = mainWindow.dockWindows();
 
     QString s = ts.readLine();
     QStringList names = QStringList::split( ',', s );

@@ -29,7 +29,7 @@ class QToolTipGroup;
 class QMainWindowPrivate;
 class QMainWindowLayout;
 class QPopupMenu;
-template<class T> class QPtrList;
+template<class T> class QList;
 
 class Q_GUI_EXPORT QMainWindow: public QWidget
 {
@@ -84,8 +84,8 @@ public:
 
     bool getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
 
-    QPtrList<QDockWindow> dockWindows( Dock dock ) const;
-    QPtrList<QDockWindow> dockWindows() const;
+    QList<QDockWindow *> dockWindows( Dock dock ) const;
+    QList<QDockWindow *> dockWindows() const;
     void lineUpDockWindows( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
@@ -101,7 +101,7 @@ public:
     void removeToolBar( QDockWindow * );
 
     bool toolBarsMovable() const;
-    QPtrList<QToolBar> toolBars( Dock dock ) const;
+    QList<QToolBar *> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
 #endif
 
