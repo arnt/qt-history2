@@ -68,17 +68,17 @@ bool QFile::remove( const QString &fileName )
 
 bool QFile::open( int m )
 {
-    return true;
+    return false;
 }
 
 bool QFile::open( int m, FILE *f )
 {
-    return true;
+    return false;
 }
 
 bool QFile::open( int m,int f )
 {
-    return true;
+    return false;
 }
 
 uint QFile::size() const
