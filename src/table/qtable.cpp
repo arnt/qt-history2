@@ -5712,6 +5712,9 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( section < 0 )
 	return;
 
+    if ( cellSize( section ) <= 0 )
+	return;
+
     if ( sectionState( index ) != Selected ||
 	 orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) {
 	QHeader::paintSection( p, index, fr );

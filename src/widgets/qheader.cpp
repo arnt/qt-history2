@@ -1285,6 +1285,7 @@ void QHeader::setClickEnabled( bool enable, int section )
 void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
+
     if ( section < 0 ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
 			       colorGroup(), QStyle::Style_Raised |
@@ -1292,6 +1293,9 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 			       ( orient == Horizontal ? QStyle::Style_Horizontal : 0 ) );
 	return;
     }
+
+    if ( cellSize( section ) <= 0 )
+	return;
 
     QStyle::SFlags flags = QStyle::Style_Raised;
     flags |= ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
