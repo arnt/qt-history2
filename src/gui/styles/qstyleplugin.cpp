@@ -39,7 +39,7 @@
 */
 
 /*!
-    \fn QStringList QStylePlugin::keys() const
+    \fn QStringList QStylePlugin::keys()
 
     Returns the list of style keys this plugin supports.
 

@@ -68,6 +68,22 @@
 */
 
 /*!
+    \fn int QStyleOption::titleBarState() const
+
+    \internal
+
+    Returns the title bar's state flags.
+*/
+
+/*!
+    \fn QAction* QStyleOption::action() const
+
+    \internal
+
+    Returns the action associated with this style option.
+*/
+
+/*!
     \fn QStyleOption::QStyleOption(StyleOptionDefault)
 
     The default option. This can always be passed as the optional
@@ -85,6 +101,24 @@
 
     Pass two integers, \a in1 and \a in2. For example, linewidth and
     midlinewidth.
+*/
+
+/*!
+    \fn QStyleOption::QStyleOption(QAction* a)
+
+    Pass an action, \a a.
+*/
+
+/*!
+    \fn QStyleOption::QStyleOption(QAction* a, int in1)
+
+    Pass an action \a a, and an integer \a in1.
+*/
+
+/*!
+    \fn QStyleOption::QStyleOption(QAction* a, int in1, int in2)
+
+    Pass an action \a a, and two integers \a in1 and \a in2.
 */
 
 /*!
@@ -595,11 +629,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         p->restore();
 }
 
-/*!
-    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags,
-                              const QPalette &pal, bool enabled,
-                              const QPixmap *pixmap, const QString &text,
-                              int len, const QColor *penColor) const
+/* ### For some reason qdoc doesn't understand this
+
+    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled, const QPixmap &pixmap, const QString &text, int len, const QColor *penColor)
+
     \overload
 
     Draws the \a pixmap in rectangle \a r using painter \a p and color
@@ -767,6 +800,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
+    \fn void QStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p, const QWidget *w = 0) const = 0
+
+    \overload
+
+    The primitive's widget is given by \a w.
+*/
+
+/*!
     \fn void QStyle::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal, SFlags flags, const QStyleOption& opt) const;
 
     Draws the style PrimitiveElement \a pe using the painter \a p in
@@ -891,6 +932,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
             greater than this value.
 
     \sa drawControl()
+*/
+
+/*!
+    \fn void QStyle::drawControl(ControlElement element, const
+    Q4StyleOption *opt, QPainter *p, const QWidget *widget = 0) const = 0
+
+    \overload
 */
 
 /*!
@@ -1048,6 +1096,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
+    \fn void QStyle::drawControlMask(ControlElement element, const
+    Q4StyleOption *opt, QPainter *p, const QWidget *widget) const = 0
+
+    \overload
+*/
+
+/*!
     \fn void QStyle::drawControlMask(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default) const;
 
     Draw a bitmask for the ControlElement \a element using the painter
@@ -1113,6 +1168,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
             greater than this value.
 
     \sa subRect()
+*/
+
+/*!
+    \fn QRect QStyle::subRect(SubRect subrect, const Q4StyleOption *opt, const QWidget *widget = 0) const = 0
+
+    \overload
+
+    The style options are given by \a opt.
 */
 
 /*!
@@ -1244,6 +1307,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
+    \fn void QStyle::drawComplexControl(ComplexControl control, const
+    Q4StyleOptionComplex *opt, QPainter *p, const QWidget *widget = 0) const = 0
+
+    \overload
+*/
+
+/*!
     \fn void QStyle::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how, SCFlags sub, SCFlags subActive, const QStyleOption& opt) const
 
     Draws the ComplexControl \a control using the painter \a p in the
@@ -1337,6 +1407,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
+    \fn void QStyle::drawComplexControlMask(ComplexControl control,
+    const Q4StyleOptionComplex *opt, QPainter *p, const QWidget
+ *widget = 0) const = 0
+
+    \overload
+*/
+
+/*!
     \fn void QStyle::drawComplexControlMask(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt) const
 
     Draw a bitmask for the ComplexControl \a control using the painter
@@ -1349,6 +1427,13 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     drawControl().
 
     \sa drawComplexControl() ComplexControl
+*/
+
+/*!
+    \fn QRect QStyle::querySubControlMetrics(ComplexControl control,
+    const Q4StyleOptionComplex *opt, const QWidget *widget) const = 0
+
+    \overload
 */
 
 /*!
@@ -1366,6 +1451,14 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     for an explanation of the \a widget and \a opt arguments.
 
     \sa drawComplexControl(), ComplexControl, SubControl
+*/
+
+/*!
+    \fn SubControl QStyle::querySubControl(ComplexControl control,
+    const Q4StyleOptionComplex *opt, const QPoint &pos, const QWidget
+ *widget = 0) const = 0
+
+    \overload
 */
 
 /*!
@@ -1552,6 +1645,15 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         must be greater than this value.
 
     \sa sizeFromContents()
+*/
+
+/*!
+    \fn QSize QStyle::sizeFromContents(ContentsType contents, const Q4StyleOption *opt, const QSize &contentsSize, const QFontMetrics &fm, const QWidget *w) const = 0
+
+    \overload
+
+    The font metrics are passed in \a fm, and the parent widget in \a
+    w.
 */
 
 /*!

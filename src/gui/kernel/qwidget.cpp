@@ -4222,7 +4222,6 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 */
 
 
-#ifdef QT_COMPAT
 /*!
     \property QWidget::visibleRect
     \brief the visible rectangle
@@ -4232,6 +4231,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     No longer necessary, you can simply call repaint(). If you do not
     need the rectangle for repaint(), use clipRegion() instead.
 */
+#ifdef QT_COMPAT
 QRect QWidget::visibleRect() const
 {
     return d->clipRect();
@@ -5229,10 +5229,10 @@ void QWidget::resizeEvent(QResizeEvent *)
 /*!
     \fn void QWidget::actionEvent(QActionEvent *event)
 
-    This event handler, for \a event, will be called whenever the action
-    list has changed for the widget.
+    This event handler is called with the given \a event whenever the
+    widget's actions are changed.
 
-    \sa addAction(), insertAction(), removeAction, actionList, QActionEvent
+    \sa addAction(), insertAction(), removeAction(), actions(), QActionEvent
 */
 void QWidget::actionEvent(QActionEvent *)
 {
@@ -6224,9 +6224,9 @@ QString QWidget::statusTip() const
 /*!
   \property QWidget::whatsThis
 
-  \brief the widget's What's This help.
+  \brief the widget's What's This help text.
 
-  \sa QWhatsThis toolTip statusTip
+  \sa QWhatsThis QWidget::toolTip QWidget::statusTip
 */
 void QWidget::setWhatsThis(const QString &s)
 {

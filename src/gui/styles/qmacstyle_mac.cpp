@@ -374,53 +374,62 @@ QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
     return 0;
 }
 
+/*! \reimp */
 void QMacStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                                const QWidget *w) const
 {
     correctStyle(p)->drawPrimitive(pe, opt, p, w);
 }
 
+/*! \reimp */
 void QMacStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                             const QWidget *w) const
 {
     correctStyle(p)->drawControl(ce, opt, p, w);
 }
 
+/*! \reimp */
 void QMacStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                                 const QWidget *w) const
 {
     correctStyle(p)->drawControl(ce, opt, p, w);
 }
 
+/*! \reimp */
 QRect QMacStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
 {
     return correctStyle(w)->subRect(sr, opt, w);
 }
 
+/*! \reimp */
 void QMacStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
                                    const QWidget *w) const
 {
     correctStyle(p)->drawComplexControl(cc, opt, p, w);
 }
 
+/*! \reimp */
 void QMacStyle::drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                        QPainter *p, const QWidget *w) const
 {
     correctStyle(p)->drawComplexControlMask(cc, opt, p, w);
 }
 
+/*! \reimp */
 QStyle::SubControl QMacStyle::querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                               const QPoint &pt, const QWidget *w) const
 {
     return correctStyle(w)->querySubControl(cc, opt, pt, w);
 }
 
+/*! \reimp */
 QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                         const QWidget *w) const
 {
     return correctStyle(w)->querySubControlMetrics(cc, opt, w);
 }
 
+/*! \reimp */
 QSize QMacStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &sz,
                                   const QFontMetrics &fm, const QWidget *w) const
 {

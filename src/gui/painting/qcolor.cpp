@@ -244,16 +244,16 @@ QColor::QColor(Qt::GlobalColor color)
 
 
 /*!
-    \fn QColor::QColor(int r, int g, int b)
+    \fn QColor::QColor(int r, int g, int b, int a = 255)
 
-    Constructs a color with the RGB value \a r, \a g, \a b, in the
-    same way as setRgb().
+    Constructs a color with the RGB value \a r, \a g, \a b, and the
+    alpha-channel (transparency) value of \a a, in the
+    same way as setRgba().
 
-    The color is left invalid if any or the arguments are illegal.
+    The color is left invalid if any of the arguments are illegal.
 
-    \sa setRgb()
+    \sa setRgba()
 */
-
 
 /*!
     Constructs a color with the RGB value \a rgb and a custom pixel

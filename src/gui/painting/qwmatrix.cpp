@@ -133,6 +133,13 @@
 
 bool qt_old_transformations = true;
 
+// ### DOC: What does this tell us? Should it be public?
+/*!
+    \fn bool QWMatrix::isTranslate() const
+
+    \internal
+*/
+
 /*!
     \enum QWMatrix::TransformationMode
 
@@ -962,8 +969,6 @@ QWMatrix operator*(const QWMatrix &m1, const QWMatrix &m2)
 }
 
 /*!
-    \relates QWMatrix
-
     Assigns matrix \a matrix's values to this matrix.
 */
 QWMatrix &QWMatrix::operator=(const QWMatrix &matrix)

@@ -1937,6 +1937,7 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
+/*! \reimp */
 void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                                   const QWidget *w) const
 {
@@ -2300,6 +2301,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     }
 }
 
+/*! \reimp */
 void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                                 const QWidget *widget) const
 {
@@ -2502,6 +2504,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
     }
 }
 
+/*! \reimp */
 QRect QWindowsStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
 {
     QRect r;
@@ -2512,6 +2515,7 @@ QRect QWindowsStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget
     return r;
 }
 
+/*! \reimp */
 void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                        QPainter *p, const QWidget *widget) const
 {
@@ -2881,6 +2885,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
     }
 }
 
+/*! \reimp */
 QSize QWindowsStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
                                       const QFontMetrics &fm, const QWidget *widget) const
 {

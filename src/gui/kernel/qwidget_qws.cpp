@@ -1756,9 +1756,12 @@ double QWidget::windowOpacity() const
     return 1.0;
 }
 
-/*! \internal */
 static QSingleCleanupHandler<QWSPaintEngine> qt_paintengine_cleanup_handler;
 static QWSPaintEngine *qt_widget_paintengine = 0;
+/*!
+    Returns the widget's paint engine. (This defaults to the
+    QQWSPaintEngine.)
+*/
 QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {

@@ -112,7 +112,7 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
         painter.setBrush(NoBrush);        // do not fill
         painter.setPen(black);            // set black pen, 0 pixel width
         painter.drawRect(10,10, 30,20);   // draw rectangle outline
-        painter.end();                      // painting done
+        painter.end();                    // painting done
     \endcode
 
     See the setStyle() function for a complete list of brush styles.
@@ -120,6 +120,33 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
     \img brush-styles.png Brush Styles
 
     \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
+*/
+
+// ### DOC: Is this true?
+/*!
+    \fn QColor QBrush::gradientColor() const
+
+    Returns the gradient's average color.
+
+    \sa gradientStart() gradientStop()
+*/
+
+
+/*!
+    \fn QPoint QBrush::gradientStart() const
+
+    Returns the gradient's starting color.
+
+    \sa gradientStop() gradientColor()
+*/
+
+
+/*!
+    \fn QPoint QBrush::gradientStop() const
+
+    Returns the gradient's ending color.
+
+    \sa gradientStart() gradientColor()
 */
 
 

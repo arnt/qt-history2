@@ -632,8 +632,9 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
 
 /*!
     \fn void qDrawShadeLine(QPainter *p, const QPoint &p1, const QPoint &p2,
-    \overload
     const QPalette &pal, bool sunken, int lineWidth, int midLineWidth)
+
+    \overload
 */
 
 void qDrawShadeLine(QPainter *p, const QPoint &p1, const QPoint &p2,
@@ -646,8 +647,9 @@ void qDrawShadeLine(QPainter *p, const QPoint &p1, const QPoint &p2,
 
 /*!
     \fn void qDrawShadeRect(QPainter *p, const QRect &r, const QPalette &pal,
-    \overload
     bool sunken, int lineWidth, int midLineWidth, const QBrush *fill)
+
+    \overload
 */
 
 void qDrawShadeRect(QPainter *p, const QRect &r,

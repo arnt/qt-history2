@@ -322,6 +322,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     activePainter = 0;
 }
 
+/*!
+    Draws the primitive element \a pe, with style options \a opt, on
+    painter \a p, with parent widget \a w.
+*/
 void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                                  const QWidget *) const
 {
@@ -1146,6 +1150,10 @@ void QCommonStyle::drawControl(ControlElement element,
 }
 
 
+/*!
+    Draws the control \a ce, with style options \a opt, on painter \a
+    p, with parent widget \a widget.
+*/
 void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                                QPainter *p, const QWidget *widget) const
 {
@@ -1346,6 +1354,10 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
     }
 }
 
+/*!
+    Draws the mask for the given control \a ce, with style options
+    \a opt, on painter \a p, with parent widget \a w.
+*/
 void QCommonStyle::drawControlMask(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                                    const QWidget *w) const
 {
@@ -1663,6 +1675,10 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
+/*!
+    Returns the rectangle occupied by sub-rectangle \a sr, with style
+    options \a opt, and parent widget \a w.
+*/
 QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *w) const
 {
     QRect r;
@@ -1808,6 +1824,10 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
     return r;
 }
 
+/*!
+    Draws the complex control \a cc, with style options \a opt, on painter
+    \a p, with parent widget \a widget.
+*/
 void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                       QPainter *p, const QWidget *widget) const
 {
@@ -1985,12 +2005,22 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
     }
 }
 
+/*!
+    Draws the mask for the given complex control \a cc, with style
+    options \a opt, on painter \a p, with parent widget \a w.
+*/
 void QCommonStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex *opt,
                                           QPainter *p, const QWidget *) const
 {
     p->fillRect(opt->rect, color1);
 }
 
+/*!
+    Returns the sub-widget in the complex control \a cc, with style
+    options \a opt, at point \a pt, and with parent widget \a widget.
+
+    \sa querySubControlMetrics()
+*/
 QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                                  const QPoint &pt, const QWidget *widget) const
 {
@@ -2039,6 +2069,12 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4Styl
     return sc;
 }
 
+/*!
+    Returns the rectangle occupied by the complex control \a cc, with
+    style options \a opt, and with parent widget \a widget.
+
+    \sa querySubControl()
+*/
 QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                            const QWidget *widget) const
 {
@@ -3321,6 +3357,11 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     return sz;
 }
 
+/*!
+    Returns the size required by the contents of type \a ct, with
+    style options \a opt, original size \a csz, font metrics \a fm,
+    and parent widget \a widget.
+*/
 QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
                                      const QFontMetrics &fm, const QWidget *widget) const
 {

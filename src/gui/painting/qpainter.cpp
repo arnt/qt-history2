@@ -1100,6 +1100,9 @@ double QPainter::translationY() const
 }
 
 
+/*!
+    \internal
+*/
 void QPainter::drawPath(const QPainterPath &path)
 {
     if (!isActive())
@@ -1247,10 +1250,10 @@ void QPainter::drawRect(const QRect &r)
 }
 
 /*!
-  Draws all the rectangles in the list \a rects using the current pen
-  and brush.
+    Draws all the rectangles in the \a rects list using the current
+    pen and brush.
 
-  \sa drawRect
+    \sa drawRect()
 */
 void QPainter::drawRects(const QList<QRect> &rects)
 {
