@@ -370,7 +370,10 @@ QStringList
 &UnixMakefileGenerator::findDependencies(const QString &file)
 {
     QStringList &ret = MakefileGenerator::findDependencies(file);
-    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
+    // Note: The QMAKE_IMAGE_COLLECTION file have all images
+    // as dependency, so don't add precompiled header then
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")
+       && file != project->first("QMAKE_IMAGE_COLLECTION")) {
 	QString header_prefix = project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
 	header_prefix += project->first("QMAKE_PRECOMP_PREFIX");
 	if(file.endsWith(".c")) {
