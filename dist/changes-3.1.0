@@ -105,9 +105,9 @@ the most significant changes:
 - QAccel, used to handle keyboard shortcuts, now gracefully copes with
   shortcut clashes. If a clash occurs, a new signal,
   activatedAmbiguously(), is emitted. Classes that use QAccel, like
-  QButton and QPopupMenu, make use of this new functionality.
-  Futhermore QAccel can now handle multi-key sequences, for example,
-  Ctrl+X,Ctrl+F.
+  QButton's subclasses and QPopupMenu, make use of this new
+  functionality. Futhermore QAccel can now handle multi-key sequences,
+  for example, Ctrl+X,Ctrl+F.
 
 - QClipboard has been extended to simplify data exchange between
   programs.
@@ -128,7 +128,7 @@ the most significant changes:
 
 - Large File support: Qt's internals have been modified to support
   Large Files (> 2GB). QFileDialog will now correctly display and
-  select Large Files.
+  select large files.
 
 - SQL module: Support for prepared query execution and value binding
   has been added. Among other benefits, this makes it possible to
@@ -256,7 +256,7 @@ The build process has been improved:
 
 - QString:
 	Support QTextCodec::codecForCStrings(). Support
-	string<-->QString conversation when STL support is on.
+	std::string<==>QString conversion when STL support is on.
 
 - QSyntaxHighlighter:
 	Added function rehighlight(). Improved internals to be more
@@ -330,3 +330,5 @@ The build process has been improved:
 ****************************************************************************
 
 - Handle trailing backslash in strings correctly in lupdate.
+
+******************************** END ***************************************
