@@ -526,7 +526,7 @@ void QDir::setNameFilter( const QString &nameFilter )
   \value  NoSymLinks  Do not list symbolic links (ignored by operating
   systems that don't support symbolic links).
   \value All List directories, files, drives and symlinks (this does not list
-  borken symlinks unless you specify System).
+  broken symlinks unless you specify System).
   \value TypeMask A mask for the the Dirs, Files, Drives and
   NoSymLinks flags.
   \value  Readable  List files for which the application has read access.
