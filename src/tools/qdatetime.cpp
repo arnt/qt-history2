@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#77 $
 **
 ** Implementation of date and time classes
 **
@@ -78,13 +78,15 @@ const char *QDate::weekdayNames[] ={
 
   \ingroup time
 
-  The QDate is based on the Gregorian (modern western) calendar. England
-  adopted the Gregorian calendar on September 14th 1752, which is the
-  earliest date that is supported by QDate.  Using earlier dates will give
-  undefined results. Some countries adopted the Gregorian calendar later
-  than England, thus the week day of early dates might be incorrect for
-  these countries (but correct for England).  The end of time is reached
-  around 8000AD, by which time we expect Qt to be obsolete.
+  The QDate is based on the Gregorian (modern western) calendar.  This
+  calendar was first adopted by England in 1752, and subsequently by
+  most other western countries.  QDate computes the wrong day of week
+  for all dates earlier than 14th September 1752, and the day it
+  computes is correct only in some countries for years between 1752
+  and 1923.
+  
+  The end of time is reached around 8000AD, by which time we expect Qt
+  to be obsolete.
 
   \sa QTime, QDateTime
 */
