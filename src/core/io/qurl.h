@@ -1,109 +1,111 @@
-/****************************************************************************
-**
-** Definition of QUrl class.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the kernel module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
+#ifndef Q4URL_H
+#define Q4URL_H
 
-#ifndef QURL_H
-#define QURL_H
+#include <qobjectdefs.h>
+#include <qmap.h>
+#include <qstring.h>
 
-#ifndef QT_H
-#include "qstring.h"
-#endif // QT_H
-
-#ifndef QT_NO_URL
-
+class QByteArray;
 class QUrlPrivate;
 
-class Q_CORE_EXPORT QUrl
+class QUrl
 {
 public:
-    QUrl();
-    QUrl(const QString& url);
-    QUrl(const QUrl& url);
-    QUrl(const QUrl& url, const QString& relUrl, bool checkSlash = false);
-    virtual ~QUrl();
+    QUrl(const QString &url = QString::null);
+    QUrl(const QUrl &copy);
+    ~QUrl();
 
-    QString protocol() const;
-    virtual void setProtocol(const QString& protocol);
+    // encoding / toString values
+    enum FormattingOptions {
+        None = 0x0,
+        RemoveScheme = 0x1,
+        RemovePassword = 0x2,
+        RemoveUserInfo = RemovePassword | 0x4,
+        RemovePort = 0x8,
+        RemoveAuthority = RemoveUserInfo | RemovePort | 0x10,
+        RemovePath = 0x20,
+        RemoveQuery = 0x40,
+        RemoveFragment = 0x80,
 
-    QString user() const;
-    virtual void setUser(const QString& user);
-    bool hasUser() const;
+        StripTrailingSlash = 0x10000
+    };
 
-    QString password() const;
-    virtual void setPassword(const QString& pass);
-    bool hasPassword() const;
-
-    QString host() const;
-    virtual void setHost(const QString& user);
-    bool hasHost() const;
-
-    int port() const;
-    virtual void setPort(int port);
-    bool hasPort() const;
-
-    QString path(bool correct = true) const;
-    virtual void setPath(const QString& path);
-    bool hasPath() const;
-
-    virtual void setEncodedPathAndQuery(const QString& enc);
-    QString encodedPathAndQuery();
-
-    virtual void setQuery(const QString& txt);
-    QString query() const;
-
-    QString ref() const;
-    virtual void setRef(const QString& txt);
-    bool hasRef() const;
+    void setUrl(const QString &url);
+    void setEncodedUrl(const QByteArray &url);
 
     bool isValid() const;
+
+    void clear();
+
+    void setScheme(const QString &scheme);
+    QString scheme() const;
+
+    void setAuthority(const QString &authority);
+    QString authority() const;
+
+    void setUserInfo(const QString &userInfo);
+    QString userInfo() const;
+
+    void setUserName(const QString &userName);
+    QString userName() const;
+
+    void setPassword(const QString &password);
+    QString password() const;
+
+    void setHost(const QString &host);
+    QString host() const;
+
+    void setPort(int port);
+    int port() const;
+
+    void setPath(const QString &path);
+    QString path() const;
+
+    void setEncodedQuery(const QByteArray &query);
+    QByteArray encodedQuery() const;
+
+    void setQueryDelimiters(char valueDelimiter, char pairDelimiter);
+    char queryValueDelimiter() const;
+    char queryPairDelimiter() const;
+
+    void setQueryItems(const QMap<QString, QString> &query);
+    void addQueryItem(const QString &key, const QString &value);
+    void removeQueryItem(const QString &key);
+    QMap<QString, QString> queryItems() const;
+
+    void setFragment(const QString &fragment);
+    QString fragment() const;
+
+    QUrl resolved(const QUrl &relative) const; // ### name!
+
+    bool isRelative() const;
+
     bool isLocalFile() const;
+    static QUrl fromLocalFile(const QString &localfile);
+    QString toLocalFile() const;
 
-    virtual void addPath(const QString& path);
-    virtual void setFileName(const QString& txt);
+    QString toString(int formattingOptions = None) const;
 
-    QString fileName() const;
-    QString dirPath() const;
+    QByteArray toEncoded() const;
+    static QUrl fromEncoded(const QByteArray &url);
 
-    QUrl& operator=(const QUrl& url);
-    QUrl& operator=(const QString& url);
+    static QString fromPercentageEncodingThenUtf8(const QByteArray &);
+    static QByteArray toUtf8ThenPercentageEncoding(const QString &, const char alsoEncode[] = "");
 
-    bool operator==(const QUrl& url) const;
-    bool operator==(const QString& url) const;
+    void detach();
 
-    inline bool operator!=(const QUrl &url) const { return !(operator==(url)); }
-    inline bool operator!=(const QString &url) const { return !(operator==(url)); }
+    bool operator <(const QUrl &url) const;
+    bool operator ==(const QUrl &url) const;
+    bool operator !=(const QUrl &url) const;
+    QUrl &operator =(const QUrl &copy);
 
-    static void decode(QString& url);
-    static void encode(QString& url);
-
-    operator QString() const;
-
-
-    virtual QString toString(bool encodedPath = false, bool forcePrependProtocol = true) const;
-
-    virtual bool cdUp();
-
-    static bool isRelativeUrl(const QString &url);
+    bool isParentOf(const QUrl &url) const;
 
 protected:
-    virtual void reset();
-    virtual bool parse(const QString& url);
+    QUrl(QUrlPrivate &d);
 
 private:
     QUrlPrivate *d;
-
 };
-
-#endif //QT_NO_URL
 
 #endif
