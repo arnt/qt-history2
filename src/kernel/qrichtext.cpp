@@ -1463,14 +1463,15 @@ void QTextDocument::setPlainText( const QString &text )
 struct Q_EXPORT Tag {
     Tag(){}
     Tag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
-	:name(n),style(s), format(f), alignment(Qt::AlignAuto),liststyle(QStyleSheetItem::ListDisc) {
+	:name(n),style(s), format(f), alignment(Qt::AlignAuto), direction(QChar::DirL),liststyle(QStyleSheetItem::ListDisc) {
 	    wsm = QStyleSheetItem::WhiteSpaceNormal;
     }
     QString name;
     const QStyleSheetItem* style;
     QStyleSheetItem::WhiteSpaceMode wsm;
     QTextFormat format;
-    int alignment;
+    int alignment : 16;
+    QChar::Direction direction : 5;
     QStyleSheetItem::ListStyle liststyle;
 
     Tag(  const Tag& t ) {
@@ -1479,6 +1480,7 @@ struct Q_EXPORT Tag {
 	wsm = t.wsm;
 	format = t.format;
 	alignment = t.alignment;
+	direction = t.direction;
 	liststyle = t.liststyle;
     }
     Tag& operator=(const Tag& t) {
@@ -1487,6 +1489,7 @@ struct Q_EXPORT Tag {
 	wsm = t.wsm;
 	format = t.format;
 	alignment = t.alignment;
+	direction = t.direction;
 	liststyle = t.liststyle;
 	return *this;
     }
@@ -1748,6 +1751,18 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    curtag.alignment = Qt::AlignJustify;
 		    }
 		    curpar->setAlignment( curtag.alignment );
+		    if ( attr.contains( "dir" ) && 
+			 ( curtag.name == "p" ||
+			   curtag.name == "div" ||
+			   curtag.name == "li" ||
+			   curtag.name[ 0 ] == 'h' ) ) {
+			QString dir = attr["dir"];
+			if ( dir == "rtl" )
+			    curtag.direction = QChar::DirR;
+			else if ( dir == "ltr" )
+			    curtag.direction = QChar::DirL;
+		    }
+		    curpar->setDirection( curtag.direction );
 		}
 	    } else {
 		QString tagname = parseCloseTag( doc, pos );
@@ -1865,14 +1880,22 @@ static QString align_to_string( const QString &tag, int a )
 {
     if ( tag == "p" || tag == "li" || tag[ 0 ] == 'h' ) {
 	if ( a & Qt::AlignRight )
-	    return " align=right ";
+	    return " align=\"right\"";
 	if ( a & Qt::AlignCenter )
-	    return " align=center ";
+	    return " align=\"center\"";
 	if ( a & Qt::AlignJustify )
-	    return " align=justify ";
+	    return " align=\"justify\"";
     }
     return "";
 }
+
+static QString direction_to_string( const QString &tag, int d )
+{
+    if ( d == QChar::DirR && 
+	 ( tag == "p" || tag == "div" || tag == "li" || tag[ 0 ] == 'h' ) )
+	return " dir=\"rtl\"";
+    return "";
+};
 
 QString QTextDocument::richText( QTextParag *p ) const
 {
@@ -1907,7 +1930,8 @@ QString QTextDocument::richText( QTextParag *p ) const
 		if ( item->name() == "li" && p->listValue() != -1 )
 		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
 		else
-		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() ) + ">" +
+		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() ) 
+			 + direction_to_string( item->name(), p->direction() )  + ">" +
 		     p->richText() + "</" + item->name() + ">\n";
 	    } else {
 		QString end;
@@ -1917,7 +1941,8 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
 		}
 		s += end;
-		s += "<p" + align_to_string( "p", p->alignment() ) + ">" + p->richText() + "</p>\n";
+		s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() ) 
+		     + ">" + p->richText() + "</p>\n";
 		lastItems = items;
 	    }
 	    p = p->next();
