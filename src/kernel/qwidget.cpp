@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#199 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#198 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#199 $");
 
 
 /*!
@@ -1852,8 +1852,9 @@ void QWidget::clearFocus()
 }
 
 /*!
-  Finds a new widget to give the keyboard focus to, as appropriate
-  for Tab/Shift-Tab.
+  Finds a new widget to give the keyboard focus to, as appropriate for
+  Tab/Shift-Tab, and returns TRUE if is can find a new widget and
+  FALSE if it can't,
 
   If \a next is true, this function searches "forwards", if \a next is
   FALSE, "backwards".
@@ -2548,8 +2549,7 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case Event_MouseMove:
-	    if ( hasMouseTracking() || ((QMouseEvent*)e)->state() )
-		mouseMoveEvent( (QMouseEvent*)e );
+	    mouseMoveEvent( (QMouseEvent*)e );
 	    break;
 
 	case Event_MouseButtonPress:

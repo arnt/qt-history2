@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#109 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#109 $");
 
 
 /*!
@@ -634,12 +634,20 @@ void QApplication::quit()
   Sends \e event to \e receiver: <code>receiver->event( event )</code>
   Returns the value that is returned from the receiver's event handler.
 
-  All Qt events are sent using the notify function. Since this function
-  is virtual, you can make a subclass of QApplication and reimplement
-  notify() to get total control of Qt events.
-
-  Installing an event filter on \c qApp is another way of making an
-  application-global event hook.
+  Reimplementing this virtual function is one of five ways to process
+  an event: <ol> <li> Reimplementing this function.  Very powerful,
+  you get \e complete control, but of course only one subclass can be
+  qApp.  <li> Installing an event filter on qApp.  Such an event
+  filter gets to process all events for all widgets, so it's just as
+  powerful as reimplementing notify(), and in this way it's possible
+  to have more than one application-global event filter. <li>
+  Reimplementing QObject::event() (as QWidget does).  If you do this
+  you get tab key-presses, and you get to see the events before any
+  widget-specific event filters.  <li> Installing an event filter on
+  the object.  Such an even filter gets all the events except Tab and
+  Shift-Tab key presses. <li> Finally, reimplementing paintEvent(),
+  mousePressEvent() and so on.  This is the normal, easist and least
+  powerful way. </ol>
 
   \sa QObject::event(), installEventFilter()
 */
@@ -652,6 +660,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 #endif
 	return FALSE;
     }
+
     if ( eventFilters ) {
 	QObjectListIt it( *eventFilters );
 	register QObject *obj = it.current();
@@ -662,6 +671,14 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	    obj = it.current();
 	}
     }
+
+    // throw away any mouse-tracking-only mouse events
+    if ( event->type() == Event_MouseMove &&
+	 (((QMouseEvent*)event)->state() & MouseButtonMask) == 0 &&
+	 ( receiver->isWidgetType() &&
+	   !((QWidget *)receiver)->hasMouseTracking() ) )
+	return TRUE;
+
     return receiver->event( event );
 }
 
