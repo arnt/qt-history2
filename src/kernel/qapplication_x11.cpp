@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#460 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#461 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3830,6 +3830,9 @@ bool QETWidget::translateCloseEvent( const XEvent * )
   Sets the text cursor's flash time to \a msecs milliseconds. The flash time is the
   time requried to display, invert and restore the caret display.
 
+  Under windows, calling this function sets the double click
+  interval for all windows.
+
   \sa cursorFlashTime()
  */
 void  QApplication::setCusorFlashTime( int msecs )
@@ -3841,13 +3844,47 @@ void  QApplication::setCusorFlashTime( int msecs )
 /*!
   Returns the text cursor's flash time in milliseconds. The flash time is the
   time requried to display, invert and restore the caret display.
+
+  The default value is 1000 milliseconds. Under Windows, the control
+  panel value is used.
   
   Widgets should not cache this value since it may vary any time the
   user changes the global desktop settings.
-
+  
   \sa setCursorFlashTime()
  */
 int QApplication::cursorFlashTime()
 {
     return cursor_flash_time;
 }
+
+/*!
+  Sets the time limit that distinguishes a double click from two
+  consecutive mouse clicks to \a ms milliseconds. 
+
+  Under windows, calling this function sets the double click
+  interval for all windows.
+
+  \sa doubleClickInterval()
+*/
+
+void QApplication::setDoubleClickInterval( int ms )
+{
+    mouse_double_click_time = ms;
+}
+
+
+/*!
+  Returns the maximum duration for a double click.
+
+  The default value is 400 milliseconds. Under Windows, the control
+  panel value is used.
+  
+  \sa setDoubleClickInterval()
+*/
+
+int QApplication::doubleClickInterval()
+{
+    return mouse_double_click_time;
+}
+

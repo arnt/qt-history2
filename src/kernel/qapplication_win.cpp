@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#272 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#273 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2571,4 +2571,21 @@ int QApplication::cursorFlashTime()
     if ( blink != 0 )
 	return 2*blink;
     return cursor_flash_time;
+}
+
+void QApplication::setDoubleClickInterval( int ms )
+{
+    SetDoubleClickTime( ms );
+    mouse_double_click_time = ms;
+}
+
+
+int QApplication::doubleClickInterval()
+{
+    int ms = GetDoubleClickTime();
+    if ( ms != 0 )
+	return ms;
+    return mouse_double_click_time;
+}
+
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#221 $
 **
 ** Implementation of QApplication class
 **
@@ -118,6 +118,7 @@ QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
 bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
 int	  QApplication::cursor_flash_time = 1000;  // text caret flash time
+int	  QApplication::mouse_double_click_time = 400;  // text caret flash time
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
@@ -145,7 +146,6 @@ int	 QApplication::app_cspec = QApplication::NormalColor;
 
 static QPalette *stdPalette = 0;
 static QColor * winHighlightColor = 0;
-static int mouseDoubleClickInterval = 400;
 
 static void create_palettes()			// creates default palettes
 {
@@ -1184,33 +1184,6 @@ const QColor& QApplication::winStyleHighlightColor()
     return palette()->normal().highlight();
 }
 
-
-/*!
-  Sets the time limit that distinguishes a double click from two
-  consecutive mouse clicks to \a ms milliseconds. This value is
-  ignored under Windows (the control panel value is used.)
-
-  The default value is 400 milliseconds.
-
-  \sa doubleClickInterval()
-*/
-
-void QApplication::setDoubleClickInterval( int ms )
-{
-    mouseDoubleClickInterval = ms;
-}
-
-
-/*!
-  Returns the maximum duration for a double click.
-
-  \sa setDoubleClickInterval()
-*/
-
-int QApplication::doubleClickInterval()
-{
-    return mouseDoubleClickInterval;
-}
 
 
 /*!

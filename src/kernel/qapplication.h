@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#113 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#114 $
 **
 ** Definition of QApplication class
 **
@@ -183,6 +183,7 @@ private:
     static QWidget  *active_window;
     static bool	     obey_desktop_settings;
     static int	     cursor_flash_time;
+    static int	     mouse_double_click_time;
     QList<QTranslator> * translators;
 
     static QDict<QPalette>* app_palettes;
