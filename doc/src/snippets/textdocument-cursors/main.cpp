@@ -7,8 +7,6 @@ int main(int argc, char *argv[])
 
     QTextDocument *document = editor->document();
     QTextCursor redCursor(document);
-    redCursor.insertText(" "); // ### FIXME: this shouldn't be needed to
-                               // obtain two different cursors.
     QTextCursor blueCursor(document);
 
     QTextCharFormat redFormat(redCursor.charFormat());
