@@ -24,7 +24,7 @@
 #ifdef _STANDALONE_
 #define QT_DIRECT_RENDER_SUPPORT
 
-// #define Q_RASTER_DEBUG
+/* #define Q_RASTER_DEBUG */
 
 typedef signed long FT_F26Dot6;
 typedef int FT_Error;
