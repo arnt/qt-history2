@@ -587,6 +587,11 @@ DspMakefileGenerator::init()
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];
     }
+    QStringList &list = project->variables()["FORMS"];
+    for( it = list.begin(); it != list.end(); ++it ) {
+	if ( QFile::exists( *it + ".h" ) )
+	    project->variables()["SOURCES"].append( *it + ".h" );
+    }
 }
 
 
