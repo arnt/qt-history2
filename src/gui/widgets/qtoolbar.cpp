@@ -122,6 +122,7 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         button->addAction(action);
         QObject::connect(action, SIGNAL(triggered()), q, SLOT(actionTriggered()));
         if (action->menu()) {
+            button->setPopupMode(QToolButton::MenuButtonPopupMode);
             QObject::connect(action->menu(), SIGNAL(triggered(QAction*)),
                              q, SIGNAL(actionTriggered(QAction*)));
         }

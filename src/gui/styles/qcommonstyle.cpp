@@ -991,7 +991,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QColor btext = tb->palette.foreground().color();
 
                 if (tb->icon.isNull() && !tb->text.isEmpty()
-                        && !(tb->features & QStyleOptionToolButton::TextLabel)) {
+                    || tb->toolButtonStyle == Qt::ToolButtonTextOnly) {
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
                     if (!styleHint(SH_UnderlineShortcut, opt, widget))
                         alignment |= Qt::TextHideMnemonic;

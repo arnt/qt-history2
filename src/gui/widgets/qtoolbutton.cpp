@@ -189,7 +189,7 @@ void QToolButtonPrivate::init()
     popupMode = QToolButton::DelayedPopupMode;
 
     toolButtonStyle = Qt::ToolButtonIconOnly;
-    iconSize = Qt::SmallIconSize;
+    iconSize = Qt::AutomaticIconSize;
     hasArrow = false;
 
     q->setFocusPolicy(Qt::NoFocus);
@@ -224,10 +224,10 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 
     opt.subControls = QStyle::SC_ToolButton;
     opt.activeSubControls = QStyle::SC_None;
-    if (down)
+    if (down || (instantPopup && popupMode != QToolButton::MenuButtonPopupMode))
         opt.activeSubControls |= QStyle::SC_ToolButton;
 
-    if ((menu || !q->actions().isEmpty()) && !delay) {
+    if ((menu || q->actions().size() > 1) && popupMode == QToolButton::MenuButtonPopupMode) {
         opt.subControls |= QStyle::SC_ToolButtonMenu;
         if (instantPopup || down)
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
@@ -237,9 +237,9 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.features |= QStyleOptionToolButton::TextLabel;
     if (hasArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
-    if (menu)
+    if (menu && popupMode == QToolButton::MenuButtonPopupMode)
         opt.features |= QStyleOptionToolButton::Menu;
-    if (delay)
+    if (popupMode == QToolButton::DelayedPopupMode)
         opt.features |= QStyleOptionToolButton::PopupDelay;
     if (q->iconSize() == Qt::LargeIconSize)
         opt.features |= QStyleOptionToolButton::BigPixmap;
@@ -275,37 +275,39 @@ QSize QToolButton::sizeHint() const
 
     int w = 0, h = 0;
     QFontMetrics fm = fontMetrics();
-    if (icon().isNull() && !text().isNull() && toolButtonStyle() == Qt::ToolButtonIconOnly) {
+    if (icon().isNull() && !text().isNull() && d->toolButtonStyle == Qt::ToolButtonIconOnly) {
         w = fm.width(text());
-        h = fm.height(); // boundingRect()?
+        h = fm.height();
     } else if (iconSize() == Qt::LargeIconSize) {
         QPixmap pm = icon().pixmap(Qt::LargeIconSize, QIcon::Normal);
         QSize iconSize = QIcon::pixmapSize(Qt::LargeIconSize);
         w = qMax(pm.width(), iconSize.width());
         h = qMax(pm.height(), iconSize.height());
     } else if (!icon().isNull()) {
-        // ### in 3.1, use QIcon::iconSize(Qt::SmallIconSize);
         QPixmap pm = icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
         w = qMax(pm.width(), 16);
         h = qMax(pm.height(), 16);
     }
 
-    if (toolButtonStyle() != Qt::ToolButtonIconOnly) {
+    if (d->toolButtonStyle != Qt::ToolButtonIconOnly) {
         QSize textSize = fm.size(Qt::TextShowMnemonic, text());
         textSize.setWidth(textSize.width() + fm.width(' ')*2);
         if (d->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
             h += 4 + textSize.height();
             if (textSize.width() > w)
                 w = textSize.width();
-        } else { // BesideIcon
+        } else if (d->toolButtonStyle == Qt::ToolButtonTextBesideIcon) {
             w += 4 + textSize.width();
             if (textSize.height() > h)
                 h = textSize.height();
+        } else { // TextOnly
+            w = textSize.width();
+            h = textSize.height();
         }
     }
 
     QStyleOptionToolButton opt = d->getStyleOption();
-    if ((d->menu || actions().size() > 1) && ! popupDelay())
+    if ((d->menu || actions().size() > 1) && d->popupMode == MenuButtonPopupMode)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
     return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
@@ -519,8 +521,8 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         d->instantPopup = false;
         return;
     }
-    if (e->button() == Qt::LeftButton && d->delay <= 0 && d->instantPopup && !d->actualMenu
-        && (d->menu || actions().size() > 1)) {
+    if (e->button() == Qt::LeftButton && d->popupMode != DelayedPopupMode
+        && d->instantPopup && !d->actualMenu && (d->menu || actions().size() > 1)) {
         showMenu();
         return;
     }
@@ -540,7 +542,8 @@ bool QToolButton::uses3D() const
 {
     return style()->styleHint(QStyle::SH_ToolButton_Uses3D, 0, this)
         && (!d->autoRaise || (underMouse() && isEnabled())
-            || (d->menu && d->delay <= 0) || d->instantPopup);
+            || (!d->autoRaise && d->menu && d->popupMode == MenuButtonPopupMode)
+            || d->instantPopup);
 }
 
 
@@ -682,19 +685,20 @@ void QToolButton::showMenu()
 
 void QToolButtonPrivate::popupPressed()
 {
-    if (delay > 0)
+    if (delay > 0 && popupMode == QToolButton::DelayedPopupMode)
         popupTimer.start(delay, q);
 }
 
 void QToolButtonPrivate::popupTimerDone()
 {
     popupTimer.stop();
-    if ((!q->isDown() && delay > 0) || (!menu && q->actions().size() <= 1))
+    if ((!q->isDown() && popupMode == QToolButton::DelayedPopupMode)
+        || (!menu && q->actions().size() <= 1))
         return;
 
     if(menu) {
         actualMenu = menu;
-        if(!q->actions().isEmpty())
+        if (q->actions().size() > 1)
             qWarning("QToolButton: menu in setMenu() overriding actions set in addAction!");
     } else {
         actualMenu = new QMenu(q);
@@ -763,9 +767,7 @@ void QToolButtonPrivate::popupTimerDone()
     \brief the time delay between pressing the button and the moment
     the associated menu pops up in milliseconds.
 
-    Usually this is around half a second. A value of 0 will add a
-    special section to the tool button that can be used to open the
-    menu.
+    Usually this is around half a second.
 
     \sa setMenu()
 */
