@@ -106,7 +106,7 @@
                                 <cstring>buttonAdd</cstring>
                             </property>
                             <property name="text">
-                                <string>&amp;Add</string>
+                                <string>A&amp;dd</string>
                             </property>
                         </widget>
                         <widget class="QPushButton">
@@ -118,7 +118,7 @@
                             </property>
                         </widget>
                         <spacer>
-                            <property name="name" stdset="0">
+                            <property name="name">
                                 <cstring>Spacer11</cstring>
                             </property>
                             <property name="orientation">

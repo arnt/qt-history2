@@ -55,7 +55,7 @@
                 <cstring>ButtonGroup1</cstring>
             </property>
             <property name="title">
-                <string>&amp;Pixmaps</string>
+                <string>Pixmaps</string>
             </property>
             <grid>
                 <property name="name">
@@ -140,7 +140,7 @@
                 <enum>Sunken</enum>
             </property>
             <property name="title">
-                <string>&amp;Settings</string>
+                <string>Settings</string>
             </property>
             <grid>
                 <property name="name">

@@ -169,7 +169,7 @@
                         <cstring>PushButton2</cstring>
                     </property>
                     <property name="text">
-                        <string>Close</string>
+                        <string>&amp;Close</string>
                     </property>
                 </widget>
             </hbox>
@@ -179,7 +179,7 @@
                 <cstring>ButtonGroup1</cstring>
             </property>
             <property name="title">
-                <string>&amp;Options</string>
+                <string>Options</string>
             </property>
             <vbox>
                 <property name="name">
@@ -204,7 +204,7 @@
                         <cstring>checkCase</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Case sensitive</string>
+                        <string>Case &amp;sensitive</string>
                     </property>
                 </widget>
                 <widget class="QCheckBox">
@@ -212,7 +212,7 @@
                         <cstring>checkBegin</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Start at Beginning</string>
+                        <string>Start at &amp;Beginning</string>
                     </property>
                 </widget>
             </vbox>
@@ -222,7 +222,7 @@
                 <cstring>ButtonGroup2</cstring>
             </property>
             <property name="title">
-                <string>&amp;Direction</string>
+                <string>Direction</string>
             </property>
             <vbox>
                 <property name="name">
@@ -250,7 +250,7 @@
                         <cstring>radioBackward</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Backward</string>
+                        <string>Bac&amp;kward</string>
                     </property>
                 </widget>
             </vbox>
@@ -306,7 +306,7 @@
     <slot>destroy()</slot>
     <slot>doReplace()</slot>
     <slot>doReplaceAll()</slot>
-    <slot>setEditor(EditorInterface * e, QObject * fw)</slot>
+    <slot>setEditor( EditorInterface * e, QObject * fw )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

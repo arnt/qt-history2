@@ -96,7 +96,7 @@
                             </sizepolicy>
                         </property>
                         <property name="title">
-                            <string>Item &amp;Properties</string>
+                            <string>Item Properties</string>
                         </property>
                         <grid>
                             <property name="name">
