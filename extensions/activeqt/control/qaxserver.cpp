@@ -213,6 +213,8 @@ bool QAxFactory::stopServer()
 // Registry
 /////////////////////////////////////////////////////////////////////////////
 
+extern bool qax_disable_inplaceframe;
+
 // (Un)Register the ActiveX server in the registry.
 // The QAxFactory implementation provides the information.
 HRESULT UpdateRegistry(BOOL bRegister)
@@ -273,11 +275,23 @@ HRESULT UpdateRegistry(BOOL bRegister)
 		QString classVersion = mo ? QString(mo->classInfo( "VERSION" )) : QString::null;
 		if ( classVersion.isNull() )
 		    classVersion = "1.0";
+		bool insertable = mo && !qstricmp(mo->classInfo("Insertable"), "yes");
+		bool control = object->isWidgetType();
 		const QString classMajorVersion = classVersion.left( classVersion.find(".") );
+		uint olemisc = OLEMISC_SETCLIENTSITEFIRST
+			      |OLEMISC_ACTIVATEWHENVISIBLE
+			      |OLEMISC_INSIDEOUT
+			      |OLEMISC_CANTLINKINSIDE
+			      |OLEMISC_RECOMPOSEONRESIZE;
+		if (!control)
+		    olemisc |= OLEMISC_INVISIBLEATRUNTIME;
+		else if (object->child(0, "QMenuBar") && !qax_disable_inplaceframe)
+		    olemisc |= OLEMISC_WANTSTOMENUMERGE;
 
 		settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
 		settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId );
-		//settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
+		if (insertable)
+		    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
 
 		settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
 		settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
@@ -286,14 +300,16 @@ HRESULT UpdateRegistry(BOOL bRegister)
 		settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
 		if ( file.right( 3 ).lower() == "exe" )
 		    settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
-		settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
-		//settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
+		if (control)
+		    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
+		if (insertable)
+		    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
 		if ( file.right( 3 ).lower() == "dll" )
 		    settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
 		else
 		    settings.writeEntry( "/CLSID/" + classId + "/LocalServer32/.", file + " -activex" );
-		settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/.", "0" );
-		settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/1/.", "131473" );
+		settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/.", control ? "1" : "0" );
+		settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/1/.", QString::number(olemisc) );
 		settings.writeEntry( "/CLSID/" + classId + "/Programmable/.", QString::null );
 		settings.writeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101" );
 		settings.writeEntry( "/CLSID/" + classId + "/TypeLib/.", libId );
