@@ -209,13 +209,13 @@ in a single-threaded application without blocking the user interface.
 
 \title Properties
 
-Qt provides a sophisticated property system similar to those shipped
+Qt provides a sophisticated property system similar to those supplied
 by some compiler vendors. However, as a compiler- and
 platform-independent library, Qt cannot rely on non-standard compiler
 features like \c __property or \c [property]. Our solution works with
-any standard C++ compiler on every platform we support. It's based on
-the meta-object system that also provides object communication through
-\link signalsandslots.html signals and slots\endlink.
+\e any standard C++ compiler on every platform we support. It's based
+on the meta-object system that also provides object communication
+through \link signalsandslots.html signals and slots\endlink.
 
 The \c Q_PROPERTY macro in a class declaration declares a
 property. Properties can only be declared in classes that inherit \l
@@ -229,32 +229,32 @@ them from ordinary data members:
 \list
 \i A read function.  This always exists.
 
-\i A write function.  Optional: read-only properties like \l
-QWidget::isDesktop() do not have this.
+\i A write function.  This is optional: read-only properties like \l
+QWidget::isDesktop() do not have one.
 
 \i An attribute "stored" that indicates persistence.  Most properties
-are stored, but a few virtual properties like \l
-QWidget::minimumWidth() aren't, since it's just way of looking
-at \l QWidget::minimumSize(), and has no data of its own.
+are stored, but a few virtual properties are not. For example, \l
+QWidget::minimumWidth() isn't stored, since it's just a view of
+\l QWidget::minimumSize(), and has no data of its own.
 
 \i A reset function to set a property back to its context specific
-default value.  Very unusual, but e.g. \l QWidget::font() needs this,
-since no call to \l QWidget::setFont() can mean 'reset to the context
-specific font'.
+default value. This is very rare, but for example, \l QWidget::font()
+needs this, since no call to \l QWidget::setFont() can mean 'reset to
+the context specific font'.
 
 \i An attribute "designable" that indicates whether it makes sense to
-set make the property available in a GUI builder (e.g. \link
+make the property available in a GUI builder (e.g. \link
 designer-manual.book Qt Designer\endlink). For most properties this 
-make sense, but not for all, e.g. \l QButton::isDown().  The user can
+makes sense, but not for all, e.g. \l QButton::isDown().  The user can
 press buttons, and the application programmer can make the program
 press its own buttons, but a GUI design tool can't press buttons.
 
 \endlist
 
 The read, write and reset functions can be just about any member
-functions, inherited or not, virtual or not, with the exception of
-member functions inherited from parents other than the first in the
-case of multiple inheritance.
+functions, inherited or not, virtual or not. The only exception is
+that member functions must be inherited from the first inherited class
+in the case of multiple inheritance.
 
 Properties can be read and written through generic functions in
 QObject without knowing anything about the class in use.  These two
@@ -297,7 +297,7 @@ functions in use:
 \endcode
 
 The class has a property "priority" that is not yet known to the meta
-object system. In order to make the property known, you have to
+object system. In order to make the property known, you must
 declare it with the \c Q_PROPERTY macro. The syntax is as follows:
 
 \code
@@ -306,15 +306,15 @@ Q_PROPERTY( type name READ getFunction [WRITE setFunction]
             [SCRIPTABLE bool] [STORED bool] )
 \endcode
 
-For the declaration to be valid, the get function has to be const and
+For the declaration to be valid, the get function must be const and
 to return either the type itself, a pointer to it, or a reference to
-it. The optional write function has to return void and to take exactly
+it. The optional write function must return void and must take exactly
 one argument, either the type itself, a pointer or a const reference
 to it. The meta object compiler enforces this.
 
-The type of a property can be everything \l QVariant provides or an
+The type of a property can be any \l QVariant supported type or an
 enumeration type declared in the class itself. Since \c MyClass uses
-the enumeration type \c Priority for the property, this type has to be
+the enumeration type \c Priority for the property, this type must be
 registered with the property system as well. This way it will be
 possible to set a value by name, like this:
 
@@ -354,7 +354,7 @@ DESIGNABLE, \c SCRIPTABLE and STORED.
 state (which may have changed since initialization).  The function
 must return void and take no arguments.
 
-\c DESIGNABLE declares whether this property is suited for
+\c DESIGNABLE declares whether this property is suitable for
 modification by a GUI design tool.  The default is \c TRUE for
 writable properties; otherwise \c FALSE. Instead of \c TRUE or \c
 FALSE, you can specify a boolean member function.
@@ -375,7 +375,7 @@ that can be used to attach additional name/value-pairs to a class'
 meta object, for example:
 
 \code
-    Q_CLASSINFO( "Status", "Very nice class" )
+    Q_CLASSINFO( "Version", "3.0.0" )
 \endcode
 
 Like other meta data, class information is accessible at runtime
@@ -512,7 +512,7 @@ details.
 \link QObject QObjects\endlink organize themselves in object trees.
 When you create a QObject with another object as parent, it's added to
 the parent's \link QObject::children() children() \endlink list, and
-is deleted when the parent is.  This turns out that this approach fits
+is deleted when the parent is.  It turns out that this approach fits
 the needs of GUI objects very well.  For example, a \l QAccel (keyboard
 accelerator) is a child of the relevant window, so when the user closes
 that window, the accelerator is deleted too.

@@ -49,6 +49,8 @@
 Many C++ classes in Qt use \e explicit and \e implicit data sharing
 to maximize resource usage and minimize copying of data.
 
+\tableofcontents
+
 \section1 Overview
 
 A shared class consists of a pointer to a shared data block that

@@ -94,6 +94,10 @@
   complex pages.
 
   Example code is available here: \l wizard/wizard.cpp \l wizard/wizard.h
+
+  \img qwizard.png A QWizard page
+  \caption A QWizard page
+
 */
 
 

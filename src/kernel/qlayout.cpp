@@ -1550,7 +1550,7 @@ private:
   You will almost always want to use QVBoxLayout and QHBoxLayout
   rather than QBoxLayout because of their convenient constructors.
 
-  \sa \link layout.html Layout Overview \endlink
+  \sa QGrid \link layout.html Layout Overview \endlink
 */
 
 /*! \enum QBoxLayout::Direction
@@ -2363,6 +2363,8 @@ QHBoxLayout::~QHBoxLayout()
      l->addWidget( aWidget );
      l->addWidget( anotherWidget );
   \endcode
+
+  \img qvboxlayout.png QVBox
 
   \sa QHBoxLayout QGridLayout \link layout.html the Layout overview \endlink
 */

@@ -45,12 +45,12 @@ mechanism for communication between objects, runtime type information
 and the dynamic property system.
 
 It is based on three things:
-\list
-\i the \l QObject class,
+\list 1
+\i the \l QObject class;
 \i the Q_OBJECT macro inside the private section of the class
-declaration,
+declaration;
 \i the \link moc.html Meta Object Compiler (moc)\endlink. 
- \endlist
+\endlist
 
 The \e moc reads a C++ source file. If it finds one or more class
 declarations that contain the Q_OBJECT macro, it produces another C++
@@ -96,8 +96,8 @@ Q_OBJECT macro is not used. From the meta object system's point of
 view, a QObject subclass without meta code is equivalent to its
 closest ancestor with meta object code. This means for example, that
 className() will not return the actual name of your class, but the
-class name of this ancestor. We strongly recommend that all subclasses
-of QObject use the Q_OBJECT macro regardless whether they actually use
-signals, slots and properties or not.
+class name of this ancestor. We \e strongly recommend that all
+subclasses of QObject use the Q_OBJECT macro regardless of whether
+they actually use signals, slots and properties or not.
 
 */

@@ -285,7 +285,7 @@
 
   \list
 
-  \i <b>\e {E}</b> Matches zero or one occurrence of \e E.
+  \i <b>\e {E}?</b> Matches zero or one occurrence of \e E.
   This quantifier means "the previous expression is optional" since it
   will match whether or not the expression occurs in the string.
   It is the same as <b>\e {E}{0,1}</b>. For example <b>dents?</b>
@@ -3491,10 +3491,15 @@ int QRegExp::match( const QString& str, int index, int *len,
     int pos = 0;
     while ( pos >= 0 ) {
 	pos = rx.search( str, pos );
+	pos += rx.matchedLength();
 	count++;
     }
     // pos will be 9, 14, 18 and finally 24; count will end up as 4
   \endcode
+  The above example is slightly subtle. When the search fails to find
+  a match, it returns -1 and matchedLength() is 0.
+  So \c{pos += matchedLength()} will leave pos as -1 and the loop will
+  terminate.
 
   Although const, this function sets matchedLength(), capturedTexts()
   and pos().

@@ -111,6 +111,9 @@ public:
   popup menu using setPopup(). The default delay is 600ms; you may
   adjust it with setPopupDelay().
 
+  \img qdockwindow.png Toolbar with Toolbuttons
+  \caption A floating QToolbar with QToolbuttons
+
   \sa QPushButton QToolBar QMainWindow
   \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
 */

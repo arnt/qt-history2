@@ -273,6 +273,9 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
   You can use the clear() method to remove all items from a toolbar.
 
+  \img qdockwindow.png Toolbar (dock window)
+  \caption A floating QToolbar (dock window)
+
   \sa QToolButton QMainWindow
   \link http://www.iarchitect.com/visual.htm Parts of Isys on Visual Design\endlink
   \link guibooks.html#fowler GUI Design Handbook: Tool Bar\endlink.
