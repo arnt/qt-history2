@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#40 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#41 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -130,6 +130,7 @@ public:
     QDomDocumentPrivate*     ownerDocument();
 
     virtual QDomNamedNodeMapPrivate* attributes();
+    virtual bool hasAttributes() { return FALSE; }
     virtual QDomNodePrivate* insertBefore( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
     virtual QDomNodePrivate* insertAfter( QDomNodePrivate* newChild, QDomNodePrivate* refChild );
     virtual QDomNodePrivate* replaceChild( QDomNodePrivate* newChild, QDomNodePrivate* oldChild );
@@ -358,6 +359,7 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNamedNodeMapPrivate* attributes() { return m_attr; }
+    bool hasAttributes() { return ( m_attr != 0 ); }
     bool isElement() { return TRUE; }
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     void save( QTextStream& s, int ) const;
@@ -1907,7 +1909,9 @@ QString QDomNode::localName() const
 */
 bool QDomNode::hasAttributes() const
 {
-    return FALSE;
+    if ( !impl )
+	return FALSE;
+    return IMPL->hasAttributes();
 }
 
 /*!
