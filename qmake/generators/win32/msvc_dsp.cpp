@@ -619,9 +619,6 @@ DspMakefileGenerator::init()
 	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
 
-    if ( project->isActiveConfig("stl") )
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
-
     if(project->isActiveConfig("qt")) {
 	if ( project->isActiveConfig("accessibility" ) )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");

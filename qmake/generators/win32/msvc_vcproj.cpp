@@ -272,8 +272,6 @@ void VcprojGenerator::initCompilerTool()
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_OFF"] );
     else
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_ON"] );
-    if ( project->isActiveConfig("stl") )
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_STL"] );
     if ( project->isActiveConfig("windows") )
 	vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
 
@@ -653,10 +651,6 @@ void VcprojGenerator::initOld()
 	     && project->first("TARGET") != "qtmain" )
 	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:libc");
     }
-
-    // STL -----------------------------------------------------------
-    if ( project->isActiveConfig("stl") )
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
 
     // ACCESSIBILITY -------------------------------------------------
     if(project->isActiveConfig("qt")) {

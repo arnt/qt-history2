@@ -345,10 +345,6 @@ NmakeMakefileGenerator::init()
 	&& !is_qt && project->first("TARGET") != "qtmain") {
 	project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
-    if ( project->isActiveConfig("stl") ) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
-    }
 
     if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) 
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
