@@ -546,8 +546,10 @@ void QWorkspace::insertIcon( QWidget* w )
     }
     w->move( x, y );
 
-    if ( isVisibleTo( parentWidget() ) )
+    if ( isVisibleTo( parentWidget() ) ) {
 	w->show();
+	w->lower();
+    }
 
 }
 
