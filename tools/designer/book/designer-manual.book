@@ -3,8 +3,8 @@
 \granularity chapter
 
 \input chap-preface.leaf
-\input chap-dialogs.leaf
 \input chap-main-windows.leaf
+\input chap-dialogs.leaf
 \input chap-philosophy.leaf
 \input chap-subclassing.leaf
 \input chap-custom-controls.leaf

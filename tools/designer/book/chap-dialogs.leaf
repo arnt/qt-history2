@@ -1,1203 +1,1053 @@
-\chapter Creating a Qt Application
+\chapter Creating Dialogs
 
-\section1 Starting and Exiting \QD
+In this chapter we will create the dialogs necessary to complete the
+\c colortool application. All the dialogs are launched from the main
+window we created in the previous chapter. We will learn how to create
+and use both modal and modeless dialogs, and more about using Qt's
+layout classes in \QD to produce forms that are well proportioned and
+that scale well.
 
-\index Starting Qt Designer
-\QD is controlled in the same way as any other modern
-desktop application.
-To start \QD under Windows click the \Menu Start
-button and click \Menu {Programs|Qt X.x.x|Designer}.
-(X.x.x is the Qt version number, e.g. 3.0.0.) If you're running a Unix
-or Linux operating system you can either double click the \QD icon or enter
-\c {designer &} in an xterm.
+\section1 Adding Colors
 
-\index Exiting Qt Designer
-\index Getting Help
-When you've finished using \QD click
-\Menu File|Exit; you will be prompted to save any
-unsaved changes. Help is available by pressing \Key F1 or
-from the \Menu Help menu.
+Qt already has a static function that launches a "choose a color"
+dialog. But we need to not only choose a color, but to give it a name
+too. So we'll present the user with the choose a color dialog, and if
+they choose a color, we'll then ask them to name it. 
 
-To get the most benefit from the tutorial chapters we recommend that you
-start \QD now and create the example applications as you read. Most of
-the work involves using \QD's menus, dialogs and editors, with only
-small amounts of code to type in.
+\img qd-colortool-name.png The Color Name Dialog
 
-When you start \QD, by default, you will see a menu bar and various
-toolbars at the top.
-\index Widgets and Source window!Object Explorer
-\index Object Explorer
-\index Pixmaps
-On the left hand side are three windows, the first is the Files
-window, the second is the Widgets and Source window (the Object
-Explorer) and the third is the
-Properties window. The Files window lists the files and images
-associated with the project; to open any form single click it in the
-Files list. The Widgets and Source window lists the current form's
-widgets and slots. The Properties window is used to view and change the
-properties of forms and widgets. We will cover the use of \QD's windows,
-dialogs, menu options and toolbar buttons as we create example
-applications.
+\section2 Making the Connection
 
-In this chapter we will build an application called 'multiclip' which
-allows you to store and retrieve multiple text clippings to and from the
-clipboard.
-\img multiclip.png
-\caption The Multiclip Application
+When we created the main form we made an action called
+"editAddAction". We added this action to the menubar (in the "Edit"
+menu), and to the toolbar. Now we need to connect this action to a
+slot so that we can make it add a color.
 
-\section1 Creating a New Project
-
-\index Projects
-\index Projects!Creating New
-\index Creating Projects!Projects
-\index Pixmaps!In Projects
-\index Pixmaps!Adding to Forms
-Whenever you create a new application we \e strongly recommend that
-you create a project file and open the project rather than individual
-\index .ui 
-\File .ui files. Using a project has the advantage that
-all the forms you create for the project are available via a single
-mouse click rather than having to be loaded individually through file
-open dialogs. An additional benefit of using project files is that
-they allow you to store all your images in a single file rather than
-duplicate them in each form in which they appear. See \l{The Designer
-Approach} chapter's \l{Project management} section for detailed
-information on the benefits of using project files.
-
-\index Adding!Forms
-\index Forms!Adding
-Start \QD if you haven't already. Click \Menu {File|New} to invoke the
-\Dialog{New File} dialog. Click the 'C++ Project' icon, then click \OK
-to invoke the \Dialog {Project Settings} dialog. You need to give the
-project a name, and we recommend that you put each project in its own
-subdirectory. Click the ellipsis \Button{...} button to invoke the
-\Dialog{Save As} dialog and navigate to where you want to put the new
-project. Click the \Toolbutton{Create New Folder} toolbar button to
-create the 'multiclip' directory. Double click the 'multiclip'
-directory to make it the current directory. Enter a file name of
-'multiclip.pro', and click the \Button Save button. The 'Project File'
-field of the \Dialog{Project Settings} dialog will have the path and
-name of your new project; click \OK to create the project.
-
-\img qd-chapdialogs-creatingnewprojects.png
-\caption Creating a New Project 
-
-The name of the current project is shown in the \Button Files toolbar
-which is the top left toolbar by default. Once we have a project we
-can add forms and begin to build our application. (See \l {Customizing
-Qt Designer} for information on changing \QD's toolbars and windows to
-suit your preferences.)
-
-\section1 Creating a New Form
-
-\index Dialogs!Creating New
-\index Creating Forms!Dialogs
-\index Adding!Forms
-Click \Menu File|New to invoke the \Dialog {New File} dialog.
-Several default forms are supplied but we will use the default Dialog
-form, so just click \OK. A new form called 'Form1' will appear. Note
-that the new form is listed in the Files list and the Properties window
-shows the form's default property settings.
-
-Click the Value beside the \Property name property and change the form's name to
-'MulticlipForm'.  Change the form's caption to 'Multiclip'. The
-properties are ordered in accordance with the inheritance hierarchy, and
-caption is roughly in the middle of the property editor. Save
-the form: click \Menu File|Save, enter the name
-'multiclip.ui', then click the \Button Save button.
-
-\img qd-chapdialogs-creatingmulticlipform3.png
-\caption Creating a New Form
-
-\sidebar Using the Property Editor
-
-\index Using the Property Editor
-\index Properties
-The Property Editor has two columns, the Property column which
-lists property names and the Value column which lists the values. Some
-property names have a plus sign '+' in a square to their left; this
-signifies that the property name is the collective name for a set of
-related properties. Click the form to make the Property Editor show the
-form's properties.
-Click the \Property sizePolicy property's plus sign; you will
-see four properties appear indented below sizePolicy, hSizeType,
-vSizeType, horizontalStretch and verticalStretch. These properties are
-edited in the same way as any other properties.
-
-\img qd-chapdialogs-propertyeditor.png
-\caption Property Editor
-
-Some properties have simple values, for example, the \Property name property
-has a text value, the \Property width property (within \Property minimumSize
-for example) has a numeric value. To change a text value click the
-existing text and type in your new text. To change a numeric value click
-the value and either type in a new number, or use the spin buttons to
-increase or decrease the existing number until it reaches the value you
-want. Some properties have a fixed list of values, for example the
-\Property mouseTracking property is boolean and can take the values True or
-False. The \Property cursor property also has a fixed list of values. If
-you click the cursor property or the \Property mouseTracking property the
-value will be shown in a drop down combobox; click the down arrow to see
-what values are available. Some properties have complex sets of values;
-for example the \Property font property. If you click the font property an
-ellipsis button (\Button {...}) will appear; click this button and a
-\Dialog {Select Font} dialog will pop up which you can use to change any of the
-font settings. Other properties have ellipsis buttons which lead to
-different dialogs depending on what settings the property can have. For
-example, if you have a lot of text to enter for a \Property text property
-you could click the ellipsis button to invoke the multi-line text editor
+Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialog. Click \Button{New} to create a new connection.
+Change the Sender to "editAddAction", the signal to "activated()" and
+the reciever to "MainForm". We need to create a new slot to connect
+to. Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
+dialog. Change the slot's name to "editAdd()", then click \OK. Now
+change the slot we connect to "editAdd()", then click \OK to close the
 dialog.
 
-\index Properties!Reverting changes
-\index Properties!Initial values
-The names of properties which have changed are shown in bold. If
-you've changed a property but want to revert it to its default value
-click the property's value and then click the red 'X' button
-to the right of the value. Some properties have an
-\e initial value, e.g. 'TextEdit1', but no default
-value; if you revert a property that has an initial value but no default
-value (by clicking the red 'X') the value will become empty unless the
-property, e.g. name, is not allowed to be empty.
+\sidebar Selecting Widgets
 
-If multiple widgets are selected, the property editor shows the
-properties that the selected widgets have in common. Changing one of
-these properties will cause all the selected widgets to have this
-property changed.
-
-\index Undo and Redo!Properties
-\index Properties!Undo and Redo!Undo and Redo
-\index Redo!Undo and Redo
-The property editor fully supports Undo and Redo
-(\Key Ctrl+Z and \Key Ctrl+Y, also available
-from the \Menu Edit menu).
-
-\endsidebar
-
-\section1 Adding Widgets
-
-\index Forms!Adding Widgets
-\index Adding!Widgets
-\index Cut and Paste (in Applications)
-The multiclip application consists of a text box to display the current
-clipboard text (if any), a list box showing the previous clippings, a
-length indicator, a checkbox and buttons. If you run the application and
-resize it all the widgets will scale properly.
-
-The \QD approach to laying out a form is to place the required
-widgets on the form in the approximate positions that they should
-occupy and then use the layout tools to size and position them
-correctly. We'll now add the multiclip form's widgets.
-    \list 1
-    \i
-
-	\index Tooltips
-We'll start with the current clipping text box.
-	Click the
-	\Toolbutton {Text Label} toolbar button and
-	click towards the top left of the form. (If you hover the mouse
-	over a toolbar button its name will appear in
-	a tooltip.) We won't bother renaming the label since we'll never
-	refer to it in code; but we need to change its text, so change
-	its \Property text property to 'Current Clipping'. (See the 
-	\l{Using the Property Editor} sidebar for an explanation of the
-	property editor.)
-
-	Click the
-	\Toolbutton {Line Edit} toolbar button and
-	click towards the top right of the form. Use the Property Editor
-	to change the widget's name to 'currentLineEdit'.
-
-    \i
-
-	Now we'll add another label and the list box. Click the
-	\Toolbutton {Text Label} toolbar button and click below the
-	Current Clipping label. Change the \Property text property to 'Previous
-	Clippings'. Don't worry
-	about positioning the widgets precisely, nor about the fact that
-	they are the wrong size; the layout tools (covered in the next
-	section) will take care of this.
-
-	\index Properties!Property Editors
-\index Deleting!ListBox Items
-\index Value Editors!List Box
-Click the
-	\Toolbutton {List Box} toolbar button and click
-	the form below the 'Previous Clippings' label. Change the list
-	box's name to 'clippingsListBox'. By default \QD creates list
-	boxes with a single initial value of 'New Item'. We don't want
-	this value (we'll be populating our list box in code later), so
-	we need to remove the value. Right click the list box then click
-	the \Menu Edit menu item on the popup menu
-	to invoke the listbox's value editor dialog. Click
-	\Button {Delete Item} to delete the default item,
-	then click \OK. (See the \l {Value
-	Editors} sidebar.)
-
-    \i
-
-	We want to know the length of the current clipping so we'll add
-	a label and an \Widget {LCD Number} widget.
-
-	\index Adding!Text Labels
-\index Adding!Labels
-Click the
-	\Toolbutton {Text Label} toolbar button and click below the
-	\Widget {Line Edit}. Change its \Property text
-	property's value to 'Length'. Click the
-	\Toolbutton {LCD Number} toolbar button and click below
-	the length label. Change the LCD Number's
-	name to 'lengthLCDNumber'.
-
-    \i
-
-	Multiclip can be made to detect clipboard changes and
-	automatically add new clippings. We want the user to have
-	control over whether this should
-	happen or not so we will provide a check box which they can use
-	to indicate their preference.
-
-	Click the
-	\Toolbutton {Check Box} toolbar button and
-	click below the
-	\Widget {LCD Number}. Change the
-	checkbox's name to 'autoCheckBox' and its text to 'A\&uto Add
-	Clippings'. Note that the \Property accel property automatically changes
-	to \Key Alt+U because the ampersand in the text
-	signifies a keyboard shortcut.
-
-    \i
-
-	The last widgets we require are the buttons. One way to add the
-	same kind of widget multiple times is to add one, copy it, then
-	paste repeatedly. We will use another approach.
-
-	\index Adding!Duplicate Widgets
-\index Widgets!Repeatedly Adding
-\index Adding!Push Buttons
-\e Double click the
-	\Toolbutton {Push Button} toolbar button; now click below the
-	checkbox to place a button. Click below the button we've just
-	added to add a second button. Add a third and fourth button. Now
-	click the \Toolbutton Pointer toolbar button to switch off
-	automatically adding the same widget. Change the first button's
-	name to 'addPushButton' and its text to '\&Add Clipping'.
-	Change the second button's name to 'copyPushButton' and its text
-	to '\&Copy Previous'. Change the third button's name and text
-	properties to 'deletePushButton' and '\&Delete Clipping'
-	respectively. Similarly change the fourth button's name and text
-	to 'quitPushButton' and '\&Quit'.
-
-    \endlist
-All our widgets have been placed on the form with their properties
-changed to suit our application's needs. In the next section we will use
-\QD's layout tools to size and position the widgets correctly and in
-such a way that when the user resizes the form the widgets will scale
-properly.
-
-\img qd-chapdialogs-addingwidgets.png
-\caption Adding Widgets to the Form
-
-\sidebar Value Editors
-
-\index Value Editors
-\index Value Editors!Dialogs
-\index Dialogs!Value Editors
-Whilst the Property Editor is used to customize the generic properties
-of widgets, value editors are used to edit values held within instances
-of particular widgets. For example a
-\Class QLineEdit
-can only contain a single line of text, but a
-\Class QListBox can contain any number of items each of
-which may be a line of text, a pixmap, or both. To invoke a widget's
-value editor double click the widget. (Alternatively right click the
-widget and a popup menu will appear; if the first menu item is 'Edit',
-you can click this to access the widget's value editor dialog.)
-Different widgets have different value editors.
-See the \l{Value Editors} chapter for more details.
-
-\endsidebar
-
-\section1 Laying Out Widgets and Previewing
-
-    \section2 Introduction to Layouts
-
-    \index Layouts
-\index Layouts!Vertical
-\index Layouts!Horizontal
-\index Layouts!Grid
-Layouts work by grouping together widgets and groups of widgets,
-    horizontally, vertically or in a grid. Widgets that are laid out
-    together horizontally or vertically can be grouped either with a
-    Layout or with a \Layout Splitter; the only difference is that a user can
-    manipulate a Splitter themselves.
-
-    If we want to lay out some widgets side by side we would select them
-    and then click the
-    \Toolbutton {Lay Out Horizontally}
-    toolbar button. If we want our widgets to be lined up one above
-    the other we would use the \Toolbutton {Lay Out Vertically} toolbar
-    button.
-    Once we've grouped some widgets together we can then lay out the
-    groups in relation to each other, again using vertical, horizontal
-    or grid layouts. Once we have a collection of laid out groups we
-    then click on the form itself and lay out the groups within the form
-    using one of the layout buttons.
-
-    \index Layouts!Space filling
-\index Widgets!Push Button
-\index Widgets!Line Edit
-Some widgets will grow to fill the available space, vertically or
-    horizontally or both ways. Buttons and line edits will fill
-    horizontal space for example, whereas a \Widget ListView will fill
-    space in both directions. The easiest way to achieve the layout you
-    want is to use \QD's layout tools. When you apply a layout to some
-    widgets in some situations the widgets may not lay out the way you
-    want. If a widget does not fill up enough space try changing its
-    \Property sizePolicy to Expanding. If a widget takes up too much space one
-    approach is to change its \Property sizePolicy, and another approach is to use
-    a \e Spacer to consume excess space.
-
-    \Layout Spacers have no visual appearance on the running form and are used
-    purely to insert space between widgets or groups of widgets. Suppose
-    you have a widget that takes up too much space. You could break the
-    layout and resize the widget to make room for a spacer. Then you
-    would insert the spacer and layout the spacer with the widgets and
-    the spacer will consume the excess space. If the spacer doesn't take
-    up the right amount of space you can change its sizePolicy for finer
-    control.
-
-    \index Undo and Redo!Layouts
-\index Layouts!Undo and Redo!Undo and Redo
-\index Layouts!Spacers
-The best way to learn about layouts and spacers is to try
-    them out. Experimenting with layouts is easy. If you make any
-    changes that you aren't happy with you can easily undo them by
-    clicking \Menu Edit|Undo or by pressing
-    \Key Ctrl+Z. In the next section we'll lay out our
-    multiclip example step-by-step.
-
-    \section2 Laying Out Widgets
-
-    \index Layouts
+\index Layouts
 \index Scaling widgets and application windows
 \index Automatically scaling widgets and application windows
 \index Absolute positioning
-Layouts provide a means of grouping widgets and groups of widgets
-    together in horizontal and vertical pairs and in grids. If you use
-    layouts your forms and the widgets they contain will scale
-    automatically when the user resizes the window. This is better than
-    using absolute sizes and positions since you don't have to write any
-    code to achieve the scaling and your users can make the most of
-    their screen size whether they have a laptop or a very large screen
-    desktop machine. Layouts use standard sizes for margins and widget
-    spacing which helps give your applications a consistent and
-    proportional look without requiring any effort on your part. Layouts
-    are also easier and faster to use than absolute positioning; you can
-    just place your widgets on the form in approximate positions and
-    leave the layout tools to size and scale the widgets correctly.
+Layouts provide a means of laying out widgets, groups of widgets, and
+layouts into horizontal and vertical pairs and into grids. If
+you use layouts your forms and the widgets they contain will scale
+automatically when the user resizes the window. This is better than
+using absolute sizes and positions since you don't have to write any
+code to achieve the scaling and your users can make the most of their
+screen size whether they have a laptop or a very large screen desktop
+machine. Layouts use standard sizes for margins and widget spacing
+which helps give your applications a consistent and proportional look
+without requiring any effort on your part. Layouts are also easier and
+faster to use than absolute positioning; you can just place your
+widgets on the form in approximate positions and leave the layout
+tools to size and scale the widgets correctly.
 
-    \sidebar Selecting Widgets and Inserting Widgets
-
-    \index Object Explorer
+\index Object Explorer
 \index Selecting Widgets
 \index Rubber band, Selecting
 \index Selecting!Rubber band
 \index Grouping Widgets
 \index Widgets!Grouping
 To select an individual widget, either click the widget itself or
-    click its Name in the Object Explorer window. To select a group
-    either click a fraction outside its red outline or click its Name in
-    the Object Explorer window. To select multiple widgets or groups,
-    click the form to deselect any selected widgets, then \Key Ctrl+Click
-    one widget or group then drag the rubber band so that it touches the
-    other widgets or groups that you want to select. This technique is
-    particularly useful for selecting widgets that are
-    \e inside another widget. For example to select
-    the radio buttons in a button group but not the button group itself
-    you would click the form then \Key Ctrl+Click one of the radio buttons
-    and drag the rubber band to touch the other radio buttons.
+click its Name in Object Explorer. To select a group either
+click a fraction outside its red outline or click its Name in 
+Object Explorer. 
 
-    \index Layouts!Break layout
-\index Break layout
-If we want to insert a widget into a gap between widgets
-    which are in a layout we can click the toolbar button for the new
-    widget and then click in the gap. \QD will ask us if we want to
-    break the layout and if we click \Button {Break Layout}
-    the layout will be broken and our widget inserted. We can then
-    select the widgets and groups we want to lay out and lay them out
-    again. The same effect can be achieved by clicking the group and
-    either clicking the \Toolbutton {Break Layout} toolbar
-    button or pressing \Key Ctrl+B.
+If you want to insert a widget into a gap between widgets which are in
+a layout we can click the toolbar button for the new widget and then
+click in the gap. \QD will ask us if we want to break the layout and
+if we click \Button{Break Layout} the layout will be broken and our
+widget inserted. We can then select the widgets and groups we want to
+lay out and lay them out again. The same effect can be achieved by
+clicking the group and either clicking the \Button{Break Layout}
+toolbar button or pressing \Key Ctrl+B.
 
- \endsidebar
+Multiple widgets can be selected in five different ways:
+\list 1
+\i Click the first widget, then \Key Shift+Click the other widgets.
+\i \Key Ctrl+Click the first widget, then \Key Ctrl+Click the other
+widgets; this is like the first technique but allows you to select
+widgets that are \e inside another widget (e.g. inside a group).
+\i Click the form and drag the rectangular rubber band to \e touch all
+the widgets you are interested in.
+\i \Key Ctrl+Click the first widget, then drag the rectangular rubber
+band to \e touch the other widgets. This differs from the previous
+technique in that it allows you to select widgets that are \e inside
+another widget (e.g. inside a group).
+\i Click Object Explorer's Objects tab. Click the first widget in
+Object Explorer, then \Key Shift+Click the other widgets. This is
+especially useful for picking out widgets when you have lots of
+complex layouts.
+\endlist
 
-    The layout we want to achieve is to have the current clipping label
-    and currentLineEdit side by side at the top of the form. We want the
-    previous clippings label and the clippingsListBox to occupy the left
-    hand side of the form with the remaining widgets in a column on the
-    right. We want to divide left and right with a splitter and make the
-    left hand side larger by default. We'll leave the sizing of the
-    widgets to \QD. The layout controls are in the \Toolbutton Layout
-    toolbar. (By default this is the fourth toolbar counting left to
-    right.) We'll now lay out the widgets we've placed on the form.
-    \list 1
-    \i
+When multiple widgets are selected their common properties are shown
+in the Property Editor. Any changes made in the Property Editor will
+be applied to \e all the selected widgets. This is particularly useful
+for setting common minimum and maximum sizes, colors, size policies,
+cursors, fonts, etc.
+\endsidebar
 
-    Click the current clipping label and \Key Shift+Click the
-    currentLineEdit \Widget {Line Edit}.
-    (\Key Shift+Click means hold down the shift key whilst
-    clicking; this will ensure that \QD performs multiple selections.)
-    Most of the layout toolbar buttons will now be available. Click the
-    \Toolbutton {Lay Out Horizontally} toolbar button. (If you hover
-    the mouse over a toolbar button a tooltip giving the button's name
-    will appear.) The two
-    widgets will be moved together with a thin red line surrounding
-    them. It doesn't matter that the widgets aren't the right size or in
-    exactly the right place; as we progress with the layout \QD will
-    size and place them correctly.
+\section2 Creating the Dialog
 
-    \img qd-chapdialogs-layoutwidgets-stepone-after.png
-    \caption Layout Current Clipping Label and currentLineEdit
+\section3 Adding the Widgets
 
-    \i
+We can use one of Qt's static dialogs to get the user to choose a
+color, but we need our own dialog to get them to give it a name. We'll
+create that dialog now.
 
-    Click the Previous Clippings label and \Key Shift+Click the
-    clippingsListBox. Click the \Toolbutton {Lay Out Vertically}
-    toolbar button.
+Click \Menu{File|New} to invoke the \Widget{New File} dialog, then
+click "Dialog", then click \OK. Drag a corner of the new form to make
+it a lot smaller. Change the form's name (in the Property Editor) to
+"ColorNameForm", and change its caption to "Color Tool -- Color Name".
+Click \Menu{File|Save}, then click \Button{Save} to save it.
 
-    \i
+We'll now add some widgets to the dialog. Don't worry about precise
+positioning or sizing; we'll get \QD to lay the form out perfectly for
+us shortly.
 
-    \index Selecting Widgets
-\index Rubber band, Selecting
-\index Selecting!Rubber band
-\index Grouping Widgets
-\index Widgets!Grouping
-We want the remaining widgets to be grouped together vertically. We
-    could \Key Shift+Click each one but instead click the
-    form above the Length label, then drag until the Length label, the
-    LCD Number, the check box and all the buttons are all touching the
-    rubber band (a black outline rectangle) that appears when you drag.
-    Release the mouse, and all the remaining widgets should be selected.
-    If you missed any \Key Shift+Click them. Now click the
-    \Toolbutton {Lay Out Vertically} toolbar button.
+We need to create a \l QLabel that will show the color the user has
+chosen. Click the TextLabel tool in the Toolbox, then click on the
+left hand side of the form. Change the label's \Property{name}
+property to "colorLabel", and delete the text in the \Property{text}
+property. Click the \Property{pixmap} property's ellipsis button and
+choose the "editraise.xpm" image. Change the \Property{minimumSize}
+property's \Property{width} sub-property to 80, and set the
+\Property{scaledContents} property to True.
 
-    \img qd-layout3-rubberband.png
-    \caption Selecting a Group of Widgets 
+Click the TextLabel tool again, then click to the right of the
+colorLabel, towards the top of the form. Change the \Property{text}
+property to "\&Name". Note that the ampersand is displayed; this is
+because a \l QLabel cannot accept focus and we haven't specified a
+focus widget ("buddy") yet.
 
-    \endlist
+Click the LineEdit tool, then click to the right of the "Name" label,
+again towards the top of the form. Change the \Property{name} property
+to "colorLineEdit".
 
-    We now have three groups of widgets which must be laid out in
-    relation to each other and then laid out in relation to the form
-    itself.
+Click on the "Name" label and change its \Property{buddy} property to
+"colorLineEdit". The ampersand has now disappeared and \Key Alt+N will
+set the focus in the colorLineEdit.
 
-    \img qd-layout3-groupedwidgets.png
-    \caption Groups of Layed Out Widgets
+Click the PushButton tool, then click below the "Name" label. Change
+the button's \Property{name} property to "okPushButton", its
+\Property{text} property to "OK", and its \Property{default} property
+to True.
 
-    \list 1
-    \i
+Click the PushButton tool again, then click to the right of the OK
+button. Change this button's \Property{name} property to
+"cancelPushButton" and its \Property{text} property to "Cancel".
 
-    \index Layouts!Rubber band
-\index Grouping Widgets
-\index Widgets!Grouping
-\Key {Shift+Click}ing is used to select individual widgets. To select a
-    group we must click the form to deselect any selected widgets, then
-    \Key Ctrl+Click the group and drag so that the rubber band touches the
-    groups we want to lay out and then release. With the buttons and
-    other widgets already laid out and selected, \Key Ctrl+Click the list box
-    and drag the rubber band over the one of the buttons, then release. Both
-    groups should now be selected. Click the
-    \Toolbutton {Lay Out Horizontally (in Splitter)} toolbar button.
+\section3 Laying Out the Widgets
 
-    \img qd-layout2.1-twogroups.png
-    \caption Layout Groups of Widgets
+Now that we've created and roughly placed the widgets we need we are
+ready to lay them out. 
 
-    \i
+The process of laying out widgets is essentially two steps: 
+\list 1
+\i select two or more widgets (or layouts)
+\i apply a layout method (vertical, horizontal, grid) to the selected
+items
+\endlist
+\QD provides several different ways of selecting widgets and layouts.
+It doesn't matter which you use; some are more convenient in certain
+situations that others. We'll show several different approaches to
+selecting widgets as we lay out this form.
 
-    We now have two groups, the top one with the Current Clipping label
-    and the line edit and the group we've just created with the list box,
-    buttons and other widgets. We now want to lay these out in relation
-    to the form. Click the form and click
-    the \Toolbutton {Lay Out Vertically} toolbar button. The widgets will
-    be resized to fill the entire form.
+We will lay out the "Name" label and the line edit side by side. Then
+we'll do the same for the buttons, and finally we'll lay out these two
+layouts in relation to the colorLabel.
 
-    \img qd-layout2.2-layoutform.png
-    \caption Lay out Widgets in Relation to the Form
+Click the form to deselect any selected widgets. Click the form above
+the "Name" label and drag the black rectangular elastic band so that
+it touches both the "Name" label and the line edit; then release. (It
+only has to be touching them when you release.) The "Name" label and
+the line edit are now selected. Click the \Button{Lay Out
+Horizontally} toolbar button. A thin red rectangle appears to indicate
+the layout (this only shows up as a visual cue in \QD, it doesn't
+appear in preview mode or in the running form).
 
-    \endlist
+Click the form to deselect any selected widgets. In Object Explorer's
+Objects tab click the "cancelPushButton" to select it. Now \Key
+Shift+Click the OK button in the Objects tab. (The Objects tab only
+ever highlights \e one object; but the form shows that both buttons
+are selected.) Click the \Button{Lay Out Horizontally} toolbar button.
 
-    \index Layouts!Spacers
-Unfortunately the Length label and the LCD Number take up far too
-    much space, so we will have to revise the layout. With experience
-    you will find that you do not need to rework layouts very often. We
-    will insert a spacer which will use the extra space.
-    \list 1
-    \i
+Click the form to deselect any selected widgets. In Objects Explorer,
+click "Layout1" (which contains the "Name" label and the line edit),
+then \Key Shift+Click "Layout2" (which contains the buttons) so that
+both layouts are selected on the form. Click the \Button{Lay Out
+Vertically} toolbar button.
 
-    First we must make some room for the spacer. Click the LCD Number to
-    select it. Now click the \Toolbutton {Break Layout} toolbar
-    button. Move the LCD Number up a little bit, there's no need to be
-    exact we just want to create some space below it.
+Now that we've got our two layouts (and the colorLabel widget), we'll
+lay them all out in relation to the form.
 
-    \i
+Click the form to deselect any selected widgets. Click the \Button{Lay
+Out Horizontally} toolbar button to lay out the form. (The form gets
+laid out because no widgets or layouts are selected.)
 
-    \index Layouts!Spacers
-Now we'll add the spacer.
-    Click the \Toolbutton Spacer toolbar button, then click the form
-    in the space you've created between the LCD Number and the check
-    box. A popup menu with two options, Horizontal and Vertical, will
-    appear; click Vertical. We choose vertical because we want the spacer
-    to consume excess vertical space.
+Preview the form (\Key Ctrl+T), and try resizing it. Unfortunately,
+when you make the form larger the buttons expand too much and look
+unattractive. Furthermore they don't stay at the bottom of the form as
+we would like. The problem is that when we enlarge the form there is a
+lot of unused space, and we need to tell the buttons not to make use
+of that space. This is achieved by inserting "spacers"; these have no
+visible appearance to the user, but consume excess space.
 
-    \img qd-layout3.2-addspacer.png
-    \caption Adding a Vertical Spacer
+We need to break the form layout so that we can insert spacers and lay
+out the form once more. Click the red rectangle of "Layout3", the
+layout that lays out the entire form. (We could just have easily have
+clicked the layout in Object Explorer.) Click the \Button{Break
+Layout} toolbar button. 
 
-    \i
+We could add a spacer to the left of the buttons and lay that out with
+the buttons. But to save creating an extra layout, instead we'll break
+the layout that contains the buttons and lay them out in a single
+layout with the spacer. Click one of the buttons, then click
+\Button{Break Layout} (or press \Key Ctrl+B). Roughly resize the OK
+button so that it is about half as wide, leaving a gap on its left.
+Click the Spacer tool (in the Toolbox or on the toolbar), then click
+the form to the left of the OK button and drag horizontally. A
+horizontal Spacer (indicated by a blue "spring") is now left of the OK
+button.
 
-    \index Layouts!Spacers
-We need to regroup the buttons and other widgets in a vertical
-    group. Drag the mouse from near the bottom right of the form so that
-    the rubber band includes or touches the buttons, the
-    check box, the spacer, the LCD Number and the Length label; then
-    release. If you selected any other widgets by mistake, click the
-    form and try the drag again. Click the
-    \Toolbutton {Lay Out Vertically} toolbar button.
+Since the Spacer is already selected, we'll simply extend the
+selection to include the buttons. \Key Shift+Click the OK and cancel
+buttons in turn so that both buttons and the Spacer are selected. Now
+click \Button{Lay Out Horizontally} (or press \Key Ctrl+H). The Spacer
+is now in place and able to consume excess space.
 
-    \i
+Now we'll put a Spacer between the layout containing the line edit and
+the layout we've just created (containing the buttons) to consume any
+excess space between them. Click the Spacer tool, then click the form
+in-between the line edit and the buttons and drag vertically. The
+Spacer is already selected but we need to extend
+the selection to include both the layouts. \Key Shift+Click the
+layouts in Object Explorer's Objects tab. Now click \Button{Lay Out
+Vertically} (or pres \Key Ctrl+L).
 
-    \index Layouts!Splitters
-\index Layouts!Horizontal
-\index Layouts!Spacers
-We now have three groups as we had before, only this time with the
-    small addition of the spacer. Select the list box and the buttons by
-    clicking the form, dragging and releasing once the rubber band
-    covers or touches both groups.
-    Click \Toolbutton {Lay Out Horizontally (in Splitter)} to regroup
-    them with the splitter.
+Now we'll lay out the form itself. Click the form to deselect any
+selected widgets or layouts. Then click \Button{Lay Out Horizontally}.
 
-    \i
+So far the form doesn't look very different from before. Try
+previewing it (\Key Ctrl+T) and resizing it. No matter how large or
+small you make it, the form always remains nicely proportioned. 
 
-    The last step is to lay out the form itself. Click the form and
-    click \Toolbutton {Lay Out Vertically}. The form should now
-    be laid out correctly.
+This is the beauty of using layouts rather than fixed sizes. It is
+especially useful if your program is translated into different
+languages since the labels will automatically and proportionally
+resize without any coding whatsoever. And your users will be able to
+use your forms on a wide variety of screen sizes from giant desktop
+screens to small laptop screens. (And, you can, of course, use fixed
+sizes and positions if you wish.)
 
-    \img qd-layout3.5-layoutform.png
-    \caption Lay Out the Form 
+Resize the form in \QD. Notice that the form has a minimum size; this
+is because all the widgets it contains have minimum sizes. (You can
+override this if you wish.) The size you make the form in \QD will
+become the form's default size.
 
-    \endlist
-    There are two small deficiencies in the layout that we have
-    achieved. Firstly the list box and buttons take up an equal width
-    whereas we'd rather have the list box take up about three quarters
-    of the width. Secondly the Length label, the check box and the
-    buttons extend right up to the splitter. They would look more
-    attractive if there was a little bit of space separating them from
-    the splitter.
+When previewing the form, try pressing \Key Tab to move between
+widgets that can accept focus. In all probability the tab order is
+correct. If it isn't, we can easily change it: see the \l{Changing the
+Tab Order} sidebar.
 
-    Expanding the list box half of the splitter would require us to add
-    an \Func init() function with the following code:
-\index init()
-\code
-    void MulticlipForm::init()
-    {
-	QValueList< int > sizes;
-	sizes << 250 << 40;
-	Splitter->setSizes( sizes );
-    }
-\endcode
+\sidebar Changing the Tab Order
 
-    We won't add this code now since we'll deal with the code when we
-    come to implement the application's functionality later in the
-    chapter.
-
-    \index Layouts!Spacing
-\index Object Explorer
-\index Selecting Widgets
-We will create some space around the splitter by changing the
-    margins of the layout groups that it joins together. To click a
-    layout either click a fraction above the layout's top red line or
-    click the layout's name in the Object Explorer (the Widgets and
-    Source window). (See \l {Object Explorer Window} sidebar for an
-    explanation of the Object Explorer window.) Click the layout that
-    contains the list box, and change the \Property layoutMargin property to 6,
-    then press \Key Enter. Click the layout that contains
-    the buttons and other widgets, and change
-    its \Property layoutMargin to the same value in the same way.
-
-    \sidebar The Object Explorer
-
-    \index Object Explorer
-View the Object Explorer (Widgets and Source) window by clicking
-    \Menu {Window|Views|Object Explorer}. The Object
-    Explorer has two tabs, the Widgets tab which shows the object
-    hierarchy, and the Source tab which shows the source code you have
-    added to the form. Clicking the name of a widget in the Widget tab
-    will select the widget and show its properties in the Property
-    Editor. It is easy to see and select widgets
-    in the Object Explorer which is especially useful for forms that
-    have many widgets or which use layouts.
-
-    \img qd-chapdialogs-objectexplorer.png
-    \caption Object Explorer
-
-    \index Code Editing
-\index Subclassing
-\index Forward declarations
-\index Includes
-\index Adding!Code
-\index Adding!Forward declarations
-\index Adding!Includes
-\index Adding!Class variables
-\index Class variables
-\index Deleting!Forward declarations
-\index Deleting!Includes
-\index Deleting!Class variables
-\index Forms!Forward declarations
-\index Forms!Class variables
-\index Forms!Code editing
-\index Forms!destructor
-\index Forms!constructor
-In the original version of \QD if you wanted to provide code for a
-    form you had to subclass the form and put your code in the
-    subclass. This version fully supports the subclassing
-    approach, but now provides an alternative: placing your code
-    directly into forms. Writing code in \QD is not quite the same
-    as subclassing, for example you cannot get direct access to the
-    form's constructor or destructor. If you need code to be executed
-    by the constructor create a slot called 
-    \index init()
-    \Func{void init()}; if it exists it will be called from the constructor.
-    Similarly, if you need to be executed before destruction create a
-    slot called
-    \index destroy()
-\Func{void destroy()}.
-    You can also add your own class variables which
-    will be put in the generated constructor's code, and you can add
-    forward declarations and any includes you require. To add a variable
-    or declaration right click the appropriate item, e.g. Class
-    Variables, then click New then enter your text, e.g.
-    \c {QString fileName}. If one or more items exist
-    right clicking will popup a two item menu with New and Delete as
-    options. To edit code just click the name of a function to invoke
-    the code editor. Code editing and creating slots are covered later.
-
-    \index Subclassing
-If you subclass the form you create your own
-    \index .cpp
-\File .cpp files which can contain your own
-    constructor, destructor, functions, slots, declarations and
-    variables as your requirements dictate. (See \l {Subclassing} for more information.)
-
-    \endsidebar
-
-    \index Absolute positioning
-In the example we used \QD's layout tools to lay
-    out our widgets. We will use the layout tools again in the examples
-    presented in later chapters. If you want to use absolute
-    positioning, i.e. to place and size your widgets with exact pixel
-    sizes you can easily do so. To place a widget click it and drag it
-    to the desired position. To resize it, click it, and drag one of the
-    sizing handles (these are small blue squares) until the size is
-    right. To stop the widget from resizing when the window is resized
-    change the \Property hSizeType and \Property vSizeType (these are
-    properties within the \Property sizePolicy property), to Fixed.
-
-    \section2 Previewing
-
-    \index Previewing
-\index Preview Mode!Previewing
-\index Cross-platform previewing
-Although \QD presents an accurate view of our forms we often want to
-    see what a form looks like when it is run. It is also useful to be
-    able to test out some aspects of the form, for example how the form
-    scales when resized or how the splitters work in practice. If we're
-    building multiplatform applications it is also useful to see how
-    the form will look in different environments.
-
-    To see a preview either click \Menu {Preview|Preview Form}
-    or press \Key Ctrl+T. To leave preview mode
-    close the window in the standard way for
-    your environment. To view previews which show how the application will
-    look on other platforms click the \Menu Preview
-    menu and click one of the menu items that drop down.
-
-    Preview the multiclip form and try out the splitter and try resizing
-    the form. In all probability you moved the splitter to the right to
-    reduce the size of the buttons to make the form more attractive. The
-    splitter seemed like a good idea but in practice we want the buttons
-    and the other widgets on the right hand side to take up a fixed
-    amount of space. \QD makes changing layouts very easy, so we'll fix
-    this straight away.
-
-\img qd-chapdialog-previewing2.png
-\caption Previewing Multiclip
-
-    \index Layouts!Splitters
-\index Layouts!Rubber band
-Click the splitter then click the \Toolbutton {Break Layout}
-    toolbar button; the splitter will be removed. Now
-    click the form itself, near the bottom, and drag the rubber band so
-    that it touches both the list box and some of the buttons, then
-    release. The list box group and the buttons group are
-    selected; click the \Toolbutton {Lay Out Horizontally}
-    toolbar button. Click the form then click the
-    \Toolbutton {Lay Out Vertically}
-    toolbar button. The form is now laid out as
-    we require. Preview the form (press \Key {Ctrl+T}) and try
-    resizing it.
-
-    \index Undo and Redo!Layouts
-It would be useful if you experimented further with layouts since
-    they work visually and are best learnt through practice.
-    To remove a layout click the \Toolbutton {Break Layout}
-    toolbar button; to apply a layout select the
-    relevant widgets or groups and click a layout button. You can
-    preview as often as you like and you can always undo any changes
-    that you make.
-
-    \index Layouts!Grid
-\index Layouts!Break layout
-Let's try an experiment, to see how the grid layout works. Click
-    the list box, then press \Key Ctrl+B (break layout).
-    Click one of the buttons and press \Key Ctrl+B. Click
-    the form at the bottom and drag until all the widgets are touching
-    or within the rubber band, (but excluding the Current
-    Clipping label and the currentLineEdit line edit); then release.
-    Press \Key Ctrl+G (lay out in a grid). Click the form,
-    then click \Key Ctrl+L (lay out vertically). Our
-    original design is back -- but this time using a grid layout.
-
-    \section2 Changing the Tab Order
-
-    \index Tab Order
+\index Tab Order
 \index Tab Order Mode!Tab Order
-Keyboard users press the \Key Tab key to move the focus
-    from widget to widget as they use a form. The order in which the
-    focus moves is called the tab order. Preview multiclip (press
-    \Key {Ctrl+T}) and try tabbing through the widgets. The
-    tab order may not be what we want so we'll go into tab order mode
-    and change it to the order we want.
+Keyboard users press the \Key Tab key to move the focus from widget to
+widget as they use a form. The order in which the focus moves is
+called the tab order. 
 
-    \index Tab Order
-When you click the \Toolbutton {Tab Order} toolbar button a
-    number in a blue circle will appear next to every widget that can
-    accept keyboard focus. The numbers represent each widget's tab
-    order, starting from 1. You change the tab order by clicking the
-    widgets in the order you want to be the new tab order. If you make
-    a mistake and need to start again, double click the widget you
-    want to be first, then click the other widgets in the required
-    order as before. When you've finished press \Key Esc to leave tab
-    order mode. If you made a mistake or preferred the previous tab
-    order you can undo your changes by leaving tab order and undoing
-    (press \Key Esc then \Key {Ctrl+Z}).
+To change a form's tab order click the \Button{Tab Order} toolbar
+button. This will put \QD into tab order mode; a number in a blue
+circle will appear next to every widget that can accept focus.
 
-    \index Tab Order
-Click the \Toolbutton {Tab Order} toolbar button, then
-    click the current clipping \Widget {Line Edit}
-    -- even if it is already number
-    one in the tab order. Next click the previous clipping \Widget ListBox,
-    then the auto add clippings \Widget CheckBox. Click each button in
-    turn from top (add clipping) to bottom (quit). Press \Key Esc to
-    finish tab order mode, then preview the form and try tabbing through
-    the widgets.
+To change the tab order, click every widget in turn in the order you
+want them to accept focus. If a widget already has the right tab order
+number you must \e{still click it} unless that widget and \e all the
+following widgets have the correct tab order numbers; in which case
+you can stop. Press \Key Esc to leave tab order mode. You can test the
+tab order by previewing (\Key Ctrl+T) and pressing the \Key Tab key.
 
-    Note that you can stop clicking if the tab order numbers for all the
-    widgets is correct; just press \Key Esc to leave tab
-    order mode.
+If you prefer the tab order that you had before this one, click
+\Menu{Edit|Undo} (or press \Key Ctrl+Z).
 
-\img qd-chapdialog-taborder.png
-\caption Setting the Tab Order
+\img qd-chapdialog-taborder.png Setting Tab Order
 
-\section1 Connecting Signals and Slots
+\endsidebar
 
-\index Signals and Slots
-\index Connecting!Signals and Slots
-Qt provides the signals and slots mechanism for communicating between
-widgets. Signals are emitted by widgets when particular events occur. We
-can connect signals to slots, either pre-defined slots or those we
-create ourselves. In older toolkits this communication would be achieved
-using callbacks. (For a full explanation of Qt's signals and slots mechanism
-see the on-line \link http://doc.trolltech.com/signalsandslots.html Signals and Slots \endlink
-documentation.)
+\section3 Connecting the Widgets
 
-    \section2 Connecting Predefined Signals and Slots
+We need to handle two buttons; the OK button and the cancel button. If
+the user clicks \OK, we will only accept their color name if it isn't
+empty, and if it isn't already in use. (The \File{rgb.txt} format
+allows duplicate colors, but we will choose not to allow them to be
+added.) If the user clicks \CANCEL we'll just close the dialog.
 
-    \index Signals and Slots
-Some of an application's functionality can be obtained simply by
-    connecting pre-defined signals and slots. In multiclip there is only
-    one pre-defined connection that we can use, but in the richedit
-    application that we'll build in \l {Creating Main Windows with Actions, Toolbars and Menus} we will
-    use many pre-defined signals and slots to get a lot of the functionality
-    we need without having to write any code.
+Click \Key Ctrl+T to preview the form. Click the \CANCEL button;
+notice that it does nothing.
 
-    We will connect the Quit button's \index clicked()
-\SignalOrSlot clicked()
-    signal to the form's \index accept()
-\SignalOrSlot accept() slot. The
-    \index accept()
-\SignalOrSlot accept() slot notifies the dialog's caller that
-    the dialog is no longer required; since our dialog is our main
-    window this will close the application. Preview the form (press
-    \Key {Ctrl+T}); click the \Button Quit
-    button. The button works visually but does nothing. Press
-    \Key Esc or close the preview window to leave the
-    preview.
+We'll connect the cancel button first because it is the easiest. Click
+\Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialogs. Click \Button{New} to create a new connection.
+Set the Sender to "cancelPushButton", the Signal to "clicked()", the
+Receiver to "ColorNameForm", and the slot to "reject()". Because this
+functionality is achieved purely through signal and slot connections
+using a predefined signal and a predefined slot, it will work in
+preview mode. Click \OK to close the dialog, then click \Key Ctrl+T to
+preview. Clicking the \CANCEL button will now close the form, even in
+preview mode.
 
-    \index Signals and Slots
-\index Slots!Signals and Slots
-Click the \Toolbutton {Connect Signals/Slots} toolbar button. Click
-the Quit button, drag to the form and release. The \Dialog {Edit
-Connections} dialog will pop up. The top left hand list box lists the
-Signals that the widget we've clicked can emit. At the top right is a
-combobox which lists the form and its widgets; any of these are
-candidates for receiving signals. Since we released on the form rather
-than a widget the slots combobox shows the form's name,
-'MulticlipForm'. Beneath the combobox is a list box which shows the
-slots available in the form or widget shown in the combobox. Note that
-only those slots that can be connected to the highlighted signal are
-shown. If you clicked a different signal, for example the \index
-toggled() \SignalOrSlot toggled() signal, the list of available slots
-would change. Click the \index clicked() \SignalOrSlot clicked()
-signal, then click the \index accept() \SignalOrSlot accept() slot.
-The connection will be shown in the Connections list box. Click \OK.
+Now we'll connect the OK button. Click \Menu{Edit|Connections} to
+invoke the \Widget{View and Edit Connections} dialogs. Click
+\Button{New} to create a new connection. Set the Sender to
+"okPushButton", the Signal to "clicked()" and the Receiver to
+"ColorNameForm". We want to invoke our own custom slot so that we can
+validate what the user has entered. Click \Button{Edit Slots} to
+invoke the \Widget{Edit Functions} dialog. Change the function's name
+to "validate()", then click \OK. Now change the receiver's slot to
+our newly created "validate()" slot. Click \OK to close the dialog.
 
-\img qd-chapdialog-signalsandslots.png
-\caption Connecting the clicked() Signal to the accept() Slot
+\section3 Coding the Dialog
 
-    We will make lots of signal/slot connections as we work through
-    the examples, including connections to our own custom slots.
-    Signal/slot connections (using pre-defined signals and slots) work
-    in preview mode. Press \Key Ctrl+T to preview the form;
-    click the form's \Button Quit button. The button now
-    works correctly.
+We must code our custom "validate()" slot. This slot will check to see
+if the color name entered already exists, so we must also provide a
+function through which a form-global list of color names can be set.
 
-    \section2 Creating and Connecting Custom Slots
+Click "colornameform.ui.h" in the Project Overview window to invoke
+the code editor. The editor shows a single empty slot,
+\Func{validate()}.
 
-    \index Signals and Slots
-\index Subclassing
-    In the first version of \QD you could create the signatures of
-    your custom slots and make the connections, but you could not
-    implement your slots directly. Instead you had to subclass the
-    form and code your slots in the subclass. The subclassing approach
-    is still available, and makes sense in some situations. But now
-    you can implement your slots directly in \QD, so for many
-    dialogs and windows subclassing is no longer
-    necessary. (\QD stores the slot implementations in a
-    \File{.ui.h} file; see \l{The ui.h extension approach} in \l{The
-    Designer Approach} chapter for more about these files.)
+We need to add some include files and also a form-global variable to
+hold the color names. We could add this information in the same way as
+we did for the main form, by right-clicking the appropriate sections
+in Objects Explorer's Members list and adding them. Instead we'll take
+an alternative approach; we'll add what we need directly in the form.
+Which approach you take is mostly a matter of personal preference; and
+you can use both approaches if you wish.
 
-    The multiclip application requires four slots, one for each button,
-    but only three need to be custom slots since we connected a signal
-    to a pre-defined slot to make the Quit button functional. We need a
-    slot for the Add Clipping button; this will add the current clipping
-    to the list box. The Copy Previous button requires a slot which will
-    copy the selected list box item to the current clipping line edit
-    (and to the clipboard). The Delete Clipping button needs a slot to
-    delete the current clipping and the current list box item. We will
-    also need to write some initialization code so that when the
-    application starts it will put the current clipboard text (if any)
-    into the line edit. The code is written directly in \QD; the
-    snippets are taken from the generated
-    \File qt/tools/designer/examples/multiclip/multiclip.ui.h
-    file.
+\sidebar Adding Members vs Coding in .ui.h
 
-\index Clipboard
-We'll need Qt's global clipboard object throughout the code which
-would mean calling \index QApplication::clipboard() \Func
-QApplication::clipboard() or \index qApp->clipboard()
-\c{qApp->clipboard()} in several places. Rather than perform all these
-function calls we'll keep a pointer to the clipboard in the form
-itself. Click the Source tab of the Object Explorer. (If the Object
-Explorer isn't visible click \Menu{Window|Views|Object Explorer}.) The
-Source tab shows us the functions in our form, the class variables,
-the forward declarations and the names of the include files we've
-asked for.
+For includes there is no difference between adding an include to
+Object Explorer's Members "Includes (in Implementation)" and typing
+the include directly in the \File{.ui.h} file.
 
-    \index Forward declarations
-\index Includes
-\index Adding!Code
-\index Adding!Forward declarations
-\index Adding!Includes
-\index Adding!Class variables
-\index Deleting!Forward declarations
-\index Deleting!Includes
-\index Deleting!Class variables
-\index Class variables
-\index Forms!Forward declarations
-\index Forms!Class variables
-\index Forms!Code editing
-Right click the Class Variables item (near the bottom; you may have to
-click the scrollbar), then click
-    \Menu New on the popup menu. (If there had
-    been any existing variables the popup menu would also have a Delete
-    option.) Type in 'QClipboard *cb;' and press
-    \Key Enter. We will create an \index init()
-\Func init() function
-    in which we will assign this pointer to Qt's global clipboard
-    object. We also need to declare the clipboard header file. Right
-    click Includes (in
-    Declaration), then click \Menu New. Type in
-    '\<qclipboard.h\>' and press \Key Enter. Since we
-    need to refer to the global application object,
-    \c {qApp}, we need to add another include declaration.
-    Right click Includes (in Implementation), then click
-    \Menu New. Type in '\<qapplication.h\>' and
-    press \Key Enter. The variable and declarations will be
-    included in the code generated from \QD's \index .ui
-\File .ui
-    file.
+The situation is different for variables. If you add these to Members,
+Class Variables, they will be included as private variables in the
+class definition. If you type them at the top of the \File{.ui.h} file
+they will be form-global variables.
+\endsidebar
 
-    We will invoke \QD's code editor and write the code.
+We'll start by adding some includes.
 
-    \index Code Editing
-    \index init()
-We'll create the \Func init() function first. One way of
-invoking the code editor is to click the Source tab, then click the
-name of the function you want to work on. If you have no functions or
-wish to create a new function you need to use the Source tab. Right
-click the 'protected' item in the Source tab's Slots list, then
-left click \Menu New to launch the \Dialog{Edit Slots} dialog. Change
-the slot's name from 'newSlot' to 'init()' then click \Button OK. You
-can then click inside the editor window that appears to enter your
-code. 
+\quotefile colortool/colornameform.ui.h
+\skipto qcolor
+\printuntil qstring
 
-Note that you are not forced to use \QD's code editor; so long as you
-add, delete and rename your slots all within \QD, you can edit the
-implementation code for your slots using a separate external editor
-and \QD will preserve the code you write.
+Enter these above the \Func{validate()} function.
 
-\quotefile multiclip/multiclip.ui.h
-\skipto ::init
+We also need a variable to hold the list of colors.
+
+\skipto QMap
+\printline
+
+Add this line; we'll store the colors in a local \c{m_colors} map.
+
+We also need a function that the caller can call to populate the
+\c{m_colors} map with the current colors.
+
+\skipto ColorNameForm::setColors
 \printuntil }
 
-The first couple of lines change the LCD number's background color and
-make the form start with the focus in the line edit. We take a pointer
-to Qt's global clipboard and keep it in our class variable, cb. We
-connect the clipboard's \index dataChanged() \SignalOrSlot
-dataChanged() signal to a slot called \index dataChanged()
-\SignalOrSlot dataChanged(); we will create this slot ourselves
-shortly. If the clipboard supports selection (under the X Window
-system for example), we also connect the clipboard's \index
-selectionChanged() \SignalOrSlot selectionChanged() signal to a slot
-of the same name that we will create. Finally we call our \index
-dataChanged() \SignalOrSlot dataChanged() slot to populate the line
-edit with the clipboard's text (if any) when the application begins.
+Now that we've got a means of obtaining the list of color names we are
+ready to write the \Func{validate()} function.
 
-    Since we've referred to the \index dataChanged()
-\SignalOrSlot dataChanged() and
-    \index selectionChanged()
-\SignalOrSlot selectionChanged() slots we'll code them next,
-    starting with \index dataChanged()
-\SignalOrSlot dataChanged().
-
-\quotefile multiclip/multiclip.ui.h
-\skipto ::dataChanged
+\skipto ColorNameForm::validate
 \printuntil }
 
-We take a copy of the clipboard's text and call our own \SignalOrSlot
-clippingChanged() slot with the text we've retrieved. If the user has
-checked the Auto Add Clippings checkbox we call our \SignalOrSlot
-addClipping() slot to add the clipping to the list box.
+The function examines the text that the user has entered. If they've
+entered something and it doesn't exist in the list of colors we call
+\Func{accept()}; this closes the form and returns a true value to the
+caller. (\Func{reject()}, which is called if the user clicks \CANCEL,
+returns a false value.) If the color already exists we simply select
+it; an alternative would be to pop up a message box.
 
-\index Clipboard!Cross-platform
-\index Cross-platform!Clipboard
-\index Windows, Microsoft
-The \index selectionChanged() \SignalOrSlot selectionChanged() slot is
-only applicable under the X Window System. Users of MS Windows can
-still include the code to ensure that the application works
-multiplatform.
+The dialog is now complete. The next stage is to make use of it from
+the main form by coding the \Func{editAdd()} slot.
 
-\quotefile multiclip/multiclip.ui.h
-\skipto ::selectionChanged
+\section2 Using the Dialog
+
+The ColorNameForm dialog will be called from the main form. The caller
+will firstly call one of Qt's static "choose a color" dialogs, and if
+the user chooses a color, will then invoke our custom dialog. Since
+we're going to use a "choose a color" dialog we will need the
+appropriate header file. We'll also be accessing the dialog's
+colorLabel (to set it to the chosen color), and the dialog's line edit
+(to retrieve the color name), so we'll need appropriate headers for
+these too.
+
+Click "MainForm" in the Project Overview window so that Object
+Explorer shows the main form's objects.
+
+Click Object Explorer's Members tab. Right click "Includes (in
+Implementation)", then click \Menu{Edit} to invoke the \Widget{Edit
+Includes (in Implementation)} dialog. Click \Button{Add} then enter
+"qcolordialog.h". Click \Button{Add} again, and enter "qlabel.h".
+Similarly add "qlineedit.h". We also need to include the header for
+the form we've just created, so add "colornameform.h", and since it is
+our last entry press \Key Enter, then click \CLOSE. 
+
+You should now have added the following declarations to your includes
+(in implementation):
+\list
+\i "qcolordialog.h"
+\i "qlabel.h"
+\i "qlineedit.h"
+\i "colornameform.h"
+\endlist
+
+Now we're ready to enter the \Func{editAdd()} slot's code. Click
+"mainform.ui.h" in the Project Overview to invoke the code editor.
+
+\section3 editAdd()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::editAdd
+\printuntil colorSwatch
+\printuntil }
+\printuntil }
 \printuntil }
 
-We tell the clipboard to use selection mode, we call our \index
-dataChanged() \SignalOrSlot dataChanged() slot to retrieve any
-selected text, then set the clipboard back to its default mode.
+The code for this function is quite long, but it isn't difficult. We
+start by setting a default color to white. If there are any colors in
+the \c{m_colors} map we set the default color to be the current color
+showing in the current view. We then invoke Qt's static
+\link QColorDialog::getColor() getColor()\endlink dialog, passing it
+the default color. (If the user cancels an invalid color is returned.) 
 
-In the \index dataChanged() \SignalOrSlot dataChanged() slot we called
-another custom slot, \SignalOrSlot clippingChanged().
+If the user chose a color we want to show their chosen color in our
+custom dialog, so we create a pixmap and fill it with their chosen
+color. We create an instance of our ColorNameForm as a modal dialog
+(third argument is TRUE). We then call its \Func{setColors()} function
+to set the colors in the \c{m_colors} map (so that the
+\Func{validate()} function will work correctly). We set its
+colorLabel's pixmap to the pixmap we've just created, i.e. to a
+rectangle in the user's chosen color.
 
-\quotefile multiclip/multiclip.ui.h
-\skipto ::clippingChanged
+We execute (\Func{exec()}) the dialog. If the user clicks OK (and the
+color name they've entered is valid), the call will return a true
+value. In this case we retrieve the name they've entered from the line
+edit and create a new entry in the \c{m_colors} map using the name the
+user has given and the color they chose.
+
+At this point we could simply mark the views "dirty" and call
+repopulate. Instead we'll add the new color to each view directly and
+save the overhead of a full update (which might be considerable if we
+have thousands of colors). 
+
+We create a pixmap and fill it with the new color. We then insert a
+new row in the table and set the columns to the new color's values, in
+the same way as we've already seen in the \Func{populate()} function.
+Similarly we create a new icon for the icon view. Finally we mark the
+data as changed so that the user will be prompted to save if they
+attempt to exit or load another color file before they've saved this
+one.
+
+Try building and running the application. You should now be able to
+add your own colors. (If it doesn't build see the \l{Troubleshooting}
+section.)
+
+The application is essentially complete. We can load and save color
+files, we can show them in the table or icon view and users can add
+and delete colors. But if the user has a color file with hundreds or
+thousands of colors, scrolling to look for a particular color would be
+tedious. Also whenever the user runs the application it starts up with
+the default window size, view and other settings; it would be much
+nicer if we remembered how the user left the application and
+reinstated their choices. In the following two sections we'll address
+both these issues through the creation of a modeless find dialog and a
+modal options dialog.
+
+\section1 Finding Colors
+
+The approach to this option is similar to adding colors. We'll design
+a dialog, make its connections, write its code, then code the slot
+that invokes it. (We already have the connection set up in the main
+form; it was created automatically by the main window wizard.)
+
+\img qd-colortool-find.png The Find Color Dialog
+
+\section2 Creating the Dialog
+
+Click \Menu{File|New} to invoke the \Widget{New File} dialog, then
+click "Dialog", then click \OK. Drag a corner of the form to make it
+smaller. Use the Property Editor to change the form's \Property{name}
+property to "FindForm", and its \Property{caption} property to "Color
+Tool -- Find Color".
+
+Press \Key Ctrl+S (or click \Menu{File|Save}) to save the form, then
+click \Button{Save}.
+
+\section3 Adding the Widgets
+
+Click the TextLabel tool in the Toolbox, then click on the form on the
+left hand side. Change the \Property{text} property to "\&Look for".
+(The ampersand will show on the form because we haven't yet provided a
+focus widget "buddy" for the \Key Alt+L keyboard shortcut; we'll do
+that in a moment.)
+
+Click the LineEdit tool, then click on the form to the right of the
+"Look for" label. Change its \Property{name} property to
+"findLineEdit". Click on the "Look for" label and change its
+\Property{buddy} property to "findLineEdit".
+
+Click the PushButton tool and click on the form below the left-end of
+the line edit. Change the \Property{name} property to
+"findPushButton", its \Property{text} property to "\&Find" and its
+\Property{default} property to True.
+
+Click the PushButton tool again and click on the form to the right of
+the "Find" button. Change the \Property{name} property to
+"closePushButton" and the \Property{text} property to "Close".
+
+We know from experience with the previous form that we'll need a
+spacer above the buttons and to the left of the buttons. Click on the
+Spacer tool, then click to the left of the "Find" button; drag
+horizontally to the right a little, then release. Click on the Spacer
+tool again, then click above the "Find" button; drag vertically a
+little, then release.
+
+\section3 Laying Out the Widgets
+
+Now that we've created and roughly placed the widgets we need we are
+ready to lay them out. 
+
+Click the form to deselect any selected widgets. Click to the right
+and below the "Close" button and drag the rubber band rectangle so
+that it \e touches both buttons and the spacer to the \e left of the
+"Find" button; then release. There's no need to be too precise, so
+long as you touch the three items we're interested in and nothing
+else. If you make a mistake and haven't selected everything or have
+selected something else, just click the form and try again. Once the
+Spacer (to the left of the "Find" button) and both buttons are
+selected, click the \Button{Lay Out Horizontally} toolbar button.
+
+Lay out the "Look for" label and the line edit horizontally. (Click
+the "Look for" label, then \Key Shift+Click the line edit, the press
+\Key Ctrl+H.)
+
+We can now lay out the form itself. Click the form, then press \Key
+Ctrl+L (lay out vertically). You may want to resize the form slightly,
+perhaps to make it smaller. Try previewing the form (\Key Ctrl+T) and
+resizing it to see how everything resizes nicely.
+
+\section3 Connecting the Widgets
+
+There are two approaches we can take for a find dialog. One approach
+is to use a modal dialog: the user enters a term, clicks "Find" and we
+then close the form with the found item highlighted. The other
+approach is to use a modeless dialog: the user can enter the term and
+click "Find" as often as they like; each time the click the next
+matching term is found. We are going to use the second approach. 
+
+Since the searching takes place through the data held by the main
+form, and since we want any found term to be highlighted by the main
+form, we'll put most of the code for the search in the main form. To
+achieve this we'll have the FindForm emit a signal whenever the user
+clicks the "Find" button, and we'll provide a slot that the main form
+can call to notify the FindForm that no matching color was found.
+
+Invoke the \Widget{View and Edit Connections} dialog. (Click
+\Menu{Edit|Connections}.)
+
+Connect the closePushButton's \Func{clicked()} signal to the form's
+\Func{accept()} slot. (Click \Button{New}, then change the Sender to
+"closePushButton", change the Signal to "clicked()", change the form
+to "FindForm" and change the slot to "accept()".) Because this
+functionality is achieved purely through signal and slot connections
+it will work in preview mode, i.e. if you preview and click the
+"Close" button, the form will close.
+
+Connect the findPushButton's \Func{clicked()} signal to a newly
+created "find()" slot. (Click \Button{New}, then change the Sender to
+"findPushButton", change the Signal to "clicked()", change the form to
+"FindForm". Click \Button{Edit Slots} to invoke the \Widget{Edit
+Functions} dialog; change the slot's name to "find()", then click \OK.
+Now change the slot to the newly created "find()" slot.)
+
+Close the \Widget{View and Edit Connections} dialog. (Click \OK.)
+
+When the user clicks the "Find" button we want to emit a signal so
+that the main form can look for the text.
+
+Click Object Explorer's Members tab, then right click Signals and
+click \Menu{New}. Enter "lookfor(const QString\&)". We'll emit this
+signal when we implement the code for the \Func{find()} slot.
+
+\section3 Coding the Dialog
+
+Click "findform.ui.h" in the Project Overview to invoke the code
+editor. We'll implement the \Func{find()} function and also a
+"notfound" function that the caller can use to signify that the search
+failed.
+
+\quotefile colortool/findform.ui.h
+\skipto FindForm::find
 \printuntil }
 
-We set the line edit to whatever text is passed to the \SignalOrSlot
-clippingChanged() slot and update the LCD number with the length of
-the new text.
+When the user clicks the "Find" button we emit the text that's in the
+line edit. It is up to the caller to connect to this signal and
+perform the search.
 
-\index Signals and Slots
-The next slot we'll code will perform the Add Clipping function. This
-slot is called by our code internally (see the \index dataChanged()
-\SignalOrSlot dataChanged() slot above), and when the user clicks the
-Add Clipping button. Since we want \QD to be able to set up a
-connection to this slot instead of just typing it in the editor window
-we'll let \QD create its skeleton for us. Click \Menu Edit|Slots to
-invoke the \Dialog {Edit Slots} dialog. Click \Button {New Slot} and
-replace the default name of 'new_slot()' with 'addClipping()'. There
-is no need to change the access specifier or return type. Now that
-we've created our slot we can implement it in the code editor where it
-has now appeared.
-
-The Add Clipping button is used to copy the clipping from the Current
-Clipping line edit into the list box. We also update the length
-number.
-
-\quotefile multiclip/multiclip.ui.h
-\skipto ::addClipping
-\printuntil insertItem
-\printline }
-\printline }
-
-If there is some text we change the LCD's value to the length of the
-text. We then iterate over all the items in the list box to see if we
-have the same text already. If the text is not already in the list box
-we insert it.
-
-\index Signals and Slots
-To make the Add Clipping button functional we need to connect the
-button's \index clicked() \SignalOrSlot clicked() signal to our
-\SignalOrSlot addClipping() slot. Click the \Toolbutton {Connect
-Signals/Slots} toolbar button. Click the Add Clipping button, drag to
-the form and release. (Make sure you drag to the form rather than
-another widget -- the form will have a thin pink border during the
-drag. If you make a mistake simply change the name in the Slots
-combobox.) The \Dialog {Edit Connections} dialog will appear. Click
-the \index clicked() \SignalOrSlot clicked() signal and our
-\SignalOrSlot addClipping() slot. Click \OK to confirm the connection.
-
-The Copy Previous button is used to copy the selected clipping from
-the list box into the line edit. The clipping is also placed on the
-clipboard. The procedure is the same as for the Add Clipping button:
-first we create the slot, then we implement it and finally we connect
-to it: \list 1 \i
-
-Create the slot.
-
-\index Signals and Slots
-Click the \Menu Edit|Slots menu item to invoke the \Dialog {Edit
-Slots} dialog. Click \Button {New Slot} and replace the default
-'new_slot()' name with 'copyPrevious()'. Click \OK.
-
-    \i
-
-    Implement the slot.
-
-\quotefile multiclip/multiclip.ui.h
-\skipto ::copyPrevious
-\printuntil }
-\printline }
-\printline }
-
-    The code for Copy Previous checks to see if there is a selected item
-    in the list box. If there is the item is copied to the line edit. If
-    we are using a system that supports selection we have to repeat the
-    copy, this time with selection mode set. We don't explicitly update
-    the clipboard. When the line edit's text is changed it emits a
-    \index dataChanged()
-\SignalOrSlot dataChanged() signal which our
-    \index dataChanged()
-\SignalOrSlot dataChanged() slot receives. Our
-    \index dataChanged()
-\SignalOrSlot dataChanged() slot updates the clipboard.
-
-    \i
-
-    \index Signals and Slots
-Connect to the slot.
-
-    Click the \Toolbutton {Connect Signals/Slots} toolbar
-    button. Click the Copy Previous button, drag to the form and
-    release. The \Dialog {Edit Connections} dialog will pop up. Click the
-    \index clicked()
-\SignalOrSlot clicked() signal and the
-    \SignalOrSlot copyPrevious() slot. Click \OK.
-
-    \endlist
-
-    We take the same approach to the Delete Clipping button.
-    \list 1
-    \i
-
-    \index Signals and Slots
-Click \Menu Edit|Slots to invoke the \Dialog {Edit Slots}
-    dialog. Click \Button {New Slot} and replace the
-    default name with 'deleteClipping()'. Click \OK.
-
-    \i
-
-    The Delete button must delete the current item in the list box and
-    clear the line edit.
-
-\quotefile multiclip/multiclip.ui.h
-\skipto ::deleteClipping
+\quotefile colortool/findform.ui.h
+\skipto FindForm::notfound
 \printuntil }
 
-    We call our own \SignalOrSlot clippingChanged() slot with an
-    empty string and use the list box's
-    \Func removeItem() function to remove the current
-    item.
+If the term isn't found all we'll do is highlight the text. An
+alternative would be to popup a message box.
 
-    \i
+The dialog's code is simple because we're pushing all the work onto
+the main form.
 
-    \index Signals and Slots
-Connect the Delete Clipping button's \index clicked()
-\SignalOrSlot clicked()
-    signal to our \SignalOrSlot deleteClipping() slot.
-    (Press \Key F3 -- which is the same as clicking the
-    \Toolbutton {Connect Signals/Slots} toolbar button. Click the
-    Delete Clipping button and drag to the form; release. The
-    \Dialog {Edit Connections} dialog will appear. Click the
-    \index clicked()
-\SignalOrSlot clicked() signal and the
-    \SignalOrSlot deleteClipping() slot. Click \OK.)
+\section2 Using the Dialog
 
-    \endlist
+When the user clicks \Menu{Edit|Find} in the application we want to
+invoke the FindForm dialog. And whenever they click the \Button{Find}
+button we want to look for the text they've entered in the current
+view, starting at the color after the color they're on. We will create
+just one instance of the FindForm and keep a pointer to it so that we
+can show and hide it as necessary.
 
-\section1 Compiling and Building an Application
+We need to include the FindForm, and we also need to declare the
+"findForm" variable we put (commented out) in the \Func{init()}
+function.
 
-\index Compiling and Building Applications
-\index Makefiles
-\index Adding!Files to Projects
-\index Projects!Adding Files
-So far we have written about 99% of a Qt application entirely
-in \QD. To make the application compile and run we must create a
-\index main.cpp
-\File main.cpp file from which we can call our form.
+Click on "mainform.ui.h" in the Project Overview. This will invoke the
+code editor and set Object Explorer to show objects in the MainForm.
 
-\index Adding!Source Files to Project Files
-The simplest way to create a new source file is by clicking
-\Menu{File|New} to invoke the 'New File' dialog, then click 'C++
-Source' or 'C++ Header' as appropriate, then click \OK. A new empty
-source window will appear. Click \Menu{File|Save} to invoke the
-\Dialog{Save As} dialog, enter 'main.cpp', then click \Button Save.
+Add "findform.h" to "Includes (in Declaration)". (Click Object
+Explorer's Members tab, right click "Includes (in Declaration)", click
+\Menu{New}, enter "findform.h", then press \Key Enter.)
 
-Enter the following code in the \File{main.cpp} C++ editor window:
-\quotefile multiclip/main.cpp
+You should now have added the following declaration to your includes
+(in declaration):
+\list
+\i "findform.h"
+\endlist
+
+In the class variables add "FindForm *findForm;". (Right click "Class
+Variables", click \Menu{New}, enter "FindForm *findForm;", then press
+\Key Enter.)
+
+You should now have added the following variable to your class
+variables:
+\list
+\i FindForm *findform;
+\endlist
+
+Uncomment the line \c{findForm = 0;} in the \Func{init()} function.
+
+We can now implement the \Func{editFind()} slot.
+
+\section3 editFind()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::editFind
+\printuntil show
+\printuntil }
+
+If we haven't created the FindForm, we create it and connect its 
+\Func{lookfor()} signal to a corresponding \Func{lookfor()} slot that
+we'll create in the main form. We then show the FindForm so that the
+user can enter their search text and click find. 
+
+\section3 lookfor()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::lookfor
+\printuntil notfound
+\printuntil }
+\printuntil }
+
+This slot is invoked when the user clicks the "Find" button in the
+FindForm. The text the user entered in the FindForm's line edit is
+passed in as the \c text parameter. If there is no text we simply
+return.
+
+We take a lower case copy of the text because we want to do a
+case-insensitive search. We find out which view the user is using (so
+that we can look in the right one), and set a flag \c found, that
+we'll use further on.
+
+If the user is using the table view we start looking from the row
+following the row they're on. If we get a match we select the row
+containing the match, set \c found to TRUE and stop looking. If we
+didn't find a match we set the current cell back to the cell we
+started from.
+
+If the user is using the icon view, we start looking from the item
+following the current item. If we find a match we select the
+corresponding item and ensure that it is visible. Again, if we didn't
+find a match we set the current item to be the item we started looking
+from.
+
+If we found the text, the relevant item is highlighted (because we
+have selected it) in the user's view. If we didn't find the text we
+issue a message on the status bar and call the FindForm's
+\Func{notfound()} function (which simply selects the search text).
+
+Functions that are typed directly into the code editor become public
+functions (unless their return value is \c void in which case they
+become public slots). These can be changed later by editing the
+function's properties. We need \Func{lookfor()} to be a slot because
+we connect to it. Click Object Explorer's Members tab, then right
+click \Func{lookfor()}, then click \Menu{Properties}. This invokes the
+\Widget{Edit Functions} dialog. Change the Type to "slot", then click
+\OK.
+
+Save the application (\Key Ctrl+S), then build it and try out some
+searches. (If it doesn't build see the \l{Troubleshooting} section.)
+
+\section1 User Options
+
+We want to give the user the choice of whether or not to indicate web
+colors in the table view, and what they want to copy to the clipboard
+when the click \Key Ctrl+C to copy a color. We'll also automatically
+save and restore their view, window size and position.
+
+\img qd-colortool-options.png The Options Dialog
+
+\section2 Creating the Dialog
+
+Create a new dialog. (Click \Menu{File|New} to invoke the \Widget{New
+File} dialog, then click "Dialog", then click \OK.) Change the form's
+\Property{name} property to "OptionsForm", and its \Property{caption}
+property to "Color Tool -- Options". Drag a corner of the form to make
+it a bit smaller. Now save the form and accept the default name.
+
+Click the GroupBox tool (in the Containers toolbox) and click towards
+the top left of the form. Roughly drag the group box to make it wider.
+Change its \Property{title} property to "Table View".
+
+Click the CheckBox tool (in the Common Widgets toolbox), and click \e
+inside the group box. Change the checkbox's \Property{name} to
+"webCheckBox", its \Property{text} property to "Indicate \&Web
+Colors" and its \Property{checked} property to True.
+
+Up to now we've always placed all our widgets and then laid them out
+at the end. But we can lay out widgets as we go along if we prefer.
+Click the group box, then press \Key Ctrl+H (lay out horizontally).
+
+Click the ButtonGroup tool and click below the table view group box.
+Change this group's \Property{title} property to "Copy to Clipboard
+As" and drag a corner to make it larger.
+
+We want to add three radio buttons to the clipboard group. When there
+are a lot of identical widgets to add we can use \QD's multiple
+placement mode to work more quickly.
+
+\e Double click the RadioButton tool to enter multiple placement mode.
+Now every click on the form will create a radio button. Click inside,
+and towards the top of, the clipboard group box. Click below the first
+radio button. Click for a third time, below the second radio button.
+Now click the Pointer toolbar button to cancel multiple placement
+mode.
+
+Click the first (top-most) radio button. Change its \Property{name}
+property to "hexRadioButton", its \Property{text} property to "\&Hex,
+e.g. #AB52F7", and its \Property{checked} property to True.
+
+Click the second (middle) radio button. Change its \Property{name}
+property to "nameRadioButton" and its text to "\&Name, e.g. light
+blue".
+
+Click the third (bottom) radio button. Change its \Property{name}
+property to "rgbRadioButton" and its text to "\&RGB, e.g. 51,255,102".
+
+Click the clipboard group to select it, then click \Key Ctrl+L (lay
+out vertically).
+
+Now create an OK button and a Cancel button. (Click the PushButton
+tool, then click the form below the clipboard group. Change the
+button's name to "okPushButton", its text to "OK" and its
+\Property{default} property to True. Click the PushButton tool again,
+then click to the right of the OK button. Change this button's name to
+"cancelPushButton" and its text to "Cancel")
+
+To lay out the buttons add a horizontal Spacer to the left of the OK
+button, then lay out the Spacer and the buttons horizontally. (Click
+the Spacer tool, then click the form to the left of the OK button;
+drag horizontally to the left a little then release. \Key Shift+Click
+the OK button, then \Key Shift+Click the Cancel button. Press \Key
+Ctrl+H.)
+
+Lay out the form. (Click the form, then press \Key Ctrl+L -- lay out
+vertically.) Resize the form until it is a pleasing size and shape.
+
+\section3 Connecting the Widgets
+
+The options dialog is a traditional dialog: the caller will create it,
+set its widgets and if the user clicks \OK, the caller will read the
+data from the form's widgets and act accordingly. All we need to do is
+connect up the OK and Cancel buttons; there's no code to write at all.
+
+Connect the OK button to the form's \Func{accept()} slot and the
+Cancel button to the form's \Func{reject()} slot. (Click
+\Menu{Edit|Connections}, then click \Button{New}. Change the Sender to
+"okPushButton", the signal to "clicked()", the Receiver to
+"OptionsForm" and the slot to "accept()". Click \Button{New} again.
+Change the Sender to "cancelPushButton", the signal to "clicked()",
+the Receiver to "OptionsForm" and the slot to "reject()". Click \OK to
+close the connections dialog.)
+
+\section2 Using the Dialog
+
+Click on "mainform.ui.h" in the Project Overview to invoke the code
+editor and to set the MainForm as \QD's current form.
+
+We need to create a slot that will invoke the options form and to
+connect the optionsAction action to this slot.
+
+Invoke the \Widget{View and Edit Connections} dialog and create a new
+connection from the optionsAction to a new slot called "editOptions".
+(Click \Menu{Edit|Connections}, then click \Button{New}. Change the
+Sender to "optionsAction", the Signal to "activated()" and the
+Receiver to "MainForm". Click the \Button{Edit Slots} button to invoke
+the \Widget{Edit Functions} dialog. Change the slot's name to
+"editOptions()", then click \OK. Make the Slot function the newly
+created "editOptions()" slot. Click \OK.)
+
+Now we're ready to code the slot.
+
+\section3 editOptions()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::editOptions
+\printuntil populate
+\printuntil }
+\printuntil }
+
+We create a new options form, passing it TRUE to make it modal. We set
+the radio buttons depending on the current setting of the \c m_clip_as
+variable. We set the check box to correspond with the \c m_show_web
+variable. We execute the form, and if the user clicks \OK, we reflect
+their choices back into the relevant main form variables. If the user
+changed the \c m_show_web variable (by clicking the webCheckBox), we
+mark the table as "dirty" since it will need updating. We then call
+\Func{populate()} which will update the table view if required.
+
+Because we use our OptionsForm and access its radio buttons and
+checkbox we must add "optionsform.h", "qradiobutton.h" and
+"qcheckbox.h" to our includes in implementation. (Click Object
+Explorer's Members tab, right click "Includes (in Implementation)",
+then click \Menu{Edit}. Click \Button{Add} and enter "optionsform.h";
+click \Button{Add} again and enter "qradiobutton.h"; click
+\Button{Add} again and enter "qcheckbox.h". Press \Key Enter, then
+click \CLOSE.)
+
+You should now have added the following declarations to your includes
+(in implementation):
+\list
+\i "optionsform.h"
+\i "qcheckbox.h"
+\i "qradiobutton.h"
+\endlist
+
+Now the user can change options to suit their own preferences. But
+these option settings will be lost when they exit the application.
+We'll finish off by adding functions to load and save the user's
+settings.
+
+\section1 Saving and Loading Settings
+
+Logically we think of loading settings first, e.g. at application
+start up, and of saving settings last, e.g. at application
+termination. But we will code saving settings first, since then we'll
+know what it is that we must load.
+
+Qt 3.0 introduced a new class \l QSettings, that handles user settings
+in a platform independent way (e.g. it uses the registry on windows
+and rc files on Unix). Add the "qsettings.h" header to the includes in
+implementation. (Click Object Explorer's Members tab, right click
+"Includes (in Implementation)", click \Menu{New}, enter "qsettings.h",
+then press \Key Enter.)
+
+You should now have added the following declaration to your includes
+(in implementation):
+\list
+\i "qsettings.h"
+\endlist
+
+\section2 saveSettings()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::saveSettings
+\printuntil }
+
+The \Func{insertSearchPath()} call should be made on all platforms (it
+simply returns if called on a platform where it doesn't apply). We
+save the main form's window dimensions, plus the user's preferences
+for the clipboard and web color indicator. We also record the user's
+view. We'll call this function when the user exits the application, so
+now we'll produce our third and final version of the \Func{fileExit()}
+function.
+
+\section3 fileExit()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileExit
+\printuntil }
+\printuntil }
+
+If the exit takes place we automatically save the user's settings.
+
+\section2 loadSettings()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::loadSettings
+\printuntil }
+
+We read in the settings using default values if there are not settings
+(i.e. if the settings were deleted or if this is the first time the
+user has run the application). Again, the \Func{insertSearchPath()}
+call should be made on all platforms.
+
+In response to the settings we switch to the view the user was looking
+at when they last exited the program. We also resize and move the main
+window to the size and position it was last used in.
+
+Uncomment the "loadSettings();" line in the \Func{init()} function.
+
+Build the application and run it. Change to the icon view and change
+one or two of the options in the options dialog. Move the window and
+resize it. Exit the application and restart it; your view, window size
+and position and your options are all restored. (If it doesn't build
+see the \l{Troubleshooting} section.)
+
+\section1 Wrapping Up
+
+The \c colortool application is now complete. There are many possible
+extensions to its functionality that you might like to try, for
+example:
+\list
+\i Adding additional columns to the table view to show RGB values
+(0..255), scaled RGB values (0.00..1.00), HSV values, etc.
+\i Providing a case sensitive checkbox in the Find dialog and updating
+the code to make use of it.
+\i Creating your own color selection dialog that provided the same
+functionality as the built-in color selection dialog, but which also
+allowed the user to name the color. 
+\endlist
+
+\QD's primary benefit is that it makes designing (and redesigning)
+forms both fast and easy. Laying out widgets is a simple two step
+process: select two or more widgets or layouts, then apply a layout
+(vertical, horizontal or grid) to them. If a layout doesn't look
+right, simply press \Key Ctrl+Z to undo immeditately, or click the
+layout and press \Key Ctrl+B (break layout) later. \QD fully supports
+unlimited undo and redo, so it is easy and safe to experiment. (If
+you're interested in how \QD's layouts translate into code, look at
+the \File{.cpp} files that are generated when you build the
+application.)
+
+The rest of this part of the manual covers more advanced features and
+the second part is a reference section covering all \QD's dialogs,
+menu options and toolbar buttons. We recommend that you spend some
+time experiementing with \QD's layouts. Try for example, to reproduce
+a form that has the look and resizing characteristics of the multiclip
+example (in \c{qt/tools/designer/examples/multiclip}).
+
+\section1 Troubleshooting
+
+The most likely source of error is if you missed out or misspelled an
+include file, a forward declaration or a variable. Check them against
+the following lists and insert or correct them as appropriate. (In all
+cases look at \Widget{Object Explorer}'s Members tab; if you need to
+edit, right click the relevant section, then click Edit to invoke the
+relevant dialog.)
+
+\section2 The MainForm Members
+
+Class Variables:
+\list
+\i FindForm *findForm;
+\i QClipboard *clipboard;
+\i QMap\<QString,QColor\> m_colors;
+\i bool m_show_web;
+\i int m_clip_as;
+\i bool m_icons_dirty;
+\i bool m_table_dirty;
+\i bool m_changed;
+\i QString m_filename;
+\i QStringList m_comments;
+\endlist
+
+Forward Declarations:
+\list
+\i class QColor;
+\i class QString;
+\endlist
+
+Includes (in Declaration):
+\list
+\i "findform.h"
+\endlist
+
+Includes (in Implementation):
+\list
+\i "optionsform.h"
+\i "qlineedit.h"
+\i "qlabel.h"
+\i "qclipboard.h"
+\i "qmessagebox.h"
+\i "qstatusbar.h"
+\i "qpainter.h"
+\i "qstring.h"
+\i "qcolor.h"
+\i "qapplication.h"
+\i "qfiledialog.h"
+\i "qfile.h"
+\i "qregexp.h"
+\i "qcolordialog.h"
+\i "colornameform.h"
+\i "qcheckbox.h"
+\i "qradiobutton.h"
+\i "qsettings.h"
+\endlist
+
+\section2 ColorNameForm Members
+
+We put all the ColorNameForm declarations in the source code file. The
+file \c{colornameform.ui.h} should begin with the following
+declarations:
+\quotefile colortool/colornameform.ui.h
 \skipto #include
-\printuntil }
+\printuntil QMap
 
-The program creates a \Class QApplication object and an
-instance of our MulticlipForm, sets the form to be the main widget and
-shows the form. The \Func app.exec() call starts off the
-event loop.
+\section2 FindForm Members
 
-Now start up a console (or xterm), change directory to the multiclip
-application and run \Cmd qmake. A Makefile compatible with your system
-will be generated:
-\code
-qmake -o Makefile multiclip.pro
-\endcode
+Signals:
+\list
+\i lookfor(const QString\&)
+\endlist
 
-You can now make the application, e.g. by running \Cmd make or
-\Cmd nmake. Try compililng and running multiclip. There are many
-improvement you could make and experimenting with both the layout and
-the code will help you learn more about Qt and \QD.
+\section2 OptionsForm Members
 
-This chapter has introduced you to creating multiplatform applications
-with \QD. We've created a form, populated it with widgets and laid the
-widgets out neatly and scalably. We've used Qt's signals and slots
-mechanism to make the application functional and generated the Makefile.
-These techniques for adding widgets to a form and laying them out with
-the layout tools; and for creating, coding and connecting slots will be
-used time and again as you create applications with \QD. The following
-chapters will present further examples and explore more techniques for
-using \QD.
+The OptionsForm has no members.
+
+\section2 main.cpp Members
+
+This file should begin with the following declarations:
+\quotefile colortool/main.cpp
+\skipto #include
+\printuntil mainform.h
