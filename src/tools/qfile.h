@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#5 $
+** $Id: //depot/qt/main/src/tools/qfile.h#6 $
 **
 ** Definition of QFile class
 **
@@ -17,24 +17,24 @@
 #include "qstring.h"
 #include <stdio.h>
 
+class QDir;
 
 class QFile : public QIODevice			// file I/O device class
 {
 public:
     QFile();
-    QFile( const char *fileName );
+    QFile( const char *fullPathFileName );
+    QFile( const QDir &, const char *fileName );
    ~QFile();
 
     const char *fileName() const;		// get/set file name
-    bool	setFileName( const char *fileName );
+    void	setFileName( const char *fullPathFileName );
+    void	setFileName( const QDir &, const char *fileName );
 
-    static bool exists( const char *fileName ); // test if file exists
     bool	exists()	const;
-    bool	isRegular()	const;		// is it a regular file?
-    bool	isDirectory()	const;		// is it a directory?
+    bool	isFile()	const;		// is it a regular file?
+    bool	isDir()		const;		// is it a directory?
     bool	isSymLink()	const;		// is it a symlink?
-
-    bool	remove( const char *fileName=0);// remove file
 
     bool	open( int );			// open file
     bool	open( int, FILE * );		// open file, using file handle
@@ -54,6 +54,12 @@ public:
     int		putch( int );			// put char
     int		ungetch( int ) ;		// put back char
 
+    bool        remove();
+    static bool remove( const QDir &, const char *fileName );
+    static bool remove( const char *fullPathFileName );
+
+    static bool exists( const char *fullPathFileName ); // test if file exists
+    static bool exists( const QDir &, const char *fileName );
 protected:
     QString	fn;				// file name
     FILE       *fh;				// file handle (buffered)
@@ -63,6 +69,8 @@ protected:
 private:
     void	init();
     long	get_stat( bool=FALSE ) const;
+
+    friend class QFileInfo;
 };
 
 

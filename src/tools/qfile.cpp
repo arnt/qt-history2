@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#14 $
 **
 ** Implementation of QFile class
 **
@@ -11,7 +11,8 @@
 *****************************************************************************/
 
 #include "qfile.h"
-#include "qdatetm.h"
+#include "qfileinf.h"
+#include "qdir.h"
 #if !defined(_OS_MAC_)
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,7 +28,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#14 $";
 #endif
 
 /*! \class QFile qfile.h
@@ -47,10 +48,16 @@ QFile::QFile()
     init();
 }
 
-QFile::QFile( const char *fileName )
+QFile::QFile( const char *fullPathFileName )
 {
     init();
-    fn = fileName;
+    fn = fullPathFileName;
+}
+
+QFile::QFile( const QDir &d, const char *fileName )
+{
+    init();
+    fn = d.fullPathName( fileName );
 }
 
 QFile::~QFile()
@@ -63,32 +70,26 @@ void QFile::init()				// initialize internal data
 {
     setFlags( IO_Direct );
     setStatus( IO_Ok );
-    fh = 0;
-    fd = 0;
+    fh     = 0;
+    fd     = 0;
     length = 0;
-    index = 0;
+    index  = 0;
 }
 
-
-bool QFile::setFileName( const char *fileName ) // set file name
+void QFile::setFileName( const char *fileName ) // set file name
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
 	warning( "QFile::setFileName: File is open" );
 #endif
-	return FALSE;
+        close();
     }
     fn = fileName;
-    return TRUE;
 }
 
-
-bool QFile::exists( const char *fileName )	// test if file exists
+void QFile::setFileName(  const QDir &d, const char *fileName )// set file name
 {
-    FILE *f = fopen( fileName, "r" );
-    if ( f )
-	fclose( f );
-    return f != 0;
+    setFileName(  d.fullPathName( fileName ) );
 }
 
 #undef STATBUF
@@ -177,7 +178,7 @@ bool QFile::exists() const			// test if current file exists
     return get_stat() != 0;
 }
 
-bool QFile::isRegular() const			// is it a regular file?
+bool QFile::isFile() const			// is it a regular file?
 {
 #if defined(_OS_MAC_)
     return FALSE;
@@ -186,7 +187,7 @@ bool QFile::isRegular() const			// is it a regular file?
 #endif
 }
 
-bool QFile::isDirectory() const			// is it a directory?
+bool QFile::isDir() const			// is it a directory?
 {
 #if defined(_OS_MAC_)
     return FALSE;
@@ -215,19 +216,25 @@ bool QFile::isSymLink() const			// is it a symbolic link?
 #define FILENAME_CASE 0				// case-insensitive filenames
 #endif
 
+bool QFile::remove()	// remove file
+{
+    close();					// close file if open
+    return remove( fn.data()  );
+}
+
+bool QFile::remove( const QDir &d, const char *fileName )  // remove file
+{
+    return remove( d.fullPathName( fileName ) );
+}
+
 bool QFile::remove( const char *fileName )	// remove file
 {
-    if ( fileName == 0 )			// use default file name
-	fileName = fn;
-    if ( fileName == 0 ) {
+    if ( fileName == 0 || fileName[0] == '\0' ) {
 #if defined(CHECK_NULL)
-	warning( "QFile::remove: No file name specified" );
+	warning( "QFile::remove: Empty or NULL file name." );
 #endif
 	return FALSE;
     }
-    if ( fn.data() &&				// refers to current file?
-	 (FILENAME_CASE ? strcmp(fn,fileName) : stricmp(fn,fileName))==0 )
-	close();				// then close it first
 #if defined(UNIX)
     return unlink( fileName ) == 0;		// unlink more common in UNIX
 #else
@@ -235,6 +242,16 @@ bool QFile::remove( const char *fileName )	// remove file
 #endif
 }
 
+bool QFile::exists( const char *fullPathFileName )
+{
+    QFile f( fullPathFileName );
+    return f.exists();
+}
+
+bool QFile::exists( const QDir &d, const char *fileName )
+{
+    return exists( d.fullPathName( fileName ) );
+}
 
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
 #define HAS_TEXT_FILEMODE			// has translate/text filemode
@@ -414,7 +431,12 @@ void QFile::flush()				// flush file
 
 long QFile::size() const			// get file size
 {
-    return length;
+    if ( isOpen() ) {
+        return length;
+    } else {
+        QFileInfo fi( *this );
+        return fi,size();
+    }
 }
 
 long QFile::at() const				// get file position
