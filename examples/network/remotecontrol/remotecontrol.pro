@@ -1,10 +1,8 @@
 TEMPLATE	= app
 TARGET		= remotecontrol
 
-QT         += network
-CONFIG		+= qt warn_on release
-
-QTDIR_build:REQUIRES        = network "contains(QT_CONFIG, full-config)"
+QT         += network compat
+CONFIG		+= qt uic3 warn_on release
 
 HEADERS		= startup.h \
 		  remotectrlimpl.h \
