@@ -5,5 +5,5 @@ SUBDIRS		= motif \
 		  sgi \
 	 	  windows \
 		  platinum \
-		  compact \
-		  aqua
+		  compact 
+macx:SUBDIRS   += aqua
