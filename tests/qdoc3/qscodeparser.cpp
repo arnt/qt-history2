@@ -566,7 +566,7 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 	    } else if ( code[i] == 'F' && leftWordBoundary(code, i) &&
 			code.mid(i, 5) == "FALSE" &&
 			rightWordBoundary(code, i + 5) ) {
-		result += "\\c{false}";
+		result += "false";
 		i += 5;
 	    } else if ( code[i] == 'Q' && leftWordBoundary(code, i) ) {
 		if ( code.mid(i - 4, 3) == "new" ) {
@@ -599,7 +599,7 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 	    } else if ( code[i] == 'T' && leftWordBoundary(code, i) &&
 			code.mid(i, 4) == "TRUE" &&
 			rightWordBoundary(code, i + 4) ) {
-		result += "\\c{true}";
+		result += "true";
 		i += 4;
 	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
 		int numSpaces = columnForIndex( code, i ) -
@@ -636,11 +636,11 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 		i++;
 	    } else if ( source[i] == 'T' && source.mid(i, 4) == "TRUE" &&
 			rightWordBoundary(source, i + 4) ) {
-		result += "true";
+		result += "\\c{true}";
 		i += 4;
 	    } else if ( source[i] == 'F' && source.mid(i, 5) == "FALSE" &&
 			rightWordBoundary(source, i + 5) ) {
-		result += "false";
+		result += "\\c{false}";
 		i += 5;
 	    } else if ( source[i] == 'c' && source.mid(i, 6) == "const " ) {
 		i += 6;
