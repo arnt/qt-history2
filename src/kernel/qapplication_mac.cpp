@@ -1115,65 +1115,66 @@ bool QApplication::processNextEvent( bool canWait )
   return (nevents > 0);
 }
 
-
-static const int KeyTbl[]={
-    144667,          Qt::Key_Escape,         // misc keys
-    143369,             Qt::Key_Tab,
-    144136,       Qt::Key_Backspace,
-    140301,          Qt::Key_Return,
-    160513,            Qt::Key_Home,           // cursor movement
-    162588,            Qt::Key_Left,
-    163358,              Qt::Key_Up,
-    162845,           Qt::Key_Right,
-    163103,            Qt::Key_Down,
-    160779,           Qt::Key_Prior,
-    162060,            Qt::Key_Next,
-    /*
-      0,         Qt::Key_Shift,          // modifiers
-      0,       Qt::Key_Control,
-      0,       Qt::Key_Control,
-      0,          Qt::Key_Meta,
-      0,          Qt::Key_Meta,
-      0,           Qt::Key_Alt,
-      0,           Qt::Key_Alt,
-      0,       Qt::Key_CapsLock,
-      0,        Qt::Key_NumLock,
-      0,     Qt::Key_ScrollLock,
-    */
-    143648,        Qt::Key_Space,          // numeric keypad
-    150531,        Qt::Key_Enter,
-    151869,        Qt::Key_Equal,
-    148266,     Qt::Key_Asterisk,
-    148779,          Qt::Key_Plus,
-    151085,     Qt::Key_Minus,
-    147758,      Qt::Key_Period,
-    150319,       Qt::Key_Slash,
-    162320, Qt::Key_F1,       // Function keys
-    161808, Qt::Key_F2,
-    156432, Qt::Key_F3,
-    161296, Qt::Key_F4,
-    155664, Qt::Key_F5,
-    155920, Qt::Key_F6,
-    156176, Qt::Key_F7,
-    156688, Qt::Key_F8,
-    156944, Qt::Key_F9,
-    158992, Qt::Key_F10,
-    157456, Qt::Key_F11,
-    159504, Qt::Key_F12,
-    149275, Qt::Key_NumLock,
-    133796, Qt::Key_plusminus,
-    0,0
+/* key maps */
+struct key_sym
+{
+    int mac_code;
+    int qt_code;
+    const char *desc;
 };
 
-int get_key(int key)
+static key_sym modifier_syms[] = {
+{ shiftKey, Qt::ShiftButton, "Qt::Shift" },
+{ controlKey, Qt::ControlButton, "Qt::ControlButton" },
+{ rightControlKey, Qt::ControlButton, "Qt::ControlButton" },
+{ optionKey, Qt::AltButton, "Qt::AltButton" },
+{ rightOptionKey, Qt::AltButton, "Qt::AltButton" },
+{   0, 0, NULL }
+};
+static int get_modifiers(int key)
 {
-  for(int i = 0; KeyTbl[i]; i+=2) {
-	if(key==KeyTbl[i]) {
-	    return KeyTbl[i+1];
+    int ret = 0;
+    for(int i = 0; modifier_syms[i].desc; i++) {
+	if(key & modifier_syms[i].mac_code) {
+	    qDebug("got modifier: %s", modifier_syms[i].desc);
+	    ret |= modifier_syms[i].qt_code;
 	}
     }
-    return 0;
+    return ret;
 }
+
+static key_sym key_syms[] = {
+{ kHomeCharCode, Qt::Key_Home, "Qt::Home" },
+{ kEnterCharCode, Qt::Key_Enter, "Qt::Key_Enter" },
+{ kEndCharCode, Qt::Key_End, "Qt::Key_End" },
+{ kBackspaceCharCode, Qt::Key_Backspace, "Qt::Backspace" },
+{ kTabCharCode, Qt::Key_Tab, "Qt::Tab" },
+{ kPageUpCharCode, Qt::Key_PageUp, "Qt::PageUp" },
+{ kPageDownCharCode, Qt::Key_PageDown, "Qt::PageDown" },
+{ kReturnCharCode, Qt::Key_Return, "Qt::Key_Return" },
+//function keys?
+{ kEscapeCharCode, Qt::Key_Escape, "Qt::Key_Escape" },
+{ kLeftArrowCharCode, Qt::Key_Left, "Qt::Key_Left" },
+{ kRightArrowCharCode, Qt::Key_Right, "Qt::Key_Right" },
+{ kUpArrowCharCode, Qt::Key_Up, "Qt::Key_Up" },
+{ kDownArrowCharCode, Qt::Key_Down, "Qt::Key_Down" },
+{ kDeleteCharCode, Qt::Key_Delete, "Qt::Key_Delete" }
+};
+static int get_key(int key)
+{
+    int ret = key;
+    for(int i = 0; key_syms[i].desc; i++) {
+	if(key_syms[i].mac_code == key) {
+	    qDebug("got key: %s", key_syms[i].desc);
+	    ret = key_syms[i].qt_code;
+	    break;
+	}
+    }
+    if(ret == key)
+	qDebug("Falling back to ::%c::", key);
+    return ret;
+}
+
 
 bool mouse_down=false;
 extern WId myactive;
@@ -1319,37 +1320,35 @@ int QApplication::macProcessEvent(MSG * m)
 	}
 	mouse_button_state = Qt::NoButton;
     } else if(er->what == keyDown) {
-	short part = FindWindow( er->where, &wp );
-	if( part == inContent ) {
-	    if( mac_keyboard_grabber ) {
-		widget = mac_keyboard_grabber;
-	    } else {
-		Point pp2 = er->where;
-		if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
-		    widget = widget->focusWidget();
-	    }
-	}
-
-	short mychar=er->message & charCodeMask;
-	QKeyEvent ke(QEvent::KeyPress,get_key(er->message),mychar,0,QString(QChar(mychar)));
-	QApplication::sendEvent(widget,&ke);
-	qDebug("Key down.. %c", mychar);
+	if( mac_keyboard_grabber ) 
+	    widget = mac_keyboard_grabber;
+	else if(focus_widget)
+	    widget = focus_widget;
+	else //last ditch effort
+	    widget = QApplication::widgetAt(er->where.h, er->where.v, true);
+    
+	if(widget) {
+	    int mychar=get_key(er->message & charCodeMask);
+	    QKeyEvent ke(QEvent::KeyPress,mychar, mychar, get_modifiers(er->modifiers));
+	    QApplication::sendEvent(widget,&ke);
+	} 
     } else if(er->what == keyUp) {
-	short part = FindWindow( er->where, &wp );
-	if( part == inContent ) {
-	    if( mac_keyboard_grabber ) {
-		widget = mac_keyboard_grabber;
-	    } else {
-		Point pp2 = er->where;
-		if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
-		    widget = widget->focusWidget();
-	    }
-	}
-
-	short mychar=er->message & charCodeMask;
-	QKeyEvent ke(QEvent::KeyRelease,get_key(er->message),mychar,0,QString(QChar(mychar)));
-	QApplication::sendEvent(widget,&ke);
-	qDebug("Key up.. %c", mychar);
+	if( mac_keyboard_grabber ) 
+	    widget = mac_keyboard_grabber;
+	else if(focus_widget)
+	    widget = focus_widget;
+	else //last ditch effort
+	    widget = QApplication::widgetAt(er->where.h, er->where.v, true);
+    
+	if(widget) {
+	    int mychar=get_key(er->message & charCodeMask);
+	    QKeyEvent ke(QEvent::KeyRelease,mychar, mychar, get_modifiers(er->modifiers));
+	    QApplication::sendEvent(widget,&ke);
+	} 
+    } else if(er->what == activateEvt) {
+	widget = QWidget::find( (WId)er->message );	
+	if(widget && (er->modifiers & 0x01)) 
+	    setActiveWindow(widget);
     } else if(er->what == osEvt) {
 	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
 	    short part = FindWindow( er->where, &wp );
@@ -1375,7 +1374,7 @@ int QApplication::macProcessEvent(MSG * m)
 		} 
 	    }
 	}
-	else
+	else 
 	    printf("Damn!\n");
     } else {
 	qWarning("  Type %d",er->what);
