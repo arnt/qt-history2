@@ -38,6 +38,7 @@
 #include "msvc_nmake.h"
 #include "option.h"
 #include <qregexp.h>
+#include <qdict.h>
 #include <qdir.h>
 #include <stdlib.h>
 #include <time.h>
