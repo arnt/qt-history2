@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#20 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#21 $
 **
 ** Definition of QObject class
 **
@@ -35,7 +35,7 @@ public:
     bool	isA( const char * )	 const;
     bool	inherits( const char * ) const;
 
-    const char *name()		  const { return (const char *)objname; }
+    const char *name()		  const { return objname; }
     void	setName( const char *name );
     bool	isWidgetType()	  const { return isWidget; }
     bool	highPriority()	  const { return hiPriority; }
@@ -92,7 +92,7 @@ private:
     bool	 bind( const char *, const QObject *, const char * );
     QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;		// meta object for class
-    QString	 objname;			// object name
+    char        *objname;			// object name
     QObject     *parentObj;			// parent object
     QObjectList *childObjects;			// list of children objects
     QSignalDict *connections;			// connections (signals out)
