@@ -15,7 +15,7 @@ CONFIG		+= builder
 unix:LIBS += $$TMAKE_LIBS_X11SM
 DEFINES += QT_SM_SUPPORT
 # DEFINES += QT_THREAD_SUPPORT
-unix:LIBS += -lpthread
+# unix:LIBS += -lpthread
 
 #DEFINES	+= QT_NO_ASCII_CAST
 #DEFINES	+= QT_NO_CAST_ASCII
