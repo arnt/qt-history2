@@ -315,6 +315,10 @@ bool QAbstractScrollArea::event(QEvent *e)
     case QEvent::Paint:
         QFrame::paintEvent((QPaintEvent*)e);
         break;
+    case QEvent::ContextMenu:
+        if (static_cast<QContextMenuEvent *>(e)->reason() == QContextMenuEvent::Keyboard)
+           return QFrame::event(e);
+        break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
@@ -326,8 +330,6 @@ bool QAbstractScrollArea::event(QEvent *e)
     case QEvent::DragMove:
     case QEvent::DragLeave:
 #endif
-    case QEvent::ContextMenu:
-        return false;
     case QEvent::StyleChange:
         d->layoutChildren();
         // fall through
