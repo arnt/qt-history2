@@ -92,9 +92,9 @@ void Tiger::paintEvent(QPaintEvent *)
         for (int i=0; i<path.elementCount(); ++i) {
             const QPainterPath::Element &e = path.elementAt(i);
 
-            int dx = e.x - mpt.x();
-            int dy = e.y - mpt.y();
-            int len = dist - sqrt(dx * dx + dy * dy);
+            float dx = e.x - mpt.x();
+            float dy = e.y - mpt.y();
+            float len = dist - sqrt(dx * dx + dy * dy);
 
             if (len > 0) {
                 const_cast<QPainterPath::Element *>(&e)->x = e.x + flip * dx * len / float(dist);

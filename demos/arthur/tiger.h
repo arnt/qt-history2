@@ -21,6 +21,8 @@ class Tiger : public DemoWidget
 public:
     Tiger(QWidget *parent=0);
 
+    virtual void resetState() { update(); }
+
 protected:
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);
