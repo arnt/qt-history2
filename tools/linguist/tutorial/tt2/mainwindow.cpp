@@ -12,10 +12,11 @@
 #include <qmenu.h>
 
 MainWindow::MainWindow( QWidget *parent, const char *name )
-    : QMainWindow( parent, name )
+    : QMainWindow( parent)
 {
+    setObjectName(name);
     ArrowPad *ap = new ArrowPad( this, "arrow pad" );
-    setCentralWidget( ap );
+    setCenterWidget( ap );
 
     QMenu *file = new QMenu( this );
     file->addAction( tr("E&xit"), qApp, SLOT(quit()),

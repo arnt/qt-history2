@@ -13,12 +13,13 @@
 #include <qmenu.h>
 
 MainWindow::MainWindow( QWidget *parent, const char *name )
-    : QMainWindow( parent, name )
+    : QMainWindow( parent )
 {
+    setObjectName(name);
     setWindowTitle( tr("Troll Print 1.0") );
 
     PrintPanel *pp = new PrintPanel( this );
-    setCentralWidget( pp );
+    setCenterWidget( pp );
 
     QMenu *file = new QMenu( this );
     file->addAction( tr("E&xit"), qApp, SLOT(quit()),

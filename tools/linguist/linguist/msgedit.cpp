@@ -36,7 +36,6 @@
 #include <qmainwindow.h>
 #include <qheader.h>
 #include <qregexp.h>
-#include <qdockarea.h>
 #include <qdockwindow.h>
 #include <qscrollview.h>
 #include <qfont.h>
@@ -377,35 +376,23 @@ void EditorPage::fontChange( const QFont & )
 
    Handle layout of dock windows and the editor page.
 */
-MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
+MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
                               const char * name )
     : QWidget( parent, name ),
       tor( t )
 {
     doGuesses = TRUE;
     v = new QVBoxLayout( this );
-    topDock = new QDockArea( Qt::Horizontal, QDockArea::Normal, this,
-                             "top dock area" );
-    topDock->setMinimumHeight( 10 );
-    topDock->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
-                                          QSizePolicy::Minimum) );
 
-    topDockWnd = new QDockWindow( QDockWindow::InDock, topDock,
-                                  "top dock window" );
-    QMainWindow *mw = (QMainWindow*)topLevelWidget();
-    if ( mw ) {
-        mw->setDockEnabled( topDockWnd, Qt::DockTop, TRUE );
-        mw->setDockEnabled( topDockWnd, Qt::DockLeft, TRUE );
-        mw->setDockEnabled( topDockWnd, Qt::DockRight, TRUE );
-        mw->setDockEnabled( topDockWnd, Qt::DockBottom, TRUE );
-    }
+    topDockWnd = new QDockWindow(parent);
+    topDockWnd->setAllowedAreas(AllDockWindowAreas);
+    topDockWnd->setClosable(true);
+    topDockWnd->setMovable(true);
+    topDockWnd->setFloatable(true);
+    topDockWnd->setCurrentArea(DockWindowAreaTop);
+    topDockWnd->setWindowTitle(tr("Source text"));
 
-    topDockWnd->setWindowTitle( tr("Source text") );
-    topDockWnd->setCloseMode( QDockWindow::Always );
-    topDockWnd->setResizeEnabled( TRUE );
-    topDockWnd->setFixedExtentHeight( 110 );
-
-    srcTextList = new QListView( topDockWnd, "source text list view" );
+    srcTextList = new QListView();
     srcTextList->setShowSortIndicator( TRUE );
     srcTextList->setAllColumnsShowFocus( TRUE );
     srcTextList->setSorting( 0 );
@@ -419,7 +406,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     srcTextList->setMinimumSize( QSize( 50, 50 ) );
     srcTextList->setHScrollBarMode( QScrollView::AlwaysOff );
     srcTextList->installEventFilter( this );
-    topDockWnd->setWidget( srcTextList );
+    srcTextList->setParent(topDockWnd);
 
     sv = new QScrollView( this, "scroll view" );
     sv->setHScrollBarMode( QScrollView::AlwaysOff );
@@ -437,24 +424,16 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     sw->setMinimumSize( QSize( 100, 150 ) );
     sv->addChild( sw );
 
-    bottomDock = new QDockArea( Qt::Horizontal, QDockArea::Reverse,
-                                this, "bottom dock area" );
-    bottomDock->setMinimumHeight( 10 );
-    bottomDock->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
-                                            QSizePolicy::Minimum) );
-    bottomDockWnd = new QDockWindow( QDockWindow::InDock, bottomDock,
-                                     "bottom dock window" );
-    if ( mw ) {
-        mw->setDockEnabled( bottomDockWnd, Qt::DockTop, TRUE );
-        mw->setDockEnabled( bottomDockWnd, Qt::DockLeft, TRUE );
-        mw->setDockEnabled( bottomDockWnd, Qt::DockRight, TRUE );
-        mw->setDockEnabled( bottomDockWnd, Qt::DockBottom, TRUE );
-    }
-    bottomDockWnd->setWindowTitle( tr("Phrases") );
-    bottomDockWnd->setCloseMode( QDockWindow::Always );
-    bottomDockWnd->setResizeEnabled( TRUE );
+    bottomDockWnd = new QDockWindow(parent);
+    bottomDockWnd->setAllowedAreas(AllDockWindowAreas);
+    bottomDockWnd->setClosable(true);
+    bottomDockWnd->setMovable(true);
+    bottomDockWnd->setFloatable(true);
+    bottomDockWnd->setCurrentArea(DockWindowAreaBottom);
+    bottomDockWnd->setWindowTitle(tr("Phrases"));
 
-    QWidget * w = new QWidget( bottomDockWnd );
+
+    QWidget * w = new QWidget();
     w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
                                    QSizePolicy::Minimum ) );
     QHBoxLayout *hl = new QHBoxLayout( w, 6 );
@@ -473,11 +452,9 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     for ( int i = 0; i < 9; i++ )
         accel->insertItem( CTRL + (Key_1 + i), i + 1 );
 
-    bottomDockWnd->setWidget( w );
+    w->setParent(bottomDockWnd);
 
-    v->addWidget( topDock );
     v->addWidget( sv );
-    v->addWidget( bottomDock );
 
     // Signals
     connect( editorPage->pageCurl, SIGNAL(nextPage()),

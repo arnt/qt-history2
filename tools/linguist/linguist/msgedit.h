@@ -29,7 +29,6 @@
 #include <qevent.h>
 
 class QAccel;
-class QDockArea;
 class QDockWindow;
 class QLabel;
 class QListView;
@@ -160,7 +159,7 @@ class MessageEditor : public QWidget
 {
     Q_OBJECT
 public:
-    MessageEditor( MetaTranslator * t, QWidget * parent = 0,
+    MessageEditor( MetaTranslator * t, QMainWindow *parent = 0,
                    const char * name = 0 );
     QListView * sourceTextList() const;
     QListView * phraseList() const;
@@ -221,7 +220,6 @@ private:
     void setEditionEnabled( bool enabled );
 
     QListView * srcTextList;
-    QDockArea * topDock, * bottomDock;
     QDockWindow * topDockWnd, *bottomDockWnd;
     EditorPage * editorPage;
     QVBoxLayout * v;

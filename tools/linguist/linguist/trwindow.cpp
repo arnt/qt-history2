@@ -30,7 +30,6 @@
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qhash.h>
-#include <qdockarea.h>
 #include <qdockwindow.h>
 #include <qfile.h>
 #include <qfiledialog.h>
@@ -153,7 +152,7 @@ const QPixmap TrWindow::pageCurl()
 }
 
 TrWindow::TrWindow()
-    : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
+    : QMainWindow( 0, WType_TopLevel | WDestructiveClose )
 {
 
 #ifndef Q_WS_MAC
@@ -167,14 +166,16 @@ TrWindow::TrWindow()
     pxDanger = new QPixmap( QPixmap::fromMimeSource( "s_check_danger.png" ) );
 
     // Set up the Scope dock window
-    QDockWindow * dwScope = new QDockWindow( QDockWindow::InDock, this,
-                                             "context");
-    dwScope->setResizeEnabled( TRUE );
-    dwScope->setCloseMode( QDockWindow::Always );
-    addDockWindow( dwScope, tr("Context"), Qt::DockLeft );
-    dwScope->setWindowTitle( tr("Context") );
-    dwScope->setFixedExtentWidth( 200 );
-    lv = new QListView( dwScope, "context list view" );
+    QDockWindow * dwScope = new QDockWindow(this);
+
+    dwScope->setAllowedAreas(AllDockWindowAreas);
+    dwScope->setClosable(true);
+    dwScope->setMovable(true);
+    dwScope->setFloatable(true);
+    dwScope->setCurrentArea(DockWindowAreaLeft);
+    dwScope->setWindowTitle(tr("Context"));
+
+    lv = new QListView();
     lv->setShowSortIndicator( TRUE );
     lv->setAllColumnsShowFocus( TRUE );
     lv->header()->setStretchEnabled( TRUE, 1 );
@@ -186,11 +187,11 @@ TrWindow::TrWindow()
     lv->setColumnAlignment( 2, Qt::AlignRight );
     lv->setSorting( 0 );
     lv->setHScrollBarMode( QScrollView::AlwaysOff );
-    dwScope->setWidget( lv );
+    lv->setParent(dwScope);
 
     messageIsShown = FALSE;
     me = new MessageEditor( &tor, this, "message editor" );
-    setCentralWidget( me );
+    setCenterWidget( me );
     slv = me->sourceTextList();
     plv = me->phraseList();
 
@@ -1457,8 +1458,11 @@ void TrWindow::setupMenuBar()
     toggleStats = viewp->addAction(tr("&Statistics"), this, SLOT(toggleStatistics()) );
     toggleStats->setCheckable(true);
     viewp->addSeparator();
+
+#if 0 // ### enable me
     viewp->addMenu( tr("Vie&ws"), createDockWindowMenu( NoToolBars ) );
     viewp->addMenu( tr("&Toolbars"), createDockWindowMenu( OnlyToolBars ) );
+#endif
 
     // Help
     manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()), Key_F1 );
@@ -1537,11 +1541,20 @@ void TrWindow::setupMenuBar()
 
 void TrWindow::setupToolBars()
 {
-    QToolBar *filet = new QToolBar( tr("File"), this );
-    QToolBar *editt = new QToolBar( tr("Edit"), this );
-    QToolBar *translationst = new QToolBar( tr("Translation"), this );
-    QToolBar *validationt   = new QToolBar( tr("Validation"), this );
-    QToolBar *helpt = new QToolBar( tr("Help"), this );
+    QToolBar *filet = new QToolBar( this );
+    filet->setWindowTitle(tr("File"));
+
+    QToolBar *editt = new QToolBar( this );
+    editt->setWindowTitle(tr("Edit"));
+
+    QToolBar *translationst = new QToolBar(this );
+    translationst->setWindowTitle(tr("Translation"));
+
+    QToolBar *validationt   = new QToolBar(this );
+    validationt->setWindowTitle(tr("Validation"));
+
+    QToolBar *helpt = new QToolBar(this );
+    helpt->setWindowTitle(tr("Help"));
 
     filet->addAction(openAct);
     filet->addAction(saveAct);
@@ -1770,6 +1783,7 @@ void TrWindow::readConfig()
         }
     }
 
+#if 0 // ### enable me
     QDockWindow * dw;
     dw = (QDockWindow *) lv->parent();
     int place;
@@ -1813,6 +1827,8 @@ void TrWindow::readConfig()
         dw->show();
     }
     dw->setGeometry( r );
+#endif
+
     QApplication::sendPostedEvents();
 }
 
@@ -1831,6 +1847,7 @@ void TrWindow::writeConfig()
     config.writeEntry( keybase + "Geometry/MainwindowWidth", width() );
     config.writeEntry( keybase + "Geometry/MainwindowHeight", height() );
 
+#if 0 // ### enable me
     QDockWindow * dw =(QDockWindow *) lv->parent();
     config.writeEntry( keybase + "Geometry/ContextwindowInDock", dw->place() );
     config.writeEntry( keybase + "Geometry/ContextwindowX", dw->x() );
@@ -1853,6 +1870,7 @@ void TrWindow::writeConfig()
     config.writeEntry( keybase + "Geometry/PhrasewindowY", dw->geometry().y() );
     config.writeEntry( keybase + "Geometry/PhrasewindowWidth", dw->width() );
     config.writeEntry( keybase + "Geometry/PhrasewindowHeight", dw->height() );
+#endif
 }
 
 void TrWindow::setupRecentFilesMenu()
