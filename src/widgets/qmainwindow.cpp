@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#45 $
 **
 ** Implementation of QMainWindow class
 **
@@ -642,9 +642,9 @@ QWidget * QMainWindow::centralWidget() const
 void QMainWindow::paintEvent( QPaintEvent * )
 {
     //debug( "pe %d, %d", x(), y() );
-    if ( style() == WindowsStyle ) {
+  if ( style() == WindowsStyle && d->mb) { //######## Arnt, what was this meant to be?
 	QPainter p( this );
-	int y = menuBar()->height();
+	int y = d->mb->height();
 	p.setPen( colorGroup().dark() );
 	p.drawLine( 0, y, width()-1, y );
     }

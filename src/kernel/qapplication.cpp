@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#195 $
 **
 ** Implementation of QApplication class
 **
@@ -1401,7 +1401,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     while ( (pe = it.current()) ) {
 	++it;
-	
+
 	if ( pe->event && pe->receiver == receiver
 	     && pe->event->type() == event_type ) {
 	    postedEvents->take( postedEvents->findRef( pe ) );
@@ -1431,7 +1431,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		first = FALSE;
 		break;
 	    default:
-		sendEvent( receiver, pe->event );
+	      sendEvent( receiver, pe->event );
 	    }
 	    pe->event->posted = FALSE;
 	    delete pe;
