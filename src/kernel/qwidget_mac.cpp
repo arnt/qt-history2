@@ -81,11 +81,43 @@ QPoint posInWindow(QWidget *w)
   return QPoint(x, y);
 }
 
+static void paint_children(QWidget * p,const QRegion& r)
+{
+    if(!p || r.isEmpty())
+	return;
+
+#if 1
+    Rect rect;
+    SetRect( &rect, p->x(), p->y(), p->x()+p->width(), p->y()+p->height() );
+    InvalWindowRect( (WindowRef)p->topLevelWidget()->winId(), &rect );
+#else
+    QApplication::postEvent(p,new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
+
+    QObjectList * childObjects=(QObjectList*)p->children();
+    if(childObjects) {
+	QObject * o;
+	for(o=childObjects->first();o!=0;o=childObjects->next()) {
+	    if( o->isWidgetType() ) {
+		QWidget *w = (QWidget *)o;
+		if ( w->testWState(Qt::WState_Visible) ) {
+		    QRegion wr = QRegion(w->geometry()) & r;
+		    if ( !wr.isEmpty() ) {
+			wr.translate(-w->x(),-w->y());
+			paint_children(w,wr);
+		    }
+		}
+	    }
+	}
+    }
+#endif
+}
+
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
 
-WId parentw, destroyw = 0;
+static WId serial_id = 0;
+static WId parentw;
 WId myactive = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
@@ -167,12 +199,12 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 
 	setWinId( id );
     } else {
-	setWinId(-1);
+	while(QWidget::find(++serial_id));
+	setWinId(serial_id);
 
 	mytop = topLevelWidget( );
 	id = (WId)mytop->hd;
 	hd = mytop->hd;
-//	winid = id;
     }
 
     bg_col = pal.normal().background();
@@ -251,18 +283,18 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     reparentFocusWidgets( parent );		// fix focus chains
 
+    setWinId( 0 );
     if ( parentObj ) {				// remove from parent
+	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
-	if ( old_winid && old_winid != -1 && isTopLevel() ) {
-	    DisposeWindow( (WindowPtr)old_winid );
-	    setWinId( 0 );
-	} else {
-	    QPoint mp(posInWindow(this));
-	    Rect r;
-	    SetRect( &r, mp.x(), mp.y(), mp.x()+width(), mp.y()+height() );
-	    InvalWindowRect( (WindowRef)mytop->winId(), &r );
-	}
+	if(oldp->isWidgetType()) 
+	    paint_children( ((QWidget *)oldp),geometry() );
     }
+
+    if ( old_winid && mytop == this && isTopLevel() ) {
+	DisposeWindow( (WindowPtr)old_winid );
+    }
+
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
@@ -502,21 +534,9 @@ void QWidget::update( int x, int y, int w, int h )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w && h ) {
-#if 0
-	    QPoint mp(posInWindow(this));
-	    x += mp.x();
-	    y += mp.y();
-
-	    Rect r;
-	    SetRect( &r, x, y, x+w, y+h );
-	    InvalWindowRect( (WindowRef)winId(), &r );
-#else
+	if ( w && h ) 
 	    QApplication::postEvent( this, new QPaintEvent( QRect(x,y,w,h), !testWFlags( WRepaintNoErase ) ) );
-#endif
-
     }
-}
 }
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
@@ -542,6 +562,13 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping( this );
     }
+
+#if 0 //this is good for debugging and not much else, do not leave this in production
+    GWorldPtr cgworld;
+    GDHandle cghandle;
+    GetGWorld(&cgworld, &cghandle);
+    QDFlushPortBuffer(cgworld, (RgnHandle)reg.handle());
+#endif
 }
 
 void QWidget::showWindow()
@@ -554,31 +581,6 @@ void QWidget::showWindow()
     update();
 }
 
-
-static void paint_children(QWidget * p,const QRegion& r)
-{
-    if(!p)
-	return;
-    QObjectList * childObjects=(QObjectList*)p->children();
-    if(childObjects) {
-	QObject * o;
-	for(o=childObjects->first();o!=0;o=childObjects->next()) {
-	    if( o->isWidgetType() ) {
-		QWidget *w = (QWidget *)o;
-		if ( w->testWState(Qt::WState_Visible) ) {
-		    QRegion wr = QRegion(w->geometry()) & r;
-		    if ( !wr.isEmpty() ) {
-			wr.translate(-w->x(),-w->y());
-			QApplication::postEvent(w,new QPaintEvent(wr, 
-				   !w->testWFlags(QWidget::WRepaintNoErase) ) );
-			paint_children(w,wr);
-		    }
-		}
-	    }
-	}
-    }
-}
-
 void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
@@ -589,7 +591,6 @@ void QWidget::hideWindow()
     } else {
 	bool v = testWState(WState_Visible);
 	clearWState(WState_Visible);
-	parentWidget()->repaint(geometry());
 	paint_children( parentWidget(),geometry() );
 	if ( v )
 	    setWState(WState_Visible);
@@ -682,7 +683,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QPoint oldmp = posInWindow(this);
+
     QPoint oldp = pos();
     QSize  olds = size();
 
@@ -691,11 +692,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if (!isTopLevel() &&  size() == olds && oldp == pos() )
 	return;
 
-    if ( isTopLevel() && isMove && winid )
+    if ( isTopLevel() && isMove && mytop == this )
 	MoveWindow( (WindowPtr)winid, x, y, 1);
 
     bool isResize = (olds != size());
-    if ( isTopLevel() && winid )
+    if ( isTopLevel() && winid && mytop == this )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if ( isVisible() ) {
@@ -709,11 +710,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::sendEvent( this, &e );
 	    update(rect());
 	}
-	if( isMove || isResize ) {
-	    Rect r;
-	    SetRect( &r, oldmp.x(), oldmp.y(), oldmp.x()+olds.width(), oldmp.y()+olds.height() );
-	    InvalWindowRect( (WindowRef)mytop->winId(), &r );
-	}
+	if( parentWidget() && (isMove || isResize) ) 
+	    paint_children( parentWidget(), QRect( oldp, olds ) );
     } else {
 	if ( isMove ) 
 	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
@@ -726,8 +724,10 @@ void QWidget::setMinimumSize( int minw, int minh)
 {
     //I'm not happy to be doing this, but apparently this helps (ie on a mainwindow, so the
     //status bar doesn't fall of the bottom) this might need a FIXME!!!
-    minw+=10;
-    minh+=10;
+    if(isTopLevel()) {
+	minw+=10;
+	minh+=10;
+    }
 
 #if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
@@ -812,7 +812,6 @@ void QWidget::erase( const QRegion& reg )
     qt_set_paintevent_clipping( this, reg );
     QPainter p;
     p.begin(this);
-//    p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
 	    QPoint point(xoff%extra->bg_pix->width(), yoff%extra->bg_pix->height());
