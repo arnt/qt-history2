@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#486 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#487 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -47,6 +47,7 @@
 #include "qbuffer.h"
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
+#include "qvaluelist.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -4033,7 +4034,7 @@ int QApplication::doubleClickInterval()
   session management support
  *****************************************************************************/
 
-//#define SM_SUPPORT
+#define SM_SUPPORT
 
 #ifndef SM_SUPPORT
 
@@ -4047,7 +4048,7 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication * /* app*/, QString session )
+QSessionManager::QSessionManager( QApplication * /* app*/, QString &session )
 {
     d = new QSessionManagerData;
     d->sessionId = session;
@@ -4166,8 +4167,7 @@ static bool sm_phase2;
 static QSmSocketReceiver* sm_receiver = 0;
 
 static void resetSmState();
-static void sm_setProperties();
-static void sm_setProperty( char* name, char* type,
+static void sm_setProperty( const char* name, const char* type,
 			    int num_vals, SmPropValue* vals);
 static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 				  int saveType, Bool shutdown , int interactStyle, Bool fast);
@@ -4192,30 +4192,28 @@ static void resetSmState()
     sm_phase2 = FALSE;
 }
 
-static void sm_setProperties()
-{
-    // theoretically it's possible to set several properties at
-    // once. However, this lead to segfaults in libSM, so we do just
-    // one property at a time
 
-    SmPropValue program;
-    program.length = strlen(qApp->argv()[0])+1;
-    program.value = (SmPointer) qApp->argv()[0];
-    sm_setProperty( SmProgram, SmARRAY8, 1, &program );
-}
-
-static void sm_setProperty( char* name, char* type,
+// theoretically it's possible to set several properties at once. For
+// simplicity, however, we do just one property at a time
+static void sm_setProperty( const char* name, const char* type,
 			    int num_vals, SmPropValue* vals)
 {
-    SmProp prop;
-    prop.name = name;
-    prop.type = type;
-    prop.num_vals = num_vals;
-    prop.vals = vals;
+    if (num_vals ) {
+      SmProp prop;
+      prop.name = (char*)name;
+      prop.type = (char*)type;
+      prop.num_vals = num_vals;
+      prop.vals = vals;
 
-    SmProp* props[1];
-    props[0] = &prop;
-    SmcSetProperties( smcConnection, 1, props );
+      SmProp* props[1];
+      props[0] = &prop;
+      SmcSetProperties( smcConnection, 1, props );
+    }
+    else {
+      char* names[1];
+      names[0] = (char*) name;
+      SmcDeleteProperties( smcConnection, 1, names );
+    }
 }
 
 
@@ -4226,7 +4224,6 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
     if (smcConn != smcConnection )
 	return;
     qDebug("sm_saveYourselfCallback");
-    sm_setProperties();
     sm_cancel = FALSE;
     sm_smActive = TRUE;
     sm_isshutdown = shutdown;
@@ -4242,13 +4239,24 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 
 static void sm_performSaveYourself( QSessionManager* sm )
 {
+    // tell the session manager about our program in best POSIX style
+    sm->setProperty( SmProgram, qApp->argv()[0] );
+    // tell the session manager about our user as well.
+    sm->setProperty( SmUserID, QString::fromLatin1( getlogin() ) );
+
+    // generate a restart and discard command that makes sense
+    QStringList restart;
+    restart  << qApp->argv()[0] << "-session" << sm->sessionId();
+    sm->setRestartCommand( restart );
+    QStringList discard;
+    sm->setDiscardCommand( discard );
+
     switch ( sm_saveType ) {
     case SmSaveBoth:
 	qApp->commitData( *sm );
 	// fall through
     case SmSaveLocal:
 	qApp->saveState( *sm );
-	// todo client id, install crap on the toplevels etc. pp.
 	break;
     case SmSaveGlobal:
 	qApp->commitData( *sm );
@@ -4274,6 +4282,19 @@ static void sm_performSaveYourself( QSessionManager* sm )
 		sm_interactionActive = FALSE;
 	    }
 	}
+
+	// set restart and discard command in session manager
+	sm->setProperty( SmRestartCommand, sm->restartCommand() );
+	sm->setProperty( SmDiscardCommand, sm->discardCommand() );
+
+	// set the restart hint
+	SmPropValue prop;
+	prop.length = sizeof( int );
+	int value = sm->restartHint();
+	prop.value = (SmPointer) &value;
+	sm_setProperty( SmRestartStyleHint, SmCARD8, 1, &prop );
+
+	// we are done
 	SmcSaveYourselfDone( smcConnection, !sm_cancel );
     }
 }
@@ -4378,7 +4399,7 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication * /* app */, QString session )
+QSessionManager::QSessionManager( QApplication * /* app */, QString &session )
 {
     d = new QSessionManagerData;
     d->sessionId = session;
@@ -4412,6 +4433,7 @@ QSessionManager::QSessionManager( QApplication * /* app */, QString session )
 
     d->sessionId = QString::fromLatin1( myId );
     ::free( myId ); // it was allocated by C
+    session = d->sessionId;
 
     QString error = cerror;
     if (!smcConnection ) {
@@ -4425,6 +4447,9 @@ QSessionManager::QSessionManager( QApplication * /* app */, QString session )
 
 QSessionManager::~QSessionManager()
 {
+    if ( smcConnection )
+      SmcCloseConnection( smcConnection, 0, 0 );
+    smcConnection = 0;
     delete sm_receiver;
     delete d;
 }
@@ -4521,14 +4546,25 @@ QStringList QSessionManager::discardCommand() const
     return d->discardCommand;
 }
 
-void QSessionManager::setProperty( const QString&, const QString&)
+void QSessionManager::setProperty( const QString& name, const QString& value)
 {
-    // TODO
+    SmPropValue prop;
+    prop.length = value.length();
+    prop.value = (SmPointer) value.latin1();
+    sm_setProperty( name.latin1(), SmARRAY8, 1, &prop );
 }
 
-void QSessionManager::setProperty( const QString&, const QStringList& )
+void QSessionManager::setProperty( const QString& name, const QStringList& value)
 {
-    // TODO
+    SmPropValue *prop = new SmPropValue[ value.count() ];
+    int count = 0;
+    for ( QStringList::ConstIterator it = value.begin(); it != value.end(); ++it ) {
+      prop[ count ].length = it->length();
+      prop[ count ].value = (char*)it->latin1();
+      ++count;
+    }
+    sm_setProperty( name.latin1(), SmLISTofARRAY8, count, prop );
+    delete [] prop;
 }
 
 bool QSessionManager::isPhase2()

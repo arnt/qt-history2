@@ -1,6 +1,7 @@
 #include "qstring.h"
 #include "qdict.h"
 #include "qstylesheet.h"
+#include "qapplication.h"
 #include "qml.h" //##### Provider
 
 class QTextContainer;
@@ -23,7 +24,7 @@ public:
     inline bool isSpace() const {return c[0] == ' ';}
     inline bool isNewline() const {return c[0] == '\n';}
     inline bool isNull() const {return c.isNull();}
-    
+
 
     inline QTextContainer* parent() const;
     inline QTextBox* box() const;
@@ -173,7 +174,8 @@ protected:
 
 private:
     int fontWeight() const;
-    int fontItalic() const;
+    bool fontItalic() const;
+    bool fontUnderline() const;
     QString fontFamily() const;
     int fontSize() const;
 
@@ -494,11 +496,11 @@ public:
 };
 
 
-class QTextDocument : public QTextBox
+class QRichText : public QTextBox
 {
 public:
-    QTextDocument( const QString &doc, const QWidget* w = 0, int margin = 8, QMLProvider* provider = 0, const QStyleSheet* sheet = 0 );
-    ~QTextDocument();
+    QRichText( const QString &doc, const QFont& fnt = QApplication::font(), int margin = 8, QMLProvider* provider = 0, const QStyleSheet* sheet = 0 );
+    ~QRichText();
 
 
     bool isValid() const;
@@ -506,7 +508,7 @@ public:
     void dump();
 
 private:
-    void init( const QString& doc, const QWidget* w = 0, int margin = 8 );
+    void init( const QString& doc, const QFont& fnt, int margin = 8 );
 
     bool parse (QTextContainer* current, QTextNode* lastChild, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos);

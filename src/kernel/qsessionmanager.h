@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#3 $
 **
 ** Definition of QSessionManager class
 **
@@ -35,7 +35,7 @@ class QSessionManagerData;
 
 class Q_EXPORT  QSessionManager : public Qt
 {
-    QSessionManager( QApplication *app, QString session );
+    QSessionManager( QApplication *app, QString &session );
     ~QSessionManager();
 public:
     QString sessionId();

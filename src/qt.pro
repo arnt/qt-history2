@@ -104,7 +104,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsignalslotimp.h \
-		  $$KERNEL_H/qsimpletextdocument.h \
+		  $$KERNEL_H/qsimplerichtext.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
@@ -328,7 +328,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qsemimodal.cpp \
 		  kernel/qsignal.cpp \
 		  kernel/qsignalmapper.cpp \
-		  kernel/qsimpletextdocument.cpp \
+		  kernel/qsimplerichtext.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qstyle.cpp \

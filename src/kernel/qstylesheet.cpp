@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#7 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -42,6 +42,7 @@ class QStyleSheetItemData
 public:
     QStyleSheetItem::DisplayMode disp;
     int fontitalic;
+    int fontunderline;
     int fontweight;
     int fontsize;
     int fontsizerel;
@@ -105,6 +106,7 @@ void QStyleSheetItem::init()
     d->disp = DisplayInline;
 
     d->fontitalic = Undefined;
+    d->fontunderline = Undefined;
     d->fontweight = Undefined;
     d->fontsize = Undefined;
     d->fontsizerel = 100;
@@ -216,11 +218,42 @@ void QStyleSheetItem::setFontItalic(bool italic)
   Returns whether the style defines a font shape.  A style
   does not define any shape until setFontItalic() is called.
 
-  \sa setFontItalic(), fontitalic()
+  \sa setFontItalic(), fontItalic()
  */
 bool QStyleSheetItem::definesFontItalic() const
 {
     return d->fontitalic != Undefined;
+}
+
+/*!
+  Returns whether the styles sets an underlined font.
+
+ \sa setFontUnderline(), definesFontUnderline()
+ */
+bool QStyleSheetItem::fontUnderline() const
+{
+    return d->fontunderline > 0;
+}
+
+/*!
+  Sets underline for the style.
+
+  \sa fontUnderline(), definesFontUnderline()
+ */
+void QStyleSheetItem::setFontUnderline(bool underline)
+{
+    d->fontunderline = underline?1:0;
+}
+
+/*!
+  Returns whether the style defines a setting for the underline
+  property of the font.  A style does not define this until
+  setFontUnderline() is called.
+
+  \sa setFontUnderline(), fontUnderline() */
+bool QStyleSheetItem::definesFontUnderline() const
+{
+    return d->fontunderline != Undefined;
 }
 
 
@@ -695,6 +728,7 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("a") );
     style->setColor( Qt::blue );
+    style->setFontUnderline( TRUE );
     style->setAnchor( TRUE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("em") );
@@ -884,3 +918,63 @@ QTextNode* QStyleSheet::tag( const QString& name,
 }
 
 
+/*!
+  Auxiliary function. Converts the plain text string \a plain to a
+  rich text formatted string while preserving its look.
+ */
+QString QStyleSheet::convertFromPlainText( const QString& plain)
+{
+    int col = 0;
+    QString rich;
+    rich += "<p>";
+    for ( int i = 0; i < int(plain.length()); ++i ) {
+	if ( plain[i] == '\n' ){
+	    if ( col == 1 )
+		rich += "<p></p>";
+	    else
+		rich += "<br>";
+	    col = 0;
+	}
+	else if ( plain[i] == '\t' ){
+	    rich += 0x00a0U;
+	    while ( col / 4.0 != int( col/4 ) ) {
+		rich += 0x00a0U;
+		++col;
+	    }
+	}
+	else if ( plain[i].isSpace() )
+	    rich += 0x00a0U;
+	else if ( plain[i] == '<' )
+	    rich +="&lt;";
+	else if ( plain[i] == '>' )
+	    rich +="&gt;";
+	else
+	    rich += plain[i];
+	++col;
+    }
+    rich += "</p>";
+    return rich;
+}
+
+/*!
+Returns whether the string \a text is likely to be rich text
+formatted.
+
+Note: The function uses a fast and therefore simple heuristic. It
+mainly checks whether there is something that looks like a tag. While
+the result may be correct for most common cases, there is no
+guarantee.
+*/
+bool QStyleSheet::mightBeRichText( const QString& text)
+{
+    int open = text.find('<');
+    if ( open > -1 ) {
+	int close = text.find('>', open);
+	if ( close > -1 ) {
+	    int nl = text.find('\n', open );
+	    return ( nl == -1 || nl > close )
+			 && !text.mid(open,close-open).contains(".h");
+	}
+    }
+    return FALSE;
+}

@@ -1,7 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#22 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#1 $
 **
-** Definition of QWhatsThis class
+** Definition of the QSimpleRichText class
+**
+** Created : 990101
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -21,38 +23,42 @@
 **
 *****************************************************************************/
 
-#ifndef QWHATSTHIS_H
-#define QWHATSTHIS_H
+#ifndef QSIMPLERICHTEXT_H
+#define QSIMPLERICHTEXT_H
 
-#ifndef QT_H
-#include "qobject.h"
-#endif // QT_H
-
-#include "qcursor.h"
-
-class QToolButton;
-class QPopupMenu;
+#include "qnamespace.h"
+#include "qapplication.h"
+#include "qstring.h"
+#include "qregion.h"
+class QPainter;
+class QWidget;
 class QStyleSheet;
+class QBrush;
 
-class Q_EXPORT QWhatsThis: public Qt
+
+class QSimpleRichTextData;
+
+class Q_EXPORT QSimpleRichText
 {
 public:
-    QWhatsThis( QWidget *);
-    virtual ~QWhatsThis();
+    QSimpleRichText( const QString& contents, const QFont& fnt = QApplication::font(), const QStyleSheet* s = 0);
+    ~QSimpleRichText();
 
-    virtual QString text( const QPoint & );
+    void setWidth( QPainter*, int );
+    int width() const;
 
-    // the common static functions
-    static void add( QWidget *, const QString &);
-    static void remove( QWidget * );
-    static QString textFor( QWidget *, const QPoint & pos = QPoint() );
+    int widthUsed() const;
 
-    static QToolButton * whatsThisButton( QWidget * parent );
+    int height() const;
 
-    static void enterWhatsThisMode();
-    static bool inWhatsThisMode();
-    static void leaveWhatsThisMode( const QString& = QString::null, const QPoint& pos = QCursor::pos() );
+    void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
+	       const QColorGroup& cg, const QBrush* paper = 0) const;
 
+    QString anchor( QPainter* p, const QPoint& pos );
+
+private:
+    QSimpleRichTextData* d;
 };
+
 
 #endif

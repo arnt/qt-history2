@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#6 $
 **
 ** Implementation of the QTextView class
 **
@@ -38,7 +38,7 @@
 #include "qbitmap.h"
 #include "qtimer.h"
 #include "qimage.h"
-#include "qsimpletextdocument.h"
+#include "qsimplerichtext.h"
 
 
 /*!
@@ -132,7 +132,7 @@ void QTextBrowser::setDocument(const QString& name)
 	provider()->setReferenceDocument( main );
 	if ( isVisible() ) {
 	    QString firstTag = doc.left( doc.find('>' )+1 );
-	    QTextDocument tmp( firstTag, 0, 0 );
+	    QRichText tmp( firstTag );
 
 	    static QString s_type = QString::fromLatin1("type");
 	    static QString s_detail = QString::fromLatin1("detail");
@@ -293,10 +293,11 @@ void QTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
 	if (d->buttonDown && d->buttonDown == anchor( e->pos() )){
-	    QString href;
-	    if ( d->buttonDown->attributes() && d->buttonDown->attributes()->find("href"))
-		href = *d->buttonDown->attributes()->find("href");
-	    setDocument( href );
+	  if ( d->buttonDown->attributes() && d->buttonDown->attributes()->find("href")) {
+	      QString href;
+	      href = *d->buttonDown->attributes()->find("href");
+	      setDocument( href );
+	  }
 	}
     }
     d->buttonDown = 0;
@@ -309,13 +310,18 @@ void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 {
     const QTextContainer* act = anchor( e->pos() );
     if (d->highlight != act) {
-	QString href;
-	viewport()->setCursor( act?pointingHandCursor:arrowCursor );
-	if (act && act->attributes() && act->attributes()->find("href"))
+	if (act && act->attributes() && act->attributes()->find("href")) {
+	    QString href;
 	    href = *act->attributes()->find("href");
-	emit highlighted( href );
+	    emit highlighted( href );
+	    d->highlight = act;
+	}
+	else if ( d->highlight ) {
+	    emit highlighted( QString::null );
+	    d->highlight = 0;
+	}
+	viewport()->setCursor( d->highlight?pointingHandCursor:arrowCursor );
     }
-    d->highlight = act;
 }
 
 
@@ -369,7 +375,7 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
     QPainter p( popup );
 
-    QSimpleTextDocument* qmlDoc = new QSimpleTextDocument( contents, popup );
+    QSimpleRichText* qmlDoc = new QSimpleRichText( contents, popup->font() );
     qmlDoc->setWidth( &p, w );
     QRect r( 0, 0, qmlDoc->width(), qmlDoc->height() );
 

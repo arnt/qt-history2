@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#2 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#3 $
 **
 ** Definition of the QTextView class
 **
@@ -32,7 +32,7 @@
 #include "qcolor.h"
 #include "qml.h" // for the provider #######
 
-class QTextDocument;
+class QRichText;
 class QTextViewData;
 class QTextContainer;
 class QStyleSheet;
@@ -45,7 +45,7 @@ public:
     QTextView( const QString& doc, QWidget *parent=0, const char *name=0);
     ~QTextView();
 
-    virtual void setText( const QString& contents);
+    virtual void setText( const QString& text );
     virtual QString text() const;
 
     QStyleSheet* styleSheet() const;
@@ -78,8 +78,11 @@ protected:
 
 protected:
 
-    QTextDocument& currentDocument() const;
+    QRichText& currentDocument() const;
     void paletteChange( const QPalette & );
+
+private slots:
+    void doResize();
 
 private:
     void init();

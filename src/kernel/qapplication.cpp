@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#240 $
 **
 ** Implementation of QApplication class
 **
@@ -1972,9 +1972,12 @@ void QApplication::commitData( QSessionManager& /* sm */ )
   includes the current contents of the edit buffers, the location of
   the cursor and other aspects of the current editing session.
 
-  Note that you should not exit the application within this function.
-  Instead, the session manager may or may not do this afterwards,
-  depending on the context.
+  Note that you should never exit the application within this
+  function.  Instead, the session manager may or may not do this
+  afterwards, depending on the context. Futhermore, most session
+  managers will very likely request a saved state immediately after
+  the application has been started. This permits the session manager
+  to learn about the application's restart policy.
 
   <strong>Important</strong><br> Within this function, no user
   interaction is possible, \e unless you ask the session manager \a sm
@@ -1984,8 +1987,7 @@ void QApplication::commitData( QSessionManager& /* sm */ )
   Details about session management in general can be found \link
   session.html here \endlink
 
-\sa isSessionRestored(), sessionId(), commitData()
- */
+\sa isSessionRestored(), sessionId(), commitData() */
 void QApplication::saveState( QSessionManager& /* sm */ )
 {
 }
@@ -2003,7 +2005,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   during a \link session.html session management \endlink action.  In
   Qt, session management actions are handled in the two virtual
   functions QApplication::commitData() and QApplication::saveState().
-  Both functions provde a reference to a session manager object as
+  Both functions provide a reference to a session manager object as
   argument, thus allowing the application to communicate with the
   session manager.
 
@@ -2074,7 +2076,6 @@ void MyApplication::commitData( QSessionManager& sm ) {
 	    // save document here
 	    break;
 	case 1: // no
-	    sm.release();
 	    break;
 	default: // cancel
 	    sm.cancel();
@@ -2151,11 +2152,14 @@ void MyApplication::commitData( QSessionManager& sm ) {
           - Do not restart this application under any circumstances.
   </ul>
 
-  The default hint is \c RestartIfRunning. Note that these flags are only hints,
-  a session manager may or may not obey them.
+  The default hint is \c RestartIfRunning. Note that these flags are
+  only hints, a session manager may or may not obey them.
 
-  \sa restartHint()
- */
+  Preferrably, the restart hint shall be defined in
+  QApplication::saveState() since most session managers perform a
+  checkpoint immediately after an application's startup.
+
+  \sa restartHint() */
 
 /*! \fn     QSessionManager::RestartHint QSessionManager::restartHint() const
 

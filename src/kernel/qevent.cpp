@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#97 $
 **
 ** Implementation of event classes
 **
@@ -265,7 +265,10 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   \ingroup event
 
 
-  Wheel events occur when a mouse wheel is turned while the pointer is above the widget.
+  Wheel events occur when a mouse wheel is turned while the widget has
+  focus.  The rotation distance is provided by delta(). If required,
+  both pos() and globalPos() return the mouse pointer location at the
+  time of the event.
 
   A wheel event contains a special accept flag which tells whether the
   receiver wants the event.  You should call QWheelEvent::accept() if you

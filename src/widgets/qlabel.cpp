@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#120 $
 **
 ** Implementation of QLabel widget class
 **
@@ -33,7 +33,8 @@
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qsimpletextdocument.h"
+#include "qsimplerichtext.h"
+#include "qstylesheet.h"
 
 
 class QLabelPrivate
@@ -89,7 +90,17 @@ class QLabelPrivate
 
   <img src=qlabel-m.gif> <img src=qlabel-w.gif>
 
-  \sa QLineEdit QMovie
+  A label may also be used to provide a slightly larger amount of
+  information, for example a few lines help text in a dialog. For this
+  reason, QLabel also supports rich text rendering. The available
+  styles are defined in the default stylesheet
+  QStyleSheet::defaultSheet(). Usually the label autodetects from the
+  set text whether rich text rendering is required. The format,
+  however, can also be specified directly with setTextFormat(). Note
+  that buddies will not work yet with rich text labels since there's
+  not way to specify the accelerator (yet).
+  
+  \sa QLineEdit QMovie QTextView
   <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
 */
 
@@ -206,10 +217,11 @@ void QLabel::init()
   accelerator and redraws the contents.
 
   The label resizes itself if auto-resizing is enabled.  Nothing
-  happens if \e text is the same as the current label.
+  happens if \a text is the same as the current label.
 
   \a text may be interpreted either as plain text or as rich text,
-  depending on the textFormat().
+  depending on the textFormat(). The default setting is \c AutoText,
+  i.e. the label autodetects the format from \a text.
 
   Note that a label is only useful for rather small documents with one
   or maximal two lines of text.  If you need to display larger
@@ -245,10 +257,10 @@ void QLabel::setText( const QString &text )
 			    this, SLOT(acceleratorSlot()) );
     }
 
-    if ( textformat == RichText )
-	doc = new QSimpleTextDocument( ltext, this );
-
-    //###### TODO AutoText richt text detection
+    if ( textformat == RichText ||
+	 ( textformat == AutoText
+	   && QStyleSheet::mightBeRichText( ltext ) ) )
+	doc = new QSimpleRichText( ltext, font() );
 
     if ( autoresize ) {
 	QSize s = sizeHint();
@@ -498,7 +510,7 @@ QSize QLabel::sizeForWidth( int w ) const
 
 	w -= 2*frameWidth();
 	doc->setWidth(&p, w);
-	br = QRect( 0, 0, doc->width(), doc->height() );
+	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
     } else {
 	bool tryWidth = w < 0 && align&WordBreak;
 	QFontMetrics fm = fontMetrics();
@@ -607,7 +619,24 @@ void QLabel::drawContents( QPainter *p )
     }
     else if ( doc ) {
 	doc->setWidth(p, cr.width() );
-	doc->draw(p, cr.x(), cr.y(), cr, colorGroup(), 0);
+	int rw = doc->widthUsed();
+	int rh = doc->height();
+	int xo = 0;
+	int yo = 0;
+	if ( align & AlignVCenter )
+	    yo = (cr.height()-rh)/2;
+	else if ( align & AlignBottom )
+	    yo = cr.height()-rh;
+	if ( align & AlignRight )
+	    xo = cr.width()-rw;
+	else if ( align & AlignHCenter )
+	    xo = (cr.width()-rw)/2;
+	if ( style() == WindowsStyle && !isEnabled() ) {
+	    QColorGroup cg = colorGroup();
+	    cg.setColor( QColorGroup::Text, cg.light() );
+	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, cg, 0);
+	}
+	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, colorGroup(), 0);
     } else {
 	// ordinary text label
 	qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
@@ -806,6 +835,8 @@ void QLabel::movieResized(const QSize& size)
 
   If the label has a buddy, the accelerator is disabled since the
   movie doesn't contain any suitable character.
+  
+  \sa unsetMovie()
 */
 void QLabel::setMovie( const QMovie& movie )
 {
@@ -847,6 +878,8 @@ void QLabel::unsetMovie()
 /*!
   Returns the QMovie currently displaying in the label, or 0
   if none has been set.
+  
+  \sa setMovie(), unsetMovie()
 */
 QMovie* QLabel::movie() const
 {
@@ -855,7 +888,9 @@ QMovie* QLabel::movie() const
 
 
 /*!
-  Returns the current text format
+  Returns the current text format.
+  
+  \sa setTextFormat()
  */
 Qt::TextFormat QLabel::textFormat() const
 {
@@ -863,7 +898,20 @@ Qt::TextFormat QLabel::textFormat() const
 }
 
 /*!
-  Sets the text format to \a format
+  Sets the text format to \a format. Possible choices are
+  <ul>
+  <li> \c PlainText - all characters are displayed verbatimely, 
+  including all blanks and linebreaks. Word wrap is availbe
+  with the \c WordBreak alignment flag (see setAlignment() for
+  details).
+  <li> \c RichText - rich text rendering. The available
+  styles are defined in the default stylesheet
+  QStyleSheet::defaultSheet().
+  <li> \c AutoText - this is also the default. The label
+  autodetects which rendering style suits best, \c PlainText 
+  or \c RichText. Technically, this is done by using the 
+  QStyleSheet::mightBeRichText() heuristic.
+  </ul>
  */
 void QLabel::setTextFormat( Qt::TextFormat format )
 {

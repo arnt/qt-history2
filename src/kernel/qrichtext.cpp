@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#15 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -281,7 +281,6 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	if (it->isSimpleNode) {
 	    if ( it.parentNode()->font() != p->font() ) {
 		p->setFont( it.parentNode()->font() );
-		fm = p->fontMetrics();
 	    }
 	    if (!it->isNull())
 		tx += fm.width(it->c);
@@ -588,6 +587,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 
 QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 {
+  QFontMetrics fm = p->fontMetrics();
     if (!intersects(xarg-obx, yarg-oby, 0,0))
 	return 0;
 
@@ -600,7 +600,6 @@ QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 	if ( it->isContainer && !it->isBox )
 	    continue;
 	p->setFont( it.parentNode()->font() );
-	QFontMetrics fm = p->fontMetrics();
 	if (it->isSimpleNode)
 	    tx += fm.width( it->c );
 	else
@@ -860,33 +859,53 @@ void QTextContainer::reparentSubtree()
 
 void QTextContainer::createFont()
 {
-    fnt = new QFont( fontFamily() );
-    fnt->setPointSize( fontSize() );
-    fnt->setWeight( fontWeight() );
-    if (style-> definesFontItalic() )
-	fnt->setItalic( style->fontItalic() );
+    // fnt is used to cache these values, therefore
+    // use a temporary QFont* here
+    QFont* f = new QFont( fontFamily() );
+    f->setPointSize( fontSize() );
+    f->setWeight( fontWeight() );
+    f->setItalic( fontItalic() );
+    f->setUnderline( fontUnderline() );
+    fnt = f;
 }
 
 
 
 int QTextContainer::fontWeight() const
 {
+    if ( fnt )
+      return fnt->weight();
     int w = style->fontWeight();
     if ( w == QStyleSheetItem::Undefined && parent )
 	w = parent->fontWeight();
     return w;
 }
 
-int QTextContainer::fontItalic() const
+bool QTextContainer::fontItalic() const
 {
-    int fi = style->fontItalic();
-    if ( fi == QStyleSheetItem::Undefined && parent )
-	fi = parent->fontItalic();
-    return fi;
+    if ( fnt )
+      return fnt->italic();
+    if ( style->definesFontItalic() )
+      return style->fontItalic();
+    return parent? parent->fontItalic() : FALSE;
+}
+
+bool QTextContainer::fontUnderline() const
+{
+    if ( fnt )
+      return fnt->underline();
+    if ( style->definesFontUnderline() ) {
+      if ((style->isAnchor()  && ( !attributes()  || !attributes()->find("href") ) ) )
+	return FALSE;
+      return style->fontUnderline();
+    }
+    return parent? parent->fontUnderline() : FALSE;
 }
 
 int QTextContainer::fontSize() const
 {
+    if ( fnt )
+      return fnt->pointSize();
     int w = style->fontSize();
     if ( w == -1 && parent )
 	w = parent->fontSize();
@@ -897,6 +916,8 @@ int QTextContainer::fontSize() const
 
 QString QTextContainer::fontFamily() const
 {
+    if ( fnt )
+      return fnt->family();
     QString f = style->fontFamily();
     if ( f.isNull() && parent )
 	f = parent->fontFamily();
@@ -1066,11 +1087,11 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     int marginhorizontal = marginright + marginleft;
     int h = margintop;
 
+    QFontMetrics fm = p->fontMetrics();
     QTextIterator it = begin();
     ++it;
     if ( it != end() ) {
 	p->setFont( it.parentNode()->font() );
-	QFontMetrics fm = p->fontMetrics();
 	int min = 0;
 	while ( it != end() ) {
 	    row = new QTextRow(p, fm, it,
@@ -1274,11 +1295,11 @@ QStyleSheetItem::ListStyle QTextBox::listStyle()
 #if 0
 class QTextCursor{
 public:
-    QTextCursor(QTextDocument& doc);
+    QTextCursor(QRichText& doc);
     ~QTextCursor();
     void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
 
-    QTextDocument* document;
+    QRichText* document;
 
     int x;
     int y;
@@ -1324,7 +1345,7 @@ private:
 };
 
 
-QTextCursor::QTextCursor(QTextDocument& doc)
+QTextCursor::QTextCursor(QRichText& doc)
 {
     document = &doc;
     node = document;
@@ -1815,25 +1836,25 @@ void QTextCursor::end(QPainter* p, bool select)
 
 
 
-QTextDocument::QTextDocument( const QString &doc, const QWidget* w, int margin,  QMLProvider* provider, const QStyleSheet* sheet  )
+QRichText::QRichText( const QString &doc, const QFont& fnt, int margin,  QMLProvider* provider, const QStyleSheet* sheet  )
     :QTextBox( (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
 {
     provider_ = provider? provider : QMLProvider::defaultProvider(); // for access during parsing only
     sheet_ = sheet? sheet : QStyleSheet::defaultSheet();// for access during parsing only
-    init( doc, w, margin );
+    init( doc, fnt, margin );
     provider_ = 0;
 }
 
 
-void QTextDocument::init( const QString& doc, const QWidget* w, int margin )
+void QRichText::init( const QString& doc, const QFont& fnt, int margin )
 {
     //set up base style
     base->setDisplayMode(QStyleSheetItem::DisplayInline);
-    QFont f = w ? w->font(): QApplication::font();
-    base->setFontFamily( f.family() );
-    base->setFontItalic( f.italic() );
-    base->setFontWeight( f.weight() );
-    base->setFontSize( f.pointSize() );
+    base->setFontFamily( fnt.family() );
+    base->setFontItalic( fnt.italic() );
+    base->setFontUnderline( fnt.underline() );
+    base->setFontWeight( fnt.weight() );
+    base->setFontSize( fnt.pointSize() );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
     valid = TRUE;
@@ -1841,29 +1862,28 @@ void QTextDocument::init( const QString& doc, const QWidget* w, int margin )
     parse(this, 0, doc, pos);
 }
 
-QTextDocument::~QTextDocument()
+QRichText::~QRichText()
 {
 }
 
 
 
-void QTextDocument::dump()
+void QRichText::dump()
 {
 }
 
 
 
-bool QTextDocument::isValid() const
+bool QRichText::isValid() const
 {
     return valid;
 }
 
 
-bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const QString &doc, int& pos)
+bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QString &doc, int& pos)
 {
     bool pre = current->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
     while ( valid && pos < int(doc.length() )) {
-	bool sep = FALSE;
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
@@ -1936,7 +1956,7 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 		
 		    if (parse(ctag, 0, doc, pos) ) {
 			if (!cpre)
-			    sep |= eatSpace(doc, pos);
+			    (void) eatSpace(doc, pos);
 			int recoverPos = pos;
 			valid = (hasPrefix(doc, pos, QChar('<'))
 				 && hasPrefix(doc, pos+1, QChar('/'))
@@ -1953,7 +1973,7 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 			    return TRUE;
 		    }
 		    if ( !pre && (ctagUnknown || ctag->isBox) ) // no whitespace between unknown containers or boxes
-			sep |= eatSpace(doc, pos);
+			(void) eatSpace(doc, pos);
 		}
 	    }
 	    else { // empty tags
@@ -1971,8 +1991,12 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 		    tag->isLastSibling = 1;
 		    lastChild = tag;
 			
-		    if (!pre && tag->isSimpleNode && tag->c[0] == '\n')
-			eatSpace(doc, pos);
+		    if (!pre && tag->isSimpleNode && tag->isNewline()){
+		      while (pos < int(doc.length())
+			     && doc[pos].isSpace()
+			     && doc[pos] != QChar(0x00a0U) )
+			pos++;
+		    }
 		}
 	    }
 	}
@@ -2013,14 +2037,14 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
 		lastChild = n;
 		l = n;
  		if (!pre && doc[pos] == '<')
- 		    sep |= eatSpace(doc, pos);
+ 		    (void) eatSpace(doc, pos);
 	    }
 	}
     }
     return TRUE;
 }
 
-bool QTextDocument::eatSpace(const QString& doc, int& pos)
+bool QRichText::eatSpace(const QString& doc, int& pos)
 {
     int old_pos = pos;
     while (pos < int(doc.length()) && doc[pos].isSpace())
@@ -2028,7 +2052,7 @@ bool QTextDocument::eatSpace(const QString& doc, int& pos)
     return old_pos < pos;
 }
 
-bool QTextDocument::eat(const QString& doc, int& pos, QChar c)
+bool QRichText::eat(const QString& doc, int& pos, QChar c)
 {
     valid &= (bool) (doc[pos] == c);
     if (valid)
@@ -2036,13 +2060,13 @@ bool QTextDocument::eat(const QString& doc, int& pos, QChar c)
     return valid;
 }
 
-bool QTextDocument::lookAhead(const QString& doc, int& pos, QChar c)
+bool QRichText::lookAhead(const QString& doc, int& pos, QChar c)
 {
     return (doc[pos] == c);
 }
 
 
-QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
+QChar QRichText::parseHTMLSpecialChar(const QString& doc, int& pos)
 {
     QCString s;
     pos++;
@@ -2079,7 +2103,7 @@ QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
     return '&';
 }
 
-QString QTextDocument::parseWord(const QString& doc, int& pos, bool insideTag, bool lower)
+QString QRichText::parseWord(const QString& doc, int& pos, bool insideTag, bool lower)
 {
     QString s;
 
@@ -2114,7 +2138,7 @@ QString QTextDocument::parseWord(const QString& doc, int& pos, bool insideTag, b
     return s;
 }
 
-QString QTextDocument::parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord)
+QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord)
 {
     QString s;
     while( pos < int(doc.length()) &&
@@ -2153,12 +2177,12 @@ QString QTextDocument::parsePlainText(const QString& doc, int& pos, bool pre, bo
 }
 
 
-bool QTextDocument::hasPrefix(const QString& doc, int pos, QChar c)
+bool QRichText::hasPrefix(const QString& doc, int pos, QChar c)
 {
     return valid && doc[pos] ==c;
 }
 
-bool QTextDocument::hasPrefix(const QString& doc, int pos, const QString& s)
+bool QRichText::hasPrefix(const QString& doc, int pos, const QString& s)
 {
     if ( pos + s.length() >= doc.length() )
 	return FALSE;
@@ -2169,7 +2193,7 @@ bool QTextDocument::hasPrefix(const QString& doc, int pos, const QString& s)
     return TRUE;
 }
 
-QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
+QString QRichText::parseOpenTag(const QString& doc, int& pos,
 				  QDict<QString> &attr, bool& emptyTag)
 {
     emptyTag = FALSE;
@@ -2242,7 +2266,7 @@ QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
     return tag;
 }
 
-bool QTextDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
+bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 {
     pos++;
     pos++;

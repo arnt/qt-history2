@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#11 $
 **
 ** Implementation of the QTextView class
 **
@@ -48,7 +48,7 @@
   \brief A sophisticated single-page rich text viewer.
   \ingroup realwidgets
 
-  Unlike QSimpleTextDocument, which merely draws small pieces of rich text,
+  Unlike QSimpleRichText, which merely draws small pieces of rich text,
   a QTextView is a real widget, with scrollbars when necessary, for showing
   large text documents.
 
@@ -59,11 +59,12 @@ class QTextViewData
 {
 public:
     QStyleSheet* sheet_;
-    QTextDocument* doc_;
+    QRichText* doc_;
     QMLProvider* provider_;
     QString txt;
     QColorGroup mypapcolgrp;
     QColorGroup papcolgrp;
+    QTimer* resizeTimer;
 };
 
 
@@ -108,6 +109,9 @@ void QTextView::init()
 
     viewport()->setBackgroundMode(NoBackground);
     setFocusPolicy( StrongFocus );
+    
+    d->resizeTimer = new QTimer( this );
+    connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
 }
 
 /*!
@@ -120,15 +124,21 @@ QTextView::~QTextView()
 }
 
 /*!
-  Changes the contents of the view to the string \a doc.
+  Changes the contents of the view to the string \a text.
 
   \sa contents()
 */
-void QTextView::setText( const QString& doc)
+void QTextView::setText( const QString& text)
 {
     delete d->doc_;
     d->doc_ = 0;
-    d->txt = doc;
+
+    // ###### TODOdo format stuff
+    if ( QStyleSheet::mightBeRichText( text ) ) 
+      d->txt = text;
+    else 
+      d->txt = QStyleSheet::convertFromPlainText( text );
+
     if ( d->txt.isEmpty() )
 	d->txt = QString::fromLatin1("<p></p>");
     if ( isVisible() ) {
@@ -165,7 +175,7 @@ QString QTextView::text() const
 void QTextView::createDocument()
 {
     d->papcolgrp = d->mypapcolgrp;
-    d->doc_ = new QTextDocument( d->txt, viewport(), 8, provider(), styleSheet() );
+    d->doc_ = new QRichText( d->txt, viewport()->font(), 8, provider(), styleSheet() );
     if ( !d->doc_->attributes() )
 	return;
     if (d->doc_->attributes()->find("bgcolor")){
@@ -286,7 +296,7 @@ QString QTextView::documentTitle() const
 */
 int QTextView::heightForWidth( int w ) const
 {
-    QTextDocument doc ( d->txt, viewport(), 8, provider(), styleSheet());
+    QRichText doc ( d->txt, viewport()->font(), 8, provider(), styleSheet());
     {
 	QPainter p( this );
 	doc.setWidth(&p, w);
@@ -298,7 +308,7 @@ int QTextView::heightForWidth( int w ) const
   Returns the current document defining the view.  This is not currently
   useful for applications.
 */
-QTextDocument& QTextView::currentDocument() const
+QRichText& QTextView::currentDocument() const
 {
     if (!d->doc_){
 	QTextView* that = (QTextView*) this;
@@ -344,11 +354,7 @@ void QTextView::viewportResizeEvent(QResizeEvent* )
 {
 }
 
-
-/*!
-  \reimp
-*/
-void QTextView::resizeEvent( QResizeEvent* e )
+void QTextView::doResize()
 {
     QSize vw = viewportSize( QMAX( currentDocument().widthUsed,
 				   currentDocument().width),
@@ -360,8 +366,33 @@ void QTextView::resizeEvent( QResizeEvent* e )
     resizeContents( QMAX( currentDocument().widthUsed,
 			  currentDocument().width),
 		    currentDocument().height );
-    QScrollView::resizeEvent( e );
     viewport()->update();
+}
+
+
+
+/*!
+  \reimp
+*/
+void QTextView::resizeEvent( QResizeEvent* e )
+{
+    if ( contentsHeight() > 4 * height() ) {
+      // large document, do deferred resize
+      d->resizeTimer->start( 200, TRUE );
+      QScrollView::resizeEvent( e );
+    }
+    else {
+      // small document, resize immediately
+      QSize vw = viewportSize( QMAX( currentDocument().widthUsed,
+				     currentDocument().width),
+			       currentDocument().height );
+      currentDocument().setWidth( &QPainter( this ), vw.width() );
+      resizeContents( QMAX( currentDocument().widthUsed,
+			    currentDocument().width),
+		      currentDocument().height );
+      QScrollView::resizeEvent( e );
+      viewport()->update();
+    }
 }
 
 
@@ -751,6 +782,7 @@ void QTextEdit::viewportResizeEvent(QResizeEvent* e)
 	cursor->calculatePosition(&p);
     }
 }
+
 
 #endif
 

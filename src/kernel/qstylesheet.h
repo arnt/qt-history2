@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#4 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#5 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -78,6 +78,10 @@ public:
     void setFontItalic( bool );
     bool definesFontItalic() const;
 
+    bool fontUnderline() const;
+    void setFontUnderline( bool );
+    bool definesFontUnderline() const;
+
     bool isAnchor() const;
     void setAnchor(bool anc);
 
@@ -138,6 +142,8 @@ public:
 			  QMLProvider& provider,
 			  bool emptyTag = FALSE) const;
 
+    static QString convertFromPlainText( const QString& );
+    static bool mightBeRichText( const QString& );
 
 private:
     void init();

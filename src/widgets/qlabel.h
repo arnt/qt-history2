@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#52 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#53 $
 **
 ** Definition of QLabel widget class
 **
@@ -30,7 +30,7 @@
 #include "qframe.h"
 #endif // QT_H
 
-class QSimpleTextDocument;
+class QSimpleRichText;
 class QLabelPrivate;
 
 class Q_EXPORT QLabel : public QFrame
@@ -98,7 +98,7 @@ private:
     int		extraMargin:8;
     uint	autoresize:1;
     Qt::TextFormat textformat;
-    QSimpleTextDocument* doc;
+    QSimpleRichText* doc;
     QAccel *	accel;  // NON NULL
     QLabelPrivate* d;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#127 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1254,7 +1254,9 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 	qWarning( "QFontMetrics: Get font metrics between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    painter->updateFont();
+    // ######### that is not necessary, or is it?????? (ME)
+    //if ( painter->testf(DirtyFont) )
+    // painter->updateFont();
     painter->setf( QPainter::FontMet );
     fin = painter->cfont.d->fin;
     flags = 0;
@@ -1567,7 +1569,10 @@ QFontInfo::QFontInfo( const QPainter *p )
 	qWarning( "QFontInfo: Get font info between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    painter->updateFont();
+
+    // ######### that is not necessary, or is it?????? (ME)
+//     if ( painter->testf(DirtyFont) )
+//       painter->updateFont();
     painter->setf( QPainter::FontInf );
     fin = painter->cfont.d->fin;
     flags = 0;
