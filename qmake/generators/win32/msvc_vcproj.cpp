@@ -516,6 +516,8 @@ void VcprojGenerator::initLibrarianTool()
     	vcProject.Configuration.librarian.OutputFile += '\\';
 
     vcProject.Configuration.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
+    if( !vcProject.Configuration.librarian.OutputFile.endsWith( project->first("TARGET_EXT") ) )
+	vcProject.Configuration.librarian.OutputFile += project->first("TARGET_EXT");
 }
 
 void VcprojGenerator::initLinkerTool()
@@ -542,6 +544,8 @@ void VcprojGenerator::initLinkerTool()
     	vcProject.Configuration.linker.OutputFile += '\\';
 
     vcProject.Configuration.linker.OutputFile += project->first("MSVCPROJ_TARGET");
+    if( !vcProject.Configuration.linker.OutputFile.endsWith( project->first("TARGET_EXT") ) )
+	vcProject.Configuration.linker.OutputFile += project->first("TARGET_EXT");
     vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
 
     if ( project->isActiveConfig("debug") ){
