@@ -11,7 +11,7 @@ LIBDIR		= $(BASEDIR)/lib
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -O2 -DCHECK_MEMORY
+CFLAGS		= -g -DCHECK_MEMORY
 CC		= gcc
 
 ####### Files
@@ -23,19 +23,20 @@ HEADERS		= qarray.h	qbitarry.h	qbuffer.h	qcollect.h    \
 		  qipcomm.h	qlist.h		qmemchk.h	qnpipe.h      \
 		  qqueue.h	qres.h		qshared.h	qstack.h      \
 		  qstring.h	qstrlist.h	qstrvec.h	qtcomm.h      \
-		  qtcpcomm.h	qtstream.h	qudpcomm.h	qvector.h
+		  qtcpcomm.h	qtstream.h	qudpcomm.h	qvector.h     \
+		  qregexp.h
 SOURCES		= qbitarry.cpp	qbuffer.cpp	qcollect.cpp	qdatetm.cpp   \
 		  qdstream.cpp	qfile.cpp	qgarray.cpp	qgdict.cpp    \
 		  qglist.cpp	qglobal.cpp	qgvector.cpp	qiodev.cpp    \
 		  qipcomm.cpp	qmemchk.cpp	qnpipe.cpp	qres.cpp      \
 		  qstring.cpp	qtcomm.cpp	qtcpcomm.cpp	qtstream.cpp  \
-		  qudpcomm.cpp
+		  qudpcomm.cpp	qregexp.cpp
 OBJECTS		= qbitarry.o	qbuffer.o	qcollect.o	qdatetm.o     \
 		  qdstream.o	qfile.o		qgarray.o	qgdict.o      \
 		  qglist.o	qglobal.o	qgvector.o	qiodev.o      \
 		  qipcomm.o	qmemchk.o	qnpipe.o	qres.o	      \
 		  qstring.o	qtcomm.o	qtcpcomm.o	qtstream.o    \
-		  qudpcomm.o
+		  qudpcomm.o	qregexp.o
 TARGET		= $(LIBDIR)/libqtools.a
 
 ####### Implicit rules
@@ -167,3 +168,7 @@ qudpcomm.o: qudpcomm.h qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h
 qudpcomm.o: qstring.h qarray.h qgarray.h qshared.h qgeneric.h
 qudpcomm.o: /usr/include/string.h /usr/include/features.h
 qudpcomm.o: /usr/include/sys/cdefs.h
+qregexp.o: qregexp.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
+qregexp.o: qgeneric.h /usr/include/string.h /usr/include/features.h
+qregexp.o: /usr/include/sys/cdefs.h /usr/include/ctype.h
+qregexp.o: /usr/include/malloc.h
