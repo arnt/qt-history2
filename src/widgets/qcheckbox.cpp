@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#15 $
 **
 ** Implementation of QCheckBox class
 **
@@ -12,11 +12,10 @@
 
 #include "qchkbox.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#15 $";
 #endif
 
 
@@ -89,7 +88,8 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 #define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
-    pmkey.sprintf( "$qt_check_%d_%d_%d", gs, isDown(), isOn() );
+    pmkey.sprintf( "$qt_check_%d_%d_%d_%d", gs, palette().serialNumber(),
+		   isDown(), isOn() );
     QPixMap *pm = QPixMap::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( x, y, *pm );
@@ -190,7 +190,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	else {					// button is down
 	    tColor = g.dark();
 	    bColor = g.light();
-	    fColor = g.medium();
+	    fColor = g.mid();
 	    down = TRUE;
 	}
 	p->drawShadePanel( x, y, w, h, tColor, bColor, 2, fColor, TRUE );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#18 $
 **
 ** Implementation of QScrollBar class
 **
@@ -12,10 +12,9 @@
 
 #include "qscrbar.h"
 #include "qpainter.h"
-#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#18 $";
 #endif
 
 
@@ -89,7 +88,14 @@ void QScrollBar::init()
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
-    setBackgroundColor( colorGroup().medium() );
+    setBackgroundColor( colorGroup().mid() );
+}
+
+
+void QScrollBar::setPalette( const QPalette &p )
+{
+    QWidget::setPalette( p );
+    setBackgroundColor( colorGroup().mid() );
 }
 
 
@@ -435,18 +441,16 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		qDrawMotifArrow( &p, VERTICAL ? MotifDownArrow:MotifRightArrow,
 				 ADD_LINE_ACTIVE, addB.x(), addB.y(),
 				 addB.width(), addB.height(),
-				 g.background(), g.medium(),
-				 g.light(), g.dark() );
+				 g.background(), g.mid(), g.light(), g.dark());
 	    if ( controls & SUB_LINE )
 		qDrawMotifArrow( &p, VERTICAL ? MotifUpArrow : MotifLeftArrow,
 				 SUB_LINE_ACTIVE, subB.x(), subB.y(),
 				 subB.width(), subB.height(),
-				 g.background(), g.medium(),
-				 g.light(), g.dark() );
+				 g.background(), g.mid(), g.light(), g.dark());
 	    if ( controls & SUB_PAGE )
-		p.fillRect( subPageR, g.medium() );
+		p.fillRect( subPageR, g.mid() );
 	    if ( controls & ADD_PAGE )
-		p.fillRect( addPageR, g.medium() );
+		p.fillRect( addPageR, g.mid() );
 	    if ( controls & SLIDER )
 		p.drawShadePanel( sliderR, g.light(), g.dark(), 2,
 				  g.background(), TRUE );

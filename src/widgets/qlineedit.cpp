@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#15 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -12,13 +12,12 @@
 
 #include "qlined.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include "qfontmet.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#15 $";
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#8 $
 **
 ** Implementation of QFrame widget class
 **
@@ -12,10 +12,9 @@
 
 #include "qframe.h"
 #include "qpainter.h"
-#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#8 $";
 #endif
 
 
@@ -81,7 +80,7 @@ void QFrame::drawFrame( QPainter *p )
     QColor      fg    = g.foreground();
     QColor	light = g.light();
     QColor	dark  = g.dark();
-    QColor	mid   = g.medium();
+    QColor	mid   = g.mid();
 
     switch ( type ) {
 

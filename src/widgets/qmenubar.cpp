@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#16 $
 **
 ** Implementation of QMenuBar class
 **
@@ -14,11 +14,10 @@
 #include "qmenubar.h"
 #include "qkeycode.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#16 $";
 #endif
 
 

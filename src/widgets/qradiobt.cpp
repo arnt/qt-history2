@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#15 $
 **
 ** Implementation of QRadioButton class
 **
@@ -12,11 +12,10 @@
 
 #include "qradiobt.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#15 $";
 #endif
 
 
@@ -98,7 +97,8 @@ void QRadioButton::drawButton( QPainter *paint )
 #define SAVE_RADIOBUTTON_PIXMAPS
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     QString pmkey;				// pixmap key
-    pmkey.sprintf( "$qt_radio_%d_%d_%d", gs, isDown(), isOn() );
+    pmkey.sprintf( "$qt_radio_%d_%d_%d_%d", gs, palette().serialNumber(),
+		   isDown(), isOn() );
     QPixMap *pm = QPixMap::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( x, y, *pm );
@@ -230,7 +230,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	QPen   pen( NoPen );
 	bool   showUp = (isUp() && !isOn()) || (isDown() && isOn());
 	QColor bgc    = g.background();
-	QBrush brush( showUp ? bgc : g.medium() );
+	QBrush brush( showUp ? bgc : g.mid() );
 	QPointArray a( QCOOTARRLEN(inner_pts), inner_pts );
 	p->eraseRect( x, y, w, h );
 	p->setPen( pen );

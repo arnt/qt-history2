@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#13 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -13,11 +13,10 @@
 #include "qlcdnum.h"
 #include "qbitarry.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#13 $";
 #endif
 
 

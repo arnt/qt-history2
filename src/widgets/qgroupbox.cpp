@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#5 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,10 +12,9 @@
 
 #include "qgrpbox.h"
 #include "qpainter.h"
-#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#5 $";
 #endif
 
 

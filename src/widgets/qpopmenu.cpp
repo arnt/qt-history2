@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#19 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -15,12 +15,11 @@
 #include "qmenubar.h"
 #include "qkeycode.h"
 #include "qpainter.h"
-#include "qpalette.h"
 #include "qscrbar.h"				// qDrawMotifArrow
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#19 $";
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#20 $
 **
 ** Implementation of QPushButton class
 **
@@ -14,10 +14,9 @@
 #include "qfontmet.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#20 $";
 #endif
 
 
@@ -175,7 +174,8 @@ void QPushButton::drawButton( QPainter *paint )
     int w, h;
     w = x2 + 1;
     h = y2 + 1;
-    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d", gs, isDown(), defButton, w, h );
+    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d", gs, palette().serialNumber(),
+		   isDown(), defButton, w, h );
     QPixMap *pm = QPixMap::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( 0, 0, *pm );
@@ -277,9 +277,9 @@ void QPushButton::drawButton( QPainter *paint )
 	    y2 -= extraMotifHeight/2;
 	}
 	if ( isDown() ) {
-	    tColor = g.dark();
-	    bColor = g.light();
-	    fillcol = g.medium();
+	    tColor  = g.dark();
+	    bColor  = g.light();
+	    fillcol = g.mid();
 	}
 	else {
 	    tColor = g.light();

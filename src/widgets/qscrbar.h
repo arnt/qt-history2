@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#8 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#9 $
 **
 ** Definition of QScrollBar class
 **
@@ -33,6 +33,8 @@ public:
     Orientation orientation() const;
     void	setTracking( bool t );
     bool	tracking() const;
+
+    virtual void setPalette( const QPalette & );
 
 signals:
     void	newValue( long value );
