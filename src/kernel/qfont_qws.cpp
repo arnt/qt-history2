@@ -164,14 +164,14 @@ void QFontPrivate::load( QFont::Script )
 int QFontMetrics::leftBearing(QChar ch) const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    return memorymanager->lockGlyphMetrics(engine->handle(),ch)->bearingx;
+    return memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->bearingx;
 }
 
 
 int QFontMetrics::rightBearing(QChar ch) const
 {
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(engine->handle(),ch);
+    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() );
     return metrics->advance - metrics->width - metrics->bearingx;
 }
 
@@ -187,7 +187,7 @@ int QFontMetrics::width( QChar ch ) const
     if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
 
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
-    return memorymanager->lockGlyphMetrics(engine->handle(),ch)->advance;
+    return memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->advance;
 }
 
 // ### should maybe use the common method aswell, but since that one is quite a bit slower
@@ -199,7 +199,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     int ret=0;
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
     for (int i=0; i<len; i++)
-	ret += memorymanager->lockGlyphMetrics(engine->handle(), str[i])->advance;
+	ret += memorymanager->lockGlyphMetrics( engine->handle(), str[i].unicode() )->advance;
     return ret;
 }
 

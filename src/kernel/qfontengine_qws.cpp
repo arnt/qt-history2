@@ -36,7 +36,7 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t
 	    if ( ::category(str[i]) == QChar::Mark_NonSpacing )
 		advances[i] = 0;
 	    else
-		advances[i] = memorymanager->lockGlyphMetrics(handle(), str[i] )->advance;
+		advances[i] = memorymanager->lockGlyphMetrics(handle(), str[i].unicode() )->advance;
     }
     return NoError;
 }
@@ -59,15 +59,40 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
     }
 
     glyph_t *glyphs = engine->glyphs( si );
-//     advance_t *advances = engine->advances( si );
-//     offset_t *offsets = engine->offsets( si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
 
-    // ### Fix non spacing marks, use advances and offsets
-    QGfxRasterBase *rb = (QGfxRasterBase *)p->internalGfx();
-    QMemoryManager::FontID oldfont = rb->myfont;
-    rb->myfont = handle();
-    p->internalGfx()->drawText(x, y, QConstString((QChar *)glyphs, si->num_glyphs).string() );
-    rb->myfont = oldfont;
+    struct Pos {
+	int x;
+	int y;
+    };
+    Pos _positions[64];
+    Pos *positions = _positions;
+    if ( si->num_glyphs > 64 )
+	positions = new Pos[si->num_glyphs];
+
+    if ( si->analysis.bidiLevel % 2 ) {
+	int i = si->num_glyphs;
+	while( i-- ) {
+	    x += advances[i];
+	    glyph_metrics_t gi = boundingBox( glyphs[i] );
+	    positions[i].x = x-offsets[i].x-gi.xoff;
+	    positions[i].y = y+offsets[i].y-gi.yoff;
+	}
+    } else {
+	int i = 0;
+	while( i < si->num_glyphs ) {
+	    positions[i].x = x+offsets[i].x;
+	    positions[i].y = y+offsets[i].y;
+	    x += advances[i];
+	    i++;
+	}
+    }
+    QConstString cstr( (QChar *)glyphs, si->num_glyphs );
+    p->internalGfx()->drawGlyphs(handle(), glyphs, (QPoint *)positions, si->num_glyphs);
+
+    if ( positions != _positions )
+	delete [] positions;
 }
 
 glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
@@ -90,8 +115,7 @@ glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
 
 glyph_metrics_t QFontEngine::boundingBox( glyph_t glyph )
 {
-    QChar ch = glyph;
-    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(handle(), ch);
+    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( handle(), glyph);
     return glyph_metrics_t( metrics->bearingx, metrics->bearingy, metrics->width, metrics->height, metrics->width, 0 );
 }
 

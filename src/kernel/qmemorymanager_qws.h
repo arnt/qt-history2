@@ -39,6 +39,8 @@
 #include "qmap.h"
 #endif // QT_H
 
+#include <private/qtextengine_p.h>
+
 class QFontDef;
 class QMemoryManagerPixmap {
     friend class QMemoryManager;
@@ -68,10 +70,10 @@ public:
     FontID refFont(const QFontDef&);
     void derefFont(FontID);
     QRenderedFont* fontRenderer(FontID); // XXX JUST FOR METRICS
-    bool inFont(FontID, const QChar&) const;
-    QGlyph lockGlyph(FontID, const QChar&);
-    QGlyphMetrics* lockGlyphMetrics(FontID, const QChar&);
-    void unlockGlyph(FontID, const QChar&);
+    bool inFont(FontID, glyph_t glyph) const;
+    QGlyph lockGlyph(FontID, glyph_t glyph);
+    QGlyphMetrics* lockGlyphMetrics(FontID, glyph_t glyph);
+    void unlockGlyph(FontID, glyph_t glyph);
 #ifndef QT_NO_QWS_SAVEFONTS
     void savePrerenderedFont(const QFontDef&, bool all=TRUE);
     void savePrerenderedFont(FontID id, bool all=TRUE);

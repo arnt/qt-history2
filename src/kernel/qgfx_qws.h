@@ -38,8 +38,11 @@
 #include "qnamespace.h"
 #include "qimage.h"
 #include "qfontmanager_qws.h"
+#include "qmemorymanager_qws.h"
 #include "qpoint.h"
 #endif // QT_H
+
+#include <private/qtextengine_p.h>
 
 class QScreenCursor;
 
@@ -313,7 +316,6 @@ public:
     virtual ~QGfx() {}
 
     virtual void setPen( const QPen & )=0;
-    virtual void setFont( const QFont & )=0;
     virtual void setBrush( const QBrush & )=0;
     virtual void setBrushPixmap( const QPixmap * )=0;
     virtual void setBrushOffset( int, int ) = 0;
@@ -396,7 +398,7 @@ public:
     virtual void setAlphaSource(unsigned char *,int)=0;
     virtual void setAlphaSource(int,int=-1,int=-1,int=-1)=0;
 
-    virtual void drawText( int,int,const QString & )=0;
+    virtual void drawGlyphs( QMemoryManager::FontID font, glyph_t *glyphs, QPoint *positions, int num_glyphs ) = 0;
 
     virtual void setClut(QRgb *,int)=0;
 

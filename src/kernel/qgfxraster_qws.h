@@ -163,7 +163,6 @@ public:
     ~QGfxRasterBase();
 
     virtual void setPen( const QPen & );
-    virtual void setFont( const QFont & );
     virtual void setBrushPixmap( const QPixmap * p ) { cbrushpixmap=p; }
     virtual void setBrushOffset( int x, int y );
     virtual void setBrush( const QBrush & );
@@ -195,7 +194,7 @@ public:
     virtual void setAlphaType(AlphaType);
     virtual void setAlphaSource(unsigned char *,int);
     virtual void setAlphaSource(int,int=-1,int=-1,int=-1);
-    virtual void drawText(int,int,const QString &);
+    virtual void drawGlyphs( QMemoryManager::FontID font, glyph_t *glyphs, QPoint *positions, int num_glyphs );
 
     virtual void sync();
 
@@ -402,7 +401,6 @@ protected:
     int calpha;       		 // Constant alpha value
     int calpha2,calpha3,calpha4; // Used for groovy accelerated effect
     unsigned char * maskp;
-    QMemoryManager::FontID myfont;
 
     int clipcursor;
     QRect* cliprect;

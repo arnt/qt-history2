@@ -266,8 +266,6 @@ void QPainter::updateFont()
 	if ( !pdev->cmd(QPaintDevice::PdcSetFont, this, param) )
 	    return;
     }
-    if ( gfx )
-	gfx->setFont(cfont);
 }
 
 

@@ -810,7 +810,6 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     is_screen_gfx = buffer==qt_screen->base();
     width=w;
     height=h;
-    myfont=0;
     xoffs=0;
     yoffs=0;
 
@@ -940,21 +939,6 @@ void QGfxRasterBase::setPen( const QPen & p )
         default:
 	    setDashedLines(FALSE);
             break;
-    }
-}
-
-/*!
-  \internal
-
-  This corresponds to QPainter::setFont and sets the font drawText()
-  will use to \a f.
-*/
-
-void QGfxRasterBase::setFont( const QFont & f)
-{
-    myfont=f.handle();
-    if(!myfont) {
-	qDebug("No font renderer!");
     }
 }
 
@@ -1339,7 +1323,7 @@ void QGfxRasterBase::setAlphaSource(int i,int i2,int i3,int i4)
   the font subsystem.
 */
 
-void QGfxRasterBase::drawText(int x,int y,const QString & s)
+void QGfxRasterBase::drawGlyphs(QMemoryManager::FontID font, glyph_t *glyphs, QPoint *positions, int num_glyphs )
 {
     // Clipping can be handled by blt
     // Offset is handled by blt
@@ -1359,31 +1343,30 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
 #endif
 
     setSourcePen();
-    if ( memorymanager->fontSmooth(myfont) ) {
+    if ( memorymanager->fontSmooth(font) ) {
 	setAlphaType(SeparateAlpha);
     } else {
 	setAlphaType(BigEndianMask);
     }
 
-    for( loopc=0; loopc < int(s.length()); loopc++ ) {
-	QGlyph glyph = memorymanager->lockGlyph(myfont, s[loopc]);
-	int myw=glyph.metrics->width;
+    for( loopc=0; loopc < num_glyphs; loopc++ ) {
+	QGlyph glyph = memorymanager->lockGlyph( font, glyphs[loopc] );
+	int myw = glyph.metrics->width;
 	srcwidth = myw;
 	srcheight = glyph.metrics->height;
 	setAlphaSource(glyph.data,glyph.metrics->linestep);
-	int myx=x;
-	int myy=y;
-	myx+=glyph.metrics->bearingx;
-	myy-=glyph.metrics->bearingy;
-	if(glyph.metrics->width<1 || glyph.metrics->height<1
-	    || glyph.metrics->width>1000 || glyph.metrics->height>1000
-	    || glyph.metrics->linestep==0)
+	int myx = positions[loopc].x();
+	int myy = positions[loopc].y();
+	myx += glyph.metrics->bearingx;
+	myy -= glyph.metrics->bearingy;
+	if( glyph.metrics->width < 1 || glyph.metrics->height < 1
+	    || glyph.metrics->width > 1000 || glyph.metrics->height > 1000
+	    || glyph.metrics->linestep == 0)
 	{
 	    // non-printing characters
 	} else {
 	    blt(myx,myy,myw,glyph.metrics->height,0,0);
 	}
-	x+=glyph.metrics->advance;
 	// ... unlock glyph
     }
 #ifdef DEBUG_LOCKS

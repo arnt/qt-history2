@@ -106,7 +106,7 @@ static void getProcessedGlyph(QGlyph& tmp, QGlyph& g, bool smooth)
 	    } else {
 		QRgb colTable[2] = {0, 1};
 		QImage img( tmp.data, width, height,
-			    1, tmp.metrics->linestep, 
+			    1, tmp.metrics->linestep,
 			    colTable, 2, QImage::BigEndian);
 		for(int y=0; y<height; y++) {
 		    unsigned char *dst = newdata+y*pitch;
@@ -116,16 +116,16 @@ static void getProcessedGlyph(QGlyph& tmp, QGlyph& g, bool smooth)
 			 + ( y!=0 && img.pixel(x,y-1)? 85 :0);
 		    }
 		}
-	    
-	
+
+
 	    }
-	
+
 	    delete tmp.data;
 	    tmp.data = newdata;
 	    tmp.metrics->height = height;
 	    tmp.metrics->linestep = pitch;
-	}	      
-#endif //QT_NO_QWS_INTERLACE	    
+	}
+#endif //QT_NO_QWS_INTERLACE
 	g = tmp;
     }
 }
@@ -161,7 +161,7 @@ class QGlyphTree {
 
        such a compressed tree could then be stored in ROM.
     */
-    QChar min,max;
+    glyph_t min,max;
     QGlyphTree* less;
     QGlyphTree* more;
     QGlyph* glyph;
@@ -178,17 +178,17 @@ public:
     }
 #endif
 
-    QGlyphTree(const QChar& from, const QChar& to, QRenderedFont* renderer) :
+    QGlyphTree(glyph_t from, glyph_t to, QRenderedFont* renderer) :
 	min(from),
 	max(to),
 	less(0),
 	more(0)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max - min + 1;
 	glyph = new QGlyph[n];
 	for (int i=0; i<n; i++) {
-	    QChar ch(min.unicode()+i);
-	    QGlyph tmp = renderer->render(ch);
+	    glyph_t g = min + i;
+	    QGlyph tmp = renderer->render(g);
 	    getProcessedGlyph(tmp,glyph[i],renderer->smooth);
 	}
     }
@@ -207,7 +207,7 @@ public:
     {
 	if ( less ) less->clear();
 	if ( more ) more->clear();
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++) {
 	    if ( glyph[i].data && !(glyph[i].metrics->flags & QGlyphMetrics::RendererOwnsData) ) {
 		delete [] glyph[i].data;
@@ -216,43 +216,43 @@ public:
 	}
     }
 
-    bool inFont(const QChar& ch) const
+    bool inFont(glyph_t g) const
     {
-	if ( ch < min ) {
+	if ( g < min ) {
 	    if ( !less )
 		return FALSE;
-	    return less->inFont(ch);
-	} else if ( ch > max ) {
+	    return less->inFont(g);
+	} else if ( g > max ) {
 	    if ( !more )
 		return FALSE;
-	    return more->inFont(ch);
+	    return more->inFont(g);
 	}
 	return TRUE;
     }
 
-    QGlyph* get(const QChar& ch, QRenderedFont* renderer)
+    QGlyph* get(glyph_t g, QRenderedFont* renderer)
     {
-	if ( ch < min ) {
+	if ( g < min ) {
 	    if ( !less ) {
-		if ( !renderer || !renderer->inFont(ch) )
+		if ( !renderer || !renderer->inFont( g ) )
 		    return 0;
-		less = new QGlyphTree(ch,ch,renderer);
+		less = new QGlyphTree(g, g, renderer);
 	    }
-	    return less->get(ch,renderer);
-	} else if ( ch > max ) {
+	    return less->get(g, renderer);
+	} else if ( g > max ) {
 	    if ( !more ) {
-		if ( !renderer || !renderer->inFont(ch) )
+		if ( !renderer || !renderer->inFont( g ) )
 		    return 0;
-		more = new QGlyphTree(ch,ch,renderer);
+		more = new QGlyphTree(g, g, renderer);
 	    }
-	    return more->get(ch,renderer);
+	    return more->get(g, renderer);
 	}
-	return &glyph[ch.unicode()-min.unicode()];
+	return &glyph[g - min];
     }
     int totalChars() const
     {
 	if ( !this ) return 0;
-	return max.unicode()-min.unicode()+1 + less->totalChars() + more->totalChars();
+	return max-min+1 + less->totalChars() + more->totalChars();
     }
     int weight() const
     {
@@ -310,7 +310,7 @@ public:
     void dump(int indent=0)
     {
 	for (int i=0; i<indent; i++) printf(" ");
-	printf("%d..%d",min.unicode(),max.unicode());
+	printf("%d..%d",min,max);
 	//if ( indent == 0 )
 	printf(" (total %d)",totalChars());
 	printf("\n");
@@ -326,8 +326,8 @@ private:
     void writeNode(QIODevice& f)
     {
 	char t[4];
-	t[0] = min.row(); t[1]=min.cell();
-	t[2] = max.row(); t[3]=max.cell();
+	t[0] = min >> 8; t[1] = min & 0xff;
+	t[2] = max >> 8; t[3] = max & 0xff;
 	f.writeBlock(t,4);
 	int flags = 0;
 	if ( less ) flags |= 1;
@@ -339,7 +339,7 @@ private:
 
     void writeMetrics(QIODevice& f)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++)
 	    f.writeBlock((char*)glyph[i].metrics, sizeof(QGlyphMetrics));
 	if ( less ) less->writeMetrics(f);
@@ -348,7 +348,7 @@ private:
 
     void writeData(QIODevice& f)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++) {
 	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
 	    s = qt_screen->mapToDevice( s );
@@ -386,10 +386,10 @@ private:
     {
 	uchar rw = *data++;
 	uchar cl = *data++;
-	min.unicode() = (rw << 8) | cl;
+	min = (rw << 8) | cl;
 	rw = *data++;
 	cl = *data++;
-	max.unicode() = (rw << 8) | cl;
+	max = (rw << 8) | cl;
 	int flags = *data++;
 	if ( flags & 1 )
 	    less = new QGlyphTree;
@@ -399,7 +399,7 @@ private:
 	    more = new QGlyphTree;
 	else
 	    more = 0;
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	glyph = new QGlyph[n];
 
 	if ( less )
@@ -412,10 +412,10 @@ private:
     {
 	uchar rw = f.getch();
 	uchar cl = f.getch();
-	min.unicode() = (rw << 8) | cl;
+	min = (rw << 8) | cl;
 	rw = f.getch();
 	cl = f.getch();
-	max.unicode() = (rw << 8) | cl;
+	max = (rw << 8) | cl;
 	int flags = f.getch();
 	if ( flags & 1 )
 	    less = new QGlyphTree;
@@ -425,7 +425,7 @@ private:
 	    more = new QGlyphTree;
 	else
 	    more = 0;
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	glyph = new QGlyph[n];
 
 	if ( less )
@@ -438,7 +438,7 @@ private:
 #ifdef QT_USE_MMAP
     void readMetrics(uchar*& data)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++) {
 	    glyph[i].metrics = (QGlyphMetrics*)data;
 	    data += sizeof(QGlyphMetrics);
@@ -451,7 +451,7 @@ private:
 #else
     void readMetrics(QIODevice& f)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++) {
 	    glyph[i].metrics = new QGlyphMetrics;
 	    f.readBlock((char*)glyph[i].metrics, sizeof(QGlyphMetrics));
@@ -466,7 +466,7 @@ private:
 #ifdef QT_USE_MMAP
     void readData(uchar*& data)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++) {
 	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
 	    s = qt_screen->mapToDevice( s );
@@ -481,7 +481,7 @@ private:
 #else
     void readData(QIODevice& f)
     {
-	int n = max.unicode()-min.unicode()+1;
+	int n = max-min+1;
 	for (int i=0; i<n; i++) {
 	    QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
 	    s = qt_screen->mapToDevice( s );
@@ -496,10 +496,10 @@ private:
     }
 #endif
 
-    static QGlyph* concatGlyphs(QGlyphTree* a, QGlyphTree* b, QChar& min, QChar& max)
+    static QGlyph* concatGlyphs(QGlyphTree* a, QGlyphTree* b, glyph_t& min, glyph_t& max)
     {
-	int n = b->max.unicode()-a->min.unicode()+1;
-	int n_a = a->max.unicode()-a->min.unicode()+1;
+	int n = b->max - a->min + 1;
+	int n_a = a->max - a->min + 1;
 	QGlyph *newglyph = new QGlyph[n];
 	int i=0;
 	for (; i<n_a; i++)
@@ -518,7 +518,7 @@ void QGlyphTree::compress()
 
     if ( less ) {
 	less->compress();
-	if (less->max.unicode() == min.unicode()-1) {
+	if (less->max == min-1) {
 	    // contiguous with me.
 	    QGlyph *newglyph = concatGlyphs(less,this,min,max);
 	    QGlyphTree* t = less->less; less->less = 0;
@@ -530,7 +530,7 @@ void QGlyphTree::compress()
 
     if ( more ) {
 	more->compress();
-	if (more->min.unicode() == max.unicode()+1) {
+	if (more->min == max+1) {
 	    // contiguous with me.
 	    QGlyph *newglyph = concatGlyphs(this,more,min,max);
 	    QGlyphTree* t = more->more; more->more = 0;
@@ -895,7 +895,7 @@ void QMemoryManager::derefFont(FontID id)
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
     if ( font->renderer ) {
         font->renderer->deref();
-    } 
+    }
     if ( font->deref() ) {
 	QString key = fontKey(font->def);
 	font_map.remove(key);
@@ -909,45 +909,39 @@ QRenderedFont* QMemoryManager::fontRenderer(FontID id)
     return font->renderer;
 }
 
-bool QMemoryManager::inFont(FontID id, const QChar& ch) const
+bool QMemoryManager::inFont(FontID id, glyph_t g) const
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
     if ( font->renderer )
-	return ch.unicode() <= font->renderer->maxchar && font->renderer->inFont(ch);
+	return g <= font->renderer->maxchar && font->renderer->inFont( g );
     else
-	return font->tree->inFont(ch);
+	return font->tree->inFont( g );
 }
 
-QGlyph QMemoryManager::lockGlyph(FontID id, const QChar& ch)
+QGlyph QMemoryManager::lockGlyph(FontID id, glyph_t g)
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
     if ( !font->tree ) {
-	if(!font->renderer) {
-	    if ( ch.isSpace() && ch != ' ' )
-		return lockGlyph(id,' ');
+	if(!font->renderer)
 	    return *(font->defaultGlyph());
-	}
-	QChar c = ch;
-	if ( !font->renderer->inFont(c) )
-	    c = ' '; // ### Hope this is inFont()
-	font->tree = new QGlyphTree(c,c,font->renderer);
+	glyph_t gl = g;
+	if ( !font->renderer->inFont(gl) )
+	    gl = 0; // ### Hope this is inFont(), shoud be as it is the default char
+	font->tree = new QGlyphTree(gl, gl, font->renderer);
     }
-    QGlyph* g = font->tree->get(ch,font->renderer);
-    if ( !g ) {
-	if ( ch.isSpace() && ch != ' ' )
-	    return lockGlyph(id,' ');
-	g = font->defaultGlyph();
-    }
-    return *g;
+    QGlyph* glyph = font->tree->get(g, font->renderer);
+    if ( !glyph )
+	glyph = font->defaultGlyph();
+    return *glyph;
 }
 
-QGlyphMetrics* QMemoryManager::lockGlyphMetrics(FontID id, const QChar& ch)
+QGlyphMetrics* QMemoryManager::lockGlyphMetrics(FontID id, glyph_t g)
 {
-    QGlyph g = lockGlyph(id,ch);
-    return g.metrics;
+    QGlyph glyph = lockGlyph( id, g );
+    return glyph.metrics;
 }
 
-void QMemoryManager::unlockGlyph(FontID, const QChar&)
+void QMemoryManager::unlockGlyph(FontID, glyph_t)
 {
 }
 
@@ -971,9 +965,8 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
 	    int j=0;
 	    //qDebug("Rendering %s",fontFilename(mmf->def).ascii());
 	    for (int i=0; i<=mmf->renderer->maxchar; i++) {
-		QChar ch((ushort)i);
-		if ( mmf->renderer->inFont(ch) ) {
-		    mmf->tree->get(ch,mmf->renderer);
+		if ( mmf->renderer->inFont( i ) ) {
+		    mmf->tree->get( i, mmf->renderer );
 		    if ( !(j++ & 0x3f)  ) {
 			// XXX keep it from becoming degenerate - should be in QGlyphTree
 			mmf->tree->compress();
