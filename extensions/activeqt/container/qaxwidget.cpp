@@ -287,7 +287,6 @@ private:
     unsigned long ref;
     QPointer<QAxWidget> widget;
     QPointer<QAxHostWidget> host;
-    QPointer<QStatusBar> statusBar;
     QPointer<QMenuBar> menuBar;
     QMap<int,OleMenuItem> menuItemMap;
 };
@@ -366,7 +365,6 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
     m_menuOwner = 0;
     memset(&control_info, 0, sizeof(control_info));
     
-    statusBar = 0;
     menuBar = 0;
     
     HRESULT hr = S_OK;
@@ -1050,14 +1048,7 @@ HRESULT WINAPI QAxHostWindow::RemoveMenus(HMENU /*hmenuShared*/)
 
 HRESULT WINAPI QAxHostWindow::SetStatusText(LPCOLESTR pszStatusText)
 {
-    QStatusBar *sb = statusBar;
-    if (!sb)
-        sb = qFindChild<QStatusBar*>(widget->topLevelWidget());
-    if (!sb)
-        return E_NOTIMPL;
-    statusBar = sb;
-    
-    sb->message(BSTRToQString((BSTR)pszStatusText));
+    widget->setStatusText(BSTRToQString((BSTR)pszStatusText));
     return S_OK;
 }
 
@@ -1631,6 +1622,21 @@ void QAxWidget::resizeEvent(QResizeEvent *e)
         container->hostWidget()->resize(size());
     
     QWidget::resizeEvent(e);
+}
+
+/*!
+    This function is called when the ActiveX control wants to display
+    the status message \a text on the application's status bar.
+
+    The default implementation searches for a QStatusBar object in this
+    QAxWidget's toplevel window, and calls message() on the first object
+    found. This function does nothing if there is no QStatusBar.
+*/
+void QAxWidget::setStatusText(const QString &text)
+{
+    QStatusBar *sb = qFindChild<QStatusBar*>(topLevelWidget());
+    if (sb)
+        sb->message(text);
 }
 
 /*!
