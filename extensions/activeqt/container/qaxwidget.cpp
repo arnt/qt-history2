@@ -148,7 +148,7 @@ class QAxHostWindow : public IDispatch,
     friend class QAxHostWidget;
 public:
     QAxHostWindow( QAxWidget *c, bool inited );
-    ~QAxHostWindow();
+    virtual ~QAxHostWindow();
     void releaseAll();
     void deactivate();
     QWidget *hostWidget() const

@@ -80,7 +80,7 @@ class QAxEventSink : public IDispatch,
 {
 public:
     QAxEventSink( QAxBase *com )
-	: combase( com ), cpoint( 0 ), ref( 1 ), ciid( IID_NULL )
+	: cpoint( 0 ), ciid( IID_NULL ), combase( com ), ref( 1 )
     {}
     virtual ~QAxEventSink()
     {
@@ -3416,6 +3416,7 @@ class QtPropertyBag : public IPropertyBag
 {
 public:
     QtPropertyBag() :ref( 0 ) {}
+    virtual ~QtPropertyBag() {}
    
     HRESULT __stdcall QueryInterface( REFIID iid, LPVOID *iface )
     {
