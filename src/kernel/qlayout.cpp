@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#56 $
 **
 ** Implementation of layout classes
 **
@@ -823,16 +823,16 @@ void QLayoutArray::distribute( QRect r, int spacing )
 /*!
   \class QGridLayout qlayout.h
 
-  \brief The QGridLayout class lays out child widgets in a grid.
+  \brief The QGridLayout class lays out widgets in a grid.
 
   \ingroup geomanagement
 
   QGridLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into rows and columns, and puts
-  each of the child widgets it manages into the correct cell(s).
+  each of the widgets it manages into the correct cell(s).
 
   Columns and rows behave identically; we will discuss columns but
-  there are eqivalent functions for rows.
+  there are equivalent functions for rows.
 
   Each column has a minimum width and a stretch factor.  The minimum
   width is the greatest of that set using addColSpacing() and the
@@ -840,10 +840,10 @@ void QLayoutArray::distribute( QRect r, int spacing )
   set using setColStretch() and determines how much of the available
   space the column will get, over and above its necessary minimum.
 
-  Normally, each child widget or layout is put into a cell of its own
+  Normally, each managed widget or layout is put into a cell of its own
   using addWidget() or addLayout(), but you can also put widget into
   multiple cells using addMultiCellWidget().  However, if you do that,
-  QGridLayout does not take the child widget's minimum size into
+  QGridLayout does not take the managed widget's minimum size into
   consideration (because it cannot know what column the minimum
   width should belong to).  Thus you must set the minimum width of
   each column using addColSpacing().
@@ -1067,7 +1067,7 @@ bool QGridLayout::removeWidget( QWidget *w )
 }
 
 /*!
-  Resizes child widgets within the rectangle \a s.
+  Resizes managed widgets within the rectangle \a s.
  */
 void QGridLayout::setGeometry( const QRect &s )
 {
@@ -1526,7 +1526,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 /*!
   \class QHBoxLayout qlayout.h
 
-  \brief The QHBoxLayout class lines up child widgets horizontally.
+  \brief The QHBoxLayout class lines up widgets horizontally.
 
   \ingroup geomanagement
 
@@ -1579,7 +1579,7 @@ QHBoxLayout::~QHBoxLayout()
 /*!
   \class QVBoxLayout qlayout.h
 
-  \brief The QVBoxLayout class lines up child widgets vertically.
+  \brief The QVBoxLayout class lines up widgets vertically.
 
   \ingroup geomanagement
 
