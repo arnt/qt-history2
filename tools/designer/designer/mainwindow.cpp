@@ -1159,8 +1159,14 @@ void MainWindow::fileOpen()
 		}
 		statusBar()->message( tr( "Importing %1 using import filter %2...").arg( filename ).arg(plugin->name()) );
 		QStringList list = manager.import( filter, filename );
-		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+		if ( list.isEmpty() ) {
+		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
+		    return;
+		}
+		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 		    openFile( *it, FALSE );
+		    QFile::remove( *it );
+		}
 		statusBar()->clear();
 	    }
 	}
