@@ -192,48 +192,45 @@ QCoreVariant QPSQLResult::data(int i)
     }
     int ptype = PQftype(d->result, i);
     QCoreVariant::Type type = qDecodePSQLType(ptype);
-    const QString val = (d->isUtf8 && ptype != BYTEAOID) ?
-                        QString::fromUtf8(PQgetvalue(d->result, at(), i)) :
-                        QString::fromLocal8Bit(PQgetvalue(d->result, at(), i));
+    const char *val = PQgetvalue(d->result, at(), i);
     if (PQgetisnull(d->result, at(), i))
         return QCoreVariant(type);
     switch (type) {
     case QCoreVariant::Bool:
-        {
-            QCoreVariant b ((bool)(val == QLatin1String("t")));
-            return (b);
-        }
+        return QCoreVariant((bool)(val[0] == 't'));
     case QCoreVariant::String:
-        return QCoreVariant(val);
+        return d->isUtf8 ? QString::fromUtf8(val) : QString::fromLocal8Bit(val);
     case QCoreVariant::LongLong:
-        if (val.at(0) == QLatin1Char('-'))
-            return QCoreVariant(val.toLongLong());
+        if (val[0] == '-')
+            return strtoull(val, 0, 10);
         else
-            return QCoreVariant(val.toULongLong());
+            return strtoll(val, 0, 10);
     case QCoreVariant::Int:
-        return QCoreVariant(val.toInt());
+        return atoi(val);
     case QCoreVariant::Double:
         if (ptype == NUMERICOID)
-            return QCoreVariant(val);
-        return QCoreVariant(val.toDouble());
+            return QString::fromAscii(val);
+        return strtod(val, 0);
     case QCoreVariant::Date:
-        if (val.isEmpty()) {
+        if (val[0] == '\0') {
             return QCoreVariant(QDate());
         } else {
-            return QCoreVariant(QDate::fromString(val, Qt::ISODate));
+            return QCoreVariant(QDate::fromString(QString::fromLatin1(val), Qt::ISODate));
         }
-    case QCoreVariant::Time:
-        if (val.isEmpty())
+    case QCoreVariant::Time: {
+        const QString str = QString::fromLatin1(val);
+        if (str.isEmpty())
             return QCoreVariant(QTime());
-        if (val.at(val.length() - 3) == QLatin1Char('+'))
+        if (str.at(str.length() - 3) == QLatin1Char('+'))
             // strip the timezone
-            return QCoreVariant(QTime::fromString(val.left(val.length() - 3), Qt::ISODate));
-        return QCoreVariant(QTime::fromString(val, Qt::ISODate));
+            return QCoreVariant(QTime::fromString(str.left(str.length() - 3), Qt::ISODate));
+        return QCoreVariant(QTime::fromString(str, Qt::ISODate));
+    }
     case QCoreVariant::DateTime: {
-        if (val.length() < 10)
+        QString dtval = QString::fromLatin1(val);
+        if (dtval.length() < 10)
             return QCoreVariant(QDateTime());
         // remove the timezone
-        QString dtval = val;
         if (dtval.at(dtval.length() - 3) == QLatin1Char('+'))
             dtval.chop(3);
         // milliseconds are sometimes returned with 2 digits only
@@ -246,36 +243,32 @@ QCoreVariant QPSQLResult::data(int i)
     }
     case QCoreVariant::ByteArray: {
         if (ptype == BYTEAOID) {
-            uint i = 0;
-            int index = 0;
-            uint len = val.length();
-            QByteArray ba;
-            ba.resize((int)len);
-            while (i < len) {
-                if (val.at(i) == QLatin1Char('\\')) {
-                    if (val.at(i + 1).isDigit()) {
-                        ba[index++] = (char)(val.mid(i + 1, 3).toInt(0, 8));
-                        i += 4;
+            int i = 0;
+            QByteArray ba(val);
+            while (i < ba.length()) {
+                if (ba.at(i) == '\\') {
+                    if (QChar::fromLatin1(ba.at(i + 1)).isDigit()) {
+                        char *v = ba.data() + i + 3;
+                        ba[i] = static_cast<char>(strtol(v - 2, &v, 8));
+                        ba.remove(i + 1, 3);
                     } else {
-                        ba[index++] = val.at(i + 1).ascii();
-                        i += 2;
+                        ba[i] = ba.at(i + 1);
+                        ba.remove(i + 1, 1);
                     }
-                } else {
-                    ba[index++] = val.at(i++).ascii();
                 }
+                ++i;
             }
-            ba.resize(index);
             return QCoreVariant(ba);
         }
 
         QByteArray ba;
-        ((QSqlDriver*)driver())->beginTransaction();
-        Oid oid = val.toInt();
+        const_cast<QSqlDriver *>(driver())->beginTransaction();
+        Oid oid = atoi(val);
         int fd = lo_open(d->connection, oid, INV_READ);
 #ifdef QT_CHECK_RANGE
         if (fd < 0) {
             qWarning("QPSQLResult::data: unable to open large object for read");
-            ((QSqlDriver*)driver())->commitTransaction();
+            const_cast<QSqlDriver *>(driver())->commitTransaction();
             return QCoreVariant(ba);
         }
 #endif
@@ -314,7 +307,7 @@ QCoreVariant QPSQLResult::data(int i)
         }
         delete [] buf;
         lo_close(d->connection, fd);
-        ((QSqlDriver*)driver())->commitTransaction();
+        const_cast<QSqlDriver *>(driver())->commitTransaction();
         return QCoreVariant(ba);
     }
     default:
