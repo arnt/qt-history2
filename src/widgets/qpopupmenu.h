@@ -71,6 +71,7 @@ signals:
     void	activatedRedirect( int itemId );// to parent menu
     void	highlightedRedirect( int itemId );
     void	aboutToShow();
+    void	aboutToHide();
 
 protected:
     int 	itemHeight( int ) const;

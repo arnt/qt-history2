@@ -950,6 +950,7 @@ void QPopupMenu::hide()
 	QWidget::hide();
   	return;
     }
+    emit aboutToHide();
 
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
