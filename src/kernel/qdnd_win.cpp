@@ -5,7 +5,7 @@
 **
 ** Created : 980320
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -822,7 +822,7 @@ QOleDropTarget::QOleDropTarget( QWidget* w ) :
    acceptfmt = FALSE;
    last_pt.x = last_pt.y = -100000;
    last_effect = DROPEFFECT_NONE;
-   last_keystate = -1;
+   last_keystate = (DWORD)-1;
 }
 
 //---------------------------------------------------------------------
