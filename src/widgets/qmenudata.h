@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#9 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#10 $
 **
 ** Definition of QMenuData class
 **
@@ -29,7 +29,7 @@ class QMenuItem					// internal menu item class
 friend class QMenuData;
 public:
     QMenuItem();
-    virtual ~QMenuItem();
+   ~QMenuItem();
 
     int		id()	      const { return ident; }
     const char *string()      const { return string_data; }
@@ -70,7 +70,7 @@ friend class QMenuBar;
 friend class QPopupMenu;
 public:
     QMenuData();
-   ~QMenuData();
+    virtual ~QMenuData();
 
     void	insertItem( const char *string, int id=-1, int index=-1 );
     void	insertItem( const char *string, QPopupMenu *popup,
