@@ -41,14 +41,17 @@ The XML module provides a well-formed XML parser using the SAX2 (Simple API for
 XML) interface plus an implementation of the DOM Level 1 (Document Object
 Model).
 
-This document assumes that you are familiar with the XML terminology. It
-provides you with information on how to use the XML classes in Qt. 
-It is however not intended to teach XML basics. If you wish to learn 
+This document assumes that you are more or less familiar with the XML terminology. It
+provides you with information on the XML module in Qt
+and explains some XML features that we consider to be less commonly known 
+but essential to understand the Qt XML classes. 
+
+We will however not teach XML basics. If you wish to learn 
 more about XML please refer to other sources like
 e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>.
 
 
-<h2><a name="overview">Overview of the XML architecture in Qt</h2>
+<h2><a name="overview">Overview of the XML architecture in Qt</a></h2>
 
 The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 1.
 
@@ -65,7 +68,7 @@ present in the Java interface.
 To learn more about the Qt SAX2 classes please turn to
 the document covering "<a href="xml-sax.html">The Qt SAX2 implementation</a>". 
 A code example is discussed in the "<a href="xml-sax-walkthrough.html">tagreader
-Walkthrough</a>".
+walkthrough</a>".
 
 DOM Level 1 is a W3C Recommendation for XML interfaces that maps the
 constituents of a XML document in a tree structure. Details and the
@@ -76,139 +79,159 @@ appropriate <a href="xml-dom.html">overview</a>.
 
 
  
-<h2><a name="namespaces">Namespaces</h2>
+<h2><a name="namespaces">An introduction to namespaces</a></h2>
+ 
+Parts of the Qt XML module documentation assume that you are
+familiar with XML namespaces. If this doesn't ring a bell you
+are invited to read on.
  
 Namespaces are a concept introduced to XML to allow a more modular design.
-Details on namespaces can be found at
-<a href="http://www.w3.org/TR/REC-xml-names/">http://www.w3.org/TR/REC-xml-names/</a>.
- 
-Namespaces do not change the parsing behavior. They are only reported
-through the handler.
- 
-You have to declare the namespace first. After that you can apply the
-namespace to element names or attribute names.
- 
-Namespaces are declared like attributes; they are attributes, strictly
-speaking. You can declare a namespace prefix \c fnord to the namespace name
-\c http://trolltech.com/fnord/ with the attribute \c
-xmlns:fnord="http://trolltech.com/fnord/" (remark: namespaces are URI
-references; this does not mean that there must be any data available at the
-address; they are simply unique names, not more).  There is also one
-default namespace that can be declared: \c xmlns.
- 
-Namespaces can be used for element names and attribute names by prepending
-the prefix with a ":" to the name. If an element name does not have a
-prefix, the default namespace is applied (the default namespace is not
-applied to attributes).
- 
-Example:
+With their help data processing software can easily
+identify logical structures in a document. 
+
+Consider the following example:
+
 \code
-<fnord:document xmlns:fnord = 'http://trolltech.com/fnord/'
-                xmlns       = 'http://trolltech.com/' >
-    <element1 a = '42' fnord:b = '23'>Eris</element1>
-    <fnord:element2 c = '42' fnord:d = '23'>Discordia</fnord:element2>
-</fnord:document>
+<document>
+<book>
+  <title>Practical XML</title>
+  <author title="Ms" name="Eris Kallisti"/>
+  <chapter>
+    <title>A Namespace Called fnord</title>  
+  </chapter> 
+</book>
+</document>
 \endcode
-In this example the elements and attributes have the namespaces:
-<ul>
-<li> \c document has the namespace URI \c http://trolltech.com/fnord/
-<li> \c element1 has the namespace URI \c http://trolltech.com/
-<li> \c element2 has the namespace URI \c http://trolltech.com/fnord/
-<li> \c a and c  have no namespace URIs
-<li> \c b and d  have the namespace URI \c http://trolltech.com/fnord/
-</ul>
+
+Here we find three different markups with the name \e title. If you wish
+to process the above document you will certainly come across difficulties
+because each of the \e titles should be displayed in a different manner --
+simply by name they however can't be distinguished.
+
+The solution would be to have something that identifies the 
+first occurence of \e title as a title of a book or
+-- to put it differently -- to use the \e title element of a 
+book namespace to distinguish it from e.g. the chapter title, e.g.:
+\code
+<book:title>Practical XML</book:title>
+\endcode
+
+\e book in this case is
+a \e prefix denoting the namespace.
+
+Before one however can apply a
+namespace to element or attribute names one has to declare it.
+
+Namespaces are URI references like \e http://trolltech.com/fnord/book/.
+This does not mean that data must be available under this
+address; the URI is simply used to make up a unique name.
+
+You might be surprised to find out that namespaces are declared 
+like attributes; strictly speaking they are attributes. 
+To make e.g. \e http://trolltech.com/fnord/ the document's
+default XML namespace \e xmlns one would write
+
+\code
+xmlns="http://trolltech.com/fnord/"
+\endcode
+
+To distinguish the \e http://trolltech.com/fnord/book/ namespace
+from the default one we have to supply it with a prefix:
+
+\code
+xmlns:book="http://trolltech.com/fnord/book/"
+\endcode
+
+A namespace that is declared like this can be applied
+to element and attribute names by prepending the appropriate
+prefix and a ":" as delimiter as we have seen with
+the \e book:title element.
+
+Element names without a prefix belong to the default namespace.
+This rule however does not apply to attributes: an attribute 
+without a prefix does not belong to any of the declared
+XML namespaces at all.
+
+What it however does is belonging to the "traditional" namespace
+of the element it is an attribute of. A "traditional" namespace
+is not a XML namespace, it simply means that all attribute names
+belonging to one element must be different.
+
+Due to the fact that attributes without prefixes are not in any 
+XML namespace at all there is actually
+no collision between the attribute \e title (that belongs to the 
+\e author element) and e.g. the \e title element within a \e chapter.
  
-The following terms are used to distinguish the parts of the names with
+Lets clarify matters with an example:
+\code
+<document xmlns:book = 'http://trolltech.com/fnord/book/'
+          xmlns      = 'http://trolltech.com/fnord/' >
+<book>
+  <book:title>Practical XML</book:title>
+  <book:author xmlns:fnord = 'http://trolltech.com/fnord/'
+               title="Ms" 
+               fnord:title="Goddess" 
+               name="Eris Kallisti"/>
+  <chapter>
+    <title>A Namespace Called fnord</title>
+  </chapter>
+</book>
+</document>
+\endcode
+
+Within the \e document element we have two namespaces declared:
+the default namespace \e http://trolltech.com/fnord/ 
+that applies to the \e book element, the \e chapter element,
+the appropriate \e title element and of course to \e document itself.
+
+The \e book:author and \e book:title elements on the other hand 
+belong to the namespace with the
+URI \e http://trolltech.com/fnord/book/.
+
+The two \e book:author attributes \e title and \e name have no XML namespace
+assigned, therefore they are not in any XML namespace.
+They are however members of the "traditional" namespace of the element
+\e book:author, meaning that e.g. two \e title attributes 
+to \e book:author are forbidden.
+
+In the above example we outwit the last rule whilst adding a \e title
+attribute from the \e http://trolltech.com/fnord/ namespace to \e book:author: 
+the \e fnord:title comes from the namespace with the prefix \e fnord
+that is declared in the \e book:author element. 
+
+You certainly mention that it has the same namespace URI as the
+default namespace. So why wouldn't we simply use the already declared
+default namespace? The answer is quite complex:
+<UL>
+<LI>attributes without a prefix don't belong to any XML namespace at all,
+even not to the default namespace,
+<LI>additionaly omitting the prefix would lead to a \e title-title clash,
+<LI>writing it like \e xmlns:title would declare a new namespace with
+the prefix \e title instead of applying the default \e xmlns namespace. 
+</UL>
+
+More and detailed information on XML namespaces can be found at
+<a href="http://www.w3.org/TR/REC-xml-names/">http://www.w3.org/TR/REC-xml-names/</a>.
+
+
+<h2><a name="conventions">Some conventions used in Qt XML documentation</a></h2>
+
+The following terms are used to distinguish the parts of names with
 namespaces:
 <ul>
-<li><i>Qualified name</i>
-    is the name as it appears in the document (in the example \c
-    fnord:element2 is a qualified name).
-<li><i>Namespace prefix</i>
-    is the prefix in a name, i.e. the part before the ":"  (in the example
-    \c fnord is a namespace prefix).
-<li><i>Local part</i>
-    is the name without the prefix (and without the ":"), i.e. the part
-    after the ":" (in the example \c element2 is a local part).
+<li>The <i>qualified name</i>
+    is the name as it appears in the document. (In the above example \e
+    book:title is a qualified name.)
+<li>A <i>namespace prefix</i> in a qualified name
+    is the part to the left of the ":".  (\e book is the namespace prefix in 
+    \e book:title.)
+<li>The <i>local part</i> of a name sits 
+    on the right hand site of the ":".
+    (Thus \e title is the local part of \e book:title.)
 </ul>
-If an element does not have a ":", this means that there is no namespace
-prefix and the local part is the same as the qualified name (in the example
-\c element1 has no namespace prefix and the qualified name and the local
-part are both \c element1).
- 
-You can configure the behavior of the reader concerning namespace
-processing. This is done with the features
-\c http://xml.org/features/namespaces and
-\c http://xml.org/features/namespace-prefixes (for details on features see
-the section "<a href="xml-sax.html#featuresAndProperties">Features and properties</a>")
-int the <a href="xml-sax.html">Description of the Qt SAX2 implementation</A.
- 
-There are four reporting behaviors that are influenced by this features:
-<ol>
-<li>The namespace prefix and local part of elements and attributes are
-    reported.
-<li>The qualified name of elements and attributes are reported.
-<li>The startPrefixMapping() and endPrefixMapping() functions of the
-    \l QXmlContentHandler are called.
-<li>Attributes that declare namespaces (i.e. the attribute \c xmlns and
-    attributes starting with \c xmlns:) are reported.
-</ol>      
 
-<a name="sax2namespaces"></a>
-SAX2 requires the following behavior:
-<table border="1">
-<tr>
-    <th>namespaces</th><th>namespace-prefixes</th>
-    <th>Namespace prefix and local part</th><th>Qualified names</th>
-    <th>Prefix mapping</th><th>xmlns attributes</th>
-</tr>
-<tr>
-    <td>TRUE</td><td>FALSE</td>
-    <td>Yes</td><td>Unknown</td>
-    <td>Yes</td><td>No</td>
-</tr>
-<tr>
-    <td>TRUE</td><td>TRUE</td>
-    <td>Yes</td><td>Yes</td>
-    <td>Yes</td><td>Yes</td>
-</tr>
-<tr>
-    <td>FALSE</td><td>TRUE</td>
-    <td>Unknown</td><td>Yes</td>
-    <td>Unknown</td><td>Yes</td>
-</tr>
-</table>
-The combination that both features (namespaces and namespace-prefixes) are
-FALSE is an illegal combination.
- 
-\l QXmlSimpleReader implements the following behavior:
-<table border="1">
-<tr>
-    <th>namespaces</th><th>namespace-prefixes</th>
-    <th>Namespace prefix and local part</th><th>Qualified names</th>
-    <th>Prefix mapping</th><th>xmlns attributes</th>
-</tr>
-<tr>
-    <td>TRUE</td><td>FALSE</td>
-    <td>Yes</td><td>Yes</td>
-    <td>Yes</td><td>No</td>
-</tr>
-<tr>
-    <td>TRUE</td><td>TRUE</td>
-    <td>Yes</td><td>Yes</td>
-    <td>Yes</td><td>Yes</td>
-</tr>
-<tr>
-    <td>FALSE</td><td>TRUE</td>
-    <td>No</td><td>Yes</td>
-    <td>No</td><td>Yes</td>
-</tr>
-</table>
- 
-The default settings are
-\c http://xml.org/features/namespaces is \c TRUE and
-\c http://xml.org/features/namespace-prefixes is \c FALSE.
-                                                                           
-
+Elements without a ":" (like the above \e chapter) do not have a namespace
+prefix. In this case the local part and the qualified name 
+are identical (i.e. \e chapter).
 
 */
