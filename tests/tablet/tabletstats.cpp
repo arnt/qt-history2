@@ -11,7 +11,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qpainter.h>
-#include <cmath>
+#include <math.h>
 
 #include "tabletstats.h"
 
@@ -29,7 +29,6 @@ MyOrientation::~MyOrientation()
 
 void MyOrientation::newOrient( int tiltX, int tiltY )
 {    
-    qDebug( "here" );
     double PI = 3.14159265359;
     int realWidth,
         realHeight,
