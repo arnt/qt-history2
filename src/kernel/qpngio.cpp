@@ -797,11 +797,6 @@ end_callback(png_structp png_ptr, png_infop info)
     that->end(png_ptr,info);
 }
 
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
-
 #ifdef PNG_USER_CHUNK_SUPPORTED
 static int
 user_chunk_callback(png_structp png_ptr, png_infop info,
@@ -809,6 +804,10 @@ user_chunk_callback(png_structp png_ptr, png_infop info,
 {
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
     return that->user_chunk(png_ptr,info,data,length);
+}
+#endif
+
+#if defined(Q_C_CALLBACKS)
 }
 #endif
 

@@ -3762,6 +3762,10 @@ QListBoxItem *QListBox::firstItem() const
     return d->head;
 }
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static int cmpListBoxItems( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
@@ -3776,6 +3780,10 @@ static int cmpListBoxItems( const void *n1, const void *n2 )
 	return 0;
     return 1;
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 /*!
   Sorts the item in ascending order, if \a ascending  is TRUE, or
