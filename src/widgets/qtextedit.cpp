@@ -3972,7 +3972,8 @@ void QTextEdit::setSelection( int paraFrom, int indexFrom,
     If there is no selection, \a *paraFrom, \a *indexFrom, \a *paraTo
     and \a *indexTo are all set to -1.
 
-    \a paraFrom, \a indexFrom, \a paraTo and \a indexTo must not be 0.
+    If \a paraFrom, \a indexFrom, \a paraTo or \a indexTo is 0 this
+    function does nothing.
 
     The \a selNum is the number of the selection (multiple selections
     are supported). It defaults to 0 (the default selection).
