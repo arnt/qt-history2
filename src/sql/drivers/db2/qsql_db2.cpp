@@ -377,19 +377,17 @@ void qSplitTableQualifier( const QString & qualifier, QString * catalog,
     } else {
 	for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 	    if ( n == 3 ) {
-		if ( i == 0 ) {
+		if ( i == 0 )
 		    *catalog = *it;
-		} else if ( i == 1 ) {
+		else if ( i == 1 )
 		    *schema = *it;
-		} else if ( i == 2 ) {
+		else if ( i == 2 )
 		    *table = *it;
-		}
 	    } else if ( n == 2 ) {
-		if ( i == 0 ) {
+		if ( i == 0 )
 		    *schema = *it;
-		} else if ( i == 1 ) {
+		else if ( i == 1 )
 		    *table = *it;
-		}
 	    }
 	    i++;
 	}
