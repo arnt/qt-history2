@@ -1250,7 +1250,7 @@ void QSvgDevice::drawPath( const QString &data )
 	};
 	lastMode = mode;
 	// array almost full ? expand for next loop
-	if ( pcount >= path.size() - 4 )
+	if ( pcount >= (int)path.size() - 4 )
 	    path.resize( 2 * path.size() );
     }
 

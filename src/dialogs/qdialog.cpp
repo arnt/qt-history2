@@ -577,7 +577,7 @@ void QDialog::show()
 	    fd = focusData();
 	    QWidget *home = fd->home();
 	    QWidget *candidate = home;
-	    ASSERT( candidate == fw );
+	    Q_ASSERT( candidate == fw );
 	    do {
                 if ( candidate->inherits("QPushButton") ) {
 		    QPushButton *pb = (QPushButton *)candidate;

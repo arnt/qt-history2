@@ -435,30 +435,26 @@ bool QFileInfo::permission( int p ) const
 #endif
 
 	return result;
-
-    } else
-#endif // !Q_OS_TEMP
-    {
-	// just check if it's ReadOnly
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-	    if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-		DWORD attr = GetFileAttributes( (TCHAR*)qt_winTchar( fn, TRUE ) );
-		if ( attr & FILE_ATTRIBUTE_READONLY )
-		    return FALSE;
-	    }
-	} else
-#else
-	{
-	    if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-		DWORD attr = GetFileAttributesA( fn.local8Bit() );
-		if ( attr & FILE_ATTRIBUTE_READONLY )
-		    return FALSE;
-	    }
-	}
-#endif
-	return TRUE;
     }
+    // just check if it's ReadOnly
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	    DWORD attr = GetFileAttributes( (TCHAR*)qt_winTchar( fn, TRUE ) );
+	    if ( attr & FILE_ATTRIBUTE_READONLY )
+		return FALSE;
+	}
+    } else 
+#endif
+    {
+	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
+	    if ( attr & FILE_ATTRIBUTE_READONLY )
+		return FALSE;
+	}
+    }
+
+    return TRUE;
 }
 
 void QFileInfo::doStat() const
