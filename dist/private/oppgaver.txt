@@ -60,6 +60,10 @@ Funksjonalitet:
 	- assign operator og copy constructor i alle klasser
 	- size increment (max/min size force)
 
+	Vi slipper gjennom genererte events i X (send_event flagget er
+	satt), Arnt mener dette er et sikkerhetshull, og at default boer
+	vaere at vi dumper genererte events.
+
 
 Ferdigstilling:
 ---------------
