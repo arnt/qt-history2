@@ -11,7 +11,7 @@ class QItemSelectionRange
 
 public:
     inline QItemSelectionRange(const QItemSelectionRange &other)
-	: p(other.p), t(other.top()), l(other.left()), b(other.bottom()), r(other.right()) {}
+	: p(other.p), t(other.t), l(other.l), b(other.b), r(other.r) {}
     inline QItemSelectionRange(int top = 1, int left = 1, int bottom = -1, int right = -1)
 	: t(top), l(left), b(bottom), r(right) {}
     inline QItemSelectionRange(const QModelIndex &parent,
@@ -28,19 +28,16 @@ public:
 
     inline bool contains(const QModelIndex &item, const QGenericItemModel *model) const
     {
-	return ( parent() == model->parent(item) &&
-		 top() <= item.row() && left() <= item.column() &&
-		 bottom() >= item.row() && right() >= item.column() );
+	return (p == model->parent(item)
+		&& t <= item.row() && l <= item.column()
+		&& b >= item.row() && r >= item.column());
     }
 
     inline bool intersects(const QItemSelectionRange &other) const
     {
-	bool v = ((top() <= other.top() && bottom() >= other.top()) ||
-		   (top() >= other.top() && top() <= other.bottom()));
-	bool h = ((left() <= other.left() && right() >= other.left()) ||
-		   (left() >= other.left() && left() <= other.right()));
-	bool p = (parent() == other.parent());
-	return v && h && p;
+	return (p == other.p)
+		   && ((t <= other.t && b >= other.t) || (t >= other.t && t <= other.b))
+		   && ((l <= other.l && r >= other.l) || (l >= other.l && l <= other.r));
     }
 
     inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
@@ -48,11 +45,12 @@ public:
 
     inline bool operator==(const QItemSelectionRange &other) const
     {
-	return (top() == other.top() && left() == other.left() &&
-		bottom() == other.bottom() && right() == other.right());
+	return (p == other.p
+		&& t == other.t && l == other.l
+		&& b == other.b && r == other.r);
     }
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
-    inline bool isValid() const { return (top() <= bottom() && left() <= right()); }
+    inline bool isValid() const { return (t <= b && l <= r); }
 
     QModelIndexList items(const QGenericItemModel *model) const;
 
