@@ -22,16 +22,22 @@
 class QVFbView;
 class QVFbRateDialog;
 class QPopupMenu;
+class QMenuData;
+class QFileDialog;
+class Config;
 
 class QVFb: public QMainWindow
 {
     Q_OBJECT
 public:
-    QVFb( int display_id, int w, int h, int d, QWidget *parent = 0,
+    QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent = 0,
 		const char *name = 0, uint wflags = 0 );
     ~QVFb();
 
     void enableCursor( bool e );
+    void popupMenu();
+
+    QSize sizeHint() const;
 
 protected slots:
     void saveImage();
@@ -39,6 +45,8 @@ protected slots:
     void toggleCursor();
     void changeRate();
     void about();
+
+    void configure();
 
     void setZoom(double);
     void setZoom1();
@@ -48,13 +56,23 @@ protected slots:
     void setZoomHalf();
 
 protected:
-    void createMenu();
+    void createMenu(QMenuData *menu);
 
 private:
-
+    void init( int display_id, int w, int h, int d, const QString &skin );
     QVFbView *view;
     QVFbRateDialog *rateDlg;
+    QFileDialog* imagesave;
     QPopupMenu *viewMenu;
     int cursorId;
+    Config* config;
+    QString currentSkin;
+
+private slots:
+    void setGamma400(int n);
+    void setR400(int n);
+    void setG400(int n);
+    void setB400(int n);
+    void updateGammaLabels();
 };
 

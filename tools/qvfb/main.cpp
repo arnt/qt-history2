@@ -18,16 +18,18 @@
 *****************************************************************************/
 
 #include <qapplication.h>
-#include <qregexp.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <qpainter.h>
+#include <qregexp.h>
 
 #include "qvfb.h"
 
 void usage( const char *app )
 {
     printf( "Usage: %s [-width width] [-height height] [-depth depth] "
-	    "[-nocursor] [-qwsdisplay :id]\n", app );
+	    "[-nocursor] [-qwsdisplay :id]\n"
+	    "Supported depths: 1, 4, 8, 32\n", app );
 }
 
 int main( int argc, char *argv[] )
@@ -36,9 +38,10 @@ int main( int argc, char *argv[] )
 
     int width = 240;
     int height = 320;
-    int depth = 8;
+    int depth = 32;
     bool cursor = TRUE;
     QString displaySpec( ":0" );
+    QString skin;
 
     for ( int i = 1; i < argc; i++ ){
 	QString arg = argv[i];
@@ -46,6 +49,8 @@ int main( int argc, char *argv[] )
 	    width = atoi( argv[++i] );
 	} else if ( arg == "-height" ) {
 	    height = atoi( argv[++i] );
+	} else if ( arg == "-skin" ) {
+	    skin = argv[++i];
 	} else if ( arg == "-depth" ) {
 	    depth = atoi( argv[++i] );
 	} else if ( arg == "-nocursor" ) {
@@ -69,14 +74,12 @@ int main( int argc, char *argv[] )
 
     qDebug( "Using display %d", displayId );
 
-    QVFb *mw = new QVFb( displayId, width, height, depth );
-    app.setMainWidget( mw );
-    mw->enableCursor(cursor);
-    mw->show();
+    QVFb mw( displayId, width, height, depth, skin );
+    app.setMainWidget( &mw );
+    mw.enableCursor(cursor);
+    mw.show();
 
-    app.exec();
-
-    delete mw;
+    return app.exec();
 }
 
 

@@ -32,13 +32,28 @@ public:
 		const char *name = 0, uint wflags = 0 );
     ~QVFbView();
 
+    int displayId() const;
+    int displayWidth() const;
+    int displayHeight() const;
+    int displayDepth() const;
+
     int rate() { return refreshRate; }
     bool animating() const { return !!animation; }
+    QImage image() const;
+
+    void setGamma(double gr, double gg, double gb);
+    double gammaRed() const { return gred; }
+    double gammaGreen() const { return ggreen; }
+    double gammaBlue() const { return gblue; }
+    void getGamma(int i, QRgb& rgb);
+    void skinKeyPressEvent( QKeyEvent *e ) { keyPressEvent(e); }
+    void skinKeyReleaseEvent( QKeyEvent *e ) { keyReleaseEvent(e); }
+
+    double zoom() const { return zm; }
 
 public slots:
     void setRate( int );
     void setZoom( double );
-    void saveAs( const QString& );
     void startAnimation( const QString& );
     void stopAnimation();
 
@@ -49,6 +64,7 @@ protected:
     void initLock();
     void lock();
     void unlock();
+    QImage getBuffer( const QRect &r, int &leading ) const;
     void drawScreen();
     void sendMouseData( const QPoint &pos, int buttons );
     void sendKeyboardData( int unicode, int keycode, int modifiers,
@@ -67,6 +83,15 @@ private:
     int shmId;
     unsigned char *data;
     QVFbHeader *hdr;
+    int viewdepth; // "faked" depth
+    int rsh;
+    int gsh;
+    int bsh;
+    int rmax;
+    int gmax;
+    int bmax;
+    double gred, ggreen, gblue;
+    QRgb* gammatable;
     int lockId;
     QTimer *timer;
     int mouseFd;
@@ -75,7 +100,7 @@ private:
     QString mousePipe;
     QString keyboardPipe;
     QAnimationWriter *animation;
-    int displayId;
-    double zoom;
+    int displayid;
+    double zm;
 };
 
