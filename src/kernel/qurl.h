@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#7 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -47,14 +47,14 @@ public:
 	ErrReadDir = -4,
 	ErrCreateDir = -5,
 	ErrUnknownProtocol = -6,
-	ErrParse = -7
+	ErrParse = -7,
+	ErrLoginIncorrect = -8
     };
 
     enum Action {
 	ActListDirectory = 0,
 	ActCopyFiles,
 	ActMoveFiles,
-	ActGet,
 	ActPut
     };
 
@@ -132,7 +132,6 @@ public:
     virtual void copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
     virtual bool isFile();
-    virtual void get( const QString &info );
     virtual void put( const QString &data );
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#16 $
 **
 ** Implementation of QFileDialog class
 **
@@ -94,7 +94,6 @@ struct QUrlPrivate
   \a action gives more information about it, this can be one of
 	ActListDirectory
 	ActCopyFile
-	ActGet
 	ActPut
 */
 
@@ -106,7 +105,6 @@ struct QUrlPrivate
 	ActListDirectory
 	ActCopyFile
 	ActMoveFiles
-	ActGet
 	ActPut
 */
 
@@ -155,7 +153,7 @@ struct QUrlPrivate
 /*!
   \fn void QUrl::data( const QString &data )
 
-  This signal is emitted when new \a data has been received after e.g. calling get().
+  This signal is emitted when new \a data has been received.
 */
 
 /*!
@@ -183,13 +181,13 @@ struct QUrlPrivate
   \fn void QUrl::copyProgress( const QString &from, const QString &to, int step, int total )
 
   When copying a file this signal is emitted. \a from is the file which
-  is copied, \a to the destination. \a step is the progress 
-  (always <= \a total) or -1, if copying just started. \a total is the 
+  is copied, \a to the destination. \a step is the progress
+  (always <= \a total) or -1, if copying just started. \a total is the
   number of steps needed to copy the file.
-  
+
   This signal can be used to show the progress when copying files.
 */
-  
+
 /*!
   \fn void QUrl::emitEntry( const QUrlInfo & );
 
@@ -281,8 +279,8 @@ struct QUrlPrivate
 
 /*!
   \fn void QUrl::emitCopyProgress( const QString &from, const QString &to, int step, int total )
-  
-  Emits the signal copyProgress(  const QString &, const QString &, int, int). 
+
+  Emits the signal copyProgress(  const QString &, const QString &, int, int).
   This method is mainly provided for implementations of network protocols which are
   working together with the QUrl class.
 */
@@ -1556,16 +1554,6 @@ bool QUrl::isFile()
     }
 
     return TRUE;
-}
-
-/*!
-  #### todo
-*/
-
-void QUrl::get( const QString &info )
-{
-    if ( d->networkProtocol )
-	d->networkProtocol->get( info );
 }
 
 /*!

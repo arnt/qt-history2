@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetprotocol.h#3 $
+** $Id: //depot/qt/main/src/kernel/qnetprotocol.h#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -47,6 +47,17 @@ class QNetworkProtocol : public QObject
     Q_OBJECT
 
 public:
+    enum ConnectionState {
+	HostFound = 0,
+	Connected,
+	Closed,
+	DataHostFound,
+	DataConnected,
+	DataClosed,
+	Error
+    };
+	
+    
     QNetworkProtocol();
     virtual ~QNetworkProtocol();
 
@@ -61,7 +72,6 @@ public:
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-    virtual void get( const QString &info );
     virtual void put( const QString &data );
     virtual void isDir();
     virtual void isFile();
@@ -69,6 +79,22 @@ public:
     virtual QNetworkProtocol *copy() const;
     virtual QString toString() const;
 
+signals:
+    void entry( const QUrlInfo & );
+    void finished( int );
+    void start( int );
+    void createdDirectory( const QUrlInfo & );
+    void removed( const QString & );
+    void itemChanged( const QString &oldname, const QString &newname );
+    void error( int ecode, const QString &msg );
+    void data( const QString & );
+    void putSuccessful( const QString & );
+    void urlIsDir();
+    void urlIsFile();
+    void copyProgress( const QString &, const QString &,
+		       int step, int total );
+    void connectionStateChanged( int state, const QString &data );
+    
 protected:
     QUrl *url;
 
