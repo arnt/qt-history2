@@ -51,7 +51,7 @@ void MyWidget::paintEvent( QPaintEvent * )
 
 	int x = 0;
 	int y = 30;
-	QString str = string.str();
+	QString str = string.qstring();
 	for ( int i = 0; i < items.size(); i++ ) {
 	    int current = visualOrder[i];
 	    const ScriptItem &it = items[ current ];
@@ -114,15 +114,15 @@ int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
 
-    MyWidget *w = new MyWidget;
-    w->resize( 600,  300 );
-    w->show();
-    a.setMainWidget ( w );
+//     MyWidget *w = new MyWidget;
+//     w->resize( 600,  300 );
+//     w->show();
+//     a.setMainWidget ( w );
 
 
     {
 	QRTString string = QString::fromUtf8( s );
-	qDebug("string length=%d",  string.str().length() );
+	qDebug("string length=%d",  string.qstring().length() );
 #if 0
 	string.setFormat( QRTFormat( QFont( "Arial", 24 ), Qt::black ) );
 	const TextLayout *textLayout = TextLayout::instance();
@@ -138,14 +138,14 @@ int main( int argc, char **argv )
 	qDebug("itemize: %dms", t.elapsed() );
 	t.start();
 	for ( int i = 0; i < 1000; i++ ) {
-	    QString str = QComplexText::bidiReorderString( string.str() );
+	    QString str = QComplexText::bidiReorderString( string.qstring() );
 	}
 	qDebug("itemize: %dms", t.elapsed() );
 #endif
     }
 
-    a.exec();
-    delete w;
+//     a.exec();
+//     delete w;
 
     qDebug("at exit:");
     QRTFormat::statistics();

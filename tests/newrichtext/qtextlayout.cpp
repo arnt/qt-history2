@@ -69,7 +69,7 @@ void TextLayoutQt::itemize( ScriptItemArray &items, const QRTString &string ) co
 	items.d->size = 0;
     }
 
-    bidiItemize( string.str(), items, QChar::DirON, 0 ); //&string.formats );
+    bidiItemize( string.qstring(), items, QChar::DirON, 0 ); //&string.formats );
 }
 
 
@@ -111,7 +111,7 @@ void TextLayoutQt::shape( ShapedItem &shaped, const QRTString &string,
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
     QFont f;
-    scriptEngines[si.analysis.script]->shape( f, string.str(), from, len, si.analysis, &shaped );
+    scriptEngines[si.analysis.script]->shape( f, string.qstring(), from, len, si.analysis, &shaped );
 }
 
 

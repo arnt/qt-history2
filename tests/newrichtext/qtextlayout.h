@@ -129,7 +129,7 @@ public:
 		     const ScriptItemArray &items, int item ) const = 0;
     void attributes( CharAttributesArray &attrs, const QRTString &string,
 		     const ScriptItemArray &items, int item ) const {
-	attributes( attrs, string.str(), items, item );
+	attributes( attrs, string.qstring(), items, item );
     }
 
 

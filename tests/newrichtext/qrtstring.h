@@ -31,7 +31,7 @@ public:
     int length() const { return string.length(); }
     QChar charAt( unsigned int pos ) const { return string.unicode()[pos]; }
 
-    const QString &str() const { return string; }
+    const QString &qstring() const { return string; }
 
 private:
     QString string;
