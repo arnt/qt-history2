@@ -85,7 +85,7 @@ public:
 
     void setWindow(bool);
     void unsetWindow();
-
+    void show();
     virtual void enterInstance();
     virtual void leaveInstance();
 
