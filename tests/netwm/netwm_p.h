@@ -73,7 +73,7 @@ struct NETRootInfoPrivate {
 struct NETWinInfoPrivate {
     Display *display;
     Window window, root;
-    NET::MappedState mapped_state;
+    NET::MappingState mapping_state;
 
     RArray<NETIcon> icons;
     int icon_count;

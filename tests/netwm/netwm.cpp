@@ -1241,7 +1241,7 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->display = d;
     p->window = win;
     p->root = rwin;
-    p->mapped_state = Withdrawn;
+    p->mapping_state = Withdrawn;
     p->state = Unknown;
     p->type = Unknown;
     p->name = (char *) 0;
@@ -1563,18 +1563,18 @@ void NETWinInfo::update(unsigned long dirty) {
 		if (type_ret == xa_wm_state && format_ret == 32 &&
 		    nitems_ret == 2) {
 		    CARD32 *state = (CARD32 *) data_ret;
-		    if (*state != IconicState) p->managed = True;
-		    
+		    if (*state != WithdrawnState ) p->managed = True;
+		
 		    switch(*state) {
 		    case IconicState:
-			p->mapped_state = Iconic;
+			p->mapping_state = Iconic;
 			break;
 		    case WithdrawnState:
-			p->mapped_state = Withdrawn;
+			p->mapping_state = Withdrawn;
 			break;
 		    case NormalState:
 		    default:
-			p->mapped_state = Visible;
+			p->mapping_state = Visible;
 
 		    }
 		}

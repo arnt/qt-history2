@@ -149,7 +149,7 @@ public:
     inline CARD32 pid() const;
     inline Bool handledIcons() const;
     inline Window kdeDockWinFor() const;
-    inline MappedState mappedState() const;
+    inline MappingState mappingState() const;
 
     // This function takes the pass XEvent and returns an ORed list of NETWinInfo
     // properties that have changed.  The new information will be read
@@ -253,6 +253,6 @@ inline Window NETWinInfo::kdeDockWinFor() const { return p->kde_dockwin_for; }
 
 inline unsigned long NETWinInfo::properties() const { return p->properties; }
 
-inline NET::MappedState NETWinInfo::mappedState() const { return p->mapped_state; }
+inline NET::MappingState NETWinInfo::mappingState() const { return p->mapping_state; }
 
 #endif // __net_wm_h

@@ -91,10 +91,10 @@ public:
 	Move         =8 // movement only
     };
 
-    enum MappedState {
+    enum MappingState {
 	Visible, // ie. NormalState
-        Withdrawn,
-        Iconic
+	Withdrawn,
+	Iconic
     };
 
     enum Property {
