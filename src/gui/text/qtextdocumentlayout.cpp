@@ -708,7 +708,14 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
 
     int floatMinWidth = layoutStruct.minimumWidth;
 
+    // make sure layouted frames from other cells don't influence the flow of the current
+    // cell
+    QList<QTextFrame *> tableLayoutedFrames = td->layoutedFrames;
+    td->layoutedFrames.clear();
+
     layoutFlow(cell.begin(), &layoutStruct);
+
+    td->layoutedFrames += tableLayoutedFrames;
 
     // floats that are located inside the text (like inline images) aren't taken into account by
     // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
