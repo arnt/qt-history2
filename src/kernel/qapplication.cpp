@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#43 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#43 $";
 #endif
 
 
@@ -768,7 +768,7 @@ Here are the main features of Qt:
 
   */
 
-/* \page faq.html
+/*! \page faq.html
 
 <title>Qt toolkit - FAQ</title>
 </head><body>
