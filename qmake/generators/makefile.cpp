@@ -505,10 +505,11 @@ MakefileGenerator::init()
 	QString currentDir = QDir::currentDirPath();
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
-	    if ( v[dirs[x]].isEmpty() )
-		v[dirs[x]].append( "" );
-	    QString &path = v[dirs[x]].first();
-	    path = Option::fixPathToTargetOS(path);
+	    QString path = QString::null;
+	    if ( !v[dirs[x]].isEmpty() ) {
+		v[dirs[x]].first() = Option::fixPathToTargetOS( v[dirs[x]].first() );
+		path = v[dirs[x]].first();
+	    }
 	    if (!path.isEmpty() ) {
 		if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 		    path += Option::dir_sep;
