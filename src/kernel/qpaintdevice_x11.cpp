@@ -45,7 +45,8 @@
 
 /*!
   \class QPaintDevice qpaintdevice.h
-  \brief The QPaintDevice is the base class of objects that can be painted.
+  \brief The QPaintDevice class is the base class of objects that can be
+  painted.
 
   \ingroup drawing
 

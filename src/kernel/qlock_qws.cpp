@@ -62,8 +62,9 @@ public:
 
 /*!
   \class QLock qlock_qws.h
-  \brief A QLock is a wrapper round a System V shared semaphore;
-  it is used by Qt/Embedded for synchronising access to the graphics
+  \brief The QLock class is a wrapper round a System V shared semaphore.
+
+  It is used by Qt/Embedded for synchronizing access to the graphics
   card and shared memory region between processes.
 */
 
@@ -71,8 +72,8 @@ public:
   \fn QLock::QLock( const QString &filename, char id, bool create )
   Creates a lock. filename is the file path of the Unix-domain socket
   the Qt/Embedded client is using. Id is the name of the particular lock
-  to be created on that socket. create is true if it is to be created
-  (as the Qt/Embedded server does), false if it is expected to already
+  to be created on that socket. \a create is TRUE if it is to be created
+  (as the Qt/Embedded server does), FALSE if it is expected to already
   exist (as the Qt/Embedded client does).
 */
 

@@ -53,7 +53,11 @@ static int dummy_lastop = 0;
 
 /*!
   \class QLinuxFbScreen
-  \brief QLinuxFbScreen manages the Linux framebuffer. Accelerated drivers
+  \brief The QLinuxFbScreen class manages the Linux framebuffer.
+
+  \internal (for now)
+
+  Accelerated drivers
   for Linux should inherit from it; it contains code for reading information
   about the framebuffer from the Linux framebuffer interface, managing
   the color palette, managing offscreen graphics memory and mapping the 
@@ -67,7 +71,7 @@ static int dummy_lastop = 0;
 // drivers
 
 /*!
-  \fn QLinuxFbScreen::QLinuxFbScreen( int display_id 
+  \fn QLinuxFbScreen::QLinuxFbScreen( int display_id )
   Constructs a QLinuxFbScreen.
 */
 

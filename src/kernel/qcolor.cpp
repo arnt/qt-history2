@@ -279,12 +279,13 @@ void QColor::initGlobalColors()
 
 
 /*!
-  Constructs a color with an RGB value and a custom pixel value.
+  Constructs a color with the RGB value \a rgb and a custom pixel value
+  \a pixel.
 
-  If the \a pixel == 0xffffffff, then the color uses the RGB value in a
-  standard way.  If \a pixel is something else, then the pixel value
-  is set directly to \a pixel, skipping the normal allocation
-  procedure.
+  If \a pixel == 0xffffffff (the default), then the color uses the
+  RGB value in a standard way.  If \a pixel is something else, then
+  the pixel value is set directly to \a pixel, skipping the normal
+  allocation procedure.
 */
 
 QColor::QColor( QRgb rgb, uint pixel )
@@ -293,24 +294,24 @@ QColor::QColor( QRgb rgb, uint pixel )
 	setRgb( rgb );
     } else {
 	d.argb = rgb;
-	setPixel(pixel);
+	setPixel( pixel );
     }
 }
 
 void QColor::setPixel( uint pixel )
 {
     switch ( colormodel ) {
-      case d8:
+    case d8:
 	d.d8.direct = TRUE;
 	d.d8.invalid = FALSE;
 	d.d8.dirty = FALSE;
 	d.d8.pix = pixel;
 	break;
-      case d16:
+    case d16:
 	d.d16.invalid = FALSE;
 	d.d16.pix = pixel;
 	break;
-      case d32:
+    case d32:
 	d.d32.pix = pixel;
 	break;
     }
@@ -318,7 +319,7 @@ void QColor::setPixel( uint pixel )
 
 
 /*!
-  Constructs a color with the RGB \e or HSV value \a x, \a y, \a z.
+  Constructs a color with the RGB or HSV value \a x, \a y, \a z.
 
   The arguments are an RGB value if \a colorSpec is QColor::Rgb. \a
   x (red), \a y (green), and \a z (blue). All of them must be in the

@@ -72,7 +72,9 @@ QFontManager * qt_fontmanager=0;
 
 /*!
   \class QFontManager qfontmanager_qws.h
-  \brief There is one and only one QFontManager per Qt/Embedded
+  \brief The QFontManager class implements font management in Qt/Embedded.
+
+  There is one and only one QFontManager per Qt/Embedded
   application (qt_fontmanager is a global variable that points to it).
   It keeps a list of font factories, a cache of rendered fonts and a list
   of fonts available on disk. QFontManager is called when a new font needs
@@ -99,9 +101,14 @@ void QFontManager::cleanup()
 
 /*!
   \class QRenderedFont qfontmanager_qws.h
-  \brief A QRenderedFont is the rendered version of a particular font (as 
-  specified by QFont - that is, at a given weight,family and point size, 
-  italic or not, and so on). There is one and only one QRenderedFont
+  \brief The QRenderedFont class is the rendered version of a particular
+  font.
+
+  \internal (for now)
+
+  The font is specified by a QFont, and is thus rendered at a
+  given weight, family and point size, 
+  italic or not, and so on. There is one and only one QRenderedFont
   for each particular QFont specification; if you specify two Times 10pt
   bold italic QFonts they will both refer to the same QRenderedFont.
   QRenderedFonts are cached by QFontManager and are reference counted;

@@ -203,6 +203,8 @@ QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 
 
 /*!
+  \overload
+
   Assigns the pixmap \a pixmap to this bitmap and returns a reference to this
   bitmap.
 
@@ -233,6 +235,8 @@ QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 
 
 /*!
+  \overload
+
   Converts the image \a image to a bitmap and assigns the result to
   this bitmap.  Returns a reference to the bitmap.
 
