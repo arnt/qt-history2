@@ -2257,7 +2257,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( !wordbreak )
 		formatter->setWrapEnabled( FALSE );
 	parag->setFormatter( formatter );
-	QTextFormat *f = new QTextFormat( font, painter ? painter->pen().color() : QColor() );
+	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
 	if ( singleline ) {
 	    parStr.replace(QRegExp("[\n\r]"), " ");
 	}
@@ -2265,8 +2265,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    int idx = -1;
 	    int start = 0;
 	    int len = str.length();
-	    QTextFormat *ul = new QTextFormat( *f );
-	    ul->setUnderline( TRUE );
+	    QFont fnt( font );
+	    fnt.setUnderline( TRUE );
+	    QTextFormat *ul = parag->formatCollection()->format( fnt, painter ? painter->pen().color() : QColor() );
 	    int num = 0;
 	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
 		parag->append( parStr.mid( start, idx - start ) );

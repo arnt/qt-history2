@@ -4431,6 +4431,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
 
     QString tag;
+    
     if ( f ) {
 	if ( f->font() != defaultFormat->font() ||
 	     f->color().rgb() != defaultFormat->color().rgb() )
@@ -4443,8 +4444,17 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	    if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
 		tag += "</b>";
 	}
+	if ( f->isAnchor() && !f->anchorHref().isEmpty() )
+	    tag += "</a>";
     }
 
+    if ( isAnchor() ) {
+	if ( !anchor_href.isEmpty() )
+	    tag += "<a href=\"" + anchor_href + "\">";
+	else
+	    tag += "<a name=\"" + anchor_name + "\"></a>";
+    }
+    
     if ( font() != defaultFormat->font() ) {
 	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
 	    tag += "<b>";
@@ -4486,6 +4496,8 @@ QString QTextFormat::makeFormatEndTags() const
 	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
 	    tag += "</b>";
     }
+    if ( isAnchor() && anchorHref().isEmpty() )
+	tag += "</a>";
     return tag;
 }
 
