@@ -529,19 +529,16 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyTransform)) {
         updateMatrix(s->matrix);
         clearDirty(DirtyTransform);
-        if (s->txop >= QPainterPrivate::TxTranslate) {
-            if (!hasFeature(CoordTransform))
-                emulationSpecifier |= CoordTransform;
-            else
-                emulationSpecifier &= ~CoordTransform;
-            if (s->pen.width() != 0 && !hasFeature(PenWidthTransform))
-                emulationSpecifier |= PenWidthTransform;
-            else
-                emulationSpecifier &= ~PenWidthTransform;
-        }
+        if (state->txop >= QPainterPrivate::TxTranslate && !hasFeature(CoordTransform))
+            emulationSpecifier |= CoordTransform;
+        else
+            emulationSpecifier &= ~CoordTransform;
+        if (state->txop >= QPainterPrivate::TxTranslate
+            && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+            emulationSpecifier |= PenWidthTransform;
+        else
+            emulationSpecifier &= ~PenWidthTransform;
     }
-
-
 
     if (testDirty(DirtyHints)) {
         updateRenderHints(d->renderhints);

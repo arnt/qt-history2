@@ -52,7 +52,7 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
         return path.toFillPolygon() * state->matrix;
     }
     case RectangleShape:
-        return (*reinterpret_cast<const QRectF*>(data)) * state->matrix;
+        return QPolygon(*reinterpret_cast<const QRectF*>(data)) * state->matrix;
     case PathShape:
         return reinterpret_cast<const QPainterPath*>(data)->toFillPolygon() * state->matrix;
     default:
@@ -114,22 +114,24 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 QPixmap pm(image);
                 q->drawTiledPixmap(bounds.toRect(), pm);
             }
-
             if (shape != RectangleShape)
                 q->restore();
         } else if (engine->emulationSpecifier & QPaintEngine::CoordTransform) {
             outlineMode = None;
             q->save();
-            q->resetMatrix();
             if (shape == PathShape) {
                 Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
                            "PathShape is only used when engine supports painterpaths.");
                 QPainterPath pathCopy = *reinterpret_cast<const QPainterPath *>(data);
                 if (engine->emulationSpecifier & QPaintEngine::CoordTransform)
                     pathCopy = pathCopy * state->matrix;
+                q->resetMatrix();
+                engine->updateState(state);
                 engine->drawPath(pathCopy);
             } else {
                 QPolygon xformed = draw_helper_xpolygon(data, shape);
+                q->resetMatrix();
+                engine->updateState(state);
                 engine->drawPolygon(xformed,
                                     winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
             }
@@ -180,8 +182,14 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 engine->drawPath(pathCopy);
             } else {
                 QPolygon xformed = draw_helper_xpolygon(data, shape);
-                engine->drawPolygon(xformed,
-                                    winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+                QPaintEngine::PolygonDrawMode mode;
+                if (shape == LineShape)
+                    mode = QPaintEngine::PolylineMode;
+                else if (winding)
+                    mode = QPaintEngine::WindingMode;
+                else
+                    mode = QPaintEngine::OddEvenMode;
+                engine->drawPolygon(xformed, mode);
             }
             q->setBrush(originalBrush);
         } else if (outlineMode == PathBased) {
@@ -2100,12 +2108,13 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
                             | QPaintEngine::AlphaStroke);
+
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            d->draw_helper(&pa, false, QPainterPrivate::PolygonShape, QPainterPrivate::StrokeDraw);
+            d->draw_helper(&pa, false, QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
             return;
         }
     }

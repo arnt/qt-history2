@@ -38,10 +38,12 @@
 
 #include <math.h>
 
-// #define QT_NO_NATIVE_XFORM
-// #define QT_NO_NATIVE_GRADIENT
-// #define QT_NO_NATIVE_PATH
-// #define QT_NO_NATIVE_ALPHA
+#define QT_NO_NATIVE_XFORM
+#define QT_NO_NATIVE_GRADIENT
+#define QT_NO_NATIVE_PATH
+#define QT_NO_NATIVE_ALPHA
+
+// #define QT_DEBUG_DRAW
 
 #define d d_func()
 #define q q_func()
@@ -456,6 +458,9 @@ bool QWin32PaintEngine::end()
 
 void QWin32PaintEngine::drawLine(const QLineF &line)
 {
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " -> drawLine()" << line;
+#endif
     Q_ASSERT(isActive());
 
     if (d->tryGdiplus()) {
@@ -517,6 +522,10 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
 
 void QWin32PaintEngine::drawRect(const QRectF &r)
 {
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " -> drawRect()" << r;
+#endif
+
 #ifdef QT_NO_NATIVE_GRADIENT
     Q_ASSERT(d->brushStyle != Qt::LinearGradientPattern);
 #endif // QT_NO_NATIVE_GRADIENT
@@ -621,6 +630,11 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
 
 void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " -> drawPolygon()" << p.size() << mode;
+    for (int i=0; i<p.size(); ++i)
+        qDebug() << " --->" << p.at(i);
+#endif
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPolygon(p, mode);
@@ -628,6 +642,8 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
     }
 
     if (mode == PolylineMode) {
+        Polyline(d->hdc, (POINT*)p.toPointArray().data(), p.size());
+        return;
         int x1, y1, x2, y2;
         int npoints = p.size();
         x1 = qRound(p.at(npoints-2).x());
