@@ -87,7 +87,7 @@ public:
 
     QString name;
     QDateTime timeStamp;
-    QIODevice::Offset size;
+    Q_LONGLONG size;
     SettingsKeyMap originalKeys;
     SettingsKeyMap addedKeys;
     SettingsKeyMap removedKeys;

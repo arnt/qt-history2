@@ -234,7 +234,7 @@ void QMoviePrivate::init(bool fully)
 
 #ifdef AVOID_OPEN_FDS
     if (source && !source->isOpen())
-        source->open(IO_ReadOnly);
+        source->open(QIODevice::ReadOnly);
 #endif
     waitingForFrameTick = false;
     stepping = -1;
@@ -503,7 +503,7 @@ void QMoviePrivate::receive(const uchar* b, int bytecount)
 
 int QMoviePrivate::bufferSpace()
 {
-    return qMin(buf_size, (int)(source->size()-source->at()));
+    return qMin(buf_size, (int)(source->size()-source->pos()));
 }
 
 void QMoviePrivate::pollForData()
@@ -678,7 +678,7 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 {
     QFile *file = new QFile(fileName);
     if (!fileName.isEmpty())
-        file->open(IO_ReadOnly);
+        file->open(QIODevice::ReadOnly);
     d = new QMoviePrivate(file, this, bufsize);
 }
 

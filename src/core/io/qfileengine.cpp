@@ -211,19 +211,19 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     Flushes the open file.
 */
 
-/*! \fn QIODevice::Offset QFileEngine::size() const
+/*! \fn Q_LONGLONG QFileEngine::size() const
 
     Returns the size of the file.
 */
 
-/*! \fn QIODevice::Offset QFileEngine::at() const
+/*! \fn Q_LONGLONG QFileEngine::at() const
 
     Returns the current file position.
 
     This is the position of the data read/write head of the file.
 */
 
-/*! \fn bool QFileEngine::seek(QIODevice::Offset offset)
+/*! \fn bool QFileEngine::seek(Q_LONGLONG offset)
 
     Sets the file position to the given \a offset. Returns true if
     the position was successfully set; otherwise returns false.
@@ -321,8 +321,8 @@ QString QFileEngine::errorString() const
 */
 
 uchar *QFileEngine::map(Q_LONGLONG /* offset */, Q_LONGLONG /* size */)
-{ 
-    return 0; 
+{
+    return 0;
 }
 
 /*!
@@ -331,7 +331,7 @@ uchar *QFileEngine::map(Q_LONGLONG /* offset */, Q_LONGLONG /* size */)
    \sa QFileEngine::map()
 */
 void QFileEngine::unmap(uchar * /* data */)
-{ 
+{
 }
 
 /*!
@@ -389,7 +389,7 @@ void QFileEngine::unmap(uchar * /* data */)
  */
 
 /*!
-    \fn bool QFileEngine::setSize(QIODevice::Offset size)
+    \fn bool QFileEngine::setSize(Q_LONGLONG size)
 
     Requests that the file be set to size \a size. If \a size is larger
     than the current file then it is filled with 0's, if smaller it is
@@ -674,10 +674,6 @@ QFSFileEngine::open(int flags)
     else
         oflags |= QT_OPEN_BINARY;
 #endif
-#if defined(HAS_ASYNC_FILEMODE)
-    if (flags & QFile::Async)
-        oflags |= QT_OPEN_ASYNC;
-#endif
     d->external_file = 0;
     d->fd = d->sysOpen(d->file, oflags);
     if(d->fd != -1) {
@@ -806,7 +802,7 @@ QFSFileEngine::handle() const
 }
 
 bool
-QFSFileEngine::seek(QFile::Offset pos)
+QFSFileEngine::seek(Q_LONGLONG pos)
 {
     if(QT_LSEEK(d->fd, pos, SEEK_SET) == -1) {
         qWarning("QFile::at: Cannot set file position %lld", pos);
@@ -856,13 +852,13 @@ QFSFileEngine::type() const
     return QFileEngine::File;
 }
 
-uchar 
-*QFSFileEngine::map(Q_LONGLONG /*off*/, Q_LONGLONG /*len*/) 
-{ 
-    return 0; 
+uchar
+*QFSFileEngine::map(Q_LONGLONG /*off*/, Q_LONGLONG /*len*/)
+{
+    return 0;
 }
 
-void 
-QFSFileEngine::unmap(uchar * /*data*/) 
+void
+QFSFileEngine::unmap(uchar * /*data*/)
 {
 }

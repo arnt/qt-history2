@@ -51,7 +51,7 @@ static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
     QMimeData *data = new QMimeData;
 
     QByteArray binary;
-    QDataStream stream(&binary, IO_WriteOnly);
+    QDataStream stream(&binary, QIODevice::WriteOnly);
     stream << fragment;
     data->setData("application/x-qt-richtext", binary);
 
@@ -65,6 +65,62 @@ static bool dataHasText(const QMimeData *data)
         || data->hasFormat("application/x-qrichtext")
         || data->hasFormat("application/x-qt-richtext");
 }
+
+/*
+const char *QRichTextDrag::format(int i) const
+{
+    const char *fmt = QTextDrag::format(i);
+    if (fmt)
+        return fmt;
+    if (QTextDrag::format(i - 1))
+        return "application/x-qt-richtext";
+    return 0;
+}
+
+QByteArray QRichTextDrag::encodedData(const char *mime) const
+{
+    if (qstrcmp(mime, "application/x-qt-richtext") == 0) {
+        QByteArray binary;
+        QDataStream stream(&binary, QIODevice::WriteOnly);
+        stream << fragment;
+        return binary;
+    }
+
+    if (!plainTextSet) {
+        const_cast<QRichTextDrag *>(this)->setText(fragment.toPlainText());
+        plainTextSet = true;
+    }
+
+    return QTextDrag::encodedData(mime);
+}
+
+bool QRichTextDrag::decode(const QMimeSource *e, QTextDocumentFragment &fragment)
+{
+    if (e->provides("application/x-qt-richtext")) {
+        QDataStream stream(e->encodedData("application/x-qt-richtext"));
+        stream >> fragment;
+        return true;
+    } else if (e->provides("application/x-qrichtext")) {
+        fragment = QTextDocumentFragment::fromHTML(e->encodedData("application/x-qrichtext"));
+        return true;
+    }
+
+    QString plainText;
+    if (!QTextDrag::decode( e, plainText ))
+        return false;
+
+    fragment = QTextDocumentFragment::fromPlainText(plainText);
+    return true;
+}
+
+bool QRichTextDrag::canDecode(const QMimeSource* e)
+{
+    if (e->provides("application/x-qt-richtext")
+        || e->provides("application/x-qrichtext"))
+        return true;
+    return QTextDrag::canDecode(e);
+}
+*/
 
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)

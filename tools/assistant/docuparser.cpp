@@ -53,8 +53,8 @@ DocuParser *DocuParser::createParser(const QString &fileName)
     int majVer = 0, minVer = 0, serVer = 0;
     static QRegExp re(QLatin1String("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\""), Qt::CaseInsensitive);
     Q_ASSERT(re.isValid());
-    while(read != -1) {
-         read = file.readLine(str, maxlen);
+    while(!file.atEnd()) {
+        str = file.readLine(maxlen);
         if(re.indexIn(str) >= 0) {
             majVer = re.cap(1).toInt();
             minVer = re.cap(2).toInt();
@@ -331,10 +331,10 @@ bool DocuParser320::endElement(const QString &nameSpace,
         if(propertyName.isEmpty() || propertyValue.isEmpty())
             return false;
         {
-            static const QStringList lst = QStringList() 
+            static const QStringList lst = QStringList()
                 << QLatin1String("startpage") << QLatin1String("abouturl")
                 << QLatin1String("applicationicon") << QLatin1String("assistantdocs");
-                
+
             if (lst.contains(propertyName))
                 propertyValue = absolutify(propertyValue);
         }

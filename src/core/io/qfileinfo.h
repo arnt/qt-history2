@@ -126,7 +126,7 @@ public:
 #endif
     QFile::Permissions permissions() const;
 
-    QIODevice::Offset size() const;
+    Q_LONGLONG size() const;
 
     QDateTime created() const;
     QDateTime lastModified() const;

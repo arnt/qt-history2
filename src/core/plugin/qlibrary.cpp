@@ -286,7 +286,7 @@ static long qt_find_pattern(const char *s, ulong s_len,
 static bool qt_unix_query(const QString &library, uint *version, bool *debug, QByteArray *key)
 {
     QFile file(library);
-    if (! file.open(IO_ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         qWarning("%s: %s", (const char*) QFile::encodeName(library),
             strerror(errno));
         return false;
@@ -322,7 +322,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
     long pos = qt_find_pattern(filedata, fdlen, pattern, plen);
 
     bool ret = false;
-    if (pos >= 0) 
+    if (pos >= 0)
         ret = qt_parse_pattern(filedata + pos, version, debug, key);
 
 #ifdef USE_MMAP

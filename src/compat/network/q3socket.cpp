@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QSocket class.
+** Implementation of Q3Socket class.
 **
 ** Created : 970521
 **
@@ -35,12 +35,12 @@
 **
 **********************************************************************/
 
-#include "qsocket.h"
+#include "q3socket.h"
 #ifndef QT_NO_NETWORK
 #include "qptrlist.h"
 #include "qtimer.h"
-#include "qsocketdevice.h"
-#include "qdns.h"
+#include "q3socketdevice.h"
+#include "q3dns.h"
 #include "private/qinternal_p.h"
 
 #include <string.h>
@@ -48,20 +48,20 @@
 #include <errno.h>
 #endif
 
-//#define QSOCKET_DEBUG
+//#define Q3SOCKET_DEBUG
 
 /*
   Perhaps this private functionality needs to be refactored.
 
   Comment from Robert D Gatlin (Intel):
 
-    It would be nice to have the functionality inherent in QSocket available
+    It would be nice to have the functionality inherent in Q3Socket available
     as a separate class as a standard part of the Qt library, something along
     the line of:
 
       class QByteBuffer : public QIODevice { ... }
 
-    The same class could/would be used within QSocket for the Read/Write
+    The same class could/would be used within Q3Socket for the Read/Write
     buffers.
 
     The above class could be used in the following way(s):
@@ -90,7 +90,7 @@
 	buffer.close();
 
     The real usefulness is with any situations where data (QByteArray) arrives
-    incrementally (as in QSocket and filter case above).
+    incrementally (as in Q3Socket and filter case above).
 
     I tried using QBuffer, but QBuffer does not trim bytes from the front of
     the buffer in cases like:
@@ -107,42 +107,42 @@
     does not appear well suited for this kind of operation.
 */
 
-// Private class for QSocket
+// Private class for Q3Socket
 
-class QSocketPrivate {
+class Q3SocketPrivate {
 public:
-    QSocketPrivate();
-   ~QSocketPrivate();
+    Q3SocketPrivate();
+   ~Q3SocketPrivate();
     void closeSocket();
     void close();
     void connectionClosed();
-    void setSocketDevice( QSocket *q, QSocketDevice *device );
+    void setSocketDevice( Q3Socket *q, Q3SocketDevice *device );
 
-    QSocket::State	state;			// connection state
+    Q3Socket::State	state;			// connection state
     QString		host;			// host name
     Q_UINT16		port;			// host port
-    QSocketDevice      *socket;			// connection socket
-    QSocketNotifier    *rsn, *wsn;		// socket notifiers
+    Q3SocketDevice      *socket;			// connection socket
+    QSocketNotifier     *rsn, *wsn;		// socket notifiers
     QMembuf		rba;			// read buffer
     Q_ULONG		readBufferSize;		// limit for the read buffer size
-    QPtrList<QByteArray> wba;			// list of write bufs
+    Q3PtrList<QByteArray> wba;			// list of write bufs
     QHostAddress	addr;			// connection address
-    QValueList<QHostAddress> addresses;		// alternatives looked up
+    Q3ValueList<QHostAddress> addresses;		// alternatives looked up
     QIODevice::Offset	wsize;			// write total buf size
     QIODevice::Offset	windex;			// write index
 #ifndef QT_NO_DNS
-    QDns	       *dns4;
-    QDns	       *dns6;
+    Q3Dns	       *dns4;
+    Q3Dns	       *dns6;
 #endif
-    static QPtrList<QSocket> sn_read_alreadyCalled; // used to avoid unwanted recursion
-    QValueList<QHostAddress> l4;
-    QValueList<QHostAddress> l6;
+    static Q3PtrList<Q3Socket> sn_read_alreadyCalled; // used to avoid unwanted recursion
+    Q3ValueList<QHostAddress> l4;
+    Q3ValueList<QHostAddress> l6;
 };
 
-QPtrList<QSocket> QSocketPrivate::sn_read_alreadyCalled;
+Q3PtrList<Q3Socket> Q3SocketPrivate::sn_read_alreadyCalled;
 
-QSocketPrivate::QSocketPrivate()
-    : state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
+Q3SocketPrivate::Q3SocketPrivate()
+    : state(Q3Socket::Idle), host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), readBufferSize(0), wsize(0), windex(0)
 {
 #ifndef QT_NO_DNS
@@ -152,7 +152,7 @@ QSocketPrivate::QSocketPrivate()
     wba.setAutoDelete( TRUE );
 }
 
-QSocketPrivate::~QSocketPrivate()
+Q3SocketPrivate::~Q3SocketPrivate()
 {
     close();
     delete socket;
@@ -162,7 +162,7 @@ QSocketPrivate::~QSocketPrivate()
 #endif
 }
 
-void QSocketPrivate::closeSocket()
+void Q3SocketPrivate::closeSocket()
 {
     // Order is important here - the socket notifiers must go away
     // before the socket does, otherwise libc or the kernel will
@@ -175,7 +175,7 @@ void QSocketPrivate::closeSocket()
 	socket->close();
 }
 
-void QSocketPrivate::close()
+void Q3SocketPrivate::close()
 {
     closeSocket();
     wsize = 0;
@@ -183,16 +183,16 @@ void QSocketPrivate::close()
     windex = 0;
 }
 
-void QSocketPrivate::connectionClosed()
+void Q3SocketPrivate::connectionClosed()
 {
     // We keep the open state in case there's unread incoming data
-    state = QSocket::Idle;
+    state = Q3Socket::Idle;
     closeSocket();
     wba.clear();
     windex = wsize = 0;
 }
 
-void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
+void Q3SocketPrivate::setSocketDevice( Q3Socket *q, Q3SocketDevice *device )
 {
     delete socket;
     delete rsn;
@@ -201,10 +201,10 @@ void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
     if ( device ) {
 	socket = device;
     } else {
-	socket = new QSocketDevice( QSocketDevice::Stream,
+	socket = new Q3SocketDevice( Q3SocketDevice::Stream,
 				    ( addr.isIPv4Address() ?
-				      QSocketDevice::IPv4 :
-				      QSocketDevice::IPv6 ), 0 );
+				      Q3SocketDevice::IPv4 :
+				      Q3SocketDevice::IPv6 ), 0 );
 	socket->setBlocking( FALSE );
 	socket->setAddressReusable( TRUE );
     }
@@ -221,8 +221,8 @@ void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
 }
 
 /*!
-    \class QSocket qsocket.h
-    \brief The QSocket class provides a buffered TCP connection.
+    \class Q3Socket q3socket.h
+    \brief The Q3Socket class provides a buffered TCP connection.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -250,7 +250,7 @@ void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
     There are also some less commonly used signals. hostFound() is
     emitted when connectToHost() has finished its DNS lookup and is
     starting its TCP connection. delayedCloseFinished() is emitted
-    when close() succeeds. bytesWritten() is emitted when QSocket
+    when close() succeeds. bytesWritten() is emitted when Q3Socket
     moves data from its "to be written" queue into the TCP
     implementation.
 
@@ -261,9 +261,9 @@ void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
     and peerPort() functions return the IP address and port used by
     the peer, and peerName() returns the name of the peer (normally
     the name that was passed to connectToHost()). socket() returns a
-    pointer to the QSocketDevice used for this socket.
+    pointer to the Q3SocketDevice used for this socket.
 
-    QSocket inherits QIODevice, and reimplements some functions. In
+    Q3Socket inherits QIODevice, and reimplements some functions. In
     general, you can treat it as a QIODevice for writing, and mostly
     also for reading. The match isn't perfect, since the QIODevice
     API is designed for devices that are controlled by the same
@@ -274,26 +274,26 @@ void QSocketPrivate::setSocketDevice( QSocket *q, QSocketDevice *device )
     getch(), putch(), ungetch() and readLine() describes the
     differences in detail.
 
-    \warning QSocket is not suitable for use in threads. If you need
-    to uses sockets in threads use the lower-level QSocketDevice class.
+    \warning Q3Socket is not suitable for use in threads. If you need
+    to uses sockets in threads use the lower-level Q3SocketDevice class.
 
-    \sa QSocketDevice, QHostAddress, QSocketNotifier
+    \sa Q3SocketDevice, QHostAddress, QSocketNotifier
 */
 
 
 /*!
-    Creates a QSocket object in \c QSocket::Idle state.
+    Creates a Q3Socket object in \c Q3Socket::Idle state.
 
     The \a parent and \a name arguments are passed on to the QObject
     constructor.
 */
 
-QSocket::QSocket( QObject *parent, const char *name )
-    : QObject( parent, name )
+Q3Socket::Q3Socket( QObject *parent, const char *name )
+    : QIODevice( parent )
 {
-    d = new QSocketPrivate;
+    setObjectName(name);
+    d = new Q3SocketPrivate;
     setSocketDevice( 0 );
-    setFlags( IO_Direct );
     resetStatus();
 }
 
@@ -304,10 +304,10 @@ QSocket::QSocket( QObject *parent, const char *name )
     \sa close()
 */
 
-QSocket::~QSocket()
+Q3Socket::~Q3Socket()
 {
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): Destroy", name() );
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s): Destroy", name() );
 #endif
     if ( state() != Idle )
 	close();
@@ -323,7 +323,7 @@ QSocket::~QSocket()
     since this class does the necessary setup for most applications.
 */
 
-QSocketDevice *QSocket::socketDevice()
+Q3SocketDevice *Q3Socket::socketDevice()
 {
     return d->socket;
 }
@@ -335,15 +335,15 @@ QSocketDevice *QSocket::socketDevice()
     device.
 
     The new device should not be connected before being associated
-    with a QSocket; after setting the socket call connectToHost() to
+    with a Q3Socket; after setting the socket call connectToHost() to
     make the connection.
 
-    This function is useful if you need to subclass QSocketDevice and
-    want to use the QSocket API, for example, to implement Unix domain
+    This function is useful if you need to subclass Q3SocketDevice and
+    want to use the Q3Socket API, for example, to implement Unix domain
     sockets.
 */
 
-void QSocket::setSocketDevice( QSocketDevice *device )
+void Q3Socket::setSocketDevice( Q3SocketDevice *device )
 {
     if ( state() != Idle )
 	close();
@@ -351,7 +351,7 @@ void QSocket::setSocketDevice( QSocketDevice *device )
 }
 
 /*!
-    \enum QSocket::State
+    \enum Q3Socket::State
 
     This enum defines the connection states:
 
@@ -365,10 +365,10 @@ void QSocket::setSocketDevice( QSocketDevice *device )
 /*!
     Returns the current state of the socket connection.
 
-    \sa QSocket::State
+    \sa Q3Socket::State
 */
 
-QSocket::State QSocket::state() const
+Q3Socket::State Q3Socket::state() const
 {
     return d->state;
 }
@@ -381,31 +381,31 @@ QSocket::State QSocket::state() const
     and return immediately.
 
     Any connection or pending connection is closed immediately, and
-    QSocket goes into the \c HostLookup state. When the lookup
+    Q3Socket goes into the \c HostLookup state. When the lookup
     succeeds, it emits hostFound(), starts a TCP connection and goes
     into the \c Connecting state. Finally, when the connection
     succeeds, it emits connected() and goes into the \c Connected
     state. If there is an error at any point, it emits error().
 
     \a host may be an IP address in string form, or it may be a DNS
-    name. QSocket will do a normal DNS lookup if required. Note that
+    name. Q3Socket will do a normal DNS lookup if required. Note that
     \a port is in native byte order, unlike some other libraries.
 
     \sa state()
 */
 
-void QSocket::connectToHost( const QString &host, Q_UINT16 port )
+void Q3Socket::connectToHost( const QString &host, Q_UINT16 port )
 {
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
     setSocketIntern( -1 );
     d->state = HostLookup;
     d->host = host;
     d->port = port;
-    d->dns4 = new QDns( host, QDns::A );
-    d->dns6 = new QDns( host, QDns::Aaaa );
+    d->dns4 = new Q3Dns( host, Q3Dns::A );
+    d->dns6 = new Q3Dns( host, Q3Dns::Aaaa );
 
     // try if the address is already available (for faster connecting...)
     tryConnecting();
@@ -425,10 +425,10 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     connectToHost() leaves off.
 */
 
-void QSocket::tryConnecting()
+void Q3Socket::tryConnecting()
 {
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s)::tryConnecting()", name() );
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s)::tryConnecting()", name() );
 #endif
     // ### this ifdef isn't correct - addresses() also does /etc/hosts and
     // numeric-address-as-string handling.
@@ -437,8 +437,8 @@ void QSocket::tryConnecting()
     if ( d->dns4 ) {
 	d->l4 = d->dns4->addresses();
 	if ( !d->l4.isEmpty() || !d->dns4->isWorking() ) {
-#if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s)::tryConnecting: host %s, port %d: "
+#if defined(Q3SOCKET_DEBUG)
+	    qDebug( "Q3Socket (%s)::tryConnecting: host %s, port %d: "
 		    "%d IPv4 addresses",
 		    name(), d->host.ascii(), d->port, d->l4.count() );
 #endif
@@ -450,8 +450,8 @@ void QSocket::tryConnecting()
     if ( d->dns6 ) {
 	d->l6 = d->dns6->addresses();
 	if ( !d->l6.isEmpty() || !d->dns6->isWorking() ) {
-#if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s)::tryConnecting: host %s, port %d: "
+#if defined(Q3SOCKET_DEBUG)
+	    qDebug( "Q3Socket (%s)::tryConnecting: host %s, port %d: "
 		    "%d IPv6 addresses",
 		    name(), d->host.ascii(), d->port, l6.count() );
 #endif
@@ -495,14 +495,14 @@ void QSocket::tryConnecting()
 	    stuck = FALSE;
 	    if ( d->socket &&
 		 d->socket->connect( d->addr, d->port ) == FALSE ) {
-		if ( d->socket->error() == QSocketDevice::NoError ) {
+		if ( d->socket->error() == Q3SocketDevice::NoError ) {
 		    if ( d->wsn )
 			d->wsn->setEnabled( TRUE );
 		    return; // not serious, try again later
 		}
 
-#if defined(QSOCKET_DEBUG)
-		qDebug( "QSocket (%s)::tryConnecting: "
+#if defined(Q3SOCKET_DEBUG)
+		qDebug( "Q3Socket (%s)::tryConnecting: "
 			"Gave up on IP address %s",
 			name(), d->socket->peerAddress().toString().ascii() );
 #endif
@@ -524,8 +524,8 @@ void QSocket::tryConnecting()
 		d->addresses.remove( d->addresses.begin() );
 		d->setSocketDevice( this, 0 );
 		stuck = TRUE;
-#if defined(QSOCKET_DEBUG)
-		qDebug( "QSocket (%s)::tryConnecting: Trying IP address %s",
+#if defined(Q3SOCKET_DEBUG)
+		qDebug( "Q3Socket (%s)::tryConnecting: Trying IP address %s",
 			name(), d->addr.toString().ascii() );
 #endif
 	    }
@@ -539,7 +539,7 @@ void QSocket::tryConnecting()
 }
 
 /*!
-    \enum QSocket::Error
+    \enum Q3Socket::Error
 
     This enum specifies the possible errors:
     \value ErrConnectionRefused if the connection was refused
@@ -548,14 +548,14 @@ void QSocket::tryConnecting()
 */
 
 /*!
-    \fn void QSocket::error( int )
+    \fn void Q3Socket::error( int )
 
     This signal is emitted after an error occurred. The parameter is
     the \l Error value.
 */
 
 /*!
-    \fn void QSocket::hostFound()
+    \fn void Q3Socket::hostFound()
 
     This signal is emitted after connectToHost() has been called and
     the host lookup has succeeded.
@@ -565,7 +565,7 @@ void QSocket::tryConnecting()
 
 
 /*!
-    \fn void QSocket::connected()
+    \fn void Q3Socket::connected()
 
     This signal is emitted after connectToHost() has been called and a
     connection has been successfully established.
@@ -575,7 +575,7 @@ void QSocket::tryConnecting()
 
 
 /*!
-    \fn void QSocket::connectionClosed()
+    \fn void Q3Socket::connectionClosed()
 
     This signal is emitted when the other end has closed the
     connection. The read buffers may contain buffered input data which
@@ -586,12 +586,12 @@ void QSocket::tryConnecting()
 
 
 /*!
-    \fn void QSocket::delayedCloseFinished()
+    \fn void Q3Socket::delayedCloseFinished()
 
     This signal is emitted when a delayed close is finished.
 
     If you call close() and there is buffered output data to be
-    written, QSocket goes into the \c QSocket::Closing state and
+    written, Q3Socket goes into the \c Q3Socket::Closing state and
     returns immediately. It will then keep writing to the socket until
     all the data has been written. Then, the delayedCloseFinished()
     signal is emitted.
@@ -601,7 +601,7 @@ void QSocket::tryConnecting()
 
 
 /*!
-    \fn void QSocket::readyRead()
+    \fn void Q3Socket::readyRead()
 
     This signal is emitted every time there is new incoming data.
 
@@ -616,7 +616,7 @@ void QSocket::tryConnecting()
 
 
 /*!
-    \fn void QSocket::bytesWritten( int nbytes )
+    \fn void Q3Socket::bytesWritten( int nbytes )
 
     This signal is emitted when data has been written to the network.
     The \a nbytes parameter specifies how many bytes were written.
@@ -636,16 +636,15 @@ void QSocket::tryConnecting()
     \sa close()
 */
 
-bool QSocket::open( int m )
+bool Q3Socket::open( int m )
 {
     if ( isOpen() ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QSocket::open: Already open" );
+	qWarning( "Q3Socket::open: Already open" );
 #endif
 	return FALSE;
     }
-    QIODevice::setMode( m & IO_ReadWrite );
-    setState( IO_Open );
+    QIODevice::setDeviceMode( DeviceMode(m & IO_ReadWrite) );
     return TRUE;
 }
 
@@ -656,11 +655,11 @@ bool QSocket::open( int m )
     The read buffer is cleared.
 
     If the output buffer is empty, the state is set to \c
-    QSocket::Idle and the connection is terminated immediately. If the
-    output buffer still contains data to be written, QSocket goes into
-    the \c QSocket::Closing state and the rest of the data will be
+    Q3Socket::Idle and the connection is terminated immediately. If the
+    output buffer still contains data to be written, Q3Socket goes into
+    the \c Q3Socket::Closing state and the rest of the data will be
     written. When all of the outgoing data have been written, the
-    state is set to \c QSocket::Idle and the connection is terminated.
+    state is set to \c Q3Socket::Idle and the connection is terminated.
     At this point, the delayedCloseFinished() signal is emitted.
 
     If you don't want that the data of the output buffer is written, call
@@ -669,7 +668,7 @@ bool QSocket::open( int m )
     \sa state(), bytesToWrite() clearPendingData()
 */
 
-void QSocket::close()
+void Q3Socket::close()
 {
     if ( !isOpen() || d->state == Idle )	// already closed
 	return;
@@ -677,8 +676,8 @@ void QSocket::close()
 	return;
     if ( !d->rsn || !d->wsn )
 	return;
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): close socket", name() );
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s): close socket", name() );
 #endif
     if ( d->socket && d->wsize ) {		// there's data to be written
 	d->state = Closing;
@@ -689,9 +688,8 @@ void QSocket::close()
 	d->rba.clear();				// clear incoming data
 	return;
     }
-    setFlags( IO_Sequential );
     resetStatus();
-    setState( 0 );
+    setDeviceMode(NotOpen);
     d->close();
     d->state = Idle;
 }
@@ -702,12 +700,12 @@ void QSocket::close()
     buffer.
 */
 
-bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
+bool Q3Socket::consumeWriteBuf( Q_ULONG nbytes )
 {
     if ( nbytes <= 0 || nbytes > d->wsize )
 	return FALSE;
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): skipWriteBuf %d bytes", name(), (int)nbytes );
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s): skipWriteBuf %d bytes", name(), (int)nbytes );
 #endif
     d->wsize -= nbytes;
     for ( ;; ) {
@@ -732,15 +730,15 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
     Implementation of the abstract virtual QIODevice::flush() function.
 */
 
-void QSocket::flush()
+bool Q3Socket::flush()
 {
     if ( !d->socket )
-        return;
+        return true;
     bool osBufferFull = FALSE;
     int consumed = 0;
     while ( !osBufferFull && d->state >= Connecting && d->wsize > 0 ) {
-#if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): flush: Write data to the socket", name() );
+#if defined(Q3SOCKET_DEBUG)
+	qDebug( "Q3Socket (%s): flush: Write data to the socket", name() );
 #endif
 	QByteArray *a = d->wba.first();
 	int nwritten;
@@ -765,13 +763,13 @@ void QSocket::flush()
 		a = d->wba.next();
 		s = a ? a->size() : 0;
 	    }
-	    nwritten = d->socket->writeBlock( out.data(), i );
+	    nwritten = d->socket->write( out.data(), i );
 	    if ( d->wsn )
 		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	} else {
 	    // Big block, write it immediately
 	    i = a->size() - d->windex;
-	    nwritten = d->socket->writeBlock( a->data() + d->windex, i );
+	    nwritten = d->socket->write( a->data() + d->windex, i );
 	    if ( d->wsn )
 		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	}
@@ -783,32 +781,32 @@ void QSocket::flush()
 	    osBufferFull = TRUE;
     }
     if ( consumed > 0 ) {
-#if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): flush: wrote %d bytes, %d left",
+#if defined(Q3SOCKET_DEBUG)
+	qDebug( "Q3Socket (%s): flush: wrote %d bytes, %d left",
 		name(), consumed, (int)d->wsize );
 #endif
 	emit bytesWritten( consumed );
     }
     if ( d->state == Closing && d->wsize == 0 ) {
-#if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): flush: Delayed close done. Terminating.",
+#if defined(Q3SOCKET_DEBUG)
+	qDebug( "Q3Socket (%s): flush: Delayed close done. Terminating.",
 		name() );
 #endif
-	setFlags( IO_Sequential );
 	resetStatus();
-	setState( 0 );
+	setDeviceMode(NotOpen);
 	d->close();
 	d->state = Idle;
 	emit delayedCloseFinished();
-	return;
+	return true;
     }
     if ( !d->socket->isOpen() ) {
 	d->connectionClosed();
 	emit connectionClosed();
-	return;
+	return true;
     }
     if ( d->wsn )
 	d->wsn->setEnabled( d->wsize > 0 ); // write if there's data
+    return true;
 }
 
 
@@ -817,18 +815,18 @@ void QSocket::flush()
     (like bytesAvailable()).
 */
 
-QIODevice::Offset QSocket::size() const
+QIODevice::Offset Q3Socket::size() const
 {
     return (Offset)bytesAvailable();
 }
 
 
 /*!
-    Returns the current read index. Since QSocket is a sequential
+    Returns the current read index. Since Q3Socket is a sequential
     device, the current read index is always zero.
 */
 
-QIODevice::Offset QSocket::at() const
+QIODevice::Offset Q3Socket::at() const
 {
     return 0;
 }
@@ -842,7 +840,7 @@ QIODevice::Offset QSocket::at() const
     index forward means skipping incoming data.
 */
 
-bool QSocket::at( Offset index )
+bool Q3Socket::at( Offset index )
 {
     if ( index > d->rba.size() )
 	return FALSE;
@@ -854,7 +852,7 @@ bool QSocket::at( Offset index )
     // readyRead() signal since this might cause a bad recursive behavior.
     // We can test for this condition by looking at the
     // sn_read_alreadyCalled flag.
-    if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
+    if ( d->rsn && Q3SocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
 	d->rsn->setEnabled( TRUE );
     return TRUE;
 }
@@ -864,11 +862,11 @@ bool QSocket::at( Offset index )
     Returns TRUE if there is no more data to read; otherwise returns FALSE.
 */
 
-bool QSocket::atEnd() const
+bool Q3Socket::atEnd() const
 {
     if ( d->socket == 0 )
 	return TRUE;
-    QSocket * that = (QSocket *)this;
+    Q3Socket * that = (Q3Socket *)this;
     if ( that->d->socket->bytesAvailable() )	// a little slow, perhaps...
 	that->sn_read();
     return that->d->rba.size() == 0;
@@ -882,11 +880,11 @@ bool QSocket::atEnd() const
     \sa bytesToWrite()
 */
 
-Q_ULONG QSocket::bytesAvailable() const
+Q_LONGLONG Q3Socket::bytesAvailable() const
 {
     if ( d->socket == 0 )
 	return 0;
-    QSocket * that = (QSocket *)this;
+    Q3Socket * that = (Q3Socket *)this;
     if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
 	(void)that->sn_read();
     return that->d->rba.size();
@@ -912,11 +910,11 @@ Q_ULONG QSocket::bytesAvailable() const
     \sa bytesAvailable()
 */
 
-Q_ULONG QSocket::waitForMore( int msecs, bool *timeout ) const
+Q_ULONG Q3Socket::waitForMore( int msecs, bool *timeout ) const
 {
     if ( d->socket == 0 )
 	return 0;
-    QSocket * that = (QSocket *)this;
+    Q3Socket * that = (Q3Socket *)this;
     if ( that->d->socket->waitForMore( msecs, timeout ) > 0 )
 	(void)that->sn_read( TRUE );
     return that->d->rba.size();
@@ -925,7 +923,7 @@ Q_ULONG QSocket::waitForMore( int msecs, bool *timeout ) const
 /*! \overload
 */
 
-Q_ULONG QSocket::waitForMore( int msecs ) const
+Q_ULONG Q3Socket::waitForMore( int msecs ) const
 {
     return waitForMore( msecs, 0 );
 }
@@ -937,7 +935,7 @@ Q_ULONG QSocket::waitForMore( int msecs ) const
     \sa bytesAvailable() clearPendingData()
 */
 
-Q_ULONG QSocket::bytesToWrite() const
+Q_LONGLONG Q3Socket::bytesToWrite() const
 {
     return d->wsize;
 }
@@ -949,7 +947,7 @@ Q_ULONG QSocket::bytesToWrite() const
     \sa bytesToWrite() close() delayedCloseFinished()
 */
 
-void QSocket::clearPendingData()
+void Q3Socket::clearPendingData()
 {
     d->wba.clear();
     d->windex = d->wsize = 0;
@@ -960,24 +958,24 @@ void QSocket::clearPendingData()
     number of bytes read. Returns -1 if an error occurred.
 */
 
-Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
+Q_LONGLONG Q3Socket::readData( char *data, Q_LONGLONG maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
 #if defined(QT_CHECK_NULL)
-	qWarning( "QSocket::readBlock: Null pointer error" );
+	qWarning( "Q3Socket::readBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QSocket::readBlock: Socket is not open" );
+	qWarning( "Q3Socket::readBlock: Socket is not open" );
 #endif
 	return -1;
     }
     if ( maxlen >= d->rba.size() )
 	maxlen = d->rba.size();
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
     d->rba.consumeBytes( maxlen, data );
     // After we read data from our internal buffer, if we use the
@@ -987,7 +985,7 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     // readyRead() signal since this might cause a bad recursive behavior.
     // We can test for this condition by looking at the
     // sn_read_alreadyCalled flag.
-    if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
+    if ( d->rsn && Q3SocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
 	d->rsn->setEnabled( TRUE );
     return maxlen;
 }
@@ -998,22 +996,22 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     number of bytes written. Returns -1 if an error occurred.
 */
 
-Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
+Q_LONGLONG Q3Socket::writeData( const char *data, Q_LONGLONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && len != 0 ) {
-	qWarning( "QSocket::writeBlock: Null pointer error" );
+	qWarning( "Q3Socket::writeBlock: Null pointer error" );
     }
 #endif
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
-	qWarning( "QSocket::writeBlock: Socket is not open" );
+	qWarning( "Q3Socket::writeBlock: Socket is not open" );
 	return -1;
     }
 #endif
 #if defined(QT_CHECK_STATE)
     if ( d->state == Closing ) {
-	qWarning( "QSocket::writeBlock: Cannot write, socket is closing" );
+	qWarning( "Q3Socket::writeBlock: Cannot write, socket is closing" );
     }
 #endif
     if ( len == 0 || d->state == Closing || d->state == Idle )
@@ -1043,8 +1041,8 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 	flush();
     else if ( d->wsn )
 	d->wsn->setEnabled( TRUE );
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s): writeBlock %d bytes", name(), (int)len );
+#if defined(Q3SOCKET_DEBUG)
+    qDebug( "Q3Socket (%s): writeBlock %d bytes", name(), (int)len );
 #endif
     return len;
 }
@@ -1058,7 +1056,7 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
     \sa bytesAvailable(), putch()
 */
 
-int QSocket::getch()
+int Q3Socket::getch()
 {
     if ( isOpen() && d->rba.size() > 0 ) {
 	uchar c;
@@ -1070,7 +1068,7 @@ int QSocket::getch()
 	// readyRead() signal since this might cause a bad recursive behavior.
 	// We can test for this condition by looking at the
 	// sn_read_alreadyCalled flag.
-	if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
+	if ( d->rsn && Q3SocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
 	    d->rsn->setEnabled( TRUE );
 	return c;
     }
@@ -1086,7 +1084,7 @@ int QSocket::getch()
     \sa getch()
 */
 
-int QSocket::putch( int ch )
+int Q3Socket::putch( int ch )
 {
     char buf[2];
     buf[0] = ch;
@@ -1100,11 +1098,11 @@ int QSocket::putch( int ch )
     read returns this character as the first character of the output.
 */
 
-int QSocket::ungetch( int ch )
+int Q3Socket::ungetch( int ch )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
-	qWarning( "QSocket::ungetch: Socket not open" );
+	qWarning( "Q3Socket::ungetch: Socket not open" );
 	return -1;
     }
 #endif
@@ -1128,41 +1126,12 @@ int QSocket::ungetch( int ch )
     \sa readLine()
 */
 
-bool QSocket::canReadLine() const
+bool Q3Socket::canReadLine() const
 {
-    if ( ((QSocket*)this)->d->rba.scanNewline( 0 ) )
+    if ( ((Q3Socket*)this)->d->rba.scanNewline( 0 ) )
 	return TRUE;
     return ( bytesAvailable() > 0 &&
-	     ((QSocket*)this)->d->rba.scanNewline( 0 ) );
-}
-
-/*!
-  \reimp
-  \internal
-    So that it's not hidden by our other readLine().
-*/
-Q_LONG QSocket::readLine( char *data, Q_ULONG maxlen )
-{
-    return QIODevice::readLine(data,maxlen);
-}
-
-/*!
-    Returns a line of text including a terminating newline character
-    (\n). Returns "" if canReadLine() returns FALSE.
-
-    \sa canReadLine()
-*/
-
-QString QSocket::readLine()
-{
-    QByteArray a(256);
-    bool nl = d->rba.scanNewline( &a );
-    QString s;
-    if ( nl ) {
-	at( a.size() );				// skips the data read
-	s = QString( a );
-    }
-    return s;
+	     ((Q3Socket*)this)->d->rba.scanNewline( 0 ) );
 }
 
 /*!
@@ -1177,7 +1146,7 @@ QString QSocket::readLine()
     readyRead() signal.
 */
 
-void QSocket::sn_read( bool force )
+void Q3Socket::sn_read( bool force )
 {
     Q_LONG maxToRead = 0;
     if ( d->readBufferSize > 0 ) {
@@ -1189,12 +1158,12 @@ void QSocket::sn_read( bool force )
 	}
     }
 
-    // Use QSocketPrivate::sn_read_alreadyCalled to avoid recursive calls of
+    // Use Q3SocketPrivate::sn_read_alreadyCalled to avoid recursive calls of
     // sn_read() (and as a result avoid emitting the readyRead() signal in a
     // slot for readyRead(), if you use bytesAvailable()).
-    if ( !force && QSocketPrivate::sn_read_alreadyCalled.findRef(this) != -1 )
+    if ( !force && Q3SocketPrivate::sn_read_alreadyCalled.findRef(this) != -1 )
 	return;
-    QSocketPrivate::sn_read_alreadyCalled.append( this );
+    Q3SocketPrivate::sn_read_alreadyCalled.append( this );
 
     char buf[4096];
     Q_LONG nbytes = d->socket->bytesAvailable();
@@ -1206,12 +1175,12 @@ void QSocket::sn_read( bool force )
 	    tryConnection();
 	} else {
 	    // nothing to do, nothing to care about
-	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+	    Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	}
     }
     if ( state() == Idle ) {
-	QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+	Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	return;
     }
 
@@ -1220,32 +1189,32 @@ void QSocket::sn_read( bool force )
 	// This happens when the system is heavily loaded and we have
 	// read all the data on the socket before a new WSAAsyncSelect
 	// event is processed. A new read operation would then block.
-	// This code is also useful when QSocket is used without an
+	// This code is also useful when Q3Socket is used without an
 	// event loop.
 	nread = d->socket->readBlock( buf, maxToRead ? QMIN((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	if ( nread == 0 ) {			// really closed
-#if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
+#if defined(Q3SOCKET_DEBUG)
+	    qDebug( "Q3Socket (%s): sn_read: Connection closed", name() );
 #endif
 	    // ### we should rather ask the socket device if it is closed
 	    d->connectionClosed();
 	    emit connectionClosed();
-	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+	    Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	} else {
 	    if ( nread < 0 ) {
-		if ( d->socket->error() == QSocketDevice::NoError ) {
+		if ( d->socket->error() == Q3SocketDevice::NoError ) {
 		    // all is fine
-		    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+		    Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		    return;
 		}
-#if defined(QSOCKET_DEBUG)
-		qWarning( "QSocket::sn_read (%s): Close error", name() );
+#if defined(Q3SOCKET_DEBUG)
+		qWarning( "Q3Socket::sn_read (%s): Close error", name() );
 #endif
 		if ( d->rsn )
 		    d->rsn->setEnabled( FALSE );
 		emit error( ErrSocketRead );
-		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+		Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
 	    a = new QByteArray( nread );
@@ -1253,8 +1222,8 @@ void QSocket::sn_read( bool force )
 	}
 
     } else {					// data to be read
-#if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): sn_read: %ld incoming bytes", name(), nbytes );
+#if defined(Q3SOCKET_DEBUG)
+	qDebug( "Q3Socket (%s): sn_read: %ld incoming bytes", name(), nbytes );
 #endif
 	if ( nbytes > (int)sizeof(buf) ) {
 	    // big
@@ -1270,33 +1239,33 @@ void QSocket::sn_read( bool force )
 	    }
 	}
 	if ( nread == 0 ) {
-#if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s): sn_read: Connection closed", name() );
+#if defined(Q3SOCKET_DEBUG)
+	    qDebug( "Q3Socket (%s): sn_read: Connection closed", name() );
 #endif
 	    // ### we should rather ask the socket device if it is closed
 	    d->connectionClosed();
 	    emit connectionClosed();
-	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+	    Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	} else if ( nread < 0 ) {
-	    if ( d->socket->error() == QSocketDevice::NoError ) {
+	    if ( d->socket->error() == Q3SocketDevice::NoError ) {
 		// all is fine
-		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+		Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 		return;
 	    }
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QSocket::sn_read: Read error" );
+	    qWarning( "Q3Socket::sn_read: Read error" );
 #endif
 	    delete a;
 	    if ( d->rsn )
 		d->rsn->setEnabled( FALSE );
 	    emit error( ErrSocketRead );
-	    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+	    Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 	    return;
 	}
 	if ( nread != (int)a->size() ) {		// unexpected
 #if defined(CHECK_RANGE) && !defined(Q_OS_WIN32)
-	    qWarning( "QSocket::sn_read: Unexpected short read" );
+	    qWarning( "Q3Socket::sn_read: Unexpected short read" );
 #endif
 	    a->resize( nread );
 	}
@@ -1310,7 +1279,7 @@ void QSocket::sn_read( bool force )
 	    d->rsn->setEnabled( TRUE );
     }
 
-    QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
+    Q3SocketPrivate::sn_read_alreadyCalled.removeRef( this );
 }
 
 
@@ -1319,24 +1288,24 @@ void QSocket::sn_read( bool force )
     Internal slot for handling socket write notifications.
 */
 
-void QSocket::sn_write()
+void Q3Socket::sn_write()
 {
     if ( d->state == Connecting )		// connection established?
 	tryConnection();
     flush();
 }
 
-void QSocket::emitErrorConnectionRefused()
+void Q3Socket::emitErrorConnectionRefused()
 {
     emit error( ErrConnectionRefused );
 }
 
-void QSocket::tryConnection()
+void Q3Socket::tryConnection()
 {
     if ( d->socket->connect( d->addr, d->port ) ) {
 	d->state = Connected;
-#if defined(QSOCKET_DEBUG)
-	qDebug( "QSocket (%s): sn_write: Got connection to %s",
+#if defined(Q3SOCKET_DEBUG)
+	qDebug( "Q3Socket (%s): sn_write: Got connection to %s",
 		name(), peerName().ascii() );
 #endif
 	if ( d->rsn )
@@ -1354,7 +1323,7 @@ void QSocket::tryConnection()
     Returns the socket number, or -1 if there is no socket at the moment.
 */
 
-int QSocket::socket() const
+int Q3Socket::socket() const
 {
     if ( d->socket == 0 )
 	return -1;
@@ -1365,11 +1334,11 @@ int QSocket::socket() const
     Sets the socket to use \a socket and the state() to \c Connected.
     The socket must already be connected.
 
-    This allows us to use the QSocket class as a wrapper for other
+    This allows us to use the Q3Socket class as a wrapper for other
     socket types (e.g. Unix Domain Sockets).
 */
 
-void QSocket::setSocket( int socket )
+void Q3Socket::setSocket( int socket )
 {
     setSocketIntern( socket );
     d->state = Connection;
@@ -1382,7 +1351,7 @@ void QSocket::setSocket( int socket )
     connectToHost() and can also be used on unconnected sockets.
 */
 
-void QSocket::setSocketIntern( int socket )
+void Q3Socket::setSocketIntern( int socket )
 {
     if ( state() != Idle ) {
 	clearPendingData();
@@ -1391,11 +1360,11 @@ void QSocket::setSocketIntern( int socket )
     Q_ULONG oldBufferSize = d ? d->readBufferSize : 0;
     delete d;
 
-    d = new QSocketPrivate;
+    d = new Q3SocketPrivate;
     if (oldBufferSize)
         d->readBufferSize = oldBufferSize;
     if ( socket >= 0 ) {
-	QSocketDevice *sd = new QSocketDevice( socket, QSocketDevice::Stream );
+	Q3SocketDevice *sd = new Q3SocketDevice( socket, Q3SocketDevice::Stream );
 	sd->setBlocking( FALSE );
 	sd->setAddressReusable( TRUE );
 	d->setSocketDevice( this, sd );
@@ -1403,7 +1372,6 @@ void QSocket::setSocketIntern( int socket )
     d->state = Idle;
 
     // Initialize the IO device flags
-    setFlags( IO_Direct );
     resetStatus();
     open( IO_ReadWrite );
 
@@ -1423,7 +1391,7 @@ void QSocket::setSocketIntern( int socket )
     Returns the host port number of this socket, in native byte order.
 */
 
-Q_UINT16 QSocket::port() const
+Q_UINT16 Q3Socket::port() const
 {
     if ( d->socket == 0 )
 	return 0;
@@ -1440,7 +1408,7 @@ Q_UINT16 QSocket::port() const
     there is no need to call htons().
 */
 
-Q_UINT16 QSocket::peerPort() const
+Q_UINT16 Q3Socket::peerPort() const
 {
     if ( d->socket == 0 )
 	return 0;
@@ -1454,7 +1422,7 @@ Q_UINT16 QSocket::peerPort() const
     connections to localhost.)
 */
 
-QHostAddress QSocket::address() const
+QHostAddress Q3Socket::address() const
 {
     if ( d->socket == 0 ) {
 	QHostAddress tmp;
@@ -1469,7 +1437,7 @@ QHostAddress QSocket::address() const
     the connectToHost() function.
 */
 
-QHostAddress QSocket::peerAddress() const
+QHostAddress Q3Socket::peerAddress() const
 {
     if ( d->socket == 0 ) {
 	QHostAddress tmp;
@@ -1484,17 +1452,17 @@ QHostAddress QSocket::peerAddress() const
     function. An empty string is returned if none has been set.
 */
 
-QString QSocket::peerName() const
+QString Q3Socket::peerName() const
 {
     return d->host;
 }
 
 /*!
-    Sets the size of the QSocket's internal read buffer to \a bufSize.
+    Sets the size of the Q3Socket's internal read buffer to \a bufSize.
 
-    Usually QSocket reads all data that is available from the operating
+    Usually Q3Socket reads all data that is available from the operating
     system's socket. If the buffer size is limited to a certain size, this
-    means that the QSocket class doesn't buffer more than this size of data.
+    means that the Q3Socket class doesn't buffer more than this size of data.
 
     If the size of the read buffer is 0, the read buffer is unlimited and all
     incoming data is buffered. This is the default.
@@ -1507,7 +1475,7 @@ QString QSocket::peerName() const
     \sa readBufferSize()
 */
 
-void QSocket::setReadBufferSize( Q_ULONG bufSize )
+void Q3Socket::setReadBufferSize( Q_ULONG bufSize )
 {
     d->readBufferSize = bufSize;
 }
@@ -1518,7 +1486,7 @@ void QSocket::setReadBufferSize( Q_ULONG bufSize )
     \sa setReadBufferSize()
 */
 
-Q_ULONG QSocket::readBufferSize() const
+Q_ULONG Q3Socket::readBufferSize() const
 {
     return d->readBufferSize;
 }

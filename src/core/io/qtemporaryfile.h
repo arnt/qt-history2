@@ -24,16 +24,24 @@
 class QTemporaryFilePrivate;
 class Q_CORE_EXPORT QTemporaryFile : public QFile
 {
+#ifndef QT_NO_QOBJECT
+    Q_OBJECT
+#endif
     Q_DECLARE_PRIVATE(QTemporaryFile)
 
 public:
     QTemporaryFile();
     QTemporaryFile(const QString &templateName);
+#ifndef QT_NO_QOBJECT
+    QTemporaryFile(QObject *parent);
+    QTemporaryFile(const QString &templateName, QObject *parent);
+#endif
     ~QTemporaryFile();
 
     bool autoRemove() const;
     void setAutoRemove(bool b);
 
+    // ### Hides open(flags)
     bool open() { return open(QIODevice::ReadWrite); }
 
     QString fileName() const;
@@ -47,7 +55,13 @@ public:
     virtual QFileEngine *fileEngine() const;
 
 protected:
-    virtual bool open(int mode);
+#ifdef QT_NO_QOBJECT
+    QTemporaryFile(QFilePrivate &dd);
+#else
+    QTemporaryFile(QFilePrivate &dd, QObject *parent);
+#endif
+
+    bool open(DeviceMode flags);
 
 private:
     Q_DISABLE_COPY(QTemporaryFile)

@@ -262,11 +262,11 @@ void HelpDialog::removeOldCacheFiles()
     QString pname = QLatin1String(".") + Config::configuration()->profileName();
 
     QStringList fileList;
-    fileList << QLatin1String("indexdb") 
+    fileList << QLatin1String("indexdb")
         << QLatin1String("indexdb.dict")
         << QLatin1String("indexdb.doc")
         << QLatin1String("contentdb");
-        
+
     QStringList::iterator it = fileList.begin();
     for (; it != fileList.end(); ++it) {
 		if (QFile::exists(cacheFilesPath + QDir::separator() + *it + pname)) {
@@ -298,8 +298,8 @@ void HelpDialog::loadIndexFile()
     processEvents();
 
     QProgressBar *bar = ui.progressPrepare;
-    bar->setTotalSteps(100);
-    bar->setProgress(0);
+    bar->setMaximum(100);
+    bar->setValue(0);
 
 
     QList<IndexKeyword> lst;
@@ -337,7 +337,7 @@ void HelpDialog::loadIndexFile()
     ds >> lst;
     indexFile.close();
 
-    bar->setProgress(bar->totalSteps());
+    bar->setValue(bar->maximum());
     processEvents();
 
     ui.listIndex->clear();
@@ -394,8 +394,8 @@ void HelpDialog::buildKeywordDB()
         steps += QFileInfo(*i).size();
 
     ui.labelPrepare->setText(tr("Prepare..."));
-    ui.progressPrepare->setTotalSteps(steps);
-    ui.progressPrepare->setProgress(0);
+    ui.progressPrepare->setMaximum(steps);
+    ui.progressPrepare->setValue(0);
     processEvents();
 
     QList<IndexKeyword> lst;
@@ -427,8 +427,8 @@ void HelpDialog::buildKeywordDB()
             QFileInfo fi(indItem->reference);
             lst.append(IndexKeyword(indItem->keyword, fi.absoluteFilePath()));
             if (ui.progressPrepare)
-                ui.progressPrepare->setProgress(ui.progressPrepare->progress() +
-                                              int(fi.absoluteFilePath().length() * 1.6));
+                ui.progressPrepare->setValue(ui.progressPrepare->value() +
+                                             int(fi.absoluteFilePath().length() * 1.6));
 
             if(++counter%100 == 0) {
                 processEvents();
@@ -936,7 +936,7 @@ void HelpDialog::setupFullTextIndex()
         help->statusBar()->clear();
         setCursor(Qt::waitCursor);
         ui.labelPrepare->setText(tr("Indexing files..."));
-        ui.progressPrepare->setTotalSteps(100);
+        ui.progressPrepare->setMaximum(100);
         ui.progressPrepare->reset();
         ui.progressPrepare->show();
         ui.framePrepare->show();
@@ -944,7 +944,7 @@ void HelpDialog::setupFullTextIndex()
         if (fullTextIndex->makeIndex() == -1)
             return;
         fullTextIndex->writeDict();
-        ui.progressPrepare->setProgress(100);
+        ui.progressPrepare->setValue(100);
         ui.framePrepare->hide();
         setCursor(Qt::arrowCursor);
         showInitDoneMessage();
@@ -960,7 +960,7 @@ void HelpDialog::setupFullTextIndex()
 
 void HelpDialog::setIndexingProgress(int prog)
 {
-    ui.progressPrepare->setProgress(prog);
+    ui.progressPrepare->setValue(prog);
     processEvents();
 }
 

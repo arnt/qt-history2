@@ -804,7 +804,7 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
         QByteArray f(fmt+6);
         QByteArray dat;
         QBuffer w(&dat);
-        w.open(IO_WriteOnly);
+        w.open(QIODevice::WriteOnly);
         QImageIO io(&w, f.toUpper());
         io.setImage(d->img);
         if (!io.write())

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QSocketDevice class.
+** Implementation of Q3SocketDevice class.
 **
 ** Created : 970521
 **
@@ -35,30 +35,30 @@
 **
 **********************************************************************/
 
-#include "qsocketdevice.h"
+#include "q3socketdevice.h"
 #ifndef QT_NO_NETWORK
 
 #include "qwindowdefs.h"
 #include <string.h>
 
 
-//#define QSOCKETDEVICE_DEBUG
+//#define Q3SOCKETDEVICE_DEBUG
 
 
-class QSocketDevicePrivate
+class Q3SocketDevicePrivate
 {
 public:
-    QSocketDevicePrivate( QSocketDevice::Protocol p )
+    Q3SocketDevicePrivate( Q3SocketDevice::Protocol p )
 	: protocol(p)
     { }
 
-    QSocketDevice::Protocol protocol;
+    Q3SocketDevice::Protocol protocol;
 };
 
 
 /*!
-    \class QSocketDevice qsocketdevice.h
-    \brief The QSocketDevice class provides a platform-independent low-level socket API.
+    \class Q3SocketDevice q3socketdevice.h
+    \brief The Q3SocketDevice class provides a platform-independent low-level socket API.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -70,14 +70,14 @@ public:
     this class are assumed to have networking experience. For most users the
     QSocket class provides a much easier and high level alternative, but
     certain things (like UDP) can't be done with QSocket and if you need a
-    platform-independent API for those, QSocketDevice is the right choice.
+    platform-independent API for those, Q3SocketDevice is the right choice.
 
     The essential purpose of the class is to provide a QIODevice that
     works on sockets, wrapped in a platform-independent API.
 
-    When calling connect() or bind(), QSocketDevice detects the
+    When calling connect() or bind(), Q3SocketDevice detects the
     protocol family (IPv4, IPv6) automatically. Passing the protocol
-    family to QSocketDevice's constructor or to setSocket() forces
+    family to Q3SocketDevice's constructor or to setSocket() forces
     creation of a socket device of a specific protocol. If not set, the
     protocol will be detected at the first call to connect() or bind().
 
@@ -86,7 +86,7 @@ public:
 
 
 /*!
-    \enum QSocketDevice::Protocol
+    \enum Q3SocketDevice::Protocol
 
     This enum type describes the protocol family of the socket. Possible values
     are:
@@ -94,17 +94,17 @@ public:
     \value IPv4 The socket is an IPv4 socket.
     \value IPv6 The socket is an IPv6 socket.
     \value Unknown The protocol family of the socket is not known. This can
-	   happen if you use QSocketDevice with an already existing socket; it
+	   happen if you use Q3SocketDevice with an already existing socket; it
 	   tries to determine the protocol family, but this can fail if the
-	   protocol family is not known to QSocketDevice.
+	   protocol family is not known to Q3SocketDevice.
 
     \sa protocol() setSocket()
 */
 
 /*!
-    \enum QSocketDevice::Error
+    \enum Q3SocketDevice::Error
 
-    This enum type describes the error states of QSocketDevice.
+    This enum type describes the error states of Q3SocketDevice.
 
     \value NoError  No error has occurred.
 
@@ -115,7 +115,7 @@ public:
 
     \value NoResources  The operating system ran out of a resource.
 
-    \value InternalError  An internal error occurred in QSocketDevice.
+    \value InternalError  An internal error occurred in Q3SocketDevice.
 
     \value Impossible  An attempt was made to do something which makes
     no sense. For example:
@@ -123,10 +123,10 @@ public:
     ::close( sd->socket() );
     sd->writeBlock( someData, 42 );
     \endcode
-    The libc ::close() closes the socket, but QSocketDevice is not aware
+    The libc ::close() closes the socket, but Q3SocketDevice is not aware
     of this. So when you call writeBlock(), the impossible happens.
 
-    \value NoFiles  The operating system will not let QSocketDevice open
+    \value NoFiles  The operating system will not let Q3SocketDevice open
     another file.
 
     \value ConnectionRefused  A connection attempt was rejected by the
@@ -139,7 +139,7 @@ public:
 */
 
 /*!
-    \enum QSocketDevice::Type
+    \enum Q3SocketDevice::Type
 
     This enum type describes the type of the socket:
     \value Stream  a stream socket (TCP, usually)
@@ -148,19 +148,19 @@ public:
 
 
 /*!
-    Creates a QSocketDevice object for the existing socket \a socket.
+    Creates a Q3SocketDevice object for the existing socket \a socket.
 
     The \a type argument must match the actual socket type; use \c
-    QSocketDevice::Stream for a reliable, connection-oriented TCP
-    socket, or \c QSocketDevice::Datagram for an unreliable,
+    Q3SocketDevice::Stream for a reliable, connection-oriented TCP
+    socket, or \c Q3SocketDevice::Datagram for an unreliable,
     connectionless UDP socket.
 */
-QSocketDevice::QSocketDevice( int socket, Type type )
+Q3SocketDevice::Q3SocketDevice( int socket, Type type )
     : fd( socket ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d(new QSocketDevicePrivate(Unknown))
+      d(new Q3SocketDevicePrivate(Unknown))
 {
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
+#if defined(Q3SOCKETDEVICE_DEBUG)
+    qDebug( "Q3SocketDevice: Created Q3SocketDevice %p (socket %x, type %d)",
 	   this, socket, type );
 #endif
     init();
@@ -168,22 +168,22 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 }
 
 /*!
-    Creates a QSocketDevice object for a stream or datagram socket.
+    Creates a Q3SocketDevice object for a stream or datagram socket.
 
-    The \a type argument must be either \c QSocketDevice::Stream for a
+    The \a type argument must be either \c Q3SocketDevice::Stream for a
     reliable, connection-oriented TCP socket, or \c
-    QSocketDevice::Datagram for an unreliable UDP socket.
+    Q3SocketDevice::Datagram for an unreliable UDP socket.
 
     The socket is created as an IPv4 socket.
 
     \sa blocking() protocol()
 */
-QSocketDevice::QSocketDevice( Type type )
+Q3SocketDevice::Q3SocketDevice( Type type )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d(new QSocketDevicePrivate(IPv4))
+      d(new Q3SocketDevicePrivate(IPv4))
 {
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
+#if defined(Q3SOCKETDEVICE_DEBUG)
+    qDebug( "Q3SocketDevice: Created Q3SocketDevice object %p, type %d",
 	    this, type );
 #endif
     init();
@@ -191,11 +191,11 @@ QSocketDevice::QSocketDevice( Type type )
 }
 
 /*!
-    Creates a QSocketDevice object for a stream or datagram socket.
+    Creates a Q3SocketDevice object for a stream or datagram socket.
 
-    The \a type argument must be either \c QSocketDevice::Stream for a
+    The \a type argument must be either \c Q3SocketDevice::Stream for a
     reliable, connection-oriented TCP socket, or \c
-    QSocketDevice::Datagram for an unreliable UDP socket.
+    Q3SocketDevice::Datagram for an unreliable UDP socket.
 
     The \a protocol indicates whether the socket should be of type IPv4
     or IPv6. Passing \c Unknown is not meaningful in this context and you
@@ -207,12 +207,12 @@ QSocketDevice::QSocketDevice( Type type )
 
     \sa blocking() protocol()
 */
-QSocketDevice::QSocketDevice( Type type, Protocol protocol, int )
+Q3SocketDevice::Q3SocketDevice( Type type, Protocol protocol, int )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
-      d(new QSocketDevicePrivate(protocol))
+      d(new Q3SocketDevicePrivate(protocol))
 {
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
+#if defined(Q3SOCKETDEVICE_DEBUG)
+    qDebug( "Q3SocketDevice: Created Q3SocketDevice object %p, type %d",
 	    this, type );
 #endif
     init();
@@ -222,13 +222,13 @@ QSocketDevice::QSocketDevice( Type type, Protocol protocol, int )
 /*!
     Destroys the socket device and closes the socket if it is open.
 */
-QSocketDevice::~QSocketDevice()
+Q3SocketDevice::~Q3SocketDevice()
 {
     close();
     delete d;
     d = 0;
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Destroyed QSocketDevice %p", this );
+#if defined(Q3SOCKETDEVICE_DEBUG)
+    qDebug( "Q3SocketDevice: Destroyed Q3SocketDevice %p", this );
 #endif
 }
 
@@ -238,21 +238,21 @@ QSocketDevice::~QSocketDevice()
 
     \sa socket()
 */
-bool QSocketDevice::isValid() const
+bool Q3SocketDevice::isValid() const
 {
     return fd != -1;
 }
 
 
 /*!
-    \fn Type QSocketDevice::type() const
+    \fn Type Q3SocketDevice::type() const
 
-    Returns the socket type which is either \c QSocketDevice::Stream
-    or \c QSocketDevice::Datagram.
+    Returns the socket type which is either \c Q3SocketDevice::Stream
+    or \c Q3SocketDevice::Datagram.
 
     \sa socket()
 */
-QSocketDevice::Type QSocketDevice::type() const
+Q3SocketDevice::Type Q3SocketDevice::type() const
 {
     return t;
 }
@@ -261,7 +261,7 @@ QSocketDevice::Type QSocketDevice::type() const
     Returns the socket's protocol family, which is one of \c Unknown, \c IPv4,
     or \c IPv6.
 
-    QSocketDevice either creates a socket with a well known protocol family or
+    Q3SocketDevice either creates a socket with a well known protocol family or
     it uses an already existing socket. In the first case, this function
     returns the protocol family it was constructed with. In the second case, it
     tries to determine the protocol family of the socket; if this fails, it
@@ -269,7 +269,7 @@ QSocketDevice::Type QSocketDevice::type() const
 
     \sa Protocol setSocket()
 */
-QSocketDevice::Protocol QSocketDevice::protocol() const
+Q3SocketDevice::Protocol Q3SocketDevice::protocol() const
 {
     if ( d->protocol == Unknown )
 	d->protocol = getProtocol();
@@ -281,7 +281,7 @@ QSocketDevice::Protocol QSocketDevice::protocol() const
 
     \sa isValid(), type()
 */
-int QSocketDevice::socket() const
+int Q3SocketDevice::socket() const
 {
     return fd;
 }
@@ -292,26 +292,25 @@ int QSocketDevice::socket() const
     socket.
 
     The \a type argument must match the actual socket type; use \c
-    QSocketDevice::Stream for a reliable, connection-oriented TCP
-    socket, or \c QSocketDevice::Datagram for an unreliable,
+    Q3SocketDevice::Stream for a reliable, connection-oriented TCP
+    socket, or \c Q3SocketDevice::Datagram for an unreliable,
     connectionless UDP socket.
 
     Any existing socket is closed.
 
     \sa isValid(), close()
 */
-void QSocketDevice::setSocket( int socket, Type type )
+void Q3SocketDevice::setSocket( int socket, Type type )
 {
     if ( fd != -1 )			// close any open socket
 	close();
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::setSocket: socket %x, type %d", socket, type );
+#if defined(Q3SOCKETDEVICE_DEBUG)
+    qDebug( "Q3SocketDevice::setSocket: socket %x, type %d", socket, type );
 #endif
     t = type;
     fd = socket;
     d->protocol = Unknown;
     e = NoError;
-    setFlags( IO_Sequential );
     resetStatus();
     open( IO_ReadWrite );
     fetchConnectionParameters();
@@ -322,20 +321,19 @@ void QSocketDevice::setSocket( int socket, Type type )
     \reimp
 
     Opens the socket using the specified QIODevice file \a mode. This
-    function is called from the QSocketDevice constructors and from
+    function is called from the Q3SocketDevice constructors and from
     the setSocket() function. You should not call it yourself.
 
     \sa close().
 */
-bool QSocketDevice::open( int mode )
+bool Q3SocketDevice::open( int mode )
 {
     if ( isOpen() || !isValid() )
 	return FALSE;
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::open: mode %x", mode );
+#if defined(Q3SOCKETDEVICE_DEBUG)
+    qDebug( "Q3SocketDevice::open: mode %x", mode );
 #endif
-    setMode( mode & IO_ReadWrite );
-    setState( IO_Open );
+    setDeviceMode( DeviceMode(mode & IO_ReadWrite) );
     return TRUE;
 }
 
@@ -343,11 +341,12 @@ bool QSocketDevice::open( int mode )
 /*!
     \reimp
 
-    The current QSocketDevice implementation does not buffer at all,
+    The current Q3SocketDevice implementation does not buffer at all,
     so this is a no-op.
 */
-void QSocketDevice::flush()
+bool Q3SocketDevice::flush()
 {
+    return true;
 }
 
 
@@ -356,7 +355,7 @@ void QSocketDevice::flush()
 
     The size is meaningless for a socket, therefore this function returns 0.
 */
-QIODevice::Offset QSocketDevice::size() const
+QIODevice::Offset Q3SocketDevice::size() const
 {
     return 0;
 }
@@ -368,7 +367,7 @@ QIODevice::Offset QSocketDevice::size() const
     The read/write index is meaningless for a socket, therefore this
     function returns 0.
 */
-QIODevice::Offset QSocketDevice::at() const
+QIODevice::Offset Q3SocketDevice::at() const
 {
     return 0;
 }
@@ -380,7 +379,7 @@ QIODevice::Offset QSocketDevice::at() const
     The read/write index is meaningless for a socket, therefore this
     function does nothing and returns TRUE.
 */
-bool QSocketDevice::at( Offset )
+bool Q3SocketDevice::at( Offset )
 {
     return TRUE;
 }
@@ -392,54 +391,10 @@ bool QSocketDevice::at( Offset )
     Returns TRUE if no data is currently available at the socket;
     otherwise returns FALSE.
 */
-bool QSocketDevice::atEnd() const
+bool Q3SocketDevice::atEnd() const
 {
     return bytesAvailable() <= 0;
 }
-
-
-/*!
-    \reimp
-
-    \warning getch() is implemented as a one-byte readBlock(), so it
-    may be very slow if you call it more than a few times.
-
-    \sa putch() readBlock()
-*/
-int QSocketDevice::getch()
-{
-    char buf[2];
-    return  readBlock(buf,1) == 1 ? buf[0] : -1;
-}
-
-
-/*!
-    \reimp
-
-    \warning putch() is implemented as a one-byte writeBlock(), so it
-    may be very slow if you call it more than a few times.
-
-    \sa getch()
-*/
-int QSocketDevice::putch( int ch )
-{
-    char buf[2];
-    buf[0] = ch;
-    return writeBlock(buf, 1) == 1 ? ch : -1;
-}
-
-
-/*!
-    \reimp
-
-    This implementation of ungetch returns -1 (error). A socket is a
-    sequential device and does not allow any ungetch operation.
-*/
-int QSocketDevice::ungetch( int )
-{
-    return -1;
-}
-
 
 /*!
     Returns TRUE if the address of this socket can be used by other
@@ -448,7 +403,7 @@ int QSocketDevice::ungetch( int )
 
     \sa setAddressReusable()
 */
-bool QSocketDevice::addressReusable() const
+bool Q3SocketDevice::addressReusable() const
 {
     return option( ReuseAddress );
 }
@@ -467,7 +422,7 @@ bool QSocketDevice::addressReusable() const
 
     \sa addressReusable()
 */
-void QSocketDevice::setAddressReusable( bool enable )
+void Q3SocketDevice::setAddressReusable( bool enable )
 {
     setOption( ReuseAddress, enable );
 }
@@ -478,7 +433,7 @@ void QSocketDevice::setAddressReusable( bool enable )
 
     \sa setReceiveBufferSize()
 */
-int QSocketDevice::receiveBufferSize() const
+int Q3SocketDevice::receiveBufferSize() const
 {
     return option( ReceiveBuffer );
 }
@@ -495,7 +450,7 @@ int QSocketDevice::receiveBufferSize() const
     large amounts of data is probably best with a buffer size of
     49152.
 */
-void QSocketDevice::setReceiveBufferSize( uint size )
+void Q3SocketDevice::setReceiveBufferSize( uint size )
 {
     setOption( ReceiveBuffer, size );
 }
@@ -506,7 +461,7 @@ void QSocketDevice::setReceiveBufferSize( uint size )
 
     \sa setSendBufferSize()
 */
-int QSocketDevice::sendBufferSize() const
+int Q3SocketDevice::sendBufferSize() const
 {
     return option( SendBuffer );
 }
@@ -522,7 +477,7 @@ int QSocketDevice::sendBufferSize() const
     large amounts of data is probably best with a buffer size of
     49152.
 */
-void QSocketDevice::setSendBufferSize( uint size )
+void Q3SocketDevice::setSendBufferSize( uint size )
 {
     setOption( SendBuffer, size );
 }
@@ -536,7 +491,7 @@ void QSocketDevice::setSendBufferSize( uint size )
     Note that Qt always uses native byte order, i.e. 67 is 67 in Qt;
     there is no need to call htons().
 */
-Q_UINT16 QSocketDevice::port() const
+Q_UINT16 Q3SocketDevice::port() const
 {
     return p;
 }
@@ -547,7 +502,7 @@ Q_UINT16 QSocketDevice::port() const
     a while, but is set to something sensible as soon as a sensible
     value is available.
 */
-QHostAddress QSocketDevice::address() const
+QHostAddress Q3SocketDevice::address() const
 {
     return a;
 }
@@ -556,7 +511,7 @@ QHostAddress QSocketDevice::address() const
 /*!
     Returns the first error seen.
 */
-QSocketDevice::Error QSocketDevice::error() const
+Q3SocketDevice::Error Q3SocketDevice::error() const
 {
     return e;
 }
@@ -565,7 +520,7 @@ QSocketDevice::Error QSocketDevice::error() const
 /*!
     Allows subclasses to set the error state to \a err.
 */
-void QSocketDevice::setError( Error err )
+void Q3SocketDevice::setError( Error err )
 {
     e = err;
 }

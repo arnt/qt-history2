@@ -574,7 +574,7 @@ bool QApplication::x11_apply_settings()
             XFree(data);
 
         QBuffer ts;
-        ts.open(IO_WriteOnly);
+        ts.open(QIODevice::WriteOnly);
 
         while (after > 0) {
             XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
@@ -590,7 +590,7 @@ bool QApplication::x11_apply_settings()
         }
 
 	QByteArray buf = ts.buffer();
-        QDataStream ds(&buf, IO_ReadOnly);
+        QDataStream ds(&buf, QIODevice::ReadOnly);
         ds >> timestamp;
     }
 
@@ -796,7 +796,7 @@ bool QApplication::x11_apply_settings()
 
     if (update_timestamp) {
         QByteArray stamp;
-        QDataStream s(&stamp, IO_WriteOnly);
+        QDataStream s(&stamp, QIODevice::WriteOnly);
         s << settingsstamp;
 
         XChangeProperty(X11->display, QX11Info::appRootWindow(0),
@@ -1087,7 +1087,7 @@ static void qt_get_net_supported()
 
     if (e == Success && type == XA_ATOM && format == 32) {
         QBuffer ts;
-        ts.open(IO_WriteOnly);
+        ts.open(QIODevice::WriteOnly);
 
         while (after > 0) {
             XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
@@ -1158,7 +1158,7 @@ static void qt_get_net_virtual_roots()
 
     if (e == Success && type == XA_ATOM && format == 32) {
         QBuffer ts;
-        ts.open(IO_WriteOnly);
+        ts.open(QIODevice::WriteOnly);
 
         while (after > 0) {
             XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
@@ -1411,14 +1411,14 @@ void qt_init(QApplicationPrivate *priv, int,
             QString s;
             s.sprintf("/proc/%d/cmdline", getppid());
             QFile f(s);
-            if (f.open(IO_ReadOnly)) {
+            if (f.open(QIODevice::ReadOnly)) {
                 s.clear();
-                int c;
-                while ((c = f.getch()) > 0) {
+                char c;
+                while (f.getChar(&c)) {
                     if (c == '/')
                         s.clear();
                     else
-                        s += (char)c;
+                        s += c;
                 }
                 if (s == "gdb") {
                     appNoGrab = true;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QSocketDevice class.
+** Implementation of Q3SocketDevice class.
 **
 ** Created : 970521
 **
@@ -77,7 +77,7 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 # undef socket
 #endif
 
-#include "qsocketdevice.h"
+#include "q3socketdevice.h"
 
 #ifndef QT_NO_NETWORK
 
@@ -112,12 +112,12 @@ static inline void qt_socket_getportaddr( struct sockaddr *sa,
 //#define QSOCKETDEVICE_DEBUG
 
 // internal
-void QSocketDevice::init()
+void Q3SocketDevice::init()
 {
 }
 
 
-QSocketDevice::Protocol QSocketDevice::getProtocol() const
+Q3SocketDevice::Protocol Q3SocketDevice::getProtocol() const
 {
     if ( isValid() ) {
 #if !defined (QT_NO_IPV6)
@@ -160,7 +160,7 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
     \sa setSocket()
 */
 
-int QSocketDevice::createNewSocket()
+int Q3SocketDevice::createNewSocket()
 {
 #if !defined(QT_NO_IPV6)
     int s = qt_socket_socket( protocol() == IPv6 ? AF_INET6 : AF_INET,
@@ -209,19 +209,19 @@ int QSocketDevice::createNewSocket()
 
     \sa open()
 */
-void QSocketDevice::close()
+void Q3SocketDevice::close()
 {
     if ( fd == -1 || !isOpen() )		// already closed
 	return;
-    setFlags( IO_Sequential );
     resetStatus();
-    setState( 0 );
+    setDeviceMode(NotOpen);
     ::close( fd );
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::close: Closed socket %x", fd );
+    qDebug( "Q3SocketDevice::close: Closed socket %x", fd );
 #endif
     fd = -1;
     fetchConnectionParameters();
+    QIODevice::close();
 }
 
 
@@ -236,7 +236,7 @@ void QSocketDevice::close()
 
     \sa setBlocking(), isValid()
 */
-bool QSocketDevice::blocking() const
+bool Q3SocketDevice::blocking() const
 {
     if ( !isValid() )
 	return TRUE;
@@ -259,10 +259,10 @@ bool QSocketDevice::blocking() const
 
     \sa blocking(), isValid()
 */
-void QSocketDevice::setBlocking( bool enable )
+void Q3SocketDevice::setBlocking( bool enable )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::setBlocking( %d )", enable );
+    qDebug( "Q3SocketDevice::setBlocking( %d )", enable );
 #endif
     if ( !isValid() )
 	return;
@@ -298,7 +298,7 @@ void QSocketDevice::setBlocking( bool enable )
 /*!
     Returns the value of the socket option \a opt.
 */
-int QSocketDevice::option( Option opt ) const
+int Q3SocketDevice::option( Option opt ) const
 {
     if ( !isValid() )
 	return -1;
@@ -325,7 +325,7 @@ int QSocketDevice::option( Option opt ) const
 	if ( r >= 0 )
 	    return v;
 	if ( !e ) {
-	    QSocketDevice *that = (QSocketDevice*)this; // mutable function
+	    Q3SocketDevice *that = (Q3SocketDevice*)this; // mutable function
 	    switch( errno ) {
 	    case EBADF:
 	    case ENOTSOCK:
@@ -348,7 +348,7 @@ int QSocketDevice::option( Option opt ) const
 /*!
     Sets the socket option \a opt to \a v.
 */
-void QSocketDevice::setOption( Option opt, int v )
+void Q3SocketDevice::setOption( Option opt, int v )
 {
     if ( !isValid() )
 	return;
@@ -396,7 +396,7 @@ void QSocketDevice::setOption( Option opt, int v )
     sockets; this just means that you can call connect() again in a
     little while and it'll probably succeed.
 */
-bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
+bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -487,7 +487,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
     bind() is used by servers for setting up incoming connections.
     Call bind() before listen().
 */
-bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
+bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -563,7 +563,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 
     \sa bind(), accept()
 */
-bool QSocketDevice::listen( int backlog )
+bool Q3SocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
@@ -582,7 +582,7 @@ bool QSocketDevice::listen( int backlog )
 
     \sa bind(), listen()
 */
-int QSocketDevice::accept()
+int Q3SocketDevice::accept()
 {
     if ( !isValid() )
 	return -1;
@@ -662,7 +662,7 @@ int QSocketDevice::accept()
     data on the socket is to read it using readBlock(). QSocket has
     workarounds to deal with this problem.
 */
-Q_LONG QSocketDevice::bytesAvailable() const
+Q_LONGLONG Q3SocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
@@ -708,7 +708,7 @@ Q_LONG QSocketDevice::bytesAvailable() const
 
     \sa bytesAvailable()
 */
-Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
+Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
@@ -744,24 +744,24 @@ Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
     Reads \a maxlen bytes from the socket into \a data and returns the
     number of bytes read. Returns -1 if an error occurred.
 */
-Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
+Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
-	qWarning( "QSocketDevice::readBlock: Null pointer error" );
+	qWarning( "Q3SocketDevice::readBlock: Null pointer error" );
     }
 #endif
 #if defined(QT_CHECK_STATE)
     if ( !isValid() ) {
-	qWarning( "QSocketDevice::readBlock: Invalid socket" );
+	qWarning( "Q3SocketDevice::readBlock: Invalid socket" );
 	return -1;
     }
     if ( !isOpen() ) {
-	qWarning( "QSocketDevice::readBlock: Device is not open" );
+	qWarning( "Q3SocketDevice::readBlock: Device is not open" );
 	return -1;
     }
     if ( !isReadable() ) {
-	qWarning( "QSocketDevice::readBlock: Read operation not permitted" );
+	qWarning( "Q3SocketDevice::readBlock: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -830,31 +830,31 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
     Writes \a len bytes to the socket from \a data and returns the
     number of bytes written. Returns -1 if an error occurred.
 
-    This is used for \c QSocketDevice::Stream sockets.
+    This is used for \c Q3SocketDevice::Stream sockets.
 */
-Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
+Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Null pointer error" );
+	qWarning( "Q3SocketDevice::writeBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isValid() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Invalid socket" );
+	qWarning( "Q3SocketDevice::writeBlock: Invalid socket" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Device is not open" );
+	qWarning( "Q3SocketDevice::writeBlock: Device is not open" );
 #endif
 	return -1;
     }
     if ( !isWritable() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Write operation not permitted" );
+	qWarning( "Q3SocketDevice::writeBlock: Write operation not permitted" );
 #endif
 	return -1;
     }
@@ -915,40 +915,40 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
     Writes \a len bytes to the socket from \a data and returns the
     number of bytes written. Returns -1 if an error occurred.
 
-    This is used for \c QSocketDevice::Datagram sockets. You must
+    This is used for \c Q3SocketDevice::Datagram sockets. You must
     specify the \a host and \a port of the destination of the data.
 */
-Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
+Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
 			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Not datagram" );
+	qWarning( "Q3SocketDevice::sendBlock: Not datagram" );
 #endif
 	return -1; // for now - later we can do t/tcp
     }
 
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Null pointer error" );
+	qWarning( "Q3SocketDevice::sendBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isValid() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Invalid socket" );
+	qWarning( "Q3SocketDevice::sendBlock: Invalid socket" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Device is not open" );
+	qWarning( "Q3SocketDevice::sendBlock: Device is not open" );
 #endif
 	return -1;
     }
     if ( !isWritable() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Write operation not permitted" );
+	qWarning( "Q3SocketDevice::sendBlock: Write operation not permitted" );
 #endif
 	return -1;
     }
@@ -1027,7 +1027,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     Fetches information about both ends of the connection: whatever is
     available.
 */
-void QSocketDevice::fetchConnectionParameters()
+void Q3SocketDevice::fetchConnectionParameters()
 {
     if ( !isValid() ) {
 	p = 0;
@@ -1061,7 +1061,7 @@ void QSocketDevice::fetchConnectionParameters()
     Note that for Datagram sockets, this is the source port of the
     last packet received, and that it is in native byte order.
 */
-Q_UINT16 QSocketDevice::peerPort() const
+Q_UINT16 Q3SocketDevice::peerPort() const
 {
     return pp;
 }
@@ -1075,7 +1075,7 @@ Q_UINT16 QSocketDevice::peerPort() const
     Note that for Datagram sockets, this is the source port of the
     last packet received.
 */
-QHostAddress QSocketDevice::peerAddress() const
+QHostAddress Q3SocketDevice::peerAddress() const
 {
     return pa;
 }

@@ -127,7 +127,7 @@ QCopChannel::~QCopChannel()
     // still any clients connected locally ?
     if (it.value().isEmpty()) {
         QByteArray data;
-        QDataStream s(&data, IO_WriteOnly);
+        QDataStream s(&data, QIODevice::WriteOnly);
         s << d->channel;
         if (qt_fbdpy)
             send("", "detach()", data);
@@ -159,7 +159,7 @@ QByteArray QCopChannel::channel() const
     \code
     void MyClass::receive(const QByteArray &msg, const QByteArray &data)
     {
-        QDataStream stream(data, IO_ReadOnly);
+        QDataStream stream(data, QIODevice::ReadOnly);
         if (msg == "execute(QString,QString)") {
             QString cmd, arg;
             stream >> cmd >> arg;
@@ -202,7 +202,7 @@ void QCopChannel::receive(const QByteArray &msg, const QByteArray &data)
 bool QCopChannel::isRegistered(const QByteArray& channel)
 {
     QByteArray data;
-    QDataStream s(&data, IO_WriteOnly);
+    QDataStream s(&data, QIODevice::WriteOnly);
     s << channel;
     if (!send("", "isRegistered()", data))
         return false;
@@ -238,7 +238,7 @@ bool QCopChannel::send(const QByteArray &channel, const QByteArray &msg)
     Example:
     \code
     QByteArray ba;
-    QDataStream stream(ba, IO_WriteOnly);
+    QDataStream stream(ba, QIODevice::WriteOnly);
     stream << QString("cat") << QString("file.txt");
     QCopChannel::send("System/Shell", "execute(QString,QString)", ba);
     \endcode

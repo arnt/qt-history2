@@ -27,10 +27,10 @@
 static bool qt_copy_file(const QString &from, const QString &to)
 {
     QFile src(from);
-    if (!src.open(IO_ReadOnly|IO_Raw))
+    if (!src.open(QIODevice::ReadOnly))
         return false;
     QFile dst(to == from ? "copy_of_" + to : to);
-    if (dst.exists() || !dst.open(IO_WriteOnly|IO_Raw))
+    if (dst.exists() || !dst.open(QIODevice::WriteOnly))
         return false;
     char buffer[4096];
     Q_LONG len = 0;

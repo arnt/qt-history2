@@ -313,7 +313,7 @@ static void parsePrinterDesc(QString printerDesc, QList<QPrinterDescription> *pr
 static int parsePrintcap(QList<QPrinterDescription> *printers, const QString& fileName)
 {
     QFile printcap(fileName);
-    if (!printcap.open(IO_ReadOnly))
+    if (!printcap.open(QIODevice::ReadOnly))
         return NotFound;
 
     char *line_ascii = new char[1025];
@@ -368,7 +368,7 @@ static void parseEtcLpPrinters(QList<QPrinterDescription> *printers)
             QString contentType(QLatin1String("Content types:"));
             QString printerHost;
             bool canPrintPostscript = false;
-            if (configuration.open(IO_ReadOnly)) {
+            if (configuration.open(QIODevice::ReadOnly)) {
                 while (!configuration.atEnd() &&
                         configuration.readLine(line, 1024) > 0) {
                     if (QString::fromLatin1(line).startsWith(remote)) {
@@ -421,7 +421,7 @@ static void parseEtcLpPrinters(QList<QPrinterDescription> *printers)
 static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found = 0)
 {
     QFile pc(QLatin1String("/etc/printers.conf"));
-    if (!pc.open(IO_ReadOnly)) {
+    if (!pc.open(QIODevice::ReadOnly)) {
         if (found)
             *found = false;
         return 0;
@@ -660,7 +660,7 @@ static char *parseNsswitchPrintersEntry(QList<QPrinterDescription> *printers, ch
 static char *parseNsswitchConf(QList<QPrinterDescription> *printers)
 {
     QFile nc(QLatin1String("/etc/nsswitch.conf"));
-    if (!nc.open(IO_ReadOnly))
+    if (!nc.open(QIODevice::ReadOnly))
         return 0;
 
     char *defaultPrinter = 0;
@@ -725,7 +725,7 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
 
         // parse out some information
         QFile configFile(printer.filePath());
-        if (!configFile.open(IO_ReadOnly))
+        if (!configFile.open(QIODevice::ReadOnly))
             continue;
 
         QByteArray line;
@@ -787,7 +787,7 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
 static void parseQconfig(QList<QPrinterDescription> *printers)
 {
     QFile qconfig(QLatin1String("/etc/qconfig"));
-    if (!qconfig.open(IO_ReadOnly))
+    if (!qconfig.open(QIODevice::ReadOnly))
         return;
 
     QTextStream ts(&qconfig);
@@ -1001,7 +1001,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
         if (f.isDir()) {
             parseEtcLpPrinters(&printers);
             QFile def(QLatin1String("/etc/lp/default"));
-            if (def.open(IO_ReadOnly)) {
+            if (def.open(QIODevice::ReadOnly)) {
                 if (etcLpDefault)
                     delete[] etcLpDefault;
                 etcLpDefault = new char[1025];

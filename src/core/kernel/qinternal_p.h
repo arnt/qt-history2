@@ -50,13 +50,13 @@ public:
 
     int ungetch(int ch);
 
-    QIODevice::Offset size() const;
+    Q_LONGLONG size() const;
 
 private:
 
     QList<QByteArray *> buf;
-    QIODevice::Offset _size;
-    QIODevice::Offset _index;
+    Q_LONGLONG _size;
+    Q_LONGLONG _index;
 };
 
 inline void QMembuf::append(QByteArray *ba)
@@ -71,7 +71,7 @@ inline QByteArray QMembuf::readAll()
 inline bool QMembuf::canReadLine() const
 { return const_cast<QMembuf*>(this)->scanNewline(0); }
 
-inline QIODevice::Offset QMembuf::size() const
+inline Q_LONGLONG QMembuf::size() const
 { return _size; }
 
 class QCircularBuffer {

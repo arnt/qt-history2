@@ -859,7 +859,7 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
             mmf->tree = new QGlyphTree(data);
 #else
             QFile f(filename);
-            f.open(IO_ReadOnly);
+            f.open(QIODevice::ReadOnly);
             f.readBlock((char*)&mmf->fm,sizeof(mmf->fm));
             mmf->tree = new QGlyphTree(f);
 #endif
@@ -979,7 +979,7 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
         QGlyphTree::balance(mmf->tree);
         //qDebug("DUMP..."); mmf->tree->dump();
         QFile f(fontFilename(mmf->def));
-        f.open(IO_WriteOnly);
+        f.open(QIODevice::WriteOnly);
         f.writeBlock((char*)&mmf->fm,sizeof(mmf->fm));
         mmf->tree->write(f);
     }

@@ -38,9 +38,9 @@ public:
     virtual bool close() = 0;
     virtual void flush() = 0;
 
-    virtual QIODevice::Offset size() const = 0;
-    virtual QIODevice::Offset at() const = 0;
-    virtual bool seek(QIODevice::Offset off) = 0;
+    virtual Q_LONGLONG size() const = 0;
+    virtual Q_LONGLONG at() const = 0;
+    virtual bool seek(Q_LONGLONG off) = 0;
 
     virtual bool isSequential() const = 0;
 
@@ -69,7 +69,7 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
 
-    virtual bool setSize(QIODevice::Offset size) = 0;
+    virtual bool setSize(Q_LONGLONG size) = 0;
 
     virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const = 0;
 
@@ -149,9 +149,9 @@ public:
     virtual bool open(int flags);
     virtual bool close();
     virtual void flush();
-    virtual QIODevice::Offset size() const;
-    virtual QIODevice::Offset at() const;
-    virtual bool seek(QIODevice::Offset);
+    virtual Q_LONGLONG size() const;
+    virtual Q_LONGLONG at() const;
+    virtual bool seek(Q_LONGLONG);
     virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
     virtual QFile::Error error() const;
@@ -169,7 +169,7 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
-    virtual bool setSize(QIODevice::Offset size);
+    virtual bool setSize(Q_LONGLONG size);
 
     virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const;
 

@@ -146,7 +146,7 @@ void QWSCalibratedMouseHandler::writeCalibration()
     QString calFile = "/etc/pointercal";
 #ifndef QT_NO_TEXTSTREAM
     QFile file(calFile);
-    if (file.open(IO_WriteOnly)) {
+    if (file.open(QIODevice::WriteOnly)) {
         QTextStream t(&file);
         t << a << " " << b << " " << c << " ";
         t << d << " " << e << " " << f << " " << s;
@@ -162,7 +162,7 @@ void QWSCalibratedMouseHandler::readCalibration()
     QString calFile = "/etc/pointercal";
 #ifndef QT_NO_TEXTSTREAM
     QFile file(calFile);
-    if (file.open(IO_ReadOnly)) {
+    if (file.open(QIODevice::ReadOnly)) {
         QTextStream t(&file);
         t >> a >> b >> c >> d >> e >> f >> s;
     } else

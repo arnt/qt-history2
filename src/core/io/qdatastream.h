@@ -14,6 +14,7 @@
 #ifndef QDATASTREAM_H
 #define QDATASTREAM_H
 
+#include "qiodevice.h"
 #include "qglobal.h"
 
 class QByteArray;
@@ -60,7 +61,10 @@ public:
 
     QDataStream();
     QDataStream(QIODevice *);
+#ifdef QT_COMPAT
     QDataStream(QByteArray *, int mode);
+#endif
+    QDataStream(QByteArray *, QIODevice::DeviceMode flags);
     QDataStream(const QByteArray &);
     virtual ~QDataStream();
 

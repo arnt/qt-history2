@@ -982,7 +982,7 @@ QFileInfo::permissions() const
     if the size is 0 or if the size cannot be fetched.
 */
 
-QIODevice::Offset
+Q_LONGLONG
 QFileInfo::size() const
 {
     if(!d->data->fileEngine)

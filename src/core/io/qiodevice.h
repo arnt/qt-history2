@@ -14,7 +14,11 @@
 #ifndef QIODEVICE_H
 #define QIODEVICE_H
 
-#include "qstring.h"
+#ifndef QT_NO_QOBJECT
+#include <QObject>
+#endif
+#include <QString>
+
 #include "qobjectdefs.h"
 
 #ifdef open
@@ -25,146 +29,165 @@ class QByteArray;
 class QIODevicePrivate;
 
 class Q_CORE_EXPORT QIODevice
+#ifndef QT_NO_QOBJECT
+    : public QObject
+#endif
 {
-    Q_DECLARE_PRIVATE(QIODevice)
+#ifndef QT_NO_QOBJECT
+    Q_OBJECT
+#endif
+public:
+    enum DeviceModeFlag {
+        NotOpen = 0x0000,
+        ReadOnly = 0x0001,
+        WriteOnly = 0x0002,
+        ReadWrite = ReadOnly | WriteOnly,
+        Append = 0x0004,
+        Truncate = 0x0008,
+        Translate = 0x0010
+    };
+    Q_DECLARE_FLAGS(DeviceMode, DeviceModeFlag)
 
+    QIODevice();
+#ifndef QT_NO_QOBJECT
+    QIODevice(QObject *parent);
+#endif
+    virtual ~QIODevice();
+
+    DeviceMode deviceMode() const;
+
+    bool isOpen() const;
+    bool isReadable() const;
+    bool isWritable() const;
+    virtual bool isSequential() const;
+
+    virtual bool open(DeviceMode mode);
+    virtual void close();
+    virtual bool flush();
+
+    virtual Q_LONGLONG pos() const;
+    virtual Q_LONGLONG size() const;
+    virtual bool seek(Q_LONGLONG pos);
+    virtual bool atEnd() const;
+    virtual bool reset();
+
+    virtual Q_LONGLONG bytesAvailable() const;
+    virtual Q_LONGLONG bytesToWrite() const;
+
+    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
+    QByteArray read(Q_LONGLONG maxlen);
+    QByteArray readAll();
+    Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
+    QByteArray readLine(Q_LONGLONG maxlen = 0);
+    bool getChar(char *c);
+
+    Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    Q_LONGLONG write(const QByteArray &data);
+    bool putChar(char c);
+
+    void ungetChar(char c);
+
+    QString errorString() const;
+
+#ifndef QT_NO_QOBJECT
+signals:
+    void readyRead();
+    void bytesWritten(Q_LONGLONG bytes);
+#endif
+
+protected:
+#ifdef QT_NO_QOBJECT
+    QIODevice(QIODevicePrivate &d);
+#else
+    QIODevice(QIODevicePrivate &d, QObject *parent);
+#endif
+
+    virtual Q_LONGLONG readData(char *data, Q_LONGLONG maxlen) = 0;
+    virtual Q_LONGLONG writeData(const char *data, Q_LONGLONG len) = 0;
+
+    void setDeviceMode(DeviceMode deviceMode);
+
+    void setErrorString(const QString &errorString);
+
+#ifdef QT_NO_QOBJECT
+    QIODevicePrivate *d_ptr;
+#endif
+
+private:
+    Q_DECLARE_PRIVATE(QIODevice)
+    Q_DISABLE_COPY(QIODevice)
+
+#ifdef QT_COMPAT
 public:
     typedef Q_LONGLONG Offset;
 
-    enum AccessType {
-        Direct = 0x0100,
-        Sequential = 0x0200,
-        Combined = Direct | Sequential,
-        TypeMask = 0x0f00
-    };
+    inline QT_COMPAT int flags() const { return (int) deviceMode(); }
+    inline QT_COMPAT int mode() const { return (int) deviceMode(); }
+    inline QT_COMPAT int state() const;
 
-    enum HandlingMode {
-        Raw = 0x0040,
-        Async = 0x0080
-    };
+    inline QT_COMPAT bool isDirectAccess() const { return !isSequential(); }
+    inline QT_COMPAT bool isSequentialAccess() const { return isSequential(); }
+    inline QT_COMPAT bool isCombinedAccess() const { return false; }
+    inline QT_COMPAT bool isBuffered() const { return true; }
+    inline QT_COMPAT bool isRaw() const { return false; }
+    inline QT_COMPAT bool isSynchronous() const { return true; }
+    inline QT_COMPAT bool isAsynchronous() const { return false; }
+    inline QT_COMPAT bool isTranslated() const { return (deviceMode() & Translate) != 0; }
+    inline QT_COMPAT bool isInactive() const { return !isOpen(); }
 
-    enum OpenMode {
-        ReadOnly = 0x0001,
-        WriteOnly = 0x0002,
-        ReadWrite = 0x0003,
-        Append = 0x0004,
-        Truncate = 0x0008,
-        Translate = 0x0010,
-        ModeMask = 0x00ff
-    };
+    QT_COMPAT int status() const;
+    QT_COMPAT void resetStatus();
 
-    QIODevice();
-    virtual ~QIODevice();
+    inline QT_COMPAT Offset at() const { return pos(); }
+    inline QT_COMPAT bool at(Offset offset) { return seek(offset); }
 
-    enum DeviceType { IOType_QFile, IOType_QBuffer, IOType_QAbstractSocket, IOType_Unknown = 30 };
-    virtual DeviceType deviceType() const { return IOType_Unknown; }
+    inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen) { return read(data, maxlen); }
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_ULONG len) { return write(data, len); }
+    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data) { return write(data); }
 
-    int flags() const;
-    inline int mode() const { return flags() & ModeMask; }
-
-    inline bool isDirectAccess() const { return (flags() & Direct) == Direct; }
-    inline bool isSequentialAccess() const { return (flags() & Sequential) == Sequential; }
-    inline bool isCombinedAccess() const { return (flags() & Combined) == Combined; }
-    inline bool isBuffered() const { return (flags() & Raw) != Raw; }
-    inline bool isRaw() const { return (flags() & Raw) == Raw; }
-    inline bool isSynchronous() const { return (flags() & Async) != Async; }
-    inline bool isAsynchronous() const { return (flags() & Async) == Async; }
-    inline bool isTranslated() const { return (flags() & Translate) == Translate; }
-    inline bool isReadable() const { return (flags() & ReadOnly) == ReadOnly; }
-    inline bool isWritable() const { return (flags() & WriteOnly) == WriteOnly; }
-    inline bool isReadWrite() const { return (flags() & ReadWrite) == ReadWrite; }
-    inline bool isInactive() const { return !isOpen(); }
-    virtual bool isOpen() const = 0;
-
-    virtual inline bool open(int) { return false; }
-    virtual void close() = 0;
-    virtual inline void flush() { }
-
-    virtual Q_LONGLONG size() const = 0;
-    virtual Q_LONGLONG at() const = 0;
-    virtual bool seek(Q_LONGLONG off) = 0;
-    virtual inline bool atEnd() const { return at() == size(); }
-    inline bool reset() { return seek(0); }
-
-    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen) = 0;
-    inline QByteArray read(Q_LONGLONG maxlen)
-    { QByteArray ret; ret.resize(maxlen); Q_LONGLONG r = read(ret.data(), maxlen); ret.resize(r > 0 ? r : 0); return ret; }
-    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len) = 0;
-    inline Q_LONGLONG write(const QByteArray &data) { return write(data.constData(), data.size()); }
-    virtual Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
-    virtual QByteArray readLine();
-    virtual QByteArray readAll();
-
-#ifdef QT_COMPAT
-    enum State {
-        Open = 0x1000,
-        StateMask = 0xf000
-    };
-    inline QT_COMPAT int state() const { return isOpen() ? Open : 0; }
-    inline QT_COMPAT bool at(Q_LONGLONG off) { return seek(off); }
-    inline QT_COMPAT Q_LONG readBlock(char *data, Q_LONG maxlen)
-    { return read(data, maxlen); }
-    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG maxlen)
-    { return write(data, maxlen); }
-    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data)
-    { return write(data); }
+    inline QT_COMPAT int getch() { char c; return getChar(&c) ? int(c) : -1; }
+    inline QT_COMPAT int putch(int c) { return putChar(c) ? int(c) : -1; }
+    inline QT_COMPAT int ungetch(int c) { ungetChar(c); return c; }
 #endif
-
-    virtual int getch();
-    virtual int putch(int character);
-    virtual int ungetch(int character) = 0;
-
-protected:
-    QIODevice(QIODevicePrivate &d);
-
-    void setFlags(int);
-    void setType(int);
-    void setMode(int);
-
-    QIODevicePrivate *d_ptr;
-
-private:
-    Q_DISABLE_COPY(QIODevice)
 };
 
-template <typename T>
-T qt_cast(const QIODevice *device)
-{
-    Q_ASSERT(device->deviceType() != QIODevice::IOType_Unknown);
-    if(static_cast<T>(0)->castDeviceType() == device->deviceType())
-        return static_cast<T>(device);
-    return 0;
-}
-
-template <typename T>
-T qt_cast(QIODevice *device)
-{
-    Q_ASSERT(device->deviceType() != QIODevice::IOType_Unknown);
-    if(static_cast<T>(0)->castDeviceType() == device->deviceType())
-        return static_cast<T>(device);
-    return 0;
-}
+Q_DECLARE_OPERATORS_FOR_FLAGS(QIODevice::DeviceMode)
 
 #ifdef QT_COMPAT
-// QIODevice::AccessType 
-#  define IO_Direct QIODevice::Direct
-#  define IO_Sequential QIODevice::Sequential
-#  define IO_Combined QIODevice::Combined
-#  define IO_TypeMask QIODevice::TypeMask
-// QIODevice::HandlingMode
-#  define IO_Raw QIODevice::Raw
-#  define IO_Async QIODevice::Async
-// QIODevice::OpenMode
-#  define IO_ReadOnly QIODevice::ReadOnly
-#  define IO_WriteOnly QIODevice::WriteOnly
-#  define IO_ReadWrite QIODevice::ReadWrite
-#  define IO_Append QIODevice::Append
-#  define IO_Truncate QIODevice::Truncate
-#  define IO_Translate QIODevice::Translate
-#  define IO_ModeMask QIODevice::ModeMask
-// QIODevice::State
-#  define IO_Open QIODevice::Open
-#  define IO_StateMask QIODevice::StateMask
-#endif
+static QT_COMPAT const uint IO_Direct = 0x0100;
+static QT_COMPAT const uint IO_Sequential = 0x0200;
+static QT_COMPAT const uint IO_Combined = 0x0300;
+static QT_COMPAT const uint IO_TypeMask = 0x0300;
 
+static QT_COMPAT const uint IO_Raw = 0x0000;
+static QT_COMPAT const uint IO_Async = 0x0000;
+
+#define IO_ReadOnly QIODevice::ReadOnly
+#define IO_WriteOnly QIODevice::WriteOnly
+#define IO_ReadWrite QIODevice::ReadWrite
+#define IO_Append QIODevice::Append
+#define IO_Truncate QIODevice::Truncate
+#define IO_Translate QIODevice::Translate
+#define IO_ModeMask 0x00ff
+
+static QT_COMPAT const uint IO_Open = 0x1000;
+static QT_COMPAT const uint IO_StateMask = 0xf000;
+
+static QT_COMPAT const uint IO_Ok = 0;
+static QT_COMPAT const uint IO_ReadError = 1;
+static QT_COMPAT const uint IO_WriteError = 2;
+static QT_COMPAT const uint IO_FatalError = 3;
+static QT_COMPAT const uint IO_ResourceError = 4;
+static QT_COMPAT const uint IO_OpenError = 5;
+static QT_COMPAT const uint IO_ConnectError = 5;
+static QT_COMPAT const uint IO_AbortError = 6;
+static QT_COMPAT const uint IO_TimeOutError = 7;
+static QT_COMPAT const uint IO_UnspecifiedError	= 8;
+
+inline QT_COMPAT int QIODevice::state() const
+{
+    return isOpen() ? 0x1000 : 0;
+}
+#endif
 #endif // QIODEVICE_H
+

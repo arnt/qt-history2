@@ -1133,19 +1133,19 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
     }
 
     char *data = line.data();
-    int ch, ch2;
+    char ch, ch2;
     int pos = 0;
 
     equalsCharPos = -1;
 
-    while ((ch = device.getch()) != -1) {
+    while (device.getChar(&ch)) {
     process_ch:
         MAYBE_GROW();
 
         switch (ch) {
         case '"':
             data[pos++] = '"';
-            while ((ch = device.getch()) != '"') {
+            while (!device.getChar(&ch) || ch != '"') {
                 MAYBE_GROW();
 
                 if (ch == -1)
@@ -1153,8 +1153,7 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
 
                 if (ch == '\\') {
                     data[pos++] = '\\';
-                    ch = device.getch();
-                    if (ch == -1)
+                    if (!device.getChar(&ch))
                         goto end;
                 }
                 data[pos++] = ch;
@@ -1175,23 +1174,20 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
                 CR+LF, or LF+CR. In practice, this is irrelevant and
                 the ungetch() call is expensive, so let's not do it.
             */
-            ch2 = device.getch();
-            if (ch2 == -1)
+            if (!device.getChar(&ch2))
                 goto end;
             if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
-                device.ungetch(ch2);
+                device.ungetChar(ch2);
 #endif
             if (pos > 0)
                 goto end;
             break;
         case '\\':
-            ch = device.getch();
-            if (ch == -1)
+            if (!device.getChar(&ch))
                 goto end;
 
             if (ch == '\n' || ch == '\r') {
-                ch2 = device.getch();
-                if (ch2 != -1) {
+                if (!device.getChar(&ch2)) {
                     if ((ch2 != '\n' && ch2 != '\r') || ch == ch2) {
                         ch = ch2;
                         goto process_ch;
@@ -1203,7 +1199,7 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
             }
             break;
         case ';':
-            while ((ch = device.getch()) != -1) {
+            while (device.getChar(&ch)) {
                 if (ch == '\n' || ch == '\r')
                     goto process_newline;
             }

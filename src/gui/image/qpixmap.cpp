@@ -794,7 +794,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
 {
     QByteArray a = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), len);
     QBuffer b(&a);
-    b.open(IO_ReadOnly);
+    b.open(QIODevice::ReadOnly);
     QImageIO io(&b, format);
     bool result = io.read();
     b.close();
@@ -844,7 +844,7 @@ bool QPixmap::save(const QString &fileName, const char *format, int quality) con
     QPixmap pixmap;
     QByteArray ba;
     QBuffer buffer(ba);
-    buffer.open(IO_WriteOnly);
+    buffer.open(QIODevice::WriteOnly);
     pixmap.save(&buffer, "PNG"); // writes pixmap into ba in PNG format
     \endcode
 */

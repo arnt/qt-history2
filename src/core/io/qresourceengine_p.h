@@ -33,10 +33,10 @@ public:
     virtual bool open(int flags) ;
     virtual bool close();
     virtual void flush();
-    virtual QIODevice::Offset size() const;
-    virtual QIODevice::Offset at() const;
+    virtual Q_LONGLONG size() const;
+    virtual Q_LONGLONG at() const;
     virtual bool atEnd() const;
-    virtual bool seek(QIODevice::Offset);
+    virtual bool seek(Q_LONGLONG);
     virtual int ungetch(int);
     virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
@@ -54,7 +54,7 @@ public:
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
 
-    virtual bool setSize(QIODevice::Offset size);
+    virtual bool setSize(Q_LONGLONG size);
 
     virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const;
 

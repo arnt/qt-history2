@@ -577,7 +577,7 @@ struct QWSSetIMFontCommand : public QWSCommand
     void setFont(const QFont & f)
     {
         QByteArray tmp;
-        QDataStream s(&tmp, IO_WriteOnly);
+        QDataStream s(&tmp, QIODevice::WriteOnly);
         s << f;
         setData(tmp.data(), tmp.size(), true);
     }

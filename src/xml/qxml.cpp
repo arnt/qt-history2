@@ -1094,7 +1094,7 @@ void QXmlInputSource::fetchData()
         if (inputDevice->isOpen() || inputDevice->open(QIODevice::ReadOnly) )
             rawData = inputDevice->readAll();
     } else if (inputStream != 0) {
-        if (inputStream->device()->isDirectAccess()) {
+        if (!inputStream->device()->isSequential()) {
             rawData = inputStream->device()->readAll();
         } else {
             int nread = 0;

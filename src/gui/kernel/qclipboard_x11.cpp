@@ -1277,7 +1277,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
             }
             XFreeGC(dpy,gc);
             QBuffer buf;
-            buf.open(IO_WriteOnly);
+            buf.open(QIODevice::WriteOnly);
             iio.setIODevice(&buf);
             iio.write();
             return buf.buffer();

@@ -459,7 +459,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
     d->unmapLength = f.size();
     d->unmapPointer = new char[d->unmapLength];
     bool ok = false;
-    if (f.open(IO_ReadOnly)) {
+    if (f.open(QIODevice::ReadOnly)) {
         ok = d->unmapLength == (uint)f.read(d->unmapPointer, d->unmapLength);
         f.close();
     }
@@ -493,7 +493,7 @@ bool QTranslator::do_load(const uchar *data, int len)
     }
 
     QByteArray array = QByteArray::fromRawData((const char *) data, len);
-    QDataStream s(&array, IO_ReadOnly);
+    QDataStream s(&array, QIODevice::ReadOnly);
     bool ok = true;
 
     s.device()->seek(MagicLength);
@@ -502,20 +502,20 @@ bool QTranslator::do_load(const uchar *data, int len)
     Q_UINT32 blockLen = 0;
     s >> tag >> blockLen;
     while (tag && blockLen) {
-        if ((Q_UINT32) s.device()->at() + blockLen > (Q_UINT32) len) {
+        if ((Q_UINT32) s.device()->pos() + blockLen > (Q_UINT32) len) {
             ok = false;
             break;
         }
 
         if (tag == QTranslatorPrivate::Contexts) {
-            d->contextArray = QByteArray(array.constData() + s.device()->at(), blockLen);
+            d->contextArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
         } else if (tag == QTranslatorPrivate::Hashes) {
-            d->offsetArray = QByteArray(array.constData() + s.device()->at(), blockLen);
+            d->offsetArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
         } else if (tag == QTranslatorPrivate::Messages) {
-            d->messageArray = QByteArray(array.constData() + s.device()->at(), blockLen);
+            d->messageArray = QByteArray(array.constData() + s.device()->pos(), blockLen);
         }
 
-        if (!s.device()->seek(s.device()->at() + blockLen)) {
+        if (!s.device()->seek(s.device()->pos() + blockLen)) {
             ok = false;
             break;
         }
@@ -544,7 +544,7 @@ bool QTranslator::save(const QString & filename, SaveMode mode)
 {
     Q_D(QTranslator);
     QFile f(filename);
-    if (f.open(IO_WriteOnly)) {
+    if (f.open(QIODevice::WriteOnly)) {
         squeeze(mode);
 
         QDataStream s(&f);
@@ -633,7 +633,7 @@ void QTranslator::squeeze(SaveMode mode)
 
     QMap<QTranslatorPrivate::Offset, void *> offsets;
 
-    QDataStream ms(&d->messageArray, IO_WriteOnly);
+    QDataStream ms(&d->messageArray, QIODevice::WriteOnly);
     QMap<QTranslatorMessage, void *>::const_iterator it, next;
     int cpPrev = 0, cpNext = 0;
     for (it = messages.constBegin(); it != messages.constEnd(); ++it) {
@@ -644,13 +644,13 @@ void QTranslator::squeeze(SaveMode mode)
             cpNext = 0;
         else
             cpNext = (int) it.key().commonPrefix(next.key());
-        offsets.insert(QTranslatorPrivate::Offset(it.key(), ms.device()->at()), (void *)0);
+        offsets.insert(QTranslatorPrivate::Offset(it.key(), ms.device()->pos()), (void *)0);
         it.key().write(ms, mode == Stripped, (QTranslatorMessage::Prefix)qMax(cpPrev, cpNext + 1));
     }
 
     QMap<QTranslatorPrivate::Offset, void *>::Iterator offset;
     offset = offsets.begin();
-    QDataStream ds(&d->offsetArray, IO_WriteOnly);
+    QDataStream ds(&d->offsetArray, QIODevice::WriteOnly);
     while (offset != offsets.end()) {
         QTranslatorPrivate::Offset k = offset.key();
         ++offset;
@@ -698,7 +698,7 @@ void QTranslator::squeeze(SaveMode mode)
           empty string.
         */
         d->contextArray.resize(2 + (hTableSize << 1));
-        QDataStream t(&d->contextArray, IO_WriteOnly);
+        QDataStream t(&d->contextArray, QIODevice::WriteOnly);
 
         Q_UINT16 *hTable = new Q_UINT16[hTableSize];
         memset(hTable, 0, hTableSize * sizeof(Q_UINT16));
@@ -756,7 +756,7 @@ void QTranslator::unsqueeze()
     if (!d->messages.isEmpty() || d->messageArray.isEmpty())
         return;
 
-    QDataStream s(&d->messageArray, IO_ReadOnly);
+    QDataStream s(&d->messageArray, QIODevice::ReadOnly);
     for (;;) {
         QTranslatorMessage m(s);
         if (m.hash() == 0)

@@ -176,9 +176,9 @@ MakefileGenerator::initOutPaths()
                 int slash = path.lastIndexOf(Option::dir_sep);
                 if(slash != -1) {
                     path = path.left(slash);
-                    if(path != "." && 
+                    if(path != "." &&
                        !createDir(fileFixify(path, QDir::currentPath(), Option::output_dir)))
-                        warn_msg(WarnLogic, "%s: Cannot access directory '%s'", 
+                        warn_msg(WarnLogic, "%s: Cannot access directory '%s'",
                                  (*it).latin1(), path.latin1());
                 }
             }
@@ -1327,14 +1327,14 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
     QString clean_targets;
     const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = fileFixify(project->variables()[(*it) + ".output"].first(), 
+        QString tmp_out = fileFixify(project->variables()[(*it) + ".output"].first(),
                                      Option::output_dir, Option::output_dir);
         QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
         QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
         QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
         if(!tmp_dep_cmd.isEmpty()) {
             QString argv0 = Option::fixPathToLocalOS(tmp_dep_cmd.split(' ').first());
-            if(!QFile::exists(argv0)) 
+            if(!QFile::exists(argv0))
                 tmp_dep_cmd = QString();
         }
         QStringList &vars = project->variables()[(*it) + ".variables"];
@@ -1608,7 +1608,7 @@ MakefileGenerator::writeHeader(QTextStream &t)
     t << "# Project:  " << fileFixify(project->projectFile()) << endl;
     t << "# Template: " << var("TEMPLATE") << endl;
     if(!project->isActiveConfig("build_pass"))
-        t << "# Command: " << build_args().replace("$(QMAKE)", 
+        t << "# Command: " << build_args().replace("$(QMAKE)",
                       project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "#############################################################################" << endl;
     t << endl;

@@ -4367,10 +4367,9 @@ QPSPrintEngineFont::QPSPrintEngineFont(QFontEngine *engine, QPSPrintEnginePrivat
                     fontmapname = (*it) + "/fonts.dir";
                 //qWarning(fontmapname);
                 QFile fontmap(fontmapname);
-                if (fontmap.open(IO_ReadOnly)) {
+                if (fontmap.open(QIODevice::ReadOnly)) {
                     while (!fontmap.atEnd()) {
-                        QString mapping;
-                        fontmap.readLine(mapping,512);
+                        QString mapping = fontmap.readLine(512);
                         // fold to lower (since X folds to lowercase)
                         //qWarning(xfontname);
                         //qWarning(mapping);
@@ -4407,7 +4406,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(QFontEngine *engine, QPSPrintEnginePrivat
             data = QByteArray();
             data.resize(fontfile.size());
 
-            fontfile.open(IO_Raw | IO_ReadOnly);
+            fontfile.open(QIODevice::ReadOnly);
             fontfile.read(data.data(), fontfile.size());
             fontfile.close();
         }
@@ -4541,10 +4540,9 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
                 if (!f.exists())
                     f.setFileName("/usr/X11/lib/X11/fs/config");
                 if (f.exists()) {
-                    f.open(IO_ReadOnly);
+                    f.open(QIODevice::ReadOnly);
                     while (f.error()==IO_Ok && !finished) {
-                        QString fs;
-                        f.readLine(fs, 1024);
+                        QString fs = f.readLine(1024);
                         fs=fs.trimmed();
                         if (fs.left(9)=="catalogue" && fs.contains('=')) {
                             fs = fs.mid(fs.indexOf('=') + 1).trimmed();
@@ -4556,7 +4554,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
                                     end = true;
                                 if (fs[0] != '#' && !fs.contains(":unscaled"))
                                     fontpath += fs;
-                                f.readLine(fs, 1024);
+                                fs = f.readLine(1024);
                                 fs=fs.trimmed();
                                 if (fs.isEmpty())
                                     end = true;
@@ -5334,11 +5332,11 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();
-    d->buffer->open(IO_WriteOnly);
+    d->buffer->open(QIODevice::WriteOnly);
     d->outStream.setEncoding(QTextStream::Latin1);
     d->outStream.setDevice(d->buffer);
     d->fontBuffer = new QBuffer();
-    d->fontBuffer->open(IO_WriteOnly);
+    d->fontBuffer->open(QIODevice::WriteOnly);
     d->fontStream.setEncoding(QTextStream::Latin1);
     d->fontStream.setDevice(d->fontBuffer);
     d->headerFontNumber = 0;
@@ -5664,7 +5662,7 @@ bool QPSPrintEngine::newPage()
     if (d->pageBuffer)
         delete d->pageBuffer;
     d->pageBuffer = new QBuffer();
-    d->pageBuffer->open(IO_WriteOnly);
+    d->pageBuffer->open(QIODevice::WriteOnly);
     d->pageStream.setEncoding(QTextStream::Latin1);
     d->pageStream.setDevice(d->pageBuffer);
     delete d->savedImage;

@@ -63,7 +63,7 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
     d->s.setDevice(&pic_d->pictb);
     d->s.setVersion(pic_d->formatMajor);
 
-    pic_d->pictb.open(IO_WriteOnly | IO_Truncate);
+    pic_d->pictb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     d->s.writeRawData(qt_mfhdr_tag, 4);
     d->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
     d->s << (Q_UINT8) PdcBegin << (Q_UINT8) sizeof(Q_INT32);
@@ -88,7 +88,7 @@ bool QPicturePaintEngine::end()
     int cs_start = sizeof(Q_UINT32);                // pos of checksum word
     int data_start = cs_start + sizeof(Q_UINT16);
     int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
-    int pos = pic_d->pictb.at();
+    int pos = pic_d->pictb.pos();
     pic_d->pictb.seek(brect_start);
     if (pic_d->formatMajor >= 4) { // bounding rectangle
         QRect r = pic_d->brect;
@@ -109,7 +109,7 @@ bool QPicturePaintEngine::end()
     pic_d->trecs++; \
     d->s << (Q_UINT8) c; \
     d->s << (Q_UINT8) 0; \
-    pos = pic_d->pictb.at()
+    pos = pic_d->pictb.pos()
 
 void QPicturePaintEngine::updatePen(const QPen &pen)
 {
@@ -174,7 +174,7 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
 
 void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
 {
-    int newpos = pic_d->pictb.at();                // new position
+    int newpos = pic_d->pictb.pos();                // new position
     int length = newpos - pos;
     QRect br = r.toRect();
 

@@ -145,7 +145,7 @@ void QRegion::detach()
 void QRegion::exec(const QByteArray &buffer, int ver)
 {
     QByteArray copy = buffer;
-    QDataStream s(&copy, IO_ReadOnly);
+    QDataStream s(&copy, QIODevice::ReadOnly);
     if (ver)
         s.setVersion(ver);
     QRegion rgn;

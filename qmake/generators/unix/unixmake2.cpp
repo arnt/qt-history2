@@ -653,9 +653,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!destdir.isEmpty())
             t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
         t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
-          << "@sed -e \"s,@ICON@," << icon.section(Option::dir_sep, -1) 
+          << "@sed -e \"s,@ICON@," << icon.section(Option::dir_sep, -1)
           << ",g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") << ",g\" "
-          << "-e \"s,@TYPEINFO@," 
+          << "-e \"s,@TYPEINFO@,"
           << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
           << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
         //copy the icon

@@ -73,13 +73,53 @@ public:
     Constructs an empty buffer.
 */
 
-QBuffer::QBuffer() : QIODevice(*new QBufferPrivate)
+#ifdef QT_NO_QOBJECT
+QBuffer::QBuffer()
+    : QIODevice(*new QBufferPrivate)
 {
     Q_D(QBuffer);
     d->buf = &d->defaultBuf;
-    setFlags(QIODevice::Direct);
 }
-
+QBuffer::QBuffer(QByteArray *a)
+    : QIODevice(*new QBufferPrivate)
+{
+    Q_D(QBuffer);
+    d->buf = a;
+}
+QBuffer::QBuffer(QIODevicePrivate &dd)
+    : QIODevice(dd)
+{
+}
+#else
+QBuffer::QBuffer()
+    : QIODevice(*new QBufferPrivate, 0)
+{
+    Q_D(QBuffer);
+    d->buf = &d->defaultBuf;
+}
+QBuffer::QBuffer(QByteArray *a)
+    : QIODevice(*new QBufferPrivate, 0)
+{
+    Q_D(QBuffer);
+    d->buf = a;
+}
+QBuffer::QBuffer(QObject *parent)
+    : QIODevice(*new QBufferPrivate, parent)
+{
+    Q_D(QBuffer);
+    d->buf = &d->defaultBuf;
+}
+QBuffer::QBuffer(QByteArray *a, QObject *parent)
+    : QIODevice(*new QBufferPrivate, parent)
+{
+    Q_D(QBuffer);
+    d->buf = a;
+}
+QBuffer::QBuffer(QIODevicePrivate &dd, QObject *parent)
+    : QIODevice(dd, parent)
+{
+}
+#endif
 
 /*!
     Constructs a buffer that operates on QByteArray \a a.
@@ -102,12 +142,7 @@ QBuffer::QBuffer() : QIODevice(*new QBufferPrivate)
     \sa setBuffer()
 */
 
-QBuffer::QBuffer(QByteArray *a) : QIODevice(*new QBufferPrivate)
-{
-    Q_D(QBuffer);
-    d->buf = a;
-    setFlags(QIODevice::Direct);
-}
+
 
 /*!
     Destroys the buffer.
@@ -175,35 +210,26 @@ void QBuffer::setData(const QByteArray &data)
 /*!
    \reimp
 */
-bool QBuffer::open(int mode)
+bool QBuffer::open(DeviceMode flags)
 {
     Q_D(QBuffer);
-    if(mode & (Append|WriteOnly)) //append implies write
-        mode |= WriteOnly;
-    setFlags(QIODevice::Direct);
-    setMode(mode);
+
+    if ((flags & Append) == Append)
+        flags |= WriteOnly;
+    setDeviceMode(flags);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
         return false;
     }
 
-    if (mode & QIODevice::Truncate)
+    if ((flags & QIODevice::Truncate) == QIODevice::Truncate)
         d->buf->resize(0);
-    if (mode & QIODevice::Append)                       // append to end of buffer
+    if ((flags & QIODevice::Append) == QIODevice::Append) // append to end of buffer
         d->ioIndex = d->buf->size();
     else
         d->ioIndex = 0;
-    setMode(mode);
-    d->isOpen = true;
-    return true;
-}
 
-/*! \reimp
-*/
-bool QBuffer::isOpen() const
-{
-    Q_D(const QBuffer);
-    return d->isOpen;
+    return true;
 }
 
 /*!
@@ -247,7 +273,7 @@ void QBuffer::close()
   \reimp
 */
 
-Q_LONGLONG QBuffer::at() const
+Q_LONGLONG QBuffer::pos() const
 {
     Q_D(const QBuffer);
     if (!isOpen())
@@ -286,11 +312,26 @@ bool QBuffer::seek(Q_LONGLONG pos)
     return true;
 }
 
+
+/*!
+  \reimp
+*/
+bool QBuffer::atEnd() const
+{
+    if (!isOpen()) {
+        qWarning("QBuffer::atEnd: IODevice is not open");
+        return false;
+    }
+
+    QBuffer *that = const_cast<QBuffer *>(this);
+    return that->d_func()->ioIndex == that->d_func()->buf->size();
+}
+
 /*!
   \reimp
 */
 
-Q_LONGLONG QBuffer::read(char *data, Q_LONGLONG len)
+Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
     if (len <= 0) // nothing to do
@@ -321,7 +362,7 @@ Q_LONGLONG QBuffer::read(char *data, Q_LONGLONG len)
   \reimp
 */
 
-Q_LONGLONG QBuffer::write(const char *data, Q_LONGLONG len)
+Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
     if (len <= 0) // nothing to do
@@ -346,77 +387,4 @@ Q_LONGLONG QBuffer::write(const char *data, Q_LONGLONG len)
     memcpy(d->buf->data() + d->ioIndex, (uchar *)data, len);
     d->ioIndex += len;
     return len;
-}
-
-/*!
-  \reimp
-*/
-
-int QBuffer::getch()
-{
-    Q_D(QBuffer);
-    if ( !isOpen() ) {                          // buffer not open
-        qWarning( "QBuffer::getch: Buffer not open" );
-        return -1;
-    }
-    if ( !isReadable() ) {                      // reading not permitted
-        qWarning( "QBuffer::getch: Read operation not permitted" );
-        return -1;
-    }
-
-    if ( d->ioIndex+1 > d->buf->size() )  // overflow
-        return -1;
-    return uchar(*(d->buf->data()+d->ioIndex++));
-}
-
-/*!
-  \reimp
-*/
-
-int QBuffer::putch(int character)
-{
-    Q_D(QBuffer);
-    if ( !isOpen() ) {                          // buffer not open
-        qWarning( "QBuffer::putch: Buffer not open" );
-        return -1;
-    }
-    if ( !isWritable() ) {                      // writing not permitted
-        qWarning( "QBuffer::putch: Write operation not permitted" );
-        return -1;
-    }
-
-    if ( d->ioIndex + 1 > d->buf->size() ) {                // overflow
-        char tmp = (char)character;
-        if ( write(&tmp,1) != 1 )
-            return -1;                          // write error
-    } else {
-        *(d->buf->data() + d->ioIndex++) = (char)character;
-    }
-    return character;
-
-}
-
-/*!
-  \reimp
-*/
-
-int QBuffer::ungetch(int character)
-{
-    Q_D(QBuffer);
-    if ( !isOpen() ) {                          // buffer not open
-        qWarning( "QBuffer::ungetch: Buffer not open" );
-        return -1;
-    }
-    if ( !isReadable() ) {                      // reading not permitted
-        qWarning( "QBuffer::ungetch: Read operation not permitted" );
-        return -1;
-    }
-
-    if ( character != -1 ) {
-        if ( d->ioIndex )
-            d->ioIndex--;
-        else
-            character = -1;
-    }
-    return character;
 }

@@ -340,7 +340,7 @@ QTextStream::QTextStream(QIODevice *iod)
     readRawBytes() or writeRawBytes() on such a stream.
 */
 
-QTextStream::QTextStream(QString *str, int)
+QTextStream::QTextStream(QString *str, QIODevice::DeviceMode)
 {
     init();
 
@@ -384,13 +384,13 @@ QTextStream::QTextStream(QString *str, int)
     \endcode
 */
 
-QTextStream::QTextStream(QByteArray *a, int mode)
+QTextStream::QTextStream(QByteArray *a, QIODevice::DeviceMode flags)
 {
     init();
 
     Q_D(QTextStream);
     QBuffer *buf = new QBuffer(a);
-    buf->open(mode);
+    buf->open(flags);
     d->dev = buf;
     d->owndev = true;
     setEncoding(Latin1); //### Locale???
@@ -408,14 +408,14 @@ QTextStream::QTextStream(QByteArray *a, int mode)
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
     is created to wrap the byte array.
 */
-QTextStream::QTextStream(const QByteArray &a, int mode)
+QTextStream::QTextStream(const QByteArray &a, QIODevice::DeviceMode flags)
 {
     init();
 
     Q_D(QTextStream);
     QBuffer *buf = new QBuffer;
     buf->setData(a);
-    buf->open(mode);
+    buf->open(flags);
     d->dev = buf;
     d->owndev = true;
     setEncoding(Latin1); //### Locale???
@@ -438,14 +438,14 @@ QTextStream::QTextStream(const QByteArray &a, int mode)
     crashes.
 */
 
-QTextStream::QTextStream(FILE *fh, int mode)
+QTextStream::QTextStream(FILE *fh, QIODevice::DeviceMode flags)
 {
     init();
 
     Q_D(QTextStream);
     setEncoding(Locale); //###
     d->dev = new QFile;
-    ((QFile *)d->dev)->open(mode, fh);
+    ((QFile *)d->dev)->open(flags, fh);
     d->owndev = true;
     reset();
     d->sourceType = QTextStreamPrivate::File;
@@ -573,36 +573,34 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 
     if (doUnicodeHeader) {
         doUnicodeHeader = false; // only at the top
-        int c1 = dev->getch();
-        if (c1 == EOF) {
+        unsigned char c1;
+        if (!dev->getChar((char *)&c1)) {
             if(l)
                 *l = rnum;
             return QTextStreamPrivate::TS_END_OF_INPUT;
         }
-        int c2 = dev->getch();
-        if (c1 == (int)0xfe && c2 == (int)0xff) {
+        unsigned char c2;
+        if (!dev->getChar((char *)&c2)) {
+            /*
+              A small bug might hide here. If only the first byte
+              of a file has made it so far, and that first byte
+              is half of the byte-order mark, then the utfness
+              will not be detected. --Sam
+            */
+            dev->ungetChar(c1);
+        } else if (c1 == 0xfe && c2 == 0xff) {
             mapper = 0;
             latin1 = false;
             internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
             networkOrder = true;
-        } else if (c1 == (int)0xff && c2 == (int)0xfe) {
+        } else if (c1 == 0xff && c2 == 0xfe) {
             mapper = 0;
             latin1 = false;
             internalOrder = (QSysInfo::ByteOrder != QSysInfo::BigEndian);
             networkOrder = false;
         } else {
-            if (c2 != EOF) {
-                dev->ungetch(c2);
-                dev->ungetch(c1);
-            } else {
-                /*
-                  A small bug might hide here. If only the first byte
-                  of a file has made it so far, and that first byte
-                  is half of the byte-order mark, then the utfness
-                  will not be detected. --Sam
-                */
-                dev->ungetch(c1);
-            }
+            dev->ungetChar(c2);
+            dev->ungetChar(c1);
         }
     }
 
@@ -774,24 +772,24 @@ void QTextStreamPrivate::ts_putc(QChar c)
 #endif
     if (latin1) {
         if (c.row())
-            dev->putch('?'); // unknown character
+            dev->putChar('?'); // unknown character
         else
-            dev->putch(c.cell());
+            dev->putChar(c.cell());
     } else {
         if (doUnicodeHeader) {
             doUnicodeHeader = false;
-            if (!dev->isSequentialAccess() && dev->at() == 0)
+            if (!dev->isSequential() && dev->pos() == 0)
                 ts_putc(QChar::ByteOrderMark);
         }
         if (internalOrder) {
             // this case is needed by QStringBuffer
             dev->write((char*)&c, sizeof(QChar));
         } else if (networkOrder) {
-            dev->putch(c.row());
-            dev->putch(c.cell());
+            dev->putChar(c.row());
+            dev->putChar(c.cell());
         } else {
-            dev->putch(c.cell());
-            dev->putch(c.row());
+            dev->putChar(c.cell());
+            dev->putChar(c.row());
         }
     }
 }
@@ -905,7 +903,7 @@ QTextStream &QTextStreamPrivate::write(const char* p, uint len)
     //from device
     if (doUnicodeHeader) {
         doUnicodeHeader = false;
-        if (!mapper && !latin1 && !dev->isSequentialAccess() && dev->at() == 0)
+        if (!mapper && !latin1 && !dev->isSequential() && dev->pos() == 0)
             ts_putc(QChar::ByteOrderMark);
     }
     // QByteArray and const char * are treated as Latin1
@@ -961,7 +959,7 @@ QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
     } else if (internalOrder) {
         if (doUnicodeHeader) {
             doUnicodeHeader = false;
-            if (!dev->isSequentialAccess() && dev->at() == 0)
+            if (!dev->isSequential() && dev->pos() == 0)
                 ts_putc(QChar::ByteOrderMark);
         }
         dev->write((char*)p, sizeof(QChar)*len);

@@ -17,18 +17,24 @@
 #include "qiodevice.h"
 #include "qbytearray.h"
 
+class QObject;
 class QBufferPrivate;
 
 class Q_CORE_EXPORT QBuffer : public QIODevice
 {
+#ifndef QT_NO_QOBJECT
+    Q_OBJECT
+#endif
     Q_DECLARE_PRIVATE(QBuffer)
+
 public:
     QBuffer();
     QBuffer(QByteArray *buf);
+#ifndef QT_NO_QOBJECT
+    QBuffer(QObject *parent);
+    QBuffer(QByteArray *buf, QObject *parent);
+#endif
     ~QBuffer();
-
-    virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
-    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOType_QBuffer; }
 
     QByteArray &buffer();
     const QByteArray &buffer() const;
@@ -36,25 +42,23 @@ public:
     void setData(const QByteArray &data);
     inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
 
-#ifdef QT_COMPAT
-#if !defined(Q_NO_USING_KEYWORD)
-    using QIODevice::at;
+    bool open(DeviceMode deviceMode);
+
+    void close();
+    Q_LONGLONG size() const;
+    Q_LONGLONG pos() const;
+    bool seek(Q_LONGLONG off);
+    bool atEnd() const;
+
+protected:
+#ifdef QT_NO_QOBJECT
+    QBuffer(QIODevicePrivate &dd);
 #else
-    inline QT_COMPAT bool at(Q_LONGLONG off) { return QIODevice::at(off); }
-#endif
+    QBuffer(QIODevicePrivate &dd, QObject *parent);
 #endif
 
-    bool isOpen() const;
-    virtual bool open(int mode);
-    virtual void close();
-    virtual Q_LONGLONG size() const;
-    virtual Q_LONGLONG at() const;
-    virtual bool seek(Q_LONGLONG off);
-    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
-    virtual int getch();
-    virtual int putch(int character);
-    virtual int ungetch(int character);
+    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
 
 private:
     Q_DISABLE_COPY(QBuffer)

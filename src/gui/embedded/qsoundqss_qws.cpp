@@ -305,7 +305,7 @@ void QWSSoundServerPrivate::timerEvent(QTimerEvent* event)
 void QWSSoundServerPrivate::playFile(const QString& filename)
 {
         QFile* f = new QFile(filename);
-        if (f->open(IO_ReadOnly)) {
+        if (f->open(QIODevice::ReadOnly)) {
             if (openDevice())
                 active.append(new QWSSoundServerBucket(f));
             else

@@ -49,26 +49,22 @@ namespace Qt {
 class QHostAddress;
 class QAbstractSocketPrivate;
 
-class QM_EXPORT_NETWORK QAbstractSocket : public QObject, public QIODevice
+class QM_EXPORT_NETWORK QAbstractSocket : public QIODevice
 {
     Q_OBJECT
 public:
     QAbstractSocket(Qt::SocketType socketType, QObject *parent);
     virtual ~QAbstractSocket();
 
-    virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
-    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOType_QAbstractSocket; }
-
-    virtual bool connectToHost(const QString &hostName, Q_UINT16 port);
+    bool connectToHost(const QString &hostName, Q_UINT16 port);
     bool connectToHost(const QHostAddress &address, Q_UINT16 port);
 
-    virtual bool isValid() const;
+    bool isValid() const;
 
-    virtual Q_LONGLONG bytesAvailable() const;
-    virtual Q_LONGLONG bytesToWrite() const;
+    Q_LONGLONG bytesAvailable() const;
+    Q_LONGLONG bytesToWrite() const;
 
-    virtual bool canReadLine() const;
-    virtual QByteArray readLine();
+    bool canReadLine() const;
 
     Q_UINT16 localPort() const;
     QHostAddress localAddress() const;
@@ -76,70 +72,43 @@ public:
     QHostAddress peerAddress() const;
     QString peerName() const;
 
-    virtual Q_LONGLONG readBufferSize() const;
-    virtual void setReadBufferSize(Q_LONGLONG size);
+    Q_LONGLONG readBufferSize() const;
+    void setReadBufferSize(Q_LONGLONG size);
 
-    virtual bool waitForReadyRead(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
 
-    virtual void abort();
+    void abort();
 
     int socketDescriptor() const;
     bool setSocketDescriptor(int socketDescriptor,
                              Qt::SocketState state = Qt::ConnectedState);
 
+    Qt::SocketError socketError() const;
     Qt::SocketState socketState() const;
     Qt::SocketType socketType() const;
 
-    Qt::SocketError socketError() const;
-    QString errorString() const;
-
-    bool isBlocking() const;
-    void setBlocking(bool blocking, int msec = 30000);
-
     // from QIODevice
-
-    bool isOpen() const;
-
-    bool open(int);
     void close();
-    void flush();
-
-    Q_LONGLONG size() const;
-    Q_LONGLONG at() const;
-    bool seek(Q_LONGLONG offset);
-
-    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-
-    Q_LONGLONG write(const char *data, Q_LONGLONG len);
-#if !defined(Q_NO_USING_KEYWORD)
-    using QIODevice::write;
-#else
-    inline Q_LONGLONG write(const QByteArray &ba) { return QIODevice::write(ba); }
-#endif
-    Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
-    QByteArray readAll();
-
-    int ungetch(int character);
+    bool flush();
 
 signals:
     void hostFound();
     void connected();
     void closing();
     void closed();
-    void readyRead();
     void stateChanged(int);
-    void bytesWritten(Q_LONGLONG nbytes);
     void error(int);
 
-protected:
-    void setSocketState(Qt::SocketState state);
-    void setSocketError(Qt::SocketError socketError);
-    void setErrorString(const QString &errorString);
 
+protected:
     QAbstractSocket(Qt::SocketType socketType,
                     QAbstractSocketPrivate &p, QObject *parent);
 
-    QAbstractSocketPrivate *d_ptr;
+    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+
+    void setSocketState(Qt::SocketState state);
+    void setSocketError(Qt::SocketError socketError);
 
 private:
     inline int state() {return 0;} //to help catch programming errors: socketState() is the function you want

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QServerSocket class.
+** Implementation of Q3ServerSocket class.
 **
 ** Created : 970521
 **
@@ -35,24 +35,24 @@
 **
 **********************************************************************/
 
-#include "qserversocket.h"
+#include "q3serversocket.h"
 
 #ifndef QT_NO_NETWORK
 
 #include "qsocketnotifier.h"
 
-class QServerSocketPrivate {
+class Q3ServerSocketPrivate {
 public:
-    QServerSocketPrivate(): s(0), n(0) {}
-    ~QServerSocketPrivate() { delete n; delete s; }
-    QSocketDevice *s;
+    Q3ServerSocketPrivate(): s(0), n(0) {}
+    ~Q3ServerSocketPrivate() { delete n; delete s; }
+    Q3SocketDevice *s;
     QSocketNotifier *n;
 };
 
 
 /*!
-    \class QServerSocket qserversocket.h
-    \brief The QServerSocket class provides a TCP-based server.
+    \class Q3ServerSocket qserversocket.h
+    \brief The Q3ServerSocket class provides a TCP-based server.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -61,24 +61,24 @@ public:
     \module network
 
     This class is a convenience class for accepting incoming TCP
-    connections. You can specify the port or have QServerSocket pick
+    connections. You can specify the port or have Q3ServerSocket pick
     one, and listen on just one address or on all the machine's
     addresses.
 
-    Using the API is very simple: subclass QServerSocket, call the
+    Using the API is very simple: subclass Q3ServerSocket, call the
     constructor of your choice, and implement newConnection() to
     handle new incoming connections. There is nothing more to do.
 
     (Note that due to lack of support in the underlying APIs,
-    QServerSocket cannot accept or reject connections conditionally.)
+    Q3ServerSocket cannot accept or reject connections conditionally.)
 
-    \sa QSocket, QSocketDevice, QHostAddress, QSocketNotifier
+    \sa QSocket, Q3SocketDevice, QHostAddress, QSocketNotifier
 */
 
 
 /*!
     Creates a server socket object, that will serve the given \a port
-    on all the addresses of this host. If \a port is 0, QServerSocket
+    on all the addresses of this host. If \a port is 0, Q3ServerSocket
     will pick a suitable port in a system-dependent manner. Use \a
     backlog to specify how many pending connections the server can
     have.
@@ -91,11 +91,11 @@ public:
     value larger than 0.
 */
 
-QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
+Q3ServerSocket::Q3ServerSocket( Q_UINT16 port, int backlog,
 			      QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QServerSocketPrivate;
+    d = new Q3ServerSocketPrivate;
     init( QHostAddress(), port, backlog );
 }
 
@@ -113,12 +113,12 @@ QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
     value larger than 0.
 */
 
-QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
+Q3ServerSocket::Q3ServerSocket( const QHostAddress & address, Q_UINT16 port,
 			      int backlog,
 			      QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QServerSocketPrivate;
+    d = new Q3ServerSocketPrivate;
     init( address, port, backlog );
 }
 
@@ -127,7 +127,7 @@ QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
     Construct an empty server socket.
 
     This constructor, in combination with setSocket(), allows us to
-    use the QServerSocket class as a wrapper for other socket types
+    use the Q3ServerSocket class as a wrapper for other socket types
     (e.g. Unix Domain Sockets under Unix).
 
     The \a parent and \a name arguments are passed on to the QObject
@@ -136,17 +136,17 @@ QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
     \sa setSocket()
 */
 
-QServerSocket::QServerSocket( QObject *parent, const char *name )
+Q3ServerSocket::Q3ServerSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    d = new QServerSocketPrivate;
+    d = new Q3ServerSocketPrivate;
 }
 
 
 /*!
     Returns TRUE if the construction succeeded; otherwise returns FALSE.
 */
-bool QServerSocket::ok() const
+bool Q3ServerSocket::ok() const
 {
     return !!d->s;
 }
@@ -154,10 +154,10 @@ bool QServerSocket::ok() const
 /*
   The common bit of the constructors.
  */
-void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
+void Q3ServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
-    d->s = new QSocketDevice( QSocketDevice::Stream, address.isIPv4Address()
-			      ? QSocketDevice::IPv4 : QSocketDevice::IPv6, 0 );
+    d->s = new Q3SocketDevice( Q3SocketDevice::Stream, address.isIPv4Address()
+			      ? Q3SocketDevice::IPv4 : Q3SocketDevice::IPv6, 0 );
 #if !defined(Q_OS_WIN32)
     // Under Unix, we want to be able to use the port, even if a socket on the
     // same address-port is in TIME_WAIT. Under Windows this is possible anyway
@@ -173,7 +173,7 @@ void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backl
 	connect( d->n, SIGNAL(activated(int)),
 		 this, SLOT(incomingConnection(int)) );
     } else {
-	qWarning( "QServerSocket: failed to bind or listen to the socket" );
+	qWarning( "Q3ServerSocket: failed to bind or listen to the socket" );
 	delete d->s;
 	d->s = 0;
     }
@@ -185,19 +185,19 @@ void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backl
 
     This causes any backlogged connections (connections that have
     reached the host, but not yet been completely set up by calling
-    QSocketDevice::accept()) to be severed.
+    Q3SocketDevice::accept()) to be severed.
 
     Existing connections continue to exist; this only affects the
     acceptance of new connections.
 */
-QServerSocket::~QServerSocket()
+Q3ServerSocket::~Q3ServerSocket()
 {
     delete d;
 }
 
 
 /*!
-    \fn void QServerSocket::newConnection( int socket )
+    \fn void Q3ServerSocket::newConnection( int socket )
 
     This pure virtual function is responsible for setting up a new
     incoming connection. \a socket is the fd (file descriptor) for the
@@ -205,7 +205,7 @@ QServerSocket::~QServerSocket()
 */
 
 
-void QServerSocket::incomingConnection( int )
+void Q3ServerSocket::incomingConnection( int )
 {
     int fd = d->s->accept();
     if ( fd >= 0 )
@@ -216,12 +216,12 @@ void QServerSocket::incomingConnection( int )
 /*!
     Returns the port number on which this server socket listens. This
     is always non-zero; if you specify 0 in the constructor,
-    QServerSocket will pick a non-zero port itself. ok() must be TRUE
+    Q3ServerSocket will pick a non-zero port itself. ok() must be TRUE
     before calling this function.
 
-    \sa address() QSocketDevice::port()
+    \sa address() Q3SocketDevice::port()
 */
-Q_UINT16 QServerSocket::port() const
+Q_UINT16 Q3ServerSocket::port() const
 {
     if ( !d || !d->s )
 	return 0;
@@ -232,7 +232,7 @@ Q_UINT16 QServerSocket::port() const
 /*!
     Returns the operating system socket.
 */
-int QServerSocket::socket() const
+int Q3ServerSocket::socket() const
 {
     if ( !d || !d->s )
 	return -1;
@@ -245,9 +245,9 @@ int QServerSocket::socket() const
     this object listens on more than one address. ok() must be TRUE
     before calling this function.
 
-    \sa port() QSocketDevice::address()
+    \sa port() Q3SocketDevice::address()
 */
-QHostAddress QServerSocket::address() const
+QHostAddress Q3ServerSocket::address() const
 {
     if ( !d || !d->s )
 	return QHostAddress();
@@ -264,7 +264,7 @@ QHostAddress QServerSocket::address() const
     since this class does all the necessary setup for most client or
     server socket applications.
 */
-QSocketDevice *QServerSocket::socketDevice()
+Q3SocketDevice *Q3ServerSocket::socketDevice()
 {
     if ( !d )
 	return 0;
@@ -277,14 +277,14 @@ QSocketDevice *QServerSocket::socketDevice()
     Sets the socket to use \a socket. bind() and listen() should
     already have been called for \a socket.
 
-    This allows us to use the QServerSocket class as a wrapper for
+    This allows us to use the Q3ServerSocket class as a wrapper for
     other socket types (e.g. Unix Domain Sockets).
 */
-void QServerSocket::setSocket( int socket )
+void Q3ServerSocket::setSocket( int socket )
 {
     delete d;
-    d = new QServerSocketPrivate;
-    d->s = new QSocketDevice( socket, QSocketDevice::Stream );
+    d = new Q3ServerSocketPrivate;
+    d->s = new Q3SocketDevice( socket, Q3SocketDevice::Stream );
     d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
 	       this, "accepting new connections" );
     connect( d->n, SIGNAL(activated(int)),

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QDns class.
+** Definition of Q3Dns class.
 **
 ** Created : 991122
 **
@@ -35,14 +35,15 @@
 **
 **********************************************************************/
 
-#ifndef QDNS_H
-#define QDNS_H
+#ifndef Q3DNS_H
+#define Q3DNS_H
 
 #ifndef QT_H
 #include "qobject.h"
 #include "qhostaddress.h"
 #include "qsocketnotifier.h"
 #include "qstringlist.h"
+#include "q3valuelist.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
@@ -55,9 +56,9 @@
 
 //#define Q_DNS_SYNCHRONOUS
 
-class QDnsPrivate;
+class Q3DnsPrivate;
 
-class QM_EXPORT_DNS QDns: public QObject {
+class QM_EXPORT_DNS Q3Dns: public QObject {
     Q_OBJECT
 public:
     enum RecordType {
@@ -69,10 +70,10 @@ public:
 	Txt
     };
 
-    QDns();
-    QDns( const QString & label, RecordType rr = A );
-    QDns( const QHostAddress & address, RecordType rr = Ptr );
-    virtual ~QDns();
+    Q3Dns();
+    Q3Dns( const QString & label, RecordType rr = A );
+    Q3Dns( const QHostAddress & address, RecordType rr = Ptr );
+    virtual ~Q3Dns();
 
     // to set/change the query
     virtual void setLabel( const QString & label );
@@ -86,7 +87,7 @@ public:
     bool isWorking() const;
 
     // to query for replies
-    QValueList<QHostAddress> addresses() const;
+    Q3ValueList<QHostAddress> addresses() const;
 
     class QM_EXPORT_DNS MailServer {
     public:
@@ -96,7 +97,7 @@ public:
 	Q_UINT16 priority;
 	Q_DUMMY_COMPARISON_OPERATOR(MailServer)
     };
-    QValueList<MailServer> mailServers() const;
+    Q3ValueList<MailServer> mailServers() const;
 
     class QM_EXPORT_DNS Server {
     public:
@@ -108,7 +109,7 @@ public:
 	Q_UINT16 port;
 	Q_DUMMY_COMPARISON_OPERATOR(Server)
     };
-    QValueList<Server> servers() const;
+    Q3ValueList<Server> servers() const;
 
     QStringList hostNames() const;
 
@@ -140,21 +141,21 @@ private:
     QString l;
     QStringList n;
     RecordType t;
-    QDnsPrivate * d;
+    Q3DnsPrivate * d;
 
-    friend class QDnsAnswer;
-    friend class QDnsManager;
+    friend class Q3DnsAnswer;
+    friend class Q3DnsManager;
 };
 
 
-// QDnsSocket are sockets that are used for DNS lookup
+// Q3DnsSocket are sockets that are used for DNS lookup
 
-class QDnsSocket: public QObject {
+class Q3DnsSocket: public QObject {
     Q_OBJECT
     // note: Private not public.  This class contains NO public API.
 protected:
-    QDnsSocket( QObject *, const char * );
-    virtual ~QDnsSocket();
+    Q3DnsSocket( QObject *, const char * );
+    virtual ~Q3DnsSocket();
 
 private slots:
     virtual void cleanCache();
@@ -164,4 +165,4 @@ private slots:
 
 #endif // QT_NO_DNS
 
-#endif // QDNS_H
+#endif // Q3DNS_H

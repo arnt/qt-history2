@@ -26,21 +26,35 @@
 //
 //
 
-#include "qstring.h"
+#include "qbytearray.h"
+
+#ifndef QT_NO_QOBJECT
+#include "private/qobject_p.h"
+#endif
+
+#include "qiodevice.h"
 #include "qobjectdefs.h"
+#include "qstring.h"
 
 class Q_CORE_EXPORT QIODevicePrivate
+#ifndef QT_NO_QOBJECT
+    : public QObjectPrivate
+#endif
 {
     Q_DECLARE_PUBLIC(QIODevice)
 
-protected:
+public:
     QIODevicePrivate();
     virtual ~QIODevicePrivate();
 
-    QIODevice *q_ptr;
+    QIODevice::DeviceMode deviceMode;
+    QString errorString;
 
-protected:
-    int ioMode;
+    QByteArray ungetBuffer;
+
+#ifdef QT_NO_QOBJECT
+    QIODevice *q_ptr;
+#endif
 };
 
 #endif // QIODEVICE_P_H

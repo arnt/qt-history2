@@ -19,21 +19,13 @@
 
 #include <stdio.h>
 
-#ifndef QT_NO_QOBJECT
-#  include "qobject.h"
-#endif
-
 #ifdef open
 #error qfile.h must be included before any system header that defines open
 #endif
 
 class QFileEngine;
 class QFilePrivate;
-class Q_CORE_EXPORT QFile :
-#ifndef QT_NO_QOBJECT
-    public QObject,
-#endif
-    public QIODevice
+class Q_CORE_EXPORT QFile : public QIODevice
 {
 #ifndef QT_NO_QOBJECT
     Q_OBJECT
@@ -79,18 +71,15 @@ public:
 #endif
 
     QFile();
+    QFile(const QString &name);
 #ifndef QT_NO_QOBJECT
     QFile(QObject *parent);
+    QFile(const QString &name, QObject *parent);
 #endif
-    QFile(const QString &name);
     ~QFile();
-
-    virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
-    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOType_QFile; }
 
     Error error() const;
     void unsetError();
-    QString errorString() const;
 #ifdef QT_COMPAT
     inline QT_COMPAT Status status() const { return error(); }
     inline QT_COMPAT void resetStatus() { unsetError(); }
@@ -130,48 +119,20 @@ public:
     bool copy(const QString &newName);
     static bool copy(const QString &fileName, const QString &newName);
 
-    virtual bool open(int mode);
-    bool open(int, FILE *);
-    bool open(int, int);
+    bool isSequential() const;
+
+    bool open(DeviceMode flags);
+    bool open(DeviceMode flags, FILE *);
+    bool open(DeviceMode flags, int);
     virtual void close();
 
-#ifdef QT_COMPAT
-#if !defined(Q_NO_USING_KEYWORD)
-    using QIODevice::at;
-#else
-    inline QT_COMPAT bool at(Q_LONGLONG off) { return QIODevice::at(off); }
-#endif
-#endif
+    Q_LONGLONG size() const;
+    Q_LONGLONG pos() const;
+    bool seek(Q_LONGLONG offset);
+    bool flush();
 
-    bool isOpen() const;
-
-    virtual Q_LONGLONG size() const;
-    virtual Q_LONGLONG at() const;
-    virtual bool seek(Q_LONGLONG off);
-
-    virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
-    virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
-#if !defined(Q_NO_USING_KEYWORD)
-    using QIODevice::write;
-#else
-    inline Q_LONGLONG write(const QByteArray &ba) { return QIODevice::write(ba); }
-#endif
-
-    virtual void flush();
-
-    virtual int ungetch(int character);
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QIODevice::readLine;
-#else
-    inline QByteArray readLine()
-    { return QIODevice::readLine(); }
-#endif
-    virtual Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
-    Q_LONGLONG readLine(QString &string, Q_LONGLONG maxlen);
-
-    bool resize(QIODevice::Offset sz);
-    static bool resize(const QString &filename, QIODevice::Offset sz);
+    bool resize(Q_LONGLONG sz);
+    static bool resize(const QString &filename, Q_LONGLONG sz);
 
     Permissions permissions() const;
     static Permissions permissions(const QString &filename);
@@ -183,8 +144,14 @@ public:
     virtual QFileEngine *fileEngine() const;
 
 protected:
-    QFilePrivate *d_ptr;
+#ifdef QT_NO_QOBJECT
     QFile(QFilePrivate &d);
+#else
+    QFile(QFilePrivate &d, QObject *parent);
+#endif
+
+    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
 
 private:
     Q_DISABLE_COPY(QFile)

@@ -3514,7 +3514,7 @@ QByteArray QByteArray::number(double n, char f, int prec)
         };
 
         QByteArray data = QByteArray::fromRawData(mydata, sizeof(mydata));
-        QDataStream in(&data, IO_ReadOnly);
+        QDataStream in(&data, QIODevice::ReadOnly);
         ...
     \endcode
 

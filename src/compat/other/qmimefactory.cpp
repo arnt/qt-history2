@@ -170,7 +170,7 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
             mimetype = QByteArray("image/")+QByteArray(imgfmt).toLower();
 
         QFile f(abs_name);
-        if (f.open(IO_ReadOnly) && f.size()) {
+        if (f.open(QIODevice::ReadOnly) && f.size()) {
             QByteArray ba;
             ba.resize(f.size());
             f.readBlock(ba.data(), ba.size());

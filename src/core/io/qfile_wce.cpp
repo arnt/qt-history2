@@ -87,7 +87,7 @@ bool QFile::open(int m)
                 oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
             else
                 oflags |= (QT_OPEN_APPEND | QT_OPEN_CREAT);
-            setFlags(flags() | IO_WriteOnly); // append implies write
+            setFlags(flags() | QIODevice::WriteOnly); // append implies write
         } else if (isWritable()) {                // create/trunc if writable
             if (flags() & IO_Truncate)
                 oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
@@ -110,7 +110,7 @@ bool QFile::open(int m)
         char perm2[4];
         bool try_create = false;
         if (flags() & IO_Append) {                // append to end of file?
-            setFlags(flags() | IO_WriteOnly); // append implies write
+            setFlags(flags() | QIODevice::WriteOnly); // append implies write
             perm = isReadable() ? "a+" : "a";
         } else {
             if (isReadWrite()) {
@@ -234,7 +234,7 @@ bool QFile::open(int m, int f)
     return true;
 }
 
-QIODevice::Offset QFile::size() const
+Q_LONGLONG QFile::size() const
 {
     QT_STATBUF st;
     int ret = -1;

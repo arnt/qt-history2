@@ -120,10 +120,12 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
     \sa QDir::tempPath(), QFile
 */
 
+#ifdef QT_NO_QOBJECT
 /*!
     Constructs a QTemporaryFile with no name.
 */
-QTemporaryFile::QTemporaryFile() : QFile(*new QTemporaryFilePrivate)
+QTemporaryFile::QTemporaryFile()
+    : QFile(*new QTemporaryFilePrivate)
 {
     Q_D(QTemporaryFile);
     d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
@@ -138,11 +140,84 @@ QTemporaryFile::QTemporaryFile() : QFile(*new QTemporaryFilePrivate)
 
     \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
 */
-QTemporaryFile::QTemporaryFile(const QString &templateName) : QFile(*new QTemporaryFilePrivate)
+QTemporaryFile::QTemporaryFile(const QString &templateName)
+    : QFile(*new QTemporaryFilePrivate)
 {
     Q_D(QTemporaryFile);
     d->templateName = templateName;
 }
+
+/*! \internal
+*/
+QTemporaryFile::QTemporaryFile(QFilePrivate &dd)
+    : QFile(dd)
+{
+    Q_D(QTemporaryFile);
+    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
+}
+
+#else
+/*!
+    Constructs a QTemporaryFile with no name.
+*/
+QTemporaryFile::QTemporaryFile()
+    : QFile(*new QTemporaryFilePrivate, 0)
+{
+    Q_D(QTemporaryFile);
+    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
+}
+
+/*!
+    Constructs a QTemporaryFile with a template filename of \a
+    templateName. Upon opening the temporary file this will be used to
+    create a unique filename. If the \a templateName does end in
+    XXXXXX it will automatically be appended and used as the dynamic
+    portion of the filename.
+
+    \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
+*/
+QTemporaryFile::QTemporaryFile(const QString &templateName)
+    : QFile(*new QTemporaryFilePrivate, 0)
+{
+    Q_D(QTemporaryFile);
+    d->templateName = templateName;
+}
+
+/*!
+    Constructs a QTemporaryFile with no name.
+*/
+QTemporaryFile::QTemporaryFile(QObject *parent)
+    : QFile(*new QTemporaryFilePrivate, parent)
+{
+    Q_D(QTemporaryFile);
+    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
+}
+
+/*!
+    Constructs a QTemporaryFile with a template filename of \a
+    templateName. Upon opening the temporary file this will be used to
+    create a unique filename. If the \a templateName does end in
+    XXXXXX it will automatically be appended and used as the dynamic
+    portion of the filename.
+
+    \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
+*/
+QTemporaryFile::QTemporaryFile(const QString &templateName, QObject *parent)
+    : QFile(*new QTemporaryFilePrivate, parent)
+{
+    Q_D(QTemporaryFile);
+    d->templateName = templateName;
+}
+
+/*! \internal
+*/
+QTemporaryFile::QTemporaryFile(QFilePrivate &dd, QObject *parent)
+    : QFile(dd, parent)
+{
+    Q_D(QTemporaryFile);
+    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
+}
+#endif
 
 /*!
     Destroys the temporary file object, the file is automatically
@@ -260,9 +335,9 @@ QTemporaryFile *QTemporaryFile::createLocalFile(QFile &file)
             return 0; //local already
         //cache
         bool wasOpen = file.isOpen();
-        QFile::Offset old_off = 0;
+        Q_LONGLONG old_off = 0;
         if(wasOpen)
-            old_off = file.at();
+            old_off = file.pos();
         else
             file.open(QIODevice::ReadOnly);
         //dump data
@@ -304,10 +379,10 @@ QFileEngine *QTemporaryFile::fileEngine() const
    \reimp
 */
 
-bool QTemporaryFile::open(int mode)
+bool QTemporaryFile::open(DeviceMode flags)
 {
     Q_D(QTemporaryFile);
-    if(QFile::open(mode)) {
+    if (QFile::open(flags)) {
         d->fileName = d->fileEngine->fileName(QFileEngine::DefaultName);
         return true;
     }

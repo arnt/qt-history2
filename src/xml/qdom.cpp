@@ -5814,7 +5814,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     \code
     QDomDocument doc("mydocument");
     QFile file("mydocument.xml");
-    if (!file.open(IO_ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return;
     if (!doc.setContent(&file)) {
         file.close();

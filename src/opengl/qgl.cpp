@@ -950,7 +950,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     }
 
     QFile f(fileName);
-    f.open(QIODevice::ReadOnly | QIODevice::Raw);
+    f.open(QIODevice::ReadOnly);
 
     char tag[4];
     f.read(&tag[0], 4);

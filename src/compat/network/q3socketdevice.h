@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QSocketDevice class.
+** Definition of Q3SocketDevice class.
 **
 ** Created : 970521
 **
@@ -35,34 +35,27 @@
 **
 **********************************************************************/
 
-#ifndef QSOCKETDEVICE_H
-#define QSOCKETDEVICE_H
+#ifndef Q3SOCKETDEVICE_H
+#define Q3SOCKETDEVICE_H
 
 #ifndef QT_H
 #include "qiodevice.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_EXPORT
-#endif
-
 #ifndef QT_NO_NETWORK
-class QSocketDevicePrivate;
+class Q3SocketDevicePrivate;
 
-
-class  QM_EXPORT_NETWORK QSocketDevice: public QIODevice
+class Q_COMPAT_EXPORT Q3SocketDevice: public QIODevice
 {
 public:
     enum Type { Stream, Datagram };
     enum Protocol { IPv4, IPv6, Unknown };
 
-    QSocketDevice( Type type = Stream );
-    QSocketDevice( Type type, Protocol protocol, int dummy );
-    QSocketDevice( int socket, Type type );
-    virtual ~QSocketDevice();
+    Q3SocketDevice( Type type = Stream );
+    Q3SocketDevice( Type type, Protocol protocol, int dummy );
+    Q3SocketDevice( int socket, Type type );
+    virtual ~Q3SocketDevice();
 
     bool	 isValid() const;
     Type	 type() const;
@@ -73,7 +66,7 @@ public:
 
     bool	 open( int mode );
     void	 close();
-    void	 flush();
+    bool	 flush();
 
     // Implementation of QIODevice abstract virtual functions
     Offset	 size() const;
@@ -98,16 +91,10 @@ public:
     virtual bool listen( int backlog );
     virtual int	 accept();
 
-    Q_LONG	 bytesAvailable() const;
+    Q_LONGLONG	 bytesAvailable() const;
     Q_LONG	 waitForMore( int msecs, bool *timeout=0 ) const;
-    Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
-    Q_LONG	 writeBlock( const char *data, Q_ULONG len );
     virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,
 			    const QHostAddress & host, Q_UINT16 port );
-
-    int		 getch();
-    int		 putch( int );
-    int		 ungetch(int);
 
     Q_UINT16	 port() const;
     Q_UINT16	 peerPort() const;
@@ -129,8 +116,12 @@ public:
     };
     Error	 error() const;
 
+    inline bool isSequential() const { return true; }
+
 protected:
     void setError( Error err );
+    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
 
 private:
     int fd;
@@ -139,8 +130,8 @@ private:
     QHostAddress a;
     Q_UINT16 pp;
     QHostAddress pa;
-    QSocketDevice::Error e;
-    QSocketDevicePrivate * d;
+    Q3SocketDevice::Error e;
+    Q3SocketDevicePrivate * d;
 
     enum Option { Broadcast, ReceiveBuffer, ReuseAddress, SendBuffer };
 
@@ -158,10 +149,10 @@ private:
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSocketDevice( const QSocketDevice & );
-    QSocketDevice &operator=( const QSocketDevice & );
+    Q3SocketDevice( const Q3SocketDevice & );
+    Q3SocketDevice &operator=( const Q3SocketDevice & );
 #endif
 };
 
 #endif // QT_NO_NETWORK
-#endif // QSOCKETDEVICE_H
+#endif // Q3SOCKETDEVICE_H

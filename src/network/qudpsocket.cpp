@@ -131,7 +131,6 @@ class QUdpSocketPrivate : public QAbstractSocketPrivate
 QUdpSocket::QUdpSocket(QObject *parent)
     : QAbstractSocket(Qt::UdpSocket, *new QUdpSocketPrivate, parent)
 {
-    setFlags(Sequential | Async);
     d->isBuffered = false;
 }
 
@@ -162,7 +161,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
     bool result = d->socketLayer.bind(address, port);
     if (!result) {
         d->socketError = d->socketLayer.socketError();
-        d->socketErrorString = d->socketLayer.errorString();
+        setErrorString(d->socketLayer.errorString());
         emit error(d->socketError);
         return false;
     }
@@ -235,7 +234,7 @@ Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QH
         emit bytesWritten(sent);
     } else {
         d->socketError = d->socketLayer.socketError();
-        d->socketErrorString = d->socketLayer.errorString();
+        setErrorString(d->socketLayer.errorString());
         emit error(d->socketError);
     }
     return sent;
@@ -274,7 +273,7 @@ Q_LONGLONG QUdpSocket::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddress
     Q_LONGLONG readBytes = d->socketLayer.readDatagram(data, maxSize, address, port);
     if (readBytes < 0) {
         d->socketError = d->socketLayer.socketError();
-        d->socketErrorString = d->socketLayer.errorString();
+        setErrorString(d->socketLayer.errorString());
         emit error(d->socketError);
     }
     d->readSocketNotifier->setEnabled(true);

@@ -42,10 +42,10 @@ public:
 
     QTextStream();
     QTextStream(QIODevice *);
-    QTextStream(QString *, int mode);
-    QTextStream(QByteArray *, int mode);
-    QTextStream(const QByteArray &, int mode);
-    QTextStream(FILE *, int mode);
+    QTextStream(QString *, QIODevice::DeviceMode flags);
+    QTextStream(QByteArray *, QIODevice::DeviceMode flags);
+    QTextStream(const QByteArray &, QIODevice::DeviceMode flags);
+    QTextStream(FILE *, QIODevice::DeviceMode flags);
     virtual ~QTextStream();
 
     QIODevice *device() const;

@@ -224,7 +224,7 @@ int main(int argc, char * argv[])
 
     if (imagecollection_tmpfile) {
         QFile ifile(QFile::decodeName(image_tmpfile));
-        if (ifile.open(IO_ReadOnly)) {
+        if (ifile.open(QIODevice::ReadOnly)) {
             QTextStream ts(&ifile);
             QString s = ts.read();
             s = s.simplified();
@@ -237,12 +237,12 @@ int main(int argc, char * argv[])
     QFile fileOut;
     if (!outputFile.isEmpty()) {
         fileOut.setFileName(QFile::decodeName(outputFile));
-        if (!fileOut.open(IO_WriteOnly)) {
+        if (!fileOut.open(QIODevice::WriteOnly)) {
             fprintf(stderr, "%s: Could not open output file '%s'\n", argv[0], outputFile.data());
             return 1;
         }
     } else {
-        fileOut.open(IO_WriteOnly, stdout);
+        fileOut.open(QIODevice::WriteOnly, stdout);
     }
 
     QTextStream out(&fileOut);
@@ -258,7 +258,7 @@ int main(int argc, char * argv[])
     out.setEncoding(QTextStream::UnicodeUTF8);
 
     QFile file(QFile::decodeName(fileName));
-    if (!file.open(IO_ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         fprintf(stderr, "%s: Could not open file '%s'\n", argv[0], fileName);
         return 1;
     }

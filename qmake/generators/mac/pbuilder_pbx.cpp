@@ -330,7 +330,7 @@ public:
     inline QString groupName() const { return group; }
 };
 
-ProjectBuilderSources::ProjectBuilderSources(const QString &k, 
+ProjectBuilderSources::ProjectBuilderSources(const QString &k,
                                              const QString &g) : key(k), group(g)
 {
     if(group.isNull()) {
@@ -347,7 +347,7 @@ ProjectBuilderSources::ProjectBuilderSources(const QString &k,
     }
 }
 
-QStringList 
+QStringList
 ProjectBuilderSources::files(QMakeProject *project) const
 {
     QStringList ret = project->variables()[key];
@@ -362,7 +362,7 @@ ProjectBuilderSources::files(QMakeProject *project) const
             ret = newret;
         }
     }
-    if(key == "SOURCES" && project->first("TEMPLATE") == "app" && !project->isEmpty("ICON")) 
+    if(key == "SOURCES" && project->first("TEMPLATE") == "app" && !project->isEmpty("ICON"))
         ret.append(project->first("ICON"));
     return ret;
 }
@@ -432,7 +432,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             for(int input = 0; input < inputs.size(); ++input) {
                 if(project->isEmpty(inputs.at(input)))
                     continue;
-                sources.append(ProjectBuilderSources(inputs.at(input), 
+                sources.append(ProjectBuilderSources(inputs.at(input),
                                                      QString("Sources [") + inputs.at(input) + "]"));
             }
         }
@@ -444,9 +444,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QStringList files = fileFixify(sources.at(source).files(project));
         for(int f = 0; f < files.count(); ++f) {
             bool buildable = false;
-            if(sources.at(source).keyName() == "SOURCES") 
+            if(sources.at(source).keyName() == "SOURCES")
                 buildable = true;
-            else if(sources.at(source).keyName() == "SRCMOC") 
+            else if(sources.at(source).keyName() == "SRCMOC")
                 buildable = (f < project->variables()["OBJMOC"].count());
 
             QString file = files[f];
@@ -526,7 +526,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
             QStringList &group = groups[sources.at(source).groupName()];
             for(int src = 0; src < src_list.size(); ++src) {
-                if(group.indexOf(src_list.at(src)) == -1) 
+                if(group.indexOf(src_list.at(src)) == -1)
                     group += src_list.at(src);
             }
         }
@@ -1072,7 +1072,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             if(plist_in_file.open(QIODevice::ReadOnly)) {
                 QTextStream plist_in(&plist_in_file);
                 QString plist_in_text = plist_in.read();
-                plist_in_text = plist_in_text.replace("@ICON@", 
+                plist_in_text = plist_in_text.replace("@ICON@",
                   (project->isEmpty("ICON") ? QString("") : project->first("ICON").section(Option::dir_sep, -1)));
                 plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
                 plist_in_text = plist_in_text.replace("@TYPEINFO@",
@@ -1171,7 +1171,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             bool read_plist = false;
             if(QFile::exists("Info.plist")) {
                 QFile plist("Info.plist");
-                if(plist.open(QIODevice::ReadOnly)) {
+                if (plist.open(QIODevice::ReadOnly)) {
                     read_plist = true;
                     QTextStream stream(&plist);
                     while(!stream.eof())
@@ -1399,7 +1399,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
             version_plist = version_plist.replace(QRegExp("\""), "");
         }
         QFile version_file(version_plist);
-        if(version_file.open(QIODevice::ReadOnly)) {
+        if (version_file.open(QIODevice::ReadOnly)) {
             debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.latin1());
             QTextStream plist(&version_file);
 

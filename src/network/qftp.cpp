@@ -1793,7 +1793,7 @@ int QFtp::put(QIODevice *dev, const QString &file)
     QStringList cmds;
     cmds << "TYPE I\r\n";
     cmds << (d->transferMode == Passive ? "PASV\r\n" : "PORT\r\n");
-    if (!dev->isSequentialAccess())
+    if (!dev->isSequential())
         cmds << ("ALLO " + QString::number(dev->size()) + "\r\n");
     cmds << ("STOR " + file + "\r\n");
     return d->addCommand(new QFtpCommand(Put, cmds, dev));
@@ -2135,9 +2135,9 @@ void QFtp::startNextCommand()
             if (c->is_ba) {
                 d->pi.dtp.setData(c->data.ba);
                 d->pi.dtp.setBytesTotal(c->data.ba->size());
-            } else if (c->data.dev && (c->data.dev->isOpen() || c->data.dev->open(IO_ReadOnly))) {
+            } else if (c->data.dev && (c->data.dev->isOpen() || c->data.dev->open(QIODevice::ReadOnly))) {
                 d->pi.dtp.setDevice(c->data.dev);
-                if (c->data.dev->isSequentialAccess())
+                if (c->data.dev->isSequential())
                     d->pi.dtp.setBytesTotal(0);
                 else
                     d->pi.dtp.setBytesTotal(c->data.dev->size());

@@ -253,6 +253,20 @@ QDataStream::QDataStream(QIODevice *d)
     q_status = Ok;
 }
 
+#ifdef QT_COMPAT
+QDataStream::QDataStream(QByteArray *a, int mode)
+{
+    QBuffer *buf = new QBuffer(a);
+    buf->open(QIODevice::DeviceMode(mode));
+    dev = buf;
+    owndev = true;
+    byteorder = BigEndian;
+    ver = DefaultStreamVersion;
+    noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
+    q_status = Ok;
+}
+#endif
+
 /*!
     Constructs a data stream that operates on a byte array, \a a. The
     \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
@@ -263,10 +277,10 @@ QDataStream::QDataStream(QIODevice *d)
     is created to wrap the byte array.
 */
 
-QDataStream::QDataStream(QByteArray *a, int mode)
+QDataStream::QDataStream(QByteArray *a, QIODevice::DeviceMode flags)
 {
     QBuffer *buf = new QBuffer(a);
-    buf->open(mode);
+    buf->open(flags);
     dev = buf;
     owndev = true;
     byteorder = BigEndian;
@@ -527,11 +541,11 @@ QDataStream &QDataStream::operator>>(Q_INT8 &i)
 {
     i = 0;
     CHECK_STREAM_PRECOND(*this)
-    int n = dev->getch();
-    if (n == -1)
+    char c;
+    if (!dev->getChar(&c))
         setStatus(ReadPastEnd);
     else
-        i = (Q_INT8)n;
+        i = Q_INT8(c);
     return *this;
 }
 
@@ -839,7 +853,7 @@ int QDataStream::readRawData(char *s, int len)
 QDataStream &QDataStream::operator<<(Q_INT8 i)
 {
     CHECK_STREAM_PRECOND(*this)
-    dev->putch(i);
+    dev->putChar(i);
     return *this;
 }
 

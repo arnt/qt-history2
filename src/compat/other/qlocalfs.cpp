@@ -239,7 +239,7 @@ void QLocalFs::operationGet(QNetworkOperation *op)
     QString from = Q3Url(op->arg(0)).path();
 
     QFile f(from);
-    if (!f.open(IO_ReadOnly)) {
+    if (!f.open(QIODevice::ReadOnly)) {
 #ifdef QLOCALFS_DEBUG
         qDebug("QLocalFs: could not open %s", from.latin1());
 #endif
@@ -310,7 +310,7 @@ void QLocalFs::operationPut(QNetworkOperation *op)
     QString to = Q3Url(op->arg(0)).path();
 
     QFile f(to);
-    if (!f.open(IO_WriteOnly)) {
+    if (!f.open(QIODevice::WriteOnly)) {
         QString msg = tr("Could not write\n%1").arg(to);
         op->setState(StFailed);
         op->setProtocolDetail(msg);

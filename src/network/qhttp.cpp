@@ -190,7 +190,7 @@ void QHttpNormalRequest::start(QHttp *http)
     } else {
         http->d->buffer = QByteArray();
 
-        if (data.dev && (data.dev->isOpen() || data.dev->open(IO_ReadOnly))) {
+        if (data.dev && (data.dev->isOpen() || data.dev->open(QIODevice::ReadOnly))) {
             http->d->postDevice = data.dev;
             if (http->d->postDevice->size() > 0)
                 http->d->header.setContentLength(http->d->postDevice->size());
@@ -199,7 +199,7 @@ void QHttpNormalRequest::start(QHttp *http)
         }
     }
 
-    if (to && (to->isOpen() || to->open(IO_WriteOnly)))
+    if (to && (to->isOpen() || to->open(QIODevice::WriteOnly)))
         http->d->toDevice = to;
     else
         http->d->toDevice = 0;
@@ -2072,7 +2072,7 @@ void QHttp::slotBytesWritten(Q_LONGLONG written)
         return;
 
     if (d->socket->bytesToWrite() == 0) {
-        int max = qMin(4096, d->postDevice->size() - d->postDevice->at());
+        int max = qMin(4096, d->postDevice->size() - d->postDevice->pos());
         QByteArray arr;
         arr.resize(max);
 

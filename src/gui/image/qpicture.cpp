@@ -227,7 +227,7 @@ void QPicture::setData(const char* data, uint size)
 bool QPicture::load(const QString &fileName, const char *format)
 {
     QFile f(fileName);
-    if (!f.open(IO_ReadOnly))
+    if (!f.open(QIODevice::ReadOnly))
         return false;
     return load(&f, format);
 }
@@ -306,7 +306,7 @@ bool QPicture::save(const QString &fileName, const char *format)
     }
 
     QFile f(fileName);
-    if (!f.open(IO_WriteOnly))
+    if (!f.open(QIODevice::WriteOnly))
         return false;
     return save(&f, format);
 }
@@ -385,7 +385,7 @@ bool QPicture::play(QPainter *painter)
     if (!d->formatOk && !d->checkFormat())
         return false;
 
-    d->pictb.open(IO_ReadOnly);                // open buffer device
+    d->pictb.open(QIODevice::ReadOnly);                // open buffer device
     QDataStream s;
     s.setDevice(&d->pictb);                        // attach data stream to buffer
     s.device()->seek(10);                        // go directly to the data
@@ -453,7 +453,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
         else
             len = tiny_len;
 #if defined(QT_DEBUG)
-        strm_pos = s.device()->at();
+        strm_pos = s.device()->pos();
 #endif
         switch (c) {            // exec cmd
             case PdcNOP:
@@ -673,11 +673,11 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             default:
                 qWarning("QPicture::play: Invalid command %d", c);
                 if (len)                        // skip unknown command
-                    s.device()->seek(s.device()->at()+len);
+                    s.device()->seek(s.device()->pos()+len);
         }
 #if defined(QT_DEBUG)
         //qDebug("device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len);
-        Q_ASSERT(Q_INT32(s.device()->at() - strm_pos) == len);
+        Q_ASSERT(Q_INT32(s.device()->pos() - strm_pos) == len);
 #endif
     }
     return false;
@@ -752,8 +752,8 @@ void QPicture::detach_helper()
     int pictsize = size();
     x->pictb.setData(data(), pictsize);
     if (d->pictb.isOpen()) {
-        x->pictb.open(d->pictb.mode());
-        x->pictb.seek(d->pictb.at());
+        x->pictb.open(d->pictb.deviceMode());
+        x->pictb.seek(d->pictb.pos());
     }
     x->trecs = d->trecs;
     x->formatOk = d->formatOk;
@@ -803,7 +803,7 @@ bool QPicturePrivate::checkFormat()
     if (pictb.size() == 0)
         return false;
 
-    pictb.open(IO_ReadOnly);                        // open buffer device
+    pictb.open(QIODevice::ReadOnly);                        // open buffer device
     QDataStream s;
     s.setDevice(&pictb);                        // attach data stream to buffer
 
@@ -1486,7 +1486,7 @@ QByteArray QPictureIO::pictureFormat(const QString &fileName)
 {
     QFile file(fileName);
     QByteArray format;
-    if (!file.open(IO_ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return format;
     format = pictureFormat(&file);
     file.close();
@@ -1515,7 +1515,7 @@ QByteArray QPictureIO::pictureFormat(QIODevice *d)
     char buf2[buflen];
     qt_init_picture_handlers();
     qt_init_picture_plugins();
-    int pos = d->at();                        // save position
+    int pos = d->pos();                      // save position
     int rdlen = d->read(buf, buflen);        // read a few bytes
 
     QByteArray format;
@@ -1618,7 +1618,7 @@ bool QPictureIO::read()
         // ok, already open
     } else if (!d->fname.isEmpty()) {                // read from file
         file.setFileName(d->fname);
-        if (!file.open(IO_ReadOnly))
+        if (!file.open(QIODevice::ReadOnly))
             return false;                        // cannot open file
         d->iodev = &file;
     } else {                                        // no file name or io device
@@ -1643,7 +1643,7 @@ bool QPictureIO::read()
 #if !defined(Q_OS_UNIX)
         if (h && h->text_mode) {                // reopen in translated mode
             file.close();
-            file.open(IO_ReadOnly | IO_Translate);
+            file.open(QIODevice::ReadOnly | QIODevice::Translate);
         }
         else
 #endif
@@ -1700,7 +1700,7 @@ bool QPictureIO::write()
     if (!d->iodev && !d->fname.isEmpty()) {
         file.setFileName(d->fname);
         bool translate = h->text_mode==QPictureHandler::TranslateInOut;
-        int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
+        QIODevice::DeviceMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Translate : QIODevice::WriteOnly;
         if (!file.open(fmode))                // couldn't create file
             return false;
         d->iodev = &file;

@@ -43,7 +43,7 @@ protected:
     Q_DECLARE_PUBLIC(QResourceFileEngine)
 private:
     QString file;
-    QIODevice::Offset offset;
+    Q_LONGLONG offset;
     mutable QResource *resource;
 protected:
     QResourceFileEnginePrivate() : offset(0), resource(0) { }
@@ -59,7 +59,7 @@ bool QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
     return false;
 }
 
-bool QResourceFileEngine::setSize(QIODevice::Offset) 
+bool QResourceFileEngine::setSize(Q_LONGLONG)
 {
     return false;
 }
@@ -87,8 +87,8 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
         if(!(filters & QDir::AllDirs && d->resource->isContainer())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
-                QRegExp rx(*sit, 
-                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
+                QRegExp rx(*sit,
+                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                            QRegExp::Wildcard);
                 if (rx.exactMatch(fn)) {
                     matched = true;
@@ -133,7 +133,7 @@ bool QResourceFileEngine::open(int flags)
         qWarning("QFSFileEngine::open: No file name specified");
         return false;
     }
-    if ((flags & QFile::WriteOnly) == QFile::WriteOnly || (flags & QFile::Async))
+    if (flags & QIODevice::WriteOnly)
         return false;
     if(!(d->resource = qt_find_resource(d->file)))
        return false;
@@ -188,7 +188,7 @@ bool QResourceFileEngine::link(const QString &)
     return false;
 }
 
-QFile::Offset QResourceFileEngine::size() const
+Q_LONGLONG QResourceFileEngine::size() const
 {
     Q_D(const QResourceFileEngine);
 
@@ -197,7 +197,7 @@ QFile::Offset QResourceFileEngine::size() const
     return d->resource->size();
 }
 
-QFile::Offset QResourceFileEngine::at() const
+Q_LONGLONG QResourceFileEngine::at() const
 {
     Q_D(const QResourceFileEngine);
     return d->offset;
@@ -209,7 +209,7 @@ bool QResourceFileEngine::atEnd() const
     return d->offset == d->resource->size();
 }
 
-bool QResourceFileEngine::seek(QFile::Offset pos)
+bool QResourceFileEngine::seek(Q_LONGLONG pos)
 {
     Q_D(QResourceFileEngine);
     if(d->offset > d->resource->size())
@@ -250,7 +250,7 @@ QFileEngine::FileFlags QResourceFileEngine::fileFlags(QFileEngine::FileFlags typ
     return ret;
 }
 
-bool QResourceFileEngine::chmod(uint) 
+bool QResourceFileEngine::chmod(uint)
 {
     return false;
 }

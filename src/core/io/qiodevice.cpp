@@ -11,18 +11,48 @@
 **
 ****************************************************************************/
 
-#include "qplatformdefs.h"
-
-#include "qiodevice.h"
 #include "qbytearray.h"
 #include "qiodevice_p.h"
+#include "qfile.h"
 
 #define d d_func()
 #define q q_func()
 
-QIODevicePrivate::QIODevicePrivate() : q_ptr(0), ioMode(0)
-{
+#define CHECK_OPEN(function, returnType) \
+    do { \
+        if (!isOpen()) { \
+            return returnType; \
+        } \
+    } while (0)
 
+#define CHECK_MAXLEN(function, returnType) \
+    do { \
+        if (maxlen < 0) { \
+            qWarning("QIODevice::"#function" called with maxlen < 0"); \
+            return returnType; \
+        } \
+    } while (0)
+
+#define CHECK_WRITABLE(function) \
+   do { \
+       if ((d->deviceMode & WriteOnly) == 0) { \
+           qWarning("QIODevice::"#function" called on a ReadOnly device"); \
+           return Q_LONGLONG(-1); \
+       } \
+   } while (0)
+
+#define CHECK_READABLE(function) \
+   do { \
+       if ((d->deviceMode & ReadOnly) == 0) { \
+           qWarning("QIODevice::"#function" called on a WriteOnly device"); \
+           return Q_LONGLONG(-1); \
+       } \
+   } while (0)
+
+QIODevicePrivate::QIODevicePrivate()
+{
+    deviceMode = QIODevice::NotOpen;
+    errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
 }
 
 QIODevicePrivate::~QIODevicePrivate()
@@ -202,7 +232,7 @@ QIODevicePrivate::~QIODevicePrivate()
 */
 
 /*!
-    \enum QIODevice::Offset
+    \enum Q_LONGLONG
 
     The offset (device position) within the device.
 */
@@ -212,10 +242,11 @@ QIODevicePrivate::~QIODevicePrivate()
     Constructs an I/O device.
 */
 
+#ifdef QT_NO_QOBJECT
 QIODevice::QIODevice()
     : d_ptr(new QIODevicePrivate)
 {
-    d_ptr->q_ptr = this;
+    d->q_ptr = this;
 }
 
 /*! \internal
@@ -223,8 +254,36 @@ QIODevice::QIODevice()
 QIODevice::QIODevice(QIODevicePrivate &dd)
     : d_ptr(&dd)
 {
-    d_ptr->q_ptr = this;
+    d->q_ptr = this;
 }
+#else
+
+/*!
+    Constructs an I/O device.
+*/
+
+QIODevice::QIODevice()
+    : QObject(*new QIODevicePrivate, 0)
+{
+}
+
+/*!
+    Constructs an I/O device.
+*/
+
+QIODevice::QIODevice(QObject *parent)
+    : QObject(*new QIODevicePrivate, parent)
+{
+}
+
+/*! \internal
+*/
+QIODevice::QIODevice(QIODevicePrivate &dd, QObject *parent)
+    : QObject(dd, parent)
+{
+}
+#endif
+
 
 /*!
     Destroys the I/O device.
@@ -232,596 +291,237 @@ QIODevice::QIODevice(QIODevicePrivate &dd)
 
 QIODevice::~QIODevice()
 {
-    delete d_ptr;
-    d_ptr = 0;
 }
 
-/*!
-    \fn QIODevice::DeviceType QIODevice::type() const
-
-    Returns the type of this QIODevice. Used mostly for upcast to
-    subclass type (for error handling). 
-
-    \sa qt_cast
-*/
-
-
-/*!
-    Returns the current I/O device flags setting.
-
-    The flags value is a logical OR of the mode flags and state flags.
-
-    \sa mode(), state()
-*/
-
-int QIODevice::flags() const
+bool QIODevice::isSequential() const
 {
-    return d->ioMode;
+    return false;
 }
 
-/*!
-    \fn int QIODevice::mode() const
-
-    Returns a value specifying the current operation mode. This is a
-    selection of mode flags, combined using the logical OR operator.
-
-    \sa OpenMode
-*/
-
-/*!
-    \compat
-    \fn int QIODevice::state() const
-
-    Returns a value specifying the current state. This is a selection
-    of state values, combined using the OR operator.
-
-    The flags are: \c QIODevice::Open.
-
-    Subclasses may define additional flags.
-*/
-
-/*!
-    \fn bool QIODevice::isDirectAccess() const
-
-    Returns true if the I/O device is a direct access device;
-    returns false if the device is a sequential access device.
-
-    \sa isSequentialAccess()
-*/
-
-/*!
-    \fn bool QIODevice::isSequentialAccess() const
-
-    Returns true if the device is a sequential access device;
-    returns false if the device is a direct access device.
-
-    Operations involving size() and seek(int) are not valid on
-    sequential devices.
-
-    \sa isDirectAccess()
-*/
-
-/*!
-    \fn bool QIODevice::isCombinedAccess() const
-
-    Returns true if the I/O device is a combined access (both direct
-    and sequential) device; otherwise returns false.
-
-    This access method is currently not in use.
-*/
-
-/*!
-    \fn bool QIODevice::isBuffered() const
-
-    Returns true if the I/O device is a buffered device; returns false if
-    the device is a raw device.
-
-    \sa isRaw()
-*/
-
-/*!
-    \fn bool QIODevice::isRaw() const
-
-    Returns true if the device is a raw device; otherwise returns
-    false if the device is a buffered device.
-
-    \sa isBuffered()
-*/
-
-/*!
-    \fn bool QIODevice::isSynchronous() const
-
-    Returns true if the I/O device is a synchronous device; otherwise
-    returns false.
-
-    \sa isAsynchronous()
-*/
-
-/*!
-    \fn bool QIODevice::isAsynchronous() const
-
-    Returns true if the device is an asynchronous device; returns false if
-    the device is a synchronous device.
-
-    This mode is currently not in use.
-
-    \sa isSynchronous()
-*/
-
-/*!
-    \fn bool QIODevice::isTranslated() const
-
-    Returns true if the I/O device translates carriage return and
-    linefeed characters; otherwise returns false.
-
-    A QFile is translated if it is opened with the \c QIODevice::Translate
-    mode flag.
-*/
-
-/*!
-    \fn bool QIODevice::isReadable() const
-
-    Returns true if the I/O device was opened in \c QIODevice::ReadOnly
-    or \c QIODevice::ReadWrite mode; otherwise returns false.
-
-    \sa isWritable(), isReadWrite()
-*/
-
-/*!
-    \fn bool QIODevice::isWritable() const
-
-    Returns true if the I/O device was opened in \c QIODevice::WriteOnly
-    or \c QIODevice::ReadWrite mode; otherwise returns false.
-
-    \sa isReadable(), isReadWrite()
-*/
-
-/*!
-    \fn bool QIODevice::isReadWrite() const
-
-    Returns true if the I/O device was opened in \c QIODevice::ReadWrite
-    mode; otherwise returns false.
-
-    \sa isReadable(), isWritable()
-*/
-
-/*!
-    \fn bool QIODevice::isInactive() const
-
-    Returns true if the I/O device state is 0, i.e. the device is not
-    open; otherwise returns false.
-
-    \sa isOpen()
-*/
-
-/*!
-    \fn bool QIODevice::isOpen() const
-
-    Returns true if the I/O device has been opened; otherwise returns
-    false.
-
-    \sa isInactive()
-*/
-
-
-/*!
-    \fn void QIODevice::setFlags(int flags)
-
-    Used by subclasses to set the device \a flags.
-
-    \sa OpenMode
-*/
-void QIODevice::setFlags(int f)
+QIODevice::DeviceMode QIODevice::deviceMode() const
 {
-    d->ioMode = f;
+    return d->deviceMode;
 }
 
-/*!
-  \internal
-  Used by subclasses to set the device type.
-*/
-
-void QIODevice::setType(int t)
+void QIODevice::setDeviceMode(DeviceMode deviceMode)
 {
-    if ((t & QIODevice::TypeMask) != t)
-        qWarning("QIODevice::setType: Specified type out of range");
-    d->ioMode &= ~QIODevice::TypeMask;                        // reset type bits
-    d->ioMode |= t;
+    d->deviceMode = deviceMode;
 }
 
-/*!
-  \internal
-  Used by subclasses to set the device mode.
-*/
-
-void QIODevice::setMode(int m)
+bool QIODevice::isOpen() const
 {
-    if ((m & QIODevice::ModeMask) != m)
-        qWarning("QIODevice::setMode: Specified mode out of range");
-    d->ioMode &= ~QIODevice::ModeMask;                        // reset mode bits
-    d->ioMode |= m;
+    return d->deviceMode != NotOpen;
 }
 
+bool QIODevice::isReadable() const
+{
+    return (deviceMode() & ReadOnly) != 0;
+}
 
-/*!
-    \fn void QIODevice::close()
+bool QIODevice::isWritable() const
+{
+    return (deviceMode() & WriteOnly) != 0;
+}
 
-    Closes the I/O device.
+bool QIODevice::open(DeviceMode mode)
+{
+    d->deviceMode = mode;
+    return true;
+}
 
-    This virtual function must be reimplemented by all subclasses.
+void QIODevice::close()
+{
+    d->deviceMode = NotOpen;
+#ifdef QT_NO_QOBJECT
+    d->errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
+#else
+    d->errorString = tr("Unknown error");
+#endif
+}
 
-    \sa open()
-*/
+bool QIODevice::flush()
+{
+    return true;
+}
 
-/*!
-    \fn bool QIODevice::open(int mode)
+Q_LONGLONG QIODevice::pos() const
+{
+    return Q_LONGLONG(0);
+}
 
-    Opens the I/O device in the specified \a mode. Returns true if
-    the device was successfully opened; otherwise returns false.
+Q_LONGLONG QIODevice::size() const
+{
+    return Q_LONGLONG(0);
+}
 
-    The mode parameter \a mode must be selection of the following flags,
-    combined using the OR operator:
-    \table
-    \header \i Mode flags \i Meaning
-    \row \i \c QIODevice::Raw \i specifies raw (unbuffered) file access.
-    \row \i \c QIODevice::ReadOnly \i opens a file in read-only mode.
-    \row \i \c QIODevice::WriteOnly \i opens a file in write-only mode.
-    \row \i \c QIODevice::ReadWrite \i opens a file in read/write mode.
-    \row \i \c QIODevice::Append \i sets the file index to the end of the file.
-    \row \i \c QIODevice::Truncate \i truncates the file.
-    \row \i \c QIODevice::Translate \i enables carriage returns and linefeed
-    translation for text files under MS-DOS, Windows, and Mac OS X. On
-    Unix systems this flag has no effect. Use with caution as it will
-    also transform every linefeed written to the file into a CRLF
-    pair. This is likely to corrupt your file if you write write
-    binary data. Cannot be combined with \c QIODevice::Raw.
-    \endtable
+bool QIODevice::seek(Q_LONGLONG offset)
+{
+    if (offset > 0)
+        read(offset);
+    return true;
+}
 
-    Some devices make less sense to use this entry point to open, for
-    example connecting to a server in QSocketDevice. In this case the
-    default implementation will return false indicating that the open
-    failed and another approach to put the file into isOpen() mode
-    should be attempted.
-*/
+bool QIODevice::atEnd() const
+{
+    return pos() == size();
+}
 
-/*!
-    \fn void QIODevice::flush()
+bool QIODevice::reset()
+{
+    return seek(0);
+}
 
-    Flushes the open I/O device.
-*/
+Q_LONGLONG QIODevice::bytesAvailable() const
+{
+    return size() - pos();
+}
 
-/*!
-    \fn Q_LONGLONG QIODevice::size() const
+Q_LONGLONG QIODevice::bytesToWrite() const
+{
+    return Q_LONGLONG(0);
+}
 
-    Returns the size of the I/O device.
+Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
+{
+    CHECK_OPEN(read, Q_LONGLONG(-1));
+    CHECK_READABLE(read);
+    CHECK_MAXLEN(read, Q_LONGLONG(-1));
+    Q_LONGLONG readSoFar = Q_LONGLONG(0);
 
-    This virtual function must be reimplemented by all subclasses.
+    int ungetSize = d->ungetBuffer.size();
+    while (ungetSize > 0) {
+        if (readSoFar + 1 > maxlen)
+            return readSoFar;
+        data[readSoFar++] = d->ungetBuffer[ungetSize-- - 1];
+    }
+    d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
 
-    \sa at()
-*/
+    Q_LONGLONG ret = readData(data + readSoFar, maxlen - readSoFar);
+    if (ret == -1)
+        return readSoFar ? readSoFar : -1;
+    return ret + readSoFar;
+}
 
-/*!
-     \fn Q_LONGLONG QIODevice::at() const
+QByteArray QIODevice::read(Q_LONGLONG maxlen)
+{
+    CHECK_MAXLEN(read, QByteArray());
+    QByteArray tmp;
+    Q_LONGLONG readSoFar = 0;
+    char buffer[4096];
 
-    Returns the current I/O device position.
+    do {
+        Q_LONGLONG bytesToRead = qMin(int(maxlen - readSoFar), int(sizeof(buffer)));
+        Q_LONGLONG readBytes = read(buffer, bytesToRead);
+        if (readBytes <= 0)
+            break;
+        tmp += QByteArray(buffer, (int) readBytes);
+    } while (readSoFar < maxlen && bytesAvailable() > 0);
 
-    This is the position of the data read/write head of the I/O
-    device.
+    return tmp;
+}
 
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa size()
-*/
-
-/*!
-    \fn bool QIODevice::seek(Q_LONGLONG offset)
-
-    Sets the I/O device position to the \a offset given. Returns true if the
-    position was successfully set (the \a offset is within range and the
-    seek was successful); otherwise returns false.
-
-    If the device is sequential, the \a offset is relative to the current
-    position.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa size()
-*/
-
-/*!
-    \fn bool QIODevice::reset()
-
-    Sets the device position to 0.
-
-    \sa at() seek()
-*/
-
-/*!
-    \fn Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxSize)
-
-    Reads a number of characters from the I/O device into \a data. At most,
-    the \a maxSize number of characters will be read.
-
-    Returns -1 if a fatal error occurs, or 0 if there are no bytes to read.
-
-    The device must be opened for reading, and \a data must not be 0.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa write() isOpen() isReadable()
-
-*/
-
-/*!
-     \fn QByteArray QIODevice::read(Q_LONGLONG maxSize)
-    \overload
-
-    This convenience function will read data into a preallocated QByteArray.
-*/
-
-/*!
-    This convenience function returns all of the remaining data in the
-    device.
-*/
 QByteArray QIODevice::readAll()
 {
-    if (!isOpen()) {
-        qWarning("QIODevice::readAll: File not open");
-        return QByteArray();
-    }
-    if (!isReadable()) {
-        qWarning("QIODevice::readAll: Read operation not permitted");
-        return QByteArray();
-    }
-
-    const int chunk_size = 1024;
-    QByteArray ret;
-    //from device
-    while(1) {
-        int oldpos = ret.size();
-        ret.resize(oldpos+chunk_size);
-        int got = read(ret.data()+oldpos, chunk_size);
-        if(got <= 0) {
-            ret.resize(oldpos);
-            break;
-        }
-        if(got < chunk_size)
-            ret.resize(oldpos + got);
-    }
-    return ret;
+    return read(bytesAvailable());
 }
 
-/*!
-    \fn Q_LONG QIODevice::write(const char *data, Q_LONGLONG size)
-
-    Writes a number of characters from \a data to the I/O device. At
-    most \a size bytes will be written. If successful, the number of
-    characters written is returned; otherwise -1 is returned.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa read()
-*/
-
-/*!
-    \fn Q_LONG QIODevice::write(const QByteArray &data)
-    \overload
-
-    This convenience function is the same as:
-
-    \code
-        write(data.data(), data.size());
-    \endcode
-*/
-
-/*!
-    Reads characters from the device into \a data up to and including the next
-    newline character ('\n') or until at most \a maxSize - 1 characters have been
-    read. A terminating '\0' is appended to the characters stored in \a data.
-
-    Returns the total number of characters read, including the terminating '\0',
-    if no error occurred; otherwise returns -1.
-
-    \omit
-    ### FIXME: The number of bytes read needs to reflect the current behavior of the code.
-    \endomit
-
-    To ensure that your \a data buffer is large enough to contain the
-    \a maximum number of characters read from the device, pass a value
-    that is one character less than the size of your buffer.
-
-    Example:
-
-    \code
-    char buffer[12];
-    device->readLine(buffer, sizeof(buffer));
-    \endcode
-
-    The above code will read bytes from a device in the following way:
-
-    \table
-    \header
-    \i Input from the device
-    \i Buffer contents
-    \i Length returned
-    \i Comment
-    \row
-    \i Trolltech\n
-    \i Trolltech\n\0
-    \i 11
-    \i 10 characters from the device plus a zero byte.
-    \row
-    \i Hello world\n
-    \i Hello world\0
-    \i 12
-    \i 11 characters from the device plus a zero byte. Note that the newline
-       character has not yet been read.
-    \row
-    \i The cow jumped over the moon.\n
-    \i The cow jum\0
-    \i 12
-    \i 11 characters from the device plus a zero byte. The rest of the string
-       has not yet been read.
-    \endtable
-
-    \sa read(), QTextStream::readLine()
-*/
-
-Q_LONGLONG
-QIODevice::readLine(char *data, Q_LONGLONG maxSize)
+Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
 {
-    if (maxSize <= 0) // nothing to do
-        return 0;
-    Q_CHECK_PTR(data);
-    if (!isOpen()) {
-        qWarning("QIODevice::readLine: File not open");
-        return -1;
-    }
-    if (!isReadable()) {
-        qWarning("QIODevice::readLine: Read operation not permitted");
-        return -1;
+    if (maxlen < 1) {
+        qWarning("QIODevice::readLine() called with maxlen < 1");
+        return Q_LONGLONG(-1);
     }
 
-    char *p = data;
-    while (--maxSize && (*p=getch()) > 0) {        // read one byte at a time
-        if (*p++ == '\n')                    // end of line
+    Q_LONGLONG readSoFar = 0;
+    char c;
+    bool lastGetSucceeded = false;
+    while (readSoFar + 1 < maxlen && (lastGetSucceeded = getChar(&c))) {
+        *data++ = c;
+        ++readSoFar;
+        if (c == '\n')
             break;
     }
-    if(p != data) {
-        *p++ = '\0';
-        return p - data;
-    }
-    return -1;
+
+    if (readSoFar < maxlen)
+        *data = '\0';
+
+    if (!lastGetSucceeded && readSoFar == 0)
+        return Q_LONGLONG(-1);
+    return readSoFar;
 }
 
-/*!
-  \overload
-
-  This convenience function will read a line and place it into a QByteArray.
-
-  \sa QIODevice::readLine()
-*/
-
-QByteArray
-QIODevice::readLine()
+QByteArray QIODevice::readLine(Q_LONGLONG maxlen)
 {
-    if (!isOpen()) {
-        qWarning("QIODevice::readLine: File not open");
-        return QByteArray();
-    }
-    if (!isReadable()) {
-        qWarning("QIODevice::readLine: Read operation not permitted");
-        return QByteArray();
-    }
+    CHECK_MAXLEN(readLine, QByteArray());
+    QByteArray tmp;
+    char buffer[4096];
+    Q_LONGLONG readSoFar = 0;
+    Q_LONGLONG readBytes = 0;
+    do {
+        tmp.resize(readSoFar + qMin(int(maxlen), int(sizeof(buffer))));
+        readBytes = readLine(tmp.data() + readSoFar, tmp.size());
+    } while (readSoFar < maxlen && readBytes > 0
+             && readBytes == tmp.size() && tmp.at(readBytes - 1) != '\n');
 
-    int used = 0;
-    QByteArray ret;
-    for(char tmp, *p=0; (tmp = getch()) > 0 && tmp != '\n'; used++) {
-        if(!used || used >= ret.size()) {
-            ret.resize(used+1024);
-            p = ret.data();
-        }
-        *(p+used) = tmp;
-    }
-    ret.resize(used);
-    return ret;
+    tmp.resize(readSoFar);
+    return tmp;
 }
 
-
-/*!
-    Reads a single character from the I/O device.
-
-    Returns the character read, or -1 if the end of the I/O
-    device has been reached.
-
-    \sa putch(), ungetch()
-*/
-
-int
-QIODevice::getch()
+bool QIODevice::getChar(char *c)
 {
-    if (!isOpen()) {                                // file not open
-        qWarning("QIODevice::getch: File not open");
-        return -1;
-    }
-    if (!isReadable()) {                        // reading not permitted
-        qWarning("QIODevice::getch: Read operation not permitted");
-        return -1;
-    }
-    uchar ch;
-    Q_LONGLONG got = read((char*)&ch, 1);
-    if(got <= 0)
-        return -1;
-    return (int)ch;
+    char tmp;
+    if (readData(&tmp, 1) != 1)
+        return false;
+    if (c)
+        *c = tmp;
+    return true;
 }
 
-
-/*!
-    Writes the \a character to the I/O device.
-
-    Returns the \a character, or -1 if an error occurred.
-
-    \sa getch()
-*/
-
-int
-QIODevice::putch(int character)
+Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
 {
-    if (!isOpen()) {                                // file not open
-        qWarning("QIODevice::putch: File not open");
-        return -1;
-    }
-    if (!isWritable()) {                        // write not permitted
-        qWarning("QIODevice::putch: Write operation not permitted");
-        return -1;
-    }
-    uchar ch = (char)character;
-    Q_LONGLONG got = write((char*)&ch, 1);
-    if(got <= 0)
-        return -1;
-    return ch;
+    CHECK_OPEN(write, Q_LONGLONG(-1));
+    CHECK_WRITABLE(write);
+    CHECK_MAXLEN(write, Q_LONGLONG(-1));
+    return writeData(data, maxlen);
 }
 
-/*!
-    \fn int QIODevice::ungetch(int character)
+Q_LONGLONG QIODevice::write(const QByteArray &byteArray)
+{
+    return write(byteArray.constData(), byteArray.size());
+}
 
-    Puts the \a character back into the I/O device, and decrements
-    the index position if it is not zero.
+bool QIODevice::putChar(char c)
+{
+    CHECK_WRITABLE(putChar);
+    return writeData(&c, 1) == 1;
+}
 
-    This function is normally called to "undo" a getch() operation.
+void QIODevice::ungetChar(char c)
+{
+    d->ungetBuffer.append(c);
+}
 
-    Returns \a character, or -1 if an error occurred.
+void QIODevice::setErrorString(const QString &str)
+{
+    d->errorString = str;
+}
 
-    This virtual function must be reimplemented by all subclasses.
+QString QIODevice::errorString() const
+{
+    return d->errorString;
+}
 
-    \sa getch(), putch()
-*/
+#if defined QT_COMPAT
+int QIODevice::status() const
+{
+    const QFile *f = qt_cast<const QFile *>(this);
+    if (f) return (int) f->error();
+    return isOpen() ? IO_Ok : IO_UnspecifiedError;
+}
 
-/*!
-    \fn bool QIODevice::atEnd() const
-
-    Returns true if the I/O device position is at the end of the input;
-    otherwise returns false.
-
-    \sa at() size()
-*/
-
-/*! \fn bool QIODevice::at(Q_LONGLONG offset)
-
-    Use seek() instead.
-*/
-
-/*! \fn Q_LONG QIODevice::readBlock(char *data, Q_LONG size)
-
-    Use read() instead.
-*/
-
-/*! \fn Q_LONG QIODevice::writeBlock(const char *data, Q_LONG size)
-
-    Use write() instead.
-*/
-
-/*! \fn Q_LONG QIODevice::writeBlock(const QByteArray &data)
-
-    Use write() instead.
-*/
+void QIODevice::resetStatus()
+{
+    QFile *f = qt_cast<QFile *>(this);
+    if (f) f->unsetError();
+}
+#endif

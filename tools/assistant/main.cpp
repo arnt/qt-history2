@@ -16,8 +16,8 @@
 #include "config.h"
 
 #include <qapplication.h>
-#include <qserversocket.h>
-#include <qsocket.h>
+#include <q3serversocket.h>
+#include <q3socket.h>
 #include <qpixmap.h>
 #include <qstringlist.h>
 #include <qdir.h>
@@ -34,7 +34,7 @@
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
 #endif
 
-class AssistantSocket : public QSocket
+class AssistantSocket : public Q3Socket
 {
     Q_OBJECT
 public:
@@ -50,7 +50,7 @@ private slots:
 };
 
 
-class AssistantServer : public QServerSocket
+class AssistantServer : public Q3ServerSocket
 {
     Q_OBJECT
 public:
@@ -68,7 +68,7 @@ private:
 
 
 AssistantSocket::AssistantSocket( int sock, QObject *parent )
-    : QSocket( parent )
+    : Q3Socket( parent )
 {
     connect( this, SIGNAL( readyRead() ),
              SLOT( readClient() ) );
@@ -95,7 +95,7 @@ void AssistantSocket::connectionClosed()
 }
 
 AssistantServer::AssistantServer( QObject *parent )
-    : QServerSocket( QHostAddress::LocalHost, 0, 1, parent )
+    : Q3ServerSocket( QHostAddress::LocalHost, 0, 1, parent )
 {
     if ( !ok() ) {
         QMessageBox::critical( 0, tr( "Qt Assistant" ),

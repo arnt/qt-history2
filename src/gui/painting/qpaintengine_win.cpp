@@ -172,7 +172,7 @@ static void cleanup_cache()
     qDebug("PEN CACHE");
     for (i=0; i<cache_size; i++) {
         QString            str;
-        QTextStream s(str,IO_WriteOnly);
+        QTextStream s(str,QIODevice::WriteOnly);
         s << i << ": ";
         for (int j=0; j<4; j++) {
             QHDCObj *h = pen_cache[i*4+j];
@@ -185,7 +185,7 @@ static void cleanup_cache()
     qDebug("BRUSH CACHE");
     for (i=0; i<cache_size; i++) {
         QString            str;
-        QTextStream s(str,IO_WriteOnly);
+        QTextStream s(str,QIODevice::WriteOnly);
         s << i << ": ";
         for (int j=0; j<4; j++) {
             QHDCObj *h = brush_cache[i*4+j];

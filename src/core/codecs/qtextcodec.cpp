@@ -1456,7 +1456,7 @@ QTextCodec* QTextCodec::loadCharmapFile(const QString& filename)
 {
 #if 0
     QFile f(filename);
-    if (f.open(IO_ReadOnly)) {
+    if (f.open(QIODevice::ReadOnly)) {
         QTextCodecFromIOD* r = new QTextCodecFromIOD(&f);
         if (!r->ok())
             delete r;

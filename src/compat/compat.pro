@@ -15,10 +15,11 @@ include(widgets/widgets.pri)
 include(dialogs/dialogs.pri)
 include(text/text.pri)
 include(canvas/canvas.pri)
-# while re-porting (talk to andreas) include(network/network.pri)
+include(network/network.pri)
 
 mac:LIBS += -framework Carbon
 
 QMAKE_LIBS += $$QMAKE_LIBS_COMPAT $$QMAKE_LIBS_NETWORK
 DEFINES -= QT_COMPAT_WARNINGS
 DEFINES += QT_COMPAT
+MOCDIR = .moc

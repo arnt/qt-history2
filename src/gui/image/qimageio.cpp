@@ -649,7 +649,7 @@ QByteArray QImageIO::imageFormat(const QString &fileName)
 {
     QFile file(fileName);
     QByteArray format;
-    if (!file.open(IO_ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return format;
     format = imageFormat(&file);
     file.close();
@@ -678,7 +678,7 @@ QByteArray QImageIO::imageFormat(QIODevice *d)
     char buf2[buflen];
     qt_init_image_handlers();
     qt_init_image_plugins();
-    int pos = d->at();                        // save position
+    int pos = d->pos();                        // save position
     int rdlen = d->read(buf, buflen);        // read a few bytes
 
     QByteArray format;
@@ -806,7 +806,7 @@ bool QImageIO::read()
         // ok, already open
     } else if (!fname.isEmpty()) {                // read from file
         file.setFileName(fname);
-        if (!file.open(IO_ReadOnly)) {            // cannot open file
+        if (!file.open(QIODevice::ReadOnly)) {            // cannot open file
             if(frmt.isEmpty()) {                  //try some extensions
                 qt_init_image_handlers();
                 qt_init_image_plugins();
@@ -816,7 +816,7 @@ bool QImageIO::read()
                         QString attempt = fname + "." + p->extensions.at(ext);
                         if(QFile::exists(attempt)) {
                             file.setFileName(attempt);
-                            if(file.open(IO_ReadOnly))
+                            if(file.open(QIODevice::ReadOnly))
                                 break;
                         }
                     }
@@ -848,7 +848,7 @@ bool QImageIO::read()
 #if !defined(Q_OS_UNIX)
         if (h && h->text_mode) {                // reopen in translated mode
             file.close();
-            file.open(IO_ReadOnly | IO_Translate);
+            file.open(QIODevice::ReadOnly | QIODevice::Translate);
         }
         else
 #endif
@@ -913,7 +913,7 @@ bool QImageIO::write()
     if (!iodev && !fname.isEmpty()) {
         file.setFileName(fname);
         bool translate = h->text_mode==QImageHandler::TranslateInOut;
-        int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
+        QIODevice::DeviceMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Translate : QIODevice::WriteOnly;
         if (!file.open(fmode))                // couldn't create file
             return false;
         iodev = &file;
@@ -1135,7 +1135,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         return false;
 
     // offset can be bogus, be careful
-    if (offset>=0 && startpos + offset > (Q_LONG)d->at())
+    if (offset>=0 && startpos + offset > (Q_LONG)d->pos())
         d->seek(startpos + offset);                // start of image data
 
     int             bpl = image.bytesPerLine();
@@ -1168,26 +1168,30 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         int    buflen = ((w+7)/8)*4;
         uchar *buf    = new uchar[buflen];
         if (comp == BMP_RLE4) {                // run length compression
-            int x=0, y=0, b, c, i;
+            int x=0, y=0, c, i;
+            char b;
             register uchar *p = line[h-1];
             const uchar *endp = line[h-1]+w;
             while (y < h) {
-                if ((b=d->getch()) == EOF)
+                if (!d->getChar(&b))
                     break;
                 if (b == 0) {                        // escape code
-                    switch ((b=d->getch())) {
+                    if (!d->getChar(&b) || b == 1) {
+                        y = h;                // exit loop
+                    } else switch (b) {
                         case 0:                        // end of line
                             x = 0;
                             y++;
                             p = line[h-y-1];
                             break;
-                        case 1:                        // end of image
-                        case EOF:                // end of file
-                            y = h;                // exit loop
-                            break;
                         case 2:                        // delta (jump)
-                            x += d->getch();
-                            y += d->getch();
+                        {
+                            char tmp;
+                            d->getChar(&tmp);
+                            x += tmp;
+                            d->getChar(&tmp);
+                            y += tmp;
+                        }
 
                             // Protection
                             if ((uint)x >= (uint)w)
@@ -1204,14 +1208,17 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
 
                             i = (c = b)/2;
                             while (i--) {
-                                b = d->getch();
+                                d->getChar(&b);
                                 *p++ = b >> 4;
                                 *p++ = b & 0x0f;
                             }
-                            if (c & 1)
-                                *p++ = d->getch() >> 4;
+                            if (c & 1) {
+                                char tmp;
+                                d->getChar(&tmp);
+                                *p++ = tmp >> 4;
+                            }
                             if ((((c & 3) + 1) & 2) == 2)
-                                d->getch();        // align on word boundary
+                                d->getChar(0);        // align on word boundary
                             x += c;
                     }
                 } else {                        // encoded mode
@@ -1220,7 +1227,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                         b = endp-p;
 
                     i = (c = b)/2;
-                    b = d->getch();                // 2 pixels to be repeated
+                    d->getChar(&b);                // 2 pixels to be repeated
                     while (i--) {
                         *p++ = b >> 4;
                         *p++ = b & 0x0f;
@@ -1249,22 +1256,21 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
 
     else if (nbits == 8) {                        // 8 bit BMP image
         if (comp == BMP_RLE8) {                // run length compression
-            int x=0, y=0, b;
+            int x=0, y=0;
+            char b;
             register uchar *p = line[h-1];
             const uchar *endp = line[h-1]+w;
             while (y < h) {
-                if ((b=d->getch()) == EOF)
+                if (!d->getChar(&b))
                     break;
                 if (b == 0) {                        // escape code
-                    switch ((b=d->getch())) {
+                    if (!d->getChar(&b) || b == 1) {
+                            y = h;                // exit loop
+                    } else switch (b) {
                         case 0:                        // end of line
                             x = 0;
                             y++;
                             p = line[h-y-1];
-                            break;
-                        case 1:                        // end of image
-                        case EOF:                // end of file
-                            y = h;                // exit loop
                             break;
                         case 2:                        // delta (jump)
                             // Protection
@@ -1273,8 +1279,13 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                             if ((uint)y >= (uint)h)
                                 y = h-1;
 
-                            x += d->getch();
-                            y += d->getch();
+                            {
+                                char tmp;
+                                d->getChar(&tmp);
+                                x += tmp;
+                                d->getChar(&tmp);
+                                y += tmp;
+                            }
                             p = line[h-y-1] + x;
                             break;
                         default:                // absolute mode
@@ -1285,7 +1296,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                             if (d->read((char *)p, b) != b)
                                 return false;
                             if ((b & 1) == 1)
-                                d->getch();        // align on word boundary
+                                d->getChar(0);        // align on word boundary
                             x += b;
                             p += b;
                     }
@@ -1294,7 +1305,9 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                     if (p + b > endp)
                         b = endp-p;
 
-                    memset(p, d->getch(), b); // repeat pixel
+                    char tmp;
+                    d->getChar(&tmp);
+                    memset(p, tmp, b); // repeat pixel
                     x += b;
                     p += b;
                 }
@@ -1352,7 +1365,7 @@ static void read_bmp_image(QImageIO *iio)
     QIODevice  *d = iio->ioDevice();
     QDataStream s(d);
     BMP_FILEHDR bf;
-    int                startpos = d->at();
+    int startpos = d->pos();
 
     s.setByteOrder(QDataStream::LittleEndian);// Intel byte order
     s >> bf;                                        // read BMP file header
@@ -1519,13 +1532,13 @@ static void write_bmp_image(QImageIO *iio)
 
 static int read_pbm_int(QIODevice *d)
 {
-    int          c;
+    char c;
     int          val = -1;
     bool  digit;
     const int buflen = 100;
     char  buf[buflen];
     for (;;) {
-        if ((c=d->getch()) == EOF)                // end of file
+        if (!d->getChar(&c))                // end of file
             break;
         digit = isdigit((uchar) c);
         if (val != -1) {
@@ -1854,7 +1867,7 @@ static void read_async_image(QImageIO *iio)
     QImageIOFrameGrabber* consumer = new QImageIOFrameGrabber();
     QImageDecoder decoder(consumer);
     consumer->decoder = &decoder;
-    int startAt = d->at();
+    int startAt = d->pos();
     int totLen = 0;
 
     for (;;) {
@@ -1874,7 +1887,7 @@ static void read_async_image(QImageIO *iio)
         }
         if (consumer->framecount) {
             // Stopped after first frame
-            if (d->isDirectAccess())
+            if (!d->isSequential())
                 d->seek(startAt + totLen);
             else {
                 qFatal("We have probably read too much from the stream. No way to put it back!");
@@ -2067,17 +2080,17 @@ static bool read_xpm_string(QByteArray &buf, QIODevice *d, const char * const *s
     }
 
     buf = "";
-    int c;
-    while ((c=d->getch()) != EOF && c != '"') { }
-    if (c == EOF) {
-        return false;
-    }
-    while ((c=d->getch()) != EOF && c != '"') {
+    char c;
+    do {
+        if (!d->getChar(&c))
+            return false;
+    } while (c != '"');
+
+    do {
+        if (!d->getChar(&c))
+            return false;
         buf.append(c);
-    }
-    if (c == EOF) {
-        return false;
-    }
+    } while (c != '"');
 
     return true;
 }

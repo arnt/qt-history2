@@ -101,10 +101,10 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
     hypertext documents. The contents of QTextEdit are set with
     setHtml() or setPlainText(), but QTextBrowser also implements the
     setSource() function, making it possible to set the text to a named
-    document. The name is looked up in a list of search paths and in the 
-    directory of the current document factory. If a document name ends with 
-    an anchor (for example, "\c #anchor"), the text browser automatically 
-    scrolls to that position (using scrollToAnchor()). When the user clicks 
+    document. The name is looked up in a list of search paths and in the
+    directory of the current document factory. If a document name ends with
+    an anchor (for example, "\c #anchor"), the text browser automatically
+    scrolls to that position (using scrollToAnchor()). When the user clicks
     on a hyperlink, the browser will call setSource() itself with the link's
     \c href value as argument. You can track the current source by connecting
     to the sourceChanged() signal.

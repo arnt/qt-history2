@@ -263,7 +263,7 @@ bool openMimeRegistry(bool global, int mode, QFile &file)
     if(!global)
         dir.prepend(QDir::homePath());
     file.setFileName(dir + "/.mime_types");
-    if(mode != IO_ReadOnly) {
+    if(mode != QIODevice::ReadOnly) {
         if(!QFile::exists(dir)) {
             // Do it with a system call as I don't see much worth in
             // doing it with QDir since we have to chmod anyway.
@@ -305,7 +305,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
     if(!library_file.isOpen()) {
         if(!openMimeRegistry(true, IO_ReadWrite, library_file)) {
             QFile global;
-            if(openMimeRegistry(true, IO_ReadOnly, global)) {
+            if(openMimeRegistry(true, QIODevice::ReadOnly, global)) {
                 ::loadMimeRegistry(global, mime_registry, current_max);
                 global.close();
             }
@@ -334,7 +334,7 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
         }
         if(!mime_registry.contains(mime)) {
             if(!library_file.isOpen()) {
-                if(!library_file.open(IO_WriteOnly)) {
+                if(!library_file.open(QIODevice::WriteOnly)) {
                     qWarning("Failure to open %s -- %s", library_file.fileName().latin1(),
                              library_file.errorString().latin1());
                     return false;
@@ -572,7 +572,7 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const QString &m
             DrawPicture(pic, &r);
         }
         QBuffer iod(&ret);
-        iod.open(IO_WriteOnly);
+        iod.open(QIODevice::WriteOnly);
         QImage img = px.toImage();
         QImageIO iio(&iod, mime.mid(6).toUpper().latin1());
         iio.setImage(img);

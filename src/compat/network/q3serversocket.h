@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QServerSocketClass.
+** Definition of Q3ServerSocketClass.
 **
 ** Created : 970521
 **
@@ -41,29 +41,22 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qhostaddress.h"
-#include "qsocketdevice.h" // ### remove or keep for users' convenience?
+#include "q3socketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 #ifndef QT_NO_NETWORK
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_EXPORT
-#endif
+class Q3ServerSocketPrivate;
 
-class QServerSocketPrivate;
-
-
-class QM_EXPORT_NETWORK QServerSocket : public QObject
+class Q_CORE_EXPORT Q3ServerSocket : public QObject
 {
     Q_OBJECT
 public:
-    QServerSocket( Q_UINT16 port, int backlog = 1,
+    Q3ServerSocket( Q_UINT16 port, int backlog = 1,
 		   QObject *parent=0, const char *name=0 );
-    QServerSocket( const QHostAddress & address, Q_UINT16 port, int backlog = 1,
+    Q3ServerSocket( const QHostAddress & address, Q_UINT16 port, int backlog = 1,
 		   QObject *parent=0, const char *name=0 );
-    QServerSocket( QObject *parent=0, const char *name=0 );
-    virtual ~QServerSocket();
+    Q3ServerSocket( QObject *parent=0, const char *name=0 );
+    virtual ~Q3ServerSocket();
 
     bool ok() const;
 
@@ -77,13 +70,13 @@ public:
     virtual void newConnection( int socket ) = 0;
 
 protected:
-    QSocketDevice *socketDevice();
+    Q3SocketDevice *socketDevice();
 
 private slots:
     void incomingConnection( int socket );
 
 private:
-    QServerSocketPrivate *d;
+    Q3ServerSocketPrivate *d;
     void init( const QHostAddress & address, Q_UINT16 port, int backlog );
 };
 

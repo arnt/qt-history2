@@ -67,7 +67,6 @@ QTcpSocket::QTcpSocket(QObject *parent)
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::QTcpSocket()");
 #endif
-    setFlags(Sequential | Async);
     d->isBuffered = true;
 }
 

@@ -822,7 +822,7 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
         return 0;
 
     QByteArray encoded;
-    QDataStream stream(&encoded, IO_WriteOnly);
+    QDataStream stream(&encoded, QIODevice::WriteOnly);
     QModelIndexList::ConstIterator it = indexes.begin();
     for (; it != indexes.end(); ++it) {
         QMap<int, QVariant> data = itemData(*it);
@@ -853,7 +853,7 @@ bool QAbstractItemModel::setMimeData(const QMimeData *data, QDrag::DropAction ac
 //     if (!data->hasFormat(format))
 //         return false;
 //     QByteArray encoded = data->data(format);
-//     QDataStream stream(&encoded, IO_ReadOnly);
+//     QDataStream stream(&encoded, QIODevice::ReadOnly);
 //     int row = rowCount(parent);
 //     int count, role;
 //     QVariant value;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QSocket class.
+** Definition of Q3Socket class.
 **
 ** Created : 970521
 **
@@ -35,27 +35,20 @@
 **
 **********************************************************************/
 
-#ifndef QSOCKET_H
-#define QSOCKET_H
+#ifndef Q3SOCKET_H
+#define Q3SOCKET_H
 
 #ifndef QT_H
-#include "qobject.h"
 #include "qiodevice.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_EXPORT
-#endif
-
 #ifndef QT_NO_NETWORK
-class QSocketPrivate;
-class QSocketDevice;
+class Q3SocketPrivate;
+class Q3SocketDevice;
 
 
-class QM_EXPORT_NETWORK QSocket : public QObject, public QIODevice
+class Q_CORE_EXPORT Q3Socket : public QIODevice
 {
     Q_OBJECT
 public:
@@ -65,8 +58,8 @@ public:
 	ErrSocketRead
     };
 
-    QSocket( QObject *parent=0, const char *name=0 );
-    virtual ~QSocket();
+    Q3Socket( QObject *parent=0, const char *name=0 );
+    virtual ~Q3Socket();
 
     enum State { Idle, HostLookup, Connecting,
 		 Connected, Closing,
@@ -76,8 +69,8 @@ public:
     int		 socket() const;
     virtual void setSocket( int );
 
-    QSocketDevice *socketDevice();
-    virtual void setSocketDevice( QSocketDevice * );
+    Q3SocketDevice *socketDevice();
+    virtual void setSocketDevice( Q3SocketDevice * );
 
 #ifndef QT_NO_DNS
     virtual void connectToHost( const QString &host, Q_UINT16 port );
@@ -87,28 +80,23 @@ public:
     // Implementation of QIODevice abstract virtual functions
     bool	 open( int mode );
     void	 close();
-    void	 flush();
+    bool	 flush();
     Offset	 size() const;
     Offset	 at() const;
     bool	 at( Offset );
     bool	 atEnd() const;
 
-    Q_ULONG	 bytesAvailable() const; // ### QIODevice::Offset instead?
+    Q_LONGLONG	 bytesAvailable() const; // ### QIODevice::Offset instead?
     Q_ULONG	 waitForMore( int msecs, bool *timeout  ) const;
     Q_ULONG	 waitForMore( int msecs ) const; // ### Qt 4.0: merge the two overloads
-    Q_ULONG	 bytesToWrite() const;
+    Q_LONGLONG	 bytesToWrite() const;
     void	 clearPendingData();
-
-    Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
-    Q_LONG	 writeBlock( const char *data, Q_ULONG len );
-    Q_LONG	 readLine( char *data, Q_ULONG maxlen );
 
     int		 getch();
     int		 putch( int );
     int		 ungetch(int);
 
     bool	 canReadLine() const;
-    virtual	 QString readLine();
 
     Q_UINT16	 port() const;
     Q_UINT16	 peerPort() const;
@@ -117,6 +105,8 @@ public:
 
     void	 setReadBufferSize( Q_ULONG );
     Q_ULONG	 readBufferSize() const;
+
+    inline bool  isSequential() const { return !isOpen(); }
 
 signals:
     void	 hostFound();
@@ -131,12 +121,16 @@ protected slots:
     virtual void sn_read( bool force=FALSE );
     virtual void sn_write();
 
+protected:
+    Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
+
 private slots:
     void	tryConnecting();
     void	emitErrorConnectionRefused();
 
 private:
-    QSocketPrivate *d;
+    Q3SocketPrivate *d;
 
     bool	 consumeWriteBuf( Q_ULONG nbytes );
     void	 tryConnection();
@@ -144,10 +138,10 @@ private:
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSocket( const QSocket & );
-    QSocket &operator=( const QSocket & );
+    Q3Socket( const Q3Socket & );
+    Q3Socket &operator=( const Q3Socket & );
 #endif
 };
 
 #endif //QT_NO_NETWORK
-#endif // QSOCKET_H
+#endif // Q3SOCKET_H

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QSocketDevice class.
+** Implementation of Q3SocketDevice class.
 **
 ** Created : 970521
 **
@@ -27,7 +27,7 @@
 **
 **********************************************************************/
 
-#include "qsocketdevice.h"
+#include "q3socketdevice.h"
 #include "qwindowdefs.h"
 #include "qdatetime.h"
 
@@ -115,7 +115,7 @@ static inline void qt_socket_getportaddr( struct sockaddr *sa,
     *addr = a;
 }
 
-void QSocketDevice::init()
+void Q3SocketDevice::init()
 {
 #if !defined(QT_NO_IPV6)
     if ( !initialized ) {
@@ -123,7 +123,7 @@ void QSocketDevice::init()
 	// IPv6 requires Winsock v2.0 or better.
 	if ( WSAStartup( MAKEWORD(2,0), &wsadata ) != 0 ) {
 #  if defined(QSOCKETDEVICE_DEBUG)
-	    qDebug( "QSocketDevice: WinSock v2.0 initialization failed, disabling IPv6 support." );
+	    qDebug( "Q3SocketDevice: WinSock v2.0 initialization failed, disabling IPv6 support." );
 #  endif
 	} else {
 	    qAddPostRoutine( cleanupWinSock );
@@ -137,10 +137,10 @@ void QSocketDevice::init()
 	WSAData wsadata;
 	if ( WSAStartup( MAKEWORD(1,1), &wsadata ) != 0 ) {
 #if defined(QT_CHECK_NULL)
-	    qWarning( "QSocketDevice: WinSock initialization failed" );
+	    qWarning( "Q3SocketDevice: WinSock initialization failed" );
 #endif
 #if defined(QSOCKETDEVICE_DEBUG)
-	    qDebug( "QSocketDevice: WinSock initialization failed"  );
+	    qDebug( "Q3SocketDevice: WinSock initialization failed"  );
 #endif
 	    return;
 	}
@@ -149,7 +149,7 @@ void QSocketDevice::init()
     }
 }
 
-QSocketDevice::Protocol QSocketDevice::getProtocol() const
+Q3SocketDevice::Protocol Q3SocketDevice::getProtocol() const
 {
     if ( isValid() ) {
 #if !defined (QT_NO_IPV6)
@@ -182,7 +182,7 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
     return Unknown;
 }
 
-int QSocketDevice::createNewSocket( )
+int Q3SocketDevice::createNewSocket( )
 {
 #if !defined(QT_NO_IPV6)
     int s;
@@ -229,23 +229,23 @@ int QSocketDevice::createNewSocket( )
 }
 
 
-void QSocketDevice::close()
+void Q3SocketDevice::close()
 {
     if ( fd == -1 || !isOpen() )		// already closed
 	return;
-    setFlags( IO_Sequential );
     resetStatus();
-    setState( 0 );
+    setDeviceMode(NotOpen);
     ::closesocket( fd );
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::close: Closed socket %x", fd );
+    qDebug( "Q3SocketDevice::close: Closed socket %x", fd );
 #endif
     fd = -1;
     fetchConnectionParameters();
+    QIODevice::close();
 }
 
 
-bool QSocketDevice::blocking() const
+bool Q3SocketDevice::blocking() const
 {
     if ( !isValid() )
 	return TRUE;
@@ -253,10 +253,10 @@ bool QSocketDevice::blocking() const
 }
 
 
-void QSocketDevice::setBlocking( bool enable )
+void Q3SocketDevice::setBlocking( bool enable )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::setBlocking( %d )", enable );
+    qDebug( "Q3SocketDevice::setBlocking( %d )", enable );
 #endif
     if ( !isValid() )
 	return;
@@ -266,7 +266,7 @@ void QSocketDevice::setBlocking( bool enable )
 }
 
 
-int QSocketDevice::option( Option opt ) const
+int Q3SocketDevice::option( Option opt ) const
 {
     if ( !isValid() )
 	return -1;
@@ -292,7 +292,7 @@ int QSocketDevice::option( Option opt ) const
 	if ( r != SOCKET_ERROR )
 	    return v;
 	if ( !e ) {
-            QSocketDevice *that = (QSocketDevice*)this; // mutable function
+            Q3SocketDevice *that = (Q3SocketDevice*)this; // mutable function
 	    switch( WSAGetLastError() ) {
 		case WSANOTINITIALISED:
 		    that->e = Impossible;
@@ -322,7 +322,7 @@ int QSocketDevice::option( Option opt ) const
 }
 
 
-void QSocketDevice::setOption( Option opt, int v )
+void Q3SocketDevice::setOption( Option opt, int v )
 {
     if ( !isValid() )
 	return;
@@ -375,7 +375,7 @@ void QSocketDevice::setOption( Option opt, int v )
 }
 
 
-bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
+bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -478,7 +478,7 @@ successful:
 }
 
 
-bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
+bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
@@ -548,7 +548,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 }
 
 
-bool QSocketDevice::listen( int backlog )
+bool Q3SocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
@@ -560,7 +560,7 @@ bool QSocketDevice::listen( int backlog )
 }
 
 
-int QSocketDevice::accept()
+int Q3SocketDevice::accept()
 {
     if ( !isValid() )
 	return -1;
@@ -614,7 +614,7 @@ int QSocketDevice::accept()
 }
 
 
-Q_LONG QSocketDevice::bytesAvailable() const
+Q_LONGLONG Q3SocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
@@ -632,12 +632,12 @@ Q_LONG QSocketDevice::bytesAvailable() const
          if (::recvfrom(fd, &c, sizeof(c), MSG_PEEK, 0, 0) == SOCKET_ERROR)
              return 0;
      }
- 
+
     return nbytes;
 }
 
 
-Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
+Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
@@ -667,24 +667,24 @@ Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 }
 
 
-Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
+Q_LONG Q3SocketDevice::readBlock( char *data, Q_ULONG maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
-	qWarning( "QSocketDevice::readBlock: Null pointer error" );
+	qWarning( "Q3SocketDevice::readBlock: Null pointer error" );
     }
 #endif
 #if defined(QT_CHECK_STATE)
     if ( !isValid() ) {
-	qWarning( "QSocketDevice::readBlock: Invalid socket" );
+	qWarning( "Q3SocketDevice::readBlock: Invalid socket" );
 	return -1;
     }
     if ( !isOpen() ) {
-	qWarning( "QSocketDevice::readBlock: Device is not open" );
+	qWarning( "Q3SocketDevice::readBlock: Device is not open" );
 	return -1;
     }
     if ( !isReadable() ) {
-	qWarning( "QSocketDevice::readBlock: Read operation not permitted" );
+	qWarning( "Q3SocketDevice::readBlock: Read operation not permitted" );
 	return -1;
     }
 #endif
@@ -769,29 +769,29 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 }
 
 
-Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
+Q_LONG Q3SocketDevice::writeBlock( const char *data, Q_ULONG len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Null pointer error" );
+	qWarning( "Q3SocketDevice::writeBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isValid() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Invalid socket" );
+	qWarning( "Q3SocketDevice::writeBlock: Invalid socket" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Device is not open" );
+	qWarning( "Q3SocketDevice::writeBlock: Device is not open" );
 #endif
 	return -1;
     }
     if ( !isWritable() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::writeBlock: Write operation not permitted" );
+	qWarning( "Q3SocketDevice::writeBlock: Write operation not permitted" );
 #endif
 	return -1;
     }
@@ -854,37 +854,37 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 }
 
 
-Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
+Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
 			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Not datagram" );
+	qWarning( "Q3SocketDevice::sendBlock: Not datagram" );
 #endif
 	return -1; // for now - later we can do t/tcp
     }
 
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Null pointer error" );
+	qWarning( "Q3SocketDevice::sendBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isValid() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Invalid socket" );
+	qWarning( "Q3SocketDevice::sendBlock: Invalid socket" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Device is not open" );
+	qWarning( "Q3SocketDevice::sendBlock: Device is not open" );
 #endif
 	return -1;
     }
     if ( !isWritable() ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
-	qWarning( "QSocketDevice::sendBlock: Write operation not permitted" );
+	qWarning( "Q3SocketDevice::sendBlock: Write operation not permitted" );
 #endif
 	return -1;
     }
@@ -976,7 +976,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 }
 
 
-void QSocketDevice::fetchConnectionParameters()
+void Q3SocketDevice::fetchConnectionParameters()
 {
     if ( !isValid() ) {
 	p = 0;
@@ -1000,7 +1000,7 @@ void QSocketDevice::fetchConnectionParameters()
 }
 
 
-void QSocketDevice::fetchPeerConnectionParameters()
+void Q3SocketDevice::fetchPeerConnectionParameters()
 {
     // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
     // there will be problems otherwise if you use MS Proxy server)
@@ -1016,20 +1016,20 @@ void QSocketDevice::fetchPeerConnectionParameters()
 	qt_socket_getportaddr( (struct sockaddr *)(&sa), &pp, &pa );
 }
 
-Q_UINT16 QSocketDevice::peerPort() const
+Q_UINT16 Q3SocketDevice::peerPort() const
 {
     if ( pp==0 && isValid() ) {
-	QSocketDevice *that = (QSocketDevice*)this; // mutable
+	Q3SocketDevice *that = (Q3SocketDevice*)this; // mutable
 	that->fetchPeerConnectionParameters();
     }
     return pp;
 }
 
 
-QHostAddress QSocketDevice::peerAddress() const
+QHostAddress Q3SocketDevice::peerAddress() const
 {
     if ( pp==0 && isValid() ) {
-	QSocketDevice *that = (QSocketDevice*)this; // mutable
+	Q3SocketDevice *that = (Q3SocketDevice*)this; // mutable
 	that->fetchPeerConnectionParameters();
     }
     return pa;

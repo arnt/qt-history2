@@ -2999,7 +2999,7 @@ bool QImage::loadFromData(const uchar *buf, uint len, const char *format)
 bool QImage::loadFromData(QByteArray buf, const char *format)
 {
     QBuffer b(&buf);
-    b.open(IO_ReadOnly);
+    b.open(QIODevice::ReadOnly);
     QImageIO io(&b, format);
     bool result = io.read();
     b.close();
@@ -3039,7 +3039,7 @@ bool QImage::save(const QString &fileName, const char* format, int quality) cons
     QImage image;
     QByteArray ba;
     QBuffer buffer(ba);
-    buffer.open(IO_WriteOnly);
+    buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, "PNG"); // writes image into ba in PNG format
     \endcode
 */

@@ -582,7 +582,7 @@ bool QSVGPaintEngine::save(const QString &fileName)
     }
 
     QFile f(fileName);
-    if (!f.open (IO_WriteOnly))
+    if (!f.open (QIODevice::WriteOnly))
         return false;
     QTextStream s(&f);
     s.setEncoding(QTextStream::UnicodeUTF8);

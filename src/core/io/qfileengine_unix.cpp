@@ -60,7 +60,7 @@ QFSFileEngine::link(const QString &newName)
     return ::symlink(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
 }
 
-QFile::Offset
+Q_LONGLONG
 QFSFileEngine::size() const
 {
     QT_STATBUF st;
@@ -428,7 +428,7 @@ QFSFileEngine::fileName(FileName file) const
                     AliasHandle alias;
                     if(FSNewAlias(0, &fref, &alias) == noErr && alias) {
                         CFStringRef cfstr;
-                        if(FSCopyAliasInfo(alias, 0, 0, &cfstr, 0, 0) == noErr) 
+                        if(FSCopyAliasInfo(alias, 0, 0, &cfstr, 0, 0) == noErr)
                             return QCFString::toQString(cfstr);
                     }
                 }
@@ -512,7 +512,7 @@ QFSFileEngine::chmod(uint perms)
 }
 
 bool
-QFSFileEngine::setSize(QIODevice::Offset size)
+QFSFileEngine::setSize(Q_LONGLONG size)
 {
     if(d->fd != -1)
         return !ftruncate(d->fd, size);

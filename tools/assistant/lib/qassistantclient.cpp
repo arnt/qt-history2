@@ -13,7 +13,7 @@
 
 #include "qassistantclient.h"
 
-#include <qsocket.h>
+#include <q3socket.h>
 #include <qtextstream.h>
 #include <qprocess.h>
 #include <qtimer.h>
@@ -131,7 +131,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     assistantCommand += ".app/Contents/MacOS/assistant";
 #endif
 
-    socket = new QSocket( this );
+    socket = new Q3Socket( this );
     connect( socket, SIGNAL( connected() ),
             SLOT( socketConnected() ) );
     connect( socket, SIGNAL( connectionClosed() ),
@@ -280,9 +280,9 @@ void QAssistantClient::socketConnectionClosed()
 
 void QAssistantClient::socketError( int i )
 {
-    if ( i == QSocket::ErrConnectionRefused )
+    if ( i == Q3Socket::ErrConnectionRefused )
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
-    else if ( i == QSocket::ErrHostNotFound )
+    else if ( i == Q3Socket::ErrHostNotFound )
         emit error( tr( "Could not connect to Assistant: Host not found" ) );
     else
         emit error( tr( "Communication error" ) );

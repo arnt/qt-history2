@@ -68,7 +68,7 @@ public:
     QSocketNotifier *writeSocketNotifier;
 
     void resetSocketLayer();
-    void flush();
+    bool flush();
 
     bool initSocketLayer(Qt::SocketType socketType, Qt::NetworkLayerProtocol protocol);
     void setupSocketNotifiers();
@@ -89,7 +89,6 @@ public:
     Qt::SocketState state;
 
     Qt::SocketError socketError;
-    QString socketErrorString;
 };
 
 #endif
