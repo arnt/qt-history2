@@ -58,7 +58,8 @@ void Hello::mouseReleaseEvent( QMouseEvent *e )
 /*
   Handles paint events for the Hello widget.
 
-  Flicker-free update using a double buffer.
+  Flicker-free update. The text is first drawn in the pixmap and the
+  pixmap is then blt'ed to the screen.
 */
 
 void Hello::paintEvent( QPaintEvent * )
@@ -76,20 +77,26 @@ void Hello::paintEvent( QPaintEvent * )
     int pmx = width()/2 - w/2;
     int pmy = height()/2 - h/2;
 
-    // 2: Create a double buffer for the area we wish to paint on
-    QDoubleBuffer buffer( this, pmx, pmy, w, h );
+    // 2: Create the pixmap and fill it with the widget's background
+    QPixmap pm( w, h );
+    pm.fill( this, pmx, pmy );
 
-    // 3: Paint into the buffer. Cool wave effect
+    // 3: Paint the pixmap. Cool wave effect
+    QPainter p;
     int x = 10;
     int y = h/2 + fm.descent();
     int i = 0;
+    p.begin( &pm );
+    p.setFont( font() );
     while ( !t[i].isNull() ) {
         int i16 = (b+i) & 15;
-        buffer.painter()->setPen( QColor((15-i16)*16,255,255,QColor::Hsv) );
-        buffer.painter()->drawText( pmx+x, pmy+y-sin_tbl[i16]*h/800, t.mid(i,1), 1 );
+        p.setPen( QColor((15-i16)*16,255,255,QColor::Hsv) );
+        p.drawText( x, y-sin_tbl[i16]*h/800, t.mid(i,1), 1 );
         x += fm.width( t[i] );
         i++;
     }
+    p.end();
 
-    // 4: The double buffer goes out of scope and automatically flushes its contents
+    // 4: Copy the pixmap to the Hello widget
+    bitBlt( this, pmx, pmy, &pm );
 }
