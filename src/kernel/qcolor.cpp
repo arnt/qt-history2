@@ -189,8 +189,8 @@ QColor::QColor(Qt::GlobalColor color)
 	QRGBA(255, 255, 255, 1), // color0
 	QRGBA(  0,   0,   0, 1), // color1
 #else
-	QRGB(  0,   0,   0), // color0
-	QRGB(255, 255, 255), // color1
+	QRGB(255, 255, 255), // color0
+	QRGB(  0,   0,   0), // color1
 #endif
 	QRGB(  0,   0,   0), // black
 	QRGB(255, 255, 255), // white
