@@ -29,6 +29,7 @@ ListDnd::ListDnd( QScrollView * eventSource, const char * name )
     src = eventSource;
     src->setAcceptDrops( TRUE );
     src->installEventFilter( this );
+    src->viewport()->installEventFilter( this );
 
     line = new QWidget( src->viewport(), 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
     line->setBackgroundColor( Qt::black );
