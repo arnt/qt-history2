@@ -183,16 +183,18 @@ public:
     { drawText(p.x(), p.y(), s, dir); }
 
 #ifdef QT_COMPAT
-    QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
-    QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
-    QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
+    inline QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
+    inline QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
+    inline QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
         { drawText(x, y, s.mid(pos, len), dir); }
-    QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
+    inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
         { drawText(p, s.mid(pos, len), dir); }
-    QT_COMPAT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
+    inline QT_COMPAT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
         { drawText(x, y, s.left(len), dir); }
-    QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
+    inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
         { drawText(p, s.left(len), dir); }
+    inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init) 
+        { bool ret = begin(pdev); initFrom(init); return ret; }
 #endif
 
     void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
