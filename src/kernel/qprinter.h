@@ -46,10 +46,6 @@
 
 #ifndef QT_NO_PRINTER
 
-#ifdef Q_WS_WIN
-#include "qt_windows.h"
-#endif
-
 #if defined(B0)
 #undef B0 // Terminal hang-up.  We assume that you do not want that.
 #endif
@@ -183,14 +179,14 @@ private:
 #if defined(Q_WS_WIN)
     void        readPdlg( void* );
     void        readPdlgA( void* );
-    void	writeDevmode( HANDLE );
-    void	writeDevmodeA( HANDLE );
+    void	writeDevmode( Qt::HANDLE );
+    void	writeDevmodeA( Qt::HANDLE );
     void	reinit();
 
     bool        viewOffsetDone;
     QPainter*   painter;
-    HANDLE hdevmode;
-    HANDLE hdevnames;
+    Qt::HANDLE hdevmode;
+    Qt::HANDLE hdevnames;
 #endif
 
     int         state;
