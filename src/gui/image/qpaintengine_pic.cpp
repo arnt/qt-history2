@@ -252,8 +252,12 @@ void QPicturePaintEngine::drawPoint(const QPoint &p)
     writeCmdLength(pos, QRect(p,p), true);
 }
 
-void QPicturePaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+void QPicturePaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
 {
+    int pos;
+    SERIALIZE_CMD(PdcDrawPoints);
+    d->s << a << (Q_INT32) index << (Q_INT32) npoints;
+    writeCmdLength(pos, a.boundingRect(), true);
 }
 
 void QPicturePaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)

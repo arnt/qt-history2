@@ -37,6 +37,7 @@ public:
 	PdcDrawText2Formatted = 20, // rect,ival,str
 	PdcDrawTextItem = 21,
 	PdcDrawLast = PdcDrawTextItem,
+	PdcDrawPoints = 22,
 
 	// no painting commands below PdcDrawLast.
 
