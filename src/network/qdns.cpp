@@ -52,36 +52,6 @@ static void cleanup_agent()
     \sa QDnsHostInfo
 */
 
-/*! \class QDnsHostInfo
-    \brief The QDnsHostInfo class provides information about a host name lookup.
-    \reentrant
-
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
-
-    \module network
-    \ingroup io
-
-    A QDnsHostInfo reference is passed to the slot invoked by
-    QDns::getHostByName().
-
-    host() returns the host name that was queried. Call addresses() to
-    get the list of host addresses associated with the host name that
-    was queried.
-
-    error() returns the type of error that occurred if the lookup
-    failed. errorString() gives a human readable description of the
-    lookup error.
-*/
-
-/*!
-    \enum QDns::Error
-    \value NoError
-    \value HostNotFound
-    \value UnknownError
-*/
-
 /*!
     Looks up the hostname (IP address) \a name. When the result of the
     lookup is ready, the slot or signal \a member in \a receiver is
@@ -187,11 +157,46 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #endif
 }
 
+/*! \class QDnsHostInfo
+    \brief The QDnsHostInfo class provides information about a host name lookup.
+    \reentrant
+
+\if defined(commercial)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
+    \module network
+    \ingroup io
+
+    A QDnsHostInfo is passed to the slot invoked by
+    QDns::getHostByName(). It contains the result of the lookup.
+
+    host() returns the host name that was looked up. Call addresses()
+    to get the list of IP addresses for the host.
+
+    If the lookup failed, error() returns the type of error that
+    occurred. errorString() gives a human readable description of the
+    lookup error.
+*/
+
+/*!
+    \enum QDns::Error
+    \value NoError The lookup was successful.
+    \value HostNotFound No IP addresses were found for the host.
+    \value UnknownError An unknown error occurred.
+*/
+
+/*!
+    Constructs an empty QDnsHostInfo.
+*/
 QDnsHostInfo::QDnsHostInfo()
     : d(new QDnsHostInfoPrivate)
 {
 }
 
+/*!
+    Copy constructor. Copies the data of \a hostInfo.
+*/
 QDnsHostInfo::QDnsHostInfo(const QDnsHostInfo &hostInfo)
 {
     QDnsHostInfoPrivate *x = new QDnsHostInfoPrivate;
@@ -199,6 +204,9 @@ QDnsHostInfo::QDnsHostInfo(const QDnsHostInfo &hostInfo)
     x = qAtomicSetPtr(&d, x);
 }
 
+/*!
+    Assigns the data of \a hostInfo to this class.
+*/
 QDnsHostInfo &QDnsHostInfo::operator =(const QDnsHostInfo &hostInfo)
 {
     QDnsHostInfoPrivate *x = new QDnsHostInfoPrivate;
@@ -209,26 +217,47 @@ QDnsHostInfo &QDnsHostInfo::operator =(const QDnsHostInfo &hostInfo)
     return *this;
 }
 
+/*!
+    Destructor.
+*/
 QDnsHostInfo::~QDnsHostInfo()
 {
     delete d;
 }
 
+/*!
+    Returns the list of IP addresses returned by the host name lookup.
+
+    \sa host()
+*/
 QList<QHostAddress> QDnsHostInfo::addresses() const
 {
     return d->addrs;
 }
 
+/*!
+    Returns the name of the host whose IP addresses were looked up.
+*/
 QString QDnsHostInfo::host() const
 {
     return d->hostName;
 }
 
+/*!
+    If the host name lookup failed, this function returns the type of
+    error that occurred; otherwise NoError is returned.
+
+    \sa QDnsHostInfo::Error
+*/
 QDnsHostInfo::Error QDnsHostInfo::error() const
 {
     return d->err;
 }
 
+/*!
+    If the lookup failed, this function returns a human readable
+    description of the error; otherwise "Unknown error" is returned.
+*/
 QString QDnsHostInfo::errorString() const
 {
     return d->errorStr;
