@@ -1,0 +1,84 @@
+/*!
+\page qttodo.html
+
+<TITLE>Qt TODO</TITLE>
+</HEAD><body>
+
+\postheader
+<H1 align=center>Qt TODO</H1>
+<H2>General clean-up</H2>
+<DL>
+  <DT><B>64-bit-clean <CODE>sizeof</CODE> and <CODE>size_t</CODE></B> 
+  <DD>On 64-bit platforms <CODE>sizeof</CODE> and <CODE>size_t</CODE> are 64-bit 
+  and cannot be cast to <CODE>uint</CODE>. Review code and API to get 
+  64-bit-clean. 
+
+  <DT><B>const-correctness for <CODE>char*</CODE></B> 
+  <DD>Some functions in the API return <CODE>char*</CODE> instead of <CODE>const 
+  char*</CODE>. Change to <CODE>const char*</CODE> in the API and the code. 
+  Remove some casts that had been added as a workaround to avoid relevant 
+  warnings. This is illegal C/C++: <BR><CODE>char *str = "constant!"</CODE> 
+
+  <DT><B>Pointer to pointer to member function</B> 
+  <DD>Avoid it in the code and the API. Use a pointer to member function. This 
+  way a cast will be an implicit <CODE>reinterpret_cast</CODE>. <CODE>QMember* 
+  QConnection::member()</CODE> should be <CODE>QMember 
+  QConnection::member()</CODE>. 
+
+  <DT><B>Use <CODE>_OS_*_</CODE> and <CODE>_CC_*_</CODE></B> 
+  <DD>Use <CODE>_OS_*_</CODE> and <CODE>_CC_*_</CODE> everywhere or create new 
+  <CODE>Q_*</CODE> flags. For example <CODE>#if defined(BSD4_4)</CODE> should be 
+  something like <CODE>#if defined(_OS_FREEBSD_)</CODE> or <CODE>#if 
+  defined(Q_BSD44_SOCKET_API)</CODE>. At least this is how it was done until now 
+  because this level of indirection had been useful in the past... </DL>
+
+<H2>Specific enhancements</H2>
+<DL>
+  <DT><B>QRect</B> 
+  <DD>Make 0x0 rectangles valid and fix any problems that may arise from it. 
+
+  <DT><B>PNG</B> 
+  <DD>Get Qt to work with libpng 1.0.8. Send a bug report if the bug is in 
+  libpng 1.0.8 and find a workaround. Use functions instead of direct struct 
+  access to maintain binary compatibility with all libpng versions. 
+
+  <DT><B>PNG</B> 
+  <DD>Two images from the PNG test suite are still not read correctly. 
+
+  <DT><B>Drag and Drop</B> 
+  <DD>Still doesn't work (sometimes crashes?) when dragging from or dropping to 
+  non-Qt programs. Can't paste or drop to NEdit. Can't drag from ClearCase. Asks 
+  useless question when dropping Netscape's "Location". Can't paste from 
+  Netscape. 
+
+  <DT><B>QScrollView</B> 
+  <DD>Add a AutoOneFit resize policy. 
+
+  <DT><B>QImageIO</B> 
+  <DD>Clean up the compression parameter passing code. You'll need to change the 
+  API. 
+
+  <DT><B>QProgressBar</B> 
+  <DD>Add a "Busy" indicator for operations which have no concept of 
+  "percentage" like waiting for a network operation to be completed. 
+</DL>
+
+<H2>Feature Requests</H2>
+<DL>
+    <DT><B>QFileDialog</B>
+    <UL>
+    <LI>setSelectedFilter( const QString&/int ) to set used filter
+    <LI>set filter to initial file-extension
+    </UL>
+
+    <DT><B>QSizeGrip (Win32)</B>
+    <DD>Outlined resize as set in the system properties</DD>
+
+    <DT><B>QButtonGroup</B>
+    <DD>Should work not only for QRadioButtons</DD>
+
+    <DT><B>QProgressBar</B>
+    <DD>setPercentageVisible( bool )</DD>
+</DL>
+
+*/

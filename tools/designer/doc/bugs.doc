@@ -1,24 +1,26 @@
 /*!
-\page bugs.html
+\page designerbugs.html
 
-<title>Designer Bugs</title>
-</head><body bgcolor="#ffffff">
+<title>Qt Designer Bugs</title>
+</head><body>
 
 \postheader
-<h1 align=center>Designer Bugs</h1><br clear="all">
+<H1 align=center>Qt Designer Bugs</H1>
 
-<table width=100%>
+<H2>Critical</H2>
+<DL>
+</DL>
 
-<tr bgcolor=darkblue>
-<td><b><font color=white>Description</font></b></td>
-<td><b><font color=white>Priority</font></b></td>
-</tr>
+<H2>Severe</H2>
+<DL>
+</DL>
 
-<tr bgcolor=#D6D6D6>
-<td></td>
-<td></td>
-</tr>
+<H2>Small</H2>
+<DL>
+</DL>
 
-</table>
+<H2>Cosmetic</H2>
+<DL>
+</DL>
 
 */

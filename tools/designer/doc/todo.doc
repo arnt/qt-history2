@@ -1,0 +1,36 @@
+/*!
+\page designertodo.html
+
+<title>Qt Designer TODO</title>
+</head><body>
+
+\postheader
+<H1 align=center>Qt Designer TODO</H1>
+<H2>New functionality</H2>
+<DL>
+    <DT><B>Action Editor</B></DT>
+    <DD>A dialog to set the properties for QActions (this dialog may
+    become a part of QMainWindow as this provides enhanced customization).
+    Actions can than be dragged into</DD>
+
+    <DT><B>Tool- and Menubar editing</B></DT>
+    <DD>which then can be used for</DD>
+
+    <DT><B>MainWindow editing</B></DT>
+    <DD>A mainwindow is basically a bunch of menu-, status- and toolbars and
+    a central widget.</DD>
+</DL>
+
+<H2>Extending existing functionality</H2>
+<DL>
+    <DT><B>Custom Widgets</B></DT>
+    <DD>PlugIn support</DD>
+</DL>
+
+<H2>Feature Requests</H2>
+<DL>
+    <DT><B>Change Object Hierarchy</B></DT>
+    <DT><B>Changing page-order in tabwidget</B></DT>
+</DL>
+
+*/
