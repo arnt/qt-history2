@@ -450,6 +450,7 @@ QSqlFormNavigator::~QSqlFormNavigator()
 }
 
 /*! Sets the default form to be used by the navigator to \a form.
+*/
 
 void QSqlFormNavigator::setForm( QSqlForm* form )
 {

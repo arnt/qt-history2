@@ -1568,13 +1568,13 @@ void QSqlTable::setSize( QSqlCursor* sql )
 }
 
 /*!  Sets \a cursor as the data source for the table.  To force the
-  display of the data from \a cursor, use refresh(). If \a autoPopulate
-  is TRUE (the default is FALSE), columns are automatically created
-  based upon the fields in the \a cursor record.  If \a autoDelete is
-  TRUE (the default is FALSE), the table will take ownership of the \a
-  cursor and delete it when appropriate.  If the \a cursor is read
-  only, the table becomes read only.  The table adopts the cursor's
-  driver's definition for representing NULL values as strings.
+  display of the data from \a cursor, use refresh(). If \a
+  autoPopulate is TRUE, columns are automatically created based upon
+  the fields in the \a cursor record.  If \a autoDelete is TRUE (the
+  default is FALSE), the table will take ownership of the \a cursor
+  and delete it when appropriate.  If the \a cursor is read only, the
+  table becomes read only.  The table adopts the cursor's driver's
+  definition for representing NULL values as strings.
 
   \sa refresh() setReadOnly() setAutoDelete() QSqlDriver::nullText()
 
