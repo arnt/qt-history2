@@ -447,8 +447,6 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     q->clear();
 
-    doc->setModified(false);
-
     QTextCharFormat fmt;
     fmt.setFont(q->font());
     fmt.setColor(q->palette().color(QPalette::Text));
@@ -474,6 +472,8 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
     doc->setUndoRedoEnabled(true);
     cursor.movePosition(QTextCursor::Start);
     updateCurrentCharFormatAndSelection();
+
+    doc->setModified(false);
 }
 
 void QTextEditPrivate::startDrag()
