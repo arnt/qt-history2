@@ -8,7 +8,6 @@
 #include <qguardedptr.h>
 #include "qapplicationinterfaces.h"
 
-
 class QHBox;
 class QScrollView;
 class QWidgetPlugInManager;
@@ -16,29 +15,6 @@ class QActionPlugInManager;
 class QPopupMenu;
 class QToolBar;
 class QAction;
-
-class PlugMainWindowInterface : public QApplicationInterface
-{
-public:
-    void requestProperty( const QCString&, QVariant& );
-    void requestSetProperty( const QCString&, const QVariant& );
-};
-
-class PlugApplication : public QApplication
-{
-public:
-    PlugApplication( int argc, char** argv )
-	: QApplication( argc, argv )
-    {
-	mwIface = 0;
-    }
-
-    QApplicationInterface* requestApplicationInterface( const QCString& request );
-    QStrList queryInterfaceList() const;
-
-protected:
-    PlugMainWindowInterface* mwIface;
-};
 
 class PlugMainWindow : public QMainWindow
 {
@@ -65,6 +41,31 @@ protected:
 
 private:
     QMap<int, QString> menuIDs;
+};
+
+class PlugMainWindowInterface : public QApplicationInterface
+{
+public:
+    PlugMainWindow* mainWindow() const;
+
+    void requestProperty( const QCString&, QVariant& );
+    void requestSetProperty( const QCString&, const QVariant& );
+};
+
+class PlugApplication : public QApplication
+{
+public:
+    PlugApplication( int argc, char** argv )
+	: QApplication( argc, argv )
+    {
+	mwIface = 0;
+    }
+
+    QApplicationInterface* requestApplicationInterface( const QCString& request );
+    QStrList queryInterfaceList() const;
+
+protected:
+    PlugMainWindowInterface* mwIface;
 };
 
 #endif // PLUGMAINWINDOW_H
