@@ -2,6 +2,7 @@
 #include "../../../qcleanuphandler.h"
 #include "../../../qdualinterface.h"
 #include "../../../qwidgetfactory.h"
+#include "sounddialog.h"
 
 #include <qaction.h>
 #include <qpopupmenu.h>
@@ -10,6 +11,11 @@
 #include <qvariant.h>
 #include <qinputdialog.h>
 #include <qpainter.h>
+#include <qsound.h>
+#include <qcheckbox.h>
+#include <qlineedit.h>
+
+class QToolBar;
 
 #ifdef _WS_WIN_
 #undef LIBEXPORT
@@ -43,19 +49,25 @@ public slots:
     void openDialog();
     void toggleText();
     void selectWidget();
-    void changed( bool );
+    void toolBarMoves( QToolBar* );
+    void toolBarDropped( QToolBar* );
 
 protected:
     QAction* actionTurnOnText;
     void connectNotify( const QCString& iface );
 
+    bool eventFilter( QObject*, QEvent* );
+
 private:
     QClientInterface* cIface;
+    QGuardedPtr<SoundDialog> dialog;
 };
 
 TestInterface::TestInterface()
 {
     cIface = 0;
+    dialog = new SoundDialog( 0, 0, FALSE );
+    widgets.addCleanUp( dialog );
 }
 
 TestInterface::~TestInterface()
@@ -85,9 +97,10 @@ QStrList TestInterface::queryInterfaceList() const
 
 void TestInterface::connectNotify( const QCString& iface )
 {
-    qDebug( "Handshake!" );
     if ( iface == "PlugMainWindowInterface" ) {
-	clientInterface( iface )->requestSignal( SIGNAL(usesTextLabelChanged(bool)), this, SLOT(changed(bool)));
+	clientInterface( iface )->requestSignal( SIGNAL(startMovingToolBar(QToolBar*)), this, SLOT(toolBarMoves(QToolBar*)));
+	clientInterface( iface )->requestSignal( SIGNAL(endMovingToolBar(QToolBar*)), this, SLOT(toolBarDropped(QToolBar*)));
+	clientInterface( iface )->requestEvents( this );
     }
 }
 
@@ -126,13 +139,8 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 
 void TestInterface::openDialog()
 {
-    QVariant obj;
-    QClientInterface* ifc;
-    if ( (  ifc = clientInterface( "PlugMainWindowInterface" ) ) )
-	ifc->requestProperty( "mainWindow", obj );
-    QDialog* dialog = new QDialog( 0, 0, FALSE );
-    widgets.addCleanUp( dialog );
-    dialog->show();
+    if ( dialog )
+	dialog->show();
 }
 
 void TestInterface::toggleText()
@@ -165,9 +173,56 @@ void TestInterface::selectWidget()
     }
 }
 
-void TestInterface::changed( bool on )
+void TestInterface::toolBarMoves( QToolBar* )
 {
-    qDebug( "Something changed!" );
+    if ( !dialog || !dialog->checkMoving->isChecked() )
+	return;
+    QSound::play( dialog->fileMoving->text() );
+}
+
+void TestInterface::toolBarDropped( QToolBar* )
+{
+    if ( !dialog || !dialog->checkDocking->isChecked() )
+	return;
+    QSound::play( dialog->fileDocking->text() );
+}
+
+bool TestInterface::eventFilter( QObject* o, QEvent* e )
+{
+    if ( o->isA( "PlugMainWindow" ) ) {
+	switch ( e->type() ) {
+	case QEvent::Resize:
+	    {
+		if ( !dialog || !dialog->checkMaximized->isChecked() )
+		    break;
+		QWidget* w = (QWidget*)o;
+		if ( w->isMaximized() )
+		    QSound::play( dialog->fileMaximized->text() );
+	    }
+	    break;
+	case QEvent::Show:
+	    {
+		if ( !dialog || !dialog->checkRestored->isChecked() )
+		    break;
+		QShowEvent* se = (QShowEvent*)e;
+		if ( se->spontaneous() )
+		    QSound::play( dialog->fileRestored->text() );
+	    }
+	    break;
+	case QEvent::Hide:
+	    {
+		if ( !dialog || !dialog->checkMinimized->isChecked() )
+		    break;
+		QHideEvent* he = (QHideEvent*)e;
+		if ( he->spontaneous() )
+		    QSound::play( dialog->fileMinimized->text() );
+	    }
+	    break;
+	default:
+	    break;
+	}
+    }
+    return QObject::eventFilter( o, e );
 }
 
 #if defined(__cplusplus )
