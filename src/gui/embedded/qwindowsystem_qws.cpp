@@ -442,7 +442,7 @@ void QWSClient::sendEvent(QWSEvent* event)
 #ifndef QT_NO_QWS_MULTIPROCESS
     if (csocket) {
         //qDebug() << "QWSClient::sendEvent type " << event->type << " socket state " << csocket->state();
-        if (csocket->state() == Qt::ConnectedState) {
+        if (csocket->state() == QTcpSocket::ConnectedState) {
             event->write(csocket);
             csocket->flush();
         }

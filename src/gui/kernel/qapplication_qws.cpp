@@ -789,7 +789,7 @@ void QWSDisplay::Data::waitForRegionAck()
         if (csocket) {
             csocket->flush();
             csocket->waitForReadyRead(1000);
-            if (csocket->state() != Qt::ConnectedState)
+            if (csocket->state() != QTcpSocket::ConnectedState)
                 return;
         }
 #endif
