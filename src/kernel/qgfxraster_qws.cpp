@@ -5738,25 +5738,23 @@ bool QScreen::supportsDepth(int d) const
 }
 
 // explicit template instaniation
-#if defined(Q_TEMPLATEDLL)
-# ifndef QT_NO_QWS_DEPTH_1
-Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<1,0>;
-# endif
-# ifndef QT_NO_QWS_DEPTH_4
-Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<4,0>;
-# endif
-# ifndef QT_NO_QWS_DEPTH_8
-Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<8,0>;
-# endif
-# ifndef QT_NO_QWS_DEPTH_16
-Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<16,0>;
-# endif
-# ifndef QT_NO_QWS_DEPTH_24
-Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<24,0>;
-# endif
-# ifndef QT_NO_QWS_DEPTH_32
-Q_TEMPLATE_EXTERN template class Q_EXPORT QT_TRANS_GFX_BASE<32,0>;
-# endif
+#ifndef QT_NO_QWS_DEPTH_1
+template class QGfxRaster<1,0>;
+#endif
+#ifndef QT_NO_QWS_DEPTH_4
+template class QGfxRaster<4,0>;
+#endif
+#ifndef QT_NO_QWS_DEPTH_8
+template class QGfxRaster<8,0>;
+#endif
+#ifndef QT_NO_QWS_DEPTH_16
+template class QGfxRaster<16,0>;
+#endif
+#ifndef QT_NO_QWS_DEPTH_24
+template class QGfxRaster<24,0>;
+#endif
+#ifndef QT_NO_QWS_DEPTH_32
+template class QGfxRaster<32,0>;
 #endif
 
 /*!
