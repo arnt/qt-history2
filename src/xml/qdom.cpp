@@ -3541,14 +3541,10 @@ static QString encodeAttr( const QString& str )
 	    tmp.replace( i, 1, "&amp;" );
 	    len += 4;
 	    i += 5;
-	} else if ( tmp[(int)i] == '>' ) {
-	    if ( i>=2 && tmp[(int)i-1]==']' && tmp[(int)i-2]==']' ) {
-		tmp.replace( i, 1, "&gt;" );
-		len += 3;
-		i += 4;
-	    } else {
-		++i;
-	    }
+	} else if ( tmp[(int)i] == '>' && i>=2 && tmp[(int)i-1]==']' && tmp[(int)i-2]==']' ) {
+	    tmp.replace( i, 1, "&gt;" );
+	    len += 3;
+	    i += 4;
 	} else {
 	    ++i;
 	}
