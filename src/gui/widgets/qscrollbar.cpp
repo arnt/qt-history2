@@ -41,7 +41,8 @@
     If you need to provide a scrolling view onto another widget, it may be
     more convenient to use the QWidgetView class because this provides a
     viewport widget and scroll bars. QScrollBar is useful if you need to
-    implement similar functionality for specialized widgets.
+    implement similar functionality for specialized widgets using QViewport;
+    for example, if you decide to subclass QAbstractItemView.
     For most other situations where a slider control is used to obtain a value
     within a given range, the QSlider class may be more appropriate for your
     needs.
