@@ -317,7 +317,7 @@ void qt_mac_update_os_settings()
     }
     //focus mode
     /* First worked as of 10.2.3 */
-    QCoreSettings appleSettings(QLatin1String("apple.com"));
+    QSettings appleSettings(QLatin1String("apple.com"));
     QCoreVariant appleValue = appleSettings.value(QLatin1String("AppleKeyboardUIMode"), 0);
     qt_tab_all_widgets = (appleValue.toInt() & 0x2);
     //paging mode
@@ -2754,7 +2754,7 @@ void QApplication::setDoubleClickInterval(int ms)
 int QApplication::doubleClickInterval()
 {
     if(!qt_mac_dblclick.use_qt_time_limit) { //get it from the system
-        QCoreSettings appleSettings(QLatin1String("apple.com"));
+        QSettings appleSettings(QLatin1String("apple.com"));
         /* First worked as of 10.3.3 */
         double dci = appleSettings.value(QLatin1String("com.apple.mouse.doubleClickThreshold"), 0.5).toDouble();
         return int(dci * 1000);
@@ -2772,7 +2772,7 @@ int QApplication::wheelScrollLines()
 {
     if(!qt_mac_use_qt_scroller_lines) {
         /* First worked as of 10.3.3 */
-        QCoreSettings appleSettings(QLatin1String("apple.com"));
+        QSettings appleSettings(QLatin1String("apple.com"));
         double scroll = appleSettings.value(QLatin1String("com.apple.scrollwheel.scaling"),
                                            (QApplicationPrivate::wheel_scroll_lines)).toDouble();
         return scroll ? int(3 * scroll) : 1;
