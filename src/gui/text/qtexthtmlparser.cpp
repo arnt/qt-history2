@@ -439,7 +439,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1), tableColConstraint(QTextTableFormat::VariableLength), tableColConstraintValue(0), 
-      tableBorder(0), wsm(WhiteSpaceModeUndefined)
+      tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -960,6 +960,16 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     }
 }
 
+static bool setIntAttribute(int *destination, const QString &value)
+{
+    bool ok = false;
+    int val = value.toInt(&ok);
+    if (ok)
+        *destination = val;
+
+    return ok;
+}
+
 void QTextHtmlParser::parseAttributes()
 {
     QTextHtmlParserNode *node = &nodes.last();
@@ -1017,48 +1027,38 @@ void QTextHtmlParser::parseAttributes()
             else if (key == QLatin1String("name"))
                 node->anchorName = value;
         } else if (node->id == Html_img) {
-            bool ok = false;
             if (key == QLatin1String("src") || key == QLatin1String("source")) {
                 node->imageName = value;
             } else if (key == QLatin1String("width")) {
-                node->imageWidth = value.toInt(&ok);
-                if (!ok)
-                    node->imageWidth = -1;
+                setIntAttribute(&node->imageWidth, value);
             } else if (key == QLatin1String("height")) {
-                node->imageHeight = value.toInt(&ok);
-                if (!ok)
-                    node->imageHeight = -1;
+                setIntAttribute(&node->imageHeight, value);
             }
         } else if (node->id == Html_tr) {
             if (key == QLatin1String("bgcolor"))
                 node->bgColor.setNamedColor(value);
         } else if (node->isTableCell) {
             if (key == QLatin1String("width")) {
-                bool ok = false;
-                int val = value.toInt(&ok);
-                if (ok) {
+                if (setIntAttribute(&node->tableColConstraintValue, value)) {
                     node->tableColConstraint = QTextTableFormat::FixedLength;
-                    node->tableColConstraintValue = val;
                 } else {
                     value = value.trimmed();
                     if (!value.isEmpty() && value.at(value.length() - 1) == QLatin1Char('%')) {
                         value.chop(1);
-                        val = value.toInt(&ok);
-                        if (ok) {
+                        if (setIntAttribute(&node->tableColConstraintValue, value))
                             node->tableColConstraint = QTextTableFormat::PercentageLength;
-                            node->tableColConstraintValue = val;
-                        }
                     }
                 }
             } else if (key == QLatin1String("bgcolor")) {
                 node->bgColor.setNamedColor(value);
+            } else if (key == QLatin1String("rowspan")) {
+                setIntAttribute(&node->tableCellRowSpan, value);
+            } else if (key == QLatin1String("colspan")) {
+                setIntAttribute(&node->tableCellColSpan, value);
             }
         } else if (node->id == Html_table) {
             if (key == QLatin1String("border")) {
-                bool ok = false;
-                int width = value.toInt(&ok);
-                if (ok)
-                    node->tableBorder = width;
+                setIntAttribute(&node->tableBorder, value);
             } else if (key == QLatin1String("bgcolor")) {
                 node->bgColor.setNamedColor(value);
             }

@@ -471,6 +471,9 @@ void QTextHTMLImporter::import()
             if (node->bgColor.isValid())
                 charFmt.setTableCellBackgroundColor(node->bgColor);
 
+            charFmt.setTableCellColumnSpan(node->tableCellColSpan);
+            charFmt.setTableCellRowSpan(node->tableCellRowSpan);
+
             QTextBlockFormat fmt;
             appendBlock(fmt, charFmt, QTextBeginningOfFrame);
 
@@ -564,7 +567,7 @@ void QTextHTMLImporter::import()
 
 }
 
-// returns true if block tag was closed
+// returns true if a block tag was closed
 bool QTextHTMLImporter::closeTag(int i)
 {
     const bool atLastNode = (i == count() - 1);
@@ -628,13 +631,16 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 
             foreach (int cell, at(row).children)
                 if (at(cell).isTableCell) {
-                    ++colsInRow;
+                    const QTextHtmlParserNode &c = at(cell);
+                    colsInRow += c.tableCellColSpan;
 
                     if (inFirstRow || colsInRow > constraintTypes.count()) {
-                        Q_ASSERT(colsInRow == constraintTypes.count() + 1);
+                        Q_ASSERT(colsInRow == constraintTypes.count() + c.tableCellColSpan);
 
-                        constraintTypes << at(cell).tableColConstraint;
-                        constraintValues << at(cell).tableColConstraintValue;
+                        for (int i = 0; i < c.tableCellColSpan; ++i) {
+                            constraintTypes << c.tableColConstraint;
+                            constraintValues << c.tableColConstraintValue;
+                        }
                     }
                 }
 

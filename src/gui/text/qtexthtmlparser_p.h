@@ -147,6 +147,8 @@ struct QTextHtmlParserNode {
     QTextTableFormat::TableColumnConstraint tableColConstraint;
     int tableColConstraintValue;
     int tableBorder;
+    int tableCellRowSpan;
+    int tableCellColSpan;
 
     QTextCharFormat charFormat() const;
 
