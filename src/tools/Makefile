@@ -82,7 +82,7 @@ checkout:
 	    ( [ '!' -w $$file ] && [ $$rcs -nt $$file ] ) && \
 	    co ${CODATE} $$file ;\
 	done; \
-	/bin/true # tell make it worked
+	/bin/true	# tell make it worked
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
