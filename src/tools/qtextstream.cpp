@@ -627,7 +627,8 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 
     if ( d && d->ungetcBuf.length() ) {
 	while( rnum < len && rnum < d->ungetcBuf.length() ) {
-	    buf[rnum] = d->ungetcBuf.constref(rnum);
+	    *buf = d->ungetcBuf.constref(rnum);
+	    buf++;
 	    rnum++;
 	}
 	d->ungetcBuf = d->ungetcBuf.mid( rnum );
@@ -722,8 +723,12 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		    break; // it seems we are in sync now
 	    }
 	    uint i = 0;
-	    while( rnum < len && i < s.length() )
-		buf[rnum++] = s.constref(i++);
+	    uint end = QMIN( len-rnum, s.length() );
+	    while( i < end ) {
+		*buf = s.constref(i++);
+		buf++;
+	    }
+	    rnum += len;
 	    if ( s.length() > i )
 		// could be = but append is clearer
 		d->ungetcBuf.append( s.mid( i ) );
@@ -737,20 +742,30 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    // use this method for one character because it is more efficient
 	    // (arnt doubts whether it makes a difference, but lets it stand)
 	    int c = (ungetHack == EOF) ? dev->getch() : ungetHack;
-	    if ( c != EOF )
-		buf[rnum++] = (char)c;
+	    if ( c != EOF ) {
+		*buf = (char)c;
+		buf++;
+		rnum++;
+	    }
 	} else {
 	    if ( ungetHack != EOF ) {
-		buf[rnum++] = (char)ungetHack;
+		*buf = (char)ungetHack;
+		buf++;
+		rnum++;
 		ungetHack = EOF;
 	    }
 	    char *cbuf = new char[len - rnum];
 	    while ( !dev->atEnd() && rnum < len ) {
 		uint rlen = len - rnum;
 		rlen = dev->readBlock( cbuf, rlen );
-		uint i = 0;
-		while( i < rlen )
-		    buf[rnum++] = cbuf[i++];
+		char *it = cbuf;
+		char *end = cbuf + rlen;
+		while ( it < end ) {
+		    *buf = *it;
+		    buf++;
+		    it++;
+		}
+		rnum += rlen;
 	    }
 	    delete[] cbuf;
 	}
@@ -763,9 +778,11 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    if ( c2 == EOF )
 		return rnum;
 	    if ( isNetworkOrder() )
-		buf[rnum++] = QChar( c2, c1 );
+		*buf = QChar( c2, c1 );
 	    else
-		buf[rnum++] = QChar( c1, c2 );
+		*buf = QChar( c1, c2 );
+	    buf++;
+	    rnum++;
 	} else {
 	    char *cbuf = new char[ 2*( len - rnum ) ]; // for paranoids: overflow possible
 	    while ( !dev->atEnd() && rnum < len ) {
@@ -787,15 +804,18 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 		uint i = 0;
 		if ( isNetworkOrder() ) {
 		    while( i < rlen ) {
-			buf[rnum++] = QChar( cbuf[i+1], cbuf[i] );
+			*buf = QChar( cbuf[i+1], cbuf[i] );
+			buf++;
 			i+=2;
 		    }
 		} else {
 		    while( i < rlen ) {
-			buf[rnum++] = QChar( cbuf[i], cbuf[i+1] );
+			*buf = QChar( cbuf[i], cbuf[i+1] );
+			buf++;
 			i+=2;
 		    }
 		}
+		rnum += rlen;
 	    }
 	    delete[] cbuf;
 	}
