@@ -1845,34 +1845,22 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    }
 
 	    if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-		if ( !itm || itm->editType() == QTableItem::OnTyping ) 
+		if ( !itm || itm->editType() == QTableItem::OnTyping )
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
 		if ( ke->key() == Key_Tab && currentColumn() >= numCols() - 1 )
 		    return TRUE;
 		if ( ke->key() == Key_BackTab && currentColumn() == 0 )
 		    return TRUE;
-		if ( ke->key() == Key_Tab ) {
-		    for ( int j = currentColumn()+1; j <= numCols() -1; ++j ) {
-			qDebug("Setting current:" + QString::number(j));
-			setCurrentCell( currentRow(), j );
-			if ( beginEdit( curRow, curCol, FALSE ) ) {
-			    setEditMode( Editing, curRow, curCol );
-			    return TRUE;
-			}
-		    }
-		} else { /* Key_BackTab */
-		    for ( int j = currentColumn()-1; j >= 0; --j ) {		    
-			qDebug("Setting current:" + QString::number(j));			
-			setCurrentCell( currentRow(), j );
-			if ( beginEdit( curRow, curCol, FALSE ) ) {
-			    setEditMode( Editing, curRow, curCol );
-			    return TRUE;
-			}
-		    }
-		}
-		qDebug("done, returning TRUE");
+		if ( ke->key() == Key_Tab )
+		    setCurrentCell( currentRow(), QMIN( numCols() - 1, currentColumn() + 1 ) );
+		else // Key_BackTab
+		    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
+		itm = item( curRow, curCol );
+		if ( beginEdit( curRow, curCol, FALSE ) )
+		    setEditMode( Editing, curRow, curCol );
 		return TRUE;
 	    }
+
 	    if ( ( edMode == Replacing ||
 		   itm && itm->editType() == QTableItem::WhenCurrent ) &&
 		 ( ke->key() == Key_Up || ke->key() == Key_Prior ||
