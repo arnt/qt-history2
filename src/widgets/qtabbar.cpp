@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#12 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#12 $");
 
 
 QTab::~QTab()
@@ -103,7 +103,8 @@ int QTabBar::addTab( QTab * newTab )
 
 /*!
   Enable tab \a id if \a enable is TRUE, or disable it if \a enable is
-  FALSE.
+  FALSE.  If \a id is currently selected, setTabEnabled() makes
+  another tab selected.
 
   setTabEnabled() calls repaint() if this causes a change in \a id's
   status.
@@ -118,7 +119,31 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 	if ( t && t->id == id ) {
 	    if ( t->enabled != enabled ) {
 		t->enabled = enabled;
-		repaint( t->r );
+		QRect r( t->r );
+		if ( !enabled && id == currentTab() ) {
+		    QPoint p1( t->r.center() ), p2;
+		    int m = 2147483647;
+		    int d;
+		    // look for the closest enabled tab - measure the
+		    // distance between the centers of the two tabs
+		    for( QTab * n = l->first(); n; n = l->next() ) {
+			if ( n->enabled ) {
+			    p2 = n->r.center();
+			    d = (p2.x() - p1.x())*(p2.x() - p1.x()) +
+				(p2.y() - p1.y())*(p2.y() - p1.y());
+			    if ( d < m ) {
+				t = n;
+				d = m;
+			    }
+			}
+		    }
+		    if ( t->enabled ) {
+			r = r.unite( t->r );
+			l->append( l->take( l->findRef( t ) ) );
+			emit selected( t->id );
+		    }
+		}
+		repaint( r );
 	    }
 	    return;
 	}
