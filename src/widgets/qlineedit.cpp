@@ -705,7 +705,8 @@ void QLineEdit::imStartEvent( QIMEvent *e )
 {
     d->preeditStart = cursorPosition();
     d->preeditLength = 0;
-
+    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, 
+	d->cursor->parag()->rect().height(), TRUE );
     e->accept();
 }
 

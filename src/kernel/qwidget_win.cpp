@@ -490,11 +490,14 @@ void QWidget::setFontSys( QFont *f )
 	hf = font().handle();
 
     HIMC imc = ImmGetContext( winId() ); // Can we store it?
+#ifdef UNICODE
     if ( qt_winver & WV_NT_based ) {
 	LOGFONT lf;
 	if ( GetObject( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFont( imc, &lf );
-    } else {
+    } else 
+#endif
+    {
 	LOGFONTA lf;
 	if ( GetObjectA( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFontA( imc, &lf );
@@ -507,12 +510,10 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
     CreateCaret( winId(), 0, width, height );
     HideCaret( winId() );
     SetCaretPos( x, y );
-    setFontSys();
 
     if ( text ) {
 	// Translate x,y to be relative to the TLW
 	QPoint p(x,y);
-	//p = mapTo( topLevelWidget(), p );
 
 	COMPOSITIONFORM cf;
 	// ### need X-like inputStyle config settings
@@ -520,8 +521,20 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 	cf.ptCurrentPos.x = p.x();
 	cf.ptCurrentPos.y = p.y();
 
+	CANDIDATEFORM candf;
+	candf.dwIndex = 0;
+	candf.dwStyle = CFS_FORCE_POSITION;
+	candf.ptCurrentPos.x = p.x();
+	candf.ptCurrentPos.y = p.y() + height + 3;
+	candf.rcArea.left = 0;
+	candf.rcArea.top = 0;
+	candf.rcArea.right = 0;
+	candf.rcArea.bottom = 0;
+
+
 	HIMC imc = ImmGetContext( winId() ); // Should we store it?
 	ImmSetCompositionWindow( imc, &cf );
+	ImmSetCandidateWindow( imc, &candf );
 	ImmReleaseContext( winId(), imc );
 	if ( f ) {
 	    setFontSys( f );
