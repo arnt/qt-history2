@@ -31,7 +31,7 @@
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
 
-// NOT REVISED
+// BEING REVISED: paul
 /*!
   \class QAccel qaccel.h
   \brief The QAccel class handles keyboard accelerator and shortcut keys.
