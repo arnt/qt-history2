@@ -42,6 +42,10 @@
 #include "qdatetime.h"
 #include "qcleanuphandler.h"
 
+#ifdef QT_THREAD_SUPPORT
+#  include "qmutexpool_p.h"
+#endif // QT_THREAD_SUPPORT
+
 #ifndef QT_DEBUG_COMPONENT
 # if defined(QT_DEBUG)
 #  define QT_DEBUG_COMPONENT 1
@@ -358,6 +362,11 @@ void QComLibrary::createInstanceInternal()
     bool warn_mismatch = TRUE;
 
     if ( ! query_done ) {
+
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &cache ) );
+#endif // QT_THREAD_SUPPORT
+
 	if (! cache ) {
 	    cache = new QSettings;
 	    cache->insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -424,6 +433,11 @@ void QComLibrary::createInstanceInternal()
 	    << lastModified;
 
     if ( queried != reg ) {
+
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_global_mutexpool->get( &cache ) );
+#endif // QT_THREAD_SUPPORT
+
 	cache->writeEntry( regkey, queried );
 	// delete the cache, which forces the settings to be written
 	delete cache;
