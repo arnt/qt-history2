@@ -18,11 +18,18 @@ class LicenseWizard : public ComplexWizard
 public:
     LicenseWizard(QWidget *parent = 0);
 
+private:
     TitlePage *titlePage;
     EvaluatePage *evaluatePage;
     RegisterPage *registerPage;
     DetailsPage *detailsPage;
     FinishPage *finishPage;
+
+    friend class DetailsPage;
+    friend class EvaluatePage;
+    friend class FinishPage;
+    friend class RegisterPage;
+    friend class TitlePage;
 };
 
 class LicenseWizardPage : public WizardPage
@@ -43,6 +50,7 @@ public:
     void resetPage();
     WizardPage *nextPage();
 
+private:
     QLabel *topLabel;
     QRadioButton *evaluateRadioButton;
     QRadioButton *registerRadioButton;
@@ -57,6 +65,7 @@ public:
     WizardPage *nextPage();
     bool isComplete();
 
+private:
     QLabel *topLabel;
     QLabel *nameLabel;
     QLabel *emailLabel;
@@ -74,6 +83,7 @@ public:
     WizardPage *nextPage();
     bool isComplete();
 
+private:
     QLabel *topLabel;
     QLabel *nameLabel;
     QLabel *upgradeKeyLabel;
@@ -91,6 +101,7 @@ public:
     WizardPage *nextPage();
     bool isComplete();
 
+private:
     QLabel *topLabel;
     QLabel *companyLabel;
     QLabel *emailLabel;
@@ -109,6 +120,7 @@ public:
     bool isLastPage() { return true; }
     bool isComplete();
 
+private:
     QLabel *topLabel;
     QLabel *bottomLabel;
     QCheckBox *agreeCheckBox;
