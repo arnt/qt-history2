@@ -6312,7 +6312,10 @@ QBitmap QIconView::mask( QPixmap *pix ) const
     QBitmap m;
     if ( d->maskCache.find( QString::number( pix->serialNumber() ), m ) )
 	return m;
-    m = pix->createHeuristicMask();
+    if ( pix->mask() )
+       m = *pix->mask();
+    else
+       m = pix->createHeuristicMask();
     d->maskCache.insert( QString::number( pix->serialNumber() ), m );
     return m;
 }
