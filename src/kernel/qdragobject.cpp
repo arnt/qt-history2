@@ -696,7 +696,13 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	r = codec->fromUnicode(text);
 	if (!codec || codec->mibEnum() != 1000) {
 	    // Don't include NUL in size (QCString::resize() adds NUL)
-	    ((QByteArray&)r).resize(r.length());
+#if defined(Q_WS_WIN)
+	    // This is needed to ensure the \0 isn't lost on Windows 95
+	    if ( qWinVersion() == Qt::WV_95 )
+		((QByteArray&)r).resize(r.length()+1);
+	    else
+#endif
+		((QByteArray&)r).resize(r.length());
 	}
     }
     return r;
