@@ -67,7 +67,7 @@ win32 {
 	dll:DEFINES+=QT_MAKEDLL
         accessibility {
 		win32:LIBS += oleacc.lib delayimp.lib
-		QMAKE_LFLAGS += /DELAYLOAD:oleacc.dll
+		win32:QMAKE_LFLAGS += /DELAYLOAD:oleacc.dll
 	}
         tablet {
 		DEFINES += QT_WINTAB_SUPPORT
