@@ -58,8 +58,10 @@ extern "C" void yyerror(const char *foo)
     printf("%d: %s\n", line_count, foo);
 }
 
-int
-main(int argc, char **argv)
+// for Borland, main is defined to qMain which breaks qmake
+#undef main
+
+int main(int argc, char **argv)
 {
     /* parse command line */
     if(!Option::parseCommandLine(argc, argv))
