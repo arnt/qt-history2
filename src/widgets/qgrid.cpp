@@ -24,9 +24,8 @@
     \ingroup geomanagement
     \ingroup appearance
 
-    The grid places its widgets either in a single column or in a
-    single row. If you want a multi-column, multi-row grid use
-    \l{QGridLayout}.
+    The grid places its widgets either in columns or in rows depending
+    on its orientation.
 
     The number of rows \e or columns is defined in the constructor.
     All the grid's children will be placed and sized in accordance
@@ -35,7 +34,7 @@
     Use setMargin() to add space around the grid itself, and
     setSpacing() to add space between the widgets.
 
-    <img src=qgrid-m.png>
+    \img qgrid-m.png QGrid
 
     \sa QVBox QHBox QGridLayout
 */
