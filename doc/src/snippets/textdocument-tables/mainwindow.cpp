@@ -23,6 +23,7 @@ MainWindow::MainWindow()
     int columns = 4;
 
     QTextTableFormat tableFormat;
+    tableFormat.setBackgroundColor(QColor("#e0e0e0"));
     QVector<QTextLength> constraints;
     constraints << QTextLength(QTextLength::PercentageLength, 16);
     constraints << QTextLength(QTextLength::PercentageLength, 28);
@@ -35,27 +36,30 @@ MainWindow::MainWindow()
     int row;
     QTextTableCell cell;
     QTextCursor cellCursor;
+    
+    QTextCharFormat charFormat;
+    charFormat.setTextColor(Qt::black);
 
     cell = table->cellAt(0, 0);
     cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText(tr("Week"));
+    cellCursor.insertText(tr("Week"), charFormat);
 
     for (column = 1; column < columns; ++column) {
         cell = table->cellAt(0, column);
         cellCursor = cell.firstCursorPosition();
-        cellCursor.insertText(tr("Team %1").arg(column));
+        cellCursor.insertText(tr("Team %1").arg(column), charFormat);
     }
 
     for (row = 1; row < rows; ++row) {
         cell = table->cellAt(row, 0);
         cellCursor = cell.firstCursorPosition();
-        cellCursor.insertText(tr("%1").arg(row));
+        cellCursor.insertText(tr("%1").arg(row), charFormat);
 
         for (column = 1; column < columns; ++column) {
             if ((row-1) % 3 == column-1) {
                 cell = table->cellAt(row, column);
                 QTextCursor cellCursor = cell.firstCursorPosition();
-                cellCursor.insertText(tr("On duty"));
+                cellCursor.insertText(tr("On duty"), charFormat);
             }
         }
     }
