@@ -350,8 +350,8 @@ png_convert_to_rfc1123(png_structp png_ptr, png_timep ptime)
 png_charp
 png_get_copyright(png_structp png_ptr)
 {
-   if(png_ptr == NULL)
-     /* silence compiler warning about unused png_ptr */ ;
+   png_ptr = png_ptr;
+     /* silence compiler warning about unused png_ptr */
    return("\n libpng version 1.0.3 - January 14, 1999\n\
    Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.\n\
    Copyright (c) 1996, 1997 Andreas Dilger\n\

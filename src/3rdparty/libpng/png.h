@@ -1564,8 +1564,8 @@ extern PNG_EXPORT(png_charp,png_get_header_version) PNGARG((png_structp png_ptr)
 png_charp
 png_get_header_version(png_structp png_ptr)
 {
-   if(png_ptr == NULL)
-     /* silence compiler warning about unused png_ptr */ ;
+   png_ptr = png_ptr;
+     /* silence compiler warning about unused png_ptr */
    return("\n libpng version 1.0.3 - January 14, 1999 (header)\n");
 }
 #endif
