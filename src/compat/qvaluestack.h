@@ -26,7 +26,7 @@ class QValueStack : public QValueList<T>
 public:
     QValueStack() {}
    ~QValueStack() {}
-    void  push( const T& d ) { this->append(d); }
+    void  push( const T& val ) { this->append(val); }
     T pop()
     {
 	T elem( this->last() );
