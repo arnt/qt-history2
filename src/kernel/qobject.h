@@ -53,7 +53,7 @@ class QMetaObject;
 class QVariant;
 class QMetaProperty;
 class QPostEventList;
-class UObject;
+struct UObject;
 
 #ifndef QT_MOC_CPP
 
