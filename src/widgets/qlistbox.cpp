@@ -676,7 +676,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->clearing = FALSE;
     d->pressedItem = 0;
     d->select = FALSE;
-    
+
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -1751,7 +1751,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     if ( d->mouseMoveRow == d->mousePressRow &&
 	 d->mouseMoveColumn == d->mousePressColumn )
 	return;
-    
+
     if ( d->mousePressRow < 0 && d->mouseMoveRow >= 0 )
 	d->mousePressRow = d->mouseMoveRow;
     if ( d->mousePressRow < 0 && d->currentRow >= 0 )
@@ -1787,6 +1787,7 @@ void QListBox::updateSelection()
 	    if ( i ) {
 		setCurrentItem( i );
 		setSelected( i, TRUE );
+		emitChangedSignal( FALSE );
 	    }
 	} else if ( selectionMode() != NoSelection ) {
 	    int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
