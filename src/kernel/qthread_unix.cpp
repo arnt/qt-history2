@@ -35,11 +35,6 @@
 **
 **********************************************************************/
 
-// XPG4v2 needed for usleep()...
-#define _XOPEN_SOURCE_EXTENDED
-// ... but rather use XPG5 if available
-#define _XOPEN_SOURCE 500
-
 #include "qthread.h"
 
 #if defined(QT_THREAD_SUPPORT)
