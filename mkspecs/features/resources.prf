@@ -5,12 +5,13 @@ isEmpty(QMAKE_RCC) {
 
 isEmpty(RCC_DIR):RCC_DIR = .
 isEmpty(QMAKE_RESOURCE_PREFIX):QMAKE_RESOURCE_PREFIX = /tmp/
+isEmpty(QMAKE_MOD_RCC):QMAKE_MOD_RCC = resource
 
 resource_split {
-   rcc.output  = $$RCC_DIR/resource_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
+   rcc.output  = $$RCC_DIR/$${first(QMAKE_MOD_RCC)}_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
 } else {
    rcc.CONFIG += combine
-   rcc.output  = $$RCC_DIR/resources$${first(QMAKE_EXT_CPP)}
+   rcc.output  = $$RCC_DIR/$${first(QMAKE_MOD_RCC)}$${first(QMAKE_EXT_CPP)}
 }
 !contains(QMAKE_RESOURCE_FLAGS, -root):!isEmpty(QMAKE_RESOURCE_ROOT):QMAKE_RESOURCE_FLAGS += -root $$QMAKE_RESOURCE_ROOT
 !contains(QMAKE_RESOURCE_FLAGS, -name) {
@@ -19,6 +20,7 @@ resource_split {
 }
 rcc.commands = $$QMAKE_RCC $$QMAKE_RESOURCE_FLAGS ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 rcc.depends = $$QMAKE_RCC
+rcc.depend_command = $$QMAKE_RCC -list files $$QMAKE_RESOURCE_FLAGS ${QMAKE_FILE_IN}
 rcc.input = RESOURCES
 rcc.variable_out = SOURCES
 QMAKE_EXTRA_COMPILERS += rcc

@@ -1400,37 +1400,34 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 continue;
             }
             QString inputs, deps;
+            if(!tmp_dep.isEmpty())
+                deps = " " + tmp_dep;
             for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
                 const QStringList &tmp = project->variables()[(*it2)];
                 for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
                     deps += " " + findDependencies((*input)).join(" ");
                     inputs += " " + Option::fixPathToTargetOS((*input), false);
+                    if(!tmp_dep_cmd.isEmpty() && doDepends()) {
+                        char buff[256];
+                        QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), 
+                                                                        tmp_out);
+                        dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                        if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                            while(!feof(proc)) {
+                                int read_in = fread(buff, 1, 255, proc);
+                                if(!read_in)
+                                    break;
+                                deps += QByteArray(buff, read_in);
+                            }
+                            deps = deps.replace('\n', ' ').simplified();
+                            fclose(proc);
+                        }
+                    }
                 }
             }
             if (inputs.isEmpty())
                 continue;
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out);
-            if(!tmp_dep.isEmpty())
-                deps = " " + tmp_dep;
-            if(!tmp_dep_cmd.isEmpty() && doDepends()) {
-                char buff[256];
-                QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, QString::null, tmp_out);
-                if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
-                    while(!feof(proc)) {
-                        int read_in = fread(buff, 1, 255, proc);
-                        if(!read_in)
-                            break;
-                        int l = 0;
-                        for(int i = 0; i < read_in; i++) {
-                            if(buff[i] == '\n' || buff[i] == ' ') {
-                                deps += " " + QByteArray(buff+l, (i - l) + 1);
-                                l = i;
-                            }
-                        }
-                    }
-                    fclose(proc);
-                }
-            }
             deps = replaceExtraCompilerVariables(deps, QString::null, tmp_out);
             t << tmp_out << ": " << inputs << " " << deps << "\n\t"
               << cmd.replace("${QMAKE_FILE_IN}", inputs) << endl << endl;
