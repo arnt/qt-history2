@@ -41,6 +41,7 @@
 #include <qheader.h>
 #include <qtextbrowser.h>
 #include <qtimer.h>
+#include <qlineedit.h>
 
 class MyString : public QString
 {

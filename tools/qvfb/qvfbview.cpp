@@ -25,6 +25,7 @@
 #include <qbitmap.h>
 #include <qtimer.h>
 #include <qwmatrix.h>
+#include <qpainter.h>
 #include "qanimationwriter.h"
 
 #include <unistd.h>

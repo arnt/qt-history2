@@ -61,6 +61,7 @@
 #include <qwhatsthis.h>
 #include <qaccel.h>
 #include <qworkspace.h>
+#include <qtimer.h>
 
 #include "../pics/arrow.xbm"
 #include "../pics/uparrow.xbm"

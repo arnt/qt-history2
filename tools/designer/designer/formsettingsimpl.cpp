@@ -29,6 +29,7 @@
 #include <qpushbutton.h>
 #include <qcombobox.h>
 #include <qradiobutton.h>
+#include <qlineedit.h>
 
 FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     : FormSettingsBase( parent, 0, TRUE ), formwindow( fw )
