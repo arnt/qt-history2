@@ -305,6 +305,10 @@ QWidget
  - Fixed a bug in QPainter on X11 that caused a crash when paint
    events were dispatched from other paint events.
  - Fixed showMaximized() and deferred map handling.
+ - When specifying WDestructiveClose as a widget flag,
+ QWidget::close() does not immediately delete the widget anymore, but
+ calles QObject::deferredDelete()
+
 
 QWorkspace
 ----------
