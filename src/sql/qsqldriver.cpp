@@ -149,8 +149,9 @@ bool QSqlDriver::isOpenError() const
     (i.e. number of rows returned) of a query, in which case
     QSqlQuery::size() will return -1
     \value BLOB  whether the driver supports Binary Large Object fields
-    \value Unicode  the driver supports Unicode strings if the
+    \value Unicode  whether the driver supports Unicode strings if the
     database server does
+    \value PreparedQueries  whether the driver supports prepared query execution
 
     More information about supported features can be found in the 
     \link sql-driver.html Qt SQL driver\endlink documentation.
