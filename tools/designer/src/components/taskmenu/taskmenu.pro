@@ -14,6 +14,7 @@ DESTDIR = ../../../lib
 
 DEFINES += QT_TASKMENU_LIBRARY
 
+#PRECOMPILED_HEADER=taskmenu_pch.h
 HEADERS += button_taskmenu.h \
   groupbox_taskmenu.h \
   listwidget_taskmenu.h \

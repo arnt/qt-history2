@@ -15,6 +15,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../buddyeditor
 
 
+#PRECOMPILED_HEADER=buddyeditor_pch.h
 HEADERS += \
     buddyeditor.h \
     buddyeditor_plugin.h \

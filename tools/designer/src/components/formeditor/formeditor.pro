@@ -16,6 +16,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../signalsloteditor \
     ../buddyeditor
 
+#PRECOMPILED_HEADER=formeditor_pch.h
 HEADERS += \
            qdesigner_resource.h \
            formwindow.h \

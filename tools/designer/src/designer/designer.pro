@@ -74,6 +74,8 @@ SOURCES += main.cpp \
     saveformastemplate.cpp \
     newform.cpp
 
+#PRECOMPILED_HEADER=qdesigner_pch.h
+
 FORMS += \
     newform.ui \
     saveformastemplate.ui
