@@ -960,13 +960,6 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     # symlink the doc directory
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
-
-    # binaries from qt
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
-    # hacky src line
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 else
     # override the Windows Makefile
     if [ -f "$relpath/GNUmakefile" ]; then
@@ -975,6 +968,13 @@ else
 	chmod +w $outpath/Makefile
     fi
 fi
+
+# binaries from qt
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
+# hacky src line
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
 AWK=
