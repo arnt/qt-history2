@@ -29,7 +29,9 @@
 
     The module also provides classes QAxScript, QAxScriptManager and 
     QAxScriptEngine that allow using Windows Script Host technologies to 
-    script COM objects embedded in the Qt applications.
+    script COM objects embedded in the Qt applications, and \link 
+    activeqt-tools.html tools \endlink that make it easier to access COM
+    objects programmatically.
 
     \link qaxcontainer-examples.html Examples \endlink include a
     web browser application embedding Microsoft Internet Explorer, and an
@@ -48,11 +50,10 @@
     ActiveX controls, as well as a \link activeqt-dotnet.html walkthrough
     \endlink how to use those objects in a .NET environment.
 
-    \section1 Additional Information
+    \section2 Additional Information
 
     \list
     \i \link activeqt-tools.html ActiveQt Tools\endlink.
     \i \link activeqt-examples.html ActiveQt Examples\endlink.
     \endlist
 */
-

@@ -25,7 +25,7 @@
     The module consists of six classes
     \list 1
     \i \l QAxBase is an abstract class that provides an API to initialize 
-       and access a COM/ActiveX object.
+       and access a COM object or ActiveX control.
     \i \l QAxObject provides a QObject that wraps a COM object.
     \i \l QAxWidget is a \l QWidget that wraps an ActiveX control.
     \i \l QAxScriptManager, QAxScript and QAxScriptEngine provide an 
@@ -44,7 +44,7 @@
     to build the library. The library \c qaxcontainer.lib will be linked 
     into \c QTDIR/lib.
 
-    If you have a shared configuration of Qt enter the \c plugin subdirectory
+    If you are using a shared configuration of Qt enter the \c plugin subdirectory
     and run \c qmake and your make tool to build a plugin that integrates the
     QAxWidget class into \link designer-manual.book Qt Designer\endlink.
 
@@ -87,8 +87,23 @@
 
     See the QAxWidget and QAxObject API documentation about how to 
     use this class to use ActiveX controls and COM objects in Qt 
-    applications. To access the COM object with scripting languages use 
-    the QAxScript class.
+    applications via QAxBase::dynamicCall() and QAxBase::querySubObject() 
+    as well as the QObject::setProperty() and QObject::property() APIs. 
+    To access the COM object with scripting languages use the QAxScript class.
+
+    To generate a C++ namespace for the type library you want to access,
+    use the \link activeqt-tools-dumpcpp.html dumpcpp \endlink tool. Run 
+    this tool manually on the type library you want to use, or integrate it
+    into the build system by adding the following to your application .pro file:
+
+    \code
+    CONFIG += dumpcpp
+    TYPELIBS = file.tlb
+    \endcode
+
+    Include the resulting header file in your code to access the object APIs
+    through the generated C++ classes. See the \link qaxcontainer-example-qutlook.html
+    Qutlook \endlink example for more information.
 
     To call functions of the COM object that can not be accessed via
     ActiveQt it is possible to request the COM interface directly using

@@ -12,8 +12,7 @@
     \section1 Introduction
 
     The QAxServer module provides a static library implementing the
-    functions required to turn a standard Qt binary into an ActiveX
-    control server. 
+    functionality required to turn a standard Qt binary into a COM server. 
 
     This module is part of the \link activeqt.html ActiveQt
     framework\endlink. (To incorporate ActiveX controls in a Qt
@@ -22,14 +21,14 @@
 
     The module consists of three classes
     \list
-    \i QAxFactory defines a factory for the creation of ActiveX components.
+    \i QAxFactory defines a factory for the creation of COM objects.
     \i QAxBindable provides an interface between the Qt widget and the 
-       ActiveX control.
+       COM object.
     \i QAxAggregated can be subclassed to implement additional COM interfaces.
     \endlist
 
     Some \link qaxserver-examples.html example implementations \endlink 
-    of ActiveX controls are provided.
+    of ActiveX controls and COM objects are provided.
 
     \section1 Building the library
 
@@ -41,7 +40,7 @@
 
     \section1 Using the library
 
-    To turn a standard Qt application into an ActiveX server using the
+    To turn a standard Qt application into an COM server using the
     QAxServer library you must add \c activeqt as a CONFIG setting
     in your \c .pro file.
 
@@ -77,7 +76,7 @@
     \list
     \i link the binary against \c qaxserver.lib
     \i generate an interface definition and link the type library into
-       the binary
+       the binary (see \link activeqt-tools-idc.html idc \endlink)
     \i register the server
     \endlist
 
@@ -91,15 +90,17 @@
     The version number specified will be used as the version of the type
     library and of the server when registering.
 
+    
+
     \section2 Out-of-process vs. In-process
 
-    Whether your ActiveX server should run as a stand-alone executable
+    Whether your COM server should run as a stand-alone executable
     or as a shared library in the client process depends mainly on the
     type of controls you want to provide in the server. 
 
     An executable server has the advantage of being able to run as a
     stand-alone application, but adds considerable overhead to the
-    communication between the ActiveX client and the control. If the
+    communication between the COM client and the COM object. If the
     control has a programming error only the server process running
     the control will crash, and the client application will probably
     continue to run.
@@ -115,17 +116,17 @@
 
     \section1 The QAxServer build system
 
-    To be able to build ActiveX controls with Qt, the build system
-    must be extended to include some additional build steps that are
-    used when the \c .pro file includes \c activeqt in the \c CONFIG
-    settings. The resulting makefile will:
+    To be able to build COM objects and ActiveX controls with Qt, the 
+    build system must be extended to include some additional build steps 
+    that are used when the \c .pro file includes \c activeqt in the 
+    \c CONFIG settings. The resulting makefile will:
 
     \list
     \i Link the executable against \c qaxserver.lib instead of \c qtmain.lib
-    \i Call the resulting executable with the \c -dumpidl parameter to
-    generate an IDL description of the ActiveX controls provided by
-    the server.
-    \i Compile the IDL into a type library using the MIDL tool
+    \i Call the \link activeqt-tools-idc.html idc \endlink tool to generate an 
+    IDL description for the COM server.
+    \i Compile the IDL into a type library using the MIDL tool (part of your 
+    compiler installation)
     \i Attach the resulting type library as a binary resource to the server
        executable
     \endlist
@@ -287,8 +288,9 @@
 
     \section1 Implementing Controls
 
-    To implement an ActiveX control with Qt, create a subclass of QWidget
-    or any existing QWidget subclass:
+    To implement a COM object with Qt, create a subclass of QObject
+    or any existing QObject subclass. If the class is a subclass of QWidget,
+    the COM object will be an ActiveX control.
 
     \code
     #include <qwidget.h>
@@ -300,14 +302,30 @@
 
     The \c Q_OBJECT macro is required to provide the meta object information
     about the widget to the ActiveQt framework.
-    Use the \c Q_PROPERTY macro to declare properties for the ActiveX control:
+
+    \code
+       Q_CLASSINFO("ClassID", "{1D9928BD-4453-4bdd-903D-E525ED17FDE5}")
+       Q_CLASSINFO("InterfaceID", "{99F6860E-2C5A-42ec-87F2-43396F4BE389}")
+       Q_CLASSINFO("EventsID", "{0A3E9F27-E4F1-45bb-9E47-63099BCCD0E3}")
+    \endcode
+
+    Use the \c Q_CLASSINFO macro to specify the COM identifiers for the COM
+    object. \c ClassID and \c InterfaceID are required, while \c EventsID is
+    only necessary when your object has signals. To generate these identifiers,
+    use system tools like \c uuidgen or \c guidgen.
+
+    You can specify additional attributes for each of your classes; see 
+    \link qaxserver.html#sec.8.2 Class Information and Tuning \endlink for 
+    details.
 
     \code
         Q_PROPERTY( int value READ value WRITE setValue )
     \endcode
 
-    Declare a standard QWidget constructor taking a parent widget and a name, 
-    and functions, signals and slots like any normal QWidget.
+    Use the \c Q_PROPERTY macro to declare properties for the ActiveX control.
+
+    Declare a standard constructor taking a parent object, and functions, 
+    signals and slots like for any QObject subclass.
     \footnote
     If a standard constructor is not present the compiler will issue
     an error "no overloaded function takes 2 parameters" when using
@@ -319,17 +337,17 @@
 
     \code
     public:
-        MyActiveX( QWidget *parent = 0, const char *name = 0 )
+        MyActiveX(QWidget *parent = 0)
         ...
 
         int value() const;
 
     public slots:
-        void setValue( int );
+        void setValue(int v);
         ...
 
     signals:
-        void valueChange( int );
+        void valueChange(int v);
         ...
 
     };
@@ -542,27 +560,23 @@
     of the COM object. A COM object representing a multi-document spread sheet 
     application can for example provide one sub-object for each spread sheet.
 
-    Any QObject subclass can be used as the type for a sub object in ActiveX. The
-    QAxFactory implementation (see below) needs to return the classname of the
-    sub type as one key in the featureList() implementation, as well as the IDs 
-    for the COM class, the interface and event interface of that type. Then the
-    type can be used as e.g. the return value or paramter of a slot.
+    Any QObject subclass can be used as the type for a sub object in ActiveX, as
+    long as it is known to the QAxFactory. Then the type can be used in properties,
+    or as the return type or paramter of a slot.
 
     \section2 Property Notification
 
     To make the properties bindable for the ActiveX client, use multiple
     inheritance from the QAxBindable class:
 
-    \raw html
-    <pre>
-    #include &lt;qwidget.h&gt;
-    <b>#include &lt;qaxbindable.h&gt;</b>
+    \code
+    #include <qwidget.h>
+    #include <qaxbindable.h>
 
-    class MyActiveX : public QWidget<b>, public QAxBindable</b>
+    class MyActiveX : public QWidget, public QAxBindable
     {
         Q_OBJECT
-    </pre>
-    \endraw
+    \endcode
 
     When implementing the property write functions, use the
     QAxBindable class's requestPropertyChange() and propertyChanged()
@@ -575,31 +589,30 @@
 
     \section1 Serving Controls
 
-    To make an ActiveX control available to the COM system it must
-    be registered in the system registry using five unique
-    identifiers. These identifiers are provided by tools like \c
-    guidgen or \c uuidgen. The registration information allows COM to
-    localize the binary providing a requested ActiveX control,
-    marshall remote procedure calls to the control and read type
-    information about the methods and properties exposed by the
-    control.
+    To make a COM server available to the COM system it must be registered 
+    in the system registry using five unique identifiers. 
+    These identifiers are provided by tools like \c guidgen or \c uuidgen. 
+    The registration information allows COM to localize the binary providing 
+    a requested ActiveX control, marshall remote procedure calls to the 
+    control and read type information about the methods and properties exposed 
+    by the control.
 
-    To create the ActiveX control when the client asks for it the
-    server must export an implementation of a QAxFactory. Use the
-    default factory when the server provides only a single ActiveX
-    control, and implement a subclass of QAxFactory to provide
-    multiple ActiveX controls. The default factory is available
-    through a macro that takes the identifiers COM requires to locate
-    the ActiveX control on the target system:
+    To create the COM object when the client asks for it the server must export 
+    an implementation of a QAxFactory. The easist way to do this is to use a set
+    of macros:
 
     \code
-    QAXFACTORY_DEFAULT ( MyActiveX,
-		"{ad90301a-849e-4e8b-9a91-0a6dc5f6461f}",
-		"{87a5b65e-7fa9-4dc6-a176-47295988dcbd}",
-		"{a6130ae9-8327-47ec-815b-d0b45a0d6e5e}",
-		"{26c4e136-4e23-4347-af37-faf933b027e9}",
-		"{a8f21901-7ff7-4f6a-b939-789620c03d83}" )
+    QAXFACTORY_BEGIN("{ad90301a-849e-4e8b-9a91-0a6dc5f6461f}",
+                     "{a8f21901-7ff7-4f6a-b939-789620c03d83}")
+        QAXCLASS(MyWidget)
+        QAXCLASS(MyWidget2)
+        QAXTYPE(MySubType)
+    QAXFACTORY_END()
     \endcode
+
+    This will export \c MyWidget and \c MyWidget2 as COM objects that can be
+    created by COM clients, and will register \c MySubType as a type that can
+    be used in properties and parameters of \c MyWidget and \c MyWidget2.
 
     The \link QAxFactory QAxFactory class documentation \endlink explains 
     how to use this macro, and how to implement and use custom factories.
@@ -612,21 +625,19 @@
     server. Use QAxFactory::isServer() to create and run a standard
     application interface, or to prevent a stand-alone execution:
 
-    \raw html
-    <pre>
-    #include &lt;qapplication.h&gt;
-    <b>#include &lt;qaxfactory.h&gt;</b>
+    \code
+    #include <qapplication.h>
+    #include <qaxfactory.h>
 
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
-        <b>if ( !QAxFactory::isServer() ) {
+        if ( !QAxFactory::isServer() ) {
             // create and show main window...
-        }</b>
+        }
         return app.exec();
     }
-    </pre>
-    \endraw
+    \endcode
 
     This is however not necessary as ActiveQt provides a default implementation
     of a main function. The default implemenation calls QAxFactory::startServer(),
@@ -774,40 +785,9 @@
     \i Borland Delphi
     \endlist
 
-    \section1 Enhanced features
+    \section1 Class Information and Tuning
 
-    \section2 Fewer methods and properties
-
-    By default all ActiveX controls expose not only their own methods
-    and properties to ActiveX clients, but also those of all super
-    classes, including QWidget.
-
-    This can be controlled by reimplementing QAxFactory's
-    exposeToSuperClass() function. Reimplement the function to return
-    the last (furthest up the inheritance hierarchy) super-class that
-    should be exposed:
-
-    \code
-    QString MyFactory::exposeToSuperClass( const QString &key ) const
-    {
-        if ( key == "SmallActiveX" )
-            return key;
-        return QAxFactory::exposeToSuperClass( key );
-    }
-    \endcode
-
-    The SmallActiveX control will only expose its own functions and
-    properties to clients, while all other ActiveX controls provided
-    by this factory will expose their own functions and properties and
-    also those of all their super-classes including QWidget. The
-    SmallActiveX class can of course propagate some of the QWidget
-    functions and properties into its own interface.
-
-    \section2 Class Information and Tuning
-
-    An alternative way to reimplementing QAxFactory to have more control
-    about how objects are registered or exposed is to provide class
-    specific information using the Q_CLASSINFO macro, which is part of
+    To provide attributes for each COM class, use the Q_CLASSINFO macro, which is part of
     Qt's meta object system.
 
     \table
@@ -882,26 +862,24 @@
     own API, and is available in the "Insert Objects" dialog of Microsoft
     Office applications.
 
-    \raw html
-    <pre>
+    \code
     class MyActiveX : public QWidget
     {
         Q_OBJECT
-        <b>Q_CLASSINFO("Version", "2.0")
+        Q_CLASSINFO("Version", "2.0")
         Q_CLASSINFO("ClassID", "{7a4cffd8-cbcd-4ae9-ae7e-343e1e5710df}")
         Q_CLASSINFO("InterfaceID", "{6fb035bf-8019-48d8-be51-ef05427d8994}")
         Q_CLASSINFO("EventsID", "{c42fffdf-6557-47c9-817a-2da2228bc29c}")
         Q_CLASSINFO("Insertable", "yes")
-        Q_CLASSINFO("ToSuperClass", "MyActiveX")</b>
+        Q_CLASSINFO("ToSuperClass", "MyActiveX")
 
         Q_PROPERTY( ...
     public:
-        MyActiveX(QWidget *parent = 0, const char *name = 0);
+        MyActiveX(QWidget *parent = 0);
 
         ...
     };
-    </pre>
-    \endraw
+    \endcode
 
     \section2 Developing licensed components
 
@@ -916,16 +894,14 @@
 
     To mark a Qt class as licensed specify a "LicenseKey" using the \c Q_CLASSINFO
     macro.
-    \raw html
-    <pre>
+    \code
     class MyLicensedControl : public QWidget
     {
         Q_OBJECT
-        <b>Q_CLASSINFO("LicenseKey", "&lt;key string&gt;")</b>
+        Q_CLASSINFO("LicenseKey", "&lt;key string&gt;")
     ...
     };
-    </pre>
-    \endraw
+    \endcode
 
     The key is required to be able to create an instance of \c MyLicensedControl
     on a machine that is not licensed itself. The licensed developer can now 
@@ -1001,21 +977,17 @@
     In your QAxBindable subclass, implement \c createAggregate() to return
     a new object of the QAxAggregated subclass.
 
-    \raw html
-    <pre>
-    class MyActiveX : public QWidget,                       
-                      <b>public QAxBindable</b>
+    \code
+    class MyActiveX : public QWidget, public QAxBindable
     {
     	Q_OBJECT
     public:
-        MyActiveX( QWidget *parent, const char *name = 0 );
+        MyActiveX(QWidget *parent);
 
-        <b>QAxAggregated *createAggregate()
+        QAxAggregated *createAggregate()
         {
             return new AxImpl();
         }
-        </b>
     };
-    </pre>
-    \endraw
+    \endcode
 */
