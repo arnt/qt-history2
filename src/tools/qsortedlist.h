@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsortedlist.h#1 $
+** $Id: //depot/qt/main/src/tools/qsortedlist.h#2 $
 **
 ** Definition of QList template/macro class
 **
@@ -40,7 +40,7 @@ public:
     QSortedList<type> &operator=(const QSortedList<type> &l)
       { return (QSortedList<type>&)QList<type>::operator=(l); }
 
-    virtual int compareItems( GCI s1, GCI s2 ) { if ( (type&)*s1 == (type&)*s2 ) return 0;
+    virtual int compareItems( Item s1, Item s2 ) { if ( (type&)*s1 == (type&)*s2 ) return 0;
     return ( (type&)*s1 < (type&)*s2 ? -1 : 1 ); }
 };
 
