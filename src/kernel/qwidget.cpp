@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#72 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#71 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#72 $";
 #endif
 
 /*!
@@ -164,6 +164,13 @@ QWidget::~QWidget()
     if ( childObjects ) {			// widget has children
 	register QObject *obj = childObjects->first();
 	while ( obj ) {				// delete all child objects
+#if defined(_WS_WIN_)
+	    if ( obj->isWidgetType() ) {	// is child widget
+		QWidget *w = (QWidget *)obj;
+		w->clearWFlags( WState_Created );
+		w->set_id( 0 );			// Windows destroys children
+	    }
+#endif
 	    obj->parentObj = 0;			// object should not remove
 	    delete obj;				//   itself from the list
 	    obj = childObjects->next();
@@ -218,6 +225,18 @@ void QWidget::set_id( WId id )			// set widget identifier
 #endif
     if ( id )
 	mapper->insert( this );
+}
+
+
+/*!
+  \internal
+  Returns a pointer to the block of extra widget data.
+  \todo Fix WndProc and make this func private.
+*/
+
+QWExtra *QWidget::extraData()
+{
+    return extra;
 }
 
 void QWidget::createExtra()			// create extra data
@@ -1084,7 +1103,7 @@ void QWidget::focusOutEvent( QFocusEvent * )
 }
 
 /*!  This event handler can be reimplemented in a sub class to receive
-  widget paint events.  Actually, it more or less \e must be
+  widget paint events.	Actually, it more or less \e must be
   reimplemented.
 
   When the paint event occurs, the rectangle \e e->rect() has been

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#59 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#58 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#59 $";
 #endif
 
 
@@ -38,15 +38,15 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#58 $";
 
     class MyObject : public QObject
     {
-        Q_OBJECT				// required for signals/slots
+	Q_OBJECT				// required for signals/slots
     public:
-        MyObject( QObject *parent=0, const char *name );
+	MyObject( QObject *parent=0, const char *name );
     signals:
 	void	minuteTimeout();
     private slots:
 	void	secondTimeout();
     private:
-        QTimer *timer;
+	QTimer *timer;
 	int	secs;
     };
 
@@ -59,10 +59,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#58 $";
     //
 
     MyObject::MyObject( QObject *parent=0, const char *name )
-        : QObject( parent, name )
+	: QObject( parent, name )
     {
 	secs = 0;				// 0 seconds so far
-        timer = new QTimer;
+	timer = new QTimer;
 	connect( timer, SIGNAL(timeout()), SLOT(secondTimeout()) );
 	timer->start( 1000 );			// start 1 second timer
     }
@@ -73,7 +73,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#58 $";
 
     void MyObject::secondTimeout()
     {
-        debug( "Timer activation" );
+	debug( "Timer activation" );
 	if ( ++secs == 60 ) {			// 60 seconds elapsed
 	    secs = 0;				// reset counter, and
 	    emit minuteTimeout();		// emit a new signal
@@ -633,7 +633,7 @@ static void objSearch( QObjectList *result,
     // Sets a Courier 24 point fonts for all children in myWidget that
     // inherit QButton (i.e. QPushButton, QCheckBox, QRadioButton).
     //
-    QObjectList  *list = myWidget->queryList( "QButton" );
+    QObjectList	 *list = myWidget->queryList( "QButton" );
     QObjectListIt it( *list );			// iterate over the buttons
     QFont	  newFont( "Courier", 24 );
     while ( it.current() ) {
@@ -938,7 +938,7 @@ bool QObject::connect( QObject *sender,		const char *signal,
 /*----------------------------------------------------------------------------
   \overload bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
 
-  Disconnects \e signal from \e member of \e receiver. 
+  Disconnects \e signal from \e member of \e receiver.
 
   A signal-slot connection is removed when either of the objects
   involved are destroyed.
@@ -1211,7 +1211,7 @@ static void dumpRecursive( int level, QObject *object )
 	QString buf;
 	buf.fill( '\t', level );
 	const char *name = object->name() ? object->name() : "????";
-	debug( "%s%s::%s", (char*)buf, object->className(), name );
+	debug( "%s%s::%s", (const char*)buf, object->className(), name );
 	if ( object->children() ) {
 	    QObjectListIt it(*object->children());
 	    while ( it ) {
@@ -1224,7 +1224,7 @@ static void dumpRecursive( int level, QObject *object )
 }
 
 /*----------------------------------------------------------------------------
-  Dumps a tree of children to the debug device.  Prints out
+  Dumps a tree of children to the debug device.	 Prints out
   all signal connections.
  ----------------------------------------------------------------------------*/
 

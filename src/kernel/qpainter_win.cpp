@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#16 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -21,8 +21,17 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#16 $";
 #endif
+
+
+static HANDLE stock_nullPen;
+static HANDLE stock_blackPen;
+static HANDLE stock_whitePen;
+static HANDLE stock_nullBrush;
+static HANDLE stock_blackBrush;
+static HANDLE stock_whiteBrush;
+static HANDLE stock_font;
 
 
 static inline int d2i_round( double d )
@@ -37,6 +46,13 @@ static inline int d2i_round( double d )
 
 void QPainter::initialize()
 {
+    stock_nullPen    = GetStockObject( NULL_PEN );
+    stock_blackPen   = GetStockObject( BLACK_PEN );
+    stock_whitePen   = GetStockObject( WHITE_PEN );
+    stock_nullBrush  = GetStockObject( NULL_BRUSH );
+    stock_blackBrush = GetStockObject( BLACK_BRUSH );
+    stock_whiteBrush = GetStockObject( WHITE_BRUSH );
+    stock_font	     = GetStockObject( SYSTEM_FONT );
 }
 
 void QPainter::cleanup()
@@ -175,7 +191,8 @@ void QPainter::updateFont()			// update after changed font
 	if ( !pdev->cmd(PDC_SETFONT,this,param) || !hdc )
 	    return;
     }
-    SelectObject( hdc, cfont.handle(testf(VxF|WxF) ? 0 : hdc) );
+    bool give_hdc = pdev->devType() == PDT_PRINTER && !testf(VxF|WxF);
+    SelectObject( hdc, cfont.handle(give_hdc ? hdc : 0) );
 }
 
 
@@ -187,13 +204,30 @@ void QPainter::updatePen()			// update after changed pen
 	if ( !pdev->cmd(PDC_SETPEN,this,param) || !hdc )
 	    return;
     }
-    int s;
+
+    HANDLE hpen_old	= hpen;
+    bool   stockPen_old = stockPen;
+
+    int	   s = PS_NULL;
+    QColor c = cpen.color();
+    stockPen = FALSE;
+
     switch ( cpen.style() ) {
 	case NoPen:
-	    s = PS_NULL;
+	    hpen = stock_nullPen;
+	    stockPen = TRUE;
 	    break;
 	case SolidLine:
-	    s = PS_SOLID;
+	    if ( c == black ) {
+		hpen = stock_blackPen;
+		stockPen = TRUE;
+	    }
+	    else if ( c == white ) {
+		hpen = stock_whitePen;
+		stockPen = TRUE;
+	    }
+	    else
+		s = PS_SOLID;
 	    break;
 	case DashLine:
 	    s = PS_DASH;
@@ -207,14 +241,13 @@ void QPainter::updatePen()			// update after changed pen
 	case DashDotDotLine:
 	    s = PS_DASHDOTDOT;
 	    break;
-	default:
-	    s = PS_NULL;
     }
-    HANDLE hpen_old = hpen;
-    hpen = CreatePen( s, cpen.width(), cpen.color().pixel() );
-    SetTextColor( hdc, cpen.color().pixel() );	// pen color is also text color
+
+    if ( !stockPen )
+	hpen = CreatePen( s, cpen.width(), c.pixel() );
+    SetTextColor( hdc, c.pixel() );		// pen color is also text color
     SelectObject( hdc, hpen );
-    if ( hpen_old )				// delete last pen
+    if ( hpen_old && !stockPen_old )		// delete last pen
 	DeleteObject( hpen_old );
 }
 
@@ -243,29 +276,38 @@ void QPainter::updateBrush()			// update after changed brush
     bool   stockBrush_old  = stockBrush;
     bool   pixmapBrush_old = pixmapBrush;
 
-    int s = cbrush.style();
-    stockBrush	= FALSE;
-    pixmapBrush = FALSE;
+    int	   s = cbrush.style();
+    QColor c = cbrush.color();
+    stockBrush	= TRUE;
+    pixmapBrush = nocolBrush = FALSE;
     hbrushbm = 0;
 
-    if ( s == NoBrush ) {			// no brush
-	hbrush = GetStockObject( NULL_BRUSH );
-	stockBrush = TRUE;
-    }
+    if ( s == NoBrush )				// no brush
+	hbrush = stock_nullBrush;
     else if ( s == SolidPattern ) {		// create solid brush
-	hbrush = CreateSolidBrush( cbrush.color().pixel() );
+	if ( c == black )
+	    hbrush = stock_blackBrush;
+	else if ( c == white )
+	    hbrush = stock_whiteBrush;
+	else {
+	    hbrush = CreateSolidBrush( c.pixel() );
+	    stockBrush = FALSE;
+	}
     }
     else if ( (s >= Dense1Pattern && s <= Dense7Pattern ) ||
 	      (s == CustomPattern) ) {
 	if ( s == CustomPattern ) {
 	    hbrushbm = cbrush.pixmap()->hbm();
 	    pixmapBrush = TRUE;
+	    nocolBrush = cbrush.pixmap()->depth() == 1;
 	}
 	else {
 	    short *bm = dense_patterns[ s - Dense1Pattern ];
 	    hbrushbm = CreateBitmap( 8, 8, 1, 1, bm );
+	    nocolBrush = TRUE;
 	}
 	hbrush = CreatePatternBrush( hbrushbm );
+	stockBrush = FALSE;
     }
     else {					// one of the hatch brushes
 	switch ( s ) {
@@ -290,7 +332,8 @@ void QPainter::updateBrush()			// update after changed brush
 	    default:
 		s = HS_HORIZONTAL;
 	}
-	hbrush = CreateHatchBrush( s, cbrush.color().pixel() );
+	hbrush = CreateHatchBrush( s, c.pixel() );
+	stockBrush = FALSE;
     }
 
     SelectObject( hdc, hbrush );
@@ -345,7 +388,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	((QPixmap*)pdev)->detach();		// will modify pixmap
 
     hpen = hbrush = hbrushbm = 0;
-    stockBrush = pixmapBrush = tmpHandle = xfFont = 0;
+    stockPen = stockBrush = pixmapBrush = nocolBrush = xfFont = 0;
     hdc = 0;
 
     if ( testf(ExtDev) ) {			// external device
@@ -379,13 +422,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
-	if ( w->testWFlags(WState_Paint) ) {	// during paint event
+	if ( w->testWFlags(WState_Paint) )	// during paint event
 	    hdc = w->hdc;
-	}
-	else {
+	else
 	    hdc = GetDC( w->id() );
-	    tmpHandle = TRUE;
-	}
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    // !!!hanord todo
 	}
@@ -464,10 +504,10 @@ bool QPainter::end()				// end painting
 	delete tm;
 	tm = 0;
     }
-    if ( hpen )
-	DeleteObject( SelectObject(hdc,GetStockObject(BLACK_PEN)) );
+    if ( hpen && !stockPen )
+	DeleteObject( SelectObject(hdc,stock_nullPen) );
     if ( hbrush && !stockBrush ) {
-	DeleteObject( SelectObject(hdc,GetStockObject(WHITE_BRUSH)) );
+	DeleteObject( SelectObject(hdc,stock_nullBrush) );
 	if ( hbrushbm && !pixmapBrush )
 	    DeleteObject( hbrushbm );
     }
@@ -480,7 +520,7 @@ bool QPainter::end()				// end painting
     else if ( pdev->devType() == PDT_PIXMAP ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();
-	if ( pm->optimized() )
+	if ( pm->isOptimized() )
 	    pm->allocMemDC();
     }
     flags = 0;
@@ -628,8 +668,8 @@ void QPainter::updateXForm()
 #endif
     }
     bool xff = testf(VxF|WxF);
-    if ( xff != (bool)xfFont ) {		// must reload font
-	int ps = cfont.pointSize();
+    if ( xff != (bool)xfFont && pdev->devType() == PDT_PRINTER ) {
+	int ps = cfont.pointSize();		// must reload font
 	cfont.setPointSize( ps+1 );
 	cfont.setPointSize( ps );
 	SelectObject( hdc, cfont.handle(xff ? 0 : hdc) );
@@ -869,7 +909,11 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	w++;
 	h++;
     }
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
     Rectangle( hdc, x, y, x+w, y+h );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
 }
 
 
@@ -903,9 +947,13 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	w++;
 	h++;
     }
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
     RoundRect( hdc, x, y, x+w, y+h,
 	       (int)(((long)w)*xRnd/100L),
 	       (int)(((long)h)*yRnd/100L) );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
 
 }
 
@@ -926,7 +974,11 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
     Ellipse( hdc, x, y, x+w, y+h );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
 }
 
 
@@ -948,8 +1000,8 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
-    double ra1 = 1.09083078249645598-3*a;
-    double ra2 = 1.09083078249645598-3*alen + ra1;
+    double ra1 = 1.09083078249645598e-3 * a;
+    double ra2 = 1.09083078249645598e-3 * alen + ra1;
     if ( ra2 < 0.0 ) {				// swap angles
 	double t = ra1;
 	ra1 = ra2;
@@ -979,8 +1031,8 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hdc )
 	    return;
     }
-    double ra1 = 1.09083078249645598-3*a;
-    double ra2 = 1.09083078249645598-3*alen + ra1;
+    double ra1 = 1.09083078249645598e-3 * a;
+    double ra2 = 1.09083078249645598e-3 * alen + ra1;
     if ( ra2 < 0.0 ) {				// swap angles
 	double t = ra1;
 	ra1 = ra2;
@@ -989,11 +1041,15 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     double w2 = 0.5*w;
     double h2 = 0.5*h;
     float r = (float)(w2+h2);
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
     Pie( hdc, x, y, x+w, y+h,
 	 d2i_round(w2 + (cos(ra1)*r) + x),
 	 d2i_round(h2 - (sin(ra1)*r) + y),
 	 d2i_round(w2 + (cos(ra2)*r) + x),
 	 d2i_round(h2 - (sin(ra2)*r) + y) );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
 }
 
 
@@ -1010,8 +1066,8 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hdc )
 	    return;
     }
-    double ra1 = 1.09083078249645598-3*a;
-    double ra2 = 1.09083078249645598-3*alen + ra1;
+    double ra1 = 1.09083078249645598e-3 * a;
+    double ra2 = 1.09083078249645598e-3 * alen + ra1;
     if ( ra2 < 0.0 ) {				// swap angles
 	double t = ra1;
 	ra1 = ra2;
@@ -1020,11 +1076,15 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     double w2 = 0.5*w;
     double h2 = 0.5*h;
     float r = (float)(w2+h2);
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
     Chord( hdc, x, y, x+w, y+h,
 	   d2i_round(w2 + (cos(ra1)*r) + x),
 	   d2i_round(h2 - (sin(ra1)*r) + y),
 	   d2i_round(w2 + (cos(ra2)*r) + x),
 	   d2i_round(h2 - (sin(ra2)*r) + y) );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
 }
 
 
@@ -1140,7 +1200,11 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
     }
     if ( winding )				// set to winding fill mode
 	SetPolyFillMode( hdc, WINDING );
+    if ( nocolBrush )
+	SetTextColor( hdc, cbrush.color().pixel() );
     Polygon( hdc, (POINT*)(a.data()+index), npoints );
+    if ( nocolBrush )
+	SetTextColor( hdc, cpen.color().pixel() );
     if ( winding )				// set to normal fill mode
 	SetPolyFillMode( hdc, ALTERNATE );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#91 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -11,7 +11,6 @@
 *****************************************************************************/
 
 #include "qwindow.h"
-#include "qpalette.h"
 #include "qapp.h"
 #include "qpaintdc.h"
 #include "qpainter.h"
@@ -24,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#90 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#91 $";
 #endif
 
 
@@ -286,8 +285,8 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 */
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
-{						// map to global coordinates
-    int    x, y;
+{
+    int	   x, y;
     Window child;
     XTranslateCoordinates( dpy, id(), QApplication::desktop()->id(),
 			   pos.x(), pos.y(),
@@ -301,8 +300,8 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 */
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
-{						// map from global coordinates
-    int    x, y;
+{
+    int	   x, y;
     Window child;
     XTranslateCoordinates( dpy, QApplication::desktop()->id(), id(),
 			   pos.x(), pos.y(),
@@ -321,7 +320,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 */
 
 void QWidget::setBackgroundColor( const QColor &c )
-{						// set background color
+{
     bg_col = c;
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
@@ -416,6 +415,8 @@ static QWidget *keyboardGrb = 0;
 void QWidget::grabMouse()
 {
     if ( !testWFlags(WState_MGrab) ) {
+	if ( mouseGrb )
+	    mouseGrb->releaseMouse();
 	setWFlags( WState_MGrab );
 	if ( !qt_nograb() ) {
 	    XGrabPointer( dpy, ident, TRUE,
@@ -443,6 +444,8 @@ void QWidget::grabMouse()
 void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( !testWFlags(WState_MGrab) ) {
+	if ( mouseGrb )
+	    mouseGrb->releaseMouse();
 	setWFlags( WState_MGrab );
 	if ( !qt_nograb() ) {
 	    XGrabPointer( dpy, ident, TRUE,
@@ -488,6 +491,8 @@ void QWidget::releaseMouse()
 void QWidget::grabKeyboard()
 {
     if ( !testWFlags(WState_KGrab) ) {
+	if ( keyboardGrb )
+	    keyboardGrb->releaseKeyboard();
 	setWFlags( WState_KGrab );
 	if ( !qt_nograb() ) {
 	    XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
@@ -516,7 +521,7 @@ void QWidget::releaseKeyboard()
 
 
 /*!  Returns a pointer to the widget that is currently grabbing the
-  mouse input.  If no widget in this application is currently grabbing
+  mouse input.	If no widget in this application is currently grabbing
   the mouse, 0 is returned.
 
   \sa grabMouse(), keyboardGrabber() */
@@ -715,7 +720,7 @@ void QWidget::repaint( const QRect &r, bool erase )
   \sa hide(), isVisible()
 */
 
-void QWidget::show()				// show widget
+void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
@@ -771,7 +776,7 @@ void QWidget::hide()				// hide widget
 
   \sa lower() */
 
-void QWidget::raise()				// raise widget
+void QWidget::raise()
 {
     XRaiseWindow( dpy, ident );
 }
@@ -782,7 +787,7 @@ void QWidget::raise()				// raise widget
 
   \sa raise() */
 
-void QWidget::lower()				// lower widget
+void QWidget::lower()
 {
     XLowerWindow( dpy, ident );
 }
@@ -1033,7 +1038,7 @@ void QWidget::erase( int x, int y, int w, int h )
   \sa erase(), bitBlt()
 */
 
-void QWidget::scroll( int dx, int dy )		// scroll widget contents
+void QWidget::scroll( int dx, int dy )
 {
     QSize s = size();
     int x1, y1, x2, y2, w=s.width(), h=s.height();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#41 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#41 $";
 #endif
 
 
@@ -35,7 +35,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#40 $";
 
   An image contains the parameters width, height and depth (bits per
   pixel, bpp), a color table and the actual pixels.  QImage support 1
-  bit, 8 bit and 24 bit depths.  1 bit and 8 bit images use a color
+  bit, 8 bit and 24 bit depths.	 1 bit and 8 bit images use a color
   lookup table, where the pixel value is the index of a color.
 
   An entry in the color table is an RGB triplet encoded as
@@ -45,16 +45,16 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#40 $";
 
   1-bpp (monochrome) images have a color table with maximum 2 colors.
   There are two ways of encoding such images; big endian (MSB first) or
-  little endian bit order (LSB first).  To access a single bit, you will
+  little endian bit order (LSB first).	To access a single bit, you will
   have to do some bitshifts:
 
   \code
     QImage image;
       // sets bit at (x,y) to 1
     if ( image.bitOrder() == QImage::LittleEndian )
-        *(image.scanLine(y) + x >> 8) |= 1 << (x & 7);
+	*(image.scanLine(y) + x >> 8) |= 1 << (x & 7);
     else
-        *(image.scanLine(y) + x >> 8) |= 1 << (7 -(x & 7));
+	*(image.scanLine(y) + x >> 8) |= 1 << (7 -(x & 7));
   \endcode
 
   If this looks complicated, it might be a good idea to convert the 1-bpp
@@ -81,7 +81,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#40 $";
   \endcode
 
   The QImage class uses explicit data sharing, similar to that of QArray
-  and QString.  This makes it easy to use images in your program, because
+  and QString.	This makes it easy to use images in your program, because
   you never need to worry about who should be responsible for deleting
   images.  An image is automatically destroyed when the last reference to
   the data is lost.
@@ -218,7 +218,7 @@ QImage &QImage::operator=( const QPixmap &pixmap )
   only one referring the data.
 
   If multiple images share common data, this image makes a copy of the
-  data and detaches itself from the sharing mechanism.  Nothing is
+  data and detaches itself from the sharing mechanism.	Nothing is
   done if there is just a single reference. */
 
 void QImage::detach()
@@ -1159,7 +1159,7 @@ static QImageHandler *get_image_handler( const char *format )
   \arg \e format is the name of the format.
   \arg \e header is a regular expression that recognizes the image header.
   \arg \e flags is "T" for text formats like PBM; generally you will
-          want to use 0.
+	  want to use 0.
   \arg \e read_image is a function to read an image of this format.
   \arg \e write_image is a function to write an image of this format.
 
@@ -1196,7 +1196,7 @@ void QImageIO::defineIOHandler( const char *format,
 	init_image_handlers();
     QImageHandler *p;
     p = new QImageHandler( format, header, flags && *flags == 'T',
-			   read_image, write_image );    
+			   read_image, write_image );
     CHECK_PTR( p );
     imageHandlers->insert( 0, p );
 }
@@ -1214,7 +1214,7 @@ void QImageIO::defineIOHandler( const char *format,
 
 /*!
   \fn int QImageIO::status() const
-  Returns the image IO status.  A non-zero value indicates an error, while 0
+  Returns the image IO status.	A non-zero value indicates an error, while 0
   means that the IO operation was successful.
   \sa setStatus()
 */
@@ -1377,7 +1377,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     if ( d->status() == IO_Ok && rdlen == buflen ) {
 	QImageHandler *p = imageHandlers->first();
 	while ( p ) {
-	    if ( p->header.match(buf) != -1 ) {	// try match with headers
+	    if ( p->header.match(buf) != -1 ) { // try match with headers
 		format = p->format;
 		break;
 	    }
@@ -2064,7 +2064,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 
     if ( nbits == 1 ) {				// bitmap
 	image.setNumColors( 2 );
-	image.setColor( 0, QRGB(255,255,255) );	// white
+	image.setColor( 0, QRGB(255,255,255) ); // white
 	image.setColor( 1, QRGB(0,0,0) );	// black
     }
     else if ( nbits == 8 ) {			// graymap
@@ -2169,11 +2169,11 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
     QString    s = fbname(iio->fileName());	// get file base name
     char       buf[100];
 
-    sprintf( buf, "#define %s_width %d\n",  (char *)s, w );
+    sprintf( buf, "#define %s_width %d\n",  (const char *)s, w );
     d->writeBlock( buf, strlen(buf) );
-    sprintf( buf, "#define %s_height %d\n", (char *)s, h );
+    sprintf( buf, "#define %s_height %d\n", (const char *)s, h );
     d->writeBlock( buf, strlen(buf) );
-    sprintf( buf, "static char %s_bits[] = {\n ", (char *)s );
+    sprintf( buf, "static char %s_bits[] = {\n ", (const char *)s );
     d->writeBlock( buf, strlen(buf) );
 
     iio->setStatus( 0 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#11 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#11 $";
 #endif
 
 
@@ -81,13 +81,14 @@ extern "C" LRESULT CALLBACK __export WndProc( HWND, UINT, WORD, LONG );
 class QETWidget : public QWidget		// event translator widget
 {
 public:
-    void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
-    void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
-    bool translateMouseEvent( const MSG &msg );
-    bool translateKeyEvent( const MSG &msg );
-    bool translatePaintEvent( const MSG &msg );
-    bool translateConfigEvent( const MSG &msg );
-    bool translateCloseEvent( const MSG &msg );
+    void	setWFlags( WFlags f )	{ QWidget::setWFlags(f); }
+    void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
+    QWExtra    *xtra()			{ return QWidget::extraData(); }
+    bool	translateMouseEvent( const MSG &msg );
+    bool	translateKeyEvent( const MSG &msg );
+    bool	translatePaintEvent( const MSG &msg );
+    bool	translateConfigEvent( const MSG &msg );
+    bool	translateCloseEvent( const MSG &msg );
 };
 
 
@@ -134,8 +135,6 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
   // Call user main()
 
     int retcode = main( argc, argv );
-
-// DONTDOIT!!!	  delete appName;
 
     return retcode;
 }
@@ -247,7 +246,7 @@ void qAddPostRoutine( void (*p)() )		// add post routine
 	postRList = new QVFuncList;
 	CHECK_PTR( postRList );
     }
-    postRList->insert( (void *)p );		// store at list head
+    postRList->insert( 0, (void *)p );		// store at list head
 }
 
 
@@ -362,6 +361,27 @@ void QApplication::restoreCursor()		// restore application cursor
 	return;
     delete app_cursor;				// reset app_cursor
     app_cursor = 0;
+}
+
+
+QWidget *QApplication::widgetAt( int x, int y, bool child )
+{
+    POINT    p;
+    HANDLE   win;
+    QWidget *w;
+    p.x = x;  p.y = y;
+    win = WindowFromPoint( p );
+    if ( !win )
+	return 0;
+    w = QWidget::find( win );
+    if ( !w )
+	return 0;
+    if ( child ) {
+	HANDLE cwin = ChildWindowFromPoint( win, p );
+	if ( cwin && cwin != win )
+	    return QWidget::find( cwin );
+    }
+    return w;
 }
 
 
@@ -629,7 +649,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 // WndProc() receives all messages from the main event loop
 //
 
-extern "C" LRESULT CALLBACK __export
+extern "C" LRESULT CALLBACK
 WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 {
     if ( !qApp )				// unstable app state
@@ -693,29 +713,57 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	    result = widget->translateConfigEvent( msg );
 	    break;
 
+#if 0
+  // hanord!!! not required after QWidget::show() was changed for popups
 	case WM_SETFOCUS:			// got focus
 	    if ( widget->testWFlags(WType_Popup) ) {
 		result = TRUE;
 		SetFocus( (HWND)wParam );
-		debug( "Fooled setFocus" );
 	    }
 	    break;
 	case WM_KILLFOCUS:			// lost focus
+	    if ( !widget->testWFlags(WType_Popup) ) {
+		debug( "Kill focus" );
+		QWidget *w = QWidget::find( (HANDLE)wParam );
+		if ( w && w->testWFlags(WType_Popup) ) {
+		    result = TRUE;
+		    SetFocus( (HWND)wParam );
+		}
+	    }
 	    break;
+#endif
 
 	case WM_ACTIVATE:
 	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
 	    break;
 
-#if defined(TEST_WINDOWS_PALETTE)
 	case WM_PALETTECHANGED:			// our window changed palette
-	    result = TRUE;
+	    if ( QColor::hPal() && (WId)wParam != widget->id() ) {
+		HDC hdc = GetDC( widget->id() );
+		HPALETTE hpalT = SelectPalette( hdc, QColor::hPal(), FALSE );
+		RealizePalette( hdc );
+		UpdateColors( hdc );
+		if ( hpalT )
+		    SelectPalette( hdc, hpalT, FALSE );
+		ReleaseDC( widget->id(), hdc );
+		return 0;
+	    }
+	    break;
 
 	case WM_QUERYNEWPALETTE:		// realize own palette
-	    return QColor::realizePal( widget );
-#endif
+	    if ( QColor::hPal() ) {
+		HDC hdc = GetDC( widget->id() );
+		HPALETTE hpalT = SelectPalette( hdc, QColor::hPal(), FALSE );
+		RealizePalette( hdc );
+		if ( hpalT )
+		    SelectPalette( hdc, hpalT, FALSE );
+		ReleaseDC( widget->id(), hdc );
+		return TRUE;
+	    }
+	    break;
+
 	case WM_CLOSE:				// close window
-	    if ( widget->translateCloseEvent( msg ) )
+	    if ( widget->translateCloseEvent(msg) )
 		delete widget;
 	    return 0;				// always handled
 	    break;
@@ -734,6 +782,22 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 		result = TRUE;
 	    else
 		result = FALSE;
+	    break;
+
+	case WM_GETMINMAXINFO:
+	    if ( widget->xtra() ) {
+		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
+		QWExtra	   *x = widget->xtra();
+		if ( x->minw >= 0 )
+		    mmi->ptMinTrackSize.x = x->minw;
+		if ( x->minh >= 0 )
+		    mmi->ptMinTrackSize.y = x->minh;
+		if ( x->maxw >= 0 )
+		    mmi->ptMaxTrackSize.x = x->maxw;
+		if ( x->maxh >= 0 )
+		    mmi->ptMaxTrackSize.y = x->maxh;
+		return 0;
+	    }
 	    break;
 
 	default:
@@ -782,7 +846,7 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 	modal_stack = new QWidgetList;
 	CHECK_PTR( modal_stack );
     }
-    modal_stack->insert( widget );
+    modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
     qApp->enter_loop();
 }
@@ -802,7 +866,7 @@ void qt_leave_modal( QWidget *widget )		// leave modal state
 }
 
 
-static bool qt_try_modal( QWidget *widget, void * ) //XEvent *event )
+static bool qt_try_modal( QWidget *widget, void * )
 {
     return TRUE;
 #if 0
@@ -946,11 +1010,11 @@ struct TimerInfo {				// internal timer info
     uint     countdown;				// - countdown variable
     QObject *obj;				// - object to receive events
 };
-typedef declare(QVectorM,TimerInfo) TimerVec;	// vector of TimerInfo structs
+typedef declare(QVectorM,TimerInfo)  TimerVec;	// vector of TimerInfo structs
 typedef declare(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
 
-static const MaxTimers = 64;			// max number of timers
-static TimerVec *timerVec = 0;			// timer vector
+static const MaxTimers	    = 256;		// max number of timers
+static TimerVec *timerVec   = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
 
@@ -1034,8 +1098,8 @@ int qStartTimer( long interval, QObject *obj )	// start timer
     register TimerInfo *t;
     if ( !timerVec )				// initialize timer data
 	initTimers();
-    int ind = timerVec->findRef( 0 ) + 1;	// get free timer
-    if ( ind == 0 || !obj )			// cannot create timer
+    int ind = timerVec->findRef( 0 );		// get free timer
+    if ( ind == -1 || !obj )			// cannot create timer
 	return 0;
     t = new TimerInfo;				// create timer entry
     CHECK_PTR( t );
@@ -1056,13 +1120,16 @@ int qStartTimer( long interval, QObject *obj )	// start timer
     else {
 	t->id = SetTimer( 0, 0, (uint)interval, 0 );
 	if ( t->id == 0 ) {
+#if defined(DEBUG)
+	    warning( "qStartTimer: No more Windows timers" );
+#endif
 	    delete t;				// could not set timer
 	    return 0;
 	}
     }
-    timerVec->insert( ind-1, t );		// store in timer vector
+    timerVec->insert( ind, t );			// store in timer vector
     timerDict->insert( t->id, t );		// store in dict
-    return ind;					// return index in vector
+    return ind + 1;				// return index in vector
 }
 
 bool qKillTimer( int ind )			// kill timer with id
@@ -1081,7 +1148,7 @@ bool qKillTimer( int ind )			// kill timer with id
     return TRUE;
 }
 
-bool qKillTimer( QObject *obj )			// kill timer for obj
+bool qKillTimer( QObject *obj )			// kill timer(s) for obj
 {
     if ( !timerVec )
 	return FALSE;
@@ -1139,6 +1206,8 @@ static int translateButtonState( int s )
     return bst;
 }
 
+extern QCursor *qt_grab_cursor();
+
 bool QETWidget::translateMouseEvent( const MSG &msg )
 {
     static bool capture = FALSE;
@@ -1156,7 +1225,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     button = mouseTbl[++i];			// which button
     state = translateButtonState( msg.wParam ); // button state
     if ( type == Event_MouseMove ) {
-	QCursor *c = QApplication::cursor();
+	QCursor *c = qt_grab_cursor();
+	if ( !c )
+	    c = QApplication::cursor();
 	if ( c )				// application cursor defined
 	    SetCursor( c->handle() );
 	else					// use widget cursor
@@ -1189,12 +1260,16 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	int bs = state & (LeftButton | RightButton | MidButton);
 	if ( (type == Event_MouseButtonPress ||
 	      type == Event_MouseButtonDblClick) && bs == button ) {
-	    SetCapture( id() );
-	    capture = TRUE;
+	    if ( QWidget::mouseGrabber() == 0 ) {
+		SetCapture( id() );
+		capture = TRUE;
+	    }
 	}
 	else if ( type == Event_MouseButtonRelease && bs == 0 ) {
-	    ReleaseCapture();
-	    capture = FALSE;
+	    if ( QWidget::mouseGrabber() == 0 ) {
+		ReleaseCapture();
+		capture = FALSE;
+	    }
 	}
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( this, &e );	// send event

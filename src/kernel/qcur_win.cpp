@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#7 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#7 $";
 #endif
 
 
@@ -277,17 +277,19 @@ void QCursor::update() const			// update/load cursor
 	    GetBitmapBits( data->bm->hbm(),  len, bits );
 	    GetBitmapBits( data->bmm->hbm(), len, mask );
 	    int i;
-	    for ( i=0; i<len; i++ )
-		bits[i] = ~bits[i];
-	    for ( i=0; i<len; i++ )
-		mask[i] = ~mask[i];
+	    for ( i=0; i<len; i++ ) {
+		uchar b = ~bits[i];
+		uchar m = ~mask[i];
+		bits[i] = ~m;
+		mask[i] = b ^ m;
+	    }
 	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
 					w, h, bits, mask );
 	    delete bits;
 	    delete mask;
 /*
 	    QImage c, m;
-	    c = *data->bm;	GetDIBits
+	    c = *data->bm;
 	    m = *data->bmm;
 	    c = c.convertBitOrder( QImage::BigEndian );
 	    m = m.convertBitOrder( QImage::BigEndian );

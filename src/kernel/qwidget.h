@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#55 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#56 $
 **
 ** Definition of QWidget class
 **
@@ -55,7 +55,7 @@ public:
     int		 width()	const;
     int		 height()	const;
     QRect	 rect()		const;
-    QRect	 childrenRect()	const;
+    QRect	 childrenRect() const;
 
     void	 setMinimumSize( int w, int h );
     void	 setMaximumSize( int w, int h );
@@ -197,6 +197,8 @@ protected:
 
     virtual bool focusNextChild();
     virtual bool focusPrevChild();
+
+    QWExtra	*extraData();
 
 #if defined(_WS_PM_)
     int		 convertYPos( int );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#62 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#61 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#62 $";
 #endif
 
 
@@ -55,7 +55,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#61 $";
   defined!
 
   Note also that on X11, setMainWidget() may change the main widget
-  according to the \e -geometry option.  To preserve this
+  according to the \e -geometry option.	 To preserve this
   functionality, you must set your defaults before setMainWidget() and
   any overrides after.
 
@@ -185,6 +185,7 @@ QApplication::QApplication( int &argc, char **argv )
 
 QApplication::~QApplication()
 {
+    closing_down = TRUE;
     QWidget::destroyMapper();			// destroy widget mapper
     destroy_palettes();
     delete app_pal;
@@ -193,9 +194,8 @@ QApplication::~QApplication()
     app_font = 0;
     delete app_cursor;
     app_cursor = 0;
-    closing_down = TRUE;
 #if defined(CHECK_MEMORY)
-    bool prev_mc = memchkSetReporting( FALSE );    
+    bool prev_mc = memchkSetReporting( FALSE );
     objectDict->remove( "QObject" );
     memchkSetReporting( prev_mc );
     setName( 0 );
@@ -435,7 +435,7 @@ void QApplication::quit( int retcode )		// quit application
   \code
     QPushButton *quitButton = new QPushButton( "Quit" );
     connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
-  \endcode  
+  \endcode
 
   \sa quit()
  ----------------------------------------------------------------------------*/

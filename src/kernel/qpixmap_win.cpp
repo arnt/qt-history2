@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#8 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#8 $";
 #endif
 
 
@@ -151,11 +151,21 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     if ( h <= 0 ) h = 1;
     data->w = w;  data->h = h;	data->d = 1;
     uchar *flipped_bits;
+    int nbytes = ((w+7)/8)*h;
     if ( !isXbitmap )
 	flipped_bits = 0;
     else {					// X bitmap -> flip bits
-	flipped_bits = flip_bits( (uchar *)bits, ((w+7)/8)*h );
+	flipped_bits = flip_bits( (uchar *)bits, nbytes );
 	bits = (const char *)flipped_bits;
+    }
+    if ( !flipped_bits ) {
+	flipped_bits = new uchar[ nbytes ];
+	bits = (const char *)flipped_bits;
+    }
+    uchar *p = flipped_bits;
+    while ( nbytes-- ) {			// invert bitmap
+	*p = ~*p;
+	p++;
     }
     data->hbm = CreateBitmap( w, h, 1, 1, bits );
     if ( data->optim )
@@ -187,6 +197,10 @@ HANDLE QPixmap::allocMemDC()
 {
     if ( !hdc && !isNull() ) {
 	hdc = CreateCompatibleDC( qt_display_dc() );
+	if ( QColor::hPal() ) {
+	    SelectPalette( hdc, QColor::hPal(), FALSE );
+	    RealizePalette( hdc );
+	}
 	SelectObject( hdc, data->hbm );
     }
     return hdc;
@@ -355,7 +369,7 @@ bool QPixmap::convertFromImage( const QImage &image )
 	int bpl = image.bytesPerLine();
 	bits = new uchar[image.numBytes()];
 	uchar *d = bits;
-	uchar *s = image.scanline( h-1 );
+	uchar *s = image.scanLine( h-1 );
 	for ( int i=0; i<h; i++ ) {
 	    memcpy( d, s, bpl );
 	    d += bpl;

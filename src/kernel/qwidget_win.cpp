@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#11 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -11,18 +11,20 @@
 *****************************************************************************/
 
 #include "qwindow.h"
-#include "qobjcoll.h"
+#include "qapp.h"
 #include "qpaintdc.h"
 #include "qpainter.h"
-#include "qapp.h"
+#include "qpixmap.h"
+#include "qwidcoll.h"
+#include "qobjcoll.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#11 $";
 #endif
 
 
-const char *qt_reg_winclass( int type );	// defined in qapp_x11.cpp
+const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
@@ -116,6 +118,10 @@ bool QWidget::create()				// create widget
 			   parentwin, 0,
 			   qWinAppInst(), NULL );
 	set_id( id );
+	if ( popup ) {
+	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100,
+			  SWP_NOACTIVATE );
+	}
     }
     else {					// create child widget
 	int x, y, w, h;
@@ -158,21 +164,162 @@ bool QWidget::destroy()				// destroy widget
 }
 
 
+void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
+			bool showIt )
+{
+    debug( "QWidget::recreate: Not implemented" );
+}
+
+
+QPoint QWidget::mapToGlobal( const QPoint &pos ) const
+{
+    POINT p;
+    p.x = pos.x();
+    p.y = pos.y();
+    ClientToScreen( id(), &p );
+    return QPoint( p.x, p.y );
+}
+
+QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
+{
+    POINT p;
+    p.x = pos.x();
+    p.y = pos.y();
+    ScreenToClient( id(), &p );
+    return QPoint( p.x, p.y );
+}
+
+
 void QWidget::setBackgroundColor( const QColor &c )
-{						// set background color
+{
     bg_col = c;
     update();
 }
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
-{						// set background pixmap
+{
+    debug( "QWidget::setBackgroundPixmap: Not implemented" );
+    update();
 }
 
 
-void QWidget::setCursor( const QCursor &c )	// set cursor
+void QWidget::setCursor( const QCursor &cursor )
 {
-    ((QCursor*)&c)->handle();
-    curs = c;
+    ((QCursor*)&cursor)->handle();
+    curs = cursor;
+}
+
+
+extern bool qt_nograb();
+
+static QWidget *mouseGrb    = 0;
+static QCursor *mouseGrbCur = 0;
+static QWidget *keyboardGrb = 0;
+static HANDLE	journalRec  = 0;
+
+QCursor *qt_grab_cursor()
+{
+    return mouseGrbCur;
+}
+
+
+
+LRESULT CALLBACK JournalRecordProc (int nCode, WPARAM wParam, LPARAM lParam)
+		{
+
+    // This journal record function doesn't need to do
+    // anything so we just pass the hook notification on
+    // to any other installed journal record hooks.
+    return(CallNextHookEx(journalRec,
+	nCode, wParam, lParam));
+}
+
+void QWidget::grabMouse()
+{
+    if ( !testWFlags(WState_MGrab) ) {
+	if ( mouseGrb )
+	    mouseGrb->releaseMouse();
+	setWFlags( WState_MGrab );
+	if ( !qt_nograb() ) {
+	    journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
+					   (HOOKPROC)JournalRecordProc,
+					   GetModuleHandle(0), 0 );
+	    SetCapture( id() );
+	    mouseGrb = this;
+	}
+    }
+}
+
+void QWidget::grabMouse( const QCursor &cursor )
+{
+    if ( !testWFlags(WState_MGrab) ) {
+	if ( mouseGrb )
+	    mouseGrb->releaseMouse();
+	setWFlags( WState_MGrab );
+	if ( !qt_nograb() ) {
+	    journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
+					   (HOOKPROC)JournalRecordProc,
+					   GetModuleHandle(0), 0 );
+	    SetCapture( id() );
+	    mouseGrbCur = new QCursor( cursor );
+	    SetCursor( mouseGrbCur->handle() );
+	    mouseGrb = this;
+	}
+    }
+}
+
+void QWidget::releaseMouse()
+{
+    if ( testWFlags(WState_MGrab) ) {
+	clearWFlags( WState_MGrab );
+	if ( !qt_nograb() ) {
+	    ReleaseCapture();
+	    if ( journalRec ) {
+		UnhookWindowsHookEx( journalRec );
+		journalRec = 0;
+	    }
+	    if ( mouseGrbCur ) {
+		delete mouseGrbCur;
+		mouseGrbCur = 0;
+	    }
+	    mouseGrb = 0;
+	}
+    }
+}
+
+void QWidget::grabKeyboard()
+{
+    if ( !testWFlags(WState_KGrab) ) {
+	if ( keyboardGrb )
+	    keyboardGrb->releaseKeyboard();
+	setWFlags( WState_KGrab );
+	if ( !qt_nograb() ) {
+	    debug( "QWidget::grabKeyboard: Not implemented" );
+	    keyboardGrb = this;
+	}
+    }
+}
+
+void QWidget::releaseKeyboard()
+{
+    if ( testWFlags(WState_KGrab) ) {
+	clearWFlags( WState_KGrab );
+	if ( !qt_nograb() ) {
+	    debug( "QWidget::releaseKeyboard: Not implemented" );
+	    keyboardGrb = 0;
+	}
+    }
+}
+
+
+QWidget *QWidget::mouseGrabber()
+{
+    return mouseGrb;
+}
+
+QWidget *QWidget::keyboardGrabber()
+{
+    return keyboardGrb;
 }
 
 
@@ -254,20 +401,13 @@ void QWidget::repaint( const QRect &r, bool erase )
     if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
 	return;
     QPaintEvent e( r );				// send fake paint event
-    if ( erase ) {
-	// !!! must erase only part of widget
-	HDC h = hdc;
-	if ( !hdc )
-	    h = GetDC( id() );
-	SendMessage( id(), WM_ERASEBKGND, (WPARAM)h, 0 );
-	if ( !hdc )
-	    ReleaseDC( id(), h );
-    }
+    if ( erase )
+	this->erase( r );
     QApplication::sendEvent( this, &e );
 }
 
 
-void QWidget::show()				// show widget
+void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
@@ -285,7 +425,12 @@ void QWidget::show()				// show widget
 	    ++it;
 	}
     }
-    ShowWindow( id(), SW_SHOW );
+    if ( testWFlags(WType_Popup) )
+	SetWindowPos( id(), 0,
+		      frect.x(), frect.y(), crect.width(), crect.height(),
+		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
+    else
+	ShowWindow( id(), SW_SHOW );
     UpdateWindow( id() );
     setWFlags( WState_Visible );
     clearWFlags( WExplicitHide );
@@ -313,16 +458,16 @@ void QWidget::hide()				// hide widget
 }
 
 
-void QWidget::raise()				// raise widget
+void QWidget::raise()
 {
-    BringWindowToTop( id() );
+    SetWindowPos( id(), HWND_TOP, 0, 0, 0, 0,
+		  SWP_NOMOVE | SWP_NOSIZE );
 }
 
-void QWidget::lower()				// lower widget
+void QWidget::lower()
 {
-#if defined(DEBUG)
-    warning( "QWidget::lower: Function not implemented for Windows" );
-#endif
+    SetWindowPos( id(), HWND_BOTTOM, 0, 0, 0, 0,
+		  SWP_NOMOVE | SWP_NOSIZE );
 }
 
 
@@ -379,16 +524,25 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
 void QWidget::setMinimumSize( int w, int h )
 {
-    // !!!TODO
+    if ( testWFlags(WType_Overlap) ) {
+	createExtra();
+	extra->minw = w;
+	extra->minh = h;
+    }
 }
 
 void QWidget::setMaximumSize( int w, int h )
 {
-    // !!!TODO
+    if ( testWFlags(WType_Overlap) ) {
+	createExtra();
+	extra->maxw = w;
+	extra->maxh = h;
+    }
 }
 
 void QWidget::setSizeIncrement( int w, int h )
 {
+    debug( "QWidget::setSizeIncrement: Not implemented" );
 }
 
 
@@ -399,14 +553,18 @@ void QWidget::erase( int x, int y, int w, int h )
 	tmphdc = hdc;
     else
 	tmphdc = GetDC( id() );
-#error This has to be implemented
-    if ( bg_pm )
-	SendMessage( id(), WM_ERASEBKGND, (WPARAM)tmphdc, (LPARAM)&l );
+    HANDLE hbrush = CreateSolidBrush( bg_col.pixel() );
+    RECT r;
+    r.left = r.top = 0;
+    r.right  = width();
+    r.bottom = height();
+    FillRect( tmphdc, &r, hbrush );
+    DeleteObject( hbrush );
     if ( !hdc )
-	ReleaseDC( id(), h );
+	ReleaseDC( id(), tmphdc );
 }
 
-void QWidget::scroll( int dx, int dy )		// scroll widget contents
+void QWidget::scroll( int dx, int dy )
 {
     ScrollWindow( id(), dx, dy, 0, 0 );
 }
@@ -468,13 +626,22 @@ long QWidget::metric( int m ) const		// return widget metrics
 // QWindow member functions
 //
 
-void QWindow::setCaption( const char *s )		// set caption text
+void QWindow::setCaption( const char *s )
 {
     ctext = s;
     SetWindowText( id(), (const char *)ctext );
 }
 
-void QWindow::setIconText( const char *s )		// set icon text
+void QWindow::setIconText( const char *s )
 {
     itext = s;
+}
+
+void QWindow::setIcon( QPixmap *pixmap )
+{
+    if ( ipm != pixmap ) {
+	delete ipm;
+	ipm = pixmap;
+    }
+    debug( "QWidget::setIcon: Not implemented" );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#34 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#34 $";
 #endif
 
 
@@ -285,8 +285,7 @@ void QFont::setPointSize( int pointSize )
 {
     if ( pointSize <= 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QFont::setPointSize: Point size <= 0 (%i)",
-		 pointSize );
+	warning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
 #endif
 	return;
     }
@@ -339,7 +338,7 @@ void QFont::setItalic( bool enable )
 
 int QFont::weight() const
 {
-    return (int)d->req.weight;
+    return d->req.weight;
 }
 
 /*----------------------------------------------------------------------------
@@ -393,7 +392,7 @@ void QFont::setWeight( int weight )
 
 bool QFont::underline() const
 {
-    return (int) d->req.underline;
+    return d->req.underline;
 }
 
 /*----------------------------------------------------------------------------
@@ -425,7 +424,7 @@ void QFont::setUnderline( bool enable )
 
 bool QFont::strikeOut() const
 {
-    return (int) d->req.strikeOut;
+    return d->req.strikeOut;
 }
 
 /*----------------------------------------------------------------------------
@@ -485,7 +484,7 @@ void QFont::setFixedPitch( bool enable )
 
 QFont::StyleHint QFont::styleHint() const
 {
-    return (StyleHint) d->req.styleHint;
+    return (StyleHint)d->req.styleHint;
 }
 
 /*----------------------------------------------------------------------------
@@ -567,7 +566,7 @@ QFont::CharSet QFont::charSet() const
   \code
     QFont     font( "times", 14 );	     // default character set is Latin1
     QFontInfo info( font );
-    if ( info.charSet() != Latin1 )	     // Check info, \e NOT font
+    if ( info.charSet() != Latin1 )	     // check actual font
 	fatal( "Cannot find a Latin 1 Times font" );
   \endcode
 
@@ -595,7 +594,8 @@ bool QFont::rawMode() const
 }
 
 /*----------------------------------------------------------------------------
-  Sets raw mode on or off.
+  Turns raw mode on if \e enable is TRUE, or turns it off if \e enable is
+  FALSE.
 
   Calling this function only has effect under X windows. If raw mode is
   enabled, Qt will search for an X font with a complete font name matching

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#10 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#10 $";
 #endif
 
 
@@ -99,7 +99,7 @@ QFont::QFont( bool )				// create default font
 {
     init();
     d->req.family    = "Arial";
-    d->req.pointSize = 12*8;
+    d->req.pointSize = 12*10;
 }
 
 
@@ -178,21 +178,21 @@ void QFont::loadFont( HANDLE output_hdc ) const
     }
 
     if ( d->req.rawMode ) {
-	QString n = d->req.family;
+	QString n = QFont::substitute( d->req.family );
 	int	f;
 	n.lower();
-	if ( n == (const char *)"system" )
+	if ( n == "system" )
 	    f = SYSTEM_FONT;
-	else if ( n == (const char *)"ansi_fixed" )
-	    f = ANSI_FIXED_FONT;
-	else if ( n == (const char *)"ansi_var" )
-	    f = ANSI_VAR_FONT;
-	else if ( n == (const char *)"device_default" )
-	    f = DEVICE_DEFAULT_FONT;
-	else if ( n == (const char *)"oem_fixed" )
-	    f = OEM_FIXED_FONT;
-	else if ( n == (const char *)"system_fixed" )
+	else if ( n == "system_fixed" )
 	    f = SYSTEM_FIXED_FONT;
+	else if ( n == "ansi_fixed" )
+	    f = ANSI_FIXED_FONT;
+	else if ( n == "ansi_var" )
+	    f = ANSI_VAR_FONT;
+	else if ( n == "device_default" )
+	    f = DEVICE_DEFAULT_FONT;
+	else if ( n == "oem_fixed" )
+	    f = OEM_FIXED_FONT;
 	else
 	    f = SYSTEM_FONT;
 	d->hfont = GetStockObject( f );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#58 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#59 $
 **
 ** Definition of QPainter class
 **
@@ -256,9 +256,10 @@ protected:
     HANDLE	hpen;				// current pen
     HANDLE	hbrush;				// current brush
     HANDLE	hbrushbm;			// current brush bitmap
+    uint	stockPen	: 1;
     uint	stockBrush	: 1;
     uint	pixmapBrush	: 1;
-    uint	tmpHandle	: 1;
+    uint	nocolBrush	: 1;
     uint	xfFont		: 1;
     void       *tm;
 #elif defined(_WS_PM_)

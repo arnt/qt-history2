@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#18 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#19 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -24,7 +24,7 @@ public:
 
     QImage();
     QImage( int width, int height, int depth, int numColors=0,
-	    QImage::Endian bitOrder=IgnoreEndian );
+	    Endian bitOrder=IgnoreEndian );
     QImage( const QImage & );
    ~QImage();
 
@@ -93,7 +93,7 @@ class QImageIO
 {
 public:
     QImageIO();
-    QImageIO( QIODevice  *ioDevice, const char *format );
+    QImageIO( QIODevice	 *ioDevice, const char *format );
     QImageIO( const char *fileName, const char *format );
    ~QImageIO();
 
