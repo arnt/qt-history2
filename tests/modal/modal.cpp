@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qlabel.h>
 #include "modal.h"
 
 int main( int argc, char* argv[]  )
