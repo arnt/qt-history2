@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#16 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#16 $";
 #endif
 
 
@@ -1155,6 +1155,7 @@ struct GCInfo {					// information about GC
     Font  font;					// font
     ulong bgc;					// background color
     ulong fgc;					// foreground color
+    bool  shareable;				// shareable GC
     int   refcount;				// number of owners
 };
 
@@ -1171,17 +1172,18 @@ static GCInfo *findGC( GC gc )			// find 'gc' in list
     return g;
 }
 
-static GCInfo *matchGC( Font font, ulong bgc, ulong fgc )
+static GCInfo *matchGC( Font font, ulong bgc, ulong fgc, bool shareable )
 {						// find matching GC
-    if ( !gcList )
+    if ( !gcList || !shareable )
 	return 0;
     register GCInfo *g = gcList->first();
-    while ( g && !(g->font == font && g->bgc == bgc && g->fgc == fgc) )
+    while ( g && !(g->font == font && g->bgc == bgc && g->fgc == fgc &&
+		   g->shareable) )
 	g = gcList->next();
     return g;
 }
 
-static GCInfo *createGC( Font font, ulong bgc, ulong fgc )
+static GCInfo *createGC( Font font, ulong bgc, ulong fgc, bool shareable )
 {						// create new GC
     register GCInfo *g = new GCInfo;
     XGCValues v;
@@ -1189,6 +1191,7 @@ static GCInfo *createGC( Font font, ulong bgc, ulong fgc )
     g->font = font;
     g->bgc = bgc;
     g->fgc = fgc;
+    g->shareable = shareable;
     g->refcount = 1;
     v.font = font;
     v.background = bgc;
@@ -1199,17 +1202,17 @@ static GCInfo *createGC( Font font, ulong bgc, ulong fgc )
     return g;
 }
 
-GC qXAllocGC( Font font, ulong bgc, ulong fgc )
+GC qXAllocGC( Font font, ulong bgc, ulong fgc, bool shareable )
 {
     if ( !gcList ) {
 	gcList = new QListM(GCInfo);
 	CHECK_PTR( gcList );
     }
-    register GCInfo *g = matchGC( font, bgc, fgc );
+    register GCInfo *g = matchGC( font, bgc, fgc, shareable );
     if ( g )
 	g->refcount++;
     else
-	g = createGC( font, bgc, fgc );
+	g = createGC( font, bgc, fgc, shareable );
     return g->gc;
 }
 
@@ -1220,9 +1223,9 @@ void qXFreeGC( GC gc )
     g->refcount--;
 }
 
-GC qXChangeGC( GC gc, Font font, ulong bgc, ulong fgc )
+GC qXChangeGC( GC gc, Font font, ulong bgc, ulong fgc, bool shareable )
 {
-    GCInfo *gMatch = matchGC( font, bgc, fgc );
+    GCInfo *gMatch = matchGC( font, bgc, fgc, shareable );
     GCInfo *gThis = findGC( gc );
     ASSERT( gThis );
     if ( gMatch ) {				// found matching GC
@@ -1242,7 +1245,7 @@ GC qXChangeGC( GC gc, Font font, ulong bgc, ulong fgc )
 	}
 	else {					// create new GC
 	    gThis->refcount--;
-	    gThis = createGC( font, bgc, fgc );
+	    gThis = createGC( font, bgc, fgc, shareable );
 	    gc = gThis->gc;
 	}
     }
