@@ -1932,7 +1932,7 @@ just like any other Qt widget, except that it opens an OpenGL display
 buffer where you can use the OpenGL API to render the contents.
 
 The Qt OpenGL module is implemented as a platform-independent
-Qt/C++ wrapper around the platform-dependent GLX and WGL C APIs. The
+Qt/C++ wrapper around the platform-dependent GLX, WGL, or AGL C APIs. The
 functionality provided is very similar to Mark Kilgard's GLUT library,
 but with much more non-OpenGL-specific GUI functionality, i.e. the whole
 Qt API.

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -13,17 +13,12 @@
 ** This is a simple QGLWidget demonstrating the use of QImages for textures.
 **
 ** Much of the GL code is inspired by the 'spectex' and 'texcyl'
-** public domain demo programs by Brian Paul
+** public domain demo programs by Brian Paul.
 **
 ****************************************************************************/
 
 #include "gltexobj.h"
 #include <qimage.h>
-#ifdef Q_WS_MAC
-#include <glu.h>
-#else
-#include <GL/glu.h>
-#endif
 
 /*!
   Create a GLTexobj widget
