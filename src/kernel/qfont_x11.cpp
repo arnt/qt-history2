@@ -2054,8 +2054,16 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	return;
     }
 
-    if (script != QFont::Unicode && script != defaultScript || !actual.dirty)
+    if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
+	x11data.fontstruct[script] == (QFontStruct *) -1) {
+	// make sure the pixel size is correct, so that we can draw the missing char
+	// boxes in the correct size...
+	if (request.pixelSize == -1) {
+	    actual.pointSize = request.pointSize;
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
+	}
 	return;
+    }
 
     actual.lbearing = SHRT_MIN;
     actual.rbearing = SHRT_MIN;
@@ -2478,6 +2486,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
 	    x11data.fontstruct[script] = (QFontStruct *) -1;
+	    initFontInfo(script);
+	    fontCache->insert(k, x11data.fontstruct[script], 1);
 	    return;
 	}
 
@@ -2506,6 +2516,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
 		x11data.fontstruct[script] = (QFontStruct *) -1;
+		initFontInfo(script);
 		fontCache->insert(k, x11data.fontstruct[script], 1);
 		return;
 	    }
@@ -2521,7 +2532,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 				    fontname.data()))) {
-	    if (script != QFont::Unicode) {
+	    if (script != QFont::Unicode && script == QFontPrivate::defaultScript) {
 
 #ifdef QFONTLOADER_DEBUG
 		qDebug("QFontLoader: load failed, trying last resort");
@@ -2534,11 +2545,10 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		    qFatal("QFontLoader: Internal error");
 		}
 	    } else {
-		// Didn't get unicode font, set to sentinel and return
-		//qDebug("no unicode font, doing negative caching");
+		// Didn't get unicode/script font, set to sentinel and return
 		x11data.fontstruct[script] = (QFontStruct *) -1;
+		initFontInfo(script);
 		fontCache->insert(k, x11data.fontstruct[script], 1);
-
 		return;
 	    }
 	}
