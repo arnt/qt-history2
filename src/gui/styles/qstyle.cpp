@@ -857,7 +857,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CC_Slider
     \value CC_ToolButton
     \value CC_TitleBar
-    \value CC_ListView
+    \value CC_Q3ListView
 
     \value CC_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.
@@ -914,10 +914,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_TitleBarUnshadeButton  Unshade button
     \value SC_TitleBarContextHelpButton Context Help button
 
-    \value SC_ListView  The list view area
-    \value SC_ListViewExpand  Expand item (i.e., show/hide child items)
+    \value SC_Q3ListView  The list view area
+    \value SC_Q3ListViewExpand  Expand item (i.e., show/hide child items)
     \value SC_All  Special value that matches all SubControls
-    \omitvalue SC_ListViewBranch
+    \omitvalue SC_Q3ListViewBranch
 
     \sa ComplexControl
 */
@@ -973,7 +973,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l{CC_TitleBar} \i \l QStyleOptionTitleBar
          \i \l Style_Enabled \i Set if the title bar is enabled
 
-    \row \i \l{CC_ListView} \i \l QStyleOptionListView
+    \row \i \l{CC_Q3ListView} \i \l QStyleOptionListView
          \i \l Style_Enabled \i Set if the list view is enabled
     \endtable
 
@@ -1342,7 +1342,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_TabBar_SelectMouseType  Which type of mouse event should
         cause a tab to be selected.
 
-    \value SH_ListViewExpand_SelectMouseType  Which type of mouse event should
+    \value SH_Q3ListViewExpand_SelectMouseType  Which type of mouse event should
         cause a list view expansion to be selected.
 
     \value SH_TabBar_PreferNoArrows  Whether a tabbar should suggest a size

@@ -1018,7 +1018,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 */
 
 /*!
-    Creates a QStyleOptionListView. The members variables are
+    Creates a QStyleOptionQ3ListView. The members variables are
     initialized to default values.
 */
 
@@ -1039,52 +1039,52 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 
 
 /*!
-    \property QStyleOptionListView::items
+    \property QStyleOptionQ3ListView::items
     \brief A list of items in the \l Q3ListView.
 
-    This is a list of \l {QStyleOptionListViewItem}s. The first item
+    This is a list of \l {QStyleOptionQ3ListViewItem}s. The first item
     can be used for most of the calculation that are needed for
     drawing a list view. Any additional items are the children of
     this first item, which may be used for additional information.
 
-    \sa QStyleOptionListViewItem
+    \sa QStyleOptionQ3ListViewItem
 */
 
 /*!
-    \property QStyleOptionListView::viewportPalette
+    \property QStyleOptionQ3ListView::viewportPalette
     \brief The palette of Q3ListView's viewport.
 */
 
 /*!
-    \property QStyleOptionListView::viewportBGRole
+    \property QStyleOptionQ3ListView::viewportBGRole
     \brief The background role of \l Q3ListView's viewport.
 
     \sa QWidget::backgroundRole()
 */
 
 /*!
-    \property QStyleOptionListView::sortColumn
+    \property QStyleOptionQ3ListView::sortColumn
     \brief The sort column of the list view.
 
     \sa Q3ListView::sortColumn()
 */
 
 /*!
-    \property QStyleOptionListView::itemMargin
+    \property QStyleOptionQ3ListView::itemMargin
     \brief The margin for items in the list view.
 
     \sa Q3ListView::itemMargin()
 */
 
 /*!
-    \property QStyleOptionListView::treeStepSize
+    \property QStyleOptionQ3ListView::treeStepSize
     \brief The number of pixel to offset children items from their parents.
 
     \sa Q3ListView::treeStepSize()
 */
 
 /*!
-    \property QStyleOptionListView::rootIsDecorated
+    \property QStyleOptionQ3ListView::rootIsDecorated
     \brief Whether root items are decorated
 
     \sa Q3ListView::rootIsDecorated()
@@ -1528,7 +1528,7 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 
 /*!
     \class QStyleHintReturn
-    \brief The QStyleHintReturn is used for stylehints that return more than a simple int.
+    \brief The QStyleHintReturn is used for style hints that return more than a simple int.
 
     \ingroup appearance
 
@@ -1541,12 +1541,7 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 */
 
 /*!
-    \enum QStyleOption::OptionType
-
-    This enum is used internally by QStyleOption, its subclasses, and
-    qt_cast() to determine the type of style option. In general you do not need
-    to worry about this unless you want to create your own QStyleOption
-    subclass and your own styles.
+    \enum QStyleOption::HitReturnType
 
     \value SH_Default QStyleHintReturn
     \value SH_Mask \l SH_RubberBand_Mask SH_FocusFrame_Mask
