@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#136 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#137 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1274,10 +1274,15 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     TCHAR* filt = qt_winTchar_new(win_filter);
     TCHAR* idir = qt_winTchar_new(*workingDirectory);
 
+    if ( parent )
+	parent = parent->topLevelWidget();
+    else
+	parent = qApp->mainWidget();
+
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->topLevelWidget()->winId() : 0;
+    ofn.hwndOwner	= parent ? parent->winId() : 0;
     ofn.lpstrFilter	= filt;
     ofn.lpstrFile	= tcfile;
     ofn.nMaxFile	= maxstrlen;
@@ -1287,19 +1292,10 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QString result;
 
-    // Need to workaround non-modality of GetOpenFileName, like MFC does it.
-    QWidget dummy( parent, "QFileDialog dummy" );
-    if ( !parent )
-	dummy.setGeometry( qApp->desktop()->width()/2 - 200,
-			   qApp->desktop()->height()/2 - 200, 200, 200 );
-    ofn.hwndOwner = dummy.winId();
-
-    qt_enter_modal( &dummy );
     if ( GetOpenFileName(&ofn) ) {
 	result = file;
 	*workingDirectory = QFileInfo(file).dirPath();
     }
-    qt_leave_modal( &dummy );
 
     delete [] idir;
     delete [] filt;
@@ -1418,10 +1414,15 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     TCHAR* filt = qt_winTchar_new(win_filter);
     TCHAR* idir = qt_winTchar_new(*workingDirectory);
 
+    if ( parent )
+	parent = parent->topLevelWidget();
+    else
+	parent = qApp->mainWidget();
+
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->topLevelWidget()->winId() : 0;
+    ofn.hwndOwner	= parent ? parent->winId() : 0;
     ofn.lpstrFilter	= filt;
     ofn.lpstrFile	= tcfile;
     ofn.nMaxFile	= maxstrlen;
@@ -1431,19 +1432,10 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     QString result;
 
-    // Need to workaround non-modality of GetSaveFileName, like MFC does it.
-    QWidget dummy( parent, "QFileDialog dummy" );
-    if ( !parent )
-	dummy.setGeometry( qApp->desktop()->width()/2 - 200,
-			   qApp->desktop()->height()/2 - 200, 200, 200 );
-    ofn.hwndOwner = dummy.winId();
-
-    qt_enter_modal( &dummy );
     if ( GetSaveFileName(&ofn) ) {
 	result = file;
 	*workingDirectory = QFileInfo(file).dirPath();
     }
-    qt_leave_modal( &dummy );
 
     delete [] idir;
     delete [] filt;
