@@ -108,6 +108,8 @@ ApplicationWindow::ApplicationWindow()
 
     file->insertSeparator();
 
+    file->insertItem( "Pa&ge setup", this, SLOT(pageSetup()) );
+
     id = file->insertItem( printIcon, "&Print...",
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
@@ -215,6 +217,12 @@ void ApplicationWindow::saveAs()
     }
 }
 
+
+void ApplicationWindow::pageSetup()
+{
+    printer->setFullPage( TRUE );
+    printer->pageSetup(this);
+}
 
 void ApplicationWindow::print()
 {
