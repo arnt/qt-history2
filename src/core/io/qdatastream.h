@@ -16,10 +16,6 @@
 
 #include "qglobal.h"
 
-#ifdef Status // ### we seem to pick up a macro Status --> int somewhere
-#undef Status
-#endif
-
 class QByteArray;
 class QIODevice;
 
