@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#100 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#100 $");
 
 
 /*!
@@ -984,7 +984,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
   Handles resize events for the menu bar.
 */
 
-void QMenuBar::resizeEvent( QResizeEvent *e )
+void QMenuBar::resizeEvent( QResizeEvent * )
 {
     badSize = TRUE;
 }
