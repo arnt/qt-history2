@@ -332,6 +332,9 @@ protected:
     void mouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
     void keyReleaseEvent( QKeyEvent *e );
+#ifndef QT_NO_STYLE
+    void styleChange( QStyle& );
+#endif
 
 private slots:
     void minimize();
@@ -521,6 +524,14 @@ void QDockWindowHandle::updateGui()
 	closeButton->move( x, off );
     }
 }
+
+#ifndef QT_NO_STYLE
+void QDockWindowHandle::styleChange( QStyle& )
+{
+    if ( closeButton )
+	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton ) );
+}
+#endif
 
 QSize QDockWindowHandle::minimumSizeHint() const
 {
