@@ -112,7 +112,7 @@ extern "C" {
 #define _MSC_VER 1
 #include "npapi.h"
 #undef _MSC_VER
-#else if
+#else
 #include "npapi.h"
 #endif
 
