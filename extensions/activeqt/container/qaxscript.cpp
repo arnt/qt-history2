@@ -510,16 +510,19 @@ bool QAxScriptEngine::hasIntrospection() const
 
     UINT tic = 0;
     HRESULT hres = scriptDispatch->GetTypeInfoCount(&tic);
+    scriptDispatch->Release();
     return hres == S_OK && tic > 0;
 }
 
 /*!
     Returns a list of all the functions this script engine can run if
     it supports introspection; otherwise returns an empty list.
+    The functions are either provided with full prototypes or only as 
+    names, depending on the value of \a flags.
 
     \sa hasIntrospection()
 */
-QStringList QAxScriptEngine::functions() const
+QStringList QAxScriptEngine::functions(QAxScript::FunctionFlags flags) const
 {
     QStringList functions;
 
@@ -535,7 +538,10 @@ QStringList QAxScriptEngine::functions() const
 	if (slotname.contains('_'))
 	    continue;
 
-	functions << slotname;
+	if (flags == QAxScript::FunctionPrototypes)
+	    functions << slotname;
+	else
+	    functions << slot->method->name;
     }
 
     return functions;
@@ -653,8 +659,10 @@ QAxScript::QAxScript(QObject *parent, const char *name)
     Returns a list with all the functions that are available.
     Functions provided by script engines that don't support
     introspection are not included in the list.
+    The functions are either provided with full prototypes or 
+    only as names, depending on the value of \a flags.
 */
-QStringList QAxScript::functions() const
+QStringList QAxScript::functions(FunctionFlags flags) const
 {
     QStringList functions;
 
@@ -663,7 +671,7 @@ QStringList QAxScript::functions() const
 	QAxScriptEngine *script = scriptIt.current();
 	++scriptIt;
 
-	functions += script->functions();
+	functions += script->functions(flags);
     }
 
     return functions;
@@ -821,6 +829,12 @@ QAxScriptEngine *QAxScript::load(const QString &file, const QString &name)
     args << 5;
     script->call("setNumber(const QVariant&)", args);
     \endcode
+    As with \link QAxBase::dynamicCall() dynamicCall \endlink the 
+    parameters can directly be embedded in the function string.
+    \code
+    script->call("setNumber(5)");
+    \endcode
+    However, this is slower.
 
     Functions provided by script engines that don't support
     introspection are not available and must be called directly
@@ -904,12 +918,27 @@ QString QAxScript::scriptFileFilter()
 */
 QAxScriptEngine *QAxScript::script(const QString &function) const
 {
+    // check full prototypes if included
+    if (function.contains('(')) {
+	QDictIterator<QAxScriptEngine> scriptIt(scriptSite->scriptDict);
+	while (scriptIt.current()) {
+	    QAxScriptEngine *script = scriptIt.current();
+	    ++scriptIt;
+
+	    if (script->functions(FunctionPrototypes).contains(function))
+		return script;
+	}
+    }
+
+    QString funcName = function;
+    funcName = funcName.left(funcName.find('('));
+    // second try, checking only names, not prototypes
     QDictIterator<QAxScriptEngine> scriptIt(scriptSite->scriptDict);
     while (scriptIt.current()) {
 	QAxScriptEngine *script = scriptIt.current();
 	++scriptIt;
 
-	if (script->functions().contains(function))
+	if (script->functions(FunctionNames).contains(funcName))
 	    return script;
     }
 

@@ -18,17 +18,142 @@
 
 #include <qt_windows.h>
 
+static DWORD *classRegistration = 0;
+static DWORD dwThreadID;
+static bool qAxActivity = FALSE;
+static HANDLE hEventShutdown;
+
+#ifdef QT_DEBUG
+QT_STATIC_CONST DWORD dwTimeOut = 1000;
+QT_STATIC_CONST DWORD dwPause = 500;
+#else
+QT_STATIC_CONST DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
+QT_STATIC_CONST DWORD dwPause = 1000; // time to wait for threads to finish up
+#endif
+
+extern HANDLE hEventShutdown;
+extern bool qAxActivity;
 extern HANDLE qAxInstance;
+extern bool qAxIsServer;
 extern char qAxModuleFilename[MAX_PATH];
 extern void qAxInit();
 extern void qAxCleanup();
 extern HRESULT UpdateRegistry(BOOL bRegister);
+typedef int (*QWinEventFilter) (MSG*);
+extern int QAxEventFilter( MSG *pMsg );
+extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
+extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
+extern ulong qAxLockCount();
+
 #if defined(Q_CC_BOR)
 extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver );
 #else
 STDAPI DumpIDL( const QString &outfile, const QString &ver );
 #endif
 
+// Monitors the shutdown event
+static DWORD WINAPI MonitorProc(void* pv)
+{
+    while (1) {
+        WaitForSingleObject(hEventShutdown, INFINITE);
+        DWORD dwWait=0;
+        do {
+            qAxActivity = FALSE;
+            dwWait = WaitForSingleObject(hEventShutdown, dwTimeOut);
+        } while ( dwWait == WAIT_OBJECT_0 );
+        // timed out
+        if ( !qAxActivity && !qAxLockCount() ) // if no activity let's really bail
+            break;
+    }
+    CloseHandle(hEventShutdown);
+    PostThreadMessage(dwThreadID, WM_QUIT, 0, 0);
+    PostQuitMessage( 0 );
+
+    return 0;
+}
+
+// Starts the monitoring thread
+static bool StartMonitor()
+{
+    dwThreadID = GetCurrentThreadId();
+    hEventShutdown = CreateEventA( 0, FALSE, FALSE, 0 );
+    if ( hEventShutdown == 0 )
+        return FALSE;
+    DWORD dwThreadID;
+    HANDLE h = CreateThread( 0, 0, MonitorProc, 0, 0, &dwThreadID );
+    return (h != NULL);
+}
+
+void qax_shutDown()
+{
+    qAxActivity = TRUE;
+    if ( hEventShutdown )
+	SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
+}
+
+/*
+    Start the COM server (if necessary).
+*/
+bool qax_startServer(QAxFactory::ServerType type)
+{
+    if (qAxIsServer)
+	return TRUE;
+	    
+    HRESULT hRes = CoInitialize(0);
+
+    const QStringList keys = qAxFactory()->featureList();
+    if ( !keys.count() )
+	return FALSE;
+
+    if ( !qAxFactory()->isService() )
+	StartMonitor();
+
+    classRegistration = new DWORD[keys.count()];
+    int object = 0;
+    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object ) {
+	IUnknown* p = 0;
+	CLSID clsid = qAxFactory()->classID( *key );
+
+	// Create a QClassFactory (implemented in qaxserverbase.cpp)
+	HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
+	if ( SUCCEEDED(hRes) )
+	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, 
+					  type == QAxFactory::MultipleInstances ? REGCLS_MULTIPLEUSE : REGCLS_SINGLEUSE,
+					  classRegistration+object );
+	if ( p )
+	    p->Release();
+    }
+
+    qt_set_win_event_filter( QAxEventFilter );
+    qAxIsServer = TRUE;
+    return TRUE;
+}
+
+/*
+    Stop the COM server (if necessary).
+*/
+bool qax_stopServer()
+{
+    if (!qAxIsServer || !classRegistration)
+	return TRUE;
+
+    qAxIsServer = FALSE;
+    qt_set_win_event_filter(0);
+
+    const QStringList keys = qAxFactory()->featureList();
+    int object = 0;
+    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object )
+	CoRevokeClassObject( classRegistration[object] );
+    
+    delete []classRegistration;
+    classRegistration = 0;
+
+    Sleep(dwPause); //wait for any threads to finish
+
+    CoUninitialize();
+
+    return TRUE;
+}
 
 #if defined(NEEDS_QMAIN)
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);

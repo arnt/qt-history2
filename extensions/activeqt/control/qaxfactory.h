@@ -105,6 +105,20 @@ private:
     QUuid app;
 };
 
+inline bool QAxFactory::startServer(ServerType type)
+{
+    // implementation in qaxservermain.cpp
+    extern bool qax_startServer(ServerType);
+    return qax_startServer(type);
+}
+
+inline bool QAxFactory::stopServer()
+{
+    // implementation in qaxservermain.cpp
+    extern bool qax_stopServer();
+    return qax_stopServer();
+}
+
 #define QAXFACTORY_EXPORT( IMPL, TYPELIB, APPID )	\
     QUnknownInterface *ucm_instantiate()		\
     {							\

@@ -23,6 +23,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		      ../shared/types.h
 
     SOURCES         = qaxbase.cpp \
+		      qaxdump.cpp \
 		      qaxwidget.cpp \
 		      qaxobject.cpp \
 		      qaxscript.cpp \

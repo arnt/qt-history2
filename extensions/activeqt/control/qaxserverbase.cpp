@@ -45,6 +45,9 @@ extern unsigned long qAxLock();
 extern unsigned long qAxUnlock();
 extern void* qAxInstance;
 
+extern bool qax_ownQApp;
+HHOOK qax_hhook = 0;
+
 struct QAxExceptInfo
 {
     QAxExceptInfo( int c, const QString &s, const QString &d, const QString &x )
@@ -718,8 +721,6 @@ private:
 };
 
 extern Q_EXPORT void qWinProcessConfigRequests();
-extern bool qax_ownQApp;
-extern HHOOK hhook;
 LRESULT CALLBACK axs_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
     if ( qApp ) {
@@ -728,7 +729,7 @@ LRESULT CALLBACK axs_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	qWinProcessConfigRequests();
     }
 
-    return CallNextHookEx( hhook, nCode, wParam, lParam );
+    return CallNextHookEx( qax_hhook, nCode, wParam, lParam );
 }
 
 // COM Factory class, mapping COM requests to ActiveQt requests.
@@ -814,9 +815,9 @@ public:
 	    int argc = 0;
 	    (void)new QApplication( argc, 0 );
 	    QT_WA( {
-		hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
+		qax_hhook = SetWindowsHookExW( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
 	    }, {
-		hhook = SetWindowsHookExA( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
+		qax_hhook = SetWindowsHookExA( WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId() );
 	    } );
 	}
 

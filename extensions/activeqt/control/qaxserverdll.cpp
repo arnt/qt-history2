@@ -18,6 +18,8 @@
 #include <qt_windows.h>
 #include "../shared/types.h"
 
+bool qax_ownQApp = FALSE;
+
 // in qaxservermain.cpp
 extern char qAxModuleFilename[MAX_PATH];
 extern bool qAxIsServer;
@@ -25,17 +27,11 @@ extern ITypeLib *qAxTypeLibrary;
 extern unsigned long qAxLockCount();
 extern void qAxInit();
 extern void qAxCleanup();
-extern void* qAxInstance;
+extern HANDLE qAxInstance;
 
 extern HRESULT UpdateRegistry(int bRegister);
 extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
-
-// Some local variables to handle module lifetime
-static bool qAxActivity = FALSE;
-static long qAxModuleRef = 0;
-static CRITICAL_SECTION qAxModuleSection;
-
-bool qax_ownQApp = FALSE;
+extern HHOOK qax_hhook;
 
 // in qeventloop_win.cpp
 extern Q_EXPORT bool qt_win_use_simple_timers;
@@ -57,9 +53,6 @@ STDAPI DllGetClassObject(const GUID &clsid, const GUID &iid, void** ppv)
 	return CLASS_E_CLASSNOTAVAILABLE;
     return S_OK;
 }
-
-HHOOK hhook = 0;
-
 
 STDAPI DllCanUnloadNow()
 {
@@ -88,8 +81,8 @@ STDAPI DllCanUnloadNow()
 	return S_FALSE;
 
     // no widgets left - destroy qApp
-    if ( hhook )
-	UnhookWindowsHookEx( hhook );
+    if ( qax_hhook )
+	UnhookWindowsHookEx( qax_hhook );
 
     delete qApp;
     qApp = 0;

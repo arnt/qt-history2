@@ -23,12 +23,16 @@ public:
 	Closed = 4
     };
 
+    enum FunctionFlags {
+	FunctionNames = 0,
+	FunctionPrototypes	
+    };
 
     QAxScript( QObject *parent = 0, const char *name = 0 );
 
     void addObject(QAxBase *object);
 
-    QStringList functions() const;
+    QStringList functions(FunctionFlags = FunctionNames) const;
     QStringList scriptNames() const;
     QAxScriptEngine *scriptEngine(const QString &name) const;
 
@@ -76,7 +80,7 @@ public:
     QString scriptCode() const;
     QString scriptLanguage() const;
 
-    QStringList functions() const;
+    QStringList functions(QAxScript::FunctionFlags = QAxScript::FunctionNames) const;
 
     long queryInterface( const QUuid &, void** ) const;
 

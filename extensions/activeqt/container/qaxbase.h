@@ -115,6 +115,12 @@ private:
     QString ctrl;
 };
 
+inline QString QAxBase::generateDocumentation()
+{
+    extern QString qax_generateDocumentation(QAxBase *, QAxBasePrivate *);
+    return qax_generateDocumentation(this, d);
+}
+
 #ifndef QT_NO_DATASTREAM
 inline QDataStream &operator >>( QDataStream &s, QAxBase &c )
 {

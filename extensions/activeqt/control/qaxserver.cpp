@@ -16,15 +16,6 @@
 
 #define Q_REQUIRED_RPCNDR_H_VERSION 475
 
-
-#ifdef QT_DEBUG
-const DWORD dwTimeOut = 1000;
-const DWORD dwPause = 500;
-#else
-const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
-const DWORD dwPause = 1000; // time to wait for threads to finish up
-#endif
-
 // Some global variables to store module information
 bool qAxIsServer = FALSE;
 HANDLE qAxInstance = 0;
@@ -37,6 +28,7 @@ extern QUnknownInterface *ucm_instantiate();
 extern CLSID CLSID_QRect;
 extern CLSID CLSID_QSize;
 extern CLSID CLSID_QPoint;
+extern void qax_shutDown();
 
 QAxFactoryInterface *qAxFactory()
 {
@@ -51,12 +43,9 @@ QAxFactoryInterface *qAxFactory()
 }
 
 // Some local variables to handle module lifetime
-static bool qAxActivity = FALSE;
-static long qAxModuleRef = 0;
-static HANDLE hEventShutdown;
+static unsigned long qAxModuleRef = 0;
 static CRITICAL_SECTION qAxModuleSection;
-static DWORD dwThreadID;
-static DWORD *classRegistration = 0;
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Server control
@@ -104,120 +93,14 @@ unsigned long qAxUnlock()
     unsigned long ref = --qAxModuleRef;
     LeaveCriticalSection( &qAxModuleSection );
 
-    if ( !ref ) {
-        qAxActivity = TRUE;
-        if ( hEventShutdown )
-	    SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
-    }
+    if ( !ref )
+	qax_shutDown();
     return ref;
 }
 
 unsigned long qAxLockCount()
 {
     return qAxModuleRef;
-}
-
-// Monitors the shutdown event
-static DWORD WINAPI MonitorProc(void* pv)
-{
-    while (1) {
-        WaitForSingleObject(hEventShutdown, INFINITE);
-        DWORD dwWait=0;
-        do {
-            qAxActivity = FALSE;
-            dwWait = WaitForSingleObject(hEventShutdown, dwTimeOut);
-        } while ( dwWait == WAIT_OBJECT_0 );
-        // timed out
-        if ( !qAxActivity && !qAxModuleRef ) // if no activity let's really bail
-            break;
-    }
-    CloseHandle(hEventShutdown);
-    PostThreadMessage(dwThreadID, WM_QUIT, 0, 0);
-    PostQuitMessage( 0 );
-
-    return 0;
-}
-
-// Starts the monitoring thread
-static bool StartMonitor()
-{
-    dwThreadID = GetCurrentThreadId();
-    hEventShutdown = CreateEventA( 0, FALSE, FALSE, 0 );
-    if ( hEventShutdown == 0 )
-        return FALSE;
-    DWORD dwThreadID;
-    HANDLE h = CreateThread( 0, 0, MonitorProc, 0, 0, &dwThreadID );
-    return (h != NULL);
-}
-
-typedef int (*QWinEventFilter) (MSG*);
-extern int QAxEventFilter( MSG *pMsg );
-extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
-extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
-
-
-/*
-    Start the COM server (if necessary).
-*/
-bool QAxFactory::startServer(ServerType type)
-{
-    if (qAxIsServer)
-	return TRUE;
-	    
-    HRESULT hRes = CoInitialize(0);
-
-    const QStringList keys = qAxFactory()->featureList();
-    if ( !keys.count() )
-	return FALSE;
-
-    if ( !qAxFactory()->isService() )
-	StartMonitor();
-
-    classRegistration = new DWORD[keys.count()];
-    int object = 0;
-    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object ) {
-	IUnknown* p = 0;
-	CLSID clsid = qAxFactory()->classID( *key );
-
-	// Create a QClassFactory (implemented in qaxserverbase.cpp)
-	HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
-	if ( SUCCEEDED(hRes) )
-	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, 
-					  type == MultipleInstances ? REGCLS_MULTIPLEUSE : REGCLS_SINGLEUSE,
-					  classRegistration+object );
-	if ( p )
-	    p->Release();
-    }
-
-    qt_set_win_event_filter( QAxEventFilter );
-    qAxIsServer = TRUE;
-    return TRUE;
-}
-
-/*
-    Stop the COM server (if necessary).
-*/
-bool QAxFactory::stopServer()
-{
-    if (!qAxIsServer || !classRegistration)
-	return TRUE;
-
-    qAxIsServer = FALSE;
-    qt_set_win_event_filter(0);
-
-    const QStringList keys = qAxFactory()->featureList();
-    int object = 0;
-    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object )
-	CoRevokeClassObject( classRegistration[object] );
-    
-    delete []classRegistration;
-    classRegistration = 0;
-
-    Sleep(dwPause); //wait for any threads to finish
-
-    CoUninitialize();
-
-    return TRUE;
 }
 
 /////////////////////////////////////////////////////////////////////////////

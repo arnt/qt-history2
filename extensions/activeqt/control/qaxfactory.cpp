@@ -549,7 +549,6 @@ bool QAxFactory::isService() const
     if the server executable has been started with the \c -activex 
     command line parameter.
 */
-// implementation in qaxserver.cpp
 
 /*!
     \fn bool QAxFactory::stopServer();
@@ -566,4 +565,3 @@ bool QAxFactory::isService() const
 
     The server is stopped automatically when the main() function returns.
 */
-// implementation in qaxserver.cpp
