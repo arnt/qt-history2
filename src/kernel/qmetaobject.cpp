@@ -828,7 +828,7 @@ bool QMetaObject::qt_static_property( QObject* o, int id, int f, QVariant* v)
 */
 QStrList QMetaProperty::enumKeys() const
 {
-    StrList l( FALSE );
+    QStrList l( FALSE );
     const QMetaEnum* ed = enumData;
     if ( !enumData && meta )
 	ed = (*meta)->enumerator( t, TRUE );
@@ -921,7 +921,7 @@ QStrList QMetaProperty::valueToKeys( int value ) const
     QStrList keys;
     const QMetaEnum* ed = enumData;
     if ( !enumData && meta )
-	d = (*meta)->enumerator( t, TRUE );
+	ed = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return keys;
 
