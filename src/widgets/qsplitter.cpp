@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#35 $
 **
 **  Splitter widget
 **
@@ -216,6 +216,8 @@ void QSplitter::setOrientation( Orientation o )
    \sa setOrientation()
 */
 
+
+// newpos is not documented.
 
 QCOORD QSplitter::newpos() const
 {
