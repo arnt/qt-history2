@@ -28,6 +28,7 @@ $QTDIR/util/scripts/makemake $SUBARGS
 if [ -n "$LIST" ] ; then echo 'src/Makefile.in' ; fi
 
 cp $QTDIR/util/scripts/propagate $QTDIR
+cp $QTDIR/util/scripts/build $QTDIR
 if [ -n "$LIST" ] ; then echo 'propagate' ; fi
 
 if [ -n "$VERBOSE" ] ; then echo "Build tutorial, example, and extensions Makefiles" >&2 ; fi

@@ -151,6 +151,7 @@ rm -f ${QTDIR}/include/qt.h
 
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
+  mv -f ${DISTDIR}/qt/doc ${DISTDIR}/qt/src
 else
   echo "Generating documentation" >&2
   mkdir -p ${DISTDIR}/qt/doc/html
