@@ -181,9 +181,9 @@ int main( int argc, char **argv )
 	return 3;
     }
     slashify( input );
-    if ( !!tlbfile ) {
-	slashify( tlbfile );
-	QFile file( tlbfile );
+    if (!tlbfile.isEmpty()) {
+	slashify(tlbfile);
+	QFile file(tlbfile);
 	if ( !file.open( IO_ReadOnly ) )
 	    fprintf(stderr, "Couldn't open %s for read\n", (const char*)tlbfile.local8Bit());
 	QByteArray data = file.readAll();
@@ -192,8 +192,8 @@ int main( int argc, char **argv )
 	fprintf(stderr, error.latin1());
 	fprintf(stderr, "\n");
 	return ok ? 0 : 4;
-    } else if ( !!idlfile ) {
-	slashify( idlfile );
+    } else if (!idlfile.isEmpty()) {
+	slashify(idlfile);
 	HMODULE hdll = 0;
 	QT_WA( {
 	    hdll = LoadLibraryW( (TCHAR*)input.ucs2() );
