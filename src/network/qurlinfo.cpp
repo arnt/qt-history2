@@ -37,11 +37,7 @@ public:
     int permissions;
     QString owner;
     QString group;
-#if defined(QT_LARGEFILE_SUPPORT)
     QIODevice::Offset size;
-#else
-    uint size;
-#endif
     QDateTime lastModified;
     QDateTime lastRead;
     bool isDir;
