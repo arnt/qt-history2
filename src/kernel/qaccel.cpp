@@ -208,7 +208,7 @@ bool Q_EXPORT qt_tryComposeUnicode( QWidget* w, QKeyEvent*  e){
     Returns TRUE if the accel is in the current subwindow, else FALSE.
 */
 bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
-    if ( !d->enabled || !d->watch || !d->watch->isVisible() || !d->watch->isEnabled() )
+    if ( !d->watch || !d->watch->isVisible() || !d->watch->isEnabled() )
 	return FALSE;
     QWidget* tlw = w->topLevelWidget();
     QWidget* wtlw = d->watch->topLevelWidget();
@@ -408,30 +408,39 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	accel = accels.first();
 	matchFound = FALSE;
 	while ( accel ) {
-	    if ( accel->enabled && correctSubWindow( w, accel ) ) {
-		item = accel->aitems.last();
-		while( item ) {
-		    if ( Qt::Identical == (result = match( &pe, item, tocheck )) ) {
-			if ( item->enabled ) {
-			    if ( !firstaccel ) {
-				firstaccel = accel;
-				firstitem = item;
+	    if ( correctSubWindow( w, accel ) ) {
+		if ( accel->enabled ) {
+		    item = accel->aitems.last();
+		    while( item ) {
+			if ( Qt::Identical == (result = match( &pe, item, tocheck )) ) {
+			    if ( item->enabled ) {
+				if ( !firstaccel ) {
+				    firstaccel = accel;
+				    firstitem = item;
+				}
+				lastaccel = accel;
+				lastitem = item;
+				n++;
+				matchFound = TRUE;
+				if ( n > QMAX(clash,0) )
+				    goto doclash;
+			    } else {
+				identicalDisabled = TRUE;
 			    }
-			    lastaccel = accel;
-			    lastitem = item;
-			    n++;
-			    matchFound = TRUE;
-			    if ( n > QMAX(clash,0) )
-				goto doclash;
-			} else {
-			    identicalDisabled = TRUE;
 			}
+			if ( item->enabled && Qt::PartialMatch == result ) {
+			    partial = tocheck;
+			    matchFound = TRUE;
+			}
+			item = accel->aitems.prev();
 		    }
-		    if ( item->enabled && Qt::PartialMatch == result ) {
-			partial = tocheck;
-			matchFound = TRUE;
+		} else {
+		    item = accel->aitems.last();
+		    while( item ) {
+			if ( Qt::Identical == match( &pe, item, tocheck ) )
+			    identicalDisabled = TRUE;
+			item = accel->aitems.prev();
 		    }
-		    item = accel->aitems.prev();
 		}
 	    }
 	    accel = accels.next();
