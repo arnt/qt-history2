@@ -112,10 +112,10 @@ QTestWidgets::QWidgetRec::~QWidgetRec()
 
 QCString QTestWidgets::QWidgetRec::name()
 {
-    QKeyString S = _signature;
+    QKeyString S(_signature);
     QString ret;
     S.findKey("NAME", ret, TRUE );
-    return ret;
+    return QCString(ret);
 }
 
 //***********************************************************
@@ -232,8 +232,7 @@ bool QTestWidgets::appendWidgetDef( const QString &def )
     if (w.findKey("ID",widget_id,TRUE)) {
         w.removeKey("ID");
 
-        QCString tmp = w;
-        if (appendWidget( tmp, widget_id )) {
+        if (appendWidget( QCString(w), widget_id )) {
 
 /*
     for (QTestScalingInfo* si = scalingInfo.first(); si; si = scalingInfo.next())
@@ -409,7 +408,7 @@ QCString QTestWidgets::signature( const QObject *item )
     retValue.addKey( "PARENT", pclass );
     retValue.addKey( "CHILDNO", count ); 
 
-    return retValue;
+    return QCString(retValue);
 }
 
 // verifyUniqueName() returns the same name as getFullName() but also verifies that there are
@@ -683,3 +682,4 @@ void QTestWidgets::onDestroyed( QObject *object )
         widgetsByPtr.remove( object );
     }
 }
+
