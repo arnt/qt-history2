@@ -110,7 +110,7 @@ struct TextureFillData
 
     QPainter::CompositionMode compositionMode;
 
-    void init(QRasterBuffer *rasterBuffer, QImage *image, const QMatrix &matrix,
+    void init(QRasterBuffer *rasterBuffer, const QImage *image, const QMatrix &matrix,
               Blend b, BlendTransformed func);
 };
 
@@ -721,14 +721,14 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
     }
 }
 
-// ### Use a decent cache for this..
-QImage *qt_image_for_pixmap(const QPixmap &pixmap)
-{
-    static QImage cached_image;
-    cached_image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    return &cached_image;
-}
 
+QImage qt_map_to_32bit(const QPixmap &pixmap)
+{
+    QImage image = pixmap.toImage();
+    return image.convertToFormat(image.hasAlphaChannel()
+                                 ? QImage::Format_ARGB32_Premultiplied
+                                 : QImage::Format_RGB32);
+}
 
 void QRasterPaintEngine::fillPath(const QPainterPath &path, FillData *fillData)
 {
@@ -827,10 +827,12 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
 
     Q_D(QRasterPaintEngine);
 
-    QImage *image = qt_image_for_pixmap(pixmap);
+    QImage image;
     if (pixmap.depth() == 1)
-        image = d->colorizeBitmap(image, d->pen.color());
-    drawImage(r, *image, sr);
+        image = d->colorizeBitmap(pixmap.toImage(), d->pen.color());
+    else
+        image = qt_map_to_32bit(pixmap);
+    drawImage(r, image, sr);
 }
 
 void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
@@ -894,17 +896,10 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     path.addRect(r);
 
     QImage image;
-
-    if (pixmap.depth() == 1) {
-        image = pixmap.toImage();
-        image = *d->colorizeBitmap(&image, d->pen.color());
-    } else {
-        image = pixmap.toImage();
-        if (image.format() != QImage::Format_RGB32
-            && image.format() != QImage::Format_ARGB32_Premultiplied)
-            image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
-    }
+    if (pixmap.depth() == 1)
+        image = d->colorizeBitmap(pixmap.toImage(), d->pen.color());
+    else
+        image = qt_map_to_32bit(pixmap);
 
     TextureFillData textureData = {
         d->rasterBuffer,
@@ -1501,13 +1496,13 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
 
     case Qt::TexturePattern:
         {
-            QImage *image = qt_image_for_pixmap(brush.texture());
+            tempImage = qt_map_to_32bit(brush.texture());
             fillData->data = textureFillData;
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, image, brushMatrix,
+            textureFillData->init(rasterBuffer, &tempImage, brushMatrix,
                                   drawHelper->blendTiled,
                                   bilinear
                                   ? drawHelper->blendTransformedBilinearTiled
@@ -1608,15 +1603,15 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             QPixmap pixmap = qt_pixmapForBrush(brush.style(), true);
 
             Q_ASSERT(!pixmap.isNull());
+            Q_ASSERT(pixmap.depth() == 1);
 
-            QImage *image = qt_image_for_pixmap(pixmap);
-            image = colorizeBitmap(image, brush.color());
+            tempImage = colorizeBitmap(pixmap.toImage(), brush.color());
             fillData->data = textureFillData;
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, image, brushMatrix,
+            textureFillData->init(rasterBuffer, &tempImage, brushMatrix,
                                   drawHelper->blendTiled,
                                   bilinear
                                   ? drawHelper->blendTransformedBilinearTiled
@@ -1705,19 +1700,23 @@ uint *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
 }
 
 
-QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QColor &color)
+QImage QRasterPaintEnginePrivate::colorizeBitmap(const QImage &image, const QColor &color)
 {
-    tempImage = QImage(image->size(), QImage::Format_ARGB32_Premultiplied);
-    QRgb color1 = 0xff000000;
+    Q_ASSERT(image.depth() == 1);
+
+    QImage sourceImage = image.convertToFormat(QImage::Format_MonoLSB);
+    QImage dest = QImage(sourceImage.size(), QImage::Format_ARGB32_Premultiplied);
+
     QRgb fg = PREMUL(color.rgba());
     QRgb bg = opaqueBackground ? PREMUL(bgBrush.color().rgba()) : 0;
-    for (int y=0; y<image->height(); ++y) {
-        const QRgb *source = reinterpret_cast<const QRgb *>(image->scanLine(y));
-        uint *target = reinterpret_cast<QRgb *>(tempImage.scanLine(y));
-        for (int x=0; x < image->width(); ++x)
-            target[x] = source[x] == color1 ? fg : bg;
+
+    for (int y=0; y<sourceImage.height(); ++y) {
+        uchar *source = sourceImage.scanLine(y);
+        QRgb *target = reinterpret_cast<QRgb *>(dest.scanLine(y));
+        for (int x=0; x < sourceImage.width(); ++x)
+            target[x] = (source[x>>3] >> (x&7)) & 1 ? fg : bg;
     }
-    return &tempImage;
+    return dest;
 }
 
 QRasterBuffer::~QRasterBuffer()
@@ -2362,7 +2361,7 @@ void QRasterBuffer::flushTo1BitImage(QImage *target) const
 
 }
 
-void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &matrix,
+void TextureFillData::init(QRasterBuffer *raster, const QImage *image, const QMatrix &matrix,
                            Blend b, BlendTransformed func)
 {
     rasterBuffer = raster;
