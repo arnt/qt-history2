@@ -12,7 +12,8 @@ HEADERS		= ../shared/domtool.h \
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database2.h
 
-DEFINES += QT_INTERNAL_XML Q_TEMPLATE_EXTERN=extern
+DEFINES += QT_INTERNAL_XML
+!win32-borland:DEFINES += Q_TEMPLATE_EXTERN=extern
 include( ../../../src/qt_professional.pri )
 TARGET		= qui
 INCLUDEPATH	+= ../shared
