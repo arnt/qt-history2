@@ -695,6 +695,12 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
     if(!e)
 	return FALSE;
 
+    if ( e->cacheType == QMimeSource::Text ) {
+	str = *e->cache.txt.str;
+	subtype = *e->cache.txt.subtype;
+	return TRUE;
+    }
+
     const char* mime;
     for (int i=0; (mime = e->format(i)); i++) {
 	if ( 0==qstrnicmp(mime,"text/",5) ) {
@@ -726,6 +732,12 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 			if ( subtype.isNull() )
 			    subtype = foundst;
 
+			QMimeSource *m = (QMimeSource*)e;
+			m->clearCache();
+			m->cacheType = QMimeSource::Text;
+			m->cache.txt.str = new QString( str );
+			m->cache.txt.subtype = new QCString( subtype );
+			
 			return TRUE;
 		    }
 		}
@@ -886,6 +898,13 @@ bool QImageDrag::canDecode( const QMimeSource* e )
 */
 bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 {
+    if ( !e )
+	return FALSE;
+    if ( e->cacheType == QMimeSource::Graphics ) {
+	img = *e->cache.gfx.img;
+	return TRUE;
+    }
+
     QByteArray payload;
     QStrList fileFormats = QImageIO::inputFormats();
     // PNG is best of all
@@ -905,7 +924,14 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 	return FALSE;
 
     img.loadFromData(payload);
-    return !img.isNull();
+    if ( img.isNull() )
+	return FALSE;
+    QMimeSource *m = (QMimeSource*)e;
+    m->clearCache();
+    m->cacheType = QMimeSource::Graphics;
+    m->cache.gfx.img = new QImage( img );
+    m->cache.gfx.pix = 0;
+    return TRUE;
 }
 
 /*!
@@ -919,10 +945,25 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 */
 bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 {
+    if ( !e )
+	return FALSE;
+
+    if ( e->cacheType == QMimeSource::Graphics && e->cache.gfx.pix) {
+	pm = *e->cache.gfx.pix;
+	return TRUE;
+    }
+
     QImage img;
     // We avoid dither, since the image probably came from this display
-    if ( decode( e, img ) )
-	return pm.convertFromImage( img, AvoidDither );
+    if ( decode( e, img ) ) {
+	if ( !pm.convertFromImage( img, AvoidDither ) )
+	    return FALSE;
+	// decode initialized the cache for us
+	
+	QMimeSource *m = (QMimeSource*)e;
+	m->cache.gfx.pix = new QPixmap( pm );
+	return TRUE;
+    }
     return FALSE;
 }
 

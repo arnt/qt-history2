@@ -44,13 +44,45 @@
 
 #ifndef QT_NO_MIME
 
-class Q_EXPORT QMimeSource {
+class QImageDrag;
+class QTextDrag;
+
+class Q_EXPORT QMimeSource
+{
 public:
+    QMimeSource();
     virtual ~QMimeSource();
     virtual const char* format( int n = 0 ) const = 0;
     virtual bool provides( const char* ) const;
     virtual QByteArray encodedData( const char* ) const = 0;
+    int serialNumber() const;
+
+private:
+    int ser_no;
+    enum { NoCache, Text, Graphics } cacheType;
+    union
+    {
+	struct
+	{
+	    QString *str;
+	    QCString *subtype;
+	} txt;
+	struct
+	{
+	    QImage *img;
+	    QPixmap *pix;
+	} gfx;
+    } cache;
+    void clearCache();
+
+    // friends for caching
+    friend class QImageDrag;
+    friend class QTextDrag;
+
 };
+
+inline int QMimeSource::serialNumber() const
+{ return ser_no; }
 
 class QMimeSourceFactoryData;
 class QStringList;
@@ -62,6 +94,7 @@ public:
 
     static QMimeSourceFactory* defaultFactory();
     static void setDefaultFactory( QMimeSourceFactory* );
+    static QMimeSourceFactory* takeDefaultFactory();
 
     virtual const QMimeSource* data(const QString& abs_name) const;
     virtual QString makeAbsolute(const QString& abs_or_rel_name, const QString& context) const;

@@ -57,14 +57,50 @@
 	  IANA list of MIME media types</a>
 */
 
+static int qt_mime_serial_number = 0;
+
+/*! Constructs a mime source and assigns a globally unique serial
+  number to it.
+
+  \sa serialNumber()
+*/
+
+QMimeSource::QMimeSource()
+{
+    ser_no = qt_mime_serial_number++;
+    cacheType = NoCache;
+}
+
+/*! \fn int QMimeSource::serialNumber() const
+
+  Returns the globally unique serial number of the mime source
+*/
+
+
+void QMimeSource::clearCache()
+{
+    if ( cacheType == Text ) {
+	delete cache.txt.str;
+	delete cache.txt.subtype;
+	cache.txt.str = 0;
+	cache.txt.subtype = 0;
+    } else if ( cacheType == Graphics ) {
+	delete cache.gfx.img;
+	delete cache.gfx.pix;
+	cache.gfx.img = 0;
+	cache.gfx.pix = 0;
+    }
+    cacheType = NoCache;
+}
 
 /*!
   Provided to ensure that subclasses destruct correctly.
 */
 QMimeSource::~QMimeSource()
 {
+    clearCache();
     if (QApplication::closingDown()) return;
-    
+
 #ifndef QT_NO_MIMECLIPBOARD
     if (QApplication::clipboard()->data() == this) {
 #ifdef QT_CHECK_RANGE
@@ -471,6 +507,15 @@ void QMimeSourceFactory::setDefaultFactory( QMimeSourceFactory* factory)
     if ( defaultfactory != factory )
 	delete defaultfactory;
     defaultfactory = factory;
+}
+
+/* Sets the defaultFactory() to 0 and returns the previous one */
+
+QMimeSourceFactory* QMimeSourceFactory::takeDefaultFactory()
+{
+    QMimeSourceFactory *f = defaultfactory;
+    defaultfactory = 0;
+    return f;
 }
 
 #endif // QT_NO_MIME
