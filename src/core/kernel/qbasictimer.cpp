@@ -36,9 +36,8 @@
     has not been stopped. The timer's ID can be retrieved using
     timerId().
 
-    The \l{widgets/digitalclock} example uses QBasicTimer to update
-    its LCD display every second. See \l{Timers} for an overview of
-    different approaches to timers.
+    See \link timers.html Timers \endlink for an overview of different
+    approaches to timers.
 
     \sa QTimer, QTimerEvent, QObject::timerEvent()
 */
