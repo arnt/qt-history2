@@ -21,7 +21,8 @@ ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
 	     SLOT( newSelection(const QSqlFieldList*)));
     dataGrid->setReadOnly( FALSE );
     dataGrid->setSorting( TRUE );
-    dataGrid->setReadOnly( FALSE );
+    dataGrid->setConfirmEdits( TRUE );
+    dataGrid->setConfirmCancels( TRUE );
 }
 
 ResultWindow::~ResultWindow()
