@@ -526,8 +526,6 @@ DspMakefileGenerator::init()
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["DEFINES"].append("UNICODE");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
-	if( project->variables()[ "QMAKESPEC" ].first() == "win32-msvc" )
-	    project->variables()["QMAKE_LIBS"] += QStringList::split(' ', "imm32.lib wsock32.lib winmm.lib winspool.lib");
 
 	if ( project->isActiveConfig("opengl") ) {
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_OPENGL"];
@@ -687,6 +685,7 @@ DspMakefileGenerator::init()
         }
     }
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
+    project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
