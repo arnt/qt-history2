@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#37 $
 **
 ** Implementation of QMainWindow class
 **
@@ -252,8 +252,8 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
 
 
 /*!  Returns the status bar for this window.  If there isn't any,
-  menuBar() creates an empty status bar on the fly, and if necessary a
-  tool tip group too.
+  statusBar() creates an empty status bar on the fly, and if necessary
+  a tool tip group too.
 
   \sa setMenuBar() statusBar() toolTipGroup()
 */
@@ -598,6 +598,8 @@ void QMainWindow::show()
 
 void QMainWindow::setCentralWidget( QWidget * w )
 {
+    if ( d->mc )
+	d->mc->removeEventFilter( this );
     d->mc = w;
     d->mc->installEventFilter( this );
     triggerLayout();
