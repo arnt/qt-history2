@@ -3011,6 +3011,7 @@ void QWidget::setFocus()
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
+		prev->resetInputContext();
 	    }
 
 	    QFocusEvent in( QEvent::FocusIn );
