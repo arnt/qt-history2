@@ -827,7 +827,7 @@ class QDataStream;
 #endif
 
 #ifndef QT_H
-#include "qfeatures.h"
+#  include "qfeatures.h"
 #endif // QT_H
 
 
@@ -948,8 +948,41 @@ Q_CORE_EXPORT bool qt_winUnicode();
 // System information
 //
 
+class QSysInfo {
+public:
+    enum {
+	WordSize = (sizeof(Q_ULONG)<<3)
+    };
+
+    enum {
+	LittleEndian,
+	BigEndian
+
+#ifdef Q_BYTE_ORDER
+#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
+	, ByteOrder = BigEndian
+#  elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+	, ByteOrder = LittleEndian
+#  else
+#    error "undefined byte order"
+#  endif
+    };
+#else
+    };
+    static const bool ByteOrder;
+#endif
+};
+
+#ifndef QT_NO_COMPAT
+inline bool qSysInfo( int *wordSize, bool *bigEndian )
+{
+    *wordSize = QSysInfo::WordSize;
+    *bigEndian = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
+    return true;
+}
+#endif
+
 Q_CORE_EXPORT const char *qVersion();
-Q_CORE_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 Q_CORE_EXPORT bool qSharedBuild();
 #if defined(Q_OS_MAC)
 int qMacVersion();
