@@ -1187,7 +1187,7 @@ MakefileGenerator::writePrlFile(QTextStream &t)
     t << "QMAKE_PRL_BUILD_DIR = " << bdir << endl;
 
     if(!project->projectFile().isEmpty() && project->projectFile() != "-")
-	t << "QMAKE_PRO_INPUT = " << project->projectFile().section('/', -1);
+	t << "QMAKE_PRO_INPUT = " << project->projectFile().section('/', -1) << endl;
 
     if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
 	t << "QMAKE_PRL_SOURCE_DIR = " << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
