@@ -38,8 +38,6 @@ static bool createDir( const QString& fullPath )
     return success;
 }
 
-//#define USE_ARCHIVES 1
-
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f, bool reconfig ) :
     SetupWizard( pParent, pName, modal, f ),
     filesCopied( false ),
