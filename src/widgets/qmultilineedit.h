@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#8 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#9 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -172,7 +172,6 @@ private slots:
 private:
     QList<QString> *contents;
     QMultiLineData *mlData;
-    void insertChar( char );
 
     bool	readOnly;
     bool	dummy;

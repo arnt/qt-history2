@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#388 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#389 $
 **
 ** Implementation of QWidget class
 **
@@ -888,10 +888,19 @@ void QWidget::styleChange( GUIStyle )
   A top-level widget is a widget which usually has a frame and a \link
   setCaption() caption\endlink (title bar). \link isPopup() Popup\endlink
   and \link isDesktop() desktop\endlink widgets are also top-level
-  widgets. Modal \link QDialog dialog\endlink widgets are the only
-  top-level widgets that can have \link parentWidget() parent
-  widgets\endlink; all other top-level widgets have null parents.  Child
-  widgets are the opposite of top-level widgets.
+  widgets. 
+    
+  A top-level widgets can have a \link parentWidget() parent
+  widget\endlink. It will then be grouped with its parent: deleted
+  when the parent is deleted, minimized when the parent is minimized
+  etc. If supported by the window manager, it will also have a common
+  taskbar entry with its parent.
+  
+  QDialog and QMainWindow widgets are by default top-level, even if a
+  parent widget is specified in the constructor. This behavior is
+  specified by the \c WType_TopLevel widget flag.
+  
+  Child widgets are the opposite of top-level widgets.
 
   \sa topLevelWidget(), isModal(), isPopup(), isDesktop(), parentWidget()
 */

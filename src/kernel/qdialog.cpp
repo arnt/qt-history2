@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#78 $
 **
 ** Implementation of QDialog class
 **
@@ -106,7 +106,7 @@
   Windows and also some X11 window managers, that will for instance
   provide a common taskbar entry in that case.
 
-  It is reommended to pass a parent.
+  It is recommended to pass a parent.
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#39 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -995,7 +995,7 @@ bool QLayout::activate()
 */
 
 /*!
-  \fn QSizePolicy::QSizePolicy (SizeType hor, SizeType ver, bool hfw=FALSE)
+  \fn QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
 
   This is the constructor normally used to return a value in the overridden
   \link QWidget::sizeHint() sizeHint() \endlink function of a QWidget
@@ -1036,7 +1036,7 @@ bool QLayout::activate()
 </ul>
 
   If \a hfw is TRUE, the preferred height of the widget is dependent on the
-  width of the widget (for example, a widget with automatic word-breaking).
+  width of the widget (for example, a QLabel with automatic word-breaking).
 */
 
 /*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
@@ -1068,7 +1068,8 @@ Returns TRUE if the widget can sensibly be taller than its sizeHint().
 */
 
 /*! \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
-Returns a value indicating if the widget
+Returns a value indicating if the widget can make use of extra space
+(ie. if it "wants" to grow) horizontally and/or vertically.
 */
 
 /*! \fn void QSizePolicy::setHorData( SizeType d )
@@ -1144,7 +1145,6 @@ Sets the hasHeightForWidth() flag to \a b.
 
   Calling removeCurrent() leaves the iterator in a valid state, but
   may invalidate any other iterators that access the same layout.
-
 
   The following code will draw a rectangle for each layout item
   in the layout structure of the widget.
