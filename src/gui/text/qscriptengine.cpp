@@ -21,7 +21,7 @@
 #include "qfontengine_p.h"
 #include <stdlib.h>
 #include <qvarlengtharray.h>
-#ifdef QT_OPENTYPE
+#ifdef QT_HAVE_FREETYPE
 #include "qopentype_p.h"
 #endif
 
@@ -1259,7 +1259,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
     *shapedLength = data - shapeBuffer;
 }
 
-#if defined(QT_OPENTYPE)
+#if defined(QT_HAVE_FREETYPE)
 
 static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 {
@@ -1382,7 +1382,7 @@ static bool arabic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QFont::Arabic);
 
-#ifdef QT_OPENTYPE
+#ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(QFont::Arabic))

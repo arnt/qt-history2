@@ -541,15 +541,15 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         bool transform = false;
         CGAffineTransform oldMatrix = CGContextGetCTM(ctx), newMatrix;
 #if 0
-        if(pState && 
+        if(pState &&
            (0 /*|| p->type() == QPaintEngine::CoreGraphics */
             /*|| p->type() == QPaintEngine::QuickDraw*/)) {
             newMatrix = CGAffineTransformConcat(CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
                                                                       pState->matrix.m21(), pState->matrix.m22(),
-                                                                      pState->matrix.dx(),  pState->matrix.dy()), 
+                                                                      pState->matrix.dx(),  pState->matrix.dy()),
                                                 oldMatrix);
             transform = true;
-        } else 
+        } else
 #endif
         {
             newMatrix = oldMatrix;
@@ -578,13 +578,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             CGContextConcatCTM(ctx, CGAffineTransformInvert(oldMatrix));
             CGContextConcatCTM(ctx, newMatrix);
             CGContextSetTextMatrix(ctx, newMatrix);
-            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
                          FixRatio(x, 1), FixRatio(y, 1));
             CGContextConcatCTM(ctx, CGAffineTransformInvert(CGContextGetCTM(ctx)));
             CGContextConcatCTM(ctx, oldMatrix);
             CGContextSetTextMatrix(ctx, oldMatrix);
         } else {
-            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
                          FixRatio(x, 1), FixRatio(y, 1));
         }
     }
@@ -737,98 +737,4 @@ void QFontEngineMac::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyp
 
     ATSUDirectReleaseLayoutDataArrayPtr(0, kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
                                         reinterpret_cast<void **>(&layoutRecords));
-}
-
-// box font engine
-QFontEngineBox::QFontEngineBox(int size) : _size(size)
-{
-}
-
-QFontEngineBox::~QFontEngineBox()
-{
-}
-
-QFontEngine::FECaps QFontEngineBox::capabilites() const
-{
-    return FullTransformations;
-}
-
-bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
-                                  int *nglyphs, QTextEngine::ShaperFlags) const
-{
-    if(*nglyphs < len) {
-        *nglyphs = len;
-        return false;
-    }
-
-    memset(glyphs, 0, len * sizeof(QGlyphLayout));
-
-    for(int i = 0; i < len; i++) {
-        glyphs[i].advance.rx() = _size;
-        glyphs[i].advance.ry() = 0;
-    }
-
-    *nglyphs = len;
-    return true;
-}
-
-void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
-{
-    Q_UNUSED(p);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(si);
-    //qDebug("QFontEngineBox::draw(%d, %d, numglyphs=%d", x, y, numGlyphs);
-}
-
-glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)
-{
-    glyph_metrics_t overall;
-    overall.x = overall.y = 0;
-    overall.width = _size*numGlyphs;
-    overall.height = _size;
-    overall.xoff = overall.width;
-    overall.yoff = 0;
-    return overall;
-}
-
-glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
-{
-    return glyph_metrics_t(0, _size, _size, _size, _size, 0);
-}
-
-qReal QFontEngineBox::ascent() const
-{
-    return _size;
-}
-
-qReal QFontEngineBox::descent() const
-{
-    return 0;
-}
-
-qReal QFontEngineBox::leading() const
-{
-    int l = qRound(_size * 0.15);
-    return (l > 0) ? l : 1;
-}
-
-qReal QFontEngineBox::maxCharWidth() const
-{
-    return _size;
-}
-
-const char *QFontEngineBox::name() const
-{
-    return "null";
-}
-
-bool QFontEngineBox::canRender(const QChar *, int)
-{
-    return true;
-}
-
-QFontEngine::Type QFontEngineBox::type() const
-{
-    return Box;
 }

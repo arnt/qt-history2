@@ -68,7 +68,7 @@ unix:x11 {
 	SOURCES += \
 		text/qfont_x11.cpp \
 		text/qfontengine_x11.cpp
-        contains(QT_CONFIG,xft):CONFIG += use_opentype
+        contains(QT_CONFIG,xft):CONFIG += have_freetype
 }
 
 !embedded:!x11:mac {
@@ -81,14 +81,14 @@ embedded {
 	SOURCES += \
 		text/qfont_qws.cpp \
 		text/qfontengine_qws.cpp
-	CONFIG += use_opentype
+	CONFIG += have_freetype
 }
 
-use_opentype {
+have_freetype {
 	INCLUDEPATH += ../3rdparty/opentype
 	HEADERS += text/qopentype_p.h
 	SOURCES += \
 		../3rdparty/opentype/ftxopentype.c \
 		text/qopentype.cpp
-	DEFINES += QT_OPENTYPE
+	DEFINES += QT_HAVE_FREETYPE
 }
