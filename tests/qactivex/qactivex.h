@@ -2,6 +2,7 @@
 #define IEWIDGET_H
 
 #include <qwidget.h>
+#include <qvariant.h>
 
 struct IUnknown;
 class QAxEventSink;
@@ -55,6 +56,14 @@ public:
     ~QActiveX();
 
     void clear();
+    QVariant dynamicCall( const QCString&, const QVariant &v1 = QVariant(), 
+					   const QVariant &v2 = QVariant(),
+					   const QVariant &v3 = QVariant(),
+					   const QVariant &v4 = QVariant(),
+					   const QVariant &v5 = QVariant(),
+					   const QVariant &v6 = QVariant(),
+					   const QVariant &v7 = QVariant(),
+					   const QVariant &v8 = QVariant() );
 
 private:
     QMetaObject *metaObj;

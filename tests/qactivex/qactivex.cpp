@@ -521,40 +521,9 @@ static inline VARIANT QVariantToVARIANT( const QVariant &var, const char *type =
     arg.vt = VT_EMPTY;
 
     switch ( var.type() ) {
-    case QVariant::Invalid:
-	arg.vt = VT_EMPTY;
-	break;
-    case QVariant::Map:
-	break;
-    case QVariant::List:
-	break;
     case QVariant::String:
 	arg.vt = VT_BSTR;
 	arg.bstrVal = QStringToBSTR( var.toString() );
-	break;
-    case QVariant::StringList:
-	break;
-    case QVariant::Font:
-	break;
-    case QVariant::Pixmap:
-	break;
-    case QVariant::Brush:
-	break;
-    case QVariant::Rect:
-	break;
-    case QVariant::Size:
-	break;
-    case QVariant::Color:
-	break;
-    case QVariant::Palette:
-	break;
-    case QVariant::ColorGroup:
-	break;
-    case QVariant::IconSet:
-	break;
-    case QVariant::Point:
-	break;
-    case QVariant::Image:
 	break;
     case QVariant::Int:
 	if( !qstrcmp( type, "bool" ) ) {
@@ -581,33 +550,78 @@ static inline VARIANT QVariantToVARIANT( const QVariant &var, const char *type =
 	arg.vt = VT_BSTR;
 	arg.bstrVal = QStringToBSTR( var.toCString() );
 	break;
-    case QVariant::PointArray:
-	break;
-    case QVariant::Region:
-	break;
-    case QVariant::Bitmap:
-	break;
-    case QVariant::Cursor:
-	break;
-    case QVariant::SizePolicy:
-	break;
     case QVariant::Date:
     case QVariant::Time:
     case QVariant::DateTime:
 	arg.vt = VT_DATE;
 	arg.date = QDateTimeToDATE( var.toDateTime() );
 	break;
-    case QVariant::ByteArray:
-	break;
-    case QVariant::BitArray:
-	break;
-    case QVariant::KeySequence:
-	break;
     default:
 	break;
     }
 
     return arg;
+}
+
+static inline void QVariantToQUObject( const QVariant &var, QUObject &obj )
+{
+    switch ( var.type() ) {
+    case QVariant::Invalid:
+    case QVariant::Map:
+    case QVariant::List:
+    break;
+    case QVariant::String:
+	static_QUType_QString.set( &obj, var.toString() );
+	break;
+    case QVariant::StringList:
+    case QVariant::Font:
+    case QVariant::Pixmap:
+    case QVariant::Brush:
+    case QVariant::Rect:
+    case QVariant::Size:
+    case QVariant::Color:
+    case QVariant::Palette:
+    case QVariant::ColorGroup:
+    case QVariant::IconSet:
+    case QVariant::Point:
+    case QVariant::Image:
+	break;
+    case QVariant::Int:
+	static_QUType_int.set( &obj, var.toInt() );
+	break;
+    case QVariant::UInt:
+	static_QUType_int.set( &obj, var.toUInt() );
+	break;
+    case QVariant::Bool:
+	static_QUType_bool.set( &obj, var.toDouble() );
+	break;
+    case QVariant::Double:
+	static_QUType_double.set( &obj, var.toDouble() );
+	break;
+    case QVariant::CString:
+	static_QUType_charstar.set( &obj, var.toCString() );
+	break;
+    case QVariant::PointArray:
+    case QVariant::Region:
+    case QVariant::Bitmap:
+    case QVariant::Cursor:
+    case QVariant::SizePolicy:
+	break;
+    case QVariant::Date:
+	static_QUType_ptr.set( &obj, new QDateTime( var.toDate() ) );
+	break;
+    case QVariant::Time:
+	static_QUType_ptr.set( &obj, new QDateTime( QDate(), var.toTime() ) );
+	break;
+    case QVariant::DateTime:
+	static_QUType_ptr.set( &obj, new QDateTime( var.toDateTime() ) );
+	break;
+    case QVariant::ByteArray:
+    case QVariant::BitArray:
+    case QVariant::KeySequence:
+    default:
+	break;
+    }
 }
 
 /*!
@@ -1807,10 +1821,12 @@ bool QActiveX::qt_invoke( int _id, QUObject* _o )
 	    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
 		arg.vt = VT_I4;
 		arg.lVal = static_QUType_int.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ||
-			QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
 		arg.vt = VT_BSTR;
 		arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+	    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+		arg.vt = VT_BSTR;
+		arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
 	    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
 		arg.vt = VT_BOOL;
 		arg.boolVal = static_QUType_bool.get( obj );
@@ -2034,4 +2050,61 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 	return FALSE;
     }
     return QActiveXBase::qt_property( _id, _f, _v );
+}
+
+QVariant QActiveX::dynamicCall( const QCString &function, const QVariant &var1, 
+							 const QVariant &var2, 
+							 const QVariant &var3, 
+							 const QVariant &var4, 
+							 const QVariant &var5, 
+							 const QVariant &var6, 
+							 const QVariant &var7, 
+							 const QVariant &var8 )
+{
+    QUObject obj[9];
+    // obj[0] is the result
+    QVariantToQUObject( var1, obj[1] );
+    QVariantToQUObject( var2, obj[2] );
+    QVariantToQUObject( var3, obj[3] );
+    QVariantToQUObject( var4, obj[4] );
+    QVariantToQUObject( var5, obj[5] );
+    QVariantToQUObject( var6, obj[6] );
+    QVariantToQUObject( var7, obj[7] );
+    QVariantToQUObject( var8, obj[8] );
+
+    QVariant result;
+
+    const QMetaData *slot_data = 0;
+    const QUMethod *slot = 0;
+    const QMetaObject *meta = metaObject();
+    int index = 0;
+    do {
+	slot_data = meta->slot( index );
+	if ( slot_data ) {
+	    slot = slot_data->method;
+	    if ( !qstrcmp( slot->name, function ) )
+		break;
+	} else {
+	    slot = 0;
+	}
+	++index;
+    } while ( slot_data );
+
+    if ( slot ) {
+	qt_invoke( index + meta->slotOffset(), obj );
+	if ( !QUType::isEqual( obj[0].type, &static_QUType_Null ) ) {
+	    if ( obj[0].type == &static_QUType_int ) {
+		result = static_QUType_int.get( &obj[0] );
+	    } else if ( obj[0].type == &static_QUType_ptr ) {
+	    }
+	}
+    }
+#if defined(QT_CHECK_RANGE)
+    else {
+	const char *coclass = meta->classInfo( "CoClass" );
+	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
+	    coclass ? coclass: "(unknown)" );
+    }
+#endif
+    return result;
 }
