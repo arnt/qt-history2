@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QQuickDrawGC/QCoreGraphicsGC  class.
+** Definition of QQuickDrawPaintEngine/QCoreGraphicsPaintEngine  class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -33,7 +33,7 @@
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-QAbstractGC *qt_mac_current_gc = 0; //Current "active" QGC
+QPaintEngine *qt_mac_current_gc = 0; //Current "active" QPaintEngine
 
 
 /*****************************************************************************
@@ -91,30 +91,30 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 }
 
 /*****************************************************************************
-  QQuickDrawGC member functions
+  QQuickDrawPaintEngine member functions
  *****************************************************************************/
-QQuickDrawGC::QQuickDrawGC(const QPaintDevice *pdev)
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(const QPaintDevice *pdev)
 {
-    d = new QQuickDrawGCPrivate;
+    d = new QQuickDrawPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice*>(pdev);
 }
 
-QQuickDrawGC::~QQuickDrawGC()
+QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
 {
     delete d;
 }
 
 bool
-QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+QQuickDrawPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if(isActive()) {                         // already active painting
-        qWarning( "QQuickDrawGC::begin: Painter is already active."
+        qWarning( "QQuickDrawPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()" );
 	return false;
     }
     if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QQuickDrawGC::begin: Widget painting can only begin as a "
+	qWarning("QQuickDrawPaintEngine::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
     }
@@ -183,7 +183,7 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 }
 
 bool
-QQuickDrawGC::end()
+QQuickDrawPaintEngine::end()
 {
     setActive(false);
 
@@ -210,20 +210,20 @@ QQuickDrawGC::end()
 }
 
 void
-QQuickDrawGC::updatePen(QPainterState *ps)
+QQuickDrawPaintEngine::updatePen(QPainterState *ps)
 {
     d->current.pen = ps->pen;
 }
 
 
 void
-QQuickDrawGC::updateBrush(QPainterState *ps)
+QQuickDrawPaintEngine::updateBrush(QPainterState *ps)
 {
     d->current.brush = ps->brush;
 }
 
 void
-QQuickDrawGC::updateFont(QPainterState *ps)
+QQuickDrawPaintEngine::updateFont(QPainterState *ps)
 {
     d->current.font = ps->font;
     clearf(DirtyFont);
@@ -231,14 +231,14 @@ QQuickDrawGC::updateFont(QPainterState *ps)
 
 
 void
-QQuickDrawGC::updateRasterOp(QPainterState *ps)
+QQuickDrawPaintEngine::updateRasterOp(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->current.rop = ps->rasterOp;
 }
 
 void
-QQuickDrawGC::updateBackground(QPainterState *ps)
+QQuickDrawPaintEngine::updateBackground(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->current.bg.origin = ps->bgOrigin;
@@ -247,12 +247,12 @@ QQuickDrawGC::updateBackground(QPainterState *ps)
 }
 
 void
-QQuickDrawGC::updateXForm(QPainterState */*ps*/)
+QQuickDrawPaintEngine::updateXForm(QPainterState */*ps*/)
 {
 }
 
 void
-QQuickDrawGC::setClippedRegionInternal(QRegion *rgn)
+QQuickDrawPaintEngine::setClippedRegionInternal(QRegion *rgn)
 {
     if(rgn)
 	setf(ClipOn);
@@ -264,24 +264,24 @@ QQuickDrawGC::setClippedRegionInternal(QRegion *rgn)
 }
 
 void
-QQuickDrawGC::updateClipRegion(QPainterState *ps)
+QQuickDrawPaintEngine::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     setClippedRegionInternal(ps->clipEnabled ? &ps->clipRegion : 0);
 }
 
-void QQuickDrawGC::setRasterOp(RasterOp r)
+void QQuickDrawPaintEngine::setRasterOp(RasterOp r)
 {
     Q_ASSERT(isActive());
     if ((uint)r > LastROP) {
-        qWarning("QX11GC::setRasterOp: Invalid ROP code");
+        qWarning("QQuickDrawPaintEngine::setRasterOp: Invalid ROP code");
         return;
     }
     d->current.rop = r;
 }
 
 void
-QQuickDrawGC::drawLine(const QPoint &pt1, const QPoint &pt2)
+QQuickDrawPaintEngine::drawLine(const QPoint &pt1, const QPoint &pt2)
 {
     Q_ASSERT(isActive());
     setupQDPort();
@@ -293,7 +293,7 @@ QQuickDrawGC::drawLine(const QPoint &pt1, const QPoint &pt2)
 }
 
 void
-QQuickDrawGC::drawRect(const QRect &r)
+QQuickDrawPaintEngine::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
     setupQDPort();
@@ -347,7 +347,7 @@ QQuickDrawGC::drawRect(const QRect &r)
 }
 
 void
-QQuickDrawGC::drawPoint(const QPoint &pt)
+QQuickDrawPaintEngine::drawPoint(const QPoint &pt)
 {
     Q_ASSERT(isActive());
     if(d->current.pen.style() != NoPen) {
@@ -361,7 +361,7 @@ QQuickDrawGC::drawPoint(const QPoint &pt)
 }
 
 void
-QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
+QQuickDrawPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -378,7 +378,7 @@ QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
 }
 
 void
-QQuickDrawGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
+QQuickDrawPaintEngine::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
 {
     Q_ASSERT(isActive());
 
@@ -412,7 +412,7 @@ QQuickDrawGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgC
 }
 
 void
-QQuickDrawGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+QQuickDrawPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
 
@@ -433,7 +433,7 @@ QQuickDrawGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 }
 
 void
-QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
+QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 {
     Q_ASSERT(isActive());
 
@@ -500,7 +500,7 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 }
 
 void
-QQuickDrawGC::drawEllipse(const QRect &r)
+QQuickDrawPaintEngine::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
 
@@ -556,7 +556,7 @@ QQuickDrawGC::drawEllipse(const QRect &r)
 }
 
 void
-QQuickDrawGC::drawChord(const QRect &r, int a, int alen)
+QQuickDrawPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -569,7 +569,7 @@ QQuickDrawGC::drawChord(const QRect &r, int a, int alen)
 }
 
 void
-QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
+QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
 
@@ -587,7 +587,7 @@ QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 }
 
 void
-QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+QQuickDrawPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
     int x1, y1, x2, y2, xsave, ysave;
@@ -624,7 +624,7 @@ QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 }
 
 void
-QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int npoints)
+QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int npoints)
 {
     Q_ASSERT(isActive());
     QPointArray pa;
@@ -640,7 +640,7 @@ QQuickDrawGC::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int
 }
 
 void
-QQuickDrawGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+QQuickDrawPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     // Implemented in terms of drawPolygon() [no optimization]
     drawPolygon(pa,false,index,npoints);
@@ -648,7 +648,7 @@ QQuickDrawGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 
 #ifndef QT_NO_BEZIER
 void
-QQuickDrawGC::drawCubicBezier(const QPointArray &pa, int index)
+QQuickDrawPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 {
     Q_ASSERT(isActive());
     drawPolyline(pa.cubicBezier(), index);
@@ -656,7 +656,7 @@ QQuickDrawGC::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QQuickDrawGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
+QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
     int yPos=r.y(), xPos, drawH, drawW, yOff=p.y(), xOff;
     while(yPos < r.bottom()) {
@@ -679,7 +679,7 @@ QQuickDrawGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoin
 }
 
 void
-QQuickDrawGC::drawPie(const QRect &r, int a, int alen)
+QQuickDrawPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -693,7 +693,7 @@ QQuickDrawGC::drawPie(const QRect &r, int a, int alen)
 }
 
 void
-QQuickDrawGC::drawArc(const QRect &r, int a, int alen)
+QQuickDrawPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -703,7 +703,7 @@ QQuickDrawGC::drawArc(const QRect &r, int a, int alen)
 }
 
 void
-QQuickDrawGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
+QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 {
     Q_ASSERT(isActive());
     if(pixmap.isNull())
@@ -716,7 +716,7 @@ QQuickDrawGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 }
 
 void
-QQuickDrawGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+QQuickDrawPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
 #if 0
     Q_ASSERT(isActive());
@@ -734,18 +734,18 @@ QQuickDrawGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 }
 
 Qt::HANDLE
-QQuickDrawGC::handle() const
+QQuickDrawPaintEngine::handle() const
 {
     return d->pdev->handle();
 }
 
 void
-QQuickDrawGC::initialize()
+QQuickDrawPaintEngine::initialize()
 {
 }
 
 void
-QQuickDrawGC::cleanup()
+QQuickDrawPaintEngine::cleanup()
 {
 }
 
@@ -753,7 +753,7 @@ QQuickDrawGC::cleanup()
     \internal
 */
 void
-QQuickDrawGC::setupQDPen()
+QQuickDrawPaintEngine::setupQDPen()
 {
     //pen color
     ::RGBColor f;
@@ -796,7 +796,7 @@ QQuickDrawGC::setupQDPen()
     \internal
 */
 void
-QQuickDrawGC::setupQDBrush()
+QQuickDrawPaintEngine::setupQDBrush()
 {
     static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
@@ -890,7 +890,7 @@ QQuickDrawGC::setupQDBrush()
     \internal
 */
 void
-QQuickDrawGC::setupQDFont()
+QQuickDrawPaintEngine::setupQDFont()
 {
     setupQDPen();
 }
@@ -898,7 +898,7 @@ QQuickDrawGC::setupQDFont()
 /*!
     \internal
 */
-void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
+void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 {
     bool remade_clip = false;
     if(d->pdev->devType() == QInternal::Printer) {
@@ -985,7 +985,7 @@ void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 }
 
 /*****************************************************************************
-  QCoreGraphicsGC utility functions
+  QCoreGraphicsPaintEngine utility functions
  *****************************************************************************/
 
 inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 / 255) / 1000; }
@@ -1059,7 +1059,7 @@ static void qt_mac_dispose_pattern(void *info)
     pat = NULL;
 }
 
-static inline bool qt_mac_update_cg(QCoreGraphicsGCPrivate *paint_d)
+static inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
 {
     CGContextRef ret = 0;
     if(paint_d->pdev->devType() == QInternal::Widget)
@@ -1076,31 +1076,31 @@ static inline bool qt_mac_update_cg(QCoreGraphicsGCPrivate *paint_d)
 }
 
 /*****************************************************************************
-  QCoreGraphicsGC member functions
+  QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
-QCoreGraphicsGC::QCoreGraphicsGC(const QPaintDevice *pdev) : QQuickDrawGC(pdev)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(const QPaintDevice *pdev) : QQuickDrawPaintEngine(pdev)
 {
-    d = new QCoreGraphicsGCPrivate;
+    d = new QCoreGraphicsPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice*>(pdev);
 }
 
-QCoreGraphicsGC::~QCoreGraphicsGC()
+QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 {
     delete d;
 }
 
 bool
-QCoreGraphicsGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+QCoreGraphicsPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     if(isActive()) {                         // already active painting
-        qWarning( "QCoreGraphicsGC::begin: Painter is already active."
+        qWarning( "QCoreGraphicsPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()" );
 	return false;
     }
     if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QCoreGraphicsGC::begin: Widget painting can only begin as a "
+	qWarning("QCoreGraphicsPaintEngine::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
     }
@@ -1150,7 +1150,7 @@ QCoreGraphicsGC::begin(const QPaintDevice *pdev, QPainterState *state, bool uncl
 }
 
 bool
-QCoreGraphicsGC::end()
+QCoreGraphicsPaintEngine::end()
 {
     setActive(false);
     if(d->fill_pattern) {
@@ -1175,7 +1175,7 @@ QCoreGraphicsGC::end()
 }
 
 void
-QCoreGraphicsGC::updatePen(QPainterState *ps)
+QCoreGraphicsPaintEngine::updatePen(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->current.pen = ps->pen;
@@ -1223,7 +1223,7 @@ QCoreGraphicsGC::updatePen(QPainterState *ps)
 }
 
 void
-QCoreGraphicsGC::updateBrush(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->current.brush = ps->brush;
@@ -1319,14 +1319,14 @@ QCoreGraphicsGC::updateBrush(QPainterState *ps)
 }
 
 void
-QCoreGraphicsGC::updateFont(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateFont(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     //TBD
 }
 
 void
-QCoreGraphicsGC::updateRasterOp(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateRasterOp(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     if(ps->rasterOp != CopyROP)
@@ -1334,7 +1334,7 @@ QCoreGraphicsGC::updateRasterOp(QPainterState *ps)
 }
 
 void
-QCoreGraphicsGC::updateBackground(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateBackground(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->current.bg.origin = ps->bgOrigin;
@@ -1343,13 +1343,13 @@ QCoreGraphicsGC::updateBackground(QPainterState *ps)
 }
 
 void
-QCoreGraphicsGC::updateXForm(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateXForm(QPainterState *ps)
 {
     Q_ASSERT(isActive());
 }
 
 void
-QCoreGraphicsGC::updateClipRegion(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
 
@@ -1371,7 +1371,7 @@ QCoreGraphicsGC::updateClipRegion(QPainterState *ps)
 }
 
 void
-QCoreGraphicsGC::setRasterOp(RasterOp r)
+QCoreGraphicsPaintEngine::setRasterOp(RasterOp r)
 {
     Q_ASSERT(isActive());
     if(r != CopyROP)
@@ -1379,7 +1379,7 @@ QCoreGraphicsGC::setRasterOp(RasterOp r)
 }
 
 void
-QCoreGraphicsGC::drawLine(const QPoint &p1, const QPoint &p2)
+QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     Q_ASSERT(isActive());
 
@@ -1392,7 +1392,7 @@ QCoreGraphicsGC::drawLine(const QPoint &p1, const QPoint &p2)
 }
 
 void
-QCoreGraphicsGC::drawRect(const QRect &r)
+QCoreGraphicsPaintEngine::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
 
@@ -1407,7 +1407,7 @@ QCoreGraphicsGC::drawRect(const QRect &r)
 }
 
 void
-QCoreGraphicsGC::drawPoint(const QPoint &p)
+QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 {
     Q_ASSERT(isActive());
 
@@ -1419,7 +1419,7 @@ QCoreGraphicsGC::drawPoint(const QPoint &p)
 }
 
 void
-QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
+QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1433,7 +1433,7 @@ QCoreGraphicsGC::drawPoints(const QPointArray &pa, int index, int npoints)
 }
 
 void
-QCoreGraphicsGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
+QCoreGraphicsPaintEngine::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &bgColor)
 {
     Q_ASSERT(isActive());
 
@@ -1460,7 +1460,7 @@ QCoreGraphicsGC::drawWinFocusRect(const QRect &fr, bool xorPaint, const QColor &
 }
 
 void
-QCoreGraphicsGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
 
@@ -1488,7 +1488,7 @@ QCoreGraphicsGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 }
 
 void
-QCoreGraphicsGC::drawEllipse(const QRect &r)
+QCoreGraphicsPaintEngine::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
 
@@ -1511,7 +1511,7 @@ QCoreGraphicsGC::drawEllipse(const QRect &r)
 }
 
 void
-QCoreGraphicsGC::drawArc(const QRect &r, int a, int alen)
+QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -1533,7 +1533,7 @@ QCoreGraphicsGC::drawArc(const QRect &r, int a, int alen)
 }
 
 void
-QCoreGraphicsGC::drawPie(const QRect &r, int a, int alen)
+QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -1559,7 +1559,7 @@ QCoreGraphicsGC::drawPie(const QRect &r, int a, int alen)
 }
 
 void
-QCoreGraphicsGC::drawPolyInternal(const QPointArray &a, bool close)
+QCoreGraphicsPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
     Q_ASSERT(isActive());
 
@@ -1581,7 +1581,7 @@ QCoreGraphicsGC::drawPolyInternal(const QPointArray &a, bool close)
 }
 
 void
-QCoreGraphicsGC::drawChord(const QRect &r, int a, int alen)
+QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -1607,7 +1607,7 @@ QCoreGraphicsGC::drawChord(const QRect &r, int a, int alen)
 }
 
 void
-QCoreGraphicsGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
+QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
 
@@ -1626,7 +1626,7 @@ QCoreGraphicsGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 }
 
 void
-QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+QCoreGraphicsPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1642,7 +1642,7 @@ QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 }
 
 void
-QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool, int index, int npoints)
+QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, bool, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
@@ -1659,7 +1659,7 @@ QCoreGraphicsGC::drawPolygon(const QPointArray &a, bool, int index, int npoints)
 }
 
 void
-QCoreGraphicsGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+QCoreGraphicsPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     // Implemented in terms of drawPolygon() [no optimization]
     drawPolygon(pa,false,index,npoints);
@@ -1667,7 +1667,7 @@ QCoreGraphicsGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints
 
 #ifndef QT_NO_BEZIER
 void
-QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
+QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 {
     Q_ASSERT(isActive());
 
@@ -1685,7 +1685,7 @@ QCoreGraphicsGC::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
@@ -1695,29 +1695,29 @@ QCoreGraphicsGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 }
 
 void
-QCoreGraphicsGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+QCoreGraphicsPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
     qDebug("Must implement drawTextItem!!");
 }
 
 Qt::HANDLE
-QCoreGraphicsGC::handle() const
+QCoreGraphicsPaintEngine::handle() const
 {
     return d->hd;
 }
 
 void
-QCoreGraphicsGC::initialize()
+QCoreGraphicsPaintEngine::initialize()
 {
 }
 
 void
-QCoreGraphicsGC::cleanup()
+QCoreGraphicsPaintEngine::cleanup()
 {
 }
 
 void
-QCoreGraphicsGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
     Q_ASSERT(isActive());
 

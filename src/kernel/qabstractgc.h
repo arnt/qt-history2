@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QPainter class.
+** Definition of the QPaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QABSTRACTGC_H
-#define QABSTRACTGC_H
+#ifndef QPAINTENGINE_H
+#define QPAINTENGINE_H
 
 #include "qnamespace.h"
 #include "qpointarray.h"
@@ -23,13 +23,13 @@
 class QPainterState;
 class QPaintDevice;
 
-struct QAbstractGCPrivate {
-    QAbstractGCPrivate() : active(false), flags(0) {}
+struct QPaintEnginePrivate {
+    QPaintEnginePrivate() : active(false), flags(0) {}
     bool active : 1;
     uint flags;
 };
 
-class QAbstractGC : public Qt
+class QPaintEngine : public Qt
 {
 public:
     enum Capability {
@@ -50,8 +50,8 @@ public:
 	DirtyRasterOp 		= 0x0040
     };
 
-    QAbstractGC(GCCaps devcaps=0);
-    virtual ~QAbstractGC() { delete d_ptr; }
+    QPaintEngine(GCCaps devcaps=0);
+    virtual ~QPaintEngine() { delete d_ptr; }
 
     bool isActive() const { return d_ptr->active; }
     void setActive(bool state) { d_ptr->active = state; };
@@ -158,16 +158,16 @@ protected:
     GCCaps gccaps;
 
 private:
-    QAbstractGCPrivate *d_ptr;
+    QPaintEnginePrivate *d_ptr;
 
-    friend class QWrapperGC;
+    friend class QWrapperPaintEngine;
     friend class QPainter;
 };
 
-class QWrapperGC : public QAbstractGC
+class QWrapperPaintEngine : public QPaintEngine
 {
 public:
-    QWrapperGC(QAbstractGC *w) : QAbstractGC(w->gccaps), wrap(w) { }
+    QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(w->gccaps), wrap(w) { }
 
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped) { return wrap->begin(pdev, state, unclipped); }
     virtual bool end() { return wrap->end(); }
@@ -208,11 +208,11 @@ public:
     virtual Qt::HANDLE handle() const { return wrap->handle(); }
 #endif
 
-    inline QAbstractGC *wrapped() const { return wrap; }
-    virtual Type type() const { return QAbstractGC::Wrapper; }
+    inline QPaintEngine *wrapped() const { return wrap; }
+    virtual Type type() const { return QPaintEngine::Wrapper; }
 
 private:
-    QAbstractGC *wrap;
+    QPaintEngine *wrap;
 };
 
 
@@ -220,7 +220,7 @@ private:
 // inline functions
 //
 
-inline void QAbstractGC::fix_neg_rect(int *x, int *y, int *w, int *h)
+inline void QPaintEngine::fix_neg_rect(int *x, int *y, int *w, int *h)
 {
     if (*w < 0) {
 	*w = -*w;
@@ -232,11 +232,11 @@ inline void QAbstractGC::fix_neg_rect(int *x, int *y, int *w, int *h)
     }
 }
 
-inline void QAbstractGC::updateState(QPainterState *newState, bool updateGC)
+inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
 {
     if (dirtyFlag || state!=newState)
 	updateInternal(newState, updateGC);
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractGC::Capability);
-#endif // QABSTRACTGC_H
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::Capability);
+#endif // QPAINTENGINE_H

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QQuickDrawGC/QCoreGraphicsGC class.
+** Definition of QQuickDrawPaintEngine/QCoreGraphicsPaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,22 +12,22 @@
 **
 ****************************************************************************/
 
-#ifndef QGC_MAC_H
-#define QGC_MAC_H
+#ifndef QPAINTENGINE_MAC_H
+#define QPAINTENGINE_MAC_H
 #include "qabstractgc.h"
 #include "qshared.h"
 #ifdef Q_WS_MAC //just for now (to get the coregraphics switch) ###
 # include "qt_mac.h"
 #endif
 
-class QQuickDrawGCPrivate;
+class QQuickDrawPaintEnginePrivate;
 class QPainterState;
 
-class QQuickDrawGC : public QAbstractGC
+class QQuickDrawPaintEngine : public QPaintEngine
 {
 public:
-    QQuickDrawGC(const QPaintDevice *);
-    ~QQuickDrawGC();
+    QQuickDrawPaintEngine(const QPaintDevice *);
+    ~QQuickDrawPaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
@@ -66,7 +66,7 @@ public:
 
     virtual Qt::HANDLE handle() const;
 
-    inline Type type() const { return QAbstractGC::QuickDraw; }
+    inline Type type() const { return QPaintEngine::QuickDraw; }
     static void initialize();
     static void cleanup();
 
@@ -83,21 +83,21 @@ protected:
     friend class QFontEngineMac;
 
 private:
-    QQuickDrawGCPrivate *d;
+    QQuickDrawPaintEnginePrivate *d;
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QQuickDrawGC(const QQuickDrawGC &);
-    QQuickDrawGC &operator=(const QQuickDrawGC &);
+    QQuickDrawPaintEngine(const QQuickDrawPaintEngine &);
+    QQuickDrawPaintEngine &operator=(const QQuickDrawPaintEngine &);
 #endif
 };
 
-class QCoreGraphicsGCPrivate;
-class QCoreGraphicsGC : public QQuickDrawGC //for now we include QuickDraw to get things working, we *must* remove it later ### --Sam
+class QCoreGraphicsPaintEnginePrivate;
+class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine //for now we include QuickDraw to get things working, we *must* remove it later ### --Sam
 {
 public:
-    QCoreGraphicsGC(const QPaintDevice *);
-    ~QCoreGraphicsGC();
+    QCoreGraphicsPaintEngine(const QPaintDevice *);
+    ~QCoreGraphicsPaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
@@ -135,7 +135,7 @@ public:
 
     virtual Qt::HANDLE handle() const;
 
-    inline Type type() const { return QAbstractGC::CoreGraphics; }
+    inline Type type() const { return QPaintEngine::CoreGraphics; }
     static void initialize();
     static void cleanup();
 
@@ -143,12 +143,12 @@ protected:
     void drawPolyInternal(const QPointArray &a, bool close=true);
 
 private:
-    QCoreGraphicsGCPrivate *d;
+    QCoreGraphicsPaintEnginePrivate *d;
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QCoreGraphicsGC(const QCoreGraphicsGC &);
-    QCoreGraphicsGC &operator=(const QCoreGraphicsGC &);
+    QCoreGraphicsPaintEngine(const QCoreGraphicsPaintEngine &);
+    QCoreGraphicsPaintEngine &operator=(const QCoreGraphicsPaintEngine &);
 #endif
 };
 

@@ -27,7 +27,7 @@
 #endif
 
 class QPrinterPrivate;
-class QAbstractGC;
+class QPaintEngine;
 
 class Q_GUI_EXPORT QPrinter : public QPaintDevice
 {
@@ -148,7 +148,7 @@ protected:
 
 private:
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
-    QAbstractGC *pdrv;
+    QPaintEngine *pdrv;
     int         pid;
 #endif
 #if defined(Q_WS_MAC)
@@ -161,7 +161,7 @@ private:
     void interpret(PMPrintSettings *);
     void interpret(PMPageFormat *);
 
-    friend class QPrinterGC;
+    friend class QPrinterPaintEngine;
     bool printerBegin();
     bool printerEnd();
 #endif

@@ -110,7 +110,7 @@
 	QPixmap::setDefaultOptimization( QPixmap::NormalOptim );
     \endcode
 
-    In general it is recommended to make as much use of QPixmap's 
+    In general it is recommended to make as much use of QPixmap's
     implicit sharing and the QPixmapCache as possible.
 
     \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
@@ -146,7 +146,7 @@
     \value NoOptim  No optimization (currently the same as \c
 	MemoryOptim).
 
-    \value MemoryOptim  Optimize for minimal memory use on Windows 
+    \value MemoryOptim  Optimize for minimal memory use on Windows
 	9x and X11 systems.
 
     \value NormalOptim  Optimize for typical usage. Often uses more
@@ -440,7 +440,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
-	deviceGC = pixmap.deviceGC;
+	paintEngine = pixmap.paintEngine;
     }
     return *this;
 }

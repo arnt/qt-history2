@@ -264,8 +264,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-    Q_ASSERT(!deviceGC);
-    deviceGC = new QX11GC(this);
+    Q_ASSERT(!paintEngine);
+    paintEngine = new QX11PaintEngine(this);
 
     static int serial = 0;
 
@@ -351,8 +351,8 @@ void QPixmap::deref()
 	}
 	delete data->xinfo;
 	delete data;
-	delete deviceGC;
-	deviceGC = 0;
+	delete paintEngine;
+	paintEngine = 0;
     }
 }
 

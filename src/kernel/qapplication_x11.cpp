@@ -1794,7 +1794,7 @@ void qt_init( QApplicationPrivate *priv, int,
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-	QX11GC::initialize();
+	QX11PaintEngine::initialize();
     }
 
     if( qt_is_gui_used ) {
@@ -2084,7 +2084,7 @@ void qt_cleanup()
 
     if ( qt_is_gui_used ) {
 	QPixmapCache::clear();
-	QX11GC::cleanup();
+	QX11PaintEngine::cleanup();
 	QCursor::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();

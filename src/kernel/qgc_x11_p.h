@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QAbstractGC(for X11) private data.
+** Definition of QPaintEngine(for X11) private data.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QX11GC_P_H
-#define QX11GC_P_H
+#ifndef QX11PAINTENGINE_P_H
+#define QX11PAINTENGINE_P_H
 
 #include "qregion.h"
 #include "qx11info_x11.h"
@@ -38,8 +38,8 @@ static const short ropCodes[] = {                     // ROP translation table
     GXnor // NorROP
 };
 
-struct QX11GCPrivate {
-    QX11GCPrivate()
+struct QX11PaintEnginePrivate {
+    QX11PaintEnginePrivate()
 	{
 	    dpy = 0;
 	    scrn = -1;
@@ -95,4 +95,4 @@ struct QX11GCPrivate {
     QX11Info *xinfo;
 };
 
-#endif // QX11GC_P_H
+#endif // QX11PAINTENGINE_P_H

@@ -174,7 +174,7 @@ public:
     QWidget *inputWidget() const { return act; }
 };
 static QHash<Qt::HANDLE, QTSMDocumentWrapper *> *qt_mac_tsm_hash=NULL;
-void qt_mac_unicode_init(QWidget *w) 
+void qt_mac_unicode_init(QWidget *w)
 {
     if(!qt_mac_tsm_hash) {
 	qt_mac_tsm_hash = new QHash<Qt::HANDLE, QTSMDocumentWrapper*>();
@@ -184,7 +184,7 @@ void qt_mac_unicode_init(QWidget *w)
     }
     qt_mac_tsm_hash->insert(w->handle(), new QTSMDocumentWrapper());
 }
-void qt_mac_unicode_cleanup(QWidget *w) 
+void qt_mac_unicode_cleanup(QWidget *w)
 {
     if(w && qt_mac_tsm_hash && w->isTopLevel())
 	qt_mac_tsm_hash->remove(w->handle());
@@ -195,7 +195,7 @@ static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 	return 0;
     return qt_mac_tsm_hash->value(w->handle());
 }
-void qt_mac_unicode_reset_input(QWidget *w) 
+void qt_mac_unicode_reset_input(QWidget *w)
 {
     if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(w)) {
 	if(doc->inputWidget() && doc->inputWidget() != w) {
@@ -956,9 +956,9 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	QFont::initialize();
 	QCursor::initialize();
 # ifdef USE_CORE_GRAPHICS
-	QCoreGraphicsGC::initialize();
+	QCoreGraphicsPaintEngine::initialize();
 # else
-	QQuickDrawGC::initialize();
+	QQuickDrawPaintEngine::initialize();
 # endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::initialize();
@@ -1000,7 +1000,7 @@ void qt_cleanup()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::cleanup();
 #endif
-	QQuickDrawGC::cleanup();
+	QQuickDrawPaintEngine::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)

@@ -24,7 +24,7 @@
 QPaintDevice *g_cur_paintdev = 0;
 
 QPaintDevice::QPaintDevice(uint devflags)
-    : deviceGC(0)
+    : paintEngine(0)
 {
     if(!qApp) {				// global constructor
 	qFatal("QPaintDevice: Must construct a QApplication before a "
@@ -36,9 +36,9 @@ QPaintDevice::QPaintDevice(uint devflags)
     hd = 0;
     cg_hd = 0;
 #if defined( USE_CORE_GRAPHICS )
-    deviceGC = new QCoreGraphicsGC(this);
+    paintEngine = new QCoreGraphicsPaintEngine(this);
 #else
-    deviceGC = new QQuickDrawGC(this);
+    paintEngine = new QQuickDrawPaintEngine(this);
 #endif
 }
 

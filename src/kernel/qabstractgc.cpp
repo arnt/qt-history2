@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QPainter class.
+** Definition of QPaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -15,16 +15,16 @@
 #include "qabstractgc.h"
 #include "qpainter_p.h"
 
-QAbstractGC::QAbstractGC(GCCaps caps)
+QPaintEngine::QPaintEngine(GCCaps caps)
     : dirtyFlag(0),
       changeFlag(0),
       state(0),
       gccaps(caps)
 {
-    d_ptr = new QAbstractGCPrivate;
+    d_ptr = new QPaintEnginePrivate;
 }
 
-void QAbstractGC::updateInternal(QPainterState *s, bool updateGC)
+void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 {
     if (!s || !updateGC) {
 	state = s;
@@ -82,50 +82,50 @@ void QAbstractGC::updateInternal(QPainterState *s, bool updateGC)
 
 
 
-void QWrapperGC::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
-void QWrapperGC::updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
-void QWrapperGC::updateFont(QPainterState *ps) { wrap->updateFont(ps); }
-void QWrapperGC::updateRasterOp(QPainterState *ps) { wrap->updateRasterOp(ps); }
-void QWrapperGC::updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
-void QWrapperGC::updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
-void QWrapperGC::updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
+void QWrapperPaintEngine::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
+void QWrapperPaintEngine::updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
+void QWrapperPaintEngine::updateFont(QPainterState *ps) { wrap->updateFont(ps); }
+void QWrapperPaintEngine::updateRasterOp(QPainterState *ps) { wrap->updateRasterOp(ps); }
+void QWrapperPaintEngine::updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
+void QWrapperPaintEngine::updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
+void QWrapperPaintEngine::updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
 
 
-void QWrapperGC::drawLine(const QPoint &p1, const QPoint &p2) { wrap->drawLine(p1, p2); }
-void QWrapperGC::drawRect(const QRect &r) { wrap->drawRect(r); }
-void QWrapperGC::drawPoint(const QPoint &p) { wrap->drawPoint(p); }
-void QWrapperGC::drawPoints(const QPointArray &pa, int index, int npoints)
+void QWrapperPaintEngine::drawLine(const QPoint &p1, const QPoint &p2) { wrap->drawLine(p1, p2); }
+void QWrapperPaintEngine::drawRect(const QRect &r) { wrap->drawRect(r); }
+void QWrapperPaintEngine::drawPoint(const QPoint &p) { wrap->drawPoint(p); }
+void QWrapperPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 { wrap->drawPoints(pa, index, npoints); }
-void QWrapperGC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
+void QWrapperPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
 { wrap->drawWinFocusRect(r, xorPaint, bgColor); }
-void QWrapperGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+void QWrapperPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 { wrap->drawRoundRect(r, xRnd, yRnd); }
-void QWrapperGC::drawEllipse(const QRect &r)
+void QWrapperPaintEngine::drawEllipse(const QRect &r)
 { wrap->drawEllipse(r); }
-void QWrapperGC::drawArc(const QRect &r, int a, int alen)
+void QWrapperPaintEngine::drawArc(const QRect &r, int a, int alen)
 { wrap->drawArc(r, a, alen); }
-void QWrapperGC::drawPie(const QRect &r, int a, int alen)
+void QWrapperPaintEngine::drawPie(const QRect &r, int a, int alen)
 { wrap->drawPie(r, a, alen); }
-void QWrapperGC::drawChord(const QRect &r, int a, int alen)
+void QWrapperPaintEngine::drawChord(const QRect &r, int a, int alen)
 { wrap->drawChord(r, a, alen); }
-void QWrapperGC::drawLineSegments(const QPointArray &a, int index, int nlines)
+void QWrapperPaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 { wrap->drawLineSegments(a, index, nlines); }
-void QWrapperGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+void QWrapperPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 { wrap->drawPolyline(pa, index, npoints); }
-void QWrapperGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+void QWrapperPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 { wrap->drawPolygon(pa, winding, index, npoints); }
 
-void QWrapperGC::drawConvexPolygon(const QPointArray &a, int index, int npoints)
+void QWrapperPaintEngine::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 { wrap->drawConvexPolygon(a, index, npoints); }
 #ifndef QT_NO_BEZIER
-void QWrapperGC::drawCubicBezier(const QPointArray &a, int index)
+void QWrapperPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 { wrap->drawCubicBezier(a, index); }
 #endif
 
-void QWrapperGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+void QWrapperPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 { wrap->drawPixmap(r, pm, sr); }
-void QWrapperGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+void QWrapperPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 { wrap->drawTextItem(p, ti, textflags); }
-void QWrapperGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
+void QWrapperPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
 { wrap->drawTiledPixmap(r, pixmap, s, optim); }
 

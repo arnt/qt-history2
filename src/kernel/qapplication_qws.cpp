@@ -1424,7 +1424,7 @@ static void init_display()
 #ifndef QT_NO_CURSOR
     QCursor::initialize();
 #endif
-    QWSGC::initialize();
+    QWSPaintEngine::initialize();
     QFontManager::initialize();
 #ifndef QT_NO_QWS_MANAGER
     qws_decoration = QWSManager::newDefaultDecoration();
@@ -1589,7 +1589,7 @@ void qt_init(QApplicationPrivate *priv, int type )
 void qt_cleanup()
 {
     QPixmapCache::clear();
-    QWSGC::cleanup();
+    QWSPaintEngine::cleanup();
 #ifndef QT_NO_CURSOR
     QCursor::cleanup();
 #endif

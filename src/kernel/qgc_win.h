@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QWin32GC class.
+** Definition of QWin32PaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,23 +12,23 @@
 **
 ****************************************************************************/
 
-#ifndef QWIN32GC_H
-#define QWIN32GC_H
+#ifndef QWIN32PAINTENGINE_H
+#define QWIN32PAINTENGINE_H
 
 #include "qabstractgc.h"
 
-class QWin32GCPrivate;
+class QWin32PaintEnginePrivate;
 class QPainterState;
 class QPaintDevice;
 
 class QTextLayout;
 class QTextEngine;
 
-class QWin32GC : public QAbstractGC
+class QWin32PaintEngine : public QPaintEngine
 {
 public:
-    QWin32GC(const QPaintDevice *target);
-    ~QWin32GC();
+    QWin32PaintEngine(const QPaintDevice *target);
+    ~QWin32PaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
     bool end();
@@ -66,7 +66,7 @@ public:
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     HDC handle() const; // ### Still not liking this...
-    inline Type type() const { return QAbstractGC::Windows; }
+    inline Type type() const { return QPaintEngine::Windows; }
 
     static void initialize();
     static void cleanup();
@@ -83,7 +83,7 @@ private:
 protected:
     friend class QPainter;
 
-    QWin32GCPrivate *d;
+    QWin32PaintEnginePrivate *d;
 };
 
-#endif // QWIN32GC_H
+#endif // QWIN32PAINTENGINE_H

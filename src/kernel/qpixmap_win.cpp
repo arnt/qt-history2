@@ -113,8 +113,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
-    Q_ASSERT(!deviceGC);
-    deviceGC = new QWin32GC(this);
+    Q_ASSERT(!paintEngine);
+    paintEngine = new QWin32PaintEngine(this);
 
     static int serial = 0;
     int dd = defaultDepth();
@@ -256,8 +256,8 @@ void QPixmap::deref()
 	    hdc = 0;
 	}
 	delete data;
-	delete deviceGC;
-	deviceGC = 0;
+	delete paintEngine;
+	paintEngine = 0;
     }
 }
 

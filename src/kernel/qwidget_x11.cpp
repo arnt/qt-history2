@@ -318,11 +318,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	initializeWindow = TRUE;
 
     if (destroyOldWindow) {
-	delete deviceGC;
-	deviceGC = 0;
+	delete paintEngine;
+	paintEngine = 0;
     }
-    if (!deviceGC)
-	deviceGC = new QX11GC(this);
+    if (!paintEngine)
+	paintEngine = new QX11PaintEngine(this);
 
     if (!d->xinfo)
 	d->xinfo = new QX11Info;
@@ -760,8 +760,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	extern void qPRCleanup( QWidget *widget ); // from qapplication_x11.cpp
 	if ( testWState(WState_Reparented) )
 	    qPRCleanup(this);
-	delete deviceGC;
-	deviceGC = 0;
+	delete paintEngine;
+	paintEngine = 0;
 	delete d->xinfo;
 	d->xinfo = 0;
     }

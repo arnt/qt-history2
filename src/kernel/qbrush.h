@@ -51,10 +51,10 @@ public:
 
 private:
 #if defined(Q_WS_X11)
-    friend class QX11GC;
+    friend class QX11PaintEngine;
 #endif
 #if defined(Q_WS_QWS)
-    friend class QWSGC;
+    friend class QWSPaintEngine;
 #endif
     friend class QPainter;
     inline void detach() { if (d->ref != 1) detach_helper(); }

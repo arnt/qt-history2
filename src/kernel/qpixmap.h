@@ -253,10 +253,10 @@ private:
     friend class QPainter;
     friend class QGLWidget;
 #if defined(Q_WS_X11)
-    friend class QX11GC;
+    friend class QX11PaintEngine;
 #endif
 #if defined(Q_WS_QWS)
-    friend class QWSGC;
+    friend class QWSPaintEngine;
 #endif
 };
 

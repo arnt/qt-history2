@@ -399,12 +399,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     d->setFont_syshelper();
     QInputContext::enable( this, im_enabled & isEnabled() );
 
-    if (destroyOldWindow && deviceGC) {
-	delete deviceGC;
-	deviceGC = 0;
+    if (destroyOldWindow && paintEngine) {
+	delete paintEngine;
+	paintEngine = 0;
     }
-    Q_ASSERT(!deviceGC);
-    deviceGC = new QWin32GC(this);
+    Q_ASSERT(!paintEngine);
+    paintEngine = new QWin32PaintEngine(this);
 }
 
 
@@ -431,8 +431,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    DestroyWindow( winId() );
 	}
 	setWinId( 0 );
-       delete deviceGC;
-       deviceGC = 0;
+       delete paintEngine;
+       paintEngine = 0;
     }
 }
 

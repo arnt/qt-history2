@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QX11GC class.
+** Definition of QX11PaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -11,19 +11,19 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QX11GC_H
-#define QX11GC_H
+#ifndef QX11PAINTENGINE_H
+#define QX11PAINTENGINE_H
 
 #include "qabstractgc.h"
 
-class QX11GCPrivate;
+class QX11PaintEnginePrivate;
 class QPainterState;
 
-class QX11GC : public QAbstractGC
+class QX11PaintEngine : public QPaintEngine
 {
 public:
-    QX11GC(const QPaintDevice *);
-    ~QX11GC();
+    QX11PaintEngine(const QPaintDevice *);
+    ~QX11PaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
     bool end();
@@ -61,7 +61,7 @@ public:
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;
-    inline Type type() const { return QAbstractGC::X11; }
+    inline Type type() const { return QPaintEngine::X11; }
 
     static void initialize();
     static void cleanup();
@@ -76,12 +76,12 @@ protected:
     friend class QFontEngineXLFD;
 
 private:
-    QX11GCPrivate *d;
+    QX11PaintEnginePrivate *d;
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QX11GC(const QX11GC &);
-    QX11GC &operator=(const QX11GC &);
+    QX11PaintEngine(const QX11PaintEngine &);
+    QX11PaintEngine &operator=(const QX11PaintEngine &);
 #endif
 };
-#endif // QX11GC_H
+#endif // QX11PAINTENGINE_H

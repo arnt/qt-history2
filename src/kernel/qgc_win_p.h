@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QAbstractGC(for Windows) private data.
+** Definition of QPaintEngine(for Windows) private data.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWIN32GC_P_H
-#define QWIN32GC_P_H
+#ifndef QWIN32PAINTENGINE_P_H
+#define QWIN32PAINTENGINE_P_H
 
 #include <windows.h>
 
@@ -40,10 +40,10 @@ static const short rasterOpCodes[] = {
     R2_NOTMERGEPEN	// NorROP
 };
 
-class QWin32GCPrivate
+class QWin32PaintEnginePrivate
 {
 public:
-    QWin32GCPrivate() :
+    QWin32PaintEnginePrivate() :
 	hwnd(0),
 	hdc(0),
 	hpen(0),

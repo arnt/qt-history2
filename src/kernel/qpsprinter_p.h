@@ -39,7 +39,7 @@
 class QPrinter;
 class QPSPrinterPrivate;
 
-class Q_GUI_EXPORT QPSPrinter : public QAbstractGC
+class Q_GUI_EXPORT QPSPrinter : public QPaintEngine
 {
 private:
     // QPrinter uses these
@@ -80,7 +80,7 @@ private:
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const { return 0; }
-    virtual QAbstractGC::Type type() const { return QAbstractGC::PostScript; }
+    virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }
 
 
     void newPage();

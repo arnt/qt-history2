@@ -60,7 +60,7 @@ protected:
 
     QX11InfoData *x11data;
 
-    friend class QX11GC;
+    friend class QX11PaintEngine;
     friend class QPixmap;
     friend class QWidget;
     friend class QGLWidget;

@@ -28,7 +28,7 @@
 #include "qwidget_p.h"
 
 #define ds d->state
-#define dgc d->gc
+#define dengine d->engine
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
@@ -67,8 +67,8 @@ QPaintDevice *QPainter::device() const
 
 bool QPainter::isActive() const
 {
-    if (dgc) {
-	return dgc->isActive();
+    if (dengine) {
+	return dengine->isActive();
     }
     return false;
 }
@@ -78,7 +78,7 @@ void QPainter::save()
     ds = new QPainterState(d->states.back());
     d->states.push_back(ds);
     if (isActive())
-	dgc->updateState(ds, false);
+	dengine->updateState(ds, false);
 }
 
 void QPainter::restore()
@@ -92,17 +92,17 @@ void QPainter::restore()
     d->states.pop_back();
     ds = d->states.back();
 
-    if (dgc) {
-	if (dgc->changeFlag & QAbstractGC::DirtyTransform)
+    if (dengine) {
+	if (dengine->changeFlag & QPaintEngine::DirtyTransform)
 	    updateXForm();
-	dgc->updateState(ds);
+	dengine->updateState(ds);
     }
     delete tmp;
 }
 
 bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 {
-    if (dgc) {
+    if (dengine) {
 	qWarning("QPainter::begin(): Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()" );
 	return false;
@@ -116,9 +116,9 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     d->device = const_cast<QPaintDevice*>(pd);
 
     Q_ASSERT(pd != 0);
-    dgc = pd->gc();
+    dengine = pd->engine();
 
-    if (!dgc) {
+    if (!dengine) {
 	qWarning("QPainter::begin(), paintdevice returned gc == 0, type: %d\n", pd->devType());
 	return true;
     }
@@ -153,7 +153,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	}
     }
 
-    if (!dgc->begin(pd, ds, unclipped)) {
+    if (!dengine->begin(pd, ds, unclipped)) {
 	qWarning("QPainter::begin(), gc::begin() returned false\n");
 	return false;
     }
@@ -161,8 +161,8 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     if (!d->redirection_offset.isNull())
 	updateXForm();
 
-    Q_ASSERT(dgc->isActive());
-    dgc->updateState(ds);
+    Q_ASSERT(dengine->isActive());
+    dengine->updateState(ds);
 
     return true;
 }
@@ -179,10 +179,10 @@ bool QPainter::end()
 		 d->states.size());
     }
 
-    bool ended = dgc->end();
-    dgc->updateState(0);
+    bool ended = dengine->end();
+    dengine->updateState(0);
     if (ended)
-	dgc = 0;
+	dengine = 0;
 
     return ended;
 }
@@ -219,8 +219,8 @@ void QPainter::setBrushOrigin(int x, int y)
 {
     // ### updateBrush in gc probably does not deal with offset.
     ds->bgOrigin = QPoint(x, y);
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyBrush);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyBrush);
 }
 
 const QPoint &QPainter::backgroundOrigin() const
@@ -245,10 +245,10 @@ bool QPainter::hasClipping() const
 
 void QPainter::setClipping( bool enable )
 {
-    Q_ASSERT(dgc);
+    Q_ASSERT(dengine);
     ds->clipEnabled = enable;
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyClip);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyClip);
 }
 
 
@@ -267,13 +267,13 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
 
 void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
 {
-    Q_ASSERT(dgc);
+    Q_ASSERT(dengine);
     setClipRegion(QRegion(rect), mode);
 }
 
 void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
-    Q_ASSERT(dgc);
+    Q_ASSERT(dengine);
     if (m == CoordPainter && (ds->VxF || ds->WxF)) {
 	ds->clipRegion = ds->matrix * r;
     } else {
@@ -282,8 +282,8 @@ void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 	    ds->clipRegion.translate(-d->redirection_offset);
     }
     ds->clipEnabled = true;
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyClip);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyClip);
 }
 
 
@@ -420,8 +420,8 @@ void QPainter::resetXForm()
     ds->worldMatrix = QWMatrix();
     setWorldXForm(false);
     setViewXForm(false);
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyTransform);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyTransform);
 }
 
 void QPainter::translate(double dx, double dy)
@@ -460,25 +460,25 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
     if (!isActive())
 	return;
 
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
-    if ((ds->WxF || ds->VxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	dgc->drawLine(xForm(p1), xForm(p2));
+    if ((ds->WxF || ds->VxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
+	dengine->drawLine(xForm(p1), xForm(p2));
 	return;
     }
 
-    dgc->drawLine(p1, p2);
+    dengine->drawLine(p1, p2);
 }
 
 void QPainter::drawRect(const QRect &r)
 {
     if (!isActive() || r.isEmpty())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    drawPolygon(QPointArray(rect));
 	    return;
@@ -486,26 +486,26 @@ void QPainter::drawRect(const QRect &r)
 	rect = xForm(rect);
     }
 
-    dgc->drawRect(rect);
+    dengine->drawRect(rect);
 }
 
 void QPainter::drawPoint(const QPoint &p)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform))
-	dgc->drawPoint(xForm(p));
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform))
+	dengine->drawPoint(xForm(p));
 
-    dgc->drawPoint(p);
+    dengine->drawPoint(p);
 }
 
 void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (npoints < 0)
 	npoints = pa.size() - index;
@@ -514,15 +514,15 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     if (!isActive() || npoints < 1 || index < 0)
 	return;
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	QPointArray a = xForm(pa, index, npoints);
 	index = 0;
 	npoints = a.size();
-	dgc->drawPoints(a, index, npoints);
+	dengine->drawPoints(a, index, npoints);
 	return;
     }
 
-    dgc->drawPoints(pa, index, npoints);
+    dengine->drawPoints(pa, index, npoints);
 }
 
 
@@ -530,48 +530,48 @@ void QPainter::drawWinFocusRect(const QRect &r)
 {
     if (!isActive() || r.isEmpty())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPen cpen = ds->pen;
 	    ds->pen = QPen(black, 0, DotLine);
-	    dgc->updatePen(ds);
+	    dengine->updatePen(ds);
 	    drawPolygon(QPointArray(rect));
 	    ds->pen = cpen;
-	    dgc->updatePen(ds);
+	    dengine->updatePen(ds);
 	    return;
 	}
 	rect = xForm(rect);
     }
 
-    dgc->drawWinFocusRect(rect, true, color0);
+    dengine->drawWinFocusRect(rect, true, color0);
 }
 
 void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 {
     if (!isActive() || r.isEmpty())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPen cpen = ds->pen;
 	    ds->pen = QPen(black, 0, DotLine);
-	    dgc->updatePen(ds);
+	    dengine->updatePen(ds);
 	    drawPolygon(QPointArray(rect));
 	    ds->pen = cpen;
-	    dgc->updatePen(ds);
+	    dengine->updatePen(ds);
 	    return;
 	}
 	rect = xForm(rect);
     }
 
-    dgc->drawWinFocusRect(rect, false, bgColor);
+    dengine->drawWinFocusRect(rect, false, bgColor);
 }
 
 
@@ -582,8 +582,8 @@ void QPainter::setBackgroundMode(BGMode mode)
 	return;
     }
     ds->bgMode = mode;
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyBackground);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyBackground);
 }
 
 QPainter::BGMode QPainter::backgroundMode() const
@@ -595,15 +595,15 @@ QPainter::BGMode QPainter::backgroundMode() const
 void QPainter::setPen(const QColor &color)
 {
     ds->pen = QPen(color, 0, Qt::SolidLine);
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyPen);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyPen);
 }
 
 void QPainter::setPen(const QPen &pen)
 {
     ds->pen = pen;
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyPen);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyPen);
 }
 
 void QPainter::setPen(PenStyle style)
@@ -611,8 +611,8 @@ void QPainter::setPen(PenStyle style)
     if (ds->pen.style() == style)
 	return;
     ds->pen.setStyle(style);
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyPen);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyPen);
 }
 
 const QPen &QPainter::pen() const
@@ -626,8 +626,8 @@ void QPainter::setBrush(const QBrush &brush)
     if (ds->brush == brush)
 	return;
     ds->brush = brush;
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyBrush);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyBrush);
 }
 
 
@@ -635,8 +635,8 @@ void QPainter::setBrush(BrushStyle style)
 {
     // ### Missing optimization from qpainter.cpp
     ds->brush = QBrush(Qt::black, style);
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyBrush);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyBrush);
 }
 
 const QBrush &QPainter::brush() const
@@ -647,8 +647,8 @@ const QBrush &QPainter::brush() const
 void QPainter::setBackgroundColor(const QColor &color)
 {
     ds->bgColor = QBrush(color);
-    if (dgc && dgc->isActive())
-	dgc->updateBackground(ds);
+    if (dengine && dengine->isActive())
+	dengine->updateBackground(ds);
 }
 
 const QColor &QPainter::backgroundColor() const
@@ -663,15 +663,15 @@ void QPainter::setRasterOp(RasterOp op)
 	return;
     }
     ds->rasterOp = op;
-    if (dgc)
-	dgc->updateRasterOp(ds);
+    if (dengine)
+	dengine->updateRasterOp(ds);
 }
 
 void QPainter::setFont(const QFont &font)
 {
     ds->font = font;
-    if (dgc)
-	dgc->setDirty(QAbstractGC::DirtyFont);
+    if (dengine)
+	dengine->setDirty(QPaintEngine::DirtyFont);
 }
 
 const QFont &QPainter::font() const
@@ -693,11 +693,11 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 	return;
     }
 
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    int x = rect.x();
 	    int y = rect.y();
@@ -730,60 +730,60 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 		    j++;
 		}
 	    }
-	    dgc->drawPolygon(aa, false, 0, aa.size());
+	    dengine->drawPolygon(aa, false, 0, aa.size());
 	    return;
 	}
 	rect = xForm(rect);
     }
-    dgc->drawRoundRect(rect, xRnd, yRnd);
+    dengine->drawRoundRect(rect, xRnd, yRnd);
 }
 
 void QPainter::drawEllipse(const QRect &r)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPointArray a;
 	    a.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), 0, 360*16, ds->matrix);
-	    dgc->drawPolygon(a, false, 0, a.size());
+	    dengine->drawPolygon(a, false, 0, a.size());
 	    return;
 	}
 	rect = xForm(rect);
     }
 
-    dgc->drawEllipse(rect);
+    dengine->drawEllipse(rect);
 }
 
 void QPainter::drawArc(const QRect &r, int a, int alen)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPointArray pa;
 	    pa.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), a, alen, ds->matrix);
-	    dgc->drawPolyline(pa, 0, pa.size());
+	    dengine->drawPolyline(pa, 0, pa.size());
 	    return;
 	}
 	rect = xForm(rect);
     }
-    dgc->drawArc(rect, a, alen);
+    dengine->drawArc(rect, a, alen);
 }
 
  void QPainter::drawPie(const QRect &r, int a, int alen)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if ( a > (360*16) ) {
 	a = a % (360*16);
@@ -794,7 +794,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {		// rotate/shear
 	    // arc polyline
 	    QPointArray pa;
@@ -804,42 +804,42 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 	    pa.resize(n+2);
 	    pa.setPoint(n, p);	// add legs
 	    pa.setPoint(n+1, pa.at(0));
-	    dgc->drawPolygon(pa, false, 0, pa.size());
+	    dengine->drawPolygon(pa, false, 0, pa.size());
 	    return;
 	}
 	rect = xForm(rect);
     }
-    dgc->drawPie(rect, a, alen);
+    dengine->drawPie(rect, a, alen);
 }
 
 void QPainter::drawChord(const QRect &r, int a, int alen)
 {
     if ( !isActive() )
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QRect rect = r.normalize();
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->txop == TxRotShear) {		// rotate/shear
 	    QPointArray pa;
 	    pa.makeArc(rect.x(), rect.y(), rect.width()-1, rect.height()-1, a, alen, ds->matrix); // arc polygon
 	    int n = pa.size();
 	    pa.resize(n+1);
 	    pa.setPoint(n, pa.at(0));		// connect endpoints
-	    dgc->drawPolygon(pa, false, 0, pa.size());
+	    dengine->drawPolygon(pa, false, 0, pa.size());
 	    return;
 	}
 	rect = xForm(rect);
     }
-    dgc->drawChord(rect, a, alen);
+    dengine->drawChord(rect, a, alen);
 }
 
 void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if ( nlines < 0 )
 	nlines = a.size()/2 - index/2;
@@ -848,24 +848,24 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	QPointArray pa = xForm(a, index, nlines*2);
 	if ( pa.size() != a.size()) {
 	    index  = 0;
 	    nlines = pa.size()/2;
 	}
-	dgc->drawLineSegments(pa, index, nlines);
+	dengine->drawLineSegments(pa, index, nlines);
 	return;
     }
 
-    dgc->drawLineSegments(a, index, nlines);
+    dengine->drawLineSegments(a, index, nlines);
 }
 
 void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (npoints < 0)
 	npoints = a.size() - index;
@@ -874,20 +874,20 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
 	return;
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	QPointArray ar = xForm(a, index, npoints);
-	dgc->drawPolyline(ar, index, npoints);
+	dengine->drawPolyline(ar, index, npoints);
 	return;
     }
 
-    dgc->drawPolyline(a, index, npoints);
+    dengine->drawPolyline(a, index, npoints);
 }
 
 void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (npoints < 0)
 	npoints = a.size() - index;
@@ -896,19 +896,19 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     if (!isActive() || npoints < 2 || index < 0)
 	return;
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	QPointArray ar = xForm(a, index, npoints);
-	dgc->drawPolygon(ar, winding, index, npoints);
+	dengine->drawPolygon(ar, winding, index, npoints);
 	return;
     }
-    dgc->drawPolygon(a, winding, index, npoints);
+    dengine->drawPolygon(a, winding, index, npoints);
 }
 
 void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (npoints < 0)
 	npoints = a.size() - index;
@@ -917,19 +917,19 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
 	return;
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	QPointArray ar = xForm(a, index, npoints);
-	dgc->drawConvexPolygon(ar, index, npoints);
+	dengine->drawConvexPolygon(ar, index, npoints);
 	return;
     }
-    dgc->drawConvexPolygon(a, index, npoints);
+    dengine->drawConvexPolygon(a, index, npoints);
 }
 
 void QPainter::drawCubicBezier(const QPointArray &a, int index )
 {
     if ( !isActive() )
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if ( (int)a.size() - index < 4 ) {
 	qWarning( "QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
@@ -937,20 +937,20 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
 	return;
     }
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::CoordTransform)) {
 	QPointArray pa = xForm(a);
-	dgc->drawCubicBezier(pa, index);
+	dengine->drawCubicBezier(pa, index);
 	return;
     }
 
-    dgc->drawCubicBezier(a, index);
+    dengine->drawCubicBezier(a, index);
 }
 
 void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
 {
     if (!isActive() || pm.isNull())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (sw < 0)
 	sw = pm.width() - sx;
@@ -978,7 +978,7 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int s
     if (sw <= 0 || sh <= 0)
 	return;
 
-    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::PixmapTransform)) {
+    if ((ds->VxF || ds->WxF) && !dengine->hasCapability(QPaintEngine::PixmapTransform)) {
 	QWMatrix mat(ds->matrix);
 	mat = QPixmap::trueMatrix(mat, sw, sh);
 	QPixmap pmx;
@@ -1005,12 +1005,12 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int s
 	map(x, y, &x, &y);	// compute position of pixmap
 	int dx, dy;
 	mat.map( 0, 0, &dx, &dy );
-	dgc->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
+	dengine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
 			QRect(0, 0, pmx.width(), pmx.height()));
 	return;
     }
 
-    dgc->drawPixmap(QRect(x, y, sw, sh), pm, QRect(sx, sy, sw, sh));
+    dengine->drawPixmap(QRect(x, y, sw, sh), pm, QRect(sx, sy, sw, sh));
     return;
 }
 
@@ -1019,11 +1019,11 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 {
     if (!isActive() || pm.isNull())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     QPixmap pixmap = pm;
 
-    if (!dgc->hasCapability(QAbstractGC::PixmapTransform)) {
+    if (!dengine->hasCapability(QPaintEngine::PixmapTransform)) {
 	int rw = r.width();
 	int rh = r.height();
 	int iw= pm.width();
@@ -1056,7 +1056,7 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 	}
     }
     // ##### probably wrong with world transform!
-    dgc->drawPixmap(r, pixmap, pixmap.rect());
+    dengine->drawPixmap(r, pixmap, pixmap.rect());
 }
 
 void QPainter::drawImage(int x, int y, const QImage &,
@@ -1065,7 +1065,7 @@ void QPainter::drawImage(int x, int y, const QImage &,
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
@@ -1074,7 +1074,7 @@ void QPainter::drawImage(const QRect &, const QImage &)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
@@ -1084,7 +1084,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 {
     if ( !isActive() )
         return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (len < 0)
         len = str.length() - pos;
@@ -1174,7 +1174,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if ( len < 0 )
 	len = str.length();
@@ -1189,7 +1189,7 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
     QTextEngine *engine = ti.engine();
     QScriptItem *si = &engine->items[ti.item()];
 
@@ -1215,7 +1215,7 @@ void QPainter::drawGlyphs(const QPoint& p, const QGlyphFragment &gf)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
     gf.font->draw( this, p.x(),  p.y(), gf, 0 );
 }
 
@@ -1234,7 +1234,7 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
 // ################### make static or prefix with qt_
 
 /* Internal, used by drawTiledPixmap */
-void drawTile( QAbstractGC *gc, int x, int y, int w, int h,
+void drawTile( QPaintEngine *gc, int x, int y, int w, int h,
 	       const QPixmap &pixmap, int xOffset, int yOffset )
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -1263,7 +1263,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     int sw = pixmap.width();
     int sh = pixmap.height();
@@ -1279,14 +1279,14 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 	sy = sy % sh;
 
     bool optim = (pixmap.mask() && pixmap.depth() > 1 && d->txop <= TxTranslate);
-    dgc->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), optim);
+    dengine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), optim);
 }
 
 void QPainter::drawPicture(int x, int y, const QPicture &p)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     qWarning("QPainter::drawPicture() not implemetned yet...\n");
 }
@@ -1295,7 +1295,7 @@ void QPainter::eraseRect(int x, int y, int w, int h)
 {
     if (!isActive())
 	return;
-    dgc->updateState(ds);
+    dengine->updateState(ds);
 
     if (ds->bgBrush.pixmap())
 	drawTiledPixmap(QRect(x, y, w, h), *ds->bgBrush.pixmap(), -ds->bgOrigin);
@@ -1355,7 +1355,7 @@ void QPainter::updateXForm()
 			      ds->matrix.dx()-d->redirection_offset.x(),
 			      ds->matrix.dy()-d->redirection_offset.y());
     }
-    dgc->setDirty(QAbstractGC::DirtyTransform);
+    dengine->setDirty(QPaintEngine::DirtyTransform);
 //     printf("VxF=%d, WxF=%d\n", ds->VxF, ds->WxF);
 //     printf("Using matrix: %f, %f, %f, %f, %f, %f\n",
 // 	   ds->matrix.m11(),
@@ -1540,8 +1540,8 @@ Qt::HANDLE QPainter::handle() const
 #endif
 {
     Q_ASSERT(isActive());
-    Q_ASSERT(d->gc);
-    return d->gc->handle();
+    Q_ASSERT(d->engine);
+    return d->engine->handle();
 }
 
 double QPainter::m11() const { return ds->matrix.m11(); }

@@ -79,7 +79,7 @@
 */
 
 QPaintDevice::QPaintDevice( uint devflags )
-    : deviceGC(0)
+    : paintEngine(0)
 {
     if ( !qApp ) {				// global constructor
 	qFatal( "QPaintDevice: Must construct a QApplication before a "

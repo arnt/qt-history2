@@ -142,8 +142,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if (!deviceGC)
-	deviceGC = new QWSGC(this);
+    if (!paintEngine)
+	paintEngine = new QWSPaintEngine(this);
 
     if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window
@@ -278,9 +278,9 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    delete d->topData()->qwsManager;
 	    d->topData()->qwsManager = 0;
 	    crect.moveBy( -d->extra->topextra->fleft, -d->extra->topextra->ftop );
-	    d->extra->topextra->fleft = d->extra->topextra->ftop = 
+	    d->extra->topextra->fleft = d->extra->topextra->ftop =
 		d->extra->topextra->fright = d->extra->topextra->fbottom = 0;
-	}	    
+	}
 #endif
 	// declare the widget's object name as window role
 
@@ -786,7 +786,7 @@ static uint effectiveState(uint state)
 	return Qt::WState_FullScreen;
     if ( state & Qt::WState_Maximized )
 	return Qt::WState_Maximized;
-    
+
     return 0;
 }
 
@@ -848,7 +848,7 @@ void QWidget::setWindowState(uint newstate)
 	    }
 	}
     }
-    
+
     if (needShow)
 	show();
 

@@ -10,7 +10,7 @@
 
 #include "qpainter.h"
 
-class QAbstractGC;
+class QPaintEngine;
 
 class QPainterState
 {
@@ -92,7 +92,7 @@ class QPainterPrivate
 {
 public:
     QPainterPrivate()
-	: txop(0), txinv(0), device(0), gc(0)
+	: txop(0), txinv(0), device(0), engine(0)
     {
 	states.push_back(new QPainterState());
 	state = states.back();
@@ -118,7 +118,7 @@ public:
 #endif
 
     QPaintDevice *device;
-    QAbstractGC *gc;
+    QPaintEngine *engine;
 };
 
 #endif // QPAINTER_P_H

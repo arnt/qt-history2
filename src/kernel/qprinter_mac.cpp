@@ -43,29 +43,29 @@
 #define PST_ERROR       2
 #define PST_ABORTED     3
 
-class QPrinterGC : public QWrapperGC
+class QPrinterPaintEngine : public QWrapperPaintEngine
 {
     QPrinter *print;
 public:
-    QPrinterGC(QPrinter *pm, QAbstractGC *gc) : QWrapperGC(gc), print(pm) { }
+    QPrinterPaintEngine(QPrinter *pm, QPaintEngine *engine) : QWrapperPaintEngine(engine), print(pm) { }
 
-    virtual Qt::HANDLE handle() const { return print->aborted() ? 0 : QWrapperGC::handle(); }
+    virtual Qt::HANDLE handle() const { return print->aborted() ? 0 : QWrapperPaintEngine::handle(); }
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped);
     virtual bool end();
 };
 bool
-QPrinterGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+QPrinterPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     if(!print->printerBegin())
 	return FALSE;
-    return QWrapperGC::begin(pdev, state, unclipped);
+    return QWrapperPaintEngine::begin(pdev, state, unclipped);
 }
 bool
-QPrinterGC::end()
+QPrinterPaintEngine::end()
 {
     if(!print->printerEnd())
 	return FALSE;
-    return QWrapperGC::end();
+    return QWrapperPaintEngine::end();
 }
 
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
@@ -129,7 +129,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     setOptionEnabled( PrintToFile, true );
     setOptionEnabled( PrintPageRange, true );
     setPrintRange( AllPages );
-    deviceGC = new QPrinterGC(this, deviceGC);
+    paintEngine = new QPrinterPaintEngine(this, paintEngine);
 }
 
 QPrinter::~QPrinter()
@@ -163,7 +163,7 @@ bool QPrinter::abort()
 {
     if(state != PST_ACTIVE)
 	return false;
-    if(PMSessionEndPage(psession) == noErr && 
+    if(PMSessionEndPage(psession) == noErr &&
        PMSessionEndDocument(psession) == noErr) {
 	hd = NULL;
         state = PST_ABORTED;

@@ -627,7 +627,7 @@ void qt_init( QApplicationPrivate *priv, int )
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
-    QWin32GC::initialize();
+    QWin32PaintEngine::initialize();
     qApp->setObjectName( appName );
 
     // default font
@@ -672,7 +672,7 @@ void qt_cleanup()
 {
     unregWinClasses();
     QPixmapCache::clear();
-    QWin32GC::cleanup();
+    QWin32PaintEngine::cleanup();
 
     QCursor::cleanup();
     QFont::cleanup();

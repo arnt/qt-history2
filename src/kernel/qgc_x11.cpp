@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QX11GC class.
+** Definition of QX11PaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -439,7 +439,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool fill )
 {
     QPaintDevice *pd = pp->device();
-    QX11GC *p = static_cast<QX11GC *>(pd->gc());
+    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pd->engine());
 
     XPoint points[5];
     int xp = x,  yp = y;
@@ -470,7 +470,7 @@ void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool 
 void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
 {
     QPaintDevice *pd = pp->device();
-    QX11GC *p = static_cast<QX11GC *>(pd->gc());
+    QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pd->engine());
     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
     qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
@@ -478,13 +478,13 @@ void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
 // ########
 
 /*
- * QX11GC members
+ * QX11PaintEngine members
  */
 
-QX11GC::QX11GC(const QPaintDevice *target)
-    : QAbstractGC()
+QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
+    : QPaintEngine()
 {
-    d = new QX11GCPrivate;
+    d = new QX11PaintEnginePrivate;
 
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
@@ -493,25 +493,25 @@ QX11GC::QX11GC(const QPaintDevice *target)
     d->xinfo = 0;
 }
 
-QX11GC::~QX11GC()
+QX11PaintEngine::~QX11PaintEngine()
 {
     delete d;
 }
 
-void QX11GC::initialize()
+void QX11PaintEngine::initialize()
 {
     init_gc_array();
     init_gc_cache();
 }
 
-void QX11GC::cleanup()
+void QX11PaintEngine::cleanup()
 {
     cleanup_gc_cache();
     cleanup_gc_array(QX11Info::appDisplay());
     QPointArray::cleanBuffers();
 }
 
-bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+bool QX11PaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
@@ -528,7 +528,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     Q_ASSERT(d->xinfo != 0);
 
     if ( isActive() ) {                         // already active painting
-        qWarning( "QX11GC::begin: Painter is already active."
+        qWarning( "QX11PaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
@@ -604,7 +604,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     return true;
 }
 
-bool QX11GC::end()
+bool QX11PaintEngine::end()
 {
     setActive(false);
     if ( d->pdev->devType() == QInternal::Widget  && 		// #####
@@ -638,7 +638,7 @@ bool QX11GC::end()
     return true;
 }
 
-void QX11GC::drawLine(const QPoint &p1, const QPoint &p2)
+void QX11PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     if (!isActive())
         return;
@@ -646,7 +646,7 @@ void QX11GC::drawLine(const QPoint &p1, const QPoint &p2)
         XDrawLine(d->dpy, d->hd, d->gc, p1.x(), p1.y(), p2.x(), p2.y());
 }
 
-void QX11GC::drawRect(const QRect &r)
+void QX11PaintEngine::drawRect(const QRect &r)
 {
     if (!isActive())
         return;
@@ -665,7 +665,7 @@ void QX11GC::drawRect(const QRect &r)
         XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
 }
 
-void QX11GC::drawPoint(const QPoint &p)
+void QX11PaintEngine::drawPoint(const QPoint &p)
 {
     if (!isActive())
         return;
@@ -673,14 +673,14 @@ void QX11GC::drawPoint(const QPoint &p)
         XDrawPoint(d->dpy, d->hd, d->gc, p.x(), p.y());
 }
 
-void QX11GC::drawPoints(const QPointArray &a, int index, int npoints)
+void QX11PaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
 {
     if (d->cpen.style() != NoPen)
         XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(a.shortPoints(index, npoints)),
 		    npoints, CoordModeOrigin);
 }
 
-void QX11GC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
+void QX11PaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
 {
     static char winfocus_line[] = {1, 1};
 
@@ -710,7 +710,7 @@ void QX11GC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgCol
     updatePen(0);
 }
 
-void QX11GC::updatePen(QPainterState *state)
+void QX11PaintEngine::updatePen(QPainterState *state)
 {
     if (state)
 	d->cpen = state->pen;
@@ -864,7 +864,7 @@ void QX11GC::updatePen(QPainterState *state)
 		       s, cp, jn);
 }
 
-void QX11GC::updateBrush(QPainterState *ps)
+void QX11PaintEngine::updateBrush(QPainterState *ps)
 {
     if (ps) {
 	d->cbrush = ps->brush;
@@ -1016,14 +1016,14 @@ void QX11GC::updateBrush(QPainterState *ps)
     XSetFillStyle(d->dpy, d->gc_brush, s);
 }
 
-void QX11GC::setRasterOp(RasterOp r)
+void QX11PaintEngine::setRasterOp(RasterOp r)
 {
     if (!isActive()) {
-        qWarning("QX11GC::setRasterOp: Call begin() first");
+        qWarning("QX11PaintEngine::setRasterOp: Call begin() first");
         return;
     }
     if ((uint)r > LastROP) {
-        qWarning("QX11GC::setRasterOp: Invalid ROP code");
+        qWarning("QX11PaintEngine::setRasterOp: Invalid ROP code");
         return;
     }
     d->rop = r;
@@ -1036,7 +1036,7 @@ void QX11GC::setRasterOp(RasterOp r)
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
 
-void QX11GC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+void QX11PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     int x = r.x();
     int y = r.y();
@@ -1106,7 +1106,7 @@ void QX11GC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     }
 }
 
-void QX11GC::drawEllipse(const QRect &r)
+void QX11PaintEngine::drawEllipse(const QRect &r)
 {
     int x = r.x();
     int y = r.y();
@@ -1129,7 +1129,7 @@ void QX11GC::drawEllipse(const QRect &r)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void QX11GC::drawArc(const QRect &r, int a, int alen)
+void QX11PaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     int x = r.x();
     int y = r.y();
@@ -1143,7 +1143,7 @@ void QX11GC::drawArc(const QRect &r, int a, int alen)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, a*4, alen*4);
 }
 
-void QX11GC::drawPie(const QRect &r, int a, int alen)
+void QX11PaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     int x = r.x();
     int y = r.y();
@@ -1195,7 +1195,7 @@ void QX11GC::drawPie(const QRect &r, int a, int alen)
     }
 }
 
-void QX11GC::drawChord(const QRect &r, int a, int alen)
+void QX11PaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     int x = r.x();
     int y = r.y();
@@ -1235,7 +1235,7 @@ void QX11GC::drawChord(const QRect &r, int a, int alen)
     XSetArcMode(d->dpy, d->gc_brush, ArcPieSlice);
 }
 
-void QX11GC::drawLineSegments(const QPointArray &a, int index, int nlines)
+void QX11PaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     QPointArray pa = a;
     if (d->cpen.style() != NoPen)
@@ -1243,7 +1243,7 @@ void QX11GC::drawLineSegments(const QPointArray &a, int index, int nlines)
 		      (XSegment*)(pa.shortPoints( index, nlines*2 )), nlines);
 }
 
-void QX11GC::drawPolyline(const QPointArray &a, int index, int npoints)
+void QX11PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     QPointArray pa = a;
     if (d->cpen.style() != NoPen) {
@@ -1260,7 +1260,7 @@ void QX11GC::drawPolyline(const QPointArray &a, int index, int npoints)
 
 int global_polygon_shape = Complex;
 
-void QX11GC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
     QPointArray pa = a;
     if (winding)                              // set to winding fill rule
@@ -1286,14 +1286,14 @@ void QX11GC::drawPolygon(const QPointArray &a, bool winding, int index, int npoi
         XSetFillRule(d->dpy, d->gc_brush, EvenOddRule);
 }
 
-void QX11GC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+void QX11PaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     global_polygon_shape = Convex;
     drawPolygon(pa, false, index, npoints);
     global_polygon_shape = Complex;
 }
 
-void QX11GC::drawCubicBezier(const QPointArray &a, int index)
+void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
 {
     if (!isActive())
         return;
@@ -1314,7 +1314,7 @@ void QX11GC::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
-void QX11GC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
+void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 {
     int x = r.x();
     int y = r.y();
@@ -1431,7 +1431,7 @@ void QX11GC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
     }
 }
 
-void QX11GC::updateRasterOp(QPainterState *ps)
+void QX11PaintEngine::updateRasterOp(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->rop = ps->rasterOp;
@@ -1443,7 +1443,7 @@ void QX11GC::updateRasterOp(QPainterState *ps)
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
 
-void QX11GC::updateBackground(QPainterState *ps)
+void QX11PaintEngine::updateBackground(QPainterState *ps)
 {
     Q_ASSERT(isActive());
     d->bg_mode = ps->bgMode;
@@ -1454,11 +1454,11 @@ void QX11GC::updateBackground(QPainterState *ps)
         updateBrush(ps);                          // update brush setting
 }
 
-void QX11GC::updateXForm(QPainterState *)
+void QX11PaintEngine::updateXForm(QPainterState *)
 {
 }
 
-void QX11GC::updateClipRegion(QPainterState *ps)
+void QX11PaintEngine::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
 
@@ -1491,28 +1491,28 @@ void QX11GC::updateClipRegion(QPainterState *ps)
     }
 }
 
-void QX11GC::updateFont(QPainterState *ps)
+void QX11PaintEngine::updateFont(QPainterState *ps)
 {
     clearf(DirtyFont);
     if (d->penRef)
         updatePen(ps);                            // force a non-cached GC
 }
 
-void QX11GC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+void QX11PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
-    qDebug("QX11GC::drawTextItem() - implement me!");
+    qDebug("QX11PaintEngine::drawTextItem() - implement me!");
 }
 
-Qt::HANDLE QX11GC::handle() const
+Qt::HANDLE QX11PaintEngine::handle() const
 {
     Q_ASSERT(isActive());
     Q_ASSERT(d->hd);
     return d->hd;
 }
 
-extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);
+extern void drawTile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
 
-void QX11GC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
+void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
 {
     int x = r.x();
     int y = r.y();

@@ -19,7 +19,7 @@
 #include <qbitmap.h>
 #include "qpainter_p.h"
 #include "qgc_qws.h"
-#define GFX(p) static_cast<QWSGC *>(p->device()->gc())->gfx()
+#define GFX(p) static_cast<QWSPaintEngine *>(p->device()->engine())->gfx()
 
 #include "qgfx_qws.h"
 

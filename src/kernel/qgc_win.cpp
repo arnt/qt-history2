@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QWin32GC class.
+** Definition of QWin32PaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -265,12 +265,12 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen	release_obj
 #define release_brush	release_obj
 
-QWin32GC::QWin32GC(const QPaintDevice *target)
+QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
-      QAbstractGC( GCCaps(CoordTransform | PenWidthTransform | PixmapTransform) ),
+      QPaintEngine( GCCaps(CoordTransform | PenWidthTransform | PixmapTransform) ),
 #endif
-      d(new QWin32GCPrivate)
+      d(new QWin32PaintEnginePrivate)
 {
     // ### below is temp hack to survive pixmap gc construction
     d->hwnd = (target && target->devType()==QInternal::Widget) ? ((QWidget*)target)->winId() : 0;
@@ -278,16 +278,16 @@ QWin32GC::QWin32GC(const QPaintDevice *target)
 }
 
 
-QWin32GC::~QWin32GC()
+QWin32PaintEngine::~QWin32PaintEngine()
 {
     delete d;
 }
 
 
-bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QWin32PaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     if (isActive()) {				// already active painting
-	qWarning("QWin32GC::begin: Painter is already active."
+	qWarning("QWin32PaintEngine::begin: Painter is already active."
 	       "\n\tYou must end() the painter before a second begin()\n");
 // 	return true;
     }
@@ -346,10 +346,10 @@ bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclip
     return true;
 }
 
-bool QWin32GC::end()
+bool QWin32PaintEngine::end()
 {
     if ( !isActive() ) {
-	qWarning( "QWin32GC::end: Missing begin() or begin() failed" );
+	qWarning( "QWin32PaintEngine::end: Missing begin() or begin() failed" );
 	return false;
     }
 
@@ -403,7 +403,7 @@ bool QWin32GC::end()
 
     if (GetGraphicsMode(d->hdc)==GM_ADVANCED) {
 	if (!ModifyWorldTransform(d->hdc, 0, MWT_IDENTITY))
-	    qWarning("QWin32GC::end(). ModifyWorldTransform failed: code: %d\n", GetLastError());
+	    qWarning("QWin32PaintEngine::end(). ModifyWorldTransform failed: code: %d\n", GetLastError());
 	SetGraphicsMode(d->hdc, GM_COMPATIBLE);
     }
 
@@ -413,7 +413,7 @@ bool QWin32GC::end()
     return true;
 }
 
-void QWin32GC::drawLine(const QPoint &p1, const QPoint &p2)
+void QWin32PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     Q_ASSERT(isActive());
 
@@ -469,7 +469,7 @@ void QWin32GC::drawLine(const QPoint &p1, const QPoint &p2)
 #endif
 }
 
-void QWin32GC::drawRect(const QRect &r)
+void QWin32PaintEngine::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
 
@@ -495,7 +495,7 @@ void QWin32GC::drawRect(const QRect &r)
     }
 }
 
-void QWin32GC::drawPoint(const QPoint &p)
+void QWin32PaintEngine::drawPoint(const QPoint &p)
 {
     Q_ASSERT(isActive());
 
@@ -507,7 +507,7 @@ void QWin32GC::drawPoint(const QPoint &p)
 #endif
 }
 
-void QWin32GC::drawPoints(const QPointArray &pts, int index, int npoints)
+void QWin32PaintEngine::drawPoints(const QPointArray &pts, int index, int npoints)
 {
     Q_ASSERT(isActive());
     QPointArray pa = pts;
@@ -524,7 +524,7 @@ void QWin32GC::drawPoints(const QPointArray &pts, int index, int npoints)
     }
 }
 
-void QWin32GC::drawWinFocusRect(const QRect &fr, bool, const QColor &bgColor)
+void QWin32PaintEngine::drawWinFocusRect(const QRect &fr, bool, const QColor &bgColor)
 {
     if (!isActive())
 	return;
@@ -546,7 +546,7 @@ void QWin32GC::drawWinFocusRect(const QRect &fr, bool, const QColor &bgColor)
     }
 }
 
-void QWin32GC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
 
@@ -567,7 +567,7 @@ void QWin32GC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32GC::drawEllipse(const QRect &r)
+void QWin32PaintEngine::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
     // Workaround for Windows GDI
@@ -590,7 +590,7 @@ void QWin32GC::drawEllipse(const QRect &r)
 // 	setPen(oldPen);
 }
 
-void QWin32GC::drawArc(const QRect &r, int a, int alen)
+void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -636,7 +636,7 @@ void QWin32GC::drawArc(const QRect &r, int a, int alen)
     }
 }
 
-void QWin32GC::drawPie(const QRect &r, int a, int alen)
+void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -668,7 +668,7 @@ void QWin32GC::drawPie(const QRect &r, int a, int alen)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32GC::drawChord(const QRect &r, int a, int alen)
+void QWin32PaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -701,7 +701,7 @@ void QWin32GC::drawChord(const QRect &r, int a, int alen)
 }
 
 
-void QWin32GC::drawLineSegments(const QPointArray &a, int index, int nlines)
+void QWin32PaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     Q_ASSERT(isActive());
     QPointArray pa = a;
@@ -749,7 +749,7 @@ void QWin32GC::drawLineSegments(const QPointArray &a, int index, int nlines)
     }
 }
 
-void QWin32GC::drawPolyline(const QPointArray &a, int index, int npoints)
+void QWin32PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     QPointArray pa = a;
     int x1, y1, x2, y2, xsave, ysave;
@@ -792,7 +792,7 @@ void QWin32GC::drawPolyline(const QPointArray &a, int index, int npoints)
     }
 }
 
-void QWin32GC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+void QWin32PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
     QPointArray pa = a;
 #ifndef Q_OS_TEMP
@@ -811,7 +811,7 @@ void QWin32GC::drawPolygon(const QPointArray &a, bool winding, int index, int np
 
 }
 
-void QWin32GC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+void QWin32PaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
     // Any efficient way?
     drawPolygon(pa,FALSE,index,npoints);
@@ -819,7 +819,7 @@ void QWin32GC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 }
 
 #ifndef QT_NO_BEZIER
-void QWin32GC::drawCubicBezier(const QPointArray &a, int index)
+void QWin32PaintEngine::drawCubicBezier(const QPointArray &a, int index)
 {
     if (!isActive())
 	return;
@@ -836,7 +836,7 @@ void QWin32GC::drawCubicBezier(const QPointArray &a, int index)
 #endif
 
 
-void QWin32GC::initialize()
+void QWin32PaintEngine::initialize()
 {
     stock_nullPen    = (HPEN)GetStockObject(NULL_PEN);
     stock_blackPen   = (HPEN)GetStockObject(BLACK_PEN);
@@ -849,13 +849,13 @@ void QWin32GC::initialize()
 }
 
 
-void QWin32GC::cleanup()
+void QWin32PaintEngine::cleanup()
 {
     cleanup_cache();
 }
 
 
-void QWin32GC::drawPolyInternal(const QPointArray &a, bool close)
+void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
     if (!isActive())
 	return;
@@ -871,7 +871,7 @@ void QWin32GC::drawPolyInternal(const QPointArray &a, bool close)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32GC::drawPixmap( const QRect &r, const QPixmap &pixmap, const QRect &sr )
+void QWin32PaintEngine::drawPixmap( const QRect &r, const QPixmap &pixmap, const QRect &sr )
 {
     if (!isActive())
 	return;
@@ -898,7 +898,7 @@ void QWin32GC::drawPixmap( const QRect &r, const QPixmap &pixmap, const QRect &s
 	       pixmap.handle(), sr.x(), sr.y(), SRCCOPY);
 }
 
-void QWin32GC::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
+void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
     return;
 
@@ -919,7 +919,7 @@ void QWin32GC::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 }
 
 
-HDC QWin32GC::handle() const
+HDC QWin32PaintEngine::handle() const
 {
     Q_ASSERT(isActive());
     Q_ASSERT(d->hdc);
@@ -927,7 +927,7 @@ HDC QWin32GC::handle() const
 }
 
 
-void QWin32GC::updatePen(QPainterState *state)
+void QWin32PaintEngine::updatePen(QPainterState *state)
 {
     int old_pix = d->pColor;
     d->pColor = COLOR_VALUE(state->pen.color());
@@ -1017,7 +1017,7 @@ set:
 }
 
 
-void QWin32GC::updateBrush(QPainterState *state)
+void QWin32PaintEngine::updateBrush(QPainterState *state)
 {
 #ifndef Q_OS_TEMP
     static short d1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
@@ -1192,7 +1192,7 @@ void QWin32GC::updateBrush(QPainterState *state)
 }
 
 
-void QWin32GC::updateRasterOp(QPainterState *state)
+void QWin32PaintEngine::updateRasterOp(QPainterState *state)
 {
     Q_ASSERT(isActive());
     SetROP2(d->hdc, rasterOpCodes[state->rasterOp]);
@@ -1200,7 +1200,7 @@ void QWin32GC::updateRasterOp(QPainterState *state)
 }
 
 
-void QWin32GC::updateBackground(QPainterState *state)
+void QWin32PaintEngine::updateBackground(QPainterState *state)
 {
     Q_ASSERT(isActive());
 
@@ -1209,7 +1209,7 @@ void QWin32GC::updateBackground(QPainterState *state)
 }
 
 
-void QWin32GC::updateXForm(QPainterState *state)
+void QWin32PaintEngine::updateXForm(QPainterState *state)
 {
 #ifdef NO_NATIVE_XFORM
     return;
@@ -1235,7 +1235,7 @@ void QWin32GC::updateXForm(QPainterState *state)
 	m.eDy  = mtx.dy();
 	SetGraphicsMode(d->hdc, GM_ADVANCED);
 	if (!SetWorldTransform(d->hdc, &m)) {
-	    printf("QWin32GC::updateXForm(), SetWorldTransformation() failed.. %d\n", GetLastError());
+	    printf("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed.. %d\n", GetLastError());
 	}
 //     } else {
 // 	m.eM11 = m.eM22 = (float)1.0;
@@ -1247,7 +1247,7 @@ void QWin32GC::updateXForm(QPainterState *state)
 }
 
 
-void QWin32GC::updateClipRegion(QPainterState *state)
+void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 {
     if (!isActive())
 	return;
@@ -1282,7 +1282,7 @@ void QWin32GC::updateClipRegion(QPainterState *state)
 
 }
 
-void QWin32GC::updateFont(QPainterState *state)
+void QWin32PaintEngine::updateFont(QPainterState *state)
 {
     QFont &f = state->font;
     d->hfont = f.handle();
@@ -1325,9 +1325,9 @@ Qt::RasterOp qt_map_rop_for_bitmaps( Qt::RasterOp r )
 }
 
 extern void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap );
-extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);
+extern void drawTile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
 
-void QWin32GC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
+void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
 

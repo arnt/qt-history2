@@ -30,12 +30,8 @@ class QIODevice;
 class QString;
 class QTextItem;
 class QApplicationPrivate;
-class QAbstractGC;
+class QPaintEngine;
 class QX11Info;
-
-#if defined(Q_WS_X11)
-struct QPaintDeviceX11Data;
-#endif
 
 class Q_GUI_EXPORT QPaintDevice				// device for QPainter
 {
@@ -62,7 +58,7 @@ public:
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE handle() const;
 #endif
-    virtual QAbstractGC *gc() const { return deviceGC; }
+    virtual QPaintEngine *engine() const { return paintEngine; }
 
 #if defined(Q_WS_QWS)
     static QWSDisplay *qwsDisplay();
@@ -96,10 +92,10 @@ protected:
     friend class QPainter;
     friend class QPaintDeviceMetrics;
 #if defined(Q_WS_WIN)
-    friend class QWin32GC;
+    friend class QWin32PaintEngine;
 #elif defined(Q_WS_MAC)
     friend class QFontEngineMac;
-    friend class QQuickDrawGC;
+    friend class QQuickDrawPaintEngine;
 #endif
 #if defined(Q_WS_MAC)
     friend Q_GUI_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
@@ -115,7 +111,7 @@ protected:
 #endif
 
 protected:
-    QAbstractGC *deviceGC;
+    QPaintEngine *paintEngine;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

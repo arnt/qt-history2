@@ -385,7 +385,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 	    return;
 	}
 #endif
-    } else if ( !p->d->gc->hasCapability(QAbstractGC::CoordTransform)
+    } else if ( !p->d->engine->hasCapability(QPaintEngine::CoordTransform)
 		&& p->d->txop == QPainter::TxTranslate ) {
 	p->map( x, y, &x, &y );
     }

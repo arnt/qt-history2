@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QWSGC class.
+** Definition of QWSPaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -76,7 +76,7 @@ void qwsUpdateActivePainters()
 void qt_draw_background( QPainter *pp, int/* x*/, int /*y*/, int /*w*/,  int /*h*/ )
 {
     QPaintDevice *pd = pp->device();
-    QWSGC *p = static_cast<QWSGC *>(pd->gc());
+    QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pd->engine());
 // // //     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
 // // //     qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
 // // //     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
@@ -84,10 +84,10 @@ void qt_draw_background( QPainter *pp, int/* x*/, int /*y*/, int /*w*/,  int /*h
 // ########
 
 
-class QWSGCPrivate
+class QWSPaintEnginePrivate
 {
 public:
-    QWSGCPrivate() :gfx(0), pdev(0) {}
+    QWSPaintEnginePrivate() :gfx(0), pdev(0) {}
     QGfx *gfx;
     QPaintDevice *pdev;
 };
@@ -96,30 +96,30 @@ public:
 
 
 
-QWSGC::QWSGC(const QPaintDevice *pdev)
+QWSPaintEngine::QWSPaintEngine(const QPaintDevice *pdev)
     //, qwsData(0)
 {
 
-    d = new QWSGCPrivate;
+    d = new QWSPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice *>(pdev);
 
 
-//	qDebug("QWSGC::QWSGC");
+//	qDebug("QWSPaintEngine::QWSPaintEngine");
 }
-QWSGC::~QWSGC()
+QWSPaintEngine::~QWSPaintEngine()
 {
-//	qDebug("QWSGC::~QWSGC");
+//	qDebug("QWSPaintEngine::~QWSPaintEngine");
 
     delete d;
 }
 
-QGfx *QWSGC::gfx()
+QGfx *QWSPaintEngine::gfx()
 {
     return d->gfx;
 }
 
 
-bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+bool QWSPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if ( isActive() ) {                         // already active painting
          qWarning( "QWSC::begin: Painter is already active."
@@ -137,7 +137,7 @@ bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
     d->pdev = const_cast<QPaintDevice *>(pdev);
     d->gfx = pdev->graphicsContext();
-///    qDebug("QWSGC::begin %p gfx %p", this, d->gfx);
+///    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);
 
     updatePen(ps);
@@ -146,23 +146,23 @@ bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
     return true;
 }
-bool QWSGC::end(){
+bool QWSPaintEngine::end(){
     setActive(false);
-///    qDebug("QWSGC::end %p (gfx %p)", this, d->gfx);
+///    qDebug("QWSPaintEngine::end %p (gfx %p)", this, d->gfx);
     delete d->gfx;
     d->gfx = 0;
     return true;
 }
 
-void QWSGC::updatePen(QPainterState *ps)
+void QWSPaintEngine::updatePen(QPainterState *ps)
 {
     d->gfx->setPen(ps->pen);
 
-//    qDebug("QWSGC::updatePen");
+//    qDebug("QWSPaintEngine::updatePen");
 }
-void QWSGC::updateBrush(QPainterState *ps)
+void QWSPaintEngine::updateBrush(QPainterState *ps)
 {
-    //qDebug("QWSGC::updateBrush");
+    //qDebug("QWSPaintEngine::updateBrush");
 
     static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
@@ -246,26 +246,26 @@ void QWSGC::updateBrush(QPainterState *ps)
     d->gfx->setBrushPixmap( ps->brush.d->pixmap );
 }
 
-void QWSGC::updateFont(QPainterState *ps)
+void QWSPaintEngine::updateFont(QPainterState *ps)
 {
-//    qDebug("QWSGC::updateFont");
+//    qDebug("QWSPaintEngine::updateFont");
 }
-void QWSGC::updateRasterOp(QPainterState *ps)
+void QWSPaintEngine::updateRasterOp(QPainterState *ps)
 {
-//    qDebug("QWSGC::updateRasterOp");
+//    qDebug("QWSPaintEngine::updateRasterOp");
         d->gfx->setRop(ps->rasterOp);
 }
-void QWSGC::updateBackground(QPainterState *ps)
+void QWSPaintEngine::updateBackground(QPainterState *ps)
 {
-//    qDebug("QWSGC::updateBackground");
+//    qDebug("QWSPaintEngine::updateBackground");
 }
-void QWSGC::updateXForm(QPainterState */*ps*/)
+void QWSPaintEngine::updateXForm(QPainterState */*ps*/)
 {
-//    qDebug("QWSGC::updateXForm");
+//    qDebug("QWSPaintEngine::updateXForm");
 }
-void QWSGC::updateClipRegion(QPainterState *ps)
+void QWSPaintEngine::updateClipRegion(QPainterState *ps)
 {
-//    qDebug("QWSGC::updateClipRegion");
+//    qDebug("QWSPaintEngine::updateClipRegion");
 
     Q_ASSERT(isActive());
 
@@ -298,24 +298,24 @@ void QWSGC::updateClipRegion(QPainterState *ps)
 	clearf(ClipOn);
 }
 
-void QWSGC::setRasterOp(RasterOp r)
+void QWSPaintEngine::setRasterOp(RasterOp r)
 {
     d->gfx->setRop( r );
-//    qDebug("QWSGC::setRasterOp");
+//    qDebug("QWSPaintEngine::setRasterOp");
 }
 
-void QWSGC::drawLine(const QPoint &p1, const QPoint &p2)
+void QWSPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     if ( state->pen.style() != NoPen )
 	d->gfx->drawLine( p1.x(), p1.y(), p2.x(), p2.y() );
 }
-void QWSGC::drawRect(const QRect &r)
+void QWSPaintEngine::drawRect(const QRect &r)
 {
     //############ gfx->setBrushOffset( x-bro.x(), y-bro.y() );
 
     int x1, y1, w, h;
     r.rect(&x1, &y1, &w, &h);
-    
+
     if (state->pen.style() != NoPen) {
 	if ( state->pen.width() > 1 ) {
 	    QPointArray a(r, TRUE);
@@ -337,12 +337,12 @@ void QWSGC::drawRect(const QRect &r)
 
     d->gfx->fillRect( x1, y1, w, h );
 }
-void QWSGC::drawPoint(const QPoint &p)
+void QWSPaintEngine::drawPoint(const QPoint &p)
 {
     d->gfx->drawPoint(p.x(), p.y());
 }
 
-void QWSGC::drawPoints(const QPointArray &pa, int index, int npoints)
+void QWSPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     if ( state->pen.style() == NoPen )
 	return;
@@ -350,7 +350,7 @@ void QWSGC::drawPoints(const QPointArray &pa, int index, int npoints)
     d->gfx->drawPoints( pa, index, npoints );
 }
 
-void QWSGC::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const QColor &/*bgColor*/)
+void QWSPaintEngine::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const QColor &/*bgColor*/)
 {
     static char winfocus_line[] = { 1, 1 };
 
@@ -393,7 +393,7 @@ void QWSGC::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const QColor &/*
 //     setPen( old_pen );
 //     setBrush( old_brush );
 }
-void QWSGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+void QWSPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     QPointArray a;
 
@@ -433,11 +433,11 @@ void QWSGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     //  a = xForm(a);
     //a.translate(-redirection_offset);
     drawPolyInternal( a );
-//    qDebug("QWSGC::drawRoundRect");
+//    qDebug("QWSPaintEngine::drawRoundRect");
 }
 
 
-void QWSGC::drawPolyInternal( const QPointArray &a, bool close )
+void QWSPaintEngine::drawPolyInternal( const QPointArray &a, bool close )
 {
     if ( a.size() < 2 || !d->gfx )
 	return;
@@ -465,11 +465,11 @@ void QWSGC::drawPolyInternal( const QPointArray &a, bool close )
 
 
 
-void QWSGC::drawEllipse(const QRect &r)
+void QWSPaintEngine::drawEllipse(const QRect &r)
 {
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
-    
+
     QPointArray a;
 // #ifndef QT_NO_TRANSFORMATIONS
 //     a.makeArc( x, y, w, h, 0, 360*16, xmat );
@@ -487,7 +487,7 @@ void QWSGC::drawEllipse(const QRect &r)
     drawPolyInternal( a );
 }
 
-void QWSGC::drawArc(const QRect &r, int a, int alen)
+void QWSPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
@@ -497,7 +497,7 @@ void QWSGC::drawArc(const QRect &r, int a, int alen)
     drawPolyInternal( pa, FALSE );
 }
 
-void QWSGC::drawPie(const QRect &r, int a, int alen)
+void QWSPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
@@ -524,7 +524,7 @@ void QWSGC::drawPie(const QRect &r, int a, int alen)
 
 }
 
-void QWSGC::drawChord(const QRect &r, int a, int alen)
+void QWSPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
@@ -537,7 +537,7 @@ void QWSGC::drawChord(const QRect &r, int a, int alen)
     drawPolyInternal( pa );
 }
 
-void QWSGC::drawLineSegments(const QPointArray &a, int index, int nlines)
+void QWSPaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     for ( int i=0; i<nlines; i++ ) {
 	int x1,y1,x2,y2;
@@ -548,13 +548,13 @@ void QWSGC::drawLineSegments(const QPointArray &a, int index, int nlines)
     }
 }
 
-void QWSGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+void QWSPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     if ( state->pen.style() != NoPen )
 	d->gfx->drawPolyline( pa, index, npoints );
 }
 
-void QWSGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+void QWSPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 {
 #if 0
 #ifndef QT_NO_TRANSFORMATIONS
@@ -576,19 +576,19 @@ void QWSGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoi
 
 }
 
-void QWSGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+void QWSPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
-//    qDebug("QWSGC::drawConvexPolygon");
+//    qDebug("QWSPaintEngine::drawConvexPolygon");
     drawPolygon(pa, false, index, npoints);
 }
 
 #ifndef QT_NO_BEZIER
-void QWSGC::drawCubicBezier(const QPointArray &pa, int index){
-    qDebug("QWSGC::drawCubicBezier");
+void QWSPaintEngine::drawCubicBezier(const QPointArray &pa, int index){
+    qDebug("QWSPaintEngine::drawCubicBezier");
 }
 #endif
 
-void QWSGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
+void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
     //(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
     int x,y,w,h,sx,sy,sw,sh;
@@ -596,8 +596,8 @@ void QWSGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
     sr.rect(&sx, &sy, &sw, &sh);
 
     if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
-	qDebug( "QWSGC::drawPixmap offset stretch notimplemented" );
-    
+	qDebug( "QWSPaintEngine::drawPixmap offset stretch notimplemented" );
+
     //bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, CopyROP );
     d->gfx->setSource(&pixmap);
     if(pixmap.mask()) {
@@ -617,26 +617,26 @@ void QWSGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 	d->gfx->stretchBlt(x,y,w,h,sw,sh);
 }
 
-void QWSGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
+void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
 {
-    qDebug("QWSGC::drawTiledPixmap");
+    qDebug("QWSPaintEngine::drawTiledPixmap");
 }
 
-void QWSGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags){
-    qDebug("QWSGC::drawTextItem");
+void QWSPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags){
+    qDebug("QWSPaintEngine::drawTextItem");
 }
 
-Qt::HANDLE QWSGC::handle() const{
-    qDebug("QWSGC::handle");
+Qt::HANDLE QWSPaintEngine::handle() const{
+    qDebug("QWSPaintEngine::handle");
     return 0;
 }
 
 
-void QWSGC::initialize(){
-	qDebug("QWSGC::initialize");
+void QWSPaintEngine::initialize(){
+	qDebug("QWSPaintEngine::initialize");
 }
-void QWSGC::cleanup(){
-	qDebug("QWSGC::cleanup");
+void QWSPaintEngine::cleanup(){
+	qDebug("QWSPaintEngine::cleanup");
 }
 
 

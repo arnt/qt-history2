@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QWSGC class.
+** Definition of QWSPaintEngine class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,24 +12,24 @@
 **
 ****************************************************************************/
 
-#ifndef QWSGC_QWS_H
-#define QWSGC_QWS_H
+#ifndef QWSPAINTENGINE_QWS_H
+#define QWSPAINTENGINE_QWS_H
 
 #include "qabstractgc.h"
 #include "qshared.h"
 
 
 class QGfx;
-struct QWSGCData;
-class QWSGCPrivate;
+struct QWSPaintEngineData;
+class QWSPaintEnginePrivate;
 class QPainterState;
 class QApplicationPrivate;
 
-class QWSGC : public QAbstractGC
+class QWSPaintEngine : public QPaintEngine
 {
 public:
-    QWSGC(const QPaintDevice *);
-    ~QWSGC();
+    QWSPaintEngine(const QPaintDevice *);
+    ~QWSPaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
@@ -67,7 +67,7 @@ public:
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;
-    inline Type type() const { return QAbstractGC::QWindowSystem; }
+    inline Type type() const { return QPaintEngine::QWindowSystem; }
 
     static void initialize();
     static void cleanup();
@@ -78,10 +78,10 @@ public:
 protected:
     void drawPolyInternal(const QPointArray &a, bool close=TRUE);
 
-    void copyQWSData(const QWSGC *);
-    void cloneQWSData(const QWSGC *);
-    //virtual void setQWSData(const QWSGCData *);
-    QWSGCData* getQWSData(bool def = FALSE) const;
+    void copyQWSData(const QWSPaintEngine *);
+    void cloneQWSData(const QWSPaintEngine *);
+    //virtual void setQWSData(const QWSPaintEngineData *);
+    QWSPaintEngineData* getQWSData(bool def = FALSE) const;
 
     friend void qt_init( QApplicationPrivate *, int );
     friend void qt_cleanup();
@@ -98,17 +98,17 @@ private:
 //    friend class QPixmap;
     friend class QFontEngine;
 
-    QWSGCPrivate *d;
-    //QWSGCData *qwsData;
+    QWSPaintEnginePrivate *d;
+    //QWSPaintEngineData *qwsData;
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QWSGC(const QWSGC &);
-    QWSGC &operator=(const QWSGC &);
+    QWSPaintEngine(const QWSPaintEngine &);
+    QWSPaintEngine &operator=(const QWSPaintEngine &);
 #endif
 };
 
-struct QWSGCData : public QShared {
+struct QWSPaintEngineData : public QShared {
     /*Display*/ void *x_display;
     int x_screen;
     int x_depth;

@@ -119,7 +119,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 {
     Display *dpy = QX11Info::appDisplay();
     Qt::HANDLE hd = p->device()->handle();
-    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
+    GC gc = static_cast<QX11PaintEngine *>(p->device()->engine())->d->gc;
 
 #ifdef FONTENGINE_DEBUG
     p->save();
@@ -413,7 +413,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QGlyphFragment &si,
 
     Display *dpy = QX11Info::appDisplay();
     Qt::HANDLE hd = p->device()->handle();
-    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
+    GC gc = static_cast<QX11PaintEngine *>(p->device()->engine())->d->gc;
 
     bool transform = FALSE;
     int xorig = x;
@@ -1528,7 +1528,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
     if ( p->d->txop >= QPainter::TxScale ) {
 	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
 	    Qt::HANDLE hd = p->device()->handle();
-	    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
+	    GC gc = static_cast<QX11PaintEngine *>(p->device()->engine())->d->gc;
 
 	    // font doesn't support transformations, need to do it by hand
             QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
@@ -1642,7 +1642,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    const QColor &pen = static_cast<QX11GC *>(p->device()->gc())->d->cpen.color();
+    const QColor &pen = static_cast<QX11PaintEngine *>(p->device()->engine())->d->cpen.color();
 
     XftDraw *draw = ((Q_HackPaintDevice *)p->device())->xftDrawHandle();
 

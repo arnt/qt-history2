@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QAbstractGC(for Mac) private data.
+** Definition of QPaintEngine(for Mac) private data.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QGC_MAC_P_H__
-#define __QGC_MAC_P_H__
+#ifndef __QPAINTENGINE_MAC_P_H__
+#define __QPAINTENGINE_MAC_P_H__
 
 /*****************************************************************************
   QuickDraw Private data
@@ -25,10 +25,10 @@ static int ropCodes[] = {			// ROP translation table
 };
 
 class paintevent_item;
-class QQuickDrawGCPrivate
+class QQuickDrawPaintEnginePrivate
 {
 public:
-    QQuickDrawGCPrivate() {
+    QQuickDrawPaintEnginePrivate() {
 	saved = 0;
 	paintevent = 0;
 	clip.serial = 0;
@@ -68,10 +68,10 @@ public:
 /*****************************************************************************
   Private data
  *****************************************************************************/
-class QCoreGraphicsGCPrivate
+class QCoreGraphicsPaintEnginePrivate
 {
 public:
-    QCoreGraphicsGCPrivate() {
+    QCoreGraphicsPaintEnginePrivate() {
 	hd = 0;
 	pdev = 0;
 	unclipped = 0;
@@ -120,4 +120,4 @@ public:
     }
 };
 
-#endif /* __QGC_MAC_P_H__ */
+#endif /* __QPAINTENGINE_MAC_P_H__ */

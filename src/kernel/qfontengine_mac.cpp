@@ -144,8 +144,8 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int te
 	p->map(x, y, &x, &y);
     }
 
-    if(p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw) {
-	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
+    if(p->d->engine && p->d->engine->type() == QPaintEngine::QuickDraw) {
+	QQuickDrawPaintEngine *mgc = (QQuickDrawPaintEngine*)p->d->engine;
 	mgc->updateState(mgc->state);
 	mgc->setupQDPort(false, 0, 0);
 	mgc->setupQDFont();
@@ -466,9 +466,9 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     }
 
     RgnHandle rgnh = NULL;
-    if(p && p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw) {
+    if(p && p->d->engine && p->d->engine->type() == QPaintEngine::QuickDraw) {
 	QRegion rgn;
-	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
+	QQuickDrawPaintEngine *mgc = (QQuickDrawPaintEngine*)p->d->engine;
 	mgc->setupQDPort(false, 0, &rgn);
 	if(!rgn.isEmpty())
 	    rgnh = rgn.handle(TRUE);

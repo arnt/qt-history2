@@ -193,8 +193,8 @@ void qws_mapPixmaps( bool from )
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-    //####### used from convertFromImage... Q_ASSERT(!deviceGC);
-    deviceGC = new QWSGC(this);
+    //####### used from convertFromImage... Q_ASSERT(!paintEngine);
+    paintEngine = new QWSPaintEngine(this);
     static int serial = 0;
     int dd = defaultDepth();
 

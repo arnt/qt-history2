@@ -47,8 +47,8 @@ public:
 
 #include "qpaintdevice.h"
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
-class QAbstractGC;
-extern QAbstractGC *qt_mac_current_gc; //qgc_mac.cpp
+class QPaintEngine;
+extern QPaintEngine *qt_mac_current_gc; //qgc_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -58,7 +58,7 @@ class QMacSavedPortInfo
     RGBColor back, fore;
     bool valid_gworld;
     void init();
-    QAbstractGC *gc;
+    QPaintEngine *engine;
 
 public:
     inline QMacSavedPortInfo() { init(); }
