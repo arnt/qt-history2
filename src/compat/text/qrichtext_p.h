@@ -720,7 +720,6 @@ public:
     };
 
     Q3TextDocument(Q3TextDocument *p);
-    Q3TextDocument(Q3TextDocument *, Q3TextFormatCollection *f);
     virtual ~Q3TextDocument();
 
     Q3TextDocument *parent() const { return par; }

@@ -1288,18 +1288,7 @@ Q3TextDocument::Q3TextDocument(Q3TextDocument *p)
 #endif
     , tArray(0), tStopWidth(0)
 {
-    fCollection = new Q3TextFormatCollection;
-    init();
-}
-
-Q3TextDocument::Q3TextDocument(Q3TextDocument *p, Q3TextFormatCollection *f)
-    : par(p), parentPar(0)
-#ifndef QT_NO_TEXTCUSTOMITEM
-    , tc(0)
-#endif
-    , tArray(0), tStopWidth(0)
-{
-    fCollection = f;
+    fCollection = par ? par->fCollection : new Q3TextFormatCollection;
     init();
 }
 
@@ -1370,9 +1359,10 @@ Q3TextDocument::~Q3TextDocument()
         par->removeChild(this);
     clear();
     delete flow_;
-    if (!par)
+    if (!par) {
         delete pFormatter;
-    delete fCollection;
+        delete fCollection;
+    }
     delete pProcessor;
     delete buf_pixmap;
     delete indenter;
