@@ -148,12 +148,12 @@
 
     \table 100%
     \header \i Description \i Resolution
-    \row \i \bold{Jaguar}: The Arthur example doesn't let me click through the focus
+    \row \i \bold{Jaguar}: The \c arthur example doesn't let me click through the focus
     widget. \i Fix scheduled for beta 2.
     \row \i \bold{Jaguar}: It seems any of the network examples lock up whenever they
     try to do some type of look up.
     \i Fix scheduled for beta 2.
-    \row \i \bold{Jaguar}: Charactermap example doesn't show anything.
+    \row \i \bold{Jaguar}: The \c charactermap example doesn't show anything.
     \i Fix scheduled for beta 2.
     \endtable
 
