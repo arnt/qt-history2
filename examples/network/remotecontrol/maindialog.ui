@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>204</width>
-            <height>311</height>
+            <height>276</height>
         </rect>
     </property>
     <property name="caption">
@@ -55,7 +55,10 @@ this one.</string>
                 <pixmap>image0</pixmap>
             </property>
             <property name="scaledContents">
-                <bool>true</bool>
+                <bool>false</bool>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
             </property>
         </widget>
         <widget class="QLabel">
@@ -70,10 +73,35 @@ this one.</string>
                     <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
+            <property name="font">
+                <font>
+                    <pointsize>26</pointsize>
+                </font>
+            </property>
             <property name="text">
                 <string>The Qt logo</string>
             </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
         </widget>
+        <spacer>
+            <property name="name" stdset="0">
+                <cstring>Spacer2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
         <widget class="QLayoutWidget">
             <property name="name">
                 <cstring>Layout2</cstring>
