@@ -86,9 +86,17 @@ QQnx4MouseHandlerPrivate::~QQnx4MouseHandlerPrivate()
   }
 }
 
-void QQnx4MouseHandlerPrivate::clearCalibration(){};
-void QQnx4MouseHandlerPrivate::calibrate(){};
-void QQnx4MouseHandlerPrivate::getCalibration(QWSPointerCalibrationData *){};
+void QQnx4MouseHandlerPrivate::clearCalibration()
+{
+}
+
+void QQnx4MouseHandlerPrivate::calibrate()
+{
+}
+
+void QQnx4MouseHandlerPrivate::getCalibration(QWSPointerCalibrationData *) const
+{
+}
 
 void QQnx4MouseHandlerPrivate::readMouseData(int fd) {
   if(!mpack)

@@ -36,8 +36,8 @@ public:
     virtual ~QWSMouseHandler();
 
     virtual void clearCalibration() {}
-    virtual void calibrate( QWSPointerCalibrationData * ) {}
-    virtual void getCalibration( QWSPointerCalibrationData * ) {}
+    virtual void calibrate( const QWSPointerCalibrationData * ) {}
+    virtual void getCalibration( QWSPointerCalibrationData * ) const {}
 
     void limitToScreen( QPoint &pt );
     void mouseChanged(const QPoint& pos, int bstate);
@@ -54,8 +54,8 @@ public:
     QWSCalibratedMouseHandler( const QString &device = QString::null, const QString &device = QString::null );
 
     virtual void clearCalibration();
-    virtual void calibrate( QWSPointerCalibrationData * );
-    virtual void getCalibration( QWSPointerCalibrationData * );
+    virtual void calibrate( const QWSPointerCalibrationData * );
+    virtual void getCalibration( QWSPointerCalibrationData * ) const;
 
     bool sendFiltered( const QPoint &, int button );
     QPoint transform( const QPoint & );

@@ -44,7 +44,7 @@ class QQnx4MouseHandlerPrivate : public QWSMouseHandler {
 
 	void clearCalibration();
 	void calibrate();
-	void getCalibration( QWSPointerCalibrationData * );
+	void getCalibration( QWSPointerCalibrationData * ) const;
 
     private:
 	QSocketNotifier *mouseNotifier;

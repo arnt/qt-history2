@@ -35,7 +35,7 @@
 */
 
 /*!
-    \fn virtual void QWSMouseHandler::getCalibration( QWSPointerCalibrationData * )
+    \fn virtual void QWSMouseHandler::getCalibration( QWSPointerCalibrationData * ) const
 
     \internal
 */
@@ -99,7 +99,7 @@ void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
 */
 
 /*!
-    \fn QWSMouseHandler::calibrate(QWSPointerCalibrationData * )
+    \fn QWSMouseHandler::calibrate( const QWSPointerCalibrationData * )
 
     This method is reimplemented in the calibrated mouse handler to
     set calibration information (from, for instance, the Qtopia
@@ -118,7 +118,7 @@ QWSCalibratedMouseHandler::QWSCalibratedMouseHandler( const QString &, const QSt
     readCalibration();
 }
 
-void QWSCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd )
+void QWSCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd ) const
 {
     QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];
     QPoint screen_br = cd->screenPoints[ QWSPointerCalibrationData::BottomRight ];
@@ -173,7 +173,7 @@ void QWSCalibratedMouseHandler::readCalibration()
     }
 }
 
-void QWSCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
+void QWSCalibratedMouseHandler::calibrate( const QWSPointerCalibrationData *cd )
 {
     QPoint dev_tl = cd->devPoints[ QWSPointerCalibrationData::TopLeft ];
     QPoint dev_br = cd->devPoints[ QWSPointerCalibrationData::BottomRight ];

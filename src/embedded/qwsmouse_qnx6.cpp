@@ -48,7 +48,7 @@ class QQnxMouseHandlerPrivate : public QWSMouseHandler {
 
 	void clearCalibration();
 	void calibrate();
-	void getCalibration( QWSPointerCalibrationData * );
+	void getCalibration( QWSPointerCalibrationData * ) const;
 
     private:
 	int mouseFD;
@@ -72,10 +72,21 @@ QQnxMouseHandlerPrivate::QQnxMouseHandlerPrivate(MouseProtocol &protocol,QString
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData(int)));
 }
 
-QQnxMouseHandlerPrivate::~QQnxMouseHandlerPrivate(){};
-void QQnxMouseHandlerPrivate::clearCalibration(){};
-void QQnxMouseHandlerPrivate::calibrate(){};
-void QQnxMouseHandlerPrivate::getCalibration(QWSPointerCalibrationData *){};
+QQnxMouseHandlerPrivate::~QQnxMouseHandlerPrivate()
+{
+}
+
+void QQnxMouseHandlerPrivate::clearCalibration()
+{
+}
+
+void QQnxMouseHandlerPrivate::calibrate()
+{
+}
+
+void QQnxMouseHandlerPrivate::getCalibration(QWSPointerCalibrationData *) const
+{
+}
 
 void QQnxMouseHandlerPrivate::getData() {
     int number_read = read(mouseFD, ((_mouse_packet *)buffer) + index,
