@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#93 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#94 $
 #
 # this is a massive hack, written very quickly
 #
@@ -80,8 +80,9 @@ sub processcode {
     s/\s+$/\n/s;
     s!\\/(.*?\n)!//$1!gs;
 
-    while ( m@(?:(?:^)|(?:[;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_:]+)(?=(?:\s*<[^>]*>)\s*\*?\s*([A-Za-z0-9_]+))@gs ) {
+    while ( m@(?:(?:^)|(?:[;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_]+)(?:\s*<[^>]*>)?\s*\*?\s*([A-Za-z0-9_]+)@gs ) {
 	if ($type{$anchor{$1}} eq "class") {
+	    #print "recognized $2 as $1\n";
 	    print "Changing type of $2 from ", $types{$2}, " to $1\n"
 		if (defined($types{$2}) && ($1 ne $types{$2}));
 	    $types{$2} = $1;
@@ -246,6 +247,7 @@ sub processdocs {
 	    sprintf( "\n\nmagicwordthatyoushouldavoid %s.\n", $seealso );
 	}@es;
 
+	# try full function qualification
 	$doc =~ s-\\link\s+((?:(?:\w+)\s+)*[\*\&]?\s*)(\w+)::(\w+)\s*\((.*?)\)(?:\s*(const))?\s+(.+?)\s*\\endlink-
 	{
 #print $1, " ", $2, " ", $3, " (", $4, ") ", $5, " <=> ", $6, "\n";
@@ -260,7 +262,8 @@ sub processdocs {
 	}
 	-egsx;
 
-	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
+	# try normal class::member, just class or member
+	$doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
 		sprintf("<a href=%s>%s</a>", $anchor{$1}, &html($2));
 	    } else {
@@ -375,7 +378,7 @@ sub writepages {
 
     foreach $file ( keys %pages ) {
 	$doc = $pages{$file};
-	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
+	$doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
 		sprintf("<a href=%s>%s</a>", $anchor{$1}, $2);
 	    } else {
@@ -717,7 +720,7 @@ sub templates {
 	if (defined($templatecookie{$url}) && defined($members{$url})) {
 	    $c = $templatecookie{$url};
 	    $_ = $members{$url};
-	    s/\b$t\s*<\s*$c\s*>/$n/gs;
+	    s/\b$t\s*?<\s*$c\s*?>/$n/gs;
 	    s/\b$t(\s*\()/$n$1/gs;
 	    s/\b$c\b/$i/gs;
 #print "making up ", $n, " in ", $f, " from ", $t, "<", $c, ">:\n", $_, "\n";
@@ -733,44 +736,53 @@ sub templates {
 		    } elsif ( $mm eq "~".$t ) {
 			$mm = "~".$n;
 		    }
-		    unless ( defined( $type{$n . "::" . $mm } ) ) {
-#print "B: ", $name{$m}, "-> ", $n, "::", $mm, "\n";
-			# okie, now set $url to the new url and copy it across
-#			$u = &manglefn($t, $name{$url}, $f, $a, $c);
-#			$url = &mangleclass($n) . "#" . ++$uniq;
-			if ( $mm eq "_cast" ) {
-			    my ($type, $const);
-			    if ( $def{$m} =~ /\s+operator\s+(.*?)\s*\(\)\s*((?:const)?)$/ ) {
-				$type = $1;
-				$const = $2;
-				$url = &manglefn($type, $n, $mm,"",
-						 $const, &mangleclass($n));
-			    } else {
-				die "unparsable definition: ", $n, "::", $mm,
-				" cannot be instantiated from ", $def{$m};
-			    }
+
+		    $url = "";
+		    #print "B: ", $name{$m}, "-> ", $n, "::", $mm, "\n";
+		    # okie, now set $url to the new url and copy it across
+		    if ( $mm eq "_cast" ) {
+			my ($type, $const);
+			if ( $def{$m} =~ /\s+operator\s+(.*?)\s*\(\)\s*((?:const)?)$/ ) {
+			    $type = $1;
+			    $const = $2;
+			    $url = &manglefn($type, $n, $mm,"",
+					     $const, &mangleclass($n));
 			} else {
-			    my ($type, $args, $const);
-			    if ( $def{$m} =~ /^\s(.*?)\b\s*[A-Za-z_]+::[A-Za-z_]+\s*\(\s*(.*?)\s*\)\s*((?:const)?)$/ ) {
-				$type = $1;
-				$class = $2;
-				$args = $3;
-				$const = $4;
-				$url = &manglefn($type, $n, $mm, $args,
-						 $const, &mangleclass($n));
-			    } else {
-				die "unparsable definition: ", $n, "::", $mm,
-				"cannot be instantiated from ", $def{$m};
-			    }
+			    die "unparsable definition: ", $n, "::", $mm,
+			    " cannot be instantiated from ", $def{$m};
 			}
-#print "C: ", $m, " -> ", $url, "\n";
+		    } else {
+			my ($type, $args, $const);
+			if ( $def{$m} =~ /^\s(.*?)\b\s*[A-Za-z_]+::[A-Za-z_]+\s*\(\s*(.*?)\s*\)\s*((?:const)?)$/ ) {
+			    $type = $1;
+			    $args = $2;
+			    $const = $3;
+
+			    # instantiate argument type
+			    $args =~ s/\b$t\s*?<\s*$c\s*?>/$n/gs;
+			    $args =~ s/\b$t(\s*\()/$n$1/gs;
+			    $args =~ s/\b$c\b/$i/gs;
+
+			    $url = &manglefn($type, $n, $mm, $args,
+					     $const, &mangleclass($n));
+			} else {
+			    die "unparsable definition: ", $n, "::", $mm,
+			    "cannot be instantiated from ", $def{$m};
+			}
+		    }
+
+		    if ( $url ne "" ) {
+			#print "C: ", $m, " -> ", $url, "\n";
 			$def{$url} = $def{$m};
+			$def{$url} =~ s/\b$t\s*?<\s*$c\s*?>/$n/gs;
+			$def{$url} =~ s/\b$t(\s*\()/$n$1/gs;
+			$def{$url} =~ s/\b$c\b/$i/gs;
 			$def{$url} =~ s/\b$t\b/$n/g;
 			$name{$url} = $n . "::" . $mm;
 			$doc{$url} = $doc{$m};
 			$overload{$url} = $overload{$m};
 			$type{$url} = "fn";
-#print "D: def: ", $def{$url}, " name: ", $name{$url}, "\n";
+			#print"D: def: ",$def{$url}," name: ",$name{$url},"\n";
 		    }
 		}
 	    }
