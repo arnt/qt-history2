@@ -80,11 +80,11 @@ public:
     void moveBy(const QPoint &p);
 
     void setRect(int x, int y, int w, int h);
-    void getRect(int *x, int *y, int *w, int *h) const;
+    inline void getRect(int *x, int *y, int *w, int *h) const;
 
     void setCoords(int x1, int y1, int x2, int y2);
     void addCoords(int x1, int y1, int x2, int y2);
-    void getCoords(int *x1, int *y1, int *x2, int *y2) const;
+    inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
     QSize size() const;
     int width() const;
