@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#108 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#108 $");
 
 
 /*****************************************************************************
@@ -97,7 +97,9 @@ public:
     QWExtra    *xtra()			{ return QWidget::extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
     bool	translateMouseEvent( const MSG &msg );
-    bool	translateKeyEvent( const MSG &msg, bool grab );
+    void	translateKeyEvent( const MSG &msg, bool grab );
+    void	sendKeyEvent( int type, int code, int ascii, int state,
+			      bool grab )
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
@@ -857,14 +859,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
 #endif
 
-    if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
-	if ( translateKeyCode(msg.wParam) == 0 ) {
-	    if ( winEventFilter(&msg) )
-		return TRUE;			// the event was eaten up
-	    TranslateMessage( &msg );		// translate to WM_CHAR
-	    return TRUE;
-	}
-    }
+    TranslateMessage( &msg );			// translate to WM_CHAR
     DispatchMessage( &msg );			// send to WndProc
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
@@ -1005,9 +1000,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		widget = (QETWidget*)g;
 	    else if ( qApp->focusWidget() )
 		widget = (QETWidget*)qApp->focusWidget();
-	    if ( widget->isEnabled() )
-		widget->translateKeyEvent( msg, g != 0 );
-	    }
+	    widget->translateKeyEvent( msg, g != 0 );
 	    break;
 
 	case WM_PAINT:				// paint event
@@ -1757,7 +1750,7 @@ static int translateKeyCode( int key )		// get Key_... code
 {
     int code;
     if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') ) {
-	code = 0;				// wait for WM_CHAR instead
+	code = key;
     } else if ( key >= VK_F1 && key <= VK_F24 ) {
 	code = Key_F1 + (key - VK_F1);		// function keys
     } else {
@@ -1774,7 +1767,43 @@ static int translateKeyCode( int key )		// get Key_... code
     return code;
 }
 
-bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
+struct KeyRec {
+    KeyRec(int c, int a) : code(c), ascii(a) { }
+    KeyRec() { }
+    int code, ascii;
+};
+static const int maxrecs=8;
+static KeyRec key_rec[maxrecs];
+static int nrecs=0;
+KeyRec* find_key_rec( int code, bool remove )
+{
+    int result = 0;
+    for (int i=0; i<nrecs; i++) {
+	if (key_rec[i]==code) {
+	    result = key_rec+i;
+	    if (remove) {
+		while (i+1 < nrecs)
+		    key_rec[i] = key_rec[i+1];
+		nrecs--;
+	    }
+	    break;
+	}
+    }
+    return result;
+}
+void store_key_rec( int code, int ascii )
+{
+    if ( nrecs == maxrecs ) {
+#if defined(CHECK_RANGE)
+	warning("Too many keys pressed");
+#endif
+	return;
+    }
+
+    key_rec[nrecs++] = KeyRec(code,ascii);
+}
+
+void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 {
     int type;
     int code;
@@ -1788,33 +1817,59 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= AltButton;
 
-    if ( msg.message == WM_CHAR ) {		// translated keyboard code
-	type = Event_KeyPress;
-	code = ascii = msg.wParam;
-	if ( code >= 'a' && code <= 'z' )
-	    code = toupper( code );
-	if ( (state & ControlButton) != 0 ) {
-	    if ( code >= 1 && code <= 26 )	// Ctrl+'A'..'Z'
-		code += 'A' - 1;
-	}
+    if ( msg.message == WM_CHAR ) {
+	// a multi-character key
+	debug("Got extra WM_CHAR");
+	sendKeyEvent( Event_KeyPress, 0, msg.wParam, state, grab );
+	sendKeyEvent( Event_KeyRelease, 0, msg.wParam, state, grab );
     } else {
-	code = translateKeyCode( msg.wParam );
-	if ( code == 0 )
-	    code = ascii = msg.wParam;
-	else if ( code > 0 && code < 255 )
-	    ascii = code;
-	type = msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ?
-	       Event_KeyPress : Event_KeyRelease;
+	int code = translateKeyCode( msg.wParam );
+        if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
+	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
+	    if ( rec ) {
+		debug("Auto-repeating");
+		// it is already down (so it is auto-repeating)
+		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab );
+		sendKeyEvent( Event_KeyPress, code, rec->ascii, state, grab );
+	    } else {
+		debug("Key down");
+		MSG wm_char;
+		if (!PeekMessage( &wm_char, (void*)-1,
+			    WM_CHAR, WM_CHAR, PM_REMOVE ))
+		{
+		    wm_char.wParam = 0;
+		}
+		store_key_rec( msg.wParam, wm_char.wParam );
+		sendKeyEvent( Event_KeyPress, code,
+			      wm_char.wParam, state, grab );
+	    }
+        } else {
+	    // KEYUP
+	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
+	    if ( !rec ) { 
+		warning("KEYUP without KEYDOWN");
+	    } else {
+		debug("Key up");
+		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab );
+	    }
+        }
     }
+}
+
+void QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
+			      bool grab )
+{
     if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
 	QKeyEvent a( Event_Accel, code, ascii, state );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
-	    return TRUE;
+	    return;
     }
+    if ( !isEnabled() )
+	return;
     QKeyEvent e( type, code, ascii, state );
-    return QApplication::sendEvent( this, &e ); // send event
+    QApplication::sendEvent( this, &e );
 }
 
 
