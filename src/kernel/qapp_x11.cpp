@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#161 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#160 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#161 $")
 
 
 /*****************************************************************************
@@ -134,8 +134,12 @@ public:
 #if defined(_OS_IRIX_)
 // Tested on Irix 5.2
 typedef void (*SIG_HANDLER)(...);
-#else
+#elif defined(_OS_SUN_) || defined(_OS_FREEBSD_) || defined(_OS_ULTRIX_) || \
+      defined(_OS_SCO_) || defined(_OS_HPUX_) || \
+      defined(_OS_LINUX_) || defined(_OS_OSF_) || defined(_OS_SOLARIS_)
 typedef void (*SIG_HANDLER)(int);
+#else
+#error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
 
 
