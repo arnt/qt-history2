@@ -4097,7 +4097,8 @@ void QIconView::drawRubber( QPainter *p )
 
     QPoint pnt( d->rubber->x(), d->rubber->y() );
     pnt = contentsToViewport( pnt );
-    p->drawRect( QRect( pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height() ) );
+    style().drawFocusRect( p, QRect( pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height() ), 
+			   colorGroup() ); 
 }
 
 /*!
