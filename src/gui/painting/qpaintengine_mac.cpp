@@ -945,7 +945,7 @@ static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p)
                 && p.elementAt(i - 1).y == startPt.y())
                 CGPathCloseSubpath(ret);
             startPt = QPointF(elm.x, elm.y);
-            CGPathMoveToPoint(ret, 0, elm.x, elm.y+1);
+            CGPathMoveToPoint(ret, 0, elm.x, elm.y);
             break;
         case QPainterPath::LineToElement:
             CGPathAddLineToPoint(ret, 0, elm.x, elm.y+1);
@@ -1144,7 +1144,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     CGContextSetLineCap(d->hd, cglinecap);
 
     //penwidth
-    CGContextSetLineWidth(d->hd, pen.width() < 1 ? 1 : pen.width());
+    CGContextSetLineWidth(d->hd, pen.width() <= 0 ? 1 : pen.width());
 
     //join
     CGLineJoin cglinejoin = kCGLineJoinMiter;
@@ -1348,10 +1348,10 @@ QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
     CGMutablePathRef path = 0;
     if(d->current.brush.style() == Qt::LinearGradientPattern) {
         path = CGPathCreateMutable();
-        CGPathAddRect(path, 0, CGRectMake(r.x(), r.y(),r.width(), r.height()));
+        CGPathAddRect(path, 0, d->adjustedRect(r));
     } else {
         CGContextBeginPath(d->hd);
-        CGContextAddRect(d->hd, CGRectMake(r.x(), r.y(),r.width(), r.height()));
+        CGContextAddRect(d->hd, d->adjustedRect(r));
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
@@ -1390,7 +1390,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &rr)
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGRect r = CGRectMake(rr.x(), rr.y(), rr.width(), rr.height());
+    CGRect r = d->adjustedRect(rr);
     CGAffineTransform transform = CGAffineTransformMakeScale(r.size.width / r.size.height, 1);
     CGPathAddArc(path, &transform,
                  (r.origin.x + (r.size.width / 2)) / (r.size.width / r.size.height),
@@ -1538,6 +1538,19 @@ QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     CGContextSetShouldAntialias(d->hd, hints & QPainter::Antialiasing);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
+}
+
+CGRect 
+QCoreGraphicsPaintEnginePrivate::adjustedRect(const QRectF &r)
+{
+    float adjusted = 0;
+    if(current.pen.style() != Qt::NoPen) {
+        if(current.pen.width() <= 0)
+            adjusted = 0.5;
+        else
+            adjusted = float(current.pen.width()) / 2;
+    }
+    return CGRectMake(r.x()+adjusted, r.y()+adjusted, r.width(), r.height());
 }
 
 void
