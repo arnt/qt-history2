@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#78 $
 **
 ** Implementation of QRegExp class
 **
@@ -32,31 +32,39 @@
   \class QRegExp qregexp.h
   \ingroup tools
   \ingroup misc
-  \brief The QRegExp class provides pattern matching using regular expressions or wildcards.
-
+  \brief The QRegExp class provides pattern matching using regular
+  expressions or wildcards.
 
   QRegExp knows these regexp primitives:
   <ul plain>
   <li><dfn>c</dfn> matches the character 'c'
   <li><dfn>.</dfn> matches any character
-  <li><dfn>^</dfn> matches start of input (except [^x] which matches NOT [x])
+  <li><dfn>^</dfn> matches start of input
   <li><dfn>$</dfn>  matches end of input
-  <li><dfn>[]</dfn> matches a set of characters, for example [a-z0-9_]
+  <li><dfn>[]</dfn> matches a defined set of characters - see below.
   <li><dfn>a*</dfn> matches a sequence of zero or more a's
   <li><dfn>a+</dfn> matches a sequence of one or more a's
   <li><dfn>a?</dfn> matches an optional a
-  <li><dfn>\c</dfn> escape code for matching special characters like \, [, *, +, . etc.
+  <li><dfn>\c</dfn> escape code for matching special characters like
+  \, [, *, +, . etc.
   <li><dfn>\b</dfn> matches the BELL character (7)
   <li><dfn>\t</dfn> matches the TAB character (9)
   <li><dfn>\n</dfn> matches newline (10)
   <li><dfn>\r</dfn> matches return (13)
-  <li><dfn>\s</dfn> matches white space (defined as any character
-  for which QChar::isSpace() returns TRUE. This includes ASCII characters
-  9 (TAB), 10 (LF), 11 (VT), 12(FF), 13 (CR), and 32 (Space)).
-  <li><dfn>\d</dfn> matches digit (defined as any character for which
-  QChar::isDigit() returns TRUE. This at least includes characters '0'-'9').
-  <li><dfn>\x12</dfn> matches the character 0x12 (18 decimal, 12 hexadecimal).
-  <li><dfn>\022</dfn> matches the character 022 (18 decimal, 22 octal).
+  <li><dfn>\s</dfn> matches a white space (defined as any character
+  for which QChar::isSpace() returns TRUE. This includes at least
+  ASCII characters 9 (TAB), 10 (LF), 11 (VT), 12(FF), 13 (CR), and 32
+  (Space)).
+  <li><dfn>\d</dfn> matches a digit (defined as any character for
+  which QChar::isDigit() returns TRUE. This includes at least ASCII
+  characters '0'-'9').
+  <li><dfn>\x1f6b</dfn> matches the character with unicode point U1f6b
+  (hexadecimal 1f6b). \x0012 will match the ASCII/Latin1 character
+  0x12 (18 decimal, 12 hexadecimal).
+  <li><dfn>\022</dfn> matches the ASCII/Latin1 character 022 (18
+  decimal, 22 octal).
+  <li><dfn>\\<</dfn> Reserved; do not use.
+  <li><dfn>\\></dfn> Reserved; do not use.
   </ul>
 
   In wildcard mode, it only knows four primitives:
@@ -64,9 +72,7 @@
   <li><dfn>c</dfn> matches the character 'c'
   <li><dfn>?</dfn> matches any character
   <li><dfn>*</dfn> matches any sequence of characters
-  <li><dfn>[]</dfn> matches a defined set of characters,
-    e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
-    and dot, and [^z] matches everything except lower-case z.
+  <li><dfn>[]</dfn> matches a defined set of characters - see below.
   </ul>
 
   QRegExp supports Unicode both in the pattern strings and in the
@@ -76,7 +82,25 @@
   preprocessor processes \ characters.  So in order to match e.g. a "."
   character, you must write "\\." in C++ source, not "\.".
 
-  \bug Case insensitive matching is not supported for non-ASCII
+  A character set matches a defined set of characters. For example,
+  [TSG] matches any of 'G', 'S', and 'T'. Within a character set, the
+  special characters '.', '*', '?', '^', '$', '+', and '[' lose their
+  special meanings. The following special characters apply:
+  <ul plain>
+  <li><dfn>^</dfn> When placed first in the list, changes the
+  character set to match any character \e not in the list. To include
+  the character '^' itself in the set, escape it or place it anywhere
+  but first.
+  <li><dfn>-</dfn> Defines a range of characters. To include the
+  character '-' itself in the set, escape it or place it last.
+  <li><dfn>]</dfn> Ends the character set definition. To include the
+  character ']' itself in the set, escape it or place it first (but
+  after the negation operator '^', if present)
+  </ul>
+  Thus, [a-zA-Z0-9.] matches upper and lower case ASCII letters,
+  digits, and dot, and [^\s] matches everything except white space.
+
+  \bug Case insensitive matching is not supported for non-ASCII/Latin1
   (non-8bit) characters. Any charcter with a non-zero QChar.row() is
   matched case sensitively even if the QRegExp is in case insensitive
   mode.
@@ -99,7 +123,7 @@
 
 const uint END	= 0x00000000;
 const uint PWS	= 0x10010000;		// predef charclass: whitespace (\s)
-const uint PDG	= 0x10020000;		// predef charclass: digit \d
+const uint PDG	= 0x10020000;		// predef charclass: digit (\d)
 const uint CCL	= 0x20010000;		// character class	[]
 const uint CCN	= 0x20020000;		// neg character class	[^]
 const uint CHR	= 0x40000000;		// character
@@ -261,7 +285,7 @@ bool QRegExp::operator==( const QRegExp &r ) const
   instead of plain text.
 
   For example, "qr*.cpp" matches the string "qregexp.cpp" in wildcard mode,
-  but not "qicpp" (which will be matched in normal mode).
+  but not "qicpp" (which would be matched in normal mode).
 
   \sa wildcard()
 */

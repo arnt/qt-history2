@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#61 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -116,10 +116,10 @@ int QGList::compareItems( QCollection::Item item1, QCollection::Item item2 )
 }
 
 /*!
-  Reads a collection/list item from the stream \e s and returns a reference
+  Reads a collection/list item from the stream \a s and returns a reference
   to the stream.
 
-  The default implementation sets \e item to 0.
+  The default implementation sets \a item to 0.
 
   \sa write()
 */
@@ -131,8 +131,10 @@ QDataStream &QGList::read( QDataStream &s, QCollection::Item &item )
 }
 
 /*!
-  Writes a collection/list item to the stream \e s and returns a reference
+  Writes a collection/list item to the stream \a s and returns a reference
   to the stream.
+
+  The default implementation does nothing.
 
   \sa read()
 */
