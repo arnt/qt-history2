@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#66 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#67 $
 **
 ** Definition of QIconView widget class
 **
@@ -202,6 +202,8 @@ public:
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
     void rename();
+
+    virtual int compare( QIconViewItem *i ) const;
 
 signals:
     void renamed( const QString &text );

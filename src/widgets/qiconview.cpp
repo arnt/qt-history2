@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#146 $
 **
 ** Definition of QIconView widget class
 **
@@ -1297,6 +1297,20 @@ void QIconViewItem::rename()
 	     this, SLOT( renameItem() ) );
     connect( renameBox, SIGNAL( escapePressed() ),
 	     this, SLOT( cancelRenameItem() ) );
+}
+
+/*!
+  Compares this iconview item to \a i. Returns -1 if this item
+  is less than \a i, 0 if they are equal and 1 if this iconview item
+  is greater than \a i.
+  
+  The default implementation uses QIconViewItem::key() to compare the
+  items. A reimplementation may use different values.
+*/
+
+int QIconViewItem::compare( QIconViewItem *i ) const
+{
+    return key().compare( i->key() );
 }
 
 /*!
@@ -4368,15 +4382,15 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
     QIconViewPrivate::SortableItem *i1 = (QIconViewPrivate::SortableItem *)n1;
     QIconViewPrivate::SortableItem *i2 = (QIconViewPrivate::SortableItem *)n2;
 
-    return i1->item->key().compare( i2->item->key() );
+    return i1->item->compare( i2->item );
 }
 
 /*!
   Sorts the items of the listview. If \a ascending is TRUE, the items
   are sorted in increasing order, else in decreasing order. For sorting
-  the key of the items is used.
+  QIconViewItem::compare() is used.
 
-  \sa QIconViewItem::key(), QIconViewItem::setKey()
+  \sa QIconViewItem::key(), QIconViewItem::setKey(), QIconViewItem::compare()
 */
 
 void QIconView::sortItems( bool ascending )
