@@ -330,7 +330,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkt << "SUBLIBS= ";
 	    tmp = project->variables()["SUBLIBS"];
 	    QStringList::Iterator it;
-	    for( it = tmp.begin(); it != tmp.end(); ++it)
+	    for(it = tmp.begin(); it != tmp.end(); ++it)
 		t << "tmp/lib" << (*it) << ".a ";
 	    t << endl << endl;
 	    mkt << "sublibs: $(SUBLIBS)" << endl << endl;
