@@ -700,6 +700,8 @@ public:
         SP_DirLinkIcon,
         SP_FileIcon,
         SP_FileLinkIcon,
+        SP_ItemChecked,
+        SP_ItemUnchecked,
 
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000

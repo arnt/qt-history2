@@ -837,6 +837,48 @@ static char * trashcan_xpm[] = {
 "       $+#++$   ",
 "         $$     "};
 
+static const char * const unchecked_xpm[] = {
+"16 16 2 1",
+"  c None",
+"# c #000000000000",
+"                ",
+"                ",
+"  ###########   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  #         #   ",
+"  ###########   ",
+"                ",
+"                ",
+"                "};
+
+static const char * const checked_xpm[] = {
+"16 16 2 1",
+"  c None",
+"# c #000000000000",
+"                ",
+"                ",
+"  ###########   ",
+"  #         #   ",
+"  #       # #   ",
+"  #      ## #   ",
+"  # #   ##  #   ",
+"  # ## ##   #   ",
+"  #  ###    #   ",
+"  #   #     #   ",
+"  #         #   ",
+"  #         #   ",
+"  ###########   ",
+"                ",
+"                ",
+"                ",};
+
 #endif //QT_NO_IMAGEIO_XPM
 
 /*!
@@ -892,6 +934,10 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
     case SP_DriveDVDIcon:
     case SP_DriveNetIcon:
         return QPixmap();
+    case SP_ItemChecked:
+        return QPixmap((const char **)checked_xpm);
+    case SP_ItemUnchecked:
+        return QPixmap((const char **)unchecked_xpm);
     default:
         break;
     }

@@ -30,48 +30,6 @@
 
 static const int border = 1;
 
-static const char * const unchecked_xpm[] = {
-"16 16 2 1",
-"  c None",
-"# c #000000000000",
-"                ",
-"                ",
-"  ###########   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  ###########   ",
-"                ",
-"                ",
-"                "};
-
-static const char * const checked_xpm[] = {
-"16 16 2 1",
-"  c None",
-"# c #000000000000",
-"                ",
-"                ",
-"  ###########   ",
-"  #         #   ",
-"  #       # #   ",
-"  #      ## #   ",
-"  # #   ##  #   ",
-"  # ## ##   #   ",
-"  #  ###    #   ",
-"  #   #     #   ",
-"  #         #   ",
-"  #         #   ",
-"  ###########   ",
-"                ",
-"                ",
-"                ",};
-
 class QItemDelegatePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QItemDelegate)
@@ -527,8 +485,10 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
                                           option.state & QStyle::Style_Open
                                           ? QIcon::On : QIcon::Off);
     case QVariant::Bool: {
-        static QPixmap checked(checked_xpm);
-        static QPixmap unchecked(unchecked_xpm);
+        static QPixmap checked(QApplication::style().standardPixmap(QStyle::SP_ItemChecked,
+                                                                    &option));
+        static QPixmap unchecked(QApplication::style().standardPixmap(QStyle::SP_ItemUnchecked,
+                                                                      &option));
         return variant.toBool() ? checked : unchecked; }
     case QVariant::Color: {
         static QPixmap pixmap(20, 20);
