@@ -552,7 +552,7 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
-    setBackgroundPixmap(QPixmap());
+    setErasePixmap(QPixmap());
     allow_null_pixmaps--;
 }
 
@@ -1010,7 +1010,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    //finally issue "expose" events if necesary
 	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
 	    upd.translate(-px, -py); //translate them from window to the parent
-	    paint_children( parentWidget() && !isTopLevel() ? parentWidget() : this, 
+	    paint_children( parentWidget() && !isTopLevel() ? parentWidget() : this,
 			    upd, TRUE, !isResize && isMove );
 	} else {
 	    if ( isMove )
@@ -1217,7 +1217,7 @@ int QWidget::metric( int m ) const
 	return (metric(QPaintDeviceMetrics::PdmWidth)*100)/288;
     case QPaintDeviceMetrics::PdmWidth:
     {
-	if ( !isTopLevel() ) 
+	if ( !isTopLevel() )
 	    return crect.width();
 	Rect windowBounds;
 	GetPortBounds( GetWindowPort( ((WindowPtr)winid) ), &windowBounds );
@@ -1226,7 +1226,7 @@ int QWidget::metric( int m ) const
 
     case QPaintDeviceMetrics::PdmHeight:
     {
-	if ( !isTopLevel() ) 
+	if ( !isTopLevel() )
 	    return crect.height();
 	Rect windowBounds;
 	GetPortBounds( GetWindowPort( ((WindowPtr)winid) ), &windowBounds );
@@ -1357,7 +1357,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 
     if(dirty_myself) {
 	//dirty myself
-	if(extra) 
+	if(extra)
 	    extra->child_dirty = extra->clip_dirty = TRUE;
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
@@ -1366,7 +1366,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		if(obj->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
 		    if(w->topLevelWidget() == topLevelWidget() &&
-		       !w->isTopLevel() && w->isVisible() && w->extra) 
+		       !w->isTopLevel() && w->isVisible() && w->extra)
 			w->extra->clip_dirty = TRUE;
 		}
 	    }
@@ -1390,7 +1390,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		    if(w->topLevelWidget() == topLevelWidget() && !w->isTopLevel() && w->isVisible()) {
 			QPoint wp(posInWindow(w));
 			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
-			    if(w->extra) 
+			    if(w->extra)
 				w->extra->clip_dirty = TRUE;
 			    if(QObjectList *chldn = w->queryList()) {
 				QObjectListIt it(*chldn);
@@ -1398,7 +1398,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 				    if(obj->isWidgetType()) {
 					QWidget *w = (QWidget *)(*it);
 					if(w->topLevelWidget() == topLevelWidget() &&
-					   !w->isTopLevel() && w->isVisible() && w->extra) 
+					   !w->isTopLevel() && w->isVisible() && w->extra)
 					    w->extra->clip_dirty = TRUE;
 				    }
 				}

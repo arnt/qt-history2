@@ -89,9 +89,11 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
     Q_PROPERTY( BackgroundMode backgroundMode READ backgroundMode WRITE setBackgroundMode DESIGNABLE false )
-    Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor DESIGNABLE false )
-    Q_PROPERTY( QColor foregroundColor READ foregroundColor )
-    Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap DESIGNABLE false )
+    Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
+    Q_PROPERTY( QColor foregroundColor READ foregroundColor WRITE setForegroundColor )
+    Q_PROPERTY( QColor eraseColor READ eraseColor WRITE setEraseColor DESIGNABLE false )
+    Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap )
+    Q_PROPERTY( QPixmap erasePixmap READ erasePixmap WRITE setErasePixmap DESIGNABLE false )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
     Q_PROPERTY( bool ownPalette READ ownPalette )
@@ -122,7 +124,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
-public:
+    public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
     ~QWidget();
 
@@ -218,12 +220,20 @@ public:
     BackgroundMode	backgroundMode() const;
     virtual void	setBackgroundMode( BackgroundMode );
 
-    const QColor &	backgroundColor() const;
     const QColor &	foregroundColor() const;
+    virtual void	setForegroundColor( const QColor & );
+
+    const QColor &	backgroundColor() const;
     virtual void	setBackgroundColor( const QColor & );
 
     const QPixmap *	backgroundPixmap() const;
     virtual void	setBackgroundPixmap( const QPixmap & );
+
+    const QColor &	eraseColor() const;
+    virtual void	setEraseColor( const QColor & );
+
+    const QPixmap *	erasePixmap() const;
+    virtual void	setErasePixmap( const QPixmap & );
 
 #ifndef QT_NO_PALETTE
     const QColorGroup & colorGroup() const;
@@ -691,7 +701,7 @@ inline void QWidget::setSizeIncrement( const QSize &s )
 inline void QWidget::setBaseSize( const QSize &s )
 { setBaseSize(s.width(),s.height()); }
 
-inline const QColor &QWidget::backgroundColor() const
+inline const QColor &QWidget::eraseColor() const
 { return bg_col; }
 
 #ifndef QT_NO_PALETTE

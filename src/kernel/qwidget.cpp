@@ -1865,6 +1865,106 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
+/*!
+  Sets the widget's background to color \a color.
+
+  This is a convenience function that creates and sets a modified
+  QPalette with setPalette(). The palette is modified according to the
+  widget's background mode. For example, if the background mode is
+  PaletteButton the palette entry QColorGroup::Button is set to \a
+  color.
+
+  \sa setPalette(), QApplication::setPalette(), backgroundMode(), backgroundColor(),
+      setBackgroundPixmap(), setBackgroundMode(), setEraseColor()
+*/
+
+void QWidget::setBackgroundColor( const QColor &color )
+{
+    QPalette pal = palette();
+
+    switch (backgroundMode()) {
+        case PaletteBackground:
+            pal.setColor(QColorGroup::Background, color);
+            break;
+        case PaletteForeground:
+            pal.setColor(QColorGroup::Foreground, color);
+            break;
+        case PaletteButton:
+            pal.setColor(QColorGroup::Button, color);
+            break;
+        case PaletteLight:
+            pal.setColor(QColorGroup::Light, color);
+            break;
+        case PaletteMidlight:
+            pal.setColor(QColorGroup::Midlight, color);
+            break;
+        case PaletteDark:
+            pal.setColor(QColorGroup::Dark, color);
+            break;
+        case PaletteMid:
+            pal.setColor(QColorGroup::Mid, color);
+            break;
+        case PaletteText:
+            pal.setColor(QColorGroup::Text, color);
+            break;
+        case PaletteBrightText:
+            pal.setColor(QColorGroup::BrightText, color);
+            break;
+        case PaletteButtonText:
+            pal.setColor(QColorGroup::ButtonText, color);
+            break;
+        case PaletteBase:
+            pal.setColor(QColorGroup::Base, color);
+            break;
+        case PaletteShadow:
+            pal.setColor(QColorGroup::Shadow, color);
+            break;
+        case PaletteHighlight:
+            pal.setColor(QColorGroup::Highlight, color);
+            break;
+        case PaletteHighlightedText:
+            pal.setColor(QColorGroup::HighlightedText, color);
+            break;
+        default:
+            setEraseColor(color);
+            return;
+    }
+
+    setPalette(pal);
+}
+
+/*!
+  Sets the widget's foreground to color \a color.
+
+  This is a convenience function that creates and sets a modified
+  QPalette with setPalette(). The palette is modified according to the
+  widget's background mode. For example, if the background mode is
+  PaletteButton the palette entry QColorGroup::ButtonText is set to \a
+  color.
+
+  \sa setPalette(), QApplication::setPalette(), backgroundMode(), foregroundColor(),
+      setBackgroundMode(), setEraseColor()
+*/
+
+void QWidget::setForegroundColor( const QColor & color )
+{
+    QPalette pal = palette();
+
+    switch (backgroundMode()) {
+        case PaletteButton:
+            pal.setColor(QColorGroup::ButtonText, color);
+            break;
+        case PaletteBase:
+            pal.setColor(QColorGroup::Text, color);
+            break;
+        case PaletteBackground:
+        default:
+            pal.setColor(QColorGroup::Foreground, color);
+            break;
+    }
+
+    setPalette(pal);
+}
 
 // Please do NOT remove the FAQ answer from this doc again.  It's a
 // FAQ, it remains a FAQ, and people apparently will not follow three
@@ -1886,6 +1986,9 @@ QWidget *QWidget::topLevelWidget() const
     thatWidget->setBackgroundMode( QWidget::PaletteBase );
   \endcode
 
+  There is also convenience function setBackgroundColor()  which will change
+  the widget palette according to the active background mode.
+
   If you want to change the color scheme of a widget, the setPalette()
   function is better suited.  Here is how to set \e thatWidget to use a
   light green (RGB value 80, 255, 80) as background color, with shades
@@ -1902,15 +2005,88 @@ QWidget *QWidget::topLevelWidget() const
   control panel.)
 
   \sa setPalette(), QApplication::setPalette(), backgroundColor(),
-      setBackgroundPixmap(), setBackgroundMode()
+      setBackgroundPixmap(), setBackgroundMode(), setBackgroundColor()
 */
 
-void QWidget::setBackgroundColor( const QColor &color )
+void QWidget::setEraseColor( const QColor & color )
 {
     setBackgroundModeDirect( FixedColor );
     setBackgroundColorDirect( color );
 }
 
+/*!
+  Sets the widget's background to pixmap \a pixmap.
+
+  This is a convenience function that creates and sets a modified
+  QPalette with setPalette(). The palette is modified according to the
+  widget's background mode. For example, if the background mode is
+  PaletteButton the pixmap used for the palette's QColorGroup::Button brush entry
+  is set to \a pixmap.
+
+  \sa setBackgroundMode(), backgroundPixmap(), backgroundPixmapChange(),
+  setBackgroundColor(), setErasePixmap(), setPalette(), QApplication::setPalette()
+*/
+
+void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
+{
+    QColorGroup::ColorRole cr;
+
+    switch (backgroundMode()) {
+        case PaletteBackground:
+            cr = QColorGroup::Background;
+            break;
+        case PaletteForeground:
+            cr = QColorGroup::Foreground;
+            break;
+        case PaletteButton:
+            cr = QColorGroup::Button;
+            break;
+        case PaletteLight:
+            cr = QColorGroup::Light;
+            break;
+        case PaletteMidlight:
+            cr = QColorGroup::Midlight;
+            break;
+        case PaletteDark:
+            cr = QColorGroup::Dark;
+            break;
+        case PaletteMid:
+            cr = QColorGroup::Mid;
+            break;
+        case PaletteText:
+            cr = QColorGroup::Text;
+            break;
+        case PaletteBrightText:
+            cr = QColorGroup::BrightText;
+            break;
+        case PaletteButtonText:
+            cr = QColorGroup::ButtonText;
+            break;
+        case PaletteBase:
+            cr = QColorGroup::Base;
+            break;
+        case PaletteShadow:
+            cr = QColorGroup::Shadow;
+            break;
+        case PaletteHighlight:
+            cr = QColorGroup::Highlight;
+            break;
+        case PaletteHighlightedText:
+            cr = QColorGroup::HighlightedText;
+            break;
+        default:
+            setErasePixmap(pixmap);
+            return;
+    }
+
+    QPalette pal = palette();
+    QBrush brush = colorGroup().brush(cr);
+
+    brush.setPixmap(pixmap);
+    pal.setBrush(cr, brush);
+
+    setPalette(pal);
+}
 
 /*!
   Sets the background pixmap of the widget to \e pixmap.
@@ -1922,6 +2098,9 @@ void QWidget::setBackgroundColor( const QColor &color )
   If \a pixmap is part of the widget's palette(), we recommend calling
   setBackgroundMode() instead.
 
+  There is also convenience function setBackgroundPixmap()  which will change
+  the widget palette according to the active background mode.
+
   A fixed background pixmap sometimes is just the right thing, but if
   you use it, make sure that your application looks right when the
   desktop color scheme has been changed.  (On X11, a quick way to test
@@ -1932,11 +2111,10 @@ void QWidget::setBackgroundColor( const QColor &color )
   setBackgroundColor()
 */
 
-void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
+void QWidget::setErasePixmap( const QPixmap &pixmap )
 { // This function is called with a null pixmap by setBackgroundEmpty().
     setBackgroundPixmapDirect( pixmap );
     setBackgroundModeDirect( FixedPixmap );
-
 }
 
 void QWidget::setBackgroundFromMode()
@@ -2112,10 +2290,18 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
     }
 }
 
+/*!
+  \fn const QColor &QWidget::eraseColor() const
+
+  Returns the erase color of this widget.
+
+  If there is a background pixmap (set using setBackgroundPixmap()),
+  then the return value of this function is indeterminate.
+
+  \sa setEraseColor(), backgroundColor(), foregroundColor(), colorGroup(), palette()
+*/
 
 /*!
-  \fn const QColor &QWidget::backgroundColor() const
-
   Returns the background color of this widget, which is normally set
   implicitly by setBackgroundMode(), but can also be set explicitly by
   setBackgroundColor().
@@ -2125,6 +2311,60 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 
   \sa setBackgroundColor(), foregroundColor(), colorGroup(), palette()
 */
+
+const QColor & QWidget::backgroundColor() const
+{
+    QColorGroup::ColorRole cr;
+
+    switch (backgroundMode()) {
+        case PaletteBackground:
+            cr = QColorGroup::Background;
+            break;
+        case PaletteForeground:
+            cr = QColorGroup::Foreground;
+            break;
+        case PaletteButton:
+            cr = QColorGroup::Button;
+            break;
+        case PaletteLight:
+            cr = QColorGroup::Light;
+            break;
+        case PaletteMidlight:
+            cr = QColorGroup::Midlight;
+            break;
+        case PaletteDark:
+            cr = QColorGroup::Dark;
+            break;
+        case PaletteMid:
+            cr = QColorGroup::Mid;
+            break;
+        case PaletteText:
+            cr = QColorGroup::Text;
+            break;
+        case PaletteBrightText:
+            cr = QColorGroup::BrightText;
+            break;
+        case PaletteButtonText:
+            cr = QColorGroup::ButtonText;
+            break;
+        case PaletteBase:
+            cr = QColorGroup::Base;
+            break;
+        case PaletteShadow:
+            cr = QColorGroup::Shadow;
+            break;
+        case PaletteHighlight:
+            cr = QColorGroup::Highlight;
+            break;
+        case PaletteHighlightedText:
+            cr = QColorGroup::HighlightedText;
+            break;
+        default:
+            return eraseColor();
+    }
+
+    return colorGroup().color(cr);
+}
 
 /*!
   Returns the foreground color of this widget.
@@ -2137,7 +2377,15 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 const QColor &QWidget::foregroundColor() const
 {
 #ifndef QT_NO_PALETTE
-    return colorGroup().foreground();
+    switch (backgroundMode()) {
+        case PaletteButton:
+            return colorGroup().buttonText();
+        case PaletteBase:
+            return colorGroup().text();
+        case PaletteBackground:
+        default:
+            return colorGroup().foreground();
+    }
 #else
     return black; //###
 #endif
@@ -2164,17 +2412,79 @@ void QWidget::backgroundColorChange( const QColor & )
     update();
 }
 
-
 /*!
   Returns the background pixmap if one has been set.  If the widget
   has backgroundMode() NoBackground, the return value is a pixmap for
-  which QPixmao:isNull() is true.  If the widget has no pixmap is the
+  which QPixmap:isNull() is true.  If the widget has no pixmap is the
   background, the return value is a null pointer.
 
   \sa setBackgroundPixmap(), setBackgroundMode()
 */
 
 const QPixmap *QWidget::backgroundPixmap() const
+{
+    QColorGroup::ColorRole cr;
+
+    switch (backgroundMode()) {
+        case PaletteBackground:
+            cr = QColorGroup::Background;
+            break;
+        case PaletteForeground:
+            cr = QColorGroup::Foreground;
+            break;
+        case PaletteButton:
+            cr = QColorGroup::Button;
+            break;
+        case PaletteLight:
+            cr = QColorGroup::Light;
+            break;
+        case PaletteMidlight:
+            cr = QColorGroup::Midlight;
+            break;
+        case PaletteDark:
+            cr = QColorGroup::Dark;
+            break;
+        case PaletteMid:
+            cr = QColorGroup::Mid;
+            break;
+        case PaletteText:
+            cr = QColorGroup::Text;
+            break;
+        case PaletteBrightText:
+            cr = QColorGroup::BrightText;
+            break;
+        case PaletteButtonText:
+            cr = QColorGroup::ButtonText;
+            break;
+        case PaletteBase:
+            cr = QColorGroup::Base;
+            break;
+        case PaletteShadow:
+            cr = QColorGroup::Shadow;
+            break;
+        case PaletteHighlight:
+            cr = QColorGroup::Highlight;
+            break;
+        case PaletteHighlightedText:
+            cr = QColorGroup::HighlightedText;
+            break;
+        default:
+            return erasePixmap();
+    }
+
+    return colorGroup().brush(cr).pixmap();
+}
+
+/*!
+  Returns the erase pixmap if one has been set.  If the widget
+  has backgroundMode() NoBackground, the return value is a pixmap for
+  which QPixmap:isNull() is true.  If the widget has no pixmap,
+  the return value is a null pointer.
+
+  \sa setErasePixmap(), setBackgroundMode()
+*/
+
+const QPixmap *QWidget::erasePixmap() const
 {
     return (extra && extra->bg_pix) ? extra->bg_pix : 0;
 }

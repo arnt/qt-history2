@@ -497,7 +497,7 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
-    setBackgroundPixmap(QPixmap());
+    setErasePixmap(QPixmap());
     allow_null_pixmaps--;
 }
 
