@@ -86,7 +86,7 @@ private:
     QPainter *unclippedPainter;
     QPoint lastPos, firstPos;
     QDockWindow *dockWindow;
-    
+
 };
 
 QDockWindowResizeHandle::QDockWindowResizeHandle( Qt::Orientation o, QWidget *parent,
@@ -252,7 +252,7 @@ public:
     QSize sizeHint() const { return minimumSize(); }
     QSizePolicy sizePolicy() const;
     void setOpaqueMoving( bool b ) { opaque = b; }
-    
+
 signals:
     void doubleClicked();
 
@@ -275,11 +275,11 @@ private:
     bool hadDblClick;
     QTimer *timer;
     bool opaque;
-    
+
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ), 
+    : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ),
       mousePressed( FALSE ), closeButton( 0 ), opaque( FALSE )
 {
     timer = new QTimer( this );
@@ -431,7 +431,7 @@ private:
     QToolButton *closeButton;
     bool hadDblClick;
     bool opaque;
-    
+
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
@@ -1187,7 +1187,7 @@ void QDockWindow::undock( QWidget *w )
 	dockArea->removeDockWindow( this, TRUE, orientation() != Horizontal );
     }
     dockArea = 0;
-    if ( lastPos != QPoint( -1, -1 ) )
+    if ( lastPos != QPoint( -1, -1 ) && lastPos.x() > 0 && lastPos.y() > 0 )
 	move( lastPos );
     else
 	move( p );
@@ -1262,7 +1262,7 @@ void QDockWindow::setOpaqueMoving( bool b )
 
 /*! Returns whether the docking window will be moved opaque or
   transparently.
-  
+
   \sa setOpaqueMoving()
 */
 
