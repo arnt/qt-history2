@@ -1974,6 +1974,10 @@ public:
     virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
     unsigned short insertIntoSubset( unsigned short unicode );
     virtual bool embedded() { return FALSE; }
+    
+    bool operator == ( const QPSPrinterFontPrivate &other ) {
+	return other.psname == psname; 
+    }
 
 protected:
     QString psname;
@@ -2871,6 +2875,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 
 void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 {
+    //qDebug("downloading ttf font %s", psname.latin1() );
     //qDebug("target type=%d", target_type);
     global_dict = global;
     QMap<unsigned short, unsigned short> *subsetDict = &subset;
@@ -4479,6 +4484,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFont &f, QByteArray& d)
 
 void QPSPrinterFontPFA::download(QTextStream& s, bool global)
 {
+    //qDebug("downloading pfa font %s", psname.latin1() );
   char* p = data.data();
 
   emitPSFontNameList( s, psname, replacementList );
@@ -4539,6 +4545,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
 
 void QPSPrinterFontPFB::download(QTextStream& s, bool global)
 {
+    //qDebug("downloading pfb font %s", psname.latin1() );
   unsigned char* p = (unsigned char*) data.data();
   int pos;
   int len;
@@ -4625,6 +4632,7 @@ QPSPrinterFontNotFound::QPSPrinterFontNotFound(const QFont& f)
 
 void QPSPrinterFontNotFound::download(QTextStream& s, bool)
 {
+    //qDebug("downloading not found font %s", psname.latin1() );
     emitPSFontNameList( s, psname, replacementList );
   s << "% No embeddable font for ";
   s << psname;
@@ -4640,67 +4648,52 @@ public:
       void download(QTextStream& s, bool global);
       QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
                           QPSPrinterPrivate *d ) = 0;
-      QString emitDef( QTextStream &stream, const QString &ps, const QString &latinName,
-                    const QFont &f, float slant, const QString &key, const QString &key2, QPSPrinterPrivate *d );
+      QString emitDef( QTextStream &stream, const QString &ps, const QFont &f,
+		       float slant, const QString &key, QPSPrinterPrivate *d);
 };
 
-void QPSPrinterFontAsian::download(QTextStream& s, bool)
-{
-    emitPSFontNameList( s, psname, replacementList );
-  s << "% Asian postscript font requested. Using ";
-  s << psname << endl;
-}
-
-
-QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, const QString &latinName,
-                                   const QFont &f, float slant, const QString &key, const QString &key2, QPSPrinterPrivate *d)
+QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, const QFont &f,
+				      float slant, const QString &key, QPSPrinterPrivate *d)
 {
     QString fontName;
-    QString lfontName;
+    QString fontName2;
 
-    QString *tmp = d->headerFontNames.find( key );
-
+    QString *tmp = d->headerFontNames.find( ps );
+    
     if ( d->buffer ) {
         if ( tmp ) {
             fontName = *tmp;
         } else {
-            lfontName.sprintf( "/F%d ", ++d->headerFontNumber );
-            d->fontStream << lfontName << " " << slant << "/" << latinName << " MSF\n";
-            d->headerFontNames.insert( key2, new QString( fontName ) );
-            fontName.sprintf( "/F%das ", d->headerFontNumber );
-            d->fontStream << fontName << slant << ps << " MSF\n";
-            d->headerFontNames.insert( key2, new QString( fontName ) );
-        }
-        ++d->headerFontNumber;
-        d->fontStream << "/F" << d->headerFontNumber << " "
-                      << pointSize( f, d->scale ) << lfontName << " DF\n";
-        d->fontStream << "/F" << d->headerFontNumber << "as "
-                      << pointSize( f, d->scale ) << fontName << " DF\n";
-        fontName.sprintf( "F%d", d->headerFontNumber );
-        d->headerFontNames.insert( key, new QString( fontName ) );
+	    fontName.sprintf( "F%d", ++d->headerFontNumber );
+	    d->fontStream << "/" << fontName << " " << slant << "/" << ps << " MSF\n";
+	    d->headerFontNames.insert( ps, new QString( fontName ) );
+	}
+        fontName2.sprintf( "F%d", ++d->headerFontNumber );
+        d->fontStream << "/" << fontName2 << " "
+                      << pointSize( f, d->scale ) << "/" << fontName << " DF\n";
+        d->headerFontNames.insert( key, new QString( fontName2 ) );
     } else {
-        if ( !tmp )
-            tmp = d->pageFontNames.find( key );
         if ( tmp ) {
             fontName = *tmp;
         } else {
-            lfontName.sprintf( "/F%d ", ++d->pageFontNumber );
-            stream << lfontName << " " << slant << "/" << latinName << " MSF\n";
-            d->pageFontNames.insert( key2, new QString( fontName ) );
-            fontName.sprintf( "/F%das ", d->pageFontNumber );
-            stream << fontName << slant << ps << " MSF\n";
-            d->pageFontNames.insert( key2, new QString( fontName ) );
-        }
-        ++d->pageFontNumber;
-        stream << "/F" << d->pageFontNumber << " "
-               << pointSize( f, d->scale ) << lfontName << " DF\n";
-        stream << "/F" << d->pageFontNumber << "as "
-               << pointSize( f, d->scale ) << fontName << " DF\n";
-        fontName.sprintf( "F%d", d->pageFontNumber );
-        d->pageFontNames.insert( key, new QString( fontName ) );
+	    fontName.sprintf( "F%d", ++d->pageFontNumber );
+	    stream << "/" << fontName << " " << slant << "/" << ps << " MSF\n";
+	    d->pageFontNames.insert( ps, new QString( fontName ) );
+	}
+        fontName2.sprintf( "F%d", ++d->pageFontNumber );
+        stream << "/" << fontName2 << " "
+               << pointSize( f, d->scale ) << "/" << fontName << " DF\n";
+        d->pageFontNames.insert( key, new QString( fontName2 ) );
     }
-    return fontName;
+    return fontName2;
+}
 
+
+void QPSPrinterFontAsian::download(QTextStream& s, bool)
+{
+    //qDebug("downloading asian font %s", psname.latin1() );
+  s << "% Asian postscript font requested. Using ";
+  s << psname << endl;
 }
 
 #ifndef QT_NO_TEXTCODEC
@@ -4747,24 +4740,19 @@ QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, con
                                        QPSPrinterPrivate *d )
 {
     float slant = 0;
-    QString latinName;
     // do correct mapping
     if ( ps == "GothicBBB-Oblique" ) {
         slant = 0.2;
-        ps = "/GothicBBB-Medium-H";
-        latinName = "Helvetica-Oblique";
+        ps = "GothicBBB-Medium-H";
     } else if ( ps == "GothicBBB" ) {
-        ps = "/GothicBBB-Medium-H";
-        latinName = "Helvetica";
+        ps = "GothicBBB-Medium-H";
     } else if ( ps == "Ryumin-Oblique" ) {
         slant = 0.2;
-        ps = "/Ryumin-Light-H";
-        latinName = "Times-Italic";
+        ps = "Ryumin-Light-H";
     } else if ( ps == "Ryumin" ) {
-        ps = "/Ryumin-Light-H";
-        latinName = "Times-Roman";
+        ps = "Ryumin-Light-H";
     }
-    return emitDef( stream, ps, latinName, f, slant, key, ps, d );
+    return emitDef( stream, ps, f, slant, key, d );
 }
 
 void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const QPoint &p,
@@ -4787,54 +4775,32 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
     if ( paint->font().strikeOut() )
         mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
                " " + QString::number( d->fm.lineWidth() ) + " Tl";
-    int code = 0, codeOld = 0;
     QChar ch;
-    QCString out, oneChar;
+    QCString out;
     int l = text.length();
     for ( int i = 0; i <= l; i++ ) {
-        out += oneChar;
-        oneChar = "";
-        codeOld = code;
         if ( i < l ) {
             ch = text.at(i);
             if ( !ch.row() ) {
-                code = 0;
-                if ( ch == '(' || ch == ')' || ch == '\\' )
-                    oneChar += "\\";
-                oneChar += ch.cell();
+		; // ignore, we should never get here anyway
             } else {
-                code = 1;
                 if ( !convJP )
                     ch = QChar( 0x2222 ); // box
                 else
                     ch = convJP->characterFromUnicode( text, i );
                 char chj = ch.row();
                 if ( chj == '(' || chj == ')' || chj == '\\' )
-                    oneChar += "\\";
-                oneChar += chj;
+                    out += "\\";
+                out += chj;
                 chj = ch.cell();
                 if ( chj == '(' || chj == ')' || chj == '\\' )
-                    oneChar += "\\";
-                oneChar += chj;
+                    out += "\\";
+                out += chj;
             }
-        }
-        if ( !out.isEmpty() && (code != codeOld || i == l) ) {
-            if ( codeOld == 0 ) {
-                stream << " " << d->currentFont << " F";
-            } else {
-                stream << " " << d->currentFont << "as F";
-            }
-            int w = d->fm.width( out );
-            stream << "(" << out << ")" << w << " " << x << mdf << " T";
-            if ( i < l ) {
-                stream << " ";
-            } else {
-                stream << "\n";
-            }
-            x += w;
-            out = "";
         }
     }
+    int w = d->fm.width( text );
+    stream << "(" << out << ")" << w << " " << x << mdf << " T\n";
 }
 
 // ----------- Korean --------------
@@ -5031,7 +4997,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
-
+    
 #ifdef Q_WS_X11
     bool xlfd = FALSE;
     if ( embed ) {
@@ -5074,8 +5040,39 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	}
     }
 #endif // Q_WS_X11
-    // ### somehow the font dict doesn't seem to work without this. Don't ask me why...
-    priv->fonts.size();
+    // map some scripts to something more useful
+    if ( script == QFont::Han ) {
+	QTextCodec *lc = QTextCodec::codecForLocale();
+	switch( lc->mibEnum() ) {
+	    case 36: // KS C 5601
+	    case 38: // EUC KR
+		script = QFont::Hangul;
+		break;
+
+	    case 57: // GB 2312-1980
+	    case 2027: // GBK
+	    case 2026: // Big5
+		break;
+
+	    case 16: // JIS7
+	    case 17: // SJIS
+	    case 18: // EUC JP
+	    case 63: // JIS X 0208
+	    default:
+		script = QFont::Hiragana;
+		break;
+	}
+    } else if ( script == QFont::Katakana )
+	script = QFont::Hiragana;
+    else if ( script == QFont::Bopomofo )
+	script = QFont::Han;
+
+    QString searchname = xfontname;
+    // we need an extension here due to the fact that we use different
+    // fonts for different scripts
+    if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo ) 
+	xfontname += "/"+QString::number( script );
+    //qDebug("looking for font %s in dict", xfontname.latin1() );
     p = priv->fonts.find(xfontname);
     if ( p )
 	return;
@@ -5152,7 +5149,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 			// fold to lower (since X folds to lowercase)
 			//qWarning(xfontname);
 			//qWarning(mapping);
-			if (mapping.lower().contains(xfontname.lower())) {
+			if (mapping.lower().contains(searchname.lower())) {
 			    int index = mapping.find(' ',0);
 			    QString ffn = mapping.mid(0,index);
 				// remove the most common bitmap formats
@@ -5220,30 +5217,41 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
         default:
 
 #ifndef QT_NO_TEXTCODEC
-	    if ( script == QFont::Hiragana || script == QFont::Katakana ) {
+	    
+	    if ( script == QFont::Hiragana )
 		p = new QPSPrinterFontJapanese( f );
-	    } else if ( script == QFont::Hangul) {
+	    else if ( script == QFont::Hangul)
 		p = new QPSPrinterFontKorean( f );
-	    } else if ( script == QFont::Han ) {
-		QString name = QString::fromLatin1( QTextCodec::codecForLocale()->name() );
-		if ( name == "eucJP" || name == "JIS7" || name == "Shift-JIS" )
-		    p = new QPSPrinterFontJapanese( f );
-		else if ( name == "eucKR" )
-		    p = new QPSPrinterFontKorean( f );
-		else if ( name == "Big5" )
-		    p = new QPSPrinterFontTraditionalChinese( f );
-		else if ( name == "GBK" )
-		    p = new QPSPrinterFontSimplifiedChinese( f );
-		else {
-		    //qDebug("didnt find font for %s", xfontname.latin1());
-		    p = new QPSPrinterFontNotFound( f );
+	    else if ( script == QFont::Han ) {
+		QTextCodec *lc = QTextCodec::codecForLocale();
+		switch( lc->mibEnum() ) {
+		    case 57: // GB 2312-1980
+		    case 2027: // GBK
+			p = new QPSPrinterFontSimplifiedChinese( f );
+			break;
+		    case 2026: // Big5
+			p = new QPSPrinterFontTraditionalChinese( f );
+			break;
+		    default:
+			p = new QPSPrinterFontJapanese( f );
 		}
 	    } else
 #endif
 		//qDebug("didnt find font for %s", xfontname.latin1());
-		p=new QPSPrinterFontNotFound( f ); break;
+		p = new QPSPrinterFontNotFound( f ); 
+	    break;
     }
-    //qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
+    
+    // this is needed to make sure we don't get the same postscriptname twice
+    QDictIterator<QPSPrinterFontPrivate> it( priv->fonts );
+    for( it.toFirst(); it.current(); ++it ) {
+	if ( *(*it) == *p ) {
+	    p = *it;
+	    return;
+	}
+    }
+    
+    //qDebug("inserting font %s in dict psname=%s", xfontname.latin1(), p->postScriptFontName().latin1() );
     priv->fonts.insert( xfontname, p );
 }
 
@@ -5295,8 +5303,6 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
     QString s = ps;
     s.append( ' ' );
     s.prepend( ' ' );
-    // Sivan: I moved the downloading until after we draw text
-    // to allow subsetting.
 
     QString key;
 
@@ -5423,16 +5429,15 @@ QByteArray compress( const QImage & image, bool gray ) {
     } else {
         for( int y=0; y < image.height(); y++ ) {
             QRgb * s = (QRgb*)(image.scanLine( y ));
-            for( int x=0; x < image.width(); x++ )
-                for( x=0; x < image.width(); x++ ) {
-                    pixel[i] = (*s++);
-                    if ( qAlpha( pixel[i] ) < 0x40 ) // 25% alpha, convert to white -
-                        pixel[i] = qRgb( 0xff, 0xff, 0xff );
-                    else
-                        pixel[i] &= RGB_MASK;
-                    i++;
-           }
-        }
+            for( int x=0; x < image.width(); x++ ) {
+		pixel[i] = (*s++);
+		if ( qAlpha( pixel[i] ) < 0x40 ) // 25% alpha, convert to white -
+		    pixel[i] = qRgb( 0xff, 0xff, 0xff );
+		else
+		    pixel[i] &= RGB_MASK;
+		i++;
+	    }
+	}
     }
 
     pixel[size] = 0;
