@@ -93,20 +93,6 @@ embedded {
 	} else {
 	    DEFINES += QT_NO_FREETYPE
 	}
-	
-
-	qnx6 { 
-		HEADERS += embedded/qwsgfx_qnx6.h
-		SOURCES += embedded/qwskeyboard_qnx.cpp \
-			   embedded/qwsmouse_qnx.cpp \
-			   embedded/qwsgfx_qnx6.cpp
-	}
-	qnx4 {
-	    HEADERS += embedded/qwsmouse_qnx4.h \
-			embedded/qwskeyboard_qnx4.h
-	}
-
-
 }
 
 
