@@ -1369,12 +1369,14 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		}
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
 		if ( controls & SC_TitleBarSysMenu ) {
 		    if ( titlebar->icon() ) {
 			ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarSysMenu );
 			drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, titlebar->icon(), QString::null );
 		    }
 		}
+#endif
 	    }
 
 	    break;
