@@ -40,6 +40,10 @@
 #include "qthread.h"
 #include <private/qthreadinstance_p.h>
 
+#if QT_VERSION >= 0x040000
+#  error "Remove QThread::QThread() and QThread::start()."
+#endif
+
 
 /*!
     \class QThread qthread.h
@@ -95,9 +99,29 @@
 */
 
 /*!
-    Constructs a new thread. The thread does not begin executing until
-    start() is called.
+    \enum QThread::Priority
+
+    This enum type indicates how the operating system should schedule
+    newly created threads.
+
+    \value IdlePriority scheduled only when no other threads are
+           running.
+
+    \value LowestPriority scheduled less often than LowPriority.
+    \value LowPriority scheduled less often than NormalPriority.
+
+    \value NormalPriority the default priority of the operating
+           system.
+
+    \value HighPriority scheduled more often than NormalPriority.
+    \value HighestPriority scheduled more often then HighPriority.
+
+    \value TimeCriticalPriority scheduled as often as possible.
+
+    \value InheritPriority use the same priority as the creating
+           thread.  This is the default.
 */
+
 QThread::QThread()
 {
     d = new QThreadInstance;

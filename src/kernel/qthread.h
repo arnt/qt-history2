@@ -57,26 +57,53 @@ class Q_EXPORT QThread : public Qt
 {
 public:
     static Qt::HANDLE currentThread();
-    static void postEvent( QObject *,QEvent * ); // ### remove 4.0
+
+#ifndef QT_NO_COMPAT
+    static void postEvent( QObject *,QEvent * );
+#endif
 
     static void initialize();
     static void cleanup();
 
     static void exit();
 
-    QThread();					// ### remove 4.0
-    QThread( unsigned int stackSize );		// ### default arg = 0 in 4.0
+#ifdef Q_QDOC
+    QThread( unsigned int stackSize = 0 );
+#else
+    QThread( unsigned int stackSize );
+    QThread();
+#endif
+
     virtual ~QThread();
 
     // default argument causes thread to block indefinately
     bool wait( unsigned long time = ULONG_MAX );
 
+    enum Priority {
+	IdlePriority,
+
+	LowestPriority,
+	LowPriority,
+	NormalPriority,
+	HighPriority,
+	HighestPriority,
+
+	TimeCriticalPriority,
+
+	InheritPriority
+    };
+
+#ifdef Q_QDOC
+    void start( Priority = InheritPriority );
+#else
+    void start( Priority );
     void start();
+#endif
+
     void terminate();
 
     bool finished() const;
     bool running() const;
-
 
 protected:
     virtual void run() = 0;

@@ -237,7 +237,7 @@ void QThread::usleep( unsigned long usecs )
 }
 
 
-void QThread::start()
+void QThread::start(Priority priority)
 {
     QMutexLocker locker( d->mutex() );
 
@@ -253,18 +253,82 @@ void QThread::start()
     d->args[0] = this;
     d->args[1] = d;
 
-    d->handle = (Qt::HANDLE)_beginthreadex( NULL, d->stacksize, QThreadInstance::start,
-					    d->args, 0, &(d->id) );
+    /*
+      NOTE: we create the thread in the suspended state, set the
+      priority and then resume the thread.
+
+      since threads are created with normal priority by default, we
+      could get into a case where a thread (with priority less than
+      NormalPriority) tries to create a new thread (also with priority
+      less than NormalPriority), but the newly created thread preempts
+      its 'parent' and runs at normal priority.
+    */
+    d->handle = (Qt::HANDLE) _beginthreadex(NULL, d->stacksize, QThreadInstance::start,
+					    d->args, CREATE_SUSPENDED, &(d->id));
 
     if ( !d->handle ) {
 #ifdef QT_CHECK_STATE
-	qSystemWarning( "Couldn't create thread" );
+	qSystemWarning("Failed to create thread");
 #endif
 
 	d->running = FALSE;
 	d->finished = TRUE;
 	d->args[0] = d->args[1] = 0;
+	return;
     }
+
+    int prio;
+    switch (priority) {
+    case IdlePriority:
+	prio = THREAD_PRIORITY_IDLE;
+	break;
+
+    case LowPriority:
+	prio = THREAD_PRIORITY_LOWEST;
+	break;
+
+    case BelowNormalPriority:
+	prio = THREAD_PRIORITY_BELOW_NORMAL;
+	break;
+
+    case NormalPriority:
+	prio = THREAD_PRIORITY_NORMAL;
+	break;
+
+    case AboveNormalPriority:
+	prio = THREAD_PRIORITY_ABOVE_NORMAL;
+	break;
+
+    case HighPriority:
+	prio = THREAD_PRIORITY_HIGHEST;
+	break;
+
+    case TimeCriticalPriority:
+	prio = THREAD_PRIORITY_TIME_CRITICAL;
+	break;
+
+    case InheritPriority:
+    default:
+	prio = GetThreadPriority(GetCurrentThread());
+	break;
+    }
+
+    if (! SetThreadPriority(d->handle, prio)) {
+#ifdef QT_CHECK_STATE
+	qSystemWarning( "Failed to set thread priority" );
+#endif
+    }
+
+    if (ResumeThread(d->handle) == 0xffffffff) {
+#ifdef QT_CHECK_STATE
+	qSystemWarning( "Failed to resume newly created thread" );
+#endif
+    }
+}
+
+void QThread::start()
+{
+    start(InheritPriority);
 }
 
 bool QThread::wait( unsigned long time )

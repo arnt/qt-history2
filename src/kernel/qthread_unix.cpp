@@ -47,6 +47,7 @@
 #endif // QT_H
 
 #include <errno.h>
+#include <sched.h>
 
 
 static QThreadInstance *main_instance = 0;
@@ -295,13 +296,18 @@ void QThread::usleep( unsigned long usecs )
 }
 
 /*!
-    This begins the execution of the thread by calling run(), which
-    should be reimplemented in a QThread subclass to contain your
-    code. If you try to start a thread that is already running, this
-    call will wait until the thread has finished, and then restart the
-    thread.
+    Begins execution of the thread by calling run(), which should be
+    reimplemented in a QThread subclass to contain your code.  The
+    operating system will schedule the thread according to the \a
+    priority argument.
+
+    If you try to start a thread that is already running, this
+    function will wait until the the thread has finished and then
+    restart the thread.
+
+    \sa Priority
 */
-void QThread::start()
+void QThread::start(Priority priority)
 {
     QMutexLocker locker( d->mutex() );
 
@@ -312,9 +318,54 @@ void QThread::start()
 
     int ret;
     pthread_attr_t attr;
-    pthread_attr_init( &attr );
-    pthread_attr_setinheritsched( &attr, PTHREAD_INHERIT_SCHED );
-    pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    switch (priority) {
+    case InheritPriority:
+	{
+	    pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+	    break;
+	}
+
+    default:
+	{
+	    int sched_policy;
+	    if (pthread_attr_getschedpolicy(&attr, &sched_policy) != 0) {
+		qDebug("couldn't get the default schedule policy?");
+		sched_policy = SCHED_RR;
+		pthread_attr_setschedpolicy(&attr, SCHED_RR);
+	    }
+
+	    int prio_min = sched_get_priority_min(sched_policy);
+	    int prio_max = sched_get_priority_max(sched_policy);
+	    int prio;
+	    switch (priority) {
+	    case IdlePriority:
+		prio = prio_min;
+		break;
+
+	    case HighestPriority:
+		prio = prio_max;
+		break;
+
+	    default:
+		// crudely scale our priority enum values to the prio_min/prio_max
+		prio = (((prio_max - prio_min) / TimeCriticalPriority) *
+			priority) + prio_min;
+		prio = QMAX(prio_min, QMIN(prio_max, prio));
+		break;
+	    }
+
+	    sched_param sp;
+	    sp.sched_priority = prio;
+
+	    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+	    pthread_attr_setschedparam(&attr, &sp);
+	    break;
+	}
+    }
+
     if ( d->stacksize > 0 ) {
 	ret = pthread_attr_setstacksize( &attr, d->stacksize );
 	if ( ret ) {
@@ -343,6 +394,11 @@ void QThread::start()
 	d->finished = FALSE;
 	d->args[0] = d->args[1] = 0;
     }
+}
+
+void QThread::start()
+{
+    start(InheritPriority);
 }
 
 /*!
