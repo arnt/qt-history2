@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#8 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -315,6 +315,8 @@ bool QWidgetItem::isEmpty() const
 
 
 /*!
+  \fn SearchResult QWidgetItem::removeW( QWidget *w )
+
   Returns FoundAndDeleteable, if \a w is found in this item.
 */
 QLayoutItem::SearchResult QWidgetItem::removeW( QWidget *w )
@@ -324,6 +326,8 @@ QLayoutItem::SearchResult QWidgetItem::removeW( QWidget *w )
 
 
 /*!
+  \fn SearchResult QSpacerItem::removeW( QWidget *)
+
   Returns NotFound, since a space item never contains widgets.
 */
 QLayoutItem::SearchResult QSpacerItem::removeW( QWidget *)
@@ -527,6 +531,8 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
 */
 
 /*!
+  \fn SearchResult QLayout::removeW( QWidget *w)
+
   Searches all subitems, returning \c Found if \a w was found and
   removed. Returns \c NotFound otherwise.
   
