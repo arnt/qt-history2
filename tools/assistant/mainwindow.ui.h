@@ -26,7 +26,7 @@
 QList<MainWindow*> *MainWindow::windows = 0;
 
 #if defined(Q_WS_WIN)
-Q_EXPORT int qt_ntfs_permission_lookup;
+extern Q_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
 void MainWindow::init()
