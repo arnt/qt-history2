@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#115 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#114 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#115 $";
 #endif
 
 
@@ -436,8 +436,8 @@ void QPainter::updateFont()			// update after changed font
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
-	pdev->cmd( PDC_SETFONT, param );
-	return;
+	if ( !pdev->cmd(PDC_SETFONT,this,param) || !hd )
+	    return;
     }
     XSetFont( dpy, gc, cfont.handle() );
 }
@@ -453,8 +453,8 @@ void QPainter::updatePen()			// update after changed pen
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
-	pdev->cmd( PDC_SETPEN, param );
-	return;
+	if ( !pdev->cmd(PDC_SETPEN,this,param) || !hd )
+	    return;
     }
     char *dashes = 0;				// custom pen dashes
     int dash_len = 0;				// length of dash list
@@ -542,8 +542,8 @@ static uchar *pat_tbl[] = {
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].brush = &cbrush;
-	pdev->cmd( PDC_SETBRUSH, param );
-	return;
+	if ( !pdev->cmd(PDC_SETBRUSH,this,param) || !hd )
+	    return;
     }
     int bs = cbrush.style();
     char *pat = 0;				// pattern
@@ -651,7 +651,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     if ( testf(ExtDev) ) {			// external device
 	gc = 0;
-	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
+	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting
 	    pdev = 0;
 	    return FALSE;
 	}
@@ -742,13 +742,13 @@ bool QPainter::end()				// end painting
 #endif
 	return FALSE;
     }
-    if ( testf(ExtDev) )
-	pdev->cmd( PDC_END, 0 );
     if ( testf(FontMet) )			// remove references to this
 	QFontMetrics::reset( this );
     if ( testf(FontInf) )			// remove references to this
 	QFontInfo::reset( this );	    
 
+    if ( testf(ExtDev) )
+	pdev->cmd( PDC_END, this, 0 );
     if ( gc_brush ) {				// restore brush gc
 	if ( testf(ClipOn) )
 	    XSetClipMask( dpy, gc_brush, None );
@@ -790,8 +790,8 @@ void QPainter::setBackgroundColor( const QColor &c )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].color = &bg_col;
-	pdev->cmd( PDC_SETBKCOLOR, param );
-	return;
+	if ( !pdev->cmd(PDC_SETBKCOLOR,this,param) || !hd )
+	    return;
     }
     updatePen();				// update pen setting
     if ( gc_brush )
@@ -828,8 +828,8 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = m;
-	pdev->cmd( PDC_SETBKMODE, param );
-	return;
+	if ( !pdev->cmd(PDC_SETBKMODE,this,param) || !hd )
+	    return;
     }
     updatePen();				// update pen setting
     if ( gc_brush )
@@ -873,8 +873,8 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = r;
-	pdev->cmd( PDC_SETROP, param );
-	return;
+	if ( !pdev->cmd(PDC_SETROP,this,param) || !hd )
+	    return;
     }
     XSetFunction( dpy, gc, ropCodes[rop] );
     if ( gc_brush )
@@ -894,8 +894,8 @@ void QPainter::setBrushOrigin( int x, int y )	// set brush origin
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].point = &bro;
-	pdev->cmd( PDC_SETBRUSHORIGIN, param );
-	return;
+	if ( !pdev->cmd(PDC_SETBRUSHORIGIN,this,param) || !hd )
+	    return;
     }
     if ( gc_brush )
 	XSetTSOrigin( dpy, gc_brush, x, y );
@@ -1138,8 +1138,8 @@ void QPainter::setClipping( bool enable )	// set clipping
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = enable;
-	pdev->cmd( PDC_SETCLIP, param );
-	return;
+	if ( !pdev->cmd(PDC_SETCLIP,this,param) || !hd )
+	    return;
     }
     if ( testf(ClipOn) ) {
 	XSetRegion( dpy, gc, crgn.handle() );
@@ -1175,8 +1175,8 @@ void QPainter::setClipRegion( const QRegion &rgn ) // set clip region
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
-	pdev->cmd( PDC_SETCLIPRGN, param );
-	return;
+	if ( !pdev->cmd(PDC_SETCLIPRGN,this,param) || !hd )
+	    return;
     }
     clearf( ClipOn );				// be sure to update clip rgn
     setClipping( TRUE );
@@ -1198,8 +1198,8 @@ void QPainter::drawPoint( int x, int y )	// draw a single point
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    pdev->cmd( PDC_DRAWPOINT, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWPOINT,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {
 	    WXFORM_P( x, y );
@@ -1225,8 +1225,8 @@ void QPainter::moveTo( int x, int y )		// set current point for lineTo
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    pdev->cmd( PDC_MOVETO, param );
-	    return;
+	    if ( !pdev->cmd(PDC_MOVETO,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {
 	    WXFORM_P( x, y );
@@ -1256,8 +1256,8 @@ void QPainter::lineTo( int x, int y )		// draw line from current point
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    pdev->cmd( PDC_LINETO, param );
-	    return;
+	    if ( !pdev->cmd(PDC_LINETO,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {
 	    WXFORM_P( x, y );
@@ -1290,8 +1290,8 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 		   p2( x2, y2 );
 	    param[0].point = &p1;
 	    param[1].point = &p2;
-	    pdev->cmd( PDC_DRAWLINE, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWLINE,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {
 	    WXFORM_P( x1, y1 );
@@ -1341,8 +1341,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    pdev->cmd( PDC_DRAWRECT, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// world transform
 	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
@@ -1407,8 +1407,8 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    param[0].rect = &r;
 	    param[1].ival = xRnd;
 	    param[2].ival = yRnd;
-	    pdev->cmd( PDC_DRAWROUNDRECT, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWROUNDRECT,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// world transform
 	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
@@ -1540,8 +1540,8 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    pdev->cmd( PDC_DRAWELLIPSE, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWELLIPSE,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// world transform
 	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
@@ -1607,8 +1607,8 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    pdev->cmd( PDC_DRAWARC, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWARC,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// world transform
 	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
@@ -1669,8 +1669,8 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    pdev->cmd( PDC_DRAWPIE, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWPIE,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// world transform
 	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
@@ -1751,8 +1751,8 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    pdev->cmd( PDC_DRAWCHORD, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWCHORD,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// world transform
 	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
@@ -1832,8 +1832,8 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&tmp;
-	    pdev->cmd( PDC_DRAWLINESEGS, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWLINESEGS,this,param) || !hd )
+		return;
 	}
 	if ( testf(VxF|WxF) ) {
 	    if ( cpen.style() != NoPen ) {
@@ -1877,8 +1877,8 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&tmp;
-	    pdev->cmd( PDC_DRAWPOLYLINE, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
+		return;
 	}
 	if ( testf(VxF|WxF) ) {
 	    if ( cpen.style() != NoPen ) {
@@ -1937,8 +1937,8 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    QPDevCmdParam param[2];
 	    param[0].ptarr = (QPointArray*)&tmp;
 	    param[1].ival = winding;
-	    pdev->cmd( PDC_DRAWPOLYGON, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWPOLYGON,this,param) || !hd )
+		return;
 	}
 	if ( testf(VxF|WxF) ) {
 	    axf = xForm( a );
@@ -2026,8 +2026,8 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&a2;
-	    pdev->cmd( PDC_DRAWBEZIER, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hd )
+		return;
 	}
 	if ( testf(VxF|WxF) )
 	    a2 = xForm( a2 );
@@ -2104,8 +2104,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		param[0].rect	= &r;
 		param[1].point	= &p;
 		param[2].pixmap = &pixmap;
-		pdev->cmd( PDC_DRAWPIXMAP, param );
-		return;
+		if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hd )
+		    return;
 	    }
 							// world transform
 	    QWMatrix mat( wm11/65536.0, wm12/65536.0,
@@ -2244,8 +2244,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    newstr.truncate( len );
 	    param[0].point = &p;
 	    param[1].str = newstr.data();
-	    pdev->cmd( PDC_DRAWTEXT, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hd )
+		return;
 	}
 	if ( testf(WxF) ) {			// draw transformed text
 	    QFontMetrics fm = fontMetrics();
@@ -2419,8 +2419,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    param[0].rect = &r;
 	    param[1].ival = tf;
 	    param[2].str = newstr.data();
-	    pdev->cmd( PDC_DRAWTEXTFRMT, param );
-	    return;
+	    if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hd )
+		return;
 	}
     }
     if ( w <= 0 || h <= 0 ) {
