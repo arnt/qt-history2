@@ -542,7 +542,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 */
 
 
-/*! \fn void  QBitArray::deleteData ( QBitArray::array_data * d)
+/*! \fn void  QBitArray::deleteData ( array_data * d)
 
   Deletes data specific to QBitArray that extended what QGArray provided.
   \internal
