@@ -105,7 +105,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
     init();
     if ( /*a->name() == "qt_separator_action" ||*/ a->inherits( "QSeparatorAction" ) )
 	separator = TRUE;
-    if ( a && a->children() )
+    if ( a && !!a->children() )
  	a->installEventFilter( this );
 }
 
@@ -197,11 +197,8 @@ int PopupMenuEditorItem::count() const
 {
     if ( s )
 	return s->count();
-    } else if ( ::qt_cast<QActionGroup*>(a) ) {
-	const QObjectList * l = a->children();
-	if ( l )
-	    return l->count();
-    }
+    else if ( ::qt_cast<QActionGroup*>(a) )
+       return a->children().count();
     return 0;
 }
 
@@ -343,18 +340,17 @@ void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
     PopupMenuEditorItem *i = new PopupMenuEditorItem( (QAction *)actionGroup, this,
 						      0, actionGroup->name() );
     QActionGroup *g = 0;
-    QObjectList *l = actionGroup->queryList( "QAction", 0, FALSE, FALSE );
-    QObjectListIterator it( *l );
+    QObjectList l  = actionGroup->queryList( "QAction", 0, FALSE, FALSE );
     insert( i, index );
-    for ( ; it.current(); ++it ) {
-	g = ::qt_cast<QActionGroup*>(it.current());
+    for (int j = 0; j < l.size(); ++j) {
+	g = ::qt_cast<QActionGroup*>(l.at(j));
 	if ( g ) {
-	    if ( dropdown )	    
+	    if ( dropdown )
 		i->s->insert( g );
 	    else
 		insert( g );
 	} else {
-	    i->s->insert( (QAction*)it.current() );
+	    i->s->insert( (QAction*)l.at(j) );
 	}
     }
 }
