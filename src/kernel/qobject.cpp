@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#30 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#30 $";
 #endif
 
 
@@ -82,7 +82,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#29 $";
 
   Currently only QAccel is high priority. */
 
-/*! \fn bool signalsBlocked() const
+/*! \fn bool QObject::signalsBlocked() const
   Returns TRUE if this object is currently not accepting signals.  \sa
   blockSignals(). */
 
