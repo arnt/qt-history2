@@ -1,4 +1,5 @@
 TEMPLATE      = subdirs
 SUBDIRS       = chart \
                 dirview \
-                pixelator
+                pixelator \
+                spinboxdelegate
