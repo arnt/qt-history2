@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.13 1998/06/16 11:39:30 warwick Exp $
+** $Id: tutorial.doc,v 2.14 1998/06/16 15:41:10 agulbra Exp $
 **
 ** Tutorial
 **
@@ -76,7 +76,7 @@ exactly one QApplication object in every application that uses Qt.
 QApplication manages various application-wide resources, such as the
 default font and cursor.
 
-\line qpushbt
+\line qpushbutton
 
 This line includes the QPushButton class definition.  The <a
 href="hierarchy.html">reference documentation</a> for each class
@@ -2259,8 +2259,8 @@ This private variable contains the center point of the target.
 
 \dontinclude t12/cannon.cpp
 
-\skip qdatetm
-\line qdatetm
+\skip qdatetime
+\line qdatetime
 
 We include the QDate, QTime and QDateTime class definitions.
 
