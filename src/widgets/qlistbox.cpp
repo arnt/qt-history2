@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#291 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#292 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1186,6 +1186,17 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
+    
+    if ( numColumns() > 1 && !i ) {
+	if ( d->selectionMode == Single ) {
+	    if ( d->current ) {
+		d->current->s = FALSE;
+		updateItem( d->current );
+	    }
+	} else
+	    clearSelection();
+    }
+    
     switch( selectionMode() ) {
     default:
     case Single:
@@ -1254,7 +1265,7 @@ void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * e )
 
 void QListBox::mouseDoubleClickEvent( QMouseEvent * )
 {
-    if ( d->current ) {
+    if ( d->current && d->current->s ) {
 	QListBoxItem * i = d->current;
 	QString tmp = d->current->text();
 	emit selected( currentItem() );
@@ -2309,7 +2320,13 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
     if ( row && y < d->rowPos[row] )
 	row--;
 
-    return item( col*numRows()+row );
+    QListBoxItem *i = item( col*numRows()+row );
+    if ( i && numColumns() > 1 ) {
+	if ( d->columnPos[ col ] + i->width( this ) >=  p.x() )
+	    return i;
+	return 0;
+    }
+    return i;
 }
 
 
@@ -2770,17 +2787,28 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     int ch = d->rowPos[row+1] - d->rowPos[row];
     QListBoxItem * i = item( col*numRows()+row );
     if ( i->s ) {
-	p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
-	p->setPen( g.highlightedText() );
-	p->setBackgroundColor( g.highlight() );
+	if ( numColumns()  == 1 ) {
+	    p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
+	    p->setPen( g.highlightedText() );
+	    p->setBackgroundColor( g.highlight() ); 
+	} else {
+	    int iw = i->width( this );
+	    p->fillRect( 0, 0, iw, ch, g.brush( QColorGroup::Highlight ) );
+	    p->fillRect( iw, 0, cw - iw + 1, ch, g.base() );
+	    p->setPen( g.highlightedText() );
+	    p->setBackgroundColor( g.highlight() ); 
+	}
     } else {
 	p->fillRect( 0, 0, cw, ch, g.base() );
     }
     i->paint( p );
-    if ( d->current == i && hasFocus() )
+    if ( d->current == i && hasFocus() ) {
+	if ( numColumns() > 1 )
+	    cw = i->width( this );
 	style().drawFocusRect( p, QRect( 0, 0, cw, ch ),
 			       g, i->selected() ? &g.highlight() : &g.base(),
 			       TRUE );
+    }
 }
 
 
