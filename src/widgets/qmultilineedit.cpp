@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#36 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -184,7 +184,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
     setNumRows( 0 );
     setWidth( 1 ); // ### constant width
-    contents = new QList<QString>;
+    contents = new QList<QMultiLineEditRow>;
     contents->setAutoDelete( TRUE );
 
     cursorX = 0; cursorY = 0;
@@ -445,9 +445,9 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 	    // TODO: set it other times, eg. when scrollbar moves view
 	    QWMatrix wm = painter->worldMatrix();
-	    setMicroFocusHint( wm.dx()+cXPos,
-		      wm.dy()+cYPos,
-			1, fm.ascent() );
+	    setMicroFocusHint( int(wm.dx()+cXPos),
+			       int (wm.dy()+cYPos),
+			       1, fm.ascent() );
 	}
     }
     p.end();
@@ -475,15 +475,12 @@ int QMultiLineEdit::textWidth( const QString &s )
 
 int QMultiLineEdit::textWidth( int line )
 {
-    //possibilities of caching...
-    QString s = stringShown(line);
-    if ( !s ) {
-	warning( "QMultiLineEdit::textWidth: (%s) "
-		 "Couldn't find contents at line %d",
-		 name( "unnamed" ), line );
-	return 0;
+    if ( mlData->echomode == Password) {
+	QString s = stringShown(line);
+	return textWidth( s );
     }
-    return textWidth( s );
+    QMultiLineEditRow* r = contents->at(line);
+    return r?r->w:0;
 }
 
 /*!
@@ -1107,8 +1104,8 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
     line = QMAX( QMIN( line, numLines() - 1), 0 );
     col = QMAX( QMIN( col,  lineLength( line )), 0 );
 
-    QString *oldLine = getString( line );
-    ASSERT( oldLine );
+    QMultiLineEditRow  *oldRow = contents->at( line );
+    ASSERT( oldRow );
     bool cursorAfter = atEnd() || cursorY > line
 	  || cursorY == line && cursorX >= col;
     bool onLineAfter = cursorY == line && cursorX >= col;
@@ -1123,12 +1120,13 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 
     if ( i==0 ) { //single line
 	int l = textLine.length();
-	oldLine->insert( col, textLine );
-	if ( mlData->maxllen >= 0 && (int)oldLine->length() > mlData->maxllen ) {
-	    l -= oldLine->length() - mlData->maxllen;
-	    oldLine->truncate( mlData->maxllen );
+	oldRow->s.insert( col, textLine );
+	if ( mlData->maxllen >= 0 && (int)oldRow->s.length() > mlData->maxllen ) {
+	    l -= oldRow->s.length() - mlData->maxllen;
+	    oldRow->s.truncate( mlData->maxllen );
 	}
-	int w = textWidth( *oldLine );
+	int w = textWidth( oldRow->s );
+	oldRow->w = w;
 	setWidth( QMAX( maxLineWidth(), w ) );
 	if ( onLineAfter )
 	    cursorX += l;
@@ -1138,19 +1136,20 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 	    updateCell( line, 0, FALSE);
     } else {
 	int w = maxLineWidth();
-	QString newString = oldLine->mid( col );
-	oldLine->remove( col, oldLine->length() );
+	QString newString = oldRow->s.mid( col );
+	oldRow->s.remove( col, oldRow->s.length() );
 	if ( onLineAfter )
-	    cursorX -= oldLine->length();
-	*oldLine += textLine;
-	if ( mlData->maxllen >= 0 && (int)oldLine->length() > mlData->maxllen ) {
-	    oldLine->truncate( mlData->maxllen );
+	    cursorX -= oldRow->s.length();
+	oldRow->s += textLine;
+	if ( mlData->maxllen >= 0 && (int)oldRow->s.length() > mlData->maxllen ) {
+	    oldRow->s.truncate( mlData->maxllen );
 	}
-	int nw = textWidth( *oldLine );
+	int nw = textWidth( oldRow->s );
+	oldRow->w = nw;
 	w = QMAX( nw, w );
 	if ( mlData->maxlines >= 0 && (int)contents->count() == mlData->maxlines ) {
 	    // Will not fit.  Put it all on the current line.
-	    textLine = *oldLine;
+	    textLine = oldRow->s;
 	    while ( i ) {
 		textLine += " ";
 		textLine += getOneLine( txt, i );
@@ -1161,7 +1160,8 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 	    }
 	    nw = textWidth( textLine );
 	    w = QMAX( nw, w );
-	    *oldLine = textLine;
+	    oldRow->s = textLine;
+	    oldRow->w = nw;
 	} else {
 	    line++;
 	    cursorY++;
@@ -1178,8 +1178,8 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 		}
 		if ( i == 0 )
 		    break;
-		contents->insert( line++, new QString(textLine) );
 		nw = textWidth( textLine );
+		contents->insert( line++, new QMultiLineEditRow(textLine, nw) );
 		w = QMAX( nw, w );
 		if ( cursorAfter )
 		    cursorY++;
@@ -1230,7 +1230,7 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     do {
 	textLine = getOneLine( txt, i );
 	if ( mlData->maxlines >= 0 && (int)contents->count() == mlData->maxlines ) {
-	    textLine.prepend(*contents->at(line-1));
+	    textLine.prepend(contents->at(line-1)->s);
 	    while ( i ) {
 		textLine += " ";
 		textLine += getOneLine( txt, i );
@@ -1238,15 +1238,18 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 	    if ( mlData->maxllen >= 0 && (int)textLine.length() > mlData->maxllen ) {
 		textLine.truncate(mlData->maxllen);
 	    }
-	    *contents->at(line-1) = textLine;
+	    int nw = textWidth( textLine );
+	    if ( nw > w ) w = nw;
+	    contents->at(line-1)->s = textLine;
+	    contents->at(line-1)->w = nw;
 	} else {
 	    if ( mlData->maxllen >= 0 && (int)textLine.length() > mlData->maxllen ) {
 		textLine.truncate(mlData->maxllen);
 	    }
-	    contents->insert( line++, new QString(textLine) );
+	    int nw = textWidth( textLine );
+	    if ( nw > w ) w = nw;
+	    contents->insert( line++, new QMultiLineEditRow(textLine, nw) );
 	}
-	int nw = textWidth( textLine );
-	if ( nw > w ) w = nw;
     } while ( i );
     setNumRows( contents->count() );
     setWidth( QMAX( maxLineWidth(), w ) );
@@ -1273,7 +1276,9 @@ void QMultiLineEdit::removeLine( int line )
     if ( cursorY >= line && cursorY > 0 )
 	cursorY--;
     bool updt = autoUpdate() && rowIsVisible( line );
-    bool recalc = textWidth( line ) == maxLineWidth();
+    QMultiLineEditRow* r = contents->at( line );
+    ASSERT( r );
+    bool recalc = r->w == maxLineWidth();
     contents->remove( line );
     if ( contents->count() == 0 ) {
 	//debug( "remove: last one gone, inserting dummy" );
@@ -1335,10 +1340,11 @@ void QMultiLineEdit::insert( const QString& str, bool mark )
 void QMultiLineEdit::newLine()
 {
     dummy = FALSE;
-    QString *s = getString( cursorY );
-    bool recalc = cursorX != (int)s->length() && textWidth( *s ) == maxLineWidth();
-    QString newString = s->mid( cursorX, s->length() );
-    s->remove( cursorX, s->length() );
+    QMultiLineEditRow* r = contents->at( cursorY );
+    bool recalc = cursorX != (int)r->s.length() && r->w == maxLineWidth();
+    QString newString = r->s.mid( cursorX, r->s.length() );
+    r->s.remove( cursorX, r->s.length() );
+    r->w = textWidth( r->s );
     insertLine( newString, cursorY + 1 );
     cursorRight( FALSE );
     curXPos  = 0;
@@ -1356,13 +1362,14 @@ void QMultiLineEdit::newLine()
 
 void QMultiLineEdit::killLine()
 {
-    QString *s = getString( cursorY );
-    if ( cursorX == (int)s->length() ) {
+    QMultiLineEditRow* r = contents->at( cursorY );
+    if ( cursorX == (int)r->s.length() ) {
 	del();
 	return;
     } else {
-	bool recalc = textWidth( *s ) == maxLineWidth();
-	s->remove( cursorX, s->length() );
+	bool recalc = r->w == maxLineWidth();
+	r->s.remove( cursorX, r->s.length() );
+	r->w = textWidth( r->s );
 	updateCell( cursorY, 0, FALSE );
 	if ( recalc )
 	    updateCellWidth();
@@ -1593,28 +1600,32 @@ void QMultiLineEdit::del()
 	textDirty = TRUE;
 	mlData->edited = TRUE;
 	if ( markBeginY == markEndY ) { //just one line
-	    QString *s  = getString( markBeginY );
-	    ASSERT(s);
-	    s->remove( markBeginX, markEndX - markBeginX );
+	    QMultiLineEditRow *r = contents->at( markBeginY );
+	    ASSERT(r);
+	    bool recalc = r->w == maxLineWidth();
+	    r->s.remove( markBeginX, markEndX - markBeginX );
+	    r->w = textWidth( r->s );
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
 	    markIsOn    = FALSE;
 	    if (autoUpdate() )
 		updateCell( cursorY, 0, FALSE );
-	    updateCellWidth();
+	    if ( recalc )
+		updateCellWidth();
 	} else { //multiline
 	    bool oldAuto = autoUpdate();
 	    setAutoUpdate( FALSE );
 	    ASSERT( markBeginY >= 0);
 	    ASSERT( markEndY < (int)contents->count() );
 
-	    QString *firstS, *lastS;
-	    firstS = getString( markBeginY );
-	    lastS  = getString( markEndY );
-	    ASSERT( firstS != lastS );
-	    firstS->remove( markBeginX, firstS->length() - markBeginX  );
-	    lastS->remove( 0, markEndX  );
-	    firstS->append( *lastS );  // lastS will be removed in loop below
+	    QMultiLineEditRow *firstR, *lastR;
+	    firstR = contents->at( markBeginY );
+	    lastR  = contents->at( markEndY );
+	    ASSERT( firstR != lastR );
+	    firstR->s.remove( markBeginX, firstR->s.length() - markBeginX  );
+	    lastR->s.remove( 0, markEndX  );
+	    firstR->s.append( lastR->s );  // lastS will be removed in loop below
+	    firstR->w = textWidth( firstR->s );
 
 	    for( int i = markBeginY + 1 ; i <= markEndY ; i++ )
 		contents->remove( markBeginY + 1 );
@@ -1636,15 +1647,16 @@ void QMultiLineEdit::del()
 	if ( !atEnd() ) {
 	    textDirty = TRUE;
 	    mlData->edited = TRUE;
-	    QString *s = getString( cursorY );
-	    if ( cursorX == (int) s->length() ) { // remove newline
-		*s += *getString( cursorY + 1 );
-		int w = textWidth( *s );
-		setWidth( QMAX( maxLineWidth(), w ) );
+	    QMultiLineEditRow *r = contents->at( cursorY );
+	    if ( cursorX == (int) r->s.length() ) { // remove newline
+		r->s += *getString( cursorY + 1 );
+		r->w = textWidth( r->s );
+		setWidth( QMAX( maxLineWidth(), r->w ) );
 		removeLine( cursorY + 1 );
 	    } else {
-		bool recalc = textWidth( *s ) == maxLineWidth();
-		s->remove( cursorX, 1 );
+		bool recalc = r->w == maxLineWidth();
+		r->s.remove( cursorX, 1 );
+		r->w = textWidth( r->s );
 		updateCell( cursorY, 0, FALSE );
 		if ( recalc )
 		    updateCellWidth();
@@ -2050,23 +2062,23 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
 
 void QMultiLineEdit::updateCellWidth()
 {
-    QString *s = contents->first();
+    QMultiLineEditRow* r = contents->first();
     int maxW = 0;
     int w;
     switch ( mlData->echomode ) {
       case Normal:
-	while ( s ) {
-	    w = textWidth( *s );
+	while ( r ) {
+	    w = r->w;
 	    if ( w > maxW )
 		maxW = w;
-	    s = contents->next();
+	    r = contents->next();
 	}
 	break;
       case Password: {
 	    uint l = 0;
-	    while ( s ) {
-		l = QMAX(l, s ? s->length() : 0);
-		s = contents->next();
+	    while ( r ) {
+		l = QMAX(l,  r->s.length() );
+		r = contents->next();
 	    }
 	    QString t;
 	    t.fill(QChar('*'), l);
@@ -2210,21 +2222,20 @@ bool QMultiLineEdit::inMark( int posx, int posy ) const
  */
 void QMultiLineEdit::markWord( int posx, int posy )
 {
-    QString *s = contents->at( posy );
-    ASSERT( s );
-    int lim = s->length();
+    QString& s = contents->at( posy )->s;
+    int lim = s.length();
     int i = posx - 1;
 
-    int startclass = i < 0 || i >= lim ? -1 : charClass( s->at(i) );
+    int startclass = i < 0 || i >= lim ? -1 : charClass( s[i] );
 
-    while ( i >= 0 && charClass(s->at(i)) == startclass )
+    while ( i >= 0 && charClass(s[i]) == startclass )
 	i--;
     i++;
     markAnchorY = posy;
     markAnchorX = i;
 
     i = posx;
-    while ( i < lim && charClass(s->at(i)) == startclass )
+    while ( i < lim && charClass(s[i]) == startclass )
 	i++;
     markDragX = i;
     markDragY = posy;
@@ -2697,10 +2708,10 @@ void QMultiLineEdit::setMaxLineLength(int m)
     bool trunc = mlData->maxllen >= 0 && mlData->maxllen < m;
     mlData->maxllen = m;
     if ( trunc ) {
-	QString *s = contents->first();
-	while ( s ) {
-	    s->truncate(m);
-	    s = contents->next();
+	QMultiLineEditRow* r = contents->first();
+	while ( r ) {
+	    r->s.truncate( m );
+	    r = contents->next();
 	}
 	if ( cursorX > m ) cursorX = m;
 	if ( markAnchorX > m ) markAnchorX = m;

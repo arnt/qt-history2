@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#12 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#13 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -171,7 +171,12 @@ private slots:
     void	clipboardChanged();
 
 private:
-    QList<QString> *contents;
+    struct QMultiLineEditRow {
+	QMultiLineEditRow( QString string, int width ):s(string), w(width){};
+	QString s;
+	int w;
+    };
+    QList<QMultiLineEditRow> *contents;
     QMultiLineData *mlData;
 
     bool	readOnly;
@@ -242,7 +247,7 @@ inline void QMultiLineEdit::setOverwriteMode( bool on )
 
 inline int QMultiLineEdit::lineLength( int row ) const
 {
-    return contents->at( row )->length();
+    return contents->at( row )->s.length();
 }
 
 inline bool QMultiLineEdit::atEnd() const
@@ -258,7 +263,7 @@ inline bool QMultiLineEdit::atBeginning() const
 
 inline QString *QMultiLineEdit::getString( int row ) const
 {
-    return contents->at( row );
+    return &(contents->at( row )->s);
 }
 
 inline int QMultiLineEdit::numLines() const
