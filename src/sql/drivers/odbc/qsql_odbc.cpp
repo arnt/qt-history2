@@ -188,8 +188,10 @@ static QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* 
     case SQL_INTEGER:
     case SQL_BIT:
     case SQL_TINYINT:
-    case SQL_BIGINT:
 	type = QVariant::Int;
+	break;
+    case SQL_BIGINT:
+	type = QVariant::LongLong;
 	break;
     case SQL_BINARY:
     case SQL_VARBINARY:
@@ -394,6 +396,23 @@ static double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
     }
 
     return (double) dblbuf;
+}
+
+static SQLBIGINT qGetBigIntData( SQLHANDLE hStmt, int column, bool& isNull )
+{
+    SQLBIGINT lngbuf = Q_INT64_C( 0 );
+    isNull = FALSE;
+    SQLINTEGER lengthIndicator = 0;
+    SQLRETURN r = SQLGetData( hStmt,
+			      column+1,
+			      SQL_C_SBIGINT,
+			      (SQLPOINTER) &lngbuf,
+			      0,
+			      &lengthIndicator );
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA )
+	isNull = TRUE;
+
+    return lngbuf;
 }
 
 // creates a QSqlFieldInfo from a valid hStmt generated
@@ -726,13 +745,12 @@ QVariant QODBCResult::data( int field )
     for ( ; current < (field + 1); ++current ) {
 	const QSqlFieldInfo info = d->rInf[ current ];
 	switch ( info.type() ) {
+	case QVariant::LongLong:
+	    fieldCache[ current ] = QVariant( (Q_LLONG) qGetBigIntData( d->hStmt, field, isNull ) );
+	    nullCache[ current ] = isNull;
+	    break;
 	case QVariant::Int:
-	    if ( info.typeID() == SQL_BIGINT )
-		// bind values as string to prevent loss of precision
-                fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
-                                                  info.length(), isNull, FALSE ) );
-	    else
-		fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
+	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Date:
