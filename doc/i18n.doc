@@ -1,0 +1,63 @@
+/****************************************************************************
+** $Id: i18n.doc,v 1.1 1998/11/03 10:29:23 warwick Exp $
+**
+** Explanation of moc and the meta object system
+**
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+/*! \page i18n.html
+
+<title>
+Qt toolkit - Internationalization
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Internationalization with Qt</h1><br clear="all">
+
+Internationalization of software is the process of allowing the
+software to be used efficiently by all people of the world.  This
+means adapting to user and locality preferences such as language,
+input techniques, character sets, and presentation convetions.
+
+Writing cross-platform international software with Qt is a gentle,
+incremental process.  Your software can become internationalized
+in the following stages:
+
+<ol>
+ <li><b>Use QString for all user-visible text.</b>
+	<p>
+	Since QString uses the Unicode encoding internally, all the
+	languages of the world can be processed transparently using
+	familiar text processing operations.  Also, since all Qt functions
+	that present text to the user take a QString as a parameter,
+	there is no char* to QString conversion time.
+	<p>
+	Strings that are in "programmer space" - such as QObject
+	names and file format texts need not use QString - the
+	traditional char*, or the Q1String class will suffice.
+ <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
+	<p>
+	Whe you use <tt>"quoted text"</tt> in the program for text
+	that will be presented to the user, ensure it goes through
+	the QApplication::translate() function by using tr() if the
+	quoted text is in a QObject/QWidget subclass, eg.:
+	\code
+	    QLabel *label = new QLabel( tr("Password:"), this );
+	\endcode
+	or, if the quoted text is not in a member function, by using
+	the tr() function of an approriate class, or the
+	QApplication::translate() function directly.
+ <li><b>Use QMessageFile to load translated text.</b>
+	<p>
+	Once you are using tr() sufficiently, you can start producing
+	translations of the user-visible text in your program.
+ <li><b>Localization.</b>
+	<p>
+	Localization is the process of adapting to local conventions
+	such as date presentation.
+</ol>
+
+*/
