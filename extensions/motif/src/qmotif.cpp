@@ -555,6 +555,7 @@ void qmotif_timeout_handler( XtPointer, XtIntervalId * )
 	  timers still work with an Xt keep-alive timer
 	*/
 	QApplication::eventLoop()->activateTimers();
+	QApplication::sendPostedEvents();
 	static_d->activate_timers = FALSE;
 
 	qmotif_keep_alive();
