@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#22 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#23 $
 **
 ** Definition of QPaintDevice class
 **
@@ -14,7 +14,8 @@
 #define QPAINTD_H
 
 #include "qwindefs.h"
-#include "qrect.h"
+#include "qfontmet.h"
+#include "qfontinf.h"
 
 
 // Painter device types (is-A)
