@@ -86,6 +86,7 @@ by a section showing how you can create new components.
 \list
 \i \l{model-view-model.html}{Model Classes}
 \i \l{model-view-view.html}{View Classes}
+\i \l{model-view-selection.html}{Handling Selections}
 \i \l{model-view-delegate.html}{Delegate Classes}
 \endlist
 
@@ -100,151 +101,6 @@ more information on the MVC paradigm, explaining MVC and its
 sub-patterns in detail.
 
 See also \link model-view.html the Model/View classes\endlink
-
-*/
-
-/*!
-\page model-view-architecture.html
-
-\title Architecture Overview
-
-
-For example, the following diagram shows the relationship between the Model/View
-classes that can be used to display a directory structure in a tree view.
-In this scheme, we could use the \c QTreeView to display the contents
-of a \c QDirModel, or possibly populate a \c QTreeView with items from the model.
-
-\img treeview-hierarchy.png
-
-\section1 The Model
-
-
-\section2 QAbstractItemModel
-
-The QAbstractItemModel is an interface for accessing and storing data in the
-model. It also provides functions for changing the dimensions of the model, and
-give notice to the views about changes.
-
-The interface operates with the concept of the data as a hierarchy of tables.
-Each cell in a table is referred to as an 'item'. Each item can have a table of
-children.
-
-Each item can contain several data elements that have been assigned 'roles'.
-The defined roles in QAbstractItemModel are: \c Display, \c Decoration, \c Edit,
-\c ToolTip, \c StatusTip, and \c WhatsThis. Typically, the \c Display value is
-used to render the main item text, the \c Decoration value is used to render the
-item icon and the \c Edit value is used when editing the item.
-If no data is returned for a specific role, it will not be shown. Subclasses of
-QAbstractItemModel may also define additional roles.
-
-Note that these concepts do not require the model to store the data in any
-particular way, as long as it can be accessed using the QAbstractItemModel
-interface.
-
-\section2 QModelIndex
-
-A QModelIndex is an index to an item in the model. In a two dimensional model
-(a table), it is sufficient to know the row and column of the item, but in a
-hierarchy it is neccessary to store additional information to know where the
-item is. QModelIndex encapsulates this information along with the row and column
-of the item. The model index is used by the model, the views, the delegate, and
-the selections to refer to items in the model.
-
-Since any change to the model may invalidate the QModelIndex, it should never be
-stored.
-
-\section2 QPersistentModelIndex
-
-Sometimes it is neccessary to store indexes to items. In these cases, the
-QPersistentModelIndex should be used. The persistent model index will be updated
-by the model if it changes in a way that will affect the model index.
-
-The trade-off for using persistent model indexes is that it adds to the overhead in the
-model, both in terms of memory usage and processing.
-
-Also note that the persistent indexes may still be invalidated by the model. The
-difference is that the QPersistentModelIndex will be set to invalid, where a QModelIndex
-will report that it is still valid because it has not been updated by the model.
-
-\section1 The Views
-
-
-\section2 QAbstractItemView
-
-This is the super class for all itemviews. It implements navigation, selecting and dragging
-and dropping of items.
-
-\section2 QListView
-
-This view shows the model as a one dimensional list of items. This means that it only shows
-one column of one table. The items can be layed out top-to-bottom or left-to-right, with or
-without wrapping the layout.
-
-\section2 QTableView
-
-This view renders the model as a two dimensional table of items. It shows one table in the model.
-
-\section2 QTreeView
-
-This view shows the model as a tree of rows. It shows the hieararchy in the first column in the model.
-
-\section1 The Delegate
-
-The item delegate is used by the view to handle rendering and editing of the items. The delegate typically uses the roles to get data for the different elements in an item (eg. text and pixmap).
-
-\section2 QAbstractItemDelegate
-
-The QAbstractItemDelegate provides a baseclass for implementing different delegates. It has default implementations for the editing functions, but subclasses must implement the painting and size hint functions.
-
-\section2 QItemDelegate
-
-The QItemDelegate is the default delegate used by the views. This delegate will render the Display role as text, and the Decoration role as a pixmap.
-
-\section1 Selections
-
-All selections in the item views are stored as ranges. A range is defined by a top left and a bottom right position. Anything contained within this range is then selected.
-
-\section2 QItemSelectionModel
-
-QListView, QTreeView and QTableView all have a QItemSelectionModel. The selection model is responsible for storing a views selection, and its current item. Whenever these change the selection model sends out selectionChanged and currentChanged signals.
-
-The QItemSelectionModel is always connected to a model. This means that the top left and bottom right positions the each range consist of are QModelIndexes. Any view sharing the same model can then also share the same selection model as well.
-
-### more on the selection model
-
-
-
-
-
-\section1 Comparison with the Qt 3 Itemview Classes.
-
-\section1 Architecture
-
-The two main differences between the new itemview classes and the old views are the separation
-between data and presentation, and the views now have a common baseclass.
-
-\section2 The Model-View Architecture
-
-The separation between data and presentation means that data is no longer duplicated.
-This saves memory and saves startup-time because the views nolonger have to be initialized
-with the data.
-...
-
-\section2 The New Class Hierarchy
-
-The new common baseclass means that the views now share a lot of code that was previously
-duplicated.
-...
-
-\section1 New Features
-
-In addition to the Model-View architecture and the shared code, the new itemview classes have
-several new features.
-...
-
-\section1 More
-
-### How does the new architecture help the user ?
 
 */
 
@@ -284,6 +140,9 @@ internal structures from time to time, model indices may become invalid,
 and should not be stored. If a long-term reference to a model item is
 required, a \e{persistent model index} must be created. This provides a
 reference to the item that the model keeps up-to-date.
+Temporary model indices are provided by the \l QModelIndex class, and
+persistent model indices are provided by the \l QPersistentModelIndex
+class.
 
 To obtain a model index for a given item in a model, four properties must
 be specified: a row number, a column number, the index of a parent item,
@@ -517,7 +376,7 @@ by QAbstractItemModel. This is demonstrated in the
 /*!
 \page model-view-view.html
 
-\title Views
+\title View Classes
 
 \tableofcontents
 
@@ -530,6 +389,10 @@ separation of content and presentation is achieved by the use of a
 \l{QAbstractItemModel}{standard interface} for the model classes,
 an interface provided by the \l QAbstractItemView class, and
 the use of model indices that represent model items in a general way.
+Views typically manage the overall layout of the model's representation.
+They may render individual items themselves, or use
+\l{model-view-delegate.html}{delegates} to handle both input and output
+capabilities.
 
 As well as presenting data, views handle navigation between items,
 and some aspects of item selection. The views also implement basic
@@ -589,6 +452,11 @@ be performed within a single function:
 \skipto int main
 \printuntil QAbstractItemModel
 
+Note that the \c QStringListModel is declared as a \l QAbstractItemModel.
+This allows us to use the abstract interface to the model, and will
+ensure that the code will still work even if we replace the string list
+model with a different model in the future.
+
 The list view provided by \l QListView is sufficient for presenting
 the items in the string list model. We construct the view, and set up
 the model using the following lines of code:
@@ -617,7 +485,8 @@ delegate.
 
 Providing multiple views onto the same model is simply a matter of
 setting the same model for each view. In the following code, we create
-two table views, each using the same simple table model:
+two table views, each using the same simple table model which we have
+created for this example:
 
 \quotefile sharedtablemodel/main.cpp
 \skipto QTableView *first
@@ -689,20 +558,90 @@ represented as a fragmented set of highlighted items in a tree view.
 /*!
 \page model-view-delegate.html
 
-\title Delegates
+\title Delegate Classes
+
+\tableofcontents
 
 \section1 Concepts
 
-The controller translates interactions with the view into actions to be
-performed by the model. This is handled in Qt mostly by
-QAbstractItemDelegate, but some user interaction (like item navigation
-and selections) is handled by the view and supporting classes.
+Unlike the Model-View-Controller pattern, the Model/View design does not
+include a completely separate component for managing interaction with
+the user. Generally, the view is responsible for the presentation of
+model data to the user, and for processing user input. To allow some
+flexibility in the way this input is obtained, the interaction is
+performed by delegates. These components provide input capabilities
+and are also responsible for rendering individual items in some views.
+The standard interface for controlling delegates is defined in the
+\l QAbstractItemDelegate class.
+
+Delegates are expected to be able to render their contents themselves
+by implementing the \l{QAbstractItemDelegate::paint()}{paint()}
+and \l{QAbstractItemDelegate::sizeHint()}{sizeHint()} functions.
+However, simple widget-based delegates can subclass \l QItemDelegate
+instead of \l QAbstractItemDelegate, and take advantage of the default
+implementations of those functions.
+Editors for delegates can be implemented in two ways, either by using
+widgets to manage the editing process, or by handling events directly.
+The first approach is covered later in this section.
 
 
-\section1 Rendering and editing items
+\section1 Using an existing delegate
 
-\quotefile delegate01.cpp
+The standard views provided with Qt use instances of \l QItemDelegate
+to provide editing facilities. This default implementation of the
+delegate interface renders items in the usual style for each of the
+standard views: \l QListView, \l QTableView, and \l QTreeView.
+The delegate being used for a view is returned by the
+\l{QAbstractItemView::delegate()}{delegate()} function.
+The \l{QAbstractItemView::setDelegate()}{setDelegate()} function allows
+you to install a custom delegate for a standard view, and it is
+necessary to ues this function when setting the delegate for a custom
+view.
 
+
+\section1 A simple delegate
+
+The delegate implemented here uses a \l QSpinBox to provide editing
+facilities, and is mainly intended for use with models that contain
+numerical data in the form of integers. Although we set up a custom
+integer-based table model for this purpose, the way that data in the
+model is accessed would also allow a string-based model to be used
+with only minor inconvenience when editing.
+We also construct a table view so that we can manipulate the model's
+data.
+
+We subclass the delegate from \l QItemDelegate because we do not want
+to write custom display functions. However, we must still provide
+functions to manage the editor widget:
+
+\quotefile spinbox-delegate/delegate.h
+\skipto class SpinBoxDelegate
+\printuntil };
+
+The constructor for the delegate serves only to initialize the private
+member for this class:
+
+\quotefile spinbox-delegate/delegate.cpp
+\skipto SpinBoxDelegate::SpinBoxDelegate
+\printuntil }
+
+We will construct an editor widget when it is needed.
+
+\section2 The editor type
+
+The \c editorType() function returns a value describing the
+\l{QItemDelegate::EditorType}{type of editor} that the delegate
+provides. This delegate only supports widget-based editing, so the
+implementation of this function is very simple:
+
+\skipto QItemDelegate::EditorType
+\printuntil }
+
+
+
+
+
+ example, the is responsible for returning 
 The item delegate is responsible for drawing and editing items.
 
 It is possible to customize item rendering, editing, internal layout, and size
@@ -822,6 +761,8 @@ elements in the item.
 
 \title Handling Selections
 
+\tableofcontents
+
 \section1 Concepts
 
 The selection model used in the new item view classes offers many
@@ -830,7 +771,7 @@ more general description of selections based on the facilities of
 the Model/View architecture. Although the standard classes for
 manipulating selections are sufficient for the item views provided,
 the selection model allows you to create specialized selection models
-to suit the requirements for your own models and views.
+to suit the requirements for your own item models and views.
 
 Information about the items selected in a view is stored in an instance
 of the \l QItemSelectionModel class. This maintains model indices for
@@ -845,69 +786,176 @@ only the starting and ending model indices for each range of selected
 items. Non-contiguous selections of items are constructed by using
 more than one selection range to describe the selection.
 
+Selections are applied to a collection of model indices held by
+a selection model. The most recent selection of items applied is
+known as the current selection. The effects of this selection can
+be modified even after its application through the use of certain
+types of selection commands. These are discussed later in this
+section.
 
-\section1 Setting up a selection model
+When manipulating selections, it is often helpful to think of
+\l QItemSelectionModel as a record of the selection state of all the
+items in an item model. Once a selection model is set up, collections
+of items can be selected, deselected, or their selection states can
+be toggled without the need to know which items are already selected.
+The indices of all selected items can be retrieved at any time, and
+other components can be informed of changes to the selection model
+via the signals and slots mechanism.
+
+
+\section1 Using a selection model
 
 The standard view classes provide default selection models that can
 be used in most applications. A selection model belonging to one view
-can be shared between many views, so the construction of new selection
-models is generally not required.
-
-
-
-\section1 Creating a selection
+can be obtained using the view's
+\l{QAbstractItemView::selectionModel()}{selectionModel()} function,
+and shared between many views with
+\l{QAbstractItemView::setSelectionModel()}{setSelectionModel()},
+so the construction of new selection models is generally not required.
+If a new selection model is required then it is only necessary to
+construct 
 
 A selection is created by specifying a model, and a pair of model
-indices to a \l QItemSelection. This utility class treats the indices
-as the top-left and bottom-right locations of items in the given model
-and records them for later use. To apply the selection to items in a
-model requires the selection to be submitted to a selection model;
-this may be achieved in a number of ways, each having a different
-effect on the selections already present in the selection model.
+indices to a \l QItemSelection. This uses the indices to refer to items
+in the given model, and interprets them as the top-left and bottom-right
+items in a block of selected items.
+To apply the selection to items in a model requires the selection to be
+submitted to a selection model; this may be achieved in a number of ways,
+each having a different effect on the selections already present in the
+selection model.
 
-To demonstrate some of the principal features of selections, we create
-a table model with 64 items in total, and open a table view onto its
-data:
+
+\section2 Selecting items
+
+To demonstrate some of the principal features of selections, we construct
+an instance of a custom table model with 32 items in total, and open a
+table view onto its data:
 
 \quotefile itemselection/main.cpp
-\skipto int main
+\skipto TableModel
 \printuntil QItemSelectionModel
 
 The table view's default selection model is retrieved for later use.
 We will not modify any items in the model, but instead select a few
-items that the view displays in the centre of the table. To do this,
-we need to retrieve a model index corresponding to the top-left of
-the region to be selected:
+items that the view will display at the top-left of the table. To do
+this, we need to retrieve the model indices corresponding to the
+top-left and bottom-right items in the region to be selected:
 
 \skipto QModelIndex topLeft
-\printuntil QModelIndex topLeft
-
-We have chosen an item close to the centre of the table. An index
-corresponding to the bottom-right item is retrieved in the same way:
-
-\skipto QModelIndex bottomRight
-\printuntil QModelIndex bottomRight
+\printuntil bottomRight = model->index
 
 To select these items in the model, and see the corresponding change
-in the table view, we need to construct a selection object, and apply
+in the table view, we need to construct a selection object then apply
 it to the selection model. We also have to specify the model that the
-indices belong to since the model indices do not contain this
+indices belong to because the model indices do not contain this
 information:
 
 \skipto QItemSelection
 \printuntil selectionModel->select
 
-The selection is applied to the selection model using a
-\l{QItemSelectionModel::SelectionFlag}{selection flag} that selects the
-items in the selection model regardless of their previous state. The
-resulting selection is shown by the view in the following way:
+The selection is applied to the selection model using a command
+defined by a combination of
+\l{model-view-selection.html#selection-flags}{selection flags}.
+In this case, the flags used cause the items recorded in the
+selection object to be included in the selection model, regardless
+of their previous state. The resulting selection is shown by the view.
 
 \img selected-items1.png
+
+The selection of items can be modified using various different
+operations that are defined by the selection flags. The selection that
+results from these operations may have a complex structure, but will be
+represented efficiently by the selection model. The use of different
+selection flags to manipulate the selected items is described in the
+section \l{model-view-selection-commands.html}{selection commands}
+
+
+\section2 Reading the selection state
+
+
+Whenever you do a selection call on the selection model it compresses
+all previous selection operations and adds the new one on top of
+these. If you want to modify the most recently added selected items
+(ie. you want to continuously update your rubber band selection) you
+can specify the Current flag. 
+
+
+The selection model can be compared to a small binary calculator where
+the SelectionFlags are the commands that can be performed and where
+the end result is selected/deselected items. Using this analogy Clear
+totally resets the calculator. Select, Toggle and Deselect are the
+binary operations that can be performed. Current tells how the result
+should be accumulated and Rows and Columns tells what the result
+should apply to.
 
 
 \section2 Updating a selection
 
-QItemSelectionModel provides these slots for setting and updating a
+Selection commands are provided by a combination of selection flags,
+defined by \l{QItemSelectionModel::SelectionFlag}.
+Each selection flag tells the selection model how to update its
+internal record of selected items when either of the
+\l{QItemSelection::select()}{select()} functions are called.
+The most commonly used flag is the \c Select flag which instructs the
+selection model to record the specified items as being selected. The
+\c Toggle flag causes the selection model to invert the selection
+state of the specified items, selecting any deselected items given,
+and deselecting any currently selected ones. The \c Deselect flag
+deselects all the specified items.
+
+Individual items in the selection model are updated by creating a
+selection of items, and applying them to the selection model. In the
+following code, we apply a second selection of items to the table
+model shown above, using the \c Toggle command to invert the
+selection state of the items given.
+
+\skipto QItemSelection toggle
+\printuntil selectionModel->select
+
+The results of this operation are displayed in the table view,
+providing a convenient way of visualizing what we have achieved:
+
+\img selected-items2.png
+
+By default, the selection commands only operate on the individual
+items specified by the model indices. However, the flag used to
+describe the selection command can be combined with additional flags
+to change whole rows and columns. For example if you call
+\l{QItemSelectionModel::select()}{select()} with only one index, but
+with a command that is a combination of \c Select and \c Rows, the
+whole row containing the item referred to will be selected.
+The following code demonstrates the use of the \c Rows and \c Columns
+flags:
+
+\skipto QItemSelection columnSelection
+\printuntil QItemSelectionModel::Select | QItemSelectionModel::Rows
+
+Although only four indices are supplied to the selection model, the
+use of the \c Columns and \c Rows selection flags means that two
+columns and two rows are selected. The following image shows the
+result of these two selections:
+
+\img selected-items3.png
+
+The commands performed on the example model have all involved
+accumulating a selection of items in the model. It is also possible
+to clear the selection, or to overwrite the current selection with
+a new one.
+
+To overwrite the current selection with a new selection, combine
+the other selection flags with the \c Current flag. A command using
+this flag instructs the selection model replace its current collection
+of model indices with those specified in a call to \c select().
+To clear all selections before you start adding new ones,
+combine the other selection flags with the \c Clear flag. This will
+have the effect of resetting the selection model's collection of model
+indices.
+
+\omit
+
+
+The current state of the 
+\l QItemSelectionModel provides these slots for setting and updating a
 selection:
 
 \quotefile gui/itemviews/qitemselectionmodel.h
@@ -922,43 +970,6 @@ invalid index.
 The first select function takes a QModelIndex as a parameter, so it
 only works on one item. The second select function takes a
 QItemSelection as a parameter, and works on a list of selections.
-
-\section2 SelectionFlags
-
-The \c SelectionFlags tells the selection model how to update the
-selections when you call either of the selection functions. The most
-commonly used flag is the Select flag as it basically tells the
-selection model that the specified items should be selected. Then you
-have Toggle, which will select any unselected items and deselect any
-currently selected ones. And finally Deselect which will deselect all
-the specified items.
-
-The selection model also takes some additional flags like Rows and
-Columns which tells it to expand the specified items to either all
-rows or all columns. For example if you call select with only one
-index but with Select|Rows the whole row this index resides in will be
-selected.
-
-Whenever you do a selection call on the selection model it compresses
-all previous selection operations and adds the new one on top of
-these. If you want to modify the most recently added selected items
-(ie. you want to continuously update your rubber band selection) you
-can specify the Current flag. The Current flag tells the selection
-model to not add a new selection on top of all the others, but to
-replace the current one with the one you specified.
-
-If you want to clear all selections before you start adding new ones
-you can specify the Clear flag, so for example specifying Clear|Select
-you will first clear all selections and then select the specified
-items.
-
-The selection model can be compared to a small binary calculator where
-the SelectionFlags are the commands that can be performed and where
-the end result is selected/deselected items. Using this analogy Clear
-totally resets the calculator. Select, Toggle and Deselect are the
-binary operations that can be performed. Current tells how the result
-should be accumulated and Rows and Columns tells what the result
-should apply to.
 
 \section2 Updating the current item
 
@@ -1020,6 +1031,7 @@ always on rows or columns respectively.
 Both the selection modes and the selection behaviors are completely
 expressed by their implementation in the selectionCommand(...) 
 function and the resulting SelectionFlags they return.
+\endomit
 
 */
 
@@ -1048,6 +1060,13 @@ function and the resulting SelectionFlags they return.
 
     \section1 A read-only example model
 
+    The model implemented here is a simple, non-hierarchical, read-only data
+    model. It has a \l QStringList as its internal data source, and implements
+    only what is needed for a functional model. To make the implementation
+    easier, we subclass \l QAbstractListModel because it provides default
+    behavior for list models, and it exposes a simpler interface than the
+    \l QAbstractItemModel class.
+
     When implementing a model it is important to remember that the
     \l QAbstractItemModel class does not store any data itself, it merely
     presents an interface that the views use to access the data.
@@ -1056,13 +1075,6 @@ function and the resulting SelectionFlags they return.
     interface.
 
     \quotefile stringlistmodel/model.h
-
-    The model implemented here is a simple, non-hierarchical, read-only data
-    model. It has a \l QStringList as its internal data source, and implements
-    only what is needed for a functional model. To make the implementation
-    easier, we subclass \l QAbstractListModel because it provides default
-    behavior for list models, and it exposes a simpler interface than the
-    \l QAbstractItemModel class.
 
     \skipto class
     \printto isEditable
@@ -1215,8 +1227,12 @@ function and the resulting SelectionFlags they return.
 
 /*!
     \page model-view-subclassing-view.html
-*/
 
-/*!
-    \page model-view-subclassing-delegate.html
+    \title Creating New Views
+
+    \tableofcontents
+
+    \section1 Introduction
+
+
 */
