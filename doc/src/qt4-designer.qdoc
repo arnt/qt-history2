@@ -45,7 +45,15 @@ form using drag and drop.
 
 This allows editing of most properties in widgets and layout objects.
 
-\section2 Connection Editor
+\section2 Form Editing Mode
+
+The new form editor allows widgets to be dropped into existing layouts on
+the form. Previously, it was necessary to break layouts in order to add
+new widgets to them. \QD now supports more direct manipulation of widgets:
+You can clone a widget by dragging it with the \key CTRL key held down, and
+it is even possible to drag widgets between forms.
+
+\section2 Connection Editing Mode
 
 \QD now employs a "wired" approach to the problem of representing and editing
 connections between objects on a form. This editing mode displays all the
@@ -55,42 +63,43 @@ connection logic.
 
 \image designer-connection-mode.png
 
-\section2 Form Editor
-
-The new form editor allows widgets to be dropped into existing layouts on
-the form. Previously, it was necessary to break layouts in order to add
-new widgets to them. \QD now supports more direct manipulation of widgets:
-You can clone a widget by dragging it with the \key CTRL key held down, and
-it is even possible to drag widgets between forms.
-
 \section1 Future Improvements to Qt Designer
+
+Each of the components provided with \QD is expected to improve significantly
+in the next release of the application. Here are some of the features that
+we hope to include in each component in the future.
 
 \section2 Widget Box
 
-Visual editing of custom widgets - a complex widget hierarchy may be dragged 
-from the form to the widget box, where it can be used later just like a 
-regular widget.
+Visual editing of custom widgets: A complex widget hierarchy may be dragged 
+from the form to the widget box, where it can be used just like a regular
+widget.
 
 \section2 Property Editor
 
-Quick-set property editor - allows to quickly access the most common 
-properties of a widget in a transient popup.
-Drag and drop properties - setting properties by dragging them from the 
+A quick-set property editor that lets the user quickly access the most common
+properties of a widget via a transient popup window.
+Drag and drop properties: Properties can be set by dragging them from the 
 property editor to a widget.
 
-\section2 Signal/slot editor
+\section2 Form Editing Mode
 
-Adding custom signals and slots to a form. A feature which we are currently 
-missing is allowing connections to all types of form widgets (not just 
-QDialog).
-
-\section2 Form editor
-
-Special editors which allow in-place editing of widgets. For example, an 
+Special editors that allow in-place editing of widgets. For example, an 
 editor is being developed for adding items to a combo box.
 
-More layout editting. Creating widgets which span multiple rows/columns, move 
-widgets inside of a layout and removing empty rows/columns.
+More layout editing features, allowing the user to
+
+\list
+\i create widgets that span multiple rows/columns in a layout,
+\i move widgets inside a layout,
+\i remove empty rows/columns from a layout.
+\endlist
+
+\section2 Connection Editing Mode
+
+Adding custom signals and slots to a form. A feature which is currently 
+missing is the ability to allow connections between objects on a form and
+all types of form widgets (not just QDialog).
 
 \section2 Other Features
 
