@@ -1658,6 +1658,8 @@ QStringList QSettings::subkeyList(const QString &key) const
 	    return QStringList();
 	}
 
+	subkeycount = list.count();
+
 	if (list.count() == 1) {
 	    d->heading = list[0];
 	    d->group = "General";
@@ -1673,7 +1675,6 @@ QStringList QSettings::subkeyList(const QString &key) const
 	    realkey = list.join("/");
 	}
 
-	subkeycount = list.count();
     } else
 	realkey = theKey;
 
