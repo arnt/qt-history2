@@ -2904,6 +2904,14 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 {
     if ( name.isEmpty() )
 	return;
+
+    // According to qt-bugs/arc-10/21019, the Microsoft DOM implementation has
+    // problems with doctypes that do not have any PUBLIC or SYSTEM identifier.
+    // So workaround this problem, and don't write it.
+    bool entities_or_notations = entities->length()>0 || notations->length()>0;
+    if ( publicId.isNull() && systemId.isNull() && !entities_or_notations )
+	return;
+
     s << "<!DOCTYPE " << name;
 
     if ( !publicId.isNull() ) {
@@ -2914,7 +2922,7 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 	s << " SYSTEM \"" << systemId << "\"";
     }
 
-    if ( entities->length() > 0 || notations->length() > 0 ) {
+    if ( entities_or_notations ) {
 	s << " [ " << endl;
 
 	QDictIterator<QDomNodePrivate> it2( notations->map );
