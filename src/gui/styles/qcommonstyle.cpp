@@ -1214,7 +1214,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                 shiftX = pixelMetric(PM_ButtonShiftHorizontal, widget);
                 shiftY = pixelMetric(PM_ButtonShiftVertical, widget);
             }
-            if (!(tb->extras & Q4StyleOptionToolButton::Arrow)) {
+            if (tb->extras & Q4StyleOptionToolButton::Arrow) {
                 PrimitiveElement pe;
                 switch (tb->arrowType) {
                 case Qt::LeftArrow:
