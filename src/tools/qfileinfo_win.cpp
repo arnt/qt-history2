@@ -366,7 +366,6 @@ bool QFileInfo::permission( int p ) const
 {
 #ifndef Q_OS_TEMP
     if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) {
-	BOOL result = FALSE;
 	PSID pOwner = 0, pGroup = 0;
 	PACL pDacl;
 	PSECURITY_DESCRIPTOR pSD;
@@ -387,8 +386,6 @@ bool QFileInfo::permission( int p ) const
 		PSID pWorld = 0;
 		if ( ptrAllocateAndInitializeSid( &worldAuth, 1, SECURITY_WORLD_RID, 0,0,0,0,0,0,0, &pWorld ) ) {
 
-		    result = TRUE;
-
 		    if ( p & ( ReadUser | WriteUser | ExeUser) ) {
 			ptrBuildTrusteeWithSidW( pTrustee, pOwner );
 			if ( ptrGetEffectiveRightsFromAclW( pDacl, pTrustee, pAccess ) != ERROR_SUCCESS )
@@ -396,7 +393,7 @@ bool QFileInfo::permission( int p ) const
 			if ( ( p & ReadUser ) && !( *pAccess & ReadMask )   ||
 			     ( p & WriteUser ) && !( *pAccess & WriteMask ) ||
 			     ( p & ExeUser ) && !( *pAccess & ExecMask )      )
-			    result = FALSE;
+			    return FALSE;
 		    }
 		    if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
 			ptrBuildTrusteeWithSidW( pTrustee, pGroup );
@@ -405,7 +402,7 @@ bool QFileInfo::permission( int p ) const
 			if ( ( p & ReadGroup ) && !( *pAccess & ReadMask )   ||
 			     ( p & WriteGroup ) && !( *pAccess & WriteMask ) ||
 			     ( p & ExeGroup ) && !( *pAccess & ExecMask )      )
-			    result = FALSE;
+			    return FALSE;
 		    }
 		    if ( p & ( ReadOther | WriteOther | ExeOther) ) {
 			ptrBuildTrusteeWithSidW( pTrustee, pWorld );
@@ -414,12 +411,12 @@ bool QFileInfo::permission( int p ) const
 			if ( ( p & ReadOther ) && !( *pAccess & ReadMask )   ||
 			     ( p & WriteOther ) && !( *pAccess & WriteMask ) ||
 			     ( p & ExeOther ) && !( *pAccess & ExecMask )      )
-			    result = FALSE;
+			    return FALSE;
 		    }
 		    ptrFreeSid( pWorld );
 		}
 		LocalFree( pSD );
-	    } // if ( ptrGetNamedSecurityInfoW(..) == ERROR_SUCCESS )
+	    }
 	}
 #else
         TRUSTEE_A trustee;
@@ -434,8 +431,6 @@ bool QFileInfo::permission( int p ) const
 		PSID pWorld = 0;
 		if ( ptrAllocateAndInitializeSid( &worldAuth, 1, SECURITY_WORLD_RID, 0,0,0,0,0,0,0, &pWorld ) ) {
 
-		    result = TRUE;
-
 		    if ( p & ( ReadUser | WriteUser | ExeUser) ) {
 			ptrBuildTrusteeWithSidA( pTrustee, pOwner );
 			if ( ptrGetEffectiveRightsFromAclA( pDacl, pTrustee, pAccess ) != ERROR_SUCCESS )
@@ -443,7 +438,7 @@ bool QFileInfo::permission( int p ) const
 			if ( ( p & ReadUser ) && !( *pAccess & ReadMask )   ||
 			     ( p & WriteUser ) && !( *pAccess & WriteMask ) ||
 			     ( p & ExeUser ) && !( *pAccess & ExecMask )      )
-			    result = FALSE;
+			    return FALSE;
 		    }
 		    if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
 			ptrBuildTrusteeWithSidA( pTrustee, pGroup );
@@ -452,7 +447,7 @@ bool QFileInfo::permission( int p ) const
 			if ( ( p & ReadGroup ) && !( *pAccess & ReadMask )   ||
 			     ( p & WriteGroup ) && !( *pAccess & WriteMask ) ||
 			     ( p & ExeGroup ) && !( *pAccess & ExecMask )      )
-			    result = FALSE;
+			    return FALSE;
 		    }
 		    if ( p & ( ReadOther | WriteOther | ExeOther) ) {
 			ptrBuildTrusteeWithSidA( pTrustee, pWorld );
@@ -461,19 +456,18 @@ bool QFileInfo::permission( int p ) const
 			if ( ( p & ReadOther ) && !( *pAccess & ReadMask )   ||
 			     ( p & WriteOther ) && !( *pAccess & WriteMask ) ||
 			     ( p & ExeOther ) && !( *pAccess & ExecMask )      )
-			    result = FALSE;
+			    return FALSE;
 		    }
 		    ptrFreeSid( pWorld );
 		}
 		LocalFree( pSD );
-	    } // if ( ptrGetNamedSecurityInfoA(..) == ERROR_SUCCESS )
+	    }
 	}
 #endif
-
-	return result;
     }
 #endif // !Q_OS_TEMP
     // just check if it's ReadOnly
+
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
