@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qserversocket.h"
+#include "qnetworkprotocol.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
@@ -56,6 +57,7 @@ class QHttpRequestHeaderPrivate;
 class QHttpClientPrivate;
 class QHttpServerPrivate;
 class QHttpConnectionPrivate;
+class QHttpPrivate;
 
 
 class Q_EXPORT QHttpHeader
@@ -282,6 +284,46 @@ private:
     bool m_allowKeepAlive;
     int m_keepAliveTimeout;
 };
+
+
+class QHttp : public QNetworkProtocol
+{
+    Q_OBJECT
+
+public:
+    QHttp();
+    virtual ~QHttp();
+
+    int supportedOperations() const;
+
+protected:
+    void operationGet( QNetworkOperation *op );
+    void operationPut( QNetworkOperation *op );
+
+//    QSocket *commandSocket;
+//    bool connectionReady, passiveMode;
+
+private:
+#if 0
+    bool checkConnection( QNetworkOperation *op );
+#endif
+//    void close();
+
+protected slots:
+    void reply( const QHttpReplyHeader &, const QByteArray & dataA );
+    void idle();
+//    void hostFound();
+//    void connected();
+//    void closed();
+//    void readyRead();
+
+private:
+    QHttpPrivate *d;
+    QHttpClient *client;
+    enum Operation { NoOp, Get, Put };
+    Operation operation;
+};
+
 
 QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
 QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );

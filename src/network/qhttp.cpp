@@ -46,6 +46,7 @@
 #include "qstringlist.h"
 #include "qcstring.h"
 #include "qbuffer.h"
+#include "qurloperator.h"
 
 /****************************************************
  *
@@ -1558,6 +1559,107 @@ void QHttpConnection::setKeepAliveTimeout( int timeout )
 int QHttpConnection::keepAliveTimeout() const
 {
     return m_keepAliveTimeout;
+}
+
+
+/****************************************************
+ *
+ * QHttp
+ *
+ ****************************************************/
+/*!
+  \class QHttp qhttp.h
+  \brief The QHttp class is a network protocol class for HTTP.
+
+  \module network
+
+  fnord
+*/
+
+/*!
+  Constructor.
+*/
+QHttp::QHttp()
+{
+    d = 0;
+    operation = NoOp;
+    client = new QHttpClient( this );
+    connect( client, SIGNAL(reply(const QHttpReplyHeader&, const QByteArray&)),
+	    this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
+    connect( client, SIGNAL(idle()),
+	    this, SLOT(idle()) );
+}
+
+/*!
+  Destructor.
+*/
+QHttp::~QHttp()
+{
+    client->close();
+}
+
+/*! \reimp
+*/
+int QHttp::supportedOperations() const
+{
+    return OpGet | OpPut;
+}
+
+/*! \reimp
+*/
+void QHttp::operationGet( QNetworkOperation * )
+{
+    int cstate = client->state();
+    if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
+	return; // ### store the request for later?
+
+    operation = Get;
+    QHttpRequestHeader header( "GET", url()->encodedPathAndQuery() );
+    client->request( url()->host(), url()->port() != -1 ? url()->port() : 80, header );
+}
+
+/*! \reimp
+*/
+void QHttp::operationPut( QNetworkOperation *op )
+{
+    int cstate = client->state();
+    if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
+	return; // ### store the request for later?
+
+    operation = Put;
+    QHttpRequestHeader header( "POST", url()->encodedPathAndQuery() );
+//    header.setContentType( "text/plain" );
+    client->request( url()->host(), url()->port() != -1 ? url()->port() : 80,
+	    header, op->rawArg(1) );
+}
+
+#if 0
+/*! \reimp
+*/
+bool QHttp::checkConnection( QNetworkOperation * )
+{
+    int cstate = client->state();
+    if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Reading && cstate != QHttpClient::Sending )
+	return TRUE;
+    return FALSE;
+}
+#endif
+
+/*! \internal
+*/
+void QHttp::reply( const QHttpReplyHeader &, const QByteArray & dataA )
+{
+    if ( operation == Get && !dataA.isEmpty() ) {
+	emit data( dataA, operationInProgress() );
+    }
+}
+
+/*! \internal
+*/
+void QHttp::idle()
+{
+    emit finished( operationInProgress() );
+    operation = NoOp;
 }
 
 #endif
