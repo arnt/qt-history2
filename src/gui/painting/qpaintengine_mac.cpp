@@ -72,7 +72,7 @@ QMacCGContext::QMacCGContext(QPainter *p)
 
 inline static QPaintEngine::PaintEngineFeatures qt_mac_qd_features()
 {
-    return QPaintEngine::PaintEngineFeatures(QPaintEngine::UsesFontEngine)
+    return QPaintEngine::PaintEngineFeatures(QPaintEngine::UsesFontEngine);
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine()
@@ -985,10 +985,10 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
 {
     // Supports all except gradients...
-    return QPaintEngine::PaintEngineFeatures(AllFeatures
-                                             & (~ConicalGradientFill)
+    return QPaintEngine::PaintEngineFeatures(QPaintEngine::AllFeatures
+                                             & (~QPaintEngine::ConicalGradientFill)
 #ifndef QMAC_NATIVE_GRADIENTS
-                                             & (~(LinearGradientFill|RadialGradientFill))
+                                             & (~(QPaintEngine::LinearGradientFill|QPaintEngine::RadialGradientFill))
 #endif
                                              );
 }

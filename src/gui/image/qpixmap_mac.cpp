@@ -204,7 +204,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     if(image.hasAlphaBuffer()) { //setup the alpha
         bool alphamap = img.depth() == 32;
         if (img.depth() == 8) {
-            const QRgb * const rgb = img.colorTable();
+            const QVector<QRgb> rgb = img.colorTable();
             for (int i = 0, count = img.numColors(); i < count; ++i) {
                 const int alpha = qAlpha(rgb[i]);
                 if (alpha != 0 && alpha != 0xff) {
