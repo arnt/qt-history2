@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#77 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#77 $");
 
 
 const int Unsorted = 32767;
@@ -1176,14 +1176,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		lc = c;
 		// also make sure that the top item indicates focus,
 		// if nothing would otherwise
-		if ( !d->focusItem && hasFocus() ) {
+		if ( !d->focusItem && hasFocus() )
 		    d->focusItem = current->i;
-		    if ( !isMultiSelection() ) {
-			current->i->setSelected( TRUE );
-			emit selectionChanged( current->i );
-			emit selectionChanged();
-		    }
-		}
 	    }
 
 	    x = fx;
