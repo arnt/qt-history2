@@ -1492,12 +1492,12 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                 drawPrimitive(PE_ButtonBevel, p, handle, pal, flags | Style_Raised);
 
                 if (slider->orientation() == Qt::Horizontal) {
-                    QCOORD mid = handle.x() + handle.width() / 2;
+                    int mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid,  handle.y() + 1, mid ,
                                     handle.y() + handle.height() - 3,
                                     pal, true, 1);
                 } else {
-                    QCOORD mid = handle.y() + handle.height() / 2;
+                    int mid = handle.y() + handle.height() / 2;
                     qDrawShadeLine(p, handle.x() + 1, mid,
                                     handle.x() + handle.width() - 3, mid,
                                     pal, true, 1);

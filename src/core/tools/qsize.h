@@ -38,8 +38,8 @@ public:
     QSize expandedTo(const QSize &) const;
     QSize boundedTo(const QSize &) const;
 
-    QCOORD &rwidth();
-    QCOORD &rheight();
+    int &rwidth();
+    int &rheight();
 
     QSize &operator+=(const QSize &);
     QSize &operator-=(const QSize &);
@@ -60,8 +60,8 @@ public:
     friend inline const QSize operator/(const QSize &, double);
 
 private:
-    QCOORD wd;
-    QCOORD ht;
+    int wd;
+    int ht;
 };
 Q_DECLARE_TYPEINFO(QSize, Q_MOVABLE_TYPE);
 
@@ -107,10 +107,10 @@ inline void QSize::setHeight(int h)
 inline void QSize::scale(int w, int h, Qt::AspectRatioMode mode)
 { scale(QSize(w, h), mode); }
 
-inline QCOORD &QSize::rwidth()
+inline int &QSize::rwidth()
 { return wd; }
 
-inline QCOORD &QSize::rheight()
+inline int &QSize::rheight()
 { return ht; }
 
 inline QSize &QSize::operator+=(const QSize &s)

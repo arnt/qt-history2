@@ -35,10 +35,10 @@ struct QDockWindowLayoutInfo
 {
     QLayoutItem *item;
 
-    QCOORD cur_pos;
-    QCOORD cur_size;
-    QCOORD min_size;
-    QCOORD max_size;
+    int cur_pos;
+    int cur_size;
+    int min_size;
+    int max_size;
 
     uint is_sep     : 1;
     uint is_dummy   : 1;
@@ -114,13 +114,13 @@ private slots:
     void maybeDelete();
 };
 
-static inline QCOORD pick(Qt::Orientation o, const QPoint &p)
+static inline int pick(Qt::Orientation o, const QPoint &p)
 { return o == Qt::Horizontal ? p.x() : p.y(); }
-static inline QCOORD pick(Qt::Orientation o, const QSize &s)
+static inline int pick(Qt::Orientation o, const QSize &s)
 { return o == Qt::Horizontal ? s.width() : s.height(); }
-static inline QCOORD pick_perp(Qt::Orientation o, const QPoint &p)
+static inline int pick_perp(Qt::Orientation o, const QPoint &p)
 { return o == Qt::Vertical ? p.x() : p.y(); }
-static inline QCOORD pick_perp(Qt::Orientation o, const QSize &s)
+static inline int pick_perp(Qt::Orientation o, const QSize &s)
 { return o == Qt::Vertical ? s.width() : s.height(); }
 
 #endif // QDOCKWINDOWLAYOUT_P_H

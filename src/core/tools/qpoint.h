@@ -31,8 +31,8 @@ public:
 
     int manhattanLength() const;
 
-    QCOORD &rx();
-    QCOORD &ry();
+    int &rx();
+    int &ry();
 
     QPoint &operator+=(const QPoint &p);
     QPoint &operator-=(const QPoint &p);
@@ -56,11 +56,11 @@ public:
 private:
 
 #if defined(Q_OS_MAC)
-    QCOORD yp;
-    QCOORD xp;
+    int yp;
+    int xp;
 #else
-    QCOORD xp;
-    QCOORD yp;
+    int xp;
+    int yp;
 #endif
 };
 
@@ -99,10 +99,10 @@ inline void QPoint::setX(int x)
 inline void QPoint::setY(int y)
 { yp = y; }
 
-inline QCOORD &QPoint::rx()
+inline int &QPoint::rx()
 { return xp; }
 
-inline QCOORD &QPoint::ry()
+inline int &QPoint::ry()
 { return yp; }
 
 inline QPoint &QPoint::operator+=(const QPoint &p)

@@ -184,25 +184,25 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         break;
     case PE_ExclusiveIndicator:
         {
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-            static const QCOORD pts1[] = {              // up left  lines
+#define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
+            static const int pts1[] = {              // up left  lines
                 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-            static const QCOORD pts4[] = {              // bottom right  lines
+            static const int pts4[] = {              // bottom right  lines
                 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
                 11,4, 10,3, 10,2 };
-            static const QCOORD pts5[] = {              // inner fill
+            static const int pts5[] = {              // inner fill
                 4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
             bool down = flags & Style_Down;
             bool on = flags & Style_On;
-            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            QPointArray a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen((down || on) ? pal.dark() : pal.light());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts4), pts4);
+            a.setPoints(INTARRLEN(pts4), pts4);
             a.translate(r.x(), r.y());
             p->setPen((down || on) ? pal.light() : pal.dark());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts5), pts5);
+            a.setPoints(INTARRLEN(pts5), pts5);
             a.translate(r.x(), r.y());
             QColor fillColor = on ? pal.dark() : pal.background();
             p->setPen(fillColor);
@@ -214,13 +214,13 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
 
     case PE_ExclusiveIndicatorMask:
         {
-            static const QCOORD pts1[] = {
+            static const int pts1[] = {
                 // up left  lines
                 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1,
                 // bottom right  lines
                 10,2, 10,3, 11,4, 11,7, 10,8, 10,9, 9,10, 8,10, 7,11, 4,11, 3,10, 2,10
             };
-            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            QPointArray a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);

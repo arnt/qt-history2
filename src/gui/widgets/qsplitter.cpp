@@ -107,7 +107,7 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->buttons() & Qt::LeftButton))
         return;
-    QCOORD pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
+    int pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                  - mouseOffset;
     if (opaque()) {
         s->moveSplitter(pos, id());
@@ -125,7 +125,7 @@ void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 {
     if (!opaque() && e->button() == Qt::LeftButton) {
-        QCOORD pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
+        int pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                      - mouseOffset;
         s->setRubberband(-1);
         s->moveSplitter(pos, id());
@@ -149,19 +149,19 @@ class QSplitterLayoutStruct
 {
 public:
     QRect rect;
-    QCOORD sizer;
+    int sizer;
     uint isHandle : 1;
     uint collapsed : 1;
     uint collapsible : 2;
     QWidget *wid;
 
     QSplitterLayoutStruct() : sizer(-1), isHandle(false), collapsed(false), collapsible(Default) {}
-    QCOORD getSizer(Qt::Orientation orient);
-    QCOORD pick(const QSize &size, Qt::Orientation orient)
+    int getSizer(Qt::Orientation orient);
+    int pick(const QSize &size, Qt::Orientation orient)
     { return (orient == Qt::Horizontal) ? size.width() : size.height(); }
 };
 
-QCOORD QSplitterLayoutStruct::getSizer(Qt::Orientation orient)
+int QSplitterLayoutStruct::getSizer(Qt::Orientation orient)
 {
     if (sizer == -1) {
         QSize s = wid->sizeHint();
@@ -996,7 +996,7 @@ int QSplitter::idAfter(QWidget* w) const
 
     \sa idAfter()
 */
-void QSplitter::moveSplitter(QCOORD p, int id)
+void QSplitter::moveSplitter(int p, int id)
 {
     QSplitterLayoutStruct *s = d->list.at(id);
     int farMin;

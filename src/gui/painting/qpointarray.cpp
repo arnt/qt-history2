@@ -117,7 +117,7 @@ QPointArray::QPointArray(const QRect &r, bool closed)
   Equivalent to setPoints(nPoints, points).
 */
 
-QPointArray::QPointArray(int nPoints, const QCOORD *points)
+QPointArray::QPointArray(int nPoints, const int *points)
 {
     setPoints(nPoints, points);
 }
@@ -196,18 +196,15 @@ void QPointArray::point(int index, int *x, int *y) const
     (30, 40):
 
     \code
-        static const QCOORD points[] = { 10, 20, 30, 40 };
+        static const int points[] = { 10, 20, 30, 40 };
         QPointArray a;
         a.setPoints(2, points);
     \endcode
 
-    \c QCOORD is a typedef for a signed integer type with at least 32
-    bits.
-
     \sa resize()
 */
 
-void QPointArray::setPoints(int nPoints, const QCOORD *points)
+void QPointArray::setPoints(int nPoints, const int *points)
 {
     resize(nPoints);
     int i = 0;
@@ -260,7 +257,7 @@ void QPointArray::setPoints(int nPoints, int firstx, int firsty, ...)
 
 */
 
-void QPointArray::putPoints(int index, int nPoints, const QCOORD *points)
+void QPointArray::putPoints(int index, int nPoints, const int *points)
 {
     if (index + nPoints > size())
         resize(index + nPoints);

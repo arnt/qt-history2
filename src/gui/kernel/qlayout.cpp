@@ -184,7 +184,7 @@ private:
     void recalcHFW(int w, int s);
     void addHfwData (QGridBox *box, int width);
     void init();
-    QSize findSize(QCOORD QLayoutStruct::*, int) const;
+    QSize findSize(int QLayoutStruct::*, int) const;
     void addData(QGridBox *b, bool r = true, bool c = true);
     void setSize(int rows, int cols);
     void setupLayoutData(int space);
@@ -338,7 +338,7 @@ bool QGridLayoutPrivate::findWidget(QWidget* w, int *row, int *col)
     return false;
 }
 
-QSize QGridLayoutPrivate::findSize(QCOORD QLayoutStruct::*size, int spacer) const
+QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
 {
     QGridLayoutPrivate *that = const_cast<QGridLayoutPrivate*>(this);
     that->setupLayoutData(spacer);

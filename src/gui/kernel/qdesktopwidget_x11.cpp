@@ -16,6 +16,7 @@
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 #include "qwidget_p.h"
+#include <limits.h>
 
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;
@@ -283,9 +284,9 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
     int closestScreen = -1;
-    QCOORD shortestDistance = QCOORD_MAX;
+    int shortestDistance = INT_MAX;
     for (int i = 0; i < d->screenCount; ++i) {
-        QCOORD thisDistance = d->pointToRect(point, d->rects[i]);
+        int thisDistance = d->pointToRect(point, d->rects[i]);
         if (thisDistance < shortestDistance) {
             shortestDistance = thisDistance;
             closestScreen = i;

@@ -5337,8 +5337,8 @@ Q3ListViewItem * Q3ListView::currentItem() const
 
     \code
     QRect r(listView->itemRect(item));
-    r.setHeight((QCOORD)(qMin(item->totalHeight(),
-                                listView->viewport->height() - r.y())))
+    r.setHeight(qMin(item->totalHeight(),
+                     listView->viewport->height() - r.y()))
     \endcode
 
     Note the way it avoids too-high rectangles. totalHeight() can be

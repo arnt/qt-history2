@@ -438,10 +438,10 @@ bool QRegion::operator==(const QRegion &r) const
 // inline QRect::setCoords
 inline void qt_setCoords(QRect *r, int xp1, int yp1, int xp2, int yp2)
 {
-    r->x1 = (QCOORD)xp1;
-    r->y1 = (QCOORD)yp1;
-    r->x2 = (QCOORD)xp2;
-    r->y2 = (QCOORD)yp2;
+    r->x1 = xp1;
+    r->y1 = yp1;
+    r->x2 = xp2;
+    r->y2 = yp2;
 }
 
 

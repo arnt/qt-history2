@@ -270,14 +270,14 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
     case PE_ExclusiveIndicator:
         {
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-            QCOORD inner_pts[] = { // used for filling diamond
+#define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
+            int inner_pts[] = { // used for filling diamond
                 2,r.height()/2,
                 r.width()/2,2,
                 r.width()-3,r.height()/2,
                 r.width()/2,r.height()-3
             };
-            QCOORD top_pts[] = { // top (^) of diamond
+            int top_pts[] = { // top (^) of diamond
                 0,r.height()/2,
                 r.width()/2,0,
                 r.width()-2,r.height()/2-1,
@@ -288,7 +288,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 r.width()/2,2,
                 r.width()-4,r.height()/2-1
             };
-            QCOORD bottom_pts[] = { // bottom (v) of diamond
+            int bottom_pts[] = { // bottom (v) of diamond
                 1,r.height()/2+1,
                 r.width()/2,r.height()-1,
                 r.width()-1,r.height()/2,
@@ -302,7 +302,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             bool on = flags & Style_On;
             bool down = flags & Style_Down;
             bool showUp = !(down ^ on);
-            QPointArray a(QCOORDARRLEN(inner_pts), inner_pts);
+            QPointArray a(INTARRLEN(inner_pts), inner_pts);
             p->setPen(Qt::NoPen);
             p->setBrush(showUp ? pal.brush(QPalette::Button) :
                          pal.brush(QPalette::Mid));
@@ -310,11 +310,11 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             p->drawPolygon(a);
             p->setPen(showUp ? pal.light() : pal.dark());
             p->setBrush(Qt::NoBrush);
-            a.setPoints(QCOORDARRLEN(top_pts), top_pts);
+            a.setPoints(INTARRLEN(top_pts), top_pts);
             a.translate(r.x(), r.y());
             p->drawPolyline(a);
             p->setPen(showUp ? pal.dark() : pal.light());
-            a.setPoints(QCOORDARRLEN(bottom_pts), bottom_pts);
+            a.setPoints(INTARRLEN(bottom_pts), bottom_pts);
             a.translate(r.x(), r.y());
             p->drawPolyline(a);
 
@@ -323,13 +323,13 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
     case PE_ExclusiveIndicatorMask:
         {
-            static QCOORD inner_pts[] = { // used for filling diamond
+            static int inner_pts[] = { // used for filling diamond
                 0,r.height()/2,
                 r.width()/2,0,
                 r.width()-1,r.height()/2,
                 r.width()/2,r.height()-1
             };
-            QPointArray a(QCOORDARRLEN(inner_pts), inner_pts);
+            QPointArray a(INTARRLEN(inner_pts), inner_pts);
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);
             a.translate(r.x(), r.y());
@@ -661,18 +661,18 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             const int motifOffset = 10;
             int sw = pixelMetric(PM_SplitterWidth);
             if (flags & Style_Horizontal) {
-                QCOORD yPos = r.y() + r.height() / 2;
-                QCOORD kPos = r.width() - motifOffset - sw;
-                QCOORD kSize = sw - 2;
+                int yPos = r.y() + r.height() / 2;
+                int kPos = r.width() - motifOffset - sw;
+                int kSize = sw - 2;
 
                 qDrawShadeLine(p, 0, yPos, kPos, yPos, pal);
                 qDrawShadePanel(p, kPos, yPos - sw / 2 + 1, kSize, kSize,
                                  pal, false, 1, &pal.brush(QPalette::Button));
                 qDrawShadeLine(p, kPos + kSize - 1, yPos, r.width(), yPos, pal);
             } else {
-                QCOORD xPos = r.x() + r.width() / 2;
-                QCOORD kPos = motifOffset;
-                QCOORD kSize = sw - 2;
+                int xPos = r.x() + r.width() / 2;
+                int kPos = motifOffset;
+                int kSize = sw - 2;
 
                 qDrawShadeLine(p, xPos, kPos + kSize - 1, xPos, r.height(), pal);
                 qDrawShadePanel(p, xPos - sw / 2 + 1, kPos, kSize, kSize, pal,
@@ -1419,11 +1419,11 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                 drawPrimitive(PE_ButtonBevel, p, handle, pal);
 
                 if (slider->orientation() == Qt::Horizontal) {
-                    QCOORD mid = handle.x() + handle.width() / 2;
+                    int mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid, handle.y(), mid, handle.y() + handle.height() - 2,
                                    pal, true, 1);
                 } else {
-                    QCOORD mid = handle.y() + handle.height() / 2;
+                    int mid = handle.y() + handle.height() / 2;
                     qDrawShadeLine(p, handle.x(), mid, handle.x() + handle.width() - 2, mid, pal,
                                    true, 1);
                 }

@@ -94,10 +94,10 @@ public:
     QAction *toggleViewAction;
 };
 
-static inline QCOORD pick(Qt::Orientation o, const QPoint &p)
+static inline int pick(Qt::Orientation o, const QPoint &p)
 { return o == Qt::Horizontal ? p.x() : p.y(); }
 
-static inline QCOORD pick(Qt::Orientation o, const QSize &s)
+static inline int pick(Qt::Orientation o, const QSize &s)
 { return o == Qt::Horizontal ? s.width() : s.height(); }
 
 #endif // QTOOLBAR_P_H

@@ -3454,10 +3454,10 @@ void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
   This function is called from QDesktopwidget::screen(QPoint) to find the
   closest screen for a point.
 */
-QCOORD QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
+int QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
 {
-    QCOORD dx = 0;
-    QCOORD dy = 0;
+    int dx = 0;
+    int dy = 0;
     if (p.x() < r.left())
         dx = r.left() - p.x();
     else if (p.x() > r.right())

@@ -24,10 +24,6 @@
 
     A point is specified by an x coordinate and a y coordinate.
 
-    The coordinate type is \c QCOORD (a 32-bit integer). The minimum
-    value of \c QCOORD is \c QCOORD_MIN (-2147483648) and the maximum
-    value is  \c QCOORD_MAX (2147483647).
-
     The coordinates are accessed by the functions x() and y(); they
     can be set by setX() and setY() or by the reference functions rx()
     and ry().
@@ -120,7 +116,7 @@
 
 
 /*!
-    \fn QCOORD &QPoint::rx()
+    \fn int &QPoint::rx()
 
     Returns a reference to the x coordinate of the point.
 
@@ -136,7 +132,7 @@
 */
 
 /*!
-    \fn QCOORD &QPoint::ry()
+    \fn int &QPoint::ry()
 
     Returns a reference to the y coordinate of the point.
 

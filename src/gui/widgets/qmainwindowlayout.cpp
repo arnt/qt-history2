@@ -90,19 +90,19 @@ static inline POSITION positionForArea(Qt::ToolBarArea area)
     return CENTER;
 }
 
-static inline QCOORD pick(POSITION p, const QSize &s)
+static inline int pick(POSITION p, const QSize &s)
 { return p == TOP || p == BOTTOM ? s.height() : s.width(); }
 
-static inline QCOORD pick(POSITION p, const QPoint &pt)
+static inline int pick(POSITION p, const QPoint &pt)
 { return p == TOP || p == BOTTOM ? pt.y() : pt.x(); }
 
 static inline void set(POSITION p, QSize &s, int x)
 { if (p == LEFT || p == RIGHT) s.setWidth(x); else s.setHeight(x); }
 
-static inline QCOORD pick_perp(POSITION p, const QSize &s)
+static inline int pick_perp(POSITION p, const QSize &s)
 { return p == TOP || p == BOTTOM ? s.width() : s.height(); }
 
-static inline QCOORD pick_perp(POSITION p, const QPoint &pt)
+static inline int pick_perp(POSITION p, const QPoint &pt)
 { return p == TOP || p == BOTTOM ? pt.x() : pt.y(); }
 
 static inline void set_perp(POSITION p, QSize &s, int x)

@@ -2164,7 +2164,6 @@ void Q3ScrollView::updateContents(int x, int y, int w, int h)
     x -= d->contentsX();
     y -= d->contentsY();
 
-    // Clip to QCOORD space
     if (x < 0) {
         w += x;
         x = 0;
@@ -2254,7 +2253,6 @@ void Q3ScrollView::repaintContents(int x, int y, int w, int h, bool erase)
     x -= d->contentsX();
     y -= d->contentsY();
 
-    // Clip to QCOORD space
     if (x < 0) {
         w += x;
         x = 0;

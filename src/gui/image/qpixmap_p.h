@@ -44,7 +44,7 @@ struct QPixmapData { // internal pixmap data
     bool deref() { return !--count; }
     uint count;
 
-    QCOORD w, h;
+    int w, h;
     short d;
     uint uninit:1;
     uint bitmap:1;

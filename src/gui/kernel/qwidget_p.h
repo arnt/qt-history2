@@ -197,7 +197,7 @@ public:
 
     void reparentFocusWidgets(QWidget *oldtlw);
 
-    static QCOORD pointToRect(const QPoint &p, const QRect &r);
+    static int pointToRect(const QPoint &p, const QRect &r);
 
     QWidgetData data;
 

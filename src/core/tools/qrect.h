@@ -41,10 +41,10 @@ public:
     int bottom() const;
 
 #ifdef QT_COMPAT
-    QT_COMPAT QCOORD &rLeft() { return x1; }
-    QT_COMPAT QCOORD &rTop() { return y1; }
-    QT_COMPAT QCOORD &rRight() { return x2; }
-    QT_COMPAT QCOORD &rBottom() { return y2; }
+    QT_COMPAT int &rLeft() { return x1; }
+    QT_COMPAT int &rTop() { return y1; }
+    QT_COMPAT int &rRight() { return x2; }
+    QT_COMPAT int &rBottom() { return y2; }
 #endif
 
     int x() const;
@@ -130,15 +130,15 @@ private:
     friend void qt_setCoords(QRect *r, int xp1, int yp1, int xp2, int yp2);
 #endif
 #if defined(Q_OS_MAC)
-    QCOORD y1;
-    QCOORD x1;
-    QCOORD y2;
-    QCOORD x2;
+    int y1;
+    int x1;
+    int y2;
+    int x2;
 #else
-    QCOORD x1;
-    QCOORD y1;
-    QCOORD x2;
-    QCOORD y2;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
 #endif
 
 };

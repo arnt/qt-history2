@@ -29,7 +29,7 @@ public:
     inline QPointArray(const QPointArray &a) : QVector<QPoint>(a) {}
     inline QPointArray(const QVector<QPoint> &v) : QVector<QPoint>(v) {}
     QPointArray(const QRect &r, bool closed=false);
-    QPointArray(int nPoints, const QCOORD *points);
+    QPointArray(int nPoints, const int *points);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QPointArray copy() const { return *this; }
@@ -44,9 +44,9 @@ public:
     QPoint point(int i) const;
     void setPoint(int index, int x, int y);
     void setPoint(int index, const QPoint &p);
-    void setPoints(int nPoints, const QCOORD *points);
+    void setPoints(int nPoints, const int *points);
     void setPoints(int nPoints, int firstx, int firsty, ...);
-    void putPoints(int index, int nPoints, const QCOORD *points);
+    void putPoints(int index, int nPoints, const int *points);
     void putPoints(int index, int nPoints, int firstx, int firsty, ...);
     void putPoints(int index, int nPoints, const QPointArray & from, int fromIndex=0);
 

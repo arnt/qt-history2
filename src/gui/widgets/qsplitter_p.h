@@ -44,14 +44,14 @@ public:
     bool compatMode : 8;
     int handleWidth;
 
-    inline QCOORD pick(const QPoint &p) const
+    inline int pick(const QPoint &p) const
     { return orient == Qt::Horizontal ? p.x() : p.y(); }
-    inline QCOORD pick(const QSize &s) const
+    inline int pick(const QSize &s) const
     { return orient == Qt::Horizontal ? s.width() : s.height(); }
 
-    inline QCOORD trans(const QPoint &p) const
+    inline int trans(const QPoint &p) const
     { return orient == Qt::Vertical ? p.x() : p.y(); }
-    inline QCOORD trans(const QSize &s) const
+    inline int trans(const QSize &s) const
     { return orient == Qt::Vertical ? s.width() : s.height(); }
 
     void init();

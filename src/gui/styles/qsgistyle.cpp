@@ -698,13 +698,13 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             if (!(flags & QStyle::Style_Off)) {
                 er = r;
                 er.addCoords(1, 2, 1, 1);
-                static const QCOORD check_mark[] = {
+                static const int check_mark[] = {
                         14,0,  10,0,  11,1,  8,1,  9,2,         7,2,  8,3,  6,3,
                         7,4,  1,4,  6,5,  1,5,        6,6,  3,6,  5,7,  4,7,
                         5,8,  5,8,  4,3,  2,3,        3,2,  3,2 };
 
                 QPointArray amark;
-                amark = QPointArray(sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark);
+                amark = QPointArray(sizeof(check_mark)/(sizeof(int)*2), check_mark);
                 amark.translate(er.x()+1, er.y()+1);
                 p->drawLineSegments(amark);
                 amark.translate(-1, -1);
@@ -718,7 +718,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
     case PE_CheckMark:
         {
-            static const QCOORD check_mark[] = {
+            static const int check_mark[] = {
                 14,0,  10,0,  11,1,  8,1,  9,2,         7,2,  8,3,  6,3,
                 7,4,  1,4,  6,5,  1,5,        6,6,  3,6,  5,7,  4,7,
                 5,8,  5,8,  4,3,  2,3,        3,2,  3,2 };
@@ -726,7 +726,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             QPen oldPen = p->pen();
 
             QPointArray amark;
-            amark = QPointArray(sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark);
+            amark = QPointArray(sizeof(check_mark)/(sizeof(int)*2), check_mark);
             amark.translate(x+1, y+1);
 
             if (flags & Style_On) {
@@ -1410,12 +1410,12 @@ void QSGIStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 drawPrimitive(PE_ButtonBevel, p, handle, pal, flags);
 
                 if (slider->orientation() == Qt::Horizontal) {
-                    QCOORD mid = handle.x() + handle.width() / 2;
+                    int mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid, handle.y(), mid,
                                     handle.y() + handle.height() - 2,
                                     pal, true, 1);
                 } else {
-                    QCOORD mid = handle.y() + handle.height() / 2;
+                    int mid = handle.y() + handle.height() / 2;
                     qDrawShadeLine(p, handle.x(), mid,
                                     handle.x() + handle.width() - 2, mid,
                                     pal, true, 1);

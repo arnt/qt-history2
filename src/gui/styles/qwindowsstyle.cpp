@@ -1316,17 +1316,17 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break;
     case PE_IndicatorRadioButton:
         {
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-            static const QCOORD pts1[] = {              // dark lines
+#define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
+            static const int pts1[] = {              // dark lines
                 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-            static const QCOORD pts2[] = {              // black lines
+            static const int pts2[] = {              // black lines
                 2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-            static const QCOORD pts3[] = {              // background lines
+            static const int pts3[] = {              // background lines
                 2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-            static const QCOORD pts4[] = {              // white lines
+            static const int pts4[] = {              // white lines
                 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
                 11,4, 10,3, 10,2 };
-            static const QCOORD pts5[] = {              // inner fill
+            static const int pts5[] = {              // inner fill
                 4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
 
             // make sure the indicator is square
@@ -1345,23 +1345,23 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             bool enabled = opt->state & Style_Enabled;
             bool on = opt->state & Style_On;
             QPointArray a;
-            a.setPoints(QCOORDARRLEN(pts1), pts1);
+            a.setPoints(INTARRLEN(pts1), pts1);
             a.translate(ir.x(), ir.y());
             p->setPen(opt->palette.dark().color());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts2), pts2);
+            a.setPoints(INTARRLEN(pts2), pts2);
             a.translate(ir.x(), ir.y());
             p->setPen(opt->palette.shadow().color());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts3), pts3);
+            a.setPoints(INTARRLEN(pts3), pts3);
             a.translate(ir.x(), ir.y());
             p->setPen(opt->palette.midlight().color());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts4), pts4);
+            a.setPoints(INTARRLEN(pts4), pts4);
             a.translate(ir.x(), ir.y());
             p->setPen(opt->palette.light().color());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts5), pts5);
+            a.setPoints(INTARRLEN(pts5), pts5);
             a.translate(ir.x(), ir.y());
             QColor fillColor = (down || !enabled)
                                ? opt->palette.button().color()

@@ -1684,17 +1684,17 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
                                    const QStyleOption &opt) const
 {
     // CE Shapes  ### Might be faster to use pixmaps instead
-    #define CreateQPointArray(pts)        QPointArray(sizeof(pts)/(sizeof(QCOORD)*2), pts)
-    static const QCOORD radioOutline[] = {  1, 3,    3, 1,    4, 1,    5, 0,    9, 0,   10, 1,   11, 1,   13, 3,   13, 4,   14, 5,   14, 9,   13,10,   13,11,   11,13,   10,13,   9,14,    5,14,    4,13,    3,13,    1,11,    1,10,    0, 9,    0, 5,    1,4,     1, 3 };
-    static const QCOORD radioDot[]     = {  6, 3,    8, 3,    4, 4,   10, 4,    4, 5,   10, 5,    3, 6,   11, 6,    3, 7,   11, 7,    3, 8,   11, 8,    4, 9,   10, 9,    4,10,  10,10,    6,11,    8,11 };
-    static const QCOORD tick[18]       = {  3, 6,    6, 9,   11, 4,   11, 5,    6,10,    3, 7,    3, 8,    6,11,   11,6  };
-    static const QCOORD arrowUp[16]    = { -3, 1,    3, 1,   -2, 0,    2, 0,   -1,-1,    1,-1,    0,-2,    0,-2 };
-    static const QCOORD arrowDown[16]  = { -3,-2,    3,-2,   -2,-1,    2,-1,   -1, 0,    1, 0,    0, 1,    0, 1 };
+    #define CreateQPointArray(pts)        QPointArray(sizeof(pts)/(sizeof(int)*2), pts)
+    static const int radioOutline[] = {  1, 3,    3, 1,    4, 1,    5, 0,    9, 0,   10, 1,   11, 1,   13, 3,   13, 4,   14, 5,   14, 9,   13,10,   13,11,   11,13,   10,13,   9,14,    5,14,    4,13,    3,13,    1,11,    1,10,    0, 9,    0, 5,    1,4,     1, 3 };
+    static const int radioDot[]     = {  6, 3,    8, 3,    4, 4,   10, 4,    4, 5,   10, 5,    3, 6,   11, 6,    3, 7,   11, 7,    3, 8,   11, 8,    4, 9,   10, 9,    4,10,  10,10,    6,11,    8,11 };
+    static const int tick[18]       = {  3, 6,    6, 9,   11, 4,   11, 5,    6,10,    3, 7,    3, 8,    6,11,   11,6  };
+    static const int arrowUp[16]    = { -3, 1,    3, 1,   -2, 0,    2, 0,   -1,-1,    1,-1,    0,-2,    0,-2 };
+    static const int arrowDown[16]  = { -3,-2,    3,-2,   -2,-1,    2,-1,   -1, 0,    1, 0,    0, 1,    0, 1 };
 
     // ### positioning needs fixing
-    static const QCOORD arrowRight[16] = { -2,-3,   -2, 3,   -1,-2,   -1, 2,    0,-1,    0, 1,    1, 0,    1, 0 };
-    static const QCOORD arrowLeft[16]  = {  0,-3,    0, 3,   -1,-2,   -1, 2,   -2,-1,   -2, 1,   -3, 0,   -3, 0 };
-    static const QCOORD *arrows[4]     = { arrowUp, arrowDown, arrowRight, arrowLeft };
+    static const int arrowRight[16] = { -2,-3,   -2, 3,   -1,-2,   -1, 2,    0,-1,    0, 1,    1, 0,    1, 0 };
+    static const int arrowLeft[16]  = {  0,-3,    0, 3,   -1,-2,   -1, 2,   -2,-1,   -2, 1,   -3, 0,   -3, 0 };
+    static const int *arrows[4]     = { arrowUp, arrowDown, arrowRight, arrowLeft };
 
     // See PE_ArrowUp, PE_ArrowDown, PE_ArrowRight
     int arrow = 3;
@@ -2012,7 +2012,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 #ifndef QT_NO_LISTVIEW
     case PE_CheckListExclusiveIndicator:
         {
-            #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+            #define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
 
             QCheckListItem *item = opt.checkListItem();
             QListView *lv = item->listView();
@@ -2020,25 +2020,25 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
                 return;
             int x = r.x(), y = r.y();
 
-            static const QCOORD pts1[] = { 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };    // dark lines
-            static const QCOORD pts2[] = { 2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };                    // black lines
-            static const QCOORD pts3[] = { 2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };            // background lines
-            static const QCOORD pts4[] = { 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7, 11,4, 10,3, 10,2 }; // white lines
+            static const int pts1[] = { 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };    // dark lines
+            static const int pts2[] = { 2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };                    // black lines
+            static const int pts3[] = { 2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };            // background lines
+            static const int pts4[] = { 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7, 11,4, 10,3, 10,2 }; // white lines
 
             if (flags & Style_Enabled)
                 p->setPen(pal.text());
             else
                 p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
-            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            QPointArray a(INTARRLEN(pts1), pts1);
             a.translate(x, y);
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts2), pts2);
+            a.setPoints(INTARRLEN(pts2), pts2);
             a.translate(x, y);
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts3), pts3);
+            a.setPoints(INTARRLEN(pts3), pts3);
             a.translate(x, y);
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts4), pts4);
+            a.setPoints(INTARRLEN(pts4), pts4);
             a.translate(x, y);
             p->drawPolyline(a);
             if (flags & Style_On) {

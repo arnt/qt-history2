@@ -439,8 +439,8 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
             p->setPen(pal.shadow());
             p->drawRect(r.x(), r.y(), r.width() - 2, r.height());
 
-            static const QCOORD nochange_mark[] = { 3,5, 9,5,  3,6, 9,6 };
-            static const QCOORD check_mark[] = {
+            static const int nochange_mark[] = { 3,5, 9,5,  3,6, 9,6 };
+            static const int check_mark[] = {
                 3,5, 5,5,  4,6, 5,6,  5,7, 6,7,  5,8, 6,8,      6,9, 9,9,
                 6,10, 8,10, 7,11, 8,11,  7,12, 7,12,  8,8, 9,8,  8,7, 10,7,
                 9,6, 10,6, 9,5, 11,5,  10,4, 11,4,  10,3, 12,3,
@@ -455,14 +455,14 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 }
                 QPointArray amark;
                 if (flags & Style_On) {
-                    amark = QPointArray(sizeof(check_mark)/(sizeof(QCOORD)*2),
+                    amark = QPointArray(sizeof(check_mark)/(sizeof(int)*2),
                                          check_mark);
                     // ### KLUDGE!!
                     flags ^= Style_On;
                     flags ^= Style_Down;
                 } else if (flags & Style_NoChange) {
                     amark = QPointArray(sizeof(nochange_mark)
-                                         / (sizeof(QCOORD) * 2),
+                                         / (sizeof(int) * 2),
                                          nochange_mark);
                 }
 
@@ -497,28 +497,28 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
         }
     case PE_ExclusiveIndicator:
         {
-#define QCOORDARRLEN(x) sizeof(x) / (sizeof(QCOORD) * 2)
+#define INTARRLEN(x) sizeof(x) / (sizeof(int) * 2)
             bool down = flags & Style_Down;
             bool on = flags & Style_On;
 
-            static const QCOORD pts1[] = {                // normal circle
+            static const int pts1[] = {                // normal circle
                 5,0, 8,0, 9,1, 10,1, 11,2, 12,3, 12,4, 13,5,
                 13,8, 12,9, 12,10, 11,11, 10,12, 9,12, 8,13,
                 5,13, 4,12, 3,12, 2,11, 1,10, 1,9, 0,8, 0,5,
                 1,4, 1,3, 2,2, 3,1, 4,1 };
-            static const QCOORD pts2[] = {                // top left shadow
+            static const int pts2[] = {                // top left shadow
                 5,1, 8,1, 3,2, 7,2, 2,3, 5,3,  2,4, 4,4,
                 1,5, 3,5, 1,6, 1,8, 2,6, 2,7 };
-            static const QCOORD pts3[] = {                // bottom right, dark
+            static const int pts3[] = {                // bottom right, dark
                 5,12, 8,12, 7,11, 10,11, 8,10, 11,10,
                 9,9, 11,9, 10,8, 12,8, 11,7, 11,7,
                 12,5, 12,7 };
-            static const QCOORD pts4[] = {                // bottom right, light
+            static const int pts4[] = {                // bottom right, light
                 5,12, 8,12, 7,11, 10,11, 9,10, 11,10,
                 10,9, 11,9, 11,7, 11,8, 12,5, 12,8 };
-            static const QCOORD pts5[] = {                // check mark
+            static const int pts5[] = {                // check mark
                 6,4, 8,4, 10,6, 10,8, 8,10, 6,10, 4,8, 4,6 };
-            static const QCOORD pts6[] = {                // check mark extras
+            static const int pts6[] = {                // check mark extras
                 4,5, 5,4, 9,4, 10,5, 10,9, 9,10, 5,10, 4,9 };
             int x, y;
             x = r.x();
@@ -528,25 +528,25 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
             p->setPen(Qt::NoPen);
             p->drawEllipse(x, y, 13, 13);
             p->setPen(pal.shadow());
-            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            QPointArray a(INTARRLEN(pts1), pts1);
             a.translate(x, y);
             p->drawPolyline(a);        // draw normal circle
             QColor tc, bc;
-            const QCOORD *bp;
+            const int *bp;
             int        bl;
             if (down || on) {                        // pressed down or on
                 tc = pal.dark().color().dark();
                 bc = pal.light();
                 bp = pts4;
-                bl = QCOORDARRLEN(pts4);
+                bl = INTARRLEN(pts4);
             } else {                                        // released
                 tc = pal.light();
                 bc = pal.dark();
                 bp = pts3;
-                bl = QCOORDARRLEN(pts3);
+                bl = INTARRLEN(pts3);
             }
             p->setPen(tc);
-            a.setPoints(QCOORDARRLEN(pts2), pts2);
+            a.setPoints(INTARRLEN(pts2), pts2);
             a.translate(x, y);
             p->drawLineSegments(a);                // draw top shadow
             p->setPen(bc);
@@ -558,12 +558,12 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                     y1 = y;
                 p->setBrush(pal.foreground());
                 p->setPen(pal.foreground());
-                a.setPoints(QCOORDARRLEN(pts5), pts5);
+                a.setPoints(INTARRLEN(pts5), pts5);
                 a.translate(x1, y1);
                 p->drawPolygon(a);
                 p->setBrush(Qt::NoBrush);
                 p->setPen(pal.dark());
-                a.setPoints(QCOORDARRLEN(pts6), pts6);
+                a.setPoints(INTARRLEN(pts6), pts6);
                 a.translate(x1, y1);
                 p->drawLineSegments(a);
             }
@@ -572,12 +572,12 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
 
     case PE_ExclusiveIndicatorMask:
         {
-            static const QCOORD pts1[] = {                // normal circle
+            static const int pts1[] = {                // normal circle
                 5,0, 8,0, 9,1, 10,1, 11,2, 12,3, 12,4, 13,5,
                 13,8, 12,9, 12,10, 11,11, 10,12, 9,12, 8,13,
                 5,13, 4,12, 3,12, 2,11, 1,10, 1,9, 0,8, 0,5,
                 1,4, 1,3, 2,2, 3,1, 4,1 };
-            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            QPointArray a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen(Qt::color1);
             p->setBrush(Qt::color1);

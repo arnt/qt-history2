@@ -1209,11 +1209,4 @@ public:
         RelayoutDropped
     };
 };
-
-typedef Q_INT32 QCOORD;                                // coordinate type
-enum {
-    QCOORD_MAX =  2147483647,
-    QCOORD_MIN = -QCOORD_MAX - 1
-};
-
 #endif // QNAMESPACE_H

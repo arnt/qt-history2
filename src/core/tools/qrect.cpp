@@ -25,10 +25,6 @@
     a bottom-right corner, but it is normally expressed as an
     upper-left corner and a size.
 
-    The coordinate type is QCOORD (defined in \c qwindowdefs.h as \c
-    int). The minimum value of QCOORD is QCOORD_MIN (-2147483648) and
-    the maximum value is  QCOORD_MAX (2147483647).
-
     Note that the size (width and height) of a rectangle might be
     different from what you are used to. If the top-left corner and
     the bottom-right corner are the same, the height and the width of
@@ -213,7 +209,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-    \fn QCOORD &QRect::rLeft()
+    \fn int &QRect::rLeft()
 
     Returns a reference to the left coordinate of the rectangle.
 
@@ -221,7 +217,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-    \fn QCOORD &QRect::rTop()
+    \fn int &QRect::rTop()
 
     Returns a reference to the top coordinate of the rectangle.
 
@@ -229,7 +225,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-    \fn QCOORD &QRect::rRight()
+    \fn int &QRect::rRight()
 
     Returns a reference to the right coordinate of the rectangle.
 
@@ -237,7 +233,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-    \fn QCOORD &QRect::rBottom()
+    \fn int &QRect::rBottom()
 
     Returns a reference to the bottom coordinate of the rectangle.
 
@@ -528,10 +524,10 @@ QRect QRect::normalize() const
 
 void QRect::moveCenter(const QPoint &p)
 {
-    QCOORD w = x2 - x1;
-    QCOORD h = y2 - y1;
-    x1 = (QCOORD)(p.x() - w/2);
-    y1 = (QCOORD)(p.y() - h/2);
+    int w = x2 - x1;
+    int h = y2 - y1;
+    x1 = p.x() - w/2;
+    y1 = p.y() - h/2;
     x2 = x1 + w;
     y2 = y1 + h;
 }

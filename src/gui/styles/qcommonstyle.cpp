@@ -477,17 +477,17 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 return;
             int x = lv->rect.x(),
                 y = lv->rect.y();
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-            static const QCOORD pts1[] = {                // dark lines
+#define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
+            static const int pts1[] = {                // dark lines
                 1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-            static const QCOORD pts2[] = {                // black lines
+            static const int pts2[] = {                // black lines
                 2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-            static const QCOORD pts3[] = {                // background lines
+            static const int pts3[] = {                // background lines
                 2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-            static const QCOORD pts4[] = {                // white lines
+            static const int pts4[] = {                // white lines
                 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
                 11,4, 10,3, 10,2 };
-            // static const QCOORD pts5[] = {                // inner fill
+            // static const int pts5[] = {                // inner fill
             //    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
             //QPointArray a;
 
@@ -495,22 +495,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->setPen(lv->palette.text().color());
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text)));
-            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            QPointArray a(INTARRLEN(pts1), pts1);
             a.translate(x, y);
             //p->setPen(pal.dark());
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts2), pts2);
+            a.setPoints(INTARRLEN(pts2), pts2);
             a.translate(x, y);
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts3), pts3);
+            a.setPoints(INTARRLEN(pts3), pts3);
             a.translate(x, y);
             //                p->setPen(black);
             p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts4), pts4);
+            a.setPoints(INTARRLEN(pts4), pts4);
             a.translate(x, y);
             //                        p->setPen(blue);
             p->drawPolyline(a);
-            //                a.setPoints(QCOORDARRLEN(pts5), pts5);
+            //                a.setPoints(INTARRLEN(pts5), pts5);
             //                a.translate(x, y);
             //        QColor fillColor = isDown() ? g.background() : g.base();
             //        p->setPen(fillColor);
@@ -522,7 +522,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->drawRect(x + 5, y + 4, 2, 4);
                 p->drawRect(x + 4, y + 5, 4, 2);
             }
-#undef QCOORDARRLEN
+#undef INTARRLEN
         }
         break;
     case PE_Q3CheckListIndicator:

@@ -67,10 +67,10 @@ public:
     }
 
 
-    QVector<QCOORD>        sizes;
+    QVector<int>        sizes;
     int height; // we abuse the heights as widths for vertical layout
     bool heightDirty;
-    QVector<QCOORD>        positions; // sorted by index
+    QVector<int>        positions; // sorted by index
     QVector<QString>        labels;
     QVector<QIcon *> icons;
     QVector<int>                i2s;

@@ -23,10 +23,6 @@
 
     A size is specified by a width and a height.
 
-    The coordinate type is QCOORD (defined in \c <qwindowdefs.h> as \c
-    int). The minimum value of QCOORD is QCOORD_MIN (-2147483648) and
-    the maximum value is QCOORD_MAX (2147483647).
-
     The size can be set in the constructor and changed with
     setWidth(), setHeight(), or scale(), or using operator+=(),
     operator-=(), operator*=() and operator/=(), etc. You can swap the
@@ -124,7 +120,7 @@
 
 void QSize::transpose()
 {
-    QCOORD tmp = wd;
+    int tmp = wd;
     wd = ht;
     ht = tmp;
 }
@@ -173,7 +169,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
         ht = s.ht;
     } else {
         bool useHeight;
-        QCOORD rw = s.ht * wd / ht;
+        int rw = s.ht * wd / ht;
 
         if (mode == Qt::KeepAspectRatio) {
             useHeight = (rw <= s.wd);
@@ -192,7 +188,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 }
 
 /*!
-    \fn QCOORD &QSize::rwidth()
+    \fn int &QSize::rwidth()
 
     Returns a reference to the width.
 
@@ -208,7 +204,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QCOORD &QSize::rheight()
+    \fn int &QSize::rheight()
 
     Returns a reference to the height.
 
@@ -661,7 +657,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 }
 
 /*!
-    \fn QCOORD &QSizeF::rwidth()
+    \fn int &QSizeF::rwidth()
 
     Returns a reference to the width.
 
@@ -677,7 +673,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QCOORD &QSizeF::rheight()
+    \fn int &QSizeF::rheight()
 
     Returns a reference to the height.
 

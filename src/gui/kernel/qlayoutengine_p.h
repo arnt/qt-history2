@@ -43,15 +43,15 @@ struct QLayoutStruct
         empty = true;
     }
 
-    QCOORD smartSizeHint() {
+    int smartSizeHint() {
         return (stretch > 0) ? minimumSize : sizeHint;
     }
 
     // parameters
     int stretch;
-    QCOORD sizeHint;
-    QCOORD maximumSize;
-    QCOORD minimumSize;
+    int sizeHint;
+    int maximumSize;
+    int minimumSize;
     bool expansive;
     bool empty;
 
@@ -78,8 +78,8 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QWidget *w, Qt::Alignment align = 0);
 
   Expansive boxes win over non-expansive boxes.
 */
-static inline void qMaxExpCalc(QCOORD & max, bool &exp,
-                                QCOORD boxmax, bool boxexp)
+static inline void qMaxExpCalc(int & max, bool &exp,
+                               int boxmax, bool boxexp)
 {
     if (exp) {
         if (boxexp)

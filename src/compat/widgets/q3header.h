@@ -159,7 +159,7 @@ private:
     int                moveToIdx;
     enum State { Idle, Sliding, Pressed, Moving, Blocked };
     State        state;
-    QCOORD        clickPos;
+    int        clickPos;
     bool        trackingIsOn;
     int oldHandleIdx;
     int        cachedPos; // not used

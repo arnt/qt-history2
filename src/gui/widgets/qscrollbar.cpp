@@ -402,7 +402,7 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
                                               QStyle::SC_ScrollBarSlider, this);
     QPoint click = QStyle::visualPos(opt.direction, opt.rect, e->pos());
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {
-        d->clickOffset = (QCOORD)((HORIZONTAL ? (click.x()-sr.x()) : (click.y()-sr.y())));
+        d->clickOffset = HORIZONTAL ? (click.x()-sr.x()) : (click.y()-sr.y());
         d->snapBackPosition = d->position;
     }
 
