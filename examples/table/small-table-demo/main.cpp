@@ -32,7 +32,7 @@ int main( int argc, char **argv )
 
     QTable table( numRows, numCols );
 
-    QHeader *header = table.horizontalHeader();
+    Q3Header *header = table.horizontalHeader();
     header->setLabel( 0, QObject::tr( "Tiny" ), 40 );
     header->setLabel( 1, QObject::tr( "Checkboxes" ) );
     header->setLabel( 5, QObject::tr( "Combos" ) );

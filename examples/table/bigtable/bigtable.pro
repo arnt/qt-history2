@@ -2,9 +2,9 @@ TEMPLATE	= app
 TARGET		= bigtable
 
 CONFIG		+= qt warn_on release
+QT += compat
 DEPENDPATH 	= ../../include
 
-QTDIR_build:REQUIRES 	= table "contains(QT_CONFIG, full-config)"
 
 HEADERS		=
 SOURCES		= main.cpp

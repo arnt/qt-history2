@@ -14,7 +14,6 @@
 
 #include <qdir.h>
 #include <qstringlist.h>
-#include <qheader.h>
 #include <qcombobox.h>
 #include <stdlib.h>
 
@@ -125,7 +124,7 @@ void TableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool
     // last row is the sum row - we want to make it more visible by
     // using a red background
     if ( row() == table()->numRows() - 1 )
-	g.setColor( QColorGroup::Base, red );
+	g.setColor( QColorGroup::Base, Qt::red );
     QTableItem::paint( p, g, cr, selected );
 }
 

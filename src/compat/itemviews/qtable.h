@@ -24,6 +24,7 @@
 #include "qhash.h"
 #include "qstringlist.h"
 #include "qvector.h"
+#include "qintdict.h"
 #endif // QT_H
 
 

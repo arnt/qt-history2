@@ -221,7 +221,7 @@ void QScrollViewPrivate::hideOrShowAll(QScrollView* sv, bool isScroll)
             clipped_viewport->repaint();
         else if ((!isScroll && !clipped_viewport->testAttribute(Qt::WA_StaticContents))
                   || static_bg)
-            QApplication::postEvent(clipped_viewport, new QPaintEvent(clipped_viewport->clipRegion()));
+            clipped_viewport->update();
     } else {
         // Re-center
         int nx = (viewport->width() - clipped_viewport->width()) / 2;
