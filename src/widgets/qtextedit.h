@@ -70,6 +70,7 @@ class QTextString;
 struct QUndoRedoInfoPrivate;
 class QPopupMenu;
 class QTextEditPrivate;
+class QSyntaxHighlighter;
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 class QTextEditOptimPrivate
@@ -131,6 +132,7 @@ public:
 class Q_EXPORT QTextEdit : public QScrollView
 {
     friend class QTextBrowser;
+    friend class QSyntaxHighlighter;
 
     Q_OBJECT
     Q_ENUMS( WordWrap WrapPolicy )

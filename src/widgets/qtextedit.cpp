@@ -2645,7 +2645,7 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 		    cursor->paragraph()->prev() : cursor->paragraph();
     QTextCursor oldCursor = *cursor;
     cursor->insert( txt, checkNewLine );
-    if ( doc->useFormatCollection() ) {
+    if ( doc->useFormatCollection() && !doc->preProcessor() ) {
 	doc->setSelectionStart( QTextDocument::Temp, oldCursor );
 	doc->setSelectionEnd( QTextDocument::Temp, *cursor );
 	doc->setFormat( QTextDocument::Temp, currentFormat, QTextFormat::Format );
@@ -4168,7 +4168,7 @@ void QTextEdit::append( const QString &text )
 
     if ( f == Qt::PlainText ) {
 	cursor->insert( text, TRUE );
-	if ( doc->useFormatCollection() &&
+	if ( doc->useFormatCollection() && !doc->preProcessor() &&
 	     currentFormat != cursor->paragraph()->at( cursor->index() )->format() ) {
 	    doc->setSelectionStart( QTextDocument::Temp, oldCursor2 );
 	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
