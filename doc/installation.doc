@@ -1,0 +1,46 @@
+/****************************************************************************
+** $Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $
+**
+** Installation page
+**
+** Copyright (C) 2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
+#endif
+
+/*! \page installation.html
+
+<title>Qt Installation</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1>Installing Qt</h1>
+
+
+<p>
+The installation procedure is different for the different Qt platforms:
+
+<ul>
+ <li><a href=install-x11.html>X11 - the UNIX GUI</a>
+ <li><a href=install-win.html>Windows - the Microsoft GUI</a>
+ <li><a href=install-qws.html>Qt/Embedded - the light-weight GUI for embedded devices</a>
+</ul>
+*/

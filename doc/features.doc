@@ -1,0 +1,226 @@
+/*! \page features.html
+
+<title>Qt Feature Definition File</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1>The Feature Definition File</h1>
+
+The file <tt>src/tools/qfeatures.h</tt> can be modified to define a subset
+of the full Qt functionality that you wish to have available on your
+installation.
+
+<p>
+Note that such modification is only supported on Qt/Embedded
+platforms, where reducing the size of Qt is
+important and the application-set is often fixed.
+
+<p>
+The feature definition file is a C++ header file which defines a set of
+definitions each of which can be 1 (enabled) or 0 (disabled). Some features
+are dependent on other features and these dependencies are expressed in the
+file as additional qualifiers on the features.
+
+<p>
+Editing the qfeatures.h file consists of changing your selection of
+definitions from 1 to 0. No other parts of the file need to be changed.
+
+<p>
+The available options are:
+
+<p>
+<table>
+<tr><th><big>Feature</big><th><big>Description</big><th><big>Requires</big>
+<tr><th colspan=3>Images - \l QImageIO
+<tr><td valign=top>IMAGIO_BMP <td valign=top>
+    The Microsoft Bitmap image file format.
+<tr><td valign=top>IMAGIO_PPM <td valign=top>
+    The Portable Pixmap image file format.
+<tr><td valign=top>IMAGIO_XBM <td valign=top>
+    The X11 Bitmap image file format.
+<tr><td valign=top>IMAGIO_XPM <td valign=top>
+    The X11 Pixmap image file format.
+<tr><td valign=top>IMAGIO_PNG <td valign=top>
+    The Portable Network Graphics image file format.
+
+<tr><th colspan=3>Animation
+<tr><td valign=top>ASYNC_IO <td valign=top>
+    Asynchronous I/O - \l QAsyncIO
+<tr><td valign=top>ASYNC_IMAGE_IO <td valign=top>
+    Asynchronous Image I/O and GIF image support - \l QImageDecoder, etc.
+<tr><td valign=top>MOVIE <td valign=top>
+    Animation support - \l QMovie
+    <td valign=top> ASYNC_IO, ASYNC_IMAGE_IO
+
+<tr><th colspan=3>Fonts
+<tr><td valign=top>TRUETYPE <td valign=top>
+    TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
+<tr><td valign=top>BDF <td valign=top>
+    Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
+<tr><td valign=top>FONTDATABASE <td valign=top>
+    Font database.
+
+<tr><th colspan=3>Internationalization
+
+<tr><td valign=top>I18N <td valign=top>
+    Conversions between Unicode and 8-bit encodings.
+<tr><td valign=top>UNICODETABLES <td valign=top>
+    Large tables defining such things as upper and lowercase conversions
+    for all Unicode characetrs.
+
+<tr><th colspan=3>MIME
+<tr><td valign=top>MIME <td valign=top>
+    Multipurpose Internet Mail Extensions, an internet standard for encoding
+    and tagging typed data (eg. text, images, colors) - \l QMimeSource
+<tr><td valign=top>RICHTEXT <td valign=top>
+    HTML-like text - \l QStyleSheet, \l QLabel
+    <td valign=top> MIME
+<tr><td valign=top>DRAGANDDROP <td valign=top>
+    Drag-and-drop data between applications - \l QDragObject
+    <td valign=top> MIME
+<tr><td valign=top>CLIPBOARD <td valign=top>
+    Cut-and-paste data between applications - \l QClipboard
+    <td valign=top> MIME
+
+<tr><th colspan=3>Sound
+<tr><td valign=top>SOUND <td valign=top>
+    Play audio files - \l QSound
+
+<tr><th colspan=3>Scipting
+<tr><td valign=top>PROPERTIES <td valign=top>
+    Allows scripting of Qt-based applications.
+
+<tr><th colspan=3>Qt/Embedded-specific
+<tr><td valign=top>QWS_CURSOR <td valign=top>
+    The cursor sprite on Qt/Embedded. Pen-operated devices would not
+    normally need this feature.
+
+<tr><th colspan=3>Networking
+<tr><td valign=top>NETWORKPROTOCOL <td valign=top>
+    Abstract multi-protocol data retrieval,
+    with local file retrival included - \l QNetworkProtocol
+
+<tr><td valign=top>NETWORKPROTOCOL_FTP <td valign=top>
+    FTP-protocol data retrieval.
+    <td valign=top> NETWORKPROTOCOL
+
+<tr><td valign=top>NETWORKPROTOCOL_HTTP <td valign=top>
+    <td valign=top> NETWORKPROTOCOL
+    HTTP-protocol data retrieval.
+
+<tr><th colspan=3>Painting/drawing
+<tr><td valign=top>COLORNAMES <td valign=top>
+    Color names such as "red", used by some \l QColor constructors
+    and by some HTML documents - \l QColor, \l QStyleSheet
+
+<tr><td valign=top>TRANSFORMATIONS <td valign=top>   // uses floating point
+    Used by a number of classes in Qt. With this, rotation and scaling
+    are possible. Without it, only co-ordinate translation - \l QWMatrix
+
+<tr><td valign=top>PSPRINTER <td valign=top>
+    Postscript printer support.
+
+<tr><td valign=top>PRINTER <td valign=top>
+    Printer support - \l QPrinter
+    <td valign=top> PSPRINTER on Unix
+
+<tr><td valign=top>PICTURE <td valign=top>
+    Save Qt drawing commands to a files - \l QPicture
+
+<tr><th colspan=3>Widgets
+<tr><td valign=top>WIDGETS <td valign=top>
+    Disabling this disables all widgets except \l QWidget.
+
+<tr><td valign=top>TEXTVIEW <td valign=top>
+    HTML document viewing - \l QTextView
+    <td valign=top> WIDGETS, RICHTEXT
+
+<tr><td valign=top>TEXTBROWSER <td valign=top>
+    HTML document browsing - \l QTextBrowser
+    <td valign=top> TEXTVIEW
+
+<tr><td valign=top>ICONVIEW <td valign=top>
+    Labelled icons - \l QIconView
+    <td valign=top> WIDGETS, DRAGANDDROP
+
+<tr><td valign=top>LISTVIEW <td valign=top>
+    Lists of information - \l QListView
+    <td valign=top> WIDGETS
+
+<tr><td valign=top>CANVAS <td valign=top>
+    Object canvas - \l QCanvas
+    <td valign=top> WIDGETS
+
+<tr><td valign=top>DIAL <td valign=top>
+    Value control - \l QDial
+    <td valign=top> WIDGETS
+
+<tr><td valign=top>WORKSPACE <td valign=top>
+    Multi-document interface - \l QWorkspace
+    <td valign=top> WIDGETS
+
+<tr><td valign=top>LCDNUMBER <td valign=top>
+    LCD-like number display - \l QLCDNumber
+    <td valign=top> WIDGETS
+
+<tr><th colspan=3>GUI Styles
+<tr><td valign=top>STYLE_WINDOWS <td valign=top>
+    Microsoft Windows style - \l QWindowsStyle
+    <td valign=top> WIDGETS
+<tr><td valign=top>STYLE_MOTIF <td valign=top>
+    OSF Motif style - \l QMotifStyle
+    <td valign=top> WIDGETS
+<tr><td valign=top>STYLE_CDE <td valign=top>
+    Open Group CDE style - \l QCDEStyle
+    <td valign=top> STYLE_MOTIF
+<tr><td valign=top>STYLE_PLATINUM <td valign=top>
+    MacOS X style - \l QPlatinumStyle
+    <td valign=top> WIDGETS
+<tr><td valign=top>STYLE_SGI <td valign=top>
+    SGI style - \l QSGIStyle
+    <td valign=top> STYLE_MOTIF
+
+<tr><th colspan=3>Dialogs
+<tr><td valign=top>DIALOGS <td valign=top>
+    Disabling this disables all common dialogs \l QWidget.
+    <td valign=top> WIDGETS
+
+<tr><td valign=top>FILEDIALOG <td valign=top>
+    The file selection dialog - \l QFileDialog
+    <td valign=top> DIALOGS, NETWORKPROTOCOL, LISTVIEW
+
+<tr><td valign=top>FONTDIALOG <td valign=top>
+    The font selection dialog - \l QFontDialog
+    <td valign=top> DIALOGS, FONTDATABASE
+
+<tr><td valign=top>COLORDIALOG <td valign=top>
+    The color selection dialog - \l QColorDialog
+    <td valign=top> DIALOGS
+
+<tr><td valign=top>PRINTDIALOG <td valign=top>
+    The print selection dialog - \l QPrintDialog
+    <td valign=top> DIALOGS, LISTVIEW
+
+<tr><td valign=top>INPUTDIALOG <td valign=top>
+    Text input dialog - \l QInputDialog
+    <td valign=top> DIALOGS
+
+<tr><td valign=top>MESSAGEBOX <td valign=top>
+    Message/prompting dialog - \l QMessageBox
+    <td valign=top> DIALOGS
+
+<tr><td valign=top>PROGRESSDIALOG <td valign=top>
+    Long-computation progress dialog - \l QProgressDialog
+    <td valign=top> DIALOGS
+
+<tr><td valign=top>TABDIALOG <td valign=top>
+    Tabbed-pages dialog - \l QTabDialog
+    <td valign=top> DIALOGS
+
+<tr><td valign=top>WIZARD <td valign=top>
+    Multi-step dialog - \l QWizard
+    <td valign=top> DIALOGS
+
+</table>
+*/

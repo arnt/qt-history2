@@ -49,11 +49,13 @@ What´s New
 <ul>
 <li> <a href="aboutqt.html" >About Qt</a>
 <li> <a href="commonproblems.html">Common Problems</a>
+<li> <a href="winsystem.html"> Windowsystem-specific notes</a>
 <li> <a href="buyhowto.html">How to buy Qt</a>
 </ul>
 </td>
 <td valign=top>
 <ul>
+<li> <a href="installation.html">Installation</a>
 <li> <a href="tutorial.html">Tutorial</a>
 <li> <a href="simple-application.html">Walkthrough</a>
 <li> <a href="examples.html">Examples</a>
