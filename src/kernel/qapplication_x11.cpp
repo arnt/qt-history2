@@ -190,7 +190,6 @@ static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
 static bool	appDoGrab	= FALSE;	// X11 grabbing override (gdb)
 #endif
 static int	appScreen;			// X11 screen number
-//static Window	appRootWin;			// X11 root window
 static int	appScreenCount;			// X11 screen count
 static bool	app_save_rootinfo = FALSE;	// save root info
 static bool	app_do_modal	= FALSE;	// modal mode
@@ -1582,7 +1581,6 @@ void qt_init_internal( int *argcptr, char **argv,
     if( qt_is_gui_used ) {
 	appScreen = DefaultScreen(appDpy);
 	appScreenCount = ScreenCount(appDpy);
-	// appRootWin = RootWindow(appDpy,appScreen);
 
 	// Set X paintdevice parameters
 
@@ -2183,7 +2181,7 @@ void QApplication::x11_initialize_style()
     uchar *data;
 #ifndef QT_NO_STYLE_WINDOWS
     if ( !app_style
-	 && XGetWindowProperty( appDpy, appRootWin, qt_kwin_running, 0, 1,
+	 && XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwin_running, 0, 1,
 			     False, AnyPropertyType, &type, &format,
 			     &length, &after, &data ) == Success
 	 && length ) {
@@ -2193,7 +2191,7 @@ void QApplication::x11_initialize_style()
 	    app_style = QStyleFactory::create("windows");
     }
     if ( !app_style
-	 && XGetWindowProperty( appDpy, appRootWin, qt_kwm_running, 0, 1,
+	 && XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwm_running, 0, 1,
 			     False, AnyPropertyType, &type, &format,
 			     &length, &after, &data ) == Success
 	 && length ) {
@@ -2205,7 +2203,7 @@ void QApplication::x11_initialize_style()
 #ifndef QT_NO_STYLE_MOTIFPLUS
     // maybe another desktop?
     if ( !app_style
-	 && XGetWindowProperty( appDpy, appRootWin, qt_gbackground_properties, 0, 1,
+	 && XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_gbackground_properties, 0, 1,
 			     False, AnyPropertyType, &type, &format,
 			     &length, &after, &data ) == Success
 	 && length ) {
