@@ -21,6 +21,7 @@
 #include <qplugin.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
+#include <private/qtoolbarbutton_p.h>
 #include <qvariant.h>
 #include <qaccessible.h>
 
@@ -46,6 +47,7 @@ QStringList AccessibleFactory::keys() const
     list << "QScrollBar";
     list << "QSlider";
     list << "QToolButton";
+    list << "QToolBarButton";
     list << "QCheckBox";
     list << "QRadioButton";
     list << "QPushButton";
@@ -105,6 +107,14 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         else
             role = ButtonMenu;
         iface = new QAccessibleToolButton(widget, role);
+    } else if (classname == "QToolBarButton") {
+        Role role = NoRole;
+        QToolBarButton *tb = qt_cast<QToolBarButton*>(widget);
+        if (!tb->menu())
+            role = tb->isCheckable() ? CheckBox : PushButton;
+        else
+            role = ButtonMenu;
+        iface = new QAccessibleButton(widget, role);
     } else if (classname == "QCheckBox") {
         iface = new QAccessibleButton(widget, CheckBox);
     } else if (classname == "QRadioButton") {
