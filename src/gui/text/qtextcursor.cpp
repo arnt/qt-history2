@@ -1565,6 +1565,42 @@ void QTextCursor::beginEditBlock()
 }
 
 /*!
+    Like beginEditBlock() indicates the start of a block of editing operations
+    that should appear as a single operation for undo/redo. However unlike
+    beginEditBlock() it does not start a new block but reverses the last endEditBlock()
+    and therefore makes following operations part of the last edit block created.
+
+    For example:
+
+    \code
+    QTextCursor cursor(textDocument);
+    cursor.beginEditBlock();
+    cursor.insertText("Hello");
+    cursor.insertText("World");
+    cursor.endEditBlock();
+
+    ...
+
+    cursor.joinLastEditBlock();
+    cursor.insertText("Hey");
+    cursor.endEditBlock();
+
+    textDocument->undo();
+    \endcode
+
+    The call to undo() will cause all three insertions to be undone.
+ 
+    \sa beginEditBlock(), endEditBlock()
+ */
+void QTextCursor::joinLastEditBlock()
+{
+    if (!d || !d->priv)
+        return;
+
+    d->priv->joinLastEditBlock();
+}
+
+/*!
     Indicates the end of a block of editing operations on the document
     that should appear as a single operation from an undo/redo point
     of view.
