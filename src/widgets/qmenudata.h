@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#64 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#65 $
 **
 ** Definition of QMenuData class
 **
@@ -73,6 +73,7 @@ private:
     QString	whatsthis_data;			// item Whats This help text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
+    QWidget* widget;				// widget menu item
     int		accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
