@@ -45,7 +45,9 @@ Configure::Configure( int& argc, char** argv )
 {
     int i;
 
-    processorArchitecture = QString(getenv("PROCESSOR_ARCHITECTURE")).toLower();
+    processorArchitecture = QString(getenv("PROCESSOR_ARCHITEW6432")).toLower();
+    if (processorArchitecture.isEmpty())
+        processorArchitecture = QString(getenv("PROCESSOR_ARCHITECTURE")).toLower();
     if (processorArchitecture.isEmpty() || processorArchitecture == "x86")
         processorArchitecture = "i386";
 
