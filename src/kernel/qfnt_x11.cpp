@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#79 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#79 $");
 
 
 static const int fontFields = 14;
@@ -479,7 +479,6 @@ void QFont::load( HANDLE ) const
 	    if ( !match )
 		name = lastResortFont();
 	} else {
-	    match = TRUE;
 	    name = PRIV->findFont( &match );
 	}
 	fn = new QXFontName( name, match );
@@ -778,6 +777,7 @@ QString QFont_Private::bestFamilyMember( const char *family, int *score )
 QString QFont_Private::findFont( bool *exact )
 {
     QString familyName = substitute( family() );
+    *exact = TRUE;				// assume exact match
     if ( familyName.isEmpty() ) {
 	familyName = defaultFamily();
 	*exact = FALSE;
@@ -785,7 +785,7 @@ QString QFont_Private::findFont( bool *exact )
 
     int score;
     QString bestName = bestFamilyMember( familyName, &score );
-    if ( *exact && score != exactScore )
+    if ( score != exactScore )
 	*exact = FALSE;
 
     if ( score == 0 ) {
