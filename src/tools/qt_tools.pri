@@ -34,10 +34,13 @@ tools {
 		  $$TOOLS_P/qlibrary_p.h \
 		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
+		  $$TOOLS_H/qmutex.h \
+		  $$TOOLS_H/qmutex_p.h \
 		  $$TOOLS_H/qpluginmanager.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qptrqueue.h \
 		  $$TOOLS_H/qregexp.h \
+		  $$TOOLS_H/qsemaphore.h \
 		  $$TOOLS_H/qsettings.h \
 		  $$TOOLS_H/qshared.h \
 		  $$TOOLS_H/qsortedlist.h \
@@ -49,6 +52,7 @@ tools {
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
+		  $$TOOLS_H/qwaitcondition.h \
 		  $$TOOLS_H/qcom.h \
 		  $$TOOLS_H/quuid.h
 
@@ -68,7 +72,10 @@ tools {
 	!offmac:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp \
-		  $$TOOLS_CPP/qsettings_unix.cpp
+		  $$TOOLS_CPP/qmutex_unix.cpp \
+		  $$TOOLS_CPP/qsemaphore_unix.cpp \
+		  $$TOOLS_CPP/qsettings_unix.cpp \
+		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
 	!mac:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp 
 	mac:SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 

@@ -1,11 +1,11 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QWaitCondition class
+** QMutex private class declarations
 **
-** Created : 931107
+** Created : 20012507
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -35,42 +35,32 @@
 **
 **********************************************************************/
 
-#ifndef QWAITCONDITION_H
-#define QWAITCONDITION_H
+#ifndef    QMUTEX_P_H
+#define    QMUTEX_P_H
 
-#ifndef QT_H
-#include "qglobal.h"
-#endif // QT_H
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qmutex_unix.cpp and qmutex_win.cpp.  This header file may change
+// from version to version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#if defined(QT_THREAD_SUPPORT)
-
-#include <limits.h>
-
-class QWaitConditionPrivate;
-class QMutex;
-
-class Q_EXPORT QWaitCondition
-{
+class QMutexPrivate {
 public:
-    QWaitCondition();
-    virtual ~QWaitCondition();
+    void *handle;
 
-    // default argument causes thread to block indefinately
-    bool wait( unsigned long time = ULONG_MAX );
-    bool wait( QMutex *mutex, unsigned long time = ULONG_MAX );
+    virtual ~QMutexPrivate();
 
-    void wakeOne();
-    void wakeAll();
-
-private:
-    QWaitConditionPrivate * d;
-
-#if defined(Q_DISABLE_COPY)
-    QWaitCondition( const QWaitCondition & );
-    QWaitCondition &operator=( const QWaitCondition & );
-#endif
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+    virtual bool locked() = 0;
+    virtual bool trylock() = 0;
+    virtual int type() const = 0;
 };
 
-#endif
 
-#endif
+#endif // QMUTEX_P_H

@@ -45,175 +45,131 @@
 #endif
 
 #include "qthread.h"
-//###
 #include "qmutex.h"
-#include "qsemaphore.h"
-#include "qwaitcondition.h"
-//###
 #include "qapplication.h"
 #include "qptrlist.h"
+
+#ifndef QT_H
+#if defined( QWS ) || defined( Q_WS_MACX )
+#include "qptrdict.h"
+#else
 #include "qintdict.h"
-#include "qthread_p.h"
+#endif
+#endif // QT_H
+
+#include <errno.h>
+
+static QMutex *dictMutex = 0;
+#if defined( QWS ) || defined( Q_WS_MACX )
+static QPtrDict<QThread> *thrDict = 0;
+#else
+static QIntDict<QThread> *thrDict = 0;
+#endif
 
 
-/**************************************************************************
- ** QMutex
- *************************************************************************/
-
-/*!
-  \class QMutex qthread.h
-  \brief The QMutex class provides access serialization between threads.
-
-  \ingroup thread
-  \ingroup environment
-
-  The purpose of a QMutex is to protect an object, data structure
-  or section of code so that only one thread can access it at a time
-  (In Java terms, this is similar to the synchronized keyword).
-  For example, say there is a method which prints a message to the
-  user on two lines:
-
-  \code
-  void someMethod()
-  {
-     qDebug("Hello");
-     qDebug("World");
-  }
-  \endcode
-
-  If this method is called simultaneously from two threads then
-  the following sequence could result:
-
-  \code
-  Hello
-  Hello
-  World
-  World
-  \endcode
-
-  If we add a mutex:
-
-  \code
-  QMutex mutex;
-
-  void someMethod()
-  {
-     mutex.lock();
-     qDebug("Hello");
-     qDebug("World");
-     mutex.unlock();
-  }
-  \endcode
-
-  In Java terms this would be:
-
-  \code
-  void someMethod()
-  {
-     synchronized {
-       qDebug("Hello");
-       qDebug("World");
-     }
-  }
-  \endcode
-
-  Then only one thread can execute someMethod at a time and the order
-  of messages is always correct. This is a trivial example, of course,
-  but applies to any other case where things need to happen in a particular
-  sequence.
-
-    When you call lock() in a thread, other threads that try to call
-    lock() in the same place will block until the thread that got the
-    lock calls unlock(). A non-blocking alternative to lock() is
-    tryLock().
-
-*/
+extern "C" { static void *start_thread(void *t); }
 
 
-/*!
-  Constructs a new mutex. The mutex is created in an unlocked state. A
-  recursive mutex is created if \a recursive is TRUE; a normal mutex is
-  created if \a recursive is FALSE (the default). With a recursive
-  mutex, a thread can lock the same mutex multiple times and it will
-  not be unlocked until a corresponding number of unlock() calls have
-  been made.
-*/
-QMutex::QMutex(bool recursive)
-{
-    if ( recursive )
-	d = new QRMutexPrivate();
-    else
-	d = new QMutexPrivate();
+#ifdef    Q_OS_SOLARIS
+// Solaris
+typedef thread_t Q_THREAD_T;
+
+// helpers
+#define Q_THREAD_SELF()    thr_self()
+#define Q_THREAD_EXIT(a)   thr_exit((a))
+#define Q_THREAD_CREATE(a) (a) = thr_create(0, 0, start_thread, that, THR_DETACHED, \
+                                            &thread_id);
+#else // !Q_OS_SOLARIS
+// Pthreads
+typedef pthread_t Q_THREAD_T;
+
+// helpers
+#define Q_THREAD_SELF()    pthread_self()
+#define Q_THREAD_EXIT(a)   pthread_exit((a))
+#define Q_THREAD_CREATE(a) pthread_attr_t attr; \
+                           pthread_attr_init(&attr); \
+	                   pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED); \
+                           pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED); \
+	                   (a) = pthread_create(&thread_id, &attr, start_thread, \
+                                                (void *) that); \
+	                   pthread_attr_destroy(&attr);
+#endif // Q_OS_SOLARIS
+
+
+class QThreadPrivate {
+public:
+    Q_THREAD_T thread_id;
+    QWaitCondition thread_done;      // Used for QThread::wait()
+    bool finished, running;
+
+    QThreadPrivate()
+	: thread_id(0), finished(FALSE), running(FALSE)
+    {
+	if (! dictMutex)
+	    dictMutex = new QMutex;
+	if (! thrDict) {
+#if defined( QWS ) || defined( Q_WS_MACX )
+	    thrDict = new QPtrDict<QThread>;
+#else
+	    thrDict = new QIntDict<QThread>;
+#endif
+	}
+    }
+
+    ~QThreadPrivate()
+    {
+	dictMutex->lock();
+	if (thread_id)
+	    thrDict->remove((Qt::HANDLE) thread_id);
+	dictMutex->unlock();
+
+	thread_id = 0;
+    }
+
+    void init(QThread *that)
+    {
+	that->d->running = TRUE;
+	that->d->finished = FALSE;
+
+	int ret;
+	Q_THREAD_CREATE(ret);
+
+#ifdef QT_CHECK_RANGE
+	if (ret)
+	    qWarning("QThread::start: thread creation error: %s", strerror(ret));
+#endif
+    }
+
+    static void internalRun(QThread *that)
+    {
+	dictMutex->lock();
+	thrDict->insert(QThread::currentThread(), that);
+	dictMutex->unlock();
+
+	that->run();
+
+	dictMutex->lock();
+
+	QThread *there = thrDict->find(QThread::currentThread());
+	if (there) {
+	    there->d->running = FALSE;
+	    there->d->finished = TRUE;
+
+	    there->d->thread_done.wakeAll();
+	}
+
+	thrDict->remove(QThread::currentThread());
+	dictMutex->unlock();
+    }
+};
+
+extern "C" {
+    static void *start_thread(void *t)
+    {
+	QThreadPrivate::internalRun( (QThread *) t );
+	return 0;
+    }
 }
-
-
-/*!
-  Destroys the mutex.
-*/
-QMutex::~QMutex()
-{
-    delete d;
-}
-
-
-/*!
-  Attempt to lock the mutex. If another thread has locked the mutex
-  then this call will \e block until that thread has unlocked it.
-
-  \sa unlock(), locked()
-*/
-void QMutex::lock()
-{
-    d->lock();
-}
-
-
-/*!
-  Unlocks the mutex. Attempting to unlock a mutex in a different thread
-  to the one that locked it results in an error.  Unlocking a mutex that
-  is not locked results in undefined behaviour (varies between
-  different Operating Systems' thread implementations).
-
-  \sa lock(), locked()
-*/
-void QMutex::unlock()
-{
-    d->unlock();
-}
-
-
-/*!
-  Returns TRUE if the mutex is locked by another thread; otherwise
-  returns FALSE.
-
-  \warning Due to differing implementations of recursive mutexes on various
-  platforms, calling this function from the same thread that previously locked
-  the mutex will return undefined results.
-
-  \sa lock(), unlock()
-*/
-bool QMutex::locked()
-{
-    return d->locked();
-}
-
-
-/*!
-  Attempt to lock the mutex.  If the lock was obtained, this function
-  returns TRUE.  If another thread has locked the mutex, this function
-  returns FALSE, instead of waiting for the mutex to become available,
-  i.e. it does not block.
-
-  The mutex must be unlocked with unlock() before another thread can
-  successfully lock it.
-
-  \sa lock(), unlock(), locked()
-*/
-bool QMutex::tryLock()
-{
-    return d->trylock();
-}
-
 
 /**************************************************************************
  ** QThreadQtEvent
@@ -225,7 +181,8 @@ class QThreadQtEvent
 public:
     QThreadQtEvent(QObject *r, QEvent *e)
 	: receiver(r), event(e)
-    {}
+    {
+    }
     QObject *receiver;
     QEvent *event;
 };
@@ -259,14 +216,9 @@ void QThreadPostEventPrivate::sendEvents()
     eventmutex.lock();
 
     QThreadQtEvent *qte;
-    for( qte = events.first(); qte != 0; qte = events.next() ) {
+    for( qte = events.first(); qte != 0; qte = events.next() )
 	qApp->postEvent( qte->receiver, qte->event );
-    }
-
     events.clear();
-
-    // ## let event compression take full effect
-    // qApp->sendPostedEvents();
 
     eventmutex.unlock();
 }
@@ -341,11 +293,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 */
 Qt::HANDLE QThread::currentThread()
 {
-#if !defined(Q_OS_SOLARIS)
-    return (HANDLE) pthread_self();
-#else
-    return (HANDLE) thr_self();
-#endif
+    return (HANDLE) Q_THREAD_SELF();
 }
 
 
@@ -404,20 +352,7 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 // enough (in terms of behavior and availability)
 static void thread_sleep(timespec *ti)
 {
-#ifndef Q_OS_SOLARIS
-    pthread_mutex_t mtx;
-    pthread_cond_t cnd;
-
-    pthread_mutex_init(&mtx, 0);
-    pthread_cond_init(&cnd, 0);
-
-    pthread_mutex_lock(&mtx);
-    (void) pthread_cond_timedwait(&cnd, &mtx, ti);
-    pthread_mutex_unlock(&mtx);
-
-    pthread_cond_destroy(&cnd);
-    pthread_mutex_destroy(&mtx);
-#else
+#ifdef    Q_OS_SOLARIS
     mutex_t mtx;
     cond_t cnd;
 
@@ -430,7 +365,20 @@ static void thread_sleep(timespec *ti)
 
     cond_destroy(&cnd);
     mutex_destroy(&mtx);
-#endif
+#else // !Q_OS_SOLARIS
+    pthread_mutex_t mtx;
+    pthread_cond_t cnd;
+
+    pthread_mutex_init(&mtx, 0);
+    pthread_cond_init(&cnd, 0);
+
+    pthread_mutex_lock(&mtx);
+    (void) pthread_cond_timedwait(&cnd, &mtx, ti);
+    pthread_mutex_unlock(&mtx);
+
+    pthread_cond_destroy(&cnd);
+    pthread_mutex_destroy(&mtx);
+#endif // Q_OS_SOLARIS
 }
 
 
@@ -522,11 +470,7 @@ void QThread::exit()
 
     dictMutex->unlock();
 
-#if !defined(Q_OS_SOLARIS)
-    pthread_exit(0);
-#else
-    thr_exit(0);
-#endif
+    Q_THREAD_EXIT(0);
 }
 
 
@@ -600,434 +544,7 @@ bool QThread::running() const
   \sa wait()
 */
 
-
-/**************************************************************************
- ** QWaitCondition
- *************************************************************************/
-
-/*!
-  \class QWaitCondition qthread.h
-  \brief The QWaitCondition class allows waiting/waking for conditions between threads.
-
-  \ingroup thread
-  \ingroup environment
-
-  QWaitConditions allow a thread to tell other threads that some sort of
-  condition has been met; one or many threads can block waiting for a
-  QWaitCondition to set a condition with wakeOne() or wakeAll().  Use
-  wakeOne() to wake one randomly selected event or wakeAll() to wake them
-  all. For example, say we have three tasks that should be performed every
-  time the user presses a key; each task could be split into a thread, each
-  of which would have a run() body like this:
-
-  \code
-  QWaitCondition key_pressed;
-
-  for (;;) {
-     key_pressed.wait(); // This is a QWaitCondition global variable
-     // Key was pressed, do something interesting
-     do_something();
-  }
-  \endcode
-
-  A fourth thread would read key presses and wake the other three threads
-  up every time it receives one, like this:
-
-  \code
-  QWaitCondition key_pressed;
-
-  for (;;) {
-     getchar();
-     // Causes any thread in key_pressed.wait() to return from
-     // that method and continue processing
-     key_pressed.wakeAll();
-  }
-  \endcode
-
-  Note that the order the three threads are woken up in is undefined,
-  and that if some or all of the threads are still in do_something()
-  when the key is pressed, they won't be woken up (since they're not
-  waiting on the condition variable) and so the task will not be performed
-  for that key press.  This can be avoided by, for example, doing something
-  like this:
-
-  \code
-  QMutex mymutex;
-  QWaitCondition key_pressed;
-  int mycount=0;
-
-  // Worker thread code
-  for (;;) {
-     key_pressed.wait(); // This is a QWaitCondition global variable
-     mymutex.lock();
-     mycount++;
-     mymutex.unlock();
-     do_something();
-     mymutex.lock();
-     mycount--;
-     mymutex.unlock();
-  }
-
-  // Key reading thread code
-  for (;;) {
-     getchar();
-     mymutex.lock();
-     // Sleep until there are no busy worker threads
-     while( count > 0 ) {
-       mymutex.unlock();
-       sleep( 1 );
-       mymutex.lock();
-     }
-     mymutex.unlock();
-     key_pressed.wakeAll();
-  }
-  \endcode
-
-  The mutexes are necessary because the results of two threads
-  attempting to change the value of the same variable simultaneously
-  are unpredictable.
-
-*/
-
-
-/*!
-  Constructs a new event signalling object.
-*/
-QWaitCondition::QWaitCondition()
-{
-    d = new QWaitConditionPrivate;
-}
-
-
-/*!
-  Deletes the event signalling object.
-*/
-QWaitCondition::~QWaitCondition()
-{
-    delete d;
-}
-
-
-/*!
-  Wait on the thread event object. The thread calling this will block
-  until either of these conditions is met:
-  \list
-  \i Another thread signals it using wakeOne() or wakeAll(). This
-       function will return TRUE in this case.
-  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (the default),
-       then the wait will never timeout (the event must
-       be signalled).  This function will return FALSE if the
-       wait timed out.
-  \endlist
-
-  \sa wakeOne(), wakeAll()
-*/
-bool QWaitCondition::wait(unsigned long time)
-{
-    return d->wait(time);
-}
-
-
-/*!
-    \overload
-  Release the locked \a mutex and wait on the thread event object. The
-  \a mutex must be initially locked by the calling thread.  If \a mutex
-  is not in a locked state, this function returns immediately.  The
-  \a mutex will be unlocked, and the calling thread will block until
-  either of these conditions is met:
-  \list
-  \i Another thread signals it using wakeOne() or wakeAll(). This
-       function will return TRUE in this case.
-  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (the default),
-       then the wait will never timeout (the event must be
-       signalled).  This function will return FALSE if the
-       wait timed out.
-  \endlist
-
-  The mutex will be returned to the same locked state.  This function is
-  provided to allow the atomic transition from the locked state to the
-  wait state.
-
-  \sa wakeOne(), wakeAll()
-*/
-bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
-{
-    return d->wait(mutex, time);
-}
-
-
-/*!
-  This wakes one thread waiting on the QWaitCondition.  The thread that
-  is woken up depends on the operating system's scheduling policies, and
-  cannot be controlled or predicted.
-
-  \sa wakeAll()
-*/
-void QWaitCondition::wakeOne()
-{
-    d->wakeOne();
-}
-
-
-/*!
-  This wakes all threads waiting on the QWaitCondition.  The order in
-  which the threads are woken up depends on the operating system's
-  scheduling policies, and cannot be controlled or predicted.
-
-  \sa wakeOne()
-*/
-void QWaitCondition::wakeAll()
-{
-    d->wakeAll();
-}
-
-
-/**************************************************************************
- ** QSemaphore
- *************************************************************************/
-/*!
-  \class QSemaphore qthread.h
-  \brief The QSemaphore class provides a robust integer semaphore.
-
-  \ingroup thread
-  \ingroup environment
-
-  A QSemaphore can be used to serialize thread execution, in a similar
-  way to a QMutex.  A semaphore differs from a mutex, in that a
-  semaphore can be accessed by more than one thread at a time.
-
-  For example, suppose we have an application that stores data in a
-  large tree structure.  The application creates 10 threads (commonly
-  called a thread pool) to perform searches on the tree.  When the
-  application searches the tree for some piece of data, it uses one
-  thread per base node to do the searching.  A semaphore could be used
-  to make sure that two threads don't try to search the same branch of
-  the tree at the same time.
-
-  A non-computing example of a semaphore would be dining at a restuarant.
-  A semaphore is initialized to have a maximum count equal to the number
-  of chairs in the restuarant.  As people arrive, they want a seat.  As
-  seats are filled, the semaphore is accessed, once per person.  As people
-  leave, the access is released, allowing more people to enter. If a
-  party of 10 people want to be seated, but there are only 9 seats, those
-  10 people will wait, but a party of 4 people would be seated (taking
-  the available seats to 5, making the party of 10 people wait longer).
-
-  When a semaphore is created it is given a number which is the
-  maximum number of concurrent accesses it will permit. This amount
-  may be changed using operator++(), operator--(), operator+=() and
-  operator-=(). The number of accesses allowed is retrieved with
-  available(), and the total number with total(). Note that the
-  incrementing functions will block if there aren't enough available
-  accesses. Use tryAccess() if you want to acquire accesses without
-  blocking.
-*/
-
-
-class QSemaphorePrivate {
-public:
-    QSemaphorePrivate(int);
-
-    QMutex mutex;
-    QWaitCondition cond;
-
-    int value, max;
-};
-
-
-QSemaphorePrivate::QSemaphorePrivate(int m)
-    : mutex(FALSE), value(0), max(m)
-{
-}
-
-
-/*!
-  Creates a new semaphore.  The semaphore can be concurrently accessed at
-  most \a maxcount times.
-*/
-QSemaphore::QSemaphore(int maxcount)
-{
-    d = new QSemaphorePrivate(maxcount);
-}
-
-
-/*!
-  Destroys the semaphore.
-*/
-QSemaphore::~QSemaphore()
-{
-    delete d;
-}
-
-
-/*!
-  Postfix ++ operator.
-
-  Try to get access to the semaphore.  If \l available() == 0,
-  this call will block until it can get access, i.e. until available()
-  > 0.
-*/
-int QSemaphore::operator++(int)
-{
-    int ret;
-
-    d->mutex.lock();
-
-    while (d->value >= d->max)
-	d->cond.wait(&(d->mutex));
-
-    ++(d->value);
-    if (d->value > d->max) d->value = d->max;
-    ret = d->value;
-
-    d->mutex.unlock();
-
-    return ret;
-}
-
-
-/*!
-  Postfix -- operator.
-
-  Release access of the semaphore.  This wakes all threads waiting for
-  access to the semaphore.
- */
-int QSemaphore::operator--(int)
-{
-    int ret;
-
-    d->mutex.lock();
-
-    --(d->value);
-    if (d->value < 0) d->value = 0;
-    ret = d->value;
-
-    d->cond.wakeAll();
-    d->mutex.unlock();
-
-    return ret;
-}
-
-
-/*!
-  Try to get access to the semaphore.  If \l available() < \a n, this
-  call will block until it can get all the accesses it wants, i.e.
-  until available() >= \a n.
-*/
-int QSemaphore::operator+=(int n)
-{
-    int ret;
-
-    d->mutex.lock();
-
-    while (d->value + n > d->max)
-	d->cond.wait(&(d->mutex));
-
-    d->value += n;
-
-#ifdef QT_CHECK_RANGE
-    if (d->value > d->max) {
-	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
-	d->value = d->max;
-    }
-#endif
-
-    ret = d->value;
-
-    d->mutex.unlock();
-
-    return ret;
-}
-
-
-/*!
-  Release \a n accesses to the semaphore.
- */
-int QSemaphore::operator-=(int n)
-{
-    int ret;
-
-    d->mutex.lock();
-
-    d->value -= n;
-
-#ifdef QT_CHECK_RANGE
-    if (d->value < 0) {
-	qWarning("QSemaphore::operator-=: attempt to deallocate more resources than taken");
-	d->value = 0;
-    }
-#endif
-
-    ret = d->value;
-
-    d->cond.wakeOne();
-    d->mutex.unlock();
-
-    return ret;
-}
-
-
-/*!
-  This function returns the number of accesses currently available to
-  the semaphore.
- */
-int QSemaphore::available() const {
-    int ret;
-
-    d->mutex.lock();
-    ret = d->max - d->value;
-    d->mutex.unlock();
-
-    return ret;
-}
-
-
-/*!
-  This function returns the total number of accesses to the semaphore.
- */
-int QSemaphore::total() const {
-    int ret;
-
-    d->mutex.lock();
-    ret = d->max;
-    d->mutex.unlock();
-
-    return ret;
-}
-
-
-/*!
-  Try to get access to the semaphore.  If \l available() < \a n, this
-  function will return FALSE immediately. If \l available() >= \a n,
-  this function will take \a n accesses and return TRUE. This function
-  does \e not block.
-*/
-bool QSemaphore::tryAccess(int n)
-{
-    if (! d->mutex.tryLock())
-	return FALSE;
-
-    if (d->value + n > d->max) {
-	d->mutex.unlock();
-	return FALSE;
-    }
-
-    d->value += n;
-
-#ifdef QT_CHECK_RANGE
-    if (d->value > d->max) {
-	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
-	d->value = d->max;
-    }
-#endif
-
-    d->mutex.unlock();
-
-    return TRUE;
-}
-
-
 #include "qthread_unix.moc"
 
-
 #endif // QT_THREAD_SUPPORT
+
