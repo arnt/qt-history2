@@ -4042,9 +4042,9 @@ void QTextEdit::zoomOut( int range )
 
 void QTextEdit::sync()
 {
-    if ( !lastFormatted )
-	return;
     QTextParag *p = lastFormatted;
+    if ( !p )
+	p = doc->firstParag();
     while ( p ) {
 	p->format();
 	p = p->next();
