@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#6 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#7 $
 **
 ** Macros and definitions related to QObject
 **
@@ -60,8 +60,14 @@ class QSignal;
 class QConnection;
 class QEvent;
 
+class QListM_QConnection;			// connection list
+#define QConnectionList QListM_QConnection
+
+class QDictM_QConnection;			// signal dictionary
+#define QSignalDict QDictM_QConnection;
+
 class QDictM_QConnection;			// connection dictionary
-#define QConnections QDictM_QConnection
+#define QConnections QDictM_QConnection		// !!! TO BE REMOVED LATER !!!
 
 class QListM_QObject;				// object list
 #define QObjectList QListM_QObject
