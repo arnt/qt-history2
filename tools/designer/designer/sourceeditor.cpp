@@ -66,7 +66,7 @@ SourceEditor::~SourceEditor()
     editor = 0;
     if ( formWindow && formWindow->inherits( "FormWindow" ) )
 	MetaDataBase::setEdited( formWindow, FALSE );
-    if ( formWindow->inherits( "SourceFile" ) )
+    if ( formWindow && formWindow->inherits( "SourceFile" ) )
 	( (SourceFile*)(QObject*)formWindow )->setEditor( 0 );
 }
 
@@ -189,6 +189,7 @@ void SourceEditor::save()
 		    found = TRUE;
 		    MetaDataBase::Slot slot;
 		    slot.slot = make_func_pretty( (*it).name );
+		    slot.specifier = (*sit).specifier;
 		    slot.access = (*sit).access;
 		    slot.language = (*sit).language;
 		    slot.returnType = (*it).returnType;
@@ -201,6 +202,7 @@ void SourceEditor::save()
 	    if ( !found ) {
 		MetaDataBase::Slot slot;
 		slot.slot = make_func_pretty( (*it).name );
+		slot.specifier = "virtual";
 		slot.access = "public";
 		slot.language = lang;
 		slot.returnType = (*it).returnType;

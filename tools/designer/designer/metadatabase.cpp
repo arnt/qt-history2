@@ -510,7 +510,8 @@ void MetaDataBase::doConnections( QObject *o )
     }
 }
 
-void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType )
+void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& specifier, 
+			    const QString &access, const QString &language, const QString &returnType )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -522,6 +523,7 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
 
     Slot s;
     s.slot = slot;
+    s.specifier = specifier;
     s.access = access;
     s.language = language;
     s.returnType = returnType;
@@ -561,7 +563,8 @@ void MetaDataBase::setSlotList( QObject *o, const QValueList<Slot> &slotList )
     r->slotList = slotList;
 }
 
-void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType )
+void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString& specifier,
+			       const QString &access, const QString &language, const QString &returnType )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -574,7 +577,8 @@ void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &
     for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
 	Slot s = *it;
 	if ( s.slot == slot &&
-	     s.access == access &&
+	     s.specifier == specifier &&
+	     s.access == access && 
 	     ( language.isEmpty() || s.language == language ) &&
 	       ( returnType.isEmpty() || s.returnType == returnType ) ) {
 	    r->slotList.remove( it );
@@ -1280,7 +1284,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	    slotExists = FALSE;
 
 	if ( needAddSlot && addIfNotExisting )
-	    addSlot( form, fName.latin1(), "public", lang, "void" );
+	    addSlot( form, fName.latin1(), "virtual", "public", lang, "void" );
     }
 
     r->eventFunctions.insert( event, functions );
@@ -1409,6 +1413,7 @@ void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &
 	    if ( !foundSlot ) {
 		Slot sl;
 		sl.slot = make_pretty( it.key() ).latin1();
+		sl.specifier = "virtual";
 		sl.access = "public";
 		sl.language = lang;
 		sl.returnType = returnType;

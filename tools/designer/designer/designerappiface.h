@@ -183,7 +183,8 @@ public:
     void addAction( QAction * );
     void removeAction( QAction * );
     void preview() const;
-    void addSlot( const QCString &slot, const QString &access, const QString &language, const QString &returnType );
+    void addSlot( const QCString &slot, const QString& specifier, const QString &access, 
+		  const QString &language, const QString &returnType );
     void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot );
     void setProperty( QObject *o, const char *property, const QVariant &value );
     QVariant property( QObject *o, const char *property ) const;

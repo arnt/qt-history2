@@ -197,9 +197,9 @@ void FormWindow::initSlots()
 	lang = MainWindow::self->currProject()->language();
     if ( lang != "C++" ) {
 	if ( !MetaDataBase::hasSlot( this, "init()" ) )
-	    MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language(), "void" );
+	    MetaDataBase::addSlot( this, "init()", "", "protected", mainWindow()->currProject()->language(), "void" );
 	if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
-	    MetaDataBase::addSlot( this, "destroy()", "protected", mainWindow()->currProject()->language(), "void" );
+	    MetaDataBase::addSlot( this, "destroy()", "", "protected", mainWindow()->currProject()->language(), "void" );
     } else {
 	QString code = MetaDataBase::formCode( this );
 	if ( code.isEmpty() ) {

@@ -915,7 +915,7 @@
 		QString slot = ac-&gt;name();
 		slot.remove( slot.length() - 6, 6 );
 		slot += "()";
-		dfw-&gt;addSlot( slot.latin1(), "public", dIface-&gt;currentProject()-&gt;language(), "void" );
+		dfw-&gt;addSlot( slot.latin1(), "virtual", "public", dIface-&gt;currentProject()-&gt;language(), "void" );
 		dfw-&gt;addConnection( ac, "activated()", widget, slot );
 	}
     }

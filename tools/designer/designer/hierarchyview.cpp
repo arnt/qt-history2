@@ -606,22 +606,26 @@ void FunctionList::refreshFunctions( bool doDelete )
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
     HierarchyItem *itemFunctions = new HierarchyItem( this, tr( "Functions" ), QString::null, QString::null );
     itemFunctions->setPixmap( 0, *folderPixmap );
+    HierarchyItem *itemPrivate = new HierarchyItem( itemFunctions, tr( "private" ), QString::null, QString::null );
     HierarchyItem *itemProtected = new HierarchyItem( itemFunctions, tr( "protected" ), QString::null, QString::null );
     HierarchyItem *itemPublic = new HierarchyItem( itemFunctions, tr( "public" ), QString::null, QString::null );
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     if ( !slotList.isEmpty() ) {
 	while ( TRUE ) {
 	    QListViewItem *item = 0;
-	    if ( (*it).access == "public" )
-		item = new HierarchyItem( itemPublic, (*it).slot, QString::null, QString::null );
-	    else
+	    if ( (*it).access == "protected" )
 		item = new HierarchyItem( itemProtected, (*it).slot, QString::null, QString::null );
+	    else if ( (*it).access == "private" )
+		item = new HierarchyItem( itemPrivate, (*it).slot, QString::null, QString::null );
+	    else // default is public
+		item = new HierarchyItem( itemPublic, (*it).slot, QString::null, QString::null );
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    if ( it == slotList.begin() )
 		break;
 	    --it;
 	}
     }
+    itemPrivate->setOpen( TRUE );
     itemProtected->setOpen( TRUE );
     itemPublic->setOpen( TRUE );
     itemFunctions->setOpen( TRUE );
@@ -636,8 +640,9 @@ void FunctionList::objectClicked( QListViewItem *i )
 {
     if ( !i || !i->parent() )
 	return;
-    if ( i->parent()->text( 0 ) == tr( "protected" ) ||
-	 i->parent()->text( 0 ) == tr( "public" ) )
+    if ( 	 i->parent()->text( 0 ) == tr( "private" ) ||
+		 i->parent()->text( 0 ) == tr( "protected" ) ||
+		 i->parent()->text( 0 ) == tr( "public" ) )
 	formWindow->mainWindow()->editFunction( i->text( 0 ) );
 }
 
@@ -649,10 +654,11 @@ void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
     if ( i->text( 0 ) == tr( "Functions" ) )
 	return;
     QListViewItem *it = i;
-    if ( i->parent() && i->parent()->text( 0 ) == tr( "protected" ) ||
-	 i->parent() && i->parent()->text( 0 ) == tr( "public" ) )
+    if ( i->parent() &&
+	 ( i->parent()->text( 0 ) == tr( "private" ) ||
+	   i->parent()->text( 0 ) == tr( "protected" ) ||
+	   i->parent()->text( 0 ) == tr( "public" ) ) )
 	it = i->parent();
-
     HierarchyItem *item = new HierarchyItem( it, QString::null, QString::null, QString::null );
     item->setRenameEnabled( 0, TRUE );
     setCurrentItem( item );
@@ -670,8 +676,10 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     if ( i->text( 0 ) == tr( "Functions" ) )
 	return;
 
-    if ( i->parent() && i->parent()->text( 0 ) == "protected" ||
-	 i->parent() && i->parent()->text( 0 ) == "public" ) {
+    if ( i->parent() &&
+	 ( i->parent()->text( 0 ) == tr( "private" ) ||
+	   i->parent()->text( 0 ) == tr( "protected" ) ||
+	   i->parent()->text( 0 ) == tr( "public" ) ) ) {
 	QPopupMenu menu;
 	const int PROPS = 1;
 	const int EDIT = 2;
@@ -714,7 +722,8 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int DEL_ITEM = 2;
     menu.insertItem( tr( "New" ), NEW_ITEM );
     bool forceChild = FALSE;
-    if ( i->parent() && i->text( 0 ) != tr( "protected" ) && i->text( 0 ) != tr( "public" ) )
+    if ( i->parent() && i->text( 0 ) != tr( "private" ) &&
+	 i->text( 0 ) != tr( "protected" ) && i->text( 0 ) != tr( "public" ) )
 	menu.insertItem( tr( "Delete" ), DEL_ITEM );
     forceChild = i->text( 0 ) != tr( "protected" ) || i->text( 0 ) != tr( "public" );
     popupOpen = TRUE;
@@ -747,12 +756,12 @@ void FunctionList::renamed( QListViewItem *i )
 
 void FunctionList::save( QListViewItem *p, QListViewItem *i )
 {
-    if ( i && ( p->text( 0 ) == tr( "protected" ) || p->text( 0 ) == tr( "public" ) ) ) {
+    if ( i && ( p->text( 0 ) == tr( "protected" ) || p->text( 0 ) == tr( "public" ) || p->text( 0 ) == tr( "private" )) ) {
 	if ( i->text( 0 ).isEmpty() ) {
 	    delete i;
 	    return;
 	}
-	MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), p->text( 0 ),
+	MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "virtual", p->text( 0 ),
 			       formWindow->project()->language(), "void" );
 	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
 					formWindow->project()->language(), TRUE );

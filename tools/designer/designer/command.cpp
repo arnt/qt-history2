@@ -1033,40 +1033,40 @@ void RemoveConnectionCommand::unexecute()
 // ------------------------------------------------------------
 
 AddSlotCommand::AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s,
-				const QString &a, const QString &l, const QString &rt )
-    : Command( name, fw ), slot( s ), access( a ), language( l ), returnType( rt )
+				const QString& spec, const QString &a, const QString &l, const QString &rt )
+    : Command( name, fw ), slot( s ), specifier( spec ), access( a ), language( l ), returnType( rt )
 {
 }
 
 void AddSlotCommand::execute()
 {
-    MetaDataBase::addSlot( formWindow(), slot, access, language, returnType );
+    MetaDataBase::addSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
 }
 
 void AddSlotCommand::unexecute()
 {
-    MetaDataBase::removeSlot( formWindow(), slot, access, language, returnType );
+    MetaDataBase::removeSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
 }
 
 // ------------------------------------------------------------
 
 RemoveSlotCommand::RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s,
-				      const QString &a, const QString &l, const QString &rt )
-    : Command( name, fw ), slot( s ), access( a ), language( l ), returnType( rt )
+				      const QString& spec, const QString &a, const QString &l, const QString &rt )
+    : Command( name, fw ), slot( s ), specifier( spec ), access( a ), language( l ), returnType( rt )
 {
 }
 
 void RemoveSlotCommand::execute()
 {
-    MetaDataBase::removeSlot( formWindow(), slot, access, language, returnType );
+    MetaDataBase::removeSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
 }
 
 void RemoveSlotCommand::unexecute()
 {
-    MetaDataBase::addSlot( formWindow(), slot, access, language, returnType );
+    MetaDataBase::addSlot( formWindow(), slot, specifier, access, language, returnType );
     formWindow()->mainWindow()->slotsChanged();
 }
 

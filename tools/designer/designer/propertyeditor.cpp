@@ -3222,7 +3222,7 @@ void EventList::renamed( QListViewItem *i )
 	    formWindow->commandHistory()->addCommand( cmd );
 	    // #### we should look if the specified slot already
 	    // exists and if we can connect to this one
-	    MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "public",
+	    MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "virtual", "public",
 				   formWindow->project()->language(), "void" );
 	    editor->formWindow()->mainWindow()->
 		editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),

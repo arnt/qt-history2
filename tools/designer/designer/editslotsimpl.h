@@ -43,7 +43,8 @@ protected slots:
     void slotRemove();
     void currentItemChanged( QListViewItem * );
     void currentTextChanged( const QString &txt );
-    void currentAccessChanged( const QString &acc );
+    void currentSpecifierChanged( const QString &s);
+    void currentAccessChanged( const QString &a );
     void currentTypeChanged( const QString &type );
 
 private:

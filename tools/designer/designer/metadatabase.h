@@ -52,15 +52,18 @@ public:
 
     struct Slot
     {
+	QString returnType;
 	QCString slot;
+	QString specifier;
 	QString access;
 	QString language;
-	QString returnType;
 	bool operator==( const Slot &s ) const {
-	    return ( slot == s.slot &&
+	    return ( returnType == s.returnType &&
+		     slot == s.slot &&
 		     access == s.access &&
-		     language == s.language &&
-		     returnType == s.returnType );
+		     specifier == s.specifier &&
+		     language == s.language
+		     );
 	}
     };
 
@@ -154,8 +157,8 @@ public:
     static QValueList<Connection> connections( QObject *o, QObject *object );
     static void doConnections( QObject *o );
 
-    static void addSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType );
-    static void removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType );
+    static void addSlot( QObject *o, const QCString &slot, const QString& specifier, const QString &access, const QString &language, const QString &returnType );
+    static void removeSlot( QObject *o, const QCString &slot, const QString& specifier, const QString &access, const QString &language, const QString &returnType );
     static void removeSlot( QObject *o, const QString &slot );
     static QValueList<Slot> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );

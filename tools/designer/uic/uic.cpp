@@ -962,7 +962,7 @@ bool Uic::isLayout( const QString& name ) const
 void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
-    QStringList::Iterator it, it2;
+    QStringList::Iterator it, it2, it3;
 
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
@@ -988,20 +988,30 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     out << endl;
 
     // find additional slots
-    QStringList publicSlots, protectedSlots;
-    QStringList publicSlotTypes, protectedSlotTypes;
+    QStringList publicSlots, protectedSlots, privateSlots;
+    QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
+    QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QMap<QString, QString> functionImpls;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
+		    QString returnType = n2.attribute( "returnType", "void" );
+		    QString slotName = n2.firstChild().toText().data();
+		    QString specifier = n2.attribute( "specifier" );
 		    QString access = n2.attribute( "access" );
 		    if ( access == "protected" ) {
-			protectedSlots += n2.firstChild().toText().data();
-			protectedSlotTypes += n2.attribute( "returnType", "void" );
+			protectedSlots += slotName;
+			protectedSlotTypes += returnType;
+			protectedSlotSpecifier += specifier;
+		    } else if ( access == "private" ) {
+			privateSlots += slotName;
+			privateSlotTypes += returnType;
+			privateSlotSpecifier += specifier;
 		    } else {
-			publicSlots += n2.firstChild().toText().data();
-			publicSlotTypes += n2.attribute( "returnType", "void" );
+			publicSlots += slotName;
+			publicSlotTypes += returnType;
+			publicSlotSpecifier += specifier;
 		    }
 		}
 	    }
@@ -1016,14 +1026,21 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	}
     }
 
-    // create public additional slots as pure-virtual functions
+    // create public additional slots 
     if ( !publicSlots.isEmpty() ) {
 	out << "public slots:" << endl;
-	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(); it != publicSlots.end(); ++it, ++it2 ) {
+	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
+	      it != publicSlots.end(); ++it, ++it2, ++it3 ) {
 	    bool createDecl = TRUE;
+	    QString specifier; 
+	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
+	    if ( *it3 != "non virtual" )
+		specifier = "virtual ";
+	    if ( *it3 == "pure virtual" )
+		pure = "=0;";
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
 	    if ( fit != functionImpls.end() ) {
@@ -1032,19 +1049,26 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 		createDecl = body.simplifyWhiteSpace().isEmpty();
 	    }
 	    if ( createDecl )
-		out << "    " << type << " " << (*it) << ";" << endl;
+		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
 	}
 	out << endl;
     }
 
-    // create protected additional slots as pure-virtual functions
+    // create protected additional slots 
     if ( !protectedSlots.isEmpty() ) {
 	out << "protected slots:" << endl;
-	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(); it != protectedSlots.end(); ++it, ++it2 ) {
+	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(), it3 = protectedSlotSpecifier.begin();
+	      it != protectedSlots.end(); ++it, ++it2, ++it3 ) {
 	    bool createDecl = TRUE;
+	    QString specifier; 
+	    QString pure;
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
+	    if ( *it3 != "non virtual" )
+		specifier = "virtual ";
+	    if ( *it3 == "pure virtual" )
+		pure = "=0;";
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
 	    if ( fit != functionImpls.end() ) {
@@ -1053,11 +1077,39 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 		createDecl = body.simplifyWhiteSpace().isEmpty();
 	    }
 	    if ( createDecl )
-		out << "    " << type << " " << (*it) << ";" << endl;
+		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
 	}
 	out << endl;
     }
 
+    // create protected additional slots 
+    if ( !privateSlots.isEmpty() ) {
+	out << "private slots:" << endl;
+	for ( it = privateSlots.begin(), it2 = privateSlotTypes.begin(), it3 = privateSlotSpecifier.begin();
+	      it != privateSlots.end(); ++it, ++it2, ++it3 ) {
+	    bool createDecl = TRUE;
+	    QString specifier; 
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 != "non virtual" )
+		specifier = "virtual ";
+	    if ( *it3 == "pure virtual" )
+		pure = "=0;";
+	    QString fname = Parser::cleanArgs( *it );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createDecl = body.simplifyWhiteSpace().isEmpty();
+	    }
+	    if ( createDecl )
+		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
+	}
+	out << endl;
+    }
+    
     out << "};" << endl;
 }
 

@@ -34,6 +34,7 @@
 #include <qmessagebox.h>
 #include <qlayout.h>
 #include <qlabel.h>
+#include <qgroupbox.h>
 
 EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     : EditSlotsBase( parent, 0, TRUE ), formWindow( fw )
@@ -52,16 +53,16 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
 	oldSlotNames.insert( i, QString( (*it).slot ) );
 	i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	i->setText( 0, (*it).slot );
-	i->setText( 1, (*it).access );
+	i->setText( 1, (*it).returnType );
+	i->setText( 2, (*it).specifier );
+	i->setText( 3, (*it).access  );
 	if ( MetaDataBase::isSlotUsed( formWindow, (*it).slot ) )
-	    i->setText( 2, tr( "Yes" ) );
+	    i->setText( 4, tr( "Yes" ) );
 	else
-	    i->setText( 2, tr( "No" ) );
-	i->setText( 3, (*it).returnType );
+	    i->setText( 4, tr( "No" ) );
     }
 
-    slotName->setEnabled( FALSE );
-    slotAccess->setEnabled( FALSE );
+    boxProperties->setEnabled( FALSE );
     slotName->setValidator( new AsciiValidator( TRUE, slotName ) );
 
     if ( slotListView->firstChild() )
@@ -78,7 +79,7 @@ void EditSlots::okClicked()
 	QPtrList<Command> commands;
 	for ( sit = slotList.begin(); sit != slotList.end(); ++sit ) {
 	    commands.append( new RemoveSlotCommand( tr( "Remove slot" ),
-						    formWindow, (*sit).slot, (*sit).access,
+						    formWindow, (*sit).slot, (*sit).specifier, (*sit).access,
 						    formWindow->project()->language(), (*sit).returnType ) );
 	}
 	rmSlt = new MacroCommand( tr( "Remove slots" ), formWindow, commands );
@@ -96,29 +97,31 @@ void EditSlots::okClicked()
 	for ( ; it.current(); ++it ) {
 	    MetaDataBase::Slot slot;
 	    slot.slot = it.current()->text( 0 );
-	    slot.access = it.current()->text( 1 );
+	    slot.returnType = it.current()->text( 1 );
+	    slot.specifier = it.current()->text( 2 );
+	    slot.access = it.current()->text( 3 );
 	    slot.language = formWindow->project()->language();
-	    slot.returnType = it.current()->text( 3 );
 	    if ( slot.returnType.isEmpty() )
 		slot.returnType = "void";
-	    QString s = it.current()->text( 0 );
+	    QString s = slot.slot;
 	    s = s.simplifyWhiteSpace();
 	    bool startNum = s[ 0 ] >= '0' && s[ 0 ] <= '9';
 	    bool noParens = s.contains( '(' ) != 1 || s.contains( ')' ) != 1;
 	    bool illegalSpace = s.find( ' ' ) != -1 && s.find( ' ' ) < s.find( '(' );
+
 	    if ( startNum || noParens || illegalSpace || lst.find( slot.slot ) != -1 ) {
 		invalidSlots = TRUE;
 		invalidItems.append( it.current() );
 		continue;
 	    }
 	    commands.append( new AddSlotCommand( tr( "Add slot" ),
-						 formWindow, slot.slot, slot.access,
+						 formWindow, slot.slot, slot.specifier, slot.access,
 						 formWindow->project()->language(),
 						 slot.returnType ) );
 	    QMap<QListViewItem*, QString>::Iterator sit = oldSlotNames.find( it.current() );
 	    if ( sit != oldSlotNames.end() ) {
-		if ( *sit != it.current()->text( 0 ) )
-		    MetaDataBase::functionNameChanged( formWindow, *sit, it.current()->text( 0 ) );
+		if ( *sit != it.current()->text( 1 ) )
+		    MetaDataBase::functionNameChanged( formWindow, *sit, it.current()->text( 1 ) );
 	    }
 	    lst.append( slot.slot );
 	}
@@ -170,12 +173,13 @@ void EditSlots::slotAdd()
     QListViewItem *i = new QListViewItem( slotListView );
     i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
     i->setText( 0, "newSlot()" );
-    i->setText( 1, "public" );
+    i->setText( 1, "void" );
+    i->setText( 2, "virtual" );
+    i->setText( 3, "public" );
     if ( MetaDataBase::isSlotUsed( formWindow, "newSlot()" ) )
-	i->setText( 2, tr( "Yes" ) );
+	i->setText( 4, tr( "Yes" ) );
     else
-	i->setText( 2, tr( "No" ) );
-    i->setText( 3, "void" );
+	i->setText( 4, tr( "No" ) );
     slotListView->setCurrentItem( i );
     slotListView->setSelected( i, TRUE );
 }
@@ -202,21 +206,29 @@ void EditSlots::currentItemChanged( QListViewItem *i )
     slotName->blockSignals( FALSE );
 
     if ( !i ) {
-	slotName->setEnabled( FALSE );
-	slotAccess->setEnabled( FALSE );
+	boxProperties->setEnabled( FALSE );
 	return;
     }
 
     slotName->blockSignals( TRUE );
-    slotName->setEnabled( TRUE );
-    slotAccess->setEnabled( TRUE );
     slotName->setText( i->text( 0 ) );
-    editType->setText( i->text( 3 ) );
-    if ( i->text( 1 ) == "public" )
-	slotAccess->setCurrentItem( 0 );
+    editType->setText( i->text( 1 ) );
+    QString specifier = i->text( 2 );
+    QString access = i->text( 3 );
+    if ( specifier == "pure virtual" )
+	slotSpecifier->setCurrentItem( 2 );
+    else if ( specifier == "non virtual" )
+	slotSpecifier->setCurrentItem( 0 );
     else
+	slotSpecifier->setCurrentItem( 1 );
+    if ( access == "private" )
+	slotAccess->setCurrentItem( 2 );
+    else if ( access == "protected" )
 	slotAccess->setCurrentItem( 1 );
+    else
+	slotAccess->setCurrentItem( 0 );
     slotName->blockSignals( FALSE );
+    boxProperties->setEnabled( TRUE );
 }
 
 void EditSlots::currentTextChanged( const QString &txt )
@@ -226,25 +238,33 @@ void EditSlots::currentTextChanged( const QString &txt )
 
     slotListView->currentItem()->setText( 0, txt );
     if ( MetaDataBase::isSlotUsed( formWindow, txt.utf8() ) )
-	slotListView->currentItem()->setText( 2, tr( "Yes" ) );
+	slotListView->currentItem()->setText( 4, tr( "Yes" ) );
     else
-	slotListView->currentItem()->setText( 2, tr( "No" ) );
+	slotListView->currentItem()->setText( 4, tr( "No" ) );
 }
 
-void EditSlots::currentAccessChanged( const QString &acc )
+void EditSlots::currentSpecifierChanged( const QString& s )
 {
     if ( !slotListView->currentItem() )
 	return;
 
-    slotListView->currentItem()->setText( 1, acc );
+    slotListView->currentItem()->setText( 2, s );
 }
+
+void EditSlots::currentAccessChanged( const QString& a )
+{
+    if ( !slotListView->currentItem() )
+	return;
+    slotListView->currentItem()->setText( 3, a );
+}
+
 
 void EditSlots::currentTypeChanged( const QString &type )
 {
     if ( !slotListView->currentItem() )
 	return;
 
-    slotListView->currentItem()->setText( 3, type );
+    slotListView->currentItem()->setText( 1, type );
 }
 
 void EditSlots::removeSlotFromCode( const QString &slot, FormWindow *formWindow )

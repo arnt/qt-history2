@@ -1836,8 +1836,9 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	    MetaDataBase::Slot slot = *it;
 	    if ( saveLangSlots || slot.language != lang ) {
 		ts << makeIndent( indent ) << "<slot access=\"" << slot.access
-		   << "\" language=\"" << slot.language << "\" returnType=\""
-		   << slot.returnType  << "\">" << entitize( slot.slot ) << "</slot>" << endl;
+		   << "\" specifier=\"" << slot.specifier << "\" language=\"" << slot.language 
+		   << "\" returnType=\"" << slot.returnType  << "\">" 
+		   << entitize( slot.slot ) << "</slot>" << endl;
 	    }
 	}
     }
@@ -1908,14 +1909,19 @@ void Resource::loadConnections( const QDomElement &e )
 	    }
 	} else if ( n.tagName() == "slot" ) {
 	    MetaDataBase::Slot slot;
+	    slot.specifier = n.attribute( "specifier", "virtual" );
+	    if ( slot.specifier.isEmpty() )
+		slot.specifier = "virtual";
 	    slot.access = n.attribute( "access", "public" );
+	    if ( slot.access.isEmpty() )
+		slot.access = "public";
 	    slot.language = n.attribute( "language", "C++" );
 	    slot.returnType = n.attribute( "returnType", "void" );
 	    if ( slot.returnType.isEmpty() )
 		slot.returnType = "void";
 	    slot.slot = n.firstChild().toText().data();
 	    if ( !MetaDataBase::hasSlot( formwindow, slot.slot ) )
-		MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.access, slot.language, slot.returnType );
+		MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.specifier, slot.access, slot.language, slot.returnType );
 	}
 	n = n.nextSibling().toElement();
     }
@@ -1956,7 +1962,8 @@ void Resource::saveCustomWidgets( QTextStream &ts, int indent )
 	}
 	if ( !w->lstSlots.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
-		ts << makeIndent( indent ) << "<slot access=\"" << (*it).access << "\">" << entitize( (*it).slot ) << "</slot>" << endl;
+		ts << makeIndent( indent ) << "<slot access=\"" << (*it).access << "\" specifier=\"" 
+		   << (*it).specifier << "\">" << entitize( (*it).slot ) << "</slot>" << endl;
 	}
 	if ( !w->lstProperties.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
@@ -2581,7 +2588,7 @@ void Resource::loadExtraSource()
 	if ( MetaDataBase::hasSlot( formwindow, (*fit).name.latin1() ) )
 	    MetaDataBase::changeSlot( formwindow, (*fit).name.latin1(), (*fit).name.latin1() );
 	else
-	    MetaDataBase::addSlot( formwindow, (*fit).name.latin1(), "public", lang, (*fit).returnType );
+	    MetaDataBase::addSlot( formwindow, (*fit).name.latin1(), "virtual", "public", lang, (*fit).returnType );
 	MetaDataBase::setFunctionComments( formwindow, (*fit).name, (*fit).comments );
 	bodies.insert( MetaDataBase::normalizeSlot( (*fit).name ), (*fit).body );
     }
