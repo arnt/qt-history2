@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#56 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#56 $")
 
 
 // Mac style parameters
@@ -103,16 +103,20 @@ static const motifTabSpacing	= 12;		// space between text and tab
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Constructs a popup menu with a parent and a widget name.
+  Constructs a popup menu with a null parent and a widget name.
 
-  The parent widget is ignored.	 A pop-up menu has to be a top-level
-  widget, this argument is present merely for API uniformity.
+  A popup menu must be a top level widget, i.e. parent must be 0.
+  This argument is present merely for API uniformity.
  ----------------------------------------------------------------------------*/
 
-QPopupMenu::QPopupMenu( QWidget *, const char *name )
+QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     : QTableView( 0, name, WType_Popup )
 {
     initMetaObject();
+#if defined(CHECK_RANGE)
+    if ( parent != 0 )
+	warning( "QPopupMenu: Parent must be null" );
+#endif
     isPopup	  = TRUE;
     selfItem	  = 0;
     autoaccel	  = 0;
