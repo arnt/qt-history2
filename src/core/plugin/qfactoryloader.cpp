@@ -130,8 +130,13 @@ QStringList QFactoryLoader::keys() const
 QObject *QFactoryLoader::instance(const QString &key) const
 {
     if (QLibraryPrivate* library = d->keyMap.value(key))
-        if (library->instance || library->loadPlugin())
-            return library->instance();
+        if (library->instance || library->loadPlugin()) {
+            if (QObject *obj = library->instance()) {
+                if (!obj->parent())
+                    obj->setParent(const_cast<QFactoryLoader*>(this));
+                return obj;
+            }
+        }
     return 0;
 }
 
