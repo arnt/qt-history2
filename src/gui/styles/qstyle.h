@@ -248,6 +248,12 @@ public:
         SR_HeaderLabel,
         SR_HeaderArrow,
 
+        SR_TabWidgetTabBar,
+        SR_TabWidgetTabPane,
+        SR_TabWidgetTabContents,
+        SR_TabWidgetLeftCorner,
+        SR_TabWidgetRightCorner,
+
         // do not add any values below/greater than this
         SR_CustomBase = 0xf0000000
     };

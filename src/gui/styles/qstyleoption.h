@@ -101,6 +101,9 @@ public:
     int lineWidth;
     int midLineWidth;
     QTabBar::Shape shape;
+    QSize tabBarSize;
+    QSize rightCornerWidgetSize;
+    QSize leftCornerWidgetSize;
 
     QStyleOptionTabWidgetFrame();
 

@@ -626,59 +626,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
-            QPen oldPen = p->pen();
-            p->setPen(opt->palette.light().color());
-            switch (twf->shape) {
-            case QTabBar::RoundedNorth:
-            case QTabBar::TriangularNorth:
-                p->drawLine(opt->rect.left(), opt->rect.top(),
-                            opt->rect.left(), opt->rect.bottom() - 1);
-                p->setPen(opt->palette.shadow().color());
-                p->drawLine(opt->rect.left(), opt->rect.bottom() + 1,
-                            opt->rect.right(), opt->rect.bottom() + 1);
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(opt->rect.left(), opt->rect.bottom(),
-                            opt->rect.right() - 1, opt->rect.bottom());
-                p->drawLine(opt->rect.right(), opt->rect.bottom() - 1,
-                            opt->rect.right(), opt->rect.top());
-                break;
-            case QTabBar::RoundedSouth:
-            case QTabBar::TriangularSouth: {
-                int top = opt->rect.top();
-                p->drawLine(opt->rect.left(), opt->rect.bottom(), opt->rect.left(), top + 1);
-                p->drawLine(opt->rect.left(), top, opt->rect.right(), top);
-                p->drawLine(opt->rect.right(), top + 1, opt->rect.right(), opt->rect.bottom());
-                break; }
-            case QTabBar::RoundedWest:
-            case QTabBar::TriangularWest:
-                p->drawLine(opt->rect.left() + 1, opt->rect.top(),
-                            opt->rect.right() - 1, opt->rect.top());
-                p->setPen(opt->palette.shadow().color());
-                p->drawLine(opt->rect.left() + 1, opt->rect.bottom(),
-                            opt->rect.right(), opt->rect.bottom());
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(opt->rect.left() + 1, opt->rect.bottom() - 1,
-                            opt->rect.right() - 1, opt->rect.bottom() - 1);
-                p->drawLine(opt->rect.right(), opt->rect.bottom() - 2,
-                            opt->rect.right(), opt->rect.top());
-                break;
-            case QTabBar::RoundedEast:
-            case QTabBar::TriangularEast:
-                p->drawLine(opt->rect.left() + 1, opt->rect.top(),
-                            opt->rect.right() - 2, opt->rect.top());
-                p->drawLine(opt->rect.left(), opt->rect.top(),
-                            opt->rect.left(), opt->rect.bottom() - 1);
-                p->drawLine(opt->rect.left(), opt->rect.bottom(),
-                            opt->rect.right() - 2, opt->rect.bottom());
-                p->setPen(opt->palette.shadow().color());
-                p->drawLine(opt->rect.left(), opt->rect.bottom(),
-                            opt->rect.right(), opt->rect.bottom());
-                p->setPen(opt->palette.dark().color());
-                p->drawLine(opt->rect.left(), opt->rect.bottom() -1,
-                            opt->rect.right() - 1, opt->rect.bottom() - 1);
-                break;
-            }
-            p->setPen(oldPen);
+            qDrawWinPanel(p, opt->rect, opt->palette, false, 0);
         }
         break;
     case PE_FrameTabBarBase:
@@ -1664,6 +1612,75 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         return subRect(SR_RadioButtonFocusRect, opt, widget);
     case SR_CheckBoxClickRect:
         return subRect(SR_CheckBoxFocusRect, opt, widget);
+    case SR_TabWidgetTabBar:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
+        {
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                r = QRect(QPoint(0, 0), twf->tabBarSize);
+                r = visualRect(opt->direction, opt->rect, r);
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                r = QRect(QPoint(0, opt->rect.height() - twf->tabBarSize.height()), twf->tabBarSize);
+                r = visualRect(opt->direction, opt->rect, r);
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                r = QRect(QPoint(opt->rect.width() - twf->tabBarSize.width(), 0), twf->tabBarSize);
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                r = QRect(QPoint(0,0), twf->tabBarSize);
+                break;
+            }
+        }
+        break;
+
+    case SR_TabWidgetTabPane:
+    case SR_TabWidgetTabContents:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
+        {
+            QStyleOptionTab tabopt;
+            tabopt.shape = twf->shape;
+            int overlap = pixelMetric(PM_TabBarBaseOverlap, &tabopt, widget);
+
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                r = QRect(QPoint(0,twf->tabBarSize.height() - overlap), QSize(twf->rect.width(), twf->rect.height() - twf->tabBarSize.height() + overlap));
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                r = QRect(QPoint(0,0), QSize(twf->rect.width(), twf->rect.height() - twf->tabBarSize.height() + overlap));
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                r = QRect(QPoint(0, 0), QSize(twf->rect.width() - twf->tabBarSize.width() + overlap, twf->rect.height()));
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                r = QRect(QPoint(twf->tabBarSize.width() - overlap, 0), QSize(twf->rect.width() - twf->tabBarSize.width() + overlap, twf->rect.height()));
+                break;
+            }
+            if (sr == SR_TabWidgetTabContents)
+                r.addCoords(2,2, -2, -2);
+        }
+        break;
+
+    case SR_TabWidgetLeftCorner:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
+        {
+            r = QRect(QPoint(0,0), twf->leftCornerWidgetSize);
+        }
+        break;
+    case SR_TabWidgetRightCorner:
+        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt))
+        {
+            r = QRect(QPoint(0,0), twf->rightCornerWidgetSize);
+        }
+        break;
     default:
         break;
     }
@@ -2698,7 +2715,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_TabBarBaseOverlap:
-        ret = 1;
+        ret = 2;
         break;
 
     case PM_TabBarTabHSpace:
