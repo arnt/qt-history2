@@ -3,6 +3,7 @@
 #include "private/qunicodetables_p.h"
 #include <stdlib.h>
 #include "opentype.h"
+#include "qfont.h"
 
 /*
    Arabic shaping obeys a number of rules according to the joining classes (see Unicode book, section on
@@ -551,8 +552,8 @@ void ScriptEngineArabic::shape( ShapedItem *result )
 {
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
-    if ( openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
-	openTypeShape( OpenTypeIface::Arabic, openType, result );
+    if ( openType && openType->supportsScript( QFont::Arabic ) ) {
+	openTypeShape( QFont::Arabic, openType, result );
 	return;
     }
 
@@ -584,8 +585,8 @@ void ScriptEngineArabic::position( ShapedItem *result )
 {
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
-    if ( openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
-	openTypePosition( OpenTypeIface::Arabic, openType, result );
+    if ( openType && openType->supportsScript( QFont::Arabic ) ) {
+	openTypePosition( QFont::Arabic, openType, result );
 	return;
     }
 
@@ -603,7 +604,7 @@ void ScriptEngineArabic::position( ShapedItem *result )
 #endif
 }
 
-void ScriptEngineArabic::openTypeShape( OpenTypeIface::Scripts script, const OpenTypeIface *openType, ShapedItem *result )
+void ScriptEngineArabic::openTypeShape( int script, const OpenTypeIface *openType, ShapedItem *result )
 {
     ShapedItemPrivate *d = result->d;
     const QString &text = d->string;
@@ -647,7 +648,7 @@ void ScriptEngineArabic::openTypeShape( OpenTypeIface::Scripts script, const Ope
 }
 
 
-void ScriptEngineArabic::openTypePosition( OpenTypeIface::Scripts script, const OpenTypeIface *openType, ShapedItem *result )
+void ScriptEngineArabic::openTypePosition( int script, const OpenTypeIface *openType, ShapedItem *result )
 {
     ShapedItemPrivate *d = result->d;
     d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );

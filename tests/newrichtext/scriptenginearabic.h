@@ -12,8 +12,8 @@ public:
     void position( ShapedItem *result );
 
 protected:
-    void openTypeShape( OpenTypeIface::Scripts, const OpenTypeIface*, ShapedItem *result );
-    void openTypePosition( OpenTypeIface::Scripts, const OpenTypeIface *, ShapedItem *result );
+    void openTypeShape( int script, const OpenTypeIface*, ShapedItem *result );
+    void openTypePosition( int script, const OpenTypeIface *, ShapedItem *result );
 };
 
 #endif

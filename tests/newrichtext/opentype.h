@@ -11,50 +11,6 @@ class OpenTypeIface
 public:
     OpenTypeIface( FT_Face face );
 
-
-    enum Scripts {
-	Arabic,
-	Armenian,
-	Bengali,
-	Bopomofo,
-	Braille,
-	ByzantineMusic,
-	CanadianSyllabics,
-	Cherokee,
-	Han,
-	Cyrillic,
-	Default,
-	Devanagari,
-	Ethiopic,
-	Georgian,
-	Greek,
-	Gujarati,
-	Gurmukhi,
-	HangulJamo,
-	Hangul,
-	Hebrew,
-	Hiragana,
-	Kannada,
-	Katakana,
-	Khmer,
-	Lao,
-	Latin,
-	Malayalam,
-	Mongolian,
-	Myanmar,
-	Ogham,
-	Oriya,
-	Runic,
-	Sinhala,
-	Syriac,
-	Tamil,
-	Telugu,
-	Thaana,
-	Thai,
-	Tibetan,
-	Yi
-    };
-
     bool supportsScript( unsigned int script );
 
     bool applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply );
