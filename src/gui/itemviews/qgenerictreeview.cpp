@@ -571,10 +571,10 @@ void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModel
         d->relayout(model()->parent(topLeft));
 }
 
-void QGenericTreeView::contentsRemoved(const QModelIndex &parent, const QModelIndex &, const QModelIndex &)
+void QGenericTreeView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
 {
     if (isVisible())
-        d->relayout(parent);
+        d->relayout(model()->parent(topLeft));
 }
 
 void QGenericTreeView::columnCountChanged(int, int)

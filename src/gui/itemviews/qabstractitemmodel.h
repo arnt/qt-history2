@@ -117,7 +117,7 @@ public:
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
     inline bool greaterThan(const QModelIndex &left, const QModelIndex &right) const
-        { return less(right, left); }
+        { return lessThan(right, left); }
 
     QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
                           int hits = 1, bool wrap = false) const;
@@ -128,8 +128,7 @@ public slots:
 signals:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &parent,
-                         const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 protected:
     QAbstractItemModel(QObjectPrivate &d, QObject *parent);

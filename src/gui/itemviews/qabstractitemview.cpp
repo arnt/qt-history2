@@ -54,8 +54,8 @@ void QAbstractItemViewPrivate::init()
                      q, SLOT(contentsChanged(QModelIndex,QModelIndex)));
     QObject::connect(model, SIGNAL(contentsInserted(QModelIndex,QModelIndex)),
                      q, SLOT(contentsInserted(QModelIndex,QModelIndex)));
-    QObject::connect(model, SIGNAL(contentsRemoved(QModelIndex,QModelIndex,QModelIndex)),
-                     q, SLOT(contentsRemoved(QModelIndex,QModelIndex,QModelIndex)));
+    QObject::connect(model, SIGNAL(contentsRemoved(QModelIndex,QModelIndex)),
+                     q, SLOT(contentsRemoved(QModelIndex,QModelIndex)));
 
     q->setHorizontalFactor(256);
     q->setVerticalFactor(256);
@@ -759,7 +759,7 @@ void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex 
     // NOTE: if root() was a valid QModelIndex, it may have been invalidated
 }
 
-void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)
+void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &)
 {
     // do nothing
     // NOTE: if root() was a valid QModelIndex, it may have been invalidated

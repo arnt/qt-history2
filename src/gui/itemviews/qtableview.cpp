@@ -87,7 +87,7 @@ void QTableModel::setRowCount(int rows)
     if (r > _r)
         emit contentsInserted(topLeft, bottomRight);
     else
-        emit contentsRemoved(0, topLeft, bottomRight);
+        emit contentsRemoved(topLeft, bottomRight);
 }
 
 void QTableModel::setColumnCount(int columns)
@@ -111,7 +111,7 @@ void QTableModel::setColumnCount(int columns)
     if (c > _c)
         emit contentsInserted(topLeft, bottomRight);
     else
-        emit contentsRemoved(0, topLeft, bottomRight);
+        emit contentsRemoved(topLeft, bottomRight);
 }
 
 bool QTableModel::insertRow(int, const QModelIndex &)

@@ -420,9 +420,9 @@ void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIn
     }
 }
 
-void QGenericHeader::contentsRemoved(const QModelIndex &parent,
-                                     const QModelIndex &topLeft, const QModelIndex &)
+void QGenericHeader::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
 {
+    QModelIndex parent = model()->parent(topLeft);
     if (orientation() == Horizontal)
         initializeSections(topLeft.column(), model()->columnCount(parent) - 1);
     else

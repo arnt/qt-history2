@@ -74,7 +74,7 @@ protected:
     void scrollContentsBy(int dx, int dy);
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     int horizontalOffset() const;

@@ -182,7 +182,7 @@ QAbstractItemModel::~QAbstractItemModel()
 
 /* \fn void QAbstractItemModel::contentsRemoved()
 
-This signal is emitted when rows or columns are removed from the model.
+This signal is emitted before rows or columns are removed from the model.
 
 \sa removeRow() removeColumn()
 */

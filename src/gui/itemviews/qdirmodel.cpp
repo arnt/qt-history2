@@ -465,7 +465,7 @@ bool QDirModel::equal(const QModelIndex &left, const QModelIndex &right) const
     return l->info.absFilePath() == r->info.absFilePath();
 }
 
-bool QDirModel::greater(const QModelIndex &left, const QModelIndex &right) const
+bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     if (!(left.isValid() && right.isValid()))
         return false;
@@ -476,15 +476,15 @@ bool QDirModel::greater(const QModelIndex &left, const QModelIndex &right) const
     // this depends on the sort column
     int spec = sorting();
     if (spec & QDir::Name) // col 0
-        return (l->info.fileName() > r->info.fileName());
+        return (l->info.fileName() < r->info.fileName());
     if (spec & QDir::Size) // col 1
-        return (l->info.size() > r->info.size());
+        return (l->info.size() < r->info.size());
     if (QDir::DirsFirst) // col 2
-        return l->info.isDir();
+        return !l->info.isDir();
     if (spec & QDir::Time) // col 3
-        return l->info.lastModified() > r->info.lastModified();
+        return l->info.lastModified() < r->info.lastModified();
 
-    return QAbstractItemModel::greater(left, right);
+    return QAbstractItemModel::lessThan(left, right);
 }
 
 bool QDirModel::canDecode(QMimeSource *src) const
@@ -498,7 +498,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     QStringList files;
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
-    emit contentsRemoved(parent, topLeft(parent), bottomRight(parent)); // FIXME
+    emit contentsRemoved(topLeft(parent), bottomRight(parent));
     bool success = true;
     QString to = path(parent) + QDir::separator();
     QStringList::const_iterator it = files.begin();
@@ -549,8 +549,7 @@ QFileIconProvider *QDirModel::iconProvider() const
 void QDirModel::setNameFilters(const QStringList &filters)
 {
     // FIXME: this will rebuild the entire structure of the qdirmodel
-    // FIXME: we should not require the old indices to be valid
-    emit contentsRemoved(QModelIndex(), topLeft(), bottomRight());
+    emit contentsRemoved(topLeft(), bottomRight());
     d->root.setNameFilters(filters);
     d->tree = d->children(0);
     emit contentsInserted(topLeft(), bottomRight());
@@ -594,8 +593,7 @@ bool QDirModel::matchAllDirs() const
 
 void QDirModel::refresh(const QModelIndex &parent)
 {
-    // FIXME: we should not require the old indices to be valid
-    emit contentsRemoved(parent, topLeft(parent), bottomRight(parent));
+    emit contentsRemoved(topLeft(parent), bottomRight(parent));
     d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
     emit contentsInserted(topLeft(), bottomRight());
 }
@@ -694,7 +692,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
     if (!n->info.dir().rmdir(n->info.absFilePath()))
         return false;
 
-    emit contentsRemoved(parent(index), index, index); // FIXME:
+    emit contentsRemoved(index, index);
 
     QDirModelPrivate::QDirNode *p = d->parent(n);
     if (p)
@@ -717,7 +715,7 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
     }
 
-    emit contentsRemoved(parent(index), index, index); // FIXME
+    emit contentsRemoved(index, index);
         
     QDirModelPrivate::QDirNode *p = d->parent(n);
     QDir dir = p ? p->info.dir() : d->root;

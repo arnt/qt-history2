@@ -409,12 +409,12 @@ void QGenericListView::contentsChanged(const QModelIndex &topLeft, const QModelI
 void QGenericListView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex parent = model()->parent(topLeft);
-    contentsRemoved(parent, topLeft, bottomRight);
+    contentsRemoved(topLeft, bottomRight);
 }
 
-void QGenericListView::contentsRemoved(const QModelIndex &parent,
-                                       const QModelIndex &, const QModelIndex &)
+void QGenericListView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
 {
+    QModelIndex parent = model()->parent(topLeft);
     if (parent != root())
         return;
 

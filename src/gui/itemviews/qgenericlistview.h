@@ -72,8 +72,7 @@ protected:
 
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &parent,
-                         const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     bool doItemsLayout(int num);
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);

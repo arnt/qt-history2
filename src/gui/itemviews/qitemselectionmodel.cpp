@@ -584,7 +584,8 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
 
 void QItemSelectionModelPrivate::init()
 {
-    QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex&)), q, SLOT(clear()));
-    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex&, const QModelIndex&)),
+    QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex&)),
+                     q, SLOT(clear()));
+    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex&, const QModelIndex&)),
                      q, SLOT(clear()));
 }

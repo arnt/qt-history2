@@ -62,7 +62,7 @@ public:
     void sort(int column, SortOrder order);
 
     bool equal(const QModelIndex &left, const QModelIndex &right) const;
-    bool greater(const QModelIndex &left, const QModelIndex &right) const;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
     bool canDecode(QMimeSource *src) const;
     bool decode(QDropEvent *e, const QModelIndex &parent);
