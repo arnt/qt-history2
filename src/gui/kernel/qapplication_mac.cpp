@@ -36,6 +36,7 @@
 #include "qtoolbar.h"
 #include "qvariant.h"
 #include "qwidget.h"
+#include "qcolormap.h"
 #include <qpaintengine_mac.h>
 
 #include "private/qapplication_p.h"
@@ -890,7 +891,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 
     qApp->setObjectName(qAppName());
     if(qt_is_gui_used) {
-        QColor::initialize();
+        QColormap::initialize();
         QFont::initialize();
         QCursor::initialize();
 #if !defined(QMAC_NO_COREGRAPHICS)
@@ -949,7 +950,7 @@ void qt_cleanup()
 #endif
         QQuickDrawPaintEngine::cleanup();
         QFont::cleanup();
-        QColor::cleanup();
+        QColormap::cleanup();
         if(qt_mac_safe_pdev) {
             delete qt_mac_safe_pdev;
             qt_mac_safe_pdev = 0;
@@ -2690,7 +2691,7 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if (QColor::numBitPlanes() < 16 || !animate_ui)
+    if (QColormap::instance().depth() < 16 || !animate_ui)
         return false;
 
     switch(effect) {

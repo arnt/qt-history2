@@ -91,7 +91,6 @@ unix:x11 {
 		painting/qprintengine_mac_p.h
 
 	SOURCES += \
-		painting/qcolor_mac.cpp \
 		painting/qcolormap_mac.cpp \
 		painting/qpaintdevice_mac.cpp \
 		painting/qpaintengine_mac.cpp \

@@ -12,42 +12,39 @@
 ****************************************************************************/
 
 #include "qcolormap.h"
+#include "qcolor.h"
 
 
 class QColormapPrivate
 {
 public:
-    QColormapPrivate()
-        : mode(QColormap::Direct), depth(0)
-    { ref = 0; }
-    ~QColormapPrivate()
-    { delete cells; }
+    QColormapPrivate() { ref = 0; }
+    ~QColormapPrivate() { }
 
     QAtomic ref;
-
-    QColormap::Mode mode;
-    int depth;
 };
-
+static QColormap *qt_mac_global_map = 0;
 
 void QColormap::initialize()
 {
+    qt_mac_global_map = new QColormap;
 }
 
 void QColormap::cleanup()
 {
+    delete qt_mac_global_map;
+    qt_mac_global_map = 0;
 }
 
-QColormap QColormap::instance(int screen)
+QColormap QColormap::instance(int)
 {
+    return *qt_mac_global_map;
 }
 
-QColormap::QColormap()
-    : d(new QColormapPrivate)
+QColormap::QColormap() : d(new QColormapPrivate)
 { d->ref = 1; }
 
-QColormap::QColormap(const QColormap &colormap)
-    :d (colormap.d)
+QColormap::QColormap(const QColormap &colormap) :d (colormap.d)
 { ++d->ref; }
 
 QColormap::~QColormap()
@@ -57,19 +54,26 @@ QColormap::~QColormap()
 }
 
 QColormap::Mode QColormap::mode() const
-{ return d->mode; }
+{ 
+    return QColormap::Direct; 
+}
 
 int QColormap::depth() const
-{ return d->depth; }
+{ 
+    return 32; 
+}
 
 int QColormap::size() const
 {
+    return 0;
 }
 
 uint QColormap::pixel(const QColor &color) const
 {
+    return 0;
 }
 
-QColor QColormap::colorAt(uint pixel) const
+const QColor QColormap::colorAt(uint pixel) const
 {
+    return QColor();
 }
