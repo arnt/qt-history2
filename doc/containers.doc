@@ -2,8 +2,8 @@
 
     \title Generic Containers
 
-    \keyword container class
-    \keyword container classes
+    \keyword {container class}
+    \keyword {container classes}
 
     \tableofcontents
 
@@ -101,7 +101,7 @@
 
     \endtable
 
-    \keyword assignable data type
+    \keyword {assignable data type}
 
     The values stored in the various containers can be of any
     \e{assignable data type}. To qualify, a type must provide a
@@ -116,7 +116,7 @@
     store these kinds of objects in a container, store them as
     pointers, for example as QList\<QWidget *\>.
 
-    \keyword default-constructed values
+    \keyword {default-constructed values}
 
     The documentation of certain container class functions refer to
     \e{default-constructed values}; for example, QVector

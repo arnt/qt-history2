@@ -30,7 +30,7 @@
   \list
   \i Close down any instances of Visual Studio.
   \i Bring up a command prompt.
-  \i Type 'cd %QTDIR%\tools\designer\integration\qmsdev' in that command prompt.
+  \i Type 'cd %QTDIR%\\tools\\designer\\integration\\qmsdev' in that command prompt.
   \i Type 'nmake' in that command prompt.
   \i Start up Visual Studio.
   \i Select Tools | Customize | Add-ins and Macro Files.
@@ -49,7 +49,7 @@
 
   \list
   \i Close down any instances of Visual Studio.
-  \i Delete the file '%MSDevDir%\addins\qmsdev.dll'
+  \i Delete the file '%MSDevDir%\\addins\\qmsdev.dll'
   \endlist
 
   \section1 What can the Visual Studio Integration Plugin do?
