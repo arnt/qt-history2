@@ -126,6 +126,11 @@ QFileDialog
 
 QDir
   Static function that will return the application directory
+  Static function to copy a file
+  Last error function to get the OSs error message as a string
+
+QFile
+  Last error function to get the OSs error message as a string
 
 QTable
   Be able to set the whole table to be editable or not as well as the individual cells
@@ -209,6 +214,12 @@ QPopupMenu
   One user requested the ability to show just the icons in a torn off menu, and asked
   if the torn off menu could get a WS_EX_TOOLWINDOW style.  I don't think that this
   will benefit anyone much as they might as well just use a toolbar.
+
+  3 new functions:
+  void addFileList( int maxFiles); // Append a file list to the bottom of this QPopupMenu
+  void addFileName( const QString& ); // Add a file to the list (if maxFiles
+				      // is exceeded remove the first one)
+  QStringList fileList(); // Return the list of files 
 
 Be able to traverse from one popup menu to another when you are within a popup menu
   (see more on support/arc-09/18923)
