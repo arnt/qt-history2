@@ -1,0 +1,93 @@
+This is the first beta version of Qt 3.0.
+ 
+This new generation of the Qt application development framework contains
+ many new features, improvements and extensions. It also includes a
+ significantly improved Qt Designer, and introduces Qt Linguist, Qt
+ Assistant and a new multi-platform build tool, qmake.
+ 
+The Qt API is very unlikely to undergo any significant changes before
+ the final release is made, so we encourage you to begin enjoying Qt 3.0
+ right now.
+ 
+A few classes are marked in the documentation with "The API for this
+ class is under development and is subject to change". These classes are
+ not yet suitable for production work. This includes the accessability
+ API, the style engine and parts of the component system.
+ 
+Detailed changes information on what's new in Qt 3.0 is included in
+ the Online Reference Documentation.  For a brief overview, see
+ http://www.trolltech.com/company/announce/30pre.html
+ 
+Thanks to our greatly enlarged development team we have been able to
+ realise far more of your requests in this release. Qt 3.0 is a huge step
+ towards realising our vision of an ideal cross-platform development
+ tool.
+ 
+The Qt version 3.x series is not binary compatible with the 2.x
+ series. This means programs compiled with Qt version 2.x must be
+ recompiled to work with Qt 3.0.
+ 
+Qt 3.0 will be mostly, but not completely, source compatible with the
+ Qt 2.x series. See the document "Porting from Qt 2.x to Qt 3.0" in the
+ Online Reference Documentation for information on how to port an
+ existing Qt 2.x-based program to Qt 3.0. Disclaimer: the guide is not
+ entirely complete, so it is possible that you'll discover issues that
+ are not yet covered.
+ 
+Because of the many improvements and extensions and the few parts of the
+ API which are still being finalised, we expect this beta period to last
+ longer than what you are typically used to from Trolltech. Unlike
+ previous Qt releases where most of the beta testing was done with
+ snapshot releases, this is not yet a final release candidate.
+ 
+The most visible change for long term Qt users is the reworked build
+ system.  On MS-Windows, unpack the package and start installer.exe; on
+ Unix, unpack the package and run ./configure. Compiling and installing
+ Qt uses a new utility 'qmake' that we also recommend for writing Qt
+ based applications. 'qmake' is the successor of our free software add-on
+ 'tmake', and is written using Qt rather than Perl and is very compatible
+ with its predecessor.
+ 
+To improve maintainibility between different platforms, all specific
+ platform #defines and #includes have been moved out of the Qt sources
+ into a platform specific qplatformdefs.h file.  The files are located in
+ qt/mkspec/<platform>-<compiler>/qplatformdefs.h. For this beta release,
+ the following platforms have been tested:
+ 
+win32-borland
+win32-msvc
+ 
+irix-o32
+irix-n32
+irix-g++
+osf1-cxx
+osf-g++
+solaris-cc
+solaris-g++
+linux-g++
+linux-kcc
+freebsd-g++
+unixware7-g++
+ 
+During the beta period, we will add support for more Unix platforms e.g.
+ AIX and HP-UX. If you test the beta on an as yet unsupported Unix,
+ please contact us at support@trolltech.com so that we can assist you.
+ 
+
+ How to get the beta release:
+ 
+Qt Free Edition: Download the .tar.gz archive from
+ ftp.trolltech.com. To get better download times, use ftpsearch and
+ search for qt-x11-free-3.0.0-beta1.tar.gz to find it on a mirror ftp
+ site near you.
+ 
+Qt Professional Edition, Qt Enterprise Edition: Holders of valid
+ licenses should have received an e-mail with instructions on how to
+ get the beta. Contact sales@trolltech.com if you are a Professional or
+ Enterprise Edition licensee and have not received this e-mail.
+ 
+
+ Any problems encountered with the beta version should be reported to
+ qt-bugs@trolltech.com, or on the snapshot-users mailing list.
+ 
+Qt is a trademark of Trolltech AS.
