@@ -145,6 +145,7 @@ void QCursor::cleanup()
 
 void QCursor::initialize()
 {
+    InitCursor();
     int shape;
     for( shape = 0; shape < cursors; shape++ )
 	cursorTable[shape].data = new QCursorData( shape );
