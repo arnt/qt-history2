@@ -91,7 +91,7 @@ if something doesn't work here.
 
     If you built Qt using the -static option, your executables will contain the
     Qt library and can be run from Finder automatically. Otherwise, your
-    executables will need to use the Qt library on your system. You can acheive
+    executables will need to use the Qt library on your system. You can achieve
     this by using symbolic links. In the examples below, if you've only built a
     debug version of the Qt libraries, you just need to do the links for the
     libraries that end with _debug (example libQtCore_debug.4.dylib instead of
