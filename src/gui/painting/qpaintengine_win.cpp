@@ -365,7 +365,8 @@ QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
                                                            | PenWidthTransform
                                                            | PixmapTransform
                                                            | PixmapScale
-                                                           | UsesFontEngine))
+                                                           | UsesFontEngine
+     							   | SolidAlphaFill))
 #else
       QPaintEngine(*(new QWin32PaintEnginePrivate), PaintEngineFeatures(UsesFontEngine))
 #endif

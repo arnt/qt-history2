@@ -1162,6 +1162,24 @@ void QPainter::drawRect(const QRect &r)
         return;
     }
 
+    if (d->state->brush.style() == SolidPattern
+	&& d->state->brush.color().alpha() != 255
+	&& !d->engine->hasFeature(QPaintEngine::SolidAlphaFill)) {
+	const int BUFFERSIZE = 16;
+	QImage image(BUFFERSIZE, BUFFERSIZE, 32);
+	image.fill(d->state->brush.color().rgb());	
+	image.setAlphaBuffer(true);
+	QPixmap pm(image);	
+	drawTiledPixmap(r, pm);
+	if (d->state->pen.style() != NoPen) {
+	    save();
+	    setBrush(NoBrush);
+	    drawRect(r);
+	    restore();
+	}
+	return;
+    }
+
     if ((d->state->VxF || d->state->WxF)
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {

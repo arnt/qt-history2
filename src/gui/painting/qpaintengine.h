@@ -56,6 +56,7 @@ public:
         LinearGradientSupport   = 0x0010,               // Can fill gradient areas.
         PixmapScale             = 0x0020,               // Can scale (w/o XForm) in drawPixmap
         DrawRects               = 0x0040,               // Can draw rectangles
+	SolidAlphaFill          = 0x0080,               // Can fill with alpha.
         UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, Features);
