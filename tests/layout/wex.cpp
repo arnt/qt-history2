@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/wex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/wex.cpp#2 $
 **
 **	Testing heightForWidth functionality
 **
@@ -23,7 +23,7 @@ public:
 
 };
 
-HFWLabel::HFWLabel( QWidget *parent ) : QLabel( parent ) 
+HFWLabel::HFWLabel( QWidget *parent ) : QLabel( parent )
 {
     setBackgroundColor( cyan.dark() );
 
@@ -32,7 +32,7 @@ HFWLabel::HFWLabel( QWidget *parent ) : QLabel( parent )
 
 int HFWLabel::heightForWidth( int w ) const
 {
-    if ( w < 10 ) 
+    if ( w < 10 )
 	w = 10;
     return 10000 / w;
 }
@@ -68,8 +68,12 @@ int main( int argc, char **argv )
     }
     b1->setStretchFactor( urk, 10 );
 
-    b1->addWidget( new HFWLabel( f ), 20 );
-    
+    {
+	QLabel* l = new QLabel( f );
+	l->setQML("<h1>heading</h1><p>Yet another <em>Paragraph</em> that contains lot of text that will probably need several <b>lines</b> in this label. Paul asked me to add even more text to test his new feature. Jeg skal skrive grammatisk riktig norsk i stedet for engelsk. That should be enough, das sollte hinreichend sein.</p>");
+	b1->addWidget( l, 20 );
+    }
+
     QPushButton* qb = new QPushButton( "Quit", f );
     a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
     b1->addWidget( qb, 0, Qt::AlignTop );
