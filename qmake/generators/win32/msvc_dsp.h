@@ -38,9 +38,14 @@
 #define __DSPMAKE_H__
 
 #include "winmakefile.h"
+#include <qvaluestack.h>
 
 class DspMakefileGenerator : public Win32MakefileGenerator
 {
+    QString currentGroup;
+    int beginGroupForFile(QString file, QTextStream &, const QString filter="");
+    int endGroups(QTextStream &);
+
     bool init_flag;
     bool writeDspParts(QTextStream &);
 

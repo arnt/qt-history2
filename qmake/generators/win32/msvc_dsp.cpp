@@ -42,7 +42,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-
 DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
 {
 
@@ -105,9 +104,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QString mocpath = var( "QMAKE_MOC" );
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 		
-		QStringList &list = project->variables()["SOURCES"];
+		QStringList list = project->variables()["SOURCES"] + project->variables()["DEF_FILE"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		QStringList::Iterator it;
 		for( it = list.begin(); it != list.end(); ++it) {
+		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if ( project->isActiveConfig("moc") &&
 			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
@@ -116,7 +118,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
+		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
@@ -129,25 +131,21 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    }
 		    t << "# End Source File" << endl;
 		}
-		list = project->variables()["DEF_FILE"];
-		for( it = list.begin(); it != list.end(); ++it ) {
-		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-		    t << "# End Source File" << endl;
-		}
-	    }
-	    else if(variable == "MSVCDSP_IMAGES") {
+		endGroups(t);
+	    } else if(variable == "MSVCDSP_IMAGES") {
 		if(project->variables()["IMAGES"].isEmpty())
 		    continue;
-
 		t << "# Begin Source File\n\nSOURCE=" << project->first("QMAKE_IMAGE_COLLECTION") << endl;
 		t << "# End Source File" << endl;
-	    }
-	    else if(variable == "MSVCDSP_HEADERS") {
+	    } else if(variable == "MSVCDSP_HEADERS") {
 		if(project->variables()["HEADERS"].isEmpty())
 		    continue;
 
-		QStringList &list = project->variables()["HEADERS"];
+		QStringList list = project->variables()["HEADERS"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+//		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl << endl;
 		    if ( project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
 			QString base = (*it);
@@ -158,7 +156,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + (*it) +
-					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
+		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
 					"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + (*it)  + " -o " +
 					findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
@@ -171,8 +169,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    }
 		    t << "# End Source File" << endl;
 		}
-	    }
-	    else if(variable == "MSVCDSP_FORMSOURCES" || variable == "MSVCDSP_FORMHEADERS") {
+//		endGroups(t);
+	    } else if(variable == "MSVCDSP_FORMSOURCES" || variable == "MSVCDSP_FORMHEADERS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 		
@@ -192,7 +190,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			uiHeadersDir = "";
 		}
 
-		QStringList &list = project->variables()["FORMS"];
+		QStringList list = project->variables()["FORMS"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		QString ext = variable == "MSVCDSP_FORMSOURCES" ? ".cpp" : ".h";
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
@@ -206,24 +206,27 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			fpath = fname.left( lbs + 1 );
 		    fname = fname.right( fname.length() - lbs - 1 );
 
-		    t << "# Begin Source File\n\nSOURCE=";
 		    if ( ext == ".cpp" && !uiSourcesDir.isEmpty() )
-			t << uiSourcesDir << fname;
+			fname.prepend(uiSourcesDir);
 		    else if ( ext == ".h" && !uiHeadersDir.isEmpty() )
-			t << uiHeadersDir << fname;
+			fname.prepend(uiHeadersDir);
 		    else
-			t << base;
-		    t << "\n# End Source File" << endl;
+			fname = base;
+//		    beginGroupForFile(fname, t);
+		    t << "# Begin Source File\n\nSOURCE=" << fname
+		      << "\n# End Source File" << endl;
 		}
-	    }
-	    else if(variable == "MSVCDSP_TRANSLATIONS" ) {
+//		endGroups(t);
+	    } else if(variable == "MSVCDSP_TRANSLATIONS" ) {
 		if(project->variables()["TRANSLATIONS"].isEmpty())
 		    continue;
 
 		t << "# Begin Group \"Translations\"\n";
 		t << "# Prop Default_Filter \"ts\"\n";
 
-		QStringList &list = project->variables()["TRANSLATIONS"];
+		QStringList list = project->variables()["TRANSLATIONS"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString sify = *it;
 		    sify.replace(QRegExp("/"), "\\" );
@@ -231,77 +234,24 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    base.replace(QRegExp("\\..*$"), "").upper();
 		    base.replace(QRegExp("[^a-zA-Z]"), "_");
 
+//		    beginGroupForFile(sify, t);
 		    t << "# Begin Source File\n\nSOURCE=" << sify << endl;
-
-		    /*
-		    QString userdep = "USERDEP_" + base + "=";
-		    QStringList forms = project->variables()["FORMS"];
-		    for ( QStringList::Iterator form = forms.begin(); form != forms.end();++form )
-			userdep += "\"" + (*form) + "\"\t";
-		    QStringList sources = project->variables()["SOURCES"];
-		    for ( QStringList::Iterator source = sources.begin(); source != sources.end();++source )
-			userdep += "\"" + (*source) + "\"\t";
-		    userdep += "\n\n";
-
-		    QString build = userdep + 
-				    "# Begin Custom Build - lupdate'ing " + sify + "...\n"
-				    "InputPath=.\\" + sify + "\n\n"
-				    "\"tmp\\" + sify + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lupdate -ts " + sify + " " + project->projectFile() + "\n"
-				    "\tcopy " + sify +" tmp\\" + sify + "\n"
-				    "# End Custom Build\n\n";
-
-		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\lupdate.exe\" \"$(QTDIR)\\bin\\lrelease.exe\"" << endl << endl;
-
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
-		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
-		      << "!ENDIF " << endl << endl;
-		    */
-
 		    t << "\n# End Source File" << endl;
 		}
-
+//		endGroups(t);
 		t << "\n# End Group\n";
-	    }
-	    /*
-	    else if(variable == "MSVCDSP_STRIPPEDTRANSLATIONS" ) {
-		if(project->variables()["TRANSLATIONS"].isEmpty())
-		    continue;
-
-		QStringList &list = project->variables()["TRANSLATIONS"];
-		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString sify = *it;
-		    sify.replace( QRegExp("/"), "\\" );
-		    QString qmfile = sify;
-		    qmfile.replace( QRegExp("\\..*$"), ".qm" );
-		    QString base = sify;
-		    base.replace(QRegExp("\\..*$"), "").upper();
-		    base.replace(QRegExp("[^a-zA-Z]"), "_");
-
-		    QString build = "USERDEP_" + base + "=\"" + sify + "\"\t\"tmp\\" + sify + "\"\n\n" 
-				    "# Begin Custom Build - lrelease'ing " + sify + "...\n"
-				    "InputPath=.\\" + qmfile + "\n\n"
-				    "\"" + qmfile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lrelease " + sify + "\n\n"
-				    "# End Custom Build\n\n";
-		    
-		    t << "# Begin Source File\n\nSOURCE=.\\" << qmfile << endl;
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
-		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
-		      << "!ENDIF " << endl << endl;
-		    t << "\n# End Source File" << endl;
-		}
-	    }
-	    */
-	    else if (variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
+	    } else if (variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
 		if ( project->variables()["SRCMOC"].isEmpty())
 		    continue;
 
 		QString mocpath = var( "QMAKE_MOC" );
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
-		QStringList &list = project->variables()["SRCMOC"];
+		QStringList list = project->variables()["SRCMOC"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+//		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if ( project->isActiveConfig("moc") &&
 			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
@@ -310,7 +260,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
-					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
+		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
@@ -323,29 +273,30 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    }
 		    t << "# End Source File" << endl;
 		}
-	    }
-	    else if(variable == "MSVCDSP_PICTURES") {
+//		endGroups(t);
+	    } else if(variable == "MSVCDSP_PICTURES") {
 		if(project->variables()["IMAGES"].isEmpty())
 		    continue;
 
-		t << "# Begin Group \"Images\"\n";
-		t << "# Prop Default_Filter \"png jpeg bmp xpm\"\n";
+		t << "# Begin Group \"Images\"\n"
+		  << "# Prop Default_Filter \"png jpeg bmp xpm\"\n";
 		
-		QStringList &list = project->variables()["IMAGES"];
+		QStringList list = project->variables()["IMAGES"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString base = (*it);
-		    t << "# Begin Source File\n\nSOURCE=" << base << endl;
-		    t << "# End Source File" << endl;
+//		    beginGroupForFile((*it), t);
+		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl
+		      << "# End Source File" << endl;
 		}
-
+//		endGroups(t);
 		t << "\n# End Group\n";
-	    }
-	    else if(variable == "MSVCDSP_FORMS") {
+	    } else if(variable == "MSVCDSP_FORMS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 
-		t << "# Begin Group \"Forms\"\n";
-		t << "# Prop Default_Filter \"ui\"\n";
+		t << "# Begin Group \"Forms\"\n"
+		  << "# Prop Default_Filter \"ui\"\n";
 
 		bool imagesBuildDone = FALSE;	    // Dirty hack to make it not create an output step for images more than once
 	
@@ -354,9 +305,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QString mocpath = var( "QMAKE_MOC" );
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
-		QStringList &list = project->variables()["FORMS"];
+		QStringList list = project->variables()["FORMS"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
+//		    beginGroupForFile(base, t);
 		    t <<  "# Begin Source File\n\nSOURCE=" << base << endl;
 
 		    QString fname = base;
@@ -393,9 +347,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
-			" -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
-			" -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
-			"\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
+				    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
+				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
+				    "\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
 		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
 			QString imagesBuild;
@@ -404,19 +358,19 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			    imagesBuild.append(" " + *it );
 			}
 			build.append("\t" + uicpath + "-embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
-			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
+				     + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
 		    } 
 		    
 		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
-			"\t$(BuildCmds)\n\n"
-			"\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-			"\t$(BuildCmds)\n\n"
-			"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-			"\t$(BuildCmds)\n\n");
+				 "\t$(BuildCmds)\n\n"
+				 "\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+				 "\t$(BuildCmds)\n\n"
+				 "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+				 "\t$(BuildCmds)\n\n");
 		    
 		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
 			build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" 
-			    "\n" "\t$(BuildCmds)\n\n");
+				     "\n" "\t$(BuildCmds)\n\n");
 		    }
 		    
 		    build.append("# End Custom Build\n\n");
@@ -427,74 +381,75 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if ( !imagesBuildDone )
 			imagesBuildDone = TRUE;
 		}
-
+//		endGroups(t);
 		t << "\n# End Group\n";
 	    } else if(variable == "MSVCDSP_LEXSOURCES") {
 		if(project->variables()["LEXSOURCES"].isEmpty())
 		    continue;
 
-		t << "# Begin Group \"Lexables\"\n";
-		t << "# Prop Default_Filter \"l\"\n";
+		t << "# Begin Group \"Lexables\"\n"
+		  << "# Prop Default_Filter \"l\"\n";
 
 		QString lexpath = var("QMAKE_LEX") + varGlue("QMAKE_LEXFLAGS", " ", " ", "") + " ";
 
-		QStringList &l = project->variables()["LEXSOURCES"];
-		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-		    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-
+		QStringList list = project->variables()["LEXSOURCES"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString fname = (*it);
+//		    beginGroupForFile(fname, t);
+		    t <<  "# Begin Source File\n\nSOURCE=" << fname << endl;
 		    fname.replace(QRegExp("\\.l"), Option::lex_mod + Option::cpp_ext.first());
 
 		    QString build = "\n\n# Begin Custom Build - Lex'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n"
-			"\"" + fname + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-			"\t" + lexpath + (*it) + "\\\n"
-			"\tdel " + fname + "\\\n"
-			"\tcopy lex.yy.c " + fname + "\n\n" +
-			"# End Custom Build\n\n";
-
-
+				    "\"" + fname + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+				    "\t" + lexpath + (*it) + "\\\n"
+				    "\tdel " + fname + "\\\n"
+				    "\tcopy lex.yy.c " + fname + "\n\n" +
+				    "# End Custom Build\n\n";
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n" << build
 		
 		      << "# End Source File" << endl;
 		}
-
+//		endGroups(t);
 		t << "\n# End Group\n";
-
 	    } else if(variable == "MSVCDSP_YACCSOURCES") {
 		if(project->variables()["YACCSOURCES"].isEmpty())
 		    continue;
 
-		t << "# Begin Group \"Yaccables\"\n";
-		t << "# Prop Default_Filter \"y\"\n";
+		t << "# Begin Group \"Yaccables\"\n"
+		  << "# Prop Default_Filter \"y\"\n";
 
 		QString yaccpath = var("QMAKE_YACC") + varGlue("QMAKE_YACCFLAGS", " ", " ", "") + " ";
 
-		QStringList &l = project->variables()["YACCSOURCES"];
-		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-		    t <<  "# Begin Source File\n\nSOURCE=" << (*it) << endl;
-
+		QStringList list = project->variables()["YACCSOURCES"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString fname = (*it);
+//		    beginGroupForFile(fname, t);
+		    t <<  "# Begin Source File\n\nSOURCE=" << fname << endl;
 		    fname.replace(QRegExp("\\.y"), Option::yacc_mod);
 
 		    QString build = "\n\n# Begin Custom Build - Yacc'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n"
-			"\"" + fname + Option::cpp_ext.first() + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-			"\t" + yaccpath + (*it) + "\\\n"
-			"\tdel " + fname + Option::h_ext.first() + "\\\n"
-			"\tmove y.tab.h " + fname + Option::h_ext.first() + "\n\n" +
-			"\tdel " + fname + Option::cpp_ext.first() + "\\\n"
-			"\tmove y.tab.c " + fname + Option::cpp_ext.first() + "\n\n" +
-			"# End Custom Build\n\n";
+				    "\"" + fname + Option::cpp_ext.first() + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+				    "\t" + yaccpath + (*it) + "\\\n"
+				    "\tdel " + fname + Option::h_ext.first() + "\\\n"
+				    "\tmove y.tab.h " + fname + Option::h_ext.first() + "\n\n" +
+				    "\tdel " + fname + Option::cpp_ext.first() + "\\\n"
+				    "\tmove y.tab.c " + fname + Option::cpp_ext.first() + "\n\n" +
+				    "# End Custom Build\n\n";
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n"
 		      << "# End Source File" << endl;
 		}
-
+//		endGroups(t);
 		t << "\n# End Group\n";
 	    } else if( variable == "MSVCDSP_CONFIGMODE" ) {
 		if( project->isActiveConfig( "release" ) )
@@ -502,8 +457,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		else
 		    t << "Debug";
 	    } else if( variable == "MSVCDSP_IDLSOURCES" ) {
-		QStringList &l = project->variables()["MSVCDSP_IDLSOURCES"];
-		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		QStringList list = project->variables()["MSVCDSP_IDLSOURCES"];
+		if(!project->isActiveConfig("flat"))
+		    list.sort();
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File" << endl << endl;
 		    t << "SOURCE=" << (*it) << endl;
 		    t << "# PROP Exclude_From_Build 1" << endl;
@@ -646,7 +603,7 @@ DspMakefileGenerator::init()
 	if(project->isActiveConfig("qt"))
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT" );
         if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain"
-            || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
+	     || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 	    project->variables()["MSVCDSP_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
 	    project->variables()["MSVCDSP_MTDEF"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
 	} else {
@@ -726,18 +683,18 @@ DspMakefileGenerator::init()
 	(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
-	    project->variables()["MSVCDSP_TEMPLATE"].append("win32app" + project->first( "DSP_EXTENSION" ) );
-	    if ( project->isActiveConfig("console") ) {
-		project->variables()["MSVCDSP_CONSOLE"].append("Console");
-		project->variables()["MSVCDSP_WINCONDEF"].append("_CONSOLE");
-		project->variables()["MSVCDSP_DSPTYPE"].append("0x0103");
-		project->variables()["MSVCDSP_SUBSYSTEM"].append("console");
-	    } else {
-		project->variables()["MSVCDSP_CONSOLE"].clear();
-		project->variables()["MSVCDSP_WINCONDEF"].append("_WINDOWS");
-		project->variables()["MSVCDSP_DSPTYPE"].append("0x0101");
-		project->variables()["MSVCDSP_SUBSYSTEM"].append("windows");
-	    }
+	project->variables()["MSVCDSP_TEMPLATE"].append("win32app" + project->first( "DSP_EXTENSION" ) );
+	if ( project->isActiveConfig("console") ) {
+	    project->variables()["MSVCDSP_CONSOLE"].append("Console");
+	    project->variables()["MSVCDSP_WINCONDEF"].append("_CONSOLE");
+	    project->variables()["MSVCDSP_DSPTYPE"].append("0x0103");
+	    project->variables()["MSVCDSP_SUBSYSTEM"].append("console");
+	} else {
+	    project->variables()["MSVCDSP_CONSOLE"].clear();
+	    project->variables()["MSVCDSP_WINCONDEF"].append("_WINDOWS");
+	    project->variables()["MSVCDSP_DSPTYPE"].append("0x0101");
+	    project->variables()["MSVCDSP_SUBSYSTEM"].append("windows");
+	}
     } else {
         if ( project->isActiveConfig("dll") ) {
             project->variables()["MSVCDSP_TEMPLATE"].append("win32dll" + project->first( "DSP_EXTENSION" ) );
@@ -785,10 +742,10 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	QString copydll = "# Begin Special Build Tool\n"
-			"TargetPath=" + dest + "\n"
-			"SOURCE=$(InputPath)\n"
-			"PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
-			"PostBuild_Cmds=";
+	     "TargetPath=" + dest + "\n"
+		 "SOURCE=$(InputPath)\n"
+	 "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
+	 "PostBuild_Cmds=";
 
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
 	    copydll += "copy \"" + dest + "\" \"" + *dlldir + "\"\t";
@@ -810,15 +767,15 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".midl" );
 	if ( project->isActiveConfig( "dll" ) ) {
 	    QString regcmd = "# Begin Special Build Tool\n"
-			    "TargetPath=" + targetfilename + "\n"
-			    "SOURCE=$(InputPath)\n"
-			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
-			    "PostBuild_Cmds=" +
-			    idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
-			    "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
-			    "\tregsvr32 /s %1\n"
-			    "# End Special Build Tool";
+		"TargetPath=" + targetfilename + "\n"
+		    "SOURCE=$(InputPath)\n"
+	    "PostBuild_Desc=Finalizing ActiveQt server...\n"
+	    "PostBuild_Cmds=" +
+			     idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
+			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
+			     "\tregsvr32 /s %1\n"
+			     "# End Special Build Tool";
 
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCDSP_COPY_DLL_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
@@ -827,15 +784,15 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_COPY_DLL_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
 	} else {
 	    QString regcmd = "# Begin Special Build Tool\n"
-			    "TargetPath=" + targetfilename + "\n"
-			    "SOURCE=$(InputPath)\n"
-			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
-			    "PostBuild_Cmds="
-			    "%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
-			    "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
-			    "\t%1 -regserver\n"
-			    "# End Special Build Tool";
+		"TargetPath=" + targetfilename + "\n"
+		    "SOURCE=$(InputPath)\n"
+	    "PostBuild_Desc=Finalizing ActiveQt server...\n"
+	    "PostBuild_Cmds="
+			     "%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
+			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
+			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
+			     "\t%1 -regserver\n"
+			     "# End Special Build Tool";
 
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
 	    project->variables()["MSVCDSP_REGSVR_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
@@ -882,4 +839,59 @@ DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &
     } else {
 	MakefileGenerator::processPrlVariable(var, l);
     }
+}
+
+
+int
+DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
+					QString filter)
+{
+    if(project->isActiveConfig("flat"))
+	return 0;
+
+    fileFixify(file, QDir::currentDirPath(), TRUE);
+    file = file.section(Option::dir_sep, 0, -2);
+    if(file.right(Option::dir_sep.length()) != Option::dir_sep)
+	file += Option::dir_sep;
+    if(file == currentGroup)
+	return 0;
+    
+    if(file.isEmpty() || !QDir::isRelativePath(file)) {
+	endGroups(t);
+	return 0;
+    }
+    if(file.left(currentGroup.length()) == currentGroup) 
+	file = file.mid(currentGroup.length());
+    else
+	endGroups(t);
+    int lvl = file.contains(Option::dir_sep), old_lvl = currentGroup.contains(Option::dir_sep);
+    if(lvl > old_lvl) {
+	QStringList dirs = QStringList::split(Option::dir_sep, file);
+	for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
+	    t << "# Begin Group \"" << (*dir_it) << "\"\n"
+	      << "# Prop Default_Filter \"" << filter << "\"\n";
+	}
+    } else {
+	for(int x = old_lvl - lvl; x; x--) 
+	    t << "\n# End Group\n";
+    }
+    currentGroup = file;
+    return lvl - old_lvl;
+}
+
+
+int
+DspMakefileGenerator::endGroups(QTextStream &t)
+{
+    if(project->isActiveConfig("flat"))
+	return 0;
+    else if(currentGroup.isEmpty())
+	return 0;
+
+    QStringList dirs = QStringList::split(Option::dir_sep, currentGroup);
+    for(QStringList::Iterator dir_it = dirs.end(); dir_it != dirs.begin(); --dir_it) {
+	t << "\n# End Group\n";
+    }
+    currentGroup = "";
+    return -dirs.count();
 }
