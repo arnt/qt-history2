@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#85 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#85 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -354,7 +354,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
-    setBackgroundMode( FixedColor );
+    setBackgroundModeDirect( FixedColor );
     setBackgroundColorDirect( color );
 }
 
@@ -378,8 +378,10 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    createExtra();
 	extra->bg_pix = new QPixmap( pixmap );
     }
-    setBackgroundMode( FixedPixmap );
-    backgroundPixmapChange( old );
+    if (!allow_null_pixmaps) {
+	setBackgroundModeDirect( FixedPixmap );
+	backgroundPixmapChange( old );
+    }
 }
 
 
@@ -387,7 +389,6 @@ void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
-    setBackgroundMode( NoBackground );
     allow_null_pixmaps--;
 }
 
@@ -828,7 +829,7 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    if ( backgroundEmpty() )
+    if ( backgroundMode()==NoBackground )
 	return;
     RECT r;
     r.left = x;

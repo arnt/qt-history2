@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#16 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -15,7 +15,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#16 $");
 
 
 /*****************************************************************************
@@ -143,7 +143,7 @@ QColor QWidget::foregroundColor() const		// get foreground color
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
-    setBackgroundMode( FixedColor );
+    setBackgroundModeDirect( FixedColor );
     update();
 }
 

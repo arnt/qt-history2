@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#207 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#206 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#207 $");
 
 
 /*!
@@ -784,7 +784,7 @@ void QWidget::createExtra()
 #if defined(_WS_WIN_)
 	extra->winIcon = 0;
 #endif
-	extra->bg_mode = 0;
+	extra->bg_mode = PaletteBackground;
 	extra->focusData = 0;
     }
 }
@@ -996,7 +996,7 @@ void QWidget::setEnabled( bool enable )
     if ( enable ) {
 	if ( testWFlags(WState_Disabled) ) {
 	    clearWFlags( WState_Disabled );
-	    setBackgroundColorFromMode(FALSE);
+	    setBackgroundColorFromMode();
 	    enabledChange( TRUE );
 	}
     } else {
@@ -1004,7 +1004,7 @@ void QWidget::setEnabled( bool enable )
 	    if ( focusWidget() == this )
 		clearFocus(); // perhaps we should move the focus?
 	    setWFlags( WState_Disabled );
-	    setBackgroundColorFromMode(FALSE);
+	    setBackgroundColorFromMode();
 	    enabledChange( FALSE );
 	}
     }
@@ -1307,15 +1307,12 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-void QWidget::setBackgroundColorFromMode(bool override_abs)
+void QWidget::setBackgroundColorFromMode()
 {
-    switch (extra ? (BackgroundMode)extra->bg_mode : FixedColor) {
+    switch (extra ? (BackgroundMode)extra->bg_mode : PaletteBackground) {
       case FixedColor:
       case FixedPixmap:
       case NoBackground:
-	// For compatibility - see setPalette
-	if (override_abs)
-	    setBackgroundColorDirect( colorGroup().background() );
 	break;
       case PaletteForeground:
 	setBackgroundColorDirect( colorGroup().foreground() );
@@ -1346,11 +1343,11 @@ void QWidget::setBackgroundColorFromMode(bool override_abs)
 
 /*!
   Returns the mode most recently set by setBackgroundMode().
-  The default is \link QWidget::BackgroundMode FixedColor\endlink.
+  The default is \link QWidget::BackgroundMode PaletteBackground\endlink.
 */
 QWidget::BackgroundMode QWidget::backgroundMode() const
 {
-    return extra ? (BackgroundMode)extra->bg_mode : FixedColor;
+    return extra ? (BackgroundMode)extra->bg_mode : PaletteBackground;
 }
 
 /*!
@@ -1383,21 +1380,22 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 	- use palette() . \link QColorGroup::text() text()\endlink
     <li> \c PaletteBase
 	- use palette() . \link QColorGroup::base() base()\endlink
+    <li> \c NoBackground
+	- no color or pixmap is used - the paintEvent() must completely
+	    cover the drawing area.
   </ul>
 
-  If setBackgroundPixmap(), setBackgroundEmpty(), or the depricated
-  function setBackgroundColor() is called, the mode will be set to
-  one of:
+  If setBackgroundPixmap() or setBackgroundColor() is called, the
+  mode will be one of:
   <ul>
-    <li> \c NoBackground - no color, as set by setBackgroundEmpty()
-    <li> \c FixedColor - the color set by setBackgroundColor()
     <li> \c FixedPixmap - the pixmap set by setBackgroundPixmap()
+    <li> \c FixedColor - the color set by setBackgroundColor()
   </ul>
 
   These values may not be used as parameters to setBackgroundMode().
 
   \define QWidget::BackgroundMode
-  For most widgets the default (Background, normally
+  For most widgets the default (PaletteBackground, normally
   gray) suffices, but some need to use PaletteBase (the
   background color for text output, normally white) and a few need
   other colors.
@@ -1423,12 +1421,26 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 */
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
-    if (m==FixedColor && !extra) return;
+    if ( m==NoBackground )
+	setBackgroundEmpty();
+    else if ( m==FixedColor || m==FixedPixmap ) {
+	warning("May not pass FixedColor or FixedPixmap to setBackgroundMode()");
+	return;
+    }
+    setBackgroundModeDirect(m);
+}
+
+/*!
+  \internal
+*/
+void QWidget::setBackgroundModeDirect( BackgroundMode m )
+{
+    if (m==PaletteBackground && !extra) return;
 
     createExtra();
     if (extra->bg_mode != m) {
 	extra->bg_mode = m;
-	setBackgroundColorFromMode(FALSE);
+	setBackgroundColorFromMode();
     }
 }
 
@@ -1487,22 +1499,12 @@ void QWidget::backgroundColorChange( const QColor & )
   been set.  If the widget has been made empty, this function will return
   a pixmap which isNull() rather than a null pointer.
 
-  \sa setBackgroundPixmap(), setBackgroundEmpty()
+  \sa setBackgroundPixmap(), setBackgroundMode()
 */
 
 const QPixmap *QWidget::backgroundPixmap() const
 {
     return (extra && extra->bg_pix) ? extra->bg_pix : 0;
-}
-
-/*!
-  Returns TRUE if the background has been set empty by a call to
-  setBackgroundEmpty().
-*/
-
-bool QWidget::backgroundEmpty() const
-{
-    return (extra && extra->bg_pix) ? extra->bg_pix->isNull() : FALSE;
 }
 
 
@@ -1568,7 +1570,7 @@ void QWidget::setPalette( const QPalette &p )
     QPalette old = pal;
     pal = p;
 
-    setBackgroundColorFromMode(TRUE);
+    setBackgroundColorFromMode();
 
     paletteChange( old );
 }

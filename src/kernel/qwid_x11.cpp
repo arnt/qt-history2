@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#204 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#203 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#204 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -499,7 +499,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
-    setBackgroundMode( FixedColor );
+    setBackgroundModeDirect( FixedColor );
     setBackgroundColorDirect( color );
 }
 
@@ -523,9 +523,10 @@ static int allow_null_pixmaps = 0;
   The background pixmap is tiled.  Some widgets (e.g. QLineEdit) do
   not work well with a background pixmap.
 
-  This function is call with a null pixmap by setBackgroundEmpty().
-
   \sa backgroundPixmap(), backgroundPixmapChange(), setBackgroundColor()
+
+  \internal
+  This function is call with a null pixmap by setBackgroundEmpty().
 */
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
@@ -556,8 +557,10 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
     }
-    setBackgroundMode( FixedPixmap );
-    backgroundPixmapChange( old );
+    if ( allow_null_pixmaps ) {
+	setBackgroundModeDirect( FixedPixmap );
+	backgroundPixmapChange( old );
+    }
 }
 
 
@@ -587,7 +590,6 @@ void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
-    setBackgroundMode( NoBackground );
     allow_null_pixmaps--;
 }
 
