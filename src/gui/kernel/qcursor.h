@@ -41,6 +41,10 @@ struct QCursorData;
 class QBitmap;
 class QPixmap;
 
+#if defined(Q_WS_MAC)
+void qt_mac_set_cursor(const QCursor *c, const Point *p);
+#endif
+
 class Q_GUI_EXPORT QCursor
 {
 public:
