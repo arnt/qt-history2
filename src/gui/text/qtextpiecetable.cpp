@@ -826,7 +826,7 @@ QTextFrame *QTextPieceTable::frameAt(int pos) const
 void QTextPieceTable::insert_frame(QTextFrame *f)
 {
     int start = f->start();
-    int end = f->start();
+    int end = f->end();
     QTextFrame *parent = frameAt(start);
     Q_ASSERT(parent == frameAt(end));
 
@@ -837,6 +837,7 @@ void QTextPieceTable::insert_frame(QTextFrame *f)
             if (start < c->start () && end > c->end()) {
                 parent->d->childFrames.removeAt(i);
                 f->d->childFrames.append(c);
+                c->d->parentFrame = f;
             }
         }
     }
