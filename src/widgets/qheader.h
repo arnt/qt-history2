@@ -109,9 +109,11 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
-    void setFullSize( bool b );
+    void setFullSize( bool b, int section );
+    void setFullSize( bool b ) { setFullSize( b, -1 ); }
     bool fullSize() const;
-    void adjustHeaderSize();
+    bool fullSize( int section ) const;
+    void adjustHeaderSize() { adjustHeaderSize( -1 ); }
 
 public slots:
     void setUpdatesEnabled( bool enable );
@@ -140,6 +142,7 @@ protected:
     void	mouseMoveEvent( QMouseEvent * );
 
 private:
+    void adjustHeaderSize( int diff );
     void	init( int );
 
     void	paintRect( int p, int s );

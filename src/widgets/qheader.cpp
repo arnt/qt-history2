@@ -84,7 +84,7 @@ struct QHeaderData
 	sortDirection = TRUE;
 	positionsDirty = TRUE;
 	lastPos = 0;
-	fullSize = FALSE;
+	fullSize = -2;
     }
 
 
@@ -101,12 +101,12 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
-    bool fullSize : 1;
     bool sortDirection;
     bool positionsDirty;
     int sortColumn;
     int count;
     int lastPos;
+    int fullSize;
 
     void calculatePositions(){
 	// positions is sorted by index, not by section
@@ -526,7 +526,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	    handleIdx = index-1;
 	else
 	    handleIdx = index;
-	if ( d->fullSize && handleIdx == count() - 1 ) {
+	if ( d->fullSize == -1 || d->fullSize == handleIdx ) {
 	    handleIdx = -1;
 	    return;
 	}
@@ -705,7 +705,7 @@ void QHeader::handleColumnResize( int index, int c, bool final )
 	emit sizeChange( section, oldSize, newSize );
     else if ( !tracking() && final && oldHIdxSize != newSize )
 	emit sizeChange( section, oldHIdxSize, newSize );
-    if ( d->fullSize )
+    if ( d->fullSize != -2 )
 	resizeEvent( 0 );
 }
 
@@ -1517,16 +1517,41 @@ void QHeader::resizeEvent( QResizeEvent *e )
 	    offs = 0;
     }
 
-    adjustHeaderSize();
+    adjustHeaderSize( orientation() == Horizontal ? width() - e->oldSize().width() : height() - e->oldSize().height() );
 }
 
-/*! Adjusts the header size to fit as good as possible, if fullSize()
+/*!
+  \fn void QHeader::adjustHeaderSize()
+  Adjusts the header size to fit as good as possible, if fullSize()
   is TRUE.
 */
 
-void QHeader::adjustHeaderSize()
+void QHeader::adjustHeaderSize( int diff )
 {
-    if ( d->fullSize && count() > 0 ) {
+    if ( !count() )
+	return;
+
+    if ( d->fullSize >= 0 ) {
+	int sec = mapToIndex( d->fullSize );
+	int ns = ( orientation() == Horizontal ? width() : height() ) - sectionPos( sec );
+	int os = sectionSize( sec );
+	if ( ns > 20 ) {
+	    setCellSize( sec, ns );
+	    repaint( FALSE );
+	    emit sizeChange( sec, os, ns );
+	}
+    } else if ( d->fullSize == -1 ) {
+	int df = diff / count();
+	int part = orientation() == Horizontal ? width() / count() : height() / count();
+	for ( int i = 0; i < count() - 1; ++i ) {
+	    int sec = mapToIndex( i );
+	    int os = sectionSize( sec );
+	    int ns = diff != -1 ? os + df : part;
+	    if ( ns > 20 ) {
+		setCellSize( sec, ns );
+		emit sizeChange( sec, os, ns );
+	    }
+	}
 	int sec = mapToIndex( count() - 1 );
 	int ns = ( orientation() == Horizontal ? width() : height() ) - sectionPos( sec );
 	int os = sectionSize( sec );
@@ -1551,25 +1576,40 @@ void QHeader::calculatePositions()
     d->calculatePositions();
 }
 
-/*! If you pass TRUE here, the last (visually) section of the header
-  always adjusts on resize events, so that the full width is covered
-  by sections of the header.
+/*! If you pass TRUE here, the section \a section of the header always
+  adjusts on resize events, so that the full width is covered by
+  sections of the header. If \a section is -1, all sections are
+  adjusted equally.
 */
 
-void QHeader::setFullSize( bool b )
+void QHeader::setFullSize( bool b, int section )
 {
-    d->fullSize = b;
+    if ( b )
+	d->fullSize = section;
+    else
+	d->fullSize = -2;
 }
 
 /*! Returns whether the header sections always cover the full width of
-  the header.
+  the header by automatically adjusted all sections.
 
   \sa setFullSize()
 */
 
 bool QHeader::fullSize() const
 {
-    return d->fullSize;
+    return d->fullSize == -2;
+}
+
+/*! Returns whether the header sections always cover the full width of
+  the header by automatically adjusting the section \a section.
+
+  \sa setFullSize()
+*/
+
+bool QHeader::fullSize( int section ) const
+{
+    return d->fullSize == section;
 }
 
 #endif // QT_NO_HEADER
