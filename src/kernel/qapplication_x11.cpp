@@ -5026,7 +5026,9 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     // Qt keycodes between 128 and 255, but should rather use the
     // QKeyEvent::text().
     //
-    if (text.length() == 1 && text.unicode()->unicode() > 0x1f) {
+    if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
+	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
+    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f) {
 	code = text.unicode()->upper().unicode();
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
