@@ -42,7 +42,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidge
     : QMainWindow( parent, flags )
 {
     setObjectName(name);
-    QPixmap pix("logo.png");
+    QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
 
 #warning "QFileDialog"
