@@ -62,7 +62,7 @@ depend:
 
 clean:
 	-rm -f *.o *.bak *~ *% #*
-	-rm -f $(TARGET) $(YACCOUT) $(YACCHDR)
+	-rm -f $(TARGET) $(YACCOUT)
 
 ####### Process lex/yacc files
 
