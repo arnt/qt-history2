@@ -66,24 +66,6 @@
 */
 
 /*!
-    \fn bool QUuid::operator==(const GUID &guid) const
-
-    Returns true if the given Windows \a guid is the same as this Qt
-    QUuid; otherwise returns false.
-
-    \warning This function is only for Windows platforms.
-*/
-
-/*!
-    \fn bool QUuid::operator!=(const GUID &guid) const
-
-    Returns true if the given Windows \a guid is different from this
-    Qt QUuid; otherwise returns false.
-
-    \warning This function is only for Windows platforms.
-*/
-
-/*!
     \fn QUuid::QUuid()
 
     Creates the null UUID {00000000-0000-0000-0000-000000000000}.
@@ -103,11 +85,6 @@
     \endcode
 */
 
-/*!
-    \fn QUuid::QUuid(const QUuid &orig)
-
-    Creates a copy of the QUuid \a orig.
-*/
 #ifndef QT_NO_QUUID_STRING
 /*!
     Creates a QUuid object from the string \a text. The function can

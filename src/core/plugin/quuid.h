@@ -16,8 +16,6 @@
 
 #include "qstring.h"
 
-#include <string.h>
-
 #if defined(Q_OS_WIN32)
 #ifndef GUID_DEFINED
 #define GUID_DEFINED
@@ -51,7 +49,11 @@ struct Q_CORE_EXPORT QUuid
 
     QUuid()
     {
-        memset(this, 0, sizeof(QUuid));
+        data1 = 0;
+        data2 = 0;
+        data3 = 0;
+        for(int i = 0; i < 8; i++)
+            data4[i] = 0;
     }
     QUuid(uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8)
     {
@@ -67,10 +69,6 @@ struct Q_CORE_EXPORT QUuid
         data4[6] = b7;
         data4[7] = b8;
     }
-    QUuid(const QUuid &uuid)
-    {
-        memcpy(this, &uuid, sizeof(QUuid));
-    }
 #ifndef QT_NO_QUUID_STRING
     QUuid(const QString &);
     QUuid(const char *);
@@ -78,12 +76,6 @@ struct Q_CORE_EXPORT QUuid
     operator QString() const { return toString(); }
 #endif
     bool isNull() const;
-
-    QUuid &operator=(const QUuid &orig)
-    {
-        memcpy(this, &orig, sizeof(QUuid));
-        return *this;
-    }
 
     bool operator==(const QUuid &orig) const
     {
@@ -112,12 +104,16 @@ struct Q_CORE_EXPORT QUuid
     // provide convenience operators to cast from and to this type.
     QUuid(const GUID &guid)
     {
-        memcpy(this, &guid, sizeof(GUID));
+        data1 = guid.Data1;
+        data2 = guid.Data2;
+        data3 = guid.Data3;
+        for(int i = 0; i < 8; i++)
+            data4[i] = guid.Data4[i];
     }
 
-    QUuid &operator=(const GUID &orig)
+    QUuid &operator=(const GUID &guid)
     {
-        memcpy(this, &orig, sizeof(QUuid));
+        *this = QUuid(guid);
         return *this;
     }
 
@@ -129,16 +125,7 @@ struct Q_CORE_EXPORT QUuid
 
     bool operator==(const GUID &guid) const
     {
-        uint i;
-        if (data1 != guid.Data1 || data2 != guid.Data2 ||
-             data3 != guid.Data3)
-            return false;
-
-        for(i = 0; i < 8; i++)
-            if (data4[i] != guid.Data4[i])
-                return false;
-
-        return true;
+        return *this == QUuid(guid);
     }
 
     bool operator!=(const GUID &guid) const
