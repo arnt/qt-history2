@@ -32,7 +32,6 @@ class QSqlError;
 class QSqlDriver;
 class QSqlIndex;
 class QSqlRecord;
-class QSqlRecordInfo;
 class QSqlQuery;
 class QSqlDatabasePrivate;
 
