@@ -5,12 +5,13 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  macx-g++ macx-pbuilder
+  macx-g++ 
+  macx-pbuilder
 
 Compilation problems:
 
-  Qt 3.x has problems compiling on some combinations of operating
-  system versions and compiler versions.  Information about such
+  Qt 3.x may have problems compiling on some combinations of operating
+  system versions and compiler versions. Information about such
   problems will be posted on http://www.trolltech.com/platforms/ as we
   become aware of them.
 

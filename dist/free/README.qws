@@ -2,9 +2,9 @@
 
 This is%STABLEONLY the official%%SNAPSHOTONLY a snapshot% release of the Qt/Embedded Free Edition version %VERSION%.
 
-You may use the Qt/Embedded Free Edition for software development free of
-charge only if you develop Free (non-proprietary) Software. The LICENSE.GPL
-file explains what you may or may not do with the Qt/Embedded Free Edition.
+Qt/Embedded Free Edition may only be used to develop Free
+(non-proprietary) Software. The LICENSE.GPL file explains what you may
+or may not do with the Qt/Embedded Free Edition.
 
 If you are using Qt for developing commercial, proprietary, or other
 software not covered by the terms listed in the LICENSE.GPL file, you
@@ -22,16 +22,15 @@ If you want to port Qt to a new platform, please contact info@trolltech.com
 
 The Qt Reference Documentation is available in HTML format in the
 qt/doc/html directory. Start your favorite Web browser with the
-doc/html/index.html file. The class reference doc. is also included in
-Unix man format in the qt/doc/man directory.
+doc/html/index.html file. 
 
 If you are new to Qt it is a good idea to read the tutorial. It is located
 in doc/html/tutorial.html. The tutorial directory contains the programs
 used in the tutorial.
 
-All the above documentation is also available in postscript format
-from our web server, see http://www.trolltech.com/dl/ or
-ftp://ftp.trolltech.com/qt/postscript/
+Much of Qt's documentation is available (experimentally) in man page
+format and PDF format, but these are never as up-to-date or convenient
+as the HTML documentation.
 
 The example programs in the examples directory demonstrate some Qt
 features. You can study these examples to get an overview of how Qt

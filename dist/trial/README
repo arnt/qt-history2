@@ -7,16 +7,17 @@ Thank you for choosing to evaluate Qt/Windows!
 This Qt/Windows Evaluation version has the following limitations compared
 to the full Qt/Windows Professional and Enterprise Editions:
 
-* The Qt source code is not included. Instead, the Qt library is provided
-pre-compiled.
+* The Qt source code is not included. Instead, the Qt library is
+  provided pre-compiled.
 
 * The library is time-limited to work for 30 days.
 
-* The library is pre-built as a dynamic, multi-threaded library without
-debugging information. In the full versions, you may choose to build it as
-a static or dynamic library with multi-threaded mode turned on or
-off. You may also build it with or without debugging information
-included as an assistance during application development.
+* The library is pre-built as a dynamic, multi-threaded library
+  without debugging information. In the full versions, you may choose
+  to build it as a static or dynamic library with multi-threaded mode
+  turned on or off. You may also build it with or without debugging
+  information included as an assistance during application
+  development.
 
 * Applications display an information window on startup
 

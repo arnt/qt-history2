@@ -1,8 +1,8 @@
 			  INSTALLING Qt/Mac Version %VERSION% (for Mac OS X)
 
 
-You may need to be root, depending on the permissions of the directories
-where you choose to install Qt.
+You may need to be logged in as root, depending on the permissions of
+the directories where you choose to install Qt.
 
 
 1.  Unpack the archive if you have not done so already:
@@ -49,8 +49,8 @@ where you choose to install Qt.
 	setenv MANPATH $QTDIR/doc/man:$MANPATH
 	setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
 
-        Some versions of tcsh do not understand expansion of empty
-        variables, if you experience any error messages with the above
+        Some versions of tcsh do not understand the expansion of empty
+        variables. If you experience any error messages with the above
         instructions, you may want to replace them with:
 
 	setenv QTDIR /usr/local/qt
@@ -60,12 +60,12 @@ where you choose to install Qt.
 
     After you have done this, you will need to login again, or
     re-source the profile before continuing, so that at least $QTDIR
-    is set.  The installation will give an error message and not
-    proceed otherwise.
+    is set. Without $QTDIR the installation will halt with an error
+    message.
 
 
 3.  Install your license file as $HOME/.qt-license.
-    For the free edition, you do not need a license file.  For Professional
+    For the free edition, you do not need a license file. For Professional
     and Enterprise editions, install your license file as described in your
     distribution.
 
@@ -73,7 +73,7 @@ where you choose to install Qt.
 4.  Building.
 
     This step compiles the Qt library, and builds the example programs,
-    the tutorial, and the tools (eg. the Designer).
+    the tutorial, and the tools (e.g. Qt Designer, etc.).
 
     Type:
 
@@ -84,15 +84,16 @@ where you choose to install Qt.
     to get a list of configuration options. Read PLATFORMS for a
     list of supported platforms.
 
-    To create the library and compile all examples and the tutorial:
+    To create the library and compile all the examples and the
+    tutorial, type:
 
 	make
 
     If your platform or compiler is not supported, please contact us at
-    qt-bugs@trolltech.com so that we can assist you.  If it is supported
-    but you have problems, see http://www.trolltech.com/platforms/
+    qt-bugs@trolltech.com so that we can assist you. If it is supported
+    but you have problems, see http://www.trolltech.com/platforms/ for
+    information on known issues.
 
-    
 
 5.  Installing.
 
@@ -101,13 +102,15 @@ where you choose to install Qt.
     Finder, you must place the relevant libraries in a directory where
     they can be found. We recommend making these symbolic links:
 
-    ln -s $QTDIR/lib/libqt.dylib.%VERSION% /usr/lib
+    ln -s $QTDIR/lib/libqt.dylib.%VERSION_NUMBER% /usr/lib
     ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib
+    ln -s $QTDIR/lib/libeditor.dylib.1.0.0 /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
-    case, preced each command with 'sudo', e.g. 'sudo ln -s ...'). If
+    case, precede each command with 'sudo', e.g. 'sudo ln -s ...'). If
     you use sudo you'll be prompted for the administrator password.
 
 
-That's all.  Qt is now installed. You will find Qt's documentation in
-$QTDIR/doc/html.
+That's all! Qt is now installed. Qt's documentation can be read with
+Qt Assistant or by any web browser; the contents page is:
+    $QTDIR/doc/html/index.html
