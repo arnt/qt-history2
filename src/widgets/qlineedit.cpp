@@ -2436,6 +2436,9 @@ void QLineEdit::delOrBackspace( bool backspace )
 		    d->cursor->gotoPreviousLetter();
 		    d->undoRedoInfo.index = d->cursor->index();
 		}
+		// we return in case the paragraph is empty
+		if ( d->cursor->paragraph()->length() == 0 )
+		    return;
 		QChar ch = d->cursor->paragraph()->at( d->cursor->index() )->c;
 		if ( backspace ) {
 		    d->undoRedoInfo.text.prepend( ch );
