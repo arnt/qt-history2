@@ -137,7 +137,8 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtablevw.h \
 		  $$WIDGETS_H/qtooltip.h \
-		  $$WIDGETS_H/qvalidator.h
+		  $$WIDGETS_H/qvalidator.h \
+		  $$WIDGETS_H/qwellarray.h
 
 SOURCES		= dialogs/qfiledlg.cpp \
 		  dialogs/qmsgbox.cpp \
@@ -234,7 +235,8 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qtabbar.cpp \
 		  widgets/qtablevw.cpp \
 		  widgets/qtooltip.cpp \
-		  widgets/qvalidator.cpp
+		  widgets/qvalidator.cpp \
+		  widgets/qwellarray.cpp
 
 win32:SOURCES  += kernel/qapp_win.cpp \
 		  kernel/qclb_win.cpp \
