@@ -205,7 +205,7 @@ void QTextBrowser::setSource(const QString& name)
 {
 #ifndef QT_NO_CURSOR
     if (isVisible())
-        qApp->setOverrideCursor(WaitCursor);
+        qApp->setOverrideCursor(Qt::WaitCursor);
 #endif
     d->textOrSourceChanged = true;
     QString source = name;
@@ -395,15 +395,15 @@ void QTextBrowser::home()
 */
 void QTextBrowser::keyPressEvent(QKeyEvent * e)
 {
-    if (e->state() & AltButton) {
+    if (e->state() & Qt::AltButton) {
         switch (e->key()) {
-        case Key_Right:
+        case Qt::Key_Right:
             forward();
             return;
-        case Key_Left:
+        case Qt::Key_Left:
             backward();
             return;
-        case Key_Up:
+        case Qt::Key_Up:
             home();
             return;
         }
@@ -415,7 +415,7 @@ class QTextDetailPopup : public QWidget
 {
 public:
     QTextDetailPopup()
-        : QWidget (0, "automatic QText detail widget", WType_Popup | WDestructiveClose)
+        : QWidget (0, "automatic QText detail widget", Qt::WType_Popup | Qt::WDestructiveClose)
         {
         }
 
@@ -436,7 +436,7 @@ void QTextBrowser::popupDetail(const QString& contents, const QPoint& pos)
     const int hMargin = 12;
 
     QWidget* popup = new QTextDetailPopup;
-    setAttribute(WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_NoSystemBackground, true);
 
     QSimpleRichText* doc = new QSimpleRichText(contents, popup->font());
     doc->adjustSize();

@@ -12,7 +12,7 @@ public:
 
     QPointer<QRubberBand> rubberBand;
     mutable QList<QSplitterLayoutStruct *> list;
-    Orientation orient;
+    Qt::Orientation orient;
     bool opaque : 8;
     bool firstShow : 8;
     bool childrenCollapsible : 8;

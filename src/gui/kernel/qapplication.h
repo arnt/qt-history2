@@ -163,10 +163,10 @@ public:
 
 #ifdef QT_COMPAT
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-    static QT_COMPAT WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
+    static QT_COMPAT Qt::WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
 #endif
 #if defined(Q_OS_MAC)
-    static QT_COMPAT MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
+    static QT_COMPAT Qt::MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
 #endif
 #endif
 #if defined(Q_WS_WIN)
@@ -343,12 +343,12 @@ inline QSize QApplication::globalStrut()
 
 inline Qt::Alignment QApplication::horizontalAlignment(Alignment align)
 {
-    align &= AlignHorizontal_Mask;
-    if (align == AlignAuto) {
+    align &= Qt::AlignHorizontal_Mask;
+    if (align == Qt::AlignAuto) {
         if (reverseLayout())
-            align = AlignRight;
+            align = Qt::AlignRight;
         else
-            align = AlignLeft;
+            align = Qt::AlignLeft;
     }
     return align;
 }

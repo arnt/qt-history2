@@ -36,8 +36,8 @@ class QDockWindowLayout : public QLayout
     QList<QDockWindowLayoutInfo> layout_info;
     QList<QDockWindowLayoutInfo> *save_layout_info;
 
-    QDockWindowLayout(QWidget *widget, Orientation o);
-    QDockWindowLayout(QLayout *layout, Orientation o);
+    QDockWindowLayout(QWidget *widget, Qt::Orientation o);
+    QDockWindowLayout(QLayout *layout, Qt::Orientation o);
 
     // QLayout interface
     void addItem(QLayoutItem *layoutitem);
@@ -66,16 +66,16 @@ class QDockWindowLayout : public QLayout
 
     struct Location {
         int index;
-        DockWindowArea area;
+        Qt::DockWindowArea area;
     };
     Location locate(const QPoint &mouse) const;
     QRect place(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
     void drop(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
 
-    void extend(QDockWindow *dockwindow, Orientation direction);
-    void split(QDockWindow *dockwindow, Orientation direction);
+    void extend(QDockWindow *dockwindow, Qt::Orientation direction);
+    void split(QDockWindow *dockwindow, Qt::Orientation direction);
 
-    void split(QDockWindow *existing, QDockWindow *with, DockWindowArea area);
+    void split(QDockWindow *existing, QDockWindow *with, Qt::DockWindowArea area);
 };
 
 static inline QCOORD pick(Qt::Orientation o, const QPoint &p)

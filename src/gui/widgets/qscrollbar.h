@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QScrollBar : public QAbstractSlider
     Q_DECLARE_PRIVATE(QScrollBar)
 public:
     QScrollBar(QWidget *parent=0);
-    QScrollBar(Orientation, QWidget *parent=0);
+    QScrollBar(Qt::Orientation, QWidget *parent=0);
 
     ~QScrollBar();
 
@@ -48,9 +48,9 @@ protected:
 #ifdef QT_COMPAT
 public:
     QScrollBar(QWidget *parent, const char* name);
-    QScrollBar(Orientation, QWidget *parent, const char* name);
+    QScrollBar(Qt::Orientation, QWidget *parent, const char* name);
     QScrollBar(int minValue, int maxValue, int lineStep, int pageStep,
-                int value, Orientation, QWidget *parent=0, const char* name = 0);
+                int value, Qt::Orientation, QWidget *parent=0, const char* name = 0);
     inline QT_COMPAT bool draggingSlider() { return isSliderDown(); }
 #endif
 

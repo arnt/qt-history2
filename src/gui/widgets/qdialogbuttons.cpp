@@ -40,7 +40,7 @@ struct QDialogButtonsPrivate
 
 #ifndef QT_NO_DIALOG
 QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 buttons,
-                               Orientation orient, const char *name) : QWidget(parent, name)
+                               Qt::Orientation orient, const char *name) : QWidget(parent, name)
 {
     init(buttons, orient);
     if(parent && autoConnect) {
@@ -51,13 +51,13 @@ QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 butto
 #endif // QT_NO_DIALOG
 
 QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons,
-                               Orientation orient, const char *name) : QWidget(parent, name)
+                               Qt::Orientation orient, const char *name) : QWidget(parent, name)
 {
     init(buttons, orient);
 }
 
 void
-QDialogButtons::init(Q_UINT32 buttons, Orientation orient)
+QDialogButtons::init(Q_UINT32 buttons, Qt::Orientation orient)
 {
     if(buttons == All) {
         qWarning("QDialogButtons: cannot specify All by itself!");
@@ -132,7 +132,7 @@ QDialogButtons::addWidget(QWidget *w)
     QBoxLayout *lay = NULL;
     if(!d->custom) {
         d->custom = new QWidget(this, "dialog_custom_area");
-        if(orientation() == Horizontal)
+        if(orientation() == Qt::Horizontal)
             lay = new QHBoxLayout(d->custom);
         else
             lay = new QVBoxLayout(d->custom);
@@ -194,12 +194,12 @@ QDialogButtons::buttonText(Button b) const
 }
 
 void
-QDialogButtons::setOrientation(Orientation orient)
+QDialogButtons::setOrientation(Qt::Orientation orient)
 {
     if(d->orient != orient) {
         d->orient = orient;
         if(d->custom && d->custom->layout())
-            ((QBoxLayout*)d->custom->layout())->setDirection(orient == Horizontal ? QBoxLayout::LeftToRight :
+            ((QBoxLayout*)d->custom->layout())->setDirection(orient == Qt::Horizontal ? QBoxLayout::LeftToRight :
                                                              QBoxLayout::TopToBottom);
         layoutButtons();
     }

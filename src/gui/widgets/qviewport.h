@@ -25,20 +25,20 @@ class QViewportPrivate;
 class Q_GUI_EXPORT QViewport : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(ScrollBarPolicy verticalScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy)
-    Q_PROPERTY(ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy)
+    Q_PROPERTY(Qt::ScrollBarPolicy verticalScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy)
+    Q_PROPERTY(Qt::ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy)
     Q_OVERRIDE(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
 
 public:
     QViewport(QWidget* parent=0);
     ~QViewport();
 
-    ScrollBarPolicy verticalScrollBarPolicy() const;
-    void setVerticalScrollBarPolicy(ScrollBarPolicy);
+    Qt::ScrollBarPolicy verticalScrollBarPolicy() const;
+    void setVerticalScrollBarPolicy(Qt::ScrollBarPolicy);
     QScrollBar *verticalScrollBar() const;
 
-    ScrollBarPolicy horizontalScrollBarPolicy() const;
-    void setHorizontalScrollBarPolicy(ScrollBarPolicy);
+    Qt::ScrollBarPolicy horizontalScrollBarPolicy() const;
+    void setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy);
     QScrollBar *horizontalScrollBar() const;
 
     QWidget *viewport() const;

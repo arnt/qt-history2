@@ -135,7 +135,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
     d->eraseArea = ea;
     d->eraseAreaValid = true;
 
-    p.setPen(NoPen);
+    p.setPen(Qt::NoPen);
     p.setBrush(pal.brush(QPalette::Button));
     if (!d->onlyOutside)
         p.drawPolygon(arrow);
@@ -186,7 +186,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
         p.begin(q);
         p.save();
         p.setPen(QPen(pal.background()));
-        p.setBrush(NoBrush);
+        p.setBrush(Qt::NoBrush);
         p.drawRect(br);
         p.restore();
         Q4StyleOptionFocusRect opt(0);

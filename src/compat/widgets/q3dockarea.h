@@ -81,7 +81,7 @@ class Q_COMPAT_EXPORT Q3DockArea : public QWidget
 {
     Q_OBJECT
     Q_ENUMS(HandlePosition)
-    Q_PROPERTY(Orientation orientation READ orientation)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation)
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(bool empty READ isEmpty)
     Q_PROPERTY(HandlePosition handlePosition READ handlePosition)
@@ -93,7 +93,7 @@ class Q_COMPAT_EXPORT Q3DockArea : public QWidget
 public:
     enum HandlePosition { Normal, Reverse };
 
-    Q3DockArea(Orientation o, HandlePosition h = Normal, QWidget* parent=0, const char* name=0);
+    Q3DockArea(Qt::Orientation o, HandlePosition h = Normal, QWidget* parent=0, const char* name=0);
     ~Q3DockArea();
 
     void moveDockWindow(Q3DockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap);
@@ -103,7 +103,7 @@ public:
 
     void invalidNextOffset(Q3DockWindow *dw);
 
-    Orientation orientation() const { return orient; }
+    Qt::Orientation orientation() const { return orient; }
     HandlePosition handlePosition() const { return hPos; }
 
     bool eventFilter(QObject *, QEvent *);
@@ -138,7 +138,7 @@ private:
     bool isLastDockWindow(Q3DockWindow *dw);
 
 private:
-    Orientation orient;
+    Qt::Orientation orient;
     QList<Q3DockWindow *> dockWindows;
     Q3DockAreaLayout *layout;
     HandlePosition hPos;

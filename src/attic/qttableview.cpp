@@ -228,7 +228,7 @@ void QtTableView::show()
 
 void QtTableView::repaint(int x, int y, int w, int h, bool erase)
 {
-    if (!isVisible() || testWState(WState_BlockUpdates))
+    if (!isVisible() || testWState(Qt::WState_BlockUpdates))
         return;
     if (w < 0)
         w = width()  - x;
@@ -238,7 +238,7 @@ void QtTableView::repaint(int x, int y, int w, int h, bool erase)
     if (r.isEmpty())
         return; // nothing to do
     QPaintEvent e(r);
-    if (erase && !testAttribute(WA_NoSystemBackground))
+    if (erase && !testAttribute(Qt::WA_NoSystemBackground))
         eraseInPaint = true;                        // erase when painting
     paintEvent(&e);
     eraseInPaint = false;
@@ -1428,11 +1428,11 @@ QScrollBar *QtTableView::verticalScrollBar() const
     if (!vScrollBar) {
         QScrollBar *sb = new QScrollBar(QScrollBar::Vertical, that);
 #ifndef QT_NO_CURSOR
-        sb->setCursor(ArrowCursor);
+        sb->setCursor(Qt::ArrowCursor);
 #endif
         sb->resize(sb->sizeHint()); // height is irrelevant
         sb->setTracking(false);
-        sb->setFocusPolicy(NoFocus);
+        sb->setFocusPolicy(Qt::NoFocus);
         connect(sb, SIGNAL(valueChanged(int)),
                  SLOT(verSbValue(int)));
         connect(sb, SIGNAL(sliderMoved(int)),
@@ -1458,10 +1458,10 @@ QScrollBar *QtTableView::horizontalScrollBar() const
     if (!hScrollBar) {
         QScrollBar *sb = new QScrollBar(QScrollBar::Horizontal, that);
 #ifndef QT_NO_CURSOR
-        sb->setCursor(ArrowCursor);
+        sb->setCursor(Qt::ArrowCursor);
 #endif
         sb->resize(sb->sizeHint()); // width is irrelevant
-        sb->setFocusPolicy(NoFocus);
+        sb->setFocusPolicy(Qt::NoFocus);
         sb->setTracking(false);
         connect(sb, SIGNAL(valueChanged(int)),
                  SLOT(horSbValue(int)));

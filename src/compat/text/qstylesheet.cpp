@@ -263,8 +263,8 @@ void QStyleSheetItem::setDisplayMode(DisplayMode m)
 
 /*!
     Returns the alignment of this style. Possible values are \c
-    AlignAuto, \c AlignLeft, \c AlignRight, \c AlignCenter or \c
-    AlignJustify.
+    Qt::AlignAuto, \c Qt::AlignLeft, \c Qt::AlignRight, \c Qt::AlignCenter or \c
+    Qt::AlignJustify.
 
     \sa setAlignment(), Qt::AlignmentFlags
 */
@@ -276,8 +276,8 @@ int QStyleSheetItem::alignment() const
 /*!
     Sets the alignment to \a f. This only makes sense for styles with
     a \link QStyleSheetItem::DisplayMode display mode\endlink of
-    DisplayBlock. Possible values are \c AlignAuto, \c AlignLeft,
-    \c AlignRight, \c AlignCenter or \c AlignJustify.
+    DisplayBlock. Possible values are \c Qt::AlignAuto, \c Qt::AlignLeft,
+    \c Qt::AlignRight, \c Qt::AlignCenter or \c Qt::AlignJustify.
 
     \sa alignment(), displayMode(), Qt::AlignmentFlags
 */
@@ -1031,7 +1031,7 @@ int QStyleSheetItem::lineSpacing() const
                 default is 1.
             \i \c align -- Alignment; possible values are \c left, \c
                 right, and \c center. The default is \c left.
-            \i \c valign -- Vertical alignment; possible values are \c
+            \i \c valign -- Qt::Vertical alignment; possible values are \c
             top, \c middle, and \c bottom. The default is \c middle.
             \endlist
     \endtable
@@ -1143,7 +1143,7 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem(this, QString::fromLatin1("center"));
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style->setAlignment(AlignCenter);
+    style->setAlignment(Qt::AlignCenter);
 
     style = new QStyleSheetItem(this, QString::fromLatin1("twocolumn"));
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
@@ -1405,17 +1405,17 @@ QString QStyleSheet::escape(const QString& plain)
     done by passing one of the enum values to a setTextFormat()
     function.
 
-    \value PlainText  The text string is interpreted as a plain text
+    \value Qt::PlainText  The text string is interpreted as a plain text
         string.
 
-    \value RichText The text string is interpreted as a rich text
+    \value Qt::RichText The text string is interpreted as a rich text
         string using the current QStyleSheet::defaultSheet().
 
-    \value AutoText The text string is interpreted as for \c RichText
+    \value Qt::AutoText The text string is interpreted as for \c Qt::RichText
         if QStyleSheet::mightBeRichText() returns true, otherwise as
-        \c PlainText.
+        \c Qt::PlainText.
 
-    \value LogText A special, limited text format which is only used
+    \value Qt::LogText A special, limited text format which is only used
     by QTextEdit in an optimized mode.
 */
 

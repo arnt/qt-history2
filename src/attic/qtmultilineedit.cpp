@@ -166,8 +166,8 @@ public:
     \property QtMultiLineEdit::alignment
     \brief the alignment
 
-    Possible values are \c AlignLeft, \c Align(H)Center and \c
-    AlignRight.
+    Possible values are \c Qt::AlignLeft, \c Align(H)Center and \c
+    Qt::AlignRight.
   \sa Qt::AlignmentFlags
 */
 /*
@@ -560,7 +560,7 @@ static int xPosToCursorPos(const QString &s, const QFontMetrics &fm,
 */
 
 QtMultiLineEdit::QtMultiLineEdit(QWidget *parent , const char *name)
-    :QtTableView(parent, name, WStaticContents | WRepaintNoErase)
+    :QtTableView(parent, name, Qt::WStaticContents | Qt::WRepaintNoErase)
 {
     d = new QtMultiLineData;
     QFontMetrics fm(font());
@@ -579,13 +579,13 @@ QtMultiLineEdit::QtMultiLineEdit(QWidget *parent , const char *name)
                   );
     setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
     setBackgroundRole(QPalette::Base);
-    setWFlags(WResizeNoErase);
+    setWFlags(Qt::WResizeNoErase);
     setKeyCompression(true);
-    setFocusPolicy(WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
 #ifndef QT_NO_CURSOR
-    setCursor(IbeamCursor);
-    verticalScrollBar()->setCursor(ArrowCursor);
-    horizontalScrollBar()->setCursor(ArrowCursor);
+    setCursor(Qt::IbeamCursor);
+    verticalScrollBar()->setCursor(Qt::ArrowCursor);
+    horizontalScrollBar()->setCursor(Qt::ArrowCursor);
 #endif
     readOnly            = false;
     cursorOn           = false;
@@ -690,7 +690,7 @@ void QtMultiLineEdit::setReadOnly(bool on)
     if (readOnly != on) {
         readOnly = on;
 #ifndef QT_NO_CURSOR
-        setCursor(on ? ArrowCursor : IbeamCursor);
+        setCursor(on ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
     }
 }
@@ -792,7 +792,7 @@ void QtMultiLineEdit::paintCell(QPainter *painter, int row, int)
     else if (d->align == Qt::AlignRight)
         x += wcell - wrow;
     p.drawText(x,  yPos, cellWidth()-d->lr_marg-x, cellHeight(),
-                d->align == AlignLeft?ExpandTabs:0, s);
+                d->align == Qt::AlignLeft?Qt::ExpandTabs:0, s);
     if (!r->newline && BREAK_WITHIN_WORDS)
         p.drawPixmap(x + wrow - d->lr_marg - d->marg_extra, yPos, d->arrow);
 #if 0
@@ -816,7 +816,7 @@ void QtMultiLineEdit::paintCell(QPainter *painter, int row, int)
                     g.brush(QPalette::Highlight));
         p.setPen(g.highlightedText());
         p.drawText(x,  yPos, cellWidth()-d->lr_marg-x, cellHeight(),
-                    d->align == AlignLeft?ExpandTabs:0, s);
+                    d->align == Qt::AlignLeft?Qt::ExpandTabs:0, s);
         p.setClipping(false);
     }
 
@@ -1216,39 +1216,39 @@ void QtMultiLineEdit::keyPressEvent(QKeyEvent *e)
         int pageSize = viewHeight() / cellHeight();
 
         switch (e->key()) {
-        case Key_Left:
+        case Qt::Key_Left:
             setXOffset(xOffset() - viewWidth()/10);
             break;
-        case Key_Right:
+        case Qt::Key_Right:
             setXOffset(xOffset() + viewWidth()/10);
             break;
-        case Key_Up:
+        case Qt::Key_Up:
             setTopCell(topCell() - 1);
             break;
-        case Key_Down:
+        case Qt::Key_Down:
             setTopCell(topCell() + 1);
             break;
-        case Key_Home:
-            setCursorPosition(0,0, e->state() & ShiftButton);
+        case Qt::Key_Home:
+            setCursorPosition(0,0, e->state() & Qt::ShiftButton);
             break;
-        case Key_End:
+        case Qt::Key_End:
             setCursorPosition(numLines()-1, lineLength(numLines()-1),
-                               e->state() & ShiftButton);
+                               e->state() & Qt::ShiftButton);
             break;
-        case Key_Next:
+        case Qt::Key_Next:
             setTopCell(topCell() + pageSize);
             break;
-        case Key_Prior:
+        case Qt::Key_Prior:
             setTopCell(qMax(topCell() - pageSize, 0));
             break;
 #ifndef QT_NO_CLIPBOARD
-        case Key_C:
-            if (echoMode() == Normal && (e->state()&ControlButton))
+        case Qt::Key_C:
+            if (echoMode() == Normal && (e->state()&Qt::ControlButton))
                 copy();
             else
                 unknown++;
             break;
-        case Key_F16: // Copy key on Sun keyboards
+        case Qt::Key_F16: // Copy key on Sun keyboards
             if (echoMode() == Normal)
                 copy();
             else
@@ -1264,10 +1264,10 @@ void QtMultiLineEdit::keyPressEvent(QKeyEvent *e)
         return;
     }
     if (e->text().length() &&
-         e->key() != Key_Return &&
-         e->key() != Key_Enter &&
-         e->key() != Key_Delete &&
-         e->key() != Key_Backspace &&
+         e->key() != Qt::Key_Return &&
+         e->key() != Qt::Key_Enter &&
+         e->key() != Qt::Key_Delete &&
+         e->key() != Qt::Key_Backspace &&
          (!e->ascii() || e->ascii()>=32)
         ) {
         insert(e->text());
@@ -1277,76 +1277,76 @@ void QtMultiLineEdit::keyPressEvent(QKeyEvent *e)
         d->isHandlingEvent = false;
         return;
     }
-    if (e->state() & ControlButton) {
+    if (e->state() & Qt::ControlButton) {
         switch (e->key()) {
-        case Key_A:
-            home(e->state() & ShiftButton);
+        case Qt::Key_A:
+            home(e->state() & Qt::ShiftButton);
             break;
-        case Key_B:
-            cursorLeft(e->state() & ShiftButton);
+        case Qt::Key_B:
+            cursorLeft(e->state() & Qt::ShiftButton);
             break;
 #ifndef QT_NO_CLIPBOARD
-        case Key_C:
+        case Qt::Key_C:
             if (echoMode() == Normal)
                 copy();
             break;
 #endif
-        case Key_D:
+        case Qt::Key_D:
             del();
             break;
-        case Key_E:
-            end(e->state() & ShiftButton);
+        case Qt::Key_E:
+            end(e->state() & Qt::ShiftButton);
             break;
-        case Key_Left:
-            cursorWordBackward(e->state() & ShiftButton);
+        case Qt::Key_Left:
+            cursorWordBackward(e->state() & Qt::ShiftButton);
             break;
-        case Key_Right:
-            cursorWordForward(e->state() & ShiftButton);
+        case Qt::Key_Right:
+            cursorWordForward(e->state() & Qt::ShiftButton);
             break;
-        case Key_Up:
-            cursorUp(e->state() & ShiftButton);
+        case Qt::Key_Up:
+            cursorUp(e->state() & Qt::ShiftButton);
             break;
-        case Key_Down:
-            cursorDown(e->state() & ShiftButton);
+        case Qt::Key_Down:
+            cursorDown(e->state() & Qt::ShiftButton);
             break;
-        case Key_Home:
-            setCursorPosition(0,0, e->state() & ShiftButton);
+        case Qt::Key_Home:
+            setCursorPosition(0,0, e->state() & Qt::ShiftButton);
             break;
-        case Key_End:
+        case Qt::Key_End:
             setCursorPosition(numLines()-1, lineLength(numLines()-1),
-                               e->state() & ShiftButton);
+                               e->state() & Qt::ShiftButton);
             break;
-        case Key_F:
-            cursorRight(e->state() & ShiftButton);
+        case Qt::Key_F:
+            cursorRight(e->state() & Qt::ShiftButton);
             break;
-        case Key_H:
+        case Qt::Key_H:
             backspace();
             break;
-        case Key_K:
+        case Qt::Key_K:
             killLine();
             break;
-        case Key_N:
-            cursorDown(e->state() & ShiftButton);
+        case Qt::Key_N:
+            cursorDown(e->state() & Qt::ShiftButton);
             break;
-        case Key_P:
-            cursorUp(e->state() & ShiftButton);
+        case Qt::Key_P:
+            cursorUp(e->state() & Qt::ShiftButton);
             break;
 #ifndef QT_NO_CLIPBOARD
-        case Key_V:
+        case Qt::Key_V:
             paste();
             break;
-        case Key_X:
+        case Qt::Key_X:
             cut();
             break;
 #endif
-        case Key_Z:
+        case Qt::Key_Z:
             undo();
             break;
-        case Key_Y:
+        case Qt::Key_Y:
             redo();
             break;
 #if defined (_WS_WIN_)
-        case Key_Insert:
+        case Qt::Key_Insert:
             copy();
 #endif
         default:
@@ -1354,70 +1354,70 @@ void QtMultiLineEdit::keyPressEvent(QKeyEvent *e)
         }
     } else {
         switch (e->key()) {
-        case Key_Left:
-            cursorLeft(e->state() & ShiftButton);
+        case Qt::Key_Left:
+            cursorLeft(e->state() & Qt::ShiftButton);
             break;
-        case Key_Right:
-            cursorRight(e->state() & ShiftButton);
+        case Qt::Key_Right:
+            cursorRight(e->state() & Qt::ShiftButton);
             break;
-        case Key_Up:
-            cursorUp(e->state() & ShiftButton);
+        case Qt::Key_Up:
+            cursorUp(e->state() & Qt::ShiftButton);
             break;
-        case Key_Down:
-            cursorDown(e->state() & ShiftButton);
+        case Qt::Key_Down:
+            cursorDown(e->state() & Qt::ShiftButton);
             break;
-        case Key_Backspace:
+        case Qt::Key_Backspace:
             backspace();
             break;
-        case Key_Home:
-            home(e->state() & ShiftButton);
+        case Qt::Key_Home:
+            home(e->state() & Qt::ShiftButton);
             break;
-        case Key_End:
-            end(e->state() & ShiftButton);
+        case Qt::Key_End:
+            end(e->state() & Qt::ShiftButton);
             break;
-        case Key_Delete:
+        case Qt::Key_Delete:
 #if defined (_WS_WIN_)
-            if (e->state() & ShiftButton) {
+            if (e->state() & Qt::ShiftButton) {
                 cut();
                 break;
             }
 #endif
             del();
             break;
-        case Key_Next:
-            pageDown(e->state() & ShiftButton);
+        case Qt::Key_Next:
+            pageDown(e->state() & Qt::ShiftButton);
             break;
-        case Key_Prior:
-            pageUp(e->state() & ShiftButton);
+        case Qt::Key_Prior:
+            pageUp(e->state() & Qt::ShiftButton);
             break;
-        case Key_Enter:
-        case Key_Return:
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
             newLine();
             emit returnPressed();
             break;
-        case Key_Tab:
+        case Qt::Key_Tab:
             insert(e->text());
             break;
 #if defined (_WS_WIN_)
-        case Key_Insert:
-            if (e->state() & ShiftButton)
+        case Qt::Key_Insert:
+            if (e->state() & Qt::ShiftButton)
                 paste();
             else
                 unknown++;
             break;
 #endif
-        case Key_F14: // Undo key on Sun keyboards
+        case Qt::Key_F14: // Undo key on Sun keyboards
             undo();
             break;
 #ifndef QT_NO_CLIPBOARD
-        case Key_F16: // Copy key on Sun keyboards
+        case Qt::Key_F16: // Copy key on Sun keyboards
             if (echoMode() == Normal)
                 copy();
             break;
-        case Key_F18: // Paste key on Sun keyboards
+        case Qt::Key_F18: // Paste key on Sun keyboards
             paste();
             break;
-        case Key_F20: // Paste key on Sun keyboards
+        case Qt::Key_F20: // Paste key on Sun keyboards
             cut();
             break;
 #endif
@@ -2120,7 +2120,7 @@ void QtMultiLineEdit::mousePressEvent(QMouseEvent *e)
     stopAutoScroll();
     d->dnd_startpos = e->pos();
 
-    if (e->button() == RightButton) {
+    if (e->button() == Qt::RightButton) {
         QPopupMenu *popup = new QPopupMenu(this);
         int id[(int)IdCount];
         id[IdUndo] = popup->insertItem(tr("Undo"));
@@ -2196,13 +2196,13 @@ void QtMultiLineEdit::mousePressEvent(QMouseEvent *e)
         return;
     }
 
-    if (e->button() != MidButton && e->button() != LeftButton)
+    if (e->button() != Qt::MidButton && e->button() != Qt::LeftButton)
         return;
 
     int newX, newY;
     pixelPosToCursorPos(e->pos(), &newX, &newY);
 
-    if (e->state() & ShiftButton) {
+    if (e->state() & Qt::ShiftButton) {
         wordMark = false;
         dragMarking    = true;
         setCursorPosition(newY, newX, true);
@@ -2378,7 +2378,7 @@ void QtMultiLineEdit::mouseReleaseEvent(QMouseEvent *e)
         copy();
 #endif
 
-    if (e->button() == MidButton && !readOnly) {
+    if (e->button() == Qt::MidButton && !readOnly) {
 #if defined(_WS_X11_)
         paste();                // Will repaint the cursor line.
 #else
@@ -2401,8 +2401,8 @@ void QtMultiLineEdit::mouseReleaseEvent(QMouseEvent *e)
 */
 void QtMultiLineEdit::mouseDoubleClickEvent(QMouseEvent *m)
 {
-    if (m->button() == LeftButton) {
-        if (m->state() & ShiftButton) {
+    if (m->button() == Qt::LeftButton) {
+        if (m->state() & Qt::ShiftButton) {
             int newX = cursorX;
             int newY = cursorY;
             extendSelectionWord(newX, newY);
@@ -2941,12 +2941,12 @@ void QtMultiLineEdit::setWidth(int w)
     bool u = autoUpdate();
     setAutoUpdate(false);
     d->maxLineWidth = w;
-    if (d->align == AlignLeft)
+    if (d->align == Qt::AlignLeft)
         setCellWidth(w);
     else
         setCellWidth(qMax(w, contentsRect().width()));
     setAutoUpdate(u);
-    if (autoUpdate() && d->align != AlignLeft)
+    if (autoUpdate() && d->align != Qt::AlignLeft)
         update();
 }
 
@@ -3137,7 +3137,7 @@ void QtMultiLineEdit::resizeEvent(QResizeEvent *e)
         setAutoUpdate(oldAuto);
         if (autoUpdate())
             repaint();
-    } else if (d->align != AlignLeft) {
+    } else if (d->align != Qt::AlignLeft) {
         d->maxLineWidth = 0; // trigger update
         updateCellWidth();
     }
@@ -3146,8 +3146,8 @@ void QtMultiLineEdit::resizeEvent(QResizeEvent *e)
 }
 
 /*
-  Sets the alignment to \a flags. Possible values are \c AlignLeft, \c
-  Align(H)Center and \c AlignRight.
+  Sets the alignment to \a flags. Possible values are \c Qt::AlignLeft, \c
+  Align(H)Center and \c Qt::AlignRight.
 
   \sa alignment(), Qt::AlignmentFlags
 */
@@ -4188,32 +4188,32 @@ bool QtMultiLineEdit::event(QEvent * e)
 {
     if (e->type() == QEvent::AccelOverride && !isReadOnly()) {
         QKeyEvent* ke = (QKeyEvent*) e;
-        if (ke->state() & ControlButton) {
+        if (ke->state() & Qt::ControlButton) {
             switch (ke->key()) {
-            case Key_A:
-            case Key_E:
+            case Qt::Key_A:
+            case Qt::Key_E:
 #if defined (_WS_WIN_)
-            case Key_Insert:
+            case Qt::Key_Insert:
 #endif
-            case Key_X:
-            case Key_V:
-            case Key_C:
-            case Key_Left:
-            case Key_Right:
-            case Key_Up:
-            case Key_Down:
-            case Key_Home:
-            case Key_End:
+            case Qt::Key_X:
+            case Qt::Key_V:
+            case Qt::Key_C:
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+            case Qt::Key_Home:
+            case Qt::Key_End:
                 ke->accept();
             default:
                 break;
             }
         } else {
             switch (ke->key()) {
-            case Key_Delete:
-            case Key_Home:
-            case Key_End:
-            case Key_Backspace:
+            case Qt::Key_Delete:
+            case Qt::Key_Home:
+            case Qt::Key_End:
+            case Qt::Key_Backspace:
                 ke->accept();
             default:
                 break;

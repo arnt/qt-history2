@@ -60,12 +60,12 @@ public:
     QRect rect;
 };
 
-QDockWindowLayout::QDockWindowLayout(QWidget *widget, Orientation o)
+QDockWindowLayout::QDockWindowLayout(QWidget *widget, Qt::Orientation o)
     : QLayout(widget), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { }
 
-QDockWindowLayout::QDockWindowLayout(QLayout *layout, Orientation o)
+QDockWindowLayout::QDockWindowLayout(QLayout *layout, Qt::Orientation o)
     : QLayout(layout), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { }
@@ -321,7 +321,7 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 	info.min_size = ls.minimumSize;
 	info.max_size = ls.maximumSize;
 
-	info.item->setGeometry(((orientation == Horizontal) ?
+	info.item->setGeometry(((orientation == Qt::Horizontal) ?
                                 QRect(rect.x() + ls.pos, rect.y(), ls.size, rect.height()) :
                                 QRect(rect.x(), rect.y() + ls.pos, rect.width(), ls.size)));
     }
@@ -356,7 +356,7 @@ QSize QDockWindowLayout::minimumSize() const
 
     VDEBUG("END: size %4d perp %4d", size, perp);
 
-    return (orientation == Horizontal) ? QSize(size, perp) : QSize(perp, size);
+    return (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
 }
 
 /*! reimp */
@@ -386,7 +386,7 @@ QSize QDockWindowLayout::sizeHint() const
 
     VDEBUG("END: size %4d perp %4d", size, perp);
 
-    return (orientation == Horizontal) ? QSize(size, perp) : QSize(perp, size);
+    return (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
 }
 
 void QDockWindowLayout::invalidate()
@@ -715,7 +715,7 @@ QPoint QDockWindowLayout::constrain(QDockWindowSeparator *sep, int delta)
 
     VDEBUG("END");
 
-    return orientation == Horizontal ? QPoint(delta, 0) : QPoint(0, delta);
+    return orientation == Qt::Horizontal ? QPoint(delta, 0) : QPoint(0, delta);
 }
 
 void QDockWindowLayout::relayout(QInternal::RelayoutType type)
@@ -733,7 +733,7 @@ QDockWindowLayout::Location QDockWindowLayout::locate(const QPoint &mouse) const
     // figure out where the dockwindow goes in the layout
     const QPoint p = parentWidget()->mapFromGlobal(mouse) - geometry().topLeft();
     const int pos = pick(orientation, p);
-    const bool horizontal = orientation == Horizontal;
+    const bool horizontal = orientation == Qt::Horizontal;
 
     DEBUG() << "  locate: mouse at" << p;
 
@@ -754,15 +754,15 @@ QDockWindowLayout::Location QDockWindowLayout::locate(const QPoint &mouse) const
 
             ret.index = i;
             ret.area = ((dx > dy)
-                        ? ((p.x() < p2.x()) ? DockWindowAreaLeft : DockWindowAreaRight)
-                        : ((p.y() < p2.y()) ? DockWindowAreaTop : DockWindowAreaBottom));
+                        ? ((p.x() < p2.x()) ? Qt::DockWindowAreaLeft : Qt::DockWindowAreaRight)
+                        : ((p.y() < p2.y()) ? Qt::DockWindowAreaTop : Qt::DockWindowAreaBottom));
             DEBUG() << "  result: index" << ret.index << "area" << ret.area;
             return ret;
         }
     }
 
     ret.index = layout_info.count() - 1;
-    ret.area = (horizontal ? DockWindowAreaRight : DockWindowAreaBottom);
+    ret.area = (horizontal ? Qt::DockWindowAreaRight : Qt::DockWindowAreaBottom);
     DEBUG() << "  result: index" << ret.index << "area" << ret.area << "(off-end)";
     return ret;
 }
@@ -874,7 +874,7 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
                 DEBUG() << "  could not split";
                 const QPoint p = parentWidget()->mapFromGlobal(mouse) - geometry().topLeft();
                 const int pos = pick(orientation, p);
-                const bool horizontal = orientation == Horizontal;
+                const bool horizontal = orientation == Qt::Horizontal;
                 if (pos > (info.cur_pos + (info.cur_size / 2) - 1)) {
                     location.area = horizontal
                                     ? Qt::DockWindowAreaRight
@@ -993,7 +993,7 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
         } else {
             const QPoint p = parentWidget()->mapFromGlobal(mouse) - geometry().topLeft();
             const int pos = pick(orientation, p);
-            const bool horizontal = orientation == Horizontal;
+            const bool horizontal = orientation == Qt::Horizontal;
             if (pos > (info.cur_pos + (info.cur_size / 2) - 1))
                 location.area = horizontal ? Qt::DockWindowAreaRight : Qt::DockWindowAreaBottom;
             else
@@ -1020,7 +1020,7 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
     DEBUG("END of drop");
 }
 
-void QDockWindowLayout::extend(QDockWindow *dockwindow, Orientation direction)
+void QDockWindowLayout::extend(QDockWindow *dockwindow, Qt::Orientation direction)
 {
     if (direction == orientation) {
         addWidget(dockwindow);
@@ -1051,7 +1051,7 @@ void QDockWindowLayout::extend(QDockWindow *dockwindow, Orientation direction)
     }
 }
 
-void QDockWindowLayout::split(QDockWindow *dockwindow, Orientation direction)
+void QDockWindowLayout::split(QDockWindow *dockwindow, Qt::Orientation direction)
 {
     int last = layout_info.count() - 1;
     if (last < 0) {
@@ -1063,7 +1063,7 @@ void QDockWindowLayout::split(QDockWindow *dockwindow, Orientation direction)
         } else {
             if (info.item->widget()) {
                 split(qt_cast<QDockWindow *>(info.item->widget()), dockwindow,
-                      (direction == Horizontal
+                      (direction == Qt::Horizontal
                        ? Qt::DockWindowAreaRight
                        : Qt::DockWindowAreaBottom));
             } else {
@@ -1098,7 +1098,7 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
 
     // create a nested window dock in place of the current widget
     QDockWindowLayout *nestedLayout =
-        new QDockWindowLayout(this, orientation == Horizontal ? Vertical : Horizontal);
+        new QDockWindowLayout(this, orientation == Qt::Horizontal ? Qt::Vertical : Horizontal);
     nestedLayout->setObjectName(objectName() + "_nestedLayout");
     insert(which / 2, nestedLayout).cur_size = save_size;
     invalidate();

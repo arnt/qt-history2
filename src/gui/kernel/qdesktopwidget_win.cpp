@@ -260,7 +260,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     QAppliation::desktop().
 */
 QDesktopWidget::QDesktopWidget()
-: QWidget(0, "desktop", WType_Desktop)
+: QWidget(0, "desktop", Qt::WType_Desktop)
 {
     d = new QDesktopWidgetPrivate(this);
 }
@@ -326,14 +326,14 @@ int QDesktopWidget::numScreens() const
 */
 QWidget *QDesktopWidget::screen(int /*screen*/)
 {
-    // It seems that a WType_Desktop cannot be moved?
+    // It seems that a Qt::WType_Desktop cannot be moved?
     return this;
 }
 
 /*!
   Returns the available geometry of the screen with index \a screen. What
   is available will be subrect of screenGeometry() based on what the
-  platform decides is available (for example excludes the Dock and Menubar
+  platform decides is available (for example excludes the Qt::Dock and Menubar
   on Mac OS X, or the taskbar on Windows).
 
   \sa screenNumber(), screenGeometry()

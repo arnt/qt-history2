@@ -86,7 +86,7 @@ QAlphaWidget::QAlphaWidget(QWidget* w, WFlags f)
     setEnabled(false);
 
     pm.setOptimization(QPixmap::BestOptim);
-    setAttribute(WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_NoSystemBackground, true);
     widget = (QAccessWidget*)w;
     alpha = 0;
 }
@@ -172,7 +172,7 @@ bool QAlphaWidget::eventFilter(QObject* o, QEvent* e)
     case QEvent::KeyPress:
         {
             QKeyEvent *ke = (QKeyEvent*)e;
-            if (ke->key() == Key_Escape)
+            if (ke->key() == Qt::Key_Escape)
                 showWidget = false;
             else
                 duration = 0;
@@ -226,10 +226,10 @@ void QAlphaWidget::render()
             if (!showWidget) {
                 widget->hide();
             } else if (duration) {
-                bool nsb = testAttribute(WA_NoSystemBackground);
-                widget->setAttribute(WA_NoSystemBackground, true);
+                bool nsb = testAttribute(Qt::WA_NoSystemBackground);
+                widget->setAttribute(Qt::WA_NoSystemBackground, true);
                 widget->show();
-                widget->setAttribute(WA_NoSystemBackground, nsb);
+                widget->setAttribute(Qt::WA_NoSystemBackground, nsb);
             } else {
                 widget->show();
             }
@@ -331,9 +331,9 @@ QRollEffect::QRollEffect(QWidget* w, WFlags f, DirFlags orient)
     widget = (QAccessWidget*) w;
     Q_ASSERT(widget);
 
-    setAttribute(WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_NoSystemBackground, true);
 
-    if (widget->testAttribute(WA_Resized)) {
+    if (widget->testAttribute(Qt::WA_Resized)) {
         totalWidth = widget->width();
         totalHeight = widget->height();
     } else {
@@ -402,7 +402,7 @@ bool QRollEffect::eventFilter(QObject* o, QEvent* e)
     case QEvent::KeyPress:
         {
             QKeyEvent *ke = (QKeyEvent*)e;
-            if (ke->key() == Key_Escape)
+            if (ke->key() == Qt::Key_Escape)
                 showWidget = false;
             done = true;
             scroll();
@@ -526,10 +526,10 @@ void QRollEffect::scroll()
             if (!showWidget) {
                 widget->hide();
             } else {
-                bool nsb = testAttribute(WA_NoSystemBackground);
-                widget->setAttribute(WA_NoSystemBackground, true);
+                bool nsb = testAttribute(Qt::WA_NoSystemBackground);
+                widget->setAttribute(Qt::WA_NoSystemBackground, true);
                 widget->show();
-                widget->setAttribute(WA_NoSystemBackground, nsb);
+                widget->setAttribute(Qt::WA_NoSystemBackground, nsb);
             }
         }
         q_roll = 0;

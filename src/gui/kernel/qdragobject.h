@@ -239,7 +239,7 @@ private:
 
 private:
     QDragObject * object;
-    void updateMode(ButtonState newstate);
+    void updateMode(Qt::ButtonState newstate);
     void updateCursor();
 
     QWidget * dragSource;

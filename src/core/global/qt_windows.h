@@ -27,7 +27,7 @@
 #include <windows.h>
 
 // already defined when compiled with WINVER >= 0x0500
-// and we only use them in WV_2000 and WV_98
+// and we only use them in Qt::WV_2000 and Qt::WV_98
 #ifndef SPI_SETMENUANIMATION
 #define SPI_SETMENUANIMATION 0x1003
 #endif

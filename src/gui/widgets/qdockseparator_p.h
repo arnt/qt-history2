@@ -18,7 +18,7 @@ public:
     void paintEvent(QPaintEvent *event);
 
     QDockWindowLayout *dock;
-    Orientation orientation;
+    Qt::Orientation orientation;
 
     struct DragState {
 	QPoint origin;

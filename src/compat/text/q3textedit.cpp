@@ -200,11 +200,11 @@ static bool block_set_alignment = false;
     Q3TextEdit has four modes of operation:
     \table
     \header \i Mode \i Command \i Notes
-    \row \i Plain Text Editor \i setTextFormat(PlainText)
+    \row \i Plain Text Editor \i setTextFormat(Qt::PlainText)
          \i Set text with setText(); text() returns plain text. Text
          attributes (e.g. colors) can be set, but plain text is always
          returned.
-    \row \i Rich Text Editor \i setTextFormat(RichText)
+    \row \i Rich Text Editor \i setTextFormat(Qt::RichText)
          \i Set text with setText(); text() returns rich text. Rich
          text editing is fairly limited. You can't set margins or
          insert images for example (although you can read and
@@ -216,11 +216,11 @@ static bool block_set_alignment = false;
          history so is faster and uses less memory); text() returns
          plain or rich text depending on the textFormat(). This mode
          can correctly display a large subset of HTML tags.
-    \row \i Log Viewer \i setTextFormat(LogText)
+    \row \i Log Viewer \i setTextFormat(Qt::LogText)
          \i Append text using append(). The widget is set to be read
          only and rich text support is disabled although a few HTML
          tags (for color, bold, italic and underline) may be used.
-         (See \link #logtextmode LogText mode\endlink for details.)
+         (See \link #logtextmode Qt::LogText mode\endlink for details.)
     \endtable
 
     <sup>1.</sup><small>A more complete API that supports setting
@@ -230,9 +230,9 @@ static bool block_set_alignment = false;
     conjunction with QSyntaxHighlighter.
 
     We recommend that you always call setTextFormat() to set the mode
-    you want to use. If you use \c AutoText then setText() and
+    you want to use. If you use \c Qt::AutoText then setText() and
     append() will try to determine whether the text they are given is
-    plain text or rich text. If you use \c RichText then setText() and
+    plain text or rich text. If you use \c Qt::RichText then setText() and
     append() will assume that the text they are given is rich text.
     insert() simply inserts the text it is given.
 
@@ -297,7 +297,7 @@ static bool block_set_alignment = false;
     The text is set or replaced using setText() which deletes any
     existing text and replaces it with the text passed in the
     setText() call. If you call setText() with legacy HTML (with
-    setTextFormat(RichText) in force), and then call text(), the text
+    setTextFormat(Qt::RichText) in force), and then call text(), the text
     that is returned may have different markup, but will render the
     same. Text can be inserted with insert(), paste(), pasteSubType()
     and append(). Text that is appended does not go into the undo
@@ -366,10 +366,10 @@ static bool block_set_alignment = false;
     navigation, and text may only be selected with the mouse:
     \table
     \header \i Keypresses \i Action
-    \row \i UpArrow        \i Move one line up
-    \row \i DownArrow        \i Move one line down
-    \row \i LeftArrow        \i Move one character left
-    \row \i RightArrow        \i Move one character right
+    \row \i Qt::UpArrow        \i Move one line up
+    \row \i Qt::DownArrow        \i Move one line down
+    \row \i Qt::LeftArrow        \i Move one character left
+    \row \i Qt::RightArrow        \i Move one character right
     \row \i PageUp        \i Move one (viewport) page up
     \row \i PageDown        \i Move one (viewport) page down
     \row \i Home        \i Move to the beginning of the text
@@ -390,9 +390,9 @@ static bool block_set_alignment = false;
     \l{context()}.)
 
     \target logtextmode
-    \section2 Using Q3TextEdit in LogText Mode
+    \section2 Using Q3TextEdit in Qt::LogText Mode
 
-    Setting the text format to \c LogText puts the widget in a special
+    Setting the text format to \c Qt::LogText puts the widget in a special
     mode which is optimized for very large texts. In this mode editing
     and rich text support are disabled (the widget is explicitly set
     to read-only mode). This allows the text to be stored in a
@@ -423,7 +423,7 @@ static bool block_set_alignment = false;
     <font color=green><font color=yellow>Yellow,</font> and <u>green</u>.
     \endcode
 
-    Stylesheets can also be used in LogText mode. To create and use a
+    Stylesheets can also be used in Qt::LogText mode. To create and use a
     custom tag, you could do the following:
     \code
     Q3TextEdit * log = new Q3TextEdit(this);
@@ -435,10 +435,10 @@ static bool block_set_alignment = false;
     log->append("This is a <mytag>custom tag</mytag>!");
     \endcode
     Note that only the color, bold, underline and italic attributes of
-    a QStyleSheetItem is used in LogText mode.
+    a QStyleSheetItem is used in Qt::LogText mode.
 
     Note that you can use setMaxLogLines() to limit the number of
-    lines the widget can hold in LogText mode.
+    lines the widget can hold in Qt::LogText mode.
 
     There are a few things that you need to be aware of when the
     widget is in this mode:
@@ -518,13 +518,13 @@ static bool block_set_alignment = false;
                       (also Shift+Delete under Windows)
     \row \i Ctrl+Z \i Undo the last operation
     \row \i Ctrl+Y \i Redo the last operation
-    \row \i LeftArrow            \i Move the cursor one character left
-    \row \i Ctrl+LeftArrow  \i Move the cursor one word left
-    \row \i RightArrow            \i Move the cursor one character right
-    \row \i Ctrl+RightArrow \i Move the cursor one word right
-    \row \i UpArrow            \i Move the cursor one line up
-    \row \i Ctrl+UpArrow    \i Move the cursor one word up
-    \row \i DownArrow            \i Move the cursor one line down
+    \row \i Qt::LeftArrow            \i Move the cursor one character left
+    \row \i Ctrl+Qt::LeftArrow  \i Move the cursor one word left
+    \row \i Qt::RightArrow            \i Move the cursor one character right
+    \row \i Ctrl+Qt::RightArrow \i Move the cursor one word right
+    \row \i Qt::UpArrow            \i Move the cursor one line up
+    \row \i Ctrl+Qt::UpArrow    \i Move the cursor one word up
+    \row \i Qt::DownArrow            \i Move the cursor one line down
     \row \i Ctrl+Down Arrow \i Move the cursor one word down
     \row \i PageUp            \i Move the cursor one page up
     \row \i PageDown            \i Move the cursor one page down
@@ -697,10 +697,10 @@ static bool block_set_alignment = false;
 
   An anchor has one or more of the following attributes:
 
-  \value AnchorName the name attribute of the anchor. This attribute is
+  \value Qt::AnchorName the name attribute of the anchor. This attribute is
   used when scrolling to an anchor in the document.
 
-  \value AnchorHref the href attribute of the anchor. This attribute is
+  \value Qt::AnchorHref the href attribute of the anchor. This attribute is
   used when a link is clicked to determine what content to load.
 */
 
@@ -720,7 +720,7 @@ static bool block_set_alignment = false;
 
     Sets the font of the current format to \a f.
 
-    If the widget is in \c LogText mode this function will do
+    If the widget is in \c Qt::LogText mode this function will do
     nothing. Use setFont() instead.
 
     \sa currentFont() setPointSize() setFamily()
@@ -868,7 +868,7 @@ static bool block_set_alignment = false;
 */
 
 Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
-    : QScrollView(parent, name, WStaticContents | WNoAutoErase),
+    : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
     init();
@@ -896,7 +896,7 @@ Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
 
 Q3TextEdit::Q3TextEdit(const QString& text, const QString& context,
                       QWidget *parent, const char *name)
-    : QScrollView(parent, name, WStaticContents | WNoAutoErase),
+    : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
     init();
@@ -922,7 +922,7 @@ Q3TextEdit::~Q3TextEdit()
 
 void Q3TextEdit::init()
 {
-    viewport()->setAttribute(WA_PaintOnScreen); // disable double buffering on the viewport
+    viewport()->setAttribute(Qt::WA_PaintOnScreen); // disable double buffering on the viewport
 
     d = new Q3TextEditPrivate;
     doc->formatCollection()->setPaintDevice(this);
@@ -956,10 +956,10 @@ void Q3TextEdit::init()
     resizeContents(0, doc->lastParagraph() ?
                     (doc->lastParagraph()->paragId() + 1) * doc->formatCollection()->defaultFormat()->height() : 0);
 
-    setAttribute(WA_KeyCompression, true);
+    setAttribute(Qt::WA_KeyCompression, true);
     viewport()->setMouseTracking(true);
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
     cursor = new Q3TextCursor(doc);
 
@@ -995,7 +995,7 @@ void Q3TextEdit::init()
     blinkCursorVisible = false;
 
     viewport()->setFocusProxy(this);
-    viewport()->setFocusPolicy(WheelFocus);
+    viewport()->setFocusPolicy(Qt::WheelFocus);
     setInputMethodEnabled(true);
     viewport()->installEventFilter(this);
     connect(this, SIGNAL(horizontalSliderReleased()), this, SLOT(sliderReleased()));
@@ -1094,22 +1094,22 @@ bool Q3TextEdit::event(QEvent *e)
     if (e->type() == QEvent::AccelOverride && !isReadOnly()) {
         QKeyEvent* ke = (QKeyEvent*) e;
         switch(ke->state()) {
-        case NoButton:
-        case Keypad:
-        case ShiftButton:
-            if (ke->key() < Key_Escape) {
+        case Qt::NoButton:
+        case Qt::Keypad:
+        case Qt::ShiftButton:
+            if (ke->key() < Qt::Key_Escape) {
                 ke->accept();
-            } else if (ke->state() == NoButton
-                        || ke->state() == ShiftButton) {
+            } else if (ke->state() == Qt::NoButton
+                        || ke->state() == Qt::ShiftButton) {
                 switch (ke->key()) {
-                case Key_Return:
-                case Key_Enter:
-                case Key_Delete:
-                case Key_Home:
-                case Key_End:
-                case Key_Backspace:
-                case Key_Left:
-                case Key_Right:
+                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                case Qt::Key_Delete:
+                case Qt::Key_Home:
+                case Qt::Key_End:
+                case Qt::Key_Backspace:
+                case Qt::Key_Left:
+                case Qt::Key_Right:
                     ke->accept();
                 default:
                     break;
@@ -1117,42 +1117,42 @@ bool Q3TextEdit::event(QEvent *e)
             }
             break;
 
-        case ControlButton:
-        case ControlButton|ShiftButton:
-        case ControlButton|Keypad:
-        case ControlButton|ShiftButton|Keypad:
+        case Qt::ControlButton:
+        case Qt::ControlButton|Qt::ShiftButton:
+        case Qt::ControlButton|Qt::Keypad:
+        case Qt::ControlButton|Qt::ShiftButton|Qt::Keypad:
             switch (ke->key()) {
-            case Key_Tab:
-            case Key_Backtab:
+            case Qt::Key_Tab:
+            case Qt::Key_Backtab:
                 ke->ignore();
                 break;
 // Those are too frequently used for application functionality
-/*            case Key_A:
-            case Key_B:
-            case Key_D:
-            case Key_E:
-            case Key_F:
-            case Key_H:
-            case Key_I:
-            case Key_K:
-            case Key_N:
-            case Key_P:
-            case Key_T:
+/*            case Qt::Key_A:
+            case Qt::Key_B:
+            case Qt::Key_D:
+            case Qt::Key_E:
+            case Qt::Key_F:
+            case Qt::Key_H:
+            case Qt::Key_I:
+            case Qt::Key_K:
+            case Qt::Key_N:
+            case Qt::Key_P:
+            case Qt::Key_T:
 */
-            case Key_C:
-            case Key_V:
-            case Key_X:
-            case Key_Y:
-            case Key_Z:
-            case Key_Left:
-            case Key_Right:
-            case Key_Up:
-            case Key_Down:
-            case Key_Home:
-            case Key_End:
+            case Qt::Key_C:
+            case Qt::Key_V:
+            case Qt::Key_X:
+            case Qt::Key_Y:
+            case Qt::Key_Z:
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+            case Qt::Key_Home:
+            case Qt::Key_End:
 #if defined (Q_WS_WIN)
-            case Key_Insert:
-            case Key_Delete:
+            case Qt::Key_Insert:
+            case Qt::Key_Delete:
 #endif
                 ke->accept();
             default:
@@ -1163,7 +1163,7 @@ bool Q3TextEdit::event(QEvent *e)
         default:
             switch (ke->key()) {
 #if defined (Q_WS_WIN)
-            case Key_Insert:
+            case Qt::Key_Insert:
                 ke->accept();
 #endif
             default:
@@ -1221,54 +1221,54 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
 
 
     switch (e->key()) {
-    case Key_Left:
-    case Key_Right: {
+    case Qt::Key_Left:
+    case Qt::Key_Right: {
         // a bit hacky, but can't change this without introducing new enum values for move and keeping the
         // correct semantics and movement for BiDi and non BiDi text.
         CursorAction a;
-        if (cursor->paragraph()->string()->isRightToLeft() == (e->key() == Key_Right))
-            a = e->state() & ControlButton ? MoveWordBackward : MoveBackward;
+        if (cursor->paragraph()->string()->isRightToLeft() == (e->key() == Qt::Key_Right))
+            a = e->state() & Qt::ControlButton ? MoveWordBackward : MoveBackward;
         else
-            a = e->state() & ControlButton ? MoveWordForward : MoveForward;
-        moveCursor(a, e->state() & ShiftButton);
+            a = e->state() & Qt::ControlButton ? MoveWordForward : MoveForward;
+        moveCursor(a, e->state() & Qt::ShiftButton);
         break;
     }
-    case Key_Up:
-        moveCursor(e->state() & ControlButton ? MovePgUp : MoveUp, e->state() & ShiftButton);
+    case Qt::Key_Up:
+        moveCursor(e->state() & Qt::ControlButton ? MovePgUp : MoveUp, e->state() & Qt::ShiftButton);
         break;
-    case Key_Down:
-        moveCursor(e->state() & ControlButton ? MovePgDown : MoveDown, e->state() & ShiftButton);
+    case Qt::Key_Down:
+        moveCursor(e->state() & Qt::ControlButton ? MovePgDown : MoveDown, e->state() & Qt::ShiftButton);
         break;
-    case Key_Home:
-        moveCursor(e->state() & ControlButton ? MoveHome : MoveLineStart, e->state() & ShiftButton);
+    case Qt::Key_Home:
+        moveCursor(e->state() & Qt::ControlButton ? MoveHome : MoveLineStart, e->state() & Qt::ShiftButton);
         break;
-    case Key_End:
-        moveCursor(e->state() & ControlButton ? MoveEnd : MoveLineEnd, e->state() & ShiftButton);
+    case Qt::Key_End:
+        moveCursor(e->state() & Qt::ControlButton ? MoveEnd : MoveLineEnd, e->state() & Qt::ShiftButton);
         break;
-    case Key_Prior:
-        moveCursor(MovePgUp, e->state() & ShiftButton);
+    case Qt::Key_Prior:
+        moveCursor(MovePgUp, e->state() & Qt::ShiftButton);
         break;
-    case Key_Next:
-        moveCursor(MovePgDown, e->state() & ShiftButton);
+    case Qt::Key_Next:
+        moveCursor(MovePgDown, e->state() & Qt::ShiftButton);
         break;
-    case Key_Return: case Key_Enter:
+    case Qt::Key_Return: case Qt::Key_Enter:
         if (doc->hasSelection(Q3TextDocument::Standard, false))
             removeSelectedText();
-        if (textFormat() == Qt::RichText && (e->state() & ControlButton)) {
+        if (textFormat() == Qt::RichText && (e->state() & Qt::ControlButton)) {
             // Ctrl-Enter inserts a line break in rich text mode
             insert(QString(QChar::LineSeparator), true, false);
         } else {
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
             clearUndoRedoInfo = false;
             doKeyboardAction(ActionReturn);
             emit returnPressed();
         }
         break;
-    case Key_Delete:
+    case Qt::Key_Delete:
 #if defined (Q_WS_WIN)
-        if (e->state() & ShiftButton) {
+        if (e->state() & Qt::ShiftButton) {
             cut();
             break;
         } else
@@ -1277,27 +1277,27 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
             removeSelectedText();
             break;
         }
-        doKeyboardAction(e->state() & ControlButton ? ActionWordDelete
+        doKeyboardAction(e->state() & Qt::ControlButton ? ActionWordDelete
                           : ActionDelete);
         clearUndoRedoInfo = false;
 
         break;
-    case Key_Insert:
-        if (e->state() & ShiftButton)
+    case Qt::Key_Insert:
+        if (e->state() & Qt::ShiftButton)
             paste();
 #if defined (Q_WS_WIN)
-        else if (e->state() & ControlButton)
+        else if (e->state() & Qt::ControlButton)
             copy();
 #endif
         else
             setOverwriteMode(!isOverwriteMode());
         break;
-    case Key_Backspace:
+    case Qt::Key_Backspace:
 #if defined (Q_WS_WIN)
-        if (e->state() & AltButton) {
-            if (e->state() & ControlButton) {
+        if (e->state() & Qt::AltButton) {
+            if (e->state() & Qt::ControlButton) {
                 break;
-            } else if (e->state() & ShiftButton) {
+            } else if (e->state() & Qt::ShiftButton) {
                 redo();
                 break;
             } else {
@@ -1311,20 +1311,20 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
             break;
         }
 
-        doKeyboardAction(e->state() & ControlButton ? ActionWordBackspace
+        doKeyboardAction(e->state() & Qt::ControlButton ? ActionWordBackspace
                           : ActionBackspace);
         clearUndoRedoInfo = false;
         break;
-    case Key_F16: // Copy key on Sun keyboards
+    case Qt::Key_F16: // Copy key on Sun keyboards
         copy();
         break;
-    case Key_F18:  // Paste key on Sun keyboards
+    case Qt::Key_F18:  // Paste key on Sun keyboards
         paste();
         break;
-    case Key_F20:  // Cut key on Sun keyboards
+    case Qt::Key_F20:  // Cut key on Sun keyboards
         cut();
         break;
-    case Key_Direction_L:
+    case Qt::Key_Direction_L:
         if (doc->textFormat() == Qt::PlainText) {
             // change the whole doc
             Q3TextParagraph *p = doc->firstParagraph();
@@ -1344,7 +1344,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
         }
         repaintChanged();
         break;
-    case Key_Direction_R:
+    case Qt::Key_Direction_R:
         if (doc->textFormat() == Qt::PlainText) {
             // change the whole doc
             Q3TextParagraph *p = doc->firstParagraph();
@@ -1367,15 +1367,15 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
     default: {
             char ascii = e->text().length() ? e->text().unicode()->latin1() : 0;
             if (e->text().length() &&
-                (!(e->state() & ControlButton) &&
+                (!(e->state() & Qt::ControlButton) &&
 #ifndef Q_OS_MAC
-                  !(e->state() & AltButton) &&
+                  !(e->state() & Qt::AltButton) &&
 #endif
-                  !(e->state() & MetaButton) ||
-                 (((e->state()&ControlButton) | AltButton) == (ControlButton|AltButton))) &&
+                  !(e->state() & Qt::MetaButton) ||
+                 (((e->state()&Qt::ControlButton) | Qt::AltButton) == (ControlButton|AltButton))) &&
                  (!ascii || ascii >= 32 || e->text() == "\t")) {
                 clearUndoRedoInfo = false;
-                if (e->key() == Key_Tab) {
+                if (e->key() == Qt::Key_Tab) {
                     if (d->tabChangesFocus) {
                         e->ignore();
                         break;
@@ -1440,35 +1440,35 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
 #endif
                 insert(t, true, false);
                 break;
-            } else if (e->state() & ControlButton) {
+            } else if (e->state() & Qt::ControlButton) {
                 switch (e->key()) {
-                case Key_C: case Key_F16: // Copy key on Sun keyboards
+                case Qt::Key_C: case Qt::Key_F16: // Copy key on Sun keyboards
                     copy();
                     break;
-                case Key_V:
+                case Qt::Key_V:
                     paste();
                     break;
-                case Key_X:
+                case Qt::Key_X:
                     cut();
                     break;
-                case Key_I: case Key_T: case Key_Tab:
+                case Qt::Key_I: case Qt::Key_T: case Qt::Key_Tab:
                     if (!d->tabChangesFocus)
                         indent();
                     break;
-                case Key_A:
+                case Qt::Key_A:
 #if defined(Q_WS_X11)
-                    moveCursor(MoveLineStart, e->state() & ShiftButton);
+                    moveCursor(MoveLineStart, e->state() & Qt::ShiftButton);
 #else
                     selectAll(true);
 #endif
                     break;
-                case Key_B:
-                    moveCursor(MoveBackward, e->state() & ShiftButton);
+                case Qt::Key_B:
+                    moveCursor(MoveBackward, e->state() & Qt::ShiftButton);
                     break;
-                case Key_F:
-                    moveCursor(MoveForward, e->state() & ShiftButton);
+                case Qt::Key_F:
+                    moveCursor(MoveForward, e->state() & Qt::ShiftButton);
                     break;
-                case Key_D:
+                case Qt::Key_D:
                     if (doc->hasSelection(Q3TextDocument::Standard)) {
                         removeSelectedText();
                         break;
@@ -1476,7 +1476,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                     doKeyboardAction(ActionDelete);
                     clearUndoRedoInfo = false;
                     break;
-                case Key_H:
+                case Qt::Key_H:
                     if (doc->hasSelection(Q3TextDocument::Standard)) {
                         removeSelectedText();
                         break;
@@ -1488,32 +1488,32 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                     doKeyboardAction(ActionBackspace);
                     clearUndoRedoInfo = false;
                     break;
-                case Key_E:
-                    moveCursor(MoveLineEnd, e->state() & ShiftButton);
+                case Qt::Key_E:
+                    moveCursor(MoveLineEnd, e->state() & Qt::ShiftButton);
                     break;
-                case Key_N:
-                    moveCursor(MoveDown, e->state() & ShiftButton);
+                case Qt::Key_N:
+                    moveCursor(MoveDown, e->state() & Qt::ShiftButton);
                     break;
-                case Key_P:
-                    moveCursor(MoveUp, e->state() & ShiftButton);
+                case Qt::Key_P:
+                    moveCursor(MoveUp, e->state() & Qt::ShiftButton);
                     break;
-                case Key_Z:
-                    if(e->state() & ShiftButton)
+                case Qt::Key_Z:
+                    if(e->state() & Qt::ShiftButton)
                         redo();
                     else
                         undo();
                     break;
-                case Key_Y:
+                case Qt::Key_Y:
                     redo();
                     break;
-                case Key_K:
+                case Qt::Key_K:
                     doKeyboardAction(ActionKill);
                     break;
 #if defined(Q_WS_WIN)
-                case Key_Insert:
+                case Qt::Key_Insert:
                     copy();
                     break;
-                case Key_Delete:
+                case Qt::Key_Delete:
                     del();
                     break;
 #endif
@@ -1866,7 +1866,7 @@ void Q3TextEdit::removeSelectedText(int selNum)
             viewport()->repaint(0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight());
 #endif
 #ifndef QT_NO_CURSOR
-        viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+        viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
         updateMicroFocusHint();
     } else {
@@ -1954,7 +1954,7 @@ void Q3TextEdit::moveCursor(CursorAction action, bool select)
             ensureCursorVisible();
             drawCursor(true);
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
         }
         if (redraw) {
@@ -2169,7 +2169,7 @@ enum {
 void Q3TextEdit::contentsWheelEvent(QWheelEvent *e)
 {
     if (isReadOnly()) {
-        if (e->state() & ControlButton) {
+        if (e->state() & Qt::ControlButton) {
             if (e->delta() > 0)
                 zoomOut();
             else if (e->delta() < 0)
@@ -2217,7 +2217,7 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
     pressedLink = QString::null;
     d->pressedName = QString::null;
 
-    if (e->button() == LeftButton) {
+    if (e->button() == Qt::LeftButton) {
         mousePressed = true;
         drawCursor(false);
         placeCursor(e->pos());
@@ -2245,14 +2245,14 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
 
         bool redraw = false;
         if (doc->hasSelection(Q3TextDocument::Standard)) {
-            if (!(e->state() & ShiftButton)) {
+            if (!(e->state() & Qt::ShiftButton)) {
                 redraw = doc->removeSelection(Q3TextDocument::Standard);
                 doc->setSelectionStart(Q3TextDocument::Standard, *cursor);
             } else {
                 redraw = doc->setSelectionEnd(Q3TextDocument::Standard, *cursor) || redraw;
             }
         } else {
-            if (isReadOnly() || !(e->state() & ShiftButton)) {
+            if (isReadOnly() || !(e->state() & Qt::ShiftButton)) {
                 doc->setSelectionStart(Q3TextDocument::Standard, *cursor);
             } else {
                 doc->setSelectionStart(Q3TextDocument::Standard, c);
@@ -2268,17 +2268,17 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
         } else {
             repaintChanged();
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
         }
-    } else if (e->button() == MidButton) {
+    } else if (e->button() == Qt::MidButton) {
         bool redraw = doc->removeSelection(Q3TextDocument::Standard);
         if (!redraw) {
             drawCursor(true);
         } else {
             repaintChanged();
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
         }
     }
@@ -2307,7 +2307,7 @@ void Q3TextEdit::contentsMouseMoveEvent(QMouseEvent *e)
                 startDrag();
 #ifndef QT_NO_CURSOR
             if (!isReadOnly())
-                viewport()->setCursor(IbeamCursor);
+                viewport()->setCursor(Qt::IbeamCursor);
 #endif
             return;
         }
@@ -2320,9 +2320,9 @@ void Q3TextEdit::contentsMouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_CURSOR
     if (!isReadOnly() && !mousePressed) {
         if (doc->hasSelection(Q3TextDocument::Standard) && doc->inSelection(Q3TextDocument::Standard, e->pos()))
-            viewport()->setCursor(ArrowCursor);
+            viewport()->setCursor(Qt::ArrowCursor);
         else
-            viewport()->setCursor(IbeamCursor);
+            viewport()->setCursor(Qt::IbeamCursor);
     }
 #endif
     updateCursor(e->pos());
@@ -2379,7 +2379,7 @@ void Q3TextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
         copyToClipboard();
     }
 #ifndef QT_NO_CLIPBOARD
-    else if (e->button() == MidButton && !isReadOnly()) {
+    else if (e->button() == Qt::MidButton && !isReadOnly()) {
         // only do middle-click pasting on systems that have selections (ie. X11)
         if (QApplication::clipboard()->supportsSelection()) {
             drawCursor(false);
@@ -2401,7 +2401,7 @@ void Q3TextEdit::contentsMouseReleaseEvent(QMouseEvent * e)
             } else {
                 repaintChanged();
 #ifndef QT_NO_CURSOR
-                viewport()->setCursor(IbeamCursor);
+                viewport()->setCursor(Qt::IbeamCursor);
 #endif
             }
             d->clipboard_mode = QClipboard::Selection;
@@ -2618,7 +2618,7 @@ void Q3TextEdit::contentsDropEvent(QDropEvent *e)
         } else {
             doc->removeSelection(Q3TextDocument::Standard);
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
         }
         drawCursor(false);
@@ -2627,7 +2627,7 @@ void Q3TextEdit::contentsDropEvent(QDropEvent *e)
         drawCursor(true);
         if (!cursor->nestedDepth()) {
             QString subType = "plain";
-            if (textFormat() != PlainText) {
+            if (textFormat() != Qt::PlainText) {
                 if (e->provides("application/x-qrichtext"))
                     subType = "x-qrichtext";
             }
@@ -2949,7 +2949,7 @@ void Q3TextEdit::insert(const QString &text, bool indent,
 
     The default flags are \c CheckNewLines | \c RemoveSelected.
 
-    If the widget is in \c LogText mode this function will do nothing.
+    If the widget is in \c Qt::LogText mode this function will do nothing.
 
     \sa paste() pasteSubType()
 */
@@ -3155,7 +3155,7 @@ void Q3TextEdit::undo()
         doc->removeSelection(i);
 
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
 
     clearUndoRedo();
@@ -3205,7 +3205,7 @@ void Q3TextEdit::redo()
         doc->removeSelection(i);
 
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
 
     clearUndoRedo();
@@ -3242,7 +3242,7 @@ void Q3TextEdit::paste()
     if (isReadOnly())
         return;
     QString subType = "plain";
-    if (textFormat() != PlainText) {
+    if (textFormat() != Qt::PlainText) {
         QMimeSource *m = QApplication::clipboard()->data(d->clipboard_mode);
         if (!m)
             return;
@@ -3283,7 +3283,7 @@ QTextDrag *Q3TextEdit::dragObject(QWidget *parent) const
     if (!doc->hasSelection(Q3TextDocument::Standard) ||
          doc->selectedText(Q3TextDocument::Standard).isEmpty())
         return 0;
-    if (textFormat() != RichText)
+    if (textFormat() != Qt::RichText)
         return new QTextDrag(doc->selectedText(Q3TextDocument::Standard), parent);
     Q3RichTextDrag *drag = new Q3RichTextDrag(parent);
     drag->setPlainText(doc->selectedText(Q3TextDocument::Standard));
@@ -3448,7 +3448,7 @@ void Q3TextEdit::setFormat(Q3TextFormat *f, int flags)
 void Q3TextEdit::setPalette(const QPalette &p)
 {
     QScrollView::setPalette(p);
-    if (textFormat() == PlainText) {
+    if (textFormat() == Qt::PlainText) {
         Q3TextFormat *f = doc->formatCollection()->defaultFormat();
         f->setColor(palette().text());
         updateContents();
@@ -3717,7 +3717,7 @@ QString Q3TextEdit::text() const
 
     Returns the text of paragraph \a para.
 
-    If textFormat() is \c RichText the text will contain HTML
+    If textFormat() is \c Qt::RichText the text will contain HTML
     formatting tags.
 */
 
@@ -3741,7 +3741,7 @@ QString Q3TextEdit::text(int para) const
     context to \a context. Any previous text is removed.
 
     \a text may be interpreted either as plain text or as rich text,
-    depending on the textFormat(). The default setting is \c AutoText,
+    depending on the textFormat(). The default setting is \c Qt::AutoText,
     i.e. the text edit auto-detects the format from \a text.
 
     For rich text the rendering style and available tags are defined
@@ -3815,7 +3815,7 @@ void Q3TextEdit::setText(const QString &text, const QString &context)
     On setting, any previous text is deleted.
 
     The text may be interpreted either as plain text or as rich text,
-    depending on the textFormat(). The default setting is \c AutoText,
+    depending on the textFormat(). The default setting is \c Qt::AutoText,
     i.e. the text edit auto-detects the format of the text.
 
     For richtext, calling text() on an editable Q3TextEdit will cause
@@ -3877,7 +3877,7 @@ bool Q3TextEdit::find(const QString &expr, bool cs, bool wo, bool forward,
 #endif
     drawCursor(false);
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
     Q3TextCursor findcur = *cursor;
     if (para && index) {
@@ -4075,22 +4075,22 @@ void Q3TextEdit::getSelection(int *paraFrom, int *indexFrom,
 
     The text format is one of the following:
     \list
-    \i PlainText - all characters, except newlines, are displayed
+    \i Qt::PlainText - all characters, except newlines, are displayed
     verbatim, including spaces. Whenever a newline appears in the text
     the text edit inserts a hard line break and begins a new
     paragraph.
-    \i RichText - rich text rendering. The available styles are
+    \i Qt::RichText - rich text rendering. The available styles are
     defined in the default stylesheet QStyleSheet::defaultSheet().
-    \i LogText -  optimized mode for very large texts. Supports a very
+    \i Qt::LogText -  optimized mode for very large texts. Supports a very
     limited set of formatting tags (color, bold, underline and italic
     settings).
-    \i AutoText - this is the default. The text edit autodetects which
-    rendering style is best, \c PlainText or \c RichText. This is done
+    \i Qt::AutoText - this is the default. The text edit autodetects which
+    rendering style is best, \c Qt::PlainText or \c Qt::RichText. This is done
     by using the QStyleSheet::mightBeRichText() function.
     \endlist
 */
 
-void Q3TextEdit::setTextFormat(TextFormat format)
+void Q3TextEdit::setTextFormat(Qt::TextFormat format)
 {
     doc->setTextFormat(format);
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -4387,7 +4387,7 @@ void Q3TextEdit::selectAll(bool select)
     emit copyAvailable(doc->hasSelection(Q3TextDocument::Standard));
     emit selectionChanged();
 #ifndef QT_NO_CURSOR
-    viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+    viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
 }
 
@@ -4605,12 +4605,12 @@ void Q3TextEdit::append(const QString &text)
     doc->commands()->clear();
 
     doc->removeSelection(Q3TextDocument::Standard);
-    TextFormat f = doc->textFormat();
-    if (f == AutoText) {
+    Qt::TextFormat f = doc->textFormat();
+    if (f == Qt::AutoText) {
         if (QStyleSheet::mightBeRichText(text))
-            f = RichText;
+            f = Qt::RichText;
         else
-            f = PlainText;
+            f = Qt::PlainText;
     }
 
     drawCursor(false);
@@ -4661,8 +4661,8 @@ bool Q3TextEdit::hasSelectedText() const
     \brief The selected text (from selection 0) or an empty string if
     there is no currently selected text (in selection 0).
 
-    The text is always returned as \c PlainText if the textFormat() is
-    \c PlainText or \c AutoText, otherwise it is returned as HTML.
+    The text is always returned as \c Qt::PlainText if the textFormat() is
+    \c Qt::PlainText or \c Qt::AutoText, otherwise it is returned as HTML.
 
     \sa hasSelectedText
 */
@@ -4674,22 +4674,22 @@ QString Q3TextEdit::selectedText() const
         return optimSelectedText();
     else
 #endif
-        return doc->selectedText(Q3TextDocument::Standard, textFormat() == RichText);
+        return doc->selectedText(Q3TextDocument::Standard, textFormat() == Qt::RichText);
 }
 
 bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
 {
     switch(e->key()) {
-    case Key_Down:
+    case Qt::Key_Down:
         setContentsPos(contentsX(), contentsY() + 10);
         break;
-    case Key_Up:
+    case Qt::Key_Up:
         setContentsPos(contentsX(), contentsY() - 10);
         break;
-    case Key_Left:
+    case Qt::Key_Left:
         setContentsPos(contentsX() - 10, contentsY());
         break;
-    case Key_Right:
+    case Qt::Key_Right:
         setContentsPos(contentsX() + 10, contentsY());
         break;
     case Key_PageUp:
@@ -4698,19 +4698,19 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
     case Key_PageDown:
         setContentsPos(contentsX(), contentsY() + visibleHeight());
         break;
-    case Key_Home:
+    case Qt::Key_Home:
         setContentsPos(contentsX(), 0);
         break;
-    case Key_End:
+    case Qt::Key_End:
         setContentsPos(contentsX(), contentsHeight() - visibleHeight());
         break;
-    case Key_F16: // Copy key on Sun keyboards
+    case Qt::Key_F16: // Copy key on Sun keyboards
         copy();
         break;
 #ifndef QT_NO_NETWORKPROTOCOL
-    case Key_Return:
-    case Key_Enter:
-    case Key_Space: {
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Space: {
         if (!doc->focusIndicator.href.isEmpty()
                 || !doc->focusIndicator.name.isEmpty()) {
             if (!doc->focusIndicator.href.isEmpty()) {
@@ -4722,22 +4722,22 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
                     emit browser->anchorClicked(doc->focusIndicator.name, doc->focusIndicator.href);
 
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
         }
     } break;
 #endif
     default:
-        if (e->state() & ControlButton) {
+        if (e->state() & Qt::ControlButton) {
             switch (e->key()) {
-            case Key_C: case Key_F16: // Copy key on Sun keyboards
+            case Qt::Key_C: case Qt::Key_F16: // Copy key on Sun keyboards
                 copy();
                 break;
 #ifdef Q_WS_WIN
-            case Key_Insert:
+            case Qt::Key_Insert:
                 copy();
                 break;
-            case Key_A:
+            case Qt::Key_A:
                 selectAll();
                 break;
 #endif
@@ -4766,8 +4766,8 @@ QString Q3TextEdit::context() const
     \property Q3TextEdit::documentTitle
     \brief the title of the document parsed from the text.
 
-    For \c PlainText the title will be an empty string. For \c
-    RichText the title will be the text between the \c{<title>} tags,
+    For \c Qt::PlainText the title will be an empty string. For \c
+    Qt::RichText the title will be the text between the \c{<title>} tags,
     if present, otherwise an empty string.
 */
 
@@ -4817,18 +4817,18 @@ void Q3TextEdit::scrollToAnchor(const QString& name)
 
 /*!
     If there is an anchor at position \a pos (in contents
-    coordinates), the text for attribute \a attr (AnchorHref by default) is returned,
+    coordinates), the text for attribute \a attr (Qt::AnchorHref by default) is returned,
     otherwise QString::null is returned.
 */
 
-QString Q3TextEdit::anchorAt(const QPoint& pos, AnchorAttribute attr)
+QString Q3TextEdit::anchorAt(const QPoint& pos, Qt::AnchorAttribute attr)
 {
     Q3TextCursor c(doc);
     placeCursor(pos, &c);
     switch(attr) {
-        case AnchorName:
+        case Qt::AnchorName:
             return c.paragraph()->at(c.index())->anchorName();
-        case AnchorHref:
+        case Qt::AnchorHref:
             return c.paragraph()->at(c.index())->anchorHref();
     }
     // incase the compiler is really dumb about determining if a function
@@ -5614,7 +5614,7 @@ void Q3TextEdit::sync()
 void Q3TextEdit::setEnabled(bool b)
 {
     QScrollView::setEnabled(b);
-    if (textFormat() == PlainText) {
+    if (textFormat() == Qt::PlainText) {
         Q3TextFormat *f = doc->formatCollection()->defaultFormat();
         f->setColor(palette().text());
         updateContents();
@@ -5663,9 +5663,9 @@ void Q3TextEdit::setReadOnly(bool b)
     d->cursorBlinkActive = !b;
 #ifndef QT_NO_CURSOR
     if (readonly)
-        viewport()->setCursor(ArrowCursor);
+        viewport()->setCursor(Qt::ArrowCursor);
     else
-        viewport()->setCursor(IbeamCursor);
+        viewport()->setCursor(Qt::IbeamCursor);
     setInputMethodEnabled(!readonly);
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -5870,14 +5870,14 @@ void Q3TextEdit::updateCursor(const QPoint & pos)
 
             if (!c.paragraph()->at(c.index())->anchorHref().isEmpty()) {
 #ifndef QT_NO_CURSOR
-                viewport()->setCursor(onLink.isEmpty() ? ArrowCursor : PointingHandCursor);
+                viewport()->setCursor(onLink.isEmpty() ? Qt::ArrowCursor : Qt::PointingHandCursor);
 #endif
                 QUrl u = QUrl(doc->context()).resolved(onLink);
                 emitHighlighted(u.toString(QUrl::None));
             }
         } else {
 #ifndef QT_NO_CURSOR
-            viewport()->setCursor(isReadOnly() ? ArrowCursor : IbeamCursor);
+            viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
             onLink = QString::null;
             emitHighlighted(QString::null);
@@ -5928,7 +5928,7 @@ bool Q3TextEdit::tabChangesFocus() const
 }
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-/* Implementation of optimized LogText mode follows */
+/* Implementation of optimized Qt::LogText mode follows */
 
 static void qSwap(int * a, int * b)
 {
@@ -5943,7 +5943,7 @@ static void qSwap(int * a, int * b)
 bool Q3TextEdit::checkOptimMode()
 {
     bool oldMode = d->optimMode;
-    if (textFormat() == LogText) {
+    if (textFormat() == Qt::LogText) {
         setReadOnly(true);
         d->optimMode = true;
     } else {
@@ -6812,7 +6812,7 @@ void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
 /*! \internal */
 void Q3TextEdit::optimMousePressEvent(QMouseEvent * e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
 
     QFontMetrics fm(QScrollView::font());
@@ -6835,7 +6835,7 @@ void Q3TextEdit::optimMousePressEvent(QMouseEvent * e)
 /*! \internal */
 void Q3TextEdit::optimMouseReleaseEvent(QMouseEvent * e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
 
     if (scrollTimer->isActive())
@@ -7101,7 +7101,7 @@ void Q3TextEdit::polishEvent(QEvent*)
 
 /*!
     Sets the maximum number of lines a Q3TextEdit can hold in \c
-    LogText mode to \a limit. If \a limit is -1 (the default), this
+    Qt::LogText mode to \a limit. If \a limit is -1 (the default), this
     signifies an unlimited number of lines.
 
     \warning Never use formatting tags that span more than one line
@@ -7120,7 +7120,7 @@ void Q3TextEdit::setMaxLogLines(int limit)
 
 /*!
     Returns the maximum number of lines Q3TextEdit can hold in \c
-    LogText mode. By default the number of lines is unlimited, which
+    Qt::LogText mode. By default the number of lines is unlimited, which
     is signified by a value of -1.
  */
 int Q3TextEdit::maxLogLines() const

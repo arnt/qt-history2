@@ -42,21 +42,21 @@
     This enum type describes the state of the mouse and the modifier
     buttons.
 
-    \value NoButton        The button state does not refer to any
+    \value Qt::NoButton        The button state does not refer to any
     button (see QMouseEvent::button()).
-    \value LeftButton      The left button is pressed, or an event refers
+    \value Qt::LeftButton      The left button is pressed, or an event refers
     to the left button. (The left button may be the right button on
     left-handed mice.)
-    \value RightButton     The right button.
-    \value MidButton       The middle button.
-    \value ShiftButton     A Shift key on the keyboard is pressed.
-    \value ControlButton   A Ctrl key on the keyboard is pressed.
-    \value AltButton       An Alt key on the keyboard is pressed.
-    \value MetaButton      A Meta key on the keyboard is pressed.
-    \value Keypad          A keypad button is pressed.
-    \value KeyButtonMask   A mask for ShiftButton, ControlButton,
-    AltButton, and MetaButton.
-    \value MouseButtonMask A mask for LeftButton, RightButton, and MidButton.
+    \value Qt::RightButton     The right button.
+    \value Qt::MidButton       The middle button.
+    \value Qt::ShiftButton     A Shift key on the keyboard is pressed.
+    \value Qt::ControlButton   A Ctrl key on the keyboard is pressed.
+    \value Qt::AltButton       An Alt key on the keyboard is pressed.
+    \value Qt::MetaButton      A Meta key on the keyboard is pressed.
+    \value Qt::Keypad          A keypad button is pressed.
+    \value Qt::KeyButtonMask   A mask for Qt::ShiftButton, Qt::ControlButton,
+    Qt::AltButton, and Qt::MetaButton.
+    \value Qt::MouseButtonMask A mask for Qt::LeftButton, Qt::RightButton, and Qt::MidButton.
 */
 
 /*!

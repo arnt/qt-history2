@@ -88,9 +88,9 @@ QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
     if (QApplication::reverseLayout())
-        setCursor(SizeBDiagCursor);
+        setCursor(Qt::SizeBDiagCursor);
     else
-        setCursor(SizeFDiagCursor);
+        setCursor(Qt::SizeFDiagCursor);
 #endif
 #endif
     setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
@@ -165,11 +165,11 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 */
 void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 {
-    if (e->state() != LeftButton)
+    if (e->state() != Qt::LeftButton)
         return;
 
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
-    if (tlw->testWState(WState_ConfigPending))
+    if (tlw->testWState(Qt::WState_ConfigPending))
         return;
 
     QPoint np(e->globalPos());

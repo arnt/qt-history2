@@ -1254,8 +1254,8 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
 {
     if (name)
         setObjectName(name);
-    setAttribute(WA_PaintOnScreen);
-    setAttribute(WA_NoSystemBackground);
+    setAttribute(Qt::WA_PaintOnScreen);
+    setAttribute(Qt::WA_NoSystemBackground);
     init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
 }
 

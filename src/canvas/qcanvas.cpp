@@ -1660,7 +1660,7 @@ void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
 {
     if (debug_redraw_areas) {
         painter.setPen(red);
-        painter.setBrush(NoBrush);
+        painter.setBrush(Qt::NoBrush);
         painter.drawRect(clip);
     }
 }
@@ -2628,7 +2628,7 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
 QCanvasItemList QCanvas::collisions(const QRect& r) const
 {
     QCanvasRectangle i(r,(QCanvas*)this);
-    i.setPen(NoPen);
+    i.setPen(Qt::NoPen);
     i.show(); // doesn't actually show, since we destroy it
     QCanvasItemList l = i.collisions(true);
     l.sort();
@@ -3432,7 +3432,7 @@ void QCanvasSprite::draw(QPainter& painter)
     canvas.
 */
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
-    QScrollView(parent,name,f|WResizeNoErase|WStaticContents)
+    QScrollView(parent,name,f|Qt::WResizeNoErase|Qt::WStaticContents)
 {
     d = new QCanvasViewData;
     viewing = 0;
@@ -3447,7 +3447,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
     \a parent, and name \a name, using the widget flags \a f.
 */
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
-    QScrollView(parent,name,f|WResizeNoErase|WStaticContents)
+    QScrollView(parent,name,f|Qt::WResizeNoErase|Qt::WStaticContents)
 {
     d = new QCanvasViewData;
     viewing = 0;
@@ -3680,7 +3680,7 @@ QSize QCanvasView::sizeHint() const
 
 /*
   Since most polygonal items don't have a pen, the default is
-  NoPen and a black brush.
+  Qt::NoPen and a black brush.
 */
 static const QPen& defaultPolygonPen()
 {
@@ -4060,14 +4060,14 @@ QCanvasPolygon::~QCanvasPolygon()
     Draws the polygon using the painter \a p.
 
     Note that QCanvasPolygon does not support an outline (the pen is
-    always NoPen).
+    always Qt::NoPen).
 */
 void QCanvasPolygon::drawShape(QPainter & p)
 {
     // ### why can't we draw outlines? We could use drawPolyline for it. Lars
     // ### see other message. Warwick
 
-    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-()-:
+    p.setPen(Qt::NoPen); // since QRegion(QPointArray) excludes outline :-()-:
     p.drawPolygon(poly);
 }
 
@@ -4530,7 +4530,7 @@ QPointArray QCanvasRectangle::areaPoints() const
     QPointArray pa(4);
     int pw = (pen().width()+1)/2;
     if (pw < 1) pw = 1;
-    if (pen() == NoPen) pw = 0;
+    if (pen() == Qt::NoPen) pw = 0;
     pa[0] = QPoint((int)x()-pw,(int)y()-pw);
     pa[1] = pa[0] + QPoint(w+pw*2,0);
     pa[2] = pa[1] + QPoint(0,h+pw*2);
@@ -4720,11 +4720,11 @@ QPointArray QCanvasEllipse::areaPoints() const
     Draws the ellipse, centered at x(), y() using the painter \a p.
 
     Note that QCanvasEllipse does not support an outline (the pen is
-    always NoPen).
+    always Qt::NoPen).
 */
 void QCanvasEllipse::drawShape(QPainter & p)
 {
-    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-()-:
+    p.setPen(Qt::NoPen); // since QRegion(QPointArray) excludes outline :-()-:
     if (!a1 && a2 == 360*16) {
         p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
     } else {

@@ -26,13 +26,13 @@ class Q_GUI_EXPORT QGrid : public QFrame
     Q_OBJECT
 public:
     QGrid(int n, QWidget* parent=0, const char* name=0, WFlags f = 0);
-    QGrid(int n, Orientation orient, QWidget* parent=0, const char* name=0,
+    QGrid(int n, Qt::Orientation orient, QWidget* parent=0, const char* name=0,
            WFlags f = 0);
 
     void setSpacing(int);
 
 #ifdef QT_COMPAT
-    typedef Orientation Direction;
+    typedef Qt::Orientation Direction;
 #endif
 
 protected:

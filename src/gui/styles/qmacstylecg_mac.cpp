@@ -408,7 +408,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             drawPrimitive(PE_ArrowDown, p, ar, pal, how, opt);
             ir.setWidth(ir.width() - mbi);
         }
-        int tf = AlignVCenter | ShowPrefix | NoAccel;
+        int tf = Qt::AlignVCenter | Qt::ShowPrefix | Qt::NoAccel;
 
 #ifndef QT_NO_ICONSET
         if (!button->icon().isNull()) {
@@ -435,10 +435,10 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             ir.setWidth(ir.width() - (pixw + 4));
             // left-align text if there is
             if (!button->text().isEmpty())
-                tf |= AlignLeft;
+                tf |= Qt::AlignLeft;
         } else
 #endif //QT_NO_ICONSET
-            tf |= AlignHCenter;
+            tf |= Qt::AlignHCenter;
         drawItem(p, ir, tf, pal,
                  how & Style_Enabled, QPixmap(), button->text(), -1,
                  &(pal.buttonText().color()));
@@ -648,7 +648,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                 wdi.attributes |= kThemeWindowHasDirty;
             wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                                  | kThemeWindowHasCollapseBox;
-        } else if (titlebar->testWFlags(WStyle_SysMenu)) {
+        } else if (titlebar->testWFlags(Qt::WStyle_SysMenu)) {
             wdi.attributes |= kThemeWindowHasCloseBox;
         }
         wdi.titleHeight = r.height();
@@ -881,7 +881,7 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
                 wdi.attributes |= kThemeWindowHasDirty;
             wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                 | kThemeWindowHasCollapseBox;
-        } else if (titlebar->testWFlags(WStyle_SysMenu)) {
+        } else if (titlebar->testWFlags(Qt::WStyle_SysMenu)) {
             wdi.attributes |= kThemeWindowHasCloseBox;
         }
         wdi.titleHeight = titlebar->height();
@@ -948,7 +948,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
                 wdi.attributes |= kThemeWindowHasDirty;
             wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                 | kThemeWindowHasCollapseBox;
-        } else if (titlebar->testWFlags(WStyle_SysMenu)) {
+        } else if (titlebar->testWFlags(Qt::WStyle_SysMenu)) {
             wdi.attributes |= kThemeWindowHasCloseBox;
         }
         wdi.titleHeight = titlebar->height();
@@ -1209,7 +1209,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                 QCFType<HIShapeRef> macRegion;
                 HIThemeGetButtonShape(&macRect, &bdi, &macRegion);
                 p->setClipRegion(qt_mac_convert_mac_region(macRegion));
-                p->fillRect(btn->rect, color1);
+                p->fillRect(btn->rect, Qt::color1);
                 p->setClipRegion(saveRegion);
             } else {
                 HIThemeDrawButton(&macRect, &bdi, static_cast<CGContextRef>(p->handle()),
@@ -1277,7 +1277,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                           kHIThemeOrientationNormal, 0);
         break; }
     case PE_RubberBandMask:
-        p->fillRect(opt->rect, color1);
+        p->fillRect(opt->rect, Qt::color1);
         break;
     case PE_RubberBand:
         p->fillRect(opt->rect, opt->palette.highlight());
@@ -1547,14 +1547,14 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             if (!s.isEmpty()) {
                 int t = s.indexOf('\t');
                 int m = 2;
-                int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
+                int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::NoAccel | Qt::SingleLine;
                 if (t >= 0) {
                     int xp = xpos + w - tabwidth - macRightBorder
                              - macItemHMargin - macItemFrame + 1;
                     p->drawText(xp, y + m, tabwidth, h - 2 * m, text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
-                text_flags ^= AlignRight;
+                text_flags ^= Qt::AlignRight;
                 p->drawText(xpos, y + m, w - xm - tabwidth + 1, h - 2 * m, text_flags, s, t);
             }
         }
@@ -1584,11 +1584,11 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                                 static_cast<CGContextRef>(p->handle()),
                                 kHIThemeOrientationNormal, 0);
             if (ce == CE_MenuTearoff) {
-                p->setPen(QPen(mi->palette.dark(), 1, DashLine));
+                p->setPen(QPen(mi->palette.dark(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
                             mi->rect.x() + mi->rect.width() - 4,
                             mi->rect.y() + mi->rect.height() / 2 - 1);
-                p->setPen(QPen(mi->palette.light(), 1, DashLine));
+                p->setPen(QPen(mi->palette.light(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
                             mi->rect.x() + mi->rect.width() - 4,
                             mi->rect.y() + mi->rect.height() / 2);
@@ -1678,7 +1678,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
 
                 QRect pixr = header->rect;
                 pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
-                drawItem(p, pixr, AlignVCenter, header->palette,
+                drawItem(p, pixr, Qt::AlignVCenter, header->palette,
                         mode != QIconSet::Disabled
                         || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
                 textr.moveBy(pixmap.width() + 2, 0);
@@ -1688,7 +1688,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             const QColor *penColor = &header->palette.buttonText().color();
             if (w && w->parentWidget()->inherits("QTable") && p->font().bold())
                 penColor = &header->palette.color(QColorGroup::BrightText);
-            drawItem(p, textr, AlignVCenter, header->palette, header->state & Style_Enabled,
+            drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
                     header->text, -1, penColor);
         }
         break;
@@ -1772,7 +1772,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             if (cc == CC_Slider && slider->parts & SC_SliderTickmarks) {
                 int numMarks;
                 if (slider->tickInterval) {
-                    if (slider->orientation == Horizontal)
+                    if (slider->orientation == Qt::Horizontal)
                         numMarks = slider->rect.width() / slider->tickInterval;
                     else
                         numMarks = slider->rect.height() / slider->tickInterval;
@@ -1862,7 +1862,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const Q4Style
             HIPoint pos = {(float)pt.x(), (float)pt.y()};
             HIRect macSBRect = qt_hirectForQRect(sb->rect);
             ControlPartCode part;
-            if (HIThemeHitTestScrollBarArrows(&macSBRect, &sbi, sb->orientation == Horizontal,
+            if (HIThemeHitTestScrollBarArrows(&macSBRect, &sbi, sb->orientation == Qt::Horizontal,
                         &pos, 0, &part)) {
                 if (part == kControlUpButtonPart)
                     sc = SC_ScrollBarSubLine;

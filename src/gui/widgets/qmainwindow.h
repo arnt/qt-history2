@@ -27,8 +27,8 @@ public:
     QWidget *centerWidget() const;
     void setCenterWidget(QWidget *widget);
 
-    void setCorner(Corner corner, DockWindowArea area);
-    DockWindowArea corner(Corner corner) const;
+    void setCorner(Qt::Corner corner, Qt::DockWindowArea area);
+    Qt::DockWindowArea corner(Qt::Corner corner) const;
 
     void setDockWindowState(const QString &state);
     QString dockWindowState() const;

@@ -1,20 +1,20 @@
 #include <qmacstyle_mac.h>
 #include <qstyleplugin.h>
 
-class MacStyle : public QStylePlugin
+class Qt::MacStyle : public QStylePlugin
 {
 public:
-    MacStyle();
+    Qt::MacStyle();
 
     QStringList keys() const;
     QStyle *create(const QString&);
 };
 
-MacStyle::MacStyle() : QStylePlugin()
+Qt::MacStyle::MacStyle() : QStylePlugin()
 {
 }
 
-QStringList MacStyle::keys() const
+QStringList Qt::MacStyle::keys() const
 {
     QString mstyle = "Macintosh";
     if(Collection c=NewCollection()) {
@@ -40,4 +40,4 @@ QStyle* AquaStyle::create(const QString& s)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(MacStyle)
+Q_EXPORT_PLUGIN(Qt::MacStyle)

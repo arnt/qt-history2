@@ -44,7 +44,7 @@
 
     To set a cursor shape use QCursor::setShape() or use the QCursor
     constructor which takes the shape as argument, or you can use one
-    of the predefined cursors defined in the \l CursorShape enum.
+    of the predefined cursors defined in the \l Qt::CursorShape enum.
 
     If you want to create a cursor with your own bitmap, either use
     the QCursor constructor which takes a bitmap and a mask or the
@@ -94,26 +94,26 @@
 
     This enum type defines the various cursors that can be used.
 
-    \value ArrowCursor  standard arrow cursor
-    \value UpArrowCursor  upwards arrow
-    \value CrossCursor  crosshair
-    \value WaitCursor  hourglass/watch
-    \value BusyCursor  standard arrow with hourglass/watch
-    \value IbeamCursor  ibeam/text entry
-    \value SizeVerCursor  vertical resize
-    \value SizeHorCursor  horizontal resize
-    \value SizeFDiagCursor  diagonal resize (\)
-    \value SizeBDiagCursor  diagonal resize (/)
-    \value SizeAllCursor  all directions resize
-    \value BlankCursor  blank/invisible cursor
-    \value SplitVCursor  vertical splitting
-    \value SplitHCursor  horizontal splitting
-    \value PointingHandCursor  a pointing hand
-    \value ForbiddenCursor  a slashed circle
-    \value WhatsThisCursor  an arrow with a question mark
-    \value BitmapCursor
+    \value Qt::ArrowCursor  standard arrow cursor
+    \value Qt::UpArrowCursor  upwards arrow
+    \value Qt::CrossCursor  crosshair
+    \value Qt::WaitCursor  hourglass/watch
+    \value Qt::BusyCursor  standard arrow with hourglass/watch
+    \value Qt::IbeamCursor  ibeam/text entry
+    \value Qt::SizeVerCursor  vertical resize
+    \value Qt::SizeHorCursor  horizontal resize
+    \value Qt::SizeFDiagCursor  diagonal resize (\)
+    \value Qt::SizeBDiagCursor  diagonal resize (/)
+    \value Qt::SizeAllCursor  all directions resize
+    \value Qt::BlankCursor  blank/invisible cursor
+    \value Qt::SplitVCursor  vertical splitting
+    \value Qt::SplitHCursor  horizontal splitting
+    \value Qt::PointingHandCursor  a pointing hand
+    \value Qt::ForbiddenCursor  a slashed circle
+    \value Qt::WhatsThisCursor  an arrow with a question mark
+    \value Qt::BitmapCursor
 
-    ArrowCursor is the default for widgets in a normal state.
+    Qt::ArrowCursor is the default for widgets in a normal state.
 
     \img cursors.png Cursor Shapes
 */
@@ -245,7 +245,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     \i B=1 and M=0 gives an undefined result.
     \endlist
 
-    Use the global Qt color \c color0 to draw 0-pixels and \c color1 to
+    Use the global Qt color \c Qt::color0 to draw 0-pixels and \c Qt::color1 to
     draw 1-pixels in the bitmaps.
 
     Valid cursor sizes depend on the display hardware (or the
@@ -271,7 +271,7 @@ void QCursor::cleanup()
     if(!initialized)
         return;
 
-    for (int shape = 0; shape <= LastCursor; ++shape) {
+    for (int shape = 0; shape <= Qt::LastCursor; ++shape) {
         delete cursorTable[shape].d;
         cursorTable[shape].d = 0;
     }
@@ -284,7 +284,7 @@ void QCursor::initialize()
 #ifdef Q_WS_MAC
     InitCursor();
 #endif
-    for (int shape = 0; shape <= LastCursor; ++shape)
+    for (int shape = 0; shape <= Qt::LastCursor; ++shape)
         cursorTable[shape].d = new QCursorData(shape);
     initialized = true;
     qAddPostRoutine(cleanup);
@@ -292,7 +292,7 @@ void QCursor::initialize()
 
 QCursor *QCursor::find_cur(int shape)
 {
-    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
+    return (uint)shape <= Qt::LastCursor ? &cursorTable[shape] : 0;
 }
 
 /*!
@@ -315,7 +315,7 @@ QCursor::QCursor()
 /*!
     Constructs a cursor with the specified \a shape.
 
-    See \l CursorShape for a list of shapes.
+    See \l Qt::CursorShape for a list of shapes.
 
     \sa setShape()
 */
@@ -330,7 +330,7 @@ QCursor::QCursor(int shape)
 
 /*!
     Returns the cursor shape identifier. The return value is one of
-    the \l CursorShape enum values (cast to an int).
+    the \l Qt::CursorShape enum values (cast to an int).
 
     \sa setShape()
 */
@@ -344,7 +344,7 @@ int QCursor::shape() const
 /*!
     Sets the cursor to the shape identified by \a shape.
 
-    See \l CursorShape for the list of cursor shapes.
+    See \l Qt::CursorShape for the list of cursor shapes.
 
     \sa shape()
 */

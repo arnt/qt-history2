@@ -2308,31 +2308,31 @@ QRect QFontMetrics::boundingRect(QChar ch) const
 
     The \a flgs argument is the bitwise OR of the following flags:
     \list
-    \i \c AlignAuto aligns to the left border for all languages except
+    \i \c Qt::AlignAuto aligns to the left border for all languages except
           Arabic and Hebrew where it aligns to the right.
-    \i \c AlignLeft aligns to the left border.
-    \i \c AlignRight aligns to the right border.
-    \i \c AlignJustify produces justified text.
-    \i \c AlignHCenter aligns horizontally centered.
-    \i \c AlignTop aligns to the top border.
-    \i \c AlignBottom aligns to the bottom border.
-    \i \c AlignVCenter aligns vertically centered
-    \i \c AlignCenter (== \c{AlignHCenter | AlignVCenter})
-    \i \c SingleLine ignores newline characters in the text.
-    \i \c ExpandTabs expands tabs (see below)
-    \i \c ShowPrefix interprets "&amp;x" as "<u>x</u>", i.e. underlined.
-    \i \c WordBreak breaks the text to fit the rectangle.
+    \i \c Qt::AlignLeft aligns to the left border.
+    \i \c Qt::AlignRight aligns to the right border.
+    \i \c Qt::AlignJustify produces justified text.
+    \i \c Qt::AlignHCenter aligns horizontally centered.
+    \i \c Qt::AlignTop aligns to the top border.
+    \i \c Qt::AlignBottom aligns to the bottom border.
+    \i \c Qt::AlignVCenter aligns vertically centered
+    \i \c Qt::AlignCenter (== \c{Qt::AlignHCenter | Qt::AlignVCenter})
+    \i \c Qt::SingleLine ignores newline characters in the text.
+    \i \c Qt::ExpandTabs expands tabs (see below)
+    \i \c Qt::ShowPrefix interprets "&amp;x" as "<u>x</u>", i.e. underlined.
+    \i \c Qt::WordBreak breaks the text to fit the rectangle.
     \endlist
 
-    Horizontal alignment defaults to \c AlignAuto and vertical
-    alignment defaults to \c AlignTop.
+    Qt::Horizontal alignment defaults to \c Qt::AlignAuto and vertical
+    alignment defaults to \c Qt::AlignTop.
 
     If several of the horizontal or several of the vertical alignment
     flags are set, the resulting alignment is undefined.
 
     These flags are defined in \c qnamespace.h.
 
-    If \c ExpandTabs is set in \a flgs, then: if \a tabarray is
+    If \c Qt::ExpandTabs is set in \a flgs, then: if \a tabarray is
     non-null, it specifies a 0-terminated sequence of pixel-positions
     for tabs; otherwise if \a tabstops is non-zero, it is used as the
     tab spacing (in pixels).
@@ -2384,15 +2384,15 @@ QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
 
     The \a flgs argument is the bitwise OR of the following flags:
     \list
-    \i \c SingleLine ignores newline characters.
-    \i \c ExpandTabs expands tabs (see below)
-    \i \c ShowPrefix interprets "&amp;x" as "<u>x</u>", i.e. underlined.
-    \i \c WordBreak breaks the text to fit the rectangle.
+    \i \c Qt::SingleLine ignores newline characters.
+    \i \c Qt::ExpandTabs expands tabs (see below)
+    \i \c Qt::ShowPrefix interprets "&amp;x" as "<u>x</u>", i.e. underlined.
+    \i \c Qt::WordBreak breaks the text to fit the rectangle.
     \endlist
 
     These flags are defined in \c qnamespace.h.
 
-    If \c ExpandTabs is set in \a flgs, then: if \a tabarray is
+    If \c Qt::ExpandTabs is set in \a flgs, then: if \a tabarray is
     non-null, it specifies a 0-terminated sequence of pixel-positions
     for tabs; otherwise if \a tabstops is non-zero, it is used as the
     tab spacing (in pixels).

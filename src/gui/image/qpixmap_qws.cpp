@@ -307,7 +307,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     if (qt_screen->isTransformed()) {
         int bpl = isXbitmap ? (w+7)/8 : ((w+31)/32)*4;
         QImage img((uchar *)bits, w, h, 1, bpl, 0, 0, QImage::LittleEndian);
-        convertFromImage(img, MonoOnly);
+        convertFromImage(img, Qt::MonoOnly);
         if (flipped_bits)
             delete [] flipped_bits;
         return;
@@ -559,7 +559,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     int         d   = image.depth();        // source depth
     int         dd  = defaultDepth();        //destination depth
     bool force_mono = (dd == 1 || isQBitmap() ||
-                       (conversion_flags & ColorMode_Mask)==MonoOnly);
+                       (conversion_flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
 
     if (force_mono) {                                // must be monochrome
         if (d != 1) {
@@ -569,11 +569,11 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     } else {                                        // can be both
         bool conv8 = false;
         if (d > 8 && dd <= 8) {                // convert to 8 bit
-            if ((conversion_flags & DitherMode_Mask) == AutoDither)
-                conversion_flags = (conversion_flags & ~DitherMode_Mask)
-                                        | PreferDither;
+            if ((conversion_flags & Qt::DitherMode_Mask) == Qt::AutoDither)
+                conversion_flags = (conversion_flags & ~Qt::DitherMode_Mask)
+                                        | Qt::PreferDither;
             conv8 = true;
-        } else if ((conversion_flags & ColorMode_Mask) == ColorOnly) {
+        } else if ((conversion_flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
             conv8 = d == 1;                        // native depth wanted
         } else if (d == 1) {
             if (image.numColors() == 2) {

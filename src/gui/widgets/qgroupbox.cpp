@@ -119,7 +119,7 @@ QGroupBox::~QGroupBox()
 
 void QGroupBoxPrivate::init()
 {
-    align = AlignAuto;
+    align = Qt::AlignAuto;
     shortcutId = 0;
     lenvisible = 0;
     bFlat = false;
@@ -176,14 +176,14 @@ QString QGroupBox::title() const
 
     The alignment is one of the following flags:
     \list
-    \i \c AlignAuto aligns the title according to the language,
+    \i \c Qt::AlignAuto aligns the title according to the language,
     usually to the left.
-    \i \c AlignLeft aligns the title text to the left.
-    \i \c AlignRight aligns the title text to the right.
-    \i \c AlignHCenter aligns the title text centered.
+    \i \c Qt::AlignLeft aligns the title text to the left.
+    \i \c Qt::AlignRight aligns the title text to the right.
+    \i \c Qt::AlignHCenter aligns the title text centered.
     \endlist
 
-    The default alignment is \c AlignAuto.
+    The default alignment is \c Qt::AlignAuto.
 
     \sa Qt::AlignmentFlags
 */
@@ -205,8 +205,8 @@ void QGroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
     d->calculateFrame();
-    if (d->align & AlignRight || d->align & AlignCenter ||
-         (QApplication::reverseLayout() && !(d->align & AlignLeft)))
+    if (d->align & Qt::AlignRight || d->align & Qt::AlignCenter ||
+         (QApplication::reverseLayout() && !(d->align & Qt::AlignLeft)))
         d->updateCheckBoxGeometry();
 }
 
@@ -226,11 +226,11 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         int tw = fm.width(d->str, d->lenvisible) + fm.width(QChar(' '));
         int x;
         int marg = d->bFlat ? 0 : 8;
-        if (d->align & AlignHCenter)                // center alignment
+        if (d->align & Qt::AlignHCenter)                // center alignment
             x = frameRect.width()/2 - tw/2;
-        else if (d->align & AlignRight)        // right alignment
+        else if (d->align & Qt::AlignRight)        // right alignment
             x = frameRect.width() - tw - marg;
-        else if (d->align & AlignLeft)                 // left alignment
+        else if (d->align & Qt::AlignLeft)                 // left alignment
             x = marg;
         else { // auto align
             if(QApplication::reverseLayout())
@@ -240,13 +240,13 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         }
         QRect r(x, 0, tw, h);
         int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
-        if(va & AlignTop)
+        if(va & Qt::AlignTop)
             r.moveBy(0, fm.descent());
         QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this));
         if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
-            va |= NoAccel;
-        style().drawItem(&paint, r, ShowPrefix | AlignHCenter | va, palette(),
-                          isEnabled(), d->str, -1, testAttribute(WA_SetPalette) ? 0 : &pen);
+            va |= Qt::NoAccel;
+        style().drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
+                          isEnabled(), d->str, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();
@@ -266,7 +266,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         QStyle::SFlags flags = QStyle::Style_Default | QStyle::Style_Sunken;
         if (hasFocus())
             flags |= QStyle::Style_HasFocus;
-        if (testAttribute(WA_UnderMouse))
+        if (testAttribute(Qt::WA_UnderMouse))
             flags |= QStyle::Style_MouseOver;
         style().drawPrimitive(QStyle::PE_PanelGroupBox, &paint, frameRect, palette(), flags, opt);
     }
@@ -295,12 +295,12 @@ void QGroupBox::childEvent(QChildEvent *c)
         if (w == d->checkbox)
             return;
         if (d->checkbox->isChecked()) {
-            if (!w->testAttribute(WA_ForceDisabled))
+            if (!w->testAttribute(Qt::WA_ForceDisabled))
                 w->setEnabled(true);
         } else {
             if (w->isEnabled()) {
                 w->setEnabled(false);
-                w->setAttribute(WA_ForceDisabled, false);
+                w->setAttribute(Qt::WA_ForceDisabled, false);
             }
         }
     }
@@ -324,7 +324,7 @@ void QGroupBoxPrivate::fixFocus()
         QWidget * candidate = 0;
         QWidget * w = q;
         while ((w = w->nextInFocusChain()) != q) {
-            if (q->isAncestorOf(w) && (w->focusPolicy() & TabFocus) == TabFocus && w->isVisibleTo(q)) {
+            if (q->isAncestorOf(w) && (w->focusPolicy() & Qt::TabFocus) == TabFocus && w->isVisibleTo(q)) {
 #ifndef QT_NO_RADIOBUTTON
                 if (!best && qt_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
                     // we prefer a checked radio button or a widget that
@@ -369,17 +369,17 @@ void QGroupBoxPrivate::calculateFrame()
         }
         if (lenvisible) { // but do we also have a visible label?
             int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
-            if(va & AlignVCenter)
+            if(va & Qt::AlignVCenter)
                 d->topMargin = fm.height()/2;
-            else if(va & AlignTop)
+            else if(va & Qt::AlignTop)
                 d->topMargin = fm.ascent();
         }
     }
     else if (checkbox) {
         int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
-        if(va & AlignVCenter)
+        if(va & Qt::AlignVCenter)
             topMargin = checkbox->height()/2;
-        else if(va & AlignTop)
+        else if(va & Qt::AlignTop)
             topMargin = fm.ascent();
     }
 
@@ -522,12 +522,12 @@ void QGroupBoxPrivate::setChildrenEnabled(bool b)
            ) {
             QWidget *w = static_cast<QWidget *>(o);
             if (b) {
-                if (!w->testAttribute(WA_ForceDisabled))
+                if (!w->testAttribute(Qt::WA_ForceDisabled))
                     w->setEnabled(true);
             } else {
                 if (w->isEnabled()) {
                     w->setEnabled(false);
-                    w->setAttribute(WA_ForceDisabled, false);
+                    w->setAttribute(Qt::WA_ForceDisabled, false);
                 }
             }
         }
@@ -565,12 +565,12 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
         int marg = bFlat ? 2 : 8;
         marg += q->fontMetrics().width(QChar(' '));
 
-        if (align & AlignHCenter) {
+        if (align & Qt::AlignHCenter) {
             cbRect.moveCenter(frameRect.center());
             cbRect.moveTop(0);
-        } else if (align & AlignRight) {
+        } else if (align & Qt::AlignRight) {
             cbRect.moveRight(frameRect.right() - marg);
-        } else if (align & AlignLeft) {
+        } else if (align & Qt::AlignLeft) {
             cbRect.moveLeft(frameRect.left() + marg);
         } else { // auto align
             if(QApplication::reverseLayout())

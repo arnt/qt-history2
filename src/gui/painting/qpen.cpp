@@ -27,7 +27,7 @@
     A pen has a style, width, color, cap style and join style.
 
     The pen style defines the line type. The default pen style is \c
-    Qt::SolidLine. Setting the style to \c NoPen tells the painter to
+    Qt::SolidLine. Setting the style to \c Qt::NoPen tells the painter to
     not draw lines or outlines.
 
     When drawing 1 pixel wide diagonal lines you can either use a very
@@ -93,7 +93,7 @@ void QPen::init(const QColor &color, int width, uint linestyle)
 {
     d = new QPenData;
     d->ref = 1;
-    d->style = (PenStyle)(linestyle & MPenStyle);
+    d->style = (Qt::PenStyle)(linestyle & Qt::MPenStyle);
     d->width = width;
     d->color = color;
     d->linest = linestyle;
@@ -106,7 +106,7 @@ void QPen::init(const QColor &color, int width, uint linestyle)
 
 QPen::QPen()
 {
-    init(black, 0, SolidLine);
+    init(black, 0, Qt::SolidLine);
 }
 
 /*!
@@ -116,7 +116,7 @@ QPen::QPen()
     \sa setStyle()
 */
 
-QPen::QPen(PenStyle style)
+QPen::QPen(Qt::PenStyle style)
 {
     init(black, 0, style);
 }
@@ -128,7 +128,7 @@ QPen::QPen(PenStyle style)
     \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen(const QColor &color, int width, PenStyle style)
+QPen::QPen(const QColor &color, int width, Qt::PenStyle style)
 {
     init(color, width, style);
 }
@@ -148,7 +148,7 @@ QPen::QPen(const QColor &color, int width, PenStyle style)
     \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen(const QColor &cl, int width, PenStyle s, PenCapStyle c, PenJoinStyle j)
+QPen::QPen(const QColor &cl, int width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
 {
     init(cl, width, s | c | j);
 }
@@ -209,7 +209,7 @@ QPen &QPen::operator=(const QPen &p)
 
 
 /*!
-    \fn PenStyle QPen::style() const
+    \fn Qt::PenStyle QPen::style() const
 
     Returns the pen style.
 
@@ -223,19 +223,19 @@ QPen &QPen::operator=(const QPen &p)
     styles.
 
     \warning On Windows 95/98 and Macintosh, the style setting (other
-    than \c NoPen and \c SolidLine) has no effect for lines with width
+    than \c Qt::NoPen and \c Qt::SolidLine) has no effect for lines with width
     greater than 1.
 
     \sa style()
 */
 
-void QPen::setStyle(PenStyle s)
+void QPen::setStyle(Qt::PenStyle s)
 {
     if (d->style == s)
         return;
     detach();
     d->style = s;
-    d->linest = (d->linest & ~MPenStyle) | s;
+    d->linest = (d->linest & ~Qt::MPenStyle) | s;
 }
 
 
@@ -276,30 +276,30 @@ void QPen::setWidth(int width)
 */
 Qt::PenCapStyle QPen::capStyle() const
 {
-    return (PenCapStyle)(d->linest & MPenCapStyle);
+    return (Qt::PenCapStyle)(d->linest & Qt::MPenCapStyle);
 }
 
 /*!
     Sets the pen's cap style to \a c.
 
-    The default value is \c FlatCap. The cap style has no effect on
+    The default value is \c Qt::FlatCap. The cap style has no effect on
     0-width pens.
 
     \img pen-cap-styles.png Pen Cap Styles
 
     \warning On Windows 95/98 and Macintosh, the cap style setting has
     no effect. Wide lines are rendered as if the cap style was \c
-    SquareCap.
+    Qt::SquareCap.
 
     \sa capStyle()
 */
 
-void QPen::setCapStyle(PenCapStyle c)
+void QPen::setCapStyle(Qt::PenCapStyle c)
 {
-    if ((d->linest & MPenCapStyle) == c)
+    if ((d->linest & Qt::MPenCapStyle) == c)
         return;
     detach();
-    d->linest = (d->linest & ~MPenCapStyle) | c;
+    d->linest = (d->linest & ~Qt::MPenCapStyle) | c;
 }
 
 /*!
@@ -309,30 +309,30 @@ void QPen::setCapStyle(PenCapStyle c)
 */
 Qt::PenJoinStyle QPen::joinStyle() const
 {
-    return (PenJoinStyle)(d->linest & MPenJoinStyle);
+    return (Qt::PenJoinStyle)(d->linest & Qt::MPenJoinStyle);
 }
 
 /*!
     Sets the pen's join style to \a j.
 
-    The default value is \c MiterJoin. The join style has no effect on
+    The default value is \c Qt::MiterJoin. The join style has no effect on
     0-width pens.
 
     \img pen-join-styles.png Pen Join Styles
 
     \warning On Windows 95/98 and Macintosh, the join style setting
     has no effect. Wide lines are rendered as if the join style was \c
-    BevelJoin.
+    Qt::BevelJoin.
 
     \sa joinStyle()
 */
 
-void QPen::setJoinStyle(PenJoinStyle j)
+void QPen::setJoinStyle(Qt::PenJoinStyle j)
 {
-    if ((d->linest & MPenJoinStyle) == j)
+    if ((d->linest & Qt::MPenJoinStyle) == j)
         return;
     detach();
-    d->linest = (d->linest & ~MPenJoinStyle) | j;
+    d->linest = (d->linest & ~Qt::MPenJoinStyle) | j;
 }
 
 /*!

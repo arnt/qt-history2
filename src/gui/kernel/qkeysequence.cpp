@@ -39,13 +39,13 @@
     \ingroup misc
 
     A key sequence consists of up to four keyboard codes, each
-    optionally combined with modifiers, such as \c SHIFT, \c CTRL, \c
-    ALT or \c META. For example, \c{CTRL + Key_P}
+    optionally combined with modifiers, such as \c Qt::SHIFT, \c Qt::CTRL, \c
+    Qt::ALT or \c Qt::META. For example, \c{Qt::CTRL + Qt::Key_P}
     might be a sequence used as a shortcut for printing a document.
     Valid codes for keys and modifiers are listed in Qt::Key and
     Qt::Modifier. As an alternative, use the unicode code point of the
     character; for example, \c{'A'} gives the same key sequence
-    as \c Key_A.
+    as \c Qt::Key_A.
 
     Key sequences can be constructed either from an integer key code,
     or from a human readable translatable string such as
@@ -55,7 +55,7 @@
 
     In code that does not inherit the Qt namespace class, you must
     include the namespace when writing keycodes; for example,
-    instead of ALT+Key_Q you would write Qt::ALT+Qt::Key_Q.
+    instead of Qt::ALT+Qt::Key_Q you would write Qt::ALT+Qt::Key_Q.
 
     \sa QShortcut
 */
@@ -221,8 +221,8 @@ QKeySequence::QKeySequence(const QString &key)
     \a k3 and \a k4.
 
     The key codes are listed in Qt::Key and can be combined with
-    modifiers (see Qt::Modifier) such as \c SHIFT, \c CTRL, \c ALT
-    or \c META.
+    modifiers (see Qt::Modifier) such as \c Qt::SHIFT, \c Qt::CTRL, \c Qt::ALT
+    or \c Qt::META.
 */
 QKeySequence::QKeySequence(int k1, int k2, int k3, int k4)
 {
@@ -298,7 +298,7 @@ bool QKeySequence::isEmpty() const
     Returns the shortcut key sequence for the mnemonic in \a text,
     or an empty key sequence if no mnemonics are found.
 
-    For example, mnemonic("E&amp;xit") returns ALT+Key_X,
+    For example, mnemonic("E&amp;xit") returns Qt::ALT+Qt::Key_X,
     mnemonic("&amp;Quit") returns ALT+Key_Q, and mnemonic("Quit")
     returns an empty QKeySequence.
 
@@ -318,7 +318,7 @@ QKeySequence QKeySequence::mnemonic(const QString &text)
             QChar c = text.at(p);
             if (c.isPrint()) {
                 c = c.toUpper();
-                return QKeySequence(c.unicode() + ALT);
+                return QKeySequence(c.unicode() + Qt::ALT);
             }
         }
         p++;
@@ -386,25 +386,25 @@ int QKeySequence::decodeString(const QString &str)
     modifs.ensure_constructed();
     if (modifs.isEmpty()) {
 #ifdef QMAC_CTRL
-        modifs << ModifKeyName(CTRL, QMAC_CTRL);
+        modifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-        modifs << ModifKeyName(ALT, QMAC_ALT);
+        modifs << ModifKeyName(Qt::ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-        modifs << ModifKeyName(META, QMAC_META);
+        modifs << ModifKeyName(Qt::META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-        modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
+        modifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
 #endif
-        modifs << ModifKeyName(CTRL, "ctrl+")
-               << ModifKeyName(CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
-               << ModifKeyName(SHIFT, "shift+")
-               << ModifKeyName(SHIFT, QShortcut::tr("Shift").toLower().append('+'))
-               << ModifKeyName(ALT, "alt+")
-               << ModifKeyName(ALT, QShortcut::tr("Alt").toLower().append('+'))
-               << ModifKeyName(META, "meta+")
-               << ModifKeyName(ALT, QShortcut::tr("Meta").toLower().append('+'));
+        modifs << ModifKeyName(Qt::CTRL, "ctrl+")
+               << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
+               << ModifKeyName(Qt::SHIFT, "shift+")
+               << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append('+'))
+               << ModifKeyName(Qt::ALT, "alt+")
+               << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append('+'))
+               << ModifKeyName(Qt::META, "meta+")
+               << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append('+'));
     }
     QString sl = accel;
     for (int i = 0; i < modifs.size(); ++i) {
@@ -424,7 +424,7 @@ int QKeySequence::decodeString(const QString &str)
     if (accel.length() == 1) {
         ret |= accel[0].toUpper().unicode();
     } else if (accel[0] == 'f' && (fnum = accel.mid(1).toInt())) {
-        ret |= Key_F1 + fnum - 1;
+        ret |= Qt::Key_F1 + fnum - 1;
     } else {
         // Check through translation table for the correct key name
         // ...or fall back on english table.
@@ -450,7 +450,7 @@ int QKeySequence::decodeString(const QString &str)
 
 /*!
     Creates a shortcut string for \a key. For example,
-    CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
+    Qt::CTRL+Qt::Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
     translated (using QObject::tr()) in the "QShortcut" context.
  */
 QString QKeySequence::encodeString(int key)
@@ -458,29 +458,29 @@ QString QKeySequence::encodeString(int key)
     QString s;
 #if defined(Q_OS_MAC) && !defined(QWS)
     // On MAC the order is Meta, Alt, Shift, Control.
-    if ((key & META) == META)
+    if ((key & Qt::META) == META)
         s += QMAC_META;
-    if ((key & ALT) == ALT)
+    if ((key & Qt::ALT) == ALT)
         s += QMAC_ALT;
-    if ((key & SHIFT) == SHIFT)
+    if ((key & Qt::SHIFT) == SHIFT)
         s += QMAC_SHIFT;
-    if ((key & CTRL) == CTRL)
+    if ((key & Qt::CTRL) == CTRL)
         s += QMAC_CTRL;
 #else
     // On other systems the order is Meta, Control, Alt, Shift
-    if ((key & META) == META)
+    if ((key & Qt::META) == META)
         s += QShortcut::tr("Meta");
-    if ((key & CTRL) == CTRL) {
+    if ((key & Qt::CTRL) == CTRL) {
         if (!s.isEmpty())
             s += QShortcut::tr("+");
         s += QShortcut::tr("Ctrl");
     }
-    if ((key & ALT) == ALT) {
+    if ((key & Qt::ALT) == ALT) {
         if (!s.isEmpty())
             s += QShortcut::tr("+");
         s += QShortcut::tr("Alt");
     }
-    if ((key & SHIFT) == SHIFT) {
+    if ((key & Qt::SHIFT) == SHIFT) {
         if (!s.isEmpty())
             s += QShortcut::tr("+");
         s += QShortcut::tr("Shift");
@@ -488,19 +488,19 @@ QString QKeySequence::encodeString(int key)
 #endif
 
 
-    key &= ~(SHIFT | CTRL | ALT | META);
+    key &= ~(Qt::SHIFT | Qt::CTRL | Qt::ALT | Qt::META);
     QString p;
 
-    if (key && key < Key_Escape) {
+    if (key && key < Qt::Key_Escape) {
         if (key < 0x10000) {
             p = QChar(key & 0xffff).toUpper();
         } else {
             p = QChar((key-0x10000)/0x400+0xd800);
             p += QChar((key-0x10000)%400+0xdc00);
         }
-    } else if (key >= Key_F1 && key <= Key_F35) {
-        p = QShortcut::tr("F%1").arg(key - Key_F1 + 1);
-    } else if (key > Key_Space && key <= Key_AsciiTilde) {
+    } else if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
+        p = QShortcut::tr("F%1").arg(key - Qt::Key_F1 + 1);
+    } else if (key > Qt::Key_Space && key <= Qt::Key_AsciiTilde) {
         p.sprintf("%c", key);
     } else if (key) {
         int i=0;
@@ -513,7 +513,7 @@ QString QKeySequence::encodeString(int key)
         }
         // If we can't find the actual translatable keyname,
         // fall back on the unicode representation of it...
-        // Or else characters like Key_aring may not get displayed
+        // Or else characters like Qt::Key_aring may not get displayed
         // (Really depends on you locale)
         if (!keyname[i].name) {
             if (key < 0x10000) {
@@ -565,7 +565,7 @@ QKeySequence::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 /*!
     Creates a shortcut string for the key sequence.
 
-    For example, the value CTRL+Key_O results in "Ctrl+O".
+    For example, the value Qt::CTRL+Qt::Key_O results in "Ctrl+O".
     If the key sequence has multiple key codes, each is separated
     by commas in the string returned, such as "Alt+X, Ctrl+Y, Z".
     The strings, "Ctrl", "Shift", etc. are translated using

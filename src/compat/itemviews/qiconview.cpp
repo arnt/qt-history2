@@ -436,7 +436,7 @@ QIconViewItemLineEdit::QIconViewItemLineEdit(const QString &text, QWidget *paren
                             0 : item->pixmapRect().width()));
     document()->formatter()->setAllowBreakInWords(true);
     resize(200, 200); // ### some size, there should be a forceReformat()
-    setTextFormat(PlainText);
+    setTextFormat(Qt::PlainText);
     setText(text);
     setAlignment(Qt::AlignCenter);
 
@@ -445,11 +445,11 @@ QIconViewItemLineEdit::QIconViewItemLineEdit(const QString &text, QWidget *paren
 
 void QIconViewItemLineEdit::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key()  == Key_Escape) {
+    if (e->key()  == Qt::Key_Escape) {
         item->QIconViewItem::setText(startText);
         item->cancelRenameItem();
-    } else if (e->key() == Key_Enter ||
-                e->key() == Key_Return) {
+    } else if (e->key() == Qt::Key_Enter ||
+                e->key() == Qt::Key_Return) {
         item->renameItem();
     } else {
         Q3TextEdit::keyPressEvent(e);
@@ -1871,7 +1871,7 @@ void QIconViewItem::calcRect(const QString &text_)
         r = QRect(view->d->fm->boundingRect(0, 0, iconView()->maxItemWidth() -
                                               (iconView()->itemTextPos() == QIconView::Bottom ? 0 :
                                                 pixmapRect().width()),
-                                              0xFFFFFFFF, AlignHCenter | WordBreak | BreakAnywhere, t));
+                                              0xFFFFFFFF, Qt::AlignHCenter | Qt::WordBreak | Qt::BreakAnywhere, t));
         r.setWidth(r.width() + 4);
     } else {
         r = QRect(0, 0, view->d->fm->width(t), view->d->fm->height());
@@ -1954,12 +1954,12 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
         if (isSelected()) {
             p->fillRect(textRect(false), cg.highlight());
             p->setPen(QPen(cg.highlightedText()));
-        } else if (view->d->itemTextBrush != QBrush(NoBrush))
+        } else if (view->d->itemTextBrush != QBrush(Qt::NoBrush))
             p->fillRect(textRect(false), view->d->itemTextBrush);
 
-        int align = view->itemTextPos() == QIconView::Bottom ? AlignHCenter : AlignAuto;
+        int align = view->itemTextPos() == QIconView::Bottom ? Qt::AlignHCenter : Qt::AlignAuto;
         if (view->d->wordWrapIconText)
-            align |= WordBreak | BreakAnywhere;
+            align |= Qt::WordBreak | Qt::BreakAnywhere;
         p->drawText(textRect(false), align, view->d->wordWrapIconText ? itemText : tmpText);
         p->restore();
         return;
@@ -1985,7 +1985,7 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
             p2.begin(buffer);
 #if defined(Q_WS_X11)
             p2.fillRect(pix->rect(), QBrush(cg.highlight(), QBrush::Dense4Pattern));
-#else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
+#else // in WIN32 Qt::Dense4Pattern doesn't work correctly (transparency problem), so work around it
             if (iconView()->d->drawActiveSelection) {
                 if (!qiv_selection)
                     createSelectionPixmap(cg);
@@ -2015,12 +2015,12 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
     if (isSelected()) {
         p->fillRect(textRect(false), cg.highlight());
         p->setPen(QPen(cg.highlightedText()));
-    } else if (view->d->itemTextBrush != QBrush(NoBrush))
+    } else if (view->d->itemTextBrush != QBrush(Qt::NoBrush))
         p->fillRect(textRect(false), view->d->itemTextBrush);
 
-    int align = AlignHCenter;
+    int align = Qt::AlignHCenter;
     if (view->d->wordWrapIconText)
-        align |= WordBreak | BreakAnywhere;
+        align |= Qt::WordBreak | Qt::BreakAnywhere;
     p->drawText(textRect(false), align,
                  view->d->wordWrapIconText ? itemText : tmpText);
 
@@ -2692,7 +2692,7 @@ void QIconViewItem::checkRect()
 */
 
 QIconView::QIconView(QWidget *parent, const char *name, WFlags f)
-    : QScrollView(parent, name, WStaticContents | WNoAutoErase  | f)
+    : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase  | f)
 {
     if (!unknown_icon) {
         unknown_icon = new QPixmap((const char **)unknown_xpm);
@@ -2736,7 +2736,7 @@ QIconView::QIconView(QWidget *parent, const char *name, WFlags f)
     d->itemTextPos = Bottom;
     d->reorderItemsWhenInsert = true;
 #ifndef QT_NO_CURSOR
-    d->oldCursor = ArrowCursor;
+    d->oldCursor = Qt::ArrowCursor;
 #endif
     d->resortItemsWhenInsert = false;
     d->sortDirection = true;
@@ -2744,7 +2744,7 @@ QIconView::QIconView(QWidget *parent, const char *name, WFlags f)
     d->cachedContentsX = d->cachedContentsY = -1;
     d->clearing = false;
     d->fullRedrawTimer = new QTimer(this, "iconview full redraw timer");
-    d->itemTextBrush = NoBrush;
+    d->itemTextBrush = Qt::NoBrush;
     d->drawAllBack = true;
     d->fm = new QFontMetrics(font());
     d->minLeftBearing = d->fm->minLeftBearing();
@@ -3313,8 +3313,8 @@ void QIconView::doAutoScroll()
     // ### fix this and use qrubberband instead
     QPainter p;
     p.begin(viewport());
-    p.setPen(QPen(color0, 1));
-    p.setBrush(NoBrush);
+    p.setPen(QPen(Qt::color0, 1));
+    p.setBrush(Qt::NoBrush);
     drawRubber(&p);
     d->dragging = false;
     p.end();
@@ -3331,8 +3331,8 @@ void QIconView::doAutoScroll()
     ensureVisible(pos.x(), pos.y());
 
     p.begin(viewport());
-    p.setPen(QPen(color0, 1));
-    p.setBrush(NoBrush);
+    p.setPen(QPen(Qt::color0, 1));
+    p.setBrush(Qt::NoBrush);
     drawRubber(&p);
     d->dragging = true;
 
@@ -4086,7 +4086,7 @@ QIconView::ItemTextPos QIconView::itemTextPos() const
     \property QIconView::itemTextBackground
     \brief the brush to use when drawing the background of an item's text.
 
-    By default this brush is set to NoBrush, meaning that only the
+    By default this brush is set to Qt::NoBrush, meaning that only the
     normal icon view background is used.
 */
 
@@ -4341,8 +4341,8 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
     if (d->rubber) {
         QPainter p;
         p.begin(viewport());
-        p.setPen(QPen(color0, 1));
-        p.setBrush(NoBrush);
+        p.setPen(QPen(Qt::color0, 1));
+        p.setBrush(Qt::NoBrush);
 
         drawRubber(&p);
         d->dragging = false;
@@ -4380,8 +4380,8 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
     else
         d->startDragItem = 0;
 
-    if (e->button() == LeftButton && !(e->state() & ShiftButton) &&
-         !(e->state() & ControlButton) && item && item->isSelected() &&
+    if (e->button() == Qt::LeftButton && !(e->state() & Qt::ShiftButton) &&
+         !(e->state() & Qt::ControlButton) && item && item->isSelected() &&
          item->textRect(false).contains(e->pos())) {
 
         if (!item->renameEnabled()) {
@@ -4400,11 +4400,11 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
 
     if (item && item->isSelectable()) {
         if (d->selectionMode == Single)
-            item->setSelected(true, e->state() & ControlButton);
+            item->setSelected(true, e->state() & Qt::ControlButton);
         else if (d->selectionMode == Multi && !item->isSelected())
-            item->setSelected(true, e->state() & ControlButton);
+            item->setSelected(true, e->state() & Qt::ControlButton);
         else if (d->selectionMode == Extended) {
-            if (e->state() & ShiftButton) {
+            if (e->state() & Qt::ShiftButton) {
                 d->pressedSelected = false;
                 bool block = signalsBlocked();
                 blockSignals(true);
@@ -4453,20 +4453,20 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
                 viewport()->setUpdatesEnabled(true);
                 item->setSelected(select, true);
                 emit selectionChanged();
-            } else if (e->state() & ControlButton) {
+            } else if (e->state() & Qt::ControlButton) {
                 d->pressedSelected = false;
-                item->setSelected(!item->isSelected(), e->state() & ControlButton);
+                item->setSelected(!item->isSelected(), e->state() & Qt::ControlButton);
             } else {
-                item->setSelected(true, e->state() & ControlButton);
+                item->setSelected(true, e->state() & Qt::ControlButton);
             }
         }
-    } else if ((d->selectionMode != Single || e->button() == RightButton)
-                && !(e->state() & ControlButton))
+    } else if ((d->selectionMode != Single || e->button() == Qt::RightButton)
+                && !(e->state() & Qt::ControlButton))
         selectAll(false);
 
     setCurrentItem(item);
 
-    if (e->button() == LeftButton) {
+    if (e->button() == Qt::LeftButton) {
         if (!item && (d->selectionMode == Multi ||
                                   d->selectionMode == Extended)) {
             d->tmpCurrentItem = d->currentItem;
@@ -4477,7 +4477,7 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
             d->rubber = 0;
             d->rubber = new QRect(e->x(), e->y(), 0, 0);
             d->selectedItems.clear();
-            if ((e->state() & ControlButton) == ControlButton) {
+            if ((e->state() & Qt::ControlButton) == ControlButton) {
                 for (QIconViewItem *i = firstItem(); i; i = i->nextItem())
                     if (i->isSelected())
                         d->selectedItems.insert(i, i);
@@ -4493,7 +4493,7 @@ void QIconView::contentsMousePressEventEx(QMouseEvent *e)
         emit pressed(item);
         emit pressed(item, e->globalPos());
 
-        if (e->button() == RightButton)
+        if (e->button() == Qt::RightButton)
             emit rightButtonPressed(item, e->globalPos());
     }
 }
@@ -4535,8 +4535,8 @@ void QIconView::contentsMouseReleaseEvent(QMouseEvent *e)
     if (d->rubber) {
         QPainter p;
         p.begin(viewport());
-        p.setPen(QPen(color0, 1));
-        p.setBrush(NoBrush);
+        p.setPen(QPen(Qt::color0, 1));
+        p.setBrush(Qt::NoBrush);
 
         drawRubber(&p);
         d->dragging = false;
@@ -4581,7 +4581,7 @@ void QIconView::contentsMouseReleaseEvent(QMouseEvent *e)
         emit mouseButtonClicked(e->button(), item, e->globalPos());
         emit clicked(item);
         emit clicked(item, e->globalPos());
-        if (e->button() == RightButton)
+        if (e->button() == Qt::RightButton)
             emit rightButtonClicked(item, e->globalPos());
     }
 }
@@ -4601,7 +4601,7 @@ void QIconView::contentsMouseMoveEvent(QMouseEvent *e)
         d->highlightedItem = item;
     }
 
-    if (d->mousePressed && e->state() == NoButton)
+    if (d->mousePressed && e->state() == Qt::NoButton)
         d->mousePressed = false;
 
     if (d->startDragItem)
@@ -4868,11 +4868,11 @@ void QIconView::keyPressEvent(QKeyEvent *e)
     bool selectCurrent = true;
 
     switch (e->key()) {
-    case Key_Escape:
+    case Qt::Key_Escape:
         e->ignore();
         break;
 #ifndef QT_NO_TEXTEDIT
-    case Key_F2: {
+    case Qt::Key_F2: {
         if (d->currentItem->renameEnabled()) {
             d->currentItem->renameItem();
             d->currentItem->rename();
@@ -4880,7 +4880,7 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         }
     } break;
 #endif
-    case Key_Home: {
+    case Qt::Key_Home: {
         d->currInputString = QString::null;
         if (!d->firstItem)
             break;
@@ -4919,11 +4919,11 @@ void QIconView::keyPressEvent(QKeyEvent *e)
             QIconViewItem *old = d->currentItem;
             setCurrentItem(item);
             ensureItemVisible(item);
-            handleItemChange(old, e->state() & ShiftButton,
-                              e->state() & ControlButton, true);
+            handleItemChange(old, e->state() & Qt::ShiftButton,
+                              e->state() & Qt::ControlButton, true);
         }
     } break;
-    case Key_End: {
+    case Qt::Key_End: {
         d->currInputString = QString::null;
         if (!d->lastItem)
             break;
@@ -4961,11 +4961,11 @@ void QIconView::keyPressEvent(QKeyEvent *e)
             QIconViewItem *old = d->currentItem;
             setCurrentItem(item);
             ensureItemVisible(item);
-            handleItemChange(old, e->state() & ShiftButton,
-                              e->state() & ControlButton, true);
+            handleItemChange(old, e->state() & Qt::ShiftButton,
+                              e->state() & Qt::ControlButton, true);
         }
     } break;
-    case Key_Right: {
+    case Qt::Key_Right: {
         d->currInputString = QString::null;
         QIconViewItem *item;
         selectCurrent = false;
@@ -4984,10 +4984,10 @@ void QIconView::keyPressEvent(QKeyEvent *e)
             QIconViewItem *old = d->currentItem;
             setCurrentItem(item);
             ensureItemVisible(item);
-            handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+            handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
         }
     } break;
-    case Key_Left: {
+    case Qt::Key_Left: {
         d->currInputString = QString::null;
         QIconViewItem *item;
         selectCurrent = false;
@@ -5006,21 +5006,21 @@ void QIconView::keyPressEvent(QKeyEvent *e)
             QIconViewItem *old = d->currentItem;
             setCurrentItem(item);
             ensureItemVisible(item);
-            handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+            handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
         }
     } break;
-    case Key_Space: {
+    case Qt::Key_Space: {
         d->currInputString = QString::null;
         if (d->selectionMode == Single)
             break;
 
         d->currentItem->setSelected(!d->currentItem->isSelected(), true);
     } break;
-    case Key_Enter: case Key_Return:
+    case Qt::Key_Enter: case Qt::Key_Return:
         d->currInputString = QString::null;
         emit returnPressed(d->currentItem);
         break;
-    case Key_Down: {
+    case Qt::Key_Down: {
         d->currInputString = QString::null;
         QIconViewItem *item;
         selectCurrent = false;
@@ -5039,9 +5039,9 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         QIconViewItem *i = d->currentItem;
         setCurrentItem(item);
         item = i;
-        handleItemChange(item, e->state() & ShiftButton, e->state() & ControlButton);
+        handleItemChange(item, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
     } break;
-    case Key_Up: {
+    case Qt::Key_Up: {
         d->currInputString = QString::null;
         QIconViewItem *item;
         selectCurrent = false;
@@ -5059,9 +5059,9 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         QIconViewItem *i = d->currentItem;
         setCurrentItem(item);
         item = i;
-        handleItemChange(item, e->state() & ShiftButton, e->state() & ControlButton);
+        handleItemChange(item, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
     } break;
-    case Key_Next: {
+    case Qt::Key_Next: {
         d->currInputString = QString::null;
         selectCurrent = false;
         QRect r;
@@ -5080,10 +5080,10 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         }
         if (ni) {
             setCurrentItem(ni);
-            handleItemChange(item, e->state() & ShiftButton, e->state() & ControlButton);
+            handleItemChange(item, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
         }
     } break;
-    case Key_Prior: {
+    case Qt::Key_Prior: {
         d->currInputString = QString::null;
         selectCurrent = false;
         QRect r;
@@ -5102,7 +5102,7 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         }
         if (ni) {
             setCurrentItem(ni);
-            handleItemChange(item, e->state() & ShiftButton, e->state() & ControlButton);
+            handleItemChange(item, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
         }
     } break;
     default:
@@ -5151,9 +5151,9 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         } else {
             selectCurrent = false;
             d->currInputString = QString::null;
-            if (e->state() & ControlButton) {
+            if (e->state() & Qt::ControlButton) {
                 switch (e->key()) {
-                case Key_A:
+                case Qt::Key_A:
                     selectAll(true);
                     break;
                 }
@@ -5163,7 +5163,7 @@ void QIconView::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (!(e->state() & ShiftButton) || !d->selectAnchor)
+    if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
         d->selectAnchor = d->currentItem;
 
     if (d->currentItem && !d->currentItem->isSelected() &&
@@ -5499,7 +5499,7 @@ void QIconView::drawDragShapes(const QPoint &pos)
     QPainter p;
     p.begin(viewport());
     p.translate(-contentsX(), -contentsY());
-    p.setPen(QPen(color0));
+    p.setPen(QPen(Qt::color0));
     Q4StyleOptionFocusRect opt(0);
     opt.palette = palette();
     opt.state = QStyle::Style_Default;

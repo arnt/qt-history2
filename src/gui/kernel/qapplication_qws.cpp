@@ -1900,7 +1900,7 @@ void QApplication::restoreOverrideCursor()
     if (qApp->d->cursor_list.isEmpty()) {
         qws_overrideCursor = false;
         cursor_handle = (w->testAttribute(Qt::WA_SetCursor))
-                        ? (int)w->cursor().handle() : ArrowCursor;
+                        ? (int)w->cursor().handle() : Qt::ArrowCursor;
     } else {
         cursor_handle = (int)qApp->d->cursor_list.first().handle();
     }
@@ -2044,7 +2044,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     } else if (widget && event->type==QWSEvent::Mouse) {
         // The mouse event is to one of my top-level widgets
         // which one?
-        const int btnMask = LeftButton | RightButton | MidButton;
+        const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
         QPoint p(event->asMouse()->simpleData.x_root,
                  event->asMouse()->simpleData.y_root);
         int mouseButtonState = event->asMouse()->simpleData.state & btnMask;
@@ -2095,7 +2095,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                         if (curs)
                             QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
                         else
-                            QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
+                            QPaintDevice::qwsDisplay()->selectCursor(widget, Qt::ArrowCursor);
                     }
                 }
 #endif
@@ -2110,7 +2110,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 qt_pressGrab = w;
                 if (!widget->isActiveWindow() &&
                      (!app_do_modal || QApplication::activeModalWidget() == widget) &&
-                     !widget->testWFlags(WStyle_NoBorder|WStyle_Tool)) {
+                     !widget->testWFlags(Qt::WStyle_NoBorder|Qt::WStyle_Tool)) {
                     widget->setActiveWindow();
                     if (widget->raiseOnClick())
                         widget->raise();
@@ -2183,10 +2183,10 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             move.simpleData.state = oldstate;
             widget->translateMouseEvent(&move, oldstate);
         }
-        if ((mouse.state&MouseButtonMask) != (oldstate&MouseButtonMask)) {
+        if ((mouse.state&Qt::MouseButtonMask) != (oldstate&MouseButtonMask)) {
             widget->translateMouseEvent(me, oldstate);
         }
-        if (qt_button_down && (mouse_state & MouseButtonMask) == 0)
+        if (qt_button_down && (mouse_state & Qt::MouseButtonMask) == 0)
             qt_button_down = 0;
 
         break;
@@ -2555,7 +2555,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
             type = QEvent::MouseMove;
         } else if ((mouse.state&AnyButton) != (oldstate&AnyButton)) {
             int old_state = oldstate;
-            for (button = LeftButton; !type && button <= MidButton; button<<=1) {
+            for (button = Qt::LeftButton; !type && button <= Qt::MidButton; button<<=1) {
                 if ((mouse.state&button) != (old_state&button)) {
                     // button press or release
 
@@ -2569,7 +2569,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 #endif
                     if (mouse.state&button) { //button press
                         qt_button_down = QApplication::findChildWidget(this, pos);        //magic for masked widgets
-                        if (!qt_button_down || !qt_button_down->testWFlags(WMouseNoMask))
+                        if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
                             qt_button_down = this;
                         if (/*XXX mouseActWindow == this &&*/
                              mouseButtonPressed == button &&
@@ -2614,7 +2614,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
             QPoint dp = qt_screen->mapToDevice(globalPos, s);
             for (int i = 0; i < qApp->popupWidgets->size(); ++i) {
                 QWidget *w = qApp->popupWidgets->at(i);
-                if (w->testWFlags(WType_Popup) && w->data->alloc_region.contains(dp)) {
+                if (w->testWFlags(Qt::WType_Popup) && w->data->alloc_region.contains(dp)) {
                     popup = w;
                     break;
                 }
@@ -2664,7 +2664,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
                 QMouseEvent e(type, pos, globalPos, button, oldstate);
                 QApplication::sendSpontaneousEvent(popupChild ? popupChild : popup, & e);
             }
-            if (type == QEvent::MouseButtonPress && button == RightButton && (openPopupCount == oldOpenPopupCount)) {
+            if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
                 QWidget *popupEvent = popup;
                 if(popupButtonFocus)
                     popupEvent = popupButtonFocus;
@@ -2690,14 +2690,14 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 
             if (popupCloseDownMode) {
                 popupCloseDownMode = false;
-                if (testWFlags(WType_Popup))        // ignore replayed event
+                if (testWFlags(Qt::WType_Popup))        // ignore replayed event
                     return true; //EXIT
             }
 
             if (type == QEvent::MouseButtonRelease &&
-                 (mouse.state & (~button) & (LeftButton |
-                                        MidButton |
-                                        RightButton)) == 0) {
+                 (mouse.state & (~button) & (Qt::LeftButton |
+                                        Qt::MidButton |
+                                        Qt::RightButton)) == 0) {
                 qt_button_down = 0;
             }
 
@@ -2728,7 +2728,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
                 }
                 QApplication::sendSpontaneousEvent(widget, &e);
             }
-            if (type == QEvent::MouseButtonPress && button == RightButton && (openPopupCount == oldOpenPopupCount)) {
+            if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
                 QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, oldstate);
                 QApplication::sendSpontaneousEvent(widget, &e);
             }
@@ -2771,7 +2771,7 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab)
             return true;
     }
 #endif
-    if (!text.isEmpty() && testAttribute(WA_KeyCompression)) {
+    if (!text.isEmpty() && testAttribute(Qt::WA_KeyCompression)) {
         // the widget wants key compression so it gets it
 
         // XXX not implemented
@@ -2811,7 +2811,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     //therefore, normal ways of painting do not work.
     // However, it does listen to paint events.
 
-    if (testWFlags(WType_TopLevel) && d->topData()->qwsManager) {
+    if (testWFlags(Qt::WType_TopLevel) && d->topData()->qwsManager) {
         r &= d->topData()->qwsManager->region();
         r.translate(-data->crect.x(),-data->crect.y());
         //### something's very wrong here. What are we supposed to do with r?
@@ -2827,7 +2827,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 
 void QETWidget::updateRegion()
 {
-    if (testWFlags(WType_Desktop))
+    if (testWFlags(Qt::WType_Desktop))
        return;
     if (d->extra && !d->extra->mask.isNull()) {
        data->req_region = d->extra->mask;
@@ -2878,7 +2878,7 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
         QRegion newRegion = rgnMan->region(data->alloc_region_index);
         QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
-        if (testWFlags(WType_TopLevel) && d->topData()->qwsManager) {
+        if (testWFlags(Qt::WType_TopLevel) && d->topData()->qwsManager) {
             if (event->simpleData.nrectangles && qws_regionRequest) {
                 extraExposed = d->topData()->decor_allocated_region;
                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
@@ -2973,26 +2973,26 @@ int QApplication::wheelScrollLines()
 void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     switch (effect) {
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         animate_menu = enable;
         break;
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         if (enable)
             animate_menu = true;
         fade_menu = enable;
         break;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         animate_combo = enable;
         break;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         animate_tooltip = enable;
         break;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         if (enable)
             animate_tooltip = true;
         fade_tooltip = enable;
         break;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         animate_toolbox = enable;
         break;
     default:
@@ -3007,17 +3007,17 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
         return false;
 
     switch(effect) {
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         return animate_menu;
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         return fade_menu;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         return animate_combo;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         return animate_tooltip;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         return fade_tooltip;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         return animate_toolbox;
     default:
         return animate_ui;

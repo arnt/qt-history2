@@ -43,7 +43,7 @@ class Q_COMPAT_EXPORT Q3MainWindow: public QWidget
     Q_PROPERTY(bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving)
 
 public:
-    Q3MainWindow(QWidget* parent=0, const char* name=0, WFlags f = WType_TopLevel);
+    Q3MainWindow(QWidget* parent=0, const char* name=0, WFlags f = Qt::WType_TopLevel);
     ~Q3MainWindow();
 
 #ifndef QT_NO_MENUBAR
@@ -57,18 +57,18 @@ public:
     virtual void setCentralWidget(QWidget *);
     QWidget * centralWidget() const;
 
-    virtual void setDockEnabled(Dock dock, bool enable);
-    bool isDockEnabled(Dock dock) const;
+    virtual void setDockEnabled(Qt::Dock dock, bool enable);
+    bool isDockEnabled(Qt::Dock dock) const;
     bool isDockEnabled(Q3DockArea *area) const;
-    virtual void setDockEnabled(Q3DockWindow *tb, Dock dock, bool enable);
-    bool isDockEnabled(Q3DockWindow *tb, Dock dock) const;
+    virtual void setDockEnabled(Q3DockWindow *tb, Qt::Dock dock, bool enable);
+    bool isDockEnabled(Q3DockWindow *tb, Qt::Dock dock) const;
     bool isDockEnabled(Q3DockWindow *tb, Q3DockArea *area) const;
 
-    virtual void addDockWindow(Q3DockWindow *, Dock = DockTop, bool newLine = false);
+    virtual void addDockWindow(Q3DockWindow *, Qt::Dock = Qt::DockTop, bool newLine = false);
     virtual void addDockWindow(Q3DockWindow *, const QString &label,
-                                Dock = DockTop, bool newLine = false);
-    virtual void moveDockWindow(Q3DockWindow *, Dock = DockTop);
-    virtual void moveDockWindow(Q3DockWindow *, Dock, bool nl, int index, int extraOffset = -1);
+                                Qt::Dock = Qt::DockTop, bool newLine = false);
+    virtual void moveDockWindow(Q3DockWindow *, Qt::Dock = Qt::DockTop);
+    virtual void moveDockWindow(Q3DockWindow *, Qt::Dock, bool nl, int index, int extraOffset = -1);
     virtual void removeDockWindow(Q3DockWindow *);
 
     void show();
@@ -84,9 +84,9 @@ public:
 
     bool eventFilter(QObject*, QEvent*);
 
-    bool getLocation(Q3DockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset) const;
+    bool getLocation(Q3DockWindow *tb, Qt::Dock &dock, int &index, bool &nl, int &extraOffset) const;
 
-    QList<Q3DockWindow *> dockWindows(Dock dock) const;
+    QList<Q3DockWindow *> dockWindows(Qt::Dock dock) const;
     QList<Q3DockWindow *> dockWindows() const;
     void lineUpDockWindows(bool keepNewLines = false);
 
@@ -95,15 +95,15 @@ public:
     // compatibility stuff
     bool hasDockWindow(Q3DockWindow *dw);
 #ifndef QT_NO_TOOLBAR
-    void addToolBar(Q3DockWindow *, Dock = DockTop, bool newLine = false);
+    void addToolBar(Q3DockWindow *, Qt::Dock = Qt::DockTop, bool newLine = false);
     void addToolBar(Q3DockWindow *, const QString &label,
-                     Dock = DockTop, bool newLine = false);
-    void moveToolBar(Q3DockWindow *, Dock = DockTop);
-    void moveToolBar(Q3DockWindow *, Dock, bool nl, int index, int extraOffset = -1);
+                     Qt::Dock = Qt::DockTop, bool newLine = false);
+    void moveToolBar(Q3DockWindow *, Qt::Dock = Qt::DockTop);
+    void moveToolBar(Q3DockWindow *, Qt::Dock, bool nl, int index, int extraOffset = -1);
     void removeToolBar(Q3DockWindow *);
 
     bool toolBarsMovable() const;
-    QList<Q3ToolBar *> toolBars(Dock dock) const;
+    QList<Q3ToolBar *> toolBars(Qt::Dock dock) const;
     void lineUpToolBars(bool keepNewLines = false);
 #endif
 

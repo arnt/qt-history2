@@ -845,7 +845,7 @@ bool QMenuBar::macUpdateMenuBar()
         while(w && !mb)
             mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value((w = w->parentWidget()));
     }
-    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
+    if(!w || (!w->testWFlags(Qt::WStyle_Tool) && !w->testWFlags(Qt::WType_Popup)))
         fall_back_to_empty = true;
     if(!mb)
         mb = QMenuBarPrivate::QMacMenuBarPrivate::fallback;

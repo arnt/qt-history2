@@ -36,7 +36,7 @@ public:
     void repaint();
 
 public slots:
-    void message(const QString &str, int flags = AlignLeft,
+    void message(const QString &str, int flags = Qt::AlignLeft,
                   const QColor &color = black);
     void clear();
 

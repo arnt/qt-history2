@@ -1307,7 +1307,7 @@ int QGridLayout::colSpacing(int col) const
 
 /*!
     Returns whether this layout can make use of more space than
-    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 */
@@ -1319,10 +1319,10 @@ QSizePolicy::ExpandData QGridLayout::expanding() const
 /*!
     Sets the grid's origin corner, i.e. position (0, 0), to \a c.
 */
-void QGridLayout::setOrigin(Corner c)
+void QGridLayout::setOrigin(Qt::Corner c)
 {
-    d->setReversed(c == BottomLeft || c == BottomRight,
-                       c == TopRight || c == BottomRight);
+    d->setReversed(c == Qt::BottomLeft || c == Qt::BottomRight,
+                       c == Qt::TopRight || c == Qt::BottomRight);
 }
 
 /*!
@@ -1332,9 +1332,9 @@ void QGridLayout::setOrigin(Corner c)
 QGridLayout::Corner QGridLayout::origin() const
 {
     if (d->horReversed()) {
-        return d->verReversed() ? BottomRight : TopRight;
+        return d->verReversed() ? Qt::BottomRight : Qt::TopRight;
     } else {
-        return d->verReversed() ? BottomLeft : TopLeft;
+        return d->verReversed() ? Qt::BottomLeft : Qt::TopLeft;
     }
 }
 
@@ -1572,22 +1572,22 @@ void QBoxLayoutPrivate::calcHfw(int w)
     the parentWidget()), divides it up into a row of boxes, and makes
     each managed widget fill one box.
 
-    \img qhbox-m.png Horizontal box with five child widgets
+    \img qhbox-m.png Qt::Horizontal box with five child widgets
 
-    If the QBoxLayout's orientation is \c Horizontal the boxes are
+    If the QBoxLayout's orientation is \c Qt::Horizontal the boxes are
     placed in a row, with suitable sizes. Each widget (or other box)
     will get at least its minimum size and at most its maximum size.
     Any excess space is shared according to the stretch factors (more
     about that below).
 
-    \img qvbox-m.png Vertical box with five child widgets
+    \img qvbox-m.png Qt::Vertical box with five child widgets
 
-    If the QBoxLayout's orientation is \c Vertical, the boxes are
+    If the QBoxLayout's orientation is \c Qt::Vertical, the boxes are
     placed in a column, again with suitable sizes.
 
     The easiest way to create a QBoxLayout is to use one of the
-    convenience classes, e.g. QHBoxLayout (for \c Horizontal boxes) or
-    QVBoxLayout (for \c Vertical boxes). You can also use the
+    convenience classes, e.g. QHBoxLayout (for \c Qt::Horizontal boxes) or
+    QVBoxLayout (for \c Qt::Vertical boxes). You can also use the
     QBoxLayout constructor directly, specifying its direction as \c
     LeftToRight, \c Down, \c RightToLeft or \c Up.
 
@@ -1647,11 +1647,11 @@ void QBoxLayoutPrivate::calcHfw(int w)
 
     This type is used to determine the direction of a box layout.
 
-    \value LeftToRight  Horizontal, from left to right
-    \value RightToLeft  Horizontal, from right to left
-    \value TopToBottom  Vertical, from top to bottom
+    \value LeftToRight  Qt::Horizontal, from left to right
+    \value RightToLeft  Qt::Horizontal, from right to left
+    \value TopToBottom  Qt::Vertical, from top to bottom
     \value Down  The same as \c TopToBottom
-    \value BottomToTop  Vertical, from bottom to top
+    \value BottomToTop  Qt::Vertical, from bottom to top
     \value Up  The same as \c BottomToTop
 */
 
@@ -1869,7 +1869,7 @@ QLayoutItem *QBoxLayout::takeAt(int index)
 
 /*!
     Returns whether this layout can make use of more space than
-    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 */

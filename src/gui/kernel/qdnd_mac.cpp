@@ -286,7 +286,7 @@ bool QDragManager::eventFilter(QObject *, QEvent *)
     return false;
 }
 
-void QDragManager::updateMode(ButtonState)
+void QDragManager::updateMode(Qt::ButtonState)
 {
 }
 
@@ -500,8 +500,8 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
                 QPixmap tmp(fm.width(s), fm.height());
                 if(!tmp.isNull()) {
                     QPainter p(&tmp);
-                    p.fillRect(0, 0, tmp.width(), tmp.height(), color0);
-                    p.setPen(color1);
+                    p.fillRect(0, 0, tmp.width(), tmp.height(), Qt::color0);
+                    p.setPen(Qt::color1);
                     p.setFont(f);
                     p.drawText(0, fm.ascent(), s);
                     //save it

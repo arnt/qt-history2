@@ -172,7 +172,7 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
 
         //calc what I think the size is..
         if(action->isSeparator()) {
-            if(q->style().styleHint(QStyle::SH_GUIStyle, q) == MotifStyle)
+            if(q->style().styleHint(QStyle::SH_GUIStyle, q) == Qt::MotifStyle)
                 separator = ret.count();
             continue; //we don't really position these!
         } else {
@@ -301,7 +301,7 @@ Q4StyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) con
     \quotefile menu/menu.cpp
     \skipto file = new QMenu
     \printline
-    \skipto Key_O
+    \skipto Qt::Key_O
     \printline
     \printline
     \skipto new QMenuBar
@@ -326,7 +326,7 @@ Q4StyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) con
 
     QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
     If you have multiple menubars in one dialog the outermost menubar
-    (normally inside a widget with widget flag \c WType_TopLevel) will
+    (normally inside a widget with widget flag \c Qt::WType_TopLevel) will
     be used for the system-wide menubar.
 
     Qt/Mac also provides a menubar merging feature to make QMenuBar
@@ -580,7 +580,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
 */
 void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
-    if(e->button() != LeftButton)
+    if(e->button() != Qt::LeftButton)
         return;
     QMenuAction *action = d->actionAt(e->pos());
     if (!action) {
@@ -591,7 +591,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     d->mouseDown = true;
 
     if(d->currentAction == action && d->popupState) {
-        if((d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)))
+        if((d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)))
             q->update(d->actionRect(action));
     } else {
         d->setCurrentAction(action, true);
@@ -603,7 +603,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
 */
 void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
 {
-    if(e->button() != LeftButton || !d->mouseDown)
+    if(e->button() != Qt::LeftButton || !d->mouseDown)
         return;
     d->mouseDown = false;
     QMenuAction *action = d->actionAt(e->pos());
@@ -622,39 +622,39 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
     if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
-        if(key == Key_Left)
-            key = Key_Right;
-        else if(key == Key_Right)
-            key = Key_Left;
+        if(key == Qt::Key_Left)
+            key = Qt::Key_Right;
+        else if(key == Qt::Key_Right)
+            key = Qt::Key_Left;
     }
-    if(key == Key_Tab) //means right
-        key = Key_Right;
+    if(key == Qt::Key_Tab) //means right
+        key = Qt::Key_Right;
 
     bool key_consumed = false;
     switch(key) {
-    case Key_Up:
-    case Key_Down:
-    case Key_Enter:
-    case Key_Space:
-    case Key_Return: {
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_Enter:
+    case Qt::Key_Space:
+    case Qt::Key_Return: {
         if(!style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) || !d->currentAction)
            break;
         if(d->currentAction->action->menu()) {
             d->popupAction(d->currentAction, true);
-        } else if(key == Key_Enter || key == Key_Return || key == Key_Space) {
+        } else if(key == Qt::Key_Enter || key == Qt::Key_Return || key == Qt::Key_Space) {
             d->activateAction(d->currentAction->action, QAction::Trigger);
             d->setCurrentAction(d->currentAction, false);
         }
         key_consumed = true;
         break; }
 
-    case Key_Right:
-    case Key_Left: {
+    case Qt::Key_Right:
+    case Qt::Key_Left: {
         if(d->currentAction) {
             QMenuAction *nextAction = 0;
             for(int i=0; i<(int)d->actionItems.count(); i++) {
                 if(d->actionItems.at(i) == d->currentAction) {
-                    if(key == Key_Left) {
+                    if(key == Qt::Key_Left) {
                         if(i > 0)
                             nextAction = d->actionItems.at(i-1);
                     } else {
@@ -665,7 +665,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
                 }
             }
             if(!nextAction) {
-                if(key == Key_Left)
+                if(key == Qt::Key_Left)
                     nextAction = d->actionItems.last();
                 else
                     nextAction = d->actionItems.first();
@@ -677,7 +677,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
         }
         break; }
 
-    case Key_Escape:
+    case Qt::Key_Escape:
         d->setCurrentAction(0);
         d->setKeyboardMode(false);
         key_consumed = true;
@@ -688,7 +688,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed &&
-       (!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !d->popupState) {
+       (!e->state() || (e->state()&(Qt::MetaButton|Qt::AltButton))) && e->text().length()==1 && !d->popupState) {
         int clashCount = 0;
         QMenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
         {
@@ -733,7 +733,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
 */
 void QMenuBar::mouseMoveEvent(QMouseEvent *e)
 {
-    d->mouseDown = e->state() & LeftButton;
+    d->mouseDown = e->state() & Qt::LeftButton;
     QMenuAction *action = d->actionAt(e->pos());
     bool popupState = d->popupState || d->mouseDown;
     if(action || !popupState)
@@ -825,7 +825,7 @@ bool QMenuBar::event(QEvent *e)
             return ;
         }
 #endif
-        if(ke->key() == Key_Tab || ke->key() == Key_BackTab) {
+        if(ke->key() == Qt::Key_Tab || ke->key() == Key_BackTab) {
             keyPressEvent(ke);
             return true;
         }
@@ -886,7 +886,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
     if(event->type() == QEvent::Shortcut || event->type() == QEvent::KeyPress) {
         QWidget *f = widget->focusWidget();
         // ### this thinks alt and meta are the same
-        if(ke->key() == Key_Alt || ke->key() == Key_Meta) {
+        if(ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta) {
             if(d->altPressed) { //eat first alt
                 d->altPressed = false;
                 if(!widget->isTopLevel())
@@ -897,12 +897,12 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
                 d->setKeyboardMode(false);
                 ke->accept();
                 return true;
-            } else if(ke->stateAfter() == AltButton) {  // Start waiting for Alt release on focus widget
+            } else if(ke->stateAfter() == Qt::AltButton) {  // Start waiting for Alt release on focus widget
                 d->altPressed = true;
                 if(f && f != object)
                     f->installEventFilter(this);
             }
-        } else if(ke->key() == Key_Control || ke->key() == Key_Shift) {        // Other modifiers kills focus on menubar
+        } else if(ke->key() == Qt::Key_Control || ke->key() == Qt::Key_Shift) {        // Other modifiers kills focus on menubar
             d->setKeyboardMode(false);
         } else {         // Got other key, no need to wait for Alt release
             d->altPressed = false;
@@ -912,13 +912,13 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
     }
 #endif
     if(((QWidget*)object)->focusWidget() == object || (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0)) {
-        if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Key_Alt || ke->key() == Key_Meta)) {    //alt release
+        if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta)) {    //alt release
             d->setKeyboardMode(true);
             if(!widget->isTopLevel())
                 object->removeEventFilter(this);
             return true;
         } else if(!hasFocus() && (event->type() == QEvent::ShortcutOverride) &&
-                  !(((QKeyEvent *)event)->key() == Key_Alt || ((QKeyEvent *)event)->key() == Key_Meta)) {         // Cancel if next keypress is NOT Alt/Meta,
+                  !(((QKeyEvent *)event)->key() == Qt::Key_Alt || ((QKeyEvent *)event)->key() == Qt::Key_Meta)) {         // Cancel if next keypress is NOT Alt/Meta,
             if(!widget->isTopLevel())
                 object->removeEventFilter(this);
             d->setKeyboardMode(false);

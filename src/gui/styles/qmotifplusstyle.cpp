@@ -660,8 +660,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->setClipping(false);
             }
 
-            int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
+            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
                      flags & Style_Enabled,
                      !checkbox->icon().isNull() ? checkbox->icon().pixmap(QIconSet::Small,
                                                                           QIconSet::Normal)
@@ -689,8 +689,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->setClipping(false);
             }
 
-            int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
+            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
                      flags & Style_Enabled,
                     !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(QIconSet::Small,
                                                                                QIconSet::Normal)
@@ -718,7 +718,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
+            drawItem(p, r, Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine,
                      pal, flags & Style_Enabled, pix, mi->text(), -1,
                      &pal.buttonText().color());
 #endif
@@ -738,7 +738,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             else
                 p->fillRect(r, pal.button());
 
-            drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine,
+            drawItem(p, r, Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine,
                      pal, flags & Style_Enabled, *mi->pixmap(), mi->text(), -1,
                      &pal.buttonText().color());
 #endif
@@ -844,8 +844,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = 2;
-                int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-                text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-2-2,
                                                  y+m, tab, h-2*m), r);
@@ -976,8 +976,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = 2;
-                int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-                text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-2-2,
                                                  y+m, tab, h-2*m), r);
@@ -989,10 +989,10 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             } else if (mi->pixmap()) {
                 QPixmap *pixmap = mi->pixmap();
 
-                if (pixmap->depth() == 1) p->setBackgroundMode(OpaqueMode);
+                if (pixmap->depth() == 1) p->setBackgroundMode(Qt::OpaqueMode);
                 QRect vr = visualRect(QRect(x + checkcol + 2, y + 2, w - checkcol - 1, h - 4), r);
                 p->drawPixmap(vr.x(), y + 2, *pixmap);
-                if (pixmap->depth() == 1) p->setBackgroundMode(TransparentMode);
+                if (pixmap->depth() == 1) p->setBackgroundMode(Qt::TransparentMode);
             }
 
             if (mi->popup()) {
@@ -1184,7 +1184,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
             int thickness = pixelMetric(PM_SliderControlThickness, widget);
             int x, y, wi, he;
 
-            if (slider->orientation() == Horizontal) {
+            if (slider->orientation() == Qt::Horizontal) {
                 x = 0;
                 y = tickOffset;
                 wi = slider->width();
@@ -1465,7 +1465,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                     flags &= ~Style_MouseOver;
                 drawPrimitive(PE_ButtonBevel, p, handle, pal, flags | Style_Raised);
 
-                if (slider->orientation() == Horizontal) {
+                if (slider->orientation() == Qt::Horizontal) {
                     QCOORD mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid,  handle.y() + 1, mid ,
                                     handle.y() + handle.height() - 3,
@@ -1578,7 +1578,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
             int sliderPos   = slider->sliderPosition();
             int motifBorder = 2;
 
-            if (slider->orientation() == Horizontal)
+            if (slider->orientation() == Qt::Horizontal)
                 return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
                               thickness - 2*motifBorder);
             return QRect(tickOffset + motifBorder, sliderPos + motifBorder,

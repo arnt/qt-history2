@@ -89,7 +89,7 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
     d->bm  = new QBitmap(bitmap);
     d->bmm = new QBitmap(mask);
     d->hcurs = 0;
-    d->cshape = BitmapCursor;
+    d->cshape = Qt::BitmapCursor;
     d->hx = hotX >= 0 ? hotX : bitmap.width() / 2;
     d->hy = hotY >= 0 ? hotY : bitmap.height() / 2;
     d->fg.red   = 0x0000;
@@ -241,7 +241,7 @@ void QCursor::update() const
     Display *dpy = QX11Info::appDisplay();
     Window rootwin = QX11Info::appRootWindow();
 
-    if (d->cshape == BitmapCursor) {
+    if (d->cshape == Qt::BitmapCursor) {
         d->hcurs = XCreatePixmapCursor(dpy, d->bm->handle(), d->bmm->handle(), &d->fg, &d->bg,
                                            d->hx, d->hy);
         return;
@@ -436,8 +436,8 @@ void QCursor::update() const
         forbidden_bits, forbiddenm_bits
     };
 
-    if (d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor
-            || d->cshape == BlankCursor) {
+    if (d->cshape >= Qt::SizeVerCursor && d->cshape < Qt::SizeAllCursor
+            || d->cshape == Qt::BlankCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -445,14 +445,14 @@ void QCursor::update() const
         fg.red   = 0;
         fg.green = 0;
         fg.blue  = 0;
-        int i = (d->cshape - SizeVerCursor) * 2;
+        int i = (d->cshape - Qt::SizeVerCursor) * 2;
         d->pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i], 16, 16);
         d->pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i + 1], 16, 16);
         d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, 8, 8);
         return;
     }
-    if ((d->cshape >= SplitVCursor && d->cshape <= SplitHCursor)
-            || d->cshape == WhatsThisCursor || d->cshape == BusyCursor) {
+    if ((d->cshape >= Qt::SplitVCursor && d->cshape <= Qt::SplitHCursor)
+            || d->cshape == Qt::WhatsThisCursor || d->cshape == Qt::BusyCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -460,15 +460,15 @@ void QCursor::update() const
         fg.red   = 0;
         fg.green = 0;
         fg.blue  = 0;
-        int i = (d->cshape - SplitVCursor) * 2;
+        int i = (d->cshape - Qt::SplitVCursor) * 2;
         d->pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits32[i], 32, 32);
         d->pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits32[i + 1], 32, 32);
-        int hs = (d->cshape == PointingHandCursor || d->cshape == WhatsThisCursor
-                  || d->cshape == BusyCursor) ? 0 : 16;
+        int hs = (d->cshape == Qt::PointingHandCursor || d->cshape == Qt::WhatsThisCursor
+                  || d->cshape == Qt::BusyCursor) ? 0 : 16;
         d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, hs, hs);
         return;
     }
-    if (d->cshape == ForbiddenCursor) {
+    if (d->cshape == Qt::ForbiddenCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -476,7 +476,7 @@ void QCursor::update() const
         fg.red   = 0;
         fg.green = 0;
         fg.blue  = 0;
-        int i = (d->cshape - ForbiddenCursor) * 2;
+        int i = (d->cshape - Qt::ForbiddenCursor) * 2;
         d->pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i], 20, 20);
         d->pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i + 1], 20, 20);
         d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, 10, 10);
@@ -486,35 +486,35 @@ void QCursor::update() const
 
     uint sh;
     switch (d->cshape) {                        // map Q cursor to X cursor
-    case ArrowCursor:
+    case Qt::ArrowCursor:
         sh = XC_left_ptr;
         break;
-    case UpArrowCursor:
+    case Qt::UpArrowCursor:
         sh = XC_center_ptr;
         break;
-    case CrossCursor:
+    case Qt::CrossCursor:
         sh = XC_crosshair;
         break;
-    case WaitCursor:
+    case Qt::WaitCursor:
         sh = XC_watch;
         break;
-    case IbeamCursor:
+    case Qt::IbeamCursor:
         sh = XC_xterm;
         break;
-    case SizeAllCursor:
+    case Qt::SizeAllCursor:
         sh = XC_fleur;
         break;
-    case PointingHandCursor:
+    case Qt::PointingHandCursor:
         sh = XC_hand2;
         break;
 #ifdef QT_USE_APPROXIMATE_CURSORS
-    case SizeBDiagCursor:
+    case Qt::SizeBDiagCursor:
         sh = XC_top_right_corner;
         break;
-    case SizeFDiagCursor:
+    case Qt::SizeFDiagCursor:
         sh = XC_bottom_right_corner;
         break;
-    case BlankCursor:
+    case Qt::BlankCursor:
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -527,21 +527,21 @@ void QCursor::update() const
         d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, 8, 8);
         return;
         break;
-    case SizeVerCursor:
-    case SplitVCursor:
+    case Qt::SizeVerCursor:
+    case Qt::SplitVCursor:
         sh = XC_sb_v_double_arrow;
         break;
-    case SizeHorCursor:
-    case SplitHCursor:
+    case Qt::SizeHorCursor:
+    case Qt::SplitHCursor:
         sh = XC_sb_h_double_arrow;
         break;
-    case WhatsThisCursor:
+    case Qt::WhatsThisCursor:
         sh = XC_question_arrow;
         break;
-    case ForbiddenCursor:
+    case Qt::ForbiddenCursor:
         sh = XC_circle;
         break;
-    case BusyCursor:
+    case Qt::BusyCursor:
         sh = XC_watch;
         break;
 #endif /* QT_USE_APPROXIMATE_CURSORS */

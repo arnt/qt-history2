@@ -35,7 +35,7 @@ public:
     uint pressed : 1;
     uint invertedAppearance : 1;
     uint invertedControls : 1;
-    Orientation orientation;
+    Qt::Orientation orientation;
 
     QBasicTimer repeatActionTimer;
     int repeatActionTime;

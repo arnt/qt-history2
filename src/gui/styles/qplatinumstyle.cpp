@@ -474,10 +474,10 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
                 w,
                 h;
             r.rect(&x, &y, &w, &h);
-            p->fillRect(x, y, w - 2, h, color1);
+            p->fillRect(x, y, w - 2, h, Qt::color1);
             if (flags & Style_Off) {
                 QPen oldPen = p->pen();
-                p->setPen (QPen(color1, 2));
+                p->setPen (QPen(Qt::color1, 2));
                 p->drawLine(x + 2, y + h / 2 - 1,
                              x + w / 2 - 1, y + h - 4);
                 p->drawLine(x + w / 2 - 1, y + h - 4,
@@ -516,7 +516,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
             y = r.y();
             p->setBrush((down||on) ? pal.brush(QPalette::Dark)
                          : pal.brush(QPalette::Button));
-            p->setPen(NoPen);
+            p->setPen(Qt::NoPen);
             p->drawEllipse(x, y, 13, 13);
             p->setPen(pal.shadow());
             QPointArray a(QCOORDARRLEN(pts1), pts1);
@@ -552,7 +552,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
                 a.setPoints(QCOORDARRLEN(pts5), pts5);
                 a.translate(x1, y1);
                 p->drawPolygon(a);
-                p->setBrush(NoBrush);
+                p->setBrush(Qt::NoBrush);
                 p->setPen(pal.dark());
                 a.setPoints(QCOORDARRLEN(pts6), pts6);
                 a.translate(x1, y1);
@@ -570,8 +570,8 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
                 1,4, 1,3, 2,2, 3,1, 4,1 };
             QPointArray a(QCOORDARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
-            p->setPen(color1);
-            p->setBrush(color1);
+            p->setPen(Qt::color1);
+            p->setBrush(Qt::color1);
             p->drawPolygon(a);
             break;
         }
@@ -744,7 +744,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             r.coords(&x1, &y1, &x2, &y2);
 
             p->setPen(pal.foreground());
-            p->setBrush(QBrush(pal.button(), NoBrush));
+            p->setBrush(QBrush(pal.button(), Qt::NoBrush));
 
             QBrush fill;
             if (btn->isDown()) {
@@ -753,7 +753,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                 // makes a down Bezel drawn correctly...
                 pal2.setBrush(QPalette::Mid, fill);
             } else if (btn->isChecked()) {
-                fill = QBrush(pal.mid(), Dense4Pattern);
+                fill = QBrush(pal.mid(), Qt::Dense4Pattern);
                 pal2.setBrush(QPalette::Mid, fill);
             }
             // to quote the old QPlatinumStlye drawPushButton...
@@ -820,8 +820,8 @@ void QPlatinumStyle::drawControl(ControlElement element,
             }
 
 
-            if (p->brush().style() != NoBrush)
-                p->setBrush(NoBrush);
+            if (p->brush().style() != Qt::NoBrush)
+                p->setBrush(Qt::NoBrush);
             break;
 #endif
         }
@@ -876,7 +876,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             }
 #endif
             drawItem(p, QRect(x, y, w, h),
-                      AlignCenter | ShowPrefix,
+                      Qt::AlignCenter | Qt::ShowPrefix,
                       btn->palette(), btn->isEnabled(),
                       QPixmap(), btn->text(), -1,
                       on ? &btn->palette().brightText().color()
@@ -1115,7 +1115,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                 if (ticks & QSlider::Below)
                     mid -= len / 8;
 
-                if (slider->orientation() == Horizontal) {
+                if (slider->orientation() == Qt::Horizontal) {
                     x = 0;
                     y = groove.y() + mid - 3;
                     w = slider->width();
@@ -1190,11 +1190,11 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                 int mx = handle.width() / 2;
                 int my = handle.height() / 2;
 
-                if (slider->orientation() == Vertical) {
+                if (slider->orientation() == Qt::Vertical) {
                     // Background
                     QBrush oldBrush = p->brush();
                     p->setBrush(pal.brush(QPalette::Button));
-                    p->setPen(NoPen);
+                    p->setPen(Qt::NoPen);
                     QPointArray a(6);
                     a.setPoint(0, x1 + 1, y1 + 1);
                     a.setPoint(1, x2 - my + 2, y1 + 1);
@@ -1228,10 +1228,10 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 
                     drawRiffles(p, handle.x(), handle.y() + 2, handle.width() - 3,
                                  handle.height() - 4, pal, true);
-                } else {  // Horizontal
+                } else {  // Qt::Horizontal
                     QBrush oldBrush = p->brush();
                     p->setBrush(pal.brush(QPalette::Button));
-                    p->setPen(NoPen);
+                    p->setPen(Qt::NoPen);
                     QPointArray a(6);
                     a.setPoint(0, x2 - 1, y1 + 1);
                     a.setPoint(1, x2 - 1, y2 - mx + 2);

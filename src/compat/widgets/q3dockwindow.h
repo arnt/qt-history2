@@ -120,7 +120,7 @@ public:
     QString windowTitle() const;
 
 signals:
-    void orientationChanged(Orientation o);
+    void orientationChanged(Qt::Orientation o);
     void placeChanged(Q3DockWindow::Place p);
     void visibilityChanged(bool);
 
@@ -128,7 +128,7 @@ public slots:
     virtual void undock(QWidget *w);
     virtual void undock() { undock(0); }
     virtual void dock();
-    virtual void setOrientation(Orientation o);
+    virtual void setOrientation(Qt::Orientation o);
 
 protected:
     void resizeEvent(QResizeEvent *e);
@@ -174,7 +174,7 @@ private:
     bool opaque : 1;
     bool isToolbar : 1;
     bool stretchable[3];
-    Orientation startOrientation;
+    Qt::Orientation startOrientation;
     int cMode;
     QPoint startOffset;
     int offs;

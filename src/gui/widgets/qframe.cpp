@@ -250,7 +250,7 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
 
 void QFrame::setFrameStyle(int style)
 {
-    if (!testWState(WState_OwnSizePolicy)) {
+    if (!testWState(Qt::WState_OwnSizePolicy)) {
         switch (style & MShape) {
         case HLine:
             setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -262,7 +262,7 @@ void QFrame::setFrameStyle(int style)
             if ((d->frameStyle & MShape) == HLine || (d->frameStyle & MShape) == VLine)
                 setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         }
-        clearWState(WState_OwnSizePolicy);
+        clearWState(Qt::WState_OwnSizePolicy);
     }
     d->frameStyle = (short)style;
     d->updateFrameWidth();
@@ -497,7 +497,7 @@ void QFrame::drawFrame(QPainter *p)
         opt.state |= QStyle::Style_Raised;
     if (hasFocus())
         opt.state |= QStyle::Style_HasFocus;
-    if (testAttribute(WA_UnderMouse))
+    if (testAttribute(Qt::WA_UnderMouse))
         opt.state |= QStyle::Style_MouseOver;
 
     switch (frameShape) {
@@ -625,7 +625,7 @@ Q3Frame::Q3Frame(QWidget* parent, const char* name, WFlags f)
 {
     if (name)
         setObjectName(name);
-    setAttribute(WA_LayoutOnEntireRect);
+    setAttribute(Qt::WA_LayoutOnEntireRect);
 }
 
 Q3Frame::~Q3Frame()

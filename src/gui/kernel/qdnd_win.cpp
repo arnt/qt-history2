@@ -43,9 +43,9 @@ static bool acceptact = false;
 ** returns the DROPEFFECT value derived from the key state.
 **    the following is the standard interpretation:
 **          no modifier -- Default Drop     (0 is returned)
-**          CTRL        -- DROPEFFECT_COPY
-**          SHIFT       -- DROPEFFECT_MOVE
-**          CTRL-SHIFT  -- DROPEFFECT_LINK
+**          Qt::CTRL        -- DROPEFFECT_COPY
+**          Qt::SHIFT       -- DROPEFFECT_MOVE
+**          Qt::CTRL-Qt::SHIFT  -- DROPEFFECT_LINK
 **
 **    Default Drop: this depends on the type of the target application.
 **    this is re-interpretable by each target application. a typical
@@ -1086,7 +1086,7 @@ void QDragManager::updatePixmap()
                 QPixmap colorbits(w,h,-1,QPixmap::NormalOptim);
                 {
                     QPainter p(&colorbits);
-                    p.fillRect(0,0,w,h,color1);
+                    p.fillRect(0,0,w,h,Qt::color1);
                     p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),pm);
                     p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),cpm);
                 }
@@ -1100,7 +1100,7 @@ void QDragManager::updatePixmap()
                         p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),m);
                     } else {
                         p.fillRect(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),
-                            pm.width(),pm.height(),color1);
+                            pm.width(),pm.height(),Qt::color1);
                     }
                     if (cpm.mask()) {
                         QBitmap m(*cpm.mask());
@@ -1109,7 +1109,7 @@ void QDragManager::updatePixmap()
                     } else {
                         p.fillRect(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),
                             cpm.width(),cpm.height(),
-                            color1);
+                            Qt::color1);
                     }
                 }
 

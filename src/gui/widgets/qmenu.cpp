@@ -46,7 +46,7 @@ public:
         d->tornoff = 1;
         d->causedPopup = ((QTornOffMenu*)p)->d->causedPopup;
 
-        setParent(p, WType_TopLevel | WStyle_Tool | WDestructiveClose | WStyle_NormalBorder);
+        setParent(p, Qt::WType_TopLevel | Qt::WStyle_Tool | Qt::WDestructiveClose | Qt::WStyle_NormalBorder);
         p->setWindowTitle(p->windowTitle());
         setEnabled(p->isEnabled());
         QObject::connect(this, SIGNAL(activated(QAction*)), p, SIGNAL(activated(QAction*)));
@@ -603,9 +603,9 @@ Q4StyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     passed the popup menu will be deleted when that parent is
     destroyed (as with any other QObject).
 */
-QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, WType_TopLevel|WType_Popup)
+QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
 {
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
     if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
@@ -1060,8 +1060,8 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
        vGuess = QEffects::UpScroll;
 #endif
 
-    if(QApplication::isEffectEnabled(UI_AnimateMenu)) {
-        if(QApplication::isEffectEnabled(UI_FadeMenu))
+    if(QApplication::isEffectEnabled(Qt::UI_AnimateMenu)) {
+        if(QApplication::isEffectEnabled(Qt::UI_FadeMenu))
             qFadeEffect(this);
         else if(d->causedPopup)
             qScrollEffect(this, qt_cast<QMenu*>(d->causedPopup) ? hGuess : vGuess);
@@ -1308,7 +1308,7 @@ void QMenu::mousePressEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
         return;
-    if(e->button() != LeftButton)
+    if(e->button() != Qt::LeftButton)
         return;
     if(!rect().contains(e->pos())) {
         d->hideUpToMenuBar();
@@ -1327,7 +1327,7 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
         return;
-    if(e->button() != LeftButton || !d->mouseDown)
+    if(e->button() != Qt::LeftButton || !d->mouseDown)
         return;
     d->mouseDown = false;
     QMenuAction *action = d->actionAt(e->pos());
@@ -1391,7 +1391,7 @@ QMenu::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
-        if(ke->key() == Key_Tab || ke->key() == Key_BackTab) {
+        if(ke->key() == Qt::Key_Tab || ke->key() == Key_BackTab) {
             keyPressEvent(ke);
             return true;
         }
@@ -1406,18 +1406,18 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
     if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
-        if(key == Key_Left)
-            key = Key_Right;
-        else if(key == Key_Right)
-            key = Key_Left;
+        if(key == Qt::Key_Left)
+            key = Qt::Key_Right;
+        else if(key == Qt::Key_Right)
+            key = Qt::Key_Left;
     }
-    if(key == Key_Tab) //means down
-        key = Key_Down;
+    if(key == Qt::Key_Tab) //means down
+        key = Qt::Key_Down;
 
     bool key_consumed = false;
     switch(key) {
-    case Key_Up:
-    case Key_Down: {
+    case Qt::Key_Up:
+    case Qt::Key_Down: {
         QMenuAction *nextAction = 0;
         uint scroll_direction = QMenuPrivate::QMenuScroller::ScrollNone;
         if(!d->currentAction) {
@@ -1426,7 +1426,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             for(int i=0, y=0; !nextAction && i < (int)d->actionItems.count(); i++) {
                 QMenuAction *act = d->actionItems.at(i);
                 if(act == d->currentAction) {
-                    if(key == Key_Up) {
+                    if(key == Qt::Key_Up) {
                         for(int next_i = i-1; true; next_i--) {
                             if(next_i == -1) {
                                 if(d->scroll)
@@ -1496,17 +1496,17 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         }
         break; }
 
-    case Key_Right:
+    case Qt::Key_Right:
         if(d->currentAction && d->currentAction->action->isEnabled() && d->currentAction->action->menu()) {
             d->popupAction(d->currentAction, 0, true);
             key_consumed = true;
             break;
         }
         //FALL THROUGH
-    case Key_Left: {
+    case Qt::Key_Left: {
         if(d->currentAction && !d->scroll) {
             QMenuAction *nextAction = 0;
-            if(key == Key_Left) {
+            if(key == Qt::Key_Left) {
                 QRect actionR = d->actionRect(d->currentAction);
                 for(int x = actionR.left()-1; !nextAction && x >= 0; x--)
                     nextAction = d->actionAt(QPoint(x, actionR.center().y()));
@@ -1520,17 +1520,17 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 key_consumed = true;
             }
         }
-        if(!key_consumed && key == Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
+        if(!key_consumed && key == Qt::Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
             hide();
             key_consumed = true;
         }
         break; }
 
-    case Key_Alt:
+    case Qt::Key_Alt:
         key_consumed = true;
         break;
 
-    case Key_Escape:
+    case Qt::Key_Escape:
         key_consumed = true;
         if(d->tornoff) {
             close();
@@ -1539,12 +1539,12 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         hide();
         break;
 
-    case Key_Space:
+    case Qt::Key_Space:
         if(!style().styleHint(QStyle::SH_Menu_SpaceActivatesItem, this))
             break;
         // for motif, fall through
-    case Key_Return:
-    case Key_Enter: {
+    case Qt::Key_Return:
+    case Qt::Key_Enter: {
             if(!d->currentAction)
                 break;
 #ifndef QT_NO_WHATSTHIS
@@ -1564,7 +1564,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             break; }
 
 #ifndef QT_NO_WHATSTHIS
-    case Key_F1:
+    case Qt::Key_F1:
         if(!d->currentAction || d->currentAction->action->whatsThis().isNull())
             break;
         if(!QWhatsThis::inWhatsThisMode())
@@ -1577,7 +1577,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed) {                                // send to menu bar
-        if((!e->state() || e->state() == AltButton || e->state() == ShiftButton) && e->text().length()==1) {
+        if((!e->state() || e->state() == Qt::AltButton || e->state() == Qt::ShiftButton) && e->text().length()==1) {
             int clashCount = 0;
             QMenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
             {
@@ -1631,7 +1631,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         }
 
 #ifdef Q_OS_WIN32
-        if (key_consumed && (e->key() == Key_Control || e->key() == Key_Shift || e->key() == Key_Meta))
+        if (key_consumed && (e->key() == Qt::Key_Control || e->key() == Qt::Key_Shift || e->key() == Qt::Key_Meta))
             qApp->beep();
 #endif // Q_OS_WIN32
     }
@@ -1654,7 +1654,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
            e->pos().y() <= fw || e->pos().y() >= height()-fw)
             return; //mouse over frame
     } else {
-        d->mouseDown = e->state() & LeftButton;
+        d->mouseDown = e->state() & Qt::LeftButton;
     }
     if(d->sloppyRegion.contains(e->pos())) {
         static QTimer *sloppyDelayTimer = 0;

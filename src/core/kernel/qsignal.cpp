@@ -152,7 +152,7 @@ void QSignalEmitter::activate(void *_t1)
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 
-bool QSignalEmitter::connect(const QObject *receiver, const char *member, ConnectionType type)
+bool QSignalEmitter::connect(const QObject *receiver, const char *member, Qt::ConnectionType type)
 {
     QByteArray signal = stringdata.constData() + 16;
     signal.prepend('0' + QSIGNAL_CODE);

@@ -137,10 +137,10 @@ QMetaCallEvent::~QMetaCallEvent()
 
     This type is used to signify an object's orientation.
 
-    \value Horizontal
-    \value Vertical
+    \value Qt::Horizontal
+    \value Qt::Vertical
 
-    Orientation is used with QScrollBar for example.
+    Qt::Orientation is used with QScrollBar for example.
 */
 
 
@@ -1992,7 +1992,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 #endif
 
     int *types = 0;
-    if (type == QueuedConnection && !(types = QObjectPrivate::queuedConnectionTypes(signal)))
+    if (type == Qt::QueuedConnection && !(types = QObjectPrivate::queuedConnectionTypes(signal)))
         return false;
 
 #ifndef QT_NO_DEBUG
@@ -2389,7 +2389,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
                 continue;
         }
 
-        if (queued) { // QueuedConnection
+        if (queued) { // Qt::QueuedConnection
             int nargs = 1; // include return type
             while (c->types[nargs-1]) { ++nargs; }
             int *types = (int *) qMalloc(nargs*sizeof(int));
@@ -2404,7 +2404,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
                                                            : QEvent::InvokeSlot,
                                                            c->member >> 1, obj,
                                                            nargs, types, args));
-        } else { // DirectConnection
+        } else { // Qt::DirectConnection
             connections->lock.release();
 
             QObjectPrivate::Senders *senders = c->receiver->d->senders;

@@ -34,8 +34,8 @@
 
     When drawing in a QBitmap (or QPixmap with depth 1), we recommend
     using the  QColor objects \c Qt::color0 and \c Qt::color1.
-    Painting with \c color0 sets the bitmap bits to 0, and painting
-    with \c color1 sets the bits to 1. For a bitmap, 0-bits indicate
+    Painting with \c Qt::color0 sets the bitmap bits to 0, and painting
+    with \c Qt::color1 sets the bits to 1. For a bitmap, 0-bits indicate
     background (or transparent) and 1-bits indicate foreground (or
     opaque). Using the \c black and \c white QColor objects make no
     sense because the QColor::pixel() value is not necessarily 0 for

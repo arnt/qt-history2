@@ -221,7 +221,7 @@ QRect QAccessibleScrollBar::rect(int child) const
         rect = QRect(0, 0, sz, sz);
         break;
     case PageUp:
-        if (scrollBar()->orientation() == Vertical)
+        if (scrollBar()->orientation() == Qt::Vertical)
             rect = QRect(0, sz, sz, srect.y() - sz);
         else
             rect = QRect(sz, 0, srect.x() - sz, sz);
@@ -230,13 +230,13 @@ QRect QAccessibleScrollBar::rect(int child) const
         rect = srect;
         break;
     case PageDown:
-        if (scrollBar()->orientation() == Vertical)
+        if (scrollBar()->orientation() == Qt::Vertical)
             rect = QRect(0, srect.bottom(), sz, scrollBar()->rect().height() - srect.bottom() - sz);
         else
             rect = QRect(srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz, sz) ;
         break;
     case LineDown:
-        if (scrollBar()->orientation() == Vertical)
+        if (scrollBar()->orientation() == Qt::Vertical)
             rect = QRect(0, scrollBar()->rect().height() - sz, sz, sz);
         else
             rect = QRect(scrollBar()->rect().width() - sz, 0, sz, sz);
@@ -370,7 +370,7 @@ QRect QAccessibleSlider::rect(int child) const
                     slider(), QStyle::SC_SliderHandle);
     switch (child) {
     case PageLeft:
-        if (slider()->orientation() == Vertical)
+        if (slider()->orientation() == Qt::Vertical)
             rect = QRect(0, 0, slider()->width(), srect.y());
         else
             rect = QRect(0, 0, srect.x(), slider()->height());
@@ -379,7 +379,7 @@ QRect QAccessibleSlider::rect(int child) const
         rect = srect;
         break;
     case PageRight:
-        if (slider()->orientation() == Vertical)
+        if (slider()->orientation() == Qt::Vertical)
             rect = QRect(0, srect.y() + srect.height(), slider()->width(), slider()->height()- srect.y() - srect.height());
         else
             rect = QRect(srect.x() + srect.width(), 0, slider()->width() - srect.x() - srect.width(), slider()->height());
@@ -409,12 +409,12 @@ QString        QAccessibleSlider::text(Text t, int child) const
     case Name:
         switch (child) {
         case PageLeft:
-            return slider()->orientation() == Horizontal ?
+            return slider()->orientation() == Qt::Horizontal ?
                 QSlider::tr("Page left") : QSlider::tr("Page up");
         case Position:
             return QSlider::tr("Position");
         case PageRight:
-            return slider()->orientation() == Horizontal ?
+            return slider()->orientation() == Qt::Horizontal ?
                 QSlider::tr("Page right") : QSlider::tr("Page down");
         }
         break;

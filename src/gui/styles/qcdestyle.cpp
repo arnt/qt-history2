@@ -208,8 +208,8 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
             };
             QPointArray a(QCOORDARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
-            p->setPen(color1);
-            p->setBrush(color1);
+            p->setPen(Qt::color1);
+            p->setBrush(Qt::color1);
             p->drawPolygon(a);
             break;
         }
@@ -317,7 +317,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         QPen     savePen   = p->pen();              // save current pen
         QBrush   saveBrush = p->brush();            // save current brush
         QWMatrix wxm = p->worldMatrix();
-        QPen     pen(NoPen);
+        QPen     pen(Qt::NoPen);
         QBrush brush = pal.brush(flags & Style_Enabled ? QPalette::Button :
                                   QPalette::Mid);
 
@@ -325,7 +325,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         p->setBrush(brush);
         p->setWorldMatrix(matrix, true);          // set transformation matrix
         p->drawPolygon(bFill);                    // fill arrow
-        p->setBrush(NoBrush);                     // don't fill
+        p->setBrush(Qt::NoBrush);                     // don't fill
 
         p->setPen(CLEFT);
         p->drawLineSegments(bLeft);

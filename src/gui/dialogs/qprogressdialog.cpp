@@ -376,7 +376,7 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
             cancelButton->setParent(this, 0);
         }
         connect(d->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
-        new QShortcut(Key_Escape, this, SIGNAL(canceled()));
+        new QShortcut(Qt::Key_Escape, this, SIGNAL(canceled()));
     }
     int w = qMax(isVisible() ? width() : 0, sizeHint().width());
     int h = qMax(isVisible() ? height() : 0, sizeHint().height());
@@ -530,14 +530,14 @@ void QProgressDialog::setProgress(int progress)
     bar()->setProgress(progress);
 
     if (d->shown_once) {
-        if (testWFlags(WShowModal))
+        if (testWFlags(Qt::WShowModal))
             qApp->processEvents();
     } else {
         if (progress == 0) {
 #ifndef QT_NO_CURSOR
             if (d->creator) {
                 d->parentCursor = d->creator->cursor();
-                d->creator->setCursor(WaitCursor);
+                d->creator->setCursor(Qt::WaitCursor);
             }
 #endif
             d->starttime.start();

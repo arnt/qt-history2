@@ -947,19 +947,19 @@ void QGfxRasterBase::setPen(const QPen & p)
 
     cpen=p;
     switch (cpen.style()) {
-        case DashLine:
+        case Qt::DashLine:
             setDashes(dash_line, sizeof(dash_line));
             setDashedLines(true);
             break;
-        case DotLine:
+        case Qt::DotLine:
             setDashes(dot_line, sizeof(dot_line));
             setDashedLines(true);
             break;
-        case DashDotLine:
+        case Qt::DashDotLine:
             setDashes(dash_dot_line, sizeof(dash_dot_line));
             setDashedLines(true);
             break;
-        case DashDotDotLine:
+        case Qt::DashDotDotLine:
             setDashes(dash_dot_dot_line, sizeof(dash_dot_dot_line));
             setDashedLines(true);
             break;
@@ -1609,7 +1609,7 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 void QGfxRasterBase::setBrush(const QBrush & b)
 {
     cbrush=b;
-    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern)) {
+    if((cbrush.style()!=Qt::NoBrush) && (cbrush.style()!=Qt::SolidPattern)) {
         patternedbrush=true;
     } else {
         patternedbrush=false;
@@ -2182,8 +2182,8 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
 {
     setLineStep((depth*width+7)/8);
     if (depth == 1) {
-        setPen(QColor(color1));
-        setBrush(QColor(color0));
+        setPen(QColor(Qt::color1));
+        setBrush(QColor(Qt::color0));
     }
 }
 
@@ -2579,7 +2579,7 @@ void QGfxRaster<depth,type>::drawPoint(int x, int y)
 {
     if (!ncliprect)
         return;
-    if(cpen.style()==NoPen)
+    if(cpen.style()==Qt::NoPen)
         return;
     x += xoffs;
     y += yoffs;
@@ -2608,7 +2608,7 @@ void QGfxRaster<depth,type>::drawPoints(const QPointArray & pa, int index, int n
 {
     if (!ncliprect)
         return;
-    if(cpen.style()==NoPen)
+    if(cpen.style()==Qt::NoPen)
         return;
     usePen();
     QRect cr;
@@ -2648,7 +2648,7 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
 {
     if (!ncliprect)
         return;
-    if (cpen.style()==NoPen)
+    if (cpen.style()==Qt::NoPen)
         return;
 
     if (cpen.width() > 1) {
@@ -4423,7 +4423,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h)
     // ### fix for 8bpp
     // This seems to be reliable now, at least for 16bpp
 
-    if (ncliprect == 1 && cbrush.style()==SolidPattern) {
+    if (ncliprect == 1 && cbrush.style()==Qt::SolidPattern) {
         // Fast path
         if(depth==16) {
             useBrush();
@@ -4699,8 +4699,8 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h)
         }
     }
 #endif // QWS_EXPERIMENTAL_FASTPATH
-    if((cbrush.style()!=NoBrush) &&
-        (cbrush.style()!=SolidPattern)) {
+    if((cbrush.style()!=Qt::NoBrush) &&
+        (cbrush.style()!=Qt::SolidPattern)) {
         srcwidth=cbrushpixmap->width();
         srcheight=cbrushpixmap->height();
         if(cbrushpixmap->depth()==1) {
@@ -4729,7 +4729,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h)
             setAlphaType(IgnoreAlpha);
         }
         tiledBlt(rx,ry,w,h);
-    } else if(cbrush.style()!=NoBrush) {
+    } else if(cbrush.style()!=Qt::NoBrush) {
         useBrush();
         rx += xoffs;
         ry += yoffs;
@@ -4839,7 +4839,7 @@ void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int np
 {
     if (!ncliprect)
         return;
-    if(cpen.style()==NoPen)
+    if(cpen.style()==Qt::NoPen)
         return;
     if (cpen.width() > 1) {
         drawThickPolyline(a, index, npoints);
@@ -4949,8 +4949,8 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
         sync();
     }
     (*gfx_optype)=0;
-    if (cbrush.style()!=NoBrush) {
-        if (cbrush.style()!=SolidPattern) {
+    if (cbrush.style()!=Qt::NoBrush) {
+        if (cbrush.style()!=Qt::SolidPattern) {
             srcwidth=cbrushpixmap->width();
             srcheight=cbrushpixmap->height();
             if(cbrushpixmap->depth()==1) {

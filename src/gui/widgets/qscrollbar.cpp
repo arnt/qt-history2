@@ -90,7 +90,7 @@
     scroll bar using either the keyboard or the mouse.
 
     A scroll bar can be controlled by the keyboard, but it has a
-    default focusPolicy() of \c NoFocus. Use setFocusPolicy() to
+    default focusPolicy() of \c Qt::NoFocus. Use setFocusPolicy() to
     enable keyboard interaction with the scrollbar:
     \list
          \i Left/Right move a horizontal scrollbar by one single step.
@@ -177,13 +177,13 @@ Q4StyleOptionSlider QScrollBarPrivate::getStyleOption() const
     opt.singleStep = singleStep;
     opt.pageStep = pageStep;
     opt.useRightToLeft = invertedAppearance;
-    if (orientation == Horizontal)
+    if (orientation == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     return opt;
 }
 
 
-#define HORIZONTAL        (d->orientation == Horizontal)
+#define HORIZONTAL        (d->orientation == Qt::Horizontal)
 #define VERTICAL        !HORIZONTAL
 
 /*!
@@ -198,7 +198,7 @@ Q4StyleOptionSlider QScrollBarPrivate::getStyleOption() const
 QScrollBar::QScrollBar(QWidget *parent)
     : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
-    d->orientation = Vertical;
+    d->orientation = Qt::Vertical;
     d->init();
 }
 
@@ -211,7 +211,7 @@ QScrollBar::QScrollBar(QWidget *parent)
     singleStep size of 1 and a \l pageStep size of 10, and an initial
     \l value of 0.
 */
-QScrollBar::QScrollBar(Orientation orientation, QWidget *parent)
+QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent)
     : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
     d->orientation = orientation;
@@ -224,11 +224,11 @@ QScrollBar::QScrollBar(QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate,  parent)
 {
     setObjectName(name);
-    d->orientation = Vertical;
+    d->orientation = Qt::Vertical;
     d->init();
 }
 
-QScrollBar::QScrollBar(Orientation orientation, QWidget *parent, const char *name)
+QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate,  parent)
 {
     setObjectName(name);
@@ -237,7 +237,7 @@ QScrollBar::QScrollBar(Orientation orientation, QWidget *parent, const char *nam
 }
 
 QScrollBar::QScrollBar(int minimum, int maximum, int lineStep, int pageStep,
-                        int value,  Orientation orientation,
+                        int value,  Qt::Orientation orientation,
                         QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate,  parent)
 {
@@ -268,10 +268,10 @@ void QScrollBarPrivate::init()
     q->setBackgroundRole((QPalette::ColorRole)
                          q->style().styleHint(QStyle::SH_ScrollBar_BackgroundRole));
     QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    if (orientation == Vertical)
+    if (orientation == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);
-    q->clearWState(WState_OwnSizePolicy);
+    q->clearWState(Qt::WState_OwnSizePolicy);
 }
 
 
@@ -281,7 +281,7 @@ QSize QScrollBar::sizeHint() const
 {
     ensurePolished();
     int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, this);
-    if (d->orientation == Horizontal)
+    if (d->orientation == Qt::Horizontal)
         return QSize(30, sbextent);
     else
         return QSize(sbextent, 30);
@@ -325,8 +325,8 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
     Q4StyleOptionSlider opt = d->getStyleOption();
 
     if (d->maximum == d->minimum // no range
-        || (e->state() & MouseButtonMask) // another button was clicked before
-        || !(e->button() == LeftButton || (midButtonAbsPos && e->button() == MidButton)))
+        || (e->state() & Qt::MouseButtonMask) // another button was clicked before
+        || !(e->button() == Qt::LeftButton || (midButtonAbsPos && e->button() == Qt::MidButton)))
         return;
 
     d->pressedControl = style().querySubControl(QStyle::CC_ScrollBar, &opt, e->pos(), this);
@@ -343,9 +343,9 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
     if ((d->pressedControl == QStyle::SC_ScrollBarAddPage
           || d->pressedControl == QStyle::SC_ScrollBarSubPage
           || d->pressedControl == QStyle::SC_ScrollBarSlider)
-        && ((midButtonAbsPos && e->button() == MidButton)
+        && ((midButtonAbsPos && e->button() == Qt::MidButton)
             || style().styleHint(QStyle::SH_ScrollBar_LeftClickAbsolutePosition)
-            && e->button() == LeftButton)) {
+            && e->button() == Qt::LeftButton)) {
         int sliderLength = HORIZONTAL ? sr.width() : sr.height();
         setSliderPosition(d->pixelPosToRangeValue((HORIZONTAL ? e->pos().x()
                                                               : e->pos().y()) - sliderLength / 2));
@@ -364,7 +364,7 @@ void QScrollBar::mouseReleaseEvent(QMouseEvent *e)
     if (!d->pressedControl)
         return;
 
-    if (e->stateAfter() & MouseButtonMask) // some other button is still pressed
+    if (e->stateAfter() & Qt::MouseButtonMask) // some other button is still pressed
         return;
 
     QStyle::SubControl tmp = (QStyle::SubControl) d->pressedControl;
@@ -387,8 +387,8 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
     if (!d->pressedControl)
         return;
 
-    if (!(e->state() & LeftButton
-          ||  ((e->state() & MidButton)
+    if (!(e->state() & Qt::LeftButton
+          ||  ((e->state() & Qt::MidButton)
                && style().styleHint(QStyle::SH_ScrollBar_MiddleClickAbsolutePosition, this))))
         return;
 

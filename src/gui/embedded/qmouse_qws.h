@@ -23,7 +23,7 @@
 class QWSPointerCalibrationData
 {
 public:
-    enum Location { TopLeft = 0, BottomLeft = 1, BottomRight = 2, TopRight = 3,
+    enum Location { Qt::TopLeft = 0, Qt::BottomLeft = 1, Qt::BottomRight = 2, Qt::TopRight = 3,
                     Center = 4, LastLocation = Center };
     QPoint devPoints[5];
     QPoint screenPoints[5];

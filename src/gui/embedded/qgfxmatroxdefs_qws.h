@@ -38,7 +38,7 @@
 #define BCOL 0x1c20
 #define FXBNDRY 0x1c84
 #define SGN 0x1c58
-#define SHIFT 0x1c50
+#define Qt::SHIFT 0x1c50
 #define SRC0 0x1c30
 #define SRC1 0x1c34
 #define SRC2 0x1c38

@@ -27,13 +27,13 @@ class Q_GUI_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(TextFormat textFormat READ textFormat WRITE setTextFormat)
+    Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
     Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
     Q_PROPERTY(bool scaledContents READ hasScaledContents WRITE setScaledContents)
     Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
-    Q_OVERRIDE(BackgroundMode backgroundMode DESIGNABLE true)
+    Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
     Q_DECLARE_PRIVATE(QLabel)
 
 public:
@@ -57,8 +57,8 @@ public:
     QMovie *movie() const;
 #endif
 
-    TextFormat textFormat() const;
-    void setTextFormat(TextFormat);
+    Qt::TextFormat textFormat() const;
+    void setTextFormat(Qt::TextFormat);
 
     int alignment() const;
     void setAlignment(int);

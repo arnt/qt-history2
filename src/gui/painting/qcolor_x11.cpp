@@ -525,7 +525,7 @@ uint QColor::alloc()
 */
 uint QColor::pixel(int screen) const
 {
-    // don't allocate color0 or color1, they have fixed pixel values for all screens
+    // don't allocate Qt::color0 or Qt::color1, they have fixed pixel values for all screens
     if (d.argb == qRgba(255, 255, 255, 1))
         return 0;
     if (d.argb == qRgba(0, 0, 0, 1))

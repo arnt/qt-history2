@@ -136,7 +136,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(bool mouseTracking READ hasMouseTracking WRITE setMouseTracking)
     Q_PROPERTY(bool isActiveWindow READ isActiveWindow)
     Q_PROPERTY(bool focusEnabled READ isFocusEnabled)
-    Q_PROPERTY(FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy)
+    Q_PROPERTY(Qt::FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy)
     Q_PROPERTY(bool focus READ hasFocus)
     Q_PROPERTY(bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
     Q_PROPERTY(bool visible READ isVisible)
@@ -312,8 +312,8 @@ public:
     bool isFocusEnabled() const;
     void clearFocus();
 
-    FocusPolicy focusPolicy() const;
-    void setFocusPolicy(FocusPolicy);
+    Qt::FocusPolicy focusPolicy() const;
+    void setFocusPolicy(Qt::FocusPolicy);
     bool hasFocus() const;
     static void setTabOrder(QWidget *, QWidget *);
     void setFocusProxy(QWidget *);
@@ -330,7 +330,7 @@ public:
     void releaseMouse();
     void grabKeyboard();
     void releaseKeyboard();
-    int grabShortcut(const QKeySequence &key, ShortcutContext context = ShortcutOnActiveWindow);
+    int grabShortcut(const QKeySequence &key, Qt::ShortcutContext context = Qt::ShortcutOnActiveWindow);
     void releaseShortcut(int id);
     void setShortcutEnabled(int id, bool enable = true);
     static QWidget *mouseGrabber();
@@ -461,8 +461,8 @@ public:
     QX11Info *x11Info() const;
 #endif
 
-    void setAttribute(WidgetAttribute, bool = true);
-    inline bool testAttribute(WidgetAttribute) const;
+    void setAttribute(Qt::WidgetAttribute, bool = true);
+    inline bool testAttribute(Qt::WidgetAttribute) const;
 
     QPaintEngine *paintEngine() const;
 
@@ -562,7 +562,7 @@ private:
     void reparentFocusWidgets(QWidget *);
     void updateFrameStrut() const;
 
-    bool testAttribute_helper(WidgetAttribute) const;
+    bool testAttribute_helper(Qt::WidgetAttribute) const;
 
 #if defined(Q_WS_QWS)
     void updateOverlappingChildren() const;
@@ -625,19 +625,19 @@ public:
     inline QT_COMPAT void reparent(QWidget *parent, WFlags f, const QPoint &p, bool showIt=false)
     { setParent(parent, f); move(p); if (showIt) show(); }
     inline QT_COMPAT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
-    { setParent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
+    { setParent(parent, getWFlags() & ~Qt::WType_Mask); move(p); if (showIt) show(); }
     inline QT_COMPAT void recreate(QWidget *parent, WFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); move(p); if (showIt) show(); }
-    inline QT_COMPAT bool hasMouse() const { return testAttribute(WA_UnderMouse); }
+    inline QT_COMPAT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
-    inline QT_COMPAT bool ownCursor() const { return testAttribute(WA_SetCursor); }
+    inline QT_COMPAT bool ownCursor() const { return testAttribute(Qt::WA_SetCursor); }
 #endif
-    inline QT_COMPAT bool ownFont() const { return testAttribute(WA_SetFont); }
+    inline QT_COMPAT bool ownFont() const { return testAttribute(Qt::WA_SetFont); }
     inline QT_COMPAT void unsetFont() { setFont(QFont()); }
-    inline QT_COMPAT bool ownPalette() const { return testAttribute(WA_SetPalette); }
+    inline QT_COMPAT bool ownPalette() const { return testAttribute(Qt::WA_SetPalette); }
     inline QT_COMPAT void unsetPalette() { setPalette(QPalette()); }
-    BackgroundMode QT_COMPAT backgroundMode() const;
-    void QT_COMPAT setBackgroundMode(BackgroundMode, BackgroundMode = PaletteBackground);
+    Qt::BackgroundMode QT_COMPAT backgroundMode() const;
+    void QT_COMPAT setBackgroundMode(Qt::BackgroundMode, BackgroundMode = Qt::PaletteBackground);
     const QT_COMPAT QColor &eraseColor() const;
     void QT_COMPAT setEraseColor(const QColor &);
     const QT_COMPAT QColor &foregroundColor() const;
@@ -658,7 +658,7 @@ public:
     QT_COMPAT void setBackgroundColor(const QColor &);
     QT_COMPAT QColorGroup colorGroup() const;
     QT_COMPAT QWidget *parentWidget(bool sameWindow) const;
-    inline QT_COMPAT void setKeyCompression(bool b) { setAttribute(WA_KeyCompression, b); }
+    inline QT_COMPAT void setKeyCompression(bool b) { setAttribute(Qt::WA_KeyCompression, b); }
     inline QT_COMPAT void setFont(const QFont &f, bool) { setFont(f); }
 #ifndef QT_NO_PALETTE
     inline QT_COMPAT void setPalette(const QPalette &p, bool) { setPalette(p); }
@@ -742,22 +742,22 @@ inline WId QWidget::winId() const
 { return data->winid; }
 
 inline bool QWidget::isTopLevel() const
-{ return testWFlags(WType_TopLevel); }
+{ return testWFlags(Qt::WType_TopLevel); }
 
 inline bool QWidget::isDialog() const
-{ return testWFlags(WType_Dialog); }
+{ return testWFlags(Qt::WType_Dialog); }
 
 inline bool QWidget::isPopup() const
-{ return testWFlags(WType_Popup); }
+{ return testWFlags(Qt::WType_Popup); }
 
 inline bool QWidget::isDesktop() const
-{ return testWFlags(WType_Desktop); }
+{ return testWFlags(Qt::WType_Desktop); }
 
 inline bool QWidget::isEnabled() const
-{ return !testAttribute(WA_Disabled); }
+{ return !testAttribute(Qt::WA_Disabled); }
 
 inline bool QWidget::isModal() const
-{ return testWFlags(WShowModal); }
+{ return testWFlags(Qt::WShowModal); }
 
 inline bool QWidget::isEnabledToTLW() const
 { return isEnabled(); }
@@ -796,31 +796,31 @@ inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(data->fnt); }
 
 inline void QWidget::setMouseTracking(bool enable)
-{ setAttribute(WA_MouseTracking, enable); }
+{ setAttribute(Qt::WA_MouseTracking, enable); }
 
 inline bool QWidget::hasMouseTracking() const
-{ return testAttribute(WA_MouseTracking); }
+{ return testAttribute(Qt::WA_MouseTracking); }
 
 inline bool QWidget::underMouse() const
-{ return testAttribute(WA_UnderMouse); }
+{ return testAttribute(Qt::WA_UnderMouse); }
 
 inline bool  QWidget::isFocusEnabled() const
-{ return focusPolicy() != NoFocus; }
+{ return focusPolicy() != Qt::NoFocus; }
 
 inline bool QWidget::isUpdatesEnabled() const
-{ return !testWState(WState_BlockUpdates); }
+{ return !testWState(Qt::WState_BlockUpdates); }
 
 inline void QWidget::update(const QRect &r)
 { update(r.x(), r.y(), r.width(), r.height()); }
 
 inline bool QWidget::isVisible() const
-{ return testWState(WState_Visible); }
+{ return testWState(Qt::WState_Visible); }
 
 inline bool QWidget::isHidden() const
-{ return testWState(WState_Hidden); }
+{ return testWState(Qt::WState_Hidden); }
 
 inline bool QWidget::isShown() const
-{ return !testWState(WState_Hidden); }
+{ return !testWState(Qt::WState_Hidden); }
 
 inline void QWidget::move(const QPoint &p)
 { move(p.x(), p.y()); }
@@ -861,7 +861,7 @@ inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeT
 inline bool QWidget::isInputMethodEnabled() const
 { return (bool)data->im_enabled; }
 
-inline bool QWidget::testAttribute(WidgetAttribute attribute) const
+inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const
 {
     if (attribute < int(8*sizeof(uint)))
         return data->widget_attributes & (1<<attribute);

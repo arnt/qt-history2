@@ -311,7 +311,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     }
 
     // Only handle 'normal' rectangles
-    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern)) {
+    if((cbrush.style()!=Qt::NoBrush) && (cbrush.style()!=Qt::SolidPattern)) {
         QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
         return;
     }
@@ -372,7 +372,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     // are very fast, probably much more so than writing graphics card
     // registers to set up the clip
 
-    if(cbrush.style()!=NoBrush) {
+    if(cbrush.style()!=Qt::NoBrush) {
         int p=ncliprect;
         if(p<8) {
             // We can wait for all our fifos at once
@@ -619,7 +619,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
-    if(ncliprect<1 || cpen.style()!=SolidLine
+    if(ncliprect<1 || cpen.style()!=Qt::SolidLine
        || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || true) {
         QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
         return;

@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QMessageBox : public QDialog
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(Icon icon READ icon WRITE setIcon)
     Q_PROPERTY(QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap)
-    Q_PROPERTY(TextFormat textFormat READ textFormat WRITE setTextFormat)
+    Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
 
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3,
@@ -41,7 +41,7 @@ public:
     QMessageBox(const QString& caption, const QString &text, Icon icon,
                  int button0, int button1, int button2,
                  QWidget* parent=0, const char* name=0, bool modal=true,
-                 WFlags f=WStyle_DialogBorder );
+                 WFlags f=Qt::WStyle_DialogBorder );
     ~QMessageBox();
 
     enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
@@ -136,12 +136,12 @@ public:
     QSize sizeHint() const;
 
 /* OBSOLETE */
-    static QPixmap standardIcon(Icon icon, GUIStyle);
+    static QPixmap standardIcon(Icon icon, Qt::GUIStyle);
 
     static QPixmap standardIcon(Icon icon);
 
-    TextFormat textFormat() const;
-    void         setTextFormat(TextFormat);
+    Qt::TextFormat textFormat() const;
+    void         setTextFormat(Qt::TextFormat);
 
 protected:
     void        resizeEvent(QResizeEvent *);

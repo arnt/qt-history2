@@ -56,9 +56,9 @@ class QShortcutPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QShortcut)
 public:
-    QShortcutPrivate() : sc_context(ShortcutOnActiveWindow), sc_enabled(true), sc_id(0) {}
+    QShortcutPrivate() : sc_context(Qt::ShortcutOnActiveWindow), sc_enabled(true), sc_id(0) {}
     QKeySequence sc_sequence;
-    ShortcutContext sc_context;
+    Qt::ShortcutContext sc_context;
     bool sc_enabled;
     int sc_id;
     QString sc_whatsthis;
@@ -100,7 +100,7 @@ QShortcut::QShortcut(QWidget *parent)
 */
 QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
                      const char *member, const char *ambiguousMember,
-                     ShortcutContext context)
+                     Qt::ShortcutContext context)
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
@@ -135,9 +135,9 @@ QShortcut::~QShortcut()
         setKey(0);                  // no signal emitted
         setKey(QKeySequence());     // no signal emitted
         setKey(0x3b1);              // Greek letter alpha
-        setKey(Key_D);              // 'd', e.g. to delete
+        setKey(Qt::Key_D);              // 'd', e.g. to delete
         setKey('q');                // 'q', e.g. to quit
-        setKey(CTRL + Key_P);       // Ctrl+P, e.g. to print document
+        setKey(Qt::CTRL + Qt::Key_P);       // Ctrl+P, e.g. to print document
         setKey("Ctrl+P");           // Ctrl+P, e.g. to print document
     \endcode
 
@@ -204,7 +204,7 @@ bool QShortcut::isEnabled() const
     containing the shortcut) is a subwidget of the active top-level
     window.
 
-    \sa context ShortcutContext
+    \sa context Qt::ShortcutContext
 */
 void QShortcut::setContext(Qt::ShortcutContext context)
 {

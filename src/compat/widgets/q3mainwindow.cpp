@@ -273,7 +273,7 @@ protected:
         mouseMoveEvent(e);
         pressedHandle = -1;
 
-        if (e->button() == RightButton && win->isDockMenuEnabled()) {
+        if (e->button() == Qt::RightButton && win->isDockMenuEnabled()) {
             // ### TODO: HideDock menu
         } else {
             mouseMoveEvent(e);
@@ -316,7 +316,7 @@ protected:
         QObjectList childs = children();
         if (childs.isEmpty())
             return;
-        if (e->button() == LeftButton) {
+        if (e->button() == Qt::LeftButton) {
             if (e->y() >= 0 && e->y() <= height()) {
                 QObject *o = childs.at(pressedHandle);
                 Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
@@ -554,7 +554,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     group.
 
     New dock windows and toolbars can be added to a Q3MainWindow using
-    addDockWindow(). Dock windows can be moved using moveDockWindow()
+    addDockWindow(). Qt::Dock windows can be moved using moveDockWindow()
     and removed with removeDockWindow(). Q3MainWindow allows default
     dock window (toolbar) docking in all its dock areas (\c Top, \c
     Left, \c Right, \c Bottom). You can use setDockEnabled() to
@@ -597,9 +597,9 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     (see QToolButton for more information).
     \endlist
 
-    The user can drag dock windows into any enabled docking area. Dock
+    The user can drag dock windows into any enabled docking area. Qt::Dock
     windows can also be dragged \e within a docking area, for example
-    to rearrange the order of some toolbars. Dock windows can also be
+    to rearrange the order of some toolbars. Qt::Dock windows can also be
     dragged outside any docking area (undocked or 'floated'). Being
     able to drag dock windows can be enabled (the default) and
     disabled using setDockWindowsMovable().
@@ -614,7 +614,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     or label for each dock window. To minimize a dock window
     programmatically use moveDockWindow() with an edge of \c Minimized.
 
-    Dock windows are moved transparently by default, i.e. during the
+    Qt::Dock windows are moved transparently by default, i.e. during the
     drag an outline rectangle is drawn on the screen representing the
     position of the dock window as it moves. If you want the dock
     window to be shown normally whilst it is moved use
@@ -705,22 +705,22 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 
     Each dock window can be in one of the following positions:
 
-    \value DockTop  above the central widget, below the menu bar.
+    \value Qt::DockTop  above the central widget, below the menu bar.
 
-    \value DockBottom  below the central widget, above the status bar.
+    \value Qt::DockBottom  below the central widget, above the status bar.
 
-    \value DockLeft  to the left of the central widget.
+    \value Qt::DockLeft  to the left of the central widget.
 
-    \value DockRight to the right of the central widget.
+    \value Qt::DockRight to the right of the central widget.
 
-    \value DockMinimized the dock window is not shown (this is
+    \value Qt::DockMinimized the dock window is not shown (this is
     effectively a 'hidden' dock area); the handles of all minimized
     dock windows are drawn in one row below the menu bar.
 
-    \value DockTornOff the dock window floats as its own top level
+    \value Qt::DockTornOff the dock window floats as its own top level
     window which always stays on top of the main window.
 
-    \value DockUnmanaged not managed by a Q3MainWindow.
+    \value Qt::DockUnmanaged not managed by a Q3MainWindow.
 */
 
 /*!
@@ -743,23 +743,23 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 
 /*!
     \obsolete
-    \fn void Q3MainWindow::addToolBar(Q3DockWindow *, Dock = Top, bool newLine = false);
+    \fn void Q3MainWindow::addToolBar(Q3DockWindow *, Qt::Dock = Top, bool newLine = false);
 */
 
 /*!
     \obsolete
-    \fn void Q3MainWindow::addToolBar(Q3DockWindow *, const QString &label, Dock = Top, bool newLine = false)
+    \fn void Q3MainWindow::addToolBar(Q3DockWindow *, const QString &label, Qt::Dock = Top, bool newLine = false)
     \overload
 */
 
 /*!
     \obsolete
-    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *, Dock = Top);
+    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *, Qt::Dock = Top);
 */
 
 /*!
     \obsolete
-    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *, Dock, bool nl, int index, int extraOffset = -1)
+    \fn void Q3MainWindow::moveToolBar(Q3DockWindow *, Qt::Dock, bool nl, int index, int extraOffset = -1)
     \overload
 */
 
@@ -792,7 +792,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     Constructs an empty main window. The \a parent, \a name and widget
     flags \a f, are passed on to the QWidget constructor.
 
-    By default, the widget flags are set to \c WType_TopLevel rather
+    By default, the widget flags are set to \c Qt::WType_TopLevel rather
     than 0 as they are with QWidget. If you don't want your
     Q3MainWindow to be a top level widget then you will need to set \a
     f to 0.
@@ -802,20 +802,20 @@ Q3MainWindow::Q3MainWindow(QWidget * parent, const char * name, WFlags f)
     : QWidget(*new Q3MainWindowPrivate, parent, f)
 {
     setObjectName(name);
-    setAttribute(WA_PaintOnScreen); // disable double buffering
+    setAttribute(Qt::WA_PaintOnScreen); // disable double buffering
 #ifdef Q_WS_MAC
     d->opaque = true;
 #else
     d->opaque = false;
 #endif
     installEventFilter(this);
-    d->topDock = new Q3DockArea(Horizontal, Q3DockArea::Normal, this, "qt_top_dock");
+    d->topDock = new Q3DockArea(Qt::Horizontal, Q3DockArea::Normal, this, "qt_top_dock");
     d->topDock->installEventFilter(this);
-    d->bottomDock = new Q3DockArea(Horizontal, Q3DockArea::Reverse, this, "qt_bottom_dock");
+    d->bottomDock = new Q3DockArea(Qt::Horizontal, Q3DockArea::Reverse, this, "qt_bottom_dock");
     d->bottomDock->installEventFilter(this);
-    d->leftDock = new Q3DockArea(Vertical, Q3DockArea::Normal, this, "qt_left_dock");
+    d->leftDock = new Q3DockArea(Qt::Vertical, Q3DockArea::Normal, this, "qt_left_dock");
     d->leftDock->installEventFilter(this);
-    d->rightDock = new Q3DockArea(Vertical, Q3DockArea::Reverse, this, "qt_right_dock");
+    d->rightDock = new Q3DockArea(Qt::Vertical, Q3DockArea::Reverse, this, "qt_right_dock");
     d->rightDock->installEventFilter(this);
     d->hideDock = new QHideDock(this);
 }
@@ -995,7 +995,7 @@ QToolTipGroup * Q3MainWindow::toolTipGroup() const
     Users can dock (drag) dock windows into any enabled dock area.
 */
 
-void Q3MainWindow::setDockEnabled(Dock dock, bool enable)
+void Q3MainWindow::setDockEnabled(Qt::Dock dock, bool enable)
 {
     d->docks.insert(dock, enable);
 }
@@ -1008,7 +1008,7 @@ void Q3MainWindow::setDockEnabled(Dock dock, bool enable)
     \sa setDockEnabled()
 */
 
-bool Q3MainWindow::isDockEnabled(Dock dock) const
+bool Q3MainWindow::isDockEnabled(Qt::Dock dock) const
 {
     return d->docks[dock];
 }
@@ -1026,13 +1026,13 @@ bool Q3MainWindow::isDockEnabled(Q3DockArea *area) const
 {
 
     if (area == d->leftDock)
-        return d->docks[DockLeft];
+        return d->docks[Qt::DockLeft];
     if (area == d->rightDock)
-        return d->docks[DockRight];
+        return d->docks[Qt::DockRight];
     if (area == d->topDock)
-        return d->docks[DockTop];
+        return d->docks[Qt::DockTop];
     if (area == d->bottomDock)
-        return d->docks[DockBottom];
+        return d->docks[Qt::DockBottom];
     return false;
 }
 
@@ -1050,7 +1050,7 @@ bool Q3MainWindow::isDockEnabled(Q3DockArea *area) const
 */
 
 
-void Q3MainWindow::setDockEnabled(Q3DockWindow *dw, Dock dock, bool enable)
+void Q3MainWindow::setDockEnabled(Q3DockWindow *dw, Qt::Dock dock, bool enable)
 {
     if (d->dockWindows.contains(dw)) {
         d->dockWindows.append(dw);
@@ -1064,16 +1064,16 @@ void Q3MainWindow::setDockEnabled(Q3DockWindow *dw, Dock dock, bool enable)
     else if (!d->disabledDocks.contains(s))
         d->disabledDocks << s;
     switch (dock) {
-        case DockTop:
+        case Qt::DockTop:
             topDock()->setAcceptDockWindow(dw, enable);
             break;
-        case DockLeft:
+        case Qt::DockLeft:
             leftDock()->setAcceptDockWindow(dw, enable);
             break;
-        case DockRight:
+        case Qt::DockRight:
             rightDock()->setAcceptDockWindow(dw, enable);
             break;
-        case DockBottom:
+        case Qt::DockBottom:
             bottomDock()->setAcceptDockWindow(dw, enable);
             break;
         default:
@@ -1094,15 +1094,15 @@ bool Q3MainWindow::isDockEnabled(Q3DockWindow *dw, Q3DockArea *area) const
 {
     if (!isDockEnabled(area))
         return false;
-    Dock dock;
+    Qt::Dock dock;
     if (area == d->leftDock)
-        dock = DockLeft;
+        dock = Qt::DockLeft;
     else if (area == d->rightDock)
-        dock = DockRight;
+        dock = Qt::DockRight;
     else if (area == d->topDock)
-        dock = DockTop;
+        dock = Qt::DockTop;
     else if (area == d->bottomDock)
-        dock = DockBottom;
+        dock = Qt::DockBottom;
     else
         return false;
     return isDockEnabled(dw, dock);
@@ -1117,7 +1117,7 @@ bool Q3MainWindow::isDockEnabled(Q3DockWindow *dw, Q3DockArea *area) const
     \sa setDockEnabled()
 */
 
-bool Q3MainWindow::isDockEnabled(Q3DockWindow *tb, Dock dock) const
+bool Q3MainWindow::isDockEnabled(Q3DockWindow *tb, Qt::Dock dock) const
 {
     if (!isDockEnabled(dock))
         return false;
@@ -1143,11 +1143,11 @@ bool Q3MainWindow::isDockEnabled(Q3DockWindow *tb, Dock dock) const
 */
 
 void Q3MainWindow::addDockWindow(Q3DockWindow *dockWindow,
-                              Dock edge, bool newLine)
+                              Qt::Dock edge, bool newLine)
 {
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-    if(isTopLevel() && edge == DockTop)
+    if(isTopLevel() && edge == Qt::DockTop)
         ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), kWindowToolbarButtonAttribute, 0);
 #endif
     moveDockWindow(dockWindow, edge);
@@ -1179,7 +1179,7 @@ void Q3MainWindow::addDockWindow(Q3DockWindow *dockWindow,
 */
 
 void Q3MainWindow::addDockWindow(Q3DockWindow * dockWindow, const QString &label,
-                              Dock edge, bool newLine)
+                              Qt::Dock edge, bool newLine)
 {
     addDockWindow(dockWindow, edge, newLine);
 #ifndef QT_NO_TOOLBAR
@@ -1199,41 +1199,41 @@ void Q3MainWindow::addDockWindow(Q3DockWindow * dockWindow, const QString &label
     removed from that window.
 */
 
-void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Dock edge)
+void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Qt::Dock edge)
 {
-    Orientation oo = dockWindow->orientation();
+    Qt::Orientation oo = dockWindow->orientation();
     switch (edge) {
-    case DockTop:
+    case Qt::DockTop:
         if (dockWindow->area() != d->topDock)
             dockWindow->removeFromDock(false);
         d->topDock->moveDockWindow(dockWindow);
         emit dockWindowPositionChanged(dockWindow);
         break;
-    case DockBottom:
+    case Qt::DockBottom:
         if (dockWindow->area() != d->bottomDock)
             dockWindow->removeFromDock(false);
         d->bottomDock->moveDockWindow(dockWindow);
         emit dockWindowPositionChanged(dockWindow);
         break;
-    case DockRight:
+    case Qt::DockRight:
         if (dockWindow->area() != d->rightDock)
             dockWindow->removeFromDock(false);
         d->rightDock->moveDockWindow(dockWindow);
         emit dockWindowPositionChanged(dockWindow);
         break;
-    case DockLeft:
+    case Qt::DockLeft:
         if (dockWindow->area() != d->leftDock)
             dockWindow->removeFromDock(false);
         d->leftDock->moveDockWindow(dockWindow);
         emit dockWindowPositionChanged(dockWindow);
         break;
-    case DockTornOff:
+    case Qt::DockTornOff:
         dockWindow->undock();
         break;
-    case DockMinimized:
+    case Qt::DockMinimized:
         dockWindow->undock(d->hideDock);
         break;
-    case DockUnmanaged:
+    case Qt::DockUnmanaged:
         break;
     }
 
@@ -1265,40 +1265,40 @@ void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Dock edge)
     removed from that window.
 */
 
-void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Dock edge, bool nl, int index, int extraOffset)
+void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Qt::Dock edge, bool nl, int index, int extraOffset)
 {
-    Orientation oo = dockWindow->orientation();
+    Qt::Orientation oo = dockWindow->orientation();
 
     dockWindow->setNewLine(nl);
     dockWindow->setOffset(extraOffset);
     switch (edge) {
-    case DockTop:
+    case Qt::DockTop:
         if (dockWindow->area() != d->topDock)
             dockWindow->removeFromDock(false);
         d->topDock->moveDockWindow(dockWindow, index);
         break;
-    case DockBottom:
+    case Qt::DockBottom:
         if (dockWindow->area() != d->bottomDock)
             dockWindow->removeFromDock(false);
         d->bottomDock->moveDockWindow(dockWindow, index);
         break;
-    case DockRight:
+    case Qt::DockRight:
         if (dockWindow->area() != d->rightDock)
             dockWindow->removeFromDock(false);
         d->rightDock->moveDockWindow(dockWindow, index);
         break;
-    case DockLeft:
+    case Qt::DockLeft:
         if (dockWindow->area() != d->leftDock)
             dockWindow->removeFromDock(false);
         d->leftDock->moveDockWindow(dockWindow, index);
         break;
-    case DockTornOff:
+    case Qt::DockTornOff:
         dockWindow->undock();
         break;
-    case DockMinimized:
+    case Qt::DockMinimized:
         dockWindow->undock(d->hideDock);
         break;
-    case DockUnmanaged:
+    case Qt::DockUnmanaged:
         break;
     }
 
@@ -1316,7 +1316,7 @@ void Q3MainWindow::removeDockWindow(Q3DockWindow * dockWindow)
 {
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows(DockTop).count())
+    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows(Qt::DockTop).count())
         ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), 0, kWindowToolbarButtonAttribute);
 #endif
 
@@ -1402,8 +1402,8 @@ void Q3MainWindow::show()
     if (!isVisible()) {
         for (int i = 0; i < d->dockWindows.size(); ++i) {
             Q3DockWindow *dw = d->dockWindows.at(i);
-            if (dw->isTopLevel() && !dw->isVisible() && !dw->testWState(WState_ForceHide)) {
-                reinterpret_cast<Q3MainWindow *>(dw)->setWState(WState_ForceHide);
+            if (dw->isTopLevel() && !dw->isVisible() && !dw->testWState(Qt::WState_ForceHide)) {
+                reinterpret_cast<Q3MainWindow *>(dw)->setWState(Qt::WState_ForceHide);
                 dw->show();
             }
         }
@@ -1423,7 +1423,7 @@ void Q3MainWindow::hide()
             Q3DockWindow *dw = d->dockWindows.at(i);
             if (dw->isTopLevel() && dw->isVisible()) {
                 dw->hide(); // implicit hide, so clear forcehide
-                reinterpret_cast<Q3MainWindow *>(dw)->clearWState(WState_ForceHide);
+                reinterpret_cast<Q3MainWindow *>(dw)->clearWState(Qt::WState_ForceHide);
             }
         }
     }
@@ -1550,7 +1550,7 @@ void Q3MainWindow::childEvent(QChildEvent* e)
     if (e->type() == QEvent::ChildRemoved) {
         if (e->child() == 0 ||
              !e->child()->isWidgetType() ||
-             ((QWidget*)e->child())->testWFlags(WType_TopLevel)) {
+             ((QWidget*)e->child())->testWFlags(Qt::WType_TopLevel)) {
             // nothing
         } else if (e->child() == d->sb) {
             d->sb = 0;
@@ -1746,7 +1746,7 @@ void Q3MainWindow::triggerLayout(bool deleteLayout)
 
     \code
     QPopupMenu * help = new QPopupMenu(this);
-    help->insertItem("What's &This", this , SLOT(enterWhatsThis()), SHIFT+Key_F1);
+    help->insertItem("What's &This", this , SLOT(enterWhatsThis()), Qt::SHIFT+Qt::Key_F1);
     \endcode
 
     \sa QWhatsThis::enterWhatsThisMode()
@@ -1777,20 +1777,20 @@ void Q3MainWindow::enterWhatsThis()
     \sa operator>>() operator<<()
 */
 
-bool Q3MainWindow::getLocation(Q3DockWindow *dw, Dock &dock, int &index, bool &nl, int &extraOffset) const
+bool Q3MainWindow::getLocation(Q3DockWindow *dw, Qt::Dock &dock, int &index, bool &nl, int &extraOffset) const
 {
-    dock = DockTornOff;
+    dock = Qt::DockTornOff;
     if (d->topDock->hasDockWindow(dw, &index))
-        dock = DockTop;
+        dock = Qt::DockTop;
     else if (d->bottomDock->hasDockWindow(dw, &index))
-        dock = DockBottom;
+        dock = Qt::DockBottom;
     else if (d->leftDock->hasDockWindow(dw, &index))
-        dock = DockLeft;
+        dock = Qt::DockLeft;
     else if (d->rightDock->hasDockWindow(dw, &index))
-        dock = DockRight;
+        dock = Qt::DockRight;
     else if (dw->parentWidget() == d->hideDock) {
         index = 0;
-        dock = DockMinimized;
+        dock = Qt::DockMinimized;
     } else {
         index = 0;
     }
@@ -1810,7 +1810,7 @@ bool Q3MainWindow::getLocation(Q3DockWindow *dw, Dock &dock, int &index, bool &n
     \sa dockWindows()
 */
 
-QList<Q3ToolBar *> Q3MainWindow::toolBars(Dock dock) const
+QList<Q3ToolBar *> Q3MainWindow::toolBars(Qt::Dock dock) const
 {
     QList<Q3DockWindow *> lst = dockWindows(dock);
     QList<Q3ToolBar *> tbl;
@@ -1827,24 +1827,24 @@ QList<Q3ToolBar *> Q3MainWindow::toolBars(Dock dock) const
     Returns a list of all the dock windows which are in the \a dock
     dock area, regardless of their state.
 
-    For example, the \c DockTornOff dock area may contain closed dock
+    For example, the \c Qt::DockTornOff dock area may contain closed dock
     windows but these are returned along with the visible dock
     windows.
 */
 
-QList<Q3DockWindow *> Q3MainWindow::dockWindows(Dock dock) const
+QList<Q3DockWindow *> Q3MainWindow::dockWindows(Qt::Dock dock) const
 {
     QList<Q3DockWindow *> lst;
     switch (dock) {
-    case DockTop:
+    case Qt::DockTop:
         return d->topDock->dockWindowList();
-    case DockBottom:
+    case Qt::DockBottom:
         return d->bottomDock->dockWindowList();
-    case DockLeft:
+    case Qt::DockLeft:
         return d->leftDock->dockWindowList();
-    case DockRight:
+    case Qt::DockRight:
         return d->rightDock->dockWindowList();
-    case DockTornOff: {
+    case Qt::DockTornOff: {
         for (int i = 0; i < d->dockWindows.size(); ++i) {
             Q3DockWindow *w = d->dockWindows.at(i);
             if (!w->area() && w->place() == Q3DockWindow::OutsideDock)
@@ -1852,7 +1852,7 @@ QList<Q3DockWindow *> Q3MainWindow::dockWindows(Dock dock) const
         }
     }
     return lst;
-    case DockMinimized: {
+    case Qt::DockMinimized: {
         QObjectList childs = d->hideDock->children();
         for (int i = 0; i < childs.size(); ++i) {
             Q3DockWindow *dw = qt_cast<Q3DockWindow*>(childs.at(i));

@@ -1322,7 +1322,7 @@ void Q3TextDocument::init()
     minw = 0;
     wused = 0;
     minwParag = curParag = 0;
-    align = AlignAuto;
+    align = Qt::AlignAuto;
     nSelections = 1;
 
     setStyleSheet(QStyleSheet::defaultSheet());
@@ -6762,7 +6762,7 @@ void QTextImage::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 #if defined(Q_WS_X11)
         p->fillRect(QRect(QPoint(x, y), pm.size()), QBrush(pal.highlight(),
                                                                  QBrush::Dense4Pattern));
-#else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
+#else // in WIN32 Qt::Dense4Pattern doesn't work correctly (transparency problem), so work around it
         if (!qrt_selection)
             qrt_createSelectionPixmap(pal);
         p->drawTiledPixmap(x, y, pm.width(), pm.height(), *qrt_selection);

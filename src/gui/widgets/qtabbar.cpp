@@ -176,13 +176,13 @@ int QTabBarPrivate::extraWidth() const
 
 void QTabBarPrivate::init()
 {
-    leftB = new QToolButton(LeftArrow, q);
+    leftB = new QToolButton(Qt::LeftArrow, q);
     QObject::connect(leftB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
     leftB->hide();
-    rightB = new QToolButton(RightArrow, q);
+    rightB = new QToolButton(Qt::RightArrow, q);
     QObject::connect(rightB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
     rightB->hide();
-    q->setFocusPolicy(TabFocus);
+    q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
 
@@ -672,10 +672,10 @@ void QTabBar::paintEvent(QPaintEvent *)
         p.setPen(i == d->currentIndex ? white : black);
         p.setBrush(i == d->currentIndex ? black : white);
         p.drawRect(r);
-        p.drawText(r, AlignCenter | ShowPrefix, tab->text);
+        p.drawText(r, Qt::AlignCenter | Qt::ShowPrefix, tab->text);
         if (i == d->currentIndex && hasFocus()) {
             r.addCoords(2, 2, -2, -2);
-            p.setBrush(NoBrush);
+            p.setBrush(Qt::NoBrush);
             p.drawRect(r);
         }
     }
@@ -685,7 +685,7 @@ void QTabBar::paintEvent(QPaintEvent *)
  */
 void QTabBar::mousePressEvent (QMouseEvent *e)
 {
-    if (e->button() != LeftButton) {
+    if (e->button() != Qt::LeftButton) {
         e->ignore();
         return;
     }
@@ -702,7 +702,7 @@ void QTabBar::mousePressEvent (QMouseEvent *e)
  */
 void QTabBar::mouseMoveEvent (QMouseEvent *e)
 {
-    if (e->state() != LeftButton) {
+    if (e->state() != Qt::LeftButton) {
         e->ignore();
         return;
     }
@@ -721,7 +721,7 @@ void QTabBar::mouseMoveEvent (QMouseEvent *e)
  */
 void QTabBar::mouseReleaseEvent (QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         e->ignore();
 
     int i = d->indexAtPos(e->pos()) == d->pressedIndex ? d->pressedIndex : -1;
@@ -734,11 +734,11 @@ void QTabBar::mouseReleaseEvent (QMouseEvent *e)
  */
 void QTabBar::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() != Key_Left && e->key() != Key_Right) {
+    if (e->key() != Qt::Key_Left && e->key() != Qt::Key_Right) {
         e->ignore();
         return;
     }
-    int dx = e->key() == (QApplication::reverseLayout() ? Key_Right : Key_Left) ? -1 : 1;
+    int dx = e->key() == (QApplication::reverseLayout() ? Qt::Key_Right : Qt::Key_Left) ? -1 : 1;
     for (int index = d->currentIndex + dx; d->validIndex(index); index += dx) {
         if (d->tabList.at(index).enabled) {
             setCurrentIndex(index);

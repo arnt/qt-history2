@@ -31,7 +31,7 @@ public:
     public:
         Invisible(QWidgetStack * parent)
             : QWidget(parent, "qt_invisible_widgetstack")
-        { setAttribute(WA_NoSystemBackground, true); }
+        { setAttribute(Qt::WA_NoSystemBackground, true); }
         const char * className() const
         { return "QWidgetStackPrivate::Invisible"; }
     };
@@ -233,9 +233,9 @@ void QWidgetStack::raiseWidget(QWidget *w)
 
     if (w->maximumSize().width() < d->invisible->width()
         || w->maximumSize().height() < d->invisible->height())
-        d->invisible->setAttribute(WA_NoSystemBackground, false);
-    else if (d->invisible->testAttribute(WA_NoSystemBackground))
-        d->invisible->setAttribute(WA_NoSystemBackground, true);
+        d->invisible->setAttribute(Qt::WA_NoSystemBackground, false);
+    else if (d->invisible->testAttribute(Qt::WA_NoSystemBackground))
+        d->invisible->setAttribute(Qt::WA_NoSystemBackground, true);
 
     if (d->invisible->isHidden()) {
         d->invisible->setGeometry(contentsRect());
@@ -255,7 +255,7 @@ void QWidgetStack::raiseWidget(QWidget *w)
                 // second best == first child widget in the focus chain
                 QWidget *i = fw;
                 while ((i = i->nextInFocusChain()) != fw) {
-                    if (((i->focusPolicy() & TabFocus) == TabFocus)
+                    if (((i->focusPolicy() & Qt::TabFocus) == TabFocus)
                         && !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled()
                         && w->isAncestorOf(i)) {
                         p = i;

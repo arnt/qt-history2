@@ -116,19 +116,19 @@ void QQnxMouseHandlerPrivate::readMouseData(int fd) {
 
         if (packet->hdr.buttons & _POINTER_BUTTON_LEFT) {
             queuedEvents = false;
-            mouseChanged(t, LeftButton);
+            mouseChanged(t, Qt::LeftButton);
         } else if (packet->hdr.buttons & _POINTER_BUTTON_RIGHT) {
             queuedEvents = false;
-            mouseChanged(t, RightButton);
+            mouseChanged(t, Qt::RightButton);
         } else if (packet->hdr.buttons & _POINTER_BUTTON_MIDDLE) {
             queuedEvents = false;
-            mouseChanged(t, MidButton);
+            mouseChanged(t, Qt::MidButton);
         } else
             queuedEvents = true;
     }
 
     if (queuedEvents)
-        mouseChanged(t, NoButton);
+        mouseChanged(t, Qt::NoButton);
 
     free(buffer);
 }

@@ -22,12 +22,12 @@ void QDockSeparator::setDock(QDockWindowLayout *d)
     Q_ASSERT(d != 0);
     dock = d;
     orientation = dock->orientation;
-    setCursor((orientation == Horizontal) ? SplitVCursor : SplitHCursor);
+    setCursor((orientation == Qt::Horizontal) ? Qt::SplitVCursor : Qt::SplitHCursor);
 }
 
 void QDockSeparator::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != LeftButton) return;
+    if (event->button() != Qt::LeftButton) return;
 
     Q_ASSERT(!state);
     state = new DragState;
@@ -60,7 +60,7 @@ void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 
 void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != LeftButton) return;
+    if (event->button() != Qt::LeftButton) return;
 
     QMainWindowLayout *l = qt_cast<QMainWindowLayout*>(parentWidget()->layout());
     Q_ASSERT(l != 0);
@@ -81,7 +81,7 @@ void QDockSeparator::paintEvent(QPaintEvent *)
     uint flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;
-    if (orientation == Horizontal)
+    if (orientation == Qt::Horizontal)
 	flags |= QStyle::Style_Horizontal;
 
     style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), palette(), flags);

@@ -74,17 +74,17 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(horizontalScrollbarAction(int)));
 //     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)),
-//                      q, SLOT(updateEditors()), QueuedConnection);
+//                      q, SLOT(updateEditors()), Qt::QueuedConnection);
 //     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-//                      q, SLOT(updateEditors()), QueuedConnection);
-    QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
+//                      q, SLOT(updateEditors()), Qt::QueuedConnection);
+    QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), Qt::QueuedConnection);
 
-    q->setAttribute(WA_PaintOnScreen);
-    q->setAttribute(WA_NoBackground);
+    q->setAttribute(Qt::WA_PaintOnScreen);
+    q->setAttribute(Qt::WA_NoBackground);
 
-    viewport->setAttribute(WA_PaintOnScreen);
-    viewport->setAttribute(WA_NoBackground);
-    viewport->setAttribute(WA_NoSystemBackground);
+    viewport->setAttribute(Qt::WA_PaintOnScreen);
+    viewport->setAttribute(Qt::WA_NoBackground);
+    viewport->setAttribute(Qt::WA_NoSystemBackground);
 }
 
 /*!
@@ -278,7 +278,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0
+    \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state) = 0
 
     Moves the cursor in the view in accordance with the given \a
     cursorAction and button \a state.
@@ -319,7 +319,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn int QAbstractItemView::selectionCommand(ButtonState state, const QModelIndex &index, QEvent::Type type, Qt::Key key) const
+    \fn int QAbstractItemView::selectionCommand(Qt::ButtonState state, const QModelIndex &index, QEvent::Type type, Qt::Key key) const
 
     Returns a ``selection command'' based on the given button \a
     state, model item \a index, event \a type, and \a key.
@@ -470,7 +470,7 @@ int QAbstractItemView::selectionBehavior() const
 */
 void QAbstractItemView::setCurrentItem(const QModelIndex &index)
 {
-    d->selectionModel->setCurrentItem(index, selectionCommand(NoButton, index));
+    d->selectionModel->setCurrentItem(index, selectionCommand(Qt::NoButton, index));
 }
 
 /*!
@@ -641,7 +641,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 */
 void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->state() & LeftButton))
+    if (!(e->state() & Qt::LeftButton))
         return;
     QPoint topLeft;
     QPoint bottomRight = e->pos();
@@ -693,7 +693,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     setState(NoState);
     if (index == d->pressedItem)
         emit clicked(index, e->button());
-    if (e->button() == RightButton) {
+    if (e->button() == Qt::RightButton) {
         QContextMenuEvent me(QContextMenuEvent::Mouse, pos, e->state());
         QApplication::sendEvent(this, &me);
     }
@@ -821,22 +821,22 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     QModelIndex newCurrent = current;
     if (hadCurrent) {
         switch (e->key()) {
-        case Key_Down:
+        case Qt::Key_Down:
             newCurrent = moveCursor(MoveDown, e->state());
             break;
-        case Key_Up:
+        case Qt::Key_Up:
             newCurrent = moveCursor(MoveUp, e->state());
             break;
-        case Key_Left:
+        case Qt::Key_Left:
             newCurrent = moveCursor(MoveLeft, e->state());
             break;
-        case Key_Right:
+        case Qt::Key_Right:
             newCurrent = moveCursor(MoveRight, e->state());
             break;
-        case Key_Home:
+        case Qt::Key_Home:
             newCurrent = moveCursor(MoveHome, e->state());
             break;
-        case Key_End:
+        case Qt::Key_End:
             newCurrent = moveCursor(MoveEnd, e->state());
             break;
         case Key_PageUp:
@@ -850,11 +850,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         if (newCurrent != current && newCurrent.isValid()) {
             QPoint offset(horizontalOffset(), verticalOffset());
             int command = selectionCommand(e->state(), newCurrent, e->type(), (Key)e->key());
-            if (e->state() & ShiftButton && d->selectionMode != SingleSelection) {
+            if (e->state() & Qt::ShiftButton && d->selectionMode != SingleSelection) {
                 d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
-            } else if (e->state() & ControlButton && d->selectionMode != SingleSelection) {
+            } else if (e->state() & Qt::ControlButton && d->selectionMode != SingleSelection) {
                 d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
             } else {
                 d->selectionModel->setCurrentItem(newCurrent, command);
@@ -866,24 +866,24 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
     switch (e->key()) {
         // keys to ignore
-    case Key_Down:
-    case Key_Up:
-    case Key_Left:
-    case Key_Right:
-    case Key_Home:
-    case Key_End:
+    case Qt::Key_Down:
+    case Qt::Key_Up:
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Home:
+    case Qt::Key_End:
     case Key_PageUp:
     case Key_PageDown:
-    case Key_Escape:
-    case Key_Shift:
-    case Key_Control:
+    case Qt::Key_Escape:
+    case Qt::Key_Shift:
+    case Qt::Key_Control:
         break;
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         emit returnPressed(currentItem());
         e->accept();
         return;
-    case Key_Space:
+    case Qt::Key_Space:
         d->selectionModel->select(currentItem(),
                                   selectionCommand(e->state(),
                                                    currentItem(),
@@ -892,11 +892,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         emit spacePressed(currentItem());
         e->accept();
         return;
-    case Key_Delete:
+    case Qt::Key_Delete:
         emit deletePressed(currentItem());
         e->accept();
         return;
-    case Key_F2:
+    case Qt::Key_F2:
         if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
             return;
         break;
@@ -1068,11 +1068,11 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == d->currentEditor.second && event->type() == QEvent::KeyPress) {
         switch (static_cast<QKeyEvent *>(event)->key()) {
-        case Key_Escape:
+        case Qt::Key_Escape:
             endEdit(d->currentEditor.first, false);
             return true;
-        case Key_Enter:
-        case Key_Return:
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
             endEdit(d->currentEditor.first, true);
             return true;
         default:
@@ -1491,7 +1491,7 @@ void QAbstractItemView::doAutoScroll()
   This function is called on user input events like mouse and
   keyboard events.
 */
-int QAbstractItemView::selectionCommand(ButtonState state,
+int QAbstractItemView::selectionCommand(Qt::ButtonState state,
                                         const QModelIndex &item,
                                         QEvent::Type type,
                                         Key key) const
@@ -1518,18 +1518,18 @@ int QAbstractItemView::selectionCommand(ButtonState state,
     if (selectionMode() == MultiSelection) {
         // NoUpdate on Key movement and Ctrl
         if (type == QEvent::KeyPress &&
-            (key == Key_Down ||
-             key == Key_Up ||
-             key == Key_Left ||
-             key == Key_Right ||
-             key == Key_Home ||
-             key == Key_End ||
+            (key == Qt::Key_Down ||
+             key == Qt::Key_Up ||
+             key == Qt::Key_Left ||
+             key == Qt::Key_Right ||
+             key == Qt::Key_Home ||
+             key == Qt::Key_End ||
              key == Key_PageUp ||
              key == Key_PageDown))
             return QItemSelectionModel::NoUpdate;
 
         // Select/Deselect on Space
-        if (type == QEvent::KeyPress && item.isValid() && key == Key_Space) {
+        if (type == QEvent::KeyPress && item.isValid() && key == Qt::Key_Space) {
             if (d->selectionModel->isSelected(item))
                 return QItemSelectionModel::Deselect | behavior;
             else
@@ -1555,31 +1555,31 @@ int QAbstractItemView::selectionCommand(ButtonState state,
     }
 
     // Toggle on MouseMove
-    if (type == QEvent::MouseMove && state & ControlButton)
+    if (type == QEvent::MouseMove && state & Qt::ControlButton)
         return QItemSelectionModel::ToggleCurrent | behavior;
 
     // NoUpdate when pressing without modifiers on a selected item
     if (type == QEvent::MouseButtonPress &&
-        !(d->pressedState & ShiftButton) &&
-        !(d->pressedState & ControlButton) &&
+        !(d->pressedState & Qt::ShiftButton) &&
+        !(d->pressedState & Qt::ControlButton) &&
         item.isValid() &&
         d->selectionModel->isSelected(item))
         return QItemSelectionModel::NoUpdate;
 
-    // Clear on MouseButtonPress on non-valid item with no modifiers and not RightButton
+    // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
     if (type == QEvent::MouseButtonPress &&
         !item.isValid() &&
-        !(state & RightButton) &&
-        !(state & ShiftButton) &&
-        !(state & ControlButton))
+        !(state & Qt::RightButton) &&
+        !(state & Qt::ShiftButton) &&
+        !(state & Qt::ControlButton))
         return QItemSelectionModel::Clear;
 
     // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
     if (type == QEvent::MouseButtonRelease &&
         item.isValid() &&
         item == d->pressedItem &&
-        !(d->pressedState & ShiftButton) &&
-        !(d->pressedState & ControlButton) &&
+        !(d->pressedState & Qt::ShiftButton) &&
+        !(d->pressedState & Qt::ControlButton) &&
         d->selectionModel->isSelected(item))
         return QItemSelectionModel::ClearAndSelect | behavior;
     else if (type == QEvent::MouseButtonRelease)
@@ -1587,28 +1587,28 @@ int QAbstractItemView::selectionCommand(ButtonState state,
 
     // NoUpdate on Key movement and Ctrl
     if (type == QEvent::KeyPress &&
-        state & ControlButton &&
-        (key == Key_Down ||
-         key == Key_Up ||
-         key == Key_Left ||
-         key == Key_Right ||
-         key == Key_Home ||
-         key == Key_End ||
+        state & Qt::ControlButton &&
+        (key == Qt::Key_Down ||
+         key == Qt::Key_Up ||
+         key == Qt::Key_Left ||
+         key == Qt::Key_Right ||
+         key == Qt::Key_Home ||
+         key == Qt::Key_End ||
          key == Key_PageUp ||
          key == Key_PageDown))
         return QItemSelectionModel::NoUpdate;
 
-    // Toggle on Ctrl-Key_Space, Select on Space
-    if (type == QEvent::KeyPress && key == Key_Space) {
-        if (state & ControlButton)
+    // Toggle on Ctrl-Qt::Key_Space, Select on Space
+    if (type == QEvent::KeyPress && key == Qt::Key_Space) {
+        if (state & Qt::ControlButton)
             return QItemSelectionModel::Toggle | behavior;
         else
             return QItemSelectionModel::Select | behavior;
     }
 
-    if (state & ShiftButton)
+    if (state & Qt::ShiftButton)
         return QItemSelectionModel::SelectCurrent | behavior;
-    if (state & ControlButton)
+    if (state & Qt::ControlButton)
         return QItemSelectionModel::Toggle | behavior;
     if (QAbstractItemView::state() == Selecting)
         return QItemSelectionModel::SelectCurrent | behavior;

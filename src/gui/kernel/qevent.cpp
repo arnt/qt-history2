@@ -123,7 +123,7 @@
     the \l Qt::ButtonState enum. If the event \a type is
     \c MouseMove, the appropriate button for this event is
     \c Qt::NoButton (0).
-    The \a state is the \link Qt::ButtonState ButtonState \endlink
+    The \a state is the \link Qt::ButtonState Qt::ButtonState \endlink
     at the time of the event.
 
     The globalPos() is initialized to QCursor::pos(), which may not
@@ -153,7 +153,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     the \l Qt::ButtonState enum. If the event \a type is
     \c MouseMove, the appropriate button for this event is
     \c Qt::NoButton (0).
-    The \a state is the \link Qt::ButtonState ButtonState \endlink
+    The \a state is the \link Qt::ButtonState Qt::ButtonState \endlink
     at the time of the event.
 
 */
@@ -221,14 +221,14 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 */
 
 /*!
-    \fn ButtonState QMouseEvent::button() const
+    \fn Qt::ButtonState QMouseEvent::button() const
 
     Returns the button that caused the event.
 
-    Possible return values are \c LeftButton, \c RightButton, \c
-    MidButton, and \c NoButton.
+    Possible return values are \c Qt::LeftButton, \c Qt::RightButton, \c
+    Qt::MidButton, and \c Qt::NoButton.
 
-    Note that the returned value is always \c NoButton for mouse move
+    Note that the returned value is always \c Qt::NoButton for mouse move
     events.
 
     \sa state() Qt::ButtonState
@@ -236,7 +236,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 
 
 /*!
-    \fn ButtonState QMouseEvent::state() const
+    \fn Qt::ButtonState QMouseEvent::state() const
 
     Returns the button state immediately before the event was
     generated. The button state is a combination of mouse buttons
@@ -254,14 +254,14 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 
     The returned value is a selection of the following values,
     combined using the logical OR operator:
-    \c LeftButton, \c RightButton, \c MidButton,
-    \c ShiftButton, \c ControlButton, and \c AltButton.
+    \c Qt::LeftButton, \c Qt::RightButton, \c Qt::MidButton,
+    \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
 
     \sa button() stateAfter() Qt::ButtonState
 */
 
 /*!
-    \fn ButtonState QMouseEvent::stateAfter() const
+    \fn Qt::ButtonState QMouseEvent::stateAfter() const
 
     Returns the button state immediately after the event.
 
@@ -300,13 +300,13 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-    \fn Orientation QWheelEvent::orientation() const
+    \fn Qt::Orientation QWheelEvent::orientation() const
 
     Returns the wheel's orientation.
 */
 
 /*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation orient = Vertical);
+    \fn QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient = Qt::Vertical);
 
     Constructs a wheel event object.
 
@@ -321,14 +321,14 @@ Qt::ButtonState QMouseEvent::stateAfter() const
     \sa pos() delta() state()
 */
 #ifndef QT_NO_WHEELEVENT
-QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation orient)
+QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), d(delta), s((ushort)state), o(orient)
 {
     g = QCursor::pos();
 }
 #endif
 /*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &position, const QPoint &globalPos, int delta, int state, Orientation orient = Vertical )
+    \fn QWheelEvent::QWheelEvent(const QPoint &position, const QPoint &globalPos, int delta, int state, Qt::Orientation orient = Qt::Vertical )
 
     Constructs a wheel event object.
 
@@ -420,13 +420,13 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 
 
 /*!
-    \fn ButtonState QWheelEvent::state() const
+    \fn Qt::ButtonState QWheelEvent::state() const
 
     Returns the keyboard modifier flags at the time of the event.
 
     The returned value is a selection of the following values,
     combined using the logical OR operator:
-    \c ShiftButton, \c ControlButton, and \c AltButton.
+    \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
 */
 
 
@@ -435,12 +435,12 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 
     This enum describes the keyboard modifier keys supported by Qt.
 
-    \value SHIFT The Shift keys provided on all standard keyboards.
-    \value META The Meta keys.
-    \value CTRL The Ctrl keys.
-    \value ALT The normal Alt keys, but not keys like AltGr.
-    \value MODIFIER_MASK A mask of Shift, Ctrl, Alt, and Meta.
-    \value UNICODE_ACCEL The shortcut is specified as a Unicode code
+    \value Qt::SHIFT The Shift keys provided on all standard keyboards.
+    \value Qt::META The Meta keys.
+    \value Qt::CTRL The Ctrl keys.
+    \value Qt::ALT The normal Alt keys, but not keys like AltGr.
+    \value Qt::MODIFIER_MASK A mask of Shift, Ctrl, Alt, and Meta.
+    \value Qt::UNICODE_ACCEL The shortcut is specified as a Unicode code
     point, not as a Qt Key.
 */
 
@@ -492,7 +492,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     See \l Qt::Key for the list of keyboard codes. These codes are
     independent of the underlying window system.
 
-    A value of either 0 or Key_unknown means that the event is not
+    A value of either 0 or Qt::Key_unknown means that the event is not
     the result of a known key; for example, it may be the result of
     a compose sequence, a keyboard macro, or due to key event
     compression.
@@ -513,21 +513,21 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 */
 
 /*!
-    \fn ButtonState QKeyEvent::state() const
+    \fn Qt::ButtonState QKeyEvent::state() const
 
     Returns the keyboard modifier flags that existed immediately
     before the event occurred.
 
     The returned value is a selection of the following values,
     combined using the logical OR operator:
-    \c ShiftButton, \c ControlButton, \c AltButton, and
-    \c MetaButton.
+    \c Qt::ShiftButton, \c Qt::ControlButton, \c Qt::AltButton, and
+    \c Qt::MetaButton.
 
     \sa stateAfter()
 */
 
 /*!
-    \fn ButtonState QKeyEvent::stateAfter() const
+    \fn Qt::ButtonState QKeyEvent::stateAfter() const
 
     Returns the keyboard modifier flags that existed immediately
     after the event occurred.
@@ -539,14 +539,14 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 //###### We must check with XGetModifierMapping
 Qt::ButtonState QKeyEvent::stateAfter() const
 {
-    if (key() == Key_Shift)
-        return Qt::ButtonState(state()^ShiftButton);
-    if (key() == Key_Control)
-        return Qt::ButtonState(state()^ControlButton);
-    if (key() == Key_Alt)
-        return Qt::ButtonState(state()^AltButton);
-    if (key() == Key_Meta)
-        return Qt::ButtonState(state()^MetaButton);
+    if (key() == Qt::Key_Shift)
+        return Qt::ButtonState(state()^Qt::ShiftButton);
+    if (key() == Qt::Key_Control)
+        return Qt::ButtonState(state()^Qt::ControlButton);
+    if (key() == Qt::Key_Alt)
+        return Qt::ButtonState(state()^Qt::AltButton);
+    if (key() == Qt::Key_Meta)
+        return Qt::ButtonState(state()^Qt::MetaButton);
     return state();
 }
 
@@ -576,265 +576,265 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     The key names used by Qt.
 
-    \value Key_Escape
-    \value Key_Tab
-    \value Key_Backtab
-    \value Key_Backspace
-    \value Key_Return
-    \value Key_Enter
-    \value Key_Insert
-    \value Key_Delete
-    \value Key_Pause
-    \value Key_Print
-    \value Key_SysReq
-    \value Key_Home
-    \value Key_End
-    \value Key_Left
-    \value Key_Up
-    \value Key_Right
-    \value Key_Down
-    \value Key_Prior
-    \value Key_Next
-    \value Key_Shift
-    \value Key_Control
-    \value Key_Meta
-    \value Key_Alt
-    \value Key_CapsLock
-    \value Key_NumLock
-    \value Key_ScrollLock
-    \value Key_Clear
-    \value Key_F1
-    \value Key_F2
-    \value Key_F3
-    \value Key_F4
-    \value Key_F5
-    \value Key_F6
-    \value Key_F7
-    \value Key_F8
-    \value Key_F9
-    \value Key_F10
-    \value Key_F11
-    \value Key_F12
-    \value Key_F13
-    \value Key_F14
-    \value Key_F15
-    \value Key_F16
-    \value Key_F17
-    \value Key_F18
-    \value Key_F19
-    \value Key_F20
-    \value Key_F21
-    \value Key_F22
-    \value Key_F23
-    \value Key_F24
-    \value Key_F25
-    \value Key_F26
-    \value Key_F27
-    \value Key_F28
-    \value Key_F29
-    \value Key_F30
-    \value Key_F31
-    \value Key_F32
-    \value Key_F33
-    \value Key_F34
-    \value Key_F35
-    \value Key_Super_L
-    \value Key_Super_R
-    \value Key_Menu
-    \value Key_Hyper_L
-    \value Key_Hyper_R
-    \value Key_Help
-    \value Key_Space
-    \value Key_Any
-    \value Key_Exclam
-    \value Key_QuoteDbl
-    \value Key_NumberSign
-    \value Key_Dollar
-    \value Key_Percent
-    \value Key_Ampersand
-    \value Key_Apostrophe
-    \value Key_ParenLeft
-    \value Key_ParenRight
-    \value Key_Asterisk
-    \value Key_Plus
-    \value Key_Comma
-    \value Key_Minus
-    \value Key_Period
-    \value Key_Slash
-    \value Key_0
-    \value Key_1
-    \value Key_2
-    \value Key_3
-    \value Key_4
-    \value Key_5
-    \value Key_6
-    \value Key_7
-    \value Key_8
-    \value Key_9
-    \value Key_Colon
-    \value Key_Semicolon
-    \value Key_Less
-    \value Key_Equal
-    \value Key_Greater
-    \value Key_Question
-    \value Key_At
-    \value Key_A
-    \value Key_B
-    \value Key_C
-    \value Key_D
-    \value Key_E
-    \value Key_F
-    \value Key_G
-    \value Key_H
-    \value Key_I
-    \value Key_J
-    \value Key_K
-    \value Key_L
-    \value Key_M
-    \value Key_N
-    \value Key_O
-    \value Key_P
-    \value Key_Q
-    \value Key_R
-    \value Key_S
-    \value Key_T
-    \value Key_U
-    \value Key_V
-    \value Key_W
-    \value Key_X
-    \value Key_Y
-    \value Key_Z
-    \value Key_BracketLeft
-    \value Key_Backslash
-    \value Key_BracketRight
-    \value Key_AsciiCircum
-    \value Key_Underscore
-    \value Key_QuoteLeft
-    \value Key_BraceLeft
-    \value Key_Bar
-    \value Key_BraceRight
-    \value Key_AsciiTilde
+    \value Qt::Key_Escape
+    \value Qt::Key_Tab
+    \value Qt::Key_Backtab
+    \value Qt::Key_Backspace
+    \value Qt::Key_Return
+    \value Qt::Key_Enter
+    \value Qt::Key_Insert
+    \value Qt::Key_Delete
+    \value Qt::Key_Pause
+    \value Qt::Key_Print
+    \value Qt::Key_SysReq
+    \value Qt::Key_Home
+    \value Qt::Key_End
+    \value Qt::Key_Left
+    \value Qt::Key_Up
+    \value Qt::Key_Right
+    \value Qt::Key_Down
+    \value Qt::Key_Prior
+    \value Qt::Key_Next
+    \value Qt::Key_Shift
+    \value Qt::Key_Control
+    \value Qt::Key_Meta
+    \value Qt::Key_Alt
+    \value Qt::Key_CapsLock
+    \value Qt::Key_NumLock
+    \value Qt::Key_ScrollLock
+    \value Qt::Key_Clear
+    \value Qt::Key_F1
+    \value Qt::Key_F2
+    \value Qt::Key_F3
+    \value Qt::Key_F4
+    \value Qt::Key_F5
+    \value Qt::Key_F6
+    \value Qt::Key_F7
+    \value Qt::Key_F8
+    \value Qt::Key_F9
+    \value Qt::Key_F10
+    \value Qt::Key_F11
+    \value Qt::Key_F12
+    \value Qt::Key_F13
+    \value Qt::Key_F14
+    \value Qt::Key_F15
+    \value Qt::Key_F16
+    \value Qt::Key_F17
+    \value Qt::Key_F18
+    \value Qt::Key_F19
+    \value Qt::Key_F20
+    \value Qt::Key_F21
+    \value Qt::Key_F22
+    \value Qt::Key_F23
+    \value Qt::Key_F24
+    \value Qt::Key_F25
+    \value Qt::Key_F26
+    \value Qt::Key_F27
+    \value Qt::Key_F28
+    \value Qt::Key_F29
+    \value Qt::Key_F30
+    \value Qt::Key_F31
+    \value Qt::Key_F32
+    \value Qt::Key_F33
+    \value Qt::Key_F34
+    \value Qt::Key_F35
+    \value Qt::Key_Super_L
+    \value Qt::Key_Super_R
+    \value Qt::Key_Menu
+    \value Qt::Key_Hyper_L
+    \value Qt::Key_Hyper_R
+    \value Qt::Key_Help
+    \value Qt::Key_Space
+    \value Qt::Key_Any
+    \value Qt::Key_Exclam
+    \value Qt::Key_QuoteDbl
+    \value Qt::Key_NumberSign
+    \value Qt::Key_Dollar
+    \value Qt::Key_Percent
+    \value Qt::Key_Ampersand
+    \value Qt::Key_Apostrophe
+    \value Qt::Key_ParenLeft
+    \value Qt::Key_ParenRight
+    \value Qt::Key_Asterisk
+    \value Qt::Key_Plus
+    \value Qt::Key_Comma
+    \value Qt::Key_Minus
+    \value Qt::Key_Period
+    \value Qt::Key_Slash
+    \value Qt::Key_0
+    \value Qt::Key_1
+    \value Qt::Key_2
+    \value Qt::Key_3
+    \value Qt::Key_4
+    \value Qt::Key_5
+    \value Qt::Key_6
+    \value Qt::Key_7
+    \value Qt::Key_8
+    \value Qt::Key_9
+    \value Qt::Key_Colon
+    \value Qt::Key_Semicolon
+    \value Qt::Key_Less
+    \value Qt::Key_Equal
+    \value Qt::Key_Greater
+    \value Qt::Key_Question
+    \value Qt::Key_At
+    \value Qt::Key_A
+    \value Qt::Key_B
+    \value Qt::Key_C
+    \value Qt::Key_D
+    \value Qt::Key_E
+    \value Qt::Key_F
+    \value Qt::Key_G
+    \value Qt::Key_H
+    \value Qt::Key_I
+    \value Qt::Key_J
+    \value Qt::Key_K
+    \value Qt::Key_L
+    \value Qt::Key_M
+    \value Qt::Key_N
+    \value Qt::Key_O
+    \value Qt::Key_P
+    \value Qt::Key_Q
+    \value Qt::Key_R
+    \value Qt::Key_S
+    \value Qt::Key_T
+    \value Qt::Key_U
+    \value Qt::Key_V
+    \value Qt::Key_W
+    \value Qt::Key_X
+    \value Qt::Key_Y
+    \value Qt::Key_Z
+    \value Qt::Key_BracketLeft
+    \value Qt::Key_Backslash
+    \value Qt::Key_BracketRight
+    \value Qt::Key_AsciiCircum
+    \value Qt::Key_Underscore
+    \value Qt::Key_QuoteLeft
+    \value Qt::Key_BraceLeft
+    \value Qt::Key_Bar
+    \value Qt::Key_BraceRight
+    \value Qt::Key_AsciiTilde
 
-    \value Key_nobreakspace
-    \value Key_exclamdown
-    \value Key_cent
-    \value Key_sterling
-    \value Key_currency
-    \value Key_yen
-    \value Key_brokenbar
-    \value Key_section
-    \value Key_diaeresis
-    \value Key_copyright
-    \value Key_ordfeminine
-    \value Key_guillemotleft
-    \value Key_notsign
-    \value Key_hyphen
-    \value Key_registered
-    \value Key_macron
-    \value Key_degree
-    \value Key_plusminus
-    \value Key_twosuperior
-    \value Key_threesuperior
-    \value Key_acute
-    \value Key_mu
-    \value Key_paragraph
-    \value Key_periodcentered
-    \value Key_cedilla
-    \value Key_onesuperior
-    \value Key_masculine
-    \value Key_guillemotright
-    \value Key_onequarter
-    \value Key_onehalf
-    \value Key_threequarters
-    \value Key_questiondown
-    \value Key_Agrave
-    \value Key_Aacute
-    \value Key_Acircumflex
-    \value Key_Atilde
-    \value Key_Adiaeresis
-    \value Key_Aring
-    \value Key_AE
-    \value Key_Ccedilla
-    \value Key_Egrave
-    \value Key_Eacute
-    \value Key_Ecircumflex
-    \value Key_Ediaeresis
-    \value Key_Igrave
-    \value Key_Iacute
-    \value Key_Icircumflex
-    \value Key_Idiaeresis
-    \value Key_ETH
-    \value Key_Ntilde
-    \value Key_Ograve
-    \value Key_Oacute
-    \value Key_Ocircumflex
-    \value Key_Otilde
-    \value Key_Odiaeresis
-    \value Key_multiply
-    \value Key_Ooblique
-    \value Key_Ugrave
-    \value Key_Uacute
-    \value Key_Ucircumflex
-    \value Key_Udiaeresis
-    \value Key_Yacute
-    \value Key_THORN
-    \value Key_ssharp
-    \value Key_division
-    \value Key_ydiaeresis
+    \value Qt::Key_nobreakspace
+    \value Qt::Key_exclamdown
+    \value Qt::Key_cent
+    \value Qt::Key_sterling
+    \value Qt::Key_currency
+    \value Qt::Key_yen
+    \value Qt::Key_brokenbar
+    \value Qt::Key_section
+    \value Qt::Key_diaeresis
+    \value Qt::Key_copyright
+    \value Qt::Key_ordfeminine
+    \value Qt::Key_guillemotleft
+    \value Qt::Key_notsign
+    \value Qt::Key_hyphen
+    \value Qt::Key_registered
+    \value Qt::Key_macron
+    \value Qt::Key_degree
+    \value Qt::Key_plusminus
+    \value Qt::Key_twosuperior
+    \value Qt::Key_threesuperior
+    \value Qt::Key_acute
+    \value Qt::Key_mu
+    \value Qt::Key_paragraph
+    \value Qt::Key_periodcentered
+    \value Qt::Key_cedilla
+    \value Qt::Key_onesuperior
+    \value Qt::Key_masculine
+    \value Qt::Key_guillemotright
+    \value Qt::Key_onequarter
+    \value Qt::Key_onehalf
+    \value Qt::Key_threequarters
+    \value Qt::Key_questiondown
+    \value Qt::Key_Agrave
+    \value Qt::Key_Aacute
+    \value Qt::Key_Acircumflex
+    \value Qt::Key_Atilde
+    \value Qt::Key_Adiaeresis
+    \value Qt::Key_Aring
+    \value Qt::Key_AE
+    \value Qt::Key_Ccedilla
+    \value Qt::Key_Egrave
+    \value Qt::Key_Eacute
+    \value Qt::Key_Ecircumflex
+    \value Qt::Key_Ediaeresis
+    \value Qt::Key_Igrave
+    \value Qt::Key_Iacute
+    \value Qt::Key_Icircumflex
+    \value Qt::Key_Idiaeresis
+    \value Qt::Key_ETH
+    \value Qt::Key_Ntilde
+    \value Qt::Key_Ograve
+    \value Qt::Key_Oacute
+    \value Qt::Key_Ocircumflex
+    \value Qt::Key_Otilde
+    \value Qt::Key_Odiaeresis
+    \value Qt::Key_multiply
+    \value Qt::Key_Ooblique
+    \value Qt::Key_Ugrave
+    \value Qt::Key_Uacute
+    \value Qt::Key_Ucircumflex
+    \value Qt::Key_Udiaeresis
+    \value Qt::Key_Yacute
+    \value Qt::Key_THORN
+    \value Qt::Key_ssharp
+    \value Qt::Key_division
+    \value Qt::Key_ydiaeresis
 
     Multimedia keys
 
-    \value Key_Back
-    \value Key_Forward
-    \value Key_Stop
-    \value Key_Refresh
+    \value Qt::Key_Back
+    \value Qt::Key_Forward
+    \value Qt::Key_Stop
+    \value Qt::Key_Refresh
 
-    \value Key_VolumeDown
-    \value Key_VolumeMute
-    \value Key_VolumeUp
-    \value Key_BassBoost
-    \value Key_BassUp
-    \value Key_BassDown
-    \value Key_TrebleUp
-    \value Key_TrebleDown
+    \value Qt::Key_VolumeDown
+    \value Qt::Key_VolumeMute
+    \value Qt::Key_VolumeUp
+    \value Qt::Key_BassBoost
+    \value Qt::Key_BassUp
+    \value Qt::Key_BassDown
+    \value Qt::Key_TrebleUp
+    \value Qt::Key_TrebleDown
 
-    \value Key_MediaPlay
-    \value Key_MediaStop
-    \value Key_MediaPrev
-    \value Key_MediaNext
-    \value Key_MediaRecord
+    \value Qt::Key_MediaPlay
+    \value Qt::Key_MediaStop
+    \value Qt::Key_MediaPrev
+    \value Qt::Key_MediaNext
+    \value Qt::Key_MediaRecord
 
-    \value Key_HomePage
-    \value Key_Favorites
-    \value Key_Search
-    \value Key_Standby
-    \value Key_OpenUrl
+    \value Qt::Key_HomePage
+    \value Qt::Key_Favorites
+    \value Qt::Key_Search
+    \value Qt::Key_Standby
+    \value Qt::Key_OpenUrl
 
-    \value Key_LaunchMail
-    \value Key_LaunchMedia
-    \value Key_Launch0
-    \value Key_Launch1
-    \value Key_Launch2
-    \value Key_Launch3
-    \value Key_Launch4
-    \value Key_Launch5
-    \value Key_Launch6
-    \value Key_Launch7
-    \value Key_Launch8
-    \value Key_Launch9
-    \value Key_LaunchA
-    \value Key_LaunchB
-    \value Key_LaunchC
-    \value Key_LaunchD
-    \value Key_LaunchE
-    \value Key_LaunchF
+    \value Qt::Key_LaunchMail
+    \value Qt::Key_LaunchMedia
+    \value Qt::Key_Launch0
+    \value Qt::Key_Launch1
+    \value Qt::Key_Launch2
+    \value Qt::Key_Launch3
+    \value Qt::Key_Launch4
+    \value Qt::Key_Launch5
+    \value Qt::Key_Launch6
+    \value Qt::Key_Launch7
+    \value Qt::Key_Launch8
+    \value Qt::Key_Launch9
+    \value Qt::Key_LaunchA
+    \value Qt::Key_LaunchB
+    \value Qt::Key_LaunchC
+    \value Qt::Key_LaunchD
+    \value Qt::Key_LaunchE
+    \value Qt::Key_LaunchF
 
-    \value Key_MediaLast
+    \value Qt::Key_MediaLast
 
-    \value Key_unknown
+    \value Qt::Key_unknown
 
-    \value Key_Direction_L internal use only
-    \value Key_Direction_R internal use only
+    \value Qt::Key_Direction_L internal use only
+    \value Qt::Key_Direction_R internal use only
 
 */
 
@@ -1089,7 +1089,7 @@ void QFocusEvent::resetReason()
     Close events contain a flag that indicates whether the receiver
     wants the widget to be closed or not. When a widget accepts the
     close event, it is hidden (and destroyed if it was created with
-    the \c WDestructiveClose flag). If it refuses to accept the close
+    the \c Qt::WDestructiveClose flag). If it refuses to accept the close
     event nothing happens. (Under X11 it is possible that the window
     manager will forcibly close the window; but at the time of writing
     we are not aware of any window manager that does this.)
@@ -1111,7 +1111,7 @@ void QFocusEvent::resetReason()
     asks whether to save a document before closing.
 
     If you want the widget to be deleted when it is closed, create it
-    with the \c WDestructiveClose widget flag. This is very useful for
+    with the \c Qt::WDestructiveClose widget flag. This is very useful for
     independent top-level windows in a multi-window application.
 
     \l{QObject}s emits the \link QObject::destroyed()
@@ -1232,7 +1232,7 @@ void QFocusEvent::resetReason()
 
     The \a pos parameter specifies the mouse position relative to the
     receiving widget. \a globalPos is the mouse position in absolute
-    coordinates. \a state is the ButtonState at the time of the event.
+    coordinates. \a state is the Qt::ButtonState at the time of the event.
 */
 
 
@@ -1246,7 +1246,7 @@ void QFocusEvent::resetReason()
     QContextMenuEvent::Keyboard.
 
     The \a pos parameter specifies the mouse position relative to the
-    receiving widget. \a state is the ButtonState at the time of the
+    receiving widget. \a state is the Qt::ButtonState at the time of the
     event.
 
     The globalPos() is initialized to QCursor::pos(), which may not be
@@ -1315,7 +1315,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 */
 
 /*!
-    \fn ButtonState QContextMenuEvent::state() const
+    \fn Qt::ButtonState QContextMenuEvent::state() const
 
     Returns the button state (a combination of mouse buttons
     and keyboard modifiers) immediately before the event was
@@ -1323,8 +1323,8 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 
     The returned value is a selection of the following values,
     combined with the logical OR operator:
-    \c LeftButton, \c RightButton, \c MidButton,
-    \c ShiftButton, \c ControlButton, and \c AltButton.
+    \c Qt::LeftButton, \c Qt::RightButton, \c Qt::MidButton,
+    \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
 */
 
 /*!

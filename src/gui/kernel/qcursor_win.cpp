@@ -56,7 +56,7 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
     d->bm  = new QBitmap(bitmap);
     d->bmm = new QBitmap(mask);
     d->hcurs = 0;
-    d->cshape = BitmapCursor;
+    d->cshape = Qt::BitmapCursor;
     d->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     d->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
@@ -179,71 +179,71 @@ void QCursor::update() const
 
     unsigned short *sh;
     switch (d->cshape) {                        // map to windows cursor
-    case ArrowCursor:
+    case Qt::ArrowCursor:
         sh = (unsigned short*)IDC_ARROW;
         break;
-    case UpArrowCursor:
+    case Qt::UpArrowCursor:
         sh = (unsigned short*)IDC_UPARROW;
         break;
-    case CrossCursor:
+    case Qt::CrossCursor:
         sh = (unsigned short*)IDC_CROSS;
         break;
-    case WaitCursor:
+    case Qt::WaitCursor:
         sh = (unsigned short*)IDC_WAIT;
         break;
-    case IbeamCursor:
+    case Qt::IbeamCursor:
         sh = (unsigned short*)IDC_IBEAM;
         break;
-    case SizeVerCursor:
+    case Qt::SizeVerCursor:
         sh = (unsigned short*)IDC_SIZENS;
         break;
-    case SizeHorCursor:
+    case Qt::SizeHorCursor:
         sh = (unsigned short*)IDC_SIZEWE;
         break;
-    case SizeBDiagCursor:
+    case Qt::SizeBDiagCursor:
         sh = (unsigned short*)IDC_SIZENESW;
         break;
-    case SizeFDiagCursor:
+    case Qt::SizeFDiagCursor:
         sh = (unsigned short*)IDC_SIZENWSE;
         break;
-    case SizeAllCursor:
+    case Qt::SizeAllCursor:
         sh = (unsigned short*)IDC_SIZEALL;
         break;
-    case ForbiddenCursor:
+    case Qt::ForbiddenCursor:
         sh = (unsigned short*)IDC_NO;
         break;
-    case WhatsThisCursor:
+    case Qt::WhatsThisCursor:
         sh = (unsigned short*)IDC_HELP;
         break;
-    case BusyCursor:
+    case Qt::BusyCursor:
         sh = (unsigned short*)IDC_APPSTARTING;
         break;
-    case PointingHandCursor:
+    case Qt::PointingHandCursor:
         if ((QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) > QSysInfo::WV_95 ||
             (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) > QSysInfo::WV_NT) {
             sh = (unsigned short*)IDC_HAND;
             break;
         }
         // fall through
-    case BlankCursor:
-    case SplitVCursor:
-    case SplitHCursor:
-    case BitmapCursor: {
+    case Qt::BlankCursor:
+    case Qt::SplitVCursor:
+    case Qt::SplitHCursor:
+    case Qt::BitmapCursor: {
         QImage bbits, mbits;
         bool invb, invm;
-        if (d->cshape == BlankCursor) {
+        if (d->cshape == Qt::BlankCursor) {
             bbits.create(32, 32, 1, 2, QImage::BigEndian);
             bbits.fill(0);                // ignore color table
             mbits = bbits.copy();
             d->hx = d->hy = 16;
             invb = invm = false;
-        } else if (d->cshape != BitmapCursor) {
-            int i = d->cshape - SplitVCursor;
+        } else if (d->cshape != Qt::BitmapCursor) {
+            int i = d->cshape - Qt::SplitVCursor;
             QBitmap cb(32, 32, cursor_bits32[i * 2], true);
             QBitmap cm(32, 32, cursor_bits32[i * 2 + 1], true);
             bbits = cb;
             mbits = cm;
-            if (d->cshape == PointingHandCursor) {
+            if (d->cshape == Qt::PointingHandCursor) {
                 d->hx = 7;
                 d->hy = 0;
             } else

@@ -48,9 +48,9 @@
     QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
     Example:
     \code
-        QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
+        QPushButton p("&Exit", parent); // automatic shortcut Qt::ALT+Qt::Key_E
         QMenu *fileMenu = new fileMenu(parent);
-        fileMenu->addAction("Undo", parent, SLOT(undo()), CTRL+Key_Z);
+        fileMenu->addAction("Undo", parent, SLOT(undo()), Qt::CTRL+Qt::Key_Z);
     \endcode
 
     A QAccel contains a list of accelerator items that can be
@@ -59,12 +59,12 @@
 
     Each accelerator item consists of an identifier and a \l
     QKeySequence. A single key sequence consists of a keyboard code
-    combined with modifiers (\c META, \c SHIFT, \c CTRL or \c ALT).
-    For example, \c{CTRL + Key_P} could be a shortcut for
+    combined with modifiers (\c Qt::META, \c Qt::SHIFT, \c Qt::CTRL or \c Qt::ALT).
+    For example, \c{Qt::CTRL + Qt::Key_P} could be a shortcut for
     printing a document. The key codes are listed in \c
     qnamespace.h. As an alternative, use the
     unicode code point of the character. For example, \c{'A'}
-    gives the same accelerator as \c Key_A and \c{0x410} gives an
+    gives the same accelerator as \c Qt::Key_A and \c{0x410} gives an
     accelerator for the cyrillic letter 'A' (which is different from the latin 'A').
 
     When an accelerator key is pressed, the accelerator sends out the
@@ -107,7 +107,7 @@
     Example:
     \code
  QAccel *a = new QAccel(myWindow);           // create accels for myWindow
-        a->connectItem(a->insertItem(Key_P+CTRL), // adds Ctrl+P accelerator
+        a->connectItem(a->insertItem(Qt::Key_P+Qt::CTRL), // adds Ctrl+P accelerator
                         myWindow,                   // connected to myWindow's
                         SLOT(printDoc()));           // printDoc() slot
     \endcode
@@ -168,7 +168,7 @@ private:
 
     bool correctSubWindow(QWidget *w, QAccelPrivate* priv);
     QKeySequence::SequenceMatch match(QKeyEvent* e, QAccelItem* item, QKeySequence& temp);
-    int translateModifiers(ButtonState state);
+    int translateModifiers(Qt::ButtonState state);
 
     QList<QAccelPrivate *> accels;
     static QAccelManager* self_ptr;
@@ -231,7 +231,7 @@ bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     QWidget* sw = priv->watch;
-    while (sw && !sw->testWFlags(WSubWindow) && !sw->isTopLevel())
+    while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isTopLevel())
         sw = sw->parentWidget();
     if (sw)  { // we are in a subwindow indeed
         QWidget* fw = w;
@@ -243,17 +243,17 @@ bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
     return true;
 }
 
-inline int QAccelManager::translateModifiers(ButtonState state)
+inline int QAccelManager::translateModifiers(Qt::ButtonState state)
 {
     int result = 0;
-    if (state & ShiftButton)
-        result |= SHIFT;
-    if (state & ControlButton)
-        result |= CTRL;
-    if (state & MetaButton)
-        result |= META;
-    if (state & AltButton)
-        result |= ALT;
+    if (state & Qt::ShiftButton)
+        result |= Qt::SHIFT;
+    if (state & Qt::ControlButton)
+        result |= Qt::CTRL;
+    if (state & Qt::MetaButton)
+        result |= Qt::META;
+    if (state & Qt::AltButton)
+        result |= Qt::ALT;
     return result;
 }
 
@@ -272,7 +272,7 @@ QKeySequence::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item,
 
     int modifier = translateModifiers(e->state());
 
-    if (e->key() && e->key() != Key_unknown) {
+    if (e->key() && e->key() != Qt::Key_unknown) {
         int key = e->key()  | modifier;
         if (e->key() == Key_BackTab) {
             /*
@@ -280,14 +280,14 @@ QKeySequence::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item,
             This code here reverts the mapping in a way that keeps
             backtab and shift+tab accelerators working, in that
             order, meaning backtab has priority.*/
-            key &= ~SHIFT;
+            key &= ~Qt::SHIFT;
 
             temp.setKey(key, index);
             if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
-            if (e->state() & ShiftButton)
-                key |= SHIFT;
-            key = Key_Tab | (key & MODIFIER_MASK);
+            if (e->state() & Qt::ShiftButton)
+                key |= Qt::SHIFT;
+            key = Qt::Key_Tab | (key & Qt::MODIFIER_MASK);
             temp.setKey(key, index);
             if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
@@ -298,8 +298,8 @@ QKeySequence::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item,
         }
 
         if (key == Key_BackTab) {
-            if (e->state() & ShiftButton)
-                key |= SHIFT;
+            if (e->state() & Qt::ShiftButton)
+                key |= Qt::SHIFT;
             temp.setKey(key, index);
             if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
@@ -330,7 +330,7 @@ bool QAccelManager::tryAccelEvent(QWidget* w, QKeyEvent* e)
 bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
 {
     if (metaComposeUnicode) {
-        int value = e->key() - Key_0;
+        int value = e->key() - Qt::Key_0;
         // Ignore acceloverrides so we don't trigger
         // accels on keypad when Meta compose is on
         if ((e->type() == QEvent::AccelOverride) &&
@@ -358,7 +358,7 @@ bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
             }
         // Meta compose end, dispatch
         } else if ((e->type() == QEvent::KeyRelease) &&
-                    (e->key() == Key_Meta) &&
+                    (e->key() == Qt::Key_Meta) &&
                     (composedUnicode != 0)) {
             if ((composedUnicode > 0) &&
                  (composedUnicode < 0xFFFE)) {
@@ -390,8 +390,8 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 #endif
 
     // Modifiers can NOT be accelerators...
-    if (e->key() >= Key_Shift &&
-         e->key() <= Key_Alt)
+    if (e->key() >= Qt::Key_Shift &&
+         e->key() <= Qt::Key_Alt)
          return false;
 
     QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
@@ -679,20 +679,20 @@ static int get_seq_id()
 /*!
     Inserts an accelerator item and returns the item's identifier.
 
-    \a key is a key code and an optional combination of SHIFT, CTRL
-    and ALT. \a id is the accelerator item id.
+    \a key is a key code and an optional combination of Qt::SHIFT, Qt::CTRL
+    and Qt::ALT. \a id is the accelerator item id.
 
     If \a id is negative, then the item will be assigned a unique
     negative identifier less than -1.
 
     \code
         QAccel *a = new QAccel(myWindow);           // create accels for myWindow
-        a->insertItem(CTRL + Key_P, 200);           // Ctrl+P, e.g. to print document
-        a->insertItem(ALT + Key_X, 201);           // Alt+X, e.g. to quit
+        a->insertItem(Qt::CTRL + Qt::Key_P, 200);           // Ctrl+P, e.g. to print document
+        a->insertItem(Qt::ALT + Qt::Key_X, 201);           // Alt+X, e.g. to quit
         a->insertItem('q', 202);                               // 'q', e.g. to quit
         a->insertItem(0x3b1, 203);                               // greek letter alpha
-        a->insertItem(Key_D);                           // gets a unique negative id < -1
-        a->insertItem(CTRL + SHIFT + Key_P);           // gets a unique negative id < -1
+        a->insertItem(Qt::Key_D);                           // gets a unique negative id < -1
+        a->insertItem(Qt::CTRL + Qt::SHIFT + Qt::Key_P);           // gets a unique negative id < -1
     \endcode
 */
 
@@ -863,7 +863,7 @@ void QAccelPrivate::activateAmbiguously(QAccelItem* item)
     Returns the shortcut key sequence for \a str, or an invalid key
     sequence (0) if \a str has no shortcut sequence.
 
-    For example, shortcutKey("E&amp;xit") returns ALT+Key_X,
+    For example, shortcutKey("E&amp;xit") returns Qt::ALT+Qt::Key_X,
     shortcutKey("&amp;Quit") returns ALT+Key_Q and shortcutKey("Quit")
     returns 0. (In code that does not inherit the Qt namespace class,
     you must write e.g. Qt::ALT+Qt::Key_Q.)

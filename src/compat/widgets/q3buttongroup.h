@@ -35,9 +35,9 @@ public:
     Q3ButtonGroup(QWidget* parent=0, const char* name=0);
     Q3ButtonGroup(const QString &title,
                   QWidget* parent=0, const char* name=0);
-    Q3ButtonGroup(int columns, Orientation o,
+    Q3ButtonGroup(int columns, Qt::Orientation o,
                   QWidget* parent=0, const char* name=0);
-    Q3ButtonGroup(int columns, Orientation o, const QString &title,
+    Q3ButtonGroup(int columns, Qt::Orientation o, const QString &title,
                   QWidget* parent=0, const char* name=0);
     ~Q3ButtonGroup();
 
@@ -91,9 +91,9 @@ class Q_COMPAT_EXPORT QVButtonGroup : public Q3ButtonGroup
     Q_OBJECT
 public:
     inline QVButtonGroup(QWidget* parent=0, const char* name=0)
-        : Q3ButtonGroup(1, Horizontal /* sic! */, parent, name) {}
+        : Q3ButtonGroup(1, Qt::Horizontal /* sic! */, parent, name) {}
     inline QVButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
-        : Q3ButtonGroup(1, Horizontal /* sic! */, title, parent, name) {}
+        : Q3ButtonGroup(1, Qt::Horizontal /* sic! */, title, parent, name) {}
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -108,9 +108,9 @@ class Q_COMPAT_EXPORT QHButtonGroup : public Q3ButtonGroup
     Q_OBJECT
 public:
     inline QHButtonGroup(QWidget* parent=0, const char* name=0)
-        : Q3ButtonGroup(1, Vertical /* sic! */, parent, name) {}
+        : Q3ButtonGroup(1, Qt::Vertical /* sic! */, parent, name) {}
     inline QHButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
-        : Q3ButtonGroup(1, Vertical /* sic! */, title, parent, name) {}
+        : Q3ButtonGroup(1, Qt::Vertical /* sic! */, title, parent, name) {}
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

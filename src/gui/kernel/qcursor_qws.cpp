@@ -64,7 +64,7 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
     d = new QCursorData;
     d->bm  = new QBitmap(bitmap);
     d->bmm = new QBitmap(mask);
-    d->cshape = BitmapCursor;
+    d->cshape = Qt::BitmapCursor;
     d->id = ++nextCursorId;
     d->hx = hotX >= 0 ? hotX : bitmap.width() / 2;
     d->hy = hotY >= 0 ? hotY : bitmap.height() / 2;
@@ -76,22 +76,22 @@ void QCursor::update() const
 {
     if (!initialized)
         initialize();
-    if (d->cshape == BitmapCursor) {
+    if (d->cshape == Qt::BitmapCursor) {
         // XXX
         return;
     }
-    if (d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||
-         d->cshape == BlankCursor) {
-        //        int i = (d->cshape - SizeVerCursor)*2;
+    if (d->cshape >= Qt::SizeVerCursor && d->cshape < Qt::SizeAllCursor ||
+         d->cshape == Qt::BlankCursor) {
+        //        int i = (d->cshape - Qt::SizeVerCursor)*2;
         // XXX data: cursor_bits16[i], 16,16
         // XXX mask: cursor_bits16[i+1], 16,16
         return;
     }
-    if (d->cshape >= SplitVCursor && d->cshape <= PointingHandCursor) {
-        //int i = (d->cshape - SplitVCursor)*2;
+    if (d->cshape >= Qt::SplitVCursor && d->cshape <= Qt::PointingHandCursor) {
+        //int i = (d->cshape - Qt::SplitVCursor)*2;
         // XXX data: cursor_bits32[i], 32, 32
         // XXX mask: cursor_bits32[i+1], 32, 32
-        //int hs = d->cshape != PointingHandCursor? 16 : 0;
+        //int hs = d->cshape != Qt::PointingHandCursor? 16 : 0;
         // XXX ...
         return;
     }

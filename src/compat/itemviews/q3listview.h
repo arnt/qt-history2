@@ -303,8 +303,8 @@ public:
     virtual void setSorting(int column, bool ascending = true);
     int sortColumn() const;
     void setSortColumn(int column);
-    SortOrder sortOrder() const;
-    void setSortOrder(SortOrder order);
+    Qt::SortOrder sortOrder() const;
+    void setSortOrder(Qt::SortOrder order);
     virtual void sort();
 
     virtual void setFont(const QFont &);
@@ -334,7 +334,7 @@ public:
     };
     typedef uint ComparisonFlags;
     Q3ListViewItem * findItem(const QString& text, int column,
-                              ComparisonFlags = ExactMatch | CaseSensitive ) const;
+                              ComparisonFlags = ExactMatch | Qt::CaseSensitive ) const;
 
     enum RenameAction { Accept, Reject };
     virtual void setDefaultRenameAction(RenameAction a);

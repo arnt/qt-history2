@@ -67,7 +67,7 @@ QSpinWidget::QSpinWidget(QWidget* parent, const char* name)
 {
     d = new QSpinWidgetPrivate();
     connect(&d->auRepTimer, SIGNAL(timeout()), this, SLOT(timerDone()));
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
 
     arrange();
     updateDisplay();
@@ -109,7 +109,7 @@ void QSpinWidget::setEditWidget(QWidget * w)
 
 void QSpinWidget::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton) {
+    if (e->button() != Qt::LeftButton) {
         d->stopTimer();
         d->buttonDown = 0;
         d->theButton = 0;
@@ -212,7 +212,7 @@ void QSpinWidget::timerDoneEx()
 
 void QSpinWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
 
     uint oldButtonDown = d->theButton;
@@ -237,7 +237,7 @@ void QSpinWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void QSpinWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->state() & LeftButton))
+    if (!(e->state() & Qt::LeftButton))
         return;
 
     uint oldButtonDown = d->theButton;

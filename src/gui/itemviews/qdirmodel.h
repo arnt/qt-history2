@@ -59,7 +59,7 @@ public:
     bool isDropEnabled(const QModelIndex &index) const;
 
     bool isSortable() const;
-    void sort(int column, SortOrder order);
+    void sort(int column, Qt::SortOrder order);
 
     bool equal(const QModelIndex &left, const QModelIndex &right) const;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;

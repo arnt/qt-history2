@@ -392,7 +392,7 @@ QString QAccessibleComboBox::text(Text t, int child) const
         break;
     case Accelerator:
         if (child == OpenList)
-            str = (QString)QKeySequence(Key_Down);
+            str = (QString)QKeySequence(Qt::Key_Down);
     case Value:
         if (comboBox()->editable())
             str = comboBox()->lineEdit()->text();
@@ -523,12 +523,12 @@ int QAccessibleTitleBar::navigate(NavDirection direction, int startControl) cons
 /*! \reimp */
 int QAccessibleTitleBar::childCount() const
 {
-    if (!titleBar()->testWFlags(WStyle_SysMenu))
+    if (!titleBar()->testWFlags(Qt::WStyle_SysMenu))
         return 0;
     int control = 3;
-    if (titleBar()->testWFlags(WStyle_Minimize))
+    if (titleBar()->testWFlags(Qt::WStyle_Minimize))
         ++control;
-    if (titleBar()->testWFlags(WStyle_Maximize))
+    if (titleBar()->testWFlags(Qt::WStyle_Maximize))
         ++control;
     return control;
 }

@@ -1362,16 +1362,16 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         break;
     }
     case inCollapseBox: {
-        widget->setWindowState(widget->windowState() | WindowMinimized);
+        widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
         //we send a hide to be like X11/Windows
         QEvent e(QEvent::Hide);
         QApplication::sendSpontaneousEvent(widget, &e);
         break; }
     case inZoomIn:
-        widget->setWindowState(widget->windowState() & ~WindowMaximized);
+        widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
         break;
     case inZoomOut:
-        widget->setWindowState(widget->windowState() | WindowMaximized);
+        widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
         break;
     default:
         qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
@@ -1759,7 +1759,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                             qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
 #endif
 
-                            widget->setWindowState(widget->windowState() | WindowMinimized);
+                            widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
                             //we send a hide to be like X11/Windows
                             QEvent e(QEvent::Hide);
                             QApplication::sendSpontaneousEvent(widget, &e);
@@ -2285,7 +2285,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         if(ekind == kEventWindowDispose) {
             qt_mac_unicode_cleanup(widget);
         } else if(ekind == kEventWindowExpanded) {
-            widget->setWindowState((widget->windowState() & ~WindowMinimized) | WindowActive);
+            widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
             QShowEvent qse;
             QApplication::sendSpontaneousEvent(widget, &qse);
         } else if(ekind == kEventWindowBoundsChanged) {
@@ -2312,7 +2312,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             }
         } else if(ekind == kEventWindowHidden) {
         } else if(ekind == kEventWindowShown) {
-            if(!widget->testWFlags(WType_Popup))
+            if(!widget->testWFlags(Qt::WType_Popup))
                 widget->topLevelWidget()->setActiveWindow();
         } else if(ekind == kEventWindowActivated) {
             if(QApplication::app_style) {
@@ -2627,24 +2627,24 @@ int QApplication::wheelScrollLines()
 void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     switch (effect) {
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         fade_menu = enable;
         if(!enable)
             break;
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         animate_menu = enable;
         break;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         fade_tooltip = enable;
         if(!enable)
             break;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         animate_tooltip = enable;
         break;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         animate_combo = enable;
         break;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         animate_toolbox = enable;
         break;
     default:
@@ -2659,17 +2659,17 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
         return false;
 
     switch(effect) {
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         return animate_menu;
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         return fade_menu;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         return animate_combo;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         return animate_tooltip;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         return fade_tooltip;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         return animate_toolbox;
     default:
         return animate_ui;
@@ -2834,17 +2834,17 @@ bool QApplication::qt_mac_apply_settings()
 /*!
     \enum Qt::MacintoshVersion
 
-    \value MV_Unknown Version cannot be detected
-    \value MV_9 Mac OS 9
-    \value MV_10_DOT_3 Mac OS X 10.3
-    \value MV_10_DOT_2 Mac OS X 10.2
-    \value MV_10_DOT_1 Mac OS X 10.1
-    \value MV_10_DOT_0 Mac OS X 10.0
+    \value Qt::MV_Unknown Version cannot be detected
+    \value Qt::MV_9 Mac OS 9
+    \value Qt::MV_10_DOT_3 Mac OS X 10.3
+    \value Qt::MV_10_DOT_2 Mac OS X 10.2
+    \value Qt::MV_10_DOT_1 Mac OS X 10.1
+    \value Qt::MV_10_DOT_0 Mac OS X 10.0
 
-    \value MV_CHEETAH 10.0 Codename
-    \value MV_PUMA    10.1 Codename
-    \value MV_JAGUAR  10.2 Codename
-    \value MV_PANTHER 10.3 Codename
+    \value Qt::MV_CHEETAH 10.0 Codename
+    \value Qt::MV_PUMA    10.1 Codename
+    \value Qt::MV_JAGUAR  10.2 Codename
+    \value Qt::MV_PANTHER 10.3 Codename
 */
 #endif
 

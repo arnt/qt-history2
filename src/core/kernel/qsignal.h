@@ -29,7 +29,7 @@ public:
     const QMetaObject *metaObject() const { return &staticMetaObject; }
     void *qt_metacast(const char *) const;
     void activate(void * = 0);
-    bool connect(const QObject *receiver, const char *member, ConnectionType = AutoConnection);
+    bool connect(const QObject *receiver, const char *member, Qt::ConnectionType = Qt::AutoConnection);
     bool disconnect(const QObject *receiver, const char *member=0);
 private:
     QMetaObject staticMetaObject;

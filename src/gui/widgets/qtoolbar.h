@@ -38,8 +38,8 @@ public:
     QAction *addSeparator();
     QAction *insertSeparator(QAction *before);
 
-    ToolBarArea currentArea() const;
-    void setCurrentArea(ToolBarArea area, bool linebreak = false);
+    Qt::ToolBarArea currentArea() const;
+    void setCurrentArea(Qt::ToolBarArea area, bool linebreak = false);
 
 signals:
     void actionTriggered(QAction *action);

@@ -51,8 +51,8 @@ public:
 public slots:
     void setShowGrid(bool show);
     void setGridStyle(Qt::PenStyle style);
-    void selectRow(int row, ButtonState state = Qt::NoButton);
-    void selectColumn(int column, ButtonState state = Qt::NoButton);
+    void selectRow(int row, Qt::ButtonState state = Qt::NoButton);
+    void selectColumn(int column, Qt::ButtonState state = Qt::NoButton);
     void hideRow(int row);
     void hideColumn(int column);
     void showRow(int row);
@@ -77,7 +77,7 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
 
     void setSelection(const QRect &rect, int command);
     QRect selectionViewportRect(const QItemSelection &selection) const;

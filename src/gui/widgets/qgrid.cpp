@@ -41,16 +41,16 @@
 
 /*!
     Constructs a grid widget with parent \a parent, called \a name.
-    If \a orient is \c Horizontal, \a n specifies the number of
-    columns. If \a orient is \c Vertical, \a n specifies the number of
+    If \a orient is \c Qt::Horizontal, \a n specifies the number of
+    columns. If \a orient is \c Qt::Vertical, \a n specifies the number of
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
-QGrid::QGrid(int n, Orientation orient, QWidget *parent, const char *name,
+QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
               WFlags f)
     : QFrame(parent, name, f)
 {
     int nCols, nRows;
-    if (orient == Horizontal) {
+    if (orient == Qt::Horizontal) {
         nCols = n;
         nRows = -1;
     } else {

@@ -57,7 +57,7 @@
 QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTreeViewPrivate, model, parent)
 {
-    setHeader(new QGenericHeader(model, Horizontal, this));
+    setHeader(new QGenericHeader(model, Qt::Horizontal, this));
     d->header->setMovable(true);
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -67,7 +67,7 @@ QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemMod
                                    QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
-    setHeader(new QGenericHeader(model, Horizontal, this));
+    setHeader(new QGenericHeader(model, Qt::Horizontal, this));
     d->header->setMovable(true);
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -91,7 +91,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                             this, SLOT(contentsChanged()));
         QObject::disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+        QObject::disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                             this, SLOT(resizeColumnToContents(int)));
         delete d->header;
     }
@@ -103,7 +103,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                      this, SLOT(contentsChanged()));
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)));
-    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+    QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
     d->header->setSelectionModel(selectionModel());
 
@@ -450,7 +450,7 @@ int QGenericTreeView::verticalOffset() const
     return item * iheight;
 }
 
-QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState)
+QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
     QModelIndex current = currentItem();
     int vi = d->viewIndex(current);

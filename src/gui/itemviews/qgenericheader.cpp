@@ -31,7 +31,7 @@ public:
     QRect sectionHandleRect(int section);
 
     inline bool reverse() const
-        { return QApplication::reverseLayout() && orientation == Horizontal; }
+        { return QApplication::reverseLayout() && orientation == Qt::Horizontal; }
 
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
     int offset;
@@ -80,18 +80,18 @@ static const int default_height = 30;
     \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
-QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget *parent)
+QGenericHeader::QGenericHeader(QAbstractItemModel *model, Qt::Orientation o, QWidget *parent)
     : QAbstractItemView(*new QGenericHeaderPrivate, model, parent)
 {
-    setVerticalScrollBarPolicy(ScrollBarAlwaysOff);
-    setHorizontalScrollBarPolicy(ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     d->orientation = o;
     setFrameStyle(NoFrame);
 
     setMouseTracking(true);
-    setFocusPolicy(NoFocus);
+    setFocusPolicy(Qt::NoFocus);
 
-    if (d->orientation == Horizontal)
+    if (d->orientation == Qt::Horizontal)
         initializeSections(0, model->columnCount() - 1);
     else
         initializeSections(0, model->rowCount() - 1);
@@ -115,7 +115,7 @@ void QGenericHeader::setOffset(int o)
 {
     int ndelta = d->offset - o;
     d->offset = o;
-    if (d->orientation == Horizontal)
+    if (d->orientation == Qt::Horizontal)
         d->viewport->scroll(QApplication::reverseLayout() ? -ndelta : ndelta, 0);
     else
         d->viewport->scroll(0, ndelta);
@@ -133,14 +133,14 @@ QSize QGenericHeader::sizeHint() const
     if (d->sections.isEmpty())
             return QSize();
     QItemOptions options = viewOptions();
-    int row = orientation() == Horizontal ? 0 : section(count() - 1);
-    int col = orientation() == Horizontal ? section(count() - 1) : 0;
+    int row = orientation() == Qt::Horizontal ? 0 : section(count() - 1);
+    int col = orientation() == Qt::Horizontal ? section(count() - 1) : 0;
     QModelIndex::Type type = orientation() == Horizontal
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
     QModelIndex item = model()->index(row, col, QModelIndex(), type);
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), options, item);
-    if (orientation() == Vertical)
+    if (orientation() == Qt::Vertical)
         return QSize(hint.width() + border, size());
     return QSize(size(), hint.height() + border);
 }
@@ -150,13 +150,13 @@ int QGenericHeader::sectionSizeHint(int section) const
     QItemOptions options = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int hint = 0;
-    int row = orientation() == Vertical ? section : 0;
-    int col = orientation() == Vertical ? 0 : section;
-    QModelIndex::Type type = orientation() == Horizontal ?
+    int row = orientation() == Qt::Vertical ? section : 0;
+    int col = orientation() == Qt::Vertical ? 0 : section;
+    QModelIndex::Type type = orientation() == Qt::Horizontal ?
                              QModelIndex::HorizontalHeader :
                              QModelIndex::VerticalHeader;
     QModelIndex header = model()->index(row, col, QModelIndex(), type);
-    if (orientation() == Vertical) {
+    if (orientation() == Qt::Vertical) {
         QSize size = delegate->sizeHint(fontMetrics(), options, header);
         hint = size.height();
         if (sortIndicatorSection() == section)
@@ -180,7 +180,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 
     int offset = this->offset();
     int start, end;
-    if (orientation() == Horizontal) {
+    if (orientation() == Qt::Horizontal) {
         start = indexAt(offset + area.left());
         end = indexAt(offset + area.right() - 1);
     } else {
@@ -203,7 +203,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     int section;
     int width = d->viewport->width();
     int height = d->viewport->height();
-    if (d->orientation == Horizontal) {
+    if (d->orientation == Qt::Horizontal) {
         for (int i = start; i <= end; ++i) {
             if (sections[i].hidden)
                 continue;
@@ -249,7 +249,7 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
     Q4StyleOptionHeader opt = d->getStyleOption();
     QStyle::SFlags arrowFlags = QStyle::Style_Off;
     opt.rect = options->itemRect;
-    if (d->clickableSections && (d->orientation == Horizontal ?
+    if (d->clickableSections && (d->orientation == Qt::Horizontal ?
           selectionModel()->isColumnSelected(item.column(), model()->parent(item)) :
           selectionModel()->isRowSelected(item.row(), model()->parent(item))))
         opt.state |= QStyle::Style_Down;
@@ -258,9 +258,9 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
     itemDelegate()->paint(painter, *options, item); // draw item
 
-    int section = orientation() == Horizontal ? item.column() : item.row();
+    int section = orientation() == Qt::Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
-        //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
+        //bool alignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & Qt::AlignRight;
         // FIXME: use alignRight and RTL
         int h = options->itemRect.height();
         int x = options->itemRect.x();
@@ -344,7 +344,7 @@ void QGenericHeader::initializeSections(int start, int end)
     QGenericHeaderPrivate::HeaderSection *sections = d->sections.data() + start;
     int s = start;
     int num = end - start + 1;
-    int size = orientation() == Horizontal ? default_width : default_height;;
+    int size = orientation() == Qt::Horizontal ? default_width : default_height;;
 
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
@@ -405,7 +405,7 @@ void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIn
 {
     if (topLeft.isValid() && bottomRight.isValid()) {
         QModelIndex parent = model()->parent(topLeft);
-        if (d->orientation == Horizontal)
+        if (d->orientation == Qt::Horizontal)
             initializeSections(topLeft.column(), bottomRight.column());
         else
             initializeSections(topLeft.row(), bottomRight.row());
@@ -415,7 +415,7 @@ void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIn
 void QGenericHeader::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
 {
     QModelIndex parent = model()->parent(topLeft);
-    if (d->orientation == Horizontal)
+    if (d->orientation == Qt::Horizontal)
         initializeSections(topLeft.column(), model()->columnCount(parent) - 1);
     else
         initializeSections(topLeft.row(), model()->rowCount(parent) - 1);
@@ -428,7 +428,7 @@ void QGenericHeader::ensureItemVisible(const QModelIndex &)
 
 void QGenericHeader::updateSection(int section)
 {
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         d->viewport->update(QRect(sectionPosition(section) - offset(),
                                   0, sectionSize(section), height()));
     else
@@ -441,7 +441,7 @@ void QGenericHeader::resizeSections()
     ResizeMode mode;
     int secSize = 0;
     int stretchSecs = 0;
-    int stretchSize = orientation() == Horizontal ? d->viewport->width() : d->viewport->height();
+    int stretchSize = orientation() == Qt::Horizontal ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
     QGenericHeaderPrivate::HeaderSection *secs = d->sections.data();
@@ -457,7 +457,7 @@ void QGenericHeader::resizeSections()
             // FIXME: get the size of the section from the contents;  this is just a temprary solution
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
             if (par)
-                secSize = (orientation() == Horizontal
+                secSize = (orientation() == Qt::Horizontal
                            ? par->columnSizeHint(i) : par->rowSizeHint(i));
             secSize = qMax(secSize, sectionSizeHint(secs[i].section));
         }
@@ -481,8 +481,8 @@ void QGenericHeader::resizeSections()
 
 void QGenericHeader::mousePressEvent(QMouseEvent *e)
 {
-    int pos = orientation() == Horizontal ? e->x() : e->y();
-    if (e->state() & ControlButton && d->movableSections) {
+    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
+    if (e->state() & Qt::ControlButton && d->movableSections) {
         d->section = d->target = sectionAt(pos + offset());
         if (d->section == -1)
             return;
@@ -498,7 +498,7 @@ void QGenericHeader::mousePressEvent(QMouseEvent *e)
             return;
         } else if (resizeMode(handle) == Interactive) {
             d->state = QGenericHeaderPrivate::ResizeSection;
-            d->lastPos = (orientation() == Horizontal ? e->x() : e->y());
+            d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
             d->section = handle;
         }
     }
@@ -506,7 +506,7 @@ void QGenericHeader::mousePressEvent(QMouseEvent *e)
 
 void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
 {
-    int pos = orientation() == Horizontal ? e->x() : e->y();
+    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
 
     switch (d->state) {
         case QGenericHeaderPrivate::ResizeSection: {
@@ -514,7 +514,7 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
             int size = sectionSize(d->section) + delta;
             if (size > minimum) {
                 resizeSection(d->section, size);
-                d->lastPos = (orientation() == Horizontal ? e->x() : e->y());
+                d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
             }
             return;
         }
@@ -533,9 +533,9 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
         case QGenericHeaderPrivate::NoState: {
             int handle = d->sectionHandleAt(pos + offset());
             if (handle != -1 && resizeMode(handle) == Interactive)
-                setCursor(orientation() == Horizontal ? SplitHCursor : SplitVCursor);
+                setCursor(orientation() == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
             else
-                setCursor(ArrowCursor);
+                setCursor(Qt::ArrowCursor);
             return;
         }
 
@@ -566,7 +566,7 @@ void QGenericHeader::mouseReleaseEvent(QMouseEvent *)
 
 void QGenericHeader::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    int pos = orientation() == Horizontal ? e->x() : e->y();
+    int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos + offset());
     while (handle > -1 && isSectionHidden(handle)) handle--;
     if (handle > -1 && resizeMode(handle) == Interactive)
@@ -659,7 +659,7 @@ void QGenericHeader::resizeSection(int section, int size)
     if (d->reverse())
         pos -= size;
     QRect r;
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
@@ -681,7 +681,7 @@ void QGenericHeader::hideSection(int section)
 void QGenericHeader::showSection(int section)
 {
     d->sections[index(section)].hidden = false;
-    resizeSection(section, orientation() == Horizontal ? default_width : default_height);
+    resizeSection(section, orientation() == Qt::Horizontal ? default_width : default_height);
     // FIXME: when you show a section, you should get the old section size bach
 }
 
@@ -692,7 +692,7 @@ bool QGenericHeader::isSectionHidden(int section) const
 
 QModelIndex QGenericHeader::itemAt(int x, int y) const
 {
-    return (orientation() == Horizontal ?
+    return (orientation() == Qt::Horizontal ?
             model()->index(0, sectionAt(x + offset()), QModelIndex(), QModelIndex::HorizontalHeader) :
             model()->index(sectionAt(y + offset()), 0, QModelIndex(), QModelIndex::VerticalHeader));
 }
@@ -711,7 +711,7 @@ int QGenericHeader::verticalOffset() const
     return 0;
 }
 
-QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, ButtonState)
+QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, Qt::ButtonState)
 {
     return QModelIndex();
 }
@@ -720,7 +720,7 @@ QRect QGenericHeader::itemViewportRect(const QModelIndex &item) const
 {
     if (!item.isValid() || item.type() == QModelIndex::View)
         return QRect();
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         return QRect(sectionPosition(item.column()) - offset(),
                      0, sectionSize(item.column()), height());
     return QRect(0, sectionPosition(item.row()) - offset(),
@@ -729,14 +729,14 @@ QRect QGenericHeader::itemViewportRect(const QModelIndex &item) const
 
 QModelIndex QGenericHeader::item(int section) const
 {
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         return model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
     return model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
 }
 
 QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) const
 {
-    if (orientation() == Horizontal) {
+    if (orientation() == Qt::Horizontal) {
         int left = model()->columnCount() - 1;
         int right = 0;
         int rangeLeft, rangeRight;
@@ -762,7 +762,7 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
 
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
-    // orientation() == Vertical
+    // orientation() == Qt::Vertical
     int top = model()->rowCount() - 1;
     int bottom = 0;
     int rangeTop, rangeBottom;
@@ -863,7 +863,7 @@ int QGenericHeader::stretchSectionCount() const
     return d->stretchSections;
 }
 
-void QGenericHeader::setSortIndicator(int section, SortOrder order)
+void QGenericHeader::setSortIndicator(int section, Qt::SortOrder order)
 {
     int old = d->sortIndicatorSection;
     d->sortIndicatorSection = section;
@@ -955,7 +955,7 @@ Q4StyleOptionHeader QGenericHeaderPrivate::getStyleOption() const
     opt.rect = q->rect();
     opt.palette = q->palette();
     opt.state = QStyle::Style_Default;
-    if (orientation == Horizontal)
+    if (orientation == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     if (q->isEnabled())
         opt.state |= QStyle::Style_Enabled;

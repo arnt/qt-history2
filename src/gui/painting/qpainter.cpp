@@ -43,18 +43,18 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
 // Helper function for filling gradients...
 #define QT_FILL_GRADIENT(rect, fillCall, outlineCall)                   \
         QBitmap mask(rect.width(), rect.height());                      \
-        mask.fill(color0);                                              \
+        mask.fill(Qt::color0);                                              \
         QPainter p(&mask);                                              \
-        p.setPen(NoPen);                                                \
-        p.setBrush(color1);                                             \
+        p.setPen(Qt::NoPen);                                                \
+        p.setBrush(Qt::color1);                                             \
         p.fillCall;                                                     \
         save();                                                         \
         QRegion region(mask);                                           \
         region.translate(rect.topLeft());                               \
         setClipRegion(region);                                          \
         qt_fill_linear_gradient(rect, this, d->state->brush);           \
-        if (d->state->pen.style() != NoPen) {                           \
-            setBrush(NoBrush);                                          \
+        if (d->state->pen.style() != Qt::NoPen) {                           \
+            setBrush(Qt::NoBrush);                                          \
             outlineCall;                                                \
         }                                                               \
         restore();                                                      \
@@ -94,7 +94,7 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
     {
         QPainter paint(this);
         paint.setPen(Qt::blue);
-        paint.drawText(rect(), AlignCenter, "The Text");
+        paint.drawText(rect(), Qt::AlignCenter, "The Text");
     }
     \endcode
 
@@ -462,7 +462,7 @@ bool QPainter::begin(QPaintDevice *pd)
             const QWidget *widget = static_cast<const QWidget *>(pd);
             Q_ASSERT(widget);
 
-            if(!widget->testWState(WState_InPaintEvent)) {
+            if(!widget->testWState(Qt::WState_InPaintEvent)) {
                 qWarning("QPainter::begin: Widget painting can only begin as a "
                          "result of a paintEvent");
                 return false;
@@ -1142,9 +1142,9 @@ void QPainter::drawPath(const QPainterPath &path)
         return;
 
     // Fill the path...
-    if (d->state->brush.style() != NoBrush) {
+    if (d->state->brush.style() != Qt::NoBrush) {
 	save();
-	setPen(NoPen);
+	setPen(Qt::NoPen);
         if (path.fillMode() == QPainterPath::Winding) {
             for (int i=0; i<polygons.size(); ++i)
                 drawPolygon(polygons.at(i), true);
@@ -1155,10 +1155,10 @@ void QPainter::drawPath(const QPainterPath &path)
     }
 
     // Draw the outline of the path...
-    if (d->state->pen.style() != NoPen) {
+    if (d->state->pen.style() != Qt::NoPen) {
         if (pd->subpaths.size() > 0) {
             save();
-            setBrush(NoBrush);
+            setBrush(Qt::NoBrush);
         }
 	for (int i=0; i<polygons.size(); ++i)
 	    drawPolyline(polygons.at(i));
@@ -1219,20 +1219,20 @@ void QPainter::drawRect(const QRect &r)
         return;
     d->engine->updateState(d->state);
 
-    if (d->state->brush.style() == LinearGradientPattern
+    if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         save();
         setClipRect(r);
         qt_fill_linear_gradient(r, this, d->state->brush);
-        if (d->state->pen.style() != NoPen) {
-            setBrush(NoBrush);
+        if (d->state->pen.style() != Qt::NoPen) {
+            setBrush(Qt::NoBrush);
             drawRect(r);
         }
         restore();
         return;
     }
 
-    if (d->state->brush.style() == SolidPattern
+    if (d->state->brush.style() == Qt::SolidPattern
 	&& d->state->brush.color().alpha() != 255
 	&& !d->engine->hasFeature(QPaintEngine::SolidAlphaFill)) {
 	const int BUFFERSIZE = 16;
@@ -1241,9 +1241,9 @@ void QPainter::drawRect(const QRect &r)
 	image.setAlphaBuffer(true);
 	QPixmap pm(image);
 	drawTiledPixmap(r, pm);
-	if (d->state->pen.style() != NoPen) {
+	if (d->state->pen.style() != Qt::NoPen) {
 	    save();
-	    setBrush(NoBrush);
+	    setBrush(Qt::NoBrush);
 	    drawRect(r);
 	    restore();
 	}
@@ -1258,10 +1258,10 @@ void QPainter::drawRect(const QRect &r)
 	    QPointArray tr = d->state->matrix * QPointArray(QRect(QPoint(0,0), rect.size()));
 	    QRect br = tr.boundingRect();
 	    QBitmap bm(br.size());
-	    bm.fill(color0);
+	    bm.fill(Qt::color0);
  	    QPainter pt(&bm);
 	    pt.translate(-br.x(), -br.y());
- 	    pt.setBrush(color1);
+ 	    pt.setBrush(Qt::color1);
 	    pt.drawPolygon(tr);
 	    pt.end();
 	    save();
@@ -1371,7 +1371,7 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 
 /*!
     Sets the background mode of the painter to \a mode, which must be
-    either \c TransparentMode (the default) or \c OpaqueMode.
+    either \c Qt::TransparentMode (the default) or \c Qt::OpaqueMode.
 
     Transparent mode draws stippled lines and text without setting the
     background pixels. Opaque mode fills these space with the current
@@ -1383,9 +1383,9 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     \sa backgroundMode(), setBackground()
 */
 
-void QPainter::setBackgroundMode(BGMode mode)
+void QPainter::setBackgroundMode(Qt::BGMode mode)
 {
-    if (mode != TransparentMode && mode != OpaqueMode) {
+    if (mode != Qt::TransparentMode && mode != Qt::OpaqueMode) {
         qWarning("QPainter::setBackgroundMode: Invalid mode");
         return;
     }
@@ -1397,7 +1397,7 @@ void QPainter::setBackgroundMode(BGMode mode)
 /*!
     Returns the current background mode.
 
-    \sa setBackgroundMode() BGMode
+    \sa setBackgroundMode() Qt::BGMode
 */
 QPainter::BGMode QPainter::backgroundMode() const
 {
@@ -1408,7 +1408,7 @@ QPainter::BGMode QPainter::backgroundMode() const
 /*!
     \overload
 
-    Sets the painter's pen to have style \c SolidLine, width 0 and the
+    Sets the painter's pen to have style \c Qt::SolidLine, width 0 and the
     specified \a color.
 
     \sa pen(), QPen
@@ -1446,7 +1446,7 @@ void QPainter::setPen(const QPen &pen)
     \sa pen(), QPen
 */
 
-void QPainter::setPen(PenStyle style)
+void QPainter::setPen(Qt::PenStyle style)
 {
     if (d->state->pen.style() == style)
         return;
@@ -1494,7 +1494,7 @@ void QPainter::setBrush(const QBrush &brush)
     \sa brush(), QBrush
 */
 
-void QPainter::setBrush(BrushStyle style)
+void QPainter::setBrush(Qt::BrushStyle style)
 {
     // ### Missing optimization from qpainter.cpp
     d->state->brush = QBrush(Qt::black, style);
@@ -1520,7 +1520,7 @@ const QBrush &QPainter::brush() const
     opaque text, stippled lines and bitmaps. The background brush has
     no effect in transparent background mode (which is the default).
 
-    \sa background() setBackgroundMode() BGMode
+    \sa background() setBackgroundMode() Qt::BGMode
 */
 
 void QPainter::setBackground(const QBrush &bg)
@@ -1602,7 +1602,7 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     QRect rect = r.normalize();
 
-    if (d->state->brush.style() == LinearGradientPattern
+    if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
@@ -1671,7 +1671,7 @@ void QPainter::drawEllipse(const QRect &r)
 
     QRect rect = r.normalize();
 
-    if (d->state->brush.style() == LinearGradientPattern
+    if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawEllipse(0, 0, rect.width(), rect.height()),
@@ -1775,7 +1775,7 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if (d->state->brush.style() == LinearGradientPattern
+    if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawPie(0, 0, rect.width(), rect.height(), a, alen),
@@ -1833,7 +1833,7 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    if (d->state->brush.style() == LinearGradientPattern
+    if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawChord(0, 0, rect.width(), rect.height(), a, alen),
@@ -1963,7 +1963,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    if (d->state->brush.style() == LinearGradientPattern
+    if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QRect bounds = a.boundingRect();
         QPointArray copy(a);
@@ -2174,7 +2174,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
             return;
         if (!pmx.mask() && d->state->txop == TxRotShear) {
             QBitmap bm_clip(sw, sh, 1);        // make full mask, xform it
-            bm_clip.fill(color1);
+            bm_clip.fill(Qt::color1);
             pmx.setMask(bm_clip.xForm(mat));
         }
         map(x, y, &x, &y);        // compute position of pixmap
@@ -2309,7 +2309,7 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     // ### call fill rect here...
 #if defined(Q_WS_X11)
     extern void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h);
-    if (backgroundMode() == OpaqueMode)
+    if (backgroundMode() == Qt::OpaqueMode)
         qt_draw_background(d->engine, x, y-sl.ascent.toInt(), sl.textWidth.toInt(), (sl.ascent+sl.descent).toInt() + 1);
 #endif
 
@@ -2404,22 +2404,22 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     the bitwise OR of the following flags:
     \table
     \header \i Flag \i Meaning
-    \row \i \c AlignAuto \i aligns according to the language, usually left.
-    \row \i \c AlignLeft \i aligns to the left border.
-    \row \i \c AlignRight \i aligns to the right border.
-    \row \i \c AlignHCenter \i aligns horizontally centered.
-    \row \i \c AlignTop \i aligns to the top border.
-    \row \i \c AlignBottom \i aligns to the bottom border.
-    \row \i \c AlignVCenter \i aligns vertically centered.
-    \row \i \c AlignCenter \i (== \c AlignHCenter | \c AlignVCenter).
-    \row \i \c SingleLine \i ignores newline characters in the text.
-    \row \i \c ExpandTabs \i expands tabs.
-    \row \i \c ShowPrefix \i interprets "&x" as "<u>x</u>".
-    \row \i \c WordBreak \i breaks the text to fit the rectangle.
+    \row \i \c Qt::AlignAuto \i aligns according to the language, usually left.
+    \row \i \c Qt::AlignLeft \i aligns to the left border.
+    \row \i \c Qt::AlignRight \i aligns to the right border.
+    \row \i \c Qt::AlignHCenter \i aligns horizontally centered.
+    \row \i \c Qt::AlignTop \i aligns to the top border.
+    \row \i \c Qt::AlignBottom \i aligns to the bottom border.
+    \row \i \c Qt::AlignVCenter \i aligns vertically centered.
+    \row \i \c Qt::AlignCenter \i (== \c Qt::AlignHCenter | \c Qt::AlignVCenter).
+    \row \i \c Qt::SingleLine \i ignores newline characters in the text.
+    \row \i \c Qt::ExpandTabs \i expands tabs.
+    \row \i \c Qt::ShowPrefix \i interprets "&x" as "<u>x</u>".
+    \row \i \c Qt::WordBreak \i breaks the text to fit the rectangle.
     \endtable
 
-    Horizontal alignment defaults to \c AlignLeft and vertical
-    alignment defaults to \c AlignTop.
+    Qt::Horizontal alignment defaults to \c Qt::AlignLeft and vertical
+    alignment defaults to \c Qt::AlignTop.
 
     If several of the horizontal or several of the vertical alignment flags
     are set, the resulting alignment is undefined.
@@ -2606,7 +2606,7 @@ void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
 {
     QPen   oldPen   = pen();                        // save pen
     QBrush oldBrush = this->brush();                // save brush
-    setPen(NoPen);
+    setPen(Qt::NoPen);
     setBrush(brush);
     drawRect(x, y, w, h);                        // draw filled rect
     setBrush(oldBrush);                        // restore brush

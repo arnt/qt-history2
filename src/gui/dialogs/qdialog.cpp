@@ -127,9 +127,9 @@
     dialog will initially appear as a partial dialog, but with a
     "More" toggle button. If the user presses the "More" button down,
     the full dialog will appear. The extension widget will be resized
-    to its sizeHint(). If orientation is \c Horizontal the extension
+    to its sizeHint(). If orientation is \c Qt::Horizontal the extension
     widget's height() will be expanded to the height() of the dialog.
-    If the orientation is \c Vertical the extension widget's width()
+    If the orientation is \c Qt::Vertical the extension widget's width()
     will be expanded to the width() of the dialog. Extensibility is
     controlled with setExtension(), setOrientation() and
     showExtension().
@@ -143,7 +143,7 @@
     reject() slots, and exec() will return \c Accepted or \c Rejected
     as appropriate. The exec() call returns the result of the dialog.
     The result is also available from result() if the dialog has not
-    been destroyed. If the \c WDestructiveClose flag is set, the
+    been destroyed. If the \c Qt::WDestructiveClose flag is set, the
     dialog is deleted after exec() returns.
 
     \target examples
@@ -201,15 +201,15 @@
 
   The widget flags \a f are passed on to the QWidget constructor.
   If, for example, you don't want a What's This button in the title bar
-  of the dialog, pass WStyle_Customize | WStyle_NormalBorder |
-  WStyle_Title | WStyle_SysMenu in \a f.
+  of the dialog, pass Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
+  Qt::WStyle_Title | Qt::WStyle_SysMenu in \a f.
 
 
   \sa QWidget::setWFlags() Qt::WindowFlags
 */
 
 QDialog::QDialog(QWidget *parent, WFlags f)
-    : QWidget(*new QDialogPrivate, parent, f | WType_Dialog)
+    : QWidget(*new QDialogPrivate, parent, f | Qt::WType_Dialog)
 {
 }
 
@@ -219,7 +219,7 @@ QDialog::QDialog(QWidget *parent, WFlags f)
 */
 QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
     : QWidget(*new QDialogPrivate, parent,
-              (modal ? (f|WShowModal) : f) | WType_Dialog)
+              (modal ? (f|Qt::WShowModal) : f) | Qt::WType_Dialog)
 {
     if (name)
         setObjectName(name);
@@ -230,7 +230,7 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
   \internal
 */
 QDialog::QDialog(QDialogPrivate &dd, QWidget *parent, WFlags f)
-    : QWidget(dd, parent, f | WType_Dialog)
+    : QWidget(dd, parent, f | Qt::WType_Dialog)
 {
 }
 
@@ -343,7 +343,7 @@ void QDialog::hideSpecial()
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
 
   Do not call this function if the dialog was constructed with the \c
-  WDestructiveClose flag.
+  Qt::WDestructiveClose flag.
 */
 int QDialog::result() const
 {
@@ -379,11 +379,11 @@ int QDialog::exec()
         return -1;
     }
 
-    bool destructiveClose = testWFlags(WDestructiveClose);
-    clearWFlags(WDestructiveClose);
+    bool destructiveClose = testWFlags(Qt::WDestructiveClose);
+    clearWFlags(Qt::WDestructiveClose);
 
-    bool wasShowModal = testWFlags(WShowModal);
-    setWFlags(WShowModal);
+    bool wasShowModal = testWFlags(Qt::WShowModal);
+    setWFlags(Qt::WShowModal);
     setResult(0);
 
     show();
@@ -392,7 +392,7 @@ int QDialog::exec()
     qApp->enter_loop();
 
     if (!wasShowModal)
-        clearWFlags(WShowModal);
+        clearWFlags(Qt::WShowModal);
 
     int res = result();
 
@@ -408,7 +408,7 @@ int QDialog::exec()
   and exec() to return \a r.
 
   As with QWidget::close(), done() deletes the dialog if the \c
-  WDestructiveClose flag is set. If the dialog is the application's
+  Qt::WDestructiveClose flag is set. If the dialog is the application's
   main widget, the application terminates. If the dialog is the
   last window closed, the QApplication::lastWindowClosed() signal is
   emitted.
@@ -465,7 +465,7 @@ void QDialog::contextMenuEvent(QContextMenuEvent *e)
         if (!w)
             return;
     }
-    while (w && w->whatsThis().size() == 0 && !w->testAttribute(WA_CustomWhatsThis))
+    while (w && w->whatsThis().size() == 0 && !w->testAttribute(Qt::WA_CustomWhatsThis))
         w = w->isTopLevel() ? 0 : w->parentWidget();
     if (w) {
         QPopupMenu p(0,"qt_whats_this_menu");
@@ -486,14 +486,14 @@ void QDialog::keyPressEvent(QKeyEvent *e)
     //   click for the default button if Enter is pressed. Move focus
     //   for the arrow keys. Ignore the rest.
 #ifdef Q_OS_MAC
-    if(e->state() == ControlButton && e->key() == Key_Period) {
+    if(e->state() == Qt::ControlButton && e->key() == Qt::Key_Period) {
         reject();
     } else
 #endif
-    if (e->state() == 0 || (e->state() & Keypad && e->key() == Key_Enter)) {
+    if (e->state() == 0 || (e->state() & Qt::Keypad && e->key() == Qt::Key_Enter)) {
         switch (e->key()) {
-        case Key_Enter:
-        case Key_Return: {
+        case Qt::Key_Enter:
+        case Qt::Key_Return: {
             QList<QPushButton*> list = qFindChildren<QPushButton*>(this);
             for (int i=0; i<list.size(); ++i) {
                 QPushButton *pb = list.at(i);
@@ -505,11 +505,11 @@ void QDialog::keyPressEvent(QKeyEvent *e)
             }
         }
         break;
-        case Key_Escape:
+        case Qt::Key_Escape:
             reject();
             break;
-        case Key_Up:
-        case Key_Left:
+        case Qt::Key_Up:
+        case Qt::Key_Left:
             if (focusWidget() &&
                  (focusWidget()->focusPolicy() == QWidget::StrongFocus ||
                    focusWidget()->focusPolicy() == QWidget::WheelFocus)) {
@@ -522,8 +522,8 @@ void QDialog::keyPressEvent(QKeyEvent *e)
             focusNextPrevChild(false);
             QFocusEvent::resetReason();
             break;
-        case Key_Down:
-        case Key_Right:
+        case Qt::Key_Down:
+        case Qt::Key_Right:
             if (focusWidget() &&
                  (focusWidget()->focusPolicy() == QWidget::StrongFocus ||
                    focusWidget()->focusPolicy() == QWidget::WheelFocus)) {
@@ -605,11 +605,11 @@ extern "C" { int XSetTransientForHint(Display *, unsigned long, unsigned long); 
 
 void QDialog::show()
 {
-    if (testWState(WState_Visible))
+    if (testWState(Qt::WState_Visible))
         return;
 
 #if defined(Q_WS_X11)
-    if (!parentWidget() && testWFlags(WShowModal)
+    if (!parentWidget() && testWFlags(Qt::WShowModal)
         && qApp->mainWidget() && qApp->mainWidget()->isVisible()
         && !qApp->mainWidget()->isMinimized()) {
         // make sure the transient for hint is set properly for modal dialogs
@@ -637,9 +637,9 @@ void QDialog::show()
       and actually catches most cases... If not, then they simply
       have to use [widget*]->setFocus() themselves...
     */
-    if (d->mainDef && fw->focusPolicy() == NoFocus) {
+    if (d->mainDef && fw->focusPolicy() == Qt::NoFocus) {
         QWidget *first = fw;
-        while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == NoFocus)
+        while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == Qt::NoFocus)
             ;
         if (first != d->mainDef && qt_cast<QPushButton*>(first))
             d->mainDef->setFocus();
@@ -648,7 +648,7 @@ void QDialog::show()
         QWidget *w = fw;
         while ((w = w->nextInFocusChain()) != fw) {
             QPushButton *pb = qt_cast<QPushButton *>(w);
-            if (pb && pb->autoDefault() && pb->focusPolicy() != NoFocus) {
+            if (pb && pb->autoDefault() && pb->focusPolicy() != Qt::NoFocus) {
                 pb->setDefault(true);
                 break;
             }
@@ -669,10 +669,10 @@ void QDialog::show()
 /*!\reimp */
 void QDialog::showEvent(QShowEvent *)
 {
-    if (!testAttribute(WA_Moved)) {
+    if (!testAttribute(Qt::WA_Moved)) {
 	uint state = windowState();
         adjustPosition(parentWidget());
-        setAttribute(WA_Moved, false); // not really an explicit position
+        setAttribute(Qt::WA_Moved, false); // not really an explicit position
 	if (state != windowState())
 	    setWindowState(state);
     }
@@ -769,14 +769,14 @@ void QDialog::hide()
 
 
 /*!
-    If \a orientation is \c Horizontal, the extension will be displayed
+    If \a orientation is \c Qt::Horizontal, the extension will be displayed
     to the right of the dialog's main area. If \a orientation is \c
-    Vertical, the extension will be displayed below the dialog's main
+    Qt::Vertical, the extension will be displayed below the dialog's main
     area.
 
   \sa orientation(), setExtension()
 */
-void QDialog::setOrientation(Orientation orientation)
+void QDialog::setOrientation(Qt::Orientation orientation)
 {
     d->orientation = orientation;
 }
@@ -842,7 +842,7 @@ void QDialog::showExtension(bool showIt)
     d->doShowExtension = showIt;
     if (!d->extension)
         return;
-    if (!testWState(WState_Visible))
+    if (!testWState(Qt::WState_Visible))
         return;
     if (d->extension->isVisible() == showIt)
         return;
@@ -858,7 +858,7 @@ void QDialog::showExtension(bool showIt)
         QSize s(d->extension->sizeHint()
                  .expandedTo(d->extension->minimumSize())
                  .boundedTo(d->extension->maximumSize()));
-        if (d->orientation == Horizontal) {
+        if (d->orientation == Qt::Horizontal) {
             int h = qMax(height(), s.height());
             d->extension->setGeometry(width(), 0, s.width(), h);
             setFixedSize(width() + s.width(), h);
@@ -886,7 +886,7 @@ void QDialog::showExtension(bool showIt)
 QSize QDialog::sizeHint() const
 {
     if (d->extension)
-        if (d->orientation == Horizontal)
+        if (d->orientation == Qt::Horizontal)
             return QSize(QWidget::sizeHint().width(),
                         qMax(QWidget::sizeHint().height(),d->extension->sizeHint().height()));
         else
@@ -901,7 +901,7 @@ QSize QDialog::sizeHint() const
 QSize QDialog::minimumSizeHint() const
 {
     if (d->extension)
-        if (d->orientation == Horizontal)
+        if (d->orientation == Qt::Horizontal)
             return QSize(QWidget::minimumSizeHint().width(),
                         qMax(QWidget::minimumSizeHint().height(), d->extension->minimumSizeHint().height()));
         else
@@ -926,14 +926,14 @@ QSize QDialog::minimumSizeHint() const
 void QDialog::setModal(bool modal)
 {
     if (modal)
-        setWFlags(WShowModal);
+        setWFlags(Qt::WShowModal);
     else
-        clearWFlags(WShowModal);
+        clearWFlags(Qt::WShowModal);
 }
 
 bool QDialog::isModal() const
 {
-    return testWFlags(WShowModal) != 0;
+    return testWFlags(Qt::WShowModal) != 0;
 }
 
 bool QDialog::isSizeGripEnabled() const

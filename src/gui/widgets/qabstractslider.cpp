@@ -225,14 +225,14 @@ QAbstractSlider::~QAbstractSlider()
     Qt::Horizontal.
 */
 
-void QAbstractSlider::setOrientation(Orientation orientation)
+void QAbstractSlider::setOrientation(Qt::Orientation orientation)
 {
     d->orientation = orientation;
-    if (!testWState(WState_OwnSizePolicy)) {
+    if (!testWState(Qt::WState_OwnSizePolicy)) {
         QSizePolicy sp = sizePolicy();
         sp.transpose();
         setSizePolicy(sp);
-        clearWState(WState_OwnSizePolicy);
+        clearWState(Qt::WState_OwnSizePolicy);
     }
     update();
     updateGeometry();
@@ -575,7 +575,7 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     }
 
     int step = qMin(QApplication::wheelScrollLines() * d->singleStep, d->pageStep);
-    if ((e->state() & ControlButton) || (e->state() & ShiftButton))
+    if ((e->state() & Qt::ControlButton) || (e->state() & Qt::ShiftButton))
         step = d->pageStep;
     offset += e->delta() * step / 120;
     if (d->invertedControls)
@@ -594,20 +594,20 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
     switch (ev->key()) {
 
         // It seems we need to use invertedAppearance for Left and right, otherwise, things look weird.
-        case Key_Left:
-            if (d->orientation == Horizontal)
+        case Qt::Key_Left:
+            if (d->orientation == Qt::Horizontal)
                 action = !d->invertedAppearance ? SliderSingleStepSub : SliderSingleStepAdd;
             break;
-        case Key_Right:
-            if (d->orientation == Horizontal)
+        case Qt::Key_Right:
+            if (d->orientation == Qt::Horizontal)
                 action = !d->invertedAppearance ? SliderSingleStepAdd : SliderSingleStepSub;
             break;
-        case Key_Up:
-            if (d->orientation == Vertical)
+        case Qt::Key_Up:
+            if (d->orientation == Qt::Vertical)
                 action = d->invertedControls ? SliderSingleStepSub : SliderSingleStepAdd;
             break;
-        case Key_Down:
-            if (d->orientation == Vertical)
+        case Qt::Key_Down:
+            if (d->orientation == Qt::Vertical)
                 action = d->invertedControls ? SliderSingleStepAdd : SliderSingleStepSub;
             break;
         case Key_PageUp:
@@ -616,10 +616,10 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
         case Key_PageDown:
             action = d->invertedControls ? SliderPageStepAdd : SliderPageStepSub;
             break;
-        case Key_Home:
+        case Qt::Key_Home:
             action = SliderToMinimum;
             break;
-        case Key_End:
+        case Qt::Key_End:
             action = SliderToMaximum;
             break;
         default:

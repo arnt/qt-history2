@@ -80,18 +80,18 @@ class Q3ToolBarSeparator : public QWidget
 {
     Q_OBJECT
 public:
-    Q3ToolBarSeparator(Orientation, Q3ToolBar *parent, const char* name=0);
+    Q3ToolBarSeparator(Qt::Orientation, Q3ToolBar *parent, const char* name=0);
 
     QSize sizeHint() const;
-    Orientation orientation() const { return orient; }
+    Qt::Orientation orientation() const { return orient; }
 public slots:
-    void setOrientation(Orientation);
+    void setOrientation(Qt::Orientation);
 protected:
     void changeEvent(QEvent *);
     void paintEvent(QPaintEvent *);
 
 private:
-    Orientation orient;
+    Qt::Orientation orient;
 };
 
 class Q3ToolBarExtensionWidget : public QWidget
@@ -100,7 +100,7 @@ class Q3ToolBarExtensionWidget : public QWidget
 
 public:
     Q3ToolBarExtensionWidget(QWidget *w);
-    void setOrientation(Orientation o);
+    void setOrientation(Qt::Orientation o);
     QToolButton *button() const { return tb; }
 
 protected:
@@ -112,7 +112,7 @@ protected:
 private:
     void layOut();
     QToolButton *tb;
-    Orientation orient;
+    Qt::Orientation orient;
 
 };
 
@@ -121,13 +121,13 @@ Q3ToolBarExtensionWidget::Q3ToolBarExtensionWidget(QWidget *w)
 {
     tb = new QToolButton(this, "qt_toolbar_ext_button");
     tb->setAutoRaise(true);
-    setOrientation(Horizontal);
+    setOrientation(Qt::Horizontal);
 }
 
-void Q3ToolBarExtensionWidget::setOrientation(Orientation o)
+void Q3ToolBarExtensionWidget::setOrientation(Qt::Orientation o)
 {
     orient = o;
-    if (orient == Horizontal)
+    if (orient == Qt::Horizontal)
         tb->setIcon(QPixmap((const char **)arrow_h_xpm));
     else
         tb->setIcon(QPixmap((const char **)arrow_v_xpm));
@@ -139,19 +139,19 @@ void Q3ToolBarExtensionWidget::layOut()
     tb->setGeometry(2, 2, width() - 4, height() - 4);
 }
 
-Q3ToolBarSeparator::Q3ToolBarSeparator(Orientation o , Q3ToolBar *parent,
+Q3ToolBarSeparator::Q3ToolBarSeparator(Qt::Orientation o , Q3ToolBar *parent,
                                      const char* name)
     : QWidget(parent, name)
 {
-    connect(parent, SIGNAL(orientationChanged(Orientation)),
-             this, SLOT(setOrientation(Orientation)));
+    connect(parent, SIGNAL(orientationChanged(Qt::Orientation)),
+             this, SLOT(setOrientation(Qt::Orientation)));
     setOrientation(o);
     setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 }
 
 
 
-void Q3ToolBarSeparator::setOrientation(Orientation o)
+void Q3ToolBarSeparator::setOrientation(Qt::Orientation o)
 {
     orient = o;
 }
@@ -167,7 +167,7 @@ QSize Q3ToolBarSeparator::sizeHint() const
 {
     int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent,
                                       this);
-    if (orient == Horizontal)
+    if (orient == Qt::Horizontal)
         return QSize(extent, 0);
     else
         return QSize(0, extent);
@@ -178,7 +178,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     QPainter p(this);
     QStyle::SFlags flags = QStyle::Style_Default;
 
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         flags |= QStyle::Style_Horizontal;
 
     style().drawPrimitive(QStyle::PE_DockWindowSeparator, &p, rect(),
@@ -318,7 +318,7 @@ Q3ToolBar::Q3ToolBar(const QString &label, Q3MainWindow * mainWindow,
     mw = mainWindow;
     init();
 
-    clearWFlags(WType_Dialog | WStyle_Customize | WStyle_NoBorder);
+    clearWFlags(Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder);
     setParent(parent);
 
     if (mainWindow)
@@ -358,7 +358,7 @@ void Q3ToolBar::init()
     sw = 0;
 
     setBackgroundRole(QPalette::Button);
-    setFocusPolicy(NoFocus);
+    setFocusPolicy(Qt::NoFocus);
     setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
     boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
 }
@@ -377,7 +377,7 @@ Q3ToolBar::~Q3ToolBar()
     \reimp
 */
 
-void Q3ToolBar::setOrientation(Orientation o)
+void Q3ToolBar::setOrientation(Qt::Orientation o)
 {
     Q3DockWindow::setOrientation(o);
     if (d->extension)
@@ -465,7 +465,7 @@ void Q3ToolBar::setStretchableWidget(QWidget * w)
     boxLayout()->setStretchFactor(w, 1);
 
     if (!isHorizontalStretchable() && !isVerticalStretchable()) {
-        if (orientation() == Horizontal)
+        if (orientation() == Qt::Horizontal)
             setHorizontalStretchable(true);
         else
             setVerticalStretchable(true);
@@ -490,8 +490,8 @@ bool Q3ToolBar::event(QEvent * e)
             if (isVisible()) {
                 // toolbar compatibility: we auto show widgets that
                 // are not explicitely hidden
-                if (((QWidget*)child)->testWState(WState_Hidden|WState_ExplicitShowHide)
-                     == WState_Hidden)
+                if (((QWidget*)child)->testWState(Qt::WState_Hidden|Qt::WState_ExplicitShowHide)
+                     == Qt::WState_Hidden)
                     ((QWidget*)child)->show();
                 checkForExtension(size());
             }
@@ -547,7 +547,7 @@ void Q3ToolBar::clear()
 
 QSize Q3ToolBar::minimumSize() const
 {
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         return QSize(0, Q3DockWindow::minimumSize().height());
     return QSize(Q3DockWindow::minimumSize().width(), 0);
 }
@@ -558,7 +558,7 @@ QSize Q3ToolBar::minimumSize() const
 
 QSize Q3ToolBar::minimumSizeHint() const
 {
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         return QSize(0, Q3DockWindow::minimumSizeHint().height());
     return QSize(Q3DockWindow::minimumSizeHint().width(), 0);
 }
@@ -600,7 +600,7 @@ void Q3ToolBar::createPopup()
             j = 1;
         hide = false;
         QPoint p = w->parentWidget()->mapTo(this, w->geometry().bottomRight());
-        if (orientation() == Horizontal) {
+        if (orientation() == Qt::Horizontal) {
             if (p.x() > (doHide ? width() - d->extension->width() / j : width()))
                 hide = true;
         } else {
@@ -731,7 +731,7 @@ void Q3ToolBar::checkForExtension(const QSize &sz)
         return;
 
     bool tooSmall;
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         tooSmall = sz.width() < sizeHint().width();
     else
         tooSmall = sz.height() < sizeHint().height();
@@ -739,7 +739,7 @@ void Q3ToolBar::checkForExtension(const QSize &sz)
     if (tooSmall) {
         createPopup();
         if (d->extensionPopup->actions().count()) {
-            if (orientation() == Horizontal)
+            if (orientation() == Qt::Horizontal)
                 d->extension->setGeometry(width() - 20, 1, 20, height() - 2);
             else
                 d->extension->setGeometry(1, height() - 20, width() - 2, 20);

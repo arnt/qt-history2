@@ -50,7 +50,7 @@ public:
 #endif // QT_NO_TEXTDATE
 #ifndef QT_NO_TEXTSTRING
 #if !defined(QT_NO_SPRINTF)
-    QString toString(DateFormat f = TextDate) const;
+    QString toString(Qt::DateFormat f = Qt::TextDate) const;
 #endif
     QString toString(const QString &format) const;
 #endif
@@ -70,7 +70,7 @@ public:
 
     static QDate currentDate();
 #ifndef QT_NO_DATESTRING
-    static QDate fromString(const QString &s, DateFormat f = TextDate);
+    static QDate fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
     static bool isValid(int y, int m, int d);
     static bool isLeapYear(int year);
@@ -82,7 +82,7 @@ public:
     static void julianToGregorian(uint jd, int &y, int &m, int &d);
 
 #ifdef QT_COMPAT
-    static QT_COMPAT QDate currentDate(TimeSpec spec);
+    static QT_COMPAT QDate currentDate(Qt::TimeSpec spec);
 #endif
 
     static inline QDate fromJulianDay(int jd) { QDate d; d.jd = jd; return d; }
@@ -113,7 +113,7 @@ public:
     int msec() const;
 #ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
-    QString toString(DateFormat f = TextDate) const;
+    QString toString(Qt::DateFormat f = Qt::TextDate) const;
 #endif
     QString toString(const QString &format) const;
 #endif
@@ -133,13 +133,13 @@ public:
 
     static QTime currentTime();
 #ifndef QT_NO_DATESTRING
-    static QTime fromString(const QString &s, DateFormat f = TextDate);
+    static QTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
     static bool isValid(int h, int m, int s, int ms = 0);
 
 #ifdef QT_COMPAT
-    static QT_COMPAT QTime currentTime(TimeSpec spec);
-    static QT_COMPAT QDate currentDate(TimeSpec spec);
+    static QT_COMPAT QTime currentTime(Qt::TimeSpec spec);
+    static QT_COMPAT QDate currentDate(Qt::TimeSpec spec);
 #endif
 
     void start();
@@ -163,7 +163,7 @@ class Q_CORE_EXPORT QDateTime : public Qt
 public:
     QDateTime();
     QDateTime(const QDate &);
-    QDateTime(const QDate &, const QTime &, TimeSpec spec = LocalTime);
+    QDateTime(const QDate &, const QTime &, Qt::TimeSpec spec = Qt::LocalTime);
     QDateTime(const QDateTime &other);
     ~QDateTime();
 
@@ -174,15 +174,15 @@ public:
 
     QDate date() const;
     QTime time() const;
-    TimeSpec timeSpec() const;
+    Qt::TimeSpec timeSpec() const;
     uint toTime_t() const;
     void setDate(const QDate &date);
     void setTime(const QTime &time);
-    void setTimeSpec(TimeSpec spec);
+    void setTimeSpec(Qt::TimeSpec spec);
     void setTime_t(uint secsSince1Jan1970UTC);
 #ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
-    QString toString(DateFormat f = TextDate) const;
+    QString toString(Qt::DateFormat f = Qt::TextDate) const;
 #endif
     QString toString(const QString &format) const;
 #endif
@@ -190,9 +190,9 @@ public:
     QDateTime addMonths(int months) const;
     QDateTime addYears(int years) const;
     QDateTime addSecs(int secs) const;
-    QDateTime toTimeSpec(TimeSpec spec) const;
-    inline QDateTime toLocalTime() const { return toTimeSpec(LocalTime); }
-    inline QDateTime toUTC() const { return toTimeSpec(UTC); }
+    QDateTime toTimeSpec(Qt::TimeSpec spec) const;
+    inline QDateTime toLocalTime() const { return toTimeSpec(Qt::LocalTime); }
+    inline QDateTime toUTC() const { return toTimeSpec(Qt::UTC); }
     int daysTo(const QDateTime &) const;
     int secsTo(const QDateTime &) const;
 
@@ -205,17 +205,17 @@ public:
 
     static QDateTime currentDateTime();
 #ifndef QT_NO_DATESTRING
-    static QDateTime fromString(const QString &s, DateFormat f = TextDate);
+    static QDateTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT void setTime_t(uint secsSince1Jan1970UTC, TimeSpec spec) {
+    inline QT_COMPAT void setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec spec) {
         setTime_t(secsSince1Jan1970UTC);
-        if (spec == UTC)
+        if (spec == Qt::UTC)
             *this = toUTC();
     }
-    static inline QT_COMPAT QDateTime currentDateTime(TimeSpec spec) {
-        if (spec == LocalTime)
+    static inline QT_COMPAT QDateTime currentDateTime(Qt::TimeSpec spec) {
+        if (spec == Qt::LocalTime)
             return currentDateTime();
         else
             return currentDateTime().toUTC();
@@ -232,17 +232,17 @@ private:
 };
 
 #ifdef QT_COMPAT
-inline QDate QDate::currentDate(TimeSpec spec)
+inline QDate QDate::currentDate(Qt::TimeSpec spec)
 {
-    if (spec == LocalTime)
+    if (spec == Qt::LocalTime)
         return currentDate();
     else
         return QDateTime::currentDateTime().toUTC().date();
 }
 
-inline QTime QTime::currentTime(TimeSpec spec)
+inline QTime QTime::currentTime(Qt::TimeSpec spec)
 {
-    if (spec == LocalTime)
+    if (spec == Qt::LocalTime)
         return currentTime();
     else
         return QDateTime::currentDateTime().toUTC().time();

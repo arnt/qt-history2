@@ -35,7 +35,7 @@ public:
 
     inline QSize sizeHint() const
     {
-	int ext = ori == Horizontal ? QFrame::sizeHint().width() : QFrame::sizeHint().height();
+	int ext = ori == Qt::Horizontal ? QFrame::sizeHint().width() : QFrame::sizeHint().height();
 	return QSize(ext, ext);
     }
     inline QSize minimumSize() const
@@ -44,7 +44,7 @@ public:
     { return sizeHint(); }
 
     void setOrientation(Qt::Orientation new_ori) {
-	if (new_ori == Horizontal)
+	if (new_ori == Qt::Horizontal)
 	    setFrameStyle(QFrame::VLine | QFrame::Sunken);
 	else
 	    setFrameStyle(QFrame::HLine | QFrame::Sunken);
@@ -61,7 +61,7 @@ class QToolBarHandle : public QWidget
 public:
     QToolBarHandle(QToolBar *parent) : QWidget(parent), state(0)
     {
-	setCursor(SizeAllCursor);
+	setCursor(Qt::SizeAllCursor);
     }
 
     QSize sizeHint() const {
@@ -104,7 +104,7 @@ void QToolBarHandle::paintEvent(QPaintEvent *e)
 
 void QToolBarHandle::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != LeftButton) return;
+    if (event->button() != Qt::LeftButton) return;
 
     Q_ASSERT(parentWidget());
     Q_ASSERT(!state);
@@ -115,7 +115,7 @@ void QToolBarHandle::mousePressEvent(QMouseEvent *event)
 
 void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != LeftButton) return;
+    if (event->button() != Qt::LeftButton) return;
 
     delete state;
     state = 0;
@@ -138,7 +138,7 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
 	    QPoint p = parentWidget()->mapFromGlobal(event->globalPos()) - state->offset;
 
 	    // ### the offset is measured from the widget origin
-	    if (orientation() == Vertical)
+	    if (orientation() == Qt::Vertical)
 		p.setX(state->offset.x() + p.x());
 	    else
 		p.setY(state->offset.y() + p.y());
@@ -153,8 +153,8 @@ Qt::Orientation QToolBarHandle::orientation()
 {
     QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
     if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	return Horizontal;
-    return Vertical;
+	return Qt::Horizontal;
+    return Qt::Vertical;
 }
 
 
@@ -192,25 +192,25 @@ class QToolBarExtension : public QToolButton
 public:
     QToolBarExtension(QWidget *parent);
 
-    void setOrientation(Orientation o);
+    void setOrientation(Qt::Orientation o);
     QSize sizeHint() const{ return QSize(14, 14); }
     QSize minimumSize() const { return sizeHint(); }
     QSize minimumSizeHint() const { return sizeHint(); }
 
 private:
-    Orientation orientation;
+    Qt::Orientation orientation;
 };
 
 QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
     setAutoRaise(true);
-    setOrientation(Horizontal);
+    setOrientation(Qt::Horizontal);
 }
 
-void QToolBarExtension::setOrientation(Orientation o)
+void QToolBarExtension::setOrientation(Qt::Orientation o)
 {
-    if (o == Horizontal) {
+    if (o == Qt::Horizontal) {
         setIcon(QPixmap((const char **)arrow_h_xpm));
     } else {
         setIcon(QPixmap((const char **)arrow_v_xpm));
@@ -222,7 +222,7 @@ class QToolBarPrivate : public QFramePrivate
     Q_DECLARE_PUBLIC(QToolBar);
 public:
     void actionTriggered();
-    ToolBarArea currentArea;
+    Qt::ToolBarArea currentArea;
     QToolBarExtension *extension;
     QToolBarHandle *handle;
 };
@@ -248,7 +248,7 @@ QToolBar::QToolBar(QMainWindow *parent)
     d->extension = new QToolBarExtension(this);
     d->extension->hide();
     layout->removeWidget(d->extension);
-    setCurrentArea(ToolBarAreaTop);
+    setCurrentArea(Qt::ToolBarAreaTop);
 }
 
 QToolBar::~QToolBar()
@@ -353,9 +353,9 @@ void QToolBar::actionEvent(QActionEvent *event)
 	    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
 	    if (box->direction() == QBoxLayout::LeftToRight
 		|| box->direction() == QBoxLayout::RightToLeft)
-		(void) new QToolBarSeparator(this, Horizontal);
+		(void) new QToolBarSeparator(this, Qt::Horizontal);
 	    else
-		(void) new QToolBarSeparator(this, Vertical);
+		(void) new QToolBarSeparator(this, Qt::Vertical);
 	} else {
 	    QToolBarButton *button = new QToolBarButton(this);
 	    button->addAction(action);
@@ -391,12 +391,12 @@ void QToolBar::actionEvent(QActionEvent *event)
 void QToolBar::resizeEvent(QResizeEvent *event)
 {
     QList<int> hidden;
-    Orientation o;
+    Qt::Orientation o;
     QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
     if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	o = Horizontal;
+	o = Qt::Horizontal;
     else
-	o = Vertical;
+	o = Qt::Vertical;
 
     int i = 1; // tb handle is always the first item in the layout
     while (layout()->itemAt(i)) {
@@ -415,7 +415,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     }
 
     if (hidden.size() > 0) {
-	if (o == Horizontal)
+	if (o == Qt::Horizontal)
  	    d->extension->setGeometry(width() - d->extension->sizeHint().width() - frameWidth(),
 				      frameWidth(), d->extension->sizeHint().width() - frameWidth()*2, height() - frameWidth()*2);
  	else
@@ -473,16 +473,16 @@ void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
     case 0: // Left
     case 1: // Right
 	box->setDirection(QBoxLayout::TopToBottom);
-	box->setAlignment(AlignTop);
-	d->extension->setOrientation(Vertical);
+	box->setAlignment(Qt::AlignTop);
+	d->extension->setOrientation(Qt::Vertical);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
 	break;
 
     case 2: // Top
     case 3: // Bottom
 	box->setDirection(QBoxLayout::LeftToRight);
-	box->setAlignment(AlignLeft);
-	d->extension->setOrientation(Horizontal);
+	box->setAlignment(Qt::AlignLeft);
+	d->extension->setOrientation(Qt::Horizontal);
 	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 	break;
 
@@ -498,9 +498,9 @@ void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
 	if (sep) {
 	    if (box->direction() == QBoxLayout::LeftToRight
 		|| box->direction() == QBoxLayout::RightToLeft)
-		sep->setOrientation(Horizontal);
+		sep->setOrientation(Qt::Horizontal);
 	    else
-		sep->setOrientation(Vertical);
+		sep->setOrientation(Qt::Vertical);
 	}
     }
 

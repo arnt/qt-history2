@@ -109,15 +109,15 @@ public:
         ;
 #endif
 
-    int indexOf(QChar c, int from = 0, CaseSensitivity cs = CaseSensitive) const;
-    int indexOf(const QString &s, int from = 0, CaseSensitivity cs = CaseSensitive) const;
-    int lastIndexOf(QChar c, int from = -1, CaseSensitivity cs = CaseSensitive) const;
-    int lastIndexOf(const QString &s, int from = -1, CaseSensitivity cs = CaseSensitive) const;
+    int indexOf(QChar c, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    int indexOf(const QString &s, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    int lastIndexOf(QChar c, int from = -1, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    int lastIndexOf(const QString &s, int from = -1, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
-    inline QBool contains(QChar c, CaseSensitivity cs = CaseSensitive) const;
-    inline QBool contains(const QString &s, CaseSensitivity cs = CaseSensitive) const;
-    int count(QChar c, CaseSensitivity cs = CaseSensitive) const;
-    int count(const QString &s, CaseSensitivity cs = CaseSensitive) const;
+    inline QBool contains(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    inline QBool contains(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    int count(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    int count(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
 #ifndef QT_NO_REGEXP
     int indexOf(const QRegExp &, int from = 0) const;
@@ -143,8 +143,8 @@ public:
     QString right(int len) const;
     QString mid(int i, int len = -1) const;
 
-    bool startsWith(const QString &s, CaseSensitivity cs = CaseSensitive) const;
-    bool endsWith(const QString &s, CaseSensitivity cs = CaseSensitive) const;
+    bool startsWith(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    bool endsWith(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
     QString leftJustified(int width, QChar fill = ' ', bool trunc = false) const;
     QString rightJustified(int width, QChar fill = ' ', bool trunc = false) const;
@@ -171,15 +171,15 @@ public:
     inline QString &operator+=(const QLatin1String &s) { return append(s); }
 
     QString &remove(int i, int len);
-    QString &remove(QChar c, CaseSensitivity cs = CaseSensitive);
-    QString &remove(const QString &s, CaseSensitivity cs = CaseSensitive);
+    QString &remove(QChar c, Qt::CaseSensitivity cs = Qt::CaseSensitive);
+    QString &remove(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive);
     QString &replace(int i, int len, QChar after);
     QString &replace(int i, int len, const QChar *s, int slen);
     QString &replace(int i, int len, const QString &after);
-    QString &replace(QChar before, QChar after, CaseSensitivity cs = CaseSensitive);
-    QString &replace(QChar c, const QString &after, CaseSensitivity cs = CaseSensitive);
+    QString &replace(QChar before, QChar after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
+    QString &replace(QChar c, const QString &after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
     QString &replace(const QString &before, const QString &after,
-                     CaseSensitivity cs = CaseSensitive);
+                     Qt::CaseSensitivity cs = Qt::CaseSensitive);
 #ifndef QT_NO_REGEXP_CAPTURE
     QString &replace(const QRegExp &rx, const QString &after);
     inline QString &remove(const QRegExp &rx)
@@ -361,28 +361,28 @@ public:
     inline QT_COMPAT void setLength(int nl) { resize(nl); }
     inline QT_COMPAT QString copy() const { return *this; }
     inline QT_COMPAT QString &remove(QChar c, bool cs)
-    { return remove(c, cs?CaseSensitive:CaseInsensitive); }
+    { return remove(c, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QString &remove(const QString  &s, bool cs)
-    { return remove(s, cs?CaseSensitive:CaseInsensitive); }
+    { return remove(s, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QString &replace(QChar c, const QString  &after, bool cs)
-    { return replace(c, after, cs?CaseSensitive:CaseInsensitive); }
+    { return replace(c, after, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QString &replace(const QString &before, const QString &after, bool cs)
-    { return replace(before, after, cs?CaseSensitive:CaseInsensitive); }
+    { return replace(before, after, cs?Qt::CaseSensitive:CaseInsensitive); }
 #ifndef QT_NO_CAST_FROM_ASCII
     QString &replace(char c, const QString &after, bool cs)
-    { return replace(QChar(c), after, cs?CaseSensitive:CaseInsensitive); }
+    { return replace(QChar(c), after, cs?Qt::CaseSensitive:CaseInsensitive); }
     // strange overload, required to avoid GCC 3.3 error
-    QString &replace(char c, const QString &after, CaseSensitivity cs)
-    { return replace(QChar(c), after, cs?CaseSensitive:CaseInsensitive); }
+    QString &replace(char c, const QString &after, Qt::CaseSensitivity cs)
+    { return replace(QChar(c), after, cs?Qt::CaseSensitive:CaseInsensitive); }
 #endif
     inline QT_COMPAT int find(QChar c, int i = 0, bool cs = true) const
-    { return indexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
+    { return indexOf(c, i, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT int find(const QString &s, int i = 0, bool cs = true) const
-    { return indexOf(s, i, cs?CaseSensitive:CaseInsensitive); }
+    { return indexOf(s, i, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT int findRev(QChar c, int i = -1, bool cs = true) const
-    { return lastIndexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
+    { return lastIndexOf(c, i, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT int findRev(const QString &s, int i = -1, bool cs = true) const
-    { return lastIndexOf(s, i, cs?CaseSensitive:CaseInsensitive); }
+    { return lastIndexOf(s, i, cs?Qt::CaseSensitive:CaseInsensitive); }
 #ifndef QT_NO_REGEXP
     inline QT_COMPAT int find(const QRegExp &rx, int i=0) const
     { return indexOf(rx, i); }
@@ -390,13 +390,13 @@ public:
     { return lastIndexOf(rx, i); }
 #endif
     inline QT_COMPAT QBool contains(QChar c, bool cs) const
-    { return contains(c, cs?CaseSensitive:CaseInsensitive); }
+    { return contains(c, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QBool contains(const QString &s, bool cs) const
-    { return contains(s, cs?CaseSensitive:CaseInsensitive); }
+    { return contains(s, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT bool startsWith(const QString &s, bool cs) const
-    { return startsWith(s, cs?CaseSensitive:CaseInsensitive); }
+    { return startsWith(s, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT bool endsWith(const QString &s, bool cs) const
-    { return endsWith(s, cs?CaseSensitive:CaseInsensitive); }
+    { return endsWith(s, cs?Qt::CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QChar constref(uint i) const
     { return at(i); }
     QT_COMPAT QChar &ref(uint i);
@@ -658,9 +658,9 @@ inline QString::const_iterator QString::end() const
 { return (const QChar*)d->data + d->size; }
 inline QString::const_iterator QString::constEnd() const
 { return (const QChar*)d->data + d->size; }
-inline QBool QString::contains(const QString &s, CaseSensitivity cs) const
+inline QBool QString::contains(const QString &s, Qt::CaseSensitivity cs) const
 { return QBool(indexOf(s, 0, cs) != -1); }
-inline QBool QString::contains(QChar c, CaseSensitivity cs) const
+inline QBool QString::contains(QChar c, Qt::CaseSensitivity cs) const
 { return QBool(indexOf(c, 0, cs) != -1); }
 
 

@@ -628,7 +628,7 @@ int QGenericListView::verticalOffset() const
     return verticalScrollBar()->value();
 }
 
-QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState)
+QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
     QRect area = itemRect(currentItem());
     int iw = area.width();

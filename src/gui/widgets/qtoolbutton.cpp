@@ -144,16 +144,16 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
 #endif
 
 /*!
-    Constructs a tool button as an arrow button. The \c ArrowType \a
+    Constructs a tool button as an arrow button. The \c Qt::ArrowType \a
     type defines the arrow direction. Possible values are \c
-    LeftArrow, \c RightArrow, \c UpArrow and \c DownArrow.
+    Qt::LeftArrow, \c Qt::RightArrow, \c Qt::UpArrow and \c Qt::DownArrow.
 
     An arrow button has auto-repeat turned on by default.
 
     The \a parent and \a name arguments are sent to the QWidget
     constructor.
 */
-QToolButton::QToolButton(ArrowType type, QWidget *parent, const char *name)
+QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     setObjectName(name);
@@ -172,7 +172,7 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     delay = 600;
     menu = 0;
     autoRaise = false;
-    arrow = LeftArrow;
+    arrow = Qt::LeftArrow;
     instantPopup = false;
     discardNextMouseEvent = false;
 
@@ -180,7 +180,7 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     usesBigPixmap = false;
     hasArrow = false;
 
-    q->setFocusPolicy(NoFocus);
+    q->setFocusPolicy(Qt::NoFocus);
     q->setAttribute(QWidget::WA_BackgroundInherited);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
@@ -535,7 +535,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         d->instantPopup = false;
         return;
     }
-    if (e->button() == LeftButton && d->delay <= 0 && d->instantPopup && !d->popupMenu
+    if (e->button() == Qt::LeftButton && d->delay <= 0 && d->instantPopup && !d->popupMenu
         && (d->menu || !actions().isEmpty())) {
         showMenu();
         return;
@@ -768,7 +768,7 @@ void QToolButtonPrivate::popupTimerDone()
     bool horizontal = true;
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && tb->orientation() == Vertical)
+    if (tb && tb->orientation() == Qt::Vertical)
         horizontal = false;
 #endif
     QPoint p;

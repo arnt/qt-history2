@@ -1060,7 +1060,7 @@ void QSGIStyle::drawControl(ControlElement element,
             if (s.size()) {
                 int t = s.indexOf('\t');
                 int m = sgiItemVMargin;
-                const int text_flags = AlignVCenter | DontClip | SingleLine; //special underline for &x
+                const int text_flags = Qt::AlignVCenter | Qt::DontClip | Qt::SingleLine; //special underline for &x
 
                 QString miText = s;
                 if (t>=0) {
@@ -1198,7 +1198,7 @@ void QSGIStyle::drawControl(ControlElement element,
             if (s.size()) {
                 int t = s.indexOf('\t');
                 int m = sgiItemVMargin;
-                const int text_flags = AlignVCenter | DontClip | SingleLine; //special underline for &x
+                const int text_flags = Qt::AlignVCenter | Qt::DontClip | Qt::SingleLine; //special underline for &x
 
                 QString miText = s;
                 if (t>=0) {
@@ -1216,10 +1216,10 @@ void QSGIStyle::drawControl(ControlElement element,
                 if (mi->pixmap()) {
                     QPixmap *pixmap = mi->pixmap();
                     if (pixmap->depth() == 1)
-                        p->setBackgroundMode(OpaqueMode);
+                        p->setBackgroundMode(Qt::OpaqueMode);
                     p->drawPixmap(x+xm, y+sgiItemFrame, *pixmap);
                     if (pixmap->depth() == 1)
-                        p->setBackgroundMode(TransparentMode);
+                        p->setBackgroundMode(Qt::TransparentMode);
                 }
             }
             if (mi->popup()) {
@@ -1253,18 +1253,18 @@ void QSGIStyle::drawControl(ControlElement element,
             QAction *mi = opt.action();
             if (!mi->icon().isNull()) {
                 QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-                drawItem(p, r, AlignCenter|DontClip|SingleLine,
+                drawItem(p, r, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine,
                         pal, mi->isEnabled(), pix, "", -1, &pal.buttonText().color());
             }
 
             if (mi->text().size()) {
                 QString* text = new QString(mi->text());
                 QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
-                        AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text());
+                        Qt::AlignCenter|Qt::DontClip|Qt::SingleLine|Qt::ShowPrefix, mi->text());
 
                 drawSGIPrefix(p, br.x()+p->fontMetrics().leftBearing((*text)[0]),
                         br.y()+br.height()+p->fontMetrics().underlinePos()-2, text);
-                p->drawText(x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length());
+                p->drawText(x, y-2, w+1, h, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine, *text, text->length());
                 delete text;
             }
 #endif
@@ -1294,17 +1294,17 @@ void QSGIStyle::drawControl(ControlElement element,
             }
 
             if (mi->pixmap())
-                drawItem(p, r, AlignCenter|DontClip|SingleLine,
+                drawItem(p, r, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine,
                         pal, mi->isEnabled(), *mi->pixmap(), "", -1, &pal.buttonText().color());
 
             if (mi->text().size()) {
                 QString* text = new QString(mi->text());
                 QRect br = p->fontMetrics().boundingRect(x, y-2, w+1, h,
-                        AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text());
+                        Qt::AlignCenter|Qt::DontClip|Qt::SingleLine|Qt::ShowPrefix, mi->text());
 
                 drawSGIPrefix(p, br.x()+p->fontMetrics().leftBearing((*text)[0]),
                         br.y()+br.height()+p->fontMetrics().underlinePos()-2, text);
-                p->drawText(x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length());
+                p->drawText(x, y-2, w+1, h, Qt::AlignCenter|Qt::DontClip|Qt::SingleLine, *text, text->length());
                 delete text;
             }
 #endif
@@ -1382,7 +1382,7 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
                     flags &= ~Style_MouseOver;
                 drawPrimitive(PE_ButtonBevel, p, handle, pal, flags);
 
-                if (slider->orientation() == Horizontal) {
+                if (slider->orientation() == Qt::Horizontal) {
                     QCOORD mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid, handle.y(), mid,
                                     handle.y() + handle.height() - 2,

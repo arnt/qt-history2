@@ -77,7 +77,7 @@ protected slots:
 protected:
     QGenericComboBox(QGenericComboBoxPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);
 
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
 
     int horizontalOffset() const;
     int verticalOffset() const;

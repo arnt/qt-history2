@@ -53,8 +53,8 @@ public:
     int fieldIndex(const QString &fieldName) const;
 
     bool isSortable() const;
-    void sort(int column, SortOrder order);
-    virtual void setSort(int column, SortOrder order);
+    void sort(int column, Qt::SortOrder order);
+    virtual void setSort(int column, Qt::SortOrder order);
 
     QString filter() const;
     virtual void setFilter(const QString &filter);

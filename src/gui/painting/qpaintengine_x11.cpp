@@ -570,7 +570,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     }
 
 //     if (reinit) {
-//         d->bg_mode = TransparentMode;              // default background mode
+//         d->bg_mode = Qt::TransparentMode;              // default background mode
 //         d->rop = CopyROP;                          // default ROP
 //     }
 
@@ -579,7 +579,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 //         QBrush defaultBrush;
 //         ps->brush = defaultBrush;
 //     }
-    if (w && w->testAttribute(WA_PaintUnclipped)) {  // paint direct on device
+    if (w && w->testAttribute(Qt::WA_PaintUnclipped)) {  // paint direct on device
         setf(NoCache);
         setf(UsePrivateCx);
  	updatePen(QPen(black));
@@ -601,8 +601,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         if (mono) {
             setf(MonoDev);
             // ### Port me !!!
-//             ps->bgBrush = color0; // ### superhack - remove when fixed
-//             ps->pen.setColor(color1);
+//             ps->bgBrush = Qt::color0; // ### superhack - remove when fixed
+//             ps->pen.setColor(Qt::color1);
         }
     }
 
@@ -615,7 +615,7 @@ bool QX11PaintEngine::end()
 {
     setActive(false);
     if (d->pdev->devType() == QInternal::Widget  &&                 // #####
-        ((QWidget*)d->pdev)->testAttribute(WA_PaintUnclipped)) {
+        ((QWidget*)d->pdev)->testAttribute(Qt::WA_PaintUnclipped)) {
         if (d->gc)
             XSetSubwindowMode(d->dpy, d->gc, ClipByChildren);
         if (d->gc_brush)
@@ -657,7 +657,7 @@ void QX11PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     if (!isActive())
         return;
-    if (d->cpen.style() != NoPen)
+    if (d->cpen.style() != Qt::NoPen)
         XDrawLine(d->dpy, d->hd, d->gc, p1.x(), p1.y(), p2.x(), p2.y());
 }
 
@@ -669,7 +669,7 @@ void QX11PaintEngine::drawRect(const QRect &r)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
 
-    if (pict && d->cbrush.style() != NoBrush && d->cbrush.color().alpha() != 255) {
+    if (pict && d->cbrush.style() != Qt::NoBrush && d->cbrush.color().alpha() != 255) {
 	XRenderColor xc;
 	QColor qc = d->cbrush.color();
 
@@ -682,7 +682,7 @@ void QX11PaintEngine::drawRect(const QRect &r)
 	xc.red   = (R | R << 8) * xc.alpha / 0x10000;
 	xc.green = (B | G << 8) * xc.alpha / 0x10000;
 	xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
-	if (d->cpen.style() == NoPen) {
+	if (d->cpen.style() == Qt::NoPen) {
 	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
 				 r.x(), r.y(), r.width(), r.height());
 	    return;
@@ -692,14 +692,14 @@ void QX11PaintEngine::drawRect(const QRect &r)
 	if (r.width() > lw && r.height() > lw)
 	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
 				 r.x()+lw2, r.y()+lw2, r.width()-lw-1, r.height()-lw-1);
-	if (d->cpen.style() != NoPen)
+	if (d->cpen.style() != Qt::NoPen)
 	    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
 	return;
     }
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
 
-    if (d->cbrush.style() != NoBrush) {
-        if (d->cpen.style() == NoPen) {
+    if (d->cbrush.style() != Qt::NoBrush) {
+        if (d->cpen.style() == Qt::NoPen) {
             XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
             return;
         }
@@ -709,7 +709,7 @@ void QX11PaintEngine::drawRect(const QRect &r)
             XFillRectangle(d->dpy, d->hd, d->gc_brush,
                            r.x()+lw2, r.y()+lw2, r.width()-lw-1, r.height()-lw-1);
     }
-    if (d->cpen.style() != NoPen)
+    if (d->cpen.style() != Qt::NoPen)
         XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
 }
 
@@ -718,7 +718,7 @@ void QX11PaintEngine::drawRects(const QList<QRect> &rects)
     if (!isActive())
         return;
 
-    if (d->cbrush.style() != NoBrush && d->cpen.style() != NoPen) {
+    if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
 	for (int i = 0; i < rects.size(); ++i)
 	    drawRect(rects.at(i));
     }
@@ -731,11 +731,11 @@ void QX11PaintEngine::drawRects(const QList<QRect> &rects)
 	xrects[i].height = ushort(rects.at(i).height());
     }
 
-    if (d->cbrush.style() != NoBrush && d->cpen.style() == NoPen) {
+    if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {
 	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rects.size());
 	return;
     }
-    if (d->cpen.style() != NoPen && d->cbrush.style() == NoBrush) {
+    if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
 	for (int i = 0; i < rects.size(); ++i) { // ### this is kinda makes it useless but it's needed
 	    xrects[i].width -= 1;
 	    xrects[i].height -= 1;
@@ -748,13 +748,13 @@ void QX11PaintEngine::drawPoint(const QPoint &p)
 {
     if (!isActive())
         return;
-    if (d->cpen.style() != NoPen)
+    if (d->cpen.style() != Qt::NoPen)
         XDrawPoint(d->dpy, d->hd, d->gc, p.x(), p.y());
 }
 
 void QX11PaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
 {
-    if (d->cpen.style() != NoPen)
+    if (d->cpen.style() != Qt::NoPen)
         XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(a.shortPoints(index, npoints)),
                     npoints, CoordModeOrigin);
 }
@@ -764,7 +764,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     d->cpen = pen;
     int ps = pen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
-                   (ps == NoPen || ps == SolidLine) &&
+                   (ps == Qt::NoPen || ps == Qt::SolidLine) &&
                    pen.width() == 0;
 
     bool obtained = false;
@@ -831,23 +831,23 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     }
 
     switch(ps) {
-        case NoPen:
-        case SolidLine:
+        case Qt::NoPen:
+        case Qt::SolidLine:
             s = LineSolid;
             break;
-        case DashLine:
+        case Qt::DashLine:
             dashes[0] = fudge * 3 * dot;
             dashes[1] = fudge * dot;
             dash_len = 2;
             allow_zero_lw = false;
             break;
-        case DotLine:
+        case Qt::DotLine:
             dashes[0] = dot;
             dashes[1] = dot;
             dash_len = 2;
             allow_zero_lw = false;
             break;
-        case DashDotLine:
+        case Qt::DashDotLine:
             dashes[0] = 3 * dot;
             dashes[1] = fudge * dot;
             dashes[2] = dot;
@@ -855,7 +855,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
             dash_len = 4;
             allow_zero_lw = false;
             break;
-        case DashDotDotLine:
+        case Qt::DashDotDotLine:
             dashes[0] = 3 * dot;
             dashes[1] = dot;
             dashes[2] = dot;
@@ -868,25 +868,25 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     Q_ASSERT(dash_len <= (int) sizeof(dashes));
 
     switch (pen.capStyle()) {
-        case SquareCap:
+        case Qt::SquareCap:
             cp = CapProjecting;
             break;
-        case RoundCap:
+        case Qt::RoundCap:
             cp = CapRound;
             break;
-        case FlatCap:
+        case Qt::FlatCap:
         default:
             cp = CapButt;
             break;
     }
     switch (pen.joinStyle()) {
-        case BevelJoin:
+        case Qt::BevelJoin:
             jn = JoinBevel;
             break;
-        case RoundJoin:
+        case Qt::RoundJoin:
             jn = JoinRound;
             break;
-        case MiterJoin:
+        case Qt::MiterJoin:
         default:
             jn = JoinMiter;
             break;
@@ -897,7 +897,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 
     if (dash_len) {                           // make dash list
         XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
-        s = d->bg_mode == TransparentMode ? LineOnOffDash : LineDoubleDash;
+        s = d->bg_mode == Qt::TransparentMode ? LineOnOffDash : LineDoubleDash;
     }
     XSetLineAttributes(d->dpy, d->gc,
                        (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width(),
@@ -914,7 +914,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
     int  bs = d->cbrush.style();
     int x = 0, y = 0;
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
-                   (bs == NoBrush || bs == SolidPattern) &&
+                   (bs == Qt::NoBrush || bs == Qt::SolidPattern) &&
                    x == 0 && y == 0;
 
     bool obtained = false;
@@ -967,16 +967,16 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
     XSetBackground(d->dpy, d->gc_brush, d->bg_col.pixel(d->scrn));
 
     int s  = FillSolid;
-    if (bs == CustomPattern || bs >= Dense1Pattern && bs <= DiagCrossPattern) {
+    if (bs == Qt::CustomPattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         QPixmap pm;
-        if (bs == CustomPattern)
+        if (bs == Qt::CustomPattern)
             pm = *d->cbrush.pixmap();
         else
             pm = qt_pixmapForBrush(bs, true);
         pm.x11SetScreen(d->scrn);
         if (pm.depth() == 1) {
             XSetStipple(d->dpy, d->gc_brush, pm.handle());
-            s = d->bg_mode == TransparentMode ? FillStippled : FillOpaqueStippled;
+            s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
         } else {
             XSetTile(d->dpy, d->gc_brush, pm.handle());
             s = FillTiled;
@@ -1003,9 +1003,9 @@ void QX11PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     int ry = (h*yRnd)/200;
     int rx2 = 2*rx;
     int ry2 = 2*ry;
-    if (d->cbrush.style() != NoBrush) {          // draw filled round rect
+    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled round rect
         int dp, ds;
-        if (d->cpen.style() == NoPen) {
+        if (d->cpen.style() == Qt::NoPen) {
             dp = 0;
             ds = 1;
         } else {
@@ -1032,7 +1032,7 @@ void QX11PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
         XFillRectangles(d->dpy, d->hd, d->gc_brush, rects, 3);
 #undef SET_RCT
     }
-    if (d->cpen.style() != NoPen) {              // draw outline
+    if (d->cpen.style() != Qt::NoPen) {              // draw outline
 #define SET_ARC(px, py, w, h, a1, a2) \
     a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
         XArc arcs[4];
@@ -1063,19 +1063,19 @@ void QX11PaintEngine::drawEllipse(const QRect &r)
     int w = r.width();
     int h = r.height();
     if (w == 1 && h == 1) {
-        XDrawPoint(d->dpy, d->hd, (d->cpen.style() == NoPen) ? d->gc_brush : d->gc, x, y);
+        XDrawPoint(d->dpy, d->hd, (d->cpen.style() == Qt::NoPen) ? d->gc_brush : d->gc, x, y);
         return;
     }
     w--;
     h--;
-    if (d->cbrush.style() != NoBrush) {          // draw filled ellipse
+    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled ellipse
         XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, 0, 360*64);
-        if (d->cpen.style() == NoPen) {
+        if (d->cpen.style() == Qt::NoPen) {
             XDrawArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, 0, 360*64);
             return;
         }
     }
-    if (d->cpen.style() != NoPen)                // draw outline
+    if (d->cpen.style() != Qt::NoPen)                // draw outline
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
@@ -1089,7 +1089,7 @@ void QX11PaintEngine::drawArc(const QRect &r, int a, int alen)
     h--;
     if (w <= 0 || h <= 0)
         return;
-    if (d->cpen.style() != NoPen)
+    if (d->cpen.style() != Qt::NoPen)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, a*4, alen*4);
 }
 
@@ -1119,9 +1119,9 @@ void QX11PaintEngine::drawPie(const QRect &r, int a, int alen)
         return;
 
     GC g = d->gc;
-    bool nopen = d->cpen.style() == NoPen;
+    bool nopen = d->cpen.style() == Qt::NoPen;
 
-    if (d->cbrush.style() != NoBrush) {          // draw filled pie
+    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled pie
         XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, a*4, alen*4);
         if (nopen) {
             g = d->gc_brush;
@@ -1160,9 +1160,9 @@ void QX11PaintEngine::drawChord(const QRect &r, int a, int alen)
         return;
 
     GC g = d->gc;
-    bool nopen = d->cpen.style() == NoPen;
+    bool nopen = d->cpen.style() == Qt::NoPen;
 
-    if (d->cbrush.style() != NoBrush) {          // draw filled chord
+    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled chord
         XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, a*4, alen*4);
         if (nopen) {
             g = d->gc_brush;
@@ -1188,7 +1188,7 @@ void QX11PaintEngine::drawChord(const QRect &r, int a, int alen)
 void QX11PaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     QPointArray pa = a;
-    if (d->cpen.style() != NoPen)
+    if (d->cpen.style() != Qt::NoPen)
         XDrawSegments(d->dpy, d->hd, d->gc,
                       (XSegment*)(pa.shortPoints(index, nlines*2)), nlines);
 }
@@ -1196,7 +1196,7 @@ void QX11PaintEngine::drawLineSegments(const QPointArray &a, int index, int nlin
 void QX11PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     QPointArray pa = a;
-    if (d->cpen.style() != NoPen) {
+    if (d->cpen.style() != Qt::NoPen) {
         while(npoints > 65535) {
             XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, 65535)),
                        65535, CoordModeOrigin);
@@ -1222,7 +1222,7 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index,
     }
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    if (d->cbrush.style() != NoBrush && d->cbrush.color().alpha() != 255) {
+    if (d->cbrush.style() != Qt::NoBrush && d->cbrush.color().alpha() != 255) {
 	XftColor xfc;
 	QColor qc = d->cbrush.color();
 
@@ -1250,7 +1250,7 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index,
 				       0, 0, 0, 0, poly, npoints, winding);
 	    delete [] poly;
 
-	    if (d->cpen.style() != NoPen) {              // draw outline
+	    if (d->cpen.style() != Qt::NoPen) {              // draw outline
 		XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
 			   npoints, CoordModeOrigin);
 	    }
@@ -1262,12 +1262,12 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index,
     if (winding)                              // set to winding fill rule
         XSetFillRule(d->dpy, d->gc_brush, WindingRule);
 
-    if (d->cbrush.style() != NoBrush) {          // draw filled polygon
+    if (d->cbrush.style() != Qt::NoBrush) {          // draw filled polygon
         XFillPolygon(d->dpy, d->hd, d->gc_brush,
                      (XPoint*)(pa.shortPoints(index, npoints)),
                      npoints, global_polygon_shape, CoordModeOrigin);
     }
-    if (d->cpen.style() != NoPen) {              // draw outline
+    if (d->cpen.style() != Qt::NoPen) {              // draw outline
         XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
                    npoints, CoordModeOrigin);
     }
@@ -1296,7 +1296,7 @@ void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
         for (int i = 0; i < 4; i++)
             pa.setPoint(i, a.point(index + i));
     }
-    if (d->cpen.style() != NoPen) {
+    if (d->cpen.style() != Qt::NoPen) {
         pa = pa.cubicBezier();
         XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)pa.shortPoints(), pa.size(),
                    CoordModeOrigin);

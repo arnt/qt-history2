@@ -28,9 +28,9 @@ class Q_GUI_EXPORT QBrush: public Qt
 {
 public:
     QBrush();
-    QBrush(BrushStyle bs);
-    QBrush(const QColor &color, BrushStyle bs=SolidPattern);
-    QBrush(Qt::GlobalColor color, BrushStyle bs=SolidPattern);
+    QBrush(Qt::BrushStyle bs);
+    QBrush(const QColor &color, Qt::BrushStyle bs=Qt::SolidPattern);
+    QBrush(Qt::GlobalColor color, Qt::BrushStyle bs=Qt::SolidPattern);
 
     QBrush(const QColor &color, const QPixmap &pixmap);
     QBrush(Qt::GlobalColor color, const QPixmap &pixmap);
@@ -43,8 +43,8 @@ public:
     ~QBrush();
     QBrush &operator=(const QBrush &brush);
 
-    inline BrushStyle style() const;
-    void setStyle(BrushStyle);
+    inline Qt::BrushStyle style() const;
+    void setStyle(Qt::BrushStyle);
 
     inline const QColor &color() const;
     void setColor(const QColor &color);
@@ -71,9 +71,9 @@ private:
     friend class QWSPaintEngine;
 #endif
     friend class QPainter;
-    inline void detach(BrushStyle newStyle);
-    void detach_helper(BrushStyle newStyle);
-    void init(const QColor &color, BrushStyle bs);
+    inline void detach(Qt::BrushStyle newStyle);
+    void detach_helper(Qt::BrushStyle newStyle);
+    void init(const QColor &color, Qt::BrushStyle bs);
     QBrushData *d;
     QBrushData *d_func() { return d; }
     void cleanUp(QBrushData *x);
@@ -119,31 +119,31 @@ inline const QColor &QBrush::color() const { return d->color; }
 inline QBrush::operator const QColor&() const { return d->color; }
 inline QBrush::operator const QPixmap*() const { return pixmap(); }
 
-inline void QBrush::detach(BrushStyle newStyle) { if (newStyle != d->style || d->ref != 1) detach_helper(newStyle); }
+inline void QBrush::detach(Qt::BrushStyle newStyle) { if (newStyle != d->style || d->ref != 1) detach_helper(newStyle); }
 
 inline QPixmap *QBrush::pixmap() const
 {
-    return d->style == CustomPattern
+    return d->style == Qt::CustomPattern
                      ? static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
 }
 
 inline QPoint QBrush::gradientStart() const
 {
-    return d->style == LinearGradientPattern
+    return d->style == Qt::LinearGradientPattern
                      ? static_cast<const QLinGradBrushData*>(d)->p1
                      : QPoint();
 }
 
 inline QPoint QBrush::gradientStop() const
 {
-    return d->style == LinearGradientPattern
+    return d->style == Qt::LinearGradientPattern
                      ? static_cast<const QLinGradBrushData*>(d)->p2
                      : QPoint();
 }
 
 inline QColor QBrush::gradientColor() const
 {
-    return d->style == LinearGradientPattern
+    return d->style == Qt::LinearGradientPattern
                      ? static_cast<const QLinGradBrushData*>(d)->color2
                      : QColor();
 }

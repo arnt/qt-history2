@@ -68,7 +68,7 @@ text, because they have no automatic shortcut.
 
 \code
       p->setPixmap(QPixmap("print.png"));
-      p->setShortcut(ALT+Key_F7);
+      p->setShortcut(Qt::ALT+Qt::Key_F7);
 \endcode
 
 All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
@@ -273,7 +273,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                         (p.x() - goal.x())*(p.x() - goal.x());
             bool betterScore = score < bestScore || !candidate;
             switch(key) {
-            case Key_Up:
+            case Qt::Key_Up:
                 if (p.y() < goal.y() && betterScore) {
                     if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
                         candidate = button;
@@ -284,7 +284,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     }
                 }
                 break;
-            case Key_Down:
+            case Qt::Key_Down:
                 if (p.y() > goal.y() && betterScore) {
                     if (QABS(p.x() - goal.x()) < QABS(p.y() - goal.y())) {
                         candidate = button;
@@ -295,7 +295,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     }
                 }
                 break;
-            case Key_Left:
+            case Qt::Key_Left:
                 if (p.x() < goal.x() && betterScore) {
                     if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
                         candidate = button;
@@ -306,7 +306,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
                     }
                 }
                 break;
-            case Key_Right:
+            case Qt::Key_Right:
                 if (p.x() > goal.x() && betterScore) {
                     if (QABS(p.y() - goal.y()) < QABS(p.x() - goal.x())) {
                         candidate = button;
@@ -328,7 +328,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
         candidate->setChecked(true);
 
     if (candidate) {
-        if (key == Key_Up || key == Key_Left)
+        if (key == Qt::Key_Up || key == Qt::Key_Left)
             QFocusEvent::setReason(QFocusEvent::Backtab);
         else
             QFocusEvent::setReason(QFocusEvent::Tab);
@@ -344,15 +344,15 @@ void QAbstractButtonPrivate::fixFocusPolicy()
         QAbstractButton *b = buttonList.at(i);
         if (!b->isCheckable())
             continue;
-        b->setFocusPolicy((FocusPolicy) ((b == q)
-                                         ? (b->focusPolicy() | TabFocus)
-                                         :  (b->focusPolicy() & ~TabFocus)));
+        b->setFocusPolicy((Qt::FocusPolicy) ((b == q)
+                                         ? (b->focusPolicy() | Qt::TabFocus)
+                                         :  (b->focusPolicy() & ~Qt::TabFocus)));
     }
 }
 
 void QAbstractButtonPrivate::init()
 {
-    q->setFocusPolicy(StrongFocus);
+    q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
@@ -736,7 +736,7 @@ bool QAbstractButton::event(QEvent *e)
 /*! \reimp */
 void QAbstractButton::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton) {
+    if (e->button() != Qt::LeftButton) {
         e->ignore();
         return;
     }
@@ -750,7 +750,7 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
 /*! \reimp */
 void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton) {
+    if (e->button() != Qt::LeftButton) {
         // clean up apperance if left button has been pressed
         if (d->mlbDown || d->down) {
             d->mlbDown = false;
@@ -776,7 +776,7 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
 /*! \reimp */
 void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!d->mlbDown || (e->state() & LeftButton) == 0) {
+    if (!d->mlbDown || (e->state() & Qt::LeftButton) == 0) {
         e->ignore();
         return;
     }
@@ -795,22 +795,22 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
 {
     bool next = true;
     switch (e->key()) {
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         e->ignore();
         break;
-    case Key_Space:
+    case Qt::Key_Space:
         if (!e->isAutoRepeat()) {
             setDown(true);
             emit pressed();
         }
         break;
-    case Key_Up:
-    case Key_Left:
+    case Qt::Key_Up:
+    case Qt::Key_Left:
         next = false;
         // fall through
-    case Key_Right:
-    case Key_Down:
+    case Qt::Key_Right:
+    case Qt::Key_Down:
         if (d->group || d->autoExclusive) {
             d->moveFocus(e->key());
             if (hasFocus()) // nothing happend, propagate
@@ -821,7 +821,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
             QFocusEvent::resetReason();
         }
         break;
-    case Key_Escape:
+    case Qt::Key_Escape:
         if (d->down) {
             setDown(false);
             emit released();
@@ -837,7 +837,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
 void QAbstractButton::keyReleaseEvent(QKeyEvent *e)
 {
     switch (e->key()) {
-    case Key_Space:
+    case Qt::Key_Space:
         if (!e->isAutoRepeat() && d->down)
             d->click();
         break;

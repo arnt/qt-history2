@@ -48,9 +48,9 @@ class QSplitterHandle : public QWidget
 {
     Q_OBJECT
 public:
-    QSplitterHandle(Orientation o, QSplitter *parent, const char* name=0);
-    void setOrientation(Orientation o);
-    Orientation orientation() const { return orient; }
+    QSplitterHandle(Qt::Orientation o, QSplitter *parent, const char* name=0);
+    void setOrientation(Qt::Orientation o);
+    Qt::Orientation orientation() const { return orient; }
 
     bool opaque() const { return s->opaqueResize(); }
 
@@ -66,7 +66,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *);
 
 private:
-    Orientation orient;
+    Qt::Orientation orient;
     bool opaq;
     int myId;
 
@@ -78,7 +78,7 @@ private:
 const uint Default = 2;
 static int mouseOffset;
 
-QSplitterHandle::QSplitterHandle(Orientation o, QSplitter *parent,
+QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent,
                                   const char * name)
     : QWidget(parent, name)
 {
@@ -98,17 +98,17 @@ QSize QSplitterHandle::sizeHint() const
                                                     .expandedTo(QApplication::globalStrut());
 }
 
-void QSplitterHandle::setOrientation(Orientation o)
+void QSplitterHandle::setOrientation(Qt::Orientation o)
 {
     orient = o;
 #ifndef QT_NO_CURSOR
-    setCursor(o == QSplitter::Horizontal ? splitHCursor : splitVCursor);
+    setCursor(o == QSplitter::Horizontal ? Qt::splitHCursor : Qt::splitVCursor);
 #endif
 }
 
 void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->state()&LeftButton))
+    if (!(e->state()&Qt::LeftButton))
         return;
     QCOORD pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                  - mouseOffset;
@@ -121,13 +121,13 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 
 void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() == LeftButton)
+    if (e->button() == Qt::LeftButton)
         mouseOffset = s->d->pick(e->pos());
 }
 
 void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (!opaque() && e->button() == LeftButton) {
+    if (!opaque() && e->button() == Qt::LeftButton) {
         QCOORD pos = s->d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                      - mouseOffset;
         s->setRubberband(-1);
@@ -141,7 +141,7 @@ void QSplitterHandle::paintEvent(QPaintEvent *)
     Q4StyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         opt.state = QStyle::Style_Horizontal;
     else
         opt.state = QStyle::Style_Default;
@@ -160,12 +160,12 @@ public:
     QWidget *wid;
 
     QSplitterLayoutStruct() : sizer(-1), isHandle(false), collapsed(false), collapsible(Default) {}
-    QCOORD getSizer(Orientation orient);
-    QCOORD pick(const QSize &size, Orientation orient)
-    { return (orient == Horizontal) ? size.width() : size.height(); }
+    QCOORD getSizer(Qt::Orientation orient);
+    QCOORD pick(const QSize &size, Qt::Orientation orient)
+    { return (orient == Qt::Horizontal) ? size.width() : size.height(); }
 };
 
-QCOORD QSplitterLayoutStruct::getSizer(Orientation orient)
+QCOORD QSplitterLayoutStruct::getSizer(Qt::Orientation orient)
 {
     if (sizer == -1) {
         QSize s = wid->sizeHint();
@@ -177,7 +177,7 @@ QCOORD QSplitterLayoutStruct::getSizer(Orientation orient)
             sizer = presizer;
         }
         QSizePolicy p = wid->sizePolicy();
-        int sf = (orient == Horizontal) ? p.horStretch() : p.verStretch();
+        int sf = (orient == Qt::Horizontal) ? p.horStretch() : p.verStretch();
         if (sf > 1)
             sizer *= sf;
     }
@@ -187,10 +187,10 @@ QCOORD QSplitterLayoutStruct::getSizer(Orientation orient)
 void QSplitterPrivate::init()
 {
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    if (orient == Vertical)
+    if (orient == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);
-    q->clearWState(WState_OwnSizePolicy);
+    q->clearWState(Qt::WState_OwnSizePolicy);
 }
 
 void QSplitterPrivate::recalc(bool update)
@@ -256,7 +256,7 @@ void QSplitterPrivate::recalc(bool update)
     if (maxt < mint)
         maxt = mint;
 
-    if (orient == Horizontal) {
+    if (orient == Qt::Horizontal) {
         q->setMaximumSize(maxl, maxt);
         q->setMinimumSize(minl, mint);
     } else {
@@ -279,7 +279,7 @@ void QSplitterPrivate::doResize()
     bool noStretchFactorsSet = true;
     for (i = 0; i < n; ++i) {
         QSizePolicy p = list.at(i)->wid->sizePolicy();
-        int sf = orient == Horizontal ? p.horStretch() : p.verStretch();
+        int sf = orient == Qt::Horizontal ? p.horStretch() : p.verStretch();
         if (sf != 0) {
             noStretchFactorsSet = false;
             break;
@@ -302,7 +302,7 @@ void QSplitterPrivate::doResize()
             bool stretch = noStretchFactorsSet;
             if (!stretch) {
                 QSizePolicy p = s->wid->sizePolicy();
-                int sf = orient == Horizontal ? p.horStretch() : p.verStretch();
+                int sf = orient == Qt::Horizontal ? p.horStretch() : p.verStretch();
                 stretch = (sf != 0);
             }
             if (stretch) {
@@ -410,7 +410,7 @@ void QSplitterPrivate::getRange(int id, int *farMin, int *min, int *max, int *fa
     int smartMinBefore = qMax(minBefore, pick(r.size()) - maxAfter);
     int smartMaxBefore = qMin(maxBefore, pick(r.size()) - minAfter);
 
-    if (orient == Vertical || !QApplication::reverseLayout()) {
+    if (orient == Qt::Vertical || !QApplication::reverseLayout()) {
         minVal = pick(r.topLeft()) + smartMinBefore;
         maxVal = pick(r.topLeft()) + smartMaxBefore;
 
@@ -499,7 +499,7 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool spl
     QWidget *w = sls->wid;
     QRect r;
     QRect contents = q->contentsRect();
-    if (orient == Horizontal) {
+    if (orient == Qt::Horizontal) {
         if (QApplication::reverseLayout() && !splitterMoved)
             p = contents.width() - p - s;
         r.setRect(p, contents.y(), s, contents.height());
@@ -752,7 +752,7 @@ QSplitter::QSplitter(QWidget *parent, const char *name)
     : QFrame(*new QSplitterPrivate, parent)
 {
     setObjectName(name);
-    d->orient = Horizontal;
+    d->orient = Qt::Horizontal;
     d->init();
 }
 
@@ -762,7 +762,7 @@ QSplitter::QSplitter(QWidget *parent, const char *name)
     \a name arguments being passed on to the QFrame constructor.
 */
 
-QSplitter::QSplitter(Orientation o, QWidget *parent, const char *name)
+QSplitter::QSplitter(Qt::Orientation o, QWidget *parent, const char *name)
     : QFrame(*new QSplitterPrivate, parent)
 {
     setObjectName(name);
@@ -795,20 +795,20 @@ void QSplitter::refresh()
     \brief the orientation of the splitter
 
     By default the orientation is horizontal (the widgets are side by
-    side). The possible orientations are \c Horizontal and
-    \c Vertical.
+    side). The possible orientations are \c Qt::Horizontal and
+    \c Qt::Vertical.
 */
 
-void QSplitter::setOrientation(Orientation o)
+void QSplitter::setOrientation(Qt::Orientation o)
 {
     if (d->orient == o)
         return;
 
-    if (!testWState(WState_OwnSizePolicy)) {
+    if (!testWState(Qt::WState_OwnSizePolicy)) {
         QSizePolicy sp = sizePolicy();
         sp.transpose();
         setSizePolicy(sp);
-        clearWState(WState_OwnSizePolicy);
+        clearWState(Qt::WState_OwnSizePolicy);
     }
 
     d->orient = o;
@@ -882,7 +882,7 @@ void QSplitter::childEvent(QChildEvent *c)
         if (!c->child()->isWidgetType())
             return;
 
-        if (static_cast<QWidget *>(c->child())->testWFlags(WType_TopLevel))
+        if (static_cast<QWidget *>(c->child())->testWFlags(Qt::WType_TopLevel))
             return;
 
         QList<QSplitterLayoutStruct *>::iterator it = d->list.begin();
@@ -936,7 +936,7 @@ void QSplitter::setRubberband(int p)
     int hw = handleWidth();
     if (!d->rubberBand)
         d->rubberBand = new QRubberBand(QRubberBand::Line, this);
-    if (d->orient == Horizontal)
+    if (d->orient == Qt::Horizontal)
         d->rubberBand->setGeometry(QRect(mapToGlobal(QPoint(p + hw / 2 - rBord, r.y())),
                                    QSize(2 * rBord, r.height())));
     else
@@ -1011,7 +1011,7 @@ void QSplitter::moveSplitter(QCOORD p, int id)
     p = d->adjustPos(p, id, &farMin, &min, &max, &farMax);
     int oldP = d->pick(s->rect.topLeft());
 
-    if (QApplication::reverseLayout() && d->orient == Horizontal) {
+    if (QApplication::reverseLayout() && d->orient == Qt::Horizontal) {
         int qs = p + s->rect.width();
         d->doMove(false, qs, id - 1, -1, (qs > oldP), (p > max));
         d->doMove(true, qs, id, -1, (qs > oldP), (p < min));
@@ -1146,7 +1146,7 @@ QSize QSplitter::sizeHint() const
             }
         }
     }
-    return orientation() == Horizontal ? QSize(l, t) : QSize(t, l);
+    return orientation() == Qt::Horizontal ? QSize(l, t) : QSize(t, l);
 }
 
 
@@ -1170,7 +1170,7 @@ QSize QSplitter::minimumSizeHint() const
             }
         }
     }
-    return orientation() == Horizontal ? QSize(l, t) : QSize(t, l);
+    return orientation() == Qt::Horizontal ? QSize(l, t) : QSize(t, l);
 }
 
 

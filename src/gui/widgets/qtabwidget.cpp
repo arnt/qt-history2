@@ -91,10 +91,10 @@
 /*!
   \enum Qt::Corner
   This enum type specifies a corner in a rectangle:
-  \value TopLeftCorner top left corner
-  \value TopRightCorner top right corner
-  \value BottomLeftCorner bottom left corner
-  \value BottomRightCorner bottom right corner
+  \value Qt::TopLeftCorner top left corner
+  \value Qt::TopRightCorner top right corner
+  \value Qt::BottomLeftCorner bottom left corner
+  \value Qt::BottomRightCorner bottom right corner
 */
 
 /*!
@@ -177,7 +177,7 @@ void QTabWidgetPrivate::init()
 #endif
 
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    q->setFocusPolicy(TabFocus);
+    q->setFocusPolicy(Qt::TabFocus);
     q->setFocusProxy(tabs);
 }
 
@@ -564,10 +564,10 @@ void QTabWidget::setUpLayout(bool onlyCheck)
 
     // do alignment
     int alignment = style().styleHint(QStyle::SH_TabBar_Alignment, this);
-    if (alignment != AlignLeft && t.width() < width()) {
-        if (alignment == AlignHCenter)
+    if (alignment != Qt::AlignLeft && t.width() < width()) {
+        if (alignment == Qt::AlignHCenter)
             tabx += (width()-lcw-rcw)/2 - t.width()/2;
-        else if (alignment == AlignRight)
+        else if (alignment == Qt::AlignRight)
             tabx += width() - t.width() - rcw;
     }
 

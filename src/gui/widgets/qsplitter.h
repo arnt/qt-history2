@@ -30,18 +30,18 @@ class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSplitter)
-    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(bool opaqueResize READ opaqueResize WRITE setOpaqueResize)
     Q_PROPERTY(int handleWidth READ handleWidth WRITE setHandleWidth)
     Q_PROPERTY(bool childrenCollapsible READ childrenCollapsible WRITE setChildrenCollapsible)
 
 public:
     QSplitter(QWidget* parent = 0, const char* name = 0);
-    QSplitter(Orientation, QWidget* parent = 0, const char* name = 0);
+    QSplitter(Qt::Orientation, QWidget* parent = 0, const char* name = 0);
     ~QSplitter();
 
-    void setOrientation(Orientation);
-    Orientation orientation() const;
+    void setOrientation(Qt::Orientation);
+    Qt::Orientation orientation() const;
 
     void setChildrenCollapsible(bool);
     bool childrenCollapsible() const;

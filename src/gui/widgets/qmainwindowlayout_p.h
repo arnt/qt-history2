@@ -24,9 +24,9 @@ class QMainWindowLayout : public QLayout
     QWidget *centerWidget() const;
     void setCenterWidget(QWidget *cw);
 
-    QDockWindowLayout *layoutForArea(DockWindowArea area);
+    QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
 
-    void add(QToolBar *toolbar, ToolBarArea area, bool linebreak);
+    void add(QToolBar *toolbar, Qt::ToolBarArea area, bool linebreak);
     void add(QToolBar *toolbar, int where, bool linebreak, const QPoint &offset = QPoint());
 
     // QLayout interface
@@ -71,7 +71,7 @@ class QMainWindowLayout : public QLayout
     void removeToolBarInfo(QToolBar *toolbar);
 
     // dock/center-widget layout data
-    DockWindowArea corners[4];
+    Qt::DockWindowArea corners[4];
     struct QMainWindowLayoutInfo
     {
 	QLayoutItem *item;

@@ -35,8 +35,8 @@ public:
     void setHeight(int h);
     void transpose();
 
-    void scale(int w, int h, ScaleMode mode);
-    void scale(const QSize &s, ScaleMode mode);
+    void scale(int w, int h, Qt::ScaleMode mode);
+    void scale(const QSize &s, Qt::ScaleMode mode);
 
     QSize expandedTo(const QSize &) const;
     QSize boundedTo(const QSize &) const;

@@ -177,39 +177,39 @@
     list are included (since the defaults are zero):
 
     Color/Mono preference (ignored for QBitmap)
-    \value AutoColor (default) - If the image has \link
+    \value Qt::AutoColor (default) - If the image has \link
            QImage::depth() depth\endlink 1 and contains only
            black and white pixels, the pixmap becomes monochrome.
-    \value ColorOnly The pixmap is dithered/converted to the
+    \value Qt::ColorOnly The pixmap is dithered/converted to the
            \link QPixmap::defaultDepth() native display depth\endlink.
-    \value MonoOnly The pixmap becomes monochrome. If necessary,
+    \value Qt::MonoOnly The pixmap becomes monochrome. If necessary,
            it is dithered using the chosen dithering algorithm.
 
     Dithering mode preference for RGB channels
-    \value DiffuseDither (default) - A high-quality dither.
-    \value OrderedDither A faster, more ordered dither.
-    \value ThresholdDither No dithering; closest color is used.
+    \value Qt::DiffuseDither (default) - A high-quality dither.
+    \value Qt::OrderedDither A faster, more ordered dither.
+    \value Qt::ThresholdDither No dithering; closest color is used.
 
     Dithering mode preference for alpha channel
-    \value ThresholdAlphaDither (default) - No dithering.
-    \value OrderedAlphaDither A faster, more ordered dither.
-    \value DiffuseAlphaDither A high-quality dither.
-    \value NoAlpha Not supported.
+    \value Qt::ThresholdAlphaDither (default) - No dithering.
+    \value Qt::OrderedAlphaDither A faster, more ordered dither.
+    \value Qt::DiffuseAlphaDither A high-quality dither.
+    \value Qt::NoAlpha Not supported.
 
     Color matching versus dithering preference
-    \value PreferDither (default when converting to a pixmap) - Always dither
+    \value Qt::PreferDither (default when converting to a pixmap) - Always dither
            32-bit images when the image is converted to 8 bits.
-    \value AvoidDither (default when converting for the purpose of saving to
+    \value Qt::AvoidDither (default when converting for the purpose of saving to
            file) - Dither 32-bit images only if the image has more than 256
            colors and it is being converted to 8 bits.
-    \value AutoDither Not supported.
+    \value Qt::AutoDither Not supported.
 
     The following are not values that are used directly, but masks for
     the above classes:
-    \value ColorMode_Mask  Mask for the color mode.
-    \value Dither_Mask  Mask for the dithering mode for RGB channels.
-    \value AlphaDither_Mask  Mask for the dithering mode for the alpha channel.
-    \value DitherMode_Mask  Mask for the mode that determines the preference of
+    \value Qt::ColorMode_Mask  Mask for the color mode.
+    \value Qt::Dither_Mask  Mask for the dithering mode for RGB channels.
+    \value Qt::AlphaDither_Mask  Mask for the dithering mode for the alpha channel.
+    \value Qt::DitherMode_Mask  Mask for the mode that determines the preference of
            color matching versus dithering.
 
     Using 0 as the conversion flag sets all the default options.
@@ -2575,11 +2575,11 @@ void pnmscale(const QImage& src, QImage& dst)
 /*!
     Returns a smoothly scaled copy of the image. The returned image
     has a size of width \a w by height \a h pixels if \a mode is \c
-    ScaleFree. The modes \c ScaleMin and \c ScaleMax may be used to
-    preserve the ratio of the image: if \a mode is \c ScaleMin, the
+    Qt::ScaleFree. The modes \c Qt::ScaleMin and \c Qt::ScaleMax may be used to
+    preserve the ratio of the image: if \a mode is \c Qt::ScaleMin, the
     returned image is guaranteed to fit into the rectangle specified
     by \a w and \a h (it is as large as possible within the
-    constraints); if \a mode is \c ScaleMax, the returned image fits
+    constraints); if \a mode is \c Qt::ScaleMax, the returned image fits
     at least into the specified rectangle (it is a small as possible
     within the constraints). Note that the algorithm used favors speed
     rather than smoothness.
@@ -2607,7 +2607,7 @@ void pnmscale(const QImage& src, QImage& dst)
 
     \sa scale() mirror()
 */
-QImage QImage::smoothScale(int w, int h, ScaleMode mode) const
+QImage QImage::smoothScale(int w, int h, Qt::ScaleMode mode) const
 {
     return smoothScale(QSize(w, h), mode);
 }
@@ -2619,7 +2619,7 @@ QImage QImage::smoothScale(int w, int h, ScaleMode mode) const
 
     The requested size of the image is \a s.
 */
-QImage QImage::smoothScale(const QSize& s, ScaleMode mode) const
+QImage QImage::smoothScale(const QSize& s, Qt::ScaleMode mode) const
 {
     if (isNull()) {
         qWarning("QImage::smoothScale: Image is a null image");
@@ -2648,15 +2648,15 @@ QImage QImage::smoothScale(const QSize& s, ScaleMode mode) const
 
 /*!
     Returns a copy of the image scaled to a rectangle of width \a w
-    and height \a h according to the ScaleMode \a mode.
+    and height \a h according to the Qt::ScaleMode \a mode.
 
     \list
-    \i If \a mode is \c ScaleFree, the image is scaled to (\a w,
+    \i If \a mode is \c Qt::ScaleFree, the image is scaled to (\a w,
        \a h).
-    \i If \a mode is \c ScaleMin, the image is scaled to a rectangle
+    \i If \a mode is \c Qt::ScaleMin, the image is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect
        ratio.
-    \i If \a mode is \c ScaleMax, the image is scaled to a rectangle
+    \i If \a mode is \c Qt::ScaleMax, the image is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect
        ratio.
     \endlist
@@ -2670,7 +2670,7 @@ QImage QImage::smoothScale(const QSize& s, ScaleMode mode) const
     \sa scaleWidth() scaleHeight() smoothScale() xForm()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scale(int w, int h, ScaleMode mode) const
+QImage QImage::scale(int w, int h, Qt::ScaleMode mode) const
 {
     return scale(QSize(w, h), mode);
 }
@@ -2682,7 +2682,7 @@ QImage QImage::scale(int w, int h, ScaleMode mode) const
     The requested size of the image is \a s.
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scale(const QSize& s, ScaleMode mode) const
+QImage QImage::scale(const QSize& s, Qt::ScaleMode mode) const
 {
     if (isNull()) {
         qWarning("QImage::scale: Image is a null image");

@@ -326,7 +326,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         if (d->usesWidgetDC) {
             d->hdc = w->hdc;                        // during paint event
         } else {
-            if (w->testAttribute(WA_PaintUnclipped)) {
+            if (w->testAttribute(Qt::WA_PaintUnclipped)) {
                 d->hdc = GetWindowDC(w->winId());
                 if (w->isTopLevel()) {
                     int dx = w->geometry().x() - w->frameGeometry().x();
@@ -442,7 +442,7 @@ void QWin32PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
     int x1 = p1.x(), x2 = p2.x(), y1 = p1.y(), y2 = p2.y();
     bool plot_pixel = false;
-    plot_pixel = (d->pWidth == 0) && (d->penStyle == SolidLine);
+    plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     if (plot_pixel) {
         if (x1 == x2) {                                // vertical
             if (y1 < y2)
@@ -501,7 +501,7 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     }
     int w = r.width(), h = r.height();
 
-    if (d->penStyle == NoPen) {
+    if (d->penStyle == Qt::NoPen) {
         w++;
         h++;
     }
@@ -529,7 +529,7 @@ void QWin32PaintEngine::drawPoint(const QPoint &p)
         return;
     }
 
-    if (d->penStyle != NoPen)
+    if (d->penStyle != Qt::NoPen)
 #ifndef Q_OS_TEMP
         SetPixelV(d->hdc, p.x(), p.y(), d->pColor);
 #else
@@ -545,7 +545,7 @@ void QWin32PaintEngine::drawPoints(const QPointArray &pts, int index, int npoint
         return;
     }
     QPointArray pa = pts;
-    if (d->penStyle != NoPen) {
+    if (d->penStyle != Qt::NoPen) {
         for (int i=0; i<npoints; i++) {
 #ifndef Q_OS_TEMP
             SetPixelV(d->hdc, pa[index+i].x(), pa[index+i].y(),
@@ -577,7 +577,7 @@ void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     int w = r.width(), h = r.height();
 #ifdef NO_NATIVE_XFORM
-    if (d->penStyle == NoPen) {
+    if (d->penStyle == Qt::NoPen) {
         ++w;
         ++h;
     }
@@ -610,7 +610,7 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
     int w = r.width();
     int h = r.height();
 #ifdef NO_NATIVE_XFORM
-    if (d->penStyle == NoPen) {
+    if (d->penStyle == Qt::NoPen) {
         ++w;
         ++h;
     }
@@ -650,7 +650,7 @@ void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
 
     int w = r.width(), h = r.height();
 #ifdef NO_NATIVE_XFORM
-    if (d->penStyle == NoPen) {
+    if (d->penStyle == Qt::NoPen) {
         ++w;
         ++h;
     }
@@ -707,7 +707,7 @@ void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
 
     int w = r.width(), h = r.height();
 #ifdef NO_NATIVE_XFORM
-    if (d->penStyle == NoPen) {
+    if (d->penStyle == Qt::NoPen) {
         ++w;
         ++h;
     }
@@ -751,7 +751,7 @@ void QWin32PaintEngine::drawChord(const QRect &r, int a, int alen)
 
     int w = r.width(), h = r.height();
 #ifdef NO_NATIVE_XFORM
-    if (d->penStyle == NoPen) {
+    if (d->penStyle == Qt::NoPen) {
         ++w;
         ++h;
     }
@@ -792,9 +792,9 @@ void QWin32PaintEngine::drawLineSegments(const QPointArray &a, int index, int nl
     uint pixel = d->pColor;
     bool maybe_plot_pixel = false;
     QT_WA({
-        maybe_plot_pixel = (d->pWidth == 0) && (d->penStyle == SolidLine);
+        maybe_plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     } , {
-        maybe_plot_pixel = (d->pWidth <= 1) && (d->penStyle == SolidLine);
+        maybe_plot_pixel = (d->pWidth <= 1) && (d->penStyle == Qt::SolidLine);
     });
 
     while (nlines--) {
@@ -844,9 +844,9 @@ void QWin32PaintEngine::drawPolyline(const QPointArray &a, int index, int npoint
     xsave = x2; ysave = y2;
     bool plot_pixel = false;
     QT_WA({
-        plot_pixel = (d->pWidth == 0) && (d->penStyle == SolidLine);
+        plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     } , {
-        plot_pixel = (d->pWidth <= 1) && (d->penStyle == SolidLine);
+        plot_pixel = (d->pWidth <= 1) && (d->penStyle == Qt::SolidLine);
     });
 
     if (plot_pixel) {
@@ -993,8 +993,8 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
     if (p.fillMode() == QPainterPath::Winding)
         SetPolyFillMode(d->hdc, WINDING);
 
-    bool pen = d->penStyle != NoPen;
-    bool brush = d->brushStyle != NoBrush;
+    bool pen = d->penStyle != Qt::NoPen;
+    bool brush = d->brushStyle != Qt::NoBrush;
     if (pen && brush) {
         if (!StrokeAndFillPath(d->hdc))
             qSystemWarning("QWin32PaintEngine::drawPath(), stroking and filling failed");
@@ -1193,7 +1193,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
         hpen_old = d->hpen;
     }
     if (cacheIt) {
-        if (d->penStyle == NoPen) {
+        if (d->penStyle == Qt::NoPen) {
             d->hpen = stock_nullPen;
             d->penRef = stock_ptr;
             goto set;
@@ -1205,13 +1205,13 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
     int s;
 
     switch (d->penStyle) {
-    case NoPen:             s = PS_NULL;        break;
-    case SolidLine:         s = PS_SOLID;        break;
-    case DashLine:          s = PS_DASH;        break;
+    case Qt::NoPen:             s = PS_NULL;        break;
+    case Qt::SolidLine:         s = PS_SOLID;        break;
+    case Qt::DashLine:          s = PS_DASH;        break;
 #ifndef Q_OS_TEMP
-    case DotLine:           s = PS_DOT;         break;
-    case DashDotLine:            s = PS_DASHDOT;         break;
-    case DashDotDotLine:    s = PS_DASHDOTDOT;         break;
+    case Qt::DotLine:           s = PS_DOT;         break;
+    case Qt::DashDotLine:            s = PS_DASHDOT;         break;
+    case Qt::DashDotDotLine:    s = PS_DASHDOTDOT;         break;
 #endif
         default:
             s = PS_SOLID;
@@ -1219,31 +1219,31 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
     }
 #ifndef Q_OS_TEMP
     if (((pen.width() != 0) || pen.width() > 1) &&
-         (qt_winver & QSysInfo::WV_NT_based || d->penStyle == SolidLine)) {
+         (qt_winver & QSysInfo::WV_NT_based || d->penStyle == Qt::SolidLine)) {
         LOGBRUSH lb;
         lb.lbStyle = 0;
         lb.lbColor = d->pColor;
         lb.lbHatch = 0;
         int pst = PS_GEOMETRIC | s;
         switch (pen.capStyle()) {
-            case SquareCap:
+            case Qt::SquareCap:
                 pst |= PS_ENDCAP_SQUARE;
                 break;
-            case RoundCap:
+            case Qt::RoundCap:
                 pst |= PS_ENDCAP_ROUND;
                 break;
-            case FlatCap:
+            case Qt::FlatCap:
                 pst |= PS_ENDCAP_FLAT;
                 break;
         }
         switch (pen.joinStyle()) {
-            case BevelJoin:
+            case Qt::BevelJoin:
                 pst |= PS_JOIN_BEVEL;
                 break;
-            case RoundJoin:
+            case Qt::RoundJoin:
                 pst |= PS_JOIN_ROUND;
                 break;
-            case MiterJoin:
+            case Qt::MiterJoin:
                 pst |= PS_JOIN_MITER;
                 break;
         }
@@ -1306,7 +1306,7 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
 #endif
 
     d->bColor           = COLOR_VALUE(brush.color());
-    bool   cacheIt = d->brushStyle == NoBrush || d->brushStyle == SolidPattern;
+    bool   cacheIt = d->brushStyle == Qt::NoBrush || d->brushStyle == Qt::SolidPattern;
     HBRUSH hbrush_old;
 
     if (d->brushRef) {
@@ -1317,7 +1317,7 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
         hbrush_old = d->hbrush;
     }
     if (cacheIt) {
-        if (d->brushStyle == NoBrush) {
+        if (d->brushStyle == Qt::NoBrush) {
             d->hbrush = stock_nullBrush;
             d->brushRef = stock_ptr;
             SelectObject(d->hdc, d->hbrush);
@@ -1349,18 +1349,18 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
     d->pixmapBrush = d->nocolBrush = false;
     d->hbrushbm = 0;
 
-    if (d->brushStyle == SolidPattern) {                        // create solid brush
+    if (d->brushStyle == Qt::SolidPattern) {                        // create solid brush
         d->hbrush = CreateSolidBrush(d->bColor);
 #ifndef Q_OS_TEMP
-    } else if ((d->brushStyle >= Dense1Pattern && d->brushStyle <= Dense7Pattern) ||
-                (d->brushStyle == CustomPattern)) {
-        if (d->brushStyle == CustomPattern) {
+    } else if ((d->brushStyle >= Qt::Dense1Pattern && d->brushStyle <= Qt::Dense7Pattern) ||
+                (d->brushStyle == Qt::CustomPattern)) {
+        if (d->brushStyle == Qt::CustomPattern) {
             // The brush pixmap can never be a multi cell pixmap
             d->hbrushbm = brush.pixmap()->hbm();
             d->pixmapBrush = true;
             d->nocolBrush = brush.pixmap()->depth() == 1;
         } else {
-            short *bm = dense_patterns[d->brushStyle - Dense1Pattern];
+            short *bm = dense_patterns[d->brushStyle - Qt::Dense1Pattern];
             d->hbrushbm = CreateBitmap(8, 8, 1, 1, bm);
             d->nocolBrush = true;
         }
@@ -1369,22 +1369,22 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
     } else {                                        // one of the hatch brushes
         int s;
         switch (d->brushStyle) {
-            case HorPattern:
+            case Qt::HorPattern:
                 s = HS_HORIZONTAL;
                 break;
-            case VerPattern:
+            case Qt::VerPattern:
                 s = HS_VERTICAL;
                 break;
-            case CrossPattern:
+            case Qt::CrossPattern:
                 s = HS_CROSS;
                 break;
-            case BDiagPattern:
+            case Qt::BDiagPattern:
                 s = HS_BDIAGONAL;
                 break;
-            case FDiagPattern:
+            case Qt::FDiagPattern:
                 s = HS_FDIAGONAL;
                 break;
-            case DiagCrossPattern:
+            case Qt::DiagCrossPattern:
                 s = HS_DIAGCROSS;
                 break;
             default:
@@ -1394,7 +1394,7 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
     }
 #else
     } else {
-        if (d->brushStyle == CustomPattern) {
+        if (d->brushStyle == Qt::CustomPattern) {
             // The brush pixmap can never be a multi cell pixmap
             d->hbrushbm = brush.pixmap()->hbm();
             d->pixmapBrush = true;
@@ -1421,12 +1421,12 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
             coltbl[0] = d->bColor.rgb();
             coltbl[1] = Qt::color0.rgb();
 
-            static DWORD *pattern = hatch_patterns[0]; // HorPattern
+            static DWORD *pattern = hatch_patterns[0]; // Qt::HorPattern
 
-            if (d->brushStyle >= Dense1Pattern && d->brushStyle <= Dense7Pattern)
-                pattern = dense_patterns[d->brushStyle - Dense1Pattern];
-            else if (d->brushStyle >= HorPattern && d->brushStyle <= DiagCrossPattern)
-                pattern = hatch_patterns[d->brushStyle - HorPattern];
+            if (d->brushStyle >= Qt::Dense1Pattern && d->brushStyle <= Qt::Dense7Pattern)
+                pattern = dense_patterns[d->brushStyle - Qt::Dense1Pattern];
+            else if (d->brushStyle >= Qt::HorPattern && d->brushStyle <= Qt::DiagCrossPattern)
+                pattern = hatch_patterns[d->brushStyle - Qt::HorPattern];
 
             memcpy(bitmapBrush.bitmapData, pattern, 64);
             d->hbrush = CreateDIBPatternBrushPt(&bitmapBrush, DIB_RGB_COLORS);
@@ -1452,7 +1452,7 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
     Q_ASSERT(isActive());
 
     SetBkColor(d->hdc, COLOR_VALUE(bgBrush.color()));
-    SetBkMode(d->hdc, mode == TransparentMode ? TRANSPARENT : OPAQUE);
+    SetBkMode(d->hdc, mode == Qt::TransparentMode ? TRANSPARENT : OPAQUE);
 }
 
 

@@ -120,22 +120,22 @@ static void paint_hierarchy(QWidget *w, bool update)
 
 void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*/)
 {
-    if (testWState(WState_Created) && window == 0)
+    if (testWState(Qt::WState_Created) && window == 0)
         return;
-    setWState(WState_Created);                        // set created flag
+    setWState(Qt::WState_Created);                        // set created flag
 
     if (!parentWidget() || parentWidget()->isDesktop())
-        setWFlags(WType_TopLevel);                // top-level widget
+        setWFlags(Qt::WType_TopLevel);                // top-level widget
 
     data->alloc_region_index = -1;
     data->alloc_region_revision = -1;
     isSettingGeometry = false;
     data->overlapping_children = -1;
 
-    bool topLevel = testWFlags(WType_TopLevel);
-    bool popup = testWFlags(WType_Popup);
-    bool dialog = testWFlags(WType_Dialog);
-    bool desktop = testWFlags(WType_Desktop);
+    bool topLevel = testWFlags(Qt::WType_TopLevel);
+    bool popup = testWFlags(Qt::WType_Popup);
+    bool dialog = testWFlags(Qt::WType_Dialog);
+    bool desktop = testWFlags(Qt::WType_Desktop);
     WId           id;
     QWSDisplay* dpy = qwsDisplay();
 
@@ -143,14 +143,14 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         initializeWindow = true;
 
     if (popup) {
-        setWFlags(WStyle_Tool); // a popup is a tool window
-        setWFlags(WStyle_StaysOnTop); // a popup stays on top
+        setWFlags(Qt::WStyle_Tool); // a popup is a tool window
+        setWFlags(Qt::WStyle_StaysOnTop); // a popup stays on top
     }
     if (topLevel && parentWidget()) {
-        // if our parent has WStyle_StaysOnTop, so must we
+        // if our parent has Qt::WStyle_StaysOnTop, so must we
         QWidget *ptl = parentWidget()->topLevelWidget();
-        if (ptl && ptl->testWFlags(WStyle_StaysOnTop))
-            setWFlags(WStyle_StaysOnTop);
+        if (ptl && ptl->testWFlags(Qt::WStyle_StaysOnTop))
+            setWFlags(Qt::WStyle_StaysOnTop);
     }
 
     int sw = dpy->width();
@@ -158,7 +158,7 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
 
     if (dialog || popup || desktop) {                // these are top-level, too
         topLevel = true;
-        setWFlags(WType_TopLevel);
+        setWFlags(Qt::WType_TopLevel);
     }
 
     if (desktop) {                                // desktop widget
@@ -176,7 +176,7 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
     } else if (desktop) {                        // desktop widget
         id = (WId)-2;                                // id = root window
         QWidget *otherDesktop = find(id);        // is there another desktop?
-        if (otherDesktop && otherDesktop->testWFlags(WPaintDesktop)) {
+        if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
             otherDesktop->setWinId(0);        // remove id from widget mapper
             setWinId(id);                        // make sure otherDesktop is
             otherDesktop->setWinId(id);        //   found first
@@ -189,23 +189,23 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
     }
 
     if (!topLevel) {
-        if (!testWFlags(WStyle_Customize))
-            setWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
+        if (!testWFlags(Qt::WStyle_Customize))
+            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu );
     } else if (!(desktop || popup)) {
-        if (testWFlags(WStyle_Customize)) {        // customize top-level widget
-            if (testWFlags(WStyle_NormalBorder)) {
+        if (testWFlags(Qt::WStyle_Customize)) {        // customize top-level widget
+            if (testWFlags(Qt::WStyle_NormalBorder)) {
                 // XXX ...
             } else {
-                if (!testWFlags(WStyle_DialogBorder)) {
+                if (!testWFlags(Qt::WStyle_DialogBorder)) {
                     // XXX ...
                 }
             }
-            if (testWFlags(WStyle_Tool)) {
+            if (testWFlags(Qt::WStyle_Tool)) {
                 // XXX ...
             }
         } else {                                // normal top-level widget
-            setWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
-                       WStyle_MinMax);
+            setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu |
+                       Qt::WStyle_MinMax);
         }
     }
 
@@ -219,10 +219,10 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         QWidget *p = parentWidget();        // real parent
         if (p)
             p = p->topLevelWidget();
-        if (testWFlags(WStyle_DialogBorder)
-             || testWFlags(WStyle_StaysOnTop)
-             || testWFlags(WStyle_Dialog)
-             || testWFlags(WStyle_Tool)) {
+        if (testWFlags(Qt::WStyle_DialogBorder)
+             || testWFlags(Qt::WStyle_StaysOnTop)
+             || testWFlags(Qt::WStyle_Dialog)
+             || testWFlags(Qt::WStyle_Tool)) {
             // XXX ...
         }
 
@@ -237,16 +237,16 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
     if (initializeWindow) {
     }
 
-    setAttribute(WA_MouseTracking, true);
+    setAttribute(Qt::WA_MouseTracking, true);
     setMouseTracking(false);                        // also sets event mask
     if (desktop) {
-        setWState(WState_Visible);
+        setWState(Qt::WState_Visible);
     } else if (topLevel) {                        // set X cursor
         //QCursor *oc = QApplication::overrideCursor();
         if (initializeWindow) {
             //XXX XDefineCursor(dpy, winid, oc ? oc->handle() : cursor().handle());
         }
-        setAttribute(WA_SetCursor);
+        setAttribute(Qt::WA_SetCursor);
 #ifndef QT_NO_WIDGET_TOPEXTRA
         qwsDisplay()->nameRegion(winId(), name(""), caption());
 #else
@@ -259,8 +259,8 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         d->createTLExtra();
 #endif
 #ifndef QT_NO_QWS_MANAGER
-        if (testWFlags(WStyle_DialogBorder)
-             || testWFlags(WStyle_NormalBorder))
+        if (testWFlags(Qt::WStyle_DialogBorder)
+             || testWFlags(Qt::WStyle_NormalBorder))
         {
             // get size of wm decoration
             QRegion r = QApplication::qwsDecoration().region(this, data->crect);
@@ -308,8 +308,8 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     deactivateWidgetCleanup();
-    if (testWState(WState_Created)) {
-        clearWState(WState_Created);
+    if (testWState(Qt::WState_Created)) {
+        clearWState(Qt::WState_Created);
         QObjectList childObjects =  children();
         for (int i = 0; i < childObjects.size(); ++i) {
             QObject *obj = childObjects.at(i);
@@ -323,13 +323,13 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 
         if (keyboardGrb == this)
             releaseKeyboard();
-        if (testWFlags(WShowModal))                // just be sure we leave modal
+        if (testWFlags(Qt::WShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
-        else if (testWFlags(WType_Popup))
+        else if (testWFlags(Qt::WType_Popup))
             qApp->closePopup(this);
-        if (testWFlags(WType_Desktop)) {
+        if (testWFlags(Qt::WType_Desktop)) {
         } else {
-            if (parentWidget() && parentWidget()->testWState(WState_Created)) {
+            if (parentWidget() && parentWidget()->testWState(Qt::WState_Created)) {
                 hide_sys();
             }
             if (destroyWindow && isTopLevel())
@@ -344,7 +344,7 @@ void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool show
 {
 #ifndef QT_NO_CURSOR
     QCursor oldcurs;
-    bool setcurs=testAttribute(WA_SetCursor);
+    bool setcurs=testAttribute(Qt::WA_SetCursor);
     if (setcurs) {
         oldcurs = cursor();
         unsetCursor();
@@ -352,10 +352,10 @@ void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool show
 #endif
 
     WId old_winid = data->winid;
-    if (testWFlags(WType_Desktop))
+    if (testWFlags(Qt::WType_Desktop))
         old_winid = 0;
 
-    if (!isTopLevel() && parentWidget() && parentWidget()->testWState(WState_Created))
+    if (!isTopLevel() && parentWidget() && parentWidget()->testWState(Qt::WState_Created))
         hide_sys();
 
     setWinId(0);
@@ -373,17 +373,17 @@ void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool show
         }
     }
     bool     enable = isEnabled();                // remember status
-    FocusPolicy fp = focusPolicy();
+    Qt::FocusPolicy fp = focusPolicy();
     QSize    s            = size();
     //QBrush   bgc    = background();                        // save colors
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString capt = windowTitle();
 #endif
     data->widget_flags = f;
-    clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
+    clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_Hidden | Qt::WState_ExplicitShowHide);
     create();
     if (isTopLevel() || (!parent || parent->isVisible()))
-        setWState(WState_Hidden);
+        setWState(Qt::WState_Hidden);
     setGeometry(p.x(), p.y(), s.width(), s.height());
     setEnabled(enable);
     setFocusPolicy(fp);
@@ -475,7 +475,7 @@ void QWidget::setCursor(const QCursor &cursor)
     d->createExtra();
     delete d->extra->curs;
     d->extra->curs = new QCursor(cursor);
-    setAttribute(WA_SetCursor);
+    setAttribute(Qt::WA_SetCursor);
     if (isVisible())
         updateCursor(paintableRegion());
 }
@@ -486,7 +486,7 @@ void QWidget::unsetCursor()
         delete d->extra->curs;
         d->extra->curs = 0;
     }
-    setAttribute(WA_SetCursor, false);
+    setAttribute(Qt::WA_SetCursor, false);
     if (isVisible())
         updateCursor(paintableRegion());
 }
@@ -501,14 +501,14 @@ void QWidget::unsetCursor()
 
 void QWidget::setWindowModified(bool mod)
 {
-    setAttribute(WA_WindowModified, mod);
+    setAttribute(Qt::WA_WindowModified, mod);
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
 
 bool QWidget::isWindowModified() const
 {
-    return testAttribute(WA_WindowModified);
+    return testAttribute(Qt::WA_WindowModified);
 }
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -631,19 +631,19 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible)
         QApplication::postEvent(this, new QWSUpdateEvent(clipRegion()));
 }
 
 void QWidget::update(const QRegion &rgn)
 {
-     if ((data->widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
+     if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible)
          QApplication::postEvent(this, new QWSUpdateEvent(rgn&clipRegion()));
 }
 
 void QWidget::update(int x, int y, int w, int h)
 {
-    if (w && h && (data->widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {
+    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == WState_Visible) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -656,18 +656,18 @@ void QWidget::update(int x, int y, int w, int h)
 
 void QWidget::repaint(const QRegion& rgn)
 {
-    if (testWState(WState_InPaintEvent))
+    if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ((data->widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible)
+    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != WState_Visible)
         return;
 
     if (rgn.isEmpty())
         return;
 
-    setWState(WState_InPaintEvent);
+    setWState(Qt::WState_InPaintEvent);
 
-    if (!testAttribute(WA_NoBackground) && !testAttribute(WA_NoSystemBackground)) {
+    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground)) {
         QPoint offset;
         QStack<QWidget*> parents;
         QWidget *w = q;
@@ -703,11 +703,11 @@ void QWidget::repaint(const QRegion& rgn)
                     QRect rr = q->rect();
                     rr.moveBy(offset);
                     QPaintEvent e(rr);
-                    bool was_in_paint_event = w->testWState(WState_InPaintEvent);
-                    w->setWState(WState_InPaintEvent);
+                    bool was_in_paint_event = w->testWState(Qt::WState_InPaintEvent);
+                    w->setWState(Qt::WState_InPaintEvent);
                     QApplication::sendEvent(w, &e);
                     if(!was_in_paint_event) {
-                        w->clearWState(WState_InPaintEvent);
+                        w->clearWState(Qt::WState_InPaintEvent);
                         if(w->paintingActive())
                             qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
                     }
@@ -724,17 +724,17 @@ void QWidget::repaint(const QRegion& rgn)
     qt_set_paintevent_clipping(this, rgn);
     QApplication::sendSpontaneousEvent(this, &e);
     qt_clear_paintevent_clipping();
-    clearWState(WState_InPaintEvent);
+    clearWState(Qt::WState_InPaintEvent);
     if(paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
-    if (testAttribute(WA_ContentsPropagated))
+    if (testAttribute(Qt::WA_ContentsPropagated))
         d->updatePropagatedBackground(&rgn);
 }
 
 void QWidget::show_sys()
 {
-    if (testWFlags(WType_TopLevel)) {
+    if (testWFlags(Qt::WType_TopLevel)) {
         updateRequestedRegion(mapToGlobal(QPoint(0,0)));
         QRegion r(data->req_region);
 #ifndef QT_NO_QWS_MANAGER
@@ -745,11 +745,11 @@ void QWidget::show_sys()
         }
 #endif
         qwsDisplay()->requestRegion(winId(), r);
-        if (!testWFlags(WStyle_Tool)) {
+        if (!testWFlags(Qt::WStyle_Tool)) {
             qwsDisplay()->requestFocus(winId(),true);
         }
         qwsDisplay()->setAltitude(winId(),
-                testWFlags(WStyle_StaysOnTop) ? 1 : 0, true);
+                testWFlags(Qt::WStyle_StaysOnTop) ? 1 : 0, true);
 
     } else if (!topLevelWidget()->data->in_show) {
         updateRequestedRegion(mapToGlobal(QPoint(0,0)));
@@ -769,7 +769,7 @@ void QWidget::hide_sys()
     if (data->req_region.isEmpty())        // Already invisible?
         return;
 
-    if (testWFlags(WType_TopLevel)) {
+    if (testWFlags(Qt::WType_TopLevel)) {
         releaseMouse();
         qwsDisplay()->requestRegion(winId(), QRegion());
         qwsDisplay()->requestFocus(winId(),false);
@@ -806,13 +806,13 @@ void QWidget::setWindowState(uint newstate)
 {
     uint oldstate = effectiveState(data->widget_state);
 
-    data->widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
-    if (newstate & WindowMinimized)
-        data->widget_state |= WState_Minimized;
-    if (newstate & WindowMaximized)
-        data->widget_state |= WState_Maximized;
-    if (newstate & WindowFullScreen)
-        data->widget_state |= WState_FullScreen;
+    data->widget_state &= ~(Qt::WState_Minimized | Qt::WState_Maximized | Qt::WState_FullScreen);
+    if (newstate & Qt::WindowMinimized)
+        data->widget_state |= Qt::WState_Minimized;
+    if (newstate & Qt::WindowMaximized)
+        data->widget_state |= Qt::WState_Maximized;
+    if (newstate & Qt::WindowFullScreen)
+        data->widget_state |= Qt::WState_FullScreen;
 
     uint state = effectiveState(data->widget_state);
 
@@ -821,20 +821,20 @@ void QWidget::setWindowState(uint newstate)
         d->createTLExtra();
         if (oldstate == 0) { //normal
             d->topData()->normalGeometry = geometry();
-        } else if (oldstate == WState_FullScreen) {
+        } else if (oldstate == Qt::WState_FullScreen) {
             reparent(0, d->topData()->savedFlags, QPoint(0,0));
             needShow = true;
-        } else if (oldstate == WState_Minimized) {
+        } else if (oldstate == Qt::WState_Minimized) {
             needShow = true;
         }
 
-        if (state == WState_Minimized) {
+        if (state == Qt::WState_Minimized) {
             //### not ideal...
             hide();
             needShow = false;
-        } else if (state == WState_FullScreen) {
+        } else if (state == Qt::WState_FullScreen) {
             d->topData()->savedFlags = getWFlags();
-            reparent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+            reparent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
                       // preserve some widget flags
                       (getWFlags() & 0xffff0000),
                       QPoint(0, 0));
@@ -843,7 +843,7 @@ void QWidget::setWindowState(uint newstate)
             resize(screen.size());
             raise();
             needShow = true;
-        } else if (state == WState_Maximized) {
+        } else if (state == Qt::WState_Maximized) {
             data->in_show_maximized = 1;
 #ifndef QT_NO_QWS_MANAGER
             if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
@@ -864,7 +864,7 @@ void QWidget::setWindowState(uint newstate)
     if (needShow)
         show();
 
-    if (newstate & WindowActive)
+    if (newstate & Qt::WindowActive)
         setActiveWindow();
 
     QEvent e(QEvent::WindowStateChange);
@@ -880,12 +880,12 @@ void QWidget::raise()
     }
     if (isTopLevel()) {
 #ifdef QT_NO_WINDOWGROUPHINT
-        if (!testWFlags(WStyle_Tool))
+        if (!testWFlags(Qt::WStyle_Tool))
             setActiveWindow();
         qwsDisplay()->setAltitude(winId(), 0);
 #else
         QWidget* act=0;
-        if (!testWFlags(WStyle_Tool))
+        if (!testWFlags(Qt::WStyle_Tool))
             act=this;
         qwsDisplay()->setAltitude(winId(), 0);
 
@@ -905,11 +905,11 @@ void QWidget::raise()
                 QWidget *w = toraise.at(i);
 
                 if (w->isVisible()) {
-                    bool wastool = w->testWFlags(WStyle_Tool);
-                    w->setWFlags(WStyle_Tool); // avoid setActiveWindow flicker
+                    bool wastool = w->testWFlags(Qt::WStyle_Tool);
+                    w->setWFlags(Qt::WStyle_Tool); // avoid setActiveWindow flicker
                     w->raise();
                     if (!wastool) {
-                        w->clearWFlags(WStyle_Tool);
+                        w->clearWFlags(Qt::WStyle_Tool);
                         act = w;
                     }
                 }
@@ -1009,17 +1009,17 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
 
     if (!data->in_show_maximized && !r.contains(geometry())) // eg. might not FIT in max window rect
-        clearWState(WState_Maximized);
+        clearWState(Qt::WState_Maximized);
 
     QPoint oldPos = pos();
     data->crect = r;
 
-    if (testWFlags(WType_Desktop))
+    if (testWFlags(Qt::WType_Desktop))
         return;
 
     if (isTopLevel()) {
         //### ConfigPending not implemented, do we need it?
-        //setWState(WState_ConfigPending);
+        //setWState(Qt::WState_ConfigPending);
         if (isMove && (w==olds.width() && h==olds.height())) {
             // just need to translate current region
             QSize s(qt_screen->width(), qt_screen->height());
@@ -1166,9 +1166,9 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         dirtyChildren = QRegion();
     } else {
         if (isMove && pos() != oldPos)
-            setAttribute(WA_PendingMoveEvent, true);
+            setAttribute(Qt::WA_PendingMoveEvent, true);
         if (isResize)
-            setAttribute(WA_PendingResizeEvent, true);
+            setAttribute(Qt::WA_PendingResizeEvent, true);
     }
 }
 
@@ -1231,7 +1231,7 @@ void QWidget::setSizeIncrement(int w, int h)
         return;
     x->incw = w;
     x->inch = h;
-    if (testWFlags(WType_TopLevel)) {
+    if (testWFlags(Qt::WType_TopLevel)) {
         // XXX ...
     }
 }
@@ -1244,7 +1244,7 @@ void QWidget::setBaseSize(int basew, int baseh)
         return;
     x->basew = basew;
     x->baseh = baseh;
-    if (testWFlags(WType_TopLevel)) {
+    if (testWFlags(Qt::WType_TopLevel)) {
         // XXX
     }
 }
@@ -1256,7 +1256,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (testWState(WState_BlockUpdates) && children().isEmpty())
+    if (testWState(Qt::WState_BlockUpdates) && children().isEmpty())
         return;
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();
@@ -1388,17 +1388,17 @@ void QWidgetPrivate::deleteTLSysExtra()
 
 bool QWidget::acceptDrops() const
 {
-    return testWState(WState_DND);
+    return testWState(Qt::WState_DND);
 }
 
 void QWidget::setAcceptDrops(bool on)
 {
-    if (!!testWState(WState_DND) != on) {
+    if (!!testWState(Qt::WState_DND) != on) {
         if (1/*XXX qt_xdnd_enable(this, on)*/) {
             if (on)
-                setWState(WState_DND);
+                setWState(Qt::WState_DND);
             else
-                clearWState(WState_DND);
+                clearWState(Qt::WState_DND);
         }
     }
 }
@@ -1432,7 +1432,7 @@ void QWidget::updateOverlappingChildren() const
 void QWidget::updateRequestedRegion(const QPoint &gpos)
 {
     if (!isTopLevel()) {
-        if (!testWState(WState_Visible) || testWState(WState_ForceHide)) {
+        if (!testWState(Qt::WState_Visible) || testWState(Qt::WState_ForceHide)) {
             data->req_region = QRegion();
         } else {
             data->req_region = QRect(gpos,data->crect.size());

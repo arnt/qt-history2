@@ -415,7 +415,7 @@ void QPocketPCStyle::polish(QWidget *w)
             w->setBackgroundMode(Qt::PaletteBackground);
             QToolBar *tb = 0;
             if ((tb = ::qt_cast<QToolBar*>(w)))
-                tb->boxLayout()->setAlignment(AlignLeft);
+                tb->boxLayout()->setAlignment(Qt::AlignLeft);
         } else if (::qt_cast<QToolButton*>(w) &&
                     ::qt_cast<QToolBar*>(w->parentWidget())) {
             w->setBackgroundMode(Qt::PaletteBackground);
@@ -483,7 +483,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
             const QSlider *sl = (const QSlider *)widget;
             QSlider::TickSetting ticktype = sl->tickmarks();
             int n = 0;
-            int space = (sl->orientation() == Horizontal)
+            int space = (sl->orientation() == Qt::Horizontal)
                         ? sl->height() : sl->width();
 
             if (ticktype & QSlider::Above) n++;
@@ -509,7 +509,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
 
             const QSlider * sl = (const QSlider *) widget;
             QSlider::TickSetting ticktype = sl->tickmarks();
-            int space = (sl->orientation() == Horizontal)
+            int space = (sl->orientation() == Qt::Horizontal)
                         ? sl->height() : sl->width();
             int thickness = PM_SLIDERTHICKNESS; // pixelMetric(PM_SliderControlThickness, sl);
             if (ticktype == QSlider::Both)
@@ -526,7 +526,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
             if (!widget) break; // Don't know
 
             const QSlider * sl = (const QSlider *) widget;
-            if (sl->orientation() == Horizontal)
+            if (sl->orientation() == Qt::Horizontal)
                 ret = sl->width() - PM_SLIDERLENGTH; // pixelMetric(PM_SliderLength, sl);
             else
                 ret = sl->height() - PM_SLIDERLENGTH; //pixelMetric(PM_SliderLength, sl);
@@ -677,7 +677,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
-        if (widget && (widget->testWFlags(WStyle_Tool) || ::qt_cast<QDockWindow*>(widget))) {
+        if (widget && (widget->testWFlags(Qt::WStyle_Tool) || ::qt_cast<QDockWindow*>(widget))) {
             // MS always use one less than they say
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
         } else {
@@ -772,7 +772,7 @@ int QPocketPCStyle::styleHint(StyleHint                  stylehint,
     case SH_Menu_Scrollable:
     // Cursor blinks when text is selected
     case SH_BlinkCursorWhenTextSelected:
-    // RichText selections extend the full width of the document
+    // Qt::RichText selections extend the full width of the document
     case SH_RichText_FullWidthSelection:
     // Toolbox page is bolded (rarely used on CE)
     case SH_ToolBox_SelectedPageTitleBold:
@@ -818,10 +818,10 @@ int QPocketPCStyle::styleHint(StyleHint                  stylehint,
 
     // For special widget cases, use the windows behavior
     case SH_GUIStyle:
-        ret = WindowsStyle;
+        ret = Qt::WindowsStyle;
         break;
 
-    // Scrollbars have PaletteBase as their background
+    // Scrollbars have Qt::PaletteBase as their background
     case SH_ScrollBar_BackgroundMode:
         ret = QPalette::Base;
         break;
@@ -955,7 +955,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             const QDialogButtons *dbtns = (const QDialogButtons *) widget;
             int start = fw;
 
-            if (dbtns->orientation() == Horizontal)
+            if (dbtns->orientation() == Qt::Horizontal)
                 start = wrect.right() - fw;
 
             QDialogButtons::Button btns[] =
@@ -969,7 +969,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
                 if (dbtns->isButtonVisible(btns[i])) {
                     QSize szH = dbtns->sizeHint(btns[i]);
                     int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
-                    if(dbtns->orientation() == Horizontal) {
+                    if(dbtns->orientation() == Qt::Horizontal) {
                         start -= mwidth;
                         if(cnt)
                             start -= bspace;
@@ -979,7 +979,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
                     }
                     cnt++;
                     if (btns[i] == srch) {
-                        if (dbtns->orientation() == Horizontal)
+                        if (dbtns->orientation() == Qt::Horizontal)
                             return QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
                         else
                             return QRect(fw, start, mwidth, mheight);
@@ -987,7 +987,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
                 }
             }
             if(r == SR_DialogButtonCustom) {
-                if(dbtns->orientation() == Horizontal)
+                if(dbtns->orientation() == Qt::Horizontal)
                     return QRect(fw, fw, start - fw - bspace, wrect.height() - (fw*2));
                 else
                     return QRect(fw, start, wrect.width() - (fw*2), wrect.height() - start - (fw*2));
@@ -1050,7 +1050,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             // don't create a painter if we have an active one
             QPainter *p = activePainter ? 0 : new QPainter(checkbox);
             rect = itemRect((activePainter ? activePainter : p),
-                            cr, AlignLeft | AlignVCenter | ShowPrefix,
+                            cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
                             checkbox->isEnabled(),
                             checkbox->pixmap(),
                             checkbox->text());
@@ -1094,7 +1094,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             // don't create a painter if we have an active one
             QPainter *p = activePainter ? 0 : new QPainter(radiobutton);
             rect = itemRect((activePainter ? activePainter : p),
-                            cr, AlignLeft | AlignVCenter | ShowPrefix,
+                            cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
                             radiobutton->isEnabled(),
                             radiobutton->pixmap(),
                             radiobutton->text());
@@ -1121,7 +1121,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             if (!dw->area() || !dw->isCloseEnabled())
                 rect.setRect(0, 0, widget->width(), widget->height());
             else {
-                if (dw->area()->orientation() == Horizontal)
+                if (dw->area()->orientation() == Qt::Horizontal)
                     rect.setRect(0, 15, widget->width(), widget->height() - 15);
                 else
                     rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
@@ -1309,7 +1309,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
             const int bwidth = PM_DIALOGBUTTONSBUTTONWIDTH, // pixelMetric(PM_DialogButtonsButtonWidth, widget),
                     bspace = PM_DIALOGBUTTONSSEPARATOR, // pixelMetric(PM_DialogButtonsSeparator, widget),
                     bheight = PM_DIALOGBUTTONSBUTTONHEIGHT; // pixelMetric(PM_DialogButtonsButtonHeight, widget);
-            if(dbtns->orientation() == Horizontal) {
+            if(dbtns->orientation() == Qt::Horizontal) {
                 if(!w)
                     w = bwidth;
             } else {
@@ -1323,7 +1323,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
                 if(dbtns->isButtonVisible(btns[i])) {
                     QSize szH = dbtns->sizeHint(btns[i]);
                     int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
-                    if(dbtns->orientation() == Horizontal)
+                    if(dbtns->orientation() == Qt::Horizontal)
                         h = qMax(h, mheight);
                     else
                         w = qMax(w, mwidth);
@@ -1331,7 +1331,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
                     if(cnt)
                         w += bspace;
                     cnt++;
-                    if(dbtns->orientation() == Horizontal)
+                    if(dbtns->orientation() == Qt::Horizontal)
                         w += mwidth;
                     else
                         h += mheight;
@@ -1419,12 +1419,12 @@ QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
                 ctrl <<= 1;
             }
             if (titlebar->window()) {
-                if (ret == SC_TitleBarMaxButton && titlebar->testWFlags(WStyle_Tool)) {
+                if (ret == SC_TitleBarMaxButton && titlebar->testWFlags(Qt::WStyle_Tool)) {
                     if (titlebar->window()->isMinimized())
                         ret = SC_TitleBarUnshadeButton;
                     else
                         ret = SC_TitleBarShadeButton;
-                } else if (ret == SC_TitleBarMinButton && !titlebar->testWFlags(WStyle_Tool)) {
+                } else if (ret == SC_TitleBarMinButton && !titlebar->testWFlags(Qt::WStyle_Tool)) {
                     if (titlebar->window()->isMinimized())
                         ret = QStyle::SC_TitleBarNormalButton;
                 }
@@ -1579,14 +1579,14 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
                     int sliderPos  = sl->sliderStart();
                     int len        = PM_SLIDERLENGTH; // pixelMetric(PM_SliderLength, sl);
 
-                    if (sl->orientation() == Horizontal)
+                    if (sl->orientation() == Qt::Horizontal)
                         return QRect(sliderPos, tickOffset, len, thickness);
                     return QRect(tickOffset, sliderPos, thickness, len);
                 }
 
             case SC_SliderGroove:
                 {
-                    if (sl->orientation() == Horizontal)
+                    if (sl->orientation() == Qt::Horizontal)
                         return QRect(0, tickOffset, sl->width(), thickness*2);
                     return QRect(tickOffset, 0, thickness, sl->height());
                 }
@@ -1632,17 +1632,17 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
             case SC_TitleBarLabel: {
                 const QTitleBar *titlebar = (QTitleBar*)widget;
                 QRect ir(0, 0, titlebar->width(), titlebar->height());
-                if (titlebar->testWFlags(WStyle_Tool)) {
-                    if (titlebar->testWFlags(WStyle_SysMenu))
+                if (titlebar->testWFlags(Qt::WStyle_Tool)) {
+                    if (titlebar->testWFlags(Qt::WStyle_SysMenu))
                         ir.addCoords(0, 0, -controlHeight-3, 0);
-                    if (titlebar->testWFlags(WStyle_MinMax))
+                    if (titlebar->testWFlags(Qt::WStyle_MinMax))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
                 } else {
-                    if (titlebar->testWFlags(WStyle_SysMenu))
+                    if (titlebar->testWFlags(Qt::WStyle_SysMenu))
                         ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
-                    if (titlebar->testWFlags(WStyle_Minimize))
+                    if (titlebar->testWFlags(Qt::WStyle_Minimize))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
-                    if (titlebar->testWFlags(WStyle_Maximize))
+                    if (titlebar->testWFlags(Qt::WStyle_Maximize))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
                 }
                 return ir; }
@@ -1660,7 +1660,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
             case SC_TitleBarMinButton:
             case SC_TitleBarNormalButton: {
                 int offset = controlHeight + controlTop;
-                if (!titlebar->testWFlags(WStyle_Maximize))
+                if (!titlebar->testWFlags(Qt::WStyle_Maximize))
                     offset *= 2;
                 else
                     offset *= 3;
@@ -1755,16 +1755,16 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_PanelDockWindow:
         {
             switch (findLocation(p)) {
-            case DockTop:
+            case Qt::DockTop:
                 p->drawLine(r.bottomLeft(), r.bottomRight());
                 break;
-            case DockBottom:
+            case Qt::DockBottom:
                 p->drawLine(r.topLeft(), r.topRight());
                 break;
-            case DockLeft:
+            case Qt::DockLeft:
                 p->drawLine(r.topRight(), r.bottomRight());
                 break;
-            case DockRight:
+            case Qt::DockRight:
                 p->drawLine(r.topLeft(), r.bottomLeft());
                 break;
             }
@@ -1775,16 +1775,16 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_PanelMenuBar:
         {
             switch (findLocation(p)) {
-            case DockTop:
+            case Qt::DockTop:
                 p->drawLine(r.bottomLeft(), r.bottomRight());
                 break;
-            case DockBottom:
+            case Qt::DockBottom:
                 p->drawLine(r.topLeft(), r.topRight());
                 break;
-            case DockLeft:
+            case Qt::DockLeft:
                 p->drawLine(r.topRight(), r.bottomRight());
                 break;
-            case DockRight:
+            case Qt::DockRight:
                 p->drawLine(r.topLeft(), r.bottomLeft());
                 break;
             }
@@ -1827,7 +1827,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 
     case PE_Separator:
         {
-            p->setBrush(NoBrush);
+            p->setBrush(Qt::NoBrush);
             p->setPen(pal.background());
             p->drawRect(r);
             break;
@@ -1850,7 +1850,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             QBrush oldBrush = p->brush();
 
             p->setPen(drawColor);
-            p->setBrush(NoBrush);
+            p->setBrush(Qt::NoBrush);
             p->drawRect(r);
 
             p->setPen(oldPen);
@@ -2057,7 +2057,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             a.translate(x, y);
             p->drawPolyline(a);
             if (flags & Style_On) {
-                p->setPen(NoPen);
+                p->setPen(Qt::NoPen);
                 p->setBrush(pal.text());
                 p->drawRect(x+5, y+4, 2, 4);
                 p->drawRect(x+4, y+5, 4, 2);
@@ -2102,14 +2102,14 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 
     case PE_IndicatorMask:
         {
-            p->fillRect(r, color1);
+            p->fillRect(r, Qt::color1);
             break;
         }
 
     case PE_ExclusiveIndicatorMask:
         {
-            p->setPen(color1);
-            p->setBrush(color1);
+            p->setPen(Qt::color1);
+            p->setBrush(Qt::color1);
             p->drawEllipse(r);
             break;
         }
@@ -2338,7 +2338,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             if (t->identifier() == tb->currentTab())
                 tr.setBottom(tr.bottom() - PM_DEFAULTFRAMEWIDTH); // pixelMetric(QStyle::PM_DefaultFrameWidth, tb));
 
-            drawItem(p, tr, AlignCenter | ShowPrefix, pal, tb->isEnabled() &&
+            drawItem(p, tr, Qt::AlignCenter | Qt::ShowPrefix, pal, tb->isEnabled() &&
                       t->isEnabled(), 0, t->text());
 
             //if (has_focus)
@@ -2395,7 +2395,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                     qDrawShadePanel(p, xpos, y, checkcol, h,
                                      pal, true, 1, &pal.brush(QPalette::Button));
                 else {
-                    QBrush fill(pal.light(), Dense4Pattern);
+                    QBrush fill(pal.light(), Qt::Dense4Pattern);
                     qDrawShadePanel(p, xpos, y, checkcol, h, pal, true, 1,
                                      &fill);
                 }
@@ -2473,7 +2473,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = CE_ITEMVMARGIN;
-                const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+                const int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
                 if (t >= 0) {                         // draw tab text
                     int xp;
                     xp = x + w - tab - CE_RIGHTBORDER - CE_ITEMHMARGIN -
@@ -2495,10 +2495,10 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             } else if (mi->pixmap()) {                        // draw pixmap
                 QPixmap *pixmap = mi->pixmap();
                 if (pixmap->depth() == 1)
-                    p->setBackgroundMode(OpaqueMode);
+                    p->setBackgroundMode(Qt::OpaqueMode);
                 p->drawPixmap(xpos, y+CE_ITEMFRAME, *pixmap);
                 if (pixmap->depth() == 1)
-                    p->setBackgroundMode(TransparentMode);
+                    p->setBackgroundMode(Qt::TransparentMode);
             }
             if (mi->popup()) {                        // draw sub menu arrow
                 int dim = (h-2*CE_ITEMFRAME) / 2;
@@ -2552,7 +2552,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, pal,
+            drawItem(p, r, Qt::AlignCenter|Qt::ShowPrefix|Qt::DontClip|Qt::SingleLine, pal,
                       mi->isEnabled(), pix.isNull() ? 0 : &pix, mi->text(), -1,
                       &pal.color(QPalette::ButtonText));
             //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
@@ -2586,7 +2586,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 break;
 
             Q3MenuItem *mi = opt.menuItem();
-            drawItem(p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, pal,
+            drawItem(p, r, Qt::AlignCenter|Qt::ShowPrefix|Qt::DontClip|Qt::SingleLine, pal,
                       mi->isEnabled(), mi->pixmap(), mi->text(), -1,
                       &pal.color(QPalette::ButtonText));
             //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
@@ -2626,8 +2626,8 @@ void QPocketPCStyle::drawControl(ControlElement             control,
         {
             const QCheckBox *checkbox = (const QCheckBox *) widget;
 
-            int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
+            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
                      flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
             if (checkbox->hasFocus()) {
@@ -2667,8 +2667,8 @@ void QPocketPCStyle::drawControl(ControlElement             control,
         {
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
-            int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
+            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::ShowPrefix, pal,
                      flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
             if (radiobutton->hasFocus()) {
@@ -2732,7 +2732,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
     case CE_ProgressBarLabel:
         {
             const QProgressBar *progressbar = (const QProgressBar *) widget;
-            drawItem(p, r, AlignCenter | SingleLine, pal, progressbar->isEnabled(), 0,
+            drawItem(p, r, Qt::AlignCenter | Qt::SingleLine, pal, progressbar->isEnabled(), 0,
                      progressbar->progressString());
         }
         break;
@@ -2778,7 +2778,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 ir.setWidth(ir.width() - mbi);
             }
 
-            int tf=AlignVCenter | ShowPrefix;
+            int tf=Qt::AlignVCenter | Qt::ShowPrefix;
 #ifndef QT_NO_ICONSET
             if (button->iconSet() && ! button->iconSet()->isNull()) {
                 QIconSet::Mode mode =
@@ -2804,12 +2804,12 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 ir.setWidth(ir.width() - (pixw + 4));
                 // left-align text if there is
                 if (!button->text().isEmpty())
-                    tf |= AlignLeft;
+                    tf |= Qt::AlignLeft;
                 else if (button->pixmap())
-                    tf |= AlignHCenter;
+                    tf |= Qt::AlignHCenter;
             } else
 #endif //QT_NO_ICONSET
-                tf |= AlignHCenter;
+                tf |= Qt::AlignHCenter;
             drawItem(p, ir, tf, pal,
                      flags & Style_Enabled, button->pixmap(), button->text(),
                      button->text().length(), (flags & Style_Sunken) ? &(pal.color(QPalette::Base)) : &(pal.color(QPalette::ButtonText)));
@@ -2850,7 +2850,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 if (toolbutton->iconSet().isNull() &&
                     ! toolbutton->text().isNull() &&
                     ! toolbutton->usesTextLabel()) {
-                    drawItem(p, rect, AlignCenter | ShowPrefix, pal,
+                    drawItem(p, rect, Qt::AlignCenter | Qt::ShowPrefix, pal,
                              flags & Style_Enabled, 0, toolbutton->text(),
                              toolbutton->text().length(), &btext);
                 } else {
@@ -2876,8 +2876,8 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                             int fh = p->fontMetrics().height();
                             pr.addCoords(0, 1, 0, -fh-3);
                             tr.addCoords(0, pr.bottom(), 0, -3);
-                            drawItem(p, pr, AlignCenter, pal, true, &pm, QString::null);
-                            drawItem(p, tr, AlignCenter | ShowPrefix, pal,
+                            drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
+                            drawItem(p, tr, Qt::AlignCenter | Qt::ShowPrefix, pal,
                                       flags & Style_Enabled, 0, toolbutton->textLabel(),
                                       toolbutton->textLabel().length(), &btext);
                         } else {
@@ -2886,13 +2886,13 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                             QRect pr = rect, tr = rect;
                             pr.setWidth(pm.width() + 8);
                             tr.addCoords(pr.right(), 0, 0, 0);
-                            drawItem(p, pr, AlignCenter, pal, true, &pm, QString::null);
-                            drawItem(p, tr, AlignLeft | AlignVCenter | ShowPrefix, pal,
+                            drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
+                            drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix, pal,
                                       flags & Style_Enabled, 0, toolbutton->textLabel(),
                                       toolbutton->textLabel().length(), &btext);
                         }
                     } else {
-                        drawItem(p, rect, AlignCenter, pal, true, &pm, QString::null);
+                        drawItem(p, rect, Qt::AlignCenter, pal, true, &pm, QString::null);
                     }
                 }
             }
@@ -2919,12 +2919,12 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
                     QRect pixRect = rect;
                     pixRect.setY(rect.center().y() - (pixh - 1) / 2);
-                    drawItem (p, pixRect, AlignVCenter, pal, flags & Style_Enabled,
+                    drawItem (p, pixRect, Qt::AlignVCenter, pal, flags & Style_Enabled,
                             &pixmap, QString::null);
                     rect.setLeft(rect.left() + pixw + 2);
                 }
 
-                drawItem (p, rect, AlignVCenter, pal, flags & Style_Enabled,
+                drawItem (p, rect, Qt::AlignVCenter, pal, flags & Style_Enabled,
                         0, header->label(section), -1, &(pal.color(QPalette::ButtonText)));
                 break;
             }
@@ -2935,16 +2935,16 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             {
                 p->fillRect(r, pal.background());
                 switch (findLocation(p)) {
-                case DockTop:
+                case Qt::DockTop:
                     p->drawLine(r.bottomLeft(), r.bottomRight());
                     break;
-                case DockBottom:
+                case Qt::DockBottom:
                     p->drawLine(r.topLeft(), r.topRight());
                     break;
-                case DockLeft:
+                case Qt::DockLeft:
                     p->drawLine(r.topRight(), r.bottomRight());
                     break;
-                case DockRight:
+                case Qt::DockRight:
                     p->drawLine(r.topLeft(), r.bottomLeft());
                     break;
                 }
@@ -2974,7 +2974,7 @@ void QPocketPCStyle::drawControlMask(ControlElement         control,
     activePainter = p;
 
     // Only use two colors to create a mask
-    QPalette pal(color1, color1, color1, color1, color1, color1, color1, color1, color0);
+    QPalette pal(Qt::color1, color1, color1, color1, color1, color1, color1, color1, Qt::color0);
 
     switch (control) {
     // Common Style =====================================================================
@@ -2994,7 +2994,7 @@ void QPocketPCStyle::drawControlMask(ControlElement         control,
 
     // --- Catch unknown elements ---
     default:
-        p->fillRect(r, color1);
+        p->fillRect(r, Qt::color1);
         // This debug message is only here to make sure we handle the complete style properly
         // We might remove this debug message before a full release
         qDebug("*** Not Implemented Yet ***  drawControlMask(control[0x%08x], p, w, r, opt[0x%08x])", control, opt);
@@ -3203,7 +3203,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     int i;
                     for(i=0; i<64; i++)
                         a.setPoint(i, 0, i*2+1);
-                    p.setPen(color1);
+                    p.setPen(Qt::color1);
                     p.drawPoints(a);
                     p.end();
                     //QApplication::flushX();
@@ -3211,7 +3211,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     p.begin(horizontalLine);
                     for(i=0; i<64; i++)
                         a.setPoint(i, i*2+1, 0);
-                    p.setPen(color1);
+                    p.setPen(Qt::color1);
                     p.drawPoints(a);
                     p.end();
                     //QApplication::flushX();
@@ -3273,7 +3273,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 int len   = PM_SLIDERLENGTH; // pixelMetric(PM_SliderLength, sl);
                 int x, y, wi, he;
 
-                if (sl->orientation() == Horizontal) {
+                if (sl->orientation() == Qt::Horizontal) {
                     x = 0;
                     y = tickOffset;
                     wi = sl->width();
@@ -3291,7 +3291,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     mid -= len / 8;
 
                 p->setPen(pal.foreground());
-                if (sl->orientation() == Horizontal)
+                if (sl->orientation() == Qt::Horizontal)
                     p->drawRect(x, y + mid - 2,  wi, 4);
                 else
                     p->drawRect(x + mid - 2, y, 4, he);
@@ -3322,7 +3322,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     int v = sl->minValue();
                     while (v <= sl->maxValue() + 1) {
                         pos = qPositionFromValue(sl, v, available) + fudge;
-                        if (sl->orientation() == Horizontal)
+                        if (sl->orientation() == Qt::Horizontal)
                             p->drawLine(pos, 0, pos, tickOffset-2);
                         else
                             p->drawLine(0, pos, tickOffset-2, pos);
@@ -3334,7 +3334,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     int v = sl->minValue();
                     while (v <= sl->maxValue() + 1) {
                         pos = qPositionFromValue(sl, v, available) + fudge;
-                        if (sl->orientation() == Horizontal)
+                        if (sl->orientation() == Qt::Horizontal)
                             p->drawLine(pos, tickOffset+thickness+1, pos, tickOffset+thickness+1 + available-2);
                         else
                             p->drawLine(tickOffset+thickness+1, pos, tickOffset+thickness+1 + available-2, pos);
@@ -3357,7 +3357,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
 
                 bool reverse       = QApplication::reverseLayout();
-                Orientation orient = sl->orientation();
+                Qt::Orientation orient = sl->orientation();
                 const QColor c0    = sl->palette().color(QPalette::Background);
                 const QColor c1    = sl->palette().color(QPalette::Foreground);
                 bool tickAbove     = sl->tickmarks() == QSlider::Above;
@@ -3386,7 +3386,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
                 SliderDir dir;
 
-                if (orient == Horizontal)
+                if (orient == Qt::Horizontal)
                     if (tickAbove)
                         dir = SlUp;
                     else
@@ -3425,7 +3425,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
                 //QBrush oldBrush = p->brush();
                 //p->setBrush(pal.brush(QPalette::Button));
-                //p->setPen(NoPen);
+                //p->setPen(Qt::NoPen);
                 //p->drawRect(x1, y1, x2-x1+1, y2-y1+1);
                 p->drawPolygon(a);
 //                p->setBrush(oldBrush);
@@ -3654,16 +3654,16 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 // Keep line, if docked and not movable (movable have frame)
                 if (tb && !tb->isMovingEnabled()) {
                     switch (findLocation(toolbutton->parentWidget())) {
-                    case DockTop:
+                    case Qt::DockTop:
                         p->drawLine(r.bottomLeft(), r.bottomRight());
                         break;
-                    case DockBottom:
+                    case Qt::DockBottom:
                         p->drawLine(r.topLeft(), r.topRight());
                         break;
-                    case DockLeft:
+                    case Qt::DockLeft:
                         p->drawLine(r.topRight(), r.bottomRight());
                         break;
-                    case DockRight:
+                    case Qt::DockRight:
                         p->drawLine(r.topLeft(), r.bottomLeft());
                         break;
                     }
@@ -3735,7 +3735,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
                 p->setPen(titlePal.highlightedText());
                 p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
-                            AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText());
+                            Qt::AlignAuto | Qt::AlignVCenter | Qt::SingleLine, titlebar->visibleText());
             }
 
             QRect ir;
@@ -3745,7 +3745,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             if (sub & SC_TitleBarCloseButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarCloseButton), widget);
                 down = subActive & SC_TitleBarCloseButton;
-                if (widget->testWFlags(WStyle_Tool)
+                if (widget->testWFlags(Qt::WStyle_Tool)
 #ifndef QT_NO_MAINWINDOW
                      || ::qt_cast<QDockWindow*>(widget)
 #endif
@@ -3760,7 +3760,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 if(down)
                     p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
                                  PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
-                drawItem(p, ir, AlignCenter, titlebar->palette(), true, &pm, QString::null);
+                drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &pm, QString::null);
                 p->restore();
             }
 
@@ -3777,7 +3777,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     if(down)
                         p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
                                      PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
-                    drawItem(p, ir, AlignCenter, titlebar->palette(), true, &pm, QString::null);
+                    drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &pm, QString::null);
                     p->restore();
                 }
 
@@ -3798,7 +3798,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     if(down)
                         p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
                                      PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
-                    drawItem(p, ir, AlignCenter, titlebar->palette(), true, &pm, QString::null);
+                    drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &pm, QString::null);
                     p->restore();
                 }
 
@@ -3813,7 +3813,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     if(down)
                         p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
                                      PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
-                    drawItem(p, ir, AlignCenter, titlebar->palette(), true, &pm, QString::null);
+                    drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &pm, QString::null);
                     p->restore();
                 }
 
@@ -3828,7 +3828,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     if(down)
                         p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
                                      PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
-                    drawItem(p, ir, AlignCenter, titlebar->palette(), true, &pm, QString::null);
+                    drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &pm, QString::null);
                     p->restore();
                 }
             }
@@ -3836,7 +3836,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             if (sub & SC_TitleBarSysMenu) {
                 if (!titlebar->windowIcon().isNull()) {
                     ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarSysMenu), widget);
-                    drawItem(p, ir, AlignCenter, titlebar->palette(), true, &(titlebar->windowIcon()), QString::null);
+                    drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &(titlebar->windowIcon()), QString::null);
                 }
             }
 #endif
@@ -3868,7 +3868,7 @@ void QPocketPCStyle::drawComplexControlMask(ComplexControl      complex,
     switch (complex) {
     // --- Catch unknown elements ---
     default:
-        p->fillRect(r, color1);
+        p->fillRect(r, Qt::color1);
         // This debug message is only here to make sure we handle the complete style properly
         // We might remove this debug message before a full release
         qDebug("*** Not Implemented Yet ***  drawComplexControlMask(control[0x%08x], p, w, r, opt[0x%08x])", complex, opt);

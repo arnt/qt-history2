@@ -24,23 +24,23 @@ class Q_GUI_EXPORT QPen: public Qt
 {
 public:
     QPen();
-    QPen(PenStyle);
-    QPen(const QColor &color, int width = 0, PenStyle style = SolidLine);
-    QPen(const QColor &cl, int width, PenStyle s, PenCapStyle c, PenJoinStyle j);
+    QPen(Qt::PenStyle);
+    QPen(const QColor &color, int width = 0, Qt::PenStyle style = Qt::SolidLine);
+    QPen(const QColor &cl, int width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j);
     QPen(const QPen &pen);
    ~QPen();
     QPen &operator=(const QPen &pen);
 
-    inline PenStyle style() const { return d->style; }
-    void setStyle(PenStyle);
+    inline Qt::PenStyle style() const { return d->style; }
+    void setStyle(Qt::PenStyle);
     inline int width() const { return d->width; }
     void setWidth(int width);
     inline QColor color() const { return d->color; }
     void setColor(const QColor &color);
-    PenCapStyle        capStyle() const;
-    void setCapStyle(PenCapStyle pcs);
-    PenJoinStyle joinStyle() const;
-    void setJoinStyle(PenJoinStyle pcs);
+    Qt::PenCapStyle        capStyle() const;
+    void setCapStyle(Qt::PenCapStyle pcs);
+    Qt::PenJoinStyle joinStyle() const;
+    void setJoinStyle(Qt::PenJoinStyle pcs);
 
     bool operator==(const QPen &p) const;
     inline bool operator!=(const QPen &p) const { return !(operator==(p)); }
@@ -52,7 +52,7 @@ private:
     void init(const QColor &c, int width, uint linestyle);
     struct QPenData {
         QAtomic ref;
-        PenStyle style;
+        Qt::PenStyle style;
         int width;
         QColor color;
         Q_UINT16 linest;

@@ -805,10 +805,10 @@ bool QPixmap::load(const QString &fileName, const char *format,
     int conversion_flags = 0;
     switch (mode) {
       case Color:
-        conversion_flags |= ColorOnly;
+        conversion_flags |= Qt::ColorOnly;
         break;
       case Mono:
-        conversion_flags |= MonoOnly;
+        conversion_flags |= Qt::MonoOnly;
         break;
       default:
         break;// Nothing.
@@ -837,10 +837,10 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
     int conversion_flags = 0;
     switch (mode) {
       case Color:
-        conversion_flags |= ColorOnly;
+        conversion_flags |= Qt::ColorOnly;
         break;
       case Mono:
-        conversion_flags |= MonoOnly;
+        conversion_flags |= Qt::MonoOnly;
         break;
       default:
         break;// Nothing.
@@ -904,10 +904,10 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format,
     int conversion_flags = 0;
     switch (mode) {
       case Color:
-        conversion_flags |= ColorOnly;
+        conversion_flags |= Qt::ColorOnly;
         break;
       case Mono:
-        conversion_flags |= MonoOnly;
+        conversion_flags |= Qt::MonoOnly;
         break;
       default:
         break;// Nothing.

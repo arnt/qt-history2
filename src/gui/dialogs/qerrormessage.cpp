@@ -156,16 +156,16 @@ QErrorMessage::QErrorMessage(QWidget * parent)
 #ifndef QT_NO_MESSAGEBOX
     d->icon->setPixmap(QMessageBox::standardIcon(QMessageBox::Information));
 #endif
-    grid->addWidget(d->icon, 0, 0, AlignTop);
+    grid->addWidget(d->icon, 0, 0, Qt::AlignTop);
     d->errors = new QErrorMessageTextView(this);
     grid->addWidget(d->errors, 0, 1);
     d->again = new QCheckBox(tr("&Show this message again"), this, "again");
     d->again->setChecked(true);
-    grid->addWidget(d->again, 1, 1, AlignTop | AlignAuto);
+    grid->addWidget(d->again, 1, 1, Qt::AlignTop | Qt::AlignAuto);
     d->ok = new QPushButton(tr("&OK"), this, "ok");
     connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
     d->ok->setFocus();
-    grid->addMultiCellWidget(d->ok, 2, 2, 0, 1, AlignCenter);
+    grid->addMultiCellWidget(d->ok, 2, 2, 0, 1, Qt::AlignCenter);
     grid->setColStretch(1, 42);
     grid->setRowStretch(0, 42);
 }

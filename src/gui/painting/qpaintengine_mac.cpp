@@ -144,7 +144,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
             d->offx = wp.x();
             d->offy = wp.y();
         }
-        bool unclipped = w->testAttribute(WA_PaintUnclipped);
+        bool unclipped = w->testAttribute(Qt::WA_PaintUnclipped);
 
         if(!d->locked) {
             LockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
@@ -267,15 +267,15 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
 
     Rect rect;
     SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
-    if(d->current.brush.style() != NoBrush) {
+    if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
-        if(d->current.brush.style() == SolidPattern) {
+        if(d->current.brush.style() == Qt::SolidPattern) {
             PaintRect(&rect);
         } else {
             QPixmap *pm = 0;
             if(d->brush_style_pix) {
                 pm = d->brush_style_pix;
-                if(d->current.bg.mode == OpaqueMode) {
+                if(d->current.bg.mode == Qt::OpaqueMode) {
                     ::RGBColor f;
                     f.red = d->current.bg.brush.color().red()*256;
                     f.green = d->current.bg.brush.color().green()*256;
@@ -305,7 +305,7 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
             }
         }
     }
-    if(d->current.pen.style() != NoPen) {
+    if(d->current.pen.style() != Qt::NoPen) {
         setupQDPen();
         FrameRect(&rect);
     }
@@ -315,7 +315,7 @@ void
 QQuickDrawPaintEngine::drawPoint(const QPoint &pt)
 {
     Q_ASSERT(isActive());
-    if(d->current.pen.style() != NoPen) {
+    if(d->current.pen.style() != Qt::NoPen) {
         setupQDPort();
         if(d->clip.paintable.isEmpty())
             return;
@@ -330,7 +330,7 @@ QQuickDrawPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     Q_ASSERT(isActive());
 
-    if(d->current.pen.style() != NoPen) {
+    if(d->current.pen.style() != Qt::NoPen) {
         setupQDPort();
         if(d->clip.paintable.isEmpty())
             return;
@@ -353,11 +353,11 @@ QQuickDrawPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     Rect rect;
     SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
-    if(d->current.brush.style() == SolidPattern) {
+    if(d->current.brush.style() == Qt::SolidPattern) {
         setupQDBrush();
         PaintRoundRect(&rect, r.width()*xRnd/100, r.height()*yRnd/100);
     }
-    if(d->current.pen.style() != NoPen) {
+    if(d->current.pen.style() != Qt::NoPen) {
         setupQDPen();
         FrameRoundRect(&rect, r.width()*xRnd/100, r.height()*yRnd/100);
     }
@@ -380,15 +380,15 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
         LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
     ClosePoly();
 
-    if(close && d->current.brush.style() != NoBrush) {
+    if(close && d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
-        if(d->current.brush.style() == SolidPattern) {
+        if(d->current.brush.style() == Qt::SolidPattern) {
             PaintPoly(polyHandle);
         } else {
             QPixmap *pm = 0;
             if(d->brush_style_pix) {
                 pm = d->brush_style_pix;
-                if(d->current.bg.mode == OpaqueMode) {
+                if(d->current.bg.mode == Qt::OpaqueMode) {
                     ::RGBColor f;
                     f.red = d->current.bg.brush.color().red()*256;
                     f.green = d->current.bg.brush.color().green()*256;
@@ -420,7 +420,7 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
             }
         }
     }
-    if(d->current.pen.style() != NoPen) {
+    if(d->current.pen.style() != Qt::NoPen) {
         setupQDPen();
         FramePoly(polyHandle);
     }
@@ -438,15 +438,15 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
 
     Rect mac_r;
     SetRect(&mac_r, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
-    if(d->current.brush.style() != NoBrush) {
+    if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
-        if(d->current.brush.style() == SolidPattern) {
+        if(d->current.brush.style() == Qt::SolidPattern) {
             PaintOval(&mac_r);
         } else {
             QPixmap *pm = 0;
             if(d->brush_style_pix) {
                 pm = d->brush_style_pix;
-                if(d->current.bg.mode == OpaqueMode) {
+                if(d->current.bg.mode == Qt::OpaqueMode) {
                     ::RGBColor f;
                     f.red = d->current.bg.brush.color().red()*256;
                     f.green = d->current.bg.brush.color().green()*256;
@@ -477,7 +477,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
         }
     }
 
-    if(d->current.pen.style() != NoPen) {
+    if(d->current.pen.style() != Qt::NoPen) {
         setupQDPen();
         FrameOval(&mac_r);
     }
@@ -539,7 +539,7 @@ QQuickDrawPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoint
         else
             x2--;
     } else {
-        plot_pixel = d->current.pen.style() == SolidLine; // plot last pixel
+        plot_pixel = d->current.pen.style() == Qt::SolidLine; // plot last pixel
     }
     setupQDPort();
     if(d->clip.paintable.isEmpty())
@@ -782,11 +782,11 @@ QQuickDrawPaintEngine::setupQDBrush()
     delete d->brush_style_pix;
     d->brush_style_pix = 0;
     int bs = d->current.brush.style();
-    if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
+    if(bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         d->brush_style_pix = new QPixmap(8, 8);
         d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
         d->brush_style_pix->fill(d->current.brush.color());
-    } else if(bs == CustomPattern) {
+    } else if(bs == Qt::CustomPattern) {
         if(d->current.brush.pixmap()->isQBitmap()) {
             d->brush_style_pix = new QPixmap(d->current.brush.pixmap()->width(),
                                              d->current.brush.pixmap()->height());
@@ -1020,7 +1020,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
             d->offx = wp.x();
             d->offy = wp.y();
         }
-	bool unclipped = w->testAttribute(WA_PaintUnclipped);
+	bool unclipped = w->testAttribute(Qt::WA_PaintUnclipped);
 
         if(w->isDesktop()) {
             if(!unclipped)
@@ -1071,19 +1071,19 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     //pen style
     float *lengths = NULL;
     int count = 0;
-    if(pen.style() == DashLine) {
+    if(pen.style() == Qt::DashLine) {
         static float inner_lengths[] = { 3, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(pen.style() == DotLine) {
+    } else if(pen.style() == Qt::DotLine) {
         static float inner_lengths[] = { 1, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(pen.style() == DashDotLine) {
+    } else if(pen.style() == Qt::DashDotLine) {
         static float inner_lengths[] = { 3, 1, 1, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(pen.style() == DashDotDotLine) {
+    } else if(pen.style() == Qt::DashDotDotLine) {
         static float inner_lengths[] = { 3, 1, 1, 1, 1, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
@@ -1092,9 +1092,9 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
 
     //pencap
     CGLineCap cglinecap = kCGLineCapButt;
-    if(pen.capStyle() == SquareCap)
+    if(pen.capStyle() == Qt::SquareCap)
         cglinecap = kCGLineCapSquare;
-    else if(pen.capStyle() == RoundCap)
+    else if(pen.capStyle() == Qt::RoundCap)
         cglinecap = kCGLineCapRound;
     CGContextSetLineCap(d->hd, cglinecap);
 
@@ -1103,9 +1103,9 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
 
     //join
     CGLineJoin cglinejoin = kCGLineJoinMiter;
-    if(pen.joinStyle() == BevelJoin)
+    if(pen.joinStyle() == Qt::BevelJoin)
         cglinejoin = kCGLineJoinBevel;
-    else if(pen.joinStyle() == RoundJoin)
+    else if(pen.joinStyle() == Qt::RoundJoin)
         cglinejoin = kCGLineJoinRound;
     CGContextSetLineJoin(d->hd, cglinejoin);
 
@@ -1129,7 +1129,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
 
     //pattern
     Qt::BrushStyle bs = brush.style();
-    if(bs == LinearGradientPattern) {
+    if(bs == Qt::LinearGradientPattern) {
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)), 1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
@@ -1139,12 +1139,12 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
                                           CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
         CGColorSpaceRelease(grad_colorspace);
-    } else if(bs != SolidPattern && bs != NoBrush) {
+    } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
         int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
-        if (bs == CustomPattern) {
+        if (bs == Qt::CustomPattern) {
             qpattern->data.pixmap = brush.pixmap();
             if(qpattern->data.pixmap->isQBitmap()) {
                 const QColor &col = brush.color();
@@ -1182,7 +1182,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
         CGColorSpaceRelease(fill_colorspace);
         if(base_colorspace)
             CGColorSpaceRelease(base_colorspace);
-    } else if(bs != NoBrush) {
+    } else if(bs != Qt::NoBrush) {
         const QColor &col = brush.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                                  qt_mac_convert_color_to_cg(col.green()),

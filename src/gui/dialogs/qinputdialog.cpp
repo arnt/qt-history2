@@ -121,7 +121,7 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     d->editComboBox = new QComboBox(true, d->stack, "qt_inputdlg_editcb");
 
     QHBoxLayout *hbox = new QHBoxLayout(6);
-    vbox->addLayout(hbox, AlignRight);
+    vbox->addLayout(hbox, Qt::AlignRight);
 
     d->ok = new QPushButton(tr("OK"), this, "qt_ok_btn");
     d->ok->setDefault(true);

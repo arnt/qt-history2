@@ -709,7 +709,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
 
     // Due to a bug on Windows Me, we need to reset the current
     // directory
-    if ((qWinVersion() == WV_98 || qWinVersion() == WV_Me) && QDir::currentDirPath() != currentDir)
+    if ((qWinVersion() == Qt::WV_98 || qWinVersion() == Qt::WV_Me) && QDir::currentDirPath() != currentDir)
         QDir::setCurrent(currentDir);
 
     if (!result.isEmpty())

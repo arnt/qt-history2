@@ -55,7 +55,7 @@ QCoreVariant operator*(const QCoreVariant &arg1, int multiplier);
     QAbstractSpinBox provides a virtual stepBy() function that is
     called whenever the user triggers a step. This function takes an
     integer value to signify how many steps were taken. E.g. Pressing
-    Key_Down will trigger a call to stepBy(-1).
+    Qt::Key_Down will trigger a call to stepBy(-1).
 
     QAbstractSpinBox also provide a virtual function stepEnabled() to
     determine whether stepping up/down is allowed at any point. This
@@ -69,7 +69,7 @@ QCoreVariant operator*(const QCoreVariant &arg1, int multiplier);
 
     \l wrapping defaults to false.
     \l tracking defaults to false.
-    \l alignment defaults to AlignLeft. // ### qlocale
+    \l alignment defaults to Qt::AlignLeft. // ### qlocale
 */
 
 QAbstractSpinBox::QAbstractSpinBox(QWidget *parent, WFlags f)
@@ -301,8 +301,8 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 /*!
     Virtual function that is called when a step is whenever the user
     triggers a step. This function takes an integer value to signify
-    how many steps were taken. E.g. Pressing Key_Down will trigger a
-    call to stepBy(-1), whereas pressing Key_Prior will trigger a call
+    how many steps were taken. E.g. Pressing Qt::Key_Down will trigger a
+    call to stepBy(-1), whereas pressing Qt::Key_Prior will trigger a call
     to stepBy(10).
 
     If you subclass QAbstractSpinBox you will need to reimplement this
@@ -453,12 +453,12 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
     int steps = 1;
     switch(e->key()) {
-    case Key_Prior:
-    case Key_Next:
+    case Qt::Key_Prior:
+    case Qt::Key_Next:
 	steps *= 10;
-    case Key_Up:
-    case Key_Down: {
-	const bool up = (e->key() == Key_Prior || e->key() == Key_Up);
+    case Qt::Key_Up:
+    case Qt::Key_Down: {
+	const bool up = (e->key() == Qt::Key_Prior || e->key() == Qt::Key_Up);
 	if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
 	    return;
 	if (!up)
@@ -469,15 +469,15 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 	stepBy(steps);
 	return; }
 
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
 	d->refresh(AlwaysEmit);
 	d->edit->setSelection(d->prefix.length(), d->edit->displayText().length() - d->prefix.length() - d->suffix.length());
 	return;
 
-    case Key_Z:
-    case Key_Y:
-	if (e->state() & ControlButton) // don't allow undo/redo I guess I maybe should do somwthing in acceloverride
+    case Qt::Key_Z:
+    case Qt::Key_Y:
+	if (e->state() & Qt::ControlButton) // don't allow undo/redo I guess I maybe should do somwthing in acceloverride
 	    break;
     default: break;
     }
@@ -507,7 +507,7 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
     setFocus();
     const int steps = (e->delta() > 0 ? 1 : -1);
     if (stepEnabled() & (steps > 0 ? StepUpEnabled : StepDownEnabled))
-	stepBy(e->state() & ControlButton ? steps * 10 : steps);
+	stepBy(e->state() & Qt::ControlButton ? steps * 10 : steps);
     e->accept();
 }
 

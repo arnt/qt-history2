@@ -820,7 +820,7 @@ QApplication::Type QApplication::type() const
   Returns the active popup widget.
 
   A popup widget is a special top level widget that sets the \c
-  WType_Popup widget flag, e.g. the QPopupMenu widget. When the
+  Qt::WType_Popup widget flag, e.g. the QPopupMenu widget. When the
   application opens a popup widget, all events are sent to the popup.
   Normal widgets and modal widgets cannot be accessed before the popup
   widget is closed.
@@ -1154,8 +1154,8 @@ void QApplication::setStyle(QStyle *style)
         if (is_app_running && !is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
-                if (!w->testWFlags(WType_Desktop) &&        // except desktop
-                     w->testWState(WState_Polished)) { // has been polished
+                if (!w->testWFlags(Qt::WType_Desktop) &&        // except desktop
+                     w->testWState(Qt::WState_Polished)) { // has been polished
                     old->unPolish(w);
                 }
             }
@@ -1179,8 +1179,8 @@ void QApplication::setStyle(QStyle *style)
         if (is_app_running && !is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
-                if (!w->testWFlags(WType_Desktop)) {        // except desktop
-                    if (w->testWState(WState_Polished))
+                if (!w->testWFlags(Qt::WType_Desktop)) {        // except desktop
+                    if (w->testWState(Qt::WState_Polished))
                         app_style->polish(w);                // repolish
                     QEvent e(QEvent::StyleChange);
                     QApplication::sendEvent(w, &e);
@@ -1583,7 +1583,7 @@ void QApplication::polish(QWidget *w)
 #ifndef QT_NO_STYLE
     w->style().polish(w);
 #endif
-    w->setWState(WState_Polished);
+    w->setWState(Qt::WState_Polished);
 }
 
 
@@ -1715,7 +1715,7 @@ QFontMetrics QApplication::fontMetrics()
   \code
     // the "Quit" menu entry should try to close all windows
     QMenu* file = new Menu(this);
-    file->addAction("&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q);
+    file->addAction("&Quit", qApp, SLOT(closeAllWindows()), Qt::CTRL+Qt::Key_Q);
 
     // when the last window is closed, the application should quit
     connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
@@ -2657,7 +2657,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             me.spont = mouse->spontaneous();
             res = notify_helper(w, w == receiver ? mouse : &me);
             e->spont = false;
-            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+            if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)
                 || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
                     && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
@@ -2706,7 +2706,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             we.spont = wheel->spontaneous();
             res = notify_helper(w,  w == receiver ? wheel : &we);
             e->spont = false;
-            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+            if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)
                 || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
                     && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
@@ -2741,7 +2741,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(w,  w == receiver ? context : &ce);
             e->spont = false;
 
-            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+            if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)
                 || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
                     && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
@@ -2780,7 +2780,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             te.spont = e->spontaneous();
             res = notify_helper(w, w == receiver ? tablet : &te);
             e->spont = false;
-            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+            if (res || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)
                 || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
                     && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
@@ -3282,8 +3282,8 @@ void MyApplication::commitData(QSessionManager& sm) {
   \fn Qt::Alignment QApplication::horizontalAlignment(Alignment align)
 
   Strips out vertical alignment flags and transforms an
-  alignment \a align of AlignAuto into AlignLeft or
-  AlignRight according to the language used. The other horizontal
+  alignment \a align of Qt::AlignAuto into Qt::AlignLeft or
+  Qt::AlignRight according to the language used. The other horizontal
   alignment flags are left untouched.
 */
 

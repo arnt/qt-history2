@@ -446,7 +446,7 @@ void Q3DateTimeEditor::init()
     setBackgroundRole(QPalette::Base);
     setFocusSection(-1);
     installEventFilter(this);
-    setFocusPolicy(WheelFocus);
+    setFocusPolicy(Qt::WheelFocus);
 }
 
 
@@ -463,12 +463,12 @@ bool Q3DateTimeEditor::event(QEvent *e)
     } else if (e->type() == QEvent::ShortcutOverride) {
         QKeyEvent* ke = (QKeyEvent*) e;
         switch (ke->key()) {
-        case Key_Delete:
-        case Key_Backspace:
-        case Key_Up:
-        case Key_Down:
-        case Key_Left:
-        case Key_Right:
+        case Qt::Key_Delete:
+        case Qt::Key_Backspace:
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+        case Qt::Key_Left:
+        case Qt::Key_Right:
             ke->accept();
         default:
             break;
@@ -549,34 +549,34 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
         if (e->type() == QEvent::KeyPress) {
             QKeyEvent *ke = (QKeyEvent*)e;
             switch (ke->key()) {
-            case Key_Right:
+            case Qt::Key_Right:
                 if (d->focusSection() < (int)d->sectionCount()-1) {
                     if (cw->setFocusSection(focusSection()+1))
                         repaint(rect());
                 }
                 return true;
-            case Key_Left:
+            case Qt::Key_Left:
                 if (d->focusSection() > 0) {
                     if (cw->setFocusSection(focusSection()-1))
                         repaint(rect());
                 }
                 return true;
-            case Key_Up:
+            case Qt::Key_Up:
                 cw->stepUp();
                 return true;
-            case Key_Down:
+            case Qt::Key_Down:
                 cw->stepDown();
                 return true;
-            case Key_Backspace:
+            case Qt::Key_Backspace:
                 if (qt_cast<Q3DateEdit*>(cw))
                     ((Q3DateEdit*)cw)->removeFirstNumber(d->focusSection());
                 else if (qt_cast<Q3TimeEdit*>(cw))
                     ((Q3TimeEdit*)cw)->removeFirstNumber(d->focusSection());
                 return true;
-            case Key_Delete:
+            case Qt::Key_Delete:
                 cw->removeLastNumber(d->focusSection());
                 return true;
-            case Key_Tab:
+            case Qt::Key_Tab:
             case Key_BackTab: {
                 if (ke->state() == Qt::ControlButton)
                     return false;
@@ -593,7 +593,7 @@ bool Q3DateTimeEditor::eventFilter(QObject *o, QEvent *e)
                         w = w->parentWidget();
                     } else {
                         Q3DateTimeEdit *ed = (Q3DateTimeEdit*)w;
-                        if (hadDateEdit && ke->key() == Key_Tab) {
+                        if (hadDateEdit && ke->key() == Qt::Key_Tab) {
                             ed->timeEdit()->setFocus();
                             return true;
                         } else if (!hadDateEdit && ke->key() == Key_BackTab) {

@@ -120,10 +120,10 @@ struct QWellArrayData {
 
 QWellArray::QWellArray(QWidget *parent, const char * name, bool popup)
     : QGridView(parent, name,
-                 (popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : WFlags(0)))
+                 (popup ? (Qt::WStyle_Customize|Qt::WStyle_Tool|Qt::WStyle_NoBorder) : WFlags(0)))
 {
     d = 0;
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
     setVScrollBarMode(AlwaysOff);
     setHScrollBarMode(AlwaysOff);
     viewport()->setBackgroundRole(QPalette::Background);
@@ -169,9 +169,9 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
         b = 3;
 
     const QPalette & g = palette();
-    p->setPen(QPen(black, 0, SolidLine));
+    p->setPen(QPen(black, 0, Qt::SolidLine));
     if (!smallStyle && row ==selRow && col == selCol &&
-         style().styleHint(QStyle::SH_GUIStyle) != MotifStyle) {
+         style().styleHint(QStyle::SH_GUIStyle) != Qt::MotifStyle) {
         int n = 2;
         p->drawRect(n, n, w-2*n, h-2*n);
     }
@@ -180,7 +180,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
                           QStyle::Style_Enabled | QStyle::Style_Sunken);
 
     int t = 0;
-    if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
         t = (row == selRow && col == selCol) ? 2 : 0;
     b += 2 + t;
 
@@ -346,14 +346,14 @@ void QWellArray::setCellBrush(int row, int col, const QBrush &b)
 
 /*!
   Returns the brush set for the cell at \a row, \a col. If no brush is set,
-  \c NoBrush is returned.
+  \c Qt::NoBrush is returned.
 */
 
 QBrush QWellArray::cellBrush(int row, int col)
 {
     if (d && row >= 0 && row < numRows() && col >= 0 && col < numCols())
         return d->brush[row*numCols()+col];
-    return NoBrush;
+    return Qt::NoBrush;
 }
 
 
@@ -371,29 +371,29 @@ void QWellArray::focusOutEvent(QFocusEvent*)
 void QWellArray::keyPressEvent(QKeyEvent* e)
 {
     switch(e->key()) {                        // Look at the key code
-    case Key_Left:                                // If 'left arrow'-key,
+    case Qt::Key_Left:                                // If 'left arrow'-key,
         if(curCol > 0)                        // and cr't not in leftmost col
             setCurrent(curRow, curCol - 1);        // set cr't to next left column
         break;
-    case Key_Right:                                // Correspondingly...
+    case Qt::Key_Right:                                // Correspondingly...
         if(curCol < numCols()-1)
             setCurrent(curRow, curCol + 1);
         break;
-    case Key_Up:
+    case Qt::Key_Up:
         if(curRow > 0)
             setCurrent(curRow - 1, curCol);
         else if (smallStyle)
             focusNextPrevChild(false);
         break;
-    case Key_Down:
+    case Qt::Key_Down:
         if(curRow < numRows()-1)
             setCurrent(curRow + 1, curCol);
         else if (smallStyle)
             focusNextPrevChild(true);
         break;
-    case Key_Space:
-    case Key_Return:
-    case Key_Enter:
+    case Qt::Key_Space:
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
         setSelected(curRow, curCol);
         break;
     default:                                // If not an interesting key,
@@ -774,7 +774,7 @@ QColorPicker::QColorPicker(QWidget* parent, const char* name)
         }
     pix = new QPixmap;
     pix->convertFromImage(img);
-    setAttribute(WA_NoSystemBackground);
+    setAttribute(Qt::WA_NoSystemBackground);
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed) );
 }
 
@@ -1049,49 +1049,49 @@ QColorShower::QColorShower(QWidget *parent, const char *name)
     hEd = new QColNumLineEdit(this, "qt_hue_edit");
     hEd->setValidator(val360);
     QLabel *l = new QLabel(hEd, QColorDialog::tr("Hu&e:"), this, "qt_hue_lbl");
-    l->setAlignment(AlignRight|AlignVCenter);
+    l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 0, 1);
     gl->addWidget(hEd, 0, 2);
 
     sEd = new QColNumLineEdit(this, "qt_sat_edit");
     sEd->setValidator(val256);
     l = new QLabel(sEd, QColorDialog::tr("&Sat:"), this, "qt_sat_lbl");
-    l->setAlignment(AlignRight|AlignVCenter);
+    l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 1, 1);
     gl->addWidget(sEd, 1, 2);
 
     vEd = new QColNumLineEdit(this, "qt_val_edit");
     vEd->setValidator(val256);
     l = new QLabel(vEd, QColorDialog::tr("&Val:"), this, "qt_val_lbl");
-    l->setAlignment(AlignRight|AlignVCenter);
+    l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 2, 1);
     gl->addWidget(vEd, 2, 2);
 
     rEd = new QColNumLineEdit(this, "qt_red_edit");
     rEd->setValidator(val256);
     l = new QLabel(rEd, QColorDialog::tr("&Red:"), this, "qt_red_lbl");
-    l->setAlignment(AlignRight|AlignVCenter);
+    l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 0, 3);
     gl->addWidget(rEd, 0, 4);
 
     gEd = new QColNumLineEdit(this, "qt_grn_edit");
     gEd->setValidator(val256);
     l = new QLabel(gEd, QColorDialog::tr("&Green:"), this, "qt_grn_lbl");
-    l->setAlignment(AlignRight|AlignVCenter);
+    l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 1, 3);
     gl->addWidget(gEd, 1, 4);
 
     bEd = new QColNumLineEdit(this, "qt_blue_edit");
     bEd->setValidator(val256);
     l = new QLabel(bEd, QColorDialog::tr("Bl&ue:"), this, "qt_blue_lbl");
-    l->setAlignment(AlignRight|AlignVCenter);
+    l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 2, 3);
     gl->addWidget(bEd, 2, 4);
 
     alphaEd = new QColNumLineEdit(this, "qt_aplha_edit");
     alphaEd->setValidator(val256);
     alphaLab = new QLabel(alphaEd, QColorDialog::tr("A&lpha channel:"), this, "qt_alpha_lbl");
-    alphaLab->setAlignment(AlignRight|AlignVCenter);
+    alphaLab->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addMultiCellWidget(alphaLab, 3, 3, 1, 3);
     gl->addWidget(alphaEd, 3, 4);
     alphaEd->hide();
@@ -1409,8 +1409,8 @@ void QColorDialogPrivate::addCustom()
 */
 
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
-    QDialog(parent, name, modal, ( WType_Dialog | WStyle_Customize | WStyle_Title |
-                                    WStyle_DialogBorder | WStyle_SysMenu))
+    QDialog(parent, name, modal, ( Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
+                                    Qt::WStyle_DialogBorder | Qt::WStyle_SysMenu))
 {
     setSizeGripEnabled(false);
     d = new QColorDialogPrivate(this);

@@ -785,10 +785,10 @@ QRegion QWSHydroDecoration::region(const QWidget *widget, const QRect &rect, QWS
         case Left:
         case Right:
         case Bottom:
-        case TopLeft:
-        case TopRight:
-        case BottomLeft:
-        case BottomRight:
+        case Qt::TopLeft:
+        case Qt::TopRight:
+        case Qt::BottomLeft:
+        case Qt::BottomRight:
         default:
             region = QWSDefaultDecoration::region(widget, rect, type);
             break;

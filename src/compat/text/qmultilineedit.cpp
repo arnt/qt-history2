@@ -356,8 +356,8 @@ QPoint QMultiLineEdit::cursorPoint() const
 /*!  \property QMultiLineEdit::alignment
   \brief The editor's paragraph alignment
 
-  Sets the alignment to flag, which must be \c AlignLeft, \c
-  AlignHCenter or \c AlignRight.
+  Sets the alignment to flag, which must be \c Qt::AlignLeft, \c
+  Qt::AlignHCenter or \c Qt::AlignRight.
 
   If flag is an illegal flag nothing happens.
 
@@ -365,9 +365,9 @@ QPoint QMultiLineEdit::cursorPoint() const
 */
 void QMultiLineEdit::setAlignment(Alignment flag)
 {
-    if (flag == AlignCenter)
-        flag = AlignHCenter;
-    if (flag != AlignLeft && flag != AlignRight && flag != AlignHCenter)
+    if (flag == Qt::AlignCenter)
+        flag = Qt::AlignHCenter;
+    if (flag != Qt::AlignLeft && flag != Qt::AlignRight && flag != Qt::AlignHCenter)
         return;
     Q3TextParagraph *p = document()->firstParagraph();
     while (p) {

@@ -313,7 +313,7 @@ public:
         ExactMatch      = 0x00010  // 1 0000
     };
     typedef uint ComparisonFlags;
-    QIconViewItem *findItem(const QString &text, ComparisonFlags = BeginsWith | CaseSensitive) const;
+    QIconViewItem *findItem(const QString &text, ComparisonFlags = BeginsWith | Qt::CaseSensitive) const;
     virtual void selectAll(bool select);
     virtual void clearSelection();
     virtual void invertSelection();

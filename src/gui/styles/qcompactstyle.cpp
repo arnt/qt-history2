@@ -241,7 +241,7 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
             if (!s.isNull()) {                        // draw text
                 int t = s.find('\t');
                 int m = motifItemVMargin;
-                const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+                const int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
                 if (t >= 0) {                                // draw tab text
                     if (dis && !act) {
                         p->setPen(pal.light());
@@ -262,10 +262,10 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
             } else if (mi->pixmap()) {                        // draw pixmap
                 QPixmap *pixmap = mi->pixmap();
                 if (pixmap->depth() == 1)
-                    p->setBackgroundMode(OpaqueMode);
+                    p->setBackgroundMode(Qt::OpaqueMode);
                 p->drawPixmap(x+xm, y+motifItemFrame, *pixmap);
                 if (pixmap->depth() == 1)
-                    p->setBackgroundMode(TransparentMode);
+                    p->setBackgroundMode(Qt::TransparentMode);
             }
             if (mi->popup()) {                        // draw sub menu arrow
                 int dim = (h-2*motifItemFrame) / 2;

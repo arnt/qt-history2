@@ -91,9 +91,9 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
     custom pattern, which is defined by a QPixmap.
 
     The brush style defines the fill pattern. The default brush style
-    is \c NoBrush (depending on how you construct a brush). This style
+    is \c Qt::NoBrush (depending on how you construct a brush). This style
     tells the painter to not fill shapes. The standard style for
-    filling is \c SolidPattern.
+    filling is \c Qt::SolidPattern.
 
     The brush color defines the color of the fill pattern. The QColor
     documentation lists the predefined colors.
@@ -106,9 +106,9 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
         QBrush   brush(yellow);           // yellow solid pattern
         painter.begin(&anyPaintDevice);   // paint something
         painter.setBrush(brush);          // set the yellow brush
-        painter.setPen(NoPen);            // do not draw outline
+        painter.setPen(Qt::NoPen);            // do not draw outline
         painter.drawRect(40,30, 200,100); // draw filled rectangle
-        painter.setBrush(NoBrush);        // do not fill
+        painter.setBrush(Qt::NoBrush);        // do not fill
         painter.setPen(black);            // set black pen, 0 pixel width
         painter.drawRect(10,10, 30,20);   // draw rectangle outline
         painter.end();                    // painting done
@@ -156,14 +156,14 @@ QBrushData *QBrush::shared_default = 0;
   Initializes the brush.
 */
 
-void QBrush::init(const QColor &color, BrushStyle style)
+void QBrush::init(const QColor &color, Qt::BrushStyle style)
 {
     switch(style) {
-    case CustomPattern:
+    case Qt::CustomPattern:
         d = new QTexturedBrushData;
         static_cast<QTexturedBrushData *>(d)->pixmap = 0;
         break;
-    case LinearGradientPattern:
+    case Qt::LinearGradientPattern:
         d = new QLinGradBrushData;
         break;
     default:
@@ -176,7 +176,7 @@ void QBrush::init(const QColor &color, BrushStyle style)
 }
 
 /*!
-    Constructs a default black brush with the style \c NoBrush (will
+    Constructs a default black brush with the style \c Qt::NoBrush (will
     not fill shapes).
 */
 
@@ -186,7 +186,7 @@ QBrush::QBrush()
         static QCleanupHandler<QBrushData> shared_default_cleanup;
         shared_default = new QBrushData;
         shared_default->ref = 1;
-        shared_default->style = (BrushStyle)0;
+        shared_default->style = (Qt::BrushStyle)0;
         shared_default->color = black;
         shared_default_cleanup.add(&shared_default);
     }
@@ -202,7 +202,7 @@ QBrush::QBrush(const QPixmap &pixmap)
 {
 // ## if pixmap was image, we could pick a nice color rather than
 // assuming black.
-    init(Qt::black, CustomPattern);
+    init(Qt::black, Qt::CustomPattern);
     setPixmap(pixmap);
 }
 
@@ -212,7 +212,7 @@ QBrush::QBrush(const QPixmap &pixmap)
     \sa setStyle()
 */
 
-QBrush::QBrush(BrushStyle style)
+QBrush::QBrush(Qt::BrushStyle style)
 {
     init(black, style);
 }
@@ -223,7 +223,7 @@ QBrush::QBrush(BrushStyle style)
     \sa setColor(), setStyle()
 */
 
-QBrush::QBrush(const QColor &color, BrushStyle style)
+QBrush::QBrush(const QColor &color, Qt::BrushStyle style)
 {
     init(color, style);
 }
@@ -233,7 +233,7 @@ QBrush::QBrush(const QColor &color, BrushStyle style)
 
     \sa setColor(), setStyle()
 */
-QBrush::QBrush(Qt::GlobalColor color, BrushStyle style)
+QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
 {
     init(color, style);
 }
@@ -252,7 +252,7 @@ QBrush::QBrush(Qt::GlobalColor color, BrushStyle style)
 
 QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 {
-    init(color, CustomPattern);
+    init(color, Qt::CustomPattern);
     setPixmap(pixmap);
 }
 
@@ -269,7 +269,7 @@ QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 */
 QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
 {
-    init(color, CustomPattern);
+    init(color, Qt::CustomPattern);
     setPixmap(pixmap);
 }
 
@@ -289,7 +289,7 @@ QBrush::QBrush(const QBrush &b)
 */
 QBrush::QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QColor &col2)
 {
-    init(col1, LinearGradientPattern);
+    init(col1, Qt::LinearGradientPattern);
     QLinGradBrushData *lgd = static_cast<QLinGradBrushData*>(d);
     lgd->color2 = col2;
     lgd->p1 = p1;
@@ -310,11 +310,11 @@ QBrush::~QBrush()
 void QBrush::cleanUp(QBrushData *x)
 {
     switch (x->style) {
-    case CustomPattern:
+    case Qt::CustomPattern:
         delete static_cast<QTexturedBrushData*>(x)->pixmap;
         delete x;
         break;
-    case LinearGradientPattern:
+    case Qt::LinearGradientPattern:
         delete static_cast<QLinGradBrushData*>(x);
         break;
     default:
@@ -323,16 +323,16 @@ void QBrush::cleanUp(QBrushData *x)
 }
 
 
-void QBrush::detach_helper(BrushStyle newStyle)
+void QBrush::detach_helper(Qt::BrushStyle newStyle)
 {
     QBrushData *x;
     switch(newStyle) {
-    case CustomPattern:
+    case Qt::CustomPattern:
         x = new QTexturedBrushData;
         static_cast<QTexturedBrushData*>(x)->pixmap =
-            d->style == CustomPattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
+            d->style == Qt::CustomPattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
         break;
-    case LinearGradientPattern:
+    case Qt::LinearGradientPattern:
         x = new QLinGradBrushData;
         break;
     default:
@@ -364,7 +364,7 @@ QBrush &QBrush::operator=(const QBrush &b)
 
 
 /*!
-    \fn BrushStyle QBrush::style() const
+    \fn Qt::BrushStyle QBrush::style() const
 
     Returns the brush style.
 
@@ -377,22 +377,22 @@ QBrush &QBrush::operator=(const QBrush &b)
     The brush styles are:
     \table
     \header \i Pattern \i Meaning
-    \row \i NoBrush \i will not fill shapes (default).
-    \row \i SolidPattern  \i solid (100%) fill pattern.
-    \row \i Dense1Pattern \i11 94% fill pattern.
-    \row \i Dense2Pattern \i11 88% fill pattern.
-    \row \i Dense3Pattern \i11 63% fill pattern.
-    \row \i Dense4Pattern \i11 50% fill pattern.
-    \row \i Dense5Pattern \i11 37% fill pattern.
-    \row \i Dense6Pattern \i11 12% fill pattern.
-    \row \i Dense7Pattern \i11 6% fill pattern.
-    \row \i HorPattern \i horizontal lines pattern.
-    \row \i VerPattern \i vertical lines pattern.
-    \row \i CrossPattern \i crossing lines pattern.
-    \row \i BDiagPattern \i diagonal lines (directed /) pattern.
-    \row \i FDiagPattern \i diagonal lines (directed \) pattern.
-    \row \i DiagCrossPattern \i diagonal crossing lines pattern.
-    \row \i CustomPattern \i set when a pixmap pattern is being used.
+    \row \i Qt::NoBrush \i will not fill shapes (default).
+    \row \i Qt::SolidPattern  \i solid (100%) fill pattern.
+    \row \i Qt::Dense1Pattern \i11 94% fill pattern.
+    \row \i Qt::Dense2Pattern \i11 88% fill pattern.
+    \row \i Qt::Dense3Pattern \i11 63% fill pattern.
+    \row \i Qt::Dense4Pattern \i11 50% fill pattern.
+    \row \i Qt::Dense5Pattern \i11 37% fill pattern.
+    \row \i Qt::Dense6Pattern \i11 12% fill pattern.
+    \row \i Qt::Dense7Pattern \i11 6% fill pattern.
+    \row \i Qt::HorPattern \i horizontal lines pattern.
+    \row \i Qt::VerPattern \i vertical lines pattern.
+    \row \i Qt::CrossPattern \i crossing lines pattern.
+    \row \i Qt::BDiagPattern \i diagonal lines (directed /) pattern.
+    \row \i Qt::FDiagPattern \i diagonal lines (directed \) pattern.
+    \row \i Qt::DiagCrossPattern \i diagonal crossing lines pattern.
+    \row \i Qt::CustomPattern \i set when a pixmap pattern is being used.
     \endtable
 
     On Windows, dense and custom patterns cannot be transparent.
@@ -403,11 +403,11 @@ QBrush &QBrush::operator=(const QBrush &b)
     \sa style()
 */
 
-void QBrush::setStyle(BrushStyle s)
+void QBrush::setStyle(Qt::BrushStyle s)
 {
     if (d->style == s)
         return;
-    if (s == CustomPattern)
+    if (s == Qt::CustomPattern)
         qWarning("QBrush::setStyle: CustomPattern is for internal use");
     detach(s);
     d->style = s;
@@ -452,7 +452,7 @@ void QBrush::setColor(const QColor &c)
 
 /*!
     Sets the brush pixmap to \a pixmap. The style is set to \c
-    CustomPattern.
+    Qt::CustomPattern.
 
     The current brush color will only have an effect for monochrome
     pixmaps, i.e. for QPixmap::depth() == 1.
@@ -465,13 +465,13 @@ void QBrush::setColor(const QColor &c)
 void QBrush::setPixmap(const QPixmap &pixmap)
 {
     if (!pixmap.isNull()) {
-        detach(CustomPattern);
+        detach(Qt::CustomPattern);
         QPixmap *pm = new QPixmap(pixmap);
         if (pm->optimization() == QPixmap::MemoryOptim)
             pm->setOptimization(QPixmap::NormalOptim);
         static_cast<QTexturedBrushData *>(d)->pixmap = pm;
     } else {
-        detach(NoBrush);
+        detach(Qt::NoBrush);
     }
 }
 
@@ -502,12 +502,12 @@ bool QBrush::operator==(const QBrush &b) const
 {
     if (b.d == d || (b.d->style == d->style && b.d->color == d->color)) {
         switch (d->style) {
-        case CustomPattern: {
+        case Qt::CustomPattern: {
             QPixmap *us = static_cast<QTexturedBrushData *>(d)->pixmap;
             QPixmap *them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
             return (us == them) || (us && them && us->serialNumber() == them->serialNumber());
         }
-        case LinearGradientPattern:
+        case Qt::LinearGradientPattern:
             return static_cast<QLinGradBrushData*>(d)->color2
                 == static_cast<QLinGradBrushData*>(b.d)->color2
                 && static_cast<QLinGradBrushData*>(d)->p1

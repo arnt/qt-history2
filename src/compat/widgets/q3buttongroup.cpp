@@ -121,7 +121,7 @@ Q3ButtonGroup::Q3ButtonGroup(const QString &title, QWidget *parent,
     constructor.
 */
 
-Q3ButtonGroup::Q3ButtonGroup(int strips, Orientation orientation,
+Q3ButtonGroup::Q3ButtonGroup(int strips, Qt::Orientation orientation,
                             QWidget *parent, const char *name)
     : Q3GroupBox(strips, orientation, parent, name)
 {
@@ -137,7 +137,7 @@ Q3ButtonGroup::Q3ButtonGroup(int strips, Orientation orientation,
     constructor.
 */
 
-Q3ButtonGroup::Q3ButtonGroup(int strips, Orientation orientation,
+Q3ButtonGroup::Q3ButtonGroup(int strips, Qt::Orientation orientation,
                             const QString &title, QWidget *parent,
                             const char *name)
     : Q3GroupBox(strips, orientation, title, parent, name)

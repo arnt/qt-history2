@@ -262,7 +262,7 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
         rect->moveCenter(boundingRect.center());
         return;
     }
-    // Horizontal
+    // Qt::Horizontal
     switch (alignment & Qt::AlignHorizontal_Mask) {
     case Qt::AlignLeft:
         rect->moveLeft(boundingRect.left());
@@ -283,7 +283,7 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
     default:
         break;
     }
-    // Vertical
+    // Qt::Vertical
     switch (alignment & Qt::AlignVertical_Mask) {
     case Qt::AlignTop:
         rect->moveTop(boundingRect.top());

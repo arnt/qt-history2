@@ -81,10 +81,10 @@ Q4StyleOption QRubberBandPrivate::getStyleOption() const
 */
 QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) :
     QWidget(*new QRubberBandPrivate, p,
-            WType_TopLevel | WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
+            Qt::WType_TopLevel | Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool | Qt::WX11BypassWM)
 {
     d->shape = s;
-    setAttribute(WA_TransparentForMouseEvents);
+    setAttribute(Qt::WA_TransparentForMouseEvents);
     setAutoMask(true);
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp

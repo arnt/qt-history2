@@ -340,7 +340,7 @@ void QStatusBar::reformat()
     if (d->resizer) {
         maxH = qMax(maxH, d->resizer->sizeHint().height());
         d->box->addSpacing(1);
-        d->box->addWidget(d->resizer, 0, AlignBottom);
+        d->box->addWidget(d->resizer, 0, Qt::AlignBottom);
     }
 #endif
     l->addStrut(maxH);
@@ -484,7 +484,7 @@ void QStatusBar::paintEvent(QPaintEvent *)
     }
     if (haveMessage) {
         p.setPen(palette().foreground());
-        p.drawText(6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem);
+        p.drawText(6, 0, psx, height(), Qt::AlignVCenter | Qt::SingleLine, d->tempItem);
     }
 }
 

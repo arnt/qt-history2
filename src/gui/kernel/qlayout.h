@@ -298,8 +298,8 @@ public:
     void addLayout(QLayout *, int row, int col, Alignment = 0);
     void addLayout(QLayout *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
 
-    void setOrigin(Corner);
-    Corner origin() const;
+    void setOrigin(Qt::Corner);
+    Qt::Corner origin() const;
     QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);

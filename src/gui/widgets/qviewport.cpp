@@ -82,13 +82,13 @@
     This enum type describes the various modes of QViewport's scroll
     bars.
 
-    \value ScrollBarAsNeeded QViewport shows a scroll bar when the
+    \value Qt::ScrollBarAsNeeded QViewport shows a scroll bar when the
     content is too large to fit and not otherwise. This is the
     default.
 
-    \value ScrollBarAlwaysOff QViewport never shows a scroll bar.
+    \value Qt::ScrollBarAlwaysOff QViewport never shows a scroll bar.
 
-    \value ScrollBarAlwaysOn  QViewport always shows a scroll bar.
+    \value Qt::ScrollBarAlwaysOn  QViewport always shows a scroll bar.
 
     (The modes for the horizontal and vertical scroll bars are
     independent.)
@@ -111,7 +111,7 @@ bool QViewportHelper::event(QEvent *e) {
 }
 
 QViewportPrivate::QViewportPrivate()
-    :hbar(0), vbar(0), vbarpolicy(ScrollBarAsNeeded), hbarpolicy(ScrollBarAsNeeded),
+    :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(ScrollBarAsNeeded),
      viewport(0), left(0), top(0), right(0), bottom(0),
      xoffset(0), yoffset(0)
 {
@@ -123,12 +123,12 @@ void QViewportPrivate::init()
     q->setFocusPolicy(QWidget::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    hbar = new QScrollBar(Horizontal,  q);
+    hbar = new QScrollBar(Qt::Horizontal,  q);
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
-    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), QueuedConnection);
-    vbar = new QScrollBar(Vertical, q);
+    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
+    vbar = new QScrollBar(Qt::Vertical, q);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
-    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), QueuedConnection);
+    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     viewport = new QViewportHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
     QEvent userEvent(QEvent::User);
@@ -137,11 +137,11 @@ void QViewportPrivate::init()
 
 void QViewportPrivate::layoutChildren()
 {
-    bool needh = (hbarpolicy == ScrollBarAlwaysOn
-                  || (hbarpolicy == ScrollBarAsNeeded && hbar->minimum() < hbar->maximum()));
+    bool needh = (hbarpolicy == Qt::ScrollBarAlwaysOn
+                  || (hbarpolicy == Qt::ScrollBarAsNeeded && hbar->minimum() < hbar->maximum()));
 
-    bool needv = (vbarpolicy == ScrollBarAlwaysOn
-                  || (vbarpolicy == ScrollBarAsNeeded && vbar->minimum() < vbar->maximum()));
+    bool needv = (vbarpolicy == Qt::ScrollBarAlwaysOn
+                  || (vbarpolicy == Qt::ScrollBarAsNeeded && vbar->minimum() < vbar->maximum()));
 
     int hsbExt = hbar->sizeHint().height();
     int vsbExt = vbar->sizeHint().width();
@@ -231,9 +231,9 @@ QSize QViewport::maximumViewportSize() const
 
     int f = 2 * d->frameWidth;
     QSize max = size() - QSize(f,f);
-    if (d->vbarpolicy == ScrollBarAlwaysOn)
+    if (d->vbarpolicy == Qt::ScrollBarAlwaysOn)
         max.rwidth() -= vsbExt;
-    if (d->hbarpolicy == ScrollBarAlwaysOn)
+    if (d->hbarpolicy == Qt::ScrollBarAlwaysOn)
         max.rheight() -= hsbExt;
     return max;
 }
@@ -258,7 +258,7 @@ Qt::ScrollBarPolicy QViewport::verticalScrollBarPolicy() const
     return d->vbarpolicy;
 }
 
-void QViewport::setVerticalScrollBarPolicy(ScrollBarPolicy policy)
+void QViewport::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
     d->vbarpolicy = policy;
     if (isVisible())
@@ -290,7 +290,7 @@ Qt::ScrollBarPolicy QViewport::horizontalScrollBarPolicy() const
     return d->hbarpolicy;
 }
 
-void QViewport::setHorizontalScrollBarPolicy(ScrollBarPolicy policy)
+void QViewport::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
     d->hbarpolicy = policy;
     if (isVisible())
@@ -392,7 +392,7 @@ bool QViewport::viewportEvent(QEvent *e)
         return QFrame::event(e);
     case QEvent::Wheel:
         if (!QFrame::event(e)) {
-            if (static_cast<QWheelEvent*>(e)->orientation() == Horizontal)
+            if (static_cast<QWheelEvent*>(e)->orientation() == Qt::Horizontal)
                 return QApplication::sendEvent(d->hbar, e);
             return QApplication::sendEvent(d->vbar, e);
         }
@@ -515,16 +515,16 @@ void QViewport::keyPressEvent(QKeyEvent * e)
     case Key_PageDown:
         d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
         break;
-    case Key_Up:
+    case Qt::Key_Up:
         d->vbar->triggerAction(QScrollBar::SliderSingleStepSub);
         break;
-    case Key_Down:
+    case Qt::Key_Down:
         d->vbar->triggerAction(QScrollBar::SliderSingleStepAdd);
         break;
-    case Key_Left:
+    case Qt::Key_Left:
         d->hbar->triggerAction(QScrollBar::SliderSingleStepSub);
         break;
-    case Key_Right:
+    case Qt::Key_Right:
         d->hbar->triggerAction(QScrollBar::SliderSingleStepAdd);
         break;
     default:

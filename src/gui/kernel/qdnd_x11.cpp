@@ -201,7 +201,7 @@ class QShapedPixmapWidget : public QWidget {
 public:
     QShapedPixmapWidget(int screen = -1) :
         QWidget(QApplication::desktop()->screen(screen),
-                0, WStyle_Customize | WStyle_Tool | WStyle_NoBorder | WX11BypassWM)
+                0, Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WStyle_NoBorder | Qt::WX11BypassWM)
     {
     }
 
@@ -754,7 +754,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
 {
     if (beingCancelled) {
         if (e->type() == QEvent::KeyRelease &&
-             ((QKeyEvent*)e)->key() == Key_Escape) {
+             ((QKeyEvent*)e)->key() == Qt::Key_Escape) {
             qApp->removeEventFilter(this);
             object = 0;
             dragSource = 0;
@@ -804,7 +804,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
       || e->type() == QEvent::KeyRelease)
     {
         QKeyEvent *ke = ((QKeyEvent*)e);
-        if (ke->key() == Key_Escape && e->type() == QEvent::KeyPress) {
+        if (ke->key() == Qt::Key_Escape && e->type() == QEvent::KeyPress) {
             cancel();
             qApp->removeEventFilter(this);
             object = 0;
@@ -841,11 +841,11 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
 
 
 static Qt::ButtonState oldstate;
-void QDragManager::updateMode(ButtonState newstate)
+void QDragManager::updateMode(Qt::ButtonState newstate)
 {
     if (newstate == oldstate)
         return;
-    const int both = ShiftButton|ControlButton;
+    const int both = Qt::ShiftButton|Qt::ControlButton;
     if ((newstate & both) == both) {
         global_requested_action = QDropEvent::Link;
     } else {
@@ -861,9 +861,9 @@ void QDragManager::updateMode(ButtonState newstate)
                 global_requested_action = QDropEvent::Move;
             else
                 global_requested_action = QDropEvent::Copy;
-            if (newstate & ShiftButton)
+            if (newstate & Qt::ShiftButton)
                 global_requested_action = QDropEvent::Move;
-            else if (newstate & ControlButton)
+            else if (newstate & Qt::ControlButton)
                 global_requested_action = QDropEvent::Copy;
         }
     }
@@ -874,7 +874,7 @@ void QDragManager::updateMode(ButtonState newstate)
 void QDragManager::updateCursor()
 {
     if (!noDropCursor) {
-        noDropCursor = new QCursor(ForbiddenCursor);
+        noDropCursor = new QCursor(Qt::ForbiddenCursor);
         if (!pm_cursor[0].isNull())
             moveCursor = new QCursor(pm_cursor[0], 0,0);
         if (!pm_cursor[1].isNull())
@@ -1514,16 +1514,16 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     XSetSelectionOwner(QX11Info::appDisplay(), ATOM(XdndSelection),
                         dragSource->topLevelWidget()->winId(),
                         qt_xdnd_source_current_time);
-    oldstate = ButtonState(-1); // #### Should use state that caused the drag
+    oldstate = Qt::ButtonState(-1); // #### Should use state that caused the drag
     drag_mode = mode;
     global_accepted_action = QDropEvent::Copy;
-    updateMode(ButtonState(0));
+    updateMode(Qt::ButtonState(0));
     qt_xdnd_source_sameanswer = QRect();
     move(QCursor::pos());
     heartbeat = startTimer(200);
 
 #ifndef QT_NO_CURSOR
-    qApp->setOverrideCursor(ArrowCursor);
+    qApp->setOverrideCursor(Qt::ArrowCursor);
     restoreCursor = true;
     updateCursor();
 #endif

@@ -54,7 +54,7 @@ public:
 QWidgetView::QWidgetView(QWidget *parent)
     :QViewport(*new QWidgetViewPrivate,parent)
 {
-    d->viewport->setAttribute(WA_SetBackgroundRole, false);
+    d->viewport->setAttribute(Qt::WA_SetBackgroundRole, false);
     d->vbar->setSingleStep(20);
     d->hbar->setSingleStep(20);
 //     d->vbar->setRange(0,0);
@@ -124,7 +124,7 @@ void QWidgetView::setWidget(QWidget *w)
         w->setParent(d->viewport);
     else
         w->move(0,0);
-     if (!w->testAttribute(WA_Resized))
+     if (!w->testAttribute(Qt::WA_Resized))
          w->resize(w->sizeHint());
     d->widget = w;
     w->installEventFilter(this);
@@ -209,9 +209,9 @@ QSize QWidgetView::sizeHint() const
     } else {
         sz += QSize(12 * h, 8 * h);
     }
-    if (d->vbarpolicy == ScrollBarAlwaysOn)
+    if (d->vbarpolicy == Qt::ScrollBarAlwaysOn)
         sz.setWidth(sz.width() + d->vbar->sizeHint().width());
-    if (d->hbarpolicy == ScrollBarAlwaysOn)
+    if (d->hbarpolicy == Qt::ScrollBarAlwaysOn)
         sz.setHeight(sz.height() + d->hbar->sizeHint().height());
     return sz.boundedTo(QSize(36 * h, 24 * h));
 }

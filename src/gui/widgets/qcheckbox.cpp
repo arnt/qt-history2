@@ -203,7 +203,7 @@ QSize QCheckBox::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     Q4StyleOptionButton opt = d->getStyleOption();
-    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), ShowPrefix, false, text()).size();
+    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::ShowPrefix, false, text()).size();
     return (style().sizeFromContents(QStyle::CT_CheckBox, &opt, sz, fm, this)
                    .expandedTo(QApplication::globalStrut()));
 }
@@ -260,7 +260,7 @@ void QCheckBox::updateMask()
     QRect irect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, this), this);
 
     QBitmap bm(width(), height());
-    bm.fill(color0);
+    bm.fill(Qt::color0);
 
     QPainter p(&bm);
     style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
@@ -269,7 +269,7 @@ void QCheckBox::updateMask()
         QRect crect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, &opt, this), this);
         QRect frect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect, &opt, this), this);
         QRect label(crect.unite(frect));
-        p.fillRect(label, color1);
+        p.fillRect(label, Qt::color1);
     }
     p.end();
 

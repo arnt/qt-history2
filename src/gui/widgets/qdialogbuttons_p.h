@@ -30,10 +30,10 @@ public:
     enum Button { None=0, Accept=0x01, Reject=0x02, Help=0x04, Apply=0x08, All=0x10, Abort=0x20, Retry=0x40, Ignore=0x80 };
 #ifndef QT_NO_DIALOG
     QDialogButtons(QDialog *parent, bool autoConnect = true, Q_UINT32 buttons = Accept | Reject,
-                   Orientation orient = Horizontal, const char *name = NULL);
+                   Qt::Orientation orient = Qt::Horizontal, const char *name = NULL);
 #endif // QT_NO_DIALOG
     QDialogButtons(QWidget *parent, Q_UINT32 buttons = Accept | Reject,
-                   Orientation orient = Horizontal, const char *name = NULL);
+                   Qt::Orientation orient = Qt::Horizontal, const char *name = NULL);
     ~QDialogButtons();
 
     void setQuestionMode(bool);
@@ -55,8 +55,8 @@ public:
     virtual void setButtonText(Button, const QString &);
     QString buttonText(Button) const;
 
-    void setOrientation(Orientation);
-    Orientation orientation() const;
+    void setOrientation(Qt::Orientation);
+    Qt::Orientation orientation() const;
 
     virtual QSize sizeHint(Button) const;
     QSize minimumSizeHint() const;
@@ -86,7 +86,7 @@ signals:
 
 private:
     QDialogButtonsPrivate *d;
-    void init(Q_UINT32, Orientation);
+    void init(Q_UINT32, Qt::Orientation);
 };
 #endif //QT_NO_DIALOGBUTTONS
 #endif //QDIALOGBUTTONS_P_H

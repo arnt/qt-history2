@@ -178,7 +178,7 @@
 /*!
   \enum QPrinter::Orientation
 
-  This enum type (not to be confused with \c Qt::Orientation) is used
+  This enum type (not to be confused with \c Orientation) is used
   to specify each page's orientation.
 
   \value Portrait the page's height is greater than its width (the

@@ -1018,43 +1018,43 @@ public:
 #endif
 #ifdef Q_WS_WIN
     enum WinVersion {
-        WV_32s      = 0x0001,
-        WV_95       = 0x0002,
-        WV_98       = 0x0003,
-        WV_Me       = 0x0004,
-        WV_DOS_based= 0x000f,
+        Qt::WV_32s      = 0x0001,
+        Qt::WV_95       = 0x0002,
+        Qt::WV_98       = 0x0003,
+        Qt::WV_Me       = 0x0004,
+        Qt::WV_DOS_based= 0x000f,
 
-        WV_NT       = 0x0010,
-        WV_2000     = 0x0020,
-        WV_XP       = 0x0030,
-        WV_2003     = 0x0040,
-        WV_NT_based = 0x00f0,
+        Qt::WV_NT       = 0x0010,
+        Qt::WV_2000     = 0x0020,
+        Qt::WV_XP       = 0x0030,
+        Qt::WV_2003     = 0x0040,
+        Qt::WV_NT_based = 0x00f0,
 
-        WV_CE       = 0x0100,
-        WV_CENET    = 0x0200,
-        WV_CE_based = 0x0f00
+        Qt::WV_CE       = 0x0100,
+        Qt::WV_CENET    = 0x0200,
+        Qt::WV_CE_based = 0x0f00
     };
-    static const WinVersion WindowsVersion;
+    static const WinVersion Qt::WindowsVersion;
 #endif
 #ifdef Q_WS_MAC
     enum MacVersion {
         //Unknown
-        MV_Unknown  = 0x0000,
+        Qt::MV_Unknown  = 0x0000,
 
         //Version numbers
-        MV_9        = 0x0001,
-        MV_10_DOT_0 = 0x0002,
-        MV_10_DOT_1 = 0x0003,
-        MV_10_DOT_2 = 0x0004,
-        MV_10_DOT_3 = 0x0005,
+        Qt::MV_9        = 0x0001,
+        Qt::MV_10_DOT_0 = 0x0002,
+        Qt::MV_10_DOT_1 = 0x0003,
+        Qt::MV_10_DOT_2 = 0x0004,
+        Qt::MV_10_DOT_3 = 0x0005,
 
         //Code names
-        MV_CHEETAH  = MV_10_DOT_0,
-        MV_PUMA     = MV_10_DOT_1,
-        MV_JAGUAR   = MV_10_DOT_2,
-        MV_PANTHER  = MV_10_DOT_3
+        Qt::MV_CHEETAH  = Qt::MV_10_DOT_0,
+        Qt::MV_PUMA     = Qt::MV_10_DOT_1,
+        Qt::MV_JAGUAR   = Qt::MV_10_DOT_2,
+        Qt::MV_PANTHER  = Qt::MV_10_DOT_3
     };
-    static const MacVersion MacintoshVersion;
+    static const MacVersion Qt::MacintoshVersion;
 #endif
 };
 

@@ -14,7 +14,7 @@ class Q_GUI_EXPORT QDialogPrivate : public QWidgetPrivate
 public:
 
     QDialogPrivate()
-        : mainDef(0), orientation(Horizontal),extension(0), doShowExtension(false),
+        : mainDef(0), orientation(Qt::Horizontal),extension(0), doShowExtension(false),
 #ifndef QT_NO_SIZEGRIP
           resizer(0),
 #endif
@@ -22,7 +22,7 @@ public:
         {}
 
     QPushButton* mainDef;
-    Orientation orientation;
+    Qt::Orientation orientation;
     QWidget* extension;
     bool doShowExtension;
     QSize size, min, max;

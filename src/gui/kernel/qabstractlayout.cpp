@@ -421,7 +421,7 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 /*!
     Returns whether this item's widget can make use of more space than
-    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions and \c NoDirection means that
     it doesn't want to grow at all.
@@ -1125,7 +1125,7 @@ void QLayout::addChildWidget(QWidget *w)
     QWidget *mw = parentWidget();
     QWidget *pw = w->parentWidget();
 
-    //WA_LaidOut is never reset. It only means that the widget at some point has
+    //Qt::WA_LaidOut is never reset. It only means that the widget at some point has
     //been in a layout.
     if (w->testAttribute(Qt::WA_LaidOut)) {
         QLayout *l = pw->layout();
@@ -1219,7 +1219,7 @@ QSize QLayout::maximumSize() const
 
 /*!
     Returns whether this layout can make use of more space than
-    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 
@@ -1502,7 +1502,7 @@ bool QLayout::activate()
     \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
 
     Returns whether this layout can make use of more space than
-    sizeHint(). A value of \c Vertical or \c Horizontal means that it wants
+    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 

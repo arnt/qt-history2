@@ -166,7 +166,7 @@ void QDockWindowTitle::styleChange(QStyle &)
 
 void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != LeftButton) return;
+    if (event->button() != Qt::LeftButton) return;
 
     Q_ASSERT(!state);
 
@@ -262,7 +262,7 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 
 void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != LeftButton) return;
+    if (event->button() != Qt::LeftButton) return;
 
     if (!state) return;
 
@@ -346,7 +346,7 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
         r.addCoords(indent, 0, -indent, 0);
 
 	p.setPen(pal.color(QPalette::Foreground));
-	p.drawText(r, AlignLeft, dockwindow->windowTitle());
+	p.drawText(r, Qt::AlignLeft, dockwindow->windowTitle());
     }
 }
 
@@ -464,14 +464,14 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 
 QDockWindow::QDockWindow(QMainWindow *parent, WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             flags | WStyle_Customize | WStyle_NoBorder)
+             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     d->init();
 }
 
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             flags | WStyle_Customize | WStyle_NoBorder)
+             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     d->init();
     setCurrentArea(area);
@@ -554,16 +554,16 @@ void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
         Qt::Dock x;
         switch (area) {
         case Qt::DockWindowAreaLeft:
-            x = DockLeft;
+            x = Qt::DockLeft;
             break;
         case Qt::DockWindowAreaRight:
-            x = DockRight;
+            x = Qt::DockRight;
             break;
         case Qt::DockWindowAreaTop:
-            x = DockTop;
+            x = Qt::DockTop;
             break;
         case Qt::DockWindowAreaBottom:
-            x = DockBottom;
+            x = Qt::DockBottom;
             break;
         default:
             Q_ASSERT(false);
@@ -578,15 +578,15 @@ void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
     d->currentArea = area;
 
     if (!isFloated()) {
-        Orientation direction;
+        Qt::Orientation direction;
         switch (area) {
         case Qt::DockWindowAreaLeft:
         case Qt::DockWindowAreaRight:
-            direction = Vertical;
+            direction = Qt::Vertical;
             break;
         case Qt::DockWindowAreaTop:
         case Qt::DockWindowAreaBottom:
-            direction = Horizontal;
+            direction = Qt::Horizontal;
             break;
         default:
             Q_ASSERT(false);

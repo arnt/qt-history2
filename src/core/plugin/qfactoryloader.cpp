@@ -37,7 +37,7 @@ public:
 
 QFactoryLoader::QFactoryLoader(const char *iid,
                                const QStringList &paths, const QString &suffix,
-                               CaseSensitivity cs, QObject *parent)
+                               Qt::CaseSensitivity cs, QObject *parent)
     :QObject(*new QFactoryLoaderPrivate, parent)
 {
     QStringList filters;

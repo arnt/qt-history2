@@ -264,11 +264,11 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
 #ifndef QT_NO_CURSOR
-    static CursorShape shape[] = { ArrowCursor, ArrowCursor, ArrowCursor,
-                            SizeVerCursor, SizeVerCursor, SizeHorCursor,
-                            SizeHorCursor, SizeFDiagCursor, SizeBDiagCursor,
-                            SizeBDiagCursor, SizeFDiagCursor, ArrowCursor,
-                            ArrowCursor, ArrowCursor, ArrowCursor, ArrowCursor};
+    static Qt::CursorShape shape[] = { Qt::ArrowCursor, ArrowCursor, ArrowCursor,
+                            Qt::SizeVerCursor, SizeVerCursor, Qt::SizeHorCursor,
+                            Qt::SizeHorCursor, Qt::SizeFDiagCursor, Qt::SizeBDiagCursor,
+                            Qt::SizeBDiagCursor, Qt::SizeFDiagCursor, Qt::ArrowCursor,
+                            Qt::ArrowCursor, ArrowCursor, ArrowCursor, ArrowCursor};
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
@@ -399,9 +399,9 @@ void QWSManager::paintEvent(QPaintEvent *)
     if (!managed->isVisible())
         return;
     QWSDecoration &dec = QApplication::qwsDecoration();
-    if (managed->testWState(WState_InPaintEvent))
+    if (managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
-    managed->setWState(WState_InPaintEvent);
+    managed->setWState(Qt::WState_InPaintEvent);
     QPainter painter(managed);
 
     // Adjust our widget region to contain the window
@@ -434,7 +434,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     dec.paintButton(&painter, managed, QWSDecoration::Close, closeBtn->state());
     dec.paintButton(&painter, managed, QWSDecoration::Minimize, minimizeBtn->state());
     dec.paintButton(&painter, managed, QWSDecoration::Maximize, maximizeBtn->state());
-    managed->clearWState(WState_InPaintEvent);
+    managed->clearWState(Qt::WState_InPaintEvent);
 }
 
 void QWSManager::menu(const QPoint &pos)
@@ -564,14 +564,14 @@ void QWSManager::repaintButton(QWSButton *b)
     if (!managed->isVisible())
         return;
     QWSDecoration &dec = QApplication::qwsDecoration();
-    if (managed->testWState(WState_InPaintEvent))
+    if (managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::repaintButton() recursive paint event detected");
-    managed->setWState(WState_InPaintEvent);
+    managed->setWState(Qt::WState_InPaintEvent);
 #warning "This isn't really inside a paint event. Please fix"
     QPainter painter(managed);
     painter.setClipRegion(dec.region(managed, managed->rect()));
     dec.paintButton(&painter, managed, b->type(), b->state());
-    managed->clearWState(WState_InPaintEvent);
+    managed->clearWState(Qt::WState_InPaintEvent);
 }
 
 

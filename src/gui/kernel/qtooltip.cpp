@@ -68,7 +68,7 @@ protected:
 QTipLabel *QTipLabel::instance = 0;
 
 QTipLabel::QTipLabel(const QString& text, QWidget* parent)
-    : QLabel(parent, 0, WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
+    : QLabel(parent, 0, Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool | Qt::WX11BypassWM)
 {
     delete instance;
     instance = this;
@@ -76,7 +76,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     setAutoMask(false);
     setFrameStyle(QFrame::Plain | QFrame::Box);
     setLineWidth(1);
-    setAlignment(AlignAuto | AlignTop);
+    setAlignment(Qt::AlignAuto | Qt::AlignTop);
     setIndent(0);
     ensurePolished();
     setText(text);
@@ -179,9 +179,9 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
     label->move(p);
 
 #ifndef QT_NO_EFFECTS
-    if ( QApplication::isEffectEnabled(UI_AnimateTooltip) == false || preventAnimation)
+    if ( QApplication::isEffectEnabled(Qt::UI_AnimateTooltip) == false || preventAnimation)
         label->show();
-    else if (QApplication::isEffectEnabled(UI_FadeTooltip)) {
+    else if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip)) {
         qFadeEffect(label);
     }
     else

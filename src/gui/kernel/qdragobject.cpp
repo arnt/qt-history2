@@ -1140,7 +1140,7 @@ bool QImageDrag::decode(const QMimeSource* e, QPixmap& pm)
     QImage img;
     // We avoid dither, since the image probably came from this display
     if (decode(e, img)) {
-        if (!pm.convertFromImage(img, AvoidDither))
+        if (!pm.convertFromImage(img, Qt::AvoidDither))
             return false;
         // decode initialized the cache for us
 

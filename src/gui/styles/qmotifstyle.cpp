@@ -228,7 +228,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
         if (flags & Style_Down)
             fill = pal.brush(QPalette::Mid);
         else if (flags & Style_On)
-            fill = QBrush(pal.mid(), Dense4Pattern);
+            fill = QBrush(pal.mid(), Qt::Dense4Pattern);
         else
             fill = pal.brush(QPalette::Button);
         qDrawShadePanel(p, r, pal, bool(flags & (Style_Down | Style_On)),
@@ -289,13 +289,13 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             bool down = flags & Style_Down;
             bool showUp = !(down ^ on);
             QPointArray a(QCOORDARRLEN(inner_pts), inner_pts);
-            p->setPen(NoPen);
+            p->setPen(Qt::NoPen);
             p->setBrush(showUp ? pal.brush(QPalette::Button) :
                          pal.brush(QPalette::Mid));
             a.translate(r.x(), r.y());
             p->drawPolygon(a);
             p->setPen(showUp ? pal.light() : pal.dark());
-            p->setBrush(NoBrush);
+            p->setBrush(Qt::NoBrush);
             a.setPoints(QCOORDARRLEN(top_pts), top_pts);
             a.translate(r.x(), r.y());
             p->drawPolyline(a);
@@ -316,8 +316,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 r.width()/2,r.height()-1
             };
             QPointArray a(QCOORDARRLEN(inner_pts), inner_pts);
-            p->setPen(color1);
-            p->setBrush(color1);
+            p->setPen(Qt::color1);
+            p->setBrush(Qt::color1);
             a.translate(r.x(), r.y());
             p->drawPolygon(a);
             break;
@@ -461,13 +461,13 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
             QPen savePen = p->pen();
             QBrush saveBrush = p->brush();
-            QPen pen(NoPen);
+            QPen pen(Qt::NoPen);
             QBrush brush = pal.brush(flags & Style_Enabled ? QPalette::Button :
                                      QPalette::Mid);
             p->setPen(pen);
             p->setBrush(brush);
             p->drawPolygon(bFill);
-            p->setBrush(NoBrush);
+            p->setBrush(Qt::NoBrush);
 
             p->setPen(CLEFT);
             p->drawLineSegments(bLeft);
@@ -764,7 +764,7 @@ void QMotifStyle::drawControl(ControlElement element,
             const QPushButton *btn;
             btn = (const QPushButton *)widget;
             p->setPen(pal.foreground());
-            p->setBrush(QBrush(pal.button(), NoBrush));
+            p->setBrush(QBrush(pal.button(), Qt::NoBrush));
             diw = pixelMetric(PM_ButtonDefaultIndicator);
             r.coords(&x1, &y1, &x2, &y2);
             if (btn->isDefault() || btn->autoDefault()) {
@@ -819,7 +819,7 @@ void QMotifStyle::drawControl(ControlElement element,
 
             QRect r2(r);
             if (tb->shape() == QTabBar::RoundedAbove) {
-                if (styleHint(SH_TabBar_Alignment, tb) == AlignRight &&
+                if (styleHint(SH_TabBar_Alignment, tb) == Qt::AlignRight &&
                      tb->indexOf(t->identifier()) == tb->count()-1)
                     lastTab = true;
 
@@ -874,7 +874,7 @@ void QMotifStyle::drawControl(ControlElement element,
                     p->drawPoint(r2.right() - 1, r2.top() + 1);
                 }
             } else if (tb->shape()  == QTabBar::RoundedBelow) {
-                if (styleHint(SH_TabBar_Alignment, tb) == AlignLeft &&
+                if (styleHint(SH_TabBar_Alignment, tb) == Qt::AlignLeft &&
                      tb->indexOf(t->identifier()) == tb->count()-1)
                     lastTab = true;
                 if (selected) {
@@ -945,16 +945,16 @@ void QMotifStyle::drawControl(ControlElement element,
                 if (pb->indicatorFollowsStyle() || pb->centerIndicator()) {
                     p->setPen(pal.highlightedText());
                     p->setClipRect(r.x(), r.y(), x, r.height());
-                    p->drawText(r, AlignCenter | SingleLine, pb->progressString());
+                    p->drawText(r, Qt::AlignCenter | Qt::SingleLine, pb->progressString());
 
                     if (pb->progress() != pb->totalSteps()) {
                         p->setClipRect(r.x() + x, r.y(), r.width() - x, r.height());
                         p->setPen(pal.highlight());
-                        p->drawText(r, AlignCenter | SingleLine, pb->progressString());
+                        p->drawText(r, Qt::AlignCenter | Qt::SingleLine, pb->progressString());
                     }
                 } else {
                     p->setPen(pal.text());
-                    p->drawText(r, AlignCenter | SingleLine, pb->progressString());
+                    p->drawText(r, Qt::AlignCenter | Qt::SingleLine, pb->progressString());
                 }
             }
 #endif
@@ -972,9 +972,9 @@ void QMotifStyle::drawControl(ControlElement element,
         } else {
             p->fillRect(r, pal.brush(QPalette::Button));
         }
-        p->setPen(QPen(pal.dark(), 1, DashLine));
+        p->setPen(QPen(pal.dark(), 1, Qt::DashLine));
         p->drawLine(r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1);
-        p->setPen(QPen(pal.light(), 1, DashLine));
+        p->setPen(QPen(pal.light(), 1, Qt::DashLine));
         p->drawLine(r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2);
         break; }
 
@@ -1086,8 +1086,8 @@ void QMotifStyle::drawControl(ControlElement element,
         if (!s.isNull()) {                        // draw text
             int t = s.indexOf('\t');
             int m = motifItemVMargin;
-            int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-            text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+            int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+            text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
             if (t >= 0) {                         // draw tab text
                 QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
                                               y+motifItemVMargin, tab, h-2*motifItemVMargin), r);
@@ -1231,8 +1231,8 @@ void QMotifStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = motifItemVMargin;
-                int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-                text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
                                                   y+motifItemVMargin, tab, h-2*motifItemVMargin), r);
@@ -1244,10 +1244,10 @@ void QMotifStyle::drawControl(ControlElement element,
             } else if (mi->pixmap()) {                        // draw pixmap
                 QPixmap *pixmap = mi->pixmap();
                 if (pixmap->depth() == 1)
-                    p->setBackgroundMode(OpaqueMode);
+                    p->setBackgroundMode(Qt::OpaqueMode);
                 p->drawPixmap(xvis, y+motifItemFrame, *pixmap);
                 if (pixmap->depth() == 1)
-                    p->setBackgroundMode(TransparentMode);
+                    p->setBackgroundMode(Qt::TransparentMode);
             }
             if (mi->popup()) {                        // draw sub menu arrow
                 int dim = (h-2*motifItemFrame) / 2;
@@ -1394,7 +1394,7 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
             if ((sub & SC_SliderHandle) && handle.isValid()) {
                 drawPrimitive(PE_ButtonBevel, p, handle, pal);
 
-                if (slider->orientation() == Horizontal) {
+                if (slider->orientation() == Qt::Horizontal) {
                     QCOORD mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid, handle.y(), mid, handle.y() + handle.height() - 2,
                                    pal, true, 1);
@@ -1525,14 +1525,14 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                                 if (child->isOpen())
                                     a.setPoints(3, bx-2, linebot-2,
                                                  bx, linebot+2,
-                                                 bx+2, linebot-2); //RightArrow
+                                                 bx+2, linebot-2); //Qt::RightArrow
                                 else
                                     a.setPoints(3, bx-2, linebot-2,
                                                  bx+2, linebot,
-                                                 bx-2, linebot+2); //DownArrow
+                                                 bx-2, linebot+2); //Qt::DownArrow
                                 p->setBrush(pal.text());
                                 p->drawPolygon(a);
-                                p->setBrush(NoBrush);
+                                p->setBrush(Qt::NoBrush);
                                 // dotlinery
                                 dotlines[c++] = QPoint(bx, linetop);
                                 dotlines[c++] = QPoint(bx, linebot - 5);
@@ -1612,7 +1612,7 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         {
 #ifndef QT_NO_SLIDER
             const QSlider * sl = (const QSlider *) widget;
-            int space = (sl->orientation() == Horizontal) ? sl->height()
+            int space = (sl->orientation() == Qt::Horizontal) ? sl->height()
                         : sl->width();
             int ticks = sl->tickmarks();
             int n = 0;
@@ -1638,7 +1638,7 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
         {
 #ifndef QT_NO_SLIDER
             const QSlider * sl = (const QSlider *) widget;
-            if (sl->orientation() == Horizontal)
+            if (sl->orientation() == Qt::Horizontal)
                 ret = sl->width() - pixelMetric(PM_SliderLength, sl) - 6;
             else
                 ret = sl->height() - pixelMetric(PM_SliderLength, sl) - 6;
@@ -1713,7 +1713,7 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
             const QSlider *sl = static_cast<const QSlider *>(widget);
             int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
             int thickness = pixelMetric(PM_SliderControlThickness, sl);
-            bool horizontal = sl->orientation() == Horizontal;
+            bool horizontal = sl->orientation() == Qt::Horizontal;
             int len = pixelMetric(PM_SliderLength, sl);
             int motifBorder = 3;
             int sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
@@ -2016,7 +2016,7 @@ QRect QMotifStyle::subRect(SubRect r, const QWidget *widget) const
             if (!dw->area() || !dw->isCloseEnabled())
                 rect.setRect(0, 0, widget->width(), widget->height());
             else {
-                if (dw->area()->orientation() == Horizontal)
+                if (dw->area()->orientation() == Qt::Horizontal)
                     rect.setRect(2, 15, widget->width()-2, widget->height() - 15);
                 else
                     rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
@@ -2498,7 +2498,7 @@ int QMotifStyle::styleHint(StyleHint hint,
 
     switch (hint) {
     case SH_GUIStyle:
-        ret = MotifStyle;
+        ret = Qt::MotifStyle;
         break;
 
     // #ifndef QT_NO_PALETTE
@@ -2520,7 +2520,7 @@ int QMotifStyle::styleHint(StyleHint hint,
         break;
 
     case SH_ProgressDialog_TextLabelAlignment:
-        ret = AlignAuto | AlignVCenter;
+        ret = Qt::AlignAuto | Qt::AlignVCenter;
         break;
 
     case SH_ItemView_ChangeHighlightOnFocus:

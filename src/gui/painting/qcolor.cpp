@@ -47,15 +47,15 @@
     There are 19 predefined QColor objects: \c white, \c black, \c
     red, \c darkRed, \c green, \c darkGreen, \c blue, \c darkBlue, \c
     cyan, \c darkCyan, \c magenta, \c darkMagenta, \c yellow, \c
-    darkYellow, \c gray, \c darkGray, \c lightGray, \c color0 and \c
-    color1, accessible as members of the Qt namespace (ie. \c Qt::red).
+    darkYellow, \c gray, \c darkGray, \c lightGray, \c Qt::color0 and \c
+    Qt::color1, accessible as members of the Qt namespace (ie. \c Qt::red).
 
     \img qt-colors.png Qt Colors
 
-    The colors \c color0 (zero pixel value) and \c color1 (non-zero
+    The colors \c Qt::color0 (zero pixel value) and \c Qt::color1 (non-zero
     pixel value) are special colors for drawing in \link QBitmap
-    bitmaps\endlink. Painting with \c color0 sets the bitmap bits to 0
-    (transparent, i.e. background), and painting with \c color1 sets the
+    bitmaps\endlink. Painting with \c Qt::color0 sets the bitmap bits to 0
+    (transparent, i.e. background), and painting with \c Qt::color1 sets the
     bits to 1 (opaque, i.e. foreground).
 
     The QColor class has an efficient, dynamic color allocation
@@ -183,14 +183,14 @@ QColor::QColor(Qt::GlobalColor color)
 
     static const QRgb global_colors[] = {
 #if defined Q_WS_X11
-        // HACK: we need a way to recognize color0 and color1 uniquely, so
-        // that we can use color0 and color1 with fixed pixel values on
+        // HACK: we need a way to recognize Qt::color0 and Qt::color1 uniquely, so
+        // that we can use Qt::color0 and Qt::color1 with fixed pixel values on
         // all screens
-        QRGBA(255, 255, 255, 1), // color0
-        QRGBA( 0,   0,   0, 1), // color1
+        QRGBA(255, 255, 255, 1), // Qt::color0
+        QRGBA( 0,   0,   0, 1), // Qt::color1
 #else
-        QRGB(255, 255, 255), // color0
-        QRGB( 0,   0,   0), // color1
+        QRGB(255, 255, 255), // Qt::color0
+        QRGB( 0,   0,   0), // Qt::color1
 #endif
         QRGB( 0,   0,   0), // black
         QRGB(255, 255, 255), // white

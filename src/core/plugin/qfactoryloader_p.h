@@ -32,7 +32,7 @@ public:
     QFactoryLoader(const char *iid,
                    const QStringList &paths = QString(),
                    const QString &suffix = QString(),
-                   CaseSensitivity = CaseSensitive,
+                   Qt::CaseSensitivity = Qt::CaseSensitive,
                    QObject *parent = 0);
     ~QFactoryLoader();
 

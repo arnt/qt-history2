@@ -349,7 +349,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
         }
 #endif
         /*
-          Translate shift+Key_Tab to Key_Backtab
+          Translate shift+Qt::Key_Tab to Qt::Key_Backtab
         */
         if ((keyCode == Qt::Key_Tab) && shift)
             keyCode = Qt::Key_Backtab;
@@ -357,7 +357,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 
 #ifndef QT_QWS_USE_KEYCODES
     /*
-      Keypad consists of extended keys 53 and 28,
+      Qt::Keypad consists of extended keys 53 and 28,
       and non-extended keys 55 and 71 through 83.
     */
     if ((extended == 1) ? (code == 53 || code == 28) :

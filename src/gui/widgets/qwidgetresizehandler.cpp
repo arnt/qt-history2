@@ -105,7 +105,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
             break;
         if (!widget->rect().contains(widget->mapFromGlobal(e->globalPos())))
             return false;
-        if (e->button() == LeftButton) {
+        if (e->button() == Qt::LeftButton) {
             emit activate();
             bool me = isMovingEnabled();
             setMovingEnabled(me && o == widget);
@@ -119,7 +119,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     case QEvent::MouseButtonRelease:
         if (w->isMaximized())
             break;
-        if (e->button() == LeftButton) {
+        if (e->button() == Qt::LeftButton) {
             moveResizeMode = false;
             buttonDown = false;
             widget->releaseMouse();
@@ -154,7 +154,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
 void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint pos = widget->mapFromGlobal(e->globalPos());
-    if (!moveResizeMode && (!buttonDown || (e->state() & LeftButton) == 0)) {
+    if (!moveResizeMode && (!buttonDown || (e->state() & Qt::LeftButton) == 0)) {
         if (pos.y() <= range && pos.x() <= range)
             mode = TopLeft;
         else if (pos.y() >= widget->height()-range && pos.x() >= widget->width()-range)
@@ -185,7 +185,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
     if (buttonDown && !isMovingEnabled() && mode == Center && !moveResizeMode)
         return;
 
-    if (widget->testWState(WState_ConfigPending))
+    if (widget->testWState(Qt::WState_ConfigPending))
         return;
 
 
@@ -296,22 +296,22 @@ void QWidgetResizeHandler::setMouseCursor(MousePosition m)
     switch (m) {
     case TopLeft:
     case BottomRight:
-        widget->setCursor(SizeFDiagCursor);
+        widget->setCursor(Qt::SizeFDiagCursor);
         break;
     case BottomLeft:
     case TopRight:
-        widget->setCursor(SizeBDiagCursor);
+        widget->setCursor(Qt::SizeBDiagCursor);
         break;
     case Top:
     case Bottom:
-        widget->setCursor(SizeVerCursor);
+        widget->setCursor(Qt::SizeVerCursor);
         break;
     case Left:
     case Right:
-        widget->setCursor(SizeHorCursor);
+        widget->setCursor(Qt::SizeHorCursor);
         break;
     default:
-        widget->setCursor(ArrowCursor);
+        widget->setCursor(Qt::ArrowCursor);
         break;
     }
 #endif
@@ -321,11 +321,11 @@ void QWidgetResizeHandler::keyPressEvent(QKeyEvent * e)
 {
     if (!isMove() && !isResize())
         return;
-    bool is_control = e->state() & ControlButton;
+    bool is_control = e->state() & Qt::ControlButton;
     int delta = is_control?1:8;
     QPoint pos = QCursor::pos();
     switch (e->key()) {
-    case Key_Left:
+    case Qt::Key_Left:
         pos.rx() -= delta;
         if (pos.x() <= QApplication::desktop()->geometry().left()) {
             if (mode == TopLeft || mode == BottomLeft) {
@@ -350,7 +350,7 @@ void QWidgetResizeHandler::keyPressEvent(QKeyEvent * e)
 #endif
         }
         break;
-    case Key_Right:
+    case Qt::Key_Right:
         pos.rx() += delta;
         if (pos.x() >= QApplication::desktop()->geometry().right()) {
             if (mode == TopRight || mode == BottomRight) {
@@ -375,7 +375,7 @@ void QWidgetResizeHandler::keyPressEvent(QKeyEvent * e)
 #endif
         }
         break;
-    case Key_Up:
+    case Qt::Key_Up:
         pos.ry() -= delta;
         if (pos.y() <= QApplication::desktop()->geometry().top()) {
             if (mode == TopLeft || mode == TopRight) {
@@ -400,7 +400,7 @@ void QWidgetResizeHandler::keyPressEvent(QKeyEvent * e)
 #endif
         }
         break;
-    case Key_Down:
+    case Qt::Key_Down:
         pos.ry() += delta;
         if (pos.y() >= QApplication::desktop()->geometry().bottom()) {
             if (mode == BottomLeft || mode == BottomRight) {
@@ -425,10 +425,10 @@ void QWidgetResizeHandler::keyPressEvent(QKeyEvent * e)
 #endif
         }
         break;
-    case Key_Space:
-    case Key_Return:
-    case Key_Enter:
-    case Key_Escape:
+    case Qt::Key_Space:
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Escape:
         moveResizeMode = false;
         widget->releaseMouse();
         widget->releaseKeyboard();
@@ -483,7 +483,7 @@ void QWidgetResizeHandler::doMove()
     moveOffset = widget->mapFromGlobal(QCursor::pos());
     invertedMoveOffset = widget->rect().bottomRight() - moveOffset;
 #ifndef QT_NO_CURSOR
-    widget->grabMouse(SizeAllCursor);
+    widget->grabMouse(Qt::SizeAllCursor);
 #else
     widget->grabMouse();
 #endif

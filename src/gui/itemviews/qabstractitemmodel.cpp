@@ -761,7 +761,7 @@ bool QAbstractItemModel::isSortable() const
 
     \sa isSortable()
 */
-void QAbstractItemModel::sort(int, SortOrder)
+void QAbstractItemModel::sort(int, Qt::SortOrder)
 {
     // do nothing
 }

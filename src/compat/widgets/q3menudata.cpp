@@ -328,8 +328,8 @@ void Q3MenuData::removePopup(Q3PopupMenu *popup)
     \code
         Q3MenuBar   *mainMenu = new Q3MenuBar;
         Q3PopupMenu *fileMenu = new Q3PopupMenu;
-        fileMenu->insertItem("New",  myView, SLOT(newFile()), CTRL+Key_N);
-        fileMenu->insertItem("Open", myView, SLOT(open()),    CTRL+Key_O);
+        fileMenu->insertItem("New",  myView, SLOT(newFile()), Qt::CTRL+Qt::Key_N);
+        fileMenu->insertItem("Open", myView, SLOT(open()),    Qt::CTRL+Qt::Key_O);
         mainMenu->insertItem("File", fileMenu);
     \endcode
 
@@ -837,12 +837,12 @@ QKeySequence Q3MenuData::accel(int id) const
     Sets the accelerator key for the menu item \a id to \a key.
 
     An accelerator key consists of a key code and a combination of the
-    modifiers \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL (OR'ed or
+    modifiers \c Qt::SHIFT, \c Qt::CTRL, \c Qt::ALT or \c Qt::UNICODE_ACCEL (OR'ed or
     added). The header file \c qnamespace.h contains a list of key
     codes.
 
     Defining an accelerator key produces a text that is added to the
-    menu item; for instance, \c CTRL + \c Key_O produces "Ctrl+O". The
+    menu item; for instance, \c Qt::CTRL + \c Qt::Key_O produces "Ctrl+O". The
     text is formatted differently for different platforms.
 
     Note that keyboard accelerators in Qt are not application-global,
@@ -861,9 +861,9 @@ QKeySequence Q3MenuData::accel(int id) const
         Q3MenuBar *mainMenu = new Q3MenuBar;
         Q3PopupMenu *fileMenu = new Q3PopupMenu;       // file sub menu
         fileMenu->insertItem("Open Document", 67); // add "Open" item
-        fileMenu->setAccel(CTRL + Key_O, 67);      // Ctrl+O to open
+        fileMenu->setAccel(Qt::CTRL + Qt::Key_O, 67);      // Ctrl+O to open
         fileMenu->insertItem("Quit", 69);          // add "Quit" item
-        fileMenu->setAccel(CTRL + ALT + Key_Delete, 69); // add Alt+Del to quit
+        fileMenu->setAccel(Qt::CTRL + Qt::ALT + Qt::Key_Delete, 69); // add Alt+Del to quit
         mainMenu->insertItem("File", fileMenu);    // add the file menu
     \endcode
 

@@ -121,10 +121,10 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
 
             void keyPressEvent(QKeyEvent *e)
             {
-		if (e->key() == Key_P) {
+		if (e->key() == Qt::Key_P) {
 		    stepBy(1);
 		    e->accept();
-		} else if (e->key() == Key_N) {
+		} else if (e->key() == Qt::Key_N) {
 		    stepBy(-1);
 		    e->accept();
 		} else {

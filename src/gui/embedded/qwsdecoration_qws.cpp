@@ -65,10 +65,10 @@
     \value Bottom - allows the bottom of the window to be resized.
     \value Left - allows the left edge of the window to be resized.
     \value Right - allows the right edge of the window to be resized.
-    \value TopLeft - allows the top-left of the window to be resized.
-    \value TopRight - allows the top-right of the window to be resized.
-    \value BottomLeft - allows the bottom-left of the window to be resized.
-    \value BottomRight - allows the bottom-right of the window to be resized.
+    \value Qt::TopLeft - allows the top-left of the window to be resized.
+    \value Qt::TopRight - allows the top-right of the window to be resized.
+    \value Qt::BottomLeft - allows the bottom-left of the window to be resized.
+    \value Qt::BottomRight - allows the bottom-right of the window to be resized.
     \value Close - clicking in this region closes the window.
     \value Minimize - clicking in this region minimizes the window.
     \value Maximize - clicking in this region maximizes the window.
@@ -107,7 +107,7 @@ class MinimisedWindow : public QWidget
 {
 public:
     MinimisedWindow(QWidget *restore) :
-        QWidget((QWidget *)restore->parent(), restore->windowCaption(), WStyle_Customize | WStyle_NoBorder),
+        QWidget((QWidget *)restore->parent(), restore->windowCaption(), Qt::WStyle_Customize | Qt::WStyle_NoBorder),
         w(restore)
     {
         w->hide();
@@ -200,7 +200,7 @@ QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
 
     m->insertItem(qApp->translate("QWSDecoration", "&Restore"), (int)Normalize);
     m->insertItem(qApp->translate("QWSDecoration", "&Move"), (int)Title);
-    m->insertItem(qApp->translate("QWSDecoration", "&Size"), (int)BottomRight);
+    m->insertItem(qApp->translate("QWSDecoration", "&Size"), (int)Qt::BottomRight);
     m->insertItem(qApp->translate("QWSDecoration", "Mi&nimize"), (int)Minimize);
     m->insertItem(qApp->translate("QWSDecoration", "Ma&ximize"), (int)Maximize);
     m->insertSeparator();

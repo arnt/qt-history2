@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QAbstractSlider : public QWidget
     Q_PROPERTY(int pageStep READ pageStep WRITE setPageStep)
     Q_PROPERTY(int value READ value WRITE setValue)
     Q_PROPERTY(bool tracking READ hasTracking WRITE setTracking)
-    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(bool invertedAppearance READ invertedAppearance WRITE setInvertedAppearance)
     Q_PROPERTY(bool invertedControls READ invertedControls WRITE setInvertedControls)
     QDOC_PROPERTY(bool sliderDown READ isSliderDown WRITE setSliderDown)
@@ -41,8 +41,8 @@ public:
     QAbstractSlider(QWidget *parent=0);
     ~QAbstractSlider();
 
-    void setOrientation(Orientation);
-    Orientation orientation() const;
+    void setOrientation(Qt::Orientation);
+    Qt::Orientation orientation() const;
 
     void setMinimum(int);
     int minimum() const;

@@ -272,7 +272,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
         return;
     }
 
-    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern)) {
+    if((cbrush.style()!=Qt::NoBrush) && (cbrush.style()!=Qt::SolidPattern)) {
         QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
         return;
     }
@@ -319,7 +319,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     unsigned int tmprop=getRop(myrop) << 16;
 
-    if(cbrush.style()!=NoBrush) {
+    if(cbrush.style()!=Qt::NoBrush) {
         int p=ncliprect;
         for(loopc=0;loopc<p;loopc++) {
             QRect r=cliprect[loopc];
@@ -416,7 +416,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
             if(numDashes<4) {
                 matrox_regw(SRC0,tmp);
             }
-            matrox_regw(SHIFT,((numDashes*8)-1) << 16);
+            matrox_regw(Qt::SHIFT,((numDashes*8)-1) << 16);
             matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_BFCOL);
         } else {
             matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_SHIFTZERO |

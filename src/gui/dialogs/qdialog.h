@@ -47,8 +47,8 @@ public:
     void show();
     void hide();
 
-    void setOrientation(Orientation orientation);
-    Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
+    Qt::Orientation orientation() const;
 
     void setExtension(QWidget* extension);
     QWidget* extension() const;

@@ -62,7 +62,7 @@ public:
     int col : 30;
     uint bFlat : 1;
     int nRows, nCols;
-    Orientation dir;
+    Qt::Orientation dir;
     int spac, marg;
 
     QSpacerItem *spacer;
@@ -155,7 +155,7 @@ Q3GroupBox::Q3GroupBox(const QString &title, QWidget *parent, const char *name)
     constructor.
 */
 
-Q3GroupBox::Q3GroupBox(int strips, Orientation orientation,
+Q3GroupBox::Q3GroupBox(int strips, Qt::Orientation orientation,
                     QWidget *parent, const char *name)
     : QWidget(*new Q3GroupBoxPrivate, parent, 0)
 {
@@ -173,7 +173,7 @@ Q3GroupBox::Q3GroupBox(int strips, Orientation orientation,
     constructor.
 */
 
-Q3GroupBox::Q3GroupBox(int strips, Orientation orientation,
+Q3GroupBox::Q3GroupBox(int strips, Qt::Orientation orientation,
                     const QString &title, QWidget *parent,
                     const char *name)
     : QWidget(*new Q3GroupBoxPrivate, parent, 0)
@@ -193,7 +193,7 @@ Q3GroupBox::~Q3GroupBox()
 
 void Q3GroupBoxPrivate::init()
 {
-    align = AlignAuto;
+    align = Qt::AlignAuto;
 #ifndef QT_NO_ACCEL
     accel = 0;
 #endif
@@ -201,7 +201,7 @@ void Q3GroupBoxPrivate::init()
     grid = 0;
     lenvisible = 0;
     nCols = nRows = 0;
-    dir = Horizontal;
+    dir = Qt::Horizontal;
     marg = 11;
     spac = 5;
     bFlat = false;
@@ -305,14 +305,14 @@ QString Q3GroupBox::title() const
 
     The alignment is one of the following flags:
     \list
-    \i \c AlignAuto aligns the title according to the language,
+    \i \c Qt::AlignAuto aligns the title according to the language,
     usually to the left.
-    \i \c AlignLeft aligns the title text to the left.
-    \i \c AlignRight aligns the title text to the right.
-    \i \c AlignHCenter aligns the title text centered.
+    \i \c Qt::AlignLeft aligns the title text to the left.
+    \i \c Qt::AlignRight aligns the title text to the right.
+    \i \c Qt::AlignHCenter aligns the title text centered.
     \endlist
 
-    The default alignment is \c AlignAuto.
+    The default alignment is \c Qt::AlignAuto.
 
     \sa Qt::AlignmentFlags
 */
@@ -333,8 +333,8 @@ void Q3GroupBox::setAlignment(int alignment)
 void Q3GroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-    if (d->align & AlignRight || d->align & AlignCenter ||
-         (QApplication::reverseLayout() && !(d->align & AlignLeft)))
+    if (d->align & Qt::AlignRight || d->align & Qt::AlignCenter ||
+         (QApplication::reverseLayout() && !(d->align & Qt::AlignLeft)))
         d->updateCheckBoxGeometry();
     d->calculateFrame();
 }
@@ -355,11 +355,11 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         int tw = fm.width(d->str, d->lenvisible) + fm.width(QChar(' '));
         int x;
         int marg = d->bFlat ? 0 : 8;
-        if (d->align & AlignHCenter)                // center alignment
+        if (d->align & Qt::AlignHCenter)                // center alignment
             x = frameRect.width()/2 - tw/2;
-        else if (d->align & AlignRight)        // right alignment
+        else if (d->align & Qt::AlignRight)        // right alignment
             x = frameRect.width() - tw - marg;
-        else if (d->align & AlignLeft)                 // left alignment
+        else if (d->align & Qt::AlignLeft)                 // left alignment
             x = marg;
         else { // auto align
             if(QApplication::reverseLayout())
@@ -369,14 +369,14 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         }
         QRect r(x, 0, tw, h);
         int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
-        if(va & AlignTop)
+        if(va & Qt::AlignTop)
             r.moveBy(0, fm.descent());
         QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this));
         if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
-            va |= NoAccel;
-        style().drawItem(&paint, r, ShowPrefix | AlignHCenter | va, palette(),
+            va |= Qt::NoAccel;
+        style().drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
                           isEnabled(), QPixmap(), d->str, -1,
-                          testAttribute(WA_SetPalette) ? 0 : &pen);
+                          testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();
@@ -400,7 +400,7 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
         if (hasFocus())
             opt.state |= QStyle::Style_HasFocus;
-        if (testAttribute(WA_UnderMouse))
+        if (testAttribute(Qt::WA_UnderMouse))
             opt.state |= QStyle::Style_MouseOver;
         style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
     }
@@ -410,8 +410,8 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
 /*!
     Adds an empty cell at the next free position. If \a size is
     greater than 0, the empty cell takes \a size to be its fixed width
-    (if orientation() is \c Horizontal) or height (if orientation() is
-    \c Vertical).
+    (if orientation() is \c Qt::Horizontal) or height (if orientation() is
+    \c Qt::Vertical).
 
     Use this method to separate the widgets in the group box or to
     skip the next free cell. For performance reasons, call this method
@@ -429,10 +429,10 @@ void Q3GroupBox::addSpace(int size)
 
     if (size > 0) {
         QSpacerItem *spacer
-            = new QSpacerItem((d->dir == Horizontal) ? 0 : size,
-                               (d->dir == Vertical) ? 0 : size,
-                               (d->dir == Horizontal) ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-                               (d->dir == Vertical) ? QSizePolicy::Fixed : QSizePolicy::Expanding);
+            = new QSpacerItem((d->dir == Qt::Horizontal) ? 0 : size,
+                               (d->dir == Qt::Vertical) ? 0 : size,
+                               (d->dir == Qt::Horizontal) ? QSizePolicy::Expanding : QSizePolicy::Fixed,
+                               (d->dir == Qt::Vertical) ? QSizePolicy::Fixed : QSizePolicy::Expanding);
         d->grid->addItem(spacer, d->row, d->col);
     }
 
@@ -449,7 +449,7 @@ void Q3GroupBox::addSpace(int size)
 */
 int Q3GroupBox::columns() const
 {
-    if (d->dir == Horizontal)
+    if (d->dir == Qt::Horizontal)
         return d->nCols;
     return d->nRows;
 }
@@ -545,7 +545,7 @@ void Q3GroupBox::setOrientation(Qt::Orientation o)
 
     \sa orientation columns
 */
-void Q3GroupBox::setColumnLayout(int strips, Orientation direction)
+void Q3GroupBox::setColumnLayout(int strips, Qt::Orientation direction)
 {
     if (layout())
         delete layout();
@@ -579,7 +579,7 @@ void Q3GroupBox::setColumnLayout(int strips, Orientation direction)
         return;
 
     d->dir = direction;
-    if (d->dir == Horizontal) {
+    if (d->dir == Qt::Horizontal) {
         d->nCols = strips;
         d->nRows = 1;
     } else {
@@ -588,7 +588,7 @@ void Q3GroupBox::setColumnLayout(int strips, Orientation direction)
     }
     d->grid = new QGridLayout(d->nRows, d->nCols, d->spac);
     d->row = d->col = 0;
-    d->grid->setAlignment(AlignTop);
+    d->grid->setAlignment(Qt::AlignTop);
     d->vbox->addLayout(d->grid);
 
     // Add all children
@@ -623,12 +623,12 @@ void Q3GroupBox::childEvent(QChildEvent *c)
         if (w == d->checkbox)
             return;
         if (d->checkbox->isChecked()) {
-            if (!w->testAttribute(WA_ForceDisabled))
+            if (!w->testAttribute(Qt::WA_ForceDisabled))
                 w->setEnabled(true);
         } else {
             if (w->isEnabled()) {
                 w->setEnabled(false);
-                w->setAttribute(WA_ForceDisabled, false);
+                w->setAttribute(Qt::WA_ForceDisabled, false);
             }
         }
     }
@@ -650,14 +650,14 @@ void Q3GroupBoxPrivate::insertWid(QWidget* w)
 void Q3GroupBoxPrivate::skip()
 {
     // Same as QGrid::skip()
-    if (dir == Horizontal) {
+    if (dir == Qt::Horizontal) {
         if (col+1 < nCols) {
             col++;
         } else {
             col = 0;
             row++;
         }
-    } else { //Vertical
+    } else { //Qt::Vertical
         if (row+1 < nRows) {
             row++;
         } else {
@@ -685,7 +685,7 @@ void Q3GroupBoxPrivate::fixFocus()
         QWidget * candidate = 0;
         QWidget * w = q;
         while ((w = w->nextInFocusChain()) != q) {
-            if (q->isAncestorOf(w) && (w->focusPolicy() & TabFocus) == TabFocus && w->isVisibleTo(q)) {
+            if (q->isAncestorOf(w) && (w->focusPolicy() & Qt::TabFocus) == TabFocus && w->isVisibleTo(q)) {
 #ifndef QT_NO_RADIOBUTTON
                 if (!best && qt_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
                     // we prefer a checked radio button or a widget that
@@ -730,17 +730,17 @@ void Q3GroupBoxPrivate::calculateFrame()
         }
         if (lenvisible) { // but do we also have a visible label?
             int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
-            if(va & AlignVCenter)
+            if(va & Qt::AlignVCenter)
                 d->topMargin = fm.height()/2;
-            else if(va & AlignTop)
+            else if(va & Qt::AlignTop)
                 d->topMargin = fm.ascent();
         }
     }
     else if (checkbox) {
         int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, q);
-        if(va & AlignVCenter)
+        if(va & Qt::AlignVCenter)
             topMargin = checkbox->height()/2;
-        else if(va & AlignTop)
+        else if(va & Qt::AlignTop)
             topMargin = fm.ascent();
     }
 }
@@ -767,7 +767,7 @@ QSize Q3GroupBox::sizeHint() const
         tw = d->checkbox->sizeHint().width() + 2*fm.width("xx");
         th = d->checkbox->sizeHint().height() + fm.width(QChar(' '));
     } else {
-        tw = fm.size(ShowPrefix, title() + "xxxx").width();
+        tw = fm.size(Qt::ShowPrefix, title() + "xxxx").width();
         th = fm.height() + fm.width(QChar(' '));
     }
 
@@ -901,12 +901,12 @@ void Q3GroupBoxPrivate::setChildrenEnabled(bool b)
            ) {
             QWidget *w = static_cast<QWidget *>(o);
             if (b) {
-                if (!w->testAttribute(WA_ForceDisabled))
+                if (!w->testAttribute(Qt::WA_ForceDisabled))
                     w->setEnabled(true);
             } else {
                 if (w->isEnabled()) {
                     w->setEnabled(false);
-                    w->setAttribute(WA_ForceDisabled, false);
+                    w->setAttribute(Qt::WA_ForceDisabled, false);
                 }
             }
         }
@@ -945,12 +945,12 @@ void Q3GroupBoxPrivate::updateCheckBoxGeometry()
         int marg = bFlat ? 2 : 8;
         marg += q->fontMetrics().width(QChar(' '));
 
-        if (align & AlignHCenter) {
+        if (align & Qt::AlignHCenter) {
             cbRect.moveCenter(frameRect.center());
             cbRect.moveTop(0);
-        } else if (align & AlignRight) {
+        } else if (align & Qt::AlignRight) {
             cbRect.moveRight(frameRect.right() - marg);
-        } else if (align & AlignLeft) {
+        } else if (align & Qt::AlignLeft) {
             cbRect.moveLeft(frameRect.left() + marg);
         } else { // auto align
             if(QApplication::reverseLayout())

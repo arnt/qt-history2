@@ -128,7 +128,7 @@ QSize QRadioButton::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), ShowPrefix, false, text()).size();
+    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::ShowPrefix, false, text()).size();
     Q4StyleOptionButton opt = getStyleOption(this);
     return (style().sizeFromContents(QStyle::CT_RadioButton, &opt, sz, fm, this).
             expandedTo(QApplication::globalStrut()));
@@ -206,7 +206,7 @@ void QRadioButton::updateMask()
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, &opt, this),
                                   this);
     QBitmap bm(width(), height());
-    bm.fill(color0);
+    bm.fill(Qt::color0);
     QPainter p(&bm);
     style().drawControlMask(QStyle::CE_RadioButton, &opt, &p, this);
     if (!text().isEmpty() || !icon().isNull()) {
@@ -215,7 +215,7 @@ void QRadioButton::updateMask()
         QRect frect =
             QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonFocusRect, &opt, this), this);
         QRect label(crect.unite(frect));
-        p.fillRect(label, color1);
+        p.fillRect(label, Qt::color1);
     }
     p.end();
     setMask(bm);

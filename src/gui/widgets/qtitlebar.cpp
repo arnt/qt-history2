@@ -58,23 +58,23 @@ public:
         if (window) {
             switch(ctrl) {
             case QStyle::SC_TitleBarSysMenu:
-                if (t->testWFlags(WStyle_SysMenu))
+                if (t->testWFlags(Qt::WStyle_SysMenu))
                     tipstring = QTitleBar::tr("System Menu");
                 break;
 
             case QStyle::SC_TitleBarShadeButton:
-                if (t->testWFlags(WStyle_Tool) && t->testWFlags(WStyle_MinMax))
+                if (t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_MinMax))
                     tipstring = QTitleBar::tr("Shade");
                 break;
 
             case QStyle::SC_TitleBarUnshadeButton:
-                if (t->testWFlags(WStyle_Tool) && t->testWFlags(WStyle_MinMax))
+                if (t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_MinMax))
                     tipstring = QTitleBar::tr("Unshade");
                 break;
 
             case QStyle::SC_TitleBarNormalButton:
             case QStyle::SC_TitleBarMinButton:
-                if (!t->testWFlags(WStyle_Tool) && t->testWFlags(WStyle_Minimize)) {
+                if (!t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_Minimize)) {
                     if(window->isMinimized())
                         tipstring = QTitleBar::tr("Normalize");
                     else
@@ -83,12 +83,12 @@ public:
                 break;
 
             case QStyle::SC_TitleBarMaxButton:
-                if (!t->testWFlags(WStyle_Tool) && t->testWFlags(WStyle_Maximize))
+                if (!t->testWFlags(Qt::WStyle_Tool) && t->testWFlags(Qt::WStyle_Maximize))
                     tipstring = QTitleBar::tr("Maximize");
                 break;
 
             case QStyle::SC_TitleBarCloseButton:
-                if (t->testWFlags(WStyle_SysMenu))
+                if (t->testWFlags(Qt::WStyle_SysMenu))
                     tipstring = QTitleBar::tr("Close");
                 break;
 
@@ -134,7 +134,7 @@ inline int QTitleBarPrivate::titleBarState() const
 }
 
 QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
-    : QWidget(parent, name, WStyle_Customize | WStyle_NoBorder)
+    : QWidget(parent, name, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     d = new QTitleBarPrivate();
 
@@ -144,10 +144,10 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     if (w) {
         setWFlags(((QTitleBar*)w)->getWFlags());
         if (w->minimumSize() == w->maximumSize())
-            clearWFlags(WStyle_Maximize);
+            clearWFlags(Qt::WStyle_Maximize);
         setWindowTitle(w->windowTitle());
     } else {
-        setWFlags(WStyle_Customize);
+        setWFlags(Qt::WStyle_Customize);
     }
 
     readColors();
@@ -232,13 +232,13 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
 {
     if (!d->act)
         emit doActivate();
-    if (e->button() == LeftButton) {
+    if (e->button() == Qt::LeftButton) {
         d->pressed = true;
         QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
             QStyleOption(d->titleBarState()));
         switch (ctrl) {
         case QStyle::SC_TitleBarSysMenu:
-            if (testWFlags(WStyle_SysMenu) && !testWFlags(WStyle_Tool)) {
+            if (testWFlags(Qt::WStyle_SysMenu) && !testWFlags(Qt::WStyle_Tool)) {
                 d->buttonDown = QStyle::SC_None;
                 static QTime* t = 0;
                 static QTitleBar* tc = 0;
@@ -258,27 +258,27 @@ void QTitleBar::mousePressEvent(QMouseEvent * e)
 
         case QStyle::SC_TitleBarShadeButton:
         case QStyle::SC_TitleBarUnshadeButton:
-            if (testWFlags(WStyle_MinMax) && testWFlags(WStyle_Tool))
+            if (testWFlags(Qt::WStyle_MinMax) && testWFlags(Qt::WStyle_Tool))
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarNormalButton:
-            if(testWFlags(WStyle_Minimize) && !testWFlags(WStyle_Tool))
+            if(testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool))
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarMinButton:
-            if(testWFlags(WStyle_Minimize) && !testWFlags(WStyle_Tool))
+            if(testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool))
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarMaxButton:
-            if (testWFlags(WStyle_Maximize) && !testWFlags(WStyle_Tool))
+            if (testWFlags(Qt::WStyle_Maximize) && !testWFlags(Qt::WStyle_Tool))
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarCloseButton:
-            if (testWFlags(WStyle_SysMenu))
+            if (testWFlags(Qt::WStyle_SysMenu))
                 d->buttonDown = ctrl;
             break;
 
@@ -308,7 +308,7 @@ void QTitleBar::contextMenuEvent(QContextMenuEvent *e)
 
 void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
 {
-    if (e->button() == LeftButton && d->pressed) {
+    if (e->button() == Qt::LeftButton && d->pressed) {
         QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
             QStyleOption(d->titleBarState()));
 
@@ -316,17 +316,17 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
             switch(ctrl) {
             case QStyle::SC_TitleBarShadeButton:
             case QStyle::SC_TitleBarUnshadeButton:
-                if(testWFlags(WStyle_MinMax) && testWFlags(WStyle_Tool))
+                if(testWFlags(Qt::WStyle_MinMax) && testWFlags(Qt::WStyle_Tool))
                     emit doShade();
                 break;
 
             case QStyle::SC_TitleBarNormalButton:
-                if(testWFlags(WStyle_MinMax) && !testWFlags(WStyle_Tool))
+                if(testWFlags(Qt::WStyle_MinMax) && !testWFlags(Qt::WStyle_Tool))
                     emit doNormal();
                 break;
 
             case QStyle::SC_TitleBarMinButton:
-                if(testWFlags(WStyle_Minimize) && !testWFlags(WStyle_Tool)) {
+                if(testWFlags(Qt::WStyle_Minimize) && !testWFlags(Qt::WStyle_Tool)) {
                     if (d->window && d->window->isMinimized())
                         emit doNormal();
                     else
@@ -335,7 +335,7 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
                 break;
 
             case QStyle::SC_TitleBarMaxButton:
-                if(testWFlags(WStyle_Maximize) && !testWFlags(WStyle_Tool)) {
+                if(testWFlags(Qt::WStyle_Maximize) && !testWFlags(Qt::WStyle_Tool)) {
                     if(d->window && d->window->isMaximized())
                         emit doNormal();
                     else
@@ -344,7 +344,7 @@ void QTitleBar::mouseReleaseEvent(QMouseEvent * e)
                 break;
 
             case QStyle::SC_TitleBarCloseButton:
-                if(testWFlags(WStyle_SysMenu)) {
+                if(testWFlags(Qt::WStyle_SysMenu)) {
                     d->buttonDown = QStyle::SC_None;
                     repaint();
                     emit doClose();
@@ -433,10 +433,10 @@ void QTitleBar::resizeEvent(QResizeEvent *r)
 void QTitleBar::paintEvent(QPaintEvent *)
 {
     QStyle::SCFlags ctrls = QStyle::SC_TitleBarLabel;
-    if (testWFlags(WStyle_SysMenu)) {
-        if (testWFlags(WStyle_Tool)) {
+    if (testWFlags(Qt::WStyle_SysMenu)) {
+        if (testWFlags(Qt::WStyle_Tool)) {
             ctrls |= QStyle::SC_TitleBarCloseButton;
-            if (d->window && testWFlags(WStyle_MinMax)) {
+            if (d->window && testWFlags(Qt::WStyle_MinMax)) {
                 if (d->window->isMinimized())
                     ctrls |= QStyle::SC_TitleBarUnshadeButton;
                 else
@@ -444,13 +444,13 @@ void QTitleBar::paintEvent(QPaintEvent *)
             }
         } else {
             ctrls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
-            if (d->window && testWFlags(WStyle_Minimize)) {
+            if (d->window && testWFlags(Qt::WStyle_Minimize)) {
                 if(d->window && d->window->isMinimized())
                     ctrls |= QStyle::SC_TitleBarNormalButton;
                 else
                     ctrls |= QStyle::SC_TitleBarMinButton;
             }
-            if (d->window && testWFlags(WStyle_Maximize) && !d->window->isMaximized())
+            if (d->window && testWFlags(Qt::WStyle_Maximize) && !d->window->isMaximized())
                 ctrls |= QStyle::SC_TitleBarMaxButton;
         }
     }
@@ -481,7 +481,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
 
 void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
 
     switch(style().querySubControl(QStyle::CC_TitleBar, this, e->pos(),
@@ -491,7 +491,7 @@ void QTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
         break;
 
     case QStyle::SC_TitleBarSysMenu:
-        if (testWFlags(WStyle_SysMenu))
+        if (testWFlags(Qt::WStyle_SysMenu))
             emit doClose();
         break;
 
@@ -510,7 +510,7 @@ void QTitleBar::cutText()
         return;
 
     QString txt = d->window->windowTitle();
-    if ((style().styleHint(QStyle::SH_GUIStyle, this) == WindowsStyle)
+    if ((style().styleHint(QStyle::SH_GUIStyle, this) == Qt::WindowsStyle)
         && d->window && d->window->isWindowModified())
         txt += " *";
 

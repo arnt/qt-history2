@@ -583,7 +583,7 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
             x += w - pm.width();
         else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
             x += w/2 - pm.width()/2;
-        else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // AlignAuto && rightToLeft
+        else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // Qt::AlignAuto && rightToLeft
             x += w - pm.width();
 
         if (!enabled) {

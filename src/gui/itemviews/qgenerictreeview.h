@@ -75,7 +75,7 @@ protected:
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
     int horizontalOffset() const;
     int verticalOffset() const;
 

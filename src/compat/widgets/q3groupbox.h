@@ -28,7 +28,7 @@ class Q_COMPAT_EXPORT Q3GroupBox : public QWidget
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
-    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false)
     Q_PROPERTY(int columns READ columns WRITE setColumns DESIGNABLE false)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
@@ -37,13 +37,13 @@ public:
     Q3GroupBox(QWidget* parent=0, const char* name=0);
     Q3GroupBox(const QString &title,
                QWidget* parent=0, const char* name=0);
-    Q3GroupBox(int strips, Orientation o,
+    Q3GroupBox(int strips, Qt::Orientation o,
                QWidget* parent=0, const char* name=0);
-    Q3GroupBox(int strips, Orientation o, const QString &title,
+    Q3GroupBox(int strips, Qt::Orientation o, const QString &title,
                QWidget* parent=0, const char* name=0);
     ~Q3GroupBox();
 
-    virtual void setColumnLayout(int strips, Orientation o);
+    virtual void setColumnLayout(int strips, Qt::Orientation o);
 
     QString title() const;
     virtual void setTitle(const QString &);
@@ -54,8 +54,8 @@ public:
     int columns() const;
     void setColumns(int);
 
-    Orientation orientation() const;
-    void setOrientation(Orientation);
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation);
 
     int insideMargin() const;
     int insideSpacing() const;

@@ -39,7 +39,7 @@ class QMessageBoxLabel : public QLabel
 public:
     QMessageBoxLabel(QWidget* parent) : QLabel(parent, "messageBoxText")
     {
-        setAlignment(AlignAuto|ExpandTabs);
+        setAlignment(Qt::AlignAuto|Qt::ExpandTabs);
     }
 };
 #include "qmessagebox.moc"
@@ -455,7 +455,7 @@ const char * mb_texts[] = {
 */
 
 QMessageBox::QMessageBox(QWidget *parent, const char *name)
-    : QDialog(parent, name, true, WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu)
+    : QDialog(parent, name, true, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
     init(Ok, 0, 0);
 }
@@ -531,7 +531,7 @@ QMessageBox::QMessageBox(const QString& caption,
                           int button0, int button1, int button2,
                           QWidget *parent, const char *name,
                           bool modal, WFlags f)
-    : QDialog(parent, name, modal, f | WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu)
+    : QDialog(parent, name, modal, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
     init(button0, button1, button2);
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -685,7 +685,7 @@ void QMessageBox::resizeButtons()
 
     The text will be interpreted either as a plain text or as rich
     text, depending on the text format setting (\l
-    QMessageBox::textFormat). The default setting is \c AutoText, i.e.
+    QMessageBox::textFormat). The default setting is \c Qt::AutoText, i.e.
     the message box will try to auto-detect the format of the text.
 
     The default value of this property is QString::null.
@@ -748,7 +748,7 @@ void QMessageBox::setIcon(Icon icon)
   \a style is unused.
 */
 
-QPixmap QMessageBox::standardIcon(Icon icon, GUIStyle style)
+QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
 {
     Q_UNUSED(style);
     return QMessageBox::standardIcon(icon);
@@ -874,7 +874,7 @@ QSize QMessageBox::sizeHint() const
     if (border <= 0)
         border = 10;
     int btn_spacing = 7;
-    if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
         btn_spacing = border;
 #ifndef Q_OS_TEMP
     int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
@@ -926,7 +926,7 @@ void QMessageBox::resizeEvent(QResizeEvent *)
     if (border <= 0)
         border = 10;
     int btn_spacing = 7;
-    if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
         btn_spacing = border;
     int lmargin = 0;
     mbd->iconLabel.adjustSize();
@@ -938,7 +938,7 @@ void QMessageBox::resizeEvent(QResizeEvent *)
                         width() - lmargin -2*border,
                         height() - 3*border - bh);
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
-    if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
         for (i=0; i<n; i++)
             mbd->pb[i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
                               height() - border - bh);
@@ -953,7 +953,7 @@ void QMessageBox::resizeEvent(QResizeEvent *)
 */
 void QMessageBox::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Key_Escape) {
+    if (e->key() == Qt::Key_Escape) {
         if (mbd->escButton >= 0) {
             QPushButton *pb = mbd->pb[mbd->escButton];
             pb->animateClick();
@@ -962,13 +962,13 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
         }
     }
 #ifndef QT_NO_ACCEL
-    if (!(e->state() & AltButton)) {
+    if (!(e->state() & Qt::AltButton)) {
         QObjectList list = queryList("QPushButton");
-        int key = e->key() & ~(MODIFIER_MASK|UNICODE_ACCEL);
+        int key = e->key() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
         if (key) {
             for (int i = 0; i < list.size(); ++i) {
                 QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-                int acc = pb->accel() & ~(MODIFIER_MASK|UNICODE_ACCEL);
+                int acc = pb->accel() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
                 if (acc == key) {
                     emit pb->animateClick();
                     return;
@@ -1060,7 +1060,7 @@ int QMessageBox::information(QWidget *parent,
     QMessageBox *mb = new QMessageBox(caption, text, Information,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_information", true,
-                                       WDestructiveClose);
+                                       Qt::WDestructiveClose);
     return mb->exec();
 }
 
@@ -1106,7 +1106,7 @@ int QMessageBox::question(QWidget *parent,
     QMessageBox *mb = new QMessageBox(caption, text, Question,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_information", true,
-                                       WDestructiveClose);
+                                       Qt::WDestructiveClose);
     return mb->exec();
 }
 
@@ -1153,7 +1153,7 @@ int QMessageBox::warning(QWidget *parent,
     QMessageBox *mb = new QMessageBox(caption, text, Warning,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_warning", true,
-                                       WDestructiveClose);
+                                       Qt::WDestructiveClose);
     return mb->exec();
 }
 
@@ -1200,7 +1200,7 @@ int QMessageBox::critical(QWidget *parent,
     QMessageBox *mb = new QMessageBox(caption, text, Critical,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_critical", true,
-                                       WDestructiveClose);
+                                       Qt::WDestructiveClose);
     return mb->exec();
 }
 
@@ -1231,7 +1231,7 @@ void QMessageBox::about(QWidget *parent, const QString &caption,
                                        Information,
                                        Ok + Default, 0, 0,
                                        parent, "qt_msgbox_simple_about_box", true,
-                                       WDestructiveClose);
+                                       Qt::WDestructiveClose);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QPixmap pm = parent ? parent->windowIcon() : QPixmap();
     if (!pm.isNull())
@@ -1492,7 +1492,7 @@ int QMessageBox::critical(QWidget *parent, const QString &caption,
 void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 {
     QMessageBox *mb = new QMessageBox(parent, "qt_msgbox_about_qt");
-    mb->setWFlags(WDestructiveClose);
+    mb->setWFlags(Qt::WDestructiveClose);
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString c = caption;
@@ -1538,7 +1538,7 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
     The current text format used by the message box. See the \l
     Qt::TextFormat enum for an explanation of the possible options.
 
-    The default format is \c AutoText.
+    The default format is \c Qt::AutoText.
 
     \sa setText()
 */

@@ -9,7 +9,7 @@ class QViewportPrivate: public QFramePrivate
 public:
     QViewportPrivate();
     QScrollBar *hbar, *vbar;
-    ScrollBarPolicy vbarpolicy, hbarpolicy;
+    Qt::ScrollBarPolicy vbarpolicy, hbarpolicy;
 
     QWidget *viewport;
     int left, top, right, bottom; // viewport margin

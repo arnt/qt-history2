@@ -947,7 +947,7 @@ void QLCDNumber::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
         p.setPen(fgColor);
         p.setBrush(fgColor);
         p.drawPolygon(a);
-        p.setBrush(NoBrush);
+        p.setBrush(Qt::NoBrush);
 
         pt = pos;
     }

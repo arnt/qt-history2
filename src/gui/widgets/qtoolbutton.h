@@ -36,7 +36,7 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
     Q_PROPERTY(int popupDelay READ popupDelay WRITE setPopupDelay)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(TextPosition textPosition READ textPosition WRITE setTextPosition)
-    Q_OVERRIDE(BackgroundMode backgroundMode DESIGNABLE true)
+    Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
     enum TextPosition {
@@ -53,7 +53,7 @@ public:
                  QObject * receiver, const char* slot,
                  QToolBar * parent=0, const char* name=0);
 #endif
-    QToolButton(ArrowType type, QWidget *parent=0, const char* name=0);
+    QToolButton(Qt::ArrowType type, QWidget *parent=0, const char* name=0);
     ~QToolButton();
 
     QSize sizeHint() const;

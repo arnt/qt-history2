@@ -116,7 +116,7 @@ public:
     QLabel *label = new QLabel(this);
     label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     label->setText("first line\nsecond line");
-    label->setAlignment(AlignBottom | AlignRight);
+    label->setAlignment(Qt::AlignBottom | Qt::AlignRight);
     \endcode
 
     A QLabel is often used as a label for an interactive widget. For
@@ -160,7 +160,7 @@ QPicture *QLabel::picture() const
     \sa setAlignment(), setFrameStyle(), setIndent()
 */
 QLabel::QLabel(QWidget *parent, WFlags f)
-    : QFrame(*new QLabelPrivate(), parent, f | WMouseNoMask )
+    : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
 {
     d->init();
 }
@@ -174,7 +174,7 @@ QLabel::QLabel(QWidget *parent, WFlags f)
     \sa setText(), setAlignment(), setFrameStyle(), setIndent()
 */
 QLabel::QLabel(const QString &text, QWidget *parent, WFlags f)
-        : QFrame(*new QLabelPrivate(), parent, f | WMouseNoMask )
+        : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
 {
     d->init();
     setText(text);
@@ -191,7 +191,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, WFlags f)
 */
 
 QLabel::QLabel(QWidget *parent, const char *name, WFlags f)
-    : QFrame(*new QLabelPrivate(), parent, f | WMouseNoMask )
+    : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
 {
     if (name)
         setObjectName(name);
@@ -210,7 +210,7 @@ QLabel::QLabel(QWidget *parent, const char *name, WFlags f)
 
 QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
                 WFlags f)
-        : QFrame(*new QLabelPrivate(), parent, f | WMouseNoMask )
+        : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
 {
     if (name)
         setObjectName(name);
@@ -236,7 +236,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
 */
 QLabel::QLabel(QWidget *buddy,  const QString &text,
                 QWidget *parent, const char *name, WFlags f)
-    : QFrame(*new QLabelPrivate(), parent, f | WMouseNoMask)
+    : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask)
 {
     if (name)
         setObjectName(name);
@@ -287,7 +287,7 @@ void QLabelPrivate::init()
 
     The text will be interpreted either as a plain text or as a rich
     text, depending on the text format setting; see setTextFormat().
-    The default setting is \c AutoText, i.e. QLabel will try to
+    The default setting is \c Qt::AutoText, i.e. QLabel will try to
     auto-detect the format of the text set.
 
     If the text is interpreted as a plain text and a buddy has been
@@ -315,14 +315,14 @@ void QLabel::setText(const QString &text)
     d->clearContents();
     d->ltext = text;
 #ifndef QT_NO_RICHTEXT
-    bool useRichText = (d->textformat == RichText ||
-      ((d->textformat == AutoText) && QText::mightBeRichText(d->ltext)));
+    bool useRichText = (d->textformat == Qt::RichText ||
+      ((d->textformat == Qt::AutoText) && QText::mightBeRichText(d->ltext)));
 #else
     bool useRichText = true;
 #endif
 #ifndef QT_NO_ACCEL
     // ### Setting shortcuts for rich text labels will not work.
-    // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly
+    // Eg. <b>&gt;Hello</b> will return Qt::ALT+G which is clearly
     // not intended.
     if (!useRichText) {
         releaseShortcut(d->shortcutId);
@@ -332,13 +332,13 @@ void QLabel::setText(const QString &text)
 #ifndef QT_NO_RICHTEXT
     if (useRichText) {
         if (!hadRichtext)
-            d->align |= WordBreak;
+            d->align |= Qt::WordBreak;
         QString t = d->ltext;
-        if (d->align & AlignRight)
+        if (d->align & Qt::AlignRight)
             t.prepend("<div d->align=\"right\">");
-        else if (d->align & AlignHCenter)
+        else if (d->align & Qt::AlignHCenter)
             t.prepend("<div d->align=\"center\">");
-        if ((d->align & WordBreak) == 0 )
+        if ((d->align & Qt::WordBreak) == 0 )
             t.prepend("<nobr>");
         d->doc = new QTextDocument();
         d->doc->setUndoRedoEnabled(false);
@@ -456,19 +456,19 @@ void QLabel::setNum(double num)
     \brief the alignment of the label's contents
 
     The alignment is a bitwise OR of \c Qt::AlignmentFlags and \c
-    Qt::TextFlags values. The \c ExpandTabs, \c SingleLine and \c
-    ShowPrefix flags apply only if the label contains plain text;
-    otherwise they are ignored. The \c DontClip flag is always
-    ignored. \c WordBreak applies to both rich text and plain text
-    labels. The \c BreakAnywhere flag is not supported in QLabel.
+    Qt::TextFlags values. The \c Qt::ExpandTabs, \c Qt::SingleLine and \c
+    Qt::ShowPrefix flags apply only if the label contains plain text;
+    otherwise they are ignored. The \c Qt::DontClip flag is always
+    ignored. \c Qt::WordBreak applies to both rich text and plain text
+    labels. The \c Qt::BreakAnywhere flag is not supported in QLabel.
 
-    If the label has a buddy, the \c ShowPrefix flag is forced to
+    If the label has a buddy, the \c Qt::ShowPrefix flag is forced to
     true.
 
-    The default alignment is \c{AlignAuto | AlignVCenter | ExpandTabs}
-    if the label doesn't have a buddy and \c{AlignAuto | AlignVCenter
-    | ExpandTabs | ShowPrefix} if the label has a buddy. If the label
-    contains rich text, additionally \c WordBreak is turned on.
+    The default alignment is \c{Qt::AlignAuto | Qt::AlignVCenter | Qt::ExpandTabs}
+    if the label doesn't have a buddy and \c{Qt::AlignAuto | Qt::AlignVCenter
+    | Qt::ExpandTabs | Qt::ShowPrefix} if the label has a buddy. If the label
+    contains rich text, additionally \c Qt::WordBreak is turned on.
 
     \sa Qt::AlignmentFlags, alignment, setBuddy(), text
 */
@@ -479,7 +479,7 @@ void QLabel::setAlignment(int alignment)
         return;
 #ifndef QT_NO_ACCEL
     if (d->lbuddy)
-        d->align = alignment | ShowPrefix;
+        d->align = alignment | Qt::ShowPrefix;
     else
 #endif
         d->align = alignment;
@@ -505,9 +505,9 @@ int QLabel::alignment() const
     \brief the label's text indent in pixels
 
     If a label displays text, the indent applies to the left edge if
-    alignment() is \c AlignLeft, to the right edge if alignment() is
-    \c AlignRight, to the top edge if alignment() is \c AlignTop, and
-    to to the bottom edge if alignment() is \c AlignBottom.
+    alignment() is \c Qt::AlignLeft, to the right edge if alignment() is
+    \c Qt::AlignRight, to the top edge if alignment() is \c Qt::AlignTop, and
+    to to the bottom edge if alignment() is \c Qt::AlignBottom.
 
     If indent is negative, or if no indent has been set, the label
     computes the effective indent as follows: If frameWidth() is 0,
@@ -585,9 +585,9 @@ QSize QLabelPrivate::sizeForWidth(int w) const
             m = xw / 2 - d->margin;
         if (m >= 0) {
             int horizAlign = QApplication::horizontalAlignment(QFlag(d->align));
-            if ((horizAlign & AlignLeft) || (horizAlign & AlignRight))
+            if ((horizAlign & Qt::AlignLeft) || (horizAlign & Qt::AlignRight))
                 hextra += m;
-            if ((d->align & AlignTop) || (d->align & AlignBottom))
+            if ((d->align & Qt::AlignTop) || (d->align & Qt::AlignBottom))
                 vextra += m;
         }
     }
@@ -607,7 +607,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(layout);
         int oldW = layout->pageSize().width();
-        if (d->align & WordBreak) {
+        if (d->align & Qt::WordBreak) {
             if (w < 0)
                 layout->adjustSize();
             else
@@ -618,7 +618,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     }
 #endif
     else {
-        bool tryWidth = (w < 0) && (d->align & WordBreak);
+        bool tryWidth = (w < 0) && (d->align & Qt::WordBreak);
         if (tryWidth)
             w = xw * 80;
         else if (w < 0)
@@ -648,7 +648,7 @@ int QLabel::heightForWidth(int w) const
 #ifndef QT_NO_RICHTEXT
         d->doc ||
 #endif
-        (d->align & WordBreak))
+        (d->align & Qt::WordBreak))
         return d->sizeForWidth(w).height();
     return QWidget::heightForWidth(w);
 }
@@ -682,7 +682,7 @@ QSize QLabel::minimumSizeHint() const
 #ifndef QT_NO_RICHTEXT
          !d->doc &&
 #endif
-         (d->align & WordBreak) == 0) {
+         (d->align & Qt::WordBreak) == 0) {
         sz = d->sh;
     } else {
         // think about caching these for performance
@@ -742,13 +742,13 @@ void QLabel::paintEvent(QPaintEvent *)
             m = fontMetrics().width('x') / 2 - d->margin;
         if (m > 0) {
             int hAlign = QApplication::horizontalAlignment(QFlag(d->align));
-            if (hAlign & AlignLeft)
+            if (hAlign & Qt::AlignLeft)
                 cr.setLeft(cr.left() + m);
-            if (hAlign & AlignRight)
+            if (hAlign & Qt::AlignRight)
                 cr.setRight(cr.right() - m);
-            if (d->align & AlignTop)
+            if (d->align & Qt::AlignTop)
                 cr.setTop(cr.top() + m);
-            if (d->align & AlignBottom)
+            if (d->align & Qt::AlignBottom)
                 cr.setBottom(cr.bottom() - m);
         }
     }
@@ -770,9 +770,9 @@ void QLabel::paintEvent(QPaintEvent *)
         layout->setPageSize(QSize(cr.width(), INT_MAX));
         int rh = layout->totalHeight();
         int yo = 0;
-        if (d->align & AlignVCenter)
+        if (d->align & Qt::AlignVCenter)
             yo = (cr.height()-rh)/2;
-        else if (d->align & AlignBottom)
+        else if (d->align & Qt::AlignBottom)
             yo = cr.height()-rh;
         QAbstractTextDocumentLayout::PaintContext context;
         context.textColorFromPalette = true;
@@ -789,8 +789,8 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 
         // QSimpleRichText always draws with QPalette::Text as with
-        // background mode PaletteBase. QLabel typically has
-        // background mode PaletteBackground, so we create a temporary
+        // background mode Qt::PaletteBase. QLabel typically has
+        // background mode Qt::PaletteBackground, so we create a temporary
         // color group with the text color adjusted.
         context.palette = palette();
         if (foregroundRole() != QPalette::Text && isEnabled())
@@ -820,13 +820,13 @@ void QLabel::paintEvent(QPaintEvent *)
         } else {
             int xo = 0;
             int yo = 0;
-            if (d->align & AlignVCenter)
+            if (d->align & Qt::AlignVCenter)
                 yo = (cr.height()-rh)/2;
-            else if (d->align & AlignBottom)
+            else if (d->align & Qt::AlignBottom)
                 yo = cr.height()-rh;
-            if (d->align & AlignRight)
+            if (d->align & Qt::AlignRight)
                 xo = cr.width()-rw;
-            else if (d->align & AlignHCenter)
+            else if (d->align & Qt::AlignHCenter)
                 xo = (cr.width()-rw)/2;
             paint.drawPicture(cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic);
         }
@@ -846,8 +846,8 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 #endif
         int alignment = d->align;
-        if ((alignment & ShowPrefix) && !style().styleHint(QStyle::SH_UnderlineShortcut, this))
-            alignment |= NoAccel;
+        if ((alignment & Qt::ShowPrefix) && !style().styleHint(QStyle::SH_UnderlineShortcut, this))
+            alignment |= Qt::NoAccel;
         // ordinary text or pixmap label
         style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);
     }
@@ -862,7 +862,7 @@ void QLabelPrivate::updateLabel()
 {
     valid_hints = false;
     QSizePolicy policy = q->sizePolicy();
-    bool wordBreak = align & WordBreak;
+    bool wordBreak = align & Qt::WordBreak;
     policy.setHeightForWidth(wordBreak);
     if (policy != q->sizePolicy())
         q->setSizePolicy(policy);
@@ -887,7 +887,7 @@ void QLabel::mnemonicSlot()
     if (!w->hasFocus() &&
          w->isEnabled() &&
          w->isVisible() &&
-         w->focusPolicy() != NoFocus) {
+         w->focusPolicy() != Qt::NoFocus) {
         QFocusEvent::setReason(QFocusEvent::Shortcut);
         w->setFocus();
         QFocusEvent::resetReason();
@@ -904,7 +904,7 @@ void QLabel::mnemonicSlot()
     The buddy mechanism is only available for QLabels that contain
     plain text in which one letter is prefixed with an ampersand, \&.
     This letter is set as the shortcut key. The letter is displayed
-    underlined, and the '\&' is not displayed (i.e. the \c ShowPrefix
+    underlined, and the '\&' is not displayed (i.e. the \c Qt::ShowPrefix
     alignment flag is turned on; see setAlignment()).
 
     In a dialog, you might create two data entry widgets and a label
@@ -933,9 +933,9 @@ void QLabel::mnemonicSlot()
 void QLabel::setBuddy(QWidget *buddy)
 {
     if (buddy)
-        setAlignment(alignment() | ShowPrefix);
+        setAlignment(alignment() | Qt::ShowPrefix);
     else
-        setAlignment(alignment() & ~ShowPrefix);
+        setAlignment(alignment() & ~Qt::ShowPrefix);
 
     d->lbuddy = buddy;
 
@@ -1071,7 +1071,7 @@ QMovie* QLabel::movie() const
     See the \c Qt::Textformat enum for an explanation of the possible
     options.
 
-    The default format is \c AutoText.
+    The default format is \c Qt::AutoText.
 
     \sa text()
 */

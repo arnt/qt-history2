@@ -560,7 +560,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 //    const QDateTimeEditPrivate::SectionFlags s = d->currentsection;
     bool select = true;
     bool fixcursor = !e->text().isEmpty();
-    if ((e->key() == Key_Backspace || (e->key() == Key_H && e->key() & ControlButton)) && !d->edit->hasSelectedText()) {
+    if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)) && !d->edit->hasSelectedText()) {
         const QDateTimeEditPrivate::SectionNode &sn = d->sectionNode(d->currentsection);
         const int cur = d->edit->cursorPosition();
         if (cur == sn.pos && cur > d->sections.front().pos) {
@@ -571,32 +571,32 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         }
     }
     switch((Qt::Key)e->key()) {
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         d->refresh(AlwaysEmit);
         d->setSelected(d->currentsection);
         return;
 
-    case Key_Left:
-    case Key_Right:
-        if (!(e->state() & ControlButton)) {
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+        if (!(e->state() & Qt::ControlButton)) {
             int sellength = d->edit->selectedText().size();
             if (sellength == 0 || sellength != d->sectionLength(d->currentsection))
                 break;
             select = false;
         }
-    case Key_Backtab:
-    case Key_Tab: {
+    case Qt::Key_Backtab:
+    case Qt::Key_Tab: {
         const QDateTimeEditPrivate::SectionNode newSection =
             d->nextPrevSection(d->currentsection,
-                               (e->key() == Key_Right || (e->key() == Key_Tab && !(e->state() & ShiftButton))));
+                               (e->key() == Qt::Key_Right || (e->key() == Qt::Key_Tab && !(e->state() & Qt::ShiftButton))));
         switch (newSection.section) {
         case QDateTimeEditPrivate::NoSection: case QDateTimeEditPrivate::FirstSection: case QDateTimeEditPrivate::LastSection: break;
         default:
             if (select) {
                 d->setSelected(newSection.section); break;
             } else {
-                d->edit->setCursorPosition(e->key() == Key_Right
+                d->edit->setCursorPosition(e->key() == Qt::Key_Right
                                            ? newSection.pos
                                            : d->sectionPos(d->currentsection));
             }
@@ -605,10 +605,10 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             d->edit->deselect();
         e->accept();
         return; }
-    case Key_Up:
-    case Key_Down:
-    case Key_Prior:
-    case Key_Next:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_Prior:
+    case Qt::Key_Next:
         fixcursor = true;
     default:
         if (fixcursor && d->currentsection == QDateTimeEditPrivate::FirstSection) {

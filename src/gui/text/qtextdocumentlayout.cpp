@@ -286,7 +286,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
     if (fd->border) {
         painter->save();
         painter->setBrush(black);
-        painter->setPen(NoPen);
+        painter->setPen(Qt::NoPen);
         int margin = fd->margin + fd->border;
         int w = fd->boundingRect.width() - 2*margin;
         int h = fd->boundingRect.height() - 2*margin;

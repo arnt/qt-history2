@@ -1091,7 +1091,7 @@ Q3FileDialogPrivate::~Q3FileDialogPrivate()
 
 void QRenameEdit::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Key_Escape)
+    if (e->key() == Qt::Key_Escape)
         emit cancelRename();
     else
         QLineEdit::keyPressEvent(e);
@@ -1154,8 +1154,8 @@ void QFileListBox::show()
 
 void QFileListBox::keyPressEvent(QKeyEvent *e)
 {
-    if ((e->key() == Key_Enter ||
-           e->key() == Key_Return) &&
+    if ((e->key() == Qt::Key_Enter ||
+           e->key() == Qt::Key_Return) &&
          renaming)
         return;
 
@@ -1199,7 +1199,7 @@ void QFileListBox::viewportMousePressEvent(QMouseEvent *e)
     if (!hasFocus() && !viewport()->hasFocus())
         setFocus();
 
-    if (e->button() != LeftButton) {
+    if (e->button() != Qt::LeftButton) {
         QListBox::viewportMousePressEvent(e);
         firstMousePressEvent = false;
         return;
@@ -1573,8 +1573,8 @@ void Q3FileDialogQFileListView::changeSortColumn2(int column)
 
 void Q3FileDialogQFileListView::keyPressEvent(QKeyEvent *e)
 {
-    if ((e->key() == Key_Enter ||
-           e->key() == Key_Return) &&
+    if ((e->key() == Qt::Key_Enter ||
+           e->key() == Qt::Key_Return) &&
          renaming)
         return;
 
@@ -1620,7 +1620,7 @@ void Q3FileDialogQFileListView::viewportMousePressEvent(QMouseEvent *e)
     if (!hasFocus() && !viewport()->hasFocus())
         setFocus();
 
-    if (e->button() != LeftButton) {
+    if (e->button() != Qt::LeftButton) {
         Q3ListView::viewportMousePressEvent(e);
         firstMousePressEvent = false;
         return;
@@ -2296,7 +2296,7 @@ extern const char qt3_file_dialog_filter_reg_exp[] = "([a-zA-Z0-9]*)\\(([a-zA-Z0
 Q3FileDialog::Q3FileDialog(QWidget *parent, const char *name, bool modal)
     : QDialog(parent, name, modal,
                (modal ?
-                (WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu) : WFlags(0)))
+                (Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu) : WFlags(0)))
 {
     init();
     d->mode = ExistingFile;
@@ -2322,7 +2322,7 @@ Q3FileDialog::Q3FileDialog(QWidget *parent, const char *name, bool modal)
 Q3FileDialog::Q3FileDialog(const QString& dirName, const QString & filter,
                           QWidget *parent, const char *name, bool modal)
     : QDialog(parent, name, modal,
-              (modal ? (WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu)
+              (modal ? (Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
                : WFlags(0)))
 {
     init();
@@ -2415,7 +2415,7 @@ void Q3FileDialog::init()
     QFontMetrics fm = fontMetrics();
     files->addColumn(tr("Name"));
     files->addColumn(tr("Size"));
-    files->setColumnAlignment(1, AlignRight);
+    files->setColumnAlignment(1, Qt::AlignRight);
     files->addColumn(tr("Type"));
     files->addColumn(tr("Date"));
     files->addColumn(tr("Attributes"));
@@ -2499,7 +2499,7 @@ void Q3FileDialog::init()
 
     d->goBack = new QToolButton(this, "go back");
     d->goBack->setEnabled(false);
-    d->goBack->setFocusPolicy(TabFocus);
+    d->goBack->setFocusPolicy(Qt::TabFocus);
     connect(d->goBack, SIGNAL(clicked()), this, SLOT(goBack()));
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->goBack, tr("Back"));
@@ -2507,7 +2507,7 @@ void Q3FileDialog::init()
     d->goBack->setIconSet(*goBackIcon);
 
     d->cdToParent = new QToolButton(this, "cd to parent");
-    d->cdToParent->setFocusPolicy(TabFocus);
+    d->cdToParent->setFocusPolicy(Qt::TabFocus);
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->cdToParent, tr("One directory up"));
 #endif
@@ -2516,7 +2516,7 @@ void Q3FileDialog::init()
              this, SLOT(cdUpClicked()));
 
     d->newFolder = new QToolButton(this, "new folder");
-    d->newFolder->setFocusPolicy(TabFocus);
+    d->newFolder->setFocusPolicy(Qt::TabFocus);
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->newFolder, tr("Create New Folder"));
 #endif
@@ -2534,7 +2534,7 @@ void Q3FileDialog::init()
              this, SLOT(changeMode(int)));
 
     d->mcView = new QToolButton(this, "mclistbox view");
-    d->mcView->setFocusPolicy(TabFocus);
+    d->mcView->setFocusPolicy(Qt::TabFocus);
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->mcView, tr("List View"));
 #endif
@@ -2542,7 +2542,7 @@ void Q3FileDialog::init()
     d->mcView->setToggleButton(true);
     d->stack->addWidget(d->moreFiles, d->modeButtons->insert(d->mcView));
     d->detailView = new QToolButton(this, "list view");
-    d->detailView->setFocusPolicy(TabFocus);
+    d->detailView->setFocusPolicy(Qt::TabFocus);
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->detailView, tr("Detail View"));
 #endif
@@ -2551,7 +2551,7 @@ void Q3FileDialog::init()
     d->stack->addWidget(files, d->modeButtons->insert(d->detailView));
 
     d->previewInfo = new QToolButton(this, "preview info view");
-    d->previewInfo->setFocusPolicy(TabFocus);
+    d->previewInfo->setFocusPolicy(Qt::TabFocus);
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->previewInfo, tr("Preview File Info"));
 #endif
@@ -2561,7 +2561,7 @@ void Q3FileDialog::init()
 
     d->previewContents = new QToolButton(this, "preview info view");
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ((qWinVersion() & WV_NT_based) > Qt::WV_NT)
+    if ((qWinVersion() & Qt::WV_NT_based) > Qt::WV_NT)
 #else
     if (!qstrcmp(style().className(), "QWindowsStyle"))
 #endif
@@ -2574,7 +2574,7 @@ void Q3FileDialog::init()
         d->previewInfo->setAutoRaise(true);
         d->previewContents->setAutoRaise(true);
     }
-    d->previewContents->setFocusPolicy(TabFocus);
+    d->previewContents->setFocusPolicy(Qt::TabFocus);
 #ifndef QT_NO_TOOLTIP
     QToolTip::add(d->previewContents, tr("Preview File Contents"));
 #endif
@@ -3375,7 +3375,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
         *workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
         return winGetOpenFileName(initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
@@ -3492,7 +3492,7 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
         *workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
         return winGetSaveFileName(initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
@@ -4379,7 +4379,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
             initialDir = dir;
     } else
         initialDir = QString::null;
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle && dirOnly)
+    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle && dirOnly)
         return winGetExistingDirectory(initialDir, parent, name, caption);
 #endif
 #if defined(Q_WS_MAC)
@@ -4758,8 +4758,8 @@ void Q3FileDialog::addRightWidget(QWidget *w)
 void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
 {
     if (!d->ignoreNextKeyPress &&
-         ke && (ke->key() == Key_Enter ||
-                 ke->key() == Key_Return)) {
+         ke && (ke->key() == Qt::Key_Enter ||
+                 ke->key() == Qt::Key_Return)) {
         ke->ignore();
         if (d->paths->hasFocus()) {
             ke->accept();
@@ -4794,7 +4794,7 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
         } else if (files->hasFocus() || d->moreFiles->hasFocus()) {
             ke->accept();
         }
-    } else if (ke->key() == Key_Escape) {
+    } else if (ke->key() == Qt::Key_Escape) {
         ke->ignore();
     }
 
@@ -5211,11 +5211,11 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
 */
 bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
 {
-    if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Key_F5) {
+    if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Qt::Key_F5) {
         rereadDir();
         ((QKeyEvent *)e)->accept();
         return true;
-    } else if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Key_F2 &&
+    } else if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Qt::Key_F2 &&
                 (o == files || o == files->viewport())) {
         if (files->isVisible() && files->currentItem()) {
             if (QUrlInfo(d->url.info(".")).isWritable() && files->currentItem()->text(0) != "..") {
@@ -5225,7 +5225,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
         }
         ((QKeyEvent *)e)->accept();
         return true;
-    } else if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Key_F2 &&
+    } else if (e->type() == QEvent::KeyPress && ((QKeyEvent*)e)->key() == Qt::Key_F2 &&
                 (o == d->moreFiles || o == d->moreFiles->viewport())) {
         if (d->moreFiles->isVisible() && d->moreFiles->currentItem() != -1) {
             if (QUrlInfo(d->url.info(".")).isWritable() &&
@@ -5247,7 +5247,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
         ((QKeyEvent *)e)->accept();
         return true;
     } else if (e->type() == QEvent::KeyPress &&
-                ((QKeyEvent *)e)->key() == Key_Backspace &&
+                ((QKeyEvent *)e)->key() == Qt::Key_Backspace &&
                 (o == files ||
                   o == d->moreFiles ||
                   o == files->viewport() ||
@@ -5256,7 +5256,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
         ((QKeyEvent *)e)->accept();
         return true;
     } else if (e->type() == QEvent::KeyPress &&
-                ((QKeyEvent *)e)->key() == Key_Delete &&
+                ((QKeyEvent *)e)->key() == Qt::Key_Delete &&
                 (o == files ||
                   o == files->viewport())) {
         if (files->currentItem())
@@ -5264,7 +5264,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
         ((QKeyEvent *)e)->accept();
         return true;
     } else if (e->type() == QEvent::KeyPress &&
-                ((QKeyEvent *)e)->key() == Key_Delete &&
+                ((QKeyEvent *)e)->key() == Qt::Key_Delete &&
                 (o == d->moreFiles ||
                   o == d->moreFiles->viewport())) {
         int c = d->moreFiles->currentItem();
@@ -5517,7 +5517,7 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
     }
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
         return winGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
     if(qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))

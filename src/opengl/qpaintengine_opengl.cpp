@@ -342,9 +342,9 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
     dgl->makeCurrent();
     d->cbrush = brush;
     int bs = d->cbrush.style();
-    if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
+    if (bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         glEnable(GL_POLYGON_STIPPLE);
-        glPolygonStipple(pat_tbl[bs - Dense1Pattern]);
+        glPolygonStipple(pat_tbl[bs - Qt::Dense1Pattern]);
     } else {
         glDisable(GL_POLYGON_STIPPLE);
     }
@@ -429,18 +429,18 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
 
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
-    if (d->cbrush.style() != NoBrush) {
+    if (d->cbrush.style() != Qt::NoBrush) {
         dgl->qglColor(d->cbrush.color());
         glRecti(x, y, x+w, y+h);
         dgl->qglColor(d->cpen.color());
-        if (d->cpen.style() == NoPen)
+        if (d->cpen.style() == Qt::NoPen)
             return;
     }
     w--;
     h--;
     y++;
 
-    if (d->cpen.style() != NoPen) {
+    if (d->cpen.style() != Qt::NoPen) {
         // Specify the outline as 4 separate lines since a quad or a
         // polygon won't give us exactly what we want
         glBegin(GL_LINES);
@@ -600,7 +600,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool, int index, int
     dgl->qglColor(d->cbrush.color());
     DRAW_GL_POLYGON(pa, index, npoints);
     dgl->qglColor(d->cpen.color());
-    if (d->cpen.style() != NoPen) {
+    if (d->cpen.style() != Qt::NoPen) {
         int x1, y1, x2, y2; // connect last to first point
         pa.point(pa.size()-1, &x1, &y1);
         pa.point(0, &x2, &y2);
@@ -620,9 +620,9 @@ void QOpenGLPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
     a.point(0, &x2, &y2);
     bool do_close = close && !(x1 == x2 && y1 == y2);
 
-    if (close && d->cbrush.style() != NoBrush) { // draw filled polygon
+    if (close && d->cbrush.style() != Qt::NoBrush) { // draw filled polygon
         // fake background for opaque polygons with a stipple pattern
-        if (d->cbrush.style() != SolidPattern && d->bgmode == Qt::OpaqueMode) {
+        if (d->cbrush.style() != Qt::SolidPattern && d->bgmode == Qt::OpaqueMode) {
             dgl->qglColor(d->bgbrush.color());
             glDisable(GL_POLYGON_STIPPLE);
             DRAW_GL_POLYGON(a, 0, a.size());
@@ -630,13 +630,13 @@ void QOpenGLPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
         }
         dgl->qglColor(d->cbrush.color());
         drawPolygon(a, false, 0, a.size());
-        if (d->cpen.style() == NoPen) { // draw fake outline
+        if (d->cpen.style() == Qt::NoPen) { // draw fake outline
             drawPolyline(a, 0, a.size());
             if (do_close)
                 drawLine(QPoint(x1,y1), QPoint(x2,y2));
         }
     }
-    if (d->cpen.style() != NoPen) { // draw outline
+    if (d->cpen.style() != Qt::NoPen) { // draw outline
         dgl->qglColor(d->cpen.color());
         drawPolyline(a, 0, a.size());
         if (do_close)
@@ -657,7 +657,7 @@ void QOpenGLPaintEngine::drawCubicBezier(const QPointArray &a, int index)
         for (int i = 0; i < 4; i++)
             pa.setPoint(i, a.point(index + i));
     }
-    if (d->cpen.style() != NoPen) {
+    if (d->cpen.style() != Qt::NoPen) {
         pa = pa.cubicBezier();
         drawPolyline(pa, 0, pa.size());
     }

@@ -314,7 +314,7 @@ int QDate::day() const
 }
 
 /*!
-    Returns the weekday (Monday=1..Sunday=7) for this date.
+    Returns the weekday (Qt::Monday=1..Qt::Sunday=7) for this date.
 
     \sa day(), dayOfYear()
 */
@@ -370,8 +370,8 @@ int QDate::daysInYear() const
 
     Returns 0 if the date is invalid.
 
-    In accordance with ISO 8601, weeks start on Monday and the first
-    Thursday of a year is always in week 1 of that year. Most years
+    In accordance with ISO 8601, weeks start on Qt::Monday and the first
+    Qt::Thursday of a year is always in week 1 of that year. Most years
     have 52 weeks, but some have 53.
 
     *\a{yearNumber} is not always the same as year(). For example, 1
@@ -635,32 +635,32 @@ QString QDate::longDayName(int weekday)
     Returns the date as a string. The \a f parameter determines the
     format of the string.
 
-    If \a f is \c TextDate, the string format is "Sat May 20 1995"
+    If \a f is \c Qt::TextDate, the string format is "Sat May 20 1995"
     (using the shortDayName() and shortMonthName() functions to
     generate the string, so the day and month names are locale
     specific).
 
-    If \a f is \c ISODate, the string format corresponds to the
+    If \a f is \c Qt::ISODate, the string format corresponds to the
     ISO 8601 specification for representations of dates, which is
     YYYY-MM-DD where YYYY is the year, MM is the month of the year
     (between 01 and 12), and DD is the day of the month between 01 and
     31.
 
-    If \a f is \c LocalDate, the string format depends on the
+    If \a f is \c Qt::LocalDate, the string format depends on the
     locale settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
 
     \sa shortDayName(), shortMonthName()
 */
-QString QDate::toString(DateFormat f) const
+QString QDate::toString(Qt::DateFormat f) const
 {
     if (!isValid())
         return QString();
     int y, m, d;
     julianToGregorian(jd, y, m, d);
     switch (f) {
-    case LocalDate:
+    case Qt::LocalDate:
         {
 #ifndef Q_WS_WIN
             tm tt;
@@ -693,7 +693,7 @@ QString QDate::toString(DateFormat f) const
         }
     default:
 #ifndef QT_NO_TEXTDATE
-    case TextDate:
+    case Qt::TextDate:
         {
             QString buf = shortDayName(dayOfWeek());
             buf += ' ';
@@ -704,7 +704,7 @@ QString QDate::toString(DateFormat f) const
             return buf;
         }
 #endif
-    case ISODate:
+    case Qt::ISODate:
         {
             QString month(QString::number(m).rightJustified(2, '0'));
             QString day(QString::number(d).rightJustified(2, '0'));
@@ -728,7 +728,7 @@ QString QDate::toString(DateFormat f) const
          \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
             Uses QDate::shortDayName().
     \row \i dddd
-         \i the long localized day name (e.g. 'Monday'..'Sunday').
+         \i the long localized day name (e.g. 'Qt::Monday'..'Qt::Sunday').
             Uses QDate::longDayName().
     \row \i M \i the month as number without a leading zero (1-12)
     \row \i MM \i the month as number with a leading zero (01-12)
@@ -969,22 +969,22 @@ QDate QDate::currentDate()
     Returns the QDate represented by the string \a s, using the format
     \a f, or an invalid date if the string cannot be parsed.
 
-    Note for \c TextDate: It is recommended that you use the
+    Note for \c Qt::TextDate: It is recommended that you use the
     English short month names (e.g. "Jan"). Although localized month
     names can also be used, they depend on the user's locale settings.
 
-    \warning \c LocalDate cannot be used here.
+    \warning \c Qt::LocalDate cannot be used here.
 */
-QDate QDate::fromString(const QString& s, DateFormat f)
+QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 {
-    if ((s.isEmpty()) || (f == LocalDate)) {
+    if ((s.isEmpty()) || (f == Qt::LocalDate)) {
         qWarning("QDate::fromString: Parameter out of range");
         QDate d;
         d.jd = 0;
         return d;
     }
     switch (f) {
-    case ISODate:
+    case Qt::ISODate:
         {
             int year(s.mid(0, 4).toInt());
             int month(s.mid(5, 2).toInt());
@@ -995,7 +995,7 @@ QDate QDate::fromString(const QString& s, DateFormat f)
         break;
     default:
 #ifndef QT_NO_TEXTDATE
-    case TextDate:
+    case Qt::TextDate:
         {
             /*
               This will fail gracefully if the input string doesn't
@@ -1288,26 +1288,26 @@ int QTime::msec() const
     Returns the time as a string. Milliseconds are not included. The
     \a f parameter determines the format of the string.
 
-    If \a f is \c TextDate, the string format is HH:MM:SS; e.g. 1
+    If \a f is \c Qt::TextDate, the string format is HH:MM:SS; e.g. 1
     second before midnight would be "23:59:59".
 
-    If \a f is \c ISODate, the string format corresponds to the
+    If \a f is \c Qt::ISODate, the string format corresponds to the
     ISO 8601 extended specification for representations of dates,
     which is also HH:MM:SS.
 
-    If \a f is LocalDate, the string format depends on the locale
+    If \a f is Qt::LocalDate, the string format depends on the locale
     settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
 */
 
-QString QTime::toString(DateFormat f) const
+QString QTime::toString(Qt::DateFormat f) const
 {
     if (!isValid())
         return QString();
 
     switch (f) {
-    case LocalDate:
+    case Qt::LocalDate:
         {
 #ifndef Q_WS_WIN
             tm tt;
@@ -1338,8 +1338,8 @@ QString QTime::toString(DateFormat f) const
             return QString();
         }
     default:
-    case ISODate:
-    case TextDate:
+    case Qt::ISODate:
+    case Qt::TextDate:
         QString buf;
         buf.sprintf("%.2d:%.2d:%.2d", hour(), minute(), second());
         return buf;
@@ -1584,11 +1584,11 @@ QTime QTime::currentTime()
     Returns the representation \a s as a QTime using the format \a f,
     or an invalid time if this is not possible.
 
-    \warning Note that \c LocalDate cannot be used here.
+    \warning Note that \c Qt::LocalDate cannot be used here.
 */
-QTime QTime::fromString(const QString& s, DateFormat f)
+QTime QTime::fromString(const QString& s, Qt::DateFormat f)
 {
-    if (s.isEmpty() || f == LocalDate) {
+    if (s.isEmpty() || f == Qt::LocalDate) {
         qWarning("QTime::fromString: Parameter out of range");
         QTime t;
         t.ds = MSECS_PER_DAY;
@@ -1818,7 +1818,7 @@ QDateTimePrivate::Spec QDateTimePrivate::getLocal(QDate &outDate, QTime &outTime
 {
     outDate = date;
     outTime = time;
-    if (spec == UTC)
+    if (spec == QDateTimePrivate::UTC)
         return utcToLocal(outDate, outTime);
     return spec;
 }
@@ -1827,7 +1827,7 @@ void QDateTimePrivate::getUTC(QDate &outDate, QTime &outTime) const
 {
     outDate = date;
     outTime = time;
-    if (spec != UTC)
+    if (spec != QDateTimePrivate::UTC)
         localToUtc(outDate, outTime, (int)spec);
 }
 
@@ -1903,12 +1903,12 @@ QDateTime::QDateTime(const QDate &date)
     Constructs a datetime with date \a date and time \a time.
 */
 
-QDateTime::QDateTime(const QDate &date, const QTime &time, TimeSpec spec)
+QDateTime::QDateTime(const QDate &date, const QTime &time, Qt::TimeSpec spec)
 {
     d = new QDateTimePrivate;
     d->date = date;
     d->time = time;
-    d->spec = (spec == UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
+    d->spec = (spec == Qt::UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
 }
 
 /*!
@@ -1993,7 +1993,7 @@ QTime QDateTime::time() const
 
 Qt::TimeSpec QDateTime::timeSpec() const
 {
-    return d->spec == QDateTimePrivate::UTC ? UTC : LocalTime;
+    return d->spec == QDateTimePrivate::UTC ? Qt::UTC : Qt::LocalTime;
 }
 
 /*!
@@ -2024,17 +2024,17 @@ void QDateTime::setTime(const QTime &time)
     \sa timeSpec(), setDate(), setTime()
 */
 
-void QDateTime::setTimeSpec(TimeSpec spec)
+void QDateTime::setTimeSpec(Qt::TimeSpec spec)
 {
-    d->spec = (spec == UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
+    d->spec = (spec == Qt::UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
 }
 
 /*!
     Returns the datetime as the number of seconds that have passed
-    since 1970-01-01T00:00:00, Coordinated Universal Time (UTC).
+    since 1970-01-01T00:00:00, Coordinated Universal Time (Qt::UTC).
 
     On systems that do not support timezones, this function will
-    behave as if local time were UTC.
+    behave as if local time were Qt::UTC.
 
     \sa setTime_t()
 */
@@ -2054,8 +2054,8 @@ uint QDateTime::toTime_t() const
 /*!
     Sets the date and time given the number of seconds that have
     passed since 1970-01-01T00:00:00, Coordinated Universal Time
-    (UTC). On systems that do not support timezones this function
-    will behave as if local time were UTC.
+    (Qt::UTC). On systems that do not support timezones this function
+    will behave as if local time were Qt::UTC.
 
     \sa toTime_t()
 */
@@ -2080,16 +2080,16 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
     Returns the datetime as a string. The \a f parameter determines
     the format of the string.
 
-    If \a f is \c TextDate, the string format is "Wed May 20
+    If \a f is \c Qt::TextDate, the string format is "Wed May 20
     03:40:13 1998" (using QDate::shortDayName(), QDate::shortMonthName(),
     and QTime::toString() to generate the string, so the day and month
     names will have localized names).
 
-    If \a f is \c ISODate, the string format corresponds to the
+    If \a f is \c Qt::ISODate, the string format corresponds to the
     ISO 8601 extended specification for representations of dates and
     times, which is YYYY-MM-DDTHH:MM:SS.
 
-    If \a f is \c LocalDate, the string format depends on the
+    If \a f is \c Qt::LocalDate, the string format depends on the
     locale settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
@@ -2097,7 +2097,7 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
     \sa QDate::toString() QTime::toString()
 */
 
-QString QDateTime::toString(DateFormat f) const
+QString QDateTime::toString(Qt::DateFormat f) const
 {
     QString buf;
     if (!isValid())
@@ -2173,7 +2173,7 @@ QString QDateTime::toString(DateFormat f) const
             \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
             Uses QDate::shortDayName().
     \row \i dddd
-            \i the long localized day name (e.g. 'Monday'..'Sunday').
+            \i the long localized day name (e.g. 'Qt::Monday'..'Qt::Sunday').
             Uses QDate::longDayName().
     \row \i M \i the month as number without a leading zero (1-12)
     \row \i MM \i the month as number with a leading zero (01-12)
@@ -2306,7 +2306,7 @@ QDateTime QDateTime::addSecs(int nsecs) const
     }
     utcDate.jd = dd;
     utcTime.ds = tt;
-    return QDateTime(utcDate, utcTime, UTC).toTimeSpec(timeSpec());
+    return QDateTime(utcDate, utcTime, Qt::UTC).toTimeSpec(timeSpec());
 }
 
 /*!
@@ -2346,13 +2346,13 @@ int QDateTime::secsTo(const QDateTime &other) const
     return (date1.daysTo(date2) * SECS_PER_DAY) + time1.secsTo(time2);
 }
 
-QDateTime QDateTime::toTimeSpec(TimeSpec spec) const
+QDateTime QDateTime::toTimeSpec(Qt::TimeSpec spec) const
 {
-    if ((d->spec == QDateTimePrivate::UTC) == (spec == UTC))
+    if ((d->spec == QDateTimePrivate::UTC) == (spec == Qt::UTC))
         return *this;
 
     QDateTime ret;
-    if (spec == UTC) {
+    if (spec == Qt::UTC) {
         d->getUTC(ret.d->date, ret.d->time);
         ret.d->spec = QDateTimePrivate::UTC;
     } else {
@@ -2444,9 +2444,9 @@ bool QDateTime::operator<(const QDateTime &other) const
 
 /*!
     Returns the current datetime, as reported by the system clock, for the
-    TimeSpec \a ts. The default TimeSpec is LocalTime.
+    Qt::TimeSpec \a ts. The default TimeSpec is Qt::LocalTime.
 
-    \sa QDate::currentDate(), QTime::currentTime(), TimeSpec
+    \sa QDate::currentDate(), QTime::currentTime(), Qt::TimeSpec
 */
 
 QDateTime QDateTime::currentDateTime()
@@ -2478,24 +2478,24 @@ QDateTime QDateTime::currentDateTime()
     Returns the QDateTime represented by the string \a s, using the
     format \a f, or an invalid datetime if this is not possible.
 
-    Note for \c TextDate: It is recommended that you use the
+    Note for \c Qt::TextDate: It is recommended that you use the
     English short month names (e.g. "Jan"). Although localized month
     names can also be used, they depend on the user's locale settings.
 
-    \warning Note that \c LocalDate cannot be used here.
+    \warning Note that \c Qt::LocalDate cannot be used here.
 */
-QDateTime QDateTime::fromString(const QString& s, DateFormat f)
+QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 {
-    if (s.isEmpty() || f == LocalDate) {
+    if (s.isEmpty() || f == Qt::LocalDate) {
         qWarning("QDateTime::fromString: Parameter out of range");
         return QDateTime();
     }
-    if (f == ISODate) {
-        return QDateTime(QDate::fromString(s.mid(0, 10), ISODate),
-                         QTime::fromString(s.mid(11), ISODate));
+    if (f == Qt::ISODate) {
+        return QDateTime(QDate::fromString(s.mid(0, 10), Qt::ISODate),
+                         QTime::fromString(s.mid(11), Qt::ISODate));
     }
 #if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
-    else if (f == TextDate) {
+    else if (f == Qt::TextDate) {
         QString monthName(s.mid(4, 3));
         int month = -1;
         // Assume that English monthnames are the default

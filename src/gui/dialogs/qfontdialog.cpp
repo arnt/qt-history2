@@ -154,7 +154,7 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->styleAccel->setIndent(2);
 
     d->sizeEdit = new QLineEdit(this, "font size I");
-    d->sizeEdit->setFocusPolicy(ClickFocus);
+    d->sizeEdit->setFocusPolicy(Qt::ClickFocus);
     QIntValidator *validator = new QIntValidator(1, 512, this);
     d->sizeEdit->setValidator(validator);
     d->sizeList = new QListBox(this, "font size II");
@@ -178,7 +178,7 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     QHBoxLayout *hbox = new QHBoxLayout(d->effects);
     d->sampleEdit = new QLineEdit(d->sample, "r/w sample text");
     d->sampleEdit->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
-    d->sampleEdit->setAlignment(AlignCenter);
+    d->sampleEdit->setAlignment(Qt::AlignCenter);
     // Note that the sample text is *not* translated with tr(), as the
     // characters used depend on the charset encoding.
     d->sampleEdit->setText("AaBbYyZz");
@@ -408,10 +408,10 @@ bool QFontDialog::eventFilter(QObject * o , QEvent * e)
     if (e->type() == QEvent::KeyPress) {
         QKeyEvent * k = (QKeyEvent *)e;
         if (o == d->sizeEdit &&
-        (k->key() == Key_Up ||
-             k->key() == Key_Down ||
-         k->key() == Key_Prior ||
-         k->key() == Key_Next)) {
+        (k->key() == Qt::Key_Up ||
+             k->key() == Qt::Key_Down ||
+         k->key() == Qt::Key_Prior ||
+         k->key() == Qt::Key_Next)) {
 
             int ci = d->sizeList->currentItem();
             (void)QApplication::sendEvent(d->sizeList, k);
@@ -421,7 +421,7 @@ bool QFontDialog::eventFilter(QObject * o , QEvent * e)
                 d->sizeEdit->selectAll();
             return true;
         } else if ((o == d->familyList || o == d->styleList) &&
-                    (k->key() == Key_Return || k->key() == Key_Enter)) {
+                    (k->key() == Qt::Key_Return || k->key() == Qt::Key_Enter)) {
             k->accept();
         accept();
             return true;

@@ -349,7 +349,7 @@ QSize QPushButton::sizeHint() const
     if (empty)
         s = QString::fromLatin1("XXXX");
     QFontMetrics fm = fontMetrics();
-    QSize sz = fm.size(ShowPrefix, s);
+    QSize sz = fm.size(Qt::ShowPrefix, s);
     if(!empty || !w)
         w += sz.width();
     if(!empty || !h)
@@ -393,7 +393,7 @@ void QPushButton::drawLabel(QPainter *paint)
 void QPushButton::updateMask()
 {
     QBitmap bm(size());
-    bm.fill(color0);
+    bm.fill(Qt::color0);
 
     QPainter p(&bm);
     Q4StyleOptionButton opt = d->getStyleOption();
@@ -427,8 +427,8 @@ void QPushButton::paintEvent(QPaintEvent *)
 void QPushButton::keyPressEvent(QKeyEvent *e)
 {
     switch (e->key()) {
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         if (d->autoDefault || d->defaultButton) {
             click();
             break;
@@ -529,7 +529,7 @@ void QPushButtonPrivate::popupPressed()
     bool topLeft = true;                        // ### always true
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && tb->orientation() == Vertical)
+    if (tb && tb->orientation() == Qt::Vertical)
         horizontal = false;
 #endif
     QRect rect = q->rect();

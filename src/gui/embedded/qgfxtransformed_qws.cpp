@@ -679,7 +679,7 @@ void QGfxTransformedRaster<depth,type>::fillRect(int x, int y, int w, int h)
     if (w == 0 || h == 0)
         return;
     QRect r(x, y, w, h);
-    if (cbrush.style() == SolidPattern) {
+    if (cbrush.style() == Qt::SolidPattern) {
         r.setCoords(tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1));
         r = r.normalize();
     }
@@ -694,7 +694,7 @@ void QGfxTransformedRaster<depth,type>::drawPolygon(const QPointArray &a, bool w
     // solution. The brush offset logic is complicated enough, so we don't
     // fastpath patternedbrush.
 
-    if (inDraw  || cpen.style()==NoPen || patternedbrush) {
+    if (inDraw  || cpen.style()==Qt::NoPen || patternedbrush) {
         //slowpath
         QT_TRANS_GFX_BASE<depth,type>::drawPolygon(a, w, idx, num);
     } else {

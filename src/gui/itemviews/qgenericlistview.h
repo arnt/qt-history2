@@ -97,7 +97,7 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
 
     void setSelection(const QRect &rect, int selectionCommand);

@@ -882,9 +882,9 @@ QImage QPixmap::convertToImage() const
     Note that even though a QPixmap with depth 1 behaves much like a
     QBitmap, isQBitmap() returns false.
 
-    If a pixmap with depth 1 is painted with color0 and color1 and
-    converted to an image, the pixels painted with color0 will produce
-    pixel index 0 in the image and those painted with color1 will
+    If a pixmap with depth 1 is painted with Qt::color0 and Qt::color1 and
+    converted to an image, the pixels painted with Qt::color0 will produce
+    pixel index 0 in the image and those painted with Qt::color1 will
     produce pixel index 1.
 
     \sa convertToImage(), isQBitmap(), QImage::convertDepth(),
@@ -904,7 +904,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     int         d   = image.depth();
     const int         dd  = data->xinfo->depth();
     bool force_mono = (dd == 1 || isQBitmap() ||
-                       (conversion_flags & ColorMode_Mask)==MonoOnly);
+                       (conversion_flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
 
     // get rid of the mask
     delete data->mask;
@@ -924,11 +924,11 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     } else {                                        // can be both
         bool conv8 = false;
         if (d > 8 && dd <= 8) {                // convert to 8 bit
-            if ((conversion_flags & DitherMode_Mask) == AutoDither)
-                conversion_flags = (conversion_flags & ~DitherMode_Mask)
-                                   | PreferDither;
+            if ((conversion_flags & Qt::DitherMode_Mask) == Qt::AutoDither)
+                conversion_flags = (conversion_flags & ~Qt::DitherMode_Mask)
+                                   | Qt::PreferDither;
             conv8 = true;
-        } else if ((conversion_flags & ColorMode_Mask) == ColorOnly) {
+        } else if ((conversion_flags & Qt::ColorMode_Mask) == Qt::ColorOnly) {
             conv8 = d == 1;                        // native depth wanted
         } else if (d == 1) {
             if (image.numColors() == 2) {
@@ -959,7 +959,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
             XFreePixmap(data->xinfo->display(), hd);
         }
 
-        // make sure image.color(0) == color0 (white) and image.color(1) == color1 (black)
+        // make sure image.color(0) == Qt::color0 (white) and image.color(1) == Qt::color1 (black)
         const QRgb c0 = QColor(white).rgb();
         const QRgb c1 = QColor(black).rgb();
         if (image.color(0) == c1 && image.color(1) == c0) {
@@ -1078,8 +1078,8 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                            n_bits(blue_mask) == bbits;
         bool dither_tc =
             // Want it?
-            (conversion_flags & Dither_Mask) != ThresholdDither &&
-            (conversion_flags & DitherMode_Mask) != AvoidDither &&
+            (conversion_flags & Qt::Dither_Mask) != Qt::ThresholdDither &&
+            (conversion_flags & Qt::DitherMode_Mask) != Qt::AvoidDither &&
             // Need it?
             bppc < 24 && !d8 &&
             // Can do it? (Contiguous bits?)

@@ -45,11 +45,11 @@ class QListViewItem;
 //#define DEBUG_SIZE_CONSTRAINT
 
 QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
-    : QWidget(w, "magicFocusWidget", (noerase ? (WResizeNoErase | WRepaintNoErase) : (Qt::WindowFlags)0)), d(0)
+    : QWidget(w, "magicFocusWidget", (noerase ? (Qt::WResizeNoErase | Qt::WRepaintNoErase) : (Qt::WindowFlags)0)), d(0)
 {
-    setFocusPolicy(NoFocus);
+    setFocusPolicy(Qt::NoFocus);
     if(noerase)
-        setAttribute(WA_NoSystemBackground, true);
+        setAttribute(Qt::WA_NoSystemBackground, true);
 }
 #if 1
 /* It's a real bummer I cannot use this, but you'll notice that sometimes
@@ -347,7 +347,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 {
     if(w) {
         QWidget *top = w->parentWidget();
-        while (!top->isTopLevel() && !top->testWFlags(WSubWindow))
+        while (!top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
             top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
         if(::qt_cast<QMainWindow *>(top)) {

@@ -48,13 +48,13 @@ void ComboListView::keyPressEvent(QKeyEvent *e)
 {
     QGenericListView::keyPressEvent(e);
     switch (e->key()) {
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         hide();
         emit itemSelected(currentItem());
         break;
-    case Key_F4:
-    case Key_Escape:
+    case Qt::Key_F4:
+    case Qt::Key_Escape:
         hide();
         break;
     default:
@@ -306,7 +306,7 @@ QGenericListView *QGenericComboBox::listView() const
 }
 
 QModelIndex QGenericComboBox::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                         ButtonState)
+                                         Qt::ButtonState)
 {
     QModelIndex current = selectionModel()->currentItem();
     if (!current.isValid())
@@ -515,7 +515,7 @@ void QGenericComboBox::popupListView()
         return;
     if (!d->listView) {
         d->listView = new ComboListView(model(), this);
-        d->listView->setParent(this, WType_Popup);
+        d->listView->setParent(this, Qt::WType_Popup);
         connect(d->listView, SIGNAL(itemSelected(const QModelIndex &)),
                 this, SLOT(itemSelected(const QModelIndex &)));
     }

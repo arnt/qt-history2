@@ -595,7 +595,7 @@
 #define QT_NO_GROUPBOX
 #endif
 
-// Horizontal box layout widgets
+// Qt::Horizontal box layout widgets
 #if !defined(QT_NO_HBOX) && (defined(QT_NO_LAYOUT) || defined(QT_NO_FRAME))
 #define QT_NO_HBOX
 #endif
@@ -625,7 +625,7 @@
 #define QT_NO_CLIPBOARD
 #endif
 
-// Horizontal group boxes
+// Qt::Horizontal group boxes
 #if !defined(QT_NO_HGROUPBOX) && (defined(QT_NO_GROUPBOX))
 #define QT_NO_HGROUPBOX
 #endif
@@ -635,7 +635,7 @@
 #define QT_NO_MENUDATA
 #endif
 
-// RichText (HTML) display
+// Qt::RichText (HTML) display
 #if !defined(QT_NO_RICHTEXT) && (defined(QT_NO_STYLE) || defined(QT_NO_LAYOUT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM))
 #define QT_NO_RICHTEXT
 #endif
@@ -650,7 +650,7 @@
 #define QT_NO_STYLE_CDE
 #endif
 
-// Vertical box layout widgets
+// Qt::Vertical box layout widgets
 #if !defined(QT_NO_VBOX) && (defined(QT_NO_HBOX))
 #define QT_NO_VBOX
 #endif
@@ -685,7 +685,7 @@
 #define QT_NO_STYLE_AQUA
 #endif
 
-// Vertical group boxes
+// Qt::Vertical group boxes
 #if !defined(QT_NO_VGROUPBOX) && (defined(QT_NO_HGROUPBOX))
 #define QT_NO_VGROUPBOX
 #endif
@@ -790,7 +790,7 @@
 #define QT_NO_SPINBOX
 #endif
 
-// RichText (HTML) tables and images
+// Qt::RichText (HTML) tables and images
 #if !defined(QT_NO_TEXTCUSTOMITEM) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_MIME))
 #define QT_NO_TEXTCUSTOMITEM
 #endif
@@ -800,7 +800,7 @@
 #define QT_NO_DATETIMEEDIT
 #endif
 
-// Horizontal button groups
+// Qt::Horizontal button groups
 #if !defined(QT_NO_HBUTTONGROUP) && (defined(QT_NO_BUTTONGROUP))
 #define QT_NO_HBUTTONGROUP
 #endif
@@ -820,7 +820,7 @@
 #define QT_NO_SVG
 #endif
 
-// Vertical button groups
+// Qt::Vertical button groups
 #if !defined(QT_NO_VBUTTONGROUP) && (defined(QT_NO_HBUTTONGROUP))
 #define QT_NO_VBUTTONGROUP
 #endif

@@ -36,7 +36,7 @@ public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above, Below = 2, Right = Below, Both = 3 };
 
     QSlider(QWidget *parent = 0);
-    QSlider(Orientation orientation, QWidget *parent = 0);
+    QSlider(Qt::Orientation orientation, QWidget *parent = 0);
 
     ~QSlider();
 
@@ -58,8 +58,8 @@ protected:
 #ifdef QT_COMPAT
 public:
     QSlider(QWidget *parent, const char *name);
-    QSlider(Orientation, QWidget *parent, const char *name);
-    QSlider(int minValue, int maxValue, int pageStep, int value, Orientation orientation,
+    QSlider(Qt::Orientation, QWidget *parent, const char *name);
+    QSlider(int minValue, int maxValue, int pageStep, int value, Qt::Orientation orientation,
                       QWidget *parent = 0, const char *name = 0);
 public slots:
     inline QT_MOC_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };

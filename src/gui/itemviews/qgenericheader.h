@@ -21,10 +21,10 @@ public:
         Custom // let somebody else do the resize
     };
 
-    QGenericHeader(QAbstractItemModel *model, Orientation orientation, QWidget *parent = 0);
+    QGenericHeader(QAbstractItemModel *model, Qt::Orientation orientation, QWidget *parent = 0);
     virtual ~QGenericHeader();
 
-    Orientation orientation() const;
+    Qt::Orientation orientation() const;
     int offset() const;
     int size() const;
     QSize sizeHint() const;
@@ -57,9 +57,9 @@ public:
     ResizeMode resizeMode(int section) const;
     int stretchSectionCount() const;
 
-    void setSortIndicator(int section, SortOrder order);
+    void setSortIndicator(int section, Qt::SortOrder order);
     int sortIndicatorSection() const;
-    SortOrder sortIndicatorOrder() const;
+    Qt::SortOrder sortIndicatorOrder() const;
 
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &index);
@@ -71,9 +71,9 @@ public slots:
 signals:
     void sectionIndexChanged(int section, int oldIndex, int newIndex);
     void sectionSizeChanged(int section, int oldSize, int newSize);
-    void sectionClicked(int section, ButtonState state);
+    void sectionClicked(int section, Qt::ButtonState state);
     void sectionCountChanged(int oldCount, int newCount);
-    void sectionHandleDoubleClicked(int section, ButtonState state);
+    void sectionHandleDoubleClicked(int section, Qt::ButtonState state);
     void sectionAutoResize(int section, ResizeMode mode);
 
 protected slots:
@@ -96,7 +96,7 @@ protected:
 
     int horizontalOffset() const;
     int verticalOffset() const;
-    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);
     QModelIndex item(int section) const;
     void setSelection(const QRect&, int) {}
     QRect selectionViewportRect(const QItemSelection &selection) const;

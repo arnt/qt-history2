@@ -35,7 +35,7 @@ class Q_COMPAT_EXPORT Q3Header : public QWidget
     friend class Q3ListView;
 
     Q_OBJECT
-    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(int offset READ offset WRITE setOffset)
@@ -55,8 +55,8 @@ public:
     QString         label(int section) const;
     QIconSet*         iconSet(int section) const;
 
-    virtual void setOrientation(Orientation);
-    Orientation orientation() const;
+    virtual void setOrientation(Qt::Orientation);
+    Qt::Orientation orientation() const;
     virtual void setTracking(bool enable);
     bool        tracking() const;
 
@@ -97,10 +97,10 @@ public:
     virtual void moveCell(int, int); // obsolete, do not use
 
     void         setSortIndicator(int section, bool ascending = true); // obsolete, do not use
-    inline void setSortIndicator(int section, SortOrder order)
-        { setSortIndicator(section, (order == AscendingOrder)); }
+    inline void setSortIndicator(int section, Qt::SortOrder order)
+        { setSortIndicator(section, (order == Qt::AscendingOrder)); }
     int                sortIndicatorSection() const;
-    SortOrder        sortIndicatorOrder() const;
+    Qt::SortOrder        sortIndicatorOrder() const;
 
     void        adjustHeaderSize() { adjustHeaderSize(-1); }
 
@@ -166,7 +166,7 @@ private:
     bool        trackingIsOn;
     int oldHandleIdx;
     int        cachedPos; // not used
-    Orientation orient;
+    Qt::Orientation orient;
 
     Q3HeaderData *d;
 

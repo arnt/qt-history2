@@ -448,7 +448,7 @@ bool QDirModel::isSortable() const
     return true;
 }
 
-void QDirModel::sort(int column, SortOrder order)
+void QDirModel::sort(int column, Qt::SortOrder order)
 {
     int spec = (order == Qt::DescendingOrder ? QDir::Reversed : 0);
 

@@ -439,8 +439,8 @@ const QString::Null QString::null = QString::Null();
     lower-case letters should compare equal when performing string
     comparisons.
 
-    \value CaseInsensitive The upper-case and lower-case versions of the same letter compare equal.
-    \value CaseSensitive The upper-case and lower-case versions of the same letter are treated as different characters.
+    \value Qt::CaseInsensitive The upper-case and lower-case versions of the same letter compare equal.
+    \value Qt::CaseSensitive The upper-case and lower-case versions of the same letter are treated as different characters.
 
     \sa QChar::toLower(), QChar::toUpper()
 */
@@ -1227,7 +1227,7 @@ QString &QString::remove(int pos, int len)
 
     This is the same as replace(\a str, "", \a cs).
 */
-QString &QString::remove(const QString &str, CaseSensitivity cs)
+QString &QString::remove(const QString &str, Qt::CaseSensitivity cs)
 {
     d->cache = 0;
     if (str.d->size) {
@@ -1255,11 +1255,11 @@ QString &QString::remove(const QString &str, CaseSensitivity cs)
 
     This is the same as replace(\a ch, "", \a cs).
 */
-QString &QString::remove(QChar ch, CaseSensitivity cs)
+QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
 {
     d->cache = 0;
     int i = 0;
-    if (cs == CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         while (i < d->size)
             if (*((const QChar*)d->data + i) == ch)
                 remove(i, 1);
@@ -1352,13 +1352,13 @@ QString &QString::replace(int pos, int len, QChar after)
         // str == "color behavior flavor neighbor"
     \endcode
 */
-QString &QString::replace(const QString &before, const QString &after, CaseSensitivity cs)
+QString &QString::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 {
     if (d->size == 0) {
         if (before.d->size)
             return *this;
     } else {
-        if (cs == CaseSensitive && before == after)
+        if (cs == Qt::CaseSensitive && before == after)
             return *this;
     }
     d->cache = 0;
@@ -1459,7 +1459,7 @@ QString &QString::replace(const QString &before, const QString &after, CaseSensi
     case sensitive; otherwise the search is case insensitive.
 */
 
-QString& QString::replace(QChar ch, const QString &after, CaseSensitivity cs)
+QString& QString::replace(QChar ch, const QString &after, Qt::CaseSensitivity cs)
 {
     return replace(QString(ch), after, cs);
 }
@@ -1472,13 +1472,13 @@ QString& QString::replace(QChar ch, const QString &after, CaseSensitivity cs)
     If \a cs is QString::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 */
-QString& QString::replace(QChar before, QChar after, CaseSensitivity cs)
+QString& QString::replace(QChar before, QChar after, Qt::CaseSensitivity cs)
 {
     d->cache = 0;
     if (d->size) {
         QChar *i = data();
         QChar *e = i + d->size;
-        if (cs == CaseSensitive) {
+        if (cs == Qt::CaseSensitive) {
             for (; i != e; ++i)
                 if (*i == before)
                    * i = after;
@@ -1803,7 +1803,7 @@ bool QString::operator>(const QLatin1String &other) const
 
     \sa lastIndexOf(), contains(), count()
 */
-int QString::indexOf(const QString &str, int from, CaseSensitivity cs) const
+int QString::indexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
 {
     const uint l = d->size;
     const uint sl = str.d->size;
@@ -1839,7 +1839,7 @@ int QString::indexOf(const QString &str, int from, CaseSensitivity cs) const
     const uint sl_minus_1 = sl-1;
     uint hashNeedle = 0, hashHaystack = 0, idx;
 
-    if (cs == CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         for (idx = 0; idx < sl; ++idx) {
             hashNeedle = ((hashNeedle<<1) + needle[idx].unicode());
             hashHaystack = ((hashHaystack<<1) + haystack[idx].unicode());
@@ -1884,14 +1884,14 @@ int QString::indexOf(const QString &str, int from, CaseSensitivity cs) const
     character \a ch in the string, searching forward from index
     position \a from. Returns -1 if \a ch could not be found.
 */
-int QString::indexOf(QChar ch, int from, CaseSensitivity cs) const
+int QString::indexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
 {
     if (from < 0)
         from = qMax(from + d->size, 0);
     if (from  < d->size) {
         const QChar *n = (const QChar*)d->data + from - 1;
         const QChar *e = (const QChar*)d->data + d->size;
-        if (cs == CaseSensitive) {
+        if (cs == Qt::CaseSensitive) {
             while (++n != e)
                 if (*n == ch)
                     return  n - (const QChar*)d->data;
@@ -1927,7 +1927,7 @@ int QString::indexOf(QChar ch, int from, CaseSensitivity cs) const
 
     \sa indexOf(), contains(), count()
 */
-int QString::lastIndexOf(const QString &str, int from, CaseSensitivity cs) const
+int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
 {
     /*
         See indexOf() for explanations.
@@ -1953,7 +1953,7 @@ int QString::lastIndexOf(const QString &str, int from, CaseSensitivity cs) const
     const QChar *h = haystack+sl_minus_1;
     uint hashNeedle = 0, hashHaystack = 0, idx;
 
-    if (cs == CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         for (idx = 0; idx < sl; ++idx) {
             hashNeedle = ((hashNeedle<<1) + (n-idx)->unicode());
             hashHaystack = ((hashHaystack<<1) + (h-idx)->unicode());
@@ -1994,7 +1994,7 @@ int QString::lastIndexOf(const QString &str, int from, CaseSensitivity cs) const
     Returns the index position of the last occurrence of the
     character \a ch, searching backward from position \a from.
 */
-int QString::lastIndexOf(QChar ch, int from, CaseSensitivity cs) const
+int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
 {
     if (from < 0)
         from += d->size;
@@ -2003,7 +2003,7 @@ int QString::lastIndexOf(QChar ch, int from, CaseSensitivity cs) const
     if (from >= 0) {
         const QChar *n =  (const QChar*)d->data + from;
         const QChar *b = (const QChar*)d->data;
-        if (cs == CaseSensitive) {
+        if (cs == Qt::CaseSensitive) {
             for (; n >= b; --n)
                 if (*n == ch)
                     return  n - b;
@@ -2185,7 +2185,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
 
     \sa contains(), indexOf()
 */
-int QString::count(const QString &str, CaseSensitivity cs) const
+int QString::count(const QString &str, Qt::CaseSensitivity cs) const
 {
     int num = 0;
     int i = -1;
@@ -2205,12 +2205,12 @@ int QString::count(const QString &str, CaseSensitivity cs) const
     Returns the number of occurrences of character \a ch in the
     string.
 */
-int QString::count(QChar ch, CaseSensitivity cs) const
+int QString::count(QChar ch, Qt::CaseSensitivity cs) const
 {
     int num = 0;
     const QChar *i = (const QChar*) d->data + d->size;
     const QChar *b = (const QChar*) d->data;
-    if (cs == CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         while (i != b)
             if (*--i == ch)
                 ++num;
@@ -2223,7 +2223,7 @@ int QString::count(QChar ch, CaseSensitivity cs) const
     return num;
 }
 
-/*! \fn bool QString::contains(const QString &str, CaseSensitivity cs = CaseSensitive) const
+/*! \fn bool QString::contains(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
 
     Returns true if this string contains an occurrence of the string
     \a str; otherwise returns false.
@@ -2240,7 +2240,7 @@ int QString::count(QChar ch, CaseSensitivity cs) const
     \sa indexOf(), count()
 */
 
-/*! \fn bool QString::contains(QChar ch, CaseSensitivity cs = CaseSensitive) const
+/*! \fn bool QString::contains(QChar ch, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
 
     \overload
 
@@ -2501,8 +2501,8 @@ QString QString::section(const QRegExp &reg, int start, int end, int flags) cons
         return QString();
 
     QRegExp sep(reg);
-    sep.setCaseSensitivity((flags & SectionCaseInsensitiveSeps) ? CaseInsensitive
-                                                                : CaseSensitive);
+    sep.setCaseSensitivity((flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive
+                                                                : Qt::CaseSensitive);
 
     QList<section_chunk> l;
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
@@ -2650,7 +2650,7 @@ QString QString::mid(int i, int len) const
 
     \sa endsWith()
 */
-bool QString::startsWith(const QString& s, CaseSensitivity cs) const
+bool QString::startsWith(const QString& s, Qt::CaseSensitivity cs) const
 {
     if (d == &shared_null)
         return (s.d == &shared_null);
@@ -2658,7 +2658,7 @@ bool QString::startsWith(const QString& s, CaseSensitivity cs) const
         return s.d->size == 0;
     if (s.d->size > d->size)
         return false;
-    if (cs == CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         return memcmp((char*)d->data, (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
         for (int i = 0; i < s.d->size; ++i)
@@ -2672,7 +2672,7 @@ bool QString::startsWith(const QString& s, CaseSensitivity cs) const
     Returns true if the string ends with \a s; otherwise returns
     false.
 
-    If \a cs is CaseSensitive (the default), the search is case
+    If \a cs is Qt::CaseSensitive (the default), the search is case
     sensitive; otherwise the search is case insensitive.
 
     \code
@@ -2683,7 +2683,7 @@ bool QString::startsWith(const QString& s, CaseSensitivity cs) const
 
     \sa startsWith()
 */
-bool QString::endsWith(const QString& s, CaseSensitivity cs) const
+bool QString::endsWith(const QString& s, Qt::CaseSensitivity cs) const
 {
     if (d == &shared_null)
         return (s.d == &shared_null);
@@ -2692,7 +2692,7 @@ bool QString::endsWith(const QString& s, CaseSensitivity cs) const
     int pos = d->size - s.d->size;
     if (pos < 0)
         return false;
-    if (cs == CaseSensitive) {
+    if (cs == Qt::CaseSensitive) {
         return memcmp((char*)&d->data[pos], (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
         for (int i = 0; i < (int) s.length(); i++)

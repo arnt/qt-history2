@@ -205,7 +205,7 @@ class QMacStyleQDPrivate : public QAquaAnimate
 {
     QPointer<QMacStyleQDFocusWidget> focusWidget;
 public:
-    struct ButtonState {
+    struct Qt::ButtonState {
         int frame;
         enum { ButtonDark, ButtonLight } dir;
     } buttonState;
@@ -226,22 +226,22 @@ QMacStyleQDPrivate::QMacStyleQDPrivate() : QAquaAnimate()
 {
     progressbarState.frame = 0;
     buttonState.frame = 0;
-    buttonState.dir = ButtonState::ButtonDark;
+    buttonState.dir = Qt::ButtonState::ButtonDark;
 }
 QMacStyleQDPrivate::~QMacStyleQDPrivate()
 {
     buttonState.frame = 0;
-    buttonState.dir = ButtonState::ButtonDark;
+    buttonState.dir = Qt::ButtonState::ButtonDark;
     progressbarState.frame = 0;
 }
 bool QMacStyleQDPrivate::doAnimate(QAquaAnimate::Animates as)
 {
     if(as == AquaPushButton) {
-        if(buttonState.frame == 25 && buttonState.dir == ButtonState::ButtonDark)
-            buttonState.dir = ButtonState::ButtonLight;
-        else if(!buttonState.frame && buttonState.dir == ButtonState::ButtonLight)
-            buttonState.dir = ButtonState::ButtonDark;
-        buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
+        if(buttonState.frame == 25 && buttonState.dir == Qt::ButtonState::ButtonDark)
+            buttonState.dir = Qt::ButtonState::ButtonLight;
+        else if(!buttonState.frame && buttonState.dir == Qt::ButtonState::ButtonLight)
+            buttonState.dir = Qt::ButtonState::ButtonDark;
+        buttonState.frame += ((buttonState.dir == Qt::ButtonState::ButtonDark) ? 1 : -1);
     } else if(as == AquaProgressBar) {
         progressbarState.frame++;
     } else if(as == AquaListViewItemOpen) {
@@ -472,9 +472,9 @@ void QMacStyleQD::drawControl(ControlElement element,
         ((QMacStyleQDPainter *)p)->setport();
         DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
         if(element == CE_MenuTearoff) {
-            p->setPen(QPen(pal.dark(), 1, DashLine));
+            p->setPen(QPen(pal.dark(), 1, Qt::DashLine));
             p->drawLine(r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1);
-            p->setPen(QPen(pal.light(), 1, DashLine));
+            p->setPen(QPen(pal.light(), 1, Qt::DashLine));
             p->drawLine(r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2);
         }
         break; }
@@ -537,7 +537,7 @@ void QMacStyleQD::drawControl(ControlElement element,
                     qDrawShadePanel(p, vrect.x(), y, checkcol, h,
                                      pal, true, 1, &pal.brush(QPalette::Button));
                 } else {
-                    QBrush fill(pal.light(), Dense4Pattern);
+                    QBrush fill(pal.light(), Qt::Dense4Pattern);
                     // set the brush origin for the hash pattern to the x/y coordinate
                     // of the menu item's checkmark... this way, the check marks have
                     // a consistent look
@@ -603,7 +603,7 @@ void QMacStyleQD::drawControl(ControlElement element,
             if(!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = macItemVMargin;
-                int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
+                int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::NoAccel | Qt::SingleLine;
                 if(t >= 0) {                         // draw tab text
                     int xp;
                     if(reverse)
@@ -619,7 +619,7 @@ void QMacStyleQD::drawControl(ControlElement element,
                     font.setWeight(oldWeight);
                     p->setFont(font);
                 }
-                text_flags ^= AlignRight;
+                text_flags ^= Qt::AlignRight;
                 p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
             }
         }
@@ -756,7 +756,7 @@ void QMacStyleQD::drawControl(ControlElement element,
             if(frame && !(buffer = QPixmapCache::find(pmkey))) {
                 do_draw = true;
                 buffer = new QPixmap(r.width(), r.height(), 32);
-                buffer->fill(color0);
+                buffer->fill(Qt::color0);
             }
         }
 
@@ -787,7 +787,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 
                 QPixmap buffer_mask(buffer->size(), 32);
                 {
-                    buffer_mask.fill(color0);
+                    buffer_mask.fill(Qt::color0);
                     ThemeButtonDrawInfo mask_info = info;
                     mask_info.state = kThemeStateActive;
                     QMacSavedPortInfo savedInfo(&buffer_mask);
@@ -991,7 +991,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
             if(tbar->window()->isWindowModified())
                 twa |= kThemeWindowHasDirty;
             twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-        } else if(tbar->testWFlags(WStyle_SysMenu)) {
+        } else if(tbar->testWFlags(Qt::WStyle_SysMenu)) {
             twa |= kThemeWindowHasCloseBox;
         }
         QString dblbuf_key;
@@ -1140,7 +1140,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
         if(!widget)
             break;
         QSlider *sldr = (QSlider *)widget;
-        bool horizontal = sldr->orientation() == Horizontal;
+        bool horizontal = sldr->orientation() == Qt::Horizontal;
         bool invertedAppearance = sldr->invertedAppearance();
         ThemeTrackDrawInfo ttdi;
         memset(&ttdi, '\0', sizeof(ttdi));
@@ -1361,7 +1361,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
         ThemeWindowAttributes twa = kThemeWindowHasTitleText;
         if(tbar->window())
             twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-        else if(tbar->testWFlags(WStyle_SysMenu))
+        else if(tbar->testWFlags(Qt::WStyle_SysMenu))
             twa |= kThemeWindowHasCloseBox;
 
         Rect r;
@@ -1513,7 +1513,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
         ThemeWindowAttributes twa = kThemeWindowHasTitleText;
         if(tbar->window())
             twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
-        else if(tbar->testWFlags(WStyle_SysMenu))
+        else if(tbar->testWFlags(Qt::WStyle_SysMenu))
             twa |= kThemeWindowHasCloseBox;
         WindowRegionCode wrc = kWindowGlobalPortRgn;
         if(sc & SC_TitleBarCloseButton)
@@ -1607,7 +1607,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
         if(!w)
             return QRect();
         QSlider *sldr = (QSlider *)w;
-        bool horizontal = sldr->orientation() == Horizontal;
+        bool horizontal = sldr->orientation() == Qt::Horizontal;
         bool invertedAppearance = sldr->invertedAppearance();
         ThemeTrackDrawInfo ttdi;
         memset(&ttdi, '\0', sizeof(ttdi));
@@ -1711,13 +1711,13 @@ QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
         QRect wrect = w->rect();
         const QDialogButtons *dbtns = (const QDialogButtons *) w;
         int start = fw;
-        if(dbtns->orientation() == Horizontal)
+        if(dbtns->orientation() == Qt::Horizontal)
             start = wrect.right() - fw;
         for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
             if(dbtns->isButtonVisible(macBtnOrder[i])) {
                 QSize szH = dbtns->sizeHint(macBtnOrder[i]);
                 int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
-                if(dbtns->orientation() == Horizontal) {
+                if(dbtns->orientation() == Qt::Horizontal) {
                     start -= mwidth;
                     if(cnt)
                         start -= bspace;
@@ -1727,14 +1727,14 @@ QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
                 }
                 cnt++;
                 if(macBtnOrder[i] == srch) {
-                    if(dbtns->orientation() == Horizontal)
+                    if(dbtns->orientation() == Qt::Horizontal)
                         ret = QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
                     else
                         ret = QRect(fw, start, mwidth, mheight);
                 }
             }
             if(cnt == 2 && macBtnOrder[i] == QDialogButtons::Accept) { //yuck, but I need to put some extra space in there now..
-                if(dbtns->orientation() == Horizontal)
+                if(dbtns->orientation() == Qt::Horizontal)
                     start -= 20;
                 else
                     start += 20;
@@ -1752,7 +1752,7 @@ QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
             }
         }
         if(r == SR_DialogButtonCustom) {
-            if(dbtns->orientation() == Horizontal)
+            if(dbtns->orientation() == Qt::Horizontal)
                 ret = QRect(fw + help_width, fw, start - help_width - (fw*2) - bspace, wrect.height() - (fw*2));
             else
                 ret = QRect(fw, start, wrect.width() - (fw*2), wrect.height() - help_height - start - (fw*2));
@@ -1944,7 +1944,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
         const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget),
                   bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
                  bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget);
-        if(dbtns->orientation() == Horizontal) {
+        if(dbtns->orientation() == Qt::Horizontal) {
             if(!w)
                 w = bwidth;
         } else {
@@ -1955,7 +1955,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
             if(dbtns->isButtonVisible(macBtnOrder[i])) {
                 QSize szH = dbtns->sizeHint(macBtnOrder[i]);
                 int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
-                if(dbtns->orientation() == Horizontal)
+                if(dbtns->orientation() == Qt::Horizontal)
                     h = qMax(h, mheight);
                 else
                     w = qMax(w, mwidth);
@@ -1963,12 +1963,12 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
                 if(cnt)
                     w += bspace;
                 cnt++;
-                if(dbtns->orientation() == Horizontal)
+                if(dbtns->orientation() == Qt::Horizontal)
                     w += mwidth;
                 else
                     h += mheight;
                 if(cnt == 2 && macBtnOrder[i] == QDialogButtons::Accept) { //yuck, but I need to put some extra space in there now..
-                    if(dbtns->orientation() == Horizontal)
+                    if(dbtns->orientation() == Qt::Horizontal)
                         w += 20;
                     else
                         h += 20;
@@ -1977,11 +1977,11 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
         }
         if(dbtns->isButtonVisible(QDialogButtons::Help)) {
             if(dbtns->buttonText(QDialogButtons::Help) == "?") {
-                if(dbtns->orientation() == Horizontal)
+                if(dbtns->orientation() == Qt::Horizontal)
                     w += 35;
             } else {
                 QSize szH = dbtns->sizeHint(QDialogButtons::Help);
-                if(dbtns->orientation() == Horizontal)
+                if(dbtns->orientation() == Qt::Horizontal)
                     w += qMax(bwidth, szH.width());
                 else
                     h += qMax(bheight, szH.height());
@@ -2222,7 +2222,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                 GetThemeButtonRegion(qt_glb_mac_rect(btn->rect, p, false), bkind, &info, rgn);
                 p->setClipRegion(qt_mac_convert_mac_region(rgn));
                 qt_mac_dispose_rgn(rgn);
-                p->fillRect(btn->rect, color1);
+                p->fillRect(btn->rect, Qt::color1);
                 p->restore();
             } else {
                 static_cast<QMacStyleQDPainter *>(p)->setport();
@@ -2246,7 +2246,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                         0, 0, 0, 0);
         break;
     case PE_RubberBandMask:
-        p->fillRect(opt->rect, color1);
+        p->fillRect(opt->rect, Qt::color1);
         break;
     case PE_RubberBand:
         p->fillRect(opt->rect, opt->palette.highlight());
@@ -2420,7 +2420,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 if(frame && !QPixmapCache::find(pmkey, buffer)) {
                     do_draw = true;
                     buffer = QPixmap(opt->rect.width(), opt->rect.height(), 32);
-                    buffer.fill(color0);
+                    buffer.fill(Qt::color0);
                 }
             }
             ThemeButtonKind bkind;
@@ -2452,7 +2452,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                                                            off_rct);
                     DrawThemeButton(buff_rct, bkind, &info, 0, 0, 0, 0);
                     QPixmap buffer_mask(buffer.size(), 32);
-                    buffer_mask.fill(color0);
+                    buffer_mask.fill(Qt::color0);
                     ThemeButtonDrawInfo mask_info = info;
                     mask_info.state = kThemeStateActive;
                     {
@@ -2540,7 +2540,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                         qDrawShadePanel(p, vrect.x(), y, checkcol, h,
                                         mi->palette, true, 1, &mi->palette.brush(QPalette::Button));
                     } else {
-                        QBrush fill(mi->palette.light(), Dense4Pattern);
+                        QBrush fill(mi->palette.light(), Qt::Dense4Pattern);
                         // set the brush origin for the hash pattern to the x/y coordinate
                         // of the menu item's checkmark... this way, the check marks have
                         // a consistent look
@@ -2613,7 +2613,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 if (!s.isEmpty()) {                        // draw text
                     int t = s.indexOf('\t');
                     int m = macItemVMargin;
-                    int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
+                    int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::NoAccel | Qt::SingleLine;
                     if (t >= 0) {                         // draw tab text
                         int xp;
                         if (reverse)
@@ -2629,7 +2629,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                         font.setWeight(oldWeight);
                         p->setFont(font);
                     }
-                    text_flags ^= AlignRight;
+                    text_flags ^= Qt::AlignRight;
                     p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
                 }
             }
@@ -2655,10 +2655,10 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             static_cast<QMacStyleQDPainter *>(p)->setport();
             DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
             if (ce == CE_MenuTearoff) {
-                p->setPen(QPen(mi->palette.dark(), 1, DashLine));
+                p->setPen(QPen(mi->palette.dark(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
                             mi->rect.x() + mi->rect.width() - 4, mi->rect.y() + mi->rect.height() / 2 - 1);
-                p->setPen(QPen(mi->palette.light(), 1, DashLine));
+                p->setPen(QPen(mi->palette.light(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
                             mi->rect.x() + mi->rect.width() - 4, mi->rect.y() + mi->rect.height() / 2);
             }
@@ -2736,7 +2736,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
 
                 QRect pixr = header->rect;
                 pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
-                drawItem(p, pixr, AlignVCenter, header->palette,
+                drawItem(p, pixr, Qt::AlignVCenter, header->palette,
                          mode != QIconSet::Disabled
                          || !header->icon.isGenerated(QIconSet::Small, mode), pixmap);
                 textr.moveBy(pixmap.width() + 2, 0);
@@ -2746,7 +2746,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             const QColor *penColor = &header->palette.buttonText().color();
             if (widget && widget->parentWidget()->inherits("QTable") && p->font().bold())
                 penColor = &header->palette.color(QColorGroup::BrightText);
-            drawItem(p, textr, AlignVCenter, header->palette, header->state & Style_Enabled,
+            drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
                      header->text, -1, penColor);
         }
         break;
@@ -2894,7 +2894,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             if (slider->parts & SC_SliderTickmarks) {
                 int numTicks;
                 if (slider->tickInterval) {
-                    if (slider->orientation == Horizontal)
+                    if (slider->orientation == Qt::Horizontal)
                         numTicks = slider->rect.width() / slider->tickInterval;
                     else
                         numTicks = slider->rect.height() / slider->tickInterval;
@@ -2967,7 +2967,7 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl cc, const Q4Style
             GetThemeTrackBounds(&tdi, &mrect);
             ControlPartCode cpc;
             if (HitTestThemeScrollBarArrows(&tdi.bounds, tdi.enableState,
-                                            0, scrollbar->orientation == Horizontal,
+                                            0, scrollbar->orientation == Qt::Horizontal,
                                             pos, &mrect, &cpc)) {
                 if (cpc == kControlUpButtonPart)
                     sc = SC_ScrollBarSubLine;

@@ -104,7 +104,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 
     switch(e->type()) {
     case QEvent::KeyPress:
-        if (((QKeyEvent*)e)->key() == Key_Alt) {
+        if (((QKeyEvent*)e)->key() == Qt::Key_Alt) {
             widget = widget->topLevelWidget();
 
             // Alt has been pressed - find all widgets that care
@@ -128,7 +128,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
         break;
 #if 0 // For now..
     case QEvent::KeyRelease:
-        if (((QKeyEvent*)e)->key() == Key_Alt) {
+        if (((QKeyEvent*)e)->key() == Qt::Key_Alt) {
             widget = widget->topLevelWidget();
 
             // Update state
@@ -259,7 +259,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             QBrush fill;
 
             if (! (flags & Style_Down) && (flags & Style_On))
-                fill = QBrush(pal.light(), Dense4Pattern);
+                fill = QBrush(pal.light(), Qt::Dense4Pattern);
             else
                 fill = pal.brush(QPalette::Button);
 
@@ -288,7 +288,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             if (! (flags & (Style_Down | Style_MouseOver)) &&
                 (flags & Style_On) &&
                 use2000style) {
-                fill = QBrush(pal.light(), Dense4Pattern);
+                fill = QBrush(pal.light(), Qt::Dense4Pattern);
                 stippled = true;
             } else
                 fill = pal.brush(QPalette::Button);
@@ -321,14 +321,14 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         }
 #else
         p->save();
-        p->setBackgroundMode(TransparentMode);
+        p->setBackgroundMode(Qt::TransparentMode);
 	QColor bg_col = opt.isDefault() ? p->background().color() : opt.color();
 	if (qGray(bg_col.rgb()) < 128)
-	    p->setBrush(QBrush(white, Dense4Pattern));
+	    p->setBrush(QBrush(white, Qt::Dense4Pattern));
 	else
-	    p->setBrush(QBrush(black, Dense4Pattern));
+	    p->setBrush(QBrush(black, Qt::Dense4Pattern));
 
-        p->setPen(NoPen);
+        p->setPen(Qt::NoPen);
         p->drawRect(r.left(),  r.top(),    r.width(), 1);          // Top
         p->drawRect(r.left(),  r.bottom(), r.width(), 1);          // Bottom
         p->drawRect(r.left(),  r.top(),    1,         r.height()); // Left
@@ -342,7 +342,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         {
             QBrush fill;
             if (flags & Style_NoChange)
-                fill = QBrush(pal.base(), Dense4Pattern);
+                fill = QBrush(pal.base(), Qt::Dense4Pattern);
             else if (flags & Style_Down)
                 fill = pal.button();
             else if (flags & Style_Enabled)
@@ -443,7 +443,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             p->setBrush(fillColor) ;
             p->drawPolygon(a);
             if (on) {
-                p->setPen(NoPen);
+                p->setPen(Qt::NoPen);
                 p->setBrush(pal.text());
                 p->drawRect(ir.x() + 5, ir.y() + 4, 2, 4);
                 p->drawRect(ir.x() + 4, ir.y() + 5, 4, 2);
@@ -510,17 +510,17 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             QBrush br;
             QColor c = p->background().color();
 
-            p->setPen(NoPen);
-            p->setBackgroundMode(OpaqueMode);
+            p->setPen(Qt::NoPen);
+            p->setBackgroundMode(Qt::OpaqueMode);
 
             if (flags & Style_Down) {
-                br = QBrush(pal.shadow(), Dense4Pattern);
+                br = QBrush(pal.shadow(), Qt::Dense4Pattern);
                 p->setBackground(pal.dark());
-                p->setBrush(QBrush(pal.shadow(), Dense4Pattern));
+                p->setBrush(QBrush(pal.shadow(), Qt::Dense4Pattern));
             } else {
                 br = (pal.brush(QPalette::Light).pixmap() ?
                       pal.brush(QPalette::Light) :
-                      QBrush(pal.light(), Dense4Pattern));
+                      QBrush(pal.light(), Qt::Dense4Pattern));
                 p->setBrush(br);
             }
             p->drawRect(r);
@@ -532,10 +532,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         if (! (flags & Style_Enabled)) {
             QBrush br = (pal.brush(QPalette::Light).pixmap() ?
                          pal.brush(QPalette::Light) :
-                         QBrush(pal.light(), Dense4Pattern));
-            p->setPen(NoPen);
+                         QBrush(pal.light(), Qt::Dense4Pattern));
+            p->setPen(Qt::NoPen);
             p->setBrush(br);
-            p->setBackgroundMode(OpaqueMode);
+            p->setBackgroundMode(Qt::OpaqueMode);
             p->drawRect(r);
         } else
             drawPrimitive(PE_ButtonBevel, p, r, pal, Style_Enabled | Style_Raised);
@@ -672,7 +672,7 @@ void QWindowsStyle::drawControl(ControlElement element,
                 p->drawLine(x2, r2.top() + 2, x2, r2.bottom() -
                              (selected ? (lastTab ? 0:1) :2));
             } else if (tb->shape() == QTabBar::RoundedBelow) {
-                bool rightAligned = styleHint(SH_TabBar_Alignment, tb) == AlignRight;
+                bool rightAligned = styleHint(SH_TabBar_Alignment, tb) == Qt::AlignRight;
                 bool firstTab = tb->indexOf(t->identifier()) == 0;
                 if (selected) {
                     p->fillRect(QRect(r2.left()+1, r2.top(), r2.width()-3, 1),
@@ -780,7 +780,7 @@ void QWindowsStyle::drawControl(ControlElement element,
                     qDrawShadePanel(p, xvis, y, checkcol, h,
                                      pal, true, 1, &pal.brush(QPalette::Button));
                 else {
-                    QBrush fill(pal.light(), Dense4Pattern);
+                    QBrush fill(pal.light(), Qt::Dense4Pattern);
                     // set the brush origin for the hash pattern to the x/y coordinate
                     // of the menu item's checkmark... this way, the check marks have
                     // a consistent look
@@ -852,10 +852,10 @@ void QWindowsStyle::drawControl(ControlElement element,
             QString s = mi->text();
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
-                int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+                int text_flags = Qt::AlignVCenter|Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
                 if (!styleHint(SH_UnderlineShortcut, widget))
-                    text_flags |= NoAccel;
-                text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+                    text_flags |= Qt::NoAccel;
+                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
                     if (use2000style)
@@ -956,7 +956,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_SliderControlThickness:
         {
             const QSlider * sl = (const QSlider *) widget;
-            int space = (sl->orientation() == Horizontal) ? sl->height()
+            int space = (sl->orientation() == Qt::Horizontal) ? sl->height()
                         : sl->width();
             int ticks = sl->tickmarks();
             int n = 0;
@@ -987,7 +987,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
 #ifndef QT_NO_MAINWINDOW
-        if (widget && (widget->testWFlags(WStyle_Tool) || qt_cast<QDockWindow*>(widget))) {
+        if (widget && (widget->testWFlags(Qt::WStyle_Tool) || qt_cast<QDockWindow*>(widget))) {
             // MS always use one less than they say
 #if defined(Q_OS_TEMP)
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
@@ -1653,7 +1653,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         QPalette pal = opt->palette;
         QRect r = opt->rect;
         if (! (flags & Style_Down) && (flags & Style_On))
-            fill = QBrush(pal.light(), Dense4Pattern);
+            fill = QBrush(pal.light(), Qt::Dense4Pattern);
         else
             fill = pal.brush(QPalette::Button);
 
@@ -1721,7 +1721,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     case PE_Indicator: {
         QBrush fill;
         if (opt->state & Style_NoChange)
-            fill = QBrush(opt->palette.base(), Dense4Pattern);
+            fill = QBrush(opt->palette.base(), Qt::Dense4Pattern);
         else if (opt->state & Style_Down)
             fill = opt->palette.button();
         else if (opt->state & Style_Enabled)
@@ -1777,15 +1777,15 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
 #else
             QRect r = opt->rect;
             p->save();
-            p->setBackgroundMode(TransparentMode);
+            p->setBackgroundMode(Qt::TransparentMode);
             QColor bg_col = fropt->backgroundColor;
             if (!bg_col.isValid())
                 bg_col = p->background().color();
             if (qGray(bg_col.rgb()) < 128)
-                p->setBrush(QBrush(white, Dense4Pattern));
+                p->setBrush(QBrush(white, Qt::Dense4Pattern));
             else
-                p->setBrush(QBrush(black, Dense4Pattern));
-            p->setPen(NoPen);
+                p->setBrush(QBrush(black, Qt::Dense4Pattern));
+            p->setPen(Qt::NoPen);
             p->drawRect(r.left(), r.top(), r.width(), 1);    // Top
             p->drawRect(r.left(), r.bottom(), r.width(), 1); // Bottom
             p->drawRect(r.left(), r.top(), 1, r.height());   // Left
@@ -1847,7 +1847,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             p->setBrush(fillColor) ;
             p->drawPolygon(a);
             if (on) {
-                p->setPen(NoPen);
+                p->setPen(Qt::NoPen);
                 p->setBrush(opt->palette.text());
                 p->drawRect(ir.x() + 5, ir.y() + 4, 2, 4);
                 p->drawRect(ir.x() + 4, ir.y() + 5, 4, 2);
@@ -1884,17 +1884,17 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     case PE_ScrollBarSubPage: {
             QBrush br;
             QColor c = p->background().color();
-            p->setPen(NoPen);
-            p->setBackgroundMode(OpaqueMode);
+            p->setPen(Qt::NoPen);
+            p->setBackgroundMode(Qt::OpaqueMode);
 
             if (opt->state & Style_Down) {
-                br = QBrush(opt->palette.shadow(), Dense4Pattern);
+                br = QBrush(opt->palette.shadow(), Qt::Dense4Pattern);
                 p->setBackground(opt->palette.dark());
-                p->setBrush(QBrush(opt->palette.shadow(), Dense4Pattern));
+                p->setBrush(QBrush(opt->palette.shadow(), Qt::Dense4Pattern));
             } else {
                 br = opt->palette.brush(QPalette::Light).pixmap()
                      ? opt->palette.brush(QPalette::Light)
-                     : QBrush(opt->palette.light(), Dense4Pattern);
+                     : QBrush(opt->palette.light(), Qt::Dense4Pattern);
                 p->setBrush(br);
             }
             p->drawRect(opt->rect);
@@ -1904,10 +1904,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         if (!(opt->state & Style_Enabled)) {
             QBrush br = opt->palette.brush(QPalette::Light).pixmap()
                         ?  opt->palette.brush(QPalette::Light)
-                        : QBrush(opt->palette.light(), Dense4Pattern);
-            p->setPen(NoPen);
+                        : QBrush(opt->palette.light(), Qt::Dense4Pattern);
+            p->setPen(Qt::NoPen);
             p->setBrush(br);
-            p->setBackgroundMode(OpaqueMode);
+            p->setBackgroundMode(Qt::OpaqueMode);
             p->drawRect(opt->rect);
         } else {
             Q4StyleOption buttonOpt = *opt;
@@ -1975,7 +1975,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             p->drawRect(bef_h, bef_v, decoration_size, decoration_size);
             p->setPen(oldPen);
         }
-        QBrush brush(opt->palette.dark(), Dense4Pattern);
+        QBrush brush(opt->palette.dark(), Qt::Dense4Pattern);
         if (opt->state & Style_Item) {
             if (QApplication::reverseLayout())
                 p->fillRect(opt->rect.left(), mid_v, bef_h - opt->rect.left(), 1, brush);
@@ -1991,7 +1991,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     case PE_HeaderSection: {
         QBrush fill;
         if (!(opt->state & Style_Down) && (opt->state & Style_On))
-            fill = QBrush(opt->palette.light(), Dense4Pattern);
+            fill = QBrush(opt->palette.light(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
 
@@ -2085,7 +2085,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
                                     menuitem->palette, true, 1,
                                     &menuitem->palette.brush(QPalette::Button));
                 } else {
-                    QBrush fill(menuitem->palette.light(), Dense4Pattern);
+                    QBrush fill(menuitem->palette.light(), Qt::Dense4Pattern);
                     // set the brush origin for the hash pattern to the x/y coordinate
                     // of the menu item's checkmark... this way, the check marks have
                     // a consistent look
@@ -2168,10 +2168,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
                 int t = s.indexOf('\t');
-                int text_flags = AlignVCenter | ShowPrefix | DontClip | SingleLine;
+                int text_flags = Qt::AlignVCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
                 if (!styleHint(SH_UnderlineShortcut, widget))
-                    text_flags |= NoAccel;
-                text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+                    text_flags |= Qt::NoAccel;
+                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
                     if (use2000style)
@@ -2279,7 +2279,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                     mid -= len / 8;
 
                 p->setPen(slider->palette.shadow());
-                if (slider->orientation == Horizontal) {
+                if (slider->orientation == Qt::Horizontal) {
                     qDrawWinPanel(p, groove.x(), groove.y() + mid - 2,
                                    groove.width(), 4, slider->palette, true);
                     p->drawLine(groove.x() + 1, groove.y() + mid - 1,
@@ -2321,7 +2321,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                 int y1 = y;
                 int y2 = y+he-1;
 
-                Orientation orient = slider->orientation;
+                Qt::Orientation orient = slider->orientation;
                 bool tickAbove = slider->tickmarks == QSlider::Above;
                 bool tickBelow = slider->tickmarks == QSlider::Below;
 
@@ -2343,7 +2343,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
 
                 QSliderDirection dir;
 
-                if (orient == Horizontal)
+                if (orient == Qt::Horizontal)
                     if (tickAbove)
                         dir = SlUp;
                     else
@@ -2382,7 +2382,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
 
                 QBrush oldBrush = p->brush();
                 p->setBrush(slider->palette.brush(QPalette::Button));
-                p->setPen(NoPen);
+                p->setPen(Qt::NoPen);
                 p->drawRect(x1, y1, x2-x1+1, y2-y1+1);
                 p->drawPolygon(a);
                 p->setBrush(oldBrush);
@@ -2565,7 +2565,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                     p.begin(verticalLine);
                     for(i = 0; i < 64; ++i)
                         a.setPoint(i, 0, i * 2 + 1);
-                    p.setPen(color1);
+                    p.setPen(Qt::color1);
                     p.drawPoints(a);
                     p.end();
                     QApplication::flush();
@@ -2573,7 +2573,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                     p.begin(horizontalLine);
                     for(i = 0; i < 64; ++i)
                         a.setPoint(i, i * 2 + 1, 0);
-                    p.setPen(color1);
+                    p.setPen(Qt::color1);
                     p.drawPoints(a);
                     p.end();
                     QApplication::flush();

@@ -160,16 +160,16 @@ static const int vMargin = 8;
 static const int hMargin = 12;
 
 QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor)
-    : QWidget(parent, WType_Popup | WDestructiveClose), widget(showTextFor),pressed(false), text(txt)
+    : QWidget(parent, Qt::WType_Popup | Qt::WDestructiveClose), widget(showTextFor),pressed(false), text(txt)
 {
     delete instance;
     instance = this;
-    setAttribute(WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_NoSystemBackground, true);
     setPalette(QToolTip::palette());
     setMouseTracking(true);
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
 #ifndef QT_NO_CURSOR
-    setCursor(ArrowCursor);
+    setCursor(Qt::ArrowCursor);
 #endif
 
 
@@ -195,7 +195,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
             sw = 300;
 
         r = fontMetrics().boundingRect(0, 0, sw, 1000,
-                                        AlignAuto + AlignTop + WordBreak + ExpandTabs,
+                                        Qt::AlignAuto + Qt::AlignTop + Qt::WordBreak + Qt::ExpandTabs,
                                         text);
     }
 #if defined(Q_WS_WIN)
@@ -220,7 +220,7 @@ QWhatsThat::~QWhatsThat()
 void QWhatsThat::mousePressEvent(QMouseEvent* e)
 {
     pressed = true;
-    if (e->button() == LeftButton && rect().contains(e->pos())) {
+    if (e->button() == Qt::LeftButton && rect().contains(e->pos())) {
 #ifndef QT_NO_RICHTEXT
         if (doc)
             anchor = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
@@ -235,7 +235,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
     if (!pressed)
         return;
 #ifndef QT_NO_RICHTEXT
-    if (widget && e->button() == LeftButton && doc && rect().contains(e->pos())) {
+    if (widget && e->button() == Qt::LeftButton && doc && rect().contains(e->pos())) {
         QString a = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
         QString href;
         if (anchor == a)
@@ -259,9 +259,9 @@ void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
         return;
     QString a = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
     if (!a.isEmpty())
-        setCursor(PointingHandCursor);
+        setCursor(Qt::PointingHandCursor);
     else
-        setCursor(ArrowCursor);
+        setCursor(Qt::ArrowCursor);
 #endif
 #endif
 }
@@ -327,7 +327,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     else
 #endif
     {
-        p.drawText(r, AlignAuto + AlignTop + WordBreak + ExpandTabs, text);
+        p.drawText(r, Qt::AlignAuto + Qt::AlignTop + Qt::WordBreak + Qt::ExpandTabs, text);
     }
 }
 
@@ -373,7 +373,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 {
     instance = this;
     qApp->installEventFilter(this);
-    QApplication::setOverrideCursor(whatsThisCursor, false);
+    QApplication::setOverrideCursor(Qt::whatsThisCursor, false);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpStart);
 #endif
@@ -402,7 +402,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonPress:
     {
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
-        if (me->button() == RightButton || customWhatsThis)
+        if (me->button() == Qt::RightButton || customWhatsThis)
             return false;
         QHelpEvent e(QEvent::WhatsThis, me->pos(), me->globalPos());
         if (!QApplication::sendEvent(w, &e))
@@ -412,7 +412,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonRelease:
     case QEvent::MouseMove:
     case QEvent::MouseButtonDblClick:
-        if (static_cast<QMouseEvent*>(e)->button() == RightButton || customWhatsThis)
+        if (static_cast<QMouseEvent*>(e)->button() == Qt::RightButton || customWhatsThis)
             return false; // ignore RMB release
         break;
     case QEvent::KeyPress:
@@ -424,13 +424,13 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
             return true;
         } else if (o->isWidgetType() && ((QWidget*)o)->testAttribute(Qt::WA_CustomWhatsThis)) {
             return false;
-        } else if (kev->key() == Key_Menu ||
-                    (kev->key() == Key_F10 &&
-                      kev->state() == ShiftButton)) {
+        } else if (kev->key() == Qt::Key_Menu ||
+                    (kev->key() == Qt::Key_F10 &&
+                      kev->state() == Qt::ShiftButton)) {
             // we don't react to these keys, they are used for context menus
             return false;
         } else if (kev->state() == kev->stateAfter() &&
-                    kev->key() != Key_Meta) {  // not a modifier key
+                    kev->key() != Qt::Key_Meta) {  // not a modifier key
             QWhatsThis::leaveWhatsThisMode();
         }
     } break;
@@ -488,7 +488,7 @@ public:
     QWhatsThisButton(QWidget *p) : QToolButton(p, "automatic what's this? button") {
         QObject::connect(this, SIGNAL(toggled(bool)), this, SLOT(whatToggled(bool)));
         setAutoRaise(true);
-        setFocusPolicy(NoFocus);
+        setFocusPolicy(Qt::NoFocus);
     }
 
 public slots:

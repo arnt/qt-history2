@@ -213,9 +213,9 @@ static Q4StyleOptionHeader getStyleOption(const Q3Header *header, int section)
 */
 
 Q3Header::Q3Header(QWidget *parent, const char *name)
-    : QWidget(parent, name, WStaticContents)
+    : QWidget(parent, name, Qt::WStaticContents)
 {
-    orient = Horizontal;
+    orient = Qt::Horizontal;
     init(0);
 }
 
@@ -225,9 +225,9 @@ Q3Header::Q3Header(QWidget *parent, const char *name)
 */
 
 Q3Header::Q3Header(int n,  QWidget *parent, const char *name)
-    : QWidget(parent, name, WStaticContents)
+    : QWidget(parent, name, Qt::WStaticContents)
 {
-    orient = Horizontal;
+    orient = Qt::Horizontal;
     init(n);
 }
 
@@ -398,19 +398,19 @@ void Q3Header::init(int n)
     \property Q3Header::orientation
     \brief the header's orientation
 
-    The orientation is either \c Vertical or \c Horizontal (the
+    The orientation is either \c Qt::Vertical or \c Qt::Horizontal (the
     default).
 
     Call setOrientation() before adding labels if you don't provide a
     size parameter otherwise the sizes will be incorrect.
 */
 
-void Q3Header::setOrientation(Orientation orientation)
+void Q3Header::setOrientation(Qt::Orientation orientation)
 {
     if (orient == orientation)
         return;
     orient = orientation;
-    if (orient == Horizontal)
+    if (orient == Qt::Horizontal)
         setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
     else
         setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
@@ -425,10 +425,10 @@ void Q3Header::setOrientation(Orientation orientation)
 void Q3Header::paintRect(int p, int s)
 {
     QPainter paint(this);
-    paint.setPen(QPen(black, 1, DotLine));
+    paint.setPen(QPen(black, 1, Qt::DotLine));
     if (reverse())
         paint.drawRect(p - s, 3, s, height() - 5);
-    else if (orient == Horizontal)
+    else if (orient == Qt::Horizontal)
         paint.drawRect(p, 3, s, height() - 5);
     else
         paint.drawRect(3, p, height() - 5, s);
@@ -440,14 +440,14 @@ void Q3Header::paintRect(int p, int s)
 void Q3Header::markLine(int idx)
 {
     QPainter paint(this);
-    paint.setPen(QPen(black, 1, DotLine));
+    paint.setPen(QPen(black, 1, Qt::DotLine));
     int MARKSIZE = style().pixelMetric(QStyle::PM_HeaderMarkSize);
     int p = pPos(idx);
     int x = p - MARKSIZE/2;
     int y = 2;
     int x2 = p + MARKSIZE/2;
     int y2 = height() - 3;
-    if (orient == Vertical) {
+    if (orient == Qt::Vertical) {
         int t = x; x = y; y = t;
         t = x2; x2 = y2; y2 = t;
     }
@@ -478,7 +478,7 @@ void Q3Header::unMarkLine(int idx)
     int y = 2;
     int x2 = p + MARKSIZE/2;
     int y2 = height() - 3;
-    if (orient == Vertical) {
+    if (orient == Qt::Vertical) {
         int t = x; x = y; y = t;
         t = x2; x2 = y2; y2 = t;
     }
@@ -585,7 +585,7 @@ void Q3Header::handleColumnMove(int fromIdx, int toIdx)
 void Q3Header::keyPressEvent(QKeyEvent *e)
 {
     int i = d->focusIdx;
-    if (e->key() == Key_Space) {
+    if (e->key() == Qt::Key_Space) {
         //don't do it if we're doing something with the mouse
         if (state == Idle && d->clicks[d->i2s[d->focusIdx] ]) {
             handleIdx = i;
@@ -593,18 +593,18 @@ void Q3Header::keyPressEvent(QKeyEvent *e)
             repaint(sRect(handleIdx));
             emit pressed(d->i2s[i]);
         }
-    } else if (orientation() == Horizontal &&
-                (e->key() == Key_Right || e->key() == Key_Left)
-                || orientation() == Vertical &&
-                (e->key() == Key_Up || e->key() == Key_Down)) {
-        int dir = e->key() == Key_Right || e->key() == Key_Down ? 1 : -1;
+    } else if (orientation() == Qt::Horizontal &&
+                (e->key() == Qt::Key_Right || e->key() == Qt::Key_Left)
+                || orientation() == Qt::Vertical &&
+                (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down)) {
+        int dir = e->key() == Qt::Key_Right || e->key() == Qt::Key_Down ? 1 : -1;
         int s = d->i2s[i];
-        if (e->state() & ControlButton  && d->resize[s]) {
+        if (e->state() & Qt::ControlButton  && d->resize[s]) {
             //resize
-            int step = e->state() & ShiftButton ? dir : 10*dir;
+            int step = e->state() & Qt::ShiftButton ? dir : 10*dir;
             int c = d->positions[i] + d->sizes[s] +  step;
             handleColumnResize(i, c, true);
-        } else         if (e->state() & (AltButton|MetaButton) && d->move) {
+        } else         if (e->state() & (Qt::AltButton|Qt::MetaButton) && d->move) {
             //move section
             int i2 = (i + count() + dir) % count();
             d->focusIdx = i2;
@@ -627,7 +627,7 @@ void Q3Header::keyPressEvent(QKeyEvent *e)
 void Q3Header::keyReleaseEvent(QKeyEvent *e)
 {
     switch (e->key()) {
-    case Key_Space:
+    case Qt::Key_Space:
         //double check that this wasn't started with the mouse
         if (state == Pressed && handleIdx == d->focusIdx) {
             repaint(sRect(handleIdx));
@@ -650,11 +650,11 @@ void Q3Header::keyReleaseEvent(QKeyEvent *e)
 */
 void Q3Header::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton || state != Idle)
+    if (e->button() != Qt::LeftButton || state != Idle)
         return;
     oldHIdxSize = handleIdx;
     handleIdx = 0;
-    int c = orient == Horizontal ? e->pos().x() : e->pos().y();
+    int c = orient == Qt::Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
     if (reverse())
         c = d->lastPos - c;
@@ -672,7 +672,7 @@ void Q3Header::mousePressEvent(QMouseEvent *e)
             handleIdx = index-1;
         else
             handleIdx = index;
-        if (d->lastPos <= (orient == Horizontal ? width() :
+        if (d->lastPos <= (orient == Qt::Horizontal ? width() :
                              height()) && d->fullSize != -2 && handleIdx == count() - 1) {
             handleIdx = -1;
             return;
@@ -698,7 +698,7 @@ void Q3Header::mousePressEvent(QMouseEvent *e)
 */
 void Q3Header::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
     int oldOldHandleIdx = oldHandleIdx;
     State oldState = state;
@@ -719,7 +719,7 @@ void Q3Header::mouseReleaseEvent(QMouseEvent *e)
             repaint(sRect(oldOldHandleIdx));
         } break;
     case Sliding: {
-        int c = orient == Horizontal ? e->pos().x() : e->pos().y();
+        int c = orient == Qt::Horizontal ? e->pos().x() : e->pos().y();
         c += offset();
         if (reverse())
             c = d->lastPos - c;
@@ -766,7 +766,7 @@ void Q3Header::mouseReleaseEvent(QMouseEvent *e)
 */
 void Q3Header::mouseMoveEvent(QMouseEvent *e)
 {
-    int c = orient == Horizontal ? e->pos().x() : e->pos().y();
+    int c = orient == Qt::Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
 
     int pos = c;
@@ -778,10 +778,10 @@ void Q3Header::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_CURSOR
         if (handleAt(c) < 0)
             unsetCursor();
-        else if (orient == Horizontal)
-            setCursor(splitHCursor);
+        else if (orient == Qt::Horizontal)
+            setCursor(Qt::splitHCursor);
         else
-            setCursor(splitVCursor);
+            setCursor(Qt::splitVCursor);
 #endif
         break;
     case Blocked:
@@ -791,10 +791,10 @@ void Q3Header::mouseMoveEvent(QMouseEvent *e)
             state = Moving;
             moveToIdx = -1;
 #ifndef QT_NO_CURSOR
-            if (orient == Horizontal)
-                setCursor(SizeHorCursor);
+            if (orient == Qt::Horizontal)
+                setCursor(Qt::SizeHorCursor);
             else
-                setCursor(SizeVerCursor);
+                setCursor(Qt::SizeVerCursor);
 #endif
         }
         break;
@@ -826,7 +826,7 @@ void Q3Header::mouseMoveEvent(QMouseEvent *e)
 
 void Q3Header::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    int p = orient == Horizontal ? e->pos().x() : e->pos().y();
+    int p = orient == Qt::Horizontal ? e->pos().x() : e->pos().y();
     p += offset();
     if(reverse())
         p = d->lastPos - p;
@@ -860,7 +860,7 @@ void Q3Header::handleColumnResize(int index, int c, bool final, bool recalcAll)
     int pos = d->positions[index]-offset();
     if(reverse()) // repaint the whole thing. Could be optimized (lars)
         repaint(0, 0, width(), height());
-    else if (orient == Horizontal)
+    else if (orient == Qt::Horizontal)
         repaint(pos, 0, width() - pos, height());
     else
         repaint(0, pos, width(), height() - pos);
@@ -901,7 +901,7 @@ QRect Q3Header::sRect(int index)
     if (count() > 0 && index >= count()) {
         int s = d->positions[count() - 1] - offset() +
                 d->sizes[mapToSection(count() - 1)];
-        if (orient == Horizontal)
+        if (orient == Qt::Horizontal)
             return QRect(s, 0, width() - s + 10, height());
         else
             return QRect(0, s, width(), height() - s + 10);
@@ -912,7 +912,7 @@ QRect Q3Header::sRect(int index)
     if (reverse())
         return QRect( d->lastPos - d->positions[index] - d->sizes[section] -offset(),
                        0, d->sizes[section], height());
-    else if (orient == Horizontal)
+    else if (orient == Qt::Horizontal)
         return QRect( d->positions[index]-offset(), 0, d->sizes[section], height());
     else
         return QRect(0, d->positions[index]-offset(), width(), d->sizes[section]);
@@ -931,7 +931,7 @@ QRect Q3Header::sectionRect(int section) const
     if (reverse())
         return QRect( d->lastPos - d->positions[index] - d->sizes[section] -offset(),
                        0, d->sizes[section], height());
-    else if (orient == Horizontal)
+    else if (orient == Qt::Horizontal)
         return QRect( d->positions[index]-offset(), 0, d->sizes[section], height());
     else
         return QRect(0, d->positions[index]-offset(), width(), d->sizes[section]);
@@ -1128,13 +1128,13 @@ void Q3Header::setSectionSizeAndHeight(int section, int size)
 
     if (size < 0) {
         if (d->sizes[section] < 0)
-            d->sizes[section] = (orient == Horizontal) ? sz.width()
+            d->sizes[section] = (orient == Qt::Horizontal) ? sz.width()
                                                          : sz.height();
     } else {
         d->sizes[section] = size;
     }
 
-    int newHeight = (orient == Horizontal) ? sz.height() : sz.width();
+    int newHeight = (orient == Qt::Horizontal) ? sz.height() : sz.width();
     if (newHeight > d->height) {
         d->height = newHeight;
     } else if (newHeight < d->height) {
@@ -1224,14 +1224,14 @@ QSize Q3Header::sizeHint() const
     if (d->heightDirty) {
         d->height = fm.lineSpacing() + 6;
         for (int i = 0; i < count(); i++) {
-            int h = orient == Horizontal ?
+            int h = orient == Qt::Horizontal ?
                     sectionSizeHint(i, fm).height() : sectionSizeHint(i, fm).width();
             d->height = qMax(d->height, h);
         }
         d->heightDirty = false;
     }
 
-    if (orient == Horizontal) {
+    if (orient == Qt::Horizontal) {
         height = fm.lineSpacing() + 6;
         width = 0;
         height = qMax(height, d->height);
@@ -1268,11 +1268,11 @@ void Q3Header::setOffset(int x)
 {
     int oldOff = offset();
     offs = x;
-    if(d->lastPos < (orient == Horizontal ? width() : height()))
+    if(d->lastPos < (orient == Qt::Horizontal ? width() : height()))
         offs = 0;
     else if (reverse())
         offs = d->lastPos - width() - x;
-    if (orient == Horizontal)
+    if (orient == Qt::Horizontal)
         scroll(oldOff-offset(), 0);
     else
         scroll(0, oldOff-offset());
@@ -1456,7 +1456,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     if (sectionSize(section) <= 0)
         return;
 
-    opt.state = (orient == Horizontal ? QStyle::Style_Horizontal : QStyle::Style_Default);
+    opt.state = (orient == Qt::Horizontal ? QStyle::Style_Horizontal : QStyle::Style_Default);
     //pass in some hint about the sort indicator if it is used
     if (d->sortSection != section)
         opt.state |= QStyle::Style_Off;
@@ -1480,7 +1480,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         p->setClipRect(fr); // hack to keep styles working
         opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
         style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
-        if (orient == Horizontal) {
+        if (orient == Qt::Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x(), fr.y() + fr.height() - 1,
                          fr.x() + fr.width() - 1, fr.y() + fr.height() - 1);
@@ -1554,7 +1554,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
     int tw = (orient == Qt::Horizontal ? ssh.width() : ssh.height());
     int ew = 0;
 
-    if (style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight)
+    if (style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & Qt::AlignRight)
         ew = fr.width() - tw - 8;
     if (d->sortSection == section && tw <= fr.width()) {
         if (reverse()) {
@@ -1579,7 +1579,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     p.setPen(palette().buttonText());
-    int pos = orient == Horizontal ? e->rect().left() : e->rect().top();
+    int pos = orient == Qt::Horizontal ? e->rect().left() : e->rect().top();
     int id = mapToIndex(sectionAt(pos + offset()));
     if (id < 0) {
         if (pos > 0)
@@ -1614,8 +1614,8 @@ void Q3Header::paintEvent(QPaintEvent *e)
                     opt.state = QStyle::Style_Default;
                     style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
                 }
-                if (orient == Horizontal && r. right() >= e->rect().right() ||
-                     orient == Vertical && r. bottom() >= e->rect().bottom())
+                if (orient == Qt::Horizontal && r. right() >= e->rect().right() ||
+                     orient == Qt::Vertical && r. bottom() >= e->rect().bottom())
                     return;
             }
         }
@@ -1638,7 +1638,7 @@ void Q3Header::setSortIndicator(int section, bool ascending)
 }
 
 /*!
-  \fn void Q3Header::setSortIndicator(int section, SortOrder order)
+  \fn void Q3Header::setSortIndicator(int section, Qt::SortOrder order)
 
   Sets a sort indicator onto the specified \a section. The indicator's
   \a order is either Ascending or Descending.
@@ -1669,7 +1669,7 @@ int Q3Header::sortIndicatorSection() const
 
 Qt::SortOrder Q3Header::sortIndicatorOrder() const
 {
-    return d->sortDirection ? AscendingOrder : DescendingOrder;
+    return d->sortDirection ? Qt::AscendingOrder : Qt::DescendingOrder;
 }
 
 /*!
@@ -1864,10 +1864,10 @@ void Q3Header::resizeEvent(QResizeEvent *e)
     }
 
     if (e) {
-        adjustHeaderSize(orientation() == Horizontal ?
+        adjustHeaderSize(orientation() == Qt::Horizontal ?
                           width() - e->oldSize().width() : height() - e->oldSize().height());
-        if ((orientation() == Horizontal && height() != e->oldSize().height())
-             || (orientation() == Vertical && width() != e->oldSize().width()))
+        if ((orientation() == Qt::Horizontal && height() != e->oldSize().height())
+             || (orientation() == Qt::Vertical && width() != e->oldSize().width()))
             update();
     } else
         adjustHeaderSize();
@@ -1888,14 +1888,14 @@ void Q3Header::adjustHeaderSize(int diff)
 
     // we skip the adjustHeaderSize when trying to resize the last column which is set to stretchable
     if (d->fullSize == (count() -1) &&
-         (d->lastPos - d->sizes[count() -1]) > (orient == Horizontal ? width() : height()))
+         (d->lastPos - d->sizes[count() -1]) > (orient == Qt::Horizontal ? width() : height()))
         return;
 
     if (d->fullSize >= 0) {
         int sec = mapToSection(d->fullSize);
         int lsec = mapToSection(count() - 1);
         int ns = sectionSize(sec) +
-                 (orientation() == Horizontal ?
+                 (orientation() == Qt::Horizontal ?
                    width() : height()) - (sectionPos(lsec) + sectionSize(lsec));
         int os = sectionSize(sec);
         if (ns < 20)
@@ -1905,7 +1905,7 @@ void Q3Header::adjustHeaderSize(int diff)
         emit sizeChange(sec, os, ns);
     } else if (d->fullSize == -1) {
         int df = diff / count();
-        int part = orientation() == Horizontal ? width() / count() : height() / count();
+        int part = orientation() == Qt::Horizontal ? width() / count() : height() / count();
         for (int i = 0; i < count() - 1; ++i) {
             int sec = mapToIndex(i);
             int os = sectionSize(sec);
@@ -1916,7 +1916,7 @@ void Q3Header::adjustHeaderSize(int diff)
             emit sizeChange(sec, os, ns);
         }
         int sec = mapToIndex(count() - 1);
-        int ns = (orientation() == Horizontal ? width() : height()) - sectionPos(sec);
+        int ns = (orientation() == Qt::Horizontal ? width() : height()) - sectionPos(sec);
         int os = sectionSize(sec);
         if (ns < 20)
             ns = 20;
@@ -1946,7 +1946,7 @@ void Q3Header::calculatePositions(bool onlyVisible, int start)
         d->positions[i] = d->lastPos;
         d->lastPos += d->sizes[d->i2s[i]];
         if (onlyVisible && d->lastPos > offset() +
-             (orientation() == Horizontal ? width() : height()))
+             (orientation() == Qt::Horizontal ? width() : height()))
             break;
     }
     d->pos_dirty = onlyVisible;
@@ -2013,7 +2013,7 @@ void Q3Header::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::FontChange) {
         QFontMetrics fm = fontMetrics();
-        d->height = (orient == Horizontal) ? fm.lineSpacing() + 6 : fm.width(' ');
+        d->height = (orient == Qt::Horizontal) ? fm.lineSpacing() + 6 : fm.width(' ');
     }
     QWidget::changeEvent(ev);
 }

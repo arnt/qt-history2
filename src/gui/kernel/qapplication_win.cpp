@@ -331,7 +331,7 @@ public:
 void QETWidget::reparentWorkaround()
 {
     QWidget::wmapper()->remove(data->winid);
-    clearWState(WState_Created | WState_Visible | WState_ForceHide);
+    clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_ForceHide);
     data->winid = 0;
     QRect geom = geometry();
     create(0, false, false);
@@ -911,7 +911,7 @@ void QApplication::restoreOverrideCursor()
         if (w)
             SetCursor(w->cursor().handle());
         else
-            SetCursor(QCursor(ArrowCursor).handle());
+            SetCursor(QCursor(Qt::ArrowCursor).handle());
     }
 }
 
@@ -1077,10 +1077,10 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
         return;
     if (gotFocus) {
         setActiveWindow(widget);
-        if (active_window && active_window->testWFlags(WType_Dialog)) {
+        if (active_window && active_window->testWFlags(Qt::WType_Dialog)) {
             // raise the entire application, not just the dialog
             QWidget* mw = active_window;
-            while(mw->parentWidget() && mw->testWFlags(WType_Dialog))
+            while(mw->parentWidget() && mw->testWFlags(Qt::WType_Dialog))
                 mw = mw->parentWidget()->topLevelWidget();
             if (mw != active_window)
                 SetWindowPos(mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
@@ -2301,7 +2301,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
     }
     state  = translateButtonState(msg.wParam, type, button); // button state
     if (type == QEvent::MouseMove) {
-        if (!(state & MouseButtonMask))
+        if (!(state & Qt::MouseButtonMask))
             qt_button_down = 0;
         QCursor *c = qt_grab_cursor();
         if (!c)
@@ -2358,7 +2358,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick) {        // mouse button pressed
             // Magic for masked widgets
             qt_button_down = findChildWidget(this, pos);
-            if (!qt_button_down || !qt_button_down->testWFlags(WMouseNoMask))
+            if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
                 qt_button_down = this;
         }
     }
@@ -2369,7 +2369,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         QWidget *popup = activePopupWidget;
 
         if (popup != this) {
-            if (testWFlags(WType_Popup) && rect().contains(pos))
+            if (testWFlags(Qt::WType_Popup) && rect().contains(pos))
                 popup = this;
             else                                // send to last popup
                 pos = popup->mapFromGlobal(QPoint(gpos.x, gpos.y));
@@ -2416,14 +2416,14 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 LPARAM lParam = MAKELPARAM(widgetpt.x, widgetpt.y);
                 winPostMessage(w->winId(), msg.message, msg.wParam, lParam);
             }
-         } else if (type == QEvent::MouseButtonRelease && button == RightButton
+         } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
                    && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
 	    QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendSpontaneousEvent( popup, &e2 );
         }
     } else {                                        // not popup mode
-        int bs = state & MouseButtonMask;
+        int bs = state & Qt::MouseButtonMask;
         if ((type == QEvent::MouseButtonPress ||
               type == QEvent::MouseButtonDblClick) && bs == 0) {
             if (QWidget::mouseGrabber() == 0)
@@ -2443,13 +2443,13 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
 
         if (type == QEvent::MouseButtonRelease &&
-             (state & (~button) & (MouseButtonMask)) == 0) {
+             (state & (~button) & (Qt::MouseButtonMask)) == 0) {
             qt_button_down = 0;
         }
 
         QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y), button, state);
         QApplication::sendSpontaneousEvent(widget, &e);
-        if (type == QEvent::MouseButtonRelease && button == RightButton) {
+        if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
             QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state);
             QApplication::sendSpontaneousEvent(widget, &e2);
         }
@@ -2708,12 +2708,12 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
 
         int code = translateKeyCode(msg.wParam);
         // Invert state logic
-        if (code == Key_Alt)
-            state = state^AltButton;
-        else if (code == Key_Control)
-            state = state^ControlButton;
-        else if (code == Key_Shift)
-            state = state^ShiftButton;
+        if (code == Qt::Key_Alt)
+            state = state^Qt::AltButton;
+        else if (code == Qt::Key_Control)
+            state = state^Qt::ControlButton;
+        else if (code == Qt::Key_Shift)
+            state = state^Qt::ShiftButton;
 
         // If the bit 24 of lParm is set you received a enter,
         // otherwise a Return. (This is the extended key bit)
@@ -2723,43 +2723,43 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
 
         if (!(msg.lParam & 0x1000000)) {        // All cursor keys without extended bit
             switch (code) {
-            case Key_Left:
-            case Key_Right:
-            case Key_Up:
-            case Key_Down:
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Up:
+            case Qt::Key_Down:
             case Key_PageUp:
             case Key_PageDown:
-            case Key_Home:
-            case Key_End:
-            case Key_Insert:
-            case Key_Delete:
-            case Key_Asterisk:
-            case Key_Plus:
-            case Key_Minus:
-            case Key_Period:
-            case Key_0:
-            case Key_1:
-            case Key_2:
-            case Key_3:
-            case Key_4:
-            case Key_5:
-            case Key_6:
-            case Key_7:
-            case Key_8:
-            case Key_9:
-                state |= Keypad;
+            case Qt::Key_Home:
+            case Qt::Key_End:
+            case Qt::Key_Insert:
+            case Qt::Key_Delete:
+            case Qt::Key_Asterisk:
+            case Qt::Key_Plus:
+            case Qt::Key_Minus:
+            case Qt::Key_Period:
+            case Qt::Key_0:
+            case Qt::Key_1:
+            case Qt::Key_2:
+            case Qt::Key_3:
+            case Qt::Key_4:
+            case Qt::Key_5:
+            case Qt::Key_6:
+            case Qt::Key_7:
+            case Qt::Key_8:
+            case Qt::Key_9:
+                state |= Qt::Keypad;
             default:
                 if ((uint)msg.lParam == 0x004c0001 ||
                      (uint)msg.lParam == 0xc04c0001)
-                    state |= Keypad;
+                    state |= Qt::Keypad;
                 break;
             }
         } else {                                // And some with extended bit
             switch (code) {
-            case Key_Enter:
-            case Key_Slash:
-            case Key_NumLock:
-                state |= Keypad;
+            case Qt::Key_Enter:
+            case Qt::Key_Slash:
+            case Qt::Key_NumLock:
+                state |= Qt::Keypad;
             default:
                 break;
             }
@@ -2837,12 +2837,12 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
 
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it
-            if (code == Key_Tab && (state & ShiftButton) == ShiftButton)
+            if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == ShiftButton)
                 code = Key_BackTab;
 
             if (rec) {
                 // it is already down (so it is auto-repeating)
-                if (code < Key_Shift || code > Key_ScrollLock) {
+                if (code < Qt::Key_Shift || code > Qt::Key_ScrollLock) {
                     k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text, true);
                     k1 = sendKeyEvent(QEvent::KeyPress, code, state, grab, rec->text, true);
                 }
@@ -2866,7 +2866,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                                 state);
 
                 // see comment above
-                if (code == Key_Tab && (state & ShiftButton) == ShiftButton)
+                if (code == Qt::Key_Tab && (state & Qt::ShiftButton) == ShiftButton)
                     code = Key_BackTab;
 
                 k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
@@ -2903,16 +2903,16 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     else
         delta = (int) msg.wParam;
 
-    Orientation orient = (state&AltButton
+    Qt::Orientation orient = (state&Qt::AltButton
 #if 0 // disabled for now - Trenton's one-wheel mouse makes trouble...
     // "delta" for usual wheels is +-120. +-240 seems to indicate the second wheel
     // see more recent MSDN for WM_MOUSEWHEEL
 
-         || delta == 240 || delta == -240)?Horizontal:Vertical;
+         || delta == 240 || delta == -240)?Qt::Horizontal:Vertical;
     if (delta == 240 || delta == -240)
         delta /= 2;
 #endif
-       )? Horizontal:Vertical;
+       )? Qt::Horizontal:Vertical;
 
     QPoint globalPos;
 
@@ -3161,7 +3161,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
     QKeyEvent e(type, code, state, text, autor, qMax(1, int(text.length())));
     QApplication::sendSpontaneousEvent(this, &e);
     if (!isModifierKey(code) && state == Qt::AltButton
-         && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
+         && ((code>=Qt::Key_A && code<=Qt::Key_Z) || (code>=Qt::Key_0 && code<=Qt::Key_9))
          && type == QEvent::KeyPress && !e.isAccepted())
         QApplication::beep();  // emulate windows behavioar
     return e.isAccepted();
@@ -3199,13 +3199,13 @@ bool QETWidget::translatePaintEvent(const MSG &)
 
 bool QETWidget::translateConfigEvent(const MSG &msg)
 {
-    if (!testWState(WState_Created))                // in QWidget::create()
+    if (!testWState(Qt::WState_Created))                // in QWidget::create()
         return true;
-    if (testWState(WState_ConfigPending))
+    if (testWState(Qt::WState_ConfigPending))
         return true;
     if (!isTopLevel())
         return true;
-    setWState(WState_ConfigPending);                // set config flag
+    setWState(Qt::WState_ConfigPending);                // set config flag
     QRect cr = geometry();
     if (msg.message == WM_SIZE) {                // resize event
         WORD a = LOWORD(msg.lParam);
@@ -3239,8 +3239,8 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             if (isVisible()) {
                 QResizeEvent e(newSize, oldSize);
                 QApplication::sendSpontaneousEvent(this, &e);
-                if (!testAttribute(WA_StaticContents))
-                    testWState(WState_InPaintEvent)?update():repaint();
+                if (!testAttribute(Qt::WA_StaticContents))
+                    testWState(Qt::WState_InPaintEvent)?update():repaint();
             } else {
                 QResizeEvent *e = new QResizeEvent(newSize, oldSize);
                 QApplication::postEvent(this, e);
@@ -3264,7 +3264,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             }
         }
     }
-    clearWState(WState_ConfigPending);                // clear config flag
+    clearWState(Qt::WState_ConfigPending);                // clear config flag
     return true;
 }
 
@@ -3284,7 +3284,7 @@ bool QETWidget::translateCloseEvent(const MSG &)
 
 void QETWidget::eraseWindowBackground(HDC hdc)
 {
-    if (testAttribute(WA_NoSystemBackground))
+    if (testAttribute(Qt::WA_NoSystemBackground))
         return;
 
     const QWidget *w = this;
@@ -3298,13 +3298,13 @@ void QETWidget::eraseWindowBackground(HDC hdc)
     GetClientRect(data->winid, &r);
 
     QWidget *that = const_cast<QWidget*>(w);
-    that->setWState(WState_InPaintEvent);
+    that->setWState(Qt::WState_InPaintEvent);
     qt_erase_background
         (hdc, r.left, r.top,
           r.right-r.left, r.bottom-r.top,
           data->pal.brush(w->d->bg_role),
           offset.x(), offset.y(), const_cast<QWidget*>(w));
-    that->clearWState(WState_InPaintEvent);
+    that->clearWState(Qt::WState_InPaintEvent);
 }
 
 
@@ -3380,22 +3380,22 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     effect_override = true;
     switch (effect) {
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         animate_menu = enable;
         break;
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         fade_menu = enable;
         break;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         animate_combo = enable;
         break;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         animate_tooltip = enable;
         break;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         fade_tooltip = enable;
         break;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         animate_toolbox = enable;
         break;
     default:
@@ -3406,21 +3406,21 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
         // we know that they can be used when we are here
         UINT api;
         switch (effect) {
-        case UI_AnimateMenu:
+        case Qt::UI_AnimateMenu:
             api = SPI_SETMENUANIMATION;
             break;
-        case UI_FadeMenu:
+        case Qt::UI_FadeMenu:
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
                 return;
             api = SPI_SETMENUFADE;
             break;
-        case UI_AnimateCombo:
+        case Qt::UI_AnimateCombo:
             api = SPI_SETCOMBOBOXANIMATION;
             break;
-        case UI_AnimateTooltip:
+        case Qt::UI_AnimateTooltip:
             api = SPI_SETTOOLTIPANIMATION;
             break;
-        case UI_FadeTooltip:
+        case Qt::UI_FadeTooltip:
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
                 return;
             api = SPI_SETTOOLTIPFADE;
@@ -3448,24 +3448,24 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
         BOOL enabled = false;
         UINT api;
         switch (effect) {
-        case UI_AnimateMenu:
+        case Qt::UI_AnimateMenu:
             api = SPI_GETMENUANIMATION;
             break;
-        case UI_FadeMenu:
+        case Qt::UI_FadeMenu:
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
                 return false;
             api = SPI_GETMENUFADE;
             break;
-        case UI_AnimateCombo:
+        case Qt::UI_AnimateCombo:
             api = SPI_GETCOMBOBOXANIMATION;
             break;
-        case UI_AnimateTooltip:
+        case Qt::UI_AnimateTooltip:
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
                 api = SPI_GETMENUANIMATION;
             else
                 api = SPI_GETTOOLTIPANIMATION;
             break;
-        case UI_FadeTooltip:
+        case Qt::UI_FadeTooltip:
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
                 return false;
             api = SPI_GETTOOLTIPFADE;
@@ -3482,17 +3482,17 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
         return enabled;
     } else {
         switch(effect) {
-        case UI_AnimateMenu:
+        case Qt::UI_AnimateMenu:
             return animate_menu;
-        case UI_FadeMenu:
+        case Qt::UI_FadeMenu:
             return fade_menu;
-        case UI_AnimateCombo:
+        case Qt::UI_AnimateCombo:
             return animate_combo;
-        case UI_AnimateTooltip:
+        case Qt::UI_AnimateTooltip:
             return animate_tooltip;
-        case UI_FadeTooltip:
+        case Qt::UI_FadeTooltip:
             return fade_tooltip;
-        case UI_AnimateToolBox:
+        case Qt::UI_AnimateToolBox:
             return animate_toolbox;
         default:
             return animate_ui;
@@ -3527,20 +3527,20 @@ void QSessionManager::cancel()
 /*!
     \enum Qt::WindowsVersion
 
-    \value WV_32s
-    \value WV_95
-    \value WV_98
-    \value WV_Me
-    \value WV_DOS_based
+    \value Qt::WV_32s
+    \value Qt::WV_95
+    \value Qt::WV_98
+    \value Qt::WV_Me
+    \value Qt::WV_DOS_based
 
-    \value WV_NT
-    \value WV_2000
-    \value WV_XP
-    \value WV_2003
-    \value WV_NT_based
+    \value Qt::WV_NT
+    \value Qt::WV_2000
+    \value Qt::WV_XP
+    \value Qt::WV_2003
+    \value Qt::WV_NT_based
 
-    \value WV_CE
-    \value WV_CENET
-    \value WV_CE_based
+    \value Qt::WV_CE
+    \value Qt::WV_CENET
+    \value Qt::WV_CE_based
 */
 #endif

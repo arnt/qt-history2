@@ -685,11 +685,11 @@ void QFileDialog::headerClicked(int section)
         return;
     }
     QGenericHeader *header = d->tview->header();
-    SortOrder order = (header->sortIndicatorSection() == section
-                       && header->sortIndicatorOrder() == DescendingOrder)
-                      ? AscendingOrder : DescendingOrder;
+    Qt::SortOrder order = (header->sortIndicatorSection() == section
+                       && header->sortIndicatorOrder() == Qt::DescendingOrder)
+                      ? Qt::AscendingOrder : Qt::DescendingOrder;
     bool sortByName = (spec & QDir::SortByMask) == QDir::Name;
-    bool reverse = (order == AscendingOrder ? sortByName : !sortByName);
+    bool reverse = (order == Qt::AscendingOrder ? sortByName : !sortByName);
     if (reverse) {
         spec |= QDir::Reversed;
         spec |= QDir::DirsLast;
@@ -830,7 +830,7 @@ void QFileDialogPrivate::setup()
                      q, SLOT(deletePressed(const QModelIndex&)));
     QObject::connect(tview, SIGNAL(deletePressed(const QModelIndex&)),
                      q, SLOT(deletePressed(const QModelIndex&)));
-    QObject::connect(tview->header(), SIGNAL(sectionClicked(int, ButtonState)),
+    QObject::connect(tview->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
                      q, SLOT(headerClicked(int)));
 
     grid->addWidget(new QLabel(tr("Look in:"), q), 0, 0);
@@ -1175,7 +1175,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     // create a native dialog
 
 #if defined(Q_WS_WIN)
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
         return qt_win_get_open_file_name(initialSelection, filter, &qt_working_dir,
                                          parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
@@ -1262,7 +1262,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
 
 #if defined(Q_WS_WIN)
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
         return qt_win_get_save_file_name(initialSelection, filter, &qt_working_dir,
 					 parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
@@ -1339,7 +1339,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     QString initialDir;
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
         initialDir = dir;
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle && (options & ShowDirsOnly))
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle && (options & ShowDirsOnly))
         return qt_win_get_existing_directory(initialDir, parent, caption);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(&qApp->style()))
@@ -1435,7 +1435,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     qt_get_dir_and_selection(dir, &qt_working_dir, 0);
 
 #if defined(Q_WS_WIN)
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)
+    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
         return qt_win_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(&qApp->style()))

@@ -209,12 +209,12 @@ qDebug("ix %d, iy %d, iw %d, ih %d, sx %d, sy %d",
 
 template<const int depth, const int type>
 void QQnxFbGfx<depth,type>::fillRect(int rx, int ry, int w, int h) {
-    if (ncliprect < 1 || w < 1 || h < 1 || cbrush.style() == NoBrush) {
+    if (ncliprect < 1 || w < 1 || h < 1 || cbrush.style() == Qt::NoBrush) {
         return;
     }
 
     // Cop-outs
-    if(cbrush.style()!=SolidPattern
+    if(cbrush.style()!=Qt::SolidPattern
         || alphatype!=IgnoreAlpha || srctype!=SourcePen
         || myrop!=CopyROP) {
         QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
@@ -259,8 +259,8 @@ void QQnxFbGfx<depth,type>::hlineUnclipped (int x, int x1, int y) {
     if (myrop!=CopyROP
             || alphatype!=IgnoreAlpha
             || srctype!=SourcePen
-            || cpen.style()!=SolidLine
-            || cbrush.style()!=SolidPattern) {
+            || cpen.style()!=Qt::SolidLine
+            || cbrush.style()!=Qt::SolidPattern) {
         unsigned char *l = scanLine(y);
         QGfxRaster<depth,type>::hlineUnclipped(x,x1,l);
         return;

@@ -265,7 +265,7 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
     result = find(e);
     if (result == QKeySequence::NoMatch
         && e->state() & Qt::ShiftButton) {
-        // If Shift + Key_BackTab, also try Shift + Key_Tab
+        // If Shift + Key_BackTab, also try Shift + Qt::Key_Tab
         if (e->key() == Qt::Key_BackTab) {
             QKeyEvent pe = QKeyEvent(e->type(), Qt::Key_Tab, e->state(), e->text());
             result = find(&pe);

@@ -835,7 +835,7 @@ int QAccessibleWidget::state(int child) const
     if (!w->isEnabled())
         state |= Unavailable;
     if (w->isTopLevel()) {
-        if (w->testWFlags(WStyle_Title))
+        if (w->testWFlags(Qt::WStyle_Title))
             state |= Moveable;
         if (w->minimumSize() != w->maximumSize())
             state |= Sizeable;

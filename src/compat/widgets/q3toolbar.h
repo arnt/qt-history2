@@ -31,7 +31,7 @@ class Q_COMPAT_EXPORT Q3ToolBar: public Q3DockWindow
 
 public:
     Q3ToolBar(const QString &label,
-              Q3MainWindow *, ToolBarDock = DockTop,
+              Q3MainWindow *, ToolBarDock = Qt::DockTop,
               bool newLine = false, const char* name=0);
     Q3ToolBar(const QString &label, Q3MainWindow *, QWidget *,
               bool newLine = false, const char* name=0, WFlags f = 0);
@@ -57,7 +57,7 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-    void setOrientation(Orientation o);
+    void setOrientation(Qt::Orientation o);
     void setMinimumSize(int minw, int minh);
 
 protected:

@@ -2063,7 +2063,7 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
 
     // (lars) what does this do???
 #if 0 // RS: ####
-    if (align != AlignLeft)
+    if (align != Qt::AlignLeft)
         marg -= lv->d->minRightBearing;
 #endif
     if (isSelected() &&
@@ -2092,20 +2092,20 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
     if (icon) {
         iconWidth = icon->width() + lv->itemMargin();
         int xo = r;
-        // we default to AlignVCenter.
+        // we default to Qt::AlignVCenter.
         int yo = (height() - icon->height()) / 2;
 
         // I guess we may as well always respect vertical alignment.
-        if (align & AlignBottom)
+        if (align & Qt::AlignBottom)
             yo = height() - icon->height();
-        else if (align & AlignTop)
+        else if (align & Qt::AlignTop)
             yo = 0;
 
         // respect horizontal alignment when there is no text for an item.
         if (text(column).isEmpty()) {
-            if (align & AlignRight)
+            if (align & Qt::AlignRight)
                 xo = width - 2 * marg - iconWidth;
-            else if (align & AlignHCenter)
+            else if (align & Qt::AlignHCenter)
                 xo = (width - iconWidth) / 2;
         }
         if (reverse)
@@ -2115,11 +2115,11 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
 
     if (!t.isEmpty()) {
         if (!mlenabled) {
-            if (!(align & AlignTop || align & AlignBottom))
-                align |= AlignVCenter;
+            if (!(align & Qt::AlignTop || align & Qt::AlignBottom))
+                align |= Qt::AlignVCenter;
         } else {
-            if (!(align & AlignVCenter || align & AlignBottom))
-                align |= AlignTop;
+            if (!(align & Qt::AlignVCenter || align & Qt::AlignBottom))
+                align |= Qt::AlignTop;
         }
         if (!reverse)
             r += iconWidth;
@@ -2165,7 +2165,7 @@ int Q3ListViewItem::width(const QFontMetrics& fm,
 {
     int w;
     if (mlenabled)
-        w = fm.size(AlignVCenter, text(c)).width() + lv->itemMargin() * 2
+        w = fm.size(Qt::AlignVCenter, text(c)).width() + lv->itemMargin() * 2
             - lv->d->minLeftBearing - lv->d->minRightBearing;
     else
         w = fm.width(text(c)) + lv->itemMargin() * 2
@@ -2573,15 +2573,15 @@ void Q3ListViewItem::ignoreDoubleClick()
     parent and widget attributes \a f.
 
     This constructor sets the \c WA_StaticContent and the \c
-    WA_NoBackground attributes to boost performance when drawing
+    Qt::WA_NoBackground attributes to boost performance when drawing
     Q3ListViewItems. This may be unsuitable for custom Q3ListViewItem
-    classes, in which case \c WA_StaticContents and \c WA_NoBackground
+    classes, in which case \c Qt::WA_StaticContents and \c Qt::WA_NoBackground
     should be cleared on the viewport() after construction.
 
     \sa QWidget::setAttribute()
 */
 Q3ListView::Q3ListView(QWidget * parent, const char *name, WFlags f)
-    : QScrollView(parent, name, f | WStaticContents | WNoAutoErase)
+    : QScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     init();
 }
@@ -2670,7 +2670,7 @@ void Q3ListView::init()
     d->r->setSelectable(false);
 
     viewport()->setFocusProxy(this);
-    viewport()->setFocusPolicy(WheelFocus);
+    viewport()->setFocusPolicy(Qt::WheelFocus);
     viewport()->setBackgroundRole(QPalette::Base);
 }
 
@@ -2885,7 +2885,7 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
                     // map to Left currently. This should change once we
                     // can really reverse the listview.
                     int align = columnAlignment(ac);
-                    if (align == AlignAuto) align = AlignLeft;
+                    if (align == Qt::AlignAuto) align = Qt::AlignLeft;
                         current.i->paintCell(p, pal, ac, r.width(), align);
                 }
                 p->restore();
@@ -3446,7 +3446,7 @@ void Q3ListView::setColumnAlignment(int column, int align)
 
 /*!
     Returns the alignment of column \a column. The default is \c
-    AlignAuto.
+    Qt::AlignAuto.
 
     \sa Qt::AlignmentFlags
 */
@@ -3454,7 +3454,7 @@ void Q3ListView::setColumnAlignment(int column, int align)
 int Q3ListView::columnAlignment(int column) const
 {
     if (column < 0 || !d->vci)
-        return AlignAuto;
+        return Qt::AlignAuto;
     Q3ListViewPrivate::ViewColumnInfo * l = d->vci;
     while(column) {
         if (!l->next)
@@ -3462,7 +3462,7 @@ int Q3ListView::columnAlignment(int column) const
         l = l->next;
         column--;
     }
-    return l ? l->align : AlignAuto;
+    return l ? l->align : Qt::AlignAuto;
 }
 
 
@@ -3564,8 +3564,8 @@ void Q3ListView::handleSizeChange(int section, int os, int ns)
     // map auto to left for now. Need to fix this once we support
     // reverse layout on the listview.
     int align = columnAlignment(section);
-    if (align == AlignAuto) align = AlignLeft;
-    if (align != AlignAuto && align != AlignLeft)
+    if (align == Qt::AlignAuto) align = Qt::AlignLeft;
+    if (align != Qt::AlignAuto && align != Qt::AlignLeft)
         viewport()->repaint(d->h->cellPos(actual) - contentsX(), 0,
                              d->h->cellSize(actual), visibleHeight());
 
@@ -3691,11 +3691,11 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
                          me->button(), me->state());
         switch(me2.type()) {
         case QEvent::MouseButtonDblClick:
-            if (me2.button() == RightButton)
+            if (me2.button() == Qt::RightButton)
                 return true;
             break;
         case QEvent::MouseMove:
-            if (me2.state() & RightButton) {
+            if (me2.state() & Qt::RightButton) {
                 viewportMouseMoveEvent(&me2);
                 return true;
             }
@@ -3721,11 +3721,11 @@ bool Q3ListView::eventFilter(QObject * o, QEvent * e)
         if (currentItem() && currentItem()->renameBox) {
             if (e->type() == QEvent::KeyPress) {
                 QKeyEvent *ke = (QKeyEvent*)e;
-                if (ke->key() == Key_Return ||
-                     ke->key() == Key_Enter) {
+                if (ke->key() == Qt::Key_Return ||
+                     ke->key() == Qt::Key_Enter) {
                     currentItem()->okRename(currentItem()->renameCol);
                     return true;
-                } else if (ke->key() == Key_Escape) {
+                } else if (ke->key() == Qt::Key_Escape) {
                     currentItem()->cancelRename(currentItem()->renameCol);
                     return true;
                 }
@@ -4149,16 +4149,16 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
         d->startEdit = false;
     Q3ListViewItem *oldCurrent = currentItem();
 
-    if (e->button() == RightButton && (e->state() & ControlButton))
+    if (e->button() == Qt::RightButton && (e->state() & Qt::ControlButton))
         goto emit_signals;
 
     if (!i) {
-        if (!(e->state() & ControlButton))
+        if (!(e->state() & Qt::ControlButton))
             clearSelection();
         goto emit_signals;
     } else {
         // No new anchor when using shift
-        if (!(e->state() & ShiftButton))
+        if (!(e->state() & Qt::ShiftButton))
             d->selectAnchor = i;
     }
 
@@ -4181,7 +4181,7 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
             if (ctrl == QStyle::SC_ListViewExpand &&
                 e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
                 d->buttonDown = false;
-                if (e->button() == LeftButton) {
+                if (e->button() == Qt::LeftButton) {
                     bool close = i->isOpen();
                     setOpen(i, !close);
                     // ### Looks dangerous, removed because of reentrance problems
@@ -4241,7 +4241,7 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
             setSelected(i, d->select);
         else if (selectionMode() == Extended) {
             bool changed = false;
-            if (!(e->state() & (ControlButton | ShiftButton))) {
+            if (!(e->state() & (Qt::ControlButton | Qt::ShiftButton))) {
                 if (!i->isSelected()) {
                     bool blocked = signalsBlocked();
                     blockSignals(true);
@@ -4251,9 +4251,9 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
                     changed = true;
                 }
             } else {
-                if (e->state() & ShiftButton)
+                if (e->state() & Qt::ShiftButton)
                     d->pressedSelected = false;
-                if ((e->state() & ControlButton) && !(e->state() & ShiftButton) && i) {
+                if ((e->state() & Qt::ControlButton) && !(e->state() & Qt::ShiftButton) && i) {
                     i->setSelected(!i->isSelected());
                     changed = true;
                     d->pressedSelected = false;
@@ -4292,8 +4292,8 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
     }
     emit mouseButtonPressed(e->button(), i, viewport()->mapToGlobal(vp), c);
 
-    if (e->button() == RightButton && i == d->pressedItem) {
-        if (!i && !(e->state() & ControlButton))
+    if (e->button() == Qt::RightButton && i == d->pressedItem) {
+        if (!i && !(e->state() & Qt::ControlButton))
             clearSelection();
 
         emit rightButtonPressed(i, viewport()->mapToGlobal(vp), c);
@@ -4359,7 +4359,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
     if (d->selectionMode == Extended &&
          d->focusItem == d->pressedItem &&
          d->pressedSelected && d->focusItem &&
-         e->button() == LeftButton) {
+         e->button() == Qt::LeftButton) {
         bool block = signalsBlocked();
         blockSignals(true);
         clearSelection();
@@ -4377,7 +4377,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
         return;
 
     if (i && i == d->pressedItem && (i->isExpandable() || i->childCount()) &&
-         !d->h->mapToLogical(d->h->cellAt(vp.x())) && e->button() == LeftButton &&
+         !d->h->mapToLogical(d->h->cellAt(vp.x())) && e->button() == Qt::LeftButton &&
          e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
         int draw = 0;
         for (; draw < d->drawables.size(); ++draw)
@@ -4417,7 +4417,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
         }
     }
 
-    if (i == d->pressedItem && i && i->isSelected() && e->button() == LeftButton && d->startEdit) {
+    if (i == d->pressedItem && i && i->isSelected() && e->button() == Qt::LeftButton && d->startEdit) {
         QRect r = itemRect(currentItem());
         r = QRect(viewportToContents(r.topLeft()), r.size());
         d->pressedColumn = header()->sectionAt( e->pos().x());
@@ -4427,7 +4427,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
             r.setLeft(r.left() + itemMargin() + (currentItem()->depth() +
                                                    (rootIsDecorated() ? 1 : 0)) * treeStepSize() - 1);
         if (r.contains(e->pos()) &&
-             !(e->state() & (ShiftButton | ControlButton)))
+             !(e->state() & (Qt::ShiftButton | Qt::ControlButton)))
             d->renameTimer->start(QApplication::doubleClickInterval(), true);
     }
     if (i && vp.x() + contentsX() < itemMargin() + (i->depth() + (rootIsDecorated() ? 1 : 0)) * treeStepSize())
@@ -4443,9 +4443,9 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
         emit mouseButtonClicked(e->button(), i, viewport()->mapToGlobal(vp),
                                  i ? d->h->mapToLogical(d->h->cellAt(vp.x())) : -1);
 
-        if (e->button() == RightButton) {
+        if (e->button() == Qt::RightButton) {
             if (!i) {
-                if (!(e->state() & ControlButton))
+                if (!(e->state() & Qt::ControlButton))
                     clearSelection();
                 emit rightButtonClicked(0, viewport()->mapToGlobal(vp), -1);
                 return;
@@ -4465,7 +4465,7 @@ void Q3ListView::contentsMouseDoubleClickEvent(QMouseEvent * e)
 {
     d->renameTimer->stop();
     d->startEdit = false;
-    if (!e || e->button() != LeftButton)
+    if (!e || e->button() != Qt::LeftButton)
         return;
 
     // ensure that the following mouse moves and eventual release is
@@ -4535,9 +4535,9 @@ void Q3ListView::contentsMouseMoveEvent(QMouseEvent * e)
         i = d->startDragItem;
 
     if (!d->buttonDown ||
-         ((e->state() & LeftButton) != LeftButton &&
-           (e->state() & MidButton) != MidButton &&
-           (e->state() & RightButton) != RightButton))
+         ((e->state() & Qt::LeftButton) != LeftButton &&
+           (e->state() & Qt::MidButton) != MidButton &&
+           (e->state() & Qt::RightButton) != RightButton))
         return;
 
     if (d->pressedItem &&
@@ -4754,12 +4754,12 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
     bool wasNavigation = true;
 
     switch(e->key()) {
-    case Key_Backspace:
-    case Key_Delete:
+    case Qt::Key_Backspace:
+    case Qt::Key_Delete:
         d->currentPrefix.truncate(0);
         break;
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         d->currentPrefix.truncate(0);
         if (i && !i->isSelectable() && i->isEnabled() &&
              (i->childCount() || i->isExpandable() || i->isOpen())) {
@@ -4772,24 +4772,24 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
         emit returnPressed(currentItem());
         // do NOT accept.  QDialog.
         return;
-    case Key_Down:
+    case Qt::Key_Down:
         selectCurrent = false;
         i = i->itemBelow();
         d->currentPrefix.truncate(0);
         singleStep = true;
         break;
-    case Key_Up:
+    case Qt::Key_Up:
         selectCurrent = false;
         i = i->itemAbove();
         d->currentPrefix.truncate(0);
         singleStep = true;
         break;
-    case Key_Home:
+    case Qt::Key_Home:
         selectCurrent = false;
         i = firstChild();
         d->currentPrefix.truncate(0);
         break;
-    case Key_End:
+    case Qt::Key_End:
         selectCurrent = false;
         i = firstChild();
         while (i->nextSibling())
@@ -4798,7 +4798,7 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
             i = i->itemBelow();
         d->currentPrefix.truncate(0);
         break;
-    case Key_Next:
+    case Qt::Key_Next:
         selectCurrent = false;
         i2 = itemAt(QPoint(0, visibleHeight()-1));
         if (i2 == i || !r.isValid() ||
@@ -4821,7 +4821,7 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
         }
         d->currentPrefix.truncate(0);
         break;
-    case Key_Prior:
+    case Qt::Key_Prior:
         selectCurrent = false;
         i2 = itemAt(QPoint(0, 0));
         if (i == i2 || !r.isValid() || r.top() <= 0) {
@@ -4837,14 +4837,14 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
         }
         d->currentPrefix.truncate(0);
         break;
-    case Key_Plus:
+    case Qt::Key_Plus:
         d->currentPrefix.truncate(0);
         if ( !i->isOpen() && (i->isExpandable() || i->childCount()))
             setOpen(i, true);
         else
             return;
         break;
-    case Key_Right:
+    case Qt::Key_Right:
         d->currentPrefix.truncate(0);
         if (i->isOpen() && i->childItem) {
             i = i->childItem;
@@ -4857,14 +4857,14 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
             return;
         }
         break;
-    case Key_Minus:
+    case Qt::Key_Minus:
         d->currentPrefix.truncate(0);
         if (i->isOpen())
             setOpen(i, false);
         else
             return;
         break;
-    case Key_Left:
+    case Qt::Key_Left:
         d->currentPrefix.truncate(0);
         if (i->isOpen()) {
             setOpen(i, false);
@@ -4877,7 +4877,7 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
             return;
         }
         break;
-    case Key_Space:
+    case Qt::Key_Space:
         activatedByClick = false;
         d->currentPrefix.truncate(0);
         if (currentItem() && !currentItem()->isEnabled())
@@ -4889,10 +4889,10 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
         }
         emit spacePressed(currentItem());
         break;
-    case Key_Escape:
+    case Qt::Key_Escape:
         e->ignore(); // For QDialog
         return;
-    case Key_F2:
+    case Qt::Key_F2:
         if (currentItem() && currentItem()->renameEnabled(0))
             currentItem()->startRename(0);
     default:
@@ -4954,10 +4954,10 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
             }
         } else {
             d->currentPrefix.truncate(0);
-            if (e->state() & ControlButton) {
+            if (e->state() & Qt::ControlButton) {
                 d->currentPrefix = QString::null;
                 switch (e->key()) {
-                case Key_A:
+                case Qt::Key_A:
                     selectAll(true);
                     break;
                 }
@@ -4970,13 +4970,13 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
     if (!i)
         return;
 
-    if (!(e->state() & ShiftButton) || !d->selectAnchor)
+    if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
         d->selectAnchor = i;
 
     setCurrentItem(i);
     if (i->isSelectable())
-        handleItemChange(old, wasNavigation && (e->state() & ShiftButton),
-                          wasNavigation && (e->state() & ControlButton));
+        handleItemChange(old, wasNavigation && (e->state() & Qt::ShiftButton),
+                          wasNavigation && (e->state() & Qt::ControlButton));
 
     if (d->focusItem && !d->focusItem->isSelected() && d->selectionMode == Single && selectCurrent)
         setSelected(d->focusItem, true);
@@ -5468,10 +5468,10 @@ void Q3ListView::setSorting(int column, bool ascending)
 
     This enum describes how the items in a widget are sorted.
 
-    \value AscendingOrder The items are sorted ascending e.g. starts with
+    \value Qt::AscendingOrder The items are sorted ascending e.g. starts with
     'AAA' ends with 'ZZZ' in Latin1 locales
 
-    \value DescendingOrder The items are sorted descending e.g. starts with
+    \value Qt::DescendingOrder The items are sorted descending e.g. starts with
     'ZZZ' ends with 'AAA' in Latin1 locales
 */
 
@@ -5548,8 +5548,8 @@ void Q3ListView::setSortColumn(int column)
 Qt::SortOrder Q3ListView::sortOrder() const
 {
     if (d->ascending)
-        return AscendingOrder;
-    return DescendingOrder;
+        return Qt::AscendingOrder;
+    return Qt::DescendingOrder;
 }
 
 /*!
@@ -5557,9 +5557,9 @@ Qt::SortOrder Q3ListView::sortOrder() const
 
     \sa setSorting()
 */
-void Q3ListView::setSortOrder(SortOrder order)
+void Q3ListView::setSortOrder(Qt::SortOrder order)
 {
-    setSorting(d->sortcolumn, order == AscendingOrder ? true : false);
+    setSorting(d->sortcolumn, order == Qt::AscendingOrder ? true : false);
 }
 
 /*!
@@ -6304,7 +6304,7 @@ void QCheckListItem::activate()
         int marg = lv->itemMargin();
         int y = 0;
 
-        if (align & AlignVCenter)
+        if (align & Qt::AlignVCenter)
             y = ((height() - boxsize) / 2) + marg;
         else
             y = (lv->fontMetrics().height() + 2 + marg - boxsize) / 2;
@@ -6594,7 +6594,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         int y = 0;
         if (!parentControl)
             x += 3;
-        if (align & AlignVCenter)
+        if (align & Qt::AlignVCenter)
             y = ((height() - boxsize) / 2) + marg;
         else
             y = (fm.height() + 2 + marg - boxsize) / 2;
@@ -6639,7 +6639,7 @@ void QCheckListItem::paintFocus(QPainter *p, const QPalette & pal,
           (myType == CheckBox && parentControl))) {
         QRect rect;
         int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
-        if (lv->columnAlignment(0) == AlignCenter) {
+        if (lv->columnAlignment(0) == Qt::AlignCenter) {
             QFontMetrics fm(lv->font());
             int bx = (lv->columnWidth(0) - (boxsize + fm.width(text())))/2 + boxsize;
             if (bx < 0) bx = 0;
@@ -7819,12 +7819,12 @@ Q3ListViewItem *Q3ListView::findItem(const QString& text, int column,
     if (text.isEmpty() && !(compare & ExactMatch))
         return 0;
 
-    if (compare == CaseSensitive || compare == 0)
+    if (compare == Qt::CaseSensitive || compare == 0)
         compare |= ExactMatch;
 
     QString itmtxt;
     QString comtxt = text;
-    if (!(compare & CaseSensitive))
+    if (!(compare & Qt::CaseSensitive))
         comtxt = comtxt.toLower();
 
     Q3ListViewItemIterator it(d->focusItem ? d->focusItem : firstChild());

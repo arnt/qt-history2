@@ -40,9 +40,9 @@ QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
 {
     setStartEditActions(startEditActions()|QAbstractItemDelegate::AnyKeyPressed);
-    setLeftHeader(new QGenericHeader(model, Vertical, this));
+    setLeftHeader(new QGenericHeader(model, Qt::Vertical, this));
     d->leftHeader->setClickable(true);
-    setTopHeader(new QGenericHeader(model, Horizontal, this));
+    setTopHeader(new QGenericHeader(model, Qt::Horizontal, this));
     d->topHeader->setClickable(true);
 }
 
@@ -50,9 +50,9 @@ QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItem
     : QAbstractItemView(dd, model, parent)
 {
     setStartEditActions(startEditActions()|QAbstractItemDelegate::AnyKeyPressed);
-    setLeftHeader(new QGenericHeader(model, Vertical, this));
+    setLeftHeader(new QGenericHeader(model, Qt::Vertical, this));
     d->leftHeader->setClickable(true);
-    setTopHeader(new QGenericHeader(model, Horizontal, this));
+    setTopHeader(new QGenericHeader(model, Qt::Horizontal, this));
     d->topHeader->setClickable(true);
 }
 
@@ -77,11 +77,11 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
                             this, SLOT(columnWidthChanged(int,int,int)));
         QObject::disconnect(d->topHeader, SIGNAL(sectionIndexChanged(int,int,int)),
                             this, SLOT(columnIndexChanged(int,int,int)));
-        QObject::disconnect(d->topHeader, SIGNAL(sectionClicked(int,ButtonState)),
-                            this, SLOT(selectColumn(int,ButtonState)));
+        QObject::disconnect(d->topHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+                            this, SLOT(selectColumn(int,Qt::ButtonState)));
         QObject::disconnect(d->topHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(columnCountChanged(int,int)));
-        QObject::disconnect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+        QObject::disconnect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                             this, SLOT(resizeColumnToContents(int)));
     }
 
@@ -91,11 +91,11 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
                      this, SLOT(columnWidthChanged(int,int,int)));
     QObject::connect(d->topHeader, SIGNAL(sectionIndexChanged(int,int,int)),
                      this, SLOT(columnIndexChanged(int,int,int)));
-    QObject::connect(d->topHeader, SIGNAL(sectionClicked(int,ButtonState)),
-                     this, SLOT(selectColumn(int,ButtonState)));
+    QObject::connect(d->topHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+                     this, SLOT(selectColumn(int,Qt::ButtonState)));
     QObject::connect(d->topHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(columnCountChanged(int,int)));
-    QObject::connect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+    QObject::connect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
 
     // FIXME: this needs to be set in setSelectionModel too
@@ -110,11 +110,11 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
                             this, SLOT(rowHeightChanged(int,int,int)));
         QObject::disconnect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
                             this, SLOT(rowIndexChanged(int,int,int)));
-        QObject::disconnect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
-                            this, SLOT(selectRow(int,ButtonState)));
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+                            this, SLOT(selectRow(int,Qt::ButtonState)));
         QObject::disconnect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
                             this, SLOT(rowCountChanged(int,int)));
-        QObject::disconnect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+        QObject::disconnect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                             this, SLOT(resizeRowToContents(int)));
     }
 
@@ -124,11 +124,11 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
                      this, SLOT(rowHeightChanged(int,int,int)));
     QObject::connect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
                      this, SLOT(rowIndexChanged(int,int,int)));
-    QObject::connect(d->leftHeader, SIGNAL(sectionClicked(int,ButtonState)),
-                     this, SLOT(selectRow(int,ButtonState)));
+    QObject::connect(d->leftHeader, SIGNAL(sectionClicked(int,Qt::ButtonState)),
+                     this, SLOT(selectRow(int,Qt::ButtonState)));
     QObject::connect(d->leftHeader, SIGNAL(sectionCountChanged(int,int)),
                      this, SLOT(rowCountChanged(int,int)));
-    QObject::connect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,ButtonState)),
+    QObject::connect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeRowToContents(int)));
 
     // FIXME: this needs to be set in setSelectionModel too
@@ -265,7 +265,7 @@ int QGenericTableView::verticalOffset() const
 }
 
 QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                          ButtonState /*state*/)
+                                          Qt::ButtonState /*state*/)
 {
     QModelIndex current = currentItem();
     QModelIndex bottomRight = model()->bottomRight(root());
@@ -599,7 +599,7 @@ void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
     d->viewport->update(left, 0, width, d->viewport->height());
 }
 
-void QGenericTableView::selectRow(int row, ButtonState state)
+void QGenericTableView::selectRow(int row, Qt::ButtonState state)
 {
     if (row >= 0 && row < model()->rowCount()) {
         QModelIndex tl = model()->index(row, 0, root());
@@ -612,7 +612,7 @@ void QGenericTableView::selectRow(int row, ButtonState state)
     }
 }
 
-void QGenericTableView::selectColumn(int column, ButtonState state)
+void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
 {
     if (column >= 0 && column < model()->columnCount()) {
         QModelIndex tl = model()->index(0, column, root());

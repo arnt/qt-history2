@@ -52,10 +52,10 @@ void QSliderPrivate::init()
     tickSetting = QSlider::NoMarks;
     q->setFocusPolicy(QWidget::TabFocus);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    if (orientation == Vertical)
+    if (orientation == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);
-    q->clearWState(WState_OwnSizePolicy);
+    q->clearWState(Qt::WState_OwnSizePolicy);
 }
 
 
@@ -65,7 +65,7 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
     QRect sr = q->style().querySubControlMetrics(QStyle::CC_Slider, q, QStyle::SC_SliderHandle);
     int sliderMin, sliderMax, sliderLength;
 
-    if (orientation == Horizontal) {
+    if (orientation == Qt::Horizontal) {
         sliderLength = sr.width();
         sliderMin = gr.x();
         sliderMax = gr.right() - sliderLength + 1;
@@ -75,12 +75,12 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
         sliderMax = gr.bottom() - sliderLength + 1;
     }
     return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin,
-                                     (!d->invertedAppearance == !(d->orientation == Horizontal)));
+                                     (!d->invertedAppearance == !(d->orientation == Qt::Horizontal)));
 }
 
 inline int QSliderPrivate::pick(const QPoint &pt) const
 {
-    return orientation == Horizontal ? pt.x() : pt.y();
+    return orientation == Qt::Horizontal ? pt.x() : pt.y();
 }
 
 
@@ -95,12 +95,12 @@ Q4StyleOptionSlider QSliderPrivate::getStyleOption() const
     opt.minimum = minimum;
     opt.tickmarks = (QSlider::TickSetting)tickSetting;
     opt.tickInterval = tickInterval;
-    opt.useRightToLeft = !(orientation == Horizontal) == !invertedAppearance;
+    opt.useRightToLeft = !(orientation == Qt::Horizontal) == !invertedAppearance;
     opt.sliderPosition = position;
     opt.sliderValue = value;
     opt.singleStep = singleStep;
     opt.pageStep = pageStep;
-    if (orientation == Horizontal)
+    if (orientation == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     return opt;
 }
@@ -194,7 +194,7 @@ Q4StyleOptionSlider QSliderPrivate::getStyleOption() const
 QSlider::QSlider(QWidget *parent)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
-    d->orientation = Vertical;
+    d->orientation = Qt::Vertical;
     d->init();
 }
 
@@ -207,7 +207,7 @@ QSlider::QSlider(QWidget *parent)
     constructor.
 */
 
-QSlider::QSlider(Orientation orientation, QWidget *parent)
+QSlider::QSlider(Qt::Orientation orientation, QWidget *parent)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     d->orientation = orientation;
@@ -219,10 +219,10 @@ QSlider::QSlider(QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     setObjectName(name);
-    d->orientation = Vertical;
+    d->orientation = Qt::Vertical;
     d->init();
 }
-QSlider::QSlider(Orientation orientation, QWidget *parent, const char *name)
+QSlider::QSlider(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     setObjectName(name);
@@ -230,7 +230,7 @@ QSlider::QSlider(Orientation orientation, QWidget *parent, const char *name)
     d->init();
 }
 
-QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Orientation orientation,
+QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Qt::Orientation orientation,
                  QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
@@ -272,8 +272,8 @@ void QSlider::paintEvent(QPaintEvent *)
 */
 void QSlider::mousePressEvent(QMouseEvent *ev)
 {
-    if (d->maximum == d->minimum || (ev->state() & MouseButtonMask)
-        || (ev->button() != LeftButton)) {
+    if (d->maximum == d->minimum || (ev->state() & Qt::MouseButtonMask)
+        || (ev->button() != Qt::LeftButton)) {
         ev->ignore();
         return;
     }
@@ -305,7 +305,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
 */
 void QSlider::mouseMoveEvent(QMouseEvent *ev)
 {
-    if (d->pressedControl != QStyle::SC_SliderHandle || !(ev->state() & LeftButton)) {
+    if (d->pressedControl != QStyle::SC_SliderHandle || !(ev->state() & Qt::LeftButton)) {
         ev->ignore();
         return;
     }
@@ -327,7 +327,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
 */
 void QSlider::mouseReleaseEvent(QMouseEvent *ev)
 {
-    if (d->pressedControl == QStyle::SC_None || ev->stateAfter() & MouseButtonMask) {
+    if (d->pressedControl == QStyle::SC_None || ev->stateAfter() & Qt::MouseButtonMask) {
         ev->ignore();
         return;
     }
@@ -355,7 +355,7 @@ QSize QSlider::sizeHint() const
     if (d->tickSetting & Below)
         thick += TickSpace;
     int w = thick, h = SliderLength;
-    if (d->orientation == Horizontal) {
+    if (d->orientation == Qt::Horizontal) {
         w = SliderLength;
         h = thick;
     }
@@ -371,7 +371,7 @@ QSize QSlider::minimumSizeHint() const
 {
     QSize s = sizeHint();
     int length = style().pixelMetric(QStyle::PM_SliderLength, this);
-    if (d->orientation == Horizontal)
+    if (d->orientation == Qt::Horizontal)
         s.setWidth(length);
     else
         s.setHeight(length);

@@ -110,11 +110,11 @@ void QQnx4MouseHandlerPrivate::readMouseData(int fd) {
            scaled_y = mpack->dy * qt_screen->height() / _MOUSE_ABS_MAX;
       QPoint mt(scaled_x, scaled_y);
       limitToScreen(mt);
-      int button = NoButton;
+      int button = Qt::NoButton;
       if(mpack->buttons & _MOUSE_LEFT)
-        button |= LeftButton;
+        button |= Qt::LeftButton;
       else if(mpack->buttons & _MOUSE_RIGHT)
-        button |= RightButton;
+        button |= Qt::RightButton;
       mouseChanged(mt, button);
     }
   }

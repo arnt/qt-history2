@@ -287,7 +287,7 @@ static Q3PopupMenu* active_popup_menu = 0;
 */
 
 Q3PopupMenu::Q3PopupMenu(QWidget *parent, const char *name)
-    : Q3Frame(parent, name, WType_Popup)
+    : Q3Frame(parent, name, Qt::WType_Popup)
 {
     d = new Q3PopupMenuPrivate;
     d->scroll.scrollableSize = d->scroll.topScrollableIndex = 0;
@@ -314,8 +314,8 @@ Q3PopupMenu::Q3PopupMenu(QWidget *parent, const char *name)
     setBackgroundRole(QPalette::Button);
     connectModalRecursionSafety = 0;
 
-    setFocusPolicy(StrongFocus);
-    setAttribute(WA_CustomWhatsThis);
+    setFocusPolicy(Qt::StrongFocus);
+    setAttribute(Qt::WA_CustomWhatsThis);
 }
 
 /*!
@@ -649,9 +649,9 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
         vGuess = QEffects::UpScroll;
 #endif
 
-    if (QApplication::isEffectEnabled(UI_AnimateMenu) &&
+    if (QApplication::isEffectEnabled(Qt::UI_AnimateMenu) &&
          preventAnimation == false) {
-        if (QApplication::isEffectEnabled(UI_FadeMenu))
+        if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
             qFadeEffect(this);
         else if (parentMenu)
             qScrollEffect(this, parentMenu->isPopupMenu ? hGuess : vGuess);
@@ -1041,7 +1041,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
                     miw->show();
                 }
                 // widget items musn't propgate mouse events
-                ((Q3PopupMenu*)miw)->setWFlags(WNoMousePropagation);
+                ((Q3PopupMenu*)miw)->setWFlags(Qt::WNoMousePropagation);
             }
             if (mi->custom())
                 mi->custom()->setFont(font());
@@ -1231,7 +1231,7 @@ void Q3PopupMenu::updateAccel(QWidget *parent)
         } else {
             QWidget *w = (QWidget *) this;
             parent = w->parentWidget();
-            while ((!w->testWFlags(WType_TopLevel) || !w->testWFlags(WType_Popup)) && parent) {
+            while ((!w->testWFlags(Qt::WType_TopLevel) || !w->testWFlags(Qt::WType_Popup)) && parent) {
                 w = parent;
                 parent = parent->parentWidget();
             }
@@ -1270,7 +1270,7 @@ void Q3PopupMenu::updateAccel(QWidget *parent)
             int i = s.indexOf('\t');
 
             // Note: Only looking at the first key in the sequence!
-            if ((int)k && (int)k != Key_unknown) {
+            if ((int)k && (int)k != Qt::Key_unknown) {
                 QString t = (QString)mi->key();
                 if (i >= 0)
                     s.replace(i+1, s.length()-i, t);
@@ -1829,15 +1829,15 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
       I get nothing but complaints about this.  -Brad
 
       - if (mouseBtDn && actItem >= 0) {
-      -        if (e->key() == Key_Shift ||
-      -            e->key() == Key_Control ||
-      -            e->key() == Key_Alt)
+      -        if (e->key() == Qt::Key_Shift ||
+      -            e->key() == Qt::Key_Control ||
+      -            e->key() == Qt::Key_Alt)
       -            return;
       -
       -        Q3MenuItem *mi = mitems->at(actItem);
-      -        int modifier = (((e->state() & ShiftButton) ? SHIFT : 0) |
-      -                        ((e->state() & ControlButton) ? CTRL : 0) |
-      -                        ((e->state() & AltButton) ? ALT : 0));
+      -        int modifier = (((e->state() & Qt::ShiftButton) ? Qt::SHIFT : 0) |
+      -                        ((e->state() & Qt::ControlButton) ? Qt::CTRL : 0) |
+      -                        ((e->state() & Qt::AltButton) ? Qt::ALT : 0));
       -
       - #ifndef QT_NO_ACCEL
       -        if (mi)
@@ -1855,31 +1855,31 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
     int key = e->key();
     if (QApplication::reverseLayout()) {
         // in reverse mode opening and closing keys for submenues are reversed
-        if (key == Key_Left)
-            key = Key_Right;
-        else if (key == Key_Right)
-            key = Key_Left;
+        if (key == Qt::Key_Left)
+            key = Qt::Key_Right;
+        else if (key == Qt::Key_Right)
+            key = Qt::Key_Left;
     }
 
     switch (key) {
-    case Key_Tab:
+    case Qt::Key_Tab:
         // ignore tab, otherwise it will be passed to the menubar
         break;
 
-    case Key_Up:
+    case Qt::Key_Up:
         dy = -1;
         break;
 
-    case Key_Down:
+    case Qt::Key_Down:
         dy = 1;
         break;
 
-    case Key_Alt:
+    case Qt::Key_Alt:
         if (style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this))
             byeMenuBar();
         break;
 
-    case Key_Escape:
+    case Qt::Key_Escape:
         if (tornOff) {
             close();
             return;
@@ -1895,7 +1895,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
         }
         break;
 
-    case Key_Left:
+    case Qt::Key_Left:
         if (ncols > 1 && actItem >= 0) {
             QRect r(itemGeometry(actItem));
             int newActItem = itemAtPos(QPoint(r.left() - 1, r.center().y()));
@@ -1914,7 +1914,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
         ok_key = false;
         break;
 
-    case Key_Right:
+    case Qt::Key_Right:
         if (actItem >= 0 && (mi=mitems->at(actItem))->isEnabledAndVisible() && (popup=mi->popup())) {
             hidePopups();
             if (singleSingleShot)
@@ -1939,13 +1939,13 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
         ok_key = false;
         break;
 
-    case Key_Space:
+    case Qt::Key_Space:
         if (! style().styleHint(QStyle::SH_Menu_SpaceActivatesItem, this))
             break;
         // for motif, fall through
 
-    case Key_Return:
-    case Key_Enter:
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
         {
             if (actItem < 0)
                 break;
@@ -1979,8 +1979,8 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
         }
         break;
 #ifndef QT_NO_WHATSTHIS
-    case Key_F1:
-        if (actItem < 0 || e->state() != ShiftButton)
+    case Qt::Key_F1:
+        if (actItem < 0 || e->state() != Qt::ShiftButton)
             break;
         {
             qDebug("send event");
@@ -1996,7 +1996,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
 
     }
     if (!ok_key &&
-         (!e->state() || e->state() == AltButton || e->state() == ShiftButton) &&
+         (!e->state() || e->state() == Qt::AltButton || e->state() == Qt::ShiftButton) &&
          e->text().length()==1) {
         QChar c = e->text()[0].toUpper();
 
@@ -2173,7 +2173,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
 
 #ifdef Q_OS_WIN32
     if (!ok_key &&
-        !(e->key() == Key_Control || e->key() == Key_Shift || e->key() == Key_Meta))
+        !(e->key() == Qt::Key_Control || e->key() == Qt::Key_Shift || e->key() == Qt::Key_Meta))
         qApp->beep();
 #endif // Q_OS_WIN32
 }
@@ -2193,7 +2193,7 @@ void Q3PopupMenu::timerEvent(QTimerEvent *e)
 */
 void Q3PopupMenu::leaveEvent(QEvent *)
 {
-    if (testWFlags(WStyle_Tool) && style().styleHint(QStyle::SH_Menu_MouseTracking, this)) {
+    if (testWFlags(Qt::WStyle_Tool) && style().styleHint(QStyle::SH_Menu_MouseTracking, this)) {
         int lastActItem = actItem;
         actItem = -1;
         if (lastActItem >= 0)
@@ -2638,9 +2638,9 @@ public:
     void paint(QPainter* p, const QPalette& pal, bool /* act*/,
                 bool /*enabled*/, int x, int y, int w, int h)
     {
-        p->setPen(QPen(pal.dark(), 1, DashLine));
+        p->setPen(QPen(pal.dark(), 1, Qt::DashLine));
         p->drawLine(x+2, y+h/2-1, x+w-4, y+h/2-1);
-        p->setPen(QPen(pal.light(), 1, DashLine));
+        p->setPen(QPen(pal.light(), 1, Qt::DashLine));
         p->drawLine(x+2, y+h/2, x+w-4, y+h/2);
     }
     bool fullSpan() const
@@ -2699,7 +2699,7 @@ void Q3PopupMenu::toggleTearOff()
 #endif
         p->setCheckable(isCheckable());
         QPoint geo = geometry().topLeft();
-        p->setParent(parentWidget(), WType_TopLevel | WStyle_Tool | WDestructiveClose);
+        p->setParent(parentWidget(), Qt::WType_TopLevel | Qt::WStyle_Tool | Qt::WDestructiveClose);
         p->move(geo);
         p->mitemsAutoDelete = false;
         p->tornOff = true;

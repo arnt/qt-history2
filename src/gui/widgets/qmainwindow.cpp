@@ -83,28 +83,28 @@ void QMainWindow::setCenterWidget(QWidget *widget)
     d->layout->setCenterWidget(widget);
 }
 
-void QMainWindow::setCorner(Corner corner, DockWindowArea area)
+void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 {
     bool valid = false;
     switch (corner) {
-    case TopLeft:
-        valid = (area == DockWindowAreaTop || area == DockWindowAreaLeft);
+    case Qt::TopLeft:
+        valid = (area == Qt::DockWindowAreaTop || area == Qt::DockWindowAreaLeft);
         break;
-    case TopRight:
-        valid = (area == DockWindowAreaTop || area == DockWindowAreaRight);
+    case Qt::TopRight:
+        valid = (area == Qt::DockWindowAreaTop || area == Qt::DockWindowAreaRight);
         break;
-    case BottomLeft:
-        valid = (area == DockWindowAreaBottom || area == DockWindowAreaLeft);
+    case Qt::BottomLeft:
+        valid = (area == Qt::DockWindowAreaBottom || area == Qt::DockWindowAreaLeft);
         break;
-    case BottomRight:
-        valid = (area == DockWindowAreaBottom || area == DockWindowAreaRight);
+    case Qt::BottomRight:
+        valid = (area == Qt::DockWindowAreaBottom || area == Qt::DockWindowAreaRight);
         break;
     }
     Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
     d->layout->corners[corner] = area;
 }
 
-Qt::DockWindowArea QMainWindow::corner(Corner corner) const
+Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
 void QMainWindow::setDockWindowState(const QString &state)

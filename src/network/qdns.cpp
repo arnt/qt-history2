@@ -110,8 +110,8 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         arr.resize(arr.indexOf('('));
 
         // To mimic the same behavior that the lookup would have if it was not
-        // an IP, we need to choose a QueuedConnection if there is thread support;
-        // otherwise DirectConnection.
+        // an IP, we need to choose a Qt::QueuedConnection if there is thread support;
+        // otherwise Qt::DirectConnection.
         if (!qInvokeSlot(receiver, arr,
 #if !defined QT_NO_THREAD
                          Qt::QueuedConnection,

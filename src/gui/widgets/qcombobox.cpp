@@ -108,9 +108,9 @@
     accepted.
 
     If the combobox is not editable then it has a default
-    focusPolicy() of \c TabFocus, i.e. it will not grab focus if
+    focusPolicy() of \c Qt::TabFocus, i.e. it will not grab focus if
     clicked. This differs from both Windows and Motif. If the combobox
-    is editable then it has a default focusPolicy() of \c StrongFocus,
+    is editable then it has a default focusPolicy() of \c Qt::StrongFocus,
     i.e. it will grab focus if clicked.
 
     A combobox can be populated using the insert functions,
@@ -498,7 +498,7 @@ QComboBox::QComboBox(QWidget *parent, const char *name)
     d->completeNow           = false;
     d->completionTimer       = new QTimer(this);
 
-    setFocusPolicy(TabFocus);
+    setFocusPolicy(Qt::TabFocus);
 }
 
 
@@ -537,7 +537,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     d->completeNow = false;
     d->completionTimer = new QTimer(this);
 
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
 
     d->ed = 0;
     if (rw)
@@ -1122,7 +1122,7 @@ void QComboBox::paintEvent(QPaintEvent *)
         QRect clip(x0, 2, w - 2 - 4 - 5, height() - 4);
         QString str = d->popup()->text(this->d->current);
         if (!str.isNull()) {
-            p.drawText(clip, AlignCenter | SingleLine, str);
+            p.drawText(clip, Qt::AlignCenter | Qt::SingleLine, str);
         }
 
         QPixmap pix = d->popup()->pixmap(this->d->current);
@@ -1205,7 +1205,7 @@ void QComboBox::paintEvent(QPaintEvent *)
 
 void QComboBox::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
     if (d->discardNextMousePress) {
         d->discardNextMousePress = false;
@@ -1271,9 +1271,9 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
 {
     int c = currentItem();
     char ascii = e->text().length() ? e->text().unicode()->latin1() : 0;
-    if ((e->key() == Key_F4 && e->state() == 0) ||
-         (e->key() == Key_Down && (e->state() & AltButton)) ||
-         (!d->ed && e->key() == Key_Space)) {
+    if ((e->key() == Qt::Key_F4 && e->state() == 0) ||
+         (e->key() == Qt::Key_Down && (e->state() & Qt::AltButton)) ||
+         (!d->ed && e->key() == Qt::Key_Space)) {
         if (count()) {
 #if 0 // For now..
             if (!d->usingListBox()) {
@@ -1283,15 +1283,15 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             popup();
         }
         return;
-    } else if (d->usingListBox() && e->key() == Key_Up) {
+    } else if (d->usingListBox() && e->key() == Qt::Key_Up) {
         if (c > 0)
             setCurrentItem(c-1);
-    } else if (d->usingListBox() && e->key() == Key_Down) {
+    } else if (d->usingListBox() && e->key() == Qt::Key_Down) {
         if (++c < count())
             setCurrentItem(c);
-    } else if (d->usingListBox() && e->key() == Key_Home && (!d->ed || !d->ed->hasFocus())) {
+    } else if (d->usingListBox() && e->key() == Qt::Key_Home && (!d->ed || !d->ed->hasFocus())) {
         setCurrentItem(0);
-    } else if (d->usingListBox() && e->key() == Key_End && (!d->ed || !d->ed->hasFocus())) {
+    } else if (d->usingListBox() && e->key() == Qt::Key_End && (!d->ed || !d->ed->hasFocus())) {
         setCurrentItem(count()-1);
     } else if (!d->ed && ascii >= 32 && !e->text().isEmpty()) {
         if (!d->completionTimer->isActive()) {
@@ -1494,7 +1494,7 @@ void QComboBox::popup()
         lb->setVScrollBarMode(QScrollView::Auto);
 
 #ifndef QT_NO_EFFECTS
-        if (QApplication::isEffectEnabled(UI_AnimateCombo)) {
+        if (QApplication::isEffectEnabled(Qt::UI_AnimateCombo)) {
             if (lb->y() < mapToGlobal(QPoint(0,0)).y())
                 qScrollEffect(lb, QEffects::UpScroll);
             else
@@ -1513,7 +1513,7 @@ void QComboBox::popup()
 void QComboBox::updateMask()
 {
     QBitmap bm(size());
-    bm.fill(color0);
+    bm.fill(Qt::color0);
 
     {
         QPainter p(&bm);
@@ -1596,7 +1596,7 @@ bool QComboBox::eventFilter(QObject *object, QEvent *event)
             if (((QKeyEvent *)event)->isAccepted()) {
                 d->completeNow = false;
                 return true;
-            } else if (((QKeyEvent *)event)->key() != Key_End) {
+            } else if (((QKeyEvent *)event)->key() != Qt::Key_End) {
                 d->completeNow = true;
                 d->completeAt = d->ed->cursorPosition();
             }
@@ -1660,12 +1660,12 @@ bool QComboBox::eventFilter(QObject *object, QEvent *event)
                         }
                     }
                 }
-            } else if ((e->state() & (RightButton | LeftButton | MidButton)) == 0 &&
+            } else if ((e->state() & (Qt::RightButton | Qt::LeftButton | Qt::MidButton)) == 0 &&
                        style().styleHint(QStyle::SH_ComboBox_ListMouseTracking, this)) {
                 QWidget *mouseW = QApplication::widgetAt(e->globalPos());
                 if (mouseW == d->listBox()->viewport()) { //###
                     QMouseEvent m(QEvent::MouseMove, e->pos(), e->globalPos(),
-                                   LeftButton, LeftButton);
+                                   Qt::LeftButton, LeftButton);
                     QApplication::sendEvent(object, &m); //### Evil
                     return true;
                 }
@@ -1705,19 +1705,19 @@ bool QComboBox::eventFilter(QObject *object, QEvent *event)
             break;
         case QEvent::KeyPress:
             switch(((QKeyEvent *)event)->key()) {
-            case Key_Up:
-            case Key_Down:
-                if (!(((QKeyEvent *)event)->state() & AltButton))
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+                if (!(((QKeyEvent *)event)->state() & Qt::AltButton))
                     break;
-            case Key_F4:
-            case Key_Escape:
+            case Qt::Key_F4:
+            case Qt::Key_Escape:
                 if (d->poppedUp) {
                     d->popDownListBox();
                     return true;
                 }
                 break;
-            case Key_Enter:
-            case Key_Return:
+            case Qt::Key_Enter:
+            case Qt::Key_Return:
                 // work around QDialog's enter handling
                 return false;
             default:
@@ -1976,7 +1976,7 @@ void QComboBox::setListBox(QListBox * newListBox)
     else
         delete d->popup();
 
-    newListBox->setParent(this, WType_Popup);
+    newListBox->setParent(this, Qt::WType_Popup);
     newListBox->move(QPoint(0,0));
     d->setListBox(newListBox);
     d->listBox()->setFont(font());
@@ -2102,7 +2102,7 @@ void QComboBox::setEditable(bool y)
         d->ed = 0;
     }
 
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
     updateGeometry();
     update();
 }
@@ -2110,7 +2110,7 @@ void QComboBox::setEditable(bool y)
 
 void QComboBoxPrivate::setUpListBox()
 {
-    setListBox(new QListBox(q, "in-combo", WType_Popup));
+    setListBox(new QListBox(q, "in-combo", Qt::WType_Popup));
     listBox()->setVScrollBarMode(QListBox::AlwaysOff);
     listBox()->setHScrollBarMode(QListBox::AlwaysOff);
     listBox()->setFrameStyle(QFrame::Box | QFrame::Plain);
@@ -2155,7 +2155,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     d->updateLinedGeometry();
     edit->installEventFilter(this);
     setFocusProxy(edit);
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
     setInputMethodEnabled(true);
 
     if (!d->usingListBox())

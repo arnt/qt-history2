@@ -219,7 +219,7 @@ bool Q3MenuBar::syncPopups(MenuRef ret, Q3PopupMenu *d)
             DisableMenuItem(ret, 0);
         ChangeMenuAttributes(ret, !d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0,
                              d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0);
-                if(qMacVersion() >= MV_PANTHER) { //insert a separator
+                if(qMacVersion() >= Qt::MV_PANTHER) { //insert a separator
                     static int sep_id = 'SEP0';
                     InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
                                                    0, activeMenuBar->mac_d->in_apple++,
@@ -593,10 +593,10 @@ bool Q3MenuBar::macUpdateMenuBar()
                     w = areaTL;
             }
         }
-        while(w && /*!w->testWFlags(WShowModal) &&*/ !mb)
+        while(w && /*!w->testWFlags(Qt::WShowModal) &&*/ !mb)
             mb = menubars.value((w = w->parentWidget()));
     }
-    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
+    if(!w || (!w->testWFlags(Qt::WStyle_Tool) && !w->testWFlags(Qt::WType_Popup)))
         fall_back_to_empty = true;
     if(!mb)
         mb = fallbackMenuBar;

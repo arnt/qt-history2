@@ -637,11 +637,11 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
     case QEvent::KeyPress: {
         int conf = QSql::Yes;
         QKeyEvent *ke = (QKeyEvent*)e;
-        if ((ke->key() == Key_Tab || ke->key() == Qt::Key_BackTab)
+        if ((ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_BackTab)
             && ke->state() & Qt::ControlButton)
             return false;
 
-        if (ke->key() == Key_Escape && d->dat.mode() == QSql::Insert){
+        if (ke->key() == Qt::Key_Escape && d->dat.mode() == QSql::Insert){
             if (confirmCancels() && !d->cancelMode) {
                 d->cancelMode = true;
                 conf = confirmCancel(QSql::Insert);
@@ -658,7 +658,7 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
                 return true;
             }
         }
-        if (ke->key() == Key_Escape && d->dat.mode() == QSql::Update) {
+        if (ke->key() == Qt::Key_Escape && d->dat.mode() == QSql::Update) {
             if (confirmCancels() && !d->cancelMode) {
                 d->cancelMode = true;
                 conf = confirmCancel(QSql::Update);
@@ -675,16 +675,16 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
                 return true;
             }
         }
-        if (ke->key() == Key_Insert && d->dat.mode() == QSql::None) {
+        if (ke->key() == Qt::Key_Insert && d->dat.mode() == QSql::None) {
             beginInsert();
             return true;
         }
-        if (ke->key() == Key_Delete && d->dat.mode() == QSql::None) {
+        if (ke->key() == Qt::Key_Delete && d->dat.mode() == QSql::None) {
             deleteCurrent();
             return true;
         }
         if (d->dat.mode() != QSql::None) {
-            if ((ke->key() == Key_Tab) && (c < numCols() - 1) && (!isColumnReadOnly(c+1) || d->dat.mode() == QSql::Insert))
+            if ((ke->key() == Qt::Key_Tab) && (c < numCols() - 1) && (!isColumnReadOnly(c+1) || d->dat.mode() == QSql::Insert))
                 d->continuousEdit = true;
             else if ((ke->key() == Key_BackTab) && (c > 0) && (!isColumnReadOnly(c-1) || d->dat.mode() == QSql::Insert))
                 d->continuousEdit = true;
@@ -694,7 +694,7 @@ bool QDataTable::eventFilter(QObject *o, QEvent *e)
         QSqlCursor * sql = sqlCursor();
         if (sql && sql->driver() &&
              !sql->driver()->hasFeature(QSqlDriver::QuerySize) &&
-             ke->key() == Key_End && d->dat.mode() == QSql::None) {
+             ke->key() == Qt::Key_End && d->dat.mode() == QSql::None) {
 #ifndef QT_NO_CURSOR
             QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
@@ -1477,7 +1477,7 @@ QString QDataTable::falseText() const
     the table. The default value is \c Qt::LocalDate.
 */
 
-void QDataTable::setDateFormat(const DateFormat f)
+void QDataTable::setDateFormat(const Qt::DateFormat f)
 {
     d->datefmt = f;
 }
@@ -1853,17 +1853,17 @@ void QDataTable::handleError(const QSqlError& e)
 void QDataTable::keyPressEvent(QKeyEvent* e)
 {
     switch(e->key()) {
-    case Key_Left:
-    case Key_Right:
-    case Key_Up:
-    case Key_Down:
-    case Key_Prior:
-    case Key_Next:
-    case Key_Home:
-    case Key_End:
-    case Key_F2:
-    case Key_Enter: case Key_Return:
-    case Key_Tab: case Key_BackTab:
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_Prior:
+    case Qt::Key_Next:
+    case Qt::Key_Home:
+    case Qt::Key_End:
+    case Qt::Key_F2:
+    case Qt::Key_Enter: case Qt::Key_Return:
+    case Qt::Key_Tab: case Key_BackTab:
         QTable::keyPressEvent(e);
     default:
         return;

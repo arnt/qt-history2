@@ -56,9 +56,9 @@ public:
     int y()                     const { return p.y(); }
     int globalX()               const { return g.x(); }
     int globalY()               const { return g.y(); }
-    ButtonState button()        const { return (ButtonState) b; }
-    ButtonState state()         const { return (ButtonState) s; }
-    ButtonState stateAfter()    const;
+    Qt::ButtonState button()        const { return (ButtonState) b; }
+    Qt::ButtonState state()         const { return (ButtonState) s; }
+    Qt::ButtonState stateAfter()    const;
 protected:
     QPoint p;
     QPoint g;
@@ -71,8 +71,8 @@ protected:
 class Q_GUI_EXPORT QWheelEvent : public QInputEvent
 {
 public:
-    QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
-    QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
+    QWheelEvent( const QPoint &pos, int delta, int state, Qt::Orientation orient = Qt::Vertical );
+    QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Qt::Orientation orient = Qt::Vertical  )
         : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), s((ushort)state), o(orient) {}
     int delta()                 const { return d; }
     const QPoint &pos()         const { return p; }
@@ -81,14 +81,14 @@ public:
     int y()                     const { return p.y(); }
     int globalX()               const { return g.x(); }
     int globalY()               const { return g.y(); }
-    ButtonState state()         const { return ButtonState(s); }
-    Orientation orientation()   const { return o; }
+    Qt::ButtonState state()         const { return ButtonState(s); }
+    Qt::Orientation orientation()   const { return o; }
 protected:
     QPoint p;
     QPoint g;
     int d;
     ushort s;
-    Orientation o;
+    Qt::Orientation o;
 };
 #endif
 
@@ -140,7 +140,7 @@ public:
                bool autorep = FALSE, ushort count = 1 )
         : QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
-        if ( key >= Key_Back && key <= Key_MediaLast )
+        if ( key >= Qt::Key_Back && key <= Qt::Key_MediaLast )
             ignore();
     }
     int    key()        const   { return k; }
@@ -149,15 +149,15 @@ public:
                              bool autorep = FALSE, ushort count = 1 )
         : QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
-        if ( key >= Key_Back && key <= Key_MediaLast )
+        if ( key >= Qt::Key_Back && key <= Qt::Key_MediaLast )
             ignore();
     }
     QT_COMPAT int          ascii()      const   {
         return (txt.length() ? txt.unicode()->latin1() : 0);
     }
 #endif
-    ButtonState state()         const { return ButtonState(s); }
-    ButtonState stateAfter()    const;
+    Qt::ButtonState state()         const { return ButtonState(s); }
+    Qt::ButtonState stateAfter()    const;
     QString text()              const { return txt; }
     bool isAutoRepeat()         const { return autor; }
     int count()                 const { return int(c); }
@@ -319,7 +319,7 @@ public:
     const QPoint& pos()         const { return p; }
     const QPoint& globalPos()   const { return gp; }
 
-    ButtonState state()         const   { return (ButtonState) s; }
+    Qt::ButtonState state()         const   { return (ButtonState) s; }
     Reason reason()             const { return Reason( reas ); }
 
 protected:

@@ -121,7 +121,7 @@ QSize Q3DockAreaLayout::sizeHint() const
 
 bool Q3DockAreaLayout::hasHeightForWidth() const
 {
-    return orient == Horizontal;
+    return orient == Qt::Horizontal;
 }
 
 void Q3DockAreaLayout::init()
@@ -283,7 +283,7 @@ QSize Q3DockAreaLayout::minimumSize() const
         s = qMax(s, dock_strut(dw, orientation()));
     }
 
-    return orientation() == Horizontal ? QSize(0, s ? s+2 : 0) :  QSize(s, 0);
+    return orientation() == Qt::Horizontal ? QSize(0, s ? s+2 : 0) :  QSize(s, 0);
 }
 
 
@@ -297,7 +297,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
 
     // some corrections
     QRect r = rect;
-    if (orientation() == Vertical)
+    if (orientation() == Qt::Vertical)
         r.setHeight(r.height() - 3);
 
     // init
@@ -337,7 +337,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
             if (!testonly) // place the last line, if not in test mode
                 place_line(lastLine, orientation(), linestrut, size_extent(r.size(), orientation()), tbstrut, maxsize, this);
             // remember the line coordinats of the last line
-            if (orientation() == Horizontal)
+            if (orientation() == Qt::Horizontal)
                 lines.append(QRect(0, sectionpos, r.width(), linestrut));
             else
                 lines.append(QRect(sectionpos, 0, linestrut, r.height()));
@@ -371,7 +371,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
     // if some stuff was not placed/stored yet, do it now
     if (!testonly)
         place_line(lastLine, orientation(), linestrut, size_extent(r.size(), orientation()), tbstrut, maxsize, this);
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         lines.append(QRect(0, sectionpos, r.width(), linestrut));
     else
         lines.append(QRect(sectionpos, 0, linestrut, r.height()));
@@ -451,12 +451,12 @@ int Q3DockAreaLayout::widthForHeight(int h) const
     are docked into a dock area they are usually added at the right
     hand side of the top-most line that has room (unless manually
     placed by the user). When users move dock windows they may leave
-    empty lines or gaps in non-empty lines. Dock windows can be lined
+    empty lines or gaps in non-empty lines. Qt::Dock windows can be lined
     up to minimize wasted space using the lineUp() function.
 
     The Q3DockArea class maintains a position list of all its child
-    dock windows. Dock windows are added to a dock area from position
-    0 onwards. Dock windows are laid out sequentially in position
+    dock windows. Qt::Dock windows are added to a dock area from position
+    0 onwards. Qt::Dock windows are laid out sequentially in position
     order from left to right, and in the case of multiple lines of
     dock windows, from top to bottom. If a dock window is floated it
     still retains its position since this is where the window will
@@ -526,7 +526,7 @@ int Q3DockAreaLayout::widthForHeight(int h) const
     parent \a parent and called \a name.
 */
 
-Q3DockArea::Q3DockArea(Orientation o, HandlePosition h, QWidget *parent, const char *name)
+Q3DockArea::Q3DockArea(Qt::Orientation o, HandlePosition h, QWidget *parent, const char *name)
     : QWidget(parent, name), orient(o), layout(0), hPos(h)
 {
     layout = new Q3DockAreaLayout(this, o, &dockWindows, 0, 0, "toollayout");
@@ -572,8 +572,8 @@ void Q3DockArea::moveDockWindow(Q3DockWindow *w, int index)
             dockWindow->show();
         w->installEventFilter(this);
         updateLayout();
-        setSizePolicy(QSizePolicy(orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
-                                    orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum));
+        setSizePolicy(QSizePolicy(orientation() == Qt::Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+                                    orientation() == Qt::Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum));
         dockWindows.append(w);
     } else {
         if (w->parent() != this) {
@@ -699,12 +699,12 @@ void Q3DockArea::moveDockWindow(Q3DockWindow *w, const QPoint &p, const QRect &r
     lines = layout->lineList();
 
     QRect rect = QRect(mapFromGlobal(r.topLeft()), r.size());
-    if (orientation() == Horizontal && QApplication::reverseLayout()) {
+    if (orientation() == Qt::Horizontal && QApplication::reverseLayout()) {
         rect = QRect(width() - rect.x() - rect.width(), rect.y(), rect.width(), rect.height());
         pos.rx() = width() - pos.x();
     }
     dockWindow->setOffset(point_pos(rect.topLeft(), orientation()));
-    if (orientation() == Horizontal) {
+    if (orientation() == Qt::Horizontal) {
         int offs = dockWindow->offset();
         if (width() - offs < dockWindow->minimumWidth())
             dockWindow->setOffset(width() - dockWindow->minimumWidth());
@@ -798,7 +798,7 @@ void Q3DockArea::moveDockWindow(Q3DockWindow *w, const QPoint &p, const QRect &r
                 bool firstTime = true;
                 for (int i = index; i < dockWindows.size(); ++i) {
                     dw = dockWindows.at(i);
-                    if (orientation() == Horizontal)
+                    if (orientation() == Qt::Horizontal)
                         dw->setFixedExtentWidth(-1);
                     else
                         dw->setFixedExtentHeight(-1);
@@ -860,8 +860,8 @@ void Q3DockArea::moveDockWindow(Q3DockWindow *w, const QPoint &p, const QRect &r
     }
 
     updateLayout();
-    setSizePolicy(QSizePolicy(orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
-                                orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum));
+    setSizePolicy(QSizePolicy(orientation() == Qt::Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+                                orientation() == Qt::Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum));
 }
 
 /*!
@@ -888,7 +888,7 @@ void Q3DockArea::removeDockWindow(Q3DockWindow *w, bool makeFloating, bool swap,
         dockWindows.at(i)->setNewLine(true);
     if (makeFloating) {
         QWidget *p = parentWidget() ? parentWidget() : topLevelWidget();
-        dockWindow->setParent(p, WType_Dialog | WStyle_Customize | WStyle_NoBorder | WStyle_Tool);
+        dockWindow->setParent(p, Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool);
         dockWindow->move(0, 0);
     }
     if (swap)
@@ -1060,8 +1060,8 @@ void Q3DockArea::dockWindow(Q3DockWindow *dockWindow, DockWindowData *data)
     dockWindow->setFixedExtentHeight(data->fixedExtent.height());
 
     updateLayout();
-    setSizePolicy(QSizePolicy(orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
-                                orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum));
+    setSizePolicy(QSizePolicy(orientation() == Qt::Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+                                orientation() == Qt::Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum));
 
 }
 
@@ -1122,7 +1122,7 @@ int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
 {
     int index = findDockWindow(dw);
     if (index == -1 || index + 1 >= (int)dockWindows.count()) {
-        if (orientation() == Horizontal)
+        if (orientation() == Qt::Horizontal)
             return dw->width();
         return dw->height();
     }
@@ -1133,13 +1133,13 @@ int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
         w = dockWindows.at(index + (++i));
     } while (i + 1 < (int)dockWindows.count() && (!w || w->isHidden()));
     if (!w || !w->isResizeEnabled() || i >= (int)dockWindows.count()) {
-        if (orientation() == Horizontal)
+        if (orientation() == Qt::Horizontal)
             return dw->width();
         return dw->height();
     }
     int min = 0;
     Q3ToolBar *tb = qt_cast<Q3ToolBar*>(w);
-    if (orientation() == Horizontal) {
+    if (orientation() == Qt::Horizontal) {
         w->setFixedExtentWidth(-1);
         if (!tb)
             min = qMax(w->minimumSize().width(), w->minimumSizeHint().width());
@@ -1153,13 +1153,13 @@ int Q3DockArea::maxSpace(int hint, Q3DockWindow *dw)
             min = w->sizeHint().height();
     }
 
-    int diff = hint - (orientation() == Horizontal ? dw->width() : dw->height());
+    int diff = hint - (orientation() == Qt::Horizontal ? dw->width() : dw->height());
 
-    if ((orientation() == Horizontal ? w->width() : w->height()) - diff < min)
-        hint = (orientation() == Horizontal ? dw->width() : dw->height()) + (orientation() == Horizontal ? w->width() : w->height()) - min;
+    if ((orientation() == Qt::Horizontal ? w->width() : w->height()) - diff < min)
+        hint = (orientation() == Qt::Horizontal ? dw->width() : dw->height()) + (orientation() == Horizontal ? w->width() : w->height()) - min;
 
-    diff = hint - (orientation() == Horizontal ? dw->width() : dw->height());
-    if (orientation() == Horizontal)
+    diff = hint - (orientation() == Qt::Horizontal ? dw->width() : dw->height());
+    if (orientation() == Qt::Horizontal)
         w->setFixedExtentWidth(w->width() - diff);
     else
         w->setFixedExtentHeight(w->height() - diff);
@@ -1173,14 +1173,14 @@ void Q3DockArea::setFixedExtent(int d, Q3DockWindow *dw)
         Q3DockWindow *w = dockWindows.at(i);
         if (w->isHidden())
             continue;
-        if (orientation() == Horizontal) {
+        if (orientation() == Qt::Horizontal) {
             if (dw->y() != w->y())
                 continue;
         } else {
             if (dw->x() != w->x())
                 continue;
         }
-        if (orientation() == Horizontal)
+        if (orientation() == Qt::Horizontal)
             d = qMax(d, w->minimumHeight());
         else
             d = qMax(d, w->minimumWidth());
@@ -1189,7 +1189,7 @@ void Q3DockArea::setFixedExtent(int d, Q3DockWindow *dw)
     }
     for (int i = 0; i < lst.size(); ++i) {
         Q3DockWindow *w = lst.at(i);
-        if (orientation() == Horizontal)
+        if (orientation() == Qt::Horizontal)
             w->setFixedExtentHeight(d);
         else
             w->setFixedExtentWidth(d);
@@ -1203,9 +1203,9 @@ bool Q3DockArea::isLastDockWindow(Q3DockWindow *dw)
         return true;
     Q3DockWindow *w = 0;
     if ((w = dockWindows.at(++i))) {
-        if (orientation() == Horizontal && dw->y() < w->y())
+        if (orientation() == Qt::Horizontal && dw->y() < w->y())
             return true;
-        if (orientation() == Vertical && dw->x() < w->x())
+        if (orientation() == Qt::Vertical && dw->x() < w->x())
             return true;
     } else {
         return true;

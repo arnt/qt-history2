@@ -59,7 +59,7 @@ public:
     {
         setBackgroundRole(QPalette::Background);
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-        setFocusPolicy(NoFocus);
+        setFocusPolicy(Qt::NoFocus);
     }
 
     inline void setSelected(bool b) { selected = b; update(); }
@@ -230,12 +230,12 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     const QColor* fill = 0;
     if (selected &&
          style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold) &&
-         !tb->testAttribute(WA_NoSystemBackground))
+         !tb->testAttribute(Qt::WA_NoSystemBackground))
         fill = &pal.color(foregroundRole());
 
-    int alignment = AlignLeft | AlignVCenter | ShowPrefix;
+    int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix;
     if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
-        alignment |= NoAccel;
+        alignment |= Qt::NoAccel;
     style().drawItem(p, tr, alignment, pal,
                       isEnabled(), QPixmap(), txt, -1, fill);
 

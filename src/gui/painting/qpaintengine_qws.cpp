@@ -153,7 +153,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
         if (w->isVisible() && w->topLevelWidget()->isVisible()) {
             int rgnIdx = w->topLevelWidget()->data->alloc_region_index;
             if (rgnIdx >= 0) {
-                r = w->testAttribute(WA_PaintUnclipped) ? w->allocatedRegion() : w->paintableRegion();
+                r = w->testAttribute(Qt::WA_PaintUnclipped) ? w->allocatedRegion() : w->paintableRegion();
                 QRegion req;
                 bool changed = false;
                 QWSDisplay::grab();
@@ -248,7 +248,7 @@ void QWSPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
     if (!d->gfx)
         return;
     int bs=brush.style();
-    if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
+    if (bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
             QPixmap *pm = new QPixmap(qt_pixmapForBrush(bs, false));
             d->gfx->setBrushPixmap(pm);
     } else {
@@ -306,7 +306,7 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnable
 
 void QWSPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
-    if (state->pen.style() != NoPen)
+    if (state->pen.style() != Qt::NoPen)
         d->gfx->drawLine(p1.x(), p1.y(), p2.x(), p2.y());
 }
 void QWSPaintEngine::drawRect(const QRect &r)
@@ -316,7 +316,7 @@ void QWSPaintEngine::drawRect(const QRect &r)
     int x1, y1, w, h;
     r.rect(&x1, &y1, &w, &h);
 
-    if (state->pen.style() != NoPen) {
+    if (state->pen.style() != Qt::NoPen) {
         if (state->pen.width() > 1) {
             QPointArray a(r, true);
             drawPolyInternal(a);
@@ -344,7 +344,7 @@ void QWSPaintEngine::drawPoint(const QPoint &p)
 
 void QWSPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
-    if (state->pen.style() == NoPen)
+    if (state->pen.style() == Qt::NoPen)
         return;
 
     d->gfx->drawPoints(pa, index, npoints);
@@ -404,15 +404,15 @@ void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
     a.point(0, &x2, &y2);
     bool do_close = close && !(x1 == x2 && y1 == y2);
 
-    if (close && state->brush.style() != NoBrush) {        // draw filled polygon
+    if (close && state->brush.style() != Qt::NoBrush) {        // draw filled polygon
         d->gfx->drawPolygon(a,false,0,a.size());
-        if (state->pen.style() == NoPen) {                // draw fake outline
+        if (state->pen.style() == Qt::NoPen) {                // draw fake outline
             d->gfx->drawPolyline(a,0,a.size());
             if (do_close)
                 d->gfx->drawLine(x1,y1,x2,y2);
         }
     }
-    if (state->pen.style() != NoPen) {                // draw outline
+    if (state->pen.style() != Qt::NoPen) {                // draw outline
         d->gfx->drawPolyline(a,0,a.size());
         if (do_close)
             d->gfx->drawLine(x1,y1,x2,y2);
@@ -438,7 +438,7 @@ void QWSPaintEngine::drawEllipse(const QRect &r)
 /*###########
     QPen oldpen=pen();
     QPen tmppen=oldpen;
-    tmppen.setJoinStyle(BevelJoin);
+    tmppen.setJoinStyle(Qt::BevelJoin);
     setPen(tmppen);
 */
     drawPolyInternal(a);
@@ -500,14 +500,14 @@ void QWSPaintEngine::drawLineSegments(const QPointArray &a, int index, int nline
         int x1,y1,x2,y2;
         a.point(index++, &x1, &y1);
         a.point(index++, &x2, &y2);
-        if (state->pen.style() != NoPen)
+        if (state->pen.style() != Qt::NoPen)
             d->gfx->drawLine(x1, y1, x2, y2);
     }
 }
 
 void QWSPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
-    if (state->pen.style() != NoPen)
+    if (state->pen.style() != Qt::NoPen)
         d->gfx->drawPolyline(pa, index, npoints);
 }
 

@@ -424,7 +424,7 @@ QTextEdit::QTextEdit(QWidget *parent)
     d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
 
     d->viewport->setBackgroundRole(QPalette::Base);
-    d->viewport->setFocusPolicy(WheelFocus);
+    d->viewport->setFocusPolicy(Qt::WheelFocus);
     d->viewport->setAcceptDrops(true);
 }
 
@@ -681,31 +681,31 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 
     if (e->state() & Qt::ControlButton) {
         switch( e->key() ) {
-        case Key_Z:
+        case Qt::Key_Z:
             undo();
             break;
-        case Key_Y:
+        case Qt::Key_Y:
             redo();
             break;
-        case Key_X:
-        case Key_F20:  // Cut key on Sun keyboards
+        case Qt::Key_X:
+        case Qt::Key_F20:  // Cut key on Sun keyboards
             cut();
             break;
-        case Key_C:
-        case Key_F16: // Copy key on Sun keyboards
+        case Qt::Key_C:
+        case Qt::Key_F16: // Copy key on Sun keyboards
             copy();
             break;
-        case Key_V:
-        case Key_F18:  // Paste key on Sun keyboards
+        case Qt::Key_V:
+        case Qt::Key_F18:  // Paste key on Sun keyboards
             paste();
             break;
-        case Key_Backspace:
+        case Qt::Key_Backspace:
             d->cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
             goto process;
-        case Key_Delete:
+        case Qt::Key_Delete:
             d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             goto process;
-        case Key_K: {
+        case Qt::Key_K: {
             QTextBlock block = d->cursor.block();
             if (d->cursor.position() == block.position() + block.length() - 2)
                 d->cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
@@ -723,7 +723,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 
 process:
     switch( e->key() ) {
-    case Key_Backspace: {
+    case Qt::Key_Backspace: {
         QTextList *list = d->cursor.currentList();
         if (list && d->cursor.atBlockStart())
             list->remove(d->cursor.block());
@@ -731,12 +731,12 @@ process:
             d->cursor.deletePreviousChar();
         break;
     }
-    case Key_Delete:
+    case Qt::Key_Delete:
         d->cursor.deleteChar();
         d->selectionChanged();
         break;
-    case Key_Return:
-    case Key_Enter:
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
         d->cursor.insertBlock();
         d->selectionChanged();
         break;
@@ -744,7 +744,7 @@ process:
         {
             QString text = e->text();
 
-            if (e->key() == Key_Tab) {
+            if (e->key() == Qt::Key_Tab) {
                 if (d->tabChangesFocus) {
                     e->ignore();
                     return;
@@ -755,7 +755,7 @@ process:
                 }
             }
 
-            if (e->key() == Key_Backtab) {
+            if (e->key() == Qt::Key_Backtab) {
                 if (d->tabChangesFocus) {
                     e->ignore();
                     return;
@@ -805,9 +805,9 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
 
     if (d->wordWrap == NoWrap)
-        layout->setBlockTextFlags(layout->blockTextFlags() | SingleLine);
+        layout->setBlockTextFlags(layout->blockTextFlags() | Qt::SingleLine);
     else
-        layout->setBlockTextFlags(layout->blockTextFlags() & ~SingleLine);
+        layout->setBlockTextFlags(layout->blockTextFlags() & ~Qt::SingleLine);
 
     int width = 0;
     switch (d->wordWrap) {
@@ -859,7 +859,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 
 void QTextEdit::mousePressEvent(QMouseEvent *ev)
 {
-    if (!(ev->button() & LeftButton))
+    if (!(ev->button() & Qt::LeftButton))
 	return;
 
     QPoint pos = d->translateCoordinates(ev->pos());
@@ -902,7 +902,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
     if (cursorPos == -1)
 	return;
 
-    if (!(ev->state() & LeftButton))
+    if (!(ev->state() & Qt::LeftButton))
 	return;
 
     if (!d->mousePressed)
@@ -932,7 +932,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
             QRichTextDrag *drag = new QRichTextDrag(d->cursor, this);
             QApplication::clipboard()->setData(drag, QClipboard::Selection);
         }
-    } else if (ev->button() == MidButton
+    } else if (ev->button() == Qt::MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
         d->placeCursor(d->translateCoordinates(ev->pos()));
@@ -948,7 +948,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 
 void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-    if (ev->button() != LeftButton) {
+    if (ev->button() != Qt::LeftButton) {
         ev->ignore();
         return;
     }
@@ -1072,7 +1072,7 @@ void QTextEdit::setReadOnly(bool ro)
         return;
 
     d->readOnly = ro;
-    d->viewport->setCursor(d->readOnly ? ArrowCursor : IbeamCursor);
+    d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
 
     if (ro)
         d->cursorBlinkTimer.stop();
@@ -1299,9 +1299,9 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
 
 void QTextEdit::setText(const QString &text)
 {
-    if (d->textFormat == AutoText)
-        d->textFormat = QText::mightBeRichText(text) ? RichText : PlainText;
-    if (d->textFormat == RichText)
+    if (d->textFormat == Qt::AutoText)
+        d->textFormat = QText::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
+    if (d->textFormat == Qt::RichText)
         setHtml(text);
     else
         setPlainText(text);
@@ -1314,7 +1314,7 @@ QString QTextEdit::text() const
 }
 
 
-void QTextEdit::setTextFormat(TextFormat f)
+void QTextEdit::setTextFormat(Qt::TextFormat f)
 {
     d->textFormat = f;
 }
@@ -1461,12 +1461,12 @@ void QTextEdit::setParagraphBackgroundColor(int parag, const QColor &col)
 */
 void QTextEdit::append(const QString &text)
 {
-    TextFormat f = d->textFormat;
-    if (f == AutoText) {
+    Qt::TextFormat f = d->textFormat;
+    if (f == Qt::AutoText) {
         if (QText::mightBeRichText(text))
-            f = RichText;
+            f = Qt::RichText;
         else
-            f = PlainText;
+            f = Qt::PlainText;
     }
 
 //    const bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
@@ -1475,7 +1475,7 @@ void QTextEdit::append(const QString &text)
     QTextCursor cursor(d->doc);
     cursor.movePosition(QTextCursor::End);
     cursor.insertBlock();
-    if (f == PlainText) {
+    if (f == Qt::PlainText) {
         cursor.insertText(text);
     } else {
         QTextDocumentFragment frag = QTextDocumentFragment::fromHTML(text);

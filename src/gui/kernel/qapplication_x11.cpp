@@ -444,7 +444,7 @@ public:
     bool translateConfigEvent(const XEvent *);
     bool translateCloseEvent(const XEvent *);
     bool translateScrollDoneEvent(const XEvent *);
-    bool translateWheelEvent(int global_x, int global_y, int delta, int state, Orientation orient);
+    bool translateWheelEvent(int global_x, int global_y, int delta, int state, Qt::Orientation orient);
 #if defined (QT_TABLET_SUPPORT)
     bool translateXinputEvent(const XEvent*);
 #endif
@@ -2809,7 +2809,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 break;
             }
         }
-        else if (widget->testWState(WState_Reparented))
+        else if (widget->testWState(Qt::WState_Reparented))
             qPRCleanup(widget);                // remove from alt mapper
     }
 
@@ -3637,9 +3637,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         globalPos.rx() = lastMotion.x_root;
         globalPos.ry() = lastMotion.y_root;
         state = translateButtonState(lastMotion.state);
-        if (qt_button_down && (state & (LeftButton |
-                                         MidButton |
-                                         RightButton)) == 0)
+        if (qt_button_down && (state & (Qt::LeftButton |
+                                         Qt::MidButton |
+                                         Qt::RightButton)) == 0)
             qt_button_down = 0;
 
         // throw away mouse move events that are sent multiple times to the same
@@ -3662,12 +3662,12 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         globalPos.rx() = xevent->xcrossing.x_root;
         globalPos.ry() = xevent->xcrossing.y_root;
         state = translateButtonState(xevent->xcrossing.state);
-        if (qt_button_down && (state & (LeftButton |
-                                         MidButton |
-                                         RightButton)) == 0)
+        if (qt_button_down && (state & (Qt::LeftButton |
+                                         Qt::MidButton |
+                                         Qt::RightButton)) == 0)
             qt_button_down = 0;
         if (!qt_button_down)
-            state = state & ~(LeftButton | MidButton | RightButton);
+            state = state & ~(Qt::LeftButton | Qt::MidButton | Qt::RightButton);
     } else {                                        // button press or release
         pos.rx() = event->xbutton.x;
         pos.ry() = event->xbutton.y;
@@ -3676,9 +3676,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         globalPos.ry() = event->xbutton.y_root;
         state = translateButtonState(event->xbutton.state);
         switch (event->xbutton.button) {
-        case Button1: button = LeftButton; break;
-        case Button2: button = MidButton; break;
-        case Button3: button = RightButton; break;
+        case Button1: button = Qt::LeftButton; break;
+        case Button2: button = Qt::MidButton; break;
+        case Button3: button = Qt::RightButton; break;
         case Button4:
         case Button5:
         case 6:
@@ -3715,9 +3715,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 // backward rotation respectively.
                 int btn = event->xbutton.button;
                 delta *= 120 * ((btn == Button4 || btn == 6) ? 1 : -1);
-                bool hor = ((btn == Button4 || btn == Button5) && (state&AltButton) ||
+                bool hor = ((btn == Button4 || btn == Button5) && (state&Qt::AltButton) ||
                              (btn == 6 || btn == 7));
-                translateWheelEvent(globalPos.x(), globalPos.y(), delta, state, (hor)?Horizontal:Vertical);
+                translateWheelEvent(globalPos.x(), globalPos.y(), delta, state, (hor)?Qt::Horizontal:Vertical);
             }
             return true;
         }
@@ -3735,7 +3735,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             }
 #endif
             qt_button_down = childAt(pos);        //magic for masked widgets
-            if (!qt_button_down || !qt_button_down->testWFlags(WMouseNoMask))
+            if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
                 qt_button_down = this;
             if (mouseActWindow == event->xbutton.window &&
                  mouseButtonPressed == button &&
@@ -3784,7 +3784,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
     if (qApp->inPopupMode()) {                        // in popup mode
         QWidget *popup = qApp->activePopupWidget();
         if (popup != this) {
-            if (testWFlags(WType_Popup) && rect().contains(pos))
+            if (testWFlags(Qt::WType_Popup) && rect().contains(pos))
                 popup = this;
             else                                // send to last popup
                 pos = popup->mapFromGlobal(globalPos);
@@ -3838,7 +3838,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             QApplication::sendSpontaneousEvent(popup, &e);
         }
 
-        if (type == QEvent::MouseButtonPress && button == RightButton && (openPopupCount == oldOpenPopupCount)) {
+        if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
             QWidget *popupEvent = popup;
             if(popupButtonFocus)
                 popupEvent = popupButtonFocus;
@@ -3879,14 +3879,14 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 
         if (popupCloseDownMode) {
             popupCloseDownMode = false;
-            if (testWFlags(WType_Popup))        // ignore replayed event
+            if (testWFlags(Qt::WType_Popup))        // ignore replayed event
                 return true;
         }
 
         if (type == QEvent::MouseButtonRelease &&
-             (state & (~button) & (LeftButton |
-                                    MidButton |
-                                    RightButton)) == 0) {
+             (state & (~button) & (Qt::LeftButton |
+                                    Qt::MidButton |
+                                    Qt::RightButton)) == 0) {
             qt_button_down = 0;
         }
 
@@ -3895,7 +3895,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         QMouseEvent e(type, pos, globalPos, button, state);
         QApplication::sendSpontaneousEvent(widget, &e);
 
-        if (type == QEvent::MouseButtonPress && button == RightButton && (openPopupCount == oldOpenPopupCount)) {
+        if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
             QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, state);
             QApplication::sendSpontaneousEvent(widget, &e);
         }
@@ -3907,7 +3907,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 //
 // Wheel event translation
 //
-bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int state, Orientation orient)
+bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int state, Qt::Orientation orient)
 {
     // send the event to the widget or its ancestors
     {
@@ -4168,18 +4168,18 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 
         bool send_event = false;
         if (max && !isMaximized()) {
-            setWState(WState_Maximized);
+            setWState(Qt::WState_Maximized);
             send_event = true;
         } else if (!max && isMaximized()) {
-            clearWState(WState_Maximized);
+            clearWState(Qt::WState_Maximized);
             send_event = true;
         }
 
         if (full && !isFullScreen()) {
-            setWState(WState_FullScreen);
+            setWState(Qt::WState_FullScreen);
             send_event = true;
         } else if (!full && isFullScreen()) {
-            clearWState(WState_FullScreen);
+            clearWState(Qt::WState_FullScreen);
             send_event = true;
         }
 
@@ -4233,7 +4233,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 case IconicState:
                     if (!isMinimized()) {
                         // window was minimized
-                        setWState(WState_Minimized);
+                        setWState(Qt::WState_Minimized);
                         QEvent e(QEvent::WindowStateChange);
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
@@ -4242,7 +4242,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 default:
                     if (isMinimized()) {
                         // window was un-minimized
-                        clearWState(WState_Minimized);
+                        clearWState(Qt::WState_Minimized);
                         QEvent e(QEvent::WindowStateChange);
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
@@ -4594,7 +4594,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     uint keystate = event->xkey.state;
     // remove the modifiers where mode_switch exists... HPUX machines seem
     // to have alt *AND* mode_switch both in Mod1Mask, which causes
-    // XLookupString to return things like 'å' (aring) for ALT-A.  This
+    // XLookupString to return things like 'å' (aring) for Qt::ALT-A.  This
     // completely breaks modifiers.  If we remove the modifier for Mode_switch,
     // then things work correctly...
     xkeyevent.state &= ~qt_mode_switch_remove_mask;
@@ -4702,7 +4702,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
 
     static int directionKeyEvent = 0;
     if (qt_use_rtl_extensions && type == QEvent::KeyRelease) {
-        if (directionKeyEvent == Key_Direction_R || directionKeyEvent == Key_Direction_L) {
+        if (directionKeyEvent == Qt::Key_Direction_R || directionKeyEvent == Qt::Key_Direction_L) {
             type = QEvent::KeyPress;
             code = directionKeyEvent;
             text = QString();
@@ -4726,7 +4726,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         } else {
            // this can no longer be a direction-changing accel.
            // if any other key was pressed.
-           directionKeyEvent = Key_Space;
+           directionKeyEvent = Qt::Key_Space;
         }
 
     // Commentary in X11/keysymdef says that X codes match ASCII, so it
@@ -4741,10 +4741,10 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f) {
         code = text.unicode()->toUpper().unicode();
     } else if (key >= XK_F1 && key <= XK_F35) {
-        code = Key_F1 + ((int)key - XK_F1);        // function keys
+        code = Qt::Key_F1 + ((int)key - XK_F1);        // function keys
     } else if (key >= XK_KP_0 && key <= XK_KP_9) {
-        code = Key_0 + ((int)key - XK_KP_0);        // numeric keypad keys
-        state |= Keypad;
+        code = Qt::Key_0 + ((int)key - XK_KP_0);        // numeric keypad keys
+        state |= Qt::Keypad;
     } else {
         int i = 0;                                // any other keys
         while (KeyTbl[i]) {
@@ -4775,17 +4775,17 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         case XK_KP_Subtract:
         case XK_KP_Decimal:
         case XK_KP_Divide:
-            state |= Keypad;
+            state |= Qt::Keypad;
             break;
         default:
             break;
         }
 
-        if (code == Key_Tab &&
-             (state & ShiftButton) == ShiftButton) {
+        if (code == Qt::Key_Tab &&
+             (state & Qt::ShiftButton) == ShiftButton) {
             // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it.
-            code = Key_Backtab;
+            code = Qt::Key_Backtab;
             text = QString();
         }
 
@@ -4793,14 +4793,14 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
             if (directionKeyEvent) {
                 if (key == XK_Shift_L && directionKeyEvent == XK_Control_L ||
                      key == XK_Control_L && directionKeyEvent == XK_Shift_L) {
-                    directionKeyEvent = Key_Direction_L;
+                    directionKeyEvent = Qt::Key_Direction_L;
                 } else if (key == XK_Shift_R && directionKeyEvent == XK_Control_R ||
                             key == XK_Control_R && directionKeyEvent == XK_Shift_R) {
-                    directionKeyEvent = Key_Direction_R;
+                    directionKeyEvent = Qt::Key_Direction_R;
                 }
             }
-            else if (directionKeyEvent == Key_Direction_L || directionKeyEvent == Key_Direction_R) {
-                directionKeyEvent = Key_Space; // invalid
+            else if (directionKeyEvent == Qt::Key_Direction_L || directionKeyEvent == Qt::Key_Direction_R) {
+                directionKeyEvent = Qt::Key_Space; // invalid
             }
         }
     }
@@ -4911,12 +4911,12 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     }
 
     // compress keys
-    if (!text.isEmpty() && testAttribute(WA_KeyCompression) &&
+    if (!text.isEmpty() && testAttribute(Qt::WA_KeyCompression) &&
          // do not compress keys if the key event we just got above matches
          // one of the key ranges used to compute stopCompression
-         !((code >= Key_Escape && code <= Key_SysReq)
-            || (code >= Key_Home && code <= Key_Next)
-            || (code >= Key_Super_L && code <= Key_Direction_R)
+         !((code >= Qt::Key_Escape && code <= Qt::Key_SysReq)
+            || (code >= Qt::Key_Home && code <= Qt::Key_Next)
+            || (code >= Qt::Key_Super_L && code <= Qt::Key_Direction_R)
             || (code == 0)
             || (text.length() == 1 && text.unicode()->unicode() == '\n'))) {
         // the widget wants key compression so it gets it
@@ -4946,11 +4946,11 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
             // key event ranges:
             bool stopCompression =
                 // 1) misc keys
-                (codeIntern >= Key_Escape && codeIntern <= Key_SysReq)
+                (codeIntern >= Qt::Key_Escape && codeIntern <= Qt::Key_SysReq)
                 // 2) cursor movement
-                || (codeIntern >= Key_Home && codeIntern <= Key_Next)
+                || (codeIntern >= Qt::Key_Home && codeIntern <= Qt::Key_Next)
                 // 3) extra keys
-                || (codeIntern >= Key_Super_L && codeIntern <= Key_Direction_R)
+                || (codeIntern >= Qt::Key_Super_L && codeIntern <= Qt::Key_Direction_R)
                 // 4) something that a) doesn't translate to text or b) translates
                 //    to newline text
                 || (codeIntern == 0)
@@ -5020,7 +5020,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     }
 
     if (text.length() == 1 && text.unicode()->unicode() == '\n') {
-        code = Key_Return;
+        code = Qt::Key_Return;
         text = "\r";
     }
 
@@ -5106,10 +5106,10 @@ void QWidgetPrivate::removePendingPaintEvents()
 
 bool QETWidget::translatePaintEvent(const XEvent *event)
 {
-    setWState(WState_Exposed);
+    setWState(Qt::WState_Exposed);
     QRect  paintRect(event->xexpose.x,           event->xexpose.y,
                       event->xexpose.width, event->xexpose.height);
-    bool   merging_okay = !testWFlags(WPaintClever);
+    bool   merging_okay = !testWFlags(Qt::WPaintClever);
     XEvent xevent;
     PaintEventInfo info;
     info.window = winId();
@@ -5177,7 +5177,7 @@ bool QETWidget::translateScrollDoneEvent(const XEvent *event)
 
 bool QETWidget::translateConfigEvent(const XEvent *event)
 {
-    clearWState(WState_ConfigPending);
+    clearWState(Qt::WState_ConfigPending);
 
     if (isTopLevel()) {
         QPoint newCPos(geometry().topLeft());
@@ -5231,7 +5231,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
                 QMoveEvent e(newCPos, oldPos); // pos (including frame), not cpos
                 QApplication::sendSpontaneousEvent(this, &e);
             } else {
-                setAttribute(WA_PendingMoveEvent, true);
+                setAttribute(Qt::WA_PendingMoveEvent, true);
             }
         }
         if (newSize != cr.size()) { // size changed
@@ -5243,7 +5243,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
                 QResizeEvent e(newSize, oldSize);
                 QApplication::sendSpontaneousEvent(this, &e);
             } else {
-                setAttribute(WA_PendingResizeEvent, true);
+                setAttribute(Qt::WA_PendingResizeEvent, true);
             }
             // remove unnecessary paint events from the queue
             XEvent xevent;
@@ -5251,8 +5251,8 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
                     ! qt_x11EventFilter(&xevent)  &&
                     ! x11Event(&xevent)) // send event through filter
                 ;
-            if (!testAttribute(WA_StaticContents))
-                testWState(WState_InPaintEvent)?update():repaint();
+            if (!testAttribute(Qt::WA_StaticContents))
+                testWState(Qt::WState_InPaintEvent)?update():repaint();
         }
     } else {
         XEvent xevent;
@@ -5379,28 +5379,28 @@ int QApplication::wheelScrollLines()
 void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     switch (effect) {
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         if (enable) fade_menu = false;
         animate_menu = enable;
         break;
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         if (enable)
             animate_menu = true;
         fade_menu = enable;
         break;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         animate_combo = enable;
         break;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         if (enable) fade_tooltip = false;
         animate_tooltip = enable;
         break;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         if (enable)
             animate_tooltip = true;
         fade_tooltip = enable;
         break;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         animate_toolbox = enable;
         break;
     default:
@@ -5426,17 +5426,17 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
         return false;
 
     switch(effect) {
-    case UI_AnimateMenu:
+    case Qt::UI_AnimateMenu:
         return animate_menu;
-    case UI_FadeMenu:
+    case Qt::UI_FadeMenu:
         return fade_menu;
-    case UI_AnimateCombo:
+    case Qt::UI_AnimateCombo:
         return animate_combo;
-    case UI_AnimateTooltip:
+    case Qt::UI_AnimateTooltip:
         return animate_tooltip;
-    case UI_FadeTooltip:
+    case Qt::UI_FadeTooltip:
         return fade_tooltip;
-    case UI_AnimateToolBox:
+    case Qt::UI_AnimateToolBox:
         return animate_toolbox;
     default:
         return animate_ui;

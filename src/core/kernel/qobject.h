@@ -130,9 +130,9 @@ public:
 
     static bool connect(const QObject *sender, const char *signal,
                         const QObject *receiver, const char *member,
-                        ConnectionType = AutoConnection);
+                        Qt::ConnectionType = Qt::AutoConnection);
     inline bool connect(const QObject *sender, const char *signal,
-                        const char *member, ConnectionType type = AutoConnection) const
+                        const char *member, Qt::ConnectionType type = Qt::AutoConnection) const
         { return connect(sender, signal, this, member, type); }
 
     static bool disconnect(const QObject *sender, const char *signal,

@@ -227,8 +227,8 @@ public:
 
     QT_COMPAT void setText(const QString &text);
     QT_COMPAT QString text() const;
-    QT_COMPAT void setTextFormat(TextFormat);
-    QT_COMPAT TextFormat textFormat() const;
+    QT_COMPAT void setTextFormat(Qt::TextFormat);
+    QT_COMPAT Qt::TextFormat textFormat() const;
 
     inline QT_COMPAT void setBold(bool b) { setFontWeight(b ? QFont::Bold : QFont::Normal); }
     inline QT_COMPAT void setUnderline(bool b) { setFontUnderline(b); }

@@ -133,7 +133,7 @@ public:
     void moveCursor(int pos, bool mark = false);
     void setText(const QString& txt, int pos = -1);
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::BetweenCharacters) const;
-    inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? AlignRight : AlignLeft); }
+    inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft); }
     QRect cursorRect() const;
     void updateMicroFocusHint();
 

@@ -67,7 +67,7 @@
     to the QScrollView constructor.
 */
 QGridView::QGridView(QWidget *parent, const char *name, WFlags f)
-    :QScrollView(parent, name, f | WStaticContents),
+    :QScrollView(parent, name, f | Qt::WStaticContents),
      nrows(5), ncols(5), cellw(12), cellh(12)
 {
     viewport()->setBackgroundRole(QPalette::Base);

@@ -109,13 +109,13 @@ void QSize::transpose()
 
 /*!
     Scales the size to a rectangle of width \a w and height \a h according
-    to the ScaleMode \a mode.
+    to the Qt::ScaleMode \a mode.
 
     \list
-    \i If \a mode is \c ScaleFree, the size is set to (\a w, \a h).
-    \i If \a mode is \c ScaleMin, the current size is scaled to a rectangle
+    \i If \a mode is \c Qt::ScaleFree, the size is set to (\a w, \a h).
+    \i If \a mode is \c Qt::ScaleMin, the current size is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect ratio.
-    \i If \a mode is \c ScaleMax, the current size is scaled to a rectangle
+    \i If \a mode is \c Qt::ScaleMax, the current size is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect ratio.
     \endlist
 
@@ -134,9 +134,9 @@ void QSize::transpose()
         // t3 is (60, 72)
     \endcode
 */
-void QSize::scale(int w, int h, ScaleMode mode)
+void QSize::scale(int w, int h, Qt::ScaleMode mode)
 {
-    if (mode == ScaleFree) {
+    if (mode == Qt::ScaleFree) {
         wd = (QCOORD)w;
         ht = (QCOORD)h;
     } else {
@@ -145,9 +145,9 @@ void QSize::scale(int w, int h, ScaleMode mode)
         int h0 = height();
         int rw = h * w0 / h0;
 
-        if (mode == ScaleMin) {
+        if (mode == Qt::ScaleMin) {
             useHeight = (rw <= w);
-        } else { // mode == ScaleMax
+        } else { // mode == Qt::ScaleMax
             useHeight = (rw >= w);
         }
 
@@ -166,7 +166,7 @@ void QSize::scale(int w, int h, ScaleMode mode)
 
     Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
 */
-void QSize::scale(const QSize &s, ScaleMode mode)
+void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 {
     scale(s.width(), s.height(), mode);
 }

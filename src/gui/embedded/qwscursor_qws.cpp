@@ -294,7 +294,7 @@ void QWSServer::initializeCursor()
 
     // default cursor
     cursor = 0;
-    setCursor(QWSCursor::systemCursor(ArrowCursor));
+    setCursor(QWSCursor::systemCursor(Qt::ArrowCursor));
 #endif
     sendMouseEvent(QPoint(swidth/2, sheight/2), 0);
 }
@@ -308,7 +308,7 @@ void QWSServer::setCursor(QWSCursor *curs)
     cursor = curs;
 
     if (!haveviscurs || !curs)
-        curs = QWSCursor::systemCursor(BlankCursor);
+        curs = QWSCursor::systemCursor(Qt::BlankCursor);
 
     qt_screencursor->hide();
     qt_screencursor->set(curs->image(),
@@ -333,96 +333,96 @@ void QWSCursor::createSystemCursor(int id)
 {
 #ifndef QT_NO_QWS_CURSOR
     if (!systemCursorTableInit) {
-        for (int i = 0; i <= LastCursor; i++)
+        for (int i = 0; i <= Qt::LastCursor; i++)
             systemCursorTable[i] = 0;
         qAddPostRoutine(cleanupSystemCursorTable);
         systemCursorTableInit = true;
     }
     switch (id) {
         // 16x16 cursors
-        case ArrowCursor:
-            systemCursorTable[ArrowCursor] =
+        case Qt::ArrowCursor:
+            systemCursorTable[Qt::ArrowCursor] =
                 new QWSCursor(cur_arrow_bits, mcur_arrow_bits, 16, 16, 0, 0);
             break;
 
-        case UpArrowCursor:
-            systemCursorTable[UpArrowCursor] =
+        case Qt::UpArrowCursor:
+            systemCursorTable[Qt::UpArrowCursor] =
                 new QWSCursor(cur_up_arrow_bits, mcur_up_arrow_bits, 16, 16, 7, 0);
             break;
 
-        case CrossCursor:
-            systemCursorTable[CrossCursor] =
+        case Qt::CrossCursor:
+            systemCursorTable[Qt::CrossCursor] =
                 new QWSCursor(cur_cross_bits, mcur_cross_bits, 16, 16, 7, 7);
             break;
 
-        case IbeamCursor:
-            systemCursorTable[IbeamCursor] =
+        case Qt::IbeamCursor:
+            systemCursorTable[Qt::IbeamCursor] =
                 new QWSCursor(cur_ibeam_bits, mcur_ibeam_bits, 16, 16, 7, 7);
             break;
 
-        case SizeVerCursor:
-            systemCursorTable[SizeVerCursor] =
+        case Qt::SizeVerCursor:
+            systemCursorTable[Qt::SizeVerCursor] =
                 new QWSCursor(cur_ver_bits, mcur_ver_bits, 16, 16, 7, 7);
             break;
 
-        case SizeHorCursor:
-            systemCursorTable[SizeHorCursor] =
+        case Qt::SizeHorCursor:
+            systemCursorTable[Qt::SizeHorCursor] =
                 new QWSCursor(cur_hor_bits, mcur_hor_bits, 16, 16, 7, 7);
             break;
 
-        case SizeBDiagCursor:
-            systemCursorTable[SizeBDiagCursor] =
+        case Qt::SizeBDiagCursor:
+            systemCursorTable[Qt::SizeBDiagCursor] =
                 new QWSCursor(cur_bdiag_bits, mcur_bdiag_bits, 16, 16, 7, 7);
             break;
 
-        case SizeFDiagCursor:
-            systemCursorTable[SizeFDiagCursor] =
+        case Qt::SizeFDiagCursor:
+            systemCursorTable[Qt::SizeFDiagCursor] =
                 new QWSCursor(cur_fdiag_bits, mcur_fdiag_bits, 16, 16, 7, 7);
             break;
 
-        case BlankCursor:
-            systemCursorTable[BlankCursor] =
+        case Qt::BlankCursor:
+            systemCursorTable[Qt::BlankCursor] =
                 new QWSCursor(0, 0, 0, 0, 0, 0);
             break;
 
         // 20x20 cursors
-        case ForbiddenCursor:
-            systemCursorTable[ForbiddenCursor] =
+        case Qt::ForbiddenCursor:
+            systemCursorTable[Qt::ForbiddenCursor] =
                 new QWSCursor(forbidden_bits, forbiddenm_bits, 20, 20, 10, 10);
             break;
 
         // 32x32 cursors
-        case WaitCursor:
-            systemCursorTable[WaitCursor] =
+        case Qt::WaitCursor:
+            systemCursorTable[Qt::WaitCursor] =
                 new QWSCursor(wait_data_bits, wait_mask_bits, 32, 32, 15, 15);
             break;
 
-        case SplitVCursor:
-            systemCursorTable[SplitVCursor] =
+        case Qt::SplitVCursor:
+            systemCursorTable[Qt::SplitVCursor] =
                 new QWSCursor(vsplit_bits, vsplitm_bits, 32, 32, 15, 15);
             break;
 
-        case SplitHCursor:
-            systemCursorTable[SplitHCursor] =
+        case Qt::SplitHCursor:
+            systemCursorTable[Qt::SplitHCursor] =
                 new QWSCursor(hsplit_bits, hsplitm_bits, 32, 32, 15, 15);
             break;
 
-        case SizeAllCursor:
-            systemCursorTable[SizeAllCursor] =
+        case Qt::SizeAllCursor:
+            systemCursorTable[Qt::SizeAllCursor] =
                 new QWSCursor(size_all_data_bits, size_all_mask_bits, 32, 32, 15, 15);
             break;
 
-        case PointingHandCursor:
-            systemCursorTable[PointingHandCursor] =
+        case Qt::PointingHandCursor:
+            systemCursorTable[Qt::PointingHandCursor] =
                 new QWSCursor(phand_bits, phandm_bits, 32, 32, 0, 0);
             break;
 
-        case WhatsThisCursor:
-            systemCursorTable[WhatsThisCursor] =
+        case Qt::WhatsThisCursor:
+            systemCursorTable[Qt::WhatsThisCursor] =
                 new QWSCursor(whatsthis_bits, whatsthism_bits, 32, 32, 0, 0);
             break;
-        case BusyCursor:
-            systemCursorTable[BusyCursor] =
+        case Qt::BusyCursor:
+            systemCursorTable[Qt::BusyCursor] =
                 new QWSCursor(busy_bits, busym_bits, 32, 32, 0, 0);
             break;
         default:
@@ -435,16 +435,16 @@ QWSCursor *QWSCursor::systemCursor(int id)
 {
     QWSCursor *cursor = 0;
 #ifndef QT_NO_QWS_CURSOR
-    if (id >= 0 && id <= LastCursor) {
+    if (id >= 0 && id <= Qt::LastCursor) {
         if (!systemCursorTable[id])
             createSystemCursor(id);
         cursor = systemCursorTable[id];
     }
 
     if (cursor == 0) {
-        if (!systemCursorTable[ArrowCursor])
-            createSystemCursor(ArrowCursor);
-        cursor = systemCursorTable[ArrowCursor];
+        if (!systemCursorTable[Qt::ArrowCursor])
+            createSystemCursor(Qt::ArrowCursor);
+        cursor = systemCursorTable[Qt::ArrowCursor];
     }
 #endif
     return cursor;

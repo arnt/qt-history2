@@ -657,7 +657,7 @@ int QListBoxPixmap::rtti() const
     If the user does not select anything, no signals are emitted and
     currentItem() returns -1.
 
-    A list box has \c WheelFocus as a default focusPolicy(), i.e. it
+    A list box has \c Qt::WheelFocus as a default focusPolicy(), i.e. it
     can get keyboard focus by tabbing, clicking and through the use of
     the mouse wheel.
 
@@ -765,16 +765,16 @@ int QListBoxPixmap::rtti() const
     parent and widget attributes \a f.
 
     This constructor sets the \c WA_StaticContent and the \c
-    WA_NoBackground attributes to boost performance when drawing
+    Qt::WA_NoBackground attributes to boost performance when drawing
     QListBoxItems. This may be unsuitable for custom QListBoxItem
-    classes, in which case \c WA_StaticContents and \c WA_NoBackground
+    classes, in which case \c Qt::WA_StaticContents and \c Qt::WA_NoBackground
     should be cleared on the viewport() after construction.
 
     \sa QWidget::clearWFlags() Qt::WindowFlags
 */
 
 QListBox::QListBox(QWidget *parent, const char *name, WFlags f)
-    : QScrollView(parent, name, f | WStaticContents | WNoAutoErase)
+    : QScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     d = new QListBoxPrivate(this);
     d->updateTimer = new QTimer(this, "listbox update timer");
@@ -798,7 +798,7 @@ QListBox::QListBox(QWidget *parent, const char *name, WFlags f)
              this, SLOT(adjustItems()));
     viewport()->setBackgroundRole(QPalette::Base);
     viewport()->setFocusProxy(this);
-    viewport()->setFocusPolicy(WheelFocus);
+    viewport()->setFocusPolicy(Qt::WheelFocus);
 }
 
 
@@ -1793,8 +1793,8 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
         updateItem(d->head);
     }
 
-    if (!i && (d->selectionMode != Single || e->button() == RightButton)
-         && !(e->state() & ControlButton))
+    if (!i && (d->selectionMode != Single || e->button() == Qt::RightButton)
+         && !(e->state() & Qt::ControlButton))
         clearSelection();
 
     d->select = d->selectionMode == Multi ? (i ? !i->isSelected() : false) : true;
@@ -1825,7 +1825,7 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
                     }
                     setSelected(i, true);
                     d->dragging = true; // always assume dragging
-                } else if (e->state() & ShiftButton) {
+                } else if (e->state() & Qt::ShiftButton) {
                     d->pressedSelected = false;
                     QListBoxItem *oldCurrent = item(currentItem());
                     bool down = index(oldCurrent) < index(i);
@@ -1853,7 +1853,7 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
                     }
                     blockSignals(blocked);
                     emit selectionChanged();
-                } else if (e->state() & ControlButton) {
+                } else if (e->state() & Qt::ControlButton) {
                     setSelected(i, !i->isSelected());
                     d->pressedSelected = false;
                 }
@@ -1871,7 +1871,7 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
         }
     } else {
         bool unselect = true;
-        if (e->button() == LeftButton) {
+        if (e->button() == Qt::LeftButton) {
             if (d->selectionMode == Multi ||
                  d->selectionMode == Extended) {
                 d->tmpCurrent = d->current;
@@ -1882,11 +1882,11 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
                 d->rubber = 0;
                 d->rubber = new QRect(e->x(), e->y(), 0, 0);
 
-                if (d->selectionMode == Extended && !(e->state() & ControlButton))
+                if (d->selectionMode == Extended && !(e->state() & Qt::ControlButton))
                     selectAll(false);
                 unselect = false;
             }
-            if (unselect && (e->button() == RightButton ||
+            if (unselect && (e->button() == Qt::RightButton ||
                                (selectionMode() == Multi || selectionMode() == Extended)))
                 clearSelection();
         }
@@ -1909,7 +1909,7 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
     emit pressed(i);
     emit pressed(i, e->globalPos());
     emit mouseButtonPressed(e->button(), i, e->globalPos());
-    if (e->button() == RightButton)
+    if (e->button() == Qt::RightButton)
         emit rightButtonPressed(i, e->globalPos());
 }
 
@@ -1961,7 +1961,7 @@ void QListBox::mouseReleaseEvent(QMouseEvent *e)
         emit clicked(i);
         emit clicked(i, e->globalPos());
         emit mouseButtonClicked(e->button(), i, e->globalPos());
-        if (e->button() == RightButton)
+        if (e->button() == Qt::RightButton)
             emit rightButtonClicked(i, e->globalPos());
     }
 }
@@ -2013,7 +2013,7 @@ void QListBox::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    if (((e->state() & (RightButton | LeftButton | MidButton)) == 0) ||
+    if (((e->state() & (Qt::RightButton | Qt::LeftButton | Qt::MidButton)) == 0) ||
          d->ignoreMoves)
         return;
 
@@ -2022,7 +2022,7 @@ void QListBox::mouseMoveEvent(QMouseEvent *e)
     // it.
     if (!QRect(0, 0, visibleWidth(), visibleHeight()).contains(e->pos()) &&
          (d->mousePressColumn < 0 && d->mousePressRow < 0 ||
-           (e->state() == NoButton && !d->pressedItem)))
+           (e->state() == Qt::NoButton && !d->pressedItem)))
         return;
 
     // figure out in what direction to drag-select and perhaps scroll
@@ -2069,7 +2069,7 @@ void QListBox::mouseMoveEvent(QMouseEvent *e)
 
     d->scrollPos = QPoint(dx, dy);
 
-    if ((dx || dy) && !d->scrollTimer && e->state() == LeftButton && e->button() != LeftButton) {
+    if ((dx || dy) && !d->scrollTimer && e->state() == Qt::LeftButton && e->button() != LeftButton) {
         // start autoscrolling if necessary
         d->scrollTimer = new QTimer(this);
         connect(d->scrollTimer, SIGNAL(timeout()),
@@ -2094,7 +2094,7 @@ void QListBox::updateSelection()
         int ind = index(i);
 #endif
         if (selectionMode() == Single || selectionMode() == NoSelection) {
-            if (i && (d->mouseInternalPress || testWFlags(WType_Popup)))
+            if (i && (d->mouseInternalPress || testWFlags(Qt::WType_Popup)))
                 setCurrentItem(i);
         } else {
             if (d->selectionMode == Extended && (
@@ -2223,34 +2223,34 @@ void QListBox::keyPressEvent(QKeyEvent *e)
 
     bool selectCurrent = false;
     switch (e->key()) {
-        case Key_Up:
+        case Qt::Key_Up:
             {
                 d->currInputString = QString::null;
                 if (currentItem() > 0) {
                     setCurrentItem(currentItem() - 1);
-                    handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+                    handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                 }
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Down:
+        case Qt::Key_Down:
             {
                 d->currInputString = QString::null;
                 if (currentItem() < (int)count() - 1) {
                     setCurrentItem(currentItem() + 1);
-                    handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+                    handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                 }
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Left:
+        case Qt::Key_Left:
             {
                 d->currInputString = QString::null;
                 if (currentColumn() > 0) {
                     setCurrentItem(currentItem() - numRows());
-                    handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+                    handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                 } else if (numColumns() > 1 && currentItem() > 0) {
                     int row = currentRow();
                     setCurrentItem(currentRow() - 1 + (numColumns() - 1) * numRows());
@@ -2258,15 +2258,15 @@ void QListBox::keyPressEvent(QKeyEvent *e)
                     if (currentItem() == -1)
                         setCurrentItem(row - 1 + (numColumns() - 2) * numRows());
 
-                    handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+                    handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                 } else {
                     QApplication::sendEvent(horizontalScrollBar(), e);
                 }
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Right:
+        case Qt::Key_Right:
             {
                 d->currInputString = QString::null;
                 if (currentColumn() < numColumns()-1) {
@@ -2284,20 +2284,20 @@ void QListBox::keyPressEvent(QKeyEvent *e)
                             setCurrentItem(i);
                     }
 
-                    handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+                    handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                 } else if (numColumns() > 1 && currentRow() < numRows()) {
                     if (currentRow() + 1 < numRows()) {
                         setCurrentItem(currentRow() + 1);
-                        handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
+                        handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                     }
                 } else {
                     QApplication::sendEvent(horizontalScrollBar(), e);
                 }
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Next:
+        case Qt::Key_Next:
             {
                 d->currInputString = QString::null;
                 int i = 0;
@@ -2315,12 +2315,12 @@ void QListBox::keyPressEvent(QKeyEvent *e)
                     i = i > (int)count() - 1 ? (int)count() - 1 : i;
                     setCurrentItem(i);
                 }
-                handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Prior:
+        case Qt::Key_Prior:
             {
                 selectCurrent = true;
                 d->currInputString = QString::null;
@@ -2339,24 +2339,24 @@ void QListBox::keyPressEvent(QKeyEvent *e)
                     i = i < 0 ? 0 : i;
                     setCurrentItem(i);
                 }
-                handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Space:
+        case Qt::Key_Space:
             {
                 selectCurrent = true;
                 d->currInputString = QString::null;
                 toggleCurrentItem();
                 if (selectionMode() == Extended && d->current->isSelected())
                     emit highlighted(currentItem());
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Return:
-        case Key_Enter:
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
             {
                 selectCurrent = true;
                 d->currInputString = QString::null;
@@ -2368,28 +2368,28 @@ void QListBox::keyPressEvent(QKeyEvent *e)
                         emit selected(tmp);
                     emit returnPressed(item(currentItem()));
                 }
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_Home:
+        case Qt::Key_Home:
             {
                 selectCurrent = true;
                 d->currInputString = QString::null;
                 setCurrentItem(0);
-                handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
-        case Key_End:
+        case Qt::Key_End:
             {
                 selectCurrent = true;
                 d->currInputString = QString::null;
                 int i = (int)count() - 1;
                 setCurrentItem(i);
-                handleItemChange(old, e->state() & ShiftButton, e->state() & ControlButton);
-                if (!(e->state() & ShiftButton) || !d->selectAnchor)
+                handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
+                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
                     d->selectAnchor = d->current;
             }
             break;
@@ -2432,9 +2432,9 @@ void QListBox::keyPressEvent(QKeyEvent *e)
                     d->inputTimer->start(400, true);
                 } else {
                     d->currInputString = QString::null;
-                    if (e->state() & ControlButton) {
+                    if (e->state() & Qt::ControlButton) {
                         switch (e->key()) {
-                            case Key_A:
+                            case Qt::Key_A:
                                 selectAll(true);
                                 break;
                         }

@@ -155,7 +155,7 @@ public:
     virtual bool isDropEnabled(const QModelIndex &index) const;
 
     virtual bool isSortable() const;
-    virtual void sort(int column, SortOrder order);
+    virtual void sort(int column, Qt::SortOrder order);
 
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;

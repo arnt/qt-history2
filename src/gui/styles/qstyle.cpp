@@ -304,7 +304,7 @@
     provides a considerable amount of control and customisability.
 
     In Qt 1.x the look and feel option for widgets was specified by a
-    single value: the GUIStyle. Starting with Qt 2.0, this notion was
+    single value: the Qt::GUIStyle. Starting with Qt 2.0, this notion was
     expanded to allow the look to be specified by virtual drawing
     functions.
 
@@ -353,20 +353,20 @@
 
   \obsolete
 
-  \value WindowsStyle
-  \value MotifStyle
+  \value Qt::WindowsStyle
+  \value Qt::MotifStyle
 */
 
 /*!
     \enum Qt::UIEffect
 
-    \value UI_General
-    \value UI_AnimateMenu
-    \value UI_FadeMenu
-    \value UI_AnimateCombo
-    \value UI_AnimateTooltip
-    \value UI_FadeTooltip
-    \value UI_AnimateToolBox Reserved
+    \value Qt::UI_General
+    \value Qt::UI_AnimateMenu
+    \value Qt::UI_FadeMenu
+    \value Qt::UI_AnimateCombo
+    \value Qt::UI_AnimateTooltip
+    \value Qt::UI_FadeTooltip
+    \value Qt::UI_AnimateToolBox Reserved
 */
 
 /*!
@@ -382,7 +382,7 @@ QStyle::~QStyle()
 { }
 
 /*
-  \fn GUIStyle QStyle::guiStyle() const
+  \fn Qt::GUIStyle QStyle::guiStyle() const
   \obsolete
 
   Returns an indicator to the additional "feel" component of a
@@ -480,7 +480,7 @@ void QStyle::polish(QPalette&)
     If \a r is larger than the area needed to render the \a text the
     rectangle that is returned will be offset within \a r in
     accordance with the alignment \a flags. For example if \a flags is
-    \c AlignCenter the returned rectangle will be centered within \a
+    \c Qt::AlignCenter the returned rectangle will be centered within \a
     r. If \a r is smaller than the area needed the rectangle that is
     returned will be \e larger than \a r (the smallest rectangle large
     enough to render the \a text).
@@ -494,7 +494,7 @@ QRect QStyle::itemRect(const QFontMetrics &fm, const QRect &r,
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    GUIStyle gs = (GUIStyle)styleHint(SH_GUIStyle);
+    Qt::GUIStyle gs = (Qt::GUIStyle)styleHint(SH_GUIStyle);
 
     if (!text.isNull()) {
         result = fm.boundingRect(x, y, w, h, flags, text, len);
@@ -569,7 +569,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    GUIStyle gs = (GUIStyle)styleHint(SH_GUIStyle);
+    Qt::GUIStyle gs = (Qt::GUIStyle)styleHint(SH_GUIStyle);
     p->setPen(penColor?*penColor:pal.foreground().color());
     if (!text.isNull()) {
         if (gs == Qt::WindowsStyle && !enabled) {
@@ -619,7 +619,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         x += w - pm.width();
     else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
         x += w/2 - pm.width()/2;
-    else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // AlignAuto && rightToLeft
+    else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // Qt::AlignAuto && rightToLeft
         x += w - pm.width();
 
     if (!enabled)
@@ -1075,7 +1075,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i17 \l{CE_ToolButtonLabel}(const \l QToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
-         \i17 \l QStyleOption (\l ArrowType t)
+         \i17 \l QStyleOption (\l Qt::ArrowType t)
                 \list
                 \i opt.\link QStyleOption::arrowType() arrowType\endlink()
                 \endlist
@@ -1374,7 +1374,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \row \i16 \l{CC_ToolButton}(const \l QToolButton *)
          \i \l Style_Enabled \i Set if the toolbutton is enabled.
-         \i16 \l QStyleOption (\l ArrowType t)
+         \i16 \l QStyleOption (\l Qt::ArrowType t)
                 \list
                 \i opt.\link QStyleOption::arrowType() arrowType\endlink()
                 \endlist

@@ -85,7 +85,7 @@ public:
 
 QToolBarButton::QToolBarButton(QWidget *parent)
     : QAbstractButton(*new QToolBarButtonPrivate, parent)
-{ setFocusPolicy(NoFocus); }
+{ setFocusPolicy(Qt::NoFocus); }
 
 QToolBarButton::~QToolBarButton()
 { }
@@ -135,7 +135,7 @@ bool QToolBarButton::hitButton(const QPoint &pos) const
 
 void QToolBarButton::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == LeftButton) {
+    if (event->button() == Qt::LeftButton) {
         QRect buttonRect = q->rect();
         QRect menuRect;
 

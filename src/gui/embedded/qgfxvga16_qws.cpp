@@ -1102,7 +1102,7 @@ void QGfxVga16::drawPoint(int x, int y)
 {
     BEGIN_PROFILING
 
-    if(cpen.style()==NoPen)
+    if(cpen.style()==Qt::NoPen)
         return;
     x += xoffs;
     y += yoffs;
@@ -1119,7 +1119,7 @@ void QGfxVga16::drawPoints(const QPointArray & pa, int index, int npoints)
 {
     BEGIN_PROFILING
 
-    if(cpen.style()==NoPen)
+    if(cpen.style()==Qt::NoPen)
         return;
     usePen();
     QRect cr;
@@ -1144,7 +1144,7 @@ void QGfxVga16::drawLine(int x1, int y1, int x2, int y2)
 {
     BEGIN_PROFILING
 
-    if(cpen.style()==NoPen)
+    if(cpen.style()==Qt::NoPen)
         return;
 
     if (cpen.width() > 1) {
@@ -1465,7 +1465,7 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
     // ### fix for 8bpp
     // This seems to be reliable now, at least for 16bpp
 
-    if (ncliprect == 1 && cbrush.style()==SolidPattern) {
+    if (ncliprect == 1 && cbrush.style()==Qt::SolidPattern) {
         // Fast path
             useBrush();
             int x1,y1,x2,y2;
@@ -1522,7 +1522,7 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
             setAlphaType(IgnoreAlpha);
         }
         tiledBlt(rx,ry,w,h);
-    } else if(cbrush.style()!=NoBrush) {
+    } else if(cbrush.style()!=Qt::NoBrush) {
         useBrush();
         rx += xoffs;
         ry += yoffs;

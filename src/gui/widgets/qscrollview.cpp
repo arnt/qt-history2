@@ -103,7 +103,7 @@ QScrollViewPrivate::QScrollViewPrivate(): QFramePrivate()
 void QScrollViewPrivate::init()
 {
     WFlags f = q->getWFlags();
-    flags = WResizeNoErase | (f&WPaintClever) | (f&WNoAutoErase) | (f&WStaticContents);
+    flags = Qt::WResizeNoErase | (f&Qt::WPaintClever) | (f&Qt::WNoAutoErase) | (f&Qt::WStaticContents);
     hbar = new QScrollBar(QScrollBar::Horizontal, q, "qt_hbar");
     vbar = new QScrollBar(QScrollBar::Vertical, q, "qt_vbar");
     viewport = new QViewportWidget(q, "qt_viewport", flags);
@@ -456,26 +456,26 @@ void QScrollViewPrivate::viewportResized(int w, int h)
 
     When you construct a QScrollView, some of the widget flags apply
     to the viewport() instead of being sent to the QWidget constructor
-    for the QScrollView. This applies to \c WNoAutoErase, \c
-    WStaticContents, and \c WPaintClever. See \l Qt::WindowFlags for
+    for the QScrollView. This applies to \c Qt::WNoAutoErase, \c
+    Qt::WStaticContents, and \c Qt::WPaintClever. See \l Qt::WindowFlags for
     documentation about these flags. Here are some examples:
 
     \list
 
     \i An image-manipulation widget would use \c
-    WNoAutoErase|WStaticContents because the widget draws all pixels
+    Qt::WNoAutoErase|Qt::WStaticContents because the widget draws all pixels
     itself, and when its size increases, it only needs a paint event
     for the new part because the old part remains unchanged.
 
     \i A scrolling game widget in which the background scrolls as the
-    characters move might use \c WNoAutoErase (in addition to \c
-    WStaticContents) so that the window system background does not
+    characters move might use \c Qt::WNoAutoErase (in addition to \c
+    Qt::WStaticContents) so that the window system background does not
     flash in and out during scrolling.
 
-    \i A word processing widget might use \c WNoAutoErase and repaint
+    \i A word processing widget might use \c Qt::WNoAutoErase and repaint
     itself line by line to get a less-flickery resizing. If the widget
     is in a mode in which no text justification can take place, it
-    might use \c WStaticContents too, so that it would only get a
+    might use \c Qt::WStaticContents too, so that it would only get a
     repaint for the newly visible parts.
 
     \endlist
@@ -504,7 +504,7 @@ void QScrollViewPrivate::viewportResized(int w, int h)
     \warning QScrollView currently does not erase the background when
     resized, i.e. you must always clear the background manually in
     scrollview subclasses. This will change in a future version of Qt
-    and we recommend specifying the WNoAutoErase flag explicitly.
+    and we recommend specifying the Qt::WNoAutoErase flag explicitly.
 
     <img src=qscrollview-m.png> <img src=qscrollview-w.png>
 */
@@ -539,13 +539,13 @@ void QScrollViewPrivate::viewportResized(int w, int h)
     Constructs a QScrollView called \a name with parent \a parent and
     widget flags \a f.
 
-    The widget flags \c WStaticContents, \c WNoAutoErase and \c
-    WPaintClever are propagated to the viewport() widget. The other
+    The widget flags \c Qt::WStaticContents, \c Qt::WNoAutoErase and \c
+    Qt::WPaintClever are propagated to the viewport() widget. The other
     widget flags are propagated to the parent constructor as usual.
 */
 
 QScrollView::QScrollView(QWidget *parent, const char *name, WFlags f) :
-    QFrame(*new QScrollViewPrivate, parent, f & (~WStaticContents) & (~WNoAutoErase))
+    QFrame(*new QScrollViewPrivate, parent, f & (~Qt::WStaticContents) & (~Qt::WNoAutoErase))
 {
     if (name)
         setObjectName(name);
@@ -554,7 +554,7 @@ QScrollView::QScrollView(QWidget *parent, const char *name, WFlags f) :
 
 /*! \internal */
 QScrollView::QScrollView(QScrollViewPrivate &dd, QWidget* parent, const char* name, WFlags f) :
-    QFrame(dd, parent, f & (~WStaticContents) & (~WNoAutoErase))
+    QFrame(dd, parent, f & (~Qt::WStaticContents) & (~Qt::WNoAutoErase))
 {
     if (name)
         setObjectName(name);
@@ -1132,9 +1132,9 @@ void QScrollView::wheelEvent(QWheelEvent *e)
                     e->globalPos(), e->delta(), e->state());
     viewportWheelEvent(&ce);
     if (!ce.isAccepted()) {
-        if (e->orientation() == Horizontal && horizontalScrollBar())
+        if (e->orientation() == Qt::Horizontal && horizontalScrollBar())
             QApplication::sendEvent(horizontalScrollBar(), e);
-        else  if (e->orientation() == Vertical && verticalScrollBar())
+        else  if (e->orientation() == Qt::Vertical && verticalScrollBar())
             QApplication::sendEvent(verticalScrollBar(), e);
     } else {
         e->accept();
@@ -2125,7 +2125,7 @@ void QScrollView::resizeContents(int w, int h)
 */
 void QScrollView::updateContents(int x, int y, int w, int h)
 {
-    if (testWState(WState_Visible|WState_BlockUpdates) != WState_Visible)
+    if (testWState(Qt::WState_Visible|Qt::WState_BlockUpdates) != WState_Visible)
         return;
 
     QWidget* vp = viewport();
@@ -2212,7 +2212,7 @@ void QScrollView::repaintContents()
 */
 void QScrollView::repaintContents(int x, int y, int w, int h)
 {
-    if (testWState(WState_Visible|WState_BlockUpdates) != WState_Visible)
+    if (testWState(Qt::WState_Visible|Qt::WState_BlockUpdates) != WState_Visible)
         return;
 
     QWidget* vp = viewport();
@@ -2481,7 +2481,7 @@ void QScrollView::enableClipper(bool y)
         d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
                                          coord_limit,coord_limit);
         d->clipped_viewport->setBackgroundRole(d->viewport->backgroundRole());
-        d->viewport->setAttribute(WA_NoSystemBackground, true); // no exposures for this
+        d->viewport->setAttribute(Qt::WA_NoSystemBackground, true); // no exposures for this
         d->viewport->removeEventFilter(this);
         d->clipped_viewport->installEventFilter(this);
         d->clipped_viewport->show();

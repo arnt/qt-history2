@@ -112,7 +112,7 @@ class Q_COMPAT_EXPORT Q3TextEdit : public QScrollView
     Q_OBJECT
     Q_ENUMS(WordWrap WrapPolicy)
     Q_FLAGS(AutoFormattingFlags)
-    Q_PROPERTY(TextFormat textFormat READ textFormat WRITE setTextFormat)
+    Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QBrush paper READ paper WRITE setPaper)
     Q_PROPERTY(bool linkUnderline READ linkUnderline WRITE setLinkUnderline)
@@ -199,7 +199,7 @@ public:
 
     QString text() const;
     QString text(int para) const;
-    TextFormat textFormat() const;
+    Qt::TextFormat textFormat() const;
     QString context() const;
     QString documentTitle() const;
 
@@ -238,7 +238,7 @@ public:
 
     int tabStopWidth() const;
 
-    QString anchorAt(const QPoint& pos, AnchorAttribute a = AnchorHref);
+    QString anchorAt(const QPoint& pos, Qt::AnchorAttribute a = Qt::AnchorHref);
 
     QSize sizeHint() const;
 
@@ -298,7 +298,7 @@ public slots:
 
     void setText(const QString &txt) { setText(txt, QString::null); }
     virtual void setText(const QString &txt, const QString &context);
-    virtual void setTextFormat(TextFormat f);
+    virtual void setTextFormat(Qt::TextFormat f);
 
     virtual void selectAll(bool select = true);
     virtual void setTabStopWidth(int ts);

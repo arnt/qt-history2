@@ -128,7 +128,7 @@ protected:
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
                         MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
-                                   ButtonState state) = 0;
+                                   Qt::ButtonState state) = 0;
 
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
@@ -141,7 +141,7 @@ protected:
     virtual void endEdit(const QModelIndex &item, bool accept);
     QWidget *currentEditor() const;
 
-    virtual int selectionCommand(ButtonState state,
+    virtual int selectionCommand(Qt::ButtonState state,
                                  const QModelIndex &index = QModelIndex(),
                                  QEvent::Type type = QEvent::None,
                                  Qt::Key key = Qt::Key_unknown) const;

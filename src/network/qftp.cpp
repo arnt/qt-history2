@@ -689,7 +689,7 @@ void QFtpDTP::setupSocket(int sock)
     connect(socket, SIGNAL(connectionClosed()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(int)), SLOT(socketBytesWritten(int)));
 
-    qInvokeSlot(listener, "deleteLater", QueuedConnection);
+    qInvokeSlot(listener, "deleteLater", Qt::QueuedConnection);
     listener = 0;
 }
 

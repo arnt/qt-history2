@@ -82,7 +82,7 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
     \quotefile menu/menu.cpp
     \skipto file = new Q3PopupMenu
     \printline
-    \skipto Key_O
+    \skipto Qt::Key_O
     \printline
     \printline
     \skipto new Q3MenuBar
@@ -116,7 +116,7 @@ extern int qt_xfocusout_grab_counter; // defined in qapplication_x11.cpp
 
     Q3MenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
     If you have multiple menubars in one dialog the outermost menubar
-    (normally inside a widget with widget flag \c WType_TopLevel) will
+    (normally inside a widget with widget flag \c Qt::WType_TopLevel) will
     be used for the system-wide menubar.
 
     Note that arbitrary Qt widgets \e cannot be inserted into a
@@ -274,7 +274,7 @@ Q3MenuBar::Q3MenuBar(QWidget *parent, const char *name)
     setGeometry(0, 0, width(), h);
 
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
-    setAttribute(WA_CustomWhatsThis);
+    setAttribute(Qt::WA_CustomWhatsThis);
 }
 
 
@@ -530,7 +530,7 @@ bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
     if (event->type() == QEvent::Accel) {
         QWidget * f = ((QWidget *)object)->focusWidget();
         // ### this thinks alt and meta are the same
-        if (ke->key() == Key_Alt || ke->key() == Key_Meta) {
+        if (ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta) {
             // A new Alt press and we wait for release, eat
             // this key and don't wait for Alt on this widget
             if (waitforalt) {
@@ -545,7 +545,7 @@ bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
                 ke->accept();
                 return true;
             // Start waiting for Alt release on focus widget
-            } else if (ke->stateAfter() == AltButton) {
+            } else if (ke->stateAfter() == Qt::AltButton) {
                 waitforalt = 1;
 #if defined(Q_WS_X11)
                 Q3MenuData::d->aInt = qt_xfocusout_grab_counter;
@@ -554,7 +554,7 @@ bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
                     f->installEventFilter(this);
             }
         // Other modifiers kills focus on menubar
-        } else if (ke->key() == Key_Control || ke->key() == Key_Shift) {
+        } else if (ke->key() == Qt::Key_Control || ke->key() == Qt::Key_Shift) {
             setAltMode(false);
         // Got other key, no need to wait for Alt release
         } else {
@@ -572,7 +572,7 @@ bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
     if (((QWidget*)object)->focusWidget() == object ||
          (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0)) {
         if (waitforalt && event->type() == QEvent::KeyRelease &&
-            (ke->key() == Key_Alt || ke->key() == Key_Meta)
+            (ke->key() == Qt::Key_Alt || ke->key() == Qt::Key_Meta)
 #if defined(Q_WS_X11)
                 && Q3MenuData::d->aInt == qt_xfocusout_grab_counter
 #endif
@@ -591,8 +591,8 @@ bool Q3MenuBar::eventFilter(QObject *object, QEvent *event)
             return true;
         // Cancel if next keypress is NOT Alt/Meta,
         } else if (!hasFocus() && (event->type() == QEvent::AccelOverride) &&
-                    !(((QKeyEvent *)event)->key() == Key_Alt ||
-                      ((QKeyEvent *)event)->key() == Key_Meta)) {
+                    !(((QKeyEvent *)event)->key() == Qt::Key_Alt ||
+                      ((QKeyEvent *)event)->key() == Qt::Key_Meta)) {
             if (object->parent())
                 object->removeEventFilter(this);
             setAltMode(false);
@@ -869,10 +869,10 @@ int Q3MenuBar::calculateRects(int max_width)
     bool reverse = QApplication::reverseLayout();
     int x = frameWidth();
     int y = frameWidth();
-    if (gs == MotifStyle) {
+    if (gs == Qt::MotifStyle) {
         x += motifBarHMargin;
         y += motifBarVMargin;
-    } else if (gs == WindowsStyle) {
+    } else if (gs == Qt::WindowsStyle) {
         x += 2;
         y += 2;
     }
@@ -913,14 +913,14 @@ int Q3MenuBar::calculateRects(int max_width)
             w = qMax(w, QApplication::globalStrut().width());
             h = qMax(fm.height() + motifItemVMargin, QApplication::globalStrut().height());
         } else if (mi->isSeparator()) {        // separator item
-            if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+            if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
                 separator = i; //### only motif?
         }
         if (!mi->isSeparator() || mi->widget()) {
 #if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
             if (!mac_eaten_menubar) {
 #endif
-                if (gs == MotifStyle) {
+                if (gs == Qt::MotifStyle) {
                     w += 2*motifItemFrame;
                     h += 2*motifItemFrame;
                 }
@@ -934,13 +934,13 @@ int Q3MenuBar::calculateRects(int max_width)
                 nlitems = 0;
                 x = frameWidth();
                 y += h;
-                if (gs == MotifStyle) {
+                if (gs == Qt::MotifStyle) {
                     x += motifBarHMargin;
                     y += motifBarVMargin;
                 }
                 if (reverse)
                     x = max_width - x + itemSpacing;
-                if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+                if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
                     separator = -1;
             }
             if (y + h + 2*frameWidth() > max_height)
@@ -967,7 +967,7 @@ int Q3MenuBar::calculateRects(int max_width)
         nlitems++;
         i++;
     }
-    if (gs == WindowsStyle) {
+    if (gs == Qt::WindowsStyle) {
         max_height += 2;
         max_width += 2;
     }
@@ -1137,7 +1137,7 @@ void Q3MenuBar::drawContents(QPainter *p)
 #endif
     {
         Qt::GUIStyle gs = (Qt::GUIStyle) style().styleHint(QStyle::SH_GUIStyle);
-        if (mseparator == InWindowsStyle && gs == WindowsStyle) {
+        if (mseparator == InWindowsStyle && gs == Qt::WindowsStyle) {
             p->setPen(pal.light());
             p->drawLine(0, height()-1, width()-1, height()-1);
             p->setPen(pal.dark());
@@ -1152,7 +1152,7 @@ void Q3MenuBar::drawContents(QPainter *p)
 */
 void Q3MenuBar::mousePressEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
     mouseBtDn = true;                                // mouse button down
     int item = itemAtPos(e->pos());
@@ -1177,7 +1177,7 @@ void Q3MenuBar::mousePressEvent(QMouseEvent *e)
 */
 void Q3MenuBar::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (e->button() != LeftButton)
+    if (e->button() != Qt::LeftButton)
         return;
     if (!mouseBtDn)
         return;
@@ -1192,7 +1192,7 @@ void Q3MenuBar::mouseReleaseEvent(QMouseEvent *e)
     bool showMenu = true;
     if (toggleclose &&
          // pressing an item twice closes in windows, but not in motif :/
-         style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle &&
+         style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle &&
          actItem == item) {
         showMenu = false;
         setAltMode(false);
@@ -1257,24 +1257,24 @@ void Q3MenuBar::keyPressEvent(QKeyEvent *e)
     }
 
     switch (e->key()) {
-     case Key_Left:
+     case Qt::Key_Left:
         dx = QApplication::reverseLayout() ? 1 : -1;
         break;
 
-    case Key_Right:
-    case Key_Tab:
+    case Qt::Key_Right:
+    case Qt::Key_Tab:
         dx = QApplication::reverseLayout() ? -1 : 1;
         break;
 
-    case Key_Up:
-    case Key_Down:
-    case Key_Enter:
-    case Key_Return:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
         if (style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation))
             setActiveItem(actItem);
         break;
 
-    case Key_Escape:
+    case Qt::Key_Escape:
         setAltMode(false);
         break;
     }
@@ -1292,12 +1292,12 @@ void Q3MenuBar::keyPressEvent(QKeyEvent *e)
             mi = mitems->at(i);
             // ### fix windows-style traversal - currently broken due to
             // Q3MenuBar's reliance on Q3PopupMenu
-            if (/* (style() == WindowsStyle || */ mi->isEnabledAndVisible() /*) */
+            if (/* (style() == Qt::WindowsStyle || */ mi->isEnabledAndVisible() /*) */
                  && !mi->isSeparator())
                 break;
         }
         setActiveItem(i, popupvisible        );
-    } else if ((!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !popupvisible) {
+    } else if ((!e->state() || (e->state()&(Qt::MetaButton|Qt::AltButton))) && e->text().length()==1 && !popupvisible) {
         QChar c = e->text()[0].toUpper();
 
         Q3MenuItem* first = 0;

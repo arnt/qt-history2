@@ -72,16 +72,16 @@ public:
 
     void setPen(const QColor &color);
     void setPen(const QPen &pen);
-    void setPen(PenStyle style);
+    void setPen(Qt::PenStyle style);
     const QPen &pen() const;
 
     void setBrush(const QBrush &brush);
-    void setBrush(BrushStyle style);
+    void setBrush(Qt::BrushStyle style);
     const QBrush &brush() const;
 
     // attributes/modes
-    void setBackgroundMode(BGMode mode);
-    BGMode backgroundMode() const;
+    void setBackgroundMode(Qt::BGMode mode);
+    Qt::BGMode backgroundMode() const;
 
     QPoint brushOrigin() const;
     void setBrushOrigin(int x, int y);
