@@ -40,6 +40,7 @@
 #ifndef QT_NO_DIALOG
 
 #include "qpushbutton.h"
+#include "qfocusdata.h"
 #include "qapplication.h"
 #include "qobjectlist.h"
 #include "qwidgetlist.h"
@@ -545,36 +546,48 @@ void QDialog::show()
     QWidget::show();
 #ifndef QT_NO_PUSHBUTTON
     QWidget *fw = focusWidget();
-    if ( !d->mainDef ) {
+    QFocusData *fd = focusData();
+
+    /*
+      The following block is to handle a special case, and does not really follow
+      propper logic in concern of autoDefault and TAB order. However, it's here to
+      ease usage for the users. If a dialog has a default QPushButton, and first
+      widget in the TAB order also is a QPushButton, then we give focus to the
+      main default QPushButton. This simplifies code for the developers, and
+      actually catches most cases... If not, then they simply have to use
+      [widget*]->setFocus() them selfs...
+    */
+    if ( !fw ) {
+	fd->home(); // Skip main form
+	QWidget *first = fd->next(); // Get first main widget
+	if ( d->mainDef &&
+	     first != d->mainDef &&
+	     first->inherits("QPushButton") )
+	    d->mainDef->setFocus();
+    }
+    // -- [End special case block] --
+
+    if ( !d->mainDef && isTopLevel() ) {
 	if ( !fw ) {
 	    focusNextPrevChild( TRUE );
 	    fw = focusWidget();
 	}
-
-	QObjectList *pbs = queryList( "QPushButton" );
-	if ( pbs && !pbs->isEmpty() ) {
-	    QObjectListIt it( *pbs );
-	    QPushButton *champion = 0;
-	    QPushButton *challenger;
-	    while ( (challenger = (QPushButton *) it.current()) ) {
-		++it;
-		if ( challenger->topLevelWidget() == this &&
-		     challenger->autoDefault() ) {
-		    if ( (QWidget *) challenger == fw ) {
-			champion = challenger;
-			break;
+        if ( fw ) {
+	    fd = focusData();
+	    QWidget *home = fd->home();
+	    QWidget *candidate = home;
+	    ASSERT( candidate == fw );
+	    do {
+                if ( candidate->inherits("QPushButton") ) {
+		    QPushButton *pb = (QPushButton *)candidate;
+		    if ( pb->autoDefault() ) {
+                        pb->setDefault( TRUE );
+                        break;
 		    }
-		    if ( champion == 0 ) {
-			champion = challenger;
-			if ( fw == 0 )
-			    break;
-		    }
-		}
-	    }
-	    if ( champion )
-		champion->setDefault( TRUE );
-	}
-	delete pbs;
+                }
+                candidate = fd->next();
+	    } while ( candidate != home );
+        }
     }
     if ( fw ) {
 	QFocusEvent e( QEvent::FocusIn );
