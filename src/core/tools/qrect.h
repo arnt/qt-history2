@@ -77,8 +77,8 @@ public:
     void moveBottomLeft(const QPoint &p);
     void moveCenter(const QPoint &p);
 
-    void translate(int dx, int dy);
-    void translate(const QPoint &p);
+    inline void translate(int dx, int dy);
+    inline void translate(const QPoint &p);
 
     void moveTo(int x, int t);
     void moveTo(const QPoint &p);
