@@ -182,6 +182,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doWritable = (filterSpec & Writable)	!= 0;
     bool doExecable = (filterSpec & Executable) != 0;
     bool doHidden   = (filterSpec & Hidden)	!= 0;
+    bool doSystem   = (filterSpec & System)     != 0;
 
 #if defined(Q_OS_OS2EMX)
     //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
@@ -206,7 +207,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fi.setFile( *this, fn );
 	if ( !match( filters, fn ) && !(allDirs && fi.isDir()) )
 	     continue;
-	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
+	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
+	      (doSystem && (!fi.isFile() && !fi.isDir())) ) {
 	    if ( noSymLinks && fi.isSymLink() )
 	        continue;
 	    if ( (filterSpec & RWEMask) != 0 )

@@ -531,7 +531,7 @@ void QDir::setNameFilter( const QString &nameFilter )
   \value  Modified  Only list files that have been modified (ignored
   under Unix).
   \value  Hidden  List hidden files (on Unix, files starting with a .).
-  \value  System  List system files (ignored under Unix).
+  \value  System  List system files (on unix, FIFOs, sockets and device files)
   \value AccessMask A mask for the Readable, Writable, Executable Modified, Hidden and System flags
   \value DefaultFilter Internal flag.
 
