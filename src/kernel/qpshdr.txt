@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#9 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#10 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -247,7 +247,7 @@ end
 } D
 
 
-/BZ {				% PDC_DRAWBEZIER [3 points]
+/BZ {				% PDC_DRAWQUADBEZIER [3 points]
     curveto
     QS
 } D

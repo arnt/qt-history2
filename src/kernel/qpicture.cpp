@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#39 $
 **
 ** Implementation of QPicture class
 **
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -284,9 +284,9 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		s >> a >> i_8;
 		painter->drawPolygon( a, i_8 );
 		break;
-	    case PDC_DRAWBEZIER:
+	    case PDC_DRAWQUADBEZIER:
 		s >> a;
-		painter->drawBezier( a );
+		painter->drawQuadBezier( a );
 		break;
 	    case PDC_DRAWTEXT:
 		s >> p >> str;
@@ -472,7 +472,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    break;
 	case PDC_DRAWLINESEGS:
 	case PDC_DRAWPOLYLINE:
-	case PDC_DRAWBEZIER:
+	case PDC_DRAWQUADBEZIER:
 	    s << *p[0].ptarr;
 	    break;
 	case PDC_DRAWPOLYGON:

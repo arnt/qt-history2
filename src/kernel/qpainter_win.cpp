@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#41 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#41 $")
 
 
 /*****************************************************************************
@@ -1702,13 +1702,14 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 }
 
 
-void QPainter::drawBezier( const QPointArray &a, int index )
+void QPainter::drawQuadBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
 	return;
     if ( (int)a.size() - index < 4 ) {
 #if defined(CHECK_RANGE)
-	warning( "QPainter::drawBezier: Cubic Bezier needs 4 control points" );
+	warning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
+		 "points" );
 #endif
 	return;
     }
@@ -1722,7 +1723,7 @@ void QPainter::drawBezier( const QPointArray &a, int index )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PDC_DRAWBEZIER,this,param) || !hdc )
+	    if ( !pdev->cmd(PDC_DRAWQUADBEZIER,this,param) || !hdc )
 		return;
 	}
 	if ( txop != TxNone )

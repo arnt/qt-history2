@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#21 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#21 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -411,7 +411,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    stream << "/WFi false def\n";
 	    }
 	    break;
-	case PDC_DRAWBEZIER:
+	case PDC_DRAWQUADBEZIER:
 	    if ( p[0].ptarr->size() == 4 ) {
 		QPointArray a = *p[0].ptarr;
 		stream << XCOORD(a[0].x()) << ' '
