@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#32 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#32 $";
 #endif
 
 
@@ -480,7 +480,7 @@ Moves the cursor rightwards one character.
 
 void QLineEdit::cursorRight()
 {
-    if ( strlen(tbuf) > cursorPos ) {
+    if ( (int)strlen(tbuf) > cursorPos ) {
 	QFontMetrics fm = fontMetrics();
 	killTimers();
 	cursorOn = TRUE;
@@ -520,7 +520,7 @@ Deletes the character on the right side of the text cursor.
 
 void QLineEdit::del()
 {
-    if ( cursorPos != strlen(tbuf) ) {
+    if ( cursorPos != (int)strlen(tbuf) ) {
 	tbuf.remove( cursorPos, 1 );
 	paint();
 	emit textChanged( tbuf.data() );
