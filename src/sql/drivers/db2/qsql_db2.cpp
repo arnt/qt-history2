@@ -1069,7 +1069,7 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
         return false;
     }
     // Set connection attributes
-    const QStringList opts(connOpts.split(';', QString::StripEmptyEntries));
+    const QStringList opts(connOpts.split(';', QString::SkipEmptyParts));
     for (int i = 0; i < opts.count(); ++i) {
         const QString tmp(opts.at(i));
         int idx;

@@ -441,7 +441,7 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
 bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
 {
     // Set any connection attributes
-    const QStringList opts(connOpts.split(';', QString::StripEmptyEntries));
+    const QStringList opts(connOpts.split(';', QString::SkipEmptyParts));
     SQLRETURN r = SQL_SUCCESS;
     for (int i = 0; i < opts.count(); ++i) {
         const QString tmp(opts.at(i));
