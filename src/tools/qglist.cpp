@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#19 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#19 $")
 
 
 // --------------------------------------------------------------------------
@@ -577,8 +577,15 @@ QGListIterator::QGListIterator( const QGList &l )
 
 QGListIterator::~QGListIterator()
 {
-    if ( list )
-	list->iterators->remove( this );	// remove iterator from list
+    if ( list ) {				// decouple iterator from list
+	if ( list->iterators->findRef(this) != -1 ) {
+	    list->iterators->remove( 0 );
+	    if ( list->iterators->count() == 0 ) {
+		delete list->iterators;
+		list->iterators = 0;
+	    }
+	}
+    }
 }
 
 
