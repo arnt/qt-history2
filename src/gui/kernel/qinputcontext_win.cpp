@@ -540,7 +540,7 @@ bool QInputContext::composition(LPARAM lParam)
             *imeComposition = QString::null;
             result = qt_sendSpontaneousEvent(fw, &e);
         }
-        if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
+        else if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
             if (imePosition == -1) {
                 // need to send a start event
                 startComposition();
