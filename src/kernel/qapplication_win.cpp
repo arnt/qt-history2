@@ -48,6 +48,7 @@
 #include "qthread.h"
 #include "qlibrary.h"
 #include "qt_windows.h"
+#include "qcursor.h"
 #include <private/qinternal_p.h>
 #include <private/qcriticalsection_p.h>
 #include <private/qinputcontext_p.h>
@@ -1793,7 +1794,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #ifndef Q_OS_TEMP
 	    switch( wParam ) {
 	    case SC_CONTEXTHELP:
+#ifndef QT_NO_WHATSTHIS
 		QWhatsThis::enterWhatsThisMode();
+#endif
 		QT_WA( {
 		    DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
 		} , {

@@ -2546,7 +2546,9 @@ void QFileDialog::init()
 	d->goBack->setFocusPolicy( TabFocus );
 	connect( d->goBack, SIGNAL( clicked() ),
 		 this, SLOT( goBack() ) );
+#ifndef QT_NO_TOOLTIP
 	QToolTip::add( d->goBack, tr( "Back" ) );
+#endif
 	d->goBack->setIconSet( *goBackIcon );
     } else {
 	d->goBack = 0;

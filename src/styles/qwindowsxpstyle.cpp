@@ -1190,6 +1190,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
         }
         break;
+#ifndef QT_NO_SLIDER
     case CC_Slider:
 	{
 	    XPThemeData theme( w, p, "TRACKBAR" );
@@ -1324,6 +1325,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	}
 	break;
+#endif
 
     case CC_ToolButton:
 	{
@@ -1382,6 +1384,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	}
 	break;
 
+#ifndef QT_NO_TITLEBAR
     case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) w;
@@ -1486,7 +1489,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	}
 	break;
-
+#endif
     case CC_ListView:
 #ifndef QT_NO_LISTVIEW
 	{
@@ -1773,6 +1776,7 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 
     switch ( control ) {
     case CC_TitleBar: {
+#ifndef QT_NO_TITLEBAR
 	const QTitleBar *titlebar = (const QTitleBar *) widget;
 	const int controlTop = widget->testWFlags( WStyle_Tool ) ? 4 : 6;
 	const int controlHeight = widget->height() - controlTop - 3;
@@ -1823,6 +1827,7 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 	default:
 	    break;
 	}
+#endif
 	return QRect(); } //are you sure you want to do this? ###
     default:
 	break;
@@ -1895,6 +1900,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    if ( d->hotHeader.isValid() )
 			header->update( d->hotHeader );
 		}
+#ifndef QT_NO_TITLEBAR
 	    } else if ( o->inherits( "QTitleBar" ) ) {
 		static SubControl clearHot = SC_TitleBarLabel;
 		QTitleBar *titlebar = (QTitleBar*)o;
@@ -1907,6 +1913,8 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    rect = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, sc ), titlebar );
 		    titlebar->repaint( rect, FALSE );
 		}
+#endif
+#ifndef QT_NO_SLIDER
 	    } else if ( o->inherits( "QSlider" ) ) {
 		static clearSlider = FALSE;
 		QSlider *slider = (QSlider*)o;
@@ -1916,6 +1924,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    clearSlider = inSlider;
 		    slider->repaint( rect, FALSE );
 		}
+#endif
 	    } else if ( o->inherits( "QComboBox" ) ) {
 		static clearCombo = FALSE;
 		const QRect rect = querySubControlMetrics( CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow );

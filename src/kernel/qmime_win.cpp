@@ -42,9 +42,10 @@
 #include "qregexp.h"
 #include <shlobj.h>
 
+#ifndef QT_NO_IMAGEIO_BMP
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
-
+#endif
 
 static QPtrList<QWindowsMime> mimes;
 
@@ -634,7 +635,7 @@ QByteArray QWindowsMimeImage::convertToMime( QByteArray data, const char* mime, 
 {
     if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB )  // Sanity
 	return QByteArray();
-
+#ifndef QT_NO_IMAGEIO_BMP
     QImage img;  // Convert from DIB to chosen image format
     QBuffer iod(data);
     iod.open(IO_ReadOnly);
@@ -652,7 +653,7 @@ QByteArray QWindowsMimeImage::convertToMime( QByteArray data, const char* mime, 
 	    return ba;
 	}
     }
-
+#endif
     // Failed
     return QByteArray();
 }
@@ -662,6 +663,7 @@ QByteArray QWindowsMimeImage::convertFromMime( QByteArray data, const char* mime
     if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB ) // Sanity
 	return QByteArray();
 
+#ifndef QT_NO_IMAGEIO_BMP
     QImage img;
     img.loadFromData((unsigned char*)data.data(),data.size());
     if (img.isNull())
@@ -672,11 +674,10 @@ QByteArray QWindowsMimeImage::convertFromMime( QByteArray data, const char* mime
     iod.open(IO_WriteOnly);
     QDataStream s(&iod);
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
-    if (qt_write_dib(s, img)) {
+    if (qt_write_dib(s, img))
 	return ba;
-    } else {
-	return QByteArray();
-    }
+#endif
+    return QByteArray();
 }
 
 class QWindowsMimeUri : public QWindowsMime {
