@@ -67,20 +67,19 @@ QRegExpValidator::~QRegExpValidator()
   <tt>abc</tt> is \c Acceptable, <tt>ab</tt> is \c Intermediate, and
   <tt>hab</tt> is \c Invalid.
 
-  \sa QRegExp::match() QRegExp::partialMatch()
+  \sa QRegExp::match()
 */
 
 QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
 {
-    Q_UNUSED( pos );
-    if ( r.partialMatch(input) ) {
-	if ( ((QRegExp&) r).match(input) == 0 &&
-	     r.matchedLength() == (int) input.length() )
-	    return Acceptable;
-	else
-	    return Intermediate;
-    } else
+    if ( ((QRegExp&) r).match(input) ) {
+	return Acceptable;
+    } else if ( r.matchedLength() == (int) input.length() ) {
+	return Intermediate;
+    } else {
+	pos = input.length();
 	return Invalid;
+    }
 }
 
 /*!  Sets the regular expression used for validation to \a rx.

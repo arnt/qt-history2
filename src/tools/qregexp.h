@@ -61,6 +61,8 @@ public:
 
     int		match( const QString &str, int index=0, int *len=0,
 		       bool indexIsStart = TRUE ) const;
+    int		find( const QString& str, int index )
+					{ return match( str, index ); }
 
 protected:
     void	compile();

@@ -43,7 +43,7 @@ int main()
 	    ss += s[1].isNull() ? QString::fromLatin1("") : s[1];
 	} while ( /* ss.length() > 0 && ss.length() < 100 */ FALSE );
 //	for ( int i = 0; i < 10; i++ )
-	    pos = rx.match( ss );
+	    pos = rx.find( ss );
 	printf( "%d %d", pos, rx.matchedLength() );
 
 #ifndef QT_NO_REGEXP_CAPTURE

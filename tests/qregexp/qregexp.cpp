@@ -2556,10 +2556,10 @@ struct QRegExpPrivate
 #endif
     bool min; // minimal matching? (instead of maximal)
 #ifndef QT_NO_REGEXP_CAPTURE
-    QString t; // last string passed to QRegExp::match()
+    QString t; // last string passed to QRegExp::find() or QRegExp::findRev()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
 #endif
-    QArray<int> captured; // what QRegExpEngine::match() returned last
+    QArray<int> captured; // what QRegExpEngine::find() returned last
 
     QRegExpPrivate() { captured.fill( -1, 2 ); }
 };
@@ -2772,7 +2772,78 @@ void QRegExp::setMinimal( bool minimal )
     priv->min = minimal;
 }
 
-/*!  Attempts to match in \a str, starting from position \a start.
+/*!  Returns TRUE if \a str is matched exactly by this regular expression;
+  otherwise, it returns FALSE and you can know how much of the string was
+  matched correctly by calling matchedLength().
+
+  For example, if the regular expression is <b>abc</b>, then this function
+  returns TRUE only for input <tt>abc</tt>.  For inputs <tt>abcd</tt>,
+  <tt>ab</tt> and <tt>hab</tt>, matchedLength() gives respectively 3, 2 and 0.
+
+  \sa find() findRev() QRegExpValidator
+*/
+bool QRegExp::match( const QString& str )
+{
+#ifndef QT_NO_REGEXP_CAPTURE
+    priv->t = str;
+    priv->capturedCache.clear();
+#endif
+
+    priv->captured = eng->match( str, 0, priv->min, TRUE );
+    if ( priv->captured[0] == 0 ) {
+	return TRUE;
+    } else {
+	priv->captured[0] = 0;
+	priv->captured[1] = eng->matchedLength();
+	return FALSE;
+    }
+}
+
+/*!
+  \obsolete
+
+  Attempts to match in \a str, starting from position \a index.  Returns the
+  position of the match, or -1 if there was no match.
+
+  The length of the match is stored in \a *len, unless \a len is a null pointer.
+
+  If \a indexIsStart is TRUE (the default), the position \a index in the string
+  will match the start-of-input primitive (^) in the regexp, if present.
+  Otherwise, position 0 in \e str will match.
+
+  It's a good idea to use find() and matchedLength() instead of this function.
+  If you really need the \a indexIsStart functionality, try this:
+
+  \code
+    int pos = rx.find( str.mid(index) );
+    if ( pos >= 0 )
+	pos += index;
+    int len = rx.matchedLength();
+  \endcode
+*/
+int QRegExp::match( const QString& str, int index, int *len,
+		    bool indexIsStart ) const
+{
+    int pos;
+    if ( indexIsStart ) {
+	pos = ((QRegExp *) this)->find( str.mid(index) );
+	if ( pos >= 0 ) {
+	    pos += index;
+	    if ( len != 0 )
+		*len = matchedLength();
+	} else {
+	    if ( len != 0 )
+		*len = 0;
+	}
+    } else {
+	pos = ((QRegExp *) this)->find( str, index );
+	if ( len != 0 )
+	    *len = matchedLength();
+    }
+    return pos;
+}
+
+/*!  Attempts to find a match in \a str, starting from position \a start.
   Returns the position of the first match, or -1 if there was no match.
 
   Example:
@@ -2785,10 +2856,12 @@ void QRegExp::setMinimal( bool minimal )
   You might prefer to use QString::find(), QString::contains(), or even
   QStringList::grep().
 
-  \sa matchRev() partialMatch() matchedLength() capturedText()
+  \sa findRev() match() matchedLength() capturedText()
 */
-int QRegExp::match( const QString& str, int start )
+int QRegExp::find( const QString& str, int start )
 {
+    if ( start < 0 )
+	start += str.length();
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
     priv->capturedCache.clear();
@@ -2797,16 +2870,19 @@ int QRegExp::match( const QString& str, int start )
     return priv->captured[0];
 }
 
-/*!  Attempts to match backwards in \a str, starting at position \a start.
+/*!  Attempts to find a match backwards in \a str, starting at position
+  \a start.
 
   Returns the position of the first match, or -1 if there was no match.
 
   You might prefer to use QString::findRev().
 
-  \sa match() partialMatch() matchedLength() capturedText()
+  \sa find() match() matchedLength() capturedText()
 */
-int QRegExp::matchRev( const QString& str, int start )
+int QRegExp::findRev( const QString& str, int start )
 {
+    if ( start < 0 )
+	start += str.length();
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
     priv->capturedCache.clear();
@@ -2823,27 +2899,6 @@ int QRegExp::matchRev( const QString& str, int start )
 	start--;
     }
     return -1;
-}
-
-/*!  Returns TRUE if \a str is a prefix of a string matched exactly by this
-  regular expression.
-
-  For example, if the regular expression is <b>abc</b>, then this function
-  returns TRUE for <b>abc</b> or <b>ab</b>, but FALSE for <b>hab</b>.
-
-  \sa match() matchRev()
-*/
-bool QRegExp::partialMatch( const QString& str ) const
-{
-#ifndef QT_NO_REGEXP_CAPTURE
-    priv->t = QString::null;
-    priv->capturedCache.clear();
-#endif
-    priv->captured.detach();
-    priv->captured.fill( -1 );
-
-    eng->match( str, 0, priv->min, TRUE );
-    return eng->matchedLength() == (int) str.length();
 }
 
 /*!  Returns the length of the matched string, or -1 if there was no match.

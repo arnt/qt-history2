@@ -38,21 +38,13 @@ public:
     bool minimal() const;
     void setMinimal( bool minimal );
 
-    int match( const QString& str, int start = 0 );
-    int matchRev( const QString& str, int start /* ### = -1 */ );
-#if 1 // ### only for testing!
-#if QT_VERSION >= 255
-#error Remove me in Qt 3! I am m necessary for Qt 2 tests.
+    bool match( const QString& str );
+#if defined(QT_OBSOLETE)
+    int match( const QString& str, int index, int *len = 0,
+	       bool indexIsStart = TRUE ) const;
 #endif
-    int match( const QString& str, int start, int *len,
-	       bool indexIsStart = TRUE ) {
-	int r = match( str, start );
-	if ( len != 0 )
-	    *len = matchedLength();
-	return r;
-    }
-#endif
-    bool partialMatch( const QString& str ) const;
+    int find( const QString& str, int start = 0 );
+    int findRev( const QString& str, int start = -1 );
     int matchedLength() const;
 #ifndef QT_NO_REGEXP_CAPTURE
     QString capturedText( int subexpression = 0 ) const;
