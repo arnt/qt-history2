@@ -14,16 +14,23 @@
 #ifndef PATHS_H
 #define PATHS_H
 
+#include <QPixmap>
 #include "demowidget.h"
 
 class Paths : public DemoWidget
 {
 public:
     Paths(QWidget *parent=0);
+    void resetState();
 
-    void paintEvent(QPaintEvent *e);
+protected:
+    void paintEvent(QPaintEvent *);
+    void resizeEvent(QResizeEvent *);
     void mousePressEvent(QMouseEvent *) { stopAnimation(); }
     void mouseReleaseEvent(QMouseEvent *) { startAnimation(); }
+
+private:
+    QPixmap dblBuffer;
 };
 
 #endif

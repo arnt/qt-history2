@@ -19,20 +19,22 @@
 Paths::Paths(QWidget *parent)
     : DemoWidget(parent)
 {
+    setAttribute(Qt::WA_PaintOnScreen);
 }
 
 
 void Paths::paintEvent(QPaintEvent *)
 {
-    QPainter p(this);
-
-    fillBackground(&p);
+    QPainter p(&dblBuffer);
 
     if (attributes->antialias)
         p.setRenderHint(QPainter::Antialiasing);
 
-    p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 191 : 255), 5));
-    p.setBrush(QColor(191, 191, 255, attributes->alpha ? 127 : 255));
+    if (!attributes->alpha)
+        fillBackground(&p);
+
+    p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 159 : 255), 5));
+    p.setBrush(QColor(191, 191, 255, attributes->alpha ? 63 : 255));
 
     int w = width(), h = height();
 
@@ -40,8 +42,8 @@ void Paths::paintEvent(QPaintEvent *)
     int bezierCount = 2;
     QPolygon a;
     for (int i=0; i<bezierCount*3+1; ++i) {
-        a.append(QPoint(int(xfunc(animationStep + i*20) * w/2 + w/2),
-                        int(yfunc(animationStep + i*20) * h/2 + h/2)));
+        a.append(QPoint(int(xfunc(animationStep*0.7 + i*20) * w/2 + w/2),
+                        int(yfunc(animationStep*0.7 + i*20) * h/2 + h/2)));
     }
 
     // Create the path
@@ -55,8 +57,25 @@ void Paths::paintEvent(QPaintEvent *)
     path.closeSubpath();
 
     // Add a rect in the center of the widget
-    path.addRect(200, 200, w - 400, h - 400);
+    path.addRect(100, 100, w-200, h-200);
 
     // Draw the path
     p.drawPath(path);
+    p.end();
+
+    p.begin(this);
+    p.drawPixmap(0, 0, dblBuffer);
+}
+
+void Paths::resizeEvent(QResizeEvent *)
+{
+    dblBuffer.resize(width(), height());
+    QPainter p(&dblBuffer);
+    fillBackground(&p);
+}
+
+void Paths::resetState()
+{
+    QPainter p(&dblBuffer);
+    fillBackground(&p);
 }
