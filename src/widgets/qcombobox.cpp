@@ -412,6 +412,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->discardNextMousePress = FALSE;
     d->shortClick            = FALSE;
     d->useCompletion = FALSE;
+    d->completeAt = 0;
+    d->completeNow = FALSE;
 
     setFocusPolicy( TabFocus );
     setBackgroundMode( PaletteButton );
@@ -1284,6 +1286,7 @@ void QComboBox::focusInEvent( QFocusEvent * e )
 {
     QWidget::focusInEvent( e );
     d->completeNow = FALSE;
+    d->completeAt = 0;
 }
 
 /*!
@@ -1462,6 +1465,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	} else if ( (event->type() == QEvent::FocusIn ||
 		     event->type() == QEvent::FocusOut ) ) {
 	    d->completeNow = FALSE;
+	    d->completeAt = 0;
 	    // to get the focus indication right
 	    update();
 	} else if ( d->useCompletion && d->completeNow ) {
