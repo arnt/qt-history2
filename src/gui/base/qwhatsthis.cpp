@@ -130,7 +130,7 @@ private:
 QWhatsThat *QWhatsThat::instance = 0;
 
 // shadowWidth not const, for XP drop-shadow-fu turns it to 0
-static const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
+static int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
 static const int vMargin = 8;
 static const int hMargin = 12;
 
@@ -374,7 +374,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
 	if (static_cast<QMouseEvent*>(e)->button() == RightButton || customWhatsThis)
 	    return false; // ignore RMB release
 	break;
-    case QEvent::QEvent::KeyPress:
+    case QEvent::KeyPress:
     {
 	QKeyEvent* kev = (QKeyEvent*)e;
 

@@ -755,7 +755,7 @@ QString QAccessibleWidget::text(Text t, int child) const
 	if (!d->help.isEmpty())
 	    str = d->help;
 	else
-	    str = QWhatsThis::textFor(widget());
+	    str = widget()->whatsThis();
 	break;
     case Accelerator:
 	if (!d->accelerator.isEmpty())
