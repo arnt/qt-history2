@@ -190,7 +190,7 @@ QCString uTypeExtra( QCString ctype )
     QCString typeExtra = "0";
     if ( !validUType( ctype ) ) {
 	if ( isVariantType( rawUType(ctype) ) )
-	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( rawUType(ctype) ) );
+	    typeExtra.sprintf("\"\\x%02x\"", qvariant_nameToType( rawUType(ctype) ) );
 	else
 	    typeExtra.sprintf( "\"%s\"", rawUType(ctype).data() );
 	return typeExtra;
@@ -205,7 +205,7 @@ QCString uTypeExtra( QCString ctype )
 	if ( raw == "char" )
 	    ;
 	else if ( isVariantType( raw ) )
-	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( raw ) );
+	    typeExtra.sprintf("\"\\x%02x\"", qvariant_nameToType( raw ) );
 	else
 	    typeExtra.sprintf( "\"%s\"", raw.stripWhiteSpace().data() );
 
@@ -568,7 +568,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 23;		// moc output format revision
+const int formatRevision = 24;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -2663,6 +2663,8 @@ int generateProps()
 		flags |= EnumOrSet;
 		if ( !isEnumType( it.current()->type ) )
 		    flags |= UnresolvedEnum;
+	    } else {
+		flags |= qvariant_nameToType( it.current()->type ) << 24;
 	    }
 	    if ( it.current()->getfunc )
 		flags |= Readable;

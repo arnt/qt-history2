@@ -2269,8 +2269,10 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	return qt_property( id, 0, &v );
     }
 
-    QVariant::Type type = QVariant::nameToType( p->type() );
-    if ( !(type == QVariant::Invalid && !qstrcmp( p->type(), "QVariant" )) && !v.canCast( type ) )
+    QVariant::Type type = (QVariant::Type)(p->flags >> 24);
+    if ( type == QVariant::Invalid )
+	type = QVariant::nameToType( p->type() );
+    if ( type != QVariant::Invalid && !v.canCast( type ) )
 	return FALSE;
     return qt_property( id, 0, &v );
 }
