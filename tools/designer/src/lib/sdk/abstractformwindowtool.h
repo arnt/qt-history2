@@ -16,7 +16,7 @@
 
 #include "sdk_global.h"
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class AbstractFormEditor;
 class AbstractFormWindow;

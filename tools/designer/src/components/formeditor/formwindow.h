@@ -320,6 +320,8 @@ private:
 
     QTimer *m_selectionChangedTimer;
     QTimer *m_checkSelectionTimer;
+    QTimer *m_geometryChangedTimer;
+
     int m_dirty;
     int m_lastIndex;
 

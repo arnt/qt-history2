@@ -114,6 +114,7 @@ signals:
     void fileNameChanged(const QString &fileName);
     void featureChanged(Feature f); // ### rename me
     void selectionChanged();
+    void geometryChanged();
 
     void editModeChanged(EditMode editMode); // ### remove me
 

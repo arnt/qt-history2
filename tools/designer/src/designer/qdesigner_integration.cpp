@@ -59,20 +59,25 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 {
     if (AbstractFormWindow *formWindow = core()->formWindowManager()->activeFormWindow()) {
 
-        formWindow->cursor()->setProperty(name, value);
+        AbstractFormWindowCursor *cursor = formWindow->cursor();
+        cursor->setProperty(name, value);
 
-        if (name == QLatin1String("windowTitle")) {
-            QString filename = formWindow->fileName().isEmpty()
-                    ? QString::fromUtf8("Untitled")
+        if (cursor->isWidgetSelected(formWindow->mainContainer())) {
+            if (name == QLatin1String("windowTitle")) {
+                QString filename = formWindow->fileName().isEmpty()
+                        ? QString::fromUtf8("Untitled")
                     : formWindow->fileName();
 
-            formWindow->setWindowTitle(QString::fromLatin1("%1 - (%2)")
-                    .arg(value.toString())
-                    .arg(filename));
+                formWindow->setWindowTitle(QString::fromLatin1("%1 - (%2)")
+                                           .arg(value.toString())
+                                           .arg(filename));
 
-        } else if (name == QLatin1String("geometry")) {
-            formWindow->setGeometry(value.toRect());
-        } else if (name == QLatin1String("objectName") && core()->objectInspector()) {
+            } else if (name == QLatin1String("geometry")) {
+                formWindow->topLevelWidget()->setGeometry(value.toRect());
+            }
+        }
+
+        if (name == QLatin1String("objectName") && core()->objectInspector()) {
             core()->objectInspector()->setFormWindow(formWindow);
         }
 
@@ -89,6 +94,16 @@ void QDesignerIntegration::setupFormWindow(AbstractFormWindow *formWindow)
 {
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
     connect(formWindow, SIGNAL(activated(QWidget *)), this, SLOT(activateWidget(QWidget *)));
+    // ### connect(formWindow, SIGNAL(geometryChanged()), this, SLOT(updateGeometry()));
+}
+
+void QDesignerIntegration::updateGeometry()
+{
+    if (AbstractFormWindow *formWindow = core()->formWindowManager()->activeFormWindow()) {
+        bool blocked = formWindow->blockSignals(true);
+        formWindow->topLevelWidget()->resize(formWindow->mainContainer()->size());
+        formWindow->blockSignals(blocked);
+    }
 }
 
 void QDesignerIntegration::updateSelection()

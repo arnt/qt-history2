@@ -64,6 +64,8 @@ public:
     virtual QWidget *selectedWidget(int index) const = 0;
 
     virtual void setProperty(const QString &name, const QVariant &value) = 0;
+
+    bool isWidgetSelected(QWidget *widget) const;
 };
 
 #endif // ABSTRACTFORMWINDOWCURSOR_H

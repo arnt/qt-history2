@@ -42,6 +42,7 @@ public slots:
     virtual void updateActiveFormWindow(AbstractFormWindow *formWindow);
     virtual void setupFormWindow(AbstractFormWindow *formWindow);
     virtual void updateSelection();
+    virtual void updateGeometry();
     virtual void activateWidget(QWidget *widget);
 
 private:

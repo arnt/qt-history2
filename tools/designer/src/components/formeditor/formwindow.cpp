@@ -207,10 +207,16 @@ void FormWindow::init()
     m_feature = DefaultFeature;
 
     m_selectionChangedTimer = new QTimer(this);
+    m_selectionChangedTimer->setSingleShot(true);
     connect(m_selectionChangedTimer, SIGNAL(timeout()), this, SLOT(selectionChangedTimerDone()));
 
     m_checkSelectionTimer = new QTimer(this);
+    m_checkSelectionTimer->setSingleShot(true);
     connect(m_checkSelectionTimer, SIGNAL(timeout()), this, SLOT(checkSelectionNow()));
+
+    m_geometryChangedTimer = new QTimer(this);
+    m_geometryChangedTimer->setSingleShot(true);
+    connect(m_geometryChangedTimer, SIGNAL(timeout()), this, SIGNAL(geometryChanged()));
 
     m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
     m_rubberBand->hide();
@@ -1688,6 +1694,8 @@ void FormWindow::resizeEvent(QResizeEvent *e)
 {
     if (editMode() == TabOrderEditMode)
         repositionOrderIndicators();
+
+    m_geometryChangedTimer->start(10);
 
     QWidget::resizeEvent(e);
 }
