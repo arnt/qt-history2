@@ -122,8 +122,10 @@ QVector<int> QAccessibleViewport::selection() const
 */
 
 /*!
-  Constructs a QAccessibleScrollView object for \a w.
-  \a role is propagated to the QAccessibleWidget constructor.
+  \fn QAccessibleScrollView::QAccessibleScrollView(QWidget* widget, Role role)
+
+  Constructs a QAccessibleScrollView object for a \a widget.
+  The \a role is propagated to the QAccessibleWidget constructor.
 */
 QAccessibleScrollView::QAccessibleScrollView(QWidget *w, Role role)
 : QAccessibleWidget(w, role)
@@ -139,7 +141,7 @@ int QAccessibleScrollView::itemAt(int /*x*/, int /*y*/) const
 }
 
 /*!
-  Returns the location of the item with ID \a item in viewport coordinates.
+  Returns the location in viewport coordinates of the item with ID \a id.
 */
 QRect QAccessibleScrollView::itemRect(int /*item*/) const
 {
@@ -161,7 +163,9 @@ int QAccessibleScrollView::itemCount() const
 */
 
 /*!
-  Constructs a QAccessibleListBox object for \a o.
+  \fn QAccessibleListBox::QAccessibleListBox(QWidget* widget)
+
+  Constructs a QAccessibleListBox object for a \a widget.
 */
 QAccessibleListBox::QAccessibleListBox(QWidget *o)
     : QAccessibleScrollView(o, List)

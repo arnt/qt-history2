@@ -2,8 +2,10 @@
 #include "qwidgetstack.h"
 
 /*!
-  Constructs a QAccessibleScrollView object for \a w.
-  \a role is propagated to the QAccessibleWidget constructor.
+\fn QAccessibleScrollView::QAccessibleScrollView(QWidget* widget, Role role)
+
+Constructs a QAccessibleScrollView object for a \a widget.
+The \a role is propagated to the QAccessibleWidget constructor.
 */
 Q3AccessibleScrollView::Q3AccessibleScrollView(QWidget *w, Role role)
 : QAccessibleWidget(w, role)
@@ -19,7 +21,7 @@ int Q3AccessibleScrollView::itemAt(int /*x*/, int /*y*/) const
 }
 
 /*!
-  Returns the location of the item with ID \a item in viewport coordinates.
+  Returns the location in viewport coordinates of the item with ID \a id.
 */
 QRect Q3AccessibleScrollView::itemRect(int /*item*/) const
 {
@@ -27,7 +29,7 @@ QRect Q3AccessibleScrollView::itemRect(int /*item*/) const
 }
 
 /*!
-  Returns the number of items.
+  Returns the number of items in the scroll view.
 */
 int Q3AccessibleScrollView::itemCount() const
 {
@@ -53,7 +55,9 @@ static QListViewItem *findLVItem(QListView* listView, int child)
 }
 
 /*!
-  Constructs a QAccessibleListView object for \a o.
+  \fn QAccessibleListView::QAccessibleListView(QWidget* widget)
+
+  Constructs a QAccessibleListView object for a \a widget.
 */
 QAccessibleListView::QAccessibleListView(QWidget *o)
     : Q3AccessibleScrollView(o, Tree)
@@ -277,7 +281,9 @@ static QIconViewItem *findIVItem(QIconView *iconView, int child)
 }
 
 /*!
-  Constructs a QAccessibleIconView object for \a o.
+  \fn QAccessibleIconView::QAccessibleIconView(QWidget* widget)
+
+  Constructs a QAccessibleIconView object for a \a widget.
 */
 QAccessibleIconView::QAccessibleIconView(QWidget *o)
     : Q3AccessibleScrollView(o, List)
@@ -465,7 +471,9 @@ QVector<int> QAccessibleIconView::selection() const
 */
 
 /*!
-  Constructs a QAccessibleTextEdit object for \a o.
+  \fn QAccessibleTextEdit::QAccessibleTextEdit(QWidget* widget)
+
+  Constructs a QAccessibleTextEdit object for a \a widget.
 */
 QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
 : Q3AccessibleScrollView(o, Pane)
@@ -546,7 +554,9 @@ QAccessible::Role QAccessibleTextEdit::role(int child) const
 */
 
 /*!
-  Creates a QAccessibleWidgetStack object for \a w.
+  \fn QAccessibleWidgetStack::QAccessibleWidgetStack(QWidget* widget)
+
+  Creates a QAccessibleWidgetStack object for a \a widget.
 */
 QAccessibleWidgetStack::QAccessibleWidgetStack(QWidget *w)
 : QAccessibleWidget(w, LayeredPane)
