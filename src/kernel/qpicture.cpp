@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#4 $
 **
 ** Implementation of QMetaFile class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#4 $";
 #endif
 
 
@@ -406,4 +406,14 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	s << (UINT8)128 << (UINT32)length;
     mfbuf.at( newpos );				// set to new position
     return TRUE;
+}
+
+
+// --------------------------------------------------------------------------
+// QPainter member functions
+//
+
+void QPainter::drawMetaFile( const QMetaFile &mf )
+{
+    mf.play( (QPainter*)this );
 }
