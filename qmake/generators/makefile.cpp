@@ -454,7 +454,11 @@ MakefileGenerator::init()
                         compiler.flags |= Compiler::CompilerIgnoreNoExist;
                     if(v[(*it) + ".CONFIG"].indexOf("no_dependencies") != -1)
                         compiler.flags |= Compiler::CompilerNoCheckDeps;
-                    if(v[(*it) + ".dependency_type"].first() == "TYPE_UI")
+
+                    QString dep_type;
+                    if(!project->isEmpty((*it) + ".dependency_type"))
+                        dep_type = project->first((*it) + ".dependency_type");
+                    if(dep_type == "TYPE_UI")
                         compiler.type = QMakeSourceFileInfo::TYPE_UI;
                     else
                         compiler.type = QMakeSourceFileInfo::TYPE_C;
