@@ -96,6 +96,9 @@ public:
     SQLHANDLE           environment();
     SQLHANDLE           connection();
 
+    QString 		formatValue( const QSqlField* field,
+				     bool trimStrings ) const;
+    
 protected:
     bool                beginTransaction();
     bool                commitTransaction();

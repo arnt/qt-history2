@@ -93,7 +93,8 @@ public:
 
     Protocol            protocol() const { return pro; }
     PGconn*             connection();
-
+    QString 		formatValue( const QSqlField* field,
+				     bool trimStrings ) const;
 protected:
     bool		beginTransaction();
     bool		commitTransaction();

@@ -612,3 +612,25 @@ QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
     }
     return fil;
 }
+
+QString QPSQLDriver::formatValue( const QSqlField* field,
+				  bool ) const
+{
+    QString r;
+    if ( field->isNull() )
+	r = nullText();
+    else if ( field->type() == QVariant::DateTime ) {
+	if ( field->value().toDateTime().isValid() ){
+	    QDate dt = field->value().toDateTime().date();
+	    QTime tm = field->value().toDateTime().time();
+	    r = "'" + QString::number(dt.year()) + "-" + 
+		QString::number(dt.month()) + "-" +
+		QString::number(dt.day()) + " " +
+		tm.toString() + "'";
+	} else
+	    r = nullText();
+    } else {
+	r = QSqlDriver::formatValue( field );
+    }
+    return r;
+}

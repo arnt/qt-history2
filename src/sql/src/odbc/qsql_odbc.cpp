@@ -1199,3 +1199,28 @@ SQLHANDLE QODBCDriver::connection()
 {
     return d->hDbc;
 }
+
+QString QODBCDriver::formatValue( const QSqlField* field, 
+				  bool trimStrings ) const
+{
+    QString r;
+    if ( field->isNull() )
+	r = nullText();
+    else if ( field->type() == QVariant::DateTime ) {
+	// Use an escape sequence for the datetime fields
+	if ( field->value().toDateTime().isValid() ){
+	    QDate dt = field->value().toDateTime().date();
+	    QTime tm = field->value().toDateTime().time();
+	    r = "'{ ts `" + 
+		QString::number(dt.year()) + "-" + 
+		QString::number(dt.month()) + "-" +
+		QString::number(dt.day()) + " " +
+		tm.toString() +
+		"` }'";
+	} else
+	    r = nullText();
+    } else {
+	r = QSqlDriver::formatValue( field );
+    }
+    return r;
+}
