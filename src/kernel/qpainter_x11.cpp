@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#69 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#68 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#69 $";
 #endif
 
 
@@ -211,7 +211,7 @@ void QBrush::setColor( const QColor &c )	// set brush color
 	QPainter::changedBrush( this, CHANGE_COLOR );
 }
 
-void QBrush::setBitMap( const QBitmap &bitmap )	// set brush bitmap
+void QBrush::setBitmap( const QBitmap &bitmap )	// set brush bitmap
 {
     data->style = CustomPattern;
     if ( data->bitmap )
