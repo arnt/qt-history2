@@ -5180,7 +5180,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     clearWState(WState_ConfigPending);
 
-    bool was_resize = false;
     if ( isTopLevel() ) {
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
