@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#76 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#77 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -99,15 +99,7 @@ public:
     QImage	convertBitOrder( Endian ) const;
     QImage	smoothScale(int width, int height) const;
 
-#if defined(HAS_BOOL_TYPE)
-    // Needed for binary compatibility - calls createAlphaMask(int)
-    QImage	createAlphaMask( bool dither=FALSE ) const;
-#else
-    // Needed for source compatibility - calls createAlphaMask(FALSE)
-    QImage	createAlphaMask() const;
-#endif
-
-    QImage	createAlphaMask( int conversion_flags ) const;
+    QImage	createAlphaMask( int conversion_flags=0 ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 
     QImage	mirror() const;
