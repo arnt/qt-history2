@@ -4138,9 +4138,9 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	if ( e->text()[ 0 ].isPrint() ) {
 	    QTableItem *itm = item( tmpRow, tmpCol );
 	    if ( !itm || itm->editType() == QTableItem::OnTyping ) {
-		QWidget *w;
-		if ( ( w = beginEdit( tmpRow, tmpCol,
-				      itm ? itm->isReplaceable() : TRUE ) ) ) {
+		QWidget *w = beginEdit( tmpRow, tmpCol,
+					itm ? itm->isReplaceable() : TRUE );
+		if ( w ) {
 		    setEditMode( ( !itm || itm && itm->isReplaceable()
 				   ? Replacing : Editing ), tmpRow, tmpCol );
 		    QApplication::sendEvent( w, e );
