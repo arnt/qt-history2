@@ -1583,4 +1583,16 @@ void QTableWidget::setup()
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }
 
+/*!
+    \fn QTableItemCreator::setItemCreator(QTableItemCreator *creator)
+*/
+
+/*!
+    \class QTableItemCreator
+*/
+
+/*!
+    \fn QTableItemCreator::QTableItemCreator()
+*/
+
 #include "moc_qtablewidget.cpp"
