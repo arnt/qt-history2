@@ -2111,9 +2111,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	}
     }
 
+#ifdef Q_OS_WIN32
     if ( !ok_key && 
 	!( e->key() == Key_Control || e->key() == Key_Shift || e->key() == Key_Meta ) )
 	qApp->beep();
+#endif // Q_OS_WIN32
 }
 
 
