@@ -187,25 +187,25 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
         case QEvent::MouseMove:
             if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return true;
+                return false;
             fw->handleMouseMoveEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonPress:
             if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return true;
+                return false;
             fw->handleMousePressEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonRelease:
             if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return true;
+                return false;
             fw->handleMouseReleaseEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonDblClick:
             if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return true;
+                return false;
             fw->handleMouseButtonDblClickEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
