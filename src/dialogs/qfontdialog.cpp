@@ -889,6 +889,7 @@ void QFontDialog::setFont( const QFont &f )
 		break;
 	}
 	d->sizeList->setCurrentItem( i );
+	d->sizeEdit->setText( QString::number( pSize ) );
     }
 
     d->strikeout->setChecked( f.strikeOut() );
