@@ -12,12 +12,9 @@ is now interpreted correctly. (Previously up/down and right/left were
 reversed.) If you have worked around this bug, your widgets may now be
 incorrectly aligned.
 
-
 QWidget: Every widget is now guaranteed move and resize events. The
 event is deferred until the first show(). This may cause problems in
 rare cases involving event filters.
-
-The XPM file format is now supported.
 
 ****************************************************************************
 *               Changes that might generate compile errors                 *
@@ -26,13 +23,11 @@ The XPM file format is now supported.
 
 none
 
-
 ****************************************************************************
 *               Type changes that might generate warnings:                 *
 ****************************************************************************
 
 none
-
 
 ****************************************************************************
 * 			Deprecated functions				   *
@@ -51,7 +46,8 @@ QSlider is a widget to input values from a range. If you have been
 using a standalone QScrollBar, you will probably want to switch to a
 QSlider.
 
-QGLWidget, QGLContext and QGLFormat ...
+OpenGL/Mesa support: QGLWidget, QGLContext and QGLFormat. To use these
+classes you need to build the Qt/OpenGL library (qgl) in qt/opengl/src.
 
 ****************************************************************************
 *		       Other changes from 1.1 to 1.2			   *
@@ -69,7 +65,7 @@ QCursor: added new global cursor blankCursor.
 
 QFont::key(), new function for caching.
 
-QFontMetrics::QFontMetrics( const Font& ) new constructor gives
+QFontMetrics::QFontMetrics( const QFont& ) new constructor gives
 fontmetrics directly for a font. This is much faster than using
 QWidget::fontMetrics() or QPainter::fontmetrics().
 
@@ -104,7 +100,6 @@ QPixmap new functions:
 	selfMask()  QPixmap( const char *xpm[] )
 	createHeuristicMask()
 
-
 QPopupMenu: Added functions to enable checkmarks:
 	setCheckable(), isCheckable()
 
@@ -117,5 +112,5 @@ QTabDialog: new function setOKButton().
 Added support for XFree86 on OS/2.
 
 New examples:
-	examples/tellme demonstrates dynamic tooltips	
+	examples/tooltip demonstrates dynamic tooltips	
 	examples/table demonstrates QTableView
