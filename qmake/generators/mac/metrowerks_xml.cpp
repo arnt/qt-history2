@@ -101,8 +101,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     //let metrowerks find the files & set the files to the type I expect
     QHash<QString, bool> seen;
-    QString paths[] = { QString("SRCMOC"), QString("FORMS"), QString("UICDECLS"),
-                        QString("UICIMPLS"), QString("SOURCES"),QString("HEADERS"),
+    QString paths[] = { QString("SRCMOC"), QString("SOURCES"), QString("HEADERS"),
                         QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
         QStringList &l = project->variables()[paths[y]];

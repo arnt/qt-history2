@@ -687,18 +687,18 @@ void VcprojGenerator::addMocArguments(VCFilter &filter)
 {
     filter.customMocArguments.clear();
     // Add Defines
-    filter.customMocArguments += 
-	varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + 
+    filter.customMocArguments +=
+        varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
         varGlue("DEFINES"," -D"," -D","") +
         varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
     // Add Includes
     filter.customMocArguments += " -I" + specdir();
     filter.customMocArguments += varGlue("INCLUDEPATH"," -I", " -I", "");
     if(!project->isActiveConfig("no_include_pwd")) {
-	QString pwd = fileFixify(QDir::currentDirPath());
-	if(pwd.isEmpty())
-	    pwd = ".";
-	filter.customMocArguments += " -I\"" + pwd + "\"";
+        QString pwd = fileFixify(QDir::currentDirPath());
+        if(pwd.isEmpty())
+            pwd = ".";
+        filter.customMocArguments += " -I\"" + pwd + "\"";
     }
 }
 
@@ -726,7 +726,7 @@ void VcprojGenerator::initHeaderFiles()
         vcProject.HeaderFiles.addFile(precompH);
 
     for(int index = 0; index < list.count(); ++index)
-	vcProject.HeaderFiles.addFile(VCFilterFile(list.at(index), mocFile(list.at(index))));
+        vcProject.HeaderFiles.addFile(VCFilterFile(list.at(index), mocFile(list.at(index))));
 
     vcProject.HeaderFiles.Project = this;
     vcProject.HeaderFiles.Config = &(vcProject.Configuration);
@@ -742,7 +742,7 @@ void VcprojGenerator::initMOCFiles()
 
     // Create a list of the files being moc'ed
     QStringList &objl = project->variables()["OBJMOC"],
-		&srcl = project->variables()["SRCMOC"];
+                &srcl = project->variables()["SRCMOC"];
     int index = 0;
     for(; index < objl.count() && index < srcl.count(); ++index) {
         vcProject.MOCFiles.addFile(VCFilterFile(srcl.at(index), mocSource(srcl.at(index))));

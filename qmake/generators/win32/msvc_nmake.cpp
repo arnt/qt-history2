@@ -201,7 +201,7 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
             if(!dirTemp.isEmpty())
                 source_directories.insertMulti(dirTemp, (void*)1);
         }
-        QString srcs[] = { QString("SOURCES"), QString("UICIMPLS"), QString("SRCMOC"), QString::null };
+        QString srcs[] = { QString("SOURCES"), QString("SRCMOC"), QString::null };
         for(int x = 0; !srcs[x].isNull(); x++) {
             QStringList &l = project->variables()[srcs[x]];
             for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
@@ -238,7 +238,7 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
         t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
           << "$(OBJECTS) $(OBJMOC) $(LIBS)";

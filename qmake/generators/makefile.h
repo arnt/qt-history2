@@ -40,14 +40,11 @@ class MakefileGenerator : protected QMakeSourceFileInfo
 
 protected:
     void writeObj(QTextStream &, const QString &obj, const QString &src);
-    void writeUicSrc(QTextStream &, const QString &ui);
     void writeMocObj(QTextStream &, const QString &obj, const QString &src);
     void writeMocSrc(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
     void writeInstalls(QTextStream &t, const QString &installs);
-    void writeImageObj(QTextStream &t, const QString &obj);
-    void writeImageSrc(QTextStream &t, const QString &images);
 
     void writeHeader(QTextStream &t);
     void writeSubDirs(QTextStream &t);

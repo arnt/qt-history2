@@ -326,9 +326,6 @@ void Win32MakefileGenerator::processFileTagsVar()
 
 void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
-                      varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    t << "uiclean:" << uiclean << endl;
     QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
                        varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     t << "mocclean:" << mocclean << endl;
@@ -338,8 +335,6 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
         << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
         << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
 
-    if(!project->isEmpty("IMAGES"))
-        t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
 
     t << "distclean: clean"
@@ -377,6 +372,8 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     t << "MOC           = " << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
                               Option::fixPathToTargetOS(var("QMAKE_MOC"), false)) << endl;
+    t << "UIC3          = " << (project->isEmpty("QMAKE_UIC3") ? QString("uic3") :
+                              Option::fixPathToTargetOS(var("QMAKE_UIC3"), false)) << endl;
     t << "UIC           = " << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
                               Option::fixPathToTargetOS(var("QMAKE_UIC"), false)) << endl;
     t << "QMAKE         = " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
@@ -417,9 +414,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     writeObjectsPart(t);
 
-    t << "FORMS         = " << varList("FORMS") << endl;
-    t << "UICDECLS      = " << varList("UICDECLS") << endl;
-    t << "UICIMPLS      = " << varList("UICIMPLS") << endl;
     t << "SRCMOC        = " << varList("SRCMOC") << endl;
 
     writeObjMocPart(t);
@@ -454,8 +448,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     writeRcFilePart(t);
 
-    t << "mocables: $(SRCMOC)" << endl
-        << "uicables: $(UICIMPLS) $(UICDECLS)" << endl << endl;
+    t << "mocables: $(SRCMOC)" << endl;
 
     writeMakeQmake(t);
 

@@ -98,7 +98,7 @@ BorlandMakefileGenerator::init()
 void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
         t << "\n\t" << "$(LINK) @&&|" << "\n\t"
           << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
@@ -113,11 +113,6 @@ void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 
 void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
 {
-    QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
-                      varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if(uiclean.isEmpty())
-        uiclean = "@cd .";
-    t << "uiclean:" << uiclean << endl;
     QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") +
                        varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     if(mocclean.isEmpty())
