@@ -1,4 +1,9 @@
 {
+  global:
+  extern "C++"
+  {
+	QGuardedPtrPrivate::*
+  };
   local:
   extern "C++"
   {
@@ -14,7 +19,7 @@
 	QHttpRequest::*;
 	QHttpResponseHeader::*;
 	QMainWindowLayout::*;
-#	Q*Private::*;    # breaks with QGuardedPtrPrivate and QMapPrivateBase
+	Q*Private::*;    # collides with QGuardedPtrPrivate
 	QPSPrinter*;
 	Q*RegExpEngine::*;
 	Q*SvgDevice::*;
