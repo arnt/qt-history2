@@ -321,7 +321,7 @@ bool QSqlTableModel::select()
 QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QSqlTableModel);
-    if (!index.isValid() || role & ~(Qt::DisplayRole | Qt::EditRole))
+    if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::EditRole))
         return QVariant();
 
     QModelIndex item = indexInQuery(index);
@@ -421,7 +421,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(QSqlTableModel);
-    if (role & ~Qt::EditRole)
+    if (role != Qt::EditRole)
         return QSqlQueryModel::setData(index, value, role);
 
     if (index.column() >= d->rec.count() || index.row() >= rowCount())
