@@ -409,7 +409,7 @@ would be:
     QString string = ...; // some Unicode text
 
     QTextCodec* codec = QTextCodec::codecForName( "ISO 8859-5" );
-    QCString encoded_string = codec->fromUnicode( string );
+    QByteArray encoded_string = codec->fromUnicode( string );
 
     ...; // use encoded_string in 8-bit operations
 \endcode
@@ -427,7 +427,7 @@ demonstrated by this conversion from ISO 8859-5 Cyrillic to Unicode
 conversion:
 
 \code
-    QCString encoded_string = ...; // Some ISO 8859-5 encoded text.
+    QByteArray encoded_string = ...; // Some ISO 8859-5 encoded text.
 
     QTextCodec* codec = QTextCodec::codecForName("ISO 8859-5");
     QString string = codec->toUnicode(encoded_string);
