@@ -353,6 +353,8 @@ int SomeFactory::communication()
 	comm |= QProcess::Stdout;
     if ( commStderr )
 	comm |= QProcess::Stderr;
+    if ( commDupStderr )
+	comm |= QProcess::DupStderr;
     return comm;
 }
 
@@ -369,6 +371,11 @@ void SomeFactory::communicationStdout( bool enable )
 void SomeFactory::communicationStderr( bool enable )
 {
     commStderr = enable;
+}
+
+void SomeFactory::communicationDupStderr( bool enable )
+{
+    commDupStderr = enable;
 }
 
 void SomeFactory::communicationStdin( bool enable )

@@ -650,6 +650,9 @@ bool QProcess::start( QStringList *env )
 	    ::close( sStderr[0] );
 	    ::dup2( sStderr[1], STDERR_FILENO );
 	}
+	if ( comms & DupStderr ) {
+	    ::dup2( STDOUT_FILENO, STDERR_FILENO );
+	}
 #ifndef QT_NO_DIR
 	::chdir( workingDir.absPath().latin1() );
 #endif

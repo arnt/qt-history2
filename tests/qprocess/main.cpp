@@ -124,6 +124,10 @@ int main( int argc, char **argv )
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(communicationStderr(bool)) );
 	cb->setChecked( TRUE );
+	cb = new QCheckBox( "Communication DupStderr", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(communicationDupStderr(bool)) );
+	cb->setChecked( FALSE );
 	cb = new QCheckBox( "Exit Notify", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectExit(bool)) );

@@ -63,7 +63,7 @@ class SomeFactory : public QObject
     Q_OBJECT
 
 public:
-    SomeFactory() : uOwnEnvironment(FALSE), commStdin(FALSE), commStdout(FALSE), commStderr(FALSE), cStdout(FALSE), cStderr(FALSE), cExit(FALSE)
+    SomeFactory() : uOwnEnvironment(FALSE), commStdin(FALSE), commStdout(FALSE), commStderr(FALSE), commDupStderr(FALSE), cStdout(FALSE), cStderr(FALSE), cExit(FALSE)
     { parent = new QObject; };
     ~SomeFactory()
     { delete parent; };
@@ -82,6 +82,7 @@ public slots:
     void communicationStdin( bool enable );
     void communicationStdout( bool enable );
     void communicationStderr( bool enable );
+    void communicationDupStderr( bool enable );
     void connectStdout( bool enable );
     void connectStderr( bool enable );
     void connectExit( bool enable );
@@ -97,6 +98,7 @@ private:
     bool commStdin;
     bool commStdout;
     bool commStderr;
+    bool commDupStderr;
     bool cStdout;
     bool cStderr;
     bool cExit;

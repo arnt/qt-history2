@@ -156,13 +156,21 @@
 
   This enum type defines the communication channels connected to the
   process.
-  \list
 
-  \i Stdin - data can be written to the process's stdin
-  \i Stdout - data can be read from the process's stdout
-  \i Stderr - data can be read from the process's stderr
+  \value Stdin  Data can be written to the process's standard input.
 
-  \endlist
+  \value Stdout  Data can be read from the process's standard output.
+
+  \value Stderr  Data can be read from the process's standard error.
+
+  \value DupStderr  Duplicates standard error to standard output for new
+  processes; i.e.  everything that the process writes to standard error, is
+  reported by QProcess on standard output instead. This is especially useful if
+  your application requires that the output on standard output and standard
+  error is read in the same order as the process output it. Please note that
+  this is a binary flag, so if you want to activate this together with standard
+  input, output and error redirection (the default), you have to specify
+  \c{Stdin|Stdout|Stderr|DupStderr} for the setCommunication() call.
 
   \sa setCommunication() communication()
 */
@@ -313,7 +321,7 @@ int QProcess::communication() const
 
   \a commFlags is a bitwise OR between the flags defined in \c Communication.
 
-  The default is \c{ Stdin | Stdout | Stderr }.
+  The default is \c{Stdin|Stdout|Stderr}.
 
   \sa communication()
 */

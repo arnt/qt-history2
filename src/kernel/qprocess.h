@@ -69,7 +69,7 @@ public:
 #endif
 
     // set and get the comms wanted
-    enum Communication { Stdin=0x01, Stdout=0x02, Stderr=0x04 };
+    enum Communication { Stdin=0x01, Stdout=0x02, Stderr=0x04, DupStderr=0x08 };
     void setCommunication( int c );
     int communication() const;
 
