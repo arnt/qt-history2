@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#343 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#344 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1946,10 +1946,18 @@ void QFileDialog::fileNameEditReturnPressed()
 
 void QFileDialog::changeMode( int id )
 {
+    if ( !d->infoPreview && !d->contentsPreview )
+	return;
+    
     QPushButton *pb = (QPushButton*)d->modeButtons->find( id );
     if ( !pb )
 	return;
 
+    if ( pb == d->previewContents && !d->contentsPreview )
+	return;
+    if ( pb == d->previewInfo && !d->infoPreview )
+	return;
+    
     if ( pb != d->previewContents && pb != d->previewInfo ) {
 	d->preview->hide();
     } else {
