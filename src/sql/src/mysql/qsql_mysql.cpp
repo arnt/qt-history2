@@ -334,9 +334,11 @@ QSqlQuery QMYSQLDriver::createQuery() const
 
 QStringList QMYSQLDriver::tables( const QString& ) const
 {
+    QStringList tl;
+    if ( !isOpen() )
+	return tl;
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
     MYSQL_ROW	row;
-    QStringList tl;
     int i = 0;
     while ( TRUE ) {
 	mysql_data_seek( tableRes, i );
@@ -353,6 +355,8 @@ QStringList QMYSQLDriver::tables( const QString& ) const
 QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx;
+    if ( !isOpen() )
+	return idx;
     QSqlQuery i = createQuery();
     QString stmt( "show index from %1;" );
     QSqlRecord fil = record( tablename );
@@ -369,8 +373,10 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
 
 QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
 {
-    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
 	QSqlField f ( QString( field->name ) , qDecodeMYSQLType( (int)field->type ) );
@@ -383,6 +389,8 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
 QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     if ( query.isActive() && query.driver() == this ) {
 	QMYSQLResult* result =  (QMYSQLResult*)query.result();
 	QMYSQLResultPrivate* p = result->d;
@@ -403,5 +411,5 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 
 MYSQL* QMYSQLDriver::mysql()
 {
-    return d->mysql;
+     return d->mysql;
 }
