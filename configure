@@ -274,7 +274,7 @@ OPT_VERBOSE=no
 OPT_HELP=
 
 # initalize variables used for installation
-QT_INSTALL_PREFIX=/usr/local/qt
+QT_INSTALL_PREFIX=
 QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=
 QT_INSTALL_LIBS=
@@ -804,6 +804,8 @@ done
 # post initialize QT_INSTALL_* variables, and generate qconfig.cpp
 #-------------------------------------------------------------------------------
 
+# default $outpath
+[ -z "$QT_INSTALL_PREFIX" ]  && QT_INSTALL_PREFIX=$outpath
 # default PREFIX/doc
 [ -z "$QT_INSTALL_DOCS" ]    && QT_INSTALL_DOCS=$QT_INSTALL_PREFIX/doc
 # default PREFIX/include
