@@ -741,6 +741,8 @@ MakefileGenerator::writeProjectMakefile()
           << "uninstall: " << targets.first()->target << "-uinstall" << endl;
     }
     writeSubTargets(t, targets, SubTargetsNoFlags);
+    if(project->variables()["QMAKE_NOFORCE"].isEmpty())
+        t << endl << "####### Phony force rule" << endl << "FORCE:" << endl << endl;
     return true;
 }
 
@@ -1545,6 +1547,9 @@ MakefileGenerator::writeMakefile(QTextStream &t)
 
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");
+    if(project->variables()["QMAKE_NOFORCE"].isEmpty())
+        t << endl << "####### Phony force rule" << endl << "FORCE:" << endl << endl;
+
     return true;
 }
 
@@ -1681,6 +1686,8 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
     if(project->isActiveConfig("ordered"))
         flags |= SubTargetOrdered;
     writeSubTargets(t, targets, flags);
+    if(project->variables()["QMAKE_NOFORCE"].isEmpty())
+        t << endl << "####### Phony force rule" << endl << "FORCE:" << endl << endl;
 }
 
 void
@@ -1949,9 +1956,6 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         project->variables()["UNINSTALLDEPS"] += "uninstall_subtargets";
         writeInstalls(t, "INSTALLS");
     }
-
-    if(project->variables()["QMAKE_NOFORCE"].isEmpty())
-        t <<"FORCE:" << endl << endl;
 }
 
 void
