@@ -469,6 +469,10 @@ while [ "$#" -gt 0 ]; do
 	VAR="link"
 	VAL=`echo $1 | sed 's,-l,,'`
 	;;
+    -*)
+	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+	VAL="unknown"
+	;;
     *)
 	UNKNOWN_ARG=yes
 	;;
@@ -698,6 +702,20 @@ while [ "$#" -gt 0 ]; do
     fatal_error)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_CONFIGURE_EXIT_ON_ERROR="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
+	;;
+    feature-*)
+	if [ "$PLATFORM_QWS" = "yes" ]; then
+	    FEATURE=`echo $VAR | sed "s,^[^-]*-\([^-]*\),\1," | tr '[:lower:]-' '[:upper:]_'`
+	    if [ "$VAL" = "no" ]; then
+		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_$FEATURE"
+	    elif [ "$VAL" = "yes" ] || [ "$VAL" = "unknown" ]; then
+		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_$FEATURE"
+	    else
+		UNKNOWN_OPT=yes
+	    fi
 	else
 	    UNKNOWN_OPT=yes
         fi
