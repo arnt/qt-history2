@@ -1031,6 +1031,11 @@ QByteArray &QByteArray::operator=(const char *str)
         // x == "freedom"
     \endcode
 
+    This operation is typically very fast (\l{constant time}),
+    because QByteArray preallocates extra space at the end of the
+    character data so it can grow without reallocating the entire
+    data each time.
+
     \sa append(), prepend()
 */
 
@@ -1349,6 +1354,11 @@ QByteArray &QByteArray::prepend(char ch)
     \endcode
 
     This is the same as insert(size(), \a ba).
+
+    This operation is typically very fast (\l{constant time}),
+    because QByteArray preallocates extra space at the end of the
+    character data so it can grow without reallocating the entire
+    data each time.
 
     \sa operator+=(), prepend(), insert()
 */

@@ -1018,6 +1018,11 @@ QString& QString::insert(int i, QChar ch)
 
     This is the same as insert(size(), \a str).
 
+    This operation is typically very fast (\l{constant time}),
+    because QString preallocates extra space at the end of the string
+    data so it can grow without reallocating the entire string each
+    time.
+
     \sa operator+=(), prepend(), insert()
 */
 QString &QString::append(const QString &str)
@@ -3577,6 +3582,11 @@ QString& QString::fill(QChar ch, int size)
         x += y;
         // x == "freedom"
     \endcode
+
+    This operation is typically very fast (\l{constant time}),
+    because QString preallocates extra space at the end of the string
+    data so it can grow without reallocating the entire string each
+    time.
 
     \sa append(), prepend()
 */
