@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#8 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -196,6 +196,8 @@ void ListViews::setupFolders()
 
 void ListViews::slotFolderChanged( QListViewItem *i )
 {
+    if ( !i )
+	return;
     messages->clear();
     message->setText( "" );
 
