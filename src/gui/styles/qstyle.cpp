@@ -402,7 +402,7 @@ void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, c
         if (!enabled) {
             if (styleHint(SH_DitherDisabledText)) {
                 painter->drawText(rect, alignment, text);
-                painter->fillRect(rect, QBrush(painter->background().color(), Qt::Dense5Pattern));
+                painter->fillRect(painter->boundingRect(rect, alignment, text), QBrush(painter->background().color(), Qt::Dense5Pattern));
                 return;
             } else if (styleHint(SH_EtchDisabledText)) {
                 QPen pen = painter->pen();
