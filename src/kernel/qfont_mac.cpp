@@ -54,7 +54,8 @@ static bool qt_mac_debug_metrics(const QChar &c) {
     if(debug_metrics_first) {
 	debug_metrics_first = FALSE;
 	if(char *en = getenv("QT_METRICS_DEBUG")) {
-	    QStringList l(QStringList::split(QString(en), ","));
+	    qDebug("%s", en);
+	    QStringList l(QStringList::split(',', QString(en)));
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		(*it) = (*it).stripWhiteSpace().simplifyWhiteSpace();
 		if((*it) == "all") {
@@ -83,16 +84,18 @@ static bool qt_mac_debug_metrics(const QChar &c) {
 			}
 			k |= l;
 		    } else {
-			qDebug("Invalid metrics debug: %s", (*it).latin1());
+			qDebug("%d: Invalid metrics debug: %s", __LINE__, (*it).latin1());
+			continue;
 		    }
 		} else {
 		    bool ok = TRUE;
 		    k = (*it).toShort(&ok);
 		    if(!ok) {
-			qDebug("Invalid metrics debug: %s", (*it).latin1());
+			qDebug("%d: Invalid metrics debug: %s", __LINE__, (*it).latin1());
 			continue;
 		    }
 		}
+		qDebug("Valid metrics debug: %s", (*it).latin1());
 		debug_metrics_list.append(QChar(k));
 	    }
 	} else {
@@ -349,7 +352,7 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
 	    GetFontInfo(&info);
 	    int msz = sz;
 	    while( (info.ascent + info.descent) > (setfi.ascent + setfi.descent)) {
-		TextSize(msz--);
+		TextSize(--msz);
 		GetFontInfo(&info);
 	    }
 
