@@ -20,9 +20,6 @@
 #include "qdockarea.h"
 #include "qt_mac.h"
 #include "qregexp.h"
-#ifdef QT_COMPAT
-# include "q3menubar.h"
-#endif
 
 #include "private/qmenu_p.h"
 #include "private/qmenubar_p.h"
