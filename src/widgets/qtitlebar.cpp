@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#44 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -361,10 +361,7 @@ void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
     if ( e->button() == LeftButton ) {
 	switch(style().titleBarPointOver(this, e->pos())) {
 	case QStyle::TitleLabel:
-	    if ( window && window->testWFlags( WStyle_MinMax ) )
-		emit doMaximize();
-	    else
-		emit doShade();
+	    emit doubleClicked();
 	    break;
 	case QStyle::TitleSysMenu:
 	    emit doClose();

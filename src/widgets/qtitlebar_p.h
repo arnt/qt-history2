@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#15 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#16 $
 **
 ** Definition of some Qt private functions.
 **
@@ -90,6 +90,7 @@ signals:
     void doShade();
     void showOperationMenu();
     void popupOperationMenu( const QPoint& );
+    void doubleClicked();
 
 protected:
     bool event( QEvent *);
