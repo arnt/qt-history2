@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#191 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -9,6 +9,7 @@
 **
 *****************************************************************************/
 
+#define select		_qt_hide_select
 #include "qapp.h"
 #include "qwidget.h"
 #include "qobjcoll.h"
@@ -23,7 +24,6 @@
 #else
 #define gettimeofday	_qt__hide_gettimeofday
 #endif
-#define select		_qt_hide_select
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#190 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#191 $");
 
 
 #if !defined(XlibSpecificationRelease)
