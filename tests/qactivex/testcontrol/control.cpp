@@ -29,6 +29,29 @@
 
 struct IDispatch;
 
+class QSubType : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY( QString unicode READ unicode WRITE setUnicode )
+    Q_PROPERTY( int number READ number WRITE setNumber )
+
+public:
+    QSubType( QObject *parent = 0, const char *name = 0 )
+	: QObject( parent, name )
+    {
+    }
+
+    QString unicode() const { PROP(unicode) }
+    void setUnicode( const QString &unicode ){ SET_PROP(unicode) }
+
+    int number() const { PROP(number) }
+    void setNumber( int number ) { SET_PROP(number) }
+
+private:
+    QString m_unicode;
+    int m_number;
+};
+
 class QTestControl : public QWidget, public QAxBindable
 {
     Q_OBJECT
@@ -53,7 +76,8 @@ public:
     QTestControl( QWidget *parent = 0, const char *name = 0 )
     : QWidget( parent, name )
     {
-	// members not initiliazed on purpose
+	m_subType = 0;
+	// other members not initiliazed on purpose
     }
 
     enum Alpha {
@@ -206,6 +230,27 @@ public slots:
     void betaPointerSlot( Alpha *beta ) { PROP_POINTER(beta) }
     void currencyPointerSlot( Q_LLONG *currency ) { PROP_POINTER(currency) }
 
+    QSubType *subType()
+    {
+	if ( !m_subType )
+	    m_subType = new QSubType( this, "subType" );
+	return m_subType;
+    }
+
+    QSubType *subTypeNum( int i )
+    {
+	QSubType *sub = new QSubType( this, "subTypeNum" );
+	sub->setNumber( i );
+	return sub;
+    }
+
+    QSubType *subTypeUnicode( const QString &str )
+    {
+	QSubType *sub = new QSubType( this, "subTypeUnicode" );
+	sub->setUnicode( str );
+	return sub;
+    }
+
 signals:
     void unicodeChanged( const QString& );
     void unicodeRefSignal( QString& );
@@ -269,6 +314,8 @@ private:
     Alpha m_beta;
     Q_LLONG m_currency;
     IDispatch *m_disp;
+
+    QSubType *m_subType;
 };
 
 #include "control.moc"
@@ -283,6 +330,7 @@ public:
     {
 	QStringList list;
 	list << "QTestControl";
+	list << "QSubType";
 	return list;
     }
     QWidget *create( const QString &key, QWidget *parent, const char *name )
@@ -295,18 +343,24 @@ public:
     {
 	if ( key == "QTestControl" )
 	    return "{28f6fa1f-49b8-4a77-8b18-2b9b80fc6717}";
+	if ( key == "QSubType" )
+	    return "{c37ce00f-bcd8-477e-bc84-a90bf3902f0a}";
 	return QUuid();
     }
     QUuid interfaceID( const QString &key ) const
     {
 	if ( key == "QTestControl" )
 	    return "{f2da4629-df7f-4821-b249-30eacbae247f}";
+	if ( key == "QSubType" )
+	    return "{9f1802a1-7e7c-44e7-b09e-3f15c9cf7b51}";
 	return QUuid();
     }
     QUuid eventsID( const QString &key ) const
     {
 	if ( key == "QTestControl" )
 	    return "{60743b03-3630-46b7-b2c6-2d1c46c277a4}";
+	if ( key == "QSubType" )
+	    return "{409b83ea-207a-48c7-94c7-3fcb9084779b}";
 	return QUuid();
     }
 
