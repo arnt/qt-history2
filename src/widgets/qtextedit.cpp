@@ -2896,7 +2896,7 @@ void QTextEdit::cut()
     if ( isReadOnly() )
 	return;
 
-    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+    if ( doc->hasSelection( QTextDocument::Standard ) && !doc->selectedText( QTextDocument::Standard ).isEmpty() ) {
 	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
 	removeSelectedText();
     }
@@ -2913,10 +2913,10 @@ void QTextEdit::copy()
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText() );
-    else if ( doc->hasSelection( QTextDocument::Standard ) )
+    else if ( doc->hasSelection( QTextDocument::Standard ) && !doc->selectedText( QTextDocument::Standard ).isEmpty() )
 	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
 #else
-    if ( doc->hasSelection( QTextDocument::Standard ) )
+    if ( doc->hasSelection( QTextDocument::Standard ) && !doc->selectedText( QTextDocument::Standard ).isEmpty())
 	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
 #endif
 }
@@ -5943,8 +5943,8 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
 	mousePos = e->pos();
 	d->od->selEnd.index = optimCharIndex( str, mousePos.x() );
 	if ( d->od->selEnd.line < d->od->selStart.line ) {
-	    qSwap( &d->od->selStart.line, &d->od->selEnd.line ); 
-	    qSwap( &d->od->selStart.index, &d->od->selEnd.index ); 
+	    qSwap( &d->od->selStart.line, &d->od->selEnd.line );
+	    qSwap( &d->od->selStart.index, &d->od->selEnd.index );
 	} else if ( d->od->selStart.line == d->od->selEnd.line &&
 		    d->od->selStart.index > d->od->selEnd.index ) {
 	    qSwap( &d->od->selStart.index, &d->od->selEnd.index );
