@@ -851,10 +851,9 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     if (state() == Editing && d->editors.contains(persistent))
         return;
 
-    if (state() == Selecting) {
-        selectionModel()->select(index, selectionCommand(e->state(), index, e->type()));
+    selectionModel()->select(index, selectionCommand(e->state(), index, e->type()));
+    if (state() == Selecting)
         setState(NoState);
-    }
 
     if (index == d->pressedItem)
         emit clicked(index, e->button());

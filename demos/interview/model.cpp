@@ -98,7 +98,7 @@ bool Model::hasChildren(const QModelIndex &) const
     return rc > 0 && cc > 0;
 }
 
-QAbstractItemModel::ItemFlags Model::flags(const QModelIndex &index) const
+QAbstractItemModel::ItemFlags Model::flags(const QModelIndex &) const
 {
     return (QAbstractItemModel::ItemIsDragEnabled
             |QAbstractItemModel::ItemIsSelectable
