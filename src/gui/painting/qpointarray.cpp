@@ -79,16 +79,20 @@ const double Q_PI = 3.14159265358979323846;
     Constructs a point array from the rectangle \a r.
 
     If \a closed is false, then the point array just contains the
-    following four points in the listed order: r.topLeft(),
-    r.topRight(), r.bottomRight() and r.bottomLeft().
+    following four points of the rectangle ordered clockwise. The
+    bottom-right point is located at (r.x() + r.width(), r.y() +
+    r.height()).
 
     If \a closed is true, then a fifth point is set to r.topLeft().
 */
 
 QPointArray::QPointArray(const QRect &r, bool closed)
 {
-    setPoints(4, r.left(),  r.top(), r.right(), r.top(), r.right(), r.bottom(),
-              r.left(),  r.bottom());
+    setPoints(4,
+              r.x(),  r.y(),
+              r.x() + r.width(), r.y(),
+              r.x() + r.width(), r.y() + r.height(),
+              r.x(),  r.y() + r.height());
     if (closed) {
         resize(5);
         setPoint(4, r.left(), r.top());
