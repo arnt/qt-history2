@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#48 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#48 $")
 
 
 /*
@@ -763,14 +763,14 @@ bool QPixmap::convertFromImage( const QImage &img )
     }
 
     if ( d == 8 && !trucol ) {			// 8 bit pixmap
-	int    i, j;
-	long   pop[256];			// pixel popularity
+	int  i, j;
+	int  pop[256];				// pixel popularity
 	newbits = (uchar *)malloc( nbytes );
 	if ( !newbits )				// no memory
 	    return FALSE;
 	p = newbits;
 	memcpy( p, image.bits(), nbytes );	// copy image data into newbits
-	memset( pop, 0, sizeof(long)*256 );	// reset popularity array
+	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
 	for ( i=0; i<nbytes; i++ )		// compute popularity
 	    pop[*p++]++;
 
@@ -786,15 +786,16 @@ bool QPixmap::convertFromImage( const QImage &img )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( i=0; i<256; i++ )			// compute number of colors
+	for ( i=0; i<256; i++ )	{		// compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
+	}
 	if ( ncols > image.numColors() )	// shouldn't happen
 	    ncols = image.numColors();
 
 	PIX *pixarr	   = new PIX[ncols];	// pixel array
 	PIX *pixarr_sorted = new PIX[ncols];	// pixel array (sorted)
-	PIX *px = &pixarr[0];
+	PIX *px 	   = &pixarr[0];
 	int  maxpop = 0;
 	int  maxpix = 0;
 	CHECK_PTR( pixarr );
@@ -861,7 +862,7 @@ bool QPixmap::convertFromImage( const QImage &img )
 	    pixarr[minpix].use = 0;
 	}
 
-	int pix[256];				// pixel translation table
+	ulong pix[256];				// pixel translation table
 	px = &pixarr_sorted[0];
 	for ( i=0; i<ncols; i++ ) {		// allocate colors
 	    QColor c( px->r, px->g, px->b );
@@ -872,8 +873,10 @@ bool QPixmap::convertFromImage( const QImage &img )
 	delete [] pixarr_sorted;
 
 	p = newbits;
-	for ( i=0; i<nbytes; i++ )		// translate pixels
-	    *p++ = pix[*p];
+	for ( i=0; i<nbytes; i++ ) {		// translate pixels
+	    *p = pix[*p];
+	    p++;
+	}
     }
 
     if ( !xi ) {				// X image not created
