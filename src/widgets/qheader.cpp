@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#49 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -164,6 +164,7 @@ QHeader::~QHeader()
     for ( int i=0; i < count(); i++ )
 	if ( data->labels[i] )                      // Avoid purify complaints
 	    delete [] (char *)data->labels[i];
+    delete data;
 }
 
 /*!
