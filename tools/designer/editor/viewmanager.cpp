@@ -48,7 +48,7 @@ void ViewManager::addView( QWidget *view )
 {
     layout->addWidget( view );
     curView = view;
-    connect( (Editor*)curView, SIGNAL( contentsMoving( int, int ) ),
+    connect( ( (Editor*)curView )->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 	     markerWidget, SLOT( doRepaint() ) );
     connect( (Editor*)curView, SIGNAL( textChanged() ),
 	     markerWidget, SLOT( doRepaint() ) );
