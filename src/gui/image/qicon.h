@@ -42,7 +42,7 @@ public:
     enum State { On, Off };
 
     QIcon();
-    QIcon(const QPixmap &pixmap, Size size = Automatic);
+    QIcon(const QPixmap &pixmap, Size size = QIcon::Automatic);
     QIcon(const QPixmap &smallPix, const QPixmap &largePix);
     QIcon(const QIcon &other);
     ~QIcon();
