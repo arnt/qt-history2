@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/network/qhttp.h#15 $
 **
 ** Definition of QHtpp and related classes.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/qws/extensions/network/src/qsocket.cpp#4 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#19 $
 **
 ** Implementation of QSocket class.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/network/qsocket.h#8 $
 **
 ** Definition of QSocket class.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/network/qserversocket.h#6 $
 **
 ** Definition of QServerSocketClass.
 **
