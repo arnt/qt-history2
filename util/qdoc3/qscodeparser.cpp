@@ -324,7 +324,7 @@ void QsCodeParser::extractRegExp( const QRegExp& regExp, QString& source,
 	    "[ \t]*(?:\n(?:[ \t]*\n)+[ \t]*|[ \n\t]*\\\\code|"
 	    "\\\\endcode[ \n\t]*)" );
     QStringList paras = source.trimmed().split(blankLineRegExp);
-    paras = paras.find( regExp );
+    paras = paras.filter( regExp );
     if ( paras.count() == 0 ) {
 	doc.location().warning( tr("Cannot find regular expression '%1'")
 				.arg(regExp.pattern()) );

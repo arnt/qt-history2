@@ -265,7 +265,7 @@ void QtPrivate::QStringList_sort(QStringList *that)
 #endif // QT_COMPAT
 
 /*!
-    \fn QStringList QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
+    \fn QStringList QStringList::filter(const QString &str, Qt::CaseSensitivity cs) const
 
     Returns a list of all the strings containing the substring \a str.
 
@@ -282,8 +282,8 @@ void QtPrivate::QStringList_sort(QStringList *that)
 
     \sa QString::contains()
 */
-QStringList QtPrivate::QStringList_find(const QStringList *that, const QString &str,
-                                        Qt::CaseSensitivity cs)
+QStringList QtPrivate::QStringList_filter(const QStringList *that, const QString &str,
+                                          Qt::CaseSensitivity cs)
 {
     QStringMatcher matcher(str, cs);
     QStringList res;
@@ -315,14 +315,14 @@ QBool QtPrivate::QStringList_contains(const QStringList *that, const QString &st
 
 #ifndef QT_NO_REGEXP
 /*!
-    \fn QStringList QStringList::find(const QRegExp &rx) const
+    \fn QStringList QStringList::filter(const QRegExp &rx) const
 
     \overload
 
     Returns a list of all the strings that match the regular
     expression \a rx.
 */
-QStringList QtPrivate::QStringList_find(const QStringList *that, const QRegExp &rx)
+QStringList QtPrivate::QStringList_filter(const QStringList *that, const QRegExp &rx)
 {
     QStringList res;
     for (int i = 0; i < that->size(); ++i)
@@ -338,7 +338,7 @@ QStringList QtPrivate::QStringList_find(const QStringList *that, const QRegExp &
 */
 
 /*!
-    \fn QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
+    \fn QStringList &QStringList::replaceInStrings(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 
     Returns a string list where every string has had the \a before
     text replaced with the \a after text wherever the \a before text
@@ -355,8 +355,8 @@ QStringList QtPrivate::QStringList_find(const QStringList *that, const QRegExp &
 
     \sa QString::replace()
 */
-void QtPrivate::QStringList_replace(QStringList *that, const QString &before,
-                                            const QString &after, Qt::CaseSensitivity cs)
+void QtPrivate::QStringList_replaceInStrings(QStringList *that, const QString &before,
+                                             const QString &after, Qt::CaseSensitivity cs)
 {
     for (int i = 0; i < that->size(); ++i)
         (*that)[i].replace(before, after, cs);
@@ -396,7 +396,7 @@ void QtPrivate::QStringList_replace(QStringList *that, const QString &before,
 
     \sa replace()
 */
-void QtPrivate::QStringList_replace(QStringList *that, const QRegExp &rx, const QString &after)
+void QtPrivate::QStringList_replaceInStrings(QStringList *that, const QRegExp &rx, const QString &after)
 {
     for (int i = 0; i < that->size(); ++i)
         (*that)[i].replace(rx, after);

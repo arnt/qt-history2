@@ -1144,8 +1144,8 @@ void CppCodeParser::parseQiteratorDotH(const Location &location, const QString &
     text.remove("\r");
     text.replace("\\\n", "");
     QStringList lines = text.split("\n");
-    lines = lines.find("Q_DECLARE");
-    lines.replace(QRegExp("#define Q[A-Z_]*\\(C\\)"), "");
+    lines = lines.filter("Q_DECLARE");
+    lines.replaceInStrings(QRegExp("#define Q[A-Z_]*\\(C\\)"), "");
 
     if (lines.size() == 2) {
         linearIteratorDefinition = lines[0];

@@ -772,7 +772,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     // vallist is the broken up list of values
     QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
-    if(!vallist.find("=").isEmpty())
+    if(!vallist.filter("=").isEmpty())
         warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
                  var.latin1(), parser.file.latin1(), parser.line_no);
 
@@ -1003,7 +1003,7 @@ QMakeProject::read(uchar cmd)
         if(cmd & ReadFeatures) {
             debug_msg(1, "Processing default_pre: %s", vars["CONFIG"].join("::").latin1());
             if(doProjectInclude("default_pre", true, base_vars) == IncludeNoExist)
-                doProjectInclude("default", true, base_vars); 
+                doProjectInclude("default", true, base_vars);
         }
     }
 
@@ -1079,7 +1079,7 @@ QMakeProject::read(uchar cmd)
 
     if(cmd & ReadFeatures) {
         debug_msg(1, "Processing default_post: %s", vars["CONFIG"].join("::").latin1());
-        doProjectInclude("default_post", true, vars); 
+        doProjectInclude("default_post", true, vars);
         debug_msg(1, "Processing CONFIG features: %s", vars["CONFIG"].join("::").latin1());
         while(1) {
             const QStringList &configs = vars["CONFIG"];
@@ -1895,7 +1895,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     file = Option::fixPathToLocalOS(file);
 
                     bool singleLine = true;
-                    if(arg_list.count() > 1) 
+                    if(arg_list.count() > 1)
                         singleLine = (arg_list[1].toLower() == "true");
 
                     QFile qfile(file);
@@ -2048,7 +2048,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     char buff[256];
                     FILE *proc = QT_POPEN(arg_list[0].latin1(), "r");
                     bool singleLine = true;
-                    if(arg_list.count() > 1) 
+                    if(arg_list.count() > 1)
                         singleLine = (arg_list[1].toLower() == "true");
                     while(proc && !feof(proc)) {
                         int read_in = (int)fread(buff, 1, 255, proc);

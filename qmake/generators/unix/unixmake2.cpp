@@ -292,7 +292,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     }
                     if(!d_file.isEmpty()) {
                         d_file = odir + ".deps/" + d_file + ".d";
-                        QStringList deps = findDependencies((*it)).find(QRegExp(Option::cpp_moc_ext + "$"));
+                        QStringList deps = findDependencies((*it)).filter(QRegExp(Option::cpp_moc_ext + "$"));
                         if(!deps.isEmpty())
                             t << d_file << ": " << deps.join(" ") << endl;
                         t << "-include " << d_file << endl;

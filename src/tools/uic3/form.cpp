@@ -474,7 +474,7 @@ void Ui3Reader::writeFunctionsDecl(const QStringList &fuLst, const QStringList &
         type.replace(QLatin1String(">>"), QLatin1String("> >"));
         if (!signature.contains(QLatin1String("operator")))
             signature.replace(QLatin1String(">>"), QLatin1String("> >"));
-            
+
         signature = fixDeclaration(signature);
         type = fixType(type);
         out << "    " << specifier << type << " " << signature << pure << ";" << endl;
@@ -841,7 +841,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                     if (type != QLatin1String("void")) {
                         QStringList toks = type.split(QLatin1String(" "));
                         bool isBasicNumericType =
-                                (toks.find(numeric).count() == toks.count());
+                                (toks.filter(numeric).count() == toks.count());
 
                         if (type == QLatin1String("bool")) {
                             retVal = QLatin1String("false");
@@ -881,7 +881,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
 void Ui3Reader::createFormImpl(const QDomElement& e, const QString& form, const QString& connection, const QString& table)
 {
-    if (e.tagName() == QLatin1String("widget") 
+    if (e.tagName() == QLatin1String("widget")
             && e.attribute(QLatin1String("class")) != QLatin1String("QDataTable")) {
         QString field = getDatabaseInfo(e, QLatin1String("field"));
         if (!field.isEmpty()) {

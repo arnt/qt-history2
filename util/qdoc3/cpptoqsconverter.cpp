@@ -323,9 +323,9 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	}
 	result += ";";
     } else if ( coutRegExp.exactMatch(code) &&
-		program.find("var cout").isEmpty() ) {
+		program.filter("var cout").isEmpty() ) {
 	QStringList args = coutRegExp.cap(1).split(lshiftRegExp);
-	args.replace( endlRegExp, "\"\\n\"" );
+	args.replaceInStrings( endlRegExp, "\"\\n\"" );
 	if ( args.last() == "\"\\n\"" ) {
 	    args.erase( args.end() - 1 );
 	    if ( args.isEmpty() )

@@ -300,7 +300,7 @@ void QProcessPrivate::execChild()
 #else
         static const char *libraryPath = "LD_LIBRARY_PATH";
 #endif
-        QStringList matches = environment.find(QRegExp("^" + QByteArray(libraryPath) + "="));
+        QStringList matches = environment.filter(QRegExp("^" + QByteArray(libraryPath) + "="));
         char *envLibraryPath = ::getenv(libraryPath);
         if (matches.isEmpty() && envLibraryPath != 0) {
             QString entry = libraryPath;
