@@ -50,6 +50,7 @@ extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
 extern void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
 			    Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
 // paintevent magic to provide Windows semantics on Qt/Mac
@@ -1040,17 +1041,13 @@ inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 
 struct QMacPattern {
     bool as_mask;
     union {
-	QPixmap *pixmap;
+	const QPixmap *pixmap;
 	struct {
 	    uchar *bytes;
 	    uint pixels_per_line;
 	} mask;
     };
-    struct ImageConv {
-	CGImageRef image;
-	CGColorSpaceRef colorspace;
-	CGDataProviderRef provider;
-    } *im;
+    CGImageRef image;
 };
 static void qt_mac_draw_pattern(void *info, CGContextRef c)
 {
@@ -1058,44 +1055,27 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     int w = 0, h = 0;
     if(pat->as_mask) {
 	w = h = pat->mask.pixels_per_line;
-	if(!pat->im) {
-	    pat->im = new QMacPattern::ImageConv;
-	    pat->im->colorspace = 0;
-	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w, 0);
-	    pat->im->image = CGImageMaskCreate(w, h, 1, 1, w/8, pat->im->provider, 0, false);
+	if(!pat->image) {
+	    CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w*h, 0);
+	    pat->image = CGImageMaskCreate(w, h, 1, 1, w/8, provider, 0, false);
+	    CGDataProviderRelease(provider);
 	}
     } else {
 	w = pat->pixmap->width();
 	h = pat->pixmap->height();
-	if(!pat->im) {
-	    pat->im = new QMacPattern::ImageConv;
-	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
-	    uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pat->pixmap->handle()));
-	    pat->im->provider = CGDataProviderCreateWithData(0, GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pat->pixmap->handle())), bpl, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, pat->pixmap->depth(), bpl, pat->im->colorspace, kCGImageAlphaNoneSkipFirst,
-					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
-	}
+	if(!pat->image)
+	    pat->image = qt_mac_create_cgimage(*pat->pixmap, true);
     }
     CGRect rect = CGRectMake(0, 0, w, h);
-    HIViewDrawCGImage(c, &rect, pat->im->image); //HIViews render the way we want anyway, so just use the convenience..
+    HIViewDrawCGImage(c, &rect, pat->image); //HIViews render the way we want anyway, so just use the convenience..
 }
 
 static void qt_mac_dispose_pattern(void *info)
 {
     QMacPattern *pat = (QMacPattern*)info;
-    if(pat->im) {
-	if(pat->im->image)
-	    CGImageRelease(pat->im->image);
-	if(pat->im->colorspace)
-	    CGColorSpaceRelease(pat->im->colorspace);
-	if(pat->im->provider)
-	    CGDataProviderRelease(pat->im->provider);
-	delete pat->im;
-    }
-    if(!pat->as_mask)
-	delete pat->pixmap;
+    if(pat->image) 
+	CGImageRelease(pat->image);
     delete pat;
-    pat = NULL;
 }
 
 /*****************************************************************************
@@ -1248,10 +1228,10 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     if(bs != SolidPattern && bs != NoBrush) {
 	int width = 0, height = 0;
 	QMacPattern *qpattern = new QMacPattern;
-	qpattern->im = 0;
+	qpattern->image = 0;
 	if(bs == CustomPattern) {
 	    qpattern->as_mask = false;
-	    qpattern->pixmap = new QPixmap(*ps->brush.pixmap());
+	    qpattern->pixmap = ps->brush.pixmap();
 	    width = qpattern->pixmap->width();
 	    height = qpattern->pixmap->height();
 	} else {
@@ -1666,21 +1646,13 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     if(pm.isNull())
 	return;
     
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    const uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pm.handle()));
-    CGDataProviderRef provider = CGDataProviderCreateWithData(0, GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pm.handle())), bpl, 0);
-    CGImageRef image = CGImageCreate(pm.width(), pm.height(), 8, pm.depth(), bpl, colorspace, kCGImageAlphaNoneSkipFirst,
-				     provider, 0, 0, kCGRenderingIntentDefault);
-
+    CGImageRef image = qt_mac_create_cgimage(pm, false);
     CGContextSaveGState((CGContextRef)d->hd);
     QRegion rgn(r); qt_mac_clip_cg((CGContextRef)d->hd, rgn, 0);
     CGRect rect = CGRectMake(r.x()-sr.x(), r.y()-sr.y(), pm.width(), pm.height());
     HIViewDrawCGImage((CGContextRef)d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
     CGContextRestoreGState((CGContextRef)d->hd);
-
     CGImageRelease(image);
-    CGColorSpaceRelease(colorspace);
-    CGDataProviderRelease(provider);
 }
 
 Qt::HANDLE
@@ -1730,9 +1702,9 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGContextSaveGState((CGContextRef)d->hd);
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
-    qpattern->im = 0;
+    qpattern->image = 0;
     qpattern->as_mask = false;
-    qpattern->pixmap = new QPixmap(pixmap);
+    qpattern->pixmap = &pixmap;
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;

@@ -74,6 +74,7 @@ extern void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &); //qpixmap_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_nograb();
+CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
@@ -1192,22 +1193,10 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
 	    if(pixmap.isNull()) {
 		RestoreApplicationDockTileImage();
 	    } else {
-		QImage i = pixmap.convertToImage().convertDepth(32).smoothScale(40, 40);
-		for(int y = 0; y < i.height(); y++) {
-		    uchar *l = i.scanLine(y);
-		    for(int x = 0; x < i.width(); x+=4)
-			*(l+x) = 255;
-		}
-		CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-		CGDataProviderRef dp = CGDataProviderCreateWithData(0, i.bits(), i.numBytes(), 0);
-		CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32, i.bytesPerLine(),
-					      cs, kCGImageAlphaNoneSkipFirst, dp,
-					      0, 0, kCGRenderingIntentDefault);
-		//cleanup
+		QPixmap scaled_pixmap = pixmap.convertToImage().smoothScale(40, 40);
+		CGImageRef ir = qt_mac_create_cgimage(scaled_pixmap, true);
 		SetApplicationDockTileImage(ir);
 		CGImageRelease(ir);
-		CGColorSpaceRelease(cs);
-		CGDataProviderRelease(dp);
 	    }
 	}
 	SetWindowProxyIcon(qt_mac_window_for((HIViewRef)winId()), qt_mac_create_iconref(pixmap));
