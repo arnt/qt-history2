@@ -1161,7 +1161,11 @@ bool QPicture::QPicturePrivate::checkFormat()
 
 QDataStream &operator<<( QDataStream &s, const QPicture &r )
 {
-    s << (Q_UINT32)r.d->pictb.buffer().size();
+    Q_UINT32 size = r.d->pictb.buffer().size();
+    s << size;
+    // null picture ?
+    if ( size == 0 )
+	return s;
     // just write the whole buffer to the stream
     return s.writeRawBytes ( r.d->pictb.buffer().data(),
 			     r.d->pictb.buffer().size() );
@@ -1181,11 +1185,11 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     // "init"; this code is similar to the beginning of QPicture::cmd()
     sr.setDevice( &r.d->pictb );
     sr.setVersion( r.d->formatMajor );
-    QByteArray empty( 0 );
     Q_UINT32 len;
     s >> len;
     QByteArray data( len );
-    s.readRawBytes( data.data(), len );
+    if ( len > 0 )
+	s.readRawBytes( data.data(), len );
 
     r.d->pictb.setBuffer( data );
     r.d->resetFormat();
