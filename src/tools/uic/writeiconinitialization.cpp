@@ -14,6 +14,7 @@
 #include "writeicondata.h"
 #include "driver.h"
 #include "ui4.h"
+#include "utils.h"
 
 WriteIconInitialization::WriteIconInitialization(Driver *drv)
     : driver(drv), output(drv->output()), option(drv->option())
@@ -49,9 +50,20 @@ void WriteIconInitialization::accept(DomImages *images)
 
 void WriteIconInitialization::accept(DomImage *image)
 {
+    QString img = image->attributeName() + QLatin1String("_data");
+    QString data = image->elementData()->text();
+    QString fmt = image->elementData()->attributeFormat();
+
     QString imageId = image->attributeName() + "_ID";
+    QString imageData = image->attributeName() + "_data";
     QString ind = option.indent + option.indent;
-    output << ind << "case " << imageId
-           << ": return " << "QPixmap((const char**)" << image->attributeName() << "_data" << ");\n";
+
+    output << ind << "case " << imageId << ": ";
+
+    if (fmt == QLatin1String("XPM.GZ")) {
+        output << "return " << "QPixmap((const char**)" << imageData << ");\n";
+    } else {
+        output << " { QImage img; img.loadFromData(" << imageData << ", sizeof(" << imageData << "), " << fixString(fmt) << "); return img; }";
+    }
 }
 

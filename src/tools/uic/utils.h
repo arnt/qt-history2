@@ -18,4 +18,23 @@
 inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }
 
+inline QString fixString(const QString &str, bool encode=false)
+{
+    QString s;
+    if (!encode) {
+        s = str;
+        s.replace("\\", "\\\\");
+        s.replace("\"", "\\\"");
+        s.replace("\r", "");
+        s.replace("\n", "\\n\"\n\"");
+    } else {
+        QByteArray utf8 = str.utf8();
+        const int l = utf8.length();
+        for (int i = 0; i < l; ++i)
+            s += "\\x" + QString::number((uchar)utf8[i], 16);
+    }
+
+    return "\"" + s + "\"";
+}
+
 #endif

@@ -67,7 +67,7 @@ void WriteIconData::accept(DomImage *image)
     QString fmt = image->elementData()->attributeFormat();
     int size = image->elementData()->attributeLength();
 
-    if (fmt == "XPM.GZ") {
+    if (fmt == QLatin1String("XPM.GZ")) {
         ulong length = size;
         QByteArray baunzip = unzipXPM(data, length);
         length = baunzip.size();
@@ -94,7 +94,7 @@ void WriteIconData::accept(DomImage *image)
         }
         output << endl;
     } else {
-        output << option.indent << "static const unsigned " << img << "[] = { \n";
+        output << option.indent << "static const unsigned char " << img << "[] = { \n";
         output << option.indent;
         int a ;
         for (a = 0; a < (int) (data.length()/2)-1; a++) {
