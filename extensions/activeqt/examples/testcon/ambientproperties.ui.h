@@ -9,6 +9,8 @@
 **
 *****************************************************************************/
 
+#include <qworkspace.h>
+
 void AmbientProperties::init()
 {
     container = 0;
@@ -29,6 +31,17 @@ void AmbientProperties::backColor()
     QColor col = QColorDialog::getColor( backSample->paletteBackgroundColor(), this );
     backSample->setPaletteBackgroundColor( col );
     container->setPaletteBackgroundColor( col );
+
+    QWorkspace *ws = (QWorkspace*)container->qt_cast( "QWorkspace" );
+    if ( ws ) {
+	QWidgetList list( ws->windowList() );
+	QWidgetListIt it( list );
+	while ( it.current() ) {
+	    QWidget *widget = it.current();
+	    widget->setPaletteBackgroundColor( col );
+	    ++it;
+	}
+    }
 }
 
 void AmbientProperties::foreColor()
@@ -36,6 +49,17 @@ void AmbientProperties::foreColor()
     QColor col = QColorDialog::getColor( foreSample->paletteBackgroundColor(), this );
     foreSample->setPaletteBackgroundColor( col );
     container->setPaletteForegroundColor( col );
+
+    QWorkspace *ws = (QWorkspace*)container->qt_cast( "QWorkspace" );
+    if ( ws ) {
+	QWidgetList list( ws->windowList() );
+	QWidgetListIt it( list );
+	while ( it.current() ) {
+	    QWidget *widget = it.current();
+	    widget->setPaletteForegroundColor( col );
+	    ++it;
+	}
+    }
 }
 
 void AmbientProperties::pickFont()
@@ -46,6 +70,17 @@ void AmbientProperties::pickFont()
 	return;
     fontSample->setFont( f );
     container->setFont( f );
+
+    QWorkspace *ws = (QWorkspace*)container->qt_cast( "QWorkspace" );
+    if ( ws ) {
+	QWidgetList list( ws->windowList() );
+	QWidgetListIt it( list );
+	while ( it.current() ) {
+	    QWidget *widget = it.current();
+	    widget->setFont( f );
+	    ++it;
+	}
+    }
 }
 
 void AmbientProperties::toggleEnabled(bool on)

@@ -190,6 +190,7 @@ public:
 			      VARIANT *pVarResult, 
 			      EXCEPINFO *pExcepInfo, 
 			      UINT *puArgErr );
+    void emitAmbientPropertyChange( DISPID dispid );
 
 // IOleClientSite
     STDMETHOD(SaveObject)();
@@ -241,8 +242,8 @@ public:
     {
     }
 
-    void emitAmbientPropertyChange( DISPID dispid );
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 protected:
     void resizeEvent( QResizeEvent *e );
@@ -445,22 +446,41 @@ HRESULT QAxHostWindow::Invoke(DISPID dispIdMember,
 			      EXCEPINFO *pExcepInfo, 
 			      UINT *puArgErr )
 {
+    if ( !pVarResult )
+	return E_POINTER;
+
     switch( dispIdMember ) {
     case DISPID_AMBIENT_FONT:
 	pVarResult->vt = VT_DISPATCH;
 	pVarResult->pdispVal = QFontToIFont( widget->font() );
-	break;
+	return S_OK;
+
     case DISPID_AMBIENT_BACKCOLOR:
-	break;
+	pVarResult->vt = VT_UI4;
+	pVarResult->lVal = QColorToOLEColor( widget->paletteBackgroundColor() );
+	return S_OK;
+
     case DISPID_AMBIENT_FORECOLOR:
-	break;
+	pVarResult->vt = VT_UI4;
+	pVarResult->lVal = QColorToOLEColor( widget->paletteForegroundColor() );
+	return S_OK;
+
     case DISPID_AMBIENT_UIDEAD:
-	break;
+	pVarResult->vt = VT_BOOL;
+	pVarResult->boolVal = !widget->isEnabled();
+	return S_OK;
+
     default:
 	break;
     }
 
     return DISP_E_MEMBERNOTFOUND;
+}
+
+void QAxHostWindow::emitAmbientPropertyChange( DISPID dispid )
+{
+    if ( m_spOleControl )
+	m_spOleControl->OnAmbientPropertyChange( dispid );
 }
 
 //**** IOleClientSite
@@ -649,10 +669,28 @@ HRESULT QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
     return S_OK;
 }
 
-void QAxHostWindow::emitAmbientPropertyChange( DISPID dispid )
+//**** QWidget
+
+QSize QAxHostWindow::sizeHint() const
 {
-    if ( m_spOleControl )
-	m_spOleControl->OnAmbientPropertyChange( dispid );
+    return QSize( m_pxSize.cx, m_pxSize.cy );
+}
+
+QSize QAxHostWindow::minimumSizeHint() const
+{
+    if ( !m_spOleObject )
+	return QWidget::minimumSizeHint();
+
+    SIZE sz = { 0, 0 };
+    m_spOleObject->SetExtent( DVASPECT_CONTENT, &sz );
+    HRESULT res = m_spOleObject->GetExtent( DVASPECT_CONTENT, &sz );
+    if ( SUCCEEDED(res) ) {
+	QPaintDeviceMetrics pmetric( this );
+	return QSize( MAP_LOGHIM_TO_PIX( sz.cx, pmetric.logicalDpiX() ),
+		      MAP_LOGHIM_TO_PIX( sz.cy, pmetric.logicalDpiY() ) );
+    }
+
+    return QWidget::minimumSizeHint();
 }
 
 void QAxHostWindow::resizeEvent( QResizeEvent *e )
@@ -673,12 +711,6 @@ void QAxHostWindow::resizeEvent( QResizeEvent *e )
     if (m_bWindowless)
 	repaint( TRUE );
 }
-
-QSize QAxHostWindow::sizeHint() const
-{
-    return QSize( m_pxSize.cx, m_pxSize.cy );
-}
-
 
 /*!
     \class QAxWidget qaxwidget.h
@@ -759,6 +791,7 @@ bool QAxWidget::initialize( IUnknown **ptr )
 
     if ( !*ptr ) {
 	container->Release();
+	container = 0;
 	return FALSE;
     }
 
@@ -766,7 +799,7 @@ bool QAxWidget::initialize( IUnknown **ptr )
 	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
     ++hhookref;
     container->resize( size() );
-    container->show();    
+    container->show();
 
     setFocusPolicy( StrongFocus );
     if ( parentWidget() )
@@ -899,9 +932,6 @@ void QAxWidget::enabledChange( bool old )
 */
 QSize QAxWidget::sizeHint() const
 {
-    if ( isNull() )
-	return QWidget::sizeHint();
-
     if ( container ) {
 	QSize sh = container->sizeHint();
 	if ( sh.isValid() )
@@ -916,22 +946,10 @@ QSize QAxWidget::sizeHint() const
 */
 QSize QAxWidget::minimumSizeHint() const
 {
-    if ( isNull() )
-	return QWidget::minimumSizeHint();
-
-    IOleObject *ole = 0;
-    queryInterface( IID_IOleObject, (void**)&ole );
-    if ( ole ) {
-	SIZE sz = { -1, -1 };
-	ole->SetExtent( DVASPECT_CONTENT, &sz );
-	HRESULT res = ole->GetExtent( DVASPECT_CONTENT, &sz );
-	if ( SUCCEEDED(res) ) {
-	    ole->Release();
-	    QPaintDeviceMetrics pmetric( this );
-	    return QSize( MAP_LOGHIM_TO_PIX( sz.cx, pmetric.logicalDpiX() ),
-			  MAP_LOGHIM_TO_PIX( sz.cy, pmetric.logicalDpiY() ) );
-	}
-	ole->Release();
+    if ( container ) {
+	QSize sh = container->minimumSizeHint();
+	if ( sh.isValid() )
+	    return sh;
     }
 
     return QWidget::minimumSizeHint();
@@ -977,38 +995,6 @@ void QAxWidget::windowActivationChange( bool old )
 	inplace->OnFrameWindowActivate( isActiveWindow() );
 	inplace->Release();
     }
-}
-
-/*!
-    \reimp
-*/
-void QAxWidget::reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
-{
-    QWidget::reparent( parent, f, p, showIt );
-    QApplication::postEvent( this, new QEvent( QEvent::Reparent ) );
-
-    if ( container )
-	container->resize( size() );
-}
-
-/*!
-    \reimp
-*/
-bool QAxWidget::event( QEvent *e )
-{
-    switch( e->type() ) {
-    case QEvent::Reparent:
-	{
-	    QSize sz = size();
-	    resize( 0, 0 );
-	    resize( sz );
-	}
-	break;
-    default:
-	break;
-    }
-
-    return QWidget::event( e );
 }
 
 /*!

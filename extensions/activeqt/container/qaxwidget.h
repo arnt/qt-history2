@@ -54,11 +54,6 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    void reparent( QWidget *parent, WFlags f, const QPoint &, bool showIt = FALSE );
-    //void setAcceptDrops( bool on );
-    //bool customWhatsThis() const;
-    bool event( QEvent * );
-
 protected:
     bool initialize( IUnknown** );
 

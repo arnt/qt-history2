@@ -119,11 +119,10 @@ BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved )
     qAxInstance = hInstance;
     qAxIsServer = TRUE;
 
-    if ( dwReason == DLL_PROCESS_ATTACH || dwReason == DLL_THREAD_ATTACH ) {
+    if ( dwReason == DLL_PROCESS_ATTACH ) {
 	qt_win_use_simple_timers = TRUE;
 	qAxInit();
-
-    } else {
+    } else if ( dwReason == DLL_PROCESS_DETACH ) {
 	qAxCleanup();
     }
 
