@@ -165,15 +165,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	if ( !project->variables()["TMAKE_HPUX_SHLIB"].isEmpty() ) {
 	    t << "\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
 	      << "-mv $(TARGET) $(TARGET0) " << var("DESTDIR") << endl << endl;
 	} else {
 	    t << "\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET1)\n\t"
-	      << "-rm -f " << var("DESTDIR") << "$(TARGET2)\n\t"
 	      << "-mv $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2) " << var("DESTDIR") << endl << endl;
 	}
 	t << endl << endl;
