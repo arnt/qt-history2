@@ -2652,6 +2652,8 @@ void PropertyList::setupProperties()
 			if ( MetaDataBase::isPropertyChanged( editor->widget(), "vAlign" ) )
 			    item->setChanged( TRUE, FALSE );
 			item = new PropertyBoolItem( this, item, 0, "wordwrap" );
+			if ( w->inherits( "QGroupBox" ) )
+			    item->setVisible( FALSE );
 			setPropertyValue( item );
 			if ( MetaDataBase::isPropertyChanged( editor->widget(), "wordwrap" ) )
 			    item->setChanged( TRUE, FALSE );
