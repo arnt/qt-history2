@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#92 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -884,11 +884,11 @@ void QUriDrag::setUris( QStrList uris )
     QByteArray a;
     int c=0;
     for ( const char* s = uris.first(); s; s = uris.next() ) {
-	int l = strlen(s)+2;
-	a.resize(c+l);
+	int l = strlen(s);
+	a.resize(c+l+2);
 	memcpy(a.data()+c,s,l);
 	memcpy(a.data()+c+l,"\r\n",2);
-	c+=l;
+	c+=l+2;
     }
     setEncodedData(a);
 }
