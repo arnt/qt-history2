@@ -192,7 +192,10 @@ QColor::QColor(Qt::GlobalColor color)
     ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff)
 
     static const QRgb global_colors[] = {
-#if defined( Q_WS_X11 )
+#if defined(Q_WS_QWS)
+        QRGBA( 0,   0,   0, 0),  // Qt::color0
+        QRGBA(255, 255, 255, 255), // Qt::color1
+#elif defined( Q_WS_X11 )
         // HACK: we need a way to recognize Qt::color0 and Qt::color1 uniquely, so
         // that we can use Qt::color0 and Qt::color1 with fixed pixel values on
         // all screens

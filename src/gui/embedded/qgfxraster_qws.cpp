@@ -5620,7 +5620,7 @@ GFX_INLINE void QGfxRaster<depth,type>::useBrush()
         }
     } else
 #endif
-        pixel = cbrush.color().pixel();
+        pixel = cbrush.color().pixel() & 0x00ffffff;
 }
 
 /*
@@ -5650,7 +5650,7 @@ GFX_INLINE void QGfxRaster<depth,type>::usePen()
         }
     } else
 #endif
-        pixel = cpen.color().pixel();
+        pixel = cpen.color().pixel() & 0x00ffffff;
 }
 
 /*!
