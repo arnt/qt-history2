@@ -3288,8 +3288,10 @@ void QListView::setColumnText( int column, const QIconSet& iconset, const QStrin
 */
 void QListView::setColumnWidth( int column, int w )
 {
-    if ( column < d->h->count() && d->h->sectionSize( column ) != w ) {
-	d->h->resizeSection( column, w );
+    int oldw = d->h->sectionSize( column );
+    if ( column < d->h->count() && oldw != w ) {
+ 	d->h->resizeSection( column, w );
+	d->h->sizeChange( column, oldw, w);
 	viewport()->update();
     }
 }
@@ -7865,8 +7867,10 @@ void QListView::adjustColumn( int col )
     w = QMAX( w, QApplication::globalStrut().width() );
 
     d->h->adjustHeaderSize( oldw - w );
-    d->h->resizeSection( col, w );
-    d->h->sizeChange( col, oldw, w);
+    if (oldw != w) {
+	d->h->resizeSection( col, w );
+	d->h->sizeChange( col, oldw, w);
+    }
 }
 
 #endif // QT_NO_LISTVIEW
