@@ -2058,12 +2058,13 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     if ( titlebar ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
+	int iconSize = th - frameWidth() * 2;
 	if( childWidget->icon() ) {
 	    QPixmap pm(*childWidget->icon());
-	    if(pm.width() != 14 || pm.height() != 14) {
+	    if(pm.width() != iconSize || pm.height() != iconSize) {
 		QImage im;
 		im = pm;
-		pm = im.smoothScale( 14, 14 );
+		pm = im.smoothScale( iconSize, iconSize );
 	    }
 	    titlebar->setIcon( pm );
 	}
@@ -2601,8 +2602,17 @@ QWidget* QWorkspaceChild::iconWidget() const
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( windowWidget() ) {
 	iconw->setCaption( windowWidget()->caption() );
-	if ( windowWidget()->icon() )
-	    iconw->setIcon( *windowWidget()->icon() );
+	if ( windowWidget()->icon() ) {
+	    int iconSize = iconw->sizeHint().height() - frameWidth()*2;
+
+	    QPixmap pm(*childWidget->icon());
+	    if(pm.width() != iconSize || pm.height() != iconSize) {
+		QImage im;
+		im = pm;
+		pm = im.smoothScale( iconSize, iconSize );
+	    }
+	    iconw->setIcon( pm );
+	}
     }
 #endif
     return iconw->parentWidget();
