@@ -10,8 +10,6 @@
   function.
 
   To build the example, you must first build the
-  <a href=imageio.html>Qt Image IO Extension library</a>
-  and of course the
   <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/qtimage/</tt>
   and copy the resulting <tt>qtimage.so</tt> or <tt>npqtimage.dll</tt>
