@@ -1667,7 +1667,7 @@ void QString::truncate( uint newLen )
 
     This function always detaches the string from other references to
     the same data. If \a newLen is 0, then the string becomes empty
-    (but non-null).
+    (non-null).
 
     This function is useful for code that needs to build up a long
     string and wants to avoid repeated reallocation. In this example,
