@@ -111,6 +111,10 @@ void QThreadInstance::init(unsigned int stackSize)
     if ( ! qt_thread_mutexpool ) QThread::initialize();
 }
 
+void QThreadInstance::deinit()
+{
+    }
+
 unsigned int __stdcall QThreadInstance::start( void *_arg )
 {
     void **arg = (void **) _arg;
@@ -128,7 +132,7 @@ unsigned int __stdcall QThreadInstance::start( void *_arg )
 void QThreadInstance::finish( QThreadInstance *d )
 {
     if ( ! d ) {
-	#ifdef QT_CHECK_STATE
+#ifdef QT_CHECK_STATE
 	qWarning( "QThread: internal error: zero data for running thread." );
 #endif // QT_CHECK_STATE
 	return;
