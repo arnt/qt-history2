@@ -144,7 +144,11 @@ extern "C" {
 #  include <X11/extensions/Xrender.h>
 // #define QT_NO_XFTFREETYPE
 #  ifndef QT_NO_XFTFREETYPE
-#    include <X11/Xft/Xft.h>
+#    ifdef QT_USE_XFT2_HEADER
+#      include <X11/Xft/Xft2.h>
+#    else
+#      include <X11/Xft/Xft.h>
+#    endif // QT_USE_XFT2_HEADER
 #    if defined(XFT_VERSION) && XFT_VERSION >= 20000
 #      define QT_XFT2
 #    else

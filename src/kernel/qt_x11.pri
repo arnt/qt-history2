@@ -4,6 +4,7 @@ unix {
 	!xrender:DEFINES += QT_NO_XRENDER
 	!xftfreetype:DEFINES += QT_NO_XFTFREETYPE
 	!xkb:DEFINES += QT_NO_XKB
+	xft2header:DEFINES+=QT_USE_XFT2_HEADER
 	xftnameunparse:DEFINES += QT_NO_XFTNAMEUNPARSE
 	SOURCES += $$KERNEL_CPP/qtaddons_x11.cpp
 }
