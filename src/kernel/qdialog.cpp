@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#4 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#4 $";
 #endif
 
 
@@ -102,15 +102,19 @@ void QDialog::keyPressEvent( QKeyEvent *e )
     if ( e->state() == 0 ) {
 	switch ( e->key() ) {
 	    case Key_Enter:
+	    case Key_Return:
 		accept();
-		e->accept();
 		break;
 	    case Key_Escape:
 		reject();
-		e->accept();
 		break;
+	    default:
+		e->ignore();
+		return;
 	}
     }
+    else
+	e->ignore();
 }
 
 
