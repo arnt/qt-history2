@@ -5,7 +5,7 @@
 **
 ** Created : 970605
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -411,11 +411,19 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
 	result = *def;
 
     QFontDialog *dlg = new QFontDialog( parent, name, TRUE );
+
+    Q_CHECK_PTR( dlg );
     if ( def )
 	dlg->setFont( *def );
 #ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	dlg->setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
+	dlg->setIcon( *qApp->mainWidget()->icon() );
+
     dlg->setCaption( tr("Select Font") );
 #endif
+
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->font();
 	if ( ok )
