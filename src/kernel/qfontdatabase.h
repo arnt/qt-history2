@@ -39,6 +39,10 @@
 
 class QStringList;
 class QFontStylePrivate;
+class QtFontStyle;
+class QtFontCharSet;
+class QtFontFamily;
+class QtFontFoundry;
 
 class QFontDatabasePrivate;
 
@@ -103,6 +107,12 @@ public:
 
 private:
     static void createDatabase();
+
+    friend class QtFontStyle;
+    friend class QtFontCharSet;
+    friend class QtFontFamily;
+    friend class QtFontFoundry;
+    friend class QFontDatabasePrivate;
 
     QFontDatabasePrivate *d;
 

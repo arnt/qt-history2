@@ -35,7 +35,7 @@
 class QStringList;
 struct QFontDef;
 struct QFontData;
-class  QFontInternal;
+class QFontInternal;
 class QRenderedFont;
 
 
@@ -182,6 +182,7 @@ private:
     void       *textMetric() const;
 #endif
 
+    friend class QFontInternal;
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
