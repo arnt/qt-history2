@@ -378,9 +378,6 @@ void QGroupBox::addSpace( int size )
     if ( nCols <= 0 || nRows <= 0 )
 	return;
 
-    if ( row >= nRows || col >= nCols )
-	grid->expand( row+1, col+1 );
-
     if ( size > 0 ) {
 	QSpacerItem *spacer
 	    = new QSpacerItem( ( dir == Horizontal ) ? 0 : size,
