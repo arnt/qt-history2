@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#22 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#22 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -387,7 +387,7 @@ QImage QPixmap::convertToImage() const
 extern bool qt_image_did_turn_scanlines();	// defined in qpixmap.cpp
 
 
-bool QPixmap::convertFromImage( const QImage &img, int depth )
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -397,7 +397,7 @@ bool QPixmap::convertFromImage( const QImage &img, int depth )
     }
     QImage image = img;
     int	   d = image.depth();
-    bool   force_mono = (isQBitmap() || depth == 1);
+    bool   force_mono = (isQBitmap() || mode == Mono);
 
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
@@ -407,10 +407,10 @@ bool QPixmap::convertFromImage( const QImage &img, int depth )
     }
     else {					// can be both
 	bool conv8 = FALSE;
-	if ( depth > 1 )			// native depth wanted
+	if ( mode == Color )			// native depth wanted
 	    conv8 = d == 1;
 	else if ( d == 1 && image.numColors() == 2 ) {
-	    ulong c0 = image.color(0);		// convert to best
+	    ulong c0 = image.color(0);		// mode==Auto: convert to best
 	    ulong c1 = image.color(1);
 	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != QRGB(255,255,255);
 	}
