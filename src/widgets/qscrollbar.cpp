@@ -871,11 +871,27 @@ int QScrollBar::pageStep() const
     return QRangeControl::pageStep();
 }
 
+/*!
+  Sets the line step to \e i.
+
+  Calls the virtual stepChange() function if the new line step is
+  different from the previous setting.
+
+  \sa lineStep() QRangeControl::setSteps() setPageStep() setRange()
+*/
 void QScrollBar::setLineStep( int i )
 {
     setSteps( i, pageStep() );
 }
 
+/*!
+  Sets the page step to \e i.
+
+  Calls the virtual stepChange() function if the new page step is
+  different from the previous setting.
+
+  \sa pageStep() QRangeControl::setSteps() setLineStep() setRange()
+*/
 void QScrollBar::setPageStep( int i )
 {
     setSteps( lineStep(), i );
