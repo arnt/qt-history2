@@ -29,12 +29,6 @@
 #include "qstring.h"
 #endif // QT_H
 
-#if defined( Q_CC_GNU ) && defined(__i386__)
-#define FASTCALL __attribute__((regparm(3)))
-#else
-#define FASTCALL
-#endif
-
 namespace QUnicodeTables {
 
     // see http://www.unicode.org/reports/tr14/tr14-13.html
@@ -48,18 +42,18 @@ namespace QUnicodeTables {
         LineBreak_CB, LineBreak_SP
     };
 
-    Q_CORE_EXPORT QChar::Category category(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT unsigned char combiningClass(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::Direction direction(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::UnicodeVersion unicodeVersion(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::Joining joining(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT bool mirrored(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT int mirroredChar(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT int upper(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT int lower(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT int QUnicodeTables::digitValue(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT QString decomposition(uint ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::Decomposition decompositionTag(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(uint ucs4);
+    Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(uint ucs4);
+    Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(uint ucs4);
+    Q_CORE_EXPORT QChar::UnicodeVersion QT_FASTCALL unicodeVersion(uint ucs4);
+    Q_CORE_EXPORT QChar::Joining QT_FASTCALL joining(uint ucs4);
+    Q_CORE_EXPORT bool QT_FASTCALL mirrored(uint ucs4);
+    Q_CORE_EXPORT int QT_FASTCALL mirroredChar(uint ucs4);
+    Q_CORE_EXPORT int QT_FASTCALL upper(uint ucs4);
+    Q_CORE_EXPORT int QT_FASTCALL lower(uint ucs4);
+    Q_CORE_EXPORT int QT_FASTCALL digitValue(uint ucs4);
+    Q_CORE_EXPORT QString QT_FASTCALL decomposition(uint ucs4);
+    Q_CORE_EXPORT QChar::Decomposition QT_FASTCALL decompositionTag(uint ucs4);
 };
 
 

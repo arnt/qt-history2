@@ -647,7 +647,7 @@ typedef int QNoImplicitIntegralCast;
 # if defined(Q_MOC_RUN)
 #   define QT_MOC_COMPAT QT_MOC_COMPAT
 #else
-#   define QT_MOC_COMPAT 
+#   define QT_MOC_COMPAT
 #endif
 
 #if defined(QT_COMPAT_WARNINGS)
@@ -677,6 +677,18 @@ typedef int QNoImplicitIntegralCast;
 #  endif
 #else
 #  define QT_DEPRECATED
+#endif
+
+#ifdef __i386__
+#  if defined(Q_CC_GNU)
+#    define QT_FASTCALL __attribute__((regparm(3)))
+#  elif defined(Q_CC_MSVC)
+#    define QT_FASTCALL __fastcall
+#  else
+#     define QT_FASTCALL
+#  endif
+#else
+#  define QT_FASTCALL
 #endif
 
 
