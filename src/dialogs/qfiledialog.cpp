@@ -1419,9 +1419,8 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 			      currentItem() :
 			      itemAt( e->pos() );
 	if ( item ) {
-	    QUrl u( filedialog->url(), item->text( 0 ) );
 	    QUriDrag* drag = new QUriDrag( viewport() );
-	    drag->setUnicodeUris( u.toString() );
+	    drag->setUnicodeUris( filedialog->selectedFiles() );
 
 	    if ( lined->isVisible() )
 		cancelRename();
