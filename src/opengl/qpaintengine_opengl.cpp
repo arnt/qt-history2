@@ -41,12 +41,8 @@
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
-    QOpenGLPaintEnginePrivate()
-    {
-        dev = 0;
-    }
+    QOpenGLPaintEnginePrivate() : bgmode(Qt::TransparentMode) {}
 
-    QGLWidget *dev;
     QPen cpen;
     QBrush cbrush;
     QBrush bgbrush;
@@ -58,7 +54,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 #define d d_func()
 #define q q_func()
 
-#define dgl d->dev
+#define dgl ((QGLWidget *)(d->pdev))
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
@@ -79,10 +75,9 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
-    d->pdev = dgl = (QGLWidget *)(pdev);
+    d->pdev = pdev;
     dgl->setAutoBufferSwap(false);
     setActive(true);
-
     dgl->makeCurrent();
     dgl->qglClearColor(dgl->palette().brush(QPalette::Background));
     glClear(GL_COLOR_BUFFER_BIT);
