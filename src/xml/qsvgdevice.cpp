@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#41 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#42 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -77,17 +77,19 @@ public:
 
 enum ElementType {
     InvalidElement = 0,
-    CommentElement,
-    RectElement,
     CircleElement,
+    CommentElement,
+    DescElement,
     EllipseElement,
+    GroupElement,
+    ImageElement,
     LineElement,
     PolylineElement,
     PolygonElement,
     PathElement,
+    RectElement,
     TextElement,
-    ImageElement,
-    GroupElement
+    TitleElement
 };
 
 typedef QMap<QString,ElementType> QSvgTypeMap;
@@ -178,16 +180,18 @@ bool QSvgDevice::play( QPainter *painter )
 	ElementType type;
     } etab[] = {
 	{ "#comment", CommentElement  },
-        { "line",     LineElement     },
         { "circle",   CircleElement   },
+	{ "desc",     DescElement     },
         { "ellipse",  EllipseElement  },
-        { "rect",     RectElement     },
+	{ "g",        GroupElement    },
+        { "image",    ImageElement    },
+        { "line",     LineElement     },
         { "polyline", PolylineElement },
         { "polygon",  PolygonElement  },
         { "path",     PathElement     },
+        { "rect",     RectElement     },
         { "text",     TextElement     },
-        { "image",    ImageElement    },
-	{ "g",        GroupElement    },
+	{ "title",    TitleElement    },
 	{ 0,          InvalidElement  }
     };
     // initialize only once
@@ -661,12 +665,20 @@ bool QSvgDevice::play( const QDomNode &node )
 	    drawPath( attr.namedItem( "d" ).nodeValue() );
 	    break;
 	case TextElement:
-	    if ( child.firstChild().isText() ) {
-		QString text = child.firstChild().toText().nodeValue();
-		text = text.simplifyWhiteSpace(); // ### check for preserve
+	    {
 		x1 = lenToInt( attr, "x" );
 		y1 = lenToInt( attr, "y" );
-		pt->drawText( x1, y1, text );
+		QDomNode c = child.firstChild();
+		while ( !c.isNull() ) {
+		    if ( c.isText() ) {
+			QString text = c.toText().nodeValue();
+			w = pt->fontMetrics().width( text );
+			text = text.simplifyWhiteSpace(); // ### 'preserve'
+			pt->drawText( x1, y1, text );
+			x1 += w;
+		    }
+		    c = c.nextSibling();
+		}
 	    }
 	    break;
 	case ImageElement:
@@ -689,6 +701,10 @@ bool QSvgDevice::play( const QDomNode &node )
 		    pt->drawImage( x1, y1, img.smoothScale( w, h ) );
 		}
 	    }
+	    break;
+	case DescElement:
+	case TitleElement:
+	    // ignored for now
 	    break;
 	case InvalidElement:
 	    qWarning( "QSvgDevice::play: unknown element type " +
