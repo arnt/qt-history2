@@ -2122,16 +2122,75 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
     GFX_END
 }
 
+const double Q_PI   = 3.14159265358979323846;   // pi
+const double Q_2PI  = 6.28318530717958647693;   // 2*pi
+const double Q_PI2  = 1.57079632679489661923;   // pi/2
+
+double qsincos( double a, bool calcCos=FALSE )
+{
+    if ( calcCos )                              // calculate cosine
+	a -= Q_PI2;
+    if ( a >= Q_2PI || a <= -Q_2PI ) {          // fix range: -2*pi < a < 2*pi
+	int m = (int)(a/Q_2PI);
+	a -= Q_2PI*m;
+    }
+    if ( a < 0.0 )                              // 0 <= a < 2*pi
+	a += Q_2PI;
+    int sign = a > Q_PI ? -1 : 1;
+    if ( a >= Q_PI )
+	a = Q_2PI - a;
+    if ( a >= Q_PI2 )
+	a = Q_PI - a;
+    if ( calcCos )
+	sign = -sign;
+    double a2  = a*a;                           // here: 0 <= a < pi/4
+    double a3  = a2*a;                          // make taylor sin sum
+    double a5  = a3*a2;
+    double a7  = a5*a2;
+    double a9  = a7*a2;
+    double a11 = a9*a2;
+    return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
+}
+
+inline double qsin( double a ) { return qsincos(a,FALSE); }
+inline double qcos( double a ) { return qsincos(a,TRUE); }
+
+double qatan2( double y, double x )
+{
+    double r;
+    if ( x != 0.0 ) {
+	double a = fabs(y/x);
+	if ( a <= 1 )
+	    r = a/(1+ 0.28*a*a);
+	else
+	    r = Q_PI2 - a/(a*a + 0.28);
+    } else {
+	r = Q_PI2;
+    }
+
+    if ( y >= 0.0 ) {
+	if ( x >= 0.0 )
+	    return r;
+	else
+	    return Q_PI - r;
+    } else {
+	if ( x >= 0.0 )
+	    return Q_2PI - r;
+	else
+	    return Q_PI + r;
+    }
+}
+
 template <const int depth, const int type>
 void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
 {
     QPointArray pa(5);
     int w = cpen.width() - 1;
-    double a = atan2( y2 - y1, x2 - x1 );
-    double ix = cos(a) * w / 2;
+    double a = qatan2( y2 - y1, x2 - x1 );
+    double ix = qcos(a) * w / 2;
     if ( ix < 0.001 && ix > -0.001 )
 	ix = 0.0;
-    double iy = sin(a) * w / 2;
+    double iy = qsin(a) * w / 2;
     if ( iy < 0.001 && iy > -0.001 )
 	iy = 0.0;
 
@@ -2209,21 +2268,21 @@ void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int in
 	    continue;
 	drawThickLine( a[i].x(), a[i].y(), a[i+1].x(), a[i+1].y() );
 
-	double at = atan2( a[i+1].y() - a[i].y(),
+	double at = qatan2( a[i+1].y() - a[i].y(),
 			  a[i+1].x() - a[i].x() );
-	double ix1 = cos(at) * w / 2;
+	double ix1 = qcos(at) * w / 2;
 	if ( ix1 < 0.001 && ix1 > -0.001 )
 	    ix1 = 0.0;
-	double iy1 = sin(at) * w / 2;
+	double iy1 = qsin(at) * w / 2;
 	if ( iy1 < 0.001 && iy1 > -0.001 )
 	    iy1 = 0.0;
 
-	at = atan2( a[i+2].y() - a[i+1].y(),
+	at = qatan2( a[i+2].y() - a[i+1].y(),
 		a[i+2].x() - a[i+1].x() );
-	double ix2 = cos(at) * w / 2;
+	double ix2 = qcos(at) * w / 2;
 	if ( ix2 < 0.001 && ix2 > -0.001 )
 	    ix2 = 0.0;
-	double iy2 = sin(at) * w / 2;
+	double iy2 = qsin(at) * w / 2;
 	if ( iy2 < 0.001 && iy2 > -0.001 )
 	    iy2 = 0.0;
 
