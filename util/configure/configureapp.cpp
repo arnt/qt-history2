@@ -152,7 +152,7 @@ void Configure::buildModulesList()
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
 
-    licensedModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
+    licensedModules = QStringList::split( ' ', "compat styles tools kernel widgets dialogs iconview workspace" );
 
     QString products = licenseInfo[ "PRODUCTS" ];
     if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
@@ -1460,15 +1460,17 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
 	    QStringList segments = QStringList::split( QRegExp( "\\s" ), buffer );
 	    QStringList::Iterator it = segments.begin();
 
-	    QString keyword = (*it++);
-	    QString operation = (*it++);
-	    QString value = (*it++);
+	    if(segments.size() >= 3) {
+		QString keyword = (*it++);
+		QString operation = (*it++);
+		QString value = (*it++);
 
-	    if( keyword == "TEMPLATE" ) {
-		if( value == "lib" )
-		    return Lib;
-		else if( value == "subdirs" )
-		    return Subdirs;
+		if( keyword == "TEMPLATE" ) {
+		    if( value == "lib" )
+			return Lib;
+		    else if( value == "subdirs" )
+			return Subdirs;
+		}
 	    }
 	}
 	proFile.close();
