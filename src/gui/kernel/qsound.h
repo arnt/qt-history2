@@ -26,23 +26,7 @@ public:
     static void play(const QString& filename);
 
     QSound(const QString& filename, QObject* parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSound(const QString& filename, QObject* parent, const char* name);
-#endif
     ~QSound();
-
-    /* Coming soon...
-        ?
-    QSound(int hertz, Type type=Mono);
-    int play(const ushort* data, int samples);
-    bool full();
-    signal void notFull();
-        ?
-    */
-
-#ifdef QT_COMPAT
-    static inline QT_COMPAT bool available() { return isAvailable(); }
-#endif
 
     int loops() const;
     int loopsRemaining() const;
@@ -55,6 +39,11 @@ public slots:
     void play();
     void stop();
 
+public:
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QSound(const QString& filename, QObject* parent, const char* name);
+    static inline QT_COMPAT bool available() { return isAvailable(); }
+#endif
 private:
     QSoundData* d;
     friend class QAuServer;

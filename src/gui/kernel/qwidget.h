@@ -441,7 +441,6 @@ public:
     // Misc. functions
 
     QWidget *focusWidget() const;
-    // #### Find a reasonable name
     QWidget *nextInFocusChain() const;
 
     // drag and drop
