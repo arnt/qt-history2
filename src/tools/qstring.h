@@ -526,6 +526,7 @@ public:
     inline QCharRef operator=(int rc) { return operator=(QChar(rc)); }
 
     // each function...
+    inline bool operator!() const { return ((QChar)*this).isNull(); }
     inline bool isNull() const { return ((QChar)*this).isNull(); }
     inline bool isPrint() const { return ((QChar)*this).isPrint(); }
     inline bool isPunct() const { return ((QChar)*this).isPunct(); }
