@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#64 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#63 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#64 $")
 
 
 /*****************************************************************************
@@ -304,7 +304,7 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
   \class QByteArray qstring.h
   \brief The QByteArray class provides an array of bytes.
 
-  \inherits QArray
+  \inherit QArray
   \ingroup tools
 
   This class will be documented later.
