@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#37 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#37 $");
 
 
 /*****************************************************************************
@@ -200,7 +200,7 @@ uint QColor::alloc()
 }
 
 
-void QColor::setNamedColor( const char * )
+void QColor::setSystemNamedColor( const char * )
 {
 #if defined(DEBUG)
     warning( "QColor::setNamedColor: Named colors not supported" );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#57 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#57 $");
 
 
 /*****************************************************************************
@@ -497,15 +497,7 @@ uint QColor::alloc()
 }
 
 
-/*!
-  Sets the RGB value to that of the named color.
-
-  This function searches the X color database for the color and sets the
-  RGB value.  The color will be set to invalid if such a color does not
-  exist.
-*/
-
-void QColor::setNamedColor( const char *name )
+void QColor::setSystemNamedColor( const char *name )
 {
     bool ok = FALSE;
     if ( color_init	 ) {			// initialized

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#38 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#39 $
 **
 ** Definition of QColor class
 **
@@ -98,6 +98,7 @@ public:
     static void cleanup();
 
 private:
+    void   setSystemNamedColor( const char *name );
     static void initglobals();
     static bool ginit;
     static bool lalloc;

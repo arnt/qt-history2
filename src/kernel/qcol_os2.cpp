@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#12 $
 **
 ** Implementation of QColor class for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#12 $");
 
 
 /*****************************************************************************
@@ -94,16 +94,6 @@ bool QColor::alloc()				// allocate color
 {
     rgb &= RGB_MASK;
     return TRUE;
-}
-
-
-bool QColor::setNamedColor( const char * )	// load color from database
-{
-#if defined(DEBUG)
-    warning( "QColor::setNamedColor: Named colors currently unsupported" );
-#endif
-    pix = rgb = _RGB(0,0,0);
-    return FALSE;
 }
 
 
