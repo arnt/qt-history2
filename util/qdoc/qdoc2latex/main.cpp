@@ -435,7 +435,7 @@ static bool laTeXifyHeadings( QString& html, const QString& chapterLabel )
 
     QRegExp obsolete( QString("<br><small>\\[obsolete\\]</small>") );
     QRegExp module( QString("<br><small>\\[.*>([^ ]*) module</a>\\]</small>") );
-    QString tt( QString("\\\\texttt") );
+    QRegExp tt( QString("\\\\texttt") );
 
     int numH1 = 0;
 
