@@ -1438,6 +1438,8 @@ void QTextDocument::setPlainText( const QString &text )
 {
     clear();
     preferRichText = FALSE;
+    oTextValid = TRUE;
+    oText = text;
 
     int lastNl = 0;
     int nl = text.find( '\n' );
@@ -1565,6 +1567,8 @@ static QStyleSheetItem::ListStyle chooseListStyle( const QStyleSheetItem *nstyle
 
 void QTextDocument::setRichTextInternal( const QString &text )
 {
+    oTextValid = TRUE;
+    oText = text;
     QTextParag* curpar = lParag;
     int pos = 0;
     QValueStack<Tag> tags;
@@ -1874,8 +1878,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
 void QTextDocument::setText( const QString &text, const QString &context )
 {
-    oTextValid = TRUE;
-    oText = text;
     focusIndicator.parag = 0;
     selections.clear();
     if ( txtFormat == Qt::AutoText && QStyleSheet::mightBeRichText( text ) ||
@@ -5856,7 +5858,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 
     if ( f ) {
 	if ( f->font() != defaultFormat->font() ) {
-	    if ( font().family() != defaultFormat->font().family() 
+	    if ( font().family() != defaultFormat->font().family()
 		 || font().pointSize() != defaultFormat->font().pointSize()
 		 || color().rgb() != defaultFormat->color().rgb() )
 		tag += "</font>";
@@ -5886,7 +5888,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	    tag += "<u>";
     }
-    if ( font() != defaultFormat->font() 
+    if ( font() != defaultFormat->font()
 	 || color().rgb() != defaultFormat->color().rgb() ) {
 	QString f;
 	if ( font().family() != defaultFormat->font().family() )
@@ -5912,7 +5914,7 @@ QString QTextFormat::makeFormatEndTags() const
 
     QString tag;
     if ( font() != defaultFormat->font() ) {
-	if ( font().family() != defaultFormat->font().family() 
+	if ( font().family() != defaultFormat->font().family()
 	     || font().pointSize() != defaultFormat->font().pointSize()
 	     || color().rgb() != defaultFormat->color().rgb() )
 	    tag += "</font>";
