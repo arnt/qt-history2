@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#141 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#140 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#141 $")
 
 
 // --------------------------------------------------------------------------
@@ -2272,6 +2272,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    VXFORM_P( x, y );
     }
     if ( pixmap.depth() == 1 ) {		// bitmap
+	XSetBackground( dpy, gc, bg_col.pixel() );
 	XCopyPlane( dpy, pixmap.handle(), hd, gc, sx, sy,
 		    sw, sh, x, y, 1 );
 #if 0
