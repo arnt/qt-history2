@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#3 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#4 $
 **
 ** Definition of QSizePolicy class
 **
@@ -25,7 +25,7 @@
 #define QSIZEPOLICY_H
 
 
-class QSizeData
+class Q_EXPORT QSizeData
 {
 public:
     enum SizeType { NoShrink = 0, MayShrink = 0x04,
@@ -51,7 +51,7 @@ private:
 };
 
 
-class QSizePolicy
+class Q_EXPORT QSizePolicy
 {
 public:
     enum TriState { No=0, May=1, Yes=3 };
