@@ -59,7 +59,7 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
     if(def->weight == QFont::Bold)
 	face |= bold;
     ret->setStyle(face);
-	
+
     //size
     int logicalDpi = 80; //FIXME
     if(pdev) {
@@ -70,12 +70,12 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
 	ScreenRes(&hr, &vr);
 	logicalDpi = vr;
     }
-    int pointSize = ((def->pointSize != -1) ? (def->pointSize / 10) : (def->pixelSize * logicalDpi /72)); 
+    int pointSize = ((def->pointSize != -1) ? (def->pointSize / 10) : (def->pixelSize * logicalDpi /72));
     ret->setSize(pointSize);
 
     //encoding
     TextEncoding enc;
-    UpgradeScriptInfoToTextEncoding(FontToScript(mac_fe->fnum), kTextLanguageDontCare, 
+    UpgradeScriptInfoToTextEncoding(FontToScript(mac_fe->fnum), kTextLanguageDontCare,
 				    kTextRegionDontCare, NULL, &enc);
     ret->setEncoding(enc);
 
@@ -139,31 +139,31 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
 	feats++;
 	if(feats > feat_guess) //this won't really happen, just so I will not miss the case
 	    qDebug("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
-	if(OSStatus e = ATSUSetFontFeatures(st->style, feats, feat_types, feat_values)) 
+	if(OSStatus e = ATSUSetFontFeatures(st->style, feats, feat_types, feat_values))
 	    qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
     }
     ret->setATSUStyle(st);
     return ret;
 }
 
-bool 
+bool
 QMacSetFontInfo::setMacFont(const QFontEngine *fe, QMacSetFontInfo *sfi, QPaintDevice *pdev)
 {
     Q_ASSERT(fe->type() == QFontEngine::Mac);
     QFontEngineMac *mac_fe = (QFontEngineMac*)fe;
-    if(!mac_fe->internal_fi) 
+    if(!mac_fe->internal_fi)
 	mac_fe->internal_fi = createFontInfo(fe, &mac_fe->fdef, pdev);
     return setMacFont(mac_fe->internal_fi, sfi);
 }
 
-bool 
+bool
 QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi, QPaintDevice *pdev)
 {
     QFontEngine *eng = d->engineForScript( QFont::NoScript );
     Q_ASSERT( eng->type() == QFontEngine::Mac );
     QFontEngineMac *engine = (QFontEngineMac *) eng;
     QMacFontInfo *fi = engine->internal_fi;
-    if(!fi) 
+    if(!fi)
 	engine->internal_fi = fi = createFontInfo(engine, &d->request, pdev);
     return setMacFont(fi, sfi);
 }
@@ -189,7 +189,7 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
     UnicodeMapping mapping;
     UnicodeToTextInfo info;
     mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault,
-						  kTextEncodingDefaultVariant, 
+						  kTextEncodingDefaultVariant,
 						 kUnicode16BitFormat);
     mapping.otherEncoding = encoding;
     mapping.mappingVersion = kUnicodeUseLatestMapping;
@@ -199,7 +199,7 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
 	return;
     }
     const int unilen = len * 2;
-    const UniChar *unibuf = (UniChar *)s.unicode(); 
+    const UniChar *unibuf = (UniChar *)s.unicode();
     ConvertFromUnicodeToPString(info, unilen, unibuf, str);
     DisposeUnicodeToTextInfo(&info);
 }
@@ -416,12 +416,12 @@ void QFontPrivate::computeLineWidth()
     int nlw = (score) / 700;
 
     // looks better with thicker line for small pointsizes
-    if(nlw < 2 && score >= 1050) 
+    if(nlw < 2 && score >= 1050)
 	nlw = 2;
-    if(nlw == 0) 
+    if(nlw == 0)
 	nlw = 1;
 
-    if(nlw > lineWidth) 
+    if(nlw > lineWidth)
 	lineWidth = nlw;
 }
 #endif
@@ -432,7 +432,7 @@ void QFontPrivate::load( QFont::Script script )
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0 );
     Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
-#endif // QT_CHECK_STATE  
+#endif // QT_CHECK_STATE
 
     // ### how do we get 'px' on the mac?
     // int px = int( pixelSize( request, paintdevice, screen ) + .5 );
@@ -480,6 +480,63 @@ void QFontPrivate::load( QFont::Script script )
       the script.  However, on MacOSX, we don't do any font merging
       (meaning we only use one QFontEngine to draw ALL scripts).  This
       needs to be handled, but I am unsure how to do this.
+
+
+      pseudo code for the X11/Windows versions:
+
+...
+      family_list = request.family split on commas
+
+      family_list += substitutes list for each of the above
+
+      family_list += fallback font for the specified script (current unimplemented)
+
+      // for compatibility with previous versions
+      family_list += QApplication::font().defaultFamily();
+
+      // null family means find the first font matching the specified script
+      family_list += QString::null;
+
+      for each family while engine == 0 {
+          1. req.family = family;
+	  2. find the best matching font
+	  3. if ( ! no match ) continue;
+
+	  4. engine = look in cache
+	  5. if ( engine ) {
+	         if ( not a box-engine )
+		     break;
+		 if ( !family.isEmpty() ) {
+		     // don't accept the box engine, try the next family in the list
+		     engine = 0;
+		     continue;
+		 }
+	     }
+
+	  6. engine = load it
+
+	  7. if ( ! engine )
+	         engine = box-engine
+		 cache the box engine
+
+	         if ( family.isEmpty() ) {
+		     // don't accept the box engine, try the next family in the list
+		     engine = 0;
+		     continue;
+		 }
+	     } else {
+	         cache the loaded engine
+	     }
+
+	     a. not sure how to do this, or if it is even needed
+	     b. family.isEmpty() basically means that we are at the
+	        end of the family list
+      }
+
+      engine->ref();
+      engineData->engine = engine;
+...
+
     */
 
 
@@ -504,7 +561,7 @@ void QFontPrivate::load( QFont::Script script )
 	    fontCache->insert(k, qfs, 1);
 	}
 	qfs->ref();
-	if(fin) 
+	if(fin)
 	    fin->deref();
 	fin=qfs;
 	Q_ASSERT(fin->type() == QFontEngine::Mac);
@@ -514,7 +571,7 @@ void QFontPrivate::load( QFont::Script script )
 	    Str255 str;
 	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
 	    TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
-							kTextEncodingDefaultVariant, 
+							kTextEncodingDefaultVariant,
 							kTextEncodingDefaultFormat);
 	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
 #if 0
@@ -560,9 +617,9 @@ void QFontPrivate::load( QFont::Script script )
 	GetFontName(((QFontEngineMac*)fin)->fnum, font);
 	actual.family = p2qstring(font);
 
-	exactMatch = (actual.family == request.family && 
-		      (request.pointSize == -1 || (actual.pointSize == request.pointSize)) && 
-		      (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize))); 
+	exactMatch = (actual.family == request.family &&
+		      (request.pointSize == -1 || (actual.pointSize == request.pointSize)) &&
+		      (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize)));
     }
 
 #endif
@@ -571,14 +628,14 @@ void QFontPrivate::load( QFont::Script script )
 void QFont::initialize()
 {
     if(!QFontCache::instance)
-        new QFontCache(); 
+        new QFontCache();
     Q_CHECK_PTR(QFontCache::instance);
     if(qApp) {
 	Str255 f_name;
 	SInt16 f_size;
 	Style f_style;
 	GetThemeFont(kThemeApplicationFont, smSystemScript, f_name, &f_size, &f_style);
-	qApp->setFont(QFont(p2qstring(f_name), f_size, 
+	qApp->setFont(QFont(p2qstring(f_name), f_size,
 			    (f_style & ::bold) ? QFont::Bold : QFont::Normal,
 			    (bool)(f_style & ::italic)));
     }
