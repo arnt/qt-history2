@@ -12,12 +12,24 @@ static void blend_color_argb(ARGB *target, const QSpan *span, ARGB color)
         return;
 
     int alpha = qt_div_255(color.a * span->coverage);
+    int rev_alpha = 255 - alpha;
     int pr = alpha * color.r;
     int pg = alpha * color.g;
     int pb = alpha * color.b;
 
     for (int i = span->len; i > 0 ; --i) {
-        qt_blend_pixel_premul(pr, pg, pb, alpha, target);
+        int res_alpha = alpha + qt_div_255(rev_alpha * target->a);
+        target->a = res_alpha;
+        if (res_alpha == 255) {
+            qt_alpha_pixel_pm(pr, target->r, rev_alpha);
+            qt_alpha_pixel_pm(pg, target->g, rev_alpha);
+            qt_alpha_pixel_pm(pb, target->b, rev_alpha);
+        } else if (res_alpha != 0) {
+            int ra = rev_alpha * target->a;
+            target->r = (pr + qt_div_255(ra * target->r)) / res_alpha;
+            target->g = (pg + qt_div_255(ra * target->g)) / res_alpha;
+            target->b = (pb + qt_div_255(ra * target->b)) / res_alpha;
+        }
         ++target;
     }
 }
@@ -42,8 +54,8 @@ static void blend_color_rgb32(ARGB *target, const QSpan *span, ARGB color)
     }
 }
 
-static void blend_transformed_bilinear(ARGB *target, const QSpan *span, qreal ix, qreal iy, qreal dx, qreal dy,
-                                       ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span, qreal ix, qreal iy, qreal dx, qreal dy,
+                                            ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -100,10 +112,10 @@ static void blend_transformed_bilinear(ARGB *target, const QSpan *span, qreal ix
     }
 }
 
-static void blend_transformed_bilinear_tiled(ARGB *target,
-                                              const QSpan *span,
-                                              qreal ix, qreal iy, qreal dx, qreal dy,
-                                              ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_bilinear_tiled_argb(ARGB *target,
+                                                  const QSpan *span,
+                                                  qreal ix, qreal iy, qreal dx, qreal dy,
+                                                  ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -170,9 +182,9 @@ static void blend_transformed_bilinear_tiled(ARGB *target,
     }
 }
 
-static void blend_transformed(ARGB *target, const QSpan *span,
-                              qreal ix, qreal iy, qreal dx, qreal dy,
-                              ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_argb(ARGB *target, const QSpan *span,
+                                   qreal ix, qreal iy, qreal dx, qreal dy,
+                                   ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -201,9 +213,9 @@ static void blend_transformed(ARGB *target, const QSpan *span,
     }
 }
 
-static void blend_transformed_tiled(ARGB *target, const QSpan *span,
-                                    qreal ix, qreal iy, qreal dx, qreal dy,
-                                    ARGB *image_bits, int image_width, int image_height)
+static void blend_transformed_tiled_argb(ARGB *target, const QSpan *span,
+                                         qreal ix, qreal iy, qreal dx, qreal dy,
+                                         ARGB *image_bits, int image_width, int image_height)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -238,16 +250,16 @@ DrawHelper qDrawHelper[2] =
 {
     { // Layout_ARGB
         blend_color_argb,
-        blend_transformed,
-        blend_transformed_tiled,
-        blend_transformed_bilinear,
-        blend_transformed_bilinear_tiled
+        blend_transformed_argb,
+        blend_transformed_tiled_argb,
+        blend_transformed_bilinear_argb,
+        blend_transformed_bilinear_tiled_argb
     },
     { // Layout_RGB32
         blend_color_rgb32,
-        blend_transformed,
-        blend_transformed_tiled,
-        blend_transformed_bilinear,
-        blend_transformed_bilinear_tiled
+        blend_transformed_argb,
+        blend_transformed_tiled_argb,
+        blend_transformed_bilinear_argb,
+        blend_transformed_bilinear_tiled_argb
     }
 };
