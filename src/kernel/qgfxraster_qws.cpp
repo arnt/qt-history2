@@ -43,19 +43,6 @@
 
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
-#ifdef Q_CC_EDG_
-// Hacky workaround for KCC/linux include files.
-// Fine! But could you please explain what actually happens here?
-typedef __signed__ char __s8;
-typedef unsigned char __u8;
-
-typedef __signed__ short __s16;
-typedef unsigned short __u16;
-
-typedef __signed__ int __s32;
-typedef unsigned int __u32;
-#endif
-
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt( unsigned int n );
 
