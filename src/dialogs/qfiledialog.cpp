@@ -1032,6 +1032,31 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
 	 renaming )
 	return;
 
+    QString keyPressed = ((QKeyEvent *)e)->text().lower();
+    QChar keyChar = keyPressed[0];
+    if ( keyChar.isLetterOrNumber() ) {
+        QListBoxItem * i = 0;
+        if ( currentItem() )
+        i = item( currentItem() );
+        else
+        i = firstItem();
+        if ( i->next() )
+        i = i->next();
+        else
+        i = firstItem();
+        while ( i != item( currentItem() ) ) {
+            QString it = text( index( i ) );
+            if ( it[0].lower() == keyChar ) {
+            clearSelection();
+            setCurrentItem( i );
+            } else {
+            if ( i->next() )
+            i = i->next();
+            else
+            i = firstItem();
+            }
+        }
+    }
     cancelRename();
     QListBox::keyPressEvent( e );
 }
@@ -1422,6 +1447,34 @@ void QFileListView::keyPressEvent( QKeyEvent *e )
 	   e->key() == Key_Return ) &&
 	 renaming )
 	return;
+
+    QString keyPressed = e->text().lower();
+    QChar keyChar = keyPressed[0];
+    if ( keyChar.isLetterOrNumber() ) {
+        QListViewItem * i = 0;
+        if ( currentItem() )
+        i = currentItem();
+        else
+        i = firstChild();
+        if ( i->nextSibling() )
+        i = i->nextSibling();
+        else
+        i = firstChild();
+        while ( i != currentItem() ) {
+            QString it = i->text(0);
+            if ( it[0].lower() == keyChar ) {
+            clearSelection();
+            ensureItemVisible( i );
+            setCurrentItem( i );
+            } else {
+            if ( i->nextSibling() )
+            i = i->nextSibling();
+            else
+            i = firstChild();
+            }
+        }
+        return;
+    }
 
     cancelRename();
     QListView::keyPressEvent( e );
