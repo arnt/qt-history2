@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#2 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#3 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -9,8 +9,10 @@
 *****************************************************************************/
 
 #include "frame.h"
+#include "graph.h"
 
 #include <qapplication.h>
+#include <qimage.h>
 #include <qwindowsstyle.h>
 #include <qtabwidget.h>
 
@@ -20,7 +22,10 @@ int main( int argc, char **argv )
 
     Frame frame;
 
-    QPixmap pix( "../listboxcombo/qtlogo.png" );
+    QImage img( "../listboxcombo/qtlogo.png" );
+    QPixmap pix;
+    pix.convertFromImage( img.smoothScale( 48, 48 ) );
+    
 
     // example 1
     QTabWidget *tab = new QTabWidget();
@@ -36,9 +41,9 @@ int main( int argc, char **argv )
 
     // example 3
     tab = new QTabWidget();
-    w = new QWidget( tab );
-    tab->addTab( w, "Animation" );
-    frame.addCategory( tab, pix, "Animation" );
+    w = new GraphWidget( tab );
+    tab->addTab( w, "Graph Drawing" );
+    frame.addCategory( tab, pix, "2D Graphics" );
 
     a.setMainWidget( &frame );
     frame.show();

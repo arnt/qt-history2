@@ -281,7 +281,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     w->setGeometry( invisible->geometry() );
     w->show();
-    QApplication::sendPostedEvents( w, QEvent::ShowWindowRequest );
+    //QApplication::sendPostedEvents( w, QEvent::ShowWindowRequest );
 }
 
 
