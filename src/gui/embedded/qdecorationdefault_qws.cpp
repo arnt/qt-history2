@@ -583,7 +583,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
 
         if ((paintAll || decorationRegion & Maximize) && hasMaximize) {
             paintButton(painter, widget,
-                        (widget->testAttribute(Qt::WA_WState_Maximized) ? Normalize : Maximize),
+                        ((widget->windowState() & Qt::WindowMaximized)? Normalize : Maximize),
                         state, pal);
             handled |= true;
         }

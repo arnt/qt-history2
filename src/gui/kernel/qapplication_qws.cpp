@@ -239,8 +239,8 @@ class QWSKeyEvent;
 class QETWidget : public QWidget                 // event translator widget
 {
 public:
-    void setAttribute(Qt::WState f) { QWidget::setAttribute(f); }
-    void setAttribute(Qt::WState f, false) { QWidget::setAttribute(f, false); }
+//    void setAttribute(Qt::WState f) { QWidget::setAttribute(f); }
+//    void setAttribute(Qt::WState f, false) { QWidget::setAttribute(f, false); }
     void setWFlags(Qt::WFlags f) { QWidget::setWFlags(f); }
     void clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);

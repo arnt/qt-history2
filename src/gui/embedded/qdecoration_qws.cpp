@@ -155,14 +155,14 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 void QDecoration::buildSysMenu(QWidget *widget, QMenu *menu)
 {
     QDecorationAction *act = new QDecorationAction("Restore", menu, Maximize);
-    act->setEnabled(widget->testAttribute(Qt::WA_WState_Maximized));
+    act->setEnabled(widget->windowState() & Qt::WindowMaximized);
     menu->addAction(act);
     menu->addAction(new QDecorationAction("Move", menu, Move));
     menu->addAction(new QDecorationAction("Size", menu, Resize));
     act = new QDecorationAction("Minimize", menu, Minimize);
     menu->addAction(act);
     act = new QDecorationAction("Maximize", menu, Maximize);
-    act->setDisabled(widget->testAttribute(Qt::WA_WState_Maximized));
+    act->setDisabled(widget->windowState() & Qt::WindowMaximized);
     menu->addAction(act);
     menu->addSeparator();
     menu->addAction(new QDecorationAction("Close", menu, Close));
@@ -198,7 +198,7 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
             widget->close();
             break;
         case Maximize:
-            if (widget->testAttribute(Qt::WA_WState_Maximized))
+            if (widget->windowState() & Qt::WindowMaximized)
                 widget->showNormal();
             else
                 widget->showMaximized();
@@ -211,7 +211,7 @@ void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
     switch(reg)
     {
         case Title: {
-            if (widget->testAttribute(Qt::WA_WState_Maximized))
+            if (widget->windowState() & Qt::WindowMaximized)
                 widget->showNormal();
             else
                 widget->showMaximized();

@@ -350,7 +350,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
 #endif
 
     WId old_winid = data.winid;
-    if (testWFlags(Qt::WType_Desktop))
+    if (q->testWFlags(Qt::WType_Desktop))
         old_winid = 0;
 
     if (!q->isTopLevel() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_WState_Created))
@@ -870,7 +870,7 @@ void QWidget::repaint(const QRegion& rgn)
 
 void QWidgetPrivate::show_sys()
 {
-    if (testWFlags(Qt::WType_TopLevel)) {
+    if (q->testWFlags(Qt::WType_TopLevel)) {
         updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
         QRegion r(data.req_region);
 #ifndef QT_NO_QWS_MANAGER
@@ -881,11 +881,11 @@ void QWidgetPrivate::show_sys()
         }
 #endif
         q->qwsDisplay()->requestRegion(data.winid, r);
-        if (!testWFlags(Qt::WStyle_Tool)) {
+        if (!q->testWFlags(Qt::WStyle_Tool)) {
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
-                testWFlags(Qt::WStyle_StaysOnTop) ? 1 : 0, true);
+                q->testWFlags(Qt::WStyle_StaysOnTop) ? 1 : 0, true);
 
     } else if (!q->topLevelWidget()->data->in_show) {
         updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
@@ -905,7 +905,7 @@ void QWidgetPrivate::hide_sys()
     if (data.req_region.isEmpty())        // Already invisible?
         return;
 
-    if (testWFlags(Qt::WType_TopLevel)) {
+    if (q->testWFlags(Qt::WType_TopLevel)) {
         q->releaseMouse();
         q->qwsDisplay()->requestRegion(data.winid, QRegion());
         q->qwsDisplay()->requestFocus(data.winid,false);
@@ -939,7 +939,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         d->createTLExtra();
         if (oldstate == Qt::WindowNoState) { //normal
             d->topData()->normalGeometry = geometry();
-        } else if (oldstate & Qt::WA_WState_FullScreen) {
+        } else if (oldstate & Qt::WindowFullScreen) {
             setParent(0, d->topData()->savedFlags);
             needShow = true;
         } else if (oldstate & Qt::WindowMinimized) {
@@ -1086,15 +1086,15 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
 
     if (!data.in_set_window_state) {
-        q->setAttribute(Qt::WA_WState_Maximized, false);
-        q->setAttribute(Qt::WA_WState_FullScreen, false);
+        q->data->window_state &= ~Qt::WindowMaximized;
+        q->data->window_state &= ~Qt::WindowFullScreen;
         if (q->isTopLevel())
             topData()->normalGeometry = QRect(0, 0, -1, -1);
     }
     QPoint oldPos = q->pos();
     data.crect = r;
 
-    if (testWFlags(Qt::WType_Desktop))
+    if (q->testWFlags(Qt::WType_Desktop))
         return;
 
     if (q->isTopLevel()) {
@@ -1517,7 +1517,7 @@ void QWidgetPrivate::updateOverlappingChildren() const
 void QWidgetPrivate::updateRequestedRegion(const QPoint &gpos)
 {
     if (!q->isTopLevel()) {
-        if (!testAttribute(Qt::WA_WState_Visible)) {
+        if (!q->testAttribute(Qt::WA_WState_Visible)) {
             data.req_region = QRegion();
         } else {
             data.req_region = QRect(gpos,data.crect.size());
