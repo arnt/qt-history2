@@ -95,7 +95,7 @@ inline int QStringList::indexOf(const QRegExp &rx, int from) const
    if (from < 0)
        from = qMax(from + size(), 0);
    for (int i = from; i < size(); ++i) {
-        if (at(i).contains(rx))
+        if (rx.exactMatch(at(i)))
             return i;
     }
     return -1;
@@ -108,7 +108,7 @@ inline int QStringList::lastIndexOf(const QRegExp &rx, int from) const
     else if (from >= size())
         from = size() - 1;
     for (int i = from; i >= 0; --i) {
-        if (at(i).contains(rx))
+        if (rx.exactMatch(at(i)))
             return i;
         }
     return -1;

@@ -450,3 +450,32 @@
     QStringList::ConstIterator i = list.isEmpty() ? list.end() : --list.end();
     \endcode
 */
+
+
+#ifndef QT_NO_REGEXP
+/*!
+    \fn int QStringList::indexOf(const QRegExp &rx, int from) const
+
+    \overload
+
+    Returns the index position of the first exact match of \a rx in
+    the list, searching forward from index position \a from. Returns
+    -1 if no item matched.
+
+    \sa lastIndexOf, QRegExp::exactMatch
+*/
+
+/*!
+    \fn int QStringList::lastIndexOf(const QRegExp &rx, int from) const
+
+    \overload
+
+    Returns the index position of the last exact match of \a rx in
+    the list, searching backward from index position \a from. If \a
+    from is -1 (the default), the search starts at the last item.
+    Returns -1 if no item matched.
+
+    \sa indexOf, QRegExp::exactMatch
+*/
+
+#endif
