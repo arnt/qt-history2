@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#34 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#34 $")
 
 
 /*****************************************************************************
@@ -724,7 +724,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
     bool result = TRUE;
 
     if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
-	if ( !widget->isDisabled() ) {
+	if ( widget->isEnabled() ) {
 	    if ( message == WM_LBUTTONDOWN )
 		widget->setFocus();
 	    widget->translateMouseEvent( msg ); // mouse event
@@ -743,7 +743,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 		widget = (QETWidget*)w;
 	    else if ( qApp->focusWidget() )
 		widget = (QETWidget*)qApp->focusWidget();
-	    if ( !widget->isDisabled() )
+	    if ( widget->isEnabled() )
 		widget->translateKeyEvent( msg );
 	    }
 	    break;
@@ -1480,7 +1480,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    else
 		SetWindowText( id(), caption() );
 	}
-	else if ( !testWFlags(WType_Overlap) )	// manual redraw
+	else if ( !testWFlags(WType_TopLevel) )	// manual redraw
 	    update();
     }
     else if ( msg.message == WM_MOVE ) {	// move event
