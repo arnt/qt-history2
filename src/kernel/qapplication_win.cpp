@@ -955,7 +955,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	style = CS_DBLCLKS;
 #endif
 	icon  = TRUE;
-    } else if ( (flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0 ) {
+    } else if ( ((Qt::WType_Popup|Qt::WStyle_Tool) & flags) == 0 ) {
 	cname = "QWidget";
 	style = CS_DBLCLKS;
 	icon  = TRUE;
