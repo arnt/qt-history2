@@ -289,7 +289,8 @@ QFileInfo::operator==(const QFileInfo &fileinfo)
 {
     if(fileinfo.d->data == d->data)
         return true;
-    Q_ASSERT(d->data->fileEngine && fileinfo.d->data->fileEngine);
+    if(!d->data->fileEngine || !fileinfo.d->data->fileEngine)
+        return false;
     if(d->data->fileEngine->type() != fileinfo.d->data->fileEngine->type() ||
        d->data->fileEngine->caseSensitive() != fileinfo.d->data->fileEngine->caseSensitive())
         return false;
