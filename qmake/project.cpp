@@ -39,13 +39,70 @@ struct parser_info {
     bool from_file;
 } parser;
 
-struct QMakeProject::ScopeIterator
+//just a parsable entity
+struct QMakeProject::ParsableBlock
 {
+    ParsableBlock() { }
+
     struct Parse {
         QString text;
         parser_info pi;
         Parse(const QString &t) : text(t){ pi = ::parser; }
     };
+    QList<Parse> parser;
+
+protected:
+    virtual bool continueBlock() = 0;
+    bool eval(QMakeProject *p);
+};
+
+bool QMakeProject::ParsableBlock::eval(QMakeProject *p)
+{
+    bool ret = true;
+    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); ++parse_it) {
+        ::parser = (*parse_it).pi;
+        if(!(ret = p->parse((*parse_it).text, p->variables())) || continueBlock())
+            break;
+    }
+    return ret;
+}
+
+
+//defined functions
+struct QMakeProject::FunctionBlock : public QMakeProject::ParsableBlock
+{
+    FunctionBlock() : scope_level(1), cause_return(false) { }
+
+    int scope_level;
+    bool cause_return;
+
+    bool exec(QMakeProject *p, const QStringList &args);
+    virtual bool continueBlock() { return !cause_return; }
+
+protected:
+    bool eval(QMakeProject *p);
+};
+
+bool QMakeProject::FunctionBlock::exec(QMakeProject *p, const QStringList &args)
+{
+    QList<QStringList> va;
+    for(int i = 0; i < args.count(); i++) {
+        va.append(p->variables()[QString::number(i)]);
+        p->variables()[QString::number(i)] = args[i];
+    }
+    bool ret = QMakeProject::ParsableBlock::eval(p);
+    for(int i = 0; i < va.count(); i++) 
+        p->variables()[QString::number(i)] = va[i];
+    return ret;
+}
+
+//loops
+struct QMakeProject::IteratorBlock : public QMakeProject::ParsableBlock
+{
+    IteratorBlock() : scope_level(1), loop_forever(false), cause_break(false), cause_next(false) { }
+
+    int scope_level;
+
     struct Test {
         QString func;
         QStringList args;
@@ -53,18 +110,17 @@ struct QMakeProject::ScopeIterator
         parser_info pi;
         Test(const QString &f, QStringList &a, bool i) : func(f), args(a), invert(i) { pi = ::parser; }
     };
-    ScopeIterator() : scope_level(1), loop_forever(false), cause_break(false) { }
-    bool exec(QMakeProject *p);
-
-    int scope_level;
     QList<Test> test;
-    QList<Parse> parser;
+
     QString variable;
 
     bool loop_forever, cause_break, cause_next;
     QStringList list;
+
+    bool exec(QMakeProject *p);
+    virtual bool continueBlock() { return !cause_next && !cause_break; }
 };
-bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
+bool QMakeProject::IteratorBlock::exec(QMakeProject *p)
 {
     bool ret = true;
     QStringList::Iterator it;
@@ -99,14 +155,8 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
             if(!succeed)
                 break;
         }
-        if(succeed) {
-            for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end();
-                ++parse_it) {
-                ::parser = (*parse_it).pi;
-                if(!(ret = p->parse((*parse_it).text, p->variables())) || cause_break || cause_next)
-                    break;
-            }
-        }
+        if(succeed) 
+            ret = QMakeProject::ParsableBlock::eval(p);
         //restore the variable in the map
         if(!variable.isEmpty())
             p->variables()[variable] = va;
@@ -120,6 +170,7 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
     //restore state
     ::parser = pi;
     p->iterator = 0;
+    p->function = 0;
     return ret;
 }
 QMakeProject::ScopeBlock::~ScopeBlock()
@@ -298,6 +349,7 @@ void
 QMakeProject::init(QMakeProperty *p)
 {
     iterator = 0;
+    function = 0;
     if(!p) {
         prop = new QMakeProperty;
         own_prop = true;
@@ -314,6 +366,7 @@ QMakeProject::reset()
     scope_blocks.clear();
     scope_blocks.push(ScopeBlock());
     iterator = 0;
+    function = 0;
 }
 
 bool
@@ -356,7 +409,32 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         }
     }
 
-    if(ScopeIterator *it = scope_blocks.top().iterate) {
+    if(function) {
+        QString append;
+        const char *d = s.latin1();
+        bool function_finished = false;
+        while(*d) {
+            if((*d) == '}') {
+                function->scope_level--;
+                if(!function->scope_level) {
+                    function_finished = true;
+                    break;
+                }
+            } else if((*d) == '{') {
+                function->scope_level++;
+            }
+            append += *d;
+            d++;
+        }
+        if(!append.isEmpty())
+            function->parser.append(IteratorBlock::Parse(append));
+        if(function_finished) {
+            function = 0;
+            s = QString(d);
+        } else {
+            return true;
+        }
+    } else if(IteratorBlock *it = scope_blocks.top().iterate) {
         QString append;
         const char *d = s.latin1();
         bool iterate_finished = false;
@@ -374,7 +452,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             d++;
         }
         if(!append.isEmpty())
-            scope_blocks.top().iterate->parser.append(ScopeIterator::Parse(append));
+            scope_blocks.top().iterate->parser.append(IteratorBlock::Parse(append));
         if(iterate_finished) {
             scope_blocks.top().iterate = 0;
             bool ret = it->exec(this);
@@ -392,7 +470,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 #define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
-    ScopeIterator *iterator = 0;
+    IteratorBlock *iterator = 0;
     bool scope_failed = false, else_line = false, or_op=false, start_scope=false;
     char quote = 0;
     int parens = 0, scope_count=0;
@@ -468,14 +546,18 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                             if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
                                 tmp = tmp.mid(1, tmp.length() - 2);
                         }
-                        if(func == "for") { //for is a builtin function here, as it modifies state
+                        if(function) {
+                            fprintf(stderr, "%s:%d: No tests can come after a function definition!\n",
+                                    parser.file.latin1(), parser.line_no);
+                            return false;
+                        } else if(func == "for") { //for is a builtin function here, as it modifies state
                             if(args.count() > 2 || args.count() < 1) {
                                 fprintf(stderr, "%s:%d: for(iterate, list) requires two arguments.\n",
                                         parser.file.latin1(), parser.line_no);
                                 return false;
                             }
 
-                            iterator = new ScopeIterator;
+                            iterator = new IteratorBlock;
                             QString it_list;
                             if(args.count() == 1) {
                                 it_list = doVariableReplace(args[0], place);
@@ -518,8 +600,17 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                             iterator->list = list;
                             test = !invert_test;
                         } else if(iterator) {
-                            iterator->test.append(ScopeIterator::Test(func, args, invert_test));
+                            iterator->test.append(IteratorBlock::Test(func, args, invert_test));
                             test = !invert_test;
+                        } else if(func == "define") {
+                            if(args.count() != 1) {
+                                fprintf(stderr, "%s:%d: define(function_name) requires one arguments.\n",
+                                        parser.file.latin1(), parser.line_no);
+                                return false;
+                            }
+                            function = new FunctionBlock;
+                            functions.insert(args[0], function);
+                            test = true;
                         } else {
                             test = doProjectTest(func, args, place);
                             if(*d == ')' && !*(d+1)) {
@@ -1464,6 +1555,8 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         if(func == "error")
             exit(2);
         return true;
+    } else if(FunctionBlock *defined = functions[func]) {
+        defined->exec(this, args);
     } else {
         fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.latin1(), parser.line_no,
                 func.latin1());

@@ -24,23 +24,24 @@ class QMakeProperty;
 
 class QMakeProject
 {
-    struct ScopeIterator;
-    friend struct ScopeIterator;
-    struct ScopeBlock;
-    friend struct ScopeBlock;
-
+    struct ParsableBlock;
+    struct IteratorBlock;
+    struct FunctionBlock;
     struct ScopeBlock
     {
         enum TestStatus { TestNone, TestFound, TestSeek };
         ScopeBlock() : iterate(0), ignore(false), else_status(TestNone) { }
         ScopeBlock(bool i) : iterate(0), ignore(i), else_status(TestNone) { }
         ~ScopeBlock();
-        ScopeIterator *iterate;
+        IteratorBlock *iterate;
         uint ignore : 1, else_status : 2;
     };
+    friend struct ParsableBlock;
 
     QStack<ScopeBlock> scope_blocks;
-    ScopeIterator *iterator;
+    IteratorBlock *iterator;
+    FunctionBlock *function;
+    QMap<QString, FunctionBlock*> functions;
 
     bool own_prop;
     QString pfile, cfile;
@@ -57,7 +58,7 @@ class QMakeProject
         IncludeParseFailure
     };
     IncludeStatus doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
-                          const QString &seek_var=QString::null);
+                                   const QString &seek_var=QString::null);
     bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
     bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
