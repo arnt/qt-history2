@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#12 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#12 $";
 #endif
 
 
@@ -221,9 +221,16 @@ void QMenuData::changeItem( const QImage &image, int id )
     if ( mi ) {					// item found
 	if ( !mi->string_data.isNull() )	// delete string
 	    mi->string_data.resize( 0 );
+	register QImage *i = mi->image_data;
+	bool fast_refresh = i != 0 &&
+	    i->width() == image.width() &&
+	    i->height() == image.height();
 	delete mi->image_data;
 	mi->image_data = new QImage( image );
-	menuContentsChanged();
+	if ( fast_refresh )			// fast update
+	    updateItem( id );
+	else
+	    menuContentsChanged();
     }
 }
 
