@@ -76,7 +76,6 @@ public:
     QBitArray &operator=( const QBitArray & );
 
     uint    size() const;
-    uint    count() const;
     bool    resize( uint size );
 
     bool    fill( bool v, int size = -1 );
