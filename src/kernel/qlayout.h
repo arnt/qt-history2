@@ -124,7 +124,8 @@ public:
     void addItem( QLayoutItem * );
 
     Direction direction() const { return dir; }
-
+    void setDirection( Direction );
+    
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
@@ -145,6 +146,8 @@ public:
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
 private:
+    void setupGeom();
+    int calcHfw( int );
     QBoxLayoutData *data;
     Direction dir;
 private:	// Disabled copy constructor and operator=

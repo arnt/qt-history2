@@ -627,7 +627,6 @@ void QLayoutArray::setupHfwLayoutData( int spacing )
 	    //if ( c2 < 0 )
 		//c2 = cc-1;
 	    QSize hint = box->sizeHint(); //#### must hfw-ify!
-	    //(however, distributeMultiBox ignores sizeHint now...)
 	    QSize min = box->minimumSize();
 	    if ( r1 == r2 ) {
 		addHfwData( box );
@@ -1298,6 +1297,79 @@ QLayoutIterator QGridLayout::iterator()
 
 
 
+struct QBoxLayoutItem
+{
+    QBoxLayoutItem( QLayoutItem *it, int stretch_ = 0)
+	: item(it), stretch(stretch_), magic(FALSE) {}
+
+    int hfw( int w ) {
+	if ( item->hasHeightForWidth() )
+	    return item->heightForWidth( w );
+	else
+	    return item->sizeHint().height();
+    }
+    QLayoutItem *item;
+    int stretch;
+    bool magic;
+};
+
+class QBoxLayoutData
+{
+public:
+    QBoxLayoutData() :geomArray(0), hfwWidth(-1),dirty(TRUE) {}
+    
+    void setDirty() { 
+	delete geomArray; 
+	geomArray=0; 
+	hfwWidth=hfwHeight=-1;
+	dirty = TRUE;
+    }
+	
+    QList<QBoxLayoutItem> list;
+    QArray<QLayoutStruct> *geomArray;
+    int hfwWidth;
+    int hfwHeight;
+    QSize sizeHint;
+    QSize minSize;
+    QSize maxSize;
+    QSizePolicy::ExpandData expanding;
+    bool hasHfw;
+    bool dirty;
+};
+
+
+
+class QBoxLayoutIterator : public QGLayoutIterator
+{
+public:
+    QBoxLayoutIterator( QBoxLayoutData *d ) :data(d),idx(0) {}
+    QLayoutItem *current() {
+	if ( idx >= int(data->list.count()) )
+	    return 0;
+	return data->list.at(idx)->item;
+    }
+    QLayoutItem *next() {
+	idx++;
+	return current();
+    }
+    QLayoutItem *takeCurrent() {
+	QLayoutItem *item = 0;
+
+	QBoxLayoutItem *b = data->list.take( idx );
+	if ( b ) {
+	    item = b->item;
+	    delete b;
+	}
+	return item;
+    }
+private:
+    QBoxLayoutData *data;
+    int idx;
+};
+
+
+
+
 /*!
   \class QBoxLayout qlayout.h
 
@@ -1373,9 +1445,6 @@ static inline bool horz( QBoxLayout::Direction dir )
     return dir == QBoxLayout::RightToLeft || dir == QBoxLayout::LeftToRight;
 }
 
-class QBoxLayoutData :public QLayoutArray {
-};
-
 /*!
   Creates a new QBoxLayout with direction \a d and main widget \a
   parent.  \a parent may not be 0.
@@ -1396,8 +1465,6 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 {
     data = new QBoxLayoutData;
     dir = d;
-    if ( d == RightToLeft || d == BottomToTop )
-	data->setReversed( TRUE, TRUE );
 }
 
 
@@ -1414,8 +1481,6 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
 {
     data = new QBoxLayoutData;
     dir = d;
-    if ( d == RightToLeft || d == BottomToTop )
-	data->setReversed( TRUE, TRUE );
 }
 
 
@@ -1433,8 +1498,6 @@ QBoxLayout::QBoxLayout( Direction d,
 {
     data = new QBoxLayoutData;
     dir = d;
-    if ( d == RightToLeft || d == BottomToTop )
-	data->setReversed( TRUE, TRUE );
 }
 
 /*!
@@ -1452,7 +1515,11 @@ QBoxLayout::~QBoxLayout()
 
 QSize QBoxLayout::sizeHint() const
 {
-    return data->sizeHint( spacing() );
+    if ( data->dirty ) {
+	QBoxLayout *that = (QBoxLayout*)this;
+	that->setupGeom();
+    }
+    return data->sizeHint;
 }
 /*!
   Returns the minimum size needed by this box.
@@ -1460,7 +1527,11 @@ QSize QBoxLayout::sizeHint() const
 
 QSize QBoxLayout::minimumSize() const
 {
-    return data->minimumSize( spacing() );
+    if ( data->dirty ) {
+	QBoxLayout *that = (QBoxLayout*)this;
+	that->setupGeom();
+    }
+    return data->minSize;
 }
 /*!
   Returns the maximum size needed by this box.
@@ -1468,7 +1539,11 @@ QSize QBoxLayout::minimumSize() const
 
 QSize QBoxLayout::maximumSize() const
 {
-    return  data->maximumSize( spacing() );
+    if ( data->dirty ) {
+	QBoxLayout *that = (QBoxLayout*)this;
+	that->setupGeom();
+    }
+    return data->maxSize;
 }
 
 
@@ -1480,7 +1555,11 @@ QSize QBoxLayout::maximumSize() const
 
 bool QBoxLayout::hasHeightForWidth() const
 {
-    return ((QBoxLayout*)this)->data->hasHeightForWidth( spacing() );
+    if ( data->dirty ) {
+	QBoxLayout *that = (QBoxLayout*)this;
+	that->setupGeom();
+    }
+    return data->hasHfw;
 }
 
 
@@ -1490,8 +1569,13 @@ bool QBoxLayout::hasHeightForWidth() const
 
 int QBoxLayout::heightForWidth( int w ) const
 {
-    return ((QBoxLayout*)this)->data->heightForWidth( w, spacing() );
-
+    if ( data->dirty || w != data->hfwWidth ) {
+	QBoxLayout *that = (QBoxLayout*)this;
+	if ( data->dirty ) 
+	    that->setupGeom();
+	return that->calcHfw( w );
+    }
+    return data->hfwHeight;
 }
 
 /*!
@@ -1512,7 +1596,7 @@ void QBoxLayout::invalidate()
 
 QLayoutIterator QBoxLayout::iterator()
 {
-    return QLayoutIterator( new QLayoutArrayIterator( data ) );
+    return QLayoutIterator( new QBoxLayoutIterator( data ) );
 }
 
 
@@ -1522,7 +1606,11 @@ QLayoutIterator QBoxLayout::iterator()
 
 QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
-    return data->expanding( spacing() );
+    if ( data->dirty ) {
+	QBoxLayout *that = (QBoxLayout*)this;
+	that->setupGeom();
+    }
+    return data->expanding;
 }
 
 /*!
@@ -1530,9 +1618,49 @@ QSizePolicy::ExpandData QBoxLayout::expanding() const
  */
 void QBoxLayout::setGeometry( const QRect &s )
 {
-    if ( data->isDirty() || s != geometry() ) {
+    if ( !data->geomArray || s != geometry() ) {
 	QLayout::setGeometry( s );
-	data->distribute( s, spacing() );
+	if ( !data->geomArray )
+	    setupGeom();
+	QArray<QLayoutStruct> a = *data->geomArray;
+	int pos = horz(dir) ? s.x() : s.y();
+	int space = horz(dir) ? s.width() : s.height();
+	int n = a.count();
+	if ( data->hasHfw && !horz(dir) ) {
+	    for ( int i = 0; i < n; i++ ) {
+		QBoxLayoutItem *box = data->list.at(i);	
+		if ( box->item->hasHeightForWidth() )
+		    a[i].sizeHint = a[i].minimumSize = 
+				    box->item->heightForWidth( s.width() );
+	    }	    
+	}
+	
+	qGeomCalc( a, 0, n, pos, space, spacing() );
+	for ( int i = 0; i < n; i++ ) {
+	    QBoxLayoutItem *box = data->list.at(i);	
+	    
+	    switch ( dir ) {
+	    case LeftToRight:
+		box->item->setGeometry( QRect( a[i].pos, s.y(),
+					       a[i].size, s.height() ));
+		break;
+	    case RightToLeft:
+		box->item->setGeometry( QRect( s.left() + s.right()
+					       - a[i].pos - a[i].size, s.y(),
+					       a[i].size, s.height() ));
+		break;
+		
+	    case TopToBottom:
+		box->item->setGeometry( QRect( s.x(), a[i].pos,
+					       s.width(), a[i].size ));
+		break;
+	    case BottomToTop:
+		box->item->setGeometry( QRect( s.x(), s.top() + s.bottom()
+					       - a[i].pos - a[i].size,
+					       s.width(), a[i].size ));
+		break;
+	    }
+	}
     }
 }
 
@@ -1542,14 +1670,9 @@ void QBoxLayout::setGeometry( const QRect &s )
 
 void QBoxLayout::addItem( QLayoutItem *item )
 {
-    QLayoutBox *box = new QLayoutBox( item );
-    if ( horz( dir ) ) {
-	int n = data->numCols();
-	data->add( box, 0, n );
-    } else {
-	int n = data->numRows();
-	data->add( box, n, 0 );
-    }
+    QBoxLayoutItem *it = new QBoxLayoutItem( item );
+    data->list.append( it );
+    invalidate();
 }
 
 
@@ -1563,17 +1686,9 @@ void QBoxLayout::addItem( QLayoutItem *item )
 void QBoxLayout::addLayout( QLayout *layout, int stretch )
 {
     addChildLayout( layout );
-    QLayoutBox *box = new QLayoutBox( layout );
-
-    if ( horz( dir ) ) {
-	int n = data->numCols();
-	data->add( box, 0, n ) ;
-	data->setColStretch( n, stretch );
-    } else {
-	int n = data->numRows();
-	data->add( box, n, 0 ) ;
-	data->setRowStretch( n, stretch );
-    }
+    QBoxLayoutItem *it = new QBoxLayoutItem( layout, stretch );
+    data->list.append( it );
+    invalidate();
 }
 
 /*!
@@ -1586,19 +1701,18 @@ void QBoxLayout::addSpacing( int size )
 {
     //hack in QLayoutArray: spacers do not get insideSpacing
 
-    if ( horz( dir ) ) {
-	int n = data->numCols();
-	QLayoutItem *b = new QSpacerItem( size, 0, QSizePolicy::Fixed,
-					  QSizePolicy::Minimum );
-	QLayoutBox *box = new QLayoutBox( b );
-	data->add( box, 0, n ) ;
-    } else {
-	int n = data->numRows();
-	QLayoutItem *b = new QSpacerItem( 0, size, QSizePolicy::Minimum,
+    QLayoutItem *b;
+    if ( horz( dir ) ) 
+	b = new QSpacerItem( size, 0, QSizePolicy::Fixed,
+			     QSizePolicy::Minimum );
+    else
+	b = new QSpacerItem( 0, size, QSizePolicy::Minimum,
 					  QSizePolicy::Fixed );
-	QLayoutBox *box = new QLayoutBox( b );
-	data->add( box, n, 0 ) ;
-    }
+
+    QBoxLayoutItem *it = new QBoxLayoutItem( b );
+    it->magic = TRUE;
+    data->list.append( it );
+    invalidate();
 }
 
 /*!
@@ -1610,22 +1724,17 @@ void QBoxLayout::addSpacing( int size )
 void QBoxLayout::addStretch( int stretch )
 {
     //hack in QGridLayout: spacers do not get insideSpacing
-
-    if ( horz( dir ) ) {
-	int n = data->numCols();
-	QLayoutItem *b = new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				       QSizePolicy::Minimum );
-	QLayoutBox *box = new QLayoutBox( b );
-	data->add( box, 0, n ) ;
-	data->setColStretch( n, stretch );
-    } else {
-	int n = data->numRows();
-	QLayoutItem *b = new QSpacerItem( 0, 0,  QSizePolicy::Minimum,
-				       QSizePolicy::Expanding );
-	QLayoutBox *box = new QLayoutBox( b );
-	data->add( box, n, 0 ) ;
-	data->setRowStretch( n, stretch );
-    }
+    QLayoutItem *b;
+    if ( horz( dir ) )
+	b = new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+			     QSizePolicy::Minimum );
+    else
+	b = new QSpacerItem( 0, 0,  QSizePolicy::Minimum,
+			     QSizePolicy::Expanding );
+    QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
+    it->magic = TRUE;
+    data->list.append( it );
+    invalidate();
 }
 
 /*!
@@ -1636,18 +1745,18 @@ void QBoxLayout::addStretch( int stretch )
 
 void QBoxLayout::addStrut( int size )
 {
-    if ( horz( dir ) ) {
-	QLayoutItem *b = new QSpacerItem( 0, size, QSizePolicy::Fixed,
-					  QSizePolicy::Minimum );
-	QLayoutBox *box = new QLayoutBox( b );
-	data->add( box, 0, 0 );
+    QLayoutItem *b;
+    if ( horz( dir ) )
+	b = new QSpacerItem( 0, size, QSizePolicy::Fixed,
+			     QSizePolicy::Minimum );
+    else
+	b = new QSpacerItem( size, 0, QSizePolicy::Minimum,
+			     QSizePolicy::Fixed );
 
-    } else {
-	QLayoutItem *b = new QSpacerItem( size, 0, QSizePolicy::Minimum,
-					  QSizePolicy::Fixed );
-	QLayoutBox *box = new QLayoutBox( b );
-	data->add( box, 0, 0 );
-    }
+    QBoxLayoutItem *it = new QBoxLayoutItem( b );
+    it->magic = TRUE;
+    data->list.append( it );
+    invalidate();
 }
 
 /*!
@@ -1681,17 +1790,9 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignmnt )
 	 return;
     QWidgetItem *b = new QWidgetItem( widget );
     b->setAlignment( alignmnt );
-    QLayoutBox *box = new QLayoutBox( b );
-
-    if ( horz( dir ) ) {
-	int n = data->numCols();
-	data->add( box, 0, n );
-	data->setColStretch( n, stretch );
-    } else {
-	int n = data->numRows();
-	data->add( box, n, 0 );
-	data->setRowStretch( n, stretch );
-    }
+    QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
+    data->list.append( it );
+    invalidate();
 }
 
 
@@ -1705,14 +1806,152 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignmnt )
 
 bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 {
-    int r, c;
-    if ( !data->findWidget(w, &r, &c ) )
-	return FALSE;
-    if ( horz( dir ) )
-	data->setColStretch( c, stretch );
-    else
-	data->setRowStretch( r, stretch );
-    return TRUE;
+    QListIterator<QBoxLayoutItem> it( data->list );
+    QBoxLayoutItem *box;
+    while ( (box=it.current()) != 0 ) {
+	++it;
+	if ( box->item->widget() == w ) {
+	    box->stretch = stretch;
+	    invalidate();
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+
+/*!
+  Sets the direction of this layout to \a direction.
+  
+  
+*/
+
+void QBoxLayout::setDirection( Direction direction )
+{
+    dir = direction;
+    invalidate();
+}
+
+
+/*!
+  Initializes the data structure needed by qGeomCalc and
+  recalculates max/min and size hint.
+*/
+
+void QBoxLayout::setupGeom()
+{
+    if ( !data->dirty )
+	return;
+
+    int maxw = QWIDGETSIZE_MAX;
+    int maxh = QWIDGETSIZE_MAX;
+    int minw = 0;
+    int minh = 0;
+    int hintw = 0;
+    int hinth = 0;
+
+    bool horexp = FALSE;
+    bool verexp = FALSE;
+
+    int space = 0;
+    data->hasHfw = FALSE;
+    
+    delete data->geomArray;
+    int n = data->list.count();
+    data->geomArray = new QArray<QLayoutStruct>( n );
+    QArray<QLayoutStruct> &a = *data->geomArray;
+    
+    for ( int i = 0; i < n; i++ ) {
+	QBoxLayoutItem *box = data->list.at(i);	
+	QSize max = box->item->maximumSize();
+	QSize min = box->item->minimumSize();
+	QSize hint = box->item->sizeHint();
+	QSizePolicy::ExpandData exp = box->item->expanding();
+	if ( horz( dir ) ) {
+	    bool expand = exp & QSizePolicy::Horizontal || box->stretch > 0;
+	    horexp = horexp || expand;
+	    maxw += max.width() + space;
+	    minw += min.width() + space;
+	    hintw += hint.width() + space;
+
+	    maxExpCalc( maxh, verexp,
+			max.height(), exp & QSizePolicy::Vertical );
+	    minh = QMAX( minh, min.height() );
+	    hinth = QMAX( hinth, hint.height() );
+
+	    a[i].sizeHint = hint.width();
+	    a[i].maximumSize = max.width();
+	    a[i].minimumSize = min.width();
+	    a[i].expansive = expand;
+	} else {
+	    bool expand = exp & QSizePolicy::Vertical || box->stretch > 0;
+	    verexp = verexp || expand;
+	    maxh += max.height() + space;
+	    minh += min.height() + space;
+	    hinth += hint.height() + space;
+
+	    maxExpCalc( maxw, horexp,
+			max.width(), exp & QSizePolicy::Horizontal );
+	    minw = QMAX( minw, min.width() );
+	    hintw = QMAX( hintw, hint.width() );
+
+	    a[i].sizeHint = hint.height();
+	    a[i].maximumSize = max.height();
+	    a[i].minimumSize = min.height();
+	    a[i].expansive = expand;
+	}
+	bool empty = box->item->isEmpty();
+	space = empty ? 0 : spacing(); //space after this one
+	a[i].empty = empty;
+	a[i].stretch = box->stretch;
+	data->hasHfw = data->hasHfw || box->item->hasHeightForWidth();
+    }
+    
+    data->expanding =  (QSizePolicy::ExpandData) 
+		       (( horexp ? QSizePolicy::Horizontal : 0 )
+			| ( verexp ? QSizePolicy::Vertical : 0 ) );
+
+    
+    data->minSize = QSize(minw,minh);
+    data->maxSize = QSize(maxw,maxh);
+    data->sizeHint = QSize(hintw,hinth);
+    
+    data->maxSize = data->maxSize.expandedTo( data->minSize );
+    data->sizeHint = data->sizeHint.expandedTo( data->minSize )
+		     .boundedTo( data->maxSize );
+
+    data->dirty = FALSE;
+}
+
+
+/*!
+  Calculates and stores the preferred height given the width \a w.
+*/
+
+int QBoxLayout::calcHfw( int w )
+{
+    int h = 0;
+    if ( horz(dir) ) {
+	QArray<QLayoutStruct> &a = *data->geomArray;
+	int n = a.count();
+	qGeomCalc( a, 0, n, 0, w, spacing() );
+	for ( int i = 0; i < n; i++ ) {
+	    QBoxLayoutItem *box = data->list.at(i);
+	    h = QMAX( h, box->hfw( a[i].size ) );
+	}
+    } else {
+	QListIterator<QBoxLayoutItem> it( data->list );
+	QBoxLayoutItem *box;
+	int space=0;
+	while ( (box=it.current()) != 0 ) {
+	    ++it;
+	    h += box->hfw( w ) + space;
+	    space = box->item->isEmpty() ? 0 : spacing();
+	}	
+    }
+    data->hfwHeight = h;
+    data->hfwWidth = w;
+    return h;
 }
 
 
