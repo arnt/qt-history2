@@ -149,7 +149,7 @@ extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
-extern bool qt_mac_is_macsheet(QWidget *, bool =false); //qwidget_mac.cpp
+extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
 extern QString pstring2qstring(const unsigned char *); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
@@ -597,6 +597,7 @@ void qt_event_request_sockact(QGuiEventLoop *loop) {
 static EventRef request_showsheet_pending = 0;
 void qt_event_request_showsheet(QWidget *w)
 {
+    Q_ASSERT(qt_mac_is_macsheet(w));
     qt_event_remove(request_showsheet_pending);
     CreateEvent(0, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &request_showsheet_pending);
@@ -1560,9 +1561,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             QWidget *widget = 0;
             GetEventParameter(event, kEventParamQWidget, typeQWidget, 0,
                               sizeof(widget), 0, &widget);
-            if(widget)
-                ShowSheetWindow(qt_mac_window_for((HIViewRef)widget->winId()),
-                                qt_mac_window_for((HIViewRef)widget->parentWidget()->winId()));
+            if(widget) {
+                WindowPtr window = qt_mac_window_for((HIViewRef)widget->winId());
+                bool just_show = false;
+                if(!qt_mac_is_macsheet(widget)
+                   || ShowSheetWindow(window, qt_mac_window_for((HIViewRef)widget->parentWidget()->winId())) != noErr) {
+                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->className(), widget->objectName());
+                    just_show = true;
+                }
+                if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
+                    ShowHide(window, true);
+            }
         } else if(ekind == kEventQtRequestWakeup) {
             request_wakeup_pending = 0;             //do nothing else, we just woke up!
         } else if(ekind == kEventQtRequestMenubarUpdate) {

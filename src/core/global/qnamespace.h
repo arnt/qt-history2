@@ -180,66 +180,67 @@ public:
         WType_Mask                = 0x0000000f,
 
         WStyle_Customize        = 0x00000010,        // window style flags
-        WStyle_NormalBorder        = 0x00000020,
-        WStyle_DialogBorder        = 0x00000040, // MS-Windows only
-        WStyle_NoBorder                = 0x00002000,
-        WStyle_Title                = 0x00000080,
-        WStyle_SysMenu                = 0x00000100,
-        WStyle_Minimize                = 0x00000200,
-        WStyle_Maximize                = 0x00000400,
-        WStyle_MinMax                = WStyle_Minimize | WStyle_Maximize,
-        WStyle_Tool                = 0x00000800,
-        WStyle_StaysOnTop        = 0x00001000,
-        WStyle_ContextHelp        = 0x00004000,
-        WStyle_Reserved                = 0x00008000,
-        WStyle_Mask                = 0x0000fff0,
+        WStyle_NormalBorder     = 0x00000020,
+        WStyle_DialogBorder     = 0x00000040, // MS-Windows only
+        WStyle_NoBorder         = 0x00002000,
+        WStyle_Title            = 0x00000080,
+        WStyle_SysMenu          = 0x00000100,
+        WStyle_Minimize         = 0x00000200,
+        WStyle_Maximize         = 0x00000400,
+        WStyle_MinMax           = WStyle_Minimize | WStyle_Maximize,
+        WStyle_Tool             = 0x00000800,
+        WStyle_StaysOnTop       = 0x00001000,
+        WStyle_ContextHelp      = 0x00004000,
+        WStyle_Reserved         = 0x00008000,
+        WStyle_Mask             = 0x0000fff0,
 
         WDestructiveClose        = 0x00010000,        // misc flags
-        WPaintDesktop                = 0x00020000,
-        WPaintUnclipped                = 0x00040000,
-        //reserved WPaintClever                = 0x00080000,
-        //reserved                = 0x00100000, // was ResizeNoErase
-        WMouseNoMask                = 0x00200000,
+        WPaintDesktop            = 0x00020000,
+        WPaintUnclipped          = 0x00040000,
+        //reserved WPaintClever  = 0x00080000,
+        //reserved WResizeNoErase= 0x00100000,
+        WMouseNoMask             = 0x00200000,
 
 #if defined(Q_WS_X11)
-        WX11BypassWM                = 0x01000000,
-        WWinOwnDC                = 0x00000000,
+        WX11BypassWM            = 0x01000000,
+        WWinOwnDC               = 0x00000000,
         WMacMetal               = 0x00000000,
-        WMacNoSheet             = 0x00000000,
+        WMacSheet               = 0x00000000,
         WMacDrawer              = 0x00000000,
 #elif defined(Q_WS_MAC)
-        WX11BypassWM                = 0x00000000,
-        WWinOwnDC                = 0x00000000,
-        WMacNoSheet             = 0x01000000,
+        WX11BypassWM            = 0x00000000,
+        WWinOwnDC               = 0x00000000,
+        WMacSheet               = 0x01000000,
         WMacDrawer              = 0x20000000,
         WMacMetal               = 0x40000000,
 #else
-        WX11BypassWM                = 0x00000000,
-        WWinOwnDC                = 0x01000000,
+        WX11BypassWM            = 0x00000000,
+        WWinOwnDC               = 0x01000000,
         WMacMetal               = 0x00000000,
-        WMacNoSheet             = 0x00000000,
+        WMacSheet               = 0x00000000,
         WMacDrawer              = 0x00000000,
 #endif
-        WGroupLeader                = 0x02000000,
-        WShowModal                = 0x04000000,
-        WNoMousePropagation        = 0x08000000,
+        WGroupLeader            = 0x02000000,
+        WShowModal              = 0x04000000,
+        WNoMousePropagation     = 0x08000000,
         WSubWindow              = 0x10000000,
 #if defined(Q_WS_X11)
         WStyle_Splash           = 0x20000000
 #else
-        WStyle_Splash           = WStyle_NoBorder | WMacNoSheet | WStyle_Tool | WWinOwnDC
+        WStyle_Splash           = WStyle_NoBorder | WStyle_Tool | WWinOwnDC
 #endif
 #ifdef QT_COMPAT
         ,
-        WStaticContents                = 0x00400000,
-        WNoAutoErase                = 0x00800000,
+        WStaticContents        = 0x00400000,
+        WNoAutoErase           = 0x00800000,
         WRepaintNoErase        = WNoAutoErase,
+        WNorthWestGravity      = WStaticContents,
+        WType_Modal            = WType_Dialog | WShowModal,
+        WStyle_Dialog          = WType_Dialog,
+        WStyle_NoBorderEx      = WStyle_NoBorder,
         WResizeNoErase = 0,
-        WNorthWestGravity        = WStaticContents,
-        WType_Modal                = WType_Dialog | WShowModal,
-        WStyle_Dialog                = WType_Dialog,
-        WStyle_NoBorderEx        = WStyle_NoBorder,
-        WPaintClever = 0
+        WPaintClever = 0,
+        WMacNoSheet = 0
 #endif
     };
 

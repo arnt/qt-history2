@@ -495,18 +495,15 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
     return true;
 }
 
-bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=false)
+bool qt_mac_is_macsheet(QWidget *w)
 {
-#if 0
-    if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
-       (ignore_exclusion || !w->testWFlags(Qt::WMacNoSheet)) &&
-       w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
-       w->parentWidget()->topLevelWidget()->isVisible()
-       && ::qt_cast<QMacStyle *>(&w->style()))
+#if 1
+    if(w && w->isTopLevel() && w->testWFlags(Qt::WMacSheet) 
+       && w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() 
+       && w->parentWidget()->topLevelWidget()->isVisible())
         return true;
 #else
     Q_UNUSED(w);
-    Q_UNUSED(ignore_exclusion);
 #endif
     return false;
 }
@@ -1394,12 +1391,17 @@ void QWidget::hideWindow()
 
     if(isTopLevel()) {
         WindowPtr window = qt_mac_window_for((HIViewRef)winId());
-        if(qt_mac_is_macsheet(this))
-            HideSheetWindow(window);
-        else if(qt_mac_is_macdrawer(this))
+        if(qt_mac_is_macsheet(this)) {
+            WindowPtr parent = 0;
+            if(GetSheetWindowParent(window, &parent) != noErr || !parent) 
+                ShowHide(window, false);
+            else
+                HideSheetWindow(window);
+        } else if(qt_mac_is_macdrawer(this)) {
             CloseDrawer(window, true);
-        else
+        } else {
             ShowHide(window, false);
+        }
         if(isActiveWindow()) {
             QWidget *w = 0;
             if(parentWidget())
