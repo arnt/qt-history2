@@ -801,15 +801,15 @@ void QTableView::setGridStyle(Qt::PenStyle style)
     \internal
 
     Returns the rectangle on the viewport occupied by the given \a
-    item.
+    index.
 */
 
-QRect QTableView::itemViewportRect(const QModelIndex &item) const
+QRect QTableView::itemViewportRect(const QModelIndex &index) const
 {
-    if (!item.isValid() || model()->parent(item) != root())
+    if (!index.isValid() || model()->parent(index) != root())
         return QRect();
-    return QRect(columnViewportPosition(item.column()), rowViewportPosition(item.row()),
-                 columnWidth(item.column()), rowHeight(item.row()));
+    return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
+                 columnWidth(index.column()), rowHeight(index.row()));
 }
 
 /*!
@@ -819,12 +819,12 @@ QRect QTableView::itemViewportRect(const QModelIndex &item) const
     scrolling if necessary.
 */
 
-void QTableView::ensureItemVisible(const QModelIndex &item)
+void QTableView::ensureItemVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
-    QRect rect = itemViewportRect(item);
+    QRect rect = itemViewportRect(index);
 
-    if (model()->parent(item) != root())
+    if (model()->parent(index) != root())
         return;
 
     if (area.contains(rect)) {
@@ -834,9 +834,9 @@ void QTableView::ensureItemVisible(const QModelIndex &item)
 
     // vertical
     if (rect.top() < area.top()) { // above
-        verticalScrollBar()->setValue(item.row() * verticalFactor());
+        verticalScrollBar()->setValue(index.row() * verticalFactor());
     } else if (rect.bottom() > area.bottom()) { // below
-        int r = item.row();
+        int r = index.row();
         int y = area.height();
         while (y > 0 && r > 0)
             y -= rowHeight(r--);
@@ -846,9 +846,9 @@ void QTableView::ensureItemVisible(const QModelIndex &item)
 
     // horizontal
     if (rect.left() < area.left()) { // left of
-        horizontalScrollBar()->setValue(item.column() * horizontalFactor());
+        horizontalScrollBar()->setValue(index.column() * horizontalFactor());
     } else if (rect.right() > area.right()) { // right of
-        int c = item.column();
+        int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
             x -= columnWidth(c--);

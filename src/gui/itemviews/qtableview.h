@@ -49,8 +49,8 @@ public:
     bool isColumnHidden(int column) const;
     bool showGrid() const;
 
-    QRect itemViewportRect(const QModelIndex &item) const;
-    void ensureItemVisible(const QModelIndex &item);
+    QRect itemViewportRect(const QModelIndex &index) const;
+    void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
 public slots:
