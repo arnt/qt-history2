@@ -747,6 +747,12 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         const QAbstractSlider *slider = static_cast<const QAbstractSlider *>(w);
         bool tracking = slider->hasTracking();
         HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider, r, p);
+        if(tds == kThemeStateInactive)
+            tdi.enableState = kThemeTrackInactive;
+        else if(tds == kThemeStateUnavailable)
+            tdi.enableState = kThemeTrackDisabled;
+        else
+            tdi.enableState = kThemeTrackActive;
         if (control == CC_Slider) {
             if (subActive == SC_SliderGroove)
                 tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
