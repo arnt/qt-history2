@@ -194,6 +194,7 @@ public:
     void relayoutDocument();
 
     void layoutCell(QTextTable *t, const QTextTableCell &cell, LayoutStruct *layoutStruct);
+    void setCellPosition(const QTextTableCell &cell, const QPoint &pos);
     void layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
 
     // calls the next one
@@ -627,6 +628,20 @@ void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell 
     layoutFlow(cell.begin(), layoutStruct);
 }
 
+void QTextDocumentLayoutPrivate::setCellPosition(const QTextTableCell &cell, const QPoint &pos)
+{
+    for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
+        if (QTextFrame *c = it.currentFrame()) {
+            QTextFrameData *cd = data(c);
+            cd->boundingRect.moveBy(pos);
+        } else {
+            QTextBlock bl = it.currentBlock();
+            QTextLayout *tl = bl.layout();
+            tl->setPosition(tl->position() + pos);
+        }
+    }
+}
+
 void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom*/, int /*layoutTo*/)
 {
     const int rows = table->rows();
@@ -699,7 +714,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     for (int n = cspan; n > 0; --n) {
                         const int col = i + n - 1;
                         int w = widthToDistribute / n;
-                        td->minWidths[col] = qMax(td->minWidths.at(col), widthToDistribute);
+                        td->minWidths[col] = qMax(td->minWidths.at(col), w);
                         widthToDistribute -= td->minWidths.at(col);
                         if (widthToDistribute <= 0)
                             break;
@@ -734,7 +749,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         if (r > 0)
             td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
 
-        const int y = td->rowPositions.at(r) + td->padding;
+//        const int y = td->rowPositions.at(r) + td->padding;
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
             const int rspan = cell.rowSpan();
@@ -746,12 +761,17 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             if (rspan > 1 && cell.row() != r)
                     continue;
 
-            layoutStruct.y = y;
-            layoutStruct.x_left = td->columnPositions.at(c) + td->padding;
-            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - td->padding;
+//            layoutStruct.y = y;
+//            layoutStruct.x_left = td->columnPositions.at(c) + td->padding;
+//            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - td->padding;
+            layoutStruct.y = 0;
+            layoutStruct.x_left = 0;
+            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                                   - td->columnPositions.at(c) - 2 * td->padding;
             layoutCell(table, cell, &layoutStruct);
 
-            int heightToDistribute = layoutStruct.y + td->padding - y;
+            //int heightToDistribute = layoutStruct.y + td->padding - y;
+            int heightToDistribute = layoutStruct.y + td->padding;
             for (int n = rspan; n > 0; --n) {
                 const int row = r + n - 1;
                 int h = heightToDistribute / n;
@@ -761,6 +781,24 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 if (heightToDistribute <= 0)
                     break;
             }
+        }
+    }
+
+    for (int r = 0; r < rows; ++r) {
+        const int y = td->rowPositions.at(r);
+        for (int c = 0; c < columns; ++c) {
+            QTextTableCell cell = table->cellAt(r, c);
+            const int rspan = cell.rowSpan();
+            const int cspan = cell.columnSpan();
+
+            if (cspan > 1 && cell.column() != c)
+                continue;
+
+            if (rspan > 1 && cell.row() != r)
+                    continue;
+
+            const int x = td->columnPositions.at(c) + td->padding;
+            setCellPosition(cell, QPoint(x, y));
         }
     }
 
