@@ -338,7 +338,6 @@ struct VcsolutionDepend {
     QString uuid;
     QString vcprojFile, orig_target, target;
     ::target targetType;
-    bool debugBuild;
     QStringList dependencies;
 };
 
@@ -478,7 +477,6 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
                         newDep->target = tmp_proj.first("MSVCPROJ_TARGET").section(Option::dir_sep, -1);
                         newDep->targetType = tmp_vcproj.projectTarget;
-                        newDep->debugBuild = tmp_proj.isActiveConfig("debug");
                         newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(QDir::currentPath() + QDir::separator() + vcproj)).toString().toUpper();
 
                         // We want to store it as the .lib name.
