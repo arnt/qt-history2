@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#391 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#392 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1776,14 +1776,14 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if ( dx ) {
 	int x = x2 == sr.x() ? sr.x()+w : sr.x();
 	if ( repaint_immediately )
-	    repaint( x, sr.y(), QABS(dx)+1, sr.height(), !testWFlags(WRepaintNoErase) );
+	    repaint( x, sr.y(), QABS(dx), sr.height(), !testWFlags(WRepaintNoErase) );
 	else
 	    XClearArea( dpy, winid, x, sr.y(), QABS(dx), sr.height(), TRUE );
     }
     if ( dy ) {
 	int y = y2 == sr.y() ? sr.y()+h : sr.y();
 	if ( repaint_immediately )
-	    repaint( sr.x(), y, sr.width(), QABS(dy)+1, !testWFlags(WRepaintNoErase) );
+	    repaint( sr.x(), y, sr.width(), QABS(dy), !testWFlags(WRepaintNoErase) );
 	else
 	    XClearArea( dpy, winid, sr.x(), y, sr.width(), QABS(dy), TRUE );
     }
