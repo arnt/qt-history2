@@ -941,7 +941,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
     printf(" - QWin32PaintEngine::updatePen(), style=%d, color=%p, calls=%d\n",
-           pen.style(), pen.color().rgb(), ++counter);
+           pen.style(), pen.color().rgba(), ++counter);
 #endif
     d->pen = pen;
     d->penStyle = pen.style();
@@ -1040,8 +1040,10 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
     printf(" - QWin32PaintEngine::updateBrush(), style=%d, color=%p, calls=%d\n",
-           brush.style(), brush.color().rgb(), ++counter);
+           brush.style(), brush.color().rgba(), ++counter);
 #endif
+    QColor c = brush.color();
+    printf("updateBrush: %d, %d, %d, %d\n", c.red(), c.green(), c.blue(), c.alpha());
     d->brush = brush;
     d->brushStyle = brush.style();
     d->forceGdiplus |= (d->brushStyle != Qt::NoBrush
@@ -1198,8 +1200,8 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
             bitmapBrush.bmi.biBitCount = 1;
             bitmapBrush.bmi.biClrUsed  = 0;
             QRgb *coltbl = (QRgb*)bitmapBrush.palette;
-            coltbl[0] = d->bColor.rgb();
-            coltbl[1] = Qt::color0.rgb();
+            coltbl[0] = d->bColor.rgba();
+            coltbl[1] = Qt::color0.rgba();
 
             static DWORD *pattern = hatch_patterns[0]; // Qt::HorPattern
 
@@ -2133,7 +2135,7 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
 {
 #ifdef QT_DEBUG_DRAW
     printf(" - QGdiplusPaintEngine::updatePen(), style=%d, color=%p, width=%d\n",
-           pen.style(), pen.color().rgb(), pen.width());
+           pen.style(), pen.color().rgba(), pen.width());
 #endif
 //     d->pen->SetWidth(ps->pen.width());
 //     d->pen->SetColor(conv(ps->pen.color()));
@@ -2142,7 +2144,7 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
     int status;
     status = GdipSetPenWidth(d->pen, pen.width());
     Q_ASSERT(status == 0);
-    status = GdipSetPenColor(d->pen, pen.color().rgb());
+    status = GdipSetPenColor(d->pen, pen.color().rgba());
     Q_ASSERT(status == 0);
 
     Qt::PenStyle style = pen.style();
@@ -2173,11 +2175,11 @@ void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     case Qt::SolidPattern:
         if (!d->cachedSolidBrush) {
 //             d->cachedSolidBrush = new SolidBrush(conv(brush.color()));
-            GdipCreateSolidFill(brush.color().rgb(), (QtGpBrush**)(&d->cachedSolidBrush));
+            GdipCreateSolidFill(brush.color().rgba(), (QtGpBrush**)(&d->cachedSolidBrush));
             d->brush = d->cachedSolidBrush;
         } else {
 //             d->cachedSolidBrush->SetColor(conv(brush.color()));
-            GdipSetSolidFillColor(d->cachedSolidBrush, brush.color().rgb());
+            GdipSetSolidFillColor(d->cachedSolidBrush, brush.color().rgba());
             d->brush = d->cachedSolidBrush;
         }
         break;
