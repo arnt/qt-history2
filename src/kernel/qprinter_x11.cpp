@@ -102,6 +102,7 @@ QPrinter::QPrinter()
     state = PST_IDLE;
     output_file = FALSE;
     to_edge	= FALSE;
+    res = 72;
 }
 
 /*!
