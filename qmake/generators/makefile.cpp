@@ -2276,7 +2276,7 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
     int slsh = file.name().lastIndexOf(Option::dir_sep);
     if(slsh != -1)
         createDir(file.name().left(slsh));
-    if(file.open(IO_WriteOnly | IO_Translate)) {
+    if(file.open(IO_WriteOnly | IO_Translate | IO_Truncate)) {
         QFileInfo fi(Option::output);
         QString od = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.dirPath()));
         if(QDir::isRelativePath(od))
