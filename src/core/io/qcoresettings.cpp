@@ -1148,7 +1148,7 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
             while (!device.getChar(&ch) || ch != '"') {
                 MAYBE_GROW();
 
-                if (ch == -1)
+                if (static_cast<signed char>(ch) == -1)
                     goto end;
 
                 if (ch == '\\') {
