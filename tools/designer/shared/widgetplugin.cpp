@@ -29,6 +29,12 @@ QString WidgetPlugInManager::iconSet( const QString& classname )
     return iface ? iface->iconSet( classname ) : 0;
 }
 
+QIconSet WidgetPlugInManager::iconset( const QString& classname )
+{
+    WidgetInterface* iface = (*this)[classname];
+    return iface ? iface->iconset( classname ) : QIconSet();
+}
+
 QString WidgetPlugInManager::includeFile( const QString& classname )
 {
     WidgetInterface* iface = (*this)[classname];
