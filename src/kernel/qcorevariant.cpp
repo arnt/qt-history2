@@ -253,7 +253,7 @@ static void clear(QCoreVariant::Private *p)
 // used internally by construct() only
 #define QISNULL(vType) \
     if (QTypeInfo<vType >::isLarge) \
-	return static_cast<const vType *>(d->value.ptr)->isNull(); \
+	return static_cast<vType * const>(d->value.ptr)->isNull(); \
     else \
 	return reinterpret_cast<const vType *>(&d->value.ptr)->isNull()
 
@@ -370,7 +370,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
 
 #define QSAVE(vType) \
     if (QTypeInfo<vType >::isLarge) \
-        s << *static_cast<const vType *>(d->value.ptr); \
+        s << *static_cast<vType * const>(d->value.ptr); \
     else \
         s << *reinterpret_cast<const vType *>(&d->value.ptr)
 
@@ -437,8 +437,8 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
 
 #define QCOMPARE(vType) \
     if (QTypeInfo<vType >::isLarge) \
-        return *static_cast<const vType *>(a->value.ptr) == \
-	    *static_cast<const vType *>(b->value.ptr); \
+        return *static_cast<vType * const>(a->value.ptr) == \
+	    *static_cast<vType * const>(b->value.ptr); \
     else \
 	return *reinterpret_cast<const vType *>(&a->value.ptr) \
 	    == *reinterpret_cast<const vType *>(&b->value.ptr);
