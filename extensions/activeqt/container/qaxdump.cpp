@@ -58,7 +58,7 @@ static void docuFromName( ITypeInfo *typeInfo, const QString &name, QString &doc
 static QString toType( const QString &t )
 {
     QString type = t;
-    int vartype = QVariant::nameToType(type);
+    int vartype = QVariant::nameToType(type.latin1());
     if ( vartype == QVariant::Invalid )
 	type = "int";
 
@@ -95,7 +95,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     stream << "<h1 align=center>" << coClass << " Reference</h1>" << endl;
     stream << "<p>The " << coClass << " COM object is a " << that->qObject()->className();
     stream << " with the CLSID " <<  that->control() << ".</p>";
-
+/*
     stream << "<h3>Interfaces</h3>" << endl;
     stream << "<ul>" << endl;
     const char *inter = 0;
@@ -118,7 +118,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     QStringList methodDetails, propDetails;
 
     const int slotCount = mo->slotCount();
-/*
+
     if ( slotCount ) {
 	stream << "<h2>Public Slots:</h2>" << endl;
 	stream << "<ul>" << endl;

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 //#define QAX_NO_CLASSINFO
-
+#define QT_NO_CAST_TO_ASCII
 #define QT_CHECK_STATE
 
 #include "qaxobject.h"
@@ -224,8 +224,8 @@ public:
 	}
 
 	// get the signal information from the metaobject
-	index = meta->indexOfSignal(signame);
-	if (index != -1 && ((QAxObject*)qobject)->receivers(QChar(char('0') + char(QSIGNAL_CODE)) + signame)) {
+	index = meta->indexOfSignal(signame.latin1());
+	if (index != -1 && ((QAxObject*)qobject)->receivers((QChar(char('0') + char(QSIGNAL_CODE)) + signame).latin1())) {
 	    const QMetaMember signal = meta->signal(index);
 	    Q_ASSERT(signame == signal.signature());
 	    // verify parameter count
@@ -244,7 +244,7 @@ public:
 	    for ( p = 0; p < pcount && ok; ++p ) {
 		// map the VARIANT to the void*
 		QString ptype = meta->paramType(signame, p);
-		varp[p] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
+		varp[p] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype.latin1());
 		if (ptype != "QVariant") {
 		    ok = varp[p].isValid();
 		    argv[p + 1] = varp[p].data();
@@ -300,10 +300,10 @@ public:
 	    return S_OK;
 
 	// get the signal information from the metaobject
-	index = meta->indexOfSignal( signame );
-	if (index != -1 && ((QAxObject*)qobject)->receivers(QChar(char('0') + char(QSIGNAL_CODE)) + signame)) {
+	index = meta->indexOfSignal(signame.latin1());
+	if (index != -1 && ((QAxObject*)qobject)->receivers((QChar(char('0') + char(QSIGNAL_CODE)) + signame).latin1())) {
 	    // setup parameters
-	    QVariant var = qobject->property(propname);
+	    QVariant var = qobject->property(propname.latin1());
 	    if (!var.isValid())
 		return S_OK;
 
@@ -320,7 +320,7 @@ public:
 	    return S_OK;
 
 	QString propname = props[dispID];
-	return combase->propertyWritable( propname ) ? S_OK : S_FALSE;
+	return combase->propertyWritable(propname.latin1()) ? S_OK : S_FALSE;
     }
 
     IConnectionPoint *cpoint;
@@ -1172,183 +1172,8 @@ private:
 	return crtype;
     }
 
-    QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function )
-    {
-	HREFTYPE usertype = tdesc.hreftype;
-	if ( tdesc.vt != VT_USERDEFINED )
-	    return QString::null;
-
-	QString typeName;
-	ITypeInfo *usertypeinfo = 0;
-	info->GetRefTypeInfo( usertype, &usertypeinfo );
-	if ( usertypeinfo ) {
-	    ITypeLib *usertypelib = 0;
-	    UINT index;
-	    usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
-	    if ( usertypelib ) {
-		// get type name
-		BSTR usertypename = 0;
-		usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
-		QString userTypeName = BSTRToQString( usertypename );
-		SysFreeString( usertypename );
-
-		if (hasEnum(userTypeName)) // known enum?
-		    typeName = userTypeName;
-		else if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
-		    typeName = "QColor";
-		else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" || userTypeName == "IFont" || userTypeName == "IFont*" )
-		    typeName = "QFont";
-		else if ( userTypeName == "Picture" || userTypeName == "Picture*" )
-		    typeName = "QPixmap";
-
-		if ( typeName.isEmpty() ) {
-		    TYPEATTR *typeattr = 0;
-		    usertypeinfo->GetTypeAttr( &typeattr );
-		    if ( typeattr ) {
-			if ( typeattr->typekind == TKIND_ALIAS )
-			    userTypeName = guessTypes( typeattr->tdescAlias, usertypeinfo, function );
-			else if ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS )
-			    userTypeName = "IDispatch";
-		    }
-
-		    usertypeinfo->ReleaseTypeAttr( typeattr );
-		    typeName = userTypeName;
-		}
-		usertypelib->Release();
-	    }
-	    usertypeinfo->Release();
-	}
-	return typeName;
-    }
-
-    QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function )
-    {
-	QString str;
-	switch ( tdesc.vt ) {
-	case VT_VOID:
-	    str = QString();
-	    break;
-	case VT_BSTR:
-	    str = "QString";
-	    break;
-	case VT_BOOL:
-	    str = "bool";
-	    break;
-	case VT_I1:
-	    str = "char";
-	    break;
-	case VT_I2:
-	    str = "short";
-	    break;
-	case VT_I4:
-	case VT_INT:
-	    str = "int";
-	    break;
-	case VT_UI1:
-	case VT_UI2:
-	case VT_UI4:
-	case VT_UINT:
-	    str = "uint";
-	    break;
-	case VT_CY:
-	    str = "Q_LLONG";
-	    break;
-	case VT_R4:
-	    str = "float";
-	    break;
-	case VT_R8:
-	    str = "double";
-	    break;
-	case VT_DATE:
-	    str = "QDateTime";
-	    break;
-	case VT_DISPATCH:
-	    str = "IDispatch*";
-	    break;
-	case VT_VARIANT:
-	    str = "QVariant";
-	    break;
-	case VT_UNKNOWN:
-	    str = "IUnknown*";
-	    break;
-	case VT_HRESULT:
-	    str = "HRESULT";
-	    break;
-	case VT_PTR:
-	    str = guessTypes( *tdesc.lptdesc, info, function );
-	    switch( tdesc.lptdesc->vt ) {
-	    case VT_BSTR:
-	    case VT_I1:
-	    case VT_I2:
-	    case VT_I4:
-	    case VT_UI1:
-	    case VT_UI2:
-	    case VT_UI4:
-	    case VT_BOOL:
-	    case VT_R4:
-	    case VT_R8:
-	    case VT_INT:
-	    case VT_UINT:
-	    case VT_CY:
-		str += "&";
-		break;
-	    case VT_PTR:
-		if ( str == "QFont" || str == "QPixmap" ) {
-		    str += "&";
-		    break;
-		}
-		// FALLTHROUGH
-	    default:
-		if ( str == "QColor" )
-		    str += "&";
-		else if ( str == "QDateTime" )
-		    str += "&";
-		else if ( str == "QList<QVariant>" )
-		    str += "&";
-		else if ( str == "QByteArray" )
-		    str += "&";
-		else if ( str == "QStringList" )
-		    str += "&";
-		else if ( str == "QVariant" )
-		    str = constRefify(str);
-		else if ( !str.isEmpty() && hasEnum(str) )
-		    str += "&";
-		else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
-		    str += "*";
-	    }
-	    break;
-	case VT_SAFEARRAY:
-	    if ( tdesc.lpadesc->tdescElem.vt == VT_UI1 ) {
-		str = "QByteArray";
-		break;
-	    } else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
-		str = "QStringList";
-		break;
-	    }
-	    str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
-	    if ( !str.isEmpty() )
-		str = "QList<" + str + ">";
-	    break;
-	case VT_CARRAY:
-	    str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
-	    if ( !str.isEmpty() ) {
-		for ( int index = 0; index < tdesc.lpadesc->cDims; ++index )
-		    str += "[" + QString::number( tdesc.lpadesc->rgbounds[index].cElements ) + "]";
-	    }
-	    break;
-	case VT_USERDEFINED:
-	    str = usertypeToQString( tdesc, info, function );
-	    break;
-
-	default:
-	    break;
-	}
-
-	if ( tdesc.vt & VT_BYREF )
-	    str += "&";
-
-	return str;
-    }
+    QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function );
+    QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function );
 
     // XXX from qmetaobject.cpp
     enum ProperyFlags  {
@@ -1373,13 +1198,12 @@ private:
     };
 
     QMap<QString, QString> classinfo_list;
-    void addClassInfo(const QString &key, const QString &value)
+    inline void addClassInfo(const QString &key, const QString &value)
     {
-	qDebug("Adding class info: %s | %s", key.latin1(), value.latin1());
 	classinfo_list[key] = value;
     }
 
-    bool hasClassInfo(const QString &key)
+    inline bool hasClassInfo(const QString &key)
     {
 	return classinfo_list.contains(key);
     }
@@ -1390,9 +1214,8 @@ private:
 	int flags;
     };
     QMap<QString, Method> signal_list;
-    void addSignal(const QString &type, const QString &prototype, const QString &parameters)
+    inline void addSignal(const QString &type, const QString &prototype, const QString &parameters)
     {
-	qDebug("Adding signal: %s | %s | %s", type.latin1(), prototype.latin1(), parameters.latin1());
 	Method &signal = signal_list[prototype];
 	signal.type = type;
 	signal.parameters = parameters;
@@ -1401,15 +1224,14 @@ private:
 
     void addChangedSignal(const QString &function, const QString &type, int memid);
 
-    bool hasSignal(const QString &prototype)
+    inline bool hasSignal(const QString &prototype)
     {
 	return signal_list.contains(prototype);
     }
 
     QMap<QString, Method> slot_list;
-    void addSlot(const QString &type, const QString &prototype, const QString &parameters)
+    inline void addSlot(const QString &type, const QString &prototype, const QString &parameters)
     {
-	qDebug("Adding slot: %s | %s | %s", type.latin1(), prototype.latin1(), parameters.latin1());
 	Method &slot = slot_list[prototype];
 	slot.type = type;
 	slot.parameters = parameters;
@@ -1418,7 +1240,7 @@ private:
 
     void addSetterSlot(const QString &property);
 
-    bool hasSlot(const QString &prototype)
+    inline bool hasSlot(const QString &prototype)
     {
 	return slot_list.contains(prototype);
     }
@@ -1430,27 +1252,25 @@ private:
 	if (!type.isEmpty() && type != "HRESULT")
 	    prop.first = type;
 	prop.second |= flags;
-	qDebug("Adding property: %s | %s | %d", prop.first.latin1(), name.latin1(), prop.second);
     }
 
-    bool hasProperty(const QString &name)
+    inline bool hasProperty(const QString &name)
     {
 	return property_list.contains(name);
     }
 
-    QString propertyType(const QString &name)
+    inline QString propertyType(const QString &name)
     {
 	return property_list.value(name).first;
     }
 
     QMap<QString, QList<QPair<QString, int> > > enum_list;
-    void addEnumValue(const QString &enumname, const QString &key, int value)
+    inline void addEnumValue(const QString &enumname, const QString &key, int value)
     {
-	qDebug("Adding enum value: %s | %s | %d", enumname.latin1(), key.latin1(), value);
 	enum_list[enumname].append(QPair<QString, int>(key, value));	
     }
 
-    bool hasEnum(const QString &enumname)
+    inline bool hasEnum(const QString &enumname)
     {
 	return enum_list.contains(enumname);
     }
@@ -1490,6 +1310,184 @@ MetaObjectGenerator::~MetaObjectGenerator()
 {
     if ( typeinfo ) typeinfo->Release();
     if ( typelib ) typelib->Release();
+}
+
+QString MetaObjectGenerator::usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function )
+{
+    HREFTYPE usertype = tdesc.hreftype;
+    if ( tdesc.vt != VT_USERDEFINED )
+	return QString::null;
+
+    QString typeName;
+    ITypeInfo *usertypeinfo = 0;
+    info->GetRefTypeInfo( usertype, &usertypeinfo );
+    if ( usertypeinfo ) {
+	ITypeLib *usertypelib = 0;
+	UINT index;
+	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
+	if ( usertypelib ) {
+	    // get type name
+	    BSTR usertypename = 0;
+	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
+	    QString userTypeName = BSTRToQString( usertypename );
+	    SysFreeString( usertypename );
+
+	    if (hasEnum(userTypeName)) // known enum?
+		typeName = userTypeName;
+	    else if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
+		typeName = "QColor";
+	    else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" || userTypeName == "IFont" || userTypeName == "IFont*" )
+		typeName = "QFont";
+	    else if ( userTypeName == "Picture" || userTypeName == "Picture*" )
+		typeName = "QPixmap";
+
+	    if ( typeName.isEmpty() ) {
+		TYPEATTR *typeattr = 0;
+		usertypeinfo->GetTypeAttr( &typeattr );
+		if ( typeattr ) {
+		    if ( typeattr->typekind == TKIND_ALIAS )
+			userTypeName = guessTypes( typeattr->tdescAlias, usertypeinfo, function );
+		    else if ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS )
+			userTypeName = "IDispatch";
+		}
+
+		usertypeinfo->ReleaseTypeAttr( typeattr );
+		typeName = userTypeName;
+	    }
+	    usertypelib->Release();
+	}
+	usertypeinfo->Release();
+    }
+    return typeName;
+}
+
+QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function )
+{
+    QString str;
+    switch ( tdesc.vt ) {
+    case VT_VOID:
+	str = QString();
+	break;
+    case VT_BSTR:
+	str = "QString";
+	break;
+    case VT_BOOL:
+	str = "bool";
+	break;
+    case VT_I1:
+	str = "char";
+	break;
+    case VT_I2:
+	str = "short";
+	break;
+    case VT_I4:
+    case VT_INT:
+	str = "int";
+	break;
+    case VT_UI1:
+    case VT_UI2:
+    case VT_UI4:
+    case VT_UINT:
+	str = "uint";
+	break;
+    case VT_CY:
+	str = "Q_LLONG";
+	break;
+    case VT_R4:
+	str = "float";
+	break;
+    case VT_R8:
+	str = "double";
+	break;
+    case VT_DATE:
+	str = "QDateTime";
+	break;
+    case VT_DISPATCH:
+	str = "IDispatch*";
+	break;
+    case VT_VARIANT:
+	str = "QVariant";
+	break;
+    case VT_UNKNOWN:
+	str = "IUnknown*";
+	break;
+    case VT_HRESULT:
+	str = "HRESULT";
+	break;
+    case VT_PTR:
+	str = guessTypes( *tdesc.lptdesc, info, function );
+	switch( tdesc.lptdesc->vt ) {
+	case VT_BSTR:
+	case VT_I1:
+	case VT_I2:
+	case VT_I4:
+	case VT_UI1:
+	case VT_UI2:
+	case VT_UI4:
+	case VT_BOOL:
+	case VT_R4:
+	case VT_R8:
+	case VT_INT:
+	case VT_UINT:
+	case VT_CY:
+	    str += "&";
+	    break;
+	case VT_PTR:
+	    if ( str == "QFont" || str == "QPixmap" ) {
+		str += "&";
+		break;
+	    }
+	    // FALLTHROUGH
+	default:
+	    if ( str == "QColor" )
+		str += "&";
+	    else if ( str == "QDateTime" )
+		str += "&";
+	    else if ( str == "QList<QVariant>" )
+		str += "&";
+	    else if ( str == "QByteArray" )
+		str += "&";
+	    else if ( str == "QStringList" )
+		str += "&";
+	    else if ( str == "QVariant" )
+		str = constRefify(str);
+	    else if ( !str.isEmpty() && hasEnum(str) )
+		str += "&";
+	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
+		str += "*";
+	}
+	break;
+    case VT_SAFEARRAY:
+	if ( tdesc.lpadesc->tdescElem.vt == VT_UI1 ) {
+	    str = "QByteArray";
+	    break;
+	} else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
+	    str = "QStringList";
+	    break;
+	}
+	str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
+	if ( !str.isEmpty() )
+	    str = "QList<" + str + ">";
+	break;
+    case VT_CARRAY:
+	str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
+	if ( !str.isEmpty() ) {
+	    for ( int index = 0; index < tdesc.lpadesc->cDims; ++index )
+		str += "[" + QString::number( tdesc.lpadesc->rgbounds[index].cElements ) + "]";
+	}
+	break;
+    case VT_USERDEFINED:
+	str = usertypeToQString( tdesc, info, function );
+	break;
+
+    default:
+	break;
+    }
+
+    if ( tdesc.vt & VT_BYREF )
+	str += "&";
+
+    return str;
 }
 
 void MetaObjectGenerator::readClassInfo()
@@ -2451,25 +2449,25 @@ const QMetaObject *QAxBase::metaObject() const
     or use it in e.g. a QTextBrowser widget.
 */
 
-static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const char *name, uint argerr )
+static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QString &name, uint argerr )
 {
     switch( hres ) {
     case S_OK:
 	return TRUE;
     case DISP_E_BADPARAMCOUNT:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Bad parameter count.", name );
+	qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_BADVARTYPE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Bad variant type.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Bad variant type.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_EXCEPTION:
 	{
 #if defined(QT_CHECK_STATE)
-	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name );
+	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name.latin1());
 #endif
 	    const QMetaObject *mo = that->metaObject();
 	    int exceptionSignal = mo->indexOfSignal( "exception(int,const QString&,const QString&,const QString&)" );
@@ -2493,47 +2491,47 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const cha
 	return FALSE;
     case DISP_E_MEMBERNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Member not found.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Member not found.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_NONAMEDARGS:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: No named arguments.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: No named arguments.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_OVERFLOW:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Overflow.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Overflow.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_PARAMNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter %d not found.", name, argerr );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter %d not found.", name.latin1(), argerr );
 #endif
 	return FALSE;
     case DISP_E_TYPEMISMATCH:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d.", name, argerr );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d.", name.latin1(), argerr );
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNINTERFACE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown interface.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown interface.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNLCID:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name.latin1());
 #endif
 	return FALSE;
     case DISP_E_PARAMNOTOPTIONAL:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name.latin1());
 #endif
 	return FALSE;
     default:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown error.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown error.", name.latin1());
 #endif
 	return FALSE;
     }
@@ -2691,7 +2689,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     int p;
     for (p = 0; p < params.cArgs; ++p) {
        QString type = d->metaobj->paramType(signature, p);
-       QVariantToVARIANT(QVariant(QVariant::nameToType(type), v[p+1]), params.rgvarg[params.cArgs - p - 1], type);
+       QVariantToVARIANT(QVariant(QVariant::nameToType(type.latin1()), v[p+1]), params.rgvarg[params.cArgs - p - 1], type);
     }
 
     // return value
@@ -2720,7 +2718,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 	bool out;
 	QString ptype = d->metaobj->paramType(signature, p, &out);
 	if (out)
-	    QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1]);
+	    QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype.latin1()), v[p+1]);
     }
     // clean up
     for ( p = 0; p < params.cArgs; ++p )
@@ -2785,7 +2783,7 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
 
     if ( function.contains( '(' ) ) {
 	disptype = DISPATCH_METHOD;
-	id = metaObject()->indexOfSlot(QMetaObject::normalizedSignature(function));
+	id = metaObject()->indexOfSlot(QMetaObject::normalizedSignature(function.latin1()));
 	if ( id >= 0 ) {
 	    const QMetaMember slot = metaObject()->slot(id);
 	    function = slot.signature();
@@ -2868,7 +2866,7 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
 	    }
 	}
     } else {
-	id = metaObject()->indexOfProperty(name);
+	id = metaObject()->indexOfProperty(name.latin1());
 	type = "QVariant";
 	disptype = DISPATCH_PROPERTYGET;
 
@@ -2899,7 +2897,7 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
     if ( dispid == DISPID_UNKNOWN ) {
 #ifdef QT_CHECK_STATE
 	const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
-	qWarning( "QAxBase::dynamicCallHelper: %s: No such method or property in %s [%s]", (const char*)name, control().latin1(),
+	qWarning( "QAxBase::dynamicCallHelper: %s: No such method or property in %s [%s]", name.latin1(), control().latin1(),
 	    coclass ? coclass: "unknown" );
 
 	if (disptype == DISPATCH_METHOD) {
@@ -3019,7 +3017,7 @@ QVariant QAxBase::dynamicCall( const QString &function, const QVariant &var1,
     vars[varc++] = QVariant();
 
     QString rettype;
-    if (!dynamicCallHelper(QMetaObject::normalizedSignature(function), &res, vars, rettype))
+    if (!dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vars, rettype))
 	return QVariant();
 
     QVariant qvar = VARIANTToQVariant( res, rettype );
@@ -3056,7 +3054,7 @@ QVariant QAxBase::dynamicCall( const QString &function, QList<QVariant> &vars )
     }
 
     QString rettype;
-    bool ok = dynamicCallHelper(QMetaObject::normalizedSignature(function), &res, vararray, rettype);
+    bool ok = dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vararray, rettype);
     if ( ok ) {
 	vars.clear();
 	for ( i = 0; i < count; ++i )
@@ -3128,19 +3126,19 @@ QAxObject *QAxBase::querySubObject( const QString &name, const QVariant &var1,
     vars[varc++] = QVariant();
 
     QString rettype;
-    if (!dynamicCallHelper(QMetaObject::normalizedSignature(name), &res, vars, rettype))
+    if (!dynamicCallHelper(QMetaObject::normalizedSignature(name.latin1()), &res, vars, rettype))
 	return 0;
 
     switch ( res.vt ) {
     case VT_DISPATCH:
 	if ( res.pdispVal ) {
-	    object = new QAxObject(res.pdispVal, qObject(), QString(qObject()->objectName()) + "/" + name);
+	    object = new QAxObject(res.pdispVal, qObject(), (QString(qObject()->objectName()) + "/" + name).latin1());
 	    ((QAxBase*)object)->d->tryCache = TRUE;
 	}
 	break;
     case VT_UNKNOWN:
 	if ( res.punkVal ) {
-	    object = new QAxObject(res.punkVal, qObject(), QString(qObject()->objectName()) + "/" + name);
+	    object = new QAxObject(res.punkVal, qObject(), (QString(qObject()->objectName()) + "/" + name).latin1());
 	    ((QAxBase*)object)->d->tryCache = TRUE;
 	}
 	break;
@@ -3149,7 +3147,7 @@ QAxObject *QAxBase::querySubObject( const QString &name, const QVariant &var1,
 	{
 	    const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
 	    qWarning( "QAxBase::querySubObject: %s: error calling function or property in %s (%s)"
-		, (const char*)name, control().latin1(), coclass ? coclass: "unknown" );
+		, name.latin1(), control().latin1(), coclass ? coclass: "unknown" );
 	}
 #endif
 	break;
@@ -3158,7 +3156,7 @@ QAxObject *QAxBase::querySubObject( const QString &name, const QVariant &var1,
 	{
 	    const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
 	    qWarning( "QAxBase::querySubObject: %s: method or property is not of interface type in %s (%s)"
-		, (const char*)name, control().latin1(), coclass ? coclass: "unknown" );
+		, name.latin1(), control().latin1(), coclass ? coclass: "unknown" );
 	}
 #endif
 	break;
