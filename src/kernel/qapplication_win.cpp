@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#547 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#548 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2001,22 +2001,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 #endif
 
-	    case WM_NCLBUTTONDOWN:
-	    case WM_NCRBUTTONDOWN:
-	    case WM_NCMBUTTONDOWN:
-#if defined(WM_NCXBUTTONDOWN)
-	    case WM_NCXBUTTONDOWN:
-#endif
-		if ( QApplication::activePopupWidget() ) {
-		    int maxiter = 1024;
-		    QWidget *popup;
-		    while ( (popup=QApplication::activePopupWidget()) &&
-			    maxiter-- )
-			popup->hide();
-		}
-		result = FALSE;
-		break;
-
 	    case WM_SYSCOMMAND:
 #ifndef Q_OS_TEMP
 		switch( wParam ) {
@@ -2557,6 +2541,8 @@ void QApplication::closePopup( QWidget *popup )
 	// the focus.
 	QFocusEvent::setReason( QFocusEvent::Popup );
 	QWidget* aw = popupWidgets->getLast();
+	if ( popupWidgets->count() == 1 )
+	    setAutoCapture( aw->winId() );
 	if (aw->focusWidget())
 	    aw->focusWidget()->setFocus();
 	else
