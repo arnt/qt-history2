@@ -200,8 +200,8 @@ QMakeProject::read(const char *project)
 		    printf("MKSCACHE file: reading %s\n", cachefile.latin1());
 
 		read(cachefile, cache);
-		if(Option::specfile.isEmpty() && !cache["MKSPECFILE"].isEmpty())
-		    Option::specfile = cache["MKSPECFILE"].first();
+		if(Option::specfile.isEmpty() && !cache["MKSPEC"].isEmpty())
+		    Option::specfile = cache["MKSPEC"].first();
 	    }
 	}
 
