@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#19 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#20 $
 #
 # this is a massive hack, written very quickly
 #
@@ -242,10 +242,6 @@ sub manglefn {
 	s/\s+/-/g;
 	s/-+$//;
 	s/^-+//;
-#	while ($def{$class} =~ /\benum\s+(\w+)/s) {
-#	    print "sex ", $1, "\n";
-#	    s/$1/$class::$1/gs;
-#	}
 # finally add it to the url
 	$url = join($d, $url, $_);
 	$d = ",";
@@ -396,6 +392,7 @@ sub readc {
 			       )
            \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b;gsx) {
         my ($doc, $type, $class, $name, $args, $const);
+	print "url:\n" if ($debug);
 	$doc = $1;
 	$type = $2;
 	$class = $3;
@@ -411,11 +408,11 @@ sub readc {
 		$url = &manglefn($type, $class, $name, $args, $const);
 		$name{$url} = $class . "::" . $name;
 		$type{$url} = "fn";
-		print "url: ", $url, "\n" if ($debug);
 		$doc{$url} = $doc;
 		$class .= "::" if ($class ne "");
 		$const = " " . const if ($const ne "");
 		$def{$url} = $type." ".$class.$name."(".$args.")".$const;
+		print "    ", $url, "\n" if ($debug);
 	    }
 	}
     }
@@ -464,6 +461,7 @@ sub readc {
            \*/@gsx) {           # comment end
 	my ($type, $class, $name, $args, $const, $doc);
 	my ($url);
+	print "url:\n" if ($debug);
 	$type = $1;
 	$class = $2;
 	$name = $3;
@@ -474,11 +472,11 @@ sub readc {
 	$url = &manglefn($type, $class, $name, $args, $const);
 	$name{$url} = $class . "::" . $name;
 	$type{$url} = "fn";
-	print "url: ", $url, "\n" if ($debug);
 	$doc{$url} = $doc;
 	$class .= "::" if ($class ne "");
 	$def{$url} = $type." ".$class.$name."(".$args.")";
-    }
+	print "    ", $url, "\n" if ($debug);
+     }
 
 # find all extra pages
     while ($c =~ m;
@@ -777,7 +775,7 @@ sub printout {
 
 
 $cfile = "VOLD";
-#$debug = 1;
+$debug = 1;
 $internal = 1;
 
 foreach $arg ( 0..$#ARGV ) {
