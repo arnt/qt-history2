@@ -53,6 +53,11 @@ bootstrap { #Qt code
         qtextstream.cpp \
         qunicodetables.cpp \
         quuid.cpp \
+	qcoresettings.obj \
+	qcorevariant.obj \
+	qrect.obj \
+	qpoint.obj \
+	qsize.obj \
         qvector.cpp 
 
    HEADERS+= \
@@ -90,10 +95,10 @@ bootstrap { #Qt code
 
     unix {
         SOURCES += qfileengine_unix.cpp
-        mac:SOURCES += qurl.cpp qcore_mac.cpp
+        mac:SOURCES += qurl.cpp qcore_mac.cpp qcoresettings_mac.cpp
     } else:win32 {
-	SOURCES += qfileengine_win.cpp
-       win32-msvc*:LIBS += ole32.lib advapi32.lib
+	SOURCES += qfileengine_win.cpp qcoresettings_win.cpp
+        win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
     macx-*: LIBS += -framework CoreServices
 
@@ -101,6 +106,7 @@ bootstrap { #Qt code
         CFLAGS += -fhonor-std
         LFLAGS += -lcpp
     }
+    DEFINES *= QT_NO_QOBJECT
 } else {
     CONFIG += qt
     QT = core

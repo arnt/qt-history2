@@ -225,13 +225,25 @@ void QCoreSettingsPrivate::setStatus(QCoreSettings::Status status)
         this->status = status;
 }
 
+void QCoreSettingsPrivate::update()
+{
+    Q_Q(QCoreSettings);
+
+    q->sync();
+    pendingChanges = false;
+}
+
 void QCoreSettingsPrivate::requestUpdate()
 {
     Q_Q(QCoreSettings);
 
     if (!pendingChanges) {
-        QCoreApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
         pendingChanges = true;
+#ifndef QT_NO_QOBJECT
+        QCoreApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
+#else
+        update();
+#endif
     }
 }
 
@@ -1717,6 +1729,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \sa status()
 */
 
+#ifndef QT_NO_QOBJECT
 /*!
     Constructs a QCoreSettings object for accessing settings of the
     application called \a application from the organization with the
@@ -1850,6 +1863,46 @@ QCoreSettings::QCoreSettings(QObject *parent)
 }
 
 /*!
+    \internal
+*/
+QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
+    : QObject(*p, parent)
+{
+}
+#else
+QCoreSettings::QCoreSettings(const QString &organization, const QString &application)
+    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+                                         organization, application,
+                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+{
+}
+
+QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organization,
+                             const QString &application)
+    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, scope, organization, application,
+                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+{
+}
+
+QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+                             const QString &organization, const QString &application)
+    : d_ptr(QCoreSettingsPrivate::create(format, scope, organization, application,
+                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+{
+}
+
+QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
+    : d_ptr(QCoreSettingsPrivate::create(fileName, format,
+                                         QCoreSettingsPrivate::variantToStringCoreImpl, 
+                                         QCoreSettingsPrivate::stringToVariantCoreImpl))
+{
+}
+#endif
+
+/*!
     Destroys the QCoreSettings object. Any unsaved changes will be
     written to permanent storage at that point.
 
@@ -1860,14 +1913,6 @@ QCoreSettings::~QCoreSettings()
     Q_D(QCoreSettings);
     if (d->pendingChanges)
         d->sync();
-}
-
-/*!
-    \internal
-*/
-QCoreSettings::QCoreSettings(QCoreSettingsPrivate *p, QObject *parent)
-    : QObject(*p, parent)
-{
 }
 
 /*!
@@ -2392,6 +2437,7 @@ bool QCoreSettings::fallbacksEnabled() const
     return d->fallbacks;
 }
 
+#ifndef QT_NO_QOBJECT
 /*!
     \reimp
 */
@@ -2399,12 +2445,12 @@ bool QCoreSettings::event(QEvent *event)
 {
     Q_D(QCoreSettings);
     if (event->type() == QEvent::UpdateRequest) {
-        sync();
-        d->pendingChanges = false;
+        d->update();
         return true;
     }
     return QObject::event(event);
 }
+#endif
 
 /*!
     Returns the value for setting \a key. If the setting doesn't

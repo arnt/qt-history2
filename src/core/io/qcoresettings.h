@@ -16,14 +16,22 @@
 
 class QCoreSettingsPrivate;
 
-class Q_CORE_EXPORT QCoreSettings : public QObject
+class Q_CORE_EXPORT QCoreSettings 
+#ifndef QT_NO_QOBJECT
+    : public QObject
+#endif
 {
+#ifndef QT_NO_QOBJECT
     Q_OBJECT
+#else
+    QCoreSettingsPrivate *d_ptr;
+#endif
     Q_DECLARE_PRIVATE(QCoreSettings)
 
 public:
     enum Status { NoError = 0, AccessError, FormatError };
 
+#ifndef QT_NO_QOBJECT
     QCoreSettings(const QString &organization, const QString &application = QString(),
                   QObject *parent = 0);
     QCoreSettings(Qt::SettingsScope scope, const QString &organization,
@@ -33,6 +41,14 @@ public:
                   QObject *parent = 0);
     QCoreSettings(const QString &fileName, Qt::SettingsFormat format, QObject *parent = 0);
     QCoreSettings(QObject *parent = 0);
+#else
+    QCoreSettings(const QString &organization, const QString &application = QString());
+    QCoreSettings(Qt::SettingsScope scope, const QString &organization,
+                  const QString &application = QString());
+    QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+                  const QString &organization, const QString &application = QString());
+    QCoreSettings(const QString &fileName, Qt::SettingsFormat format);
+#endif
     ~QCoreSettings();
 
     void clear();
@@ -65,8 +81,10 @@ public:
     QString fileName() const;
 
 protected:
+#ifndef QT_NO_QOBJECT
     QCoreSettings(QCoreSettingsPrivate *p, QObject *parent = 0);
     bool event(QEvent *event);
+#endif
 
 private:
     Q_DISABLE_COPY(QCoreSettings)

@@ -5,7 +5,7 @@
 
 CONFIG += console bootstrap
 CONFIG -= qt shared resource_fork uic
-DEFINES += QT_BUILD_QMAKE QT_NO_QFILE_QOBJECT
+DEFINES += QT_BUILD_QMAKE
 DESTDIR = ../bin/
 
 OBJECTS_DIR = .

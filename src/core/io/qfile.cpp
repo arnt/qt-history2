@@ -206,7 +206,7 @@ QFile::QFile()
     unsetError();
 }
 
-#ifndef QT_NO_QFILE_QOBJECT
+#ifndef QT_NO_QOBJECT
 /*!
     Constructs a QFile with no name.
 

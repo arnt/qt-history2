@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#ifndef QT_NO_QFILE_QOBJECT
+#ifndef QT_NO_QOBJECT
 #  include "qobject.h"
 #endif
 
@@ -30,12 +30,12 @@
 class QFileEngine;
 class QFilePrivate;
 class Q_CORE_EXPORT QFile :
-#ifndef QT_NO_QFILE_QOBJECT
+#ifndef QT_NO_QOBJECT
     public QObject,
 #endif
     public QIODevice
 {
-#ifndef QT_NO_QFILE_QOBJECT
+#ifndef QT_NO_QOBJECT
     Q_OBJECT
 #endif
     Q_DECLARE_PRIVATE(QFile)
@@ -79,7 +79,7 @@ public:
 #endif
 
     QFile();
-#ifndef QT_NO_QFILE_QOBJECT
+#ifndef QT_NO_QOBJECT
     QFile(QObject *parent);
 #endif
     QFile(const QString &name);

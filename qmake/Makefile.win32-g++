@@ -54,6 +54,12 @@ QTOBJS= \
 	qunicodetables.o \
 	quuid.o \
 	qvector.o \
+	qcoresettings.obj \
+	qcorevariant.obj \
+	qcoresettings_win.obj \
+	qrect.obj \
+	qpoint.obj \
+	qsize.obj \
         qmetatype.o
 
 qmake.exe: $(OBJS) $(QTOBJS)
@@ -74,6 +80,24 @@ distclean:: clean
 
 qconfig.o: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
+
+qcoresettings_win.obj: ..\src\io\qcoresettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
+
+qcoresettings.obj: ..\src\io\qcoresettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
+
+qcorevariant.obj: ..\src\kernel\qcorevariant.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
+
+qrect.obj: ..\src\tools\qrect.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
+
+qpoint.obj: ..\src\tools\qpoint.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp
+
+qsize.obj: ..\src\tools\qsize.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qsize.cpp
 
 qtextstream.o: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp

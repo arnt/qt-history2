@@ -40,7 +40,7 @@ ADDCLEAN    =	qmake.tds
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj \
 	msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj winmakefile.obj projectgenerator.obj \
 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj \
-	makefiledeps.obj metamakefile.obj xmloutput.obj
+	makefiledeps.obj metamakefile.obj xmloutput.obj 
 
 #qt code
 QTOBJS= \
@@ -72,6 +72,12 @@ QTOBJS= \
 	qunicodetables.obj \
 	quuid.obj \
 	qvector.obj \
+	qcoresettings.obj \
+	qcorevariant.obj \
+	qcoresettings_win.obj \
+	qrect.obj \
+	qpoint.obj \
+	qsize.obj \
         qmetatype.obj
 
 first all: qmake.exe
@@ -97,9 +103,27 @@ distclean:: clean
 
 .cxx.obj:
 	$(CXX) $(CXXFLAGS) $<
-	
+
 qconfig.obj: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
+
+qcoresettings_win.obj: ..\src\io\qcoresettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
+
+qcoresettings.obj: ..\src\io\qcoresettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
+
+qcorevariant.obj: ..\src\kernel\qcorevariant.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
+
+qrect.obj: ..\src\tools\qrect.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
+
+qpoint.obj: ..\src\tools\qpoint.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp
+
+qsize.obj: ..\src\tools\qsize.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\tools\qsize.cpp
 
 qtextstream.obj: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp

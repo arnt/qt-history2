@@ -105,8 +105,14 @@ private:
     QConfFile(const QString &name);
 };
 
-class Q_CORE_EXPORT QCoreSettingsPrivate : public QObjectPrivate
+class Q_CORE_EXPORT QCoreSettingsPrivate 
+#ifndef QT_NO_QOBJECT
+    : public QObjectPrivate
+#endif
 {
+#ifdef QT_NO_QOBJECT
+    QCoreSettings *q_ptr;
+#endif
     Q_DECLARE_PUBLIC(QCoreSettings)
 
 public:
@@ -132,6 +138,7 @@ public:
     void beginGroupOrArray(const QSettingsGroup &group);
     void setStatus(QCoreSettings::Status status);
     void requestUpdate();
+    void update();
 
     static QString normalizedKey(const QString &key);
     static QCoreSettingsPrivate *create(Qt::SettingsFormat format, Qt::SettingsScope scope,
