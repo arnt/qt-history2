@@ -16,9 +16,10 @@
 #define QDATASTREAM_H
 
 #ifndef QT_H
-#include <qlist.h>
 #include <qiodevice.h>
 #endif
+
+template<typename T> class QList;
 
 #ifndef QT_NO_DATASTREAM
 class Q_EXPORT QDataStream				// data stream class
