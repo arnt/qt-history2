@@ -216,7 +216,7 @@ signals:
     void reset();
 
 public slots:
-    virtual void submit();
+    virtual bool submit();
     virtual void revert();
 
 protected slots:

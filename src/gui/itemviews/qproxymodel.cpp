@@ -376,9 +376,9 @@ QSize QProxyModel::span(const QModelIndex &index) const
 
 /*!
  */
-void QProxyModel::submit()
+bool QProxyModel::submit()
 {
-    d->model->submit();
+    return d->model->submit();
 }
 
 /*!

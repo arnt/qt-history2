@@ -1130,11 +1130,13 @@ QSize QAbstractItemModel::span(const QModelIndex &) const
 /*!
   Called to let the model know that it should submit whatever it has cached
   to the permanent storage. Typically used for row editing.
+
+  Returns false on error, otherwise true.
 */
 
-void QAbstractItemModel::submit()
+bool QAbstractItemModel::submit()
 {
-    // do nothing
+    return true;
 }
 
 /*!
