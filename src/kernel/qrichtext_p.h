@@ -1108,7 +1108,7 @@ struct Q_EXPORT QTextLineStart
 	, bidicontext( 0 )
 #endif
     {  }
-    QTextLineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
+    QTextLineStart( int y_, int bl, int h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
 	w( 0 )
 #ifndef QT_NO_COMPLEXTEXT
 	, bidicontext( 0 )
@@ -1141,7 +1141,7 @@ struct Q_EXPORT QTextLineStart
 #endif
 
 public:
-    ushort y, baseLine, h;
+    int y, baseLine, h;
 #ifndef QT_NO_COMPLEXTEXT
     QBidiStatus status;
 #endif
