@@ -985,12 +985,6 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-if [ "x$XINERAMA" = "xno" ]
-then
-    D_FLAGS="${D_FLAGS} QT_NO_XINERAMA"
-else
-    l_FLAGS="${l_FLAGS} -lXinerama"
-fi
 
 if [ "x$EMBEDDED" != "xno" ]
 then
@@ -1009,6 +1003,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
+[ "x$XINERAMA" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"

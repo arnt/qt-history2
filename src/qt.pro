@@ -69,6 +69,8 @@ unix {
 	CONFIG	   += x11 x11inc
 	DEFINES    += QT_FATAL_ASSERT
 	!macx:!freebsd-g++:LIBS += -ldl
+	xinerama:LIBS += -lXinerama
+	!xinerama:DEFINES += QT_NO_XINERAMA
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
