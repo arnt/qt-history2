@@ -632,7 +632,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     opt = opt.mid(1, opt.length()-2);
                 if(opt.startsWith("-L")) {
                     QString r = opt.right(opt.length() - 2);
-                    fixEnvVariables(r);
+                    fixForOutput(r);
                     libdirs.append(r);
                 } else if(opt == "-prebind") {
                     project->variables()["QMAKE_DO_PREBINDING"].append("TRUE");
@@ -818,7 +818,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         int slsh = targ.lastIndexOf(Option::dir_sep);
         if(slsh != -1)
             targ = targ.right(targ.length() - slsh - 1);
-        fixEnvVariables(targ);
+        fixForOutput(targ);
         QStringList links;
         if(project->first("TEMPLATE") == "app") {
             if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
@@ -831,7 +831,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 slsh = t.lastIndexOf(Option::dir_sep);
                 if(slsh != -1)
                     t = t.right(t.length() - slsh);
-                fixEnvVariables(t);
+                fixForOutput(t);
                 links << t;
             }
         }
@@ -857,7 +857,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 targ = targ.right(targ.length() - slsh - 1);
 
             QString dstdir = project->first("DESTDIR");
-            fixEnvVariables(dstdir);
+            fixForOutput(dstdir);
 
             QTextStream sht(&shf);
             sht << "#!/bin/sh" << endl;
@@ -1001,20 +1001,20 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
-      << "\t\t\t\t" << "CC = \"" << fixEnvsList("QMAKE_CC") << "\";" << "\n"
-      << "\t\t\t\t" << "CPLUSPLUS = \"" << fixEnvsList("QMAKE_CXX") << "\";" << "\n"
+      << "\t\t\t\t" << "CC = \"" << fixListForOutput("QMAKE_CC") << "\";" << "\n"
+      << "\t\t\t\t" << "CPLUSPLUS = \"" << fixListForOutput("QMAKE_CXX") << "\";" << "\n"
       << "\t\t\t\t" << "FRAMEWORK_SEARCH_PATHS = \"\";" << "\n"
-      << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixEnvsList("INCLUDEPATH") << " " << fixEnvs(specdir()) << "\";" << "\n"
+      << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixListForOutput("INCLUDEPATH") << " " << fixForOutput(specdir()) << "\";" << "\n"
       << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << var("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
       << "\t\t\t\t" << "OPTIMIZATION_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "OTHER_CFLAGS = \"" <<
-        fixEnvsList("QMAKE_CFLAGS") << fixQuotes(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
-        fixQuotes(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
+        fixListForOutput("QMAKE_CFLAGS") << fixForOutput(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
+        fixForOutput(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
       << "\t\t\t\t" << "LEXFLAGS = \"" << var("QMAKE_LEXFLAGS") << "\";" << "\n"
       << "\t\t\t\t" << "YACCFLAGS = \"" << var("QMAKE_YACCFLAGS") << "\";" << "\n"
       << "\t\t\t\t" << "OTHER_CPLUSPLUSFLAGS = \"" <<
-        fixEnvsList("QMAKE_CXXFLAGS") << fixQuotes(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
-        fixQuotes(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
+        fixListForOutput("QMAKE_CXXFLAGS") << fixForOutput(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
+        fixForOutput(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
       << "\t\t\t\t" << "OTHER_REZFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
@@ -1052,9 +1052,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentPath() << "\";" << "\n";
 #endif
     if(!project->isActiveConfig("staticlib"))
-        t << "\t\t\t\t" << "OTHER_LDFLAGS = \"" << fixEnvsList("SUBLIBS") << " " <<
-            fixEnvsList("QMAKE_LFLAGS") << " " << fixEnvsList("QMAKE_LIBDIR_FLAGS") <<
-            " " << fixEnvsList("QMAKE_LIBS") << "\";" << "\n";
+        t << "\t\t\t\t" << "OTHER_LDFLAGS = \"" << fixListForOutput("SUBLIBS") << " " <<
+            fixListForOutput("QMAKE_LFLAGS") << " " << fixListForOutput("QMAKE_LIBDIR_FLAGS") <<
+            " " << fixListForOutput("QMAKE_LIBS") << "\";" << "\n";
     if(!project->isEmpty("DESTDIR")) {
         QString dir = project->first("DESTDIR");
         if (QDir::isRelativePath(dir))
@@ -1268,32 +1268,28 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 }
 
 QString
-ProjectBuilderMakefileGenerator::fixQuotes(const QString &val)
+ProjectBuilderMakefileGenerator::fixForOutput(const QString &values)
 {
-    QString ret(val);
-    ret = ret.replace(QRegExp("('|\")"), "\\\\1");
-    return ret;
-}
-
-QString
-ProjectBuilderMakefileGenerator::fixEnvs(const QString &file)
-{
+    //get the environment variables references
     QRegExp reg_var("\\$\\((.*)\\)");
-    for(int rep = 0; (rep = reg_var.indexIn(file, rep)) != -1;) {
+    for(int rep = 0; (rep = reg_var.indexIn(values, rep)) != -1;) {
         if(project->variables()["QMAKE_PBX_VARS"].indexOf(reg_var.cap(1)) == -1)
             project->variables()["QMAKE_PBX_VARS"].append(reg_var.cap(1));
         rep += reg_var.matchedLength();
     }
-    return file;
+    QString ret = values;
+    ret = ret.replace(QRegExp("('|\")"), "\\\\1"); //fix quotes
+    ret = ret.replace("\t", "    "); //fix tabs
+    return ret;
 }
 
 QString
-ProjectBuilderMakefileGenerator::fixEnvsList(const QString &where)
+ProjectBuilderMakefileGenerator::fixListForOutput(const QString &where)
 {
     QString ret;
     const QStringList &l = project->variables()[where];
     for(int i = 0; i < l.count(); i++) {
-        fixEnvs(l[i]);
+        fixForOutput(l[i]);
         if(!ret.isEmpty())
             ret += " ";
         ret += l[i];
