@@ -1206,17 +1206,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QColor btn;
 	QColor bg;
 	QColor fg;
-	if ( !resBG.isEmpty() )
+	if (!resBG.isEmpty())
 	    bg = QColor(QString(resBG));
 	else
 	    bg = qt_std_pal->active().background();
-	if ( !resFG.isEmpty() )
+	if (!resFG.isEmpty())
 	    fg = QColor(QString(resFG));
 	else
 	    fg = qt_std_pal->active().foreground();
-	if ( button )
+	if (button)
 	    btn = QColor( button );
-	else if ( !resBG.isEmpty() )
+	else if (!resBG.isEmpty())
 	    btn = bg;
 	else
 	    btn = qt_std_pal->active().button();
@@ -1230,28 +1230,28 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    bright_mode = TRUE;
 	}
 
-	QPalette pal( fg, btn, btn.light(), btn.dark(), btn.dark(150), fg, Qt::white, base, bg);
+	QPalette pal(fg, btn, btn.light(), btn.dark(), btn.dark(150), fg, Qt::white, base, bg);
 	if (bright_mode) {
-	    pal.setColor( QPalette::HighlightedText, base );
-	    pal.setColor( QPalette::Highlight, Qt::white );
+	    pal.setColor(QPalette::HighlightedText, base);
+	    pal.setColor(QPalette::Highlight, Qt::white);
 	} else {
-	    pal.setColor( QPalette::HighlightedText, Qt::white );
-	    pal.setColor( QPalette::Highlight, Qt::darkBlue );
+	    pal.setColor(QPalette::HighlightedText, Qt::white);
+	    pal.setColor(QPalette::Highlight, Qt::darkBlue);
 	}
-	const QColor fg = pal.foreground().color(), btn = pal.button().color();
-	QColor disabled( (fg.red()+pal.btn.red())/2,(fg.green()+pal.btn.green())/2,
-			 (fg.blue()+btn.blue())/2);
-	pal.setColorGroup( QPalette::Disabled, disabled, btn, btn.light( 125 ), 
-			   btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg );
+	QColor disabled((fg.red()   + btn.red())  / 2,
+			(fg.green() + btn.green())/ 2,
+			(fg.blue()  + btn.blue()) / 2);
+	pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.light(125),
+			  btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg);
 	if (bright_mode) {
-	    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, base );
-	    pal.setColor( QPalette::DisabledQPalette::Highlight, Qt::white );
+	    pal.setColor(QPalette::Disabled, QPalette::HighlightedText, base);
+	    pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::white);
 	} else {
-	    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, Qt::white );
-	    pal.setColor( QPalette::Disabled, QPalette::Highlight, Qt::darkBlue );
+	    pal.setColor(QPalette::Disabled, QPalette::HighlightedText, Qt::white);
+	    pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::darkBlue);
 	}
-	if ( pal != *qt_std_pal && pal != QApplication::palette() )
-	    QApplication::setPalette( pal, TRUE );
+	if (pal != *qt_std_pal && pal != QApplication::palette())
+	    QApplication::setPalette(pal, TRUE);
 	*qt_std_pal = pal;
     }
 
