@@ -12,6 +12,9 @@ DEPENDPATH += generators generators/unix generators/win32 \
 INCLUDEPATH += $$DEPENDPATH .
 DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES QT_NODLL QT_BUILD_QMAKE QT_NO_THREAD
 
+OBJECTS_DIR = .
+MOC_DIR = .
+
 #qmake code
 SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
          unixmake2.cpp unixmake.cpp meta.cpp \
