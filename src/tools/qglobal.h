@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#16 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#17 $
 **
 ** Global type declarations and definitions
 **
@@ -120,11 +120,11 @@
 #endif
 
 #if !defined(USE_TEMPLATECLASS) && defined(DEFAULT_TEMPLATECLASS)
-#error Can't use templates as default when USE_TEMPLATECLASS is not defined!
+#error "Can't use templates as default when USE_TEMPLATECLASS is not defined!"
 #endif
 
 #if defined(DEFAULT_MACROCLASS) && defined(DEFAULT_TEMPLATECLASS)
-#error Define DEFAULT_MACROCLASS or DEFAULT_TEMPLATECLASS, not both!
+#error "Define DEFAULT_MACROCLASS or DEFAULT_TEMPLATECLASS, not both!"
 #endif
 
 
