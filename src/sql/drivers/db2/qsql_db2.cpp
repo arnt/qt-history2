@@ -34,14 +34,15 @@
 **
 **********************************************************************/
 
-//#define UNICODE
-
 #include "qsql_db2.h"
 #include <qsqlrecord.h>
 #include <qdatetime.h>
 #include <qptrvector.h>
 #include <private/qsqlextension_p.h>
 
+#ifndef UNICODE
+# define UNICODE
+#endif
 #include <sqlcli.h>
 #include <sqlcli1.h>
 
@@ -89,6 +90,26 @@ public:
     QPtrVector<QVariant> valueCache;
 };
 
+QString qFromTChar( SQLTCHAR* str )
+{
+#ifdef UNICODE    
+    return QString::fromUcs2( str );
+#else
+    return QString::fromLocal8Bit( str );
+#endif    
+}
+
+// dangerous!! (but fast). Don't use in functions that
+// require out parameters!
+SQLTCHAR* qToTChar( const QString& str )
+{
+#ifdef UNICODE
+    return (SQLTCHAR*)str.ucs2();
+#else
+    return str.ascii();
+#endif
+}
+
 QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
 {
     SQLINTEGER nativeCode;
@@ -105,7 +126,7 @@ QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
 		       SQL_MAX_MESSAGE_LENGTH - 1, /* in bytes, not in characters */
 		       &msgLen );
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
-	return QString( (const char*)description );
+	return QString( qFromTChar( description ) );
     return QString::null;
 }
 
@@ -210,7 +231,7 @@ QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
-    SQLCHAR colName[ COLNAMESIZE ];
+    SQLTCHAR colName[ COLNAMESIZE ];
     r = SQLDescribeCol( d->hStmt,
 			i+1,
 			colName,
@@ -225,7 +246,7 @@ QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
 	qSqlWarning( QString("qMakeFieldInfo: Unable to describe column %1").arg(i), d );
 	return QSqlFieldInfo();
     }
-    QString qColName( (const char*) colName );
+    QString qColName( qFromTChar( colName ) );
     // nullable can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
     int required = -1;
     if ( nullable == SQL_NO_NULLS ) {
@@ -273,13 +294,19 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
 	colSize = 65536;
     else
 	colSize++; // make sure there is room for more than the 0 termination
-    char* buf = new char[ colSize ];
+    SQLTCHAR* buf = new SQLTCHAR[ colSize ];
+
     while ( TRUE ) {
 	r = SQLGetData( hStmt,
 			column+1,
+#ifdef UNICODE
+			SQL_C_WCHAR,
+#else
 			SQL_C_CHAR,
+#endif
 			(SQLPOINTER)buf,
-			colSize,
+			// do not include the 0 termination character in the buffer-size
+			colSize * sizeof( SQLTCHAR ) - sizeof( SQLTCHAR ),
 			&lengthIndicator );
 	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
 	    if ( lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL ) {
@@ -287,18 +314,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
 		isNull = TRUE;
 		break;
 	    }
-	    // if SQL_SUCCESS_WITH_INFO is returned, indicating that
-	    // more data can be fetched, the length indicator does NOT
-	    // contain the number of bytes returned - it contains the
-	    // total number of bytes that CAN be fetched
-	    // colSize-1: remove 0 termination when there is more data to fetch
-	    int rSize = ( r == SQL_SUCCESS_WITH_INFO ) ? colSize - 1 : lengthIndicator;
-	    buf[ rSize ] = 0;
-	    fieldVal += buf;
-	    if ( lengthIndicator < colSize ) {
-		// workaround for Drivermanagers that don't return SQL_NO_DATA
-		break;
-	    }
+	    fieldVal += qFromTChar( buf );
 	} else if ( r == SQL_NO_DATA ) {
 	    break;
 	} else {
@@ -323,7 +339,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
 
-    SQLCHAR colName[ COLNAMESIZE ];
+    SQLTCHAR colName[ COLNAMESIZE ];
     r = SQLDescribeCol( hStmt,
 			column+1,
 			colName,
@@ -490,7 +506,7 @@ bool QDB2Result::reset ( const QString& query )
     }
     
     r = SQLExecDirect( d->hStmt,
-		       (SQLCHAR*) query.local8Bit().data(),
+		       qToTChar( query ),
 		       (SQLINTEGER) query.length() );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
@@ -765,7 +781,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 
     r = SQLDriverConnect( d->hDbc,
 			  NULL,
-			  (SQLCHAR*) connQStr.latin1(),
+			  qToTChar( connQStr ),
 			  (SQLSMALLINT) connQStr.length(),
 			  connOut,
 			  SQL_MAX_OPTION_STRING_LENGTH,
@@ -851,9 +867,9 @@ QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
     r =  SQLColumns( hStmt,
 		     NULL,
 		     0,
-		     (SQLCHAR*) schema.latin1(),
+		     qToTChar( schema ),
 		     schema.length(),
-		     (SQLCHAR*) table.latin1(),
+		     qToTChar( table ),
 		     table.length(),
 		     NULL,
 		     0 );
@@ -917,7 +933,7 @@ QStringList QDB2Driver::tables( const QString& /* user */ ) const
 		   0,
 		   NULL,
 		   0,
-		   (SQLCHAR*) tableType.latin1(),
+		   qToTChar( tableType ),
 		   tableType.length() );
 
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
@@ -968,9 +984,9 @@ QSqlIndex QDB2Driver::primaryIndex( const QString& tablename ) const
     r = SQLPrimaryKeys( hStmt,
 			NULL,
 			0,
-			(SQLCHAR*) schema.latin1(),
+			qToTChar( schema ),
 			schema.length(),
-			(SQLCHAR*) table.latin1(),
+			qToTChar( table ),
 			table.length() );
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
@@ -993,3 +1009,44 @@ QSqlIndex QDB2Driver::primaryIndex( const QString& tablename ) const
 	qSqlWarning( "QDB2Driver: Unable to free statement handle " + QString::number(r), d );
     return index;
 }
+
+bool QDB2Driver::hasFeature( DriverFeature f ) const
+{
+    switch ( f ) {
+	case Transactions:
+	    return FALSE;
+#if 0
+    if ( !d->hDbc )
+        return FALSE;
+    SQLUSMALLINT txn;
+    SQLSMALLINT t;
+    int r = SQLGetInfo( d->hDbc,
+	    (SQLUSMALLINT)SQL_TXN_CAPABLE,
+	    &txn,
+	    sizeof(txn),
+	    &t);
+    if ( r != SQL_SUCCESS || txn == SQL_TC_NONE )
+        return FALSE;
+    else
+        return TRUE;
+    }
+#endif
+	case QuerySize:
+	    return FALSE;
+	case BLOB:
+	    return FALSE;
+	case Unicode:
+#ifdef UNICODE
+	    return TRUE;
+#else
+	    return FALSE;
+#endif
+	case PreparedQueries:
+	    return FALSE;
+	case PositionalPlaceholders:
+	    return FALSE;
+	default:
+	    return FALSE;
+    }
+}
+

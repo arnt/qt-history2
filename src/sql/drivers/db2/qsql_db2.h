@@ -81,7 +81,7 @@ class Q_EXPORT_SQLDRIVER_DB2 QDB2Driver : public QSqlDriver
 public:
     QDB2Driver();
     ~QDB2Driver();
-    bool hasFeature( DriverFeature ) const { return FALSE; }
+    bool hasFeature( DriverFeature ) const;
     bool open( const QString& db, const QString& user, const QString& passwd, const QString&, int );
     void close();
     QSqlRecord record( const QString& tableName ) const;
