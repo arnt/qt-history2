@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#6 $
 **
 ** Localization database support.
 **
@@ -154,7 +154,7 @@ void QMessageFile::open( const QString & filename, const QString & directory )
     QString realname( filename );
     if ( directory.length() ) {
 	if ( realname[0] != '/' ) { // also check \ and c:\ on windows
-	    if ( directory[qstrlen(directory)-1] != '/' )
+	    if ( directory[int(qstrlen(directory)-1)] != '/' )
 		realname.prepend( "/" );
 	    realname.prepend( directory );
 	}
@@ -423,8 +423,8 @@ void QMessageFile::squeeze()
 		res = items[i].result;
 		uint k;
 		for( k=0; k<res.length(); k++ ) {
-		    b[(int)sp++] = res[k].row;
-		    b[(int)sp++] = res[k].cell;
+		    b[(int)sp++] = res[(int)k].row;
+		    b[(int)sp++] = res[(int)k].cell;
 		}
 		i--;
 		j--;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#112 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -75,9 +75,9 @@ static int textWidthWithTabs( const QFontMetrics &fm, const QString &s, uint nCh
 	return 0;
 
     int dist = -fm.minLeftBearing();
-    uint i = 0;
+    int i = 0;
     int tabDist = tabStopDist(fm);
-    while ( i < s.length() && i < nChars ) {
+    while ( (uint)i < s.length() && (uint)i < nChars ) {
 	if ( s[i] == '\t') {
 	    dist = ( dist/tabDist + 1 ) * tabDist;
 	} else {
@@ -91,7 +91,7 @@ static int textWidthWithTabs( const QFontMetrics &fm, const QString &s, uint nCh
 static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 			    int xPos, int width )
 {
-    uint i = 0;
+    int i = 0;
     int	  dist;
     int tabDist;
 
@@ -105,7 +105,7 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
     int     distBeforeLastTab = 0;
     dist    = 0;
     tabDist = tabStopDist(fm);
-    while ( i < s.length() && dist < xPos ) {
+    while ( (uint)i < s.length() && dist < xPos ) {
 	if ( s[i] == '\t') {
 	    distBeforeLastTab = dist;
 	    dist = (dist/tabDist + 1) * tabDist;
@@ -603,9 +603,9 @@ QString QMultiLineEdit::markedText() const
 	tmp[idx++] = '\n';
 
 	for( i = markBeginY + 1; i < markEndY ; i++ ) {
-	    uint i = 0;
+	    int i = 0;
 	    QString s = *(contents->at( i ));
-	    while ( i < s.length() ) {
+	    while ( (uint)i < s.length() ) {
 		tmp[idx++] = s[i++];
 	    }
 	    tmp[idx++] = '\n';
@@ -664,9 +664,9 @@ QString QMultiLineEdit::text() const
     int idx = 0;
     for( i = 0 ; i < (int)contents->count() ; i++ ) {
 	// ##### Isn't this just appending the string?
-	uint j=0;
+	int j=0;
 	QString s = *(contents->at( i ));
-	while ( j < s.length() )
+	while ( (uint)j < s.length() )
 	    tmp[idx++] = s[j++];
 	tmp[idx++] = '\n';
     }
@@ -1031,10 +1031,10 @@ static QString getOneLine( const QString &txt, uint& offset )
     if ( txt.isEmpty() )
 	return result;
 
-    uint i = offset;
-    while ( i < txt.length() && txt[i] != '\n' )
+    int i = offset;
+    while ( (uint)i < txt.length() && txt[i] != '\n' )
 	result += txt[i++];
-    if ( i == txt.length() )
+    if ( (uint)i == txt.length() )
 	offset = 0;
     else
 	offset = i+1;
@@ -1855,7 +1855,7 @@ void QMultiLineEdit::paste()
 	t.replace( crlf, "\n" );
 #endif
 
-	for (uint i=0; i<t.length(); i++) {
+	for (int i=0; (uint)i<t.length(); i++) {
 	    if ( t[i] < 32 && t[i] != '\n' && t[i] != '\t' )
 		t[i] = 32;
 	}

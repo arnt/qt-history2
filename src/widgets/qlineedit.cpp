@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#161 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#162 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -114,8 +114,8 @@ static int xPosToCursorPos( const QString &s, int offset, const QFontMetrics &fm
 	return 0;
     dist = xPos;
     while ( i < s.length() && dist > 0 )
-	dist -= fm.width( s[i++] );
-    if ( dist < 0 && ( xPos - dist > width || fm.width( s[i-1] )/2 < -dist))
+	dist -= fm.width( s[(int)i++] );
+    if ( dist < 0 && ( xPos - dist > width || fm.width( s[(int)i-1] )/2 < -dist))
 	i--;
     return i - offset;
 }
@@ -126,7 +126,7 @@ static int showLastPartOffset( const QString &s, uint offset, const QFontMetrics
 	return 0;
     uint i=s.length()-1;
     do {
-	width -= fm.width(s[i]);
+	width -= fm.width(s[(int)i]);
 	if ( i ) {
 	    i--;
 	} else {
@@ -1324,8 +1324,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 {
     QString t( newText );
     for ( uint i=0; i<t.length(); i++ ) {
-	if ( t[i] < 32 )  // unprintable/linefeed becomes space
-	    t[i] = 32;
+	if ( t[(int)i] < 32 )  // unprintable/linefeed becomes space
+	    t[(int)i] = 32;
     }
     if ( t.length() > (uint)maxLength() )
 	t.truncate( maxLength() );
@@ -1402,8 +1402,8 @@ void QLineEdit::insert( const QString &newText )
 	return;
 
     for ( uint i=0; i<t.length(); i++ ) {
-	if ( t[i] < 32 )  // unprintable/linefeed becomes space
-	    t[i] = 32;
+	if ( t[(int)i] < 32 )  // unprintable/linefeed becomes space
+	    t[(int)i] = 32;
     }
 
     QString test( tbuf.copy() );
