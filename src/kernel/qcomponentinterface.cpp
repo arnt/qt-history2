@@ -10,6 +10,14 @@
 
 #ifndef QT_NO_COMPONENT
 
+// {1D8518CD-E8F5-4366-99E8-879FD7E482DE}
+Q_GUID(IID_QUnknownInterface, 
+0x1d8518cd, 0xe8f5, 0x4366, 0x99, 0xe8, 0x87, 0x9f, 0xd7, 0xe4, 0x82, 0xde);
+
+// {5F3968A5-F451-45b1-96FB-061AD98F926E}
+Q_GUID(IID_QComponentInterface, 
+0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e);
+
 /*!
   \class QUnknownInterface qcomponentinterface.h
   \brief This class serves as a base class for interfaces.
