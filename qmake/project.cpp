@@ -59,12 +59,19 @@ protected:
 
 bool ParsableBlock::eval(QMakeProject *p)
 {
+    //save state
+    parser_info pi = ::parser;
+
+    //execute
     bool ret = true;
-    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); ++parse_it) {
-        ::parser = (*parse_it).pi;
-        if(!(ret = p->parse((*parse_it).text, p->variables())) || !continueBlock())
+    for(int i = 0; i < parser.count(); i++) {
+        ::parser = parser.at(i).pi;
+        if(!(ret = p->parse(parser.at(i).text, p->variables())) || !continueBlock())
             break;
     }
+
+    //restore state
+    ::parser = pi;
     return ret;
 }
 
@@ -74,26 +81,50 @@ struct FunctionBlock : public ParsableBlock
 {
     FunctionBlock() : scope_level(1), cause_return(false) { }
 
+    QString return_value;
     int scope_level;
     bool cause_return;
 
-    bool exec(QMakeProject *p, const QStringList &args);
+    bool exec(QMakeProject *p, const QStringList &args, bool &functionReturn);
     virtual bool continueBlock() { return !cause_return; }
 
 protected:
     bool eval(QMakeProject *p);
 };
 
-bool FunctionBlock::exec(QMakeProject *p, const QStringList &args)
+bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, bool &functionReturn)
 {
+    //save state
+    p->function_blocks.push(this);
+
+    //execute
     QList<QStringList> va;
     for(int i = 0; i < args.count(); i++) {
         va.append(p->variables()[QString::number(i+1)]);
         p->variables()[QString::number(i+1)] = args[i];
     }
+    QStringList argc = p->variables()["ARG_COUNT"];
+    p->variables()["ARG_COUNT"] = QString::number(args.count());
     bool ret = ParsableBlock::eval(p);
+    if(return_value.isEmpty()) {
+        functionReturn = true;
+    } else {
+        bool ok;
+        int val = return_value.toInt(&ok);
+        if(ok) 
+            functionReturn = val;
+        else
+            functionReturn = (return_value == "true");
+    }
     for(int i = 0; i < va.count(); i++) 
         p->variables()[QString::number(i+1)] = va[i];
+    p->variables()["ARG_COUNT"] = argc; //just to be carefull
+
+    //restore state
+    p->iterator = 0;
+    p->function = 0;
+    return_value = QString::null;
+    Q_ASSERT(p->function_blocks.pop() == this);
     return ret;
 }
 
@@ -130,7 +161,7 @@ bool IteratorBlock::exec(QMakeProject *p)
     int iterate_count = 0;
     //save state
     p->iterator = this;
-    parser_info pi = ::parser;
+
     //do the loop
     while(loop_forever || it != list.end()) {
         cause_next = cause_break = false;
@@ -168,8 +199,8 @@ bool IteratorBlock::exec(QMakeProject *p)
         if(!ret || cause_break)
             break;
     }
+
     //restore state
-    ::parser = pi;
     p->iterator = 0;
     p->function = 0;
     return ret;
@@ -605,6 +636,11 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                             iterator->test.append(IteratorBlock::Test(func, args, invert_test));
                             test = !invert_test;
                         } else if(func == "define") {
+                            if(function) {
+                                fprintf(stderr, 
+                                        "%s:%d: cannot define a function within another definition.\n",
+                                        parser.file.latin1(), parser.line_no);
+                            }
                             if(args.count() != 1) {
                                 fprintf(stderr, "%s:%d: define(function_name) requires one arguments.\n",
                                         parser.file.latin1(), parser.line_no);
@@ -1423,15 +1459,28 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         }
 #endif
         return ret;
+    } else if(func == "return") {
+        if(function_blocks.isEmpty()) {
+            fprintf(stderr, "%s:%d unexpected return()\n",
+                    parser.file.latin1(), parser.line_no);
+        } else { 
+            FunctionBlock *f = function_blocks.top();
+            f->cause_return = true;
+            if(args.count() >= 1) 
+                f->return_value = args[0];
+        }
+        return true;
     } else if(func == "break") {
         if(!iterator)
-            fprintf(stderr, "%s:%d unexpected break()",parser.file.latin1(), parser.line_no);
+            fprintf(stderr, "%s:%d unexpected break()\n",
+                    parser.file.latin1(), parser.line_no);
         else
             iterator->cause_break = true;
         return true;
     } else if(func == "next") {
         if(!iterator)
-            fprintf(stderr, "%s:%d unexpected next()",parser.file.latin1(), parser.line_no);
+            fprintf(stderr, "%s:%d unexpected next()\n",
+                    parser.file.latin1(), parser.line_no);
         else
             iterator->cause_next = true;
         return true;
@@ -1550,7 +1599,10 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             exit(2);
         return true;
     } else if(FunctionBlock *defined = functions[func]) {
-        defined->exec(this, args);
+        bool ret = true;
+        if(!defined->exec(this, args, ret)) {
+        }
+        return ret;
     } else {
         fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.latin1(), parser.line_no,
                 func.latin1());

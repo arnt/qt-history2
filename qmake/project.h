@@ -39,8 +39,10 @@ class QMakeProject
     };
     friend struct ParsableBlock;
     friend struct IteratorBlock;
+    friend struct FunctionBlock;
 
     QStack<ScopeBlock> scope_blocks;
+    QStack<FunctionBlock *> function_blocks;
     IteratorBlock *iterator;
     FunctionBlock *function;
     QMap<QString, FunctionBlock*> functions;
