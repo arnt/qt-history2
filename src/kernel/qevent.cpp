@@ -231,10 +231,11 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
     keyboard modifiers), i.e. what buttons and keys were being pressed
     immediately before the event was generated.
 
-    Note that this means that for \c QEvent::MouseButtonPress and \c
-    QEvent::MouseButtonDblClick, the flag for the button() itself will
-    not be set in the state, whereas for \c QEvent::MouseButtonRelease
-    it will.
+    This means that if you have a \c QEvent::MouseButtonPress or a \c
+    QEvent::MouseButtonDblClick state() will \e not include the mouse
+    button that's pressed. But once the mouse button has been
+    released, the \c QEvent::MouseButtonRelease event will have the
+    button() that was pressed.
 
     This value is mainly interesting for \c QEvent::MouseMove; for the
     other cases, button() is more useful.

@@ -188,9 +188,8 @@
     specific item from the list. The remove() function will find and
     remove items according to a specific item value.
 
-    Lists can also be sorted with the sort() function, or can be
-    sorted using the \link qtl.html Qt Template Library\endlink. For
-    example with qHeapSort():
+    Lists can also be sorted using the \link qtl.html Qt Template
+    Library\endlink. For example with qHeapSort():
 
     Example:
     \code
