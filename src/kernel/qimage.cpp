@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#6 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#6 $";
 #endif
 
 
@@ -47,20 +47,92 @@ static void write_xpm_image( QImageIO * );
 // QImageData and QImageIO functions
 //
 
+
+static bool bitflip_init = FALSE;
+static char bitflip[256];			// table to flip bits
+
+static void setup_bitflip()			// create bitflip table
+{
+    if ( !bitflip_init ) {
+	for ( int i=0; i<256; i++ )
+	    bitflip[i] = ((i >> 7) & 0x01) | ((i >> 5) & 0x02) |
+			 ((i >> 3) & 0x04) | ((i >> 1) & 0x08) |
+			 ((i << 7) & 0x80) | ((i << 5) & 0x40) |
+			 ((i << 3) & 0x20) | ((i << 1) & 0x10);
+	bitflip_init = TRUE;
+    }
+}
+
+
 QImageData::QImageData()
 {
-    spec  = Any;
     width = height = depth = ncols = -1;
-    carr  = 0;
+    ctbl  = 0;
     bits  = 0;
     bigend = FALSE;	/* TODO!!! How to handle this??? */
 }
 
 QImageData::~QImageData()
 {
-    delete carr;
-    delete bits;
+    if ( ctbl )
+	delete ctbl;
+    if ( bits )
+	freeBits();
 }
+
+
+long QImageData::nBytes() const			// number of bytes image data
+{
+    long n;
+    switch ( depth ) {
+	case 1:
+	    n = (width+7)/8*height;
+	    break;
+        case 8:
+	    n = width*height;
+	    break;
+	case 24:
+	    n = width*height*3;
+	    break;
+	default:
+	    n = 0;
+    }
+    return n;
+}
+
+
+void QImageData::allocBits()
+{
+    if ( bits )
+	freeBits();
+    if ( width <= 0 || height <= 0 )
+	return;
+    long nbytes = nBytes();			// bytes total image bits
+    long bpl    = nbytes/height;		// bytes per line
+    int  ptrtbl = height*sizeof(uchar*);	// size of pointer table
+    uchar *p = (uchar *)calloc( nbytes+ptrtbl+sizeof(int), 1 );
+    CHECK_PTR( p );
+    *((int *)p) = height;			// encode height as first int
+    p += sizeof(int);
+    bits = (uchar**)p;				// set image pointer
+    uchar **h = bits;				// pointer table
+    uchar *d = p + ptrtbl;			// start of image data
+    for ( int i=0; i<height; i++ ) {
+	bits[i] = d;
+	d += bpl;
+    }
+}
+
+void QImageData::freeBits()
+{
+    if ( bits ) {
+	uchar *p = (uchar *)bits;
+	p -= sizeof(int);			// real start of pointer
+	free( p );
+	bits = 0;
+    }
+}
+
 
 QImageIO::QImageIO()
 {
@@ -95,7 +167,7 @@ void install_standard_handlers()		// install standard handlers
 	is_installing_standards = TRUE;		// avoid total recursion
 	QImage::defineIOHandler( "QT", "^QIMG",
 				 read_qt_image, write_qt_image );
-	QImage::defineIOHandler( "GIF", "^GIF",
+	QImage::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]",
 				 read_gif_image, write_gif_image );
 	QImage::defineIOHandler( "BMP", "^BM",
 				 read_bmp_image, write_bmp_image );
@@ -288,10 +360,15 @@ int QImage::numColors() const
     return data->pm ? (1 << data->pm->depth()) : -1;
 }
 
-bool QImage::trueColor() const
+
+QImage::operator QPixMap &() const
 {
-    debug( "NOT SUPPORTED YET" );
-    return FALSE;
+    static QPixMap *dummy = 0;
+    if ( !data->pm && !dummy ) {		// !!!NOTE: Use pixmap cache
+	dummy = new QPixMap( 8, 8 );
+	dummy->fill( white );
+    }
+    return data->pm ? *data->pm : *dummy;
 }
 
 
@@ -460,7 +537,7 @@ QDataStream &operator>>( QDataStream &s, QImage &image )
     io.width  = -1;
     io.height = -1;
     io.depth  = -1;
-    io.carr   = 0;
+    io.ctbl   = 0;
     io.bits   = 0;
     io.iodev  = s.device();
     io.fname  = 0;
@@ -540,18 +617,138 @@ static void write_bmp_image( QImageIO *image )	// write BMP image data
 
 
 // --------------------------------------------------------------------------
-// PBM/PGM/PPM image read/write functions
+// PBM/PGM/PPM (ASCII and RAW) image read/write functions
 //
+
+static int read_pbm_int( QIODevice *d )		// read int, skip comments
+{
+    int   c;
+    int   val = -1;
+    bool  skip = FALSE;				// skip comments
+    while ( TRUE ) {
+	if ( (c=d->getch()) == EOF )		// end of file
+	    break;
+	if ( val != -1 && !isdigit(c) )
+	    break;
+	if ( skip && c != '\n' )		// skip to end of line
+	    continue;
+	if ( c == '\n' )			// newline
+	    skip = FALSE;
+	else if ( c == '#' )			// start of comment
+	    skip = TRUE;
+	else if ( isdigit(c) )			// 0..9
+	    val = val == -1 ? (c - '0') : (10*val + c - '0');
+	else if ( !isspace(c) )
+	    break;
+    }
+    return val;
+}
+
 
 static void read_pbm_image( QImageIO *image )	// read PBM image data
 {
-    debug( "READING BMP" );
+    const       buflen = 300;
+    char        buf[buflen];
+    QRegExp     r1, r2;
+    QIODevice  *d = image->iodev;
+    int	      	w, h, nbits, mcc;
+    char	type;
+    bool	raw;
+
+    image->status = 1;				// assume format error
+    d->readBlock( buf, 3 );			// read P[1-6].
+    if ( !(buf[0] == 'P' && isdigit(buf[1]) && isspace(buf[2])) )
+	return;
+    switch ( (type=buf[1]) ) {
+	case '1':				// ascii PBM
+	case '4':				// raw PBM
+	    setup_bitflip();	//!!!		// we will have to flip bits
+	    nbits = 1;
+	    break;
+	case '2':				// ascii PGM
+	case '5':				// raw PGM
+	    nbits = 8;
+	    break;
+	case '3':				// ascii PPM
+	case '6':				// raw PPM
+	    nbits = 24;
+	    break;
+        default:
+	    return;
+    }
+    raw = type >= '4';
+    w = read_pbm_int( d );			// get image width
+    h = read_pbm_int( d );			// get image height
+    if ( nbits == 1 )
+	mcc = 0;				// ignore max color component
+    else
+	mcc = read_pbm_int( d );		// get max color component
+    if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc < 0 || mcc > 32767 )
+	return;					// format error
+
+    ASSERT( mcc <= 255 );
+    image->width  = w;				// set image data
+    image->height = h;
+    image->depth  = nbits;
+    image->allocBits();
+
+  // NOTE!!! The following code assumes contigous memory!!!
+
+    if ( raw ) {				// read raw data
+	d->readBlock( (char *)image->bits[0], image->nBytes() );
+    }
+    else {					// read ascii data
+	register uchar *p = image->bits[0];
+	long n = image->nBytes();
+	if ( nbits == 1 ) {
+	    int b;
+	    while ( n-- ) {
+		b = 0;
+		for ( int i=0; i<8; i++ )
+		    b = (b << 1) | (read_pbm_int(d) & 1);
+		*p++ = b;
+	    }
+	}
+	else {
+	    while ( n-- ) {
+		*p++ = read_pbm_int( d );
+	    }
+	}
+    }
+    ulong *c;
+    int   nc;
+    if ( nbits == 1 ) {				// bitmap
+	register uchar *p = image->bits[0];
+	long n = image->nBytes();
+	while ( n-- ) {				// to be removed
+	    *p = bitflip[*p];
+	    p++;
+	}
+	c = new ulong[nc=2];
+	CHECK_PTR( c );
+	c[0] = QImageData::setRGB(255,255,255);	// white
+	c[1] = QImageData::setRGB(0,0,0);	// black
+    }
+    else if ( nbits == 8 ) {			// graymap
+	c = new ulong[nc=mcc];			// !!! not correct
+	CHECK_PTR( c );
+	for ( int i=0; i<mcc; i++ )
+	    c[i] = QImageData::setRGB(i*255/mcc,i*255/mcc,i*255/mcc);
+    }
+    else {					// 24 bit pixmap
+	nc = 0;
+	c = 0;
+    }
+    image->ncols = nc;
+    image->ctbl  = c;
+
+    image->status = 0;				// image ok
 }
 
 
 static void write_pbm_image( QImageIO *image )	// write PBM image data
 {
-    debug( "WRITING BMP" );
+    debug( "WRITING PBM" );
 }
 
 
@@ -567,7 +764,7 @@ static inline int hex2byte( register char *p )
 
 static void read_xbm_image( QImageIO *image )	// read X bitmap image data
 {
-    const       buflen = 260;
+    const       buflen = 300;
     char        buf[buflen];
     QRegExp     r1, r2;
     QIODevice  *d = image->iodev;
@@ -577,68 +774,58 @@ static void read_xbm_image( QImageIO *image )	// read X bitmap image data
     image->status = 1;				// assume format error
     r1 = "^#define[\x20\t]+[a-zA-Z0-9_]+[\x20\t]+";
     r2 = "[0-9]+";
-    d->readLine( buf, buflen );			// "#define .._width <num>" ?
-    if ( r1.match(buf,0,&i)==0 && r2.match(buf,i)==i ) {
+    d->readLine( buf, buflen );			// "#define .._width <num>"
+    if ( r1.match(buf,0,&i)==0 && r2.match(buf,i)==i )
 	w = atoi( &buf[i] );
-	d->readLine( buf, buflen );		// "#define .._height <num>" ?
-	if ( r1.match(buf,0,&i)==0 && r2.match(buf,i)==i )
-	    h = atoi( &buf[i] );
-    }
-    if ( w < 0 || h < 0 )			// invalid data
-	return;
+    d->readLine( buf, buflen );			// "#define .._height <num>"
+    if ( r1.match(buf,0,&i)==0 && r2.match(buf,i)==i )
+	h = atoi( &buf[i] );
+    if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 )
+	return;					// format error
 
-    while ( TRUE ) {
+    while ( TRUE ) {				// scan for data
 	if ( d->readLine(buf, buflen) == 0 )	// end of file
 	    return;
 	if ( strstr(buf,"0x") != 0 )		// does line contain data?
 	    break;
     }
 
-    int	bitflip[256];				// create bitflip array
-    for ( i=0; i<256; i++ )
-#if 0
-        bitflip[i] = ((i >> 7) & 0x01) | ((i >> 5) & 0x02) |
-	    	     ((i >> 3) & 0x04) | ((i >> 1) & 0x08) |
-	    	     ((i << 7) & 0x80) | ((i << 5) & 0x40) |
-	    	     ((i << 3) & 0x20) | ((i << 1) & 0x10);
-#else
-        bitflip[i] = i;
-#endif
-    int    nbytes = ((w+7)/8)*h;
-    uchar *bits = new uchar[nbytes];
-    uchar *b = bits;
-    char  *p = buf;
-    CHECK_PTR( bits );
-    memset( bits, nbytes, 0 );    
-
-    while ( nbytes-- ) {			// for all encoded bytes...
-	p = strstr( p, "0x" );
-	while ( !p ) {				// read another line	
-	    if ( !d->readLine(buf, buflen) ) {
-		delete bits;
-		return;				// end of file
-	    }
-	    p = strstr( buf, "0x" ); 
-	}
-	p++;
-	p++;
-	*b++ = bitflip[hex2byte(p)];
-	p++;
-	p++;
-    }
-
-    ulong *c = new ulong[2];			// create colormap array
+    ulong *c = new ulong[2];			// create colormap table
     CHECK_PTR( c );
-    c[0] = QImage::setRGB(255,255,255);		// white
-    c[1] = QImage::setRGB(0,0,0);		// black
+    c[0] = QImageData::setRGB(255,255,255);	// white
+    c[1] = QImageData::setRGB(0,0,0);		// black
     image->width  = w;				// set image data
     image->height = h;
     image->depth  = 1;
     image->ncols  = 2;
-    image->carr   = c;
-    image->bits   = bits;
+    image->ctbl   = c;
+    image->allocBits();
+//!!!    image->bitOrder = BigEndian;
     image->bigend = TRUE;			// does not matter, really
-    image->status = 0;
+
+    int	   x = 0, y = 0;
+    uchar *b = image->bits[0];
+    char  *p = strstr( buf, "0x" );
+    w = (w+7)/8;				// byte width
+
+    while ( y < h ) {				// for all encoded bytes...
+	if ( p ) {				// p = "0x.."
+	    *b++ = hex2byte(p+2);
+	    p += 2;
+	    if ( ++x == w ) {
+		b = image->bits[++y];
+		x = 0;
+	    }
+	    p = strstr( p, "0x" );
+	}
+	else {					// read another line
+	    if ( !d->readLine(buf,buflen) )	// EOF ==> truncated image
+		break;
+	    p = strstr( buf, "0x" );
+	}
+    }
+
+    image->status = 0;				// image ok
 }
 
 
@@ -668,11 +855,16 @@ static void write_xbm_image( QImageIO *image )	// write X bitmap image data
 	hexrep[i] = 'a' -10 + i;
     int bcnt = 0;
     register char *p = buf;
-    uchar *b = image->bits;
+    uchar *b = image->bits[0];
+    int x=0, y=0;
     while ( nbytes-- ) {		// write all bytes
 	*p++ = '0';  *p++ = 'x';
 	*p++ = hexrep[*b >> 4];
 	*p++ = hexrep[*b++ & 0xf];
+	if ( ++x == w ) {
+	    b = image->bits[++y];
+	    x = 0;
+	}
 	if ( nbytes > 0 ) {
 	    *p++ = ',';
 	    if ( ++bcnt > 14 ) {

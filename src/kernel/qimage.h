@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#2 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#3 $
 **
 ** Definition of QImage class
 **
@@ -67,14 +67,8 @@ public:
     bool	load( const char *fileName, const char *format=0 );
     bool	save( const char *fileName, const char *format=0 ) const;
 
-		operator QPixMap &() const { return *data->pm; }
+		operator QPixMap &() const;
 		operator QPixMap *() const { return data->pm; }
-
-    static int red( ulong rgb )   { return (int)(rgb & 0xff); }
-    static int green( ulong rgb ) { return (int)((rgb >> 8) & 0xff); }
-    static int blue( ulong rgb )  { return (int)((rgb >> 16) & 0xff); }
-    static ulong setRGB( int r, int g, int b )
-	{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
 
     friend QDataStream &operator<<( QDataStream &, const QImage & );
     friend QDataStream &operator>>( QDataStream &, QImage & );
@@ -107,15 +101,23 @@ QDataStream &operator>>( QDataStream &, QImage & );
 struct QImageData {
     QImageData();
    ~QImageData();
-    enum ImageSpec { Any, TrueColor, ColorMap, GrayScale, BitMap };
-    ImageSpec  spec;				// image specification
     int	       width;				// image width
     int	       height;				// image height
     int	       depth;				// image depth
     int	       ncols;				// number of colors
-    ulong     *carr;				// color array
-    uchar     *bits;				// image data
+    ulong     *ctbl;				// color table
+    uchar    **bits;				// image data
     bool       bigend;				// big endian byte ordering
+
+    long       nBytes() const;
+    void       allocBits();
+    void       freeBits();
+
+    static int red( ulong rgb )   { return (int)(rgb & 0xff); }
+    static int green( ulong rgb ) { return (int)((rgb >> 8) & 0xff); }
+    static int blue( ulong rgb )  { return (int)((rgb >> 16) & 0xff); }
+    static ulong setRGB( int r, int g, int b )
+	{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
 };
 
 struct QIODevice;
