@@ -994,7 +994,7 @@ void QVNCServer::sendHextile()
             }
             rect.y += MAP_TILE_SIZE;
             client->flush();
-            if (client->state() == Qt::UnconnectedState)
+            if (client->state() == QAbstractSocket::UnconnectedState)
                 break;
         }
 

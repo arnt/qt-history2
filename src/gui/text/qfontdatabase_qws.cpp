@@ -13,6 +13,7 @@
 
 #include "qdir.h"
 #include "qscreen_qws.h" //so we can check for rotation
+#include "qlibraryinfo.h"
 
 static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file)
 {
@@ -47,12 +48,12 @@ static void initializeDb()
     Q_ASSERT(!err);
 
     // Load in font definition file
-    QByteArray fn =  QLibraryInfo::location(QLibraryInfo::PrefixPath);
+    QString fn = QLibraryInfo::location(QLibraryInfo::PrefixPath);
     fn += "/lib/fonts/fontdir";
-    FILE* fontdef=fopen(fn,"r");
+    FILE* fontdef=fopen(fn.toLocal8Bit().constData(),"r");
     if(!fontdef) {
         qWarning("Cannot find font definition file %s - is Qt installed correctly?",
-               fn.constData());
+               fn.toLocal8Bit().constData());
         exit(1);
         //return;
     }
@@ -67,14 +68,14 @@ static void initializeDb()
             int weight=50;
             int size=0;
             sscanf(buf,"%s %s %s %s %d %d",name,file,render,isitalic,&weight,&size);
-            QByteArray filename;
+            QString filename;
             if (file[0] != '/') {
                 filename = QLibraryInfo::location(QLibraryInfo::PrefixPath);
                 filename += "/lib/fonts/";
             }
             filename += file;
             bool italic = isitalic[0] == 'y';
-            if (QFile::exists(QString::fromLocal8Bit(filename)))
+            if (QFile::exists(filename))
                 addFont(db, name, weight, italic, size/10, file);
         }
     } while (!feof(fontdef));
@@ -82,7 +83,7 @@ static void initializeDb()
 
 #ifndef QT_NO_DIR
 
-    QDir dir(QLibraryInfo::location(QLibraryInfo::Path)+"/lib/fonts/","*.qpf");
+    QDir dir(QLibraryInfo::location(QLibraryInfo::PrefixPath)+"/lib/fonts/","*.qpf");
     for (int i=0; i<(int)dir.count(); i++) {
         int u0 = dir[i].indexOf('_');
         int u1 = dir[i].indexOf('_',u0+1);
@@ -193,12 +194,12 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
 
     FT_Face face;
 
-    QByteArray file = QLibraryInfo::location(QLibraryInfo::Path);
+    QString file = QLibraryInfo::location(QLibraryInfo::PrefixPath);
     file += "/lib/fonts/";
     file += size->fileName;
-    FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file, 0, &face);
+    FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file.toLocal8Bit().constData(), 0, &face);
     if (err) {
-        FM_DEBUG("loading font file %s failed, err=%x", file.constData(), err);
+        FM_DEBUG("loading font file %s failed, err=%x", file.toLocal8Bit().constData(), err);
         Q_ASSERT(!err);
     }
     FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
@@ -207,7 +208,12 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     QFontEngine *fe = new QFontEngineFT(request, face);
     return fe;
     } else {
-        QString fn= QLibraryInfo::location(QLibraryInfo::Path)+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.italic == QFont::StyleItalic ? "i.qpf" : ".qpf");
+        QString fn = QLibraryInfo::location(QLibraryInfo::PrefixPath)
+                     + QLatin1String("/lib/fonts/")
+                     + family->name.toLower()
+                     + "_" + QString::number(pixelSize*10)
+                     + "_" + QString::number(style->key.weight)
+                     + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
         //###rotation ###
 
         QFontEngine *fe = new QFontEngineQPF(request, fn);
