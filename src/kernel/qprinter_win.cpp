@@ -124,6 +124,13 @@ bool QPrinter::newPage()
 	    state = PST_ABORTED;
 	if ( restorePainter )
 	    painter->restore();
+	if ( (qt_winver& Qt::WV_DOS_based) ) {
+	    if ( fullPage() ) {
+		QSize margs = margins();
+		OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
+	    }
+	    SetTextAlign( hdc, TA_BASELINE );
+	}
     }
     return success;
 }
@@ -481,7 +488,6 @@ bool QPrinter::setup( QWidget *parent )
 			dm->dmOrientation = DMORIENT_LANDSCAPE;
 			dm->dmCopies = ncopies;
 			dm->dmPaperSize = mapPageSizeDevmode( page_size );
-			qDebug("%d", page_size );
 			if ( colorMode() == Color )
 			dm->dmColor = DMCOLOR_COLOR;
 			else
@@ -534,7 +540,6 @@ bool QPrinter::setup( QWidget *parent )
 			dm->dmOrientation = DMORIENT_LANDSCAPE;
 			dm->dmCopies = ncopies;
 			dm->dmPaperSize = mapPageSizeDevmode( page_size );
-			qDebug("%d", page_size );
 			if ( colorMode() == Color )
 			dm->dmColor = DMCOLOR_COLOR;
 			else
