@@ -2,6 +2,7 @@ Dokumentasjon:
 --------------
     temasider (programmers guide)
     qvector.doc
+    which/that
 
 Støttefunksjoner:
 -----------------
