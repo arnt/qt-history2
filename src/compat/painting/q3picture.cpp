@@ -47,17 +47,17 @@ bool Q3Picture::load(const QString &fileName, const char *format)
 
 bool Q3Picture::load(QIODevice *dev, const char *format)
 {
-    if ( qstrcmp( format, "svg" ) == 0 ) {
+    if (qstrcmp(format, "svg" ) == 0) {
 	Q3SvgDevice svg;
-	if ( !svg.load( dev ) )
+	if (!svg.load(dev))
 	    return FALSE;
- 	QPainter p( this );
-	bool b = svg.play( &p );
+ 	QPainter p(this);
+	bool b = svg.play(&p);
 	d->brect = svg.boundingRect();
 	return b;
     }
 
-    if(format) {
+    if (format) {
 #ifndef QT_NO_PICTUREIO
         QPictureIO io(dev, format);
         bool result = io.read();
@@ -91,13 +91,13 @@ bool Q3Picture::save(const QString &fileName, const char *format)
 
     // identical to QIODevice* code below but the file name
     // makes a difference when it comes to saving pixmaps
-    if ( qstricmp( format, "svg" ) == 0 ) {
+    if (qstricmp( format, "svg") == 0) {
 	Q3SvgDevice svg;
-	QPainter p( &svg );
-	if ( !play( &p ) )
+	QPainter p(&svg);
+	if (!play(&p))
 	    return FALSE;
-	svg.setBoundingRect( boundingRect() );
-	return svg.save( fileName );
+	svg.setBoundingRect(boundingRect());
+	return svg.save(fileName);
     }
 
     if(format) {
@@ -130,13 +130,13 @@ bool Q3Picture::save(QIODevice *dev, const char *format)
         return false;
     }
 
-    if ( qstricmp( format, "svg" ) == 0 ) {
+    if (qstricmp(format, "svg") == 0) {
 	Q3SvgDevice svg;
-	QPainter p( &svg );
-	if ( !play( &p ) )
+	QPainter p(&svg);
+	if (!play(&p))
 	    return FALSE;
-	svg.setBoundingRect( boundingRect() );
-	return svg.save( dev );
+	svg.setBoundingRect(boundingRect());
+	return svg.save(dev);
     }
 
     if(format) {
