@@ -801,7 +801,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     float rw = rect.width();
     float rh = rect.height();
 
-    if (QABS(dx) > QABS(dy)) { // Fill horizontally
+    if (qAbs(dx) > qAbs(dy)) { // Fill horizontally
         // Make sure we fill left to right.
         if (gstop.x() < gstart.x()) {
             qSwap(gcol1, gcol2);

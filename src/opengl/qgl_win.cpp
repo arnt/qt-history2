@@ -863,7 +863,8 @@ uint QGLContext::colorIndex(const QColor& c) const
         }
         return d->cmap->findNearest(c.rgb());
     }
-    return c.pixel() & 0x00ffffff;                // Assumes standard palette
+    QColormap cmap = QColormap::instance();
+    return cmap.pixel(c) & 0x00ffffff; // Assumes standard palette
 }
 
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
@@ -927,7 +928,7 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 
 bool QGLWidget::event(QEvent *e)
 {
-    if (e->type() == QEvent::Reparent)
+    if (e->type() == QEvent::ParentChange)
         setContext(new QGLContext(d->glcx->requestedFormat(), this));
     return QWidget::event(e);
 }
