@@ -22,6 +22,7 @@
 #include <qsettings.h>
 #include <qsplashscreen.h>
 #include <qcursor.h>
+#include <qmimefactory.h>
 
 int main( int argc, char **argv )
 {
@@ -47,7 +48,7 @@ int main( int argc, char **argv )
 
     QSplashScreen *splash = 0;
     if ( showSplash ) {
-	splash = new QSplashScreen( QPixmap::fromMimeSource("splash.png"),
+	splash = new QSplashScreen( qPixmapFromMimeSource("splash.png"),
 				    Qt::WDestructiveClose );
 	splash->show();
     }

@@ -50,6 +50,7 @@
 #include <qdesktopwidget.h>
 #include <qassistantclient.h>
 #include <qprintdialog.h>
+#include <qmimefactory.h>
 
 #include <stdlib.h>
 
@@ -142,7 +143,7 @@ static Ending ending( QString str )
 const QPixmap TrWindow::pageCurl()
 {
     QPixmap pixmap;
-    pixmap = QPixmap::fromMimeSource( "pagecurl.png" );
+    pixmap = qPixmapFromMimeSource( "pagecurl.png" );
     if ( !pixmap.isNull() ) {
         QBitmap pageCurlMask( pagecurl_mask_width, pagecurl_mask_height,
                         pagecurl_mask_bits, TRUE );
@@ -157,14 +158,14 @@ TrWindow::TrWindow()
 {
 
 #ifndef Q_WS_MAC
-    setWindowIcon( QPixmap::fromMimeSource( "appicon.png" ) );
+    setWindowIcon( qPixmapFromMimeSource( "appicon.png" ) );
 #endif
 
     // Create the application global listview symbols
-    pxOn  = new QPixmap( QPixmap::fromMimeSource( "s_check_on.png" ) );
-    pxOff = new QPixmap( QPixmap::fromMimeSource( "s_check_off.png" ) );
-    pxObsolete = new QPixmap( QPixmap::fromMimeSource( "d_s_check_obs.png" ) );
-    pxDanger = new QPixmap( QPixmap::fromMimeSource( "s_check_danger.png" ) );
+    pxOn  = new QPixmap( qPixmapFromMimeSource( "s_check_on.png" ) );
+    pxOff = new QPixmap( qPixmapFromMimeSource( "s_check_off.png" ) );
+    pxObsolete = new QPixmap( qPixmapFromMimeSource( "d_s_check_obs.png" ) );
+    pxDanger = new QPixmap( qPixmapFromMimeSource( "s_check_danger.png" ) );
 
     setCorner(TopLeft, DockWindowAreaLeft);
     setCorner(TopRight, DockWindowAreaRight);
@@ -1995,10 +1996,10 @@ void TrWindow::doCharCounting( const QString& text, int& trW, int& trC, int& trC
 QIconSet TrWindow::loadPixmap(const QString &imageName)
 {
     if ( !imageName.isEmpty() ) {
-        QPixmap enabledPix = QPixmap::fromMimeSource( imageName );
+        QPixmap enabledPix = qPixmapFromMimeSource( imageName );
         QIconSet s( enabledPix );
         if ( imageName != QLatin1String("whatsthis.xpm") ) {
-            QPixmap disabledPix = QPixmap::fromMimeSource( "d_" + imageName );
+            QPixmap disabledPix = qPixmapFromMimeSource( "d_" + imageName );
             s.setPixmap( disabledPix, QIconSet::Small, QIconSet::Disabled );
         }
         return s;
