@@ -306,6 +306,71 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 {
     QWidget *widget = QWidget::find((WId)id);
+    long macos_version=0;
+    Gestalt(gestaltSystemVersion, &macos_version);
+    if (macos_version < 0x1020) {
+    switch(wcode) {
+    case kWindowOpaqueRgn:
+    case kWindowStructureRgn: {
+	QRegion cr;
+	if(widget) {
+
+	    if(widget->extra && !widget->extra->mask.isNull()) {
+		QRegion rin;
+		CopyRgn(rgn, rin.handle(TRUE));
+		QPoint g(widget->x(), widget->y());
+		int offx = 0, offy = 0;
+		QRegion rpm = widget->extra->mask;
+		if(widget->testWFlags(Qt::WStyle_Customize) &&
+		    widget->testWFlags(Qt::WStyle_NoBorder)) {
+      	    	    QPoint rpm_tl = rpm.boundingRect().topLeft();
+		    offx = rpm_tl.x();
+		    offy = rpm_tl.y();
+		} else {
+		    Rect title_r;
+		    RgnHandle rgn = qt_mac_get_rgn();
+		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+		    GetRegionBounds(rgn, &title_r);
+		    qt_mac_dispose_rgn(rgn);
+		    g.setY(g.y() + (title_r.bottom - title_r.top));
+		}
+		rin -= QRegion(g.x() + offx, g.y() + offy, widget->width(), widget->height());
+		rpm.translate(g.x(), g.y());
+		rin += rpm;
+		CopyRgn(rin.handle(TRUE), rgn);
+	    } else if(force) {
+		QRegion cr(widget->geometry());
+		CopyRgn(cr.handle(TRUE), rgn);
+	    }
+	}
+	return TRUE; }
+    case kWindowContentRgn: {
+	if(widget) {
+	    if(widget->extra && !widget->extra->mask.isNull()) {
+		QRegion cr = widget->extra->mask;
+		QPoint g(widget->x(), widget->y());
+		if(!widget->testWFlags(Qt::WStyle_Customize) ||
+		   !widget->testWFlags(Qt::WStyle_NoBorder)) {
+		    Rect title_r;
+		    RgnHandle rgn = qt_mac_get_rgn();
+		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+		    GetRegionBounds(rgn, &title_r);
+		    qt_mac_dispose_rgn(rgn);
+		    g.setY(g.y() + (title_r.bottom - title_r.top));
+		}
+	    cr.translate(g.x(), g.y());
+	    CopyRgn(cr.handle(TRUE), rgn);
+
+	    } else if(force) {
+		QRegion cr(widget->geometry());
+		CopyRgn(cr.handle(TRUE), rgn);
+	    }
+	}
+	return TRUE; }
+    default: break;
+    }
+    return FALSE;
+    } else {
     switch(wcode) {
     case kWindowOpaqueRgn:
     case kWindowStructureRgn: {
@@ -359,6 +424,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	}
 	return TRUE; }
     default: break;
+    }
     }
     return FALSE;
 }
@@ -1888,16 +1954,17 @@ void QWidget::setMask(const QRegion &region)
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
     if (isTopLevel()) {
-#if 0
-	if(testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
+    long macos_version=0;
+    Gestalt(gestaltSystemVersion, &macos_version);
+    if (macos_version < 4128 &&
+	testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
 	    /* We do this because the X/Y seems to move to the first paintable point
 	       (ie the bounding rect of the mask). We must offset everything or else
 	       we have big problems. */
 	    QRect r = region.boundingRect();
 	    QMacSavedPortInfo mp(this);
-	    SetOrigin(r.x()-10, r.y()-10);
+	    SetOrigin(r.x(), r.y());
 	}
-#endif
 	//now let the wdef take it
 	ReshapeCustomWindow((WindowPtr)hd);
     }
