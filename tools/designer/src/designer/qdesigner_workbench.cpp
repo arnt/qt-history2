@@ -139,7 +139,7 @@ void QDesignerWorkbench::initialize()
     }
 
     m_editMenu->addSeparator();
-    QMenu *menu = m_editMenu->addMenu(tr("UI &Mode"));
+    QMenu *menu = m_editMenu->addMenu(tr("User Interface &Mode"));
     foreach (QAction *action, m_actionManager->uiMode()->actions())
         menu->addAction(action);
 
@@ -151,10 +151,11 @@ void QDesignerWorkbench::initialize()
 
     m_toolMenu = m_globalMenuBar->addMenu(tr("&Tool"));
 
+    m_toolMenu->addSeparator();
+
     QAction *bigAction = m_actionManager->useBigIconsAction();
     connect(bigAction, SIGNAL(toggled(bool)), this, SLOT(setUseBigIcons(bool)));
     m_toolMenu->addAction(bigAction);
-    m_toolMenu->addSeparator();
 
     m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));
     foreach (QAction *action, m_actionManager->windowActions()->actions()) {
