@@ -54,8 +54,8 @@
 #include "private/qcomponentfactory_p.h"
 #include <stdlib.h>
 
-#include <qremotecontrol.h>
 #ifndef QT_NO_REMOTE
+#include <qremotecontrol.h>
 #include "private/qtestcontrol_p.h"
 #endif //QT_NO_REMOTE
 
@@ -323,8 +323,10 @@ QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
 // two globals required for remote control
+#ifndef QT_NO_REMOTE
 static QRemoteControl *remote_control = 0;
 QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
+#endif
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -879,11 +881,11 @@ void QApplication::initialize( int argc, char **argv )
     You can call this function any time after having created the
     application.
 */
+#ifndef QT_NO_REMOTE
 void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 {
     application_id = appId;
 
-#ifndef QT_NO_REMOTE
     if (!enable) {
 
 	if (remote_control != 0) {
@@ -919,7 +921,7 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 
 			    remote_control->open(hostIp,port);
 			    qDebug("Remote Control is enabled.");
-			} 
+			}
 		    } else {
 
 			qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
@@ -932,7 +934,6 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 	    }
 	}
     }
-#endif //QT_NO_REMOTE
 }
 
 /*!
@@ -960,6 +961,7 @@ QUuid QApplication::applicationId() const
 {
     return application_id;
 }
+#endif //QT_NO_REMOTE
 
 
 
@@ -1025,10 +1027,12 @@ QApplication::~QApplication()
 	delete postRList;
 	postRList = 0;
     }
-    
+
+#ifndef QT_NO_REMOTE
     if (remote_control!= 0)
         delete remote_control;
-    remote_control = 0; 
+    remote_control = 0;
+#endif
 
     QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
     delete tipmanager;
@@ -2223,7 +2227,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		    delete ev;
 		}
 	    }
-#if defined( QT_TABLET_SUPPORT )
+#if defined(QT_TABLET_SUPPORT)
 	    if ( tablet->isAccepted() )
 		chokeMouse = true;
 #endif

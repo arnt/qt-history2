@@ -3792,10 +3792,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	// fall through intended
 
     case MotionNotify:
+#if defined(QT_TABLET_SUPPORT)
 	if ( !chokeMouse )
 	    widget->translateMouseEvent( event );
 	else
 	    chokeMouse = FALSE;
+#endif
 	break;
 
     case XKeyPress:				// keyboard event
