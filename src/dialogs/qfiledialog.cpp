@@ -4769,7 +4769,7 @@ void QFileDialog::doMimeTypeLookup()
 
 void QFileDialog::selectAll( bool b )
 {
-    if ( !d->mode != ExistingFiles )
+    if ( d->mode != ExistingFiles )
 	return;
     d->moreFiles->selectAll( b );
     files->selectAll( b );
