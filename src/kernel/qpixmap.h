@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#30 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#31 $
 **
 ** Definition of QPixmap class
 **
@@ -33,11 +33,7 @@ public:
     QPixmap &operator=( const QImage  & );
     QPixmap copy() const;
 
-#if defined(_WS_X11_)
-    bool    isNull()	const { return hd == 0; }
-#else
-    bool    isNull()	const { return data->hbm == 0; }
-#endif
+    bool    isNull()	const;
 
     int	    width()     const { return data->w; }
     int	    height()    const { return data->h; }
@@ -107,6 +103,14 @@ inline void QPixmap::resize( const QSize &s )
     resize( s.width(), s.height() );
 }
 
+inline bool QPixmap::isNull() const
+{
+#if defined(_WS_X11_)
+    return hd == 0;
+#else
+    return data->hbm == 0;
+#endif
+}
 
 // --------------------------------------------------------------------------
 // QPixmap stream functions
