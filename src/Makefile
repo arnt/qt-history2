@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#81 $
+# $Id: //depot/qt/main/src/Makefile#82 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -21,10 +21,10 @@ qtmain: qtmain-release
 !ENDIF
 
 qtmain-debug: NMakefile.qtmain-debug
-	$(MAKE) -f NMakefile.qtmain-debug
+	$(MAKE) /$(MAKEFLAGS) -f NMakefile.qtmain-debug
 
 qtmain-release: NMakefile.qtmain-release
-	$(MAKE) -f NMakefile.qtmain-release
+	$(MAKE) /$(MAKEFLAGS) -f NMakefile.qtmain-release
 
 NMakefile.qtmain-debug: qtmain.pro
 	-@mkdir .obj

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#9 $
+# $Id: //depot/qt/main/Makefile.inc#10 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -38,24 +38,24 @@ $(PROJECT).dsp: FORCE
 
 
 debug: NMakefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	$(MAKE) -nologo -f NMakefile.debug
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.debug
 
 release: NMakefile.release $(MORETARGETS) $(MORETARGETS_RELEASE)
-	$(MAKE) -nologo -f NMakefile.release
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.release
 
 static-debug: NMakefile.static-debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	$(MAKE) -nologo -f NMakefile.static-debug
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.static-debug
 
 static-release: NMakefile.static-release $(MORETARGETS) $(MORETARGETS_RELEASE)
-	$(MAKE) -nologo -f NMakefile.static-release
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.static-release
 
 x11: x11-debug
 
 x11-debug: NMakefile.x11-debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	$(MAKE) -nologo -f NMakefile.x11-debug
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.x11-debug
 
 x11-release: NMakefile.x11-release $(MORETARGETS) $(MORETARGETS_RELEASE)
-	$(MAKE) -nologo -f NMakefile.x11-release
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.x11-release
 
 NMakefile.debug: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
@@ -179,11 +179,11 @@ include:
 
 update:
 	cvs update -d
-	$(MAKE) depend
+	$(MAKE) /$(MAKEFLAGS) depend
 
 updateqt:
 	cd $(QTDIR)\src
-	$(MAKE) update
+	$(MAKE) /$(MAKEFLAGS) update
 
 depend:
 	-del NMakefile.*
@@ -192,7 +192,7 @@ depend:
 !ENDIF
 
 clean: NMakefile.debug
-	$(MAKE) -nologo -f NMakefile.debug clean
+	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.debug clean
 	-del NMakefile.*
 	-del vc*.pdb
 	-del $(PROJECT).pdb
@@ -219,7 +219,7 @@ clean: NMakefile.debug
 !ENDIF
 
 cleandsp:
-	$(MAKE) -nologo clean
+	$(MAKE) /$(MAKEFLAGS) -nologo clean
 	-del $(PROJECT).dsp
 	-del $(PROJECT).dsw
 	-del $(PROJECT).ncb
