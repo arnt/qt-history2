@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#388 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#389 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1750,9 +1750,11 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     Display *dpy = x11Display();
     GC gc = qt_xget_readonly_gc();
     // Want expose events
-    XSetGraphicsExposures( dpy, gc, TRUE );
-    XCopyArea( dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
-    XSetGraphicsExposures( dpy, gc, FALSE );
+    if ( w > 0 && h > 0 ) {
+	XSetGraphicsExposures( dpy, gc, TRUE );
+	XCopyArea( dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
+	XSetGraphicsExposures( dpy, gc, FALSE );
+    }
 
     if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
