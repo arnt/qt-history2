@@ -677,6 +677,11 @@ MakefileGenerator::initOutPaths()
 #endif
 	    }
 	}
+	if ( !v["DESTDIR"].isEmpty() ) {
+	    QDir d(v["DESTDIR"].first());
+	    if(Option::fixPathToLocalOS(d.absPath()) == Option::fixPathToLocalOS(Option::output_dir))
+		v.remove("DESTDIR");
+	}
 	QDir::current().cd( currentDir );
 }
 
