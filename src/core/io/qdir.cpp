@@ -43,9 +43,11 @@ QDirEngineHandler::~QDirEngineHandler()
 }
 QDirEngine *qt_createDirEngine(const QString &path)
 {
-    for(int i = 0; i < dirHandlers->size(); i++) {
-        if(QDirEngine *ret = dirHandlers->at(i)->createDirEngine(path))
-            return ret;
+    if(dirHandlers) {
+        for(int i = 0; i < dirHandlers->size(); i++) {
+            if(QDirEngine *ret = dirHandlers->at(i)->createDirEngine(path))
+                return ret;
+        }
     }
     return new QFSDirEngine(path);
 }

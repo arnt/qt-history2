@@ -41,9 +41,11 @@ QFileInfoEngineHandler::~QFileInfoEngineHandler()
 }
 QFileInfoEngine *qt_createFileInfoEngine(const QString &path)
 {
-    for(int i = 0; i < fileInfoHandlers->size(); i++) {
-        if(QFileInfoEngine *ret = fileInfoHandlers->at(i)->createFileInfoEngine(path))
-            return ret;
+    if(fileInfoHandlers) {
+        for(int i = 0; i < fileInfoHandlers->size(); i++) {
+            if(QFileInfoEngine *ret = fileInfoHandlers->at(i)->createFileInfoEngine(path))
+                return ret;
+        }
     }
     return new QFSFileInfoEngine(path);
 }

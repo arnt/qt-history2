@@ -44,9 +44,11 @@ QFileEngineHandler::~QFileEngineHandler()
 }
 QFileEngine *qt_createFileEngine(const QString &path)
 {
-    for(int i = 0; i < fileHandlers->size(); i++) {
-        if(QFileEngine *ret = fileHandlers->at(i)->createFileEngine(path))
-            return ret;
+    if(fileHandlers) {
+        for(int i = 0; i < fileHandlers->size(); i++) {
+            if(QFileEngine *ret = fileHandlers->at(i)->createFileEngine(path))
+                return ret;
+        }
     }
     return new QFSFileEngine;
 }
