@@ -179,7 +179,7 @@ void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDra
 }
 
 /*!
-    \reimp
+    \overload
 
     Reimplement this virtual function to draw the polygon defined by the
     \a pointCount first points in \a points, using mode \a mode.

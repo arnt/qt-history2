@@ -150,7 +150,8 @@ public:
     inline void drawLine(const QPoint &p1, const QPoint &p2);
     inline void drawLine(const QPointF &p1, const QPointF &p2);
 
-    void drawRects(const QVector<QRectF> &rectangles);
+    void drawRects(const QRectF *rects, int rectCount);
+    inline void drawRects(const QVector<QRectF> &rectangles);
 
     void drawRect(const QRectF &rect);
     inline void drawRect(int x1, int y1, int w, int h);
@@ -168,7 +169,8 @@ public:
     inline void drawPoint(const QPoint &p);
     inline void drawPoint(int x, int y);
 
-    void drawPoints(const QVector<QPointF> &points);
+    void drawPoints(const QPointF *points, int pointCount);
+    inline void drawPoints(const QPolygonF &points);
     void drawPoints(const QPolygon &points);
 
     void drawArc(const QRectF &rect, int a, int alen);
@@ -183,19 +185,23 @@ public:
     inline void drawChord(int x, int y, int w, int h, int a, int alen);
     inline void drawChord(const QRect &, int a, int alen);
 
-    void drawLines(const QVector<QLineF> &lines, int index = 0, int nlines = -1);
-    void drawLineSegments(const QPolygon &, int index = 0, int nlines = -1);
+    void drawLines(const QLineF *lines, int lineCount);
+    inline void drawLines(const QVector<QLineF> &lines);
 
-    void drawPolyline(const QPolygonF &polyline, int index = 0, int npoints = -1);
-    void drawPolyline(const QPolygon &pa, int index = 0, int npoints = -1);
+    void drawPolyline(const QPointF *points, int pointCount);
+    inline void drawPolyline(const QPolygonF &polyline);
+    void drawPolyline(const QPoint *points, int pointCount);
+    inline void drawPolyline(const QPolygon &polygon);
 
-    void drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule = Qt::OddEvenFill,
-                     int index = 0,int npoints = -1);
-    void drawPolygon(const QPolygon &pa, Qt::FillRule fillRule = Qt::OddEvenFill,
-                     int index = 0, int npoints = -1);
+    void drawPolygon(const QPointF *points, int pointCount, Qt::FillRule fillRule = Qt::OddEvenFill);
+    inline void drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule = Qt::OddEvenFill);
+    void drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fillRule = Qt::OddEvenFill);
+    inline void drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule = Qt::OddEvenFill);
 
-    void drawConvexPolygon(const QPolygonF &polygon, int index = 0, int npoints = -1);
-    void drawConvexPolygon(const QPolygon &pa, int index = 0, int npoints = -1);
+    void drawConvexPolygon(const QPointF *points, int pointCount);
+    inline void drawConvexPolygon(const QPolygonF &polygon);
+    void drawConvexPolygon(const QPoint *points, int pointCount);
+    inline void drawConvexPolygon(const QPolygon &polygon);
 
     void drawTiledPixmap(const QRectF &rect, const QPixmap &pm, const QPointF &offset = QPointF(),
                          Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
@@ -286,6 +292,7 @@ public:
     static void restoreRedirected(const QPaintDevice *device);
 
 #ifdef QT_COMPAT
+
     inline QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
     inline QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
     inline QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
@@ -301,18 +308,29 @@ public:
     QT_COMPAT void drawPoints(const QPolygon &pa, int index, int npoints = -1);
     QT_COMPAT void drawCubicBezier(const QPolygon &pa, int index = 0);
 
-    inline QT_COMPAT void drawPolygon(const QPolygon &pa, bool winding, int index = 0,
-                                      int npoints = -1)
-    { drawPolygon(pa, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
+    QT_COMPAT void drawLineSegments(const QPolygon &points, int index = 0, int nlines = -1);
+
+    inline QT_COMPAT void drawPolyline(const QPolygon &pa, int index, int npoints = -1)
+    { drawPolyline(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
+
+    inline QT_COMPAT void drawPolygon(const QPolygon &pa, bool winding, int index = 0, int npoints = -1)
+    { drawPolygon(pa.data() + index, npoints == -1 ? pa.size() - index : npoints,
+                  winding ? Qt::WindingFill : Qt::OddEvenFill); }
 
     inline QT_COMPAT void drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
                                       int npoints = -1)
-    { drawPolygon(polygon, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
+    { drawPolygon(polygon.data() + index, npoints == -1 ? polygon.size() - index : npoints,
+                  winding ? Qt::WindingFill : Qt::OddEvenFill); }
+
+    inline QT_COMPAT void drawConvexPolygon(const QPolygonF &polygon, int index, int npoints = -1)
+    { drawConvexPolygon(polygon.data() + index, npoints == -1 ? polygon.size() - index : npoints); }
+    inline QT_COMPAT void drawConvexPolygon(const QPolygon &pa, int index, int npoints = -1)
+    { drawConvexPolygon(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
 
     static inline QT_COMPAT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
-        { setRedirected(pdev, replacement); }
+    { setRedirected(pdev, replacement); }
     static inline QT_COMPAT QPaintDevice *redirect(QPaintDevice *pdev)
-        { return const_cast<QPaintDevice*>(redirected(pdev)); }
+    { return const_cast<QPaintDevice*>(redirected(pdev)); }
 
     inline QT_COMPAT void setWorldMatrix(const QMatrix &wm, bool combine=false) { setMatrix(wm, combine); }
     inline QT_COMPAT const QMatrix &worldMatrix() const { return matrix(); }
@@ -379,6 +397,41 @@ inline void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
     drawLine(QLineF(p1, p2));
 }
 
+inline void QPainter::drawLines(const QVector<QLineF> &lines)
+{
+    drawLines(lines.data(), lines.size());
+}
+
+inline void QPainter::drawPolyline(const QPolygonF &polyline)
+{
+    drawPolyline(polyline.data(), polyline.size());
+}
+
+inline void QPainter::drawPolyline(const QPolygon &polyline)
+{
+    drawPolyline(polyline.data(), polyline.size());
+}
+
+inline void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule)
+{
+    drawPolygon(polygon.data(), polygon.size(), fillRule);
+}
+
+inline void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule)
+{
+    drawPolygon(polygon.data(), polygon.size(), fillRule);
+}
+
+inline void QPainter::drawConvexPolygon(const QPolygonF &poly)
+{
+    drawConvexPolygon(poly.data(), poly.size());
+}
+
+inline void QPainter::drawConvexPolygon(const QPolygon &poly)
+{
+    drawConvexPolygon(poly.data(), poly.size());
+}
+
 inline void QPainter::drawRect(int x, int y, int w, int h)
 {
     drawRect(QRectF(x, y, w, h));
@@ -389,6 +442,11 @@ inline void QPainter::drawRect(const QRect &r)
     drawRect(QRectF(r));
 }
 
+inline void QPainter::drawRects(const QVector<QRectF> &rects)
+{
+    drawRects(rects.data(), rects.size());
+}
+
 inline void QPainter::drawPoint(int x, int y)
 {
     drawPoint(QPointF(x, y));
@@ -397,6 +455,11 @@ inline void QPainter::drawPoint(int x, int y)
 inline void QPainter::drawPoint(const QPoint &p)
 {
     drawPoint(QPointF(p));
+}
+
+inline void QPainter::drawPoints(const QPolygonF &points)
+{
+    drawPoints(points.data(), points.size());
 }
 
 inline void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)

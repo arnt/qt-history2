@@ -55,6 +55,15 @@ QPixmap qt_image_linear_gradient(const QRect &r,
                                  const QPointF &p1, const QColor &color1,
                                  const QPointF &p2, const QColor &color2);
 
+template <class From, class To> QVector<To> qt_convert_points(const From *points, int pointCount, const To & /*dummy*/)
+{
+    QVector<To> v;
+    v.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        v << points[i];
+    return v;
+}
+
 QPolygonF QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape)
 {
     switch (shape) {
@@ -2022,12 +2031,10 @@ void QPainter::drawPath(const QPainterPath &path)
 
 
 /*!
-    \fn void QPainter::drawLines(const QVector<QLineF> lines, int index = 0,
-                                 int nlines = -1)
+    \fn void QPainter::drawLines(const QVector<QLineF> &lines)
 
-    Draws the set of lines defined by the list \a lines, starting with
-    the line at \a index, and drawing at the most \a nlines (unless \a
-    nlines is -1).
+    Draws the set of lines defined by the list \a lines using the
+    current pen and brush.
 */
 
 /*!
@@ -2152,37 +2159,47 @@ void QPainter::drawRect(const QRectF &r)
     d->engine->drawRect(rect);
 }
 
+/*!
+    \fn void QPainter::drawRects(const QVector<QRectF> &rectangles)
+
+    Draws the rectangles specified in \a rectangles using the
+    current pen and brush.
+*/
+
 
 /*!
-    Draws all the rectangles in the \a rects list using the current
-    pen and brush.
+    Draws the first \a rectCount rectangles in the array \a rects
+    using the current pen and brush.
 
     \sa drawRect()
 */
-void QPainter::drawRects(const QVector<QRectF> &rects)
+void QPainter::drawRects(const QRectF *rects, int rectCount)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawRects(), count=%d\n", rects.size());
 #endif
-    if (!isActive())
+    if (!isActive() || rectCount <= 0)
         return;
 
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    QVector<QRectF> rectangles = rects;
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        for (int i=0; i<rects.size(); ++i)
-            rectangles[i].translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+        // ### Don't alloc for every conversion.
+        for (int i=0; i<rectCount; ++i) {
+            d->engine->drawRect(QRectF(rects[i].x() + d->state->matrix.dx(),
+                                       rects[i].y() + d->state->matrix.dy(),
+                                       rects[i].width(),
+                                       rects[i].height()));
+        }
     } else if (d->engine->emulationSpecifier) {
-        for (int i=0; i<rects.size(); ++i)
-            drawRect(rects.at(i));
-        return;
+        for (int i=0; i<rectCount; ++i)
+            drawRect(rects[i]);
+    } else {
+        d->engine->drawRects(rects, rectCount);
     }
-
-    d->engine->drawRects(rectangles.data(), rectangles.size());
 }
 
 
@@ -2233,7 +2250,20 @@ void QPainter::drawPoint(const QPointF &p)
     Draws a single point at position (\a x, \a y).
 */
 
-/*! \fn void QPainter::drawPoints(const QVector<QPointF> &points)
+/*!
+    \fn void QPainter::drawPoints(const QPolygon &points, int index,
+    int npoints)
+
+    \overload
+
+    \compat
+
+    Draws \a npoints points in the list \a points starting on index
+    using the current pen.
+
+*/
+
+/*! \fn void QPainter::drawPoints(const QPolygonF &points)
 
     \overload
 
@@ -2241,38 +2271,41 @@ void QPainter::drawPoint(const QPointF &p)
 */
 
 /*!
-    Draws the array of points \a pa using the current pen's color.
+    Draws the first \a pointCount points in the array \a points using
+    the current pen's color.
 
     \sa QPen
 */
-void QPainter::drawPoints(const QPolygon &pa)
+void QPainter::drawPoints(const QPointF *points, int pointCount)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawPoints(), count=%d\n", pa.size());
 #endif
-    if (!isActive())
+    if (!isActive() || pointCount <= 0)
         return;
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    QPolygonF a(pa);
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            a.translate(d->state->matrix.dx(), d->state->matrix.dy());
+            // ### use drawPoints function
+            for (int i=0; i<pointCount; ++i) {
+                d->engine->drawPoint(QPointF(points[i].x() + d->state->matrix.dx(),
+                                             points[i].y() + d->state->matrix.dy()));
+            }
         } else {
-            for (int i=0; i<a.size(); ++i) {
-                QRectF rect(a.at(i).x(), a.at(i).y(), 1, 1);
+            for (int i=0; i<pointCount; ++i) {
+                QRectF rect(points[i].x(), points[i].y(), 1, 1);
                 d->draw_helper(&rect,
                                Qt::OddEvenFill,
                                QPainterPrivate::RectangleShape);
             }
-            return;
         }
+    } else {
+        d->engine->drawPoints(points, pointCount);
     }
-
-    d->engine->drawPoints(a.data(), a.size());
 }
 
 
@@ -2927,27 +2960,58 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
     d->engine->drawLines(lines.data(), lines.size());
 }
 
-void QPainter::drawLines(const QVector<QLineF> &lines, int index, int nlines)
+/*!
+    Draws the first \a lineCount lines in the array \a lines
+    using the current pen.
+*/
+void QPainter::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
     // Dummy implementation for now.
-    for (int i=index; i<nlines; ++i)
+    for (int i=0; i<lineCount; ++i)
         drawLine(lines[i]);
 }
 
+
 /*!
-    Draws the polyline defined by the \a npoints points in \a a
-    starting at \a{a}\e{[index]}. (\a index defaults to 0.)
+    \fn void QPainter::drawPolyline(const QPolygon &pa, int index, int
+    npoints)
 
-    If \a npoints is -1 (the default) all points until the end of the
-    array are used (i.e. a.size()-index-1 line segments are drawn).
+    \overload
 
-    \sa drawLineSegments(), drawPolygon(), QPen
+    \compat
+
+    Draws the polyline defined by the \a npoints points in \a pa
+    starting at \a index. (\a index defaults to 0.)
+
 */
 
-void QPainter::drawPolyline(const QPolygonF &a, int index, int npoints)
+/*!
+    \fn void QPainter::drawPolyline(const QPolygon &pa)
+
+    \overload
+
+    Draws the polyline defined by \a pa using the current pen.
+*/
+
+/*!
+    \fn void QPainter::drawPolyline(const QPolygonF &pa)
+
+    \overload
+
+    Draws the polyline defined by \a pa using the current pen.
+*/
+
+/*!
+    Draws the polyline defined by the first \a pointCount points in \a
+    points using the current pen.
+
+    \sa drawLines(), drawPolygon(), QPen
+*/
+
+void QPainter::drawPolyline(const QPointF *points, int pointCount)
 {
 #ifdef QT_DEBUG_DRAW
     QRectF rect = a.boundingRect();
@@ -2956,23 +3020,11 @@ void QPainter::drawPolyline(const QPolygonF &a, int index, int npoints)
            a.size(), rect.x(), rect.y(), rect.width(), rect.height());
 #endif
 
-    if (!isActive())
-        return;
-
-    if (a.isEmpty())
-	return;
-
-    if (npoints < 0)
-        npoints = a.size() - index;
-    if (index + npoints > (int)a.size())
-        npoints = a.size() - index;
-    if (npoints < 2 || index < 0)
+    if (!isActive() || pointCount <= 0)
         return;
 
     Q_D(QPainter);
     d->engine->updateState(d->state);
-
-    QPolygonF pa = a.mid(index, npoints);
 
     uint lineEmulation = d->engine->emulationSpecifier
                          & (QPaintEngine::CoordTransform
@@ -2980,27 +3032,29 @@ void QPainter::drawPolyline(const QPolygonF &a, int index, int npoints)
                             | QPaintEngine::AlphaStroke);
 
     if (lineEmulation) {
-        if (lineEmulation == QPaintEngine::CoordTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
-            pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
-        } else {
-            d->draw_helper(&pa, Qt::OddEvenFill, QPainterPrivate::LineShape,
-                           QPainterPrivate::StrokeDraw);
-            return;
-        }
+        // ###
+//         if (lineEmulation == QPaintEngine::CoordTransform
+//             && d->state->txop == QPainterPrivate::TxTranslate) {
+//         } else {
+        QVector<QPointF> pa = qt_convert_points(points, pointCount, QPointF());
+        d->draw_helper(&pa, Qt::OddEvenFill, QPainterPrivate::LineShape,
+                       QPainterPrivate::StrokeDraw);
+//         }
+    } else {
+        d->engine->drawPolygon(points, pointCount, QPaintEngine::PolylineMode);
     }
-
-    d->engine->drawPolygon(pa.data(), pa.size(), QPaintEngine::PolylineMode);
 }
 
 /*! \overload
 
-    Draws the polyline defined by the points in the array \a a.
+    Draws the polyline defined by the first \a pointCount points in
+    the array \a points using the current pen.
  */
-void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
+void QPainter::drawPolyline(const QPoint *points, int pointCount)
 {
-    // ###
-    drawPolyline(QPolygonF(a), index, npoints);
+    // ### don't realloc
+    QVector<QPointF> pts = qt_convert_points(points, pointCount, QPointF());
+    drawPolyline(pts.data(), pts.size());
 }
 
 
@@ -3013,6 +3067,22 @@ void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
     Draws the polygon defined by the points in the point array \a pa.
 */
 
+/*! \fn void QPainter::drawPolygon(const QPolygon &pa, Qt::FillRule fillRule)
+
+    \overload
+
+    Draws the polygon defined by the points in \a pa using the fill
+    rule \a fillRule.
+*/
+
+/*! \fn void QPainter::drawPolygon(const QPolygonF &pa, Qt::FillRule fillRule)
+
+    \overload
+
+    Draws the polygon defined by the points in \a pa using the fill
+    rule \a fillRule.
+*/
+
 /*! \fn void QPainter::drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
                                    int npoints = -1)
     \compat
@@ -3020,14 +3090,10 @@ void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
 */
 
 /*!
-    Draws the polygon defined by \a polygon, starting at
-    \a index. (\a index defaults to 0.)
+    Draws the polygon defined by the first \a pointCount points in the
+    array \a points using the current pen and brush.
 
-    If \a npoints is -1 (the default) all points until the end of the
-    polygon are used (i.e. a.size()-index line segments define the
-    polygon).
-
-    The first point is always connected to the last point.
+    The first point is implicitly connected to the last point.
 
     The polygon is filled with the current brush(). If \a fillRule is
     \c Qt::WindingFill, the polygon is filled using the winding fill algorithm.
@@ -3035,11 +3101,10 @@ void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
     odd-even fill algorithm. See \l{Qt::FillRule} for a more detailed
     description of these fill rules.
 
-    \sa drawLineSegments() drawPolyline() QPen
+    \sa drawLines() drawPolyline() QPen
 */
 
-void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule,
-                           int index, int npoints)
+void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule fillRule)
 {
 #ifdef QT_DEBUG_DRAW
     QRect rect = polygon.boundingRect().toRect();
@@ -3048,28 +3113,11 @@ void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule,
            polygon.size(), rect.x(), rect.y(), rect.width(), rect.height());
 #endif
 
-    if (!isActive())
-        return;
-
-    if (polygon.isEmpty())
-	return;
-
-    if (npoints < 0)
-        npoints = polygon.size() - index;
-    if (index + npoints > (int)polygon.size())
-        npoints = polygon.size() - index;
-    if (npoints < 2 || index < 0)
+    if (!isActive() || pointCount <= 0)
         return;
 
     Q_D(QPainter);
     d->engine->updateState(d->state);
-
-    QPolygonF pa = (npoints - index != polygon.size() ?
-                   QPolygonF(polygon.mid(index, npoints)) : polygon);
-
-    // Connect if polygon if we have a pen.
-    if (d->state->pen.style() != Qt::NoPen && pa.first() != pa.last())
-        pa << QPointF(pa.first());
 
     uint emulationSpecifier = d->engine->emulationSpecifier;
     if ((emulationSpecifier & QPaintEngine::LinearGradients)
@@ -3081,55 +3129,107 @@ void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule,
         emulationSpecifier &= ~QPaintEngine::AlphaFill;
 
     if (emulationSpecifier) {
-        if (emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == QPainterPrivate::TxTranslate) {
-            pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
-        } else {
-            d->draw_helper(&pa, fillRule, QPainterPrivate::PolygonShape,
-                           QPainterPrivate::StrokeAndFillDraw,
-                           emulationSpecifier);
+        // ###
+//         if (emulationSpecifier == QPaintEngine::CoordTransform
+//             && d->state->txop == QPainterPrivate::TxTranslate) {
+//         } else {
+        QVector<QPointF> pa = qt_convert_points(points, pointCount, QPointF());
+        d->draw_helper(&pa, fillRule, QPainterPrivate::PolygonShape,
+                       QPainterPrivate::StrokeAndFillDraw, emulationSpecifier);
             return;
-        }
     }
 
-    d->engine->drawPolygon(pa.data(), pa.size(), QPaintEngine::PolygonDrawMode(fillRule));
+    d->engine->drawPolygon(points, pointCount, QPaintEngine::PolygonDrawMode(fillRule));
 }
 
 /*! \overload
 
-    Draws the polygon defined by the points in \a pa.
+    Draws the polygon defined by the first \a pointCount points in the
+    array \a points.
 */
-void QPainter::drawPolygon(const QPolygon &pa, Qt::FillRule fillRule, int index, int npoints)
+void QPainter::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fillRule)
 {
-    drawPolygon(QPolygonF(pa), fillRule, index, npoints);
+    // ### don't realloc
+    QVector<QPointF> pts = qt_convert_points(points, pointCount, QPointF());
+    drawPolygon(pts.data(), pts.size(), fillRule);
 }
 
 
 /*!
-    Draws the convex polygon defined by the \a npoints points in \a a
-    starting at \a{a}\e{[index]} (\a index defaults to 0).
+    \fn void QPainter::drawConvexPolygon(const QPolygonF &polygon)
+
+    \overload
+
+    Draws the convex polygon defined by \a polygon using the current
+    pen and brush.
+*/
+
+/*!
+    \fn void QPainter::drawConvexPolygon(const QPolygon &polygon)
+
+    \overload
+
+    Draws the convex polygon defined by \a polygon using the current
+    pen and brush.
+*/
+
+/*!
+    \fn void QPainter::drawConvexPolygon(const QPolygonF &polygon, int
+    index, int npoints)
+
+    \compat
+
+    \overload
+
+    Draws the convex polygon defined by \a polygon using the current
+    pen and brush.
+*/
+
+/*!
+    \fn void QPainter::drawConvexPolygon(const QPolygon &polygon, int
+    index, int npoints)
+
+    \compat
+
+    \overload
+
+    Draws the convex polygon defined by \a polygon using the current
+    pen and brush.
+*/
+
+/*!
+    Draws the convex polygon defined by the first \a pointCount points
+    in the array \a points using the current pen and brush.
 
     If the supplied polygon is not convex, the results are undefined.
 
-    On some platforms (e.g. X Window), this is faster than
-    drawPolygon().
+    On some platforms (e.g. X11), drawing convex polygons can be
+    faster than drawPolygon().
+
+    \sa drawPolygon
 */
 
-void QPainter::drawConvexPolygon(const QPolygon &a, int index, int npoints)
+void QPainter::drawConvexPolygon(const QPoint *points, int pointCount)
 {
-    // Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
-    drawPolygon(a, Qt::WindingFill, index, npoints);
+    // ### Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
+    drawPolygon(points, pointCount, Qt::WindingFill);
 }
 
 /*!
-    \overload
+    Draws the convex polygon defined by the first \a pointCount points
+    in the array \a points using the current pen and brush.
 
-    Draws the convex polygon defined by the points in \a p.
+    If the supplied polygon is not convex, the results are undefined.
+
+    On some platforms (e.g. X11), drawing convex polygons can be
+    faster than drawPolygon().
+
+    \sa drawPolygon
 */
-void QPainter::drawConvexPolygon(const QPolygonF &p, int index, int npoints)
+void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 {
-    // Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
-    drawPolygon(p, Qt::WindingFill, index, npoints);
+    // ### Fix when QPainter::drawPolygon(QPolygon, PolyDrawMode) is in place
+    drawPolygon(points, pointCount, Qt::WindingFill);
 }
 
 
@@ -4467,31 +4567,20 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
 }
 
 /*!
-  \fn void QPainter::drawPoints(const QPolygon &pa, int index, int npoints)
+    \overload
+    \obsolete
 
-  \overload
-  \obsolete
-
-    Draws the array of points \a pa using the current pen's color.
-
-    If \a index is non-zero (the default is zero), only points
-    starting from \a index are drawn. If \a npoints is negative (the
-    default) the rest of the points from \a index are drawn. If \a
-    npoints is zero or greater, \a npoints points are drawn.
+    Draws the array of points \a points using the current pen's color.
 
     \sa drawPoints
 */
-void QPainter::drawPoints(const QPolygon &pa, int index, int npoints)
+void QPainter::drawPoints(const QPolygon &points)
 {
-    if (npoints < 0)
-        npoints = pa.size() - index;
-    if (index + npoints > (int)pa.size())
-        npoints = pa.size() - index;
-    if (!isActive() || npoints < 1 || index < 0)
-        return;
-
-    QPolygon a = pa.mid(index, npoints);
-    drawPoints(a);
+    QVector<QPointF> pts;
+    pts.reserve(points.size());
+    for (int i=0; i<points.size(); ++i)
+        pts << points[i];
+    drawPoints(pts.data(), pts.size());
 }
 
 /*!
