@@ -881,6 +881,14 @@ bool QApplication::processNextEvent( bool canWait )
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		break;
 	    ret = SendEventToApplication(event);
+	    if(GetEventClass(event) == kEventClassMouse && GetEventKind(event) == kEventMouseDragged) {
+		QWidgetList *list   = qApp->topLevelWidgets();
+		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+		    if ( !widget->isHidden() && !widget->isDesktop())
+			widget->propagateUpdates();
+		}
+		delete list;
+	    }
 	    ReleaseEvent(event);
 	    if(ret != noErr)
 		break;
@@ -902,6 +910,7 @@ bool QApplication::processNextEvent( bool canWait )
 		    if ( !widget->isHidden() && !widget->isDesktop())
 			widget->propagateUpdates();
 		}
+		delete list;
 #ifndef QT_NO_CLIPBOARD
 		if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
 		    QEvent ev(QEvent::Clipboard);
