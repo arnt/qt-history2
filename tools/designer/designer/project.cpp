@@ -246,14 +246,17 @@ void Project::setFileName( const QString &fn, bool doClear )
 	if ( fn == singleProFileName )
 	    return;
 	singleProFileName = fn;
+	static int counter = 0;
+	QString str_counter = QString::number( counter++ );
+	str_counter = "/." + str_counter;
 	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
-	filename = QString( getenv( "HOME" ) + QString( "/tmp_" ) +
+	filename = QString( getenv( "HOME" ) + str_counter + QString( "tmp_" ) +
 			    QFileInfo( fn ).baseName() + "/" + QFileInfo( fn ).baseName() + ".pro" );
 	removeTempProject();
 	if ( iface && iface->supports( LanguageInterface::CompressProject ) ) {
 	    filename = iface->uncompressProject( makeAbsolute( singleProFileName ),
 						 QString( getenv( "HOME" ) +
-							  QString( "/tmp_" ) +
+							  str_counter + QString( "tmp_" ) +
 							  QFileInfo( fn ).baseName() ) );
 	    proName = makeAbsolute( singleProFileName );
 	}
