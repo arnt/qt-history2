@@ -71,6 +71,7 @@ public:
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QBitmap createHeuristicMask(bool clipTight = true) const;
 #endif
+    QBitmap createMaskFromColor(const QColor &maskColor) const;
     static QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);
     static QPixmap grabWidget(QWidget *widget, const QRect &rect);
     static inline QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);

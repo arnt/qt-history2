@@ -745,7 +745,6 @@ bool QPixmap::selfMask() const
 
     \sa QImage::createHeuristicMask()
 */
-
 QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 {
     QBitmap m;
@@ -753,6 +752,33 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
     return m;
 }
 #endif
+
+/*!
+    Creates and returns a mask for this pixmap based on \a maskColor.
+
+    This function is slow because it involves transformation to a
+    QImage and a transformation back to a QBitmap.
+
+    \sa createHeuristicMask()
+*/
+QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
+{
+    QBitmap m;
+    QImage maskImage(size(), 1, 0, QImage::LittleEndian);
+    QImage image = toImage();
+    QRgb mColor = maskColor.rgba();
+    for (int w = 0; w < width(); w++) {
+        for (int h = 0; h < height(); h++) {
+            if (image.pixel(w, h) == mColor)
+                maskImage.setPixel(w, h, Qt::color1);
+            else
+                maskImage.setPixel(w, h, Qt::color0);
+        }
+    }
+    m.fromImage(maskImage);
+    return m;
+}
+
 #ifndef QT_NO_IMAGEIO
 /*!
     Loads a pixmap from the file \a fileName at runtime. Returns true
