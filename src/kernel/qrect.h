@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#2 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#3 $
 **
 ** Definition of QRect class
 **
@@ -33,10 +33,14 @@ public:
     QCOOT  top()	 const	{ return y1; }	// get top position
     QCOOT  right()	 const	{ return x2; }	// get right position
     QCOOT  bottom()	 const	{ return y2; }	// get bottom position
+    QCOOT  x()		 const	{ return x1; }	// same as left()
+    QCOOT  y()		 const	{ return y1; }	// same as top()
     void   setLeft( QCOOT pos );		// set left position
     void   setTop( QCOOT pos );			// set top position
     void   setRight( QCOOT pos );		// set right position
     void   setBottom( QCOOT pos );		// set bottom position
+    void   setX( QCOOT x );			// same as setLeft()
+    void   setY( QCOOT y );			// same as setTop()
 
     QPoint topLeft()	 const;			// get top left point
     QPoint bottomRight() const;			// get bottom right point
@@ -103,6 +107,16 @@ inline void QRect::setLeft( QCOOT pos )
 inline void QRect::setTop( QCOOT pos )
 {
     y1 = pos;
+}
+
+inline void QRect::setX( QCOOT x )
+{
+    x1 = x;
+}
+
+inline void QRect::setY( QCOOT y )
+{
+    y1 = y;
 }
 
 inline void QRect::setRight( QCOOT pos )
