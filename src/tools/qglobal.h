@@ -799,7 +799,7 @@ class QDataStream;
 #    endif
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  endif
-#elsif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
+#elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #  if defined(QT_SHARED)	/* create a Qt shared library */
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
