@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#122 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#122 $");
 
 
 // Motif style parameters
@@ -1065,13 +1065,12 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    if ( style() == WindowsStyle && dis ) {
 		QString k;
 		k.sprintf( "$qt-drawitem-%x", pixmap->serialNumber() );
-		QPixmap * mask;
-		if ( pixmap->mask() )
-		    mask = new QPixmap( *pixmap->mask() );
-		else
-		    mask = QPixmapCache::find(k);
+		QPixmap * mask = QPixmapCache::find(k);
 		if ( !mask ) {
-		    mask = new QPixmap( pixmap->createHeuristicMask() );
+		    if ( pixmap->mask() )
+			mask = new QPixmap( *pixmap->mask() );
+		    else
+			mask = new QPixmap( pixmap->createHeuristicMask() );
 		    mask->setMask( *((QBitmap*)mask) );
 		    QPixmapCache::insert( k, mask );
 		}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#22 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#22 $");
 
 
 /*!
@@ -558,13 +558,12 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 		} else {
 		    QString k;
 		    k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
-		    QPixmap * mask;
-		    if ( pixmap->mask() )
-			mask = new QPixmap( *pixmap->mask() );
-		    else
-			mask = QPixmapCache::find(k);
+		    QPixmap * mask = QPixmapCache::find(k);
 		    if ( !mask ) {
-			mask = new QPixmap( pm.createHeuristicMask() );
+			if ( pixmap->mask() )
+			    mask = new QPixmap( *pixmap->mask() );
+			else
+			    mask = new QPixmap( pm.createHeuristicMask() );
 			mask->setMask( *((QBitmap*)mask) );
 			QPixmapCache::insert( k, mask );
 		    }
