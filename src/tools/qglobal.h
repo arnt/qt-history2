@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#61 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#62 $
 **
 ** Global type declarations and definitions
 **
@@ -98,7 +98,8 @@
 #define _CC_BOR_
 #elif defined(__GNUC__)
 #define _CC_GNU_
-#elif defined(__EDG)
+#elif defined(__EDG) || defined(__EDG__)
+// one observed on SGI DCC, the other documented
 #define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 #define _CC_OC_
