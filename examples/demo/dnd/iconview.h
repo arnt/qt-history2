@@ -27,5 +27,5 @@ public:
     QDragObject *dragObject();
 
 public slots:
-    void slotNewItem( QDropEvent *t, const QValueList<QIconDragItem>& );
+    void slotNewItem( QDropEvent *t, const QLinkedList<QIconDragItem>& );
 };

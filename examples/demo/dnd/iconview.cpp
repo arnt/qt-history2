@@ -8,8 +8,8 @@
 IconView::IconView( QWidget* parent, const char* name )
     : QIconView( parent, name )
 {
-    connect( this, SIGNAL(dropped(QDropEvent*, const QValueList<QIconDragItem>&)),
-             SLOT(slotNewItem(QDropEvent*, const QValueList<QIconDragItem>&)));
+    connect( this, SIGNAL(dropped(QDropEvent*, const QLinkedList<QIconDragItem>&)),
+             SLOT(slotNewItem(QDropEvent*, const QLinkedList<QIconDragItem>&)));
 }
 
 IconView::~IconView()
@@ -29,7 +29,7 @@ QDragObject *IconView::dragObject()
     return drg;
 }
 
-void IconView::slotNewItem( QDropEvent *e, const QValueList<QIconDragItem>& )
+void IconView::slotNewItem( QDropEvent *e, const QLinkedList<QIconDragItem>& )
 {
     QString tag;
     if ( !e->provides( "text/dragdemotag" ) ) return;
