@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#35 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -383,7 +383,7 @@ bool QWidgetItem::hasHeightForWidth() const
 int QWidgetItem::heightForWidth( int w ) const
 {
     if ( wid->layout() )
-	return wid->layout()->heightForWidth( w );
+	return wid->layout()->totalHeightForWidth( w );
     return wid->heightForWidth( w );
 }
 
@@ -759,6 +759,21 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 
 }
 
+
+/*!
+  \internal
+  Also takes outsideBorder and menu bar into account. May change name
+  or disappear altogether if we find a better solution.
+*/
+
+int QLayout::totalHeightForWidth( int w ) const
+{
+    int b = topLevel ? 2*outsideBorder : 0;
+    int h = heightForWidth( w - b ) + b;
+    if ( menubar )
+	h += menubar->heightForWidth( w );
+    return h;
+}
 
 
 /*!
@@ -1192,3 +1207,4 @@ Sets the hasHeightForWidth() flag to \a b.
   iterator to the next item. This iterator will still be valid, but any
   other iterator over the same layout may become invalid.
 */
+

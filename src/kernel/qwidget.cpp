@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#385 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#386 $
 **
 ** Implementation of QWidget class
 **
@@ -2797,7 +2797,7 @@ void QWidget::show()
 	QSizePolicy::ExpandData exp;
 	if ( layout() ) {
 	    if ( layout()->hasHeightForWidth() )
-		s.setHeight( layout()->heightForWidth( s.width() ) );
+		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
 	    exp =  layout()->expanding();
 	} else {
 	    if ( sizePolicy().hasHeightForWidth() )

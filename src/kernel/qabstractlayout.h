@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#12 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#13 $
 **
 ** Definition of the abstract layout base class
 **
@@ -178,6 +178,7 @@ public:
     QLayoutIterator iterator()=0;
     bool isEmpty() const;
 
+    int totalHeightForWidth( int w ) const;
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );
