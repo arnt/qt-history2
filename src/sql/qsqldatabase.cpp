@@ -71,8 +71,8 @@
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
-Q_EXPORT QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
-Q_EXPORT QPtrDict<QSqlOpenExtension> *qt_open_extension_dict = 0;
+QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
+QPtrDict<QSqlOpenExtension> *qt_open_extension_dict = 0;
 
 static QSingleCleanupHandler< QPtrDict<QSqlDriverExtension> > qt_driver_ext_cleanup;
 static QSingleCleanupHandler< QPtrDict<QSqlOpenExtension> > qt_open_ext_cleanup;
