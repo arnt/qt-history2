@@ -965,12 +965,12 @@ void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength 
 
 void QTextHtmlExporter::emitAlignment(Qt::Alignment alignment)
 {
-    if (alignment == Qt::AlignRight)
-        html += QLatin1String(" align='right'");
-    else if (alignment == Qt::AlignHCenter)
-        html += QLatin1String(" align='center'");
-    else if (alignment == Qt::AlignJustify)
-        html += QLatin1String(" align='justify'");
+    switch (alignment & Qt::AlignHorizontal_Mask) {
+        case Qt::AlignLeft: break;
+        case Qt::AlignRight: html += QLatin1String(" align='right'"); break;
+        case Qt::AlignHCenter: html += QLatin1String(" align='center'"); break;
+        case Qt::AlignJustify: html += QLatin1String(" align='justify'"); break;
+    }
 }
 
 void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos)
