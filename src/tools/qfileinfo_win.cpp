@@ -173,6 +173,9 @@ static QString currentDirOfDrive( char ch )
 
 void QFileInfo::slashify( QString &s )
 {
+    if ( !s.length() )
+	return;
+
     for (int i=0; i<(int)s.length(); i++) {
 	if ( s[i] == '\\' )
 	    s[i] = '/';
