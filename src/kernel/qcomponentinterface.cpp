@@ -20,7 +20,7 @@ public:
 
 QUnknownInterface::QUnknownInterface( QUnknownInterface *parent, const char *name )
 : children( 0 ), par( parent ), refcount( 0 ), appInterface( 0 )
-{   
+{
     objname = name ? qstrdup(name) : 0;
     if ( par )
 	par->insertChild( this );
@@ -48,15 +48,15 @@ QUnknownInterface::~QUnknownInterface()
     }
 }
 
-/*! 
-  Makes interface \a child a child of this interface. 
+/*!
+  Makes interface \a child a child of this interface.
 */
 
 void QUnknownInterface::insertChild( QUnknownInterface *child )
 {
     if ( !children )
 	children = new QInterfaceList;
-    
+
     children->append( child );
 }
 
@@ -139,8 +139,8 @@ bool QUnknownInterface::release()
 */
 
 QString QUnknownInterface::interfaceID() const
-{ 
-    return "QUnknownInterface"; 
+{
+    return "QUnknownInterface";
 }
 
 /*!
@@ -152,9 +152,9 @@ QString QUnknownInterface::interfaceID() const
 */
 
 bool QUnknownInterface::initialize( QApplicationInterface* appIface )
-{ 
+{
     appInterface = appIface;
-    return TRUE; 
+    return TRUE;
 }
 
 /*!
@@ -165,8 +165,8 @@ bool QUnknownInterface::initialize( QApplicationInterface* appIface )
 */
 
 bool QUnknownInterface::cleanUp( QApplicationInterface* )
-{ 
-    return TRUE; 
+{
+    return TRUE;
 }
 
 /*!
@@ -196,7 +196,7 @@ bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
 }
 
 /*!
-  Returns the list of interface IDs this interface can provide. If \a rec is TRUE, this function 
+  Returns the list of interface IDs this interface can provide. If \a rec is TRUE, this function
   will return all interface IDs the child interfaces can provide, too.
 */
 
@@ -221,21 +221,20 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
 }
 
 /*!
-  Returns an interface that matches \a request. If \a rec is TRUE, this function will 
+  Returns an interface that matches \a request. If \a rec is TRUE, this function will
   look for the requested interface in the child interfaces, too.
-  The function returns NULL if this interface can't provide an interface 
+  The function returns NULL if this interface can't provide an interface
   with the requested interfaceID. If \a request is a null-string, this interface is returned.
 */
 
 QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool rec )
-{ 
+{
     if ( request.isEmpty() || request == interfaceID() )
 	return this;
     if ( !children )
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	QUnknownInterface *iface = it.current();
 	if ( it.current()->interfaceID() == request ) {
 	    it.current()->appInterface = appInterface;
 	    if ( it.current()->ref() )
@@ -281,9 +280,9 @@ QPlugInInterface::QPlugInInterface( const char* name )
   \reimp
 */
 
-QString QPlugInInterface::interfaceID() const 
-{ 
-    return "QPlugInInterface"; 
+QString QPlugInInterface::interfaceID() const
+{
+    return "QPlugInInterface";
 }
 
 /*!
@@ -291,9 +290,9 @@ QString QPlugInInterface::interfaceID() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::name() const 
-{ 
-    return QString::null; 
+QString QPlugInInterface::name() const
+{
+    return QString::null;
 }
 
 /*!
@@ -301,9 +300,9 @@ QString QPlugInInterface::name() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::description() const 
-{ 
-    return QString::null; 
+QString QPlugInInterface::description() const
+{
+    return QString::null;
 }
 
 /*!
@@ -311,9 +310,9 @@ QString QPlugInInterface::description() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::author() const 
-{ 
-    return QString::null; 
+QString QPlugInInterface::author() const
+{
+    return QString::null;
 }
 
 /*!
@@ -330,7 +329,7 @@ QString QPlugInInterface::version() const
   \class QApplicationInterface qapplicationinterface.h
 
   \brief This class provides a top level interface for application modules.
-  
+
   \sa QPlugInInterface
 */
 
@@ -347,8 +346,8 @@ QApplicationInterface::QApplicationInterface( const char* name )
 */
 
 QString QApplicationInterface::interfaceID() const
-{ 
-    return "QApplicationInterface"; 
+{
+    return "QApplicationInterface";
 }
 
 /*!
@@ -409,7 +408,7 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* object,
 
 QString QApplicationComponentInterface::interfaceID() const
 {
-    return "QApplicationComponentInterface"; 
+    return "QApplicationComponentInterface";
 }
 
 /*!
@@ -463,8 +462,8 @@ bool QApplicationComponentInterface::requestConnect( const char* signal, QObject
     return QObject::connect( component(), signal, target, slot );
 }
 
-/*!  
-  This function can be used to connect the \a signal of the \a sender to the \a slot of the 
+/*!
+  This function can be used to connect the \a signal of the \a sender to the \a slot of the
   \a handled object.  It returns TRUE if the connection was made successfully, otherwise FALSE.
   Reimplement this function for advanced processing.
 
@@ -479,7 +478,7 @@ bool QApplicationComponentInterface::requestConnect( QObject *sender, const char
 }
 
 /*!
-  This function installs the event filter \e f for the handled object and returns TRUE if the 
+  This function installs the event filter \e f for the handled object and returns TRUE if the
   eventfilter has been installed, otherwise FALSE.
   Reimplement this function for advanced processing.
 

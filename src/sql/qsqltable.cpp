@@ -829,7 +829,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 */
 
 void QSqlTable::paintField( QPainter * p, const QSqlField* field, const QRect & cr,
-			     bool selected )
+			     bool )
 {
     // ###
 //     QColorGroup cg = colorGroup();
