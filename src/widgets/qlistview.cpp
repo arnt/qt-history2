@@ -5319,6 +5319,9 @@ void QCheckListItem::init()
 */
 QCheckListItem::~QCheckListItem()
 {
+    if ( myType == RadioButton && exclusive && exclusive->exclusive == this )
+	exclusive->turnOffChild();
+    exclusive = 0; // so the children won't try to access us.
 }
 
 /*! \fn QCheckListItem::Type QCheckListItem::type() const
