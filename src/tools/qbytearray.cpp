@@ -830,12 +830,6 @@ QByteArray &QByteArray::replace(char before, char after)
     return *this;
 }
 
-
-bool operator==(const QByteArray &a1, const QByteArray &a2)
-{
-    return (a1.size() == a2.size()) && (memcmp(a1, a2, a1.size())==0);
-}
-
 int QByteArray::indexOf(char c, int i) const
 {
     if (i < 0)

@@ -326,7 +326,8 @@ inline QByteArray &QByteArray::operator=(const QByteArray & a)
     return *this;
 }
 
-bool operator==(const QByteArray &a1, const QByteArray &a2);
+inline bool operator==(const QByteArray &a1, const QByteArray &a2)
+{ return (a1.size() == a2.size()) && (memcmp(a1, a2, a1.size())==0); }
 inline bool operator==(const QByteArray &a1, const char *a2)
 { return a2 ? strcmp(a1,a2) == 0 : a1.isEmpty(); }
 inline bool operator==(const char *a1, const QByteArray &a2)
