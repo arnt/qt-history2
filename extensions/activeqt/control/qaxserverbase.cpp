@@ -2258,7 +2258,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	{
 	    if (index == -1) {
 		index = mo->indexOfProperty(name);
-		if (index == -1)
+		if (index == -1 && wFlags == DISPATCH_PROPERTYGET)
 		    return res;
 	    }
 
@@ -2635,8 +2635,11 @@ HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
     for (int prop = 0; prop < mo->propertyCount(); ++prop) {
 	if (!isPropertyExposed(prop))
 	    continue;
-	QString property = mo->property(prop).name();
-	QVariant qvar = qt.object->property(property.latin1());
+	QMetaProperty metaprop = mo->property(prop);
+        if (QByteArray(metaprop.type()).endsWith('*'))
+            continue;
+	QString property = QLatin1String(metaprop.name());
+	QVariant qvar = qt.object->property(metaprop.name());
 	if (qvar.isValid()) {
 	    qtstream << int(1);
 	    qtstream << property;
