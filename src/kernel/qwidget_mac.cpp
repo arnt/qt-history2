@@ -1382,7 +1382,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if(!isVisible()) {
 	    if ( isResize )
 		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
-	    if ( isMove )
+	    if ( isMove && oldp != pos() )
 		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
@@ -1455,7 +1455,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QResizeEvent e( size(), olds );
 		QApplication::sendEvent( this, &e );
 	    }
-	    if ( isMove ) { //send the move event..
+	    if ( isMove && pos() != oldp ) { //send the move event..
 		QMoveEvent e( pos(), oldp );
 		QApplication::sendEvent( this, &e );
 	    }
@@ -1472,7 +1472,6 @@ void QWidget::setMinimumSize( int minw, int minh)
     createExtra();
     if ( extra->minw == minw && extra->minh == minh )
 	return;
-    //why is this off by 6 pixels (in the widgets example?!?)
     extra->minw = minw;
     extra->minh = minh;
     if ( minw > width() || minh > height() ) {
