@@ -35,47 +35,48 @@
 class Q_SQL_EXPORT QNullResult : public QSqlResult
 {
 public:
-    QNullResult(const QSqlDriver* d): QSqlResult(d) {}
+    inline QNullResult(const QSqlDriver* d): QSqlResult(d)
+    { QSqlResult::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
 protected:
-    QCoreVariant data(int) { return QCoreVariant(); }
-    bool reset (const QString&) { return false; }
-    bool fetch(int) { return false; }
-    bool fetchFirst() { return false; }
-    bool fetchLast() { return false; }
-    bool isNull(int) { return false; }
-    int size()  { return -1; }
-    int numRowsAffected() { return 0; }
+    inline QCoreVariant data(int) { return QCoreVariant(); }
+    inline bool reset (const QString&) { return false; }
+    inline bool fetch(int) { return false; }
+    inline bool fetchFirst() { return false; }
+    inline bool fetchLast() { return false; }
+    inline bool isNull(int) { return false; }
+    inline int size()  { return -1; }
+    inline int numRowsAffected() { return 0; }
 
-    void setAt(int) {}
-    void setActive(bool) {}
-    void setLastError(const QSqlError&) {}
-    void setQuery(const QString&) {}
-    void setSelect(bool) {}
-    void setForwardOnly(bool) {}
+    inline void setAt(int) {}
+    inline void setActive(bool) {}
+    inline void setLastError(const QSqlError&) {}
+    inline void setQuery(const QString&) {}
+    inline void setSelect(bool) {}
+    inline void setForwardOnly(bool) {}
 
-    bool exec() { return false; }
-    bool prepare(const QString&) { return false; }
-    bool savePrepare(const QString&) { return false; }
-    void bindValue(int, const QCoreVariant&, QSql::ParamType) {}
-    void bindValue(const QString&, const QCoreVariant&, QSql::ParamType) {}
+    inline bool exec() { return false; }
+    inline bool prepare(const QString&) { return false; }
+    inline bool savePrepare(const QString&) { return false; }
+    inline void bindValue(int, const QCoreVariant&, QSql::ParamType) {}
+    inline void bindValue(const QString&, const QCoreVariant&, QSql::ParamType) {}
 };
 
 class Q_SQL_EXPORT QNullDriver : public QSqlDriver
 {
 public:
-    QNullDriver(): QSqlDriver()
+    inline QNullDriver(): QSqlDriver()
     { QSqlDriver::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
-    bool hasFeature(DriverFeature) const { return false; }
-    bool open(const QString &, const QString & , const QString & ,
+    inline bool hasFeature(DriverFeature) const { return false; }
+    inline bool open(const QString &, const QString & , const QString & ,
               const QString &, int, const QString&)
     { return false; }
-    void close() {}
-    QSqlQuery createQuery() const { return QSqlQuery(new QNullResult(this)); }
+    inline void close() {}
+    inline QSqlQuery createQuery() const { return QSqlQuery(new QNullResult(this)); }
 
 protected:
-    void setOpen(bool) {}
-    void setOpenError(bool) {}
-    void setLastError(const QSqlError&) {}
+    inline void setOpen(bool) {}
+    inline void setOpenError(bool) {}
+    inline void setLastError(const QSqlError&) {}
 };
 
 #endif //QSQLNULLDRIVER_H
