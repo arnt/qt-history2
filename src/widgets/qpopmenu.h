@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#24 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#25 $
 **
 ** Definition of QPopupMenu class
 **
@@ -33,9 +33,6 @@ public:
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
 
-    void	highlight( int id );
-    void	activate( int id );
-
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
@@ -61,8 +58,6 @@ private slots:
     void	accelDestroyed();
 
 private:
-    void	highlightIndex( int index );
-    void	activateIndex( int index );
     void	menuContentsChanged();
     void	menuStateChanged();
     void	menuInsPopup( QPopupMenu * );

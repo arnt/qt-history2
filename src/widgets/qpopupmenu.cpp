@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#71 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#70 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#71 $")
 
 
 // Windows style parameters
@@ -642,28 +642,6 @@ void QPopupMenu::hide()
     QWidget::hide();
 }
 
-/*!  
-
-  Highlights the menuitem with identifier \e id. If the item is a submenu
-  the menu will pop up after 0.1 seconds. If there is no item with the
-  given \e id the function does nothing.
-
- */
-void QPopupMenu::highlight( int id )
-{
-    highlightIndex( indexOf( id ) );
-}
-
-/*!  
-  Activates the menuitem with identifier \e id. If the item is a
-  submenu the menu will pop up immediately. If there is no item with the
-  given \e id the function does nothing.
-*/
-void QPopupMenu::activate( int id )
-{
-    activateIndex( indexOf( id ) );
-}
-
 
 /*****************************************************************************
   Implementation of virtual QTableView functions
@@ -839,63 +817,6 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	hidePopups();
 }
 
-
-void QPopupMenu::highlightIndex( int index )
-{
-    if ( index < 0 || index > mitems->count() )
-	return;
-    QMenuItem *mi = mitems->at( index );
-    QPopupMenu *popup = mi->popup();
-    if ( actItem == index ) {
-	if ( popupActive == index && popup->actItem != -1 ) {
-	    popup->actItem = -1;
-	    popup->hidePopups();
-	    popup->repaint( FALSE );
-	}
-	return;
-    }
-    int lastActItem = actItem;
-    actItem = index;
-    if ( mi->popup() ) {
-	killTimers();
-	startTimer( 100 );			// open new popup soon
-    }
-    hidePopups();				// hide popup items
-    if ( lastActItem >= 0 )
-	updateCell( lastActItem, 0, FALSE );
-    updateCell( actItem, 0, FALSE );
-    if ( mi->id() >= 0 )			// valid identifier
-	hilitSig( mi->id() );
-}
-
-void QPopupMenu::activateIndex( int index )
-{
-    if ( index < 0 || index > mitems->count() )
-	return;
-    QMenuItem *mi = mitems->at(index);
-    QPopupMenu *popup = mi->popup();
-    if ( popup ) {
-	if ( !popup->isVisible() ) {
-	    QPoint pos( width() - motifArrowHMargin,
-			frameWidth() + motifArrowVMargin );
-	    for ( int i=0; i < index; i++ )
-		pos.ry() += (QCOORD)cellHeight( i );
-	    popupActive = index;
-	    popup->popup( mapToGlobal(pos) );
-	}
-	popup->setFirstItemActive();
-    } else {				// normal menu item
-	hideAllPopups();		// hide all popup
-	byeMenuBar();			// deactivate menu bar
-	if ( mi->isEnabled() ) {
-	    if ( mi->signal() )		// activate signal
-		mi->signal()->activate();
-	    else			// normal connection
-		actSig( mi->id() );
-	}	
-    }
-}
-
 /*----------------------------------------------------------------------------
   Handles mouse release events for the popup menu.
  ----------------------------------------------------------------------------*/
@@ -911,8 +832,22 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     actItem = item;
     repaint( FALSE );
     if ( actItem >= 0 ) {			// selected menu item!
-	activateIndex( actItem );
-    } else {
+	register QMenuItem *mi = mitems->at(actItem);
+	QPopupMenu *popup = mi->popup();
+	if ( popup ) {
+	    popup->setFirstItemActive();
+	} else {				// normal menu item
+	    hideAllPopups();			// hide all popup
+	    byeMenuBar();			// deactivate menu bar
+	    if ( mi->isEnabled() ) {
+		if ( mi->signal() )		// activate signal
+		    mi->signal()->activate();
+		else				// normal connection
+		    actSig( mi->id() );
+	    }
+	}
+    }
+    else {
 	hideAllPopups();
 	byeMenuBar();
     }
@@ -934,8 +869,30 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	}
 	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
 	    hidePopups();
-    } else {					// mouse on valid item
-	highlightIndex( item );
+    }
+    else {					// mouse on valid item
+	register QMenuItem *mi = mitems->at( item );
+	QPopupMenu *popup = mi->popup();
+	if ( actItem == item ) {
+	    if ( popupActive == item && popup->actItem != -1 ) {
+		popup->actItem = -1;
+		popup->hidePopups();
+		popup->repaint( FALSE );
+	    }
+	    return;
+	}
+	int lastActItem = actItem;
+	actItem = item;
+	if ( mi->popup() ) {
+	    killTimers();
+	    startTimer( 100 );			// open new popup soon
+	}
+	hidePopups();				// hide popup items
+	if ( lastActItem >= 0 )
+	    updateCell( lastActItem, 0, FALSE );
+	updateCell( actItem, 0, FALSE );
+	if ( mi->id() >= 0 )			// valid identifier
+	    hilitSig( mi->id() );
     }
 }
 
