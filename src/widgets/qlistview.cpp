@@ -5571,6 +5571,9 @@ bool QListView::allColumnsShowFocus() const
 
 QListViewItem * QListView::firstChild() const
 {
+    if ( !d->r )
+	return 0;
+
     d->r->enforceSortOrder();
     return d->r->childItem;
 }
@@ -6644,7 +6647,9 @@ QHeader * QListView::header() const
 
 int QListView::childCount() const
 {
-    return d->r->childCount();
+    if ( d->r )
+	return d->r->childCount();
+    return 0;
 }
 
 
@@ -6784,7 +6789,8 @@ int QListViewItem::itemPos() const
 */
 void QListView::takeItem( QListViewItem * i )
 {
-    d->r->takeItem( i );
+    if ( d->r )
+	d->r->takeItem( i );
 }
 
 #ifndef QT_NO_DRAGANDDROP
