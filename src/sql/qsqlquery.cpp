@@ -874,13 +874,14 @@ bool QSqlQuery::exec()
 	return d->sqlResult->extension()->exec();
     } else {
 	// fake preparation - just replace the placeholders..
-	// ### the values need to be formatted - not just cast to QStrings..
 	QString query = d->sqlResult->lastQuery();
 	if ( d->sqlResult->extension()->bindMethod() == QSqlExtension::BindByName ) {
 	    QMap<QString, QVariant>::Iterator it;
 	    for ( it = d->sqlResult->extension()->values.begin();
 		  it != d->sqlResult->extension()->values.end(); ++it ) {
-		query = query.replace( QRegExp( it.key() ), "'" + it.data().toString() + "'" ); 
+		QSqlField f( "", it.data().type() );
+		f.setValue( it.data() );
+		query = query.replace( QRegExp( it.key() ), driver()->formatValue( &f ) ); 
 	    }
 	} else {
 	    QMap<int, QString>::Iterator it;
@@ -889,8 +890,9 @@ bool QSqlQuery::exec()
 		  it != d->sqlResult->extension()->index.end(); ++it ) {
 		i = query.find( '?', i );
 		if ( i > -1 ) {
-		    query = query.replace( i, 1,	 "'" + 
-					   d->sqlResult->extension()->values[ it.data() ].toString() + "'" );
+		    QSqlField f( "", d->sqlResult->extension()->values[ it.data() ].type() );
+		    f.setValue( d->sqlResult->extension()->values[ it.data() ] );
+		    query = query.replace( i, 1, driver()->formatValue( &f ) );
 		}
 	    }
 	}
