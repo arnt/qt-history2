@@ -52,7 +52,7 @@ GLBox::GLBox( QWidget* parent, const char* name, const QGLWidget* shareWidget )
 void GLBox::initializeGL()
 {
     // Let OpenGL clear to black
-    qglClearColor( black ); 
+    qglClearColor( Qt::black ); 
 
     glEnable(GL_DEPTH_TEST);
 
@@ -151,25 +151,25 @@ GLuint GLBox::makeObject()
 
     glBegin(GL_QUADS);
     /* Front face */
-    qglColor( green );
+    qglColor( Qt::green );
     glVertex3f(-1.0, 1.0, 1.0);
     glVertex3f(1.0, 1.0, 1.0);
     glVertex3f(1.0, -1.0, 1.0);
     glVertex3f(-1.0, -1.0, 1.0);
     /* Back face */
-    qglColor( yellow );
+    qglColor( Qt::yellow );
     glVertex3f(-1.0, 1.0, -1.0);
     glVertex3f(1.0, 1.0, -1.0);
     glVertex3f(1.0, -1.0, -1.0);
     glVertex3f(-1.0, -1.0, -1.0);
     /* Top side face */
-    qglColor( blue );
+    qglColor( Qt::blue );
     glVertex3f(-1.0, 1.0, 1.0);
     glVertex3f(1.0, 1.0, 1.0);
     glVertex3f(1.0, 1.0, -1.0);
     glVertex3f(-1.0, 1.0, -1.0);
     /* Bottom side face */
-    qglColor( red );
+    qglColor( Qt::red );
     glVertex3f(-1.0, -1.0, 1.0);
     glVertex3f(1.0, -1.0, 1.0);
     glVertex3f(1.0, -1.0, -1.0);
