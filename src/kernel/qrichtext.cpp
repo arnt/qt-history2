@@ -3866,6 +3866,11 @@ void QTextParag::format( int start, bool doMove )
 	delete *it;
 
     QTextStringChar *c = 0;
+#if !defined(Q_OS_MACX) // do not do this on mac, as the paragraph
+ // with has to be the full document width on mac as the selections
+ // always extend completely to the right. This is a bit unefficient,
+ // as this results in a bigger double buffer than needed but ok for
+ // now.
     if ( lineStarts.count() == 1 ) { //&& ( !doc || document()->flow()->isEmpty() ) ) {
 	if ( !string()->isBidi() ) {
 	    c = &str->at( str->length() - 1 );
@@ -3874,6 +3879,7 @@ void QTextParag::format( int start, bool doMove )
 	    r.setWidth( lineStarts[0]->w );
 	}
     }
+#endif
      if ( newLinesAllowed ) {
 	it = lineStarts.begin();
 	int usedw = 0;
@@ -4222,6 +4228,23 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
 				 lastBaseLine, bw, lasth, drawSelections,
 				 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
+#if defined(Q_OS_MACX) // on mac selections have to extend to the right
+		if ( drawSelections ) {
+		    for ( int j = 0; j < nSels; ++j ) {
+			if ( selectionStarts[ j ] <= i && selectionEnds[ j ] > i ) {
+			    if ( !hasdoc || document()->invertSelectionText( j ) )
+				painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
+			    if ( j == QTextDocument::Standard )
+				painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+						  cg.color( QColorGroup::Highlight ) );
+			    else
+				painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+						  hasdoc ? document()->selectionColor( j ) :
+						  cg.color( QColorGroup::Highlight ) );
+			}
+		    }
+		}
+#endif
 	    }
 #if 0 // seems we don't need that anymore
 	    if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
@@ -4297,6 +4320,23 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, x, lastY,
 			 lastBaseLine, bw, h, drawSelections,
 			 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
+#if defined(Q_OS_MACX) // on mac selections have to extend to the right
+	if ( drawSelections ) {
+	    for ( int j = 0; j < nSels; ++j ) {
+		if ( selectionStarts[ j ] <= i && n && n->hasSelection( j ) ) {
+		    if ( !hasdoc || document()->invertSelectionText( j ) )
+			painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
+		    if ( j == QTextDocument::Standard )
+			painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+					  cg.color( QColorGroup::Highlight ) );
+		    else
+			painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+					  hasdoc ? document()->selectionColor( j ) :
+					  cg.color( QColorGroup::Highlight ) );
+		}
+	    }
+	}
+#endif
     }
 
     // if we should draw a cursor, draw it now
