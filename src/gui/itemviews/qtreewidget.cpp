@@ -1220,12 +1220,12 @@ void QTreeWidget::setColumnCount(int columns)
 }
 
 /*!
-  Returns the top level item at \a index.
+  Returns the top level item at \a index or 0 if the item does not exist.
 */
 
 QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
 {
-    return d->model()->tree.at(index);
+    return d->model()->tree.value(index);
 }
 
 /*!
