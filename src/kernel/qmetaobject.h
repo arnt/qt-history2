@@ -71,7 +71,7 @@ public:
     QStrList enumKeys() const;			// enumeration names
 
     bool stored( QObject* ) const;
-    bool isDesignable() const;
+    bool designable() const;
 
     const char* t;
     const char* n;
@@ -202,7 +202,7 @@ inline bool QMetaProperty::isSetType() const
 { return ( enumData != 0 && enumData->set ); }
 inline bool QMetaProperty::isEnumType() const 
 { return ( enumData != 0 ); }
-inline bool QMetaProperty::isDesignable() const 
+inline bool QMetaProperty::designable() const 
 { return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
 inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }

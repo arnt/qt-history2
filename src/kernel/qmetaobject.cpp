@@ -849,14 +849,14 @@ QMetaProperty::~QMetaProperty()
   \internal 
 */
 
-/*! \fn bool QMetaProperty::isDesignable() const
+/*! \fn bool QMetaProperty::designable() const
 
   Returns whether the property is considered to be designable or not.
  */
 
 
 /*!  
-  Returns whether the property shall be stored for object \o or
+  Returns whether the property shall be stored for object \a o or
   not.
  */
 bool QMetaProperty::stored( QObject* o ) const
