@@ -391,7 +391,7 @@ QSize FigureEditor::sizeHint() const
 void FigureEditor::resizeEvent( QResizeEvent* e )
 {
     if ( canvas() )
-	canvas()->resize( QMAX( 590, contentsRect().width()), QMAX(390, contentsRect().height() ));
+	canvas()->resize( contentsRect().width(), contentsRect().height() );
     QCanvasView::resizeEvent( e );
 }
 
@@ -445,4 +445,6 @@ void FigureEditor::initialize()
     QCanvasItem* i = new BouncyText( tr( "Drag the nodes around!" ), QFont("helvetica", 24), graph->canvas);
     i->show();
     setCanvas( graph->canvas );
+    setMinimumSize( 600, 400 );
+    setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 }

@@ -56,9 +56,10 @@ private:
 class Screen : public QFrame {
     Q_OBJECT
 public:
-    enum { MaxSamples = 400, Range = 100, FrameWidth = 3 };
+    enum { FrameWidth = 3 };
     Screen( QWidget *parent=0, const char *name=0 );
-
+    ~Screen();
+    
     void animate();
 
 public slots:
@@ -66,9 +67,10 @@ public slots:
 
 protected:
     virtual void drawContents( QPainter * );
+    virtual void resizeEvent( QResizeEvent * );
 
 private:
-    int yval[ MaxSamples ];
+    int *yval;
     int pos0; // buffer pointer for x == 0
     int t0;   // time parameter at x == 0
     int step;
@@ -76,7 +78,7 @@ private:
 
 class Curve : public QFrame {
     Q_OBJECT
-    enum { FrameWidth = 3, Radius = 100 };
+    enum { FrameWidth = 3 };
 public:
     Curve( QWidget *parent=0, const char *name=0 );
 

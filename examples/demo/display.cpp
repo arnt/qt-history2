@@ -30,14 +30,28 @@ Screen::Screen(  QWidget *parent, const char *name )
     setLineWidth( FrameWidth );
     setFrameStyle( Panel | Sunken );
     setBackgroundMode( PaletteBase );
-    setFixedSize( MaxSamples+2*FrameWidth, Range+2*FrameWidth );
+    setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
     setPaletteBackgroundColor( black );
     setPaletteForegroundColor( blue );
 
-    memset( yval, 0, sizeof(yval) );
+    yval = new int[width()];
+    memset( yval, 0, sizeof(int)*width() );
     pos0 = 0;
     t0 = 0;
     step = 0;
+}
+
+Screen::~Screen()
+{
+    delete yval;
+}
+
+void Screen::resizeEvent( QResizeEvent *e )
+{
+    delete yval;
+    int w = e->size().width();
+    yval = new int[w];
+    memset( yval, 0, sizeof(int)*w);
 }
 
 void Screen::animate()
@@ -48,30 +62,30 @@ void Screen::animate()
     int t = t0;
     int p = pos0;
     if ( step < 0 ) {
-	t += MaxSamples + step;
+	t += width() + step;
     } else {
 	t -= step;
 	p -= step;
 	if ( p < 0 )
-	    p += MaxSamples;
+	    p += width();
    }
 
     for ( int i = 0; i < QABS( step ); i++ ) {
-	int y = (int)((Range-FrameWidth)/2 * sin( 3.1415*(double)t/180.0 ));
+	int y = (int)((height()-FrameWidth)/2 * sin( 3.1415*(double)t/180.0 ));
 	yval[ p ] = y;
 	++t;
 	t %= 360;
 	++p;
-	p %= MaxSamples;
+	p %= width();
     }
     t0 -= step;
     if ( t0 < 0 )
 	t0 += 360;
-    pos0 = (pos0 - step) % MaxSamples;
+    pos0 = (pos0 - step) % width();
     if ( pos0 < 0 )
-	pos0 += MaxSamples;
+	pos0 += width();
 
-    scroll( step, 0, QRect( FrameWidth, FrameWidth, MaxSamples, Range ));
+    scroll( step, 0, QRect( FrameWidth, FrameWidth, width()-2*FrameWidth, height()-2*FrameWidth ));
 }
 
 void Screen::setStep( int s )
@@ -84,13 +98,13 @@ void Screen::drawContents( QPainter *p )
     QRect r = p->hasClipping() ?
 	      p->clipRegion().boundingRect() : contentsRect();
 
-    int vp = ( r.left() - FrameWidth + pos0 ) % MaxSamples;
-    int y0 = FrameWidth + Range/2;
-
+    int vp = ( r.left() - FrameWidth + pos0 ) % width();
+    int y0 = FrameWidth + height()/2;
+    
     for ( int x = r.left(); x <= r.right(); x++ ) {
 	p->drawLine( x, y0 + yval[ vp ], x, r.bottom());
 	++vp;
-	vp %= MaxSamples;
+	vp %= width();
     }
 }
 
@@ -104,7 +118,7 @@ Curve::Curve( QWidget *parent, const char *name )
     setBackgroundMode( PaletteBase );
     setPaletteBackgroundColor(black);
     setPaletteForegroundColor(red);
-    setFixedSize( 2*(Radius+FrameWidth), 2*(Radius+FrameWidth) );
+    setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 
     shift = 0;
     n = 1;
@@ -112,12 +126,12 @@ Curve::Curve( QWidget *parent, const char *name )
 
 void Curve::drawContents( QPainter *p )
 {
-    p->moveTo( 100, 100 + (int)(90.0*sin( double(shift)*3.1415/180.0)));
+    p->moveTo( width()/2, height()/2 + (int)(90.0*sin( double(shift)*3.1415/180.0)));
 
     for ( double a = 0.0; a < 360.0; a += 1.0 ) {
 	double rad = 3.1415 / 180.0 * a;
-	double x = 103.0 + 90.0 * sin(rad);
-	double y = 103.0 + 90.0 * sin(n * rad + double(shift)*3.1415/180.0);
+	double x = width()/2 + 90.0 * sin(rad);
+	double y = height()/2 + 90.0 * sin(n * rad + double(shift)*3.1415/180.0);
 	p->lineTo( int(x), int(y) );
     }
 }
@@ -125,7 +139,7 @@ void Curve::drawContents( QPainter *p )
 void Curve::animate()
 {
     shift = (shift + 1) % 360;
-    update( FrameWidth, FrameWidth, 2*Radius, 2*Radius );
+    update( FrameWidth, FrameWidth, width() - 2*FrameWidth, height() - 2*FrameWidth );
 }
 
 void Curve::setFactor( int f )
@@ -145,32 +159,32 @@ DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     QHBoxLayout *hbox = new QHBoxLayout( vbox );
     screen = new Screen( this );
     dial = new QDial( this );
-    dial->setFixedSize( screen->height(), screen->height() );
     dial->setNotchesVisible( TRUE );
     dial->setRange( -10, 10 );
     dial->setValue( 1 );
     screen->setStep( dial->value() );
     connect( dial, SIGNAL( valueChanged( int )),
 	     screen, SLOT( setStep( int )));
+    lcd = new QLCDNumber( 2, this );
+    lcd->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Preferred );
+    lcdval = 0;
+    
     hbox->addWidget( screen );
-    hbox->addWidget( dial );
+
+    QVBoxLayout *vb2 = new QVBoxLayout( hbox );
 
     curve = new Curve( this );
     spin = new QSpinBox( 1, 10, 1, this );
-    spin->setFixedWidth( curve->width() );
     connect( spin, SIGNAL( valueChanged( int )), curve, SLOT( setFactor( int )));
     spin->setValue( 2 );
-
-
-    lcd = new QLCDNumber( 2, this );
-    lcd->setFixedSize( 100, 100 );
-    lcdval = 0;
-    hbox = new QHBoxLayout( vbox );
-    QVBoxLayout *vb2 = new QVBoxLayout( hbox );
     vb2->addWidget( curve );
     vb2->addWidget( spin );
-    hbox->addWidget( lcd );
-
+    
+    QHBoxLayout *hbox2 = new QHBoxLayout( vb2 );
+    
+    hbox2->addWidget( dial );
+    hbox2->addWidget( lcd );
+    
     bar = new QProgressBar( 10, this );
     tbar = 0;
 
@@ -216,3 +230,4 @@ void DisplayWidget::hideEvent( QHideEvent * )
 {
     stop();
 }
+
