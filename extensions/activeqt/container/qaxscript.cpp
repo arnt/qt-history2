@@ -35,8 +35,18 @@
 #include <qwidget.h>
 
 #include <qt_windows.h>
+#if !defined(Q_CC_BOR) && !defined(Q_CC_GNU)
 #include <initguid.h>
 #include <activscp.h>
+#else
+# if __BORLANC__ >= 0x560 // bcc 5.6 required
+#include <initguid.h>
+#include <activscp.h>
+# endif
+#endif
+
+#ifdef __activscp_h__
+
 #include "..\shared\types.h"
 
 struct QAxEngineDescriptor { QString name, extension, code; };
@@ -1232,3 +1242,5 @@ void QAxScriptManager::scriptError(int code, const QString &desc, int spos, cons
     QAxScript *source = ::qt_cast<QAxScript*>(sender());
     emit error(source, code, desc, spos, stext);
 }
+
+#endif //__activscp_h__
