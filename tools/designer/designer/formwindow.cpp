@@ -230,7 +230,8 @@ FormWindow::~FormWindow()
 	MainWindow::self->objectHierarchy()->setFormWindow( 0, 0 );
 
     MetaDataBase::clear( this );
-    ff->setFormWindow( 0 );
+    if ( ff )
+	ff->setFormWindow( 0 );
     delete iface;
 }
 
