@@ -43,6 +43,7 @@
 
 #include "qfont.h"
 #include "qapplication.h"
+#include "qcleanuphandler.h"
 #include "qfontinfo.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
@@ -121,6 +122,43 @@ static QCString qt_fixXLFD( const QCString &xlfd )
 	ret = fontNames[0];
     XFreeFontNames( fontNames );
     return ret ;
+}
+
+typedef QMap<QFont::Script,QString> FallbackMap;
+static FallbackMap *fallbackMap = 0;
+QSingleCleanupHandler<FallbackMap> qt_fallback_font_family_cleanup;
+
+static void ensure_fallback_map()
+{
+    if ( fallbackMap ) return;
+    fallbackMap = new FallbackMap;
+    qt_fallback_font_family_cleanup.set( &fallbackMap );
+}
+
+// Returns the user-configured fallback family for the specified script.
+QString qt_fallback_font_family( QFont::Script script )
+{
+    QString ret;
+
+    if ( fallbackMap ) {
+	FallbackMap::ConstIterator it, end = fallbackMap->end();
+	it = fallbackMap->find( script );
+	if ( it != end )
+	    ret = it.data();
+    }
+
+    return ret;
+}
+
+// Sets the fallback family for the specified script.
+void qt_set_fallback_font_family( QFont::Script script, const QString &family )
+{
+    ensure_fallback_map();
+
+    if ( ! family.isEmpty() )
+	fallbackMap->insert( script, family );
+    else
+	fallbackMap->remove( script );
 }
 
 
@@ -337,8 +375,13 @@ void QFontPrivate::load( QFont::Script script )
 	subs_list += QFont::substitutes( *it );
     family_list += subs_list;
 
+#ifdef Q_WS_X11
     // append the default fallback font for the specified script
-    // family_list << ... ; ###########
+    extern QString qt_fallback_font_family( QFont::Script );
+    QString fallback = qt_fallback_font_family( script );
+    if ( ! fallback.isEmpty() && ! family_list.contains( fallback ) )
+	family_list << fallback;
+#endif // Q_WS_X11
 
     // add the default family
     QString defaultFamily = QApplication::font().family();
