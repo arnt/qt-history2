@@ -11,18 +11,26 @@
 // How to use (Globally)
 // ======================
 //
-//   PM_INIT      - Initializes the global delta, to hold the
-//                  function call overhead, and resets the
-//                  measurement count. Call this to restart a
-//                  measurement session.
-//
 //   PM_MEASURE(x)- Does a measurement, and sets the label for the
 //                  given value. The label will be shown with the
 //                  value, in the measurement list displayed by
 //                  DISPLAY_PERF.
 //
-//   PM_DISPLAY   - Displays the list of measurements performed since
-//                  INIT_PERF.
+//   (PM_INIT)    - Initializes the global delta, to hold the
+//                  function call overhead, and resets the
+//                  measurement count. Call this to restart a
+//                  measurement session. (This is called on object
+//                  contruction, and is therefore not usually
+//                  needed.)
+//
+//   (PM_DISPLAY) - Displays the list of measurements performed since
+//                  INIT_PERF. If you call this, the performance
+//                  statistics will _not_ be displayed at object
+//                  destruction, to not clutter the output with huge
+//                  amounts of information.
+//
+//   (PM_DDISPLAY)- Usually called after a PM_DISPLAY to show the
+//                  statistics at object destruction.
 //
 // One may also operate directy on the globally defined performance
 // measurement object itself. (globalPM)
@@ -38,6 +46,7 @@
 //   init()                     - Same as PM_INIT
 //   measure( const char* = 0 ) - Same as PM_MEASURE(x)
 //   display                    - Same as PM_DISPLAY
+//   ddisplay                   - Same as PM_DDISPLAY
 //
 //
 // How to use (Simple)
@@ -184,10 +193,10 @@
     const char* PM_str_header1b= "                                  -> %11" PM_LLI "u, using ";
     const char* PM_str_header2 = "  1 ms           : %7" PM_LLI "u cycles";
     const char* PM_str_header3 = "  Delta overhead : %7" PM_LLI "u cycles";
-    const char* PM_str_header4 = "  [From]-> [ To] : (Totaltime)  Separatetime  ( CPU clockcycle)   To's textlabel";
+    const char* PM_str_header4 = "  [From]-> [ To] : ( Totaltime)  Separatetime  ( CPU clockcycle)  To's textlabel";
     const char* PM_str_sep     = "  -----------------------------------------------------------------------------";
-    const char* PM_str_main1   = "  [%03d] -> [%03d] : (%5.1lf %3s)  %9.3lf ms  (%11" PM_LLI "u cyc)  ";
-    const char* PM_str_footer1 = "< Total execution: (%5.1lf %3s)  %9.3lf ms  (%11" PM_LLI "u cycles)";
+    const char* PM_str_main1   = "  [%03d] -> [%03d] : (%6.2lf %3s)  %9.2lf ms  (%11" PM_LLI "u cyc)  ";
+    const char* PM_str_footer1 = "< Total execution: (%6.2lf %3s)  %9.2lf ms  (%11" PM_LLI "u cycles)";
 
     const char* PM_str_nocount = "<>Performance measurements ---- (no measurements done since init()) ------";
     const char* PM_str_crt1    = "*** CRITICAL: Reached maximium number of performance measurements (%u)!";
@@ -329,13 +338,15 @@ public:
     void init();
     void measure( const char* = 0 );
     void display();
+    void ddisplay();
 
 private:
+    bool active;
+    int perf_count;
     struct PDS {
         I64         perf_value;
         const char* perf_text;
     } perf_meas[PM_MAX_DATA];
-    int perf_count;
 };
 
 
@@ -355,6 +366,7 @@ private:
 #define PM_INIT       globalPM.init()
 #define PM_MEASURE(x) globalPM.measure(x)
 #define PM_DISPLAY    globalPM.display()
+#define PM_DDISPLAY   globalPM.ddisplay()
 
 
 // __________________________________________________________________
@@ -362,47 +374,47 @@ private:
 inline
 PM::PM()
 {
+    if (!perf_ms || !perf_delta) {
+	// Get number of cycles per millisecond
+	PM_GetFreq( &(perf_meas[0].perf_value) );
+	perf_ms = perf_meas[0].perf_value / 1000;
+
+	// Get average overhead for measurements
+	measure( "0" );  measure( "1" );
+	measure( "2" );  measure( "3" );
+	measure( "4" );  measure( "5" );
+	measure( "6" );  measure( "7" );
+	measure( "8" );  measure( "9" );
+	measure( "10" ); measure( "11" );
+	measure( "12" ); measure( "13" );
+	measure( "14" ); measure( "15" );
+	measure( "16" ); measure( "17" );
+	measure( "18" ); measure( "19" );
+	perf_delta = (perf_meas[19].perf_value
+		    - perf_meas[0].perf_value) / 20;
+    }
     init();
 }
 
 inline
 PM::~PM()
 {
+    if ( !active )
+	return;
+    measure( "(object destruction)" );
+    display();
 }
 
 inline
 void PM::init()
 {
-    if (perf_ms || perf_delta) {
-	perf_count = 0;
-	measure( "init()" );
-        return;
-    }
-
-    // Get number of cycles per millisecond
-    PM_GetFreq( &(perf_meas[0].perf_value) );
-    perf_ms = perf_meas[0].perf_value / 1000;
-
-    // Get average overhead for measurements
-    measure( "0" );  measure( "1" );
-    measure( "2" );  measure( "3" );
-    measure( "4" );  measure( "5" );
-    measure( "6" );  measure( "7" );
-    measure( "8" );  measure( "9" );
-    measure( "10" ); measure( "11" );
-    measure( "12" ); measure( "13" );
-    measure( "14" ); measure( "15" );
-    measure( "16" ); measure( "17" );
-    measure( "18" ); measure( "19" );
-    perf_delta = (perf_meas[19].perf_value
-                - perf_meas[0].perf_value) / 20;
-
-    // Erase all tracks
+    // Erase all previous tracks
     memset( perf_meas, 0, PM_MAX_DATA * sizeof(PDS) );
 
-    // Do initial performance measurement
+    active = true;
     perf_count = 0;
     measure( "init()" );
+    return;
 }
 
 inline
@@ -428,6 +440,7 @@ void PM::measure( const char* label )
 inline
 void PM::display()
 {
+    active = false;
     if ( !perf_count ) {
         PM_Debug( PM_str_nocount );
         return;
@@ -437,8 +450,8 @@ void PM::display()
     double sum = 0.0;
 
     // Time postfix and time divider, used for readable timing
-    char* PM_timearray[] = { 0, "ms", "sec", "min",    "hr" };
-    int   PM_timediv[]   = { 1,    1,  1000, 60000, 3600000 };
+    char* PM_timearray[] = { 0, "ms", "sec", "min",    "hr",   "ERR" };
+    int   PM_timediv[]   = { 1,    1,  1000, 60000, 3600000, 3600000 };
 
     // Index into time postfix, and time divider
     int thousands = 1;
@@ -464,7 +477,8 @@ void PM::display()
 
         // Get delta
         _delta_ = perf_meas[perf_run].perf_value
-                           - perf_meas[perf_run-1].perf_value;
+                - perf_meas[perf_run-1].perf_value
+		- perf_delta;
 
         // Update current sum
         sum += _delta_ / ((double)perf_ms
@@ -490,7 +504,8 @@ void PM::display()
 
     // Output footers
     _delta_ = perf_meas[perf_count-1].perf_value
-                       - perf_meas[0].perf_value;
+            - perf_meas[0].perf_value
+	    - (perf_count * perf_delta);
     // Proper calc, instead of accumulative calc
     sum = _delta_ / ((double)perf_ms
            * PM_timediv[thousands]);
@@ -499,6 +514,12 @@ void PM::display()
                sum, PM_timearray[thousands],
                _delta_/(double)perf_ms,
                _delta_ );
+}
+
+inline
+void PM::ddisplay()
+{
+    active = true;
 }
 
 
@@ -563,8 +584,8 @@ void PMSimple::stop()
     int thousands = 1;
 
     // Time postfix and time divider, used for readable timing
-    char* PM_timearray[] = { 0, "ms", "sec", "min",    "hr" };
-    int   PM_timediv[]   = { 1,    1,  1000, 60000, 3600000 };
+    char* PM_timearray[] = { 0, "ms", "sec", "min",    "hr",   "ERR" };
+    int   PM_timediv[]   = { 1,    1,  1000, 60000, 3600000, 3600000 };
 
     while (sum > 1000) {
         ++thousands;
