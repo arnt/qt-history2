@@ -66,6 +66,7 @@
 
 // Qt stuff
 #include <qapplication.h>
+#include <qeventloop.h>
 #include <qwidget.h>
 #include <qobjectlist.h>
 #include <qcursor.h>
