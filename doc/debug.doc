@@ -1,6 +1,4 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+ (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -43,20 +41,32 @@ that can help with debugging.
 
 \section1 Warning and Debugging Messages
 
-Qt includes three global functions for writing out warning and debug
+Qt includes four global functions for writing out warning and debug
 text.
 \list
-\i \link ::qDebug() qDebug()\endlink for writing debug output for testing etc.
-\i \link ::qWarning() qWarning()\endlink for writing warning output when program
-errors occur.
+\i \link ::qDebug() qDebug()\endlink for writing debug output for
+testing etc.
+\i \link ::qWarning() qWarning()\endlink for writing warning output
+when program errors occur. 
+\i \link ::qSystemWarning() qSystemWarning()\endlink for writing
+warning output when system errors occur. The output is completed by
+the system's last error message (if available).
 \i \link ::qFatal() qFatal()\endlink for writing fatal error messages
 and exiting.
 \endlist
 
-The Qt implementation of these functions prints the text to the \c stderr
-output under Unix/X11 and to the debugger under Windows. You can
-take over these functions by installing a message handler;
-\link ::qInstallMsgHandler() qInstallMsgHandler()\endlink.
+The Qt implementation of these functions prints the text to the \c
+stderr output under Unix/X11 and to the debugger under Windows. You
+can take over these functions by installing a message handler; \link
+::qInstallMsgHandler() qInstallMsgHandler()\endlink. 
+
+If the environment variable \c QT_FATAL_WARNINGS is defined,
+qWarning() exits after printing the warning message. This makes it
+possible to easily locate errors in a debugger.
+
+Note that qDebug() and qWarning() are debugging tools only, they do
+nothing if \c QT_NO_DEBUG was defined during compilation; whereas
+qSystemWarning() and qFatal() also apply in release mode.
 
 The debugging functions \l QObject::dumpObjectTree() and \l
 QObject::dumpObjectInfo() are often useful when an application looks
@@ -65,17 +75,20 @@ often useful even without names.
 
 \section1 Debugging Macros
 
-The header file \c qglobal.h contains many debugging macros and
+The header file \c qglobal.h contains some debugging macros and
 \c{#define}s.
 
-Two important macros are:
+Three important macros are:
 \list
 \i \link ::Q_ASSERT() Q_ASSERT(b)\endlink where b is a boolean
-expression, writes the warning: "ASSERT: 'b' in file file.cpp (234)"
-if b is FALSE.
+expression, writes the warning: "ASSERT: 'b"' in file file.cpp, line
+234" and exits if b is false.
+\i \link ::Q_ASSERT_X() Q_ASSERT_X(b, msg)\endlink where b is a
+boolean expression and msg a message, writes the warning: "ASSERT
+failure: 'msg' in file file.cpp, line 234" and exits if b is false.
 \i \link ::Q_CHECK_PTR() Q_CHECK_PTR(p)\endlink where p is a pointer.
-Writes the warning "In file file.cpp, line 234: Out of memory" if p is
-0.
+Writes the warning "In file file.cpp, line 234: Out of memory" and
+exits if p is 0.
 \endlist
 
 These macros are useful for detecting program errors, e.g. like this:
@@ -89,15 +102,10 @@ These macros are useful for detecting program errors, e.g. like this:
   }
 \endcode
 
-If you define the flag QT_FATAL_ASSERT, Q_ASSERT will call fatal()
-instead of warning(), so a failed assertion will cause the program to
-exit after printing the error message.
-
-Note that the Q_ASSERT macro is a null expression if \c QT_CHECK_STATE (see
-below) is not defined. Any code in it will simply not be
-executed. Similarly Q_CHECK_PTR is a null expression if \c QT_CHECK_NULL is
-not defined. Here is an example of how you should \e not use Q_ASSERT and
-Q_CHECK_PTR:
+Note that Q_ASSERT, Q_ASSERT_X and Q_CHECK_PTR are null expressions if
+\c QT_NO_DEBUG was defined during compilation. Any code in it will
+simply not be executed. Here is an example of how you should \e not
+use Q_ASSERT and Q_CHECK_PTR:
 
 \code
   char *alloc( int size )
@@ -109,46 +117,14 @@ Q_CHECK_PTR:
 \endcode
 
 The problem is tricky: \e p is set to a sane value only as long as the
-correct checking flags are defined. If this code is compiled without
-the QT_CHECK_NULL flag defined, the code in the Q_CHECK_PTR expression is
+correct checking flags are defined. If this code is compiled with the
+QT_NO_DEBUG flag defined, the code in the Q_CHECK_PTR expression is
 not executed (correctly, since it's only a debugging aid) and \e alloc
 returns a wild pointer.
 
 The Qt library contains hundreds of internal checks that will print
-warning messages when some error is detected.
-
-The tests for sanity and the resulting warning messages inside Qt are
-conditional, based on the state of various debugging flags:
-\table
-\header \i Flag		\i Meaning
-\row \i QT_CHECK_STATE	\i Check for consistent/expected object state
-\row \i QT_CHECK_RANGE	\i Check for variable range errors
-\row \i QT_CHECK_NULL	\i Check for dangerous null pointers
-\row \i QT_CHECK_MATH	\i Check for dangerous math, e.g. division by 0
-\row \i QT_NO_CHECK	\i Turn off all QT_CHECK_... flags
-\row \i QT_DEBUG	\i Enable debugging code
-\row \i QT_NO_DEBUG	\i Turn off QT_DEBUG flag
-\endtable
-
-By default, both QT_DEBUG and all the QT_CHECK flags are on. To turn
-off QT_DEBUG, define QT_NO_DEBUG. To turn off the QT_CHECK flags,
-define QT_NO_CHECK.
-
-Example:
-\code
-  void f( char *p, int i )
-  {
-  #if defined(QT_CHECK_NULL)
-      if ( p == 0 )
-	  qWarning( "f: Null pointer not allowed" );
-  #endif
-
-  #if defined(QT_CHECK_RANGE)
-      if ( i < 0 )
-	  qWarning( "f: The index cannot be negative" );
-  #endif
-  }
-\endcode
+warning messages when some error is detected. We thus recommend using
+a debug build of Qt when developing Qt-based software.
 
 \section1 Common bugs
 

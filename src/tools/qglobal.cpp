@@ -461,22 +461,21 @@ void qFatal( const char *msg, ... )
   installed). Use this method to notify the user of failures that are
   outside the control of the application.
 
-    This function takes a format string and a list of arguments,
-    similar to the C printf() function.
+  This function takes a format string and a list of arguments, similar
+  to the C printf() function.
 
-    Under X11, the text is printed to stderr. Under Windows, the text
-    is sent to the debugger.
+  Under X11, the text is printed to stderr. Under Windows, the text is
+  sent to the debugger.
 
-    \warning The internal buffer is limited to 8196 bytes (including
-    the '\0'-terminator).
+  \warning The internal buffer is limited to 8196 bytes (including the
+  '\0'-terminator).
 
-    \warning Passing (const char *)0 as argument to qSystemWarning might lead
-    to crashes on certain platforms due to the platforms printf implementation.
+  \warning Passing (const char *)0 as argument to qSystemWarning might
+  lead to crashes on certain platforms due to the platforms printf
+  implementation.
 
-    \sa qDebug(), qFatal(), qSystemWarning(), qInstallMsgHandler(),
-    \link debug.html Debugging\endlink
-
-  \sa qWarning()
+  \sa qDebug(), qFatal(), qWarning(), qInstallMsgHandler(), \link
+  debug.html Debugging\endlink
 
 */
 void qSystemWarning( const char *msg, ... )
@@ -562,7 +561,9 @@ void qSystemWarning( const char *msg, ... )
 
     This is really a macro defined in \c qglobal.h.
 
-    Q_ASSERT is useful for testing pre- and post-conditions.
+    Q_ASSERT is useful for testing pre- and post-conditions during
+    development. It does nothing if \c QT_NO_DEBUG was defined during
+    compilation.
 
     Example:
     \code
@@ -598,7 +599,9 @@ void qSystemWarning( const char *msg, ... )
 
     This is really a macro defined in \c qglobal.h.
 
-    Q_ASSERT_X is useful for testing pre- and post-conditions.
+    Q_ASSERT_X is useful for testing pre- and post-conditions during
+    development. It does nothing if \c QT_NO_DEBUG was defined during
+    compilation.
 
     Example:
     \code
@@ -633,6 +636,9 @@ void qSystemWarning( const char *msg, ... )
     name and line number, saying that the program ran out of memory.
 
     This is really a macro defined in \c qglobal.h.
+
+    Q_CHECK_PTR does nothing if \c QT_NO_DEBUG was defined during
+    compilation.
 
     Example:
     \code
