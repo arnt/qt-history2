@@ -49,6 +49,25 @@
 
 DragReference current_dropobj = 0;
 
+static const int default_pm_hotx = -2;
+static const int default_pm_hoty = -16;
+static const char* default_pm[] = {
+"13 9 3 1",
+".      c None",
+"       c #000000",
+"X      c #FFFFFF",
+"X X X X X X X",
+" X X X X X X ",
+"X ......... X",
+" X.........X ",
+"X ......... X",
+" X.........X ",
+"X ......... X",
+" X X X X X X ",
+"X X X X X X X",
+};
+
+
 bool QDropEvent::provides( const char *fmt ) const
 {
     const char *fmt2 = NULL;
@@ -236,16 +255,14 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 
     OSErr result;
     DragReference theDrag;
-    RgnHandle dragRegion;
     QByteArray ar;
-    char *test="abcd";
 
     if ( (result = NewDrag(&theDrag)) )
 	return( !result );
 
     if ( o->provides( "text/plain" ) ) {
 	ar = o->encodedData( "text/plain" );
-	AddDragItemFlavor( theDrag, (ItemReference)test, 'TEXT',
+	AddDragItemFlavor( theDrag, (ItemReference)1, 'TEXT',
 			   ar.data(), ar.size(), 0 );
     }
 	
@@ -264,31 +281,40 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 	memcpy( buffer, &mimelen, sizeof(mimelen) );
 	memcpy( buffer+sizeof(mimelen), fmt, mimelen );
 	memcpy( buffer+sizeof(mimelen) + mimelen, ar.data(), ar.size() );
-	AddDragItemFlavor( theDrag, (ItemReference)test, mactype,
+	AddDragItemFlavor( theDrag, (ItemReference)1, mactype,
 			   buffer, ar.size()+mimelen+sizeof(mimelen), 0 );
     }
 
     GetMouse( &(fakeEvent.where) );
     LocalToGlobal( &(fakeEvent.where) );
+
     Rect boundsRect;
-    SetRect( &boundsRect, fakeEvent.where.h, fakeEvent.where.v, 
-	     fakeEvent.where.h + 100, fakeEvent.where.v + 20 );
-    dragRegion = NewRgn();
-    OpenRgn();
-    FrameRect( &boundsRect );
-    CloseRgn( dragRegion );
- 
-    SetDragItemBounds( theDrag, (ItemReference)test , &boundsRect );
+    Point boundsPoint;
+    QPoint hotspot;
+    QPixmap pix = o->pixmap();
+    if(pix.isNull()) {
+	pix = QImage(default_pm);
+	hotspot = QPoint(default_pm_hotx, default_pm_hoty);
+    } else {
+	hotspot = QPoint(o->pixmapHotSpot().x(), o->pixmapHotSpot().y());
+    }
+
+    boundsPoint.h = fakeEvent.where.h - hotspot.x();
+    boundsPoint.v = fakeEvent.where.v - hotspot.y();
+    SetRect( &boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height() );
+    SetDragItemBounds( theDrag, (ItemReference)1 , &boundsRect );
+
+    QBitmap pixbits;
+    pixbits = pix;
+    QRegion dragRegion(pixbits);
+    dragRegion.translate(boundsPoint.h, boundsPoint.v);
 
     fakeEvent.what = 0;
     fakeEvent.when = 0;
     fakeEvent.modifiers = 0;
+    result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle() );
 
-    result = TrackDrag( theDrag, &fakeEvent, dragRegion );
-
-    DisposeRgn( dragRegion );
     DisposeDrag( theDrag );
-
     return !result;
 }
 
