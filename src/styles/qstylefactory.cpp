@@ -153,9 +153,11 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QCompactStyle;
     else
 #endif
+#if 0
 #ifdef Q_WS_MAC
     if( style == "macintosh" )
 	return new QMacStyle;
+#endif
 #endif
 
 #ifndef QT_NO_STYLE_AQUA
