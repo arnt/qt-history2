@@ -209,7 +209,7 @@ private:
     bool mousePressed;
     QToolButton *closeButton;
     bool hadDblClick;
-    
+
 };
 
 QDockWidgetHandle::QDockWidgetHandle( QDockWidget *dw )
@@ -334,7 +334,7 @@ private:
     bool mousePressed;
     QToolButton *closeButton;
     bool hadDblClick;
-    
+
 };
 
 QDockWidgetTitleBar::QDockWidgetTitleBar( QDockWidget *dw )
@@ -376,6 +376,7 @@ void QDockWidgetTitleBar::paintEvent( QPaintEvent *e )
     QFont f = p.font();
     f.setPointSize( 10 );
     p.setFont( f );
+    p.setPen( colorGroup().highlightedText() );
     p.drawText( 5, height() - p.fontMetrics().descent(), dockWidget->caption() );
 }
 
