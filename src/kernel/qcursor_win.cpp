@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#43 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -391,12 +391,12 @@ void QCursor::update() const
 		data->hx = data->hy = 16;
 		invb = invm = FALSE;
 	    } else if ( data->cshape != BitmapCursor ) {
-		bbits.create( 32, 32, 1, 2, QImage::BigEndian );
-		mbits.create( 32, 32, 1, 2, QImage::BigEndian );
 		int i = data->cshape - SplitVCursor;
-		memcpy( bbits.bits(), cursor_bits32[i*2], 32*32/8 );
-		memcpy( mbits.bits(), cursor_bits32[i*2+1], 32*32/8 );
-		if (data->cshape == PointingHandCursor)
+		QBitmap cb( 32, 32, cursor_bits32[i*2], TRUE );
+		QBitmap cm( 32, 32, cursor_bits32[i*2+1], TRUE );
+		bbits = cb;
+		mbits = cb;
+		if ( data->cshape == PointingHandCursor )
 		    data->hx = data->hy = 0;
 		else
 		    data->hx = data->hy = 16;
