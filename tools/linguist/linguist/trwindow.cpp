@@ -1578,7 +1578,7 @@ void TrWindow::newPhraseBook()
     while ( TRUE ) {
 	name = QFileDialog::getSaveFileName( QString::null,
 		       tr("Qt phrase books (*.qph)\n"
-			  "All files (*)"), 0, "new_phrasebook", 
+			  "All files (*)"), 0, "new_phrasebook",
 					     tr("Create new phrase book") );
 	if ( !QFile::exists(name) )
 	    break;
@@ -1600,7 +1600,7 @@ void TrWindow::openPhraseBook()
     QString qtdirenv = getenv("QTDIR");
     QString name = QFileDialog::getOpenFileName( QString( qtdirenv + "/tools/linguist/phrasebooks" ),
 	    tr("Qt phrase books (*.qph)\n"
-	       "All files (*)"), 0, "open_phrasebook", 
+	       "All files (*)"), 0, "open_phrasebook",
 	       tr("Open phrase book") );
 
     if ( !name.isEmpty() && !phraseBookNames.contains(name) ) {
@@ -2725,19 +2725,20 @@ void TrWindow::readConfig()
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    recentFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
     QRect r( pos(), size() );
-    r.setX( config.readNumEntry( keybase + "Geometry/MainwindowX", r.x() ) );
-    r.setY( config.readNumEntry( keybase + "Geometry/MainwindowY", r.y() ) );
-    r.setWidth( config.readNumEntry( keybase + "Geometry/MainwindowWidth",
-				     r.width() ) );
-    r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight",
-				      r.height() ) );
-    QRect desk = QApplication::desktop()->geometry();
-    QRect inter = desk.intersect( r );
-    resize( r.size() );
-    if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-	move( r.topLeft() );
+    recentFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
+    if ( !config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) ) {
+	r.setX( config.readNumEntry( keybase + "Geometry/MainwindowX", r.x() ) );
+	r.setY( config.readNumEntry( keybase + "Geometry/MainwindowY", r.y() ) );
+	r.setWidth( config.readNumEntry( keybase + "Geometry/MainwindowWidth", r.width() ) );
+	r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight", r.height() ) );
+
+	QRect desk = QApplication::desktop()->geometry();
+	QRect inter = desk.intersect( r );
+	resize( r.size() );
+	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
+	    move( r.topLeft() );
+	}
     }
 
     QDockWindow * dw;
@@ -2787,6 +2788,7 @@ void TrWindow::writeConfig()
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles, ',' );
+    config.writeEntry( keybase + "Geometries/MainwindowMaximized", isMaximized() );
     config.writeEntry( keybase + "Geometry/MainwindowX", x() );
     config.writeEntry( keybase + "Geometry/MainwindowY", y() );
     config.writeEntry( keybase + "Geometry/MainwindowWidth", width() );

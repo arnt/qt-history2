@@ -22,9 +22,13 @@ void HelpWindow::setSource( const QString &name )
 	removeSelection();
 	mw->saveSettings();
 	mw->saveToolbarSettings();
-	MainWindow *mw = new MainWindow;
-	mw->showLink( name, "" );
-	mw->show();
+	MainWindow *nmw = new MainWindow;
+	nmw->showLink( name, "" );
+	nmw->move( mw->geometry().topLeft() );
+	if ( mw->isMaximized() )
+	    nmw->showMaximized();
+	else
+	    nmw->show();
 	return;
     }
 
@@ -86,7 +90,7 @@ void HelpWindow::openLinkInNewWindow()
     shiftPressed = TRUE;
     setSource( lastAnchor );
     shiftPressed = oldShiftPressed;
-    
+
 }
 
 
@@ -95,7 +99,7 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
     QPopupMenu *m = new QPopupMenu( this );
     lastAnchor = anchorAt( pos );
     if ( !lastAnchor.isEmpty() ) {
-	m->insertItem( tr("Open Link in New Window\tShift+LMB"), this, SLOT( openLinkInNewWindow() ) ); 
+	m->insertItem( tr("Open Link in New Window\tShift+LMB"), this, SLOT( openLinkInNewWindow() ) );
     }
     mw->actionNewWindow->addTo( m );
     m->insertSeparator();

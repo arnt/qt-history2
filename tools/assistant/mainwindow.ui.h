@@ -95,9 +95,21 @@ void MainWindow::init()
     }
 
     helpDock->tabWidget->setCurrentPage( config.readNumEntry( keybase + "SideBarPage", 0 ) );
-    
-    resize( config.readNumEntry( keybase + "GeometryWidth", width() ),
-	    config.readNumEntry( keybase + "GeometryHeight", height() ) );
+
+    if ( !config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
+	QRect r( pos(), size() );
+	r.setX( config.readNumEntry( keybase + "GeometryX", r.x() ) );
+	r.setY( config.readNumEntry( keybase + "GeometryY", r.y() ) );
+	r.setWidth( config.readNumEntry( keybase + "GeometryWidth", r.width() ) );
+	r.setHeight( config.readNumEntry( keybase + "GeometryHeight", r.height() ) );
+
+	QRect desk = QApplication::desktop()->geometry();
+	QRect inter = desk.intersect( r );
+	resize( r.size() );
+	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
+	    move( r.topLeft() );
+	}
+    }
 
     QString source = config.readEntry( keybase + "Source", QString::null );
     QString title = config.readEntry( keybase + "Title", source );
@@ -313,7 +325,11 @@ MainWindow* MainWindow::newWindow()
     saveSettings();
     saveToolbarSettings();
     MainWindow *mw = new MainWindow;
-    mw->show();
+    mw->move( geometry().topLeft() );
+    if ( isMaximized() )
+	mw->showMaximized();
+    else
+	mw->show();
     return mw;
 }
 
@@ -330,8 +346,11 @@ void MainWindow::saveSettings()
     config.writeEntry( keybase + "Source", browser->source() );
     config.writeEntry( keybase + "Title", browser->caption() );
     config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
+    config.writeEntry( keybase + "GeometryX", x() );
+    config.writeEntry( keybase + "GeometryY", y() );
     config.writeEntry( keybase + "GeometryWidth", width() );
     config.writeEntry( keybase + "GeometryHeight", height() );
+    config.writeEntry( keybase + "GeometryMaximized", isMaximized() );
 }
 
 void MainWindow::saveToolbarSettings()

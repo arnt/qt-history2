@@ -4,6 +4,7 @@
 #include <qsocket.h>
 #include <qpixmap.h>
 #include <qptrlist.h>
+#include <qsettings.h>
 #include "assistant.h"
 
 const int server_port = 7358;
@@ -299,7 +300,15 @@ void Socket::startOwnWindow()
 {
     MainWindow * mw = new MainWindow;
     mw->setIcon( logo_xpm );
-    mw->show();
+    
+    QString keybase("/Qt Assistant/3.0/");
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    if ( config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) )
+	mw->showMaximized();
+    else
+	mw->show();
+    
     QString s = qApp->argv()[ 1 ];
     if ( s.left( 2 ) == "d:" )
 	s.remove( 0, 2 );

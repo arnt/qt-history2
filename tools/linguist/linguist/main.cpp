@@ -22,6 +22,7 @@
 #include <qtimer.h>
 #include <qtextcodec.h>
 #include <qtranslator.h>
+#include <qsettings.h>
 
 #if defined(_WS_X11_)
 extern void qt_wait_for_window_manager( QWidget * );
@@ -56,8 +57,8 @@ int main( int argc, char **argv )
     QLabel *splash = 0;
     QRect screen = QApplication::desktop()->screenGeometry();
     if ( showSplash ) {
-	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | 
-			     Qt::WStyle_Customize | Qt::WStyle_NoBorder | 
+	splash = new QLabel( 0, "splash", Qt::WDestructiveClose |
+			     Qt::WStyle_Customize | Qt::WStyle_NoBorder |
 			     Qt::WX11BypassWM );
 	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	splash->setPixmap( TrWindow::splash() );
@@ -76,8 +77,14 @@ int main( int argc, char **argv )
 
     if ( app.argc() > 1 )
 	tw->openFile( QString(app.argv()[app.argc() - 1]) );
-    
-    tw->show();
+
+    QString   keybase("/Qt Linguist/3.0/");
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    if ( config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) )     
+	tw->showMaximized();
+    else
+	tw->show();
 #if defined(_WS_X11_)
     qt_wait_for_window_manager( tw );
 #endif
@@ -85,6 +92,6 @@ int main( int argc, char **argv )
  	app.processEvents();
     delete splash;
     QApplication::restoreOverrideCursor();
-    
+
     return app.exec();
 }
