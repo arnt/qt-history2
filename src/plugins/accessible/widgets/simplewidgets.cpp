@@ -12,6 +12,7 @@
 #include <qlcdnumber.h>
 #include <qlineedit.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 
 QString Q_GUI_EXPORT qacc_stripAmp(const QString &text);
 QString Q_GUI_EXPORT qacc_hotKey(const QString &text);
@@ -228,8 +229,12 @@ QRect QAccessibleToolButton::rect(int child) const
     if (!child)
         return QAccessibleButton::rect(child);
 
-    QRect subrect = QStyle::visualRect(widget()->style().querySubControlMetrics(QStyle::CC_ToolButton,
-            toolButton(), QStyle::SC_ToolButtonMenu), toolButton());
+    Q4StyleOptionToolButton option(0);
+    QRect logical = widget()->style().querySubControlMetrics(QStyle::CC_ToolButton,
+                                                             &option,
+                                                             QStyle::SC_ToolButtonMenu,
+                                                             toolButton());
+    QRect subrect = QStyle::visualRect(logical, toolButton());
 
     if (child == ButtonExecute)
         subrect = QRect(0, 0, subrect.x(), widget()->height());

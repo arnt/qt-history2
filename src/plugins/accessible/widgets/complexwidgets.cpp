@@ -11,6 +11,7 @@
 #include <qlistbox.h>
 #include <private/qtitlebar_p.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
@@ -309,24 +310,31 @@ QComboBox *QAccessibleComboBox::comboBox() const
 QRect QAccessibleComboBox::rect(int child) const
 {
     QPoint tp;
+    QStyle::SubControl sc;
     QRect r;
-
     switch(child) {
     case CurrentText:
         if (comboBox()->editable()) {
             tp = comboBox()->lineEdit()->mapToGlobal(QPoint(0,0));
             r = comboBox()->lineEdit()->rect();
+            sc = QStyle::SC_None;
         } else  {
             tp = comboBox()->mapToGlobal(QPoint(0,0));
-            r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxEditField);
+            sc = QStyle::SC_ComboBoxEditField;
         }
         break;
     case OpenList:
         tp = comboBox()->mapToGlobal(QPoint(0,0));
-        r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxArrow);
+        sc = QStyle::SC_ComboBoxArrow;
         break;
     default:
         return QAccessibleWidget::rect(child);
+    }
+
+    if (sc != QStyle::SC_None) {
+        Q4StyleOptionComboBox option(0);
+        r = comboBox()->style().querySubControlMetrics(QStyle::CC_ComboBox, &option,
+                                                       sc, comboBox());
     }
     return QRect(tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height());
 }
@@ -477,25 +485,32 @@ QRect QAccessibleTitleBar::rect(int child) const
     if (!child)
         return QAccessibleWidget::rect(child);
 
-    QRect r;
+    QStyle::SubControl sc;
     switch (child) {
     case 1:
-        r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarSysMenu);
+        sc = QStyle::SC_TitleBarSysMenu;
         break;
     case 2:
-        r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarLabel);
+        sc = QStyle::SC_TitleBarLabel;
         break;
     case 3:
-        r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMinButton);
+        sc = QStyle::SC_TitleBarMinButton;
         break;
     case 4:
-        r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMaxButton);
+        sc = QStyle::SC_TitleBarMaxButton;
         break;
     case 5:
-        r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarCloseButton);
+        sc = QStyle::SC_TitleBarCloseButton;
         break;
     default:
+        sc = QStyle::SC_None;
         break;
+    }
+
+    QRect r;
+    if (sc != QStyle::SC_None) {
+        Q4StyleOptionTitleBar option(0);
+        r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, &option, sc, titleBar());
     }
 
     QPoint tp = titleBar()->mapToGlobal(QPoint(0,0));
