@@ -26,4 +26,8 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qstringlist.cpp  \
 		  ../tools/qtextcodec.cpp
 
+unix:SOURCES	+= ../tools/qfile_unix.cpp
+
+win32:SOURCES	+= ../tools/qfile_win.cpp
+
 TARGET		= moc
