@@ -298,6 +298,11 @@ MetrowerksMakefileGenerator::init()
 		(project->first("TARGET") == "qt-mt") ) ) {
 	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	}
+	if(configs.findIndex("moc")) 
+	    configs.append("moc");
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
+	if ( !project->isActiveConfig("debug") ) 
+	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
     }
     if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
 	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "lib" );
