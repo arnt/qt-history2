@@ -268,54 +268,97 @@ bool qt_recreate_root_win() {
     return TRUE;
 }
 
-QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
+static EventTypeSpec window_events[] = {
+    { kEventClassWindow, kEventWindowGetRegion }
+};
+static EventHandlerUPP mac_win_eventUPP = NULL;
+static void cleanup_win_eventUPP()
 {
-    long result = 0;
-    switch (message) {
-    case kWindowMsgHitTest:
-	result = wInContent;
-	break;
-    case kWindowMsgStateChanged:
-    case kWindowMsgCleanUp:
-    case kWindowMsgInitialize:
-    case kWindowMsgDrawInCurrentPort:
-    case kWindowMsgDraw:
-	result = 0;
-	break;
-    case kWindowMsgGetFeatures: {
-	SInt32 *s = (SInt32*)param;
-	*s = kWindowCanGetWindowRegion;
-	result = 1;
-	break; }
-    case kWindowMsgGetRegion: {
-	GetWindowRegionRec *s = (GetWindowRegionRec *)param;
-	result = 0;
-	switch(s->regionCode) {
-	case kWindowOpaqueRgn: 
-	    EmptyRgn(s->winRgn);
-	    break; 
-	case kWindowStructureRgn:
-	case kWindowContentRgn: {
-	    if(QWidget *widget = QWidget::find( (WId)window )) {
-		QRegion cr;
-		if(widget->extra && !widget->extra->mask.isNull()) 
-		    cr = widget->extra->mask;
-		else 
-		    cr = QRegion(widget->rect());
-		cr.translate(widget->x(), widget->y());
-		CopyRgn(cr.handle(TRUE), s->winRgn);
+    DisposeEventHandlerUPP(mac_win_eventUPP);
+    mac_win_eventUPP = NULL;
+}
+static const EventHandlerUPP make_win_eventUPP()
+{
+    if(mac_win_eventUPP)
+	return mac_win_eventUPP;
+    qAddPostRoutine( cleanup_win_eventUPP );
+    return mac_win_eventUPP = NewEventHandlerUPP(qt_window_event);
+}
+QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *)
+{
+    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
+    bool handled_event = TRUE;
+    QWidget *widget = NULL;
+    switch(eclass) {
+    case kEventClassWindow: {
+	WindowRef wid;
+	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
+			  sizeof(WindowRef), NULL, &wid);
+	widget = QWidget::find( (WId)wid );
+	if(ekind == kEventWindowGetRegion) {
+	    if(widget) {
+		CallNextEventHandler(er, event);
+		WindowRegionCode wcode;
+		GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
+				  sizeof(wcode), NULL, &wcode);
+		RgnHandle rgn;
+		GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
+				  sizeof(rgn), NULL, &rgn);
+
+		qDebug("happend for %s %s %d", widget->name(), widget->className(), wcode);
+		switch(wcode) {
+		case kWindowOpaqueRgn: 
+		    EmptyRgn(rgn);
+		    break; 
+		case kWindowStructureRgn: {
+		    QRegion cr;
+		    if(widget->extra && !widget->extra->mask.isNull()) {
+			QRegion rin;
+			CopyRgn(rgn, rin.handle(TRUE));
+			qDebug("first..");
+			QArray<QRect> rs = rin.rects();
+			for(int i = 0; i < rs.count(); i++)
+			    qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), 
+				   rs[i].width(), rs[i].height());
+
+			QRect rin_br = rin.boundingRect();y
+			rin -= QRegion(widget->geometry());
+			qDebug("second..");
+			rs = rin.rects();
+			for(int i = 0; i < rs.count(); i++)
+			    qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), 
+				   rs[i].width(), rs[i].height());
+#if 0
+			QRegion rpm = widget->extra->mask;
+			rpm.translate(widget->x() - rin_br.x(), widget->y() - rin_br.y());
+			rin += rpm;
+#endif
+			CopyRgn(rin.handle(TRUE), rgn);
+		    }
+		    break; }
+		case kWindowContentRgn: {
+		    QRegion cr;
+		    if(widget->extra && !widget->extra->mask.isNull()) {
+			cr = widget->extra->mask;
+			cr.translate(widget->x(), widget->y());
+		    } else {
+			cr = QRegion(widget->geometry());
+		    }
+		    CopyRgn(cr.handle(TRUE), rgn);
+		    break; }
+		}
 	    }
-	    break; }
-	default:
-	    result = errWindowRegionCodeInvalid;
-	    break;
+	} else {
+	    handled_event = FALSE;
 	}
 	break; }
     default:
-	qDebug("Shouldn't happen %s:%d %d", __FILE__, __LINE__, message);
+	handled_event = FALSE;
 	break;
     }
-    return result;
+    if(!handled_event) //let the event go through
+	return CallNextEventHandler(er, event);
+    return noErr; //we eat the event
 }
 
 QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
@@ -365,7 +408,8 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
  *****************************************************************************/
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
-    use_wdef = own_id = 0;
+    window_event = NULL;
+    own_id = 0;
     HANDLE destroyw = 0;
     setWState( WState_Created );                        // set created flag
 
@@ -474,22 +518,23 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
-	if(testWFlags(WStyle_Tool) || (wclass == kPlainWindowClass && wattr == kWindowNoAttributes))
-	    use_wdef = 1;
+
+#if 0
+	long macos_version=0;
+	Gestalt(gestaltSystemVersion, &macos_version);
+	qDebug("%ld", macos_version);
+#endif
 	//wattr |= kWindowLiveResizeAttribute;
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
 	    wattr |= kWindowNoActivatesAttribute;
 
-	if(use_wdef) {
-	    WindowDefSpec wds;
-	    wds.defType = kWindowDefProcPtr;
-	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
-	    if(CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id))
-		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
-	} else {
-	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
-		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
-	}
+	if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
+	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	//setup an event callback handler on the window
+	InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(), 
+				  GetEventTypeCount(window_events),
+				  window_events, (void *)qApp, &window_event);
+
 	if(wclass == kFloatingWindowClass)
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute);
 #ifdef Q_WS_MACX
@@ -580,6 +625,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	if ( destroyWindow && isTopLevel() && hd && own_id) {
 	    mac_window_count--;
 	    DisposeWindow( (WindowPtr)hd );
+	    if(window_event)
+		RemoveEventHandler( window_event );
 	}
     }
     hd=0;
@@ -1664,7 +1711,7 @@ void QWidget::setMask( const QRegion &region )
 	clp ^= clippedRegion(FALSE);
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
-    if ( isTopLevel() && use_wdef) {
+    if ( isTopLevel() ) {
 	/* We do this because the X/Y seems to move to the first paintable point
 	   (ie the bounding rect of the mask). We must offset everything or else
 	   we have big problems. */

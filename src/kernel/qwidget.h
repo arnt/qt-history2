@@ -550,7 +550,7 @@ private:
     void	 checkChildrenDnd();
 #elif defined(Q_WS_MAC)
     uint    own_id : 1; //owns the winid
-    uint    use_wdef : 1; //uses a wdef
+    EventHandlerRef window_event;
     //mac event functions
     void propagateUpdates();
     //friends, way too many - fix this immediatly!
@@ -560,7 +560,7 @@ private:
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend void qt_event_request_updates(QWidget *, QRegion &);
-    friend QMAC_PASCAL long qt_wdef(short, WindowRef, short, long);
+    friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *); 
     friend class QDragManager;
 #endif
 

@@ -104,6 +104,7 @@ typedef struct OpaquePMPrintSettings *PMPrintSettings;
 typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct Point Point;
 typedef struct FSSpec FSSpec;
+typedef struct OpaqueEventHandlerRef*   EventHandlerRef;
 typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
 typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
 typedef struct OpaqueEventRef*          EventRef;
