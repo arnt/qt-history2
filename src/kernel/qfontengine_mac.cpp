@@ -89,7 +89,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     p->updateBrush();
     if(p->backgroundMode() == Qt::OpaqueMode) {
@@ -161,7 +161,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
     }
 
 glyph_metrics_t
-QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const offset_t *, int numGlyphs)
+QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const qoffset_t *, int numGlyphs)
 {
     int w = 0;
     const advance_t *end = advances + numGlyphs;

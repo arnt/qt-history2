@@ -40,7 +40,7 @@ typedef struct tag_SCRIPT_ITEM {
 } SCRIPT_ITEM;
 
 typedef GlyphAttributes SCRIPT_VISATTR;
-typedef offset_t GOFFSET;
+typedef qoffset_t GOFFSET;
 
 #define USP_E_SCRIPT_NOT_IN_FONT   \
         MAKE_HRESULT(SEVERITY_ERROR,FACILITY_ITF,0x200)    // Script doesn't exist in font

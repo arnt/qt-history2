@@ -32,7 +32,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
     }
 
     glyph_t *glyphs = engine->glyphs( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
 
     QFontEngine *f = si->fontEngine;

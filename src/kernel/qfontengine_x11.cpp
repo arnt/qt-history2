@@ -166,7 +166,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 #endif
 }
 
-glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const offset_t *, int numGlyphs )
+glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const qoffset_t *, int numGlyphs )
 {
     glyph_metrics_t overall;
     overall.x = overall.y = 0;
@@ -527,7 +527,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     XChar2b ch[256];
     XChar2b *chars = ch;
@@ -599,7 +599,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 #endif
 }
 
-glyph_metrics_t QFontEngineXLFD::boundingBox( const glyph_t *glyphs, const advance_t *advances, const offset_t *offsets, int numGlyphs )
+glyph_metrics_t QFontEngineXLFD::boundingBox( const glyph_t *glyphs, const advance_t *advances, const qoffset_t *offsets, int numGlyphs )
 {
     int i;
 
@@ -1045,7 +1045,7 @@ void QFontEngineLatinXLFD::draw( QPainter *p, int x, int y, const QTextEngine *e
 
 glyph_metrics_t QFontEngineLatinXLFD::boundingBox( const glyph_t *glyphs_const,
 						   const advance_t *advances,
-						   const offset_t *offsets,
+						   const qoffset_t *offsets,
 						   int numGlyphs )
 {
     if ( numGlyphs <= 0 ) return glyph_metrics_t();
@@ -1530,7 +1530,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     const QColor &pen = p->cpen.color();
     XftDraw *draw = ((Q_HackPaintDevice *)p->pdev)->xftDrawHandle();
@@ -1655,7 +1655,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 #endif
 }
 
-glyph_metrics_t QFontEngineXft::boundingBox( const glyph_t *glyphs, const advance_t *advances, const offset_t *offsets, int numGlyphs )
+glyph_metrics_t QFontEngineXft::boundingBox( const glyph_t *glyphs, const advance_t *advances, const qoffset_t *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
@@ -2298,7 +2298,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTe
     // calulate the advances for the shaped glyphs
     glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     ((QFontEngineXft *)si->fontEngine)->recalcAdvances( si->num_glyphs, glyphs, advances );
     for ( int i = 0; i < si->num_glyphs; i++ ) {

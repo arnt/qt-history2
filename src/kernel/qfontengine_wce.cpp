@@ -127,7 +127,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     // #### fix the other transformations
     if ( p->txop == QPainter::TxTranslate ) {
@@ -153,7 +153,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 }
 
 glyph_metrics_t QFontEngineWin::boundingBox( const glyph_t *glyphs,
-				const advance_t *advances, const offset_t *offsets, int numGlyphs )
+				const advance_t *advances, const qoffset_t *offsets, int numGlyphs )
 {
     Q_UNUSED( glyphs );
     Q_UNUSED( offsets );
@@ -269,7 +269,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 {
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     // #### fix the other transformations
     if ( p->txop == QPainter::TxTranslate ) {
@@ -296,7 +296,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     Rectangle( hdc, x, y, 10, 10 );
 }
 
-glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const offset_t *, int numGlyphs )
+glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const qoffset_t *, int numGlyphs )
 {
     glyph_metrics_t overall;
     overall.x = overall.y = 0;

@@ -173,7 +173,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 
     glyph_t *glyphs = engine->glyphs( si );
     advance_t *advances = engine->advances( si );
-    offset_t *offsets = engine->offsets( si );
+    qoffset_t *offsets = engine->offsets( si );
 
     struct Pos {
 	int x;
@@ -209,7 +209,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 }
 
 glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
-					  const advance_t *advances, const offset_t *offsets, int numGlyphs )
+					  const advance_t *advances, const qoffset_t *offsets, int numGlyphs )
 {
     Q_UNUSED( glyphs );
     Q_UNUSED( offsets );

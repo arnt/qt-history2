@@ -51,7 +51,7 @@ struct glyph_metrics_t
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS )
 typedef unsigned short glyph_t;
 
-struct offset_t {
+struct qoffset_t {
     short x;
     short y;
 };
@@ -78,7 +78,7 @@ struct QScriptAnalysis
 
 typedef unsigned short glyph_t;
 
-struct offset_t {
+struct qoffset_t {
     short x;
     short y;
 };
@@ -108,7 +108,7 @@ struct QScriptAnalysis
 
 typedef unsigned short glyph_t;
 
-struct offset_t {
+struct qoffset_t {
     int x;
     int y;
 };
@@ -297,7 +297,7 @@ public:
 
     glyph_t *glyphPtr;
     advance_t *advancePtr;
-    offset_t *offsetsPtr;
+    qoffset_t *offsetsPtr;
     unsigned short *logClustersPtr;
     GlyphAttributes *glyphAttributesPtr;
 
@@ -305,7 +305,7 @@ public:
 	{ return glyphPtr+si->glyph_data_offset; }
     inline advance_t *advances( const QScriptItem *si ) const
 	{ return advancePtr+si->glyph_data_offset; }
-    inline offset_t *offsets( const QScriptItem *si ) const
+    inline qoffset_t *offsets( const QScriptItem *si ) const
 	{ return offsetsPtr+si->glyph_data_offset; }
     inline unsigned short *logClusters( const QScriptItem *si ) const
 	{ return logClustersPtr+si->glyph_data_offset; }

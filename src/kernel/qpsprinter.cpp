@@ -2351,7 +2351,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 
     glyph_t *glyphs = engine->glyphs( &si );
     advance_t *advances = engine->advances( &si );
-    offset_t *offsets = engine->offsets( &si );
+    qoffset_t *offsets = engine->offsets( &si );
 
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {

@@ -14,7 +14,7 @@ class QPaintDevice;
 struct glyph_metrics_t;
 class QChar;
 typedef unsigned short glyph_t;
-struct offset_t;
+struct qoffset_t;
 typedef int advance_t;
 class QOpenType;
 struct TransformedFont;
@@ -66,7 +66,7 @@ public:
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 					 const advance_t *advances,
-					 const offset_t *offsets, int numGlyphs ) = 0;
+					 const qoffset_t *offsets, int numGlyphs ) = 0;
     virtual glyph_metrics_t boundingBox( glyph_t glyph ) = 0;
 
     virtual int ascent() const = 0;
@@ -163,7 +163,7 @@ public:
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
-			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
+			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -216,7 +216,7 @@ public:
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
+				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -280,7 +280,7 @@ public:
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
+				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -334,7 +334,7 @@ public:
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
+				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -388,7 +388,7 @@ public:
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 					 const advance_t *advances,
-					 const offset_t *offsets, int numGlyphs );
+					 const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const;
@@ -481,7 +481,7 @@ public:
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
-			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
+			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const { return (int)info->ascent; }
@@ -518,7 +518,7 @@ public:
     void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
-			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
+			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
     glyph_metrics_t boundingBox( glyph_t glyph );
 
     int ascent() const;
