@@ -21,6 +21,7 @@
 #include <qstringlist.h>
 
 #ifdef Q_OS_WIN
+#include "qt_windows.h"
 typedef HANDLE Q_PIPE;
 #define INVALID_Q_PIPE INVALID_HANDLE_VALUE
 #else
