@@ -2351,9 +2351,9 @@ QObjectList *MainWindow::runProject()
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( f, bps );
 	}
-		
+
 	iiface->exec( 0, "main" );
-	
+
 	for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
 	    QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ) );
 	    if ( w ) {
@@ -3230,15 +3230,20 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
     if ( fw->mainContainer()->inherits( "QWizard" ) ) {
 	if ( ids.isEmpty() )
 	    ids << rmbFormWindow->insertSeparator( 0 );
+
+	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages..."), -1, 0 ) );
+	commands.insert( "edit", id );
+
+	ids << ( id = rmbFormWindow->insertItem( tr("Rename Page"), -1, 0 ) );
+	commands.insert( "rename", id );
+
 	if ( ( (QWizard*)fw->mainContainer() )->pageCount() > 1) {
 	    ids << ( id = rmbFormWindow->insertItem( tr("Remove Page"), -1, 0 ) );
 	    commands.insert( "remove", id );
 	}
+
 	ids << ( id = rmbFormWindow->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
-
-	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages..."), -1, 0 ) );
-	commands.insert( "edit", id );
 
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	if ( ids.isEmpty() )
@@ -3357,7 +3362,19 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    WizardEditor *e = new WizardEditor( this, wiz, fw );
 	    e->exec();
 	    delete e;
-              }
+	} else if ( id == commands[ "rename" ] ) {
+
+	    bool ok = FALSE;
+	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
+	    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, dw->pageTitle(), &ok, this );
+	    if ( ok ) {
+		QString pn( tr( "Rename page %1 of %2" ).arg( dw->pageTitle() ).arg( wiz->name() ) );
+		RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formWindow()
+									    , wiz, wiz->indexOf( wiz->currentPage() ), text );
+		formWindow()->commandHistory()->addCommand( cmd );
+		cmd->execute();
+	    }
+	}
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {
