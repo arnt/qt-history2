@@ -51,14 +51,14 @@ public:
 
 /*! \class QSqlResult qsqlresult.h
 
-  \brief QSqlResult provides an abstract interface for accessing data via SQL
+  \brief QSqlResult provides an abstract interface for accessing data from SQL databases
 
   \module sql
 
-  QSqlResult provides an abstract interface for accessing data via
-  SQL.  Normally, this class is not used directly.  Rather, QSqlQuery
-  should be used instead, as a wrapper for database-specific
-  implementations of QSqlResult.
+  QSqlResult provides an abstract interface for accessing data from SQL databases.
+  Normally you would use QSqlQuery instead of QSqlResult since QSqlQuery
+  provides a generic wrapper for database-specific implementations of
+  QSqlResult.
 
   \sa QSql
 
@@ -97,7 +97,7 @@ void QSqlResult::setQuery( const QString& query )
     d->sql = query;
 }
 
-/*!  Returns the current SQL query, or QString::null if there is none.
+/*!  Returns the current SQL query text, or QString::null if there is none.
 */
 
 QString QSqlResult::lastQuery() const
@@ -106,7 +106,7 @@ QString QSqlResult::lastQuery() const
 }
 
 /*!
-  Returns the current position of the result.
+  Returns the current (zero-based) position of the result.
 
 */
 
@@ -118,7 +118,7 @@ int QSqlResult::at() const
 
 /*! Returns TRUE if the result is positioned on a valid record (that
     is, the result is not positioned before the first or after the
-    last record).
+    last record); otherwise returns FALSE.
 
 */
 
@@ -129,12 +129,12 @@ bool QSqlResult::isValid() const
 }
 
 /*! \fn bool QSqlResult::isNull( int i )
-  Returns TRUE if the field at position \a i is null, otherwise FALSE
-  is returned.
+  Returns TRUE if the field at position \a i is null, otherwise returns FALSE.
 */
 
 
-/*! Returns TRUE if the result has records to be retrieved.
+/*! Returns TRUE if the result has records to be retrieved, otherwise
+ returns FALSE.
 
 */
 
@@ -143,8 +143,8 @@ bool QSqlResult::isActive() const
     return d->active;
 }
 
-/*! Protected method provided for derived classes to set the internal
-    result index to \a at.
+/*! Protected function provided for derived classes to set the internal
+    (zero-based) result index to \a at.
 
     \sa at()
 
@@ -156,8 +156,8 @@ void QSqlResult::setAt( int at )
 }
 
 
-/*!  Protected method provided for derived classes to indicate whether
-  or not the current statement is a SQL SELECT statement.
+/*!  Protected function provided for derived classes to indicate whether
+  or not the current statement is an SQL SELECT statement.
 */
 
 void QSqlResult::setSelect( bool s )
@@ -166,7 +166,7 @@ void QSqlResult::setSelect( bool s )
 }
 
 /*!  Returns TRUE if the current result is from a SELECT statement,
-  otherwise FALSE is returned.
+  otherwise returns FALSE.
 */
 
 bool QSqlResult::isSelect() const
@@ -184,7 +184,7 @@ const QSqlDriver* QSqlResult::driver() const
 }
 
 
-/*! Protected method provided for derived classes to set the internal
+/*! Protected function provided for derived classes to set the internal
     active state to the value of \a a.
 
   \sa isActive()
@@ -196,7 +196,7 @@ void QSqlResult::setActive( bool a )
     d->active = a;
 }
 
-/*! Protected method provided for derived classes to set the last
+/*! Protected function provided for derived classes to set the last
     error to the value of \a e.
 
     \sa lastError()
@@ -224,16 +224,15 @@ QSqlError QSqlResult::lastError() const
 
 /*! \fn int QSqlResult::numRowsAffected()
 
-  Returns the number of rows affected by the last query sent to the
-  result.
+  Returns the number of rows affected by the last query executed. 
 */
 
 /*! \fn QVariant QSqlResult::data( int i )
 
     Returns the data for field \a i (zero-based) as a QVariant.  This
-    method is only called if the result is in an active state and is
+    function is only called if the result is in an active state and is
     positioned on a valid record and the field \a i is non-negative.
-    Derived classes must reimplement this method and return the value
+    Derived classes must reimplement this function and return the value
     of field \a i, or QVariant() if it cannot be determined.
 
 */
@@ -241,8 +240,8 @@ QSqlError QSqlResult::lastError() const
 /*! \fn  bool QSqlResult::reset ( const QString& query )
 
     Sets the result to use the SQL statement \a query for subsequent
-    data retrieval.  Derived classes must reimplement this method and
-    apply the \a query to the database.  This method is called only
+    data retrieval.  Derived classes must reimplement this function and
+    apply the \a query to the database.  This function is called only
     after the result is set to an inactive state and is positioned
     before the first record of the new result.  Derived classes should
     return TRUE if the query was successful and ready to be used,
@@ -252,19 +251,19 @@ QSqlError QSqlResult::lastError() const
 
 /*! \fn bool QSqlResult::fetch( int i )
 
-    Positions the result to an arbitrary index \a i.  This method is
-    only called if the result is in an active state.  Derived classes
-    must override this method and position the result to the index \a
-    i, and call setAt() with an appropriate value.  Return TRUE to
-    indicate success, FALSE for failure.
+    Positions the result to an arbitrary (zero-based) index \a i.  This
+    function is only called if the result is in an active state.  Derived
+    classes must override this function and position the result to the
+    index \a i, and call setAt() with an appropriate value.  Return TRUE
+    to indicate success, FALSE for failure.
 
 */
 
 /*! \fn bool QSqlResult::fetchFirst()
 
     Positions the result to the first record in the result.  This
-    methods is only called if the result is in an active state.
-    Derived classes must override this method and position the result
+    function is only called if the result is in an active state.
+    Derived classes must override this function and position the result
     to the first record, and call setAt() with an appropriate value.
     Return TRUE to indicate success, FALSE for failure.
 
@@ -273,17 +272,17 @@ QSqlError QSqlResult::lastError() const
 /*! \fn bool QSqlResult::fetchLast()
 
     Positions the result to the last record in the result.  This
-    methods is only called if the result is in an active state.
-    Derived classes must override this method and position the result
+    function is only called if the result is in an active state.
+    Derived classes must override this function and position the result
     to the last record, and call setAt() with an appropriate value.
     Return TRUE to indicate success, FALSE for failure.
 
 */
 
 /*! Positions the result to the next available record in the result.
-    This methods is only called if the result is in an active state.
+    This function is only called if the result is in an active state.
     The default implementation calls fetch() with the next index.
-    Derived classes can override this method and position the result
+    Derived classes can override this function and position the result
     to the next record in some other way, and call setAt() with an
     appropriate value.  Return TRUE to indicate success, FALSE for
     failure.
@@ -296,9 +295,9 @@ bool QSqlResult::fetchNext()
 }
 
 /*! Positions the result to the previous available record in the
-    result.  This methods is only called if the result is in an active
+    result.  This function is only called if the result is in an active
     state.  The default implementation calls fetch() with the previous
-    index.  Derived classes can override this method and position the
+    index.  Derived classes can override this function and position the
     result to the next record in some other way, and call setAt() with
     an appropriate value.  Return TRUE to indicate success, FALSE for
     failure.
