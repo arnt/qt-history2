@@ -53,15 +53,14 @@ if [ "$relpath" != `pwd` ]; then
        fi
     done
     # need include files, prefer syncqt internally
-    [ -d "$outpath/include" ] || mkdir -p $outpath/include
+    [ -d "$outpath/include/" ] || mkdir -p $outpath/include/
     if [ -x "$relpath/bin/syncqt" ]; then
 	for a in `$relpath/bin/syncqt -show`; do
 	   ln -sf $relpath/$a $outpath/include/`basename $a`
 	done
     else
-	cp -a $relpath/include/*.h $outpath/include
+	ln -sf $relpath/include/*.h $outpath/include/
     fi
-
     # symlink the doc directory
     ln -sf $relpath/doc $outpath/doc
 
@@ -156,6 +155,8 @@ then
 	    fi
 	fi
     done
+    Licensee="Non-Commercial"
+    Products="qt-free"
 # Internal Trolltech edition.
 elif [ -f $relpath/LICENSE.TROLL ]
 then
@@ -163,6 +164,8 @@ then
     echo
     echo "This is the Trolltech in-house version of Qt."
     echo
+    Licensee="TrollTech"
+    Products="qt-internal"
     EMB="/Embedded" #fixme
 else
     if [ -f $relpath/LICENSE ]
@@ -982,9 +985,10 @@ case "$QCONFIG" in
     ;;
 esac
 cat >> $outpath/src/tools/qconfig.h.new <<EOF
-
-// Installation prefix
+//from configure
 #define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
+#define QT_PRODUCT_LICENSEE "$Licensee"
+#define QT_PRODUCT_LICENSE "$Products"
 EOF
 QCONF_CHANGES=`diff $outpath/src/tools/qconfig.h $outpath/src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
 if [ -f $outpath/src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
@@ -1001,7 +1005,6 @@ else
 fi
 
 # Next, emit a usage message if something failed.
-
 if [ "$HELP" = "yes" ]; then
    [ "x$ERROR" = "xyes" ] && echo
     if [ "x$THREAD" = "xyes" ]
