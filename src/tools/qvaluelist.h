@@ -408,6 +408,7 @@ protected:
     QValueListPrivate<T>* sh;
 };
 
+#ifndef QT_NO_DATASTREAM
 template<class T>
 inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 {
@@ -432,5 +433,5 @@ inline QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 	s << *it;
     return s;
 }
-
-#endif
+#endif // QT_NO_DATASTREAM
+#endif // QVALUELIST_H

@@ -712,7 +712,7 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 /*****************************************************************************
   QRect stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QRect
 
@@ -754,3 +754,4 @@ QDataStream &operator>>( QDataStream &s, QRect &r )
     }
     return s;
 }
+#endif // QT_NO_DATASTREAM

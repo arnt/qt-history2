@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qdatastream.h"
+
+#ifndef QT_NO_DATASTREAM
 #include "qbuffer.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -861,3 +863,5 @@ QDataStream &QDataStream::writeRawBytes( const char *s, uint len )
     }
     return *this;
 }
+
+#endif // QT_NO_DATASTREAM

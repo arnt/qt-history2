@@ -545,7 +545,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
-
+#ifndef QT_NO_DATASTREAM
 QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 {
     Q_UINT32 len = a.size();
@@ -576,3 +576,5 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
 	s.readRawBytes( a.data(), a.QByteArray::size() );
     return s;
 }
+
+#endif // QT_NO_DATASTREAM

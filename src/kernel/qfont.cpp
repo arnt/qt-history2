@@ -1282,7 +1282,7 @@ QString QFont::key() const
 /*****************************************************************************
   QFont stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QFont
   Writes a font to the stream.
@@ -1343,7 +1343,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
   QFontMetrics member functions

@@ -60,9 +60,10 @@ friend class QGVector;				// needed by QGVector::toList
 public:
     uint  count() const;			// return number of nodes
 
+#ifndef QT_NO_DATASTREAM
     QDataStream &read( QDataStream & );		// read list from stream
     QDataStream &write( QDataStream & ) const;	// write list to stream
-
+#endif
 protected:
     QGList();					// create empty list
     QGList( const QGList & );			// make copy of other list
@@ -113,9 +114,10 @@ protected:
 
     virtual int compareItems( QCollection::Item, QCollection::Item );
 
+#ifndef QT_NO_DATASTREAM
     virtual QDataStream &read( QDataStream &, QCollection::Item & );
     virtual QDataStream &write( QDataStream &, QCollection::Item ) const;
-
+#endif
 private:
     void  prepend( QCollection::Item ); // add item at start of list
 
@@ -186,9 +188,10 @@ inline QCollection::Item QGList::clast() const
   QGList stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator>>( QDataStream &, QGList & );
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QGList & );
-
+#endif
 
 /*****************************************************************************
   QGListIterator class

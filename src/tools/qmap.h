@@ -561,6 +561,7 @@ protected:
 };
 
 
+#ifndef QT_NO_DATASTREAM
 template<class Key, class T>
 inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
     m.clear();
@@ -583,6 +584,6 @@ inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
 	s << it.key() << it.data();
     return s;
 }
-
+#endif
 
 #endif // QMAP_H

@@ -432,8 +432,9 @@ public:
     static int compare( const QString& s1, const QString& s2 )
 	{ return s1.compare(s2); }
 
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
-
+#endif
     // new functions for BiDi
     void compose();
     QChar::Direction basicDirection();
@@ -536,10 +537,10 @@ public:
 /*****************************************************************************
   QString stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QString & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
-
+#endif
 
 /*****************************************************************************
   QString inline functions

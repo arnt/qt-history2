@@ -35,9 +35,10 @@ class Q_EXPORT QGVector : public QCollection	// generic vector
 {
 friend class QGList;				// needed by QGList::toVector
 public:
+#ifndef QT_NO_DATASTREAM
     QDataStream &read( QDataStream & );		// read vector from stream
     QDataStream &write( QDataStream & ) const;	// write vector to stream
-
+#endif
     virtual int compareItems( Item, Item );
 
 protected:
@@ -82,9 +83,10 @@ protected:
 
     void toList( QGList * ) const;		// put items in list
 
+#ifndef QT_NO_DATASTREAM
     virtual QDataStream &read( QDataStream &, Item & );
     virtual QDataStream &write( QDataStream &, Item ) const;
-
+#endif
 private:
     Item	 *vec;
     uint  len;
@@ -98,8 +100,9 @@ private:
   QGVector stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator>>( QDataStream &, QGVector & );
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QGVector & );
-
+#endif
 
 #endif // QGVECTOR_H

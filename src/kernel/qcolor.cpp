@@ -727,7 +727,7 @@ void QColor::setLazyAlloc( bool enable )
 /*****************************************************************************
   QColor stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QColor
   Writes a color object to the stream.
@@ -759,7 +759,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
     c.setRgb( p );
     return s;
 }
-
+#endif
 
 /*****************************************************************************
   QColor global functions (documentation only)

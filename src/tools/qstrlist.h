@@ -55,10 +55,12 @@ private:
     void deleteItem( Item d ) { if ( del_item ) delete[] (char*)d; }
     int compareItems( Item s1, Item s2 ) { return strcmp((const char*)s1,
 							 (const char*)s2); }
+#ifndef QT_NO_DATASTREAM
     QDataStream &read( QDataStream &s, Item &d )
 				{ s >> (char *&)d; return s; }
     QDataStream &write( QDataStream &s, Item d ) const
 				{ return s << (const char *)d; }
+#endif
     bool  dc;
 };
 

@@ -14790,7 +14790,7 @@ bool operator>=( const char *s1, const QString &s2 )
 /*****************************************************************************
   QString stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QString
   Writes a string to the stream.
@@ -14877,6 +14877,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
     }
     return s;
 }
+#endif // QT_NO_DATASTREAM
 
 /*****************************************************************************
   QConstString member functions

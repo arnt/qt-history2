@@ -207,9 +207,10 @@ private:
 
 // QImage stream functions
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
-
+#endif
 
 class QIODevice;
 typedef void (*image_io_handler)( QImageIO * ); // image IO handler

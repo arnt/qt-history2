@@ -146,9 +146,9 @@ inline QBitVal &QBitVal::operator=( bool v )
 /*****************************************************************************
   QBitArray stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
-
+#endif
 
 #endif // QBITARRAY_H

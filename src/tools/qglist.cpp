@@ -115,6 +115,7 @@ int QGList::compareItems( QCollection::Item item1, QCollection::Item item2 )
     return item1 != item2;			// compare pointers
 }
 
+#ifndef QT_NO_DATASTREAM
 /*!
   Reads a collection/list item from the stream \a s and returns a reference
   to the stream.
@@ -143,7 +144,7 @@ QDataStream &QGList::write( QDataStream &s, QCollection::Item ) const
 {
     return s;
 }
-
+#endif // QT_NO_DATASTREAM
 
 /*****************************************************************************
   QGList member functions
@@ -960,6 +961,7 @@ void QGList::sort()
   QGList stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 QDataStream &operator>>( QDataStream &s, QGList &list )
 {						// read list
     return list.read( s );
@@ -1019,7 +1021,7 @@ QDataStream &QGList::write( QDataStream &s ) const
     return s;
 }
 
-
+#endif // QT_NO_DATASTREAM
 
 /*****************************************************************************
   QGListIterator member functions

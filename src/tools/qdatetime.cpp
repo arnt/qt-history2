@@ -1340,6 +1340,7 @@ QDateTime QDateTime::currentDateTime()
   Date/time stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QDate
   Writes the date to the stream.
@@ -1418,3 +1419,4 @@ QDataStream &operator>>( QDataStream &s, QDateTime &dt )
     s >> dt.d >> dt.t;
     return s;
 }
+#endif //QT_NO_DATASTREAM

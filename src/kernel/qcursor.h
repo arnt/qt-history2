@@ -99,10 +99,10 @@ enum QCursorShape {
 /*****************************************************************************
   QCursor stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QCursor & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QCursor & );
-
+#endif
 
 #else // QT_NO_CURSOR
 class Q_EXPORT QCursor

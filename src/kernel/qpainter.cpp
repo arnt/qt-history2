@@ -3082,7 +3082,7 @@ bool QPen::operator==( const QPen &p ) const
 /*****************************************************************************
   QPen stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QPen
   Writes a pen to the stream and returns a reference to the stream.
@@ -3116,7 +3116,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
     p = QPen( color, (uint)width, (Qt::PenStyle)style );	// owl
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
   QBrush member functions
@@ -3423,7 +3423,7 @@ bool QBrush::operator==( const QBrush &b ) const
 /*****************************************************************************
   QBrush stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QBrush
   Writes a brush to the stream and returns a reference to the stream.
@@ -3461,4 +3461,4 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
 	b = QBrush( color, (Qt::BrushStyle)style );
     return s;
 }
-
+#endif // QT_NO_DATASTREAM

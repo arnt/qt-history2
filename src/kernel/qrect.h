@@ -129,10 +129,10 @@ Q_EXPORT bool operator!=( const QRect &, const QRect & );
 /*****************************************************************************
   QRect stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QRect & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QRect & );
-
+#endif
 
 /*****************************************************************************
   QRect inline member functions

@@ -192,9 +192,10 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
-
+#endif
     QFontData	 *d;				// internal font data
     static CharSet defaultCharSet;
 };
@@ -210,8 +211,9 @@ inline void QFont::setBold( bool enable )
   QFont stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
-
+#endif
 
 #endif // QFONT_H

@@ -88,7 +88,7 @@
 /*****************************************************************************
   QCursor stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QCursor
   Writes the cursor \a c to the stream \a s.
@@ -127,7 +127,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
     }
     return s;
 }
-
+#endif // QT_NO_DATASTREAM
 
 /*!
   Constructs a custom pixmap cursor.

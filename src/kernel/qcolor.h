@@ -186,8 +186,9 @@ inline bool QColor::operator!=( const QColor &c ) const
   QColor stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QColor & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QColor & );
-
+#endif
 
 #endif // QCOLOR_H

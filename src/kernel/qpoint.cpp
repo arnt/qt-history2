@@ -319,7 +319,7 @@ void QPoint::warningDivByZero()
 /*****************************************************************************
   QPoint stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QPoint
   Writes a QPoint to the stream and returns a reference to the stream.
@@ -357,7 +357,7 @@ QDataStream &operator>>( QDataStream &s, QPoint &p )
     }
     return s;
 }
-
+#endif // QT_NO_DATASTREAM
 /*!
   Returns the sum of the absolute values of x() and y(), traditionally
   known as the "Manhattan length" of the vector from the origin to the

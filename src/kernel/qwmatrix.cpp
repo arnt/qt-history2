@@ -478,7 +478,7 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 /*****************************************************************************
   QWMatrix stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QWMatrix
   Writes a matrix to the stream and returns a reference to the stream.
@@ -520,6 +520,6 @@ QDataStream &operator>>( QDataStream &s, QWMatrix &m )
     }
     return s;
 }
-
+#endif // QT_NO_DATASTREAM
 #endif // QT_NO_TRANSFORMATIONS
 

@@ -2866,7 +2866,7 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 /*****************************************************************************
   QImage stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QImage
   Writes an image to the stream as a PNG image.
@@ -2902,7 +2902,7 @@ QDataStream &operator>>( QDataStream &s, QImage &image )
 	image = io.image();
     return s;
 }
-
+#endif
 
 /*****************************************************************************
   Standard image io handlers (defined below)

@@ -115,7 +115,7 @@ void QRegion::detach()
 	*this = copy();
 }
 
-
+#ifndef QT_NO_DATASTREAM
 /*!
   Executes region commands in the internal buffer and rebuild the original
   region.
@@ -253,7 +253,7 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
     r.exec( b, s.version() );
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 // These are not inline - they can be implemented better on some platforms
 //  (eg. Windows at least provides 3-variable operations).  For now, simple.

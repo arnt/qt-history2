@@ -99,10 +99,10 @@ public:
     QCollection::Item look_ascii( const char *key, QCollection::Item, int );
     QCollection::Item look_int( long key, QCollection::Item, int );
     QCollection::Item look_ptr( void *key, QCollection::Item, int );
-
+#ifndef QT_NO_DATASTREAM
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
-
+#endif
 protected:
     enum KeyType { StringKey, AsciiKey, IntKey, PtrKey };
 
@@ -129,9 +129,10 @@ protected:
 
     void	statistics() const;
 
+#ifndef QT_NO_DATASTREAM
     virtual QDataStream &read( QDataStream &, QCollection::Item & );
     virtual QDataStream &write( QDataStream &, QCollection::Item ) const;
-
+#endif
 private:
     QBaseBucket **vec;
     uint	vlen;

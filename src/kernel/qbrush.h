@@ -71,8 +71,9 @@ private:
   QBrush stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QBrush & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QBrush & );
-
+#endif
 
 #endif // QBRUSH_H

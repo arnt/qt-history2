@@ -133,9 +133,10 @@ typedef QArray<char> QByteArray;
 /*****************************************************************************
   QByteArray stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
+#endif
 
 
 
@@ -229,10 +230,10 @@ public:
 /*****************************************************************************
   QCString stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QCString & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QCString & );
-
+#endif
 
 /*****************************************************************************
   QCString inline functions

@@ -81,8 +81,10 @@ private:
     static const char * const weekdayNames[];
     uint	 jd;
     friend class QDateTime;
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QDate & );
+#endif
 };
 
 
@@ -132,8 +134,10 @@ private:
 
     uint   ds;
     friend class QDateTime;
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QTime & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QTime & );
+#endif
 };
 
 
@@ -176,8 +180,10 @@ public:
 private:
     QDate  d;
     QTime  t;
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDateTime &);
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QDateTime & );
+#endif
 };
 
 
@@ -185,12 +191,13 @@ private:
   Date and time stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QDate & );
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QTime & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QTime & );
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QDateTime & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QDateTime & );
-
+#endif // QT_NO_DATASTREAM
 
 #endif // QDATETIME_H

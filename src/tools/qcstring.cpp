@@ -329,6 +329,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
+#ifndef QT_NO_DATASTREAM
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 {
@@ -361,7 +362,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     return s;
 }
 
-
+#endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
   QCString member functions
@@ -1743,14 +1744,13 @@ QCString &QCString::operator+=( char c )
 /*****************************************************************************
   QCString stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QCString
   Writes a string to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
-
 QDataStream &operator<<( QDataStream &s, const QCString &str )
 {
     return s.writeBytes( str.data(), str.size() );
@@ -1782,7 +1782,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 	s.readRawBytes( str.data(), (uint)len );
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
   Documentation for related functions

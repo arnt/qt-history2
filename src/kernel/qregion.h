@@ -92,9 +92,10 @@ public:
     void setRects( const QRect *, int );
 #endif
 
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
-
+#endif
 private:
     QRegion( bool );
     QRegion copy() const;

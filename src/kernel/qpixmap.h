@@ -264,8 +264,9 @@ inline bool QPixmap::isMultiCellPixmap() const
   QPixmap stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
-
+#endif
 
 #endif // QPIXMAP_H

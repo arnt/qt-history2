@@ -816,6 +816,7 @@ bool QPalette::operator==( const QPalette &p ) const
   QColorGroup/QPalette stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QColorGroup
   Writes a color group to the stream.
@@ -936,7 +937,7 @@ QDataStream &operator>>( QDataStream &s, QPalette &p )
     p = newpal;
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 /*!  Returns TRUE if this palette and \a p are copies of each other,
   ie. one of them was created as a copy of the other and neither was

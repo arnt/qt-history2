@@ -152,11 +152,13 @@ private:
   QColorGroup/QPalette stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QColorGroup & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QColorGroup & );
 
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPalette & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPalette & );
+#endif // QT_NO_DATASTREAM
 
 #endif // QT_NO_PALETTE
 #endif // QPALETTE_H

@@ -100,6 +100,7 @@ int QGVector::compareItems( Item d1, Item d2 )
     return d1 != d2;				// compare pointers
 }
 
+#ifndef QT_NO_DATASTREAM
 /*!
   Reads a collection/vector item from the stream \a s and returns a reference
   to the stream.
@@ -128,7 +129,7 @@ QDataStream &QGVector::write( QDataStream &s, Item ) const
 {						// write item to stream
     return s;
 }
-
+#endif // QT_NO_DATASTREAM
 
 /*****************************************************************************
   QGVector member functions
@@ -580,7 +581,7 @@ void QGVector::warningIndexRange( uint i )
 /*****************************************************************************
   QGVector stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 QDataStream &operator>>( QDataStream &s, QGVector &vec )
 {						// read vector
     return vec.read( s );
@@ -627,3 +628,4 @@ QDataStream &QGVector::write( QDataStream &s ) const
     }
     return s;
 }
+#endif // QT_NO_DATASTREAM

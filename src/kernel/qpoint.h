@@ -84,10 +84,10 @@ private:
 /*****************************************************************************
   QPoint stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPoint & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPoint & );
-
+#endif
 
 /*****************************************************************************
   QPoint inline functions

@@ -971,7 +971,7 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QPixmap
   Writes a pixmap to the stream as a PNG image.
@@ -1009,3 +1009,4 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
     return s;
 }
 
+#endif //QT_NO_DATASTREAM

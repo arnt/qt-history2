@@ -82,10 +82,10 @@ protected:
 /*****************************************************************************
   QPointArray stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPointArray & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPointArray & );
-
+#endif
 
 /*****************************************************************************
   Misc. QPointArray functions

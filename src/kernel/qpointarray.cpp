@@ -941,7 +941,7 @@ QPointArray QPointArray::quadBezier() const
 /*****************************************************************************
   QPointArray stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QPointArray
   Writes a point array to the stream and returns a reference to the stream.
@@ -980,7 +980,7 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
     }
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 
 

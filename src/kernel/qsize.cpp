@@ -285,7 +285,7 @@ void QSize::warningDivByZero()
 /*****************************************************************************
   QSize stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 /*!
   \relates QSize
   Writes the size to the stream and returns a reference to the stream.
@@ -323,3 +323,4 @@ QDataStream &operator>>( QDataStream &s, QSize &sz )
     }
     return s;
 }
+#endif // QT_NO_DATASTREAM

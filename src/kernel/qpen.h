@@ -75,9 +75,9 @@ private:
 /*****************************************************************************
   QPen stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPen & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPen & );
-
+#endif
 
 #endif // QPEN_H

@@ -139,6 +139,7 @@ int QGDict::hashKeyAscii( const char *key )
     return index;
 }
 
+#ifndef QT_NO_DATASTREAM
 
 /*!
   Reads a collection/dictionary item from the stream \e s and returns a
@@ -166,7 +167,7 @@ QDataStream& QGDict::write( QDataStream &s, QCollection::Item ) const
 {
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
   QGDict member functions
@@ -930,7 +931,7 @@ void QGDict::statistics() const
 /*****************************************************************************
   QGDict stream functions
  *****************************************************************************/
-
+#ifndef QT_NO_DATASTREAM
 QDataStream &operator>>( QDataStream &s, QGDict &dict )
 {
     return dict.read( s );
@@ -1035,7 +1036,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
     }
     return s;
 }
-
+#endif //QT_NO_DATASTREAM
 
 /*****************************************************************************
   QGDictIterator member functions

@@ -31,7 +31,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-
+#ifndef QT_NO_DATASTREAM
 class Q_EXPORT QDataStream				// data stream class
 {
 public:
@@ -145,5 +145,5 @@ inline QDataStream &QDataStream::operator<<( Q_UINT16 i )
 inline QDataStream &QDataStream::operator<<( Q_UINT32 i )
 { return *this << (Q_INT32)i; }
 
-
+#endif // QT_NO_DATASTREAM
 #endif // QDATASTREAM_H
