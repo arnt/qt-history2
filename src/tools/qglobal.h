@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#155 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#156 $
 **
 ** Global type declarations and definitions
 **
@@ -186,7 +186,7 @@
 #elif defined(__DECCXX)
 #define _CC_DEC_
 #elif defined(_OS_HPUX_)
-// this test from from aCC online help
+// this test is from aCC online help
 #if __cplusplus >= 199707L
 // this is the aCC
 #define _CC_HP_ACC_
