@@ -1284,24 +1284,12 @@ bool QLayoutWidget::event( QEvent *e )
   I, Jasmin, am heavily editing these things. I will fix all of that
   when I come back from Stockholm.
 */
-#if 0
-static QString strx( int n )
-{
-    QString s;
-    if ( n & (int) QSizePolicy::Minimum )
-	s += "MayGrow|";
-    if ( n & (int) QSizePolicy::Maximum )
-	s += "MayShrink|";
-    if ( n & (int) (QSizePolicy::Expanding & ~QSizePolicy::Preferred) )
-	s += "ExpMask|";
-    if ( s.isEmpty() )
-	s = "0";
-    else
-	s.truncate( s.length() - 1 );
-    return s;
-}
-#endif
 
+/*
+  This function must be called on QLayoutWidget creation and whenever
+  the QLayoutWidget's parent layout changes (e.g., from a QHBoxLayout
+  to a QVBoxLayout), because of the (illogical) way layouting works.
+*/
 void QLayoutWidget::updateSizePolicy()
 {
     if ( !children() || children()->count() == 0 ) {
@@ -1310,7 +1298,8 @@ void QLayoutWidget::updateSizePolicy()
     }
 
     /*
-      We do some very evil stuff here, assuming:
+      QSizePolicy::MayShrink & friends are private. Here we assume the
+      following:
 
 	  Fixed = 0
 	  Maximum = MayShrink
@@ -1325,10 +1314,6 @@ void QLayoutWidget::updateSizePolicy()
 	QLayout *parentLayout = 0;
 	if ( parent() && parent()->isWidgetType() && ((QWidget *)parent())->layout() )
 	    parentLayout = ((QWidget *)parent())->layout();
-#if 0
-if ( parentLayout )
-qDebug( "%s has a %s parent layout", layout()->className(), parentLayout->className() );
-#endif
 
 	QObjectListIt it( *children() );
 	QObject *o;
@@ -1341,7 +1326,7 @@ qDebug( "%s has a %s parent layout", layout()->className(), parentLayout->classN
 
 	    while ( ( o = it.current() ) ) {
 		++it;
-		if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
+		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
 
@@ -1362,7 +1347,7 @@ qDebug( "%s has a %s parent layout", layout()->className(), parentLayout->classN
 
 	    while ( ( o = it.current() ) ) {
 		++it;
-		if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
+		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
 
@@ -1376,7 +1361,30 @@ qDebug( "%s has a %s parent layout", layout()->className(), parentLayout->classN
 		    vt &= ~QSizePolicy::Maximum;
 	    }
 	} else if ( layout()->inherits("QGridLayout") ) {
-	    // ###
+	    ht = QSizePolicy::Fixed;
+	    vt = QSizePolicy::Fixed;
+	    if ( parentLayout ) {
+		if ( parentLayout->inherits("QVBoxLayout") )
+		    ht = QSizePolicy::Minimum;
+		else if ( parentLayout->inherits("QHBoxLayout") )
+		    vt = QSizePolicy::Minimum;
+	    }
+
+	    while ( ( o = it.current() ) ) {
+		++it;
+		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
+		    continue;
+		QWidget *w = (QWidget*)o;
+
+		if ( w->sizePolicy().mayGrowHorizontally() )
+		    ht |= QSizePolicy::Minimum;
+		if ( w->sizePolicy().mayShrinkHorizontally() )
+		    ht |= QSizePolicy::Maximum;
+		if ( w->sizePolicy().mayGrowVertically() )
+		    vt |= QSizePolicy::Minimum;
+		if ( w->sizePolicy().mayShrinkVertically() )
+		    vt |= QSizePolicy::Maximum;
+	    }
 	}
 	if ( layout()->expanding() & QSizePolicy::Horizontal )
 	    ht = QSizePolicy::Expanding;
@@ -1385,11 +1393,6 @@ qDebug( "%s has a %s parent layout", layout()->className(), parentLayout->classN
 
 	layout()->invalidate();
     }
-
-#if 0
-qDebug( "%s:%s %s %s", layout()->name("?"), layout()->className(),
-strx(ht).latin1(), strx(vt).latin1() );
-#endif
 
     sp = QSizePolicy( (QSizePolicy::SizeType) ht, (QSizePolicy::SizeType) vt );
     updateGeometry();
