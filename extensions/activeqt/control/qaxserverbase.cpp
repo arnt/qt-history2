@@ -2180,6 +2180,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	}
 	break;
     case DISPATCH_PROPERTYPUT:
+    case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
 	{
 	    const QMetaProperty *property = proplist->find( dispidMember );
 	    if ( !property )
