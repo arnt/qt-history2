@@ -606,6 +606,14 @@ function compile(platform, edition, platformName)
 	
 	// duplicate directory where we copy the compiled results over
 	execute(["ssh", login, "cp", "-r", platformName, platformName+"clean"]);
+	// regenerate include/ with syncqt -copy
+	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
+	var windowsPath = Process.stdout.split("\n")[0];
+	execute(["ssh", login, "rm -rf", platformName+"clean/include"]);
+	execute(["ssh", login, "QTDIR=\"" + windowsPath + "\"", "cmd", "/c",
+		 "perl", platformName+"clean/bin/syncqt", "-copy"]);
+	// remove src/
+	execute(["ssh", login, "rm -rf", platformName+"clean/src"]);
 
 	// copy build script
 	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,"buildbinarywin.bat", p4Label);
@@ -630,12 +638,6 @@ function compile(platform, edition, platformName)
 	execute(["ssh", login, "cp",
 		 platformName + "/include/QtCore/qconfig.h",
 		 platformName + "clean/include/QtCore/qconfig.h"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/core/global/qconfig.cpp",
-		 platformName + "clean/src/core/global/qconfig.cpp"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/core/global/qconfig.h",
-		 platformName + "clean/src/core/global/qconfig.h"]);
 	// copy generated atomic.h
 	execute(["ssh", login, "cp", "-r",
 		 platformName + "/include/Qt/arch",
@@ -648,24 +650,34 @@ function compile(platform, edition, platformName)
 		 platformName + "/mkspecs/.qt.config",
 		 platformName + "clean/mkspecs/.qt.config"]);
 
-	// replace tags and copy over the install script
-	var installScript = p4Copy(p4BranchPath + "/util/scripts", "installscriptwin.nsi", p4Label);
-	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts", "writeEnvStr.nsh", p4Label);
-	var installWritePath = p4Copy(p4BranchPath + "/util/scripts", "writePathStr.nsh", p4Label);
-	var installLicensePage = p4Copy(p4BranchPath + "/util/scripts", "checkqtlicense.ini", p4Label);
-	var installEnvPage = p4Copy(p4BranchPath + "/util/scripts", "setenvpage.ini", p4Label);
-
-	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
-	var windowsPath = Process.stdout.split("\n")[0];
+	// replace tags in installscript.nsi
+	var installScript = p4Copy(p4BranchPath + "/util/scripts", "installscriptwin.nsi",
+				   p4Label);
 	var extraTags = new Array();
 	extraTags[windowsPath] = /\%PACKAGEDIR\%/g;
 	var scriptFile = new File(installScript);
-	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, edition, platformName, extraTags);
+	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, edition, platformName,
+		    extraTags);
+
+	// copy over the install scipt files
+	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts", "writeEnvStr.nsh", p4Label);
+	var installWritePath = p4Copy(p4BranchPath + "/util/scripts", "writePathStr.nsh", p4Label);
+	var installLicensePage = p4Copy(p4BranchPath + "/util/scripts", "checkqtlicense.ini",
+					p4Label);
+	var installEnvPage = p4Copy(p4BranchPath + "/util/scripts", "setenvpage.ini", p4Label);
 	execute(["scp", installScript, login + ":."]);
 	execute(["scp", installWriteEnv, login + ":."]);
 	execute(["scp", installWritePath, login + ":."]);
 	execute(["scp", installLicensePage, login + ":."]);
 	execute(["scp", installEnvPage, login + ":."]);
+
+	// copy over the latest version of the install dll to the nsis plugins dir
+	var installDll = p4Copy(p4BranchPath + "/util/scripts/qtnsisext", "qtnsisext.dll",
+				p4Label);
+	execute(["ssh", login, "which", "makensis.exe"]);
+	var nsisPluginsPath = Process.stdout.split("\n")[0];
+	nsisPluginsPath = nsisPluginsPath.left(nsisPluginsPath.lastIndexOf("/")) + "/plugins";
+	execute(["scp", installDll, login + ":'" + nsisPluginsPath + "'"]);
 
 	// run the install script and create compiler
 	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
@@ -957,7 +969,7 @@ function execute(command, stdin) {
     var error = Process.execute(command, stdin);
     var runTime = Math.floor((Date().getTime() - start)/1000);
     if (runTime > 0)
-	print("...took %1 second(s)".arg(runTime));
+	print("%1\n   ->took %1 second(s)".arg(command).arg(runTime));
     if (error != 0) {
 	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(200));
     } else if (Process.stderr.length > 0
