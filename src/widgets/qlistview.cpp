@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#163 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#164 $
 **
 ** Implementation of QListView widget class
 **
@@ -1538,6 +1538,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		// if nothing would otherwise
 		if ( !d->focusItem && hasFocus() )
 		    d->focusItem = current->i;
+
+		debug( "fx %d fc %d", fx, fc );
 	    }
 
 	    x = fx;
@@ -1896,7 +1898,7 @@ QListView::WidthMode QListView::columnWidthMode( int c ) const
 
 
 /*!
-  Configures the logical columne \a column to have alignment \a align.
+  Configures the logical column \a column to have alignment \a align.
   The alignment is ultimately passed to QListViewItem::paintCell()
   for each item in the view.
 
@@ -1924,7 +1926,8 @@ void QListView::setColumnAlignment( int column, int align )
 
 
 /*!
-  Returns the alignment of logical column \a column.
+  Returns the alignment of logical column \a column.  The default
+  is \c AlignLeft.
 */
 
 int QListView::columnAlignment( int column ) const
@@ -2012,7 +2015,7 @@ void QListView::updateDirtyItems()
         ir = ir.unite( itemRect(i) );
     }
     if ( !ir.isEmpty() )                    // rectangle to be repainted
-        viewport()->repaint( ir );
+        viewport()->repaint( ir, FALSE );
 }
 
 
@@ -2942,7 +2945,7 @@ void QListView::changeSortColumn( int column )
 
 /*! Sets the advisory item margin which list items may use to \a m.
 
-  The item margin defaults to one pixels and is the margin between the
+  The item margin defaults to one pixel and is the margin between the
   item's edges and the area where it draws its contents.
   QListViewItem::paintFocus() draws in the margin.
 
@@ -3558,7 +3561,7 @@ QSizePolicy QListView::sizePolicy() const
 
 
 
-/*!  Sets \a item to be open if \a open is TRUE and \item is
+/*!  Sets \a item to be open if \a open is TRUE and \a item is
   expandable, and to be closed if \a open is FALSE.  Repaints
   accordingly.
 
@@ -3809,8 +3812,6 @@ N5TjUpu2iSwXGYSeKZ3csk1gU0aD+bia0eiQ2El5A0mQeOmJ/hWe02mQicmQ5rmeIyGY7tme
 /*!  Returns a pointer to the QHeader object that manages this list
   view's columns.  Please don't modify the header behind the list
   view's back.
-
-  \sa setHeader()
 */
 
 QHeader * QListView::header() const
@@ -3852,4 +3853,18 @@ void QListViewItem::moveToJustAfter( QListViewItem * olderSibling )
 	siblingItem = olderSibling->siblingItem;
 	olderSibling->siblingItem = this;
     }
+}
+
+
+/*!  \reimp */
+
+void QListView::showEvent( QShowEvent * )
+{
+    if ( d->drawables )
+	d->drawables->clear();
+    delete d->dirtyItems;
+    d->dirtyItems = 0;
+    d->dirtyItemTimer->stop();
+
+    updateGeometries();
 }
