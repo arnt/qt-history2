@@ -4404,7 +4404,7 @@ int QTextEdit::heightForWidth( int w ) const
 }
 
 /*!
-    Appends the text \a text to the end of the text edit. Note that
+    Appends a new paragraph with \a text to the end of the text edit. Note that
     the undo/redo history is cleared by this function, and no undo
     history is kept for appends which makes them faster than
     insert()s. If you want to append text which is added to the
