@@ -1246,34 +1246,38 @@ got one form, "MainForm", so it is already highlighted. Click \OK to
 create a \File{main.cpp} file that loads our MainForm.
 
 \quotefile colortool/main.cpp
-\printto connect
-\code
-	a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-\endcode
-\skipto return
+\printuntil return
 \printuntil }
 
-Notice that \QD creates a connection to ensure that the application
-terminates correctly. If we left this code as-is, the user could
-by-pass our own termination code by clicking the main window's close
-(X) button. Since we want to give the user the option to save any
-unsaved changes we need to ensure that we intercept any attempt to
-close the application. This is easily achieved by changing the connect
-line.
+When \QD generates a \c main.cpp file it includes this line:
+\code
+    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+\endcode
+If we left this code as-is, the user could by-pass our own termination
+code by clicking the main window's close (X) button. Since we want to
+give the user the option to save any unsaved changes we need to ensure
+that we intercept any attempt to close the application. To achieve
+this we delete the connection and add a new slot, \Func{closeEvent()}
+which will intercept attempts to close the application and call our
+\Func{fileExit()} function.
 
-\quotefile colortool/main.cpp
-\skipto connect
-\printline
+Click \File{main.cpp} in the Project Overview window. The file will
+appear in an editing window. Delete the connect line.
+
+Click \File{mainform.ui.h} in the Project Overview window; (you may
+need to click \File{mainform.ui} first to reveal
+\File{mainform.ui.h}). Right click "fileExit()" in Object Explorer's
+Members list (under Slots, public), then click \Menu{Goto
+Implementation}. Add the following slot above the \Func{fileExit()}
+slot:
+
+\quotefile colortool/mainform.ui.h
+\skipto closeEvent
+\printuntil }
 
 Now, whatever the user clicks to close the application, our
 \Func{fileExit()} slot will be called. We'll code the
-\Func{fileExit()} slot right now. 
-
-Click \File{mainform.ui.h} in the Project Overview window to show this
-file in a code editor window. Right click "fileExit()" in Object
-Explorer's Members list (under Slots, public), then click \Menu{Goto
-Implementation}. Now change the \Func{fileExit()} slot to the
-following:
+\Func{fileExit()} slot right now:
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::fileExit

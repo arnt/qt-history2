@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>MainForm</class>
 <widget class="QMainWindow">
     <property name="name">
@@ -162,7 +162,7 @@
             <string>&amp;New</string>
         </property>
         <property name="accel">
-            <number>4194382</number>
+            <string>Ctrl+N</string>
         </property>
     </action>
     <action>
@@ -179,7 +179,7 @@
             <string>&amp;Open...</string>
         </property>
         <property name="accel">
-            <number>4194383</number>
+            <string>Ctrl+O</string>
         </property>
     </action>
     <action>
@@ -196,7 +196,7 @@
             <string>&amp;Save</string>
         </property>
         <property name="accel">
-            <number>4194387</number>
+            <string>Ctrl+S</string>
         </property>
     </action>
     <action>
@@ -210,7 +210,7 @@
             <string>Save &amp;As...</string>
         </property>
         <property name="accel">
-            <number>0</number>
+            <string></string>
         </property>
     </action>
     <action>
@@ -224,7 +224,7 @@
             <string>E&amp;xit</string>
         </property>
         <property name="accel">
-            <number>0</number>
+            <string></string>
         </property>
     </action>
     <action>
@@ -241,7 +241,7 @@
             <string>&amp;Delete</string>
         </property>
         <property name="accel">
-            <number>4194392</number>
+            <string>Ctrl+X</string>
         </property>
     </action>
     <action>
@@ -258,7 +258,7 @@
             <string>&amp;Copy</string>
         </property>
         <property name="accel">
-            <number>4194371</number>
+            <string>Ctrl+C</string>
         </property>
     </action>
     <action>
@@ -275,7 +275,7 @@
             <string>&amp;Find...</string>
         </property>
         <property name="accel">
-            <number>4194374</number>
+            <string>Ctrl+F</string>
         </property>
     </action>
     <action>
@@ -289,7 +289,7 @@
             <string>&amp;Contents...</string>
         </property>
         <property name="accel">
-            <number>0</number>
+            <string></string>
         </property>
     </action>
     <action>
@@ -303,7 +303,7 @@
             <string>&amp;Index...</string>
         </property>
         <property name="accel">
-            <number>0</number>
+            <string></string>
         </property>
     </action>
     <action>
@@ -317,7 +317,7 @@
             <string>&amp;About</string>
         </property>
         <property name="accel">
-            <number>0</number>
+            <string></string>
         </property>
     </action>
     <action>
@@ -364,7 +364,7 @@
                 <string>View Table (Ctrl+T)</string>
             </property>
             <property name="accel">
-                <number>4194388</number>
+                <string>Ctrl+T</string>
             </property>
         </action>
         <action>
@@ -387,7 +387,7 @@
                 <string>View Icons (Ctrl+I)</string>
             </property>
             <property name="accel">
-                <number>4194377</number>
+                <string>Ctrl+I</string>
             </property>
         </action>
     </actiongroup>
@@ -405,7 +405,7 @@
             <string>&amp;Add...</string>
         </property>
         <property name="accel">
-            <number>4194369</number>
+            <string>Ctrl+A</string>
         </property>
     </action>
 </actions>
@@ -556,6 +556,7 @@
     <slot>fileOpen()</slot>
     <slot>fileSave()</slot>
     <slot>fileSaveAs()</slot>
+    <slot>closeEvent( QCloseEvent * )</slot>
     <slot>fileExit()</slot>
     <slot>editCut()</slot>
     <slot>editCopy()</slot>
@@ -573,18 +574,16 @@
 </slots>
 <functions>
     <function access="private">init()</function>
-    <function returnType="bool">okToClear()</function>
-    <function>load( const QString &amp; filename )</function>
-    <function returnType="QPixmap">colorSwatch( QColor color )</function>
-    <function>populate()</function>
-    <function returnType="bool">isWebColor( QColor color )</function>
     <function>clearData( bool fillWithDefaults )</function>
+    <function>populate()</function>
+    <function returnType="QPixmap">colorSwatch( QColor color )</function>
+    <function>load( const QString &amp; filename )</function>
+    <function returnType="bool">okToClear()</function>
     <function>changedColor( const QString &amp; name )</function>
-    <function">saveSettings()</function>
+    <function returnType="bool">isWebColor( QColor color )</function>
     <function>loadSettings()</function>
+    <function>saveSettings()</function>
 </functions>
-
-
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

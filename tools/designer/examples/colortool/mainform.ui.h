@@ -262,6 +262,11 @@ bool MainForm::okToClear()
     return TRUE;
 }
 
+void MainForm::closeEvent( QCloseEvent * )
+{
+    fileExit();
+}
+
 void MainForm::fileExit()
 {
     if ( okToClear() ) {
