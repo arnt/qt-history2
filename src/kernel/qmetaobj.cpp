@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#3 $
 **
 ** Implementation of QMetaObject class
 **
 ** Author  : Haavard Nord
 ** Created : 930419
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qstrlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#3 $";
 #endif
 
 
@@ -68,15 +68,15 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 	objectDict->setAutoDelete( TRUE );	// use as master dict
     }
 
-    className = (char *)class_name;		// set meta data
-    superclassName = (char *)superclass_name;
+    classname = (char *)class_name;		// set meta data
+    superclassname = (char *)superclass_name;
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
-    objectDict->insert( className, this );	// insert into object dict
+    objectDict->insert( classname, this );	// insert into object dict
 
-    superMetaObject =				// get super class meta object
-	objectDict->find( superclassName );
+    superclass =				// get super class meta object
+	objectDict->find( superclassname );
 }
 
 QMetaObject::~QMetaObject()
@@ -97,7 +97,7 @@ int QMetaObject::nSlots( bool super ) const	// number of slots
     while ( meta ) {				// for all super classes...
 	if ( meta->slotDict )
 	    n += meta->slotDict->count();
-	meta = meta->superMetaObject;
+	meta = meta->superclass;
     }
     return n;
 }
@@ -111,7 +111,7 @@ int QMetaObject::nSignals( bool super ) const	// number of signals
     while ( meta ) {				// for all super classes...
 	if ( meta->signalDict )
 	    n += meta->signalDict->count();
-	meta = meta->superMetaObject;
+	meta = meta->superclass;
     }
     return n;
 }
@@ -165,8 +165,8 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	}
 	if ( dict && (d=dict->find(name)) )	// found it
 	    return d;
-	if ( super && meta->superMetaObject )	// try for super class
-	    meta = meta->superMetaObject;
+	if ( super && meta->superclass )	// try for super class
+	    meta = meta->superclass;
 	else					// not found
 	    return 0;
     }
@@ -187,7 +187,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	if ( super ) {
 	    if ( index >= n ) {			// try the superclass
 		index -= dict->count();
-		meta = meta->superMetaObject;
+		meta = meta->superclass;
 		if ( !meta )			// there is no superclass
 		    return 0;
 		continue;
@@ -195,7 +195,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	}
 	if ( index >= 0 || index < n ) {
 	    switch ( code ) {			// find member
-		case SLOT_CODE:   d = slotData;   break;
+		case SLOT_CODE:	  d = slotData;	  break;
 		case SIGNAL_CODE: d = signalData; break;
 	    }
 	    return &d[n-index-1];
