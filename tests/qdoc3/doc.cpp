@@ -18,145 +18,124 @@
 #include "text.h"
 
 enum {
-    COMMAND_A, COMMAND_ABSTRACT, COMMAND_ALSO, COMMAND_BASENAME,
-    COMMAND_BOLD, COMMAND_BRIEF, COMMAND_C, COMMAND_CAPTION,
-    COMMAND_CHAPTER, COMMAND_CODE, COMMAND_ENDABSTRACT,
-    COMMAND_ENDCHAPTER, COMMAND_ENDCODE, COMMAND_ENDFOOTNOTE,
-    COMMAND_ENDLIST, COMMAND_ENDOMIT, COMMAND_ENDPART,
-    COMMAND_ENDQUOTATION, COMMAND_ENDSECTION1, COMMAND_ENDSECTION2,
-    COMMAND_ENDSECTION3, COMMAND_ENDSECTION4, COMMAND_ENDSIDEBAR,
-    COMMAND_ENDTABLE, COMMAND_EXPIRE, COMMAND_FOOTNOTE,
-    COMMAND_GRANULARITY, COMMAND_HEADER, COMMAND_I, COMMAND_IMAGE,
-    COMMAND_INCLUDE, COMMAND_INDEX, COMMAND_KEYWORD, COMMAND_L,
-    COMMAND_LIST, COMMAND_O, COMMAND_OMIT, COMMAND_PART,
-    COMMAND_QUOTATION, COMMAND_QUOTEFILE, COMMAND_QUOTEFROMFILE,
-    COMMAND_QUOTEFUNCTION, COMMAND_QUOTELINE, COMMAND_QUOTETO,
-    COMMAND_QUOTEUNTIL, COMMAND_RAW, COMMAND_ROW, COMMAND_SECTION1,
-    COMMAND_SECTION2, COMMAND_SECTION3, COMMAND_SECTION4,
-    COMMAND_SIDEBAR, COMMAND_SKIPLINE, COMMAND_SKIPTO,
-    COMMAND_SKIPUNTIL, COMMAND_SUB, COMMAND_SUP, COMMAND_TABLE,
-    COMMAND_TABLEOFCONTENTS, COMMAND_TARGET, COMMAND_TT,
-    COMMAND_UNDERLINE, COMMAND_VALUE, COMMAND_WARNING,
-    UNKNOWN_COMMAND
+    CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C,
+    CMD_CAPTION, CMD_CHAPTER, CMD_CODE, CMD_ENDABSTRACT, CMD_ENDCHAPTER,
+    CMD_ENDCODE, CMD_ENDFOOTNOTE, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
+    CMD_ENDQUOTATION, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
+    CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE,
+    CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IMAGE, CMD_INCLUDE, CMD_INDEX,
+    CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_PART, CMD_QUOTATION,
+    CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_QUOTELINE,
+    CMD_QUOTETO, CMD_QUOTEUNTIL, CMD_RAW, CMD_ROW, CMD_SECTION1, CMD_SECTION2,
+    CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO,
+    CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET,
+    CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
 };
 
 static struct {
     const char *english;
     int no;
-    QString translation;
+    QString alias;
 } cmds[] = {
-    { "a", COMMAND_A, 0 },
-    { "abstract", COMMAND_ABSTRACT, 0 },
-    { "also", COMMAND_ALSO, 0 },
-    { "basename", COMMAND_BASENAME, 0 },
-    { "bold", COMMAND_BOLD, 0 },
-    { "brief", COMMAND_BRIEF, 0 },
-    { "c", COMMAND_C, 0 },
-    { "caption", COMMAND_CAPTION, 0 },
-    { "chapter", COMMAND_CHAPTER, 0 },
-    { "code", COMMAND_CODE, 0 },
-    { "endabstract", COMMAND_ENDABSTRACT, 0 },
-    { "endchapter", COMMAND_ENDCHAPTER, 0 },
-    { "endcode", COMMAND_ENDCODE, 0 },
-    { "endfootnote", COMMAND_ENDFOOTNOTE, 0 },
-    { "endlist", COMMAND_ENDLIST, 0 },
-    { "endomit", COMMAND_ENDOMIT, 0 },
-    { "endpart", COMMAND_ENDPART, 0 },
-    { "endquotation", COMMAND_ENDQUOTATION, 0 },
-    { "endsection1", COMMAND_ENDSECTION1, 0 },
-    { "endsection2", COMMAND_ENDSECTION2, 0 },
-    { "endsection3", COMMAND_ENDSECTION3, 0 },
-    { "endsection4", COMMAND_ENDSECTION4, 0 },
-    { "endsidebar", COMMAND_ENDSIDEBAR, 0 },
-    { "endtable", COMMAND_ENDTABLE, 0 },
-    { "expire", COMMAND_EXPIRE, 0 },
-    { "footnote", COMMAND_FOOTNOTE, 0 },
-    { "granularity", COMMAND_GRANULARITY, 0 },
-    { "header", COMMAND_HEADER, 0 },
-    { "i", COMMAND_I, 0 },
-    { "image", COMMAND_IMAGE, 0 },
-    { "include", COMMAND_INCLUDE, 0 },
-    { "index", COMMAND_INDEX, 0 },
-    { "keyword", COMMAND_KEYWORD, 0 },
-    { "l", COMMAND_L, 0 },
-    { "list", COMMAND_LIST, 0 },
-    { "o", COMMAND_O, 0 },
-    { "omit", COMMAND_OMIT, 0 },
-    { "part", COMMAND_PART, 0 },
-    { "quotation", COMMAND_QUOTATION, 0 },
-    { "quotefile", COMMAND_QUOTEFILE, 0 },
-    { "quotefromfile", COMMAND_QUOTEFROMFILE, 0 },
-    { "quotefunction", COMMAND_QUOTEFUNCTION, 0 },
-    { "quoteline", COMMAND_QUOTELINE, 0 },
-    { "quoteto", COMMAND_QUOTETO, 0 },
-    { "quoteuntil", COMMAND_QUOTEUNTIL, 0 },
-    { "raw", COMMAND_RAW, 0 },
-    { "row", COMMAND_ROW, 0 },
-    { "section1", COMMAND_SECTION1, 0 },
-    { "section2", COMMAND_SECTION2, 0 },
-    { "section3", COMMAND_SECTION3, 0 },
-    { "section4", COMMAND_SECTION4, 0 },
-    { "sidebar", COMMAND_SIDEBAR, 0 },
-    { "skipline", COMMAND_SKIPLINE, 0 },
-    { "skipto", COMMAND_SKIPTO, 0 },
-    { "skipuntil", COMMAND_SKIPUNTIL, 0 },
-    { "sub", COMMAND_SUB, 0 },
-    { "sup", COMMAND_SUP, 0 },
-    { "table", COMMAND_TABLE, 0 },
-    { "tableofcontents", COMMAND_TABLEOFCONTENTS, 0 },
-    { "target", COMMAND_TARGET, 0 },
-    { "tt", COMMAND_TT, 0 },
-    { "underline", COMMAND_UNDERLINE, 0 },
-    { "value", COMMAND_VALUE, 0 },
-    { "warning", COMMAND_WARNING, 0 },
+    { "a", CMD_A, 0 },
+    { "abstract", CMD_ABSTRACT, 0 },
+    { "also", CMD_ALSO, 0 },
+    { "basename", CMD_BASENAME, 0 },
+    { "bold", CMD_BOLD, 0 },
+    { "brief", CMD_BRIEF, 0 },
+    { "c", CMD_C, 0 },
+    { "caption", CMD_CAPTION, 0 },
+    { "chapter", CMD_CHAPTER, 0 },
+    { "code", CMD_CODE, 0 },
+    { "endabstract", CMD_ENDABSTRACT, 0 },
+    { "endchapter", CMD_ENDCHAPTER, 0 },
+    { "endcode", CMD_ENDCODE, 0 },
+    { "endfootnote", CMD_ENDFOOTNOTE, 0 },
+    { "endlist", CMD_ENDLIST, 0 },
+    { "endomit", CMD_ENDOMIT, 0 },
+    { "endpart", CMD_ENDPART, 0 },
+    { "endquotation", CMD_ENDQUOTATION, 0 },
+    { "endsection1", CMD_ENDSECTION1, 0 },
+    { "endsection2", CMD_ENDSECTION2, 0 },
+    { "endsection3", CMD_ENDSECTION3, 0 },
+    { "endsection4", CMD_ENDSECTION4, 0 },
+    { "endsidebar", CMD_ENDSIDEBAR, 0 },
+    { "endtable", CMD_ENDTABLE, 0 },
+    { "expire", CMD_EXPIRE, 0 },
+    { "footnote", CMD_FOOTNOTE, 0 },
+    { "granularity", CMD_GRANULARITY, 0 },
+    { "header", CMD_HEADER, 0 },
+    { "i", CMD_I, 0 },
+    { "image", CMD_IMAGE, 0 },
+    { "include", CMD_INCLUDE, 0 },
+    { "index", CMD_INDEX, 0 },
+    { "keyword", CMD_KEYWORD, 0 },
+    { "l", CMD_L, 0 },
+    { "list", CMD_LIST, 0 },
+    { "o", CMD_O, 0 },
+    { "omit", CMD_OMIT, 0 },
+    { "part", CMD_PART, 0 },
+    { "quotation", CMD_QUOTATION, 0 },
+    { "quotefile", CMD_QUOTEFILE, 0 },
+    { "quotefromfile", CMD_QUOTEFROMFILE, 0 },
+    { "quotefunction", CMD_QUOTEFUNCTION, 0 },
+    { "quoteline", CMD_QUOTELINE, 0 },
+    { "quoteto", CMD_QUOTETO, 0 },
+    { "quoteuntil", CMD_QUOTEUNTIL, 0 },
+    { "raw", CMD_RAW, 0 },
+    { "row", CMD_ROW, 0 },
+    { "section1", CMD_SECTION1, 0 },
+    { "section2", CMD_SECTION2, 0 },
+    { "section3", CMD_SECTION3, 0 },
+    { "section4", CMD_SECTION4, 0 },
+    { "sidebar", CMD_SIDEBAR, 0 },
+    { "skipline", CMD_SKIPLINE, 0 },
+    { "skipto", CMD_SKIPTO, 0 },
+    { "skipuntil", CMD_SKIPUNTIL, 0 },
+    { "sub", CMD_SUB, 0 },
+    { "sup", CMD_SUP, 0 },
+    { "table", CMD_TABLE, 0 },
+    { "tableofcontents", CMD_TABLEOFCONTENTS, 0 },
+    { "target", CMD_TARGET, 0 },
+    { "tt", CMD_TT, 0 },
+    { "underline", CMD_UNDERLINE, 0 },
+    { "value", CMD_VALUE, 0 },
+    { "warning", CMD_WARNING, 0 },
     { 0, 0, 0 }
 };
 
 static int endCommandOf( int command )
 {
     switch ( command ) {
-    case COMMAND_ABSTRACT:
-	return COMMAND_ENDABSTRACT;
-    case COMMAND_CHAPTER:
-	return COMMAND_ENDCHAPTER;
-    case COMMAND_CODE:
-	return COMMAND_ENDCODE;
-    case COMMAND_FOOTNOTE:
-	return COMMAND_ENDFOOTNOTE;
-    case COMMAND_LIST:
-	return COMMAND_ENDLIST;
-    case COMMAND_OMIT:
-	return COMMAND_ENDOMIT;
-    case COMMAND_PART:
-	return COMMAND_ENDPART;
-    case COMMAND_QUOTATION:
-	return COMMAND_ENDQUOTATION;
-    case COMMAND_SECTION1:
-	return COMMAND_ENDSECTION1;
-    case COMMAND_SECTION2:
-	return COMMAND_ENDSECTION2;
-    case COMMAND_SECTION3:
-	return COMMAND_ENDSECTION3;
-    case COMMAND_SECTION4:
-	return COMMAND_ENDSECTION4;
-    case COMMAND_SIDEBAR:
-	return COMMAND_ENDSIDEBAR;
-    case COMMAND_TABLE:
-	return COMMAND_ENDTABLE;
+    case CMD_ABSTRACT:
+	return CMD_ENDABSTRACT;
+    case CMD_CHAPTER:
+	return CMD_ENDCHAPTER;
+    case CMD_CODE:
+	return CMD_ENDCODE;
+    case CMD_FOOTNOTE:
+	return CMD_ENDFOOTNOTE;
+    case CMD_LIST:
+	return CMD_ENDLIST;
+    case CMD_OMIT:
+	return CMD_ENDOMIT;
+    case CMD_PART:
+	return CMD_ENDPART;
+    case CMD_QUOTATION:
+	return CMD_ENDQUOTATION;
+    case CMD_SECTION1:
+	return CMD_ENDSECTION1;
+    case CMD_SECTION2:
+	return CMD_ENDSECTION2;
+    case CMD_SECTION3:
+	return CMD_ENDSECTION3;
+    case CMD_SECTION4:
+	return CMD_ENDSECTION4;
+    case CMD_SIDEBAR:
+	return CMD_ENDSIDEBAR;
+    case CMD_TABLE:
+	return CMD_ENDTABLE;
     default:
-#if 0 // ###
-	if ( !deja ) {
-	    i = 0;
-	    while ( cmds[i].english != 0 ) {
-		if ( qstrncmp(cmds[i].english, "end", 3) == 0 &&
-		     qstrcmp(cmds[i].english + 3, cmds[command].english) == 0 )
-		    Messages::internalError( Qdoc::tr("'\\%1' end of nothing")
-					     .arg(cmds[i].english) );
-		i++;
-	    }
-	    deja = TRUE;
-	}
-#endif
 	return command;
     }
 }
@@ -168,12 +147,13 @@ struct Macro
     int numParams;
 };
 
+static QMap<QString, QString> *aliasMap = 0;
 static QDict<int> *commandDict = 0;
 static QDict<Macro> *macroDict = 0;
 
 static QString commandName( int command )
 {
-    return cmds[command].translation;
+    return cmds[command].alias;
 }
 
 static QString endCommandName( int command )
@@ -350,6 +330,9 @@ public:
     void parse( const QString& input, DocPrivate *docPrivate,
 		const Set<QString>& metaCommandSet );
 
+    static QStringList exampleFiles;
+    static QStringList exampleDirs;
+
 private:
     const Location& location();
     QString detailsUnknownCommand( const Set<QString>& metaCommandSet,
@@ -378,7 +361,7 @@ private:
     QString getArgument( bool code = FALSE );
     QString getOptionalArgument();
     QString getRestOfLine();
-    QString getUntilRight( int command );
+    QString getUntilEnd( int command );
     bool isBlankLine();
     bool isLeftBraceAhead();
     void skipSpacesOnLine();
@@ -406,6 +389,9 @@ private:
     Quoter quoter;
 };
 
+QStringList DocParser::exampleFiles;
+QStringList DocParser::exampleDirs;
+
 void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		       const Set<QString>& metaCommandSet )
 {
@@ -423,7 +409,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
     currentSectioningUnit = Doc::Book;
     inHeading = FALSE;
     pendingHeadingRightType = Atom::Nop;
-    openedCommands.push( COMMAND_OMIT );
+    openedCommands.push( CMD_OMIT );
     quoter.reset();
 
     CodeMarker *marker;
@@ -464,7 +450,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		int command = ( entry != 0 ) ? *entry : UNKNOWN_COMMAND;
 
 		switch ( command ) {
-		case COMMAND_A:
+		case CMD_A:
 		    enterParagraph();
 		    x = getArgument();
 		    append( Atom::FormatLeft, "parameter" );
@@ -474,42 +460,42 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 			priv->params = new Set<QString>;
 		    priv->params->insert( x );
 		    break;
-		case COMMAND_ABSTRACT:
+		case CMD_ABSTRACT:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
 			append( Atom::AbstractLeft );
 		    }
 		    break;
-		case COMMAND_ALSO:
+		case CMD_ALSO:
 		    parseAlso();
 		    break;
-		case COMMAND_BASENAME:
+		case CMD_BASENAME:
 		    leaveParagraph();
 		    insertBaseName( getArgument() );
 		    break;
-		case COMMAND_BOLD:
+		case CMD_BOLD:
 		    startFormat( ATOM_FORMAT_BOLD, command );
 		    break;
-		case COMMAND_BRIEF:
+		case CMD_BRIEF:
 		    startHeading( Atom::BriefLeft, Atom::BriefRight );
 		    break;
-		case COMMAND_C:
+		case CMD_C:
 		    enterParagraph();
 		    x = untabifyEtc( getArgument(TRUE) );
 		    marker = CodeMarker::markerForCode( x );
 		    append( Atom::C, marker->markedUpCode(x, 0, "") );
 		    break;
-		case COMMAND_CAPTION:
+		case CMD_CAPTION:
 		    leaveParagraph();
 		    /* ... */
 		    break;
-		case COMMAND_CHAPTER:
+		case CMD_CHAPTER:
 		    startSection( Doc::Chapter, command );
 		    break;
-		case COMMAND_CODE:
+		case CMD_CODE:
 		    leaveParagraph();
 		    begin = pos;
-		    x = getUntilRight( command );
+		    x = getUntilEnd( command );
 		    x = untabifyEtc( x );
 		    indent = indentLevel( x );
 		    if ( indent < minIndent )
@@ -518,26 +504,26 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    marker = CodeMarker::markerForCode( x );
 		    append( Atom::Code, marker->markedUpCode(x, 0, "") );
 		    break;
-		case COMMAND_ENDABSTRACT:
+		case CMD_ENDABSTRACT:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
 			append( Atom::AbstractRight );
 		    }
 		    break;
-		case COMMAND_ENDCHAPTER:
+		case CMD_ENDCHAPTER:
 		    endSection( 0, command );
 		    break;
-		case COMMAND_ENDCODE:
+		case CMD_ENDCODE:
 		    closeCommand( command );
 		    break;
-		case COMMAND_ENDFOOTNOTE:
+		case CMD_ENDFOOTNOTE:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
 			append( Atom::FootnoteRight );
 			inPara = TRUE;
 		    }
 		    break;
-		case COMMAND_ENDLIST:
+		case CMD_ENDLIST:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
 			if ( openedLists.top().isStarted() ) {
@@ -549,69 +535,69 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 			openedLists.pop();
 		    }
 		    break;
-		case COMMAND_ENDOMIT:
+		case CMD_ENDOMIT:
 		    closeCommand( command );
 		    break;
-		case COMMAND_ENDPART:
+		case CMD_ENDPART:
 		    endSection( -1, command );
 		    break;
-		case COMMAND_ENDQUOTATION:
+		case CMD_ENDQUOTATION:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
 			append( Atom::QuotationRight );
 		    }
 		    break;
-		case COMMAND_ENDSECTION1:
+		case CMD_ENDSECTION1:
 		    endSection( 1, command );
 		    break;
-		case COMMAND_ENDSECTION2:
+		case CMD_ENDSECTION2:
 		    endSection( 2, command );
 		    break;
-		case COMMAND_ENDSECTION3:
+		case CMD_ENDSECTION3:
 		    endSection( 3, command );
 		    break;
-		case COMMAND_ENDSECTION4:
+		case CMD_ENDSECTION4:
 		    endSection( 4, command );
 		    break;
-		case COMMAND_ENDSIDEBAR:
+		case CMD_ENDSIDEBAR:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
 			append( Atom::SidebarRight );
 		    }
 		    break;
-		case COMMAND_ENDTABLE:
+		case CMD_ENDTABLE:
 		    if ( closeCommand(command) ) {
 			append( Atom::TableRight );
 			/* ... */
 		    }
 		    break;
-		case COMMAND_EXPIRE:
+		case CMD_EXPIRE:
 		    checkExpiry( getArgument() );
 		    break;
-		case COMMAND_FOOTNOTE:
+		case CMD_FOOTNOTE:
 		    if ( openCommand(command) ) {
 			enterParagraph();
 			append( Atom::FootnoteLeft );
 			inPara = FALSE;
 		    }
 		    break;
-		case COMMAND_GRANULARITY:
+		case CMD_GRANULARITY:
 		    priv->constructExtra();
 		    priv->extra->granularity = getSectioningUnit();
 		    break;
-		case COMMAND_HEADER:
+		case CMD_HEADER:
 		    /* ... */
 		    break;
-		case COMMAND_I:
+		case CMD_I:
 		    startFormat( ATOM_FORMAT_ITALIC, command );
 		    break;
-		case COMMAND_IMAGE:
+		case CMD_IMAGE:
 		    /* ... */
 		    break;
-		case COMMAND_INCLUDE:
+		case CMD_INCLUDE:
 		    include( getArgument() );
 		    break;
-		case COMMAND_INDEX:
+		case CMD_INDEX:
 		    if ( inPara ) {
 			const Atom *last = priv->text.lastAtom();
 			if ( indexStartedPara &&
@@ -624,11 +610,11 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    }
 		    startFormat( ATOM_FORMAT_INDEX, command );
 		    break;
-		case COMMAND_KEYWORD:
+		case CMD_KEYWORD:
 		    x = getArgument();
 		    insertTarget( x );
 		    break;
-		case COMMAND_L:
+		case CMD_L:
 		    enterParagraph();
 		    if ( isLeftBraceAhead() ) {
 			x = getArgument();
@@ -648,21 +634,23 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 			append( Atom::FormatRight, ATOM_FORMAT_LINK );
 		    }
 		    break;
-		case COMMAND_LIST:
+		case CMD_LIST:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
 			openedLists.push( OpenedList(location(),
 						     getOptionalArgument()) );
 		    }
 		    break;
-		case COMMAND_O:
+		case CMD_O:
 		    leaveParagraph();
 		    if ( openedLists.isEmpty() ) {
+#if 0
 			Messages::warning( location(),
 					   Qdoc::tr("Command '\\%1' outside"
 						    " '\\%2'")
 					   .arg(commandName(command))
-					   .arg(commandName(COMMAND_LIST)) );
+					   .arg(commandName(CMD_LIST)) );
+#endif
 		    } else {
 			if ( openedLists.top().isStarted() ) {
 			    leaveParagraph();
@@ -681,30 +669,30 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 			skipSpacesOrOneEndl();
 		    }
 		    break;
-		case COMMAND_OMIT:
-		    getUntilRight( command );
+		case CMD_OMIT:
+		    getUntilEnd( command );
 		    break;
-		case COMMAND_PART:
+		case CMD_PART:
 		    startSection( Doc::Part, command );
 		    break;
-		case COMMAND_QUOTATION:
+		case CMD_QUOTATION:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
 			append( Atom::QuotationLeft );
 		    }
 		    break;
-		case COMMAND_QUOTEFILE:
+		case CMD_QUOTEFILE:
 		    leaveParagraph();
 		    quoteFromFile( command );
 		    append( Atom::Code,
 			    quoter.quoteUntil(location(), commandStr) );
 		    quoter.reset();
 		    break;
-		case COMMAND_QUOTEFROMFILE:
+		case CMD_QUOTEFROMFILE:
 		    leaveParagraph();
 		    quoteFromFile( command );
 		    break;
-		case COMMAND_QUOTEFUNCTION:
+		case CMD_QUOTEFUNCTION:
 		    leaveParagraph();
 		    quoteFromFile( command );
 		    quoter.quoteTo( location(), commandStr, getRestOfLine() );
@@ -713,92 +701,92 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 					      "/^\\}/") );
 		    quoter.reset();
 		    break;
-		case COMMAND_QUOTELINE:
+		case CMD_QUOTELINE:
 		    leaveParagraph();
 		    appendToCode( quoter.quoteLine(location(), commandStr,
 						   getRestOfLine()) );
 		    break;
-		case COMMAND_QUOTETO:
+		case CMD_QUOTETO:
 		    leaveParagraph();
 		    appendToCode( quoter.quoteTo(location(), commandStr,
 				  getRestOfLine()) );
 		    break;
-		case COMMAND_QUOTEUNTIL:
+		case CMD_QUOTEUNTIL:
 		    leaveParagraph();
 		    appendToCode( quoter.quoteUntil(location(), commandStr,
 						    getRestOfLine()) );
 		    break;
-		case COMMAND_RAW:
+		case CMD_RAW:
 		    leaveParagraph();
 		    begin = pos;
-		    x = getUntilRight( command );
+		    x = getUntilEnd( command );
 		    x = untabifyEtc( in.mid(begin, end - begin) );
 		    append( Atom::RawFormat, "html" ); // ###
 		    append( Atom::RawString, x );
 		    break;
-		case COMMAND_ROW:
+		case CMD_ROW:
 		    /* ... */
 		    break;
-		case COMMAND_SECTION1:
+		case CMD_SECTION1:
 		    startSection( Doc::Section1, command );
 		    break;
-		case COMMAND_SECTION2:
+		case CMD_SECTION2:
 		    startSection( Doc::Section2, command );
 		    break;
-		case COMMAND_SECTION3:
+		case CMD_SECTION3:
 		    startSection( Doc::Section3, command );
 		    break;
-		case COMMAND_SECTION4:
+		case CMD_SECTION4:
 		    startSection( Doc::Section4, command );
 		    break;
-		case COMMAND_SIDEBAR:
+		case CMD_SIDEBAR:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
 			append( Atom::SidebarLeft );
 		    }
 		    break;
-		case COMMAND_SKIPLINE:
+		case CMD_SKIPLINE:
 		    leaveParagraph();
 		    quoter.quoteLine( location(), commandStr, getRestOfLine() );
 		    break;
-		case COMMAND_SKIPTO:
+		case CMD_SKIPTO:
 		    leaveParagraph();
 		    quoter.quoteTo( location(), commandStr, getRestOfLine() );
 		    break;
-		case COMMAND_SKIPUNTIL:
+		case CMD_SKIPUNTIL:
 		    leaveParagraph();
 		    quoter.quoteUntil( location(), commandStr, getRestOfLine() );
 		    break;
-		case COMMAND_SUB:
+		case CMD_SUB:
 		    startFormat( ATOM_FORMAT_SUBSCRIPT, command );
 		    break;
-		case COMMAND_SUP:
+		case CMD_SUP:
 		    startFormat( ATOM_FORMAT_SUPERSCRIPT, command );
 		    break;
-		case COMMAND_TABLE:
+		case CMD_TABLE:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
 			append( Atom::TableLeft );
 		    }
 		    break;
-		case COMMAND_TABLEOFCONTENTS:
+		case CMD_TABLEOFCONTENTS:
 		    append( Atom::TableOfContents,
 			    QString::number((int) getSectioningUnit()) );
 		    /* ... */
 		    break;
-		case COMMAND_TARGET:
+		case CMD_TARGET:
 		    insertTarget( getArgument() );
 		    break;
-		case COMMAND_TT:
+		case CMD_TT:
 		    startFormat( ATOM_FORMAT_TELETYPE, command );
 		    break;
-		case COMMAND_UNDERLINE:
+		case CMD_UNDERLINE:
 		    startFormat( ATOM_FORMAT_UNDERLINE, command );
 		    break;
-		case COMMAND_VALUE:
+		case CMD_VALUE:
 		    /* ... */
 		    break;
-		case COMMAND_WARNING:
+		case CMD_WARNING:
 		    startNewParagraph();
 		    append( Atom::FormatLeft, ATOM_FORMAT_BOLD );
 		    append( Atom::String, "Warning: " );
@@ -868,7 +856,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
     }
     leaveParagraph();
 
-    if ( openedCommands.top() != COMMAND_OMIT )
+    if ( openedCommands.top() != CMD_OMIT )
 	Messages::warning( location(),
 			   Qdoc::tr("Missing '\\%1'")
 			   .arg(endCommandName(openedCommands.top())) );
@@ -890,13 +878,14 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
     Set<QString> commandSet = metaCommandSet;
     int i = 0;
     while ( cmds[i].english != 0 ) {
-	if ( cmds[i].english == str )
-	    return Qdoc::tr( "The command '\\%1' was renamed '\\%2' by the"
-			     " configuration file. Use the new name." )
-		   .arg( str ).arg( cmds[i].translation );
-	commandSet.insert( cmds[i].translation );
+	commandSet.insert( cmds[i].alias );
 	i++;
     }
+
+    if ( aliasMap->contains(str) )
+	return Qdoc::tr( "The command '\\%1' was renamed '\\%2' in the"
+			 " configuration file. Use the new name." )
+	       .arg( str ).arg( (*aliasMap)[str] );
 
     int deltaBest = 666;
     int numBest;
@@ -914,10 +903,11 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
 	}
 	++c;
     }
+
     if ( numBest == 1 && deltaBest <= 2 && str.length() >= 3 ) {
 	return Qdoc::tr( "Maybe you meant '\\%1'?" ).arg( best );
     } else {
-	return Qdoc::tr( "###" );
+	return "";
     }
 }
 
@@ -1077,10 +1067,10 @@ bool DocParser::openCommand( int command )
     int top = openedCommands.top();
     bool ok = TRUE;
 
-    if ( top != COMMAND_OMIT && top != COMMAND_LIST ) {
+    if ( top != CMD_OMIT && top != CMD_LIST ) {
 	QValueList<int> ordering;
-	ordering << COMMAND_ABSTRACT << COMMAND_SIDEBAR << COMMAND_QUOTATION
-		 << COMMAND_TABLE << COMMAND_FOOTNOTE;
+	ordering << CMD_ABSTRACT << CMD_SIDEBAR << CMD_QUOTATION << CMD_TABLE
+		 << CMD_FOOTNOTE;
 	ok = ordering.findIndex( top ) < ordering.findIndex( command );
     }
 
@@ -1136,7 +1126,7 @@ void DocParser::startSection( Doc::SectioningUnit unit, int command )
 	    Messages::warning( location(),
 			       Qdoc::tr("Unexpected '\\%1' without '\\%2'")
 			       .arg(commandName(command))
-			       .arg(commandName(COMMAND_SECTION1)) );
+			       .arg(commandName(CMD_SECTION1)) );
 	currentSectioningUnit = (Doc::SectioningUnit) ( unit - 1 );
 	priv->constructExtra();
 	priv->extra->sectioningUnit = currentSectioningUnit;
@@ -1218,7 +1208,7 @@ void DocParser::parseAlso()
 	} else if ( in[pos] != '\n' ) {
 	    Messages::warning( location(),
 			       Qdoc::tr("Missing comma in '\\%1'")
-			       .arg(commandName(COMMAND_ALSO)) );
+			       .arg(commandName(CMD_ALSO)) );
 	}
     }
 }
@@ -1293,16 +1283,22 @@ void DocParser::quoteFromFile( int /* command */ )
     QString code;
     QString fileName = getArgument();
 
-    QString filePath = fileName; /* ### */
-    QFile inFile( filePath );
-    if ( !inFile.open(IO_ReadOnly) ) {
+    QString filePath = Config::findFile( exampleFiles, exampleDirs, fileName );
+    if ( filePath.isEmpty() ) {
 	Messages::warning( location(),
-			   Qdoc::tr("Cannot open example file '%1'")
-			   .arg(filePath) );
+			   Qdoc::tr("Cannot find example file '%1'")
+			   .arg(fileName) );
     } else {
-	QTextStream inStream( &inFile );
-	code = untabifyEtc( inStream.read() );
-	inFile.close();
+	QFile inFile( filePath );
+	if ( !inFile.open(IO_ReadOnly) ) {
+	    Messages::warning( location(),
+			       Qdoc::tr("Cannot open example file '%1'")
+			       .arg(filePath) );
+	} else {
+	    QTextStream inStream( &inFile );
+	    code = untabifyEtc( inStream.read() );
+	    inFile.close();
+	}
     }
 
     QString dirPath = QFileInfo( filePath ).dirPath();
@@ -1477,8 +1473,9 @@ QString DocParser::getRestOfLine()
     return t;
 }
 
-QString DocParser::getUntilRight( int endCommand )
+QString DocParser::getUntilEnd( int command )
 {
+    int endCommand = endCommandOf( command );
     QRegExp rx( "\\\\" + commandName(endCommand) + "\\b" );
     QString t;
     int end = rx.search( in, pos );
@@ -1693,39 +1690,49 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
 
 void Doc::initialize( const Config& config )
 {
-    delete commandDict;
+    DocParser::exampleFiles = config.getStringList( CONFIG_EXAMPLES );
+    DocParser::exampleDirs = config.getStringList( CONFIG_EXAMPLEDIRS );
+
+    QMap<QString, QString> reverseAliasMap;
+
+    aliasMap = new QMap<QString, QString>;
     commandDict = new QDict<int>( 251 );
 
-    int i = 0;
-    while ( cmds[i].english != 0 ) {
-	QString translation = config.getString(
-		Config::dot(CONFIG_ALIAS, cmds[i].english) );
-	if ( translation.isEmpty() )
-	    translation = cmds[i].english;
-	cmds[i].translation = translation;
-	int *entry = commandDict->find( translation );
-	if ( entry != 0 )
+    Set<QString> commands = config.subVars( CONFIG_ALIAS );
+    Set<QString>::ConstIterator c = commands.begin();
+    while ( c != commands.end() ) {
+	QString alias = config.getString( CONFIG_ALIAS + Config::dot + *c );
+	if ( reverseAliasMap.contains(alias) ) {
 	    Messages::warning( config.location(),
 			       Qdoc::tr("Command name '\\%1' cannot stand"
 					" for both '\\%2' and '\\%3'")
-			       .arg(translation)
-			       .arg(cmds[*entry].english)
-			       .arg(cmds[i].english) );
-	commandDict->replace( translation, &cmds[i].no );
+			       .arg(alias)
+			       .arg(reverseAliasMap[alias])
+			       .arg(*c) );
+	} else {
+	    reverseAliasMap.insert( alias, *c );
+	}
+	aliasMap->insert( *c, alias );
+	++c;
+    }
+
+    int i = 0;
+    while ( cmds[i].english != 0 ) {
+	cmds[i].alias = alias( cmds[i].english );
+	commandDict->replace( cmds[i].alias, &cmds[i].no );
 
 	if ( cmds[i].no != i )
 	    Messages::internalError( Qdoc::tr("command %1 missing").arg(i) );
 	i++;
     }
 
-    delete macroDict;
     macroDict = new QDict<Macro>( 251 );
     macroDict->setAutoDelete( TRUE );
 
     Set<QString> macroNames = config.subVars( CONFIG_MACRO );
     Set<QString>::ConstIterator n = macroNames.begin();
     while ( n != macroNames.end() ) {
-	QString macroDotName = Config::dot( CONFIG_MACRO, *n );
+	QString macroDotName = CONFIG_MACRO + Config::dot + *n;
 	Macro *macro = new Macro;
 	macro->numParams = -1;
 	macro->defaultDef = config.getString( macroDotName );
@@ -1737,7 +1744,7 @@ void Doc::initialize( const Config& config )
 	Set<QString>::ConstIterator f = formats.begin();
 
 	while ( f != formats.end() ) {
-	    QString def = config.getString( Config::dot(macroDotName, *f) );
+	    QString def = config.getString( macroDotName + Config::dot + *f );
 	    if ( !def.isEmpty() ) {
 		macro->otherDefs.insert( *f, def );
 		int m = numParams( macro->defaultDef );
@@ -1777,8 +1784,20 @@ void Doc::initialize( const Config& config )
 
 void Doc::terminate()
 {
+    delete aliasMap;
+    aliasMap = 0;
     delete commandDict;
     commandDict = 0;
     delete macroDict;
     macroDict = 0;
+}
+
+QString Doc::alias( const QString& english )
+{
+    QMap<QString, QString>::ConstIterator a = aliasMap->find( english );
+    if ( a == aliasMap->end() ) {
+	return english;
+    } else {
+	return *a;
+    }
 }

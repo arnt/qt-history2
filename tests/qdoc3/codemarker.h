@@ -20,7 +20,6 @@ public:
 
     virtual void initializeMarker( const Config& config );
     virtual void terminateMarker();
-
     virtual bool recognizeCode( const QString& code ) = 0;
     virtual bool recognizeExtension( const QString& ext ) = 0;
     virtual bool recognizeLanguage( const QString& lang ) = 0;

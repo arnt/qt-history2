@@ -428,6 +428,7 @@ void Tokenizer::start( const Location& loc )
 {
     yyTokLoc = loc;
     yyCurLoc = loc;
+    yyCurLoc.start();
     strcpy( yyPrevLex, "beginning-of-input" );
     strcpy( yyLex, "beginning-of-input" );
     yyLexLen = strlen( yyLex );

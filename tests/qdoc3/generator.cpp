@@ -2,14 +2,48 @@
   generator.cpp
 */
 
+#include <qdir.h>
+
 #include "codemarker.h"
+#include "config.h"
 #include "doc.h"
 #include "generator.h"
 #include "messages.h"
 #include "node.h"
 #include "separator.h"
 
+static bool removeDirContents( const QString& dir )
+{
+    QDir dirInfo( dir );
+    const QFileInfoList *entries = dirInfo.entryInfoList();
+    if ( entries == 0 )
+	return FALSE;
+
+    QFileInfoListIterator it( *entries );
+    QFileInfo *entry;
+    bool ok = TRUE;
+
+    while ( (entry = it.current()) != 0 ) {
+	if ( entry->isFile() ) {
+	    if ( !dirInfo.remove(entry->fileName()) )
+		ok = FALSE;
+	} else if ( entry->isDir() ) {
+	    if ( entry->fileName() != "." && entry->fileName() != ".." ) {
+		if ( removeDirContents(entry->absFilePath()) ) {
+		    if ( !dirInfo.rmdir(entry->fileName()) )
+			ok = FALSE;
+		} else {
+		    ok = FALSE;
+		}
+	    }
+	}
+	++it;
+    }
+    return ok;
+}
+
 QValueList<Generator *> Generator::generators;
+QString Generator::outDir;
 
 Generator::Generator()
     : amp( "&amp;" ), lt( "&lt;" ), gt( "&gt;" ), quot( "&quot;" ),
@@ -21,6 +55,51 @@ Generator::Generator()
 Generator::~Generator()
 {
     generators.remove( this );
+}
+
+void Generator::initializeGenerator( const Config& /* config */ )
+{
+}
+
+void Generator::terminateGenerator()
+{
+}
+
+void Generator::initialize( const Config& config )
+{
+    outDir = config.getString( CONFIG_OUTPUTDIR );
+    if ( outDir.isEmpty() )
+	Messages::fatal( config.location(CONFIG_OUTPUTDIR),
+			 Qdoc::tr("No output directory specified in"
+				  " configuration file") );
+
+    QDir dirInfo;
+    if ( dirInfo.exists(outDir) ) {
+	if ( !removeDirContents(outDir) )
+	    Messages::error( config.location(CONFIG_OUTPUTDIR),
+			     Qdoc::tr("Cannot empty output directory '%1'")
+			     .arg(outDir) );
+    } else {
+	if ( !dirInfo.mkdir(outDir) )
+	    Messages::fatal( config.location(CONFIG_OUTPUTDIR),
+			     Qdoc::tr("Cannot create output directory '%1'")
+			     .arg(outDir) );
+    }
+
+    QValueList<Generator *>::ConstIterator g = generators.begin();
+    while ( g != generators.end() ) {
+	(*g)->initializeGenerator( config );
+	++g;
+    }
+}
+
+void Generator::terminate()
+{
+    QValueList<Generator *>::ConstIterator g = generators.begin();
+    while ( g != generators.end() ) {
+	(*g)->terminateGenerator();
+	++g;
+    }
 }
 
 Generator *Generator::generatorForFormat( const QString& format )

@@ -6,6 +6,13 @@
 #include "messages.h"
 #include "node.h"
 
+#define COMMAND_DEPRECATED          Doc::alias( "deprecated" )
+#define COMMAND_INGROUP             Doc::alias( "ingroup" )
+#define COMMAND_INMODULE            Doc::alias( "inmodule" )
+#define COMMAND_OBSOLETE            Doc::alias( "obsolete" )
+#define COMMAND_PRELIMINARY         Doc::alias( "preliminary" )
+#define COMMAND_PRIVATE             Doc::alias( "private" )
+
 QValueList<CodeParser *> CodeParser::parsers;
 
 CodeParser::CodeParser()
@@ -57,8 +64,9 @@ CodeParser *CodeParser::parserForLanguage( const QString& language )
 
 Set<QString> CodeParser::commonMetaCommands()
 {
-    return Set<QString>() << "deprecated" << "ingroup" << "inmodule"
-			  << "obsolete" << "preliminary" << "private";
+    return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP
+			  << COMMAND_INMODULE << COMMAND_OBSOLETE
+			  << COMMAND_PRELIMINARY << COMMAND_PRIVATE;
 }
 
 void CodeParser::processCommonMetaCommand( const Location& location,
@@ -68,29 +76,29 @@ void CodeParser::processCommonMetaCommand( const Location& location,
 {
     bool noNode = FALSE;
 
-    if ( command == "deprecated" ) {
+    if ( command == COMMAND_DEPRECATED ) {
 	if ( node == 0 ) {
 	    noNode = TRUE;
 	} else {
 	    node->setStatus( Node::Deprecated );
 	}
-    } else if ( command == "ingroup" ) {
+    } else if ( command == COMMAND_INGROUP ) {
 	/* ... */
-    } else if ( command == "inmodule" ) {
+    } else if ( command == COMMAND_INMODULE ) {
 	/* ... */
-    } else if ( command == "obsolete" ) {
+    } else if ( command == COMMAND_OBSOLETE ) {
 	if ( node == 0 ) {
 	    noNode = TRUE;
 	} else {
 	    node->setStatus( Node::Obsolete );
 	}
-    } else if ( command == "preliminary" ) {
+    } else if ( command == COMMAND_PRELIMINARY ) {
 	if ( node == 0 ) {
 	    noNode = TRUE;
 	} else {
 	    node->setStatus( Node::Preliminary );
 	}
-    } else if ( command == "private" ) {
+    } else if ( command == COMMAND_PRIVATE ) {
 	if ( node == 0 ) {
 	    noNode = TRUE;
 	} else {

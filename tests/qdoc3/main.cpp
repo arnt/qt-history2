@@ -4,6 +4,7 @@
 
 #include <qapplication.h>
 #include <qdict.h>
+#include <qdir.h>
 
 #include "codemarker.h"
 #include "codeparser.h"
@@ -58,13 +59,23 @@ static void processQdocFile( const QString& fileName )
     QPtrList<QTranslator> translators;
     translators.setAutoDelete( TRUE );
 
-    Config config;
-    config.load( fileName );
+    Config config( Qdoc::tr("qdoc") );
 
+    Messages::initialize( config );
+    config.load( fileName );
+    Messages::terminate();
+
+    QString prevCurrentDir = QDir::currentDirPath();
+    QString dir = QFileInfo( fileName ).dirPath();
+    if ( !dir.isEmpty() )
+	QDir::setCurrent( dir );
+
+    Messages::initialize( config );
+    Location::initialize( config );
+    Doc::initialize( config );
     CodeMarker::initialize( config );
     CodeParser::initialize( config );
-    Doc::initialize( config );
-    Location::initialize( config );
+    Generator::initialize( config );
 
     QString sourceLang = config.getString( CONFIG_SOURCELANGUAGE );
     Tree *tree = treeForLanguage( sourceLang );
@@ -120,35 +131,33 @@ static void processQdocFile( const QString& fileName )
 	    Messages::fatal( config.location(),
 			     Qdoc::tr("Unknown documentation format '%1'")
 			     .arg(*f) );
-	generator->generateTree( config, tree, marker );
+	generator->generateTree( tree, marker );
 	++f;
     }
-    delete codeParser;
 
-    CodeMarker::terminate();
+    Generator::terminate();
     CodeParser::terminate();
+    CodeMarker::terminate();
     Doc::terminate();
     Location::terminate();
+    Messages::terminate();
+    QDir::setCurrent( prevCurrentDir );
 }
 
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv, FALSE );
 
-    trees.setAutoDelete( TRUE );
 
-    parsers.setAutoDelete( TRUE );
     CodeParser *cppParser = new CppCodeParser;
     parsers.append( cppParser );
     parsers.append(
 	    new QuickCodeParser(treeForLanguage(cppParser->language())) );
 
-    markers.setAutoDelete( TRUE );
     markers.append( new PlainCodeMarker );
     markers.append( new CppCodeMarker );
     markers.append( new QsCodeMarker );
 
-    generators.setAutoDelete( TRUE );
     generators.append( new HtmlGenerator );
     generators.append( new LoutGenerator );
     generators.append( new ManGenerator );
@@ -185,5 +194,15 @@ int main( int argc, char **argv )
 	processQdocFile( *qf );
 	++qf;
     }
+
+    trees.setAutoDelete( TRUE );
+    trees.clear();
+    parsers.setAutoDelete( TRUE );
+    parsers.clear();
+    markers.setAutoDelete( TRUE );
+    markers.clear();
+    generators.setAutoDelete( TRUE );
+    generators.clear();
+
     return EXIT_SUCCESS;
 }

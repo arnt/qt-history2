@@ -40,6 +40,7 @@ public:
 
     static void initialize( const Config& config );
     static void terminate();
+    static QString alias( const QString& english );
 
 private:
     DocPrivate *priv;

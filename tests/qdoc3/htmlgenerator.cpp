@@ -370,7 +370,7 @@ QString HtmlGenerator::fileBase( const Node *node )
 	base.replace( QRegExp(" "), "-" );
 	base = base.lower();
     }
-    return "html/" + base;
+    return base;
 }
 
 QString HtmlGenerator::fileExtension( const Node * /* node */ )
@@ -442,7 +442,8 @@ void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
 void HtmlGenerator::generateListOfAllMemberFunctions( const ClassNode *classe,
 						      CodeMarker *marker )
 {
-    beginSubPage( fileBase(classe) + "-members." + fileExtension(classe) );
+    beginSubPage( classe->location(),
+		  fileBase(classe) + "-members." + fileExtension(classe) );
     generateHeader( "Member Function List for " + classe->name() );
     out() << "<p>This is the complete list of member functions for "
 	  << highlightedCode( marker->markedUpFullName(classe, 0), classe )

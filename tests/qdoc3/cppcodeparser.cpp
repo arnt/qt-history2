@@ -15,21 +15,21 @@
 
 /* qmake ignore Q_OBJECT */
 
-#define COMMAND_CLASS        "class"
-#define COMMAND_ENUM         "enum"
-#define COMMAND_FILE         "file"
-#define COMMAND_FN           "fn"
-#define COMMAND_GROUP        "group"
-#define COMMAND_IMPORTANT    "important"
-#define COMMAND_INHEADERFILE "inheaderfile"
-#define COMMAND_MODULE       "module"
-#define COMMAND_NAMESPACE    "namespace"
-#define COMMAND_OVERLOAD     "overload"
-#define COMMAND_PAGE         "page"
-#define COMMAND_PROPERTY     "property"
-#define COMMAND_REIMP        "reimp"
-#define COMMAND_RELATED      "related"
-#define COMMAND_TYPEDEF      "typedef"
+#define COMMAND_CLASS        Doc::alias( "class" )
+#define COMMAND_ENUM         Doc::alias( "enum" )
+#define COMMAND_FILE         Doc::alias( "file" )
+#define COMMAND_FN           Doc::alias( "fn" )
+#define COMMAND_GROUP        Doc::alias( "group" )
+#define COMMAND_IMPORTANT    Doc::alias( "important" )
+#define COMMAND_INHEADERFILE Doc::alias( "inheaderfile" )
+#define COMMAND_MODULE       Doc::alias( "module" )
+#define COMMAND_NAMESPACE    Doc::alias( "namespace" )
+#define COMMAND_OVERLOAD     Doc::alias( "overload" )
+#define COMMAND_PAGE         Doc::alias( "page" )
+#define COMMAND_PROPERTY     Doc::alias( "property" )
+#define COMMAND_REIMP        Doc::alias( "reimp" )
+#define COMMAND_RELATED      Doc::alias( "related" )
+#define COMMAND_TYPEDEF      Doc::alias( "typedef" )
 
 class CppCodeParserPrivate
 {
@@ -826,20 +826,25 @@ CppCodeParser::~CppCodeParser()
 void CppCodeParser::initializeParser( const Config& config )
 {
     Tokenizer::initialize( config );
-
     nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
     nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
     nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );
     nodeTypeMap.insert( COMMAND_TYPEDEF, Node::Typedef );
     nodeTypeMap.insert( COMMAND_FN, Node::Function );
     nodeTypeMap.insert( COMMAND_PROPERTY, Node::Property );
+    CodeParser::initializeParser( config );
 }
 
 void CppCodeParser::terminateParser()
 {
+    CodeParser::terminateParser();
     Tokenizer::terminate();
-
     nodeTypeMap.clear();
+}
+
+QString CppCodeParser::language()
+{
+    return "C++";
 }
 
 void CppCodeParser::parseHeaderFile( const Location& location,
@@ -880,11 +885,6 @@ void CppCodeParser::parseSourceFile( const Location& location,
     priv->readToken();
     priv->matchDocsAndStuff();
     fclose( in );
-}
-
-QString CppCodeParser::language()
-{
-    return "C++";
 }
 
 const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
@@ -990,9 +990,9 @@ Node *CppCodeParser::processTopicCommand( Doc *doc, const QString& command,
 
 Set<QString> CppCodeParser::otherMetaCommands()
 {
-    return Set<QString>() << COMMAND_IMPORTANT << COMMAND_INHEADERFILE
-			  << COMMAND_OVERLOAD << COMMAND_REIMP
-			  << COMMAND_RELATED;
+    return commonMetaCommands() << COMMAND_IMPORTANT << COMMAND_INHEADERFILE
+				<< COMMAND_OVERLOAD << COMMAND_REIMP
+				<< COMMAND_RELATED;
 }
 
 void CppCodeParser::processOtherMetaCommand( Doc *doc, const QString& command,

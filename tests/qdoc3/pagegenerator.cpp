@@ -18,8 +18,7 @@ PageGenerator::~PageGenerator()
 	endSubPage();
 }
 
-void PageGenerator::generateTree( const Config& config, const Tree *tree,
-				  CodeMarker *marker )
+void PageGenerator::generateTree( const Tree *tree, CodeMarker *marker )
 {
     generateInnerNode( tree->root(), marker );
 }
@@ -29,13 +28,14 @@ QString PageGenerator::fileName( const Node *node )
     return fileBase( node ) + "." + fileExtension( node );
 }
 
-void PageGenerator::beginSubPage( const QString& fileName )
+void PageGenerator::beginSubPage( const Location& location,
+				  const QString& fileName )
 {
-    QFile *outFile = new QFile( fileName );
-#if 0
+    QFile *outFile = new QFile( outputDir() + "/" + fileName );
     if ( !outFile->open(IO_WriteOnly) )
-	message( 0, "Cannot open output file '%s'", outFile->name().latin1() );
-#endif
+	Messages::fatal( location,
+			 Qdoc::tr("Cannot open output file '%1'")
+			 .arg(outFile->name()) );
     outStreamStack.push( new QTextStream(outFile) );
 }
 
@@ -53,7 +53,7 @@ QTextStream& PageGenerator::out()
 void PageGenerator::generateInnerNode( const InnerNode *node,
 				       CodeMarker *marker )
 {
-    beginSubPage( fileName(node) );
+    beginSubPage( node->location(), fileName(node) );
     if ( node->type() == Node::Namespace ) {
 	generateNamespaceNode( (const NamespaceNode *) node, marker );
     } else if ( node->type() == Node::Class ) {

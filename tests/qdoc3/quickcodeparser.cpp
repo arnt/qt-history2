@@ -8,6 +8,9 @@
 #include "quickcodeparser.h"
 #include "tree.h"
 
+#define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
+#define COMMAND_QUICKFN             Doc::alias( "quickfn" )
+
 QuickCodeParser::QuickCodeParser( Tree *cppTree )
     : cppTre( cppTree ), quickTre( 0 )
 {
@@ -15,6 +18,11 @@ QuickCodeParser::QuickCodeParser( Tree *cppTree )
 
 QuickCodeParser::~QuickCodeParser()
 {
+}
+
+QString QuickCodeParser::language()
+{
+    return "Quick";
 }
 
 void QuickCodeParser::parseHeaderFile( const Location& location,
@@ -31,14 +39,10 @@ void QuickCodeParser::parseSourceFile( const Location& location,
     CppCodeParser::parseSourceFile( location, filePath, cppTre );
 }
 
-QString QuickCodeParser::language()
-{
-    return "Quick";
-}
-
 Set<QString> QuickCodeParser::topicCommands()
 {
-    return CppCodeParser::topicCommands() << "quickclass" << "quickfn";
+    return CppCodeParser::topicCommands() << COMMAND_QUICKCLASS
+					  << COMMAND_QUICKFN;
 }
 
 Node *QuickCodeParser::processTopicCommand( Doc *doc, const QString& command,
@@ -47,7 +51,7 @@ Node *QuickCodeParser::processTopicCommand( Doc *doc, const QString& command,
     ClassNode *wrapperNode = 0;
     ClassNode *qtNode = 0;
 
-    if ( command == "quickclass" ) {
+    if ( command == COMMAND_QUICKCLASS ) {
 	QString qtClass = "Q" + arg;
 
 	if ( (wrapperNode = tryClass("Quick" + arg + "Interface")) != 0 ) {
@@ -98,7 +102,7 @@ Node *QuickCodeParser::processTopicCommand( Doc *doc, const QString& command,
 	ClassNode *quickNode = new ClassNode( quickTre->root(), arg );
 	// ###
 	return quickNode;
-    } else if ( command == "quickfn" ) {
+    } else if ( command == COMMAND_QUICKFN ) {
 	return 0;
     } else {
 	return CppCodeParser::processTopicCommand( doc, command, arg );

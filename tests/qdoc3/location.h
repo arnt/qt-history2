@@ -15,6 +15,7 @@ public:
     Location();
     Location( const QString& pathAndFileName );
 
+    void start();
     void advance( QChar ch );
     void push( const QString& pathAndFileName );
     void pop();

@@ -13,10 +13,13 @@
 
 */
 
+QT_STATIC_CONST_IMPL QString Config::dot = ".";
+
 /*!
 
 */
-Config::Config()
+Config::Config( const QString& programName )
+    : prog( programName )
 {
     reset();
 }
@@ -37,6 +40,14 @@ void Config::load( const QString& fileName )
 void Config::setStringList( const QString& var, const QStringList& values )
 {
     map[var] = values;
+}
+
+/*!
+
+*/
+Location Config::location( const QString& /* var */ ) const
+{
+    return location();
 }
 
 /*!
@@ -74,6 +85,38 @@ QStringList Config::getStringList( const QString& var ) const
     return map[var];
 }
 
+QRegExp Config::getRegExp( const QString& var ) const
+{
+    QString pattern;
+    QValueList<QRegExp> subRegExps = getRegExpList( var );
+    QValueList<QRegExp>::ConstIterator s = subRegExps.begin();
+
+    while ( s != subRegExps.end() ) {
+	if ( !(*s).isValid() )
+	    return *s;
+	if ( !pattern.isEmpty() )
+	    pattern += "|";
+	pattern += "(?:" + (*s).pattern() + ")";
+	++s;
+    }
+    if ( pattern.isEmpty() )
+	pattern = "$x"; // cannot match
+    return QRegExp( pattern );
+}
+
+QValueList<QRegExp> Config::getRegExpList( const QString& var ) const
+{
+    QStringList strs = getStringList( var );
+    QStringList::ConstIterator s = strs.begin();
+    QValueList<QRegExp> regExps;
+
+    while ( s != strs.end() ) {
+	regExps += QRegExp( *s );
+	++s;
+    }
+    return regExps;
+}
+
 /*!
   This function is slower than it could be.
 */
@@ -104,16 +147,15 @@ QStringList Config::getAllFiles( const QString& filesVar,
     QStringList dirs = getStringList( dirsVar );
     QStringList::ConstIterator d = dirs.begin();
     while ( d != dirs.end() ) {
-	result += findHere( *d, nameFilter );
+	result += getFilesHere( *d, nameFilter );
 	++d;
     }
     return result;
 }
 
-QString Config::findFile( const QString& filesVar, const QString& dirsVar,
+QString Config::findFile( const QStringList& files, const QStringList& dirs,
 			  const QString& fileName )
 {
-    QStringList files = getStringList( filesVar );
     QStringList::ConstIterator f = files.begin();
     while ( f != files.end() ) {
 	if ( (*f).mid((*f).findRev('/') + 1) == fileName )
@@ -121,20 +163,14 @@ QString Config::findFile( const QString& filesVar, const QString& dirsVar,
 	++f;
     }
 
-    QStringList dirs = getStringList( dirsVar );
     QStringList::ConstIterator d = dirs.begin();
     while ( d != dirs.end() ) {
-	QDir info( *d );
-	if ( info.exists(fileName) )
-	    return info.filePath( fileName );
+	QDir dirInfo( *d );
+	if ( dirInfo.exists(fileName) )
+	    return dirInfo.filePath( fileName );
 	++d;
     }
     return "";
-}
-
-QString Config::dot( const QString& var, const QString& subVar )
-{
-    return var + "." + subVar;
 }
 
 void Config::reset()
@@ -162,6 +198,7 @@ void Config::reset()
 
 void Config::load( Location location, const QString& fileName )
 {
+qDebug( "load: %s", fileName.latin1() );
 #define ADVANCE() \
 	location.advance( text[i++] )
 #define SKIP_SPACES() \
@@ -183,6 +220,7 @@ void Config::load( Location location, const QString& fileName )
     fin.close();
 
     location.push( fileName );
+    location.start();
 
     int i = 0;
     while ( i < (int) text.length() ) {
@@ -228,7 +266,12 @@ void Config::load( Location location, const QString& fileName )
 		SKIP_SPACES();
 		if ( text[i] != '#' && text[i] != '\n' )
 		    Messages::fatal( location, Qdoc::tr("Trailing garbage") );
-		load( location, includeFile );
+
+		
+
+		load( location,
+		      QFileInfo(QFileInfo(fileName).dir(), includeFile)
+		      .filePath() );
 	    } else {
 		if ( text[i] == '+' ) {
 		    plus = TRUE;
@@ -306,31 +349,32 @@ void Config::load( Location location, const QString& fileName )
     depth--;
 }
 
-QStringList Config::findHere( const QString& dir, const QString& nameFilter )
+QStringList Config::getFilesHere( const QString& dir,
+				  const QString& nameFilter )
 {
     QStringList result;
 
-    QDir info( dir );
+    QDir dirInfo( dir );
     QStringList fileNames;
     QStringList::Iterator fn;
 
-    info.setNameFilter( nameFilter );
-    info.setSorting( QDir::Name );
-    info.setFilter( QDir::Files );
-    fileNames = info.entryList();
+    dirInfo.setNameFilter( nameFilter );
+    dirInfo.setSorting( QDir::Name );
+    dirInfo.setFilter( QDir::Files );
+    fileNames = dirInfo.entryList();
     fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
-	result += info.filePath( *fn );
+	result += dirInfo.filePath( *fn );
 	++fn;
     }
 
-    info.setNameFilter( "*" );
-    info.setFilter( QDir::Dirs );
-    fileNames = info.entryList();
+    dirInfo.setNameFilter( "*" );
+    dirInfo.setFilter( QDir::Dirs );
+    fileNames = dirInfo.entryList();
     fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
 	if ( *fn != "." && *fn != ".." )
-	    result += findHere( info.filePath(*fn), nameFilter );
+	    result += getFilesHere( dirInfo.filePath(*fn), nameFilter );
 	++fn;
     }
     return result;

@@ -60,6 +60,7 @@ void Quoter::quoteFromFile( const QString& pathAndFileName,
 	++m;
     }
     codeLocation = Location( pathAndFileName );
+    codeLocation.start();
 }
 
 QString Quoter::quoteLine( const Location& docLocation, const QString& command,

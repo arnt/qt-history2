@@ -13,8 +13,7 @@ public:
     BookGenerator();
     ~BookGenerator();
 
-    virtual void generateTree( const Config& config, const Tree *tree,
-			       CodeMarker *marker );
+    virtual void generateTree( const Tree *tree, CodeMarker *marker );
 };
 
 #endif

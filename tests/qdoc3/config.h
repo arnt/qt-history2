@@ -14,29 +14,36 @@
 class Config
 {
 public:
-    Config();
+    Config( const QString& programName );
 
     void load( const QString& fileName );
     void setStringList( const QString& var, const QStringList& values );
 
+    const QString& programName() const { return prog; }
     const Location& location() const { return loc; }
+    Location location( const QString& var ) const;
     int getInt( const QString& var ) const;
     QString getString( const QString& var ) const;
     Set<QString> getStringSet( const QString& var ) const;
     QStringList getStringList( const QString& var ) const;
+    QRegExp getRegExp( const QString& var ) const;
+    QValueList<QRegExp> getRegExpList( const QString& var ) const;
     Set<QString> subVars( const QString& var ) const;
     QStringList getAllFiles( const QString& filesVar, const QString& dirsVar,
 			     const QString& nameFilter );
-    QString findFile( const QString& filesVar, const QString& dirsVar,
-		      const QString& fileName );
 
-    static QString dot( const QString& var, const QString& subVar );
+    static QString findFile( const QStringList& files,
+			     const QStringList& dirsVar,
+			     const QString& fileName );
+
+    QT_STATIC_CONST QString dot;
 
 private:
     void reset();
     void load( Location location, const QString& fileName );
-    QStringList findHere( const QString& dir, const QString& nameFilter );
+    QStringList getFilesHere( const QString& dir, const QString& nameFilter );
 
+    QString prog;
     Location loc;
     QMap<QString, QStringList> map;
 };
@@ -59,6 +66,7 @@ private:
 #define CONFIG_SOURCEDIRS           "sourcedirs"
 #define CONFIG_SOURCELANGUAGE       "sourcelanguage"
 #define CONFIG_SOURCES              "sources"
+#define CONFIG_SPURIOUS             "spurious"
 #define CONFIG_TABSIZE              "tabsize"
 #define CONFIG_TARGETLANGUAGE       "targetlanguage"
 #define CONFIG_TRANSLATORS          "translators"

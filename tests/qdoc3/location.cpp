@@ -22,7 +22,14 @@ Location::Location()
 Location::Location( const QString& fileName )
 {
     push( fileName );
-    stk.top().lineNo = INT_MIN;
+}
+
+void Location::start()
+{
+    if ( stk.top().lineNo < 1 ) {
+	stk.top().lineNo = 1;
+	stk.top().columnNo = 1;
+    }
 }
 
 /*!
@@ -52,7 +59,7 @@ void Location::push( const QString& pathAndFileName )
 {
     StackEntry entry;
     entry.pathAndFileName = pathAndFileName;
-    entry.lineNo = 1;
+    entry.lineNo = INT_MIN;
     entry.columnNo = 1;
     stk.push( entry );
 }

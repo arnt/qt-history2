@@ -12,6 +12,7 @@
 
 class ClassNode;
 class InnerNode;
+class Location;
 class NamespaceNode;
 
 class PageGenerator : public Generator
@@ -20,14 +21,13 @@ public:
     PageGenerator();
     ~PageGenerator();
 
-    virtual void generateTree( const Config& config, const Tree *tree,
-			       CodeMarker *marker );
+    virtual void generateTree( const Tree *tree, CodeMarker *marker );
 
 protected:
     virtual QString fileBase( const Node *node ) = 0;
     virtual QString fileExtension( const Node *node ) = 0;
     QString fileName( const Node *node );
-    void beginSubPage( const QString& fileName );
+    void beginSubPage( const Location& location, const QString& fileName );
     void endSubPage();
     QTextStream& out();
 

@@ -21,14 +21,13 @@ public:
 
     virtual void initializeParser( const Config& config );
     virtual void terminateParser();
+    virtual QString language() = 0;
     virtual void parseHeaderFile( const Location& location,
 				  const QString& filePath,
 				  Tree *tree ) = 0;
     virtual void parseSourceFile( const Location& location,
 				  const QString& filePath,
 				  Tree *tree ) = 0;
-
-    virtual QString language() = 0;
 
     static void initialize( const Config& config );
     static void terminate();

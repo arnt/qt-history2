@@ -26,10 +26,13 @@ public:
     Generator();
     virtual ~Generator();
 
+    virtual void initializeGenerator( const Config& config );
+    virtual void terminateGenerator();
     virtual QString format() = 0;
-    virtual void generateTree( const Config& config, const Tree *tree,
-			       CodeMarker *marker ) = 0;
+    virtual void generateTree( const Tree *tree, CodeMarker *marker ) = 0;
 
+    static void initialize( const Config& config );
+    static void terminate();
     static Generator *generatorForFormat( const QString& format );
 
 protected:
@@ -51,6 +54,7 @@ protected:
 				   CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      CodeMarker *marker );
+    const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );
     QString plainCode( const QString& markedCode );
     QString typeString( const Node *node );
@@ -72,6 +76,7 @@ private:
     QRegExp tag;
 
     static QValueList<Generator *> generators;
+    static QString outDir;
 };
 
 #endif

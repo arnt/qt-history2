@@ -12,7 +12,6 @@ BookGenerator::~BookGenerator()
 {
 }
 
-void BookGenerator::generateTree( const Config& config, const Tree *tree,
-				  CodeMarker *marker )
+void BookGenerator::generateTree( const Tree *tree, CodeMarker *marker )
 {
 }
