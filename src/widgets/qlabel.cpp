@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#6 $
 **
 ** Implementation of QLabel class
 **
@@ -17,60 +17,62 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#6 $";
 #endif
 
 
 QLabel::QLabel( QWidget *parent, const char *name )
-	: QWidget( parent, name )
+	: QFrame( parent, name )
 {
+    align = AlignLeft | AlignVCenter | ExpandTabs;
 }
 
-QLabel::QLabel( const char *text, QWidget *parent, const char *name )
-	: QWidget( parent, name ), t(text)
+QLabel::QLabel( const char *label, QWidget *parent, const char *name )
+	: QFrame( parent, name ), str(label)
 {
+    align = AlignLeft | AlignVCenter | ExpandTabs;
 }
 
-void QLabel::setText( const char *s )
+
+void QLabel::setLabel( const char *s )
 {
-    if ( t == s )				// no change
+    if ( str == s )				// no change
 	return;
-    t = s;
-    update();
+    str = s;
+    repaint();
 }
 
-void QLabel::setText( long l )
+void QLabel::setLabel( long l )
 {
     QString tmp;
-    tmp.sprintf( "%i", l );
-    if ( tmp != t ) {
-	t = tmp;
-	update();
+    tmp.sprintf( "%ld", l );
+    if ( tmp != str ) {
+	str = tmp;
+	repaint();
     }
 }
 
-void QLabel::setText( double d )
+void QLabel::setLabel( double d )
 {
     QString tmp;
     tmp.sprintf( "%g", d );
-    if ( tmp != t ) {
-	t = tmp;
-	update();
+    if ( tmp != str ) {
+	str = tmp;
+	repaint();
     }
 }
 
-const char *QLabel::text() const
+
+void QLabel::setAlignment( int alignment )
 {
-    return t.data();
+    align = alignment;
+    update();
 }
 
 
-void QLabel::paintEvent( QPaintEvent * )
+void QLabel::drawContents( QPainter *p )
 {
-    QPainter p;
-    p.begin( this );
-    p.drawText( clientRect(), AlignLeft | AlignVCenter | DontClip, t );
-    p.end();
+    p->drawText( contentsRect(), align, str );
 }
 
 

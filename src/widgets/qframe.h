@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#1 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#2 $
 **
 ** Definition of QFrame widget class
 **
@@ -22,22 +22,24 @@ class QFrame : public QWidget			// frame class
 public:
     QFrame( QWidget *parent=0, const char *name=0 );
 
-    const NoFrame = 0;				// no frame
-    const Box     = 0x0001;			// rectangular box
-    const Panel   = 0x0002;			// rectangular panel
-    const HLine   = 0x0003;			// horizontal line
-    const VLine   = 0x0004;			// vertical line
-    const MType	  = 0x000f;
-    const Plain	  = 0x0010;			// plain line
-    const Raised  = 0x0020;			// raised shadow effect
-    const Sunken  = 0x0030;			// sunken shadow effect
-    const MStyle  = 0x00f0;
+    const   NoFrame = 0;			// no frame
+    const   Box     = 0x0001;			// rectangular box
+    const   Panel   = 0x0002;			// rectangular panel
+    const   HLine   = 0x0003;			// horizontal line
+    const   VLine   = 0x0004;			// vertical line
+    const   MType   = 0x000f;
+    const   Plain   = 0x0010;			// plain line
+    const   Raised  = 0x0020;			// raised shadow effect
+    const   Sunken  = 0x0030;			// sunken shadow effect
+    const   MStyle  = 0x00f0;
 
-    int	    frameStyle()    const { return fstyle; }
-    void    setFrameStyle( int );
+    QRect   contentsRect()  const;		// get rect inside frame
 
-    int	    lineWidth()	    const { return lwidth; }
-    void    setLineWidth( int );
+    int	    frame()	    const { return fstyle; }
+    void    setFrame( int );
+
+    int	    frameWidth()    const { return fwidth; }
+    void    setFrameWidth( int );
 
     int	    midLineWidth()  const { return mwidth; }
     void    setMidLineWidth( int );
@@ -49,7 +51,7 @@ protected:
 
 private:
     int     fstyle;				// frame style
-    short   lwidth;				// line width
+    short   fwidth;				// frame width
     short   mwidth;				// mid line width
 };
 

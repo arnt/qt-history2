@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#2 $
 **
 ** Implementation of QFrame widget class
 **
 ** Author  : Haavard Nord
 ** Created : 950201
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,34 +14,44 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#2 $";
 #endif
 
 
-#define lightColor white		/* humbug!!! */
-#define darkColor  darkGray
+#define lightColor  white		/* humbug!!! */
+#define darkColor   darkGray
+#define midColor    gray
 
 
 QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
 {
     initMetaObject();
     fstyle = Box | Plain;			// set default frame style
-    lwidth = 1;
+    fwidth = 1;
     mwidth = 0;
     setForegroundColor( black );
     setBackgroundColor( lightGray );
 }
 
 
-void QFrame::setFrameStyle( int fs )
+QRect QFrame::contentsRect() const
 {
-    fstyle = (short)fs;
+    QRect r = clientRect();
+    int tw = fwidth+mwidth;
+    r.setRect( r.x()+tw, r.y()+tw, r.width()-tw*2, r.height()-tw*2 );
+    return r;
+}
+
+
+void QFrame::setFrame( int f )
+{
+    fstyle = (short)f;
     update();
 }
 
-void QFrame::setLineWidth( int lw )
+void QFrame::setFrameWidth( int fw )
 {
-    lwidth = lw;
+    fwidth = fw;
 }
 
 void QFrame::setMidLineWidth( int mw )
@@ -71,36 +81,39 @@ void QFrame::drawFrame( QPainter *p )
 
     switch ( type ) {
 
-        case Box:
+	case Box:
 	    switch ( style ) {
-	        case Plain:
-		    paint->drawShadeRect( r, fgcol, fgcol, lwidth );
+		case Plain:
+		    paint->drawShadeRect( r, fgcol, fgcol, fwidth, 
+					  fgcol, mwidth );
 		    break;
-	        case Raised:
-		    paint->drawShadeRect( r, lightColor, darkColor, lwidth );
+		case Raised:
+		    paint->drawShadeRect( r, lightColor, darkColor, fwidth,
+					  midColor, mwidth );
 		    break;
-	        case Sunken:
-		    paint->drawShadeRect( r, darkColor, lightColor, lwidth );
+		case Sunken:
+		    paint->drawShadeRect( r, darkColor, lightColor, fwidth,
+					  midColor, mwidth );
 		    break;
 	    }
 	    break;
 
-        case Panel:
+	case Panel:
 	    switch ( style ) {
-	        case Plain:
-		    paint->drawShadePanel( r, fgcol, fgcol, lwidth );
+		case Plain:
+		    paint->drawShadePanel( r, fgcol, fgcol, fwidth );
 		    break;
-	        case Raised:
-		    paint->drawShadePanel( r, lightColor, darkColor );
+		case Raised:
+		    paint->drawShadePanel( r, lightColor, darkColor, fwidth );
 		    break;
-	        case Sunken:
-		    paint->drawShadePanel( r, darkColor, lightColor );
+		case Sunken:
+		    paint->drawShadePanel( r, darkColor, lightColor, fwidth );
 		    break;
 	    }
 	    break;
 
-        case HLine:
-        case VLine:
+	case HLine:
+	case VLine:
 	    if ( type == HLine ) {
 		p1 = QPoint( r.x(), r.height()/2 );
 		p2 = QPoint( r.x()+r.width(), p1.y() );
@@ -110,23 +123,21 @@ void QFrame::drawFrame( QPainter *p )
 		p2 = QPoint( p1.x(), r.height() );
 	    }
 	    switch ( style ) {
-	        case Plain:
+		case Plain:
 		    paint->drawShadeLine( p1, p2, fgcol, fgcol,
-					  lwidth, fgcol, mwidth );
+					  fwidth, fgcol, mwidth );
 		    break;
-	        case Raised:
+		case Raised:
 		    paint->drawShadeLine( p1, p2, lightColor, darkColor,
-					  lwidth, fgcol, mwidth );
+					  fwidth, midColor, mwidth );
 		    break;
-	        case Sunken:
+		case Sunken:
 		    paint->drawShadeLine( p1, p2, darkColor, lightColor,
-					  lwidth, fgcol, mwidth );
+					  fwidth, midColor, mwidth );
 		    break;
 	    }
 	    break;
     }
-    if ( paint->pen().width() > 0 )			// restore pen width
-	paint->pen().setWidth( 0 );
 }
 
 

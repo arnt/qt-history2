@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#5 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#6 $
 **
 ** Definition of QLabel class
 **
@@ -13,33 +13,38 @@
 #ifndef QLABEL_H
 #define QLABEL_H
 
-#include "qwidget.h"
+#include "qframe.h"
 
 
-class QLabel : public QWidget
+class QLabel : public QFrame
 {
     Q_OBJECT
 public:
     QLabel( QWidget *parent=0, const char *name=0 );
-    QLabel( const char *text, QWidget *parent=0, const char *name=0 );
+    QLabel( const char *label, QWidget *parent=0, const char *name=0 );
 
-    void    setText( const char * );
-    void    setText( int );
-    void    setText( long );
-    void    setText( float );
-    void    setText( double );
-    const char *text() const;
+    const char *label() const	{ return (const char *)str; }
+
+    void    setLabel( const char * );
+    void    setLabel( int );
+    void    setLabel( long );
+    void    setLabel( float );
+    void    setLabel( double );
+
+    int	    alignment() const { return align; }
+    void    setAlignment( int );
 
 protected:
-    void    paintEvent( QPaintEvent * );
+    void    drawContents( QPainter * );
 
 private:
-    QString t;
+    QString str;
+    int	    align;
 };
 
-inline void QLabel::setText( int   i ) { setText( (long)  i ); }
+inline void QLabel::setLabel( int   i ) { setLabel( (long)  i ); }
 
-inline void QLabel::setText( float f ) { setText( (double)f ); }
+inline void QLabel::setLabel( float f ) { setLabel( (double)f ); }
 
 
 #endif // QLABEL_H
