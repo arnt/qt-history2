@@ -215,7 +215,7 @@ bool QTimer::event( QEvent *e )
 
 static QObjectList *sst_list = 0;		// list of single shot timers
 
-void sst_cleanup()
+static void sst_cleanup()
 {
     if ( sst_list ) {
 	sst_list->setAutoDelete( TRUE );
@@ -224,7 +224,7 @@ void sst_cleanup()
     }
 }
 
-void sst_init()
+static void sst_init()
 {
     if ( !sst_list ) {
 	sst_list = new QObjectList;
