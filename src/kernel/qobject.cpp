@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#110 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#110 $");
 
 
 /*!
@@ -433,9 +433,10 @@ bool QObject::inherits( const char *clname ) const
 }
 
 
-/*!
-  \fn const char *QObject::name() const
-  Returns the name of this object.
+/*! \fn const char *QObject::name() const
+
+  Returns the name of this object, or 0 if the object does not have a
+  name.
 
   The object name is set by the constructor or by the setName() function.
   The object name is not very useful in the current version of Qt, but
