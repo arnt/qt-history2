@@ -1,9 +1,0 @@
-Plattform-avhengigheter:
-------------------------
-
-Fontmetrics er ikke likt på X11 og Win32. X11 returnerer en "tett"
-boundingrect mens Win32 har noe rom rundt.
-
-Fargekube-problematikk. Windows ditrer selv om vi har 256 farger.
-Bør ha en static QColor::createSmartCube() funksjon. Må løse problem
-med printing under Windows når en palett er satt.

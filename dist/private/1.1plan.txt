@@ -1,8 +1,0 @@
-Funksjonalitet som skal inn i 1.1
-
-	- QPrinter::drawText fikses for justert tekst
-	- bugen ved flere modale vinduer må fikses
-	- widget flaggene dokumenteres
-	- const char * og char const * i moc
-
-	- globale navn med Q?
