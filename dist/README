@@ -13,7 +13,7 @@ For this release, the following platforms have been tested:
 win32-borland
 win32-msvc
 
-irix-cc-n32
+irix-cc
 irix-g++
 tru64-cxx
 tru64-g++
