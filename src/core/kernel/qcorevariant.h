@@ -214,14 +214,14 @@ class Q_CORE_EXPORT QCoreVariant
     {
         inline PrivateShared() : ref(1) { }
         inline PrivateShared(void *v) : ref(1) { value.ptr = v; }
-        QAtomic ref;
         union
         {
+            void *ptr;
             Q_LONGLONG ll;
             Q_ULONGLONG ull;
             double d;
-            void *ptr;
         } value;
+        QAtomic ref;
     };
     struct Private
     {
