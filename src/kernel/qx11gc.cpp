@@ -42,8 +42,6 @@ bool *QX11GC::x_appdefcolormap_arr;
 void **QX11GC::x_appvisual_arr;
 bool *QX11GC::x_appdefvisual_arr;
 
-
-
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
@@ -524,45 +522,45 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
     }
 }
 
-void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool fill )
+void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool fill )
 {
-//     XPoint points[5];
-//     int xp = x,  yp = y;
-//     p->map( xp, yp, &xp, &yp );
-//     points[0].x = xp;
-//     points[0].y = yp;
-//     xp = x + w; yp = y;
-//     p->map( xp, yp, &xp, &yp );
-//     points[1].x = xp;
-//     points[1].y = yp;
-//     xp = x + w; yp = y + h;
-//     p->map( xp, yp, &xp, &yp );
-//     points[2].x = xp;
-//     points[2].y = yp;
-//     xp = x; yp = y + h;
-//     p->map( xp, yp, &xp, &yp );
-//     points[3].x = xp;
-//     points[3].y = yp;
-//     points[4] = points[0];
+    QPaintDevice *pd = pp->device();
+    QX11GC *p = static_cast<QX11GC *>(pd->gc());
+    
+    XPoint points[5];
+    int xp = x,  yp = y;
+    pp->map( xp, yp, &xp, &yp );
+    points[0].x = xp;
+    points[0].y = yp;
+    xp = x + w; yp = y;
+    pp->map( xp, yp, &xp, &yp );
+    points[1].x = xp;
+    points[1].y = yp;
+    xp = x + w; yp = y + h;
+    pp->map( xp, yp, &xp, &yp );
+    points[2].x = xp;
+    points[2].y = yp;
+    xp = x; yp = y + h;
+    pp->map( xp, yp, &xp, &yp );
+    points[3].x = xp;
+    points[3].y = yp;
+    points[4] = points[0];
 
-//     if ( fill )
-// 	XFillPolygon( p->dpy, p->hd, p->gc, points, 4, Convex, CoordModeOrigin );
-//     else
-// 	XDrawLines( p->dpy, p->hd, p->gc, points, 5, CoordModeOrigin );
+    if ( fill )
+	XFillPolygon( p->d->dpy, p->d->hd, p->d->gc, points, 4, Convex, CoordModeOrigin );
+    else
+	XDrawLines( p->d->dpy, p->d->hd, p->d->gc, points, 5, CoordModeOrigin );
 }
 
 
-// void qt_draw_background( QPainter *p, int x, int y, int w,  int h )
-// {
-//     if (p->testf(QPainter::ExtDev)) {
-// 	if (p->pdev->devType() == QInternal::Printer)
-// 	    p->fillRect(x, y, w, h, p->bg_brush);
-// 	return;
-//     }
-//     XSetForeground( p->dpy, p->gc, p->bg_brush.color().pixel(p->scrn) );
-//     qt_draw_transformed_rect( p, x, y, w, h, TRUE);
-//     XSetForeground( p->dpy, p->gc, p->cpen.color().pixel(p->scrn) );
-// }
+void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
+{
+    QPaintDevice *pd = pp->device();
+    QX11GC *p = static_cast<QX11GC *>(pd->gc());
+    XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
+    qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
+    XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
+}
 // ########
 
 /*
@@ -601,6 +599,7 @@ void QX11GC::cleanup()
 
 bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
+    d->pdev = const_cast<QPaintDevice *>(pdev);
 //     d->hd = d->pdev->handle(); // because of double buffering the hd might change
 //     updatePen(ps);
 //     updateBrush(ps);
@@ -619,9 +618,9 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //     const QWidget *copyMe = 0;
 //     if ((d->pdev = const_cast<QPaintDevice*>(redirected(d->pdev, &redirection_offset)))) {
 // 	if ( d->pdev->devType() == QInternal::Widget )
-// 	    copyMe = static_cast<const QWidget *>(pd); // copy widget settings
+// 	    copyMe = static_cast<const QWidget *>(pdev); // copy widget settings
 //     } else {
-// 	pdev = const_cast<QPaintDevice*>(pd);
+// 	d->pdev = const_cast<QPaintDevice*>(pdev);
 //     }
 
 
@@ -631,15 +630,16 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
 //     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
 //         setf(ExtDev);
-//     else if ( dt == QInternal::Pixmap )         // device is a pixmap
-//         ((QPixmap*)pdev)->detach();             // will modify it
+//     else 
+    if (d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
+	static_cast<QPixmap *>(d->pdev)->detach();             // will modify it
 
     d->dpy = x11Display();                   // get display variable
     d->scrn = x11Screen();			// get screen variable
     d->hd = d->pdev->handle();                       // get handle to drawable - NB! double buffering might change the handle
     d->rendhd = d->pdev->x11RenderHandle();
 
-    if (x11Depth() != x11AppDepth( d->scrn)) { // non-standard depth
+    if (x11Depth() != x11AppDepth(d->scrn)) { // non-standard depth
         setf(NoCache);
         setf(UsePrivateCx);
     }
@@ -694,7 +694,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     updateClipRegion(ps);
 
 //     QRect rg = ps->clipRegion.boundingRect();
-//     if (!redirection_offset.isNull()) {
+//    if (!redirection_offset.isNull()) {
 // 	txop = TxTranslate;
 // 	setf(WxF, true);
 //     }
@@ -754,18 +754,8 @@ void QX11GC::drawPoints(const QPointArray &a, int index , int npoints)
         npoints = a.size() - index;
     if (!isActive() || npoints < 1 || index < 0)
         return;
-    QPointArray pa = a;
-//    if ( testf(ExtDev|VxF|WxF) ) {
-//         if ( txop != TxNone ) {
-//             pa = xForm( a, index, npoints );
-//             if ( pa.size() != a.size() ) {
-//                 index = 0;
-//                 npoints = pa.size();
-//             }
-//         }
-//     }
     if (d->cpen.style() != NoPen)
-        XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
+        XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(a.shortPoints(index, npoints)),
 		    npoints, CoordModeOrigin);
 }
 
@@ -1096,12 +1086,11 @@ void QX11GC::updateBrush(QPainterState *state)
                 pm = QBitmap(dd, dd, pat, true);
                 QPixmapCache::insert(key, pm);
             }
-// private stuff in QBrush - need access to this
-//             if ( d->cbrush.d->pixmap )
-//                 delete d->cbrush.d->pixmap;
-//             cbrush.d->pixmap = new QPixmap( pm );
+	    if ( d->cbrush.d->pixmap )
+		delete d->cbrush.d->pixmap;
+	    d->cbrush.d->pixmap = new QPixmap( pm );
         }
-//         pm = *d->cbrush.d->pixmap;
+	pm = *d->cbrush.d->pixmap;
         pm.x11SetScreen(d->scrn);
         if ( pm.depth() == 1 ) {
             XSetStipple(d->dpy, d->gc_brush, pm.handle());
@@ -1517,33 +1506,33 @@ void QX11GC::drawCubicBezier(const QPointArray &a, int index)
 
 void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
-    if ( !isActive() || pixmap.isNull() )
-        return;
+//     if ( !isActive() || pixmap.isNull() )
+//         return;
 
-    // right/bottom
-    if ( sw < 0 )
-        sw = pixmap.width()  - sx;
-    if ( sh < 0 )
-        sh = pixmap.height() - sy;
+//     // right/bottom
+//     if ( sw < 0 )
+//         sw = pixmap.width()  - sx;
+//     if ( sh < 0 )
+//         sh = pixmap.height() - sy;
 
-    // Sanity-check clipping
-    if ( sx < 0 ) {
-        x -= sx;
-        sw += sx;
-        sx = 0;
-    }
-    if ( sw + sx > pixmap.width() )
-        sw = pixmap.width() - sx;
-    if ( sy < 0 ) {
-        y -= sy;
-        sh += sy;
-        sy = 0;
-    }
-    if ( sh + sy > pixmap.height() )
-        sh = pixmap.height() - sy;
+//     // Sanity-check clipping
+//     if ( sx < 0 ) {
+//         x -= sx;
+//         sw += sx;
+//         sx = 0;
+//     }
+//     if ( sw + sx > pixmap.width() )
+//         sw = pixmap.width() - sx;
+//     if ( sy < 0 ) {
+//         y -= sy;
+//         sh += sy;
+//         sy = 0;
+//     }
+//     if ( sh + sy > pixmap.height() )
+//         sh = pixmap.height() - sy;
 
-    if ( sw <= 0 || sh <= 0 )
-        return;
+//     if ( sw <= 0 || sh <= 0 )
+//         return;
 
     if ( d->pdev->x11Screen() != pixmap.x11Screen() ) {
         QPixmap* p = (QPixmap*) &pixmap;
@@ -1557,8 +1546,7 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
 
     if ( mask && !hasClipping() && d->pdev != paintEventDevice ) {
         if ( mono ) {                           // needs GCs pen // color
-//             bool selfmask = pixmap.data->selfmask;
-	    bool selfmask = false;
+            bool selfmask = pixmap.data->selfmask;
             if ( selfmask ) {
                 XSetFillStyle( d->dpy, d->gc, FillStippled );
                 XSetStipple( d->dpy, d->gc, pixmap.handle() );
@@ -1586,6 +1574,7 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
     }
 
     QRegion rgn = d->crgn; // ### remove this
+    
 //     rgn.translate(-redirection_offset);
 
     if ( mask ) {                               // pixmap has clip mask
@@ -1633,7 +1622,7 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
         XSetFillStyle( d->dpy, d->gc, FillSolid );
     } else {
 #ifndef QT_NO_XRENDER
-	QPixmap *alpha = 0;//pixmap.data->alphapm;
+	QPixmap *alpha = pixmap.data->alphapm;
 
 	if ( d->rendhd && pixmap.x11RenderHandle() &&
 	     alpha && alpha->x11RenderHandle()) {
@@ -1676,9 +1665,8 @@ void QX11GC::updateBackground(QPainterState *ps)
         updateBrush(ps);                          // update brush setting
 }
 
-void QX11GC::updateXForm(QPainterState *ps)
+void QX11GC::updateXForm(QPainterState *)
 {
-
 }
 
 void QX11GC::updateClipRegion(QPainterState *ps)
@@ -1719,11 +1707,15 @@ void QX11GC::updateClipRegion(QPainterState *ps)
 
 void QX11GC::updateFont(QPainterState *ps)
 {
-    
+    clearf(DirtyFont);
+    setf(NoCache);
+    if (d->penRef)
+        updatePen(ps);                            // force a non-cached GC    
 }
 
 void QX11GC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
 {
+    qDebug("QX11GC::drawTextItem() - implement me!");
 }
 
 Qt::HANDLE QX11GC::handle() const

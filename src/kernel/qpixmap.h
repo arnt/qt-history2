@@ -245,6 +245,9 @@ private:
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
+#if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
+    friend class QX11GC;
+#endif    
 };
 
 

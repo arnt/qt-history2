@@ -1143,9 +1143,12 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
     if ( ds->font.strikeOut() ) textFlags |= Qt::StrikeOut;
 
     // ### call fill rect here...
-//     if ( bg_mode == OpaqueMode )
-// 	qt_draw_background( this, x, y-ascent, right-left, ascent+descent+1);
-
+#if defined(Q_WS_X11)    
+    extern void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
+    if (backgroundMode() == OpaqueMode)
+ 	qt_draw_background(this, x, y-ascent, right-left, ascent+descent+1);
+#endif
+    
     for ( int i = start; i < end; i++ ) {
 	QTextItem ti(i, engine);
 	drawTextItem( x, y - ascent, ti, textFlags );
@@ -1563,18 +1566,14 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index, int npoints ) 
 
 #if defined Q_WS_WIN
 HDC QPainter::handle() const
+#else
+Qt::HANDLE QPainter::handle() const
+#endif    
 {
     Q_ASSERT(isActive());
     Q_ASSERT(d->gc);
     return d->gc->handle();
 }
-#else
-Qt::HANDLE QPainter::handle() const
-{
-    Q_ASSERT(!"Trond, here is more stuff for you to convert ;-)");
-    return 0;
-}
-#endif
 
 double QPainter::m11() const { return ds->matrix.m11(); }
 double QPainter::m12() const { return ds->matrix.m12(); }
@@ -1909,10 +1908,11 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		cUlChar++;
 	    }
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
-// 	    if ( painter->bg_mode == Qt::OpaqueMode )
-
-// 		qt_draw_background( painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
-// 				    ti.width(), ti.ascent() + ti.descent() + 1);
+	    extern void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
+	    
+ 	    if (painter->backgroundMode() == Qt::OpaqueMode)
+ 		qt_draw_background(painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
+				   ti.width(), ti.ascent() + ti.descent() + 1);
 #endif
 	    painter->drawTextItem( r.x()+lb, r.y() + yoff, ti, textFlags );
 	}
