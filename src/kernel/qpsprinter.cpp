@@ -737,8 +737,8 @@ static const char * const ps_header[] = {
 //   names, and should be used only as described in the document "Unicode and
 //   Glyph Names," at
 //   http://www.adobe.com/asn/developer/typeforum/unicodegn.html .
-
-
+//
+// the list contains glyphs in the private use area of unicode. These should get removed when regenerating the glyphlist.
 static const struct {
     Q_UINT16 u;
     const char * g;
@@ -1614,178 +1614,6 @@ static const struct {
     { 0x2666, "diamond" },  // BLACK DIAMOND SUIT
     { 0x266A, "musicalnote" },  // EIGHTH NOTE
     { 0x266B, "musicalnotedbl" },  // BEAMED EIGHTH NOTES
-// the following stuff is in the private use area of unicode. No need to add these to the psprinter.
-//     { 0xF6BE, "dotlessj" },  // LATIN SMALL LETTER DOTLESS J
-//     { 0xF6BF, "LL" },  // LATIN CAPITAL LETTER LL
-//     { 0xF6C0, "ll" },  // LATIN SMALL LETTER LL
-//     { 0xF6C1, "Scedilla" },  // LATIN CAPITAL LETTER S WITH CEDILLA;Duplicate
-//     { 0xF6C2, "scedilla" },  // LATIN SMALL LETTER S WITH CEDILLA;Duplicate
-//     { 0xF6C3, "commaaccent" },  // COMMA BELOW
-//     { 0xF6C4, "afii10063" },  // CYRILLIC SMALL LETTER GHE VARIANT
-//     { 0xF6C5, "afii10064" },  // CYRILLIC SMALL LETTER BE VARIANT
-//     { 0xF6C6, "afii10192" },  // CYRILLIC SMALL LETTER DE VARIANT
-//     { 0xF6C7, "afii10831" },  // CYRILLIC SMALL LETTER PE VARIANT
-//     { 0xF6C8, "afii10832" },  // CYRILLIC SMALL LETTER TE VARIANT
-//     { 0xF6C9, "Acute" },  // CAPITAL ACUTE ACCENT
-//     { 0xF6CA, "Caron" },  // CAPITAL CARON
-//     { 0xF6CB, "Dieresis" },  // CAPITAL DIAERESIS
-//     { 0xF6CC, "DieresisAcute" },  // CAPITAL DIAERESIS ACUTE ACCENT
-//     { 0xF6CD, "DieresisGrave" },  // CAPITAL DIAERESIS GRAVE ACCENT
-//     { 0xF6CE, "Grave" },  // CAPITAL GRAVE ACCENT
-//     { 0xF6CF, "Hungarumlaut" },  // CAPITAL DOUBLE ACUTE ACCENT
-//     { 0xF6D0, "Macron" },  // CAPITAL MACRON
-//     { 0xF6D1, "cyrBreve" },  // CAPITAL CYRILLIC BREVE
-//     { 0xF6D2, "cyrFlex" },  // CAPITAL CYRILLIC CIRCUMFLEX
-//     { 0xF6D3, "dblGrave" },  // CAPITAL DOUBLE GRAVE ACCENT
-//     { 0xF6D4, "cyrbreve" },  // CYRILLIC BREVE
-//     { 0xF6D5, "cyrflex" },  // CYRILLIC CIRCUMFLEX
-//     { 0xF6D6, "dblgrave" },  // DOUBLE GRAVE ACCENT
-//     { 0xF6D7, "dieresisacute" },  // DIAERESIS ACUTE ACCENT
-//     { 0xF6D8, "dieresisgrave" },  // DIAERESIS GRAVE ACCENT
-//     { 0xF6D9, "copyrightserif" },  // COPYRIGHT SIGN SERIF
-//     { 0xF6DA, "registerserif" },  // REGISTERED SIGN SERIF
-//     { 0xF6DB, "trademarkserif" },  // TRADE MARK SIGN SERIF
-//     { 0xF6DC, "onefitted" },  // PROPORTIONAL DIGIT ONE
-//     { 0xF6DD, "rupiah" },  // RUPIAH SIGN
-//     { 0xF6DE, "threequartersemdash" },  // THREE QUARTERS EM DASH
-//     { 0xF6DF, "centinferior" },  // SUBSCRIPT CENT SIGN
-//     { 0xF6E0, "centsuperior" },  // SUPERSCRIPT CENT SIGN
-//     { 0xF6E1, "commainferior" },  // SUBSCRIPT COMMA
-//     { 0xF6E2, "commasuperior" },  // SUPERSCRIPT COMMA
-//     { 0xF6E3, "dollarinferior" },  // SUBSCRIPT DOLLAR SIGN
-//     { 0xF6E4, "dollarsuperior" },  // SUPERSCRIPT DOLLAR SIGN
-//     { 0xF6E5, "hypheninferior" },  // SUBSCRIPT HYPHEN-MINUS
-//     { 0xF6E6, "hyphensuperior" },  // SUPERSCRIPT HYPHEN-MINUS
-//     { 0xF6E7, "periodinferior" },  // SUBSCRIPT FULL STOP
-//     { 0xF6E8, "periodsuperior" },  // SUPERSCRIPT FULL STOP
-//     { 0xF6E9, "asuperior" },  // SUPERSCRIPT LATIN SMALL LETTER A
-//     { 0xF6EA, "bsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER B
-//     { 0xF6EB, "dsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER D
-//     { 0xF6EC, "esuperior" },  // SUPERSCRIPT LATIN SMALL LETTER E
-//     { 0xF6ED, "isuperior" },  // SUPERSCRIPT LATIN SMALL LETTER I
-//     { 0xF6EE, "lsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER L
-//     { 0xF6EF, "msuperior" },  // SUPERSCRIPT LATIN SMALL LETTER M
-//     { 0xF6F0, "osuperior" },  // SUPERSCRIPT LATIN SMALL LETTER O
-//     { 0xF6F1, "rsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER R
-//     { 0xF6F2, "ssuperior" },  // SUPERSCRIPT LATIN SMALL LETTER S
-//     { 0xF6F3, "tsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER T
-//     { 0xF6F4, "Brevesmall" },  // SMALL CAPITAL BREVE
-//     { 0xF6F5, "Caronsmall" },  // SMALL CAPITAL CARON
-//     { 0xF6F6, "Circumflexsmall" },  // SMALL CAPITAL MODIFIER LETTER CIRCUMFLEX ACCENT
-//     { 0xF6F7, "Dotaccentsmall" },  // SMALL CAPITAL DOT ABOVE
-//     { 0xF6F8, "Hungarumlautsmall" },  // SMALL CAPITAL DOUBLE ACUTE ACCENT
-//     { 0xF6F9, "Lslashsmall" },  // LATIN SMALL CAPITAL LETTER L WITH STROKE
-//     { 0xF6FA, "OEsmall" },  // LATIN SMALL CAPITAL LIGATURE OE
-//     { 0xF6FB, "Ogoneksmall" },  // SMALL CAPITAL OGONEK
-//     { 0xF6FC, "Ringsmall" },  // SMALL CAPITAL RING ABOVE
-//     { 0xF6FD, "Scaronsmall" },  // LATIN SMALL CAPITAL LETTER S WITH CARON
-//     { 0xF6FE, "Tildesmall" },  // SMALL CAPITAL SMALL TILDE
-//     { 0xF6FF, "Zcaronsmall" },  // LATIN SMALL CAPITAL LETTER Z WITH CARON
-//     { 0xF721, "exclamsmall" },  // SMALL CAPITAL EXCLAMATION MARK
-//     { 0xF724, "dollaroldstyle" },  // OLDSTYLE DOLLAR SIGN
-//     { 0xF726, "ampersandsmall" },  // SMALL CAPITAL AMPERSAND
-//     { 0xF730, "zerooldstyle" },  // OLDSTYLE DIGIT ZERO
-//     { 0xF731, "oneoldstyle" },  // OLDSTYLE DIGIT ONE
-//     { 0xF732, "twooldstyle" },  // OLDSTYLE DIGIT TWO
-//     { 0xF733, "threeoldstyle" },  // OLDSTYLE DIGIT THREE
-//     { 0xF734, "fouroldstyle" },  // OLDSTYLE DIGIT FOUR
-//     { 0xF735, "fiveoldstyle" },  // OLDSTYLE DIGIT FIVE
-//     { 0xF736, "sixoldstyle" },  // OLDSTYLE DIGIT SIX
-//     { 0xF737, "sevenoldstyle" },  // OLDSTYLE DIGIT SEVEN
-//     { 0xF738, "eightoldstyle" },  // OLDSTYLE DIGIT EIGHT
-//     { 0xF739, "nineoldstyle" },  // OLDSTYLE DIGIT NINE
-//     { 0xF73F, "questionsmall" },  // SMALL CAPITAL QUESTION MARK
-//     { 0xF760, "Gravesmall" },  // SMALL CAPITAL GRAVE ACCENT
-//     { 0xF761, "Asmall" },  // LATIN SMALL CAPITAL LETTER A
-//     { 0xF762, "Bsmall" },  // LATIN SMALL CAPITAL LETTER B
-//     { 0xF763, "Csmall" },  // LATIN SMALL CAPITAL LETTER C
-//     { 0xF764, "Dsmall" },  // LATIN SMALL CAPITAL LETTER D
-//     { 0xF765, "Esmall" },  // LATIN SMALL CAPITAL LETTER E
-//     { 0xF766, "Fsmall" },  // LATIN SMALL CAPITAL LETTER F
-//     { 0xF767, "Gsmall" },  // LATIN SMALL CAPITAL LETTER G
-//     { 0xF768, "Hsmall" },  // LATIN SMALL CAPITAL LETTER H
-//     { 0xF769, "Ismall" },  // LATIN SMALL CAPITAL LETTER I
-//     { 0xF76A, "Jsmall" },  // LATIN SMALL CAPITAL LETTER J
-//     { 0xF76B, "Ksmall" },  // LATIN SMALL CAPITAL LETTER K
-//     { 0xF76C, "Lsmall" },  // LATIN SMALL CAPITAL LETTER L
-//     { 0xF76D, "Msmall" },  // LATIN SMALL CAPITAL LETTER M
-//     { 0xF76E, "Nsmall" },  // LATIN SMALL CAPITAL LETTER N
-//     { 0xF76F, "Osmall" },  // LATIN SMALL CAPITAL LETTER O
-//     { 0xF770, "Psmall" },  // LATIN SMALL CAPITAL LETTER P
-//     { 0xF771, "Qsmall" },  // LATIN SMALL CAPITAL LETTER Q
-//     { 0xF772, "Rsmall" },  // LATIN SMALL CAPITAL LETTER R
-//     { 0xF773, "Ssmall" },  // LATIN SMALL CAPITAL LETTER S
-//     { 0xF774, "Tsmall" },  // LATIN SMALL CAPITAL LETTER T
-//     { 0xF775, "Usmall" },  // LATIN SMALL CAPITAL LETTER U
-//     { 0xF776, "Vsmall" },  // LATIN SMALL CAPITAL LETTER V
-//     { 0xF777, "Wsmall" },  // LATIN SMALL CAPITAL LETTER W
-//     { 0xF778, "Xsmall" },  // LATIN SMALL CAPITAL LETTER X
-//     { 0xF779, "Ysmall" },  // LATIN SMALL CAPITAL LETTER Y
-//     { 0xF77A, "Zsmall" },  // LATIN SMALL CAPITAL LETTER Z
-//     { 0xF7A1, "exclamdownsmall" },  // SMALL CAPITAL INVERTED EXCLAMATION MARK
-//     { 0xF7A2, "centoldstyle" },  // OLDSTYLE CENT SIGN
-//     { 0xF7A8, "Dieresissmall" },  // SMALL CAPITAL DIAERESIS
-//     { 0xF7AF, "Macronsmall" },  // SMALL CAPITAL MACRON
-//     { 0xF7B4, "Acutesmall" },  // SMALL CAPITAL ACUTE ACCENT
-//     { 0xF7B8, "Cedillasmall" },  // SMALL CAPITAL CEDILLA
-//     { 0xF7BF, "questiondownsmall" },  // SMALL CAPITAL INVERTED QUESTION MARK
-//     { 0xF7E0, "Agravesmall" },  // LATIN SMALL CAPITAL LETTER A WITH GRAVE
-//     { 0xF7E1, "Aacutesmall" },  // LATIN SMALL CAPITAL LETTER A WITH ACUTE
-//     { 0xF7E2, "Acircumflexsmall" },  // LATIN SMALL CAPITAL LETTER A WITH CIRCUMFLEX
-//     { 0xF7E3, "Atildesmall" },  // LATIN SMALL CAPITAL LETTER A WITH TILDE
-//     { 0xF7E4, "Adieresissmall" },  // LATIN SMALL CAPITAL LETTER A WITH DIAERESIS
-//     { 0xF7E5, "Aringsmall" },  // LATIN SMALL CAPITAL LETTER A WITH RING ABOVE
-//     { 0xF7E6, "AEsmall" },  // LATIN SMALL CAPITAL LETTER AE
-//     { 0xF7E7, "Ccedillasmall" },  // LATIN SMALL CAPITAL LETTER C WITH CEDILLA
-//     { 0xF7E8, "Egravesmall" },  // LATIN SMALL CAPITAL LETTER E WITH GRAVE
-//     { 0xF7E9, "Eacutesmall" },  // LATIN SMALL CAPITAL LETTER E WITH ACUTE
-//     { 0xF7EA, "Ecircumflexsmall" },  // LATIN SMALL CAPITAL LETTER E WITH CIRCUMFLEX
-//     { 0xF7EB, "Edieresissmall" },  // LATIN SMALL CAPITAL LETTER E WITH DIAERESIS
-//     { 0xF7EC, "Igravesmall" },  // LATIN SMALL CAPITAL LETTER I WITH GRAVE
-//     { 0xF7ED, "Iacutesmall" },  // LATIN SMALL CAPITAL LETTER I WITH ACUTE
-//     { 0xF7EE, "Icircumflexsmall" },  // LATIN SMALL CAPITAL LETTER I WITH CIRCUMFLEX
-//     { 0xF7EF, "Idieresissmall" },  // LATIN SMALL CAPITAL LETTER I WITH DIAERESIS
-//     { 0xF7F0, "Ethsmall" },  // LATIN SMALL CAPITAL LETTER ETH
-//     { 0xF7F1, "Ntildesmall" },  // LATIN SMALL CAPITAL LETTER N WITH TILDE
-//     { 0xF7F2, "Ogravesmall" },  // LATIN SMALL CAPITAL LETTER O WITH GRAVE
-//     { 0xF7F3, "Oacutesmall" },  // LATIN SMALL CAPITAL LETTER O WITH ACUTE
-//     { 0xF7F4, "Ocircumflexsmall" },  // LATIN SMALL CAPITAL LETTER O WITH CIRCUMFLEX
-//     { 0xF7F5, "Otildesmall" },  // LATIN SMALL CAPITAL LETTER O WITH TILDE
-//     { 0xF7F6, "Odieresissmall" },  // LATIN SMALL CAPITAL LETTER O WITH DIAERESIS
-//     { 0xF7F8, "Oslashsmall" },  // LATIN SMALL CAPITAL LETTER O WITH STROKE
-//     { 0xF7F9, "Ugravesmall" },  // LATIN SMALL CAPITAL LETTER U WITH GRAVE
-//     { 0xF7FA, "Uacutesmall" },  // LATIN SMALL CAPITAL LETTER U WITH ACUTE
-//     { 0xF7FB, "Ucircumflexsmall" },  // LATIN SMALL CAPITAL LETTER U WITH CIRCUMFLEX
-//     { 0xF7FC, "Udieresissmall" },  // LATIN SMALL CAPITAL LETTER U WITH DIAERESIS
-//     { 0xF7FD, "Yacutesmall" },  // LATIN SMALL CAPITAL LETTER Y WITH ACUTE
-//     { 0xF7FE, "Thornsmall" },  // LATIN SMALL CAPITAL LETTER THORN
-//     { 0xF7FF, "Ydieresissmall" },  // LATIN SMALL CAPITAL LETTER Y WITH DIAERESIS
-//     { 0xF8E5, "radicalex" },  // RADICAL EXTENDER
-//     { 0xF8E6, "arrowvertex" },  // VERTICAL ARROW EXTENDER
-//     { 0xF8E7, "arrowhorizex" },  // HORIZONTAL ARROW EXTENDER
-//     { 0xF8E8, "registersans" },  // REGISTERED SIGN SANS SERIF
-//     { 0xF8E9, "copyrightsans" },  // COPYRIGHT SIGN SANS SERIF
-//     { 0xF8EA, "trademarksans" },  // TRADE MARK SIGN SANS SERIF
-//     { 0xF8EB, "parenlefttp" },  // LEFT PAREN TOP
-//     { 0xF8EC, "parenleftex" },  // LEFT PAREN EXTENDER
-//     { 0xF8ED, "parenleftbt" },  // LEFT PAREN BOTTOM
-//     { 0xF8EE, "bracketlefttp" },  // LEFT SQUARE BRACKET TOP
-//     { 0xF8EF, "bracketleftex" },  // LEFT SQUARE BRACKET EXTENDER
-//     { 0xF8F0, "bracketleftbt" },  // LEFT SQUARE BRACKET BOTTOM
-//     { 0xF8F1, "bracelefttp" },  // LEFT CURLY BRACKET TOP
-//     { 0xF8F2, "braceleftmid" },  // LEFT CURLY BRACKET MID
-//     { 0xF8F3, "braceleftbt" },  // LEFT CURLY BRACKET BOTTOM
-//     { 0xF8F4, "braceex" },  // CURLY BRACKET EXTENDER
-//     { 0xF8F5, "integralex" },  // INTEGRAL EXTENDER
-//     { 0xF8F6, "parenrighttp" },  // RIGHT PAREN TOP
-//     { 0xF8F7, "parenrightex" },  // RIGHT PAREN EXTENDER
-//     { 0xF8F8, "parenrightbt" },  // RIGHT PAREN BOTTOM
-//     { 0xF8F9, "bracketrighttp" },  // RIGHT SQUARE BRACKET TOP
-//     { 0xF8FA, "bracketrightex" },  // RIGHT SQUARE BRACKET EXTENDER
-//     { 0xF8FB, "bracketrightbt" },  // RIGHT SQUARE BRACKET BOTTOM
-//     { 0xF8FC, "bracerighttp" },  // RIGHT CURLY BRACKET TOP
-//     { 0xF8FD, "bracerightmid" },  // RIGHT CURLY BRACKET MID
-//     { 0xF8FE, "bracerightbt" },  // RIGHT CURLY BRACKET BOTTOM
     { 0xFB00, "ff" },  // LATIN SMALL LIGATURE FF
     { 0xFB01, "fi" },  // LATIN SMALL LIGATURE FI
     { 0xFB02, "fl" },  // LATIN SMALL LIGATURE FL
@@ -2134,14 +1962,11 @@ static void emitPSFontNameList( QTextStream &s, const QString &psname, const QSt
 
 
 static QString *fixed_ps_header = 0;
-static QIntDict<QString> * font_vectors = 0;
 
 static void cleanup()
 {
     delete fixed_ps_header;
     fixed_ps_header = 0;
-    delete font_vectors;
-    font_vectors = 0;
 }
 
 
@@ -2218,11 +2043,6 @@ static void makeFixedStrings()
     }
 
     *fixed_ps_header = wordwrap( *fixed_ps_header );
-
-    // fonts.
-    font_vectors = new QIntDict<QString>( 59 );
-    font_vectors->setAutoDelete( TRUE );
-
 }
 
 class QPSPrinterFontPrivate;
@@ -2388,29 +2208,12 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
     QString fontEncoding, fontName;
     fontEncoding.sprintf( " FE0" );//###, cs );
     if ( d->buffer ) {
-//	if ( !d->headerEncodings.find( cs ) ) {
-// 	    QString * vector = font_vectors->find( cs );
-// 	    if ( vector ) {
-// 		d->fontStream << *vector << "\n";
-// 		d->headerEncodings.insert( cs, (void*)42 );
-// 	    } else {
-// 		d->fontStream << "% wanted font encoding "
-// 			      << cs << "\n";
-// 	    }
-//	}
 	if ( tmp ) {
 	    fontName = *tmp;
 	} else {
 	    fontName.sprintf( "/F%d", ++d->headerFontNumber );
-// ###
-// 	    if (cs == QFont::Unicode) // Sivan Feb 2001
- 		d->fontStream << fontName << " /" << ps << "-Unicode findfont definefont pop\n";
-// 	    else if ( cs != QFont::AnyCharSet )
-// 		d->fontStream << fontName << fontEncoding << " "
-// 			      << ps << "List MF\n";
-// 	    else 
-//		d->fontStream << fontName << " false "
-//			      << ps << "List MF\n";		
+	    // ###
+	    d->fontStream << fontName << " /" << ps << "-Unicode findfont definefont pop\n";
 	    d->headerFontNames.insert( key2, new QString( fontName ) );
 	}
 	++d->headerFontNumber;
@@ -2419,28 +2222,14 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 	fontName.sprintf( "F%d", d->headerFontNumber );
 	d->headerFontNames.insert( key, new QString( fontName ) );
     } else {
-// 	if ( !d->headerEncodings.find( cs ) &&
-// 	     !d->pageEncodings.find( cs ) ) {
-// 	    QString * vector = font_vectors->find( cs );
-// 	    if ( !vector )
-// 		vector = font_vectors->find( QFont::Latin1 );
-// 	    stream << *vector << "\n";
-// 	    d->pageEncodings.insert( cs, (void*)42 );
-// 	}
 	if ( !tmp )
 	    tmp = d->pageFontNames.find( key );
 	if ( tmp ) {
 	    fontName = *tmp;
 	} else {
 	    fontName.sprintf( "/F%d", ++d->pageFontNumber );
-// ###
-// 	    if (cs == QFont::Unicode) // Sivan Feb 2001
- 		stream << fontName << " /" << ps << "-Unicode findfont definefont pop\n";
-// 	    else if ( cs != QFont::AnyCharSet )
-// 		stream << fontName << fontEncoding << " " << ps << "List MF\n";
-// 	    else
-//		stream << fontName << " false " << ps << "List MF\n";
-//	    d->pageFontNames.insert( key2, new QString( fontName ) );
+	    // ###
+	    stream << fontName << " /" << ps << "-Unicode findfont definefont pop\n";
 	}
 	++d->pageFontNumber;
 	stream << "/F" << d->pageFontNumber << " "
@@ -3141,16 +2930,17 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   // and we mark as used the base glyphs of used composite glyphs.
 
   bool glyphset[65536];
+  for(int c=0; c < 65536; c++)
+      glyphset[c] = FALSE;
   for(int c=0; c < 65536; c++) {
       if ( subset[c] && glyph_for_unicode( c ) ) {
 	  subsetGlyph( glyph_for_unicode( c ), glyphset );
-	  glyphset[c] = TRUE;
-       } else
-	  glyphset[c] = FALSE;
+//	  glyphset[c] = TRUE;
+       }
   }  
   
   // Emmit one key-value pair for each glyph. 
-  for(int x=0; x < numGlyphs; x++) {
+  for(int x=0; x < 65536; x++) {
     if(target_type == 42)	{
       s << "/";
       s << glyphName(x);
@@ -3159,7 +2949,10 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
       s << " def\n";
     } else { /* type 3 */
       if (!glyphset[x]) continue;
-
+//       if ( glyph_for_unicode( x ) == 0xffff ) {
+// 	  qDebug("internal error: glyph=%x name=%s", x, glyphName(x).latin1());
+// 	  continue;
+//       }
       s << "/";
       s << glyphName(x);
       s << "{";
@@ -3375,7 +3168,7 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
   s << " /";
   s << psname;
   s << " MFUni\n";
-  for (int range=0; range < 0xff; range++) {
+  for (int range=0; range < 0x100; range++) {
     QString dummy;
     if (inuse[range]) {
       s << "/";
@@ -3442,7 +3235,7 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
 
   s << "/Encoding ["; 
   int next = 1;
-  for (int range=0; range < 0xff; range++) {
+  for (int range=0; range < 0x100; range++) {
     if (range % 16 == 0) s << "\n";
     if (inuse[range]) {
       s << next;
@@ -3459,7 +3252,7 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
   s << "/";
   s << psname;
   s << "-Unicode-ND findfont\n";
-  for (int range=0; range < 0xff; range++) {
+  for (int range=0; range < 0x100; range++) {
     QString dummy;
     if (inuse[range]) {
       s << "/";
@@ -3507,7 +3300,7 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
 QString QPSPrinterFontTTF::glyphName(int charindex)
 {
   USHORT c;
-  if ((c=unicode_for_glyph(charindex)) != 0xffff) {
+  if ((c=unicode_for_glyph(charindex)) != 0x000) {
     //fprintf(stdout,"glyph %04x char %04x\n",charindex,c);
     for (int i=0; unicodetoglyph[i].u != 0xffff; i++) {
       //if (unicodetoglyph[i].u >  c) break;
@@ -3527,7 +3320,7 @@ QString QPSPrinterFontTTF::glyphName(int charindex)
     // unicode, so I assume it's the first glyph.
     if (charindex == 0) 
       name = ".notdef";
-    else if ((u=unicode_for_glyph(charindex)) != 0xffff)
+    else if ((u=unicode_for_glyph(charindex)) != 0x0000)
       name.sprintf("uni%04X",u);
     else
       name.sprintf("glyph%04X",charindex); // may be part of a composite etc
@@ -3560,7 +3353,7 @@ QString QPSPrinterFontTTF::glyphName(int charindex)
 void QPSPrinterFontTTF::uni2glyphSetup()
 {
   uni2glyph.resize(65536);
-  for (int i=0; i<65536; i++) uni2glyph[i] = 0xffff;
+  for (int i=0; i<65536; i++) uni2glyph[i] = 0x0000;
   glyph2uni.resize(65536);
   for (int i=0; i<65536; i++) glyph2uni[i] = 0xffff;
   
@@ -3627,24 +3420,20 @@ void QPSPrinterFontTTF::uni2glyphSetup()
     if (idrangeoff_i == 0) {
       for (USHORT c = startcode_i; c <= endcode_i; c++) {
 	USHORT g = c + iddelta_i; // glyph index
-	if (g == 0 || g >= numGlyphs) {
-	  qWarning("incorrect glyph index in cmap %d", g);
-	}// else {
+	if ( g != 0 ) {
 	    uni2glyph[g] = c;
 	    glyph2uni[c] = g;
-//	}
+	}
       }
     } else {
       for (USHORT c = startcode_i; c <= endcode_i; c++) {
 	USHORT g = getUSHORT(idrangeoff+2*i 
 			     + 2*(c - startcode_i)
 			     + idrangeoff_i);
-	if (g == 0 || g >= numGlyphs) {
-	    qWarning("incorrect glyph index %d in cmap for char %x", g, c);
-	}// else {
+	if ( g != 0 ) {
 	    uni2glyph[g] = c;
 	    glyph2uni[c] = g;
-//	}
+	}
       }
     }
   }
