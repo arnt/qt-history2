@@ -137,7 +137,7 @@ MainWindow::MainWindow( bool asClient )
     : QMainWindow( 0, "mainwindow", WType_TopLevel | WDestructiveClose ),
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
-      docPath( "$QTDIR/doc/html" ), client( asClient )
+      docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient )
 {
     qApp->setMainWidget( this );
     self = this;
@@ -1235,6 +1235,7 @@ void MainWindow::fileCloseProject()
     }
     if ( a ) {
 	currentProject->save(); // ### do more here? close all project form windows? other cleanup?
+	fileSaveAll();
 	actionGroupProjects->removeChild( a );
 	projects.remove( a );
 	delete a;
@@ -2792,6 +2793,7 @@ void MainWindow::writeConfig()
     config.writeEntry( "RestoreWorkspace", restoreConfig );
     config.writeEntry( "SplashScreen", splashScreen );
     config.writeEntry( "DocPath", docPath );
+    config.writeEntry( "FileFilter", fileFilter );
     config.setGroup( "Grid" );
     config.writeEntry( "Snap", snGrid );
     config.writeEntry( "Show", sGrid );
@@ -2914,6 +2916,7 @@ void MainWindow::readConfig()
     config.setGroup( "General" );
     restoreConfig = config.readBoolEntry( "RestoreWorkspace", TRUE );
     docPath = config.readEntry( "DocPath", docPath );
+    fileFilter = config.readEntry( "FileFilter", fileFilter );
     templPath = config.readEntry( "TemplatePath", QString::null );
     int num;
     config.setGroup( "General" );

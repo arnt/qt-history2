@@ -252,6 +252,7 @@ private:
     bool backPix;
     bool splashScreen;
     QString docPath;
+    QString fileFilter;
 
     QMap<QAction*, Project*> projects;
     QAction *actionWindowPropertyEditor;
