@@ -66,6 +66,10 @@ public:
                         Active,
                         Aborted,
                         Error };
+#ifdef QT_COMPAT
+    enum PrintRange { AllPages, Selection, PageRange };
+    enum PrinterOption { PrintToFile, PrintSelection, PrintPageRange };
+#endif QT_COMPAT
 
     void setPrinterName(const QString &);
     QString printerName() const;
@@ -128,13 +132,6 @@ public:
     QString printerSelectionOption() const;
     void setPrinterSelectionOption(const QString &);
 
-    bool pageSetup(QWidget *parent = 0);
-    bool printSetup(QWidget *parent = 0);
-
-#ifdef QT_COMPAT
-    QT_COMPAT bool setup(QWidget *parent = 0);
-#endif
-
     bool newPage();
     bool abort();
 
@@ -143,6 +140,30 @@ public:
     QPaintEngine *paintEngine() const;
 
 #if defined (QT_COMPAT)
+#ifdef Q_WS_MAC
+    QT_COMPAT bool pageSetup(QWidget *parent = 0);
+    QT_COMPAT bool printSetup(QWidget *parent = 0);
+#endif
+
+    QT_COMPAT bool setup(QWidget *parent = 0);
+
+    QT_COMPAT void setFromTo(int fromPage, int toPage);
+    QT_COMPAT int fromPage() const;
+    QT_COMPAT int toPage() const;
+
+    QT_COMPAT void setMinMax(int minPage, int maxPage);
+    QT_COMPAT int minPage() const;
+    QT_COMPAT int maxPage() const;
+
+    QT_COMPAT void setCollateCopiesEnabled(bool);
+    QT_COMPAT bool collateCopiesEnabled() const;
+
+    QT_COMPAT void setPrintRange(PrintRange range);
+    QT_COMPAT PrintRange printRange() const;
+
+    QT_COMPAT void setOptionEnabled(PrinterOption, bool enable);
+    QT_COMPAT bool isOptionEnabled(PrinterOption) const;
+
     inline QT_COMPAT QSize margins() const;
     inline QT_COMPAT void margins(uint *top, uint *left, uint *bottom, uint *right) const;
 
