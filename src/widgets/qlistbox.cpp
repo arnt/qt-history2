@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#120 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#120 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1805,14 +1805,25 @@ bool QListBox::isSelected( int i ) const
 
 
 /*!
-  Deselects all items. Does nothing if the listbox is a single-selection 
-  listbox.
+  Deselects all items. Note that a single-selection listbox
+  will automatically select its first item if it has keyboard focus.
 */
 
 void QListBox::clearSelection()
 {
-    for ( int i = 0; i < (int)count(); i++ )
-	setSelected( i, FALSE );
+    if ( multiSelect ) {
+	for ( int i = 0; i < (int)count(); i++ )
+	    setSelected( i, FALSE );
+    } else {
+	int i = current;
+	if ( hasFocus() ) {
+	    current = 0;
+	    updateItem( current );
+	} else {
+	    current = -1;
+	}
+	updateItem( i );
+    }
 }
 
     
