@@ -671,7 +671,7 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 	    // remember postEventCounter, so we know when events get
 	    // posted or removed.
-	    uint backup = postedEvents->size();
+	    int backup = postedEvents->size();
 #ifdef QT_THREAD_SUPPORT
 	    if ( locker.mutex() ) locker.mutex()->unlock();
 #endif // QT_THREAD_SUPPORT
