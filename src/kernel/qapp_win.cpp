@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#24 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#24 $")
 
 
 // --------------------------------------------------------------------------
@@ -990,8 +990,7 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 {
     if ( !popupWidgets )
 	return;
-    if ( popupWidgets->findRef(popup) != -1 )
-	popupWidgets->remove();
+    popupWidgets->removeRef( popup );
     if ( popupWidgets->count() == 0 ) {		// this was the last popup
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
