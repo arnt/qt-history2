@@ -61,11 +61,53 @@ static Rec *getRec(QObject *that, QHash<QObject *, Rec *> &hash,
     This class collects a set of parameterless signals, and re-emits
     them with integer or string parameters corresponding to the object
     that sent the signal.
+
+    The class supports the mapping of particular strings or integers
+    with particular objects using setMapping(). The objects' signals
+    can then be connected to the map() slot which will emit the
+    mapped() signal with the string or integer associated with the
+    original signaling object. Mappings can be removed later using
+    removeMappings().
+
+    Example:
+
+    Suppose we want to create a custom widget that contains a group of
+    buttons (like a tool palette). One approach is to connect each
+    button's clicked() signal to its own custom slot; but in this
+    example we want to connect all the buttons to a single slot and
+    parameterize the slot by the button that was clicked.
+
+    Here's the definition of a simple custom widget that has a single
+    signal, clicked(), which is emitted with the caption of the button
+    that was clicked:
+
+    \quotefile qsignalmapper/buttonwidget.h
+    \skipto QWidget
+    \printuntil QSignalMapper
+    \printuntil };
+
+    The only function that we need to implement is the constructor:
+
+    \quotefile qsignalmapper/buttonwidget.cpp
+    \skipto ButtonWidget
+    \printuntil connect
+    \printuntil connect
+    \printuntil }
+
+    A list of captions is passed to the constructor. A signal mapper
+    is constructed and for each caption in the list a QPushButton is
+    created. We connect each button's clicked() signal to the signal
+    mapper's map() slot, and create a mapping in the signal mapper
+    from each button to the text of its caption. Finally we connect
+    the signal mapper's mapped() signal to the custom widget's
+    clicked() signal. When the user clicks a button, the custom widget
+    will emit a single clicked() signal whose argument is the text of
+    the button the user clicked.
+
 */
 
 /*!
     Constructs a QSignalMapper with parent \a parent.
-    Like all QObjects, it will be deleted when the parent is deleted.
 */
 QSignalMapper::QSignalMapper(QObject* parent) :
     QObject(*new QSignalMapperPrivate, parent)

@@ -18,7 +18,7 @@ ButtonWidget::ButtonWidget(QStringList captions,
 	connect(button, SIGNAL(clicked()), signalMapper, SLOT(map()));
 	signalMapper->setMapping(button, captions[i]);
 	grid->addWidget(button, row, col++);
-	if (col == MAXCOLS) {
+	if (col == 3) {
 	    ++row;
 	    col = 0;
 	}

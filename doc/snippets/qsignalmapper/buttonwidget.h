@@ -18,7 +18,6 @@ signals:
     void clicked(const QString &chosen);
 
 private:
-    enum { MAXCOLS = 4 };
     QSignalMapper *signalMapper;
 };
 
