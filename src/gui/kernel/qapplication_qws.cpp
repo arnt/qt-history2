@@ -1609,6 +1609,8 @@ void qt_init(QApplicationPrivate *priv, int type)
 #endif
         }
         qws_decoration = QApplication::qwsSetDecoration(decoration);
+        if (!qws_decoration)
+            QApplication::qwsSetDecoration(new QDecorationDefault);
 #endif
 #ifndef QT_NO_QWS_IM
         qApp->setInputContext(new QWSInputContext);
