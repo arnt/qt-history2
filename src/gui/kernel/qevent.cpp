@@ -849,7 +849,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     Focus events are sent to widgets when the keyboard input focus
     changes. Focus events occur due to mouse actions, key presses
     (such as Tab or Backtab), the window system, popup menus,
-    keyboard shortcuts or other application-specific reasons.
+    keyboard shortcuts, or other application-specific reasons.
     The reason for a particular focus event is returned by reason()
     in the appropriate event handler.
 

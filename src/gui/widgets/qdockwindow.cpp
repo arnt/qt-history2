@@ -467,7 +467,9 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 
 
 
-/*! \class QDockWindow
+/*! 
+    \class QDockWindow
+
     \brief The QDockWindow class provides a widget that can be docked
     inside a QMainWindow or floated as a top-level window on the
     desktop.
