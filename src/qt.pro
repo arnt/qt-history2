@@ -8,21 +8,17 @@ win32:TMAKE_CXXFLAGS   += -DUNICODE
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
 
-win32:REMOTETMP		= D:\tmp\warwick\generated
-win32:INCLUDEPATH	= $$REMOTETMP\..\include $$REMOTETMP\tmp
-win32:MOC_DIR		= $$REMOTETMP\tmp
-
-win32:DIALOGS_H	= $$REMOTETMP/../include
-win32:KERNEL_H	= $$REMOTETMP/../include
-win32:TOOLS_H	= $$REMOTETMP/../include
-win32:WIDGETS_H	= $$REMOTETMP/../include
+win32:DIALOGS_H	= ../include
+win32:KERNEL_H	= ../include
+win32:TOOLS_H	= ../include
+win32:WIDGETS_H	= ../include
 
 unix:DIALOGS_H	= dialogs
 unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
 
-win32:DEPENDPATH = $$REMOTETMP/../include
+win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qdeveloper.h \
