@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#80 $
 **
 ** Implementation of QDir class
 **
@@ -1699,7 +1699,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     int j;
     for (j=0; j<i; j++) {
 	fiList->append(si[j].item);
-	fList->append(si[j].item->filePath());
+	fList->append(si[j].item->fileName());
     }
     delete [] si;
     fiList->setAutoDelete( TRUE );
