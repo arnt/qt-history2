@@ -305,6 +305,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 			CFStringRef cfstr;
 			CopyProcessName(&psn, &cfstr);
 			text += " " + cfstring2qstring(cfstr);
+			CFRelease(cfstr);
 		    } else {
 			QString prog = qApp->argv()[0];
 			text += " " + prog.section('/', -1, -1);;
