@@ -472,7 +472,7 @@ void Q3TitleBar::cutText()
         return;
 
     QString txt = d->window->windowTitle();
-    if (style()->styleHint(QStyle::SH_TitlebarModifyNotification, 0, this) && d->window
+    if (style()->styleHint(QStyle::SH_TitleBarModifyNotification, 0, this) && d->window
         && d->window->isWindowModified())
         txt += " *";
 
