@@ -444,7 +444,7 @@ QSize QLineEdit::sizeHint() const
     QFontMetrics fm(font());
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width('x') * 17; // "some"
-    int m = d->frame ? 4 : 0;
+    int m = d->frame ? style().pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     QStyleOptionFrame opt(0);
     opt.rect = rect();
     opt.palette = palette();
@@ -466,7 +466,7 @@ QSize QLineEdit::minimumSizeHint() const
     QFontMetrics fm = fontMetrics();
     int h = fm.height() + qMax(2*innerMargin, fm.leading());
     int w = fm.maxWidth();
-    int m = d->frame ? 4 : 0;
+    int m = d->frame ? style().pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     return QSize(w + m, h + m);
 }
 
