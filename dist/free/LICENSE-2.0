@@ -33,13 +33,15 @@ components and other items under the following restrictions:
   4. Your items do not require other libraries, programs, data or
       documents to operate, other than those that are freely available.
 
-You may make modifications to the Software.  In order to preserve the identity
-of the unmodified version of the Software, the modifications may only be
-distributed in the form of patches, and the following restrictions apply to
-those patches:
+You may make modifications to the Software.  In order to preserve the
+copyright of the unmodified version of the Software, modifications must
+be distributed in the form of patches, and the following restrictions
+apply to those patches: 
 
   1. The patches must not modify copyright notices in the Software.
-  2. The patches must be distributed under the terms of this license.
+  2. The patches must include a copyright notice explicitly allowing
+      them to be used free of charge by any person in any way, such
+      as the copyright notice prominent in X11R6.
   3. The patches must include an accurate English-language description
       of the modification.
 
