@@ -543,8 +543,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	case Tok_Name:
 	    tableId = (*++v).toInt();
 	    field = (*++v).toString();
-	    // ### PushField
-	    yyProg->append( new PushFieldDesc(tableId, field) );
+	    yyProg->append( new PushFieldValue(tableId, field) );
 	    break;
 	case Tok_and:
 	    nextCond = yyNextLabel--;
@@ -625,8 +624,12 @@ int Parser::emitConjunctiveClause( const QVariant& expr )
     int tok = (*v).toInt();
     if ( tok == Tok_and ) {
 	return emitConjunctiveClause( *++v ) + emitConjunctiveClause( *++v );
-    } else {
-	emitExpr( *++v );
+    } else { /* tok == Tok_Equal */
+	QValueList<QVariant>::ConstIterator w = (*++v).listBegin();
+	int tableId = (*++w).toInt();
+	QString field = (*++w).toString();
+	yyProg->append( new PushFieldDesc(tableId, field) );
+
 	emitExpr( *++v );
 	yyProg->append( new MakeList(2) );
 	return 1;

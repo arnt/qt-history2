@@ -567,7 +567,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     int len = d->file.GetFieldLen( i );
     int prec = d->file.GetFieldDecimal( i );
     field.append( name );
-    field.append( type );
+    field.append( (int) type );
     field.append( len );
     field.append( prec );
     v = field;
