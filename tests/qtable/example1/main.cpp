@@ -20,18 +20,18 @@
 class ReadOnlyNumber : public QTableItem
 {
 public:
-    ReadOnlyNumber( QTable *t, int num ) :
-	QTableItem( t, QString::number( num ) ) { setReplacable( FALSE ); }
-    QWidget *editor() const { return 0; }
+    ReadOnlyNumber( QTable *t, EditType et, int num ) :
+	QTableItem( t, et, QString::number( num ) ) { setReplacable( FALSE ); }
+    QWidget *createEditor() const { return 0; }
 };
 
 class ReadWriteNumber : public QTableItem
 {
 public:
-    ReadWriteNumber( QTable *t, int num ) :
-	QTableItem( t, QString::number( num ) ) { setReplacable( FALSE ); }
-    QWidget *editor() const {
-	QLineEdit *le = (QLineEdit*)QTableItem::editor();
+    ReadWriteNumber( QTable *t, EditType et, int num ) :
+	QTableItem( t, et, QString::number( num ) ) { setReplacable( FALSE ); }
+    QWidget *createEditor() const {
+	QLineEdit *le = (QLineEdit*)QTableItem::createEditor();
 	le->setValidator( new QIntValidator( le ) );
 	le->setAlignment( AlignRight );
 	return le;
@@ -41,15 +41,15 @@ public:
 class SexChooser : public QTableItem
 {
 public:
-    SexChooser( QTable *t )
-	: QTableItem( t, "female" ), cb( 0 ) { setReplacable( FALSE ); setEditType( Always ); }
-    QWidget *editor() const {
+    SexChooser( QTable *t, EditType et )
+	: QTableItem( t, et, "female" ), cb( 0 ) { setReplacable( FALSE ); }
+    QWidget *createEditor() const {
 	( (SexChooser*)this )->cb = new QComboBox( table()->viewport() );
 	cb->insertItem( "female" );
 	cb->insertItem( "male" );
 	return cb;
     }
-    void setContentFromEditor( QWidget *w ) {
+    void setContentFromCreateEditor( QWidget *w ) {
 	if ( w->inherits( "QComboBox" ) )
 	    setText( ( (QComboBox*)w )->currentText() );
 	else
@@ -73,8 +73,8 @@ private:
 class CheckItem : public QTableItem
 {
 public:
-    CheckItem( QTable *t ) : QTableItem( t, "No" ) { setReplacable( FALSE ); setEditType( OnCurrent ); }
-    QWidget *editor() const {
+    CheckItem( QTable *t, EditType et ) : QTableItem( t, et, "No" ) { setReplacable( FALSE ); }
+    QWidget *createEditor() const {
 	QCheckBox *cb = new QCheckBox( "Yes", table()->viewport() );
 	cb->setChecked( text() == "Yes" );
 	return cb;
@@ -98,10 +98,10 @@ public slots:
     void addRecord() {
     	table->setNumRows( table->numRows() + 1 );
 	int row = table->numRows() - 1;
-	table->setItem( row, 0, new ReadOnlyNumber( table, row + 1 ) );
- 	table->setItem( row, 3, new SexChooser( table ) );
-	table->setItem( row, 4, new ReadWriteNumber( table, row + 500 ) );
- 	table->setItem( row, 5, new CheckItem( table ) );
+	table->setItem( row, 0, new ReadOnlyNumber( table, QTableItem::Never, row + 1 ) );
+ 	table->setItem( row, 3, new SexChooser( table, QTableItem::Always ) );
+	table->setItem( row, 4, new ReadWriteNumber( table, QTableItem::OnActivate, row + 500 ) );
+ 	table->setItem( row, 5, new CheckItem( table, QTableItem::OnCurrent ) );
     }
 
 private:

@@ -48,8 +48,8 @@ class QTableItem : public Qt
 public:
     enum EditType { Never, OnCurrent, OnActivate, Always };
 
-    QTableItem( QTable *table, const QString &t );
-    QTableItem( QTable *table, const QString &t, const QPixmap &p );
+    QTableItem( QTable *table, EditType et, const QString &t );
+    QTableItem( QTable *table, EditType et, const QString &t, const QPixmap &p );
     virtual ~QTableItem();
 
     virtual QPixmap pixmap() const;
@@ -62,9 +62,8 @@ public:
     virtual void setWordWrap( bool b );
     bool wordWrap() const;
 
-    virtual void setEditType( EditType );
     EditType editType() const;
-    virtual QWidget *editor() const;
+    virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
     virtual void setReplacable( bool );
     bool isReplacable() const;
@@ -80,13 +79,14 @@ protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
 private:
+    void updateEditor( int oldRow, int oldCol );
+
     QString txt;
     QPixmap pix;
     QTable *t;
     EditType edType;
     uint wordwrap : 1;
     uint tcha : 1;
-    QGuardedPtr<QWidget> lastEditor;
     int row, col;
     int rowspan, colspan;
 
@@ -99,8 +99,6 @@ class QTable : public QScrollView
     friend class QTableHeader;
 
 public:
-    enum EditMode { NotEditing, Editing, Replacing };
-
     QTable( QWidget *parent = 0, const char *name = 0 );
     QTable( int numRows, int numCols, QWidget *parent = 0, const char *name = 0 );
     ~QTable();
@@ -133,11 +131,6 @@ public:
 
     virtual void setDefaultValidator( QValidator *validator );
     virtual QValidator *defaultValidator() const;
-    virtual QWidget *defaultEditor() const;
-    virtual void beginEdit( int row, int col, bool replace );
-    virtual void endEdit( int row, int col, bool accept, QWidget *editor, EditMode mode );
-    bool isEditing() const;
-    EditMode editMode() const;
 
     bool eventFilter( QObject * o, QEvent * );
 
@@ -182,6 +175,10 @@ public:
     bool isRowStretchable( int row ) const;
 
     virtual void takeItem( QTableItem *i );
+
+    virtual void setCellWidget( int row, int col, QWidget *e );
+    QWidget *cellWidget( int row, int col ) const;
+    virtual void clearCellWidget( int row, int col );
     
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -199,9 +196,12 @@ protected:
     virtual void paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void activateNextCell();
     bool focusNextPrevChild( bool next );
-    virtual QWidget *editor( int row, int col, bool initFromCell ) const;
-    virtual void setCellContentFromEditor( int row, int col, QWidget *editor );
-
+    virtual QWidget *createEditor( int row, int col, bool initFromCell ) const;
+    virtual QWidget *createDefaultEditor() const;
+    virtual void setCellContentFromEditor( int row, int col );
+    virtual QWidget *showEditor( int row, int col, bool replace );
+    virtual void hideEditor( int row, int col, bool accept, bool replace );
+    
 protected slots:
     virtual void columnWidthChanged( int col );
     virtual void rowHeightChanged( int row );
@@ -229,6 +229,7 @@ private:
 	int topRow, leftCol, bottomRow, rightCol;
 	int anchorRow, anchorCol;
     };
+    enum EditMode { NotEditing, Editing, Replacing };
 
     int indexOf( int row, int col ) const;
     void updateGeometries();
@@ -237,20 +238,20 @@ private:
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol, bool &optimize );
     void fixRow( int &row, int y );
     void fixCol( int &col, int x );
-    void editTypeChanged( QTableItem *i, QTableItem::EditType old );
 
     void init( int numRows, int numCols );
     QSize tableSize() const;
+    bool isEditing() const;
 
 private:
     QVector<QTableItem> contents;
+    QVector<QWidget> widgets;
     int curRow;
     int curCol;
     QTableHeader *leftHeader, *topHeader;
     QValidator *defValidator;
     EditMode edMode;
     int editCol, editRow;
-    QGuardedPtr<QWidget> editorWidget;
     QList<SelectionRange> selections;
     SelectionRange *currentSelection;
     QTimer *autoScrollTimer;
