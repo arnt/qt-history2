@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#239 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#240 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2646,6 +2646,10 @@ void QListBox::takeItem( const QListBoxItem * item)
 	item->p->n = item->n;
     if ( item->n && item->n->p == item )
 	item->n->p = item->p;
+    if (d->head == item)
+	d->head = item->n;
+    if (d->current == item)
+	d->current = item->n ? item->n : item->p;
 
     triggerUpdate( TRUE );
 }
