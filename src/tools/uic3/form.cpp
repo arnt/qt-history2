@@ -144,34 +144,37 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     {
         QMap<QString, CustomInclude>::Iterator it = customWidgetIncludes.find(objClass);
         if (it != customWidgetIncludes.end()) {
-            if ((*it).location == "global")
+            if ((*it).location == QLatin1String("global"))
                 globalIncludes += (*it).header;
             else
                 localIncludes += (*it).header;
         }
     }
 
+#if 0 // ### uic4
     nl = e.parentNode().toElement().elementsByTagName("include");
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == "in declaration" &&
-             n2.attribute("location") != "local") {
-            if (s.right(5) == ".ui.h")
+        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
+             n2.attribute("location") != QLatin1String("local")) {
+            if (s.right(5) == QLatin1String(".ui.h"))
                 continue;
             globalIncludes += s;
         }
     }
+
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == "in declaration" &&
-             n2.attribute("location") == "local" &&!globalIncludes.contains(s)) {
-            if (s.right(5) == ".ui.h")
+        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
+             n2.attribute("location") == QLatin1String("local") &&!globalIncludes.contains(s)) {
+            if (s.right(5) == QLatin1String(".ui.h"))
                 continue;
             localIncludes += s;
         }
     }
+#endif
 
     QStringList::Iterator it;
 
@@ -187,34 +190,30 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
     out << endl;
 
+#if 0 // ### not needed
     // forward declarations for child widgets and layouts
-    if (objClass == "QMainWindow") {
+    if (objClass == QLatin1String("QMainWindow")) {
         out << "class QAction;" << endl;
         out << "class QActionGroup;" << endl;
         out << "class QToolBar;" << endl;
         out << "class QPopupMenu;" << endl;
     }
+#endif
 
     bool dbForm = FALSE;
     registerDatabases(e);
     dbConnections = unique(dbConnections);
-    if (dbConnections.count())
-        forwardDecl += "QSqlDatabase";
-    if (dbCursors.count())
-        forwardDecl += "QSqlCursor";
     if (dbForms["(default)"].count())
         dbForm = TRUE;
     bool subDbForms = FALSE;
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
-        if (!(*it).isEmpty() && (*it) != "(default)") {
+        if (!(*it).isEmpty() && (*it) != QLatin1String("(default)")) {
             if (dbForms[(*it)].count()) {
                 subDbForms = TRUE;
                 break;
             }
         }
     }
-    if (dbForm || subDbForms)
-        forwardDecl += "QSqlForm";
 
     // some typedefs, maybe
     typeDefs = unique(typeDefs);
@@ -227,21 +226,24 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     for (i = 0; i < (int) nl.length(); i++)
         forwardDecl2 << nl.item(i).toElement().firstChild().toText().data();
 
+#if 0 // ### uic4
     nl = e.parentNode().toElement().elementsByTagName("include");
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == "in declaration" &&
-             n2.attribute("location") != "local")
+        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
+             n2.attribute("location") != QLatin1String("local"))
             globalIncludes += s;
     }
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == "in declaration" &&
-             n2.attribute("location") == "local" &&!globalIncludes.contains(s))
+        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
+             n2.attribute("location") == QLatin1String("local") && !globalIncludes.contains(s))
             localIncludes += s;
     }
+#endif
+
     nl = e.parentNode().toElement().elementsByTagName("exportmacro");
     if (nl.length() == 1)
         exportMacro = nl.item(0).firstChild().toText().data();
@@ -302,11 +304,11 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << "public:" << endl;
 
     // constructor
-    if (objClass == "QDialog" || objClass == "QWizard") {
+    if (objClass == QLatin1String("QDialog") || objClass == QLatin1String("QWizard")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0);" << endl;
-    } else if (objClass == "QWidget") {
+    } else if (objClass == QLatin1String("QWidget")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, WFlags fl = 0);" << endl;
-    } else if (objClass == "QMainWindow") {
+    } else if (objClass == QLatin1String("QMainWindow")) {
         out << "    " << bareNameOfClass << "(QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel);" << endl;
         isMainWindow = TRUE;
     } else {
@@ -323,7 +325,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
         if (!(*it).isEmpty()) {
             // only need pointers to non-default connections
-            if ((*it) != "(default)" && !(*it).isEmpty()) {
+            if ((*it) != QLatin1String("(default)") && !(*it).isEmpty()) {
                 out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
                 hadOutput = TRUE;
             }
@@ -339,10 +341,10 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     nl = e.parentNode().toElement().elementsByTagName("slot");
     for (i = 0; i < (int) nl.length(); i++) {
         n = nl.item(i).toElement();
-        if (n.parentNode().toElement().tagName() != "slots"
-             && n.parentNode().toElement().tagName() != "connections")
+        if (n.parentNode().toElement().tagName() != QLatin1String("slots")
+             && n.parentNode().toElement().tagName() != QLatin1String("connections"))
             continue;
-        if (n.attribute("language", "C++") != "C++")
+        if (n.attribute("language", "C++") != QLatin1String("C++"))
             continue;
         QString returnType = n.attribute("returnType", "void");
         QString functionName = n.firstChild().toText().data().trimmed();
@@ -350,11 +352,11 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
             functionName = functionName.left(functionName.length() - 1);
         QString specifier = n.attribute("specifier");
         QString access = n.attribute("access");
-        if (access == "protected") {
+        if (access == QLatin1String("protected")) {
             protectedSlots += functionName;
             protectedSlotTypes += returnType;
             protectedSlotSpecifier += specifier;
-        } else if (access == "private") {
+        } else if (access == QLatin1String("private")) {
             privateSlots += functionName;
             privateSlotTypes += returnType;
             privateSlotSpecifier += specifier;
@@ -372,9 +374,9 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     nl = e.parentNode().toElement().elementsByTagName("function");
     for (i = 0; i < (int) nl.length(); i++) {
         n = nl.item(i).toElement();
-        if (n.parentNode().toElement().tagName() != "functions")
+        if (n.parentNode().toElement().tagName() != QLatin1String("functions"))
             continue;
-        if (n.attribute("language", "C++") != "C++")
+        if (n.attribute("language", "C++") != QLatin1String("C++"))
             continue;
         QString returnType = n.attribute("returnType", "void");
         QString functionName = n.firstChild().toText().data().trimmed();
@@ -382,11 +384,11 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
             functionName = functionName.left(functionName.length() - 1);
         QString specifier = n.attribute("specifier");
         QString access = n.attribute("access");
-        if (access == "protected") {
+        if (access == QLatin1String("protected")) {
             protectedFuncts += functionName;
             protectedFunctRetTyp += returnType;
             protectedFunctSpec += specifier;
-        } else if (access == "private") {
+        } else if (access == QLatin1String("private")) {
             privateFuncts += functionName;
             privateFunctRetTyp += returnType;
             privateFunctSpec += specifier;
@@ -403,15 +405,15 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         n = nl.item(i).toElement();
         // Because of compatibility the next lines have to be commented out.
         // Someday it should be uncommented.
-        //if (n.parentNode().toElement().tagName() != "variables")
+        //if (n.parentNode().toElement().tagName() != QLatin1String("variables"))
         //    continue;
         QString access = n.attribute("access", "protected");
         QString var = n.firstChild().toText().data().trimmed();
         if (!var.endsWith(";"))
             var += ";";
-        if (access == "public")
+        if (access == QLatin1String("public"))
             publicVars += var;
-        else if (access == "private")
+        else if (access == QLatin1String("private"))
             privateVars += var;
         else
             protectedVars += var;
@@ -436,10 +438,10 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     nl = e.parentNode().toElement().elementsByTagName("signal");
     for (i = 0; i < (int) nl.length(); i++) {
         n = nl.item(i).toElement();
-        if (n.parentNode().toElement().tagName() != "signals"
-             && n.parentNode().toElement().tagName() != "connections")
+        if (n.parentNode().toElement().tagName() != QLatin1String("signals")
+             && n.parentNode().toElement().tagName() != QLatin1String("connections"))
             continue;
-        if (n.attribute("language", "C++") != "C++")
+        if (n.attribute("language", "C++") != QLatin1String("C++"))
             continue;
         QString sigName = n.firstChild().toText().data().trimmed();
         if (sigName.endsWith(";"))
@@ -463,12 +465,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
     if (!protectedFuncts.isEmpty())
         writeFunctionsDecl(protectedFuncts, protectedFunctRetTyp, protectedFunctSpec);
-
-#if 0 // already done
-    // child layouts
-    registerLayouts(e);
-    out << endl;
-#endif
 
     if (!protectedSlots.isEmpty()) {
         out << "protected slots:" << endl;
@@ -512,12 +508,12 @@ void Ui3Reader::writeFunctionsDecl(const QStringList &fuLst, const QStringList &
         QString type = *it2;
         if (type.isEmpty())
             type = "void";
-        if (*it3 == "static") {
+        if (*it3 == QLatin1String("static")) {
             specifier = "static ";
         } else {
-            if (*it3 != "non virtual" && *it3 != "nonVirtual")
+            if (*it3 != QLatin1String("non virtual") && *it3 != QLatin1String("nonVirtual"))
                 specifier = "virtual ";
-            if (*it3 == "pure virtual" || *it3 == "pureVirtual")
+            if (*it3 == QLatin1String("pure virtual") || *it3 == QLatin1String("pureVirtual"))
                 pure = " = 0";
         }
         type.replace(">>", "> >");
@@ -557,10 +553,10 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     nl = e.parentNode().toElement().elementsByTagName("slot");
     for (i = 0; i < (int) nl.length(); i++) {
         n = nl.item(i).toElement();
-        if (n.parentNode().toElement().tagName() != "slots"
-             && n.parentNode().toElement().tagName() != "connections")
+        if (n.parentNode().toElement().tagName() != QLatin1String("slots")
+             && n.parentNode().toElement().tagName() != QLatin1String("connections"))
             continue;
-        if (n.attribute("language", "C++") != "C++")
+        if (n.attribute("language", "C++") != QLatin1String("C++"))
             continue;
         QString functionName = n.firstChild().toText().data().trimmed();
         if (functionName.endsWith(";"))
@@ -573,9 +569,9 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     nl = e.parentNode().toElement().elementsByTagName("function");
     for (i = 0; i < (int) nl.length(); i++) {
         n = nl.item(i).toElement();
-        if (n.parentNode().toElement().tagName() != "functions")
+        if (n.parentNode().toElement().tagName() != QLatin1String("functions"))
             continue;
-        if (n.attribute("language", "C++") != "C++")
+        if (n.attribute("language", "C++") != QLatin1String("C++"))
             continue;
         QString functionName = n.firstChild().toText().data().trimmed();
         if (functionName.endsWith(";"))
@@ -585,45 +581,15 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         extraFunctSpecifier += n.attribute("specifier", "virtual");
     }
 
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName() == "customwidgets") {
-            QDomElement n2 = n.firstChild().toElement();
-            while (!n2.isNull()) {
-                if (n2.tagName() == "customwidget") {
-                    QDomElement n3 = n2.firstChild().toElement();
-                    QString cl;
-#if 0 // ### implement me!
-                    WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
-                    while (!n3.isNull()) {
-                        if (n3.tagName() == "class") {
-                            cl = n3.firstChild().toText().data();
-                            r->name = cl;
-                        } else if (n3.tagName() == "header") {
-                            CustomInclude ci;
-                            ci.header = n3.firstChild().toText().data();
-                            ci.location = n3.attribute("location", "global");
-                            r->includeFile = ci.header;
-                            customWidgetIncludes.insert(cl, ci);
-                        }
-                        WidgetDatabase::append(r);
-                        n3 = n3.nextSibling().toElement();
-                    }
-#endif
-                }
-                n2 = n2.nextSibling().toElement();
-            }
-        }
-    }
-
     // additional includes (local or global) and forward declaractions
     nl = e.parentNode().toElement().elementsByTagName("include");
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("location") != "local") {
-            if (s.right(5) == ".ui.h" && !QFile::exists(s))
+        if (n2.attribute("location") != QLatin1String("local")) {
+            if (s.right(5) == QLatin1String(".ui.h") && !QFile::exists(s))
                 continue;
-            if (n2.attribute("impldecl", "in implementation") != "in implementation")
+            if (n2.attribute("impldecl", "in implementation") != QLatin1String("in implementation"))
                 continue;
             globalIncludes += s;
         }
@@ -631,35 +597,27 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
     registerDatabases(e);
     dbConnections = unique(dbConnections);
-    if (dbConnections.count())
-        globalIncludes += "qsqldatabase.h";
-    if (dbCursors.count())
-        globalIncludes += "qsqlcursor.h";
     bool dbForm = FALSE;
     if (dbForms["(default)"].count())
         dbForm = TRUE;
     bool subDbForms = FALSE;
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
-        if (!(*it).isEmpty()  && (*it) != "(default)") {
+        if (!(*it).isEmpty()  && (*it) != QLatin1String("(default)")) {
             if (dbForms[(*it)].count()) {
                 subDbForms = TRUE;
                 break;
             }
         }
     }
-    if (dbForm || subDbForms) {
-        globalIncludes += "qsqlform.h";
-        globalIncludes += "qsqlrecord.h";
-    }
 
     // do the local includes afterwards, since global includes have priority on clashes
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("location") == "local" &&!globalIncludes.contains(s)) {
-            if (s.right(5) == ".ui.h" && !QFile::exists(s))
+        if (n2.attribute("location") == QLatin1String("local") && !globalIncludes.contains(s)) {
+            if (s.right(5) == QLatin1String(".ui.h") && !QFile::exists(s))
                 continue;
-            if (n2.attribute("impldecl", "in implementation") != "in implementation")
+            if (n2.attribute("impldecl", "in implementation") != QLatin1String("in implementation"))
                 continue;
             localIncludes += s;
         }
@@ -670,32 +628,11 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     for (i = 0; i < (int) nl.length(); i++) {
         QDomElement n2 = nl.item(i).toElement();
         QString s = n2.firstChild().toText().data();
-        if (n2.attribute("location") != "local")
+        if (n2.attribute("location") != QLatin1String("local"))
             globalIncludes += s;
         else
             localIncludes += s;
     }
-
-#if 0 // already done
-    // includes for child widgets
-    for (it = tags.begin(); it != tags.end(); ++it) {
-        nl = e.parentNode().toElement().elementsByTagName(*it);
-        for (i = 1; i < (int) nl.length(); i++) { // start at 1, 0 is the toplevel widget
-            QString name = getClassName(nl.item(i).toElement());
-            if (name == "Spacer") {
-                globalIncludes += "qlayout.h";
-                globalIncludes += "qapplication.h";
-                continue;
-            }
-            if (name.mid(1) == "ListView")
-                globalIncludes += "qheader.h";
-            if (name != objClass) {
-                if (name.size())
-                    globalIncludes += getInclude(name); // ### check for duplicates!?
-            }
-        }
-    }
-#endif
 
     out << "#include <qvariant.h>" << endl; // first for gcc 2.7.2
 
@@ -703,17 +640,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     for (it = globalIncludes.begin(); it != globalIncludes.end(); ++it) {
         if (!(*it).isEmpty())
             out << "#include <" << *it << ">" << endl;
-    }
-
-    out << "#include <qlayout.h>" << endl;
-    out << "#include <qtooltip.h>" << endl;
-    out << "#include <qwhatsthis.h>" << endl;
-    if (objClass == "QMainWindow") {
-        out << "#include <qaction.h>" << endl;
-        out << "#include <qmenubar.h>" << endl;
-        out << "#include <qmenudata.h>" << endl;
-        out << "#include <qpopupmenu.h>" << endl;
-        out << "#include <qtoolbar.h>" << endl;
     }
 
     if (externPixmaps) {
@@ -746,7 +672,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     }
 
     // constructor
-    if (objClass == "QDialog" || objClass == "QWizard") {
+    if (objClass == QLatin1String("QDialog") || objClass == QLatin1String("QWizard")) {
         out << "/*" << endl;
         out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
         out << " *  name 'name' and widget flags set to 'f'." << endl;
@@ -756,14 +682,14 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << " */" << endl;
         out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent, const char* name, bool modal, WFlags fl)" << endl;
         out << "    : " << objClass << "(parent, name, modal, fl)";
-    } else if (objClass == "QWidget")  {
+    } else if (objClass == QLatin1String("QWidget"))  {
         out << "/*" << endl;
         out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
         out << " *  name 'name' and widget flags set to 'f'." << endl;
         out << " */" << endl;
         out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent, const char* name, WFlags fl)" << endl;
         out << "    : " << objClass << "(parent, name, fl)";
-    } else if (objClass == "QMainWindow") {
+    } else if (objClass == QLatin1String("QMainWindow")) {
         out << "/*" << endl;
         out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the" << endl;
         out << " *  name 'name' and widget flags set to 'f'." << endl;
@@ -799,7 +725,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     if (dbConnections.count())
         out << endl;
     for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
-        if (!(*it).isEmpty() && (*it) != "(default)") {
+        if (!(*it).isEmpty() && (*it) != QLatin1String("(default)")) {
             out << indent << (*it) << "Connection = QSqlDatabase::database(\"" <<(*it) << "\");" << endl;
         }
     }
@@ -808,7 +734,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     for (i = 1; i < (int) nl.length(); i++) { // start at 1, 0 is the toplevel widget
         n = nl.item(i).toElement();
         QString s = getClassName(n);
-        if ((dbForm || subDbForms) && (s == "QDataBrowser" || s == "QDataView")) {
+        if ((dbForm || subDbForms) && (s == QLatin1String("QDataBrowser") || s == QLatin1String("QDataView"))) {
             QString objName = getObjectName(n);
             QString tab = getDatabaseInfo(n, "table");
             QString con = getDatabaseInfo(n, "connection");
@@ -822,20 +748,20 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
     }
 
     for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName()  == "connections") {
+        if (n.tagName() == QLatin1String("connections")) {
             // setup signals and slots connections
             out << endl << indent << "// signals and slots connections" << endl;
             nl = n.elementsByTagName("connection");
             for (i = 0; i < (int) nl.length(); i++) {
                 QString sender, receiver, signal, slot;
                 for (QDomElement n2 = nl.item(i).firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement()) {
-                    if (n2.tagName() == "sender")
+                    if (n2.tagName() == QLatin1String("sender"))
                         sender = n2.firstChild().toText().data();
-                    else if (n2.tagName() == "receiver")
+                    else if (n2.tagName() == QLatin1String("receiver"))
                         receiver = n2.firstChild().toText().data();
-                    else if (n2.tagName() == "signal")
+                    else if (n2.tagName() == QLatin1String("signal"))
                         signal = n2.firstChild().toText().data();
-                    else if (n2.tagName() == "slot")
+                    else if (n2.tagName() == QLatin1String("slot"))
                         slot = n2.firstChild().toText().data();
                 }
                 if (sender.isEmpty() ||
@@ -892,12 +818,12 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         if (!DomTool::propertiesOfType(nl.item(i).toElement() , "font").isEmpty())
             needFontEventHandler = TRUE;
         QString s = getClassName(nl.item(i).toElement());
-        if (s == "QDataTable" || s == "QDataBrowser") {
+        if (s == QLatin1String("QDataTable") || s == QLatin1String("QDataBrowser")) {
             if (!isFrameworkCodeGenerated(nl.item(i).toElement()))
                  continue;
-            if (s == "QDataTable")
+            if (s == QLatin1String("QDataTable"))
                 needSqlTableEventHandler = TRUE;
-            if (s == "QDataBrowser")
+            if (s == QLatin1String("QDataBrowser"))
                 needSqlDataBrowserEventHandler = TRUE;
         }
         if (needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler)
@@ -918,7 +844,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
             if (!(*it3).startsWith("pure")) { // "pure virtual" or "pureVirtual"
                 out << type << " " << nameOfClass << "::" << fname << endl;
                 out << "{" << endl;
-                if (*it != "init()" && *it != "destroy()") {
+                if (*it != QLatin1String("init()") && *it != QLatin1String("destroy()")) {
                     QRegExp numeric("^(?:signed|unsigned|u?char|u?short|u?int"
                                      "|u?long|Q_U?INT(?:8|16|32)|Q_U?LONG|float"
                                      "|double)$");
@@ -944,12 +870,12 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
                       6.  If the type is 'Foo', we assume there's a
                           default constructor and use it.
                     */
-                    if (type != "void") {
+                    if (type != QLatin1String("void")) {
                         QStringList toks = type.split(" ");
                         bool isBasicNumericType =
                                 (toks.find(numeric).count() == toks.count());
 
-                        if (type == "bool") {
+                        if (type == QLatin1String("bool")) {
                             retVal = "FALSE";
                         } else if (isBasicNumericType || type.endsWith("*")) {
                             retVal = "0";
@@ -987,8 +913,8 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
 
 void Ui3Reader::createFormImpl(const QDomElement& e, const QString& form, const QString& connection, const QString& table)
 {
-    if (e.tagName() == "widget" &&
-         e.attribute("class") != "QDataTable") {
+    if (e.tagName() == QLatin1String("widget") &&
+         e.attribute("class") != QLatin1String("QDataTable")) {
         QString field = getDatabaseInfo(e, "field");
         if (!field.isEmpty()) {
             if (isWidgetInTable(e, connection, table))

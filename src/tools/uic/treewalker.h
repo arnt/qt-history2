@@ -41,7 +41,8 @@ class DomActionRef;
 class DomImages;
 class DomImage;
 class DomItem;
-class DomIncludeHints;
+class DomIncludes;
+class DomInclude;
 
 struct TreeWalker
 {
@@ -69,12 +70,10 @@ struct TreeWalker
     virtual void accept(DomTime *time);
     virtual void accept(DomDateTime *dateTime);
     virtual void accept(DomProperty *property);
-
     virtual void accept(DomImages *images);
     virtual void accept(DomImage *image);
-
-    virtual void accept(DomIncludeHints *includeHints);
-
+    virtual void accept(DomIncludes *includes);
+    virtual void accept(DomInclude *incl);
     virtual void accept(DomAction *action);
     virtual void accept(DomActionGroup *actionGroup);
     virtual void accept(DomActionRef *actionRef);

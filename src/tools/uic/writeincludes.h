@@ -40,7 +40,8 @@ struct WriteIncludes : public TreeWalker
 //
 // include hints
 //
-    void accept(DomIncludeHints *node);
+    void accept(DomIncludes *node);
+    void accept(DomInclude *node);
 
 private:
     void add(const QString &className);
@@ -52,7 +53,6 @@ private:
     const Option &option;
 
     QHash<QString, bool> m_includes;
-    QHash<QString, bool> m_includeHints;
     QHash<QString, bool> m_customWidgets;
 };
 

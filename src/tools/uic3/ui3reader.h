@@ -38,8 +38,7 @@ class Ui3Reader : public Qt
 public:
     Ui3Reader(QTextStream &stream);
 
-    void generateUi4(const QString &fn, const QString &outputFn,
-         QDomDocument doc);
+    void generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc);
 
     void generate(const QString &uiHeaderFile, const QString &fn, const QString &outputFn,
          QDomDocument doc, bool decl, bool subcl, const QString &trm,
@@ -80,7 +79,7 @@ public:
 private:
     void init();
 
-    DomUI *generateUi4( const QDomElement &e); // ### rename me in createUI4()
+    DomUI *generateUi4(const QDomElement &e);
     DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString::null);
     void createProperties(const QDomElement &e, QList<DomProperty*> *properties);
     void createAttributes(const QDomElement &e, QList<DomProperty*> *properties);
@@ -161,6 +160,9 @@ private:
     QString fileName;
     QString uiHeaderFile;
     bool writeFunctImpl;
+
+    QDomElement root;
+    QDomElement widget;
 };
 
 #endif

@@ -36,12 +36,11 @@
         } \
     } while (0)
 
-DomUI *Ui3Reader::generateUi4(const QDomElement &e)
+DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 {
-    QDomElement n;
     QDomNodeList nl;
 
-    QString objClass = getClassName(e);
+    QString objClass = getClassName(widget);
     if (objClass.isEmpty())
         return 0;
 
@@ -49,32 +48,51 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
     ui->setAttributeVersion("4.0");
 
     QStringList ui_tabstops;
-    QStringList ui_include_hits;
+    QList<DomInclude*> ui_includes;
     QList<DomWidget*> ui_toolbars;
     QList<DomWidget*> ui_menubars;
     QList<DomActionGroup*> ui_action_list;
-
     QList<DomCustomWidget*> ui_customwidget_list;
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
+
+    for (QDomElement n = root.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
         QString tagName = n.tagName().toLower();
 
         if (tagName == QLatin1String("tabstops")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
-                if (n2.tagName().toLower() == "tabstop") {
+                if (n2.tagName().toLower() == QLatin1String("tabstop")) {
                     QString name = n2.firstChild().toText().data();
                     ui_tabstops.append(name);
                 }
                 n2 = n2.nextSibling().toElement();
             }
-        } else if (tagName == QLatin1String("includehints")) {
+        } else if (tagName == QLatin1String("includes")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
-                if (n2.tagName().toLower() == "includehint") {
+                if (n2.tagName().toLower() == "include") {
                     QString name = n2.firstChild().toText().data();
-                    ui_include_hits.append(name);
+                    if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration")) {
+                        if (name.right(5) == QLatin1String(".ui.h"))
+                            continue;
+
+                        DomInclude *incl = new DomInclude();
+                        incl->setText(name);
+                        incl->setAttributeLocation(n2.attribute("location", "global"));
+                        ui_includes.append(incl);
+                    }
                 }
                 n2 = n2.nextSibling().toElement();
+            }
+        } else if (tagName == QLatin1String("include")) {
+            QString name = n.firstChild().toText().data();
+            if (n.attribute("impldecl", "in implementation") == QLatin1String("in declaration")) {
+                if (name.right(5) == QLatin1String(".ui.h"))
+                    continue;
+
+                DomInclude *incl = new DomInclude();
+                incl->setText(name);
+                incl->setAttributeLocation(n.attribute("location", "global"));
+                ui_includes.append(incl);
             }
         } else if (tagName == QLatin1String("layoutdefaults")) {
             QString margin = n.attribute("margin");
@@ -179,8 +197,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
         }
     }
 
-
-    DomWidget *w = createWidget(e);
+    DomWidget *w = createWidget(widget);
     Q_ASSERT(w != 0);
 
     QList<DomWidget*> l = w->elementWidget();
@@ -204,13 +221,11 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
         ui->setElementTabStops(tabStops);
     }
 
-#if 0 // ### enable me?
-    if (ui_include_hits.size()) {
-        DomIncludeHints *includeHints = new DomIncludeHints();
-        includeHints->setElementIncludeHint(ui_include_hits);
-        ui->setElementIncludeHints(includeHints);
+    if (ui_includes.size()) {
+        DomIncludes *includes = new DomIncludes();
+        includes->setElementInclude(ui_includes);
+        ui->setElementIncludes(includes);
     }
-#endif
 
     ui->setAttributeStdSetDef(stdsetdef);
 

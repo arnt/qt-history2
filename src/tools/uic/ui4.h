@@ -8,7 +8,8 @@
 #include <qstringlist.h>
 
 class DomUI;
-class DomIncludeHints;
+class DomIncludes;
+class DomInclude;
 class DomActionGroup;
 class DomAction;
 class DomActionRef;
@@ -101,8 +102,8 @@ public:
     inline DomImages * elementImages() const { return m_eImages; }
     inline void setElementImages(DomImages * a) { m_eImages = a; };
 
-    inline DomIncludeHints * elementIncludeHints() const { return m_eIncludeHints; }
-    inline void setElementIncludeHints(DomIncludeHints * a) { m_eIncludeHints = a; };
+    inline DomIncludes * elementIncludes() const { return m_eIncludes; }
+    inline void setElementIncludes(DomIncludes * a) { m_eIncludes = a; };
 
     inline QString text() const { return m_text; }
     inline void setText(const QString &text) { m_text = text; }
@@ -130,23 +131,23 @@ private:
     DomCustomWidgets * m_eCustomWidgets;
     DomTabStops * m_eTabStops;
     DomImages * m_eImages;
-    DomIncludeHints * m_eIncludeHints;
+    DomIncludes * m_eIncludes;
 };
 
-class DomIncludeHints
+class DomIncludes
 {
-    DomIncludeHints(const DomIncludeHints &other);
-    void operator = (const DomIncludeHints &other);
+    DomIncludes(const DomIncludes &other);
+    void operator = (const DomIncludes &other);
 
 public:
-    DomIncludeHints();
-    ~DomIncludeHints();
+    DomIncludes();
+    ~DomIncludes();
 
     void read(const QDomElement &node);
     QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
 
-    inline QStringList elementIncludeHint() const { return m_eIncludeHint; }
-    inline void setElementIncludeHint(const QStringList & a) { m_eIncludeHint = a; };
+    inline QList<DomInclude *> elementInclude() const { return m_eInclude; }
+    inline void setElementInclude(const QList<DomInclude *> & a) { m_eInclude = a; };
 
     inline QString text() const { return m_text; }
     inline void setText(const QString &text) { m_text = text; }
@@ -159,7 +160,46 @@ private:
     // attributes
 
     // elements
-    QStringList m_eIncludeHint;
+    QList<DomInclude *> m_eInclude;
+};
+
+class DomInclude
+{
+    DomInclude(const DomInclude &other);
+    void operator = (const DomInclude &other);
+
+public:
+    DomInclude();
+    ~DomInclude();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
+
+    inline QString attributeLocation() const { return m_aLocation; }
+    inline bool hasAttributeLocation() const { return m_hasLocation; }
+    inline void setAttributeLocation(const QString & a) { m_aLocation = a; m_hasLocation = true; }
+    inline void clearAttributeLocation() { m_hasLocation = false; }
+
+    inline QString attributeImpldecl() const { return m_aImpldecl; }
+    inline bool hasAttributeImpldecl() const { return m_hasImpldecl; }
+    inline void setAttributeImpldecl(const QString & a) { m_aImpldecl = a; m_hasImpldecl = true; }
+    inline void clearAttributeImpldecl() { m_hasImpldecl = false; }
+
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &text) { m_text = text; }
+private:
+    QString m_text;
+    QDomElement m_element;
+
+    inline void reset(bool full=true);
+
+    // attributes
+    QString m_aLocation;
+    bool m_hasLocation;
+    QString m_aImpldecl;
+    bool m_hasImpldecl;
+
+    // elements
 };
 
 class DomActionGroup
@@ -1649,11 +1689,17 @@ inline DomUI::DomUI()
     m_eCustomWidgets = 0;
     m_eTabStops = 0;
     m_eImages = 0;
-    m_eIncludeHints = 0;
+    m_eIncludes = 0;
 }
 
-inline DomIncludeHints::DomIncludeHints()
+inline DomIncludes::DomIncludes()
 {
+}
+
+inline DomInclude::DomInclude()
+{
+    m_hasLocation = false;
+    m_hasImpldecl = false;
 }
 
 inline DomActionGroup::DomActionGroup()
@@ -1887,7 +1933,12 @@ inline DomUI::~DomUI()
     reset();
 }
 
-inline DomIncludeHints::~DomIncludeHints()
+inline DomIncludes::~DomIncludes()
+{
+    reset();
+}
+
+inline DomInclude::~DomInclude()
 {
     reset();
 }
@@ -2090,14 +2141,14 @@ inline void DomUI::read(const QDomElement &node)
         else if (tag == QLatin1String("customwidgets")) { DomCustomWidgets* v = new DomCustomWidgets(); v->read(e); m_eCustomWidgets = v; }
         else if (tag == QLatin1String("tabstops")) { DomTabStops* v = new DomTabStops(); v->read(e); m_eTabStops = v; }
         else if (tag == QLatin1String("images")) { DomImages* v = new DomImages(); v->read(e); m_eImages = v; }
-        else if (tag == QLatin1String("includehints")) { DomIncludeHints* v = new DomIncludeHints(); v->read(e); m_eIncludeHints = v; }
+        else if (tag == QLatin1String("includes")) { DomIncludes* v = new DomIncludes(); v->read(e); m_eIncludes = v; }
 
         e = e.nextSibling().toElement();
     }
     m_text = node.firstChild().toText().data();
 }
 
-inline void DomIncludeHints::read(const QDomElement &node)
+inline void DomIncludes::read(const QDomElement &node)
 {
     // attributes
 
@@ -2105,7 +2156,23 @@ inline void DomIncludeHints::read(const QDomElement &node)
     QDomElement e = node.firstChild().toElement();
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
-        if (tag == QLatin1String("includehint")) { m_eIncludeHint.append(e.firstChild().toText().data()); }
+        if (tag == QLatin1String("include")) { DomInclude* v = new DomInclude(); v->read(e); m_eInclude.append(v); }
+
+        e = e.nextSibling().toElement();
+    }
+    m_text = node.firstChild().toText().data();
+}
+
+inline void DomInclude::read(const QDomElement &node)
+{
+    // attributes
+    if (node.hasAttribute("location")) setAttributeLocation(node.attribute("location"));
+    if (node.hasAttribute("impldecl")) setAttributeImpldecl(node.attribute("impldecl"));
+
+    // elements
+    QDomElement e = node.firstChild().toElement();
+    while (!e.isNull()) {
+        QString tag = e.tagName().toLower();
 
         e = e.nextSibling().toElement();
     }
@@ -2798,26 +2865,40 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
     if (m_eImages)
         node.appendChild(m_eImages->write(doc, "images"));
 
-    if (m_eIncludeHints)
-        node.appendChild(m_eIncludeHints->write(doc, "includeHints"));
+    if (m_eIncludes)
+        node.appendChild(m_eIncludes->write(doc, "includes"));
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
 }
 
-inline QDomElement DomIncludeHints::write(QDomDocument &doc, const QString &tagName)
+inline QDomElement DomIncludes::write(QDomDocument &doc, const QString &tagName)
 {
-    QDomElement node = doc.createElement(tagName.size() ? tagName : QString("IncludeHints"));
+    QDomElement node = doc.createElement(tagName.size() ? tagName : QString("Includes"));
 
     QDomElement child;
     QDomText t;
 
-    for (int i=0; i<m_eIncludeHint.size(); ++i) {
-        child = doc.createElement("includehint");
-        t = doc.createTextNode(m_eIncludeHint[i]);
-        child.appendChild(t);
-        node.appendChild(child);
+    for (int i=0; i<m_eInclude.size(); ++i) {
+        node.appendChild(m_eInclude.at(i)->write(doc, "include"));
     }
+
+    if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
+    return node;
+}
+
+inline QDomElement DomInclude::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement node = doc.createElement(tagName.size() ? tagName : QString("Include"));
+    if (m_hasLocation)
+        node.setAttribute("location", m_aLocation);
+
+    if (m_hasImpldecl)
+        node.setAttribute("impldecl", m_aImpldecl);
+
+
+    QDomElement child;
+    QDomText t;
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
@@ -3839,13 +3920,24 @@ inline void DomUI::reset(bool full)
     delete m_eCustomWidgets; m_eCustomWidgets = 0;
     delete m_eTabStops; m_eTabStops = 0;
     delete m_eImages; m_eImages = 0;
-    delete m_eIncludeHints; m_eIncludeHints = 0;
+    delete m_eIncludes; m_eIncludes = 0;
     m_text = QString::null;
 }
 
-inline void DomIncludeHints::reset(bool full)
+inline void DomIncludes::reset(bool full)
 {
     if (full) {
+    }
+
+    qDeleteAll(m_eInclude);
+    m_text = QString::null;
+}
+
+inline void DomInclude::reset(bool full)
+{
+    if (full) {
+    m_hasLocation = false;
+    m_hasImpldecl = false;
     }
 
     m_text = QString::null;

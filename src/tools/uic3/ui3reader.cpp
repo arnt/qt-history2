@@ -133,6 +133,9 @@ void Ui3Reader::init()
 
 QDomElement Ui3Reader::parse(const QDomDocument &doc)
 {
+    root = doc.firstChild().toElement();
+    widget = QDomElement();
+
     pixmapLoaderFunction = getPixmapLoaderFunction(doc.firstChild().toElement());
     nameOfClass = getFormClassName(doc.firstChild().toElement());
 
@@ -140,19 +143,18 @@ QDomElement Ui3Reader::parse(const QDomDocument &doc)
     stdsetdef = toBool(doc.firstChild().toElement().attribute("stdsetdef"));
 
     if (doc.firstChild().isNull() || doc.firstChild().firstChild().isNull())
-        return QDomElement();
+        return widget;
 
     QDomElement e = doc.firstChild().firstChild().toElement();
-    QDomElement widget;
     while (!e.isNull()) {
-        if (e.tagName() == "widget") {
+        if (e.tagName() == QLatin1String("widget")) {
             widget = e;
-        } else if (e.tagName() == "pixmapinproject") {
+        } else if (e.tagName() == QLatin1String("pixmapinproject")) {
             externPixmaps = true;
-        } else if (e.tagName() == "layoutdefaults") {
+        } else if (e.tagName() == QLatin1String("layoutdefaults")) {
             defSpacing = e.attribute("spacing", defSpacing.toString());
             defMargin = e.attribute("margin", defMargin.toString());
-        } else if (e.tagName() == "layoutfunctions") {
+        } else if (e.tagName() == QLatin1String("layoutfunctions")) {
             defSpacing = e.attribute("spacing", defSpacing.toString());
             bool ok;
             defSpacing.toInt(&ok);
@@ -169,6 +171,7 @@ QDomElement Ui3Reader::parse(const QDomDocument &doc)
         }
         e = e.nextSibling().toElement();
     }
+
     return widget;
 }
 
@@ -218,8 +221,7 @@ void Ui3Reader::generateUi4(const QString &fn, const QString &outputFn, QDomDocu
     fileName = fn;
     outputFileName = outputFn;
 
-    QDomElement e = parse(doc);
-    DomUI *ui = generateUi4(e);
+    DomUI *ui = generateUi4(parse(doc));
     if (!ui)
         return;
 
@@ -228,7 +230,7 @@ void Ui3Reader::generateUi4(const QString &fn, const QString &outputFn, QDomDocu
 
     QDomDocument outputDoc;
     outputDoc.appendChild(ui->write(outputDoc));
-    out << outputDoc.toString();
+    out << outputDoc.toString(2);
 
     delete ui;
 }
