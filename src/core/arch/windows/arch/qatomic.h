@@ -14,28 +14,48 @@
 #ifndef WINDOWS_QATOMIC_H
 #define WINDOWS_QATOMIC_H
 
+#ifndef QT_NO_DEBUG
+// turn off compiler intrinsics when building in debug mode
+#  define QT_NO_ATOMIC_INTRINSICS
+#endif
+
+#ifdef QT_NO_ATOMIC_INTRINSICS
+#  define _InterlockedCompareExchange InterlockedCompareExchange
+#  define _InterlockedIncrement InterlockedIncrement
+#  define _InterlockedDecrement InterlockedDecrement
+#  define _InterlockedExchange InterlockedExchange
+#endif
+
 typedef long LONG;
 typedef void *PVOID;
 
 // use compiler intrinsics for all atomic functions
 extern "C" {
-    LONG  __cdecl _InterlockedCompareExchange(LONG volatile *Dest, LONG Exchange, LONG Comp);
-    LONG  __cdecl _InterlockedIncrement(LONG volatile *Addend);
-    LONG  __cdecl _InterlockedDecrement(LONG volatile *Addend);
-    LONG  __cdecl _InterlockedExchange(LONG volatile *Target, LONG Value);
+    __declspec(dllimport) LONG __stdcall _InterlockedCompareExchange(LONG volatile *Dest, LONG Exchange, LONG Comp);
+    __declspec(dllimport) LONG __stdcall _InterlockedIncrement(LONG volatile *Addend);
+    __declspec(dllimport) LONG __stdcall _InterlockedDecrement(LONG volatile *Addend);
+    __declspec(dllimport) LONG __stdcall _InterlockedExchange(LONG volatile *Target, LONG Value);
 }
-#pragma intrinsic (_InterlockedCompareExchange)
-#pragma intrinsic (_InterlockedIncrement)
-#pragma intrinsic (_InterlockedDecrement)
-#pragma intrinsic (_InterlockedExchange)
+#ifndef QT_NO_ATOMIC_INTRINSICS
+#  pragma intrinsic (_InterlockedCompareExchange)
+#  pragma intrinsic (_InterlockedIncrement)
+#  pragma intrinsic (_InterlockedDecrement)
+#  pragma intrinsic (_InterlockedExchange)
+#endif
 
 #ifndef _M_IX86
+#  ifndef QT_NO_ATOMIC_INTRINSICS
+#    define _InterlockedCompareExchangePointer InterlockedCompareExchangePointer
+#    define _InterlockedExchangePointer InterlockedExchangePointer
+#  endif
 extern "C" {
-    PVOID __cdecl _InterlockedCompareExchangePointer(PVOID volatile *Dest, PVOID Exchange, PVOID Comp);
-    PVOID __cdecl _InterlockedExchangePointer(PVOID volatile *Target, PVOID Value);
+    __declspec(dllimport) PVOID __stdcall _InterlockedCompareExchangePointer(PVOID volatile *Dest, PVOID Exchange, PVOID Comp);
+    __declspec(dllimport) PVOID __stdcall _InterlockedExchangePointer(PVOID volatile *Target, PVOID Value);
 }
-#  pragma intrinsic (_InterlockedCompareExchangePointer)
-#  pragma intrinsic (_InterlockedExchangePointer)
+#  ifndef QT_NO_ATOMIC_INTRINSICS
+#    pragma intrinsic (_InterlockedCompareExchangePointer)
+#    pragma intrinsic (_InterlockedExchangePointer)
+#  endif
 #else
 #  define _InterlockedCompareExchangePointer(a,b,c) \
         (PVOID)_InterlockedCompareExchange((LONG volatile *)(a), (LONG)(b), (LONG)(c))
@@ -47,9 +67,6 @@ extern "C" {
 
     inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
     {
-        
-        
-        
         volatile LONG *lptr = reinterpret_cast<volatile LONG *>(ptr);
         LONG lexpected = expected;
         LONG lnewval = newval;
@@ -91,5 +108,14 @@ extern "C" {
 
 #define Q_HAVE_ATOMIC_INCDEC
 #define Q_HAVE_ATOMIC_SET
+
+#ifdef QT_NO_ATOMIC_INTRINSICS
+#  undef _InterlockedCompareExchange
+#  undef _InterlockedIncrement
+#  undef _InterlockedDecrement
+#  undef _InterlockedExchange
+#  undef _InterlockedCompareExchangePointer
+#  undef _InterlockedExchangePointer
+#endif
 
 #endif // WINDOWS_QATOMIC_H
