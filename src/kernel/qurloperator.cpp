@@ -880,7 +880,8 @@ void QUrlOperator::addEntry( const QValueList<QUrlInfo> &i )
 /*!
     Returns the URL information for the child \a entry, or returns an
     empty QUrlInfo object if there is no information available about
-    \a entry.
+    \a entry. Information about \a entry is only available after a successfully
+    finished listChildren() operation.
 */
 
 QUrlInfo QUrlOperator::info( const QString &entry ) const
