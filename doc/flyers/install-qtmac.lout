@@ -1,5 +1,8 @@
 @Include { flyer.lout }
-@Doc @Text @Begin
+@Document
+    @InitialFont { Palatino Base 11p }
+//
+@Text @Begin
 @CD @Heading { How to Install Qt for Mac OS X }
 @NumberedList
 @LI { Run the @F{qt-mac-commercial-3.0.0} program. }
@@ -39,6 +42,15 @@ all the Qt sub-directories and generate makefiles appropriate to your
 configuration.
 }
 @LI { Type @F make }
+@LI { Make your applications launchable from @I Finder.
+@PP
+@I Finder needs to know where the relevant libraries are when you
+double-click an application. This is achieved by making the following
+symbolic links:
+@LD @F @Verbatim {
+ln -s $QTDIR/lib/libqt.dylib.3.0.0 /usr/lib
+ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib}
+}
 @EndList
 If you wish to customize how you install Qt or if you encounter
 problems with installing Qt then refer to the @F INSTALL file in
