@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* WindowsStyle::create( const QString& s )
 bool WindowsStyle::init()
 {
     return TRUE;
+}
+
+void WindowsStyle::cleanup()
+{
+    delete style;
 }
 
 bool WindowsStyle::canUnload() const
