@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#184 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2001,7 +2001,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 #define ISPRINT(x) ((x).row() || (x).cell()>' ')
     // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
-    bool wordbreak  = (tf & Qt::WordBreak)	== Qt::WordBreak;
+    bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;
     bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
