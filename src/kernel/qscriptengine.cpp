@@ -155,7 +155,7 @@ static inline void positionCluster( QScriptItem *item, int gfrom,  int glast )
 }
 
 
-static void heuristicPosition( QScriptItem *item )
+void q_heuristicPosition( QScriptItem *item )
 {
     QShapedItem *shaped = item->shaped;;
 
@@ -287,13 +287,17 @@ void q_calculateAdvances( QScriptItem *item )
 
     item->width = 0;
     for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	glyph_metrics_t gi = item->fontEngine->boundingBox( shaped->glyphs[i] );
-	shaped->advances[i] = gi.xoff;
-// 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
-	int y = shaped->offsets[i].y + gi.y;
-	item->ascent = QMAX( item->ascent, -y );
-	item->descent = QMAX( item->descent, y + gi.height );
-	item->width += gi.xoff;
+	if ( shaped->glyphAttributes[i].mark )
+	    shaped->advances[i] = 0;
+	else {
+	    glyph_metrics_t gi = item->fontEngine->boundingBox( shaped->glyphs[i] );
+	    shaped->advances[i] = gi.xoff;
+	    //qDebug("setting advance of glyph %d to %d", i, gi.xoff );
+	    int y = shaped->offsets[i].y + gi.y;
+	    item->ascent = QMAX( item->ascent, -y );
+	    item->descent = QMAX( item->descent, y + gi.height );
+	    item->width += gi.xoff;
+	}
     }
 }
 
@@ -301,7 +305,7 @@ static void basic_shape( int /*script*/, const QString &string, int from, int le
 {
     convertToCMap( string.unicode() + from, len, item );
     heuristicSetGlyphAttributes( string, from, len, item );
-    heuristicPosition( item );
+    q_heuristicPosition( item );
 }
 
 static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
@@ -922,7 +926,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 		  shaped->glyphAttributes, shaped->logClusters );
 
     convertToCMap( shapedChars, slen, si );
-    heuristicPosition( si );
+    q_heuristicPosition( si );
 }
 
 

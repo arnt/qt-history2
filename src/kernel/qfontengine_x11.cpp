@@ -1213,6 +1213,7 @@ bool QOpenType::supportsScript( unsigned int script )
 }
 
 extern void q_calculateAdvances( QScriptItem *item );
+extern void q_heuristicPosition( QScriptItem *item );
 
 void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QScriptItem *item, int stringLength )
 {
@@ -1321,6 +1322,8 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 	    // 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
 	}
 	free( positions );
+    } else {
+	q_heuristicPosition( item );
     }
 
     if ( out )

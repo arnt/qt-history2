@@ -1239,6 +1239,9 @@ int QFontMetrics::width(QChar ch) const
     if ( ch.unicode() < widthCacheSize && d->x11data.widthCache[ ch.unicode() ] )
 	return d->x11data.widthCache[ ch.unicode() ];
 
+    if ( ::isMark( ch ) )
+	return 0;
+
     QFont::Script script;
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
