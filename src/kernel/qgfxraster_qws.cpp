@@ -1708,7 +1708,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
     // Copy clut
     for(loopc=0;loopc<numcols;loopc++)
 	srcclut[loopc] = cols[loopc];
-    
+
     if(depth<=8) {
 	// Now look for matches
 	for(loopc=0;loopc<numcols;loopc++) {
@@ -3636,7 +3636,7 @@ bool QScreen::connect()
     fflush( stdout );
 
     initted=true;
-    
+
     return TRUE;
 }
 
@@ -3745,7 +3745,7 @@ bool QScreen::initCard()
 	}
 	screencols=idx;
 #endif
-	//ioctl(fd,FBIOPUTCMAP,&cmap);
+	ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
 	free(cmap.blue);
@@ -3753,7 +3753,7 @@ bool QScreen::initCard()
     }
 
     initted=true;
-    
+
     return true;
 }
 
@@ -3808,12 +3808,12 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
     if(screenclut[pos]==myrgb || !initted) {
 	return pos;
     }
-    
+
     // Now look for a free slot - 0 means a free slot since a 'real' 0
     // would match in the colour cube
 
     int ret=-1;
-    
+
     for(int loopc=216;loopc<256;loopc++) {
 	if(screenclut[loopc]==myrgb) {
 	    return loopc;
@@ -3824,14 +3824,14 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 	    return loopc;
 	}
     }
-    
+
     // No free slots, look for closest match in whole palette
- 
+
     unsigned int hold=0xfffff;
     unsigned int tmp;
-    
+
     int h1,s1,v1;
-    int h2,s2,v2;    
+    int h2,s2,v2;
 
     if(ret==-1) {
 	for(int loopc=0;loopc<256;loopc++) {
@@ -3844,7 +3844,7 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 	    tmp=abs(h1-h2);
 	    tmp+=abs(s1-s2);
 	    tmp+=abs(v1-v2);
-	
+
 	    if(tmp<hold) {
 		hold=tmp;
 		ret=loopc;
@@ -3925,7 +3925,7 @@ void QScreen::restore()
 	    cmap.blue[loopc] = qBlue( screenclut[loopc] ) << 8;
 	    cmap.transp[loopc] = 0;
 	}
-	//ioctl(fd,FBIOPUTCMAP,&cmap);
+	ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
 	free(cmap.blue);
