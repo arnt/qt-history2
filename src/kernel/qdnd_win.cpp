@@ -1005,7 +1005,7 @@ void QDragManager::updatePixmap()
 	}
 
 	QPixmap pm = object->pixmap();
-	if ( pm.isNull() && !object->cursor( current_mode ) ) {
+	if ( pm.isNull() ) {
 	    // None.
 	} else {
 	    cursor = new HCURSOR[n_cursor];
