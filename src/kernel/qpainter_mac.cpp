@@ -520,7 +520,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	ww = vw = w->width();                   // default view size
 	wh = vh = w->height();
 	if(!d->unclipped)
-	    d->unclipped = w->testWFlags(WPaintUnclipped);
+	    d->unclipped = (bool)w->testWFlags(WPaintUnclipped);
 #ifdef Q_WS_MACX
 	if(w->isDesktop()) {
 	    if(!d->unclipped)
@@ -1554,7 +1554,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	return;
     //make a region of it
     PolyHandle poly = OpenPoly();
-    MoveTo(a[0].x()+d->offx, a[0].y()+d->offy);
+    MoveTo(a[0].x()+d->offx-1, a[0].y()+d->offy-1);
     for(uint x = 1; x < a.size(); x++)
 	LineTo(a[x].x()+d->offx-1, a[x].y()+d->offy-1);
     ClosePoly();
@@ -1974,7 +1974,7 @@ void QPainter::initPaintDevice(bool force) {
 		d->cache.clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
 		d->cache.clip_serial = 0;
 	    } else {
-		d->cache.clippedreg = w->clippedRegion(!d->unclipped);	    //just clip my bounding rect
+		d->cache.clippedreg = w->clippedRegion(!d->unclipped);
 		d->cache.clip_serial = w->clippedSerial(!d->unclipped);
 	    }
 	    if(pevent) 
