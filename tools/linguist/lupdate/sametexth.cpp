@@ -22,12 +22,6 @@
 typedef QMap<QCString, MetaTranslatorMessage> TMM;
 typedef QValueList<MetaTranslatorMessage> TML;
 
-static QCString sameTextKey( const MetaTranslatorMessage& m )
-{
-    return QCString( m.context() ) + QCString( "::" ) +
-	   QCString( m.sourceText() );
-}
-
 /*
   Augments a MetaTranslator with trivially derived translations.
 
@@ -51,9 +45,13 @@ void applySameTextHeuristic( MetaTranslator *tor, bool verbose )
 	    if ( (*it).translation().isEmpty() )
 		untranslated.append( *it );
 	} else {
-	    QCString key = sameTextKey( *it );
+	    QCString key = (*it).sourceText();
 	    t = translated.find( key );
 	    if ( t != translated.end() ) {
+		/*
+		  The same source text is translated at least two
+		  different ways. Do nothing then.
+		*/
 		if ( (*t).translation() != (*it).translation() ) {
 		    translated.remove( key );
 		    avoid.insert( key, *it );
@@ -65,7 +63,8 @@ void applySameTextHeuristic( MetaTranslator *tor, bool verbose )
     }
 
     for ( u = untranslated.begin(); u != untranslated.end(); ++u ) {
-	t = translated.find( sameTextKey(*u) );
+	QCString key = (*u).sourceText();
+	t = translated.find( key );
 	if ( t != translated.end() ) {
 	    MetaTranslatorMessage m( *u );
 	    m.setTranslation( (*t).translation() );
