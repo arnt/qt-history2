@@ -54,7 +54,6 @@ int main(int argc, char **argv)
     splash->show();
 
     TrWindow *tw = new TrWindow();
-    app.setMainWidget(tw);
 
     if (config.value(keybase + "Geometry/MainwindowMaximized", false).toBool())
         tw->showMaximized();
