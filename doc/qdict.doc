@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.4 1998/03/17 14:41:34 warwick Exp $
+** $Id: qdict.doc,v 2.5 1998/06/25 00:54:39 agulbra Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -283,19 +283,20 @@
   exist in the dictionary.
 
   All dictionary iterators that refer to the taken item will be set to
-  point to the next item in the dictionary travering order.
+  point to the next item in the dictionary traversal order.
 
   \sa remove(), clear(), setAutoDelete()
 */
 
 /*!
   \fn void QDict::clear()
+
   Removes all items from the dictionary.
 
   The removed items are deleted if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
 
-  All dictionary iterators that access this dictionary will be reset.
+  All dictionary iterators that operate on dictionary are reset.
 
   \sa remove(), take(), setAutoDelete()
 */

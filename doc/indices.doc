@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.16 1998/05/07 08:44:15 aavit Exp $
+** $Id: indices.doc,v 2.17 1998/06/25 00:54:38 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.16 1998/05/07 08:44:15 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.17 1998/06/25 00:54:38 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -27,10 +27,10 @@ Reference Documentation
 <td width="50%" valign="top">
 
 <strong>The Qt API:</strong><ul>
+<li><a href="classes.html">Alphabetical Class List (Multi-column)</a>
+<li><a href="annotated.html">Annotated Class List</a>
 <li><a href="topicals.html">Structure Overview</a>
 <li><a href="hierarchy.html">Inheritance Hierarchy</a>
-<li><a href="classes.html">Alphabetical Class Index</a>
-<li><a href="annotated.html">Alphabetical Class Index (Annotated)</a>
 <li><a href="functions.html">Alphabetical Function Index</a> (long)
 <li><a href="headers.html">Header File Index</a>
 </ul>

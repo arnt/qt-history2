@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.28 1998/05/24 03:43:18 agulbra Exp $
+** $Id: misc.doc,v 2.29 1998/06/25 00:54:38 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.28 1998/05/24 03:43:18 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.29 1998/06/25 00:54:38 agulbra Exp $";
 #endif
 
 
@@ -21,7 +21,7 @@ static char ident[] = "$Id: misc.doc,v 2.28 1998/05/24 03:43:18 agulbra Exp $";
 <h1 align=center>Free Edition License</h1><br clear="all">
 
 <p>
-This is license for Qt Free Edition version 1.32; it mainly
+This is license for Qt Free Edition version 1.40; it mainly
 covers development of free software for the free software community.
 We believe that it does not constrain development of free software
 noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
@@ -38,7 +38,7 @@ Edition</a> license is much less restrictive than this one.
 Copyright &copy; 1992-1998 Troll Tech AS.  All rights reserved.
 <p>
 <p>
-This is the license for Qt Free Edition version 1.32; it covers
+This is the license for Qt Free Edition version 1.40; it covers
 private use, use of third-party application programs based on Qt, and
 development of free software for the free software community.
 <p>
