@@ -18,6 +18,7 @@
 #include <qbuttongroup.h>
 #include <qpushbutton.h>
 #include <qsignalmapper.h>
+#include <qtextcodec.h>
 #include <stdlib.h>
 
 #if defined(Q_OS_UNIX)
@@ -120,13 +121,16 @@ int main( int argc, char** argv )
 	    r = 2;
 	} else {
 	    QButtonGroup *bg = new QButtonGroup(4,Qt::Vertical,"Choose Locales",&dlg);
-	    for ( int i=0; qm[i]; i++ )
+	    QString loc = QTextCodec::locale();
+	    for ( int i=0; qm[i]; i++ ) {
 		qmb[i] = new QCheckBox((const char*)qm[i],bg);
+		qmb[i]->setChecked( loc == qm[i] );
+	    }
 	    dlg.addButtons("Cancel","OK","All");
 	    r = dlg.exec();
 	}
 	if ( r ) {
-	    bool tight = qApp->desktop()->width() < 1024;
+	    bool tight = qApp->desktop()->screen()->width() < 1024;
 	    int x=5;
 	    int y=25;
 	    for ( int i=0; qm[i]; i++ ) {
