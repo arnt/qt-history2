@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#70 $
 **
 ** Implementation of date and time classes
 **
@@ -949,9 +949,18 @@ QDateTime QDateTime::addDays( int ndays ) const
 
 QDateTime QDateTime::addSecs( int nsecs ) const
 {
-    uint dd( d.jd );
-    int tt( t.ds );
-    tt += 1000 * nsecs;
+    uint dd = d.jd;
+    int  tt = t.ds;
+    int  sign = 1;
+    if ( nsecs < 0 ) {
+	nsecs = -nsecs;
+	sign = -1;
+    }
+    if ( nsecs >= (int)SECS_PER_DAY ) {
+	dd += sign*(nsecs/SECS_PER_DAY);
+	nsecs %= SECS_PER_DAY;
+    }
+    tt += sign*nsecs*1000;
     if ( tt < 0 ) {
 	tt = MSECS_PER_DAY - tt - 1;
 	dd -= tt / MSECS_PER_DAY;
