@@ -18,7 +18,6 @@
 #include <qpopupmenu.h>
 #include <qheader.h>
 #include <qregexp.h>
-#include <qvaluelist.h>
 
 // -----------------------------------------------------------------
 
@@ -157,7 +156,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     messages->setCurrentItem( messages->firstChild() );
     message->setMargin( 5 );
 
-    QValueList<int> lst;
+    QList<int> lst;
     lst.append( 170 );
     setSizes( lst );
 }
