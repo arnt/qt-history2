@@ -21,6 +21,7 @@
 #include <qfontdialog.h>
 #include <qtoolbar.h>
 #include <qlineedit.h>
+#include <qevent.h>
 
 class SpreadSheetItem : public QTableWidgetItem
 {
