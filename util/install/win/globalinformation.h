@@ -12,6 +12,10 @@ public:
     bool reconfig() const;
     void setQtVersionStr( const QString& );
     QString qtVersionStr() const;
+#if defined(QSA)
+    void setQsaVersionStr( const QString& );
+    QString qsaVersionStr() const;
+#endif
 
     enum SysId {
 	MSVC	= 0,
@@ -28,6 +32,9 @@ public:
 private:
     bool _reconfig;
     QString _qtVersionStr;
+#if defined(QSA)
+    QString _qsaVersionStr;
+#endif
     SysId _sysId;
 };
 

@@ -89,7 +89,11 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
     if ( globalInformation.reconfig() ) {
 	versionLabel->setText( "Reconfigure Qt " + globalInformation.qtVersionStr() );
     } else {
-#if defined(EVAL)
+#if defined(QSA)
+	QString versionStr = globalInformation.qsaVersionStr();
+	versionStr.replace( QRegExp(" Evaluation"), "" );
+	versionLabel->setText( versionLabel->text().replace( "Qt", "QSA" ) + " " + versionStr );
+#elif defined(EVAL)
 	QString versionStr = globalInformation.qtVersionStr();
 	versionStr.replace( QRegExp(" Evaluation"), "" );
 	versionLabel->setText( versionLabel->text() + " " + versionStr );

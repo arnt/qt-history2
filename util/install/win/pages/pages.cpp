@@ -77,7 +77,11 @@ FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )
     GetUserNameA( buffer.data(), &buffSize );
     folderGroups->insertItem( "Anyone who uses this computer (all users)" );
     folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
+#if defined(QSA)
+    folderPath->setText( QString( "QSA " ) + globalInformation.qsaVersionStr() );
+#else
     folderPath->setText( QString( "Qt " ) + globalInformation.qtVersionStr() );
+#endif
     if( qWinVersion() & Qt::WV_NT_based )   // On NT we also have a common folder
 	folderGroups->setEnabled( true );
     else
@@ -113,8 +117,13 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     customerID->setFocus();
 #if defined(EVAL)
     // ### improve text
+#  if defined(QSA)
+    licenseInfoHeader->setText( tr("Thank you for your interest in QSA.\n"
+		"Please enter the license information you got for this evaluation version of QSA.") );
+#  else
     licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
 		"Please enter the license information you got for this evaluation version of Qt.") );
+#  endif
 
     customerIDLabel->setText( tr("Name") );
     licenseIDLabel->setText( tr("Company name") );
@@ -207,14 +216,29 @@ void OptionsPageImpl::choosePath()
     QDir dir( installPath->text() );
 
 #if defined(Q_OS_WIN32)
-    if( !dir.exists() )
+    if( !dir.exists() ) {
+#  if defined(QSA)
+	dir.setPath( "C:\\QSA" );
+#  else
 	dir.setPath( "C:\\Qt" );
+#endif
+    }
 
     QString dest = QFileDialog::getExistingDirectory( installPath->text(), this, NULL, "Select installation directory" );
-    if ( dest.isNull() )
+    if ( dest.isNull() ) {
+#  if defined(QSA)
+	dest = "C:\\QSA";
+#  else
 	dest = "C:\\Qt";
-    if ( dest.right(1) == "\\" )
+#  endif
+    }
+    if ( dest.right(1) == "\\" ) {
+#  if defined(QSA)
+	dest += "QSA";
+#  else
 	dest += "Qt";
+#  endif
+    }
     if ( dest.contains( QRegExp( "\\s" ) ) && !sysBorland->isChecked() )
 	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name due to a limitation with MSVC" );
     else if ( dest.contains( "-" ) && sysBorland->isChecked() )

@@ -37,6 +37,18 @@ QString GlobalInformation::qtVersionStr() const
     return _qtVersionStr;
 }
 
+#if defined(QSA)
+void GlobalInformation::setQsaVersionStr( const QString& qvs )
+{
+    _qsaVersionStr = qvs;
+}
+
+QString GlobalInformation::qsaVersionStr() const
+{
+    return _qsaVersionStr;
+}
+#endif
+
 void GlobalInformation::setSysId( SysId s )
 {
     _sysId = s;

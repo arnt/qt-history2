@@ -111,7 +111,13 @@ public:
     LicensePageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     ~LicensePageImpl() {}
     QString title() const
-    { return QString("License Information to Install Qt %1").arg(globalInformation.qtVersionStr()); }
+    {
+#if defined(QSA)
+	return QString("License Information to Install QSA %1").arg(globalInformation.qsaVersionStr());
+#else
+	return QString("License Information to Install Qt %1").arg(globalInformation.qtVersionStr());
+#endif
+    }
     QString shortTitle() const
     { return "License information"; }
 

@@ -367,10 +367,18 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     if ( !pName )
 	setName( "SetupWizard" );
     resize( 600, 390 );
+#if defined(QSA)
+    setCaption( trUtf8( "QSA Installation Wizard" ) );
+#else
     setCaption( trUtf8( "Qt Installation Wizard" ) );
+#endif
     QPixmap logo( ( const char** ) logo_data );
     setIcon( logo );
+#if defined(QSA)
+    setIconText( trUtf8( "QSA Installation Wizard" ) );
+#else
     setIconText( trUtf8( "Qt Installation Wizard" ) );
+#endif
     QFont f( font() );
     f.setFamily( "Arial" );
     f.setPointSize( 12 );
@@ -382,11 +390,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     // try to read the archive header information and use them instead of
     // QT_VERSION_STR if possible
     QArchiveHeader *archiveHeader = 0;
-#if defined(QSA)
-    ResourceLoader rcLoader( "QSA_ARQ", 500 );
-#else
     ResourceLoader rcLoader( "QT_ARQ", 500 );
-#endif
     if ( rcLoader.isValid() ) {
 	// First, try to find qt.arq as a binary resource to the file.
 	QArchive ar;
@@ -442,15 +446,43 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	delete archiveHeader;
     }
 
+#if defined(QSA)
+    ResourceLoader rcLoaderQsa( "QSA_ARQ", 500 );
+    if ( rcLoaderQsa.isValid() ) {
+	// First, try to find qt.arq as a binary resource to the file.
+	QArchive ar;
+	QDataStream ds( rcLoaderQsa.data(), IO_ReadOnly );
+	QArchiveHeader *archiveHeaderQsa = ar.readArchiveHeader( &ds );
+	if ( archiveHeaderQsa ) {
+	    QString qsa_version_str = archiveHeaderQsa->description();
+	    if ( !qsa_version_str.isEmpty() )
+		globalInformation.setQsaVersionStr( qsa_version_str );
+	    delete archiveHeaderQsa;
+	}
+    }
+#endif
+
     initPages();
     initConnections();
     if ( optionsPage ) {
 	optionsPage->sysGroup->setButton( sysGroupButton );
 	clickedSystem( sysGroupButton );
+#if defined(QSA)
+	optionsPage->installPath->setText(
+		QString( "C:\\QSA\\Qt" ) +
+		QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
+		);
+#endif
     }
     if ( optionsPageQsa ) {
 	optionsPageQsa->sysGroup->setButton( sysGroupButton );
 	clickedSystem( sysGroupButton );
+#if defined(QSA)
+	optionsPageQsa->installPath->setText(
+		QString( "C:\\QSA\\" ) +
+		QString( globalInformation.qsaVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
+		);
+#endif
     }
     readLicense( QDir::homeDirPath() + "/.qt-license" );
 }
@@ -2144,7 +2176,9 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 void SetupWizardImpl::setInstallStep( int step )
 {
     QString captionTxt;
-#if defined(EVAL)
+#if defined(QSA)
+    captionTxt = tr("QSA Evaluation Version Installation Wizard");
+#elif defined(EVAL)
     captionTxt = tr("Qt Evaluation Version Installation Wizard");
 #elif defined(EDU)
     captionTxt = tr("Qt Educational Edition Installation Wizard");
