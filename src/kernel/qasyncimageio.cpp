@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#26 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -335,7 +335,7 @@ QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
 */
 QGIFDecoder::QGIFDecoder()
 {
-    globalcmap_hold = 0;
+    globalcmap = 0;
     disposal = NoDisposal;
     out_of_bounds = FALSE;
     disposed = TRUE;
@@ -350,7 +350,7 @@ QGIFDecoder::QGIFDecoder()
 */
 QGIFDecoder::~QGIFDecoder()
 {
-    delete globalcmap_hold;
+    delete globalcmap;
 }
 
 
@@ -484,10 +484,6 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		bgcol=(gcmap && hold[5]) ? hold[5] : -1;
 		//aspect=hold[6] ? double(hold[6]+15)/64.0 : 1.0;
 
-		img.create(swidth, sheight, 8, gcmap ? gncols : 256);
-		line = img.jumpTable();
-		if (consumer) digress = !consumer->setSize(swidth, sheight);
-
 		trans = -1;
 		preserve_trans = FALSE;
 		count=0;
@@ -495,6 +491,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		if (gcmap) {
 		    ccount=0;
 		    state=GlobalColorMap;
+		    globalcmap = new QRgb[gncols];
 		} else {
 		    state=ImageDescriptor;
 		}
@@ -503,9 +500,13 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	  case GlobalColorMap: case LocalColorMap:
 	    hold[count++]=ch;
 	    if (count==3) {
-		img.setColor(ccount,
-		    (ccount==trans ? 0 : 0xff000000)
-		    | qRgb(hold[0], hold[1], hold[2]));
+		QRgb rgb = (ccount==trans ? 0 : 0xff000000)
+		    | qRgb(hold[0], hold[1], hold[2]);
+		if ( state == LocalColorMap ) {
+		    img.setColor(ccount, rgb);
+		} else {
+		    globalcmap[ccount] = rgb;
+		}
 		if (++ccount >= ncols) {
 		    if ( state == LocalColorMap )
 			state=TableImageLZWSize;
@@ -539,12 +540,28 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	  case ImageDescriptor:
 	    hold[count++]=ch;
 	    if (count==10) {
-		disposePrevious( img, consumer );
-		disposed = FALSE;
-		left=LM(hold[1], hold[2]);
-		top=LM(hold[3], hold[4]);
+		int newleft=LM(hold[1], hold[2]);
+		int newtop=LM(hold[3], hold[4]);
 		int width=LM(hold[5], hold[6]);
 		int height=LM(hold[7], hold[8]);
+
+		if ( swidth <= 0 )
+		    swidth = newleft + width;
+		if ( sheight <= 0 )
+		    sheight = newtop + height;
+
+		if (img.isNull()) {
+		    img.create(swidth, sheight, 8, gcmap ? gncols : 256);
+		    if (consumer) digress = !consumer->setSize(swidth, sheight);
+		}
+		img.setAlphaBuffer(trans >= 0);
+		line = img.jumpTable();
+
+		disposePrevious( img, consumer );
+		disposed = FALSE;
+
+		left = newleft;
+		top = newtop;
 
 		// Sanity check frame size - must fit on "screen".
 		if (left >= swidth) left=swidth-1;
@@ -616,17 +633,9 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		if (lcmap) {
 		    ccount=0;
 		    state=LocalColorMap;
-		    if (gcmap) {
-			if (!globalcmap_hold) {
-			    globalcmap_hold = new QRgb[256];
-			    CHECK_PTR(globalcmap_hold);
-			}
-			memcpy(globalcmap_hold, img.colorTable(),
-			    ncols * sizeof(QRgb));
-		    }
 		} else {
-		    if (hadlcmap && gcmap) {
-			memcpy(img.colorTable(), globalcmap_hold,
+		    if (gcmap) {
+			memcpy(img.colorTable(), globalcmap,
 			    ncols * sizeof(QRgb));
 		    }
 		    state=TableImageLZWSize;
@@ -835,7 +844,8 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		    newtrans=-1;
 		    havetrans=FALSE;
 		}
-		if (trans >= 0) preserve_trans = TRUE;
+		if (newtrans >= 0 && frame>=0)
+		    preserve_trans = TRUE;
 		if (newtrans != trans) {
 		    // Unset old transparency
 		    if (trans >= 0) {
@@ -855,13 +865,10 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		    }
 		    trans = newtrans;
 		    if (trans >= 0) {
-			if (globalcmap_hold) {
-			    globalcmap_hold[trans]&=0x00ffffff;
-			}
-			img.setColor(trans, 0x00ffffff&img.color(trans));
+			if (globalcmap)
+			    globalcmap[trans]&=0x00ffffff;
 		    }
 		}
-		img.setAlphaBuffer(havetrans);
 		if (consumer) consumer->setFramePeriod(delay*10);
 		count=0;
 		state=SkipBlockSize;

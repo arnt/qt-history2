@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#12 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#13 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -84,7 +84,7 @@ private:
     void fillRect(QImage&, int x, int y, int w, int h, uchar col);
 
     // GIF specific stuff
-    QRgb* globalcmap_hold;
+    QRgb* globalcmap;
     QImage backingstore;
     unsigned char hold[16];
     bool gif89;
