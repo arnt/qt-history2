@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.51 1999/05/10 19:17:02 warwick Exp $
+** $Id: porting.doc,v 1.52 1999/05/13 20:50:15 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -108,7 +108,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QMenuData>QPopupMenu</a></b>
  <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
  <li><b><a href=#QPainter>QPainter</a></b>
- <li><b><a href=#QPoint>QPoint, QSize and QRect</a></b>
+ <li><b><a href=#QPoint>QPoint, QPointArray, QSize and QRect</a></b>
  <li><b><a href=#QPixmap>QPixmap</a></b>
  <li><b><a href=#QRegion>QRegion</a></b>
  <li><b><a href=#QRgb>QRgb</a></b>
@@ -784,11 +784,18 @@ is now part of the Qt namespace class, so if you
 use it outside a member function, you'll need to prefix with Qt::.
 
 
-<h3><a name=QPoint>QPoint, QSize and QRect</a></h3>
+<h3><a name=QPoint>QPoint, QPointArray, QSize and QRect</a></h3>
 
 <p>The basic coordinate datatype in these classes, QCOORD, is now 32
 bit (int) instead of a 16 bit (short). The const values QCOORD_MIN and
 QCOORD_MAX have changed accordingly.
+
+<p>QPointArray is now actually, not only seemingly, a QArray of QPoint
+objects. The semi-internal workaround classes QPointData and QPointVal
+are removed since they are no longer needed; QPoint is used directly
+instead. The function \code QPointArray::shortPoints()\endcode
+provides the point array converted to short (16bit) coordinates for
+use with external functions that demand that format.
 
 
 <h3><a name=QImage>QImage</a></h3>
