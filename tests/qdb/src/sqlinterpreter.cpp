@@ -115,8 +115,9 @@ void Program::setCounter( int i )
 	    int instrNo = 0;
 
 	    /*
-	      First pass: Fill in the table that maps labels to
-	      instruction numbers.
+	      Fill in the table that maps labels to instruction
+	      numbers. If the instruction is a goto, make the label
+	      map to the target of the goto.
 	    */
 	    localsql::Op *op = ops.first();
 	    while ( op != 0 ) {
@@ -124,18 +125,25 @@ void Program::setCounter( int i )
 		    int n = -( op->label() + 1 );
 		    if ( (int) counters.size() < n + 1 )
 			counters.resize( n + 1 );
-		    counters[n] = instrNo;
+
+		    if ( op->name() == QString("goto") )
+			counters[n] = op->P( 0 ).toInt();
+		    else
+			counters[n] = instrNo;
 		}
 		instrNo++;
 		op = ops.next();
 	    }
 
-#if 0
 	    /*
-	      Second pass: Optimize gotos. If the instruction 
+	      Make sure counters[] contains only nonnegative integers
+	      (no labels). This process will fall in an infinite loop
+	      if the gotos make an infinite loop.
 	    */
-	    op
-#endif
+	    for ( int i = 0; i < (int) counters.size(); i++ ) {
+		while ( counters[i] < 0 )
+		    counters[i] = counters[-(counters[i] + 1)];
+	    }
 
 	    dirty = FALSE;
 	}
