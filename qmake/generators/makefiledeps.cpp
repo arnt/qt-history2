@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#define QMAKE_EOL(x) (x == '\r' || x == '\n')
 
 QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNull())
 {
@@ -383,7 +384,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 x++;
                 if(buffer_len >= x) {
                     if(*(buffer + x) == '/') { //c++ style comment
-                        for(; x < buffer_len && *(buffer + x) != '\n'; x++);
+                        for(; x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
                     } else if(*(buffer + x) == '*') { //c style comment
                         for(; x < buffer_len; x++) {
                             if(*(buffer + x) == '*') {
@@ -391,7 +392,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                                     x += 2;
                                     break;
                                 }
-                            } else if(*(buffer + x) == '\n') {
+                            } else if(QMAKE_EOL(*(buffer + x))) {
                                 line_count++;
                             }
                         }
@@ -415,7 +416,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                             x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
                             x++);
                         break;
-                    } else if(*(buffer+x+keyword_len) == '\n') {
+                    } else if(QMAKE_EOL(*(buffer+x+keyword_len))) {
                         x += keyword_len;
                         keyword_len = 0;
                         break;
@@ -433,23 +434,23 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     x++;
 
                     int inc_len;
-                    for(inc_len = 0; *(buffer + x + inc_len) != term && *(buffer + x + inc_len) != '\n'; inc_len++);
+                    for(inc_len = 0; *(buffer + x + inc_len) != term && !QMAKE_EOL(*(buffer + x + inc_len)); inc_len++);
                     *(buffer + x + inc_len) = '\0';
                     inc = buffer + x;
                 } else if(buffer_len >= x + 14 && !strncmp(buffer + x,  "qmake_warning ", 14)) {
                     for(x+=14; //skip spaces after keyword
                         x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
                         x++);
-                    char term = '\n';
+                    char term = 0;
                     if(*(buffer + x) == '"')
                         term = '"';
                     if(*(buffer + x) == '\'')
                         term = '\'';
-                    if(term != '\n')
+                    if(term)
                         x++;
 
                     int msg_len;
-                    for(msg_len = 0; *(buffer + x + msg_len) != term && *(buffer + x + msg_len) != '\n'; msg_len++);
+                    for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !QMAKE_EOL(*(buffer + x + msg_len)); msg_len++);
                     *(buffer + x + msg_len) = '\0';
                     debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().latin1(), line_count, buffer+x);
                 }
@@ -477,7 +478,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             }
         }
         //read past new line now..
-        for(; x < buffer_len && (*(buffer + x) != '\n'); x++);
+        for(; x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
         line_count++;
     }
     //done last because buffer is shared
@@ -520,7 +521,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
             x++;
             if(buffer_len >= x) {
                 if(*(buffer + x) == '/') { //c++ style comment
-                    for(;x < buffer_len && *(buffer + x) != '\n'; x++);
+                    for(;x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
                     line_count++;
                 } else if(*(buffer + x) == '*') { //c style comment
                     for(;x < buffer_len; x++) {
@@ -538,7 +539,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                                 x += 2;
                                 break;
                             }
-                        } else if(*(buffer + x) == '\n') {
+                        } else if(QMAKE_EOL(*(buffer + x))) {
                             line_count++;
                         }
                     }
@@ -581,7 +582,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 
         while(x < buffer_len && SYMBOL_CHAR(*(buffer+x)))
             x++;
-        if(*(buffer+x) == '\n')
+        if(QMAKE_EOL(*(buffer+x)))
             line_count++;
     }
 #undef OBJ_LEN
