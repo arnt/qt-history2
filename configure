@@ -1310,9 +1310,9 @@ if [ "$CFG_LAZY_DEPS_ALLOWED" = "yes" ]; then
     ${MAKE} --version | grep GNU >/dev/null 2>&1 && QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
 fi
 
-if [ "$OPT_CONCURRENT" = "0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
-    OPT_CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
-fi
+##if [ "$OPT_CONCURRENT" = "0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
+#    OPT_CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
+#fi
 
 [ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM"
 if [ -d "$PLATFORM" ]; then
@@ -2886,7 +2886,25 @@ EXEC=""
 #-------------------------------------------------------------------------------
 
 echo "Finding project files. Please wait..."
-[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
+if [ -z "$QMAKE_PROJECTS" ]; then
+    QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
+else
+    QT_PROJECTS=
+    for a in `echo $QMAKE_PROJECTS`; do
+	put_in="$a"
+	for leave_out in `echo $QMAKE_IGNORE_PROJECTS`; do
+	    if [ "$put_in" = "$leave_out" ]; then
+		put_in=
+		break;
+	    fi
+	done
+	[ ! -z "$put_in" ] && QT_PROJECTS="$QT_PROJECTS $put_in"
+    done
+    for mkfile in "${outpath}/Makefile" "${outpath}/GNUmakefile"; do
+	[ -f "$mkfile" ] && chmod +w "$mkfile"
+	qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
+    done
+fi
 
 # .projects      -> projects to process
 # .projects.1    -> qt and moc

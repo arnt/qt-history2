@@ -1,20 +1,28 @@
 #####################################################################
 # Main projectfile
 # ----------------
-#
-# * Use 'qmake -tp vc projects.pro' to generate a solution file 
-#   containing all the projects in the subdirectories specified
-#   below. (Note: QMAKESPEC must be set to 'win32-msvc.net')
-#
+# *****************
+# * MSVC.net NOTE ************************************************
+# * Use 'qmake -tp vc projects.pro' to generate a solution file  *
+# * containing all the projects in the subdirectories specified  *
+# * below. (Note: QMAKESPEC must be set to 'win32-msvc.net')     *
+# ****************************************************************
 #####################################################################
 
+CONFIG += ordered;
 TEMPLATE = subdirs
+isEmpty(QT_PROJECTS) {
+   QT_PROJECTS = qmake qt plugins tools examples tutorials
+   qmake:!win32-msvc.net:SUBDIRS+=qmake	  
+   qt {
+      SUBDIRS  = src/qt.pro 
+      win32:SUBDIRS += src/qtmain.pro 
+   }
+   plugins:SUBDIRS += plugins/src
+   tools:SUBDIRS += tools
+   examples:SUBDIRS += examples
+   tutorials:SUBDIRS += tutorial
+} else {
+   SUBDIRS += $$QT_PROJECTS
+}
 
-SUBDIRS  = src/qt.pro \
-	   src/qtmain.pro \
-	   plugins/src \
-	   tools \
-	   examples \
-	   tutorial \
-
-!win32-msvc.net:SUBDIRS+=qmake	  
