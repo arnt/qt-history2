@@ -314,7 +314,6 @@ public:
 				    (ub2 *) 0,
 				    (ub2 *) 0,
 				    OCI_DYNAMIC_FETCH ); /* piecewise */
-		break;
 	    } else {
 		ub2 oraType;
 		switch( type ) {
@@ -339,6 +338,7 @@ public:
 				    0, 0, OCI_DEFAULT);
 	    }
 	    def[(int)(count-1)] = dfn;
+	    dfn = 0;
 	    count++;
 	    parmStatus = OCIParamGet( d->sql,
 				      OCI_HTYPE_STMT,
