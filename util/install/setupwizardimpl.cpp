@@ -23,6 +23,21 @@
 #define BUFFERSIZE 64 * 1024
 #define FILESTOCOPY 4582
 
+static bool createDir( const QString& fullPath )
+{
+    QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
+    QString pathComponent, tmpPath;
+    QDir dirTmp;
+    bool success;
+
+    for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
+	pathComponent = *it + "\\";
+	tmpPath += pathComponent;
+	success = dirTmp.mkdir( tmpPath );
+    }
+    return success;
+}
+
 //#define USE_ARCHIVES 1
 
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
@@ -319,6 +334,8 @@ void SetupWizardImpl::doFinalIntegration()
 		outstream << "emit" << endl;
 		outstream << "TRUE" << endl;
 		outstream << "FALSE" << endl;
+		outstream << "SIGNAL" << endl;
+		outstream << "SLOT" << endl;
 		usertype.close();
 	    }
 	}
@@ -333,7 +350,7 @@ void SetupWizardImpl::doFinalIntegration()
     shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
     shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\assistant.exe", "Browse the On-line documentation" );
-    if( int( qWinVersion() ) & int( WV_DOS_based ) )
+    if( qWinVersion() & WV_DOS_based )
 	shell.createShortcut( dirName, common, QString( "Build Qt " ) + QT_VERSION_STR, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
 
     if( installTutorials->isChecked() ) {
@@ -368,7 +385,7 @@ void SetupWizardImpl::integratorDone()
 	logOutput( "The integration process failed.\n", true );
     else {
 	setNextEnabled( buildPage, true );
-    
+
 	/*
 	** We still have some more items to do in order to finish all the
 	** integration stuff.
@@ -388,9 +405,10 @@ void SetupWizardImpl::makeDone()
     QStringList args;
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 
-    if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) )
-	logOutput( "The build process failed.\n" );
-    else {
+    if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
+	logOutput( "The build process failed!\n" );
+	QMessageBox::critical( this, "Error", "The build process failed!" );
+    } else {
 	compileProgress->setProgress( compileProgress->totalSteps() );
 
 	if( sysID != MSVC )
@@ -451,11 +469,21 @@ void SetupWizardImpl::saveSet( QListView* list )
 	QListViewItem *itm = it.current();
 	++it;
 	if ( itm->rtti() != QCheckListItem::RTTI )
-	    continue;	
+	    continue;
 	QCheckListItem *item = (QCheckListItem*)itm;
 	if ( item->type() == QCheckListItem::RadioButton ) {
-	    if ( item->isOn() )
-		settings.writeEntry( "/Trolltech/Qt/" + item->parent()->text(0), item->text() );
+	    if ( item->isOn() ) {
+		QString folder;
+		QListViewItem *pItem = item;
+		while ( (pItem = pItem->parent() ) ) {
+		    if ( folder.isEmpty() )
+			folder = pItem->text( 0 );
+		    else
+			folder = pItem->text(0) + "/" + folder;
+		}
+
+		settings.writeEntry( "/Trolltech/Qt/" + folder, item->text() );
+	    }
 	} else if ( item->type() == QCheckListItem::CheckBox ) {
 	    QStringList lst;
 	    QListViewItem *p = item->parent();
@@ -486,7 +514,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	setInstallStep( 2 );
     } else if( newPage == licensePage ) {
 	setInstallStep( 3 );
-	readLicense( installPath->text() + "/.qt-license" );
+	readLicense( QDir::homeDirPath() + "/.qt-license" );
     } else if( newPage == foldersPage ) {
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
@@ -540,16 +568,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	setInstallStep( 4 );
     } else if( newPage == configPage ) {
 	// First make sure that the current license information is saved
-	createDir( installPath->text() );
-	writeLicense( installPath->text() + "/.qt-license" );
+	writeLicense( QDir::homeDirPath() + "/.qt-license" );
 
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
 	QByteArray pathBuffer;
 	QStringList path;
 	QString qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( installPath->text() ) );
 
-	createDir( installPath->text() );
-	
 	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
 //	if( path.findIndex( qtDir + "\\lib" ) == -1 )
 //	    path.prepend( qtDir + "\\lib" );
@@ -576,6 +601,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
 	if ( !configList->childCount() ) {
+	    QSettings settings;
 	    configList->setSorting( -1 );
 	    advancedList->setSorting( -1 );
 	    QCheckListItem* item;
@@ -589,96 +615,252 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    folder = new QCheckListItem ( configList, "Modules" );
 	    folder->setOpen( true );
 
+	    bool settingsOK;
+	    QStringList entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
 	    QStringList licensedModules = QStringList::split( " ", "network canvas table xml opengl sql" );
 	    for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
 		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		item->setOn( enterprise );
+		bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
+		item->setOn( enterprise && on );
 		item->setEnabled( enterprise );
+		if ( enterprise )
+		    allModules << *it;
 	    }
 
-	    licensedModules = QStringList::split( " ", "styles iconview workspace" );
+	    licensedModules = QStringList::split( " ", "iconview workspace" );
 	    for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
 		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		item->setOn( true );
+		bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
+		item->setOn( on );
+		allModules << *it;
 	    }
 
-	    QStringList requiredModules = QStringList::split( " ", "tools kernel widgets dialogs" );
+	    QStringList requiredModules = QStringList::split( " ", "styles dialogs widgets tools kernel" );
 	    for( it = requiredModules.begin(); it != requiredModules.end(); ++it ) {
 		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		item->setOn( true );
+		bool on = entries.isEmpty() || entries.find( *it ) != entries.end();
+		item->setOn( on );
 		item->setEnabled( false );
+		allModules << *it;
 	    }
 
+	    
 	    folder = new QCheckListItem ( configList, "Threading" );
 	    folder->setOpen( true );
+	    QString entry = settings.readEntry( "/Trolltech/Qt/Threading", "Threaded", &settingsOK );
 	    item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
-	    item->setOn( true );
+	    item->setOn( entry == "Threaded" );
 	    item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
+	    item->setOn( entry == "Non-threaded" );
 
 	    folder = new QCheckListItem ( configList, "Library" );
 	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
 	    item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
+	    item->setOn( entry == "Static" );
 	    item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
-	    item->setOn( true );
+	    item->setOn( entry == "Shared" );
 
 	    folder = new QCheckListItem ( configList, "Build" );
 	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Build", "Release", &settingsOK );
 	    item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
+	    item->setOn( entry == "Debug" );
 	    item = new QCheckListItem( folder, "Release", QCheckListItem::RadioButton );	
-	    item->setOn( true );
+	    item->setOn( entry == "Release" );
 
 	    // Advanced options
-	    folder = new QCheckListItem ( advancedList, "SQL Drivers" );
-	    folder->setOpen( true );
-	    QStringList sqlList = QStringList::split( " ", "mysql oci odbc psql tds" );
-	    for( it = sqlList.begin(); it != sqlList.end(); ++it ) {
-		item = new QCheckListItem( folder, (*it), QCheckListItem::CheckBox );
-		item->setOn( false );
-		item->setEnabled( enterprise );
-	    }
-
-	    folder = new QCheckListItem( advancedList, "Big Textcodecs" );
-	    folder->setOpen( true );
-	    bigCodecsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    bigCodecsOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );	
-	    bigCodecsOn->setOn( true );
-
-	    folder = new QCheckListItem( advancedList, "Accessibility" );
-	    folder->setOpen( true );
-	    accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    accOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
-	    accOn->setOn( true );
-
-	    folder = new QCheckListItem( advancedList, "Tablet Support" );
-	    folder->setOpen( true );
-	    tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	    tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
-	    tabletOff->setOn( true );
-
-
 	    QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
 	    imfolder->setOpen( true );
 
 	    folder = new QCheckListItem( imfolder, "MNG" );
 	    folder->setOpen( true );
-	    mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	    mngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/MNG", "Plugin", &settingsOK );
 	    mngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    mngPlugin->setOn( true );
+	    mngPlugin->setOn( entry == "Plugin" );
+	    mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	    mngPresent->setOn( entry == "Present" );
+	    mngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    mngDirect->setOn( entry == "Direct" );
 
 	    folder = new QCheckListItem( imfolder, "JPEG" );
 	    folder->setOpen( true );
-	    jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	    jpegDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/JPEG", "Plugin", &settingsOK );
 	    jpegPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    jpegPlugin->setOn( true );
+	    jpegPlugin->setOn( entry == "Plugin" );
+	    jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	    jpegPresent->setOn( entry == "Present" );
+	    jpegDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+	    jpegDirect->setOn( entry == "Direct" );
 
 	    folder = new QCheckListItem( imfolder, "PNG" );
 	    folder->setOpen( true );
-	    pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
-	    pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/PNG", "Plugin", &settingsOK );
 	    pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	    pngDirect->setOn( true );
+	    pngPlugin->setOn( entry == "Plugin" );
+	    pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
+	    pngPresent->setOn( entry == "Present" );
+	    pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+	    pngDirect->setOn( entry == "Direct" );
+
+	    QCheckListItem *sqlfolder = new QCheckListItem( advancedList, "Sql Drivers" );
+	    sqlfolder->setOpen( true );
+
+	    folder = new QCheckListItem( sqlfolder, "TDS" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
+	    tdsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	    tdsOff->setOn( entry == "Off" );
+	    tdsOff->setEnabled( enterprise );
+	    tdsPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    tdsPlugin->setOn( entry == "Plugin" );
+	    tdsPlugin->setEnabled( enterprise );
+	    tdsDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    tdsDirect->setOn( entry == "Direct" );
+	    tdsDirect->setEnabled( enterprise );
+
+	    folder = new QCheckListItem( sqlfolder, "PostgreSQL" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
+	    psqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	    psqlOff->setOn( entry == "Off" );
+	    psqlOff->setEnabled( enterprise );
+	    psqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    psqlPlugin->setOn( entry == "Plugin" );
+	    psqlPlugin->setEnabled( enterprise );
+	    psqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    psqlDirect->setOn( entry == "Direct" );
+	    psqlDirect->setEnabled( enterprise );
+
+	    folder = new QCheckListItem( sqlfolder, "OCI" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
+	    ociOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	    ociOff->setOn( entry == "Off" );
+	    ociOff->setEnabled( enterprise );
+	    ociPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    ociPlugin->setOn( entry == "Plugin" );
+	    ociPlugin->setEnabled( enterprise );
+	    ociDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    ociDirect->setOn( entry == "Direct" );
+	    ociDirect->setEnabled( enterprise );
+
+	    folder = new QCheckListItem( sqlfolder, "MySQL" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
+	    mysqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	    mysqlOff->setOn( entry == "Off" );
+	    mysqlOff->setEnabled( enterprise );
+	    mysqlPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    mysqlPlugin->setOn( entry == "Plugin" );
+	    mysqlPlugin->setEnabled( enterprise );
+	    mysqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    mysqlDirect->setOn( entry == "Direct" );
+	    mysqlDirect->setEnabled( enterprise );
+
+	    folder = new QCheckListItem( sqlfolder, "ODBC" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
+	    odbcOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+	    odbcOff->setOn( entry == "Off" );
+	    odbcOff->setEnabled( enterprise );
+	    odbcPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    odbcPlugin->setOn( entry == "Plugin" );
+	    odbcPlugin->setEnabled( enterprise );
+	    odbcDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    odbcDirect->setOn( entry == "Direct" );
+	    odbcDirect->setEnabled( enterprise );
+
+	    QCheckListItem *stfolder = new QCheckListItem( advancedList, "Styles" );
+	    stfolder->setOpen( true );
+
+	    folder = new QCheckListItem( stfolder, "SGI" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Direct", &settingsOK );
+	    sgiOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    sgiOff->setOn( entry == "Off" );
+	    sgiPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+	    sgiPlugin->setOn( entry == "Plugin" );
+	    sgiDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    sgiDirect->setOn( entry == "Direct" );
+
+	    folder = new QCheckListItem( stfolder, "CDE" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Direct", &settingsOK );
+	    cdeOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    cdeOff->setOn( entry == "Off" );
+	    cdePlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    cdePlugin->setOn( entry == "Plugin" );
+	    cdeDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    cdeDirect->setOn( entry == "Direct" );
+
+	    folder = new QCheckListItem( stfolder, "MotifPlus" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Direct", &settingsOK );
+	    motifplusOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    motifplusOff->setOn( entry == "Off" );
+	    motifplusPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+	    motifplusPlugin->setOn( entry == "Plugin" );
+	    motifplusDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    motifplusDirect->setOn( entry == "Direct" );
+
+	    folder = new QCheckListItem( stfolder, "Platinum" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Direct", &settingsOK );
+	    platinumOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    platinumOff->setOn( entry == "Off" );
+	    platinumPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    platinumPlugin->setOn( entry == "Plugin" );
+	    platinumDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+	    platinumDirect->setOn( entry == "Direct" );
+
+	    folder = new QCheckListItem( stfolder, "Motif" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
+	    item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    item->setEnabled( false );
+	    item->setOn( entry == "Off" );
+	    item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    item->setEnabled( false );
+	    item->setOn( entry == "Plugin" );
+	    item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    item->setOn( entry == "Direct" );
+
+	    folder = new QCheckListItem( stfolder, "Windows" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
+	    item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    item->setEnabled( false );
+	    item->setOn( entry == "Off" );
+	    item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+	    item->setEnabled( false );
+	    item->setOn( entry == "Plugin" );
+	    item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	    item->setOn( entry == "Direct" );
+
+	    folder = new QCheckListItem( advancedList, "Tablet Support" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
+	    tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    tabletOff->setOn( entry == "Off" );
+	    tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	    tabletOn->setOn( entry == "On" );
+
+	    folder = new QCheckListItem( advancedList, "Accessibility" );
+	    folder->setOpen( true );
+	    entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
+	    accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    accOff->setOn( entry == "Off" );
+	    accOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	    accOn->setOn( entry == "On" );
+
+	    entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
+	    folder = new QCheckListItem( advancedList, "Big Textcodecs" );
+	    folder->setOpen( true );
+	    bigCodecsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    bigCodecsOff->setOn( entry == "Off" );
+	    bigCodecsOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );	
+	    bigCodecsOn->setOn( entry == "On" );
 	}
 
 	optionSelected( 0 );
@@ -692,6 +874,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	setInstallStep( 6 );
 	if( !filesCopied ) {
+	    createDir( installPath->text() );
 	    filesDisplay->append( "Starting copy process\n" );
 #if defined (USE_ARCHIVES)
 	    fi.setFile( "qt.arq" );
@@ -778,177 +961,191 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	autoContTimer.stop();
 	nextButton()->setText( "Next >" );
 	saveSettings();
-	if( qWinVersion() & WV_NT_based ) {
-	    outputDisplay->append( "Execute configure...\n" );
 
-	    args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
-	    entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
-	    if ( entry == "Debug" )
-		args += "-debug";
-	    else
-		args += "-release";
+	args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
-	    if ( entry == "Static" )
-		args += "-static";
-	    else
-		args += "-shared";
+	entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
+	if ( entry == "Debug" )
+	    args += "-debug";
+	else
+	    args += "-release";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
-	    if ( entry == "Threaded" )
-		args += "-thread";
-	    else
-		args += "-no-thread";
+	entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
+	if ( entry == "Static" )
+	    args += "-static";
+	else
+	    args += "-shared";
 
-	    entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
-	    for( it = entries.begin(); it != entries.end(); ++it ) {
-		entry = *it;
+	entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
+	if ( entry == "Threaded" )
+	    args += "-thread";
+	else
+	    args += "-no-thread";
+
+	entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
+	for( it = allModules.begin(); it != allModules.end(); ++it ) {
+	    entry = *it;
+	    if ( entries.find( entry ) != entries.end() )
 		args += QString( "-enable-" ) + entry;
-	    }
-
-	    entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
-	    for( it = entries.begin(); it != entries.end(); ++it ) {
-		entry = *it;
-		args += QString( "-sql-" ) + entry;
-	    }
-
-	    entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
-	    if ( entry == "On" )
-		args += "-accessibility";
 	    else
-		args += "-no-accessibility";
+		args += QString( "-disable-") + entry;
+	}
 
-	    entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
-	    if ( entry == "On" )
-		args += "-big-codecs";
-	    else
-		args += "-no-big-codecs";
+	entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/MySQL", "Off", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-sql-mysql";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-sql-mysql";
+	else if ( entry == "Off" )
+	    args += "-no-sql-mysql";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
-	    if ( entry == "On" )
-		args += "-tablet";
-	    else
-		args += "-no-tablet";
+	entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/OCI", "Off", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-sql-oci";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-sql-oci";
+	else if ( entry == "Off" )
+	    args += "-no-sql-oci";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/PNG", "Direct", &settingsOK );
-	    if ( entry == "Plugin" )
-		args += "-no-png";
-	    else if ( entry == "Direct" )
-		args += "-qt-png";
-	    else if ( entry == "Present" )
-		args += "-system-png";
+	entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/ODBC", "Off", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-sql-odbc";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-sql-odbc";
+	else if ( entry == "Off" )
+	    args += "-no-sql-odbc";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/JPEG", "Direct", &settingsOK );
-	    if ( entry == "Plugin" )
-		args += "-no-jpeg";
-	    else if ( entry == "Direct" )
-		args += "-qt-jpeg";
-	    else if ( entry == "Present" )
-		args += "-system-jpeg";
+	entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/PostgreSQL", "Off", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-sql-psql";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-sql-psql";
+	else if ( entry == "Off" )
+	    args += "-no-sql-psql";
 
-	    entry = settings.readEntry( "/Trolltech/Qt/MNG", "Direct", &settingsOK );
-	    if ( entry == "Plugin" )
-		args += "-no-mng";
-	    else if ( entry == "Direct" )
-		args += "-qt-mng";
-	    else if ( entry == "Present" )
-		args += "-system-mng";
+	entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/TDS", "Off", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-sql-tds";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-sql-tds";
+	else if ( entry == "Off" )
+	    args += "-no-sql-tds";
 
-	    outputDisplay->append( args.join( " " ) + "\n" );
+	entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
+	if ( entry == "On" )
+	    args += "-accessibility";
+	else
+	    args += "-no-accessibility";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
+	if ( entry == "On" )
+	    args += "-big-codecs";
+	else
+	    args += "-no-big-codecs";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
+	if ( entry == "On" )
+	    args += "-tablet";
+	else
+	    args += "-no-tablet";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
+	if ( entry == "Plugin" )
+	    args += "-no-png";
+	else if ( entry == "Direct" )
+	    args += "-qt-png";
+	else if ( entry == "Present" )
+	    args += "-system-png";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Direct", &settingsOK );
+	if ( entry == "Plugin" )
+	    args += "-no-jpeg";
+	else if ( entry == "Direct" )
+	    args += "-qt-jpeg";
+	else if ( entry == "Present" )
+	    args += "-system-jpeg";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Direct", &settingsOK );
+	if ( entry == "Plugin" )
+	    args += "-no-mng";
+	else if ( entry == "Direct" )
+	    args += "-qt-mng";
+	else if ( entry == "Present" )
+	    args += "-system-mng";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-style-windows";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-style-windows";
+	else if ( entry == "Off" )
+	    args += "-no-style-windows";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-style-motif";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-style-motif";
+	else if ( entry == "Off" )
+	    args += "-no-style-motif";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Platinum", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-style-platinum";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-style-platinum";
+	else if ( entry == "Off" )
+	    args += "-no-style-platinum";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-style-motifplus";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-style-motifplus";
+	else if ( entry == "Off" )
+	    args += "-no-style-motifplus";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/CDE", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-style-cde";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-style-cde";
+	else if ( entry == "Off" )
+	    args += "-no-style-cde";
+
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-style-sgi";
+	else if ( entry == "Plugin" )
+	    args += "-plugin-style-sgi";
+	else if ( entry == "Off" )
+	    args += "-no-style-sgi";
+
+	if( qWinVersion() & WV_NT_based ) {
+	    logOutput( "Execute configure...\n" );
+	    logOutput( args.join( " " ) + "\n" );
+
 	    configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	    configure.setArguments( args );
-
 	    // Start the configure process
 	    compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
 	    if( !configure.start() )
 		logOutput( "Could not start configure process" );
 	} else { // no proper process handling on DOS based systems - create a batch file instead
-	    compileProgress->setTotalSteps( compileProgress->totalSteps() );
+	    logOutput( "Generating batch file...\n" );
 	    QFile outFile( installPath->text() + "\\build.bat" );
 	    QTextStream outStream( &outFile );
 
 	    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-		outStream << "cd " << QEnvironment::getEnv( "QTDIR" ).latin1() << endl;
-		outStream << QEnvironment::getEnv( "QTDIR" ).latin1() << "\\bin\\configure.exe ";
-		entry = settings.readEntry( "/Trolltech/Qt/Build", "Debug", &settingsOK );
-		if ( entry == "Debug" )
-		    outStream << "-debug ";
-		else
-		    outStream << "-release ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
-		if ( entry == "Static" )
-		    outStream << "-static ";
-		else
-		    outStream << "-shared ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
-		if ( entry == "Threaded" )
-		    outStream << "-thread ";
-		else
-		    outStream << "-no-thread ";
-
-		entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
-		for( it = entries.begin(); it != entries.end(); ++it ) {
-		    entry = *it;
-		    outStream << "-enable-" << entry.latin1() << " ";
-		}
-
-		entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
-		for( it = entries.begin(); it != entries.end(); ++it ) {
-		    entry = *it;
-		    outStream << "-sql-" << entry.latin1() << " ";
-		}
-
-		entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
-		if ( entry == "On" )
-		    outStream << "-accessibility ";
-		else
-		    outStream << "-no-accessibility ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
-		if ( entry == "On" )
-		    outStream << "-big-codecs ";
-		else
-		    outStream << "-no-big-codecs ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
-		if ( entry == "On" )
-		    outStream << "-tablet ";
-		else
-		    outStream << "-no-tablet ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/PNG", "Direct", &settingsOK );
-		if ( entry == "Plugin" )
-		    outStream << "-no-png ";
-		else if ( entry == "Direct" )
-		    outStream << "-qt-png ";
-		else if ( entry == "Present" )
-		    outStream << "-system-png ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/JPEG", "Direct", &settingsOK );
-		if ( entry == "Plugin" )
-		    outStream << "-no-jpeg ";
-		else if ( entry == "Direct" )
-		    outStream << "-qt-jpeg ";
-		else if ( entry == "Present" )
-		    outStream << "-system-jpeg ";
-
-		entry = settings.readEntry( "/Trolltech/Qt/MNG", "Direct", &settingsOK );
-		if ( entry == "Plugin" )
-		    outStream << "-no-mng ";
-		else if ( entry == "Direct" )
-		    outStream << "-qt-mng ";
-		else if ( entry == "Present" )
-		    outStream << "-system-mng ";
-
-		outStream << endl;
+		outStream << "cd " << QEnvironment::getEnv( "QTDIR" ) << endl;
+		outStream << args.join( " " ) << endl;
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 		outStream << makeCmds[ sysID ].latin1() << endl;
 
 		outFile.close();
 	    }
 	    doFinalIntegration();
+	    compileProgress->setTotalSteps( compileProgress->totalSteps() );
 	    showPage( finishPage );
 	}
 	setInstallStep( 7 );
@@ -959,12 +1156,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	if( qWinVersion() & WV_NT_based ) {
 	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.";
 	} else {
-	    finishMsg = QString( "The Qt files have installed to " ) + installPath->text() + " and is ready to be compiled.\n";
+	    finishMsg = QString( "The Qt files have been installed to " ) + installPath->text() + " and is ready to be compiled.\n";
 	    if( persistentEnv ) {
 		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
 		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
 	    }
-	    finishMsg += QString( "To build Qt, please double-click to \"Build Qt " ) + QString( QT_VERSION_STR ) + "\" icon which has been installed into your Start-Menu.";
+	    finishMsg += QString( "To build Qt, use the \"Build Qt " ) + QString( QT_VERSION_STR ) + "\" icon which has been installed into your Start-Menu.";
 	}
 	finishText->setText( finishMsg );
 	setInstallStep( 8 );
@@ -979,6 +1176,8 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
     QCheckListItem *item = (QCheckListItem*)i;
     if ( item->type() != QCheckListItem::RadioButton )
 	return;
+
+    bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
     if ( item->text(0) == "Static" && item->isOn() ) {
 	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
@@ -1015,12 +1214,61 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 		jpegDirect->setOn( true );
 		jpegPlugin->setOn( false );
 	    }
+	    if ( sgiPlugin->isOn() ) {
+		sgiPlugin->setOn( false );
+		sgiDirect->setOn( true );
+	    }
+	    if ( cdePlugin->isOn() ) {
+		cdePlugin->setOn( false );
+		cdeDirect->setOn( true );
+	    }
+	    if ( motifplusPlugin->isOn() ) {
+		motifplusPlugin->setOn( false );
+		motifplusDirect->setOn( true );
+	    }
+	    if ( platinumPlugin->isOn() ) {
+		platinumPlugin->setOn( false );
+		platinumDirect->setOn( true );
+	    }
+	    if ( enterprise ) {
+		if ( mysqlPlugin->isOn() ) {
+		    mysqlPlugin->setOn( false );
+		    mysqlDirect->setOn( true );
+		}
+		if ( ociPlugin->isOn() ) {
+		    ociPlugin->setOn( false );
+		    ociDirect->setOn( true );
+		}
+		if ( odbcPlugin->isOn() ) {
+		    odbcPlugin->setOn( false );
+		    odbcDirect->setOn( true );
+		}
+		if ( psqlPlugin->isOn() ) {
+		    psqlPlugin->setOn( false );
+		    psqlDirect->setOn( true );
+		}
+		if ( tdsPlugin->isOn() ) {
+		    tdsPlugin->setOn( false );
+		    tdsDirect->setOn( true );
+		}
+	    }
 
 	    accOn->setEnabled( false );
 	    bigCodecsOff->setEnabled( false );
 	    mngPlugin->setEnabled( false );
 	    pngPlugin->setEnabled( false );
-	    jpegPlugin->setEnabled( false );	    
+	    jpegPlugin->setEnabled( false );
+	    sgiPlugin->setEnabled( false );
+	    cdePlugin->setEnabled( false );
+	    motifplusPlugin->setEnabled( false );
+	    platinumPlugin->setEnabled( false );
+	    if ( enterprise ) {
+		mysqlPlugin->setEnabled( false );
+		ociPlugin->setEnabled( false );
+		odbcPlugin->setEnabled( false );
+		psqlPlugin->setEnabled( false );
+		tdsPlugin->setEnabled( false );
+	    }
 	}
 	return;
     } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
@@ -1028,7 +1276,18 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	bigCodecsOff->setEnabled( true );
 	mngPlugin->setEnabled( true );
 	pngPlugin->setEnabled( true );
-	jpegPlugin->setEnabled( true );	    
+	jpegPlugin->setEnabled( true );
+	sgiPlugin->setEnabled( true );
+	cdePlugin->setEnabled( true );
+	motifplusPlugin->setEnabled( true );
+	platinumPlugin->setEnabled( true );
+	if ( enterprise ) {
+	    mysqlPlugin->setEnabled( true );
+	    ociPlugin->setEnabled( true );
+	    odbcPlugin->setEnabled( true );
+	    psqlPlugin->setEnabled( true );
+	    tdsPlugin->setEnabled( true );
+	}
     }
 }
 
@@ -1184,21 +1443,6 @@ void SetupWizardImpl::configPageChanged()
     }
 }
 
-bool SetupWizardImpl::createDir( const QString& fullPath )
-{
-    QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
-    QString pathComponent, tmpPath;
-    QDir dirTmp;
-    bool success;
-
-    for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
-	pathComponent = *it + "\\";
-	tmpPath += pathComponent;
-	success = dirTmp.mkdir( tmpPath );
-    }
-    return success;
-}
-
 void SetupWizardImpl::logFiles( const QString& entry, bool close )
 {
     if( !fileLog.isOpen() ) {
@@ -1218,9 +1462,9 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 
 void SetupWizardImpl::logOutput( const QString& entry, bool close )
 {
-    QTextStream outstream;
+    static QTextStream outstream;
     if( !outputLog.isOpen() ) {
-	outputLog.setName( installPath->text() + "\\buildlog.txt" );
+	outputLog.setName( installPath->text() + "\\build.log" );
 	if( !outputLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
@@ -1350,6 +1594,7 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
     }
 }
 #else
+
 bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
@@ -1375,7 +1620,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 			doCopy = installExamples->isChecked();
 		}
 		if( doCopy )
-		    if( !copyFiles( entryName, targetName ) )
+		    if( !copyFiles( entryName, targetName, false ) )
 			return false;
 	    } else {
 		if( qApp && !isHidden() ) {

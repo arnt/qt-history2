@@ -64,9 +64,8 @@ private:
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );
 #else
-    bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel = false );
+    bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel );
 #endif
-    bool createDir( const QString& fullPath );
     int totalRead;
 
     bool filesCopied;
@@ -98,6 +97,7 @@ private:
     QTimer autoContTimer;
     int timeCounter;
     bool triedToIntegrate;
+    QStringList allModules;
 
     QCheckListItem *accOn, *accOff;
 
@@ -105,7 +105,18 @@ private:
 
     QCheckListItem *tabletOn, *tabletOff;
 
-    QCheckListItem *mngPresent, *mngDirect, *mngPlugin;
-    QCheckListItem *jpegPresent, *jpegDirect, *jpegPlugin;
-    QCheckListItem *pngPresent, *pngDirect, *pngPlugin;
+    QCheckListItem *mngPresent, *mngDirect, *mngPlugin, *mngOff;
+    QCheckListItem *jpegPresent, *jpegDirect, *jpegPlugin, *jpegOff;
+    QCheckListItem *pngPresent, *pngDirect, *pngPlugin, *pngOff;
+
+    QCheckListItem *sgiDirect, *sgiPlugin, *sgiOff;
+    QCheckListItem *cdeDirect, *cdePlugin, *cdeOff;
+    QCheckListItem *motifplusDirect, *motifplusPlugin, *motifplusOff;
+    QCheckListItem *platinumDirect, *platinumPlugin, *platinumOff;
+
+    QCheckListItem *mysqlDirect, *mysqlPlugin, *mysqlOff;
+    QCheckListItem *ociDirect, *ociPlugin, *ociOff;
+    QCheckListItem *odbcDirect, *odbcPlugin, *odbcOff;
+    QCheckListItem *psqlDirect, *psqlPlugin, *psqlOff;
+    QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
 };

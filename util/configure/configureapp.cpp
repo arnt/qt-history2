@@ -25,31 +25,45 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     for( i = 1; i < argc; i++ )
 	configCmdLine += argv[ i ];
 
-    dictionary[ "QCONFIG" ] = "full";
-    dictionary[ "EMBEDDED" ] = "no";
+    dictionary[ "QCONFIG" ]	    = "full";
+    dictionary[ "EMBEDDED" ]	    = "no";
 
-    dictionary[ "DEBUG" ] = "no";
-    dictionary[ "SHARED" ] = "yes";
-    dictionary[ "THREAD" ] = "yes";
-    dictionary[ "GIF" ] = "no";
-    dictionary[ "ZLIB" ] = "yes";
-    dictionary[ "PNG" ] = "yes";
-    dictionary[ "JPEG" ] = "yes";
-    dictionary[ "MNG" ] = "no";
-    dictionary[ "ACCESSIBILITY" ] = "yes";
-    dictionary[ "BIG_CODECS" ] = "yes";
-    dictionary[ "TABLET" ] = "no";
-
-    dictionary[ "BUILD_QMAKE" ] = "yes";
-    dictionary[ "DSPFILES" ] = "yes";
-    dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
-    dictionary[ "QMAKE_INTERNAL" ] = "no";
-    dictionary[ "LEAN" ] = "no";
-    dictionary[ "NOPROCESS" ] = "no";
-    dictionary[ "STL" ] = "no";
-    dictionary[ "VERSION" ] = "300";
-    dictionary[ "REDO" ] = "no";
+    dictionary[ "BUILD_QMAKE" ]	    = "yes";
+    dictionary[ "DSPFILES" ]	    = "yes";
+    dictionary[ "QMAKESPEC" ]	    = QEnvironment::getEnv( "QMAKESPEC" );
+    dictionary[ "QMAKE_INTERNAL" ]  = "no";
+    dictionary[ "LEAN" ]	    = "no";
+    dictionary[ "NOPROCESS" ]	    = "no";
+    dictionary[ "STL" ]		    = "no";
+    dictionary[ "VERSION" ]	    = "300";
+    dictionary[ "REDO" ]	    = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
+
+    dictionary[ "DEBUG" ]	    = "no";
+    dictionary[ "SHARED" ]	    = "yes";
+    dictionary[ "THREAD" ]	    = "yes";
+
+    dictionary[ "GIF" ]		    = "no";
+    dictionary[ "ZLIB" ]	    = "yes";
+    dictionary[ "PNG" ]		    = "yes";
+    dictionary[ "JPEG" ]	    = "yes";
+    dictionary[ "MNG" ]		    = "no";
+    dictionary[ "ACCESSIBILITY" ]   = "yes";
+    dictionary[ "BIG_CODECS" ]	    = "yes";
+    dictionary[ "TABLET" ]	    = "no";
+
+    dictionary[ "WINDOWS" ]	    = "direct";
+    dictionary[ "MOTIF" ]	    = "direct";
+    dictionary[ "MOTIFPLUS" ]	    = "direct";
+    dictionary[ "PLATINUM" ]	    = "direct";
+    dictionary[ "SGI" ]		    = "direct";
+    dictionary[ "CDE" ]		    = "direct";
+
+    dictionary[ "MYSQL" ]	    = "no";
+    dictionary[ "ODBC" ]	    = "no";
+    dictionary[ "OCI" ]		    = "no";
+    dictionary[ "PSQL" ]	    = "no";
+    dictionary[ "TDS" ]		    = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -192,6 +206,84 @@ void ConfigureApp::parseCmdLine()
 	else if( (*args) == "-system-jpeg" )
 	    dictionary[ "JPEG" ] = "system";
 
+	else if( (*args) == "-qt-style-windows" )
+	    dictionary[ "WINDOWS" ] = "yes";
+	else if( (*args) == "-plugin-style-windows" )
+	    dictionary[ "WINDOWS" ] = "plugin";
+	else if( (*args) == "-no-style-windows" )
+	    dictionary[ "WINDOWS" ] = "no";
+
+	else if( (*args) == "-qt-style-motif" )
+	    dictionary[ "MOTIF" ] = "yes";
+	else if( (*args) == "-plugin-style-motif" )
+	    dictionary[ "MOTIF" ] = "plugin";
+	else if( (*args) == "-no-style-motif" )
+	    dictionary[ "MOTIF" ] = "no";
+
+	else if( (*args) == "-qt-style-platinum" )
+	    dictionary[ "PLATINUM" ] = "yes";
+	else if( (*args) == "-plugin-style-platinum" )
+	    dictionary[ "PLATINUM" ] = "plugin";
+	else if( (*args) == "-no-style-platinum" )
+	    dictionary[ "PLATINUM" ] = "no";
+
+	else if( (*args) == "-qt-style-motifplus" )
+	    dictionary[ "MOTIFPLUS" ] = "yes";
+	else if( (*args) == "-plugin-style-motifplus" )
+	    dictionary[ "MOTIFPLUS" ] = "plugin";
+	else if( (*args) == "-no-style-motifplus" )
+	    dictionary[ "MOTIFPLUS" ] = "no";
+
+	else if( (*args) == "-qt-style-cde" )
+	    dictionary[ "CDE" ] = "yes";
+	else if( (*args) == "-plugin-style-cde" )
+	    dictionary[ "CDE" ] = "plugin";
+	else if( (*args) == "-no-style-cde" )
+	    dictionary[ "CDE" ] = "no";
+
+	else if( (*args) == "-qt-style-sgi" )
+	    dictionary[ "SGI" ] = "yes";
+	else if( (*args) == "-plugin-style-sgi" )
+	    dictionary[ "SGI" ] = "plugin";
+	else if( (*args) == "-no-style-sgi" )
+	    dictionary[ "SGI" ] = "no";
+
+	else if( (*args) == "-qt-sql-mysql" )
+	    dictionary[ "MYSQL" ] = "yes";
+	else if( (*args) == "-plugin-sql-mysql" )
+	    dictionary[ "MYSQL" ] = "plugin";
+	else if( (*args) == "-no-sql-mysql" )
+	    dictionary[ "MYSQL" ] = "no";
+
+	else if( (*args) == "-qt-sql-odbc" )
+	    dictionary[ "ODBC" ] = "yes";
+	else if( (*args) == "-plugin-sql-odbc" )
+	    dictionary[ "ODBC" ] = "plugin";
+	else if( (*args) == "-no-sql-odbc" )
+	    dictionary[ "ODBC" ] = "no";
+
+	else if( (*args) == "-qt-sql-oci" )
+	    dictionary[ "OCI" ] = "yes";
+	else if( (*args) == "-plugin-sql-oci" )
+	    dictionary[ "OCI" ] = "plugin";
+	else if( (*args) == "-no-sql-oci" )
+	    dictionary[ "OCI" ] = "no";
+
+	else if( (*args) == "-qt-sql-psql" )
+	    dictionary[ "PSQL" ] = "yes";
+	else if( (*args) == "-plugin-sql-psql" )
+	    dictionary[ "PSQL" ] = "plugin";
+	else if( (*args) == "-no-sql-psql" )
+	    dictionary[ "PSQL" ] = "no";
+
+	else if( (*args) == "-qt-sql-tds" )
+	    dictionary[ "TDS" ] = "yes";
+	else if( (*args) == "-plugin-sql-tds" )
+	    dictionary[ "TDS" ] = "plugin";
+	else if( (*args) == "-no-sql-tds" )
+	    dictionary[ "TDS" ] = "no";
+
+
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
 
@@ -254,15 +346,6 @@ void ConfigureApp::parseCmdLine()
 		}
 		else if( (*args) == QString( "-disable-" ) + (*module) ) {
 		    disabledModules += (*module);
-		    break;
-		}
-	    }
-	}
-
-	else if( (*args).left( 5 ) == "-sql-" )	{
-	    for( QStringList::Iterator sql = sqlDrivers.begin(); sql != sqlDrivers.end(); ++sql ) {
-		if( (*args) == QString( "-sql-" ) + (*sql) ) {
-		    qmakeSql += (*sql);
 		    break;
 		}
 	    }
@@ -338,7 +421,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
-	    cout << "                        " << (*config).latin1() << endl << endl;
+	    cout << "                        " << (*config).latin1() << endl;
 
 	cout << "-qt-gif             Enable GIF support." << endl;
 	cout << "-no-gif           * Disable GIF support." << endl << endl;
@@ -430,16 +513,6 @@ void ConfigureApp::generateOutputVars()
 	qmakeVars += "LIBS += " + qmakeLibs.join( " " );
     }
 
-    qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
-
-    qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
-    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
-    qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
-    if( licenseInfo[ "PRODUCTS" ].length() )
-	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
-
     if( dictionary[ "GIF" ] == "yes" )
 	qmakeConfig += "gif";
     else if( dictionary[ "GIF" ] == "no" )
@@ -478,6 +551,71 @@ void ConfigureApp::generateOutputVars()
 	qmakeConfig += "tablet";
     else if( dictionary[ "TABLET" ] == "no" )
 	qmakeConfig += "no-tablet";
+
+    if ( dictionary[ "WINDOWS" ] == "yes" )
+	qmakeConfig += "style-windows";
+    else if ( dictionary[ "WINDOWS" ] == "no" )
+	qmakeConfig += "no-style-windows";
+
+    if ( dictionary[ "MOTIF" ] == "yes" )
+	qmakeConfig += "style-motif";
+    else if ( dictionary[ "MOTIF" ] == "no" )
+	qmakeConfig += "no-style-motif";
+
+    if ( dictionary[ "MOTIFPLUS" ] == "yes" )
+	qmakeConfig += "style-motifplus";
+    else if ( dictionary[ "MOTIFPLUS" ] == "no" )
+	qmakeConfig += "no-style-motifplus";
+
+    if ( dictionary[ "PLATINUM" ] == "yes" )
+	qmakeConfig += "style-platinum";
+    else if ( dictionary[ "PLATINUM" ] == "no" )
+	qmakeConfig += "no-style-platinum";
+
+    if ( dictionary[ "SGI" ] == "yes" )
+	qmakeConfig += "style-sgi";
+    else if ( dictionary[ "SGI" ] == "no" )
+	qmakeConfig += "no-style-sgi";
+
+    if ( dictionary[ "CDE" ] == "yes" )
+	qmakeConfig += "style-cde";
+    else if ( dictionary[ "CDE" ] == "no" )
+	qmakeConfig += "no-style-cde";
+
+    if ( dictionary[ "MYSQL" ] == "yes" )
+	qmakeConfig += "sql-mysql";
+    else if ( dictionary[ "MYSQL" ] == "no" )
+	qmakeConfig += "no-sql-mysql";
+
+    if ( dictionary[ "ODBC" ] == "yes" )
+	qmakeConfig += "sql-odbc";
+    else if ( dictionary[ "ODBC" ] == "no" )
+	qmakeConfig += "no-sql-odbc";
+
+    if ( dictionary[ "OCI" ] == "yes" )
+	qmakeConfig += "sql-oci";
+    else if ( dictionary[ "OCI" ] == "no" )
+	qmakeConfig += "no-sql-oci";
+
+    if ( dictionary[ "PSQL" ] == "yes" )
+	qmakeConfig += "sql-psql";
+    else if ( dictionary[ "PSQL" ] == "no" )
+	qmakeConfig += "no-sql-psql";
+
+    if ( dictionary[ "TDS" ] == "yes" )
+	qmakeConfig += "sql-tds";
+    else if ( dictionary[ "TDS" ] == "no" )
+	qmakeConfig += "no-sql-tds";
+
+
+    qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
+
+    qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
+    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
+    if( licenseInfo[ "PRODUCTS" ].length() )
+	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
 
     if( !dictionary[ "QMAKESPEC" ].length() ) {
 	cout << "QMAKESPEC must either be defined as an environment variable, or specified" << endl;
@@ -567,8 +705,7 @@ void ConfigureApp::generateConfigfiles()
 	    outStream << "#if defined( QT_MAKEDLL ) && !defined( QT_DLL )" << endl;
 	    outStream << "#define QT_DLL" << endl;
 	    outStream << "#endif" << endl;
-	}
-	else {
+	} else {
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;
 	    
@@ -619,15 +756,36 @@ void ConfigureApp::displayConfig()
     // Give some feedback
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
     cout << "Configuration..............." << qmakeConfig.join( " " ) << endl;
-    cout << "STL support................." << dictionary[ "STL" ] << endl;
-    cout << "Thread support.............." << dictionary[ "THREAD" ] << endl;
-    cout << "GIF support................." << dictionary[ "GIF" ] << endl;
-    cout << "MNG support................." << dictionary[ "MNG" ] << endl;
-    cout << "JPEG support................" << dictionary[ "JPEG" ] << endl;
-    cout << "PNG support................." << dictionary[ "PNG" ] << endl;
+
+    cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
+    cout << "Thread support.............." << dictionary[ "THREAD" ] << endl << endl;
+
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
+    cout << "STL support................." << dictionary[ "STL" ] << endl << endl;
+
+    cout << "Image formats:" << endl;
+    cout << "GIF support................." << dictionary[ "GIF" ] << endl;
+    cout << "MNG support................." << dictionary[ "MNG" ] << endl;
+    cout << "JPEG support................" << dictionary[ "JPEG" ] << endl;
+    cout << "PNG support................." << dictionary[ "PNG" ] << endl << endl;
+
+    cout << "Styles:" << endl;
+    cout << "Windows....................." << dictionary[ "WINDOWS" ] << endl;
+    cout << "Motif......................." << dictionary[ "MOTIF" ] << endl;
+    cout << "Platinum...................." << dictionary[ "PLATINUM" ] << endl;
+    cout << "MotifPlus..................." << dictionary[ "MOTIFPLUS" ] << endl;
+    cout << "CDE........................." << dictionary[ "CDE" ] << endl;
+    cout << "SGI........................." << dictionary[ "SGI" ] << endl << endl;
+
+    cout << "Sql Drivers:" << endl;
+    cout << "ODBC........................" << dictionary[ "ODBC" ] << endl;
+    cout << "MySQL......................." << dictionary[ "MYSQL" ] << endl;
+    cout << "OCI........................." << dictionary[ "OCI" ] << endl;
+    cout << "PostgreSQL.................." << dictionary[ "PSQL" ] << endl;
+    cout << "TDS........................." << dictionary[ "TDS" ] << endl << endl;
+
     cout << endl;
     if( !qmakeDefines.isEmpty() ) {
 	cout << "Defines.....................";
@@ -665,8 +823,7 @@ void ConfigureApp::buildQmake()
     if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
-    }
-    else {
+    } else {
 	dictionary[ "MAKE" ] = "make";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
@@ -760,9 +917,9 @@ void ConfigureApp::findProjects( const QString& dirName )
 	while( ( fi = it.current() ) ) {
 	    entryName = dirName + "/" + fi->fileName();
 	    if( fi->fileName()[ 0 ] != '.' ) {
-		if( fi->isDir() )
+		if( fi->isDir() ) {
 		    findProjects( entryName );
-		else {
+		} else {
 		    if( fi->fileName().right( 4 ) == ".pro" ) {
 			makeList += dirName;
 			makeList += fi->fileName();
@@ -818,8 +975,7 @@ void ConfigureApp::generateMakefiles()
 	// We call this directly, as the code is the same for the first as
 	// for subsequent items.
 	qmakeDone();
-    }
-    else {
+    } else {
 	cout << "Processing of project files have been disabled." << endl;
 	cout << "Only use this option if you really know what you're doing." << endl << endl;
 	quit();
@@ -883,41 +1039,41 @@ void ConfigureApp::qmakeDone()
 {
     QString str;
 
-    if( makeListIterator == makeList.end() ) // Just in case we have an empty list
+    if( makeListIterator == makeList.end() ) {// Just in case we have an empty list
 	quit();
-    else {
-	QString dirPath = *makeListIterator + "/";
-	dirPath = QDir::convertSeparators( dirPath );
-	++makeListIterator;
-	QString projectName = dirPath + (*makeListIterator);
-	++makeListIterator;
-	QString makefileName = dirPath + (*makeListIterator);
-	++makeListIterator;
-	QStringList args;
-	args << QDir::convertSeparators( qtDir + "/bin/qmake" );
-	args << projectName;
-	args << dictionary[ "QMAKE_ALL_ARGS" ];
-	args << "-o";
-        args << makefileName;
-	args << "-spec";
-	args << dictionary[ "QMAKESPEC" ];
-	if( makefileName.right( 4 ) == ".dsp" ) {
-	    args << "-t";
-	    if( isProjectLibrary( projectName ) )
-		args << "vclib";
-	    else
-		args << "vcapp";
-	}
+	return;
+    }
+    QString dirPath = *makeListIterator + "/";
+    dirPath = QDir::convertSeparators( dirPath );
+    ++makeListIterator;
+    QString projectName = dirPath + (*makeListIterator);
+    ++makeListIterator;
+    QString makefileName = dirPath + (*makeListIterator);
+    ++makeListIterator;
+    QStringList args;
+    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
+    args << projectName;
+    args << dictionary[ "QMAKE_ALL_ARGS" ];
+    args << "-o";
+    args << makefileName;
+    args << "-spec";
+    args << dictionary[ "QMAKESPEC" ];
+    if( makefileName.right( 4 ) == ".dsp" ) {
+	args << "-t";
+	if( isProjectLibrary( projectName ) )
+	    args << "vclib";
 	else
-	    cout << "For " << projectName.latin1() << endl;
+	    args << "vcapp";
+    }
+    else
+	cout << "For " << projectName.latin1() << endl;
 
-	str = args.join( " " );
-	qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
-	qmake.setArguments( args );
-	if( !qmake.start() ) {	// This will start the qmake, pick up control again in qmakeDone()
-	    cout << "Could not start qmake..." << endl << endl;
-	    quit();
-	}
+    str = args.join( " " );
+    qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
+    qmake.setArguments( args );
+    if( !qmake.start() ) {	// This will start the qmake, pick up control again in qmakeDone()
+	cout << "Could not start qmake..." << endl << endl;
+	quit();
     }
 }
 
@@ -956,7 +1112,7 @@ bool ConfigureApp::isProjectLibrary( const QString& proFileName )
 
 void ConfigureApp::readLicense()
 {
-    QFile licenseFile( qtDir + "/.qt-license" );
+    QFile licenseFile( QDir::homeDirPath() + "/.qt-license" );
 
     if( licenseFile.open( IO_ReadOnly ) ) {
 	QString buffer;
