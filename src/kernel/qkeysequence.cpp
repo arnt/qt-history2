@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QKeySequence class
 **
@@ -249,7 +249,7 @@ QKeySequence::operator QString() const
     QString s;
     int k = d->key;
     if ( (k & CTRL) == CTRL ) {
-	QString ctrl = QAccel::QAccel::tr( "Ctrl" );
+	QString ctrl = QAccel::tr( "Ctrl" );
 #ifdef QMAC_CTRL
 	if(ctrl == "Ctrl")
 	    ctrl = QMAC_CTRL;
