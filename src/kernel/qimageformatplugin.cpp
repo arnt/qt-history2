@@ -103,9 +103,8 @@ QRESULT QImageFormatPluginPrivate::installIOHandler( const QString &format )
   the Q_EXPORT_PLUGIN macro.
 */
 QImageFormatPlugin::QImageFormatPlugin()
+    : QGPlugin( d = new QImageFormatPluginPrivate( this ) )
 {
-    d = new QImageFormatPluginPrivate( this );
-    _iface = d;
 }
 
 /*!

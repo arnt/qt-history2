@@ -162,9 +162,8 @@ QTextCodec *QTextCodecPluginPrivate::createForName( const QString &name )
   the Q_EXPORT_PLUGIN macro.
  */
 QTextCodecPlugin::QTextCodecPlugin()
+    : QGPlugin( d = new QTextCodecPluginPrivate( this ) )
 {
-    d = new QTextCodecPluginPrivate( this );
-    _iface = d;
 }
 
 /*!

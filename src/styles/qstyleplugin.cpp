@@ -154,9 +154,8 @@ bool QStylePluginPrivate::canUnload() const
   the Q_EXPORT_PLUGIN macro.
 */
 QStylePlugin::QStylePlugin()
+    : QGPlugin( (QStyleFactoryInterface*)d = new QStylePluginPrivate( this ) )
 {
-    d = new QStylePluginPrivate( this );
-    _iface = (QStyleFactoryInterface*)d;
 }
 
 /*!

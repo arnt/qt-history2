@@ -80,12 +80,13 @@ class Q_EXPORT QGPlugin : public QObject
 {
     Q_OBJECT
 public:
-    QGPlugin();
+    QGPlugin( QUnknownInterface *i );
     ~QGPlugin();
 
     QUnknownInterface* iface();
 
-protected:
+private:
+    QGPlugin();
     QUnknownInterface* _iface;
 };
 

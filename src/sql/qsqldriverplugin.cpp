@@ -132,9 +132,8 @@ QSqlDriver *QSqlDriverPluginPrivate::create( const QString &key )
 */
 
 QSqlDriverPlugin::QSqlDriverPlugin()
+    : QGPlugin( d = new QSqlDriverPluginPrivate( this ) )
 {
-    d = new QSqlDriverPluginPrivate( this );
-    _iface = d;
 }
 
 /*!

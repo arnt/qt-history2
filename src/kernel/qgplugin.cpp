@@ -2,6 +2,12 @@
 #include <private/qcom_p.h>
 
 QGPlugin::QGPlugin()
+    : _iface( 0 )
+{
+}
+
+QGPlugin::QGPlugin( QUnknownInterface *i )
+    : _iface( i )
 {
 }
 
