@@ -2063,13 +2063,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             t <<  " FORCE";
         t << "\n\t";
         if(have_dir)
-            t << "cd " << subtarget->directory << "\n\t";
-        t << "$(MAKE)" << makefilein;
-        if(have_dir)
-            t << cdout << endl;
-        else
-            t << endl;
-
+            t << "cd " << subtarget->directory << " && ";
+        t << "$(MAKE)" << makefilein << endl;
         for(int suffix = 0; suffix < targetSuffixes.size(); ++suffix) {
             QString s = targetSuffixes.at(suffix);
             if(s == "install_subtargets")
