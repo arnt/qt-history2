@@ -29,10 +29,40 @@ void Validator::accept(DomUI *node)
 
 void Validator::accept(DomWidget *node)
 {
+    (void) driver->findOrInsertWidget(node);
+
     QString widgetClass = node->attributeClass();
 
     if (widgetClass == QLatin1String("Line"))
         node->setAttributeClass(QLatin1String("QFrame"));
+
+    TreeWalker::accept(node);
+}
+
+void Validator::accept(DomLayoutItem *node)
+{
+    (void) driver->findOrInsertLayoutItem(node);
+
+    TreeWalker::accept(node);
+}
+
+void Validator::accept(DomLayout *node)
+{
+    (void) driver->findOrInsertLayout(node);
+
+    TreeWalker::accept(node);
+}
+
+void Validator::accept(DomActionGroup *node)
+{
+    (void) driver->findOrInsertActionGroup(node);
+
+    TreeWalker::accept(node);
+}
+
+void Validator::accept(DomAction *node)
+{
+    (void) driver->findOrInsertAction(node);
 
     TreeWalker::accept(node);
 }

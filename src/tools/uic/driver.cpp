@@ -93,22 +93,29 @@ QString Driver::findOrInsertName(const QString &name)
 QString Driver::unique(const QString &instanceName, const QString &className)
 {
     QString name;
+    bool alreadyUsed = false;
 
     if (instanceName.size()) {
         int id = 1;
         name = instanceName;
         name.replace(QRegExp("[^a-zA-Z_0-9]"), "_");
 
+        bool alreadyUsed = false;
         while (true) {
             if (!m_nameRepository.contains(name))
                 break;
 
+            alreadyUsed = true;
             name = instanceName + QString::number(id++);
         }
     } else if (className.size()) {
         name = unique(qtify(className));
     } else {
         name = unique("var");
+    }
+
+    if (alreadyUsed) {
+        fprintf(stderr, "Warning: name %s is already used\n", instanceName.latin1());
     }
 
     m_nameRepository.insert(name, true);
