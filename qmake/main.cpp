@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     for(QStringList::Iterator pfile = files.begin(); pfile != files.end(); pfile++) {
 	if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
 	   Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
-	    QString fn = (*pfile);
+	    QString fn = Option::fixPathToLocalOS((*pfile));
 
 	    //setup pwd properly
 	    debug_msg(1, "Resetting dir to: %s", oldpwd.latin1());
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 	    int di = fn.findRev(Option::dir_sep);
 	    if(di != -1) {
 		debug_msg(1, "Changing dir to: %s", fn.left(di).latin1());
-		if(!QDir::setCurrent(fn.left(fn.findRev(Option::dir_sep))))
+		if(!QDir::setCurrent(fn.left(di)))
 		    fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).latin1());
 		fn = fn.right(fn.length() - di - 1);
 	    }
