@@ -174,7 +174,7 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
        	ExpandGlue("ALL_DEPS",""," "," ");
 	$text .= 'localsubs ';
 	$text .= '$(DESTDIR)' . $targ . "\n\n";
-	$text .= '# List of local subdirectories, which don't have Makefile.in in them,\n';
+	$text .= '# List of local subdirectories, which do not have Makefile.in in them,\n';
 	$text .= '# which mean that they would be a missing from the cloned tree\n';
 	$text .= 'LOCALSUBS = kernel widgets tools utils dialogs\n\n';
 	$text .= 'localsubs:\n\tfor d in \$(LOCALSUBS); do \\\n';
