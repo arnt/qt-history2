@@ -9,6 +9,7 @@ $change = 0;
 $all = 0;
 $ask = 1;
 $force = 0;
+$ignoredeleted = 0;
 
 # Simplify program name, if it is a path.
 $orig_argv0 = $0; #save the old $0
@@ -23,7 +24,7 @@ if ( $line !~ /^Perforce/ ) {
 }
 
 sub usage {
-    printf "$0 [--all] [change]\n";
+    printf "$0 [--all] [--force] [--ignoredeleted] [change]\n";
     printf "     default change is last change\n";
     exit( 0 );
 }
@@ -37,6 +38,8 @@ for $arg ( @ARGV ) {
     $force = 1;
   } elsif ( $arg eq "--force" ) {
     $force = 1;
+  } elsif ( $arg eq "--ignoredeleted" ) {
+    $ignoredeleted = 1;
   } elsif ( $arg =~ /^\d+$/ ) {
     $change = $arg;
   } else {
@@ -207,10 +210,21 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
     $linecount = 0;
     my $p4cmd = "$P4 integrate -n \"$fromBranchFiles[$count]\@$change\" \"$toBranchFiles[$count]\"";
     open( P4, "$p4cmd |") || die "$0: Couldn't exec $P4: $!\n";
-    while ( $line = <P4> ) {
+    $fileOK = 0;
+    LINE: while ( $line = <P4> ) {
 	$linecount++;
 	chomp( $line );
 	($file, $message) = split( m/ - /, $line );
+	if ( $message =~ m/can't branch from.*without -d flag/ ) {
+	    print STDERR "$toBranchFiles[$count] has been deleted, ";
+	    if ( $ignoredeleted ) {
+		print STDERR "skipping.\n";
+	    } else {
+		print STDERR "aborting.\n";
+		$abort = 1;
+	    }
+	    last LINE;
+	}
 	if ( $message ne "integrate from $fromBranchFiles[$count]#".$fromBranchRevisions[$count]
 	  && $message ne "branch/sync from $fromBranchFiles[$count]#".$fromBranchRevisions[$count]
 	  && $message ne "delete from $fromBranchFiles[$count]#".$fromBranchRevisions[$count] ) {
@@ -219,10 +233,15 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
 	    ($start, $end) = split( " ", $message );
 	    printNeededRevisions( $fromBranchFiles[$count], $toBranchFiles[$count], $change, $start, $end);
 	    $abort = 1;
+	} else {
+	    $fileOK = 1;
 	}
     }
     close( P4 );
-
+    if ( $fileOK ) {
+	@fromFiles = ( @fromFiles, $fromBranchFiles[$count] );
+	@toFiles = ( @toFiles, $toBranchFiles[$count] );
+    }
     if ( !$linecount ) {
 	open( P4, "$p4cmd 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 	if ( <P4> =~ /all revision.s. already integrated./ ) {
@@ -234,6 +253,11 @@ for ( $count = 0; $count < @fromBranchFiles; $count++ ) {
     }
 
 }
+
+@fromBranchFiles = @fromFiles;
+@toBranchFiles = @toFiles;
+
+
 
 if ( $abort ) {
     die "$0: p4 indicated gaps in integration";
