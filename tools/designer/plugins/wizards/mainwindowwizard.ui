@@ -22,7 +22,7 @@
             <x>0</x>
             <y>0</y>
             <width>602</width>
-            <height>415</height>
+            <height>413</height>
         </rect>
     </property>
     <property name="caption">
@@ -1071,9 +1071,10 @@
     
 }</function>
     <function name="currentSettingChanged()" >{
-    setAppropriate( toolbarsPage, checkFileToolbar-&gt;isChecked() || checkEditToolbar-&gt;isChecked() || checkHelpToolbar-&gt;isChecked() );
-    setFinishEnabled( menuToolbarPage, !appropriate( toolbarsPage ) );
+    bool appr = checkFileToolbar-&gt;isChecked() || checkEditToolbar-&gt;isChecked() || checkHelpToolbar-&gt;isChecked();
+    setFinishEnabled( menuToolbarPage, !appr );
     setFinishEnabled( toolbarsPage, TRUE ); 
+    setAppropriate( toolbarsPage, appr );
 }</function>
     <function name="setupToolbarPage()" >{
     if ( checkFileToolbar-&gt;isChecked() )  
@@ -1291,6 +1292,7 @@
     if ( currentPage() == toolbarsPage ) {
 	comboToolbar-&gt;clear();
 	setupToolbarPage();
+	listToolbarActions-&gt;clear();
 	currentToolbarChanged( comboToolbar-&gt;text( comboToolbar-&gt;currentItem() ) );
     }
 }</function>
