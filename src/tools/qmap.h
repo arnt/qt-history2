@@ -572,8 +572,10 @@ public:
     {
 	sh = new QMapPrivate<Key,T>;
 	std::map<Key,T>::const_iterator it = m.begin();
-	for ( ; it != m.end(); ++it )
-	    insert( *it );
+	for ( ; it != m.end(); ++it ) {
+	    QPair<const Key,T> p( (*it).first, (*it).second );
+	    insert( p );
+	}
     }
 #endif
     ~QMap() { if ( sh->deref() ) delete sh; }
@@ -590,8 +592,10 @@ public:
     {
 	clear();
 	std::map<Key,T>::const_iterator it = m.begin();
-	for ( ; it != m.end(); ++it )
-	    insert( *it );
+	for ( ; it != m.end(); ++it ) {
+	    QPair<const Key,T> p( (*it).first, (*it).second );
+	    insert( p );
+	}
 	return *this;
     }
 #endif
@@ -613,11 +617,14 @@ public:
     QPair<iterator,bool> insert( const value_type& x )
     {
 	detach();
-	uint n = count();
+	uint n = size();
 	iterator it = sh->insertSingle( x.first );
-	if ( overwrite || n < count() )
+	bool inserted = FALSE;
+	if ( n < size() ) {
+	    inserted = TRUE;
 	    it.data() = x.second;
-	return it;
+	}
+	return QPair<iterator,bool>( it, inserted );
     }
     void erase( iterator it )
     {
@@ -687,9 +694,9 @@ public:
 
     iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
 	detach();
-	uint n = count();
+	uint n = size();
 	iterator it = sh->insertSingle( key );
-	if ( overwrite || n < count() )
+	if ( overwrite || n < size() )
 	    it.data() = value;
 	return it;
     }
@@ -736,7 +743,7 @@ inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 
 template<class Key, class T>
 inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
-    s << (Q_UINT32)m.count();
+    s << (Q_UINT32)m.size();
     QMap<Key,T>::const_iterator it = m.begin();
     for( ; it != m.end(); ++it )
 	s << it.key() << it.data();
