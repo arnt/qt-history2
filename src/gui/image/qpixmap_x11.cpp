@@ -479,8 +479,7 @@ void QPixmap::setOptimization(Optimization optimization)
     if (optimization == data->optim)
         return;
     detach();
-    data->optim = optimization == DefaultOptim ?
-            defOptim : optimization;
+    data->optim = optimization == DefaultOptim ? defOptim : optimization;
     if (data->optim == MemoryOptim && data->ximage) {
         qSafeXDestroyImage((XImage*)data->ximage);
         data->ximage = 0;
@@ -498,8 +497,7 @@ void QPixmap::fill(const QColor &fillColor)
         return;
     detach();                                        // detach other references
     GC gc = qt_xget_temp_gc(data->xinfo.screen(), depth()==1);
-    XSetForeground(data->xinfo.display(), gc,
-                   QColormap::instance(data->xinfo.screen()).pixel(fillColor));
+    XSetForeground(data->xinfo.display(), gc, QColormap::instance(data->xinfo.screen()).pixel(fillColor));
     XFillRectangle(data->xinfo.display(), data->hd, gc, 0, 0, width(), height());
 }
 
@@ -595,10 +593,9 @@ QImage QPixmap::toImage() const
     Q_CHECK_PTR(xi);
 
     QImage::Endian bitOrder = QImage::IgnoreEndian;
-    if (mono) {
-        bitOrder = xi->bitmap_bit_order == LSBFirst ?
-                   QImage::LittleEndian : QImage::BigEndian;
-    }
+    if (mono)
+        bitOrder = xi->bitmap_bit_order == LSBFirst ? QImage::LittleEndian : QImage::BigEndian;
+
     image.create(w, h, d, 0, bitOrder);
     if (image.isNull())                        // could not create image
         return image;
@@ -1616,18 +1613,11 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     QImage, non-trivial computations and a transformation back to a
     QPixmap.
 
-    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transformat()
+    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transform()
 */
 
 QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
-    if (mode == Qt::SmoothTransformation) {
-        // ###### do this efficiently!
-        QImage image = toImage();
-        image.transform(matrix, mode);
-        return QPixmap(image);
-    }
-
     int           w = 0;
     int           h = 0;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap
@@ -1674,6 +1664,84 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         return pm;
     }
 
+#if 0 //!defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    // server side pixmap transformations. We have to find a way to fix the alpha
+    // channel to get it to work correctly.
+    if (data->xft_hd) {
+        ::Picture pict = XftDrawPicture((XftDraw *) data->xft_hd);
+
+        QPixmap result(w, h, depth());
+        XTransform tranform = {{
+            { XDoubleToFixed(mat.m11()), XDoubleToFixed(mat.m21()), XDoubleToFixed(mat.dx()) },
+            { XDoubleToFixed(mat.m12()), XDoubleToFixed(mat.m22()), XDoubleToFixed(mat.dy()) },
+            { 0, 0, XDoubleToFixed(1.) }
+        }};
+        XTransform unity = {{
+            { XDoubleToFixed(1.), 0, 0 },
+            { 0, XDoubleToFixed(1.), 0 },
+            { 0, 0, XDoubleToFixed(1.) }
+        }};
+        XRenderSetPictureTransform (dpy, pict, &tranform);
+        XRenderSetPictureFilter (dpy, pict,
+                                 (char *)(mode == Qt::SmoothTransformation ? "bilinear" : "nearest"), 0, 0);
+
+        XRenderComposite(dpy, PictOpSrc, pict,
+                         0, result.xftPictureHandle(),
+                         0, 0, 0, 0, 0, 0, w, h);
+        if (mat.m12() != 0. || mat.m21() != 0.) {
+            result.data->alphapm = new QPixmap; // create a null pixmap
+            // setup pixmap data
+            result.data->alphapm->data->w = w;
+            result.data->alphapm->data->h = h;
+            result.data->alphapm->data->d = 8;
+
+            // create 8bpp pixmap and render picture
+            result.data->alphapm->data->hd =
+                XCreatePixmap(result.data->xinfo.display(),
+                              RootWindow(result.data->xinfo.display(), result.data->xinfo.screen()),
+                              w, h, 8);
+            result.data->alphapm->data->xft_hd =
+                (Qt::HANDLE) XftDrawCreateAlpha(result.data->xinfo.display(), result.data->alphapm->data->hd, 8);
+
+            Pixmap alpha_pm;
+            ::Picture apict = 0;
+            if (data->alphapm) {
+                apict = XftDrawPicture((XftDraw *) data->alphapm->data->xft_hd);
+            } else {
+                // create 8bpp pixmap and render picture
+                alpha_pm = XCreatePixmap(result.data->xinfo.display(),
+                                         RootWindow(result.data->xinfo.display(), result.data->xinfo.screen()),
+                                         w, h, 8);
+                apict = XRenderCreatePicture(dpy, alpha_pm,
+                                             XRenderFindStandardFormat(dpy, PictStandardA8), 0, 0);
+                XRenderColor color = { 0, 0, 0, 1<<15 };
+                XRenderFillRectangle(dpy, PictOpOver, apict, &color, 0, 0, w, h);
+            }
+            XRenderSetPictureTransform (dpy, apict, &tranform);
+            XRenderComposite(dpy, PictOpSrc, apict,
+                             0, result.data->alphapm->xftPictureHandle(),
+                             0, 0, 0, 0, 0, 0, w, h);
+            // reset transform
+
+
+            XRenderSetPictureTransform(dpy, apict, &unity);
+            if (!data->alphapm) {
+                XRenderFreePicture(dpy, apict);
+                XFreePixmap(dpy, alpha_pm);
+            }
+        }
+        XRenderSetPictureTransform(dpy, pict, &unity);
+        return result;
+    }
+#endif // !QT_NO_XFT && !QT_NO_XRENDER
+
+    if (mode == Qt::SmoothTransformation) {
+        QImage image = toImage();
+        image.transform(matrix, mode);
+        return QPixmap(image);
+    }
+
+
 #if defined(QT_MITSHM)
     static bool try_once = true;
     if (try_once) {
@@ -1688,7 +1756,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     XImage *xi = (XImage*)data->ximage;                // any cached ximage?
     if (!xi)
         xi = XGetImage(data->xinfo.display(), handle(), 0, 0, ws, hs, AllPlanes,
-                        depth1 ? XYPixmap : ZPixmap);
+                       depth1 ? XYPixmap : ZPixmap);
 
     if (!xi) {                                // error, return null pixmap
         QPixmap pm;
@@ -1795,7 +1863,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         } else {
 #endif
             xi = XCreateImage(dpy, (Visual *) data->xinfo.visual(), data->xinfo.depth(),
-                               ZPixmap, 0, (char *)dptr, w, h, 32, 0);
+                              ZPixmap, 0, (char *)dptr, w, h, 32, 0);
             XPutImage(dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
             qSafeXDestroyImage(xi);
 #if defined(QT_MITSHM)
@@ -1823,7 +1891,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
                     type = QT_XFORM_TYPE_LSBFIRST;
 
                 if (qt_xForm_helper(mat, axi->xoffset, type, bpp, dptr, w,
-                                     0, h, sptr, sbpl, ws, hs)) {
+                                    0, h, sptr, sbpl, ws, hs)) {
                     delete pm.data->alphapm;
                     pm.data->alphapm = new QPixmap; // create a null pixmap
 
