@@ -1168,7 +1168,9 @@ bool QCheckTableItem::isChecked() const
 
   If your application already stores its data in a way that allocating
   a QTableItem for each data containing cell seems inappropriate, you
-  can reimplement QTable::paintCell() and draw the contents directly.
+  can reimplement QTable::paintCell() and draw the contents directly. 
+  You should also reimplement QTable::paintCell() if you wish to change
+  the alignment of your items in the QTable.
 
   This approach will however prevent you
   from using functions like setText() etc. unless you reimplement them as
@@ -1941,7 +1943,10 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
   paintCell() to do the custom drawing, or subclass QTableItem
   and reimplement QTableItem::paint().
 
-  Reimplementing this function is probably better for data you
+  If you want to change the alignment of your items then you will need to 
+  reimplement paintCell().
+
+  Reimplementing this function is probably better e.g. for data you
   retrieve from a database and draw at once, while using
   QTableItem::paint() has its advantages for example if you wish these data
   to be stored in a data structure in the table.
@@ -3180,9 +3185,9 @@ void QTable::updateGeometries()
 	 ts.height() < leftHeader->offset() + leftHeader->height() )
 	verticalScrollBar()->setValue( ts.height() - leftHeader->height() );
 
-    leftHeader->setGeometry( 2, topMargin() + 2,
+    leftHeader->setGeometry( frameWidth(), topMargin() + frameWidth(),
 			     leftMargin(), visibleHeight() );
-    topHeader->setGeometry( leftMargin() + 2, 2,
+    topHeader->setGeometry( leftMargin() + frameWidth(), frameWidth(),
 			    visibleWidth(), topMargin() );
     inUpdateGeometries = FALSE;
 }
