@@ -358,6 +358,7 @@ uint QTextFormatPrivate::recalcHash() const
     \value Float
     \value String
     \value FormatObject
+    \value IntList
 */
 
 /*!
@@ -804,9 +805,7 @@ void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor 
 }
 
 /*!
-    Sets the value of the property given by \a propertyId to \a value,
-    unless \a value == \a defaultValue, in which case the property's
-    value is cleared.
+    Sets the value of the property given by \a propertyId to \a value.
 
     \sa intListProperty() PropertyType
 */
@@ -1248,6 +1247,22 @@ QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
     may be 1); otherwise it returns 1.
 */
 
+/*!
+    \fn void QTextCharFormat::setTableCellBackgroundColor(const QColor &color)
+
+    Sets the background \a color of the selected table cells.
+
+    \sa tableCellBackgroundColor()
+*/
+
+/*!
+    \fn QColor QTextCharFormat::tableCellBackgroundColor() const
+
+    Returns the color that the text format uses for the background of table
+    cells.
+
+    \sa tableCellBackgroundColor()
+*/
 
 /*!
     Sets the text format's \a font.
