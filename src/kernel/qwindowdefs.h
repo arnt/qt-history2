@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#139 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#140 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -255,10 +255,6 @@ const int DitherMode_Mask	= 0x000000c0;
 const int AutoDither		= 0x00000000;
 const int PreferDither		= 0x00000040;
 const int AvoidDither		= 0x00000080;
-
-const int Quality_Mask		= 0x00000100;
-const int PreferQuality		= 0x00000000;
-const int PreferSpeed		= 0x00000100;
 
 
 #endif // QWINDOWDEFS_H

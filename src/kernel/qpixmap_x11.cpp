@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#150 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -958,16 +958,6 @@ QImage QPixmap::convertToImage() const
 		This is the default when an image is converted
 		for the purpose of saving to a file.
     </ul>
-   <dt>Image quality versus conversion speed
-   <dd>
-    <ul>
-     <li> \c PreferQuality - give image quality higher priority     
-		than speed. This is the default when converting
-		to a pixmap and	is recommended for most uses.
-     <li> \c PreferSpeed - sacrifice image quality for conversion
-		speed.  Combine with setOptimization(QPixmap::BestOptim)
-		for even higher speed.
-    </ul>
   </dl>
 
   Passing 0 for \a conversion_flags gives all the default options.
@@ -1094,30 +1084,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     uchar  *newbits= 0;
     register uchar *p;
 
-    if ( data->ximage ) {
-	xi = (XImage*)data->ximage;
-	if ( xi->depth == dd && xi->width == w && xi->height == h ) {
-	    newbits = (uchar *)xi->data;
-	    xi->data = 0;
-	} else {
-	    qSafeXDestroyImage( (XImage*)data->ximage );
-	    data->ximage = 0;
-	    xi = 0;
-	}
-    }
-    if ( !xi ) {
-	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
-	CHECK_PTR( xi );
-    }
-    if ( !newbits )
-	newbits = (uchar *)malloc( xi->bytes_per_line*h );
-
-    if ( trucol && 0 && (dd == 24 || dd == 32) ) {
-
-	newbits = image.bits();
-	xi->data = (char *)newbits;
-
-    } else if ( trucol ) {			// truecolor display
+    if ( trucol ) {				// truecolor display
 	QRgb  pix[256];				// pixel translation table
 	bool  d8 = d == 8;
 	uint  red_mask	  = (uint)visual->red_mask;
@@ -1144,6 +1111,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	}
 
+	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
+	CHECK_PTR( xi );
+	newbits = (uchar *)malloc( xi->bytes_per_line*h );
 	uchar *src;
 	uchar *dst;
 	QRgb   pixel;
@@ -1158,7 +1128,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	bool dither_tc =
 		// Want it
 		(conversion_flags & DitherMode_Mask) != AvoidDither &&
-		(conversion_flags & Quality_Mask) != PreferSpeed &&	    
 		// Need it
 		bppc < 24 && !d8 &&
 		// Contiguous bits?
@@ -1206,106 +1175,71 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    src = image.scanLine( y );
 	    dst = newbits + xi->bytes_per_line*y;
 	    p	= (QRgb *)src;
-	    if ( 0 ) {
-		// 24 bit image optimization
-		int n = w/4;
-		QRgb *b = (QRgb *)dst;
-		bool little_endian = TRUE;
-		if ( little_endian ) {
-		    while ( n-- ) {
-			b[0] = (p[0] & 0x00ffffff)|((p[1] << 24) & 0xff000000);
-			b[1] = (p[1] >> 8)	  |((p[2] << 16) & 0xffff0000);
-			b[2] = (p[2] >> 16)	  |((p[3] << 8)  & 0xffffff00);
-			b += 3;
-			p += 4;
-		    }
+	    for ( int x=0; x<w; x++ ) {
+		if ( d8 ) {
+		    pixel = pix[*src++];
 		} else {
-		    while ( n-- ) {
-			b[0] = (p[0] << 8)  | ((p[1] >> 16) & 0x000000ff);
-			b[1] = (p[1] << 16) | ((p[2] >> 8)  & 0x0000ffff);
-			b[2] = (p[2] << 24) |  (p[3]	    & 0x00ffffff);
-			b += 3;
-			p += 4;
-		    }
-		}
-		if ( (n = w % 4) ) {
-		    uchar *p1 = (uchar *)p;
-		    uchar *b1 = (uchar *)b;
-		    while ( n-- ) {
-			if ( little_endian )
-			    p1++;
-			*b1++ = *p1++;
-			*b1++ = *p1++;
-			*b1++ = *p1++;
-			if ( !little_endian )
-			    p1++;
-		    }
-		}
-	    } else {
-		for ( int x=0; x<w; x++ ) {
-		    if ( d8 ) {
-			pixel = pix[*src++];
-		    } else {
-			r = qRed  ( *p );
-			g = qGreen( *p );
-			b = qBlue ( *p++ );
-			if ( dither_tc ) {
-			    // Dither truecolor
-			    int thres = D[x%16][y%16];
-			    if ( r <= (255-(1<<(8-rbits))) && ((r<<rbits) &255)
-				 > thres)
-				r += (1<<(8-rbits));
-			    if ( g <= (255-(1<<(8-gbits))) && ((g<<gbits) &255)
-				 > thres)
-				g += (1<<(8-gbits));
-			    if ( b <= (255-(1<<(8-bbits))) && ((b<<bbits) &255)
-				 > thres)
+		    r = qRed  ( *p );
+		    g = qGreen( *p );
+		    b = qBlue ( *p++ );
+
+		    if ( dither_tc ) {
+			// Dither truecolor
+			int thres = D[x%16][y%16];
+			if ( r <= (255-(1<<(8-rbits))) && ((r<<rbits) & 255)
+				> thres)
+			    r += (1<<(8-rbits));
+			if ( g <= (255-(1<<(8-gbits))) && ((g<<gbits) & 255)
+				> thres)
+			    g += (1<<(8-gbits));
+			if ( b <= (255-(1<<(8-bbits))) && ((b<<bbits) & 255)
+				> thres)
 			    b += (1<<(8-bbits));
-			}
-			r = red_shift   > 0
-			    ? r << red_shift   : r >> -red_shift;
-			g = green_shift > 0
-			    ? g << green_shift : g >> -green_shift;
-			b = blue_shift  > 0
-			    ? b << blue_shift  : b >> -blue_shift;
-			pixel = (b & blue_mask)|(g & green_mask) |
-			        (r & red_mask);
 		    }
-		    switch ( bppc ) {
-			case 8:
-			    *dst++ = pixel;
-			    break;
-			case 16:		// 16 bit MSB
-			    *dst++ = (pixel >> 8);
-			    *dst++ = pixel;
-			    break;
-			case 17:		// 16 bit LSB
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			    break;
-			case 24:		// 24 bit MSB
-			    *dst++ = pixel >> 16;
-			    *dst++ = pixel >> 8;
-			    *dst++ = pixel;
-			    break;
-			case 25:		// 24 bit LSB
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			    *dst++ = pixel >> 16;
-			    break;
-			case 32:		// 32 bit MSB
-			    *dst++ = pixel >> 24;
-			    *dst++ = pixel >> 16;
-			    *dst++ = pixel >> 8;
-			    *dst++ = pixel;
-			    break;
-			case 33:		// 32 bit LSB
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			    *dst++ = pixel >> 16;
-			    *dst++ = pixel >> 24;
-			    break;
-		    }
+
+		    r = red_shift   > 0
+			? r << red_shift   : r >> -red_shift;
+		    g = green_shift > 0
+			? g << green_shift : g >> -green_shift;
+		    b = blue_shift  > 0
+			? b << blue_shift  : b >> -blue_shift;
+
+		    pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask);
+		}
+		switch ( bppc ) {
+		    case 8:
+			*dst++ = pixel;
+			break;
+		    case 16:			// 16 bit MSB
+			*dst++ = (pixel >> 8);
+			*dst++ = pixel;
+			break;
+		    case 17:			// 16 bit LSB
+			*dst++ = pixel;
+			*dst++ = pixel >> 8;
+			break;
+		    case 24:			// 24 bit MSB
+			*dst++ = pixel >> 16;
+			*dst++ = pixel >> 8;
+			*dst++ = pixel;
+			break;
+		    case 25:			// 24 bit LSB
+			*dst++ = pixel;
+			*dst++ = pixel >> 8;
+			*dst++ = pixel >> 16;
+			break;
+		    case 32:			// 32 bit MSB
+			*dst++ = pixel >> 24;
+			*dst++ = pixel >> 16;
+			*dst++ = pixel >> 8;
+			*dst++ = pixel;
+			break;
+		    case 33:			// 32 bit LSB
+			*dst++ = pixel;
+			*dst++ = pixel >> 8;
+			*dst++ = pixel >> 16;
+			*dst++ = pixel >> 24;
+			break;
 		}
 	    }
 	}
@@ -1433,7 +1367,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    *p = pix[*p];
 	    p++;
 	}
+    }
 
+    if ( !xi ) {				// X image not created
+	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
 	if ( xi->bits_per_pixel == 16 ) {	// convert 8 bpp ==> 16 bpp
 	    ushort *p2;
 	    int	    p2inc = xi->bytes_per_line/sizeof(ushort);
