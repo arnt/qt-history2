@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#11 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#12 $
 **
 ** Definition of QCursor class
 **
@@ -24,39 +24,31 @@ class QCursor					// cursor class
 {
 public:
     QCursor();					// create default arrow cursor
-    QCursor( int shape );			// create cursor with shape
+    QCursor( int shape );
     QCursor( const QBitmap &bitmap, const QBitmap &mask,
 	     int hotX=-1, int hotY=-1 );
     QCursor( const QCursor & );
    ~QCursor();
     QCursor &operator=( const QCursor & );
 
-    QCursor	  copy() const;
+    int		  shape()   const;
+    void	  setShape( int );
 
-    int		  shape() const;		// get cursor shape
-    bool	  setShape( int );		// set cursor shape
+    const QBitmap *bitmap() const;
+    const QBitmap *mask()   const;
+    QPoint	  hotSpot() const;
 
-    static QPoint pos();			// get cursor position
-    static void	  setPos( int x, int y );	// set cursor position
-    static void	  setPos( const QPoint & );	// set cursor position
+    HANDLE	  handle()  const;
 
-    static void	  initialize();			// initialize global cursors
-    static void	  cleanup();			// cleanup global cursors
+    static QPoint pos();
+    static void	  setPos( int x, int y );
+    static void	  setPos( const QPoint & );
 
-#if defined(_WS_WIN_)
-    HANDLE	  handle() const;
-#elif defined(_WS_PM_)
-    HANDLE	  handle() const;
-#elif defined(_WS_X11_)
-    Cursor	  handle() const;
-#endif
-
-    friend QDataStream &operator<<( QDataStream &, const QCursor & );
-    friend QDataStream &operator>>( QDataStream &, QCursor & );
+    static void	  initialize();
+    static void	  cleanup();
 
 private:
     void	  update() const;
-    static QCursor *locate( int );
     QCursorData	 *data;
 };
 
@@ -68,7 +60,7 @@ inline void QCursor::setPos( const QPoint &p )
 
 
 // --------------------------------------------------------------------------
-// Cursor shape identifiers (correspond to global cursors)
+// Cursor shape identifiers (correspond to global cursor objects)
 //
 
 enum CursorShape {
