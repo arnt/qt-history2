@@ -2557,7 +2557,7 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 	pStm->Read(qtarray.data(), stat.cbSize.LowPart, &read);
     }
 
-    QBuffer qtbuffer(qtarray);
+    QBuffer qtbuffer(&qtarray);
     qtbuffer.open(IO_ReadOnly | IO_Translate);
     QDataStream qtstream(&qtbuffer);
     int version;
