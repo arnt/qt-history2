@@ -124,7 +124,7 @@ QString qt_fallback_font_family( QFont::Script script )
 	FallbackMap::ConstIterator it, end = fallbackMap->end();
 	it = fallbackMap->find( script );
 	if ( it != end )
-	    ret = it.data();
+	    ret = it.value();
     }
 
     return ret;
