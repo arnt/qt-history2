@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#43 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#43 $");
 
 
 /*!
@@ -620,6 +620,8 @@ int QFile::writeBlock( const char *p, uint len )
 
 int QFile::readLine( char *p, uint maxlen )
 {
+    if ( maxlen == 0 )				// application bug?
+	return 0;
 #if defined(CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// file not open

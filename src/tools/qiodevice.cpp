@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#31 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#31 $");
 
 
 /*!
@@ -446,6 +446,8 @@ bool QIODevice::atEnd() const
 
 int QIODevice::readLine( char *data, uint maxlen )
 {
+    if ( maxlen == 0 )				// application bug?
+	return 0;
     int pos = at();				// get current position
     int s  = (int)size();			// size of I/O device
     char *p = data;
