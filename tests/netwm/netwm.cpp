@@ -315,7 +315,7 @@ static void readIcon(NETWinInfoPrivate *p) {
 	i += 4;
 	p->icons[j].size.height = *d++;
 	i += 4;
-	
+
 	unsigned long s = (p->icons[j].size.width *
 			   p->icons[j].size.height * 4);
 	if ( i + s > proplen )
@@ -1439,36 +1439,30 @@ void NETWinInfo::setKDEDockWinFor(Window win) {
 
 NETIcon NETWinInfo::icon(int w, int h) const {
     NETIcon result;
-    
+
     if ( !p->icons.size() ) {
 	result.size.width = 0;
 	result.size.height = 0;
 	result.data = 0;
 	return result;
     }
-    
+
     result = p->icons[0];
 
     // find the icon that's closest in size to w x h...
     // return the first icon if w and h are -1
     if (w == h && h == -1) return result;
 
-#define NABS(x) ((x < 0) ? -x : x)
-    int i, which = 0, aw, ah, tw = result.size.width, th = result.size.height;
-    
+    int i;
     for (i = 0; i < p->icons.size(); i++) {
-	aw = NABS((signed) p->icons[i].size.width  - (signed) result.size.width);
-	ah = NABS((signed) p->icons[i].size.height - (signed) result.size.height);
-	
-	if (aw < tw && ah < th) {
-	    tw = aw;
-	    th = ah;
-	    which = i;
-	}
+	if ((p->icons[i].size.width >= (unsigned) w &&
+	     p->icons[i].size.width < result.size.width) &&
+	    (p->icons[i].size.height >= (unsigned) h &&
+	     p->icons[i].size.width < result.size.height))
+	    result = p->icons[i];	
     }
-#undef NABS
-    
-    return p->icons[which];
+
+    return result;
 }
 
 
