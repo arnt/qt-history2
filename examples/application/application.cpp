@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#7 $
+** $Id: //depot/qt/main/examples/application/application.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -46,7 +46,7 @@ const char * filePrintText = "Click this button to print the file you "
 "You can also select the Print command from the File menu.";
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window" )
+    : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
     int id;
 
@@ -96,8 +96,8 @@ ApplicationWindow::ApplicationWindow()
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
     file->insertSeparator();
-    file->insertItem( "&Close", this, SLOT(closeDoc()), CTRL+Key_W );
-    file->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
+    file->insertItem( "&Close", this, SLOT(close()), CTRL+Key_W );
+    file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
 
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertSeparator();
@@ -240,9 +240,13 @@ void ApplicationWindow::print()
 
 }
 
-void ApplicationWindow::closeDoc()
+void ApplicationWindow::closeEvent( QCloseEvent* e )
 {
-    close( TRUE ); // close AND DELETE!
+    QMessageBox::warning( this, "Qt Application Example", "Help me, I'm closed!", "No, die!" );
+
+    e->accept(); // except the event. 
+    // Note: We fill be deleted afterwards since we used the
+    // WDestructiveClose flag in the constructor
 }
 
 

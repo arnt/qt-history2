@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.h#4 $
+** $Id: //depot/qt/main/examples/application/application.h#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,6 +23,9 @@ class ApplicationWindow: public QMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
+    
+protected:
+    void closeEvent( QCloseEvent* );
 
 private slots:
     void newDoc();
@@ -31,7 +34,6 @@ private slots:
     void save();
     void saveAs();
     void print();
-    void closeDoc();
 
     void about();
     void aboutQt();
