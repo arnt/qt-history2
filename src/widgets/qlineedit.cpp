@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#82 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#82 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -207,8 +207,10 @@ void QLineEdit::setText( const char *text )
 {
     QString oldText( text );
     tbuf = text ? text : "";
-    if ( (int)tbuf.length() > maxLen )
+    if ( (int)tbuf.length() > maxLen ) {
 	tbuf.resize( maxLen+1 );
+	tbuf[maxLen] = '\0';
+    }
     offset    = 0;
     cursorPos = 0;
     markAnchor = 0;
@@ -313,8 +315,10 @@ void QLineEdit::setMaxLength( int m )
     maxLen = m;
     markAnchor = 0;
     markDrag   = 0;
-    if ( (int)tbuf.length() > maxLen )
+    if ( (int)tbuf.length() > maxLen ) {
 	tbuf.resize( maxLen + 1 );		// include \0
+	tbuf[maxLen] = '\0';
+    }
     offset    = 0;
     cursorPos = 0;
     repaint( !hasFocus() );
@@ -418,6 +422,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_V: {			// paste
 	    QString t = QApplication::clipboard()->text();
 	    if ( !t.isEmpty() ) {
+		t.detach();
 		int i = t.find( '\n' );	// no multiline text
 		if ( i >= 0 )
 		    t.truncate( i );
@@ -456,7 +461,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		if ( tlen+blen >= maxLen ) {
 		    if ( blen >= maxLen )
 			break;
-		    t.truncate( maxLen-tlen );
+		    if ( tlen > maxLen )
+			tlen = maxLen;
+		    t.truncate( maxLen-blen+1 );
+		    t[maxLen-blen] = '\0';
 		}
 		tbuf.insert( cursorPos, t );
 		cursorRight( FALSE, tlen );
