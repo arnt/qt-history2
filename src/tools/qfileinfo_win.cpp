@@ -107,11 +107,11 @@ static void resolveLibs()
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 	    if ( ptrBuildTrusteeWithNameW ) {
 		QLibrary versionLib("version");
-		typedef DWORD (WINAPI *PtrGetFileVersionInfoSizeW)(LPTSTR lptstrFilename,LPDWORD lpdwHandle);
+		typedef DWORD (WINAPI *PtrGetFileVersionInfoSizeW)(LPWSTR lptstrFilename,LPDWORD lpdwHandle);
 		PtrGetFileVersionInfoSizeW ptrGetFileVersionInfoSizeW = (PtrGetFileVersionInfoSizeW)versionLib.resolve("GetFileVersionInfoSizeW");
-		typedef BOOL (WINAPI *PtrGetFileVersionInfoW)(LPTSTR lptstrFilename,DWORD dwHandle,DWORD dwLen,LPVOID lpData);
+		typedef BOOL (WINAPI *PtrGetFileVersionInfoW)(LPWSTR lptstrFilename,DWORD dwHandle,DWORD dwLen,LPVOID lpData);
 		PtrGetFileVersionInfoW ptrGetFileVersionInfoW = (PtrGetFileVersionInfoW)versionLib.resolve("GetFileVersionInfoW");
-		typedef BOOL (WINAPI *PtrVerQueryValueW)(const LPVOID pBlock,LPTSTR lpSubBlock,LPVOID *lplpBuffer,PUINT puLen);
+		typedef BOOL (WINAPI *PtrVerQueryValueW)(const LPVOID pBlock,LPWSTR lpSubBlock,LPVOID *lplpBuffer,PUINT puLen);
 		PtrVerQueryValueW ptrVerQueryValueW = (PtrVerQueryValueW)versionLib.resolve("VerQueryValueW");
 		if ( ptrGetFileVersionInfoSizeW && ptrGetFileVersionInfoW && ptrVerQueryValueW ) {
 		    DWORD fakeHandle;
