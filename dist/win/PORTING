@@ -25,7 +25,7 @@ manner.
 Most compilers and IDEs provide some sort of project files. The problem
 with project files is that they cannot handle moc output (moc.exe reads
 .h files and generates .cpp files with meta object data). You may need to
-write your own Makefile. We will provide a better solution for Qt 1.0.
+write your own Makefile.
 
 In qglobal.h you may need to set _CC_whatever_ for your compiler. It is
 not strictly required, but it may be necessary to add some #ifdefs for

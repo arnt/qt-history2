@@ -77,12 +77,11 @@ else
   cvs -Q export -Dnow qt
   echo "Doing the sed thing with qcombo..." >&2
   cd qt/src/widgets
-  sed -e '/QEditableComboBox:/,$ d' < qcombo.cpp > a && mv a qcombo.cpp
-  sed -e '/QEditableCombobox:/,/^};/ d' < qcombo.h > a && mv a qcombo.h
+  sed '/QEditableComboBox:/,$ d' < qcombo.cpp > a && mv a qcombo.cpp
+  sed '/QEditableComboBox:/,/^};/ d' < qcombo.h > a && mv a qcombo.h
 fi
 
-
-VERSION=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
+VERSION=`grep "#define.*QT_VERSION" ${DISTDIR}/qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
@@ -90,11 +89,13 @@ echo "Removing beta code..." >&2
 cd ${DISTDIR}/qt/src
 for d in `make showdirs`; do cd $d ; rm -fv `make showbeta`; cd .. ; done
 
+QTDIR=${DISTDIR}/qt
+export QTDIR
+
 if [ "$nodoc" = "yes" ]; then
   echo "Documentation won't be generated" >& 2
 else
   echo "Generating documentation" >&2
-  export QTDIR=${DISTDIR}/qt
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
   ${DISTDIR}/qt/util/qdoc/qdoc
