@@ -2007,7 +2007,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	if ( tbList.isEmpty() )
 	    continue;
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
-	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\">" << endl;
+	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << tb->label() << "\">" << endl;
 	    indent++;
 	    QList<QDesignerAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() )
@@ -2050,6 +2050,7 @@ void Resource::loadToolBars( const QDomElement &e )
 	if ( n.tagName() == "toolbar" ) {
 	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
 	    tb = new QDesignerToolBar( mw, dock );
+	    tb->setLabel( n.attribute( "label" ) );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {

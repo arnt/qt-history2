@@ -953,6 +953,9 @@ void FormWindow::selectWidget( QObject *o, bool select )
 	return;
     }
 
+    if ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDesignerMenuBar" ) )
+	return;
+
     if ( select ) {
 	QObject *opw = propertyWidget;
 	propertyWidget = w;

@@ -5,6 +5,7 @@
 #include <qobjectlist.h>
 #include <qapplication.h>
 #include <qlayout.h>
+#include "metadatabase.h"
 
 static bool doReinsert = TRUE;
 
@@ -14,6 +15,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     insertAnchor = 0;
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
+    MetaDataBase::addEntry( this );
 }
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
@@ -22,6 +24,7 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
     insertAnchor = 0;
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
+    MetaDataBase::addEntry( this );
 }
 
 void QDesignerToolBar::addAction( QDesignerAction *a )
@@ -193,6 +196,7 @@ QDesignerMenuBar::QDesignerMenuBar( QWidget *mw )
 {
     show();
     setAcceptDrops( TRUE );
+    MetaDataBase::addEntry( this );
 }
 
 #ifndef QT_NO_DRAGANDDROP

@@ -1251,6 +1251,7 @@ void QWidgetFactory::loadToolBars( const QDomElement &e )
 	if ( n.tagName() == "toolbar" ) {
 	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
 	    tb = new QToolBar( QString::null, mw, dock );
+	    tb->setLabel( n.attribute( "label" ) );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {

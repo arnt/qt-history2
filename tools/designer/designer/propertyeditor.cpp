@@ -2298,6 +2298,12 @@ void PropertyList::setupProperties()
 	    continue;
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
 	    continue;
+	if ( editor->widget()->inherits( "QDesignerToolBar" ) ) {
+	    if ( qstrcmp( p->name(), "label" ) != 0 )
+		continue;
+	}
+	if ( editor->widget()->inherits( "QDesignerMenuBar" ) ) {
+	}
 	unique.insert( QString::fromLatin1( it.current() ), TRUE );
 	if ( editor->widget()->isWidgetType() &&
 	     editor->formWindow()->isMainContainer( (QWidget*)editor->widget() ) ) {
@@ -2395,7 +2401,8 @@ void PropertyList::setupProperties()
 	}
     }
 
-    if ( !w->inherits( "QSplitter" ) && w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
+    if ( !w->inherits( "QSplitter" ) && !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) &&
+	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyIntItem( this, item, 0, "layoutSpacing", TRUE );
 	setPropertyValue( item );
 	item->setChanged( TRUE );
@@ -2405,7 +2412,8 @@ void PropertyList::setupProperties()
     }
 
 
-    if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) && !w->inherits( "QAction" ) ) {
+    if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) && !w->inherits( "QAction" ) &&
+	 !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) ) {
 	item = new PropertyTextItem( this, item, 0, "toolTip", TRUE, FALSE );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) )
