@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#37 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -485,7 +485,7 @@ QSize QProgressDialog::sizeHint() const
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
     if ( d->cancel )
 	h += d->cancel->sizeHint().height() + spacing;
-    return QSize( QMAX(200, sh.width()), h );
+    return QSize( QMAX(200, sh.width() + 2*margin_lr), h );
 }
 
 /*!
