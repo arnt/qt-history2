@@ -1209,7 +1209,8 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->save();
     QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
 							 QStyle::SC_ComboBoxEditField);
-    p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), *entries.at( current ) );
+    int align = alignment(); // alignment() changes entries
+    p->drawText( textR, wordWrap() ? ( align | WordBreak ) : align, *entries.at( current ) );
     p->restore();
 }
 
