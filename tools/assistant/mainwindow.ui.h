@@ -82,11 +82,6 @@ void MainWindow::init()
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
-    QAccel *acl = new QAccel( this );
-    acl->connectItem( acl->insertItem( QKeySequence("SHIFT+CTRL+=") ), actionZoomIn, SIGNAL(activated()) );
-#endif
-
     QTimer::singleShot( 0, this, SLOT( setup() ) );
 }
 
@@ -115,6 +110,9 @@ void MainWindow::setup()
 
     QAccel *acc = new QAccel( this );
     acc->connectItem( acc->insertItem( Key_F5 ), browser, SLOT( reload() ) );
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+    acc->connectItem( acc->insertItem( QKeySequence("SHIFT+CTRL+=") ), actionZoomIn, SIGNAL(activated()) );
+#endif
 
     QAccel *a = new QAccel( this, dw );
     a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ),
