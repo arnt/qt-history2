@@ -206,8 +206,12 @@ int main( int argc, char** argv )
 	    qdb::List l = v.toList();
 	    QString name( l[0].toString() );
 	    v.cast( (QVariant::Type)l[1].toInt() );
+	    QString typeName( v.typeName() );
+	    typeName = typeName.lower();
+	    if ( typeName[0] == 'q' )
+		typeName = typeName.mid( 1, typeName.length() );
 	    outstream << sep << " " << name.leftJustify( 14 ) << sep
-		      << " " << QString( v.typeName() ).leftJustify( 14 ) << sep
+		      << " " << typeName.leftJustify( 14 ) << sep
 		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
 		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
 	}
