@@ -368,10 +368,15 @@ public:
 
 	if ( !w ) {
 	    if ( focussedWidget ) {
-		focussedWidget->leaveInstance();
-		focussedWidget = 0;
+		QPoint p(e->x_root, e->y_root);
+		QRect r = focussedWidget->rect();
+		r.moveTopLeft( focussedWidget->mapToGlobal(QPoint(0,0)) );
+		if (!r.contains(p) ) {
+		    focussedWidget->leaveInstance();
+		    focussedWidget = 0;
+		    removeXtEventFilters( Dangerous );
+		}
 	    }
-	    removeXtEventFilters( Dangerous );
 	} else if ( w->isTopLevel() ) {
 	    for ( QNPWidget* npw = npwidgets.first();
 		npw; npw = npwidgets.next())
