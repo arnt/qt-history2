@@ -50,8 +50,9 @@
 
   \module sql
 
-  This is an abstract base class which defines an interface for accessing SQL databases.  This
-  class should not be used directly.  Use QSqlDatabase instead.
+  This is an abstract base class which defines an interface for
+  accessing SQL databases.  This class should not be used directly.
+  Use QSqlDatabase instead.
 
 */
 
@@ -134,7 +135,7 @@ bool QSqlDriver::isOpenError() const
 /*! \fn bool QSqlDriver::hasQuerySizeSupport() const
 
   Returns TRUE if the database supports reporting information about
-  the size of a query, FALSE otherwise.  Note that some databases do
+  the size of a query, FALSE otherwise.	 Note that some databases do
   not support returning the size (i.e. number of rows returned) of a
   query, in which case QSql::size() will return -1.
 
@@ -246,7 +247,7 @@ QSqlError QSqlDriver::lastError() const
   implementation returns an empty list.
 */
 
-QStringList QSqlDriver::tables( const QString&  ) const
+QStringList QSqlDriver::tables( const QString&	) const
 {
     return QStringList();
 }
@@ -266,7 +267,7 @@ QSqlIndex QSqlDriver::primaryIndex( const QString& ) const
 
 /*!
   Returns a QSqlRecord populated with the names of the fields in table
-  \a tableName.  If no such table exists, an empty list is returned.
+  \a tableName.	 If no such table exists, an empty list is returned.
   The default implementation returns an empty record.
 
 */
@@ -347,9 +348,17 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
 		r = nullText();
 	    break;
 	case QVariant::DateTime:
-	    if ( field->value().toDateTime().isValid() )
-		r = "'" + field->value().toDateTime().toString( Qt::ISODate ) + "'";
-	    else
+	    // Using an escape sequence for the datetime fields
+	    if ( field->value().toDateTime().isValid() ){
+		QDate dt = field->value().toDateTime().date();
+		QTime tm = field->value().toDateTime().time();
+		r = "'{ ts `" + 
+		    QString::number(dt.year()) + "-" + 
+		    QString::number(dt.month()) + "-" +
+		    QString::number(dt.day()) + " " +
+		    tm.toString() +
+		    "` }'";
+	    } else
 		r = nullText();
 	    break;
 	case QVariant::String:
