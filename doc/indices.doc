@@ -106,10 +106,10 @@ Overviews
 <ul>
 <li> \link modules.html   About Modules \endlink
 <li> \link canvas.html   Canvas \endlink
-<li> \link sql.html   SQL \endlink
 <li> \link iconview.html   Iconview \endlink
 <li> \link network.html   Network \endlink
 <li> \link opengl.html   OpenGL \endlink
+<li> \link sql.html   SQL \endlink
 <li> \link table.html   Table \endlink
 <li> \link workspace.html   Workspace \endlink
 <li> \link xml.html   XML \endlink
