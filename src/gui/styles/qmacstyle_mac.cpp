@@ -4431,7 +4431,7 @@ void QMacStylePrivate::AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz
     (covered below).
 
     \i Widget size - Aqua allows widgets to have specific fixed sizes.  Qt
-    does not fully implement this behavior so as to maintain multiplatform
+    does not fully implement this behavior so as to maintain cross-platform
     compatibility. As a result some widgets sizes may be inappropriate (and
     subsequently not rendered correctly by the Appearance Manager).The
     QWidget::sizeHint() will return the appropriate size for many
