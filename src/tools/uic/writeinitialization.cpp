@@ -412,6 +412,8 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             if (!m_pixmapFunction.isEmpty()) {
                 s.prepend(m_pixmapFunction + "(\"");
                 s.append("\")");
+            } else {
+                s = QString("icon(%1_ID)").arg(s);
             }
             propertyValue = QString("QIconSet(%1)")
                             .arg(s);

@@ -465,6 +465,8 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             // changes in QObject
             if (name == QLatin1String("name")) {
                 prop->setAttributeName("objectName");
+            } else if (name == QLatin1String("iconSet")) {
+                prop->setAttributeName("icon");
             }
 
             name = prop->attributeName(); // sync the name
