@@ -140,4 +140,8 @@ void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font, const
     f->removeRef();
 }
 
+/*! \fn QTextEdit *QSyntaxHighlighter::textEdit() const
+  Returns the QTextEdit on which this syntax highlighter is installed
+*/
+
 #endif
