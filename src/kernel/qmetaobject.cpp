@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#53 $
 **
 ** Implementation of QMetaObject class
 **
@@ -357,7 +357,7 @@ void QMetaObject::fixProperty( QMetaProperty* prop, bool fix_enum_type )
       return;
   }
 
-  if ( !prop->get )
+  if ( prop->get == 0 )
   {
     fatal("In class %s the property %s has no get function. The same applies for its super classes.",
 	  className(), prop->name );

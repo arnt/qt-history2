@@ -3141,7 +3141,7 @@ QDOM_DocumentPrivate::QDOM_DocumentPrivate( const QString& name )
 }
 
 QDOM_DocumentPrivate::QDOM_DocumentPrivate( QDOM_DocumentPrivate* n, bool deep )
-  : QDOM_NodePrivate::QDOM_NodePrivate( n, deep )
+  : QDOM_NodePrivate( n, deep )
 {
   m_mimeSourceFactory = n->m_mimeSourceFactory;
   impl = n->impl->clone();
