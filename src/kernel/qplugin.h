@@ -94,22 +94,6 @@ private:
     QCString function;
 };
 
-#if 1
-class Q_EXPORT QPlugInManagerSignalEmitter : public QObject
-{
-    Q_OBJECT
-public:
-    QPlugInManagerSignalEmitter();
-
-    void emitFeatureAdded( const QString& feature );
-    void emitFeatureRemoved( const QString& feature );
-
-signals:
-    void featureAdded( const QString& );
-    void featureRemoved( const QString& );
-};
-#endif
-
 #endif
 
 #endif // QPLUGIN_H

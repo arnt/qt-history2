@@ -675,27 +675,4 @@ QStringList QPlugIn::featureList()
   \sa selectFeature, featureList, plugIn
 */
 
-/*!
-  \internal
-*/
-QPlugInManagerSignalEmitter::QPlugInManagerSignalEmitter() 
-: QObject() 
-{}
-
-/*!
-  \internal
-*/
-void QPlugInManagerSignalEmitter::emitFeatureAdded( const QString& feature ) 
-{
-    emit featureAdded( feature ); 
-}
-
-/*!
-  \internal
-*/
-void QPlugInManagerSignalEmitter::emitFeatureRemoved( const QString& feature ) 
-{ 
-    emit featureRemoved( feature ); 
-}
-
 #endif // QT_NO_PLUGIN

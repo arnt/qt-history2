@@ -46,6 +46,22 @@
 #include "qdir.h"
 #endif // QT_H
 
+#if 1 // internal class to provide signal functionality to QPlugInManager
+class Q_EXPORT QPlugInManagerSignalEmitter : public QObject
+{
+    Q_OBJECT
+public:
+    QPlugInManagerSignalEmitter() : QObject() {}
+
+    void emitFeatureAdded( const QString& feature ) { emit featureAdded( feature ); }
+    void emitFeatureRemoved( const QString& feature ) { emit featureRemoved( feature ); }
+
+signals:
+    void featureAdded( const QString& );
+    void featureRemoved( const QString& );
+};
+#endif
+
 template<class Type>
 class Q_EXPORT QPlugInManager
 {
