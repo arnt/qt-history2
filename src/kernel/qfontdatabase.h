@@ -115,10 +115,11 @@ private:
     friend class QtFontFamily;
     friend class QtFontFoundry;
     friend class QFontDatabasePrivate;
-
+    
     // for parseFontName
     friend class QFontPrivate;
     friend class QFontDialog;
+    friend QString qt_makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 );
 
     QFontDatabasePrivate *d;
 };

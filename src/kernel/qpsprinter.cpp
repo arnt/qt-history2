@@ -59,6 +59,7 @@
 #include "qtextcodec.h"
 #include "qsettings.h"
 #include "qmap.h"
+#include "qfontdatabase.h"
 
 #include <ctype.h>
 #if defined(_OS_WIN32_)
@@ -2042,12 +2043,20 @@ static int addPsFontNameExtension( const QFont &f, QString &ps, const psfont *ps
 
 static QString makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 )
 {
+    return qt_makePSFontName( f, listpos, ftype );
+}
+
+/* static  */ // doesn't work because we need the friend decl from qfontdatabase
+QString qt_makePSFontName( const QFont &f, int *listpos = 0, int *ftype = 0 )
+{
   QString ps;
   int i;
 
-  QString family = f.family();
+  QString familyName = f.family();
+  QString foundry, family;
+  QFontDatabase::parseFontName( familyName, foundry, family );
   family = family.lower();
-
+  
 
   // try to make a "good" postscript name
   ps = family.simplifyWhiteSpace();
