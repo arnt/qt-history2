@@ -934,8 +934,8 @@ for a in $QMAKE_PROJECTS ; do
     MFILE=Makefile
     N=$buildpath/$MFILE
 
-    case $buildpath in
-    *qtmain.pro) cont ;;
+    case $a in
+    *qtmain.pro) continue ;;
     *moc*) CONF=$MKSPEC ;;
     *) CONF=$XMKSPEC
     esac
