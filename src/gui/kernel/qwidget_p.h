@@ -172,9 +172,7 @@ public:
     void setLayoutDirection_helper(Qt::LayoutDirection);
     void resolveLayoutDirection();
 
-    bool isForegroundInherited() const;
     bool isBackgroundInherited() const;
-    bool isTransparent() const;
     void updateInheritedBackground();
     void updatePropagatedBackground(const QRegion * = 0);
 

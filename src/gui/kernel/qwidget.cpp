@@ -984,29 +984,6 @@ void QWidgetPrivate::deleteExtra()
 }
 
 /*
-  Returns true if the foreground is inherited; otherwise returns
-  false.
-
-  A widget does not inherit its parent's foreground if
-  setForegroundRole() or setBackgroundRole() was called, or a brush is
-  defined for the foreground role.
-
-  If the Qt::WA_ForegroundInherited attribute is set, a widget always
-  inherits its parent's foreground.
-*/
-
-bool QWidgetPrivate::isForegroundInherited() const
-{
-    Q_Q(const QWidget);
-    return (!q->isWindow() && !(q->windowType() == Qt::SubWindow)
-            && (q->testAttribute(Qt::WA_ForegroundInherited)
-                || (!q->testAttribute(Qt::WA_SetPalette)
-                    && !q->testAttribute(Qt::WA_SetForegroundRole)
-                    && !q->testAttribute(Qt::WA_SetBackgroundRole))));
-}
-
-
-/*
   Returns true if the background is inherited; otherwise returns
   false.
 
@@ -1019,35 +996,34 @@ bool QWidgetPrivate::isBackgroundInherited() const
 {
     Q_Q(const QWidget);
 
+    // windows do not inherit their background
     if (q->isWindow() || q->windowType() == Qt::SubWindow)
         return false;
 
-    QBrush brush = q->palette().brush(q->backgroundRole());
+    const QPalette &pal = q->palette();
+    QPalette::ColorRole bg = q->backgroundRole();
+    QBrush brush = pal.brush(bg);
 
-    if (brush.style() == Qt::SolidPattern)
+    // non opaque brushes leaves us no choice, we must inherit
+    if (!brush.isOpaque())
+        return true;
+
+    // if we have a background role set, or a custom brush for the
+    // background role, then the background is not inherited
+    if (q->testAttribute(Qt::WA_SetBackgroundRole) || (pal.resolve() & (1<<bg)))
         return false;
 
-    if ((q->testAttribute(Qt::WA_SetBackgroundRole) || q->testAttribute(Qt::WA_SetPalette))
-        && brush.isOpaque())
-        return false;
+    if (brush.style() == Qt::SolidPattern) {
+        // the background is just a solid color. If there is no
+        // propagated contents, then we claim as performance
+        // optimization that it was not inheritet. This is the normal
+        // case in standard Windows or Motif style.
+        const QWidget *w = q->parentWidget();
+        if (!w->testAttribute(Qt::WA_ContentsPropagated) && !w->d_func()->isBackgroundInherited())
+            return false;
+    }
 
     return true;
-}
-
-/*
-  Returns true if this widget has an inherited background and at least
-  one ancestor propagates its background; otherwise return false.
- */
-bool QWidgetPrivate::isTransparent() const
-{
-    Q_Q(const QWidget);
-    const QWidget *w = q;
-    while (w->d_func()->isBackgroundInherited()) {
-        w = w->parentWidget();
-        if (w->testAttribute(Qt::WA_ContentsPropagated))
-            return true;
-    }
-    return false;
 }
 
 /*
@@ -2622,7 +2598,10 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
 QPalette::ColorRole QWidget::foregroundRole() const
 {
     const QWidget *w = this;
-    while (w->d_func()->isForegroundInherited())
+    while (!w->isWindow() && w->windowType() != Qt::SubWindow
+           && (w->testAttribute(Qt::WA_ForegroundInherited)
+               || (!w->testAttribute(Qt::WA_SetBackgroundRole)
+                   && !w->testAttribute(Qt::WA_SetForegroundRole))))
         w = w->parentWidget();
     return w->d_func()->fg_role;
 }
