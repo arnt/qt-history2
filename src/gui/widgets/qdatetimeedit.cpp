@@ -120,7 +120,7 @@ public:
 
 /*!
     Constructs an empty date time editor with a \a parent. The format
-    is set to "yyyy.MM.dd_hh:mm.ss" by default.
+    is set to "yyyy.MM.dd hh:mm:ss" by default.
 */
 
 QDateTimeEdit::QDateTimeEdit(QWidget *parent)
@@ -129,13 +129,13 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     d->minimum = QCoreVariant(DATETIME_MIN);
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = d->minimum;
-    if (!setFormat("yyyy.MM.dd_hh:mm.ss"))
-	qFatal("Could not parse format 'yyyy.MM.dd_hh:mm.ss'");
+    if (!setFormat("yyyy.MM.dd hh:mm.ss"))
+	qFatal("Could not parse format 'yyyy.MM.dd hh:mm:ss'");
 }
 
 /*!
     Constructs an empty date time editor with a \a parent. The value
-    is set to \a datetime. The format is set to "yyyy.MM.dd_hh:mm.ss"
+    is set to \a datetime. The format is set to "yyyy.MM.dd hh:mm:ss"
     by default.
 */
 
@@ -146,14 +146,14 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = datetime.isValid() ? QCoreVariant(datetime) : d->getZeroVariant();
     if (!setFormat("yyyy.MM.dd hh:mm.ss"))
-	qFatal("Could not parse format 'yyyy.MM.dd hh:mm.ss'");
+	qFatal("Could not parse format 'yyyy.MM.dd hh:mm:ss'");
 }
 
 /*!
     \fn QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
 
     Constructs an empty date time editor with a \a parent.
-    The value is set to \a date. The format is set to "yyyy:MM.dd".
+    The value is set to \a date. The format is set to "yyyy.MM.dd".
 */
 
 QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
@@ -170,7 +170,7 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
     \fn QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
 
     Constructs an empty date time editor with a \a parent.
-    The value is set to \a time. The format is set to "hh:mm.ss".
+    The value is set to \a time. The format is set to "hh:mm:ss".
 */
 
 QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
@@ -180,7 +180,7 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
     d->maximum = QCoreVariant(DATETIME_MAX);
     d->value = QCoreVariant(QDateTime(QDate(2000, 01, 01), time.isValid() ? time : QTime())); // ### hack
     if (!setFormat("hh:mm.ss"))
-	qFatal("Could not parse format 'hh:mm.ss'");
+	qFatal("Could not parse format 'hh:mm:ss'");
 }
 
 QDateTime QDateTimeEdit::dateTime() const
