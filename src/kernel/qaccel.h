@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#17 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#18 $
 **
 ** Definition of QAccel class
 **
@@ -71,7 +71,7 @@ public:
     void	disableItem( int id );
 #endif
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QAccel( const QAccel & ) {}
     QAccel &operator=( const QAccel & ) { return *this; }
 };

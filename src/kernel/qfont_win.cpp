@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#20 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -27,7 +27,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#20 $")
 
 
 QFont *QFont::defFont = 0;			// default font
@@ -63,7 +63,6 @@ QFontData::QFontData( const QFontData &d )
     req = d.req;
     lineW = d.lineW;
     req.dirty = TRUE;				// reload font later
-
     stockFont = TRUE;
     hdc = hfont = 0;
     tm = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#76 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#77 $
 **
 ** Definition of QPainter class
 **
@@ -265,7 +265,7 @@ public:
 #endif
 
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QPainter( const QPainter & ) {}
     QPainter &operator=( const QPainter & ) { return *this; }
 };

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#5 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -38,7 +38,7 @@ private:
     QString     fontsUsed;
     friend class QPrinter;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QPSPrinter( const QPSPrinter & ):QPaintDevice(0) {}
     QPSPrinter &operator=( const QPSPrinter & ) { return *this; }
 };

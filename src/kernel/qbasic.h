@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#6 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#7 $
 **
 **   Geometry Management
 **
@@ -57,7 +57,7 @@ private:
 
     
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QBasicManager( const QBasicManager & ) {}
     QBasicManager &operator=( const QBasicManager & ) { return *this; }
 };

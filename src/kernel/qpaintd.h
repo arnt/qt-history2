@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#39 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#40 $
 **
 ** Definition of QPaintDevice class
 **
@@ -79,7 +79,7 @@ protected:
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp, bool );
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QPaintDevice( const QPaintDevice & ) {}
     QPaintDevice &operator=( const QPaintDevice & ) { return *this; }
 };

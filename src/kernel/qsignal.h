@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#7 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#8 $
 **
 ** Definition of QSignal class
 **
@@ -36,7 +36,7 @@ private:
     void    dummy();
     Q_OBJECT_FAKE
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QSignal( const QSignal & ) {}
     QSignal &operator=( const QSignal & ) { return *this; }
 };

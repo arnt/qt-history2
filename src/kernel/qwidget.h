@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#86 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#87 $
 **
 ** Definition of QWidget class
 **
@@ -270,7 +270,7 @@ public:
     bool	 enableUpdates( bool enable );
 #endif
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QWidget( const QWidget & ) :QPaintDevice(0) {}
     QWidget &operator=( const QWidget & ) { return *this; }
 };

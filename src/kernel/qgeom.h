@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#4 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#5 $
 **
 **  Geometry Management
 **
@@ -30,7 +30,7 @@ private:
     int defBorder;
     void initBox( Direction, int, int );
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     //###QGeomManager( const QGeomManager & ) {}
     QGeomManager &operator=( const QGeomManager & ) { return *this; }
 };
