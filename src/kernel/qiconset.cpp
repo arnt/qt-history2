@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#29 $
 **
 ** Implementation of QIconSet class
 **
@@ -106,6 +106,17 @@ struct QIconSetPrivate: public QShared
 */
 
 
+/*!
+  Constructs an icons set of an empty pixmap.
+  
+  \sa reset()
+*/
+
+QIconSet::QIconSet()
+{
+    d = 0;
+    reset( QPixmap(), Automatic );
+}
 
 
 /*!  Constructs an icon set that will generate its members from \a
