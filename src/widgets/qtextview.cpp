@@ -995,7 +995,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    }
 	}
 
-	for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	for ( int i = 1; i < QTextDocument::Temp; ++i ) // start with 1 as we don't want to remove the Standard-Selection
 	    redraw = doc->removeSelection( i ) || redraw;
 
 	if ( !redraw ) {
