@@ -55,19 +55,20 @@
 
     \ingroup misc
 
-    A key sequence consists of a keyboard code, optionally combined
-    with modifiers, e.g. \c SHIFT, \c CTRL, \c ALT, \c META, or \c
-    UNICODE_ACCEL. For example, \c{CTRL + Key_P} might be a sequence
-    used as a shortcut for printing a document. The key codes are
-    listed in \c{qnamespace.h}. As an alternative, use \c
-    UNICODE_ACCEL with the unicode code point of the character. For
-    example, \c{UNICODE_ACCEL + 'A'} gives the same key sequence as \c
-    Key_A.
+    A key sequence consists of up to four keyboard codes, each
+    optionally combined with modifiers, e.g. \c SHIFT, \c CTRL, \c
+    ALT, \c META, or \c UNICODE_ACCEL. For example, \c{CTRL + Key_P}
+    might be a sequence used as a shortcut for printing a document.
+    The key codes are listed in \c{qnamespace.h}. As an alternative,
+    use \c UNICODE_ACCEL with the unicode code point of the character.
+    For example, \c{UNICODE_ACCEL + 'A'} gives the same key sequence
+    as \c Key_A.
 
     Key sequences can be constructed either from an integer key code,
-    or from a human readable translatable string. A key sequence can
-    be cast to a QString to obtain a human readable translated version
-    of the sequence. Translations are done in the "QAccel" context.
+    or from a human readable translatable string such as
+    "Ctrl+X,Alt+Space". A key sequence can be cast to a QString to
+    obtain a human readable translated version of the sequence.
+    Translations are done in the "QAccel" context.
 
     \sa QAccel
 */
@@ -183,11 +184,14 @@ QKeySequence::QKeySequence()
 }
 
 /*!
-    Creates a key sequence from the string \a key.  For example
-    "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.  The strings "Ctrl",
+    Creates a key sequence from the string \a key. For example
+    "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'. The strings "Ctrl",
     "Shift", "Alt" and "Meta" are recognized, as well as their
     translated equivalents in the "QAccel" context (using
     QObject::tr()).
+
+    Multiple key codes (up to four) may be entered by separating them
+    with commas, e.g. "Alt+X,Ctrl+S,Q".
 
     This contructor is typically used with \link QObject::tr() tr
     \endlink(), so that accelerator keys can be replaced in
@@ -288,7 +292,7 @@ void QKeySequence::setKey( int key, int index )
 
 /*!
     Returns the number of keys in the key sequence.
-    Maximum of 4 keys.
+    The maximum is 4.
  */
 uint QKeySequence::count() const
 {
@@ -305,8 +309,9 @@ uint QKeySequence::count() const
 
 
 /*!
-    Returns TRUE if the key sequence is empty.
- */
+    Returns TRUE if the key sequence is empty; otherwise returns
+    FALSE.
+*/
 bool QKeySequence::isEmpty() const
 {
     return !d->key[0];
@@ -314,11 +319,11 @@ bool QKeySequence::isEmpty() const
 
 
 /*!
-    Adds the string \a keyseq to the key sequence. \a
-    keyseq may contain up to 4 keys, provided they are
-    seperated by a comma.(E.g. "Ctrl+X, Ctrl+S")
-    Returns the number of keys added.
- */
+    Adds the string \a keyseq to the key sequence. \a keyseq may
+    contain up to four key codes, provided they are seperated by a
+    comma, e.g. "Alt+X,Ctrl+S,Z"). Returns the number of key codes
+    added.
+*/
 int QKeySequence::assign( QString keyseq )
 {
     QString part;
@@ -491,11 +496,10 @@ QString QKeySequence::encodeString( int key )
 }
 
 /*!
-    Matches the sequence with \a seq.
-    Returns Qt::Identical if successful, Qt::PartialMatch for matching
-    but incomplete \a seq, and Qt::NoMatch if sequences have nothing
-    in common.
-    Returns Qt::NoMatch if \a seq is shorter.
+    Matches the sequence with \a seq. Returns \c Qt::Identical if
+    successful, \c Qt::PartialMatch for matching but incomplete \a seq,
+    and \c Qt::NoMatch if the sequences have nothing in common.
+    Returns \c Qt::NoMatch if \a seq is shorter.
 */
 Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 {
@@ -549,10 +553,11 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 
 /*!
     Creates an accelerator string for the key sequence.
-    For instance CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl",
-    "Shift", etc. are translated (using QObject::tr()) in the
-    "QAccel" scope.
-    If the key sequence has no keys, QString::null is returned.
+    For instance CTRL+Key_O gives "Ctrl+O". If the key sequence has
+    multiple key codes they are returned comma-separated, e.g.
+    "Alt+X, Ctrl+Y, Z". The strings, "Ctrl", "Shift", etc. are
+    translated (using QObject::tr()) in the "QAccel" scope. If the key
+    sequence has no keys, QString::null is returned.
 */
 QKeySequence::operator QString() const
 {
@@ -585,8 +590,8 @@ QKeySequence::operator int () const
 
 
 /*!
-   Returns a reference to the element at position \a index in the key sequence.
-   This can only be used to read an element.
+    Returns a reference to the element at position \a index in the key
+    sequence. This can only be used to read an element.
  */
 int QKeySequence::operator[]( uint index ) const
 {
