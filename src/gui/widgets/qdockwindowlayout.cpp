@@ -76,7 +76,7 @@ public:
 };
 
 QDockWindowLayout::QDockWindowLayout(Qt::DockWindowArea a, Qt::Orientation o)
-    : QLayout(0), area(a), orientation(o), save_layout_info(0),
+    : QLayout(static_cast<QWidget*>(0)), area(a), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
 

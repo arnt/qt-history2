@@ -242,7 +242,7 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
             brush.setPixmap(*pm);
         p->fillRect(rect, brush);
 #else
-        QBrush brush(item.engine()->pal->highlight(), Qt::Dense4Pattern);
+        QBrush brush(item.engine()->pal->highlight().color(), Qt::Dense4Pattern);
         p->fillRect(rect, brush);
 #endif
     }

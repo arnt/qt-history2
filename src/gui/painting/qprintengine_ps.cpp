@@ -5430,7 +5430,7 @@ void QPSPrintEngine::updateFont(const QFont &)
 
 void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
-    d->bkColor = bgBrush;
+    d->bkColor = bgBrush.color();
     d->bkMode = bgMode;
 
     d->pageStream << color(d->bkColor) << "BC\n";

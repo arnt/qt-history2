@@ -627,7 +627,7 @@ bool QXIMInputContext::x11FilterEvent( QWidget *keywidget, XEvent *event )
             int count = lookupString(&(event->xkey), data,
                                      &sym, &status);
             if (count > 0)
-                text = qt_input_mapper->toUnicode(data, count);
+                text = qt_input_mapper->toUnicode(data.constData() , count);
 
             if (!(xim_style & XIMPreeditCallbacks) || !isComposing()) {
                 // ############### send a regular key event here!
