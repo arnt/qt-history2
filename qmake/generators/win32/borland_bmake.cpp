@@ -165,6 +165,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	  << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
 	  << project->variables()["OBJMOC"].join(" \\\n+");
     }
+    t << extraCompilerDeps;
     t << endl << "|" << endl;
 
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {

@@ -225,6 +225,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC)";
     }
+    t << extraCompilerDeps;
     t << endl << "<<" << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
