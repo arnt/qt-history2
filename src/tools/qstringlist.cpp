@@ -48,7 +48,6 @@
   \class QStringList qstringlist.h
   \brief The QStringList class provides a list of strings.
 
-  \ingroup qtl
   \ingroup tools
   \ingroup shared
 
@@ -91,7 +90,7 @@
 
 /*! \fn QStringList::QStringList( const QStringList& l )
 
-  Creates a copy of the list. This function is very fast because
+  Creates a copy of the list \a l. This function is very fast because
   QStringList is implicitly shared. However, for the programmer this
   is the same as a deep copy. If this list or the original one or some
   other list referencing the same shared data is modified, the
@@ -100,13 +99,17 @@
 
 /*!
   \fn QStringList::QStringList (const QString & i)
+
   Constructs a string list consisting of the single string \a i.
-  To make longer lists easily, use
-  \code
-    QString s1,s2,s3;
-    ...
-    QStringList mylist = QStringList() << s1 << s2 << s3;
-  \endcode
+  Longer lists are easily created as follows:
+
+  \walkthrough table/small-table-demo/main.cpp
+  \skipto QStringList
+  \printline QStringList
+  \printline comboEntries << 
+
+  (example code taken from \link small-table-demo-example.html
+  table/small-table-demo/main.cpp\endlink)
 */
 
 /*!
@@ -249,7 +252,8 @@ QStringList QStringList::grep( const QString &str, bool cs ) const
     return res;
 }
 
-/*!
+/*! \overload
+
   Returns a list of all strings containing a substring that matches
   the regular expression \a expr.
 */
@@ -296,8 +300,7 @@ Q_EXPORT QDataStream &operator<<( QDataStream & s, const QStringList& l )
 }
 #endif
 
-/*!
-  Converts from a QStrList (ASCII) to a QStringList (Unicode).
+/*! Converts from a ASCII-QStrList \a ascii to a QStringList (Unicode).
 */
 QStringList QStringList::fromStrList(const QStrList& ascii)
 {
