@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#62 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#61 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#62 $";
 #endif
 
 /*!
@@ -407,6 +407,15 @@ void QWidget::disable()				// disable events
   \sa size()
 */
 
+/*!
+  \fn QFontMetrics QWidget::fontMetrics() const
+  Returns the font metrics for the widget.
+*/
+
+/*!
+  \fn QFontInfo QWidget::fontInfo() const
+  Returns the font info for the widget.
+*/
 
 /*!
   Returns the background color of this widget.
