@@ -300,7 +300,7 @@ void QWSManager::handleMove()
     if (!d->dx && !d->dy)
         return;
 
-    if ( managed->isMaximized() )
+    if ( d->managed->isMaximized() )
         return;
 
     int x = d->managed->geometry().x();
