@@ -179,7 +179,7 @@ private:
     Orientation startOrientation;
     QRect startRect;
     QPoint startOffset;
-    bool stretchable[ 2 ];
+    bool stretchable[ 3 ];
     int offs;
     QSize fExtent;
     bool nl;
