@@ -757,8 +757,21 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     Q_D(QTreeView);
     int i = d->itemDecorationAt(e->pos());
-    if (i == -1)
+    if (i == -1) {
         QAbstractItemView::mouseDoubleClickEvent(e);
+        i = d->item(e->y());
+        if (i == -1 || state() != NoState)
+            return; // the double click triggered editing or we clicked outside the items
+        if (d->viewItems.at(i).expanded) {
+            setState(ExpandingState);
+            d->collapse(i);
+        } else {
+            setState(CollapsingState);
+            d->expand(i);
+        }
+        updateGeometries();
+        viewport()->update();
+    }
 }
 
 /*!
