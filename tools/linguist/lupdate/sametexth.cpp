@@ -14,6 +14,7 @@
 #include <metatranslator.h>
 
 #include <qmap.h>
+#include <stdio.h>
 
 typedef QMap<QByteArray, MetaTranslatorMessage> TMM;
 typedef QList<MetaTranslatorMessage> TML;

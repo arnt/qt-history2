@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <metatranslator.h>
+#include <stdio.h>
 
 // defined in numberh.cpp
 extern void applyNumberHeuristic( MetaTranslator *tor, bool verbose );

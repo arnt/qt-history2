@@ -16,6 +16,7 @@
 #include <qvector.h>
 #include <qmap.h>
 #include <qstringlist.h>
+#include <stdio.h>
 
 #include <ctype.h>
 
