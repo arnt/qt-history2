@@ -425,12 +425,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             QString tmp_out = project->first((*it) + ".output");
             if(project->isEmpty((*it) + ".output"))
                 continue;
+            QString name = (*it);
+            if(!project->isEmpty((*it) + ".name"))
+                name = project->first((*it) + ".name");
             const QStringList &inputs = project->values((*it) + ".input");
             for(int input = 0; input < inputs.size(); ++input) {
                 if(project->isEmpty(inputs.at(input)))
                     continue;
                 sources.append(ProjectBuilderSources(inputs.at(input),
-                                                     QString("Sources [") + inputs.at(input) + "]"));
+                                                     QString("Sources [") + name + "]"));
             }
         }
     }
@@ -614,11 +617,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         if(project->isEmpty(inputs.at(input)))
                             continue;
                         const QStringList &files = project->values(inputs.at(input));
-                        for(int file = 0; file < files.size(); ++file) {
-                            if(file && !(file % 3))
+                        for(int file = 0, added = 0; file < files.size(); ++file) {
+                            if(!verifyExtraCompiler(compilers.at(compiler), files.at(file)))
+                                continue;
+                            if(added && !(added % 3))
                                 mkt << "\\\n\t";
-                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file),
-                                                                        QString());
+                            ++added;
+                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file), QString());
                         }
                     }
                 }
