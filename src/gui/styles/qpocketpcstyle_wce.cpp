@@ -1825,7 +1825,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_PanelTabWidget:
     case PE_WindowFrame:
 	{
-	    qDrawShadePanel(p, r, pal, (flags & Style_Sunken), opt.isDefault() ? PM_DEFAULTFRAMEWIDTH : opt.lineWidth()); // pixelMetric(PM_DefaultFrameWidth) 
+	    qDrawShadePanel(p, r, pal, (flags & Style_Sunken), opt.isDefault() ? PM_DEFAULTFRAMEWIDTH : opt.lineWidth()); // pixelMetric(PM_DefaultFrameWidth)
 	    break;
 	}
 
@@ -1853,7 +1853,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    // I'm not sure how much focus rects are used on pocketPC
 	    const QColor *bg = opt.isDefault()
 				? 0 : &opt.color();
-	    
+
 	    QColor drawColor = pal.background();
 	    if (bg) {
 		int h, s, v;
@@ -2223,7 +2223,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 		qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), pal, flags & Style_Sunken, lwidth, mlwidth );
 	    else
 		qDrawPlainRect( p, r.x(), r.y(), r.width(), r.height(), pal.foreground(), lwidth );
-	    break; 
+	    break;
 	}
 #endif
 
@@ -2305,7 +2305,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 	    const int current   = tb->currentTab();
 
 	    p->setPen( pal.foreground() );
-	    if ( flags & Style_Selected ) {	
+	    if ( flags & Style_Selected ) {
 		// Draw full rect
 		p->setBrush( pal.base() );
 		p->drawRect( r );
@@ -3091,7 +3091,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 		if ( cb->hasFocus() && !cb->editable() ) {
 		    p->fillRect( QRect( r.x() + 2, r.y() + 2, r.width() - 18, r.height() - 4 ), pal.brush( QPalette::Highlight ) );
 		    p->setPen( pal.highlightedText() );
-		    p->setBackgroundColor( pal.highlight() );
+		    p->setBackground( pal.highlight() );
 		}
 	    }
 	    break;
@@ -3650,7 +3650,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl	    complex,
 
 		if (bflags & (Style_Down | Style_On | Style_Raised)) {
 		    drawPrimitive(PE_ButtonTool, p, button, c, bflags, opt);
-		} 
+		}
 		/*
 		else if ( toolbutton->parentWidget() &&
 			  toolbutton->parentWidget()->backgroundPixmap() &&
@@ -3856,16 +3856,16 @@ void QPocketPCStyle::drawComplexControlMask(ComplexControl      complex,
 }
 
 /*! \reimp */
-QPixmap QPocketPCStyle::stylePixmap(PixmapType		pixmapType, 
-				    const QPixmap      &pix, 
-				    const QPalette     &pal, 
+QPixmap QPocketPCStyle::stylePixmap(PixmapType		pixmapType,
+				    const QPixmap      &pix,
+				    const QPalette     &pal,
 				    const QStyleOption &opt) const
 {
     return QPixmap();
 }
 
 /*! \reimp */
-QPixmap QPocketPCStyle::stylePixmap(StylePixmap 	stylepixmap, 
+QPixmap QPocketPCStyle::stylePixmap(StylePixmap 	stylepixmap,
 				    const QWidget      *widget,
 				    const QStyleOption &opt) const
 {

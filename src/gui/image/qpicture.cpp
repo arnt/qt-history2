@@ -587,7 +587,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcSetBkColor:
 		s >> color;
-		painter->setBackgroundColor( color );
+		painter->setBackground( color );
 		break;
 	    case PdcSetBkMode:
 		s >> i_8;

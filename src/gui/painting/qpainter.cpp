@@ -242,7 +242,6 @@ const QPoint &QPainter::backgroundOrigin() const
 
 const QBrush &QPainter::background() const
 {
-    // ### port propertly...
     return d->state->bgBrush;
 }
 
@@ -658,16 +657,11 @@ const QBrush &QPainter::brush() const
     return d->state->brush;
 }
 
-void QPainter::setBackgroundColor(const QColor &color)
+void QPainter::setBackground(const QBrush &bg)
 {
-    d->state->bgBrush.setColor(color);
+    d->state->bgBrush = bg;
     if (d->engine && d->engine->isActive())
 	d->engine->setDirty(QPaintEngine::DirtyBackground);
-}
-
-const QColor &QPainter::backgroundColor() const
-{
-    return d->state->bgBrush.color();
 }
 
 void QPainter::setRasterOp(RasterOp op)

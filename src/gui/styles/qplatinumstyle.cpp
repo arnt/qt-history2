@@ -1062,10 +1062,10 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 
 		if ( cmb->hasFocus() ) {
 		    p->setPen( pal.highlightedText() );
-		    p->setBackgroundColor( pal.highlight() );
+		    p->setBackground( pal.highlight() );
 		} else {
 		    p->setPen( pal.text() );
-		    p->setBackgroundColor( pal.background() );
+		    p->setBackground( pal.background() );
 		}
 
 		if ( cmb->hasFocus() && !cmb->editable() ) {

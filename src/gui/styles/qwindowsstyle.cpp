@@ -568,7 +568,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 
 	    if (flags & Style_Down) {
 		br = QBrush(pal.shadow(), Dense4Pattern);
-		p->setBackgroundColor( pal.dark() );
+		p->setBackground( pal.dark() );
 		p->setBrush( QBrush(pal.shadow(), Dense4Pattern) );
 	    } else {
 		br = (pal.brush(QPalette::Light).pixmap() ?
@@ -577,7 +577,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		p->setBrush(br);
 	    }
 	    p->drawRect(r);
-	    p->setBackgroundColor(c);
+	    p->setBackground(c);
 	    break;
 	}
 
@@ -1798,11 +1798,11 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	    if ( cb->hasFocus() ) {
 		p->setPen( pal.highlightedText() );
-		p->setBackgroundColor( pal.highlight() );
+		p->setBackground( pal.highlight() );
 
 	    } else {
 		p->setPen( pal.text() );
-		p->setBackgroundColor( pal.background() );
+		p->setBackground( pal.background() );
 	    }
 
 	    if ( cb->hasFocus() && !cb->editable() ) {

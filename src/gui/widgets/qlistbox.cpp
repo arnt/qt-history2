@@ -3558,7 +3558,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 
     const QPalette &pal = palette();
     p.setPen( pal.text() );
-    p.setBackgroundColor( palette().brush(backgroundRole()).color() );
+    p.setBackground( palette().brush(backgroundRole()).color() );
     while ( i && (int)col < numColumns() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
 	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
@@ -3842,17 +3842,17 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	if ( i->custom_highlight ) {
 	    p->fillRect( 0, 0, cw, ch, pal.brush( viewport()->foregroundRole() ) );
 	    p->setPen( pal.highlightedText() );
-	    p->setBackgroundColor( pal.highlight() );
+	    p->setBackground( pal.highlight() );
 	} else if ( numColumns()  == 1 ) {
 	    p->fillRect( 0, 0, cw, ch, pal.brush( QPalette::Highlight ) );
 	    p->setPen( pal.highlightedText() );
-	    p->setBackgroundColor( pal.highlight() );
+	    p->setBackground( pal.highlight() );
 	} else {
 	    int iw = i->width( this );
 	    p->fillRect( 0, 0, iw, ch, pal.brush( QPalette::Highlight ) );
 	    p->fillRect( iw, 0, cw - iw + 1, ch, viewport()->palette().brush(viewport()->backgroundRole()));
 	    p->setPen( pal.highlightedText() );
-	    p->setBackgroundColor( pal.highlight() );
+	    p->setBackground( pal.highlight() );
 	}
     } else {
 	p->fillRect( 0, 0, cw, ch, viewport()->palette().brush(viewport()->backgroundRole()));

@@ -76,13 +76,12 @@ public:
 
     void setBackgroundMode(BGMode mode);
     BGMode backgroundMode() const;
-    void setBackgroundColor(const QColor &color);
-    const QColor &backgroundColor() const;
 
     const QPoint &brushOrigin() const;
     void setBrushOrigin(int x, int y);
     void setBrushOrigin(const QPoint &);
 
+    void setBackground(const QBrush &bg);
     const QBrush &background() const;
     const QPoint &backgroundOrigin() const;
 
@@ -176,6 +175,8 @@ public:
     void drawText(const QPoint &, const QString &, TextDirection dir = Auto);
 
 #ifdef QT_COMPAT
+    QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
+    QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
     QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
 	{ drawText(x, y, s.mid(pos, len), dir); }
     QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)

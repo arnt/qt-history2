@@ -362,10 +362,10 @@ struct XPThemeData
 		QPixmap pm(rec.size());
 		QPainter p(&pm);
 		if(widget)
-		    p.setBackgroundColor(widget->palette().color(widget->backgroundRole()));
+		    p.setBackground(widget->palette().color(widget->backgroundRole()));
 		else
 		    //p.setBackgroundColor(qApp->palette().active().background());
-		    p.setBackgroundColor(qApp->palette().background());
+		    p.setBackground(qApp->palette().background());
 		p.eraseRect( 0, 0, rec.width(), rec.height() );
 		pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
 		p.end();
@@ -541,8 +541,8 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->setMouseTracking( TRUE );
     } else if ( qt_cast<QWidgetStack*>(widget) &&
 		qt_cast<QTabWidget*>(widget->parent()) ) {
-	QPalette p = widget->palette(); 
-	p.setBrush(widget->backgroundRole(), QBrush(*d->tabBody(widget))); 
+	QPalette p = widget->palette();
+	p.setBrush(widget->backgroundRole(), QBrush(*d->tabBody(widget)));
 	widget->setPalette(p);
     }
     QWidget *pW = static_cast<QWidget *>(widget->parent());
@@ -920,8 +920,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 
 	    if ( drawDockTitle ) {
 		QRect rt = r;
-		if ( w ) 
-		    p->setPen( pal.color(w->isActiveWindow() ? QPalette::Active : 
+		if ( w )
+		    p->setPen( pal.color(w->isActiveWindow() ? QPalette::Active :
 					 QPalette::Inactive, QPalette::HighlightedText ));
 
 		if ( flags & Style_Horizontal ) {
@@ -1544,11 +1544,11 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    if ( w->hasFocus() ) {
 			p->fillRect(re, pal.brush( QPalette::Highlight) );
 			p->setPen( pal.highlightedText() );
-			p->setBackgroundColor( pal.highlight() );
+			p->setBackground( pal.highlight() );
 		    } else {
 			p->fillRect(re, pal.brush( QPalette::Base ) );
 			p->setPen( pal.text() );
-			p->setBackgroundColor( pal.base() );
+			p->setBackground( pal.base() );
 		    }
 		}
 	    }
@@ -1958,8 +1958,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.drawBackground( partId, stateId );
 
 		QRect ir = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, SC_TitleBarLabel ), w );
-		p->setPen( pal.color(w->isActiveWindow() || !titlebar->window() ? 
-				     QPalette::Active : QPalette::Inactive, 
+		p->setPen( pal.color(w->isActiveWindow() || !titlebar->window() ?
+				     QPalette::Active : QPalette::Inactive,
 				     QPalette::HighlightedText ));
 		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
 			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
