@@ -54,15 +54,15 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 
 static inline bool isQDPainter(const QPainter *p)
 {
-    QPaintEngine *engine = p->device()->paintEngine();
+    QPaintEngine *engine = p->paintEngine();
     if (engine->type() == QPaintEngine::MacPrinter)
         engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
     return engine && engine->type() == QPaintEngine::QuickDraw;
 }
 
-void qt_mac_set_port(const QPainter *p)
+static void qt_mac_set_port(const QPainter *p)
 {
-    QPaintEngine *engine = p->d_ptr->engine;
+    QPaintEngine *engine = p->paintEngine();
     if (engine->type() == QPaintEngine::MacPrinter)
         engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
 
@@ -71,7 +71,7 @@ void qt_mac_set_port(const QPainter *p)
                    || engine->type() == QPaintEngine::CoreGraphics))
         mpe = static_cast<QQuickDrawPaintEngine *>(engine);
     if (mpe) {
-        mpe->updateState(p->d_ptr->state);
+        mpe->syncState();
         if(mpe->type() == QPaintEngine::QuickDraw) {
             mpe->setupQDPort(true);
         } else {

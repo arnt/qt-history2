@@ -96,11 +96,11 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 //Implemented for qt_mac_p.h
 QMacCGContext::QMacCGContext(QPainter *p)
 {
-    QPaintEngine *pe = p->d->engine;
+    QPaintEngine *pe = p->paintEngine();
     if(pe->type() == QPaintEngine::MacPrinter)
         pe = static_cast<QMacPrintEngine*>(pe)->paintEngine();
     Q_ASSERT(pe->type() == QPaintEngine::CoreGraphics);
-    pe->updateState(p->d->state); //be sure to sync
+    pe->syncState();
     context = static_cast<QCoreGraphicsPaintEngine*>(pe)->handle();
     CGContextRetain(context);
 }

@@ -342,14 +342,12 @@ private:
     friend class QFontEngineWin;
     friend class QFontEngineXLFD;
     friend class QFontEngineXft;
-    friend class QMacCGContext;
     friend class QWSManager;
     friend class QPaintEngine;
     friend class QX11PaintEngine;
     friend class QX11PaintEnginePrivate;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
-    friend void qt_mac_set_port(const QPainter *p);
 };
 
 //
