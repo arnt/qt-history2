@@ -668,9 +668,9 @@ void QListView::timerEvent(QTimerEvent *e)
         d->startLayoutTimer = 0; // so let the timer id be non-zero untill after the layout is done
     } else if (e->timerId() == d->batchLayoutTimer) {
         if (doItemsLayout(100)) {
+            // layout is done
             killTimer(d->batchLayoutTimer);
             d->batchLayoutTimer = 0;
-            // layout is done
             updateGeometries();
             d->viewport->update();
         }
@@ -816,21 +816,20 @@ QStyleOptionViewItem QListView::viewOptions() const
 void QListView::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
-
     QPainter painter(d->viewport);
     QRect area = e->rect();
     painter.fillRect(area, option.palette.base());
     area.translate(horizontalScrollBar()->value(), verticalScrollBar()->value());
     d->intersectingSet(area);
 
-    QModelIndex current = currentIndex();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    QItemSelectionModel *selections = selectionModel();
-    bool focus = q->hasFocus() && current.isValid();
-    bool alternate = d->alternatingColors;
-    QColor oddColor = d->oddColor;
-    QColor evenColor = d->evenColor;
-    QStyle::StyleFlags state = option.state;
+    const QModelIndex current = currentIndex();
+    const QAbstractItemDelegate *delegate = itemDelegate();
+    const QItemSelectionModel *selections = selectionModel();
+    const bool focus = q->hasFocus() && current.isValid();
+    const bool alternate = d->alternatingColors;
+    const QColor oddColor = d->oddColor;
+    const QColor evenColor = d->evenColor;
+    const QStyle::StyleFlags state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
         option.rect = itemViewportRect(*it);
@@ -844,8 +843,6 @@ void QListView::paintEvent(QPaintEvent *e)
             option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
         delegate->paint(&painter, option, *it);
     }
-
-    area = e->rect();
 
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
         QPoint delta = d->draggedItemsDelta();
@@ -1047,24 +1044,13 @@ QModelIndexList QListView::selectedIndexes() const
 */
 void QListView::doItemsLayout()
 {
-    d->layoutStart = 0;
-    d->translate = 0;
-
-    d->layoutBounds = viewport()->rect();
-    int sbx = style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    d->layoutBounds.setWidth(d->layoutBounds.width() - sbx);
-    d->layoutBounds.setHeight(d->layoutBounds.height() - sbx);
-    d->contentsSize = QSize(0, 0);
-
     d->prepareItemsLayout();
-
-    if (d->model->columnCount(root()) > 0) { // no columns means no contents
-        if (d->layoutMode == SinglePass)
-            doItemsLayout(d->model->rowCount(root())); // layout everything
+    if (model()->columnCount(root()) > 0) { // no columns means no contents
+        if (layoutMode() == SinglePass)
+            doItemsLayout(model()->rowCount(root())); // layout everything
         else
             d->batchLayoutTimer = startTimer(0); // do a new batch as fast as possible
     }
-
     QAbstractItemView::doItemsLayout();
 }
 
@@ -1125,11 +1111,10 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     const QStyleOptionViewItem option = viewOptions();
 
     // The static layout data structures are as follows:
-    // One vector of positions along an axis for each item
-    // Another vector of positions along the other axis for each
-    // layout row/column (depending on flow direction).
-    // A third vector containing the index (model row) of the first item
-    // in this layout row/column (refered to as a wrap)
+    // One vector contains the coordinate in the direction of layout flow.
+    // Another vector contains the coordinates of the wraps.
+    // A third vector contains the index (model row) of the first item
+    // of each wrap.
 
     QVector<int> *flowPositions = &(d->flowPositions);
     QVector<int> *wrapPositions = &(d->wrapPositions);
@@ -1379,6 +1364,14 @@ void QListViewPrivate::init()
 void QListViewPrivate::prepareItemsLayout()
 {
     // initialization of data structs
+    layoutStart = 0;
+    translate = 0;
+    contentsSize = QSize(0, 0);
+    layoutBounds = viewport->rect();
+    int sbx = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+    layoutBounds.setWidth(layoutBounds.width() - sbx);
+    layoutBounds.setHeight(layoutBounds.height() - sbx);
+
     int rowCount = qMax(model->rowCount(q->root()), 0);
     if (model->columnCount(q->root()) <= 0)
         rowCount = 0; // no contents
@@ -1419,7 +1412,6 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
         flowStartPosition = area.top();
         flowEndPosition = area.bottom();
     }
-
     if (wrapPositions.isEmpty() || flowPositions.isEmpty())
         return;
     const int lastWrap = wrapPositions.count() - 1;
