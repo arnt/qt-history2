@@ -86,7 +86,7 @@ This is 99% of the user-visible strings you're likely to
 write.
 
 If the quoted text is not in a member function of a
-QObject/QWidget subclass, use either the tr() function of an
+QObject subclass, use either the tr() function of an
 appropriate class, or the QApplication::translate() function
 directly:
 
@@ -108,10 +108,10 @@ directly:
 If you need to have translatable text completely
 outside a function, there are two macros to help: QT_TR_NOOP()
 and QT_TRANSLATE_NOOP(). They merely mark the text for
-extraction by the \e lupdate utility described below -
-the macros expand to just the text (without the scope).
-Example usages are shown below.
+extraction by the \e lupdate utility described below.
+The macros expand to just the text (without the context).
 
+Example of QT_TR_NOOP():
 \code
     QString FriendlyConversation::greeting( int greet_type )
     {
@@ -121,26 +121,36 @@ Example usages are shown below.
 	};
 	return tr( greeting_strings[greet_type] );
     }
+\endcode
 
+Example of QT_TRANSLATE_NOOP():
+\code
     static const char* greeting_strings[] = {
 	QT_TRANSLATE_NOOP( "FriendlyConversation", "Hello" ),
 	QT_TRANSLATE_NOOP( "FriendlyConversation", "Goodbye" )
     };
+
     QString FriendlyConversation::greeting( int greet_type )
     {
 	return tr( greeting_strings[greet_type] );
+    }
+
+    QString global_greeting( int greet_type )
+    {
+	return qApp->translate( "FriendlyConversation",
+				greeting_strings[greet_type] );
     }
 \endcode
 
 If you disable the const char* to QString automatic conversion
 by compiling your software with the macro QT_NO_CAST_ASCII
 defined, you'll be very likely to catch any strings you are
-missing. See QString::fromLatin1() for more details. Disabling
-the conversion makes programming cumbersome.
+missing. See QString::fromLatin1() for more information.
+Disabling the conversion makes programming cumbersome.
 
 If your source language uses characters outside Latin-1, you
 might find QObject::trUtf8() more convenient than
-QObject::tr(). QObject::tr() depends on the
+QObject::tr(), as tr() depends on the
 QApplication::defaultCodec(), which makes it more fragile.
 
 \section2 Use QAccel::stringToKey() for Accelerator Values
@@ -161,7 +171,7 @@ it. The correct idiom is
 The printf() style of inserting arguments in strings
 is a poor choice for internationalized text, as it is
 sometimes necessary to change the order of arguments when
-translating. The \link QString::arg() QString::arg()\endlink
+translating. The QString::arg()
 functions offer a simple means for substituting arguments:
 \code
     void FileCopier::showProgress( int done, int total,
@@ -229,9 +239,9 @@ have to give the name of the project file as a command-line
 argument.
 
 In this example, four exotic languages are supported: Danish,
-Finnish, Norwegian and Swedish. If you use tmake or qmake, you
-don't need an extra project file for \e lupdate; your tmake
-project file will do, if you add the TRANSLATIONS lines.
+Finnish, Norwegian and Swedish. If you use qmake (or tmake), you
+usually don't need an extra project file for \e lupdate; your
+qmake project file will do once you add the TRANSLATIONS entry.
 
 In your application, you have to \l QTranslator::load()
 the translation files appropriate for the user's language, and
@@ -242,8 +252,8 @@ mergetr), you can use \e qm2ts to convert your old
 .qm files.
 
 \e linguist, \e lupdate and \e lrelease are installed in
-$(QTDIR)/bin. Click Help|Manual in Qt Linguist to access the
-user's manual. It contains a three-chapter tutorial to get you
+\c $QTDIR/bin. Click Help|Manual in Qt Linguist to access the
+user's manual; it contains a three-chapter tutorial to get you
 started.
 
 While these utilities offer a convenient way to create .qm files, any
@@ -306,9 +316,9 @@ this would be:
 
 For converting Unicode to local 8-bit encodings,
 a shortcut is available: the
-\link QString::local8Bit() local8Bit()\endlink method of
+\link QString::local8Bit() local8Bit\endlink() method of
 QString returns such 8-bit data. Another useful shortcut
-is the \link QString::utf8() utf8()\endlink method, which
+is the \link QString::utf8() utf8\endlink() method, which
 returns text in the 8-bit UTF-8 encoding - interesting in
 that it perfectly preserves Unicode information while looking
 like plain US-ASCII if the Unicode is wholly US-ASCII.
@@ -392,22 +402,22 @@ be too concerned with the actual limitations.
 	    in some Unix variants. All Qt file functions allow Unicode,
 	    but convert all filenames to the local 8-bit encoding, as
 	    this is the Unix convention
-	    (see \link QFile::setEncodingFunction() QFile::setEncodingFunction()\endlink
-	     if you are interested in exploring alternative encodings).
+	    (see QFile::setEncodingFunction()
+	     to explore alternative encodings).
      <li>File I/O defaults to the local 8-bit encoding,
 	    with Unicode options in QTextStream.
      </ul>
   <dt>Windows 95/98/NT
     <dd><ul>
      <li>Qt provides full Unicode support, including input methods, fonts,
-	  clipboard, drag-and-drop, and file names.
+	  clipboard, drag-and-drop and file names.
      <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
 	  Note that some Windows programs do not understand big-endian
 	  Unicode text files even though that is the order prescribed by
 	  the Unicode Standard in the absence of higher-level protocols.
-     <li>Note that unlike programs written with MFC or plain winlib, Qt programs
-	  are portable between Windows 95/98 and Windows NT -
-	  <em>you do not need different binaries to support Unicode</em>.
+     <li>Unlike programs written with MFC or plain winlib, Qt programs
+	  are portable between Windows 95/98 and Windows NT.
+	  \e {You do not need different binaries to support Unicode.}
     </ul>
 </dl>
 
