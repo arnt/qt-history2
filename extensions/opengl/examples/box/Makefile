@@ -20,7 +20,6 @@ SHELL =	/bin/sh
 
 INCPATH	=	-I$(INCDIR) -I/usr/X11R6/include
 LIBS	=	$(LFLAGS) -lqgl
-MOC	=	moc
 
 ####### Files
 
