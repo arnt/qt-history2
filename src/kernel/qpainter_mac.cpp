@@ -2058,6 +2058,7 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
     unclippedBitBlt(pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, false, false);
 }
 
+#ifndef USE_CORE_GRAPHICS
 static void drawTile(QPainter *p, int x, int y, int w, int h,
 		      const QPixmap &pixmap, int xOffset, int yOffset)
 {
@@ -2082,6 +2083,7 @@ static void drawTile(QPainter *p, int x, int y, int w, int h,
 	yOff = 0;
     }
 }
+#endif
 
 void QPainter::drawTiledPixmap(int x, int y, int w, int h,
 				const QPixmap &pixmap, int sx, int sy)
@@ -2099,9 +2101,10 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
 	sy = sh - -sy % sh;
     else
 	sy = sy % sh;
-#if defined(USE_CORE_GRAPHICS) && 0
+#if defined(USE_CORE_GRAPHICS)
+    //save the old state
     CGContextSaveGState((CGContextRef)hd);
-
+    //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
     qpattern->im = 0;
     qpattern->as_mask = false;
@@ -2112,16 +2115,19 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
     CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
-					      kCGPatternTilingNoDistortion, false, &callbks);
+					      kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
     CGContextSetFillColorSpace((CGContextRef)hd, cs); 
     const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
     CGContextSetFillPattern((CGContextRef)hd, pat, &tmp_float);
+    CGContextSetPatternPhase((CGContextRef)hd, CGSizeMake(-sx, -sy));
+    //fill the rectangle
     CGRect mac_rect;
     d->cg_mac_rect(x, y, w, h, &mac_rect);
-//    CGContextFillRect((CGContextRef)hd, mac_rect);
-    
+    CGContextFillRect((CGContextRef)hd, mac_rect);
+    //restore the state
     CGContextRestoreGState((CGContextRef)hd);
+    //cleanup
     CGColorSpaceRelease(cs);
     CGPatternRelease(pat);
 #else
