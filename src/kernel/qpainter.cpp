@@ -2080,6 +2080,37 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 }
 
 /*!
+  Draws the pixmap \a p into the rectangle \a r. The pixmap is scaled to fit the rectangle, if
+  image and rectangle size disagree.
+*/
+void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
+{
+    int rw = r.width();
+    int rh = r.height();
+    int iw= pm.width();
+    int ih = pm.height();
+    if ( rw <= 0 || rh <= 0 || iw <= 0 || ih <= 0 )
+	return;
+    bool scale = ( rw != iw || rh != ih );
+    float scaleX = (float)rw/(float)iw;
+    float scaleY = (float)rh/(float)ih;
+    bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
+
+    QPixmap pixmap = pm;
+    
+    if ( scale ) {
+	if ( smooth ) {
+	    QImage i = pm.convertToImage();
+	    pixmap = QPixmap( i.smoothScale( rw, rh ) );
+	} else {
+	    pixmap = pm.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) );
+	}
+    }
+    drawPixmap( r.x(), r.y(), pixmap );
+}
+
+
+/*!
     \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr, int conversionFlags = 0 );
 
     Draws the rectangle \a sr from the image at the given point.
@@ -2214,6 +2245,32 @@ void QPainter::drawImage( const QPoint & p, const QImage & i,
 {
     drawImage(p, i, i.rect(), conversion_flags);
 }
+
+
+/*!  
+  Draws the image \a i into the rectangle \a r. The image will be
+  scaled to fit the rectangle if image and rectangle dimensions
+  differ.
+*/
+void QPainter::drawImage( const QRect &r, const QImage &i )
+{
+    int rw = r.width();
+    int rh = r.height();
+    int iw= i.width();
+    int ih = i.height();
+    if ( rw <= 0 || rh <= 0 || iw <= 0 || ih <= 0 )
+	return;
+    bool scale = ( rw != iw || rh != ih );
+    float scaleX = (float)rw/(float)iw;
+    float scaleY = (float)rh/(float)ih;
+    bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
+
+    QImage img = scale ? ( smooth ?
+			   i.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) ) :
+			   i.smoothScale( rw, rh ) ) : i;
+    drawImage( r.x(), r.y(), img );
+}
+
 
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
