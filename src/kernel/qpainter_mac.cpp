@@ -551,9 +551,17 @@ void QPainter::setBrushOrigin( int, int )
   \sa hasClipping(), setClipRect(), setClipRegion()
 */
 
-// FIXME: Implement this
-void QPainter::setClipping( bool )
+void QPainter::setClipping( bool b )
 {
+    qDebug("Enabling clipping..");
+    QRegion reg = savedclip;
+    if(b) {
+	setf(ClipOn);
+	reg += crgn;
+    } else {
+	clearf(ClipOn);
+    }
+    SetClip((RgnHandle)reg.handle());
 }
 
 
@@ -561,9 +569,14 @@ void QPainter::setClipping( bool )
   \overload void QPainter::setClipRect( const QRect &r )
 */
 
-// FIXME: Implement this
-void QPainter::setClipRect( const QRect & )
+void QPainter::setClipRect( const QRect &r )
 {
+    qDebug("Clipping rect %d %d %dx%d", r.x(), r.y(), r.width(), r.height());
+    crgn = QRegion(r);
+    if(testf(ClipOn)) {
+	QRegion reg = crgn + savedclip;
+	SetClip((RgnHandle)reg.handle());
+    }
 }
 
 /*!
@@ -576,9 +589,14 @@ void QPainter::setClipRect( const QRect & )
   \sa setClipRect(), clipRegion(), setClipping()
 */
 
-// FIXME: Implement this
-void QPainter::setClipRegion( const QRegion & )
+void QPainter::setClipRegion( const QRegion &r )
 {
+    qDebug("Setting clipping region..");
+    crgn = r;
+    if(testf(ClipOn)) {
+	QRegion reg = crgn + savedclip;
+	SetClip((RgnHandle)reg.handle());
+    }
 }
 
 /*!
