@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#36 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#36 $";
 #endif
 
 
@@ -315,7 +315,7 @@ void QPixmap::optimize( bool enable )
   \sa optimizeAll(), isOptimized()
 */
 
-bool QPixmap::allAreOptimized()
+bool QPixmap:isGloballyOptimized()
 {
     return optimAll;
 }
@@ -331,7 +331,7 @@ bool QPixmap::allAreOptimized()
   \sa optimizeAll(), optimize(), optimized()
 */
 
-void QPixmap::optimizeAll( bool enable )
+void QPixmap::optimizeGlobally( bool enable )
 {
     optimAll = enable;
 }
