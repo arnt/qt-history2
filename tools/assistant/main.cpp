@@ -3,6 +3,7 @@
 #include <qserversocket.h>
 #include <qsocket.h>
 #include <qptrlist.h>
+#include "assistant.h"
 
 const int server_port = 7358;
 
@@ -108,6 +109,14 @@ void ServerSocket::dataReceived()
 	return;
     QString line = s->readLine();
     line = line.simplifyWhiteSpace();
+#if 0
+    if ( line == "assistant" ) {
+	Assistant *a = new Assistant( 0 );
+	a->resize( 300, 600 );
+	a->show();
+	return;
+    }
+#endif
     mainWindow->showLink( line, "" );
     mainWindow->show();
     mainWindow->raise();
