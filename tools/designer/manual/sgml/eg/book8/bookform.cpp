@@ -53,22 +53,34 @@ void BookForm::newAuthor( const QSqlRecord *authorRecord )
 
 void BookForm::insertBook()
 {
-    EditBookForm *dialog = new EditBookForm( EditBookForm::INSERT, this );
+    QSqlRecord book = BookSqlTable->currentFieldSelection();
+    EditBookForm *dialog = new EditBookForm( 
+				book.value( "id" ).toString(),
+				EditBookForm::INSERT, this );
     dialog->exec();
+    BookSqlTable->refresh();
 }
 
 
 void BookForm::updateBook()
 {
-    EditBookForm *dialog = new EditBookForm( EditBookForm::UPDATE, this );
+    QSqlRecord book = BookSqlTable->currentFieldSelection();
+    EditBookForm *dialog = new EditBookForm( 
+				book.value( "id" ).toString(),
+				EditBookForm::UPDATE, this );
     dialog->exec();
+    BookSqlTable->refresh();
 }
 
 
 void BookForm::deleteBook()
 {
-    EditBookForm *dialog = new EditBookForm( EditBookForm::DELETE, this );
+    QSqlRecord book = BookSqlTable->currentFieldSelection();
+    EditBookForm *dialog = new EditBookForm( 
+				book.value( "id" ).toString(),
+				EditBookForm::DELETE, this );
     dialog->exec();
+    BookSqlTable->refresh();
 }
 
 

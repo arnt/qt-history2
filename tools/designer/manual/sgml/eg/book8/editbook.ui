@@ -1,0 +1,157 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>EditBookFormBase</class>
+<widget class="QSqlDialog">
+    <property name="name">
+        <cstring>EditBookFormBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>592</width>
+            <height>184</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Edit Book</string>
+    </property>
+    <property name="sort">
+        <stringlist>
+            <string>title ASC</string>
+        </stringlist>
+    </property>
+    <property name="database" stdset="0">
+        <stringlist>
+            <string>(default)</string>
+            <string>book</string>
+        </stringlist>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout2</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>labelPrice</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Price</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="0" column="1">
+                    <property name="name">
+                        <cstring>QLineEditTitle</cstring>
+                    </property>
+                    <property name="database" stdset="0">
+                        <stringlist>
+                            <string>(default)</string>
+                            <string>book</string>
+                            <string>title</string>
+                        </stringlist>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>labelTitle</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Title</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="1" column="1">
+                    <property name="name">
+                        <cstring>QLineEditPrice</cstring>
+                    </property>
+                    <property name="database" stdset="0">
+                        <stringlist>
+                            <string>(default)</string>
+                            <string>book</string>
+                            <string>price</string>
+                        </stringlist>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>PushButtonInsert</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Insert</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>PushButtonUpdate</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Update</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>PushButtonDelete</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Delete</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>PushButtonInsert</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>insertRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonUpdate</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>updateRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonDelete</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>deleteRecord()</slot>
+    </connection>
+</connections>
+</UI>

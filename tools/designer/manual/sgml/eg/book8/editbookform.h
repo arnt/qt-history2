@@ -8,18 +8,22 @@
 **
 *****************************************************************************/
 
-#include <qapplication.h>
-#include <qsqldatabase.h>
-#include <qsqltable.h>
+#include <qpushbutton.h>
+#include <qsqlcursor.h>
+#include <qlineedit.h>
 #include "book.h"
+#include "editbook.h"
 
 class QSqlRecord;
 
 
-class BookForm : public BookFormBase
+class EditBookForm : public EditBookFormBase
 {
-    Q_OBJECT
-public slots:
-    void newAuthor( const QSqlRecord *authorRecord );
+public:
+    EditBookForm::EditBookForm( 
+	    const QString &bookID, int action = 0,
+	    QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 ); 
+    enum { UPDATE = 0, INSERT, DELETE };
 };
+
 

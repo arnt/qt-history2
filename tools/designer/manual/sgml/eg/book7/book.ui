@@ -9,12 +9,12 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>867</width>
-            <height>619</height>
+            <width>859</width>
+            <height>615</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Book 4</string>
+        <string>Book</string>
     </property>
     <vbox>
         <property name="name">
@@ -151,29 +151,29 @@
         <sender>AuthorSqlTable</sender>
         <signal>currentChanged(const QSqlRecord*)</signal>
         <receiver>BookFormBase</receiver>
-        <slot>slotNewAuthor(const QSqlRecord *)</slot>
+        <slot>newAuthor(const QSqlRecord *)</slot>
     </connection>
     <connection>
         <sender>InsertBookPushButton</sender>
         <signal>clicked()</signal>
         <receiver>BookFormBase</receiver>
-        <slot>slotInsertBook()</slot>
+        <slot>insertBook()</slot>
     </connection>
     <connection>
         <sender>UpdateBookPushButton</sender>
         <signal>clicked()</signal>
         <receiver>BookFormBase</receiver>
-        <slot>slotUpdateBook()</slot>
+        <slot>updateBook()</slot>
     </connection>
     <connection>
         <sender>DeleteBookPushButton</sender>
         <signal>clicked()</signal>
         <receiver>BookFormBase</receiver>
-        <slot>slotDeleteBook()</slot>
+        <slot>deleteBook()</slot>
     </connection>
-    <slot access="public">slotInsertBook()</slot>
-    <slot access="public">slotNewAuthor(const QSqlRecord *)</slot>
-    <slot access="public">slotUpdateBook()</slot>
-    <slot access="public">slotDeleteBook()</slot>
+    <slot access="public" language="C++">insertBook()</slot>
+    <slot access="public" language="C++">newAuthor(const QSqlRecord *)</slot>
+    <slot access="public" language="C++">updateBook()</slot>
+    <slot access="public" language="C++">deleteBook()</slot>
 </connections>
 </UI>

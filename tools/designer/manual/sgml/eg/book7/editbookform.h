@@ -8,15 +8,17 @@
 **
 *****************************************************************************/
 
-#include "bookform.h"
+#include "book.h"
+#include "editbook.h"
 
-
-void BookForm::newAuthor( const QSqlRecord *authorRecord )
+class EditBookForm : public EditBookFormBase
 {
-    BookSqlTable->setFilter( 
-	"book_view.authorid=" + authorRecord->value( "id" ).toString() );
-    BookSqlTable->refresh();
-}
-
+public:
+    EditBookForm::EditBookForm( 
+	    int action = 0,
+	    QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 ); 
+    enum { UPDATE = 0, INSERT, DELETE };
+private:
+};
 
 

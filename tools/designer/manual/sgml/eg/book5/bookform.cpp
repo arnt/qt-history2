@@ -13,8 +13,7 @@
 AuthorCursor::AuthorCursor() :
     QSqlCursor( "author" )
 {
-    setDisplayLabel( "forename", "Forename" );
-    setDisplayLabel( "surname", "Surname" );
+    // NOOP
 }
 
 
@@ -42,7 +41,7 @@ BookForm::BookForm( QWidget * parent, const char * name, bool modal, WFlags f ) 
 }
 
 
-void BookForm::slotNewAuthor( const QSqlRecord *authorRecord )
+void BookForm::newAuthor( const QSqlRecord *authorRecord )
 {
     BookSqlTable->setFilter( 
 	"book_view.authorid=" + authorRecord->value( "id" ).toString() );
@@ -51,13 +50,13 @@ void BookForm::slotNewAuthor( const QSqlRecord *authorRecord )
 
 
 
-void BookForm::slotInsertBook() {}
+void BookForm::insertBook() {}
 
 
-void BookForm::slotUpdateBook() {}
+void BookForm::updateBook() {}
 
 
-void BookForm::slotDeleteBook() {}
+void BookForm::deleteBook() {}
 
 
 

@@ -1,6 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>EditBookFormBase</class>
-<forward>class QSqlRecord;</forward>
 <widget class="QSqlDialog">
     <property name="name">
         <cstring>EditBookFormBase</cstring>
@@ -9,17 +8,17 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>592</width>
-            <height>474</height>
+            <width>600</width>
+            <height>478</height>
         </rect>
+    </property>
+    <property name="caption">
+        <string>Edit Book</string>
     </property>
     <property name="sort">
         <stringlist>
             <string>title ASC</string>
         </stringlist>
-    </property>
-    <property name="caption">
-        <string>Edit Book</string>
     </property>
     <property name="database" stdset="0">
         <stringlist>
@@ -29,7 +28,7 @@
     </property>
     <widget class="QLabel">
         <property name="name">
-            <cstring>labelformatid</cstring>
+            <cstring>labelTitle</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -40,12 +39,12 @@
             </rect>
         </property>
         <property name="text">
-            <string>Formatid</string>
+            <string>Title</string>
         </property>
     </widget>
-    <widget class="QSpinBox">
+    <widget class="QLineEdit">
         <property name="name">
-            <cstring>QSpinBoxformatid</cstring>
+            <cstring>QLineEditTitle</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -59,54 +58,18 @@
             <stringlist>
                 <string>(default)</string>
                 <string>book</string>
-                <string>formatid</string>
+                <string>title</string>
             </stringlist>
         </property>
     </widget>
     <widget class="QLabel">
         <property name="name">
-            <cstring>labelauthorid</cstring>
+            <cstring>labelPrice</cstring>
         </property>
         <property name="geometry">
             <rect>
                 <x>25</x>
                 <y>55</y>
-                <width>75</width>
-                <height>25</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Authorid</string>
-        </property>
-    </widget>
-    <widget class="QSpinBox">
-        <property name="name">
-            <cstring>QSpinBoxauthorid</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>125</x>
-                <y>55</y>
-                <width>75</width>
-                <height>25</height>
-            </rect>
-        </property>
-        <property name="database" stdset="0">
-            <stringlist>
-                <string>(default)</string>
-                <string>book</string>
-                <string>authorid</string>
-            </stringlist>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>labelprice</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>25</x>
-                <y>85</y>
                 <width>75</width>
                 <height>25</height>
             </rect>
@@ -115,20 +78,40 @@
             <string>Price</string>
         </property>
     </widget>
-    <widget class="QLabel">
+    <widget class="QLineEdit">
         <property name="name">
-            <cstring>labeltitle</cstring>
+            <cstring>QLineEditPrice</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>25</x>
-                <y>115</y>
+                <x>125</x>
+                <y>55</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="database" stdset="0">
+            <stringlist>
+                <string>(default)</string>
+                <string>book</string>
+                <string>price</string>
+            </stringlist>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonFirst</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>250</x>
+                <y>25</y>
                 <width>75</width>
                 <height>25</height>
             </rect>
         </property>
         <property name="text">
-            <string>Title</string>
+            <string>|&lt; &amp;First</string>
         </property>
     </widget>
     <widget class="QPushButton">
@@ -227,62 +210,6 @@
             <string>&amp;Delete</string>
         </property>
     </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>QLineEdittitle</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>125</x>
-                <y>115</y>
-                <width>75</width>
-                <height>25</height>
-            </rect>
-        </property>
-        <property name="database" stdset="0">
-            <stringlist>
-                <string>(default)</string>
-                <string>book</string>
-                <string>title</string>
-            </stringlist>
-        </property>
-    </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>QLineEditprice</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>125</x>
-                <y>85</y>
-                <width>75</width>
-                <height>25</height>
-            </rect>
-        </property>
-        <property name="database" stdset="0">
-            <stringlist>
-                <string>(default)</string>
-                <string>book</string>
-                <string>price</string>
-            </stringlist>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>PushButtonFirst</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>250</x>
-                <y>25</y>
-                <width>75</width>
-                <height>25</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>|&lt; &amp;First</string>
-        </property>
-    </widget>
 </widget>
 <connections>
     <connection>
@@ -327,9 +254,5 @@
         <receiver>EditBookFormBase</receiver>
         <slot>deleteRecord()</slot>
     </connection>
-    <slot access="public">slotInsertBook()</slot>
-    <slot access="public">slotNewAuthor(const QSqlRecord *)</slot>
-    <slot access="public">slotUpdateBook()</slot>
-    <slot access="public">slotDeleteBook()</slot>
 </connections>
 </UI>

@@ -32,19 +32,19 @@ int main( int argc, char *argv[] )
 bool create_connections()
 {
     // create the default database connection
-    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL6" );
-    defaultDB->setDatabaseName( "testdb" );
-    defaultDB->setUserName( "db" );
-    defaultDB->setPassword( "db" );
-    defaultDB->setHostName( "silverfish" );
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
+    defaultDB->setDatabaseName( "books" );
+    defaultDB->setUserName( "booksuser" );
+    defaultDB->setPassword( "bookspw" );
+    defaultDB->setHostName( "bookshost" );
     if ( ! defaultDB->open() ) { 
 	qWarning( "Failed to open books database: " + 
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
-	return false;
+	return FALSE;
     }
 
-    return true;
+    return TRUE;
 }
 
 

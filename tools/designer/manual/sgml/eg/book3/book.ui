@@ -9,12 +9,12 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>883</width>
-            <height>536</height>
+            <width>871</width>
+            <height>530</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Book 2</string>
+        <string>Book</string>
     </property>
     <vbox>
         <property name="name">
@@ -81,9 +81,6 @@
                     <property name="text">
                         <string>Price</string>
                     </property>
-                    <property name="pixmap">
-                        <pixmap></pixmap>
-                    </property>
                     <property name="field">
                         <string>price</string>
                     </property>
@@ -91,9 +88,6 @@
                 <column>
                     <property name="text">
                         <string>Format</string>
-                    </property>
-                    <property name="pixmap">
-                        <pixmap></pixmap>
                     </property>
                     <property name="field">
                         <string>format</string>
@@ -122,8 +116,8 @@
         <sender>AuthorSqlTable</sender>
         <signal>currentChanged(const QSqlRecord*)</signal>
         <receiver>BookFormBase</receiver>
-        <slot>slotNewAuthor(const QSqlRecord *)</slot>
+        <slot>newAuthor(const QSqlRecord *)</slot>
     </connection>
-    <slot access="public">slotNewAuthor(const QSqlRecord *)</slot>
+    <slot access="public" language="C++">newAuthor(const QSqlRecord *)</slot>
 </connections>
 </UI>

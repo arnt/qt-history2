@@ -9,12 +9,12 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>891</width>
-            <height>540</height>
+            <width>883</width>
+            <height>536</height>
         </rect>
     </property>
     <property name="caption">
-        <string>Book 2</string>
+        <string>Book</string>
     </property>
     <vbox>
         <property name="name">
@@ -104,12 +104,6 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
-        <sender>AuthorSqlTable</sender>
-        <signal>currentChanged(const QSqlRecord*)</signal>
-        <receiver>BookFormBase</receiver>
-        <slot>slotNewAuthor(const QSqlRecord *)</slot>
-    </connection>
-    <slot access="public">slotNewAuthor(const QSqlRecord *)</slot>
+    <slot access="public" language="C++">newAuthor(const QSqlRecord *)</slot>
 </connections>
 </UI>

@@ -32,7 +32,7 @@ class BookForm : public BookFormBase
 public:
     BookForm( QWidget * parent = 0, const char * name = 0, bool modal = FALSE, WFlags f = 0 );
 public slots:
-    void slotNewAuthor( const QSqlRecord *authorRecord );
+    void newAuthor( const QSqlRecord *authorRecord );
 private:
     AuthorCursor authorCursor;
 };
