@@ -40,8 +40,9 @@ SOURCES += \
 	painting/qregion.cpp \
 	painting/qmatrix.cpp
 
-win32 {
-	DEFINES += QT_RASTER_PAINTENGINE QT_RASTER_IMAGEENGINE
+win32 | mac {
+	DEFINES += QT_RASTER_IMAGEENGINE
+        win32:DEFINES += QT_RASTER_PAINTENGINE 
 	SOURCES += 					\
 	 	painting/qpaintengine_raster.cpp	\
 		painting/qdrawhelper.cpp 		\
