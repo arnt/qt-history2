@@ -83,6 +83,8 @@ void DatabaseConnection::remove()
 	QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
     else
 	QSqlDatabase::removeDatabase( nm );
+    // the above will effectively delete the current connection
+    conn = 0;
 }
 #endif
 
@@ -149,10 +151,7 @@ bool DatabaseConnection::open( bool suppressDialog )
     }
     if ( !success ) {
 	dbErr = conn->lastError().driverText() + "\n" + conn->lastError().databaseText();
-	if ( nm == "(default)" )
-	    QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
-	else
-	    QSqlDatabase::removeDatabase( nm );
+	remove();
     }
     return success;
 #else
