@@ -16,6 +16,11 @@
 /*!
   \class QPlatinumStyle qplatinumstyle.h
   \brief Platinum Look and Feel
+
+  This class implements the Platinum look and feel. It's an
+  experimental class that tries to resemble a Macinosh-like GUI style
+  with the QStyle system. The emulation is, however, far from being
+  perfect yet.
 */
 
 

@@ -16,11 +16,13 @@
 /*!
   \class QCDEStyle qcdestyle.h
   \brief CDE Look and Feel
-  
+
   This style provides a slightly improved Motif look similar to some
   versions of the Common Desktop Environment (CDE). The main
-  difference are thinner frames and more modern radiobuttons and
-  checkboxes.
+  difference are thinner frames and more modern radio buttons and
+  check boxes. Together with a dark background and a bright
+  text/foreground color, the style looks quite attractive (at least
+  for Motif fans).
 */
 
 /*!

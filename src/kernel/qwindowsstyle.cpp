@@ -16,6 +16,9 @@
 /*!
   \class QWindowsStyle qwindowsstyle.h
   \brief Windows Look and Feel
+
+  This class implements the look and feel known from the Windows
+  plattform. Naturally it is also Qt's default GUI style on Windows.
 */
 
 
