@@ -182,7 +182,8 @@ QWidget *QAbstractItemDelegate::editor(QWidget *,
 
     \sa editor() setEditorData() setModelData()
 */
-void QAbstractItemDelegate::releaseEditor(QWidget *)
+void QAbstractItemDelegate::releaseEditor(QWidget *,
+                                          const QModelIndex &)
 {
     // do nothing
 }

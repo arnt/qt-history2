@@ -630,7 +630,7 @@ void QAbstractItemView::reset()
     for (; it != d->editors.end(); ++it) {
         QObject::disconnect(it.value(), SIGNAL(destroyed(QObject*)),
                             this, SLOT(editorDestroyed(QObject*)));
-        itemDelegate()->releaseEditor(it.value());
+        itemDelegate()->releaseEditor(it.value(), it.key());
     }
     d->editors.clear();
     d->persistent.clear();
@@ -1399,7 +1399,7 @@ void QAbstractItemView::updateEditorGeometries()
             itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
         } else {
             // remove editors in deleted indexes
-            itemDelegate()->releaseEditor(it.value());
+            itemDelegate()->releaseEditor(it.value(), it.key());
             d->editors.erase(it);
         }
     }
@@ -1472,8 +1472,9 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
         d->state = NoState;
         QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                             this, SLOT(editorDestroyed(QObject*)));
-        d->editors.remove(d->editors.key(editor));
-        itemDelegate()->releaseEditor(editor);
+        QModelIndex index = d->editors.key(editor);
+        d->editors.remove(index);
+        itemDelegate()->releaseEditor(editor, index);
     }
 
     setFocus();
@@ -1684,7 +1685,7 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
     QWidget *editor = d->editors.value(index);
     if (editor) {
         d->persistent.removeAll(editor);
-        itemDelegate()->releaseEditor(editor);
+        itemDelegate()->releaseEditor(editor, index);
     }
     d->editors.remove(index);
 }

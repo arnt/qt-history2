@@ -51,7 +51,7 @@ public:
                             const QStyleOptionViewItem &option,
                             const QModelIndex &index);
 
-    virtual void releaseEditor(QWidget *editor);
+    virtual void releaseEditor(QWidget *editor, const QModelIndex &index);
 
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 

@@ -203,8 +203,9 @@ QWidget *QItemDelegate::editor(QWidget *parent,
     \sa QAbstractItemDelegate::releaseEditor()
 */
 
-void QItemDelegate::releaseEditor(QWidget *editor)
+void QItemDelegate::releaseEditor(QWidget *editor, const QModelIndex &index)
 {
+    Q_UNUSED(index);
     editor->removeEventFilter(this);
     editor->deleteLater();
 }
