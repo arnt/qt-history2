@@ -141,8 +141,7 @@ ProjectGenerator::init()
 	    if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
 		QFileInfo fi(dir);
 		if(fi.absFilePath() != QDir::currentDirPath()) {
-		    fileFixify(dir);
-		    v["DEPENDPATH"] += dir;
+		    v["DEPENDPATH"] += fileFixify(dir);
 		}
 	    }
 	}
@@ -156,7 +155,7 @@ ProjectGenerator::init()
 		QString newdir = (*pd);
 		QFileInfo fi(newdir);
 		if(fi.isDir()) {
-		    fileFixify(newdir);
+		    newdir = fileFixify(newdir);
 		    QStringList &subdirs = v["SUBDIRS"];
 		    if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
 		       !subdirs.contains(newdir)) {
@@ -177,8 +176,7 @@ ProjectGenerator::init()
 			QDir d(newdir);
 			d.setFilter(QDir::Dirs);
 			for(int i = 0; i < (int)d.count(); i++) {
-			    QString nd = newdir + QDir::separator() + d[i];
-			    fileFixify(nd);
+			    QString nd = fileFixify(newdir + QDir::separator() + d[i]);
 			    if(d[i] != "." && d[i] != ".." && !dirs.contains(nd))
 				dirs.append(nd);
 			}
@@ -198,7 +196,7 @@ ProjectGenerator::init()
 		    QString newdir(dir + d[i]);
 		    QFileInfo fi(newdir);
 		    if(fi.fileName() != "." && fi.fileName() != "..") {
-			fileFixify(newdir);
+			newdir = fileFixify(newdir);
 			if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
 			   !subdirs.contains(newdir)) {
 			   subdirs.append(newdir);
@@ -370,7 +368,7 @@ ProjectGenerator::addConfig(const QString &cfg, bool add)
 bool
 ProjectGenerator::addFile(QString file)
 {
-    fileFixify(file, QDir::currentDirPath());
+    file = fileFixify(file, QDir::currentDirPath());
     QString dir;
     int s = file.findRev(Option::dir_sep);
     if(s != -1)
@@ -408,8 +406,7 @@ ProjectGenerator::addFile(QString file)
 	}
     }
 
-    QString newfile = file;
-    fileFixify(newfile);
+    QString newfile = fileFixify(file);
     if(!where.isEmpty() && !project->variables()[where].contains(file)) {
 	project->variables()[where] += newfile;
 	return TRUE;
