@@ -641,11 +641,11 @@ Q_OUTOFLINE_TEMPLATE QMapData::Node *QMap<Key, T>::mutableFindNode(QMapData::Nod
     QMapData::Node *next = e;
 
     for (int i = d->topLevel; i >= 0; i--) {
-        while ((next = cur->forward[i]) != e && qMapLessThanKey(concrete(next)->key, key))
+        while ((next = cur->forward[i]) != e && qMapLessThanKey<Key>(concrete(next)->key, key))
             cur = next;
         update[i] = cur;
     }
-    if (next != e && !qMapLessThanKey(key, concrete(next)->key)) {
+    if (next != e && !qMapLessThanKey<Key>(key, concrete(next)->key)) {
         return next;
     } else {
         return e;
