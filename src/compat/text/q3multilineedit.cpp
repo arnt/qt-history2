@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
+#include <qplatformdefs.h>
 #include "q3multilineedit.h"
 #ifndef QT_NO_MULTILINEEDIT
 #include "qpainter.h"

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "qhttp.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "q3http.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP

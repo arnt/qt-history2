@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "qdom.h"
 
 #ifndef QT_NO_DOM

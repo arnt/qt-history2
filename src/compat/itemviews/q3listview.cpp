@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "q3listview.h"
 #ifndef QT_NO_LISTVIEW
 #include "qalgorithms.h"

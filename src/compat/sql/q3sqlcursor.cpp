@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "q3sqlcursor.h"
 
 #ifndef QT_NO_SQL
