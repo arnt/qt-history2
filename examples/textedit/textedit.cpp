@@ -33,7 +33,7 @@
 #include <qdebug.h>
 #include <qtextdocumentfragment.h>
 #include <qfiledialog.h>
-
+#include <qclipboard.h>
 #include <qtextedit.h>
 #include <qtextcursor.h>
 #include <qtextformat.h>
@@ -50,14 +50,16 @@ TextEdit::TextEdit(QWidget *parent)
 
     tabWidget = new QTabWidget(this);
     connect(tabWidget, SIGNAL(currentChanged(int)),
-	     this, SLOT(editorChanged()));
+            this, SLOT(editorChanged()));
     setCentralWidget(tabWidget);
 
+    connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+
     if (qApp->argc() == 1) {
-	load("example.html");
+        load("example.html");
     } else {
-	for (int i = 1; i < qApp->argc(); ++i)
-	    load(qApp->argv()[i]);
+        for (int i = 1; i < qApp->argc(); ++i)
+            load(qApp->argv()[i]);
     }
 }
 
@@ -130,6 +132,7 @@ void TextEdit::setupEditActions()
     a = actionPaste = new QAction(QPixmap::fromMimeSource("editpaste.xpm"), tr("&Paste"), CTRL + Key_V, this);
     tb->addAction(a);
     menu->addAction(a);
+    actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
 }
 
 void TextEdit::setupTextActions()
@@ -476,6 +479,11 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 
     QTextCursor cursor = currentEditor->cursor();
     alignmentChanged(cursor.blockFormat().alignment());
+}
+
+void TextEdit::clipboardDataChanged()
+{
+    actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
 }
 
 void TextEdit::fontChanged(const QFont &f)

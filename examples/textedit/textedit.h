@@ -59,6 +59,8 @@ private slots:
 
     void currentCharFormatChanged(const QTextCharFormat &format);
 
+    void clipboardDataChanged();
+
 private:
     void fontChanged(const QFont &f);
     void colorChanged(const QColor &c);
