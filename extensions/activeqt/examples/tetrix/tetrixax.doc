@@ -43,7 +43,7 @@ End Sub
 
   <hr>
 
-  \quotefile $(QTDIR)/extensions/activeqt/examples/tetrix/tetrix.doc
+  \quotefile tetrix/tetrixax.doc
   \skipuntil raw html
   \printto endraw
 */
