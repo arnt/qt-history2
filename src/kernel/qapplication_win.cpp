@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#219 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -548,8 +548,8 @@ const char* qt_reg_winclass( int flags )	// register window class
 	winclassNames = new QDict<int>;
 	CHECK_PTR( winclassNames );
     }
-    uint style = 0;
-    bool icon  = FALSE;
+    uint style;
+    bool icon;
     const char *cname;
     if ( (flags & (WType_Popup|WStyle_Tool)) == 0 ) {
 	cname = "QWidget";
@@ -558,6 +558,7 @@ const char* qt_reg_winclass( int flags )	// register window class
     } else {
 	cname = "QPopup";
 	style = CS_DBLCLKS | CS_SAVEBITS;
+	icon  = FALSE;
     }
 
     if ( winclassNames->find(cname) )		// already registered
@@ -1402,7 +1403,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	      message == WM_RBUTTONDOWN) &&
 	     (widget->focusPolicy() & QWidget::ClickFocus) )
 	    widget->setFocus();
-	widget->translateMouseEvent( msg ); // mouse event
+	widget->translateMouseEvent( msg );	// mouse event
     } else
     switch ( message ) {
 
@@ -1457,6 +1458,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ACTIVATE:
+	    if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
+		 QWidget::find((HANDLE)lParam) == 0 ) {
+		// Another application was activated while our popups are open,
+		// then close all popups.  In case some popup refuses to close,
+		// we give up after 1024 attempts (to avoid an infinite loop).
+		int maxiter = 1024;
+		QWidget *popup;
+		while ( (popup=QApplication::activePopupWidget()) && maxiter-- )
+		    popup->hide();
+	    }
 	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
 	    break;
 
@@ -1490,46 +1501,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    result = FALSE;
 	    break;
-
-	case WM_NCACTIVATE:
-	    if ( !wParam && qApp->activePopupWidget() )
-		result = TRUE;
-	    else
-		result = FALSE;
-	    break;
-
-#if 0
-	case WM_NCPAINT:
-	    if ( widget->isModal() ) {
-		// Its not possible to get a dialog frame for normal windows.
-		// Windows always add the system menu when you ask for a close box.
-		// The solution is then to draw the dialog frame ourselves.
-		HANDLE hdc;
-		int x, y;
-		RECT r;
-		DefWindowProc( hwnd, message, wParam, lParam );
-		hdc = GetWindowDC( hwnd );
-		GetWindowRect( hwnd, (LPRECT)&rc2 );
-		x = GetSystemMetrics(SM_CXSIZE)	  +
-		    GetSystemMetrics(SM_CXBORDER) +
-		    GetSystemMetrics(SM_CXFRAME);
-		y = GetSystemMetrics(SM_CYFRAME);
-		rc1.left = x;
-		rc1.top = y;
-		rc1.right = rc2.right - rc2.left - 2*x -
-			     GetSystemMetrics( SM_CXFRAME );
-		rc1.bottom = GetSystemMetrics( SM_CYSIZE );
-
-		SetBkColor( hdc, GetSysColor(COLOR_ACTIVECAPTION) );
-		SetTextColor( hdc, GetSysColor(COLOR_CAPTIONTEXT) );
-		DrawText( hdc, "X", -1,(LPRECT)&rc1, DT_RIGHT );
-		ReleaseDC( hwnd, hdc );
-		return 0;
-	    } else {
-		result = FALSE;
-	    }
-	    break;
-#endif
 
 	case WM_GETMINMAXINFO:
 	    if ( widget->xtra() ) {
@@ -1699,7 +1670,7 @@ void QApplication::openPopup( QWidget *popup )
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() )
 	setAutoCapture( popup->winId() );	// grab mouse/keyboard
-    // popups are not focus-handled by the window system (the first
+    // Popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
     active_window = popup;
@@ -1720,8 +1691,8 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
-	active_window = activeBeforePopup; // windows does not have
-	// a reasonable focus handling for ours popups => we have
+	active_window = activeBeforePopup;	// windows does not have
+	// A reasonable focus handling for ours popups => we have
 	// to restore the focus manually.
 	if (active_window && active_window->focusWidget())
 	    active_window->focusWidget()->setFocus();
@@ -1729,7 +1700,7 @@ void QApplication::closePopup( QWidget *popup )
 	    active_window->setFocus();
     }
      else {
- 	// popups are not focus-handled by the window system (the
+ 	// Popups are not focus-handled by the window system (the
  	// first popup grabbed the keyboard), so we have to do that
  	// manually: A popup was closed, so the previous popup gets
  	// the focus.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#98 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#99 $
 **
 ** Definition of QApplication class
 **
@@ -65,7 +65,7 @@ public:
     static void      setColorMode( QApplication::ColorMode );
 #endif
 
-    enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=4 };
+    enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
     static int	     colorSpec();
     static void      setColorSpec( int );
 
@@ -82,8 +82,6 @@ public:
     static QFont    *font( const QWidget* = 0 );
     static void	     setFont( const QFont &, bool updateAllWidgets=FALSE, const char* className = 0 );
     static QFontMetrics fontMetrics();
-
-
 
 //     enum SystemFont { NormalFont, MenuFont };
 //     void setSystemFont(SystemFont, const QFont&);
@@ -196,10 +194,10 @@ private:
     static QDict<QFont>* app_fonts;
 
     static QWidgetList *popupWidgets;
-    bool inPopupMode() { return popupWidgets != 0; }
-    void closePopup( QWidget *popup );
-    void openPopup( QWidget *popup );
-    void noteTopLevel( QWidget* tlw );
+    bool	    inPopupMode() const;
+    void	    closePopup( QWidget *popup );
+    void	    openPopup( QWidget *popup );
+    void	    noteTopLevel( QWidget* tlw );
 
     friend class QWidget;
     friend class QETWidget;
@@ -255,6 +253,11 @@ inline QWidget *QApplication::activeWindow() const
 inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
 {
     return widgetAt( p.x(), p.y(), child );
+}
+
+inline bool QApplication::inPopupMode() const
+{
+    return popupWidgets != 0;
 }
 
 
