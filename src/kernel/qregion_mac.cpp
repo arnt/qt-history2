@@ -108,8 +108,13 @@ QRegion::QRegion( bool is_null )
     data = new QRegionData;
     Q_CHECK_PTR( data );
     if((data->is_null = is_null)) {
+#if 1
 	data->is_rect = TRUE;
 	data->rect = QRect();
+#else
+	data->is_rect = FALSE;
+	data->rgn = NewRgn();
+#endif
     } else {
 	data->is_rect = FALSE;
 	data->rgn = NewRgn();
@@ -123,8 +128,19 @@ QRegion::QRegion( const QRect &r, RegionType t )
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
     if(t == Rectangle )	{		// rectangular region
+#if 1
 	data->is_rect = TRUE;
 	data->rect = r;
+#else
+	data->rgn = NewRgn();
+	if(!r.isEmpty()) {
+	    Rect rect;
+	    SetRect(&rect, r.x(), r.y(), r.right()+1, r.bottom()+1);
+	    OpenRgn();
+	    FrameRect(&rect);
+	    CloseRgn(data->rgn);
+	}
+#endif
     } else {
 	Rect rect;
 	SetRect(&rect, rr.x(), rr.y(), rr.right()+1, rr.bottom()+1);
@@ -305,7 +321,9 @@ bool QRegion::isEmpty() const
 
 bool QRegion::contains( const QPoint &p ) const
 {
-    if(data->is_rect) 
+    if(data->is_null)
+	return FALSE;
+    else if(data->is_rect) 
 	return data->rect.contains(p);
 
     Point point;
@@ -316,8 +334,10 @@ bool QRegion::contains( const QPoint &p ) const
 
 bool QRegion::contains( const QRect &r ) const
 {
-    if(data->is_rect)
-	return data->rect.contains(r);
+    if(data->is_null)
+	return FALSE;
+    else if(data->is_rect) 
+	return data->rect.intersects(r);
 
     Rect rect;
     SetRect(&rect, r.x(), r.y(), r.x() + r.width(), r.y() + r.height());
@@ -340,7 +360,7 @@ QRegion QRegion::unite( const QRegion &r ) const
     if(data->is_null || r.data->is_null ) 
 	return (!data->is_null ? this : &r)->copy();
 
-    if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect))
+    if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect, TRUE))
 	return QRegion(data->rect);
 
     if(data->is_rect) 

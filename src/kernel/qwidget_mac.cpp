@@ -1015,7 +1015,6 @@ void QWidget::raise()
     if(isTopLevel()) {
 	BringToFront((WindowPtr)hd);
     } else if(QWidget *p = parentWidget()) {
-
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(FALSE);
