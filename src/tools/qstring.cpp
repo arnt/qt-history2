@@ -12483,12 +12483,14 @@ Q_EXPORT void qt_qstring_stats()
 /*!
   \fn QString::QString()
 
-  Constructs a null string.
+  Constructs a null string.  This is a string that has not been assigned to 
+  anything, i.e. both the length and data pointer is 0.
+
   \sa isNull()
 */
 
 /*!
-  Constructs a string assigning it the character \a ch.
+  Constructs a string giving it a length of one character, assigning it the character \a ch.
 */
 QString::QString( QChar ch )
 {
@@ -12497,7 +12499,8 @@ QString::QString( QChar ch )
 }
 
 /*!
-  Constructs an implicitly shared copy of \a s.
+  Constructs an implicitly shared copy of \a s.  This is very fast, O(1), since reference 
+  counting is used.
 */
 QString::QString( const QString &s ) :
     d(s.d)
@@ -12553,8 +12556,8 @@ QString::QString( const QByteArray& ba )
   If only \a unicode is 0, the string is empty but has \a length
   characters of space preallocated - QString expands automatically
   anyway, but this may speed up some cases a little.  We recommend
-  using the plain constructor and setLength() for this use; that
-  results in much more readable code.
+  using the plain constructor and setLength() for this purpose since
+  it will result in more readable code.
 
   \sa isNull() setLength()
 */
@@ -12601,7 +12604,7 @@ QString::QString( const char *str )
 
 /*! \fn QString::~QString()
 
-Destroys the string and frees the "real" string if this was the last
+Destroys the string and frees the "real" string if this is the last
 copy of that string.
 */
 
@@ -12690,16 +12693,18 @@ QString &QString::operator=( const char *str )
   \endcode
 
   Returns TRUE if the string is null.
-  A null string is also an empty string.
+  A null string is always empty.
 
   \sa isEmpty(), length()
 */
 
 /*!
   \fn bool QString::isEmpty() const
-
-  QString string("");
-  string.isEmpty();     // returns TRUE
+  
+  \code
+    QString string("");
+    string.isEmpty();     // returns TRUE
+  \endcode
     
   Returns TRUE if the string is empty, i.e., if length() == 0.
   An empty string is not always a null string.
@@ -12710,11 +12715,6 @@ QString &QString::operator=( const char *str )
 /*!
   \fn uint QString::length() const
 
-  \code
-    QString string("Trolltech");
-    uint a = string.length();   // a == 9
-  \endcode
-  
   Returns the length of the string.
 
   Null strings and empty strings have zero length.
@@ -12801,13 +12801,13 @@ void QString::setLength( uint newLen )
     QString firstName("Joe");
     QString lastName("Bloggs");
     QString fullName;
-    fullName = QString("My first name is %1 and my last name is %2").arg(firstName).arg(lastName);
+    fullName = QString("First name is '%1', last name is '%2'").arg(firstName).arg(lastName);
 
-    // fullName == My first name is Joe and my last name is Bloggs
+    // fullName == First name is 'Joe', last name is 'Bloggs'
   \endcode
   
-  This function will return an string that replaces the lowest occurence of 
-  \a %i (i being a positive integer) with \a a.
+  This function will return a string that replaces the lowest occurence of 
+  \a %i (i being a positive integer starting from one) with \a a.
     
   The \a fieldwidth value specifies the minimum amount of space that 
   \a a is padded to.  A positive value will produce right-aligned text, 
@@ -12817,21 +12817,17 @@ void QString::setLength( uint newLen )
     QString firstName("Joe");
     QString lastName("Bloggs");
     QString fullName;
-    fullName = QString("My first name is %1 and my last name is %2").arg(firstName, -10).arg(lastName, 10);
+    fullName = QString("First name is '%1', last name is '%2'").arg(firstName, -10).arg(lastName, 10);
 
-    // My first name is Joe        and my last name is     Bloggs
+    // First name is 'Joe         ',last name is     'Bloggs'
   \endcode
 
   \warning If you use arg() to construct "real" sentences like the one shown 
-  in the examples above, then this will likely have problems with translation 
-  (when you use the tr() function).  You will also likely have problems with 
-  translation if you rely on spaces to create the alignment.
-
-  If you specify \a a to be an object such as a number or a file name, then 
-  it is fairly safe when it comes to translation.
+  in the examples above, then this may cause problems with translation 
+  (when you use the tr() function).  
 
   If there is no \c %i pattern, a warning message (qWarning()) is
-  printed and the text is appended at the end of the string.  This is
+  outputted and the text is appended at the end of the string.  This is
   error recovery done by the function and should not occur in correct code.
 
   \sa QObject::tr()
@@ -12875,11 +12871,15 @@ QString QString::arg(const QString& a, int fieldwidth) const
 
   \code
     QString str;
-    str = QString("The number 63 is %1 in hexidecimal (base 16)").arg( 63, 0, 16 );
+    str = QString("Decimal 63 is %1 in hexadecimal").arg( 63, 0, 16 );
   
-    // str == "The number 63 is 3f in hexidecimal (base 16)"
+    // str == "Decimal 63 is 3f in hexadecimal"
   \endcode
 
+  The \a fieldwidth value specifies the minimum amount of space that 
+  \a a is padded to.  A positive value will produce a right-aligned number, 
+  whereas a negative value will produce a left-aligned number.
+    
   \a a is expressed in \a base notation, which is base 10 (decimal) by
   default and must be in the range 2-36, inclusive.
 */
@@ -12950,27 +12950,29 @@ QString QString::arg(QChar a, int fieldwidth) const
 
 /*! \overload
 
-  \a a is formatted according to the \a fmt format specified, which is
-  'g' by default and can be any of the following.
+/*! \overload
+
+  Argument \a a is formatted according to the \a fmt format specified,
+  which is \c g by default, and can be any of the following:
 
   <ul>
-  <li> 'e' - Formats the double using the form [-]9.9999e[+|-]999
-  <li> 'E' - Formats the double using the form [-]9.9999E[+|-]999
-  <li> 'f' - Formats the double using the form [-]9999.9999
-  <li> 'g' - Formats the double using the 'e' or 'f' format, depending on which is the most precise
-  <li> 'G' - Formats the double using the 'E' or 'f' format, depending on which is the most precise
+  <li> \c e - format as [-]9.9e[+|-]999   
+  <li> \c E - format as [-]9.9E[+|-]999
+  <li> \c f - format as [-]9.9
+  <li> \c g - use \e or \f format, whichever is the most concise
+  <li> \c G - use \E or \f format, whichever is the most concise
   </ul>
-
-  These have the same effect as using sprintf().
-  
-  \a prec determines the precision of the double, just as for number() and sprintf().
+    
+  In all cases the number of digits after the decimal point is equal
+  to the precision specified in \a prec.
 
   \code
-    double m = 12.34;
-    string = QString("Using the 'E' format with a precision of 3, the double is %1").arg( m, 0, 'E', 3); 
-    
-    // string == "1.234E+001"
+    double d = 12.34;
+    QString ds = QString("'E' format, precision 3, gives %1").arg(d, 0, 'E', 3);
+
+    // ds == "1.234E+001"
   \endcode
+
 */
 QString QString::arg(double a, int fieldwidth, char fmt, int prec) const
 {
@@ -13173,8 +13175,8 @@ QString &QString::sprintf( const char* cformat, ... )
 
 /*!
   \code
-    QString string("abcdef");
-    string = string.fill('g');      // string == "gggggg"
+    QString str;
+    str.fill('g', 5);      // string == "gggggg"
   \endcode
   
   Fills the string with \a len characters of value \a c, and returns a
@@ -13212,7 +13214,8 @@ QString& QString::fill( QChar c, int len )
 
   Finds the first occurrence of the character \a c, starting at
   position \a index. If \a index is -1, the search starts at the
-  last character; if -2, at the next to last character and so on.
+  last character; if -2, at the next to last character and so on.  (See
+  findRev() for searching from the end of the string).
 
   If \a cs is TRUE, then the search is case-sensitive.  If \a cs is FALSE,
   then the search is case-insensitive.
@@ -13246,7 +13249,8 @@ int QString::find( QChar c, int index, bool cs ) const
 
   Finds the first occurrence of the string \a str, starting at position
   \a index. If \a index is -1, the search starts at the last character, if
-  it is -2, at the next to last character and so on.
+  it is -2, at the next to last character and so on.  (See
+  findRev() for searching from the end of the string).
 
   The search is case-sensitive if \a cs is TRUE or case-insensitive if
   \a cs is FALSE.
@@ -13332,7 +13336,7 @@ int QString::find( const QString& str, int index, bool cs ) const
 
   \code 
     QString string("bananas");
-    int a = string.findRev( 'a' );      // a == 5
+    int i = string.findRev( 'a' );      // i == 5
   \endcode
   
   Finds the first occurrence of the character \a c, starting at
@@ -13357,7 +13361,7 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
   \code 
     QString string("bananas");
-    int a = string.findRev( "ana" );      // a == 3
+    int i = string.findRev( "ana" );      // i == 3
   \endcode
   
   Finds the first occurrence of the character \a c, starting at
@@ -13432,7 +13436,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 /*!
   \code
     QString string("Trolltech and Qt");
-    int a = string.contains( 't', FALSE );  // a == 3
+    int i = string.contains( 't', FALSE );  // i == 3
   \endcode
   
   Returns the number of times the character \a c occurs in the string.
@@ -13496,12 +13500,12 @@ int QString::contains( const char* str, bool cs ) const
   The match is case-sensitive if \a cs is TRUE or case-insensitive if \e
   cs if FALSE.
 
-  This function counts overlapping string, so in the example below, there are two
+  This function counts overlapping strings, so in the example below, there are two
   instances of "ana" in "bananas".
 
   \code
     QString str("bananas");
-    int a = str.contains("ana");    // a == 2
+    int i = str.contains("ana");    // i == 2
   \endcode
 
   \sa findRev()
@@ -13642,7 +13646,7 @@ QString QString::mid( uint index, uint len ) const
   \endcode
 
   Returns a string of length \a width that contains this
-  string that is padded by the \a fill character.
+  string padded by the \a fill character.
 
   If \a truncate is FALSE and the length of the string is more than \a width,
   then the returned string is a copy of the string.
@@ -13872,7 +13876,7 @@ QString QString::simplifyWhiteSpace() const
   Inserts \a s into the string before position \a index.
 
   If \a index is beyond the end of the string, the string is extended with
-  spaces (ASCII 32) to length \a index and \a s is then appended and returns a
+  spaces to length \a index and \a s is then appended and returns a
   reference to the string.
 
   \sa remove(), replace()
@@ -13886,8 +13890,8 @@ QString &QString::insert( uint index, const QString &s )
 
 /*! \overload
   
-  Inserts the character from \a s into the string before the position
-  \s index \s len number of times and returns a reference to the string.
+  Inserts the character in \a s into the string before the position
+  \a index \a len number of times and returns a reference to the string.
   
 */
 
@@ -14057,19 +14061,20 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 /*!
   \code
     QString string("bananas");
-    int a = string.find( QRegExp("an"),0 );     // a == 1
+    int i = string.find( QRegExp("an"), 0 );     // i == 1
   \endcode
     
   Finds the first occurrence of the constant regular expression \a rx,
   starting at
   position \a index. If \a index is -1, the search starts at the last
-  character; if -2, at the next to last character and so on.
+  character; if -2, at the next to last character and so on.  (See
+  findRev() for searching from the end of the string).
 
   Returns the position of the first occurence of \a rx or -1 if \a rx was not found.
 
   This function does not set QRegExp::matchedLength(),
-  QRegExp::capturedTexts() and friends. Use QRegExp::search() for
-  that.
+  QRegExp::capturedTexts() and friends. Use QRegExp::search() if you need to access
+  both references.
 
   \sa findRev() replace() contains()
 */
@@ -14083,13 +14088,14 @@ int QString::find( const QRegExp &rx, int index ) const
 
   \code 
     QString string("bananas");
-    int a = string.findRev( QRegExp("an") );      // a == 3
+    int i = string.findRev( QRegExp("an") );      // i == 3
   \endcode
   
   Finds the first occurrence of the character \a c, starting at
   position \a index and searching backwards. If the index is -1, 
   the search starts at the last character, if it is -2, at the next
-  to last character and so on.
+  to last character and so on.  (See findRev() for searching from 
+  the end of the string).
 
   Returns the position of \a c or -1 if \a c could not be found.
 
@@ -14098,7 +14104,7 @@ int QString::find( const QRegExp &rx, int index ) const
   
   This function does not set QRegExp::matchedLength(),
   QRegExp::capturedTexts() and friends. Use QRegExp::searchRev()
-  for that.
+  if you need to access both references.
 
   \sa find()
 */
@@ -14110,18 +14116,18 @@ int QString::findRev( const QRegExp &rx, int index ) const
 
 /*! \overload
 
-  Returns the number of times \a str occurs in the string.
+  Returns the number of times the regexp occurs in the string.
 
   The match is case-sensitive if \a cs is TRUE or case-insensitive if \e
   cs if FALSE.
 
-  This function counts overlapping string, so in the example below, there are four
-  instances of "ana" or "ama" in "banana and panama".
+  This function counts overlapping occurences, so in the example below, there are four
+  instances of "ana" or "ama".
 
   \code
-    QString s = "banana and panama";
-    QRegExp r = QRegExp( "a[nm]a", TRUE, FALSE );
-    int a = s.contains( r );    // a == 4
+    QString str = "banana and panama";
+    QRegExp rxp = QRegExp( "a[nm]a", TRUE, FALSE );
+    int i = str.contains( rxp );    // i == 4
   \endcode
 
   \sa find() findRev()
@@ -14574,11 +14580,12 @@ QString &QString::setNum( double n, char f, int prec )
 /*!
   \code
     long a = 63;
-    QString str = QString::number( a, 16 );     // str == "3f"
+    QString str = QString::number( a, 16 );             // str == "3f"
+    QString str = QString::number( a, 16 ).upper();     // str == "3F"
   \endcode
 
   A convenience function that returns a string equivilant of the number 
-  \a n to the base \a base.
+  \a n to base \a base.
 
   \sa setNum()
 */
@@ -14627,27 +14634,26 @@ QString QString::number( uint n, int base )
 
 /*! \overload
 
-  This static function returns a string equivilant of the number \a n formatted to the 
-  format \a f, with \a prec precision.
-
-  \a a is formatted according to the \a fmt format specified, which is
-  'g' by default and can be any of the following.
+  Argument \a a is formatted according to the \a fmt format specified,
+  which is \c g by default, and can be any of the following:
 
   <ul>
-  <li> 'e' - Formats the double using the form [-]9.9999e[+|-]999
-  <li> 'E' - Formats the double using the form [-]9.9999E[+|-]999
-  <li> 'f' - Formats the double using the form [-]9999.9999
-  <li> 'g' - Formats the double using the 'e' or 'f' format, depending on which is the most precise
-  <li> 'G' - Formats the double using the 'E' or 'f' format, depending on which is the most precise
+  <li> \c e - format as [-]9.9e[+|-]999   
+  <li> \c E - format as [-]9.9E[+|-]999
+  <li> \c f - format as [-]9.9
+  <li> \c g - use \e or \f format, whichever is the most concise
+  <li> \c G - use \E or \f format, whichever is the most concise
   </ul>
-
-  These have the same effect as using sprintf().
-  
-  \a prec determines the precision of the double, just as for number() and sprintf().
+    
+    In all cases the number of digits after the decimal point is equal
+    to the precision specified in \a prec.
 
   \code
-    double m = 12.34;
-    QString string = QString::number( m, 'E' );    // string == "1.234000E+001"
+    double d = 12.34;
+    QString ds = QString("'E' format, precision 3, gives %1").arg(
+d, 0, 'E', 3);
+
+    // ds == "1.234E+001"
   \endcode
 
   \sa setNum()
@@ -14990,15 +14996,12 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 
   \code
     QString string("abcdefgh");
-    str = string.at( 4 );   // str == "e"
+    QChar ch = string.at( 4 );   // ch == 'e'
   \endcode
   
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
 
-  Note: If this QString is not const or const&, the non-const at()
-  will be used instead, which will expand the string if \a i is beyond
-  the length of the string.
 */
 
 /*!
@@ -15216,21 +15219,21 @@ bool QString::isRightToLeft() const
   \fn int QString::compare (const QString & s1, const QString & s2)
 
   \code 
-    int a = QString::compare( "def", "abc" );   // a == 3
-    int b = QString::compare( "abc", "def" );   // b == -3
+    int a = QString::compare( "def", "abc" );   // a > 0
+    int b = QString::compare( "abc", "def" );   // b < 0
     int c = QString::compare(" abc", "abc" );   // c == 0
   \endcode
   
   Lexically compares \a s1 with \a s2 and returns an integer less than, equal to, or
-  greater than zero if s1 is lexically less than, equal to, or greater than \a s2.
+  greater than zero if s1 is less than, equal to, or greater than \a s2.
 
-  The lexical order is similar to dictionary order, and it is case insensitive.
+  Lexical order is similar to dictionary order, e.g. it is case insensitive.
 */
 
 /*! \overload
 
    Lexically compares this string with \a s and returns an integer less than, equal 
-   to, or greater than zero if it is lexically less than, equal to, or greater than
+   to, or greater than zero if it is less than, equal to, or greater than
    \a s.
 
 */
