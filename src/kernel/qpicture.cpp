@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#8 $
 **
 ** Implementation of QMetaFile class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#8 $";
 #endif
 
 
@@ -121,6 +121,7 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
     INT16  i1_16, i2_16;			// parameters...
     INT8   i_8, i1_8, i2_8;
     UINT32 ul;
+    long   strm_pos;
     char  *str;
     QPoint p, p1, p2;
     QRect  r;
@@ -135,10 +136,13 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
     while ( nrecords-- && !s.eos() ) {
 	s >> c;					// read cmd
 	s >> tiny_len;				// read param length
-	if ( tiny_len > 127 )			// longer than 127 bytes
+	if ( tiny_len == 255 )			// longer than 254 bytes
 	    s >> len;
 	else
 	    len = tiny_len;
+#if defined(DEBUG)
+	strm_pos = s.device()->at();
+#endif
 	switch ( c ) {				// exec cmd
 	    case PDC_NOP:
 		break;
@@ -283,6 +287,9 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 		if ( len )			// skip unknown command
 		    s.device()->at( s.device()->at()+len );
 	}
+#if defined(DEBUG)
+	ASSERT( s.device()->at() - strm_pos == len );
+#endif
     }
     return FALSE;
 }
@@ -401,10 +408,10 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
     int newpos = (int)mfbuf.at();		// new position
     int length = newpos - pos;
     mfbuf.at(pos - 1);				// set back and
-    if ( length <= 127 )			// write short length
+    if ( length < 255 )				// write 8-bit length
 	s << (UINT8)length;
-    else					// write long length
-	s << (UINT8)128 << (UINT32)length;
+    else					// write 32-bit length
+	s << (UINT8)255 << (UINT32)length;
     mfbuf.at( newpos );				// set to new position
     return TRUE;
 }
