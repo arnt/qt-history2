@@ -581,8 +581,17 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 					   bool update)
 {
     if(QMacBlockingFunction::blocking()) { //nah, let's do it "later"
-	if(glcx && !dblbuf)
-	    glcx->fixBufferRect();
+	if(glcx) {
+	    if(!dblbuf) {
+		glcx->fixBufferRect();
+	    } else if(gl_pix && gl_pix->size() != size()) {
+		aglSetDrawable((AGLContext)glcx->cx, NULL);
+		gl_pix->resize(size());
+		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
+		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
+				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+	    }
+	}
 	pending_fix = TRUE;
 	return;
     }
@@ -594,7 +603,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 	setBackgroundMode(NoBackground);
 	if(gl_pix && glcx_dblbuf == dblbuf) { //currently double buffered, just resize
 	    int w = width(), h = height();
-	    if(gl_pix->width() != w || gl_pix->height() != h) {
+	    if(gl_pix->size() != size()) {
 		aglSetDrawable((AGLContext)glcx->cx, NULL);
 		gl_pix->resize(w, h);
 		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
