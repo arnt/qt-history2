@@ -1556,6 +1556,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     \warning Grabbing an area outside the screen is not safe in
     general. This depends on the underlying window system.
 
+    \warning X11 only: If \a window is not the same depth as the root
+    window and another window partially or entirely obscures the one
+    you grab, you will \e not get pixels from the overlying window.
+    The contests of the obscured areas in the pixmap are undefined and
+    uninitialized.
+
     \sa grabWidget()
 */
 
@@ -1565,36 +1571,51 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	return QPixmap();
 
     Display *dpy = x11AppDisplay();
-    XWindowAttributes a;
-    if ( ! XGetWindowAttributes( dpy, window, &a ) )
+    XWindowAttributes window_attr;
+    if ( ! XGetWindowAttributes( dpy, window, &window_attr ) )
 	return QPixmap();
 
     if ( w < 0 )
-	w = a.width - x;
+	w = window_attr.width - x;
     if ( h < 0 )
-	h = a.height - y;
+	h = window_attr.height - y;
 
     // determine the screen
     int scr;
     for ( scr = 0; scr < ScreenCount( dpy ); ++scr ) {
-	if ( a.root == RootWindow( dpy, scr ) )	// found it
+	if ( window_attr.root == RootWindow( dpy, scr ) )	// found it
 	    break;
     }
     if ( scr >= ScreenCount( dpy ) )		// sanity check
 	return QPixmap();
 
-    // map x and y to the root window
-    WId unused;
-    if ( ! XTranslateCoordinates( dpy, window, a.root, x, y, &x, &y, &unused ) )
-	return QPixmap();
 
-    QPixmap pm( w, h );				// create new pixmap
+    // get the depth of the root window
+    XWindowAttributes root_attr;
+    if ( ! XGetWindowAttributes( dpy, window_attr.root, &root_attr ) )
+        return QPixmap();
+
+    if ( window_attr.depth == root_attr.depth ) {
+        // if the depth of the specified window and the root window are the
+        // same, grab pixels from the root window (so that we get the any
+        // overlapping windows and window manager frames)
+
+        // map x and y to the root window
+        WId unused;
+        if ( ! XTranslateCoordinates( dpy, window, window_attr.root, x, y,
+                                      &x, &y, &unused ) )
+            return QPixmap();
+
+       window = window_attr.root;
+    }
+
+    QPixmap pm( w, h );
     pm.data->uninit = FALSE;
     pm.x11SetScreen( scr );
 
     GC gc = qt_xget_temp_gc( scr, FALSE );
     XSetSubwindowMode( dpy, gc, IncludeInferiors );
-    XCopyArea( dpy, a.root, pm.handle(), gc, x, y, w, h, 0, 0 );
+    XCopyArea( dpy, window, pm.handle(), gc, x, y, w, h, 0, 0 );
     XSetSubwindowMode( dpy, gc, ClipByChildren );
 
     return pm;
