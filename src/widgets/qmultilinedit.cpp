@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#51 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1932,7 +1932,7 @@ bool QMultiLineEdit::autoUpdate() const
 
   If \e enable is TRUE (this is the default) then the editor updates
   itself automatically whenever it has changed in some way (generally,
-  when text has vbeen inserted or deleted).
+  when text has been inserted or deleted).
 
   If \e enable is FALSE, the view does NOT repaint itself, or update
   its internal state variables itself when it is changed.  This can be
