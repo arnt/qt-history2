@@ -1,6 +1,5 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on
-QT         += compat
 HEADERS		= cannonfield.h \
 		  lcdrange.h
 SOURCES		= cannonfield.cpp \
