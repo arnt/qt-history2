@@ -15,6 +15,7 @@
 #include "msvc_vcproj.h"
 #include "option.h"
 #include "qtmd5.h" // SG's MD5 addon
+#include "xmloutput.h"
 #include <qdir.h>
 #include <qregexp.h>
 #include <qhash.h>
@@ -43,7 +44,6 @@ bool use_net2003_version()
     current_version = 70;
 
     // Get registry entries for both versions
-    bool ok = false;
     QSettings setting;
     QString path2002 = setting.readEntry(_regNet2002);
     QString path2003 = setting.readEntry(_regNet2003);
@@ -129,7 +129,8 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
     if(project->first("TEMPLATE") == "vcapp" ||
        project->first("TEMPLATE") == "vclib") {
         debug_msg(1, "Generator: MSVC.NET: Writing project file");
-        t << vcProject;
+        XmlOutput xmlOut(t);
+        xmlOut << vcProject;
         return true;
     }
     // Generate solution file
@@ -682,88 +683,6 @@ void VcprojGenerator::initPreLinkEventTools()
 {
 }
 
-
-// ------------------------------------------------------------------
-// Helper functions to do proper sorting of the
-// qstringlists, for both flat and non-flat modes.
-inline bool XLessThanY(QString &x, QString &y, bool flat_mode)
-{
-    if (flat_mode) {
-        QString subX = x.mid(x.lastIndexOf('\\')+1);
-        QString subY = y.mid(y.lastIndexOf('\\')+1);
-        return QString::compare(subX, subY) < 0;
-    }
-
-    int xPos = 0;
-    int yPos = 0;
-    int xSlashPos;
-    int ySlashPos;
-    for (;;) {
-        xSlashPos = x.indexOf('\\', xPos);
-        ySlashPos = y.indexOf('\\', yPos);
-
-        if (xSlashPos == -1 && ySlashPos != -1) {
-            return false;
-        } else if (xSlashPos != -1 && ySlashPos == -1) {
-            return true;
-        } else if (xSlashPos == -1 /* && yySlashPos == -1 */) {
-            QString subX = x.mid(xPos);
-            QString subY = y.mid(yPos);
-            return QString::compare(subX, subY) < 0;
-        } else {
-            QString subX = x.mid(xPos, xSlashPos - xPos);
-            QString subY = y.mid(yPos, ySlashPos - yPos);
-            int cmp = QString::compare(subX, subY);
-            if (cmp != 0)
-                return cmp < 0;
-        }
-        xPos = xSlashPos + 1;
-        yPos = ySlashPos + 1;
-    }
-    return false;
-}
-
-inline bool XLessThanY(VCFilterFile &x, VCFilterFile &y, bool flat_mode)
-{
-    return XLessThanY(x.file, y.file, flat_mode);
-}
-
-void nonflatDir_BubbleSort(VCFilterFileList& list, bool flat_mode)
-{
-    if (!list.count())        // shortcut
-        return;
-    VCFilterFileList::Iterator b = list.begin();
-    VCFilterFileList::Iterator e = list.end();
-    VCFilterFileList::Iterator last = e;
-    --last;                // goto last
-    if (last == b)        // shortcut
-        return;
-    while(b != last) {// sort them
-        bool swapped = false;
-        VCFilterFileList::Iterator swap_pos = b;
-        VCFilterFileList::Iterator x = e;
-        VCFilterFileList::Iterator y = x;
-        --y;
-        VCFilterFile swap_ff;
-        do {
-            --x;
-            --y;
-            if (XLessThanY(*x,*y, flat_mode)) {
-                swapped = true;
-                swap_ff = (*x); // Swap -------
-                (*x) = (*y);
-                (*y) = swap_ff; // ------------
-                swap_pos = y;
-            }
-        } while(y != b);
-        if (!swapped)
-            return;
-        b = swap_pos;
-        ++b;
-    }
-}
-// ------------------------------------------------------------------
-
 void VcprojGenerator::addMocArguments(VCFilter &filter)
 {
     filter.customMocArguments.clear();
@@ -779,9 +698,8 @@ void VcprojGenerator::addMocArguments(VCFilter &filter)
 	QString pwd = fileFixify(QDir::currentDirPath());
 	if(pwd.isEmpty())
 	    pwd = ".";
-	filter.customMocArguments += " -I&quot;" + pwd + "&quot;";
+	filter.customMocArguments += " -I\"" + pwd + "\"";
     }
-    filter.customMocArguments.replace('\"', "&quot;");
 }
 
 void VcprojGenerator::initSourceFiles()
@@ -789,9 +707,9 @@ void VcprojGenerator::initSourceFiles()
     vcProject.SourceFiles.flat_files = project->isActiveConfig("flat");
     vcProject.SourceFiles.Name = "Source Files";
     vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
-    vcProject.SourceFiles.Files += project->variables()["SOURCES"];
-    nonflatDir_BubbleSort(vcProject.SourceFiles.Files,
-                          vcProject.SourceFiles.flat_files);
+
+    vcProject.SourceFiles.addFiles(project->variables()["SOURCES"]);
+
     vcProject.SourceFiles.Project = this;
     vcProject.SourceFiles.Config = &(vcProject.Configuration);
     vcProject.SourceFiles.CustomBuild = none;
@@ -804,14 +722,12 @@ void VcprojGenerator::initHeaderFiles()
     vcProject.HeaderFiles.Name = "Header Files";
     vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
     list += project->variables()["HEADERS"];
-    if (usePCH) { // Generated PCH cpp file
-        if (!vcProject.HeaderFiles.Files.contains(precompH))
-            list += precompH;
-    }
+    if (usePCH) // Generated PCH cpp file
+        vcProject.HeaderFiles.addFile(precompH);
+
     for(int index = 0; index < list.count(); ++index)
-	vcProject.HeaderFiles.Files += VCFilterFile(list.at(index), mocFile(list.at(index)));
-    nonflatDir_BubbleSort(vcProject.HeaderFiles.Files,
-                          vcProject.HeaderFiles.flat_files);
+	vcProject.HeaderFiles.addFile(VCFilterFile(list.at(index), mocFile(list.at(index))));
+
     vcProject.HeaderFiles.Project = this;
     vcProject.HeaderFiles.Config = &(vcProject.Configuration);
     vcProject.HeaderFiles.CustomBuild = mocHdr;
@@ -820,27 +736,25 @@ void VcprojGenerator::initHeaderFiles()
 
 void VcprojGenerator::initMOCFiles()
 {
-    VCFilterFileList filterList;
+    vcProject.MOCFiles.flat_files = project->isActiveConfig("flat");
+    vcProject.MOCFiles.Name = "Generated MOC Files";
+    vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
+
     // Create a list of the files being moc'ed
     QStringList &objl = project->variables()["OBJMOC"],
 		&srcl = project->variables()["SRCMOC"];
     int index = 0;
     for(; index < objl.count() && index < srcl.count(); ++index) {
-	filterList += VCFilterFile(srcl.at(index), mocSource(srcl.at(index)));
+        vcProject.MOCFiles.addFile(VCFilterFile(srcl.at(index), mocSource(srcl.at(index))));
     }
     // Exclude the rest, except .moc's
     for(; index < srcl.count(); ++index)
-	filterList += VCFilterFile(
+        vcProject.MOCFiles.addFile(VCFilterFile(
                               srcl.at(index),
                               mocSource(srcl.at(index)),
                               srcl.at(index).endsWith(Option::cpp_moc_ext)
-                              ? false : true);
-    vcProject.MOCFiles.flat_files = project->isActiveConfig("flat");
-    vcProject.MOCFiles.Name = "Generated MOC Files";
-    vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
-    vcProject.MOCFiles.Files += filterList;
-    nonflatDir_BubbleSort(vcProject.MOCFiles.Files,
-			  vcProject.MOCFiles.flat_files);
+                              ? false : true));
+
     vcProject.MOCFiles.Project = this;
     vcProject.MOCFiles.Config = &(vcProject.Configuration);
     vcProject.MOCFiles.CustomBuild = mocSrc;
@@ -853,10 +767,10 @@ void VcprojGenerator::initUICFiles()
     vcProject.UICFiles.Name = "Generated Form Files";
     vcProject.UICFiles.Filter = "cpp;c;cxx;h;hpp;hxx;";
     vcProject.UICFiles.Project = this;
-    vcProject.UICFiles.Files += project->variables()["UICDECLS"];
-    vcProject.UICFiles.Files += project->variables()["UICIMPLS"];
-    nonflatDir_BubbleSort(vcProject.UICFiles.Files,
-                          vcProject.UICFiles.flat_files);
+
+    vcProject.UICFiles.addFiles(project->variables()["UICDECLS"]);
+    vcProject.UICFiles.addFiles(project->variables()["UICIMPLS"]);
+
     vcProject.UICFiles.Config = &(vcProject.Configuration);
     vcProject.UICFiles.CustomBuild = none;
 }
@@ -867,9 +781,9 @@ void VcprojGenerator::initFormsFiles()
     vcProject.FormFiles.Name = "Forms";
     vcProject.FormFiles.ParseFiles = _False;
     vcProject.FormFiles.Filter = "ui";
-    vcProject.FormFiles.Files += project->variables()["FORMS"];
-    nonflatDir_BubbleSort(vcProject.FormFiles.Files,
-                          vcProject.FormFiles.flat_files);
+
+    vcProject.FormFiles.addFiles(project->variables()["FORMS"]);
+
     vcProject.FormFiles.Project = this;
     vcProject.FormFiles.Config = &(vcProject.Configuration);
     vcProject.FormFiles.CustomBuild = uic;
@@ -881,9 +795,9 @@ void VcprojGenerator::initTranslationFiles()
     vcProject.TranslationFiles.Name = "Translations Files";
     vcProject.TranslationFiles.ParseFiles = _False;
     vcProject.TranslationFiles.Filter = "ts";
-    vcProject.TranslationFiles.Files += project->variables()["TRANSLATIONS"];
-    nonflatDir_BubbleSort(vcProject.TranslationFiles.Files,
-                          vcProject.TranslationFiles.flat_files);
+
+    vcProject.TranslationFiles.addFiles(project->variables()["TRANSLATIONS"]);
+
     vcProject.TranslationFiles.Project = this;
     vcProject.TranslationFiles.Config = &(vcProject.Configuration);
     vcProject.TranslationFiles.CustomBuild = none;
@@ -895,10 +809,10 @@ void VcprojGenerator::initLexYaccFiles()
     vcProject.LexYaccFiles.Name = "Lex / Yacc Files";
     vcProject.LexYaccFiles.ParseFiles = _False;
     vcProject.LexYaccFiles.Filter = "l;y";
-    vcProject.LexYaccFiles.Files += project->variables()["LEXSOURCES"];
-    vcProject.LexYaccFiles.Files += project->variables()["YACCSOURCES"];
-    nonflatDir_BubbleSort(vcProject.LexYaccFiles.Files,
-                          vcProject.LexYaccFiles.flat_files);
+
+    vcProject.LexYaccFiles.addFiles(project->variables()["LEXSOURCES"]);
+    vcProject.LexYaccFiles.addFiles(project->variables()["YACCSOURCES"]);
+
     vcProject.LexYaccFiles.Project = this;
     vcProject.LexYaccFiles.Config = &(vcProject.Configuration);
     vcProject.LexYaccFiles.CustomBuild = lexyacc;
@@ -910,12 +824,12 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Name = "Resources";
     vcProject.ResourceFiles.ParseFiles = _False;
     vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts";
-    vcProject.ResourceFiles.Files += project->variables()["RC_FILE"];
-    vcProject.ResourceFiles.Files += project->variables()["QMAKE_IMAGE_COLLECTION"];
-    vcProject.ResourceFiles.Files += project->variables()["IMAGES"];
-    vcProject.ResourceFiles.Files += project->variables()["IDLSOURCES"];
-    nonflatDir_BubbleSort(vcProject.ResourceFiles.Files,
-                          vcProject.ResourceFiles.flat_files);
+
+    vcProject.ResourceFiles.addFiles(project->variables()["RC_FILE"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["IDLSOURCES"]);
+
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);
     vcProject.ResourceFiles.CustomBuild = resource;
@@ -978,10 +892,6 @@ void VcprojGenerator::initOld()
     }
 
     fixTargetExt();
-
-    project->variables()["MSVCPROJ_VER"] = "7.00";
-    project->variables()["MSVCPROJ_DEBUG_OPT"] = "/GZ /ZI";
-
     processMocConfig();
 
     // /VERSION:x.yz -------------------------------------------------

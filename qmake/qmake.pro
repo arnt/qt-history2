@@ -22,14 +22,14 @@ SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
 	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
 	 projectgenerator.cpp metrowerks_xml.cpp mingw_make.cpp \
          pbuilder_pbx.cpp msvc_objectmodel.cpp qtmd5.cpp makefiledeps.cpp \
-         metamakefile.cpp
+         metamakefile.cpp xmloutput.cpp
 HEADERS+=project.h property.h makefile.h \
          unixmake.h meta.h \
          borland_bmake.h msvc_nmake.h \
 	 msvc_dsp.h msvc_vcproj.h option.h winmakefile.h \
 	 projectgenerator.h metrowerks_xml.h mingw_make.h \
          pbuilder_pbx.h msvc_objectmodel.h qtmd5.h makefiledeps.h \
-         metamakefile.h
+         metamakefile.h xmloutput.h
 
 #Qt code
 SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \

@@ -16,11 +16,12 @@
 #define __MSVC_OBJECTMODEL_H__
 
 #include "project.h"
+#include "xmloutput.h"
 #include <qdebug.h>
 #include <qlist.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qtextstream.h>
+#include <qmap.h>
 
 /*
     This Object model is of course VERY simplyfied,
@@ -732,27 +733,118 @@ inline QDebug operator<<(QDebug dbg, const VCFilterFile &p)
 }
 #endif
 
-class VCFilterFileList : public QList<VCFilterFile>
+
+// Tree & Flat view of files --------------------------------------------------
+class VCFilter;
+class Node
 {
 public:
-    inline VCFilterFileList() { }
-    inline VCFilterFileList(const VCFilterFileList &l) : QList<VCFilterFile>(l) { }
-    inline VCFilterFileList(const QList<VCFilterFile> &l) : QList<VCFilterFile>(l) { }
-    void operator+=(const VCFilterFileList &l) {
-        for(int i = 0; i < l.count(); ++i)
-            append(l.at(i));
+    void addElement(const VCFilterFile &file) {
+        addElement(file.file, file);
     }
-    void operator+=(const VCFilterFile &f) {
-        append(f);
+    virtual void addElement(const QString &filepath, const VCFilterFile &allInfo) = 0;
+    virtual void removeElements()= 0;
+    virtual void generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool) = 0;
+    virtual bool hasElements() = 0;
+};
+
+class TreeNode : public Node
+{
+    typedef QMap<QString, TreeNode*> ChildrenMap;
+    VCFilterFile info;
+    ChildrenMap children;
+
+public:
+    ~TreeNode() { removeElements(); }
+
+    int pathIndex(const QString &filepath) {
+        int Windex = filepath.indexOf("\\");
+        int Uindex = filepath.indexOf("/");
+        if (Windex != -1 && Uindex != -1)
+            return qMin(Windex, Uindex);
+        else if (Windex != -1)
+            return Windex;
+        return Uindex;
     }
-    void operator+=(const QStringList &l) {
-        for(int i = 0; i < l.count(); ++i)
-            append(VCFilterFile(l.at(i)));
+
+    using Node::addElement;
+    void addElement(const QString &filepath, const VCFilterFile &allInfo){
+        qDebug("TreeNode: Adding filepath (%s)", filepath.latin1());
+        QString newNodeName(filepath);
+
+        int index = pathIndex(filepath);
+        if (index != -1)
+            newNodeName = filepath.left(index);
+
+        TreeNode *n = children.value(newNodeName);
+        if (!n) {
+            n = new TreeNode;
+            n->info = allInfo;
+            children.insert(newNodeName, n);
+        }
+        if (index != -1)
+            n->addElement(filepath.mid(index+1), allInfo);
     }
-    void operator+=(const QString &f) {
-        append(VCFilterFile(f));
+
+    void removeElements() {
+        ChildrenMap::ConstIterator it = children.constBegin();
+        ChildrenMap::ConstIterator end = children.constEnd();
+        for( ; it != end; it++) {
+            (*it)->removeElements();
+            delete it.value();
+        }
+        children.clear();
+    }
+
+    void generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool);
+    bool hasElements() {
+        return children.size() != 0;
     }
 };
+
+class FlatNode : public Node
+{
+    typedef QMultiMap<QString, VCFilterFile> ChildrenMapFlat;
+    ChildrenMapFlat children;
+
+public:
+    ~FlatNode() { removeElements(); }
+
+    int pathIndex(const QString &filepath) {
+        int Windex = filepath.lastIndexOf("\\");
+        int Uindex = filepath.lastIndexOf("/");
+        if (Windex != -1 && Uindex != -1)
+            return qMax(Windex, Uindex);
+        else if (Windex != -1)
+            return Windex;
+        return Uindex;
+    }
+
+    using Node::addElement;
+    void addElement(const QString &filepath, const VCFilterFile &allInfo){
+        qDebug("FlatNode: Adding filepath (%s)", filepath.latin1());
+        QString newKey(filepath);
+
+        int index = pathIndex(filepath);
+        if (index != -1)
+            newKey = filepath.mid(index+1);
+
+        // Key designed to sort files with
+        // same name in different paths
+        children.insert(newKey + "\0" + allInfo.file, allInfo);
+    }
+
+    void removeElements() {
+        children.clear();
+    }
+
+    void generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool);
+    bool hasElements() {
+        return children.size() != 0;
+    }
+};
+// ----------------------------------------------------------------------------
+
 
 class VcprojGenerator;
 class VCFilter
@@ -760,17 +852,25 @@ class VCFilter
 public:
     // Functions
     VCFilter();
-    ~VCFilter(){}
-    void addMOCstage(QTextStream &strm, const VCFilterFile &str, bool hdr);
-    void addUICstage(QTextStream &strm, QString str);
-    bool addIMGstage(QTextStream &strm, QString str);
-    void modifyPCHstage(QTextStream &strm, QString str);
+    ~VCFilter();
+    
+    void addFile(const QString& filename);
+    void addFile(const VCFilterFile& fileInfo);
+
+    void addFiles(const QStringList& fileList);
+
+    void addMOCstage(const VCFilterFile &str, bool hdr);
+    void addUICstage(QString str);
+    bool addIMGstage(QString str);
+    void modifyPCHstage(QString str);
+
+    //void generateXml(XmlOutput &xml);
+    void generateXml(XmlOutput &xml, const VCFilterFile &info);
 
     // Variables
     QString                 Name;
     QString                 Filter;
     triState                ParseFiles;
-    VCFilterFileList        Files;
     VcprojGenerator*        Project;
     QList<VCConfiguration> *Config;
     customBuildCheck	    CustomBuild;
@@ -780,6 +880,12 @@ public:
     bool                    useCompilerTool;
     VCCLCompilerTool        CompilerTool;
     bool                    flat_files;
+
+private:
+    Node                   *Files;
+    void createOutputStructure();
+
+    friend XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool); // ####
 };
 
 class VCProject
@@ -809,15 +915,15 @@ public:
     VCFilter                ResourceFiles;
 };
 
-QTextStream &operator<<(QTextStream &, const VCCLCompilerTool &);
-QTextStream &operator<<(QTextStream &, const VCLinkerTool &);
-QTextStream &operator<<(QTextStream &, const VCMIDLTool &);
-QTextStream &operator<<(QTextStream &, const VCCustomBuildTool &);
-QTextStream &operator<<(QTextStream &, const VCLibrarianTool &);
-QTextStream &operator<<(QTextStream &, const VCResourceCompilerTool &);
-QTextStream &operator<<(QTextStream &, const VCEventTool &);
-QTextStream &operator<<(QTextStream &, const VCConfiguration &);
-QTextStream &operator<<(QTextStream &, VCFilter &);
-QTextStream &operator<<(QTextStream &, const VCProject &);
+XmlOutput &operator<<(XmlOutput &, const VCCLCompilerTool &);
+XmlOutput &operator<<(XmlOutput &, const VCLinkerTool &);
+XmlOutput &operator<<(XmlOutput &, const VCMIDLTool &);
+XmlOutput &operator<<(XmlOutput &, const VCCustomBuildTool &);
+XmlOutput &operator<<(XmlOutput &, const VCLibrarianTool &);
+XmlOutput &operator<<(XmlOutput &, const VCResourceCompilerTool &);
+XmlOutput &operator<<(XmlOutput &, const VCEventTool &);
+XmlOutput &operator<<(XmlOutput &, const VCConfiguration &);
+XmlOutput &operator<<(XmlOutput &, VCFilter &);
+XmlOutput &operator<<(XmlOutput &, const VCProject &);
 
 #endif //__MSVC_OBJECTMODEL_H__
