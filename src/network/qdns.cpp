@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#46 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#47 $
 **
 ** Implementation of QDns class.
 **
@@ -766,13 +766,7 @@ void QDnsAnswer::notify()
 		((QDnsUgleHack*)dns)->ugle( TRUE );
 	    } else {
 		QStringList n = dns->qualifiedNames();
-		int i = n.count();
-		bool found = FALSE;
-		while( i-- > 0 && !found )
-		    // ######## O(n*n)!! should use iterator!
-		    if ( n[i] == query->l )
-			found = TRUE;
-		if ( found )
+		if ( n.contains(query->l) )
 		    ((QDnsUgleHack*)dns)->ugle();
 #if defined(QDNS_DEBUG)
 		else
@@ -1525,10 +1519,10 @@ QDns::QDns( const QHostAddress & address, RecordType rr )
 QDns::~QDns()
 {
     uint q = 0;
-    QDnsQuery * query;
     QDnsManager * m = QDnsManager::manager();
-    while( q < m->queries.size() && (query=m->queries[q]) != 0 ) {
-	if ( query->dns )
+    while( q < m->queries.size() ) {
+	QDnsQuery * query=m->queries[q];
+	if ( query && query->dns )
 	    (void)query->dns->take( (void*) this );
 	q++;
     }
