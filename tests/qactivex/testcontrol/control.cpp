@@ -189,7 +189,7 @@ public slots:
 
     void unicodePointerSlot( QString *unicode ) { PROP_POINTER(unicode) }
     void textPointerSlot( QCString *text ) { PROP_POINTER(text) }
-    void boolPointerSlot( bool *boolval ) { PROP_POINTER(boolval) }
+    void boolvalPointerSlot( bool *boolval ) { PROP_POINTER(boolval) }
     void numberPointerSlot( int *number ) { PROP_POINTER(number) }
     void posnumberPointerSlot( uint *posnumber ) { PROP_POINTER(posnumber) }
     void realPointerSlot( double *real ) { PROP_POINTER(real) }
