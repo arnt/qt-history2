@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#87 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#88 $
 **
 ** Implementation of QTextStream class
 **
@@ -781,7 +781,7 @@ void QTextStream::unsetDevice()
 }
 
 /*!
-  \fn bool QTextStream::eof() const
+  \fn bool QTextStream::atEnd() const
   Returns TRUE if the IO device has reached the end position (end of
   stream or file) or if there is no IO device set.
 
@@ -791,6 +791,16 @@ void QTextStream::unsetDevice()
   \sa QIODevice::atEnd()
 */
 
+/*!\obsolete
+  \fn bool QTextStream::eof() const
+  Returns TRUE if the IO device has reached the end position (end of
+  stream or file) or if there is no IO device set.
+
+  Returns FALSE if the current position of the read/write head of the IO
+  device is somewhere before the end position.
+
+  \sa QIODevice::atEnd()
+*/
 
 /*****************************************************************************
   QTextStream read functions

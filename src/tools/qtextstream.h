@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#51 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#52 $
 **
 ** Definition of QTextStream class
 **
@@ -55,6 +55,7 @@ public:
     void	 setDevice( QIODevice * );
     void	 unsetDevice();
 
+    bool	 atEnd() const;
     bool	 eof() const;
 
     QTextStream &operator>>( QChar & );
@@ -198,8 +199,11 @@ public:
 inline QIODevice *QTextStream::device() const
 { return dev; }
 
-inline bool QTextStream::eof() const
+inline bool QTextStream::atEnd() const
 { return dev ? dev->atEnd() : FALSE; }
+
+inline bool QTextStream::eof() const
+{ return atEnd(); }
 
 inline int QTextStream::flags() const
 { return fflags; }
