@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#5 $
+** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#6 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -100,88 +100,89 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 
 void translate( const QString& filename, const QString& qmfile )
 {
-    //we start in locale-specific mode, thenswitch when we find the char set
-
-    bool firstRound = TRUE;
-
     QFile f(filename);
     if ( !f.open( IO_ReadOnly) )
 	return;
     QTranslator* translator = new QTranslator(0);
-    QTextStream t( &f );
-    QString line;
-    QString msgid;
-    QString msgstr;
-    while ( !t.atEnd() || !line.isEmpty() ) {
-	if (line.isEmpty()) {
-	    t.skipWhiteSpace();
-	    line = t.readLine();
+    QTextCodec *codec = 0;
+    for (int pass =  0; pass < 2; pass++) {
+	f.at(0);
+	QTextStream t( &f );
+	QString line;
+	QString msgid;
+	QString msgstr;
+	if ( codec != 0 ) {
+	    t.setCodec( codec );
 	}
-	if ( hasHandle( line, "msgid") ) {
-	    msgstr = QString::null;
-	    msgid = extractContents( line );
-	    if (!t.atEnd()) {
+	while ( !t.atEnd() || !line.isEmpty() ) {
+	    if (line.isEmpty()) {
 		t.skipWhiteSpace();
 		line = t.readLine();
 	    }
-	    else
-		line = QString::null;
-	    while ( hasHandle( line, "\"") ) {
-		msgid += extractContents( line );
+	    if ( hasHandle( line, "msgid") ) {
+		msgstr = QString::null;
+		msgid = extractContents( line );
 		if (!t.atEnd()) {
 		    t.skipWhiteSpace();
 		    line = t.readLine();
 		}
 		else
 		    line = QString::null;
-	    }
-	}
-	else if ( hasHandle( line, "msgstr") ) {
-	    msgstr = extractContents( line );
-	    if (!t.atEnd()) {
-		t.skipWhiteSpace();
-		line = t.readLine();
-	    }
-	    else
-		line = QString::null;
-	    while ( hasHandle( line, "\"") ) {
-		msgstr += extractContents( line );
-		if (!t.atEnd()) {
-		    t.skipWhiteSpace();
-		    line = t.readLine();
-		}
-		else
-		    line = QString::null;
-	    }
-	    //debug("%s --> %s", msgid.ascii(), msgstr.ascii() );
-	    addTranslation( translator, msgid, msgstr);
-	    if ( firstRound && msgid.isEmpty() ) {
-		// Check for the encoding. We are not supposed to
-		// change encodings in mid-stream, but it is reasonably safe
-		// when we are doing just readLine().
-		//###### should be done better in the final version.
-		int cpos = msgstr.find( "charset=" );
-		if ( cpos >= 0 ) {
-		    cpos = cpos + 8; //skip "charset="
-		    int i = cpos;
-		    int len = msgstr.length();
-		    while ( i < len && !msgstr[i].isSpace() )
-			i++;
-		    QString charset = msgstr.mid( cpos, i-cpos );
-		    QTextCodec *codec = QTextCodec::codecForName( charset.ascii() );
-		    if ( codec ) {
-		        debug( "PO file character set: %s. Codec: %s",
-			       charset.ascii(), codec->name() );
-			t.setCodec( codec );		
-		    } else {
-			debug( "No codec for %s", charset.ascii() );
+		while ( hasHandle( line, "\"") ) {
+		    msgid += extractContents( line );
+		    if (!t.atEnd()) {
+			t.skipWhiteSpace();
+			line = t.readLine();
 		    }
+		    else
+			line = QString::null;
 		}
 	    }
-	    firstRound = FALSE;
+	    else if ( hasHandle( line, "msgstr") ) {
+		msgstr = extractContents( line );
+		if (!t.atEnd()) {
+		    t.skipWhiteSpace();
+		    line = t.readLine();
+		}
+		else
+		    line = QString::null;
+		while ( hasHandle( line, "\"") ) {
+		    msgstr += extractContents( line );
+		    if (!t.atEnd()) {
+			t.skipWhiteSpace();
+			line = t.readLine();
+		    }
+		    else
+			line = QString::null;
+		}
+		if ( pass == 1 ) {
+		    //debug("%s --> %s", msgid.ascii(), msgstr.ascii() );
+		    addTranslation( translator, msgid, msgstr);
+		}
+		if ( pass == 0 && msgid.isEmpty() ) {
+		    // Check for the encoding.
+		    int cpos = msgstr.find( "charset=" );
+		    if ( cpos >= 0 ) {
+			cpos = cpos + 8; //skip "charset="
+			int i = cpos;
+			int len = msgstr.length();
+			while ( i < len && !msgstr[i].isSpace() )
+			    i++;
+			QString charset = msgstr.mid( cpos, i-cpos );
+			codec = QTextCodec::codecForName( charset.ascii() );
+			if ( codec ) {
+			    debug( "PO file character set: %s. Codec: %s",
+				   charset.ascii(), codec->name() );
+			} else {
+			    debug( "No codec for %s", charset.ascii() );
+			}
+		    }
+		    break;
+		}
+	    }
+	    else
+		line = QString::null;
 	}
-	else
-	    line = QString::null;
     }
     f.close();
     translator->save( qmfile );
