@@ -205,7 +205,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
 
     // ### UNDO
     if (hasTitle)
-        destPieceTable->config()->title = title;
+        destPieceTable->document()->setMetaInformation(QTextDocument::DocumentTitle, title);
 
     destPieceTable->endEditBlock();
 }
