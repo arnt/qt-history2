@@ -15,8 +15,8 @@ static const char* XTEDMSG =
 
 
 class EncapsulatedQtWidget : public QXtWidget {
-    QMultiLineEdit* mle;
 public:
+    QMultiLineEdit* mle;
     EncapsulatedQtWidget(Widget parent) :
 	QXtWidget("editor", parent, TRUE)
     {
@@ -24,8 +24,10 @@ public:
 	mle->setText(QTEDMSG);
     }
 
-    void resizeEvent(QResizeEvent*)
+    void resizeEvent(QResizeEvent* e )
     {
+	QXtWidget::resizeEvent( e );
+	qDebug("resize event %d %d ", width(), height() );
 	mle->resize(width(),height());
     }
 };
@@ -48,7 +50,6 @@ main(int argc, char** argv)
     XtSetArg(args[nargs], XtNwidth, 200);                    nargs++;
     XtSetArg(args[nargs], XtNheight, 200);                   nargs++;
     XtSetValues(qtchild.xtWidget(), args, nargs);
-
     nargs=0;
     XtSetArg(args[nargs], XtNeditType, XawtextEdit);         nargs++;
     XtSetArg(args[nargs], XtNstring, XTEDMSG);               nargs++;
@@ -60,6 +61,8 @@ main(int argc, char** argv)
 
     XtRealizeWidget(toplevel);
 
+//     XSetInputFocus( qt_xdisplay(), qtchild.mle->winId(), RevertToParent, CurrentTime );
+
 
     //XtAppMainLoop(app);
 
@@ -68,7 +71,7 @@ main(int argc, char** argv)
     XEvent xe;
     while (1)
     {
-      XtAppNextEvent(app, &xe);
-      XtDispatchEvent(&xe);
+	XtAppNextEvent(app, &xe);
+	XtDispatchEvent(&xe);
     }
 }

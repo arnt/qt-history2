@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.h#6 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.h#7 $
 **
 ** Definition of Qt extension classes for Xt/Motif support.
 **
@@ -38,13 +38,12 @@ public:
 	const char** resources=0);
     QXtApplication(Display*);
     ~QXtApplication();
-
-    bool x11EventFilter(XEvent*);
 };
 
 class QXtWidget : public QWidget {
     Q_OBJECT
     Widget xtw;
+    Widget xtparent;
     bool   need_reroot;
     void init(const char* name, WidgetClass widget_class,
 		    Widget parent, QWidget* qparent,
@@ -58,19 +57,20 @@ class QXtWidget : public QWidget {
 public:
     QXtWidget(const char* name, Widget parent, bool managed=FALSE);
     QXtWidget(const char* name, WidgetClass widget_class,
-	      QXtWidget *parent=0, ArgList args=0, Cardinal num_args=0,
+	      QWidget *parent=0, ArgList args=0, Cardinal num_args=0,
 	      bool managed=FALSE);
-    QXtWidget(QWidget *parent, const char* name);
     ~QXtWidget();
 
     Widget xtWidget() const { return xtw; }
-
-    void setGeometry( int x, int y, int w, int h );
-    void setGeometry( const QRect & );
+    bool isActiveWindow() const;
 
 protected:
-    bool x11Event( XEvent* );
+    void enterEvent(QEvent*);
     void leaveEvent(QEvent*);
+    void focusInEvent( QFocusEvent * );
+    void focusOutEvent( QFocusEvent * );
+    void moveEvent( QMoveEvent* );
+    void resizeEvent( QResizeEvent* );
 };
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $
+** $Id: examples.doc,v 1.2 1999/07/02 19:42:02 ettrich Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $";
+static char ident[] = "$Id: examples.doc,v 1.2 1999/07/02 19:42:02 ettrich Exp $";
 #endif
 
 
@@ -19,7 +19,7 @@ static char ident[] = "$Id: examples.doc,v 1.1 1998/01/07 22:04:46 warwick Exp $
   This example shows two simple text editors, with most of the
   program written in Qt.  One editor is a Qt QMultiLineEdit, the
   other is an Athena Widgets text widget.  They are bound together
-  in a Qt widget.
+  in a Qt main window.
 */
 
 /*! \example mainlyXt/editor.cpp

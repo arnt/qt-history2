@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#8 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#9 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -40,6 +40,13 @@
 #include <X11/StringDefs.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+
+const int XKeyPress = KeyPress;
+const int XKeyRelease = KeyRelease;
+#undef KeyPress
+#undef KeyRelease
+
+extern Atom qt_wm_state;
 
 //#define HAVE_MOTIF
 #ifdef HAVE_MOTIF
@@ -101,41 +108,27 @@ typedef struct _QWidgetRec {
     QWidgetPart	qwidget;
 } QWidgetRec;
 
-class QFixableWidget : public QWidget {
-public:
-    void fix()
-    {
-	QRect g = geometry();
-	QColor bg = backgroundColor();
-	bool mt = hasMouseTracking();
-	QCursor curs = cursor();
-	clearWFlags( WState_Created );
-	clearWFlags( WState_Visible );
-	create( 0, FALSE, FALSE );
-	setGeometry(g);
-	setBackgroundColor( bg );
-	setMouseTracking( mt );
-	setCursor( curs );
-    }
-};
 
 static
-void createNewWindowsForAllChildren(QWidget* parent)
+void reparentChildrenOf(QWidget* parent)
 {
-    QObjectList* list = parent->queryList("QWidget", 0, FALSE, FALSE);
-
-    if ( list ) {
-	QObjectListIt it( *list );
-	QFixableWidget* c;
-	while ( (c = (QFixableWidget*)it.current()) ) {
-	    bool vis = c->isVisible();
-	    c->fix();
-	    createNewWindowsForAllChildren(c);
-	    if ( vis ) c->show(); // Now that all children are valid.
-	    ++it;
+    
+    if ( !parent->children() )
+	return; // nothing to do
+    
+    for ( QObjectListIt it( *parent->children() ); it.current(); ++it ) {
+	if ( it.current()->isWidgetType() ) {
+	    QWidget* widget = (QWidget*)it.current();
+	    XReparentWindow( qt_xdisplay(), 
+			     widget->winId(),
+			     parent->winId(), 
+			     widget->x(),
+			     widget->y() );
+	    if ( widget->isVisible() )
+		XMapWindow( qt_xdisplay(), widget->winId() );
 	}
-	delete list;
     }
+    
 }
 
 void qwidget_realize(
@@ -148,9 +141,10 @@ void qwidget_realize(
     QXtWidget* qxtw = ((QWidgetRec*)widget)->qwidget.qxtwidget;
     if (XtWindow(widget) != qxtw->winId()) {
 	qxtw->create(XtWindow(widget), FALSE, FALSE);
-	createNewWindowsForAllChildren(qxtw);
+	reparentChildrenOf(qxtw);
     }
     qxtw->show();
+    XMapWindow( qt_xdisplay(), qxtw->winId() );
 }
 
 static
@@ -231,7 +225,7 @@ void np_event_proc( XEvent* e )
     Widget xtw = XtWindowToWidget( e->xany.display, e->xany.window );
     if ( xtw ) {
 	// Allow Xt to process the event
-	//qt_np_cascade_event_handler[e->type]( e );
+	qt_np_cascade_event_handler[e->type]( e );
     }
 }
 
@@ -322,9 +316,12 @@ QXtApplication::~QXtApplication()
     ASSERT(qxtapp==this);
     removeXtEventFilters();
     qxtapp = 0;
-    if (my_xt) {
-	XtDestroyApplicationContext(appcon);
-    }
+
+    // the manpage says: "or just exit", that's what we do to avoid
+    // double closing of the display
+//     if (my_xt) {
+//  	XtDestroyApplicationContext(appcon);
+//      }
 }
 
 void QXtApplication::init()
@@ -336,18 +333,6 @@ void QXtApplication::init()
     qt_np_add_timer_setter(np_set_timer);
     qt_np_add_event_proc(np_event_proc);
     qt_np_count++;
-}
-
-/*!
-  Reimplemented to pass client messages to Xt.
-*/
-bool QXtApplication::x11EventFilter(XEvent* ev)
-{
-    if ( ev->type == ClientMessage ) {
-	// #### needed?
-	//qt_np_cascade_event_handler[ev->type](ev);
-    }
-    return QApplication::x11EventFilter(ev);
 }
 
 
@@ -370,34 +355,13 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 		    bool managed)
 {
     need_reroot=FALSE;
+    xtparent = 0;
     if (parent ) {
 	ASSERT(!qparent);
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
+	xtparent = parent;
 	if (managed)
 	    XtManageChild(xtw);
-    } else if ( qparent ) {
-	ASSERT(!managed);
-	ASSERT(!widget_class);
-	String n, c;
-	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
-	Arg args[10];
-	int i=0;
-	XtSetArg(args[i], XtNwidth, 100); i++;
-	XtSetArg(args[i], XtNheight, 100); i++;
-	XtSetArg(args[i], XtNoverrideRedirect, True); i++;
-	XtSetArg(args[i], XtNmappedWhenManaged, False); i++;
-	XtSetArg(args[i], XtNvisual, QPaintDevice::x11Visual()); i++;
-	XtSetArg(args[i], XtNcolormap, QPaintDevice::x11Colormap()); i++;
-	XtSetArg(args[i], XtNdepth,  QPaintDevice::x11Depth()); i++;
-	xtw=XtAppCreateShell("coolwidget", "coolwidget",
-				topLevelShellWidgetClass,
-				qt_xdisplay(), args, i);
-	XtRealizeWidget(xtw);
-	XSync(qt_xdisplay(), False);    // I want all windows to be created now
-	XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(), x(), y());
-	XtSetMappedWhenManaged(xtw, True);
-	XtMapWidget(xtw);
-	need_reroot=TRUE;
     } else {
 	ASSERT(!managed);
 
@@ -405,6 +369,16 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
 	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),
 			       args, num_args);
+    }
+
+    if ( qparent ) {
+	XtResizeWidget( xtw, 100, 100, 0 );
+	XtSetMappedWhenManaged(xtw, False);
+	XtRealizeWidget(xtw);
+	XSync(qt_xdisplay(), False);    // I want all windows to be created now
+	XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(), x(), y());
+	XtSetMappedWhenManaged(xtw, True);
+	need_reroot=TRUE;
     }
 
     Arg reqargs[20];
@@ -431,7 +405,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   subwidgets, layouts, etc. using Qt functionality.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
-    QWidget(0, name)
+    QWidget( 0, name, WResizeNoErase )
 {
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
     ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
@@ -447,33 +421,28 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed) :
   Use this constructor to utilize Xt or Motif widgets in a Qt
   application.  The QXtWidget looks and behaves
   like the Xt class, but can be used like any QWidget.
+  
+  Note that Xt requires that the most toplevel Xt widget is a shell.
+  That means, if \a parent is a QXtWidget, the \a widget_class can be
+  of any kind. If there isn't a parent or the parent is just a normal
+  QWidget, \a widget_class should be something like \c
+  topLevelShellWidgetClass. 
 
   If the \a managed parameter is TRUE and \a parent in not NULL,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
-		     QXtWidget *parent, ArgList args, Cardinal num_args,
+		     QWidget *parent, ArgList args, Cardinal num_args,
 		     bool managed) :
-    QWidget(parent, name)
+    QWidget( parent, name, WResizeNoErase )
 {
-    init(name, widget_class, parent ? parent->xtw : 0, 0, args, num_args, managed);
+    if ( !parent )
+	init(name, widget_class, 0, 0, args, num_args, managed);
+    else if ( parent->inherits("QXtWidget") )
+	init(name, widget_class, ( (QXtWidget*)parent)->xtw , 0, args, num_args, managed);
+    else
+	init(name, widget_class, 0, parent, args, num_args, managed);
     create(XtWindow(xtw), FALSE, FALSE);
-}
-
-/*!
-  Constructs a QXtWidget of the given \a widget_class.
-
-  Use this constructor to utilize Xt or Motif widgets in a Qt
-  application.  The QXtWidget looks and behaves
-  like the Xt class, but can be used like any QWidget.
-
-  The widget is unmanaged (in the Xt sense).
-*/
-QXtWidget::QXtWidget(QWidget *parent, const char* name) :
-    QWidget(parent, name)
-{
-    init(name, 0, 0, parent, 0, 0, FALSE);
-    create(parent->winId(), FALSE, FALSE);
 }
 
 /*!
@@ -509,48 +478,122 @@ QXtWidget::~QXtWidget()
   Returns the Xt widget equivalent for the Qt widget.
 */
 
-/*!
-  Reimplemented to pass the new geometry to Xt via XtSetValues().
-*/
-void QXtWidget::setGeometry( int x, int y, int w, int h )
-{
-    QWidget::setGeometry(x,y,w,h);
 
-    Arg args[20];
-    Cardinal nargs=0;
-    XtSetArg(args[nargs], XtNx, x);       nargs++;
-    XtSetArg(args[nargs], XtNy, y);       nargs++;
-    XtSetArg(args[nargs], XtNwidth, w);   nargs++;
-    XtSetArg(args[nargs], XtNheight, h);  nargs++;
-    XtSetValues(xtw, args, nargs);
+
+/*!
+  Reimplemented to produce the Xt effect of getting focus when the
+  mouse enters the widget. <em>This may be changed.</em>
+*/
+void QXtWidget::enterEvent(QEvent* ev)
+{
+    QWidget::enterEvent(ev);
+    if ( isFocusEnabled() )
+	setFocus();
+    else
+	focusNextPrevChild( TRUE );
+    if ( focusWidget() )
+	focusWidget()->setFocus();
+    else
+	setFocus();
+    if  ( xtparent ) {
+	if ( !QWidget::isActiveWindow() && isActiveWindow() ) {
+	    XFocusChangeEvent e;
+	    e.type = FocusIn;
+	    e.window = winId();
+	    e.mode = NotifyNormal;
+	    e.detail = NotifyPointerRoot;
+	    XSendEvent( qt_xdisplay(), e.window, TRUE, NoEventMask, (XEvent*)&e );
+	}
+    }
 }
 
 /*!
-  Reimplemented to pass the new geometry to Xt via XtSetValues().
-*/
-void QXtWidget::setGeometry( const QRect & r )
+  Different from QWidget::isActiveWindow()
+ */
+bool QXtWidget::isActiveWindow() const
 {
-    QWidget::setGeometry(r);
+    Window win;
+    int revert;
+    XGetInputFocus( qt_xdisplay(), &win, &revert );
+
+    if ( win == None) return FALSE;
+
+    QWidget *w = find( (WId)win );
+    if ( w ) {
+	// We know that window
+	return w->topLevelWidget() == topLevelWidget();
+    } else {
+	// Window still may be a parent (if top-level is foreign window)
+	Window root, parent;
+	Window cursor = winId();
+	Window *ch;
+	unsigned int nch;
+	while ( XQueryTree(qt_xdisplay(), cursor, &root, &parent, &ch, &nch) ) {
+	    if (ch) XFree( (char*)ch);
+	    if ( parent == win ) return TRUE;
+	    if ( parent == root ) return FALSE;
+	    cursor = parent;
+	}
+	return FALSE;
+    }
 }
 
-/*!
-  Reimplemented to pass events to Xt.
-*/
-bool QXtWidget::x11Event( XEvent* ev )
-{
-    qt_np_cascade_event_handler[ev->type]( ev );
-    return QWidget::x11Event(ev); // ### Should we always do it?
-}
-
-/*!
-  Reimplemented to produce the Xt effect of losing focus when the
-  mouse goes out of the widget. <em>This may be changed.</em>
+/*!\reimp
 */
 void QXtWidget::leaveEvent( QEvent* ev )
 {
-    // Xt-style:  focus-follows-mouse-out-of-widget
-    //QWidget * fw = qApp->focusWidget();
-    //if (fw) fw->clearFocus();
-
     QWidget::leaveEvent(ev);
 }
+
+/*!\reimp
+ */
+void QXtWidget::focusInEvent( QFocusEvent * )
+{
+}
+
+/*!\reimp
+ */
+void QXtWidget::focusOutEvent( QFocusEvent * )
+{
+}
+
+/*!\reimp
+ */
+void QXtWidget::moveEvent( QMoveEvent* )
+{
+    if ( xtparent )
+	return;
+    XConfigureEvent c;
+    c.type = ConfigureNotify;
+    c.event = winId();
+    c.window = winId();
+    c.x = x();
+    c.y = y();
+    c.width = width();
+    c.height = height();
+    c.border_width = 0;
+    XSendEvent( qt_xdisplay(), c.event, TRUE, NoEventMask, (XEvent*)&c );
+    XtMoveWidget( xtw, x(), y() );
+}
+
+/*!\reimp
+ */
+void QXtWidget::resizeEvent( QResizeEvent* )
+{
+    if ( xtparent )
+	return;
+    XtWidgetGeometry preferred;
+    (void ) XtQueryGeometry( xtw, 0, &preferred );
+    XConfigureEvent c;
+    c.type = ConfigureNotify;
+    c.event = winId();
+    c.window = winId();
+    c.x = x();
+    c.y = y();
+    c.width = width();
+    c.height = height();
+    c.border_width = 0;
+    XSendEvent( qt_xdisplay(), c.event, TRUE, NoEventMask, (XEvent*)&c );
+    XtResizeWidget( xtw, width(), height(), preferred.border_width );
+}
+
