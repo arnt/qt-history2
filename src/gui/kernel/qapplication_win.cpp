@@ -2813,6 +2813,10 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
             }
         }
 
+        if(msg.wParam == VK_PROCESSKEY)
+            // the IME will process these
+            return true;
+
         int code = translateKeyCode(msg.wParam);
         // Invert state logic
         if (code == Qt::Key_Alt)
