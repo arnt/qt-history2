@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#85 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#85 $");
 
 
 /*!
@@ -164,7 +164,7 @@ QFont::QFont()
   \e weight and \e italic settings.  The \link charSet() character set
   \endlink is copied from the \link defaultFont() default font
   \endlink and the rest of the settings ser set reasonably.
-  
+
   If \e pointSize is less than or equal to 0 it is set to 1.
 
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
@@ -1827,3 +1827,15 @@ QSize QFontMetrics::size( int flags, const char *str, int len, int tabstops,
     return boundingRect(0,0,1,1,flags,str,len,tabstops,tabarray,intern).size();
 }
 
+
+/*!  Returns TRUE if this font and \a f are copies of each other,
+  ie. one of them was created as a copy of the other and neither was
+  subsequently modified.  This is much stricter than equality.
+  
+  \sa operator=, operator==
+*/
+
+bool QFont::isCopyOf( const QFont & f ) const
+{
+    return d && d == f.d;
+}

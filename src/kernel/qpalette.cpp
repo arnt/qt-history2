@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#16 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#16 $");
 
 
 /*****************************************************************************
@@ -248,7 +248,7 @@ QPalette::QPalette( const QColorGroup &normal, const QColorGroup &disabled,
 }
 
 /*!
-  Constructs a palette that is a 
+  Constructs a palette that is a
   \link shclass.html shallow copy\endlink of \e p.
   \sa copy()
 */
@@ -286,7 +286,7 @@ QPalette &QPalette::operator=( const QPalette &p )
 
 
 /*!
-  Returns a 
+  Returns a
   \link shclass.html deep copy\endlink of the palette.
 */
 
@@ -481,4 +481,17 @@ QDataStream &operator>>( QDataStream &s, QPalette &p )
     QPalette newpal( normal, disabled, active );
     p = newpal;
     return s;
+}
+
+
+/*!  Returns TRUE if this palette and \a p are copies of each other,
+  ie. one of them was created as a copy of the other and neither was
+  subsequently modified.  This is much stricter than equality.
+  
+  \sa operator=, operator==
+*/
+
+bool QPalette::isCopyOf( const QPalette & p )
+{
+    return data && data == p.data;
 }

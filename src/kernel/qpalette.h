@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#27 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -75,6 +75,7 @@ public:
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
 					{ return !(operator==(p)); }
+    bool	isCopyOf( const QPalette & );
 
     int		serialNumber() const	{ return data->ser_no; }
 
