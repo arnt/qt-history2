@@ -1607,9 +1607,6 @@ void qt_span_solidfill(int y, int count, FT_Span *spans, void *userData)
 }
 
 
-
-
-
 void qt_span_texturefill(int y, int count, FT_Span *spans, void *userData)
 {
     TextureFillData *data = reinterpret_cast<TextureFillData *>(userData);
@@ -1634,12 +1631,14 @@ void qt_span_texturefill(int y, int count, FT_Span *spans, void *userData)
             int span_len = spans->len;
             while (span_len > 0) {
                 int image_x = (span_x + xoff) % image_width;
-                int image_len = qMin(image_width - image_x, span_len);
-                Q_ASSERT(image_x + image_len <= rb->width());
-                memcpy(target, scanline + image_x, image_len * sizeof(ARGB));
-                span_x += image_len;
-                span_len -= image_len;
-                target += image_len;
+                int len = qMin(image_width - image_x, span_len);
+                Q_ASSERT(image_x >= 0);
+                Q_ASSERT(image_x + len <= image_width); // inclusive since it is used as upper bound.
+                Q_ASSERT(span_x + len <= rb->width());
+                memcpy(target, scanline + image_x, len * sizeof(ARGB));
+                span_x += len;
+                span_len -= len;
+                target += len;
             }
         } else {
             for (int i=spans->x; i<spans->x + spans->len; ++i) {
