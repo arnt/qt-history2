@@ -24,6 +24,7 @@
 #include "qregion.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qpaintengine.h"
 #include <private/qabstractslider_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -83,7 +84,8 @@ void QDialPrivate::repaintScreen()
 {
     QPainter p;
     p.begin(q);
-    p.setRenderHint(QPainter::Antialiasing);
+    if (q->paintEngine()->hasFeature(QPaintEngine::LineAntialiasing)) // avoid dithering
+        p.setRenderHint(QPainter::Antialiasing);
 
     int width = q->width();
     int height = q->height();
