@@ -8,6 +8,9 @@
 #include <qdialog.h>
 #include <qlcdnumber.h>
 #include <qlayout.h>
+#include <qlistbox.h>
+#include <qwindowsstyle.h>
+#include <qsgistyle.h>
 
 class TestInterface;
 
@@ -47,6 +50,8 @@ protected:
 private slots:
     void startThread();
     void countWidgets();
+    void actionWindowsStyle();
+    void actionSGIStyle();
 
 private:
     QGuardedCleanupHandler<QAction> actions;
@@ -83,8 +88,24 @@ QStringList TestInterface::featureList() const
     QStringList list;
     list << "Start Thread";
     list << "Count Widgets";
+    list << "Set Style";
     return list;
 }
+
+/* XPM */
+static const char * const editmark_xpm[] ={
+"12 8 2 1",
+". c None",
+"c c #ff0000",
+".........ccc",
+"........ccc.",
+".......ccc..",
+"ccc...ccc...",
+".ccc.ccc....",
+"..ccccc.....",
+"...ccc......",
+"....c.......",
+};
 
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
@@ -98,6 +119,17 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	connect( a, SIGNAL(activated()), this, SLOT(countWidgets()) );
 	actions.add( a );
 	return a;
+    } else if ( actionname == "Set Style" ) {
+	QActionGroup *ag = new QActionGroup( parent, 0 );
+	ag->setToolBarMode( QActionGroup::MenuButton );
+
+	QAction *a = new QAction( "Windows", QIconSet( (const char**)editmark_xpm ), "&Windows", 0, ag );
+	connect( a, SIGNAL( activated() ), this, SLOT(actionWindowsStyle()) );
+	QAction *b = new QAction( "SGI", QIconSet(), "&SGI", 0, ag );
+	connect( b, SIGNAL( activated() ), this, SLOT(actionSGIStyle()) );
+
+	actions.add( ag );
+	return ag;	
     }
 
     return 0;
@@ -125,6 +157,16 @@ void TestInterface::countWidgets()
     DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)applicationInterface()->queryInterface( "*DesignerStatusBarInterface" );
     sbIface->requestSetProperty( "message", tr("There are %1 widgets in this form").arg( c ) );
     sbIface->release();
+}
+
+void TestInterface::actionWindowsStyle()
+{
+    QApplication::setStyle( new QWindowsStyle );
+}
+
+void TestInterface::actionSGIStyle()
+{
+    QApplication::setStyle( new QSGIStyle );
 }
 
 void TestInterface::startThread()
