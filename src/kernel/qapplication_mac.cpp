@@ -1425,7 +1425,11 @@ int QApplication::macProcessEvent(MSG * m)
 			w->setFocus();
 			QFocusEvent::resetReason();
 		    }
-		    widget->topLevelWidget()->raise();
+		    if(QWidget *tlw = widget->topLevelWidget()) {
+			tlw->raise();
+			if(active_window != tlw)
+			    setActiveWindow(tlw);
+		    }
 		}
 
 		QPoint p( er->where.h, er->where.v );
