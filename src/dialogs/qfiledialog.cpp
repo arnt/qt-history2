@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#376 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#377 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2371,6 +2371,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
 					parent, name, TRUE );
     CHECK_PTR( dlg );
+    dlg->clearWState( WState_Modal );
     dlg->setCaption( QFileDialog::tr( "Open" ) );
     dlg->setFilters( filters );
     dlg->setMode( QFileDialog::ExistingFile );

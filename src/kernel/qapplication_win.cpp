@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#339 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#340 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -113,7 +113,7 @@ static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
 
 static bool	app_do_modal	   = FALSE;	// modal mode
-static QWidgetList *modal_stack    = 0;		// stack of modal widgets
+extern QWidgetList *qt_modal_stack;
 static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
@@ -1608,12 +1608,12 @@ bool qt_modal_state()
 
 void qt_enter_modal( QWidget *widget )
 {
-    if ( !modal_stack ) {			// create modal stack
-	modal_stack = new QWidgetList;
-	CHECK_PTR( modal_stack );
+    if ( !qt_modal_stack ) {			// create modal stack
+	qt_modal_stack = new QWidgetList;
+	CHECK_PTR( qt_modal_stack );
     }
     releaseAutoCapture();
-    modal_stack->insert( 0, widget );
+    qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
     QWidget *w = QWidget::find( (WId)curWin );
     if ( w ) { // send synthetic leave event
@@ -1625,10 +1625,10 @@ void qt_enter_modal( QWidget *widget )
 
 void qt_leave_modal( QWidget *widget )
 {
-    if ( modal_stack && modal_stack->removeRef(widget) ) {
-	if ( modal_stack->isEmpty() ) {
-	    delete modal_stack;
-	    modal_stack = 0;
+    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+	if ( qt_modal_stack->isEmpty() ) {
+	    delete qt_modal_stack;
+	    qt_modal_stack = 0;
 	    QPoint p( QCursor::pos() );
 	    app_do_modal = FALSE; // necessary, we may get recursively into qt_try_modal below
 	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
@@ -1639,7 +1639,7 @@ void qt_leave_modal( QWidget *widget )
 	    }
 	}
     }
-    app_do_modal = modal_stack != 0;
+    app_do_modal = qt_modal_stack != 0;
 }
 
 static bool qt_blocked_modal( QWidget *widget )
@@ -1651,12 +1651,12 @@ static bool qt_blocked_modal( QWidget *widget )
     if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return FALSE;
 
-    QWidget *modal=0, *top=modal_stack->getFirst();
+    QWidget *modal=0, *top=qt_modal_stack->getFirst();
 
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
-    if ( modal == top )				// don't block event
+    if ( !top || modal == top )				// don't block event
 	return FALSE;
     return TRUE;
 }
@@ -1668,7 +1668,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
-    QWidget *modal=0, *top=modal_stack->getFirst();
+    QWidget *modal=0, *top=QApplication::activeModalWidget();
     int	 type  = msg->message;
 
     widget = widget->topLevelWidget();
@@ -1681,15 +1681,15 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 #ifdef ALLOW_NON_APPLICATION_MODAL
     if ( top && top->parentWidget() ) {
 	// Not application-modal
-	// Does widget have a child in modal_stack?
+	// Does widget have a child in qt_modal_stack?
 	bool unrelated = TRUE;
-	modal = modal_stack->first();
+	modal = qt_modal_stack->first();
 	while (modal && unrelated) {
 	    QWidget* p = modal->parentWidget();
 	    while ( p && p != widget ) {
 		p = p->parentWidget();
 	    }
-	    modal = modal_stack->next();
+	    modal = qt_modal_stack->next();
 	    if ( p ) unrelated = FALSE;
 	}
 	if ( unrelated ) return TRUE;		// don't block event
@@ -1799,23 +1799,6 @@ void QApplication::closePopup( QWidget *popup )
 	     active_window->setFocus();
 	 QFocusEvent::resetReason();
     }
-}
-
-
-/*****************************************************************************
-  Functions returning the active popup and modal widgets.
- *****************************************************************************/
-
-
-QWidget *QApplication::activePopupWidget()
-{
-    return popupWidgets ? popupWidgets->getLast() : 0;
-}
-
-
-QWidget *QApplication::activeModalWidget()
-{
-    return modal_stack ? modal_stack->getLast() : 0;
 }
 
 

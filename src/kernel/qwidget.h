@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#250 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#251 $
 **
 ** Definition of QWidget class
 **
@@ -650,6 +650,8 @@ struct QTLWExtra {
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     wmstate: 2;			// wmstate trigger
     uint     dnd : 1; 				// DND properties installed
+    uint     uspos : 1;				// User defined position
+    uint     ussize : 1;				// User defined size
     void    *xic;				// XIM Input Context
 #endif
 #if defined(_WS_WIN_)

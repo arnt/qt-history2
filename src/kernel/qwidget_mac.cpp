@@ -207,7 +207,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
   back_type=1;
   WId root_win=0;
   setWState( WState_Created );                        // set created flag
-  clearWState( WState_USPositionX );
+//   clearWState( WState_USPositionX ); // #### Matthias
 
   if ( !parentWidget() )
     setWFlags( WType_TopLevel );            // top-level widget
@@ -669,7 +669,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     }
     QRect  r( x, y, w, h );
     if ( r.size() == olds && oldp == r.topLeft() &&
-         (isTopLevel() == FALSE || testWState(WState_USPositionX)) ) {
+         (isTopLevel() == FALSE /* || testWState(WState_USPositionX)*/ )  ) { // #### Matthias
         //printf("USpositionX thingy\n");
         //getchar();
         return;

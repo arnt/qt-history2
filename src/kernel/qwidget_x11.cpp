@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#415 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#416 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -139,7 +139,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWState(WState_Created) && window == 0 )
 	return;
     setWState( WState_Created );			// set created flag
-    clearWState( WState_USPositionX );
     setX11Data( 0 );
 
     if ( !parentWidget() )
@@ -576,7 +575,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
   In the X11 version of Qt, if \a text is TRUE, this method sets the
   XIM "spot" point for complex language input handling.
-  
+
   \sa microFocusHint()
 */
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
@@ -1410,40 +1409,48 @@ void QWidget::lower()
 
 int qwidget_tlw_gravity = 1;
 
-static void do_size_hints( QWidget* widget, QWExtra *x, XSizeHints *s )
+static void do_size_hints( QWidget* widget, QWExtra *x )
 {
+    XSizeHints s;
+    s.flags = 0;
     if ( x ) {
-	s->x = widget->x();
-	s->y = widget->y();
+	s.x = widget->x();
+	s.y = widget->y();
+	s.width = widget->width();
+	s.height = widget->height();
 	if ( x->minw > 0 || x->minh > 0 ) {	// add minimum size hints
-	    s->flags |= PMinSize;
-	    s->min_width  = x->minw;
-	    s->min_height = x->minh;
+	    s.flags |= PMinSize;
+	    s.min_width  = x->minw;
+	    s.min_height = x->minh;
 	}
 	if ( x->maxw < QWIDGETSIZE_MAX || x->maxh < QWIDGETSIZE_MAX ) {
-	    s->flags |= PMaxSize;		// add maximum size hints
-	    s->max_width  = x->maxw;
-	    s->max_height = x->maxh;
+	    s.flags |= PMaxSize;		// add maximum size hints
+	    s.max_width  = x->maxw;
+	    s.max_height = x->maxh;
 	}
 	if ( x->topextra &&
 	   (x->topextra->incw > 0 || x->topextra->inch > 0) )
 	{					// add resize increment hints
-	    s->flags |= PResizeInc | PBaseSize;
-	    s->width_inc = x->topextra->incw;
-	    s->height_inc = x->topextra->inch;
-	    s->base_width = x->topextra->basew;
-	    s->base_height = x->topextra->baseh;
+	    s.flags |= PResizeInc | PBaseSize;
+	    s.width_inc = x->topextra->incw;
+	    s.height_inc = x->topextra->inch;
+	    s.base_width = x->topextra->basew;
+	    s.base_height = x->topextra->baseh;
 	}
 	
-	if ( widget->testWState(Qt::WState_USPositionX) ) {
-	    s->flags |= USPosition;
-	    s->flags |= PPosition;
+	if ( x->topextra && x->topextra->uspos) {
+	    s.flags |= USPosition;
+	    s.flags |= PPosition;
+	}
+	if ( x->topextra && x->topextra->ussize) {
+	    s.flags |= USSize;
+	    s.flags |= PSize;
 	}
     }
-    s->flags |= PWinGravity;
-    s->win_gravity = qwidget_tlw_gravity;	// usually NorthWest (1)
+    s.flags |= PWinGravity;
+    s.win_gravity = qwidget_tlw_gravity;	// usually NorthWest (1)
     qwidget_tlw_gravity = 1;			// reset in case it was set
-    XSetWMNormalHints( widget->x11Display(), widget->winId(), s );
+    XSetWMNormalHints( widget->x11Display(), widget->winId(), &s );
 }
 
 
@@ -1475,22 +1482,20 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     setCRect( r );
 
+    bool isResize = size() != oldSize;
+
     if ( isTopLevel() ) {
-	XSizeHints size_hints;
-	size_hints.flags = USSize | PSize;
 	if ( isMove )
-	    setWState(WState_USPositionX);
-	size_hints.width = w;
-	size_hints.height = h;
-	do_size_hints( this, extra, &size_hints );
+	    topData()->uspos = 1;
+	if ( isResize )
+	    topData()->ussize = 1;
+	do_size_hints( this, extra );
     }
 
     if ( isMove )
 	XMoveResizeWindow( dpy, winid, x, y, w, h );
     else
 	XResizeWindow( dpy, winid, w, h );
-
-    bool isResize = size() != oldSize;
 
     if ( isVisible() ) {
 	if ( isMove && pos() != oldPos ) {
@@ -1543,11 +1548,8 @@ void QWidget::setMinimumSize( int minw, int minh )
     extra->minh = minh;
     if ( minw > width() || minh > height() )
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
-    if ( testWFlags(WType_TopLevel) ) {
-	XSizeHints size_hints;
-	size_hints.flags = 0;
-	do_size_hints( this, extra, &size_hints );
-    }
+    if ( testWFlags(WType_TopLevel) )
+	do_size_hints( this, extra );
     updateGeometry();
 }
 
@@ -1591,11 +1593,8 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     extra->maxh = maxh;
     if ( maxw < width() || maxh < height() )
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
-    if ( testWFlags(WType_TopLevel) ) {
-	XSizeHints size_hints;
-	size_hints.flags = 0;
-	do_size_hints( this, extra, &size_hints );
-    }
+    if ( testWFlags(WType_TopLevel) )
+	do_size_hints( this, extra );
     updateGeometry();
 }
 
@@ -1625,11 +1624,8 @@ void QWidget::setSizeIncrement( int w, int h )
 	return;
     x->incw = w;
     x->inch = h;
-    if ( testWFlags(WType_TopLevel) ) {
-	XSizeHints size_hints;
-	size_hints.flags = 0;
-	do_size_hints( this, extra, &size_hints );
-    }
+    if ( testWFlags(WType_TopLevel) )
+	do_size_hints( this, extra );
 }
 /*!
   \overload void QWidget::setSizeIncrement( const QSize& )
@@ -1651,11 +1647,8 @@ void QWidget::setBaseSize( int basew, int baseh )
 	return;
     x->basew = basew;
     x->baseh = baseh;
-    if ( testWFlags(WType_TopLevel) ) {
-	XSizeHints size_hints;
-	size_hints.flags = 0;
-	do_size_hints( this, extra, &size_hints );
-    }
+    if ( testWFlags(WType_TopLevel) )
+	do_size_hints( this, extra );
 }
 
 

@@ -32,7 +32,7 @@ SockList * thesocs=0;
 
 static bool app_do_modal=FALSE;
 static bool app_exit_loop=FALSE;
-static QWidgetList * modal_stack=0;
+extern QWidgetList * qt_modal_stack;
 static QWidget * popupOfPopupButtonFocus=0;
 static QWidget * popupButtonFocus=0;
 static bool popupCloseDownMode=FALSE;
@@ -620,12 +620,6 @@ void QApplication::closePopup(QWidget * popup)
     }
 }
 
-QWidget * QApplication::activePopupWidget()
-{
-  printf("%s %d\n",__FILE__,__LINE__);
-  return popupWidgets ? popupWidgets->getLast() : 0;
-}
-
 void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 {
   printf("%s %d\n",__FILE__,__LINE__);
@@ -681,12 +675,6 @@ void * qt_xdisplay()
 void qAddPostRoutine(Q_CleanUpFunction p)
 {
   printf("%s %d\n",__FILE__,__LINE__);
-}
-
-QWidget * QApplication::activeModalWidget()
-{
-  printf("%s %d\n",__FILE__,__LINE__);
-  return modal_stack ? modal_stack->getLast() : 0;
 }
 
 void QApplication::setGlobalMouseTracking( bool enable )
@@ -752,11 +740,11 @@ int qStartTimer( int interval, QObject *obj )
 void qt_enter_modal( QWidget *widget )
 {
   printf("%s %d\n",__FILE__,__LINE__);
-    if ( !modal_stack ) {                       // create modal stack
-        modal_stack = new QWidgetList;
-        CHECK_PTR( modal_stack );
+    if ( !qt_modal_stack ) {                       // create modal stack
+        qt_modal_stack = new QWidgetList;
+        CHECK_PTR( qt_modal_stack );
     }
-    modal_stack->insert( 0, widget );
+    qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
 }
 
@@ -769,13 +757,13 @@ bool qt_modal_state()
 void qt_leave_modal( QWidget *widget )
 {
   printf("%s %d\n",__FILE__,__LINE__);
-    if ( modal_stack && modal_stack->removeRef(widget) ) {
-        if ( modal_stack->isEmpty() ) {
-            delete modal_stack;
-            modal_stack = 0;
+    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+        if ( qt_modal_stack->isEmpty() ) {
+            delete qt_modal_stack;
+            qt_modal_stack = 0;
         }
     }
-    app_do_modal = modal_stack != 0;
+    app_do_modal = qt_modal_stack != 0;
 }
 
 void qt_init( int *argcptr, char **argv )

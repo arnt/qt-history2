@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#492 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#493 $
 **
 ** Implementation of QWidget class
 **
@@ -507,7 +507,9 @@ static QFont default_font( QWidget *parent )
   <dt>WState_AutoMask<dd> The widget has an automatic mask, see setAutoMask().
   <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
   <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
-  <dt>WState_USPositionX<dd> X11 only: Set the USPosition size hint.
+  <dt>WState_Modal<dd> Only for WType_Modal. Defines whether the widget is 
+        actually performing  modality when shown. Modality can be switched on/off with 
+        this flag.
   <dt>WState_PaletteSet<dd> The palette has been set.
   <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
   <dt>WState_FontSet<dd> The font has been set.
@@ -677,6 +679,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
     if ( isTopLevel() ) {
+	if ( testWFlags( WType_Modal ) )
+	    setWState( WState_Modal ); // default for modal windows is to be modal
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
 	    fd->focusWidgets.append( this );
@@ -3909,7 +3913,7 @@ void QWidget::focusOutEvent( QFocusEvent * )
 
 /*!
   Returns the currently set micro focus hint for this widget.
-  
+
   \sa setMicroFocusHint()
  */
 QRect QWidget::microFocusHint() const

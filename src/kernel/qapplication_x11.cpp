@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#593 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#594 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -217,7 +217,7 @@ static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
-static QWidgetList *modal_stack  = 0;		// stack of modal widgets
+extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
@@ -2679,11 +2679,11 @@ bool qt_modal_state()
 
 void qt_enter_modal( QWidget *widget )
 {
-    if ( !modal_stack ) {			// create modal stack
-	modal_stack = new QWidgetList;
-	CHECK_PTR( modal_stack );
+    if ( !qt_modal_stack ) {			// create modal stack
+	qt_modal_stack = new QWidgetList;
+	CHECK_PTR( qt_modal_stack );
     }
-    modal_stack->insert( 0, widget );
+    qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
     QWidget *w = QWidget::find( (WId)curWin );
     if ( w ) { // send synthetic leave event
@@ -2695,10 +2695,10 @@ void qt_enter_modal( QWidget *widget )
 
 void qt_leave_modal( QWidget *widget )
 {
-    if ( modal_stack && modal_stack->removeRef(widget) ) {
-	if ( modal_stack->isEmpty() ) {
-	    delete modal_stack;
-	    modal_stack = 0;
+    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+	if ( qt_modal_stack->isEmpty() ) {
+	    delete qt_modal_stack;
+	    qt_modal_stack = 0;
 	    QPoint p( QCursor::pos() );
 	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
 	    if ( w ) { // send synthetic enter event
@@ -2708,7 +2708,7 @@ void qt_leave_modal( QWidget *widget )
 	    }
 	}
     }
-    app_do_modal = modal_stack != 0;
+    app_do_modal = qt_modal_stack != 0;
 }
 
 
@@ -2719,26 +2719,26 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
-    QWidget *modal=0, *top=modal_stack->getFirst();
-
+    QWidget *modal=0, *top=QApplication::activeModalWidget();
+    
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
-    if ( modal == top )				// don't block event
+    if ( !top || modal == top )				// don't block event
 	return TRUE;
 
 #ifdef ALLOW_NON_APPLICATION_MODAL
     if ( top && top->parentWidget() ) {
 	// Not application-modal
-	// Does widget have a child in modal_stack?
+	// Does widget have a child in qt_modal_stack?
 	bool unrelated = TRUE;
-	modal = modal_stack->first();
+	modal = qt_modal_stack->first();
 	while (modal && unrelated) {
 	    QWidget* p = modal->parentWidget();
 	    while ( p && p != widget ) {
 		p = p->parentWidget();
 	    }
-	    modal = modal_stack->next();
+	    modal = qt_modal_stack->next();
 	    if ( p ) unrelated = FALSE;
 	}
 	if ( unrelated ) return TRUE;		// don't block event
@@ -2878,51 +2878,6 @@ void QApplication::closePopup( QWidget *popup )
 	     active_window->setFocus();
 	 QFocusEvent::resetReason();
      }
-}
-
-
-/*****************************************************************************
-  Functions returning the active popup and modal widgets.
- *****************************************************************************/
-
-/*!
-  Returns the active popup widget.
-
-  A popup widget is a special top level widget that sets the WType_Popup
-  widget flag, e.g. the QPopupMenu widget.  When the application opens a
-  popup widget, all events are sent to the popup and normal widgets and
-  modal widgets cannot be accessed before the popup widget is closed.
-
-  Only other popup widgets may be opened when a popup widget is shown.
-  The popup widgets are organized in a stack.
-  This function returns the active popup widget on top of the stack.
-
-  \sa activeModalWidget(), topLevelWidgets()
-*/
-
-QWidget *QApplication::activePopupWidget()
-{
-    return popupWidgets ? popupWidgets->getLast() : 0;
-}
-
-
-/*!
-  Returns the active modal widget.
-
-  A modal widget is a special top level widget which is a subclass of
-  QDialog that specifies the modal parameter of the constructor to TRUE.
-  A modal widget must be finished before the user can continue with other
-  parts of the program.
-
-  The modal widgets are organized in a stack.
-  This function returns the active modal widget on top of the stack.
-
-  \sa activePopupWidget(), topLevelWidgets()
-*/
-
-QWidget *QApplication::activeModalWidget()
-{
-    return modal_stack ? modal_stack->getLast() : 0;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#38 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#39 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -113,7 +113,7 @@ public:
 	WState_AutoMask		= 0x00001000,
 	WState_Polished		= 0x00002000,
 	WState_DND		= 0x00004000,
-	WState_USPositionX	= 0x00008000,
+	WState_Modal		= 0x00008000,
 	WState_PaletteSet	= 0x00010000,
 	WState_PaletteFixed	= 0x00020000,
 	WState_FontSet		= 0x00040000,
