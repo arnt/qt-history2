@@ -374,8 +374,7 @@ QPixmap::~QPixmap()
 }
 
 /*!
-    Returns a \link shclass.html deep copy\endlink of the pixmap using
-    the bitBlt() function to copy the pixels.
+    Returns a \link shclass.html deep copy\endlink of the pixmap.
 
     \sa operator=()
 */
@@ -389,12 +388,8 @@ QPixmap QPixmap::copy(bool) const
     QPixmap pm(data->w, data->h, data->d, data->bitmap, data->optim);
 
     QPainter painter(&pm);
-    painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmapNoMask);
+    painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmap);
     painter.end();
-#if defined(Q_WS_X11) || defined(Q_WS_MAC)
-    if (data->alphapm)
-        pm.data->copyAlpha(data);
-#endif
 
 #if defined(Q_WS_X11)
     x11SetDefaultScreen(old);
@@ -502,7 +497,7 @@ bool QPixmap::isQBitmap() const
     Returns true if this is a null pixmap; otherwise returns false.
 
     A null pixmap has zero width, zero height and no contents. You
-    cannot draw in a null pixmap or bitBlt() anything to it.
+    cannot draw in a null pixmap.
 
     Resizing an existing pixmap to (0, 0) makes a pixmap into a null
     pixmap.

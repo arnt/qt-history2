@@ -335,36 +335,6 @@ QPixmapData::~QPixmapData()
 }
 
 /*!
-    Make a copy of the alpha pixmap in \a data.
-*/
-void QPixmapData::copyAlpha(const QPixmapData *data)
-{
-#if !defined(QT_NO_XFT)
-    if (X11->use_xrender && X11->has_xft && data->alphapm) {
-        int w = data->alphapm->data->w;
-        int h = data->alphapm->data->h;
-        delete alphapm;
-        alphapm = new QPixmap; // create a null pixmap
-
-        // setup pixmap data
-        alphapm->data->w = w;
-        alphapm->data->h = h;
-        alphapm->data->d = 8;
-
-        // create 8bpp pixmap and render picture
-        alphapm->data->hd =
-            XCreatePixmap(xinfo.display(), QX11Info::appRootWindow(data->xinfo.screen()), w, h, 8);
-
-        alphapm->data->xft_hd = (Qt::HANDLE) XftDrawCreateAlpha(xinfo.display(), alphapm->data->hd, 8);
-
-        GC agc = XCreateGC(xinfo.display(), alphapm->handle(), 0, 0);
-        XCopyArea(xinfo.display(), data->alphapm->handle(), alphapm->handle(), agc, 0, 0, w, h, 0, 0);
-        XFreeGC(xinfo.display(), agc);
-    }
-#endif
-}
-
-/*!
     Constructs a monochrome pixmap, with width \a w and height \a h,
     that is initialized with the data in \a bits. The \a isXbitmap
     indicates whether the data is an X bitmap and defaults to false.

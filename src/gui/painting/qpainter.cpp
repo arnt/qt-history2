@@ -3053,9 +3053,10 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
         d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh), mode);
     }
 
-    // If we have CopyPixmap we copy the mask from the source to the target device if it
-    // is a pixmap also...
-    if (d->device->devType() == QInternal::Pixmap && pm.mask()) {
+    // If we have CopyPixmap we copy the mask (only the mask, not the
+    // alpha channel, which is copied elsewhere) from the source to
+    // the target device if it is a pixmap
+    if (d->device->devType() == QInternal::Pixmap && pm.mask() && !pm.hasAlphaChannel()) {
         if (mode == Qt::CopyPixmap) {
             QPixmap *p = static_cast<QPixmap *>(d->device);
             QBitmap bitmap(p->width(), p->height());
