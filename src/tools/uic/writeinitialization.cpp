@@ -370,11 +370,12 @@ void WriteInitialization::accept(DomActionRef *node)
 
     if (m_widgetChain.top() && actionName == QLatin1String("separator")) {
         QString parentClass = m_widgetChain.top()->attributeClass();
-        if (parentClass == QLatin1String("QMenu") || parentClass == QLatin1String("QToolBar")) {
-            output << option.indent << varName << "->addSeparator();\n";
-            return;
-        } else if (parentClass == QLatin1String("QMenuBar")) {
+        if (parentClass == QLatin1String("QMenuBar")) {
             // ### separator in menubar are not supported!
+            return;
+        } else {
+            // separator is always reserved!
+            output << option.indent << varName << "->addSeparator();\n";
             return;
         }
     }
