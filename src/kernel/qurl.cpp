@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#14 $
 **
 ** Implementation of QFileDialog class
 **
@@ -105,6 +105,7 @@ struct QUrlPrivate
   \a action gives more information about it, this can be one of
 	ActListDirectory
 	ActCopyFile
+	ActMoveFiles
 	ActGet
 	ActPut
 */
@@ -1445,24 +1446,22 @@ void QUrl::copy( const QString &from, const QString &to )
 	return;
     }
 
-    emit start( ActCopyFile );
-    
     char *block = new char[ 1024 ];
     bool error = FALSE;
     int sum = 0;
+    emit copyProgress( from, to, -1, 100 );
     while ( !f.atEnd() ) {
-	int len = f.readBlock( block, 1024 );
+	int len = f.readBlock( block, 100 );
 	if ( len == -1 ) {
 	    error = TRUE;
 	    break;
 	}
 	sum += len;
-	emit copyProgress( sum / 1024, f.size() ); 
+	emit copyProgress( from, to, ( sum * 100 ) / f.size(), 100 );
 	f2.writeBlock( block, len );
 	qApp->processEvents();
     }
-    emit finished( ActCopyFile );
-    
+
     delete[] block;
 
     f.close();
@@ -1479,6 +1478,7 @@ void QUrl::copy( const QString &from, const QString &to )
 void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 {
     if ( isLocalFile() ) {
+	emit start( move ? ActMoveFiles : ActCopyFiles );
 	QString de = dest;
 	if ( de.left( QString( "file:" ).length() ) == "file:" )
 	    de.remove( 0, QString( "file:" ).length() );
@@ -1490,6 +1490,7 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 		    QFile::remove( *it );
 	    }
 	}
+	emit finished( move ? ActMoveFiles : ActCopyFiles );
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->copy( files, dest, move );
     } else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#6 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -52,11 +52,12 @@ public:
 
     enum Action {
 	ActListDirectory = 0,
-	ActCopyFile,
+	ActCopyFiles,
+	ActMoveFiles,
 	ActGet,
 	ActPut
     };
-    
+
     QUrl();
     QUrl( const QString& url );
     QUrl( const QUrl& url );
@@ -155,7 +156,8 @@ public:
     void emitUrlIsDir();
     void emitUrlIsFile();
     void emitPutSuccessful( const QString &d );
-    void emitCopyProgress( int step, int total );
+    void emitCopyProgress( const QString &from, const QString &to,
+			   int step, int total );
 
 signals:
     void entry( const QUrlInfo & );
@@ -169,8 +171,9 @@ signals:
     void putSuccessful( const QString & );
     void urlIsDir();
     void urlIsFile();
-    void copyProgress( int step, int total );
-    
+    void copyProgress( const QString &, const QString &,
+		       int step, int total );
+
 protected:
     virtual void reset();
     virtual void parse( const QString& url );
@@ -241,9 +244,10 @@ inline void QUrl::emitPutSuccessful( const QString &d )
     emit putSuccessful( d );
 }
 
-inline void QUrl::emitCopyProgress( int step, int total )
+inline void QUrl::emitCopyProgress( const QString &from, const QString &to,
+				    int step, int total )
 {
-    emit copyProgress( step, total );
+    emit copyProgress( from, to, step, total );
 }
 
 #endif
