@@ -20,6 +20,10 @@
 
 #ifndef QT_NO_XML
 
+#ifdef Q_CC_BOR // borland 6 finds bogus warnings when building this file in uic3
+#    pragma warn -8080
+#endif
+
 //#define QT_QXML_DEBUG
 
 // Error strings for the XML reader
@@ -3337,6 +3341,7 @@ bool QXmlSimpleReaderPrivate::parseBeginOrContinue(int state, bool incremental)
 /*
   Parses the prolog [22].
 */
+
 bool QXmlSimpleReaderPrivate::parseProlog()
 {
     const signed char Init             = 0;
