@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#60 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#61 $
 #
 # this is a massive hack, written very quickly
 #
@@ -29,6 +29,10 @@
 # "\fn line" uses the rest of the line as a function specification
 # (most commonly an inline or virtual = NULL function). It must be the
 # first escape
+#
+# "\overload line" defines line to be an inline function which differs
+# from some other version only by the argument types.  qdoc will do the
+# appropriate magic
 #
 # "\class name header" documents the class "name" which is defined in
 # header file "<header>".  It too must be the first escape
@@ -667,6 +671,7 @@ sub templates {
 
 sub readc {
     local ($filename) = @_;
+    local ($overload);
 
     $c = getfile($filename);
     print "code file: ", $filename, "\n" if ($debug);
@@ -717,8 +722,15 @@ sub readc {
 	    $examples{$1} = $2;
 	} else {
 	    # it's a function, \fn or real?
-	    print ""; # defeat too-cool switch optimizer
-	    if ($doc =~ /^\\fn\s+([^;\n]+);?\s+(.*?)\s*$/s) {
+	    print "";
+	    $overload = 0; # defeat too-cool switch optimizer
+	    if ($doc =~ /^\\overload\s+([^;\n]+);?\s+(.*?)\s*$/s) {
+		$def = $1;
+		$doc = "This is a convenience version of this function\n"
+		    . "which casts its arguments and then calls the real\n"
+		    . "implementation.\n\n" . $2;
+		$overload = 1;
+	    } elsif ($doc =~ /^\\fn\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
 		$doc = $2;
 	    }
@@ -764,20 +776,26 @@ sub readc {
 			}
 			$url = &manglefn($type, $class, $name, 
 					 $args, $const, $home);
-			$name{$url} = $class . "::" . $name;
-			$type{$url} = "fn";
-			$doc{$url} = $doc;
-			$class .= "::" if ($class ne "");
-			$const = " " . const if ($const ne "");
-			if ($name eq "_cast") {
-			    $def{$url} = join("", $class, "operator ", $type,
-					      " ()", $const);
+			if (defined($name{$url})) {
+			    print "$filename: $def documented twice\n";
 			} else {
-			    $def{$url} = join("", $type, " ", $class, $name,
-					      "(", $args, ")", $const);
+			    $name{$url} = $class . "::" . $name;
+			    $type{$url} = "fn";
+			    $doc{$url} = $doc;
+			    $overload{$url} = 1 if ($overload);
+			    $class .= "::" if ($class ne "");
+			    $const = " " . const if ($const ne "");
+			    if ($name eq "_cast") {
+				$def{$url} = join("", $class, "operator ", 
+						  $type, " ()", $const);
+			    } else {
+				$def{$url} = join("", $type, " ", $class,
+						  $name, "(", $args, ")",
+						  $const);
+			    }
+			    print "url: ", $url, " is ", $def{$url}, "\n" 
+				if ($debug);
 			}
-			print "url: ", $url, " is ", $def{$url}, "\n" 
-			    if ($debug);
 		    }
 		}
 	    }
@@ -797,7 +815,9 @@ sub makenames {
     }
 
     foreach ( sort keys %name ) {
-	$anchor{$name{$_}} = $_ unless (defined($anchor{$name{$_}}));
+	$anchor{$name{$_}} = $_ unless 
+	    (defined($anchor{$name{$_}}) ||
+	     defined($overload{$_}));
     }
 
     # next, we do a good imitation of c++ inheritance... subclasses:
