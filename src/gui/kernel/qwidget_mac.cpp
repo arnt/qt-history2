@@ -1200,7 +1200,10 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
                 CGImageRelease(ir);
             }
         }
-        SetWindowProxyIcon(qt_mac_window_for((HIViewRef)winId()), qt_mac_create_iconref(pixmap));
+        if(pixmap.isNull())
+            RemoveWindowProxy(qt_mac_window_for((HIViewRef)winId()));
+        else
+            SetWindowProxyIcon(qt_mac_window_for((HIViewRef)winId()), qt_mac_create_iconref(pixmap));
     }
     QEvent e(QEvent::WindowIconChange);
     QApplication::sendEvent(this, &e);

@@ -792,7 +792,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             const QPixmap *in_pix = NULL;
             if(images[i].mask) 
                 in_pix = px.mask();
-            else
+            else if(!px.isNull())
                 in_pix = &px;
 
             const int x_rows = images[i].width * (images[i].depth/8), y_rows = images[i].height;
@@ -853,6 +853,9 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
 
 CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 {
+    if(px.isNull())
+        return 0;
+
     const uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)px.handle()));
     char *addr = GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)px.handle()));
     CGDataProviderRef provider = CGDataProviderCreateWithData(0, addr, bpl*px.height(), 0);
