@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG		= qt warn_on plugin
+CONFIG		+= qt warn_on plugin
 
 HEADERS		= $(QTDIR)/src/codecs/qgbkcodec.h \
 		  $(QTDIR)/src/codecs/qfontcodecs.h
