@@ -1391,55 +1391,26 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         bool smooth_edges = renderHints() & QPainter::Antialiasing;
         if (X11->use_xrender && d->cbrush.style() != Qt::NoBrush &&
-            (smooth_edges || d->cbrush.color().alpha() != 255
-             || d->cbrush.style() == Qt::LinearGradientPattern))
+            (smooth_edges || d->cbrush.color().alpha() != 255))
         {
             QPixmap gpix;
             ::Picture src = 0;
             ::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
             int x_offset = 0;
-#if 0
-            if (d->cbrush.style() == Qt::LinearGradientPattern) {
-                // hmm.. for some reason Xrender uses the first pt (x
-                // coord only) that is scanline coverted in a polygon
-                // as the brush/fill x offset - we need to calc that
-                // pt and set it as an offset to counter that behavior
-                QPointF offset = pa.at(0);
-                for (int i = 1; i < pa.size(); ++i) {
-                    if (offset.y() > pa.at(i).y())
-                        offset = pa.at(i);
-                    else if (offset.y() == pa.at(i).y() && offset.x() > pa.at(i).x())
-                        offset = pa.at(i);
-                }
-                QRect r(a.boundingRect().toRect());
-                x_offset = qRound(offset.x()) - r.x();
+            XftColor xfc;
+            QColor qc = d->cbrush.color();
 
-                gpix.resize(r.size());
-                QPoint redir;
-                QPainter::redirected(d->pdev, &redir);
-                QBrush br(d->cbrush.gradientStart() - r.topLeft() - redir, d->cbrush.color(),
-                          d->cbrush.gradientStop() - r.topLeft() - redir, d->cbrush.gradientColor());
-                QPainter p(&gpix);
-                qt_fill_linear_gradient(QRect(0,0,r.width(), r.height()), &p, br);
-                src = gpix.xftPictureHandle();
-            } else
-#endif
-            {
-                XftColor xfc;
-                QColor qc = d->cbrush.color();
+            const uint A = qc.alpha(),
+                       R = qc.red(),
+                       G = qc.green(),
+                       B = qc.blue();
 
-                const uint A = qc.alpha(),
-                           R = qc.red(),
-                           G = qc.green(),
-                           B = qc.blue();
-
-                xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
-                xfc.color.alpha = (A | A << 8);
-                xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
-                xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
-                xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
-                src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
-            }
+            xfc.pixel = QColormap::instance(d->scrn).pixel(qc);
+            xfc.color.alpha = (A | A << 8);
+            xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
+            xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
+            xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
+            src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
 
             if (src && dst) {
                 XRenderPictureAttributes attrs;
@@ -1456,12 +1427,11 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
         } else
 #endif
             if (d->cbrush.style() != Qt::NoBrush) {
-                if (mode == WindingMode)                              // set to winding fill rule
+                if (mode == WindingMode)
                     XSetFillRule(d->dpy, d->gc_brush, WindingRule);
 
-                QVarLengthArray<XPoint> points(512);
                 int n = qMin(npoints, 65535);
-                points.resize(n);
+                QVarLengthArray<XPoint, 512> points(n);
                 for (int i = 0; i < n; ++i) {
                     points[i].x = qRound(pa.at(i).x());
                     points[i].y = qRound(pa.at(i).y());
@@ -1470,14 +1440,14 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
                              points.data(),
                              npoints, mode == ConvexMode ? Convex : Complex, CoordModeOrigin);
 
-                if (mode == WindingMode)                              // set to normal fill rule
+                if (mode == WindingMode)
                     XSetFillRule(d->dpy, d->gc_brush, EvenOddRule);
             }
     }
 
     if (d->cpen.style() != Qt::NoPen) {
         int index = 0;
-        QVarLengthArray<XPoint> points(512);
+        QVarLengthArray<XPoint, 512> points(512);
         while(npoints > 0) {
             int n = qMin(npoints, 65535);
             points.resize(n);
