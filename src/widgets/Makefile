@@ -316,7 +316,7 @@ qscrbar.o: /home/popcorn/home/hanord/qt/include/qregion.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qscrbar.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
-qscrbar.o: /home/popcorn/home/hanord/qt/include/qwxfmat.h
+qscrbar.o: /home/popcorn/home/hanord/qt/include/qwmatrix.h
 qtablew.o: qtablew.h /home/popcorn/home/hanord/qt/include/qwidget.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
 qtablew.o: /home/popcorn/home/hanord/qt/include/qobjdefs.h
