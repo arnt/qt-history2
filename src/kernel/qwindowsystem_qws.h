@@ -35,6 +35,7 @@
 
 #ifndef QT_H
 #include "qwssocket_qws.h"
+#include "qcstring.h"
 #include "qmap.h"
 #include "qdatetime.h"
 #include "qptrlist.h"

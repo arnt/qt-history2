@@ -35,6 +35,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qcstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_COP

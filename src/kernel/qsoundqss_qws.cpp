@@ -33,7 +33,7 @@
 #include "qsoundqss_qws.h"
 
 #ifndef QT_NO_SOUND
-
+#include <qcstring.h>
 #include <qptrlist.h>
 #include <qsocketnotifier.h>
 #include <qfile.h>

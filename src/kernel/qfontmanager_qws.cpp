@@ -35,6 +35,7 @@
 #include "qfontfactorybdf_qws.h"
 #include "qfontdata_p.h"
 #include "qfile.h"
+#include "qcstring.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

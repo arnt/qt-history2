@@ -865,7 +865,8 @@ void QWSDisplay::setProperty( int winId, int property, int mode, const QByteArra
     cmd.simpleData.windowid = winId;
     cmd.simpleData.property = property;
     cmd.simpleData.mode = mode;
-    cmd.setData( data.data(), data.size() );
+    QByteArray f___ = data; //#########
+    cmd.setData( f___.data(), f___.size() );
     d->sendCommand( cmd );
 }
 
@@ -1863,7 +1864,7 @@ QWidget *QApplication::findWidget( const QObjectList& list,
 				   const QPoint &pos, bool rec )
 {
     QWidget *w;
-    QObjectListIt it( list );
+    QObjectListIterator it( list );
     it.toLast();
     while ( it.current() ) {
 	if ( it.current()->isWidgetType() ) {
@@ -2716,7 +2717,7 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
     }
 
     if ( children() ) {
-	QObjectListIt it(*children());
+	QObjectListIterator it(*children());
 	register QObject *obj;
 	while ( (obj=it.current()) ) {
 	    ++it;
@@ -2822,7 +2823,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	// set children's allocated region dirty
 	const QObjectList *c = children();
 	if ( c ) {
-	    QObjectListIt it(*c);
+	    QObjectListIterator it(*c);
 	    QObject* ch;
 	    while ((ch=it.current())) {
 		++it;

@@ -328,7 +328,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
 	if ( children() ) {
-	    QObjectListIt it(*children());
+	    QObjectListIterator it(*children());
 	    register QObject *obj;
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
@@ -1277,7 +1277,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if ( !valid_rect && children() ) {	// scroll children
 	setChildrenAllocatedDirty();
 	QPoint pd( dx, dy );
-	QObjectListIt it(*children());
+	QObjectListIterator it(*children());
 	register QObject *object;
 	while ( it ) {				// move all children
 	    object = it.current();
@@ -1391,7 +1391,7 @@ void QWidget::updateOverlappingChildren() const
     QRegion r;
     const QObjectList *c = children();
     if ( c ) {
-	QObjectListIt it(*c);
+	QObjectListIterator it(*c);
 	QObject* ch;
 	while ((ch=it.current())) {
 	    ++it;
@@ -1429,7 +1429,7 @@ void QWidget::updateRequestedRegion( const QPoint &gpos )
     }
     const QObjectList *c = children();
     if ( c ) {
-	QObjectListIt it(*c);
+	QObjectListIterator it(*c);
 	QObject* ch;
 	while ((ch=it.current())) {
 	    ++it;
@@ -1450,7 +1450,7 @@ void QWidget::setChildrenAllocatedDirty()
 {
     const QObjectList *c = children();
     if ( c ) {
-	QObjectListIt it(*c);
+	QObjectListIterator it(*c);
 	QObject* ch;
 	while ((ch=it.current())) {
 	    ++it;
@@ -1465,7 +1465,7 @@ void QWidget::setChildrenAllocatedDirty( const QRegion &r, const QWidget *dirty 
 {
     const QObjectList *c = children();
     if ( c ) {
-	QObjectListIt it(*c);
+	QObjectListIterator it(*c);
 	QObject* ch;
 	while ((ch=it.current())) {
 	    ++it;
@@ -1512,7 +1512,7 @@ QRegion QWidget::allocatedRegion() const
 		if ( parentWidget()->overlapping_children ) {
 		    c = parentWidget()->children();
 		    if ( c ) {
-			QObjectListIt it(*c);
+			QObjectListIterator it(*c);
 			QObject* ch;
 			bool clip=FALSE;
 			while ((ch=it.current())) {
@@ -1533,7 +1533,7 @@ QRegion QWidget::allocatedRegion() const
 		// if I'm dirty, so are my chlidren.
 		c = children();
 		if ( c ) {
-		    QObjectListIt it(*c);
+		    QObjectListIterator it(*c);
 		    QObject* ch;
 		    while ((ch=it.current())) {
 			++it;
@@ -1561,7 +1561,7 @@ QRegion QWidget::paintableRegion() const
 	    paintable_region = allocatedRegion();
 	    const QObjectList *c = children();
 	    if ( c ) {
-		QObjectListIt it(*c);
+		QObjectListIterator it(*c);
 		QObject* ch;
 		while ((ch=it.current())) {
 		    ++it;
@@ -1620,7 +1620,7 @@ void QWidget::updateActivePainter() const
     if ( painterDict && painterDict->count() ) {
 	const QObjectList *c = children();
 	if ( c ) {
-	    QObjectListIt it(*c);
+	    QObjectListIterator it(*c);
 	    QObject* ch;
 	    while ((ch=it.current())) {
 		++it;

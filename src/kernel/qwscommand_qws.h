@@ -34,6 +34,7 @@
 #define QWSCOMMAND_QWS_H
 
 #ifndef QT_H
+#include "qcstring.h"
 #include "qwsutils_qws.h"
 #endif // QT_H
 

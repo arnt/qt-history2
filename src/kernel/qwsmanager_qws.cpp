@@ -107,7 +107,7 @@ struct WMStyleFactoryItem {
 #endif // QT_NO_QWS_HYDRO_WM_STYLE
 
     { Default_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Default"), new_Default_WMDecorations },
-    { Default_WMStyle, NULL, NULL }
+    { Default_WMStyle, QString::null, NULL }
 };
 
 

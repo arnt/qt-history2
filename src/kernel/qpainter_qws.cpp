@@ -1621,7 +1621,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
     if ( memorymanager->fontAscent(cfont.handle()) == 0 )
 	return;
 
-    bool simple = str.simpleText();
+    bool simple = str.isSimpleText();
     // we can't take the complete string here as we would otherwise
     // get quadratic behaviour when drawing long strings in parts.
     // we do however need some chars around the part we paint to get arabic shaping correct.

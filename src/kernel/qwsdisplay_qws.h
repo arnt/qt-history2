@@ -34,6 +34,7 @@
 #define QWSDISPLAY_QWS_H
 
 #include "qobject.h"
+#include "qcstring.h"
 #include "qregion.h"
 #include "private/qlock_p.h"
 #include "qwindowdefs.h"

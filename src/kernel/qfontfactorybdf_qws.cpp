@@ -40,6 +40,7 @@
 #include "qfile.h"
 #include "qrect.h"
 #include "qstringlist.h"
+#include "qcstring.h"
 #include <string.h>
 #include <stdio.h>
 #include <private/qtextengine_p.h>
