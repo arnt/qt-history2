@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#10 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#11 $
 **
 ** Definition of movie classes
 **
@@ -17,12 +17,13 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-class QIODevice;
+class QDataSource;
 class QMoviePrivate;
 
 class QMovie {
 public:
     QMovie();
+    QMovie(QDataSource*, int bufsize=1024);
     QMovie(const char* fileName, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
     QMovie(const QMovie&);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#35 $
 **
 ** Implementation of movie classes
 **
@@ -474,12 +474,9 @@ QMovie::QMovie()
     d = new QMoviePrivate();
 }
 
-#if 0
-// Removed - QDataSource should be the interface.  QIODevice is not useful,
-// as it doesn't emit signals upon data availability.
 /*
   Creates a QMovie which reads an image sequence from the given
-  QIODevice.  The device must be allocated dynamically,
+  QDataSource.  The source must be allocated dynamically,
   as it becomes owned by the QMovie, and will be destroyed
   when the movie is destroyed.
   The movie starts playing as soon as event processing continues.
@@ -489,11 +486,10 @@ QMovie::QMovie()
   value, the better interleaved the movie playback will be with other
   event processing, but the slower the overall processing.
 */
-QMovie::QMovie(QIODevice* src, int bufsize)
+QMovie::QMovie(QDataSource* src, int bufsize)
 {
-    d = new QMoviePrivate(new QIODeviceSource(src), this, bufsize);
+    d = new QMoviePrivate(src, this, bufsize);
 }
-#endif
 
 /*!
   \overload
@@ -834,7 +830,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.34 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.35 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
