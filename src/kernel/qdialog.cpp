@@ -264,7 +264,6 @@ int QDialog::exec()
 
   \sa accept(), reject(), QApplication::mainWidget(), QApplication::quit()
 */
-*/
 
 void QDialog::done( int r )
 {
