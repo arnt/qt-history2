@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#22 $
 **
 ** Implementation of QToolBar class
 **
@@ -199,7 +199,8 @@ void QToolBar::setUpGM()
 		    else
 			f->setFrameStyle( QFrame::NoFrame );
 		}
-	    } else {
+	    } else if ( w->maximumSize() == QSize(32767,32767)
+			&& w->minimumSize() == QSize(0,0) ) {
 		QSize s( w->sizeHint() );
 		if ( s.width() > 0 && s.height() > 0 )
 		    w->setMinimumSize( s );
