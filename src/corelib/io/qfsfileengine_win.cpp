@@ -134,6 +134,166 @@ static void resolveLibs()
 }
 #endif // QT_NO_COMPONENT
 
+// UNC functions NT
+typedef DWORD (WINAPI *PtrNetShareEnum_NT)(LPWSTR, DWORD, LPBYTE*, DWORD, LPDWORD, LPDWORD, LPDWORD);
+static PtrNetShareEnum_NT ptrNetShareEnum_NT = 0;
+typedef DWORD (WINAPI *PtrNetApiBufferFree_NT)(LPVOID);
+static PtrNetApiBufferFree_NT ptrNetApiBufferFree_NT = 0;
+typedef struct _SHARE_INFO_1_NT {
+    LPWSTR shi1_netname;
+    DWORD shi1_type;
+    LPWSTR shi1_remark;
+} SHARE_INFO_1_NT; 
+
+static bool resolveUNCLibs_NT()
+{
+    static bool triedResolve = false;
+    if (!triedResolve) {
+#ifdef QT_THREAD_SUPPORT
+        QMutexLocker locker(qt_global_mutexpool ?
+            qt_global_mutexpool->get(&triedResolve) : 0);
+        if (triedResolve) {
+            return ptrNetShareEnum_NT && ptrNetApiBufferFree_NT;
+        }
+#endif
+        triedResolve = true;
+        HINSTANCE hLib = LoadLibraryW(L"Netapi32");
+        if (hLib) {
+            ptrNetShareEnum_NT = (PtrNetShareEnum_NT)GetProcAddress(hLib, "NetShareEnum");
+            if (ptrNetShareEnum_NT)
+                ptrNetApiBufferFree_NT = (PtrNetApiBufferFree_NT)GetProcAddress(hLib, "NetApiBufferFree");
+        }
+    }
+    return ptrNetShareEnum_NT && ptrNetApiBufferFree_NT;
+}
+
+// UNC functions 9x
+typedef DWORD (WINAPI *PtrNetShareEnum_9x)(const char FAR *, short, char FAR *, unsigned short, unsigned short FAR *, unsigned short FAR *);
+static PtrNetShareEnum_9x ptrNetShareEnum_9x = 0;
+#ifdef LM20_NNLEN
+# define LM20_NNLEN_9x LM20_NNLEN
+#else
+# define LM20_NNLEN_9x 12
+#endif
+typedef struct _SHARE_INFO_1_9x {
+  char shi1_netname[LM20_NNLEN_9x+1];
+  char shi1_pad1;
+  unsigned short shi1_type;
+  char FAR* shi1_remark;
+} SHARE_INFO_1_9x; 
+
+static bool resolveUNCLibs_9x()
+{
+    static bool triedResolve = false;
+    if (!triedResolve) {
+#ifdef QT_THREAD_SUPPORT
+        QMutexLocker locker(qt_global_mutexpool ?
+            qt_global_mutexpool->get(&triedResolve) : 0);
+        if (triedResolve) {
+            return ptrNetShareEnum_9x;
+        }
+#endif
+        triedResolve = true;
+        HINSTANCE hLib = LoadLibraryW(L"Svrapi");
+        if (hLib)
+            ptrNetShareEnum_9x = (PtrNetShareEnum_9x)GetProcAddress(hLib, "NetShareEnum");
+    }
+    return ptrNetShareEnum_9x;
+}
+
+static bool uncListSharesOnServer(const QString &server, QStringList *list)
+{
+    if (resolveUNCLibs_NT()) {
+        SHARE_INFO_1_NT *BufPtr, *p;
+        DWORD res;
+        DWORD er=0,tr=0,resume=0, i;
+        do {
+            res = ptrNetShareEnum_NT((wchar_t*)server.utf16(), 1, (LPBYTE *)&BufPtr, -1, &er, &tr, &resume);
+            if (res == ERROR_SUCCESS || res == ERROR_MORE_DATA) {
+                p=BufPtr;
+                for (i = 1; i <= er; ++i) {
+                    if (list && p->shi1_type == 0)
+                        list->append(QString::fromUtf16((unsigned short *)p->shi1_netname));
+                    p++;
+                }
+            }
+            ptrNetApiBufferFree_NT(BufPtr);
+        } while (res==ERROR_MORE_DATA);
+        return res == ERROR_SUCCESS;
+
+    } else if (resolveUNCLibs_9x()) {
+        SHARE_INFO_1_9x *pBuf = 0;
+        short cbBuffer;
+        unsigned short nEntriesRead = 0;
+        unsigned short nTotalEntries = 0;
+        short numBuffs = 20;
+        DWORD nStatus = 0;
+        do {
+            cbBuffer = numBuffs * sizeof(SHARE_INFO_1_9x);
+            pBuf = (SHARE_INFO_1_9x *)malloc(cbBuffer);
+            if (pBuf) {
+                nStatus = ptrNetShareEnum_9x(server.toLocal8Bit().constData(), 1, (char FAR *)pBuf, cbBuffer, &nEntriesRead, &nTotalEntries);
+                if ((nStatus == ERROR_SUCCESS)) {
+                    for (int i = 0; i < nEntriesRead; ++i) {
+                        if (list && pBuf[i].shi1_type == 0)
+                            list->append(QString::fromLocal8Bit(pBuf[i].shi1_netname));
+                    }
+                    free(pBuf);
+                    break;
+                }
+                free(pBuf);
+                numBuffs *=2;
+            }
+        } while (nStatus == ERROR_MORE_DATA);
+        return nStatus == ERROR_SUCCESS;
+    }
+    return false;
+}
+
+// can be //server or //server/share
+static bool uncShareExists(const QString &server)
+{
+    QStringList parts = server.split('\\', QString::SkipEmptyParts);
+    if (parts.count()) {
+        QStringList shares;
+        if (uncListSharesOnServer("\\\\" + parts.at(0), &shares)) {
+            if (parts.count() >= 2)
+                return shares.contains(parts.at(1));
+            else
+                return true;
+        }
+    }
+    return false;
+}
+
+static bool uncEntryList(const QString &server, const QStringList &filterNames, QStringList *list)
+{
+    QStringList parts = server.split('\\', QString::SkipEmptyParts);
+    QStringList entries;
+    if (parts.count() == 1 && uncListSharesOnServer("\\\\" + parts.at(0), &entries)) {
+        if (filterNames.isEmpty() && list) {
+            *list += entries;
+        } else if (list) {
+#ifndef QT_NO_REGEXP
+            for (int i = 0; i < entries.count(); ++i) {
+                for (QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
+                    QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
+                    if (rx.exactMatch(entries.at(i))) {
+                        list->append(entries.at(i));
+                        break;
+                    }
+                }
+            }
+#else
+            Q_UNUSED(filterNames);
+            *list += entries;
+#endif
+        }
+        return true;
+    }
+    return false;
+}
+
 QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
 {
     if(!path.length())
@@ -400,9 +560,11 @@ QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) 
 			    (WIN32_FIND_DATAA*)&finfo);
     });
 
-    if(ff == FF_ERROR)
-        return ret; // cannot read the directory
-
+    if (ff == FF_ERROR) {
+        if (d->file.startsWith("//") && doDirs)
+            uncEntryList(QDir::convertSeparators(d->file), (filters & QDir::AllDirs) ? QStringList() : filterNames, &ret);
+        return ret; // cannot read the directory or was //unc
+    }
     for (;;) {
         if(first)
             first = false;
@@ -692,7 +854,7 @@ bool QFSFileEnginePrivate::doStat() const
                         is_dir = true;
                     }
                 }
-                if (is_dir) {
+                if (is_dir && uncShareExists(statName)) {
                     // looks like a UNC dir, is a dir.
                     memset(&st,0,sizeof(st));
                     st.st_mode = QT_STAT_DIR;
