@@ -12,7 +12,7 @@ template<class Type>
 class Q_EXPORT QPlugInManager
 {
 public:
-    QPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
+    QPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
 	QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
 	: defPol( pol )
     {
@@ -53,7 +53,7 @@ public:
 	    useful = TRUE;
 #ifdef CHECK_RANGE
 	    if ( plugDict[*a] )
-		qWarning("%s: Action %s already defined!", plugin->library().latin1(), (*a).latin1() );
+		qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
 	    else
 #endif
 		plugDict.insert( *a, plugin );
