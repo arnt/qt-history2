@@ -419,7 +419,7 @@ QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) co
 	return rgn;
 
     QRegion trgn;
-    QMemArray<QRect> a = rgn.rects();
+    QVector<QRect> a = rgn.rects();
     QRect tr;
     const QRect *r = a.data();
 
@@ -462,7 +462,7 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 	return rgn;
 
     QRegion trgn;
-    QMemArray<QRect> a = rgn.rects();
+    QVector<QRect> a = rgn.rects();
     const QRect *r = a.data();
     QRect tr;
 

@@ -15,7 +15,7 @@
 #include "qgfxdriverfactory_qws.h"
 #include "qgfxraster_qws.h"
 #include "qgfxlinuxfb_qws.h"
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qbitmap.h>
@@ -113,7 +113,7 @@ public:
 
 private:
 
-    QPtrList<QGfxRec> gfxen;
+    QList<QGfxRec*> gfxen;
     QRegion widgetclip;
     bool desktopsource;
     int xoffs;
@@ -138,7 +138,7 @@ QRepeaterGfx::~QRepeaterGfx()
 
 QString dumpRegion(QRegion r)
 {
-    QMemArray<QRect> myrects=r.rects();
+    QVector<QRect> myrects=r.rects();
     QString ret="(";
     for(unsigned int loopc=0;loopc<myrects.size();loopc++) {
 	QRect rect=myrects[loopc];
@@ -556,7 +556,7 @@ public:
 
 private:
 
-    QPtrList<QCursorRec> cursors;
+    QList<QCursorRec*> cursors;
 
 };
 

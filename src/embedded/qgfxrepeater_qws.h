@@ -19,7 +19,7 @@
 
 #ifndef QT_NO_QWS_REPEATER
 
-#include "qptrlist.h"
+#include "qlist.h"
 
 class QScreenRec;
 
@@ -45,7 +45,7 @@ private:
 
     bool sw_cursor_exists;
 
-    QPtrList<QScreenRec> screens;
+    QList<QScreenRec*> screens;
 
 };
 

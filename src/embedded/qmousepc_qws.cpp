@@ -392,7 +392,7 @@ public:
 private:
     enum { max_dev=32 };
     QWSPcMouseSubHandler *sub[max_dev];
-    QPtrList<QSocketNotifier> notifiers;
+    QList<QSocketNotifier*> notifiers;
     int nsub;
     int retries;
 
