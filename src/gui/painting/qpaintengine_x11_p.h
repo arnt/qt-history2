@@ -150,6 +150,8 @@ public:
     void fillPolygon(const QPointF *points, int pointCount, GCMode gcMode,
                      QPaintEngine::PolygonDrawMode mode);
     void strokePolygon(const QPointF *points, int pointCount);
+    void setupAdaptedOrigin(const QPoint &p);
+    void resetAdaptedOrigin();
 
     Display *dpy;
     int scrn;
@@ -171,8 +173,11 @@ public:
     QBrush bg_brush;
     QRegion crgn;
     QMatrix matrix;
+
     uint use_path_fallback : 1;
     uint has_clipping : 1;
+    uint adapted_brush_origin : 1;
+    uint adapted_pen_origin : 1;
 
     const QX11Info *xinfo;
     QPointF bg_origin;

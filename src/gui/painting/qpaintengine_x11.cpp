@@ -135,6 +135,44 @@ void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, boo
 }
 
 
+#define DITHER_SIZE 16
+static const uchar base_dither_matrix[DITHER_SIZE][DITHER_SIZE] = {
+  {   0,192, 48,240, 12,204, 60,252,  3,195, 51,243, 15,207, 63,255 },
+  { 128, 64,176,112,140, 76,188,124,131, 67,179,115,143, 79,191,127 },
+  {  32,224, 16,208, 44,236, 28,220, 35,227, 19,211, 47,239, 31,223 },
+  { 160, 96,144, 80,172,108,156, 92,163, 99,147, 83,175,111,159, 95 },
+  {   8,200, 56,248,  4,196, 52,244, 11,203, 59,251,  7,199, 55,247 },
+  { 136, 72,184,120,132, 68,180,116,139, 75,187,123,135, 71,183,119 },
+  {  40,232, 24,216, 36,228, 20,212, 43,235, 27,219, 39,231, 23,215 },
+  { 168,104,152, 88,164,100,148, 84,171,107,155, 91,167,103,151, 87 },
+  {   2,194, 50,242, 14,206, 62,254,  1,193, 49,241, 13,205, 61,253 },
+  { 130, 66,178,114,142, 78,190,126,129, 65,177,113,141, 77,189,125 },
+  {  34,226, 18,210, 46,238, 30,222, 33,225, 17,209, 45,237, 29,221 },
+  { 162, 98,146, 82,174,110,158, 94,161, 97,145, 81,173,109,157, 93 },
+  {  10,202, 58,250,  6,198, 54,246,  9,201, 57,249,  5,197, 53,245 },
+  { 138, 74,186,122,134, 70,182,118,137, 73,185,121,133, 69,181,117 },
+  {  42,234, 26,218, 38,230, 22,214, 41,233, 25,217, 37,229, 21,213 },
+  { 170,106,154, 90,166,102,150, 86,169,105,153, 89,165,101,149, 85 }
+};
+
+static QPixmap qt_patternForAlpha(uchar alpha)
+{
+    static QPixmap pm;
+    QString key = "$qt-alpha-brush$" + QString::number(alpha);
+    if (!QPixmapCache::find(key, pm)) {
+        QImage pattern(DITHER_SIZE, DITHER_SIZE, 32);
+        pattern.fill(0xffffffff);
+        for (int y = 0; y < DITHER_SIZE; ++y) {
+            for (int x = 0; x < DITHER_SIZE; ++x) {
+                if (base_dither_matrix[x][y] <= alpha)
+                    pattern.setPixel(x, y, 0x00000000);
+            }
+        }
+        pm = QBitmap::fromImage(pattern);
+        QPixmapCache::insert(key, pm);
+    }
+    return pm;
+}
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
 
@@ -453,12 +491,26 @@ void QX11PaintEnginePrivate::init()
     xinfo = 0;
     if (!X11->use_xrender) {
         q->gccaps &= ~(QPaintEngine::AlphaStroke
-                       | QPaintEngine::AlphaFillPolygon
-                       | QPaintEngine::AlphaFill
                        | QPaintEngine::AlphaPixmap
                        | QPaintEngine::FillAntialiasing
                        | QPaintEngine::LineAntialiasing);
     }
+}
+
+void QX11PaintEnginePrivate::setupAdaptedOrigin(const QPoint &p)
+{
+    if (adapted_pen_origin)
+        XSetTSOrigin(dpy, gc, p.x(), p.y());
+    if (adapted_brush_origin)
+        XSetTSOrigin(dpy, gc_brush, p.x(), p.y());
+}
+
+void QX11PaintEnginePrivate::resetAdaptedOrigin()
+{
+    if (adapted_pen_origin)
+        XSetTSOrigin(dpy, gc, 0, 0);
+    if (adapted_brush_origin)
+        XSetTSOrigin(dpy, gc_brush, 0, 0);
 }
 
 /*
@@ -672,11 +724,13 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
             for (int i = 0; i < rectCount; ++i) {
                 QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalize();
+                d->setupAdaptedOrigin(r.topLeft());
                 if (d->cbrush.style() != Qt::NoBrush)
                     XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
                 if (d->cpen.style() != Qt::NoPen)
                     XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
             }
+            d->resetAdaptedOrigin();
         } else {
             QVarLengthArray<XRectangle> xrects(rectCount);
             for (int i = 0; i < rectCount; ++i) {
@@ -687,11 +741,13 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 xrects[i].height = ushort(r.height());
             }
 
+            d->setupAdaptedOrigin(rects[0].topLeft());
             if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {
                 XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rectCount);
             } else if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
                 XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rectCount);
             }
+            d->resetAdaptedOrigin();
         }
     }
 }
@@ -821,6 +877,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         break;
     }
 
+    d->adapted_pen_origin = false;
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures | GCLineWidth
                  | GCLineStyle | GCCapStyle | GCJoinStyle;
     XGCValues vals;
@@ -836,6 +893,14 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         QColormap cmap = QColormap::instance(d->scrn);
         vals.foreground = cmap.pixel(pen.color());
         vals.background = cmap.pixel(d->bg_col);
+
+        if (!pen.brush().isOpaque()) {
+            QPixmap pattern = qt_patternForAlpha(pen.color().alpha());
+            mask |= GCStipple;
+            vals.stipple = pattern.handle();
+            s = FillStippled;
+            d->adapted_pen_origin = true;
+        }
     }
     vals.line_width = (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width();
     vals.cap_style = cp;
@@ -862,6 +927,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     d->cbrush = brush;
     d->bg_origin = origin;
+    d->adapted_brush_origin = false;
 
     int s  = FillSolid;
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
@@ -879,6 +945,14 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         QColormap cmap = QColormap::instance(d->scrn);
         vals.foreground = cmap.pixel(d->cbrush.color());
         vals.background = cmap.pixel(d->bg_col);
+
+        if (!brush.isOpaque()) {
+            QPixmap pattern = qt_patternForAlpha(brush.color().alpha());
+            mask |= GCStipple;
+            vals.stipple = pattern.handle();
+            s = FillStippled;
+            d->adapted_brush_origin = true;
+        }
     }
     vals.cap_style = CapButt;
     vals.join_style = JoinMiter;
@@ -914,6 +988,7 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
         XDrawPoint(d->dpy, d->hd, (d->cpen.style() == Qt::NoPen) ? d->gc_brush : d->gc, x, y);
         return;
     }
+    d->setupAdaptedOrigin(rect.topLeft());
     if (d->cbrush.style() != Qt::NoBrush) {          // draw filled ellipse
         if (d->cpen.style() == Qt::NoPen) {
             XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w-1, h-1, 0, 360*64);
@@ -925,6 +1000,7 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     }
     if (d->cpen.style() != Qt::NoPen)                // draw outline
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
+    d->resetAdaptedOrigin();
 }
 
 #ifndef QT_NO_XRENDER
@@ -1027,11 +1103,12 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                 XSetFillRule(dpy, fill_gc, WindingRule);
             polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
                                        &clippedPoints, &clippedCount);
+            setupAdaptedOrigin(QPoint(clippedPoints->x, clippedPoints->y));
             if (clippedCount > 0)
                 XFillPolygon(dpy, d->hd, fill_gc,
                              (XPoint *) clippedPoints, clippedCount,
                              mode == QPaintEngine::ConvexMode ? Convex : Complex, CoordModeOrigin);
-
+            resetAdaptedOrigin();
             if (mode == QPaintEngine::WindingMode)
                 XSetFillRule(dpy, fill_gc, EvenOddRule);
         }
