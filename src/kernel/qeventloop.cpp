@@ -62,6 +62,7 @@ int QEventLoop::enterLoop()
 {
     // save the current exitloop state
     bool old_exitloop = d->exitloop;
+    d->exitloop = FALSE;
 
     d->looplevel++;
     while ( ! d->exitloop )
