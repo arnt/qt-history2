@@ -348,7 +348,7 @@ bool QPSQLResult::reset ( const QString& query )
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	currentSize = PQntuples( d->result );
-	binary = PQbinaryTuples( d->result );	
+	binary = PQbinaryTuples( d->result );
 	setActive( TRUE );
 	return TRUE;
     }
@@ -371,7 +371,7 @@ QSqlFieldList QPSQLResult::fields()
 
 int QPSQLResult::size() const
 {
-    return PQntuples( d->result );
+    return currentSize;
 }
 
 int QPSQLResult::affectedRows() const
