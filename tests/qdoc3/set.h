@@ -64,10 +64,10 @@ public:
     }
 
     bool useMap;
-    QMap<T, int>::ConstIterator mapIter;
-    QMap<T, int>::ConstIterator mapEnd;
-    QList<T>::ConstIterator listIter;
-    QList<T>::ConstIterator listEnd;
+    typename QMap<T, int>::ConstIterator mapIter;
+    typename QMap<T, int>::ConstIterator mapEnd;
+    typename QList<T>::ConstIterator listIter;
+    typename QList<T>::ConstIterator listEnd;
 };
 
 template <class T>
@@ -78,7 +78,7 @@ public:
 
     Set() { }
     Set( const QList<T>& values ) {
-	QList<T>::ConstIterator v = values.begin();
+	typename QList<T>::ConstIterator v = values.begin();
 	while ( v != values.end() ) {
 	    map.insert( *v, 0 );
 	    ++v;
@@ -166,7 +166,7 @@ private:
     void toMap() const {
 	if ( !list.isEmpty() ) {
 	    Set<T> *that = (Set<T> *) this;
-	    QList<T>::ConstIterator li = list.begin();
+	    typename QList<T>::ConstIterator li = list.begin();
 	    while ( li != list.end() ) {
 		that->map.insert( *li, 0 );
 		++li;
@@ -177,7 +177,7 @@ private:
     void toList() const {
 	if ( !map.isEmpty() ) {
 	    Set<T> *that = (Set<T> *) this;
-	    QMap<T, int>::ConstIterator m = map.begin();
+	    typename QMap<T, int>::ConstIterator m = map.begin();
 	    while ( m != map.end() ) {
 		that->list.append( m.key() );
 		++m;
@@ -195,8 +195,8 @@ Set<T> reunion( const Set<T>& s, const Set<T>& t )
     } else if ( s.isEmpty() ) {
 	return t;
     } else {
-	Set<T>::ConstIterator m = s.begin();
-	Set<T>::ConstIterator n = t.begin();
+	typename Set<T>::ConstIterator m = s.begin();
+	typename Set<T>::ConstIterator n = t.begin();
 	Set<T> result;
 
 	while ( m != s.end() && n != t.end() ) {
@@ -232,8 +232,8 @@ Set<T> intersection( const Set<T>& s, const Set<T>& t )
     } else if ( s.isEmpty() ) {
 	return s;
     } else {
-	Set<T>::ConstIterator m = s.begin();
-	Set<T>::ConstIterator n = t.begin();
+	typename Set<T>::ConstIterator m = s.begin();
+	typename Set<T>::ConstIterator n = t.begin();
 	Set<T> result;
 
 	while ( m != s.end() && n != t.end() ) {
@@ -259,8 +259,8 @@ Set<T> difference( const Set<T>& s, const Set<T>& t )
     } else if ( s.isEmpty() ) {
 	return t;
     } else {
-	Set<T>::ConstIterator m = s.begin();
-	Set<T>::ConstIterator n = t.begin();
+	typename Set<T>::ConstIterator m = s.begin();
+	typename Set<T>::ConstIterator n = t.begin();
 	Set<T> result;
 
 	while ( m != s.end() && n != t.end() ) {
