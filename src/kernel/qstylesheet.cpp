@@ -711,7 +711,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
   (i.e. inline styles), special elements like horizontal lines or
   images and other tags. In addition, rich text supports simple HTML
   tables.
-  
+
   The structuring tags are:
   <ul>
     <li>\c &lt;qt&gt;...&lt;/qt&gt;
@@ -760,13 +760,13 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	the enumeration label style. The default is \c type="1", other
 	types are \c "a" and \c "A".
     <li>\c &lt;li&gt;...&lt;/li&gt;
-	- A list item. This tag can only be used within the context of 
+	- A list item. This tag can only be used within the context of
 	\c ol or \c ul.
     <li>\c &lt;pre&gt;...&lt;/pre&gt;
 	- For larger junks of code. Whitespaces in the contents are preserved.
 	For small bits of code, use the inline-style \c code.
    </ul>
-   
+
    Anchors and links are done with a single tag:
    <ul>
     <li>\c &lt;a&gt;...&lt;/a&gt;
@@ -777,7 +777,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	\c a is meant to be an anchor, the reference source is given in
 	the \c name attribute.
   </ul>
-   
+
    The default character style bindings are:
    <ul>
     <li>\c &lt;em&gt;...&lt;/em&gt;
@@ -795,7 +795,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     <li>\c &lt;large&gt;...&lt;/large&gt;
 	- Large font size.
     <li>\c &lt;font&gt;...&lt;/font&gt;
-	- Customizes the font size, family  and text color. The tag understands 
+	- Customizes the font size, family  and text color. The tag understands
 	the following  attributes:
 	<ul>
 	<li> \c color
@@ -803,16 +803,16 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li> \c size
 	- the logical size of the font. Logical sizes 1 to 7 are supported.
 	 The value may either be absolute, for example
-	\c size=3, or relative like \c size=-2. In the latter case, the sizes 
+	\c size=3, or relative like \c size=-2. In the latter case, the sizes
 	are simply added.
 	<li> \c face
 	- the family of the font, for example \c face=times.
 	</ul>
     <li>\c &lt;code&gt;...&lt;/code&gt;
-	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter). For 
+	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter). For
 	larger junks of code, use the block-tag \c pre.
    </ul>
-   
+
    Special elements are:
    <ul>
     <li>\c &lt;img/&gt;
@@ -832,7 +832,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     <li>\c &lt;br/&gt;
 	- A line break
   </ul>
-  
+
   Other tags not in any of the above cathegories are:
   <ul>
   <li>\c &lt;nobr&gt;...&lt;/nobr&gt;
@@ -845,19 +845,17 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
   depending on their content. Usually a cell fills one rectangle in
   the table grid. It may, however, also span several rows, columns or
   both.
-  
+
  <ul>
    <li>\c &lt;table&gt;...&lt;/table&gt;
-   - A table definition. 
-     The default table is frameless. Specify the boolean attribute 
-     \c border to get a frame.
-     
-     Other attributes are:
+   - A table definition.
+     The default table is frameless. Specify the boolean attribute
+     \c border to get a frame. Other attributes are:
 	<ul>
 	<li>\c bgcolor
 	- The background color
 	<li> \c width
-	- The table width. This is either absolute in pixels or relative 
+	- The table width. This is either absolute in pixels or relative
 	in percent of the column width, for example \c width=80%
 	<li> \c border
 	- The width of the table border. The default is 0 (= no border).
@@ -878,14 +876,14 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li>\c bgcolor
 	- The background color
 	<li> \c width
-	- The cell width. This is either absolute in pixels or relative 
+	- The cell width. This is either absolute in pixels or relative
 	in percent of the entire table width, for example \c width=50%
 	<li> \c colspan
 	- Defines how many columns this cell spans. The default is 1.
 	<li> \c rowspan
 	- Defines how many rows this cell spans. The default is 1.
 	<li> \c align
-	- Alignment, possible values are \c left, \c right and \c center. The 
+	- Alignment, possible values are \c left, \c right and \c center. The
 	default is left-aligned.
 	</ul>
    <li>\c &lt;th&gt;...&lt;/th&gt;
@@ -1023,7 +1021,7 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginAll, 8 );
-    
+
      style = new QStyleSheetItem( this, "head" );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
      style = new QStyleSheetItem( this, "dl" );
