@@ -1619,6 +1619,12 @@ void QDataTable::loadNextPage()
     if ( endIdx < numRows() || endIdx < 0 )
 	return;
 
+    // check for empty result set
+    if ( sqlCursor()->at() == QSql::BeforeFirst && !sqlCursor()->next() ) {
+	d->haveAllRows = TRUE;
+	return;
+    }
+
     while ( endIdx > 0 && !sqlCursor()->seek( endIdx ) )
 	endIdx--;
     if ( endIdx != ( startIdx + pageSize + lookAhead ) )
