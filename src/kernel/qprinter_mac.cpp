@@ -68,8 +68,11 @@ QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     //mac specific
+    psession = NULL;
     pformat = kPMNoPageFormat;
     psettings = kPMNoPrintSettings;
+    prepare(&pformat);
+    prepare(&psettings);
 
     //other
     orient = Portrait;
@@ -94,7 +97,20 @@ QPrinter::~QPrinter()
 
 bool QPrinter::newPage()
 {
-    return FALSE;
+    if( PMSessionEndPage(psession) != noErr )  {//end the last page
+	state = PST_ERROR;
+	return FALSE;
+    }
+    PMRect rect;
+    if( PMGetAdjustedPageRect(pformat, &rect) != noErr ) {
+	state = PST_ERROR;
+	return FALSE;
+    }
+    if( PMSessionBeginPage(psession, pformat, &rect) != noErr )  { //start a new one
+	state = PST_ERROR;
+	return FALSE;
+    }
+    return TRUE;
 }
 
 
@@ -111,8 +127,12 @@ bool QPrinter::aborted() const
 bool 
 QPrinter::prepare(PMPrintSettings *s)
 {
+    if(!psession && PMCreateSession(&psession) != noErr)
+	return FALSE;
     if(*s == kPMNoPrintSettings) {
 	if( PMCreatePrintSettings(s) != noErr )
+	    return FALSE;
+	if( PMSessionDefaultPrintSettings(psession, *s) != noErr)
 	    return FALSE;
     } else {
 	if( PMSessionValidatePrintSettings(psession, *s, kPMDontWantBoolean) != noErr )
@@ -129,8 +149,12 @@ QPrinter::prepare(PMPrintSettings *s)
 bool 
 QPrinter::prepare(PMPageFormat *f)
 {
+    if(!psession && PMCreateSession(&psession) != noErr)
+	return FALSE;
     if( *f == kPMNoPageFormat ) {
 	if(PMCreatePageFormat(f) != noErr)
+	    return FALSE;
+	if(PMSessionDefaultPageFormat(psession, *f) != noErr)
 	    return FALSE;
     } else {
 	if(PMSessionValidatePageFormat(psession, *f,kPMDontWantBoolean) != noErr)
@@ -143,7 +167,7 @@ QPrinter::prepare(PMPageFormat *f)
 
 bool QPrinter::setup( QWidget *  )
 {
-    if(PMCreateSession(&psession) != noErr)
+    if(!psession && PMCreateSession(&psession) != noErr)
 	return FALSE;
     if( ( qApp->style().inherits("QAquaStyle") ) ) {
 	Boolean ret;
@@ -194,15 +218,45 @@ bool QPrinter::setup( QWidget *  )
 
 bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam * )
 {
+    if(!psession && PMCreateSession(&psession) != noErr)
+	return FALSE;
+
     if ( c ==  PdcBegin ) {			// begin; start printing
-	if(PMSessionBeginDocument(psession, psettings, pformat) != noErr)
+	if(state != PST_IDLE) {
+	    qDebug("printer: two PdcBegin(s).");
 	    return FALSE;
-	if( PMSessionGetGraphicsContext(psession, NULL, &hd) != noErr )
+	}
+
+	PMRect rect;
+	OSStatus r;
+
+	//validate the settings
+	if( PMSessionValidatePrintSettings(psession, psettings, kPMDontWantBoolean) != noErr ) 
 	    return FALSE;
+	if(PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean) != noErr) 
+	    return FALSE;
+	if( (r=PMGetAdjustedPageRect(pformat, &rect)) != noErr ) 
+	    return FALSE;
+
+	if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
+	    return FALSE;
+	if( PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
+	    return FALSE;
+	if( PMSessionGetGraphicsContext(psession, NULL, &hd) != noErr ) //get the gworld
+	    return FALSE;
+	state = PST_ACTIVE;
     } else if ( c == PdcEnd ) {
-	PMSessionEndDocument(psession);
-	hd = NULL;
+	qDebug("Done.. %d %d", hd, state);
+	if(hd && state != PST_IDLE) {
+	    PMSessionEndPage(psession);
+	    PMSessionEndDocument(psession);
+	    hd = NULL;
+	}
+	state  = PST_IDLE;
     } else {					// all other commands...
+	if( (state == PST_ACTIVE || state == PST_ERROR ) && PMSessionError(psession) != noErr) 
+	    return FALSE;
+
 	if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
 	    return FALSE;			// don't bitblt
 	}

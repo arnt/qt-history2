@@ -414,9 +414,9 @@ bool QPainter::begin( const QPaintDevice *pd )
         return FALSE;
     }
 
+    int dt = pdev->devType();                   // get the device type
     bool reinit = flags != IsStartingUp;        // 2nd or 3rd etc. time called
     flags = IsActive | DirtyFont;               // init flags
-    int dt = pdev->devType();                   // get the device type
 
     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
 	// this is an extended device
@@ -426,6 +426,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
     if ( testf( ExtDev ) ) {                      // external device
         if ( !pdev->cmd( QPaintDevice::PdcBegin, this, 0) ) {   // could not begin painting
+	    clearf( IsActive );
             pdev = 0;
             return FALSE;
         }
@@ -434,6 +435,7 @@ bool QPainter::begin( const QPaintDevice *pd )
         if ( tabarray )                         // update tabarray for device
             setTabArray( tabarray );
     }
+
 
     pdev->painters++;                           // also tell paint device
     hd = pdev->hd;
@@ -516,6 +518,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     return TRUE;
 }
 
+bool fuckery=FALSE;
 bool QPainter::end()				// end painting
 {
     if ( !isActive() ) {
@@ -523,6 +526,14 @@ bool QPainter::end()				// end painting
         warning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
         return FALSE;
+    }
+
+    if(fuckery)
+	qDebug("foo..");
+    if ( testf(ExtDev) ) {
+	if(fuckery)
+	    qDebug("bar..");
+	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
     }
 
     if ( testf( FontMet ) )                       // remove references to this
@@ -538,10 +549,7 @@ bool QPainter::end()				// end painting
     //reset the value we got in begin()
     delete saved;
     saved = NULL;
-
-    if ( testf(ExtDev) )
-	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
-
+    
     flags = 0;
     pdev->painters--;
     pdev = 0;
