@@ -3190,6 +3190,7 @@ void QFileDialog::okClicked()
 
     if ( mode() == AnyFile ) {
         d->currentFileName = d->url + nameEdit->text();
+        emit fileSelected( selectedFile() );
         accept();
         return;
     }
