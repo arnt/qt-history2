@@ -28,8 +28,7 @@
 #include <qtextcodec.h>
 #endif
 #include <qdatastream.h>
-// ######
-#include <qptrlist.h>
+#include <qlist.h>
 
 #include "qtools_p.h"
 #include <limits.h>
@@ -1821,7 +1820,7 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
     QRegExp sep(reg);
     sep.setCaseSensitive(!(flags & SectionCaseInsensitiveSeps));
 
-    QPtrList<section_chunk> l;
+    QList<section_chunk *> l;
     l.setAutoDelete(true);
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
 
@@ -1846,7 +1845,8 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
 
     int i = 0;
     QString ret;
-    for ( section_chunk *chk=l.first(); chk; chk=l.next(), i++ ) {
+    for (int idx = 0; idx < l.size(); ++idx) {
+	section_chunk *chk = l.at(idx);
 	if((flags & SectionSkipEmpty) && chk->length == (int)chk->string.length()) {
 	    if(i <= start)
 		start++;
@@ -1858,7 +1858,7 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
 	    ret += chk->string;
 	}
 	if(i == end) {
-	    if((chk=l.next()) && flags & SectionIncludeTrailingSep)
+	    if(idx < l.size()-1 && flags & SectionIncludeTrailingSep)
 		ret += chk->string.left(chk->length);
 	    break;
 	}
