@@ -711,7 +711,12 @@ bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 			  br.right() + w2, br.bottom() + w2 );
 	}
 	br = pt->worldMatrix().map( br );
-	brect |= br;				// merge with existing rect
+	if ( pt->hasClipping() ) {
+	    QRect cr = pt->clipRegion().boundingRect();
+	    br &= cr;
+	}
+	if ( br.isValid() )
+	    brect |= br;		     	// merge with existing rect
     }
 
     return TRUE;
