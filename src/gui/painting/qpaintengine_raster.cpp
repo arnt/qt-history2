@@ -1687,16 +1687,15 @@ ARGB qt_gradient_pixel(const GradientData *data, double pos)
       p++;
 
   // Calculate the actual color
-  double r = (pos - data->stopPoints[ p ]) / (data->stopPoints[ p + 1 ] - data->stopPoints[ p ]);
-  double ir = 1-r;
+  const int fp_one = (1 << 16);
+  int r = int((pos - data->stopPoints[p]) / (data->stopPoints[p+1] - data->stopPoints[p]) * fp_one);
+  int ir = fp_one - r;
 
-  return ARGB(ir*data->stopColors[p].a + r*data->stopColors[p+1].a,
-              ir*data->stopColors[p].r + r*data->stopColors[p+1].r,
-              ir*data->stopColors[p].g + r*data->stopColors[p+1].g,
-              ir*data->stopColors[p].b + r*data->stopColors[p+1].b);
+  return ARGB((ir*data->stopColors[p].a + r*data->stopColors[p+1].a) >> 16,
+              (ir*data->stopColors[p].r + r*data->stopColors[p+1].r) >> 16,
+              (ir*data->stopColors[p].g + r*data->stopColors[p+1].g) >> 16,
+              (ir*data->stopColors[p].b + r*data->stopColors[p+1].b) >> 16);
 } // qt_gradient_pixel
-
-
 void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
