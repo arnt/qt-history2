@@ -30,34 +30,33 @@
 
 #define Q_PLUGIN_QUERY \
 	{ \
-	    if ( version ) \
-		*version = QT_VERSION; \
-	    if ( flags ) { \
-		*flags = 1; \
+	    switch ( flag ) { \
+	    case 1:  *(uint*)out = QT_VERSION; break;\
+	    case 2:  *(uint*)out = 1; \
 		if ( QT_THREADED_BUILD ) \
-		    *flags |= 2; \
-	    } \
-	    if ( key ) \
-		*key = QT_BUILD_KEY; \
+		    *(uint*)out |= 2;\
+	    break; \
+	    case 3:  *(const char**)out  = QT_BUILD_KEY; break;\
+	    default: return 1; }\
 	    return 0; \
 	}
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
 #	    define Q_EXPORT_PLUGIN(PLUGIN) \
-		Q_EXTERN_C __declspec(dllexport) int __stdcall qt_ucm_query( uint * version, uint* flags, const char** key ) \
+		Q_EXTERN_C __declspec(dllexport) int __stdcall qt_ucm_query( int flag, void* out ) \
 		    Q_PLUGIN_QUERY \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate() \
 		    Q_PLUGIN_INSTANTIATE( PLUGIN )
 #	else
 #	    define Q_EXPORT_PLUGIN(PLUGIN) \
-		Q_EXTERN_C __declspec(dllexport) int qt_ucm_query( uint * version, uint* flags, const char** key ) \
+		Q_EXTERN_C __declspec(dllexport) int qt_ucm_query( int flag, void* out ) \
 		    Q_PLUGIN_QUERY \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate() \
 		    Q_PLUGIN_INSTANTIATE( PLUGIN )
 #	endif
 #    else
 #	define Q_EXPORT_PLUGIN(PLUGIN) \
-	    Q_EXTERN_C int qt_ucm_query( uint * version, uint* flags, const char** key ) \
+	    Q_EXTERN_C int qt_ucm_query( int flag, void* out ) \
 	        Q_PLUGIN_QUERY \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate() \
 	        Q_PLUGIN_INSTANTIATE( PLUGIN )

@@ -149,15 +149,18 @@ void QComLibrary::createInstanceInternal()
     }
     if ( isLoaded() && !entry ) {
 #  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMQueryProc)(uint*, uint*, const char** );
+	typedef int __stdcall (*UCMQueryProc)( int, void* );
 #  else
-	typedef int (*UCMQueryProc)(uint*, uint*, const char** );
+	typedef int (*UCMQueryProc)( int, void* );
 #  endif
 	UCMQueryProc ucmQueryProc;
 	ucmQueryProc = (UCMQueryProc) resolve( "qt_ucm_query" );
-	if ( !ucmQueryProc  || ucmQueryProc( &qt_version, &flags, &key ) != 0 ) {
-	    qt_version = 0;
-	    flags = 0;
+	if ( !ucmQueryProc  
+	     || ucmQueryProc( 1, &qt_version) != 0
+	     || ucmQueryProc( 2, &flags ) != 0
+	     || ucmQueryProc( 3, &key ) != 0
+	     ) {
+	    qt_version = flags = 0;
 	    key = "unknown";
 	}
 	QStringList queried;
