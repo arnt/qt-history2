@@ -509,172 +509,180 @@ bool QMutex::tryLock()
 }
 
 /*!
-  \class QMutexLocker qmutex.h
-  \threadsafe
-  \brief The QMutexLocker class simplifies locking and unlocking of QMutex.
+    \class QMutexLocker qmutex.h
+    \brief The QMutexLocker class simplifies locking and unlocking QMutexes.
 
-  \ingroup thread
-  \ingroup environment
+    \threadsafe
 
-  The purpose of QMutexLocker is to simplify QMutex locking and unlocking.
-  Locking and unlocking a QMutex in complex functions and statements or in
-  exception handling code is error prone and difficult to debug.  QMutexLocker
-  should be used in such situations to ensure that the state of the mutex is
-  well defined and always locked and unlocked properly.
+    \ingroup thread
+    \ingroup environment
 
-  QMutexLocker should be created within a function where a QMutex needs to be
-  locked.  The mutex is locked when QMutexLocker is created, and unlocked when
-  QMutexLocker is destroyed.
+    The purpose of QMutexLocker is to simplify QMutex locking and
+    unlocking. Locking and unlocking a QMutex in complex functions and
+    statements or in exception handling code is error prone and
+    difficult to debug. QMutexLocker should be used in such situations
+    to ensure that the state of the mutex is well defined and always
+    locked and unlocked properly.
 
-  For example, this complex function locks a QMutex upon entering the function
-  and unlocks the mutex at all the exit points:
+    QMutexLocker should be created within a function where a QMutex
+    needs to be locked. The mutex is locked when QMutexLocker is
+    created, and unlocked when QMutexLocker is destroyed.
 
-  \code
-  int complexFunction( int flag )
-  {
-      mutex.lock();
+    For example, this complex function locks a QMutex upon entering
+    the function and unlocks the mutex at all the exit points:
 
-      int return_value = 0;
+    \code
+    int complexFunction( int flag )
+    {
+	mutex.lock();
 
-      switch ( flag ) {
-      case 0:
-      case 1:
-          {
-              mutex.unlock();
-	      return moreComplexFunction( flag );
-          }
+	int return_value = 0;
 
-      case 2:
-          {
-	      int status = anotherFunction();
-	      if ( status < 0 ) {
-	          mutex.unlock();
-		  return -2;
-	      }
-	      return_value = status + flag;
-              break;
-	  }
+	switch ( flag ) {
+	case 0:
+	case 1:
+	    {
+		mutex.unlock();
+		return moreComplexFunction( flag );
+	    }
 
-      default:
-          {
-              if ( flag > 10 ) {
-	          mutex.unlock();
-		  return -1;
-	      }
-	      break;
-	  }
-      }
+	case 2:
+	    {
+		int status = anotherFunction();
+		if ( status < 0 ) {
+		    mutex.unlock();
+		    return -2;
+		}
+		return_value = status + flag;
+		break;
+	    }
 
-      mutex.unlock();
-      return return_value;
-  }
-  \endcode
+	default:
+	    {
+		if ( flag > 10 ) {
+		    mutex.unlock();
+		    return -1;
+		}
+		break;
+	    }
+	}
 
-  This example function will get more complicated as it is developed, which
-  increases the opportunity for errors to occur.
+	mutex.unlock();
+	return return_value;
+    }
+    \endcode
 
-  Using QMutexLocker greatly simplifies the code, and makes it more readable:
+    This example function will get more complicated as it is
+    developed, which increases the likelihood that errors will occur.
 
-  \code
-  int complexFunction( int flag )
-  {
-      QMutexLocker locker( &mutex );
+    Using QMutexLocker greatly simplifies the code, and makes it more
+    readable:
 
-      int return_value = 0;
+    \code
+    int complexFunction( int flag )
+    {
+	QMutexLocker locker( &mutex );
 
-      switch ( flag ) {
-      case 0:
-      case 1:
-          {
-	      return moreComplexFunction( flag );
-          }
+	int return_value = 0;
 
-      case 2:
-          {
-	      int status = anotherFunction();
-	      if ( status < 0 )
-		  return -2;
-	      return_value = status + flag;
-              break;
-	  }
+	switch ( flag ) {
+	case 0:
+	case 1:
+	    {
+		return moreComplexFunction( flag );
+	    }
 
-      default:
-          {
-              if ( flag > 10 )
-		  return -1;
-	      break;
-	  }
-      }
+	case 2:
+	    {
+		int status = anotherFunction();
+		if ( status < 0 )
+		    return -2;
+		return_value = status + flag;
+		break;
+	    }
 
-      return return_value;
-  }
-  \endcode
+	default:
+	    {
+		if ( flag > 10 )
+		    return -1;
+		break;
+	    }
+	}
 
-  Now, the mutex will always be unlocked when the QMutexLocker object is
-  destroyed (when the function returns).
+	return return_value;
+    }
+    \endcode
 
-  The same principle applies to code that throws and catches exceptions.  An
-  exception that is not caught in the function that has locked the mutex has
-  no way of unlocking the mutex before the exception is passed up the stack
-  to the calling function.
+    Now, the mutex will always be unlocked when the QMutexLocker
+    object is destroyed (when the function returns since \c locker is
+    an auto variable).
 
-  QMutexLocker also provides a mutex() member function that returns the
-  mutex on which the QMutexLocker is operating.  This is useful for
-  code that needs access to the mutex, such as QWaitCondition::wait().  For
-  example:
+    The same principle applies to code that throws and catches
+    exceptions. An exception that is not caught in the function that
+    has locked the mutex has no way of unlocking the mutex before the
+    exception is passed up the stack to the calling function.
 
-  \code
-  class SignalWaiter
-  {
-  private:
-      QMutexLocker locker;
+    QMutexLocker also provides a mutex() member function that returns
+    the mutex on which the QMutexLocker is operating. This is useful
+    for code that needs access to the mutex, such as
+    QWaitCondition::wait(). For example:
 
-  public:
-      SignalWaiter( QMutex *mutex )
-        : locker( mutex )
-      {
-      }
+    \code
+    class SignalWaiter
+    {
+    private:
+	QMutexLocker locker;
 
-      void waitForSignal()
-      {
-          ...
-	  ...
-	  ...
+    public:
+	SignalWaiter( QMutex *mutex )
+	    : locker( mutex )
+	{
+	}
 
-	  while ( ! signalled )
-              waitcondition.wait( locker.mutex() );
+	void waitForSignal()
+	{
+	    ...
+	    ...
+	    ...
 
-	  ...
-	  ...
-	  ...
-      }
-  };
-  \endcode
+	    while ( ! signalled )
+		waitcondition.wait( locker.mutex() );
 
-  \sa QMutex, QWaitCondition
+	    ...
+	    ...
+	    ...
+	}
+    };
+    \endcode
+
+    \sa QMutex, QWaitCondition
 */
 
-/*! \fn QMutexLocker::QMutexLocker( QMutex *mutex )
+/*!
+    \fn QMutexLocker::QMutexLocker( QMutex *mutex )
 
-  Constructs a QMutexLocker and locks \a mutex.  The mutex will be unlocked
-  when the QMutexLocker is destroyed.
+    Constructs a QMutexLocker and locks \a mutex. The mutex will be
+    unlocked when the QMutexLocker is destroyed.
 
-  \sa QMutex::lock()
+    \sa QMutex::lock()
 */
 
-/*! \fn QMutexLocker::~QMutexLocker()
+/*!
+    \fn QMutexLocker::~QMutexLocker()
 
-  Destroys the QMutexLocker and unlocks the mutex which was locked in the
-  constructor.
+    Destroys the QMutexLocker and unlocks the mutex which was locked
+    in the constructor.
 
-  \sa QMutexLocker::QMutexLocker(), QMutex::unlock()
+    \sa QMutexLocker::QMutexLocker(), QMutex::unlock()
 */
 
-/*! \fn QMutex *QMutexLocker::mutex() const
+/*!
+    \fn QMutex *QMutexLocker::mutex() const
 
-  Returns a pointer to the mutex which was locked in the constructor.
+    Returns a pointer to the mutex which was locked in the
+    constructor.
 
-  \sa QMutexLocker::QMutexLocker()
+    \sa QMutexLocker::QMutexLocker()
 */
 
 #endif // QT_THREAD_SUPPORT
