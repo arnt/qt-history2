@@ -120,113 +120,92 @@ const bool win32 = TRUE;
 #define BUTTON_WIDTH 16
 #define BUTTON_HEIGHT 14
 #define RANGE 16
-#define OFFSET 20
 
 static const char * const close_xpm[] = {
-"16 16 2 1",
+"12 12 2 1",
 "# c #000000",
 ". c None",
-"................",
-"................",
-"................",
-"................",
-"....##....##....",
-".....##..##.....",
-"......####......",
-".......##.......",
-"......####......",
-".....##..##.....",
-"....##....##....",
-"................",
-"................",
-"................",
-"................",
-"................"};
+"............",
+"............",
+"..##....##..",
+"...##..##...",
+"....####....",
+".....##.....",
+"....####....",
+"...##..##...",
+"..##....##..",
+"............",
+"............",
+"............"};
 
 static const char * const maximize_xpm[]={
-"16 16 2 1",
+"12 12 2 1",
 "# c #000000",
 ". c None",
-"................",
-"................",
-"................",
-"................",
-"...#########....",
-"...#########....",
-"...#.......#....",
-"...#.......#....",
-"...#.......#....",
-"...#.......#....",
-"...#.......#....",
-"...#########....",
-"................",
-"................",
-"................",
-"................"};
+"............",
+"............",
+".##########.",
+".##########.",
+".#........#.",
+".#........#.",
+".#........#.",
+".#........#.",
+".#........#.",
+".##########.",
+"............",
+"............"};
 
 
 static const char * const minimize_xpm[] = {
-"16 16 2 1",
+"12 12 2 1",
 "# c #000000",
 ". c None",
-"................",
-"................",
-"................",
-"................",
-"................",
-"................",
-"................",
-"................",
-"................",
-"................",
-"....######......",
-"....######......",
-"................",
-"................",
-"................",
-"................"};
+"............",
+"............",
+"............",
+"............",
+"............",
+"............",
+"............",
+"...######...",
+"...######...",
+"............",
+"............",
+"............"};
 
 static const char * const normalize_xpm[] = {
-"16 16 2 1",
+"12 12 2 1",
 "# c #000000",
 ". c None",
-"................",
-"................",
-"................",
-".....######.....",
-".....######.....",
-".....#....#.....",
-"...######.#.....",
-"...######.#.....",
-"...#....###.....",
-"...#....#.......",
-"...#....#.......",
-"...######.......",
-"................",
-"................",
-"................",
-"................"};
+"...........",
+"...######..",
+"...######..",
+"...#....#..",
+".######.#..",
+".######.#..",
+".#....###..",
+".#....#....",
+".#....#....",
+".######....",
+"...........",
+"..........."};
 
 static const char * const normalizeup_xpm[] = {
-"16 16 2 1",
+"12 12 2 1",
 "# c #000000",
 ". c None",
-"................",
-"................",
-"................",
-".....######.....",
-".....######.....",
-".....#....#.....",
-"...######.#.....",
-"...######.#.....",
-"...#....###.....",
-"...#....#.......",
-"...#....#.......",
-"...######.......",
-"................",
-"................",
-"................",
-"................"};
+"...........",
+"...######..",
+"...######..",
+"...#....#..",
+".######.#..",
+".######.#..",
+".#....###..",
+".#....#....",
+".#....#....",
+".######....",
+"...........",
+"..........."};
 
 
 static const char * const shade_xpm[] = {
@@ -254,7 +233,6 @@ const bool win32 = FALSE;
 #define BUTTON_WIDTH 16
 #define BUTTON_HEIGHT 14
 #define RANGE 16
-#define OFFSET 20
 
 static const char * const close_xpm[] = {
 "12 12 2 1",
@@ -1565,10 +1543,10 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 #else
 	    titleHeight = 18;
 #endif
-	    closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	    maxB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	    iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	    shadeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	    closeB->resize(titleHeight-4, titleHeight-4);
+	    maxB->resize(titleHeight-4, titleHeight-4);
+	    iconB->resize(titleHeight-4, titleHeight-4);
+	    shadeB->resize(titleHeight-4, titleHeight-4);
 	    shadeB->hide();
 	    if ( !window->testWFlags( WStyle_MinMax ) ) {
 		maxB->hide();
@@ -1588,17 +1566,10 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 #else
 	    titleHeight = 16;
 #endif
-	    if (win32) {
-   		closeB->resize( titleHeight-2, titleHeight-2 );
-		maxB->resize( titleHeight-2, titleHeight-2 );
-		iconB->resize( titleHeight-2, titleHeight-2 );
-		shadeB->resize( titleHeight-2, titleHeight-2 );
-	    } else {
-   		closeB->resize( titleHeight+2, titleHeight+2 );
-		maxB->resize( titleHeight+2, titleHeight+2 );
-		iconB->resize( titleHeight+2, titleHeight+2 );
-		shadeB->resize( titleHeight+2, titleHeight+2 );
-	    }
+   	    closeB->resize( titleHeight-2, titleHeight-2 );
+	    maxB->resize( titleHeight-2, titleHeight-2 );
+	    iconB->resize( titleHeight-2, titleHeight-2 );
+	    shadeB->resize( titleHeight-2, titleHeight-2 );
 	    maxB->hide();
 	    iconB->hide();
 	    iconL->hide();
@@ -1607,16 +1578,16 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
         }
     } else if ( iconMode ) {
 #ifdef _WS_WIN_
-	    titleHeight = GetSystemMetrics( SM_CYCAPTION );
-	    if ( !titleHeight )
-		titleHeight = 18;
-#else
+	titleHeight = GetSystemMetrics( SM_CYCAPTION );
+	if ( !titleHeight )
 	    titleHeight = 18;
+#else
+	titleHeight = 18;
 #endif
-	closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	maxB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	shadeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	closeB->resize(titleHeight-4, titleHeight-4);
+	maxB->resize(titleHeight-4, titleHeight-4);
+	iconB->resize(titleHeight-4, titleHeight-4);
+	shadeB->resize(titleHeight-4, titleHeight-4);
 	shadeB->hide();
     }
 
@@ -1772,8 +1743,8 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     maxB->move( closeB->x() - maxB->width() - bo, closeB->y() );
     iconB->move( maxB->x() - iconB->width(), maxB->y() );
     shadeB->move( closeB->x() - shadeB->width(), closeB->y() );
+    iconL->setGeometry( 2, 1, closeB->height(), height()-2 );
 
-    iconL->setGeometry( 2, 0, BUTTON_WIDTH, height()-1 );
     int right = closeB->isVisibleTo( this ) ? closeB->x() : width();
     if ( iconB->isVisibleTo( this ) )
 	right = iconB->x();
