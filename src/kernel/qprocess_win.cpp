@@ -162,12 +162,11 @@ bool QProcess::start()
 
     // construct the arguments for CreateProcess()
     QString args;
-    for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
-	if ( it == arguments.begin() ) {
-	    args = *it;
-	} else {
-	    args += QString( " \'" ) + (*it) + QString( "\'" );
-	}
+    QStringList::Iterator it = arguments.begin();
+    args = *it;
+    ++it;
+    for ( ; it != arguments.end(); ++it ) {
+	args += QString( " \'" ) + (*it) + QString( "\'" );
     }
 
     // CreateProcess()
