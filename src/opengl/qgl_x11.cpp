@@ -1005,14 +1005,41 @@ void QGLWidget::setColormap( const QGLColormap & c )
     if ( !cmap.d )
 	return;
     
-    if ( cmap.d->cmapHandle ) // already have an allocated cmap
-	qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
-    else if ( qCanAllocColors( this ) ) {
-	cmap.d->cmapHandle = XCreateColormap( x11Display(), winId(),
-					    (Visual *) x11Visual(), AllocAll );
+    if ( !cmap.d->cmapHandle ) // already have an allocated cmap?
+	cmap.d->cmapHandle = XCreateColormap( x11Display(), tlw->winId(),
+				       (Visual *) tlw->x11Visual(), AllocAll );
+    
+    if ( qCanAllocColors( this ) ) {
  	qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
-	XSetWindowColormap( tlw->x11Display(), tlw->winId(),
+	// set the colormap for a window
+	XSetWindowColormap( x11Display(), tlw->winId(),
 			    (Colormap) cmap.d->cmapHandle );
+	
+	// tell the wm that this window has a special colormap
+	Window * cmw;
+	Window * cmwret;
+	int count;
+	if ( XGetWMColormapWindows( x11Display(), tlw->winId(), &cmwret,
+				    &count ) )
+	{
+	    cmw = new Window[count+1];
+	    memcpy( (char *) cmw, (char *) cmwret, sizeof(Window) * count );
+	    XFree( (char *) cmwret );
+	    int i;
+	    for ( i = 0; i < count; i++ ) {
+		if ( cmw[i] == winId() ) {
+		    break;
+		}
+	    }
+	    if ( i >= count )   // append new window only if not in the list
+		cmw[count++] = winId();
+	} else {
+	    count = 1;
+	    cmw = new Window[count];
+	    cmw[0] = winId();
+	}
+	XSetWMColormapWindows( x11Display(), tlw->winId(), cmw, count );
+	delete [] cmw;
     } else
 	qWarning( "QGLWidget::setColormap: Cannot create a read/write "
 		  "colormap for this visual" );
@@ -1031,7 +1058,8 @@ void QGLWidget::cleanupColormaps()
 	XSetWindowColormap( topLevelWidget()->x11Display(),
 			    topLevelWidget()->winId(),
 			    DefaultColormap( x11Display(), x11Screen() ) );
-	XFreeColormap( x11Display(), (Colormap) cmap.d->cmapHandle );
+	XFreeColormap( topLevelWidget()->x11Display(),
+		       (Colormap) cmap.d->cmapHandle );
 	cmap.d->cmapHandle = 0;
     }
 }
