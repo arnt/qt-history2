@@ -2,7 +2,7 @@
 
 #customizing
 P4=/usr/local/bin/p4          #p4 location
-P4PORT=lupinella.troll.no:866 #point p4 to the correct server
+P4PORT=p4.troll.no:866 #point p4 to the correct server
 
 #internal variables
 CREATED_MANIFEST=no
