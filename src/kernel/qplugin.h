@@ -48,6 +48,7 @@
 class QApplicationInterface;
 class QUnknownInterface;
 class QPlugInInterface;
+class QRegExp;
 
 class Q_EXPORT QPlugIn
 {
@@ -71,7 +72,7 @@ public:
 
     QString library() const;
 
-    QUnknownInterface *queryInterface( const QString& = QString::null, bool rec = TRUE );
+    QUnknownInterface *queryInterface( const QRegExp&, bool rec = TRUE );
 
 private:
     bool use();

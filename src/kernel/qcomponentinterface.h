@@ -11,6 +11,7 @@
 
 class QApplicationInterface;
 class QInterfaceList;
+class QRegExp;
 
 class Q_EXPORT QUnknownInterface
 {
@@ -24,8 +25,8 @@ public:
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
 
-    virtual bool hasInterface( const QString&, bool rec = TRUE ) const;
-    virtual QUnknownInterface* queryInterface( const QString&, bool rec = TRUE );
+    virtual bool hasInterface( const QRegExp&, bool rec = TRUE ) const;
+    virtual QUnknownInterface* queryInterface( const QRegExp&, bool rec = TRUE );
     virtual QStringList interfaceList( bool rec = TRUE) const;
 
     bool release();

@@ -3,7 +3,7 @@
 
 #include "qapplication.h"
 #include "qdir.h"
-#include "qstringlist.h"
+#include "qregexp.h"
 
 class QInterfaceList : public QList<QUnknownInterface>
 {
@@ -196,20 +196,22 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
   in the child interfaces, too.
 */
 
-bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
+bool QUnknownInterface::hasInterface( const QRegExp &request, bool rec ) const
 {
-    if ( request.isEmpty() || request == interfaceID() )
+    if ( request.match( interfaceID() ) )
 	return TRUE;
     if ( !children )
 	return FALSE;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( it.current()->interfaceID() == request ) {
+	if ( request.match( it.current()->interfaceID() ) ) {
 	    return TRUE;
 	} else if ( rec ) {
 	    QUnknownInterface *iface;
-	    if ( ( iface = it.current()->queryInterface( request ) ) )
+	    if ( ( iface = it.current()->queryInterface( request ) ) ) {
+		iface->release();
 		return iface;
+	    }
 	}
 	++it;
     }
@@ -249,12 +251,12 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
   Returns an interface that matches \a request. If \a rec is TRUE, this function will
   look for the requested interface in the child interfaces, too.
   The function returns NULL if this interface can't provide an interface
-  with the requested interfaceID. If \a request is a null-string, this interface is returned.
+  with the requested interfaceID.
 */
 
-QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool rec )
+QUnknownInterface* QUnknownInterface::queryInterface( const QRegExp& request, bool rec )
 {
-    if ( request.isEmpty() || request == interfaceID() ) {
+    if ( request.match( interfaceID() ) ) {
 	if ( ref() )
 	    return this;
 	return 0;
@@ -263,7 +265,7 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bo
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( it.current()->interfaceID() == request ) {
+	if ( request.match( it.current()->interfaceID() ) ) {
 	    it.current()->appInterface = appInterface;
 	    if ( it.current()->ref() )
 		return it.current();
