@@ -39,8 +39,9 @@ class Q_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
-    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
+    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
+    Q_PROPERTY( bool scaledContents READ hasScaledContents WRITE setScaledContents )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( int indent READ indent WRITE setIndent )
 	
@@ -68,6 +69,9 @@ public:
 
     bool 	 autoResize() const	{ return autoresize; }
     virtual void setAutoResize( bool );
+    
+    bool 	hasScaledContents() const;
+    void 	setScaledContents( bool );
 
     QSize	 sizeHint() const;
     QSize	 minimumSizeHint() const;
@@ -94,6 +98,7 @@ protected:
     void	 drawContents( QPainter * );
     void	 drawContentsMask( QPainter * );
     void	 fontChange( const QFont & );
+    void	 resizeEvent( QResizeEvent* );
 
 private slots:
     void	 acceleratorSlot();
@@ -117,6 +122,7 @@ private:
     ushort	align;
     short	extraMargin;
     uint	autoresize:1;
+    uint	scaledcontents :1;
     TextFormat textformat;
     QSimpleRichText* doc;
     QAccel *	accel;

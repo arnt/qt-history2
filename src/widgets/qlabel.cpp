@@ -43,9 +43,11 @@ class QLabelPrivate
 {
 public:
     QLabelPrivate()
-	:minimumWidth(0)
+	:minimumWidth(0), img(0), pix(0)
     {}
     int minimumWidth; // for richtext
+    QImage* img; // for scaled contents
+    QPixmap* pix; // for scaled contents
 };
 
 
@@ -120,7 +122,7 @@ public:
 */
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WMouseNoMask )
+    : QFrame( parent, name, f | WMouseNoMask | WResizeNoErase )
 {
     init();
 }
@@ -137,7 +139,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 		WFlags f )
-	: QFrame( parent, name, f | WMouseNoMask )
+	: QFrame( parent, name, f | WMouseNoMask | WResizeNoErase )
 {
     init();
     setText( text );
@@ -189,11 +191,12 @@ void QLabel::init()
     align = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
+    scaledcontents = FALSE;
     textformat = Qt::AutoText;
 #if QT_FEATURE_RICHTEXT
     doc = 0;
 #endif
-    
+
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
     d = new QLabelPrivate;
 }
@@ -256,7 +259,7 @@ void QLabel::setText( const QString &text )
 	d->minimumWidth = doc->widthUsed();
     }
 #endif
-    
+
     if ( doc || align & WordBreak )
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) );
     else
@@ -417,7 +420,7 @@ void QLabel::setAlignment( int alignment )
 void QLabel::setIndent( int indent )
 {
     extraMargin = indent;
-    //### update? auto-resize?
+    updateLabel( QSize( -1, -1 ) );
 }
 
 
@@ -572,6 +575,55 @@ QSizePolicy QLabel::sizePolicy() const
 }
 
 
+static bool resizeEventCalled = FALSE; // binary compatibility ### remove 3.0
+/*!
+  \reimp
+*/
+void QLabel::resizeEvent( QResizeEvent* e )
+{
+    resizeEventCalled = TRUE;
+    QFrame::resizeEvent( e );
+    
+    QRect cr = contentsRect();
+    if ( !lpixmap ||  !cr.isValid() ||
+	 // masked pixmaps can only reduce flicker when being top/left
+	 // aligned and when we do not perform scaled contents
+	 ( lpixmap->mask() && ( ( align & (AlignLeft|AlignTop) ) != (AlignLeft|AlignTop)   || scaledcontents ) ) ) {
+	erase();
+	return;
+    }
+    
+    // don't we all love QFrame? Reduce pixmap flicker
+    QRegion reg = QRect( QPoint(0, 0), e->size() );
+    reg = reg.subtract( cr );
+    if ( !scaledcontents ) {
+	int x = cr.x();
+	int y = cr.y();
+	int w = lpixmap->width();
+	int h = lpixmap->height();
+	if ( (align & Qt::AlignVCenter) == Qt::AlignVCenter )
+	    y += cr.height()/2 - h/2;
+	else if ( (align & Qt::AlignBottom) == Qt::AlignBottom)
+	    y += cr.height() - h;
+	if ( (align & Qt::AlignRight) == Qt::AlignRight )
+	    x += cr.width() - w;
+	else if ( (align & Qt::AlignHCenter) == Qt::AlignHCenter )
+	    x += cr.width()/2 - w/2;
+	if ( x > cr.x() )
+	    reg = reg.unite( QRect( cr.x(), cr.y(), x - cr.x(), cr.height() ) ); 
+	if ( y > cr.y() )
+	    reg = reg.unite( QRect( cr.x(), cr.y(), cr.width(), y - cr.y() ) ); 
+
+	if ( x + w < cr.right() )
+	    reg = reg.unite( QRect( x + w, cr.y(),  cr.right() - x - w, cr.height() ) );
+	if ( y + h < cr.bottom() )
+	    reg = reg.unite( QRect( cr.x(), y +  h, cr.width(), cr.bottom() - y - h ) );
+				
+	erase( reg );
+    }
+}
+
+
 /*!
   Draws the label contents using the painter \a p.
 */
@@ -579,6 +631,10 @@ QSizePolicy QLabel::sizePolicy() const
 void QLabel::drawContents( QPainter *p )
 {
     QRect cr = contentsRect();
+    
+    if ( !resizeEventCalled )
+	erase( cr );  //### binary compatibility, remove 3.0
+    
     int m = indent();
     if ( m < 0 ) {
 	if ( frameWidth() > 0 )
@@ -634,12 +690,23 @@ void QLabel::drawContents( QPainter *p )
     } else
 #endif
     {
-	// ordinary text label
+	QPixmap* pix = lpixmap;
+	if ( scaledcontents && lpixmap ) {
+	    if ( !d->img )
+		d->img = new QImage( lpixmap->convertToImage() );
+	    if ( !d->pix )
+		d->pix = new QPixmap;
+	    if ( d->pix->size() != cr.size() ) 
+		d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
+	    pix = d->pix;
+	}
+	// ordinary text or pixmap label
 	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
 			  align, colorGroup(), isEnabled(),
-			  lpixmap, ltext );
+			  pix, ltext );
     }
 }
+
 
 /*!
   \reimp
@@ -681,7 +748,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	if ( align & AlignBottom )
 	    cr.setBottom( cr.bottom() - m );
     }
- 
+
 #if QT_FEATURE_MOVIE
     QMovie *mov = movie();
     if ( mov ) {
@@ -706,12 +773,22 @@ void QLabel::drawContentsMask( QPainter *p )
 		   color1, color0);
 
     QBitmap bm;
-    if (lpixmap) {
-	if (lpixmap->mask()) {
-	    bm = *lpixmap->mask();
+    QPixmap* pix = lpixmap;
+    if ( scaledcontents && lpixmap ) {
+	if ( !d->img )
+	    d->img = new QImage( lpixmap->convertToImage() );
+	if ( !d->pix )
+	    d->pix = new QPixmap;
+	if ( d->pix->size() != cr.size() ) 
+	    d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
+	pix = d->pix;
+    }
+    if (pix ) {
+	if (pix->mask()) {
+	    bm = *pix->mask();
 	}
 	else {
-	    bm.resize( lpixmap->size() );
+	    bm.resize( pix->size() );
 	    bm.fill(color1);
 	}
     }
@@ -942,6 +1019,10 @@ void QLabel::clearContents()
 
     delete lpixmap;
     lpixmap = 0;
+    delete d->img;
+    d->img = 0;
+    delete d->pix;
+    d->pix = 0;
 
     ltext = QString::null;
 
@@ -999,8 +1080,8 @@ void QLabel::setTextFormat( Qt::TextFormat format )
 {
     if ( format != textformat ) {
     textformat = format;
-	if ( !ltext.isEmpty() )
-	    updateLabel( QSize( -1, -1 ) );
+    if ( !ltext.isEmpty() )
+	updateLabel( QSize( -1, -1 ) );
     }
 }
 
@@ -1013,4 +1094,30 @@ void QLabel::fontChange( const QFont & )
     if ( !ltext.isEmpty() )
 	updateLabel( QSize( -1, -1 ) );
 }
+
+/*!
+ */
+bool QLabel::hasScaledContents() const
+{
+    return scaledcontents;
+}
+
+/*!
+ */
+void QLabel::setScaledContents( bool enable )
+{
+    if ( scaledcontents == enable )	
+	return;
+    scaledcontents = enable;
+    if ( !enable ) {
+	delete d->img;
+	d->img = 0;
+	delete d->pix;
+	d->pix = 0;
+    }
+    if ( autoMask() )
+	updateMask();
+    update();
+}
+
 #endif
