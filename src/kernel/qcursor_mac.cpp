@@ -79,17 +79,19 @@ struct QCursorData : public QShared
     QCursorData( int s = 0 );
    ~QCursorData();
 
+    int id;
     int	      cshape;
     int hx, hy;
     QBitmap  *bm, *bmm;
 
-    enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr } type;
+    enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr, TYPE_ThemeCursor } type;
     union {
 	struct {
 	    uint my_cursor:1;
 	    CursPtr   hcurs;
 	} cp;
 	CursorImageRec *ci;
+	ThemeCursor tc;
     } curs;
 };
 
@@ -99,6 +101,15 @@ void qt_mac_set_cursor(const QCursor *c)
 	SetCursor(c->data->curs.cp.hcurs);
     } else if(c->data->type == QCursorData::TYPE_CursorImage) {
 
+    } else if(c->data->type == QCursorData::TYPE_ThemeCursor) {
+	switch(c->data->curs.tc) {
+	case kThemeWatchCursor:
+	    SetAnimatedThemeCursor(c->data->curs.tc, 1);
+	    break;
+	default:
+	    SetThemeCursor(c->data->curs.tc);
+	    break;
+	}
     } else {
 	qDebug("whoa! that shouldn't happen!");
     }
@@ -110,6 +121,9 @@ QCursorData::QCursorData( int s )
     bm = bmm = 0;
     hx = hy  = -1;
     type = TYPE_None;
+
+    static int static_id = 121578; //the holy day
+    id = static_id++;
 }
 
 QCursorData::~QCursorData()
@@ -127,8 +141,6 @@ QCursorData::~QCursorData()
     if ( bmm )
 	delete bmm;
 }
-
-//**}
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 {
@@ -150,7 +162,6 @@ void QCursor::cleanup()
     initialized = FALSE;
 }
 
-
 void QCursor::initialize()
 {
     InitCursor();
@@ -160,7 +171,6 @@ void QCursor::initialize()
     initialized = TRUE;
     qAddPostRoutine( cleanup );
 }
-
 
 QCursor::QCursor()
 {
@@ -175,8 +185,6 @@ QCursor::QCursor()
     c->data->ref();
     data = c->data;
 }
-
-
 
 QCursor::QCursor(int shape)
 {
@@ -213,7 +221,6 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
 
-
 QCursor::QCursor( const QCursor &c )
 {
     if ( !initialized )
@@ -222,13 +229,11 @@ QCursor::QCursor( const QCursor &c )
     data->ref();
 }
 
-
 QCursor::~QCursor()
 {
     if ( data && data->deref() )
 	delete data;
 }
-
 
 QCursor &QCursor::operator=( const QCursor &c )
 {
@@ -240,7 +245,6 @@ QCursor &QCursor::operator=( const QCursor &c )
     data = c.data;
     return *this;
 }
-
 
 int QCursor::shape() const
 {
@@ -260,7 +264,6 @@ void QCursor::setShape( int shape )
     data = c->data;
 }
 
-
 const QBitmap *QCursor::bitmap() const
 {
     if ( !initialized )
@@ -276,7 +279,6 @@ const QBitmap *QCursor::mask() const
     return data->bmm;
 }
 
-
 QPoint QCursor::hotSpot() const
 {
     if ( !initialized )
@@ -284,29 +286,21 @@ QPoint QCursor::hotSpot() const
     return QPoint( data->hx, data->hy );
 }
 
-
-
 Qt::HANDLE QCursor::handle() const
 {
     if ( !initialized )
 	initialize();
     if( data->type == QCursorData::TYPE_None )
 	update();
-    if( data->type == QCursorData::TYPE_CursorImage )
-	return data->curs.ci;
-    return data->curs.cp.hcurs;
+    return (Qt::HANDLE)data->id;
 }
-
-
 
 QPoint QCursor::pos()
 {
     Point p;
-    GetMouse(&p);
-    LocalToGlobal(&p);
+    GetGlobalMouse(&p);
     return QPoint(p.h, p.v);
 }
-
 
 // some kruft I found on the web.. it doesn't work, but I want to test more FIXME
 #define MTemp 0x828
@@ -345,54 +339,29 @@ void QCursor::update() const
 
     switch ( d->cshape ) {			// map Q cursor to MAC cursor
     case ArrowCursor:
-    {
-	static Cursor arrow;
-	static bool got_arrow = FALSE;
-	if(!got_arrow) {
-	    got_arrow = TRUE;
-	    GetQDGlobalsArrow(&arrow);
-	}
-	d->type = QCursorData::TYPE_CursPtr;
-	d->curs.cp.my_cursor = FALSE;
-	d->curs.cp.hcurs = &arrow;
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemeArrowCursor;
 	break;
-    }
     case CrossCursor:
-    {
-	if(CursHandle c = GetCursor(::crossCursor)) {
-	    d->type = QCursorData::TYPE_CursPtr;
-	    d->curs.cp.my_cursor = FALSE;
-	    d->curs.cp.hcurs = *c;
-	}
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemeCrossCursor;
 	break;
-    }
     case WaitCursor:
-    {
-	if(CursHandle c = GetCursor(::watchCursor)) {
-	    d->type = QCursorData::TYPE_CursPtr;
-	    d->curs.cp.my_cursor = FALSE;
-	    d->curs.cp.hcurs = *c;
-	}
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemeWatchCursor;
 	break;
-    }
     case IbeamCursor:
-    {
-	if(CursHandle c = GetCursor(::iBeamCursor)) {
-	    d->type = QCursorData::TYPE_CursPtr;
-	    d->curs.cp.my_cursor = FALSE;
-	    d->curs.cp.hcurs = *c;
-	}
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemeIBeamCursor;
 	break;
-    }
     case SizeAllCursor:
-    {
-	if(CursHandle c = GetCursor(::plusCursor)) {
-	    d->type = QCursorData::TYPE_CursPtr;
-	    d->curs.cp.my_cursor = FALSE;
-	    d->curs.cp.hcurs = *c;
-	}
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemePlusCursor;
 	break;
-    }
+    case PointingHandCursor:
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemePointingHandCursor;
+	break;
 
 #define QT_USE_APPROXIMATE_CURSORS
 #ifdef QT_USE_APPROXIMATE_CURSORS
@@ -444,7 +413,6 @@ void QCursor::update() const
 	    0x00, 0x00, 0x00, 0x00, 0x07, 0xfc, 0x03, 0xfc, 0x01, 0xfc, 0x00, 0xfc,
 	    0x41, 0xfc, 0x63, 0xfc, 0x77, 0xdc, 0x7f, 0x8c, 0x7f, 0x04, 0x7e, 0x00,
 	    0x7f, 0x00, 0x7f, 0x80, 0x7f, 0xc0, 0x00, 0x00 };
-
 
 	d->type = QCursorData::TYPE_CursPtr;
 	d->curs.cp.my_cursor = TRUE;
@@ -539,14 +507,6 @@ void QCursor::update() const
 	break;
     }
 #if 0
-    case PointingHandCursor:
-    {
-	d->my_cursor = TRUE;
-	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
-	memcpy(d->curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
-	break;
-    }
     case ForbiddenCursor:
     {
 	d->my_cursor = TRUE;
