@@ -761,9 +761,19 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &type)
         break;
     case VT_DATE:
         var = DATEToQDateTime(arg.date);
+        if (type == "QDate" || type == "QDate*") {
+            var.cast(QCoreVariant::Date);
+        } else if (type == "QTime" || type == "QTime*") {
+            var.cast(QCoreVariant::Time);
+        }
         break;
     case VT_DATE|VT_BYREF:
         var = DATEToQDateTime(*arg.pdate);
+        if (type == "QDate" || type == "QDate*") {
+            var.cast(QCoreVariant::Date);
+        } else if (type == "QTime" || type == "QTime*") {
+            var.cast(QCoreVariant::Time);
+        }
         break;
     case VT_VARIANT:
     case VT_VARIANT|VT_BYREF:
