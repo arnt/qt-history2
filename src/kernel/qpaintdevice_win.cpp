@@ -164,6 +164,9 @@ Q_UNUSED( destIsPixmap )
 }
 
 // For alpha blending, we must load the AlphaBlend() function at run time.
+#if !defined(AC_SRC_ALPHA)
+#define AC_SRC_ALPHA 0x01
+#endif
 typedef BOOL (WINAPI *ALPHABLEND)( HDC, int, int, int, int, HDC, int, int, int, int, BLENDFUNCTION );
 static HINSTANCE msimg32Lib = 0;
 static ALPHABLEND alphaBlend = 0;
