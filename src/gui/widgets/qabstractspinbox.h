@@ -70,7 +70,6 @@ public:
 
     void interpretText();
     bool event(QEvent *event);
-    bool eventFilter(QObject *object, QEvent *event);
 
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual void fixup(QString &input) const;
