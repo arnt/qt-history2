@@ -1277,14 +1277,14 @@ private:
     }
     
     QMap<QByteArray, Method> slot_list;
-    inline void addSlot(const char *type, const char *prototype, const char *parameters)
+    inline void addSlot(const char *type, const char *prototype, const char *parameters, int flags = QMetaMember::Public)
     {
         QByteArray proto = replacePrototype(prototype);
         
         Method &slot = slot_list[proto];
         slot.type = type;
         slot.parameters = parameters;
-        slot.flags = QMetaMember::Public;
+        slot.flags = flags;
         if (proto != prototype)
             slot.realPrototype = prototype;
     }
@@ -1864,6 +1864,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
             // FALL THROUGH to support multi-variat properties
         case INVOKE_FUNC: // method
             {
+                bool cloned = false;
                 bool defargs;
                 do {
                     QByteArray pnames;
@@ -1873,7 +1874,11 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                             pnames += ',';
                     }
                     defargs = pnames.contains("=0");
-                    addSlot(type, prototype, pnames.replace("=0", ""));
+                    int flags = QMetaMember::Public;
+                    if (cloned)
+                        flags |= 0x10;
+                    cloned |= defargs;
+                    addSlot(type, prototype, pnames.replace("=0", ""), flags);
                     
                     if (defargs) {
                         parameters.takeLast();
