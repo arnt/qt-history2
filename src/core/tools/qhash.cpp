@@ -1599,14 +1599,15 @@ void QHashData::free()
     \sa replace()
 */
 
-/*! \fn QMultiHash<Key, T> &QMultiHash::operator+=(const QMultiHash<Key, T> &other)
+/*! \fn QMultiHash &QMultiHash::operator+=(const QMultiHash &other)
 
-    Inserts all the items in the \a other hash into this hash.
+    Inserts all the items in the \a other hash into this hash
+    and returns a reference to this hash.
 
     \sa insert()
 */
 
-/*! \fn QMultiHash<Key, T> QMultiHash::operator+(const QMultiHash<Key, T> &other) const
+/*! \fn QMultiHash QMultiHash::operator+(const QMultiHash &other) const
 
     Returns a hash that contains all the items in this hash in
     addition to all the items in \a other. If a key is common to both

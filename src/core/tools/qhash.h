@@ -662,10 +662,10 @@ public:
     inline typename QHash<Key, T>::iterator insert(const Key &key, const T &value)
     { return QHash<Key, T>::insertMulti(key, value); }
 
-    inline QMultiHash<Key, T> &operator+=(const QMultiHash<Key, T> &other)
+    inline QMultiHash &operator+=(const QMultiHash &other)
     { merge(other); return *this; }
-    inline QMultiHash<Key, T> operator+(const QMultiHash<Key, T> &other) const
-    { QMultiHash<Key, T> result = *this; result += other; return result; }
+    inline QMultiHash operator+(const QMultiHash &other) const
+    { QMultiHash result = *this; result += other; return result; }
 };
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)

@@ -696,10 +696,10 @@ public:
     inline typename QMap<Key, T>::iterator insert(const Key &key, const T &value)
     { return QMap<Key, T>::insertMulti(key, value); }
 
-    inline QMultiMap<Key, T> &operator+=(const QMultiMap<Key, T> &other)
+    inline QMultiMap &operator+=(const QMultiMap &other)
     { merge(other); return *this; }
-    inline QMultiMap<Key, T> operator+(const QMultiMap<Key, T> &other) const
-    { QMultiMap<Key, T> result = *this; result += other; return result; }
+    inline QMultiMap operator+(const QMultiMap &other) const
+    { QMultiMap result = *this; result += other; return result; }
 };
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)

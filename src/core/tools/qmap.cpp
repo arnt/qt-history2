@@ -1315,14 +1315,15 @@ void QMapData::dump()
     \sa replace()
 */
 
-/*! \fn QMultiMap<Key, T> &QMultiMap::operator+=(const QMultiMap<Key, T> &other)
+/*! \fn QMultiMap &QMultiMap::operator+=(const QMultiMap &other)
 
-    Inserts all the items in the \a other map into this map.
+    Inserts all the items in the \a other map into this map and
+    returns a reference to this map.
 
-    \sa insert()
+    \sa insert(), operator+()
 */
 
-/*! \fn QMultiMap<Key, T> QMultiMap::operator+(const QMultiMap<Key, T> &other) const
+/*! \fn QMultiMap QMultiMap::operator+(const QMultiMap &other) const
 
     Returns a map that contains all the items in this map in
     addition to all the items in \a other. If a key is common to both
