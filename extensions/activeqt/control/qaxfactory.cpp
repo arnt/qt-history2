@@ -291,7 +291,7 @@ QObject *QAxFactory::createObject( const QString &key, QObject *parent, const ch
 */
 const QMetaObject *QAxFactory::metaObject(const QString &key) const
 {
-    QObject *object = createObject(key, 0, 0);
+    QObject *object = const_cast<QAxFactory*>(this)->createObject(key, 0, 0);
     const QMetaObject *mo = object ? object->metaObject() : 0;
     delete object;
 
