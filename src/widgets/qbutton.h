@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#71 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#72 $
 **
 ** Definition of QButton widget class
 **
@@ -72,6 +72,8 @@ public:
 
     bool	focusNextPrevChild( bool next );
 
+    QButtonGroup *group() const;
+
 public slots:
     void	animateClick();
     void	toggle();
@@ -120,10 +122,8 @@ private:
     QButtonData *d;
 
     friend class QButtonGroup;
-    friend class QWidgetStack; // ### group() is private - why?
     void          ensureData();
-    QButtonGroup *group() const;
-    virtual void	  setGroup( QButtonGroup* );
+    virtual void setGroup( QButtonGroup* );
     QTimer	 *timer();
     void	nextState();
 
