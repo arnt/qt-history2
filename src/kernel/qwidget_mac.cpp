@@ -233,7 +233,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	hd = mytop->hd;
 	setWinId(id);
     }
-    qDebug("Created %s with %d", name(), id);
 
     bg_col = pal.normal().background();
 
@@ -321,9 +320,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
-    if ( old_winid && mytop == this && isTopLevel() ) {
+    if ( old_winid && mytop == this && isTopLevel() ) 
 	DisposeWindow( (WindowPtr)old_winid );
-    }
 
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
