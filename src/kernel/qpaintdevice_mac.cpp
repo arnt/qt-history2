@@ -29,6 +29,7 @@
 
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
+#include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -370,6 +371,10 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool imask)
 {
+    QPaintDevice *pdev = QPainter::redirect( dst );
+    if ( pdev )
+	dst = pdev;
+
     scaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
 }
 

@@ -29,6 +29,7 @@
 
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
+#include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -232,6 +233,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     if ( src->isExtDev() )
 	return;
+
+    QPaintDevice *pdev = QPainter::redirect( dst );
+    if ( pdev )
+	dst = pdev;
 
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
