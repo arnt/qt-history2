@@ -1926,7 +1926,7 @@ void QApplication::openPopup(QWidget *popup)
 	Q_CHECK_PTR(popupWidgets);
 	if (!activeBeforePopup)
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
-	(*activeBeforePopup) = active_window;
+	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
     popupWidgets->append( popup );		// add to end of list
 
@@ -1958,14 +1958,14 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	// restore the former active window immediately, although
 	// we'll get a focusIn later
-	active_window = (*activeBeforePopup);
-	QFocusEvent::setReason( QFocusEvent::Popup );
-	if ( active_window )
-	    if (active_window->focusWidget())
-		active_window->focusWidget()->setFocus();
-	    else
-		active_window->setFocus();
-	QFocusEvent::resetReason();
+	if ( *activeBeforePopup ) {
+	    active_window = (*activeBeforePopup)->topLevelWidget();
+	    QFocusEvent::setReason( QFocusEvent::Popup );
+	    (*activeBeforePopup)->setFocus();
+	    QFocusEvent::resetReason();
+	} else {
+	    active_window = 0;
+	}
     } else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that

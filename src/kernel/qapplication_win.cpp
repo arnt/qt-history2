@@ -2269,7 +2269,7 @@ void QApplication::openPopup( QWidget *popup )
 	Q_CHECK_PTR( popupWidgets );
 	if ( !activeBeforePopup )
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
-	(*activeBeforePopup) = active_window;
+	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() )
@@ -2299,16 +2299,16 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
-	active_window = (*activeBeforePopup);	// windows does not have
+	// windows does not have
 	// A reasonable focus handling for our popups => we have
 	// to restore the focus manually.
-	if ( active_window ) {
+	if ( *activeBeforePopup ) {
+	    active_window = (*activeBeforePopup)->topLevelWidget();
 	    QFocusEvent::setReason( QFocusEvent::Popup );
-	    if (active_window->focusWidget())
-		active_window->focusWidget()->setFocus();
-	    else
-		active_window->setFocus();
+	    (*activeBeforePopup)->setFocus();
 	    QFocusEvent::resetReason();
+	} else {
+	    active_window = 0;
 	}
     } else {
 	// Popups are not focus-handled by the window system (the

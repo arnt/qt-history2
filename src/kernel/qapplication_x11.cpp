@@ -3707,7 +3707,7 @@ void QApplication::openPopup( QWidget *popup )
 	Q_CHECK_PTR( popupWidgets );
 	if ( !activeBeforePopup )
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
-	(*activeBeforePopup) = active_window;
+	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
     popupWidgets->append( popup );		// add to end of list
 
@@ -3768,16 +3768,15 @@ void QApplication::closePopup( QWidget *popup )
 	    XUngrabPointer( popup->x11Display(), CurrentTime );
 	    XFlush( popup->x11Display() );
 	}
-	active_window = (*activeBeforePopup);
 	// restore the former active window immediately, although
 	// we'll get a focusIn later from X
-	if ( active_window ) {
+	if ( *activeBeforePopup ) {
+	    active_window = (*activeBeforePopup)->topLevelWidget();
 	    QFocusEvent::setReason( QFocusEvent::Popup );
-	    if (active_window->focusWidget())
-		active_window->focusWidget()->setFocus();
-	    else
-		active_window->setFocus();
+	    (*activeBeforePopup)->setFocus();
 	    QFocusEvent::resetReason();
+	} else {
+	    active_window = 0;
 	}
     }
      else {
