@@ -445,7 +445,6 @@ void QStatusBar::paintEvent( QPaintEvent * )
     if ( haveMessage ) {
 	p.setPen( colorGroup().text() );
 	p.drawText( 6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem );
-	qDebug( "psx = %d", psx );
     }
 }
 
