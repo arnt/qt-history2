@@ -3240,7 +3240,7 @@ void QWidget::clearFocus()
         else {
 #endif
 #ifndef QT_NO_ACCESSIBILITY
-            QAccessible::updateAccessibility(w, 0, QAccessible::Focus);
+            QAccessible::updateAccessibility(this, 0, QAccessible::Focus);
 #endif
 #if defined(Q_WS_WIN)
         }
