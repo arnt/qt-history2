@@ -707,7 +707,7 @@
 */
 
 const int NumBadChars = 64;
-#define BadChar( ch ) ( (ch).cell() % NumBadChars )
+#define BadChar( ch ) ( (ch).unicode() % NumBadChars )
 
 const int NoOccurrence = INT_MAX;
 const int EmptyCapture = INT_MAX;
@@ -785,11 +785,12 @@ static int at( const QMap<int, int>& m, int k )
   Translates a wildcard pattern to an equivalent regular expression pattern
   (e.g., *.cpp to .*\.cpp).
 */
-static QString wc2rx( const QString& wc )
+static QString wc2rx( const QString& wc_str )
 {
-    int wclen = wc.length();
+    int wclen = wc_str.length();
     QString rx = QString::fromLatin1( "" );
     int i = 0;
+    const QChar *wc = wc_str.unicode();
     while ( i < wclen ) {
 	QChar c = wc[i++];
 	switch ( c.unicode() ) {
@@ -3664,6 +3665,16 @@ int QRegExp::matchedLength() const
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
+/*! 
+  Returns the number of captures contained in the regular expression.
+ */
+int QRegExp::numCaptures() const
+{
+    return eng->numCaptures();
+}
+
+
+
 /*!
     Returns a list of the captured text strings.
 
