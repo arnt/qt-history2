@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#20 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,13 +19,69 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#20 $")
 
 
 #if !defined(QT_HEADER_PS)
+     // produced from qpshdr.txt
 static char *ps_header =
-#include "qpshdr.cpp"
-;
+"/D {bind def} bind def /ED {exch def} D /LT {lineto} D /MT {moveto} D /S\n"
+"{stroke} D /SW {setlinewidth} D /CP {closepath} D /RL {rlineto} D /NP\n"
+"{newpath} D /CM {currentmatrix} D /SM {setmatrix} D /TR {translate} D\n"
+"/SRGB {setrgbcolor} D /SC {aload pop SRGB} D /GS {gsave} D /GR {grestore}\n"
+"D /BSt 0 def /LWi 1 def /PSt 1 def /Cx 0 def /Cy 0 def /WFi false def /OMo\n"
+"false def /BCol [ 1 1 1 ] def /PCol [ 0 0 0 ] def /BkCol [ 1 1 1 ] def /nS\n"
+"0 def /QS { PSt 0 ne { LWi SW GS PCol SC true GPS 0 setdash S OMo PSt 1 ne\n"
+"and { GR BkCol SC false GPS dup 0 get setdash S } { GR } ifelse } if } D\n"
+"/QF { GS BSt 2 ge BSt 8 le and { BDArr BSt 2 sub get setgray fill } if BSt\n"
+"9 ge BSt 14 le and { BF } if BSt 1 eq { BCol SC WFi { fill } { eofill }\n"
+"ifelse } if GR } D /PF { GS BSt 2 ge BSt 8 le and { BDArr BSt 2 sub get\n"
+"setgray WFi { fill } { eofill } ifelse } if BSt 9 ge BSt 14 le and { BF }\n"
+"if BSt 1 eq { BCol SC WFi { fill } { eofill } ifelse } if GR } D /BDArr[\n"
+"0.94 0.88 0.63 0.50 0.37 0.12 0.6 ] def /ArcDict 6 dict def ArcDict begin\n"
+"/tmp matrix def end /ARC { ArcDict begin /ang2 ED /ang1 ED /h ED /w ED /y\n"
+"ED /x ED tmp CM pop x w 2 div add y h 2 div add TR 1 h w div neg scale\n"
+"ang2 0 ge {0 0 w 2 div ang1 ang1 ang2 add arc } {0 0 w 2 div ang1 ang1\n"
+"ang2 add arcn} ifelse tmp SM end } D /QI { GS /Courier findfont [ 12 0 0\n"
+"-12 0 0 ] makefont setfont clippath pathbbox 3 index /PageX ED 0 index\n"
+"/PageY ED 3 2 roll exch sub neg /PageH ED sub neg /PageW ED PageX PageY TR\n"
+"1 -1 scale /defM matrix CM def } D /QP { GR showpage } D /P { NP MT 0.5\n"
+"0.5 rmoveto 0 -1 RL -1 0 RL 0 1 RL CP PCol SC fill } D /M { /Cy ED /Cx ED\n"
+"} D /L { NP Cx Cy MT /Cy ED /Cx ED Cx Cy LT QS } D /DL { 4 2 roll NP MT LT\n"
+"QS } D /RDict 4 dict def /R { RDict begin /h ED /w ED /y ED /x ED NP x y\n"
+"MT 0 h RL w 0 RL 0 h neg RL CP QF QS end } D /RRDict 6 dict def /RR {\n"
+"RRDict begin /yr ED /xr ED /h ED /w ED /y ED /x ED xr 0 le yr 0 le or {x y\n"
+"w h R} {xr 100 ge yr 100 ge or {x y w h E} { /rx xr w mul 200 div def /ry\n"
+"yr h mul 200 div def /rx2 rx 2 mul def /ry2 ry 2 mul def NP x rx add y MT\n"
+"x w add rx2 sub y rx2 ry2 90 -90 ARC x w add rx2 sub y h add ry2 sub rx2\n"
+"ry2 0 -90 ARC x y h add ry2 sub rx2 ry2 270 -90 ARC x y rx2 ry2 180 -90\n"
+"ARC CP QF QS } ifelse } ifelse end } D /EDict 5 dict def EDict begin /tmp\n"
+"matrix def end /E { EDict begin /h ED /w ED /y ED /x ED tmp CM pop x w 2\n"
+"div add y h 2 div add translate 1 h w div scale NP 0 0 w 2 div 0 360 arc\n"
+"tmp SM QF QS end } D /A { 16 div exch 16 div exch NP ARC QS } D /PieDict 6\n"
+"dict def /PIE { PieDict begin /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED NP\n"
+"x w 2 div add y h 2 div add MT x y w h ang1 16 div ang2 16 div ARC CP QF\n"
+"QS end } D /CH { 16 div exch 16 div exch NP ARC CP QF QS } D /BZ { curveto\n"
+"QS } D /CRGB { 255 div 3 1 roll 255 div 3 1 roll 255 div 3 1 roll } D /SV\n"
+"{ BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol /nS nS 1 add def GS } D /RS {\n"
+"nS 0 gt { GR /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED /Cy ED /Cx ED\n"
+"/PSt ED /LWi ED /BSt ED /nS nS 1 sub def } if } D /BC { CRGB BkCol astore\n"
+"pop } D /B { CRGB BCol astore pop /BSt ED } D /PE { CRGB PCol astore pop\n"
+"/LWi ED /PSt ED } D /ST { defM setmatrix concat } D /T { 3 1 roll MT PCol\n"
+"SC show } D /BFDict 2 dict def /BF { BSt 9 ge BSt 14 le and { BFDict begin\n"
+"GS WFi { clip } { eoclip } ifelse defM SM pathbbox 3 index 3 index\n"
+"translate 4 2 roll 3 2 roll exch sub /h ED sub /w ED OMo { NP 0 0 MT 0 h\n"
+"RL w 0 RL 0 h neg RL CP BkCol SC fill } if BCol SC 0.3 SW BSt 9 eq BSt 11\n"
+"eq or { 0 4 h { NP dup 0 exch MT w exch LT S } for } if BSt 10 eq BSt 11\n"
+"eq or { 0 4 w { NP dup 0 MT h LT S } for } if BSt 12 eq BSt 14 eq or { w h\n"
+"gt { 0 6 w h add { NP dup h MT h sub 0 LT S } for } { 0 6 w h add { NP dup\n"
+"w exch MT w add 0 exch LT S } for } ifelse } if BSt 13 eq BSt 14 eq or { w\n"
+"h gt { 0 6 w h add { NP dup 0 MT h sub h LT S } for } { 0 6 w h add { NP\n"
+"dup 0 exch MT w add w exch LT S } for } ifelse } if GR end } if } D /LArr[\n"
+"[] [] [ 10 3 ] [ 3 10 ] [ 3 3 ] [ 3 3 ] [ 5 3 3 3 ] [ 3 5 3 3 ] [ 5 3 3 3\n"
+"3 3 ] [ 3 5 3 3 3 3 ] ] def /GPS { PSt 1 ge PSt 5 le and { { LArr PSt 1\n"
+"sub 2 mul get } { LArr PSt 2 mul 1 sub get } ifelse } { [] } ifelse } D QI\n"
+"%%EndProlog\n";
 #endif
 
 
