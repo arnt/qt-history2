@@ -24,6 +24,7 @@ widgets {
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnumber.h \
 		  $$WIDGETS_H/qlineedit.h \
+		  $$WIDGETS_H/qlineedit_p.h \
 		  $$WIDGETS_H/qlistbox.h \
 		  $$WIDGETS_H/qlistview.h \
 		  $$WIDGETS_H/qmainwindow.h \
