@@ -86,16 +86,9 @@ int QPaintDevice::fontInf( QFont *, int ) const
 }
 
 
-//
-// Internal functions for simple GC caching for blt'ing masked pixmaps.
-// This cache is used when the pixmap optimization is set to Normal
-// and the pixmap size doesn't exceed 128x128.
-//
-
-
 QPoint posInWindow(QWidget *w);
 
-void bitBlt( QPaintDevice *dst, int dx, int dy, 
+void unclippedBitBlt( QPaintDevice *dst, int dx, int dy, 
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
 {
@@ -114,9 +107,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       return;
   }
 
-  //at the end of this function this will go out of scope and the destructor will restore the state
-  QMacSavedPortInfo saveportstate; 
-    
   int srcoffx = 0, srcoffy = 0;
   BitMap *srcbitmap=NULL;
   const QBitmap *srcbitmask=NULL;
@@ -155,18 +145,12 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       dstoffx = p.x();
       dstoffy = p.y();
 
-      SetClip((RgnHandle)w->clippedRegion().handle()); //probably shouldn't do this?
-
   } else if(dst->devType() == QInternal::Pixmap) {
 
       QPixmap *pm = (QPixmap *)dst;
       SetGWorld((GWorldPtr)pm->handle(),0);
       ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
       dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
-
-      //I'm paranoid..
-      QRegion rgn(0,0,pm->width(),pm->height());
-      SetClip((RgnHandle)rgn.handle());
 
   }
 
@@ -227,6 +211,24 @@ else if(dst->devType() == QInternal::Widget) {
 #endif
 }
 
+
+void bitBlt( QPaintDevice *dst, int dx, int dy, 
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+	     Qt::RasterOp rop, bool imask)
+{
+  //at the end of this function this will go out of scope and the destructor will restore the state
+  QMacSavedPortInfo saveportstate; 
+    
+  if(dst && dst->devType() == QInternal::Widget) {
+      SetClip((RgnHandle)((QWidget *)dst)->clippedRegion().handle()); //probably shouldn't do this?
+  } else if(dst && dst->devType() == QInternal::Pixmap) {
+      QPixmap *pm = (QPixmap *)dst;
+      //I'm paranoid..
+      QRegion rgn(0,0,pm->width(),pm->height());
+      SetClip((RgnHandle)rgn.handle());
+  }
+  unclippedBitBlt(dst, dx, dy, src, sx, sy, sw, sh, rop, imask);
+}
 
 Qt::HANDLE QPaintDevice::handle() const
 {

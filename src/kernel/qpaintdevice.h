@@ -210,9 +210,15 @@ protected:
 
     friend class QPainter;
     friend class QPaintDeviceMetrics;
+#if defined(Q_WS_MAC)
+    friend Q_EXPORT void unclippedBitBlt( QPaintDevice *, int, int,
+					  const QPaintDevice *,
+					  int, int, int, int, Qt::RasterOp, bool );
+#else
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
 				 int, int, int, int, Qt::RasterOp, bool );
+#endif
 #if defined(Q_WS_X11)
     friend void qt_init_internal( int *, char **, Display * );
 #endif

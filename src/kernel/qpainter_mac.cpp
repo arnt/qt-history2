@@ -62,6 +62,9 @@ QPoint posInWindow(QWidget *w);
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
 
+void unclippedBitBlt( QPaintDevice *dst, int dx, int dy, 
+		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		      Qt::RasterOp rop, bool imask);
 
 /* paintevent magic to provide Windows semantics on MAC
  */
@@ -195,19 +198,6 @@ void QPainter::updateBrush()
     if ( pdev->devType() == QInternal::Widget ) {
 	bg_col = ((QWidget *)pdev)->backgroundColor();
     }
-
-    //style
-    int  bs = cbrush.style();
-    uchar *pat = 0;                             // pattern
-
-    if( !pdev )
-	return;
-
-    if ( bs == CustomPattern || pat ) {
-        QPixmap *pm;
-        pm = cbrush.data->pixmap;
-    }
-
 }
 
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
@@ -307,6 +297,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	QPoint wp(posInWindow(w));
 	offx = wp.x();
 	offy = wp.y();
+	if(!strcmp(w->name(), "rbutt"))
+	    qDebug("setting value of offx/offy to %d %d", offx, offy);
 
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
@@ -497,7 +489,6 @@ void QPainter::setBrushOrigin( int x, int y )
     }
     if ( brushRef )
 	updateBrush();				// get non-cached brush GC
-    //WTF? FIXME
 }
 
 void QPainter::setClipping( bool b )
@@ -568,7 +559,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     }
     LineTo( a[0].x()+offx, a[0].y()+offy );
     CloseRgn( polyRegion );
-    if ( close ) {
+    if ( close && this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRgn( polyRegion );
     }
@@ -712,7 +703,21 @@ void QPainter::drawRect( int x, int y, int w, int h )
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRect( &rect );
+   /* FIXME FIXME this needs to be copied all over the place! */
+    } else if(this->brush().style() == CustomPattern ) { 
+	updateBrush();
+        QPixmap *pm = cbrush.data->pixmap;
+	if(pm && !pm->isNull()) {
+	    QRegion savedrgn = crgn; //save current region
+	    QRegion newrgn(x+offx, y+offy, w, h); 
+	    if(!crgn.isNull())
+		newrgn &= crgn;
+	    setClipRegion(newrgn); 
+	    drawTiledPixmap(x+offx, y+offy, w, h, *pm, bro.x(), bro.y()); 
+	    setClipRegion(savedrgn); //restore region
+	}
     }
+
     if( cpen.style() != NoPen ) {
 	updatePen();
 	FrameRect(&rect);
@@ -1153,10 +1158,10 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
             if ( sx != 0 || sy != 0 ||
                  sw != pixmap.width() || sh != pixmap.height() ) {
                 QPixmap tmp( sw, sh, pixmap.depth() );
-                bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
+                unclippedBitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
                 if ( pixmap.mask() ) {
                     QBitmap mask( sw, sh );
-                    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
+                    unclippedBitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
                             CopyROP, TRUE );
                     tmp.setMask( mask );
                 }
@@ -1177,7 +1182,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
             map( x, y, &x, &y );
     }
 
-    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
+    unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 }
 
 
@@ -1267,7 +1272,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
     updateBrush();
     updatePen();
 
-    if ( testf(DirtyFont) )
+    if ( testf(DirtyFont) ) 
 	updateFont();
 
     if ( testf(ExtDev) ) {
@@ -1415,4 +1420,5 @@ QPoint QPainter::pos() const
 {
     return QPoint(penx, peny);
 }
+
 
