@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#109 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#108 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#109 $";
 #endif
 
 
@@ -747,10 +747,21 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
 bool QPainter::end()				// end painting
 {
-    if ( !isActive() )
+    if ( !isActive() ) {
+#if defined(CHECK_STATE)
+	warning( "QPainter::end: No begin()" );
+#endif
 	return FALSE;
+    }
     if ( testf(ExtDev) )
 	pdev->cmd( PDC_END, 0 );
+    if ( testf(FontMet) )			// remove references to this
+	QFontMetrics::reset( this );
+    if ( testf(FontInf) )			// remove references to this
+	QFontInfo::reset( this );	    
+    flags = 0;
+    pdev->devFlags &= ~PDF_PAINTACTIVE;
+
     if ( gc_brush ) {				// restore brush gc
 	if ( testf(ClipOn) )
 	    XSetClipMask( dpy, gc_brush, None );
@@ -766,8 +777,7 @@ bool QPainter::end()				// end painting
 	    XSetFunction( dpy, gc, GXcopy );
 	free_painter_gc( dpy, gc );
     }
-    clearf( IsActive );
-    pdev->devFlags &= ~PDF_PAINTACTIVE;
+    gc = gc_brush = 0;
     pdev = 0;
     return TRUE;
 }

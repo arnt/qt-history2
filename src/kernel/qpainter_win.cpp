@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#11 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#11 $";
 #endif
 
 
@@ -421,12 +421,18 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
 bool QPainter::end()				// end painting
 {
-#if defined(CHECK_STATE)
     if ( !isActive() ) {
+#if defined(CHECK_STATE)
 	warning( "QPainter::end: No begin()" );
+#endif
 	return FALSE;
     }
-#endif
+    if ( testf(ExtDev) )
+	pdev->cmd( PDC_END, 0 );
+    if ( testf(FontMet) )			// remove references to this
+	QFontMetrics::reset( this );
+    if ( testf(FontInf) )			// remove references to this
+	QFontInfo::reset( this );	    
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
 
