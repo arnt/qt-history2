@@ -29,7 +29,7 @@ static char ident[] = "$Id: annotated.doc,v 1.7 1999/04/28 09:53:41 aavit Exp $"
 /*!
 \page annotated.html
 
-<title>Qt Documentation</title>
+<title>Qt Documentation (Classes, Annotated)</title>
 </head><body bgcolor="#ffffff">
 
 \postheader
