@@ -64,7 +64,6 @@ public:
 	  continuousEdit( FALSE ),
 	  editorFactory( 0 ),
 	  propertyMap( 0 ),
-	  cursor( 0 ),
 	  mode( QSqlTable::None ),
 	  editRow( -1 ),
 	  editCol( -1 ),
@@ -87,7 +86,6 @@ public:
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
-    QSqlCursor* cursor;
     QSqlTable::Mode mode;
     int editRow;
     int editCol;
@@ -187,7 +185,7 @@ public:
 */
 
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
-    : QTable( parent, name ), QSqlNavigator()
+    : QTable( parent, name ), QSqlCursorNavigator()
 {
     init();
 }
@@ -203,7 +201,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 */
 
 QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
-    : QTable( parent, name ), QSqlNavigator()
+    : QTable( parent, name ), QSqlCursorNavigator()
 {
     init();
     setCursor( cursor, autoPopulate );
@@ -234,7 +232,7 @@ void QSqlTable::init()
 QSqlTable::~QSqlTable()
 {
     if ( d->autoDelete )
-	delete d->cursor;
+	delete sqlCursor();
     delete d;
 }
 
@@ -291,7 +289,7 @@ void QSqlTable::removeColumn( uint col )
 
 QString QSqlTable::filter() const
 {
-    return QSqlNavigator::filter();
+    return QSqlCursorNavigator::filter();
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
@@ -304,7 +302,7 @@ QString QSqlTable::filter() const
 
 void QSqlTable::setFilter( const QString& filter )
 {
-    QSqlNavigator::setFilter( filter );
+    QSqlCursorNavigator::setFilter( filter );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -330,7 +328,7 @@ void QSqlTable::setFilter( const QString& filter )
 
 void QSqlTable::setSort( const QStringList& sort )
 {
-    QSqlNavigator::setSort( sort );
+    QSqlCursorNavigator::setSort( sort );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -343,7 +341,7 @@ void QSqlTable::setSort( const QStringList& sort )
 
 void QSqlTable::setSort( const QSqlIndex& sort )
 {
-    QSqlNavigator::setSort( sort );
+    QSqlCursorNavigator::setSort( sort );
 }
 
 
@@ -361,7 +359,7 @@ void QSqlTable::setSort( const QSqlIndex& sort )
 
 QStringList QSqlTable::sort() const
 {
-    return QSqlNavigator::sort();
+    return QSqlCursorNavigator::sort();
 }
 
 /*! If \a confirm is TRUE, all edits will be confirmed by the user
@@ -529,7 +527,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 void QSqlTable::resizeEvent ( QResizeEvent * e )
 {
 
-    if ( d->cursor && !d->cursor->driver()->hasQuerySizeSupport() )
+    if ( sqlCursor() && !sqlCursor()->driver()->hasQuerySizeSupport() )
 	loadNextPage();
     QTable::resizeEvent( e );
 }
@@ -542,7 +540,7 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
     if ( d->mode != QSqlTable::None ) {
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
     }
-    if ( !d->cursor ) {
+    if ( !sqlCursor() ) {
 	QTable::contentsMousePressEvent( e );
 	return;
     }
@@ -559,11 +557,11 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
 	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );
 	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
-	bool enableInsert = d->cursor->canInsert();
+	bool enableInsert = sqlCursor()->canInsert();
 	popup->setItemEnabled( id[ IdInsert ], enableInsert );
-	bool enableUpdate = currentRow() > -1 && d->cursor->canUpdate();
+	bool enableUpdate = currentRow() > -1 && sqlCursor()->canUpdate();
 	popup->setItemEnabled( id[ IdUpdate ], enableUpdate );
-	bool enableDelete = currentRow() > -1 && d->cursor->canDelete();
+	bool enableDelete = currentRow() > -1 && sqlCursor()->canDelete();
 	popup->setItemEnabled( id[ IdDelete ], enableDelete );
 	int r = popup->exec( e->globalPos() );
 	delete popup;
@@ -591,11 +589,11 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 {
     d->editRow = -1;
     d->editCol = -1;
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return 0;
-    if ( d->mode == QSqlTable::Insert && !d->cursor->canInsert() )
+    if ( d->mode == QSqlTable::Insert && !sqlCursor()->canInsert() )
 	return 0;
-    if ( d->mode == QSqlTable::Update && !d->cursor->canUpdate() )
+    if ( d->mode == QSqlTable::Update && !sqlCursor()->canUpdate() )
 	return 0;
     d->editRow = row;
     d->editCol = col;
@@ -603,7 +601,7 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 	QWidget* w = QTable::beginEdit( row, col, replace );
 	return w;
     }
-    if ( d->mode == QSqlTable::None && d->cursor->canUpdate() && d->cursor->primaryIndex().count() > 0 )
+    if ( d->mode == QSqlTable::None && sqlCursor()->canUpdate() && sqlCursor()->primaryIndex().count() > 0 )
 	return beginUpdate( row, col, replace );
     return 0;
 }
@@ -704,9 +702,9 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    if ( !d->cursor || isReadOnly() || ! numCols() )
+    if ( !sqlCursor() || isReadOnly() || ! numCols() )
 	return FALSE;
-    if ( !d->cursor->canInsert() )
+    if ( !sqlCursor()->canInsert() )
 	return FALSE;
     int i = 0;
     int row = currentRow();
@@ -715,7 +713,7 @@ bool QSqlTable::beginInsert()
 	row = 0;
     setNumRows( d->insertPreRows + 1 );
     setCurrentCell( row, 0 );
-    d->editBuffer = d->cursor->primeInsert();
+    d->editBuffer = sqlCursor()->primeInsert();
     emit beginInsert( d->editBuffer );
     d->mode = QSqlTable::Insert;
     int lastRow = row;
@@ -754,12 +752,12 @@ bool QSqlTable::beginInsert()
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
-    if ( !d->cursor || isReadOnly() )
+    if ( !sqlCursor() || isReadOnly() )
 	return 0;
     setCurrentCell( row, col );
     d->mode = QSqlTable::Update;
-    if ( d->cursor->seek( row ) ) {
-	d->editBuffer = d->cursor->primeUpdate();
+    if ( sqlCursor()->seek( row ) ) {
+	d->editBuffer = sqlCursor()->primeUpdate();
 	emit beginUpdate( d->editBuffer );
 	return QTable::beginEdit( row, col, replace );
     }
@@ -778,9 +776,9 @@ void QSqlTable::insertCurrent()
 {
     if ( d->mode != QSqlTable::Insert || ! numCols() )
 	return;
-    if ( !d->cursor->canInsert() ) {
+    if ( !sqlCursor()->canInsert() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->cursor->name() );
+	qWarning("QSqlTable::insertCurrent: insert not allowed for " + sqlCursor()->name() );
 #endif
 	endInsert();
 	return;
@@ -793,11 +791,11 @@ void QSqlTable::insertCurrent()
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	emit beforeInsert( d->editBuffer );
-	b = d->cursor->insert();
+	b = sqlCursor()->insert();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !d->cursor->isActive() )
-	    handleError( d->cursor->lastError() );
-	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
+	if ( !b || !sqlCursor()->isActive() )
+	    handleError( sqlCursor()->lastError() );
+	QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
 	refresh();
@@ -843,16 +841,16 @@ void QSqlTable::updateCurrent()
 {
     if ( d->mode != QSqlTable::Update )
 	return;
-    if ( d->cursor->primaryIndex().count() == 0 ) {
+    if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::updateCurrent: no primary index for " + d->cursor->name() );
+	qWarning("QSqlTable::updateCurrent: no primary index for " + sqlCursor()->name() );
 #endif
 	endUpdate();
 	return;
     }
-    if ( !d->cursor->canUpdate() ) {
+    if ( !sqlCursor()->canUpdate() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::updateCurrent: updates not allowed for " + d->cursor->name() );
+	qWarning("QSqlTable::updateCurrent: updates not allowed for " + sqlCursor()->name() );
 #endif
 	endUpdate();
 	return;
@@ -865,11 +863,11 @@ void QSqlTable::updateCurrent()
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	emit beforeUpdate( d->editBuffer );
-	b = d->cursor->update();
+	b = sqlCursor()->update();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !d->cursor->isActive() )
-	    handleError( d->cursor->lastError() );
-	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
+	if ( !b || !sqlCursor()->isActive() )
+	    handleError( sqlCursor()->lastError() );
+	QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
 	endUpdate();
 	refresh();
 	findBuffer( idx, d->lastAt );
@@ -905,17 +903,17 @@ void QSqlTable::updateCurrent()
 
 void QSqlTable::deleteCurrent()
 {
-    if ( !d->cursor || isReadOnly() )
+    if ( !sqlCursor() || isReadOnly() )
 	return;
-    if ( d->cursor->primaryIndex().count() == 0 ) {
+    if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QSqlTable::deleteCurrent: no primary index " + d->cursor->name() );
+	qWarning("QSqlTable::deleteCurrent: no primary index " + sqlCursor()->name() );
 #endif
 	return;
     }
-    if ( !d->cursor->canDelete() )
+    if ( !sqlCursor()->canDelete() )
 	return;
-    if ( !d->cursor->seek( currentRow() ) )
+    if ( !sqlCursor()->seek( currentRow() ) )
 	return;
     int b = 0;
     int conf = Yes;
@@ -925,10 +923,10 @@ void QSqlTable::deleteCurrent()
     case Yes:
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	emit beforeDelete( d->editBuffer );
-	b = d->cursor->del();
+	b = sqlCursor()->del();
 	QApplication::restoreOverrideCursor();
 	if ( !b )
-	    handleError( d->cursor->lastError() );
+	    handleError( sqlCursor()->lastError() );
 	refresh();
 	emit cursorChanged( QSqlCursor::Delete );
 	setCurrentCell( currentRow(), currentColumn() );
@@ -1016,10 +1014,10 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
 */
 void QSqlTable::find( const QString & str, bool caseSensitive, bool backwards )
 {
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return;
 
-    QSqlCursor * r = d->cursor;
+    QSqlCursor * r = sqlCursor();
     QString tmp, text;
     uint  row = currentRow(), startRow = row,
 	  col = backwards ? currentColumn() - 1 : currentColumn() + 1;
@@ -1112,6 +1110,8 @@ void QSqlTable::reset()
     d->insertHeaderLabelLast = QString::null;
     d->cancelMode = FALSE;
     d->lastAt = -1;
+    d->fld.clear();
+    d->fldLabel.clear();
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
@@ -1259,10 +1259,10 @@ int QSqlTable::numCols() const
 
 QString QSqlTable::text ( int row, int col ) const
 {
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return QString::null;
-    if ( d->cursor->seek( row ) )
-	return d->cursor->value( indexOf( col ) ).toString();
+    if ( sqlCursor()->seek( row ) )
+	return sqlCursor()->value( indexOf( col ) ).toString();
     return QString::null;
 }
 
@@ -1273,10 +1273,10 @@ QString QSqlTable::text ( int row, int col ) const
 
 QVariant QSqlTable::value ( int row, int col ) const
 {
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return QVariant();
-    if ( d->cursor->seek( row ) )
-	return d->cursor->value( indexOf( col ) );
+    if ( sqlCursor()->seek( row ) )
+	return sqlCursor()->value( indexOf( col ) );
     return QVariant();
 }
 
@@ -1287,7 +1287,7 @@ void QSqlTable::loadNextPage()
 {
     if ( d->haveAllRows )
 	return;
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return;
     int pageSize = 0;
     int lookAhead = 0;
@@ -1299,7 +1299,7 @@ void QSqlTable::loadNextPage()
     int endIdx = startIdx + pageSize + lookAhead;
     if ( endIdx < numRows() || endIdx < 0 )
 	return;
-    while ( endIdx > 0 && !d->cursor->seek( endIdx ) )
+    while ( endIdx > 0 && !sqlCursor()->seek( endIdx ) )
 	endIdx--;
     if ( endIdx != ( startIdx + pageSize + lookAhead ) )
 	d->haveAllRows = TRUE;
@@ -1324,15 +1324,15 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
-	if ( !d->cursor )
+	if ( !sqlCursor() )
 	    return;
-	QSqlIndex lastSort = d->cursor->sort();
+	QSqlIndex lastSort = sqlCursor()->sort();
 	QSqlIndex newSort( lastSort.cursorName(), "newSort" );
-	newSort.append( *d->cursor->field( indexOf( col ) ) );
+	newSort.append( *sqlCursor()->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	d->cursor->select( d->cursor->filter(), newSort );
+	sqlCursor()->select( sqlCursor()->filter(), newSort );
 	QApplication::restoreOverrideCursor();
 	viewport()->repaint( FALSE );
     }
@@ -1344,11 +1344,11 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 void QSqlTable::columnClicked ( int col )
 {
     if ( sorting() ) {
-	if ( !d->cursor )
+	if ( !sqlCursor() )
 	    return;
-	QSqlIndex lastSort = d->cursor->sort();
+	QSqlIndex lastSort = sqlCursor()->sort();
 	bool asc = TRUE;
-	if ( lastSort.count() && lastSort.field( 0 )->name() == d->cursor->field( indexOf( col ) )->name() )
+	if ( lastSort.count() && lastSort.field( 0 )->name() == sqlCursor()->field( indexOf( col ) )->name() )
 	    asc = lastSort.isDescending( 0 );
 	sortColumn( col, asc );
     }
@@ -1396,25 +1396,25 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 	p->setPen( colorGroup().text() );
     }
 
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return;
     if ( d->mode != QSqlTable::None ) {
 	if ( row == d->editRow && d->editBuffer ) {
 	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr,
 			selected );
 	} else if ( row > d->editRow && d->mode == QSqlTable::Insert ) {
-	    if ( d->cursor->seek( row - 1 ) )
-		paintField( p, d->cursor->field( indexOf( col ) ), cr,
+	    if ( sqlCursor()->seek( row - 1 ) )
+		paintField( p, sqlCursor()->field( indexOf( col ) ), cr,
 			    selected );
 	} else {
-	    if ( d->cursor->seek( row ) )
-		paintField( p, d->cursor->field( indexOf( col ) ), cr,
+	    if ( sqlCursor()->seek( row ) )
+		paintField( p, sqlCursor()->field( indexOf( col ) ), cr,
 			    selected );
 	}
     }
     else {
-	if ( d->cursor->seek( row ) ) {
-	    paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
+	if ( sqlCursor()->seek( row ) ) {
+	    paintField( p, sqlCursor()->field( indexOf( col ) ), cr, selected );
 	}
     }
 }
@@ -1457,9 +1457,9 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
 {
-    if ( !defaultCursor() )
+    if ( !sqlCursor() )
 	return Qt::AlignLeft | Qt::AlignVCenter;
-    return defaultCursor()->alignment( field->name() ) | Qt::AlignVCenter;
+    return sqlCursor()->alignment( field->name() ) | Qt::AlignVCenter;
 }
 
 
@@ -1505,17 +1505,17 @@ void QSqlTable::setSize( QSqlCursor* sql )
 void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
 {
     setUpdatesEnabled( FALSE );
+    if ( d->autoDelete )
+	delete sqlCursor();
     if ( cursor ) {
-	if ( d->autoDelete )
-	    delete d->cursor;
 	reset();
-	d->cursor = cursor;
+	setSqlCursor( cursor );
 	if ( autoPopulate ) {
-	    for ( uint i = 0; i < d->cursor->count(); ++i )
-		addColumn( d->cursor->field( i )->name(), d->cursor->displayLabel( d->cursor->field( i )->name() ) );
+	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
+		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->displayLabel( sqlCursor()->field( i )->name() ) );
 	}
-	setReadOnly( d->cursor->isReadOnly() ); // ## do this by default?
-	setNullText(d->cursor->driver()->nullText() );
+	setReadOnly( sqlCursor()->isReadOnly() ); // ## do this by default?
+	setNullText(sqlCursor()->driver()->nullText() );
 	setAutoDelete( autoDelete );
     }
     setUpdatesEnabled( TRUE );
@@ -1523,7 +1523,7 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 
 
 /*!  Protected virtual function which is called when an error has
-  occurred on the current defaultCursor().  The default implementation
+  occurred on the current cursor().  The default implementation
   displays a warning message to the user with information about the
   error.
 
@@ -1531,17 +1531,6 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 void QSqlTable::handleError( const QSqlError& e )
 {
     QMessageBox::warning ( this, "Warning", e.driverText() + "\n" + e.databaseText(), 0, 0 );
-}
-
-/*!  \reimp
-  Returns a pointer to the cursor associated with the table, or 0
-  if there is no current cursor.
-
-*/
-
-QSqlCursor*  QSqlTable::defaultCursor()
-{
-    return d->cursor;
 }
 
 /*!  \reimp
@@ -1632,14 +1621,14 @@ void QSqlTable::installPropertyMap( QSqlPropertyMap* m )
 
 void QSqlTable::setCurrentSelection( int row, int )
 {
-    if ( !d->cursor )
+    if ( !sqlCursor() )
 	return;
     if ( row == d->lastAt )
 	return;
-    if ( !d->cursor->seek( row ) )
+    if ( !sqlCursor()->seek( row ) )
 	return;
     d->lastAt = row;
-    emit currentChanged( d->cursor );
+    emit currentChanged( sqlCursor() );
 }
 
 /*!  Returns the currently selected record, or an empty record if
@@ -1650,12 +1639,12 @@ void QSqlTable::setCurrentSelection( int row, int )
 QSqlRecord QSqlTable::currentFieldSelection() const
 {
     QSqlRecord fil;
-    if ( !d->cursor || currentRow() < 0 )
+    if ( !sqlCursor() || currentRow() < 0 )
 	return fil;
     int row = currentRow();
-    if ( !d->cursor->seek( row ) )
+    if ( !sqlCursor()->seek( row ) )
 	return fil;
-    fil = *d->cursor;
+    fil = *sqlCursor();
     return fil;
 }
 
@@ -1684,31 +1673,31 @@ void QSqlTable::sortDescending( int col )
 
 void QSqlTable::refresh()
 {
-    QSqlCursor* cursor = defaultCursor();
-    if ( !cursor )
+    QSqlCursor* cur = sqlCursor();
+    if ( !cur )
 	return;
-    QSqlNavigator::refresh();
+    QSqlCursorNavigator::refresh();
     setNumCols(0);
     d->colIndex.clear();
     if ( d->fld.count() ) {
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
-	    field = defaultCursor()->field( d->fld[ i ] );
+	    field = cur->field( d->fld[ i ] );
 	    if ( field &&
-		 defaultCursor()->isVisible( field->name() ) &&
-		 !defaultCursor()->primaryIndex().contains( field->name() ) ) {
+		 cur->isVisible( field->name() ) &&
+		 !cur->primaryIndex().contains( field->name() ) ) {
 		setNumCols( numCols() + 1 );
-		d->colIndex.append( defaultCursor()->position( field->name() ) );
+		d->colIndex.append( cur->position( field->name() ) );
 		setColumnReadOnly( numCols()-1, field->isReadOnly() );
 		QHeader* h = horizontalHeader();
 		QString label = d->fldLabel[ i ];
 		if ( label == QString::null )
-		    label = defaultCursor()->displayLabel( field->name() );
+		    label = cur->displayLabel( field->name() );
 		h->setLabel( numCols()-1, label );
 	    }
 	}
     }
-    setSize( cursor );
+    setSize( cur );
 }
 
 /*!  \reimp
@@ -1717,12 +1706,12 @@ void QSqlTable::refresh()
 
 bool QSqlTable::findBuffer( const QSqlIndex& idx, int atHint )
 {
-    QSqlCursor* cursor = defaultCursor();
-    if ( !cursor )
+    QSqlCursor* cur = sqlCursor();
+    if ( !cur )
 	return FALSE;
-    bool found = QSqlNavigator::findBuffer( idx, atHint );
+    bool found = QSqlCursorNavigator::findBuffer( idx, atHint );
     if ( found )
-	setCurrentCell( cursor->at(), currentColumn() );
+	setCurrentCell( cur->at(), currentColumn() );
     return found;
 }
 

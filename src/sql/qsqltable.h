@@ -54,7 +54,7 @@ class QSqlField;
 class QSqlPropertyMap;
 class QSqlTablePrivate;
 
-class Q_EXPORT QSqlTable : public QTable, public QSqlNavigator
+class Q_EXPORT QSqlTable : public QTable, public QSqlCursorNavigator
 {
     Q_OBJECT
 
@@ -96,8 +96,6 @@ public:
     virtual void setFilter( const QString& filter );
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );
-
-    QSqlCursor*  defaultCursor();
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
