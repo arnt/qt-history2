@@ -16,10 +16,8 @@ public slots:
     void activateEditor( QListViewItem* );
     void editorFinished();
     void finished();
-    void saveFile();
 private:
     QListView* classList;
-    QMultiLineEdit* fileText;
     QProcess* proc;
     QProcess* procper;
     QProcess* procedit;
@@ -27,5 +25,6 @@ private:
     QString qtdirenv;
     QString filename;
     QLabel* waitText;
+    QString editText;
 };
 
