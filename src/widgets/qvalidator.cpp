@@ -39,9 +39,9 @@
 #ifndef QT_NO_VALIDATOR
 #include "qwidget.h"
 
-#include <math.h> // HUGE_VAL
-#include <limits.h> // *_MIN, *_MAX
-#include <ctype.h> // isdigit
+#include <ctype.h>
+#include <limits.h>
+#include <math.h>
 
 // NOT REVISED
 /*!
@@ -51,15 +51,18 @@
 
   \ingroup misc
 
-  The class itself is abstract; two subclasses provide rudimentary
-  numeric range checking.
+  The class itself is abstract. Two subclasses, \l QIntValidator and
+  \l QDoubleValidator, provide rudimentary numeric-range checking,
+  and \l QRegExpValidator provides general checking using a custom
+  regular expression (\l QRegExp).
+  
+  If the built-in validators aren't enough, you have to subclass
+  QValidator. The class has two virtual functions: validate()
+  and fixup().
 
-  The class includes two virtual functions: validate() and fixup().
-
-  validate() is a pure virtual function; it must be implemented by every
-  subclass.  It returns \c Invalid, \c Intermediate or \c Acceptable
-  depending on whether its argument is valid (for the class's
-  definition of valid).
+  validate() must be implemented by every subclass.  It returns \c
+  Invalid, \c Intermediate or \c Acceptable depending on whether its
+  argument is valid (for the subclass's definition of valid).
 
   These three states require some explanation.  An \c Invalid string is
   \e clearly invalid.  \c Intermediate is less obvious - the concept
@@ -72,24 +75,25 @@
   Intermediate.
 
   Here are some examples:
-  <ol>
 
-  <li>For a line edit that accepts integers from 0 to 999 inclusive,
+  \list
+
+  \i For a line edit that accepts integers from 0 to 999 inclusive,
   42 and 666 are \c Acceptable, the empty string and 1114 are \c
   Intermediate and asdf is \c Invalid.
 
-  <li>For an editable combo box that accepts URLs, any well-formed URL
+  \i For an editable combo box that accepts URLs, any well-formed URL
   is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate (it can
   be a cut-and-paste job that accidentally took in a comma at the
   end), the empty string is valid (the user might select and delete
   all of the text in preparation of entering a new URL) and
   "http:///./" is \c Invalid.
 
-  <li>For a spin box that accepts lengths, "11cm" and "1in" are \c
+  \i For a spin box that accepts lengths, "11cm" and "1in" are \c
   Acceptable, "11" and the empty string are \c Intermediate and
   "http://www.trolltech.com" and "hour" are \c Invalid.
 
-  </ol>
+  \endlist
 
   fixup() is provided for validators that can repair some or all user
   errors.  The default does nothing.  QLineEdit, for example, will
@@ -98,7 +102,7 @@
   Invalid strings to be made \c Acceptable, too, spoiling the muddy
   definition above even more.
 
-  QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
+  QValidator is typically used with QLineEdit, QSpinBox and QComboBox.
 */
 
 
@@ -146,8 +150,8 @@ QValidator::~QValidator()
   This pure virtual function returns \c Invalid if \a input is invalid
   according to this validator's rules, \c Intermediate if it is likely that a
   little more editing will make the input acceptable (e.g., the user
-  types '4' into a widget which accepts 10-99) and \c Acceptable if
-  the input is completely acceptable.
+  types '4' into a widget which accepts integers between 10 and 99) and
+  \c Acceptable if the input is completely acceptable.
 
   The function can change \a input and \a pos (the cursor position) if
   it wants to.
@@ -506,9 +510,8 @@ void QDoubleValidator::setDecimals( int decimals )
 
   For a brief introduction to Qt's regexp engine see QRegExp().
 
-    Example of use:
-    \code
-    //...
+  Example of use:
+  \code
     #include <qlineedit.h>
     #include <qregexp.h>
     #include <qvalidator.h>
@@ -517,10 +520,11 @@ void QDoubleValidator::setDecimals( int decimals )
     QRegExpValidator validator( rx, 0 );
     QLineEdit *edit   = new QLineEdit( split );
     edit->setValidator( &validator ); // edit widget will only accept numbers -999 to 999
-    \endcode
+  \endcode
 
-    Below we present some examples of validators. In practice they would
-    normally be associated with a widget as in the example above.
+  Below we present some examples of validators. In practice they would
+  normally be associated with a widget as in the example above.
+
   \code
     // Integers 1 to 9999, i.e. a digit between 1 and 9 followed by up to 3 digits
     QRegExp rx( "[1-9]\\d{0,3}" );
@@ -551,7 +555,6 @@ void QDoubleValidator::setDecimals( int decimals )
     v.validate( "README.1ST", 0 );  // Returns Acceptable
     v.validate( "read me.txt", 0 ); // Returns Invalid
     v.validate( "readm", 0 );	    // Returns Intermediate
-
   \endcode
 
   \sa QRegExp QIntValidator QDoubleValidator
@@ -602,7 +605,7 @@ QRegExpValidator::~QRegExpValidator()
   the end of the string.
 
   For example, if the regular expression is
-  <b>\\</b><b>w</b><b>\\</b><b>d</b><b>\\</b><b>d</b> then
+  <b>\\w\\d\\d</b> (that is, word-character, digit, digit) then
   "A57" is \c Acceptable, "E5" is \c Intermediate and "+9" is \c Invalid.
 
   \sa QRegExp::match()
