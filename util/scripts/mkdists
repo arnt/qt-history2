@@ -702,6 +702,42 @@ public_file () {
      return 1
 }
 
+# Create manifest file (containing a list of all files in the package)
+createManifest()
+{
+    allFiles=( `find $DISTDIR/qt` )
+    totalCount=${#allFiles[*]}
+
+    keepCount=0
+    removeCount=0
+    startTime=$(date +%s)
+
+    for element in $(seq 0 $((${#allFiles[@]}-1))); do
+        a=${allFiles[$element]}     # current file element
+    	[ -d "$a" ] && continue     # shortcut, it's a directory after all!
+    	
+    	# THIS is were most of the time will be spent, checking if the file is
+    	# a public file. 
+    	if public_file "$a"; then
+	    echo "$a" | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>>$LOG || \
+		    die "Could not write to manifest file";
+	    keepCount=$((keepCount+1))
+    	else
+	    removeCount=$((removeCount+1))
+    	fi
+        if (((keepCount+removeCount)%100 == 0)); then
+            # Time estimates ------------------------
+            currentTime=$(date +%s)
+            timeUsed=$((  currentTime - startTime ))
+            currentCount=$(( removeCount + keepCount ))
+            estimateTotalTime=$(( ((totalCount*100)/(currentCount) * timeUsed)/100 )) # Mult/Div with 100 used to increase presision
+            timeLeft=$(( estimateTotalTime-timeUsed ))
+            # ---------------------------------------
+            status "[$currentCount/$totalCount] Kept: $keepCount   Removed: $removeCount   Used: $timeUsed sec  Estimate: $estimateTotalTime sec -> Remaining: $timeLeft sec"
+        fi
+    done
+}
+
 copy_dist_file()
 {
    in_file=$1
@@ -912,13 +948,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    OLDIFS=$IFS
 	    export IFS='
 ' #looks ugly.. so is mike...
-	    for a in `find $DISTDIR/qt`; do
-		[ -d "$a" ] && continue
-		if public_file "$a"; then
-		    echo "$a" | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>>$LOG || \
-			    die "Could not write to manifest file";
-		fi
-	    done
+	    createManifest
 	    export IFS=$OLDIFS
 	fi
 
