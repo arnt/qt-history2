@@ -2516,11 +2516,11 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(((QWidget*)receiver)->topLevelWidget(), e);
         break;
     }
+    case QEvent::AccelOverride:
 #endif //QT_NO_ACCEL
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
-    case QEvent::AccelOverride:
-    {
+        {
         QWidget* w = static_cast<QWidget*>(receiver);
         QKeyEvent* key = static_cast<QKeyEvent*>(e);
 #ifndef QT_NO_ACCEL
