@@ -176,19 +176,17 @@ int QSocketDevicePrivate::createNewSocket()
 
     \sa open()
 */
-void QSocketDevice::close()
+bool QSocketDeviceEngine::close()
 {
-    if (d->fd == -1 || !isOpen())                // already closed
-        return;
-    setFlags(IO_Sequential);
-    resetStatus();
-    setState(0);
-    ::close(d->fd);
+    if (d->device->d->fd == -1)                // already closed
+        return false;
+    ::close(d->device->d->fd);
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug("QSocketDevice::close: Closed socket %x", d->fd);
+    qDebug("QSocketDevice::close: Closed socket %x", d->device->d->fd);
 #endif
-    d->fd = -1;
-    d->fetchConnectionParameters();
+    d->device->d->fd = -1;
+    d->device->d->fetchConnectionParameters();
+    return true;
 }
 
 
@@ -707,27 +705,16 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
     Reads \a maxlen bytes from the socket into \a data and returns the
     number of bytes read. Returns -1 if an error occurred.
 */
-Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
+Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
 {
-    if (data == 0 && maxlen != 0) {
-        qWarning("QSocketDevice::readBlock: Null pointer error");
-    }
-    if (!isValid()) {
+    if (!d->device->isValid()) {
         qWarning("QSocketDevice::readBlock: Invalid socket");
-        return -1;
-    }
-    if (!isOpen()) {
-        qWarning("QSocketDevice::readBlock: Device is not open");
-        return -1;
-    }
-    if (!isReadable()) {
-        qWarning("QSocketDevice::readBlock: Read operation not permitted");
         return -1;
     }
     bool done = false;
     int r = 0;
     while (done == false) {
-        if (d->t == Datagram) {
+        if (d->device->d->t == QSocketDevice::Datagram) {
 #if !defined(QT_NO_IPV6)
             struct sockaddr_storage aa;
 #else
@@ -736,19 +723,19 @@ Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
             memset(&aa, 0, sizeof(aa));
             QT_SOCKLEN_T sz;
             sz = sizeof(aa);
-            r = ::recvfrom(d->fd, data, maxlen, 0, (struct sockaddr *)&aa, &sz);
+            r = ::recvfrom(d->device->d->fd, data, maxlen, 0, (struct sockaddr *)&aa, &sz);
 
-            qt_socket_getportaddr((struct sockaddr *)&aa, &d->pp, &d->pa);
+            qt_socket_getportaddr((struct sockaddr *)&aa, &d->device->d->pp, &d->device->d->pa);
 
         } else {
-            r = ::read(d->fd, data, maxlen);
+            r = ::read(d->device->d->fd, data, maxlen);
         }
         done = true;
         if (r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
             // nothing
         } else if (errno == EINTR) {
             done = false;
-        } else if (d->e == NoError) {
+        } else if (d->device->d->e == QSocketDevice::NoError) {
             switch(errno) {
             case EIO:
             case EISDIR:
@@ -757,7 +744,7 @@ Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
             case EFAULT:
             case ENOTCONN:
             case ENOTSOCK:
-                d->e = Impossible;
+                d->device->d->e = QSocketDevice::Impossible;
                 break;
 #if defined(ENONET)
             case ENONET:
@@ -766,7 +753,7 @@ Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
             case ENETDOWN:
             case ENETUNREACH:
             case ETIMEDOUT:
-                d->e = NetworkFailure;
+                d->device->d->e = QSocketDevice::NetworkFailure;
                 break;
             case EPIPE:
             case ECONNRESET:
@@ -775,7 +762,7 @@ Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
                 r = 0;
                 break;
             default:
-                d->e = UnknownError;
+                d->device->d->e = QSocketDevice::UnknownError;
                 break;
             }
         }
@@ -790,31 +777,19 @@ Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
 
     This is used for \c QSocketDevice::Stream sockets.
 */
-Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len)
+Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
 {
-    if (data == 0 && len != 0) {
-        qWarning("QSocketDevice::writeBlock: Null pointer error");
-        return -1;
-    }
-    if (!isValid()) {
+    if (!d->device->isValid()) {
         qWarning("QSocketDevice::writeBlock: Invalid socket");
-        return -1;
-    }
-    if (!isOpen()) {
-        qWarning("QSocketDevice::writeBlock: Device is not open");
-        return -1;
-    }
-    if (!isWritable()) {
-        qWarning("QSocketDevice::writeBlock: Write operation not permitted");
         return -1;
     }
     bool done = false;
     int r = 0;
     bool timeout;
     while (!done) {
-        r = ::write(d->fd, data, len);
+        r = ::write(d->device->d->fd, data, len);
         done = true;
-        if (r < 0 && d->e == NoError &&
+        if (r < 0 && d->device->d->e == QSocketDevice::NoError &&
              errno != EAGAIN && errno != EWOULDBLOCK) {
             switch(errno) {
             case EINTR: // signal - call read() or whatever again
@@ -833,7 +808,7 @@ Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len)
             case EFAULT:
             case ENOTCONN:
             case ENOTSOCK:
-                d->e = Impossible;
+                d->device->d->e = QSocketDevice::Impossible;
                 break;
 #if defined(ENONET)
             case ENONET:
@@ -842,13 +817,13 @@ Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len)
             case ENETDOWN:
             case ENETUNREACH:
             case ETIMEDOUT:
-                d->e = NetworkFailure;
+                d->device->d->e = QSocketDevice::NetworkFailure;
                 break;
             default:
-                d->e = UnknownError;
+                d->device->d->e = QSocketDevice::UnknownError;
                 break;
             }
-        } else if (waitForMore(0, &timeout) == 0) {
+        } else if (d->device->waitForMore(0, &timeout) == 0) {
             if (!timeout) {
                 // connection closed
                 close();

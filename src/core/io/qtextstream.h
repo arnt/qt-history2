@@ -30,13 +30,15 @@ class QTextStreamPrivate;
 
 class Q_CORE_EXPORT QTextStream                                // text stream class
 {
+    Q_DECLARE_PRIVATE(QTextStream)
+            
 public:
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
                     UnicodeReverse, RawUnicode, UnicodeUTF8 };
 
-    void        setEncoding(Encoding);
+    void setEncoding(Encoding);
 #ifndef QT_NO_TEXTCODEC
-    void        setCodec(QTextCodec*);
+    void setCodec(QTextCodec*);
     QTextCodec *codec();
 #endif
 
@@ -48,12 +50,12 @@ public:
     QTextStream(FILE *, int mode);
     virtual ~QTextStream();
 
-    QIODevice        *device() const;
-    void         setDevice(QIODevice *);
-    void         unsetDevice();
+    QIODevice *device() const;
+    void setDevice(QIODevice *);
+    void unsetDevice();
 
     bool         atEnd() const;
-    bool         eof() const;
+    inline bool eof() const { return atEnd(); }
 
     QTextStream &operator>>(QChar &);
     QTextStream &operator>>(char &);
@@ -92,67 +94,45 @@ public:
     void        skipWhiteSpace();
 
     enum {
-        skipws          = 0x0001,                        // skip whitespace on input
-        left          = 0x0002,                        // left-adjust output
-        right          = 0x0004,                        // right-adjust output
-        internal  = 0x0008,                        // pad after sign
+        skipws       = 0x0001,                        // skip whitespace on input
+        left         = 0x0002,                        // left-adjust output
+        right        = 0x0004,                        // right-adjust output
+        internal     = 0x0008,                        // pad after sign
         bin          = 0x0010,                        // binary format integer
         oct          = 0x0020,                        // octal format integer
         dec          = 0x0040,                        // decimal format integer
         hex          = 0x0080,                        // hex format integer
-        showbase  = 0x0100,                        // show base indicator
-        showpoint = 0x0200,                        // force decimal point (float)
-        uppercase = 0x0400,                        // upper-case hex output
-        showpos          = 0x0800,                        // add '+' to positive integers
-        scientific= 0x1000,                        // scientific float output
-        fixed          = 0x2000                        // fixed float output
+        showbase     = 0x0100,                        // show base indicator
+        showpoint    = 0x0200,                        // force decimal point (float)
+        uppercase    = 0x0400,                        // upper-case hex output
+        showpos      = 0x0800,                        // add '+' to positive integers
+        scientific   = 0x1000,                        // scientific float output
+        fixed        = 0x2000                         // fixed float output
     };
 
-    static const int basefield;                        // bin | oct | dec | hex
-    static const int adjustfield;                // left | right | internal
-    static const int floatfield;                // scientific | fixed
+    static const int basefield;    // bin | oct | dec | hex
+    static const int adjustfield;  // left | right | internal
+    static const int floatfield;   // scientific | fixed
 
-    int          flags() const;
-    int          flags(int f);
-    int          setf(int bits);
-    int          setf(int bits, int mask);
-    int          unsetf(int bits);
+    int flags() const;
+    int flags(int f);
+    int setf(int bits);
+    int setf(int bits, int mask);
+    int unsetf(int bits);
 
     void  reset();
 
-    int          width()        const;
-    int          width(int);
-    int          fill()        const;
-    int          fill(int);
-    int          precision()        const;
-    int          precision(int);
+    int width()        const;
+    int width(int);
+    int fill()        const;
+    int fill(int);
+    int precision()        const;
+    int precision(int);
 
 private:
-    long        input_int();
-    void        init();
-    QTextStream &output_int(int, ulong, bool);
-    QIODevice        *dev;
+    void init();
+    QTextStreamPrivate *d_ptr;
 
-    int                fflags;
-    int                fwidth;
-    int                fillchar;
-    int                fprec;
-    QTextStreamPrivate * d;
-
-    void        ts_ungetc(QChar);
-    QChar        ts_getc();
-    bool        ts_getbuf(QChar*, uint, uchar =0, uint * =NULL);
-    void        ts_putc(int);
-    void        ts_putc(QChar);
-    ulong        input_bin();
-    ulong        input_oct();
-    ulong        input_dec();
-    ulong        input_hex();
-    double        input_double();
-    QTextStream &writeBlock(const char* p, uint len);
-    QTextStream &writeBlock(const QChar* p, uint len);
-
-private:
 #if defined(Q_DISABLE_COPY)
     QTextStream(const QTextStream &);
     QTextStream &operator=(const QTextStream &);
@@ -188,55 +168,6 @@ private:
     QTextOStream &operator=(const QTextOStream &);
 #endif
 };
-
-/*****************************************************************************
-  QTextStream inline functions
- *****************************************************************************/
-
-inline QIODevice *QTextStream::device() const
-{ return dev; }
-
-inline bool QTextStream::eof() const
-{ return atEnd(); }
-
-inline int QTextStream::flags() const
-{ return fflags; }
-
-inline int QTextStream::flags(int f)
-{ int oldf = fflags;  fflags = f;  return oldf; }
-
-inline int QTextStream::setf(int bits)
-{ int oldf = fflags;  fflags |= bits;  return oldf; }
-
-inline int QTextStream::setf(int bits, int mask)
-{ int oldf = fflags;  fflags = (fflags & ~mask) | (bits & mask); return oldf; }
-
-inline int QTextStream::unsetf(int bits)
-{ int oldf = fflags;  fflags &= ~bits;        return oldf; }
-
-inline int QTextStream::width() const
-{ return fwidth; }
-
-inline int QTextStream::width(int w)
-{ int oldw = fwidth;  fwidth = w;  return oldw;         }
-
-inline int QTextStream::fill() const
-{ return fillchar; }
-
-inline int QTextStream::fill(int f)
-{ int oldc = fillchar;        fillchar = f;  return oldc;  }
-
-inline int QTextStream::precision() const
-{ return fprec; }
-
-inline int QTextStream::precision(int p)
-{ int oldp = fprec;  fprec = p;         return oldp;  }
-
-/*!
-  Returns one character from the stream, or EOF.
-*/
-inline QChar QTextStream::ts_getc()
-{ QChar r; uint l; ts_getbuf(&r, 1, 0, &l); if (!l) r = QChar(0xffff); return r; }
 
 /*****************************************************************************
   QTextStream manipulators

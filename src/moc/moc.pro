@@ -31,11 +31,10 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qbytearraymatcher.cpp \
 		  ../core/tools/qdatetime.cpp	\
 		  ../core/io/qfile.cpp		\
-                  ../core/io/qfsfileengine.cpp  \
+                  ../core/io/qfileengine.cpp  \
+                  ../core/io/qioengine.cpp  \
 		  ../core/io/qdir.cpp		\
-                  ../core/io/qfsdirengine.cpp  \
 		  ../core/io/qfileinfo.cpp	\
-                  ../core/io/qfsfileinfoengine.cpp  \
 		  ../core/global/qglobal.cpp		\
 		  ../core/io/qiodevice.cpp	\
 		  ../core/tools/qlist.cpp		\
@@ -48,19 +47,13 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qvector.cpp          \
 		  ../core/tools/qlocale.cpp
 
-unix:SOURCES += \
-	../core/io/qfsfileengine_unix.cpp \
-	../core/io/qfsdirengine_unix.cpp \
-	../core/io/qfsfileinfoengine_unix.cpp
+unix:SOURCES += ../core/io/qfileengine_unix.cpp
 
-win32:SOURCES += \
-	../core/io/qfsfileengine_win.cpp \
-	../core/io/qfsdirengine_win.cpp \
-	../core/io/qfsfileinfoengine_win.cpp
+win32:SOURCES += ../core/io/qfileengine_win.cpp 
 
 macx: {
-SOURCES += ../core/kernel/qcore_mac.cpp
-LIBS	+= -framework CoreServices
+   SOURCES += ../core/kernel/qcore_mac.cpp
+   LIBS += -framework CoreServices
 }
 
 target.path=$$bins.path

@@ -32,6 +32,7 @@
 #include "qstring.h"
 #include "qobjectdefs.h"
 #include "private/qiodevice_p.h"
+#include "private/qioengine_p.h"
 #endif // QT_H
 
 class QSocketDevicePrivate : public QIODevicePrivate
@@ -39,9 +40,10 @@ class QSocketDevicePrivate : public QIODevicePrivate
     Q_DECLARE_PUBLIC(QSocketDevice)
 
 protected:
+    friend class QSocketDeviceEngine;
     QSocketDevicePrivate()
         : fd(-1), t(QSocketDevice::Stream), p(0), pp(0), e(QSocketDevice::NoError),
-          protocol(QSocketDevice::IPv4) {}
+          protocol(QSocketDevice::IPv4), socketEngine(0) {}
     ~QSocketDevicePrivate();
 
 private:
@@ -76,6 +78,15 @@ private:
     mutable QSocketDevice::Protocol protocol;
 
     static void init();
+
+    mutable QSocketDeviceEngine *socketEngine;
+};
+
+class QSocketDeviceEnginePrivate : public QIOEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QSocketDeviceEngine)
+protected:
+    mutable QSocketDevice *device;
 };
 
 #if !defined(Q_OS_WIN32)

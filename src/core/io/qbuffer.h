@@ -36,21 +36,7 @@ public:
     void setData(const QByteArray &data);
     inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
 
-    bool open(int);
-    void close();
-    void flush();
-
-    Offset size() const;
-    Offset at() const;
-    bool at(Offset);
-
-    virtual Q_LONG readBlock(char *data, Q_LONG size);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG size);
-    virtual Q_LONG readLine(char *data, Q_LONG size);
-
-    int getch();
-    int putch(int);
-    int ungetch(int);
+    virtual QIOEngine *ioEngine() const;
 
 private:
 #if defined(Q_DISABLE_COPY)

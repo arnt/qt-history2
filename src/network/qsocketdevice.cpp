@@ -24,6 +24,8 @@
 
 QSocketDevicePrivate::~QSocketDevicePrivate()
 {
+    delete socketEngine;
+    socketEngine = 0;
 }
 
 /*!
@@ -291,6 +293,11 @@ void QSocketDevice::setSocket(int socket, Type type)
 }
 
 
+QSocketDeviceEngine::QSocketDeviceEngine(QSocketDevice *device) : QIOEngine(*new QSocketDeviceEnginePrivate)
+{
+    d->device = device;
+}
+
 /*!
     \reimp
 
@@ -300,15 +307,13 @@ void QSocketDevice::setSocket(int socket, Type type)
 
     \sa close().
 */
-bool QSocketDevice::open(int mode)
+bool QSocketDeviceEngine::open(int flags)
 {
-    if (isOpen() || !isValid())
-        return false;
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug("QSocketDevice::open: mode %x", mode);
+    qDebug("QSocketDevice::open: mode %x", flags);
+#else
+    Q_UNUSED(flags);
 #endif
-    setMode(mode & IO_ReadWrite);
-    setState(IO_Open);
     return true;
 }
 
@@ -319,17 +324,22 @@ bool QSocketDevice::open(int mode)
     The current QSocketDevice implementation does not buffer at all,
     so this is a no-op.
 */
-void QSocketDevice::flush()
+void QSocketDeviceEngine::flush()
 {
 }
 
+
+bool QSocketDeviceEngine::isSequential() const
+{
+    return true;
+}
 
 /*!
     \reimp
 
     The size is meaningless for a socket, therefore this function returns 0.
 */
-QIODevice::Offset QSocketDevice::size() const
+QIODevice::Offset QSocketDeviceEngine::size() const
 {
     return 0;
 }
@@ -341,7 +351,7 @@ QIODevice::Offset QSocketDevice::size() const
     The read/write index is meaningless for a socket, therefore this
     function returns 0.
 */
-QIODevice::Offset QSocketDevice::at() const
+QIODevice::Offset QSocketDeviceEngine::at() const
 {
     return 0;
 }
@@ -353,7 +363,7 @@ QIODevice::Offset QSocketDevice::at() const
     The read/write index is meaningless for a socket, therefore this
     function does nothing and returns true.
 */
-bool QSocketDevice::at(Offset)
+bool QSocketDeviceEngine::seek(QIODevice::Offset)
 {
     return true;
 }
@@ -365,9 +375,9 @@ bool QSocketDevice::at(Offset)
     Returns true if no data is currently available at the socket;
     otherwise returns false.
 */
-bool QSocketDevice::atEnd() const
+bool QSocketDeviceEngine::atEnd() const
 {
-    return bytesAvailable() <= 0;
+    return d->device->bytesAvailable() <= 0;
 }
 
 
@@ -379,7 +389,7 @@ bool QSocketDevice::atEnd() const
 
     \sa putch() readBlock()
 */
-int QSocketDevice::getch()
+int QSocketDeviceEngine::getch()
 {
     char buf[2];
     return  readBlock(buf,1) == 1 ? buf[0] : -1;
@@ -394,7 +404,7 @@ int QSocketDevice::getch()
 
     \sa getch()
 */
-int QSocketDevice::putch(int ch)
+int QSocketDeviceEngine::putch(int ch)
 {
     char buf[2];
     buf[0] = ch;
@@ -408,7 +418,7 @@ int QSocketDevice::putch(int ch)
     This implementation of ungetch returns -1 (error). A socket is a
     sequential device and does not allow any ungetch operation.
 */
-int QSocketDevice::ungetch(int)
+int QSocketDeviceEngine::ungetch(int)
 {
     return -1;
 }
@@ -543,3 +553,12 @@ void QSocketDevice::setError(Error err)
     d->e = err;
 }
 
+/*!
+  \reimp
+*/
+QIOEngine *QSocketDevice::ioEngine() const
+{
+    if(!d->socketEngine)
+        d->socketEngine = new QSocketDeviceEngine(const_cast<QSocketDevice*>(this));
+    return d->socketEngine;
+}

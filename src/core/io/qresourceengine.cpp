@@ -14,9 +14,7 @@
 #include <private/qresourceengine_p.h>
 #include "qresource.h"
 #include <qregexp.h>
-#include <private/qdirengine_p.h>
 #include <private/qfileengine_p.h>
-#include <private/qfileinfoengine_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -28,66 +26,50 @@ inline static QResource *qt_find_resource(const QString &path)
     return QResource::find(path.mid(1));
 }
 
-
-/* ***************** ResourceDirEngine ************** */
-class QResourceDirEngineHandler : public QDirEngineHandler
+class QResourceFileEngineHandler : public QFileEngineHandler
 {
 public:
-    QResourceDirEngineHandler() { }
-    QDirEngine *createDirEngine(const QString &path) 
+    QResourceFileEngineHandler() { }
+    QFileEngine *createFileEngine(const QString &path) 
     { 
-        if(path.startsWith(":/")) 
-            return new QResourceDirEngine(path); 
+        if(path.startsWith(":/"))
+            return new QResourceFileEngine(path);
         return 0;
     }
 };
-static QResourceDirEngineHandler resource_dir_handler;
-class QResourceDirEnginePrivate : public QDirEnginePrivate
+static QResourceFileEngineHandler resource_file_handler;
+class QResourceFileEnginePrivate : public QFileEnginePrivate
 {
 protected:
-    Q_DECLARE_PUBLIC(QResourceDirEngine)
-private:    
-    QString path;
+    Q_DECLARE_PUBLIC(QResourceFileEngine)
+private:   
+    QString file;
+    QIODevice::Offset offset;
     mutable QResource *resource;
 protected:
-    QResourceDirEnginePrivate() : resource(0) { }
+    QResourceFileEnginePrivate() : offset(0), resource(0) { }
 };
 
-QResourceDirEngine::QResourceDirEngine(const QString &path) : QDirEngine(*new QResourceDirEnginePrivate)
-{
-    d->path = path;
-}
-
-void
-QResourceDirEngine::setPath(const QString &path)
-{
-    if(path != d->path) {
-        if(d->resource)
-            d->resource = 0;
-        d->path = path;
-    }
-}
-
 bool
-QResourceDirEngine::mkdir(const QString &, QDir::Recursivity) const
+QResourceFileEngine::mkdir(const QString &, QDir::Recursivity) const
 {
     return false;
 }
 
 bool
-QResourceDirEngine::rmdir(const QString &, QDir::Recursivity) const
+QResourceFileEngine::rmdir(const QString &, QDir::Recursivity) const
 {
     return false;
 }
 
 bool
-QResourceDirEngine::rename(const QString &, const QString &) const
+QResourceFileEngine::rename(const QString &, const QString &) const
 {
     return false;
 }
 
 QStringList
-QResourceDirEngine::entryList(int filterSpec, const QStringList &filters) const
+QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
     const bool doDirs     = (filterSpec & QDir::Dirs) != 0;
     const bool doFiles    = (filterSpec & QDir::Files) != 0;
@@ -97,7 +79,7 @@ QResourceDirEngine::entryList(int filterSpec, const QStringList &filters) const
     if((!doDirs && !doFiles) || ((filterSpec & QDir::RWEMask) && !doReadable))
         return ret;
     if(!d->resource)
-        d->resource = qt_find_resource(d->path);
+        d->resource = qt_find_resource(d->file);
     if(!d->resource || !d->resource->isContainer())
         return ret; // cannot read the directory
 
@@ -125,64 +107,40 @@ QResourceDirEngine::entryList(int filterSpec, const QStringList &filters) const
 }
 
 bool
-QResourceDirEngine::caseSensitive() const
+QResourceFileEngine::caseSensitive() const
 {
     return true;
 }
 
 bool
-QResourceDirEngine::isRoot() const
+QResourceFileEngine::isRoot() const
 {
     if(!d->resource)
-        d->resource = qt_find_resource(d->path);
+        d->resource = qt_find_resource(d->file);
     return d->resource && d->resource->parent();
 }
-
-/* ***************** ResourceFileEngine ************** */
-class QResourceFileEngineHandler : public QFileEngineHandler
-{
-public:
-    QResourceFileEngineHandler() { }
-    QFileEngine *createFileEngine(const QString &path) 
-    { 
-        if(path.startsWith(":/"))
-            return new QResourceFileEngine(path);
-        return 0;
-    }
-};
-static QResourceFileEngineHandler resource_file_handler;
-class QResourceFileEnginePrivate : public QFileEnginePrivate
-{
-protected:
-    Q_DECLARE_PUBLIC(QResourceFileEngine)
-private:   
-    QString file;
-    QFile::Offset offset;
-    mutable QResource *resource;
-protected:
-    QResourceFileEnginePrivate() : offset(0), resource(0) { }
-};
 
 QResourceFileEngine::QResourceFileEngine(const QString &file) : QFileEngine(*new QResourceFileEnginePrivate)
 {
     d->file = file;
 }
 
-bool
-QResourceFileEngine::isOpen() const
-{
-    return d->resource;
-}
-
 void
 QResourceFileEngine::setFileName(const QString &file)
 {
-    d->file = file;
+    if(file != d->file) {
+        d->resource = 0;
+        d->file = file;
+    }
 }
 
 bool
 QResourceFileEngine::open(int flags)
 {
+    if (d->file.isEmpty()) {
+        qWarning("QFSFileEngine::open: No file name specified");
+        return false;
+    }
     if ((flags & QFile::WriteOnly) == QFile::WriteOnly || (flags & QFile::Async))
         return false;
     if(!(d->resource = qt_find_resource(d->file))) 
@@ -193,7 +151,6 @@ QResourceFileEngine::open(int flags)
 bool
 QResourceFileEngine::close()
 {
-    d->resource = 0;
     return true;
 }
 
@@ -204,7 +161,7 @@ QResourceFileEngine::flush()
 }
 
 Q_LONG
-QResourceFileEngine::readBlock(uchar *data, Q_LONG len)
+QResourceFileEngine::readBlock(char *data, Q_LONG len)
 {
     if(len > d->resource->size()-d->offset) {
         len = d->resource->size()-d->offset;
@@ -217,9 +174,15 @@ QResourceFileEngine::readBlock(uchar *data, Q_LONG len)
 }
 
 Q_LONG
-QResourceFileEngine::writeBlock(const uchar *, Q_LONG)
+QResourceFileEngine::writeBlock(const char *, Q_LONG)
 {
-    return 0;
+    return -1;
+}
+
+int 
+QResourceFileEngine::ungetch(int)
+{
+    return -1;
 }
 
 bool
@@ -281,39 +244,8 @@ QResourceFileEngine::map(Q_LONG /*len*/)
     return 0;
 }
 
-
-/* ***************** ResourceFileInfoEngine ************** */
-class QResourceFileInfoEngineHandler : public QFileInfoEngineHandler
-{
-public:
-    QResourceFileInfoEngineHandler() { }
-    QFileInfoEngine *createFileInfoEngine(const QString &path) 
-    { 
-        if(path.startsWith(":/")) 
-            return new QResourceFileInfoEngine(path); 
-        return 0;
-    }
-};
-static QResourceFileInfoEngineHandler resource_file_info_handler;
-class QResourceFileInfoEnginePrivate : public QFileInfoEnginePrivate
-{
-protected:
-    Q_DECLARE_PUBLIC(QResourceFileInfoEngine)
-private:   
-    QString file;
-    mutable QResource *resource;
-protected:
-    QResourceFileInfoEnginePrivate() : resource(0) { }
-};
-
-QResourceFileInfoEngine::QResourceFileInfoEngine(const QString &file) : QFileInfoEngine(*new QResourceFileInfoEnginePrivate)
-{
-    d->file = file;
-}
-
-
 uint
-QResourceFileInfoEngine::fileFlags(uint type) const
+QResourceFileEngine::fileFlags(uint type) const
 {
     uint ret = 0;
     if(!d->resource && !(d->resource = qt_find_resource(d->file)))
@@ -331,16 +263,8 @@ QResourceFileInfoEngine::fileFlags(uint type) const
     return ret;
 }
 
-void
-QResourceFileInfoEngine::setFileName(const QString &file)
-{
-    d->file = file;
-    d->resource = 0;
-}
-
-
 QString
-QResourceFileInfoEngine::fileName(FileName file) const
+QResourceFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
 	int slash = d->file.lastIndexOf('/');
@@ -371,38 +295,27 @@ QResourceFileInfoEngine::fileName(FileName file) const
     
 }
 
-
 bool
-QResourceFileInfoEngine::isRelativePath() const
+QResourceFileEngine::isRelativePath() const
 {
     return false;
 }
 
-
 uint
-QResourceFileInfoEngine::ownerId(FileOwner) const
+QResourceFileEngine::ownerId(FileOwner) const
 {
     static const uint nobodyID = (uint) -2;
     return nobodyID;
 }
 
-
 QString
-QResourceFileInfoEngine::owner(FileOwner) const
+QResourceFileEngine::owner(FileOwner) const
 {
     return QString::null;
 }
 
-
-QIODevice::Offset
-QResourceFileInfoEngine::size() const
-{
-    return d->resource->size();
-}
-
-
 QDateTime
-QResourceFileInfoEngine::fileTime(FileTime) const
+QResourceFileEngine::fileTime(FileTime) const
 {
     return QDateTime();
 }

@@ -37,11 +37,10 @@ SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
          qtextstream.cpp qiodevice.cpp qglobal.cpp \
 	 qbytearray.cpp qbytearraymatcher.cpp \
 	 qdatastream.cpp qbuffer.cpp qlist.cpp\
-	 qfile.cpp qregexp.cpp quuid.cpp \
+	 qfile.cpp qregexp.cpp quuid.cpp qioengine.cpp \
 	 qvector.cpp qbitarray.cpp qdir.cpp qhash.cpp \
 	 qfileinfo.cpp qdatetime.cpp qstringlist.cpp qmap.cpp \
-	 qsettings.cpp qunicodetables.cpp qlocale.cpp \
-	 qfsfileengine.cpp qfsfileinfoengine.cpp qfsdirengine.cpp
+	 qsettings.cpp qunicodetables.cpp qlocale.cpp qfileengine.cpp
 HEADERS+=qchar.h qstring.h qstringmatcher.h \
          qtextstream.h qiodevice.h qglobal.h \
 	 qbytearray.h qbytearraymatcher.h \
@@ -49,9 +48,7 @@ HEADERS+=qchar.h qstring.h qstringmatcher.h \
 	 qfile.h qregexp.h quuid.h \
 	 qvector.h qbitarray.h qdir.h qhash.h \
 	 qfileinfo.h qdatetime.h qstringlist.h qmap.h \
-	 qsettings.h qlocale.h \
-	 qfileengine.h qfileinfoengine.h qdirengine.h \
-	 qfileengine_p.h qfileinfoengine_p.h qdirengine_p.h 
+	 qsettings.h qlocale.h qfileengine.h qioengine.h
 
 exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
@@ -66,13 +63,12 @@ VPATH += $$QT_SOURCE_TREE/src/core/global \
 	 $$QT_SOURCE_TREE/src/core/io 
 
 unix {
-   SOURCES += qfsfileengine_unix.cpp qfsfileinfoengine_unix.cpp qfsdirengine_unix.cpp 
+   SOURCES += qfileengine_unix.cpp
    mac:SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
 }
 
 win32 {
-   SOURCES += qfsfileengine_win.cpp qfsfileinfoengine_win.cpp qfsdirengine_win.cpp \
-              qsettings_win.cpp
+   SOURCES += qfileengine_win.cpp qsettings_win.cpp
    HEADERS += qsettings.h
    win32-msvc*:LIBS += ole32.lib advapi32.lib
 }

@@ -21,6 +21,7 @@
 #include "qobjectdefs.h"
 #endif // QT_H
 
+class QIOEngine;
 class QByteArray;
 class QIODevicePrivate;
 
@@ -99,25 +100,30 @@ public:
     void resetStatus();
     QString errorString() const;
 
-    virtual bool open(int mode) = 0;
-    virtual void close() = 0;
-    virtual void flush() = 0;
+    bool open(int mode);
+    void close();
+    void flush();
 
-    virtual Offset size() const = 0;
-    virtual Offset at() const;
-    virtual bool at(Offset);
-    virtual bool atEnd() const;
-    inline bool reset() { return at(0); }
+    Offset size() const;
+    Offset at() const;
+    bool seek(Offset off);
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool at(Offset off) { return seek(off); }
+#endif
+    bool atEnd() const;
+    inline bool reset() { return seek(0); }
 
-    virtual Q_LONG readBlock(char *data, Q_LONG maxlen) = 0;
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len) = 0;
-    virtual Q_LONG readLine(char *data, Q_LONG maxlen);
-    virtual QByteArray readAll();
-    inline Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.data(), data.size()); }
+    Q_LONG readBlock(char *data, Q_LONG maxlen);
+    Q_LONG writeBlock(const char *data, Q_LONG len);
+    Q_LONG readLine(char *data, Q_LONG maxlen);
+    QByteArray readAll();
+    inline Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.constData(), data.size()); }
 
-    virtual int getch() = 0;
-    virtual int putch(int) = 0;
-    virtual int ungetch(int) = 0;
+    int getch();
+    int putch(int);
+    int ungetch(int);
+
+    virtual QIOEngine *ioEngine() const = 0;
 
 protected:
     QIODevice(QIODevicePrivate &d);
@@ -130,7 +136,6 @@ protected:
     void setStatus(int, const QString &errorString);
     void setStatus(int, int);
 
-    Offset ioIndex;
     QIODevicePrivate *d_ptr;
 
 private:

@@ -7,10 +7,10 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o 
 #qt code
 QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
-      qfsfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
-      qfsfileinfoengine_unix.o qfsdirengine_unix.o qfileinfo.o qdatetime.o qstringlist.o \
-      qmap.o qconfig.o qunicodetables.o qsettings.o qlocale.o qlinkedlist.o qfsfileengine.o \
-      qfsdirengine.o qfsfileinfoengine.o @QMAKE_QTOBJS@
+      qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
+      qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qioengine.o \
+      qmap.o qconfig.o qunicodetables.o qsettings.o qlocale.o qlinkedlist.o \
+      @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
@@ -23,17 +23,16 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/global/qglobal.cpp @SOURCE_PATH@/src/core/tools/qregexp.cpp \
 	   @SOURCE_PATH@/src/core/tools/qbytearray.cpp @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp \
 	   @SOURCE_PATH@/src/core/io/qdatastream.cpp @SOURCE_PATH@/src/core/io/qbuffer.cpp \
-	   @SOURCE_PATH@/src/core/io/qfsfileengine_unix.cpp @SOURCE_PATH@/src/core/io/qfileengine_unix.cpp \
+	   @SOURCE_PATH@/src/core/io/qfileengine_unix.cpp @SOURCE_PATH@/src/core/io/qfileengine.cpp \
 	   @SOURCE_PATH@/src/core/tools/qvector.cpp @SOURCE_PATH@/src/core/tools/qbitarray.cpp \
 	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/plugin/quuid.cpp \
-	   @SOURCE_PATH@/src/core/io/qfsfileinfoengine_unix.cpp @SOURCE_PATH@/src/core/io/qfileinfoengine_unix.cpp \
-	   @SOURCE_PATH@/src/core/io/qfsdirengine_unix.cpp @SOURCE_PATH@/src/core/io/qdirengine_unix.cpp \
 	   @SOURCE_PATH@/src/core/io/qfileinfo.cpp @SOURCE_PATH@/src/core/tools/qdatetime.cpp \
 	   @SOURCE_PATH@/src/core/tools/qstringlist.cpp @SOURCE_PATH@/src/core/tools/qmap.cpp \
 	   @SOURCE_PATH@/src/core/global/qconfig.cpp @SOURCE_PATH@/src/core/io/qsettings.cpp \
 	   @SOURCE_PATH@/src/core/io/qurl.cpp @SOURCE_PATH@/src/core/io/qsettings_mac.cpp \
 	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
-	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp
+	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp \
+	   @SOURCE_PATH@/src/core/io/qioengine.cpp
 
 CXXFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -121,23 +120,14 @@ qlist.o: @SOURCE_PATH@/src/core/tools/qlist.cpp
 qfile.o: @SOURCE_PATH@/src/core/io/qfile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfile.cpp
 
-qfsfileinfoengine_unix.o: @SOURCE_PATH@/src/core/io/qfsfileinfoengine_unix.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfsfileinfoengine_unix.cpp
+qfileengine_unix.o: @SOURCE_PATH@/src/core/io/qfileengine_unix.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfileengine_unix.cpp
 
-qfsdirengine_unix.o: @SOURCE_PATH@/src/core/io/qfsdirengine_unix.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfsdirengine_unix.cpp
+qfileengine.o: @SOURCE_PATH@/src/core/io/qfileengine.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfileengine.cpp
 
-qfsfileengine_unix.o: @SOURCE_PATH@/src/core/io/qfsfileengine_unix.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfsfileengine_unix.cpp
-
-qfsfileinfoengine.o: @SOURCE_PATH@/src/core/io/qfsfileinfoengine.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfsfileinfoengine.cpp
-
-qfsdirengine.o: @SOURCE_PATH@/src/core/io/qfsdirengine.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfsdirengine.cpp
-
-qfsfileengine.o: @SOURCE_PATH@/src/core/io/qfsfileengine.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfsfileengine.cpp
+qioengine.o: @SOURCE_PATH@/src/core/io/qioengine.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qioengine.cpp
 
 qregexp.o: @SOURCE_PATH@/src/core/tools/qregexp.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qregexp.cpp

@@ -14,7 +14,6 @@
 #ifndef __QFILE_H__
 #define __QFILE_H__
 
-
 #ifndef QT_H
 #include "qiodevice.h"
 #include "qstring.h"
@@ -22,8 +21,7 @@
 #endif // QT_H
 
 class QFilePrivate;
-
-class Q_CORE_EXPORT QFile : public QIODevice                        // file I/O device class
+class Q_CORE_EXPORT QFile : public QIODevice
 {
     Q_DECLARE_PRIVATE(QFile)
 
@@ -53,32 +51,24 @@ public:
     bool rename(const QString &newName);
     static bool rename(const QString &oldName, const QString &newName);
 
-    bool open(int);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool open(int mode) { return QIODevice::open(mode); }
+#else
+    using QIODevice::open;
+#endif
     bool open(int, FILE *);
     bool open(int, int);
-    void close();
-    void flush();
 
-    Offset size() const;
-    Offset at() const;
-    bool at(Offset);
-    bool atEnd() const;
-
-    virtual Q_LONG readBlock(char *data, Q_LONG len);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
 #ifdef Q_NO_USING_KEYWORD
-    inline Q_LONG writeBlock(const QByteArray &ba) { return QIODevice::writeBlock(ba); }
+    inline Q_LONG readLine(char *data, Q_LONG maxlen) { return QIODevice::readLine(data, maxlen); }
 #else
-    using QIODevice::writeBlock;
+    using QIODevice::readLine;
 #endif
-    virtual Q_LONG readLine(char *data, Q_LONG maxlen);
     Q_LONG readLine(QString &string, Q_LONG maxlen);
 
-    int getch();
-    int putch(int);
-    int ungetch(int);
-
     int handle() const;
+
+    virtual QIOEngine *ioEngine() const;
 
 private:
 #if defined(Q_DISABLE_COPY)

@@ -13,25 +13,202 @@
 ****************************************************************************/
 
 #include "qbuffer.h"
+#include "qioengine.h"
 #include "qobjectdefs.h"
 #include "private/qiodevice_p.h"
+#include "private/qioengine_p.h"
 
 #define d d_func()
 #define q q_func()
 
+/** QBufferEngine **/
+class QBufferEnginePrivate;
+class QBufferEngine : public QIOEngine
+{
+private:
+    Q_DECLARE_PRIVATE(QBufferEngine)
+public:
+    QBufferEngine(QByteArray *);
+    inline void setData(QByteArray *);
+
+    virtual bool open(int flags);
+    virtual bool close();
+    virtual void flush();
+
+    virtual QIODevice::Offset size() const;
+    virtual QIODevice::Offset at() const;
+    virtual bool seek(QIODevice::Offset);
+
+    virtual bool isSequential() const { return true; }
+
+    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
+    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+    virtual Q_LONG readLine(char *data, Q_LONG maxlen);
+
+    virtual int getch();
+    virtual int putch(int);
+    virtual int ungetch(int);
+};
+
+class QBufferEnginePrivate : public QIOEnginePrivate
+{
+private:
+    Q_DECLARE_PUBLIC(QBufferEngine)
+protected:    
+    QBufferEnginePrivate() : ioIndex(0), buf(0) { }
+    int ioIndex;
+    QByteArray *buf;
+};
+
+QBufferEngine::QBufferEngine(QByteArray *data) : QIOEngine(*new QBufferEnginePrivate)
+{
+    setData(data);
+}
+
+void QBufferEngine::setData(QByteArray *data)
+{
+    d->ioIndex = 0;
+    d->buf = data;
+}
+
+bool QBufferEngine::open(int flags)
+{
+    if (flags & QIODevice::Truncate)
+        d->buf->resize(0);
+    if (flags & QIODevice::Append)                       // append to end of buffer
+        d->ioIndex = d->buf->size();
+    else
+        d->ioIndex = 0;
+    return true;
+}
+
+bool QBufferEngine::close()
+{
+    if(d->ioIndex == -1)
+        return false;
+    d->ioIndex = -1;
+    return true;
+}
+
+void QBufferEngine::flush()
+{
+}
+
+
+QIODevice::Offset QBufferEngine::at() const
+{
+    return d->ioIndex;
+}
+
+QIODevice::Offset QBufferEngine::size() const
+{
+    return (QIODevice::Offset)d->buf->size();
+}
+
+bool QBufferEngine::seek(QIODevice::Offset pos)
+{
+    // #### maybe resize if not readonly?
+    if (pos > (QIODevice::Offset)d->buf->size()) {
+        qWarning("QBufferEngine::seek: Index %lld out of range", pos);
+        return false;
+    }
+    d->ioIndex = pos;
+    return true;
+}
+
+Q_LONG QBufferEngine::readBlock(char *p, Q_LONG len)
+{
+    if (d->ioIndex + len > d->buf->size()) {   // overflow
+        if ((int)d->ioIndex >= d->buf->size()) {
+            return 0;
+        } else {
+            len = d->buf->size() - d->ioIndex;
+        }
+    }
+    memcpy(p, d->buf->constData() + d->ioIndex, len);
+    d->ioIndex += len;
+    return len;
+}
+
+Q_LONG QBufferEngine::writeBlock(const char *ptr, Q_LONG len)
+{
+    if (d->ioIndex + len > d->buf->size()) {             // overflow
+        d->buf->resize(d->ioIndex + len);
+        if (d->buf->size() != (int)(d->ioIndex + len)) {           // could not resize
+            qWarning("QBufferEngine::writeBlock: Memory allocation error");
+            return -1;
+        }
+    }
+    memcpy(d->buf->data() + d->ioIndex, ptr, len);
+    d->ioIndex += len;
+    return len;
+}
+
+Q_LONG QBufferEngine::readLine(char *p, Q_LONG maxlen)
+{
+    Q_LONG start = d->ioIndex;
+    const char *dat = d->buf->constData() + d->ioIndex;
+    maxlen--;                                   // make room for 0-terminator
+    if (d->buf->size() - d->ioIndex < maxlen)
+        maxlen = d->buf->size() - d->ioIndex;
+    while (maxlen--) {
+        if ((*p++ = *dat++) == '\n')
+            break;
+    }
+    *p = '\0';
+    d->ioIndex = dat - d->buf->constData();
+    return d->ioIndex - start;
+}
+
+int QBufferEngine::getch()
+{
+    if (d->ioIndex >= d->buf->size()) // overflow
+        return -1;
+    return char(d->buf->constData()[d->ioIndex++]);
+}
+
+int QBufferEngine::putch(int ch)
+{
+    if (d->ioIndex >= d->buf->size()) {               // overflow
+        char tinyBuf;
+        tinyBuf = (char)ch;
+        if (writeBlock(&tinyBuf, 1) != 1)
+            return -1;                          // write error
+    } else {
+        d->buf->data()[d->ioIndex++] = (char)ch;
+    }
+    return ch;
+}
+
+int QBufferEngine::ungetch(int ch)
+{
+    if (ch != -1) {
+        if (d->ioIndex)
+            d->ioIndex--;
+        else
+            ch = -1;
+    }
+    return ch;
+}
+
+/** QBufferPrivate **/
 class QBufferPrivate : public QIODevicePrivate
 {
     Q_DECLARE_PUBLIC(QBuffer)
 
 public:
+    QBufferPrivate() : bufferEngine(0) { }
     ~QBufferPrivate();
 
     QByteArray defaultBuf;
     QByteArray *buf;
+    mutable QBufferEngine *bufferEngine;
 };
 
 QBufferPrivate::~QBufferPrivate()
 {
+    delete bufferEngine;
+    bufferEngine = 0;
 }
 
 /*!
@@ -77,12 +254,10 @@ QBufferPrivate::~QBufferPrivate()
     Constructs an empty buffer.
 */
 
-QBuffer::QBuffer()
-    : QIODevice(*new QBufferPrivate)
+QBuffer::QBuffer() : QIODevice(*new QBufferPrivate)
 {
     d->buf = &d->defaultBuf;
     setFlags(QIODevice::Direct);
-    ioIndex = 0;
 }
 
 
@@ -107,12 +282,10 @@ QBuffer::QBuffer()
     \sa setBuffer()
 */
 
-QBuffer::QBuffer(QByteArray *a)
-    : QIODevice(*new QBufferPrivate)
+QBuffer::QBuffer(QByteArray *a) : QIODevice(*new QBufferPrivate)
 {
     d->buf = a;
     setFlags(QIODevice::Direct);
-    ioIndex = 0;
 }
 
 /*!
@@ -150,8 +323,9 @@ void QBuffer::setBuffer(QByteArray *a)
     } else {
         d->buf = &d->defaultBuf;
     }
+    if(d->bufferEngine)
+        d->bufferEngine->setData(d->buf);
     d->defaultBuf.clear();
-    ioIndex = 0;
 }
 
 /*!
@@ -175,6 +349,8 @@ void QBuffer::setData(const QByteArray &data)
         return;
     }
     *d->buf = data;
+    if(d->bufferEngine)
+        d->bufferEngine->setData(d->buf);
 }
 
 /*!
@@ -197,288 +373,13 @@ const QByteArray &QBuffer::buffer() const
 }
 
 /*!
-    \reimp
-
-    Opens the buffer in mode \a m. Returns true if successful;
-    otherwise returns false. The buffer must be opened before use.
-
-    The mode parameter \a m must be a combination of the following flags.
-    \list
-    \i \c QIODevice::ReadOnly opens the buffer in read-only mode.
-    \i \c QIODevice::WriteOnly opens the buffer in write-only mode.
-    \i \c QIODevice::ReadWrite opens the buffer in read/write mode.
-    \i \c QIODevice::Append sets the buffer index to the end of the buffer.
-    \i \c QIODevice::Truncate truncates the buffer.
-    \endlist
-
-    \sa close(), isOpen()
-*/
-
-bool QBuffer::open(int m)
-{
-    if (isOpen()) {                           // buffer already open
-        qWarning("QBuffer::open: Buffer already open");
-        return false;
-    }
-    setMode(m);
-    if (m & QIODevice::Truncate)
-        d->buf->resize(0);
-    if (m & QIODevice::Append)                       // append to end of buffer
-        ioIndex = d->buf->size();
-    else
-        ioIndex = 0;
-
-    setState(QIODevice::Open);
-    resetStatus();
-    return true;
-}
-
-/*!
-    \reimp
-
-    Closes an open buffer.
-
-    \sa open()
-*/
-
-void QBuffer::close()
-{
-    if (isOpen()) {
-        setFlags(QIODevice::Direct);
-        ioIndex = 0;
-    }
-}
-
-/*!
-    \reimp
-
-    The flush function does nothing for a QBuffer.
-*/
-
-void QBuffer::flush()
-{
-    return;
-}
-
-
-/*!
-    \reimp
-*/
-QIODevice::Offset QBuffer::at() const
-{
-    return ioIndex;
-}
-
-/*!
-    \reimp
-*/
-QIODevice::Offset QBuffer::size() const
-{
-    return (Offset)d->buf->size();
-}
-
-/*!
   \reimp
 */
 
-bool QBuffer::at(Offset pos)
+QIOEngine *QBuffer::ioEngine() const
 {
-    if (!isOpen()) {
-        qWarning("QBuffer::at: Buffer is not open");
-        return false;
-    }
-    // #### maybe resize if not readonly?
-    if (pos > (Offset)d->buf->size()) {
-        qWarning("QBuffer::at: Index %lld out of range", pos);
-        return false;
-    }
-    ioIndex = pos;
-    return true;
+    if(!d->bufferEngine)
+        d->bufferEngine = new QBufferEngine(d->buf);
+    return d->bufferEngine;
 }
 
-
-/*!
-  \reimp
-*/
-
-Q_LONG QBuffer::readBlock(char *p, Q_LONG len)
-{
-    if (!p) {
-        qWarning("QBuffer::readBlock: Null pointer error");
-        return -1;
-    }
-    if (!isOpen()) {                          // buffer not open
-        qWarning("QBuffer::readBlock: Buffer not open");
-        return -1;
-    }
-    if (!isReadable()) {                      // reading not permitted
-        qWarning("QBuffer::readBlock: Read operation not permitted");
-        return -1;
-    }
-    if (ioIndex + len > d->buf->size()) {   // overflow
-        if ((int)ioIndex >= d->buf->size()) {
-            return 0;
-        } else {
-            len = d->buf->size() - ioIndex;
-        }
-    }
-    memcpy(p, d->buf->constData() + ioIndex, len);
-    ioIndex += len;
-    return len;
-}
-
-/*!
-    Writes \a len bytes from \a ptr into the buffer at the current
-    index position, overwriting any characters there and extending the
-    buffer if necessary. Returns the number of bytes actually written.
-
-    For example, to write a QByteArray called data you would call
-    writeBlock(data.data(), data.size()).
-
-    Returns -1 if an error occurred.
-
-    \sa readBlock()
-*/
-
-Q_LONG QBuffer::writeBlock(const char *ptr, Q_LONG len)
-{
-    if (len == 0)
-        return 0;
-
-    if (ptr == 0) {
-        qWarning("QBuffer::writeBlock: Null pointer error");
-        return -1;
-    }
-    if (!isOpen()) {                          // buffer not open
-        qWarning("QBuffer::writeBlock: Buffer not open");
-        return -1;
-    }
-    if (!isWritable()) {                      // writing not permitted
-        qWarning("QBuffer::writeBlock: Write operation not permitted");
-        return -1;
-    }
-    if (ioIndex + len > d->buf->size()) {             // overflow
-        d->buf->resize(ioIndex + len);
-        if (d->buf->size() != (int)(ioIndex + len)) {           // could not resize
-            qWarning("QBuffer::writeBlock: Memory allocation error");
-            setStatus(QIODevice::ResourceError);
-            return -1;
-        }
-    }
-    memcpy(d->buf->data() + ioIndex, ptr, len);
-    ioIndex += len;
-    return len;
-}
-
-
-/*!
-  \reimp
-*/
-
-Q_LONG QBuffer::readLine(char *p, Q_LONG maxlen)
-{
-    if (p == 0) {
-        qWarning("QBuffer::readLine: Null pointer error");
-        return -1;
-    }
-    if (!isOpen()) {                          // buffer not open
-        qWarning("QBuffer::readLine: Buffer not open");
-        return -1;
-    }
-    if (!isReadable()) {                      // reading not permitted
-        qWarning("QBuffer::readLine: Read operation not permitted");
-        return -1;
-    }
-    if (maxlen == 0)
-        return 0;
-    Q_LONG start = ioIndex;
-    const char *dat = d->buf->constData() + ioIndex;
-    maxlen--;                                   // make room for 0-terminator
-    if (d->buf->size() - ioIndex < maxlen)
-        maxlen = d->buf->size() - ioIndex;
-    while (maxlen--) {
-        if ((*p++ = *dat++) == '\n')
-            break;
-    }
-    *p = '\0';
-    ioIndex = dat - d->buf->constData();
-    return ioIndex - start;
-}
-
-
-/*!
-  \reimp
-*/
-
-int QBuffer::getch()
-{
-    if (!isOpen()) {                          // buffer not open
-        qWarning("QBuffer::getch: Buffer not open");
-        return -1;
-    }
-    if (!isReadable()) {                      // reading not permitted
-        qWarning("QBuffer::getch: Read operation not permitted");
-        return -1;
-    }
-    if (ioIndex >= d->buf->size()) {               // overflow
-        setStatus(QIODevice::ReadError);
-        return -1;
-    }
-    return uchar(d->buf->constData()[ioIndex++]);
-}
-
-/*!
-    \reimp
-
-    Writes the character \a ch into the buffer at the current index
-    position, overwriting any existing character and extending the
-    buffer if necessary.
-
-    Returns \a ch, or -1 if an error occurred.
-
-    \sa getch(), ungetch()
-*/
-
-int QBuffer::putch(int ch)
-{
-    if (!isOpen()) {                          // buffer not open
-        qWarning("QBuffer::putch: Buffer not open");
-        return -1;
-    }
-    if (!isWritable()) {                      // writing not permitted
-        qWarning("QBuffer::putch: Write operation not permitted");
-        return -1;
-    }
-    if (ioIndex >= d->buf->size()) {               // overflow
-        char tinyBuf;
-        tinyBuf = (char)ch;
-        if (writeBlock(&tinyBuf, 1) != 1)
-            return -1;                          // write error
-    } else {
-        d->buf->data()[ioIndex++] = (char)ch;
-    }
-    return ch;
-}
-
-/*!
-  \reimp
-*/
-
-int QBuffer::ungetch(int ch)
-{
-    if (!isOpen()) {                          // buffer not open
-        qWarning("QBuffer::ungetch: Buffer not open");
-        return -1;
-    }
-    if (!isReadable()) {                      // reading not permitted
-        qWarning("QBuffer::ungetch: Read operation not permitted");
-        return -1;
-    }
-    if (ch != -1) {
-        if (ioIndex)
-            ioIndex--;
-        else
-            ch = -1;
-    }
-    return ch;
-}

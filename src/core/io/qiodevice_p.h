@@ -31,6 +31,7 @@
 #include "qglobal.h"
 #include "qstring.h"
 #include "qobjectdefs.h"
+#include "qioengine.h"
 #endif // QT_H
 
 class Q_CORE_EXPORT QIODevicePrivate
@@ -38,13 +39,12 @@ class Q_CORE_EXPORT QIODevicePrivate
     Q_DECLARE_PUBLIC(QIODevice)
 
 protected:
-    QIODevicePrivate()
-        : q_ptr(0), ioMode(0), ioSt(QIODevice::Ok) {}
-    virtual ~QIODevicePrivate();
+    QIODevicePrivate();
+    ~QIODevicePrivate();
 
     QIODevice *q_ptr;
 
-private:
+protected:
     int ioMode;
     int ioSt;
     QString errStr;

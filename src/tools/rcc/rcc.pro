@@ -40,16 +40,13 @@ SOURCES += \
            ../../core/tools/qbytearraymatcher.cpp ../../core/tools/qbitarray.cpp \
            #io
            ../../core/io/qfile.cpp ../../core/io/qdir.cpp ../../core/io/qfileinfo.cpp \
-           ../../core/io/qfsfileengine.cpp ../../core/io/qfsfileinfoengine.cpp \
-           ../../core/io/qdatastream.cpp ../../core/io/qbuffer.cpp ../../core/io/qiodevice.cpp \
-           ../../core/io/qfsdirengine.cpp ../../core/io/qtextstream.cpp \
+           ../../core/io/qfileengine.cpp ../../core/io/qdatastream.cpp ../../core/io/qbuffer.cpp \
+           ../../core/io/qiodevice.cpp ../../core/io/qtextstream.cpp ../../core/io/qioengine.cpp \
            #global
            ../../core/global/qglobal.cpp
 #platform specific
-win32:SOURCES += ../../core/io/qfsfileinfoengine_win.cpp ../../core/io/qfsfileengine_win.cpp \
-                 ../../core/io/qfsdirengine_win.cpp
-else:unix:SOURCES += ../../core/io/qfsfileinfoengine_unix.cpp ../../core/io/qfsfileengine_unix.cpp \
-                     ../../core/io/qfsdirengine_unix.cpp
+win32:SOURCES += ../../core/io/qfileengine_win.cpp
+else:unix:SOURCES += ../../core/io/qfileengine_unix.cpp
 mac:LIBS += -framework ApplicationServices
 
 #actual stuff in here

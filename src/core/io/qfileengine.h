@@ -14,42 +14,68 @@
 #ifndef __QFILEENGINE_H__
 #define __QFILEENGINE_H__
 
-#include "qfile.h"
+#include "qioengine.h"
+#include "qdir.h"
 
 class QFileEnginePrivate;
-class QFileEngine
+class QFileEngine : public QIOEngine
 {
-protected:
-    QFileEnginePrivate *d_ptr;
-private:
     Q_DECLARE_PRIVATE(QFileEngine)
 public:
     QFileEngine(QFileEnginePrivate &);
     virtual ~QFileEngine();
+    static QFileEngine *QFileEngine::createFileEngine(const QString &file);
 
-    virtual bool isOpen() const = 0;
-    virtual bool open(int flags) = 0;
-    virtual bool close() = 0;
-    virtual void flush() = 0;
-
+    // Interface to QFile
     virtual void setFileName(const QString &file) = 0;
-
-    virtual Q_LONG readBlock(uchar *data, Q_LONG len) = 0;
-    virtual Q_LONG writeBlock(const uchar *data, Q_LONG len) = 0;
-    
     virtual bool remove() = 0;
     virtual bool rename(const QString &newName) = 0;
-
-    virtual QFile::Offset size() const = 0;
-    virtual QFile::Offset at() const = 0;
-    virtual bool atEnd() const = 0;
-    virtual bool seek(QFile::Offset pos) = 0;
-    virtual bool isSequential() const = 0;
-
     virtual int handle() const = 0;
+    virtual uchar *map(Q_LONG len) = 0; //can we implement an mmap?
 
-    //maybe
-    virtual uchar *map(Q_LONG len) = 0; //can we implement a mmap?
+    //Interface to QDir
+    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const = 0;
+    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const = 0;
+    virtual bool rename(const QString &name, const QString &newName) const = 0;
+    virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
+    virtual bool caseSensitive() const = 0;
+    virtual bool isRoot() const = 0;
+
+    //Interface to QFileInfo
+    enum FileInfo { 
+        //perms (overlaps the QFileInfo permissions)
+        ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
+        ReadUser  = 0x0400, WriteUser  = 0x0200, ExeUser  = 0x0100,
+        ReadGroup = 0x0040, WriteGroup = 0x0020, ExeGroup = 0x0010,
+        ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001,
+
+        //types
+        Link      = 0x10000, 
+        File      = 0x20000, 
+        Directory = 0x40000,
+
+        //flags
+        Hidden     = 0x0100000,
+        Exists     = 0x0400000,
+
+        //masks
+        PermsMask  = 0x0000FFFF,
+        TypeMask   = 0x000F0000,
+        FlagsMask  = 0x0FF00000,
+        FileInfoAll = FlagsMask | PermsMask | TypeMask
+    };
+    virtual uint fileFlags(uint type=FileInfoAll) const = 0;
+
+    enum FileName { Default, BaseName, DirPath, AbsoluteName, AbsoluteDirPath, LinkName, Canonical };
+    virtual QString fileName(FileName file=Default) const = 0;
+    virtual bool isRelativePath() const = 0;
+
+    enum FileOwner { User, Group };
+    virtual uint ownerId(FileOwner) const = 0;
+    virtual QString owner(FileOwner) const = 0;
+
+    enum FileTime { CreationTime, ModificationTime, AccessTime };
+    virtual QDateTime fileTime(FileTime time) const = 0;
 };
 
 class QFileEngineHandler
@@ -57,11 +83,10 @@ class QFileEngineHandler
 protected:
     QFileEngineHandler();
     virtual ~QFileEngineHandler();
-
     virtual QFileEngine *createFileEngine(const QString &path) = 0;
 
 private:
-    friend QFileEngine *qt_createFileEngine(const QString &);
+    friend class QFileEngine;
 };
 
 class QFSFileEnginePrivate;
@@ -73,29 +98,45 @@ public:
     QFSFileEngine(const QString &file);
     QFSFileEngine();
 
-    virtual bool isOpen() const;
+    virtual QIODevice::Status errorStatus() const;
+    virtual QString errorMessage() const;
     virtual bool open(int flags);
-    bool open(int flags, int fd); //FS only!!
     virtual bool close();
     virtual void flush();
-
+    virtual QIODevice::Offset size() const;
+    virtual QIODevice::Offset at() const;
+    virtual bool atEnd() const;
+    virtual bool seek(QIODevice::Offset);
+    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
+    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+    virtual int ungetch(int);
     virtual void setFileName(const QString &file);
-
-    virtual Q_LONG readBlock(uchar *data, Q_LONG len);
-    virtual Q_LONG writeBlock(const uchar *data, Q_LONG len);
-    
     virtual bool remove();
     virtual bool rename(const QString &newName);
-
-    virtual QFile::Offset size() const;
-    virtual QFile::Offset at() const;
-    virtual bool atEnd() const;
-    virtual bool seek(QFile::Offset pos);
     virtual bool isSequential() const;
-    
     virtual int handle() const;
-
-    //maybe
     virtual uchar *map(Q_LONG len);
+
+    virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const;
+    virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const;
+    virtual bool rename(const QString &name, const QString &newName) const;
+    virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
+    virtual bool caseSensitive() const;
+    virtual bool isRoot() const;
+
+    virtual uint fileFlags(uint type=FileInfoAll) const;
+    virtual QString fileName(FileName file=Default) const;
+    virtual bool isRelativePath() const;
+    virtual uint ownerId(FileOwner) const;
+    virtual QString owner(FileOwner) const;
+    virtual QDateTime fileTime(FileTime time) const;
+
+    //FS only!!
+    bool open(int flags, int fd); 
+    static bool setCurrentDirPath(const QString &path);
+    static QString currentDirPath(const QString &path=QString::null);
+    static QString homeDirPath();
+    static QString rootDirPath();
+    static QFileInfoList drives();
 };
 #endif /* __QFILEENGINE_H__ */

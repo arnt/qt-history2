@@ -214,19 +214,16 @@ int QSocketDevicePrivate::createNewSocket()
 }
 
 
-void QSocketDevice::close()
+void QSocketDeviceEngine::close()
 {
     if (d->fd == -1 || !isOpen())                // already closed
         return;
-    setFlags(IO_Sequential);
-    resetStatus();
-    setState(0);
     ::closesocket(d->fd);
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice::close: Closed socket %x", d->fd);
 #endif
-    d->fd = -1;
-    d->fetchConnectionParameters();
+    d->device->d->fd = -1;
+    d->device->d->fetchConnectionParameters();
 }
 
 
@@ -643,7 +640,7 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
 }
 
 
-Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
+Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
 {
     if (data == 0 && maxlen != 0) {
         qWarning("QSocketDevice::readBlock: Null pointer error");

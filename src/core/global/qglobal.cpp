@@ -385,6 +385,54 @@ void qFatal(const char *msg, ...)
 #endif
 }
 
+
+Q_CORE_EXPORT QString qt_errorstr(int errorCode)
+{
+    QString ret = QString::null;
+    switch (errorCode) {
+    case 0:
+        break;
+    case EACCES:
+        ret = QT_TR_NOOP("Permission denied");
+        break;
+    case EMFILE:
+        ret = QT_TR_NOOP("Too many open files");
+        break;
+    case ENOENT:
+        ret = QT_TR_NOOP("No such file or directory");
+        break;
+    case ENOSPC:
+        ret = QT_TR_NOOP("No space left on device");
+        break;
+    default:
+#ifdef Q_OS_WIN
+        QT_WA({
+            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                          NULL,
+                          errorCode,
+                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                          (LPTSTR)&string,
+                          0,
+                          NULL);
+            ret = QString::fromUtf16(string);
+        }, {
+            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                           NULL,
+                           errorCode,
+                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           (char*)&string,
+                           0,
+                           NULL);
+            ret = (const char*) string;
+        });
+        LocalFree((HLOCAL)string);
+#else
+        ret = QString::fromLocal8Bit(strerror(errorCode));
+#endif
+    }
+    return ret;
+}
+
 /*!
   \fn void qSystemWarning(const char *msg, ...)
   \relates QApplication
@@ -416,35 +464,11 @@ void qSystemWarning(const char *msg, ...)
     QByteArray sys;
 
 #if defined(Q_OS_WIN32)
-    int code = GetLastError();
-    unsigned short *string = 0;
-    if (code) {
-        QT_WA({
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-                           NULL,
-                           code,
-                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           (LPTSTR)&string,
-                           0,
-                           NULL);
-            sys = QString::fromUtf16(string).latin1();
-        }, {
-            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-                            NULL,
-                            code,
-                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                            (char*)&string,
-                            0,
-                            NULL);
-
-            sys = (const char*) string;
-        });
-        LocalFree((HLOCAL)string);
-    }
+    int errorCode = GetLastError();
 #else
-    if (errno)
-        sys = strerror(errno);
+    int errorCode = errno;
 #endif
+    sys = qt_errorstr(errorCode).latin1();
 
     QByteArray buf;
     buf.reserve(QT_BUFFER_LENGTH);

@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
+#include "qioengine.h"
 #include "qhostaddress.h" // for int-to-QHostAddress conversion
 #endif // QT_H
 
@@ -47,15 +48,6 @@ public:
     int socket() const;
     virtual void setSocket(int socket, Type type);
 
-    bool open(int mode);
-    void close();
-    void flush();
-
-    Offset size() const;
-    Offset at() const;
-    bool at(Offset);
-    bool atEnd() const;
-
     bool blocking() const;
     virtual void setBlocking(bool);
 
@@ -73,20 +65,22 @@ public:
     virtual bool listen(int backlog);
     virtual int accept();
 
-    Q_LONG bytesAvailable() const;
-    Q_LONG waitForMore(int msecs, bool *timeout=0) const;
-    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+#ifdef Q_NO_USING_KEYWORD
+    inline Q_LONG writeBlock(const char *data, Q_LONG len) { return QIODevice::writeBlock(data, len); }
+    inline Q_LONG writeBlock(const QByteArray &data) { return QIODevice::writeBlock(data); }
+#else
+    using QIODevice::writeBlock;
+#endif
     virtual Q_LONG writeBlock(const char *data, Q_LONG len, const QHostAddress & host, Q_UINT16 port);
 
-    int getch();
-    int putch(int);
-    int ungetch(int);
-
+    Q_LONG bytesAvailable() const;
+    Q_LONG waitForMore(int msecs, bool *timeout=0) const;
     Q_UINT16 port() const;
     Q_UINT16 peerPort() const;
     QHostAddress address() const;
     QHostAddress peerAddress() const;
+
+    QIOEngine *ioEngine() const;
 
     enum Error {
         NoError,
@@ -109,10 +103,39 @@ protected:
     void setError(Error err);
 
 private:
+    friend class QSocketDeviceEngine;
 #if defined(Q_DISABLE_COPY)
     QSocketDevice(const QSocketDevice &);
     QSocketDevice &operator=(const QSocketDevice &);
 #endif
 };
+
+class QSocketDeviceEnginePrivate;
+
+class QM_EXPORT_NETWORK QSocketDeviceEngine : public QIOEngine
+{
+private:
+    Q_DECLARE_PRIVATE(QSocketDeviceEngine)
+public:
+    QSocketDeviceEngine(QSocketDevice *);
+
+    virtual bool open(int mode);
+    virtual bool close();
+    virtual void flush();
+
+    virtual QIODevice::Offset size() const;
+    virtual QIODevice::Offset at() const;
+    virtual bool seek(QIODevice::Offset);
+    virtual bool atEnd() const;
+    virtual bool isSequential() const;
+
+    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
+    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+
+    virtual int getch();
+    virtual int putch(int);
+    virtual int ungetch(int);
+};
+
 
 #endif // QSOCKETDEVICE_H
