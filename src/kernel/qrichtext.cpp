@@ -2177,6 +2177,29 @@ int QTextDocument::length() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+int QTextFormat::width( const QChar &c ) const
+{	
+    if ( !painter || !painter->isActive() ) {
+	if ( c == '\t' )
+	    return fm.width( 'x' ) * 8;
+	int w;
+	if ( c.row() )
+	    w = fm.width( c );
+	else
+	    w = widths[ c.unicode() ];
+	if ( w == 0 && !c.row() ) {
+	    w = fm.width( c );
+	    ( (QTextFormat*)this )->widths[ c.unicode() ] = w;
+	}
+	return w;
+    }
+    painter->setFont( fn );
+    return painter->fontMetrics().width( c );
+}
+
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 QTextString::QTextString()
 {
     textChanged = FALSE;
@@ -2325,6 +2348,44 @@ void QTextDocument::updateStyles()
 {
     invalidate();
     fCollection->updateStyles();
+}
+
+void QTextString::Char::setFormat( QTextFormat *f )
+{
+    if ( !isCustom ) {
+	d = (void*)f;
+    } else {
+	if ( !d ) {
+	    d = new CharData;
+	    ( (CharData*)d )->custom = 0;
+	}
+	( (CharData*)d )->format = f;
+    }
+}
+
+void QTextString::Char::setCustomItem( QTextCustomItem *i )
+{
+    if ( !isCustom ) {
+	QTextFormat *f = (QTextFormat*)d;
+	d = new CharData;
+	( (CharData*)d )->format = f;
+	isCustom = TRUE;
+    } else {
+	delete ( (CharData*)d )->custom;
+    }
+    ( (CharData*)d )->custom = i;
+}
+
+int QTextString::Char::width() const
+{
+    int w = 0;
+    if( isCustom ) {
+	if( customItem()->placement() == QTextCustomItem::PlaceInline )
+	    w = customItem()->width;
+    } else {
+	w = format()->width( c );
+    }	
+    return w;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
