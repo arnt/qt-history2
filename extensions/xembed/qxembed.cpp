@@ -1,3 +1,28 @@
+/****************************************************************************
+** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#3 $
+**
+** Implementation of QXEmbed class
+**
+** Created :
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees with valid Qt Professional Edition licenses may distribute and
+** use this file in accordance with the Qt Professional Edition License
+** provided at sale or upon request.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
 #include <qapplication.h>
 #include "qxembed.h"
 #include <X11/Xlib.h>
@@ -8,6 +33,18 @@ QXEmbed::QXEmbed(QWidget *parent, const char *name)
     window = 0;
     setFocusPolicy(StrongFocus);
     setSizeGrip( FALSE ); //trick to create extraData();
+}
+
+QXEmbed::~QXEmbed()
+{
+    if ( topLevelWidget()->isActiveWindow() ) {
+	XEvent e;
+	e.type = FocusIn;
+	e.xfocus.window = topLevelWidget()->winId();
+	e.xfocus.mode = NotifyNormal;
+	e.xfocus.detail = NotifyDetailNone;
+	XSendEvent(qt_xdisplay(), topLevelWidget()->winId(), 0, FALSE, &e);
+    }
 }
 
 
