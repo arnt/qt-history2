@@ -227,7 +227,7 @@ static void cleanUpOFNA( OPENFILENAMEA** ofn )
 }
 #endif
 
-static QString tFilter, tTitle, tInitDir;
+static QString tTitle;
 
 #ifdef UNICODE
 // If you change this, then make sure you change makeOFNA (above) too
@@ -253,6 +253,21 @@ OPENFILENAME* makeOFN( QWidget* parent,
 	memcpy( tInitSel, initSel.ucs2(), (initSel.length()+1)*sizeof( QChar ) );
     else
         tInitSel[0] = 0;
+    TCHAR *tFilters = new TCHAR[maxLen+1];
+    if ( filters.length() > 0 && filters.length() <= (uint)maxLen )
+	memcpy( tFilters, filters.ucs2(), (filters.length()+1)*sizeof( QChar ) );
+    else
+        tFilters[0] = 0;
+    TCHAR *tInitDir = new TCHAR[maxLen+1];
+    if ( initDir.length() > 0 && initDir.length() <= (uint)maxLen )
+	memcpy( tInitDir, initDir.ucs2(), (initDir.length()+1)*sizeof( QChar ) );
+    else
+        tInitDir[0] = 0;
+    TCHAR *tTitle = new TCHAR[maxLen+1];
+    if ( title.length() > 0 && title.length() <= (uint)maxLen )
+	memcpy( tTitle, title.ucs2(), (title.length()+1)*sizeof( QChar ) );
+    else
+        tTitle[0] = 0;
 
     OPENFILENAME* ofn = new OPENFILENAME;
     memset( ofn, 0, sizeof(OPENFILENAME) );
@@ -269,11 +284,11 @@ OPENFILENAME* makeOFN( QWidget* parent,
     ofn->lStructSize	= sizeof(OPENFILENAME);
 #endif
     ofn->hwndOwner	= parent ? parent->winId() : 0;
-    ofn->lpstrFilter	= (TCHAR*)tFilter.ucs2();
+    ofn->lpstrFilter	= tFilters;
     ofn->lpstrFile	= tInitSel;
     ofn->nMaxFile	= maxLen;
-    ofn->lpstrInitialDir = (TCHAR*)tInitDir.ucs2();
-    ofn->lpstrTitle	= (TCHAR*)tTitle.ucs2();
+    ofn->lpstrInitialDir = tInitDir;
+    ofn->lpstrTitle	= tTitle;
     ofn->Flags		= ( OFN_NOCHANGEDIR | OFN_HIDEREADONLY );
 
     if ( mode == QFileDialog::ExistingFile ||
