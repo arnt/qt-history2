@@ -248,7 +248,7 @@ int QDialog::exec()
 	in_loop = TRUE;
 	qApp->enter_loop();
     }
-    
+
     return result();
 }
 
@@ -319,7 +319,7 @@ void QDialog::mousePressEvent( QMouseEvent * e)
 	    QPopupMenu* p = new QPopupMenu;
 	    p->insertItem( tr("What's This?"), 42 );
 	    if ( p->exec( e->globalPos() ) == 42 )
-		QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) ); 
+		QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) );
 	}
     }
 }
@@ -444,11 +444,20 @@ void QDialog::show()
 	}
 	delete list;
 
-	if ( w )
-	    p = QPoint( w->geometry().x() + w->width()/2,
-			w->geometry().y() + w->height()/ 2 );
-	else
+	// sanity check for decoration frames. With embedding, we
+	// might get extraordinary values
+	if ( extraw >= 10 || extrah >= 40 )
+	    extraw = extrah = 0;
+	
+	if ( w ) {
+	    // Use mapToGlobal rather than geometry() in case w might
+	    // be embedded in another application
+	    QPoint pp = w->mapToGlobal( QPoint(0,0) ); 
+	    p = QPoint( pp.x() + w->width()/2,
+			pp.y() + w->height()/ 2 );
+	} else {
 	    p = QPoint( desk->width()/2, desk->height()/2 );
+	}
 
 	p = QPoint( p.x()-width()/2 - extraw,
 		    p.y()-height()/2 - extrah );
