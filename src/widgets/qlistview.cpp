@@ -6077,13 +6077,22 @@ void QCheckListItem::activate()
     QPoint pos;
     int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
     if ( activatedPos( pos ) ) {
-	//ignore clicks outside the box
-	QRect r;
+	bool parentControl = FALSE;
 	if ( parent() && parent()->rtti() == 1  &&
-	     ((QCheckListItem*) parent())->type() == RadioButtonController )
-	    r.setRect( 0, 2, boxsize, boxsize-3 );
+	    ((QCheckListItem*) parent())->type() == RadioButtonController )
+	    parentControl = TRUE;
+
+	int x = parentControl ? 0 : 3;
+	int align = lv->columnAlignment( 0 );
+	int marg = lv->itemMargin();
+	int y = 0;
+
+	if ( align & AlignVCenter )
+	    y = ( ( height() - boxsize ) / 2 ) + marg;
 	else
-	    r.setRect( 3, 2, boxsize-3, boxsize-3 );
+	    y = (lv->fontMetrics().height() + 2 + marg - boxsize) / 2;
+
+	QRect r( x, y, boxsize-3, boxsize-3 );
 	// columns might have been swapped
 	r.moveBy( lv->header()->sectionPos( 0 ), 0 );
 	if ( !r.contains( pos ) )
