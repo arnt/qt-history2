@@ -122,7 +122,7 @@ QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
     grid->addWidget( errors, 0, 1, AlignTop );
     again = new QCheckBox( tr( "&Show this message again" ), this, "again" );
     grid->addWidget( again, 1, 1, AlignTop + AlignAuto );
-    ok = new QPushButton( tr( "&Ok" ), this, "ok" );
+    ok = new QPushButton( tr( "&OK" ), this, "ok" );
     connect( ok, SIGNAL(clicked()),
 	     this, SLOT(accept()) );
     grid->addMultiCellWidget( ok, 2, 2, 0, 1, AlignCenter );

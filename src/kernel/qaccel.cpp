@@ -708,17 +708,17 @@ done:
 	if ( sl.contains(QMAC_CTRL+"+") )
 	    k |= CTRL;
 #endif
-	if ( sl.contains("ctrl+") || sl.contains(tr("ctrl")+"+") )
+	if ( sl.contains("ctrl+") || sl.contains(tr("Ctrl").lower() + "+") )
 	    k |= CTRL;
 
 #ifdef QMAC_ALT
 	if ( sl.contains(QMAC_ALT+"+") )
 	    k |= ALT;
 #endif
-	if ( sl.contains("alt+") || sl.contains(tr("alt")+"+") )
+	if ( sl.contains("alt+") || sl.contains(tr("Alt").lower() + "+") )
 	    k |= ALT;
 
-	if ( sl.contains("shift+") || sl.contains(tr("shift")+"+") )
+	if ( sl.contains("shift+") || sl.contains(tr("Shift").lower() + "+") )
 	    k |= SHIFT;
     }
     return k;
