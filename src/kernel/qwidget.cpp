@@ -1880,25 +1880,24 @@ QWidget *QWidget::topLevelWidget() const
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
-    setBackgroundColorForMode(backgroundMode(), color);
+    setBackgroundColorForMode( backgroundMode(), color );
 }
 
 void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &color )
 {
-    QPalette pal = palette();
-
-    switch(mode) {
+    switch( mode ) {
     case FixedColor:
     case FixedPixmap :
     case NoBackground:
     case X11ParentRelative:
-	setEraseColor(color);
+	setEraseColor( color );
 	break;
     default:
-	pal.setBackgroundColorForMode(QPalette::Active, mode, color);
-	pal.setBackgroundColorForMode(QPalette::Inactive, mode, color);
-	pal.setBackgroundColorForMode(QPalette::Disabled, mode, color);
-	setPalette(pal);
+	QPalette pal = palette();
+	pal.setBackgroundColorForMode( QPalette::Active, mode, color );
+	pal.setBackgroundColorForMode( QPalette::Inactive, mode, color );
+	pal.setBackgroundColorForMode( QPalette::Disabled, mode, color );
+	setPalette( pal );
 	break;
     }
 }
@@ -1918,16 +1917,16 @@ void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &colo
 
 void QWidget::setForegroundColor( const QColor & color )
 {
-    setForegroundColorForMode(backgroundMode(), color);
+    setForegroundColorForMode( backgroundMode(), color );
 }
 
 void QWidget::setForegroundColorForMode( BackgroundMode mode, const QColor & color )
 {
     QPalette pal = palette();
-    pal.setForegroundColorForMode(QPalette::Active, mode, color);
-    pal.setForegroundColorForMode(QPalette::Inactive, mode, color);
-    pal.setForegroundColorForMode(QPalette::Disabled, mode, color);
-    setPalette(pal);
+    pal.setForegroundColorForMode( QPalette::Active, mode, color );
+    pal.setForegroundColorForMode( QPalette::Inactive, mode, color );
+    pal.setForegroundColorForMode( QPalette::Disabled, mode, color );
+    setPalette( pal );
 }
 
 // Please do NOT remove the FAQ answer from this doc again.  It's a
@@ -1993,23 +1992,24 @@ void QWidget::setEraseColor( const QColor & color )
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    setBackgroundPixmapForMode(backgroundMode(), pixmap);
+    setBackgroundPixmapForMode( backgroundMode(), pixmap );
 }
 
 void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pixmap )
 {
-    switch(mode) {
+    switch( mode ) {
     case FixedColor:
     case FixedPixmap :
     case NoBackground:
     case X11ParentRelative:
-	setErasePixmap(pixmap);
+	setErasePixmap( pixmap );
 	break;
     default:
-	pal.setBackgroundPixmapForMode(QPalette::Active, mode, pixmap);
-	pal.setBackgroundPixmapForMode(QPalette::Inactive, mode, pixmap);
-	pal.setBackgroundPixmapForMode(QPalette::Disabled, mode, pixmap);
-	setPalette(pal);
+	QPalette pal = palette();
+	pal.setBackgroundPixmapForMode( QPalette::Active, mode, pixmap );
+	pal.setBackgroundPixmapForMode( QPalette::Inactive, mode, pixmap );
+	pal.setBackgroundPixmapForMode( QPalette::Disabled, mode, pixmap );
+	setPalette( pal );
 	break;
     }
 }
@@ -2120,7 +2120,7 @@ void QWidget::setBackgroundFromMode()
 */
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-    return extra ? (BackgroundMode)extra->bg_mode : PaletteBackground;
+    return extra ? ( BackgroundMode )extra->bg_mode : PaletteBackground;
 }
 
 
@@ -2240,20 +2240,20 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 
 const QColor & QWidget::backgroundColor() const
 {
-    return backgroundColorForMode(backgroundMode());
+    return backgroundColorForMode( backgroundMode() );
 }
 
 const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 {
-    QPalette pal = palette();
-    switch(mode) {
+    switch( mode ) {
     case FixedColor:
     case FixedPixmap :
     case NoBackground:
     case X11ParentRelative:
 	return eraseColor();
     default:
-	return  pal.backgroundColorForMode(QPalette::Normal, mode);
+	QPalette pal = palette();
+	return  pal.backgroundColorForMode( QPalette::Normal, mode );
     }
 }
 
@@ -2268,7 +2268,7 @@ const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 const QColor &QWidget::foregroundColor() const
 {
 #ifndef QT_NO_PALETTE
-    return foregroundColorForMode(backgroundMode());
+    return foregroundColorForMode( backgroundMode() );
 #else
     return black; //###
 #endif
@@ -2277,7 +2277,7 @@ const QColor &QWidget::foregroundColor() const
 const QColor &QWidget::foregroundColorForMode( BackgroundMode mode ) const
 {
     QPalette pal = palette();
-    return pal.foregroundColorForMode(QPalette::Normal, mode);
+    return pal.foregroundColorForMode( QPalette::Normal, mode );
 }
 
 
@@ -2317,7 +2317,7 @@ const QPixmap *QWidget::backgroundPixmap() const
 
 const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 {
-    switch(mode) {
+    switch( mode ) {
     case FixedColor:
     case FixedPixmap :
     case NoBackground:
@@ -2325,7 +2325,7 @@ const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 	return erasePixmap();
     default:
 	QPalette pal = palette();
-	return pal.backgroundPixmapForMode(QPalette::Normal, mode);
+	return pal.backgroundPixmapForMode( QPalette::Normal, mode );
     }
 }
 
@@ -2341,7 +2341,7 @@ const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
 
 const QPixmap *QWidget::erasePixmap() const
 {
-    return (extra && extra->bg_pix) ? extra->bg_pix : 0;
+    return ( extra && extra->bg_pix ) ? extra->bg_pix : 0;
 }
 
 
