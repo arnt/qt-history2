@@ -17,8 +17,8 @@ public:
     QGenericItemModel *model;
 };
 
-QItemViewDragObject::QItemViewDragObject(QAbstractItemView *dragSource, const char *name)
-    : QDragObject(dragSource, name)
+QItemViewDragObject::QItemViewDragObject(QAbstractItemView *dragSource)
+    : QDragObject(dragSource)
 {
     d = new QItemViewDragObjectPrivate;
     d->model = dragSource->model();
@@ -159,8 +159,8 @@ void QAbstractItemViewPrivate::init()
   item in the view when passed around in the API.
 */
 
-QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QScrollView(*new QAbstractItemViewPrivate, parent, name)
+QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent)
+    : QScrollView(*new QAbstractItemViewPrivate, parent)
 {
     Q_ASSERT(model)
     d->model = model;
@@ -168,8 +168,8 @@ QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent, 
 }
 
 QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QGenericItemModel *model,
-                                     QWidget *parent, const char *name)
-    : QScrollView(dd, parent, name)
+                                     QWidget *parent)
+    : QScrollView(dd, parent)
 {
     Q_ASSERT(model)
     d->model = model;
@@ -743,7 +743,8 @@ bool QAbstractItemView::supportsDragAndDrop() const
 
 QDragObject *QAbstractItemView::dragObject()
 {
-    QItemViewDragObject *dragObject = new QItemViewDragObject(this, "DragObject");
+    QItemViewDragObject *dragObject = new QItemViewDragObject(this);
+    dragObject->setObjectNameConst("DragObject");
     QModelIndexList items = selectionModel()->selectedItems();
      dragObject->set(items);
     return dragObject;

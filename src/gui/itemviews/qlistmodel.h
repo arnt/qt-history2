@@ -46,7 +46,7 @@ class Q_GUI_EXPORT QListModel : public QGenericItemModel
     Q_OBJECT
 
 public:
-    QListModel(QObject *parent = 0, const char *name = 0);
+    QListModel(QObject *parent = 0);
     ~QListModel();
 
     virtual void setText(int row, const QString &text);

@@ -11,8 +11,8 @@ class Q_GUI_EXPORT QTreeView : public QGenericTreeView
     Q_OBJECT
 
 public:
-    QTreeView(QWidget *parent = 0, const char *name = 0);
-    QTreeView(QTreeModel *model, QWidget *parent = 0, const char *name = 0);
+    QTreeView(QWidget *parent = 0);
+    QTreeView(QTreeModel *model, QWidget *parent = 0);
 
     virtual void setColumnCount(int columns);
     int columnCount() const;

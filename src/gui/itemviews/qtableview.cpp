@@ -7,14 +7,14 @@
   \brief Table view implementation using the QTableModel by default
 */
 
-QTableView::QTableView(QWidget *parent, const char *name)
-    : QGenericTableView(new QTableModel, parent, name)
+QTableView::QTableView(QWidget *parent)
+    : QGenericTableView(new QTableModel, parent)
 {
     model()->setParent(this); // make sure the model gets deleted
 }
 
-QTableView::QTableView(QTableModel *model, QWidget *parent, const char *name)
-    : QGenericTableView(model, parent, name)
+QTableView::QTableView(QTableModel *model, QWidget *parent)
+    : QGenericTableView(model, parent)
 {
 }
 

@@ -18,7 +18,7 @@ public:
     enum Wrap { Off = 0, On = 1 };
     enum Movement { Static, Free, Snap };
 
-    QGenericListView(QGenericItemModel *model, QWidget *parent = 0, const char *name = 0);
+    QGenericListView(QGenericItemModel *model, QWidget *parent = 0);
     ~QGenericListView();
 
     void setMovement(Movement movement);

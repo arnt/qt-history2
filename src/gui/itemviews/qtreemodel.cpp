@@ -47,8 +47,8 @@ void QTreeModelItem::setIconSet(int column, const QIconSet &iconSet)
     icn[column] = iconSet;
 }
 
-QTreeModel::QTreeModel(int columns, QObject *parent, const char *name)
-    : QGenericItemModel(parent, name), c(0)
+QTreeModel::QTreeModel(int columns, QObject *parent)
+    : QGenericItemModel(parent), c(0)
 {
     setColumnCount(columns);
 }

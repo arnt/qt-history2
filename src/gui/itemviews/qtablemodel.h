@@ -40,7 +40,7 @@ class Q_GUI_EXPORT QTableModel : public QGenericItemModel
     Q_OBJECT
 
 public:
-    QTableModel(int rows = 0, int columns = 0, QObject *parent = 0, const char *name = 0);
+    QTableModel(int rows = 0, int columns = 0, QObject *parent = 0);
     ~QTableModel();
 
     virtual void setRowCount(int rows);

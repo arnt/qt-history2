@@ -65,8 +65,8 @@ static const int default_height = 30;
 
 */
 
-QGenericHeader::QGenericHeader(QGenericItemModel *model, Orientation o, QWidget *parent, const char *name)
-    : QAbstractItemView(model, parent, name), d(new QGenericHeaderPrivate(this, o))
+QGenericHeader::QGenericHeader(QGenericItemModel *model, Orientation o, QWidget *parent)
+    : QAbstractItemView(model, parent), d(new QGenericHeaderPrivate(this, o))
 {
     setHScrollBarMode(AlwaysOff);
     setVScrollBarMode(AlwaysOff);

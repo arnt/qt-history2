@@ -11,8 +11,8 @@ class Q_GUI_EXPORT QListView_ : public QGenericListView
     Q_OBJECT
 
 public:
-    QListView_(QWidget *parent = 0, const char *name = 0);
-    QListView_(QListModel *model, QWidget *parent = 0, const char *name = 0);
+    QListView_(QWidget *parent = 0);
+    QListView_(QListModel *model, QWidget *parent = 0);
     ~QListView_();
 
     virtual void setText(int row, const QString &text);

@@ -7,14 +7,14 @@
 */
 
 
-QTreeView::QTreeView(QWidget *parent, const char *name)
-    : QGenericTreeView(new QTreeModel, parent, name)
+QTreeView::QTreeView(QWidget *parent)
+    : QGenericTreeView(new QTreeModel, parent)
 {
     model()->setParent(this); // make sure the model gets deleted
 }
 
-QTreeView::QTreeView(QTreeModel *model, QWidget *parent, const char *name)
-    : QGenericTreeView(model, parent, name)
+QTreeView::QTreeView(QTreeModel *model, QWidget *parent)
+    : QGenericTreeView(model, parent)
 {
 }
 

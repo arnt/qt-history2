@@ -39,6 +39,7 @@ typedef QList<QCoreVariant> QCoreVariantList;
 
 class QItemModel;
 class QModelItem;
+class QObjectPrivate;
 
 class Q_GUI_EXPORT QGenericItemModel : public QObject
 {
@@ -55,7 +56,7 @@ public:
 	User = 32
     };
 
-    QGenericItemModel(QObject *parent = 0, const char *name = 0);
+    QGenericItemModel(QObject *parent = 0);
     virtual ~QGenericItemModel();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = 0,
@@ -106,6 +107,9 @@ signals:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
+
+protected:
+    QGenericItemModel(QObjectPrivate &d, QObject *parent);
 };
 
 #endif

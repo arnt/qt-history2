@@ -62,7 +62,7 @@ class Q_GUI_EXPORT QTreeModel : public QGenericItemModel
     Q_OBJECT
 
 public:
-    QTreeModel(int columns = 0, QObject *parent = 0, const char *name = 0);
+    QTreeModel(int columns = 0, QObject *parent = 0);
     ~QTreeModel();
 
     virtual void setColumnCount(int columns);

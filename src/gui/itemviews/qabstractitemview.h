@@ -19,7 +19,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QScrollView
 
 public:
 
-    QAbstractItemView(QGenericItemModel *model, QWidget *parent = 0, const char *name = 0);
+    QAbstractItemView(QGenericItemModel *model, QWidget *parent = 0);
     ~QAbstractItemView();
 
     QGenericItemModel *model() const;
@@ -68,7 +68,7 @@ signals:
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QGenericItemModel *model,
-                      QWidget *parent = 0, const char *name = 0);
+                      QWidget *parent = 0);
 
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
@@ -154,7 +154,7 @@ class QItemViewDragObjectPrivate;
 class QItemViewDragObject : public QDragObject
 {
 public:
-    QItemViewDragObject(QAbstractItemView *dragSource, const char *name = 0);
+    QItemViewDragObject(QAbstractItemView *dragSource);
     ~QItemViewDragObject();
 
     void append(QModelIndex &item);

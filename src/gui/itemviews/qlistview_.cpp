@@ -1,13 +1,13 @@
 #include "qlistview_.h"
 
-QListView_::QListView_(QWidget *parent, const char *name)
-    : QGenericListView(new QListModel, parent, name)
+QListView_::QListView_(QWidget *parent)
+    : QGenericListView(new QListModel, parent)
 {
     model()->setParent(this);
 }
 
-QListView_::QListView_(QListModel *model, QWidget *parent, const char *name)
-    : QGenericListView(model, parent, name)
+QListView_::QListView_(QListModel *model, QWidget *parent)
+    : QGenericListView(model, parent)
 {
 }
 

@@ -20,7 +20,7 @@ public:
 	Content // set size to fit the content
     };
 
-    QGenericHeader(QGenericItemModel *model, Orientation orientation, QWidget *parent = 0, const char *name = 0);
+    QGenericHeader(QGenericItemModel *model, Orientation orientation, QWidget *parent = 0);
     virtual ~QGenericHeader();
 
     Orientation orientation() const;

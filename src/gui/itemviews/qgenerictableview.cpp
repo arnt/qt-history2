@@ -33,14 +33,17 @@ public:
 #define d d_func()
 #define q q_func()
 
-QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QAbstractItemView(*new QGenericTableViewPrivate, model, parent, name)
+QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent)
+    : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
 {
-    setLeftHeader(new QGenericHeader(model, Vertical, this, "leftHeader"));
+    setLeftHeader(new QGenericHeader(model, Vertical, this));
+    d->leftHeader->setObjectNameConst("leftHeader");
     d->leftHeader->setClickable(true);
-    setTopHeader(new QGenericHeader(model, Horizontal, this, "topHeader"));
+    setTopHeader(new QGenericHeader(model, Horizontal, this));
+    d->topHeader->setObjectNameConst("topHeader");
     d->topHeader->setClickable(true);
-    d->cornerWidget = new QWidget(this, "cornerWidget");
+    d->cornerWidget = new QWidget(this);
+    d->cornerWidget->setObjectNameConst("cornerWidget");
 
     model->fetchMore(); // FIXME: can we move this to qabstractitemview?
 }

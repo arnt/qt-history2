@@ -28,8 +28,13 @@
   contentsInserted and/or contentsRemoved signals.
 */
 
-QGenericItemModel::QGenericItemModel(QObject *parent, const char *name)
-    : QObject(parent, name)
+QGenericItemModel::QGenericItemModel(QObject *parent)
+    : QObject(parent)
+{
+}
+
+QGenericItemModel::QGenericItemModel(QObjectPrivate &dp, QObject *parent)
+    : QObject(dp, parent)
 {
 }
 

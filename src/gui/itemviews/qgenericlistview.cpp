@@ -399,8 +399,8 @@ public:
 #define d d_func()
 #define q q_func()
 
-QGenericListView::QGenericListView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QAbstractItemView(*new QGenericListViewPrivate, model, parent, name)
+QGenericListView::QGenericListView(QGenericItemModel *model, QWidget *parent)
+    : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
 {
     d->prepareItemsLayout(); // initialize structures
 }
@@ -549,7 +549,8 @@ QDragObject *QGenericListView::dragObject()
 {
     // This function does the same thing as in QAbstractItemView,
     //  plus adding viewitems to the draggedItems list. We need these items to draw the drag items
-    QItemViewDragObject *dragObject = new QItemViewDragObject(this, "DragObject");
+    QItemViewDragObject *dragObject = new QItemViewDragObject(this);
+    dragObject->setObjectNameConst("DragObject");
     QModelIndexList items = selectionModel()->selectedItems();
     dragObject->set(items);
     QModelIndexList::ConstIterator it = items.begin();

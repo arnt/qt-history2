@@ -11,8 +11,8 @@ class Q_GUI_EXPORT QTableView : public QGenericTableView
     Q_OBJECT
 
 public:
-    QTableView(QWidget *parent = 0, const char *name = 0);
-    QTableView(QTableModel *model, QWidget *parent = 0, const char *name = 0);
+    QTableView(QWidget *parent = 0);
+    QTableView(QTableModel *model, QWidget *parent = 0);
     ~QTableView();
 
     virtual void setRowCount(int rows);

@@ -8,8 +8,8 @@ QListModelItem::QListModelItem(QListModel *model)
 	model->append(this);
 }
 
-QListModel::QListModel(QObject *parent, const char *name)
-    : QGenericItemModel(parent, name)
+QListModel::QListModel(QObject *parent)
+    : QGenericItemModel(parent)
 {
 }
 

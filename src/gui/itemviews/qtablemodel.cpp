@@ -1,8 +1,8 @@
 #include "qtablemodel.h"
 #include <qalgorithms.h>
 
-QTableModel::QTableModel(int rows, int columns, QObject *parent, const char *name)
-    : QGenericItemModel(parent, name), r(rows), c(columns),
+QTableModel::QTableModel(int rows, int columns, QObject *parent)
+    : QGenericItemModel(parent), r(rows), c(columns),
       table(rows * columns), leftHeader(rows), topHeader(columns) {}
 
 QTableModel::~QTableModel()

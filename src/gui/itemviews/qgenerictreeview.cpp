@@ -117,10 +117,11 @@ public:
 #define q q_func()
 
 
-QGenericTreeView::QGenericTreeView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QAbstractItemView(*new QGenericTreeViewPrivate, model, parent, name)
+QGenericTreeView::QGenericTreeView(QGenericItemModel *model, QWidget *parent)
+    : QAbstractItemView(*new QGenericTreeViewPrivate, model, parent)
 {
-    setHeader(new QGenericHeader(model, Horizontal, this, "treeview_header"));
+    setHeader(new QGenericHeader(model, Horizontal, this));
+    d->header->setObjectNameConst("treeview_header");
     d->header->setMovable(true);
     d->layout_parent_index = -1;
     d->layout_from_index = -1;
