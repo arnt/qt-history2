@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#142 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#141 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#142 $");
 
 
 /*!
@@ -230,7 +230,7 @@ QImage::~QImage()
 
 
 /*!
-  Assigns a 
+  Assigns a
   \link shclass.html shallow copy\endlink
   of \e image to this image and returns a reference to this image.
 
@@ -280,7 +280,7 @@ void QImage::detach()
 }
 
 /*!
-  Returns a 
+  Returns a
   \link shclass.html deep copy\endlink of the image.
 */
 
@@ -480,7 +480,7 @@ void QImage::reset()
 */
 
 void QImage::fill( uint pixel )
-{    
+{
     if ( depth() == 1 || depth() == 8 ) {
 	if ( depth() == 1 ) {
 	    if ( pixel & 1 )
@@ -506,7 +506,7 @@ void QImage::fill( uint pixel )
 		    p++;
 		}
 	    }
-	} else {	    
+	} else {	
 	    for ( int i=0; i<height(); i++ ) {
 		uint *p = (uint *)scanLine(i);
 		uint *end = p + width();
@@ -964,7 +964,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 				l2[x+1] += err>>4;
 			    }
 			    l2[x]+=(err*5)>>4;
-			    if (x>1) 
+			    if (x>1)
 				l2[x-1]+=(err*3)>>4;
 			}
 		    } else {
@@ -979,7 +979,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 				l2[x-1] += err>>4;
 			    }
 			    l2[x]+=(err*5)>>4;
-			    if (x+1 < sw) 
+			    if (x+1 < sw)
 				l2[x+1]+=(err*3)>>4;
 			}
 		    }
@@ -1903,8 +1903,8 @@ QImage QImage::smoothScale(int w, int h) const
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
   is disabled.
 
-  See \link QPixmap::convertFromImage\endlink for a description of
-  the \a conversion_flags argument.
+  See QPixmap::convertFromImage for a description of the \a
+  conversion_flags argument.
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
@@ -3990,10 +3990,10 @@ static void write_xpm_image( QImageIO * iio )
     while ( c.current() ) {
 	QRgb color = image.color( c.currentKey() );
 	if ( image.hasAlphaBuffer() && color == (color & RGB_MASK) )
-	    line.sprintf( "\"%s c None\"", 
+	    line.sprintf( "\"%s c None\"",
 			  xpm_color_name( cpp, (int)c.current() ) );
 	else
-	    line.sprintf( "\"%s c #%02x%02x%02x\"", 
+	    line.sprintf( "\"%s c #%02x%02x%02x\"",
 			  xpm_color_name( cpp, (int)c.current() ),
 			  qRed( color ),
 			  qGreen( color ),
