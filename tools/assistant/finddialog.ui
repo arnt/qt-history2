@@ -2,7 +2,7 @@
  <class>FindDialog</class>
  <widget class="QDialog" name="FindDialog" >
   <property name="objectName" >
-   <cstring>FindDialog</cstring>
+   <string notr="true">FindDialog</string>
   </property>
   <property name="geometry" >
    <rect>
@@ -17,7 +17,7 @@
   </property>
   <layout class="QVBoxLayout" >
    <property name="objectName" >
-    <cstring>unnamed</cstring>
+    <string notr="true">unnamed</string>
    </property>
    <property name="margin" >
     <number>0</number>
@@ -25,11 +25,11 @@
    <item>
     <widget class="QWidget" name="Layout5" >
      <property name="objectName" >
-      <cstring>Layout5</cstring>
+      <string notr="true">Layout5</string>
      </property>
      <layout class="QGridLayout" >
       <property name="objectName" >
-       <cstring>unnamed</cstring>
+       <string notr="true">unnamed</string>
       </property>
       <property name="margin" >
        <number>11</number>
@@ -37,14 +37,14 @@
       <item row="1" colspan="1" column="1" rowspan="2" >
        <widget class="Q3ButtonGroup" name="ButtonGroup2" >
         <property name="objectName" >
-         <cstring>ButtonGroup2</cstring>
+         <string notr="true">ButtonGroup2</string>
         </property>
         <property name="title" >
          <string>&amp;Direction</string>
         </property>
         <layout class="QVBoxLayout" >
          <property name="objectName" >
-          <cstring>unnamed</cstring>
+          <string notr="true">unnamed</string>
          </property>
          <property name="margin" >
           <number>11</number>
@@ -55,7 +55,7 @@
          <item>
           <widget class="QRadioButton" name="radioForward" >
            <property name="objectName" >
-            <cstring>radioForward</cstring>
+            <string notr="true">radioForward</string>
            </property>
            <property name="text" >
             <string>Fo&amp;rward</string>
@@ -68,7 +68,7 @@
          <item>
           <widget class="QRadioButton" name="radioBackward" >
            <property name="objectName" >
-            <cstring>radioBackward</cstring>
+            <string notr="true">radioBackward</string>
            </property>
            <property name="text" >
             <string>&amp;Backward</string>
@@ -81,11 +81,11 @@
       <item row="0" colspan="2" column="0" rowspan="1" >
        <widget class="QWidget" name="Layout1" >
         <property name="objectName" >
-         <cstring>Layout1</cstring>
+         <string notr="true">Layout1</string>
         </property>
         <layout class="QHBoxLayout" >
          <property name="objectName" >
-          <cstring>unnamed</cstring>
+          <string notr="true">unnamed</string>
          </property>
          <property name="margin" >
           <number>0</number>
@@ -96,7 +96,7 @@
          <item>
           <widget class="QLabel" name="TextLabel1" >
            <property name="objectName" >
-            <cstring>TextLabel1</cstring>
+            <string notr="true">TextLabel1</string>
            </property>
            <property name="text" >
             <string>F&amp;ind:</string>
@@ -109,7 +109,7 @@
          <item>
           <widget class="QComboBox" name="comboFind" >
            <property name="objectName" >
-            <cstring>comboFind</cstring>
+            <string notr="true">comboFind</string>
            </property>
            <property name="sizePolicy" >
             <sizePolicy>
@@ -149,7 +149,7 @@
       <item row="1" column="2" >
        <widget class="QPushButton" name="closeButton" >
         <property name="objectName" >
-         <cstring>closeButton</cstring>
+         <string notr="true">closeButton</string>
         </property>
         <property name="text" >
          <string>C&amp;lose</string>
@@ -162,14 +162,14 @@
       <item row="1" colspan="1" column="0" rowspan="2" >
        <widget class="Q3ButtonGroup" name="ButtonGroup1" >
         <property name="objectName" >
-         <cstring>ButtonGroup1</cstring>
+         <string notr="true">ButtonGroup1</string>
         </property>
         <property name="title" >
          <string>&amp;Options</string>
         </property>
         <layout class="QVBoxLayout" >
          <property name="objectName" >
-          <cstring>unnamed</cstring>
+          <string notr="true">unnamed</string>
          </property>
          <property name="margin" >
           <number>11</number>
@@ -180,7 +180,7 @@
          <item>
           <widget class="QCheckBox" name="checkWords" >
            <property name="objectName" >
-            <cstring>checkWords</cstring>
+            <string notr="true">checkWords</string>
            </property>
            <property name="text" >
             <string>&amp;Whole words only</string>
@@ -190,7 +190,7 @@
          <item>
           <widget class="QCheckBox" name="checkCase" >
            <property name="objectName" >
-            <cstring>checkCase</cstring>
+            <string notr="true">checkCase</string>
            </property>
            <property name="text" >
             <string>&amp;Case sensitive</string>
@@ -203,7 +203,7 @@
       <item row="0" column="2" >
        <widget class="QPushButton" name="findButton" >
         <property name="objectName" >
-         <cstring>findButton</cstring>
+         <string notr="true">findButton</string>
         </property>
         <property name="text" >
          <string>&amp;Find</string>

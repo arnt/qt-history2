@@ -2,7 +2,7 @@
  <class>TopicChooser</class>
  <widget class="QDialog" name="TopicChooser" >
   <property name="objectName" >
-   <cstring>TopicChooser</cstring>
+   <string notr="true">TopicChooser</string>
   </property>
   <property name="geometry" >
    <rect>
@@ -23,7 +23,7 @@
   </property>
   <layout class="QVBoxLayout" >
    <property name="objectName" >
-    <cstring>unnamed</cstring>
+    <string notr="true">unnamed</string>
    </property>
    <property name="margin" >
     <number>11</number>
@@ -34,7 +34,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="objectName" >
-      <cstring>label</cstring>
+      <string notr="true">label</string>
      </property>
      <property name="text" >
       <string>&amp;Topics</string>
@@ -47,7 +47,7 @@
    <item>
     <widget class="QListBox" name="listbox" >
      <property name="objectName" >
-      <cstring>listbox</cstring>
+      <string notr="true">listbox</string>
      </property>
      <property name="whatsThis" stdset="0" >
       <string>Displays a list of available help topics for the keyword.</string>
@@ -57,11 +57,11 @@
    <item>
     <widget class="QWidget" name="Layout16" >
      <property name="objectName" >
-      <cstring>Layout16</cstring>
+      <string notr="true">Layout16</string>
      </property>
      <layout class="QHBoxLayout" >
       <property name="objectName" >
-       <cstring>unnamed</cstring>
+       <string notr="true">unnamed</string>
       </property>
       <property name="margin" >
        <number>0</number>
@@ -88,7 +88,7 @@
       <item>
        <widget class="QPushButton" name="buttonDisplay" >
         <property name="objectName" >
-         <cstring>buttonDisplay</cstring>
+         <string notr="true">buttonDisplay</string>
         </property>
         <property name="text" >
          <string>&amp;Display</string>
@@ -107,7 +107,7 @@
       <item>
        <widget class="QPushButton" name="buttonCancel" >
         <property name="objectName" >
-         <cstring>buttonCancel</cstring>
+         <string notr="true">buttonCancel</string>
         </property>
         <property name="text" >
          <string>&amp;Close</string>

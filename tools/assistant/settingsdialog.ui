@@ -2,7 +2,7 @@
  <class>SettingsDialog</class>
  <widget class="QDialog" name="SettingsDialog" >
   <property name="objectName" >
-   <cstring>SettingsDialog</cstring>
+   <string notr="true">SettingsDialog</string>
   </property>
   <property name="geometry" >
    <rect>
@@ -20,12 +20,12 @@
   </property>
   <layout class="QVBoxLayout" >
    <property name="objectName" >
-    <cstring>unnamed</cstring>
+    <string notr="true">unnamed</string>
    </property>
    <item>
     <widget class="QTabWidget" name="settingsTab" >
      <property name="objectName" >
-      <cstring>settingsTab</cstring>
+      <string notr="true">settingsTab</string>
      </property>
      <property name="sizePolicy" >
       <sizePolicy>
@@ -37,28 +37,28 @@
      </property>
      <widget class="QWidget" name="tab" >
       <property name="objectName" >
-       <cstring>tab</cstring>
+       <string notr="true">tab</string>
       </property>
       <attribute name="title" >
        <string>&amp;General</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <item>
         <widget class="QWidget" name="Layout2" >
          <property name="objectName" >
-          <cstring>Layout2</cstring>
+          <string notr="true">Layout2</string>
          </property>
          <layout class="QGridLayout" >
           <property name="objectName" >
-           <cstring>unnamed</cstring>
+           <string notr="true">unnamed</string>
           </property>
           <item row="1" column="1" >
            <widget class="QComboBox" name="fixedfontCombo" >
             <property name="objectName" >
-             <cstring>fixedfontCombo</cstring>
+             <string notr="true">fixedfontCombo</string>
             </property>
             <property name="sizePolicy" >
              <sizePolicy>
@@ -76,7 +76,7 @@
           <item row="1" column="0" >
            <widget class="QLabel" name="TextLabel1" >
             <property name="objectName" >
-             <cstring>TextLabel1</cstring>
+             <string notr="true">TextLabel1</string>
             </property>
             <property name="text" >
              <string>Fix&amp;ed font:</string>
@@ -89,7 +89,7 @@
           <item row="2" column="0" >
            <widget class="QLabel" name="TextLabel2" >
             <property name="objectName" >
-             <cstring>TextLabel2</cstring>
+             <string notr="true">TextLabel2</string>
             </property>
             <property name="text" >
              <string>Link color:</string>
@@ -99,7 +99,7 @@
           <item row="0" column="1" >
            <widget class="QComboBox" name="fontCombo" >
             <property name="objectName" >
-             <cstring>fontCombo</cstring>
+             <string notr="true">fontCombo</string>
             </property>
             <property name="sizePolicy" >
              <sizePolicy>
@@ -117,7 +117,7 @@
           <item row="0" column="0" >
            <widget class="QLabel" name="fontLabel" >
             <property name="objectName" >
-             <cstring>fontLabel</cstring>
+             <string notr="true">fontLabel</string>
             </property>
             <property name="text" >
              <string>&amp;Font:</string>
@@ -130,7 +130,7 @@
           <item row="3" column="0" >
            <widget class="QCheckBox" name="linkUnderlineCB" >
             <property name="objectName" >
-             <cstring>linkUnderlineCB</cstring>
+             <string notr="true">linkUnderlineCB</string>
             </property>
             <property name="text" >
              <string>&amp;Underline links</string>
@@ -143,7 +143,7 @@
           <item row="2" column="1" >
            <widget class="QToolButton" name="colorButton" >
             <property name="objectName" >
-             <cstring>colorButton</cstring>
+             <string notr="true">colorButton</string>
             </property>
             <property name="sizePolicy" >
              <sizePolicy>
@@ -172,14 +172,14 @@
      </widget>
      <widget class="QWidget" name="tab" >
       <property name="objectName" >
-       <cstring>tab</cstring>
+       <string notr="true">tab</string>
       </property>
       <attribute name="title" >
        <string>&amp;Web</string>
       </attribute>
       <layout class="QGridLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <item row="4" column="0" >
         <spacer name="Spacer11" >
@@ -200,7 +200,7 @@
        <item row="0" column="0" >
         <widget class="QLabel" name="TextLabel1_3" >
          <property name="objectName" >
-          <cstring>TextLabel1_3</cstring>
+          <string notr="true">TextLabel1_3</string>
          </property>
          <property name="text" >
           <string>Web &amp;Browser Application:</string>
@@ -213,23 +213,23 @@
        <item row="1" column="0" >
         <widget class="QWidget" name="Layout9" >
          <property name="objectName" >
-          <cstring>Layout9</cstring>
+          <string notr="true">Layout9</string>
          </property>
          <layout class="QHBoxLayout" >
           <property name="objectName" >
-           <cstring>unnamed</cstring>
+           <string notr="true">unnamed</string>
           </property>
           <item>
            <widget class="QLineEdit" name="browserApp" >
             <property name="objectName" >
-             <cstring>browserApp</cstring>
+             <string notr="true">browserApp</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="buttonBrowse" >
             <property name="objectName" >
-             <cstring>buttonBrowse</cstring>
+             <string notr="true">buttonBrowse</string>
             </property>
             <property name="sizePolicy" >
              <sizePolicy>
@@ -256,7 +256,7 @@
        <item row="2" column="0" >
         <widget class="QLabel" name="TextLabel1_3_3" >
          <property name="objectName" >
-          <cstring>TextLabel1_3_3</cstring>
+          <string notr="true">TextLabel1_3_3</string>
          </property>
          <property name="text" >
           <string>&amp;Home page</string>
@@ -269,23 +269,23 @@
        <item row="3" column="0" >
         <widget class="QWidget" name="layout8" >
          <property name="objectName" >
-          <cstring>layout8</cstring>
+          <string notr="true">layout8</string>
          </property>
          <layout class="QHBoxLayout" >
           <property name="objectName" >
-           <cstring>unnamed</cstring>
+           <string notr="true">unnamed</string>
           </property>
           <item>
            <widget class="QLineEdit" name="homePage" >
             <property name="objectName" >
-             <cstring>homePage</cstring>
+             <string notr="true">homePage</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="buttonHome" >
             <property name="objectName" >
-             <cstring>buttonHome</cstring>
+             <string notr="true">buttonHome</string>
             </property>
             <property name="sizePolicy" >
              <sizePolicy>
@@ -313,19 +313,19 @@
      </widget>
      <widget class="QWidget" name="pdfTab" >
       <property name="objectName" >
-       <cstring>pdfTab</cstring>
+       <string notr="true">pdfTab</string>
       </property>
       <attribute name="title" >
        <string>&amp;PDF</string>
       </attribute>
       <layout class="QGridLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <item row="0" column="0" >
         <widget class="QLabel" name="TextLabel1_3_2" >
          <property name="objectName" >
-          <cstring>TextLabel1_3_2</cstring>
+          <string notr="true">TextLabel1_3_2</string>
          </property>
          <property name="text" >
           <string>PDF &amp;Application</string>
@@ -354,23 +354,23 @@
        <item row="1" column="0" >
         <widget class="QWidget" name="layout9" >
          <property name="objectName" >
-          <cstring>layout9</cstring>
+          <string notr="true">layout9</string>
          </property>
          <layout class="QHBoxLayout" >
           <property name="objectName" >
-           <cstring>unnamed</cstring>
+           <string notr="true">unnamed</string>
           </property>
           <item>
            <widget class="QLineEdit" name="pdfApp" >
             <property name="objectName" >
-             <cstring>pdfApp</cstring>
+             <string notr="true">pdfApp</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="buttonPDF" >
             <property name="objectName" >
-             <cstring>buttonPDF</cstring>
+             <string notr="true">buttonPDF</string>
             </property>
             <property name="sizePolicy" >
              <sizePolicy>
@@ -401,7 +401,7 @@
    <item>
      <layout class="QHBoxLayout" >
       <property name="objectName" >
-       <cstring>unnamed</cstring>
+       <string notr="true">unnamed</string>
       </property>
       <item>
        <spacer name="Horizontal Spacing2" >
@@ -422,7 +422,7 @@
       <item>
        <widget class="QPushButton" name="buttonOk" >
         <property name="objectName" >
-         <cstring>buttonOk</cstring>
+         <string notr="true">buttonOk</string>
         </property>
         <property name="text" >
          <string>&amp;OK</string>
@@ -438,7 +438,7 @@
       <item>
        <widget class="QPushButton" name="buttonCancel" >
         <property name="objectName" >
-         <cstring>buttonCancel</cstring>
+         <string notr="true">buttonCancel</string>
         </property>
         <property name="text" >
          <string>&amp;Cancel</string>

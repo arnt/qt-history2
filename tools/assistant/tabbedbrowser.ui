@@ -2,7 +2,7 @@
  <class>TabbedBrowser</class>
  <widget class="QWidget" name="TabbedBrowser" >
   <property name="objectName" >
-   <cstring>TabbedBrowser</cstring>
+   <string notr="true">TabbedBrowser</string>
   </property>
   <property name="geometry" >
    <rect>
@@ -17,7 +17,7 @@
   </property>
   <layout class="QGridLayout" >
    <property name="objectName" >
-    <cstring>unnamed</cstring>
+    <string notr="true">unnamed</string>
    </property>
    <property name="margin" >
     <number>0</number>
@@ -28,18 +28,18 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tab" >
      <property name="objectName" >
-      <cstring>tab</cstring>
+      <string notr="true">tab</string>
      </property>
      <widget class="QWidget" name="frontpage" >
       <property name="objectName" >
-       <cstring>frontpage</cstring>
+       <string notr="true">frontpage</string>
       </property>
       <attribute name="title" >
        <string>Untitled</string>
       </attribute>
       <layout class="QGridLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
       </layout>
      </widget>

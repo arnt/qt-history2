@@ -2,7 +2,7 @@
  <class>HelpDialog</class>
  <widget class="QWidget" name="HelpDialog" >
   <property name="objectName" >
-   <cstring>HelpDialog</cstring>
+   <string notr="true">HelpDialog</string>
   </property>
   <property name="geometry" >
    <rect>
@@ -20,7 +20,7 @@
   </property>
   <layout class="QVBoxLayout" >
    <property name="objectName" >
-    <cstring>unnamed</cstring>
+    <string notr="true">unnamed</string>
    </property>
    <property name="margin" >
     <number>0</number>
@@ -31,21 +31,21 @@
    <item>
     <widget class="QTabWidget" name="tabWidget" >
      <property name="objectName" >
-      <cstring>tabWidget</cstring>
+      <string notr="true">tabWidget</string>
      </property>
      <property name="whatsThis" stdset="0" >
       <string>Displays help topics organized by category, index or bookmarks. Another tab inherits the full text search.</string>
      </property>
      <widget class="QWidget" name="contentPage" >
       <property name="objectName" >
-       <cstring>contentPage</cstring>
+       <string notr="true">contentPage</string>
       </property>
       <attribute name="title" >
        <string>Con&amp;tents</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <property name="margin" >
         <number>5</number>
@@ -56,7 +56,7 @@
        <item>
         <widget class="Q3ListView" name="listContents" >
          <property name="objectName" >
-          <cstring>listContents</cstring>
+          <string notr="true">listContents</string>
          </property>
          <property name="rootIsDecorated" >
           <bool>true</bool>
@@ -81,14 +81,14 @@
      </widget>
      <widget class="QWidget" name="Widget8" >
       <property name="objectName" >
-       <cstring>Widget8</cstring>
+       <string notr="true">Widget8</string>
       </property>
       <attribute name="title" >
        <string>&amp;Index</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <property name="margin" >
         <number>5</number>
@@ -99,7 +99,7 @@
        <item>
         <widget class="QLabel" name="TextLabel1" >
          <property name="objectName" >
-          <cstring>TextLabel1</cstring>
+          <string notr="true">TextLabel1</string>
          </property>
          <property name="text" >
           <string>&amp;Look For:</string>
@@ -112,7 +112,7 @@
        <item>
         <widget class="QLineEdit" name="editIndex" >
          <property name="objectName" >
-          <cstring>editIndex</cstring>
+          <string notr="true">editIndex</string>
          </property>
          <property name="toolTip" stdset="0" >
           <string>Enter keyword</string>
@@ -125,7 +125,7 @@
        <item>
         <widget class="QListBox" name="listIndex" >
          <property name="objectName" >
-          <cstring>listIndex</cstring>
+          <string notr="true">listIndex</string>
          </property>
          <property name="whatsThis" stdset="0" >
           <string>&lt;b>List of available help topics.&lt;/b>&lt;p>Double-click on an item to open its help page. If more than one is found, you must specify which page you want.&lt;/p></string>
@@ -136,14 +136,14 @@
      </widget>
      <widget class="QWidget" name="Widget9" >
       <property name="objectName" >
-       <cstring>Widget9</cstring>
+       <string notr="true">Widget9</string>
       </property>
       <attribute name="title" >
        <string>&amp;Bookmarks</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <property name="margin" >
         <number>5</number>
@@ -154,7 +154,7 @@
        <item>
         <widget class="Q3ListView" name="listBookmarks" >
          <property name="objectName" >
-          <cstring>listBookmarks</cstring>
+          <string notr="true">listBookmarks</string>
          </property>
          <property name="whatsThis" stdset="0" >
           <string>Displays the list of bookmarks.</string>
@@ -175,11 +175,11 @@
        <item>
         <widget class="QWidget" name="Layout3" >
          <property name="objectName" >
-          <cstring>Layout3</cstring>
+          <string notr="true">Layout3</string>
          </property>
          <layout class="QHBoxLayout" >
           <property name="objectName" >
-           <cstring>unnamed</cstring>
+           <string notr="true">unnamed</string>
           </property>
           <property name="margin" >
            <number>0</number>
@@ -206,7 +206,7 @@
           <item>
            <widget class="QPushButton" name="buttonAdd" >
             <property name="objectName" >
-             <cstring>buttonAdd</cstring>
+             <string notr="true">buttonAdd</string>
             </property>
             <property name="text" >
              <string>&amp;New</string>
@@ -222,7 +222,7 @@
           <item>
            <widget class="QPushButton" name="buttonRemove" >
             <property name="objectName" >
-             <cstring>buttonRemove</cstring>
+             <string notr="true">buttonRemove</string>
             </property>
             <property name="text" >
              <string>&amp;Delete</string>
@@ -242,14 +242,14 @@
      </widget>
      <widget class="QWidget" name="searchTab" >
       <property name="objectName" >
-       <cstring>searchTab</cstring>
+       <string notr="true">searchTab</string>
       </property>
       <attribute name="title" >
        <string>&amp;Search</string>
       </attribute>
       <layout class="QGridLayout" >
        <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
        </property>
        <property name="margin" >
         <number>5</number>
@@ -276,7 +276,7 @@
        <item row="0" column="0" >
         <widget class="QLabel" name="TextLabel1_2" >
          <property name="objectName" >
-          <cstring>TextLabel1_2</cstring>
+          <string notr="true">TextLabel1_2</string>
          </property>
          <property name="text" >
           <string>Searching f&amp;or:</string>
@@ -289,7 +289,7 @@
        <item row="1" column="0" >
         <widget class="QLineEdit" name="termsEdit" >
          <property name="objectName" >
-          <cstring>termsEdit</cstring>
+          <string notr="true">termsEdit</string>
          </property>
          <property name="toolTip" stdset="0" >
           <string>Enter searchword(s).</string>
@@ -302,7 +302,7 @@
        <item row="5" column="0" >
         <widget class="QListBox" name="resultBox" >
          <property name="objectName" >
-          <cstring>resultBox</cstring>
+          <string notr="true">resultBox</string>
          </property>
          <property name="whatsThis" stdset="0" >
           <string>&lt;b>Found documents&lt;/b>&lt;p>This list contains all found documents from the last search. The documents are ordered, i.e. the first document has the most matches.&lt;/p></string>
@@ -312,7 +312,7 @@
        <item row="4" column="0" >
         <widget class="QLabel" name="TextLabel2" >
          <property name="objectName" >
-          <cstring>TextLabel2</cstring>
+          <string notr="true">TextLabel2</string>
          </property>
          <property name="text" >
           <string>Found &amp;Documents:</string>
@@ -325,16 +325,16 @@
        <item row="2" column="0" >
         <widget class="QWidget" name="Layout2" >
          <property name="objectName" >
-          <cstring>Layout2</cstring>
+          <string notr="true">Layout2</string>
          </property>
          <layout class="QHBoxLayout" >
           <property name="objectName" >
-           <cstring>unnamed</cstring>
+           <string notr="true">unnamed</string>
           </property>
           <item>
            <widget class="QPushButton" name="helpButton" >
             <property name="objectName" >
-             <cstring>helpButton</cstring>
+             <string notr="true">helpButton</string>
             </property>
             <property name="text" >
              <string>He&amp;lp</string>
@@ -366,7 +366,7 @@
           <item>
            <widget class="QPushButton" name="searchButton" >
             <property name="objectName" >
-             <cstring>searchButton</cstring>
+             <string notr="true">searchButton</string>
             </property>
             <property name="text" >
              <string>&amp;Search</string>
@@ -389,7 +389,7 @@
    <item>
     <widget class="QFrame" name="framePrepare" >
      <property name="objectName" >
-      <cstring>framePrepare</cstring>
+      <string notr="true">framePrepare</string>
      </property>
      <property name="frameShape" >
       <enum>StyledPanel</enum>
@@ -399,7 +399,7 @@
      </property>
      <layout class="QHBoxLayout" >
       <property name="objectName" >
-       <cstring>unnamed</cstring>
+       <string notr="true">unnamed</string>
       </property>
       <property name="margin" >
        <number>3</number>
@@ -410,7 +410,7 @@
       <item>
        <widget class="QLabel" name="labelPrepare" >
         <property name="objectName" >
-         <cstring>labelPrepare</cstring>
+         <string notr="true">labelPrepare</string>
         </property>
         <property name="text" >
          <string>Preparing...</string>
@@ -420,7 +420,7 @@
       <item>
        <widget class="QProgressBar" name="progressPrepare" >
         <property name="objectName" >
-         <cstring>progressPrepare</cstring>
+         <string notr="true">progressPrepare</string>
         </property>
        </widget>
       </item>

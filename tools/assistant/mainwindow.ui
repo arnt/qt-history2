@@ -2,7 +2,7 @@
   <class>MainWindow</class>
   <widget class="QMainWindow" name="MainWindow" >
     <property name="objectName" >
-      <cstring>MainWindow</cstring>
+      <string notr="true">MainWindow</string>
     </property>
     <property name="geometry" >
       <rect>
@@ -17,7 +17,7 @@
     </property>
     <widget class="QToolBar" name="Toolbar" >
       <property name="objectName" >
-        <cstring>Toolbar</cstring>
+        <string notr="true">Toolbar</string>
       </property>
       <property name="windowTitle" >
         <string>Toolbar</string>
@@ -37,7 +37,7 @@
     </widget>
     <widget class="QToolBar" name="goActionToolbar" >
       <property name="objectName" >
-        <cstring>goActionToolbar</cstring>
+        <string notr="true">goActionToolbar</string>
       </property>
       <property name="windowTitle" >
         <string>Go</string>
@@ -45,7 +45,7 @@
     </widget>
     <widget class="QMenuBar" name="menubar" >
       <property name="objectName" >
-        <cstring>menubar</cstring>
+        <string notr="true">menubar</string>
       </property>
       <property name="geometry" >
         <rect>
@@ -57,7 +57,7 @@
       </property>
       <widget class="QMenu" name="fileMenu" >
         <property name="objectName" >
-          <cstring>fileMenu</cstring>
+          <string notr="true">fileMenu</string>
         </property>
         <attribute name="title" >
           <string>&amp;File</string>
@@ -73,7 +73,7 @@
       </widget>
       <widget class="QMenu" name="editMenu" >
         <property name="objectName" >
-          <cstring>editMenu</cstring>
+          <string notr="true">editMenu</string>
         </property>
         <attribute name="title" >
           <string>&amp;Edit</string>
@@ -87,7 +87,7 @@
       </widget>
       <widget class="QMenu" name="PopupMenu" >
         <property name="objectName" >
-          <cstring>PopupMenu</cstring>
+          <string notr="true">PopupMenu</string>
         </property>
         <attribute name="title" >
           <string>&amp;View</string>
@@ -98,7 +98,7 @@
       </widget>
       <widget class="QMenu" name="goMenu" >
         <property name="objectName" >
-          <cstring>goMenu</cstring>
+          <string notr="true">goMenu</string>
         </property>
         <attribute name="title" >
           <string>&amp;Go</string>
@@ -112,7 +112,7 @@
       </widget>
       <widget class="QMenu" name="bookmarkMenu" >
         <property name="objectName" >
-          <cstring>bookmarkMenu</cstring>
+          <string notr="true">bookmarkMenu</string>
         </property>
         <attribute name="title" >
           <string>Boo&amp;kmarks</string>
@@ -120,7 +120,7 @@
       </widget>
       <widget class="QMenu" name="helpMenu" >
         <property name="objectName" >
-          <cstring>helpMenu</cstring>
+          <string notr="true">helpMenu</string>
         </property>
         <attribute name="title" >
           <string>&amp;Help</string>
@@ -142,7 +142,7 @@
 
       <action name="actionFilePrint" >
         <property name="objectName" >
-          <cstring>actionFilePrint</cstring>
+          <string notr="true">actionFilePrint</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/print.png</iconSet>
@@ -151,7 +151,7 @@
           <string>Print the currently displayed page.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+P</shortcut>
+          <string>Ctrl+P</string>
         </property>
         <property name="text" >
           <string>&amp;Print...</string>
@@ -159,13 +159,13 @@
       </action>
       <action name="actionFileExit" >
         <property name="objectName" >
-          <cstring>actionFileExit</cstring>
+          <string notr="true">actionFileExit</string>
         </property>
         <property name="whatsThis" >
           <string>Quit Qt Assistant.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+Q</shortcut>
+          <string>Ctrl+Q</string>
         </property>
         <property name="text" >
           <string>E&amp;xit</string>
@@ -173,7 +173,7 @@
       </action>
       <action name="actionEditCopy" >
         <property name="objectName" >
-          <cstring>actionEditCopy</cstring>
+          <string notr="true">actionEditCopy</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/editcopy.png</iconSet>
@@ -182,7 +182,7 @@
           <string>Copy the selected text to the clipboard.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+C</shortcut>
+          <string>Ctrl+C</string>
         </property>
         <property name="text" >
           <string>&amp;Copy</string>
@@ -190,7 +190,7 @@
       </action>
       <action name="actionEditFind" >
         <property name="objectName" >
-          <cstring>actionEditFind</cstring>
+          <string notr="true">actionEditFind</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/find.png</iconSet>
@@ -199,7 +199,7 @@
           <string>Open the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+F</shortcut>
+          <string>Ctrl+F</string>
         </property>
         <property name="text" >
           <string>&amp;Find in Text...</string>
@@ -207,10 +207,10 @@
       </action>
       <action name="actionEditFindAgain" >
         <property name="objectName" >
-          <cstring>actionEditFindAgain</cstring>
+          <string notr="true">actionEditFindAgain</string>
         </property>
         <property name="shortcut" >
-          <shortcut>F3</shortcut>
+          <string>F3</string>
         </property>
         <property name="text" >
           <string>Find &amp;Next</string>
@@ -218,10 +218,10 @@
       </action>
       <action name="actionEditFindAgainPrev" >
         <property name="objectName" >
-          <cstring>actionEditFindAgainPrev</cstring>
+          <string notr="true">actionEditFindAgainPrev</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Shift+F3</shortcut>
+          <string>Shift+F3</string>
         </property>
         <property name="text" >
           <string>Find &amp;Previous</string>
@@ -229,7 +229,7 @@
       </action>
       <action name="actionGoHome" >
         <property name="objectName" >
-          <cstring>actionGoHome</cstring>
+          <string notr="true">actionGoHome</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/home.png</iconSet>
@@ -238,7 +238,7 @@
           <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+Home</shortcut>
+          <string>Ctrl+Home</string>
         </property>
         <property name="text" >
           <string>&amp;Home</string>
@@ -246,7 +246,7 @@
       </action>
       <action name="actionGoPrevious" >
         <property name="objectName" >
-          <cstring>actionGoPrevious</cstring>
+          <string notr="true">actionGoPrevious</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/previous.png</iconSet>
@@ -255,7 +255,7 @@
           <string>Go to the previous page.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Alt+Left</shortcut>
+          <string>Alt+Left</string>
         </property>
         <property name="text" >
           <string>&amp;Previous</string>
@@ -263,7 +263,7 @@
       </action>
       <action name="actionGoNext" >
         <property name="objectName" >
-          <cstring>actionGoNext</cstring>
+          <string notr="true">actionGoNext</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/next.png</iconSet>
@@ -272,7 +272,7 @@
           <string>Go to the next page.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Alt+Right</shortcut>
+          <string>Alt+Right</string>
         </property>
         <property name="text" >
           <string>&amp;Next</string>
@@ -280,7 +280,7 @@
       </action>
       <action name="actionAboutAssistant" >
         <property name="objectName" >
-          <cstring>actionAboutAssistant</cstring>
+          <string notr="true">actionAboutAssistant</string>
         </property>
         <property name="whatsThis" >
           <string>Display further information about Qt Assistant.</string>
@@ -291,7 +291,7 @@
       </action>
       <action name="actionAboutApplication" >
         <property name="objectName" >
-          <cstring>actionAboutApplication</cstring>
+          <string notr="true">actionAboutApplication</string>
         </property>
         <property name="text" >
           <string>About Qt</string>
@@ -299,7 +299,7 @@
       </action>
       <action name="actionZoomIn" >
         <property name="objectName" >
-          <cstring>actionZoomIn</cstring>
+          <string notr="true">actionZoomIn</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/zoomin.png</iconSet>
@@ -308,7 +308,7 @@
           <string>Zoom in on the document, i.e. increase the font size.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl++</shortcut>
+          <string>Ctrl++</string>
         </property>
         <property name="text" >
           <string>Zoom &amp;in</string>
@@ -316,7 +316,7 @@
       </action>
       <action name="actionZoomOut" >
         <property name="objectName" >
-          <cstring>actionZoomOut</cstring>
+          <string notr="true">actionZoomOut</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/zoomout.png</iconSet>
@@ -325,7 +325,7 @@
           <string>Zoom out on the document, i.e. decrease the font size.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+-</shortcut>
+          <string>Ctrl+-</string>
         </property>
         <property name="text" >
           <string>Zoom &amp;out</string>
@@ -333,7 +333,7 @@
       </action>
       <action name="actionSettings" >
         <property name="objectName" >
-          <cstring>actionSettings</cstring>
+          <string notr="true">actionSettings</string>
         </property>
         <property name="whatsThis" >
           <string>Open the settings dialog.</string>
@@ -344,13 +344,13 @@
       </action>
       <action name="actionNewWindow" >
         <property name="objectName" >
-          <cstring>actionNewWindow</cstring>
+          <string notr="true">actionNewWindow</string>
         </property>
         <property name="whatsThis" >
           <string>Open a new window.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+N</shortcut>
+          <string>Ctrl+N</string>
         </property>
         <property name="text" >
           <string>New Window</string>
@@ -358,7 +358,7 @@
       </action>
       <action name="actionClose" >
         <property name="objectName" >
-          <cstring>actionClose</cstring>
+          <string notr="true">actionClose</string>
         </property>
         <property name="whatsThis" >
           <string>Close the current window.</string>
@@ -369,7 +369,7 @@
       </action>
       <action name="actionAddBookmark" >
         <property name="objectName" >
-          <cstring>actionAddBookmark</cstring>
+          <string notr="true">actionAddBookmark</string>
         </property>
         <property name="whatsThis" >
           <string>Add the currently displayed page as a new bookmark.</string>
@@ -380,7 +380,7 @@
       </action>
       <action name="actionHelpWhatsThis" >
         <property name="objectName" >
-          <cstring>actionHelpWhatsThis</cstring>
+          <string notr="true">actionHelpWhatsThis</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/whatsthis.xpm</iconSet>
@@ -392,7 +392,7 @@
           <string>&quot;What's This?&quot; context sensitive help.</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Shift+F1</shortcut>
+          <string>Shift+F1</string>
         </property>
         <property name="text" >
           <string>What's This?</string>
@@ -400,10 +400,10 @@
       </action>
       <action name="actionOpenPage" >
         <property name="objectName" >
-          <cstring>actionOpenPage</cstring>
+          <string notr="true">actionOpenPage</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+Alt+N</shortcut>
+          <string>Ctrl+Alt+N</string>
         </property>
         <property name="text" >
           <string>Add Tab</string>
@@ -411,10 +411,10 @@
       </action>
       <action name="actionNextPage" >
         <property name="objectName" >
-          <cstring>actionNextPage</cstring>
+          <string notr="true">actionNextPage</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+Alt+Right</shortcut>
+          <string>Ctrl+Alt+Right</string>
         </property>
         <property name="text" >
           <string>Next Tab</string>
@@ -422,10 +422,10 @@
       </action>
       <action name="actionPrevPage" >
         <property name="objectName" >
-          <cstring>actionPrevPage</cstring>
+          <string notr="true">actionPrevPage</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+Alt+Left</shortcut>
+          <string>Ctrl+Alt+Left</string>
         </property>
         <property name="text" >
           <string>Previous Tab</string>
@@ -433,10 +433,10 @@
       </action>
       <action name="actionClosePage" >
         <property name="objectName" >
-          <cstring>actionClosePage</cstring>
+          <string notr="true">actionClosePage</string>
         </property>
         <property name="shortcut" >
-          <shortcut>Ctrl+Alt+Q</shortcut>
+          <string>Ctrl+Alt+Q</string>
         </property>
         <property name="text" >
           <string>Close Tab</string>
@@ -444,13 +444,13 @@
       </action>
       <action name="actionHelpAssistant" >
         <property name="objectName" >
-          <cstring>actionHelpAssistant</cstring>
+          <string notr="true">actionHelpAssistant</string>
         </property>
         <property name="icon" >
           <iconSet>:/trolltech/assistant/images/assistant.png</iconSet>
         </property>
         <property name="shortcut" >
-          <shortcut>F1</shortcut>
+          <string>F1</string>
         </property>
         <property name="text" >
           <string>Qt Assistant Manual</string>
