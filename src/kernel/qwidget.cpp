@@ -4010,7 +4010,7 @@ QSize QWidget::minimumSizeHint() const
 /*!
   \fn WFlags QWidget::testWFlags( WFlags f ) const
 
-  Returns the logical AND of the widget flags and \a f.
+  Returns the bitwise AND of the widget flags and \a f.
 
   Widget flags are a combination of \l{Qt::WidgetFlags}.
 
@@ -4021,7 +4021,7 @@ QSize QWidget::minimumSizeHint() const
   \fn WState QWidget::testWState( WState s ) const
   \internal
 
-  Returns the logical AND of the widget states and \a s.
+  Returns the bitwise AND of the widget states and \a s.
 */
 
 /*!
