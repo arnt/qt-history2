@@ -49,10 +49,10 @@ static bool toBool( const QString& s )
     return s == "true" || s.toInt() != 0;
 }
 
-
 static QString fixString( const QString &str )
 {
     QString s( str );
+    s = s.replace( QRegExp( "\\\\" ), "\\\\" );
     s = s.replace( QRegExp( "\"" ), "\\\"" );
     s = s.replace( QRegExp( "\n" ), "\\n" );
     s = s.replace( QRegExp( "\r" ), "\\r" );
@@ -228,6 +228,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "#ifndef " << protector << endl;
     out << "#define " << protector << endl;
     out << endl;
+    out << "#include <qvariant.h>" << endl; // for broken HPUX compilers
 
     QStringList globalIncludes, localIncludes;
     int wid = WidgetDatabase::idFromClassName( objClass );
