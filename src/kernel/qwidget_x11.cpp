@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#339 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#340 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1146,7 +1146,19 @@ void QWidget::showWindow()
     clearWState( WState_ForceHide );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
-    XMapWindow( x11Display(), winId() );
+    if ( extra && extra->bg_mode == NoBackground ) {
+	XMapWindow( x11Display(), winId() );
+    } else {
+	XSetWindowBackgroundPixmap( x11Display(), winId(), 0 );
+	XMapWindow( x11Display(), winId() );
+	if ( extra && extra->bg_pix )
+	    XSetWindowBackgroundPixmap( x11Display(), winId(),
+					extra->bg_pix->handle() );
+	else
+	    XSetWindowBackground( x11Display(), winId(), bg_col.pixel() );
+	XClearWindow( x11Display(), winId() );
+    }
+    QApplication::postEvent( this, new QPaintEvent( rect() ) );
 }
 
 
