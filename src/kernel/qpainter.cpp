@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#88 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#88 $");
 
 
 /*!
@@ -928,6 +928,10 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 
 /*!
   \overload void QPainter::drawRect( const QRect &r )
+*/
+
+/*!
+  \overload void QPainter::drawWinFocusRect( const QRect &r )
 */
 
 /*!
