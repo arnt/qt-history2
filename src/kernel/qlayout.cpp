@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#11 $
 **
 ** Implementation of layout classes
 **
@@ -8,16 +8,19 @@
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
-#include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#10 $");
+#include "qlayout.h"
+#include "qmenubar.h"
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#11 $");
+
 
 /*!
   \class QLayout qlayout.h
   \brief QLayout is the base class of geometry specifiers.
-  
+
   This is an abstract base class. Various layout managers inherit
-  from this one. 
+  from this one.
 
   Geometry management stops when the layout manager is deleted.
 
@@ -27,8 +30,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#10 $");
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
   delete the layout manager first.
-  */
-
+*/
 
 
 /*!
@@ -37,7 +39,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#10 $");
 
   \a border is the number of pixels between the edge of the widget and
   the managed children.	 \a autoBorder sets the value of defaultBorder(), which
-  is interpreted by subclasses.  If \a autoBorder is -1 the value
+  is interpreted by subclasses.	 If \a autoBorder is -1 the value
   of \a border is used.
 
   \a name is the internal object name
@@ -50,8 +52,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#10 $");
 QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
     : QObject( parent, name )
 {
-    topLevel     = TRUE;
-    bm           = new QGManager( parent, name );
+    topLevel	 = TRUE;
+    bm		 = new QGManager( parent, name );
     parent->removeChild( bm );
     insertChild( bm );
 
@@ -66,8 +68,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
   \fn const char *QLayout::name() const
 
   Returns the internal object name.
-  */
-
+*/
 
 
 /*!
@@ -82,29 +83,32 @@ QWidget * QLayout::mainWidget()
 
 
 /*!
-  Constructs a new child QLayout, 
+  Constructs a new child QLayout,
   If \a autoBorder is -1, this QLayout inherits \a parent's
   defaultBorder(), otherwise \a autoBorder is used.
 */
+
 QLayout::QLayout( int autoBorder, const char *name )
     : QObject( 0, name )
 {
-    topLevel     = FALSE;
-    bm           = 0;
-    defBorder    = autoBorder;
+    topLevel	 = FALSE;
+    bm		 = 0;
+    defBorder	 = autoBorder;
 }
 
 
 /*!
-  Deletes all children layouts. Geometry management stops when 
+  Deletes all children layouts. Geometry management stops when
   a toplevel layout is deleted.
   \internal
   The layout classes will probably be fatally confused if you delete
   a sublayout
- */
+*/
+
 QLayout::~QLayout()
 {
 }
+
 
 /*!
   This function is called from addLayout functions in subclasses,
@@ -113,15 +117,14 @@ QLayout::~QLayout()
 
 void QLayout::addChildLayout( QLayout *l )
 {
-
     if ( l->topLevel ) {
-#if defined(DEBUG)
-	warning("QLayout: attempt to add top-level layout as child");
+#if defined(CHECK_NULL)
+	warning( "QLayout: Attempt to add top-level layout as child" );
 #endif
 	return;
     }
     l->bm = bm;
-    insertChild( l );  
+    insertChild( l );
     if ( l->defBorder < 0 )
 	l->defBorder = defBorder;
     l->initGM();
@@ -132,51 +135,52 @@ void QLayout::addChildLayout( QLayout *l )
 
   Implement this function to do what's necessary to initialize chains,
   once the layout has a basicManager().
-  */
+*/
 
 /*!
   \fn QGManager *QLayout::basicManager()
 
-  Returns the QGManager for this layout. Returns 0 if 
+  Returns the QGManager for this layout. Returns 0 if
   this is a child layout which has not been inserted yet.
-  */
+*/
 
 
-/*!  
+/*!
   \fn QChain *QLayout::mainVerticalChain()
   Implement this function to return the main vertical chain.
 */
 
-/*!  
+/*!
   \fn QChain *QLayout::mainHorizontalChain()
   Implement this function to return the main horizontal chain.
 */
 
 /*!
   \fn QChain *QLayout::horChain( QLayout * )
-  This function works around a terrible case of brain damage in 
+  This function works around a terrible case of brain damage in
   the C++ language definition, to provide access to mainHorizontalChain().
  */
 
 
 /*!
   \fn QChain *QLayout::verChain( QLayout * )
-  This function works around a terrible case of brain damage in 
+  This function works around a terrible case of brain damage in
   the C++ language definition, to provide access to mainVerticalChain().
- */
+*/
 
 
 /*!
   \fn int QLayout::defaultBorder() const
   Returns the default border for the geometry manager.
 */
- 
+
 /*!
   Starts geometry management - analogous to show() for widgets.
   This function should only be called for top level layouts.
 */
+
 bool QLayout::activate()
-{ 
+{
     if ( topLevel )
 	return bm->activate();
 #if defined(DEBUG)
@@ -203,23 +207,26 @@ bool QLayout::activate()
   is to delete it.
 
   The size is adjusted to a valid value. Thus freeze(0,0) fixes the
-  widget to its minimum size.  
+  widget to its minimum size.
 */
 
 void QLayout::freeze( int w, int h )
 {
     if ( !topLevel ) {
-	warning( "Only top-level QLayout can be frozen." );
+#if defined(CHECK_STATE)
+	warning( "QLayout::freeze: Only top-level QLayout can be frozen" );
+#endif
 	return;
     }
-    ASSERT( bm );
+#if defined(CHECK_NULL)
+    ASSERT( bm != 0 );
+#endif
     bm->freeze( w, h );
     delete bm;
     bm = 0;
 }
 
 
-#include "qmenubar.h"
 /*!
   Makes the geometry manager take account of the menu bar \a w. All
   child widgets are placed below the bottom edge of the menu bar.
@@ -231,7 +238,9 @@ void QLayout::freeze( int w, int h )
 void QLayout::setMenuBar( QMenuBar *w )
 {
     if ( !topLevel ) {
-	warning( "QLayout::setMenuBar(), called for sublayout." );
+#if defined(CHECK_NULL)
+	warning( "QLayout::setMenuBar: Called for sub layout" );
+#endif
 	return;
     }
     ASSERT( bm );
@@ -252,7 +261,6 @@ void QLayout::setMenuBar( QMenuBar *w )
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
   delete the layout manager first.
-
 */
 
 static inline bool horz( QGManager::Direction dir )
@@ -305,6 +313,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
   You have to insert this box into another layout before using it.
 */
+
 QBoxLayout::QBoxLayout( Direction d,
 			int autoBorder, const char *name )
     : QLayout( autoBorder, name )
@@ -316,17 +325,17 @@ QBoxLayout::QBoxLayout( Direction d,
 }
 
 
-
 /*!
-  Deletes this box. Geometry management is terminated if 
+  Deletes this box. Geometry management is terminated if
   this is a top-level box.
- */
+*/
+
 QBoxLayout::~QBoxLayout()
 {
 }
 
 /*!
-  Initializes this box. 
+  Initializes this box.
 */
 
 void QBoxLayout::initGM()
@@ -341,16 +350,19 @@ void QBoxLayout::initGM()
 
   \sa addWidget(), addSpacing()
 */
+
 void QBoxLayout::addLayout( QLayout *layout, int stretch )
 {
     if ( !basicManager() ) {
-	warning("QBoxLayout::addLayout(), box must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QBoxLayout::addLayout: Box must be inserted before use" );
+#endif
 	return;
     }
     addChildLayout( layout );
     if ( !pristine && defaultBorder() )
-	basicManager()->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
-
+	basicManager()->addSpacing( serChain, defaultBorder(), 0,
+				    defaultBorder() );
     addB( layout, stretch );
     pristine = FALSE;
 }
@@ -359,8 +371,7 @@ void QBoxLayout::addB( QLayout * l, int stretch )
 {
     if ( horz( dir ) ) {
 	basicManager()->QGManager::add( parChain, verChain( l ) );
-	basicManager()->QGManager::add( serChain, horChain( l ),
-					    stretch );
+	basicManager()->QGManager::add( serChain, horChain( l ), stretch );
     } else {
 	basicManager()->QGManager::add( parChain, horChain( l ) );
 	basicManager()->QGManager::add( serChain, verChain( l ),
@@ -405,7 +416,9 @@ QChain * QBoxLayout::mainHorizontalChain()
 void QBoxLayout::addSpacing( int size )
 {
     if ( !basicManager() ) {
-	warning("QBoxLayout::addSpacing(), box must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QBoxLayout::addSpacing: Box must be inserted before use" );
+#endif
 	return;
     }
     basicManager()->addSpacing( serChain, size, 0, size );
@@ -421,7 +434,9 @@ void QBoxLayout::addSpacing( int size )
 void QBoxLayout::addStretch( int stretch )
 {
     if ( !basicManager() ) {
-	warning("QBoxLayout::addStretch(), box must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning("QBoxLayout::addStretch: Box must be inserted before use" );
+#endif
 	return;
     }
     basicManager()->addSpacing( serChain, 0, stretch );
@@ -434,10 +449,13 @@ void QBoxLayout::addStretch( int stretch )
 
   \sa addMaxStrut()
 */
+
 void QBoxLayout::addStrut( int size )
 {
     if ( !basicManager() ) {
-	warning("QBoxLayout::addStrut(), box must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QBoxLayout::addStrut: Box must be inserted before use" );
+#endif
 	return;
     }
     basicManager()->addSpacing( parChain, size );
@@ -487,7 +505,7 @@ void QBoxLayout::addMaxStrut( int size)
   </ul>
 
   Alignment only has effect if the size of the box is greater than the
-  widget's maximum size. 
+  widget's maximum size.
 
   \sa addLayout(), addSpacing()
 */
@@ -495,12 +513,16 @@ void QBoxLayout::addMaxStrut( int size)
 void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 {
     if ( !basicManager() ) {
-	warning("QBoxLayout::addLayout(), box must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QBoxLayout::addLayout: Box must be inserted before use" );
+#endif
 	return;
     }
 
     if ( !widget ) {
-	warning( "QBoxLayout::addWidget: widget == 0" );
+#if defined(CHECK_NULL)
+	warning( "QBoxLayout::addWidget: Widget can't be null" );
+#endif
 	return;
     }
 
@@ -508,7 +530,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     const int last  = AlignRight | AlignBottom;
 
     if ( !pristine && defaultBorder() )
-	basicManager()->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
+	basicManager()->addSpacing( serChain, defaultBorder(), 0,
+				    defaultBorder() );
 
     if ( 0/*a == alignBoth*/ ) {
 	basicManager()->addWidget( parChain, widget, 0 );
@@ -541,9 +564,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   \c Down are also available.
 
   \sa addWidget(), addBox(), addSpacing()
- */
-
-
+*/
 
 
 /*!
@@ -561,7 +582,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
 /*!
   Constructs a new QGridLayout with \a nRows, \a nCols columns
-   and main widget \a  parent.  \a parent may not be 0.
+   and main widget \a  parent.	\a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
   the managed children.	 \a autoBorder is the default number of pixels
@@ -583,7 +604,6 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 }
 
 
-
 /*!
   Constructs a new grid with \a nRows rows and \a  nCols columns,
   If \a autoBorder is -1, this QGridLayout will inherits its parent's
@@ -591,7 +611,8 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 
   You have to insert this grid into another layout before using it.
 */
-QGridLayout::QGridLayout( int nRows, int nCols, 
+
+QGridLayout::QGridLayout( int nRows, int nCols,
 			  int autoBorder, const char *name )
      : QLayout( autoBorder, name )
 {
@@ -600,11 +621,11 @@ QGridLayout::QGridLayout( int nRows, int nCols,
 }
 
 
-
 /*!
-  Deletes this grid. Geometry management is terminated if 
-  this is a top-level grid. 
+  Deletes this grid. Geometry management is terminated if
+  this is a top-level grid.
 */
+
 QGridLayout::~QGridLayout()
 {
     delete rows;
@@ -613,7 +634,7 @@ QGridLayout::~QGridLayout()
 
 
 /*!
-  Initializes this grid. 
+  Initializes this grid.
 */
 
 void QGridLayout::initGM()
@@ -630,7 +651,6 @@ void QGridLayout::initGM()
 
 void QGridLayout::init( int nRows, int nCols )
 {
-
     rows = new QArray<QChain*> ( nRows );
     cols = new QArray<QChain*> ( nCols );
 
@@ -645,41 +665,40 @@ void QGridLayout::init( int nRows, int nCols )
 
     for ( i = 0; i< nCols; i++ ) {
 	if ( i != 0 )
-	    basicManager()->addSpacing( horChain, defaultBorder(), 0, 
+	    basicManager()->addSpacing( horChain, defaultBorder(), 0,
 					defaultBorder() );
 	(*cols)[i] = basicManager()->newParChain( QGManager::LeftToRight );
 	basicManager()->add( horChain, (*cols)[i] );
     }
-    
 }
 
 
 /*!
-
-  Adds the widget \a w to the cell grid at \a row, \a col. 
+  Adds the widget \a w to the cell grid at \a row, \a col.
   The top left position is (0,0)
 
   Alignment is
   specified by \a align which takes the same arguments as QLabel::setAlignment().
   Note that widgets take all the space they can get; alignment has no effect unless
   you have set QWidget::maximumSize().
-
 */
+
 void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 {
     if ( !basicManager() ) {
-	warning("QGridLayout::addWidget(), grid must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::addWidget: Grid must be inserted before use" );
+#endif
 	return;
     }
     addMultiCellWidget( w, row, row, col, col, align );
 }
 
 /*!
-
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
   Note that multicell widgets do not define the columns/rows they
-  span.  Each column must contain at least one widget that does not
+  span.	 Each column must contain at least one widget that does not
   span multiple columns. Likewise, each row must contain one widget
   that does not span multiple rows. If your layout does not satisfy this,
   consider using the QBoxLayout class instead.
@@ -687,13 +706,16 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
   Alignment is specified by \a align which takes the same arguments as
   QLabel::setAlignment(), alignment has no effect unless you have set
   QWidget::maximumSize().
-
 */
-void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow, 
-					int fromCol, int toCol, int align  )
+
+void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
+				      int fromCol, int toCol, int align	 )
 {
     if ( !basicManager() ) {
-	warning("QGridLayout::addMultiCellWidget(), grid must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::addMultiCellWidget: "
+		 "Grid must be inserted before use" );
+#endif
 	return;
     }
     const int hFlags = AlignHCenter | AlignLeft | AlignRight;
@@ -708,10 +730,9 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 	    basicManager()->add( (*cols)[ fromCol ], c );
 	else
 	    basicManager()->addBranch( horChain, c, fromCol*2, toCol*2 );
-    }
-    else
+    } else {
 	c =  (*cols)[ fromCol ];
-
+    }
     if ( a & (AlignHCenter|AlignLeft) )
 	basicManager()->addSpacing( c, 0 );
     basicManager()->addWidget( c, w, 1 ); //stretch ignored in parallel chain
@@ -726,17 +747,15 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 	    basicManager()->add( (*rows)[ fromRow ], c );
 	else
 	    basicManager()->addBranch( verChain, c, fromRow*2, toRow*2 );
-    }
-    else
+    } else {
 	c =  (*rows)[ fromRow ];
-
+    }
     if ( a & (AlignVCenter|AlignTop) )
 	basicManager()->addSpacing( c, 0 );
     basicManager()->addWidget( c, w, 1 ); //stretch ignored in parallel chain
     if ( a & (AlignVCenter|AlignBottom) )
 	basicManager()->addSpacing( c, 0 );
 }
-
 
 
 /*!
@@ -747,17 +766,17 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 void QGridLayout::addLayout( QLayout *layout, int row, int col)
 {
     if ( !basicManager() ) {
-	warning("QGridLayout::addLayout(), grid must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::addLayout: Grid must be inserted before use" );
+#endif
 	return;
     }
     addChildLayout( layout );
-    QChain *c =  (*cols)[ col ];
+    QChain *c =	 (*cols)[ col ];
     basicManager()->add( c, QLayout::horChain( layout ) );
-
-    c =  (*rows)[ row ];
+    c =	 (*rows)[ row ];
     basicManager()->add( c, QLayout::verChain( layout ) );
 }
-
 
 
 /*!
@@ -770,16 +789,17 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
   The default stretch factor is 0.
   If the stretch factor is 0 and no other row in this table can
   grow at all, the row may still grow.
-
 */
 
 void QGridLayout::setRowStretch( int row, int stretch )
 {
     if ( !basicManager() ) {
-	warning("QGridLayout::setRowStretch(), grid must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::setRowStretch: Grid must be inserted before use");
+#endif
 	return;
     }
-    QChain *c =  (*rows)[ row ];
+    QChain *c =	 (*rows)[ row ];
     basicManager()->setStretch( c, stretch );
 }
 
@@ -794,27 +814,27 @@ void QGridLayout::setRowStretch( int row, int stretch )
   The default stretch factor is 0.
   If the stretch factor is 0 and no other column in this table can
   grow at all, the column may still grow.
-
 */
 
 void QGridLayout::setColStretch( int col, int stretch )
 {
     if ( !basicManager() ) {
-	warning("QGridLayout::setColStretch(), grid must be inserted before use.");
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::setColStretch: Grid must be inserted before use");
+#endif
 	return;
     }
-    QChain *c =  (*cols)[ col ];
+    QChain *c =	 (*cols)[ col ];
     basicManager()->setStretch( c, stretch );
 }
 
 
-
-/*!  
+/*!
   \fn QChain *QGridLayout::mainVerticalChain()
   This function returns the main vertical chain.
 */
 
-/*!  
+/*!
   \fn QChain *QGridLayout::mainHorizontalChain()
   This function returns the main horizontal chain.
 */
