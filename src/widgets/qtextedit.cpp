@@ -887,6 +887,12 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
     bool clearUndoRedoInfo = TRUE;
 
+    if ( doc->oTextValid && (e->key() == Key_Delete || 
+			     e->key() == Key_Return ||
+			     e->key() == Key_Enter ||
+			     e->key() == Key_Backspace) )
+	doc->invalidateOriginalText();
+    
     switch ( e->key() ) {
     case Key_Left:
     case Key_Right: {
