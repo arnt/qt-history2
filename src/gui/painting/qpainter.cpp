@@ -2933,7 +2933,44 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 {
     if (!isActive() || image.isNull())
         return;
-    d->engine->drawImage(targetRect, image, sourceRect, flags);
+
+    float x = targetRect.x();
+    float y = targetRect.y();
+    float w = targetRect.width();
+    float h = targetRect.height();
+    float sx = sourceRect.x();
+    float sy = sourceRect.y();
+    float sw = sourceRect.width();
+    float sh = sourceRect.height();
+
+    // Sanity-check clipping
+    if (sw <= 0 || sw + sx > image.width())
+        sw = image.width() - sx;
+
+    if (sh <= 0 || sh + sy > image.height())
+        sh = image.height() - sy;
+
+    if (sx < 0) {
+        x -= sx;
+        sw += sx;
+        sx = 0;
+    }
+
+    if (sy < 0) {
+        y -= sy;
+        sh += sy;
+        sy = 0;
+    }
+
+    if (w < 0)
+        w = sw;
+    if (h < 0)
+        h = sh;
+
+    if (sw <= 0 || sh <= 0)
+        return;
+
+    d->engine->drawImage(QRectF(x, y, w, h), image, QRectF(sx, sy, sw, sh), flags);
 }
 
 /*!

@@ -681,31 +681,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
     dgl->makeCurrent();
     dgl->bindTexture(pm);
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glPushAttrib(GL_CURRENT_BIT);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-
-    glBegin(GL_QUADS);
-    {
-        double x1 = sr.x() / (double) pm.width();
-        double x2 = x1 + sr.width() / (double) pm.width();
-        double y1 = sr.y() / (double) pm.height();
-        double y2 = y1 + sr.height() / (double) pm.height();
-
-        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
-        glTexCoord2f(x2, y2); glVertex2f(r.x()+r.width(), r.y());
-        glTexCoord2f(x2, y1); glVertex2f(r.x()+r.width(), r.y()+r.height());
-        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y()+r.height());
-    }
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-    glPopAttrib();
+    drawTextureRect(pm.width(), pm.height(), r, sr);
 }
 
 void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &,
@@ -743,6 +719,42 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     }
     glEnd();
     glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    glPopAttrib();
+}
+
+void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
+                                   Qt::ImageConversionFlags)
+{
+    dgl->makeCurrent();
+    dgl->bindTexture(image);
+    drawTextureRect(image.width(), image.width(), r, sr);
+}
+
+void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRectF &r, const QRectF &sr)
+{
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glPushAttrib(GL_CURRENT_BIT);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+
+    glBegin(GL_QUADS);
+    {
+        double x1 = sr.x() / (double) tx_width;
+        double x2 = x1 + sr.width() / (double) tx_width;
+        double y1 = sr.y() / (double) tx_height;
+        double y2 = y1 + sr.height() / (double) tx_height;
+        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
+        glTexCoord2f(x2, y2); glVertex2f(r.x()+r.width(), r.y());
+        glTexCoord2f(x2, y1); glVertex2f(r.x()+r.width(), r.y()+r.height());
+        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y()+r.height());
+    }
+    glEnd();
 
     glDisable(GL_TEXTURE_2D);
     glPopAttrib();

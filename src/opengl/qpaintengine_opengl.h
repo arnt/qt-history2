@@ -44,6 +44,8 @@ public:
     void drawRect(const QRectF &r);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);
+    void drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
+                   Qt::ImageConversionFlags conversionFlags);
     void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
 
 #ifdef Q_WS_WIN
@@ -55,7 +57,7 @@ public:
 
 private:
     void drawPolyInternal(const QPolygon &pa, bool close = true);
-
+    void drawTextureRect(int tx_width, int tx_height, const QRectF &r, const QRectF &sr);
     Q_DISABLE_COPY(QOpenGLPaintEngine)
 };
 
