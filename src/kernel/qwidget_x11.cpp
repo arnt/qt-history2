@@ -1860,13 +1860,15 @@ void QWidget::erase( const QRegion& reg )
     qt_erase_region( this, reg );
 }
 
+/*! Scrolls the widget including its children \a dx pixels to the right and \a dy
+  downwards.  Both \a dx and \a dy may be negative.
 
-/*! \overload
+  After scrolling, scroll() sends a paint event for the the part that is read but
+  not written.  For example, when scrolling 10 pixels rightwards, the leftmost
+  ten pixels of the widget need repainting. The paint event may be delivered
+  immediately or later, depending on some heuristics.
 
-  This version of the function scrolls the entire widget and moves the
-  widget's children along with the scroll.
-
-  \sa bitBlt() QScrollView
+  \sa QScrollView erase() bitBlt()
 */
 
 void QWidget::scroll( int dx, int dy )
@@ -1874,17 +1876,11 @@ void QWidget::scroll( int dx, int dy )
     scroll( dx, dy, QRect() );
 }
 
-/*! Scrolls \a r \a dx pixels to the right and \a dy downwards.  Both
-  \a dx and \a dy may be negative.
+/*! \overload
+
+  This version only scrolls \a r and does not move the children of the widget.
 
   If \a r is empty or invalid, the result is undefined.
-
-  After scrolling, scroll() sends a paint event for the the part of \a r
-  that is read but not written.  For example, when scrolling 10 pixels
-  rightwards, the leftmost ten pixels of \a r need repainting. The paint
-  event may be delivered immediately or later, depending on some heuristics.
-
-  This version of scroll() does not move the children of this widget.
 
   \sa QScrollView erase() bitBlt()
 */
