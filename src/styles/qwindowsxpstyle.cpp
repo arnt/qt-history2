@@ -362,6 +362,10 @@ struct XPThemeData
 	}
     }
 
+    void setName ( const QString &name ) {
+	this->name = name;
+    }
+
     int partId;
     int stateId;
     QRect rec;
@@ -1032,6 +1036,15 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	}
 	return;
 
+    case CE_ToolButtonLabel:
+	{
+	    Qt::ArrowType type = opt.arrowType();
+	    if ( type == Qt::UpArrow   || type == Qt::DownArrow | 
+		type == Qt::LeftArrow || type == Qt::RightArrow )
+		return;
+	}
+	break;
+
     default:
 	break;
     }
@@ -1530,7 +1543,43 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_ToolButton ) {
 		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButton, opt );
-		if (bflags & (Style_Down | Style_On | Style_Raised)) {
+		Qt::ArrowType type = opt.arrowType();
+		if ( type == Qt::UpArrow   || type == Qt::DownArrow | 
+		    type == Qt::LeftArrow || type == Qt::RightArrow ) {
+
+#define TBL_STATE(prefix) \
+		    if ( !tb->isEnabled() ) \
+			stateId = prefix##_DISABLED; \
+		    else if ( bflags & (Style_Down | Style_On) ) \
+			stateId = prefix##_PRESSED; \
+		    else if ( bflags & Style_MouseOver && (d->hotWidget == w) ) \
+			stateId = prefix##_HOT; \
+		    else \
+			stateId = prefix##_NORMAL;
+
+		    switch( type )
+		    {
+		    case Qt::RightArrow:
+			partId = SPNP_UPHORZ;
+			TBL_STATE(UPHZS);
+			break;
+		    case Qt::LeftArrow:
+			partId = SPNP_DOWNHORZ;
+			TBL_STATE(DNHZS);
+			break;
+		    case Qt::UpArrow:
+			partId = SPNP_UP;
+			TBL_STATE(UPS);
+			break;
+		    case Qt::DownArrow:
+		    default:
+			partId = SPNP_DOWN;
+			TBL_STATE(DNS);
+			break;
+		    }
+		    theme.setName( "SPIN" );
+		    theme.drawBackground( partId, stateId );
+		} else if (bflags & (Style_Down | Style_On | Style_Raised)) {
 		    if ( sub & SC_ToolButtonMenu ) {
 			partId = TP_SPLITBUTTON;
 			if ( !flags & Style_Enabled )
