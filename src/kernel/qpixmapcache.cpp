@@ -38,6 +38,7 @@
 #include "qpixmapcache.h"
 #include "qcache.h"
 #include "qobject.h"
+#include "qcleanuphandler.h"
 
 
 // REVISED: paul
@@ -88,9 +89,6 @@
 static const int cache_size = 149;		// size of internal hash array
 static int cache_limit	  = 1024;		// 1024 KB cache limit
 
-void cleanup_pixmap_cache();
-
-
 class QPMCache: public QObject, public QCache<QPixmap>
 {
 public:
@@ -99,7 +97,6 @@ public:
 	QCache<QPixmap>( cache_limit * 1024, cache_size ),
 	id( 0 ), ps( 0 ), t( FALSE )
 	{
-	    qAddPostRoutine( cleanup_pixmap_cache );
 	    setAutoDelete( TRUE );
 	}
    ~QPMCache() {}
@@ -153,13 +150,7 @@ bool QPMCache::insert( const QString& k, const QPixmap *d, int c, int p )
 
 static QPMCache *pm_cache = 0;			// global pixmap cache
 
-
-void cleanup_pixmap_cache()
-{
-    delete pm_cache;
-    pm_cache = 0;
-}
-
+QCleanUpHandler<QPMCache> qpm_cleanup_cache;
 
 /*!
   Returns the pixmap associated with \a key in the cache, or null if there
@@ -244,6 +235,7 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
 	CHECK_PTR( pm_cache );
+	qpm_cleanup_cache.addCleanUp( pm_cache );
     }
     return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
 }
@@ -268,6 +260,7 @@ bool QPixmapCache::insert( const QString &key, const QPixmap& pm )
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
 	CHECK_PTR( pm_cache );
+	qpm_cleanup_cache.addCleanUp( pm_cache );
     }
     QPixmap *p = new QPixmap(pm);
     bool rt = pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 );
