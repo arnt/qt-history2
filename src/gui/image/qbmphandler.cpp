@@ -259,11 +259,11 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         (d->size() - offset) / bi.biHeight;
     int pad = bmpbpl-bpl;
 #endif
-    uchar **line = image.jumpTable();
+    uchar *data = image.bits();
 
     if (nbits == 1) {                                // 1 bit BMP image
         while (--h >= 0) {
-            if (d->read((char*)line[h],bpl) != bpl)
+            if (d->read((char*)(data + h*bpl), bpl) != bpl)
                 break;
 #ifdef Q_WS_QWS
             if (pad > 0)
@@ -280,8 +280,8 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         if (comp == BMP_RLE4) {                // run length compression
             int x=0, y=0, c, i;
             char b;
-            register uchar *p = line[h-1];
-            const uchar *endp = line[h-1]+w;
+            register uchar *p = data + (h-1)*bpl;
+            const uchar *endp = p + w;
             while (y < h) {
                 if (!d->getChar(&b))
                     break;
@@ -292,7 +292,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                         case 0:                        // end of line
                             x = 0;
                             y++;
-                            p = line[h-y-1];
+                            p = data + (h-y-1)*bpl;
                             break;
                         case 2:                        // delta (jump)
                         {
@@ -309,7 +309,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                             if ((uint)y >= (uint)h)
                                 y = h-1;
 
-                            p = line[h-y-1] + x;
+                            p = data + (h-y-1)*bpl + x;
                             break;
                         default:                // absolute mode
                             // Protection
@@ -351,7 +351,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
             while (--h >= 0) {
                 if (d->read((char*)buf,buflen) != buflen)
                     break;
-                register uchar *p = line[h];
+                register uchar *p = data + h*bpl;
                 uchar *b = buf;
                 for (int i=0; i<w/2; i++) {        // convert nibbles to bytes
                     *p++ = *b >> 4;
@@ -368,8 +368,8 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         if (comp == BMP_RLE8) {                // run length compression
             int x=0, y=0;
             char b;
-            register uchar *p = line[h-1];
-            const uchar *endp = line[h-1]+w;
+            register uchar *p = data + (h-1)*bpl;
+            const uchar *endp = p + w;
             while (y < h) {
                 if (!d->getChar(&b))
                     break;
@@ -380,7 +380,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                         case 0:                        // end of line
                             x = 0;
                             y++;
-                            p = line[h-y-1];
+                            p = data + (h-y-1)*bpl;
                             break;
                         case 2:                        // delta (jump)
                             // Protection
@@ -396,7 +396,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                                 d->getChar(&tmp);
                                 y += tmp;
                             }
-                            p = line[h-y-1] + x;
+                            p = data + (h-y-1)*bpl + x;
                             break;
                         default:                // absolute mode
                             // Protection
@@ -424,7 +424,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
             }
         } else if (comp == BMP_RGB) {                // uncompressed
             while (--h >= 0) {
-                if (d->read((char *)line[h],bpl) != bpl)
+                if (d->read((char *)data + h*bpl, bpl) != bpl)
                     break;
 #ifdef Q_WS_QWS
                 if (pad > 0)
@@ -443,7 +443,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         int c;
 
         while (--h >= 0) {
-            p = (QRgb *)line[h];
+            p = (QRgb *)(data + h*bpl);
             end = p + w;
             if (d->read((char *)buf24,bpl24) != bpl24)
                 break;

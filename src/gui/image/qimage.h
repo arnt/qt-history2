@@ -123,8 +123,6 @@ public:
     const uchar *bits() const;
     uchar *scanLine(int);
     const uchar *scanLine(int) const;
-    uchar **jumpTable();
-    const uchar * const *jumpTable() const;
 
     QVector<QRgb> colorTable() const;
     void setColorTable(const QVector<QRgb> colors);
@@ -209,6 +207,8 @@ public:
 #endif
 
 #ifdef QT3_SUPPORT
+    QT3_SUPPORT uchar **jumpTable();
+    QT3_SUPPORT const uchar * const *jumpTable() const;
     inline QT3_SUPPORT void reset() { *this = QImage(); }
     static inline QT3_SUPPORT Endian systemByteOrder()
         { return QSysInfo::ByteOrder == QSysInfo::BigEndian ? BigEndian : LittleEndian; }

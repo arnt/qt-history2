@@ -809,8 +809,7 @@ QImage QPixmap::toImage() const
         /* Typically 2 or 4 bits display depth */
         qWarning("QPixmap::convertToImage: Display not supported (bpp=%d)",
                  xi->bits_per_pixel);
-        image.reset();
-        return image;
+        return QImage();
     }
 
     if (mono) {                                // bitmap

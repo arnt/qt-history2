@@ -248,27 +248,34 @@ void QAlphaWidget::render()
 */
 void QAlphaWidget::alphaBlend()
 {
-    const double ia = 1-alpha;
+    const int a = qRound(alpha*256);
+    const int ia = 256 - a;
+
     const int sw = front.width();
     const int sh = front.height();
+    const int bpl = front.bytesPerLine();
     switch(front.depth()) {
     case 32:
         {
-            quint32** md = (quint32**)mixed.jumpTable();
-            quint32** bd = (quint32**)back.jumpTable();
-            quint32** fd = (quint32**)front.jumpTable();
+            uchar *mixed_data = mixed.bits();
+            const uchar *back_data = back.bits();
+            const uchar *front_data = front.bits();
 
             for (int sy = 0; sy < sh; sy++) {
-                quint32* bl = ((quint32*)bd[sy]);
-                quint32* fl = ((quint32*)fd[sy]);
+                quint32* mixed = (quint32*)mixed_data;
+                const quint32* back = (const quint32*)back_data;
+                const quint32* front = (const quint32*)front_data;
                 for (int sx = 0; sx < sw; sx++) {
-                    quint32 bp = bl[sx];
-                    quint32 fp = fl[sx];
+                    quint32 bp = back[sx];
+                    quint32 fp = front[sx];
 
-                    ((quint32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
-                                                    int (qGreen(bp)*ia + qGreen(fp)*alpha),
-                                                    int (qBlue(bp)*ia + qBlue(fp)*alpha));
+                    mixed[sx] =  qRgb((qRed(bp)*ia + qRed(fp)*a)>>8,
+                                      (qGreen(bp)*ia + qGreen(fp)*a)>>8,
+                                      (qBlue(bp)*ia + qBlue(fp)*a)>>8);
                 }
+                mixed_data += bpl;
+                back_data += bpl;
+                front_data += bpl;
             }
         }
     default:

@@ -62,8 +62,13 @@ struct QImageData {        // internal image data
     int depth;
     int nbytes;               // number of bytes data
     QVector<QRgb> colortable;
-    uchar **bits;             // image data
+    uchar *data;
+#ifdef QT3_SUPPORT
+    uchar **jumptable;
+#endif
     QImage::Format format;
+    bool own_data;
+    int bytes_per_line;
     int ser_no;               // serial number
 
     qreal  dpmx;                // dots per meter X (or 0)
@@ -112,7 +117,12 @@ QImageData::QImageData()
 
     width = height = depth = 0;
     nbytes = 0;
-    bits = 0;
+    data = 0;
+    own_data = true;
+#ifdef QT3_SUPPORT
+    jumptable = 0;
+#endif
+    bytes_per_line = 0;
     format = QImage::Format_ARGB32;
 
     dpmx = qt_defaultDpi()*100./2.54;
@@ -160,26 +170,16 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
     d->depth = depth;
     d->format = format;
 
-    const int bpl = ((width * d->depth + 31) >> 5) << 2; // bytes per scanline (must be multiple of 8)
+    d->bytes_per_line = ((width * d->depth + 31) >> 5) << 2; // bytes per scanline (must be multiple of 8)
 
-    d->nbytes = bpl*height;                        // image size
-    int ptbl   = height*sizeof(uchar*);                // pointer table size
-    int image_size   = d->nbytes + ptbl;                        // total size of data block
-    uchar **p  = (uchar **)malloc(image_size);        // alloc image bits
+    d->nbytes = d->bytes_per_line*height;
+    d->data  = (uchar *)malloc(d->nbytes);
 
-    if (!p) {                                        // no memory
+    if (!d->data) {
         delete d;
         return 0;
     }
 
-    d->bits = p;                                // set image pointer
-
-    uchar *data = (uchar*)(p + height);                // setup scanline pointers
-    memset(data, 0, d->nbytes);
-    while (height--) {
-        *p++ = data;
-        data += bpl;
-    }
     d->ref.ref();
     return d;
 
@@ -188,9 +188,14 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
 QImageData::~QImageData()
 {
     delete paintEngine;
-    if (bits)
-        free(bits);
-    bits = 0;
+    if (data && own_data)
+        free(data);
+#ifdef QT3_SUPPORT
+    if (jumptable)
+        free(jumptable);
+#endif
+    data = 0;
+    jumptable = 0;
 }
 
 /*!
@@ -620,6 +625,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     d = new QImageData;
     d->ref.ref();
 
+    d->own_data = false;
     d->width = w;
     d->height = h;
     d->depth = depth;
@@ -627,18 +633,13 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     if (depth == 32)
         numColors = 0;
 
-    int bpl = ((w*depth+31)/32)*4;        // bytes per scanline
-    d->nbytes = bpl*h;
+    d->bytes_per_line = ((w*depth+31)/32)*4;        // bytes per scanline
+    d->nbytes = d->bytes_per_line * h;
     if (colortable) {
         d->colortable.reserve(numColors);
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
     }
-    uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
-    for (int j=0; j<h; j++) {
-        jt[j] = data + j * bpl;
-    }
-    d->bits = jt;
 }
 
 #ifdef Q_WS_QWS
@@ -670,23 +671,20 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
 
     d = new QImageData;
     d->ref.ref();
+    d->own_data = false;
     d->width = w;
     d->height = h;
     d->depth = depth;
     d->format = f;
     if (depth == 32)
         numColors = 0;
-    d->nbytes = bpl * h;
+    d->bytes_per_line = bpl;
+    d->nbytes = d->bytes_per_line * h;
     if (colortable) {
         d->colortable.reserve(numColors);
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
     }
-    uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
-    for (int j=0; j<h; j++) {
-        jt[j] = data + j * bpl;
-    }
-    d->bits = jt;
     d->bitordr = bitOrder;
 }
 #endif // Q_WS_QWS
@@ -981,6 +979,7 @@ QImage::Endian QImage::bitOrder() const
     return (d && d->format == Format_MonoLSB) ? QImage::LittleEndian : QImage::BigEndian;
 }
 
+#ifdef QT3_SUPPORT
 /*!
     Returns a pointer to the scanline pointer table.
 
@@ -993,7 +992,18 @@ uchar **QImage::jumpTable()
     if (!d)
         return 0;
     detach();
-    return d->bits;
+
+    if (!d->jumptable) {
+        d->jumptable = (uchar **)malloc(d->height*sizeof(uchar *));
+        uchar *data = d->data;
+        int height = d->height;
+        uchar **p = d->jumptable;
+        while (height--) {
+            *p++ = data;
+            data += d->bytes_per_line;
+        }
+    }
+    return d->jumptable;
 }
 
 /*!
@@ -1001,8 +1011,21 @@ uchar **QImage::jumpTable()
 */
 const uchar * const *QImage::jumpTable() const
 {
-    return d ? d->bits : 0;
+    if (!d)
+        return 0;
+    if (!d->jumptable) {
+        d->jumptable = (uchar **)malloc(d->height*sizeof(uchar *));
+        uchar *data = d->data;
+        int height = d->height;
+        uchar **p = d->jumptable;
+        while (height--) {
+            *p++ = data;
+            data += d->bytes_per_line;
+        }
+    }
+    return d->jumptable;
 }
+#endif
 
 void QImage::setColorTable(const QVector<QRgb> colors)
 {
@@ -1117,7 +1140,7 @@ uchar *QImage::scanLine(int i)
 {
     detach();
     Q_ASSERT(i >= 0 && i < height());
-    return d->bits ? d->bits[i] : 0;
+    return d->data + i * d->bytes_per_line;
 }
 
 /*!
@@ -1126,7 +1149,7 @@ uchar *QImage::scanLine(int i)
 const uchar *QImage::scanLine(int i) const
 {
     Q_ASSERT(i >= 0 && i < height());
-    return d->bits ? d->bits[i] : 0;
+    return d->data + i * d->bytes_per_line;
 }
 
 
@@ -1141,7 +1164,7 @@ uchar *QImage::bits()
     if (!d)
         return 0;
     detach();
-    return d->bits ? d->bits[0] : 0;
+    return d->data;
 }
 
 /*!
@@ -1149,7 +1172,7 @@ uchar *QImage::bits()
 */
 const uchar *QImage::bits() const
 {
-    return (d && d->bits) ? d->bits[0] : 0;
+    return d ? d->data : 0;
 }
 
 
@@ -1764,27 +1787,30 @@ static bool convert_1_to_32(const QImage *src, QImage *dst)
     if (dst->isNull())
         return false;
 
-    const uchar * const *jumptable = src->jumpTable();
+    const uchar *src_data = src->bits();
+    const int src_bpl = src->bytesPerLine();
     QVector<QRgb> colorTable = src->colorTable();
     if (src->bitOrder() == QImage::BigEndian) {
         for (int y = 0; y < dst->height(); y++) {        // for each scan line...
             register uint *p = (uint *)dst->scanLine(y);
-            const uchar *b = jumptable[y];
+            const uchar *b = src_data;
             for (int x = 0; x < dst->width(); x++) {
                 *p++ = colorTable[(*b >> (7 - (x & 7))) & 1];
                 if ((x & 7) == 7)
                     b++;
             }
+            src_data += src_bpl;
         }
     } else {
         for (int y = 0; y < dst->height(); y++) {        // for each scan line...
             register uint *p = (uint *)dst->scanLine(y);
-            const uchar *b = jumptable[y];
+            const uchar *b = src_data;
             for (int x = 0; x < dst->width(); x++) {
                 *p++ = colorTable[(*b >> (x & 7)) & 1];
                 if ((x & 7) == 7)
                     b++;
             }
+            src_data += src_bpl;
         }
     }
     return true;
@@ -1880,8 +1906,13 @@ static bool dither_to_1(const QImage *src, QImage *dst,
         }
     }
 
+    uchar *dst_data = dst->bits();
+    int dst_bpl = dst->bytesPerLine();
+    const uchar *src_data = src->bits();
+    int src_bpl = src->bytesPerLine();
+
     switch (dithermode) {
-      case Diffuse: {
+    case Diffuse: {
         int *line1 = new int[w];
         int *line2 = new int[w];
         int bmwidth = (w+7)/8;
@@ -1971,8 +2002,8 @@ static bool dither_to_1(const QImage *src, QImage *dst,
         }
         delete [] line1;
         delete [] line2;
-      } break;
-      case Ordered: {
+    } break;
+    case Ordered: {
         static uint bm[16][16];
         static int init=0;
         if (!init) {
@@ -1999,14 +2030,12 @@ static bool dither_to_1(const QImage *src, QImage *dst,
         }
 
         dst->fill(0);
-        uchar** mline = dst->jumpTable();
 #ifndef QT_NO_IMAGE_TRUECOLOR
         if (d == 32) {
-            uint** line = (uint**)src->jumpTable();
             for (int i=0; i<h; i++) {
-                uint  *p = line[i];
-                uint  *end = p + w;
-                uchar *m = mline[i];
+                const uint *p = (const uint *)src_data;
+                const uint *end = p + w;
+                uchar *m = dst_data;
                 int bit = 7;
                 int j = 0;
                 if (fromalpha) {
@@ -2032,15 +2061,16 @@ static bool dither_to_1(const QImage *src, QImage *dst,
                         }
                     }
                 }
+                dst_data += dst_bpl;
+                src_data += src_bpl;
             }
         } else
 #endif // QT_NO_IMAGE_TRUECOLOR
             /* (d == 8) */ {
-            const uchar* const* line = src->jumpTable();
             for (int i=0; i<h; i++) {
-                const uchar *p = line[i];
+                const uchar *p = src_data;
                 const uchar *end = p + w;
-                uchar *m = mline[i];
+                uchar *m = dst_data;
                 int bit = 7;
                 int j = 0;
                 while (p < end) {
@@ -2053,19 +2083,19 @@ static bool dither_to_1(const QImage *src, QImage *dst,
                         bit--;
                     }
                 }
+                dst_data += dst_bpl;
+                src_data += src_bpl;
             }
         }
-      } break;
-      default: { // Threshold:
+    } break;
+    default: { // Threshold:
         dst->fill(0);
-        uchar** mline = dst->jumpTable();
 #ifndef QT_NO_IMAGE_TRUECOLOR
         if (d == 32) {
-            uint** line = (uint**)src->jumpTable();
             for (int i=0; i<h; i++) {
-                uint  *p = line[i];
-                uint  *end = p + w;
-                uchar *m = mline[i];
+                const uint *p = (const uint *)src_data;
+                const uint *end = p + w;
+                uchar *m = dst_data;
                 int bit = 7;
                 if (fromalpha) {
                     while (p < end) {
@@ -2090,29 +2120,32 @@ static bool dither_to_1(const QImage *src, QImage *dst,
                         }
                     }
                 }
+                dst_data += dst_bpl;
+                src_data += src_bpl;
             }
         } else
 #endif //QT_NO_IMAGE_TRUECOLOR
             if (d == 8) {
-            const uchar* const * line = src->jumpTable();
-            for (int i=0; i<h; i++) {
-                const uchar *p = line[i];
-                const uchar *end = p + w;
-                uchar *m = mline[i];
-                int bit = 7;
-                while (p < end) {
-                    if (gray[*p++] < 128)
-                        *m |= 1 << bit;                // Set mask "on"/ pixel "black"
-                    if (bit == 0) {
-                        m++;
-                        bit = 7;
-                    } else {
-                        bit--;
+                for (int i=0; i<h; i++) {
+                    const uchar *p = src_data;
+                    const uchar *end = p + w;
+                    uchar *m = dst_data;
+                    int bit = 7;
+                    while (p < end) {
+                        if (gray[*p++] < 128)
+                            *m |= 1 << bit;                // Set mask "on"/ pixel "black"
+                        if (bit == 0) {
+                            m++;
+                            bit = 7;
+                        } else {
+                            bit--;
+                        }
                     }
+                    dst_data += dst_bpl;
+                    src_data += src_bpl;
                 }
             }
-        }
-      }
+    }
     }
     return true;
 }
@@ -2120,8 +2153,9 @@ static bool dither_to_1(const QImage *src, QImage *dst,
 
 static void qt_image_ARGB_to_ARGB_PM(QImageData *image)
 {
+    uchar *data = image->data;
     for (int y = 0; y < image->height; ++y) {
-        QRgb *p = (QRgb *) image->bits[y];
+        QRgb *p = (QRgb *) data;
         for (int x = 0; x < image->width; ++x) {
             QRgb pixel = *p;
             int alpha = qAlpha(pixel);
@@ -2131,14 +2165,16 @@ static void qt_image_ARGB_to_ARGB_PM(QImageData *image)
                  | (qt_div_255(alpha*qBlue(pixel)) << 0);
             ++p;
         }
+        data += image->bytes_per_line;
     }
     image->format = QImage::Format_ARGB32_Premultiplied;
 }
 
 static void qt_image_ARGB_PM_to_ARGB(QImageData *image)
 {
+    uchar *data = image->data;
     for (int y = 0; y < image->height; ++y) {
-        QRgb *p = (QRgb *) image->bits[y];
+        QRgb *p = (QRgb *) data;
         for (int x = 0; x < image->width; ++x) {
             QRgb pixel = *p;
             int alpha = qAlpha(pixel);
@@ -2152,6 +2188,7 @@ static void qt_image_ARGB_PM_to_ARGB(QImageData *image)
             }
             ++p;
         }
+        data += image->bytes_per_line;
     }
     image->format = QImage::Format_ARGB32;
 }
@@ -2390,15 +2427,11 @@ QImage QImage::convertBitOrder(Endian bitOrder) const
 
     QImage image(d->width, d->height, 1, d->colortable.size(), bitOrder);
 
-    int bpl = (width() + 7) / 8;
-    const uchar * const *jumptable = jumpTable();
-    for (int y = 0; y < d->height; y++) {
-        register const uchar *p = jumptable[y];
-        const uchar *end = p + bpl;
-        uchar *b = image.jumpTable()[y];
-        while (p < end)
-            *b++ = bitflip[*p++];
-    }
+    const uchar *data = d->data;
+    const uchar *end = data + d->nbytes;
+    uchar *ndata = image.d->data;
+    while (data < end)
+        *ndata++ = bitflip[*data++];
 
     image.setDotsPerMeterX(dotsPerMeterX());
     image.setDotsPerMeterY(dotsPerMeterY());
@@ -2951,10 +2984,10 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
     int dy = vertical ? h-1: 0;
 
     // 1 bit, 8 bit
-    if (depth() == 1 || depth() == 8) {
+    if (d->depth == 1 || d->depth == 8) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
-            quint8* ssl = (quint8*)(d->bits[sy]);
-            quint8* dsl = (quint8*)(result.d->bits[dy]);
+            quint8* ssl = (quint8*)(d->data + sy*d->bytes_per_line);
+            quint8* dsl = (quint8*)(result.d->data + dy*result.d->bytes_per_line);
             int dx = dxs;
             for (int sx = 0; sx < w; sx++, dx += dxi)
                 dsl[dx] = ssl[sx];
@@ -2964,8 +2997,8 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
     // 32 bit
     else if (depth() == 32) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
-            quint32* ssl = (quint32*)(d->bits[sy]);
-            quint32* dsl = (quint32*)(result.d->bits[dy]);
+            quint32* ssl = (quint32*)(d->data + sy*d->bytes_per_line);
+            quint32* dsl = (quint32*)(result.d->data + dy*result.d->bytes_per_line);
             int dx = dxs;
             for (int sx = 0; sx < w; sx++, dx += dxi)
                 dsl[dx] = ssl[sx];
@@ -2977,7 +3010,7 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
     if (horizontal && depth() == 1) {
         int shift = width() % 8;
         for (int y = h-1; y >= 0; y--) {
-            quint8* a0 = (quint8*)(result.d->bits[y]);
+            quint8* a0 = (quint8*)(result.d->data + y*d->bytes_per_line);
             // Swap bytes
             quint8* a = a0+dxs;
             while (a >= a0) {
@@ -4034,27 +4067,35 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
     int h = d->height;
 
     if (alphaChannel.d->depth == 8 && alphaChannel.isGrayscale()) {
+        const uchar *src_data = alphaChannel.d->data;
+        const uchar *dest_data = d->data;
         for (int y=0; y<h; ++y) {
-            const uchar *src = alphaChannel.d->bits[y];
-            QRgb *dest = (QRgb *) d->bits[y];
+            const uchar *src = src_data;
+            QRgb *dest = (QRgb *)dest_data;
             for (int x=0; x<w; ++x) {
                 *dest = (*src << 24) | (0x00ffffff & *dest);
                 ++dest;
                 ++src;
             }
+            src_data += alphaChannel.d->bytes_per_line;
+            dest_data += d->bytes_per_line;
         }
 
     } else {
         const QImage sourceImage = alphaChannel.convertDepth(32);
+        const uchar *src_data = alphaChannel.d->data;
+        const uchar *dest_data = d->data;
         for (int y=0; y<h; ++y) {
-            const QRgb *src = (const QRgb *) alphaChannel.d->bits[y];
-            QRgb *dest = (QRgb *) d->bits[y];
+            const QRgb *src = (const QRgb *) src_data;
+            QRgb *dest = (QRgb *) dest_data;
             for (int x=0; x<w; ++x) {
                 int alpha = qGray(*src);
                 *dest = (alpha << 24) | (0x00ffffff & *dest);
                 ++dest;
                 ++src;
             }
+            src_data += alphaChannel.d->bytes_per_line;
+            dest_data += d->bytes_per_line;
         }
     }
 }
@@ -4084,14 +4125,18 @@ QImage QImage::alphaChannel() const
         image.setColor(i, qRgb(i, i, i));
 
     if (d->format == Format_ARGB32 || d->format == Format_ARGB32_Premultiplied) {
+        const uchar *src_data = d->data;
+        uchar *dest_data = image.d->data;
         for (int y=0; y<h; ++y) {
-            const QRgb *src = (const QRgb *) d->bits[y];
-            uchar *dest = image.d->bits[y];
+            const QRgb *src = (const QRgb *) src_data;
+            uchar *dest = dest_data;
             for (int x=0; x<w; ++x) {
                 *dest = qAlpha(*src);
                 ++dest;
                 ++src;
             }
+            src_data += d->bytes_per_line;
+            dest_data += image.d->bytes_per_line;
         }
     } else {
         image.fill(255);

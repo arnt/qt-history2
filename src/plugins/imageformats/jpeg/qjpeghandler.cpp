@@ -248,14 +248,15 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 
             if (!image.isNull()) {
                 QImage tmpImage(cinfo.output_width, 1, 32);
-                uchar** inLines = tmpImage.jumpTable();
-                uchar** outLines = image.jumpTable();
+                uchar* inData = tmpImage.bits();
+                uchar* outData = image.bits();
+                int out_bpl = image.bytesPerLine();
                 while (cinfo.output_scanline < cinfo.output_height) {
                     int outputLine = sHeight * cinfo.output_scanline / cinfo.output_height;
-                    (void) jpeg_read_scanlines(&cinfo, inLines, 1);
+                    (void) jpeg_read_scanlines(&cinfo, &inData, 1);
                     if (cinfo.output_components == 3) {
-                        uchar *in = inLines[0];
-                        QRgb *out = (QRgb*)outLines[outputLine];
+                        uchar *in = inData;
+                        QRgb *out = (QRgb*)outData + outputLine * out_bpl;
                         for (uint i=0; i<cinfo.output_width; i++) {
 // ### Only scaling down an image works, I don't think scaling up will work at the moment
 // ### An idea I have to make this a smooth scale is to progressively add the pixel values up
@@ -270,8 +271,8 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                     } else {
 // ### Need to test the case where the jpeg is grayscale, need some black and white jpegs to test
 // this code. (also only scales down and probably won't scale to a larger size)
-                        uchar *in = inLines[0];
-                        uchar *out = outLines[outputLine];
+                        uchar *in = inData;
+                        uchar *out = outData + outputLine*out_bpl;
                         for (uint i=0; i<cinfo.output_width; i++) {
                             out[sWidth * i / cinfo.output_width] = in[i];
                         }
@@ -295,11 +296,14 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                 return false;
 
             if (!image.isNull()) {
-                uchar** lines = image.jumpTable();
-                while (cinfo.output_scanline < cinfo.output_height)
+                uchar* data = image.bits();
+                int bpl = image.bytesPerLine();
+                while (cinfo.output_scanline < cinfo.output_height) {
+                    uchar *d = data + cinfo.output_scanline * bpl;
                     (void) jpeg_read_scanlines(&cinfo,
-                                               lines + cinfo.output_scanline,
-                                               cinfo.output_height);
+                                               &d,
+                                               1);
+                }
                 (void) jpeg_finish_decompress(&cinfo);
 
                 if (cinfo.output_components == 3) {

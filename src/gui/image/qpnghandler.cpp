@@ -306,11 +306,12 @@ static bool read_png_image(QIODevice *device, QImage *outImage, float gamma)
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
         0, 0, 0);
 
-    uchar** jt = image.jumpTable();
+    uchar *data = image.bits();
+    int bpl = image.bytesPerLine();
     row_pointers=new png_bytep[height];
 
     for (uint y=0; y<height; y++) {
-        row_pointers[y]=jt[y];
+        row_pointers[y] = data + y * bpl;
     }
 
     png_read_image(png_ptr, row_pointers);
@@ -614,11 +615,12 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
         0, 0, 0);
 
-    const uchar* const* jt = image.jumpTable();
+    const uchar *data = image.bits();
+    int bpl = image.bytesPerLine();
     row_pointers = new png_bytep[height];
     uint y;
     for (y=0; y<height; y++) {
-        row_pointers[y] = (png_bytep)jt[y];
+        row_pointers[y] = (png_bytep)(data + y * bpl);
     }
     png_write_image(png_ptr, row_pointers);
     delete [] row_pointers;
