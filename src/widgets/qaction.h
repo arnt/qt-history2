@@ -96,6 +96,7 @@ public slots:
     void toggle();
     virtual void setOn( bool );
     virtual void setEnabled( bool );
+    void setDisabled( bool );
     virtual void setVisible( bool );
 
 signals:

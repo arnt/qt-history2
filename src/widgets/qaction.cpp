@@ -934,6 +934,17 @@ bool QAction::isEnabled() const
 }
 
 /*!
+    Disables the action if \a disable is TRUE; otherwise
+    enables the action.
+
+    See the \l enabled documentation for more information.
+*/
+void QAction::setDisabled( bool disable )
+{
+    setEnabled( !disable );
+}
+
+/*!
     \property QAction::visible
     \brief whether the action can be seen (e.g. in menus and toolbars)
 
