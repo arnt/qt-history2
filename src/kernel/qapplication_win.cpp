@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#453 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#454 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1698,10 +1698,15 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_CONTEXTMENU:
 		{
+		    // it's not VK_APPS or Shift+F10, but a click in the NC area
+		    if ( lParam != 0xffffffff ) {
+			result = FALSE;
+			break;
+		    }
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), fw->mapToGlobal( QPoint( 5, 5 ) ) );
-			QApplication::sendEvent( fw, &e );
+			result = QApplication::sendEvent( fw, &e );
 		    }
 		}
 		break;
@@ -2390,7 +2395,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	     && replayPopupMouseEvent ) {
 	    // the popup dissappeared. Replay the event
 	    QWidget* w = QApplication::widgetAt( gpos.x, gpos.y, TRUE );
-	    if (w && !qt_blocked_modal( w ) ) {
+	    if (w && w->rect().contains( gpos.x, gpos.y ) && !qt_blocked_modal( w ) ) {
 		if ( w->isEnabled() ) {
 		    QWidget* tw = w;
 		    while ( tw->focusProxy() )
@@ -2435,7 +2440,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    qt_button_down = 0;
 	}
 
-	if ( type == QEvent::MouseButtonRelease && button == RightButton ) {
+	if ( type == QEvent::MouseButtonRelease && button == RightButton && ( ( state & (~button) ) == 0 ) ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y) );
 	    QApplication::sendEvent( widget, &e );
 	    if ( !e.isAccepted() ) { // Only send mouse event when context event has not been processed
