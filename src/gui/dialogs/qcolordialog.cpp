@@ -227,7 +227,7 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
             QStyleOptionFocusRect opt;
             opt.palette = g;
             opt.rect.setRect(0, 0, w, h);
-            opt.state = QStyle::Style_Default;
+            opt.state = QStyle::Style_None;
             style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
         }
     }

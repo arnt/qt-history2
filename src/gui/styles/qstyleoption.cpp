@@ -115,13 +115,13 @@
     the same option type.
 
     The \l state member variable is initialized to
-    QStyle::Style_Default.
+    QStyle::Style_None.
 
     \sa version, type
 */
 
 QStyleOption::QStyleOption(int version, int type)
-    : version(version), type(type), state(QStyle::Style_Default)
+    : version(version), type(type), state(QStyle::Style_None)
 {
 }
 
@@ -143,7 +143,7 @@ QStyleOption::~QStyleOption()
 */
 void QStyleOption::init(const QWidget *widget)
 {
-    state = QStyle::Style_Default;
+    state = QStyle::Style_None;
     if (widget->isEnabled())
         state |= QStyle::Style_Enabled;
     if (widget->hasFocus())

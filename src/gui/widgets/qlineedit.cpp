@@ -63,7 +63,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     opt.palette = q->palette();
     opt.lineWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth);
     opt.midLineWidth = 0;
-    opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
+    opt.state = QStyle::Style_None | QStyle::Style_Sunken;
     return opt;
 }
 
@@ -493,7 +493,7 @@ QSize QLineEdit::sizeHint() const
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     return (style().sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + m, h + m).
                                      expandedTo(QApplication::globalStrut()), fontMetrics(), this));
 }
@@ -1698,7 +1698,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         opt.palette = pal;
         opt.lineWidth = frameWidth;
         opt.midLineWidth = 0;
-        opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
+        opt.state = QStyle::Style_None | QStyle::Style_Sunken;
         if (hasFocus())
             opt.state |= QStyle::Style_HasFocus;
         if (testAttribute(Qt::WA_UnderMouse))

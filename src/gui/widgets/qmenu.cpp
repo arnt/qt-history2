@@ -561,7 +561,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 {
     QStyleOptionMenuItem opt;
     opt.palette = q->palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
 
     if (q->isEnabled() && action->isEnabled()
             && (!action->menu() || action->menu()->isEnabled()))
@@ -1059,7 +1059,7 @@ QSize QMenu::sizeHint() const
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
          i != actionRects.constEnd(); ++i) {
         if(i.value().bottom() > s.height())
@@ -1350,7 +1350,7 @@ void QMenu::paintEvent(QPaintEvent *e)
     const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, 0, this);
     QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
-    menuOpt.state = QStyle::Style_Default;
+    menuOpt.state = QStyle::Style_None;
     menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
     menuOpt.menuRect = rect();
     menuOpt.maxIconWidth = 0;
@@ -1383,7 +1383,7 @@ void QMenu::paintEvent(QPaintEvent *e)
             menuOpt.rect.moveBy(0, style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this));
         emptyArea -= QRegion(menuOpt.rect);
         p.setClipRect(menuOpt.rect);
-        menuOpt.state = QStyle::Style_Default;
+        menuOpt.state = QStyle::Style_None;
         if (d->tearoffHighlighted)
             menuOpt.state |= QStyle::Style_Active;
         style().drawControl(QStyle::CE_MenuTearoff, &menuOpt, &p, this);
@@ -1400,7 +1400,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         QStyleOptionFrame frame;
         frame.rect = rect();
         frame.palette = palette();
-        frame.state = QStyle::Style_Default;
+        frame.state = QStyle::Style_None;
         frame.lineWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
         frame.midLineWidth = 0;
         style().drawPrimitive(QStyle::PE_MenuFrame, &frame, &p, this);
@@ -1408,7 +1408,7 @@ void QMenu::paintEvent(QPaintEvent *e)
 
     //finally the rest of the space
     p.setClipRegion(emptyArea);
-    menuOpt.state = QStyle::Style_Default;
+    menuOpt.state = QStyle::Style_None;
     menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
     menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
     menuOpt.rect = rect();

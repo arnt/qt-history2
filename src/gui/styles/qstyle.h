@@ -77,7 +77,7 @@ public:
     }
 
     enum StyleFlag {
-        Style_Default =       0x00000000,
+        Style_None    =       0x00000000,
         Style_Enabled =       0x00000001,
         Style_Raised =        0x00000002,
         Style_Sunken =        0x00000004,
@@ -95,12 +95,12 @@ public:
         Style_Up =            0x00004000,
         Style_Selected =      0x00008000,
         Style_Active =        0x00010000,
-        Style_Rectangle =     0x00040000,
-        Style_Open =          0x00100000,
-        Style_Children =      0x00200000,
-        Style_Item =          0x00400000,
-        Style_Sibling =       0x00800000,
-        Style_Editing =       0x01000000
+        Style_Rectangle =     0x00020000,
+        Style_Open =          0x00040000,
+        Style_Children =      0x00080000,
+        Style_Item =          0x00100000,
+        Style_Sibling =       0x00200000,
+        Style_Editing =       0x00400000
     };
     Q_DECLARE_FLAGS(StyleFlags, StyleFlag);
 

@@ -47,7 +47,7 @@ void QToolBarHandle::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     QStyleOptionDockWindow opt;
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (isEnabled())
 	opt.state |= QStyle::Style_Enabled;
     QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());

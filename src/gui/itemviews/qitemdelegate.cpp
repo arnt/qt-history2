@@ -372,7 +372,7 @@ void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &opt
         o.rect.setRect(rect.x() - border, rect.y() - border,
                        rect.width() + border * 2, rect.height() + border * 2);
         o.palette = option.palette;
-        o.state = QStyle::Style_Default;
+        o.state = QStyle::Style_None;
         QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
                                   ? QPalette::Normal : QPalette::Disabled;
         if (option.state & QStyle::Style_Selected)

@@ -2087,7 +2087,7 @@ void QWorkspaceChild::paintEvent(QPaintEvent *)
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     opt.lineWidth = lineWidth();
     opt.midLineWidth = midLineWidth();
 

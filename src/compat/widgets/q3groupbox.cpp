@@ -351,7 +351,7 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
     opt.palette = palette();
     opt.lineWidth = 1;
     opt.midLineWidth = 0;
-    opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
+    opt.state = QStyle::Style_None | QStyle::Style_Sunken;
     if (hasFocus())
         opt.state |= QStyle::Style_HasFocus;
     if (testAttribute(Qt::WA_UnderMouse))

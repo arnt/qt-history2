@@ -88,7 +88,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     opt.rect = q->tabRect(tab);
     opt.palette = q->palette();
     bool isCurrent = tab == currentIndex;
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     opt.row = 0;
     if (tab == pressedIndex)
         opt.state |= QStyle::Style_Sunken;

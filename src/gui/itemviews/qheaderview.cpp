@@ -1418,7 +1418,7 @@ QStyleOptionHeader QHeaderViewPrivate::getStyleOption() const
     QStyleOptionHeader opt;
     opt.rect = q->rect();
     opt.palette = q->palette();
-    opt.state = QStyle::Style_Default|QStyle::Style_Raised;
+    opt.state = QStyle::Style_None | QStyle::Style_Raised;
     if (orientation == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     if (q->isEnabled())

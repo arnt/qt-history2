@@ -467,7 +467,7 @@ void QFrame::drawFrame(QPainter *p)
     }
     opt.lineWidth = lw;
     opt.midLineWidth = mlw;
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (isEnabled())
         opt.state |= QStyle::Style_Enabled;
     if (frameShadow == Sunken)

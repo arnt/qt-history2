@@ -40,7 +40,7 @@ QStyleOption QRubberBandPrivate::getStyleOption() const
     QStyleOption opt(0);
     opt.rect = rect;
     opt.palette = q->palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (shape == QRubberBand::Rectangle)
         opt.state |= QStyle::Style_Rectangle;
     return opt;

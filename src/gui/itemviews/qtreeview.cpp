@@ -511,7 +511,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         s = delegate->sizeHint(option, d->model, index).height();
         if (y + s >= t) {
             option.rect.setRect(0, y, 0, s);
-            option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_Default);
+            option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_None);
             if (alternate)
                 option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
             d->current = i;
@@ -567,9 +567,9 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         modelIndex = d->model->index(index.row(), headerSection, parent);
         opt.state = state;
         opt.state |= (focus && current == modelIndex
-                     ? QStyle::Style_HasFocus : QStyle::Style_Default);
+                     ? QStyle::Style_HasFocus : QStyle::Style_None);
         opt.state |= (selectionModel()->isSelected(modelIndex)
-                     ? QStyle::Style_Selected : QStyle::Style_Default);
+                     ? QStyle::Style_Selected : QStyle::Style_None);
         if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
             opt.state &= ~QStyle::Style_Enabled;
         if (headerSection == 0) {
@@ -613,9 +613,9 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         opt.rect = primitive;
         opt.state = QStyle::Style_Item
                     |(d->model->rowCount(parent) - 1 > index.row()
-                      ? QStyle::Style_Sibling : QStyle::Style_Default)
-                    |(model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_Default)
-                    |(d->items.at(d->current).open ? QStyle::Style_Open : QStyle::Style_Default);
+                      ? QStyle::Style_Sibling : QStyle::Style_None)
+                    |(model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_None)
+                    |(d->items.at(d->current).open ? QStyle::Style_Open : QStyle::Style_None);
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
     }
     // then go out level by level
@@ -623,7 +623,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
-                    ? QStyle::Style_Sibling : QStyle::Style_Default;
+                    ? QStyle::Style_Sibling : QStyle::Style_None;
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
         current = ancestor;
         ancestor = d->model->parent(current);

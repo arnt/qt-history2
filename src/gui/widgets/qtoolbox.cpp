@@ -216,7 +216,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         QStyleOptionFocusRect opt;
         opt.rect = tr;
         opt.palette = pal;
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
         style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
 }

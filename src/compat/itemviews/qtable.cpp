@@ -1251,7 +1251,7 @@ void QComboTableItem::paint(QPainter *p, const QPalette &pal,
         pal2.setColor(QPalette::Text, pal.highlightedText());
     }
 
-    QStyle::SFlags flags = QStyle::Style_Default;
+    QStyle::SFlags flags = QStyle::Style_None;
     if(isEnabled() && table()->isEnabled())
         flags |= QStyle::Style_Enabled;
     // Since we still have the "fakeCombo" may as well use it in this case.
@@ -1522,7 +1522,7 @@ void QCheckTableItem::paint(QPainter *p, const QPalette &pal,
     QStyleOptionButton opt;
     opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());
     opt.palette = pal2;
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if(isEnabled())
         opt.state |= QStyle::Style_Enabled;
     if (checked)
@@ -2897,7 +2897,7 @@ void QTable::paintFocus(QPainter *p, const QRect &cr)
             opt.state = QStyle::Style_FocusAtBorder;
             opt.backgroundColor = palette().highlight();
         } else {
-            opt.state = QStyle::Style_Default;
+            opt.state = QStyle::Style_None;
             opt.backgroundColor = palette().base();
         }
         style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
@@ -6518,7 +6518,7 @@ void QTableHeader::paintSection(QPainter *p, int index, const QRect& fr)
        opt.palette = palette();
        opt.rect = fr;
        opt.state = QStyle::Style_Off | (orient == Qt::Horizontal ? QStyle::Style_Horizontal
-                                                             : QStyle::Style_Default);
+                                                             : QStyle::Style_None);
        if (isEnabled())
            opt.state |= QStyle::Style_Enabled;
        if (isClickEnabled()) {

@@ -294,7 +294,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 {
     QStyleOptionMenuItem opt;
     opt.palette = q->palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (q->isEnabled() && action->isEnabled())
         opt.state |= QStyle::Style_Enabled;
     else
@@ -630,7 +630,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         QStyleOptionFrame frame;
         frame.rect = rect();
         frame.palette = palette();
-        frame.state = QStyle::Style_Default;
+        frame.state = QStyle::Style_None;
         frame.lineWidth = style().pixelMetric(QStyle::PM_MenuBarFrameWidth);
         frame.midLineWidth = 0;
         style().drawPrimitive(QStyle::PE_MenuBarFrame, &frame, &p, this);
@@ -638,7 +638,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     p.setClipRegion(emptyArea);
     QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
-    menuOpt.state = QStyle::Style_Default;
+    menuOpt.state = QStyle::Style_None;
     menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
     menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
     menuOpt.rect = rect();
@@ -1085,7 +1085,7 @@ QSize QMenuBar::sizeHint() const
         QStyleOptionMenuItem opt;
         opt.rect = rect();
         opt.menuRect = rect();
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
         opt.checkState = QStyleOptionMenuItem::NotCheckable;
         opt.palette = palette();
@@ -1126,7 +1126,7 @@ int QMenuBar::heightForWidth(int max_width) const
         QStyleOptionMenuItem opt;
         opt.rect = rect();
         opt.menuRect = rect();
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
         opt.checkState = QStyleOptionMenuItem::NotCheckable;
         opt.palette = palette();

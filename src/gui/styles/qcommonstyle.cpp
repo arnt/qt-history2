@@ -855,7 +855,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 pbBits.palette = pal2;
                 int myY = pbBits.rect.y();
                 int myHeight = pbBits.rect.height();
-                pbBits.state = Style_Default;
+                pbBits.state = Style_None;
                 for (int i = 0; i < nu; ++i) {
                     pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
                     drawPrimitive(PE_ProgressBarChunk, &pbBits, p, widget);
@@ -1077,7 +1077,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QStyleOptionFocusRect fropt;
                 fropt.rect = tab->rect;
                 fropt.palette = tab->palette;
-                fropt.state = Style_Default;
+                fropt.state = Style_None;
                 drawPrimitive(PE_FocusRect, &fropt, p, widget);
             }
         }
@@ -1513,7 +1513,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                         fropt.rect.setRect(newScrollbar.rect.x() + 2, newScrollbar.rect.y() + 2,
                                            newScrollbar.rect.width() - 5, newScrollbar.rect.height() - 5);
                         fropt.palette = newScrollbar.palette;
-                        fropt.state = Style_Default;
+                        fropt.state = Style_None;
                         drawPrimitive(PE_FocusRect, &fropt, p, widget);
                     }
                 }
@@ -1630,7 +1630,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 fr.rect = toolbutton->rect;
                 fr.rect.addCoords(3, 3, -3, -3);
                 fr.palette = toolbutton->palette;
-                fr.state = Style_Default;
+                fr.state = Style_None;
                 drawPrimitive(PE_FocusRect, &fr, p, widget);
             }
         }

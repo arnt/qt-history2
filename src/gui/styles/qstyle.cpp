@@ -588,7 +588,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value Style_Bottom
     \value Style_ButtonDefault
     \value Style_Children
-    \value Style_Default
+    \value Style_None
     \value Style_Down
     \value Style_Editing
     \value Style_Enabled

@@ -841,10 +841,10 @@ void QListView::paintEvent(QPaintEvent *e)
         option.rect = itemViewportRect(*it);
         option.state = state;
         option.state |= (selections && selections->isSelected(*it)
-                         ? QStyle::Style_Selected : QStyle::Style_Default);
+                         ? QStyle::Style_Selected : QStyle::Style_None);
         if ((model()->flags(*it) & QAbstractItemModel::ItemIsEnabled) == 0)
             option.state &= ~QStyle::Style_Enabled;
-        option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_None);
         if (alternate)
             option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
         delegate->paint(&painter, option, d->model, *it);

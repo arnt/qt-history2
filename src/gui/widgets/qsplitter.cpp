@@ -90,7 +90,7 @@ QSize QSplitterHandle::sizeHint() const
     QStyleOption opt(0);
     opt.rect = s->rect();
     opt.palette = s->palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     return parentWidget()->style().sizeFromContents(QStyle::CT_Splitter, &opt, QSize(hw, hw),
                                                     s->fontMetrics(), s)
                                                     .expandedTo(QApplication::globalStrut());
@@ -142,7 +142,7 @@ void QSplitterHandle::paintEvent(QPaintEvent *)
     if (orientation() == Qt::Horizontal)
         opt.state = QStyle::Style_Horizontal;
     else
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
     parentWidget()->style().drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
 }
 

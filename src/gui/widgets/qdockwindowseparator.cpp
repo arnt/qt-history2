@@ -97,7 +97,7 @@ void QDockWindowSeparator::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QStyleOption opt(0);
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (isEnabled())
 	opt.state |= QStyle::Style_Enabled;
     if (layout->orientation != Qt::Horizontal)

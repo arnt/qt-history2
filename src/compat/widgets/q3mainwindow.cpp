@@ -254,7 +254,7 @@ protected:
             opt.palette = palette();
             opt.docked = dw->area();
             opt.isCloseEnabled = dw->isCloseEnabled();
-            opt.state = QStyle::Style_Default;
+            opt.state = QStyle::Style_None;
             if (i == pressedHandle)
                 opt.state |= QStyle::Style_On;
 

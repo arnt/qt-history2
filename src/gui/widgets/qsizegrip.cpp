@@ -152,7 +152,7 @@ QSize QSizeGrip::sizeHint() const
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     return (style().sizeFromContents(QStyle::CT_SizeGrip, &opt, QSize(13, 13), fontMetrics(), this).
             expandedTo(QApplication::globalStrut()));
 }
@@ -169,7 +169,7 @@ void QSizeGrip::paintEvent(QPaintEvent *e)
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     style().drawPrimitive(QStyle::PE_SizeGrip, &opt, &painter, this);
 }
 

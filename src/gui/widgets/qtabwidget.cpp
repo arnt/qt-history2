@@ -616,7 +616,7 @@ QSize QTabWidget::sizeHint() const
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
 
     if (d->leftCornerWidget)
         lc = d->leftCornerWidget->sizeHint();
@@ -664,7 +664,7 @@ QSize QTabWidget::minimumSizeHint() const
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     return style().sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
                     .expandedTo(QApplication::globalStrut());
 }
@@ -872,7 +872,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (isEnabled())
         opt.state |= QStyle::Style_Enabled;
     if (tabPosition() == QTabWidget::Top)

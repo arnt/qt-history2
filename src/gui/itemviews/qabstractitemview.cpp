@@ -1648,8 +1648,8 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     QStyleOptionViewItem option;
     option.palette = palette();
     option.font = font();
-    option.state = (isEnabled() ? QStyle::Style_Enabled : QStyle::Style_Default);
-    option.state |= (state() == Editing ? QStyle::Style_Editing : QStyle::Style_Default);
+    option.state = (isEnabled() ? QStyle::Style_Enabled : QStyle::Style_None);
+    option.state |= (state() == Editing ? QStyle::Style_Editing : QStyle::Style_None);
     option.decorationSize = QStyleOptionViewItem::Small;
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
@@ -1907,7 +1907,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index)
     if (!w) {
         QStyleOptionViewItem option = q->viewOptions();
         option.rect = q->itemViewportRect(index);
-        option.state |= (index == q->currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        option.state |= (index == q->currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
         w = q->itemDelegate()->editor(viewport, option, q->model(), index);
         if (w) {
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));

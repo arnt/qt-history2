@@ -1440,7 +1440,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     if (sectionSize(section) <= 0)
         return;
 
-    opt.state = (orient == Qt::Horizontal ? QStyle::Style_Horizontal : QStyle::Style_Default);
+    opt.state = (orient == Qt::Horizontal ? QStyle::Style_Horizontal : QStyle::Style_None);
     //pass in some hint about the sort indicator if it is used
     if (d->sortSection != section)
         opt.state |= QStyle::Style_Off;
@@ -1545,7 +1545,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
             tw = fr.width() - tw;
             ew = fr.width() - ew - tw;
         }
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
         if (isEnabled())
             opt.state |= QStyle::Style_Enabled;
         if (d->sortDirection)
@@ -1598,7 +1598,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
                     QStyleOptionFocusRect opt;
                     opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
                     opt.palette = palette();
-                    opt.state = QStyle::Style_Default;
+                    opt.state = QStyle::Style_None;
                     style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
                 }
                 if (orient == Qt::Horizontal && r. right() >= e->rect().right() ||

@@ -58,7 +58,7 @@ protected:
         QPainter p(this);
         QStyleOptionMenuItem menuOpt;
         menuOpt.palette = palette();
-        menuOpt.state = QStyle::Style_Default;
+        menuOpt.state = QStyle::Style_None;
         menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
         menuOpt.menuRect = rect();
         menuOpt.rect = rect();
@@ -135,7 +135,7 @@ private:
                                         const QModelIndex &index) const {
         QStyleOptionMenuItem menuOption;
         menuOption.palette = option.palette;
-        menuOption.state = QStyle::Style_Default;
+        menuOption.state = QStyle::Style_None;
         if (option.state & QStyle::Style_Enabled)
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)

@@ -226,7 +226,7 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
     QStyleOption opt(0, QStyleOption::SO_Default);
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (isEnabled())
         opt.state |= QStyle::Style_Enabled;
     if (orientation() == Qt::Horizontal)
@@ -1517,7 +1517,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     if (titleBar->isActive())
         opt.state |= QStyle::Style_Active;
     opt.lineWidth = lineWidth();

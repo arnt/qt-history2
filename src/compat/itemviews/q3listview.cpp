@@ -1951,7 +1951,7 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
         lvi.itemY = item->itemPos();
         lvi.childCount = item->childCount();
         lvi.features = QStyleOptionListViewItem::None;
-        lvi.state = QStyle::Style_Default;
+        lvi.state = QStyle::Style_None;
         if (item->isEnabled())
             lvi.state |= QStyle::Style_Enabled;
         if (item->isOpen())
@@ -2194,7 +2194,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
             opt.state = QStyle::Style_FocusAtBorder;
             opt.backgroundColor = pal.highlight();
         } else {
-            opt.state = QStyle::Style_Default;
+            opt.state = QStyle::Style_None;
             opt.backgroundColor = pal.base();
         }
         lv->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, lv);
@@ -6550,7 +6550,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
     int r = marg;
 
     // Draw controller / checkbox / radiobutton ---------------------
-    QStyle::StyleFlags styleflags = QStyle::Style_Default;
+    QStyle::StyleFlags styleflags = QStyle::Style_None;
     if (internalState() == On) {
         styleflags |= QStyle::Style_On;
     } else if (internalState() == NoChange) {

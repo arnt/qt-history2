@@ -26,7 +26,7 @@ static QStyleOption getStyleOption(const QToolBarSeparator *tbs)
     if (tbs->orientation() == Qt::Horizontal)
         opt.state = QStyle::Style_Horizontal;
     else
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
     return opt;
 }
 

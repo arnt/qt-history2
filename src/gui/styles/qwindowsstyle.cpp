@@ -1490,7 +1490,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 p->fillRect(visualRect(QRect(xp, y, w - checkcol - 1, h), menuitem->rect), fill);
             } else if (checked) {
                 QStyleOptionMenuItem newMi = *menuitem;
-                newMi.state = Style_Default;
+                newMi.state = Style_None;
                 if (!dis)
                     newMi.state |= Style_Enabled;
                 if (act)
@@ -1555,7 +1555,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 vrect = visualRect(QRect(xpos, y + h / 2 - dim / 2, dim, dim), menuitem->rect);
                 QStyleOptionMenuItem newMI = *menuitem;
                 newMI.rect = vrect;
-                newMI.state = dis ? Style_Default : Style_Enabled;
+                newMI.state = dis ? Style_None : Style_Enabled;
                 if (act)
                     newMI.palette.setColor(QPalette::ButtonText, newMI.palette.highlightedText());
                 drawPrimitive(arrow, &newMI, p, widget);
@@ -1785,7 +1785,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     QStyleOptionFocusRect fropt;
                     fropt.rect = subRect(SR_SliderFocusRect, slider, p->fontMetrics(), widget);
                     fropt.palette = slider->palette;
-                    fropt.state = Style_Default;
+                    fropt.state = Style_None;
                     drawPrimitive(PE_FocusRect, &fropt, p, widget);
                 }
 
@@ -2076,7 +2076,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
             if (cmb->subControls & SC_ComboBoxArrow) {
-                StyleFlags flags = Style_Default;
+                StyleFlags flags = Style_None;
 
                 qDrawWinPanel(p, opt->rect, opt->palette, true,
                               cmb->state & Style_Enabled ? &cmb->palette.brush(QPalette::Base)

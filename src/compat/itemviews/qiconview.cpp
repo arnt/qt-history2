@@ -2039,7 +2039,7 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
         opt.state = QStyle::Style_FocusAtBorder;
         opt.backgroundColor = cg.highlight();
     } else {
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
         opt.backgroundColor = cg.base();
     }
     view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
@@ -2047,7 +2047,7 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     if (this != view->d->currentItem) {
         opt.rect = pixmapRect(false);
         opt.backgroundColor = cg.base();
-        opt.state = QStyle::Style_Default;
+        opt.state = QStyle::Style_None;
         view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
     }
 }
@@ -5267,7 +5267,7 @@ void QIconView::drawRubber(QPainter *p)
     QStyleOption opt(0, QStyleOption::SO_Default);
     opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     style().drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
 }
 
@@ -5468,7 +5468,7 @@ void QIconView::drawDragShapes(const QPoint &pos)
     p.setPen(QPen(Qt::color0));
     QStyleOptionFocusRect opt;
     opt.palette = palette();
-    opt.state = QStyle::Style_Default;
+    opt.state = QStyle::Style_None;
     opt.backgroundColor = palette().base();
     if (d->isIconDrag) {
         QLinkedList<QIconDragDataItem>::Iterator it = d->iconDragData.begin();
