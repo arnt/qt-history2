@@ -12,23 +12,25 @@
 **
 ****************************************************************************/
 
-#include "qsqlfield.h"
-
 #ifndef QT_NO_SQL
+
+#include "qsqlfield.h"
+#include "qatomic.h"
 
 class QSqlFieldPrivate
 {
 public:
-    QSqlFieldPrivate(QSqlField* pd, const QString &name = QString(),
+    QSqlFieldPrivate(const QString &name = QString(),
 		     QVariant::Type tpe = QVariant::Invalid): 
-	q(pd), nm(name), ro(false), type(tpe)
-    {}
+	nm(name), ro(false), type(tpe)
+    {
+	ref = 1;
+    }
     
-    QSqlField *q;
+    QAtomic ref;
     QString nm;
-    QVariant val;
     uint ro: 1;
-    QVariant::Type type;
+    QVariant::Type type;    
 };
 
 
@@ -89,8 +91,8 @@ public:
 
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
 {
-    d = new QSqlFieldPrivate(this, fieldName, type);
-    d->val.cast( type );
+    d = new QSqlFieldPrivate(fieldName, type);
+    val.cast( type );
 }
 
 /*!
@@ -99,9 +101,9 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
 
 QSqlField::QSqlField( const QSqlField& other )
 {
-    d = new QSqlFieldPrivate(this, other.d->nm, other.d->type);
-    d->val = other.d->val;
-    d->ro = other.d->ro;
+    d = other.d;
+    ++d->ref;
+    val = other.val;
 }
 
 /*!
@@ -110,10 +112,12 @@ QSqlField::QSqlField( const QSqlField& other )
 
 QSqlField& QSqlField::operator=( const QSqlField& other )
 {
-    d->nm = other.d->nm;
-    d->val = other.d->val;
-    d->ro = other.d->ro;
-    d->type = other.d->type;
+    QSqlFieldPrivate *x = other.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
+    val = other.val;
     return *this;
 }
 
@@ -132,10 +136,10 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
 */
 bool QSqlField::operator==(const QSqlField& other) const
 {
-    return ( d->nm == other.d->nm &&
-	     d->val == other.d->val &&
-	     d->ro == other.d->ro &&
-	     d->type == other.d->type );
+    return (d->nm == other.d->nm &&
+	    d->ro == other.d->ro &&
+	    d->type == other.d->type &&
+	    val == other.val);
 }
 
 /*!
@@ -144,7 +148,8 @@ bool QSqlField::operator==(const QSqlField& other) const
 
 QSqlField::~QSqlField()
 {
-    delete d;
+    if (!--d->ref)
+	delete d;
 }
 
 /*!
@@ -170,11 +175,12 @@ void QSqlField::setValue( const QVariant& value )
     if ( isReadOnly() )
 	return;
     if ( value.type() != d->type ) {
-	if ( !d->val.canCast( d->type ) )
+	if ( !val.canCast( d->type ) )
 	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
 		      d->nm.local8Bit(), value.typeName(), QVariant::typeToName( d->type ) );
     }
-    d->val = value;
+    detach();
+    val = value;
 }
 
 /*!
@@ -186,7 +192,8 @@ void QSqlField::clear()
 {
     if ( isReadOnly() )
 	return;
-    d->val = QVariant(type());
+    detach();
+    val = QVariant(type());
 }
 
 /*!
@@ -197,6 +204,7 @@ void QSqlField::clear()
 
 void QSqlField::setName( const QString& name )
 {
+    detach();
     d->nm = name;
 }
 
@@ -218,26 +226,35 @@ void QSqlField::setName( const QString& name )
 */
 void QSqlField::setReadOnly( bool readOnly )
 {
+    detach();
     d->ro = readOnly;
 }
 
-/*!
+/*! \fn QVariant QSqlField::value() const
     Returns the value of the field as a QVariant.
 */
-QVariant QSqlField::value() const
-{ return d->val; }
 
 /*!
     Returns the name of the field.
 */
 QString QSqlField::name() const
-{ return d->nm; }
+{ 
+    return d->nm; 
+}
 
 /*!
     Returns the field's type.
 */
 QVariant::Type QSqlField::type() const
-{ return d->type; }
+{
+    return d->type;
+}
+
+void QSqlField::setType(QVariant::Type type)
+{ 
+    detach();
+    d->type = type; 
+}
 
 
 /*!
@@ -252,8 +269,20 @@ bool QSqlField::isReadOnly() const
     FALSE.
 */
 bool QSqlField::isNull() const
-{ return d->val.isNull(); }
+{ return val.isNull(); }
 
+/*! \internal
+*/
+void QSqlField::detach()
+{
+    if (d->ref == 1)
+	return;
+
+    QSqlFieldPrivate *x = new QSqlFieldPrivate(*d);
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
+}
 
 /******************************************/
 /*******     QSqlFieldInfo Impl      ******/

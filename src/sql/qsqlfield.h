@@ -40,19 +40,23 @@ public:
     virtual ~QSqlField();
 
     virtual void setValue( const QVariant& value );
-    virtual QVariant value() const;
+    inline QVariant value() const { return val; }
     virtual void setName( const QString& name );
     QString name() const;
-#ifndef QT_NO_COMPAT
-    inline void setNull() { clear(); }
-#endif
     bool isNull() const;
     virtual void setReadOnly( bool readOnly );
     bool isReadOnly() const;
     virtual void clear();
     QVariant::Type type() const;
+    virtual void setType(QVariant::Type type);
+
+#ifndef QT_NO_COMPAT
+    inline void setNull() { clear(); }
+#endif
 
 private:
+    void detach();
+    QVariant val;
     QSqlFieldPrivate* d;
 };
 
