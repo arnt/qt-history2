@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#10 $
 **
 ** Implementation of QMetaFile class
 **
@@ -19,7 +19,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#10 $";
 #endif
 
 
@@ -73,15 +73,19 @@ bool QMetaFile::play( QPainter *painter )
 
     int cs_start = sizeof(UINT32);		// pos of checksum word
     int data_start = cs_start + sizeof(UINT16);
-    UINT16 cs;
+    UINT16 cs,ccs;
     QByteArray buf = mfbuf.buffer();		// pointer to data
     s >> cs;					// read checksum
-    if ( qchecksum( buf.data() + data_start, buf.size() - data_start) != cs ) {
+    ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
+    if ( ccs != cs ) {
 #if defined(CHECK_STATE)
-	warning( "QMetaFile::play: Invalid checksum" );
+	warning( "QMetaFile::play: Invalid checksum %x, %x expected",
+		 ccs, cs );
 #endif
-	mfbuf.close();
+#if !defined(DEBUG)
+	mfbuf.close();		// NOTE!!! PASS THROUGH
 	return FALSE;
+#endif
     }
 
     UINT16 major, minor;
