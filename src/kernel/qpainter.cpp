@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#47 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,22 +22,24 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#47 $";
 #endif
 
 
 /*!
   \class QPainter qpainter.h
   \brief The QPainter class paints on paint devices.
-  \ingroup uiclasses
+
   \ingroup drawing
 
-  The painter provides graphics rendering on any QPaintDevice object.
+  The painter provides graphics rendering of many different varieties
+  on any QPaintDevice object, from simple line drawing to scaling,
+  rotating, dithering dithered and finaly drawing a pixmap.
 
-  Graphics can be transformed using view transformation, world transformation
-  or a combination of these two.
-  View transformation is a window/viewport transformation with translation
-  and scaling.	World transformation is a full 2D transformation including
+  Graphics can be transformed using view transformation, world
+  transformation or a combination of these two.  View transformation
+  is a window/viewport transformation with translation and
+  scaling. World transformation is a full 2D transformation including
   rotation and shearing.
 
   The typical use of a painter is:
@@ -64,9 +66,14 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#46 $";
 
   Note that both painters and some paint devices have attributes such
   as current font, current foreground colors and so on.
+
   QPainter::begin() copies these attributes from the paint device, and
   changing a paint device's attributes will have effect only the next
   time a painter is opened on it.
+
+  \warning QPainter::begin resets all attributes to their default
+  values, from the device, thus setting fonts, brushes, etc, before
+  begin() will have \e no effect.
 
   \sa QPaintDevice, QWidget */
 
@@ -250,12 +257,14 @@ void QPainter::setTabStops( int ts )		// set tab stops
 /*!
   Set an array containing the tab stops.
 
-  The last tab stop must be 0 (terminates the array).
-  Notice that setting a tab array overrides any fixed tabulator
-  stop that is set using setTabStops().
+  Tab stops are used when drawing formatted text with \c ExpandTabs set.
 
-  \sa setTabStops()
-*/
+  The last tab stop must be 0 (terminates the array).
+
+  Notice that setting a tab array overrides any fixed tabulator stop
+  that is set using setTabStops().
+
+  \sa setTabStops() drawText() boundingRect() */
 
 void QPainter::setTabArray( int *ta )
 {
@@ -711,90 +720,70 @@ void QPainter::setClipRect( int x, int y, int w, int h )
     setClipRect( QRect(x,y,w,h) );
 }
 
-/*!
-  Overloaded to drawPoint; takes a QPoint instead of \e (x,y).
-*/
+/*! \overload void QPainter::drawPoint( const QPoint &p ) */
 
 void QPainter::drawPoint( const QPoint &p )
 {
     drawPoint( p.x(), p.y() );
 }
 
-/*!
-  Overloaded moveTo; takes a QPoint instead of \e (x,y).
-*/
+/*! \overload void QPainter::moveTo( const QPoint &p ) */
 
 void QPainter::moveTo( const QPoint &p )
 {
     moveTo( p.x(), p.y() );
 }
 
-/*!
-  Overloaded lineTo; takes a QPoint instead of \e (x,y).
-*/
+/*! \overload void QPainter::lineTo( const QPoint &p ) */
 
 void QPainter::lineTo( const QPoint &p )
 {
     lineTo( p.x(), p.y() );
 }
 
-/*!
-  Overloaded drawLine; takes two QPoints instead of \e (x1,y1),(x2,y2).
-*/
+/*! \overload void QPainter::drawLine( const QPoint &p1, const QPoint &p2 ) */
 
 void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
 {
     drawLine( p1.x(), p1.y(), p2.x(), p2.y() );
 }
 
-/*!
-  Overloaded drawRect; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::drawRect( const QRect &r ) */
 
 void QPainter::drawRect( const QRect &r )
 {
     drawRect( r.x(), r.y(), r.width(), r.height() );
 }
 
-/*!
-  Overloaded drawRoundRect; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd ) */
 
 void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
 {
     drawRoundRect( r.x(), r.y(), r.width(), r.height(), xRnd, yRnd );
 }
 
-/*!
-  Overloaded drawEllipse; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::drawEllipse( const QRect &r ) */
 
 void QPainter::drawEllipse( const QRect &r )
 {
     drawEllipse( r.x(), r.y(), r.width(), r.height() );
 }
 
-/*!
-  Overloaded drawArc; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::drawArc( const QRect &r, int a, int alen ) */
 
 void QPainter::drawArc( const QRect &r, int a, int alen )
 {
     drawArc( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
-/*!
-  Overloaded drawPie; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::drawPie( const QRect &r, int a, int alen ) */
 
 void QPainter::drawPie( const QRect &r, int a, int alen )
 {
     drawPie( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
-/*!
-  Overloaded drawChord; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::drawChord( const QRect &r, int a, int alen ) */
 
 void QPainter::drawChord( const QRect &r, int a, int alen )
 {
@@ -815,8 +804,6 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 
   This version of the call draws the entire pixmap.
-
-  \bug fix qdoc to accept default values that call functions
 */
 
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
@@ -843,18 +830,14 @@ void QPainter::eraseRect( int x, int y, int w, int h )
     fillRect( x, y, w, h, backgroundColor() );
 }
 
-/*!
-  Overloaded eraseRect; takes a QRect instead of \e (x,y,w,h).
-*/
+/*! \overload void QPainter::eraseRect( const QRect &r ) */
 
 void QPainter::eraseRect( const QRect &r )
 {
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
 }
 
-/*!
-  Overloaded drawShadeLine; takes two QPoints instead of \e (x1,y1),(x2,y2).
-*/
+/*! \overload void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2, const QColor &tc, const QColor &bc, int lw, const QColor &mc, int mlw ) */
 
 void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
 			      const QColor &tc, const QColor &bc,
@@ -1089,10 +1072,9 @@ QPen::~QPen()
   Detaches from shared pen data to makes sure that this pen is the only
   one referring the data.
 
-  If multiple pens share common data, this pen dereferences the
-  data and gets a copy of the data. Nothing will be done if there is just
-  a single reference.
-*/
+  If multiple pens share common data, this pen dereferences the data
+  and gets a copy of the data. Nothing is done if there is just a
+  single reference. */
 
 void QPen::detach()
 {
@@ -1137,7 +1119,7 @@ QPen QPen::copy() const
 
   The pen styles are:
   <dl compact>
-  <dt> NoPen <dd> no outline will be drawn.
+  <dt> NoPen <dd> no outline is drawn.
   <dt> SolidLine <dd> solid line (default).
   <dt> DashLine <dd> - - - (dashes) line.
   <dt> DotLine <dd> * * * (dots) line.
@@ -1225,9 +1207,12 @@ bool QPen::operator==( const QPen &p ) const
 
 /*!
   \class QBrush qbrush.h
+
   \brief The QBrush class defines the fill pattern of shapes drawn using the
   QPainter.
+
   \ingroup drawing
+  \ingroup shared
 
   A brush has a style and a color.  One of the brush styles is a custom
   pattern, which is defined by a QPixmap.
@@ -1238,7 +1223,7 @@ bool QPen::operator==( const QPen &p ) const
   SolidPattern.
 
   The brush color defines the color of the fill pattern.
-  The QColor list the predefined colors.
+  The QColor documentation lists the predefined colors.
 
   Use the QPen class for specifying line/outline styles.
 
@@ -1281,6 +1266,8 @@ QBrush::QBrush()
 
 /*!
   Constructs a black brush with the specified style.
+
+  \sa setStyle()
 */
 
 QBrush::QBrush( BrushStyle style )
@@ -1290,6 +1277,8 @@ QBrush::QBrush( BrushStyle style )
 
 /*!
   Constructs a brush with a specified color and style.
+
+  \sa setColor() setStyle()
 */
 
 QBrush::QBrush( const QColor &color, BrushStyle style )
@@ -1299,6 +1288,8 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 
 /*!
   Constructs a brush with a specified color and a custom pattern.
+
+  \sa setColor() setPixmap()
 */
 
 QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
@@ -1335,7 +1326,7 @@ QBrush::~QBrush()
   one referring the data.
 
   If multiple brushes share common data, this pen dereferences the
-  data and gets a copy of the data. Nothing will be done if there is just
+  data and gets a copy of the data. Nothing is done if there is just
   a single reference.
 */
 
@@ -1405,7 +1396,7 @@ QBrush QBrush::copy() const
   <dt> BDiagPattern <dd> diagonal lines (directed / ) pattern.
   <dt> FDiagPattern <dd> diagonal lines (directed \ ) pattern.
   <dt> DiagCrossPattern <dd> diagonal crossing lines pattern.
-  <dt> CustomPattern <dd> internal: set when a pixmap pattern is being used.
+  <dt> CustomPattern <dd> set when a pixmap pattern is being used.
   </dl>
 
   \sa style()
@@ -1430,10 +1421,8 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
   \sa setColor()
 */
 
-/*!
-  Sets the brush color to \e c.
-  \sa color()
-*/
+/*!  Sets the brush color to \e c.  If the style is currently \c
+  NoBrush it is changed to \c SolidPattern. \sa color() setStyle() */
 
 void QBrush::setColor( const QColor &c )	// set brush color
 {

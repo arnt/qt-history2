@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#29 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#29 $";
 #endif
 
 
@@ -82,6 +82,8 @@ static const UINT16 mfhdr_min = 0;		// minor version #
 /*!
   Loads a picture from the file specified by \e fileName and returns TRUE
   if successful, otherwise FALSE.
+
+  \sa save()
 */
 
 bool QPicture::load( const char *fileName )
@@ -101,6 +103,8 @@ bool QPicture::load( const char *fileName )
 /*!
   Saves a picture to the file specified by \e fileName and returns TRUE
   if successful, otherwise FALSE.
+
+  \sa load()
 */
 
 bool QPicture::save( const char *fileName )

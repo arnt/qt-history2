@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#48 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#48 $";
 #endif
 
 
@@ -88,11 +88,14 @@ static const motifTabSpacing	= 12;		// space between text and tab
 /*!
   \class QPopupMenu qpopmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
+
   \ingroup menus
   \ingroup realwidgets
 
-  This popup widget is different from other widgets in the way it relates to
-  the parent widget.
+  The popup widget is different from other widgets in the way it
+  relates to the parent widget.
+
+
 */
 
 
@@ -103,9 +106,8 @@ static const motifTabSpacing	= 12;		// space between text and tab
 /*!
   Constructs a popup menu with a parent and a widget name.
 
-  The parent widget is ignored since this widget never has
-  any parent.
-*/
+  The parent widget is ignored.  A pop-up menu has to be a top-level
+  widget, this argument is present merely for API uniformity. */
 
 QPopupMenu::QPopupMenu( QWidget *, const char *name )
 	: QTableView( 0, name, WType_Popup )
@@ -582,7 +584,7 @@ void QPopupMenu::enableAccel( bool enable )	// enable/disable accels
 
 /*!
   Reimplements QWidget::setFont() to be able to refresh the popup menu
-  when its font change.
+  when its font changes.
 */
 
 void QPopupMenu::setFont( const QFont &font )

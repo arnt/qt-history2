@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#14 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#14 $";
 #endif
 
 
@@ -28,7 +28,7 @@ A point is specified by an x coordinate and a y coordinate.
 The coordinate type is QCOORD (defined as <code>short</code>). The minimum
 value of QCOORD is -32768 and the maximum value is 32767.
 
-We have defined many operator functions that makes arithmetic on points
+We have defined many operator functions that make arithmetic on points
 simple and intuitive:
 \code
   QPoint p(  1, 2 );
@@ -367,8 +367,8 @@ QPoint operator-( const QPoint &p )
 \relates QPoint
 Writes a QPoint to the stream and returns a reference to the stream.
 
-Output format: [x (INT16), y (INT16)].
-*/
+First \e p.x() and then p.y() are written, both as signed 16-bit
+numbers. */
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )
 {

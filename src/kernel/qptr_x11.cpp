@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#119 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#118 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#119 $";
 #endif
 
 
@@ -339,12 +339,9 @@ void QPainter::setPen( const QPen &pen )	// set current pen
     }
 }
 
-/*!
-  Sets a new painter pen with black color, width 0 and the specified \e style.
+/*! Changes the style of the painter's current pen to \e style.
 
-  The pen defines how to draw lines and outlines, and it also determines
-  the text color.
-  \sa pen(), QPen
+  \sa pen(), QPen, QColor
 */
 
 void QPainter::setPen( PenStyle style )		// set solid pen with color
@@ -357,8 +354,6 @@ void QPainter::setPen( PenStyle style )		// set solid pen with color
   Sets a new painter pen with style \c SolidLine, width 0 and the specified
   \e color.
 
-  The pen defines how to draw lines and outlines, and it also determines
-  the text color.
   \sa pen(), QPen
 */
 
@@ -799,9 +794,7 @@ void QPainter::setBackgroundColor( const QColor &c )
 }
 
 /*!
-  Sets the background mode of the painter to \e m, which must be either
-
-  The \e m parameter must be one of:
+  Sets the background mode of the painter to \e m, which must be one of:
   <ul>
   <li> \c TransparentMode (default)
   <li> \c OpaqueMode
@@ -989,7 +982,7 @@ QPoint QPainter::xForm( const QPoint &pv ) const
   coordinates.
 
   If world transformation is enabled and rotation or shearing has been
-  specified, then the bounding rectangle will be returned.
+  specified, then the bounding rectangle is returned.
 
   \sa xFormDev(), QWMatrix::xForm
 */
@@ -1072,7 +1065,7 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
   coordinates.
 
   If world transformation is enabled and rotation or shearing is used,
-  then the bounding rectangle will be returned.
+  then the bounding rectangle is returned.
 
   \sa xForm(), QWMatrix::xForm
 */
@@ -1656,7 +1649,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
   Draws a pie defined by the rectangle \e (x,y,w,h), the start
   angle \e a and the arc length \e alen.
 
-  The pie will be filled with the current \link setBrush() brush\endlink.
+  The pie is filled with the current \link setBrush() brush\endlink.
 
   The angles \e a and \e alen are 1/16th of a degree, i.e. a full
   circle equals 5760 (16*360). Positive values of \e a and \e alen mean
@@ -1738,15 +1731,15 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
   Draws a chord defined by the rectangle \e (x,y,w,h), the start
   angle \e a and the arc length \e alen.
 
-  The pie will be filled with the current \link setBrush() brush\endlink.
+  The chord is filled with the current \link setBrush()
+  brush\endlink.
 
   The angles \e a and \e alen are 1/16th of a degree, i.e. a full
   circle equals 5760 (16*360). Positive values of \e a and \e alen mean
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 
-  \sa drawArc(), drawPie()
-*/
+  \sa drawArc(), drawPie() */
 
 void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {						// draw chord
@@ -1914,7 +1907,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
   The first point is always connected to the last point.
 
   The polygon is filled with the current \link setBrush() brush\endlink.
-  If \e winding is TRUE, the polygon will be filled using the winding
+  If \e winding is TRUE, the polygon is filled using the winding
   fill algorithm, otherwise the alternative (even-odd) filling will be
   used.
 
@@ -2080,7 +2073,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
   \arg \e (x,y) specify the point in the paint device.
   \arg \e (sx,sy) specify an offset in the pixmap.
   \arg \e (sw,sh) specify the area of the area of the pixmap to
-  be copies.  The value -1 means to the right/bottom of the
+  be copied.  The value -1 means to the right/bottom of the
   pixmap.
 
   Notice that drawing 1-bit depth (monochrome) pixmaps using

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#42 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#42 $";
 #endif
 
 
@@ -131,7 +131,7 @@ QPixmap::QPixmap()
 
   The \e depth can be either 1 (monochrome) or the depth of the
   current video mode.  If \e depth is negative, then the hardware
-  depth will be used.
+  depth of the current video mode will be used.
 
   If an illegal combination of width, height and depth is specified, a
   null pixmap is constructed.
@@ -292,11 +292,11 @@ bool QPixmap::isOptimized() const
   Enables pixmap optimization if \e enable is TRUE, or disables
   optimization if \e enable is FALSE.
 
-  Pixmap optimization makes pixmap operations faster. The disadvantage is
-  that pixmap optimization consumes some extra memory.
+  Pixmap optimization makes some pixmap operations faster. The
+  disadvantage is that pixmap optimization consumes some extra memory,
+  rougly width()*depth()*height()/8 bytes.
 
-  \sa isOptimized(), optimizeGlobally(), isGloballyOptimized()
-*/
+  \sa isOptimized(), optimizeGlobally(), isGloballyOptimized() */
 
 void QPixmap::optimize( bool enable )
 {
@@ -327,6 +327,8 @@ bool QPixmap::isGloballyOptimized()
   TRUE, or avoid optimization if \e enable is FALSE.
 
   Optimization can be overridden for individual pixmaps by optimize().
+
+  The default is TRUE.
 
   \sa isGloballyOptimized(), optimize(), isOptimized()
 */
@@ -399,10 +401,10 @@ long QPixmap::metric( int m ) const		// get metric information
   Converts the pixmap to an image. Returns a null image if the
   operation failed.
 
-  If the pixmap has 1 bit depth, the returned image will also get 1
-  bit depth.  If the pixmap has 2-8 bits depth, the returned image
-  gets 8 bit depth.  If the pixmap has greater than 8 bits depth, the
-  returned image gets 24 bits depth.
+  If the pixmap has 1 bit depth, the returned image will also be 1
+  bits deep.  If the pixmap has 2-8 bit depth, the returned image
+  has 8 bit depth.  If the pixmap has greater than 8 bit depth, the
+  returned image has 24 bit depth.
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
@@ -928,7 +930,16 @@ bool QPixmap::convertFromImage( const QImage &img )
   If \e w is negative, the function copies everything to the right
   border of the window.	 If \e h is negative, the function copies
   everything to the bottom of the window.
-*/
+
+  Note that grabWindows() grabs pixels from the screen, not from the
+  window.  This means that If there is another window partially or
+  entirely over the one you grab, you get pixels from the overlying
+  window too.
+
+  \warning Grabbing an area outside the window, or screen, is not safe
+  in general.  This depends on the underlying window system.
+
+  \todo WId should probably be QWidget. */
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
@@ -1300,6 +1311,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
   This function returns the modified matrix, which maps points
   correctly from the original pixmap into the new pixmap.
+
+  \todo This is voodoo and badly needs an example.
 
   \sa xForm(), QWMatrix
 */
