@@ -121,6 +121,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     if(src->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)src;
 	srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+	SetPortWindowPort((WindowPtr)w->handle()); //wtf?
 
 	QPoint p(posInWindow(w));
 	srcoffx = p.x();
@@ -141,9 +142,24 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    sh = pm->height();
     }
 
+    if(dw < 0)
+	dw = sw;
+    if(dh < 0)
+	dh = sh;
+
     int dstoffx=0, dstoffy=0;
     const BitMap *dstbitmap=NULL;
     if(dst->devType() == QInternal::Widget) {
+	
+	/* special case when you widget->widget blt */
+	if(src->devType() == QInternal::Widget) {
+	    qDebug("I don't really know if this will work, I'll need to find a test case FIXME! %s:%d",
+		   __FILE__, __LINE__);
+	    QPixmap tmppix(dw, dh, 32);
+	    unclippedScaledBitBlt( &tmppix, 0, 0, dw, dh, src, sx, sy, sw, sh, rop, imask );
+	    unclippedScaledBitBlt( dst, dx, dy, dw, dh, &tmppix, 0, 0, dw, dh, rop, imask );
+	    return;
+	}
 
 	QWidget *w = (QWidget *)dst;
 	dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
@@ -153,22 +169,11 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	dstoffx = p.x();
 	dstoffy = p.y();
 
-	if(dw < 0)
-	    dw = sw;
-	if(dh < 0)
-	    dh = sh;
-
     } else if(dst->devType() == QInternal::Pixmap) {
 
 	QPixmap *pm = (QPixmap *)dst;
-	SetGWorld((GWorldPtr)pm->handle(),0);
-	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
 	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
 
-	if(dw < 0)
-	    dw = sw;
-	if(dh < 0)
-	    dh = sh;
     }
 
     if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
