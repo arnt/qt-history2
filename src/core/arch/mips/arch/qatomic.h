@@ -14,8 +14,7 @@
 #ifndef MIPS_QATOMIC_H
 #define MIPS_QATOMIC_H
 
-#  include <qglobal.h>
-#endif
+#include <qglobal.h>
 
 extern "C" {
 
@@ -28,3 +27,4 @@ extern "C" {
 } // extern "C"
 
 #endif // MIPS_QATOMIC_H
+
