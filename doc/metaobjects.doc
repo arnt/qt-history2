@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.8 1996/03/10 16:57:55 agulbra Exp $
+** $Id: metaobjects.doc,v 1.9 1996/03/10 19:15:27 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -117,7 +117,7 @@ internal to Qt:
 
 \code
 m%.cpp: q%.h
-	..somewhere../bin/moc &< -o $@
+	..somewhere../bin/moc $< -o $@
 \endcode
 
 A specific rule for mlcdnum.cpp would look like this:
