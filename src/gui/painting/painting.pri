@@ -112,7 +112,6 @@ embedded {
 		painting/qpaintengine_qws_p.h
 
 	SOURCES += \
-		painting/qcolor_qws.cpp \
 		painting/qcolormap_qws.cpp \
 		painting/qpaintdevice_qws.cpp \
 		painting/qpaintengine_qws.cpp

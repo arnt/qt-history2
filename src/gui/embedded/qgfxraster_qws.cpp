@@ -845,7 +845,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     numDashes = 0;
 
     patternedbrush=false;
-    srccol=cbrush.color().pixel();
+    srccol = 0;
     cbrushpixmap=0;
 
     regionClip=false;
