@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qdialog.h"
-#include "qiconset.h" // QPixmap->QIconSet conversion
+#include "qiconset.h"
 #endif // QT_H
 
 #ifndef QT_NO_TABDIALOG
@@ -48,14 +48,13 @@
 class  QTabBar;
 class  QTab;
 
-
 class Q_EXPORT QTabDialog : public QDialog
 {
     Q_OBJECT
 public:
     QTabDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		WFlags f=0 );
-   ~QTabDialog();
+    ~QTabDialog();
 
     void show();
     void setFont( const QFont & font );
@@ -98,7 +97,7 @@ public:
     void setApplyButton();
     bool hasApplyButton() const;
 
-#if 1 // OBSOLETE
+#ifndef Q_QDOC
     void setOKButton( const QString &text = QString::null );
 #endif
     void setOkButton( const QString &text );

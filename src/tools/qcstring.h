@@ -107,8 +107,21 @@ Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
 #if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QMemArray<char>;
 #endif
-typedef QMemArray<char> QByteArray;
 
+#if defined(Q_QDOC)
+/*
+  We want qdoc to document QByteArray as a real class that inherits
+  QMemArray<char> and that is inherited by QBitArray.
+*/
+class QByteArray : public QMemArray<char>
+{
+public:
+    QByteArray();
+    QByteArray( int size );
+};
+#else
+typedef QMemArray<char> QByteArray;
+#endif
 
 /*****************************************************************************
   QByteArray stream functions

@@ -51,8 +51,6 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   \ingroup drawing
   \ingroup shared
 
-  \inherit QMemArray
-
   The QPointArray is an array of QPoint objects. In addition to the
   functions provided by QMemArray, QPointArray provides some
   point-specific functions.

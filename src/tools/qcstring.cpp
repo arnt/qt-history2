@@ -55,8 +55,8 @@
   This function is normally part of the C library. Qt implements
   memmove() for platforms that do not have it.
 
-  memmove() copies \e len bytes from \e src into \e dst.  The data is
-  copied correctly even if \e src and \e dst overlap.
+  memmove() copies \a len bytes from \a src into \a dst.  The data is
+  copied correctly even if \a src and \a dst overlap.
 */
 
 void *qmemmove( void *dst, const void *src, uint len )
@@ -83,9 +83,9 @@ void *qmemmove( void *dst, const void *src, uint len )
 
   Returns a duplicate string.
 
-  Allocates space for a copy of \e str (using \c new), copies it, and returns
+  Allocates space for a copy of \a str (using \c new), copies it, and returns
   a pointer to the copy.
-  If \e src is null, it immediately returns 0.
+  If \a src is null, it immediately returns 0.
 */
 
 char *qstrdup( const char *str )
@@ -102,9 +102,9 @@ char *qstrdup( const char *str )
 
   A safe strncpy() function.
 
-  Copies all characters up to \e len bytes from \e str into \e dst and returns
-  a pointer to \e dst.	Guarantees that \e dst is \0-terminated.
-  If \e src is null, it immediately returns 0.
+  Copies all characters up to \a len bytes from \a str into \a dst and returns
+  a pointer to \a dst.	Guarantees that \a dst is '\0'-terminated.
+  If \a src is null, it immediately returns 0.
 
   \sa qstrcpy()
 */
@@ -125,14 +125,14 @@ char *qstrncpy( char *dst, const char *src, uint len )
 
   A safe strcmp() function.
 
-  Compares \e str1 and \e str2.	 Returns a negative value if \e str1
-  is less than \e str2, 0 if \e str1 is equal to \e str2 or a positive
-  value if \e str1 is greater than \e str2.
+  Compares \a str1 and \a str2.	 Returns a negative value if \a str1
+  is less than \a str2, 0 if \a str1 is equal to \a str2 or a positive
+  value if \a str1 is greater than \a str2.
 
-  Special case I: Returns 0 if \e str1 and \e str2 are both null.
+  Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
-  Special case II: Returns a random nonzero value if \e str1 is null
-  or \e str2 is null (but not both).
+  Special case II: Returns a random nonzero value if \a str1 is null
+  or \a str2 is null (but not both).
 
   \sa qstrncmp(), qstricmp(), qstrnicmp()
 */
@@ -143,16 +143,16 @@ char *qstrncpy( char *dst, const char *src, uint len )
 
   A safe strncmp() function.
 
-  Compares \e str1 and \e str2 up to \e len bytes.
+  Compares \a str1 and \a str2 up to \a len bytes.
 
-  Returns a negative value if \e str1 is less than \e str2, 0 if \e str1
-  is equal to \e str2 or a positive value if \e str1 is greater than \e
+  Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
+  is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
-  Special case I: Returns 0 if \e str1 and \e str2 are both null.
+  Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
-  Special case II: Returns a random nonzero value if \e str1 is null
-  or \e str2 is null (but not both).
+  Special case II: Returns a random nonzero value if \a str1 is null
+  or \a str2 is null (but not both).
 
   \sa qstrcmp(), qstricmp(), qstrnicmp()
 */
@@ -163,16 +163,16 @@ char *qstrncpy( char *dst, const char *src, uint len )
 
   A safe stricmp() function.
 
-  Compares \e str1 and \e str2 ignoring the case.
+  Compares \a str1 and \a str2 ignoring the case.
 
-  Returns a negative value if \e str1 is less than \e str2, 0 if \e str1
-  is equal to \e str2 or a positive value if \e str1 is greater than \e
+  Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
+  is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
-  Special case I: Returns 0 if \e str1 and \e str2 are both null.
+  Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
-  Special case II: Returns a random nonzero value if \e str1 is null
-  or \e str2 is null (but not both).
+  Special case II: Returns a random nonzero value if \a str1 is null
+  or \a str2 is null (but not both).
 
   \sa qstrcmp(), qstrncmp(), qstrnicmp()
 */
@@ -197,16 +197,16 @@ int qstricmp( const char *str1, const char *str2 )
 
   A safe strnicmp() function.
 
-  Compares \e str1 and \e str2 up to \e len bytes ignoring the case.
+  Compares \a str1 and \a str2 up to \a len bytes ignoring the case.
 
-  Returns a negative value if \e str1 is less than \e str2, 0 if \e str1
-  is equal to \e str2 or a positive value if \e str1 is greater than \e
+  Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
+  is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
-  Special case I: Returns 0 if \e str1 and \e str2 are both null.
+  Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
-  Special case II: Returns a random nonzero value if \e str1 is null
-  or \e str2 is null (but not both).
+  Special case II: Returns a random nonzero value if \a str1 is null
+  or \a str2 is null (but not both).
 
   \sa qstrcmp(), qstrncmp() qstricmp()
 */
@@ -237,33 +237,33 @@ static void createCRC16Table()			// build CRC16 lookup table
     register uint i;
     register uint j;
     uint v0, v1, v2, v3;
-    for ( i=0; i<16; i++ ) {
+    for ( i = 0; i < 16; i++ ) {
 	v0 = i & 1;
-	v1 = (i >> 1) & 1;
-	v2 = (i >> 2) & 1;
-	v3 = (i >> 3) & 1;
+	v1 = ( i >> 1 ) & 1;
+	v2 = ( i >> 2 ) & 1;
+	v3 = ( i >> 3 ) & 1;
 	j = 0;
-#undef	SET_BIT
-#define SET_BIT(x,b,v)	x |= v << b
-	SET_BIT(j, 0,v0);
-	SET_BIT(j, 7,v0);
-	SET_BIT(j,12,v0);
-	SET_BIT(j, 1,v1);
-	SET_BIT(j, 8,v1);
-	SET_BIT(j,13,v1);
-	SET_BIT(j, 2,v2);
-	SET_BIT(j, 9,v2);
-	SET_BIT(j,14,v2);
-	SET_BIT(j, 3,v3);
-	SET_BIT(j,10,v3);
-	SET_BIT(j,15,v3);
+#undef SET_BIT
+#define SET_BIT(x, b, v) (x) |= (v) << (b)
+	SET_BIT( j,  0, v0 );
+	SET_BIT( j,  7, v0 );
+	SET_BIT( j, 12, v0 );
+	SET_BIT( j,  1, v1 );
+	SET_BIT( j,  8, v1 );
+	SET_BIT( j, 13, v1 );
+	SET_BIT( j,  2, v2 );
+	SET_BIT( j,  9, v2 );
+	SET_BIT( j, 14, v2 );
+	SET_BIT( j,  3, v3 );
+	SET_BIT( j, 10, v3 );
+	SET_BIT( j, 15, v3 );
 	crc_tbl[i] = j;
     }
 }
 
 /*!
-  \relates QByteArray
-  Returns the CRC-16 checksum of \e len bytes starting at \e data.
+  \relates QMemArray
+  Returns the CRC-16 checksum of \a len bytes starting at \a data.
 
   The checksum is independent of the byte order (endianness).
 */
@@ -279,37 +279,35 @@ Q_UINT16 qChecksum( const char *data, uint len )
     uchar *p = (uchar *)data;
     while ( len-- ) {
 	c = *p++;
-	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
+	crc = ( (crc >> 4) & 0x0fff ) ^ crc_tbl[((crc ^ c) & 15)];
 	c >>= 4;
-	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
+	crc = ( (crc >> 4) & 0x0fff ) ^ crc_tbl[((crc ^ c) & 15)];
     }
-    return (~crc & 0xffff);
+    return ~crc & 0xffff;
 }
 
-
 /*****************************************************************************
-  QByteArray member functions
+  QByteArray documentation
  *****************************************************************************/
 
-// NOT REVISED
-/*! \class QByteArray qcstring.h
-
+/*!
+  \class QByteArray
   \brief The QByteArray class provides an array of bytes.
 
-  \inherit QArray
   \ingroup tools
-  \ingroup shared
 
-  QByteArray is defined as QArray\<char\>.
+  The QByteArray class provides an explicitly shared array of
+  bytes. It is useful for manipulating memory areas with custom
+  data. QByteArray is implemented as QMemArray\<char\>. See the
+  \l QMemArray documentation for further information.
 */
-
 
 /*****************************************************************************
   QByteArray stream functions
  *****************************************************************************/
 
 /*!
-  \relates QByteArray
+  \relates QMemArray
   Writes a byte array to a stream and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
@@ -322,7 +320,7 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 }
 
 /*!
-  \relates QByteArray
+  \relates QMemArray
   Reads a byte array from a stream and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
@@ -357,15 +355,15 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   \class QCString qcstring.h
 
   \brief The QCString class provides an abstraction of the classic C
-  zero-terminated char array (<var>char*</var>).
+  zero-terminated char array (char *).
 
   \ingroup tools
   \ingroup shared
 
-  QCString inherits QByteArray, which is defined as QArray\<char\>.
+  QCString inherits QByteArray, which is defined as QMemArray\<char\>.
 
-  Since QCString is a QArray, it uses \e explicit
-  \link shclass.html sharing\endlink with a reference count.
+  Since QCString is a QMemArray, it uses 
+  \link shclass.html explicit sharing\endlink with a reference count.
 
   You might use QCString for text that is never exposed to the user,
   but for text the user sees, you should use QString (which provides
@@ -378,16 +376,16 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   for a null terminator, which makes many algorithms that use QCString
   scale even worse.
 
-  Note that for the QCString methods that take a <var>const char *</var>
+  Note that for the QCString methods that take a \c {const char *}
   parameter the results are undefined if the QCString is not
-  zero-terminated.  It is legal for the <var>const char *</var> parameter
+  zero-terminated.  It is legal for the \c {const char *} parameter
   to be 0.
 
   A QCString that has not been assigned to anything is \e null, i.e. both
   the length and data pointer is 0. A QCString that references the empty
   string ("", a single '\0' char) is \e empty.	Both null and empty
-  QCStrings are legal parameters to the methods. Assigning <var>const char
-  * 0</var> to QCString gives a null QCString.
+  QCStrings are legal parameters to the methods. Assigning \c {const char
+  *} 0 to QCString gives a null QCString.
 
   \sa \link shclass.html Shared classes\endlink
 */
@@ -403,8 +401,6 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   searches on that. The results will be of course be identical.
 */
 
-
-
 /*!
   \fn QCString::QCString()
   Constructs a null string.
@@ -413,15 +409,15 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*!
   \fn QCString::QCString( const QCString &s )
-  Constructs a shallow copy \e s.
+  Constructs a shallow copy \a s.
   \sa assign()
 */
 
 /*!
-  Constructs a string with room for \e size characters, including the
-  '\0'-terminator.  Makes a null string if \e size == 0.
+  Constructs a string with room for \a size characters, including the
+  '\0'-terminator.  Makes a null string if \a size == 0.
 
-  If \e size \> 0, then the first and last characters in the string are
+  If \a size \> 0, then the first and last characters in the string are
   initialized to '\0'.	All other characters are uninitialized.
 
   \sa resize(), isNull()
@@ -437,7 +433,7 @@ QCString::QCString( int size )
 }
 
 /*!
-  Constructs a string that is a deep copy of \e str.
+  Constructs a string that is a deep copy of \a str.
 
   If \a str is 0 a null string is created.
 
@@ -451,12 +447,12 @@ QCString::QCString( const char *str )
 
 
 /*!
-  Constructs a string that is a deep copy of \e str, that is no more
+  Constructs a string that is a deep copy of \a str, that is no more
   than \a maxsize bytes long including the '\0'-terminator.
 
   Example:
   \code
-    QCString str( "helloworld", 6 ); // Assigns "hello" to str.
+    QCString str( "helloworld", 6 ); // assigns "hello" to str
   \endcode
 
   If \a str contains a 0 byte within the first \a maxsize bytes, the
@@ -482,7 +478,7 @@ QCString::QCString( const char *str, uint maxsize )
 
 /*!
   \fn QCString &QCString::operator=( const QCString &s )
-  Assigns a shallow copy of \e s to this string and returns a reference to
+  Assigns a shallow copy of \a s to this string and returns a reference to
   this string.
 */
 
@@ -537,7 +533,7 @@ QCString::QCString( const char *str, uint maxsize )
 
 /*!
   \fn bool QCString::truncate( uint pos )
-  Truncates the string at position \e pos.
+  Truncates the string at position \a pos.
 
   Equivalent to calling \c resize(pos+1).
 
@@ -551,10 +547,10 @@ QCString::QCString( const char *str, uint maxsize )
 */
 
 /*!
-  Extends or shrinks the string to \e len bytes, including the
+  Extends or shrinks the string to \a len bytes, including the
   '\0'-terminator.
 
-  A \0-terminator is set at position <code>len - 1</code> unless
+  A '\0'-terminator is set at position <code>len - 1</code> unless
   <code>len == 0</code>.
 
   Example:
@@ -604,7 +600,7 @@ bool QCString::resize( uint len )
   limit.
 
   Giving user-supplied arguments to sprintf() is begging for trouble.
-  Sooner or later someone \e will paste a 3000-character line into
+  Sooner or later someone \a will paste a 3000-character line into
   your application.
 */
 
@@ -623,12 +619,12 @@ QCString &QCString::sprintf( const char *format, ... )
 
 
 /*!
-  Fills the string with \e len bytes of value \e c, followed by a
+  Fills the string with \a len bytes of value \a c, followed by a
   '\0'-terminator.
 
-  If \e len is negative, then the current string length is used.
+  If \a len is negative, then the current string length is used.
 
-  Returns FALSE is \e len is nonnegative and there is no memory to
+  Returns FALSE is \a len is nonnegative and there is no memory to
   resize the string, otherwise TRUE is returned.
 */
 
@@ -652,13 +648,13 @@ bool QCString::fill( char c, int len )
 
 
 /*!
-  Finds the first occurrence of the character \e c, starting at
-  position \e index.
+  Finds the first occurrence of the character \a c, starting at
+  position \a index.
 
-  The search is case sensitive if \e cs is TRUE, or case insensitive if \e
+  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  Returns the position of \e c, or -1 if \e c could not be found.
+  Returns the position of \a c, or -1 if \a c could not be found.
 */
 
 int QCString::find( char c, int index, bool cs ) const
@@ -680,13 +676,13 @@ int QCString::find( char c, int index, bool cs ) const
 }
 
 /*!
-  Finds the first occurrence of the string \e str, starting at position
-  \e index.
+  Finds the first occurrence of the string \a str, starting at position
+  \a index.
 
-  The search is case sensitive if \e cs is TRUE, or case insensitive if \e
+  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  Returns the position of \e str, or -1 if \e str could not be found.
+  Returns the position of \a str, or -1 if \a str could not be found.
 */
 
 int QCString::find( const char *str, int index, bool cs ) const
@@ -715,13 +711,13 @@ int QCString::find( const char *str, int index, bool cs ) const
 }
 
 /*!
-  Finds the first occurrence of the character \e c, starting at
-  position \e index and searching backwards.
+  Finds the first occurrence of the character \a c, starting at
+  position \a index and searching backwards.
 
-  The search is case sensitive if \e cs is TRUE, or case insensitive if \e
+  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  Returns the position of \e c, or -1 if \e c could not be found.
+  Returns the position of \a c, or -1 if \a c could not be found.
 */
 
 int QCString::findRev( char c, int index, bool cs ) const
@@ -752,13 +748,13 @@ int QCString::findRev( char c, int index, bool cs ) const
 }
 
 /*!
-  Finds the first occurrence of the string \e str, starting at
-  position \e index and searching backwards.
+  Finds the first occurrence of the string \a str, starting at
+  position \a index and searching backwards.
 
-  The search is case sensitive if \e cs is TRUE, or case insensitive if \e
+  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  Returns the position of \e str, or -1 if \e str could not be found.
+  Returns the position of \a str, or -1 if \a str could not be found.
 */
 
 int QCString::findRev( const char *str, int index, bool cs ) const
@@ -788,9 +784,9 @@ int QCString::findRev( const char *str, int index, bool cs ) const
 
 
 /*!
-  Returns the number of times the character \e c occurs in the string.
+  Returns the number of times the character \a c occurs in the string.
 
-  The match is case sensitive if \e cs is TRUE, or case insensitive if \e cs
+  The match is case sensitive if \a cs is TRUE, or case insensitive if \a cs
   if FALSE.
 */
 
@@ -816,9 +812,9 @@ int QCString::contains( char c, bool cs ) const
 }
 
 /*!
-  Returns the number of times \e str occurs in the string.
+  Returns the number of times \a str occurs in the string.
 
-  The match is case sensitive if \e cs is TRUE, or case insensitive if \e
+  The match is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs if FALSE.
 
   This function counts overlapping substrings, for example, "banana"
@@ -848,10 +844,10 @@ int QCString::contains( const char *str, bool cs ) const
 }
 
 /*!
-  Returns a substring that contains the \e len leftmost characters
+  Returns a substring that contains the \a len leftmost characters
   of the string.
 
-  The whole string is returned if \e len exceeds the length of the string.
+  The whole string is returned if \a len exceeds the length of the string.
 
   Example:
   \code
@@ -879,10 +875,10 @@ QCString QCString::left( uint len ) const
 }
 
 /*!
-  Returns a substring that contains the \e len rightmost characters
+  Returns a substring that contains the \a len rightmost characters
   of the string.
 
-  The whole string is returned if \e len exceeds the length of the string.
+  The whole string is returned if \a len exceeds the length of the string.
 
   Example:
   \code
@@ -908,11 +904,11 @@ QCString QCString::right( uint len ) const
 }
 
 /*!
-  Returns a substring that contains the \e len characters of this
-  string, starting at position \e index.
+  Returns a substring that contains the \a len characters of this
+  string, starting at position \a index.
 
-  Returns a null string if the string is empty or \e index is out
-  of range.  Returns the whole string from \e index if \e index+len exceeds
+  Returns a null string if the string is empty or \a index is out
+  of range.  Returns the whole string from \a index if \a index+len exceeds
   the length of the string.
 
   Example:
@@ -941,13 +937,13 @@ QCString QCString::mid( uint index, uint len ) const
 }
 
 /*!
-  Returns a string of length \e width (plus '\0') that contains this
-  string and padded by the \e fill character.
+  Returns a string of length \a width (plus '\0') that contains this
+  string and padded by the \a fill character.
 
-  If the length of the string exceeds \e width and \e truncate is FALSE,
+  If the length of the string exceeds \a width and \a truncate is FALSE,
   then the returned string is a copy of the string.
-  If the length of the string exceeds \e width and \e truncate is TRUE,
-  then the returned string is a left(\e width).
+  If the length of the string exceeds \a width and \a truncate is TRUE,
+  then the returned string is a left(\a width).
 
   Example:
   \code
@@ -978,13 +974,13 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 }
 
 /*!
-  Returns a string of length \e width (plus '\0') that contains pad
+  Returns a string of length \a width (plus '\0') that contains pad
   characters followed by the string.
 
-  If the length of the string exceeds \e width and \e truncate is FALSE,
+  If the length of the string exceeds \a width and \a truncate is FALSE,
   then the returned string is a copy of the string.
-  If the length of the string exceeds \e width and \e truncate is TRUE,
-  then the returned string is a left(\e width).
+  If the length of the string exceeds \a width and \a truncate is TRUE,
+  then the returned string is a left(\a width).
 
   Example:
   \code
@@ -1156,10 +1152,10 @@ QCString QCString::simplifyWhiteSpace() const
 
 
 /*!
-  Insert \e s into the string before position \e index.
+  Insert \a s into the string before position \a index.
 
-  If \e index is beyond the end of the string, the string is extended with
-  spaces (ASCII 32) to length \e index and \e s is then appended.
+  If \a index is beyond the end of the string, the string is extended with
+  spaces (ASCII 32) to length \a index and \a s is then appended.
 
   \code
     QCString s = "I like fish";
@@ -1191,11 +1187,11 @@ QCString &QCString::insert( uint index, const char *s )
 }
 
 /*!
-  Insert \e c into the string at (before) position \e index and returns
+  Insert \a c into the string at (before) position \a index and returns
   a reference to the string.
 
-  If \e index is beyond the end of the string, the string is extended with
-  spaces (ASCII 32) to length \e index and \e c is then appended.
+  If \a index is beyond the end of the string, the string is extended with
+  spaces (ASCII 32) to length \a index and \a c is then appended.
 
   Example:
   \code
@@ -1223,11 +1219,11 @@ QCString &QCString::insert( uint index, char c )	// insert char
 */
 
 /*!
-  Removes \e len characters starting at position \e index from the
+  Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
-  If \e index is too big, nothing happens.  If \e index is valid, but
-  \e len is too large, the rest of the string is removed.
+  If \a index is too big, nothing happens.  If \a index is valid, but
+  \a len is too large, the rest of the string is removed.
 
   \code
     QCString s = "Montreal";
@@ -1255,11 +1251,11 @@ QCString &QCString::remove( uint index, uint len )
 }
 
 /*!
-  Replaces \e len characters starting at position \e index from the
-  string with \e s, and returns a reference to the string.
+  Replaces \a len characters starting at position \a index from the
+  string with \a s, and returns a reference to the string.
 
-  If \e index is too big, nothing is deleted and \e s is inserted at the
-  end of the string.  If \e index is valid, but \e len is too large, \e
+  If \a index is too big, nothing is deleted and \a s is inserted at the
+  end of the string.  If \a index is valid, but \a len is too large, \a
   str replaces the rest of the string.
 
   \code
@@ -1279,10 +1275,10 @@ QCString &QCString::replace( uint index, uint len, const char *s )
 
 
 /*!
-  Finds the first occurrence of the regular expression \e rx, starting at
-  position \e index.
+  Finds the first occurrence of the regular expression \a rx, starting at
+  position \a index.
 
-  Returns the position of the next match, or -1 if \e rx was not found.
+  Returns the position of the next match, or -1 if \a rx was not found.
 */
 
 int QCString::find( const QRegExp& rx, int index ) const
@@ -1292,12 +1288,12 @@ int QCString::find( const QRegExp& rx, int index ) const
 }
 
 /*!
-  Finds the first occurrence of the regular expression \e rx, starting at
-  position \e index and searching backwards.
+  Finds the first occurrence of the regular expression \a rx, starting at
+  position \a index and searching backwards.
 
-  The search will start from the end of the string if \e index is negative.
+  The search will start from the end of the string if \a index is negative.
 
-  Returns the position of the next match (backwards), or -1 if \e rx was not
+  Returns the position of the next match (backwards), or -1 if \a rx was not
   found.
 */
 
@@ -1308,7 +1304,7 @@ int QCString::findRev( const QRegExp& rx, int index ) const
 }
 
 /*!
-  Counts the number of overlapping occurrences of \e rx in the string.
+  Counts the number of overlapping occurrences of \a rx in the string.
 
   Example:
   \code
@@ -1328,7 +1324,7 @@ int QCString::contains( const QRegExp &rx ) const
 
 
 /*!
-  Replaces every occurrence of \e rx in the string with \e str.
+  Replaces every occurrence of \a rx in the string with \a str.
   Returns a reference to the string.
 
   Example:
@@ -1357,7 +1353,7 @@ QCString &QCString::replace( const QRegExp &rx, const char *str )
 /*!
   Returns the string converted to a <code>long</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all, or if
   it has trailing garbage.
 */
@@ -1402,7 +1398,7 @@ bye:
   Returns the string converted to an <code>unsigned long</code>
   value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
   or if it has trailing garbage.
 */
@@ -1439,7 +1435,7 @@ bye:
 /*!
   Returns the string converted to a <code>short</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all, or if
   it has trailing garbage.
 */
@@ -1455,7 +1451,7 @@ short QCString::toShort( bool *ok ) const
 /*!
   Returns the string converted to an <code>unsigned short</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all, or if
   it has trailing garbage.
 */
@@ -1472,7 +1468,7 @@ ushort QCString::toUShort( bool *ok ) const
 /*!
   Returns the string converted to a <code>int</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
   or if it has trailing garbage.
 */
@@ -1485,7 +1481,7 @@ int QCString::toInt( bool *ok ) const
 /*!
   Returns the string converted to an <code>unsigned int</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
   or if it has trailing garbage.
 */
@@ -1498,7 +1494,7 @@ uint QCString::toUInt( bool *ok ) const
 /*!
   Returns the string converted to a <code>double</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no conceivable
+  If \a ok is non-null, \a *ok is set to TRUE if there are no conceivable
   errors, and FALSE if the string is not a number at all, or if it has
   trailing garbage.
 */
@@ -1515,7 +1511,7 @@ double QCString::toDouble( bool *ok ) const
 /*!
   Returns the string converted to a <code>float</code> value.
 
-  If \e ok is non-null, \e *ok is set to TRUE if there are no
+  If \a ok is non-null, \a *ok is set to TRUE if there are no
   conceivable errors, and FALSE if the string is not a number at all,
   or if it has trailing garbage.
 */
@@ -1527,7 +1523,7 @@ float QCString::toFloat( bool *ok ) const
 
 
 /*!
-  Makes a deep copy of \e str.
+  Makes a deep copy of \a str.
   Returns a reference to the string.
 */
 
@@ -1542,7 +1538,7 @@ QCString &QCString::setStr( const char *str )
 }
 
 /*!
-  Sets the string to the printed value of \e n and returns a
+  Sets the string to the printed value of \a n and returns a
   reference to the string.
 */
 
@@ -1570,7 +1566,7 @@ QCString &QCString::setNum( long n )
 }
 
 /*!
-  Sets the string to the printed unsigned value of \e n and
+  Sets the string to the printed unsigned value of \a n and
   returns a reference to the string.
 */
 
@@ -1590,25 +1586,25 @@ QCString &QCString::setNum( ulong n )
 
 /*!
   \fn QCString &QCString::setNum( int n )
-  Sets the string to the printed value of \e n and returns a reference
+  Sets the string to the printed value of \a n and returns a reference
   to the string.
 */
 
 /*!
   \fn QCString &QCString::setNum( uint n )
-  Sets the string to the printed unsigned value of \e n and returns a
+  Sets the string to the printed unsigned value of \a n and returns a
   reference to the string.
 */
 
 /*!
   \fn QCString &QCString::setNum( short n )
-  Sets the string to the printed value of \e n and returns a reference
+  Sets the string to the printed value of \a n and returns a reference
   to the string.
 */
 
 /*!
   \fn QCString &QCString::setNum( ushort n )
-  Sets the string to the printed unsigned value of \e n and returns a
+  Sets the string to the printed unsigned value of \a n and returns a
   reference to the string.
 */
 
@@ -1647,10 +1643,10 @@ QCString &QCString::setNum( double n, char f, int prec )
 
 
 /*!
-  Sets the character at position \e index to \e c and expands the
+  Sets the character at position \a index to \a c and expands the
   string if necessary, filling with spaces.
 
-  Returns FALSE if this \e index was out of range and the string could
+  Returns FALSE if this \a index was out of range and the string could
   not be expanded, otherwise TRUE.
 */
 
@@ -1678,12 +1674,12 @@ bool QCString::setExpand( uint index, char c )
 
 /*!
   \fn QCString& QCString::append( const char *str )
-  Appends \e str to the string and returns a reference to the string.
+  Appends \a str to the string and returns a reference to the string.
   Equivalent to operator+=().
  */
 
 /*!
-  Appends \e str to the string and returns a reference to the string.
+  Appends \a str to the string and returns a reference to the string.
 */
 
 QCString& QCString::operator+=( const char *str )
@@ -1700,7 +1696,7 @@ QCString& QCString::operator+=( const char *str )
 }
 
 /*!
-  Appends \e c to the string and returns a reference to the string.
+  Appends \a c to the string and returns a reference to the string.
 */
 
 QCString &QCString::operator+=( char c )
@@ -1813,7 +1809,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
+  Returns TRUE if \a s1 is alphabetically less than \a s2, otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
@@ -1821,7 +1817,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
+  Returns TRUE if \a s1 is alphabetically less than \a s2, otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
@@ -1829,7 +1825,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
+  Returns TRUE if \a s1 is alphabetically less than or equal to \a s2,
   otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
@@ -1838,7 +1834,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
+  Returns TRUE if \a s1 is alphabetically less than or equal to \a s2,
   otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
@@ -1847,7 +1843,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
+  Returns TRUE if \a s1 is alphabetically greater than \a s2, otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
@@ -1855,7 +1851,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
+  Returns TRUE if \a s1 is alphabetically greater than \a s2, otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
@@ -1863,7 +1859,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
+  Returns TRUE if \a s1 is alphabetically greater than or equal to \a s2,
   otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
@@ -1872,7 +1868,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
+  Returns TRUE if \a s1 is alphabetically greater than or equal to \a s2,
   otherwise FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.

@@ -66,7 +66,7 @@ public:
     int         frameWidth()    const;
     QRect       contentsRect()  const;
 
-#if 1 // ### OBSOLETE, provided for compatibility
+#ifndef Q_QDOC
     bool        lineShapesOk()  const { return TRUE; }
 #endif
 

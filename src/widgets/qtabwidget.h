@@ -62,21 +62,23 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
 
 public:
-
     QTabWidget( QWidget *parent, const char *name, WFlags f);
     QTabWidget( QWidget *parent=0, const char *name=0);
-   ~QTabWidget();
+    ~QTabWidget();
 
-    virtual void addTab( QWidget *, const QString &);
-    virtual void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
+    virtual void addTab( QWidget *, const QString & );
+    virtual void addTab( QWidget *child, const QIconSet& iconset,
+			 const QString &label );
     virtual void addTab( QWidget *, QTab* );
 
-    virtual void insertTab( QWidget *, const QString &, int index = -1);
-    virtual void insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
+    virtual void insertTab( QWidget *, const QString &, int index = -1 );
+    virtual void insertTab( QWidget *child, const QIconSet& iconset,
+			    const QString &label, int index = -1 );
     virtual void insertTab( QWidget *, QTab*, int index = -1 );
 
     void changeTab( QWidget *, const QString &);
-    void changeTab( QWidget *child, const QIconSet& iconset, const QString &label);
+    void changeTab( QWidget *child, const QIconSet& iconset,
+		    const QString &label );
 
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
@@ -91,7 +93,7 @@ public:
     QString label( int ) const;
     int currentPageIndex() const;
     void setCurrentPage( int );
-    int indexOf( QWidget* ) const;
+    int indexOf( QWidget * ) const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -110,7 +112,7 @@ public:
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );
-    void setTabBar( QTabBar* );
+    void setTabBar( QTabBar * );
     QTabBar* tabBar() const;
     void styleChange( QStyle& );
     void updateMask();
@@ -118,7 +120,9 @@ protected:
 
 signals:
     void currentChanged( QWidget * );
-    void selected( const QString& ); // obsolete
+#ifndef Q_QDOC
+    void selected( const QString& );
+#endif
 
 private slots:
     void showTab( int i );
@@ -128,12 +132,7 @@ private:
     void setUpLayout(bool = FALSE);
     void init();
 
-#if 1 //def TOTAL_LOSER_COMPILER
     friend class QTabDialog;
-#else
-    friend void QTabDialog::setTabBar( QTabBar* );
-    friend void QTabBar* QTabDialog::tabBar() const;
-#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

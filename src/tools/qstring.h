@@ -612,10 +612,10 @@ class Q_EXPORT QCharRef {
     QCharRef(QString* str, uint pos) : s(*str), p(pos) { }
 
 public:
-    // Most QChar operations repeated here...
+    // most QChar operations repeated here...
 
     // all this is not documented: We just say "like QChar" and let it be.
-#if 1
+#ifndef Q_QDOC
     ushort unicode() const { return s.constref(p).unicode(); }
     char latin1() const { return s.constref(p).latin1(); }
 

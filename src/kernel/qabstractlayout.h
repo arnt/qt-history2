@@ -187,7 +187,7 @@ public:
     virtual void setSpacing( int );
 
     enum { unlimited = QWIDGETSIZE_MAX };
-#if 1 //OBSOLETE
+#ifndef Q_QDOC
     int defaultBorder() const { return insideSpacing; }
     void freeze( int w, int h );
     void freeze() { setResizeMode( Fixed ); }

@@ -90,7 +90,7 @@ public:
     static void	    setStyle( QStyle* );
     static QStyle*  setStyle( const QString& );
 #endif
-#if 1	/* OBSOLETE */
+#ifndef Q_QDOC
     enum ColorMode { NormalColors, CustomColors };
     static ColorMode colorMode();
     static void      setColorMode( QApplication::ColorMode );

@@ -634,11 +634,8 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QETWidget;
-#if 1 //was #ifdef TOTAL_LOSER_COMPILER but they all seem to be
     friend class QLayout;
-#else
-    friend void QLayout::setWidgetLayout( QWidget *, QLayout * );
-#endif
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWidget( const QWidget & );

@@ -269,15 +269,15 @@ public:
     virtual void	swapBuffers();
 
     QGLFormat		format() const;
-#if 1
-    virtual void	setFormat( const QGLFormat& format ); // OBSOLETE
+#ifndef Q_QDOC
+    virtual void	setFormat( const QGLFormat& format );
 #endif
 
     const QGLContext*	context() const;
-#if 1
+#ifnfdef Q_QDOC
     virtual void	setContext( QGLContext* context,
 				    const QGLContext* shareContext = 0,
-				    bool deleteOldContext = TRUE ); // OBSOLETE
+				    bool deleteOldContext = TRUE );
 #endif
 
     virtual QPixmap	renderPixmap( int w = 0, int h = 0,

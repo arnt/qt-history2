@@ -1020,9 +1020,9 @@ void QTabDialog::setOkButton()
 }
 
 
-/*!
+/*
   Old version of setOkButton(), provided for backward compatibility.
- */
+*/
 void QTabDialog::setOKButton( const QString &text )
 {
     // Ugle workaround for original "OK" default argument

@@ -1210,12 +1210,11 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
 {
     QColorGroup g = tabbar->colorGroup();
     QPen oldpen = p->pen();
-    QRect fr(tab->r);
+    QRect fr(tab->rect());
 
     if (! selected) {
         if (tabbar->shape() == QTabBar::RoundedAbove ||
             tabbar->shape() == QTabBar::TriangularAbove) {
-
             fr.setTop(fr.top() + 2);
         } else {
             fr.setBottom(fr.bottom() - 2);

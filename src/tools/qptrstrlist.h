@@ -50,16 +50,20 @@ template class Q_EXPORT QPtrList<char>;
 template class Q_EXPORT QPtrListIterator<char>;
 #endif
 
-typedef QPtrList<char>		QPtrStrListBase;
-typedef QPtrListIterator<char>	QPtrStrListIterator;
+#if defined(Q_QDOC)
+class QPtrStrListIterator : public QPtrListIterator<char>
+{
+};
+#else
+typedef QPtrListIterator<char> QPtrStrListIterator;
+#endif
 
-
-class Q_EXPORT QPtrStrList : public QPtrStrListBase
+class Q_EXPORT QPtrStrList : public QPtrList<char>
 {
 public:
     QPtrStrList( bool deepCopies=TRUE ) { dc = deepCopies; del_item = deepCopies; }
     QPtrStrList( const QPtrStrList & );
-   ~QPtrStrList()			{ clear(); }
+    ~QPtrStrList()			{ clear(); }
     QPtrStrList& operator=( const QPtrStrList & );
 
 private:
@@ -81,7 +85,7 @@ class Q_EXPORT QPtrStrIList : public QPtrStrList	// case insensitive string list
 {
 public:
     QPtrStrIList( bool deepCopies=TRUE ) : QPtrStrList( deepCopies ) {}
-   ~QPtrStrIList()			{ clear(); }
+    ~QPtrStrIList()			{ clear(); }
 private:
     int	  compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 )
 				{ return qstricmp((const char*)s1,
@@ -94,15 +98,15 @@ inline QPtrStrList & QPtrStrList::operator=( const QPtrStrList &strList )
     clear();
     dc = strList.dc;
     del_item = dc;
-    QPtrStrListBase::operator=(strList);
+    QPtrList<char>::operator=( strList );
     return *this;
 }
 
 inline QPtrStrList::QPtrStrList( const QPtrStrList &strList )
-    : QPtrStrListBase( strList )
+    : QPtrList<char>( strList )
 {
     dc = FALSE;
-    operator=(strList);
+    operator=( strList );
 }
 
 #ifndef QT_NO_COMPAT
