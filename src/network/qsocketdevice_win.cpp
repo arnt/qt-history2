@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#9 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#10 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -602,7 +602,8 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     bool done = FALSE;
     int r = 0;
     while ( !done ) {
-	r = ::send( fd, data, len, 0 );
+	// Don't write more than 64K (see Knowledge Base Q201213).
+	r = ::send( fd, data, ( len>64*1024 ? 64*1024 : len ), 0 );
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& errno != WSAEAGAIN ) {
 	    switch( WSAGetLastError() ) {
@@ -630,6 +631,8 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 		    e = Bug;
 		    break;
 		case WSAENOBUFS:
+		    // ### try later?
+		    break;
 		case WSAEMSGSIZE:
 		    e = NoResources;
 		    break;
