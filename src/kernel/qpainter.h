@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#12 $
 **
 ** Definition of QPainter class
 **
@@ -81,8 +81,10 @@ public:
     bool	hasViewXForm() const { return testf(VxF); }
     QRect	sourceView()   const;		// get source view
     void	setSourceView( const QRect & );	// set source view (virtual)
+    void	setSourceView( int x, int y, int w, int h );
     QRect	targetView()   const;		// get target view
     void	setTargetView( const QRect & );	// set target view (device)
+    void	setTargetView( int x, int y, int w, int h );
 
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
@@ -266,6 +268,16 @@ inline PaintUnit QPainter::unit() const
 inline void QPainter::setBrushOrigin( const QPoint &p )
 {
     setBrushOrigin( p.x(), p.y() );
+}
+
+inline void QPainter::setSourceView( const QRect &r )
+{
+    setSourceView( r.x(), r.y(), r.width(), r.height() );
+}
+
+inline void QPainter::setTargetView( const QRect &r )
+{
+    setTargetView( r.x(), r.y(), r.width(), r.height() );
 }
 
 inline void QPainter::setClipRect( int x, int y, int w, int h )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#9 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#9 $";
 #endif
 
 
@@ -283,14 +283,24 @@ void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 // QPainter member functions (inline if DEBUG not defined)
 //
 
-void QPainter::setClipRect( int x, int y, int w, int h )
-{
-    setClipRect( QRect(x,y,w,h) );
-}
-
 void QPainter::setBrushOrigin( const QPoint &p )
 {
     setBrushOrigin( p.x(), p.y() );
+}
+
+void QPainter::setSourceView( const QRect &r )
+{
+    setSourceView( r.x(), r.y(), r.width(), r.height() );
+}
+
+void QPainter::setTargetView( const QRect &r )
+{
+    setTargetView( r.x(), r.y(), r.width(), r.height() );
+}
+
+void QPainter::setClipRect( int x, int y, int w, int h )
+{
+    setClipRect( QRect(x,y,w,h) );
 }
 
 void QPainter::drawPoint( const QPoint &p )
