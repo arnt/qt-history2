@@ -1,14 +1,28 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "fileporter.h"
-#include <iostream>
-#include <QFile>
-#include <QDir>
-#include <QFileInfo>
 #include "lexer.h"
 #include "replacetoken.h"
 #include "logger.h"
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <iostream>
 
 using std::cout;
 using std::endl;
+
 
 QByteArray FilePorter::noPreprocess(const QString &filePath)
 {
@@ -169,6 +183,3 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
     
     return fileContents;
 }
-
-
-

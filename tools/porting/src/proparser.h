@@ -20,5 +20,4 @@
 QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath = QString() );
 QString loadFile( const QString &fileName );
 
-
 #endif

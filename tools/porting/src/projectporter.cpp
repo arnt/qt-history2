@@ -1,17 +1,31 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "projectporter.h"
-#include <iostream>
-#include <QFile>
-#include <QDir>
-#include <QStringList>
-#include <QFileInfo>
 #include "qtsimplexml.h"
 #include "proparser.h"
 #include "textreplacement.h"
 #include "fileporter.h"
 #include "logger.h"
+#include <QFile>
+#include <QDir>
+#include <QStringList>
+#include <QFileInfo>
+#include <iostream>
 
 using std::cout;
 using std::endl;
+
 
 ProjectPorter::ProjectPorter(QString rulesFileName)
 :rulesFileName(rulesFileName)
@@ -126,4 +140,3 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
          
     return contents;
 }
-

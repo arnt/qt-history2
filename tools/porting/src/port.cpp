@@ -1,17 +1,30 @@
-#include <iostream>
-#include <sstream>
-#include <stdio.h>
-#include <QString>
-#include <QFile>
-#include <QFileInfo>
-#include <QDir>
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include "projectporter.h"
 #include "fileporter.h"
 #include "logger.h"
+#include <QString>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
 
 using std::cout;
 using std::endl;
+
 
 QString rulesFileName;
 QString rulesFilePath;
@@ -141,5 +154,3 @@ int main(int argc, char**argv)
     Logger::deleteInstance();
     return retval;
 }
-
-
