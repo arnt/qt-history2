@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#212 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#213 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -782,7 +782,7 @@ void QPopupMenu::updateSize()
     bool oneHasIconSet = FALSE;
     while ( (mi=it.current()) ) {
 	bool thisHasIconSet = mi->iconSet() != 0;
-	oneHasIconSet |= thisHasIconSet;
+	oneHasIconSet = oneHasIconSet || thisHasIconSet;
 	int w = 0;
 	int itemHeight = internalCellHeight( mi );
 	if ( mi->popup() )
