@@ -2272,7 +2272,7 @@ void QListViewItem::ignoreDoubleClick()
     \value AllColumns All columns are resized equally to fit the width
     of the listview.
 
-    \value LastColumn The last columns is resized to fit the with of
+    \value LastColumn The last column is resized to fit the with of
     the listview.
 */
 
