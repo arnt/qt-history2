@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#18 $
 **
 ** Implementation of QIconSet class
 **
@@ -119,7 +119,7 @@ QIconSet::QIconSet( const QPixmap & defaultPixmap, Size defaultSize )
 }
 
 
-/*!  Constructs an a copy of \a other.  This is very fast. */
+/*!  Constructs an a copy of \a other.  This is very fast. \sa detach() */
 
 QIconSet::QIconSet( const QIconSet & other )
 {
@@ -143,6 +143,8 @@ QIconSet::~QIconSet()
   icon set.
 
   This is very fast.
+  
+  \sa detach()
 */
 
 QIconSet &QIconSet::operator=( const QIconSet &p )
@@ -170,6 +172,7 @@ QIconSet &QIconSet::operator=( const QIconSet &p )
 
 void QIconSet::reset( const QPixmap & pm, Size s )
 {
+    detach();
     if ( s == Small ||
 	 (s == Automatic && pm.width() < 19 ) )
 	setPixmap( pm, Small, Normal );
@@ -187,6 +190,7 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 
 void QIconSet::setPixmap( const QPixmap & pm, Size s, Mode m )
 {
+    detach();
     if ( d ) {
 	d->small.clear();
 	d->large.clear();
@@ -448,4 +452,34 @@ bool QIconSet::isGenerated( Size s, Mode m ) const
 QPixmap QIconSet::pixmap() const
 {
     return d->defpm;
+}
+
+
+/*!  Detaches this icon set from others with which it may share data.
+  You should never need to call this function; reset() and setPixmap()
+  call it as necessary.  It exists merely so that the copy constructor
+  and operator= can be faster.
+*/
+
+void QIconSet::detach()
+{
+    if ( !d || !d->count )
+	return;
+
+    QIconSetPrivate * p = new QIconSetPrivate;
+    p->small.pm = d->small.pm;
+    p->small.generated = d->small.generated;
+    p->smallActive.pm = d->smallActive.pm;
+    p->smallActive.generated = d->smallActive.generated;
+    p->smallDisabled.pm = d->smallDisabled.pm;
+    p->smallDisabled.generated = d->smallDisabled.generated;
+    p->large.pm = d->large.pm;
+    p->large.generated = d->large.generated;
+    p->largeActive.pm = d->largeActive.pm;
+    p->largeActive.generated = d->largeActive.generated;
+    p->largeDisabled.pm = d->largeDisabled.pm;
+    p->largeDisabled.generated = d->largeDisabled.generated;
+    p->defpm = d->defpm;
+    d->deref();
+    d = p;
 }
