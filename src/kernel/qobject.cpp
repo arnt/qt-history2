@@ -85,11 +85,9 @@
   QObject with another object as parent, it will automatically do an
   insertChild() on the parent and thus show up in the parent's
   children() list. The parent receives object ownership, i.e. it will
-  automatically delete its children in its destructor.  With
-  objectTrees(), you get direct access to all root objects currently
-  existing. With queryList(), you can query all children and
-  children's children of an object for certain criteria, such as their
-  class or object name.
+  automatically delete its children in its destructor. You can look
+  for an object by name and optionally type using child() or
+  queryList(), and get the list of tree roots using objectTrees().
 
   Every object has an object name() and can report its className() and
   whether it inherits() another class in the QObject inheritance
@@ -297,13 +295,12 @@ static void remove_tree( QObject* obj )
   If the object is a widget, it will become a top-level window.
 
   The object name is a text that can be used to identify this QObject.
-  It is not very useful in the current version of Qt, but it will become
-  increasingly important in the future.
-
-  The queryList() function searches the object tree for objects that
-  matches a particular object name.
-
-  \sa parent(), name(), queryList()
+  It's particularly useful in conjunction with the Qt Designer. See \l
+  http://www.trolltech.com/designer/ for more information about that.
+  You can find an object by name (and type) using child(), and more
+  than one using queryList().
+  
+  \sa parent(), name(), child(), queryList()
 */
 
 QObject::QObject( QObject *parent, const char *name )
@@ -550,10 +547,10 @@ QStringList QObject::superClasses( bool includeThis ) const
   function.  The object name is not very useful in the current version
   of Qt, but will become increasingly important in the future.
 
-  The queryList() function searches the object tree for objects that
-  matches a particular object name.
+  You can find an object by name (and type) using child(), and more
+  than one using queryList().
 
-  \sa setName(), className(), queryList()
+  \sa setName(), className(), child(), queryList()
 */
 const char * QObject::name() const
 {
@@ -576,13 +573,10 @@ const char * QObject::name( const char * defaultName ) const
   Sets the name of this object to \e name.  The default name is the
   one assigned by the constructor.
 
-  The object name is not very useful in the current version of Qt, but
-  it will become increasingly important in the future.
+  You can find an object by name (and type) using child(), and more
+  than one using queryList().
 
-  The queryList() function searches the object tree for objects that
-  matches a particular object name.
-
-  \sa name(), className(), queryList()
+  \sa name(), className(), queryList(), child()
 */
 
 void QObject::setName( const char *name )
@@ -593,17 +587,15 @@ void QObject::setName( const char *name )
 }
 
 /*!
-  Returns the pointer to a child widget with the required name and type or
-  0 if no child matches. This function works recursive. That means it traverses
-  the entire object tree to find the child. That in turn means that names have
-  to be unique with regard to their toplevel window.
+  Searches through the children and grandchildren of this object for
+  an object named \a name and with type \a type (or a subclass of that
+  type), and returns a pointer to that object if it exists.  If \a
+  type is 0, any type matches.
 
-  If multiple widgets with the same name and type are found then it is undefined
-  which one of them is returned.
+  If there isn't any such object, this function returns null.
 
-  If \e type is set to 0 then the only criterion is the object's name.
-
-  This function is useful if you need a widget of a dialog that was created from a ressource file.
+  If there is more than one, one of them is retured; use queryList()
+  if you need all of them.
 */
 
 QObject* QObject::child( const char *name, const char *type )
@@ -926,13 +918,13 @@ static void objSearch( QObjectList *result,
   in the list and the first child added is the \link QList::last()
   last\endlink object in the list.
 
-  Note that the list order might change when \link QWidget widget\endlink
-  children are \link QWidget::raise() raised\endlink or \link
-  QWidget::lower() lowered\endlink. A widget that is raised becomes the
-  last object in the list.  A widget that is lowered becomes the first
-  object in the list.
+  Note that the list order changes when QWidget children are \link
+  QWidget::raise() raised\endlink or \link QWidget::lower()
+  lowered.\endlink A widget that is raised becomes the last object in
+  the list, and a widget that is lowered becomes the first object in
+  the list.
 
-  \sa queryList(), parent(), insertChild(), removeChild()
+  \sa child(), queryList(), parent(), insertChild(), removeChild()
 */
 
 
@@ -953,45 +945,48 @@ const QObjectList *QObject::objectTrees()
     return object_trees;
 }
 
-/*!
-  Returns a list of child objects found by a query.
 
-  The query is specified by:
-  \arg \a inheritsClass is the name of the base class that an object should
-  inherit. Any class will be matched if \a inheritsClass is 0.
-  \arg \a objName is the object name to search for. Any object name will be
-  matched if \a objName is 0.
-  \arg \a regexpMatch specifies whether \a objName is a regular expression
-  (default) or not.
-  \arg \a recursiveSearch must be \c TRUE (default) if you want to search
-  the entire object tree, or \c FALSE if you want the search to traverse
-  just the 1st level child objects of this object.
+/*!  Searches the children and optinally grandchildren of this object,
+  and returns a list of those objects that are named or matches \a
+  objName and inherit \a ineritsClass.  If \a inheritsClass is 0 (the
+  default), all classes match.  IF \a objName is 0 (the default), all
+  object names match.
 
-  Example:
+  If \a regexpMatch is TRUE (the default), \a objName is a regexp that
+  the objects's names must match.  If \a regexpMatch is FALSE, \a
+  objName is a string and object names must match it exactly.
+
+  Note that \a ineritsClass uses single inheritance from QObject, the
+  way inherits() does.  According to inherits(), QMenuBar inherits
+  QWidget but not QMenuData. This does not quite match reality, but is
+  the best that can be done on the wide variety of compilers Qt
+  supports.
+
+  Finally, if \a recursiveSearch is TRUE (the default), queryList()
+  searches nth-generation as well as first-generation children.
+
+  If all this seems a bit complex for your needs, the simpler function
+  child() may be what you want.
+
+  This somewhat contrived example disables all the buttons in this
+  window:
   \code
-    //
-    // Sets a Courier 24 point fonts for all children in myWidget that
-    // inherit QButton (i.e. QPushButton, QCheckBox, QRadioButton).
-    //
-    QObjectList	*list = myWidget->queryList( "QButton" );
-    QObjectListIt it( *list );		// iterate over the buttons
-    QFont newFont( "Courier", 24 );
+    QObjectList * l = topLevelWidget()->queryList( "QButton" );
+    QObjectListIt it( *l );		// iterate over the buttons
     QObject * obj;
     while ( (obj=it.current()) != 0 ) {	// for each found object...
 	++it;
-	((QButton*)obj)->setFont( newFont );
+	((QButton*)obj)->setEnabled( FALSE );
     }
     delete list;			// delete the list, not the objects
   \endcode
 
-  The QObjectList class is defined in the qobjcoll.h header file.
+  \warning Delete the list away as soon you have finished using it.
+  The list contains pointers that may become invalid at almost any
+  time without notice - as soon as the user closes a window you may
+  have dangling pointers, for example.
 
-  \warning
-  Delete the list away as soon you have finished using it.
-  You can get in serious trouble if you for instance try to access
-  an object that has been deleted.
-
-  \sa children(), parent(), inherits(), name(), QRegExp
+  \sa child() children(), parent(), inherits(), name(), QRegExp
 */
 
 QObjectList *QObject::queryList( const char *inheritsClass,
@@ -1161,7 +1156,15 @@ void QObject::removeChild( QObject *obj )
 
 void QObject::installEventFilter( const QObject *obj )
 {
-    if ( !eventFilters ) {
+    if ( !obj )
+	return;
+    if ( eventFilters ) {
+	int c = eventFilters->findRef( obj );
+	if ( c >= 0 )
+	    eventFilters->take( c );
+	disconnect( obj, SIGNAL(destroyed()),
+		    this, SLOT(cleanupEventFilter()) );
+    } else {
 	eventFilters = new QObjectList;
 	CHECK_PTR( eventFilters );
     }
@@ -1816,7 +1819,7 @@ QMetaObject *QObject::queryMetaObject() const
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
 /*! \overload
-  
+
   Returns a translated version of \a text in context QObject and with
   no comment, or \a text if there is no appropriate translated
   version.  All QObject subclasses which use the Q_OBJECT macro have a
