@@ -30,7 +30,6 @@ protected:
 private:
     DemoWidget *dw;
     int step;
-    int rot;
     GLuint cubeList;
     GLuint cubeTextureId;
 };
@@ -43,7 +42,6 @@ GLWidget::GLWidget(QWidget *parent)
 {
     dw = qt_cast<DemoWidget *>(parent);
     step = 0;
-    rot = 0;
     Q_ASSERT(dw);
 }
 
@@ -138,7 +136,6 @@ void GLWidget::timerEvent(QTimerEvent *)
 {
     update();
     ++step;
-    ++rot;
 }
 
 void GLWidget::paintEvent(QPaintEvent *)
@@ -149,8 +146,8 @@ void GLWidget::paintEvent(QPaintEvent *)
  		      QPoint(width(), height()), Qt::black));
     p.drawRect(0, 0, width(), height());
     p.translate(width()/2, height()/2);
-    p.rotate(++rot % 360);
-    p.shear(dw->xfunc(rot*0.5), dw->yfunc(rot*0.5));
+    p.rotate(step % 360);
+    p.shear(dw->xfunc(step*0.8), dw->yfunc(step*0.8));
     p.translate(-width()/2, -height()/2);
     dw->fillBackground(&p);
     drawShadedCube(dw, &p, 2, 5, step);
@@ -164,7 +161,7 @@ void GLWidget::paintEvent(QPaintEvent *)
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glViewport(0, 0, 75, 75);
-    glMatrixMode( GL_PROJECTION );
+    glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
     glOrtho(-1.1, 1.1, -1.1, 1.1, 0.1, 10);
@@ -172,9 +169,9 @@ void GLWidget::paintEvent(QPaintEvent *)
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    glRotatef(rot % 360, 1, 0, 0);
-    glRotatef(rot % 360, 0, 1, 0);
-    glRotatef(rot % 360, 0, 0, 1);
+    glRotatef(step % 360, 1, 0, 0);
+    glRotatef(step % 360, 0, 1, 0);
+    glRotatef(step % 360, 0, 0, 1);
     glTranslatef(-0.5, -0.5, -0.5);
 
     glBindTexture(GL_TEXTURE_2D, cubeTextureId);
