@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#216 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#217 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12844,7 +12844,7 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 bool QChar::isPrint() const
 {
     Category c = category();
-    return c == Cc || c == Cn;
+    return !(c == Cc || c == Cn);
 }
 
 /*!
@@ -12854,30 +12854,31 @@ bool QChar::isSpace() const
 {
     if( !row() )
 	if( cell() >= 9 && cell() <=13 ) return TRUE;
-    return category() == Zs;
+    Category c = category();
+    return c >= Zs && c <= Zp;
 }
 
 /*!
   Returns whether the character is a mark (category Mn or Mc).
-  */
+*/
 bool QChar::isMark() const
 {
     Category c = category();
-    return (c == Mn || c == Mc);
+    return c >= Mn && c <= Me;
 }
 
 /*!
   Returns whether the character is puntuation (categories Pd, Ps, Pe, or Po).
-  */
+*/
 bool QChar::isPunct() const
 {
     Category c = category();
-    return (c >= Pd && c <= Po);
+    return (c >= Pc && c <= Po);
 }
 
 /*!
-  Returns whether the character is a letter
-  */
+  Returns whether the character is a letter.
+*/
 bool QChar::isLetter() const
 {
     Category c = category();
@@ -12885,16 +12886,18 @@ bool QChar::isLetter() const
 }
 
 /*!
-  Returns whether the character is a number (of any sort)
-  */
+  Returns whether the character is a number (of any sort).
+
+  \sa isDigit()
+*/
 bool QChar::isNumber() const
 {
     Category c = category();
-    return (c == Nd || c == No );
+    return c >= Nd && c <= Nl;
 }
 
 /*!
-  Returns whether the character is a decimal digit
+  Returns whether the character is a decimal digit.
   */
 bool QChar::isDigit() const
 {
@@ -12902,8 +12905,9 @@ bool QChar::isDigit() const
 }
 
 /*!
-  Returns the numeric value of the digit or -1 if the char is no digit
-  */
+  Returns the numeric value of the digit, or -1 if the character is not
+  a digit.
+*/
 int QChar::digitValue() const
 {
     const Q_INT8 *dec_row = decimal_info[row()];
@@ -12912,16 +12916,18 @@ int QChar::digitValue() const
 }
 
 /*!
-  Returns the character category
-  */
+  Returns the character category.
+  See the Unicode Standard for details.
+*/
 QChar::Category QChar::category() const
 {
     return (Category) unicode_info[row()][cell()];
 }
 
 /*!
-  Returns the characters directionality
-  */
+  Returns the characters directionality.
+  See the Unicode Standard for details.
+*/
 QChar::Direction QChar::direction() const
 {
   const Q_UINT8 *rowp = direction_info[row()];
@@ -12930,8 +12936,11 @@ QChar::Direction QChar::direction() const
 }
 
 /*!
+  This function is not supported (it may change to use Unicode
+  character classes).
+
   Returns information about the joining properties of the
-  character (needed for arabic)
+  character (needed for arabic).
 */
 QChar::Joining QChar::joining() const
 {
@@ -12942,7 +12951,8 @@ QChar::Joining QChar::joining() const
 
 
 /*!
-  Is the character a mirrored character?
+  Returns whether the character is a mirrored character (one that
+  should be reversed if the text direction is reversed).
 */
 bool QChar::mirrored() const
 {
@@ -12952,9 +12962,9 @@ bool QChar::mirrored() const
 }
 
 /*!
-  Decomposes a character into its parts. Returns QString::Null if
-  no decomposition exists
-  */
+  Decomposes a character into its parts. Returns QString::null if
+  no decomposition exists.
+*/
 QString QChar::decomposition() const
 {
     const Q_UINT16 *r = decomp_info[row()];
@@ -12972,9 +12982,9 @@ QString QChar::decomposition() const
 }
 
 /*!
-  The tag belonging to the composition of the char.
-  Returns QChar::Single if no decomposition exists
-  */
+  Returns the tag defining the composition of the character.
+  Returns QChar::Single if no decomposition exists.
+*/
 QChar::Decomposition QChar::decompositionTag() const
 {
   const Q_UINT16 *r = decomp_info[row()];
@@ -12989,7 +12999,7 @@ QChar::Decomposition QChar::decompositionTag() const
 /*!
   Returns the lowercase equivalent if the character is uppercase,
   or the character itself otherwise.
-  */
+*/
 QChar QChar::lower() const
 {
     if(category() != Lu) return *this;
@@ -13001,7 +13011,7 @@ QChar QChar::lower() const
 /*!
   Returns the uppercase equivalent if the character is lowercase,
   or the character itself otherwise.
-  */
+*/
 QChar QChar::upper() const
 {
     if(category() != Ll) return *this;
