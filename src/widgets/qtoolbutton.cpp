@@ -327,21 +327,16 @@ QSize QToolButton::sizeHint() const
     }
 
     if ( usesTextLabel() ) {
-	switch ( d->textPos ) {
-	case Under: {
-	    h += 4 + fontMetrics().height();
-	    int tw = fontMetrics().size( Qt::ShowPrefix, textLabel() ).width() +
-		     fontMetrics().width("  ");
-	    if ( tw > w )
-		w = tw;
-	} break;
-	case Right: {
-	    w += 4 + fontMetrics().size( Qt::ShowPrefix, textLabel() ).width() +
-		 fontMetrics().width("  ");
-	    int th = fontMetrics().height();
-	    if ( th > h )
-		h = th;
-	} break;
+	QSize textSize = fontMetrics().size( Qt::ShowPrefix, textLabel() );
+	textSize.setWidth( textSize.width() + fontMetrics().width(' ')*2 );
+	if ( d->textPos == Under ) {
+	    h += 4 + textSize.height();
+	    if ( textSize.width() > w )
+		w = textSize.width();
+	} else { // Right
+	    w += 4 + textSize.width();
+	    if ( textSize.height() > h )
+		h = textSize.height();
 	}
     }
 
