@@ -466,7 +466,7 @@ QDir QFileInfo::dir( bool absPath ) const
 
 bool QFileInfo::isReadable() const
 {
-    return qt_file_access( fn, R_OK );
+    return qt_file_access( fn, R_OK ) && permission( ReadUser );
 }
 
 /*!
@@ -486,7 +486,7 @@ bool QFileInfo::isWritable() const
 
 bool QFileInfo::isExecutable() const
 {
-    return qt_file_access( fn, X_OK );
+    return qt_file_access( fn, X_OK ) && permission( ExeUser );
 }
 
 /*!
