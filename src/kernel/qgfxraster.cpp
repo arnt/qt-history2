@@ -3759,6 +3759,8 @@ QScreen::QScreen()
 	free(cmap.green);
 	free(cmap.blue);
 	free(cmap.transp);
+    } else {
+	screencols=0;
     }
 }
 
