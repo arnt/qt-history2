@@ -174,7 +174,7 @@ SOFTWARE.
  * number of points to buffer before sending them off
  * to scanlines(): Must be an even number
  */
-#define NUMPTSTOBUFFER 200
+#define NUMPTSTOBUFFER 2400 // ### hm. revisit bf 4.0 beta
 
 /*
  * used to allocate buffers for points and link
