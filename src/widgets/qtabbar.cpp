@@ -593,7 +593,6 @@ void QTabBar::show()
     //  ensures that one tab is selected.
     QTab * t = l->last();
     QWidget::show();
-    d->scrolls = 0;
     updateArrowButtons();
 
     if ( t )
