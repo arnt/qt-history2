@@ -271,6 +271,7 @@ public:
         CC_ToolButton,
         CC_TitleBar,
         CC_Q3ListView,
+        CC_Dial,
 
         // do not add any values below/greater than this
         CC_CustomBase = 0xf0000000
@@ -318,6 +319,10 @@ public:
         SC_Q3ListView =            0x00000001,
         SC_Q3ListViewBranch =      0x00000002,
         SC_Q3ListViewExpand =      0x00000004,
+
+        SC_DialGroove =            0x00000001,
+        SC_DialHandle =            0x00000002,
+        SC_DialTickmarks =         0x00000004,
 
         SC_All =                   0xffffffff
     };

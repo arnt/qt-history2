@@ -15,19 +15,22 @@
 
 #ifndef QT_NO_STYLE
 
-#include "private/qdialogbuttons_p.h"
-#include "qapplication.h"
-#include "qbitmap.h"
-#include "qdockwidget.h"
-#include "qdrawutil.h"
-#include "qgroupbox.h"
-#include "qmenu.h"
-#include "qpainter.h"
-#include "qslider.h"
-#include "qstyleoption.h"
-#include "qtabbar.h"
-#include "qtoolbutton.h"
-#include "private/qcommonstylepixmaps_p.h"
+#include <qapplication.h>
+#include <qbitmap.h>
+#include <qcache.h>
+#include <qdockwidget.h>
+#include <qdrawutil.h>
+#include <qgroupbox.h>
+#include <qmenu.h>
+#include <qpainter.h>
+#include <qpaintengine.h>
+#include <qslider.h>
+#include <qstyleoption.h>
+#include <qtabbar.h>
+#include <qtoolbutton.h>
+#include <private/qcommonstylepixmaps_p.h>
+#include <private/qdialogbuttons_p.h>
+#include <private/qmath_p.h>
 
 #include <QtCore/qdebug.h>
 
@@ -1472,6 +1475,114 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
     return r;
 }
 
+static qreal angle(const QPoint &p1, const QPoint &p2)
+{
+    static const double rad_factor = 180.0 / Q_PI;
+    qreal _angle = 0.0;
+
+    if (p1.x() == p2.x()) {
+        if (p1.y() < p2.y())
+            _angle = 270.0;
+        else
+            _angle = 90.0;
+    } else  {
+        double x1, x2, y1, y2;
+
+        if (p1.x() <= p2.x()) {
+            x1 = p1.x(); y1 = p1.y();
+            x2 = p2.x(); y2 = p2.y();
+        } else {
+            x2 = p1.x(); y2 = p1.y();
+            x1 = p2.x(); y1 = p2.y();
+        }
+
+        double m = -(y2 - y1) / (x2 - x1);
+        _angle = atan(m) *  rad_factor;
+
+        if (p1.x() < p2.x())
+            _angle = 180.0 - _angle;
+        else
+            _angle = -_angle;
+    }
+    return _angle;
+}
+
+static int calcBigLineSize(int radius)
+{
+    int bigLineSize = radius / 6;
+    if (bigLineSize < 4)
+        bigLineSize = 4;
+    if (bigLineSize > radius / 2)
+        bigLineSize = radius / 2;
+    return bigLineSize;
+}
+
+static QPolygon calcArrow(const QStyleOptionSlider *dial, qreal &a)
+{
+    int width = dial->rect.width();
+    int height = dial->rect.height();
+    int r = qMin(width, height) / 2;
+    if (dial->maximum == dial->minimum)
+        a = Q_PI / 2;
+    else if (dial->dialWrapping)
+        a = Q_PI * 3 / 2 - (dial->sliderValue - dial->minimum) * 2 * Q_PI
+            / (dial->maximum - dial->minimum);
+    else
+        a = (Q_PI * 8 - (dial->sliderValue - dial->minimum) * 10 * Q_PI
+            / (dial->maximum - dial->minimum)) / 6;
+
+    int xc = width / 2;
+    int yc = height / 2;
+
+    int len = r - calcBigLineSize(r) - 5;
+    if (len < 5)
+        len = 5;
+    int back = len / 2;
+    if (back < 1)
+        back = 1;
+
+    QPolygon arrow(3);
+    arrow[0] = QPoint(int(0.5 + xc + len * qCos(a)),
+                      int(0.5 + yc - len * qSin(a)));
+    arrow[1] = QPoint(int(0.5 + xc + back * qCos(a + Q_PI * 5 / 6)),
+                      int(0.5 + yc - back * qSin(a + Q_PI * 5 / 6)));
+    arrow[2] = QPoint(int(0.5 + xc + back * qCos(a - Q_PI * 5 / 6)),
+                      int(0.5 + yc - back * qSin(a - Q_PI * 5 / 6)));
+    return arrow;
+}
+
+static QPolygon calcLines(const QStyleOptionSlider *dial, const QWidget *)
+{
+    QPolygon poly;
+    int width = dial->rect.width();
+    int height = dial->rect.height();
+    qreal r = qMin(width, height) / 2.0;
+    int bigLineSize = calcBigLineSize(int(r));
+
+    qreal xc = width / 2.0;
+    qreal yc = height / 2.0;
+    int ns = dial->tickInterval;
+    int notches = (dial->maximum + ns - 1 - dial->minimum) / ns;
+    poly.resize(2 + 2 * notches);
+    int smallLineSize = bigLineSize / 2;
+    for (int i = 0; i <= notches; ++i) {
+        qreal angle = dial->dialWrapping ? Q_PI * 3 / 2 - i * 2 * Q_PI / notches
+            : (Q_PI * 8 - i * 10 * Q_PI / notches) / 6;
+        qreal s = qSin(angle);
+        qreal c = qCos(angle);
+        if (i == 0 || (((ns * i) % dial->pageStep) == 0)) {
+            poly[2 * i] = QPoint(int(xc + (r - bigLineSize) * c),
+                    int(yc - (r - bigLineSize) * s));
+            poly[2 * i + 1] = QPoint(int(xc + r * c), int(yc - r * s));
+        } else {
+            poly[2 * i] = QPoint(int(xc + (r - 1 - smallLineSize) * c),
+                    int(yc - (r - 1 - smallLineSize) * s));
+            poly[2 * i + 1] = QPoint(int(xc + (r - 1) * c), int(yc -(r - 1) * s));
+        }
+    }
+    return poly;
+}
+
 /*!
   \reimp
 */
@@ -1918,6 +2029,99 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     p->restore();
                 }
             }
+        }
+        break;
+    case CC_Dial:
+        if (const QStyleOptionSlider *dial = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            // OK, this is more a port of things over
+            p->save();
+
+            // avoid dithering
+            bool hasAA = (p->renderHints() & QPainter::Antialiasing);
+            if (p->device()->paintEngine()->hasFeature(QPaintEngine::LineAntialiasing))
+                p->setRenderHint(QPainter::Antialiasing);
+
+            int width = dial->rect.width();
+            int height = dial->rect.height();
+            qreal r = qMin(width, height) / 2.0;
+            qreal d_ = r / 6.0;
+            qreal dx = d_ + (width - 2 * r) / 2.0 + 1;
+            qreal dy = d_ + (height - 2 * r) / 2.0 + 1;
+            QRect br = QRect(int(dx), int(dy), int(r * 2 - 2 * d_ - 2), int(r * 2 - 2 * d_ - 2));
+
+            QPalette pal = opt->palette;
+            // draw notches
+            if (dial->subControls & QStyle::SC_DialTickmarks) {
+                p->setPen(pal.foreground().color());
+                p->drawLines(calcLines(dial, widget)); // ### calcLines could be cached...
+            }
+
+            if (dial->state & State_Enabled) {
+                p->setBrush(pal.brush(QPalette::ColorRole(styleHint(SH_Dial_BackgroundRole,
+                                                                    dial, widget))));
+                p->setPen(Qt::NoPen);
+                p->drawEllipse(br);
+                p->setBrush(Qt::NoBrush);
+            }
+            p->setPen(QPen(pal.dark().color()));
+            p->drawArc(br, 60 * 16, 180 * 16);
+            p->setPen(QPen(pal.light().color()));
+            p->drawArc(br, 240 * 16, 180 * 16);
+
+            qreal a;
+            QPolygon arrow(calcArrow(dial, a));
+
+            p->setPen(Qt::NoPen);
+            p->setBrush(pal.button());
+            p->drawPolygon(arrow);
+
+            a = angle(QPoint(width / 2, height / 2), arrow[0]);
+            p->setBrush(Qt::NoBrush);
+
+            if (a <= 0 || a > 200) {
+                p->setPen(pal.light().color());
+                p->drawLine(arrow[2], arrow[0]);
+                p->drawLine(arrow[1], arrow[2]);
+                p->setPen(pal.dark().color());
+                p->drawLine(arrow[0], arrow[1]);
+            } else if (a > 0 && a < 45) {
+                p->setPen(pal.light().color());
+                p->drawLine(arrow[2], arrow[0]);
+                p->setPen(pal.dark().color());
+                p->drawLine(arrow[1], arrow[2]);
+                p->drawLine(arrow[0], arrow[1]);
+            } else if (a >= 45 && a < 135) {
+                p->setPen(pal.dark().color());
+                p->drawLine(arrow[2], arrow[0]);
+                p->drawLine(arrow[1], arrow[2]);
+                p->setPen(pal.light().color());
+                p->drawLine(arrow[0], arrow[1]);
+            } else if (a >= 135 && a < 200) {
+                p->setPen(pal.dark().color());
+                p->drawLine(arrow[2], arrow[0]);
+                p->setPen(pal.light().color());
+                p->drawLine(arrow[0], arrow[1]);
+                p->drawLine(arrow[1], arrow[2]);
+            }
+
+            // draw focus rect around the dial
+            QStyleOptionFocusRect fropt;
+            fropt.rect = dial->rect;
+            fropt.state = dial->state;
+            fropt.palette = dial->palette;
+            if (fropt.state & QStyle::State_HasFocus) {
+                br.adjust(0, 0, 2, 2);
+                if (dial->subControls & SC_DialTickmarks) {
+                    int r = qMin(width, height) / 2;
+                    br.translate(-r / 6, - r / 6);
+                    br.setWidth(br.width() + r / 3);
+                    br.setHeight(br.height() + r / 3);
+                }
+                fropt.rect = br.adjusted(-2, -2, 2, 2);
+                drawPrimitive(QStyle::PE_FrameFocusRect, &fropt, p, widget);
+            }
+            p->setRenderHint(QPainter::Antialiasing, hasAA);
+            p->restore();
         }
         break;
     default:

@@ -15,26 +15,22 @@
 
 #ifndef QT_NO_DIAL
 
-#include "qapplication.h"
-#include "qbitmap.h"
-#include "qcolor.h"
-#include "qevent.h"
-#include "qpainter.h"
-#include "qpolygon.h"
-#include "qregion.h"
-#include "qstyle.h"
-#include "qstyleoption.h"
-#include "qpaintengine.h"
+#include <qapplication.h>
+#include <qbitmap.h>
+#include <qcolor.h>
+#include <qevent.h>
+#include <qpainter.h>
+#include <qpolygon.h>
+#include <qregion.h>
+#include <qstyle.h>
+#include <qstylepainter.h>
+#include <qstyleoption.h>
+#include <qslider.h>
 #include <private/qabstractslider_p.h>
+#include <private/qmath_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
-
-#include <math.h>
-
-static const double m_pi = 3.14159265358979323846;
-static const double rad_factor = 180.0 / m_pi;
-
 
 class QDialPrivate : public QAbstractSliderPrivate
 {
@@ -48,21 +44,15 @@ public:
         target = 3.7;
     }
 
-    QPolygon lines;
-    double target;
+    qreal target;
     uint showNotches : 1;
-    uint onlyOutside : 1;
     uint wrapping : 1;
     uint doNotEmit : 1;
 
     int valueFromPoint(const QPoint &) const;
     double angle(const QPoint &, const QPoint &) const;
-    QPolygon calcArrow(double &a) const;
-    QRect calcDial() const;
-    int calcBigLineSize() const;
-    void calcLines();
     void init();
-    void repaintScreen();
+    QStyleOptionSlider getStyleOption() const;
 };
 
 #define d d_func()
@@ -71,7 +61,6 @@ public:
 void QDialPrivate::init()
 {
     showNotches = false;
-    onlyOutside = false;
     q->setFocusPolicy(Qt::WheelFocus);
 #ifdef QT3_SUPPORT
     QObject::connect(q, SIGNAL(sliderPressed()), q, SIGNAL(dialPressed()));
@@ -80,176 +69,30 @@ void QDialPrivate::init()
 #endif
 }
 
-void QDialPrivate::repaintScreen()
+QStyleOptionSlider QDialPrivate::getStyleOption() const
 {
-    QPainter p;
-    p.begin(q);
-    if (q->paintEngine()->hasFeature(QPaintEngine::LineAntialiasing)) // avoid dithering
-        p.setRenderHint(QPainter::Antialiasing);
-
-    int width = q->width();
-    int height = q->height();
-    QRect br(calcDial());
-
-    QPalette pal = q->palette();
-    // draw notches
-    if (showNotches) {
-        calcLines();
-        p.setPen(pal.foreground().color());
-        p.drawLines(lines);
-    }
-
-    if (q->isEnabled()) {
-        p.setBrush(pal.brush((QPalette::ColorRole) q->style()->styleHint(QStyle::SH_Dial_BackgroundRole)));
-        p.setPen(Qt::NoPen);
-        p.drawEllipse(br);
-        p.setBrush(Qt::NoBrush);
-    }
-    p.setPen(QPen(pal.dark().color()));
-    p.drawArc(br, 60 * 16, 180 * 16);
-    p.setPen(QPen(pal.light().color()));
-    p.drawArc(br, 240 * 16, 180 * 16);
-
-    double a;
-    QPolygon arrow(calcArrow(a));
-
-    p.setPen(Qt::NoPen);
-    p.setBrush(pal.button());
-    if (!d->onlyOutside)
-        p.drawPolygon(arrow);
-
-    a = angle(QPoint(width / 2, height / 2), arrow[0]);
-    p.setBrush(Qt::NoBrush);
-
-    // that's still a hack...
-    if (a <= 0 || a > 200) {
-        p.setPen(pal.light().color());
-        p.drawLine(arrow[2], arrow[0]);
-        p.drawLine(arrow[1], arrow[2]);
-        p.setPen(pal.dark().color());
-        p.drawLine(arrow[0], arrow[1]);
-    } else if (a > 0 && a < 45) {
-        p.setPen(pal.light().color());
-        p.drawLine(arrow[2], arrow[0]);
-        p.setPen(pal.dark().color());
-        p.drawLine(arrow[1], arrow[2]);
-        p.drawLine(arrow[0], arrow[1]);
-    } else if (a >= 45 && a < 135) {
-        p.setPen(pal.dark().color());
-        p.drawLine(arrow[2], arrow[0]);
-        p.drawLine(arrow[1], arrow[2]);
-        p.setPen(pal.light().color());
-        p.drawLine(arrow[0], arrow[1]);
-    } else if (a >= 135 && a < 200) {
-        p.setPen(pal.dark().color());
-        p.drawLine(arrow[2], arrow[0]);
-        p.setPen(pal.light().color());
-        p.drawLine(arrow[0], arrow[1]);
-        p.drawLine(arrow[1], arrow[2]);
-    }
-
-    // draw focus rect around the dial
-    QStyleOptionFocusRect opt;
+    QStyleOptionSlider opt;
     opt.init(q);
-    if (opt.state & QStyle::State_HasFocus) {
-        br.setWidth(br.width() + 2);
-        br.setHeight(br.height() + 2);
-        if (d->showNotches) {
-            int r = qMin(width, height) / 2;
-            br.translate(-r / 6, - r / 6);
-            br.setWidth(br.width() + r / 3);
-            br.setHeight(br.height() + r / 3);
-        }
-        opt.rect = br.adjusted(-2, -2, 2, 2);
-        q->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, q);
+    opt.minimum = minimum;
+    opt.maximum = maximum;
+    opt.sliderPosition = position;
+    opt.sliderValue = value;
+    opt.singleStep = singleStep;
+    opt.pageStep = pageStep;
+    opt.upsideDown = !invertedAppearance;
+    opt.notchTarget = target;
+    opt.dialWrapping = wrapping;
+    opt.subControls = QStyle::SC_All;
+    opt.activeSubControls = QStyle::SC_None;
+    if (!showNotches) {
+        opt.subControls &= ~QStyle::SC_DialTickmarks;
+        opt.tickPosition = QSlider::TicksAbove;
+        opt.tickInterval = q->notchSize();
+    } else {
+        opt.tickPosition = QSlider::NoTicks;
+        opt.tickInterval = 0;
     }
-    p.end();
-}
-
-QPolygon QDialPrivate::calcArrow(double &a) const
-{
-    int width = q->width();
-    int height = q->height();
-    int r = qMin(width, height) / 2;
-    if (maximum == minimum)
-        a = m_pi / 2;
-    else if (wrapping)
-        a = m_pi * 3 / 2 - (value - minimum) * 2 * m_pi / (maximum - minimum);
-    else
-        a = (m_pi * 8 - (value - minimum) * 10 * m_pi / (maximum - minimum)) / 6;
-
-    int xc = width / 2;
-    int yc = height / 2;
-
-    int len = r - calcBigLineSize() - 5;
-    if (len < 5)
-        len = 5;
-    int back = len / 2;
-    if (back < 1)
-        back = 1;
-
-    QPolygon arrow(3);
-    arrow[0] = QPoint((int)(0.5 + xc + len * cos(a)),
-                      (int)(0.5 + yc - len * sin(a)));
-    arrow[1] = QPoint((int)(0.5 + xc + back * cos(a + m_pi * 5 / 6)),
-                      (int)(0.5 + yc - back * sin(a + m_pi * 5 / 6)));
-    arrow[2] = QPoint((int)(0.5 + xc + back * cos(a - m_pi * 5 / 6)),
-                      (int)(0.5 + yc - back * sin(a - m_pi * 5 / 6)));
-    return arrow;
-}
-
-QRect QDialPrivate::calcDial() const
-{
-    int width = q->width();
-    int height = q->height();
-    double r = qMin(width, height) / 2.0;
-    double d_ = r / 6.0;
-    double dx = d_ + (width - 2 * r) / 2.0 + 1;
-    double dy = d_ + (height - 2 * r) / 2.0 + 1;
-    return QRect(int(dx), int(dy),
-                 int(r * 2 - 2 * d_ - 2), int(r * 2 - 2 * d_ - 2));
-}
-
-int QDialPrivate::calcBigLineSize() const
-{
-    int r = qMin(q->width(), q->height()) / 2;
-    int bigLineSize = r / 6;
-    if (bigLineSize < 4)
-        bigLineSize = 4;
-    if (bigLineSize > r / 2)
-        bigLineSize = r / 2;
-    return bigLineSize;
-}
-
-void QDialPrivate::calcLines()
-{
-    if (lines.isEmpty()) {
-        int width = q->width();
-        int height = q->height();
-        double r = qMin(width, height) / 2.0;
-        int bigLineSize = calcBigLineSize();
-        double xc = width / 2.0;
-        double yc = height / 2.0;
-        int ns = q->notchSize();
-        int notches = (maximum + ns - 1 - minimum) / ns;
-        d->lines.resize(2 + 2 * notches);
-        int smallLineSize = bigLineSize / 2;
-        for (int i = 0; i <= notches; ++i) {
-            double angle = wrapping ? m_pi * 3 / 2 - i * 2 * m_pi / notches
-                                    : (m_pi * 8 - i * 10 * m_pi / notches) / 6;
-            double s = sin(angle);
-            double c = cos(angle);
-            if (i == 0 || (((ns * i) % pageStep) == 0)) {
-                d->lines[2 * i] = QPoint((int)(xc + (r - bigLineSize) * c),
-                                         (int)(yc - (r - bigLineSize) * s));
-                d->lines[2 * i + 1] = QPoint((int)(xc + r * c), (int)(yc - r * s));
-            } else {
-                d->lines[2 * i] = QPoint((int)(xc + (r - 1 - smallLineSize) * c),
-                                       (int)(yc - (r - 1 - smallLineSize) * s));
-                d->lines[2 * i + 1] = QPoint((int)(xc + (r - 1) * c), (int)(yc -(r - 1) * s));
-            }
-        }
-    }
+    return opt;
 }
 
 int QDialPrivate::valueFromPoint(const QPoint &p) const
@@ -258,8 +101,8 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
     double xx = (double)p.x() - q->width()/2.0;
     double a = (xx || yy) ? atan2(yy, xx) : 0;
 
-    if (a < m_pi / -2)
-        a = a + m_pi * 2;
+    if (a < Q_PI / -2)
+        a = a + Q_PI * 2;
 
     int dist = 0;
     int minv = minimum, maxv = maximum;
@@ -273,45 +116,14 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
     int r = maxv - minv;
     int v;
     if (wrapping)
-        v =  (int)(0.5 + minv + r * (m_pi * 3 / 2 - a) / (2 * m_pi));
+        v =  (int)(0.5 + minv + r * (Q_PI * 3 / 2 - a) / (2 * Q_PI));
     else
-        v =  (int)(0.5 + minv + r* (m_pi * 4 / 3 - a) / (m_pi * 10 / 6));
+        v =  (int)(0.5 + minv + r* (Q_PI * 4 / 3 - a) / (Q_PI * 10 / 6));
 
     if (dist > 0)
         v -= dist;
 
     return bound(v);
-}
-
-double QDialPrivate::angle(const QPoint &p1, const QPoint &p2) const
-{
-    double _angle = 0.0;
-
-    if (p1.x() == p2.x()) {
-        if (p1.y() < p2.y())
-            _angle = 270.0;
-        else
-            _angle = 90.0;
-    } else  {
-        double x1, x2, y1, y2;
-
-        if (p1.x() <= p2.x()) {
-            x1 = p1.x(); y1 = p1.y();
-            x2 = p2.x(); y2 = p2.y();
-        } else {
-            x2 = p1.x(); y2 = p1.y();
-            x1 = p2.x(); y1 = p2.y();
-        }
-
-        double m = -(y2 - y1) / (x2 - x1);
-        _angle = atan(m) *  rad_factor;
-
-        if (p1.x() < p2.x())
-            _angle = 180.0 - _angle;
-        else
-            _angle = -_angle;
-    }
-    return _angle;
 }
 
 /*!
@@ -353,7 +165,7 @@ double QDialPrivate::angle(const QPoint &p1, const QPoint &p2) const
     target distance between neighbouring notches in pixels. The
     default is 3.75 pixels.
 
-    Like the slider, the dial makes the QRangeControl functions
+    Like the slider, the dial makes the QAbstractSlider functions
     setValue(), addLine(), subtractLine(), addPage() and
     subtractPage() available as slots.
 
@@ -417,7 +229,6 @@ QDial::~QDial()
 /*! \reimp */
 void QDial::resizeEvent(QResizeEvent *e)
 {
-    d->lines.clear();
     QWidget::resizeEvent(e);
 }
 
@@ -427,7 +238,8 @@ void QDial::resizeEvent(QResizeEvent *e)
 
 void QDial::paintEvent(QPaintEvent *)
 {
-    d->repaintScreen();
+    QStylePainter p(this);
+    p.drawComplexControl(QStyle::CC_Dial, d->getStyleOption());
 }
 
 /*!
@@ -494,7 +306,6 @@ void QDial::mouseMoveEvent(QMouseEvent * e)
 void QDial::sliderChange(SliderChange change)
 {
     if (change == SliderRangeChange || change == SliderValueChange) {
-        d->lines.clear();
         update();
         if (change == SliderValueChange && (d->tracking || !d->doNotEmit)) {
             emit valueChanged(d->value);
@@ -509,7 +320,6 @@ void QDial::setWrapping(bool enable)
 {
     if (d->wrapping == enable)
         return;
-    d->lines.clear();
     d->wrapping = enable;
     update();
 }
@@ -548,7 +358,7 @@ int QDial::notchSize() const
     // radius of the arc
     int r = qMin(width(), height())/2;
     // length of the whole arc
-    int l = (int)(r * (d->wrapping ? 6 : 5) * m_pi / 6);
+    int l = (int)(r * (d->wrapping ? 6 : 5) * Q_PI / 6);
     // length of the arc from minValue() to minValue()+pageStep()
     if (d->maximum > d->minimum + d->pageStep)
         l = (int)(0.5 + l * d->pageStep / (d->maximum - d->minimum));
@@ -566,9 +376,8 @@ int QDial::notchSize() const
 
 void QDial::setNotchTarget(double target)
 {
-    d->lines.resize(0);
     d->target = target;
-   update();
+    update();
 }
 
 /*!
@@ -580,7 +389,7 @@ void QDial::setNotchTarget(double target)
 
     The actual size may differ from the target size.
 */
-double QDial::notchTarget() const
+qreal QDial::notchTarget() const
 {
     return d->target;
 }

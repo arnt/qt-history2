@@ -454,6 +454,8 @@ public:
     int sliderValue;
     int singleStep;
     int pageStep;
+    qreal notchTarget;
+    bool dialWrapping;
 
     QStyleOptionSlider();
     QStyleOptionSlider(const QStyleOptionSlider &other) : QStyleOptionComplex(Version, Type) { *this = other; }
@@ -468,6 +470,8 @@ public:
     QDOC_PROPERTY(int sliderValue)
     QDOC_PROPERTY(int singleStep)
     QDOC_PROPERTY(int pageStep)
+    QDOC_PROPERTY(double notchTarget)
+    QDOC_PROPERTY(bool dialWrapping)
 
 protected:
     QStyleOptionSlider(int version);

@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QDial: public QAbstractSlider
 
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(int notchSize READ notchSize)
-    Q_PROPERTY(double notchTarget READ notchTarget WRITE setNotchTarget)
+    Q_PROPERTY(qreal notchTarget READ notchTarget WRITE setNotchTarget)
     Q_PROPERTY(bool notchesVisible READ notchesVisible WRITE setNotchesVisible)
 public:
     explicit QDial(QWidget *parent = 0);
@@ -39,7 +39,7 @@ public:
     int notchSize() const;
 
     void setNotchTarget(double target);
-    double notchTarget() const;
+    qreal notchTarget() const;
     bool notchesVisible() const;
 
     QSize sizeHint() const;
