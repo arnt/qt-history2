@@ -954,6 +954,13 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
     QTextDocumentLayoutPrivate::HitPoint p = d->hitTest(f, point, &position);
     if (accuracy == QText::ExactHit && p < QTextDocumentLayoutPrivate::PointExact)
         return -1;
+
+    // ensure we stay within document bounds
+    if (position > f->lastPosition())
+        position = f->lastPosition();
+    else if (position < 0)
+        position = 0;
+
     return position;
 }
 

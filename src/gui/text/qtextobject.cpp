@@ -342,7 +342,7 @@ int QTextFrame::firstPosition() const
 int QTextFrame::lastPosition() const
 {
     if (!d->fragment_end)
-        return d->pieceTable->length();
+        return d->pieceTable->length() - 1;
     return d->pieceTable->fragmentMap().position(d->fragment_end);
 }
 
