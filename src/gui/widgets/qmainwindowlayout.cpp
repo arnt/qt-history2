@@ -66,7 +66,7 @@ enum POSITION {
 static inline uint areaForPosition(int pos)
 { return ((1u << pos) & 0xf); }
 
-static inline POSITION positionForArea(Qt::DockWindowArea area)
+static inline POSITION positionForArea(uint area)
 {
     switch (area) {
     case Qt::LeftDockWindowArea:   return LEFT;
@@ -1590,90 +1590,106 @@ int QMainWindowLayout::constrain(QDockWindowLayout *dock, int delta)
     return delta;
 }
 
-int
-QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse) const
+static
+Qt::DockWindowAreas areasForMousePosition(const QRect &r, const QPoint &p, bool floatable = false)
+{
+    const int dl = qAbs(r.left()   - p.x()),
+              dr = qAbs(r.right()  - p.x()),
+              dt = qAbs(r.top()    - p.y()),
+              db = qAbs(r.bottom() - p.y()),
+           delta = qMin(dl, qMin(dr, qMin(dt, db))),
+       threshold = 50,
+              dx = qAbs(r.center().x() - p.x()),
+              dy = qAbs(r.center().y() - p.y());
+
+    Qt::DockWindowAreas areas = 0;
+    if (delta < threshold) {
+        VDEBUG() << "    below threshold";
+        if (delta == dl || delta == dr) {
+            if (delta == dl)
+                areas = Qt::LeftDockWindowArea;
+            else
+                areas = Qt::RightDockWindowArea;
+
+            if (dt < threshold)
+                areas |= Qt::TopDockWindowArea;
+            else if (db < threshold)
+                areas |= Qt::BottomDockWindowArea;
+        } else if (delta == dt || delta == db) {
+            if (delta == dt)
+                areas = Qt::TopDockWindowArea;
+            else
+                areas = Qt::BottomDockWindowArea;
+
+            if (dl < threshold)
+                areas |= Qt::LeftDockWindowArea;
+            else if (dr < threshold)
+                areas |= Qt::RightDockWindowArea;
+        }
+    } else if (!floatable) {
+        VDEBUG() << "    not floatable";
+        areas = ((dx > dy)
+                 ? ((p.x() < r.center().x())
+                    ? Qt::LeftDockWindowArea
+                    : Qt::RightDockWindowArea)
+                 : ((p.y() < r.center().y())
+                    ? Qt::TopDockWindowArea
+                    : Qt::BottomDockWindowArea));
+    } else {
+        VDEBUG() << "    floatable";
+    }
+
+    return areas;
+}
+
+Qt::DockWindowAreas QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow,
+                                                        const QPoint &mouse) const
 {
     VDEBUG() << "  locate: mouse" << mouse;
 
-    QPoint p = parentWidget()->mapFromGlobal(mouse);
+    const QPoint p = parentWidget()->mapFromGlobal(mouse);
 
     /*
       if there is a window dock layout under the mouse, forward the
       place request
     */
     for (int i = 0; i < 4; ++i) {
-        if (!layout_info[i].item) continue;
-
-        Qt::DockWindowArea area = static_cast<Qt::DockWindowArea>(areaForPosition(i));
-
-        if (! (dockwindow->allowedAreas() & area)) continue;
-
-        if (!layout_info[i].item->geometry().contains(p)
-            && !layout_info[i].sep->geometry().contains(p)) continue;
+        if (!layout_info[i].item)
+            continue;
+        const Qt::DockWindowArea area = static_cast<Qt::DockWindowArea>(areaForPosition(i));
+        if (!dockwindow->isAreaAllowed(area))
+            continue;
+        if (layout_info[i].item->isEmpty() ||
+            (!layout_info[i].item->geometry().contains(p)
+             && !layout_info[i].sep->geometry().contains(p)))
+            continue;
         VDEBUG() << "  result: mouse over item" << i;
-        return i;
+        return area;
     }
 
-    POSITION pos = CENTER;
-    const int width = parentWidget()->width(),
-             height = parentWidget()->height(),
-                 dx = qAbs(p.x() - (width / 2)),
-                 dy = qAbs(p.y() - (height / 2));
+    Qt::DockWindowAreas areas =
+        areasForMousePosition(layout_info[4].item->geometry(), p,
+                              (dockwindow->features() & QDockWindow::DockWindowFloatable));
 
-    if (dx > dy) {
-        if (p.x() < width / 2 && dockwindow->isAreaAllowed(Qt::LeftDockWindowArea)) {
-            // left side
-            if (p.y() < height / 3 && dockwindow->isAreaAllowed(Qt::TopDockWindowArea))
-                pos = positionForArea(corners[Qt::TopLeftCorner]);
-            else if (p.y() > height * 2 / 3 && dockwindow->isAreaAllowed(Qt::BottomDockWindowArea))
-                pos = positionForArea(corners[Qt::BottomLeftCorner]);
-            else
-                pos = LEFT;
-        } else if (p.x() >= width / 2 && dockwindow->isAreaAllowed(Qt::RightDockWindowArea)) {
-            // right side
-            if (p.y() < height / 3 && dockwindow->isAreaAllowed(Qt::TopDockWindowArea))
-                pos = positionForArea(corners[Qt::TopRightCorner]);
-            else if (p.y() >= height * 2 / 3 && dockwindow->isAreaAllowed(Qt::BottomDockWindowArea))
-                pos = positionForArea(corners[Qt::BottomRightCorner]);
-            else
-                pos = RIGHT;
-        }
-
-        if (pos == CENTER) {
-            if (p.y() < height / 2 && dockwindow->isAreaAllowed(Qt::TopDockWindowArea))
-                pos = TOP;
-            else if (p.y() >= height / 2 && dockwindow->isAreaAllowed(Qt::BottomDockWindowArea))
-                pos = BOTTOM;
-        }
-    } else {
-        if (p.y() < height / 2 && dockwindow->isAreaAllowed(Qt::TopDockWindowArea)) {
-            // top side
-            if (p.x() < width / 3 && dockwindow->isAreaAllowed(Qt::LeftDockWindowArea))
-                pos = positionForArea(corners[Qt::TopLeftCorner]);
-            else if (p.x() >= width * 2 / 3 && dockwindow->isAreaAllowed(Qt::RightDockWindowArea))
-                pos = positionForArea(corners[Qt::TopRightCorner]);
-            else
-                pos = TOP;
-        } else if (p.y() >= height / 2 && dockwindow->isAreaAllowed(Qt::BottomDockWindowArea)) {
-            // bottom side
-            if (p.x() < width / 3 && dockwindow->isAreaAllowed(Qt::LeftDockWindowArea))
-                pos = positionForArea(corners[Qt::BottomLeftCorner]);
-            else if (p.x() >= width * 2 / 3 && dockwindow->isAreaAllowed(Qt::RightDockWindowArea))
-                pos = positionForArea(corners[Qt::BottomRightCorner]);
-            else
-                pos = BOTTOM;
-        }
-
-        if (pos == CENTER) {
-            if (p.x() < width / 2 && dockwindow->isAreaAllowed(Qt::LeftDockWindowArea))
-                pos = LEFT;
-            else if (p.x() >= width / 2 && dockwindow->isAreaAllowed(Qt::RightDockWindowArea))
-                pos = RIGHT;
-        }
+    switch (areas) {
+    case (Qt::LeftDockWindowArea | Qt::TopDockWindowArea):
+        areas = corners[Qt::TopLeftCorner];
+        break;
+    case (Qt::LeftDockWindowArea | Qt::BottomDockWindowArea):
+        areas = corners[Qt::BottomLeftCorner];
+        break;
+    case (Qt::RightDockWindowArea | Qt::TopDockWindowArea):
+        areas = corners[Qt::TopRightCorner];
+        break;
+    case (Qt::RightDockWindowArea | Qt::BottomDockWindowArea):
+        areas = corners[Qt::BottomRightCorner];
+        break;
+    default:
+        break;
     }
 
-    VDEBUG() << "  result:" << pos;
-    return pos;
+    VDEBUG() << "  result:" << areas;
+    return areas;
 }
 
 QRect QMainWindowLayout::placeDockWindow(QDockWindow *dockwindow,
@@ -1682,15 +1698,16 @@ QRect QMainWindowLayout::placeDockWindow(QDockWindow *dockwindow,
 {
     DEBUG("QMainWindowLayout::placeDockWindow");
 
-    POSITION pos = static_cast<POSITION>(locateDockWindow(dockwindow, mouse));
+    Qt::DockWindowAreas areas = locateDockWindow(dockwindow, mouse);
     QRect target;
 
-    if (pos == CENTER) {
+    if (!areas) {
         DEBUG() << "END of QMainWindowLayout::placeDockWindow (failed to place)";
         return target;
     }
 
     // if there is a window dock layout already here, forward the place
+    const int pos = positionForArea(areas);
     if (layout_info[pos].item && !layout_info[pos].item->isEmpty()) {
         DEBUG("  forwarding...");
         QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(layout_info[pos].item->layout());
@@ -1736,14 +1753,15 @@ void QMainWindowLayout::dropDockWindow(QDockWindow *dockwindow,
 {
     DEBUG("QMainWindowLayout::dropDockWindow");
 
-    POSITION pos = static_cast<POSITION>(locateDockWindow(dockwindow, mouse));
+    Qt::DockWindowAreas areas = locateDockWindow(dockwindow, mouse);
 
-    if (pos == CENTER) {
+    if (!areas) {
         DEBUG() << "END of QMainWindowLayout::dropDockWindow (failed to place)";
         return;
     }
 
     // if there is a window dock layout already here, forward the drop
+    const int pos = positionForArea(areas);
     if (layout_info[pos].item) {
         DEBUG() << "  forwarding...";
         QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(layout_info[pos].item->layout());

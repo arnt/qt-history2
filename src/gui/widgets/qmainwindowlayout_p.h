@@ -96,7 +96,7 @@ public:
     void endConstrain();
     int constrain(QDockWindowLayout *dock, int delta);
 
-    int locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse) const;
+    Qt::DockWindowAreas locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse) const;
     QRect placeDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
     void dropDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
 
