@@ -72,9 +72,7 @@
     Constructs an empty QObjectCleanupHandler.
 */
 QObjectCleanupHandler::QObjectCleanupHandler()
-: QObject()
 {
-    cleanupObjects.setAutoDelete( TRUE );
 }
 
 /*!
@@ -90,12 +88,12 @@ QObjectCleanupHandler::~QObjectCleanupHandler()
     Adds \a object to this cleanup handler and returns the pointer to
     the object.
 */
-QObject* QObjectCleanupHandler::add( QObject* object )
+QObject *QObjectCleanupHandler::add( QObject* object )
 {
     if ( !object )
 	return 0;
 
-    connect( object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)) );
+    connect(object, SIGNAL(destroyed(QObject *)), this, SLOT(objectDestroyed(QObject *)));
     cleanupObjects.insert( 0, object );
     return object;
 }
@@ -106,8 +104,9 @@ QObject* QObjectCleanupHandler::add( QObject* object )
 */
 void QObjectCleanupHandler::remove( QObject *object )
 {
-    if ( cleanupObjects.indexOf( object ) >= 0 ) {
-	(void) cleanupObjects.take(object);
+    int index;
+    if ((index = cleanupObjects.indexOf(object)) != -1) {
+	cleanupObjects.removeAt(index);
 	disconnect( object, SIGNAL(destroyed( QObject* )), this, SLOT(objectDestroyed( QObject* )) );
     }
 }
@@ -127,12 +126,11 @@ bool QObjectCleanupHandler::isEmpty() const
 */
 void QObjectCleanupHandler::clear()
 {
+    cleanupObjects.deleteAll();
     cleanupObjects.clear();
 }
 
-void QObjectCleanupHandler::objectDestroyed( QObject*object )
+void QObjectCleanupHandler::objectDestroyed(QObject *object)
 {
-    cleanupObjects.setAutoDelete( FALSE );
-    remove( object );
-    cleanupObjects.setAutoDelete( TRUE );
+    remove(object);
 }

@@ -117,25 +117,28 @@
     \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
 
-
-struct QAccelItem {				// internal accelerator item
+struct QAccelItem
+{
     QAccelItem(const QKeySequence &k, int i)
-	{ key=k; id=i; enabled=true; signal=0; }
-   ~QAccelItem()	       { delete signal; }
-    int		    id;
-    QKeySequence    key;
-    bool	    enabled;
-    QSignalEmitter   *signal;
-    QString	    whatsthis;
+    { key = k; id = i; enabled = true; signal = 0; }
+    ~QAccelItem() { delete signal; }
+
+    int id;
+    QKeySequence key;
+    bool enabled;
+    QSignalEmitter *signal;
+    QString whatsthis;
 };
 
 
-typedef QList<QAccelItem *> QAccelList; // internal accelerator list
+typedef QList<QAccelItem *> QAccelList;
 
-class QAccelPrivate : public QObjectPrivate {
+class QAccelPrivate : public QObjectPrivate
+{
 public:
     QAccelPrivate(QAccel* p);
     ~QAccelPrivate();
+
     QAccelList aitems;
     QPointer<QWidget> watch;
     bool ignorewhatsthis;
@@ -518,16 +521,16 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     return true;
 }
 
-QAccelPrivate::QAccelPrivate(QAccel* p)
+QAccelPrivate::QAccelPrivate(QAccel *p)
     : parent(p)
 {
     QAccelManager::self()->registerAccel(this);
-    aitems.setAutoDelete(true);
     ignorewhatsthis = false;
 }
 
 QAccelPrivate::~QAccelPrivate()
 {
+    aitems.deleteAll();
     QAccelManager::self()->unregisterAccel(this);
 }
 
@@ -695,7 +698,7 @@ void QAccel::removeItem(int id)
     for (int i = 0; i < d->aitems.size(); ++i) {
 	register QAccelItem *item = d->aitems.at(i);
 	if (item->id == id) {
-	    d->aitems.removeAt(i);
+	    delete d->aitems.takeAt(i);
 	    return;
 	}
     }
@@ -708,6 +711,7 @@ void QAccel::removeItem(int id)
 
 void QAccel::clear()
 {
+    d->aitems.deleteAll();
     d->aitems.clear();
 }
 
