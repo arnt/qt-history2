@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#68 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#69 $
 #
 # this is a massive hack, written very quickly
 #
@@ -949,7 +949,7 @@ sub fixdefvalues {
     local ($url, $args) = @_;
     local (@ha, @ca, $_, $changed);
 
-    if (defined($def{$url}) && ($args =~ /\,/) && ($def{$url} =~ /\,/)) {
+    if (defined($def{$url})) {
 	@ha = split(/\,/, $args);
 	$_ = $def{$url};
 	s/.*\(//s;
@@ -966,13 +966,45 @@ sub fixdefvalues {
 	    }
 	}
 	if ($changed > 0) {
+#print "changed ", $def{$url};
 	    $_ = join(",", @ca);
 	    $def{$url} =~ s/\(.*?\)/($_)/s;
+#print " to ", $def{$url}, "\n";
+	} else {
+#print "unchanged: ", $def{$url}, "\n";
 	}
     }
 }
 
 
+#
+# as in 'sort weirdly keys %type'
+#
+sub weirdly {
+    local ($aa, $bb);
+
+    $aa = $name{$a};
+    $aa =~ s/::~/::_/;
+    $bb = $name{$b};
+    $bb =~ s/::~/::_/;
+    if ($aa eq $bb) {
+	if (defined($overload{$b})) {
+	    if (defined($overload{$a})) {
+		return ($def{$a} cmp $def{$b});
+	    } else {
+		return (-1);
+	    }
+	} else {
+	    if (defined($overload{$a})) {
+		return (1);
+	    } else {
+		return ($def{$a} cmp $def{$b});
+	    }
+	}
+    } else {
+	return ($aa cmp $bb);
+    }
+}
 
 
 sub printclass {
@@ -1214,7 +1246,7 @@ sub printclass {
 	print O "<hr><p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
     }
 
-    foreach $url ( sort keys %fndocs ) {
+    foreach $url ( sort weirdly keys %fndocs ) {
 	next unless ($doc{$url} =~ /\S/s);
 
 	$documented{$url}++;
