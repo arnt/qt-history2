@@ -55,9 +55,10 @@ bool qSharedBuild()
   System detection routines
  *****************************************************************************/
 
-#ifndef Q_BYTE_ORDER
-static const unsigned int one = 1;
-const bool QSysInfo::ByteOrder = ((*((unsigned char *) &one) == 0) ? BigEndian : LittleEndian);
+#if defined(QT_BUILD_QMAKE)
+// needed to bootstrap qmake
+static const unsigned int qt_one = 1;
+const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian : LittleEndian);
 #endif
 
 /*! \fn bool qSysInfo( int *wordSize, bool *bigEndian )

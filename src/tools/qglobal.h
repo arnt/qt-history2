@@ -967,9 +967,12 @@ public:
 #    error "undefined byte order"
 #  endif
     };
-#else
+#elif defined(QT_BUILD_QMAKE)
+    // needed to bootstrap qmake
     };
-    static const bool ByteOrder;
+    static const int ByteOrder;
+#else
+#  error "Qt not configured correctly, please run configure."
 #endif
 };
 
