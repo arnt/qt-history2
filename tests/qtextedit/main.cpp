@@ -27,12 +27,15 @@
 #include "qsimplerichtext.h"
 
 #if defined(QTEXTEDIT_OPEN_API)
+
 #if defined(CPP_EDITOR)
 #include "qcppsyntaxhighlighter.h"
 #endif
+
 #if defined(SPELL_CHECKER)
 #include "qspellchecker.h"
 #endif
+
 #endif
 
 class SimpleText : public QWidget
@@ -218,6 +221,7 @@ public:
 
 private slots:
     void familyChanged( const QString &f ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -225,8 +229,10 @@ private slots:
 	lock = FALSE;
 	lock = FALSE;
 	edit->viewport()->setFocus();
+#endif
     }
     void sizeChanged( const QString &s ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -234,30 +240,38 @@ private slots:
 	lock = FALSE;
 	lock = FALSE;
 	edit->viewport()->setFocus();
+#endif
     }
     void boldChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
 	edit->setBold( state == 2 );
 	lock = FALSE;
 	lock = FALSE;
+#endif
     }
     void italicChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
 	edit->setItalic( state == 2 );
 	lock = FALSE;
+#endif
     }
     void underlineChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
 	edit->setUnderline( state == 2 );
 	lock = FALSE;
+#endif
     }
     void changeColor() {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -267,43 +281,55 @@ private slots:
 	    colorChanged( col );
 	}
 	lock = FALSE;
+#endif
     }
     void leftChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignLeft );
 	lock = FALSE;
+#endif
     }
     void centerChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignHCenter );
 	lock = FALSE;
+#endif
     }
     void rightChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignRight );
 	lock = FALSE;
+#endif
     }
     void justifyChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignJustify );
 	lock = FALSE;
+#endif
     }
     void autoChanged( int state ) {
+#ifndef CPP_EDITOR
 	if ( lock || state != 2 )
 	    return;
 	lock = TRUE;
 	edit->setAlignment( Qt::AlignAuto );
 	lock = FALSE;
+#endif
     }
     void styleChanged( int i ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -323,10 +349,12 @@ private slots:
  	    edit->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListUpperAlpha );
 	lock = FALSE;
 	edit->viewport()->setFocus();
+#endif
     }
 
 
     void fontChanged( const QFont &f ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -336,15 +364,19 @@ private slots:
 	fontCombo->lineEdit()->setText( f.family() );
 	sizeCombo->lineEdit()->setText( QString::number( f.pointSize() ) );
 	lock = FALSE;
+#endif
     }
 
     void colorChanged( const QColor &c ) {
+#ifndef CPP_EDITOR
 	QPixmap pix( 16, 16 );
 	pix.fill( c );
 	color->setPixmap( pix );
+#endif
     }
 
     void alignChanged( int a ) {
+#ifndef CPP_EDITOR
 	if ( lock )
 	    return;
 	lock = TRUE;
@@ -354,13 +386,16 @@ private slots:
 	justify->setOn( a == Qt::AlignJustify );
 	aauto->setOn( a == Qt::AlignAuto );
 	lock = FALSE;
+#endif
     }
 
     void saveClicked() {
+#ifndef CPP_EDITOR
 	edit->setTextFormat( Qt::RichText );
 	edit->save( QString( "test.html" ) );
+#endif
     }
-
+    
 private:
     QToolBar *tb;
     QComboBox *fontCombo, *sizeCombo, *styleCombo;
@@ -407,17 +442,19 @@ int main( int argc, char ** argv )
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
 #if defined(SPELL_CHECKER)
-    ed.document()->setSyntaxHighlighter( new QSpellChecker( ed.document() ) );
+    ed.document()->setSyntaxHighlighter( new QSpellChecker );
 #endif
 #else
     QTextEdit ed( &mw );
     ed.load( fn, TRUE );
-    ed.document()->setSyntaxHighlighter( new QCppSyntaxHighlighter( ed.document() ) );
-    ed.document()->setIndent( new QCppIndent( ed.document() ) );
+    ed.document()->setSyntaxHighlighter( new QCppSyntaxHighlighter );
+    ed.document()->setIndent( new QCppIndent );
     ed.document()->setParenCheckingEnabled( TRUE );
     ed.document()->setCompletionEnabled( TRUE );
     mw.setCentralWidget( &ed );
-    ed.document()->setFormatter( new QTextFormatterBreakInWords( ed.document() ) );
+    ed.document()->setFormatter( new QTextFormatterBreakInWords );
+    ed.setHScrollBarMode( QScrollView::AlwaysOff );
+    ed.setVScrollBarMode( QScrollView::AlwaysOn );
     mw.setEdit( &ed );
 #endif
 #endif
