@@ -1,9 +1,5 @@
 CONFIG *= moc thread
 
-# make sure that the Qt includes are before all others... this
-# prevents us from picking up "stale" includes
-INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
-
 !debug:DEFINES += QT_NO_DEBUG
 
 !isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
@@ -29,10 +25,18 @@ for(QTLIB, QT) {
 	    INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
 	    !contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
 	 }
-	 exists($$QMAKE_INCDIR_QT/$$qlib):INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$qlib
+	 exists($$QMAKE_INCDIR_QT/$$qlib) {
+             INCLUDEPATH -= $$QMAKE_INCDIR_QT/$$qlib
+             INCLUDEPATH = $$QMAKE_INCDIR_QT/$$qlib $$INCLUDEPATH
+         }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
          LIBS   += -l$${qlib}
       }
    }
 }
+
+# make sure that the Qt includes are before all others... this
+# prevents us from picking up "stale" includes
+INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
+
 plugin:DEFINES += QT_PLUGIN
