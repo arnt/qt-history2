@@ -186,6 +186,9 @@ private:
     friend class QApplicationPrivate;
 };
 
+typedef QList<QVariant> QVariantList;
+typedef QMap<QVariant> QVariantMap;
+
 // Copied from qcorevariant.h
 inline QVariant::QVariant(Type type, void *v) : QCoreVariant(type, v) { }
 inline QVariant::QVariant(const QVariant &other) : QCoreVariant(other) { }

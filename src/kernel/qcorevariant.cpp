@@ -30,8 +30,6 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
-typedef QMap<QString,QCoreVariant> QVariantMap;
-
 template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v, const QBitArray*) { return v.toBitArray(); }
 template<> QString qt_cast<QString>(const QCoreVariant &v, const QString*) { return v.toString(); }
 #ifndef QT_NO_STRINGLIST
@@ -42,9 +40,9 @@ template<> QDate qt_cast<QDate>(const QCoreVariant &v, const QDate*) { return v.
 template<> QTime qt_cast<QTime>(const QCoreVariant &v, const QTime*) { return v.toTime(); }
 template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v, const QDateTime*) { return v.toDateTime(); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*)
+template<> QCoreVariantList qt_cast<QCoreVariantList >(const QCoreVariant &v, const QCoreVariantList*)
 { return v.toList(); }
-template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMap<QString, QCoreVariant>*)
+template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QCoreVariantMap*)
 { return v.toMap(); }
 #endif
 
@@ -89,7 +87,7 @@ static void construct(QCoreVariant::Private *x, const void *v)
 	    QCONSTRUCT(QVariantMap);
 	    break;
 	case QCoreVariant::List:
-	    QCONSTRUCT(QList<QCoreVariant>);
+	    QCONSTRUCT(QCoreVariantList);
 	    break;
 #endif
 	case QCoreVariant::Date:
@@ -148,7 +146,7 @@ static void construct(QCoreVariant::Private *x, const void *v)
 	    QCONSTRUCT_EMPTY(QVariantMap);
 	    break;
 	case QCoreVariant::List:
-	    QCONSTRUCT_EMPTY(QList<QCoreVariant>);
+	    QCONSTRUCT_EMPTY(QCoreVariantList);
 	    break;
 #endif
 	case QCoreVariant::Date:
@@ -213,7 +211,7 @@ static void clear(QCoreVariant::Private *p)
 	QCLEAR(QVariantMap);
 	break;
     case QCoreVariant::List:
-	QCLEAR(QList<QCoreVariant>);
+	QCLEAR(QCoreVariantList);
 	break;
 #endif
     case QCoreVariant::Date:
@@ -317,7 +315,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
 	QLOAD(QVariantMap);
 	break;
     case QCoreVariant::List:
-	QLOAD(QList<QCoreVariant>);
+	QLOAD(QCoreVariantList);
 	break;
 #endif
     case QCoreVariant::String:
@@ -380,7 +378,7 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
     switch (d->type) {
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::List:
-	QSAVE(QList<QCoreVariant>);
+	QSAVE(QCoreVariantList);
 	break;
     case QCoreVariant::Map:
 	QSAVE(QVariantMap);
@@ -449,7 +447,7 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     switch(a->type) {
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::List:
-	QCOMPARE(QList<QCoreVariant>);
+	QCOMPARE(QCoreVariantList);
     case QCoreVariant::Map: {
 	QVariantMap *m1 = v_cast<QVariantMap>((void *&)a->value.ptr);
 	QVariantMap *m2 = v_cast<QVariantMap>((void *&)b->value.ptr);
@@ -550,7 +548,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
     case QCoreVariant::StringList:
 	if (d->type == QCoreVariant::List) {
 	    QStringList *slst = static_cast<QStringList *>(result);
-	    QList<QCoreVariant> *list = v_cast<QList<QCoreVariant> >(d->value.ptr);
+	    QCoreVariantList *list = v_cast<QCoreVariantList >(d->value.ptr);
 	    for (int i = 0; i < list->size(); ++i)
 		slst->append(list->at(i).toString());
 	}
@@ -806,7 +804,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 #ifndef QT_NO_STRINGLIST
     case QCoreVariant::List:
 	if (d->type == QCoreVariant::StringList) {
-	    QList<QCoreVariant> *lst = static_cast<QList<QCoreVariant> *>(result);
+	    QCoreVariantList *lst = static_cast<QCoreVariantList *>(result);
 	    QStringList *slist = v_cast<QStringList>(d->value.ptr);
 	    for (int i = 0; i < slist->size(); ++i)
 		lst->append(QCoreVariant(slist->at(i)));
@@ -870,7 +868,7 @@ static bool canCast(QCoreVariant::Private *d, QCoreVariant::Type t)
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::StringList:
 	if (d->type == QCoreVariant::List) {
-	    const QList<QCoreVariant> &varlist = *v_cast<QList<QCoreVariant> >(d->value.ptr);
+	    const QCoreVariantList &varlist = *v_cast<QCoreVariantList >(d->value.ptr);
 	    for (int i = 0; i < varlist.size(); ++i) {
 		if (!varlist.at(i).canCast(QCoreVariant::String))
 		    return false;
@@ -967,7 +965,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     v.asStringList().append( "Hello" );
     \endcode
 
-    You can even store QList<QCoreVariant>s and
+    You can even store QCoreVariantLists and
     QMap<QString,QCoreVariant>s in a variant, so you can easily construct
     arbitrarily complex data structures of arbitrary types. This is
     very powerful and versatile, but may prove less memory and speed
@@ -1004,7 +1002,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
-    \value List  a QList<QCoreVariant>
+    \value List  a QCoreVariantList
     \value LongLong a long long
     \value ULongLong an unsigned long long
     \value Map  a QMap<QString,QCoreVariant>
@@ -1186,7 +1184,7 @@ QCoreVariant::QCoreVariant(QDataStream &s)
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
+  \fn QCoreVariant::QCoreVariant(const QCoreVariantList &val)
 
     Constructs a new variant with a list value, \a val.
 */
@@ -1230,7 +1228,7 @@ void QCoreVariant::detach_helper()
 /*!
     Returns the name of the type stored in the variant. The returned
     strings describe the C++ datatype used to store the data: for
-    example, "QFont", "QString", or "QList<QCoreVariant>". An Invalid
+    example, "QFont", "QString", or "QCoreVariantList". An Invalid
     variant returns 0.
 */
 const char *QCoreVariant::typeName() const
@@ -1265,7 +1263,7 @@ static const char* const type_map[ntypes] =
 {
     0,
     "QMap<QString,QCoreVariant>",
-    "QList<QCoreVariant>",
+    "QCoreVariantList",
     "QString",
     "QStringList",
     "QFont",
@@ -1501,15 +1499,15 @@ QString QCoreVariant::toString() const
     Note that if you want to iterate over the map, you should iterate
     over a copy, e.g.
     \code
-    QMap<QString, QCoreVariant> map = myVariant.toMap();
-    QMap<QString, QCoreVariant>::Iterator it = map.begin();
+    QCoreVariantMap map = myVariant.toMap();
+    QCoreVariantMap::Iterator it = map.begin();
     while( it != map.end() ) {
 	myProcessing( *it );
 	++it;
     }
     \endcode
 */
-QMap<QString, QCoreVariant> QCoreVariant::toMap() const
+QCoreVariantMap QCoreVariant::toMap() const
 {
     if (d->type != Map)
 	return QMap<QString,QCoreVariant>();
@@ -1723,27 +1721,27 @@ double QCoreVariant::toDouble(bool *ok) const
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  \fn QList<QCoreVariant> QCoreVariant::toList() const
+  \fn QCoreVariantList QCoreVariant::toList() const
 
-    Returns the variant as a QList<QCoreVariant> if the variant has
+    Returns the variant as a QCoreVariantList if the variant has
     type() List or StringList; otherwise returns an empty list.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QList<QCoreVariant> list = myVariant.toList();
-    QList<QCoreVariant>::Iterator it = list.begin();
+    QCoreVariantList list = myVariant.toList();
+    QCoreVariantList::Iterator it = list.begin();
     while( it != list.end() ) {
 	myProcessing( *it );
 	++it;
     }
     \endcode
 */
-QList<QCoreVariant> QCoreVariant::toList() const
+QCoreVariantList QCoreVariant::toList() const
 {
     if (d->type == List)
-	return *v_cast<QList<QCoreVariant> >(d->value.ptr);
-    QList<QCoreVariant> res;
+	return *v_cast<QCoreVariantList>(d->value.ptr);
+    QCoreVariantList res;
     handler->cast(d, List, &res, 0);
     return res;
 }
@@ -1894,9 +1892,9 @@ void* QCoreVariant::data()
 #endif
 #ifndef QT_NO_TEMPLATE_VARIANT
     case Map:
-	QDATA(QVariantMap);
+	QDATA(QCoreVariantMap);
     case List:
-	QDATA(QList<QCoreVariant>);
+	QDATA(QCoreVariantList);
 #endif
     case Date:
 	QDATA(QDate);

@@ -246,6 +246,8 @@ protected:
     void *castOrDetach(Type t);
 };
 
+typedef QList<QCoreVariant> QCoreVariantList;
+typedef QMap<QString, QCoreVariant> QCoreVariantMap;
 
 inline QCoreVariant::QCoreVariant() :d(&shared_invalid)
 { ++d->ref; }
