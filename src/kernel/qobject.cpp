@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#26 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#26 $";
 #endif
 
 
@@ -79,6 +79,10 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 // QObject member functions
 //
 
+/*!
+Constructs an object with parent objects \e parent and a \e name.
+*/
+
 QObject::QObject( QObject *parent, const char *name )
 {
     if ( !objectDict )				// will create object dict
@@ -99,6 +103,11 @@ QObject::QObject( QObject *parent, const char *name )
     if ( parentObj )				// add object to parent
 	parentObj->insertChild( this );
 }
+
+/*!
+Destroys the object and all its children objects.
+All signals to and from the object are automatically disconnected.
+*/
 
 QObject::~QObject()
 {
@@ -149,10 +158,33 @@ QObject::~QObject()
 }
 
 
+/*!
+Returns TRUE if this object is an instance of a specified class, otherwise
+FALSE.
+\code
+QTimer *t = new QTimer;			\/ QTimer inherits QObject
+t->isA("QTime");			\/ returns TRUE
+t->isA("QObject");			\/ returns FALSE
+\endcode
+See also: inherits().
+*/
+
 bool QObject::isA( const char *clname ) const	// test if is-a class
 {
     return strcmp(className(),clname) == 0;
 }
+
+/*!
+Returns TRUE if this object is an instance of a class that is a, or inherits a
+specified class, otherwise FALSE.
+\code
+QTimer *t = new QTimer;			\/ QTimer inherits QObject
+t->inherits("QTimer");			\/ returns TRUE
+t->inherits("QObject");			\/ returns TRUE
+t->inherits("QButton");			\/ returns FALSE
+\endcode
+See also: isA().
+*/
 
 bool QObject::inherits( const char *clname ) const
 {						// test if inherits class
@@ -166,11 +198,26 @@ bool QObject::inherits( const char *clname ) const
 }
 
 
+/*!
+Returns the class name of this object.
+*/
+
 const char *QObject::className() const		// get name of class
 {
     return "QObject";
 }
 
+
+/*!
+\fn const char *QObject::name() const
+Returns the name of this object.<br>
+See also: setName().
+*/
+
+/*!
+Sets the name of this object.<br>
+See also: name().
+*/
 
 void QObject::setName( const char *name )	// set object name
 {
@@ -180,10 +227,24 @@ void QObject::setName( const char *name )	// set object name
 }
 
 
+/*!
+This virtual function receives events to an objects and must returns
+TRUE if the event was recognized and processed, otherwise FALSE
+should be returned.
+
+The event() function can be reimplemented to customize the behavior of
+an object.
+*/
+
 bool QObject::event( QEvent *e )		// receive event
 {
     return activate_filters( e );
 }
+
+/*!
+Filters events if an event filter has been installed.
+<br>See also: installEventFilter().
+*/
 
 bool QObject::eventFilter( QObject *, QEvent * )// filter event
 {
