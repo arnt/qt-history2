@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#5 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#6 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -117,11 +117,10 @@ struct Item
 
 enum Status { Equal, First, Second };
 
-Item getItem( QTextStream &str )
+Item getItem( QTextStream &str, QString &s )
 {
     Item i;
     str.skipWhiteSpace();
-    QString s = str.readLine();
     while ( !str.atEnd() && s.isEmpty() ) {
 	s = str.readLine();
     }
@@ -155,20 +154,29 @@ Item getItem( QTextStream &str )
 	    }
 	    i.msgstr = r;
 	    i.null = FALSE;
-	    //debug( "gotItem: %s -> %s", i.msgid.ascii(), i.msgstr.ascii() );
+	    //qDebug( "getItem: %s -> %s U:%s S:%s", 
+	    //	     i.msgid.ascii(), i.msgstr.ascii(),
+	    //	     i.usercomments.ascii(), i.systemcomments.ascii() );
 	    return i;
 	} else {
-	    qDebug( "skipping %s", s.ascii() );
+	    //qDebug( "skipping %s", s.ascii() );
 	    s = str.readLine();
 	}
     }
     i.null = TRUE;
-    //debug( "notItem: %s -> %s", i.msgid.ascii(), i.msgstr.ascii() );
+    //qDebug( "getItem NULL item: %s -> %s U:%s S:%s", 
+    //	     i.msgid.ascii(), i.msgstr.ascii(),
+    //	     i.usercomments.ascii(), i.systemcomments.ascii() );
+    
     return i;
 }
 
+static int nMerge, nNew, nOld;
+
+
 void writemerge( QTextStream &str, const Item &i1, const Item &i2 )
 {
+    nMerge++;
     //qDebug( "writemerge" );
     if ( !i2.usercomments.isEmpty() )
 	str << i2.usercomments;
@@ -180,6 +188,7 @@ void writemerge( QTextStream &str, const Item &i1, const Item &i2 )
 }
 void writenew( QTextStream &str, const Item &i1 )
 {
+    nNew++;
     //qDebug( "writenew" );
     if ( !i1.usercomments.isEmpty() )
 	str << i1.usercomments;
@@ -191,6 +200,7 @@ void writenew( QTextStream &str, const Item &i1 )
 }
 void writeold( QTextStream &str, const Item &i2 )
 {
+    nOld++;
     //qDebug( "writeold" );
     if ( !i2.usercomments.isEmpty() )
 	str << "# " << i2.usercomments;
@@ -238,23 +248,25 @@ void merge( const QString& newname, const QString& oldname,
     QTextStream in2( &f2 );
     QTextStream out( &fout );
 
-
-    Item i1 = getItem( in1 );
-    Item i2 = getItem( in2 );
+    QString buf1 = in1.readLine();
+    QString buf2 = in2.readLine();
+    
+    Item i1 = getItem( in1, buf1 );
+    Item i2 = getItem( in2, buf2 );
     while ( !i1.isNull() || !i2.isNull() ) {
 	Status s = compare( i1, i2 );
 	if ( s == Equal ) {
 	    writemerge(out,i1,i2);
-	    i1 = getItem( in1 );
-	    i2 = getItem( in2 );
+	    i1 = getItem( in1, buf1 );
+	    i2 = getItem( in2, buf2 );
 	} else if ( s == First ) {
 	    //i1 < i2 || i2 == 0
 	    writenew( out, i1 );
-	    i1 = getItem( in1 );
+	    i1 = getItem( in1, buf1 );
 	} else if ( s == Second ) {
 	    //i1 > i2 || i1 == 0
 	    writeold( out, i2 );
-	    i2 = getItem( in2 );
+	    i2 = getItem( in2, buf2 );
 	}
     }
 
@@ -282,5 +294,8 @@ int main( int argc, char* argv[] )
 
     merge( argv[newfile], argv[orgfile],
 	   argc > newfile+1 ? argv[newfile+1] : argv[orgfile] );
+
+    qDebug( "Merged %d entries, added %d new entries and removed %d entries",
+	    nMerge, nNew, nOld );
     return 0;
 }
