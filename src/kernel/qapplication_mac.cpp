@@ -342,8 +342,6 @@ static EventTypeSpec events[] = {
     { kEventClassMenu, kEventMenuTargetItem },
 
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
-    { kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
-
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
     { kEventClassKeyboard, kEventRawKeyDown },
@@ -1290,6 +1288,7 @@ bool QApplication::do_mouse_down( Point *pt )
 
     bool in_widget = FALSE;
     switch( windowPart ) {
+    case 15:
     case inDesk:
 	break;
     case inGoAway:
@@ -1683,7 +1682,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    else
 		button = QMouseEvent::MidButton;
 	}
-
 	Point where;
 	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 			  sizeof(where), NULL, &where);
@@ -1919,47 +1917,33 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     }
     case kEventClassTextInput:
-	if(!(widget=focus_widget)) { //no use to me!
-	    handled_event = FALSE;
-	} else if(ekind == kEventTextInputUnicodeForKeyEvent) {
-	    bool send_back_event = FALSE;
+	handled_event = FALSE;
+	if(ekind == kEventTextInputUnicodeForKeyEvent && (widget=focus_widget)) {
 	    EventRef key_ev;
 	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
 	    char keyc;
 	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(keyc), NULL, &keyc);
-	    if(keyc == -126) {
+	    if(keyc < 0) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
-		if(!imstart.isAccepted()) //doesn't want the event
-		    send_back_event = TRUE;
-
-		UInt32 unilen;
-		GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
-				  NULL, 0, &unilen, NULL);
-		UniChar *unicode = (UniChar*)NewPtr(unilen);
-		GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
-				  NULL, unilen, NULL, unicode);
-		QString text((QChar*)unicode, unilen / 2);
-		DisposePtr((char*)unicode);
-		QIMEvent imend(QEvent::IMEnd, text, 1);
-		QApplication::sendSpontaneousEvent(widget, &imend);
-	    } else {
-		handled_event = FALSE;
-	    }
-	} else if(ekind == kEventTextInputUpdateActiveInputArea) {
-	    qDebug("2");
-	} else {
-	    handled_event = FALSE;
+		if(imstart.isAccepted()) { //doesn't want the event
+		    handled_event = TRUE;
+		    UInt32 unilen;
+		    GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
+				      NULL, 0, &unilen, NULL);
+		    UniChar *unicode = (UniChar*)NewPtr(unilen);
+		    GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
+				      NULL, unilen, NULL, unicode);
+		    QString text((QChar*)unicode, unilen / 2);
+		    DisposePtr((char*)unicode);
+		    QIMEvent imend(QEvent::IMEnd, text, 1);
+		    QApplication::sendSpontaneousEvent(widget, &imend);
+		}
+	    } 
 	}
 	break;
-
     case kEventClassKeyboard: {
-	if(!CallNextEventHandler(er, event)) {
-	    handled_event = TRUE;
-	    break;
-	}
-
 	UInt32 modif;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
@@ -2018,6 +2002,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	    if(key_event) {
+		//Find out if someone else wants the event, namely
+		//is it of use to text services? If so we won't bother
+		//with a QKeyEvent.
+		if(!CallNextEventHandler(er, event)) {
+		    handled_event = TRUE;
+		    break;
+		}
+
 		if(modifiers & (Qt::ControlButton | Qt::AltButton)) {
 		    mystr = QString();
 		    chr = 0;
@@ -2035,15 +2027,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
 	widget = QWidget::find( (WId)wid );
-
 	if(!widget) {
-	    if(ekind == kEventWindowShown ) {
+	    if(ekind == kEventWindowShown ) 
 		unhandled_dialogs.insert((void *)wid, (void *)1);
-	    } else if(ekind == kEventWindowHidden) {
+	    else if(ekind == kEventWindowHidden) 
 		unhandled_dialogs.remove((void *)wid);
-	    } else if(unhandled_dialogs.find((void *)wid)) {
-		handled_event = FALSE;
-	    } 
+	    handled_event = FALSE;
 	    break;
 	}
 
