@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#23 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#24 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -166,7 +166,7 @@ inline uchar *QImage::bits() const
 
 inline QRgb QImage::color( int i ) const
 {
-    return data->ctbl ? data->ctbl[i] : (ulong)-1;
+    return data->ctbl ? data->ctbl[i] : (QRgb)-1;
 }
 
 inline void QImage::setColor( int i, QRgb c )
