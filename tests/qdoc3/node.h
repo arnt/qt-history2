@@ -200,7 +200,7 @@ class Parameter
 {
 public:
     Parameter() { }
-    Parameter( const QString& leftType, const QString& rightType,
+    Parameter( const QString& leftType, const QString& rightType = "",
 	       const QString& name = "", const QString& defaultValue = "" );
     Parameter( const Parameter& p );
 

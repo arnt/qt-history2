@@ -29,7 +29,7 @@ void QsCodeParser::parseHeaderFile( const Location& location,
 				    const QString& filePath, Tree *tree )
 {
     qsTre = tree;
-    CppCodeParser::parseHeaderFile( location, filePath, tree );
+    CppCodeParser::parseSourceFile( location, filePath, tree );
 }
 
 void QsCodeParser::parseSourceFile( const Location& location,
@@ -37,6 +37,43 @@ void QsCodeParser::parseSourceFile( const Location& location,
 {
     qsTre = tree;
     CppCodeParser::parseSourceFile( location, filePath, tree );
+}
+
+const FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
+						    Tree *tree )
+{
+    /*
+      This is a quick and dirty implementation. It will be rewritten
+      when the rest of the class is implemented for real.
+    */
+    QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\(([^)]*)\\)"
+			"\\s*" );
+    QRegExp paramRegExp( "\\s*([A-Za-z0-9_]+)(?:\\s+[A-Za-z0-9_]+)?\\s*" );
+
+    if ( funcRegExp.exactMatch(synopsis) ) {
+	const ClassNode *classNode =
+		(const ClassNode *) tree->findNode( funcRegExp.cap(1),
+						    Node::Class );
+	if ( classNode == 0 )
+	    return 0;
+
+	FunctionNode clone( 0, funcRegExp.cap(2) );
+
+	QString paramStr = funcRegExp.cap( 3 );
+	QStringList params = QStringList::split( ",", paramStr );
+	QStringList::ConstIterator p = params.begin();
+	while ( p != params.end() ) {
+	    if ( paramRegExp.exactMatch(*p) ) {
+		clone.addParameter( Parameter(paramRegExp.cap(1)) );
+	    } else {
+		return 0;
+	    }
+	    ++p;
+	}
+	return classNode->findFunctionNode( &clone );
+    } else {
+	return 0;
+    }
 }
 
 Set<QString> QsCodeParser::topicCommands()
@@ -107,7 +144,7 @@ Node *QsCodeParser::processTopicCommand( Doc *doc, const QString& command,
 	quickifyClass( quickNode, qtNode, wrapperNode );
 	return quickNode;
     } else if ( command == COMMAND_QUICKFN ) {
-	return 0;
+	return (FunctionNode *) findFunctionNode( arg, qsTre );
     } else {
 	return CppCodeParser::processTopicCommand( doc, command, arg );
     }
@@ -122,10 +159,6 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass,
 				  const ClassNode *qtClass,
 				  const ClassNode *wrapperClass )
 {
-    qDebug( "%s + %s -> %s", qtClass ? qtClass->name().latin1() : "(nil)",
-	    wrapperClass ? wrapperClass->name().latin1() : "(nil)",
-	    quickClass->name().latin1() );
-
     QMap<QString, int> blackList;
 
     NodeList children = qtClass->childNodes();

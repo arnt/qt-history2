@@ -19,6 +19,8 @@ public:
     virtual void parseSourceFile( const Location& location,
 				  const QString& filePath, Tree *tree );
 
+    const FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
+
 protected:
     virtual Set<QString> topicCommands();
     virtual Node *processTopicCommand( Doc *doc, const QString& command,
