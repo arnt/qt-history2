@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#26 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -350,7 +350,7 @@ QByteArray QImageDragObject::encodedData(const char* fmt) const
 
 /*!
   \class QStoredDragObject qdragobject.h
-  \brief Simple store-value drag object for arbitrary MIME data.
+  \brief Simple stored-value drag object for arbitrary MIME data.
 
   When a block of data only has one representation, you can use
   a QStoredDragObject to hold it.
@@ -358,14 +358,15 @@ QByteArray QImageDragObject::encodedData(const char* fmt) const
 
 /*!
   Constructs a QStoredDragObject.  The parameters are passed
-  to the QDragObject constructor, and the format is set to \a format.
+  to the QDragObject constructor, and the format is set to \a mimeType.
+
+  The data will be unset.  Use setEncodedData() to set it.
 */
-QStoredDragObject::QStoredDragObject( const char* format, QWidget * dragSource, const char * name ) :
+QStoredDragObject::QStoredDragObject( const char* mimeType, QWidget * dragSource, const char * name ) :
     QDragObject(dragSource,name)
 {
     d = new QStoredDragData();
-    if ( format )
-	setFormat(format);
+    d->fmt = mimeType;
 }
 
 /*!
@@ -374,11 +375,6 @@ QStoredDragObject::QStoredDragObject( const char* format, QWidget * dragSource, 
 QStoredDragObject::~QStoredDragObject()
 {
     delete d;
-}
-
-void QStoredDragObject::setFormat( const char * mimeType )
-{
-    d->fmt = mimeType;
 }
 
 const char * QStoredDragObject::format(int i) const
@@ -390,14 +386,10 @@ const char * QStoredDragObject::format(int i) const
 }
 
 
-/*!  Sets the encoded data of this drag object to \a encodedData.  The
+/*!
+  Sets the encoded data of this drag object to \a encodedData.  The
   encoded data is what's delivered to the drop sites, and must be in a
   strictly defined and portable format.
-
-  Every subclass must call this function, normally in a higher-level
-  function such as QTextDragObject::setText(), or in a
-  reimplementation of encodedData() in case the class wants lazy
-  evaluation of the data.
 
   The drag object can't be dropped (by the user) until this function
   has been called.
