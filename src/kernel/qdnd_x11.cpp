@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#37 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -53,7 +53,7 @@ void qt_handle_xdnd_leave( QWidget *, const XEvent * );
 void qt_handle_xdnd_drop( QWidget *, const XEvent * );
 void qt_handle_xdnd_finished( QWidget *, const XEvent * );
 void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
-void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * );
+bool qt_xdnd_handle_badwindow();
 // client messages
 Atom qt_xdnd_enter;
 Atom qt_xdnd_position;
@@ -225,10 +225,6 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe )
 	return;
 
     qt_xdnd_dragsource_xid = l[0];
-    // ### can crash if the xid is wild
-    if ( qt_xdnd_dragsource_xid && !QWidget::find( qt_xdnd_dragsource_xid ) )
-	XSelectInput( qt_xdisplay(), qt_xdnd_dragsource_xid,
-		      SubstructureNotifyMask );
 
     // get the first types
     int i;
@@ -374,8 +370,6 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 	return;
     }
 
-    if ( qt_xdnd_dragsource_xid && !QWidget::find( qt_xdnd_dragsource_xid ) )
-	XSelectInput( w->x11Display(), qt_xdnd_dragsource_xid, 0 );
     qt_xdnd_dragsource_xid = 0;
     qt_xdnd_types[0] = 0;
     qt_xdnd_current_widget = 0;
@@ -399,13 +393,11 @@ static void qt_xdnd_send_leave()
     leave.data.l[4] = 0; // just null
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
-    if ( w ) {
+    if ( w )
 	qt_handle_xdnd_leave( w, (const XEvent *)&leave );
-    } else {
+    else
 	XSendEvent( w->x11Display(), qt_xdnd_current_target, FALSE,
 		    NoEventMask, (XEvent*)&leave );
-	XSelectInput( w->x11Display(), qt_xdnd_current_target, 0 );
-    }
     qt_xdnd_current_target = 0;
 }
 
@@ -463,10 +455,10 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	//debug( "unexpected event for object %p - %s/%s",
 	//       o, o->name( "unnamed" ), o->className() );
 	o->removeEventFilter( this );
+	if ( !dragSource )
+	    qApp->exit_loop();
 	return FALSE;
     }
-
-    ASSERT( object != 0 );
 
     if ( beingCancelled ) {
 	if ( e->type() == Event_KeyRelease &&
@@ -475,10 +467,13 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	    object = 0;
 	    dragSource = 0;
 	    beingCancelled = FALSE;
+	    qApp->exit_loop();
 	    return TRUE; // block the key release
 	}
 	return FALSE;
     }
+
+    ASSERT( object != 0 );
 
     if ( e->type() == Event_MouseMove ) {
 	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
@@ -492,6 +487,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	object = 0;
 	dragSource = 0;
 	beingCancelled = FALSE;
+	qApp->exit_loop();
 	return TRUE;
     } else if ( e->type() == Event_KeyPress &&
 		((QKeyEvent*)e)->key() == Key_Escape ) {
@@ -500,6 +496,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	object = 0;
 	dragSource = 0;
 	beingCancelled = FALSE;
+	qApp->exit_loop();
 	return TRUE;
     } else if ( e->type() == Event_DragResponse ) {
 	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
@@ -526,8 +523,6 @@ void QDragManager::cancel()
 {
     if ( object ) {
 	beingCancelled = TRUE;
-	if ( object->autoDelete() )
-	    delete object;
 	object = 0;
     }
 
@@ -594,13 +589,11 @@ void QDragManager::move( const QPoint & globalPos )
 	qt_xdnd_source_sameanswer = QRect( globalPos.x() - 2,
 					   globalPos.y() -2 , 5, 5 );
 
-	if ( w ) {
+	if ( w )
 	    qt_handle_xdnd_enter( w, (const XEvent *)&enter );
-	} else {
+	else
 	    XSendEvent( qt_xdisplay(), target, FALSE, NoEventMask,
 			(XEvent*)&enter );
-	    XSelectInput( qt_xdisplay(), target, SubstructureNotifyMask );
-	}
 
     }
 
@@ -655,19 +648,24 @@ void QDragManager::drop()
 
 
 
-void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * e )
+bool qt_xdnd_handle_badwindow()
 {
-    if ( e->window == qt_xdnd_current_target ) {
+    if ( qt_xdnd_source_object && qt_xdnd_current_target ) {
 	qt_xdnd_current_target = 0;
+	delete qt_xdnd_source_object;
+	qt_xdnd_source_object = 0;
+	return TRUE;
     }
-    if ( e->window == (Window)qt_xdnd_dragsource_xid ) {
+    if ( qt_xdnd_dragsource_xid ) {
 	qt_xdnd_dragsource_xid = 0;
 	if ( qt_xdnd_current_widget ) {
 	    QDragLeaveEvent e;
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 	    qt_xdnd_current_widget = 0;
 	}
+	return TRUE;
     }
+    return FALSE;
 }
 
 
@@ -867,5 +865,6 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );
 
+    qApp->enter_loop();
     return FALSE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#32 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -172,26 +172,6 @@ bool QDragObject::drag(DragMode mode)
   Subclasses must override this function.
 */
 
-/*!  Sets this object to be deleted automatically when Qt no longer
-  needs it if \a enable is TRUE, and to not be deleted by Qt if \a
-  enable is FALSE.
-
-  The default is TRUE. */
-
-void QDragObject::setAutoDelete( bool enable )
-{
-    d->autoDelete = enable;
-}
-
-
-/*!  Returns TRUE if the object should be deleted when the drag
-  operation finishes, or FALSE if it should not. */
-
-bool QDragObject::autoDelete() const
-{
-    return d->autoDelete;
-}
-
 
 
 /*!
@@ -299,7 +279,7 @@ bool QTextDrag::canDecode( QDragMoveEvent* e )
 }
 
 /*!
-  Attempts to decode the dropped information in \a e 
+  Attempts to decode the dropped information in \a e
   into \a str, returning TRUE if successful.
 
   \sa decode()
@@ -421,7 +401,7 @@ bool QImageDrag::canDecode( QDragMoveEvent* e )
 }
 
 /*!
-  Attempts to decode the dropped information in \a e 
+  Attempts to decode the dropped information in \a e
   into \a img, returning TRUE if successful.
 
   \sa canDecode()
@@ -442,7 +422,7 @@ bool QImageDrag::decode( QDropEvent* e, QImage& img )
 }
 
 /*!
-  Attempts to decode the dropped information in \a e 
+  Attempts to decode the dropped information in \a e
   into \a pm, returning TRUE if successful.
 
   This is a convenience function that converts
@@ -454,7 +434,7 @@ bool QImageDrag::decode( QDropEvent* e, QPixmap& pm )
 {
     QImage img;
     if ( decode( e, img ) )
-	return pm.convertFromImage( img ); 
+	return pm.convertFromImage( img );
     return TRUE;
 }
 

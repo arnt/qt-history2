@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#18 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#19 $
 **
 ** Definition of QDragObject
 **
@@ -26,9 +26,6 @@ class QDragObject: public QObject {
 public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
     ~QDragObject();
-
-    virtual void setAutoDelete( bool );
-    bool autoDelete() const;
 
     bool drag();
     bool dragMove();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#317 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#318 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -189,7 +189,7 @@ extern void qt_handle_xdnd_leave( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_drop( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_finished( QWidget *, const XEvent * );
 extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
-extern void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * );
+extern bool qt_xdnd_handle_badwindow();
 // client message atoms
 extern Atom qt_xdnd_enter;
 extern Atom qt_xdnd_position;
@@ -225,12 +225,13 @@ public:
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
-
-static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
-{
+    
+static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
+    if ( err->request_code == 25 && qt_xdnd_handle_badwindow() )
+	return 0;
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
-    fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
+    fatal( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
     return 0;
 }
 
@@ -1970,12 +1971,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case LeaveNotify: {			// leave window
 	QEvent e( event->type == EnterNotify ? Event_Enter : Event_Leave );
 	QApplication::sendEvent( widget, &e );
-    }
-    break;
-
-    case DestroyNotify: {
-	qt_xdnd_handle_destroy_notify( (XDestroyWindowEvent *)event );
-	// others?
     }
     break;
 
