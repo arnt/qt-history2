@@ -181,13 +181,13 @@ QWSServer::QWSServer( bool fake, QObject *parent=0, const char *name=0 ) :
 	mouseIdx = 0;
 	mouseX = 500;
 	mouseY = 300;
-	QSocketNotifier *sn = new QSocketNotifier( mouseFD, 
+	QSocketNotifier *sn = new QSocketNotifier( mouseFD,
 						   QSocketNotifier::Read,
 						   this );
 	connect( sn, SIGNAL(activated(int)),this, SLOT(readMouseData()) );
-#endif	
+#endif
 
-    
+
     }
     if ( !start() )
 	qFatal("Failed to bind to port %d",QTFB_PORT);
@@ -501,7 +501,7 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 
 void QWSServer::readMouseData()
 {
-#ifdef LINUX_MOUSE    
+#ifdef LINUX_MOUSE
     int n;
     do {
 	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
@@ -510,7 +510,7 @@ void QWSServer::readMouseData()
 	    handleMouseData();
 	}
     } while ( n > 0 );
-#endif    
+#endif
 }
 
 
@@ -526,23 +526,23 @@ void QWSServer::handleMouseData()
     static const int screen_width = 1024; //#####
     static const int screen_height = 768; //#####
     static const int accel_limit = 5;
-    static const int accel = 4;
+    static const int accel = 2;
 
-    
+
     //    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
-    
-    
+
+
     int idx = 0;
-    
+
     while ( mouseIdx-idx >= 3 ) {
 	int bstate = 0;
 	uchar *mb = mouseBuf+idx;
-	
-	if (mb[0] & 0x01) 
+
+	if (mb[0] & 0x01)
 	    bstate |= Qt::LeftButton;
-	if (mb[0] & 0x02) 
+	if (mb[0] & 0x02)
 	    bstate |= Qt::RightButton;
-	if (mb[0] & 0x04) 
+	if (mb[0] & 0x04)
 	    bstate |= Qt::MidButton;
 
 	int overflow = (mb[0]>>6 )& 0x03;
@@ -551,19 +551,19 @@ void QWSServer::handleMouseData()
 	if ( !overflow ) {
 	    bool xs = mb[0] & 0x10;
 	    bool ys = mb[0] & 0x20;
-		
+
 	    dx = xs ? mb[1]-256 : mb[1];
 	    dy = ys ? mb[2]-256 : mb[2];
 	    if ( QABS(dx) > accel_limit || QABS(dy) > accel_limit ) {
 		dx *= accel;
 		dy *= accel;
-	    }		
+	    }
 	    mouseX += dx;
-	    mouseY -= dy; // turn coordinate system
-		
+	    mouseY -= dy; // swap coordinate system
+
 	    mouseX = QMIN( QMAX( mouseX, 0 ), screen_width );
 	    mouseY = QMIN( QMAX( mouseY, 0 ), screen_height );
-		
+
 
 	    sendMouseEvent( QPoint(mouseX,mouseY), bstate );
 	}
@@ -575,15 +575,15 @@ void QWSServer::handleMouseData()
 	const char *b2 = (mb[0] & 0x02) ? "b2":"  ";//right
 	const char *b3 = (mb[0] & 0x04) ? "b3":"  ";//mid
 
-	
+
 	printf( "(%2d) %02x %02x %02x ", idx, mb[0],mb[1],mb[2] );
-	
-	
+
+
 	if ( overflow )
-	    printf( "Overflow%d %s %s %s  (%4d,%4d)\n", overflow, 
+	    printf( "Overflow%d %s %s %s  (%4d,%4d)\n", overflow,
 		    b1, b2, b3, mouseX, mouseY );
 	else
-	    printf( "%s %s %s (%+3d,%+3d)  (%4d,%4d)\n", 
+	    printf( "%s %s %s (%+3d,%+3d)  (%4d,%4d)\n",
 		    b1, b2, b3, dx, dy, mouseX, mouseY );
 #endif
     }
