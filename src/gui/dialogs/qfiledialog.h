@@ -30,7 +30,8 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
 
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(FileMode fileMode READ fileMode WRITE setFileMode)
-    Q_ENUMS(ViewMode FileMode)
+    Q_PROPERTY(AcceptMode acceptMode READ acceptMode WRITE setAcceptMode)
+    Q_ENUMS(ViewMode FileMode AcceptMode)
 
 public:
     QFileDialog(QWidget *parent=0, Qt::WFlags f=0);
@@ -57,6 +58,11 @@ public:
     enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
     void setFileMode(FileMode mode);
     FileMode fileMode() const;
+
+    enum AcceptMode { Open, Save };
+    void setAcceptMode(AcceptMode mode);
+    AcceptMode acceptMode() const;
+    
 #ifdef QT_COMPAT
     typedef FileMode Mode;
     inline QT_COMPAT void setMode(FileMode m) { setFileMode(m); }

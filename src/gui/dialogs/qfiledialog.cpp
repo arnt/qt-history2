@@ -256,10 +256,12 @@ public:
           model(0), lview(0), tview(0),
           viewMode(QFileDialog::Detail),
           fileMode(QFileDialog::AnyFile),
+          acceptMode(QFileDialog::Open),
           frame(0), lookIn(0), fileName(0), fileType(0),
           openAction(0), renameAction(0), deleteAction(0),
           reloadAction(0), sortByNameAction(0), sortBySizeAction(0),
           sortByDateAction(0), unsortedAction(0), showHiddenAction(0),
+          acceptButton(0), cancelButton(0),
           back(0), toParent(0), newFolder(0), detailMode(0), listMode(0)
         {}
 
@@ -284,6 +286,7 @@ public:
     QGenericTreeView *tview;
     QFileDialog::ViewMode viewMode;
     QFileDialog::FileMode fileMode;
+    QFileDialog::AcceptMode acceptMode;
 
     QModelIndexList history;
 
@@ -303,6 +306,9 @@ public:
     QAction *sortByDateAction;
     QAction *unsortedAction;
     QAction *showHiddenAction;
+
+    QPushButton *acceptButton;
+    QPushButton *cancelButton;
 
     QToolButton *back;
     QToolButton *toParent;
@@ -616,7 +622,7 @@ QStringList QFileDialog::selectedFiles() const
         }
     }
     if (d->fileMode == AnyFile && files.count() <= 0) // a new filename
-        files.append(d->fileName->text());
+        files.append(d->lookIn->currentText() + QDir::separator() + d->fileName->text());
     return files;
 }
 
@@ -768,6 +774,27 @@ void QFileDialog::setFileMode(FileMode mode)
 QFileDialog::FileMode QFileDialog::fileMode() const
 {
     return d->fileMode;
+}
+
+void QFileDialog::setAcceptMode(AcceptMode mode)
+{
+    d->acceptMode = mode;
+    d->openAction->setText(mode == Open ? tr("&Open") : tr("&Save"));
+    d->acceptButton->setText(mode == Open ? tr("Open") : tr("Save"));
+}
+
+/*!
+    \property QFileDialog::acceptMode
+    \brief the accept mode of the dialog
+
+    The action mode defines whether the dialog is for opening or saving files.
+
+    \sa AcceptMode acceptMode() setAcceptMode()
+*/
+
+QFileDialog::AcceptMode QFileDialog::acceptMode() const
+{
+    return d->acceptMode;
 }
 
 /*!
@@ -1343,13 +1370,13 @@ void QFileDialogPrivate::setup()
     grid->addWidget(new QLabel(tr("Files of type:"), q), 3, 0);
 
     // push buttons
-    QPushButton *accept = new QPushButton(tr("Open"), q);
-    QObject::connect(accept, SIGNAL(clicked()), q, SLOT(accept()));
-    grid->addWidget(accept, 2, 5, Qt::AlignLeft);
+    acceptButton = new QPushButton(tr("Open"), q);
+    QObject::connect(acceptButton, SIGNAL(clicked()), q, SLOT(accept()));
+    grid->addWidget(acceptButton, 2, 5, Qt::AlignLeft);
 
-    QPushButton *reject = new QPushButton(tr("Cancel"), q);
-    QObject::connect(reject, SIGNAL(clicked()), q, SLOT(reject()));
-    grid->addWidget(reject, 3, 5, Qt::AlignLeft);
+    cancelButton = new QPushButton(tr("Cancel"), q);
+    QObject::connect(cancelButton, SIGNAL(clicked()), q, SLOT(reject()));
+    grid->addWidget(cancelButton, 3, 5, Qt::AlignLeft);
 
     // conboboxes && lineedits
     lookIn = new QComboBox(q);
@@ -1812,6 +1839,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                              qt_working_dir, initialSelection,
                                              filter, selectedFilter);
     dlg->setFileMode(QFileDialog::AnyFile);
+    dlg->setAcceptMode(QFileDialog::Save);
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
