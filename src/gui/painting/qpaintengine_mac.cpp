@@ -1427,15 +1427,22 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 {
     Q_ASSERT(isActive());
 
+    //setup a clip
+    CGContextSaveGState(d->hd);
+    CGContextBeginPath(d->hd);
+    CGContextAddRect(d->hd, qt_mac_compose_rect(QRectF(r.x(), r.y(), r.width()+1, r.height()+1)));
+    CGContextClip(d->hd);
+
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform = CGAffineTransformMakeScale(r.width() / r.height(), 1);
-    CGPathAddArc(path, &transform,
-                 ((r.x() + (r.width() / 2)) / (r.width() / r.height())) + d->penOffset(),
-                 (r.y() + (r.height() / 2)) + d->penOffset(), 
-                 r.height() / 2, 0, (2 * M_PI), false);
+    CGPathAddArc(path, &transform,((r.x()+d->penOffset()) + (r.width() / 2)) / (r.width() / r.height()), 
+                 (r.y()+d->penOffset()) + (r.height() / 2), r.height() / 2, 0, (2 * M_PI), false);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
+
+    //restore
+    CGContextRestoreGState(d->hd);
 }
 
 void
