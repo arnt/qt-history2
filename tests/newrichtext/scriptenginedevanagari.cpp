@@ -158,12 +158,12 @@ static inline Position position( const QChar &ch ) {
 static int nextSyllableBoundary( const QString &s, int start, int end, bool *invalid )
 {
     *invalid = FALSE;
-    qDebug("nextSyllableBoundary: start=%d, end=%d", start, end );
+//     qDebug("nextSyllableBoundary: start=%d, end=%d", start, end );
     const QChar *uc = s.unicode()+start;
 
     int pos = 0;
     Form state = form( uc[pos] );
-    qDebug("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
+//     qDebug("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
     pos++;
 
     if ( state != Consonant && state != IndependentVowel ) {
@@ -174,7 +174,7 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
 
     while ( pos < end - start ) {
 	Form newState = form( uc[pos] );
-	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
+// 	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
 	switch( newState ) {
 	case Consonant:
 	    if ( state == Halant )
@@ -236,15 +236,18 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 			     BelowSubstFeature|PostSubstFeature;
 
     // nothing to do in this case!
-    if ( len == 1 )
+    if ( len == 1 ) {
+	attributes[0].mark = isMark( reordered.unicode()[0] );
+	attributes[0].clusterStart = FALSE;
 	return reordered;
+    }
 
     int base = 0;
     if ( form( *uc ) == Consonant ) {
 	bool reph = FALSE;
 	if ( len > 2 && isRa( uc[0] ) && form( uc[1] ) == Halant ) {
 	    reph = TRUE;
-	    qDebug("Reph");
+// 	    qDebug("Reph");
 	}
 
 	// Rule 1: find base consonant
@@ -264,12 +267,12 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	if ( reph && base == 0 )
 	    base = lastConsonant;
 
-	qDebug("base consonant at %d skipped=%s", base, lastConsonant != base ? "true" :"false" );
+// 	qDebug("base consonant at %d skipped=%s", base, lastConsonant != base ? "true" :"false" );
 
 	// Rule 2: move halant of base consonant to last one. Only
 	// possible if we skipped consonants while finding the base
 	if ( lastConsonant != base && form( uc[base+1] ) == Halant ) {
-	    qDebug("moving halant from %d to %d!", base+1, lastConsonant);
+// 	    qDebug("moving halant from %d to %d!", base+1, lastConsonant);
 	    QChar halant = uc[base+1];
 	    for ( int i = base+1; i < lastConsonant; i++ )
 		uc[i] = uc[i+1];
@@ -282,7 +285,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	    int toPos = base+1;
 	    if ( toPos < len && form( uc[toPos] ) == Matra )
 		toPos++;
-	    qDebug("moving reph from %d to %d", 0, toPos );
+// 	    qDebug("moving reph from %d to %d", 0, toPos );
 	    QChar ra = uc[0];
 	    QChar halant = uc[1];
 	    for ( int i = 2; i < toPos; i++ )
@@ -340,7 +343,7 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 		int to = fixed;
 		if ( finalOrder[toMove].position == Pre )
 		    to = 0;
-		qDebug("moving from %d to %d", i,  to );
+// 		qDebug("moving from %d to %d", i,  to );
 		QChar ch = uc[i];
 		unsigned short feature = featuresToApply[i];
 		for ( int j = i; j > to; j-- ) {
@@ -433,9 +436,9 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
     }
     attributes[0].clusterStart = TRUE;
 
-    qDebug("reordered:");
-    for ( int i = 0; i < (int)reordered.length(); i++ )
-	qDebug("    %d: %4x apply=%4x", i, reordered[i].unicode(), featuresToApply[i] );
+//     qDebug("reordered:");
+//     for ( int i = 0; i < (int)reordered.length(); i++ )
+// 	qDebug("    %d: %4x apply=%4x clusterStart=%d", i, reordered[i].unicode(), featuresToApply[i], attributes[i].clusterStart );
 
     return reordered;
 }
@@ -450,8 +453,8 @@ static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featu
     while ( sstart < end ) {
 	bool invalid;
 	int send = nextSyllableBoundary( d->string, sstart, end, &invalid );
-	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
-	       invalid ? "true" : "false" );
+// 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
+// 	       invalid ? "true" : "false" );
 	QString str = reorderSyllable( d->string, sstart, send, featuresToApply+fpos, attributes+fpos, invalid );
 	reordered += str;
 	fpos += str.length();
@@ -464,7 +467,7 @@ static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featu
 
 void ScriptEngineDevanagari::shape( ShapedItem *result )
 {
-    qDebug("ScriptEngineDevanagari::shape()");
+//     qDebug("ScriptEngineDevanagari::shape()");
 
     ShapedItemPrivate *d = result->d;
 
@@ -514,7 +517,7 @@ void ScriptEngineDevanagari::position( ShapedItem *result )
 
 void ScriptEngineDevanagari::openTypeShape( int script, const OpenTypeIface *openType, ShapedItem *result, const QString &reordered, unsigned short *featuresToApply )
 {
-    qDebug("ScriptEngineDevanagari::openTypeShape()");
+//     qDebug("ScriptEngineDevanagari::openTypeShape()");
     ShapedItemPrivate *d = result->d;
     int len = d->num_glyphs;
 
