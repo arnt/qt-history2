@@ -9,7 +9,7 @@
     \reentrant
 
     QStack\<T\> is one of Qt's generic \l{container classes}. It implements
-    a stack data structure for items of a sae type.
+    a stack data structure for items of a same type.
 
     A stack is a last in, first out (LIFO) structure. Items are added
     to the top of the stack using push() and retrieved from the top
@@ -52,8 +52,8 @@
 /*!
     \fn QStack::~QStack()
 
-    Destroys the stack. References to the values in the stack and all
-    iterators of this stack become invalid.
+    Destroys the stack. References to the values in the stack, and all
+    iterators over this stack, become invalid.
 */
 
 /*!

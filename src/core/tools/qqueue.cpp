@@ -53,8 +53,8 @@
 /*!
     \fn QQueue::~QQueue()
 
-    Destroys the queue. References to the values in the queue and all
-    iterators of this queue become invalid.
+    Destroys the queue. References to the values in the queue, and all
+    iterators over this queue, become invalid.
 */
 
 /*!

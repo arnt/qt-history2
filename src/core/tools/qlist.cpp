@@ -966,7 +966,7 @@ void **QListData::erase(void **xi)
         ...
         list.append("December");
 
-        QList<QString, int>::iterator i;
+        QList<QString>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
             cout << *i << endl;
     \endcode
@@ -1037,6 +1037,8 @@ void **QListData::erase(void **xi)
     Functions like operator*() and operator++() should not be called
     on an uninitialized iterartor. Use operator=() to assign a value
     to it before using it.
+
+    \sa QList::begin() QList::end()
 */
 
 /*! \fn QList::iterator::iterator(Node *node)
@@ -1175,7 +1177,7 @@ void **QListData::erase(void **xi)
 */
 
 /*! \class QList::const_iterator
-    \brief The QList::iterator class provides an STL-style const iterator for QList and QQueue.
+    \brief The QList::const_iterator class provides an STL-style const iterator for QList and QQueue.
 
     QList provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
@@ -1204,7 +1206,7 @@ void **QListData::erase(void **xi)
         ...
         list.append("December");
 
-        QList<QString, int>::const_iterator i;
+        QList<QString>::const_iterator i;
         for (i = list.constBegin(); i != list.constEnd(); ++i)
             cout << *i << endl;
     \endcode
@@ -1239,6 +1241,8 @@ void **QListData::erase(void **xi)
     Functions like operator*() and operator++() should not be called
     on an uninitialized iterartor. Use operator=() to assign a value
     to it before using it.
+
+    \sa QList::constBegin() QList::constEnd()
 */
 
 /*! \typedef QList::const_iterator::iterator_category

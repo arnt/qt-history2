@@ -58,7 +58,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
         QVector<QString> stringVector;
     \endcode
 
-    QVector stores an vector (or array) of items. Typically, vectors
+    QVector stores a vector (or array) of items. Typically, vectors
     are created with an initial size. For example, the following code
     constructs a QVector with 200 elements:
 
@@ -123,18 +123,6 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     particular value, use contains(). If you want to find out how
     many times a particular value occurs in the vector, use count().
 
-    Unlike plain C++ arrays, QVectors can be resized at any time by
-    calling resize(). If the new size is larger than the old size,
-    QVector might need to reallocate the whole vector. QVector tries
-    to reduce the number of reallocations by preallocating extra
-    memory up to twice as much memory as needed by the actual data.
-
-    If you know in advance approximately how many items the QVector
-    will contain, you can call reserve(), asking QVector to
-    preallocate a certain amount of memory. You can also call
-    capacity() to find out how much memory QVector actually
-    allocated.
-
     QVector provides these basic functions to add, move, and remove
     items: insert(), replace(), remove(), prepend(), append(). With
     the exception of append(), these functions can be slow (\l{linear
@@ -142,6 +130,18 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     in the vector by one position in memory. If you want a container
     class that provides fast insertion/removal in the middle, use
     QList or QLinkedList instead.
+
+    Unlike plain C++ arrays, QVectors can be resized at any time by
+    calling resize(). If the new size is larger than the old size,
+    QVector might need to reallocate the whole vector. QVector tries
+    to reduce the number of reallocations by preallocating up to twice
+    as much memory as the actual data needs.
+
+    If you know in advance approximately how many items the QVector
+    will contain, you can call reserve(), asking QVector to
+    preallocate a certain amount of memory. You can also call
+    capacity() to find out how much memory QVector actually
+    allocated.
 
     QVector's value type must be an \l{assignable data type}. This
     covers most data types that are commonly used, but the compiler
@@ -157,9 +157,9 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     QVector::iterator). In practice, these are rarely used, because
     you can use indexes into the QVector.
 
-    In addition to QVector, Qt also provides QVarLengthArray.
-    QVarLengthArray is a very low-level class with little
-    functionality that is optimized for speed.
+    In addition to QVector, Qt also provides QVarLengthArray, a very
+    low-level class with little functionality that is optimized for
+    speed.
 
     \sa QVectorIterator, QVectorMutableIterator, QList, QLinkedList
 */
@@ -421,7 +421,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
         vector.prepend("one");
         vector.prepend("two");
         vector.prepend("three");
-        // vector: ["one", "two", "three"]
+        // vector: ["three", "two", "one"]
     \endcode
 
     This is the same as vector.insert(0, \a value).
@@ -486,7 +486,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
 
     Inserts \a count copies of \a value in front of the item pointed to
     by the iterator \a before. Returns an iterator pointing at the
-    first inserted item.
+    first of the inserted items.
 */
 
 /*! \fn void QVector::replace(int i, const T &value)
@@ -527,8 +527,8 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     Example:
     \code
         QVector<QString> vector(3);
-        vector.fill("N/A");
-        // vector: ["N/A", "N/A", "N/A"]
+        vector.fill("Yes");
+        // vector: ["Yes", "Yes", "Yes"]
 
         vector.fill("oh", 5);
         // vector: ["oh", "oh", "oh", "oh", "oh"]
@@ -654,7 +654,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
 
 /*! \fn QVector::iterator QVector::erase(iterator pos)
 
-    Removes the item associated with the iterator \a pos from the
+    Removes the item pointed to by the iterator \a pos from the
     vector, and returns an iterator to the next item in the vector
     (which may be end()).
 
@@ -815,7 +815,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     iterators}. The STL-style non-const iterator is simply a typedef
     for "T *" (pointer to T).
 
-    \sa QVector::const_iterator, QVectorMutableIterator
+    \sa QVector::begin(), QVector::end(), QVector::const_iterator, QVectorMutableIterator
 */
 
 /*! \typedef QVector::const_iterator
@@ -827,7 +827,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     iterators}. The STL-style const iterator is simply a typedef for
     "const T *" (pointer to const T).
 
-    \sa QVector::iterator, QVectorIterator
+    \sa QVector::constBegin(), QVector::constEnd(), QVector::iterator, QVectorIterator
 */
 
 /*! \typedef QVector::Iterator

@@ -241,7 +241,7 @@ void QMapData::dump()
     using a Java-style iterator:
 
     \code
-        QMapIterator<QString, int> i(hash);
+        QMapIterator<QString, int> i(map);
         while (i.hasNext()) {
             i.next();
             cout << i.key() << ": " << i.value() << endl;
@@ -258,8 +258,7 @@ void QMapData::dump()
         }
     \endcode
 
-    The items are traversed in ascending order according to their
-    key.
+    The items are traversed in ascending key order.
 
     Normally, a QMap allows only one value per key. If you call
     insert() with a key that already exists in the QMap, the
@@ -392,8 +391,8 @@ void QMapData::dump()
 
 /*! \fn QMap::~QMap()
 
-    Destroys the map. References to the values in the map and all
-    iterators of this map become invalid.
+    Destroys the map. References to the values in the map, and all
+    iterators over this map, become invalid.
 */
 
 /*! \fn QMap<Key, T> &QMap::operator=(const QMap<Key, T> &other)
@@ -497,7 +496,7 @@ void QMapData::dump()
     If the item does not exist in the map, the function simply
     returns a \l{default-constructed value}. If there are multiple
     items for \a key in the map, only the most recently inserted one
-    is removed.
+    is removed and returned.
 
     \sa remove()
 */
@@ -538,8 +537,8 @@ void QMapData::dump()
     If the map contains no item with key \a key, the function inserts
     a \l{default-constructed value} into the map with key \a key, and
     returns a reference to it. If the map contains multiple items
-    with key \a key, this function returns the most recently inserted
-    value.
+    with key \a key, this function returns a reference to the most
+    recently inserted value.
 
     \sa insert(), value()
 */
@@ -655,7 +654,7 @@ void QMapData::dump()
 
 /*! \fn QMap::iterator QMap::erase(iterator pos)
 
-    Removes the (key, value) pair associated with the iterator \a pos
+    Removes the (key, value) pair pointed to by the iterator \a pos
     from the map, and returns an iterator to the next item in the
     map.
 
@@ -786,9 +785,9 @@ void QMapData::dump()
 
     Unlike QHash, which stores its items in an arbitrary order, QMap
     stores its items ordered by key. Items that share the same key
-    (because they were inserted using QMap::insertMulti()) will
-    appear consecutively, from the most recently to the least
-    recently inserted value.
+    (because they were inserted using QMap::insertMulti(), or due to a
+    merge()) will appear consecutively, from the most recently to the
+    least recently inserted value.
 
     Let's see a few examples of things we can do with a
     QMap::iterator that we cannot do with a QMap::const_iterator.
@@ -887,6 +886,8 @@ void QMapData::dump()
     Functions like key(), value(), and operator++() must not be
     called on an uninitialized iterator. Use operator=() to assign a
     value to it before using it.
+
+    \sa QMap::begin() QMap::end()
 */
 
 /*! \fn QMap::iterator::iterator(QMapData::Node *node)
@@ -899,7 +900,7 @@ void QMapData::dump()
     Returns the current item's key as a const reference.
 
     There is no direct way of changing an item's key through an
-    iterator, but it can be achieved by calling QMap::erase()
+    iterator, although it can be done by calling QMap::erase()
     followed by QMap::insert() or QMap::insertMulti().
 
     \sa value()
@@ -1115,6 +1116,8 @@ void QMapData::dump()
     Functions like key(), value(), and operator++() must not be
     called on an uninitialized iterator. Use operator=() to assign a
     value to it before using it.
+
+    \sa QMap::constBegin() QMap::constEnd()
 */
 
 /*! \fn QMap::const_iterator::const_iterator(QMapData::Node *node)
@@ -1354,7 +1357,7 @@ void QMapData::dump()
     value; instead, store a QWidget *. In addition, QMultiMap's key type
     must provide operator<(). See the QMap documentation for details.
 
-    \sa QMap, QMapIterator, QMapMutableIterator, QMultiHash
+    \sa QMap, QMapIterator, QMapMutableIterator, QMultiMap
 */
 
 /*! \fn QMultiMap::QMultiMap()

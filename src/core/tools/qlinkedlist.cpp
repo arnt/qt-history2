@@ -105,8 +105,8 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::~QLinkedList()
 
-    Destroys the list. References to the values in the list and all
-    iterators of this list become invalid.
+    Destroys the list. References to the values in the list, and all
+    iterators over this list, become invalid.
 */
 
 /*! \fn QLinkedList &QLinkedList::operator=(const QLinkedList &other)
@@ -170,7 +170,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn void QLinkedList::clear()
 
-    Removes all items from the list.
+    Removes all the items in the list.
 
     \sa removeAll()
 */
@@ -302,9 +302,9 @@ QLinkedListData QLinkedListData::shared_null = {
 
 /*! \fn QLinkedList::iterator QLinkedList::erase(iterator pos)
 
-    Removes the item associated with the iterator \a pos from the
-    list, and returns an iterator to the next item in the list (which
-    may be end()).
+    Removes the item pointed to by the iterator \a pos from the list,
+    and returns an iterator to the next item in the list (which may be
+    end()).
 
     \sa insert()
 */
@@ -514,7 +514,7 @@ QLinkedListData QLinkedListData::shared_null = {
         ...
         list.append("December");
 
-        QLinkedList<QString, int>::iterator i;
+        QLinkedList<QString>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
             cout << *i << endl;
     \endcode
@@ -601,6 +601,8 @@ QLinkedListData QLinkedListData::shared_null = {
     Functions like operator*() and operator++() should not be called
     on an uninitialized iterartor. Use operator=() to assign a value
     to it before using it.
+
+    \sa QLinkedList::begin() QLinkedList::end()
 */
 
 /*! \fn QLinkedList::iterator::iterator(Node *node)
@@ -783,7 +785,7 @@ QLinkedListData QLinkedListData::shared_null = {
         ...
         list.append("December");
 
-        QLinkedList<QString, int>::const_iterator i;
+        QLinkedList<QString>::const_iterator i;
         for (i = list.constBegin(); i != list.constEnd(); ++i)
             cout << *i << endl;
     \endcode
@@ -816,6 +818,8 @@ QLinkedListData QLinkedListData::shared_null = {
     Functions like operator*() and operator++() should not be called
     on an uninitialized iterartor. Use operator=() to assign a value
     to it before using it.
+
+    \sa QLinkedList::constBegin() QLinkedList::constEnd()
 */
 
 /*! \fn QLinkedList::const_iterator::const_iterator(Node *node)

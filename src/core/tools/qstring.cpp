@@ -5891,7 +5891,7 @@ void QString::updateProperties() const
 */
 
 /*!
-    Constructs a QString that uses the first \a length Unicode
+    Constructs a QString that uses the first \a size Unicode
     characters in the array \a unicode. The data in \a unicode is \e
     not copied. The caller must be able to guarantee that \a unicode
     will not be deleted or modified as long as the QString (or an
