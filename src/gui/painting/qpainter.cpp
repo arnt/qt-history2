@@ -1386,7 +1386,7 @@ void QPainter::drawPath(const QPainterPath &path)
             if (d->engine->emulationSpecifier) {
                 QPolygon polygon = polygons.at(i);
                 d->draw_helper(&polygon, path.fillMode() == QPainterPath::Winding,
-                               QPainterPrivate::PolygonShape, QPainterPrivate::StrokeDraw);
+                               QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
             } else {
                 d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
             }
