@@ -4,4 +4,4 @@
 #
 
 cd ${QTDIR}/util/scripts
-./mkdist.generic $* free x11 2.1
+./mkdist.generic $* free x11 2.1.0
