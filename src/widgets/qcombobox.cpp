@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#156 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#157 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -386,7 +386,7 @@ QComboBox::~QComboBox()
 
 void QComboBox::setStyle( GUIStyle s )
 {
-    if ( s != style() ) {
+    if ( style() != s ) {
 	//#####	QWidget::setStyle( s );
 	if ( !d->usingListBox ) {
 	    QPopupMenu * p = d->popup;
