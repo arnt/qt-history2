@@ -9,6 +9,8 @@ compatibility (source and binary) with Qt 3.2.2
 Compilers
 ---------
 
+Work around Solaris CC bug affecting QString::operator=(const QString &)
+when linking statically
 Fix gcc 3.4 compile problems.
 
 
@@ -76,7 +78,7 @@ Windows:
 
 Mac:
 
-Mac OS X 10.3 (Panther)-specific changes:
+Mac OS X 10.3 (Panther) changes:
 
 - QMacStyle
 	Draw push button text vertically-centered.
@@ -91,7 +93,7 @@ Mac OS X 10.3 (Panther)-specific changes:
 
 General Mac OS X changes:
 
-Fix crash on exit problem (eg. with designer)
+Fix crash on exit problem (eg. with Qt Designer).
 
 - QApplication
 	Fix mouse release problem when control is used to emulate
@@ -111,10 +113,6 @@ Fix crash on exit problem (eg. with designer)
 	Fix case where clicking menu bar would stop timers firing.
 
 X11:
-
-- Solaris specific
-	Work around compiler bug affecting QString::operator=(const
-	QString &) when linking statically
 
 - QApplication
 	Avoid endless client message loops when replying to
@@ -138,7 +136,6 @@ X11:
 Embedded:
 
 Fixed bug when applications connect then disconnect immediately.
-
 Added experimental code to handle 1bpp and 4bpp displays for
 big-endian architectures (turned off by default).
 
