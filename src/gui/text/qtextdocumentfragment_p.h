@@ -50,8 +50,8 @@ public:
 
     QTextFormatCollectionState formatCollectionState() const;
 
-    inline void appendBlock(const QTextBlockFormat &format)
-    { appendBlock(localFormatCollection->indexForFormat(format), localFormatCollection->indexForFormat(QTextCharFormat())); }
+    inline void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat())
+    { appendBlock(localFormatCollection->indexForFormat(format), localFormatCollection->indexForFormat(charFmt)); }
     void appendBlock(int blockFormatIndex, int charFormatIndex);
 
     inline void appendText(const QString &text, const QTextFormat &format)

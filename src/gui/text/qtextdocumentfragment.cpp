@@ -714,12 +714,13 @@ void QTextHTMLImporter::import()
         } else if (node->isTableCell) {
             Q_ASSERT(!tableIndices.isEmpty());
 
+            QTextCharFormat charFmt;
+            charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            fmt.setNonDeletable(true);
             fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
-            d->appendBlock(fmt);
+            d->appendBlock(fmt, charFmt);
         }
 
         if (node->isBlock) {
@@ -817,16 +818,18 @@ void QTextHTMLImporter::closeTag(int i)
     while (closedNode->parent != grandParent || (atLastNode && closedNode != &at(0))) {
         if (closedNode->tag == QLatin1String("tr")) {
             Q_ASSERT(!tableIndices.isEmpty());
+            QTextCharFormat charFmt;
+            charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            fmt.setNonDeletable(true);
             fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
             fmt.setTableCellEndOfRow(true);
-            d->appendBlock(fmt);
+            d->appendBlock(fmt, charFmt);
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tableIndices.isEmpty());
+            QTextCharFormat charFmt;
+            charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            fmt.setNonDeletable(true);
-            d->appendBlock(fmt);
+            d->appendBlock(fmt, charFmt);
             tableIndices.resize(tableIndices.size() - 1);
         } else if (closedNode->isListStart) {
 
@@ -864,4 +867,5 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
     QString unicode = codec->toUnicode(html);
     return fromHTML(unicode);
 }
+
 

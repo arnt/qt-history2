@@ -121,18 +121,18 @@ QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTable
 
     int pos = position;
 
-    QTextBlockFormat fmt = blockFormat();
-
     pieceTable->beginEditBlock();
 
 //     qDebug("---> createTable: rows=%d, cols=%d at %d", rows, cols, pos);
     // add block after table
-    fmt.setNonDeletable(true);
-    int idx = pieceTable->formatCollection()->indexForFormat(fmt);
-    pieceTable->insertBlock(pos, idx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+    QTextCharFormat charFmt;
+    charFmt.setNonDeletable(true);
+    int charIdx = pieceTable->formatCollection()->indexForFormat(charFmt);
+    pieceTable->insertBlock(pos, pieceTable->formatCollection()->indexForFormat(QTextBlockFormat()), charIdx);
 //     qDebug("      addBlock at %d", pos);
 
     // create table formats
+    QTextBlockFormat fmt = blockFormat();
     fmt.setGroup(table);
     int cellIdx = collection->indexForFormat(fmt);
     fmt.setTableCellEndOfRow(true);
@@ -140,11 +140,11 @@ QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTable
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            pieceTable->insertBlock(pos, cellIdx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+            pieceTable->insertBlock(pos, cellIdx, charIdx);
 // 	    qDebug("      addCell at %d", pos);
             ++pos;
         }
-        pieceTable->insertBlock(pos, eorIdx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+        pieceTable->insertBlock(pos, eorIdx, charIdx);
 // 	qDebug("      addEOR at %d", pos);
         ++pos;
     }

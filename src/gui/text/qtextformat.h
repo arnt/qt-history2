@@ -358,12 +358,6 @@ public:
     { setProperty(BlockBackgroundColor, int(color.rgb())); }
     inline QColor backgroundColor() const
     { if (hasProperty(BlockBackgroundColor)) return QColor(intProperty(BlockBackgroundColor)); else return QColor(); }
-
-    inline void setNonDeletable(bool d)
-    { setProperty(NonDeletable, d); }
-    inline bool nonDeletable() const
-    { return boolProperty(NonDeletable); }
-
 };
 
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat
