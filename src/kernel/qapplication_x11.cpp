@@ -41,7 +41,7 @@
 #define gettimeofday	_qt_hide_gettimeofday
 
 #include "qglobal.h"
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #undef select
 #include <windows.h>
 #define HANDLE QT_HANDLE
@@ -83,28 +83,28 @@
 #include "qthread.h"
 #endif
 
-#if defined(_OS_LINUX_) && defined(DEBUG)
+#if defined(Q_OS_LINUX) && defined(DEBUG)
 #include "qfile.h"
 #include <unistd.h>
 #endif
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #undef gettimeofday
 #endif
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 #  define BSD_COMP // needed for FIONREAD
 #endif
 
 #include <sys/ioctl.h>
 
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 #  undef BSD_COMP
 #endif
 
-#if defined(_OS_SCO_)
+#if defined(Q_OS_SCO)
 #  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
 #endif
 
@@ -118,31 +118,31 @@ static int qt_thread_pipe[2];
 #include <X11/Xlocale.h>
 #endif
 
-#if defined(_OS_IRIX_)
+#if defined(Q_OS_IRIX)
 #include <bstring.h>
 #endif
 
-#if defined(_OS_AIX_)
+#if defined(Q_OS_AIX)
 #include <strings.h>
 #endif
 
-#if defined(_OS_AIX_) && defined(_CC_GNU_)
+#if defined(Q_OS_AIX) && defined(Q_CC_GNU)
 #include <sys/time.h>
 #include <sys/select.h>
 #include <unistd.h>
 #endif
 
-#if defined(_OS_QNX_)
+#if defined(Q_OS_QNX)
 #include <sys/select.h>
 #endif
 
-#if defined(_CC_MSVC_)
+#if defined(Q_CC_MSVC)
 #pragma warning(disable: 4018)
 #undef open
 #undef close
 #endif
 
-#if defined(_OS_WIN32_) && defined(gettimeofday)
+#if defined(Q_OS_WIN32) && defined(gettimeofday)
 #undef gettimeofday
 #include <sys/timeb.h>
 inline void gettimeofday( struct timeval *t, struct timezone * )
@@ -156,7 +156,7 @@ inline void gettimeofday( struct timeval *t, struct timezone * )
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif // _OS_WIN32 etc.
-#if !defined(_OS_WIN32_)
+#if !defined(Q_OS_WIN32)
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 #endif
@@ -191,7 +191,7 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
-#if defined(_OS_AIX_) && !defined(bzero)
+#if defined(Q_OS_AIX) && !defined(bzero)
 // For FD_ZERO, which the X11 libraries define to use bzero(), even
 // though the system libraries don't have that function.
 #define bzero( s, n ) memset( (s), 0, (n) )
@@ -1162,7 +1162,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	*argcptr = j;
 
-#if defined(DEBUG) && defined(_OS_LINUX_)
+#if defined(DEBUG) && defined(Q_OS_LINUX)
 	if ( !appNoGrab && !appDoGrab ) {
 	    QCString s;
 	    s.sprintf( "/proc/%d/cmdline", getppid() );
@@ -1296,7 +1296,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 // is not the case.
 // We'll have to take a XIM / no XIM decision at run-time.
 // Taking a decision at compile-time using NO_XIM is not enough.
-#if defined (_OS_SOLARIS_) && !defined(NO_XIM)
+#if defined (Q_OS_SOLARIS) && !defined(NO_XIM)
     const char* locale = ::setlocale( LC_ALL, "" );
     if ( !locale || qstrcmp( locale, "C" ) == 0 ) {
 	locale = ::setlocale( LC_ALL, "en_US" );
@@ -1344,7 +1344,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     pipe( qt_thread_pipe );
 #endif
 
@@ -2488,7 +2488,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
     int nsel;
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
@@ -2499,7 +2499,7 @@ bool QApplication::processNextEvent( bool canWait )
 	    (**it)();
     }
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #define FDCAST (fd_set*)
 #else
 #define FDCAST (void*)
@@ -2521,7 +2521,7 @@ bool QApplication::processNextEvent( bool canWait )
     qApp->lock();
 #endif
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     if ( nsel > 0 && FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0], &c, 1);
@@ -2563,7 +2563,7 @@ bool QApplication::processNextEvent( bool canWait )
 
 void QApplication::wakeUpGuiThread()
 {
-#  if defined(_OS_UNIX_)
+#  if defined(Q_OS_UNIX)
     char c = 0;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qglobal.h"
-#ifndef _OS_MACX_
+#ifndef Q_OS_MACX
 #include "qapplication.h"
 #include "qcolor_p.h"
 #define	 GC GC_QQQ

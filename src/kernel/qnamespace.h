@@ -663,16 +663,16 @@ public:
 
 
     // "handle" type for system objects.
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #endif
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     typedef void *HANDLE;
 #endif
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     typedef unsigned long  HANDLE;
 #endif
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     typedef void* HANDLE;
 #endif
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#208 $
+** $Id: //depot/qt/main/src/moc/moc.y#209 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1204,7 +1204,7 @@ qt_sets:		  /* empty */ { }
 
 %%
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <io.h>
 #undef isatty
 extern "C" int hack_isatty( int )
@@ -1487,7 +1487,7 @@ QString cleanDirPath( const QCString &filePath )
   } else {
     if ( newPath.isEmpty() )
       newPath = QString::fromLatin1("/");
-#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
     if ( name[0] == '/' ) {
       if ( name[1] == '/' )		// "\\machine\x\ ..."
         newPath.insert( 0, '/' );
@@ -1685,7 +1685,7 @@ inline bool isIdentChar( char x )
 
 inline bool isSpace( char x )
 {
-#if defined(_CC_BOR_)
+#if defined(Q_CC_BOR)
   /*
     Borland C++ 4.5 has a weird isspace() bug.
     isspace() usually works, but not here.
@@ -2533,7 +2533,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#208 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#209 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

@@ -197,7 +197,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doExecable = (filterSpec & Executable) != 0;
     bool doHidden   = (filterSpec & Hidden)	!= 0;
 
-#if defined(_OS_OS2EMX_)
+#if defined(Q_OS_OS2EMX)
     //QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
 #else
     //QRegExp   wc( nameFilter, TRUE, TRUE );	// wild card, case sensitive

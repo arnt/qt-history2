@@ -33,7 +33,7 @@
 
 #include "qwindowdefs.h"
 
-#if defined(_CC_BOOL_DEF_)
+#if defined(Q_CC_BOOLDEF_)
 #undef	bool
 #include <windows.h>
 #define bool int

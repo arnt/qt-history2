@@ -53,7 +53,7 @@
 #include "qtextcodec.h"
 
 #include <ctype.h>
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <io.h>
 #else
 #include <unistd.h>
@@ -1960,7 +1960,7 @@ QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
 QPSPrinter::~QPSPrinter()
 {
     if ( d->fd >= 0 )
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	::_close( d->fd );
 #else
 	::close( d->fd );

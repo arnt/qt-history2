@@ -78,7 +78,7 @@ public:
     QImage( uchar* data, int w, int h, int depth,
 		QRgb* colortable, int numColors,
 		Endian bitOrder );
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     QImage( uchar* data, int w, int h, int depth, int pbl,
 		QRgb* colortable, int numColors,
 		Endian bitOrder );
@@ -122,7 +122,7 @@ public:
     int		numBytes()	const;
     int		bytesPerLine()	const;
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     QGfx * graphicsContext();
 #endif
     

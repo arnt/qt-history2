@@ -51,7 +51,7 @@
 
 // Thread definitions for UNIX platforms
 
-#if defined(_OS_LINUX_)
+#if defined(Q_OS_LINUX)
 // Linux
 #  include <features.h>
 
@@ -68,38 +68,38 @@
 #    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_DEFAULT
 #    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #  endif
-#elif defined(_OS_OSF_)
+#elif defined(Q_OS_OSF)
 // Digital UNIX - 4.0 and later has a POSIX 1003.1c implementation
 //   - should we assume > 4.0?
 #  define Q_HAS_RECURSIVE_MUTEX
 #  define Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
 #  define Q_MUTEX_TYPE MUTEX_RECURSIVE_NP
-#elif defined(_OS_AIX_)
+#elif defined(Q_OS_AIX)
 // AIX 4.3.x
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#elif defined(_OS_HPUX_)
+#elif defined(Q_OS_HPUX)
 // We only support HP/UX 11.x
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#elif defined (_OS_FREEBSD_) || defined(_OS_OPENBSD_)
+#elif defined (Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
 // FreeBSD and OpenBSD use the same user-space thread implementation
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#elif defined(_OS_SOLARIS_)
+#elif defined(Q_OS_SOLARIS)
 // Solaris 2.7 and later - we use the native Solaris threads implementation
 #  undef  Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  undef  Q_NORMAL_MUTEX_TYPE
 #  undef  Q_RECURSIVE_MUTEX_TYPE
-#elif defined(_OS_IRIX_)
+#elif defined(Q_OS_IRIX)
 #  define Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
@@ -125,7 +125,7 @@ static QIntDict<QThread> *thrDict = 0;
 extern "C" { static void * start_thread(void * t); }
 
 
-#if defined(_OS_SOLARIS_)
+#if defined(Q_OS_SOLARIS)
 
 
 #include <thread.h>
@@ -528,7 +528,7 @@ public:
 };
 
 
-#else // ! defined(_OS_SOLARIS_)
+#else // ! defined(Q_OS_SOLARIS)
 
 
 #include <pthread.h>
@@ -536,7 +536,7 @@ public:
 
 class QMutexPrivate {
 public:
-#if defined (_OS_SOLARIS_)
+#if defined (Q_OS_SOLARIS)
     mutex_t mutex;
 #else
     pthread_mutex_t mutex;
@@ -986,7 +986,7 @@ public:
 };
 
 
-#endif // defined(_OS_SOLARIS_)
+#endif // defined(Q_OS_SOLARIS)
 
 
 extern "C" {

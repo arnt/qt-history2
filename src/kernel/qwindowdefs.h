@@ -91,7 +91,7 @@ class QWidgetListIt;
 
 // Window system dependent definitions
 
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
 
 typedef struct OpaqueRgnHandle *RgnHandle;
 typedef struct OpaqueWindowPtr *WindowPtr;
@@ -104,12 +104,12 @@ typedef int WId;
 
 #endif
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include "qwindowdefs_win.h"
-#endif // _WS_WIN_
+#endif // Q_WS_WIN
 
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 
 typedef struct _XDisplay Display;
 typedef union  _XEvent XEvent;
@@ -123,15 +123,15 @@ Q_EXPORT WId	 qt_xrootwin();
 Q_EXPORT GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
 Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
-#endif // _WS_X11_
+#endif // Q_WS_X11
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
 
 typedef unsigned long  WId;
 struct QWSEvent;
 class QGfx;
 
-#endif // _WS_QWS_
+#endif // Q_WS_QWS
 
 class QApplication;
 

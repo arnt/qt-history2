@@ -50,7 +50,7 @@ const char *qGLVersion();
 #endif // QT_H
 
 #if !(defined(Q_WGL) || defined(Q_GLX))
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #define Q_WGL
 #else
 #define Q_GLX

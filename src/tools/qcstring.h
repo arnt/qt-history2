@@ -45,7 +45,7 @@
 
 #include <string.h>
 
-#if defined(_OS_SUN_) && defined(_CC_GNU_)
+#if defined(Q_OS_SUN) && defined(Q_CC_GNU)
 #include <strings.h>
 #endif
 
@@ -54,7 +54,7 @@
   Fixes and workarounds for some platforms
  *****************************************************************************/
 
-#if defined(_OS_HPUX_)
+#if defined(Q_OS_HPUX)
 // HP-UX has badly defined strstr() etc.
 inline char *qt_hack_strstr( const char *s1, const char *s2 )
 { return (char *)strstr(s1, s2); }
@@ -74,7 +74,7 @@ inline char *qt_hack_strrchr( const char *s, int c )
 
 Q_EXPORT void *qmemmove( void *dst, const void *src, uint len );
 
-#if defined(_OS_SUN_) || defined(_CC_OC_)
+#if defined(Q_OS_SUN) || defined(Q_CC_OC)
 #define memmove(s1,s2,n) qmemmove((s1),(s2),(n))
 #endif
 

@@ -83,7 +83,7 @@ public:
 private:
     static void warningDivByZero();
 
-#if defined(_OS_MAC_)
+#if defined(Q_OS_MAC)
     QCOORD yp;
     QCOORD xp;
 #else

@@ -39,7 +39,7 @@
 
 #ifndef QT_NO_FONTDATABASE
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include "qfontmanager_qws.h"
 #endif
 #include "qmap.h"
@@ -53,11 +53,11 @@
 #include <ctype.h>
 
 // NOT REVISED
-#ifdef _WS_MAC_
+#ifdef Q_WS_MAC
 extern int qFontGetWeight( const QCString &weightString, bool adjustScore=FALSE );
 #endif
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 #include "qt_x11.h"
 
 
@@ -110,7 +110,7 @@ static QString getCharSetName( const char * registry, const char *encoding );
 static QString getCharSetName( QFont::CharSet cs );
 #endif
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 #include "qt_windows.h"
 
 extern int qFontGetWeight( const QCString &/*weightString*/,
@@ -124,7 +124,7 @@ static void populate_database(const QString& fam);
 
 #endif
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 extern int qFontGetWeight( const QCString &/*weightString*/,
                            bool /*adjustscore*/ = FALSE )
 {
@@ -135,7 +135,7 @@ extern int qFontGetWeight( const QCString &/*weightString*/,
 
 static QFont::CharSet getCharSet( const QString &name );
 class QtFontCharSet;
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 static void newWinFont( void * p );
 static void add_style( QtFontCharSet *charSet, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
@@ -203,7 +203,7 @@ private:
     QValueList<int> sizeList;
 
     friend void QFontDatabase::createDatabase();
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     friend void newWinFont( void * p );
     friend void add_style( QtFontCharSet *charSet, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
@@ -270,7 +270,7 @@ private:
     QStringList styleNames;
 
     friend void QFontDatabase::createDatabase();
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     friend void newWinFont( void * p );
     friend void add_style( QtFontCharSet *charSet, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
@@ -325,7 +325,7 @@ private:
     bool supportsLocale;
 
     friend void QFontDatabase::createDatabase();
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     friend void newWinFont( void * p );
     friend void add_style( QtFontCharSet *charSet, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
@@ -354,7 +354,7 @@ private:
         { familyDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     friend void newWinFont( void * p );
 #endif
 };
@@ -387,7 +387,7 @@ private:
         { foundryDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     friend void newWinFont( void * p );
 #endif
 };
@@ -505,7 +505,7 @@ const QStringList &QtFontCharSet::styles() const
 {
     if ( namesDirty ) {
         QtFontCharSet *that = (QtFontCharSet*) this;  // Mutable function
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
         // Lazy evaluation
         populate_database(parent()->name());
 #endif
@@ -904,7 +904,7 @@ const QtFontFoundry *QFontDatabasePrivate::foundry( const QString foundryName ) 
 
 static QFontDatabasePrivate *db=0;
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 char ** readFontDump( const char *fileName, int *xFontCount )
 {
     QFile f( fileName );
@@ -1025,7 +1025,7 @@ void QFontDatabase::createDatabase()
 #endif
 
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 
 static
 int CALLBACK
@@ -1242,7 +1242,7 @@ void QFontDatabase::createDatabase()
 
 #endif
 
-#ifdef _WS_MAC_
+#ifdef Q_WS_MAC
 void QFontDatabase::createDatabase()
 {
 }
@@ -1391,7 +1391,7 @@ static const QString getCharSet( QFont::CharSet set)
     return "Unknown";
 }
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 static QString getCharSetName( const char * registry, const char *encoding )
 {
     QString tmp = registry;
@@ -1627,7 +1627,7 @@ QString QFontDatabase::styleString( const QFont &f )  // ### fttb
     return result;
 }
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 {
     char slant0 = tolower( tokens[Slant][0] );
@@ -1957,7 +1957,7 @@ QStringList QFontDatabase::charSets( const QString &family,
     return fam ? fam->charSets( onlyForLocale ) : emptyList;
 }
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 void QFontDatabase::createDatabase()
 {
     if ( db ) return;

@@ -120,7 +120,7 @@ static QPixmap *qiv_selection = 0;
 
 QCleanUpHandler<QPixmap> qiv_cleanup_pixmap;
 
-#if !defined(_WS_X11_)
+#if !defined(Q_WS_X11)
 static void createSelectionPixmap( const QColorGroup &cg )
 {
     qiv_selection = new QPixmap( 2, 2 );
@@ -1650,7 +1650,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 		p2.end();
 		buffer->setMask( mask );
 		p2.begin( buffer );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
  		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparence problem), so work around it
 		if ( !qiv_selection )
@@ -1694,7 +1694,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 		p2.end();
 		buffer->setMask( mask );
 		p2.begin( buffer );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparence problem), so work around it
 		if ( !qiv_selection )

@@ -125,7 +125,7 @@ public:
     static int  currentAllocContext();
     static void destroyAllocContext( int );
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     static HPALETTE hPal()  { return hpal; }
     static uint	realizePal( QWidget * );
 #endif
@@ -140,7 +140,7 @@ private:
     static bool color_init;
     static bool globals_init;
     static bool lazy_alloc;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     static HPALETTE hpal;
 #endif
     uint   pix;

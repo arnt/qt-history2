@@ -65,11 +65,11 @@ extern void qt_leave_modal( QWidget* );
 extern bool qt_is_gui_used;
 extern QObject *qt_clipboard;
 
-#if defined (_OS_WIN32_)
+#if defined (Q_OS_WIN32)
 extern Qt::WindowsVersion qt_winver;
 #endif
 
-#if defined (_WS_X11_)
+#if defined (Q_WS_X11)
 extern int qt_ncols_option;
 #endif
 

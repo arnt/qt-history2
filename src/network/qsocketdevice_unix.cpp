@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#7 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#8 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -40,7 +40,7 @@
 #include "qwindowdefs.h"
 #include <string.h>
 
-#if defined(_OS_AIX_)
+#if defined(Q_OS_AIX)
 #include <strings.h>
 #include <sys/select.h>
 #endif
@@ -71,19 +71,19 @@
 #endif
 #endif
 
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 // this should perhaps be included for all unixware versions?
 #include <sys/filio.h>
 #endif
 
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_) || defined(_OS_OS2EMX_)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7) || defined(Q_OS_OS2EMX)
 // and this then?  unixware?
 #if !defined(FNDELAY)
 #define FNDELAY O_NDELAY
 #endif
 #endif
 
-#if defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_UNIXWARE7)
 // UnixWare 7 redefines listen() to _listen() in socket.h
 #undef listen
 #endif
@@ -105,17 +105,17 @@
 #  undef SOCKLEN_T
 #endif
 
-#if defined(_OS_LINUX_) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
+#if defined(Q_OS_LINUX) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
 // new linux, not old
 #  define SOCKLEN_T socklen_t
-#elif defined(_OS_MACX_)
+#elif defined(Q_OS_MACX)
 #  define SOCKLEN_T int
 #elif defined(BSD4_4)
 // freebsd
 #  define SOCKLEN_T socklen_t
-#elif defined(_OS_UNIXWARE7_)
+#elif defined(Q_OS_UNIXWARE7)
 #  define SOCKLEN_T size_t
-#elif defined(_OS_AIX_)
+#elif defined(Q_OS_AIX)
 // aix 4.2 according to a bug report
 // aix 4.3 according to the online documentation
 #  define SOCKLEN_T size_t

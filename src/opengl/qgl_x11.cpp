@@ -143,7 +143,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	    }
 	}
     }
-#if !defined(_OS_SOLARIS_)
+#if !defined(Q_OS_SOLARIS)
     if ( !x->cmap ) {
 	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
 				       XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {

@@ -4,7 +4,7 @@
 #include <qlist.h>
 #include <qdatetime.h>
 
-#if defined (_OS_WIN32_)
+#if defined (Q_OS_WIN32)
 #define NO_CLIENT_LONG_LONG
 #include <qt_windows.h>
 #endif

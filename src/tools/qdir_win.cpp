@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if defined(_CC_BOOL_DEF_)
+#if defined(Q_CC_BOOLDEF_)
 #undef	bool
 #include <windows.h>
 #define bool int
@@ -55,12 +55,12 @@
 #include <direct.h>
 #include <tchar.h>
 
-#if defined(_OS_OS2EMX_)
+#if defined(Q_OS_OS2EMX)
 extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 #define NO_ERROR 0
 #endif
 
-#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
 
 QStringList qt_makeFilterList( const QString &filter );
 
@@ -310,9 +310,9 @@ QString QDir::currentDirPath()
 
 QString QDir::rootDirPath()
 {
-#if defined(_OS_FATFS_)
+#if defined(Q_FS_FAT)
     QString d = QString::fromLatin1( "c:/" );
-#elif defined(_OS_OS2EMX_)
+#elif defined(Q_OS_OS2EMX)
     char dir[4];
     _abspath( dir, "/", _MAX_PATH );
     QString d( dir );
@@ -541,9 +541,9 @@ const QFileInfoList * QDir::drives()
     if ( !knownMemoryLeak ) {
 	knownMemoryLeak = new QFileInfoList;
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
-#elif defined(_OS_OS2EMX_)
+#elif defined(Q_OS_OS2EMX)
 	Q_UINT32 driveBits, cur;
 	if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
 	    exit(1);

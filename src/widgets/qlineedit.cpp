@@ -574,7 +574,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		del();
 	    }
 	    break;
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 	case Key_Insert:
 	    copy();
 	    break;
@@ -618,7 +618,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_Delete:
 	    if ( !d->readonly ) {
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 		if ( e->state() & ShiftButton ) {
 		    cut();
 		    break;
@@ -627,7 +627,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		del();
 	    }
 	    break;
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 	case Key_Insert:
 	    if ( !d->readonly && e->state() & ShiftButton )
 		paste();
@@ -760,7 +760,7 @@ bool QLineEdit::event( QEvent * e )
 	    switch ( ke->key() ) {
 	    case Key_A:
 	    case Key_E:
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 	    case Key_Insert:
 #endif
 	    case Key_X:
@@ -1255,7 +1255,7 @@ int QLineEdit::alignment() const
 
 void QLineEdit::clipboardChanged()
 {
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
     disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()),

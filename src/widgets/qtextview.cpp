@@ -301,7 +301,7 @@ bool QTextView::event( QEvent *e )
 	    switch ( ke->key() ) {
 	    case Key_A:
 	    case Key_E:
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 	    case Key_Insert:
 #endif
 	    case Key_X:
@@ -461,7 +461,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 		    indent();
 		    break;
 		case Key_A:
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 		    moveCursor( MoveHome, e->state() & ShiftButton, FALSE );
 #else
 		    selectAll( TRUE );
@@ -512,7 +512,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 		    doKeyboardAction( ActionKill );
 		    break;
 		case Key_Insert:
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 		    copy();
 #endif
 		    break;
@@ -733,14 +733,14 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 void QTextView::resizeEvent( QResizeEvent *e )
 {
     if ( !firstResize
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	 && e->oldSize().width() != e->size().width()
 #endif
 	 )
 	resizeTimer->stop();
     QScrollView::resizeEvent( e );
     if ( !firstResize ) {
-#if defined(_WS_X11_) // ##### fix the data we get from QResizeEvent on windows!!!
+#if defined(Q_WS_X11) // ##### fix the data we get from QResizeEvent on windows!!!
 	if ( e->oldSize().width() != e->size().width() )
 #endif
 	    resizeTimer->start( 0, TRUE );
@@ -2161,7 +2161,7 @@ void QTextView::pasteSubType( const QCString& subtype )
     QCString st = subtype;
     QString t = QApplication::clipboard()->text(st);
     if ( !t.isEmpty() ) {
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	// Need to convert CRLF to NL
 	QRegExp crlf( QString::fromLatin1("\r\n") );
 	t.replace( crlf, QChar('\n') );

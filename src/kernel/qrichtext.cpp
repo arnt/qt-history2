@@ -2177,7 +2177,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].d = 0;
 	data[ (int)index + i ].isCustom = 0;
 	data[ (int)index + i ].rightToLeft = 0;
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	//### workaround for broken courier fonts on X11
 	if ( s[ i ] == QChar( 0x00a0U ) )
 	    data[ (int)index + i ].c = ' ';

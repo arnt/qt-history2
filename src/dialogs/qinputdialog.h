@@ -53,7 +53,7 @@ class QComboBox;
 
 class Q_EXPORT QInputDialog : public QDialog
 {
-#if defined(_CC_MSVC_)
+#if defined(Q_CC_MSVC)
     friend class QInputDialog;
 #endif
     Q_OBJECT

@@ -44,7 +44,7 @@
 #include "qcleanuphandler.h"
 
 #include "qwindowsstyle.h"
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include "qcompactstyle.h"
 #endif
 #include "qmotifstyle.h"
@@ -252,7 +252,7 @@
 
 void qt_init( int *, char **, QApplication::Type );
 void qt_cleanup();
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 void qt_init( Display* dpy );
 #endif
 
@@ -579,7 +579,7 @@ QApplication::QApplication( int &argc, char **argv )
 \code
   int main( int argc, char **argv )
   {
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     bool useGUI = getenv( "DISPLAY" ) != 0;
 #else
     bool useGUI = TRUE;
@@ -635,7 +635,7 @@ void QApplication::construct( int &argc, char **argv, Type type )
 }
 
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 // note: #ifdef'ed stuff is NOT documented.
 /*!
   Create an application, given an already open display.  This is
@@ -660,7 +660,7 @@ QApplication::QApplication(Display *dpy, int argc, char **argv)
 }
 
 
-#endif // _WS_X11_
+#endif // Q_WS_X11
 
 
 void QApplication::init_precmdline()
@@ -694,7 +694,7 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     is_app_running = TRUE; // no longer starting up
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     // This is in qapplication.cpp in qt/main
     extern QRect qt_maxWindowRect;
     if ( qt_is_gui_used )
@@ -702,22 +702,22 @@ void QApplication::initialize( int argc, char **argv )
 #endif
 
 #ifndef QT_NO_STYLE
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     if ( qt_is_gui_used )
 	x11_initialize_style(); // run-time search for default style
 #endif
     if (!app_style) {
 	// Compile-time search for default style
 	//
-#if defined(_WS_WIN_) && !defined(QT_NO_STYLE_WINDOWS)
+#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
-#elif defined(_WS_X11_) && defined(_OS_IRIX_) && !defined(QT_NO_STYLE_SGI)
+#elif defined(Q_WS_X11) && defined(Q_OS_IRIX) && !defined(QT_NO_STYLE_SGI)
 	app_style = new QSGIStyle; // default comment
-#elif defined(_WS_X11_) && !defined(QT_NO_STYLE_MOTIF)
+#elif defined(Q_WS_X11) && !defined(QT_NO_STYLE_MOTIF)
 	app_style = new QMotifStyle; // default style for X Windows
-#elif defined(_WS_MAC_) && !defined(QT_NO_STYLE_PLATINUM)
+#elif defined(Q_WS_MAC) && !defined(QT_NO_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
-#elif defined(_WS_QWS_) && !defined(QT_NO_STYLE_COMPACT)
+#elif defined(Q_WS_QWS) && !defined(QT_NO_STYLE_COMPACT)
 	app_style = new QCompactStyle; // default style for small devices
 #elif !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
@@ -1834,7 +1834,7 @@ void QApplication::processOneEvent()
 }
 
 
-#if !defined(_WS_X11_)
+#if !defined(Q_WS_X11)
 
 // The doc and X implementation of these functions is in qapplication_x11.cpp
 

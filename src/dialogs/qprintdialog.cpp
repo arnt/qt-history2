@@ -789,7 +789,7 @@ QGroupBox * QPrintDialog::setupDestination()
     d->printers->addColumn( tr("Comment"), 150 );
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     char * etcLpDefault = 0;
 
     etcLpDefault = parseCupsOutput( d->printers );

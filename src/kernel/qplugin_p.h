@@ -56,7 +56,7 @@
 #include "qstring.h" // char*->QString conversion
 #endif // QT_H
 
-#ifdef _OS_WIN32_
+#ifdef Q_OS_WIN32
 // Windows
 #   include "qt_windows.h"
 #   include "qapplication_p.h"
@@ -100,7 +100,7 @@ void* qt_resolve_symbol( HINSTANCE handle, const char* f )
     return address;
 }
 
-#elif defined(_OS_HPUX_)
+#elif defined(Q_OS_HPUX)
 // for HP-UX < 11.x and 32 bit
 #   include <dl.h>
 
@@ -122,7 +122,7 @@ void* qt_resolve_symbol( const QString& symbol, void* handle )
     return address;
 }
 
-#elif defined(_OS_MAC_)
+#elif defined(Q_OS_MAC)
 // Mac
 void* qt_load_library( const QString& lib )
 {

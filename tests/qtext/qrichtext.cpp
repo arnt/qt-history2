@@ -1843,7 +1843,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	    while ( l>0 && ( c[l-1]=='\n' || c[l-1]=='\r' ) )
 		--l;
 	
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 	    //### workaround for broken courier fonts on X11
  	    for ( int i = 0; i < l; i++ ) {
  		if ( c[i] == QChar(0x00a0U) )

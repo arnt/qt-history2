@@ -48,7 +48,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if defined(_OS_LINUX_)
+#if defined(Q_OS_LINUX)
 #  if defined(__alpha__) || defined(__alpha)
 #    define Q_BROKEN_ALPHA
 #  endif

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 
-// Remaining _WS_X11_ considerations:
+// Remaining Q_WS_X11 considerations:
 //   - What if !piApp upon NPP_NewStream?  Are we safe?
 //      - Yes, but users need to know of this:  that no GUI can be
 //         done until after setWindow is called.
@@ -45,7 +45,7 @@
 //	untrap them and retransmit them and set a timer to retrap them
 //	after N seconds.
 
-// Remaining _WS_WIN_ considerations:
+// Remaining Q_WS_WIN considerations:
 //   - we need to activateZeroTimers() at some time.
 //   - we need to call winEventFilter on events
 //   - timers:
@@ -82,7 +82,7 @@
 #include <time.h>
 #include <limits.h>
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 #define	 GC GC_QQQ
 #endif
 
@@ -90,18 +90,18 @@ extern "C" {
 //
 // Netscape plugin API
 //
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 #ifndef _WINDOWS
 #define _WINDOWS
 #endif
 #endif
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 #define XP_UNIX
 #endif
 
 #include "npapi.h"
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 #undef XP_UNIX
 #include "npunix.c"
 #endif
@@ -109,7 +109,7 @@ extern "C" {
 //
 // Stuff for the NPP_SetWindow function:
 //
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Intrinsic.h>
 #include <X11/IntrinsicP.h> // for XtCreateWindow
@@ -119,12 +119,12 @@ extern "C" {
 #include <X11/Xos.h>
 //#include <dlfcn.h>
 #endif
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 #include <windows.h>
 #endif
 }
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 #include "npwin.cpp"
 #endif
 
@@ -133,14 +133,14 @@ struct _NPInstance
     NPWindow*        fWindow;
     uint16            fMode;
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     HWND            window;
     WNDPROC            fDefaultWindowProc;
 #endif
 
     NPP npp;
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     Window window;
     Display *display;
 #endif
@@ -175,12 +175,12 @@ static int qnps_no_call_back = 0;
 // service which we provide, since we know it anyway.
 static QNPWidget* focussedWidget=0;
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 // defined in qapplication_win.cpp
 Q_EXPORT extern bool qt_win_use_simple_timers;
 #endif
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 static XtAppContext appcon;
 
 typedef void (*SameAsXtTimerCallbackProc)(void*,void*);
@@ -278,11 +278,11 @@ void np_event_proc( XEvent* e )
 
 #endif
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 class PluginSDK_QApplication : public QApplication {
 #endif
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 class PluginSDK_QApplication /* Not a QApplication */ {
 public:
     PluginSDK_QApplication()
@@ -297,7 +297,7 @@ public:
 
 #endif
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 private:
     static int argc;
     static char** argv;
@@ -360,7 +360,7 @@ public:
 	npwidgets.remove(w);
     }
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     static void removeXtEventFiltersIfOutsideQNPWidget(XLeaveWindowEvent* e)
     {
 	// If QApplication doesn't know about the widget at the
@@ -399,12 +399,12 @@ private:
 };
 QList<QNPWidget> PluginSDK_QApplication::npwidgets;
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 int PluginSDK_QApplication::argc=0;
 char **PluginSDK_QApplication::argv={ 0 };
 #endif
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 static void np_set_timer( int interval )
 {
     // Ensure we only have one timeout in progress - QApplication is
@@ -444,7 +444,7 @@ static void np_do_timers( void*, void* )
 
 // Instance state information about the plugin.
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 
 extern "C" char*
 NPP_GetMIMEDescription(void)
@@ -479,7 +479,7 @@ NPP_GetValue(void * /*future*/, NPPVariable variable, void *value)
 extern "C" NPError
 NPP_Initialize(void)
 {
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     qt_win_use_simple_timers = TRUE;
     // Nothing more - we do it in DLLMain
 #endif
@@ -523,7 +523,7 @@ NPP_Shutdown(void)
     }
 
     if (piApp) {
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 	qt_np_remove_timeoutcb(np_do_timers);
 	qt_np_remove_timer_setter(np_set_timer);
 	qt_np_remove_event_proc(np_event_proc);
@@ -546,7 +546,7 @@ NPP_Shutdown(void)
 	piApp = 0;
 
 	// delete qApp; ### Crashes under X11.  Waste memory until we can fix this.
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	delete qApp;
 #endif
     }
@@ -592,7 +592,7 @@ NPP_New(NPMIMEType /*pluginType*/,
 
     This->window = 0;
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     This->fDefaultWindowProc = NULL;
 #endif
 
@@ -625,7 +625,7 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     This = (_NPInstance*) instance->pdata;
 
     if (This != NULL) {
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	SetWindowLong( This->window, GWL_WNDPROC,
 		(LONG)This->fDefaultWindowProc );
 #endif
@@ -669,13 +669,13 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	    delete This->widget;
 	    This->widget = 0;
 	}
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     } else if (This->window != (Window) window->window) {
 	if (This->window)
 	    NPP_SetWindow( instance, 0 ); // unset
 	This->window = (Window) window->window;
 #endif
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     } else if (This->window != (HWND) window->window) {
 	if (This->window)
 	    SetWindowLong( This->window, GWL_WNDPROC,
@@ -689,13 +689,13 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	This->width = window->width;
 	This->height = window->height;
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 	This->display =
 	    ((NPSetWindowCallbackStruct *)window->ws_info)->display;
 #endif
 
 	if (!piApp) {
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 	    if (!qApp) {
 		// Thou Shalt Not Unload Qt
 		// Increment the reference count...
@@ -719,7 +719,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	}
 
 	if (!This->widget) {
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	    This->window = (HWND) window->window;
 
 	    InvalidateRect( This->window, NULL, TRUE );
@@ -878,7 +878,7 @@ typedef struct
     FILE*    fp;
 } NPPrintCallbackStruct;
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 
 class QNPPrinter : public QPrinter {
     QFile file;
@@ -912,7 +912,7 @@ NPP_Print(NPP instance, NPPrint* printInfo)
             printInfo->print.fullPrint.pluginPrinted =
 		This->instance->printFullPage();
         } else if (printInfo->mode == NP_EMBED) {
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
             void* platformPrint =
                 printInfo->print.embedPrint.platformPrint;
 	    FILE* outfile = ((NPPrintCallbackStruct*)platformPrint)->fp;
@@ -928,7 +928,7 @@ NPP_Print(NPP instance, NPPrint* printInfo)
 		// Why does the browser make spurious NPP_Print calls?
 	    }
 #endif
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
             NPWindow* printWindow =
                 &(printInfo->print.embedPrint.window);
             void* platformPrint =
@@ -970,7 +970,7 @@ NPP_URLNotify(NPP instance,
 
 // Hackery for X11:  make Qt's toplevels widgets be Xt widgets too.
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
 
 // Called when a top-level widget (which has an Xt widget's window) is entered.
 static
@@ -1102,7 +1102,7 @@ void qt_XDestroyWindow( const QWidget* qw, Display *display, Window window )
 
 
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 
 BOOL   WINAPI   DllMain (HANDLE hInst,
                         ULONG ul_reason_for_call,
@@ -1199,7 +1199,7 @@ QNPWidget::QNPWidget() :
 
     piApp->addQNPWidget(this);
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     // Communicator and explorer give us an unshown
     // widget.  Navigator gives us a shown one.
     show();
@@ -1294,7 +1294,7 @@ void QNPWidget::setWindow(bool delold)
       clearWFlags( WState_Visible );
    }
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     Widget w = XtWindowToWidget (qt_xdisplay(), pi->window);
     XtAddEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
     XtAddEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
@@ -1324,7 +1324,7 @@ void QNPWidget::setWindow(bool delold)
 */
 void QNPWidget::unsetWindow()
 {
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     WId wi = winId();
     Widget w = XtWindowToWidget (qt_xdisplay(), wi);
     if ( w ) {
@@ -1333,7 +1333,7 @@ void QNPWidget::unsetWindow()
     }
     destroy( FALSE, FALSE ); // Xt has already destroyed all the windows
 #endif
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     // Nothing special
     destroy( FALSE, TRUE ); // Browser will the window, but not the subwindows
 #endif
@@ -1522,7 +1522,7 @@ void QNPInstance::postURL(const char* url, const char* window,
 */
 void QNPInstance::getURLNotify(const char* url, const char* window, void*data)
 {
-#ifdef _WS_WIN_ // Only on Windows?
+#ifdef Q_WS_WIN // Only on Windows?
     NPN_GetURLNotify( pi->npp, url, window, data );
 #endif
 }

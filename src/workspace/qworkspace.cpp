@@ -116,7 +116,7 @@
 */
 
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include "qt_windows.h"
 
 extern QRgb qt_colorref2qrgb(COLORREF);
@@ -249,7 +249,7 @@ static const char * const unshade_xpm[] = {
 
 
 
-#else // !_WS_WIN_
+#else // !Q_WS_WIN
 
 const bool win32 = FALSE;
 #define TITLEBAR_SEPARATION 1
@@ -377,7 +377,7 @@ static const char * const unshade_xpm[] = {
 "............"};
 
 
-#endif // !_WS_WIN_
+#endif // !Q_WS_WIN
 
 
 
@@ -1636,7 +1636,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 
     if ( window ) {
 	if ( !window->testWFlags( WStyle_Tool ) ) {
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	    titleHeight = GetSystemMetrics( SM_CYCAPTION );
 	    if ( !titleHeight )
 		titleHeight = 18;
@@ -1660,7 +1660,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 		iconB->hide();
 	    }
 	} else {
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	    titleHeight = GetSystemMetrics( SM_CYSMCAPTION );
 	    if ( !titleHeight )
 		titleHeight = 16;
@@ -1679,7 +1679,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 		shadeB->hide();
         }
     } else if ( iconMode ) {
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	titleHeight = GetSystemMetrics( SM_CYCAPTION );
 	if ( !titleHeight )
 	    titleHeight = 18;
@@ -1710,7 +1710,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     titleL->installEventFilter( this );
     QFont f = font();
     f.setBold( TRUE );
-#ifdef _WS_WIN_ // Don't scale fonts on X
+#ifdef Q_WS_WIN // Don't scale fonts on X
     if ( window && window->testWFlags( WStyle_Tool ) )
 	f.setPointSize( f.pointSize() - 1 );
 #endif
@@ -2450,7 +2450,7 @@ void QWorkspaceChildTitleLabel::getColors()
     itextc = palette().inactive().foreground();
 #endif
 
-#ifdef _WS_WIN_ // ask system properties on windows
+#ifdef Q_WS_WIN // ask system properties on windows
 #ifndef SPI_GETGRADIENTCAPTIONS
 #define SPI_GETGRADIENTCAPTIONS 0x1008
 #endif
@@ -2478,7 +2478,7 @@ void QWorkspaceChildTitleLabel::getColors()
 	    }
 	}
     }
-#endif // _WS_WIN_
+#endif // Q_WS_WIN
 
     setActive( ((QWorkspaceChildTitleBar*)parentWidget())->isActive() );
 }

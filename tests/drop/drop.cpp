@@ -95,7 +95,7 @@ void Drag::mousePressEvent( QMouseEvent * /*e*/ )
 {
     QDragObject *d = new QTextDrag( "Hi there!", this );
     d->dragCopy();
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     SendMessage( winId(), WM_LBUTTONUP, 0, 0 );
 #endif
 }

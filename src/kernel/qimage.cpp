@@ -51,7 +51,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include "qgfx_qws.h"
 #endif
 
@@ -152,7 +152,7 @@
   </ul>
 
 */
-#if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
+#if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
 #endif
 
@@ -408,7 +408,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     data->bitordr = bitOrder;
 }
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 
 /*!
   Constructs an image that uses an existing memory buffer.
@@ -844,12 +844,12 @@ QImage::Endian QImage::systemByteOrder()
 }
 
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>				// needed for systemBitOrder
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #undef open					// kill utterly stupid #defines
 #undef close
 #undef read
@@ -864,7 +864,7 @@ QImage::Endian QImage::systemByteOrder()
 
 QImage::Endian QImage::systemBitOrder()
 {
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
 #else
     return BigEndian;
@@ -1005,7 +1005,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
 	return FALSE;
 
 // Qt/Embedded doesn't want to waste memory on un-necessary padding.
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     const int bpl = (width*depth+7)/8;		// bytes per scanline
     const int pad = 0;
 #else
@@ -3636,7 +3636,7 @@ bool QImageIO::read()
 
     h = get_image_handler( image_format );
     if ( file.isOpen() ) {
-#if !defined(_OS_UNIX_)
+#if !defined(Q_OS_UNIX)
 	if ( h && h->text_mode ) {		// reopen in translated mode
 	    file.close();
 	    file.open( IO_ReadOnly | IO_Translate );
@@ -5403,7 +5403,7 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
 
 #endif // QT_NO_IMAGE_TEXT
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 QGfx * QImage::graphicsContext()
 {
     QGfx * ret=0;

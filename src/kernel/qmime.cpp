@@ -71,7 +71,7 @@ QMimeSource::~QMimeSource()
 #ifdef CHECK_RANGE
 	qWarning("QMimeSource::~QMimeSource: clipboard data deleted!");
 #endif
-#if defined(_WS_X11_)	
+#if defined(Q_WS_X11)	
 	QApplication::clipboard()->clobber();
 #endif
     }
@@ -298,7 +298,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     QMimeSource* r = 0;
     QStringList::Iterator it;
     if ( abs_name[0] == '/'
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	    || abs_name[0] && abs_name[1] == ':'
 #endif
     )
@@ -367,7 +367,7 @@ QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const Q
 {
     if ( context.isNull() ||
 	 !(context[0] == '/'
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	 || ( context[0] && context[1] == ':')
 #endif
 	   ))

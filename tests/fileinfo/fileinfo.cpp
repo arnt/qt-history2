@@ -18,7 +18,7 @@
 
 char *p[][6] = {
     //   Input             dirPath()  dirPath(true)  fileName()  filePath()        absFilePath()
-#ifdef _OS_LINUX_
+#ifdef Q_OS_LINUX
     { "/xyz/sam.c",     "/xyz",    "/xyz",        "sam.c",    "/xyz/sam.c",     "/xyz/sam.c"   },
     { "/sam.c",         "/",       "/",           "sam.c",    "/sam.c",         "/sam.c"       },
 #else

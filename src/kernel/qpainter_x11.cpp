@@ -124,7 +124,7 @@ const double Q_2PI  = 6.28318530717958647693;	// 2*pi
 const double Q_PI2  = 1.57079632679489661923;	// pi/2
 
 
-#if defined(_CC_GNU_) && defined(_OS_AIX_)
+#if defined(Q_CC_GNU) && defined(Q_OS_AIX)
 // AIX 4.2 gcc 2.7.2.3 gets internal error.
 static int qRoundAIX( double d )
 {
@@ -134,7 +134,7 @@ static int qRoundAIX( double d )
 #endif
 
 
-#if defined(_CC_GNU_) && defined(__i386__)
+#if defined(Q_CC_GNU) && defined(__i386__)
 
 inline double qcos( double a )
 {

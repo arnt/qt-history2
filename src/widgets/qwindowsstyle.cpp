@@ -1319,7 +1319,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
     if ( checkable ) {
-#if defined(_WS_WIN32_)
+#if defined(Q_WS_WIN32)
 	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 )
 	    maxpmw = QMAX( maxpmw, 16);
 #endif

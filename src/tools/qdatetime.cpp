@@ -41,19 +41,19 @@
 #include <stdio.h>
 #include <time.h>
 #include <qregexp.h>
-#if defined(_OS_WIN32_)
-#if defined(_CC_BOOL_DEF_)
+#if defined(Q_OS_WIN32)
+#if defined(Q_CC_BOOLDEF_)
 #undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
-#elif defined(_OS_MSDOS_)
+#elif defined(Q_OS_MSDOS)
 #include <dos.h>
-#elif defined(_OS_OS2_)
+#elif defined(Q_OS_OS2)
 #include <os2.h>
-#elif defined(_OS_UNIX_)
+#elif defined(Q_OS_UNIX)
 #include <sys/time.h>
 #include <unistd.h>
 #undef	gettimeofday
@@ -458,7 +458,7 @@ int QDate::daysTo( const QDate &d ) const
 
 QDate QDate::currentDate()
 {
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 
     SYSTEMTIME t;
     GetLocalTime( &t );
@@ -958,7 +958,7 @@ bool QTime::currentTime( QTime *ct )
 	return FALSE;
     }
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 
     SYSTEMTIME t;
     GetLocalTime( &t );
@@ -966,7 +966,7 @@ bool QTime::currentTime( QTime *ct )
 	     1000*t.wSecond + t.wMilliseconds;
     return (t.wHour == 0 && t.wMinute == 0);
 
-#elif defined(_OS_OS2_)
+#elif defined(Q_OS_OS2)
 
     DATETIME t;
     DosGetDateTime( &t );
@@ -974,7 +974,7 @@ bool QTime::currentTime( QTime *ct )
 	     1000*t.seconds + 10*t.hundredths;
     return (t.hours == 0 && t.minutes == 0);
 
-#elif defined(_OS_MSDOS_)
+#elif defined(Q_OS_MSDOS)
 
     _dostime_t t;
     _dos_gettime( &t );
@@ -982,7 +982,7 @@ bool QTime::currentTime( QTime *ct )
 	     t.second*1000 + t.hsecond*10;
     return (t.hour== 0 && t.minute == 0);
 
-#elif defined(_OS_UNIX_)
+#elif defined(Q_OS_UNIX)
 
     struct timeval tv;
     gettimeofday( &tv, 0 );

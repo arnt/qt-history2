@@ -9,7 +9,7 @@
 #include <qiconset.h>
 #include <qpointarray.h>
 
-#ifdef _OS_UNIX_
+#ifdef Q_OS_UNIX
 #include <sys/time.h>
 #else
 #include <time.h>

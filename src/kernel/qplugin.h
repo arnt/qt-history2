@@ -78,7 +78,7 @@ private:
     bool loadInterface();
     QPlugInInterface* info;
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     HINSTANCE pHnd;
 #else
     void* pHnd;

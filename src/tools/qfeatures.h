@@ -449,7 +449,7 @@
 # define QT_NO_SQL
 #endif
 
-#if defined(QT_NO_CLIPBOARD) || defined(QT_NO_MIME) || defined(_WS_QWS_)
+#if defined(QT_NO_CLIPBOARD) || defined(QT_NO_MIME) || defined(Q_WS_QWS)
     /*!
 	Cut and paste of complex data types (non-text)
 	Not yet implemented for QWS. 

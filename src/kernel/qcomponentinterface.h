@@ -108,7 +108,7 @@ private:
 };
 
 #ifndef Q_EXPORT_INTERFACE
-    #ifdef _WS_WIN_
+    #ifdef Q_WS_WIN
 	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
 	    extern "C" __declspec(dllexport) QPlugInInterface *qt_load_interface() { return new IMPLEMENTATION; }
     #else

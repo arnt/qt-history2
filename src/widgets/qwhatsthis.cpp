@@ -347,7 +347,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    whatsThat->hide();
 	    return TRUE;
 	}
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
        else if ( e->type() == QEvent::Paint ) {
 	   wt->say_helper(0,QPoint(0,0),FALSE);
        }

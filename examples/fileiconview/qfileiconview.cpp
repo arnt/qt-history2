@@ -561,10 +561,10 @@ QDir QtFileIconView::currentDir()
 
 static bool isRoot( const QString &s )
 {
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     if ( s == "/" )
 	return TRUE;
-#elif defined(_OS_WIN32_)
+#elif defined(Q_OS_WIN32)
     QString p = s;
     if ( p.length() == 3 &&
 	 p.right( 2 ) == ":/" )

@@ -19,7 +19,7 @@
 
 #include "glbox.h"
 
-#if defined(_CC_MSVC_)
+#if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
 #endif
 

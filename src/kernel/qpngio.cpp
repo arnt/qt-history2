@@ -105,7 +105,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
     if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_gAMA) ) {
 	double file_gamma;
 	png_get_gAMA(png_ptr, info_ptr, &file_gamma);
-#if defined(_OS_MAC_)
+#if defined(Q_OS_MAC)
 	// a good guess for Mac systems
 	png_set_gamma( png_ptr, 1.7, file_gamma );
 #else

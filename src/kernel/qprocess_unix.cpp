@@ -67,7 +67,7 @@
 extern "C" {
 #endif
 
-#if defined(_OS_OSF_) || ( defined(_OS_IRIX_) && defined(_CC_GNU_) ) || defined(_OS_MACX_)
+#if defined(Q_OS_OSF) || ( defined(Q_OS_IRIX) && defined(Q_CC_GNU) ) || defined(Q_OS_MACX)
 static void qt_C_sigchldHnd();
 #else
 static void qt_C_sigchldHnd( int );
@@ -222,7 +222,7 @@ QList<QProcess> *QProcessPrivate::proclist = 0;
  * sigchld handler callback
  *
  **********************************************************************/
-#if defined(_OS_OSF_) || ( defined(_OS_IRIX_) && defined(_CC_GNU_) ) || defined(_OS_MACX_)
+#if defined(Q_OS_OSF) || ( defined(Q_OS_IRIX) && defined(Q_CC_GNU) ) || defined(Q_OS_MACX)
 void qt_C_sigchldHnd()
 #else
 void qt_C_sigchldHnd( int )

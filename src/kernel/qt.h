@@ -236,7 +236,7 @@
 #include <qinterfacemanager.h>
 #include "qrichtext_p.h"
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include <qfontmanager_qws.h>
 #include <qfontfactorybdf_qws.h>
 #include <qgfxvoodoodefs_qws.h>
@@ -258,6 +258,6 @@
 #include <qwsregionmanager_qws.h>
 #include <qwindowsystem_qws.h>
 #include <qgfxps2_qws.h>
-#endif // _WS_QWS_
+#endif // Q_WS_QWS
 
 #endif // QT_H

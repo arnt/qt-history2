@@ -306,12 +306,12 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	data = pixmap.data;
 	data->ref();
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	hdc = pixmap.hdc;			// copy Windows device context
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 	hd = pixmap.hd;				// copy X11 drawable
 	copyX11Data( &pixmap );			// copy x11Data
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
     }
@@ -339,7 +339,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 {
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
     if ( !pm.isNull() ) {			// copy the bitmap
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	pm.copyX11Data( this );
 #endif
 	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
@@ -380,12 +380,12 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     } else {
 	data = pixmap.data;
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	hdc = pixmap.hdc;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 	hd = pixmap.hd;				// copy QPaintDevice drawable
 	copyX11Data( &pixmap );			// copy x11Data
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
     }

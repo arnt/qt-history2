@@ -85,13 +85,13 @@ public:
     const QBitmap *mask()   const;
     QPoint	  hotSpot() const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HCURSOR	  handle()  const;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     HANDLE	  handle()  const;
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
     HANDLE handle() const;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     HANDLE	  handle()  const;
 #endif
 

@@ -295,7 +295,7 @@ private:
     QPushButton *okB;
     QPushButton *cancelB;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     static QString winGetOpenFileName( const QString &initialSelection,
 				       const QString &filter,
 				       QString* workingDirectory,

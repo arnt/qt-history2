@@ -13,7 +13,7 @@
 #include <qstatusbar.h>
 #include <qsplitter.h>
 #include <qregexp.h>
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <direct.h>
 #else
 #include <unistd.h>

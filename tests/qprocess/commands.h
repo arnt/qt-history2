@@ -1,5 +1,5 @@
 const char* baseDir = "../../examples";
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 const char* suffixDir = "";
 #else
 const char* suffixDir = "Debug";

@@ -298,7 +298,7 @@ public:
 
     bool	 	isUpdatesEnabled() const;
 
-#if 0 //def _WS_QWS_
+#if 0 //def Q_WS_QWS
     void		repaintUnclipped( const QRegion &, bool erase = TRUE );
 #endif
 public slots:
@@ -411,10 +411,10 @@ public:
     QWidget  *childAt( int x, int y, bool includeThis = FALSE ) const;
     QWidget  *childAt( const QPoint &, bool includeThis = FALSE ) const;
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
     QRegion clippedRegion();
 #endif
 
@@ -448,17 +448,17 @@ protected:
     virtual void hideEvent( QHideEvent * );
     virtual void customEvent( QCustomEvent * );
 
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
     virtual bool macEvent( MSG * );		// Macintosh event
     QWidget * mytop;                            // This widget's top-level widg
     int back_type;                              // Type of background
     QPixmap * bg_pix;
     virtual void propagateUpdates(int x,int y,int x2,int y2);
-#elif defined(_WS_WIN_)
+#elif defined(Q_WS_WIN)
     virtual bool winEvent( MSG * );		// Windows event
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     virtual bool x11Event( XEvent * );		// X11 event
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     virtual bool qwsEvent( QWSEvent * );
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
@@ -534,7 +534,7 @@ private:
     void   	 setBackgroundPixmapDirect( const QPixmap & );
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     void         setBackgroundX11Relative();
 #endif
 
@@ -558,7 +558,7 @@ private:
     QLayout 	*lay_out;
 #endif
     QWExtra	*extra;
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     QRegion	 req_region;			// Requested region
     mutable QRegion      alloc_region;          // Allocated region
     mutable bool         alloc_region_dirty;    // needs to be recalculated
@@ -809,7 +809,7 @@ inline bool QWidget::ownPalette() const
 
 class QFocusData;
 class QWSManager;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 class QOleDropTarget;
 #endif
 
@@ -824,7 +824,7 @@ struct QTLWExtra {
     uint     fullscreen : 1;			// full-screen mode
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
     short    basew, baseh;			// base sizes
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     WId  parentWinId;			// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     reserved: 2;			// reserved
@@ -833,11 +833,11 @@ struct QTLWExtra {
     uint     ussize : 1;                        // User defined size
     void    *xic;				// XIM Input Context
 #endif
-#if defined(_WS_QWS_) && !defined ( QT_NO_QWS_MANAGER )
+#if defined(Q_WS_QWS) && !defined ( QT_NO_QWS_MANAGER )
     QRegion decor_allocated_region;		// decoration allocated region
     QWSManager *qwsManager;
 #endif
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HICON    winIcon;				// internal Windows icon
 #endif
     QRect    normalGeometry;			// used by showMin/maximized/FullScreen
@@ -857,13 +857,13 @@ struct QWExtra {
     QCursor *curs;
 #endif
     QTLWExtra *topextra;			// only useful for TLWs
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     QOleDropTarget *dropTarget;			// drop target
 #endif
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     WId xDndProxy;			// XDND forwarding to embedded windows
 #endif
-#if defined(_WS_QWS_) || defined(_WS_MAC_)
+#if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode

@@ -121,13 +121,13 @@ protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
     int		metric( int ) const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     virtual void	setActive();
     virtual void	setIdle();
 #endif
 
 private:
-#if defined(_WS_X11_) || defined(_WS_QWS_)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     QPaintDevice *pdrv;
     int		pid;
 #endif
@@ -145,7 +145,7 @@ private:
     short	from_pg, to_pg;
     short	min_pg,	 max_pg;
     short	ncopies;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     bool	viewOffsetDone;
     QPainter*   painter;
     void	readPdlg( void* );

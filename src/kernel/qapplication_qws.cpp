@@ -91,23 +91,23 @@
 #include <errno.h>
 #define	 GC GC_QQQ
 
-#if defined(_OS_LINUX_) && defined(DEBUG)
+#if defined(Q_OS_LINUX) && defined(DEBUG)
 #include "qfile.h"
 #include <unistd.h>
 #endif
 
-#if defined(_OS_IRIX_)
+#if defined(Q_OS_IRIX)
 #include <bstring.h>
 #endif
 
 #include <sys/time.h>
 
-#if defined(_OS_AIX_) && defined(_CC_GNU_)
+#if defined(Q_OS_AIX) && defined(Q_CC_GNU)
 #include <sys/select.h>
 #include <unistd.h>
 #endif
 
-#if defined(_OS_QNX_)
+#if defined(Q_OS_QNX)
 #include <sys/select.h>
 #endif
 
@@ -116,7 +116,7 @@
 #include "qthread.h"
 #endif
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(Q_OS_UNIX) && defined(QT_THREAD_SUPPORT)
 #include <sys/ioctl.h>
 static int qt_thread_pipe[2];
 #endif
@@ -1245,7 +1245,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     qInitNetworkProtocols();
 #endif
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(Q_OS_UNIX) && defined(QT_THREAD_SUPPORT)
     pipe( qt_thread_pipe );
 #endif
 }
@@ -1951,12 +1951,12 @@ bool QApplication::processNextEvent( bool canWait )
 
     int highest=sn_highest;
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(Q_OS_UNIX) && defined(QT_THREAD_SUPPORT)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #define FDCAST (fd_set*)
 #else
 #define FDCAST (void*)
@@ -1977,7 +1977,7 @@ bool QApplication::processNextEvent( bool canWait )
     qApp->lock();
 #endif
 
-#if defined(_OS_UNIX_)&& defined(QT_THREAD_SUPPORT)
+#if defined(Q_OS_UNIX)&& defined(QT_THREAD_SUPPORT)
     if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0],&c,1);

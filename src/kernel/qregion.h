@@ -90,13 +90,13 @@ public:
     bool    operator!=( const QRegion &r ) const
 			{ return !(operator==(r)); }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HRGN    handle() const { return data->rgn; }
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     Region  handle() const { return data->rgn; }
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
     void *  handle() const { return data->rgn; }
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
     void * handle() const { return data->rgn; }
 #endif
@@ -109,18 +109,18 @@ private:
     QRegion( bool );
     QRegion copy() const;
     void    detach();
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     QRegion winCombine( const QRegion &, int ) const;
 #endif
     void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	HRGN   rgn;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 	Region rgn;
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
         RgnHandle rgn;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
         void * rgn;
 #endif
 	bool   is_null;

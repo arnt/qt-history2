@@ -69,7 +69,7 @@ public:
     bool	end();
     QPaintDevice *device() const;
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     QGfx * internalGfx();
 #endif
 
@@ -251,9 +251,9 @@ public:
 
     // Other functions
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HDC		handle() const;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     HANDLE	handle() const;
 #endif
 
@@ -345,15 +345,15 @@ private:
     void	killPStack();
 
 protected:
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     QT_WIN_PAINTER_MEMBERS
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     Display    *dpy;				// current display
     WId		hd;				// handle to drawable
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
     QRegion savedclip;
     GWorldPtr savedworld;
     GDHandle savedhandle;
@@ -361,7 +361,7 @@ protected:
     int offx, offy;
     int penx, peny;
     void * hd;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     QGfx * gfx;
 #endif
     friend class QFontMetrics;
@@ -492,12 +492,12 @@ inline int *QPainter::tabArray() const
     return tabarray;
 }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 inline HDC QPainter::handle() const
 {
     return hdc;
 }
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 inline Qt::HANDLE QPainter::handle() const
 {
     return hd;
@@ -644,7 +644,7 @@ inline QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
     return boundingRect( r, tf, str, len, i );
 }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 inline void *QPainter::textMetric()
 {
     if ( testf(DirtyFont) )
@@ -653,7 +653,7 @@ inline void *QPainter::textMetric()
 }
 #endif
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
 inline QGfx * QPainter::internalGfx()
 {
     return gfx;

@@ -46,7 +46,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <windows.h>
 #endif
 
@@ -1380,7 +1380,7 @@ double QTextStream::input_double()
 	c = ts_getc();
     }
 
-#if !defined(_CC_EGG_) && !defined(_CC_KAI_)
+#if !defined(Q_CC_EGG) && !defined(Q_CC_KAI)
     return 0.0;
 #endif
 }
@@ -2341,7 +2341,7 @@ void QTextStream::setEncoding( Encoding e )
 	latin1 = TRUE; 				// fallback to Latin 1
 #ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForLocale();
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	if ( GetACP() == 1252 )
 	    mapper = 0;				// Optimized latin1 processing
 #endif

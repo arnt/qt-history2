@@ -43,10 +43,10 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 #include "qt_x11.h"
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
-#elif defined (_WS_WIN_ )
+#elif defined (Q_WS_WIN )
 #include "qobjectlist.h"
 #include "qt_windows.h"
 #endif
@@ -109,7 +109,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     setCursor( sizeFDiagCursor );
 #endif
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     if ( !qt_sizegrip_workspace( this ) ) {
 	WId id = winId();
 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
@@ -125,7 +125,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
  */
 QSizeGrip::~QSizeGrip()
 {
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     if ( !QApplication::closingDown() && parentWidget() ) {
 	WId id = None;
  	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
@@ -215,7 +215,7 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
     if ( h < ms.height() )
 	h = ms.height();
     tlw->resize( w, h );
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     MSG msg;
     while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
       ;

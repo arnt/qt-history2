@@ -50,7 +50,7 @@ QString Option::dir_sep;
 QString Option::moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 Option::QMODE Option::mode = Option::WIN_MODE;
 #else
 Option::QMODE Option::mode = Option::UNIX_MODE;

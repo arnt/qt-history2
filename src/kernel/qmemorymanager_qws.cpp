@@ -5,7 +5,7 @@
 #include "qfontdata_p.h"
 #include "qfile.h"
 
-#if defined(_OS_UNIX_) // always for now
+#if defined(Q_OS_UNIX) // always for now
 #define QT_USE_MMAP
 #endif
 

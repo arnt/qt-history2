@@ -48,7 +48,7 @@
 class QGfx;
 class QPixmapPrivate;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 // Internal pixmap memory optimization class for Windows 9x
 class QMultiCellPixmap;
 #endif
@@ -125,7 +125,7 @@ public:
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format, int quality = -1 ) const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HBITMAP	hbm()		const;
 #endif
 
@@ -140,7 +140,7 @@ public:
 
     bool	isQBitmap() const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     // These functions are internal and used by Windows 9x only
     bool	isMultiCellPixmap() const;
     HDC		multiCellHandle() const;
@@ -150,7 +150,7 @@ public:
     void	freeCell( bool = FALSE );
 #endif
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
@@ -166,7 +166,7 @@ protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );
     int metric( int ) const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     struct QMCPI {				// mem optim for win9x
 	QMultiCellPixmap *mcp;
 	int	offset;
@@ -179,26 +179,26 @@ protected:
 	uint	uninit	 : 1;
 	uint	bitmap	 : 1;
 	uint	selfmask : 1;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	uint	mcp	 : 1;
 #endif
 	int	ser_no;
 	QBitmap *mask;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	void   *bits;
 	QPixmap *maskpm;
 	union {
 	    HBITMAP hbm;    // if mcp == FALSE
 	    QMCPI  *mcpi;   // if mcp == TRUE
 	} hbm_or_mcpi;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 	void   *ximage;
 	void   *maskgc;
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
       bool is_locked;
       GWorldPtr savedworld;
       GDHandle savedhandle;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
 	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;
 	int numcols;
@@ -251,7 +251,7 @@ inline bool QPixmap::selfMask() const
     return data->selfmask;
 }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 inline HBITMAP QPixmap::hbm() const
 {
     return data->mcp ? 0 : data->hbm_or_mcpi.hbm;
@@ -273,7 +273,7 @@ inline bool QPixmap::isQBitmap() const
     return data->bitmap;
 }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 inline bool QPixmap::isMultiCellPixmap() const
 {
     return data->mcp;

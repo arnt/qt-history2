@@ -3,7 +3,7 @@
 #include <qpushbutton.h>
 #include <qapplication.h>
 #include <iostream.h>
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 #include <unistd.h>
 #endif
 
@@ -84,7 +84,7 @@ void GuiCat::writeStderr()
 
 void GuiCat::closeStdin()
 {
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     ::close( STDIN_FILENO );
 #endif
 }
@@ -92,7 +92,7 @@ void GuiCat::closeStdin()
 
 void GuiCat::closeStdout()
 {
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     ::close( STDOUT_FILENO );
 #endif
 }
@@ -100,7 +100,7 @@ void GuiCat::closeStdout()
 
 void GuiCat::closeStderr()
 {
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     ::close( STDERR_FILENO );
 #endif
 }

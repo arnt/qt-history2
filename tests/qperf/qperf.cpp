@@ -5,7 +5,7 @@
 #include <qlist.h>
 #include <qdict.h>
 #include <qdatetime.h>
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <conio.h>
 #endif
 #include <stdarg.h>
@@ -221,7 +221,7 @@ QPERF_BEGIN(qrnd,"qrnd test (to manually correct qperf results)")
 QPERF_END(qrnd)
 
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 extern Q_EXPORT Qt::WindowsVersion qt_winver;
 #endif
 
@@ -332,7 +332,7 @@ void run_main( int argc, char **argv )
 		max_iter = 0;
 	    } else if ( strcmp(a,"w") == 0 ) {	// set Windows version
 		a = argv[i++];
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 		if ( strcmp(a,"95") == 0 ) {
 		    qt_winver = Qt::WV_95;
 		} else if ( strcmp(a,"98") == 0 ) {
@@ -403,7 +403,7 @@ int main( int argc, char **argv )
 
     if ( pause ) {
 	output("Press a key to continue...");
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	getch();
 #else
 	getc(stdin);

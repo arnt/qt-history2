@@ -51,30 +51,30 @@
 //
 
 
-#if defined(_CC_MWERKS_)
+#if defined(Q_CC_MWERKS)
 # include <stdlib.h>
 # include <stat.h>
-#elif !defined(_OS_MAC_)
+#elif !defined(Q_OS_MAC)
 # include <sys/types.h>
 # include <sys/stat.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 # include <dirent.h>
 # include <unistd.h>
 #endif
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-# define _OS_FATFS_
+#if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
+# define Q_FS_FAT
 # if defined(__CYGWIN32__)
 #  include <dirent.h>
 #  include <unistd.h>
-#  if !defined(_OS_UNIX_)
-#   define _OS_UNIX_
+#  if !defined(Q_OS_UNIX)
+#   define Q_OS_UNIX
 #  endif
 # else
 #  include <io.h>
-#  if !defined(_CC_MWERKS_)
+#  if !defined(Q_CC_MWERKS)
 #   include <dos.h>
 #  endif
 #  include <direct.h>
@@ -118,7 +118,7 @@
 #undef OPEN_BINARY
 
 
-#if defined(_CC_MSVC_) || defined(_CC_SYM_)
+#if defined(Q_CC_MSVC) || defined(Q_CC_SYM)
 
 # define STATBUF	struct _stat		// non-ANSI defs
 # define STATBUF4TSTAT	struct _stat		// non-ANSI defs
@@ -152,7 +152,7 @@
 #  define OPEN_BINARY	_O_BINARY
 # endif
 
-#elif defined(_CC_BOR_) && __BORLANDC__ >= 0x550
+#elif defined(Q_CC_BOR) && __BORLANDC__ >= 0x550
 
 # define STATBUF	struct stat		// non-ANSI defs
 # define STATBUF4TSTAT	struct _stat		// non-ANSI defs
@@ -205,7 +205,7 @@
 # define READ		::read
 # define WRITE		::write
 # define ACCESS		::access
-# if defined(_OS_OS2EMX_)
+# if defined(Q_OS_OS2EMX)
 #  define GETCWD	::_getcwd2
 #  define CHDIR		::_chdir2
 # else
@@ -226,7 +226,7 @@
 # endif
 #endif
 
-#if defined(_CC_MWERKS_)
+#if defined(Q_CC_MWERKS)
 #undef mkdir
 #undef MKDIR
 #define MKDIR _mkdir
@@ -236,14 +236,14 @@
 #endif
 
 
-#if defined(_OS_FATFS_)
+#if defined(Q_FS_FAT)
 # define F_OK	0
 # define X_OK	1
 # define W_OK	2
 # define R_OK	4
 #endif
 
-#if defined(_OS_MAC_)
+#if defined(Q_OS_MAC)
 # define F_OK	0
 # define X_OK	1
 # define W_OK	2

@@ -114,7 +114,7 @@ private:
 
 private:
     void init();
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     QByteArray readStddev( HANDLE dev, ulong bytes = 0 );
 #endif
 

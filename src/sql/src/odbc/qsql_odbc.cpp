@@ -1,6 +1,6 @@
 #include "qsql_odbc.h"
 
-#if defined (_OS_WIN32_)
+#if defined (Q_OS_WIN32)
 #include <qt_windows.h>
 #include <qapplication.h>
 #endif
@@ -25,7 +25,7 @@ QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
     SQLINTEGER nativeCode_;
     SQLSMALLINT tmp;
     SQLRETURN r = SQL_ERROR;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based ) {
 	SQLTCHAR state_[SQL_SQLSTATE_SIZE+1];
 	SQLTCHAR description_[SQL_MAX_MESSAGE_LENGTH];
@@ -143,7 +143,7 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
     QString qColName;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based ) {
         SQLTCHAR colName[255];
 	r = SQLDescribeCol( p->hStmt,
@@ -200,7 +200,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
     QString qColName;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based ) {
 	SQLTCHAR colName[255];
 	r = SQLDescribeCol( hStmt,
@@ -243,7 +243,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
     if ( r != SQL_SUCCESS )
 	qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
 #endif
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based ) {
 	SQLTCHAR* buf = new SQLTCHAR[ colSize ];
 	while ( TRUE ) {
@@ -371,7 +371,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based )
 	r =  SQLColumns( hStmt,
 			 NULL,
@@ -480,7 +480,7 @@ bool QODBCResult::reset ( const QString& query )
 #endif
 	return FALSE;
     }
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based )
 	r = SQLExecDirect( d->hStmt,
 			    (SQLTCHAR*)qt_winTchar(query, TRUE),
@@ -760,7 +760,7 @@ bool QODBCDriver::open( const QString & db,
     }
     QString connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password + ";";
     SWORD       cb;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based ) {
 	SQLTCHAR connOut[255];
 	r = SQLDriverConnect( d->hDbc,
@@ -917,7 +917,7 @@ QStringList QODBCDriver::tables( const QString& user ) const
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based )
     	r = SQLTables( hStmt,
 		       NULL,
@@ -986,7 +986,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based )
 	r = SQLPrimaryKeys( hStmt,
 			    NULL,
@@ -1053,7 +1053,7 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     if ( qApp->winVersion() & Qt::WV_NT_based )
 	r =  SQLColumns( hStmt,
 			 NULL,

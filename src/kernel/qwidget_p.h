@@ -52,7 +52,7 @@
 //
 
 
-#if defined (_WS_X11_) || defined (_WS_QWS_)
+#if defined (Q_WS_X11) || defined (Q_WS_QWS)
 extern int qt_widget_tlw_gravity;
 #endif
 

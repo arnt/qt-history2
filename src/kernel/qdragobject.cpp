@@ -92,7 +92,7 @@ struct QStoredDragData {
 static const char * const move_xpm[] = {
 "11 20 3 1",
 ".	c None",
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 " 	c #000000", // Windows cursor is traditionally white
 "X	c #FFFFFF",
 #else
@@ -126,7 +126,7 @@ static const char * const copy_xpm[] = {
 ".	c None",
 " 	c #000000",
 "X	c #FFFFFF",
-#if defined(_WS_WIN_) // Windows cursor is traditionally white
+#if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "  ......................",
 " X .....................",
 " XX ....................",
@@ -186,7 +186,7 @@ static const char * const link_xpm[] = {
 ".	c None",
 " 	c #000000",
 "X	c #FFFFFF",
-#if defined(_WS_WIN_) // Windows cursor is traditionally white
+#if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "  ......................",
 " X .....................",
 " XX ....................",
@@ -1193,7 +1193,7 @@ QCString QUriDrag::unicodeUriToUri(const QString& uuri)
 QCString QUriDrag::localFileToUri(const QString& filename)
 {
     QString r = filename;
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     // Slosh -> Slash
     int slosh;
     while ( (slosh=r.find('\\')) >= 0 ) {
@@ -1263,7 +1263,7 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 	    } else {
 		file.insert(0,'/');
 	    }
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	    if ( file.length() > 2 && file[0] == '/' && file[2] == '|' ) {
 		file[2] = ':';
 		file.remove(0,1);

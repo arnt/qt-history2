@@ -383,7 +383,7 @@ DspMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
     MakefileGenerator::init();
-#if defined(_OS_WIN32_) && 0
+#if defined(Q_OS_WIN32) && 0
     tmake_use_win32_registry();
     $HKEY_CURRENT_USER->Open("Software\\Microsoft\\DevStudio\\5.0",$is_msvc5);
     if ( $is_msvc5 ) {

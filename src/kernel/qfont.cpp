@@ -1130,11 +1130,11 @@ QCleanUpHandler<QFontSubst> qfont_cleanup_fontsubst;
 static void initFontSubst()                     // create substitution dict
 {
     static const char *initTbl[] = {            // default substitutions
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
         "arial",        "helvetica",
         "helv",         "helvetica",
         "tms rmn",      "times",
-#elif defined(_WS_WIN_)
+#elif defined(Q_WS_WIN)
         "times",        "Times New Roman",
         "courier",      "Courier New",
         "helvetica",    "Arial",

@@ -304,7 +304,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 */
 Qt::HANDLE QThread::currentThread()
 {
-#if defined(_OS_SOLARIS_)
+#if defined(Q_OS_SOLARIS)
     return (HANDLE) thr_self();
 #else
     return (HANDLE) pthread_self();
@@ -403,7 +403,7 @@ void QThread::exit()
 
     dictMutex->unlock();
 
-#if defined(_OS_SOLARIS_)
+#if defined(Q_OS_SOLARIS)
     thr_exit(0);
 #else
     pthread_exit(0);

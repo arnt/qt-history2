@@ -83,7 +83,7 @@ NotePad::NotePad( QWidget *parent, const char *name )
     QFont f( "helvetica", 12 );
     edit->setFont( f );
 
-#ifdef _WS_QWS_	// Qt/Embedded specific
+#ifdef Q_WS_QWS	// Qt/Embedded specific
     Keyboard *kbd = new Keyboard( 0, 0, WStyle_Customize
 				    | WStyle_Tool | WStyle_StaysOnTop );
     kbd->resize( qApp->desktop()->width(), kbd->sizeHint().height() + 1 );

@@ -55,7 +55,7 @@ ImageItem::ImageItem( QImage img, QCanvas *canvas )
 {
     setSize( image.width(), image.height() );
     
-#ifndef _WS_QWS_
+#ifndef Q_WS_QWS
     pixmap.convertFromImage(image, OrderedAlphaDither);
 #endif
 }
@@ -65,7 +65,7 @@ void ImageItem::drawShape( QPainter &p )
 {
 // On Qt/Embedded, we can paint a QImage as fast as a QPixmap,
 // but on other platforms, we need to use a QPixmap.
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     p.drawImage( int(x()), int(y()), image, 0, 0, -1, -1, OrderedAlphaDither );
 #else
     p.drawPixmap( int(x()), int(y()), pixmap );

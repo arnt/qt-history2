@@ -121,7 +121,7 @@ public:
     friend Q_EXPORT bool operator!=( const QRect &, const QRect & );
 
 private:
-#if defined(_OS_MAC_)
+#if defined(Q_OS_MAC)
     QCOORD y1;
     QCOORD x1;
     QCOORD y2;

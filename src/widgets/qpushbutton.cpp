@@ -408,7 +408,7 @@ QSize QPushButton::sizeHint() const
     if ( isMenuButton() )
 	w += style().menuButtonIndicatorWidth( h );
 
-#ifndef _WS_QWS_
+#ifndef Q_WS_QWS
      if ( style() == WindowsStyle ) {
 	// in windows style, try a little harder to conform to
 	// microsoft's size specifications

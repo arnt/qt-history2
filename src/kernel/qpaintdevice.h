@@ -43,7 +43,7 @@
 #include "qrect.h"
 #endif // QT_H
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
 class QWSDisplay;
 class QGfx;
 #endif
@@ -52,7 +52,7 @@ class QIODevice;
 class QString;
 
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 struct QPaintDeviceX11Data;
 #endif
 
@@ -87,17 +87,17 @@ public:
 
     // Windows:	  get device context
     // X-Windows: get drawable
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HDC		handle() const;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     Qt::HANDLE	handle() const;
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
     Qt::HANDLE      handle() const;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     Qt::HANDLE      handle() const;
 #endif
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     Display 	   *x11Display() const;
     int		    x11Screen() const;
     int		    x11Depth() const;
@@ -121,7 +121,7 @@ public:
     static void	    x11SetAppDpiY(int);
 #endif
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     static QWSDisplay *qwsDisplay();
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
@@ -187,16 +187,16 @@ public:
 protected:
     QPaintDevice( uint devflags );
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HDC		hdc;				// device context
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     Qt::HANDLE	hd;				// handle to drawable
     void		 copyX11Data( const QPaintDevice * );
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
     void * hd;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     Qt::HANDLE hd;
 #endif
 
@@ -213,12 +213,12 @@ protected:
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
 				 int, int, int, int, Qt::RasterOp, bool );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     friend void qt_init_internal( int *, char **, Display * );
 #endif
 
 private:
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     static Display *x_appdisplay;
     static int	    x_appscreen;
     static int	    x_appdepth;
@@ -250,7 +250,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     int conversion_flags=0 );
 
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 
 struct Q_EXPORT QPaintDeviceX11Data {
     Display*	x_display;
@@ -278,13 +278,13 @@ inline bool QPaintDevice::isExtDev() const
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 inline HDC    QPaintDevice::handle() const { return hdc; }
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 inline Qt::HANDLE QPaintDevice::handle() const { return hd; }
 #endif
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 inline Display *QPaintDevice::x11Display() const
 { return x11Data ? x11Data->x_display : x_appdisplay; }
 
@@ -332,7 +332,7 @@ inline void *QPaintDevice::x11AppVisual()
 
 inline bool QPaintDevice::x11AppDefaultVisual()
 { return x_appdefvisual; }
-#endif // _WS_X11_
+#endif // Q_WS_X11
 
 
 Q_EXPORT

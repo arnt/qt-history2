@@ -93,7 +93,7 @@ public:
     void connectUpdate(QObject* receiver, const char *member);
     void disconnectUpdate(QObject* receiver, const char *member=0);
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     // Temporary hack
     void setDisplayWidget(QWidget * w);
 #endif

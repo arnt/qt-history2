@@ -94,7 +94,7 @@ memory.\n");
 	sheight = qfb.height;
     }
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     gfx = QGfx::createRasterGfx( qfb.depth, qfb.fbp, qfb.width, qfb.height );
     ASSERT( gfx );
 #endif

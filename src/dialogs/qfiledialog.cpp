@@ -79,7 +79,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 // getlogin()
 #include <unistd.h>
 
@@ -459,7 +459,7 @@ static bool isDirectoryMode( int m )
     return m == QFileDialog::Directory || m == QFileDialog::DirectoryOnly;
 }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 
 class QWindowsIconProvider : public QFileIconProvider
 {
@@ -523,7 +523,7 @@ static void makeVariables() {
 	bShowHiddenFiles = FALSE;
 	sortFilesBy = (int)QDir::Name;
 	detailViewMode = FALSE;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	fileIconProvider = new QWindowsIconProvider();
 	qfd_cleanup_fip.addCleanUp( fileIconProvider );
 #endif
@@ -902,7 +902,7 @@ struct QFileDialogPrivate {
 	    if ( i2->name() == ".." )
 		return 1;
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	    if ( sortFilesBy == QDir::Name ) {
 		QString name1 = i1->name().lower();
 		QString name2 = i2->name().lower();
@@ -2180,7 +2180,7 @@ void QFileDialog::init()
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this );
     d->typeL = new QLabel( d->types, tr("File &type:"), this );
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 ) {
 	d->goBack = new QToolButton( this, "go back" );
 	d->goBack->setAutoRaise( TRUE );
@@ -2198,7 +2198,7 @@ void QFileDialog::init()
 #endif
 
     d->cdToParent = new QToolButton( this, "cd to parent" );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 )
 	d->cdToParent->setAutoRaise( TRUE );
 #endif
@@ -2209,7 +2209,7 @@ void QFileDialog::init()
 	     this, SLOT(cdUpClicked()) );
 
     d->newFolder = new QToolButton( this, "new folder" );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 )
 	d->newFolder->setAutoRaise( TRUE );
 #endif
@@ -2229,7 +2229,7 @@ void QFileDialog::init()
 	     this, SLOT(changeMode(int)) );
 
     d->mcView = new QToolButton( this, "mclistbox view" );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 )
 	d->mcView->setAutoRaise( TRUE );
 #endif
@@ -2239,7 +2239,7 @@ void QFileDialog::init()
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
     d->detailView = new QToolButton( this, "list view" );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 )
 	d->detailView->setAutoRaise( TRUE );
 #endif
@@ -2250,7 +2250,7 @@ void QFileDialog::init()
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
 
     d->previewInfo = new QToolButton( this, "preview info view" );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 )
 	d->previewInfo->setAutoRaise( TRUE );
 #endif
@@ -2261,7 +2261,7 @@ void QFileDialog::init()
     d->modeButtons->insert( d->previewInfo );
 
     d->previewContents = new QToolButton( this, "preview info view" );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( QApplication::winVersion() == Qt::WV_2000 )
 	d->previewContents->setAutoRaise( TRUE );
 #endif
@@ -2682,7 +2682,7 @@ void QFileDialog::setDir( const QString & pathstr )
     if ( dr.isEmpty() )
 	return;
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     if ( dr.length() && dr[0] == '~' ) {
 	struct passwd *pw;
 	int i;
@@ -2896,7 +2896,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption );
@@ -3009,7 +3009,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
 	return winGetSaveFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption );
@@ -3125,14 +3125,14 @@ void QFileDialog::okClicked()
 	} else {
 	    if ( !nameEdit->text().contains( "/" ) &&
 		 !nameEdit->text().contains( "\\" )
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 		 && nameEdit->text()[ 1 ] != ':'
 #endif
 		 )
 		addFilter( nameEdit->text() );
 	    else if ( nameEdit->text()[ 0 ] == '/' ||
 		      nameEdit->text()[ 0 ] == '\\'
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 		      || nameEdit->text()[ 1 ] == ':'
 #endif
 		      )
@@ -4253,7 +4253,7 @@ QFileIconProvider * QFileDialog::iconProvider()
 }
 
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include <windows.h>
 
 static QString getWindowsRegString( HKEY key, const char *subKey )
@@ -4724,7 +4724,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	}
     }
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
 	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption );
 #endif
@@ -4801,10 +4801,10 @@ QUrl QFileDialog::url() const
 
 static bool isRoot( const QUrl &u )
 {
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     if ( u.path() == "/" )
 	return TRUE;
-#elif defined(_OS_WIN32_)
+#elif defined(Q_OS_WIN32)
     QString p = u.path();
     if ( p.length() == 3 &&
 	 p.right( 2 ) == ":/" )
@@ -4899,7 +4899,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 		op == d->currListChildren ) {
 	if ( !d->hadDotDot && !isRoot( d->url ) ) {
 	    bool ok = TRUE;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	    if ( d->url.path().left( 2 ) == "//" )
 		ok = FALSE;
 #endif
@@ -4984,7 +4984,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	    d->hadDotDot = TRUE;
 	    if ( isRoot( d->url ) )
 		continue;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	    if ( d->url.path().left( 2 ) == "//" )
 		continue;
 #endif

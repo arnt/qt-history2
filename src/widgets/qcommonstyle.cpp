@@ -263,7 +263,7 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 					   QColorGroup::Background : QColorGroup::Button );
     if ( guiStyle() == WindowsStyle && btn->isOn() )
 	fill = QBrush( g.light(), Dense4Pattern );
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
 	// WIN2000 is really tricky here!
 	bool drawRect = btn->isOn();

@@ -51,7 +51,7 @@
 // including jpeglib.h seems to be a little messy
 extern "C" {
 #define XMD_H // Shut JPEGlib up.
-#if defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_UNIXWARE7)
 #  define HAVE_BOOLEAN // libjpeg under Unixware seems to need this
 #  define HAVE_PROTOTYPES
 #endif
@@ -121,7 +121,7 @@ boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
     } else {
 	src->bytes_in_buffer = num_read;
     }
-#if defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_UNIXWARE7)
     return B_TRUE;
 #else
     return TRUE;
@@ -193,7 +193,7 @@ void read_jpeg_image(QImageIO* iio)
     jerr.error_exit = my_error_exit;
 
     if (!setjmp(jerr.setjmp_buffer)) {
-#if defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_UNIXWARE7)
 	(void) jpeg_read_header(&cinfo, B_TRUE);
 #else
 	(void) jpeg_read_header(&cinfo, TRUE);
@@ -283,7 +283,7 @@ boolean qt_empty_output_buffer(j_compress_ptr cinfo)
     dest->next_output_byte = dest->buffer;
     dest->free_in_buffer = max_buf;
 
-#if defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_UNIXWARE7)
     return B_TRUE;
 #else
     return TRUE;
@@ -368,7 +368,7 @@ void write_jpeg_image(QImageIO* iio)
 
 	jpeg_set_defaults(&cinfo);
 	int quality = iio->quality() >= 0 ? QMAX(iio->quality(),100) : 75;
-#if defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_UNIXWARE7)
 	jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
 	jpeg_start_compress(&cinfo, B_TRUE);
 #else

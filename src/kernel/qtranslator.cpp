@@ -42,7 +42,7 @@
 
 #include "qfileinfo.h"
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 #define QT_USE_MMAP
 #endif
 
@@ -357,7 +357,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     QString prefix;
 
     if ( filename[0] == '/'
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 	 || filename[0] && filename[1] == ':'
 	 || filename[0] == '\\'
 #endif

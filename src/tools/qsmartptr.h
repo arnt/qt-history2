@@ -45,7 +45,7 @@
 #if defined(QT_CLEAN_NAMESPACE) && (QT_CLEAN_NAMESPACE >= 220)
 #error "QSmartPtr will be removed in Qt 3.0"
 #endif
-#if defined(_CC_GNU_)
+#if defined(Q_CC_GNU)
 #warning "QSmartPtr will be removed in Qt 3.0"
 #endif
 

@@ -92,19 +92,19 @@ typedef char *XPointer;
 #if defined(X11R4)
 // X11R4 does not have XIM
 #define NO_XIM
-#elif defined(_OS_OSF_) && (XlibSpecificationRelease < 6)
+#elif defined(Q_OS_OSF) && (XlibSpecificationRelease < 6)
 // broken in Xlib up to OSF/1 3.2
 #define NO_XIM
-#elif defined(_OS_AIX_)
+#elif defined(Q_OS_AIX)
 // broken in Xlib up to what version of AIX?
 #define NO_XIM
-#elif defined(_OS_SOLARIS_)
+#elif defined(Q_OS_SOLARIS)
 // XRegisterIMInstantiateCallback broken under "C" locale on Solaris
 #define NO_XIM
-#elif defined(NO_DEBUG) && defined(_OS_IRIX_) && defined(_CC_EDG_)
+#elif defined(NO_DEBUG) && defined(Q_OS_IRIX) && defined(Q_CC_EDG)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define NO_XIM
-#elif defined(_OS_HPUX_) && defined(__LP64__)
+#elif defined(Q_OS_HPUX) && defined(__LP64__)
 // XCreateIC broken when compiling 64-bit ELF on HP-UX 11.0
 #define NO_XIM
 #endif

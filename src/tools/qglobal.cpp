@@ -42,7 +42,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #define vsnprintf _vsnprintf
 #endif
 
@@ -238,7 +238,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 static QtMsgHandler handler = 0;			// pointer to debug handler
 
 
-#ifdef _OS_MAC_
+#ifdef Q_OS_MAC
 
 static FILE * mac_debug=0;
 
@@ -457,7 +457,7 @@ void qFatal( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#if defined(_OS_UNIX_) && defined(DEBUG)
+#if defined(Q_OS_UNIX) && defined(DEBUG)
 	abort();				// trap; generates core dump
 #else
 	exit( 1 );				// goodbye cruel world
@@ -479,7 +479,7 @@ void fatal( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#if defined(_OS_UNIX_) && defined(DEBUG)
+#if defined(Q_OS_UNIX) && defined(DEBUG)
 	abort();				// trap; generates core dump
 #else
 	exit( 1 );				// goodbye cruel world
@@ -677,6 +677,6 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
 }
 
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 bool qt_winunicode=FALSE;
 #endif

@@ -43,7 +43,7 @@
 #include "qdatastream.h"
 #endif // QT_H
 
-#if defined(_CC_MSVC_)
+#if defined(Q_CC_MSVC)
 #pragma warning(disable:4284) // "return type for operator -> is not a UDT"
 #endif
 

@@ -39,7 +39,7 @@
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
 
@@ -193,7 +193,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     if ( geom != widget->geometry() && !widget->parentWidget() || widget->parentWidget()->rect().intersects( geom ) )
 	widget->setGeometry( geom );
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     MSG msg;
     while(PeekMessage( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
 	;

@@ -613,7 +613,7 @@ void QtTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( d->dragSelection && e->button() == LeftButton ) {
 	//### TODO put selection into clipboard
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	copy();
 #else
 	if ( style() == MotifStyle )
@@ -626,16 +626,16 @@ void QtTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 
 void QtTextView::copy()
 {
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     // Need to convert NL to CRLF
     QRegExp nl("\\n");
     t.replace( nl, "\r\n" );
 #endif
     QApplication::clipboard()->setText( richText().selectedText() );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 	     this, SLOT(clipboardChanged()) );
 #endif
@@ -737,7 +737,7 @@ void QtTextView::keyPressEvent( QKeyEvent * e)
     case Key_C:
 	if ( e->state() & ControlButton )
 	    copy();
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
     case Key_Insert:
 	if ( e->state() & ControlButton )
 	    copy();
@@ -852,7 +852,7 @@ void QtTextView::clearSelection()
 
 void QtTextView::clipboardChanged()
 {
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
     clearSelection();

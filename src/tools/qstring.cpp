@@ -12433,7 +12433,7 @@ QString &QString::sprintf( const char* cformat, ... )
 }
 
 
-#if defined(_CC_GNU_)
+#if defined(Q_CC_GNU)
 #warning "fill() Should return *this, or QChar constructor should take count=1"
 #endif
 
@@ -14076,22 +14076,22 @@ QCString QString::local8Bit() const
 #ifdef QT_NO_TEXTCODEC
     return latin1();
 #else
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
 	    ? codec->fromUnicode(*this)
 	    : QCString(latin1());
 #endif
-#ifdef _WS_MAC_
+#ifdef Q_WS_MAC
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
 	    ? codec->fromUnicode(*this)
 	    : QCString(latin1());
 #endif
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     return qt_winQString2MB( *this );
 #endif
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     return utf8(); // ##### if there is ANY 8 bit format supported?
 #endif
 #endif
@@ -14115,14 +14115,14 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 
     if ( !local8Bit )
 	return QString::null;
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec
 	    ? codec->toUnicode( local8Bit, len )
 	    : fromLatin1( local8Bit, len );
 #endif
-#ifdef _WS_MAC_
+#ifdef Q_WS_MAC
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec
@@ -14130,14 +14130,14 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 	    : fromLatin1( local8Bit, len );
 #endif
 // Should this be OS_WIN32?
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
     if ( len >= 0 ) {
 	QCString s(local8Bit,len+1);
 	return qt_winMB2QString(s);
     }
     return qt_winMB2QString( local8Bit );
 #endif
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     return fromUtf8(local8Bit,len);
 #endif
 #endif // QT_NO_TEXTCODEC
@@ -14618,7 +14618,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
 #ifdef QT_QSTRING_UCS_4
-#if defined(_CC_GNU_)
+#if defined(Q_CC_GNU)
 #warning "operator>> not working properly"
 #endif
 #endif
@@ -14724,7 +14724,7 @@ bool QString::startsWith( const QString& s ) const
 
 
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 
 #include <windows.h>
 
@@ -14747,7 +14747,7 @@ const void* qt_winTchar(const QString& str_in, bool addnul)
 
 #define EXTEND if (str.length() > buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
 
-#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
+#if defined(Q_WS_X11) || defined(Q_OS_WIN32BYTESWAP_)
     EXTEND
     for ( int i=str.length(); i--; )
 	buf[i] = uc[i].row() << 8 | uc[i].cell();
@@ -14795,7 +14795,7 @@ QString qt_winQString(void* tc)
     int len=0;
     while ( ((TCHAR*)tc)[len] )
 	len++;
-#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
+#if defined(Q_WS_X11) || defined(Q_OS_WIN32BYTESWAP_)
     QString r;
     for ( int i=0; i<len; i++ )
 	r += QChar(((TCHAR*)tc)[i]&0xff,((TCHAR*)tc)[i]>>8);
@@ -14878,4 +14878,4 @@ QString qt_winMB2QString( const char* mb, int mblen )
 }
 
 
-#endif // _OS_WIN32_
+#endif // Q_OS_WIN32

@@ -367,7 +367,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 
 
 
-#ifdef _OS_WIN32_
+#ifdef Q_OS_WIN32
 class QWindowsLocalCodec: public QTextCodec
 {
 public:
@@ -541,7 +541,7 @@ QTextCodec* QTextCodec::codecForLocale()
 
     setup();
 
-#ifdef _OS_WIN32_
+#ifdef Q_OS_WIN32
     localeMapper = new QWindowsLocalCodec;
 #else
     // Very poorly defined and followed standards causes lots of code

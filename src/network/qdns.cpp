@@ -1941,7 +1941,7 @@ QString QDns::canonicalName() const
 }
 
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 
 // include this stuff late, so any defines won't hurt.  funkily,
 // struct __res_state is part of the api.  normally not used, it says.
@@ -1949,11 +1949,11 @@ QString QDns::canonicalName() const
 
 #include <sys/types.h>
 #include <netinet/in.h>
-#if defined (_OS_SCO_) // SCO OpenServer 5.0.5
+#if defined (Q_OS_SCO) // SCO OpenServer 5.0.5
 # define class c_class
 #endif
 #include <arpa/nameser.h>
-#if defined (_OS_SCO_)
+#if defined (Q_OS_SCO)
 # undef class
 #endif
 #include <resolv.h>
@@ -2051,7 +2051,7 @@ static void doResInit()
     }
 }
 
-#elif defined(_OS_WIN32_)
+#elif defined(Q_OS_WIN32)
 
 #include <windows.h>
 

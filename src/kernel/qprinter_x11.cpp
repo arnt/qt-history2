@@ -45,7 +45,7 @@
 #include "qapplication.h"
 #include <stdlib.h>
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #include <io.h>
 #include <fcntl.h>
 #else
@@ -58,17 +58,17 @@
 #include <signal.h>
 #endif
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 #include <X11/Xlib.h>
 #endif
 
-#if defined(_OS_OS2EMX_)
+#if defined(Q_OS_OS2EMX)
 #define INCL_DOSFILEMGR
 #define INCL_DOSERRORS
 #include <os2.h>
 #endif
 
-#if defined(_OS_QNX_)
+#if defined(Q_OS_QNX)
 #include <process.h>
 #endif
 
@@ -189,7 +189,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
 		int fd = 0;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 		if ( qt_winver & Qt::WV_NT_based )
 		    fd = _topen( qt_winTchar(output_filename,TRUE),
 				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
@@ -209,7 +209,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QString pr;
 		if ( printer_name )
 		    pr = printer_name;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 		// Not implemented
 		// lpr needs -Sserver argument
 #else
@@ -220,7 +220,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ERROR;
 		    return FALSE;
 		}
-#if 0 && defined(_OS_OS2EMX_)
+#if 0 && defined(Q_OS_OS2EMX)
 		// this code is still not used, and maybe it's not
 		// usable either, any more.  if you want to use it,
 		// you may need to fix it first.
@@ -255,12 +255,12 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    if ( fork() > 0 )
 			exit( 0 );
 		    dup2( fds[0], 0 );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 		    // hack time... getting the maximum number of open
 		    // files, if possible.  if not we assume it's the
 		    // larger of 256 and the fd we got
 		    int i;
-#if defined(_OS_OS2EMX_)
+#if defined(Q_OS_OS2EMX)
 		    LONG req_count = 0;
 		    ULONG rc, handle_count;
 		    rc = DosSetRelMaxFH (&req_count, &handle_count);
@@ -277,7 +277,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #endif // ways-to-set i
 		    while( --i > 0 )
 			::close( i );
-#endif // _WS_X11_
+#endif // Q_WS_X11
 		    if ( print_prog ) {
 			pr.prepend( option_string ? option_string :
 				    QString::fromLatin1( "-P" ) );
@@ -319,8 +319,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    pdrv = new QPSPrinter( this, fds[1] );
 		    state = PST_ACTIVE;
 		}
-#endif // else part of _OS_OS2EMX_
-#endif // else part for #if _OS_WIN32_
+#endif // else part of Q_OS_OS2EMX
+#endif // else part for #if Q_OS_WIN32
 	    }
 	    if ( state == PST_ACTIVE && pdrv )
 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );

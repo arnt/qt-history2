@@ -51,7 +51,7 @@
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 // Small in Qt/Embedded - 5K on 32bpp
 static const int drawingPixWidth  = 64;
 static const int drawingPixHeight = 20;

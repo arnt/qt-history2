@@ -1783,7 +1783,7 @@ void QScrollView::moveContents(int x, int y)
 }
 
 #if QT_VERSION >= 300
-#if defined(_CC_GNU_)
+#if defined(Q_CC_GNU)
 #warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
 #endif
 // Because it's the viewport rectangle that is "moving", not the contents.

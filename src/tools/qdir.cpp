@@ -376,7 +376,7 @@ QString QDir::absFilePath( const QString &fileName,
 QString QDir::convertSeparators( const QString &pathName )
 {
     QString n( pathName );
-#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
     for ( int i=0; i<(int)n.length(); i++ ) {
 	if ( n[i] == '/' )
 	    n[i] = '\\';
@@ -959,11 +959,11 @@ bool QDir::exists( const QString &name, bool acceptAbsPath )
 
 char QDir::separator()
 {
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     return '/';
-#elif defined (_OS_FATFS_)
+#elif defined (Q_FS_FAT)
     return '\\';
-#elif defined (_OS_MAC_)
+#elif defined (Q_OS_MAC)
     return ':';
 #else
     return '/';
@@ -1045,7 +1045,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 {
     QStringList::ConstIterator sit = filters.begin();
     while ( sit != filters.end() ) {
-#if defined(_OS_FATFS_) && !defined(_OS_UNIX_)
+#if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
 	QRegExp rx( *sit, FALSE, TRUE ); // The FAT FS is not case sensitive..
 #else
 	QRegExp rx( *sit, TRUE, TRUE );  // ..while others are.
@@ -1134,7 +1134,7 @@ QString QDir::cleanDirPath( const QString &filePath )
     } else {
 	if ( newPath.isEmpty() )
 	    newPath = QString::fromLatin1("/");
-#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
 	if ( name[0] == '/' ) {
 	    if ( name[1] == '/' )		// "\\machine\x\ ..."
 		newPath.insert( 0, '/' );

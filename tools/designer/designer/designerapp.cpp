@@ -6,7 +6,7 @@
 #include <qdir.h>
 #include <qobjectlist.h>
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 #include <qt_windows.h>
 #include <process.h>
 #endif
@@ -22,7 +22,7 @@ DesignerApplication::DesignerApplication( int &argc, char **argv, const QCString
 DesignerApplication::DesignerApplication( int &argc, char **argv )
     : QApplication( argc, argv )
 {
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( winVersion() & Qt::WV_NT_based )
 	    DESIGNER_OPENFILE = RegisterWindowMessage((TCHAR*)"QT_DESIGNER_OPEN_FILE");
     else
@@ -32,7 +32,7 @@ DesignerApplication::DesignerApplication( int &argc, char **argv )
 
 #endif
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include <qt_windows.h>
 #include <process.h>
 bool DesignerApplication::winEventFilter( MSG *msg )

@@ -54,7 +54,7 @@ class Q_EXPORT  QSessionManager : public QObject
     ~QSessionManager();
 public:
     QString sessionId() const;
-#if defined(_WS_X11_) || defined(_WS_MAC_)
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
     void* handle() const;
 #endif
 

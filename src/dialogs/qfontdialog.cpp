@@ -685,7 +685,7 @@ void QFontDialog::sizeHighlighted( const QString &s )
 
 void QFontDialog::setFont( const QFont &f )
 {
-#ifdef _WS_WIN32_
+#ifdef Q_WS_WIN32
     QString famNam = f.family();
 #else 
     QString famNam = f.family().lower();

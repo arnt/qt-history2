@@ -13,7 +13,7 @@
 #include <qfontmetrics.h>
 #include <qcombobox.h>
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include <qwindowsystem_qws.h>
 #endif
 
@@ -147,7 +147,7 @@ void UniScrollview::contentsMousePressEvent(QMouseEvent *e )
     int col = (e->x()-xoff)/cellsize;
     int u = row*nw+col;
     qDebug( "pressed %04x", u );
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     QWSServer::sendKeyEvent( u, u, 0, TRUE, FALSE );
     QWSServer::sendKeyEvent( u, u, 0, FALSE, FALSE );
 #endif

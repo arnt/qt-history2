@@ -1541,7 +1541,7 @@ void QTextEditString::insert( int index, const QString &s, QTextEditFormat *f )
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	//### workaround for broken courier fonts on X11
 	if ( s[ i ] == QChar( 0x00a0U ) )
 	    data[ (int)index + i ].c = ' ';

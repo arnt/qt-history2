@@ -32,7 +32,7 @@ void handleHardExit(int sig);
 
 main(int argc, char** argv)
 {
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     bool useGUI = getenv( "DISPLAY" ) != 0;
 #else
     bool useGUI = FALSE;

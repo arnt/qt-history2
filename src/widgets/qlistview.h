@@ -59,7 +59,7 @@ class QListViewItemIterator;
 class Q_EXPORT QListViewItem: public Qt
 {
     friend class QListViewItemIterator;
-#if defined(_CC_MSVC_)
+#if defined(Q_CC_MSVC)
     friend class QListViewItem;
 #endif
 

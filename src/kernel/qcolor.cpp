@@ -117,7 +117,7 @@
   Global colors
  *****************************************************************************/
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #define COLOR0_PIX 0x00ffffff
 #define COLOR1_PIX 0
 #else
@@ -184,7 +184,7 @@ void QColor::initGlobalColors()
     globals_init = TRUE;
     stdcol[ 0].pix = COLOR0_PIX;
     stdcol[ 1].pix = COLOR1_PIX;
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     stdcol[ 0].rgbVal = 0;
     stdcol[ 1].rgbVal = 0x00ffffff; //######### QWS color allocation is a mess
 #else

@@ -956,7 +956,7 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
     return dict.write( s );
 }
 
-#if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
+#if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
 #endif
 

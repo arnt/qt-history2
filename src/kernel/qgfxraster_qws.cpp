@@ -44,7 +44,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#ifdef _CC_EDG_
+#ifdef Q_CC_EDG
 //####### hacky workaround for KCC/linux include files
 typedef __signed__ char __s8;
 typedef unsigned char __u8;

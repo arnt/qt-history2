@@ -31,16 +31,16 @@
 
 #include <stdlib.h>
 #include <signal.h>
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include <qt_windows.h>
 #include <process.h>
 #endif
 
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 extern void qt_wait_for_window_manager( QWidget* );
 #endif
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -48,7 +48,7 @@ extern void qt_wait_for_window_manager( QWidget* );
 extern "C" {
 #endif
 
-#if defined(_OS_IRIX_) && defined(_CC_GNU_)
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
 static void signalHandler()
 #else
 static void signalHandler( int )
@@ -94,7 +94,7 @@ static void signalHandler( int )
 extern "C" {
 #endif
 
-#if defined(_OS_IRIX_) && defined(_CC_GNU_)
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
 static void exitHandler()
 #else
 static void exitHandler( int )
@@ -105,7 +105,7 @@ static void exitHandler( int )
     exit( -1 );
 }
 
-#if defined(_OS_IRIX_) && defined(_CC_GNU_)
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
 static void crashHandler()
 #else
 static void crashHandler( int )
@@ -154,12 +154,12 @@ int main( int argc, char *argv[] )
 		    ts << a.argv()[ i ] << " ";
 		ts << endl;
 		f.close();
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 		if ( kill( pidStr.toInt(), SIGUSR1 ) == -1 )
 		    creatPid = TRUE;
 		else
 		    return 0;
-#elif defined(_OS_WIN32_)
+#elif defined(Q_OS_WIN32)
 		if ( !GetProcessVersion( pidStr.toUInt() ) ) {		
 		    creatPid = TRUE;
 		} else {
@@ -180,7 +180,7 @@ int main( int argc, char *argv[] )
 	QFile pf( QDir::homeDirPath() + "/.designerpid" );
 	pf.open( IO_WriteOnly );
 	QTextStream ts( &pf );
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 	signal( SIGUSR1, signalHandler );
 #endif
 	ts << getpid() << endl;
@@ -219,7 +219,7 @@ int main( int argc, char *argv[] )
     mw->setCaption( "Qt Designer by Trolltech" );
 
     mw->show();
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     qt_wait_for_window_manager( mw );
 #endif
     delete splash;

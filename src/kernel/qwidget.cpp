@@ -48,10 +48,10 @@
 #include "qapplication_p.h"
 #include "qbrush.h"
 #include "qlayout.h"
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
 #endif
 
@@ -423,7 +423,7 @@
   in the file qapp_xxx.cpp.
  *****************************************************************************/
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 static const int WDictSize = 163; // plenty for small devices
 #else
 static const int WDictSize = 1123; // plenty for 5 big complex windows
@@ -470,7 +470,7 @@ inline QWidget *QWidgetMapper::find( WId id )
 
 inline void QWidgetMapper::insert( const QWidget *widget )
 {
-#ifdef _OS_MAC_
+#ifdef Q_OS_MAC
     qDebug("Insert for %d\n",(int)widget->winId());
 #endif
     QWidgetIntDict::insert((long)widget->winId(),widget);
@@ -482,7 +482,7 @@ inline bool QWidgetMapper::remove( WId id )
 	cur_id = 0;
 	cur_widget = 0;
     }
-#ifdef _OS_MAC_
+#ifdef Q_OS_MAC
     qDebug("Remove for %d\n",(int)id);
 #endif
     return QWidgetIntDict::remove((long)id);
@@ -886,7 +886,7 @@ void QWidget::setWinId( WId id )		// set widget identifier
     if ( winid )
 	mapper->remove( winid );
     winid = id;
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     hd = id;					// X11: hd == ident
 #endif
     if ( id )
@@ -934,14 +934,14 @@ void QWidget::createTLExtra()
 	x->fullscreen = 0;
 	x->showMode = 0;
 	x->normalGeometry = QRect(0,0,-1,-1);
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	x->embedded = 0;
 	x->parentWinId = 0;
 	x->dnd = 0;
 	x->uspos = 0;
 	x->ussize = 0;
 #endif
-#if defined(_WS_QWS_) && !defined(QT_NO_QWS_MANAGER)
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	x->decor_allocated_region = QRegion();
 	x->qwsManager = 0;
 #endif
@@ -995,7 +995,7 @@ void QWidget::deleteExtra()
 	    deleteTLSysExtra();
 	    delete extra->topextra->icon;
 	    delete extra->topextra->focusData;
-#if defined(_WS_QWS_) && !defined(QT_NO_QWS_MANAGER)
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	    delete extra->topextra->qwsManager;
 #endif
 	    delete extra->topextra;
@@ -1927,7 +1927,7 @@ void QWidget::setBackgroundFromMode()
 	    r = QColorGroup::ButtonText;
 	    break;
 	case X11ParentRelative:
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 	    setBackgroundX11Relative();
 #endif
 	    return;
@@ -2453,7 +2453,7 @@ QString QWidget::iconText() const
     QApplication::setGlobalMouseTracking()
 */
 
-#if !defined(_WS_X11_)
+#if !defined(Q_WS_X11)
 void QWidget::setMouseTracking( bool enable )
 {
     if ( enable )
@@ -2462,7 +2462,7 @@ void QWidget::setMouseTracking( bool enable )
 	clearWState( WState_MouseTracking );
     return;
 }
-#endif // _WS_X11_
+#endif // Q_WS_X11
 
 
 /*!  Sets this widget's focus proxy to \a w. If \a w is 0, this
@@ -3385,7 +3385,7 @@ void QWidget::hide()
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     if ( isTopLevel() && !isPopup() && parentWidget() && isActiveWindow() )
 	parentWidget()->setActiveWindow();	// Activate parent
 #endif
@@ -4495,7 +4495,7 @@ void QWidget::customEvent( QCustomEvent * )
 }
 
 
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
@@ -4515,7 +4515,7 @@ bool QWidget::macEvent( MSG * )
     return FALSE;
 }
 
-#elif defined(_WS_WIN_)
+#elif defined(Q_WS_WIN)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
@@ -4535,7 +4535,7 @@ bool QWidget::winEvent( MSG * )
     return FALSE;
 }
 
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
@@ -4555,7 +4555,7 @@ bool QWidget::x11Event( XEvent * )
     return FALSE;
 }
 
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
@@ -4959,7 +4959,7 @@ void QWidget::showFullScreen()
     resize( qApp->desktop()->size() );
     raise();
     show();
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     extern void qt_wait_for_window_manager( QWidget* w ); // defined in qwidget_x11.cpp
     qt_wait_for_window_manager( this );
 #endif

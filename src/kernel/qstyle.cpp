@@ -121,7 +121,7 @@ QStyle::QStyle(GUIStyle s) : gs(s)
   the operating system - WindowsStyle for Windows, MotifStyle for Unix.
 */
 QStyle::QStyle() :
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     gs(MotifStyle)
 #else
     gs(WindowsStyle)

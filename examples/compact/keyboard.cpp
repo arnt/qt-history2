@@ -11,7 +11,7 @@
 
 #include "keyboard.h"
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 
 #include <qwindowsystem_qws.h>
 #include <qpainter.h>
@@ -326,4 +326,4 @@ QSize Keyboard::sizeHint() const
     return QSize( 1000, 5*d );
 }
 
-#endif // _WS_QWS_
+#endif // Q_WS_QWS

@@ -79,7 +79,7 @@ static void restoreCursors( QWidget *start, FormWindow *fw )
     }
 }
 
-#if defined(_WS_WIN32_) // #### needed for the workaround for repaint problem on windows
+#if defined(Q_WS_WIN32) // #### needed for the workaround for repaint problem on windows
 #include <qt_windows.h>
 static void flickerfree_update( QWidget *w )
 {
@@ -652,7 +652,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		sizePreviewLabel->setGeometry( lg );
 		sizePreviewLabel->raise();
 		sizePreviewLabel->show();
-#if defined(_WS_WIN32_)
+#if defined(Q_WS_WIN32)
 		windowsRepaintWorkaroundTimer->start( 100, TRUE );
 #endif
 	    } else { // if we don't need to move, do some indication
@@ -1301,14 +1301,14 @@ void FormWindow::resizeEvent( QResizeEvent *e )
     if ( currTool == ORDER_TOOL )
 	repositionOrderIndicators();
 
-#if defined(_WS_WIN32_)
+#if defined(Q_WS_WIN32)
     windowsRepaintWorkaroundTimer->start( 100, TRUE );
 #endif
 }
 
 void FormWindow::windowsRepaintWorkaroundTimerTimeout()
 {
-#if defined(_WS_WIN32_)
+#if defined(Q_WS_WIN32)
     QObjectList *l = queryList( "QWidget" );
     for ( QObject *o = l->first(); o; o = l->next() ) {
 	flickerfree_update( (QWidget*)o );

@@ -46,7 +46,7 @@
 #include "qapplication.h"
 #include "qrichtext_p.h"
 #include "qregexp.h"
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include "qgfx_qws.h"
 #endif
 #include <stdlib.h>
@@ -1406,13 +1406,13 @@ void QPainter::updateXForm()
 		txop = TxTranslate;
 	} else {
 	    txop = TxScale;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	    setf(DirtyFont);
 #endif
 	}
     } else {
 	txop = TxRotShear;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	setf(DirtyFont);
 #endif
     }
@@ -1913,7 +1913,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 */
 
 
-#if !defined(_WS_X11_) && !defined(_WS_QWS_)
+#if !defined(Q_WS_X11) && !defined(Q_WS_QWS)
 // The doc and X implementation of this functions is in qpainter_x11.cpp
 void QPainter::drawWinFocusRect( int, int, int, int,
 				 bool, const QColor & )
@@ -1974,7 +1974,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 			  int sx, int sy, int sw, int sh,
 			  int conversionFlags )
 {
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     //### Hackish
 # ifndef QT_NO_TRANSFORMATIONS
     if ( !image.isNull() && gfx &&
@@ -2045,10 +2045,10 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	QPoint p(x,y);
 	param[0].point = &p;
 	param[1].image = &subimage;
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
 	    return;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
 	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
 	return;
 #else
@@ -2199,12 +2199,12 @@ void QPainter::drawText( const QRect &r, int tf,
 	    param[1].ival = tf;
 	    param[2].str = &newstr;
 	    if ( pdev->devType() != QInternal::Printer ) {
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
 		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
 				 this, param) ||
 		     !hdc )
 		    return;			// QPrinter wants PdcDrawText2
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
 		pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param);
 		return;
 #else

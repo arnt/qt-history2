@@ -39,7 +39,7 @@ RawTest::RawTest( QWidget *parent, const char *name)
 
     range->setMinimumWidth( 100 );
 
-#ifdef _WS_X11_
+#ifdef Q_WS_X11
     int xFontCount = 0;
     static char **xFontList = 0;
 

@@ -37,7 +37,7 @@
 
 #include "qwmatrix.h"
 #include "qdatastream.h"
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
 double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #else
 #include <math.h>
@@ -377,7 +377,7 @@ const double deg2rad = 0.017453292519943295769;	// pi/180
 QWMatrix &QWMatrix::rotate( double a )
 {
     double b = deg2rad*a;			// convert to radians
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     double sina = qsincos(b,FALSE);		// fast and convenient
     double cosa = qsincos(b,TRUE);
 #else

@@ -97,7 +97,7 @@ protected:
     friend class QMimeSource;
 
 private:	// Disabled copy constructor and operator=
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     void clobber();
 #endif
 

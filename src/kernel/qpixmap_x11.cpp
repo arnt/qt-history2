@@ -49,7 +49,7 @@
 //
 // #define MITSHM
 
-#if defined(_OS_WIN32_) && defined(MITSHM)
+#if defined(Q_OS_WIN32) && defined(MITSHM)
 #undef MITSHM
 #endif
 

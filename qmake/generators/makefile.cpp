@@ -44,7 +44,7 @@
 #include <qregexp.h>
 #include "option.h"
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
 #include <io.h>

@@ -89,15 +89,15 @@ private:
     static void reset( const QPainter * );
     const QFontDef *spec() const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     void   *textMetric() const;
     HDC	    hdc() const;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     void   *fontStruct() const;
     void   *fontSet() const;
     const QTextCodec *mapper() const;
     int	    printerAdjusted(int) const;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     QFontInternal *internal();
 #endif
 

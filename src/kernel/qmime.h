@@ -80,7 +80,7 @@ private:
     QMimeSourceFactoryData* d;
 };
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 
 // This header file is down here for GCC 2.7.* compatibility
 #ifndef QT_H
@@ -116,7 +116,7 @@ public:
     virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
 };
 
-#endif // _WS_WIN_
+#endif // Q_WS_WIN
 
 #endif // QT_NO_MIME
 

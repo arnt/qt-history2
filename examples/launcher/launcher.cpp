@@ -372,7 +372,7 @@ private:
 
 
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 
 #include <qmap.h>
 #include <qfile.h>
@@ -520,7 +520,7 @@ int main(int argc, char** argv)
     qInstallMsgHandler(silent);
 
     app.setFont(QFont("smoothtimes",22));
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     if ( QString(argv[1]) == "-im" && argv[2] ) {
 	SimpleIM* im = new SimpleIM( argv[2] );
 	QWSServer::setKeyboardFilter( im );

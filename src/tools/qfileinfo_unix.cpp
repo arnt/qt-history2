@@ -37,7 +37,7 @@
 
 #include "qglobal.h"
 
-#if defined(_OS_SUN_)
+#if defined(Q_OS_SUN)
 #define readlink _qt_hide_readlink
 #endif
 
@@ -49,7 +49,7 @@
 #include "qdatetime.h"
 #include "qdir.h"
 
-#if defined(_OS_SUN_)
+#if defined(Q_OS_SUN)
 #undef readlink
 extern "C" int readlink( const char *, void *, uint );
 #endif
@@ -120,7 +120,7 @@ QString QFileInfo::readLink() const
 {
     QString r;
 
-#if defined(_OS_UNIX_) && !defined(_OS_OS2EMX_)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
     char s[PATH_MAX+1];
     if ( !isSymLink() )
 	return QString();
@@ -329,7 +329,7 @@ void QFileInfo::doStat() const
     STATBUF *b = &that->fic->st;
     that->fic->isSymLink = FALSE;
 
-#if defined(_OS_UNIX_) && defined(S_IFLNK)
+#if defined(Q_OS_UNIX) && defined(S_IFLNK)
     if ( ::lstat(QFile::encodeName(fn),b) == 0 ) {
 	if ( S_ISLNK( b->st_mode ) )
 	    that->fic->isSymLink = TRUE;

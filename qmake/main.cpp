@@ -52,7 +52,7 @@
 #include <qregexp.h>
 #include <qdir.h>
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 Qt::WindowsVersion qt_winver;
 #endif
 

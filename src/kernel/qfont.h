@@ -161,13 +161,13 @@ public:
     bool	operator!=( const QFont & ) const;
     bool	isCopyOf( const QFont & ) const;
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HFONT	handle() const;
-#elif defined(_WS_MAC_)
+#elif defined(Q_WS_MAC)
     Qt::HANDLE      handle() const;
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     Qt::HANDLE	handle() const;
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     Qt::HANDLE	handle() const;
 #endif
 
@@ -191,7 +191,7 @@ public:
     static void cleanup();
     static void cacheStatistics();
 
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     void qwsRenderToDisk(bool all=TRUE);
 #endif
 
@@ -209,10 +209,10 @@ private:
     void	detach();
     void	initFontInfo() const;
     void	load() const;
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
     void        macSetFont(QPaintDevice *);
 #endif
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     HFONT	create( bool *, HDC=0, bool=FALSE ) const;
     void       *textMetric() const;
 #endif

@@ -49,7 +49,7 @@
 class QSessionManager;
 class QStyle;
 class QTranslator;
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
 template <class type> class QList;
@@ -72,7 +72,7 @@ public:
     QApplication( int &argc, char **argv, bool GUIenabled );
     enum Type { Tty, GuiClient, GuiServer };
     QApplication( int &argc, char **argv, Type );
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     QApplication( Display* dpy );
     QApplication( Display *dpy, int argc, char **argv);
 #endif
@@ -194,17 +194,17 @@ public:
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
-#if defined(_WS_MAC_)
+#if defined(Q_WS_MAC)
     bool	     do_mouse_down(EventRecord *);
     virtual bool     macEventFilter( MSG * );
     int              macProcessEvent( MSG * );
-#elif defined(_WS_WIN_)
+#elif defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );
-#elif defined(_WS_X11_)
+#elif defined(Q_WS_X11)
     virtual bool     x11EventFilter( XEvent * );
     virtual int	     x11ClientMessage( QWidget*, XEvent*, bool passive_only);
     int              x11ProcessEvent( XEvent* );
-#elif defined(_WS_QWS_)
+#elif defined(Q_WS_QWS)
     virtual bool     qwsEventFilter( QWSEvent * );
     int              qwsProcessEvent( QWSEvent* );
     void             qwsSetCustomColors( QRgb *colortable, int start, int numColors );
@@ -214,7 +214,7 @@ public:
 #endif
 #endif
 
-#if defined(_WS_WIN_)
+#if defined(Q_WS_WIN)
     static WindowsVersion winVersion();
     void	     winFocus( QWidget *, bool );
     static void	     winMouseButtonUp();
@@ -227,7 +227,7 @@ public:
     virtual void     commitData( QSessionManager& sm );
     virtual void     saveState( QSessionManager& sm );
 #endif
-#if defined(_WS_X11_)
+#if defined(Q_WS_X11)
     static void create_xim();
     static void close_xim();
 #endif
@@ -254,7 +254,7 @@ private:
     void	     init_precmdline();
     void	     process_cmdline( int* argcptr, char ** argv );
     bool	     internalNotify( QObject *, QEvent * );
-#if defined(_WS_QWS_)
+#if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );
 #endif
@@ -302,7 +302,7 @@ private:
     QString	     session_id;
     bool	     is_session_restored;
 #endif
-#if defined(_WS_X11_) && !defined (QT_NO_STYLE )
+#if defined(Q_WS_X11) && !defined (QT_NO_STYLE )
     static void x11_initialize_style();
 #endif
 

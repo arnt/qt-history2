@@ -170,7 +170,7 @@ static inline bool isIdentChar( char x )
 
 static inline bool isSpace( char x )
 {
-#if defined(_CC_BOR_)
+#if defined(Q_CC_BOR)
   /*
     Borland C++ 4.5 has a weird isspace() bug.
     isspace() usually works, but not here.

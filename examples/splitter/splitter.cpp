@@ -84,7 +84,7 @@ int main( int argc, char ** argv )
     t5->setMinimumSize( 80, 50 );
     t5->setBackgroundColor( Qt::yellow );
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     // Qt/Embedded XOR drawing not yet implemented.
     s1->setOpaqueResize( TRUE );
 #endif

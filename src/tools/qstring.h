@@ -181,8 +181,8 @@ public:
     friend inline int operator<=( QChar c1, QChar c2 );
 
 private:
-#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_) || defined( _WS_QWS_ )
-    // XChar2b on X11, ushort on _OS_WIN32_BYTESWAP_
+#if defined(Q_WS_X11) || defined(Q_OS_WIN32BYTESWAP_) || defined( Q_WS_QWS )
+    // XChar2b on X11, ushort on Q_OS_WIN32BYTESWAP_
     //### QWS must be defined on a platform by platform basis
     uchar rw;
     uchar cl;
@@ -191,7 +191,7 @@ private:
 #endif
     enum { net_ordered = 1 };
 #else
-    // ushort on _OS_WIN32_
+    // ushort on Q_OS_WIN32
     uchar cl;
     uchar rw;
 #if defined(QT_QSTRING_UCS_4)
@@ -390,7 +390,7 @@ public:
     QString arg( double a, int fieldwidth=0, char fmt='g', int prec=-1 ) const;
 
     QString    &sprintf( const char* format, ... )
-#if defined(_CC_GNU_) && !defined(__INSURE__)
+#if defined(Q_CC_GNU) && !defined(__INSURE__)
 	__attribute__ ((format (printf, 2, 3)))
 #endif
 	;
@@ -810,7 +810,7 @@ Q_EXPORT inline QString operator+( char c1, const QString &s2 )
     return tmp;
 }
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 extern Q_EXPORT QString qt_winQString(void*);
 extern Q_EXPORT const void* qt_winTchar(const QString& str, bool addnul);
 extern Q_EXPORT void* qt_winTchar_new(const QString& str);

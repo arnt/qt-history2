@@ -714,7 +714,7 @@ bool QUrl::parse( const QString& url )
     if ( !d->host.isEmpty() && d->host[ 0 ] == '@' )
 	d->host.remove( 0, 1 );
 
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
     // hack for windows file://machine/path syntax
     if ( d->protocol == "file" ) {
 	if ( url.left( 7 ) == "file://" &&
@@ -893,7 +893,7 @@ QString QUrl::path( bool correct ) const
 	if ( QDir::isRelativePath( d->path ) ) {
 	    d->cleanPath = d->path;
 	} else if ( isLocalFile() ) {
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 	    // hack for stuff like \\machine\path and //machine/path on windows
 	    if ( ( d->path.left( 1 ) == "/" || d->path.left( 1 ) == "\\" ) &&
 		 d->path.length() > 1 ) {

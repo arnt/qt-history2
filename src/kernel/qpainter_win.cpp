@@ -996,7 +996,7 @@ void QPainter::setBrushOrigin( int x, int y )
 	if ( !pdev->cmd(QPaintDevice::PdcSetBrushOrigin,this,param) || !hdc )
 	    return;
     }
-#if defined(_WS_WIN32_)
+#if defined(Q_WS_WIN32)
     SetBrushOrgEx( hdc, x, y, 0 );
 #else
     SetBrushOrg( hdc, x, y );
@@ -1187,7 +1187,7 @@ void QPainter::moveTo( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
-#if defined(_WS_WIN32_)
+#if defined(Q_WS_WIN32)
     MoveToEx( hdc, x, y, 0 );
 #else
     MoveTo( hdc, x, y );

@@ -47,13 +47,13 @@
 #include <errno.h>
 #include <signal.h>
 
-#if defined(_OS_OS2EMX_)
+#if defined(Q_OS_OS2EMX)
 #define INCL_DOSFILEMGR
 #define INCL_DOSERRORS
 #include <os2.h>
 #endif
 
-#if defined(_OS_QNX_)
+#if defined(Q_OS_QNX)
 #include <process.h>
 #endif
 
@@ -131,7 +131,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     if ( c ==  PdcBegin ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 		int fd;
 		if ( qt_winver == Qt::WV_NT )
 		    fd = _topen( qt_winTchar(output_filename,TRUE),
@@ -152,7 +152,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QString pr;
 		if ( printer_name )
 		    pr = printer_name;
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 		// Not implemented
 		// lpr needs -Sserver argument
 #else
@@ -163,7 +163,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ERROR;
 		    return FALSE;
 		}
-#if 0 && defined(_OS_OS2EMX_)
+#if 0 && defined(Q_OS_OS2EMX)
 		// this code is still not used, and maybe it's not
 		// usable either, any more.  if you want to use it,
 		// you may need to fix it first.
@@ -252,8 +252,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    pdrv = new QPSPrinter( this, fds[1] );
 		    state = PST_ACTIVE;
 		}
-#endif // else part of _OS_OS2EMX_
-#endif // else part for #if _OS_WIN32_
+#endif // else part of Q_OS_OS2EMX
+#endif // else part for #if Q_OS_WIN32
 	    }
 	    if ( state == PST_ACTIVE && pdrv )
 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );

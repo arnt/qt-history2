@@ -20,7 +20,7 @@
 #include <qsignalmapper.h>
 #include <stdlib.h>
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
 #include <unistd.h>
 #endif
 
@@ -100,7 +100,7 @@ int main( int argc, char** argv )
     const char* qm[]=
 	{ "de", "el", "en", "eo", "fr", "it", "jp", "ko", "no", "ru", 0 };
 
-#if defined(_OS_UNIX_)
+#if defined(Q_OS_UNIX)
     srand(getpid()<<2);
 #endif
 

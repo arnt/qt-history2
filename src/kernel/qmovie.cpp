@@ -48,7 +48,7 @@
 
 #ifndef QT_NO_MOVIE
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
 #include "qgfx_qws.h"
 #endif
 
@@ -363,7 +363,7 @@ void QMovieFilePrivate::updatePixmapFromImage(const QPoint& off,
 	mypixmap.setMask(mymask);
     }
 
-#ifdef _WS_QWS_
+#ifdef Q_WS_QWS
     if(display_widget) {
 	QGfx * mygfx=display_widget->graphicsContext();
 	if(mygfx) {
@@ -637,7 +637,7 @@ void QMovie::pushData(const uchar* data, int length)
     d->receive(data,length);
 }
 
-#ifdef _WS_QWS_ // ##### Temporary performance experiment
+#ifdef Q_WS_QWS // ##### Temporary performance experiment
 void QMovie::setDisplayWidget(QWidget * w)
 {
     d->display_widget=w;

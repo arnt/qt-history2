@@ -295,7 +295,7 @@ public:
 class EgQFileDialog : public QFileDialog {
 public:
     EgQFileDialog() :
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 	QFileDialog( "c:\\winnt", "*" )
 #else
 	QFileDialog( getenv( "HOME" ), "*" )

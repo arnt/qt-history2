@@ -506,7 +506,7 @@ public:
     bool running   : 1;
 };
 
-#if !defined(_CC_BOR_)
+#if !defined(Q_CC_BOR)
 extern "C"
 #endif
 static unsigned int __stdcall start_thread(void* that )

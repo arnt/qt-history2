@@ -4,7 +4,7 @@
 #ifndef QT_H
 #endif // QT_H
 
-#if defined(_CC_BOR_) || defined(_CC_WAT_)
+#if defined(Q_CC_BOR) || defined(Q_CC_WAT)
 #define NEEDS_QMAIN
 #endif
 

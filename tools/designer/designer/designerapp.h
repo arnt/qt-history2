@@ -22,7 +22,7 @@ public:
 protected:
     QDateTime lastMod;
     
-#if defined(_WS_WIN_) 
+#if defined(Q_WS_WIN) 
     bool winEventFilter( MSG *msg );
     uint DESIGNER_OPENFILE;
 #endif

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qglobal.h"
-#if defined(_OS_WIN32_)
+#if defined(Q_OS_WIN32)
 #ifdef UNICODE
 #ifndef _UNICODE
 #define _UNICODE
@@ -216,7 +216,7 @@ bool QFile::remove()
     return remove( fn );
 }
 
-#if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+#if defined(Q_OS_MAC) || defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
 # define HAS_TEXT_FILEMODE			// has translate/text filemode
 #endif
 #if defined(O_NONBLOCK)

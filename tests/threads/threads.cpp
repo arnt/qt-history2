@@ -2,7 +2,7 @@
 #include <qlabel.h>
 #include <qthread.h>
 
-#ifdef _WS_WIN_
+#ifdef Q_WS_WIN
 #include <qt_windows.h>
 #endif
 
