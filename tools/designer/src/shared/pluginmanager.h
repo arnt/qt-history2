@@ -29,25 +29,22 @@ public:
     QObject *instance(const QString &plugin) const;
 
     QStringList registeredPlugins() const;
-    void registerPlugin(const QString &plugin);
-    void unregisterPlugin(const QString &plugin);
-
-    void registerPath(const QString &path);
 
     QStringList pluginPaths() const;
-    void setPluginPaths(const QStringList &paths);
-
-    void clearPluginPaths();
-
+    void disablePlugin(const QString &path, bool disabled);
     void addPluginPath(const QString &path);
     void removePluginPath(const QString &path);
+    
     bool syncSettings();
-private:
-    static QStringList unique(const QStringList &list);
 
 private:
+    void registerPath(const QString &path);
+    void registerPlugin(const QString &plugin);
+    void unregisterPlugin(const QString &plugin);
+    
     QStringList m_pluginPaths;
     QStringList m_registeredPlugins;
+    QStringList m_disabledPlugins;
 };
 
 #endif // PLUGINMANAGER_H

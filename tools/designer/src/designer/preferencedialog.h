@@ -21,12 +21,13 @@ class PreferenceInterface;
 class QStackedWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
+class AbstractFormEditor;
 
 class PreferenceDialog : public QDialog
 {
     Q_OBJECT
 public:
-    PreferenceDialog(QWidget *parent);
+    PreferenceDialog(AbstractFormEditor *core, QWidget *parent);
     ~PreferenceDialog();
 
 private slots:
@@ -38,5 +39,6 @@ private:
     QList<PreferenceInterface *> m_preferences;
     QStackedWidget *m_stack;
     QTreeWidget *m_treeWidget;
+    AbstractFormEditor *m_core;
 };
 #endif

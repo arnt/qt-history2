@@ -1,6 +1,7 @@
 # Input
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD \
+                $$PWD/../../shared
 
 HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractpropertyeditor.h \

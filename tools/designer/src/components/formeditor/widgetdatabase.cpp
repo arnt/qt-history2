@@ -200,9 +200,9 @@ AbstractWidgetDataBaseItem *WidgetDataBase::item(int index) const
 
 void WidgetDataBase::loadPlugins()
 {
-    PluginManager pluginManager;
+    PluginManager *pluginManager = m_core->pluginManager();
     
-    QStringList plugins = pluginManager.registeredPlugins();
+    QStringList plugins = pluginManager->registeredPlugins();
     
     QMutableListIterator<AbstractWidgetDataBaseItem *> it(m_items);
     while (it.hasNext()) {
@@ -215,7 +215,7 @@ void WidgetDataBase::loadPlugins()
     }
     
     foreach (QString plugin, plugins) {
-        QObject *o = pluginManager.instance(plugin);
+        QObject *o = pluginManager->instance(plugin);
         
         if (ICustomWidget *c = qt_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())

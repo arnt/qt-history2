@@ -46,13 +46,13 @@ WidgetFactory::~WidgetFactory()
 
 void WidgetFactory::loadPlugins()
 {
-    PluginManager pluginManager;
+    PluginManager *pluginManager = m_core->pluginManager();
 
     m_customFactory.clear();
-    QStringList plugins = pluginManager.registeredPlugins();
+    QStringList plugins = pluginManager->registeredPlugins();
 
     foreach (QString plugin, plugins) {
-        QObject *o = pluginManager.instance(plugin);
+        QObject *o = pluginManager->instance(plugin);
 
         if (ICustomWidget *c = qt_cast<ICustomWidget*>(o)) {
             if (!c->isInitialized())

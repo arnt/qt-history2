@@ -20,22 +20,25 @@
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSplitter>
+
+#include <abstractformeditor.h>
+
 #include "preferencedialog.h"
 
 #include "designerpreferences.h"  // Someday we'll need to load most of these dynamically.
 #include "pluginpreferences.h"
 
-PreferenceDialog::PreferenceDialog(QWidget *parent)
+PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     : QDialog(parent)
 {
+    m_core = core;
+
     setWindowTitle(tr("Qt Designer Preferences"));
     PreferenceInterface *iface = new DesignerPreferences(this);
     m_preferences.append(iface);
 
-#if 0 // ### enable after beta 1
-    iface = new PluginPreferences(this);
+    iface = new PluginPreferences(m_core->pluginManager(), this);
     m_preferences.append(iface);
-#endif
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QSplitter *splitter = new QSplitter(this);
@@ -47,8 +50,8 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     m_treeWidget->header()->hide();
     QTreeWidgetItem *root = new QTreeWidgetItem(m_treeWidget);
     root->setText(0, tr("Standard Preferences"));
-    connect(m_treeWidget, SIGNAL(currentChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-            this, SLOT(changePane(QTreeWidgetItem *)));
+    m_treeWidget->setItemOpen(root, true);
+    connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(changePane(QTreeWidgetItem *)));
     QTreeWidgetItem *item;
     for (int listIndex = 0; listIndex < m_preferences.size(); ++listIndex) {
         iface = m_preferences.at(listIndex);

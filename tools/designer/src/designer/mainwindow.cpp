@@ -1185,7 +1185,7 @@ void MainWindow::aboutDesigner()
 void MainWindow::showPreferenceDialog()
 {
     if (!m_preferenceDialog) {
-        m_preferenceDialog = new PreferenceDialog(this);
+        m_preferenceDialog = new PreferenceDialog(core, this);
         m_preferenceDialog->setAttribute(Qt::WA_DeleteOnClose, true);
     }
     m_preferenceDialog->show();

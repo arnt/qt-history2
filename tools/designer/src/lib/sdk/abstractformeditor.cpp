@@ -24,6 +24,7 @@
 #include <abstractobjectinspector.h>
 #include <qextensionmanager.h>
 #include <abstractpixmapcache.h>
+#include <pluginmanager.h>
 
 AbstractFormEditor::AbstractFormEditor(QObject *parent)
     : QObject(parent),
@@ -102,3 +103,10 @@ AbstractPixmapCache *AbstractFormEditor::pixmapCache() const
 
 void AbstractFormEditor::setPixmapCache(AbstractPixmapCache *cache)
 { m_pixmapCache = cache; }
+
+PluginManager *AbstractFormEditor::pluginManager() const
+{ return m_pluginManager; }
+
+void AbstractFormEditor::setPluginManager(PluginManager *pluginManager)
+{ m_pluginManager = pluginManager; }
+

@@ -6,7 +6,8 @@ CONFIG += qt
 CONFIG += dll
 
 INCLUDEPATH += \
-    ../extension
+    ../extension \
+    ../../shared
 
 LIBS += \
     -L../../lib -lextension

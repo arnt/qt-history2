@@ -28,6 +28,7 @@ class AbstractWidgetFactory;
 class AbstractDnDManager;
 class AbstractObjectInspector;
 class AbstractPixmapCache;
+class PluginManager;
 
 class QWidget;
 
@@ -50,6 +51,7 @@ public:
     AbstractMetaDataBase *metaDataBase() const;
     AbstractWidgetFactory *widgetFactory() const;
     AbstractPixmapCache *pixmapCache() const;
+    PluginManager *pluginManager() const;
 
     AbstractObjectInspector *objectInspector() const;
 
@@ -57,6 +59,7 @@ public:
     void setWidgetBox(AbstractWidgetBox *widgetBox);
     void setPropertyEditor(AbstractPropertyEditor *propertyEditor);
     void setObjectInspector(AbstractObjectInspector *objectInspector);
+    void setPluginManager(PluginManager *pluginManager);
 
 protected:
     void setFormManager(AbstractFormWindowManager *formWindowManager);
@@ -77,6 +80,7 @@ private:
     QPointer<AbstractWidgetFactory> m_widgetFactory;
     QPointer<AbstractObjectInspector> m_objectInspector;
     QPointer<AbstractPixmapCache> m_pixmapCache;
+    QPointer<PluginManager> m_pluginManager;
 
 private:
     AbstractFormEditor(const AbstractFormEditor &other);

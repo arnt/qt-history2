@@ -31,6 +31,9 @@
 FormEditor::FormEditor(QObject *parent)
     : AbstractFormEditor(parent)
 {
+    PluginManager *pluginManager = new PluginManager(this);
+    setPluginManager(pluginManager);
+
     WidgetDataBase *widgetDatabase = new WidgetDataBase(this);
     setWidgetDataBase(widgetDatabase);
 
