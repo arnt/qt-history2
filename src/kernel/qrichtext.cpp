@@ -62,8 +62,6 @@
 //#define DEBUG_COLLECTION ---> also in qrichtext_p.h
 //#define DEBUG_TABLE_RENDERING
 
-static QMap<QChar, QStringList> *eCompletionMap = 0;
-
 #if defined(PARSER_DEBUG)
 static QString debug_indent;
 #endif
@@ -865,7 +863,6 @@ QTextDocument::QTextDocument( QTextDocument *p )
     useFC = TRUE;
     pFormatter = 0;
     indenter = 0;
-    completion = FALSE;
     fCollection = new QTextFormatCollection;
     fParag = 0;
     txtFormat = Qt::AutoText;
@@ -1733,66 +1730,6 @@ void QTextDocument::indentSelection( int id )
     }
 }
 
-void QTextDocument::addCompletionEntry( const QString &s )
-{
-    if ( !eCompletionMap )
-	eCompletionMap = new QMap<QChar, QStringList >();
-    QChar key( s[ 0 ] );
-    QMap<QChar, QStringList>::Iterator it = eCompletionMap->find( key );
-    if ( it == eCompletionMap->end() )
-	eCompletionMap->insert( key, QStringList( s ) );
-    else
-	( *it ).append( s );
-}
-
-QStringList QTextDocument::completionList( const QString &s ) const
-{
-    ( (QTextDocument*)this )->updateCompletionMap();
-
-    QChar key( s[ 0 ] );
-    QMap<QChar, QStringList>::ConstIterator it = eCompletionMap->find( key );
-    if ( it == eCompletionMap->end() )
-	return QStringList();
-    QStringList::ConstIterator it2 = ( *it ).begin();
-    QStringList lst;
-    int len = s.length();
-    for ( ; it2 != ( *it ).end(); ++it2 ) {
-	if ( (int)( *it2 ).length() > len && ( *it2 ).left( len ) == s &&
-	     lst.find( *it2 ) == lst.end() )
-	    lst << *it2;
-    }
-
-    return lst;
-}
-
-void QTextDocument::updateCompletionMap()
-{
-    QTextParag *s = fParag;
-    while ( s ) {
-	if ( s->length() == s->lastLengthForCompletion() ) {
-	    s = s->next();
-	    continue;
-	}
-	
-	QChar c;
-	QString buffer;
-	for ( int i = 0; i < s->length(); ++i ) {
-	    c = s->at( i )->c;
-	    if ( c.isLetter() || c.isNumber() || c == '_' || c == '#' ) {
-		buffer += c;
-	    } else {
-		addCompletionEntry( buffer );
-		buffer = QString::null;
-	    }
-	}
-	if ( !buffer.isEmpty() )
-	    addCompletionEntry( buffer );
-	
-	s->setLastLengthFotCompletion( s->length() );
-	s = s->next();
-    }
-}
-
 void QTextDocument::addCommand( QTextCommand *cmd )
 {
     commandHistory->addCommand( cmd );
@@ -2369,7 +2306,6 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 	}
     }
     firstPProcess = TRUE;
-    lastLenForCompletion = -1;
 
     str = new QTextString();
     str->insert( 0, " ", formatCollection()->defaultFormat() );

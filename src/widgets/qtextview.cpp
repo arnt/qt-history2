@@ -144,16 +144,6 @@ void QTextView::init()
 
     formatMore();
 
-    completionPopup = new QVBox( this, 0, WType_Popup );
-    completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
-    completionPopup->setLineWidth( 1 );
-    completionListBox = new QListBox( completionPopup );
-    completionListBox->setFrameStyle( QFrame::NoFrame );
-    completionListBox->installEventFilter( this );
-    completionPopup->installEventFilter( this );
-    completionPopup->setFocusProxy( completionListBox );
-    completionOffset = 0;
-
     blinkCursorVisible = FALSE;
 
     mLines = -1;
@@ -289,8 +279,6 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 			drawCursor( TRUE );
 			break;
 		    }
-		    if ( doCompletion() )
-			break;
 		}
 		if ( cursor->parag()->style() &&
 		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock &&
@@ -865,87 +853,12 @@ void QTextView::doChangeInterval()
     interval = 0;
 }
 
-bool QTextView::doCompletion()
-{
-    if ( !doc->isCompletionEnabled() )
-	return FALSE;
-
-    int idx = cursor->index();
-    if ( idx == 0 )
-	return FALSE;
-    QChar c = cursor->parag()->at( idx - 1 )->c;
-    if ( !c.isLetter() && !c.isNumber() && c != '_' && c != '#' )
-	return FALSE;
-
-    QString s;
-    idx--;
-    completionOffset = 1;
-    while ( TRUE ) {
-	s.prepend( QString( cursor->parag()->at( idx )->c ) );
-	idx--;
-	if ( idx < 0 )
-	    break;
-	if ( !cursor->parag()->at( idx )->c.isLetter() &&
-	     !cursor->parag()->at( idx )->c.isNumber() &&
-	     cursor->parag()->at( idx )->c != '_' &&
-	     cursor->parag()->at( idx )->c != '#' )
-	    break;
-	completionOffset++;
-    }
-
-    QStringList lst( doc->completionList( s ) );
-    if ( lst.count() > 1 ) {
-	QTextString::Char *chr = cursor->parag()->at( cursor->index() );
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	int x = cursor->parag()->rect().x() + chr->x;
-	int y, dummy;
-	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
-	y += cursor->parag()->rect().y();
-	completionListBox->clear();
-	completionListBox->insertStringList( lst );
-	completionListBox->resize( completionListBox->sizeHint() );
-	completionPopup->resize( completionListBox->size() );
-	completionListBox->setCurrentItem( 0 );
-	completionListBox->setFocus();
-	completionPopup->move( mapToGlobal( contentsToViewport( QPoint( x, y + h ) ) ) );
-	completionPopup->show();
-    } else if ( lst.count() == 1 ) {
-	insert( lst.first().mid( completionOffset, 0xFFFFFF ), TRUE );
-    } else {
-	return FALSE;
-    }
-
-    return TRUE;
-}
-
 bool QTextView::eventFilter( QObject *o, QEvent *e )
 {
     if ( !o || !e )
 	return TRUE;
 
-    if ( o == completionPopup || o == completionListBox ||
-	 o == completionListBox->viewport() ) {
-	if ( e->type() == QEvent::KeyPress ) {
-	    QKeyEvent *ke = (QKeyEvent*)e;
-	    if ( ke->key() == Key_Enter || ke->key() == Key_Return ||
-		 ke->key() == Key_Tab ) {
-		insert( completionListBox->currentText().
-			mid( completionOffset, 0xFFFFFF ), TRUE );
-		completionPopup->close();
-		return TRUE;
-	    } else if ( ke->key() == Key_Left || ke->key() == Key_Right ||
-			ke->key() == Key_Up || ke->key() == Key_Down ||
-			ke->key() == Key_Home || ke->key() == Key_End ||
-			ke->key() == Key_Prior || ke->key() == Key_Next ) {
-		return FALSE;
-	    } else if ( ke->key() != Key_Shift && ke->key() != Key_Control &&
-			ke->key() != Key_Alt ) {
-		completionPopup->close();
-		QApplication::sendEvent( this, e );
-		return TRUE;
-	    }
-	}
-    } else if ( ( o == this || o == viewport() ) ) {
+    if ( ( o == this || o == viewport() ) ) {
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    return FALSE;

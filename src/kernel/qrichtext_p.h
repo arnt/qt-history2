@@ -345,14 +345,6 @@ public:
     void removeSelectedText( int id, QTextCursor *cursor );
     void indentSelection( int id );
 
-    void setCompletionEnabled( bool b );
-    bool isCompletionEnabled() const;
-
-    void addCompletionEntry( const QString &s );
-    QStringList completionList( const QString &s ) const;
-
-    void updateCompletionMap();
-
     QTextParag *paragAt( int i ) const;
 
     void addCommand( QTextCommand *cmd );
@@ -459,7 +451,6 @@ private:
     QMap<int, Selection> selections;
     QMap<int, bool> selectionText;
     QString filename;
-    bool completion;
     QTextCommandHistory *commandHistory;
     QTextFormatter *pFormatter;
     QTextIndent *indenter;
@@ -686,11 +677,8 @@ public:
 
     void setExtraData( void *data );
     void *extraData() const;
-    
-    QMap<int, LineStart*> &lineStartList();
 
-    int lastLengthForCompletion() const;
-    void setLastLengthFotCompletion( int l );
+    QMap<int, LineStart*> &lineStartList();
 
     void setFormat( int index, int len, QTextFormat *f, bool useCollection = TRUE, int flags = -1 );
 
@@ -760,7 +748,6 @@ private:
     QMap<int, Selection> selections;
     int state, id;
     bool needPreProcess;
-    int lastLenForCompletion;
     QTextString *str;
     int align;
     QVector<QStyleSheetItem> styleSheetItemsVec;
@@ -778,7 +765,7 @@ private:
     int *tabArray;
     int tabStopWidth;
     void *eData;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1353,16 +1340,6 @@ inline QTextParag *QTextDocument::paragAt( int i ) const
     return 0;
 }
 
-inline void QTextDocument::setCompletionEnabled( bool b )
-{
-    completion = b;
-}
-
-inline bool QTextDocument::isCompletionEnabled() const
-{
-    return completion;
-}
-
 inline QTextFormatCollection *QTextDocument::formatCollection() const
 {
     return fCollection;
@@ -1796,16 +1773,6 @@ inline void QTextParag::setFirstPreProcess( bool b )
 inline QMap<int, QTextParag::LineStart*> &QTextParag::lineStartList()
 {
     return lineStarts;
-}
-
-inline int QTextParag::lastLengthForCompletion() const
-{
-    return lastLenForCompletion;
-}
-
-inline void QTextParag::setLastLengthFotCompletion( int l )
-{
-    lastLenForCompletion = l;
 }
 
 inline int QTextParag::lineY( int l ) const

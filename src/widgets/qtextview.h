@@ -52,8 +52,6 @@ class QResizeEvent;
 class QMouseEvent;
 class QTimer;
 class QTextString;
-class QVBox;
-class QListBox;
 class QTextCommand;
 class QTextParag;
 class QTextFormat;
@@ -184,7 +182,7 @@ signals:
     void highlighted( const QString& );
     void linkClicked( const QString& );
     void cursorPositionChanged( QTextCursor *c );
-    
+
 protected:
     void setFormat( QTextFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -259,7 +257,6 @@ private:
     void moveCursor( int direction, bool control );
     void removeSelectedText();
     void doKeyboardAction( int action );
-    bool doCompletion();
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
@@ -273,9 +270,6 @@ private:
     QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer, *resizeTimer;
     QTextParag *lastFormatted;
     int interval;
-    QVBox *completionPopup;
-    QListBox *completionListBox;
-    int completionOffset;
     UndoRedoInfo undoRedoInfo;
     QTextFormat *currentFormat;
     QPainter painter;
