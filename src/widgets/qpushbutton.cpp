@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#16 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#16 $";
 #endif
 
 
@@ -176,8 +176,8 @@ void QPushButton::drawButton( QPainter *paint )
     int w, h;
     w = x2 + 1;
     h = y2 + 1;
-    pmkey.sprintf( "push_%d_%d_%d_%d_%d", gs, isDown(), defButton, w, h );
-    QPixMap *pm = findPixmap( pmkey );
+    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d", gs, isDown(), defButton, w, h );
+    QPixMap *pm = QPixMap::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( 0, 0, *pm );
 	drawButtonFace( p );
@@ -185,12 +185,11 @@ void QPushButton::drawButton( QPainter *paint )
 	lastDef = defButton;
 	return;
     }
-    bool use_pm = acceptPixmap( w, h ) && !isDown();
-    QPainter  pmpaint;
+    bool use_pm = !isDown();
+    QPainter pmpaint;
     if ( use_pm ) {
 	pm = new QPixMap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
-	savePixmap( pmkey, pm );		// save for later use
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
 	p->setBackgroundColor( fillcol );
@@ -298,6 +297,7 @@ void QPushButton::drawButton( QPainter *paint )
 	pmpaint.end();
 	p = paint;				// draw in default device
 	p->drawPixMap( 0, 0, *pm );
+	QPixMap::insert( pmkey, pm );		// save for later use
     }
 #endif
     drawButtonFace( p );
