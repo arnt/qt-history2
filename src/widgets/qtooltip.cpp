@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#45 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#45 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -46,7 +46,7 @@ public:
     };
 
     bool    eventFilter( QObject * o, QEvent * e );
-    void    add( QWidget *, const QRect &, const char *, 
+    void    add( QWidget *, const QRect &, const char *,
 		 QToolTipGroup *, const char *, QToolTip *, bool );
     void    remove( QWidget *, const QRect & );
     void    remove( QWidget * );
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.39 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.40 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -526,11 +526,11 @@ void QTipManager::hideTip()
   in active mode until the user either clicks a mouse button, presses
   a key, lets the mouse rest for five seconds, or moves the mouse
   outside \e all tip-equpped regions for at least a second.
-
-  There are no less than three APIs for QToolTip: <ol> <li> Adding a
-  tip to an entire widget. <li> Adding a tip to a fixed rectangle
-  within a widget. <li> Adding a tip to a dynamic rectangle within a
-  widget. </ol>
+  
+  The QToolTip class can be used in three different ways: <ol> <li>
+  Adding a tip to an entire widget. <li> Adding a tip to a fixed
+  rectangle within a widget. <li> Adding a tip to a dynamic rectangle
+  within a widget. </ol>
 
   To add a tip to a widget, call the static function QToolTip::add()
   with the widget and tip as arguments:
@@ -547,10 +547,10 @@ void QTipManager::hideTip()
     QToolTip::remove( quitButton );
   \endcode
 
-  You can also display another text (typically in a status bar),
-  courtesy of QToolTipGroup.  This example assumes that \e g is a
-  <code>QToolTipGroup *</code> and already connected to the
-  appropriate status bar:
+  You can also display another text (typically in a \link QStatusBar
+  status bar),\endlink courtesy of QToolTipGroup.  This example
+  assumes that \e g is a <code>QToolTipGroup *</code> and already
+  connected to the appropriate status bar:
 
   \code
     QToolTip::add( quitButton, "Leave the application", g,
@@ -565,21 +565,24 @@ void QTipManager::hideTip()
   QToolTipGroup * and another text if you want.
 
   Both of the above are one-liners and cover the vast majority of
-  cases.  The third and most general API uses a pure virtual function
-  to decide whether to pop up a tool tip.  The tooltip/tooltip.cpp
-  example demonstrates this too.  This mode can be used to implement
-  e.g. tips for text that can move as the user scrolls.
+  cases.  The third and most general way to use QToolTip uses a pure
+  virtual function to decide whether to pop up a tool tip.  The
+  tooltip/tooltip.cpp example demonstrates this too.  This mode can be
+  used to implement e.g. tips for text that can move as the user
+  scrolls.
 
-  To use this API, you need to subclass QToolTip and reimplement
-  maybeTip().  maybeTip() will be called when there's a chance that a
-  tip should pop up.  It must decide whether to show a tip, and
-  possibly call add() with the rectangle the tip applies to, the tip's
-  text and optionally the QToolTipGroup details.  The tip will
-  disappear once the mouse moves outside the rectangle you supply, and
-  \e not \e reappear - maybeTip() will be called again if the user
-  lets the mouse rest within the same rectangle again.  You can
-  forcibly remove the tip by calling remove() with no arguments.  This
-  is handy if the widget scrolls.
+  To use QToolTip like this, you need to subclass QToolTip and
+  reimplement maybeTip().  maybeTip() will be called when there's a
+  chance that a tip should pop up.  It must decide whether to show a
+  tip, and possibly call add() with the rectangle the tip applies to,
+  the tip's text and optionally the QToolTipGroup details.  The tip
+  will disappear once the mouse moves outside the rectangle you
+  supply, and \e not \e reappear - maybeTip() will be called again if
+  the user lets the mouse rest within the same rectangle again.  You
+  can forcibly remove the tip by calling remove() with no arguments.
+  This is handy if the widget scrolls.
+  
+  \sa QStatusBar QWhatsThis
 */
 
 
@@ -734,7 +737,7 @@ void QToolTip::remove( QWidget * widget )
 	tipManager->remove( widget, entireWidget() );
 }
 
-/*!  
+/*!
   Adds a tool tip to a fixed rectangle within \a widget.  \a text is
   the text shown in the tool tip.  QToolTip makes a deep copy of this
   string.
