@@ -4,7 +4,6 @@ Dokumentasjon:
     qvector.doc
     event-driven.html
     which/that
-    dokumenter de siste noen-og-70-funksjonene
     dokumenter eksakt hva som tegnes av f.eks. drawLine (begge endepunkter)
     dok hvilke events som garanteres nå og da (f.eks. ved show()).
     dok at at() oppslag i QString corer ved nullstreng
@@ -16,17 +15,11 @@ PR:
 
 Bugs
 ----
-    Fikse fokus til å gå oppover på widget-treet rett måte.
-
     QListBox bugs:
        - Feil når variabel høyde (QTableView bug)
        - Feil når sletting/insetting utenfor synlig område (ikke oppdatering)
        - Blinkende scrollbar ved resize (cellWidth).
        - Fokus merking bruker widget bredde
-
-   QMenuBar tastatur-bugs:
-       - (Hogne har klaget)
-       - Bug i piltast-håndtering ved menu bar item uten meny.
 
    Modale vinduer skal alltid ligge øverst i applikasjonen, det gjør de
       ikke nå (ref: FrameMaker måten å gjøre det på, snakk med Eirik)
@@ -34,10 +27,11 @@ Bugs
    Dobbeltklikk bug:
       Trippelklikk gir to dobbeltklikk.
 
-
    Får ikke alltid resize event før show.
 
    Skalering av 100x100 dpi fonter som ikke er jevnt skalerbare.
+
+   QPrinter/X11 fikser ikke setWorldMatrix() <343508A4.97F0CAAE@tradeit.com>
 
 Annet
 -----
@@ -45,8 +39,6 @@ Annet
    Optimalisering av fontlasting under X (kjør quantify)?
 
    Brush opp fontdialogen i xforms.
-
-   Hvorfor vokste datasegmentet i qt-biblioteket i sommer?
 
 Andre.Johansen@funcom.com (André Johansen)
 > Har hatt et lite problem med at fokus inn og ut events sendes
@@ -68,15 +60,11 @@ Funksjonalitet:
 
     ikonifiseringsevent?
 
-    Progress bar
-
     Auto-orientation i scroll bar, slider og progress bar.
 
     Legg inn nye navn på *alt* som ikke begynner med Q, behold de
     gamle (kompilatrbryter for å kutte ut de gamle), må bruke
     kompilatorbryter for å få dem med i 2.0, fjern dem helt i 3.0!
-
-    MessageBox-funksjonalitet (YesNoCancel osv.) 
 
     Designer/Resurser
 
@@ -88,16 +76,9 @@ Funksjonalitet:
 
     Fontdatabase (liste av systemets fonter)
 
-    Akselleratortaster i dialog (f.eks. "&Ok" knapp)
-
     Strengdatabase for flerspråklige applikasjoner
 
     Støtte jpg og gif
-
-    Støtte for å kunne sette annet enn ISO-8859-1
-
-    Widget-flagg offentliggjøres og brukes for å lage rammeløse
-    vinduer osv.
 
     Dialoger:
 	font select
