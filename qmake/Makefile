@@ -10,7 +10,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL /DQT_NO_COMPRESS /DUNICODE
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	/DEBUG
-LIBS	    =	ole32.lib
+LIBS	    =	ole32.lib advapi32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
 !ELSE
