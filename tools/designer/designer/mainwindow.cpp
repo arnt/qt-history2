@@ -812,11 +812,11 @@ void MainWindow::helpRegister()
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	unsigned char data[256];
 	res = RegOpenKeyExW( HKEY_CLASSES_ROOT, NULL, 0, KEY_READ, &key );
-	res = RegOpenKeyExW( key, (TCHAR*)qt_winTchar( sub, TRUE ), 0, KEY_READ, &subkey );
+	res = RegOpenKeyExW( key, (TCHAR*)sub.ucs2(), 0, KEY_READ, &subkey );
 	res = RegQueryValueExW( subkey, NULL, NULL, &type, data, &size );
 	command = qt_winQString( data ) + "\\command";
 	size = 255;
-	res = RegOpenKeyExW( subkey, (TCHAR*)qt_winTchar( command, TRUE ), 0, KEY_READ, &subkey );
+	res = RegOpenKeyExW( subkey, (TCHAR*)command.ucs2(), 0, KEY_READ, &subkey );
 	res = RegQueryValueExW( subkey, NULL, NULL, &type, data, &size );
 	command = qt_winQString( data );
     } else
