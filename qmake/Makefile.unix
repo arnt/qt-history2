@@ -1,0 +1,134 @@
+#qmake code
+OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o
+
+#qt code
+QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
+	qcollection.o qfile.o qfile_unix.o qtextcodec.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
+	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o
+
+CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
+	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DUSE_GROSS_BIG_BUFFER_THING
+LFLAGS=
+
+qmake: $(OBJS) $(QOBJS)
+	$(CXX) -o $@ $^ $(LFLAGS)
+	rm -f @OUT_QTDIR@/bin/$@
+	ln -s @OUT_QTDIR@/qmake/$@ @OUT_QTDIR@/bin/$@
+
+clean::
+	rm -f $(OBJS) $(QOBJS)
+
+distclean:: clean
+	rm -rf qmake .deps/
+
+# don't use optimization for these
+qtextstream.o: $(QTDIR)/src/tools/qtextstream.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qtextstream.cpp
+
+qiodevice.o: $(QTDIR)/src/tools/qiodevice.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qiodevice.cpp
+
+qglobal.o: $(QTDIR)/src/tools/qglobal.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qglobal.cpp
+
+qgdict.o: $(QTDIR)/src/tools/qgdict.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qgdict.cpp
+
+qcstring.o: $(QTDIR)/src/tools/qcstring.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qcstring.cpp
+
+qstring.o: $(QTDIR)/src/tools/qstring.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qstring.cpp
+
+qdatastream.o: $(QTDIR)/src/tools/qdatastream.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qdatastream.cpp
+
+qgarray.o: $(QTDIR)/src/tools/qgarray.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qgarray.cpp
+
+qbuffer.o: $(QTDIR)/src/tools/qbuffer.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qbuffer.cpp
+
+qglist.o: $(QTDIR)/src/tools/qglist.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qglist.cpp
+
+qcollection.o: $(QTDIR)/src/tools/qcollection.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qcollection.cpp
+
+qfile.o: $(QTDIR)/src/tools/qfile.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qfile.cpp
+
+qfile_unix.o: $(QTDIR)/src/tools/qfile_unix.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qfile_unix.cpp
+
+qtextcodec.o: $(QTDIR)/src/codecs/qtextcodec.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/codecs/qtextcodec.cpp
+
+qregexp.o: $(QTDIR)/src/tools/qregexp.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qregexp.cpp
+
+qgvector.o: $(QTDIR)/src/tools/qgvector.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qgvector.cpp
+
+qgcache.o: $(QTDIR)/src/tools/qgcache.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qgcache.cpp
+
+qbitarray.o: $(QTDIR)/src/tools/qbitarray.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qbitarray.cpp
+
+qdir.o: $(QTDIR)/src/tools/qdir.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qdir.cpp
+
+qfileinfo_unix.o: $(QTDIR)/src/tools/qfileinfo_unix.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qfileinfo_unix.cpp
+
+qdir_unix.o: $(QTDIR)/src/tools/qdir_unix.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qdir_unix.cpp
+
+qfileinfo.o: $(QTDIR)/src/tools/qfileinfo.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qfileinfo.cpp
+
+qdatetime.o: $(QTDIR)/src/tools/qdatetime.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qdatetime.cpp
+
+qstringlist.o: $(QTDIR)/src/tools/qstringlist.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qstringlist.cpp
+
+qmap.o: $(QTDIR)/src/tools/qmap.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) $(QTDIR)/src/tools/qmap.cpp
+
+winmakefile.o: generators/win32/winmakefile.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) generators/win32/winmakefile.cpp
+
+project.o: project.cpp
+	$(CXX) -c -o $@ $(CFLAGS) project.cpp
+
+main.o: main.cpp
+	$(CXX) -c -o $@ $(CFLAGS) main.cpp
+
+option.o: option.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) option.cpp
+
+makefile.o: generators/makefile.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+unixmake.o: generators/unix/unixmake.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+borland_bmake.o: generators/win32/borland_bmake.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+msvc_nmake.o: generators/win32/msvc_nmake.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+msvc_dsp.o: generators/win32/msvc_dsp.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+#default rules
+.c.o: 
+	$(CXX) -c -o $@ $(CFLAGS) -O2 $<
+
+.cpp.o: 
+	$(CXX) -c -o $@ $(CFLAGS) -O2 $<
+
+

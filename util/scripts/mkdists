@@ -661,7 +661,7 @@ for plat in mac win x11 qws; do
 	    #configure.bat is for windows only
 	    rm -f "$PLATDIR/configure.bat"
 	    #fix makefile mess
-	    rm -f "$PLATDIR/Makefile $PLATDIR/qmake/Makefile"
+	    rm -f "$PLATDIR/Makefile $PLATDIR/qmake/Makefile" "$PLATDIR/qmake/GNUmakefile"
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
 
 	    if [ "$plat" = "x11" ]; then
@@ -683,7 +683,7 @@ for plat in mac win x11 qws; do
 	    #configure is for unix only
 	    rm -f "$PLATDIR/configure"
 	    #GNUmakefile is for unix only
-	    rm -f "$PLATDIR/GNUmakefile" $PLATDIR/qmake/GNUmakefile*
+	    rm -f "$PLATDIR/GNUmakefile" $PLATDIR/qmake/GNUmakefile* "$PLATDIR/qmake/Makefile.unix"
 	    # delete the xt estension
 	    rm -rf "$PLATDIR/extensions/xt"
 	    rm -f "$PLATDIR/configure"
