@@ -1,4 +1,6 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
+
+use strict;
 
 sub prepare {
     local ($_) = @_;
@@ -11,7 +13,7 @@ sub prepare {
 sub tables {
     local ($_) = @_;
 
-    my $r, $c, $i, $s;
+    my ( $r, $c, $i, $s );
     $c = 0;
     $c++ while( /<th>/gsi );
     $r = ".nf\n.TS\nl";
@@ -69,6 +71,7 @@ sub fixup {
     s/&gt;/>/gs;
     s/&lt;/</gs;
     s/&quot;/\x22/gs;
+    s/&nbsp;/ /gs;
     s/&amp;/&/gs;
 
     # ' at start of line?
@@ -84,8 +87,8 @@ sub fixup {
     # do word-unwrap
     s-(?:(?:(\n\.nf.*?\n.fi))|(?:((?:\n[^\.\n][^\n]*)+)(?=\n\.)))-
     {
-	my( $code ) = $1;
-	my( $para ) = $2;
+	my( $code ) = defined $1 ? $1 : '';
+	my( $para ) = defined $2 ? $2 : '';
 	if ( $code ne "" ) {
 	    $code;
 	} else {
@@ -128,6 +131,7 @@ sub parselist {
 	$l;
     }!gse;
 
+    my ( $m, $n ) = ( '', 0 );
     s!<((?:(?:/?[uo]l)|(?:li)))(?:[\s\w]*)>!{
 	if ( $1 eq "ul" ) {
 	    $m = "ul";
@@ -177,9 +181,10 @@ sub parsemembers {
 
 
 sub parseclassfile {
-    local ($_, $url) = @_;
+    local $_ = shift;
+    my $url = shift;
 
-    local ($title );
+    my ($title );
 
     # strip head and tail
     s/^.*?<\/h1>\s*//s;
@@ -238,9 +243,9 @@ sub parseclassfile {
 
 
 
-($day, $mon, $year) = (localtime(time))[3..5];
+my ($day, $mon, $year) = (localtime(time))[3..5];
 
-$mname = ("January", "Febrary", "March", "April", "May", "June", "July",
+my $mname = ("January", "Febrary", "March", "April", "May", "June", "July",
 	    "August", "September", "October", "November", "December")[$mon];
 
 undef $/;
@@ -254,6 +259,7 @@ $_ = <A>;
 s/ / /gs;
 close A;
 
+my ( %name, %desc, $version );
 while ( m@<b><a href=\"([a-z0-9]+\.html)\">([A-Za-z0-9]*)</a></b>(?:</td>)?<td>([^<]*?)\s*<@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
@@ -271,12 +277,12 @@ foreach ( keys %desc ) {
     $desc{$_} =~ s/<[^>]*>//gs;
 }
 
-foreach $url ( sort keys %name ) { #'qstring.html'
-    $name = $name{$url};
-    $manpage = $url;
+foreach my $url ( sort keys %name ) { #'qstring.html'
+    my $name = $name{$url};
+    my $manpage = $url;
     $manpage =~ s/html$/3qt/;
     open( F, "< $url" ) || die "can't open $url";
-    $contents = <F>;
+    my $contents = <F>;
     close F;
     unlink( "> ../man/man3/" . $manpage );
     open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/" . $manpage;
@@ -304,10 +310,15 @@ Generated automatically from the source code.
 .SH BUGS
 If you find a bug in Qt, please report it as described in
 .BR http://doc.trolltech.com/bughowto.html .
-Good bug reports make our job much simpler. Thank you.
+Good bug reports help us to help you. Thank you.
 .P
-In case of content or formattting problems with this manual page, please
-report them to
+The definitive Qt documentation is provided in HTML format; it is
+located at \$QTDIR/doc/html and can be read using Qt Assistant or with
+a web browser. This man page is provided as a convenience for those
+users who prefer man pages, although this format is not officially
+supported by Trolltech. 
+.P
+If you find errors in this manual page, please report them to
 .BR qt-bugs\@trolltech.com .
 Please include the name of the manual page ($manpage) and the Qt
 version ($version).
