@@ -105,6 +105,14 @@ static Point currentPoint = { 0, 0 };
 #endif
 void qt_mac_set_cursor(const QCursor *c, const Point *p)
 {
+    if(!c) {
+#ifndef QMAC_NO_FAKECURSOR
+        if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor)
+            currentCursor->curs.fc.widget->hide();
+#endif
+        currentCursor = 0;
+        return;
+    }
     c->handle(); //force the cursor to get loaded, if it's not
 
 #ifndef QMAC_NO_FAKECURSOR
