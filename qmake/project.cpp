@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <qfile.h>
+#include <qdir.h>
 #include <qtextstream.h>
 
 int line_count;
@@ -94,7 +95,9 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 	    }
 	    else test = isActiveConfig(scope.stripWhiteSpace()); 
 
-	    if((!invert_test && !test) || (invert_test && test)) {
+	    if(invert_test)
+		test = !test;
+	    if(!test) {
 		if(Option::debug_level)
 		    printf("Project Parser: %d : Test (%s) failed.\n", line_count, scope.latin1());
 		return TRUE;
@@ -140,6 +143,9 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 	else if(op == "-=")
 	    varlist.remove((*valit));
     }
+    if(var == "REQUIRES") /* special case to get communicated to backends! */
+	doProjectCheckReqs(vallist);
+	
     return TRUE;
 }
 
@@ -173,8 +179,48 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(const char *project)
 {
-    /* parse mkspec */
+    
     if(cfile.isEmpty()) {
+	/* parse the cache */
+	if(Option::do_cache) {
+	    QString cachefile = Option::cachefile;
+	    if(cachefile.find(QDir::separator()) == -1) {
+		/* find the cache file, otherwise return false */
+		QString dir = QDir::currentDirPath();
+		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::cachefile))) {
+		    dir = dir.left(dir.findRev(QDir::separator()));
+		    if(dir.isEmpty()) {
+			cachefile = "";
+			break;
+		    }
+		}
+	    }
+	    if(!cachefile.isEmpty()) {
+		if(Option::debug_level)
+		    printf("MKSCACHE file: reading %s\n", cachefile.latin1());
+
+		read(cachefile, cache);
+		if(Option::specfile.isEmpty() && !cache["MKSPECFILE"].isEmpty())
+		    Option::specfile = cache["MKSPECFILE"].first();
+	    }
+	}
+
+	/* parse mkspec */
+	if(Option::specfile.isNull() || Option::specfile.isEmpty()) {
+	    if(!getenv("MKSPEC")) {
+		fprintf(stderr, "MKSPEC has not been set, so mkspec cannot be deduced.\n");
+		return FALSE;
+	    }	
+	    Option::specfile = getenv("MKSPEC");
+	}
+	if(Option::specfile.find(QDir::separator()) == -1) {
+	    if(!getenv("QTDIR")) {
+		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
+		return FALSE;
+	    }
+	    Option::specfile.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
+	}
+
 	if(Option::debug_level)
 	    printf("MKSPEC file: reading %s\n", Option::specfile.latin1());
 
@@ -240,4 +286,28 @@ QMakeProject::doProjectTest(QString func, const QStringList &args)
     return FALSE;
 }
 
+void
+QMakeProject::doProjectCheckReqs(const QStringList &deps)
+{
+    if(!Option::do_cache)
+	return;
 
+    QStringList &configs = cache["CONFIG"];
+    for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
+	if((*it).isEmpty())
+	    continue;
+
+	QString dep = (*it);
+	bool invert_test = (dep.left(1) == "!");
+	if(invert_test)
+	    dep = dep.right(dep.length() - 1);
+
+	bool test = (configs.findIndex(dep) != -1);
+	if(invert_test)
+	    test = !test;
+	if(!test) {
+	    vars["TMAKE_FAILED_REQUIREMENTS"].append(dep);
+	    return;
+	}
+    }
+}

@@ -50,18 +50,19 @@ struct Option
     static QString obj_ext;
     static QString dir_sep;
 
+    static int debug_level;
     enum QMODE { UNIX_MODE, WIN_MODE };
     static QMODE mode;
+    static bool do_cache;
     static bool do_deps;
     static QStringList user_vars;
+    static QString cachefile;
     static QString specfile;
     static QFile output;
     
     static QStringList project_files;
 
-    static int debug_level;
     static bool parseCommandLine(int argc, char **argv);
-
     static QString fixPathToLocalOS(QString in);
     static QString fixPathToTargetOS(QString in);
 };

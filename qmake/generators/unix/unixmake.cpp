@@ -48,6 +48,13 @@ bool
 UnixMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
+    if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+	t << "all clean:" << "\n\t"
+	  << "Some of the required modules (" << var("TMAKE_FAILED_REQUIREMENTS") << ") are not available." << "\n\t"
+	  << "Skipped." << endl << endl;
+	return TRUE;
+    }
+	
     if(project->variables()["TEMPLATE"].first() == "app" || 
        project->variables()["TEMPLATE"].first() == "lib") {
 	writeMakeParts(t);
@@ -264,6 +271,9 @@ UnixMakefileGenerator::init()
     if(init_flag)
 	return;
     init_flag = TRUE;
+
+    if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) /* no point */
+	return;
 
     QStringList &configs = project->variables()["CONFIG"];
 

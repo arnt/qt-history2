@@ -51,9 +51,11 @@ Option::QMODE Option::mode = Option::WIN_MODE;
 Option::QMODE Option::mode = Option::UNIX_MODE;
 #endif
 bool Option::do_deps = TRUE;
+bool Option::do_cache = TRUE;
 int Option::debug_level = 0;
 
 QString Option::specfile;
+QString Option::cachefile;
 QStringList Option::user_vars;
 QFile Option::output;
 QStringList Option::project_files;
@@ -63,10 +65,12 @@ bool usage(const char *a0)
 {
     fprintf(stderr, "Usage: %s [options] project-files\n"
 	   "Options:\n"
+	   "\t-nocache      Don't use a cache file\n"
 	   "\t-nodepend     Don't generate dependency information\n"
 	   "\t-o file       Write output to file\n"
 	   "\t-unix         Run in unix mode\n"
 	   "\t-win32        Run in win32 mode\n"
+	   "\t-mkcache file Use file as cache\n"
 	   "\t-mkspec file  Use file as spec\n"
 	   "\t-d            Increase debug level\n", a0);
     return FALSE;
@@ -78,15 +82,16 @@ Option::parseCommandLine(int argc, char **argv)
     if(argc == 1)
 	return usage(argv[0]);
 
-    QString mkspecs;
-    if(getenv("QTDIR"))
-	mkspecs = QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator();
     for(int x = 1; x < argc; x++) {
 	if(*argv[x] == '-') { /* options */
 	    QString opt = argv[x] + 1;
-	    if(opt == "nodepend")
+	    if(opt == "nodepend") {
 		Option::do_deps = FALSE;
-	    else if(opt == "o" || opt == "output") {
+	    } else if(opt == "nocache") {
+		Option::do_cache = FALSE;
+	    } else if(opt == "mkcache") {
+		Option::cachefile = argv[++x];
+	    } else if(opt == "o" || opt == "output") {
 		QString var = argv[++x];
 		if(var == "-")
 		    continue;
@@ -96,43 +101,31 @@ Option::parseCommandLine(int argc, char **argv)
 		    fprintf(stderr, "Failure to open file: %s\n", var.latin1());
 		    return FALSE;
 		}
-	    }
-	    else if(opt == "unix")
+	    } else if(opt == "unix") { 
 		Option::mode = UNIX_MODE;
-	    else if(opt == "win32")
+	    } else if(opt == "win32") {
 		Option::mode = WIN_MODE;
-	    else if(opt == "mkspec") {
+	    } else if(opt == "mkspec") {
 		Option::specfile = argv[++x];
-		if(Option::specfile.find(QDir::separator()) == -1)
-		    Option::specfile.prepend(mkspecs);
-	    }
-	    else if(opt == "v" || opt == "d")
+	    }  else if(opt == "v" || opt == "d") {
 		Option::debug_level++;
-	    else
+	    } else {
 		return usage(argv[0]);
+	    }
 	}
 	else {
 	    QString arg = argv[x];
-	    if(arg.find('=') != -1)
+	    if(arg.find('=') != -1) {
 		Option::user_vars.append(arg);
-	    else
+	    } else {
 		Option::project_files.append(arg);
+	    }
 	}
     }
     if(!(Option::output.state() & IO_Open))
 	Option::output.open(IO_WriteOnly, stdout);
-    if(Option::specfile.isNull() || Option::specfile.isEmpty()) {
-	if(!getenv("MKSPEC")) {
-	    fprintf(stderr, "MKSPEC has not been set, so mkspec cannot be deduced.\n");
-	    return FALSE;
-	}
-	Option::specfile = mkspecs + getenv("MKSPEC");
-    }
-
-    if(Option::specfile.find(QDir::separator()) == -1) {
-	fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
-	return FALSE;
-    }
+    if(Option::cachefile.isNull() || Option::cachefile.isEmpty()) 
+	Option::cachefile = ".qmake.cache";
 
     Option::ui_ext = ".ui";
     Option::h_ext = ".h";
@@ -148,7 +141,7 @@ Option::parseCommandLine(int argc, char **argv)
     return TRUE;
 }
 
-void fixEnvVariables(QString &x)
+static void fixEnvVariables(QString &x)
 {
     int rep, rep_len;
     QRegExp reg_var("\\$\\(.*\\)");
@@ -173,3 +166,4 @@ Option::fixPathToLocalOS(QString in)
     return in.replace(QRegExp("\\"), "/");
 #endif
 }
+
