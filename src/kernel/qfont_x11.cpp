@@ -589,7 +589,7 @@ int QFontMetrics::width( QChar ch ) const
 	 d->engineData && d->engineData->widthCache[ uc ] )
 	return d->engineData->widthCache[ uc ];
 
-    if ( ::isMark( uc ) )
+    if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
 
     QFont::Script script;
@@ -623,7 +623,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
 	return d->engineData->widthCache[ ch.unicode() ];
 
-    if ( ::isMark( ch.unicode() ) )
+    if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
 
     QFont::Script script;
