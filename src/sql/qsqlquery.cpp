@@ -100,7 +100,15 @@ QSqlResultShared::~QSqlResultShared()
     }
     \endcode
 
-    \sa QSqlDatabase QVariant
+    To access the data returned by a query, use the value() method.
+    Each field in the data returned by a SELECT statement is accessed
+    by passing the index number of the desired field, starting with 0.
+    There are no methods to access a field by name to make sure the
+    usage of QSqlQuery is as optimal as possible (see \l QSqlCursor
+    for a more flexible interface for selecting data from a table or
+    view in the database).
+
+    \sa QSqlDatabase QSqlCursor QVariant
 */
 
 /*!  Creates a QSqlQuery object which uses the QSqlResult \a r to
