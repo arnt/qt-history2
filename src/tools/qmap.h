@@ -377,8 +377,6 @@ public:
     Iterator end()	{ return Iterator( header ); }
     ConstIterator begin() const { return ConstIterator( (NodePtr)(header->left ) ); }
     ConstIterator end() const { return ConstIterator( header ); }
-    ConstIterator constBegin() const { return ConstIterator( (NodePtr)(header->left ) ); }
-    ConstIterator constEnd() const { return ConstIterator( header ); }
 
     ConstIterator find(const Key& k) const;
 
@@ -678,6 +676,9 @@ public:
     iterator end() { detach(); return sh->end(); }
     const_iterator begin() const { return ((const Priv*)sh)->begin(); }
     const_iterator end() const { return ((const Priv*)sh)->end(); }
+    const_iterator constBegin() const { return begin(); }
+    const_iterator constEnd() const { return end(); }
+
     iterator replace( const Key& k, const T& v )
     {
 	remove( k );
