@@ -116,7 +116,7 @@ UnixMakefileGenerator::init()
 	QString prefix_flags = project->first("QMAKE_CFLAGS_PREFIX_INCLUDE");
 	if(prefix_flags.isEmpty())
 	    prefix_flags = "-include";
-	compile_flag += " " + prefix_flags + " " + fileFixify(project->first("PRECOMPILED_HEADER"));
+	compile_flag += " " + prefix_flags + " " + project->first("PRECOMPILED_HEADER").section(Option::dir_sep, -1);
     }
     if(!project->isEmpty("ALLMOC_HEADER")) {
 	initOutPaths(); 	// Need to fix outdirs since we do this before init() (because we could add to SOURCES et al)
@@ -361,15 +361,16 @@ QStringList
 {
     QStringList &ret = MakefileGenerator::findDependencies(file);
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
-	QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
+	QString header_prefix = project->first("PRECOMPILED_HEADER").section(Option::dir_sep, -1) + ".gch" + Option::dir_sep;
+	header_prefix += project->first("QMAKE_PRECOMP_PREFIX");
 	if(file.endsWith(".c")) {
-	    QString precomp_h = fileFixify(project->first("PRECOMPILED_HEADER") + ".gch/" + header_prefix + "c");
+	    QString precomp_h = header_prefix + "c";
 	    if(!ret.contains(precomp_h))
 		ret += precomp_h;
 	} else {
 	    for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
 		if(file.endsWith(*it)) {
-		    QString precomp_h = fileFixify(project->first("PRECOMPILED_HEADER") + ".gch/" + header_prefix + "c++");
+		    QString precomp_h = header_prefix + "c++";
 		    if(!ret.contains(precomp_h))
 			ret += precomp_h;
 		    break;
