@@ -202,7 +202,6 @@ void EditDocs::initDocFiles()
     QString firstRunString = settings.readEntry( keybase + "FirstRunString" );
     if ( firstRunString == QString( QT_VERSION_STR ) )
 	return;
-    qDebug( "first run" );
     QString path = QString( qInstallPathDocs() ) + "/html/";
     QStringList lst;
     lst.append( path + "qt.xml" );
