@@ -656,7 +656,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
   Subclasses of QTextCodec must reimplement this function.  It returns the
   MIBenum (see
-  <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets>
+  <a href="ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets">
   the IANA character-sets encoding file</a> for more information).
   It is important that each QTextCodec subclass return the correct unique
   value for this function.
