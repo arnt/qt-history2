@@ -442,6 +442,7 @@ short QPrinter::winPageSize() const
     return wps;
 }
 
+static bool must_not_reinit = FALSE;
 
 /*
 Copy the settings from the Windows structures into QPrinter
@@ -449,6 +450,7 @@ Copy the settings from the Windows structures into QPrinter
 void QPrinter::readPdlg( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlgA below!
+    must_not_reinit = TRUE;
 
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
@@ -465,17 +467,13 @@ void QPrinter::readPdlg( void* pdv )
     }
     hdc = pd->hDC;
     if ( pd->hDevMode ) {
-        if ( hdevmode && hdevmode != pd->hDevMode )
-	    GlobalFree( hdevmode );
-        hdevmode = pd->hDevMode;
-
         DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
         if ( dm ) {
             if ( dm->dmOrientation == DMORIENT_PORTRAIT )
                 orient = Portrait;
             else
                 orient = Landscape;
-            setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+            page_size = mapDevmodePageSize( dm->dmPaperSize );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
@@ -495,14 +493,9 @@ void QPrinter::readPdlg( void* pdv )
 	else
 	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero." );
 #endif
-        pd->hDevMode = 0;
     }
 
     if ( pd->hDevNames ) {
-        if ( hdevnames && hdevnames != pd->hDevNames )
-	    GlobalFree( hdevnames );
-        hdevnames = pd->hDevNames;
-
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         if ( dn ) {
 	    // order is important here since
@@ -518,17 +511,33 @@ void QPrinter::readPdlg( void* pdv )
 	else
 	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero." );
 #endif
-        pd->hDevNames = 0;
     }
 
     if ( d->printerMode != ScreenResolution && !res_set )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+
+    if ( pd->hDevMode ) {
+        if ( hdevmode )
+            GlobalFree( hdevmode );
+        hdevmode = pd->hDevMode;
+        pd->hDevMode = 0;
+    }
+    if ( pd->hDevNames ) {
+        if ( hdevnames )
+            GlobalFree( hdevnames );
+        hdevnames = pd->hDevNames;
+        pd->hDevNames = 0;
+    }
+
+    must_not_reinit = FALSE;
 }
 
 
 void QPrinter::readPdlgA( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlg above!
+    must_not_reinit = TRUE;
+
     PRINTDLGA* pd = (PRINTDLGA*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
@@ -550,7 +559,7 @@ void QPrinter::readPdlgA( void* pdv )
 		orient = Portrait;
 	    else
 		orient = Landscape;
-	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+	    page_size = mapDevmodePageSize( dm->dmPaperSize );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
@@ -606,6 +615,8 @@ void QPrinter::readPdlgA( void* pdv )
         hdevnames = pd->hDevNames;
         pd->hDevNames = 0;
     }
+
+    must_not_reinit = FALSE;
 }
 
 #ifdef UNICODE
@@ -1433,6 +1444,12 @@ like setOrientation() to create a printer HDC with the appropriate settings
 */
 void QPrinter::reinit()
 {
+    if ( must_not_reinit ) {
+#ifndef QT_NO_DEBUG
+	qWarning( "Internal error: illegal call to reinit!" );
+#endif
+	return;
+    }
     if ( hdevmode ) {
 	HDC hdcTmp = 0;
 	QT_WA( {
