@@ -38,7 +38,7 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 
     QString name = format.name();
     if (browser)
-        name.prepend(browser->source().toString());
+        name = browser->source().resolved(name).toString();
 
     QString key = QString("$qt_rt_%1_%2_%3").arg(name).arg(width).arg(height);
 
