@@ -218,7 +218,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     layoutChilds = FALSE;
     layoutSelected = FALSE;
     breakLayout = FALSE;
-    backPix = TRUE;
+    backPix = FALSE;
 
     set_splash_status( "Loading User Settings..." );
     readConfig();
@@ -1932,16 +1932,14 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "View/TextLabels", usesTextLabel() );
     config.writeEntry( keybase + "View/BigIcons", usesBigPixmaps() );
 
-    QString fn = QDir::homeDirPath();
+    QString mwlKey = "MainwindowLayout";
     if ( singleProjectMode() )
-	fn += "/.designerrctb3s";
-    else
-	fn += "/.designerrctb3";
-    QFile f( fn );
-    f.open( IO_WriteOnly );
-    QTextStream ts( &f );
+	mwlKey += "S";
+    QString mainWindowLayout;
+    QTextStream ts( &mainWindowLayout, IO_WriteOnly );
     ts << *this;
-    f.close();
+    config.writeEntry( keybase + mwlKey, mainWindowLayout );
+
 
     QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     config.writeEntry( keybase + "CustomWidgets/num", (int)lst->count() );
@@ -1999,55 +1997,61 @@ void MainWindow::readConfig()
 	keybase = DesignerApplication::oldSettingsKey();
 	restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );
 	if ( !ok ) {
-	    readOldConfig();
+	    if ( oWindow ) {
+		oWindow->shuttingDown();
+		( (QDockWindow*)oWindow->parent() )->hide();
+	    }
 	    return;
 	}
 	readPreviousConfig = TRUE;
     }
-    docPath = config.readEntry( keybase + "DocPath", docPath );
-    fileFilter = config.readEntry( keybase + "FileFilter", fileFilter );
-    templPath = config.readEntry( keybase + "TemplatePath", QString::null );
-    databaseAutoEdit = config.readBoolEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
-    shStartDialog = config.readBoolEntry( keybase + "ShowStartDialog", shStartDialog );
-    int num;
+    if ( !readPreviousConfig ) {
+	docPath = config.readEntry( keybase + "DocPath", docPath );
+	fileFilter = config.readEntry( keybase + "FileFilter", fileFilter );
+	templPath = config.readEntry( keybase + "TemplatePath", QString::null );
+	databaseAutoEdit = config.readBoolEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
+	shStartDialog = config.readBoolEntry( keybase + "ShowStartDialog", shStartDialog );
+    }
 
     if ( restoreConfig ) {
-	splashScreen = config.readBoolEntry( keybase + "SplashScreen", TRUE );
 	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
 	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
 
-	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE );
-	if ( backPix ) {
-	    QPixmap pix;
-	    pix.load( QDir::home().absPath() + "/.designer/" + "background.xpm" );
-	    if ( !pix.isNull() )
-		qworkspace->setBackgroundPixmap( pix );
-	} else {
-	    qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
-	}
-	sGrid = config.readBoolEntry( keybase + "Grid/Show", TRUE );
-	snGrid = config.readBoolEntry( keybase + "Grid/Snap", TRUE );
-	grd.setX( config.readNumEntry( keybase + "Grid/x", 10 ) );
-	grd.setY( config.readNumEntry( keybase + "Grid/y", 10 ) );
-
-	if ( !config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) ) {
-	    QRect r( pos(), size() );
-	    r.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", r.x() ) );
-	    r.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", r.y() ) );
-	    r.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", r.width() ) );
-	    r.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", r.height() ) );
-
-	    QRect desk = QApplication::desktop()->geometry();
-	    QRect inter = desk.intersect( r );
-	    resize( r.size() );
-	    if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-		move( r.topLeft() );
+	if ( !readPreviousConfig ) {
+	    splashScreen = config.readBoolEntry( keybase + "SplashScreen", TRUE );
+	    backPix = config.readBoolEntry( keybase + "Background/UsePixmap", FALSE );
+	    if ( backPix ) {
+		QPixmap pix;
+		pix.load( QDir::home().absPath() + "/.designer/" + "background.xpm" );
+		if ( !pix.isNull() )
+		    qworkspace->setBackgroundPixmap( pix );
+	    } else {
+		qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( keybase + "Background/Color" ) ) );
 	    }
+	    sGrid = config.readBoolEntry( keybase + "Grid/Show", TRUE );
+	    snGrid = config.readBoolEntry( keybase + "Grid/Snap", TRUE );
+	    grd.setX( config.readNumEntry( keybase + "Grid/x", 10 ) );
+	    grd.setY( config.readNumEntry( keybase + "Grid/y", 10 ) );
+
+	    if ( !config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) ) {
+		QRect r( pos(), size() );
+		r.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", r.x() ) );
+		r.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", r.y() ) );
+		r.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", r.width() ) );
+		r.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", r.height() ) );
+
+		QRect desk = QApplication::desktop()->geometry();
+		QRect inter = desk.intersect( r );
+		resize( r.size() );
+		if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
+		    move( r.topLeft() );
+		}
+	    }
+	    setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
+	    setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
 	}
-	setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
-	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
     }
-    num = config.readNumEntry( keybase + "CustomWidgets/num" );
+    int num = config.readNumEntry( keybase + "CustomWidgets/num" );
     for ( int j = 0; j < num; ++j ) {
 	MetaDataBase::CustomWidget *w = new MetaDataBase::CustomWidget;
 	QStringList l = config.readListEntry( keybase + "CustomWidgets/Widget" + QString::number( j ), ',' );
@@ -2110,21 +2114,20 @@ void MainWindow::readConfig()
        things the designer does ###Sam */
     QApplication::sendPostedEvents();
 #endif
-    QString fn = QDir::homeDirPath() + "/.designerrc" + "tb3";
-    if ( singleProjectMode() )
-	fn += "s";
-    QFile f( fn );
-    if ( f.open( IO_ReadOnly ) ) {
-/*###	tbSettingsRead = TRUE;*/
-	QTextStream ts( &f );
-	ts >> *this;
-	f.close();
-    }
 
+    if ( !readPreviousConfig ) {
+	QString mwlKey = "MainwindowLayout";
+	if ( singleProjectMode() )
+	    mwlKey += "S";
+	QString mainWindowLayout = config.readEntry( keybase + mwlKey );
+	QTextStream ts( &mainWindowLayout, IO_ReadOnly );
+	ts >> *this;
+    }
     if ( readPreviousConfig && oWindow ) {
 	oWindow->shuttingDown();
 	( (QDockWindow*)oWindow->parent() )->hide();
     }
+
     rebuildCustomWidgetGUI();
 
     QStringList l = config.readListEntry( keybase + "ToolBox/CommonWidgets" );
@@ -2144,132 +2147,6 @@ void MainWindow::readConfig()
 	    rebuildCommonWidgetsToolBoxPage();
 	}
     }
-    if ( readPreviousConfig )
-	keybase = DesignerApplication::settingsKey();
-}
-
-void MainWindow::readOldConfig()
-{
-    QString fn = QDir::homeDirPath() + "/.designerrc";
-    if ( !QFile::exists( fn ) ) {
-	fn = "/etc/designerrc";
-	if ( !QFile::exists( fn ) )
-	    return;
-    }
-    Config config( fn );
-    config.setGroup( "General" );
-    restoreConfig = config.readBoolEntry( "RestoreWorkspace", TRUE );
-    docPath = config.readEntry( "DocPath", docPath );
-    fileFilter = config.readEntry( "FileFilter", fileFilter );
-    templPath = config.readEntry( "TemplatePath", QString::null );
-    databaseAutoEdit = config.readBoolEntry( "DatabaseAutoEdit", databaseAutoEdit );
-    int num;
-    config.setGroup( "General" );
-    if ( restoreConfig ) {
-	splashScreen = config.readBoolEntry( "SplashScreen", TRUE );
-	recentlyFiles = config.readListEntry( "RecentlyOpenedFiles", ',' );
-	recentlyProjects = config.readListEntry( "RecentlyOpenedProjects", ',' );
-	config.setGroup( "Background" );
-	backPix = config.readBoolEntry( "UsePixmap", TRUE );
-	if ( backPix ) {
-	    QPixmap pix;
-	    pix.load( QDir::home().absPath() + "/.designer/" + "background.xpm" );
-	    if ( !pix.isNull() )
-		qworkspace->setBackgroundPixmap( pix );
-	} else {
-	    qworkspace->setBackgroundColor( QColor( (QRgb)config.readNumEntry( "Color" ) ) );
-	}
-	config.setGroup( "Grid" );
-	sGrid = config.readBoolEntry( "Show", TRUE );
-	snGrid = config.readBoolEntry( "Snap", TRUE );
-	grd.setX( config.readNumEntry( "x", 10 ) );
-	grd.setY( config.readNumEntry( "y", 10 ) );
-	config.setGroup( "Geometries" );
-	QRect r( pos(), size() );
-	r.setX( config.readNumEntry( "MainwindowX", r.x() ) );
-	r.setY( config.readNumEntry( "MainwindowY", r.y() ) );
-	r.setWidth( config.readNumEntry( "MainwindowWidth", r.width() ) );
-	r.setHeight( config.readNumEntry( "MainwindowHeight", r.height() ) );
-	QRect desk = QApplication::desktop()->geometry();
-	QRect inter = desk.intersect( r );
-	resize( r.size() );
-	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-	    move( r.topLeft() );
-	}
-
-	config.setGroup( "View" );
-	setUsesTextLabel( config.readBoolEntry( "TextLabels", FALSE ) );
-	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
-    }
-
-    config.setGroup( "CustomWidgets" );
-    num = config.readNumEntry( "num" );
-    for ( int j = 0; j < num; ++j ) {
-	MetaDataBase::CustomWidget *w = new MetaDataBase::CustomWidget;
-	QStringList l = config.readListEntry( "Widget" + QString::number( j ), ',' );
-	w->className = l[ 0 ];
-	w->includeFile = l[ 1 ];
-	w->includePolicy = (MetaDataBase::CustomWidget::IncludePolicy)l[ 2 ].toInt();
-	w->sizeHint.setWidth( l[ 3 ].toInt() );
-	w->sizeHint.setHeight( l[ 4 ].toInt() );
-	uint c = 5;
-	if ( l.count() > c ) {
-	    int numSignals = l[ c ].toInt();
-	    c++;
-	    for ( int i = 0; i < numSignals; ++i, c++ )
-		w->lstSignals.append( fixArgs2( l[ c ] ).latin1() );
-	}
-	if ( l.count() > c ) {
-	    int numSlots = l[ c ].toInt();
-	    c++;
-	    for ( int i = 0; i < numSlots; ++i ) {
-		MetaDataBase::Function slot;
-		slot.function = fixArgs2( l[ c ] );
-		c++;
-		slot.access = l[ c ];
-		c++;
-		w->lstSlots.append( slot );
-	    }
-	}
-	if ( l.count() > c ) {
-	    int numProperties = l[ c ].toInt();
-	    c++;
-	    for ( int i = 0; i < numProperties; ++i ) {
-		MetaDataBase::Property prop;
-		prop.property = l[ c ];
-		c++;
-		prop.type = l[ c ];
-		c++;
-		w->lstProperties.append( prop );
-	    }
-	} if ( l.count() > c ) {
-	    QSizePolicy::SizeType h, v;
-	     h = int_to_size_type( l[ c++ ].toInt() );
-	     v = int_to_size_type( l[ c++ ].toInt() );
-	     w->sizePolicy = QSizePolicy( h, v );
-	}
-	if ( l.count() > c ) {
-	    w->isContainer = (bool)l[ c++ ].toInt();
-	}
-	w->pixmap = new QPixmap( PixmapChooser::loadPixmap( QDir::home().absPath() + "/.designer/" + w->className ) );
-	MetaDataBase::addCustomWidget( w );
-    }
-    if ( num > 0 )
-	rebuildCustomWidgetGUI();
-
-    if ( !restoreConfig )
-	return;
-
-    QApplication::sendPostedEvents();
-    fn = QDir::homeDirPath() + "/.designerrc" + "tb3";
-    QFile f( fn );
-    if ( f.open( IO_ReadOnly ) ) {
-	QTextStream ts( &f );
-	ts >> *this;
-	f.close();
-    }
-
-    rebuildCustomWidgetGUI();
 }
 
 HierarchyView *MainWindow::objectHierarchy() const

@@ -72,13 +72,11 @@ void MainWindow::init()
 	    move( r.topLeft() );
 	}
     }
-    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
-    QFile f( fn );
-    if ( f.open( IO_ReadOnly ) ) {
-	QTextStream ts( &f );
-	ts >> *this;
-	f.close();
-    }
+
+    QString mainWindowLayout = settings.readEntry( keybase + "MainwindowLayout" );
+    QTextStream ts( &mainWindowLayout, IO_ReadOnly );
+    ts >> *this;
+
     QTimer::singleShot( 0, this, SLOT( setup() ) );
 }
 
@@ -491,10 +489,9 @@ void MainWindow::saveSettings()
 
 void MainWindow::saveToolbarSettings()
 {
-    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
-    QFile f( fn );
-    f.open( IO_WriteOnly );
-    QTextStream ts( &f );
+    QString mainWindowLayout;
+    QTextStream ts( &mainWindowLayout, IO_WriteOnly );
     ts << *this;
-    f.close();
+    QSettings config;
+    config.writeEntry( "/Qt Assistant/3.1/MainwindowLayout", mainWindowLayout );
 }

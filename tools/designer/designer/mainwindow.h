@@ -327,7 +327,6 @@ private:
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
     void readConfig();
-    void readOldConfig();
 
     void setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w );
     void handleRMBProperties( int id, QMap<QString, int> &props, QWidget *w );
