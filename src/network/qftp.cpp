@@ -1915,7 +1915,7 @@ int QFtp::rawCommand(const QString &command)
 
     \sa get() readyRead() read() readAll()
 */
-Q_ULONG QFtp::bytesAvailable() const
+Q_LONGLONG QFtp::bytesAvailable() const
 {
     return d->pi.dtp.bytesAvailable();
 }
@@ -1931,7 +1931,7 @@ Q_ULONG QFtp::bytesAvailable() const
 
     \sa get() readyRead() bytesAvailable() readAll()
 */
-Q_LONGLONG QFtp::read(char *data, Q_ULONG maxlen)
+Q_LONGLONG QFtp::read(char *data, Q_LONGLONG maxlen)
 {
     return d->pi.dtp.read(data, maxlen);
 }

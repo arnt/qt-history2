@@ -84,12 +84,12 @@ public:
 
     int rawCommand(const QString &command);
 
-    Q_ULONG bytesAvailable() const;
+    Q_LONGLONG bytesAvailable() const;
 #ifdef QT_COMPAT
     inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen)
-    { return read(data, maxlen); }
+    { return Q_LONG(read(data, Q_LONGLONG(maxlen))); }
 #endif
-    Q_LONGLONG read(char *data, Q_ULONG maxlen);
+    Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
 
     int currentId() const;
