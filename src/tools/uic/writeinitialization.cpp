@@ -1080,7 +1080,7 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
     output << option.indent << "}\n";
 }
 
-void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidget)
+void WriteInitialization::initializeMenu(DomWidget *w, const QString &/*parentWidget*/)
 {
     QHash<QString, DomProperty*> attributes = propertyMap(w->elementAttribute());
 
