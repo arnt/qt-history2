@@ -72,7 +72,8 @@ static QByteArray combinePath(const char *infile, const char *outfile)
 
 void error(const char *msg = "Invalid argument")
 {
-    fprintf(stderr, "moc: %s\n", msg);
+    if (msg)
+        fprintf(stderr, "moc: %s\n", msg);
     fprintf(stderr, "Usage: moc [options] <header-file>\n"
             "    -o<file>           Write output to file rather than stdout\n"
             "    -I<dir>            Add dir to the include path for header files\n"
@@ -193,6 +194,9 @@ int main(int argc, char **argv)
             if (opt != "nw")
                 error();
             moc.displayWarnings = false;
+            break;
+        case 'h': // help
+            error(0); // 0 means usage only
             break;
         default:
             error();
