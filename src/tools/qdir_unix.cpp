@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QDir class
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -46,6 +46,7 @@
 #include "qstringlist.h"
 
 #include <stdlib.h>
+#include <limits.h>
 
 
 void QDir::slashify( QString& )
