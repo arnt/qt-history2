@@ -1442,9 +1442,11 @@ void QFtp::piError( const QString &text )
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.getFirst();
 
+    // non-fatal errors
     if ( c->command==Get && d->pi.currentCommand().startsWith("SIZE ") ) {
-	// non-fatal error
 	emit dataSize( -1 );
+	return;
+    } else if ( c->command==Put && d->pi.currentCommand().startsWith("ALLO ") ) {
 	return;
     }
 
