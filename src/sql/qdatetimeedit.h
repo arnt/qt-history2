@@ -267,6 +267,9 @@ public:
     virtual void setDateSeparator( const QString & separator );
     QString dateSeparator() const;
 
+    QDateEdit* dateEdit() { return de; }
+    QTimeEdit* timeEdit() { return te; }
+
     virtual void setAutoAdvance( bool advance );
     bool autoAdvance() const;
 

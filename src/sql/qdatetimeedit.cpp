@@ -2238,6 +2238,15 @@ bool QDateTimeEdit::autoAdvance() const
     return de->autoAdvance();
 }
 
+/*! \fn QDateEdit* QDateTimeEdit::dateEdit()
+  Returns the internal widget used for editing the date part of the datetime.
+*/
+
+/*! \fn QTimeEdit* QDateTimeEdit::timeEdit()
+  Returns the internal widget used for editing the time part of the datetime.
+*/
+
+
 /*!
   \reimp
 */
