@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qinternal.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qinternal.cpp#7 $
 **
 ** Implementation of some internal classes
 **
@@ -123,9 +123,9 @@ bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 
     if ( xp->device()->devType() == QInternal::Widget ) {
 	if ( w < 0 )
-	    w = wid->width();
+	    w = wid ? wid->width() : 0;
 	if ( h < 0 )
-	    h = wid->height();
+	    h = wid ? wid->height() : 0;
 	if ( dblbufr &&
 	     ( hardLimitWidth < 0 ||  w <= hardLimitWidth ) &&
 	     ( hardLimitHeight < 0 ||  h <= hardLimitHeight ) &&
