@@ -2823,14 +2823,6 @@ void QWidget::setInputMethodEnabled( bool b )
     \sa QKeyEvent::text();
 */
 
-void QWidget::setKeyCompression(bool compress)
-{
-    if ( compress )
-	setWState( WState_CompressKeys );
-    else
-	clearWState( WState_CompressKeys );
-}
-
 /*!
     \property QWidget::isActiveWindow
     \brief whether this widget is the active window
