@@ -490,11 +490,10 @@ void QProcessPrivate::closeOpenSocketsForChild()
 	    ::close( procManager->sigchldFd[1] );
 
 	// close also the sockets from other QProcess instances
-	QProc *proc;
-	for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
-	    ::close( proc->socketStdin );
-	    ::close( proc->socketStdout );
-	    ::close( proc->socketStderr );
+	for ( QProc *p=procManager->procList->first(); p!=0; p=procManager->procList->next() ) {
+	    ::close( p->socketStdin );
+	    ::close( p->socketStdout );
+	    ::close( p->socketStderr );
 	}
     }
 }
