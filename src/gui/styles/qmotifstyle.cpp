@@ -187,46 +187,42 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                                 const QWidget *w) const
 {
     switch(pe) {
-#if 0
-#ifndef QT_NO_LISTVIEW
-    case PE_Q3CheckListExclusiveIndicator: {
-        QCheckListItem *item = opt.checkListItem();
-        QListView *lv = item->listView();
-        if(!item)
-            return;
+    case PE_Q3CheckListExclusiveIndicator:
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
+            if (lv->items.isEmpty())
+                return;
 
-        if (item->isEnabled())
-            p->setPen(QPen(opt->palette.text()));
-        else
-            p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
-        QPolygon a;
-
-        int cx = opt->rect.width()/2 - 1;
-        int cy = opt->rect.height()/2;
-        int e = opt->rect.width()/2 - 1;
-        for (int i = 0; i < 3; i++) { //penWidth 2 doesn't quite work
-            a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
-            p->drawPolygon(a);
-            e--;
-        }
-        if (item->isOn()) {
-            if (item->isEnabled())
-                p->setPen(QPen(opt->palette.text()));
+            if (lv->state & State_Enabled)
+                p->setPen(QPen(opt->palette.text().color()));
             else
-                p->setPen(QPen(item->listView()->palette().color(QPalette::Disabled,
-                                                                 QPalette::Text)));
-            QBrush saveBrush = p->brush();
-            p->setBrush(opt->palette.text());
-            e = e - 2;
-            a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
-            p->drawPolygon(a);
-            p->setBrush(saveBrush);
+                p->setPen(QPen(lv->palette.color(QPalette::Disabled, QPalette::Text)));
+            QPolygon a;
+
+            int cx = opt->rect.width()/2 - 1;
+            int cy = opt->rect.height()/2;
+            int e = opt->rect.width()/2 - 1;
+            for (int i = 0; i < 3; i++) { //penWidth 2 doesn't quite work
+                a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
+                p->drawPolygon(a);
+                e--;
+            }
+            if (opt->state & State_On) {
+                if (lv->state & State_Enabled)
+                    p->setPen(QPen(opt->palette.text().color()));
+                else
+                    p->setPen(QPen(lv->palette.color(QPalette::Disabled,
+                                                     QPalette::Text)));
+                QBrush saveBrush = p->brush();
+                p->setBrush(opt->palette.text());
+                e = e - 2;
+                a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
+                p->drawPolygon(a);
+                p->setBrush(saveBrush);
+            }
         }
-        break; }
-#endif
-#endif
-    case PE_IndicatorToolBarHandle:
-    {
+        break;
+
+    case PE_IndicatorToolBarHandle: {
         p->save();
         p->translate(opt->rect.x(), opt->rect.y());
 
@@ -290,8 +286,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             }
         }
         p->restore();
-        break;
-    }
+        break; }
 
     case PE_PanelButtonCommand:
     case PE_PanelButtonBevel:
@@ -306,29 +301,26 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             fill = opt->palette.brush(QPalette::Button);
         qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Down | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
-        break;
-    }
+        break; }
 
     case PE_IndicatorCheckBox: {
-#ifndef QT_NO_BUTTON
         bool on = opt->state & State_On;
         bool down = opt->state & State_Down;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
+        QBrush fill = showUp || opt->state & State_NoChange ?
+                      opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
         if (opt->state & State_NoChange) {
             qDrawPlainRect(p, opt->rect, opt->palette.text().color(),
                            1, &fill);
             p->drawLine(opt->rect.x() + opt->rect.width() - 1, opt->rect.y(),
                         opt->rect.x(), opt->rect.y() + opt->rect.height() - 1);
-        } else
+        } else {
             qDrawShadePanel(p, opt->rect, opt->palette, !showUp,
                             pixelMetric(PM_DefaultFrameWidth), &fill);
-#endif
-        break;
-    }
+        }
+        break; }
 
-    case PE_IndicatorRadioButton:
-    {
+    case PE_IndicatorRadioButton: {
 #define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
         int inner_pts[] = { // used for filling diamond
             2,opt->rect.height()/2,
@@ -377,11 +369,9 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         a.translate(opt->rect.x(), opt->rect.y());
         p->drawPolyline(a);
 
-        break;
-    }
+        break; }
 
-    case PE_IndicatorRadioButtonMask:
-    {
+    case PE_IndicatorRadioButtonMask: {
         static int inner_pts[] = { // used for filling diamond
             0,opt->rect.height()/2,
             opt->rect.width()/2,0,
@@ -393,14 +383,12 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         p->setBrush(Qt::color1);
         a.translate(opt->rect.x(), opt->rect.y());
         p->drawPolygon(a);
-        break;
-    }
+        break; }
 
     case PE_IndicatorArrowUp:
     case PE_IndicatorArrowDown:
     case PE_IndicatorArrowRight:
-    case PE_IndicatorArrowLeft:
-    {
+    case PE_IndicatorArrowLeft: {
         QRect rect = opt->rect;
         QPolygon bFill;
         QPolygon bTop;
@@ -555,12 +543,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 #undef CLEFT
 #undef CTOP
 #undef CBOT
-        break;
-    }
+        break; }
 
     case PE_IndicatorSpinPlus:
-    case PE_IndicatorSpinMinus:
-    {
+    case PE_IndicatorSpinMinus: {
         p->save();
         int fw = pixelMetric(PM_DefaultFrameWidth);
         QRect br;
@@ -593,12 +579,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             p->drawLine((x+w / 2) - 1, y + ymarg,
                         (x+w / 2) - 1, y + ymarg + length - 1);
         p->restore();
-        break;
-    }
+        break; }
 
     case PE_IndicatorSpinUp:
-    case PE_IndicatorSpinDown:
-    {
+    case PE_IndicatorSpinDown: {
         p->save();
         int fw = pixelMetric(PM_DefaultFrameWidth);
         QRect br;
@@ -637,20 +621,9 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         p->setBrush(opt->palette.buttonText());
         p->drawPolygon(a);
         p->restore();
-        break;
-    }
+        break; }
 
-#if 0 //MOVE TO drawControl --sdm
-    case PE_Splitter:
-        if (opt->state & State_Horizontal)
-            opt->state &= ~State_Horizontal;
-        else
-            opt->state |= State_Horizontal;
-        // fall through intended
-#endif
-
-    case PE_IndicatorDockWindowResizeHandle:
-    {
+    case PE_IndicatorDockWindowResizeHandle: {
         const int motifOffset = 10;
         int sw = pixelMetric(PM_SplitterWidth);
         if (opt->state & State_Horizontal) {
@@ -672,11 +645,9 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                             false, 1, &opt->palette.brush(QPalette::Button));
             qDrawShadeLine(p, xPos, 0, xPos, kPos, opt->palette);
         }
-        break;
-    }
+        break; }
 
-    case PE_IndicatorMenuCheckMark:
-    {
+    case PE_IndicatorMenuCheckMark: {
         const int markW = 6;
         const int markH = 6;
         int posX = opt->rect.x() + (opt->rect.width()  - markW) / 2 - 1;
@@ -718,30 +689,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             qDrawShadePanel(p, posX, posY, markW, markH, opt->palette, true, dfw,
                             &opt->palette.brush(QPalette::Mid));
 
-        break;
-    }
-
-#if 0 //move to drawControl --sdm
-    case PE_ScrollBarSubLine:
-        drawPrimitive(((opt->state & State_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
-                      p, opt->rect, opt->palette, State_Enabled | opt->state);
-        break;
-
-    case PE_ScrollBarAddLine:
-        drawPrimitive(((opt->state & State_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
-                      p, opt->rect, opt->palette, State_Enabled | opt->state);
-        break;
-
-    case PE_ScrollBarSubPage:
-    case PE_ScrollBarAddPage:
-        p->fillRect(opt->rect, opt->palette.brush(QPalette::Mid));
-        break;
-
-    case PE_ScrollBarSlider:
-        drawPrimitive(PE_ButtonBevel, p, opt->rect, opt->palette,
-                      (opt->state | State_Raised) & ~State_Down);
-        break;
-#endif
+        break; }
 
     case PE_IndicatorProgressChunk:
         p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width() - 2,
@@ -762,7 +710,41 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                               const QWidget *widget) const
 {
     switch(element) {
-    case CE_PushButton:
+    case CE_Splitter: {
+        QStyleOption handleOpt = *opt;
+        if (handleOpt.state & State_Horizontal)
+            handleOpt.state &= ~State_Horizontal;
+        else
+            handleOpt.state |= State_Horizontal;
+        drawPrimitive(PE_IndicatorDockWindowResizeHandle, &handleOpt, p, widget);
+        break; }
+
+    case CE_ScrollBarSubLine: {
+        QStyleOption arrowOpt = *opt;
+        arrowOpt.state |= State_Enabled;
+        drawPrimitive(((opt->state & State_Horizontal) ? PE_IndicatorArrowLeft : PE_IndicatorArrowUp),
+                      &arrowOpt, p, widget);
+        break; }
+
+    case CE_ScrollBarAddLine:{
+        QStyleOption arrowOpt = *opt;
+        arrowOpt.state |= State_Enabled;
+        drawPrimitive(((opt->state & State_Horizontal) ? PE_IndicatorArrowRight : PE_IndicatorArrowDown),
+                      &arrowOpt, p, widget);
+        break; }
+
+    case CE_ScrollBarSubPage:
+    case CE_ScrollBarAddPage:
+        p->fillRect(opt->rect, opt->palette.brush(QPalette::Mid));
+        break;
+
+    case CE_ScrollBarSlider: {
+        QStyleOption bevelOpt = *opt;
+        bevelOpt.state = (opt->state | State_Raised) & ~State_Down;
+        drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
+        break; }
+
+    case CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int diw, x1, y1, x2, y2;
             p->setPen(opt->palette.foreground().color());
@@ -947,7 +929,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         }
 
     case CE_MenuTearoff: {
-        if(opt->state & State_Active) {
+        if(opt->state & State_Selected) {
             if(pixelMetric(PM_MenuPanelWidth, opt, widget) > 1)
                 qDrawShadePanel(p, opt->rect.x(), opt->rect.y(), opt->rect.width(),
                                 opt->rect.height(), opt->palette, false, motifItemFrame,
@@ -984,7 +966,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             }
 
             int pw = motifItemFrame;
-            if((opt->state & State_Active) && (opt->state & State_Enabled)) {  // active item frame
+            if((opt->state & State_Selected) && (opt->state & State_Enabled)) {  // active item frame
                 if(pixelMetric(PM_MenuPanelWidth, opt) > 1)
                     qDrawShadePanel(p, x, y, w, h, opt->palette, false, pw,
                                     &opt->palette.brush(QPalette::Button));
@@ -995,22 +977,21 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 p->fillRect(x, y, w, h, opt->palette.brush(QPalette::Button));
             }
 
-            QRect vrect = visualRect(opt->direction,
-                                     QRect(x+motifItemFrame, y+motifItemFrame, maxpmw, h-2*motifItemFrame),
-                                     opt->rect);
+            QRect vrect = visualRect(opt->direction, opt->rect,
+                                     QRect(x+motifItemFrame, y+motifItemFrame, maxpmw, h-2*motifItemFrame));
             int xvis = vrect.x();
             if (menuitem->checked) {
                 if(!menuitem->icon.isNull())
                     qDrawShadePanel(p, xvis, y+motifItemFrame, maxpmw, h-2*motifItemFrame,
                                     opt->palette, true, 1, &opt->palette.brush(QPalette::Midlight));
-            } else if (!(opt->state & State_Active)) {
+            } else if (!(opt->state & State_Selected)) {
                 p->fillRect(xvis, y+motifItemFrame, maxpmw, h-2*motifItemFrame,
                             opt->palette.brush(QPalette::Button));
             }
 
             if(!menuitem->icon.isNull()) {              // draw icon
                 QIcon::Mode mode = QIcon::Normal; // no disabled icons in Motif
-                if ((opt->state & State_Active) && !!(opt->state & State_Enabled))
+                if ((opt->state & State_Selected) && !!(opt->state & State_Enabled))
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable && menuitem->checked)
@@ -1033,7 +1014,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     newMenuItem.state = State_Default;
                     if ((opt->state & State_Enabled))
                         newMenuItem.state |= State_Enabled;
-                    if ((opt->state & State_Active))
+                    if ((opt->state & State_Selected))
                         newMenuItem.state |= State_On;
                     newMenuItem.rect = QRect(xvis, y+motifItemFrame, mw, mh);
                     drawPrimitive(PE_IndicatorMenuCheckMark, &newMenuItem, p, widget);
@@ -1050,8 +1031,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
             int xm = motifItemFrame + maxpmw + motifItemHMargin;
 
-            vrect = visualRect(opt->direction,
-                               QRect(x+xm, y+motifItemVMargin, w-xm-menuitem->tabWidth, h-2*motifItemVMargin), opt->rect);
+            vrect = visualRect(opt->direction, opt->rect,
+                               QRect(x+xm, y+motifItemVMargin, w-xm-menuitem->tabWidth, h-2*motifItemVMargin));
             xvis = vrect.x();
 
             QString s = menuitem->text;
@@ -1061,9 +1042,9 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
-                    QRect vr = visualRect(opt->direction,
+                    QRect vr = visualRect(opt->direction, opt->rect,
                                           QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
-                                                y+motifItemVMargin, menuitem->tabWidth, h-2*motifItemVMargin), opt->rect);
+                                                y+motifItemVMargin, menuitem->tabWidth, h-2*motifItemVMargin));
                     int xv = vr.x();
                     p->drawText(xv, y+m, menuitem->tabWidth, h-2*m, text_flags, s.mid(t+1));
                     s = s.left(t);
@@ -1074,9 +1055,10 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int dim = (h-2*motifItemFrame) / 2;
                 QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight);
                 QStyleOption arrowOpt = *opt;
-                arrowOpt.rect = visualRect(opt->direction, QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
-                                                                 y+h/2-dim/2, dim, dim), opt->rect);
-                if ((opt->state & State_Active))
+                arrowOpt.rect = visualRect(opt->direction, opt->rect,
+                                           QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
+                                                 y+h/2-dim/2, dim, dim));
+                if ((opt->state & State_Selected))
                     arrowOpt.state = (State_Down | ((opt->state & State_Enabled) ? State_Enabled : State_Default));
                 else
                     arrowOpt.state = ((opt->state & State_Enabled) ? State_Enabled : State_Default);
@@ -1085,7 +1067,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             break; }
 
     case CE_MenuBarItem: {
-        if (opt->state & State_Active)  // active item
+        if (opt->state & State_Selected)  // active item
             qDrawShadePanel(p, opt->rect, opt->palette, false, motifItemFrame,
                             &opt->palette.brush(QPalette::Button));
         else  // other item
@@ -1154,10 +1136,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 {
     switch (cc) {
     case CC_SpinBox: {
-        SubControls drawSub = SC_None;
         if (opt->subControls & SC_SpinBoxFrame)
-            qDrawShadePanel(p, opt->rect, opt->palette, true,
-                            pixelMetric(PM_DefaultFrameWidth));
+            qDrawShadePanel(p, opt->rect, opt->palette, true, pixelMetric(PM_DefaultFrameWidth));
 
         if (opt->subControls & SC_SpinBoxUp || opt->subControls & SC_SpinBoxDown) {
             QStyleOptionComplex boxOpt = *opt;
@@ -1216,8 +1196,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
                 drawPrimitive(PE_PanelButtonCommand, opt, p, widget);
 
-                QRect ar = QStyle::visualRect(opt->direction,
-                                              subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, widget), opt->rect);
+                QRect ar = QStyle::visualRect(opt->direction, opt->rect,
+                                              subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, widget));
 
                 QStyleOption arrowOpt = *opt;
                 arrowOpt.rect = ar;
@@ -1238,15 +1218,15 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
                 if (cb->state & State_HasFocus) {
                     QStyleOption focusOpt = *opt;
-                    focusOpt.rect = QStyle::visualRect(opt->direction, subRect(SR_ComboBoxFocusRect, opt, widget), opt->rect);
+                    focusOpt.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, opt, widget));
                     drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
                 }
             }
 
             if (opt->subControls & SC_ComboBoxEditField) {
                 if (cb->editable) {
-                    QRect er = QStyle::visualRect(opt->direction,
-                                                  subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget), opt->rect);
+                    QRect er = QStyle::visualRect(opt->direction, opt->rect,
+                                                  subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget));
                     er.addCoords(-1, -1, 1, 1);
                     qDrawShadePanel(p, er, opt->palette, true, 1,
                                     &opt->palette.brush(QPalette::Button));
@@ -1461,18 +1441,16 @@ QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *
 {
     switch (cc) {
     case CC_SpinBox: {
-        if (!widget)
-            return QRect();
-        int fw = pixelMetric(PM_SpinBoxFrameWidth, 0);
+        int fw = pixelMetric(PM_SpinBoxFrameWidth, opt, widget);
         QSize bs;
-        bs.setHeight(widget->height()/2);
+        bs.setHeight(opt->rect.height()/2);
         if (bs.height() < 8)
             bs.setHeight(8);
-        bs.setWidth(qMin(bs.height() * 8 / 5, widget->width() / 4)); // 1.6 -approximate golden mean
+        bs.setWidth(qMin(bs.height() * 8 / 5, opt->rect.width() / 4)); // 1.6 -approximate golden mean
         bs = bs.expandedTo(QApplication::globalStrut());
         int y = 0;
         int x, lx, rx;
-        x = widget->width() - y - bs.width();
+        x = opt->rect.width() - y - bs.width();
         lx = fw;
         rx = x - fw * 2;
         switch (sc) {
@@ -1481,12 +1459,12 @@ QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *
         case SC_SpinBoxDown:
             return QRect(x, y + bs.height(), bs.width(), bs.height());
         case SC_SpinBoxButtonField:
-            return QRect(x, y, bs.width(), widget->height() - 2*fw);
+            return QRect(x, y, bs.width(), opt->rect.height() - 2*fw);
         case SC_SpinBoxEditField:
-            return QRect(lx, fw, rx, widget->height() - 2*fw);
+            return QRect(lx, fw, rx, opt->rect.height() - 2*fw);
         case SC_SpinBoxFrame:
             return QRect(0, 0,
-                         widget->width() - bs.width(), widget->height());
+                         opt->rect.width() - bs.width(), opt->rect.height());
         default:
             break;
         }
@@ -1649,6 +1627,7 @@ QSize QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            sz = QCommonStyle::sizeFromContents(ct, opt, sz, widget);
             int w = sz.width(), h = sz.height();
 
             if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
@@ -1721,12 +1700,12 @@ QRect QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w
     case SR_Q3DockWindowHandleRect:
         if (const QStyleOptionQ3DockWindow *dw = qt_cast<const QStyleOptionQ3DockWindow *>(opt)) {
             if (!dw->docked || !dw->closeEnabled)
-                rect.setRect(0, 0, widget->width(), widget->height());
+                rect.setRect(0, 0, opt->rect.width(), opt->rect.height());
             else {
                 if (dw->state == State_Horizontal)
-                    rect.setRect(2, 15, widget->width()-2, widget->height() - 15);
+                    rect.setRect(2, 15, opt->rect.width()-2, opt->rect.height() - 15);
                 else
-                    rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
+                    rect.setRect(0, 2, opt->rect.width() - 15, opt->rect.height() - 2);
             }
         }
         break;
@@ -2181,12 +2160,6 @@ int QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidge
     case SH_DrawMenuBarSeparator:
         ret = true;
         break;
-
-        // #ifndef QT_NO_PALETTE
-        // case SH_ScrollBar_BackgroundRole:
-        //     ret = QPalette::Mid;
-        //     break;
-        // #endif
 
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     case SH_Slider_SloppyKeyEvents:

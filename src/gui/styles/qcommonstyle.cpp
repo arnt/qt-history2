@@ -408,11 +408,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             } else {
                 p->setPen(opt->palette.foreground().color());
             }
-            if (opt->state & State_FocusAtBorder)
-                p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
-                                  opt->rect.height() - 2));
-            else
-                p->drawRect(opt->rect);
+            p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
+                              opt->rect.height() - 2));
             p->setPen(oldPen);
         }
         break;
@@ -2865,8 +2862,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;
-            int w = sz.width(),
-                h = sz.height();
+            int w = sz.width(), h = sz.height();
             if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 w = 10;
                 h = 2;
