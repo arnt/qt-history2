@@ -4,14 +4,11 @@
  <exportmacro></exportmacro>
  <class>NewForm</class>
  <widget class="QDialog" name="NewForm" >
-  <property name="objectName" >
-   <string notr="true" >NewForm</string>
-  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
+    <width>494</width>
     <height>300</height>
    </rect>
   </property>
@@ -19,9 +16,6 @@
    <string>New Form</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="objectName" >
-    <string notr="true" />
-   </property>
    <property name="margin" >
     <number>9</number>
    </property>
@@ -30,9 +24,6 @@
    </property>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="objectName" >
-      <string notr="true" />
-     </property>
      <property name="margin" >
       <number>1</number>
      </property>
@@ -41,15 +32,12 @@
      </property>
      <item>
       <widget class="QTreeWidget" name="treeWidget" >
-       <property name="objectName" >
-        <string notr="true" >treeWidget</string>
-       </property>
        <property name="geometry" >
         <rect>
          <x>1</x>
          <y>1</y>
          <width>256</width>
-         <height>231</height>
+         <height>205</height>
         </rect>
        </property>
        <property name="sizePolicy" >
@@ -72,19 +60,21 @@
        <property name="columnCount" >
         <number>1</number>
        </property>
+       <column>
+        <property name="text" >
+         <string>0</string>
+        </property>
+       </column>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="lblPreview" >
-       <property name="objectName" >
-        <string notr="true" >lblPreview</string>
-       </property>
        <property name="geometry" >
         <rect>
          <x>263</x>
          <y>1</y>
-         <width>186</width>
-         <height>231</height>
+         <width>212</width>
+         <height>205</height>
         </rect>
        </property>
        <property name="sizePolicy" >
@@ -113,14 +103,11 @@
    </item>
    <item>
     <widget class="QFrame" name="horizontalLine" >
-     <property name="objectName" >
-      <string notr="true" >horizontalLine</string>
-     </property>
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>248</y>
-       <width>450</width>
+       <y>222</y>
+       <width>476</width>
        <height>3</height>
       </rect>
      </property>
@@ -133,44 +120,35 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" >
-     <property name="objectName" >
-      <string notr="true" />
-     </property>
+    <layout class="QGridLayout" >
      <property name="margin" >
       <number>1</number>
      </property>
      <property name="spacing" >
       <number>6</number>
      </property>
-     <item>
-      <widget class="QCheckBox" name="chkShowOnStartup" >
-       <property name="objectName" >
-        <string notr="true" >chkShowOnStartup</string>
-       </property>
+     <item row="1" column="0" >
+      <widget class="QPushButton" name="openButton" >
        <property name="geometry" >
         <rect>
          <x>1</x>
-         <y>6</y>
-         <width>174</width>
-         <height>22</height>
+         <y>27</y>
+         <width>103</width>
+         <height>32</height>
         </rect>
        </property>
        <property name="text" >
-        <string>Show this Dialog on Startup</string>
+        <string>&amp;Open...</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="1" >
       <spacer>
-       <property name="objectName" >
-        <string notr="true" >horizontalSpacer</string>
-       </property>
        <property name="geometry" >
         <rect>
-         <x>181</x>
-         <y>1</y>
-         <width>104</width>
+         <x>110</x>
+         <y>27</y>
+         <width>147</width>
          <height>32</height>
         </rect>
        </property>
@@ -185,20 +163,17 @@
        </property>
       </spacer>
      </item>
-     <item>
+     <item row="1" column="2" >
       <widget class="QPushButton" name="createButton" >
-       <property name="objectName" >
-        <string notr="true" >createButton</string>
-       </property>
        <property name="enabled" >
         <bool>false</bool>
        </property>
        <property name="geometry" >
         <rect>
-         <x>291</x>
-         <y>2</y>
-         <width>77</width>
-         <height>29</height>
+         <x>263</x>
+         <y>27</y>
+         <width>103</width>
+         <height>32</height>
         </rect>
        </property>
        <property name="text" >
@@ -212,17 +187,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="3" >
       <widget class="QPushButton" name="closeButton" >
-       <property name="objectName" >
-        <string notr="true" >closeButton</string>
-       </property>
        <property name="geometry" >
         <rect>
-         <x>374</x>
-         <y>3</y>
-         <width>75</width>
-         <height>27</height>
+         <x>372</x>
+         <y>27</y>
+         <width>103</width>
+         <height>32</height>
         </rect>
        </property>
        <property name="text" >
@@ -233,6 +205,21 @@
        </property>
        <property name="default" >
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="2" >
+      <widget class="QCheckBox" name="chkShowOnStartup" >
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>256</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>Show this Dialog on Startup</string>
        </property>
       </widget>
      </item>

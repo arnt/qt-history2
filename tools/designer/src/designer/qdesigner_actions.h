@@ -112,12 +112,12 @@ public:
 public slots:
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
     void createForm();
+    bool openForm();
 
 signals:
     void useBigIcons(bool);
 
 private slots:
-    void openForm();
     void saveForm();
     void saveFormAs();
     void saveFormAsTemplate();

@@ -435,20 +435,23 @@ void QDesignerActions::editWidgetsSlot()
 
 void QDesignerActions::createForm()
 {
-    NewForm dlg(workbench(), 0);
-    dlg.exec();
+    NewForm *dlg = new NewForm(workbench(), 0);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->setAttribute(Qt::WA_ShowModal);
+    dlg->show();
 }
 
-void QDesignerActions::openForm()
+bool QDesignerActions::openForm()
 {
     QString fileName = QFileDialog::getOpenFileName(
             core()->topLevel(),
             tr("Open Form"), QString(),
             tr("Designer UI files (*.ui)"), 0, QFileDialog::DontUseSheet);
 
-    if (fileName.isEmpty() == false) {
-        readInForm(fileName);
+    if (!fileName.isEmpty()) {
+        return readInForm(fileName);
     }
+    return false;
 }
 
 bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)

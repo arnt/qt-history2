@@ -14,6 +14,7 @@
 #include "newform.h"
 #include "qdesigner.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner_actions.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
 
@@ -168,7 +169,19 @@ void NewForm::loadFrom(const QString &path)
         return;
 
     QTreeWidgetItem *root = new QTreeWidgetItem(ui.treeWidget);
-    root->setText(0, path);
+    // Try to get something that is easy to read.
+    QString visiblePath = path;
+    int index = visiblePath.lastIndexOf(QDir::separator());
+    if (index != -1) {
+        // try to find a second slash, just to be a bit better.
+        int index2 = visiblePath.lastIndexOf(QDir::separator(), index - 1);
+        if (index2 != -1)
+            index = index2;
+        visiblePath = visiblePath.mid(index + 1);
+    }
+
+    root->setText(0, visiblePath);
+    root->setToolTip(0, path);
 
     foreach(QFileInfo fi, list) {
         if (!fi.isFile())
@@ -187,3 +200,11 @@ void NewForm::loadFrom(const QString &path)
     ui.treeWidget->setItemExpanded(root, true);
 }
 
+void NewForm::on_openButton_clicked()
+{
+    hide();
+    if (m_workbench->actionManager()->openForm())
+        close();
+    else
+        show();
+}
