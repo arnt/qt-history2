@@ -375,7 +375,9 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 	}
     }
     GFX_END
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)	
     QWSDisplay::ungrab();
+#endif   
 }
 
 template<const int depth,const int type>
@@ -449,7 +451,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 		}
 	    }
 	    matrox_regw(SHIFT,((numDashes*8)-1) << 16);
-	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_BFCOL);	    
+	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_BFCOL);	
 	} else {
 	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_SHIFTZERO |
 		    DWG_SOLID | DWG_BFCOL);
@@ -470,7 +472,11 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 
     GFX_END
+	
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)	
     QWSDisplay::ungrab();
+#endif
+    
     return;
 }
 
@@ -599,13 +605,17 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	}
 	QRect r(0,0,width,height);
 	do_scissors(r);
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
-
+#endif
+	
 	GFX_END
 
 	    return;
     } else {
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
+#endif
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
