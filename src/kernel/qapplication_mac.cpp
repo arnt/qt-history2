@@ -1554,9 +1554,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		{ rightShiftKeyBit, MAP_KEY(Qt::Key_Shift) }, //???
 		{ controlKeyBit, MAP_KEY(Qt::Key_Meta) },
 		{ rightControlKeyBit, MAP_KEY(Qt::Key_Meta) }, //???
-		{ cmdKeyBit, MAP_KEY(Qt::Key_Meta) },
-		{ optionKeyBit, MAP_KEY(Qt::Key_Super_L) },
-		{ rightOptionKeyBit, MAP_KEY(Qt::Key_Super_R) },
+		{ cmdKeyBit, MAP_KEY(Qt::Key_Control) },
+		{ optionKeyBit, MAP_KEY(Qt::Key_Alt) },
+		{ rightOptionKeyBit, MAP_KEY(Qt::Key_Alt) }, //???
 		{ alphaLockBit, MAP_KEY(Qt::Key_CapsLock) },
 		{ kEventKeyModifierNumLockBit, MAP_KEY(Qt::Key_NumLock) },
 		{   0, MAP_KEY(0) } };
@@ -1603,14 +1603,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 
 	//map it into qt keys
+	QString mystr;
 	int modifiers = get_modifiers(modif), mychar=get_key(modifiers, chr, keyc);
-	{ 	//now get the real ascii value
+	if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
+	    chr = 0;
+	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
 	    static UInt32 tmp_state = 0L;
 	    if(modifiers & Qt::ShiftButton)
 		tmp_mod |= shiftKey;
 	    if(modifiers & Qt::MetaButton)
 		tmp_mod |= controlKey;
+	    if(modifiers & Qt::ControlButton)
+		tmp_mod |= cmdKey;
 	    if(modif & alphaLock)
 		tmp_mod |= alphaLock;
 	    if(modifiers & Qt::AltButton)
@@ -1619,11 +1624,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		tmp_mod |= kEventKeyModifierNumLockMask;
 	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			       tmp_mod | keyc, &tmp_state);
+
+	    static QTextCodec *c = NULL;
+	    if(!c)
+		c = QTextCodec::codecForName("Apple Roman");
+	    mystr = c->toUnicode(&chr, 1);
 	}
-	static QTextCodec *c = NULL;
-	if(!c)
-	    c = QTextCodec::codecForName("Apple Roman");
-       	QString mystr = c->toUnicode(&chr, 1);
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 	if(mac_keyboard_grabber)
@@ -1682,10 +1688,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    break;
 		}
 #ifdef DEBUG_KEY_MAPS
-		qDebug("KeyEvent: Sending %s to %s::%s: %04x %c %s %d",
+		qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s",
 		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
-		       mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+		       mychar, chr, mystr.latin1(), modifiers,
+		       ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif
 		QKeyEvent ke(etype,mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
