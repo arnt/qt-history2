@@ -171,7 +171,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
 	if ( n.tagName() == "comment" )
 	    comment = n.firstChild().toText().data();
     } else if ( e.tagName() == "cstring" ) {
-	v = QVariant( QByteArray( e.firstChild().toText().data() ) );
+	v = QVariant( e.firstChild().toText().data().toAscii() );
     } else if ( e.tagName() == "number" ) {
 	bool ok = TRUE;
 	v = QVariant( e.firstChild().toText().data().toInt( &ok ) );

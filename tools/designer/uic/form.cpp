@@ -1189,7 +1189,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    if ( extraFuncts.find( "init()" ) != extraFuncts.end() )
+    if (extraFuncts.contains("init()"))
 	out << indent << "init();" << endl;
 
     // end of constructor
@@ -1202,7 +1202,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << " */" << endl;
     out << nameOfClass << "::~" << bareNameOfClass << "()" << endl;
     out << "{" << endl;
-    if ( extraFuncts.find( "destroy()" ) != extraFuncts.end() )
+    if (extraFuncts.contains( "destroy()" ))
 	out << indent << "destroy();" << endl;
     out << indent << "// no need to delete child widgets, Qt does it all for us" << endl;
     out << "}" << endl;
