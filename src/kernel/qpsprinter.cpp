@@ -1063,6 +1063,37 @@ static const struct {
     { 0x2666, "diamond" },  // BLACK DIAMOND SUIT
     { 0x266A, "musicalnote" },  // EIGHTH NOTE
     { 0x266B, "musicalnotedbl" },  // BEAMED EIGHTH NOTES
+    // The names below are in the PU area of Unicode, but needed to get a correct mapping of the symbol font
+    { 0xF6D9, "copyrightserif" },
+    { 0xF6DA, "registerserif" },
+    { 0xF6DB, "trademarkserif" },
+    { 0xF8E5, "radicalex" },
+    { 0xF8E6, "arrowvertex" },
+    { 0xF8E7, "arrowhorizex" },
+    { 0xF8E8, "registersans" },
+    { 0xF8E9, "copyrightsans" },
+    { 0xF8EA, "trademarksans" },
+    { 0xF8EB, "parenlefttp" },
+    { 0xF8EC, "parenleftex" },
+    { 0xF8ED, "parenleftbt" },
+    { 0xF8EE, "bracketlefttp" },
+    { 0xF8EF, "bracketleftex" },
+    { 0xF8F0, "bracketleftbt" },
+    { 0xF8F1, "bracelefttp" },
+    { 0xF8F2, "braceleftmid" },
+    { 0xF8F3, "braceleftbt" },
+    { 0xF8F4, "braceex" },
+    { 0xF8F5, "integralex" },
+    { 0xF8F6, "parenrighttp" },
+    { 0xF8F7, "parenrightex" },
+    { 0xF8F8, "parenrightbt" },
+    { 0xF8F9, "bracketrighttp" },
+    { 0xF8FA, "bracketrightex" },
+    { 0xF8FB, "bracketrightbt" },
+    { 0xF8FC, "bracerighttp" },
+    { 0xF8FD, "bracerightmid" },
+    { 0xF8FE, "bracerightbt" },
+    // End of extensions needed for symbols
     { 0xFB00, "ff" },  // LATIN SMALL LIGATURE FF
     { 0xFB01, "fi" },  // LATIN SMALL LIGATURE FI
     { 0xFB02, "fl" },  // LATIN SMALL LIGATURE FL
@@ -1400,6 +1431,7 @@ public:
     bool operator == ( const QPSPrinterFontPrivate &other ) {
 	return other.psname == psname;
     }
+    inline void setSymbol() { symbol = TRUE; }
 
 protected:
     QString psname;
@@ -1411,6 +1443,7 @@ protected:
     int pageSubsetCount;
     bool global_dict;
     bool downloaded;
+    bool symbol;
 };
 
 // ------------------- end of class declarations ---------------------------
@@ -1589,6 +1622,7 @@ QPSPrinterFontPrivate::QPSPrinterFontPrivate()
 {
     global_dict = FALSE;
     downloaded  = FALSE;
+    symbol = FALSE;
     // map 0 to .notdef
     subset.insert( 0, 0 );
     subsetCount = 1;
@@ -1761,11 +1795,54 @@ unsigned short QPSPrinterFontPrivate::mapUnicode( unsigned short unicode )
     return offset + *res;
 }
 
+// This map is used for symbol fonts to get the correct glyph names for the latin range
+static const unsigned short symbol_map[0x100] = {
+    0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+    0x0008, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x000e, 0x000f,
+    0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
+    0x0018, 0x0019, 0x001a, 0x001b, 0x001c, 0x001d, 0x001e, 0x001f,
+    0x0020, 0x0021, 0x2200, 0x0023, 0x2203, 0x0025, 0x0026, 0x220b,
+    0x0028, 0x0029, 0x2217, 0x002b, 0x002c, 0x2212, 0x002e, 0x002f,
+    0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
+    0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
+
+    0x2245, 0x0391, 0x0392, 0x03a7, 0x0394, 0x0395, 0x03a6, 0x0393,
+    0x0397, 0x0399, 0x03d1, 0x039a, 0x039b, 0x039c, 0x039d, 0x039f,
+    0x03a0, 0x0398, 0x03a1, 0x03a3, 0x03a4, 0x03a5, 0x03c2, 0x03a9,
+    0x039e, 0x03a8, 0x0396, 0x005b, 0x2234, 0x005d, 0x22a5, 0x005f,
+    0xf8e5, 0x03b1, 0x03b2, 0x03c7, 0x03b4, 0x03b5, 0x03c6, 0x03b3,
+    0x03b7, 0x03b9, 0x03d5, 0x03ba, 0x03bb, 0x03bc, 0x03bd, 0x03bf,
+    0x03c0, 0x03b8, 0x03c1, 0x03c3, 0x03c4, 0x03c5, 0x03d6, 0x03c9,
+    0x03be, 0x03c8, 0x03b6, 0x007b, 0x007c, 0x007d, 0x223c, 0x007f,
+
+    0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
+    0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
+    0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
+    0x0098, 0x0099, 0x009a, 0x009b, 0x009c, 0x009d, 0x009e, 0x009f,
+    0x20ac, 0x03d2, 0x2023, 0x2264, 0x2044, 0x221e, 0x0192, 0x2263,
+    0x2666, 0x2665, 0x2660, 0x2194, 0x2190, 0x2191, 0x2192, 0x2193,
+    0x00b0, 0x00b1, 0x2033, 0x2265, 0x00d7, 0x221d, 0x2202, 0x2022,
+    0x00f7, 0x2260, 0x2261, 0x2248, 0x2026, 0xf8e6, 0xf8e7, 0x21b5,
+
+    0x2135, 0x2111, 0x211c, 0x2118, 0x2297, 0x2295, 0x2205, 0x2229,
+    0x222a, 0x2283, 0x2287, 0x2284, 0x2282, 0x2286, 0x2208, 0x2209,
+    0x2220, 0x2207, 0xf6da, 0xf6d9, 0xf6db, 0x220f, 0x221a, 0x22c5,
+    0x00ac, 0x2227, 0x2228, 0x21d4, 0x21d0, 0x21d1, 0x21d2, 0x21d3,
+    0x25ca, 0x2329, 0xf8e8, 0xf8e9, 0xf8ea, 0x2211, 0xf8eb, 0xf8ec,
+    0xf8ed, 0xf8ee, 0xf8ef, 0xf8f0, 0xf8f1, 0xf8f2, 0xf8f3, 0xf8f4,
+    0x0000, 0x232a, 0x222b, 0x2320, 0xf8f5, 0x2321, 0xf8f6, 0xf8f7,
+    0xf8f8, 0xf8f9, 0xf8fa, 0xf8fb, 0xf8fc, 0xf8fd, 0xf8fe, 0x0000,
+};
+
 QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex, bool *glyphSet )
 {
     QString glyphname;
     int l = 0;
     unsigned short unicode = unicode_for_glyph( glyphindex );
+    if (symbol && unicode < 0x100) {
+	// map from latin1 to symbol
+	unicode = symbol_map[unicode];
+    }
     if ( !unicode && glyphindex ) {
 	glyphname = "gl";
 	glyphname += toHex( glyphindex );
@@ -2309,7 +2386,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
 
 
 void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-				  const QString &/*text*/, QPSPrinterPrivate *d, QPainter *paint)
+				  const QString &text, QPSPrinterPrivate *d, QPainter *paint)
 {
     // we draw glyphs here to get correct shaping of arabic and indic
     QScriptItem &si = engine->items[item];
@@ -2329,12 +2406,13 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     glyph_t *glyphs = engine->glyphs( &si );
     advance_t *advances = engine->advances( &si );
     qoffset_t *offsets = engine->offsets( &si );
+    bool glyphIndices = si.fontEngine->type() == QFontEngine::Xft;
 
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {
 	for ( int i = len-1; i >=0; i-- ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-	    stream << toHex( mapUnicode( glyphs[i] ) );
+	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i] : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i != len-1 ) {
 		xyarray += toInt( xo + offsets[i].x + advances[i+1] );
 		xyarray += " ";
@@ -2347,7 +2425,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     } else {
 	for ( int i = 0; i < len; i++ ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-	    stream << toHex( mapUnicode( glyphs[i] ) );
+	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i] : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i ) {
 		xyarray += toInt( xo - offsets[i].x + advances[i-1] );
 		xyarray += " ";
@@ -2769,18 +2847,29 @@ void QPSPrinterFontTTF::uni2glyphSetup()
   //fprintf(stderr,"cmap version %d (should be 0), %d maps\n",version,nmaps);
 
   ULONG offset = 0;
+  int map = -1;
+  bool symbol = TRUE;
   for (i=0; i<nmaps; i++) {
     USHORT platform = getUSHORT(cmap+pos); pos+=2;
     USHORT encoding = getUSHORT(cmap+pos); pos+=2;
            offset   = getULONG( cmap+pos); pos+=4;
            //fprintf(stderr,"[%d] plat %d enc %d\n",i,platform,encoding);
-    if (platform == 3 && encoding == 1) break; // unicode
+	   if (platform == 3 && encoding == 1) {
+	       map = i;
+	       symbol = FALSE;
+	       break; // unicode
+	   }
+	   if (platform == 3 && encoding == 0) {
+	       // symbol, continue looking
+	       map = i;
+	   }
   }
-  if (i==nmaps) {
+  if (map==nmaps) {
     qWarning("Font does not have unicode encoding\n");
     return; // no unicode encoding!
   }
 
+  pos = 8*map;
   //fprintf(stderr,"Doing Unicode encoding\n");
 
   pos = offset;
@@ -2837,6 +2926,14 @@ void QPSPrinterFontTTF::uni2glyphSetup()
         }
       }
     }
+  }
+  if (symbol && glyph2uni[0x40] == 0 && glyph2uni[0xf040] != 0) {
+      // map 0xf000-0xf0ff into latin1 range.
+      for (int i = 0; i < 0x100; ++i) {
+	  if (!glyph2uni[i])
+	      glyph2uni[i] = glyph2uni[i+0xf000];
+
+      }
   }
 }
 
@@ -4962,6 +5059,9 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 		p = new QPSPrinterFontNotFound( engine );
 	    break;
     }
+
+    if (p->postScriptFontName() == "Symbol")
+	p->setSymbol();
 
     // this is needed to make sure we don't get the same postscriptname twice
     QDictIterator<QPSPrinterFontPrivate> it( priv->fonts );
