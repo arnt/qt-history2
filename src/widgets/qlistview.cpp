@@ -1863,8 +1863,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 }
 
 
-/*! Paints a set of branches from this item to (some of) its children
-  using the GUI style \a s.
+/*! Paints a set of branches from this item to (some of) its children.
 
   \a p is set up with clipping and translation so that you can draw
   only in the rectangle you need to; \a cg is the color group to use;

@@ -3110,7 +3110,7 @@ const QValidator * QtMultiLineEdit::validator() const
     return d->val;
 }
 
-/*!  Sets the edited flag of this line edit to \a on.  The edited flag
+/*!  Sets the edited flag of this line edit to \a e.  The edited flag
 is never read by QtMultiLineEdit, but is changed to TRUE whenever the user
 changes its contents.
 
@@ -3917,9 +3917,9 @@ void QtMultiLineEdit::redo()
 }
 
 /*!
-  Inserts \a txt at line number \a line, after character number \a col
+  Inserts \a s at line number \a line, after character number \a col
   in the line.
-  If \a txt contains newline characters, new lines are inserted.
+  If \a s contains newline characters, new lines are inserted.
 
   The cursor position is adjusted. If the insertion position is equal to
   the cursor position, the cursor is placed after the end of the new text.

@@ -1171,7 +1171,7 @@ QStyle* QWidget::setStyle( const QString &style )
   \sa QApplication::setStyle(), style(), update(), updateGeometry()
 */
 
-void QWidget::styleChange( QStyle& )
+void QWidget::styleChange( QStyle& /* oldStyle */ )
 {
     update();
     updateGeometry();

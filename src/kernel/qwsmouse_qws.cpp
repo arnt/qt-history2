@@ -74,7 +74,7 @@ typedef struct {
 
 /*!
   \class QWSMouseHandler qwsmouse_qws.h
-  \brief The QWSMouseHandler is a mouse driver/handler for Qt/Embedded.
+  \brief The QWSMouseHandler class is a mouse driver/handler for Qt/Embedded.
 
   The mouse driver/handler handles events from system devices and
   generates mouse events.

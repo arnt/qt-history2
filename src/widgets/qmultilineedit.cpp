@@ -424,7 +424,7 @@ void QMultiLineEdit::setEdited( bool e )
     setModified( e );
 }
 
-/*!  property QMultiLineEdit::edited
+/*!  \property QMultiLineEdit::edited
   \brief whether the document has been edited by the user
 
   This is the same as QTextEdit's "modifed" property.

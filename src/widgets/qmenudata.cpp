@@ -314,8 +314,8 @@ void QMenuData::removePopup( QPopupMenu *popup )
   quite simple to use.
 
   This default version inserts a menu item with the text \a text, the accelerator
-  key \a key, an id and an optional index and connects it to the slot \a member in
-  the object \a reciever.
+  key \a accel, an id and an optional index and connects it to the slot \a member in
+  the object \a receiver.
 
   Example:
   \code

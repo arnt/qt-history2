@@ -990,18 +990,6 @@ bool QGLWidget::renderCxPm( QPixmap* )
 }
 
 
-/*! Returns the colormap for this widget.
-    
-    Please note that only top-level widgets can have different
-    colormaps installed. Asking for the colormap of a child widget
-    will return the colormap for the child's top-level widget.
-    
-    If no colormap has been set for this widget, the QGLColormap
-    returned will be empty.
-    
-    \sa setColormap()
-*/
-
 const QGLColormap & QGLWidget::colormap() const
 {
     return cmap;
@@ -1026,16 +1014,6 @@ static void qStoreColors( HPALETTE cmap, const QGLColormap & cols )
     }
 }
 
-/*! Set the colormap for this widget.
-    
-    Note that only top-level widgets can have colormaps installed. In
-    addidion, under X11 only GreyScale, PseudoColor or DirectColor
-    visuals can have dynamic (read/write) colormaps installed. If the
-    widget is not created with one of these visual types, setting a
-    colormap for the widget will fail.
-    
-    \sa colormap()
-*/
 void QGLWidget::setColormap( const QGLColormap & c )
 {
     QWidget * tlw   = topLevelWidget(); // must return a valid widget
@@ -1065,10 +1043,6 @@ void QGLWidget::setColormap( const QGLColormap & c )
     }
 }
 
-/*! \internal
-  Free up any allocated colormaps. This fn is only called for
-  top-level widgets.
-*/
 void QGLWidget::cleanupColormaps()
 {	
     if ( !cmap.d )

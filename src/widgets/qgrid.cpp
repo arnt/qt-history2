@@ -62,7 +62,7 @@
 /*!
   Constructs a grid widget with parent \a parent and name \a name. If
   \a orient is \c Horizontal, \a n specifies the number of columns.
-  If \a dir is \c Vertical, \a n specifies the number of rows.
+  If \a orient is \c Vertical, \a n specifies the number of rows.
 */
 QGrid::QGrid( int n, Orientation orient, QWidget *parent, const char *name,
 	      WFlags f )

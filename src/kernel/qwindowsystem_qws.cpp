@@ -572,7 +572,7 @@ static void ignoreSignal( int )
 
 /*!
   \class QWSServer qwindowsystem_qws.h
-  \brief The QWSServer implements server-specific functionality in Qt/Embedded.
+  \brief The QWSServer class provides server-specific functionality in Qt/Embedded.
 
   When you run a Qt/Embedded application, it either runs as a server
   or connects to an existing server. If it runs as a server, some additional

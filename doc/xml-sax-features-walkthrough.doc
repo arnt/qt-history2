@@ -178,9 +178,9 @@ Next we prepare and use the upper right listview to show the reader results
 with the feature setting \e http://xml.org/sax/features/namespaces
 FALSE and \e http://xml.org/sax/features/namespace-prefixes TRUE.
 
-\printline namespaceLabel
-\printuntil namespacePrefixLabel
-\printuntil prefixLabel
+\printline namespace label
+\printuntil namespace prefix label
+\printuntil prefix label
 \printuntil container
 
 The second row of the \e container grid is filled with three labels

@@ -796,17 +796,6 @@ QLayout::QLayout( int space, const char *name )
 */
 
 
-#if 1 // OBSOLETE
-/*!
-  \fn int QLayout::defaultBorder() const
-
-  \obsolete
-  Returns the internal spacing for the geometry manager. Replaced by
-  spacing()
-*/
-#endif
-
-
 void QLayout::setMargin( int border )
 {
     outsideBorder = border;
@@ -1169,15 +1158,6 @@ void QLayout::addChildLayout( QLayout *l )
 
 
 #if 1 // OBSOLETE
-/*!
-  \overload void QLayout::freeze()
-
-
-  Fixes the main widget at its minimum size.
-  The recommended way is to call setResizeMode( \c Fixed )
-*/
-
-
 /*!
   \obsolete
   Fixes the size of the main widget and distributes the available

@@ -61,11 +61,13 @@ public:
     bool autoDelete;
 };
 
-/*! \internal
+/*!
   \class QSqlCursorManager qsqlmanager_p.h
   \brief The QSqlCursorManager class manages a database cursor.
 
   \module sql
+
+  \internal
 
   This class provides common cursor management functionality.  This
   includes saving and applying sorts and filters, refreshing (i.e.,
@@ -622,12 +624,13 @@ public:
 
 };
 
-/*! \internal
-
-  \class QDataManager qdatahandler.h
+/*!
+  \class QDataManager qsqlmanager_p.h
 
   \brief The QDataManager class is an internal class for implementing
   the data-aware widgets.
+
+  \internal
 
   QDataManager is a strictly internal class that acts as a base class
   for other data-aware widgets.

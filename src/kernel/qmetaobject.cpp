@@ -309,15 +309,19 @@ const QMetaData *QMetaObject::signal( int index, bool super ) const
 }
 
 
-/*! \internal
+/*!
   \fn int QMetaObject::signalOffset() const
+
+  \internal
 
   Returns the signal offset for this metaobject.
 
 */
 
-/*! \internal
+/*!
   \fn int QMetaObject::propertyOffset() const
+
+  \internal
 
   Returns the property offset for this metaobject.
 
@@ -338,8 +342,10 @@ int QMetaObject::findSignal( const char* n, bool super ) const
     return superclass->findSignal( n, super );
 }
 
-/*! \internal
+/*!
   \fn int QMetaObject::slotOffset() const
+
+  \internal
 
   Returns the slot offset for this metaobject.
 

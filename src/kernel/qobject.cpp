@@ -1853,6 +1853,10 @@ void QObject::accessibilityChanged( int reason )
     activate_signal( staticMetaObject()->signalOffset() + 1, reason );
 }
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+extern bool qt_notify_accessibility( QObject *, int );
+#endif
+
 /*!
   \internal
   ###
@@ -1860,10 +1864,6 @@ void QObject::accessibilityChanged( int reason )
   This slot is connected to the accessibilityChanged() signal and
   notifies the platform dependent accessibility system of the change.
 */
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-extern bool qt_notify_accessibility( QObject *, int );
-#endif
-
 void QObject::notifyAccessibility( int reason )
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)

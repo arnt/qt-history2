@@ -882,13 +882,13 @@ void QUrl::setEncodedPathAndQuery( const QString& pathAndQuery )
     d->cleanPathDirty = TRUE;
 }
 
+extern bool qt_resolve_symlinks; // defined in qapplication.cpp
+
 /*!  Returns the path of the URL. If \a correct is TRUE, the path is
   cleaned (deals with too many or too few slashes, cleans things like
   "/../..", etc). Otherwise path() returns exactly the path that was
   parsed or set.
 */
-
-extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 QString QUrl::path( bool correct ) const
 {
     if ( !correct )
