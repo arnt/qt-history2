@@ -45,8 +45,13 @@ We are working on streamlining the build process for Qt-based Netscape Plugins.
 <ul>
  <li>Plugins must be named <tt>np</tt><i>name</i><tt>.dll</tt>,
      or the browser will ignore them.
- <li>The link step must include <tt>/def:</tt><i>name</i><tt>.def</tt>
- <li>The link step must include <tt>/dll</tt>
+ <li>The link step must include:
+    <ul>
+	<li><tt>/def:</tt><i>name</i><tt>.def</tt>
+	<li><tt>/dll</tt>
+	<li>a compiled resource file defining the
+		file/MIME types accepted by the plugin.
+    </ul>
  <li>The user must install the resulting DLL in the Plugins directory
 	of the browser.
 </ul>

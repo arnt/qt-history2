@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#87 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#87 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -258,7 +258,7 @@ bool QWidget::create()
 }
 
 
-void QWidget::destroy( bool destroyWindow )
+void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
     if ( testWFlags(WState_Created) ) {
 	clearWFlags( WState_Created );
@@ -268,7 +268,8 @@ void QWidget::destroy( bool destroyWindow )
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
 		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy(TRUE);
+		    ((QWidget*)obj)->destroy(destroySubWindows,
+					     destroySubWindows);
 	    }
 	}
 	if ( mouseGrb == this )
@@ -289,7 +290,7 @@ void QWidget::destroy( bool destroyWindow )
 
 bool QWidget::destroy()
 {
-    destroy( TRUE );
+    destroy( TRUE, TRUE );
     return TRUE;
 }
 

@@ -639,8 +639,10 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     This = (_NPInstance*) instance->pdata;
 
     if (This != NULL) {
+#ifdef _WS_WIN_
 	SetWindowLong( This->window, GWL_WNDPROC,
 		(LONG)This->fDefaultWindowProc );
+#endif
 
 	if (This->widget) {
 	    This->widget->unsetWindow();
@@ -756,8 +758,8 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	// ### Maybe need a geometry setter that bypasses some Qt code?
 	// ### position is always (0,0), so we get by by ignoring it.
 	//This->widget->setGeometry(window->x,window->y, window->width, window->height);
-	if ( This->widget->width() != window->width
-	  || This->widget->height() != window->height )
+	if ( This->widget->width() != (int)window->width
+	  || This->widget->height() != (int)window->height )
 	{
 	    This->widget->resize(window->width, window->height);
 	} else {
@@ -1013,6 +1015,7 @@ Window qt_XCreateWindow( const QWidget* qw, Display *display, Window parent,
 			 uint windowclass, Visual *visual,
 			 ulong valuemask, XSetWindowAttributes *attributes )
 {
+    // ### This isA will not work - we are still in QWidget's constructor.
     if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
 	// ### not sure it is good to use name() and className().
 	Widget xtw = XtVaAppCreateShell( qw->name(), qw->className(),
@@ -1036,8 +1039,9 @@ Window qt_XCreateWindow( const QWidget* qw, Display *display, Window parent,
 	// Return Xt's window for the widget
 	return xw;
     } else {
-	return XCreateWindow( display, parent, x, y, w, h, borderwidth, depth,
+	Window window = XCreateWindow( display, parent, x, y, w, h, borderwidth, depth,
 			      windowclass, visual, valuemask, attributes );
+	return window;
     }
 }
 
@@ -1047,24 +1051,28 @@ Window qt_XCreateSimpleWindow( const QWidget* qw, Display *display, Window paren
 			       int x, int y, uint w, uint h, int borderwidth,
 			       ulong border, ulong background )
 {
+    // ### This isA will not work - we are still in QWidget's constructor.
+    Window window;
     if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
 	XSetWindowAttributes attributes;
 	attributes.border_pixel = border;
 	attributes.background_pixel = background;
-	return qt_XCreateWindow (
+	window = qt_XCreateWindow (
 	    qw, display, parent, x, y, w, h, borderwidth,
 	    CopyFromParent, CopyFromParent, CopyFromParent,
 	    CWBackPixel | CWBorderPixel, &attributes );
     } else {
-	return XCreateSimpleWindow( display, parent, x, y, w, h, borderwidth,
+	window = XCreateSimpleWindow( display, parent, x, y, w, h, borderwidth,
 				    border, background );
     }
+    return window;
 }
 
 
 // Relacement for Qt function - add Xt stuff for top-level widgets
 void qt_XDestroyWindow( const QWidget* qw, Display *display, Window window )
 {
+
     if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
 	Widget xtw = XtWindowToWidget( display, window );
 	if ( xtw ) {
@@ -1305,12 +1313,12 @@ void QNPWidget::unsetWindow()
 	XtRemoveEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
 	XtRemoveEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
     }
+    destroy( FALSE, FALSE ); // Xt has already destroyed all the windows
 #endif
 #ifdef _WS_WIN_
     // Nothing special
+    destroy( FALSE, TRUE ); // Browser will the window, but not the subwindows
 #endif
-
-    destroy( FALSE );
 }
 
 
