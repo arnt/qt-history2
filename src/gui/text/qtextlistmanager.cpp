@@ -24,6 +24,15 @@ QTextList *QTextListManager::list(int listIdx) const
     return lists.value(listIdx);
 }
 
+QList<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(int listIdx) const
+{
+    QList<QTextPieceTable::BlockIterator> blocks;
+    QTextList *l = list(listIdx);
+    if (l)
+	blocks = l->d_func()->blocks;
+    return blocks;
+}
+
 void QTextListManager::blockChanged(int blockPosition, QText::ChangeOperation op)
 {
     QTextPieceTable::BlockIterator blockIt = table->blocksFind(blockPosition);

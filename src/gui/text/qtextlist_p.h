@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include "qtextpiecetable_p.h"
 #include "qtextdocument.h"
+#include "qabstracttextdocumentlayout.h"
 #include <qpointer.h>
 #include <private/qobject_p.h>
 #endif // QT_H
@@ -41,16 +42,39 @@ private:
     int item;
 };
 
+template <class Manager>
 class QTextFormatReferenceChangeCommand : public QAbstractUndoItem
 {
 public:
-    QTextFormatReferenceChangeCommand(QTextPieceTable *table, int reference, const QTextFormat &format);
+    QTextFormatReferenceChangeCommand(Manager *_manager, int _objectId, int _reference, const QTextFormat &newFormat)
+	: manager(_manager), objectId(_objectId), reference(_reference), format(newFormat)
+    {}
 
-    virtual void undo();
-    virtual void redo();
+    virtual void undo()
+    {
+	if (!manager)
+	    return;
+
+	QTextPieceTable *pt = manager->pieceTable();
+
+	format = pt->formatCollection()->updateReferenceIndex(reference, format);
+
+	QAbstractTextDocumentLayout *layout = pt->layout();
+
+	QList<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(objectId);
+	Q_FOREACH(const QTextPieceTable::BlockIterator &block, affectedBlocks) {
+	    int start = block.start();
+	    int len = block.end() - start;
+	    layout->documentChange(start, len, len);
+	}
+    }
+
+    virtual void redo()
+    { undo(); }
 
 private:
-    QTextFormatCollection *formatCollection;
+    QPointer<Manager> manager;
+    int objectId;
     int reference;
     QTextFormat format;
 };

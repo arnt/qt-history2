@@ -9,8 +9,6 @@
 #include "qtextlist_p.h"
 #endif
 
-class QTextListManagerPrivate;
-class QTextPieceTable;
 class QTextList;
 
 class QTextListManager : public QObject
@@ -21,6 +19,10 @@ public:
     ~QTextListManager();
 
     QTextList *list(int listIdx) const;
+
+    QTextPieceTable *pieceTable() { return table; }
+
+    QList<QTextPieceTable::BlockIterator> blocksForObject(int listIdx) const;
 
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation);

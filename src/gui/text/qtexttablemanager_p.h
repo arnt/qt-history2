@@ -30,12 +30,16 @@ public:
     QTextTable *tableAt(int) const;
     QTextTable *createTable(const QTextCursor &cursor, int rows, int cols, const QTextTableFormat &format);
 
+    QTextPieceTable *pieceTable() { return pt; }
+
+    QList<QTextPieceTable::BlockIterator> blocksForObject(int tableIdx) const;
+
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation op);
     void formatChanged(int position, int length);
 
 private:
-    QTextPieceTable *pieceTable;
+    QTextPieceTable *pt;
     typedef QHash<int, QTextTable *> TableHash;
     TableHash tables;
 

@@ -16,7 +16,7 @@
 QTextTableManager::QTextTableManager(QTextPieceTable *table)
     : QObject(table)
 {
-    pieceTable = table;
+    pt = table;
 
     connect(table, SIGNAL(blockChanged(int, QText::ChangeOperation)), this, SLOT(blockChanged(int, QText::ChangeOperation)));
     connect(table, SIGNAL(formatChanged(int, int)), this, SLOT(formatChanged(int, int)));
@@ -55,7 +55,7 @@ QTextTable *QTextTableManager::tableAt(int docPos) const
 QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, int cols,
 						  const QTextTableFormat &tableFormat)
 {
-    QTextFormatCollection *formats = pieceTable->formatCollection();
+    QTextFormatCollection *formats = pt->formatCollection();
     int tableIdx = formats->createReferenceIndex(tableFormat);
 
     int pos = cursor.position();
@@ -63,12 +63,12 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
     QTextBlockFormat fmt = cursor.blockFormat();
     fmt.setNonDeletable(true);
 
-    pieceTable->beginEditBlock();
+    pt->beginEditBlock();
 
     // add block after table
     fmt.setNonDeletable(true);
-    int idx = pieceTable->formatCollection()->indexForFormat(fmt);
-    pieceTable->insertBlockSeparator(pos, idx);
+    int idx = pt->formatCollection()->indexForFormat(fmt);
+    pt->insertBlockSeparator(pos, idx);
 
     // create table formats
     fmt.setTableFormatIndex(tableIdx);
@@ -78,22 +78,32 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
 
     for (int i = 0; i < rows; ++i) {
 	for (int j = 0; j < cols; ++j) {
-	    pieceTable->insertBlockSeparator(pos, cellIdx);
+	    pt->insertBlockSeparator(pos, cellIdx);
 	    ++pos;
 	}
-	pieceTable->insertBlockSeparator(pos, eorIdx);
+	pt->insertBlockSeparator(pos, eorIdx);
 	++pos;
     }
 
-    pieceTable->endEditBlock();
+    pt->endEditBlock();
 
     return tables.value(tableIdx);
 }
 
+QList<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(int tableIdx) const
+{
+    QList<QTextPieceTable::BlockIterator> blocks;
+    QTextTable *tab = table(tableIdx);
+    if (tab) {
+	Q_FOREACH(const QTextTablePrivate::Row &row, tab->d->rowList)
+	    blocks += row;
+    }
+    return blocks;
+}
 
 void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation op)
 {
-    QTextPieceTable::BlockIterator blockIt = pieceTable->blocksFind(blockPosition);
+    QTextPieceTable::BlockIterator blockIt = pt->blocksFind(blockPosition);
     if (blockIt.atEnd())
 	return;
 
@@ -105,7 +115,7 @@ void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation o
 
     QTextTable *table = tables.value(tableIdx);
     if (!table) {
-	table = new QTextTable(pieceTable, this);
+	table = new QTextTable(pt, this);
 	tables.insert(tableIdx, table);
     }
 
@@ -122,11 +132,11 @@ void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation o
 
 void QTextTableManager::formatChanged(int position, int length)
 {
-    QTextPieceTable::BlockIterator blockIt = pieceTable->blocksFind(position);
+    QTextPieceTable::BlockIterator blockIt = pt->blocksFind(position);
     if (blockIt.atEnd())
 	return;
 
-    QTextPieceTable::BlockIterator end = pieceTable->blocksFind(position + length);
+    QTextPieceTable::BlockIterator end = pt->blocksFind(position + length);
     if (!end.atEnd())
 	++end;
 

@@ -260,7 +260,9 @@ void QTextTable::setFormat(const QTextTableFormat &format)
     int ref = cellAt(0, 0).start().blockFormat().tableFormatIndex();
     Q_ASSERT(ref != -1);
 
-    QTextFormatReferenceChangeCommand *cmd = new QTextFormatReferenceChangeCommand(d->pieceTable, ref, format);
+    int tblIdx = cellAt(0, 0).start().blockFormat().tableFormatIndex();
+    QAbstractUndoItem *cmd = 
+	new QTextFormatReferenceChangeCommand<QTextTableManager>(d->pieceTable->tableManager(), tblIdx, ref, format);
     cmd->redo();
     d->pieceTable->appendUndoItem(cmd);
 }

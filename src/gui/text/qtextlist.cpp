@@ -6,21 +6,6 @@
 #include <private/qtextformat_p.h>
 #include <qdebug.h>
 
-QTextFormatReferenceChangeCommand::QTextFormatReferenceChangeCommand(QTextPieceTable *table, int _reference, const QTextFormat &_format)
-    : formatCollection(table->formatCollection()), reference(_reference), format(_format)
-{
-}
-
-void QTextFormatReferenceChangeCommand::undo()
-{
-    format = formatCollection->updateReferenceIndex(reference, format);
-}
-
-void QTextFormatReferenceChangeCommand::redo()
-{
-    undo();
-}
-
 #define d d_func()
 
 void QTextListPrivate::appendBlock(const QTextPieceTable::BlockIterator &block)
@@ -100,7 +85,7 @@ void QTextList::setFormat(const QTextListFormat &format)
     if (ref == -1)
 	return;
 
-    QTextFormatReferenceChangeCommand *cmd = new QTextFormatReferenceChangeCommand(tbl, ref, format);
+    QAbstractUndoItem *cmd = new QTextFormatReferenceChangeCommand<QTextListManager>(tbl->listManager(), d->listFormatIndex(), ref, format);
     cmd->redo();
     tbl->appendUndoItem(cmd);
 }
@@ -185,6 +170,4 @@ QString QTextListItem::text() const
     return result + QString::fromLatin1(".");
 
 }
-
-
 
