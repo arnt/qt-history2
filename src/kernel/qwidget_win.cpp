@@ -904,7 +904,7 @@ void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
 	if ( d->topData()->fullscreen ) {
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), d->topData()->normalGeometry.topLeft() );
+	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
 	    d->topData()->fullscreen = 0;
 	}
 #ifndef Q_OS_TEMP
@@ -948,7 +948,7 @@ void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
 	if ( d->topData()->fullscreen ) {
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), d->topData()->normalGeometry.topLeft() );
+	    reparent( 0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft() );
 	    d->topData()->fullscreen = 0;
 	} else if ( d->topData()->normalGeometry.width() < 0 ) {
 	    d->topData()->normalGeometry = geometry();
