@@ -93,7 +93,7 @@ void Main::boom()
 {
     QFileDialog *dlg = new QFileDialog( this );
     QStringList lst;
-    lst.append( "C++ Files (*.cpp *.cc *.C *.cxx *.c++)" );
+    lst.append( "C++ Files (*.cpp;*.cc;*.C;*.cxx;*.c++)" );
     lst.append( "Header Files (*.h;*.hxx;*.h++)" );
     lst.append( "Project files (*.pro)" );
     dlg->setFilters( lst );
