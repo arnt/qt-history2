@@ -122,7 +122,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 #endif
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
 #ifndef QT_NO_VARIANT
-    return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
+    return QObject::connect( (QObject *)this, SIGNAL(signal(const QKernelVariant&)),
 			     receiver, member );
 #endif
 }
@@ -140,7 +140,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 #endif
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
 #ifndef QT_NO_VARIANT
-    return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
+    return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QKernelVariant&)),
 				receiver, member );
 #endif
 }
