@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#68 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#68 $");
 
 
 /*!
@@ -258,8 +258,7 @@ void QMenuBar::accelActivated( int id )
 	    repaint( FALSE );
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
-	    else				// normal connection
-		emit activated( mi->id() );
+	    emit activated( mi->id() );
 	}
     }
 }
@@ -583,8 +582,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
     if ( item != actItem ) {			// new item highlighted
 	actItem = item;
 	repaint( FALSE );
-	if ( mi->id() >= 0 )
-	    emit highlighted( mi->id() );
+	emit highlighted( mi->id() );
     }
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
@@ -629,8 +627,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	    repaint( FALSE );
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
-	    else				// normal connection
-		emit activated( mi->id() );
+	    emit activated( mi->id() );
 	}
     }
 }
@@ -652,8 +649,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	actItem = item;
 	repaint( FALSE );
 	hidePopups();
-	if ( mi->id() != -1 )
-	    emit highlighted( mi->id() );
+	emit highlighted( mi->id() );
 	if ( mi->popup() )
 	    openActPopup();
     }
@@ -720,8 +716,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		popup->setFirstItemActive();
 		openActPopup();
 	    } else {
-		if ( mi->id() >= 0 )
-		    emit highlighted( mi->id() );
+		emit highlighted( mi->id() );
 	    }
 	}
     }

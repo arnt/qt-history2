@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#88 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#88 $");
 
 
 // Motif style parameters
@@ -442,8 +442,7 @@ void QPopupMenu::accelActivated( int id )
     if ( mi && mi->isEnabled() ) {
 	if ( mi->signal() )			// activate signal
 	    mi->signal()->activate();
-	else					// normal connection
-	    actSig( mi->id() );
+	actSig( mi->id() );
     }
 }
 
@@ -951,8 +950,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     if ( item != actItem ) {			// new item activated
 	actItem = item;
 	repaint( FALSE );
-	if ( mi->id() >= 0 )
-	    hilitSig( mi->id() );
+	hilitSig( mi->id() );
     }
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
@@ -995,8 +993,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	    if ( mi->isEnabled() ) {
 		if ( mi->signal() )		// activate signal
 		    mi->signal()->activate();
-		else				// normal connection
-		    actSig( mi->id() );
+		actSig( mi->id() );
 	    }
 	}
     } else {
@@ -1044,8 +1041,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( lastActItem >= 0 )
 	    updateRow( lastActItem );
 	updateRow( actItem );
-	if ( mi->id() >= 0 )			// valid identifier
-	    hilitSig( mi->id() );
+	hilitSig( mi->id() );
     }
 }
 
@@ -1095,8 +1091,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    if ( mi->isEnabled() ) {
 		if ( mi->signal() )
 		    mi->signal()->activate();
-		else
-		    actSig( mi->id() );
+		actSig( mi->id() );
 	    }
 	}
 	break;
@@ -1132,8 +1127,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    if ( mi->isEnabled() ) {
 		if ( mi->signal() )
 		    mi->signal()->activate();
-		else
-		    actSig( mi->id() );
+		actSig( mi->id() );
 	    }
 	}
     }
