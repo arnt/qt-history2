@@ -417,7 +417,6 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     int dt = pdev->devType();                   // get the device type
     bool reinit = flags != IsStartingUp;        // 2nd or 3rd etc. time called
     flags = IsActive | DirtyFont;               // init flags
-    hd  = pdev->handle();                       // get handle to drawable
 
     if((pdev->devFlags & QInternal::ExternalDevice) != 0)
 	// this is an extended device
@@ -436,7 +435,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 	if(tabarray)                         // update tabarray for device
 	    setTabArray(tabarray);
     }
-
+    hd = pdev->handle();                       // get handle to drawable
 
     pdev->painters++;                           // also tell paint device
     bro = QPoint(0, 0);
