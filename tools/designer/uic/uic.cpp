@@ -1131,7 +1131,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			out << indent << indent << indent << c << "->setCursor( cursor, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
 			out << indent << indent << "if ( !cursor->isActive() )" << endl;
-			out << indent << indent << indent << c << "->refresh();" << endl;
+			out << indent << indent << indent << c << "->refresh( TRUE, TRUE );" << endl;
 			out << indent << "}" << endl;
 		    }
 		}
