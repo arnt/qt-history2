@@ -199,6 +199,7 @@ static int getToken()
 			else
 			    metAster = FALSE;
 		    }
+		    yyCh = getChar();
 		    yyCommentLen -= 2;
 		    yyComment[yyCommentLen] = '\0';
 		    return Tok_Comment;
@@ -207,7 +208,7 @@ static int getToken()
 	    case '"':
 		yyCh = getChar();
 
-		while ( yyCh != EOF && yyCh != '"' ) {
+		while ( yyCh != EOF && yyCh != '\n' && yyCh != '"' ) {
 		    if ( yyCh == '\\' ) {
 			yyCh = getChar();
 
@@ -246,9 +247,12 @@ static int getToken()
 		    }
 		}
 		yyString[yyStringLen] = '\0';
-		if ( yyCh == EOF ) {
-		    qWarning( "%s: Unterminated C++ string starting at line %d",
+
+		if ( yyCh != '"' )
+		    qWarning( "%s: Unterminated C++ string on line %d",
 			      (const char *) yyFileName, yyLineNo );
+
+		if ( yyCh == EOF ) {
 		    return Tok_Eof;
 		} else {
 		    yyCh = getChar();
