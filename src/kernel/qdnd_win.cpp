@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#53 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -35,6 +35,7 @@ extern Qt::WindowsVersion qt_winver;
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;
 
+// Returns a LPFORMATETC enumerating all CF's that ms can be produced.
 static
 LPFORMATETC allFormats(int& n)
 {
@@ -63,6 +64,8 @@ LPFORMATETC allFormats(int& n)
     return fmtetc;
 }
 
+// Returns a LPFORMATETC enumerating the CF's that ms can be produced
+// from type \a mime.
 static
 LPFORMATETC someFormats(const char* mime, int& n)
 {
@@ -90,6 +93,39 @@ LPFORMATETC someFormats(const char* mime, int& n)
     }
 
     ASSERT(n==i);
+    return fmtetc;
+}
+
+
+// Returns a LPFORMATETC enumerating the CF's that ms can produce
+// (after being converted).
+static
+LPFORMATETC someFormats(const QMimeSource* ms, int& n)
+{
+    n = 0;
+    QWindowsMime* wm;
+    QList<QWindowsMime> mimes = QWindowsMime::all();
+    for ( wm = mimes.first(); wm; wm = mimes.next() )
+	n += wm->countCf();
+
+    LPFORMATETC fmtetc = new FORMATETC[n]; // Bigger than needed
+
+    int i = 0;
+    for ( wm = mimes.first(); wm; wm = mimes.next() ) {
+	int t = wm->countCf();
+	for (int j=0; j<t; j++) {
+	    if ( ms->provides(wm->mimeFor(wm->cf(j))) ) {
+		fmtetc[i].cfFormat = wm->cf(j);
+		fmtetc[i].dwAspect = DVASPECT_CONTENT;
+		fmtetc[i].tymed = TYMED_HGLOBAL;
+		fmtetc[i].ptd = NULL;
+		fmtetc[i].lindex = -1;
+		i++;
+	    }
+	}
+    }
+    n = i;
+
     return fmtetc;
 }
 
@@ -671,8 +707,7 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
 
     SCODE sc = S_OK;
     int n;
-    // #### Not correct - only those that object->provides() should be listed.
-    LPFORMATETC fmtetc = allFormats(n);
+    LPFORMATETC fmtetc = someFormats(object,n);
 
     if (dwDirection == DATADIR_GET){
         *ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
