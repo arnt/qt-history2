@@ -59,7 +59,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget
 //  setPixmap( ipaq );
     setFixedSize( skinImageUp->size() );
     QBitmap mask = skinImageUp->createHeuristicMask();
-    int wf = WStyle_Customize | WType_TopLevel | WStyle_NoBorder;
+    WFlags wf = WStyle_Customize | WType_TopLevel | WStyle_NoBorder;
     parent->reparent( 0, wf, pos(), TRUE );
     parent->setMask( mask );
     parent->setFixedSize( skinImageUp->size() );
@@ -122,7 +122,7 @@ void Skin::mousePressEvent( QMouseEvent *e )
 		continue;
 	    }
 	}
-	
+
 //	This is handy for finding the areas to define rectangles for new skins
 //	printf("Clicked in %i,%i\n",  e->pos().x(),  e->pos().y());
 	clickPos = e->pos();

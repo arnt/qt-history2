@@ -24,7 +24,7 @@ class QVFb: public QMainWindow
     Q_OBJECT
 public:
     QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent = 0,
-		const char *name = 0, uint wflags = 0 );
+		const char *name = 0, WFlags = 0 );
     ~QVFb();
 
     void enableCursor( bool e );

@@ -33,7 +33,7 @@
 #include <qcheckbox.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent,
-	    const char *name, uint flags )
+	    const char *name, WFlags flags )
     : QMainWindow( parent, name, flags )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( "logo.png" );
@@ -80,7 +80,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 	view->setFixedSize( w, h );
 	setCentralWidget( skin );
 	adjustSize();
-	view->show(); 
+	view->show();
 	if ( vis ) show();
     } else {
 	if ( !currentSkin.isEmpty() ) {
@@ -93,7 +93,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 	view->setFrameStyle( QFrame::NoFrame );
 	setCentralWidget( view );
 	resize(w,menuBar()->height()+h+2);
-	view->show(); 
+	view->show();
     }
 
     currentSkin = skin_name;
@@ -312,7 +312,7 @@ void QVFb::configure()
 	else
 	    d=32;
 
-	if ( w != view->displayWidth() || h != view->displayHeight() 
+	if ( w != view->displayWidth() || h != view->displayHeight()
 		|| d != view->displayDepth() || skin != currentSkin )
 	    init( id, w, h, d, skin );
     } else {

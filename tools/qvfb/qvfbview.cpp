@@ -44,7 +44,7 @@
 #include <math.h>
 
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
-		    const char *name, uint flags )
+		    const char *name, WFlags flags )
     : QScrollView( parent, name, flags ), qwslock(NULL)
 {
     displayid = display_id;
@@ -64,7 +64,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 	case 16:
 	case 32:
 	    break;
-	
+
 	default:
 	    qFatal( "Unsupported bit depth %d\n", d );
     }
@@ -366,10 +366,10 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 	    for ( int col=0; col < r.width()/2; col++ ) {
 #else
-	    for ( int col=0; col < r.width(); col++ ) {	
+	    for ( int col=0; col < r.width(); col++ ) {
 #endif
 		ushort s = *sptr++;
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS		
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		ushort s2 = *sptr++;
 		*dptr++ = qRgb(qRed(gammatable[(s2>>rsh)&rmax]),qGreen(gammatable[(s2>>gsh)&gmax]),qBlue(gammatable[(s2>>bsh)&bmax]));
 #endif
