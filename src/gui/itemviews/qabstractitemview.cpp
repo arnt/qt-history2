@@ -892,7 +892,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
         d->pressedPosition = pos + offset;
 
     if (index.isValid())
-        setCurrentIndex(index);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
