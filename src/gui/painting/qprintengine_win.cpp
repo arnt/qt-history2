@@ -441,13 +441,26 @@ int QWin32PrintEngine::metric(int m) const
 }
 
 void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
-                                   const QPixmap &pixmap,
-                                   const QRect &,
-                                   Qt::PixmapDrawingMode)
+                                   const QPixmap &originalPixmap,
+                                   const QRect &sr,
+                                   Qt::PixmapDrawingMode mode)
 {
     bool oldNoNativeXForm = d->noNativeXform;
     d->noNativeXform = true;
     updateXForm(QWMatrix(1, 0, 0, 1, 0, 0));
+
+    QPixmap pixmap = originalPixmap;
+    if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {
+        QPixmap newPixmap(sr.size());
+        QPainter p(&newPixmap);
+        p.drawPixmap(QPoint(0, 0), originalPixmap, sr, Qt::CopyPixmap);
+        p.end();
+        pixmap = newPixmap;
+    }
+
+    if (mode != Qt::ComposePixmap) {
+        pixmap.setMask(QBitmap());
+    }
 
     // Turn of native transformations...
     QRect rect(targetRect);
