@@ -371,7 +371,7 @@ void QThread::usleep( unsigned long usecs )
 
 
 /*!
-  Constructs a new thread. The thread does not actually begin executing
+  Constructs a new thread.  The thread does not actually begin executing
   until start() is called.
 */
 QThread::QThread()
@@ -381,8 +381,9 @@ QThread::QThread()
 
 
 /*!
-  QThread destructor. Note that deleting a QThread object will not stop
-  the execution of the thread it represents.
+  QThread destructor.  Note that deleting a QThread object will not stop
+  the execution of the thread it represents.  Deleting a running QThread
+  will probably result in a program crash.
 */
 QThread::~QThread()
 {
@@ -430,7 +431,7 @@ void QThread::start()
 {
     if (d->running) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QThread::start: thread already running");
+	qWarning("Attempt to start a thread already running");
 #endif
 
 	wait();
