@@ -44,7 +44,7 @@
             <x>0</x>
             <y>0</y>
             <width>638</width>
-            <height>21</height>
+            <height>22</height>
         </rect>
     </property>
     <item text="&amp;File" name="fileMenu">
@@ -151,9 +151,9 @@
         <property name="whatsThis">
             <string>Quit Qt Assistant.</string>
         </property>
-	<property name="accel">
-	    <string>Ctrl+Q</string>
-	</property>
+        <property name="accel">
+            <string>Ctrl+Q</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -395,7 +395,7 @@
             <cstring>actionOpenPage</cstring>
         </property>
         <property name="text">
-            <string>New Page</string>
+            <string>Add Page</string>
         </property>
         <property name="accel">
             <string>Ctrl+Alt+N</string>
