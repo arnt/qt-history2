@@ -10,12 +10,7 @@ public:
     OpenGLWidgetInterface();
     ~OpenGLWidgetInterface();
 
-    bool connectNotify( QApplicationInterface* );
     bool disconnectNotify();
-
-    QString name() { return "QGLWidget"; }
-    QString description() { return "Qt Designer plugin for the OpenGL widget"; }
-    QString author() { return "Trolltech"; }
 
     QStringList featureList();
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
@@ -37,11 +32,6 @@ OpenGLWidgetInterface::OpenGLWidgetInterface()
 
 OpenGLWidgetInterface::~OpenGLWidgetInterface()
 {
-}
-
-bool OpenGLWidgetInterface::connectNotify( QApplicationInterface* )
-{
-    return TRUE;
 }
 
 bool OpenGLWidgetInterface::disconnectNotify()
@@ -116,4 +106,33 @@ bool OpenGLWidgetInterface::isContainer( const QString& )
     return FALSE;
 }
 
-Q_EXPORT_INTERFACE(WidgetInterface, OpenGLWidgetInterface )
+class OpenGLPlugIn : public QPlugInInterface
+{
+public:
+    OpenGLPlugIn() {}
+
+    QUnknownInterface* queryInterface( const QString& );
+    QStringList interfaceList();
+
+    QString name() { return "QGLWidget"; }
+    QString description() { return "Qt Designer plugin for the OpenGL widget"; }
+    QString author() { return "Trolltech"; }
+};
+
+QStringList OpenGLPlugIn::interfaceList()
+{
+    QStringList list;
+
+    list << "OpenGLWidgetInterface";
+
+    return list;
+}
+
+QUnknownInterface* OpenGLPlugIn::queryInterface( const QString& request )
+{
+    if ( request == "OpenGLWidgetInterface" )
+	return new OpenGLWidgetInterface;
+    return 0;
+}
+
+Q_EXPORT_INTERFACE( OpenGLPlugIn )
