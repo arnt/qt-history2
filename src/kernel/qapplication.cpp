@@ -1701,8 +1701,13 @@ void QApplication::closeAllWindows()
   notify() function. Returns the value that was returned from the event
   handler.
 
-  The event is usually allocated on the stack here, as it is \e not
-  deleted when the event has been sent.
+    The event is \e not deleted when the event has been sent. The normal
+    approach is to create the event on the stack, e.g.
+    \code
+    QMouseEvent me( QEvent::MouseButtonPress, pos, 0, 0 );
+    QApplication::sendEvent( mainWindow, &me );
+    \endcode
+    If you create the event on the heap you must delete it.
 
   \sa postEvent(), notify()
 */
@@ -1711,8 +1716,10 @@ void QApplication::closeAllWindows()
   Sends event \a e to \a receiver: <code>receiver->event( event )</code>
   Returns the value that is returned from the receiver's event handler.
 
-  ##### TODO this function now does propagation of mouse, wheel and
-  key events
+  If the receiver is not interested in the event (i.e. it returns FALSE)
+  the event will be propagated to the receiver's parent and so on up to
+  the top level widget. All events are propagated in this way including
+  mouse, wheel and key events.
 
   Reimplementing this virtual function is one of five ways to process
   an event: 
@@ -1967,6 +1974,7 @@ void QApplication::processEvents()
 }
 
 /*!
+    \internal
   Waits for an event to occur, processes it, then returns.
 
   This function is useful for adapting Qt to situations where the
@@ -2040,8 +2048,9 @@ void QApplication::syncX()	{}		// do nothing
   Adds the message file \a mf to the list of message files to be used
   for translations.
 
-  Multiple messages files can be installed, given that they cover
-  distinct contexts.
+  Multiple messages files can be installed. Translations are searched
+  for in the last message file installed back to the first message file
+  installed. The search stops as soon as a matching translation is found. 
 
   \sa removeTranslator() translate() QTranslator::load()
 */
@@ -2187,8 +2196,8 @@ QString QApplication::translate( const char * context, const char * sourceText,
 /*!
   Adds the event to an event queue and returns immediately.
 
-  The event must be allocated on the heap, as it is deleted when the event
-  has been posted.
+  The event must be allocated on the heap since the post event queue
+  will take ownership of the event and delete it once it has been posted.
 
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
@@ -2264,7 +2273,9 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 }
 
 
-/*! Dispatches all posted events. */
+/*! Dispatches all posted events, i.e. empties the event queue. 
+\overload
+*/
 void QApplication::sendPostedEvents()
 {
     sendPostedEvents( 0, 0 );
@@ -2277,8 +2288,8 @@ void QApplication::sendPostedEvents()
   with QApplication::postEvent() and which are for the object \a receiver
   and have the event type \a event_type.
 
-  Some event compression may occur. Note that events from the window
-  system are \e not dispatched by this function.
+  Note that events from the window system are \e not dispatched by this
+  function, but by processEvents().
 */
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
