@@ -32,6 +32,7 @@ private:
     QPainterPath yellowLine;
     QList<QPolygon> carVectors;
     QPixmap pixmap;
+    QPixmap backBuffer;
 
 };
 

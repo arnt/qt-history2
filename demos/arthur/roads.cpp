@@ -4,8 +4,9 @@
 #include <qpainter.h>
 
 Roads::Roads(QWidget *parent)
+    : DemoWidget(parent)
 {
-    timeoutRate = 20;
+    timeoutRate = 50;
 
     yellowLine.moveTo(100, 40);
     yellowLine.curveTo(140, 40, 170, 60, 200, 60);
@@ -33,25 +34,37 @@ Roads::Roads(QWidget *parent)
 
 void Roads::paintEvent(QPaintEvent *e)
 {
-    QPainter p(this);
-    fillBackground(&p);
-
-    if (attributes->antialias)
-        p.setRenderHints(QPainter::LineAntialiasing);
-
     int offset = 100;
     QRect r(offset, offset, width() - 2*offset, height() - 2*offset);
-    QRect roadRect(0, 0, 400, 400);
 
-    p.setPen(Qt::black);
-    p.setBrush(QColor(255, 255, 255, attributes->alpha ? 127 : 255));
-    p.drawRect(r);
+    if (backBuffer.size() != size()) {
+        backBuffer.resize(size());
+        QPainter bp(&backBuffer);
 
+        fillBackground(&bp);
+
+        if (attributes->antialias)
+            bp.setRenderHints(QPainter::LineAntialiasing);
+
+        QRect roadRect(0, 0, 400, 400);
+
+        bp.setPen(Qt::black);
+        bp.setBrush(QColor(255, 255, 255, attributes->alpha ? 127 : 255));
+        bp.drawRect(r);
+
+        bp.translate(r.topLeft());
+        bp.scale(r.width() / 400.0, r.height() / 400.0);
+
+        bp.strokePath(yellowLine, QPen(Qt::black, 20, Qt::SolidLine, Qt::RoundCap,
+                                               Qt::RoundJoin));
+        bp.strokePath(yellowLine, QPen(Qt::yellow, 0, Qt::DotLine));
+    }
+
+
+    QPainter p(this);
+    p.drawPixmap(0, 0, backBuffer);
     p.translate(r.topLeft());
     p.scale(r.width() / 400.0, r.height() / 400.0);
-
-    p.strokePath(yellowLine, QPen(Qt::black, 20, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    p.strokePath(yellowLine, QPen(Qt::yellow, 0, Qt::DotLine));
 
     for (int c=0; c<5; ++c) {
         int i = c % carVectors.size();
