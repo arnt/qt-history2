@@ -94,7 +94,9 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 }
 
 #else // POSIX
-
+//#### trying to make it compile
+#define QT_RTLD_FLAGS  RTLD_LAZY 
+#include <dlfcn.h>
 bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
