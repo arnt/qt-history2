@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#68 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#68 $");
 
 
 /*****************************************************************************
@@ -53,6 +53,8 @@ static bool    *g_our_alloc = 0;		// our allocated colors
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
+static const int q_col_std_dict = 419;
+static const int q_col_large_dict = 18397;
 
 extern int	qt_ncols_option;		// defined in qapp_x11.cpp
 extern int	qt_visual_option;
@@ -266,10 +268,7 @@ void QColor::initialize()
     QPaintDevice::x_visual    = g_vis;
     QPaintDevice::x_defvisual = defVis;
 
-    int dictsize = 419;				// standard dict size
-    if ( ncols > 256 || depth > 8 )
-	dictsize = 2113;
-
+    int dictsize;
     if ( g_truecolor ) {			// truecolor
 	dictsize    = 1;			// will not need color dict
 	red_mask    = (uint)g_vis->red_mask;
@@ -278,6 +277,8 @@ void QColor::initialize()
 	red_shift   = highest_bit( red_mask )	- 7;
 	green_shift = highest_bit( green_mask ) - 7;
 	blue_shift  = highest_bit( blue_mask )	- 7;
+    } else {
+	dictsize = q_col_std_dict;
     }
     colorDict = new QColorDict(dictsize);	// create dictionary
     CHECK_PTR( colorDict );
@@ -538,7 +539,13 @@ uint QColor::alloc()
 	pix = BlackPixel( dpy, scr );
 	return pix;
     }
-    if ( colorDict->count() < colorDict->size() * 8 ) {
+    // All colors outside context 0 must go into the dictionary
+    bool many = colorDict->count() >= colorDict->size() * 8;
+    if ( many && colorDict->size() == q_col_std_dict )
+    {
+	colorDict->resize( q_col_large_dict );
+    }
+    if ( !many || current_alloc_context != 0 ) {
 	c = new QColorData;			// insert into color dict
 	CHECK_PTR( c );
 	c->pix	   = pix;
@@ -701,8 +708,12 @@ int QColor::currentAllocContext()
   Destroys a color allocation context, \e context.
 
   This function deallocates all colors that were allocated in the
-  specified \a context. If \a context == -1, it frees up all colors
+  specified \a context.
+  If \a context == -1, it frees up all colors
   that the application has allocated.
+  If \a context == -2, it frees up all colors
+  that the application has allocated, except those in the
+  default context.
 
   The function does nothing for true color displays.
 
@@ -714,7 +725,9 @@ void QColor::destroyAllocContext( int context )
     init_context_stack();
     if ( !color_init || g_truecolor || colors_frozen )
 	return;
-    ulong *pixels = new ulong[colorDict->count()];
+    ulong pixels[256];
+    bool freeing[256];
+    memset( freeing, FALSE, g_cells*sizeof(bool) );
     QColorData   *d;
     QColorDictIt it( *colorDict );
     int i = 0;
@@ -722,14 +735,19 @@ void QColor::destroyAllocContext( int context )
     while ( (d=it.current()) ) {
 	rgbVal = (uint)it.currentKey();
 	++it;
-	if ( d->context == context || context == -1 ) {
-	    pixels[i++] = d->pix;		// delete this color
-	    g_our_alloc[d->pix] = FALSE;	// don't reuse it
+	if ( (d->context || context==-1) &&
+	     (d->context == context || context < 0) )
+	{
+	    if ( !g_our_alloc[d->pix] && !freeing[d->pix] )
+	    {
+		// will free this color
+		pixels[i++] = d->pix;
+		freeing[d->pix] = TRUE;
+	    }
 	    colorDict->remove( (long)rgbVal );	// remove from dict
 	}
     }
     if ( i )
 	XFreeColors( QPaintDevice::x__Display(), QPaintDevice::x11Colormap(),
 		     pixels, i, 0 );
-    delete [] pixels;
 }
