@@ -1195,7 +1195,7 @@ void DocParser::include( const QString& fileName )
 	    location().push( userFriendlyFilePath );
 
 	    QTextStream inStream( &inFile );
-	    QString includedStuff = inStream.read();
+	    QString includedStuff = inStream.readAll();
 	    inFile.close();
 
 	    in.insert( pos, includedStuff );
@@ -2350,7 +2350,7 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
 	    location.warning(tr("Cannot open example file '%1'").arg(userFriendlyFilePath));
 	} else {
 	    QTextStream inStream(&inFile);
-	    code = DocParser::untabifyEtc(inStream.read());
+	    code = DocParser::untabifyEtc(inStream.readAll());
 	}
     }
 

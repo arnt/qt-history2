@@ -28,7 +28,7 @@ void ApiGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 
     out.setDevice(&outFile);
     generateNode(tree->root(), marker);
-    out.unsetDevice();
+    out.flush();
 }
 
 void ApiGenerator::generateNode(const Node *node, CodeMarker *marker, int indent)
