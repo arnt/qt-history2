@@ -416,8 +416,8 @@ static QStringList split_arg_list(QString params)
     QStringList args;
 
     static bool symbols_init = false;
-    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA, SPACE, TAB };
-    static ushort symbols[7];
+    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA };
+    static ushort symbols[5];
     if(!symbols_init) {
         symbols_init = true;
         symbols[LPAREN] = QChar('(').unicode();
@@ -425,18 +425,12 @@ static QStringList split_arg_list(QString params)
         symbols[SINGLEQUOTE] = QChar('\'').unicode();
         symbols[DOUBLEQUOTE] = QChar('"').unicode();
         symbols[COMMA] = QChar(',').unicode();
-        symbols[SPACE] = QChar(' ').unicode();
-        symbols[TAB] = QChar('\t').unicode();
     }
 
     ushort unicode;
     const QChar *params_data = params.data();
     const int params_len = params.length();
-    int last = 0;
-    while(last < params_len && ((params_data+last)->unicode() == symbols[SPACE]
-                                /*|| (params_data+last)->unicode() == symbols[TAB]*/))
-        ++last;
-    for(int x = last, parens = 0; x <= params_len; x++) {
+    for(int x = 0, last = 0, parens = 0; x <= params_len; x++) {
         unicode = (params_data+x)->unicode();
         if(x == params_len) {
             QString mid(params_data+last, x-last);
@@ -449,9 +443,9 @@ static QStringList split_arg_list(QString params)
             break;
         }
         if(unicode == symbols[LPAREN]) {
-            --parens;
+            parens--;
         } else if(unicode == symbols[RPAREN]) {
-            ++parens;
+            parens++;
         } else if(quote && unicode == quote) {
             quote = 0;
         } else if(!quote && (unicode == symbols[SINGLEQUOTE] || unicode == symbols[DOUBLEQUOTE])) {
@@ -465,9 +459,6 @@ static QStringList split_arg_list(QString params)
             }
             args << mid;
             last = x+1;
-            while(last < params_len && ((params_data+last)->unicode() == symbols[SPACE]
-                                        /*|| (params_data+last)->unicode() == symbols[TAB]*/))
-                ++last;
         }
     }
     for(int i = 0; i < args.count(); i++)
@@ -479,11 +470,11 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
 {
     QString build;
     QStringList ret;
-    QStack<ushort> quote;
+    QStack<char> quote;
 
     static bool symbols_init = false;
-    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, SLASH, SEMICOLON, SPACE, TAB };
-    static ushort symbols[8];
+    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, SLASH, SEMICOLON };
+    static ushort symbols[6];
     if(!symbols_init) {
         symbols_init = true;
         symbols[LPAREN] = QChar('(').unicode();
@@ -492,9 +483,8 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
         symbols[DOUBLEQUOTE] = QChar('"').unicode();
         symbols[SLASH] = QChar('\\').unicode();
         symbols[SEMICOLON] = QChar(';').unicode();
-        symbols[SPACE] = QChar(' ').unicode();
-        symbols[TAB] = QChar('\t').unicode();
     }
+
 
     ushort unicode;
     const QChar *vals_data = vals.data();
@@ -515,17 +505,12 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
         }
 
         if(!parens && quote.isEmpty() && ((do_semicolon && unicode == symbols[SEMICOLON]) ||
-                                          *(vals_data+x) == symbols[SPACE]) /*|| *(vals_data+x) == symbols[TAB]*/) {
-            if(!build.isEmpty()) {
-                ret << build;
-                build = "";
-            }
-            while(x < vals_len && ((vals_data+x)->unicode() == symbols[SPACE]
-                                   /*|| (vals_data+x)->unicode() == symbols[TAB]*/))
-                ++x;
-        }
-        if(x < vals_len)
+                                          *(vals_data+x) == Option::field_sep)) {
+            ret << build;
+            build = "";
+        } else {
             build += *(vals_data+x);
+        }
     }
     if(!build.isEmpty())
         ret << build;
@@ -565,55 +550,22 @@ QMakeProject::reset()
 }
 
 bool
-QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
+QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
-    ushort unicode;
-    int off = 0;
-    const QChar *line_data = line.data();
-    const int line_len = line.length();
-    if(!line_len) //blank line
+    QString s = t.simplified();
+    int hash_mark = s.indexOf("#");
+    if(hash_mark != -1) //good bye comments
+        s = s.left(hash_mark);
+    if(s.isEmpty()) // blank_line
         return true;
 
-    static bool symbols_init = false;
-    enum { LCURLY, RCURLY, HASH, SPACE, TAB, EQUALS, PLUS, MINUS, ASTERISK,
-           TILDE, LPAREN, RPAREN, DOUBLEQUOTE, COLON, PIPE, BANG };
-    static ushort symbols[16];
-    if(!symbols_init) {
-        symbols_init = true;
-        symbols[LCURLY] = QChar('{').unicode();
-        symbols[RCURLY] = QChar('}').unicode();
-        symbols[HASH] = QChar('#').unicode();
-        symbols[SPACE] = QChar(' ').unicode();
-        symbols[TAB] = QChar('\t').unicode();
-        symbols[EQUALS] = QChar('=').unicode();
-        symbols[PLUS] = QChar('+').unicode();
-        symbols[MINUS] = QChar('-').unicode();
-        symbols[ASTERISK] = QChar('*').unicode();
-        symbols[TILDE] = QChar('~').unicode();
-        symbols[LPAREN] = QChar('(').unicode();
-        symbols[RPAREN] = QChar(')').unicode();
-        symbols[DOUBLEQUOTE] = QChar('"').unicode();
-        symbols[COLON] = QChar(':').unicode();
-        symbols[PIPE] = QChar('|').unicode();
-        symbols[BANG] = QChar('!').unicode();
-    }
-
-#define SKIP_WS(o) for( ; o < line_len && ((line_data+o)->unicode() == symbols[SPACE] || \
-                                          (line_data+o)->unicode() == symbols[TAB]); o++)
-
-
-    SKIP_WS(off);
     if(scope_blocks.top().ignore) {
         bool continue_parsing = false;
         // adjust scope for each block which appears on a single line
-        for( ; off < line_len; ++off) {
-            unicode = (line_data+off)->unicode();
-            if(unicode == symbols[HASH]) {
-                off = line_len;
-                break;
-            } else if(unicode == symbols[LCURLY]) {
+        for(int i = 0; i < s.length(); i++) {
+            if(s[i] == '{') {
                 scope_blocks.push(ScopeBlock(true));
-            } else if(unicode == symbols[RCURLY]) {
+            } else if(s[i] == '}') {
                 if(scope_blocks.count() == 1) {
                     fprintf(stderr, "Braces mismatch %s:%d\n", parser.file.toLatin1().constData(), parser.line_no);
                     return false;
@@ -624,110 +576,100 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                 if(!scope_blocks.top().ignore) {
                     debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.toLatin1().constData(),
                               parser.line_no, scope_blocks.count()+1);
-                    ++off;
+                    s = s.mid(i+1).trimmed();
+                    continue_parsing = !s.isEmpty();
                     break;
                 }
             }
         }
-        if(off == line_len) {
+        if(!continue_parsing) {
             debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.",
                       parser.file.toLatin1().constData(), parser.line_no);
             return true;
         }
     }
+
     if(function) {
-        int append_end = line_len, append_start = off;
-        for( ; off < line_len; ++off) {
-            unicode = (line_data+off)->unicode();
-            if(unicode == symbols[HASH]) {
-                append_end = off-1;
-                off = line_len;
-                break;
-            } else if(unicode == symbols[RCURLY]) {
+        QString append;
+        QByteArray dd = s.toLatin1();
+        const char *d = dd.constData();
+        bool function_finished = false;
+        while(*d) {
+            if((*d) == '}') {
                 function->scope_level--;
                 if(!function->scope_level) {
-                    append_end = off-1;
-                    ++off;
+                    function_finished = true;
                     break;
                 }
-            } else if(unicode == symbols[LCURLY]) {
+            } else if((*d) == '{') {
                 function->scope_level++;
             }
+            append += *d;
+            d++;
         }
-        if(append_end > append_start)
-            function->parser.append(IteratorBlock::Parse(line.mid(append_start, append_start-append_end)));
-        if(function->scope_level)
+        if(!append.isEmpty())
+            function->parser.append(IteratorBlock::Parse(append));
+        if(function_finished) {
+            function = 0;
+            s = QString(d);
+        } else {
             return true;
-        function = 0;
+        }
     } else if(IteratorBlock *it = scope_blocks.top().iterate) {
-        int append_end = line_len, append_start = off;
-        for( ; off < line_len; ++off) {
-            unicode = (line_data+off)->unicode();
-            if(unicode == symbols[HASH]) {
-                append_end = off-1;
-                off = line_len;
-                break;
-            } else if(unicode == symbols[RCURLY]) {
+        QString append;
+        QByteArray dd = s.toLatin1();
+        const char *d = dd;
+        bool iterate_finished = false;
+        while(*d) {
+            if((*d) == '}') {
                 it->scope_level--;
                 if(!it->scope_level) {
-                    append_end = off-1;
-                    ++off;
+                    iterate_finished = true;
                     break;
                 }
-            } else if(unicode == symbols[LCURLY]) {
+            } else if((*d) == '{') {
                 it->scope_level++;
             }
+            append += *d;
+            d++;
         }
-        if(append_end > append_start)
-            it->parser.append(IteratorBlock::Parse(line.mid(append_start, append_start-append_end)));
-        if(it->scope_level)
+        if(!append.isEmpty())
+            scope_blocks.top().iterate->parser.append(IteratorBlock::Parse(append));
+        if(iterate_finished) {
+            scope_blocks.top().iterate = 0;
+            bool ret = it->exec(this, place);
+            delete it;
+            if(!ret)
+                return false;
+            s = QString(d);
+        } else {
             return true;
-        scope_blocks.top().iterate = 0;
-        bool ret = it->exec(this, place);
-        delete it;
-        if(!ret)
-            return false;
+        }
     }
 
-    enum OP_TYPE { UNKNOWN, ASSIGN, REMOVE, APPEND, TRANSFORM, APPEND_UNIQUE } op = UNKNOWN;
-    QString scope, var;
+    QString scope, var, op;
     QStringList val;
+#define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
+    QByteArray dd = s.toLatin1();
+    const char *d = dd;
+    SKIP_WS(d);
     IteratorBlock *iterator = 0;
     bool scope_failed = false, else_line = false, or_op=false, start_scope=false;
-    int scope_count = 0;
-    SKIP_WS(off);
-    for(int parens = 0, quote = 0, scope_args_start = 0, scope_args_end = 0, scope_off = off; off < line_len; ++off) {
-        unicode = (line_data+off)->unicode();
-        if(unicode == symbols[HASH]) {
-            off = line_len;
-            break;
-        }
-
+    char quote = 0;
+    int parens = 0, scope_count=0;
+    while(*d) {
         if(!parens) {
-            if(unicode == symbols[EQUALS]) {
-                op = ASSIGN;
-                ++off;
+            if(*d == '=')
                 break;
-            }
-            OP_TYPE try_op = UNKNOWN;
-            if(unicode == symbols[PLUS])
-                try_op = APPEND;
-            else if(unicode == symbols[MINUS])
-                try_op = REMOVE;
-            else if(unicode == symbols[ASTERISK])
-                try_op = APPEND_UNIQUE;
-            else if(unicode == symbols[TILDE])
-                try_op = TRANSFORM;
-            if(try_op != UNKNOWN) {
-                if((line_data+off+1)->unicode() == symbols[EQUALS]) {
-                    op = try_op;
-                    off += 2;
+            if(*d == '+' || *d == '-' || *d == '*' || *d == '~') {
+                if(*(d+1) == '=') {
                     break;
-                } else if((line_data+off+1)->unicode() == symbols[SPACE]) {
-                    int try_off = off+1;
-                    SKIP_WS(try_off);
-                    if((line_data+try_off)->unicode() == symbols[EQUALS]) {
-                        qmake_error_msg(QString(*(line_data+off)) + "must be followed immediately by =");
+                } else if(*(d+1) == ' ') {
+                    const char *k = d + 1;
+                    SKIP_WS(k);
+                    if(*k == '=') {
+                        QString msg;
+                        qmake_error_msg(*d + "must be followed immediately by =");
                         return false;
                     }
                 }
@@ -735,37 +677,27 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
         }
 
         if(quote) {
-            if(unicode == quote)
+            if(*d == quote)
                 quote = 0;
-        } else if(unicode == symbols[LPAREN]) {
-            if(!scope_args_start) // if there is an lparen in the scope, it IS a function
-                scope_args_start = off;
+        } else if(*d == '(') {
             ++parens;
-        } else if(unicode == symbols[RPAREN]) {
-            if(parens) {
-                --parens;
-                if(!parens)
-                    scope_args_end = off;
-            }
-        } else if(unicode == symbols[DOUBLEQUOTE]) {
-            quote = unicode;
+        } else if(*d == ')') {
+            --parens;
+        } else if(*d == '"' /*|| *d == '\''*/) {
+            quote = *d;
         }
 
-        if(!parens && !quote &&
-           (unicode == symbols[COLON] ||  unicode == symbols[LCURLY] ||
-            unicode == symbols[RPAREN] || unicode == symbols[PIPE])) {
+        if(!parens && !quote && (*d == ':' || *d == '{' || *d == ')' || *d == '|')) {
             scope_count++;
-            scope = var;
-            var.clear();
-            if(unicode == symbols[RPAREN])
-                scope += unicode; // need this
+            scope = var.trimmed();
+            if(*d == ')')
+                scope += *d; // need this
+            var = "";
 
             bool test = scope_failed;
-            if(scope.isEmpty()) {
-                test = true;
-            } else if(scope.toLower() == "else") { //else is a builtin scope here as it modifies state
+            if(scope.toLower() == "else") { //else is a builtin scope here as it modifies state
                 if(scope_count != 1 || scope_blocks.top().else_status == ScopeBlock::TestNone) {
-                    qmake_error_msg(("Unexpected " + scope + " ('" + line + "')").toLatin1());
+                    qmake_error_msg(("Unexpected " + scope + " ('" + s + "')").toLatin1());
                     return false;
                 }
                 else_line = true;
@@ -775,29 +707,30 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                           test ? "considered" : "excluded");
             } else {
                 QString comp_scope = scope;
-                const bool invert_test = (comp_scope.unicode()->unicode() == symbols[BANG]);
-                if(invert_test) {
-                    ++scope_off;
-                    comp_scope = comp_scope.mid(1);
-                }
+                bool invert_test = (comp_scope.left(1) == "!");
+                if(invert_test)
+                    comp_scope = comp_scope.right(comp_scope.length()-1);
+                int lparen = comp_scope.indexOf('(');
                 if(or_op == scope_failed) {
-                    if(scope_args_start) {
-                        if(!scope_args_end) {
+                    if(lparen != -1) { // if there is an lparen in the scope, it IS a function
+                        int rparen = comp_scope.lastIndexOf(')');
+                        if(rparen == -1) {
                             QByteArray error;
                             error.reserve(256);
 #if defined(_MSC_VER) && _MSC_VER >= 1400
                             sprintf_s(error.data(), 256, "Function missing right paren: %s ('%s')",
-                                      comp_scope.toLatin1().constData(), s.toLatin1().constData());
+                                    comp_scope.toLatin1().constData(), s.toLatin1().constData());
 #else
                             sprintf(error.data(), "Function missing right paren: %s ('%s')",
-                                    comp_scope.toLatin1().constData(), line.toLatin1().constData());
+                                    comp_scope.toLatin1().constData(), s.toLatin1().constData());
 #endif
                             qmake_error_msg(error);
                             return false;
                         }
-                        QString func = comp_scope.left(scope_args_start-scope_off);
-                        QStringList args = split_arg_list(comp_scope.mid((scope_args_start-scope_off)+1,
-                                                                         scope_args_end-scope_args_start-1));
+                        QString func = comp_scope.left(lparen);
+                        QStringList args = split_arg_list(comp_scope.mid(lparen+1, rparen - lparen - 1));
+                        for(int i = 0; i < args.size(); ++i)
+                            args[i] = remove_quotes(args[i].trimmed());
                         if(function) {
                             fprintf(stderr, "%s:%d: No tests can come after a function definition!\n",
                                     parser.file.toLatin1().constData(), parser.line_no);
@@ -883,7 +816,7 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                             test = true;
                         } else {
                             test = doProjectTest(func, args, place);
-                            if(unicode == symbols[RPAREN] && off == line_len) {
+                            if(*d == ')' && !*(d+1)) {
                                 if(invert_test)
                                     test = !test;
                                 scope_blocks.top().else_status =
@@ -894,7 +827,7 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                     } else {
                         QString cscope = comp_scope.trimmed();
                         doVariableReplace(cscope, place);
-                        test = isActiveConfig(cscope, true, &place);
+                        test = isActiveConfig(cscope.trimmed(), true, &place);
                     }
                     if(invert_test)
                         test = !test;
@@ -905,13 +838,11 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                           parser.line_no, scope.toLatin1().constData());
             if(test == or_op)
                 scope_failed = !test;
-            or_op = (unicode == symbols[PIPE]);
+            or_op = (*d == '|');
 
-            if(unicode == symbols[LCURLY]) // scoping block
+            if(*d == '{') // scoping block
                 start_scope = true;
-            scope_off = off+1;
-            scope_args_end = scope_args_start = 0;
-        } else if(!parens && unicode == symbols[RCURLY]) {
+        } else if(!parens && *d == '}') {
             if(!scope_blocks.count()) {
                 warn_msg(WarnParser, "Possible braces mismatch %s:%d", parser.file.toLatin1().constData(), parser.line_no);
             } else {
@@ -926,10 +857,11 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                     sb.iterate->exec(this, place);
             }
         } else {
-            if(parens || (unicode != symbols[SPACE] && unicode != symbols[TAB]))
-                var += unicode;
+            var += *d;
         }
+        d++;
     }
+    var = var.trimmed();
 
     if(!else_line || (else_line && !scope_failed))
         scope_blocks.top().else_status = (!scope_failed ? ScopeBlock::TestFound : ScopeBlock::TestSeek);
@@ -946,7 +878,7 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
         debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.toLatin1().constData(),
                   parser.line_no, scope_blocks.count(), scope_failed);
     } else if(iterator) {
-        iterator->parser.append(var+QString(line_data+off, line_len-off));
+        iterator->parser.append(var+QString(d));
         bool ret = iterator->exec(this, place);
         delete iterator;
         return ret;
@@ -954,57 +886,30 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
 
     if((!scope_count && !var.isEmpty()) || (scope_count == 1 && else_line))
         scope_blocks.top().else_status = ScopeBlock::TestNone;
-    if(op == UNKNOWN) {
-        if(!var.isEmpty())
-            qmake_error_msg(("Parse Error ('" + line + "')").toLatin1());
+    if(!*d) {
+        if(!var.trimmed().isEmpty())
+            qmake_error_msg(("Parse Error ('" + s + "')").toLatin1());
         return var.isEmpty(); // allow just a scope
     }
 
-    SKIP_WS(off);
-    QString vals;
-    for(int curlies = 0, parens = 0; off < line_len; ++off) { //parse the right hand side expression
-        unicode = (line_data+off)->unicode();
-        if(unicode == symbols[HASH]) {
-            off = line_len;
-            break;
-        }
-        bool append = true;
+    SKIP_WS(d);
+    for(; *d && op.indexOf('=') == -1; op += *(d++))
+        ;
+    op.replace(QRegExp("\\s"), "");
 
-        if(unicode == symbols[LPAREN]) {
-            ++parens;
-        } else if(unicode == symbols[RPAREN]) {
-            if(parens)
-                --parens;
-        } else if(unicode == symbols[LCURLY]) {
-            ++curlies;
-        } else if(unicode == symbols[RCURLY]) {
-            if(curlies) {
-                --curlies;
-            } else if(scope_blocks.count() > 1) {
-                debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.toLatin1().constData(),
-                          parser.line_no, scope_blocks.count());
-                ScopeBlock sb = scope_blocks.pop();
-                if(sb.iterate)
-                    sb.iterate->exec(this, place);
-                append = false;
-            } else {
-                warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
-                         vals.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
-            }
-        } else if(unicode == symbols[EQUALS]) {
-            warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
-                     var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
-        }
-        if(append) {
-            if(!parens && (unicode == symbols[SPACE] || unicode == symbols[TAB])) {
-                while(off < line_len && (unicode == symbols[SPACE] || unicode == symbols[TAB]))
-                    unicode = (line_data+(++off))->unicode();
-                if(off == line_len)
-                    break;
-                vals += symbols[SPACE];
-            }
-            vals += unicode;
-        }
+    SKIP_WS(d);
+    QString vals(d); // vals now contains the space separated list of values
+    int rbraces = vals.count('}'), lbraces = vals.count('{');
+    if(scope_blocks.count() > 1 && rbraces - lbraces == 1) {
+        debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.toLatin1().constData(),
+                  parser.line_no, scope_blocks.count());
+        ScopeBlock sb = scope_blocks.pop();
+        if(sb.iterate)
+            sb.iterate->exec(this, place);
+        vals.truncate(vals.length()-1);
+    } else if(rbraces != lbraces) {
+        warn_msg(WarnParser, "Possible braces mismatch {%s} %s:%d",
+                 vals.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
     }
     if(scope_failed)
         return true; // oh well
@@ -1019,52 +924,31 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
             fprintf(stdout, "#file %s:%d\n", parser.file.toLatin1().constData(), parser.line_no);
             last_file = parser.file;
         }
-        QString op_str("*unknown*");
-        if(op == ASSIGN)
-            op_str = "=";
-        else if(op == REMOVE)
-            op_str = "-=";
-        else if(op == APPEND)
-            op_str = "+=";
-        else if(op == TRANSFORM)
-            op_str = "~=";
-        else if(op == APPEND_UNIQUE)
-            op_str = "*=";
-        fprintf(stdout, "%s %s %s\n", var.toLatin1().constData(), op_str.toLatin1().constData(), vals.toLatin1().constData());
+        fprintf(stdout, "%s %s %s\n", var.toLatin1().constData(), op.toLatin1().constData(), vals.toLatin1().constData());
     }
 
     // vallist is the broken up list of values
-    const QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
+    QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
+    if(!vallist.filter("=").isEmpty())
+        warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
+                 var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
+
     QStringList &varlist = place[var]; // varlist is the list in the symbol table
-    if(Option::debug_level) {
-        QString op_str("*unknown*");
-        if(op == ASSIGN)
-            op_str = "=";
-        else if(op == REMOVE)
-            op_str = "-=";
-        else if(op == APPEND)
-            op_str = "+=";
-        else if(op == TRANSFORM)
-            op_str = "~=";
-        else if(op == APPEND_UNIQUE)
-            op_str = "*=";
-        debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", parser.file.toLatin1().constData(), parser.line_no,
-                  var.toLatin1().constData(), op_str.toLatin1().constData(),
-                  vallist.isEmpty() ? "" : vallist.join(" :: ").toLatin1().constData());
-    }
+    debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", parser.file.toLatin1().constData(), parser.line_no,
+              var.toLatin1().constData(), op.toLatin1().constData(), vallist.isEmpty() ? "" : vallist.join(" :: ").toLatin1().constData());
 
     // now do the operation
-    if(op == TRANSFORM) {
+    if(op == "~=") {
         if(vals.length() < 4 || vals.at(0) != 's') {
             qmake_error_msg(("~= operator only can handle s/// function ('" +
-                             line + "')").toLatin1());
+                            s + "')").toLatin1());
             return false;
         }
         QChar sep = vals.at(1);
         QStringList func = vals.split(sep);
         if(func.count() < 3 || func.count() > 4) {
             qmake_error_msg(("~= operator only can handle s/// function ('" +
-                             line + "')").toLatin1());
+                s + "')").toLatin1());
             return false;
         }
         bool global = false, case_sense = true, quote = false;
@@ -1090,7 +974,7 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
                 ++varit;
         }
     } else {
-        if(op == ASSIGN) {
+        if(op == "=") {
             if(!varlist.isEmpty())
                 warn_msg(WarnParser, "Operator=(%s) clears variables previously set: %s:%d",
                          var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
@@ -1100,10 +984,10 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
             valit != vallist.end(); ++valit) {
             if((*valit).isEmpty())
                 continue;
-            if((op == APPEND_UNIQUE && !varlist.contains((*valit))) ||
-               op == ASSIGN || op == APPEND)
+            if((op == "*=" && !varlist.contains((*valit))) ||
+               op == "=" || op == "+=")
                 varlist.append((*valit));
-            else if(op == REMOVE)
+            else if(op == "-=")
                 varlist.removeAll((*valit));
         }
     }
@@ -1115,53 +999,30 @@ QMakeProject::parse(const QString &line, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
 {
-    static bool symbols_init = false;
-    enum { HASH, SLASH, SPACE, TAB };
-    static ushort symbols[4];
-    if(!symbols_init) {
-        symbols_init = true;
-        symbols[HASH] = QChar('#').unicode();
-        symbols[SLASH] = QChar('\\').unicode();
-        symbols[SPACE] = QChar(' ').unicode();
-        symbols[TAB] = QChar('\t').unicode();
-    }
-
     bool ret = true;
     QString s, line;
     while(!file.atEnd()) {
         parser.line_no++;
-        line = file.readLine();
+        line = file.readLine().trimmed();
+        int prelen = line.length();
 
-        const int prelen = line.length();
-        const int hash_mark = line.indexOf("#");
+        int hash_mark = line.indexOf("#");
         if(hash_mark != -1) //good bye comments
-            line = line.left(hash_mark);
-
-        const QChar *line_data = line.data();
-        const int line_len = line.length();
-        ushort last_char = line_len ? (line_data+line_len-1)->unicode() : 0;
-        if(last_char == symbols[SPACE] || last_char == symbols[TAB]) {
-            for(int x = line_len-2; x; --x) {
-                last_char = (line_data+x)->unicode();
-                if(last_char != symbols[SPACE] && last_char != symbols[TAB])
-                    break;
-            }
-        }
-
-        if(line_len && last_char == symbols[SLASH]) {
-            if(*(line_data) != symbols[HASH]) {
+            line = line.left(hash_mark).trimmed();
+        if(!line.isEmpty() && line.right(1) == "\\") {
+            if(!line.startsWith("#")) {
                 line.truncate(line.length() - 1);
                 s += line + Option::field_sep;
             }
-        } else if(line_len || (!line_len && !prelen)) {
-            if(s.isEmpty() && !line_len)
+        } else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
+            if(s.isEmpty() && line.isEmpty())
                 continue;
-            if(line_len)
+            if(!line.isEmpty())
                 s += line;
             if(!s.isEmpty()) {
                 if(!(ret = parse(s, place)))
                     break;
-                s.clear();
+                s = "";
             }
         }
     }
@@ -1654,8 +1515,10 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                               QMap<QString, QStringList> &place)
 {
     func = func.trimmed();
-    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
+    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
+//        (*arit) = (*arit).trimmed(); // blah, get rid of space
         doVariableReplace((*arit), place);
+    }
 
     enum ExpandFunc { E_MEMBER, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
