@@ -718,13 +718,6 @@ void QButton::keyReleaseEvent( QKeyEvent * e)
 }
 
 /*! \reimp */
-bool QButton::focusNextPrevChild( bool next )
-{
-    // we do not want this any more
-    return QWidget::focusNextPrevChild( next );
-}
-
-/*! \reimp */
 void QButton::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton ) {

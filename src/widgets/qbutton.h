@@ -103,8 +103,6 @@ public:
 
     bool	isExclusiveToggle() const;
 
-    bool	focusNextPrevChild( bool next );
-
     QButtonGroup *group() const;
 
 public slots:

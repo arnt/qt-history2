@@ -571,7 +571,7 @@ void QGroupBox::fixFocus()
 	QWidget * p = w;
 	while( p && p != this && !p->isTopLevel() )
 	    p = p->parentWidget();
-	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus ) {
+	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus && w->isVisible() ) {
 	    if ( w->hasFocus()
 #ifndef QT_NO_RADIOBUTTON
 		 || ( !best &&
