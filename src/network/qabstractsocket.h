@@ -128,10 +128,6 @@ protected:
 
     QAbstractSocketPrivate *d_ptr;
 
-    void initSocketNotifiers();
-
-    void setSocketType(Qt::SocketType socketType);
-
 private:
     Q_DECLARE_PRIVATE(QAbstractSocket);
 
