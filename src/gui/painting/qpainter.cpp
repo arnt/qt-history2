@@ -1839,7 +1839,6 @@ void QPainter::drawPath(const QPainterPath &path)
     if (polygons.isEmpty())
         return;
 
-    QMatrix worldMatrix = d->state->matrix;
 
     save();
 

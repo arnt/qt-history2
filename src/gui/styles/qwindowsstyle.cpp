@@ -1389,7 +1389,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         }
         QBrush brush(opt->palette.dark().color(), Qt::Dense4Pattern);
         if (opt->state & Style_Item) {
-            if (QApplication::reverseLayout())
+            if (QApplication::isRightToLeft())
                 p->fillRect(opt->rect.left(), mid_v, bef_h - opt->rect.left(), 1, brush);
             else
                 p->fillRect(aft_h, mid_v, opt->rect.right() - aft_h + 1, 1, brush);
@@ -1514,7 +1514,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->fillRect(x, y, w, h, fill);
 
             int xpos = x;
-            QRect vrect = visualRect(QRect(xpos, y, checkcol, h), menuitem->rect);
+            QRect vrect = visualRect(QRect(xpos, y, checkcol, h), widget, menuitem->rect);
             int xvis = vrect.x();
             if (checked) {
                 if (act && !dis) {
@@ -1560,7 +1560,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
                 int xp = xpos + checkcol + 1;
-                p->fillRect(visualRect(QRect(xp, y, w - checkcol - 1, h), menuitem->rect), fill);
+                p->fillRect(visualRect(QRect(xp, y, w - checkcol - 1, h), widget, menuitem->rect), fill);
             } else if (checked) {
                 QStyleOptionMenuItem newMi = *menuitem;
                 newMi.state = Style_None;
@@ -1571,7 +1571,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int xp = xpos + windowsItemFrame;
                 newMi.rect = visualRect(QRect(xp, y + windowsItemFrame,
                                         checkcol - 2 * windowsItemFrame, h - 2*windowsItemFrame),
-                                        menuitem->rect);
+                                        widget, menuitem->rect);
                 drawPrimitive(PE_CheckMark, &newMi, p, widget);
             }
             p->setPen(act
@@ -1587,7 +1587,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
             xpos += xm;
             vrect = visualRect(QRect(xpos, y + windowsItemVMargin, w - xm - tab + 1,
-                                     h - 2 * windowsItemVMargin), menuitem->rect);
+                                     h - 2 * windowsItemVMargin), widget, menuitem->rect);
             xvis = vrect.x();
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
@@ -1596,11 +1596,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
                     text_flags |= Qt::TextHideMnemonic;
-                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame - windowsRightBorder + 1;
                     int xoff = visualRect(QRect(xp, y + windowsItemVMargin, tab,
-                                                h - 2 * windowsItemVMargin), menuitem->rect).x();
+                                                h - 2 * windowsItemVMargin), widget, menuitem->rect).x();
                     if (dis && !act) {
                         p->setPen(menuitem->palette.light().color());
                         p->drawText(xoff + 1, y + windowsItemVMargin + 1, tab,
@@ -1625,9 +1625,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
                 int dim = (h - 2 * windowsItemFrame) / 2;
                 PrimitiveElement arrow;
-                arrow = QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight;
+                arrow = QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight;
                 xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
-                vrect = visualRect(QRect(xpos, y + h / 2 - dim / 2, dim, dim), menuitem->rect);
+                vrect = visualRect(QRect(xpos, y + h / 2 - dim / 2, dim, dim), widget, menuitem->rect);
                 QStyleOptionMenuItem newMI = *menuitem;
                 newMI.rect = vrect;
                 newMI.state = dis ? Style_None : Style_Enabled;

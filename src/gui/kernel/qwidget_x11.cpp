@@ -579,7 +579,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         size_hints.width = data->crect.width();
         size_hints.height = data->crect.height();
         size_hints.win_gravity =
-            QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
+            QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
 
         XWMHints wm_hints;                        // window manager hints
         wm_hints.flags = InputHint | StateHint | WindowGroupHint;
@@ -644,7 +644,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     if (initializeWindow) {
         // don't erase when resizing
-        wsa.bit_gravity = QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
+        wsa.bit_gravity = QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
         XChangeWindowAttributes(dpy, id, CWBitGravity, &wsa);
     }
 
@@ -1977,7 +1977,7 @@ int qt_widget_tlw_gravity = -1;
 static void do_size_hints(QWidget* widget, QWExtra *x)
 {
     if (qt_widget_tlw_gravity == -1)
-        qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity: NorthWestGravity;
+        qt_widget_tlw_gravity = QApplication::isRightToLeft() ? NorthEastGravity: NorthWestGravity;
     XSizeHints s;
     s.flags = 0;
     if (x) {
@@ -2015,7 +2015,7 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
     s.flags |= PWinGravity;
     s.win_gravity = qt_widget_tlw_gravity;        // usually NorthWest
     // reset in case it was set
-    qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity: NorthWestGravity;
+    qt_widget_tlw_gravity = QApplication::isRightToLeft() ? NorthEastGravity: NorthWestGravity;
     XSetWMNormalHints(X11->display, widget->winId(), &s);
 }
 

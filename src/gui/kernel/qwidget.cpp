@@ -790,12 +790,6 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.in_set_window_state = 0;
     data.im_enabled = false;
     q->create();                                        // platform-dependent init
-    if (!q->isTopLevel()) {
-        data.pal = q->parentWidget()->data->pal;
-        data.pal.resolve(0);
-        data.fnt = q->parentWidget()->data->fnt;
-        data.fnt.resolve(0);
-    }
 #if defined(Q_WS_X11)
     data.fnt.x11SetScreen(xinfo.screen());
 #endif // Q_WS_X11
@@ -803,6 +797,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (!q->isDesktop())
         updateSystemBackground();
     if (q->isTopLevel()) {
+        if (QApplication::isRightToLeft())
+            q->setAttribute(Qt::WA_RightToLeft);
 #ifdef Q_WS_MAC
         extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
         if(!qt_mac_is_macdrawer(q)) //special case
@@ -812,11 +808,21 @@ void QWidgetPrivate::init(Qt::WFlags f)
 #endif
         createTLExtra();
     } else {
+        QWidget *parentWidget = q->parentWidget();
+        // propagate palette
+        data.pal = parentWidget->data->pal;
+        data.pal.resolve(0);
+        //propagate font
+        data.fnt = parentWidget->data->fnt;
+        data.fnt.resolve(0);
         // propagate enabled state
-        if (!q->parentWidget()->isEnabled())
+        if (!parentWidget->isEnabled())
             q->setAttribute(Qt::WA_Disabled, true);
+        //propagate layout direction
+        if (parentWidget->testAttribute(Qt::WA_RightToLeft))
+            q->setAttribute(Qt::WA_RightToLeft);
         // new widgets do not show up in already visible parents
-        if (q->parentWidget()->isVisible())
+        if (parentWidget->isVisible())
             q->setWState(Qt::WState_Hidden);
     }
 
@@ -2782,6 +2788,52 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
 #endif
 }
 
+void QWidgetPrivate::setLayoutDirection_helper(Qt::LayoutDirection direction)
+{
+    if ( (direction == Qt::RightToLeft) == q->testAttribute(Qt::WA_RightToLeft))
+        return;
+    q->setAttribute(Qt::WA_RightToLeft,  (direction == Qt::RightToLeft));
+    if (!children.isEmpty()) {
+        for (int i = 0; i < children.size(); ++i) {
+            QWidget *w = static_cast<QWidget*>(children.at(i));
+            if (!w->isWidgetType() || w->isTopLevel() || w->testAttribute(Qt::WA_SetLayoutDirection))
+                continue;
+            w->d->setLayoutDirection_helper(direction);
+        }
+    }
+    QEvent e(QEvent::LayoutDirectionChange);
+    QApplication::sendEvent(q, &e);
+}
+
+void QWidgetPrivate::resolveLayoutDirection()
+{
+    if (!q->testAttribute(Qt::WA_SetLayoutDirection))
+        d->setLayoutDirection_helper(q->isTopLevel()?QApplication::layoutDirection():q->parentWidget()->layoutDirection());
+}
+
+/*!\property QWidget::layoutDirection
+
+   \brief the layout direction for this widget
+
+   \sa QApplication::layoutDirection
+ */
+void QWidget::setLayoutDirection(Qt::LayoutDirection direction)
+{
+    setAttribute(Qt::WA_SetLayoutDirection);
+    d->setLayoutDirection_helper(direction);
+}
+
+Qt::LayoutDirection QWidget::layoutDirection() const
+{
+    return testAttribute(Qt::WA_RightToLeft)?Qt::RightToLeft:Qt::LeftToRight;
+}
+
+void QWidget::unsetLayoutDirection()
+{
+    setAttribute(Qt::WA_SetLayoutDirection, false);
+    d->resolveLayoutDirection();
+}
+
 /*!
     \fn QFontMetrics QWidget::fontMetrics() const
 
@@ -4625,19 +4677,18 @@ bool QWidget::event(QEvent *e)
         update();
         break;
 
-#ifndef QT_NO_LAYOUT
+    case QEvent::ApplicationLayoutDirectionChange:
+        d->resolveLayoutDirection();
+        break;
+
     case QEvent::LayoutDirectionChange:
         if (layout()) {
             layout()->activate();
             d->layout->activate();
-        } else {
-            QList<QLayout *> llist = qFindChildren<QLayout *>(this);
-            for (int i = 0; i < llist.size(); ++i)
-                llist.at(i)->activate();
         }
         update();
         break;
-#endif
+
 #if defined(Q_WS_X11)
     case QEvent::UpdateRequest:
         if (!d->invalidated_region.isEmpty()) {
@@ -5731,12 +5782,11 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
-    QEvent e(QEvent::Reparent);
-    QApplication::sendEvent(this, &e);
     d->resolveFont();
 #ifndef QT_NO_PALETTE
     d->resolvePalette();
 #endif
+    d->resolveLayoutDirection();
     if (parent){
         const QMetaObject *polished = d->polished;
         QChildEvent e(QEvent::ChildAdded, this);
@@ -5746,6 +5796,8 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
             QCoreApplication::sendEvent(parent, &e);
         }
     }
+    QEvent e(QEvent::Reparent);
+    QApplication::sendEvent(this, &e);
 }
 
 /*!

@@ -1088,7 +1088,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                     // was the code in comboButton rect
                     QRect ir(x + 3, y + 3,
                               w - 6 - 16, h - 6);
-                    if (QApplication::reverseLayout())
+                    if (QApplication::isRightToLeft())
                         ir.translate(16, 0);
                     // end comboButtonRect...
                     ir.setRect(ir.left() - 1, ir.top() - 1, ir.width() + 2,
@@ -1309,7 +1309,7 @@ QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
         case SC_ComboBoxArrow: {
             QRect ir = cb->rect();
             int xx;
-            if(QApplication::reverseLayout())
+            if(QApplication::isRightToLeft())
                 xx = ir.x();
             else
                 xx = ir.x() + ir.width() - 20;

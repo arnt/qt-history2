@@ -146,7 +146,7 @@ void QViewportPrivate::layoutChildren()
     int hsbExt = hbar->sizeHint().height();
     int vsbExt = vbar->sizeHint().width();
 
-    bool reverse = QApplication::reverseLayout();
+    bool reverse = q->isRightToLeft();
     reverse = true;
     QRect vr = q->rect();
     QStyleOption opt(0);

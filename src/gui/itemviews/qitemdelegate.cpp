@@ -387,7 +387,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             display.setRect(x, y, w, h);
             break;}
         case QStyleOptionViewItem::Left: {
-            if (QApplication::reverseLayout()) {
+            if (QApplication::isRightToLeft()) {
                 decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
                 w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x, y, w, h);
@@ -398,7 +398,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             display.setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
-            if (QApplication::reverseLayout()) {
+            if (QApplication::isRightToLeft()) {
                 decoration.setRect(x, y, pixmapRect->width(), h);
                 w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x + pixmapRect->width(), y, w, h);
@@ -440,7 +440,7 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
         rect->moveRight(boundingRect.right());
         break;
     case Qt::AlignAuto:
-        if (QApplication::reverseLayout())
+        if (QApplication::isRightToLeft())
             rect->moveRight(boundingRect.right());
         else
             rect->moveLeft(boundingRect.left());

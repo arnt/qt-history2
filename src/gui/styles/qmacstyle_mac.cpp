@@ -576,7 +576,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             Rect r;
             Point p = { 0, 0 };
             ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
-            if(QApplication::reverseLayout())
+            if(QApplication::isRightToLeft())
                 dir = kThemeGrowLeft | kThemeGrowDown;
             if(GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr)
                 ret = QSize(r.right - r.left, r.bottom - r.top);
@@ -3092,7 +3092,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
 #if 0
-        if(QApplication::reverseLayout())
+        if(QApplication::isRightToLeft())
             dir = kThemeGrowLeft | kThemeGrowDown;
 #endif
         DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
@@ -3410,7 +3410,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             int x, y, w, h;
             mi->rect.getRect(&x, &y, &w, &h);
             int checkcol = maxpmw;
-            bool reverse = QApplication::reverseLayout();
+            bool reverse = QApplication::isRightToLeft();
             int xpos = x + 18;
             if (reverse)
                 xpos += w - checkcol;

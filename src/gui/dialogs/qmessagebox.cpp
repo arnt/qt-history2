@@ -1578,4 +1578,6 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     label->setWordWrap(wordwrap);
 }
 
+
+#include "moc_qmessagebox.cpp"
 #endif

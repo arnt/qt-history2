@@ -163,6 +163,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QString accessibleName READ accessibleName WRITE setAccessibleName)
     Q_PROPERTY(QString accessibleDescription READ accessibleDescription WRITE setAccessibleDescription)
 #endif
+    Q_PROPERTY(Qt::LayoutDirection layoutDirection READ layoutDirection WRITE setLayoutDirection RESET unsetLayoutDirection)
 
 
 public:
@@ -315,7 +316,12 @@ public:
     void setAccessibleDescription(const QString &description);
 #endif
 
-    // Keyboard input focus functions
+    void setLayoutDirection(Qt::LayoutDirection direction);
+    Qt::LayoutDirection layoutDirection() const;
+    void unsetLayoutDirection();
+
+    inline bool isRightToLeft() const { return layoutDirection() == Qt::RightToLeft; }
+    inline bool isLeftToRight() const { return layoutDirection() == Qt::LeftToRight; }
 
 public slots:
     void setFocus();

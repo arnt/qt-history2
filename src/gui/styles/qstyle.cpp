@@ -365,7 +365,7 @@ QRect QStyle::itemRect(const QRect &rect, int alignment, const QPixmap &pixmap) 
         x += w - pixmap.width();
     else if ((alignment & Qt::AlignHCenter) == Qt::AlignHCenter)
         x += w/2 - pixmap.width()/2;
-    else if ((alignment & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout())
+    else if ((alignment & Qt::AlignLeft) != Qt::AlignLeft && QApplication::isRightToLeft())
         x += w - pixmap.width();
     result = QRect(x, y, pixmap.width(), pixmap.height());
     return result;
@@ -441,7 +441,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
         x += w - pm.width();
     else if ((alignment & Qt::AlignHCenter) == Qt::AlignHCenter)
         x += w/2 - pm.width()/2;
-    else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // Qt::AlignAuto && rightToLeft
+    else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::isRightToLeft()) // Qt::AlignAuto && rightToLeft
         x += w - pm.width();
 
     QStyleOption option(0);
@@ -1581,22 +1581,22 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 */
 
 /*!
-    \fn QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *widget);
+    \fn QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w);
 
     Returns the rectangle \a logicalRect expressed in screen
-    coordinates. The bounding rectangle for \a widget is used to
+    coordinates. The bounding rectangle for \a w is used to
     perform the translation.
 
     This function is provided to aid style implementors in supporting
     right-to-left desktops.
 
-    \sa QApplication::reverseLayout()
+    \sa QWidget::layoutDirection
 */
-QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *widget)
+QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w)
 {
-    if (!QApplication::reverseLayout())
+    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
         return logicalRect;
-    QRect boundingRect = widget->rect();
+    QRect boundingRect = w->rect();
     QRect rect = logicalRect;
     rect.translate(2 * (boundingRect.right() - logicalRect.right()) +
                    logicalRect.width() - boundingRect.width(), 0);
@@ -1613,11 +1613,11 @@ QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *widget)
     This function is provided to aid style implementors in supporting
     right-to-left desktops.
 
-    \sa QApplication::reverseLayout()
+    \sa QWidget::layoutDirection
 */
-QRect QStyle::visualRect(const QRect &logicalRect, const QRect &boundingRect)
+QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w, const QRect &boundingRect)
 {
-    if (!QApplication::reverseLayout())
+    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
         return logicalRect;
     QRect rect = logicalRect;
     rect.translate(2 * (boundingRect.right() - logicalRect.right()) +
@@ -1627,19 +1627,19 @@ QRect QStyle::visualRect(const QRect &logicalRect, const QRect &boundingRect)
 
 /*!
     Returns the point \a logicalPos converted to screen coordinates.
-    The bounding rectangle for \a widget is used to perform the
+    The bounding rectangle for \a w is used to perform the
     translation.
 
     This function is provided to aid style implementors in supporting
     right-to-left desktops.
 
-    \sa QApplication::reverseLayout()
+    \sa QWidget::layoutDirection
 */
-QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *widget)
+QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *w)
 {
-    if (!QApplication::reverseLayout())
+    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
         return logicalPos;
-    return QPoint(widget->rect().right() - logicalPos.x(), logicalPos.y());
+    return QPoint(w->rect().right() - logicalPos.x(), logicalPos.y());
 }
 
 /*!
@@ -1651,13 +1651,35 @@ QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *widget)
     This function is provided to aid style implementors in supporting
     right-to-left desktops.
 
-    \sa QApplication::reverseLayout()
+    \sa QWidget::layoutDirection
 */
-QPoint QStyle::visualPos(const QPoint &logicalPos, const QRect &boundingRect)
+QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *w, const QRect &boundingRect)
 {
-    if (!QApplication::reverseLayout())
+    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
         return logicalPos;
     return QPoint(boundingRect.right() - logicalPos.x(), logicalPos.y());
+}
+
+
+/*!
+
+  Strips out vertical alignment flags and transforms an alignment \a
+  align of Qt::AlignAuto into Qt::AlignLeft or Qt::AlignRight
+  according to the layout direction used by \a w. The other horizontal
+  alignment flags are left untouched.
+
+  QWidget::layoutDirection
+*/
+Qt::Alignment QStyle::horizontalAlignment(Qt::Alignment align, const QWidget *w)
+{
+    align &= Qt::AlignHorizontal_Mask;
+    if (align == Qt::AlignAuto) {
+        if (w ? w->isRightToLeft() : QApplication::isRightToLeft())
+            align = Qt::AlignRight;
+        else
+            align = Qt::AlignLeft;
+    }
+    return align;
 }
 
 /*!

@@ -671,7 +671,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->setClipping(false);
             }
 
-            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
                      !checkbox->icon().isNull() ? checkbox->icon().pixmap(Qt::SmallIconSize,
@@ -700,7 +700,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 p->setClipping(false);
             }
 
-            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled,
                     !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(Qt::SmallIconSize,
@@ -856,7 +856,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 int t = s.indexOf('\t');
                 int m = 2;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-2-2,
                                                  y+m, tab, h-2*m), r);
@@ -869,7 +869,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             if (mi->menu()) {
                 int hh = h / 2;
-                QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+                QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
                 vrect = visualRect(QRect(x + w - hh - 6, y + (hh / 2), hh, hh), r);
                 drawPrimitive(arrow, p, vrect, pal,
                               ((act && !dis) ? Style_Down : Style_Default) | ((!dis) ? Style_Enabled : Style_Default));
@@ -987,7 +987,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 int t = s.indexOf('\t');
                 int m = 2;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-2-2,
                                                  y+m, tab, h-2*m), r);
@@ -1007,7 +1007,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             if (mi->popup()) {
                 int hh = h / 2;
-                QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+                QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
                 vrect = visualRect(QRect(x + w - hh - 6, y + (hh / 2), hh, hh), r);
                 drawPrimitive(arrow, p,
                               vrect, pal,

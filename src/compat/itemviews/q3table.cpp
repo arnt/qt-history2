@@ -3265,8 +3265,6 @@ void Q3Table::setCurrentCell(int row, int col, bool updateSelections, bool ensur
 
     itm = item(curRow, curCol);
 
-    QPoint cellPos(columnPos(curCol) + leftMargin() - contentsX(),
-		    rowPos(curRow) + topMargin() - contentsY());
 
     if (cellWidget(oldRow, oldCol) &&
 	 cellWidget(oldRow, oldCol)->hasFocus())
@@ -4269,7 +4267,6 @@ void Q3Table::focusInEvent(QFocusEvent*)
     if (isEditing() && editorWidget)
 	editorWidget->setFocus();
 
-    QPoint cellPos(columnPos(curCol) + leftMargin() - contentsX(), rowPos(curRow) + topMargin() - contentsY());
 }
 
 
@@ -4339,7 +4336,7 @@ void Q3Table::showEvent(QShowEvent *e)
 
 void Q3Table::paintEvent(QPaintEvent *e)
 {
-    QRect topLeftCorner = QStyle::visualRect(QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin()), rect());
+    QRect topLeftCorner = QStyle::visualRect(QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin()), this, rect());
     erase(topLeftCorner); // erase instead of widget on top
     Q3ScrollView::paintEvent(e);
 
@@ -4596,9 +4593,9 @@ void Q3Table::updateGeometries()
 	verticalScrollBar()->setValue(ts.height() - leftHeader->height());
 
     leftHeader->setGeometry(QStyle::visualRect(QRect(frameWidth(), topMargin() + frameWidth(),
-			     VERTICALMARGIN, visibleHeight()), rect()));
+			     VERTICALMARGIN, visibleHeight()), this, rect()));
     topHeader->setGeometry(QStyle::visualRect(QRect(VERTICALMARGIN + frameWidth(), frameWidth(),
-						      visibleWidth(), topMargin()), rect()));
+						      visibleWidth(), topMargin()), this, rect()));
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     topHeader->updateStretches();

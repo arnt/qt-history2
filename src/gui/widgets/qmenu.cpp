@@ -1618,7 +1618,7 @@ QMenu::event(QEvent *e)
 void QMenu::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
-    if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
+    if(isRightToLeft()) {  // in reverse mode open/close key for submenues are reversed
         if(key == Qt::Key_Left)
             key = Qt::Key_Right;
         else if(key == Qt::Key_Right)
@@ -1991,7 +1991,7 @@ void QMenu::internalDelayedPopup()
 
     bool on_left = false;     //find "best" position
     const QSize menuSize(d->activeMenu->sizeHint() + d->activeMenu->contentsMarginSize());
-    if(QApplication::reverseLayout()) {
+    if(isRightToLeft()) {
         on_left = true;
         QMenu *caused = qt_cast<QMenu*>(d->causedPopup);
         if(caused && caused->x() < x() || x() - menuSize.width() < 0)

@@ -773,7 +773,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     the left).
 
     \sa QStyle::positionFromValue(), QStyle::valueFromPosition(),
-        QAbstractSlider::invertedAppearance, QApplication::reverseLayout()
+        QAbstractSlider::invertedAppearance, QApplication::isRightToLeft()
 */
 
 /*!

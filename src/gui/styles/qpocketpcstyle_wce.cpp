@@ -2121,7 +2121,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             int sy = y;
             int s = sw / 3;
 
-            if (QApplication::reverseLayout()) {
+            if (QApplication::isRightToLeft()) {
                 sx = x + sw;
                 for (int i = 0; i < 4; ++i) {
                     p->setPen(QPen(pal.light(), 1));
@@ -2615,7 +2615,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
         {
             const QCheckBox *checkbox = (const QCheckBox *) widget;
 
-            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
@@ -2656,7 +2656,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
         {
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
-            int alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                      flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
@@ -2677,7 +2677,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
         {
             const QProgressBar *progressbar = (const QProgressBar *) widget;
 
-            bool reverse = QApplication::reverseLayout();
+            bool reverse = QApplication::isRightToLeft();
             if (!progressbar->totalSteps()) {
                 // draw busy indicator
                 int w = r.width();
@@ -3343,7 +3343,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
                 enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
 
-                bool reverse       = QApplication::reverseLayout();
+                bool reverse       = QApplication::isRightToLeft();
                 Qt::Orientation orient = sl->orientation();
                 const QColor c0    = sl->palette().color(QPalette::Background);
                 const QColor c1    = sl->palette().color(QPalette::Foreground);

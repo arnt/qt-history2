@@ -413,7 +413,7 @@ void QSplitterPrivate::getRange(int id, int *farMin, int *min, int *max, int *fa
     int smartMinBefore = qMax(minBefore, pick(r.size()) - maxAfter);
     int smartMaxBefore = qMin(maxBefore, pick(r.size()) - minAfter);
 
-    if (orient == Qt::Vertical || !QApplication::reverseLayout()) {
+    if (orient == Qt::Vertical || QApplication::isLeftToRight()) {
         minVal = pick(r.topLeft()) + smartMinBefore;
         maxVal = pick(r.topLeft()) + smartMaxBefore;
 
@@ -503,7 +503,7 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool spl
     QRect r;
     QRect contents = q->contentsRect();
     if (orient == Qt::Horizontal) {
-        if (QApplication::reverseLayout() && !splitterMoved)
+        if (q->isRightToLeft() && !splitterMoved)
             p = contents.width() - p - s;
         r.setRect(p, contents.y(), s, contents.height());
     } else {
@@ -1006,7 +1006,7 @@ void QSplitter::moveSplitter(QCOORD p, int id)
     p = d->adjustPos(p, id, &farMin, &min, &max, &farMax);
     int oldP = d->pick(s->rect.topLeft());
 
-    if (QApplication::reverseLayout() && d->orient == Qt::Horizontal) {
+    if (isRightToLeft() && d->orient == Qt::Horizontal) {
         int qs = p + s->rect.width();
         d->doMove(false, qs, id - 1, -1, (qs > oldP), (p > max));
         d->doMove(true, qs, id, -1, (qs > oldP), (p < min));

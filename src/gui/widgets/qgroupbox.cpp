@@ -206,7 +206,7 @@ void QGroupBox::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
     if (d->align & Qt::AlignRight || d->align & Qt::AlignCenter ||
-         (QApplication::reverseLayout() && !(d->align & Qt::AlignLeft)))
+         (isRightToLeft() && !(d->align & Qt::AlignLeft)))
         d->updateCheckBoxGeometry();
 }
 
@@ -244,7 +244,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         else if (d->align & Qt::AlignLeft)                 // left alignment
             x = marg;
         else { // auto align
-            if(QApplication::reverseLayout())
+            if(isRightToLeft())
                 x = frameRect.width() - tw - marg;
             else
                 x = marg;
@@ -577,7 +577,7 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
         } else if (align & Qt::AlignLeft) {
             cbRect.moveLeft(rect.left() + marg);
         } else { // auto align
-            if(QApplication::reverseLayout())
+            if(q->isRightToLeft())
                 cbRect.moveRight(rect.right() - marg);
             else
                 cbRect.moveLeft(rect.left() + marg);

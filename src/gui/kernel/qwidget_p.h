@@ -160,6 +160,8 @@ public:
     void setFont_helper(const QFont &);
     void resolveFont();
 
+    void setLayoutDirection_helper(Qt::LayoutDirection);
+    void resolveLayoutDirection();
 
     bool isForegroundInherited() const;
     bool isBackgroundInherited() const;

@@ -481,10 +481,10 @@ void QTreeView::ensureItemVisible(const QModelIndex &index)
     }
 
     // horizontal
-    bool leftOf = QApplication::reverseLayout()
+    bool leftOf = QApplication::isRightToLeft()
                   ? rect.right() > area.right()
                   : rect.left() < area.left();
-    bool rightOf = QApplication::reverseLayout()
+    bool rightOf = QApplication::isRightToLeft()
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
     if (leftOf) {
@@ -520,7 +520,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
     d->left = d->header->visualIndexAt(area.left());
     d->right = d->header->visualIndexAt(area.right());
 
-    if (QApplication::reverseLayout()) {
+    if (QApplication::isRightToLeft()) {
         d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
         d->right = (d->right == -1 ? 0 : d->right);
     } else {
@@ -566,7 +566,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
     QRect bottom(0, y, w, b - y);
     if (y < b && area.intersects(bottom))
         painter.fillRect(bottom, base);
-    if (QApplication::reverseLayout()) {
+    if (QApplication::isRightToLeft()) {
         QRect right(0, 0, w - x, b);
         if (x > 0 && area.intersects(right))
             painter.fillRect(right, base);
@@ -597,7 +597,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     QHeaderView *header = d->header;
     QModelIndex current = selectionModel()->currentIndex();
     bool focus = hasFocus() && current.isValid();
-    bool reverse = QApplication::reverseLayout();
+    bool reverse = QApplication::isRightToLeft();
     QStyle::SFlags state = opt.state;
 
     int position;
@@ -645,7 +645,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     QModelIndex parent = index.parent();
     QModelIndex current = parent;
     QModelIndex ancestor = current.parent();
-    bool reverse = QApplication::reverseLayout();
+    bool reverse = QApplication::isRightToLeft();
     int indent = d->indent;
     int level = d->viewItems.at(d->current).level;
     int outer = d->rootDecoration ? 0 : 1;
@@ -836,9 +836,9 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    int start = d->viewIndex(itemAt(QApplication::reverseLayout() ? rect.right() : rect.left(),
+    int start = d->viewIndex(itemAt(QApplication::isRightToLeft() ? rect.right() : rect.left(),
                                     rect.top()));
-    int stop = d->viewIndex(itemAt(QApplication::reverseLayout() ? rect.left() : rect.right(),
+    int stop = d->viewIndex(itemAt(QApplication::isRightToLeft() ? rect.left() : rect.right(),
                                    rect.bottom()));
     d->select(start, stop, command);
 }
@@ -913,7 +913,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         int column = d->header->logicalIndex(scrollbarValue / d->horizontalFactor);
         int left = (scrollbarValue % d->horizontalFactor) * d->header->sectionSize(column);
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
-        if (QApplication::reverseLayout())
+        if (QApplication::isRightToLeft())
             dx = offset - d->header->offset();
         else
             dx = d->header->offset() - offset;
@@ -1037,7 +1037,7 @@ void QTreeView::columnResized(int column, int, int)
 {
     int x = columnViewportPosition(column);
     QRect rect;
-    if (QApplication::reverseLayout())
+    if (QApplication::isRightToLeft())
         rect.setRect(0, 0, x + d->header->sectionSize(column), d->viewport->height());
     else
         rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
@@ -1128,7 +1128,7 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     int start = d->header->visualIndexAt(0);
     int end = d->header->visualIndexAt(width);
 
-    if (QApplication::reverseLayout()) {
+    if (QApplication::isRightToLeft()) {
         start = start == -1 ? d->header->count() - 1 : start;
         end = end == -1 ? 0 : end;
     } else {
@@ -1472,7 +1472,7 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     int column = header->logicalIndexAt(x);
     int position = header->sectionViewportPosition(column);
     int size = header->sectionSize(column);
-    int cx = (QApplication::reverseLayout() ? size - x + position : x - position);
+    int cx = (QApplication::isRightToLeft() ? size - x + position : x - position);
     int viewItemIndex = item(pos.y());
     int itemIndentation = indentation(viewItemIndex);
     QModelIndex index = modelIndex(viewItemIndex);

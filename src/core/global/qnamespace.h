@@ -22,7 +22,7 @@ namespace Qt {
 #else
 class Q_CORE_EXPORT Qt {
     Q_OBJECT
-    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity)
+    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity LayoutDirection)
     Q_FLAGS(Alignment)
 public:
 #endif
@@ -335,6 +335,8 @@ public:
         WA_SetWindowIcon,
         WA_NoMouseReplay,
         WA_DeleteOnClose,
+        WA_RightToLeft,
+        WA_SetLayoutDirection,
 
         // Add new attributes above this!
         WA_AttributeCount
@@ -1163,6 +1165,11 @@ public:
         ToolButtonTextOnly,
         ToolButtonTextBesideIcon,
         ToolButtonTextUnderIcon
+    };
+
+    enum LayoutDirection {
+        LeftToRight,
+        RightToLeft
     };
 
 #if defined(Q_WS_MAC)

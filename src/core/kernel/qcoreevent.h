@@ -64,6 +64,7 @@ public:
         WindowIconChange = 34,                  // icon changed
         ApplicationWindowIconChange = 35,             // application icon changed
         ApplicationFontChange = 36,             // application font changed
+        ApplicationLayoutDirectionChange = 37,          // application layout direction changed
         ApplicationPaletteChange = 38,          // application palette changed
         PaletteChange = 39,                     // widget palette changed
         Clipboard = 40,                         // internal clipboard event

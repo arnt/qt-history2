@@ -726,7 +726,7 @@ void QToolButtonPrivate::popupTimerDone()
     QPoint p;
     QRect screen = qApp->desktop()->availableGeometry(q);
     if (horizontal) {
-        if (QApplication::reverseLayout()) {
+        if (q->isRightToLeft()) {
             if (q->mapToGlobal(QPoint(0, q->rect().bottom())).y() + actualMenu->sizeHint().height() <= screen.height()) {
                 p = q->mapToGlobal(q->rect().bottomRight());
             } else {
@@ -741,7 +741,7 @@ void QToolButtonPrivate::popupTimerDone()
             }
         }
     } else {
-        if (QApplication::reverseLayout()) {
+        if (q->isRightToLeft()) {
             if (q->mapToGlobal(QPoint(q->rect().left(), 0)).x() - actualMenu->sizeHint().width() <= screen.x()) {
                 p = q->mapToGlobal(q->rect().topRight());
             } else {

@@ -1325,7 +1325,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, widget))
                     text_flags |= Qt::TextHideMnemonic;
-                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
                     xp -= 20;
@@ -1355,7 +1355,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             if (mi->popup()) {                        // draw sub menu arrow
                 int dim = (h-2*windowsItemFrame) / 2;
                 PrimitiveElement arrow;
-                arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+                arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
                 xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
                 vrect = visualRect(QRect(xpos, y + h / 2 - dim / 2, dim, dim), r);
                 if (act) {

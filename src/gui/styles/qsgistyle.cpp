@@ -563,7 +563,7 @@ static void get_combo_parameters(const QRect &r,
     } else {
         sy = ay+awh+dh;
     }
-    if(QApplication::reverseLayout())
+    if(QApplication::isRightToLeft())
         ax = r.x();
     else
         ax = r.x() + r.width() - ew;

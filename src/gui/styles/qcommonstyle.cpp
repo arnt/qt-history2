@@ -445,7 +445,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             p->drawPixmap(bef_h, bef_v, opt->state & Style_Open ? open : closed);
         }
         if (opt->state & Style_Item) {
-            if (QApplication::reverseLayout())
+            if (QApplication::isRightToLeft())
                 p->drawLine(opt->rect.left(), mid_v, bef_h, mid_v);
             else
                 p->drawLine(aft_h, mid_v, opt->rect.right(), mid_v);
@@ -470,7 +470,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         int sy = y;
         int s = sw / 3;
 
-        if (QApplication::reverseLayout()) {
+        if (QApplication::isRightToLeft()) {
             sx = x + sw;
             for (int i = 0; i < 4; ++i) {
                 p->setPen(QPen(opt->palette.light().color(), 1));
@@ -779,7 +779,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_CheckBoxLabel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ce == CE_RadioButtonLabel);
-            uint alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
+            uint alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             if (!styleHint(SH_UnderlineShortcut, btn, widget))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
@@ -848,7 +848,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             if (pal2.highlight() == pal2.background())
                 pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
                                                                      QPalette::Highlight));
-            bool reverse = QApplication::reverseLayout();
+            bool reverse = QApplication::isRightToLeft();
             int fw = 2;
             int w = pb->rect.width() - 2 * fw;
             if (pb->minimum == 0 && pb->maximum == 0) {
@@ -1606,7 +1606,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxPlus : PE_SpinBoxUp);
 
-                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp, widget);
+                copy.rect = visualRect(querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp, widget), widget);
                 drawPrimitive(PE_ButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1629,7 +1629,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxMinus : PE_SpinBoxDown);
 
                 copy.rect = sb->rect;
-                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown, widget);
+                copy.rect = visualRect(querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown, widget), widget);
                 drawPrimitive(PE_ButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1639,7 +1639,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = PE_SpinBoxSlider;
                 copy.subControls = SC_SpinBoxSlider;
                 copy.rect = sb->rect;
-                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxSlider, widget);
+                copy.rect = visualRect(querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxSlider, widget), widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -1706,7 +1706,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->fillRect(opt->rect, fillBrush);
 
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
-                                                       widget), opt->rect);
+                                                       widget), widget, opt->rect);
 
                 p->setPen(tb->palette.highlightedText().color());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
@@ -2086,8 +2086,8 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             bs = bs.expandedTo(QApplication::globalStrut());
             int y = fw;
             int x, lx, rx;
-            x = (QApplication::reverseLayout() ? fw : spinbox->rect.width() - y - bs.width());
-            lx = (QApplication::reverseLayout() ? bs.width() + fw : fw);
+            x = spinbox->rect.width() - y - bs.width();
+            lx = fw;
             rx = x - fw;
             switch (sc) {
             case SC_SpinBoxUp:

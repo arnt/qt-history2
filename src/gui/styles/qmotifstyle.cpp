@@ -1108,7 +1108,7 @@ void QMotifStyle::drawControl(ControlElement element,
             int t = s.indexOf('\t');
             int m = motifItemVMargin;
             int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-            text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
+            text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
             if (t >= 0) {                         // draw tab text
                 QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
                                               y+motifItemVMargin, tab, h-2*motifItemVMargin), r);
@@ -1120,7 +1120,7 @@ void QMotifStyle::drawControl(ControlElement element,
         }
         if (mi->menu()) {                        // draw sub menu arrow
             int dim = (h-2*motifItemFrame) / 2;
-            QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+            QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
             QRect vr = visualRect(QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
                                          y+h/2-dim/2, dim, dim), r);
             if (act)
@@ -1253,7 +1253,7 @@ void QMotifStyle::drawControl(ControlElement element,
                 int t = s.indexOf('\t');
                 int m = motifItemVMargin;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
                                                   y+motifItemVMargin, tab, h-2*motifItemVMargin), r);
@@ -1272,7 +1272,7 @@ void QMotifStyle::drawControl(ControlElement element,
             }
             if (mi->popup()) {                        // draw sub menu arrow
                 int dim = (h-2*motifItemFrame) / 2;
-                QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+                QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
                 QRect vr = visualRect(QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
                                         y+h/2-dim/2, dim, dim), r);
                 if (act)

@@ -464,8 +464,8 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
     QStyleOptionSpinBox sb = d->styleOption();
     sb.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
-                                                        QStyle::SC_SpinBoxEditField, this));
+    d->edit->setGeometry(QStyle::visualRect(style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+                                                                            QStyle::SC_SpinBoxEditField, this), this));
     QWidget::resizeEvent(e);
 }
 

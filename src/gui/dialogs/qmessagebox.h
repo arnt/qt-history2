@@ -15,7 +15,6 @@
 #define QMESSAGEBOX_H
 
 #include "qdialog.h"
-#include "qpixmap.h"
 
 #ifndef QT_NO_MESSAGEBOX
 

@@ -355,7 +355,7 @@ bool Q_GUI_EXPORT qt_tab_all_widgets = true;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
-static bool reverse_layout = false;
+static Qt::LayoutDirection layout_direction = Qt::LeftToRight;
 QSize QApplicationPrivate::app_strut = QSize(0,0); // no default application strut
 bool QApplicationPrivate::animate_ui = true;
 bool QApplicationPrivate::animate_menu = false;
@@ -547,7 +547,7 @@ void QApplication::process_cmdline()
             }
 #endif
         } else if (qstrcmp(arg, "-reverse") == 0) {
-            setReverseLayout(true);
+            setLayoutDirection(Qt::RightToLeft);
         } else if (qstrcmp(arg, "-widgetcount") == 0) {
             QApplicationPrivate::widgetCount = true;
         } else {
@@ -945,7 +945,7 @@ QApplication::~QApplication()
 #endif
     drag_time = 500;
     drag_distance = 4;
-    reverse_layout = false;
+    layout_direction = Qt::LeftToRight;
     QApplicationPrivate::app_strut = QSize(0, 0);
     QApplicationPrivate::animate_ui = true;
     QApplicationPrivate::animate_menu = false;
@@ -1851,7 +1851,7 @@ bool QApplication::event(QEvent *e)
             return true;
     } else if(e->type() == QEvent::LanguageChange) {
 #ifndef QT_NO_TRANSLATION
-        setReverseLayout(qt_detectRTLLanguage());
+        setLayoutDirection(qt_detectRTLLanguage()?Qt::RightToLeft:Qt::LeftToRight);
 #endif
         QWidgetList list = topLevelWidgets();
         for (int i = 0; i < list.size(); ++i) {
@@ -2487,42 +2487,57 @@ int QApplication::startDragDistance()
     return drag_distance;
 }
 
-/*!
-  If \a b is true, all dialogs and widgets will be laid out in a
-  mirrored fashion, as required by right to left languages such as
-  Arabic and Hebrew. If \a b is false, dialogs and widgets are laid
-  out left to right.
+/*!\property QApplication::layoutDirection
 
-  Changing this flag in runtime does not cause a relayout of already
-  instantiated widgets.
+   \brief the default layout direction for this application
 
-  \sa reverseLayout()
-*/
-void QApplication::setReverseLayout(bool b)
+   On system start-up, the default layout direction depends on the
+   application's language.
+
+   \sa QWidget::layoutDirection
+ */
+
+void QApplication::setLayoutDirection(Qt::LayoutDirection direction)
 {
-    if (reverse_layout == b)
+    if (layout_direction == direction)
         return;
 
-    reverse_layout = b;
+    layout_direction = direction;
 
     QWidgetList list = topLevelWidgets();
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = list.at(i);
-        postEvent(w, new QEvent(QEvent::LayoutDirectionChange));
+        sendEvent(w, new QEvent(QEvent::ApplicationLayoutDirectionChange));
     }
 }
 
-/*!
-    Returns true if all dialogs and widgets will be laid out in a
-    mirrored (right to left) fashion. Returns false if dialogs and
-    widgets will be laid out left to right.
-
-  \sa setReverseLayout()
-*/
-bool QApplication::reverseLayout()
+Qt::LayoutDirection QApplication::layoutDirection()
 {
-    return reverse_layout;
+    return layout_direction;
 }
+
+
+/*! \obsolete
+
+  Strips out vertical alignment flags and transforms an
+  alignment \a align of Qt::AlignAuto into Qt::AlignLeft or
+  Qt::AlignRight according to the language used. The other horizontal
+  alignment flags are left untouched.
+*/
+
+#ifdef QT_COMPAT
+Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
+{
+    align &= Qt::AlignHorizontal_Mask;
+    if (align == Qt::AlignAuto) {
+        if (isRightToLeft())
+            align = Qt::AlignRight;
+        else
+            align = Qt::AlignLeft;
+    }
+    return align;
+}
+#endif
 
 
 /*!
@@ -3326,15 +3341,6 @@ void MyApplication::commitData(QSessionManager& sm) {
   \sa isPhase2()
 */
 
-/*!
-  \fn Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
-
-  Strips out vertical alignment flags and transforms an
-  alignment \a align of Qt::AlignAuto into Qt::AlignLeft or
-  Qt::AlignRight according to the language used. The other horizontal
-  alignment flags are left untouched.
-*/
-
 /*****************************************************************************
   Stubbed session management support
  *****************************************************************************/
@@ -3578,3 +3584,4 @@ bool QApplication::inPopupMode() const
     return QApplicationPrivate::popupWidgets != 0;
 }
 
+#include "moc_qapplication.cpp"

@@ -107,7 +107,7 @@ void QSizeGrip::init()
 {
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
-    if (QApplication::reverseLayout())
+    if (isRightToLeft())
         setCursor(Qt::SizeBDiagCursor);
     else
         setCursor(Qt::SizeFDiagCursor);
@@ -211,7 +211,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     int w;
     int h = np.y() - p.y() + s.height();
 
-    if (QApplication::reverseLayout())
+    if (isRightToLeft())
         w = s.width() - (np.x() - p.x());
     else
         w = np.x() - p.x() + s.width();
@@ -227,7 +227,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     if (h < ms.height())
         h = ms.height();
 
-    if (QApplication::reverseLayout()) {
+    if (isRightToLeft()) {
         if (tlw->isTopLevel()) {
             int x = tlw->geometry().x() + (np.x()-p.x());
             int y = tlw->geometry().y();
@@ -247,7 +247,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 #endif
     QApplication::syncX();
 
-    if (QApplication::reverseLayout() && tlw->size() == QSize(w,h)) {
+    if (isRightToLeft() && tlw->size() == QSize(w,h)) {
         s.rwidth() = tlw->size().width();
         p.rx() = np.x();
     }
@@ -286,7 +286,7 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 #endif
         case QEvent::Resize: {
             QPointArray pa(3);
-            if (!QApplication::reverseLayout()) {
+            if (QApplication::isLeftToRight()) {
                 pa.setPoint(0, width() + 1, 0);
                 pa.setPoint(1, width() + 1, height() + 1);
                 pa.setPoint(2, 0, height());

@@ -714,7 +714,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QMenuBar);
     int key = e->key();
-    if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
+    if(isRightToLeft()) {  // in reverse mode open/close key for submenues are reversed
         if(key == Qt::Key_Left)
             key = Qt::Key_Right;
         else if(key == Qt::Key_Right)

@@ -50,7 +50,18 @@ class QApplicationPrivate;
 class Q_GUI_EXPORT QApplication : public QCoreApplication
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QApplication)
+    Q_PROPERTY(bool desktopSettingsAware READ desktopSettingsAware WRITE setDesktopSettingsAware)
+    Q_PROPERTY(Qt::LayoutDirection layoutDirection READ layoutDirection WRITE setLayoutDirection)
+    Q_PROPERTY(QPalette palette READ palette WRITE setPalette)
+    Q_PROPERTY(QFont font READ font WRITE setFont)
+    Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon)
+    Q_PROPERTY(int cursorFlashTime READ cursorFlashTime WRITE setCursorFlashTime)
+    Q_PROPERTY(int doubleClickInterval  READ doubleClickInterval WRITE setDoubleClickInterval)
+    Q_PROPERTY(int wheelScrollLines  READ doubleClickInterval WRITE setWheelScrollLines)
+    Q_PROPERTY(QSize globalStrut READ globalStrut WRITE setGlobalStrut)
+    Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
+    Q_PROPERTY(int startDragDistance  READ startDragDistance WRITE setStartDragDistance)
+
 public:
     QApplication(int &argc, char **argv);
     QApplication(int &argc, char **argv, bool GUIenabled);
@@ -73,13 +84,6 @@ public:
     enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
     static int colorSpec();
     static void setColorSpec(int);
-
-#ifdef QT_COMPAT
-    typedef int ColorMode;
-    enum { NormalColors = NormalColor, CustomColors = CustomColor };
-    static inline QT_COMPAT ColorMode colorMode() { return static_cast<ColorMode>(colorSpec()); }
-    static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec(int(mode)); }
-#endif
 
 #ifndef QT_NO_CURSOR
     static QCursor *overrideCursor();
@@ -149,10 +153,11 @@ public:
     static void setStartDragDistance(int l);
     static int startDragDistance();
 
-    static void setReverseLayout(bool b);
-    static bool reverseLayout();
+    static void setLayoutDirection(Qt::LayoutDirection direction);
+    static Qt::LayoutDirection layoutDirection();
 
-    static Qt::Alignment horizontalAlignment(Qt::Alignment align);
+    static inline bool isRightToLeft() { return layoutDirection() == Qt::RightToLeft; }
+    static inline bool isLeftToRight() { return layoutDirection() == Qt::LeftToRight; }
 
     static bool isEffectEnabled(Qt::UIEffect);
     static void setEffectEnabled(Qt::UIEffect, bool enable = true);
@@ -176,14 +181,7 @@ public:
 #endif
 #endif
 
-#ifdef QT_COMPAT
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-    static QT_COMPAT Qt::WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
-#endif
-#if defined(Q_OS_MAC)
-    static QT_COMPAT Qt::MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
-#endif
-#endif
+
 #if defined(Q_WS_WIN)
     void winFocus(QWidget *, bool);
     static void winMouseButtonUp();
@@ -225,6 +223,19 @@ protected:
 
 #ifdef QT_COMPAT
 public:
+    static inline QT_COMPAT void setReverseLayout(bool b) { setLayoutDirection(b?Qt::RightToLeft:Qt::LeftToRight); }
+    static inline bool QT_COMPAT reverseLayout() { return layoutDirection() == Qt::RightToLeft; }
+    static QT_COMPAT Qt::Alignment horizontalAlignment(Qt::Alignment align);
+    typedef int ColorMode;
+    enum { NormalColors = NormalColor, CustomColors = CustomColor };
+    static inline QT_COMPAT ColorMode colorMode() { return static_cast<ColorMode>(colorSpec()); }
+    static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec(int(mode)); }
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+    static QT_COMPAT Qt::WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
+#endif
+#if defined(Q_OS_MAC)
+    static QT_COMPAT Qt::MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
+#endif
     inline static  QT_COMPAT void setOverrideCursor(const QCursor &cursor, bool replace)
         { if (replace) changeOverrideCursor(cursor); else setOverrideCursor(cursor); }
     inline static QT_COMPAT bool hasGlobalMouseTracking() {return true;}
@@ -284,6 +295,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QApplication)
+    Q_DECLARE_PRIVATE(QApplication)
 
     friend class QWidget;
     friend class QWidgetPrivate;
@@ -298,18 +310,6 @@ private:
     friend class QInputContext;
 #endif
 };
-
-inline Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
-{
-    align &= Qt::AlignHorizontal_Mask;
-    if (align == Qt::AlignAuto) {
-        if (reverseLayout())
-            align = Qt::AlignRight;
-        else
-            align = Qt::AlignLeft;
-    }
-    return align;
-}
 
 #endif // QAPPLICATION_H
 

@@ -46,7 +46,7 @@ public:
     void updateSectionIndicator(int section, int position);
 
     inline bool reverse() const
-        { return QApplication::reverseLayout() && orientation == Qt::Horizontal; }
+        { return QApplication::isRightToLeft() && orientation == Qt::Horizontal; }
 
     enum State { NoState, ResizeSection, MoveSection } state;
 

@@ -796,7 +796,7 @@ void QTabBar::keyPressEvent(QKeyEvent *e)
         e->ignore();
         return;
     }
-    int dx = e->key() == (QApplication::reverseLayout() ? Qt::Key_Right : Qt::Key_Left) ? -1 : 1;
+    int dx = e->key() == (isRightToLeft() ? Qt::Key_Right : Qt::Key_Left) ? -1 : 1;
     for (int index = d->currentIndex + dx; d->validIndex(index); index += dx) {
         if (d->tabList.at(index).enabled) {
             setCurrentIndex(index);

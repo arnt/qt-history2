@@ -741,7 +741,7 @@ void QGridLayoutPrivate::setupHfwLayoutData(int spacing)
 void QGridLayoutPrivate::distribute(QRect r, int spacing)
 {
     bool visualHReversed = hReversed;
-    if (QApplication::reverseLayout())
+    if (q->parentWidget()->isRightToLeft())
         visualHReversed = !visualHReversed;
 
     setupLayoutData(spacing);
@@ -2019,7 +2019,7 @@ void QBoxLayout::setGeometry(const QRect &r)
         }
 
         Direction visualDir = d->dir;
-        if (QApplication::reverseLayout()) {
+        if (parentWidget()->isRightToLeft()) {
             if (d->dir == LeftToRight)
                 visualDir = RightToLeft;
             else if (d->dir == RightToLeft)
