@@ -1,5 +1,4 @@
-#define Q_UUIDIMPL
-#include "../designerinterface.h"
+#include <filterinterface.h>
 
 #include <qapplication.h>
 
