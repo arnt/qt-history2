@@ -5752,13 +5752,10 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
-    if ( cachedSizeHint().isValid() )
-	return cachedSizeHint();
-
     constPolish();
 
     if ( !d->firstItem )
-	return QSize( 50, 50 );
+	return QScrollView::sizeHint();
 
     if ( d->dirty && d->firstSizeHint ) {
 	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
@@ -5773,7 +5770,6 @@ QSize QIconView::sizeHint() const
 				    verticalScrollBar()) + 2*frameWidth();
     QSize s( QMIN(400, contentsWidth() + extra),
 	     QMIN(400, contentsHeight() + extra) );
-    setCachedSizeHint( s );
     return s;
 }
 
