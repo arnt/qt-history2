@@ -501,7 +501,16 @@ QString QProcess::readLineStdout()
     QByteArray a( 256 );
     QMembuf *buf = membufStdout();
     if ( buf->scanNewline( &a ) ) {
-	buf->consumeBytes( a.size(), 0 );
+	uint size = a.size();
+	buf->consumeBytes( size, 0 );
+
+	// get rid of terminating \n or \r\n
+	if ( a.at( size - 1 ) == '\n' ) {
+	    if ( a.at( size - 2 ) == '\r' )
+		a.at( size - 2 ) = '\0';
+	    else
+		a.at( size - 1 ) = '\0';
+	}
 	return QString( a );
     }
     return QString::null;
@@ -519,7 +528,16 @@ QString QProcess::readLineStderr()
     QByteArray a( 256 );
     QMembuf *buf = membufStderr();
     if ( buf->scanNewline( &a ) ) {
-	buf->consumeBytes( a.size(), 0 );
+	uint size = a.size();
+	buf->consumeBytes( size, 0 );
+
+	// get rid of terminating \n or \r\n
+	if ( a.at( size - 1 ) == '\n' ) {
+	    if ( a.at( size - 2 ) == '\r' )
+		a.at( size - 2 ) = '\0';
+	    else
+		a.at( size - 1 ) = '\0';
+	}
 	return QString( a );
     }
     return QString::null;
