@@ -138,7 +138,7 @@ public:
     QString name() const { return "( "; }
     int exec( LocalSQLEnvironment* env )
     {
-	env->stack()->push( QVariant() );
+	env->stack()->push( QVariant("---") );
 	return 1;
     }
 };
@@ -658,7 +658,7 @@ public:
 	    if ( env->stack()->count() == 0 )
 		return 0;
 	    QVariant v = env->stack()->pop();
-	    if ( v.type() == QVariant::Invalid )
+	    if ( v.toString() == "---" ) /* separator */
 		break;
 	    rec.prepend( v );
 	}
@@ -952,6 +952,7 @@ public:
     int exec( LocalSQLEnvironment* env )
     {
 	List list = env->stack()->pop().toList();
+	qDebug("SaveResult, list count:" + QString::number(list.count()));
 	return env->resultSet( p1.toInt() )->append( list );
     }
 };
@@ -1396,9 +1397,13 @@ public:
     {
 	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
 	QVariant v;
-	if ( !res->groupSetAction(act, p2.toUInt(), v) )
+	if ( !res->groupSetAction(act, p2.toUInt(), v) ) {
+	    qDebug("PushGroupOp failed---------------------");
 	    return FALSE;
+	}
+	qDebug("PushGroupOp pushing value, stack count:" + QString::number( env->stack()->count()));
 	env->stack()->push( v );
+	qDebug("PushGroupOp pushing value, stack count:" + QString::number( env->stack()->count()));
 	return TRUE;
     }
 

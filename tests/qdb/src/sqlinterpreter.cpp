@@ -431,7 +431,6 @@ bool ResultSet::append( const Record& buf )
 	if ( buf[j].type() != head->fields[j].type && buf[j].type() != QVariant::Invalid ) {
 	    QVariant v;
 	    v.cast( head->fields[j].type );
-	    qDebug("incorrect field type");
 	    env->setLastError( "Unable to save result data, incorrect field type: " +
 			       QString( buf[j].typeName() ) + " (expected " +
 			       QString( v.typeName() ) + ")" );
@@ -452,13 +451,20 @@ static bool operator<( const QVariant &v1, const QVariant& v2 )
     switch( v1.type() ) {
     case QVariant::String:
     case QVariant::CString:
-	return v1.toString() < v2.toString();
+	if ( v2.type() == QVariant::Invalid )
+	    return v1.toString() < "";
+	else
+	    return v1.toString() < v2.toString();
     case QVariant::Date:
-	return v1.toDate() < v2.toDate();
-    case QVariant::Time:
-	return v1.toTime() < v2.toTime();
-    case QVariant::DateTime:
-	return v1.toDateTime() < v2.toDateTime();
+	if ( v2.type() == QVariant::Invalid )
+	    return v1.toDate() < QDate();
+	else
+	    return v1.toDate() < v2.toDate();
+    case QVariant::Invalid:
+	if ( v2.type() == QVariant::Invalid )
+	    return 0;
+	else
+	    return v2.toDouble() > 0;
     default:
 	return v1.toDouble() < v2.toDouble();
     }
@@ -738,7 +744,7 @@ bool ResultSet::setGroupSet( const QVariant& v )
     }
     List sortList;
     List groupByFields = v.toList();
-    if ( data.count() == 1 || groupByFields.count() == 0 ) {
+    if ( groupByFields.count() == 0 ) {
 	/* create one giant group for everything */
 	List fieldDescription;
 	fieldDescription.append( 0 );
@@ -770,14 +776,16 @@ bool ResultSet::setGroupSet( const QVariant& v )
     groupSetItem.substart = 0;
     ColumnKey::Iterator lastLast = sortKey.begin();
     Record lastrec = data[ (groupSetItem.start.data()[0]) ];
-    for ( ColumnKey::Iterator it = sortKey.begin();
-	  it != sortKey.end();
-	  ++it ) {
+    ColumnKey::Iterator it = sortKey.begin();
+    for ( ; it != sortKey.end(); ++it ) {
 	for ( uint k = 0; k < (*it).count(); ++k ) {
 	    Record& currec = data[ (it.data()[k]) ];
 	    /* check if the group by fields have changed */
 	    bool changed = FALSE;
 	    for ( uint f = 0; f < groupByFields.count(); ++f ) {
+		if ( lastrec[groupByFields[f].toInt()].type() == QVariant::Invalid &&
+		     currec[groupByFields[f].toInt()].type() == QVariant::Invalid )
+		    continue;
 		if ( lastrec[groupByFields[f].toInt()] != currec[groupByFields[f].toInt()] ) {
 		    changed = TRUE;
 		    break;
@@ -797,6 +805,14 @@ bool ResultSet::setGroupSet( const QVariant& v )
 	    }
 	    groupSetItem.sublast = k;
 	}
+    }
+    /* add final group */
+    groupSetItem.last = it;
+    groupSetItem.sublast = (*it).count()-1;
+    group.append( groupSetItem );
+    if ( group.count() == 0 ) {
+	env->setLastError( "Internal error: Unable to group result" );
+	return FALSE;
     }
     return TRUE;
 }
@@ -825,10 +841,6 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
     uint substart = group[currentGroup].substart;
     ColumnKey::Iterator lastit = group[currentGroup].last;
     uint sublast = group[currentGroup].sublast;
-//     qDebug("substart:" + QString::number( substart ) );
-//     qDebug("sublast:" + QString::number( sublast ) );
-
-
     switch ( action ) {
     case Value: {
 	Record& rec = data[ startit.data()[substart] ];
@@ -863,8 +875,14 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 	for ( ColumnKey::Iterator it = startit;
 	      ;
 	      ++it ){
-	    bool processingLast = ( startit == lastit );
-	    for ( uint s = 0; s < (*it).count(); ++s ) {
+	    bool processingLast = ( it == lastit );
+	    bool processingFirst = ( it == startit );
+	    uint s;
+	    if ( processingFirst )
+		s = substart;
+	    else
+		s = 0;
+	    for ( ; s < (*it).count(); ++s ) {
 		if ( processingLast && s > sublast )
 		     break;
 		sum += data[ it.data()[s] ][i].toDouble();
@@ -873,6 +891,7 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 		break;
 	}
 	v = sum;
+	v.cast( head->fields[i].type );
 	break;
     }
     case Avg: {
@@ -881,8 +900,14 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 	for ( ColumnKey::Iterator it = startit;
 	      ;
 	      ++it ){
-	    bool processingLast = ( startit == lastit );
-	    for ( uint s = 0; s < (*it).count(); ++s ) {
+	    bool processingLast = ( it == lastit );
+	    bool processingFirst = ( it == startit );
+	    uint s;
+	    if ( processingFirst )
+		s = substart;
+	    else
+		s = 0;
+	    for ( ; s < (*it).count(); ++s ) {
 		if ( processingLast && s > sublast )
 		     break;
 		sum += data[ it.data()[s] ][i].toDouble();
@@ -898,14 +923,20 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
     case Min: {
 	double x = 0;
 	if ( action == Max )
-	    x = INT_MAX;
-	else
 	    x = INT_MIN;
+	else
+	    x = INT_MAX;
 	for ( ColumnKey::Iterator it = startit;
 	      ;
 	      ++it ){
-	    bool processingLast = ( startit == lastit );
-	    for ( uint s = 0; s < (*it).count(); ++s ) {
+	    bool processingLast = ( it == lastit );
+	    bool processingFirst = ( it == startit );
+	    uint s;
+	    if ( processingFirst )
+		s = substart;
+	    else
+		s = 0;
+	    for ( ; s < (*it).count(); ++s ) {
 		if ( processingLast && s > sublast )
 		     break;
 		double d = data[ it.data()[s] ][i].toDouble();
@@ -921,6 +952,7 @@ bool ResultSet::groupSetAction( GroupSetAction action, uint i, QVariant& v )
 		break;
 	}
 	v = x;
+	v.cast( head->fields[i].type );
 	break;
     }
     }
