@@ -33,8 +33,8 @@
 #include <private/qfontdata_p.h>
 #include <qvector.h>
 #include <qpaintengine.h>
-#include <qtextobject.h>
-#include <qtextoption.h>
+#include "qtextobject.h"
+#include "qtextoption.h"
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP
