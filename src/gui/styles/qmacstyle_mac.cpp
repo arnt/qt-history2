@@ -205,7 +205,7 @@ public:
     int HIThemePixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                            const QWidget *widget) const;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    void HIThemeDrawClickThroughButton(const HIRect &macRect, const HIThemeButtonDrawInfo &bdi,
+    void HIThemeDrawColorlessButton(const HIRect &macRect, const HIThemeButtonDrawInfo &bdi,
                                        QPainter *p, const QStyleOption *opt) const;
 #endif
 
@@ -229,7 +229,7 @@ public:
     void AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *w);
     int AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                           const QWidget *widget) const;
-    void AppManDrawClickThroughButton(const Rect &macRect, const ThemeButtonKind bkind,
+    void AppManDrawColorlessButton(const Rect &macRect, const ThemeButtonKind bkind,
                                       const ThemeButtonDrawInfo &bdi, QPainter *p,
                                       const QStyleOption *opt) const;
     void drawPantherTab(const QStyleOptionTab *tab, QPainter *p, const QWidget *w = 0) const;
@@ -1359,7 +1359,7 @@ void QMacStylePrivate::HIThemePolish(QApplication *app)
 #endif
 }
 
-void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect,
+void QMacStylePrivate::AppManDrawColorlessButton(const Rect &macRect,
                                                     const ThemeButtonKind bkind,
                                                     const ThemeButtonDrawInfo &bdi, QPainter *p,
                                                     const QStyleOption *opt) const
@@ -1415,7 +1415,7 @@ void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect,
 }
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-void QMacStylePrivate::HIThemeDrawClickThroughButton(const HIRect &macRect,
+void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                                                      const HIThemeButtonDrawInfo &bdi,
                                                      QPainter *p, const QStyleOption *opt) const
 {
@@ -1492,12 +1492,12 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_Q3CheckListIndicator:
     case QStyle::PE_IndicatorRadioButton:
     case QStyle::PE_IndicatorCheckBox: {
-    bool hasClickThrough = (!(opt->state & QStyle::State_Active))
+    bool drawColorless = (!(opt->state & QStyle::State_Active))
                                     && opt->palette.currentColorGroup() == QPalette::Active;
         HIThemeButtonDrawInfo bdi;
         bdi.version = qt_mac_hitheme_version;
         bdi.state = tds;
-        if (hasClickThrough && tds == kThemeStateInactive)
+        if (drawColorless && tds == kThemeStateInactive)
             bdi.state = kThemeStateActive;
         bdi.adornment = kThemeDrawIndicatorOnly;
         if (opt->state & QStyle::State_HasFocus
@@ -1537,10 +1537,10 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         else
             bdi.value = kThemeButtonOff;
         HIRect macRect = qt_hirectForQRect(opt->rect, p);
-        if (!hasClickThrough)
+        if (!drawColorless)
             HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
         else
-            HIThemeDrawClickThroughButton(macRect, bdi, p, opt);
+            HIThemeDrawColorlessButton(macRect, bdi, p, opt);
         break; }
     case QStyle::PE_IndicatorArrowUp:
     case QStyle::PE_IndicatorArrowDown:
@@ -1657,26 +1657,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
-            QRect paneRect = twf->rect;
-            /*
-            switch (ttd) {
-            case kThemeTabSouth:
-                paneRect.setHeight(paneRect.height() + 7);
-                break;
-            case kThemeTabNorth:
-                paneRect.setTop(paneRect.top() - 6);
-                paneRect.setHeight(paneRect.height() + 3);
-                break;
-            case kThemeTabWest:
-                paneRect.setLeft(paneRect.left() - 6);
-                paneRect.setWidth(paneRect.width());
-                break;
-            case kThemeTabEast:
-                paneRect.setWidth(paneRect.width() + 4);
-                break;
-            }
-             */
-            HIRect hirect = qt_hirectForQRect(paneRect, p);
+            HIRect hirect = qt_hirectForQRect(twf->rect, p);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
             if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
                 HIThemeTabPaneDrawInfo tpdi;
@@ -1729,13 +1710,13 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
                 break;
-            bool hasClickThrough = btn->palette.currentColorGroup() == QPalette::Active;
+            bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
             if (btn->state & QStyle::State_On)
                 tds = kThemeStatePressed;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = tds;
-            if (hasClickThrough && tds == kThemeStateInactive)
+            if (drawColorless && tds == kThemeStateInactive)
                 bdi.state = kThemeStateActive;
             bdi.adornment = kThemeAdornmentNone;
             bdi.value = kThemeButtonOff;
@@ -1772,7 +1753,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
-                if (hasClickThrough && tds == kThemeStateInactive)
+                if (drawColorless && tds == kThemeStateInactive)
                     newBtn.state |= QStyle::State_Active;
 
                 q->drawPrimitive(QStyle::PE_IndicatorArrowDown, &newBtn, p, w);
@@ -2412,11 +2393,11 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             bool hasFocus = combo->state & QStyle::State_HasFocus;
             if (hasFocus)
                 bdi.adornment = kThemeAdornmentFocus;
-            bool hasClickThrough = combo->palette.currentColorGroup() == QPalette::Active
+            bool drawColorless = combo->palette.currentColorGroup() == QPalette::Active
                                    && tds == kThemeStateInactive;
             if (combo->activeSubControls & QStyle::SC_ComboBoxArrow)
                 bdi.state = kThemeStatePressed;
-            else if (hasClickThrough)
+            else if (drawColorless)
                 bdi.state = kThemeStateActive;
             else
                 bdi.state = tds;
@@ -2453,10 +2434,10 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                             int(outRect.size.width - hirect.size.width),
                             int(outRect.size.height - hirect.size.height + offSet));
             hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
-            if (!hasClickThrough)
+            if (!drawColorless)
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
             else
-                HIThemeDrawClickThroughButton(hirect, bdi, p, opt);
+                HIThemeDrawColorlessButton(hirect, bdi, p, opt);
         }
         break;
     case QStyle::CC_TitleBar:
@@ -3093,9 +3074,9 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         bool isRadioButton = (pe == QStyle::PE_Q3CheckListIndicator
                 || pe == QStyle::PE_IndicatorRadioButton);
         ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
-        bool isClickThrough = (!(opt->state & QStyle::State_Active))
+        bool drawColorless = (!(opt->state & QStyle::State_Active))
                                     && opt->palette.currentColorGroup() == QPalette::Active;
-        if (isClickThrough && tds == kThemeStateInactive)
+        if (drawColorless && tds == kThemeStateInactive)
             info.state = kThemeStateActive;
         if (opt->state & QStyle::State_HasFocus
                 && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
@@ -3131,11 +3112,11 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                     bkind = kThemeSmallCheckBox;
                 break;
         }
-        if (!isClickThrough) {
+        if (!drawColorless) {
             qt_mac_set_port(p);
             DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, 0, 0, 0, 0);
         } else {
-            AppManDrawClickThroughButton(*qt_glb_mac_rect(opt->rect, p, false), bkind, info, p, opt);
+            AppManDrawColorlessButton(*qt_glb_mac_rect(opt->rect, p, false), bkind, info, p, opt);
         }
         break; }
     case QStyle::PE_FrameFocusRect:
@@ -3330,22 +3311,6 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                     DrawThemeTabPane(qt_glb_mac_rect(wholePane, p), tds);
                 }
             } else {
-                switch (ttd) {
-                case kThemeTabSouth:
-                    wholePane.setHeight(wholePane.height() + 7);
-                    break;
-                case kThemeTabNorth:
-                    wholePane.setTop(wholePane.top() - 6);
-                    wholePane.setHeight(wholePane.height() + 3);
-                    break;
-                case kThemeTabWest:
-                    wholePane.setLeft(wholePane.left() - 6);
-                    wholePane.setWidth(wholePane.width());
-                    break;
-                case kThemeTabEast:
-                    wholePane.setWidth(wholePane.width() + 4);
-                    break;
-                }
                 DrawThemeSecondaryGroup(qt_glb_mac_rect(wholePane, p), tds);
             }
         }
@@ -3372,6 +3337,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
                 break;
+            bool drawColorless = btn->palette.currentColorGroup() == QPalette::Active;
             QString pmkey;
             bool do_draw = false;
             QPixmap buffer;
@@ -3408,6 +3374,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             else
                 bkind = kThemePushButton;
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+            if (tds == kThemeStateInactive && drawColorless)
+                info.state = kThemeStateActive;
             if (opt->state & QStyle::State_HasFocus
                     && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled) {
                 info.adornment |= kThemeAdornmentFocus;
@@ -4081,9 +4049,9 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
     case QStyle::CC_ComboBox:
         if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-            bool isClickThrough = (!(combo->state & QStyle::State_Active))
+            bool drawColorless = (!(combo->state & QStyle::State_Active))
                                         && combo->palette.currentColorGroup() == QPalette::Active;
-            if (isClickThrough && tds == kThemeStateInactive)
+            if (drawColorless && tds == kThemeStateInactive)
                 info.state = kThemeStateActive;
             bool hasFocus = combo->state & QStyle::State_HasFocus;
             if (hasFocus)
@@ -4129,12 +4097,12 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                                 (myRect.top - macRect.top)
                                  + (macRect.bottom - myRect.bottom) + offset);
             }
-            if (!isClickThrough){
+            if (!drawColorless){
                 qt_mac_set_port(p);
                 DrawThemeButton(qt_glb_mac_rect(combo->rect, p, true, off_rct), bkind, &info,
                                 0, 0, 0, 0);
             } else {
-                AppManDrawClickThroughButton(*qt_glb_mac_rect(combo->rect, p, false, off_rct),
+                AppManDrawColorlessButton(*qt_glb_mac_rect(combo->rect, p, false, off_rct),
                                              bkind, info, p, opt);
             }
         }
