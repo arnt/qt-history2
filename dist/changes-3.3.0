@@ -59,3 +59,8 @@ Sun CC 5.0.
 - QListView
 	Improved alignment for text in QListViewItems. Right aligned text now
 	have the ellipsis to the left.
+
+- QWindowsStyle
+	Qt supports toggeling of the accelerator underlines using the Alt-key
+	on Windows 98, 2000 and later. On other platforms this change is not
+	having any effect.
