@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#50 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#51 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -49,12 +49,14 @@ public:
 
     void	setEnabled( bool );
     void	setFont( const QFont & );
-    
+
     void	setSelection( int, int );
     void	setCursorPosition( int );
     int		cursorPosition() const;
 
-public slots:
+    bool	validateAndSet( const char *, int, int, int );
+
+ public slots:
     void	setText( const char * );
     void	selectAll();
     void	deselect();
@@ -86,7 +88,6 @@ protected:
     bool	hasMarkedText() const;
     QString	markedText() const;
 
-    bool	validateAndSet( const char *, int, int, int );
 
     void	repaintArea( int, int );
 
