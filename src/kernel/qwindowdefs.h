@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#66 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#67 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -173,10 +173,10 @@ typedef ulong WFlags;
 const ulong WState_Created	= 0x00000001;	// widget state flags
 const ulong WState_Disabled	= 0x00000002;
 const ulong WState_Visible	= 0x00000004;
-const ulong WState_Active	= 0x00000008;
-const ulong WState_Paint	= 0x00000010;
-const ulong WState_MGrab	= 0x00000020;
-const ulong WState_KGrab	= 0x00000040;
+const ulong WState_Reserved	= 0x00000008;
+const ulong WState_NoUpdates	= 0x00000010;
+const ulong WState_PaintEvent	= 0x00000020;
+const ulong WState_ActiveFocus	= 0x00000040;
 const ulong WState_AcceptFocus	= 0x00000080;
 
 const ulong WType_Overlap	= 0x00000100;	// widget type flags
@@ -193,19 +193,19 @@ const ulong WStyle_Maximize	= 0x00020000;
 const ulong WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
 const ulong WStyle_All		= 0x0003f000;
 
-const ulong WFont_Metrics	= 0x00040000;	// misc widget flags
-const ulong WFont_Info		= 0x00080000;
-const ulong WMouseTracking	= 0x00100000;
-const ulong WReserved1		= 0x00200000;
-const ulong WConfigPending	= 0x00400000;
-const ulong WResizeNoErase	= 0x00800000;
-const ulong WExplicitHide	= 0x01000000;
-const ulong WCursorSet		= 0x02000000;
-const ulong WPaintDesktop	= 0x04000000;
-const ulong WPaintUnclipped	= 0x08000000;
-const ulong WPaintClever	= 0x10000000;
-const ulong WNoUpdates		= 0x20000000;
-const ulong WRecreated		= 0x40000000;
+const ulong WExportFontMetrics	= 0x00040000;	// misc widget flags
+const ulong WExportFontInfo	= 0x00080000;
+const ulong WCursorSet		= 0x00100000;
+const ulong WExplicitHide	= 0x00200000;
+const ulong WDestructiveClose	= 0x00400000;
+const ulong WMouseTracking	= 0x00800000;
+const ulong WPaintDesktop	= 0x01000000;
+const ulong WPaintUnclipped	= 0x02000000;
+const ulong WPaintClever	= 0x04000000;
+const ulong WConfigPending	= 0x08000000;
+const ulong WResizeNoErase	= 0x10000000;
+const ulong WRecreated		= 0x20000000;
+const ulong WReserved1		= 0x40000000;
 const ulong WReserved2		= 0x80000000;
 
 
