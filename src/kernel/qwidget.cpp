@@ -3062,7 +3062,7 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
   if \e enable is FALSE.
 
   Calling update() and repaint() has no effect if updates are disabled.
-  Paint events from the window system are processed as normally even if
+  Paint events from the window system are processed normally even if
   updates are disabled.
 
   This function is normally used to disable updates for a short period of
