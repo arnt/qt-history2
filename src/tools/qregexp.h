@@ -74,7 +74,7 @@ public:
     bool exactMatch( const QString& str );
     bool exactMatch( const QString& str ) const;
 #ifndef QT_NO_COMPAT
-    int match( const QString& str, int index, int *len = 0,
+    int match( const QString& str, int index = 0, int *len = 0,
 	       bool indexIsStart = TRUE );
 #endif
     int search( const QString& str, int start = 0 );
