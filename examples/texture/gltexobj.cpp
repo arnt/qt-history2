@@ -20,7 +20,7 @@
 #include "gltexobj.h"
 #include <qimage.h>
 #include <qtimer.h>
-#include <GL/glu.h>
+#include <glu.h>
 
 
 const int redrawWait = 50;
