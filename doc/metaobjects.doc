@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.13 1996/09/20 15:17:25 hanord Exp $
+** $Id: metaobjects.doc,v 1.14 1996/09/23 17:32:44 hanord Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -53,7 +53,7 @@ A small Qt class might read:
 	Foo();
 	int  value() const { return val; }
     public slots:
-	void setValue(int);
+	void setValue( int );
     signals:
 	void valueChanged( int )
     private:
