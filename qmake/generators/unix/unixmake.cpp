@@ -87,6 +87,7 @@ UnixMakefileGenerator::init()
     }
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
+    project->variables()["QMAKE_ORIG_DESTDIR"] = project->variables()["DESTDIR"];
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if((!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib")) ||
          (project->isActiveConfig("qt") &&  project->isActiveConfig("plugin"))) {
