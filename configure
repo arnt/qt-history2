@@ -705,7 +705,7 @@ do
 	L_FLAGS="$L_FLAGS $1"
 	;;
    -R?*)
-	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${1}"
+	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}`echo $1 | sed 's,-R,,'`"
 	;;
    -l?*)
 	l_FLAGS="$l_FLAGS $1"
@@ -720,7 +720,7 @@ do
 	;;
    -R)
 	shift
-	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${1}"
+	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}`echo $1 | sed 's,-R,,'`"
 	;;
    *)
 	echo $1: unknown argument
