@@ -343,22 +343,6 @@ QStringList QSqlDatabase::drivers()
 {
     QStringList l;
 
-#ifdef QT_SQL_POSTGRES
-    l << "QPSQL7";
-#endif
-#ifdef QT_SQL_MYSQL
-    l << "QMYSQL3";
-#endif
-#ifdef QT_SQL_ODBC
-    l << "QODBC3";
-#endif
-#ifdef QT_SQL_OCI
-    l << "QOCI8";
-#endif
-#ifdef QT_SQL_TDS
-    l << "QTDS7";
-#endif
-
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
     plugIns = new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory );
@@ -369,7 +353,7 @@ QStringList QSqlDatabase::drivers()
 	plugIns->addLibraryPath(*it + "/sqldrivers");
 	it++;
     }
-    l += plugIns->featureList();
+    l = plugIns->featureList();
     delete plugIns;
 #endif
 
@@ -379,6 +363,27 @@ QStringList QSqlDatabase::drivers()
 	    l << itd.currentKey();
 	++itd;
     }
+
+#ifdef QT_SQL_POSTGRES
+    if ( !l.contains( "QPSQL7" )
+	l << "QPSQL7";
+#endif
+#ifdef QT_SQL_MYSQL
+    if ( !l.contains( "QMYSQL3" )
+	l << "QMYSQL3";
+#endif
+#ifdef QT_SQL_ODBC
+    if ( !l.contains( "QODBC3" )
+	l << "QODBC3";
+#endif
+#ifdef QT_SQL_OCI
+    if ( !l.contains( "QOCI8" )
+	l << "QOCI8";
+#endif
+#ifdef QT_SQL_TDS
+    if ( !l.contains( "QTDS7" )
+	l << "QTDS7";
+#endif
 
     return l;
 }
