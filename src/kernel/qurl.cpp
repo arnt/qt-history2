@@ -1126,8 +1126,11 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
 	    if ( !d->user.isEmpty() )
 		res += d->user;
-	    if ( !d->pass.isEmpty() )
-		res += ":" + d->pass;
+	    if ( !d->pass.isEmpty() ) {
+		QString encodedPass = d->pass;
+		encode( encodedPass );
+		res += ":" + encodedPass;
+	    }
 	    res += "@";
 	}
 	res += d->host;
