@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#12 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#13 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -127,6 +127,3 @@
 # define W_OK	2
 # define R_OK	4
 #endif
-
-#endif
-
