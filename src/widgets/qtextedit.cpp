@@ -1194,7 +1194,10 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    moveCursor( MoveUp, e->state() & ShiftButton );
 		    break;
 		case Key_Z:
-		    undo();
+		    if(e->state() & ShiftButton)
+			redo();
+		    else
+			undo();
 		    break;
 		case Key_Y:
 		    redo();
