@@ -51,6 +51,7 @@ public:
 
 protected:
     bool event( QEvent * );
+    bool eventFilter( QObject *object, QEvent *event );
 
 private:
     QMotifWidgetPrivate *d;
