@@ -709,6 +709,7 @@ if [ "$OPT_SHADOW" = "maybe" ]; then
 	    test "$relpath" -ef "$outpath" || OPT_SHADOW=yes
 	else
 	    OPT_SHADOW=yes
+        fi
     fi
 fi
 
