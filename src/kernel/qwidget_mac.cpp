@@ -1498,8 +1498,9 @@ void QWidget::clearMask()
     setMask( QRegion() );
 }
 
-void QWidget::setName( const char * )
+void QWidget::setName( const char *name )
 {
+    QObject::setName( name );
 }
 
 
