@@ -1364,7 +1364,11 @@ QString QDataTable::falseText() const
     return d->falseTxt;
 }
 
-/*!  \reimp
+/*! \property QDataTable::numRows
+
+  \brief the number of rows in the table
+
+  \reimp
 */
 
 int QDataTable::numRows() const
@@ -1396,7 +1400,11 @@ void QDataTable::setNumCols ( int r )
     QTable::setNumCols( r );
 }
 
-/*!  \reimp
+/*! \property QDataTable::numCols
+
+  \brief the number of columns in the table
+
+  \reimp
 */
 
 int QDataTable::numCols() const
