@@ -178,10 +178,8 @@ This should be available at the same place as the qt-embedded archive.
 <h3> Customization  </h3>
 
 <p>
-   The Qt/Embedded library can be further reduced in size by removing
-   unneeded features. The file <tt>qt-embedded/src/tools/qfeatures.h</tt>
-   defines macros of the form <tt>QT_FEATURE_XXXX</tt>. To remove a feature
-   from Qt/Embedded, set the macro to 0.
+   The Qt/Embedded library can be reduced in size by
+    <a href=features.html>removing unneeded features</a>.
 
 */
 
