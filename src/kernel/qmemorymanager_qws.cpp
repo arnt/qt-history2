@@ -473,7 +473,7 @@ public:
     QGlyphTree* tree;
     QRenderedFont* renderer; // ==0 for QPFs
 
-    struct {
+    struct Q_PACKED {
 	Q_UINT8 ascent,descent;
 	Q_INT8 leftbearing,rightbearing;
 	Q_UINT8 maxwidth;
