@@ -559,15 +559,15 @@ int QEventLoop::macHandleSelect(timeval *tm)
 #ifdef Q_OS_DARWIN
     int highest = 0;
     if(d->sn_highest >= 0) {			// has socket notifier(s)
-	if(d->sn_vec[0].list && ! d->sn_vec[0].list->isEmpty())
+	if(!d->sn_vec[0].list.isEmpty())
 	    d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
 	else
 	    FD_ZERO(&d->sn_vec[0].select_fds);
-	if(d->sn_vec[1].list && ! d->sn_vec[1].list->isEmpty())
+	if(!d->sn_vec[1].list.isEmpty())
 	    d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
 	else
 	    FD_ZERO(&d->sn_vec[1].select_fds);
-	if(d->sn_vec[2].list && ! d->sn_vec[2].list->isEmpty())
+	if(!d->sn_vec[2].list.isEmpty())
 	    d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
 	else
 	    FD_ZERO(&d->sn_vec[2].select_fds);
@@ -583,8 +583,8 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	highest = QMAX(highest, d->thread_pipe[0]);
     }
     int nsel = select(highest + 1, &d->sn_vec[0].select_fds,
-		      d->sn_vec[1].list ? &d->sn_vec[1].select_fds : 0,
-		      d->sn_vec[2].list ? &d->sn_vec[2].select_fds : 0, tm);
+		      !d->sn_vec[1].list.isEmpty() ? &d->sn_vec[1].select_fds : 0,
+		      !d->sn_vec[2].list.isEmpty() ? &d->sn_vec[2].select_fds : 0, tm);
 #endif
     if(qt_postselect_handler) {
 	QVFuncList::Iterator end = qt_postselect_handler->end();
@@ -610,7 +610,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 
 	    QList<QSockNot *> &list = d->sn_vec[i].list;
 	    for (int i = 0; i < list.size(); ++i) {
-		QSockNot *sn = list->at(i);
+		QSockNot *sn = list.at(i);
 		if(FD_ISSET(sn->fd, &d->sn_vec[i].select_fds))
 		    setSocketNotifierPending(sn->obj);
 	    }
@@ -703,7 +703,7 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     QSockNot *sn;
     int i;
     for (i = 0; i < list.size(); ++i) {
-	sn = list->at(i);
+	sn = list.at(i);
 	if(sn->obj == notifier && sn->fd == sockfd)
 	    break;
     }
@@ -712,15 +712,15 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 
     FD_CLR(sockfd, fds);			// clear fd bit
     FD_CLR(sockfd, sn->queue);
-    d->sn_pending_list.removeRef(sn);		// remove from activation list
-    list->remove();				// remove notifier found above
+    d->sn_pending_list.remove(sn);		// remove from activation list
+    list.remove(sn);				// remove notifier found above
 
     if(d->sn_highest == sockfd) {		// find highest fd
 	d->sn_highest = -1;
 	for(int i=0; i<3; i++) {
-	    if(d->sn_vec[i].list && ! d->sn_vec[i].list->isEmpty())
+	    if(!d->sn_vec[i].list.isEmpty())
 		d->sn_highest = QMAX(d->sn_highest,  // list is fd-sorted
-				      d->sn_vec[i].list->getFirst()->fd);
+				      d->sn_vec[i].list.first()->fd);
 	}
     }
     if(d->sn_highest == -1 && d->select_timer) {
