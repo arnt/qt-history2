@@ -15,10 +15,10 @@
 /*!
     \page compatclasses.html
 
-    \title The Qt 3 Compatibility Classes
+    \title The Qt 3 Support Classes
 
-    These classes are part of the Qt 3 compatibility library. To use
-    any of these, you must add the line \c{QT += compat} to your
+    These classes are part of the Qt 3 support library. To use
+    any of these, you must add the line \c{QT += qt3support} to your
     \c .pro file.
 
     \generatelist compatclasses

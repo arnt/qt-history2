@@ -381,12 +381,12 @@
     \row    \i core (included by default) \i Classes that provide fundamental Qt
                                              features
     \row    \i gui  (included by default) \i Widgets and other GUI classes
-    \row    \i network    \i \l{networking.html}{Network Module} classes
-    \row    \i opengl     \i \l{opengl.html}{OpenGL Module} classes
-    \row    \i sql        \i \l{sql.html}{SQL Module} classes
-    \row    \i xml        \i \l{xml.html}{XML Module} classes
-    \row    \i qt3support \i Enables the use of Qt 3 compatibility classes (see the
-                          \l{porting4.html}{Porting to Qt 4} guide)
+    \row    \i network    \i \l{Network Module} classes
+    \row    \i opengl     \i \l{OpenGL Module} classes
+    \row    \i sql        \i \l{SQL Module} classes
+    \row    \i xml        \i \l{XML Module} classes
+    \row    \i qt3support \i Enables the use of Qt 3 support classes (see the
+                          \l{Porting to Qt 4} guide)
     \endtable
 
 */

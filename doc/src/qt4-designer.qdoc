@@ -116,7 +116,7 @@ more convenient experience.
 
 \list
 \i Plugin support. Plugins can be used to add new widgets, special editors, and
-   support for Qt 3 compatibility widgets.
+   support for Qt 3 widgets.
 \i An action editor for setting up QActions.
 \i Integration with the new \l{resources.html}{resource system}.
 \i Support for QMainWindow-based forms.

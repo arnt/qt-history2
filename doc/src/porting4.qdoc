@@ -102,15 +102,15 @@
 
     The \l{qt3to4.html}{qt3to4 porting tool} replaces occurrences of
     Qt 3 classes that don't exist anymore in Qt 4 with the
-    corresponding compatibility class; for example, \c QListBox is
+    corresponding Qt 3 support class; for example, \c QListBox is
     turned into \c Q3ListBox.
 
     At some point, you might want to stop linking against the Qt 3
-    compatibility library and take advantage of Qt 4's new features.
-    The instructions below explain how to do that for each
+    support library (\l Qt3Support) and take advantage of Qt 4's new
+    features. The instructions below explain how to do that for each
     compatibility class.
 
-    In addition to the compatibility classes (such as \c Q3Action, \c
+    In addition to the Qt 3 support classes (such as \c Q3Action, \c
     Q3ListBox, and \c Q3ValueList), Qt 4 provides compatibility
     functions when it's possible for an old API to cohabit with the
     new one. For example, QString provides a
@@ -330,7 +330,7 @@
     Some properties have been removed from Qt 4, but the associated
     access functions are provided if \c QT3_SUPPORT is defined to help
     porting to Qt 4. When converting Qt 3 \c .ui files to Qt 4, \c
-    uic generates calls to the Qt compatibility functions.
+    uic generates calls to the Qt 3 compatibility functions.
 
     The table below lists these properties with the read and write
     functions that you can use instead. The documentation for the
@@ -487,9 +487,9 @@
     APIs.
 
     The old \c QAction and \c QActionGroup classes have been renamed
-    Q3Action and Q3ActionGroup and moved to the \l{Qt 3 compatibility
-    library}. In addition, the new QAction class has compatibility
-    functions to ease transition to Qt 4.
+    Q3Action and Q3ActionGroup and moved to Qt3Support. In addition,
+    the new QAction class has compatibility functions to ease
+    transition to Qt 4.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QAction virtual member functions in Qt 3 that are no longer
@@ -672,8 +672,8 @@
 
     The \c QButtonGroup class has been completely redesigned in Qt 4.
     For compatibility, the old \c QButtonGroup class has been renamed
-    Q3ButtonGroup and has been moved to the \l{Qt 3 compatibility
-    library}. Likewise, the \c QHButtonGroup and \c QVButtonGroup convenience
+    Q3ButtonGroup and has been moved to Qt3Support.
+    Likewise, the \c QHButtonGroup and \c QVButtonGroup convenience
     subclasses have been renamed \c Q3HButtonGroup and \c Q3VButtonGroup and
     moved to the Qt3Support library.
 
@@ -769,9 +769,9 @@
     \target qcache.section
     \section1 QCache<T>
 
-    QCache<T> has been renamed Q3Cache<T> and moved to the \l{Qt 3
-    compatibility library}. The new QCache class has a different API,
-    and takes different template parameters: QCache<Key, T>.
+    QCache<T> has been renamed Q3Cache<T> and moved to Qt3Support.
+    The new QCache class has a different API, and takes different
+    template parameters: QCache<Key, T>.
 
     When porting to Qt 4, QCache<QString, T> is the obvious
     substitute for Q3Cache<T>. The following table summarizes the API
@@ -955,7 +955,7 @@
     Q3CString that inherits from the new QByteArray class and that
     extends it to provide an API that is as close to the old \c QCString
     class as possible. Note that the following functions aren't
-    provided by the compatibility Q3CString class:
+    provided by Q3CString:
 
     \list
     \o QCString::find(const QRegExp &, int)
@@ -987,7 +987,7 @@
 
     When porting to Qt 4, occurrences of \c QCString should be
     replaced with QByteArray or QString. The following table
-    summarizes the API differences between the \c Q3CString compatibility
+    summarizes the API differences between the Q3CString
     class and the Qt 4 QByteArray and QString classes:
 
     \table
@@ -1124,15 +1124,15 @@
     \section1 QDateTimeEditBase
 
     The \c QDateTimeEditBase class has been renamed
-    Q3DateTimeEditBase and moved to the \l{Qt 3 compatibility
-    library}. Use QDateTimeEdit or QAbstractSpinBox instead.
+    Q3DateTimeEditBase and moved to Qt3Support. Use QDateTimeEdit or
+    QAbstractSpinBox instead.
 
     \section1 QDateTimeEdit
 
     The old \c QDateTimeEdit class has been renamed
-    Q3DateTimeEditBase and moved to the \l{Qt 3 compatibility
-    library}. The new QDateTimeEdit in Qt 4 has been rewritten from
-    scratch to provide a more flexible and powerful API.
+    Q3DateTimeEditBase and moved to Qt3Support. The new QDateTimeEdit
+    in Qt 4 has been rewritten from scratch to provide a more
+    flexible and powerful API.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QDateTimeEdit virtual member functions in Qt 3 that are no
@@ -1171,9 +1171,9 @@
     \target qdict.section
     \section1 QDict<T>
 
-    \c QDict<T> has been renamed Q3Dict<T> and moved to the \l{Qt 3
-    compatibility library}. It has been replaced by the more modern
-    QHash<Key, T> and QMultiHash<Key, T> classes.
+    \c QDict<T> has been renamed Q3Dict<T> and moved to Qt3Support.
+    It has been replaced by the more modern QHash<Key, T> and
+    QMultiHash<Key, T> classes.
 
     When porting old code that uses QDict<T> to Qt 4, there are four
     classes that you can use:
@@ -1527,11 +1527,11 @@
     ability to preview files, is expected to be added in a later Qt 4
     release.
 
-    The old \c QFileDialog, \c QFileIconProvider, and \c QFilePreview classes
-    has been renamed Q3FileDialog, Q3FileIconProvider, and
-    Q3FilePreview and have been moved to the \l{Qt 3 compatibility
-    library}. You can use them if you need some functionality not
-    provided yet by the new QFileDialog class.
+    The old \c QFileDialog, \c QFileIconProvider, and \c QFilePreview
+    classes has been renamed Q3FileDialog, Q3FileIconProvider, and
+    Q3FilePreview and have been moved to Qt3Support. You can use them
+    if you need some functionality not provided yet by the new
+    QFileDialog class.
 
     The following table lists which functions have been renamed or
     removed in Qt 4.
@@ -1774,18 +1774,18 @@
 
     \section1 QIntCache<T>
 
-    QIntCache<T> has been moved to the \l{Qt 3 compatibility
-    library}. It has been replaced by QCache<int, T>.
+    QIntCache<T> has been moved to Qt3Support. It has been replaced
+    by QCache<int, T>.
 
     For details, read the \l{#qcache.section}{section on QCache<T>},
     mentally substituting \c int for QString.
 
     \section1 QIntDict<T>
 
-    QIntDict<T> and QIntDictIterator<T> have been moved to the \l{Qt
-    3 compatibility library}. They have been replaced by the more
-    modern QHash<Key, T> and QMultiHash<Key, T> classes and their
-    associated iterator classes.
+    QIntDict<T> and QIntDictIterator<T> have been moved to
+    Qt3Support. They have been replaced by the more modern QHash<Key,
+    T> and QMultiHash<Key, T> classes and their associated iterator
+    classes.
 
     When porting old code that uses QIntDict<T> to Qt 4, there are
     four classes that you can use:
@@ -1960,23 +1960,23 @@
     \section1 QLocalFs
 
     The \c QLocalFs class is no longer part of the public Qt API. It
-    has been renamed Q3LocalFs and moved to the \l{Qt 3 compatibility
-    library}. Use QDir, QFileInfo, or QFile instead.
+    has been renamed Q3LocalFs and moved to Qt3Support. Use QDir,
+    QFileInfo, or QFile instead.
 
     \section1 QMainWindow
 
     The QMainWindow class has been redesigned in Qt 4 to provide a
     more modern look and feel and more flexibility. The API has
     changed to reflect that. The old \c QMainWindow class has been
-    renamed Q3MainWindow and moved to the \l{Qt 3 compatibility
-    library}. See the QMainWindow class documentation for details.
+    renamed Q3MainWindow and moved to Qt3Support. See the QMainWindow
+    class documentation for details.
 
     \omit ### More detail \endomit
 
     \section1 QMemArray<T>
 
-    QMemArray<T> has been moved to the \l{Qt 3 compatibility
-    library}. It has been replaced by the QVector<T> class.
+    QMemArray<T> has been moved to Qt3Support. It has been replaced
+    by the QVector<T> class.
 
     The following table summarizes the API differences between the
     two classes.
@@ -2045,8 +2045,8 @@
     The \c QMultiLineEdit class in Qt 3 was a convenience QTextEdit
     subclass that provided an interface compatible with Qt 2's
     QMultiLineEdit class. In Qt 4, it is called Q3MultiLineEdit, it
-    inherits Q3TextEdit, and it is part of the \l{Qt 3 compatibility
-    library}. Use QTextEdit in new code.
+    inherits Q3TextEdit, and it is part of Qt3Support. Use QTextEdit
+    in new code.
 
     \target qnetworkprotocol.section
     \section1 QNetworkProtocol
@@ -2109,8 +2109,7 @@
     \endcode
 
     For compatibility, the old \c QPaintDeviceMetrics class has been
-    renamed Q3PaintDeviceMetrics and moved to the \l{Qt 3
-    compatibility library}.
+    renamed Q3PaintDeviceMetrics and moved to Qt3Support.
 
     \section1 QPainter
 
@@ -2119,10 +2118,9 @@
     QRect with a pen width of 1 pixel is 1 pixel wider and 1 pixel
     taller than in Qt 3.
 
-    For compatibility, we provide a Q3Painter class in the \l{Qt 3
-    compatibility library} that provides the old semantics. See the
-    Q3Painter documentation for details and for the reasons why we
-    had to do this change.
+    For compatibility, we provide a Q3Painter class in Qt3Support
+    that provides the old semantics. See the Q3Painter documentation
+    for details and for the reasons why we had to do this change.
 
 \omit
     \section1 QPixmap
@@ -2675,8 +2673,8 @@
 
     \section1 QPtrVector<T>
 
-    QPtrVector<T> has been moved to the \l{Qt 3 compatibility
-    library}. It has been replaced by the more modern QVector class.
+    QPtrVector<T> has been moved to Qt3Support. It has been replaced
+    by the more modern QVector class.
 
     When porting to Qt 4, you can use QVector<T *> as an alternative
     to QPtrVector<T>. The APIs of QPtrVector<T> and QVector<T *> are
@@ -3034,9 +3032,9 @@
 
     \section1 QSplitter
 
-    The function setResizeMode() has been moved into the \l{Qt 3 compatibility
-    library}. Set the stretch factor
-    in the widget's size policy to get equivalent functionality.
+    The function setResizeMode() has been moved into Qt3Support. Set
+    the stretch factor in the widget's size policy to get equivalent
+    functionality.
 
     The obsolete function drawSplitter() has been removed. Use
     QStyle::drawPrimitive() to acheive similar functionality.
@@ -3065,11 +3063,9 @@
     \section1 QSqlEditorFactory
 
     The \c QSqlEditorFactory class has been renamed
-    Q3SqlEditorFactory and moved to the \l{Qt 3 compatibility
-    library}.
+    Q3SqlEditorFactory and moved to Qt3Support.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{SQL Module} for an overview of the new SQL classes.
 
     \section1 QSqlError
 
@@ -3085,9 +3081,8 @@
 
     \section1 QSqlFieldInfo
 
-    The QSqlFieldInfo class has been moved to the \l{Qt 3
-    compatibility library}. Its functionality is now provided by the
-    QSqlField class.
+    The QSqlFieldInfo class has been moved to Qt3Support. Its
+    functionality is now provided by the QSqlField class.
 
     See \l{sql.html}{SQL Module} for an overview of the new SQL
     classes.
@@ -3122,9 +3117,8 @@
 
     \section1 QSqlRecordInfo
 
-    The QSqlRecordInfo class has been moved to the \l{Qt 3
-    compatibility library}. Its functionality is now provided by the
-    QSqlRecord class.
+    The QSqlRecordInfo class has been moved to Qt3Support. Its
+    functionality is now provided by the QSqlRecord class.
 
     See \l{sql.html}{SQL Module} for an overview of the new SQL
     classes.
@@ -3153,9 +3147,9 @@
     \section1 QStr(I)Vec
 
     The QStrVec and QStrIVec convenience classes have been deprecated
-    since Qt 2.0. In Qt 4, they have been moved to the \l{Qt 3
-    compatibility library}. If you used any of these, we recommend
-    that you use QStringList or QList<QByteArray> instead.
+    since Qt 2.0. In Qt 4, they have been moved to Qt3Support. If you
+    used any of these, we recommend that you use QStringList or
+    QList<QByteArray> instead.
 
     \section1 QString
 
@@ -3387,10 +3381,10 @@
     \section1 QTabDialog
 
     The \c QTabDialog class is no longer part of the public Qt API.
-    It has been renamed Q3TabDialog and moved to the \l{Qt 3
-    compatibility library}. In Qt 4 applications, you can easily
-    obtain the same result by combining a QTabWidget with a QDialog
-    and provide \l{QPushButton}s yourself.
+    It has been renamed Q3TabDialog and moved to Qt3Support. In Qt 4
+    applications, you can easily obtain the same result by combining
+    a QTabWidget with a QDialog and provide \l{QPushButton}s
+    yourself.
 
     See also the \l{dialogs/tabdialog} example, which shows how to
     implement tab dialogs in Qt 4.
@@ -3421,9 +3415,8 @@
     \section1 QTextEdit
 
     The old QTextEdit and QTextBrowser classes have been renamed
-    Q3TextEdit and Q3TextBrowser, and have been moved to the \l{Qt 3
-    compatibility library}. The new QTextEdit and QTextBrowser have a
-    somewhat different API.
+    Q3TextEdit and Q3TextBrowser, and have been moved to Qt3Support.
+    The new QTextEdit and QTextBrowser have a somewhat different API.
 
     See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
     text classes.
@@ -3453,9 +3446,8 @@
 
     The old \c QToolBar class, which worked with the old \c
     QMainWindow and \c QDockArea classes and inherited from \c
-    QDockWindow, has been renamed Q3ToolBar and moved to the \l{Qt 3
-    compatibility library}. Use the new QToolBar class in new
-    applications.
+    QDockWindow, has been renamed Q3ToolBar and moved to Qt3Support.
+    Use the new QToolBar class in new applications.
 
     \section1 QToolButton
 
@@ -3497,8 +3489,7 @@
     \section1 QUrlOperator
 
     The \c QUrlOperator class is no longer part of the public Qt API.
-    It has been renamed Q3UrlOperator and moved to the \l{Qt 3
-    compatibility library}.
+    It has been renamed Q3UrlOperator and moved to Qt3Support.
 
     In Qt 4 applications, you can use classes like QFtp and QHttp
     directly to perform file-related actions on a remote host.
@@ -3561,9 +3552,9 @@
     \section1 QValueVector<T>
 
     The QValueVector<T> class has been replaced by QVector<T> in Qt
-    4. As a help when porting older Qt applications, the \l{Qt 3
-    compatibility library} contains a QValueVector<T> class
-    implemented in terms of the new QVector<T>.
+    4. As a help when porting older Qt applications, the Qt3Support
+    library contains a Q3ValueVector<T> class implemented in terms of
+    the new QVector<T>.
 
     When porting from QValueVector<T> to QVector<T>, you might run
     into the following incompatibilities:
@@ -3611,8 +3602,7 @@
     \section1 QWhatsThis
 
     The QWhatsThis class has been redesigned in Qt 4. The old \c
-    QWhatsThis class is available as Q3WhatsThis in the \l{Qt 3
-    compatibility library}.
+    QWhatsThis class is available as Q3WhatsThis in Qt3Support.
 
     \section1 QWidget
 
@@ -3739,9 +3729,9 @@
     \section1 QWidgetIntDict
 
     The QWidgetIntDict class was a synonym for QIntDict<QWidget>. It
-    is no longer available in Qt 4. If you link against the \l{Qt 3
-    compatibility library}, you can use QIntDict<QWidget> instead;
-    otherwise, see the \l{#qdict.section}{section on QDict<T>}.
+    is no longer available in Qt 4. If you link against Qt3Support,
+    you can use QIntDict<QWidget> instead; otherwise, see the
+    \l{#qdict.section}{section on QDict<T>}.
 
     \target qwidgetlist.section
     \section1 QWidgetList
@@ -3753,19 +3743,19 @@
     \section1 QWidgetStack
 
     The QWidgetStack class is no longer part of the Qt public API. It
-    has been renamed Q3WidgetStack and moved to the \l{Qt 3
-    compatibility library}. In Qt 4 applications, you can use
-    QStackedWidget instead to obtain the same results.
+    has been renamed Q3WidgetStack and moved to Qt3Support. In Qt 4
+    applications, you can use QStackedWidget instead to obtain the
+    same results.
 
     \section1 QWizard
 
     The \c QWizard class is no longer part of the Qt public API. It
-    has been renamed Q3Wizard and moved to the \l{Qt 3 compatibility
-    library}. In Qt 4 applications, you can easily obtain the same
-    result by combining a QStackedBox with a QDialog and provide
-    \l{QPushButton}s yourself.
+    has been renamed Q3Wizard and moved to \l Qt3Support. In Qt 4
+    applications, you can easily obtain the same result by combining
+    a QStackedBox with a QDialog and provide \l{QPushButton}s
+    yourself.
 
-    The \l dialogs/simplewizard and \l dialogs/complexwizard examples show
+    The \l{Simple Wizard} and \l{Complex Wizard} examples show
     how to create wizards without using Q3Wizard.
 
     \section1 QWorkspace

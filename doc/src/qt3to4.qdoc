@@ -35,7 +35,7 @@
     conversions:
 
     \list
-    \o  Rename classes that are now part of the Qt 3 compatibility
+    \o  Rename classes that are now part of the Qt 3 support
         library (e.g., replace \c QFileDialog with \c{Q3FileDialog}).
     \o  Prefix or rename enum values that have been moved or
         renamed (e.g., replace \c QButton::On with \c{QCheckBox::On}) or

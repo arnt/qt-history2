@@ -19,8 +19,7 @@
 
     For a shorter list that only includes the most frequently used
     classes, see \link mainclasses.html Qt's Main Classes \endlink.
-    For a list of Qt 3 compatibility classes, see
-    \link compatclasses.html The Qt 3 Compatibility Classes \endlink.
+    For a list of Qt 3 support classes, see \l{The Qt 3 Support Classes}.
 
     \generatelist classes
 */
@@ -41,8 +40,7 @@
     \row \i \l{qtxml.html}{QtXml} \i Classes for handling XML.
     \endtable
 
-    For a list of Qt 3 compatibility classes, see
-    \link compatclasses.html The Qt 3 Compatibility Classes \endlink.
+    For a list of Qt 3 support classes, see \l{The Qt 3 Support Classes}.
 */
 
 /*!

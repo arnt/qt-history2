@@ -48,7 +48,7 @@
     since Qt 3:
 
     \list
-    \o A fully cross-platform \l{qt4-accessibility.html}{accessibility}
+    \o A fully cross-platform \l{accessibility}
     module, with support for the emerging SP-API Unix standard in
     addition to Microsoft and Mac Accessibility.
     \o The \l{qt4-sql.html}{SQL module}, which is now based on the
