@@ -165,6 +165,43 @@ QString HelpNavigationContentsItem::link() const
 HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v ), lwClosed( FALSE )
 {
+}
+
+void HelpDialog::initialize()
+{
+    connect( tabWidget, SIGNAL( selected(const QString&) ),
+	     this, SLOT( currentTabChanged(const QString&) ) );
+    connect( listContents, SIGNAL( clicked(QListViewItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( listContents, SIGNAL( currentChanged(QListViewItem*) ),
+	     this, SLOT( currentContentsChanged(QListViewItem*) ) );
+    connect( listContents, SIGNAL( selectionChanged(QListViewItem*) ),
+	     this, SLOT( currentContentsChanged(QListViewItem*) ) );
+    connect( listContents, SIGNAL( doubleClicked(QListViewItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( listContents, SIGNAL( returnPressed(QListViewItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( editIndex, SIGNAL( returnPressed() ),
+	     this, SLOT( showTopic() ) );
+    connect( editIndex, SIGNAL( textChanged(const QString&) ),
+	     this, SLOT( searchInIndex(const QString&) ) );
+    connect( listIndex, SIGNAL( selectionChanged(QListBoxItem*) ),
+	     this, SLOT( currentIndexChanged(QListBoxItem*) ) );
+    connect( listIndex, SIGNAL( returnPressed(QListBoxItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( listIndex, SIGNAL( clicked(QListBoxItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( listIndex, SIGNAL( currentChanged(QListBoxItem*) ),
+	     this, SLOT( currentIndexChanged(QListBoxItem*) ) );
+    connect( listBookmarks, SIGNAL( clicked(QListViewItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( listBookmarks, SIGNAL( returnPressed(QListViewItem*) ),
+	     this, SLOT( showTopic() ) );
+    connect( listBookmarks, SIGNAL( selectionChanged(QListViewItem*) ),
+	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
+    connect( listBookmarks, SIGNAL( currentChanged(QListViewItem*) ),
+	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
+
     bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
     mime->setExtensionType( "html", "text/html;charset=UTF-8" );
@@ -535,7 +572,7 @@ void HelpDialog::currentTabChanged( const QString &s )
 {
     if ( s.contains( tr( "Index" ) ) ) {
 	if ( !indexDone )
-	    QTimer::singleShot( 100, this, SLOT( loadIndexFile() ) );
+	    QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
     } else if ( s.contains( tr( "Bookmarks" ) ) ) {
 	if ( !bookmarksInserted )
 	    insertBookmarks();

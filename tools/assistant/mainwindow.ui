@@ -567,16 +567,19 @@
     <forward>class HelpDialog;</forward>
 </forwards>
 <variables>
-    <variable>SettingsDialog * settings;</variable>
+    <variable>SettingsDialog * settingsDia;</variable>
     <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
     <variable>HelpWindow *browser;</variable>
     <variable>HelpDialog *helpDock;</variable>
+    <variable>QDockWindow *dw;</variable>
     <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
     <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
 </variables>
 <slots>
     <slot>init()</slot>
+    <slot>setup()</slot>
     <slot>destroy()</slot>
+    <slot>setObjectsEnabled( bool )</slot>
     <slot>about()</slot>
     <slot>aboutQt()</slot>
     <slot>find()</slot>

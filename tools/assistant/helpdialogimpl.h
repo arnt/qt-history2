@@ -81,6 +81,7 @@ protected slots:
     void currentContentsChanged( QListViewItem *i );
 
 public slots:
+    void initialize();
     void toggleContents();
     void toggleIndex();
     void toggleBookmarks();

@@ -1,6 +1,7 @@
 #include <qtabwidget.h>
 #include <qfileinfo.h>
 #include <qaccel.h>
+#include <qobjectlist.h>
 #include <qtimer.h>
 
 static const char *logo_xpm[] = {
@@ -248,20 +249,60 @@ void MainWindow::init()
     setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    QAccel *acc = new QAccel( this );
-    acc->connectItem( acc->insertItem( Key_F5 ),
-		      browser,
-		      SLOT( reload() ) );
     setCentralWidget( browser );
+    settingsDia = 0;
 
-    settings = 0L;
-
-#ifdef QT_PALMTOPCENTER_DOCS
     QSettings settings;
+#ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
 			       QDir::homeDirPath() + "/.palmtopcenter/" );
+    actionGoLinguist->removeFrom( goMenu );
+    actionGoLinguist->removeFrom( Toolbar );
+    actionGoQt->removeFrom( goMenu );
+    actionGoQt->removeFrom( Toolbar );
+    actionGoDesigner->removeFrom( goMenu );
+    actionGoDesigner->removeFrom( Toolbar );
+#else
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+#endif
 
+    dw = new QDockWindow;
+    helpDock = new HelpDialog( dw, this, browser );
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseMode( QDockWindow::Always );
+    addDockWindow( dw, DockLeft );
+    dw->setWidget( helpDock );
+    dw->setCaption( "Sidebar" );
+    dw->setFixedExtentWidth( 250 );
+
+    setObjectsEnabled( FALSE );
+
+    // read geometry configuration
+    QString keybase("/Qt Assistant/3.1/");
+    if ( !settings.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
+	QRect r( pos(), size() );
+	r.setX( settings.readNumEntry( keybase + "GeometryX", r.x() ) );
+	r.setY( settings.readNumEntry( keybase + "GeometryY", r.y() ) );
+	r.setWidth( settings.readNumEntry( keybase + "GeometryWidth", r.width() ) );
+	r.setHeight( settings.readNumEntry( keybase + "GeometryHeight", r.height() ) );
+
+	QRect desk = QApplication::desktop()->geometry();
+	QRect inter = desk.intersect( r );
+	resize( r.size() );
+	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
+	    move( r.topLeft() );
+	}
+    }
+    QTimer::singleShot( 0, this, SLOT( setup() ) );
+}
+
+void MainWindow::setup()
+{
+    helpDock->initialize();
+    QSettings settings;
+#ifdef QT_PALMTOPCENTER_DOCS
+    settings.insertSearchPath( QSettings::Unix,
+			       QDir::homeDirPath() + "/.palmtopcenter/" );
     QString dir = settings.readEntry( "/palmtopcenter/qtopiadir" );
     if ( dir.isEmpty() )
 	dir = getenv( "PALMTOPCENTERDIR" );
@@ -271,13 +312,8 @@ void MainWindow::init()
     browser->mimeSourceFactory()->addFilePath( dir + "/doc/" + lang );
     browser->mimeSourceFactory()->addFilePath( dir + "/doc/en/" );
     browser->mimeSourceFactory()->setExtensionType("html","text/html;charset=UTF-8");
-    actionGoLinguist->removeFrom( goMenu );
-    actionGoLinguist->removeFrom( Toolbar );
-    actionGoQt->removeFrom( goMenu );
-    actionGoQt->removeFrom( Toolbar );
-    actionGoDesigner->removeFrom( goMenu );
-    actionGoDesigner->removeFrom( Toolbar );
 #else
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     QString base( qInstallPathDocs() );
     browser->mimeSourceFactory()->addFilePath( base + "/html/" );
 #endif
@@ -286,57 +322,54 @@ void MainWindow::init()
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
     connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
     connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
-
-    QDockWindow *dw = new QDockWindow;
-    helpDock = new HelpDialog( dw, this, browser );
-    dw->setResizeEnabled( TRUE );
-    dw->setCloseMode( QDockWindow::Always );
-    addDockWindow( dw, DockLeft );
-    dw->setWidget( helpDock );
-    dw->setCaption( "Sidebar" );
-    dw->setFixedExtentWidth( 250 );
-
     connect( helpDock, SIGNAL( showLink( const QString& ) ),
 	     this, SLOT( showLink( const QString& ) ) );
-
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( showBookmark( int ) ) );
-
-    setupBookmarkMenu();
-    connect( browser, SIGNAL( highlighted( const QString & ) ), statusBar(), SLOT( message( const QString & ) ) );
+    connect( browser, SIGNAL( highlighted( const QString & ) ),
+	     statusBar(), SLOT( message( const QString & ) ) );
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
     connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) );
 
-    PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
+    QAccel *acc = new QAccel( this );
+    acc->connectItem( acc->insertItem( Key_F5 ), browser, SLOT( reload() ) );
 
     QAccel *a = new QAccel( this, dw );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ), helpDock, SLOT( toggleContents() ) );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ), helpDock, SLOT( toggleIndex() ) );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ), helpDock, SLOT( toggleBookmarks() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ),
+		    helpDock, SLOT( toggleContents() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ),
+		    helpDock, SLOT( toggleIndex() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ),
+		    helpDock, SLOT( toggleBookmarks() ) );
+
     a = new QAccel( dw );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ), helpDock, SLOT( toggleContents() ) );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ), helpDock, SLOT( toggleIndex() ) );
-    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ), helpDock, SLOT( toggleBookmarks() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ),
+		    helpDock, SLOT( toggleContents() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ),
+		    helpDock, SLOT( toggleIndex() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ),
+		    helpDock, SLOT( toggleBookmarks() ) );
+
 
     // read configuration
     QString keybase("/Qt Assistant/3.1/");
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QFont fnt( browser->QWidget::font() );
-    fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
-    fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
+    fnt.setFamily( settings.readEntry( keybase + "Family", fnt.family() ) );
+    fnt.setPointSize( settings.readNumEntry( keybase + "Size", fnt.pointSize() ) );
     browser->setFont( fnt );
-    browser->setLinkUnderline( config.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
+    browser->setLinkUnderline( settings.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
 
     QPalette pal = browser->palette();
-    QColor lc( config.readEntry( keybase + "LinkColor", pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
+    QColor lc( settings.readEntry( keybase + "LinkColor",
+	       pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
     pal.setColor( QPalette::Active, QColorGroup::Link, lc );
     pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
     pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
     browser->setPalette( pal );
 
-    QString family = config.readEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
+    QString family = settings.readEntry( keybase + "FixedFamily",
+			browser->styleSheet()->item( "pre" )->fontFamily() );
 
     QStyleSheet *sh = browser->styleSheet();
     sh->item( "pre" )->setFontFamily( family );
@@ -344,47 +377,39 @@ void MainWindow::init()
     sh->item( "tt" )->setFontFamily( family );
     browser->setStyleSheet( sh );
 
-    QApplication::sendPostedEvents();
-    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
-    QFile f( fn );
-    if ( f.open( IO_ReadOnly ) ) {
-	QTextStream ts( &f );
-	ts >> *this;
-	f.close();
-    }
+    setupBookmarkMenu();
+    PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
+    helpDock->tabWidget->setCurrentPage( settings.readNumEntry( keybase
+					 + "SideBarPage", 0 ) );
 
-    helpDock->tabWidget->setCurrentPage( config.readNumEntry( keybase + "SideBarPage", 0 ) );
+    setObjectsEnabled( TRUE );
 
-    if ( !config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
-	QRect r( pos(), size() );
-	r.setX( config.readNumEntry( keybase + "GeometryX", r.x() ) );
-	r.setY( config.readNumEntry( keybase + "GeometryY", r.y() ) );
-	r.setWidth( config.readNumEntry( keybase + "GeometryWidth", r.width() ) );
-	r.setHeight( config.readNumEntry( keybase + "GeometryHeight", r.height() ) );
-
-	QRect desk = QApplication::desktop()->geometry();
-	QRect inter = desk.intersect( r );
-	resize( r.size() );
-	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-	    move( r.topLeft() );
-	}
-    }
-
-    QString source = config.readEntry( keybase + "Source", QString::null );
-    QString title = config.readEntry( keybase + "Title", source );
-
-#if 0
-    if ( !source.isEmpty() )
-	showLink( source );
-    else
-	goHome();
-
-    qApp->processEvents();
-#endif
-    if ( config.readBoolEntry( "/Qt Assistant/3.1/NewDoc/", FALSE ) ) {
+    if ( settings.readBoolEntry( "/Qt Assistant/3.1/NewDoc/", FALSE ) ) {
 	QTimer::singleShot( 0, helpDock, SLOT( generateNewDocu() ));
-	config.writeEntry( "/Qt Assistant/3.1/NewDoc/", FALSE );
+	settings.writeEntry( "/Qt Assistant/3.1/NewDoc/", FALSE );
     }
+
+}
+
+void MainWindow::setObjectsEnabled( bool b )
+{
+    if ( b ) {
+	qApp->restoreOverrideCursor();
+	statusBar()->message( tr( "done." ), 1000 );
+    } else {
+	qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
+	statusBar()->message( tr( "initializing Qt Assistant..." ) );
+    }
+    QObjectList *l = queryList( "QAction" );
+    QObject *obj;
+    QObjectListIt it( *l );
+    while ( (obj = it.current()) != 0 ) {
+        ++it;
+        ((QAction*)obj)->setEnabled( b );
+    }
+    delete l;
+    menubar->setEnabled( b );
+    helpDock->setEnabled( b );
 }
 
 void MainWindow::destroy()
@@ -550,37 +575,37 @@ void MainWindow::setFamily( const QString & f )
 
 void MainWindow::showSettingsDialog()
 {
-    if ( !settings ){
-	settings = new SettingsDialog( this );
-	connect( settings, SIGNAL( docuFilesChanged() ), helpDock, SLOT( generateNewDocu() ));
-	connect( settings, SIGNAL( categoryChanged() ), helpDock, SLOT( showChangedDocu() ));
+    if ( !settingsDia ){
+	settingsDia = new SettingsDialog( this );
+	connect( settingsDia, SIGNAL( docuFilesChanged() ), helpDock, SLOT( generateNewDocu() ));
+	connect( settingsDia, SIGNAL( categoryChanged() ), helpDock, SLOT( showChangedDocu() ));
     }
     QFontDatabase fonts;
-    settings->fontCombo->insertStringList( fonts.families() );
-    settings->fontCombo->lineEdit()->setText( browser->QWidget::font().family() );
-    settings->fixedfontCombo->insertStringList( fonts.families() );
-    settings->fixedfontCombo->lineEdit()->setText( browser->styleSheet()->item( "pre" )->fontFamily() );
-    settings->linkUnderlineCB->setChecked( browser->linkUnderline() );
-    settings->colorButton->setPaletteBackgroundColor( browser->palette().color( QPalette::Active, QColorGroup::Link ) );
+    settingsDia->fontCombo->insertStringList( fonts.families() );
+    settingsDia->fontCombo->lineEdit()->setText( browser->QWidget::font().family() );
+    settingsDia->fixedfontCombo->insertStringList( fonts.families() );
+    settingsDia->fixedfontCombo->lineEdit()->setText( browser->styleSheet()->item( "pre" )->fontFamily() );
+    settingsDia->linkUnderlineCB->setChecked( browser->linkUnderline() );
+    settingsDia->colorButton->setPaletteBackgroundColor( browser->palette().color( QPalette::Active, QColorGroup::Link ) );
 
-    int ret = settings->exec();
+    int ret = settingsDia->exec();
 
     if ( ret != QDialog::Accepted )
 	return;
 
     QFont fnt( browser->QWidget::font() );
-    fnt.setFamily( settings->fontCombo->currentText() );
+    fnt.setFamily( settingsDia->fontCombo->currentText() );
     browser->setFont( fnt );
-    browser->setLinkUnderline( settings->linkUnderlineCB->isChecked() );
+    browser->setLinkUnderline( settingsDia->linkUnderlineCB->isChecked() );
 
     QPalette pal = browser->palette();
-    QColor lc = settings->colorButton->paletteBackgroundColor();
+    QColor lc = settingsDia->colorButton->paletteBackgroundColor();
     pal.setColor( QPalette::Active, QColorGroup::Link, lc );
     pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
     pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
     browser->setPalette( pal );
 
-    QString family = settings->fixedfontCombo->currentText();
+    QString family = settingsDia->fixedfontCombo->currentText();
 
     QStyleSheet *sh = browser->styleSheet();
     sh->item( "pre" )->setFontFamily( family );
