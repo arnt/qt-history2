@@ -3529,14 +3529,40 @@ void QFileDialog::okClicked()
 		fileName = d->moreFiles->selectedItem()->text();
 	    else
 		fileName = fn;
-
-	    QFileInfo fileinfo( d->url.path() + fileName );
+	
+	    QFileInfo fileinfo;
+	    bool usepath = TRUE;
+#if defined(Q_WS_WIN) 
+	    if ( fn.length() == 2 && 
+		 fn[0].isLetter() && 
+		 fn[1] == ':' ) {
+		fileinfo.setFile( fn );
+		usepath = FALSE;
+	    } else if ( fn.length() >= 3 && 
+			fn[0].isLetter() && 
+			fn[1] == ':' && 
+			fn[2] == '\\' )  {
+		fileinfo.setFile( fn );
+		usepath = FALSE;
+	    } else 
+#else
+     	    if ( fn.left( 1 ) == "/" ) {
+		fileinfo.setFile( fn );
+		usepath = FALSE;
+	    } else		    
+#endif
+		fileinfo.setFile( d->url.path() + fileName );
 
 	    if ( fileinfo.isDir() )
 		fn = fileName;
-	}
 
-	if ( mode() == ExistingFiles ) {
+	    if ( usepath )
+		if ( !fn.isEmpty() && !isReadable( d->url.path() + fn ) )
+		    return;
+	    else
+		if ( !fn.isEmpty() && !isReadable( fn ) )
+		    return;
+	} else {
 	    if ( !fn.isEmpty() ) {
 		QStringList list = selectedFiles();
 		QStringList::Iterator it = list.begin();
@@ -3546,8 +3572,7 @@ void QFileDialog::okClicked()
 		    ++it;
 		}
 	    }
-	} else if ( !fn.isEmpty() && !isReadable( d->url.path() + fn ) )
-	    return;
+	}
     }
 
     // if we're in multi-selection mode and something is selected,
