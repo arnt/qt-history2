@@ -23,15 +23,16 @@ int main( int argc, char ** argv ) {
 	QWidget * w;
 	int y=0;
 	int row = 0;
+	int c = 0;
 	while( y < h ) {
-	    switch( random()%3 ) {
+	    switch( rand()%3 ) {
 	    case 0:
 		w = new QSpinBox( n, n+100, 1, t );
 		n++;
 		break;
 	    case 1:
 		w = new QComboBox( TRUE, t );
-		for( int c = n; c < n+10; c++ )
+		for( c = n; c < n+10; c++ )
 		    ((QComboBox *)w)->insertItem( QString::number( c ) );
 		n++;
 		break;
