@@ -739,7 +739,6 @@ void QPopupMenu::hilitSig( int id )
 #endif
 }
 
-
 void QPopupMenu::setFirstItemActive()
 {
     QMenuItemListIt it(*mitems);
@@ -1139,7 +1138,7 @@ void QPopupMenu::updateSize()
     if ( max_width + tab < maxWidgetWidth )
 	max_width = maxWidgetWidth - tab;
 
-    if ( ncols == 1 ) 
+    if ( ncols == 1 )
 	setMaximumSize( QMAX( minimumWidth(), max_width + tab + 2*frameWidth() ),
 		      QMAX( minimumHeight() , height + 2*frameWidth() ) );
     else
@@ -2024,9 +2023,28 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
     }
 #endif
-    if ( dy && actItem < 0 ) {
-	setFirstItemActive();
-    } else if ( dy ) {				// highlight next/prev
+    if ( actItem < 0 ) {
+	if ( dy > 0 ) {
+	    setFirstItemActive();
+	} else if ( dy < 0 ) {
+	    QMenuItemListIt it(*mitems);
+	    it.toLast();
+	    register QMenuItem *mi;
+	    int ai = count() - 1;
+	    while ( (mi=it.current()) ) {
+		--it;
+		if ( !mi->isSeparator() && mi->id() != QMenuData::d->aInt ) {
+		    setActiveItem( ai );
+		    return;
+		}
+		ai--;
+	    }
+	    actItem = -1;
+	}
+	return;
+    }
+
+    if ( dy ) {				// highlight next/prev
 	register int i = actItem;
 	int c = mitems->count();
 	for(int n = c; n; n--) {
