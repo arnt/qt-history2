@@ -2629,7 +2629,7 @@ QMap<QString, QVariant>& QVariant::asMap()
     \header \i Type \i Automatically Cast To
     \row \i Bool \i Double, Int, UInt
     \row \i Color \i String
-    \row \i Date \i String
+    \row \i Date \i String, DateTime
     \row \i DateTime \i String, Date, Time
     \row \i Double \i String, Int, Bool, UInt
     \row \i Font \i String
@@ -2664,7 +2664,7 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == Time && ( d->typ == String || d->typ == DateTime ) )
 	return TRUE;
-    if ( t == DateTime && d->typ == String )
+    if ( t == DateTime && ( d->typ == String || d->typ == Date ) )
 	return TRUE;
     if ( ( t == KeySequence && ( d->typ == String || d->typ == Int ) ) )
 	return TRUE;
