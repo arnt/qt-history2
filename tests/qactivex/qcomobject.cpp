@@ -807,6 +807,11 @@ public:
     HRESULT __stdcall OnChanged( DISPID dispID )
     {
 	// verify input
+	if ( dispID == DISPID_UNKNOWN ) {
+	    qDebug( "Multiple things have changed!" );
+	    return S_OK;
+	}
+
 	QMetaObject *meta = combase->metaObject();
 	QString signame = propsigs[dispID];
 	QString propname = props[dispID];

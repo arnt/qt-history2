@@ -108,11 +108,12 @@ extern BSTR QStringToBSTR( const QString &str );
     \brief The QClientSite class implements the interfaces for the OLE client to communicate with the OLE object.
 */
 class QClientSite : public IDispatch,
-		    public IAdviseSink,
+		    public IAdviseSink2,
+		    public IAdviseSinkEx,
 		    public IOleControlSite,
 		    public IOleClientSite,
-		    //public IOleContainer,
-		    public IOleInPlaceSite,
+		    public IOleContainer,
+		    public IOleInPlaceSiteEx,
 		    public IOleInPlaceFrame,
 		    public ISimpleFrameSite
 {
@@ -126,8 +127,8 @@ public:
 	    CComPtr<IOleObject> ole;
 	    control->QueryInterface( IID_IOleObject, (void**)&ole );
 	    if ( ole ) {
-		ole->Advise( this, &oleconnection );
-		ole->SetClientSite( this );
+		ole->Advise( (IAdviseSink*)(IAdviseSink2*)this, &oleconnection );
+		ole->SetClientSite( (IOleClientSite*)this );
 		QString appname;
 		if ( qApp->mainWidget() )
 		    appname = qApp->mainWidget()->caption();
@@ -136,6 +137,14 @@ public:
 		if ( appname.isEmpty() )
 		    appname = qApp->name();
 		ole->SetHostNames( QStringToBSTR( appname ), 0 );
+
+		RECT rc = { 0, 0, activex->width(), activex->height() };
+		ole->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)this, 0/*reserved*/, activex->winId(), &rc );
+	    }
+	    CComPtr<IViewObject> view;
+	    control->QueryInterface( IID_IViewObject, (void**)&view );
+	    if ( view ) {
+		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, (IAdviseSink*)(IAdviseSink2*)this );
 	    }
 
 	    CComPtr<IOleInPlaceActiveObject> inplace;
@@ -146,7 +155,7 @@ public:
 		rc.top = 0;
 		rc.right = activex->width();
 		rc.bottom = activex->height();
-		inplace->ResizeBorder( &rc, this, TRUE );
+		inplace->ResizeBorder( &rc, (IOleInPlaceUIWindow*)this, TRUE );
 	    }
 	}
     }
@@ -159,6 +168,12 @@ public:
 		ole->Unadvise( oleconnection );
 
 	    control->Release();
+
+	    CComPtr<IViewObject> view;
+	    control->QueryInterface( IID_IViewObject, (void**)&view );
+	    if ( view ) {
+		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, 0 );
+	    }
 	}
     }
 
@@ -183,7 +198,11 @@ public:
 	else if ( riid == IID_IDispatch )
 	    *ppvObject = (IDispatch*)this;
 	else if ( riid == IID_IAdviseSink )
-	    *ppvObject = (IAdviseSink*)this;
+	    *ppvObject = (IAdviseSink*)(IAdviseSink2*)this;
+	else if ( riid == IID_IAdviseSink2 )
+	    *ppvObject = (IAdviseSink2*)this;
+	else if ( riid == IID_IAdviseSinkEx )
+	    *ppvObject = (IAdviseSinkEx*)this;
 	else if ( riid == IID_IOleControlSite )
 	    *ppvObject = (IOleControlSite*)this;
 	else if ( riid == IID_IOleWindow )
@@ -192,10 +211,14 @@ public:
 	    *ppvObject = (IOleInPlaceUIWindow*)this;
 	else if ( riid == IID_IOleClientSite )
 	    *ppvObject = (IOleClientSite*)this;
-/*	else if ( riid == IID_IOleContainer )
-	    *ppvObject = (IOleContainer*)this;*/
+	else if ( riid == IID_IParseDisplayName )
+	    *ppvObject = (IParseDisplayName*)(IOleContainer*)this;
+	else if ( riid == IID_IOleContainer )
+	    *ppvObject = (IOleContainer*)this;
 	else if ( riid == IID_IOleInPlaceSite )
-	    *ppvObject = (IOleInPlaceSite*)this;
+	    *ppvObject = (IOleInPlaceSite*)(IOleInPlaceSiteEx*)this;
+	else if ( riid == IID_IOleInPlaceSiteEx )
+	    *ppvObject = (IOleInPlaceSiteEx*)this;
 	else if ( riid == IID_IOleInPlaceFrame )
 	    *ppvObject = (IOleInPlaceFrame*)this;
 	else if ( riid == IID_ISimpleFrameSite )
@@ -325,6 +348,16 @@ public:
 	qDebug( "IAdviseSink::OnClose" );
     }
 
+    // IAdviseSink2
+    void __stdcall OnLinkSrcChange( IMoniker *pmk )
+    {
+    }
+
+    // IAdviseSinkEx
+    void __stdcall OnViewStatusChange( DWORD dwViewStatus )
+    {
+    }
+
     // IOleControlSite
     HRESULT __stdcall OnControlInfoChanged()
     {
@@ -437,8 +470,26 @@ public:
 	return E_NOTIMPL;
     }
 
-    // IOleContainer ###
+    // IParseDisplayName
+    HRESULT __stdcall ParseDisplayName( IBindCtx *pbc, LPOLESTR pszDisplayName, ULONG *pchEaten, IMoniker **ppmkOut )
+    {
+	*ppmkOut = 0;
 
+	if ( *ppmkOut )
+	    (*ppmkOut)->AddRef();
+	return S_OK;
+    }
+
+    // IOleContainer
+    HRESULT __stdcall EnumObjects( DWORD grfFlags, IEnumUnknown **ppenum )
+    {
+	*ppenum = 0;
+	return E_NOTIMPL;
+    }
+    HRESULT __stdcall LockContainer( BOOL fLock )
+    {
+	return S_OK;
+    }
 
     // IOleInPlaceSite
     HRESULT __stdcall CanInPlaceActivate()
@@ -500,6 +551,23 @@ public:
 	return S_OK;
     }
 
+    // IOleInPlaceSiteEx
+    HRESULT __stdcall OnInPlaceActivateEx( BOOL *pfNoRedraw, DWORD dwFlags )
+    {
+	qDebug( "IOleInPlaceSiteEx::OnInPlaceActivateEx" );
+	return S_OK;
+    }
+    HRESULT __stdcall OnInPlaceDeactivateEx( BOOL fNoRedraw )
+    {
+	qDebug( "IOleInPlaceSiteEx::OnInPlaceDeactivateEx" );
+	return S_OK;
+    }
+    HRESULT __stdcall RequestUIActivate()
+    {
+	qDebug( "IOleInPlaceSiteEx::RequestUIActivate" );
+	return S_OK;
+    }
+
     // IOleInPlaceFrame
     HRESULT __stdcall InsertMenus( HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths )
     {
@@ -535,6 +603,7 @@ public:
     // ISimpleFrameSite
     HRESULT __stdcall PreMessageFilter( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, LRESULT *plResult, DWORD *pdwCookie )
     {
+	qDebug( "SimpleFrame" );
 	return S_OK;
     }
     HRESULT __stdcall PostMessageFilter( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, LRESULT *plResult, DWORD pdwCookie )
