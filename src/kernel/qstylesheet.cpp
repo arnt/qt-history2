@@ -1190,7 +1190,8 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 	}
 	else if ( plain[i] == '\t' ){
 	    rich += 0x00a0U;
-	    while ( col / 4.0 != int( col/4 ) ) {
+	    // while ( col / 4.0 != int( col/4 ) ) { // weird
+	    while ( col % 4 ) {
 		rich += 0x00a0U;
 		++col;
 	    }
@@ -1309,22 +1310,22 @@ void QStyleSheet::scaleFont( QFont& font, int logicalSize ) const
     int s;
     switch ( logicalSize ) {
     case 1:
-	s =  int(0.5 * basePointSize);
+	s =  basePointSize/2;
 	break;
     case 2:
-	s = int(0.8 * basePointSize);
+	s = (8 * basePointSize) / 10;
 	break;
     case 4:
-	s =  int(1.2 * basePointSize);
+	s =  (12 * basePointSize) / 10;
 	break;
     case 5:
-	s = int(1.5 * basePointSize);
+	s = (15 * basePointSize) / 10;
 	break;
     case 6:
-	s = int(2 * basePointSize);
+	s = 2 * basePointSize;
 	break;
     case 7:
-	s = int(2.4 * basePointSize);
+	s = (24 * basePointSize) / 10;
 	break;
     default:
 	s = basePointSize;
