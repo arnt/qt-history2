@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#26 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#27 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -192,6 +192,9 @@
 #elif defined(_XOPEN_XPG4)
 // XPG4 is supported
 #  define SOCKLEN_T size_t
+#elif defined(BSD4_4)
+// BSD 4.4 - FreeBSD at least
+#  define SOCKLEN_T socklen_t
 #else
 #  define SOCKLEN_T int
 #endif
@@ -217,12 +220,12 @@ void QSocketDevice::init()
 {
 }
 
-/*! 
+/*!
   Creates a new socket identifier. Returns -1 if there is a failure to
   create the new identifier, error() explains why.
 
   \sa setSocket()
-*/  
+*/
 
 int QSocketDevice::createNewSocket ()
 {
