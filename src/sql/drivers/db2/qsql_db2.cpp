@@ -835,7 +835,7 @@ bool QDB2Result::fetch(int i)
                             SQL_FETCH_ABSOLUTE,
                             actualIdx);
     }
-    if (r != SQL_SUCCESS) {
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         setLastError(qMakeError(QString::fromLatin1("Unable to fetch record %1").arg(i),
                                 QSqlError::StatementError, d));
         return false;
@@ -851,9 +851,10 @@ bool QDB2Result::fetchNext()
     r = SQLFetchScroll(d->hStmt,
                        SQL_FETCH_NEXT,
                        0);
-    if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to fetch next"),
-                                QSqlError::StatementError, d));
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
+        if (r != SQL_NO_DATA)
+            setLastError(qMakeError(QLatin1String("Unable to fetch next"),
+                                    QSqlError::StatementError, d));
         return false;
     }
     setAt(at() + 1);
@@ -868,10 +869,10 @@ bool QDB2Result::fetchFirst()
         return fetchNext();
     d->valueCache.fill(0);
     SQLRETURN r;
-     r = SQLFetchScroll(d->hStmt,
-                        SQL_FETCH_FIRST,
-                        0);
-    if (r != SQL_SUCCESS) {
+    r = SQLFetchScroll(d->hStmt,
+                       SQL_FETCH_FIRST,
+                       0);
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         setLastError(qMakeError(QLatin1String("Unable to fetch first"),
                                 QSqlError::StatementError, d));
         return false;
