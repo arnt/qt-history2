@@ -698,6 +698,8 @@ bool QSqlQuery::isForwardOnly() const
     seek() with positive values are allowed for navigating the results.
     Forward only mode needs far less memory since results do not have to be cached.
     Forward only mode is off by default.
+    Note that it is not possible to use forward only mode with data aware widgets
+    like QDataTable since they need to be able to scroll backward.
     \sa next(), seek()
 */
 void QSqlQuery::setForwardOnly( bool forward )
