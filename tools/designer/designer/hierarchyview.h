@@ -26,6 +26,7 @@
 #include <qtabwidget.h>
 #include <qguardedptr.h>
 #include <private/qcom_p.h>
+#include "../interfaces/classbrowserinterface.h"
 
 class FormWindow;
 class QCloseEvent;
@@ -34,7 +35,6 @@ class QKeyEvent;
 class QMouseEvent;
 class QWizard;
 class SourceEditor;
-struct ClassBrowserInterface;
 
 class HierarchyItem : public QListViewItem
 {

@@ -44,7 +44,6 @@
 #include <qapplication.h>
 #include <qtimer.h>
 #include "../interfaces/languageinterface.h"
-#include "../interfaces/classbrowserinterface.h"
 #include <qworkspace.h>
 #include <qaccel.h>
 
