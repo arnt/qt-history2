@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#42 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -20,7 +20,7 @@ static const int MARKSIZE = 32;
 static const int QH_MARGIN = 4;
 
 
-#if QT_VERSION >= 140
+#if QT_VERSION >= 149
 //#error "Move cursors to QCursor"
 #endif
 
