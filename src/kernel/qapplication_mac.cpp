@@ -1340,10 +1340,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		special_close = TRUE;
 	}
 
-	mouse_button_state = after_state;
 	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
 	    return 0;
 
+	mouse_button_state = after_state;
 	if(special_close) {
 	    qt_replay_event = CopyEvent(event);
 	    return 0;
