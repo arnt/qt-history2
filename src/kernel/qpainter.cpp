@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#182 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2071,8 +2071,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		    int ccw = 0;
 		    if ( tabarray ) {		// use tab array
 			while ( tabindex < tabarraylen ) {
-			    if ( tabarray[tabindex] > tw ) {
-				ccw = tabarray[tabindex] - tw;
+			    if ( tabarray[tabindex] > (tw+cw) ) {
+				ccw = tabarray[tabindex] - (tw+cw);
 				tabindex++;
 				break;
 			    }
@@ -2080,7 +2080,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 			}
 		    }
 		    if ( ccw == 0 )		// use fixed tab stops
-			ccw = localTabStops - tw%localTabStops;
+			ccw = localTabStops - (tw+cw)%localTabStops;
 		    cw += ccw;
 		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
 		} else {			// convert TAB to space
