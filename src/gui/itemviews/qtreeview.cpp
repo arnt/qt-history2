@@ -1214,7 +1214,7 @@ void QTreeViewPrivate::open(int i)
 
 void QTreeViewPrivate::close(int i)
 {
-    if (i < 0)
+    if (i < 0 || openedIndexes.isEmpty())
         return;
     int total = viewItems.at(i).total;
     QModelIndex index = viewItems.at(i).index;
