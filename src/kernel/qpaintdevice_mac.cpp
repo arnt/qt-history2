@@ -298,11 +298,10 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 		   Qt::RasterOp rop, bool imask)
 {
   //at the end of this function this will go out of scope and the destructor will restore the state
-  QMacSavedPortInfo saveportstate; 
+  QMacSavedPortInfo saveportstate(dst); 
     
   if(dst && dst->devType() == QInternal::Widget) {
-      QMacSavedPortInfo::setPaintDevice(dst);
-      SetClip((RgnHandle)((QWidget *)dst)->clippedRegion().handle()); //probably shouldn't do this?
+       SetClip((RgnHandle)((QWidget *)dst)->clippedRegion().handle()); //probably shouldn't do this?
   } else if(dst && dst->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)dst;
       QRegion rgn(0,0,pm->width(),pm->height()); //I'm paranoid..
