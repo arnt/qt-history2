@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#24 $
 **
 ** Implementation of QDir class
 **
@@ -25,12 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#23 $")
-
-
-#if !defined(PATH_MAX)
-#define PATH_MAX 300
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#24 $")
 
 
 #if defined(_OS_FATFS_)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#10 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#11 $
 **
 ** Definition of QFileInfo class
 **
@@ -65,6 +65,8 @@ public:
     bool	isFile()	const;
     bool	isDir()		const;
     bool	isSymLink()	const;
+
+    QString	readLink()	const;
 
     const char *owner()		const;
     uint	ownerId()	const;

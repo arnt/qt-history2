@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#19 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#19 $")
 
 
 #if defined(_OS_FATFS_)
@@ -578,14 +578,44 @@ bool QFileInfo::isDir() const
 
 bool QFileInfo::isSymLink() const
 {
-#if !defined(STAT_LNK)
-    return FALSE;
+#if defined( UNIX ) && defined( S_IFLNK )
+    STATBUF st;
+
+    return lstat( fn.data(), &st ) == 0 && S_ISLNK( st.st_mode );
 #else
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_LNK : FALSE;
+    return FALSE;
 #endif
 }
+
+
+/*!
+  Returns the name a symlink points to, or a null QString if the
+  object does not refer to a symbolic link.
+
+  This name may not represent an existing file; it is only a string.
+  QFileInfo::exists() returns TRUE if the symlink points to an
+  existing file.
+
+  \sa exists() isDir() isFile() */
+
+QString QFileInfo::readLink() const
+{
+    QString s;
+#if defined(UNIX)
+    if ( !isSymlink() )
+	return s;
+    s.resize( PATH_MAX + 1 );
+    int len = readlink( (const char *)fn, s.data(), s.length() );
+    if ( len < 0 ) {
+	// we forget the reason for the failure here
+	QString empty;
+	return empty;
+    }
+    s[len] = '\0';
+#endif
+    return s;
+}
+
 
 
 /*----------------------------------------------------------------------------

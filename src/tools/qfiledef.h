@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#13 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#14 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -32,6 +32,15 @@
 # define _OS_FATFS_
 #endif
 #include <limits.h>
+
+
+#if !defined(PATH_MAX)
+#if defined( MAXPATHLEN )
+#define PATH_MAX MAXPATHLEN
+#else
+#define PATH_MAX 1024
+#endif
+#endif
 
 
 #undef STATBUF
@@ -90,7 +99,7 @@
 
 # define STATBUF	struct stat
 # if defined(UNIX)
-#  define STAT		::lstat
+#  define STAT		::stat
 # else
 #  define STAT		::stat
 # endif
