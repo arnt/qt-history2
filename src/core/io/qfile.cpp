@@ -1121,6 +1121,7 @@ bool QFile::seek(qint64 off)
 /*!
   \reimp
 */
+/*
 qint64 QFile::readLineData(char *data, qint64 len)
 {
 #ifndef QT_NO_FILE_BUFFER
@@ -1182,7 +1183,7 @@ qint64 QFile::readLineData(char *data, qint64 len)
 
         char *buffer = d->buffer.alloc(bytesToRead);
         qint64 bytesRead = fileEngine()->read(buffer, bytesToRead);
-        if (bytesRead == -1)
+        if (bytesRead <= 0)
             return readSoFar > 0 ? readSoFar : qint64(-1);
 
         if (bytesRead < bytesToRead)
@@ -1190,6 +1191,7 @@ qint64 QFile::readLineData(char *data, qint64 len)
     }
 #endif
 }
+*/
 
 /*!
   \reimp
