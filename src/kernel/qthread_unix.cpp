@@ -61,6 +61,25 @@
 static QPtrDict<QThreadPrivate> *qt_thread_dict = 0;
 static QMutexPool *qt_thread_mutexpool = 0;
 
+class QGlobalThreadInitializer
+{
+public:
+    inline QGlobalThreadInitializer()
+    {
+	qt_thread_dict = new QPtrDict<QThreadPrivate>;
+	qt_thread_mutexpool = new QMutexPool( FALSE );
+    }
+
+    inline ~QGlobalThreadInitializer()
+    {
+	delete qt_thread_dict;
+	delete qt_thread_mutexpool;
+	qt_thread_dict = 0;
+	qt_thread_mutexpool = 0;
+    }
+};
+QGlobalThreadInitializer qt_global_thread_initializer;
+
 extern "C" { static void *start_thread( void *arg ); }
 extern "C" { static void finish_thread( void * ); }
 
@@ -246,10 +265,6 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-    if ( ! qt_thread_dict )
-	qt_thread_dict = new QPtrDict<QThreadPrivate>;
-    if ( ! qt_thread_mutexpool )
-	qt_thread_mutexpool = new QMutexPool( FALSE );
     if( ! qthreadposteventprivate && qApp )
 	qthreadposteventprivate = new QThreadPostEventPrivate();
 }
@@ -260,10 +275,6 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
-    delete qt_thread_dict;
-    qt_thread_dict = 0;
-    delete qt_thread_mutexpool;
-    qt_thread_mutexpool = 0;
     delete qthreadposteventprivate;
     qthreadposteventprivate = 0;
 }
