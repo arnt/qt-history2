@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "pixmapchooser.h"
 #include "command.h"
+#include "listboxdnd.h"
 
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -52,6 +53,11 @@ ListBoxEditor::ListBoxEditor( QWidget *parent, QWidget *editWidget, FormWindow *
 
     if ( preview->firstItem() )
 	preview->setCurrentItem( preview->firstItem() );
+
+    ListBoxDnd *editorDnd = new ListBoxDnd( preview );
+    editorDnd->setDragMode( ListBoxDnd::Internal | ListBoxDnd::Move );
+    QObject::connect( editorDnd, SIGNAL( dropped( QListBoxItem * ) ),
+		      editorDnd, SLOT( confirmDrop( QListBoxItem * ) ) );
 }
 
 void ListBoxEditor::insertNewItem()
