@@ -127,9 +127,11 @@ private:
     QObject *findObject( QListViewItem *i );
     QListViewItem *findItem( QObject *o );
     QObject *current() const;
+    QObject *handleObjectClick( QListViewItem *i );
 
 private slots:
     virtual void objectClicked( QListViewItem *i );
+    virtual void objectDoubleClicked( QListViewItem *i );
     virtual void showRMBMenu( QListViewItem *, const QPoint & );
 
 protected:

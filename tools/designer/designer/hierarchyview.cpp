@@ -184,6 +184,8 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     if ( doConnects ) {
 	connect( this, SIGNAL( clicked( QListViewItem * ) ),
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
+	connect( this, SIGNAL( doubleClicked( QListViewItem * ) ),
+		 this, SLOT( objectDoubleClicked( QListViewItem * ) ) );
 	connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
 	connect( this, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint&, int ) ),
@@ -222,19 +224,19 @@ void HierarchyList::viewportMouseReleaseEvent( QMouseEvent *e )
     QListView::viewportMouseReleaseEvent( e );
 }
 
-void HierarchyList::objectClicked( QListViewItem *i )
+QObject *HierarchyList::handleObjectClick( QListViewItem *i )
 {
     if ( !i )
-	return;
+	return 0;
 
     QObject *o = findObject( i );
     if ( !o )
-	return;
+	return 0;
     if ( formWindow == o ) {
 	if ( deselect )
 	    formWindow->clearSelection( FALSE );
 	formWindow->emitShowProperties( formWindow );
-	return;
+	return 0;
     }
     if ( o->isWidgetType() ) {
 	QWidget *w = (QWidget*)o;
@@ -257,9 +259,9 @@ void HierarchyList::objectClicked( QListViewItem *i )
 	    } else if ( w->inherits( "QMenuBar" ) || w->inherits( "QDockWindow" ) ) {
 		formWindow->setActiveObject( w );
 	    } else if ( w->inherits( "QPopupMenu" ) ) {
-		return; // ### we could try to find our menu bar and change the currentMenu to our index
+		return 0; // ### we could try to find our menu bar and change the currentMenu to our index
 	    } else {
-		return;
+		return 0;
 	    }
 	}
     } else if ( o->inherits( "QAction" ) ) {
@@ -269,8 +271,34 @@ void HierarchyList::objectClicked( QListViewItem *i )
 
     if ( deselect )
 	formWindow->clearSelection( FALSE );
-    if ( o->isWidgetType() && ( (QWidget*)o )->isVisibleTo( formWindow ) )
-	formWindow->selectWidget( (QWidget*)o, TRUE );
+
+    return o;
+}
+
+
+void HierarchyList::objectDoubleClicked( QListViewItem *i )
+{
+    QObject *o = handleObjectClick( i );
+    if ( !o )
+	return;
+    if ( o->isWidgetType() && ( (QWidget*)o )->isVisibleTo( formWindow ) ) {
+	QWidget *w = (QWidget*)o;
+	if ( !w->parentWidget() ||
+	     WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout )
+	    w->raise();
+	formWindow->selectWidget( w, TRUE );
+    }
+}
+
+void HierarchyList::objectClicked( QListViewItem *i )
+{
+    QObject *o = handleObjectClick( i );
+    if ( !o )
+	return;
+    if ( o->isWidgetType() && ( (QWidget*)o )->isVisibleTo( formWindow ) ) {
+	QWidget *w = (QWidget*)o;
+	formWindow->selectWidget( w, TRUE );
+    }
 }
 
 QObject *HierarchyList::findObject( QListViewItem *i )
