@@ -270,12 +270,39 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
   Constructs an image from \a xpm, which must be a valid XPM image.
 
   Errors are silently ignored.
+
+  This is the usual constructor used, but the <a href="squeeze">other
+  XPM constructor</a> allows defining XPMs like this:
+
+  \example
+    static const char * const start_xpm[]={
+        "16 15 8 1",
+        "a c #cec6bd",
+    ....
+  \endcode
+
+  The extra \c const makes the entire definition read-only, which is
+  slightly more efficient e.g. when the code is in a shared library,
+  and ROMable when the application is to be stored in ROM.
 */
 
 QImage::QImage( const char *xpm[] )
 {
     init();
     read_xpm_image_or_array( 0, xpm, *this );
+}
+
+/*!
+  Constructs an image from \a xpm, which must be a valid XPM image.
+  Errors are silently ignored.
+
+  <a name="squeeze"></a>
+*/
+
+QImage::QImage( const char * const xpm[] )
+{
+    init();
+    read_xpm_image_or_array( 0, (const char**)xpm, *this );
 }
 
 /*!
@@ -1955,11 +1982,16 @@ void pnmscale(const QImage& src, QImage& dst)
 		if ( needtoreadrow && rowsread < rows )
 		    xelrow = (QRgb*)src.scanLine(rowsread++);
 		for ( col = 0, xP = xelrow; col < cols; ++col, ++xP ) {
-		    if (as)
+		    if (as) {
 			as[col] += fracrowleft * qAlpha( *xP );
-		    rs[col] += fracrowleft * qRed( *xP );
-		    gs[col] += fracrowleft * qGreen( *xP );
-		    bs[col] += fracrowleft * qBlue( *xP );
+			rs[col] += fracrowleft * qRed( *xP ) * qAlpha( *xP ) / 255;
+			gs[col] += fracrowleft * qGreen( *xP ) * qAlpha( *xP ) / 255;
+			bs[col] += fracrowleft * qBlue( *xP ) * qAlpha( *xP ) / 255;
+		    } else {
+			rs[col] += fracrowleft * qRed( *xP );
+			gs[col] += fracrowleft * qGreen( *xP );
+			bs[col] += fracrowleft * qBlue( *xP );
+		    }
 		}
 		fracrowtofill -= fracrowleft;
 		fracrowleft = syscale;
@@ -1975,9 +2007,21 @@ void pnmscale(const QImage& src, QImage& dst)
 	    {
 		register long a, r, g, b;
 
-		r = rs[col] + fracrowtofill * qRed( *xP );
-		g = gs[col] + fracrowtofill * qGreen( *xP );
-		b = bs[col] + fracrowtofill * qBlue( *xP );
+		if ( as ) {
+		    r = rs[col] + fracrowtofill * qRed( *xP ) * qAlpha( *xP ) / 255;
+		    g = gs[col] + fracrowtofill * qGreen( *xP ) * qAlpha( *xP ) / 255;
+		    b = bs[col] + fracrowtofill * qBlue( *xP ) * qAlpha( *xP ) / 255;
+		    a = as[col] + fracrowtofill * qAlpha( *xP );
+		    if ( a ) {
+			r = r * 255 / a * SCALE;
+			g = g * 255 / a * SCALE;
+			b = b * 255 / a * SCALE;
+		    }
+		} else {
+		    r = rs[col] + fracrowtofill * qRed( *xP );
+		    g = gs[col] + fracrowtofill * qGreen( *xP );
+		    b = bs[col] + fracrowtofill * qBlue( *xP );
+		}
 		r /= SCALE;
 		if ( r > maxval ) r = maxval;
 		g /= SCALE;
@@ -1985,7 +2029,6 @@ void pnmscale(const QImage& src, QImage& dst)
 		b /= SCALE;
 		if ( b > maxval ) b = maxval;
 		if (as) {
-		    a = as[col] + fracrowtofill * qAlpha( *xP );
 		    a /= SCALE;
 		    if ( a > maxval ) a = maxval;
 		    *nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
@@ -2023,9 +2066,21 @@ void pnmscale(const QImage& src, QImage& dst)
 			++nxP;
 			a = r = g = b = HALFSCALE;
 		    }
-		    r += fraccoltofill * qRed( *xP );
-		    g += fraccoltofill * qGreen( *xP );
-		    b += fraccoltofill * qBlue( *xP );
+		    if ( as ) {
+			r += fraccoltofill * qRed( *xP ) * qAlpha( *xP ) / 255;
+			g += fraccoltofill * qGreen( *xP ) * qAlpha( *xP ) / 255;
+			b += fraccoltofill * qBlue( *xP ) * qAlpha( *xP ) / 255;
+			a += fraccoltofill * qAlpha( *xP );
+			if ( a ) {
+			    r = r * 255 / a * SCALE;
+			    g = g * 255 / a * SCALE;
+			    b = b * 255 / a * SCALE;
+			}
+		    } else {
+			r += fraccoltofill * qRed( *xP );
+			g += fraccoltofill * qGreen( *xP );
+			b += fraccoltofill * qBlue( *xP );
+		    }
 		    r /= SCALE;
 		    if ( r > maxval ) r = maxval;
 		    g /= SCALE;
@@ -2033,7 +2088,6 @@ void pnmscale(const QImage& src, QImage& dst)
 		    b /= SCALE;
 		    if ( b > maxval ) b = maxval;
 		    if (as) {
-			a += fraccoltofill * qAlpha( *xP );
 			a /= SCALE;
 			if ( a > maxval ) a = maxval;
 			*nxP = qRgba( (int)r, (int)g, (int)b, (int)a );
@@ -2050,21 +2104,36 @@ void pnmscale(const QImage& src, QImage& dst)
 			a = r = g = b = HALFSCALE;
 			needcol = 0;
 		    }
-		    if (as)
+		    if (as) {
 			a += fraccolleft * qAlpha( *xP );
-		    r += fraccolleft * qRed( *xP );
-		    g += fraccolleft * qGreen( *xP );
-		    b += fraccolleft * qBlue( *xP );
+			r += fraccolleft * qRed( *xP ) * qAlpha( *xP ) / 255;
+			g += fraccolleft * qGreen( *xP ) * qAlpha( *xP ) / 255;
+			b += fraccolleft * qBlue( *xP ) * qAlpha( *xP ) / 255;
+		    } else {
+			r += fraccolleft * qRed( *xP );
+			g += fraccolleft * qGreen( *xP );
+			b += fraccolleft * qBlue( *xP );
+		    }
 		    fraccoltofill -= fraccolleft;
 		}
 	    }
 	    if ( fraccoltofill > 0 ) {
 		--xP;
-		if (as)
+		if (as) {
 		    a += fraccolleft * qAlpha( *xP );
-		r += fraccoltofill * qRed( *xP );
-		g += fraccoltofill * qGreen( *xP );
-		b += fraccoltofill * qBlue( *xP );
+		    r += fraccoltofill * qRed( *xP ) * qAlpha( *xP ) / 255;
+		    g += fraccoltofill * qGreen( *xP ) * qAlpha( *xP ) / 255;
+		    b += fraccoltofill * qBlue( *xP ) * qAlpha( *xP ) / 255;
+		    if ( a ) {
+			r = r * 255 / a * SCALE;
+			g = g * 255 / a * SCALE;
+			b = b * 255 / a * SCALE;
+		    }
+		} else {
+		    r += fraccoltofill * qRed( *xP );
+		    g += fraccoltofill * qGreen( *xP );
+		    b += fraccoltofill * qBlue( *xP );
+		}
 	    }
 	    if ( ! needcol ) {
 		r /= SCALE;
@@ -4804,7 +4873,7 @@ bool QImage::operator!=( const QImage & i ) const
 */
 void QImage::setDotsPerMeterX(int x)
 {
-    data->dpmy = x;
+    data->dpmx = x;
 }
 
 /*!
