@@ -405,6 +405,9 @@ QGfxPS2::fillRect(int x,int y, int w, int h)
     if(!ncliprect)
 	return;
 
+    if(cbrush.style() == QBrush::NoBrush)
+	return;
+
     if((cbrush.style()!=QBrush::NoBrush) && patternedbrush) {
 	srcwidth=cbrushpixmap->width();
 	srcheight=cbrushpixmap->height();
@@ -442,7 +445,7 @@ QGfxPS2::fillRect(int x,int y, int w, int h)
     QRgb rgb = cbrush.color().rgb();
 
     for(int clp = 0; clp < ncliprect; clp++) {
-
+    
 	gsosMakeGiftag( 4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
 			0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
 	gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0 ));
