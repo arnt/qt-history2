@@ -2815,7 +2815,33 @@ void qt_format_text( const QFont& font, const QRect &r,
   \a str if \a len is -1.  The drawing, and hence the bounding
   rectangle, is constrained to the rectangle \a r.
 
-  The \a tf argument is
+  The \a internal parameter should not be used.
+
+  \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::TextFlags
+*/
+
+QRect QPainter::boundingRect( const QRect &r, int flags,
+			      const QString& str, int len, QTextParag **internal )
+{
+    QRect brect;
+    if ( str.isEmpty() )
+	brect.setRect( r.x(),r.y(), 0,0 );
+    else
+	drawText( r, flags | DontPrint, str, len, &brect, internal );
+    return brect;
+}
+
+/*!
+    \fn QRect	QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1, QTextParag **intern=0 );
+
+  Returns the bounding rectangle of the aligned text that would be
+  printed with the corresponding drawText() function using the first \a len
+  characters of the string if \a len is > -1, or the whole of
+  the string if \a len is -1.  The drawing, and hence the bounding
+  rectangle, is constrained to the rectangle that begins at point \a
+  (x, y) with width \a w and hight \a h.
+
+  The \a flags argument is
   the bitwise OR of the following flags:
   \list
   \i AlignAuto aligns according to the language, usually left.
@@ -2838,33 +2864,6 @@ void qt_format_text( const QFont& font, const QRect &r,
   If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
-  The \a internal parameter should not be used.
-
-  \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::TextFlags
-*/
-
-QRect QPainter::boundingRect( const QRect &r, int tf,
-			      const QString& str, int len, QTextParag **internal )
-{
-    QRect brect;
-    if ( str.isEmpty() )
-	brect.setRect( r.x(),r.y(), 0,0 );
-    else
-	drawText( r, tf | DontPrint, str, len, &brect, internal );
-    return brect;
-}
-
-/*!
-    \fn QRect	QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1, QTextParag **intern=0 );
-
-  Returns the bounding rectangle of the aligned text that would be
-  printed with the corresponding drawText() function using the first \a len
-  characters of the string if \a len is > -1, or the whole of
-  the string if \a len is -1.  The drawing, and hence the bounding
-  rectangle, is constrained to the rectangle that begins at point \a
-  (x, y) with width \a w and hight \a h.
-
-  The \a flags argument is the bitwise OR of the alignment flags.
   The \a intern parameter should not be used.
 
   \sa Qt::TextFlags
