@@ -2632,6 +2632,13 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		(xftfs->max_advance_width * cost / 8));
     }
 #endif // QT_NO_XFTFREETYPE
+    else {
+	// couldn't load the font...
+	x11data.fontstruct[script] = (QFontStruct *) -1;
+	initFontInfo(script);
+	fontCache->insert(k, x11data.fontstruct[script], 1);
+	return;
+    }
 
     qfs = new QFontStruct((Qt::HANDLE) xfs,
 #ifndef QT_NO_XFTFREETYPE
