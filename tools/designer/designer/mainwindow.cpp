@@ -202,6 +202,8 @@ MainWindow::MainWindow( bool asClient )
     setupLayoutActions();
     setupPreviewActions();
     setupWindowActions();
+    setupActionManager();
+    setupHelpActions();
 
     setupFormList();
     setupHierarchyView();
@@ -209,8 +211,6 @@ MainWindow::MainWindow( bool asClient )
     setupActionEditor();
     setupOutputWindow();
 
-    setupActionManager();
-    setupHelpActions();
     setupRMBMenus();
 
     emit hasActiveForm( FALSE );
