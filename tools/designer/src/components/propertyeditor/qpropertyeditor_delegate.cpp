@@ -75,7 +75,7 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
 
     const QAbstractItemModel *model = index.model();
     IProperty *property = static_cast<const Model*>(model)->privateData(index);
-    if (index.column() == 0 && property && property->isBold()) {
+    if (index.column() == 0 && property && property->changed()) {
         option.font.setBold(true);
     }
 

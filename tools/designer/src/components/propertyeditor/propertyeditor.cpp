@@ -20,6 +20,7 @@
 #include <container.h>
 #include <abstracticoncache.h>
 #include <abstractformwindowmanager.h>
+#include <abstractformwindowcursor.h>
 #include <abstractwidgetdatabase.h>
 #include <iconloader.h>
 #include <qdesigner_promotedwidget.h>
@@ -538,7 +539,8 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
 
         if (p) {
             p->setHasReset(m_prop_sheet->hasReset(i));
-            p->setBold(m_prop_sheet->isChanged(i));
+            p->setChanged(m_prop_sheet->isChanged(i));
+            p->setDirty(false);
             QString group = m_prop_sheet->propertyGroup(i);
             PropertyCollection *c = group.isEmpty() ? root : g.value(group);
             if (!c) {
@@ -608,13 +610,15 @@ IProperty *PropertyEditor::propertyByName(IProperty *p, const QString &name)
     return 0;
 }
 
-void PropertyEditor::setPropertyValue(const QString &name, const QVariant &value)
+void PropertyEditor::setPropertyValue(const QString &name, const QVariant &value, bool changed)
 {
     if (isReadOnly())
         return;
 
     if (IProperty *p = propertyByName(m_editor->initialInput(), name)) {
         p->setValue(value);
+        p->setChanged(changed);
+        p->setDirty(false);
         m_editor->editorModel()->refresh(p);
     }
 }
@@ -669,38 +673,19 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         return;
     }
 
-    QObject *obj = m_object;
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj))
-        obj = promoted->child();
-
-    if (!m_prop_sheet->reset(idx)) {
-        int item_idx =  m_core->widgetDataBase()->indexOfObject(obj);
-        if (item_idx == -1) {
-            qWarning("PropertyEditor::resetProperty(): object \"%s\" not in widget data base",
-                        obj->metaObject()->className());
-            return;
-        }
-        AbstractWidgetDataBaseItem *item = m_core->widgetDataBase()->item(item_idx);
-        QList<QVariant> default_prop_values = item->defaultPropertyValues();
-        if (idx < default_prop_values.size())
-            m_prop_sheet->setProperty(idx, default_prop_values.at(idx));
+    QWidget *w = qobject_cast<QWidget*>(m_object);
+    if (w == 0) {
+        qWarning("PropertyEditor::resetProperty(): object is not a widget");
+        return;
+    }
+    
+    AbstractFormWindow *form = AbstractFormWindow::findFormWindow(w);
+    if (form == 0) {
+        qWarning("PropertyEditor::resetProperty(): widget does not belong to any form");
+        return;
     }
 
-    m_prop_sheet->setChanged(idx, false);
-    if (IProperty *p = propertyByName(m_editor->initialInput(), prop_name)) {
-        p->setValue(m_prop_sheet->property(idx));
-        p->setBold(false);
-        m_editor->editorModel()->refresh(p);
-
-        if (p->kind() == IProperty::Property_Group) {
-            IPropertyGroup *group = static_cast<IPropertyGroup*>(p);
-            for (int i = 0; i < group->propertyCount(); ++i) {
-                IProperty *child_prop = group->propertyAt(i);
-                child_prop->setBold(false);
-                m_editor->editorModel()->refresh(child_prop);
-            }
-        }
-    }
+    form->cursor()->resetWidgetProperty(w, prop_name);
 }
 
 

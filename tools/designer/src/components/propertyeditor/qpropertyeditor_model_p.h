@@ -103,6 +103,7 @@ protected:
     }
 
 private:
+    void refreshHelper(IProperty *property);
     IProperty *m_initialInput;
 };
 

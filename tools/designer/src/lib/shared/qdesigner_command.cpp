@@ -175,7 +175,7 @@ void SetPropertyCommand::redo()
 
     if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
-            propertyEditor->setPropertyValue(propertyName(), m_newValue);
+            propertyEditor->setPropertyValue(propertyName(), m_newValue, true);
     }
 }
 
@@ -196,7 +196,7 @@ void SetPropertyCommand::undo()
 
     if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
-            propertyEditor->setPropertyValue(propertyName(), m_oldValue);
+            propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
     }
 }
 
@@ -250,7 +250,7 @@ void ResetPropertyCommand::init(QWidget *widget, const QString &propertyName)
     m_changed = m_propertySheet->isChanged(m_index);
     m_oldValue = m_propertySheet->property(m_index);
 
-    setDescription(tr("changed '%1' of '%2'").arg(m_propertyName).arg(m_widget->objectName()));
+    setDescription(tr("reset '%1' of '%2'").arg(m_propertyName).arg(m_widget->objectName()));
 }
 
 void ResetPropertyCommand::redo()
@@ -294,7 +294,7 @@ void ResetPropertyCommand::redo()
 
     if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
-            propertyEditor->setPropertyValue(propertyName(), new_value);
+            propertyEditor->setPropertyValue(propertyName(), new_value, false);
     }
 }
 
@@ -315,7 +315,7 @@ void ResetPropertyCommand::undo()
 
     if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
-            propertyEditor->setPropertyValue(propertyName(), m_oldValue);
+            propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
     }
 }
 

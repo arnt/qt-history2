@@ -36,7 +36,7 @@ public:
 
     virtual bool isReadOnly() const;
     virtual void setReadOnly(bool readOnly);
-    virtual void setPropertyValue(const QString &name, const QVariant &value);
+    virtual void setPropertyValue(const QString &name, const QVariant &value, bool changed = true);
     virtual void setObject(QObject *object);
 
     virtual QObject *object() const

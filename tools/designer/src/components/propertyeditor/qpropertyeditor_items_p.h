@@ -43,23 +43,19 @@ public:
           m_changed(0),
           m_dirty(0),
           m_fake(0),
-          m_reset(0),
-          m_bold(0) {}
+          m_reset(0) {}
 
     virtual ~IProperty() {}
 
-    bool isBold() const { return m_bold; }
-    void setBold(bool b) { m_bold = b; }
-
     // ### pure
     bool changed() const { return m_changed; }
-    void setChanged(bool b) { m_changed = b; m_dirty = b; }
+    void setChanged(bool b);
 
+    bool dirty() const { return m_dirty; }
+    void setDirty(bool b);
+    
     bool hasReset() const { return m_reset; }
     void setHasReset(bool b) { m_reset = b; }
-
-    virtual bool dirty() const { return m_dirty; }
-    virtual void setDirty(bool b) { m_dirty = b; }
 
     bool isFake() const { return m_fake; }
     void setFake(bool b) { m_fake = b; }
@@ -93,7 +89,6 @@ protected:
     uint m_dirty : 1;
     uint m_fake : 1;
     uint m_reset : 1;
-    uint m_bold : 1;
 };
 
 class QT_PROPERTYEDITOR_EXPORT IPropertyGroup: public IProperty
@@ -150,8 +145,6 @@ public:
 //
 // IProperty Interface
 //
-    bool dirty() const;
-    void setDirty(bool b);
 
     inline QString propertyName() const
     { return m_name; }
@@ -182,7 +175,7 @@ public:
 
     QWidget *createExternalEditor(QWidget *parent)
     { Q_UNUSED(parent); return 0; }
-
+    
 protected:
     QString m_name;
     QList<IProperty*> m_properties;

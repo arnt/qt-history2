@@ -77,28 +77,18 @@ int Model::columnCount(const QModelIndex &parent) const
 bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (IProperty *property = privateData(index)) {
-
         if (role == EditRole) {
+            qDebug() << "Model::setData()" << property->propertyName() << value;
+
             property->setValue(value);
+            refresh(property);
 
-            if (!property->dirty())
-                return false;
-            
-            while (property != 0) {                
-                if (property->dirty()) {
-                    property->setBold(true);
-                    refresh(property);
-                }
-
-                if (!property->isFake()) {
-                    property->setDirty(false);
-                    property->setChanged(false);
-
-                    emit propertyChanged(property);
-                    break;
-                }
-
-                property = property->parent();
+            IProperty *nonfake = property;
+            while (nonfake != 0 && nonfake->isFake())
+                nonfake = nonfake->parent();
+            if (nonfake != 0 && nonfake->dirty()) {
+                nonfake->setDirty(false);
+                emit propertyChanged(nonfake);
             }
         }
 
@@ -159,11 +149,36 @@ QString Model::columnText(int col) const
     }
 }
 
-void Model::refresh(IProperty *property)
+
+
+void Model::refreshHelper(IProperty *property)
 {
     QModelIndex index0 = indexOf(property, 0);
     QModelIndex index1 = indexOf(property, 1);
     emit dataChanged(index0, index1);
+}
+
+void Model::refresh(IProperty *property)
+{
+    refreshHelper(property);
+
+    // Refresh everyone up to the root
+
+    IProperty *prop = property;
+    while (prop != 0) {
+        refreshHelper(prop);
+        prop = prop->parent();
+    }
+
+    // Refresh all children
+            
+    if (property->kind() == IProperty::Property_Group) {
+        IPropertyGroup *prop_group = static_cast<IPropertyGroup*>(property);
+        for (int i = 0; i < prop_group->propertyCount(); ++i) {
+            IProperty *child_prop = prop_group->propertyAt(i);
+            refreshHelper(child_prop);
+        }
+    }
 }
 
 void Model::propertyAdded(IProperty *property)

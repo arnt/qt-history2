@@ -33,23 +33,34 @@
 
 Q_GLOBAL_STATIC(QFontDatabase, fontDatabase)
 
+void IProperty::setDirty(bool b)
+{
+    if (isFake()) {
+        IProperty *p = parent();
+        while (p != 0 && p->isFake())
+            p = p->parent();
+        if (p != 0)
+            p->setDirty(true);
+    } else {
+        m_dirty = b;
+    }
+}
+
+void IProperty::setChanged(bool b)
+{
+    if (isFake()) {
+        IProperty *p = parent();
+        while (p != 0 && p->isFake())
+            p = p->parent();
+        if (p != 0)
+            p->setChanged(true);
+    } else {
+        m_changed = b;
+    }
+    setDirty(true);
+}
+
 // -------------------------------------------------------------------------
-bool AbstractPropertyGroup::dirty() const
-{
-    for (int i=0; i<propertyCount(); ++i)
-        if (propertyAt(i)->dirty())
-            return true;
-
-    return IProperty::dirty();
-}
-
-void AbstractPropertyGroup::setDirty(bool b)
-{
-    IProperty::setDirty(b);
-
-    for (int i=0; i<propertyCount(); ++i)
-        propertyAt(i)->setDirty(b);
-}
 
 QWidget *AbstractPropertyGroup::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
@@ -413,9 +424,6 @@ void IntProperty::updateValue(QWidget *editor)
         if (newValue != m_value) {
             m_value = newValue;
             setChanged(true);
-
-            if (parent())
-                parent()->setChanged(true);
         }
     }
 }
@@ -673,9 +681,6 @@ void MapProperty::updateValue(QWidget *editor)
         if (newValue != m_value) {
             m_value = newValue;
             setChanged(true);
-
-            if (parent())
-                parent()->setChanged(true);
         }
     }
 }
@@ -745,9 +750,6 @@ void FlagsProperty::updateValue(QWidget *editor)
     if (newValue != m_value) {
         m_value = newValue;
         setChanged(true);
-
-        if (IProperty *p = parent())
-            p->setChanged(true);
     }
 }
 
