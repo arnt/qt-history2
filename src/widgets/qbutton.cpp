@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#5 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#5 $";
 #endif
 
 
@@ -131,8 +131,8 @@ void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
     if ( hit ) {				// mouse press on button
 	mlbDown = TRUE;				// left mouse button down
 	buttonDown = TRUE;
-	emit pressed();
 	paintEvent(0);
+	emit pressed();
     }
 }
 
@@ -143,13 +143,13 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
     mlbDown = FALSE;				// left mouse button up
     bool hit = hitButton( e->pos() );
     buttonDown = FALSE;
+    paintEvent( 0 );
     emit released();
     if ( hit ) {				// mouse release on button
 	if ( onOffButton )
 	    buttonOn = !buttonOn;
 	emit clicked();
     }
-    paintEvent( 0 );
 }
 
 void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
@@ -160,15 +160,15 @@ void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
     if ( hit ) {				// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
-	    emit pressed();
 	    paintEvent(0);
+	    emit pressed();
 	}
     }
     else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
-	    emit released();
 	    paintEvent(0);
+	    emit released();
 	}
     }
 }
