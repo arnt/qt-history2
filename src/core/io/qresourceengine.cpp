@@ -313,3 +313,9 @@ QResourceFileEngine::fileTime(FileTime) const
 {
     return QDateTime();
 }
+
+QIOEngine::Type 
+QFSFileEngine::type() const
+{
+    return QIOEngine::Resource;
+}
