@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#36 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -287,9 +287,10 @@ void QFont::setPointSize( int pointSize )
 #endif
 	return;
     }
+    pointSize *= 10;
     if ( d->req.pointSize != pointSize ) {
 	detach();
-	d->req.pointSize = (short)(pointSize*10);
+	d->req.pointSize = (short)pointSize;
 	d->req.dirty	 = TRUE;
     }
 }
