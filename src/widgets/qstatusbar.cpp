@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#26 $
 **
 ** Implementation of QStatusBar class
 **
@@ -158,7 +158,11 @@ void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
     if ( e->state() != LeftButton )
 	return;
 
+    if ( topLevelWidget()->testWFlags(WState_ConfigPending) )
+	return;
+    
     QPoint np( e->globalPos() );
+
     int w = np.x() - p.x() + s.width();
     int h = np.y() - p.y() + s.height();
     if ( w < 1 )
@@ -166,6 +170,7 @@ void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
     if ( h < 1 )
 	h = 1;
     topLevelWidget()->resize( w, h );
+    
     QApplication::syncX();
 }
 

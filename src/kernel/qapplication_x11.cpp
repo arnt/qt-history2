@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#406 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#407 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3617,6 +3617,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     if ( !testWFlags(WType_TopLevel) )
 	return TRUE;				// child widget
+    
+    clearWFlags(WState_ConfigPending);
 
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
@@ -3655,8 +3657,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	} else {
 	    deferResize( oldSize );
 	}
- 	if ( !testWFlags(WResizeNoErase) ) {
- 	    repaint( TRUE );
+	if ( !testWFlags(WResizeNoErase) ) {
+	    repaint( TRUE );
 	}
     }
     if ( newPos != geometry().topLeft() ) {
