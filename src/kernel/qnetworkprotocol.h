@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#5 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -64,13 +64,13 @@ class QNetworkProtocol : public QObject
 
 public:
     enum ConnectionState {
-	HostFound = 0,
-	Connected,
-	Closed,
-	DataHostFound,
-	DataConnected,
-	DataClosed,
-	Error
+	ConHostFound = 0,
+	ConConnected,
+	ConClosed,
+	ConDataHostFound,
+	ConDataConnected,
+	ConDataClosed,
+	ConError
     };
 
     enum Operations {
@@ -107,7 +107,7 @@ public:
     static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
 
     virtual int supportedOperations() const;
-    
+
 signals:
     void error( int ecode, const QString &msg );
     void data( const QCString & );
