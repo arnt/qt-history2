@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#90 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#89 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#90 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ static void err_member_notfound( int code, const QObject *object,
   \sa connect(), disconnectNotify()
  ----------------------------------------------------------------------------*/
 
-void QObject::connectNotify( const char *signal )
+void QObject::connectNotify( const char * )
 {
 }
 
@@ -1040,7 +1040,7 @@ void QObject::connectNotify( const char *signal )
   \sa disconnect(), connectNotify()
  ----------------------------------------------------------------------------*/
 
-void QObject::disconnectNotify( const char *signal )
+void QObject::disconnectNotify( const char * )
 {
 }
 
