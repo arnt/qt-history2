@@ -58,6 +58,8 @@ namespace QUnicodeTables {
     Q_CORE_EXPORT int upper(uint ucs4) FASTCALL;
     Q_CORE_EXPORT int lower(uint ucs4) FASTCALL;
     Q_CORE_EXPORT int QUnicodeTables::digitValue(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT QString decomposition(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Decomposition decompositionTag(uint ucs4) FASTCALL;
 };
 
 

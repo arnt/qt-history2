@@ -591,31 +591,13 @@ QChar QChar::mirroredChar() const
     return ::mirroredChar(*this);
 }
 
-extern const Q_UINT16 qt_decomposition_map[];
-extern const Q_UINT16 qt_decomposition_info[];
-
 /*!
     Decomposes a character into its parts. Returns an empty string if
     no decomposition exists.
 */
 QString QChar::decomposition() const
 {
-#ifndef QT_NO_UNICODETABLES
-    register int pos = qt_decomposition_info[row()];
-    if(!pos) return QString::null;
-
-    pos = qt_decomposition_info[(pos<<8)+cell()];
-    if(!pos) return QString::null;
-    pos+=2;
-
-    QString s;
-    Q_UINT16 c;
-    while ((c = qt_decomposition_map[pos++]) != 0)
-        s += QChar(c);
-    return s;
-#else
-    return QString();
-#endif
+    return QUnicodeTables::decomposition(ucs);
 }
 
 /*!
@@ -624,17 +606,7 @@ QString QChar::decomposition() const
 */
 QChar::Decomposition QChar::decompositionTag() const
 {
-#ifndef QT_NO_UNICODETABLES
-    register int pos = qt_decomposition_info[row()];
-    if(!pos) return QChar::NoDecomposition;
-
-    pos = qt_decomposition_info[(pos<<8)+cell()];
-    if(!pos) return QChar::NoDecomposition;
-
-    return (QChar::Decomposition) qt_decomposition_map[pos];
-#else
-    return NoDecomposition; // ########### FIX eg. just latin1
-#endif
+    return QUnicodeTables::decompositionTag(ucs);
 }
 
 /*!
