@@ -1,0 +1,105 @@
+/*!
+    \class QList
+    \brief The QList class provides a list of values.
+*/
+
+/*!
+    \fn QList::QList()
+*/
+
+/*!
+    \fn QList::QList(const QList &l)
+*/
+
+
+/*!
+    \fn QList &QList::operator=(const QList &l)
+*/
+
+/*!
+    \fn int QList::size() const
+*/
+
+/*!
+    \fn bool QList::isEmpty() const
+*/
+
+/*!
+    \fn void QList::detach()
+*/
+
+/*!
+    \fn bool QList::isDetached() const
+*/
+
+/*!
+    \fn bool QList::operator!() const
+*/
+
+/*!
+    \fn void QList::clear()
+*/
+
+/*!
+    \fn const T &QList::at(int i) const
+*/
+
+/*!
+    \fn const T &QList::operator[](int i) const
+*/
+
+/*!
+    \fn T &QList::operator[](int i)
+
+    \overload
+*/
+
+/*!
+    \fn void QList::append(const T &t)
+*/
+
+/*!
+    \fn void QList::prepend(const T &t)
+*/
+
+/*!
+    \fn void QList::insert(int i, const T &t)
+*/
+
+/*!
+    \fn void QList::replace(int i, const T &t)
+*/
+
+/*!
+    \fn int QList::remove(const T &t)
+*/
+
+/*!
+    \fn void QList::removeAt(int i)
+*/
+
+/*!
+    \fn void QList::move(int from, int to)
+*/
+
+/*!
+    \fn void QList::swap(int i, int j)
+*/
+
+/*!
+    \fn int QList::indexOf(const T &t, int from = 0) const
+*/
+
+/*!
+    \fn int QList::lastIndexOf(const T &t, int from = -1) const
+*/
+
+/*!
+    \fn QBool QList::contains(const T &t) const
+*/
+
+/*!
+    \fn int QList::count(const T &t) const
+*/
+
+
