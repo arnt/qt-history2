@@ -45,7 +45,6 @@ public:
 	QByteArray::operator=(ba); return *this;
     }
 
-
     QCString	copy()	const { return *this; }
     QCString    &sprintf(const char *format, ...);
 
@@ -67,8 +66,12 @@ public:
     QCString    &append(const char *c) { QByteArray::append(c); return *this; }
     QCString    &prepend(const char *c) { QByteArray::prepend(c); return *this; }
     QCString    &remove(uint index, uint len) { QByteArray::remove(index, len); return *this; }
-    QCString    &replace(uint index, uint len, const char *c) { QByteArray::replace(index, len, c); return *this; }
+    QCString    &replace(uint index, uint len, const char *c)
+    { QByteArray::replace(index, len, c); return *this; }
+    QCString    &replace(char c, const QCString &after) { return replace(c, after.constData()); }
     QCString    &replace(char c, const char *after) { QByteArray::replace(c, after); return *this; }
+    QCString    &replace(const QCString &b, const QCString &a)
+    { return replace(b.constData(), a.constData()); }
     QCString    &replace(const char *b, const char *a) { QByteArray::replace(b, a); return *this; }
     QCString    &replace(char b, char a) { QByteArray::replace(b, a); return *this; }
 
@@ -126,7 +129,6 @@ inline QCString &QCString::setNum(uint n)
 
 inline QCString &QCString::setNum(float n, char f, int prec)
 { return setNum((double)n,f,prec); }
-
 
 /*****************************************************************************
   QCString non-member operators
