@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#45 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -16,6 +16,7 @@
 #include "qpaintdc.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qwidcoll.h"
 #include "qobjcoll.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -23,8 +24,14 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#45 $";
 #endif
+
+
+void qXEnterModal( QWidget * );			// def in qapp_x11.cpp
+void qXLeaveModal( QWidget * );			// def in qapp_x11.cpp
+void qXOpenPopup( QWidget * );			// def in qapp_x11.cpp
+void qXClosePopup( QWidget * );			// def in qapp_x11.cpp
 
 
 // --------------------------------------------------------------------------
@@ -41,8 +48,8 @@ const ulong stdWidgetEventMask =		// X event mask
 	EnterWindowMask | LeaveWindowMask |
 	FocusChangeMask |
 	ExposureMask |
-	StructureNotifyMask |
-	SubstructureRedirectMask;
+	StructureNotifyMask | SubstructureRedirectMask;
+
 
 bool QWidget::create()				// create widget
 {
@@ -60,12 +67,18 @@ bool QWidget::create()				// create widget
     int	   sh = DisplayHeight( dpy, screen );	// screen height
     bool   overlap = testFlag( WType_Overlap );
     bool   popup   = testFlag( WType_Popup );
+    bool   modal   = testFlag( WType_Modal );
     bool   desktop = testFlag( WType_Desktop );
     Window parentwin;
     int	   border = 0;
     WId	   id;
 
     bg_col = pal.normal().background();		// set default background color
+
+    if ( modal ) {				// modal windows overlap
+	overlap = TRUE;
+	setFlag( WType_Overlap );
+    }
 
     if ( desktop ) {				// desktop widget
 	frect.setRect( 0, 0, sw, sh );
@@ -116,6 +129,12 @@ bool QWidget::create()				// create widget
 				 &v );
     }
     else if ( overlap ) {			// top level widget
+	if ( modal ) {
+	    if ( parentWidget() )		// modal to one widget
+		XSetTransientForHint( dpy, id, parentWidget()->id() );
+	    else				// application-modal
+		XSetTransientForHint( dpy, id, qXRootWin() );
+	}
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
 	size_hints.x = crect.left();
@@ -171,6 +190,8 @@ bool QWidget::destroy()				// destroy widget
 		++it;
 	    }
 	}
+	if ( testFlag(WType_Modal) )		// just be sure we leave modal
+	    qXLeaveModal( this );		//   state
 	if ( !testFlag(WType_Desktop) )
 	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
@@ -198,6 +219,19 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     clearFlag( WState_Created );
     clearFlag( WState_Visible );
     create();
+    QObjectList *chlist = children();
+    if ( chlist ) {				// reparent children
+	QObjectListIt it( *chlist );
+	QObject *obj;
+	while ( (obj=it.current()) ) {
+	    if ( obj->isWidgetType() ) {
+		QWidget *w = (QWidget *)obj;
+		XReparentWindow( dpy, w->id(), id(), w->geometry().x(),
+				 w->geometry().y() );
+	    }
+	    ++it;
+	}
+    }
     qPRCreate( this, old_ident );
     setBackgroundColor( bgc );			// restore colors
     setGeometry( p.x(), p.y(), s.width(), s.height() );
@@ -390,9 +424,6 @@ void QWidget::repaint( const QRect &r, bool eraseArea )
 }
 
 
-void qXOpenPopup( QWidget * );			// def in qapp_x11.cpp
-void qXClosePopup( QWidget * );			// def in qapp_x11.cpp
-
 void QWidget::show()				// show widget
 {
     if ( testFlag(WState_Visible) )
@@ -414,7 +445,9 @@ void QWidget::show()				// show widget
     XMapWindow( dpy, ident );
     setFlag( WState_Visible );
     clearFlag( WExplicitHide );
-    if ( testFlag(WType_Popup) )
+    if ( testFlag(WType_Modal) )
+	qXEnterModal( this );
+    else if ( testFlag(WType_Popup) )
 	qXOpenPopup( this );
 }
 
@@ -424,11 +457,14 @@ void QWidget::hide()				// hide widget
 	setFlag( WExplicitHide );
 	return;
     }
-    if ( testFlag(WType_Popup) )
+    if ( testFlag(WType_Modal) )
+	qXLeaveModal( this );
+    else if ( testFlag(WType_Popup) )
 	qXClosePopup( this );
     XUnmapWindow( dpy, ident );
     clearFlag( WState_Visible );
 }
+
 
 void QWidget::raise()				// raise widget
 {
