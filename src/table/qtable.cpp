@@ -4008,10 +4008,8 @@ void QTable::focusOutEvent( QFocusEvent *e )
 
 QSize QTable::sizeHint() const
 {
-    if ( ( isVisibleTo( 0 ) || was_visible ) && cachedSizeHint().isValid() ) {
-	( (QTable*)this )-> was_visible = TRUE;
+    if ( cachedSizeHint().isValid() )
 	return cachedSizeHint();
-    }
 
     constPolish();
 

@@ -225,8 +225,6 @@ struct QListViewPrivate
     bool fullRepaintOnComlumnChange:1;
     bool updateHeader		:1;
 
-    bool was_visible : 1;
-
     bool startEdit : 1;
     bool ignoreEditAfterFocus : 1;
 
@@ -864,7 +862,7 @@ void QListViewItem::okRename( int col )
 	return;
     setText( col, renameBox->text() );
     removeRenameBox();
-    
+
     emit lv->itemRenamed( this, col );
     emit lv->itemRenamed( this, col, text( col ) );
 }
@@ -2491,7 +2489,6 @@ void QListView::init()
     d->select = TRUE;
     d->useDoubleBuffer = FALSE;
     d->startDragItem = 0;
-    d->was_visible = FALSE;
     d->toolTips = TRUE;
 #ifndef QT_NO_TOOLTIP
     d->toolTip = new QListViewToolTip( viewport(), this );
@@ -2782,7 +2779,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		x += cs;
 		c++;
 	    }
-	    
+
 	    if ( current->i == d->focusItem && hasFocus() &&
 		 !d->allColumnsShowFocus ) {
 		p->save();
@@ -5995,11 +5992,8 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 */
 QSize QListView::sizeHint() const
 {
-    static bool was_visible = FALSE;
-    if ( ( isVisibleTo( 0 ) || was_visible ) && cachedSizeHint().isValid() ) {
-	was_visible = TRUE;
+    if ( cachedSizeHint().isValid() )
 	return cachedSizeHint();
-    }
 
     constPolish();
 

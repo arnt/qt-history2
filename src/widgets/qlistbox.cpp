@@ -2976,11 +2976,8 @@ void QListBox::emitChangedSignal( bool )
 
 QSize QListBox::sizeHint() const
 {
-    static bool was_visible = FALSE;
-    if ( ( isVisibleTo( 0 ) || was_visible ) && cachedSizeHint().isValid() ) {
-	was_visible = TRUE;
+    if ( cachedSizeHint().isValid() )
 	return cachedSizeHint();
-    }
 
     constPolish();
     doLayout();

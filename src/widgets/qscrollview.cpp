@@ -2691,7 +2691,8 @@ bool QScrollView::dragAutoScroll() const
  */
 void QScrollView::setCachedSizeHint( const QSize &sh ) const
 {
-    d->cachedSizeHint = sh;
+    if ( isVisible() && !d->cachedSizeHint.isValid() )
+	d->cachedSizeHint = sh;
 }
 
 /*!\internal
