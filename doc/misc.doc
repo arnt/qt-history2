@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.12 1996/02/04 22:57:49 agulbra Exp $
+** $Id: misc.doc,v 1.13 1996/02/08 13:53:27 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.12 1996/02/04 22:57:49 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.13 1996/02/08 13:53:27 agulbra Exp $";
 #endif
 
 /*! \page license.html
@@ -109,7 +109,7 @@ soon /pub/Linux/X11/devel/, and from ftp.nvg.unit.no in /pub/linux/qt.
 <p>
 
 If you find any bugs, send a report to
-<a href=mailto:bugs@troll.no>qt-bugs@troll.no</a>
+<a href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a>
 
 <p>
 
