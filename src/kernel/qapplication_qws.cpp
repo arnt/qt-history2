@@ -2563,7 +2563,8 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     char   ascii = 0;
     if ( event->simpleData.unicode & 0xffff ) {
 	QChar ch(event->simpleData.unicode & 0xffff);
-	text += ch;
+	if ( ch.unicode() != 0xffff )
+	    text += ch;
 	ascii = ch.latin1();
     }
     code = event->simpleData.unicode >> 16;
