@@ -413,8 +413,8 @@ private:
 
 inline QString::QString() :d(&shared_null)
 { ++d->ref; }
-inline QString::QString(const QLatin1String &latin1)
-{ *this = fromLatin1(latin1.latin1()); }
+inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
+{ ++d->ref; *this = fromLatin1(latin1.latin1()); }
 inline int QString::length() const
 { return d->size; }
 inline void QString::truncate(int maxSize)
