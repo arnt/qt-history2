@@ -59,6 +59,12 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
     setButtonDefaultIndicatorWidth( 1 );
 }
 
+/*!
+  Destructs the style.
+*/
+QWindowsStyle::~QWindowsStyle()
+{
+}
 
 /*! \reimp */
 

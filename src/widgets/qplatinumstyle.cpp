@@ -58,6 +58,13 @@ QPlatinumStyle::QPlatinumStyle()
     setButtonDefaultIndicatorWidth( 3 );
 }
 
+/*!
+  Destructs the style.
+*/
+QPlatinumStyle::~QPlatinumStyle()
+{
+}
+
 // /*! \reimp */
 
 // void QPlatinumStyle::polish( QApplication* app)

@@ -70,6 +70,12 @@ QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
 #endif
 }
 
+/*!
+  Destructs the style.
+*/
+QMotifStyle::~QMotifStyle()
+{
+}
 
 
 /*!
