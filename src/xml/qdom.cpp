@@ -2521,7 +2521,7 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItem( QDomNodePrivate* arg )
     if ( appendToParent )
 	return parent->appendChild( arg );
 
-    QDomNodePrivate *n = map[ arg->nodeName() ];
+    QDomNodePrivate *n = map.value(arg->nodeName());
     // We take a reference
     arg->ref();
     map.insertMulti(arg->nodeName(), arg);

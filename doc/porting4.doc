@@ -281,7 +281,11 @@ QIconFactory::installDefaultFactory() and QIconFactory::defaultFactory()
 respectively.
 
 \section1 QPtrDict<T>, QIntDict<T>, QDict<T>
-These classes have been removed use QHash<type *, T*> QHash<int, T*>, and QHash<QString, T*> respecitively. Please note that while the dictionary classes allowed for multiple entries with the same key, the current QHash allows for only ONE value.
+These classes have been removed use QHash<type *, T*> QHash<int, T*>, and QHash<QString, T*> respecitively. Please note that while the dictionary classes allowed for multiple entries with the same key, the current QHash implementation only allows this if insertMulti() is used to insert elements.
+
+Note about QDict->QHash conversion: QDict has one []-operator which is const, but QHash has two. The non-const [] operator for QHash creates a default value if there is no pair that matches the passed key. So a = b[c]; will create an element if called in a non-const environment. Rather than [], use value(), which returns a default constructed value (or 0 for pointers) but does not insert it into the container.
+
+Note that there are two types of iterators for QHash, both STL-style and Qt-style. STL-style iterators are recommended for internal use, as these are more efficient.
 
 \section1 QPtrDict
 
