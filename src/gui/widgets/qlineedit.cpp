@@ -537,7 +537,10 @@ int QLineEdit::cursorPosition() const
 
 void QLineEdit::setCursorPosition(int pos)
 {
-    if (pos >= 0 && pos <= d->text.length())
+    if (pos < 0)
+        pos = 0;
+
+    if (pos <= d->text.length())
         d->moveCursor(pos);
 }
 
