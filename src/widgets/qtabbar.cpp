@@ -769,7 +769,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent *e )
     if(d->pressed) {
 	QTab *t = selectTab( e->pos() ) == d->pressed ? d->pressed : NULL;
 	d->pressed = NULL;
-	if(t && e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
+	if(t && t->enabled && e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
 	    setCurrentTab( t );
     }
 }
