@@ -323,7 +323,9 @@ void ImageViewer::newWindow()
 */
 void ImageViewer::openFile()
 {
-    QString newfilename = QFileDialog::getOpenFileName();
+    QString newfilename = QFileDialog::getOpenFileName( QString::null,
+							QString::null,
+							this );
     if ( !newfilename.isEmpty() ) {
 	loadImage( newfilename ) ;
 	repaint();			// show image in widget
