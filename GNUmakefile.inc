@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#4 $
+# $Id: //depot/qt/main/GNUmakefile.inc#5 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -33,11 +33,33 @@ $(PROJECT).pro:
 static: GNUmakefile.static $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.static
 
+gcc-debug: GNUmakefile.gcc-debug $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.gcc-debug
+
+gcc-static: GNUmakefile.gcc-static $(MORETARGETS)
+	$(MAKE) -f GNUmakefile.gcc-static
+
 debug: GNUmakefile.debug $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.debug
 
 release: GNUmakefile.release $(MORETARGETS)
 	$(MAKE) -f GNUmakefile.release
+
+GNUmakefile.gcc-static: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/gcc-static
+	tmake $(PROJECT).pro -o GNUmakefile.gcc-static \
+	    "CONFIG+=staticlib" "TMAKE_CC=gcc" "OBJECTS_DIR=.obj/gcc-static"
+
+GNUmakefile.gcc-debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	syncqt
+endif
+	@mkdir -p .obj/gcc-debug
+	tmake $(PROJECT).pro -o GNUmakefile.gcc-debug \
+	    "TMAKE_CC=gcc" "OBJECTS_DIR=.obj/gcc-debug"
 
 GNUmakefile.static: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
@@ -93,7 +115,7 @@ depend:
 
 clean: GNUmakefile.debug
 	$(MAKE) -f GNUmakefile.debug clean
-	-rm -f GNUmakefile.debug GNUmakefile.release $(MOREDEP) $(MORECLEAN)
+	-rm -f GNUmakefile.debug GNUmakefile.release GNUmakefile.static $(MOREDEP) $(MORECLEAN)
 	-rm -f core *~
 	-rm -r -f .obj
 
