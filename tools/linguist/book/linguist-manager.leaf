@@ -56,12 +56,12 @@ An example of a complete \c .pro file with four translation source files:
 \index Chinese Language
 \index Japanese Language
 
-\l QApplication::setDefaultCodec() makes it possible to choose a
+\l QTextCodec::setCodecForTr() makes it possible to choose a
 8-bit encoding for literal strings that appear within \c tr() calls.
 This is useful for applications whose source language is, for example,
 Chinese or Japanese. If no encoding is set, \c tr() uses Latin-1.
 
-If you do use the QApplication::defaultCodec() mechanism in your
+If you do use the \l QTextCodec::codecForTr() mechanism in your
 application, \e {Qt Linguist} needs you to set the \c DEFAULTCODEC
 entry in the \c .pro file as well. For example:
 \code
