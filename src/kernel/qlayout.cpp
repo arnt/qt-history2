@@ -2276,6 +2276,11 @@ bool QBoxLayout::setAlignment( QLayout *l, int alignment )
     return FALSE;
 }
 
+/*! \reimp */
+void QBoxLayout::setAlignment( int alignment )
+{
+    QLayout::setAlignment( alignment );
+}
 
 /*!
     Sets the direction of this layout to \a direction.
