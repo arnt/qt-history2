@@ -594,12 +594,14 @@ void QTipManager::allowAnimation()
   mouse rest on a tip-equipped region for a second or so, and remains
   in active mode until the user either clicks a mouse button, presses
   a key, lets the mouse rest for five seconds, or moves the mouse
-  outside \e all tip-equpped regions for at least a second.
+  outside \e all tip-equipped regions for at least a second.
 
-  The QToolTip class can be used in three different ways: <ol> <li>
-  Adding a tip to an entire widget. <li> Adding a tip to a fixed
-  rectangle within a widget. <li> Adding a tip to a dynamic rectangle
-  within a widget. </ol>
+  The QToolTip class can be used in three different ways: 
+  <ol> 
+  <li> Adding a tip to an entire widget. 
+  <li> Adding a tip to a fixed rectangle within a widget. 
+  <li> Adding a tip to a dynamic rectangle within a widget. 
+  </ol>
 
   To add a tip to a widget, call the \e static function QToolTip::add()
   with the widget and tip as arguments:
@@ -643,7 +645,7 @@ void QTipManager::allowAnimation()
   To use QToolTip like this, you need to subclass QToolTip and
   reimplement maybeTip().  maybeTip() will be called when there's a
   chance that a tip should pop up.  It must decide whether to show a
-  tip, and possibly call add() with the rectangle the tip applies to,
+  tip, and possibly call tip() with the rectangle the tip applies to,
   the tip's text and optionally the QToolTipGroup details.  The tip
   will disappear once the mouse moves outside the rectangle you
   supply, and \e not \e reappear - maybeTip() will be called again if
@@ -763,7 +765,7 @@ void QToolTip::add( QWidget *widget, const QString &text,
 /*!
   Remove the tool tip from \e widget.
 
-  If there are more than one tool tip on \a widget, only the one
+  If there is more than one tool tip on \a widget, only the one
   covering the entire widget is removed.
 */
 
@@ -787,7 +789,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
 
 
 /*!
-  Adds a tool tip to an entire \a widget, and to tool tip group \a
+  Adds a tool tip to an entire \a widget, and to the tool tip group \a
   group.
 
   \e text is the text shown in the tool tip and \a longText is the
@@ -809,7 +811,7 @@ void QToolTip::add( QWidget *widget, const QRect &rect,
 /*!
   Remove the tool tip for \e rect from \e widget.
 
-  If there are more than one tool tip on \a widget, only the one
+  If there is more than one tool tip on \a widget, only the one
   covering rectangle \e rect is removed.
 */
 
@@ -844,7 +846,7 @@ void QToolTip::hide()
   the widget this QToolTip object relates to.
 
   \a p is given in that widget's local coordinates.  Most maybeTip()
-  implementation will be of the form:
+  implementations will be of the form:
 
   \code
     if ( <something> ) {
@@ -860,11 +862,11 @@ void QToolTip::hide()
 
 
 /*!
-  Pops up a tip saying \a text right now, and removes that tip once
+  Immediately pops up a tip saying \a text, and removes the tip once
   the cursor moves out of rectangle \a rect (which is given in the
   coordinate system of the widget this QToolTip relates to).
 
-  The tip will not come back if the cursor moves back; your maybeTip()
+  The tip will not reappear if the cursor moves back; your maybeTip()
   has to reinstate it each time.
 */
 
@@ -881,10 +883,10 @@ void QToolTip::tip( const QRect &geometry, const QRect &rect, const QString &tex
 }
 
 /*!
-  Pops up a tip saying \a text right now, and removes that tip once
+  Immediately pops up a tip saying \a text, and removes that tip once
   the cursor moves out of rectangle \a rect.
 
-  The tip will not come back if the cursor moves back; your maybeTip()
+  The tip will not reappear if the cursor moves back; your maybeTip()
   has to reinstate it each time.
 */
 
@@ -897,7 +899,7 @@ void QToolTip::tip( const QRect & rect, const QString &text,
 
 
 /*!
-  Removes all tool tips for this tooltip's parent widget immediately.
+  Immediately removes all tool tips for this tooltip's parent widget.
 */
 
 void QToolTip::clear()
@@ -922,12 +924,12 @@ void QToolTip::clear()
 /*!
   \fn QToolTipGroup * QToolTip::group() const
 
-  Returns the tool tip group this QToolTip is a member of, of 0 if it
+  Returns the tool tip group this QToolTip is a member of, or 0 if it
   isn't a member of any group.
 
-  The tool tip group is the object responsible for relaying contact
+  The tool tip group is the object responsible for maintaining contact
   between tool tips and a status bar or something else which can show
-  a longer help text.
+  the longer help text.
 
   \sa parentWidget(), QToolTipGroup
 */
@@ -936,11 +938,11 @@ void QToolTip::clear()
 /*!
   \class QToolTipGroup qtooltip.h
 
-  \brief The QToolTipGroup class collects tool tips into natural groups.
+  \brief The QToolTipGroup class collects tool tips into related groups.
 
   \ingroup helpsystem
 
-  Tool tips can display \e two texts, the one in the tip and
+  Tool tips can display \e two texts, one in the tip itself, and
   optionally another one, typically in a status bar.  QToolTipGroup
   provides a way to link tool tips to this status bar.
 
@@ -998,7 +1000,7 @@ QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
 
 
 /*!
-  Destroy this tool tip groups and all tool tips in it.
+  Destroy this tool tip group and all the tool tips it contains.
 */
 
 QToolTipGroup::~QToolTipGroup()
@@ -1075,7 +1077,7 @@ void QToolTip::setEnabled( bool enable )
 }
 
 /*!
-  Returns whether tooltips are enabled globally.
+  Returns whether or not tooltips are enabled globally.
   \sa setEnabled()
 */
 bool QToolTip::enabled()
