@@ -2542,7 +2542,7 @@ void QPainter::drawText( const QRect &r, int tf,
 		   tabstops, tabarray, tabarraylen, internal, this);
 }
 
-//#define QT_FORMAT_TEXT_DEBUG
+#define QT_FORMAT_TEXT_DEBUG
 
 void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
@@ -2762,6 +2762,8 @@ void qt_format_text( const QFont& font, const QRect &r,
     }
     if ( brect ) {
 	*brect = parag->rect();
+	// FIXME below is a bug.  sets left to x of first char.  if multi-line and first line isn't the
+	// longest this will truncate by too much.
 	if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
 	    brect->setLeft( brect->left() + parag->at( 0 )->x );
 	brect->moveBy( xoff, yoff );
