@@ -91,22 +91,22 @@ struct WMStyleFactoryItem {
 	QWSDefaultDecoration *(*new_WMDecorations)();
 } WMStyleList[] = {
 #ifndef QT_NO_QWS_WINDOWS_WM_STYLE
-    { Windows_WMStyle, "Windows", new_Windows_WMDecorations },
+    { Windows_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Windows"), new_Windows_WMDecorations },
 #endif // QT_NO_QWS_WINDOWS_WM_STYLE
 #ifndef QT_NO_QWS_KDE_WM_STYLE
-    { KDE_WMStyle, "KDE", new_KDE_WMDecorations },
+    { KDE_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "KDE"), new_KDE_WMDecorations },
 #endif // QT_NO_QWS_KDE_WM_STYLE
 #ifndef QT_NO_QWS_KDE2_WM_STYLE
-    { KDE2_WMStyle, "KDE2", new_KDE2_WMDecorations },
+    { KDE2_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "KDE2"), new_KDE2_WMDecorations },
 #endif // QT_NO_QWS_KDE2_WM_STYLE
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
-    { BeOS_WMStyle, "BeOS", new_BeOS_WMDecorations },
+    { BeOS_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "BEOS"), new_BeOS_WMDecorations },
 #endif // QT_NO_QWS_BEOS_WM_STYLE
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
-    { Hydro_WMStyle, "Hydro", new_Hydro_WMDecorations },
+    { Hydro_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Hydro"), new_Hydro_WMDecorations },
 #endif // QT_NO_QWS_HYDRO_WM_STYLE
 
-    { Default_WMStyle, "Default", new_Default_WMDecorations },
+    { Default_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Default"), new_Default_WMDecorations },
     { Default_WMStyle, NULL, NULL }
 };
 
@@ -415,7 +415,7 @@ void QWSManager::menu(const QPoint &pos)
 	// Add Style menu
 	QPopupMenu *styleMenu = new QPopupMenu();
 	for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
-	    styleMenu->insertItem( QObject::tr(WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
+	    styleMenu->insertItem( qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
 	styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
 	popup->insertSeparator();
 	popup->insertItem(QObject::tr("Style"), styleMenu);
