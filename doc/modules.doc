@@ -56,7 +56,7 @@ with each Edition.
 
 The icon view module provides a powerful visualization widget dubbed
 \l QIconView. API and feature-wise it is similar to \l QListView and
-\l QListBox. It contains optinally labelled pixmap items that the user
+\l QListBox. It contains optionally labelled pixmap items that the user
 can select, drag around, rename, delete and more.
 
 <center><a href="qiconview.html"><img src="qiconview-w.png" alt="Screenshot of QIconVIew"></a></center>
