@@ -3163,38 +3163,69 @@ QStrList QApplication::queryInterfaceList() const
 /*!
   \class QApplicationInterface qapplicationinterface.h
 
-  \brief This class provides an abstract interface to give runtime access to application components.
+  \brief This class provides an interface to give runtime access to application components.
 
   \sa QClientInterface, QPlugIn
 */
 
 /*!
-  \overload
-  \fn QApplicationInterface::void requestProperty( const QCString& property, QVariant& value )
+  \fn QApplicationInterface::QApplicationInterface( QObject* object )
 
-  A handler to handle request the plugin calls for the the value of \a property.
+  Creates an QApplicationInterface that will provide an interface to the application component
+  \a object.
+
+  Subclass this function to grant plugins the access to your application.
+*/
+
+/*!
+  \fn QObject* QApplicationInterface::object()
+
+  Returns the object this interface belongs to. Use this function to process
+  incoming requests in your subclass.
+*/
+
+/*!
+  \fn void QApplicationInterface::requestProperty( const QCString& property, QVariant& value )
+
+  A handler to process request the plugin sends in order to get the value of \a property.
   This function will be called each time a connected QClientInterface emits the
   \link QDualInterface::readProperty readProperty signal. You have to reimplement this function
   for each compoent of your application you want to enable plugins to access, and handle the incoming
   request by providing the requested property in the passed QVariant object \a value.
+
+  The default implementation sets \a value to the corresponding property of the handled object.
 */
 
 /*!
-  \fn QApplicationInterface::void requestSetProperty( const QCString& property, const QVariant& value )
+  \fn void QApplicationInterface::requestSetProperty( const QCString& property, const QVariant& value )
 
-  A handler to handle requests the plugin sends to change the \a property to \a value.
+  A handler to process requests the plugin sends in order to change the \a property of the
+  object to \a value.
   This function will be called each time a connected QClientInterface emits the
   \link QDualInterface::writeProperty readProperty signal. You have to reimplement this function
   for each component your application wants to grant the plugin access to, and handle the incoming
   requests.
+
+  The default implementation sets the \a property of the handled object to \a value.
+*/
+
+/*!
+  \fn void QApplicationInterface::requestSignal( const char* signal, QObject* target, const char* slot )
+
+  A handler to process requests the plugin sends in order to connect to the object this interface
+  belongs to. 
+
+  The default implementation connects the \a signal of the handled object to the \a slot of \a target.
 */
 
 /*!
   \class QClientInterface qapplicationinterface.h
+
+  \brief This class enables plugins to send requests to the corresponding application interface.
 */
 
 /*!
-  void QClientInterface::requestProperty( const QCString& property, QVariant& value )
+  \fn void QClientInterface::requestProperty( const QCString& property, QVariant& value )
 
   Call this function to send a readProperty request for \a property to the
   QApplicationInterface corresponding with this QClientInterface. The application will
@@ -3202,9 +3233,15 @@ QStrList QApplication::queryInterfaceList() const
 */
 
 /*!
-  void QClientInterface::requestSetProperty( const QCString& property, QVariant& value )
+  \fn void QClientInterface::requestSetProperty( const QCString& property, QVariant& value )
 
   Call this function in your plugin to send a writeProperty request for \a property to the
   QApplicationInterface corresponding with this QClientInterace.
   The application will set the \a property of the object it represents to \a value.
+*/
+
+/*!
+  \fn void QClientInterface::requestSignal( const char* signal, QObject* target, const char* slot )
+
+  Call this function in your plugin to send a makeConnection request to the application interface.
 */
