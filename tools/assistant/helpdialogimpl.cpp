@@ -155,7 +155,7 @@ QString HelpNavigationContentsItem::link() const
 
 
 HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
-    : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v )
+    : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v ), lwClosed( FALSE )
 {
     bookPixmap = new QPixmap( book_xpm );
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
@@ -170,6 +170,12 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     listContents->header()->setStretchEnabled( TRUE );
     framePrepare->hide();
     setupTitleMap();
+    connect( qApp, SIGNAL(lastWindowClosed()), SLOT(lastWinClosed()) );
+}
+
+void HelpDialog::lastWinClosed()
+{
+    lwClosed = TRUE;
 }
 
 void HelpDialog::loadIndexFile()
@@ -219,9 +225,9 @@ void HelpDialog::loadIndexFile()
     if ( buildDb ) {
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );
-	    while ( !ts.atEnd() && isVisible() ) {
+	    while ( !ts.atEnd() && !lastWindowClosed() ) {
 		qApp->processEvents();
-		if ( !isVisible() )
+		if ( lastWindowClosed() )
 		    break;
 		QString l = ts.readLine();
 		if ( l.find( "::" ) != -1 ) {
@@ -231,6 +237,10 @@ void HelpDialog::loadIndexFile()
 		lst->append( l );
 		if ( bar )
 		    bar->setProgress( bar->progress() + l.length() );
+	    }
+	    if ( lastWindowClosed() ) {
+		delete lst;
+		return;
 	    }
 	}
 	if ( !lst->isEmpty() ) {

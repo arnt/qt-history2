@@ -67,6 +67,7 @@ public:
 
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
+    bool lastWindowClosed() { return lwClosed; }
 
 protected slots:
     void loadIndexFile();
@@ -87,6 +88,9 @@ public slots:
 signals:
     void showLink( const QString &s, const QString& t );
 
+private slots:
+    void lastWinClosed();
+
 private:
     void showIndexTopic();
     void showBookmarkTopic();
@@ -102,6 +106,7 @@ private:
 private:
     QMap<QString, QString> titleMap;
     bool indexDone, bookmarksInserted, contentsDone, contentsInserted;
+    bool lwClosed;
     MainWindow *help;
     QTextBrowser *viewer;
     QString documentationPath;
