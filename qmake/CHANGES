@@ -7,6 +7,8 @@
 
   qmake now includes a special else scope to invert the previous test
 
+  Ability to add user defined targets to UnixMakefiles.
+
 1.01a -
 
  New system for library linking. This system allows a user several different features:

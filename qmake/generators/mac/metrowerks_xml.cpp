@@ -311,8 +311,10 @@ MetrowerksMakefileGenerator::init()
 	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	if(configs.findIndex("moc")) 
 	    configs.append("moc");
-	if ( !project->isActiveConfig("debug") ) 
+	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
+	    project->variables()["DEFINES"].append("QT_NO_CHECK");
+	}
     }
     if( !project->isEmpty("QMAKE_LIBS") )
 	project->variables()["LIBS"] += project->variables()["QMAKE_LIBS"];

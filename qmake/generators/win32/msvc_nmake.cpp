@@ -286,8 +286,10 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
-	if ( !project->isActiveConfig("debug") ) 
+	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_CHECK");
+	}
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");

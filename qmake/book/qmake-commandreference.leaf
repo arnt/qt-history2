@@ -475,6 +475,17 @@ For example:
 VERSION = 1.2.3
 \endcode
 
+\section3 DISTFILES
+
+This variable contains a list of files to be included in the dist
+target. This feature is supported by UnixMake specs only.
+
+For example:
+
+\code
+DISTFILES += ../program.txt
+\endcode
+
 
 \target YACCSOURCES
 \section3 YACCSOURCES
