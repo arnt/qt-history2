@@ -666,6 +666,7 @@ for plat in mac win x11 qws; do
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
 	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	    rm -f "$PLATDIR/configure.bat"
 	    if [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/biff"
 		rm -rf "$PLATDIR/examples/desktop"
