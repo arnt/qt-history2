@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#203 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#204 $
 **
 ** Implementation of QListView widget class
 **
@@ -503,7 +503,8 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 	return;
     if ( newChild->parentItem )
 	newChild->parentItem->removeItem( newChild );
-    invalidateHeight();
+    if ( open )
+	invalidateHeight();
     newChild->siblingItem = childItem;
     childItem = newChild;
     nChildren++;
@@ -1495,7 +1496,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->r->setSelectable( FALSE );
 
     viewport()->setFocusProxy( this );
-    setFocusPolicy( TabFocus );
+    setFocusPolicy( StrongFocus );
 }
 
 
@@ -1541,20 +1542,28 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	QListViewItem * i;
 	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
 	    ++it;
-	    QRect ir = itemRect( i ).intersect(viewport()->rect());
+	    QRect ir = itemRect( i ).intersect( viewport()->rect() );
 	    if ( ir.isEmpty() || br.contains( ir ) )
 		// we're painting this one, or it needs no painting: forget it
 		d->dirtyItems->remove( (void *)i );
 	}
 	if ( d->dirtyItems->count() ) {
-	    // there are still items left that need repainting
-	    d->dirtyItemTimer->start( 0, TRUE );
-	} else {
-	    // we're painting all items that need to be painted
-	    delete d->dirtyItems;
-	    d->dirtyItems = 0;
-	    d->dirtyItemTimer->stop();
+	    // there are still items left that need repainting.
+	    QRegion ir;
+	    QPtrDictIterator<void> it( *(d->dirtyItems) );
+	    QListViewItem * i;
+	    while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
+		++it;
+		ir = ir.unite( itemRect(i) );
+	    }
+	    // send a paint event for the remaining region
+	    QApplication::postEvent( viewport(),
+				     new QPaintEvent( ir.subtract( QRegion( br ) ),
+						      FALSE ) );
 	}
+	delete d->dirtyItems;
+	d->dirtyItems = 0;
+	d->dirtyItemTimer->stop();
     }
 
     p->setFont( font() );
@@ -2639,9 +2648,15 @@ void QListView::keyPressEvent( QKeyEvent * e )
     switch( e->key() ) {
     case Key_Enter:
     case Key_Return:
-	emit returnPressed( currentItem() );
 	d->currentPrefix.truncate( 0 );
+	if ( i && !i->isSelectable() &&
+	     !i->isOpen() && ( i->childCount() || i->isExpandable() ) ) {
+	    e->accept();
+	    i->setOpen( TRUE );
+	    return;
+	}
 	e->ignore();
+	emit returnPressed( currentItem() );
 	// do NOT accept.  QDialog.
 	return;
     case Key_Down:
