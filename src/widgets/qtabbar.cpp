@@ -493,7 +493,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 			emit selected( t->id );
 		    }
 		}
-		repaint( r );
+		repaint( r, FALSE );
 	    }
 	    return;
 	}
@@ -834,10 +834,10 @@ void QTabBar::setCurrentTab( QTab * tab )
 	setMicroFocusHint( tab->rect().x(), tab->rect().y(), tab->rect().width(), tab->rect().height(), FALSE );
 
 	if ( tab->r.intersects( r ) ) {
-	    repaint( r.unite( tab->r ) );
+	    repaint( r.unite( tab->r ), FALSE );
 	} else {
-	    repaint( r );
-	    repaint( tab->r );
+	    repaint( r, FALSE );
+	    repaint( tab->r, FALSE );
 	}
 	makeVisible( tab );
 	emit selected( tab->id );
@@ -1132,7 +1132,7 @@ void QTabBar::focusInEvent( QFocusEvent * )
 {
     QTab *t = tab( d->focus );
     if ( t )
-	repaint( t->r );
+	repaint( t->r, FALSE );
 }
 
 /*!
@@ -1142,7 +1142,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 {
     QTab *t = tab( d->focus );
     if ( t )
-	repaint( t->r );
+	repaint( t->r, FALSE );
 }
 
 /*!
@@ -1287,7 +1287,7 @@ void QTab::setText( const QString& text )
 	    tb->d->a->insertItem( p, id );
 #endif
 	tb->layoutTabs();
-	tb->repaint();
+	tb->repaint(FALSE);
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( tb, tb->indexOf(id)+1, QAccessible::NameChanged );
