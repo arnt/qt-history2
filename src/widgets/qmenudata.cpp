@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#4 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#4 $";
 #endif
 
 
@@ -46,9 +46,12 @@ QMenuItem::~QMenuItem()
 
 QMenuData::QMenuData()
 {
+    actItem = -1;				// no active menu item
     mitems = new QMenuItemList;			// create list of menu items
     CHECK_PTR( mitems );
     mitems->setAutoDelete( TRUE );
+    parentMenu = 0;				// assume top level
+    isPopup = isMenuBar = FALSE;
 }
 
 QMenuData::~QMenuData()
@@ -65,23 +68,12 @@ void QMenuData::menuStateChanged()		// reimplemented in subclass
 {
 }
 
-void QMenuData::menuInitSubMenu( QPopupMenu * )	// reimplemented in subclass
+void QMenuData::menuInsSubMenu( QPopupMenu * )	// reimplemented in subclass
 {
 }
 
-
-QMenuItem *QMenuData::findItem( int id ) const	// find menu item, ident==id
+void QMenuData::menuDelSubMenu( QPopupMenu * )	// reimplemented in subclass
 {
-    if ( id == -1 )				// bad identifier
-	return 0;
-    QMenuItemListIt it( *mitems );
-    QMenuItem *mi;
-    while ( (mi=it.current()) ) {
-	if ( mi->ident == id )			// this one?
-	    return mi;
-	++it;
-    }
-    return 0;					// not found
 }
 
 
@@ -98,15 +90,15 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
 	index = mitems->count();
     QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
-    mi->ident = id != -1 ? id : index;
-    if ( string == 0 && bitmap == 0 && sub == 0 )	// separator
+    mi->ident = id == -1 ? index : id;
+    if ( string == 0 && bitmap == 0 && sub == 0 ) // separator
 	mi->is_separator = TRUE;
     else {
 	mi->string_data = string;
 	mi->bitmap_data = bitmap;
 	mi->submenu = sub;
 	if ( sub )
-	    menuInitSubMenu( sub );
+	    menuInsSubMenu( sub );
     }
     mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
@@ -146,7 +138,10 @@ void QMenuData::removeItem( int index )		// insert menu separator
 #endif
 	return;
     }
-    mitems->remove( index );
+    QMenuItem *mi = mitems->at( index );
+    if ( mi->submenu )
+	menuDelSubMenu( mi->submenu );
+    mitems->remove();
     menuContentsChanged();
 }
 
@@ -193,13 +188,13 @@ void QMenuData::changeItem( QBitMap *bitmap, int id )
 
 bool QMenuData::isItemDisabled( int id ) const
 {						// is menu item disabled?
-    QMenuItem *mi = findItem(id);
+    QMenuItem *mi = findItem( id );
     return mi ? mi->isDisabled() : FALSE;
 }
 
 void QMenuData::setItemEnabled( int id, bool enable )
 {						// enable/disable item
-    QMenuItem *mi = findItem(id);
+    QMenuItem *mi = findItem( id );
     bool disable = !enable;
     if ( mi && mi->is_disabled != disable ) {
 	mi->is_disabled = disable;
@@ -207,6 +202,36 @@ void QMenuData::setItemEnabled( int id, bool enable )
     }
 }
 
+
+bool QMenuData::isItemChecked( int id ) const
+{						// is menu item checked?
+    QMenuItem *mi = findItem( id );
+    return mi ? mi->isChecked() : FALSE;
+}
+
+void QMenuData::setItemChecked( int id, bool check )
+{						// enable/disable item
+    QMenuItem *mi = findItem( id );
+    if ( mi && mi->is_checked != check ) {
+	mi->is_checked = check;
+	menuStateChanged();
+    }
+}
+
+
+QMenuItem *QMenuData::findItem( int id ) const	// find menu item, ident==id
+{
+    if ( id == -1 )				// bad identifier
+	return 0;
+    QMenuItemListIt it( *mitems );
+    QMenuItem *mi;
+    while ( (mi=it.current()) ) {
+	if ( mi->ident == id )			// this one?
+	    return mi;
+	++it;
+    }
+    return 0;					// not found
+}
 
 int QMenuData::indexOf( int id ) const		// get index of item, ident==id
 {

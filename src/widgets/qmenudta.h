@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#1 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#2 $
 **
 ** Definition of QMenuData class
 **
@@ -65,6 +65,8 @@ class QMenuItemList;
 
 class QMenuData					// menu data class
 {
+friend class QMenuBar;
+friend class QPopupMenu;
 public:
     QMenuData();
    ~QMenuData();
@@ -88,9 +90,14 @@ public:
 
     bool	isItemDisabled( int id ) const;
     bool	isItemEnabled( int id )	 const	{ return !isItemDisabled(id); }
-    void	setItemEnabled( int id, bool onOff );
+    void	setItemEnabled( int id, bool enable );
     void	enableItem( int id )		{ setItemEnabled( id, TRUE ); }
     void	disableItem( int id )		{ setItemEnabled( id, FALSE );}
+
+    bool	isItemChecked( int id ) const;
+    void	setItemChecked( int id, bool check );
+    void	checkItem( int id )		{ setItemChecked( id, TRUE ); }
+    void	unckeckItem( int id )		{ setItemChecked( id, FALSE );}
 
     int		indexOf( int id ) const;	// get index of specified item
     int		idAt( int index ) const;	// get id of item at index
@@ -101,11 +108,16 @@ public:
 				const QObject *receiver, const char *member );
 
 protected:
+    int		   actItem;			// active menu item
     QMenuItemList *mitems;			// list of menu items
+    QMenuData     *parentMenu;
+    uint	   isPopup	: 1;
+    uint	   isMenuBar	: 1;
     QMenuItem     *findItem( int id ) const;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
-    virtual void   menuInitSubMenu( QPopupMenu * );
+    virtual void   menuInsSubMenu( QPopupMenu * );
+    virtual void   menuDelSubMenu( QPopupMenu * );
 
 private:
     void	insertAny( const char *, QBitMap *, QPopupMenu *, int, int );
