@@ -94,7 +94,7 @@ typedef QList<TabletDeviceData> TabletDeviceDataList;
 TabletDeviceDataList *qt_tablet_devices();
 #endif
 
-#ifdef QT_NO_COMPAT
+#ifdef QT_COMPAT
 extern "C" {
     typedef bool (*Ptrqt_tryAccelEvent)(QWidget *w, QKeyEvent *e);
     typedef bool (*Ptrqt_tryComposeUnicode)(QWidget *w, QKeyEvent *e);
