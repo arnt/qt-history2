@@ -2663,11 +2663,12 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 {
     QWSRegionManager *rgnMan = qt_fbdpy->regionManager();
 
-    if ( alloc_region_index < 0 )
+    if ( alloc_region_index < 0 ) {
 	alloc_region_index = rgnMan->find( winId() );
 
-    if ( alloc_region_index < 0 ) {
-	qFatal( "Cannot find region for window %d", winId() );
+	if ( alloc_region_index < 0 ) {
+	    qFatal( "Cannot find region for window %d", winId() );
+	}
     }
 
     QWSDisplay::grab();
