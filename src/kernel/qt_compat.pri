@@ -32,7 +32,7 @@ mac {
      CONFIG -= nas mng x11 x11sm
      
      #CONFIG += shared
-     CONFIG += sqlcrap
+     #CONFIG += sqlcrap
      sqlcrap {
 	sql-driver += postgres
 	INCLUDEPATH+=/Users/sam/postgresql-7.0.2/src/include \
