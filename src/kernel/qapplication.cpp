@@ -2023,8 +2023,8 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QWidget* w = (QWidget*)receiver;
 	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
 	    while ( w ) {
-		QContextMenuEvent ce( cevent->reason(), 
-				      w->mapFromGlobal( cevent->globalPos() ), 
+		QContextMenuEvent ce( cevent->reason(),
+				      w->mapFromGlobal( cevent->globalPos() ),
 				      cevent->globalPos(), cevent->state() );
 		res = internalNotify( w, &ce );
 
@@ -2499,11 +2499,9 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
 
-#ifdef Q_WS_QWS
-    bool sent=TRUE;
-    while (sent) {
-	sent=FALSE;
-#endif
+    bool sent = TRUE;
+    while ( sent ) {
+	sent = FALSE;
 
 	if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
 	    return;
@@ -2555,9 +2553,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		    if ( w->isVisible() )
 			w->repaint( p->reg, p->erase );
 		} else {
-#ifdef Q_WS_QWS
 		    sent = TRUE;
-#endif
 		    QApplication::sendEvent( r, e );
 		}
 		delete e;
@@ -2578,9 +2574,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		    globalPostedEvents->remove();
 	    }
 	}
-#ifdef Q_WS_QWS
     }
-#endif
 }
 
 /*!
