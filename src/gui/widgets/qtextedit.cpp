@@ -935,8 +935,6 @@ void QTextEdit::paste()
 */
 void QTextEdit::clear()
 {
-    if (d->readOnly)
-	return;
     selectAll();
     d->cursor.removeSelectedText();
 }
