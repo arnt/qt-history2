@@ -97,7 +97,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 {
-    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
+    return (uint)shape <= Qt::LastCursor ? &cursorTable[shape] : 0;
 }
 
 
