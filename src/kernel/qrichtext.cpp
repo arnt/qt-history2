@@ -5586,6 +5586,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lastBreak = -1;
 		col = 0;
 		tminw = marg;
+		if ( parag->isNewLinesAllowed() && lastChr == '\n' && c->c == '\n' )
+		    i++;
 		continue;
 	    }
 	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
