@@ -343,12 +343,12 @@ void Win32MakefileGenerator::processRcFileVar()
             ts << "\t\tBEGIN" << endl;
             ts << "\t\t\tBLOCK \"040904B0\"" << endl;
             ts << "\t\t\tBEGIN" << endl;
-            ts << "\t\t\t\tVALUE \"CompanyName\", \"" << companyName << "\\0\"" << endl;/////
-            ts << "\t\t\t\tVALUE \"FileDescription\", \"" <<  description << "\\0\"" << endl;/////
+            ts << "\t\t\t\tVALUE \"CompanyName\", \"" << companyName << "\\0\"" << endl;
+            ts << "\t\t\t\tVALUE \"FileDescription\", \"" <<  description << "\\0\"" << endl;
             ts << "\t\t\t\tVALUE \"FileVersion\", \"" << versionString << "\\0\"" << endl;
-            ts << "\t\t\t\tVALUE \"LegalCopyright\", \"" << copyright << "\\0\"" << endl; ////
+            ts << "\t\t\t\tVALUE \"LegalCopyright\", \"" << copyright << "\\0\"" << endl; 
             ts << "\t\t\t\tVALUE \"OriginalFilename\", \"" << originalName << "\\0\"" << endl;
-            ts << "\t\t\t\tVALUE \"ProductName\", \"" << productName << "\\0\"" << endl; /////
+            ts << "\t\t\t\tVALUE \"ProductName\", \"" << productName << "\\0\"" << endl;
             ts << "\t\t\tEND" << endl;
             ts << "\t\tEND" << endl;
             ts << "\tEND" << endl;
@@ -357,7 +357,7 @@ void Win32MakefileGenerator::processRcFileVar()
             
             ts.flush();
 
-            project->variables()["RC_FILE"].insert(0, rcFile.fileName());
+            project->variables()["RC_FILE"].insert(0, Option::fixPathToTargetOS(rcFile.fileName(), false, false));
         }
     }
     if (!project->variables()["RC_FILE"].isEmpty()) {
@@ -368,10 +368,11 @@ void Win32MakefileGenerator::processRcFileVar()
         }
         QString resFile = project->variables()["RC_FILE"].first();
         resFile.replace(".rc", Option::res_ext);
-        project->variables()["RES_FILE"].prepend(fileInfo(resFile).fileName());
+	project->variables()["RES_FILE"].prepend(fileInfo(resFile).fileName());
         if (!project->variables()["OBJECTS_DIR"].isEmpty())
-            project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + "\\");
-        project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
+            project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + Option::dir_sep);
+        project->variables()["RES_FILE"].first() = Option::fixPathToTargetOS(project->variables()["RES_FILE"].first(), false, false);
+	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
         project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
     if(!project->variables()["RES_FILE"].isEmpty()) {

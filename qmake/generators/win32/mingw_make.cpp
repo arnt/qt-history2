@@ -113,7 +113,7 @@ void MingwMakefileGenerator::init()
     if(project->isActiveConfig("dll")) {
         QString destDir = "";
         if(!project->first("DESTDIR").isEmpty())
-            destDir = project->first("DESTDIR") + Option::dir_sep;
+            destDir = Option::fixPathToTargetOS(project->first("DESTDIR") + Option::dir_sep, false, false);
         project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") +
                                                     destDir + "lib" + project->first("TARGET") + ".a");
     }
