@@ -300,7 +300,7 @@ uint QResourceFileEngine::ownerId(FileOwner) const
 
 QString QResourceFileEngine::owner(FileOwner) const
 {
-    return QString::null;
+    return QString();
 }
 
 QDateTime QResourceFileEngine::fileTime(FileTime) const

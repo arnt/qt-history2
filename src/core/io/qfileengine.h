@@ -194,7 +194,7 @@ public:
     bool open(int flags, int fd);
     int handle() const;
     static bool setCurrentPath(const QString &path);
-    static QString currentPath(const QString &path=QString::null);
+    static QString currentPath(const QString &path = QString());
     static QString homePath();
     static QString rootPath();
     static QString tempPath();

@@ -16,6 +16,10 @@
 
 #include "qglobal.h"
 
+#ifdef Status // ### we seem to pick up a macro Status --> int somewhere
+#undef Status
+#endif
+
 class QByteArray;
 class QIODevice;
 
@@ -44,10 +48,15 @@ public:
 #endif
     };
 
+    enum ByteOrder {
+        BigEndian,
+        LittleEndian
+    };
+
     enum Status {
         Ok,
-        CorruptedData,
-        ReadPastEnd
+        ReadPastEnd,
+	ReadCorruptData
     };
 
     QDataStream();
@@ -69,12 +78,8 @@ public:
     void setStatus(Status status);
     void resetStatus();
 
-    enum ByteOrder { BigEndian, LittleEndian };
     ByteOrder byteOrder() const;
     void setByteOrder(ByteOrder);
-
-    bool isPrintableData() const;
-    void setPrintableData(bool);
 
     int version() const;
     void setVersion(int);
@@ -110,12 +115,14 @@ public:
     QDataStream &writeBytes(const char *, uint len);
     int writeRawData(const char *, int len);
 
-//#ifdef QT_COMPAT
-    inline /* QT_COMPAT */ QDataStream &readRawBytes(char *str, uint len)
+#ifdef QT_COMPAT
+    inline QT_COMPAT QDataStream &readRawBytes(char *str, uint len)
         { readRawData(str, (int)len); return *this; }
-    inline /* QT_COMPAT */ QDataStream &writeRawBytes(const char *str, uint len)
+    inline QT_COMPAT QDataStream &writeRawBytes(const char *str, uint len)
         { writeRawData(str, (int)len); return *this; }
-//#endif
+    inline QT_COMPAT bool isPrintableData() const { return false; }
+    inline QT_COMPAT void setPrintableData(bool) {}
+#endif
 
 private:
     Q_DISABLE_COPY(QDataStream)
@@ -124,7 +131,6 @@ private:
 
     QIODevice *dev;
     bool owndev;
-    bool printable;
     bool noswap;
     ByteOrder byteorder;
     int ver;
@@ -141,12 +147,6 @@ inline QIODevice *QDataStream::device() const
 
 inline QDataStream::ByteOrder QDataStream::byteOrder() const
 { return byteorder; }
-
-inline bool QDataStream::isPrintableData() const
-{ return printable; }
-
-inline void QDataStream::setPrintableData(bool p)
-{ printable = p; }
 
 inline int QDataStream::version() const
 { return ver; }

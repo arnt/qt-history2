@@ -1019,7 +1019,7 @@ void QUrlPrivate::setUserInfo(const QString &userInfo)
 QString QUrlPrivate::userInfo(int formattingOptions) const
 {
     if ((formattingOptions & QUrl::RemoveUserInfo) == QUrl::RemoveUserInfo)
-        return QString::null;
+        return QString();
 
     QString tmp;
     tmp += userName;
@@ -1959,7 +1959,7 @@ QUrl QUrl::resolved(const QUrl &relative) const
 
     // be non strict and allow scheme in relative url
     if (r.scheme() == d->scheme)
-        r.setScheme(QString::null);
+        r.setScheme(QString());
 
     if (!r.scheme().isEmpty()) {
         t.setScheme(r.scheme());
@@ -2050,7 +2050,7 @@ QString QUrl::toString(int formattingOptions) const
 
 /*!
     Returns the encoded representation of the URL if it's valid;
-    otherwise QByteArray::null is returned.
+    otherwise an empty QByteArray is returned.
 
     The user info, path and fragment are all converted to UTF-8, and
     all non-ASCII characters are then percent encoded. The host name
@@ -2135,13 +2135,11 @@ inline char toHex(char c)
 }
 
 /*!
-    \fn QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
-
     Returns an encoded copy of \a input. \a input is first converted
     to UTF-8, and then all non-ASCII characters, including any
     characters in \a alsoEncode, are percent encoded.
 */
-QByteArray QUrl::toPercentEncoding(const QString &input, const char alsoEncode[])
+QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
 {
     QByteArray tmp = input.toUtf8();
     QVarLengthArray<char> output(tmp.size() * 3);

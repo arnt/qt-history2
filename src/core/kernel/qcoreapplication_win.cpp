@@ -17,7 +17,7 @@
 #include "qmutex.h"
 
 
-// ############### DONT EXPORT HERE!!!
+// ############### DON'T EXPORT HERE!!!
 Q_CORE_EXPORT char         appFileName[256];                // application file name
 Q_CORE_EXPORT char         appName[256];                        // application name
 Q_CORE_EXPORT HINSTANCE appInst        = 0;                // handle to app instance
@@ -200,7 +200,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
         }
     }
     argv[argc] = 0;
-  // Get Windows parameters
+    // Get Windows parameters
 
     appInst = instance;
     appPrevInst = prevInstance;

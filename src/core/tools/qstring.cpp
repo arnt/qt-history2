@@ -6204,39 +6204,47 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 #warning "operator>> not working properly"
 #endif
 #endif
+
     if (in.version() == 1) {
         QByteArray l;
         in >> l;
-        str = QString::fromAscii(l);
+        str = QString::fromLatin1(l);
     } else {
         Q_UINT32 bytes = 0;
         in >> bytes;                                  // read size of string
         if (bytes == 0xffffffff) {                    // null string
-            str = QString::null;
+            str.clear();
         } else if (bytes > 0) {                       // not empty
-            int byteOrder = in.byteOrder();
-            str.resize(bytes/2);
-            QChar* ch = str.data();
-            static const uint auto_size = 1024;
-            char t[auto_size];
-            char *b;
-            if (bytes > auto_size) {
-                b = new char[bytes];
-            } else {
-                b = t;
+            if (bytes & 0x1) {
+                str.clear();
+                in.setStatus(QDataStream::ReadCorruptData);
+                return in;
             }
-            in.readRawBytes(b, bytes);
-            int bt = bytes/2;
-            char *oldb = b;
-            while (bt--) {
-                if (byteOrder == QDataStream::BigEndian)
-                    *ch++ = (ushort) (((ushort)b[0])<<8) | (uchar)b[1];
-                else
-                    *ch++ = (ushort) (((ushort)b[1])<<8) | (uchar)b[0];
-                b += 2;
+
+            const Q_UINT32 Step = 1024 * 1024;
+            Q_UINT32 len = bytes / 2;
+            Q_UINT32 allocated = 0;
+
+            while (allocated < len) {
+                int blockSize = qMin(Step, len - allocated);
+                str.resize(allocated + blockSize);
+                if (in.readRawData(reinterpret_cast<char *>(str.data()) + allocated * 2,
+                                   blockSize * 2) != blockSize * 2) {
+                    str.clear();
+                    in.setStatus(QDataStream::ReadPastEnd);
+                    return in;
+                }
+                allocated += blockSize;
             }
-            if (bytes > auto_size)
-                delete [] oldb;
+
+            if ((in.byteOrder() == QDataStream::BigEndian)
+                    != (QSysInfo::ByteOrder == QSysInfo::BigEndian)) {
+                ushort *data = reinterpret_cast<ushort *>(str.data());
+                while (len--) {
+                    *data = (*data >> 8) | (*data << 8);
+                    ++data;
+                }
+            }
         } else {
             str = QLatin1String("");
         }

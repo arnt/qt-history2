@@ -442,6 +442,7 @@ void QIODevice::setMode(int m)
     d->ioMode |= m;
 }
 
+
 /*!
     \fn void QIODevice::close()
 
@@ -536,10 +537,10 @@ void QIODevice::setMode(int m)
 */
 
 /*!
-    \fn Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG len)
+    \fn Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxSize)
 
     Reads a number of characters from the I/O device into \a data. At most,
-    the \a maximum number of characters will be read.
+    the \a maxSize number of characters will be read.
 
     Returns -1 if a fatal error occurs, or 0 if there are no bytes to read.
 
@@ -552,7 +553,7 @@ void QIODevice::setMode(int m)
 */
 
 /*!
-     \fn QByteArray QIODevice::read(Q_LONGLONG maxlen)
+     \fn QByteArray QIODevice::read(Q_LONGLONG maxSize)
     \overload
 
     This convenience function will read data into a preallocated QByteArray.
@@ -591,12 +592,11 @@ QByteArray QIODevice::readAll()
 }
 
 /*!
-    \fn Q_LONG QIODevice::write(const char *data, Q_LONGLONG len)
+    \fn Q_LONG QIODevice::write(const char *data, Q_LONGLONG size)
 
-    Writes a number of characters from \a data to the I/O device. At most,
-    the \a maximum of characters will be written. If successful,
-    the number of characters written is returned; otherwise -1 is
-    returned.
+    Writes a number of characters from \a data to the I/O device. At
+    most \a size bytes will be written. If successful, the number of
+    characters written is returned; otherwise -1 is returned.
 
     This virtual function must be reimplemented by all subclasses.
 
@@ -616,7 +616,7 @@ QByteArray QIODevice::readAll()
 
 /*!
     Reads characters from the device into \a data up to and including the next
-    newline character ('\n') or until at most \a maxlen - 1 characters have been
+    newline character ('\n') or until at most \a maxSize - 1 characters have been
     read. A terminating '\0' is appended to the characters stored in \a data.
 
     Returns the total number of characters read, including the terminating '\0',
@@ -668,9 +668,9 @@ QByteArray QIODevice::readAll()
 */
 
 Q_LONGLONG
-QIODevice::readLine(char *data, Q_LONGLONG maxlen)
+QIODevice::readLine(char *data, Q_LONGLONG maxSize)
 {
-    if (maxlen <= 0) // nothing to do
+    if (maxSize <= 0) // nothing to do
         return 0;
     Q_CHECK_PTR(data);
     if (!isOpen()) {
@@ -683,7 +683,7 @@ QIODevice::readLine(char *data, Q_LONGLONG maxlen)
     }
 
     char *p = data;
-    while (--maxlen && (*p=getch()) > 0) {        // read one byte at a time
+    while (--maxSize && (*p=getch()) > 0) {        // read one byte at a time
         if (*p++ == '\n')                    // end of line
             break;
     }
@@ -804,4 +804,24 @@ QIODevice::putch(int character)
     otherwise returns false.
 
     \sa at() size()
+*/
+
+/*! \fn bool QIODevice::at(Q_LONGLONG offset)
+
+    Use seek() instead.
+*/
+
+/*! \fn Q_LONG QIODevice::readBlock(char *data, Q_LONG size)
+
+    Use read() instead.
+*/
+
+/*! \fn Q_LONG QIODevice::writeBlock(const char *data, Q_LONG size)
+
+    Use write() instead.
+*/
+
+/*! \fn Q_LONG QIODevice::writeBlock(const QByteArray &data)
+
+    Use write() instead.
 */

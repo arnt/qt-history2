@@ -1499,7 +1499,7 @@ QTextStream &QTextStream::operator>>(QString &str)
     Q_D(QTextStream);
 
     CHECK_STREAM_PRECOND(this)
-    str=QString::null;
+    str.clear();
     skipWhiteSpace();
 
     uint l;
@@ -1572,7 +1572,7 @@ QString QTextStream::readLine()
 
     if (d->sourceType != QTextStreamPrivate::String && !d->dev) {
         qWarning("QTextStream::readLine: No device");
-        return QString::null;
+        return QString();
     }
 
     QString result;
@@ -1604,7 +1604,7 @@ QString QTextStream::read()
 
     if (d->sourceType != QTextStreamPrivate::String && !d->dev) {
         qWarning("QTextStream::read: No device");
-        return QString::null;
+        return QString();
     }
     QString    result;
     const int bufsize = 512;

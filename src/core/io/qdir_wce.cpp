@@ -71,7 +71,7 @@ QString QDir::homeDirPath()
 
         LPITEMIDLIST il;
         if (NOERROR != ptrSHGetSpecialFolderLocation(0, CSIDL_PERSONAL, &il))
-            return QString::null;
+            return QString();
         char Path[MAX_PATH];
         ptrSHGetPathFromIDList(il, Path);
         QString d = QString::fromLocal8Bit(Path);
@@ -79,7 +79,7 @@ QString QDir::homeDirPath()
         slashify(d);
         return d;
     }
-    return QString::null;
+    return QString();
 }
 
 

@@ -202,12 +202,12 @@ static void resolveLibs()
 
 QString QFileInfo::readLink() const
 {
-    return QString::null;
+    return QString();
 }
 
 QString QFileInfo::owner() const
 {
-    return QString::null;
+    return QString();
 }
 
 static const uint nobodyID = (uint) -2;
@@ -218,7 +218,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-    return QString::null;
+    return QString();
 }
 
 uint QFileInfo::groupId() const

@@ -795,24 +795,27 @@ QDir::Filters QDir::filter() const
     operator:
 
     \value Dirs    List directories that match the filters.
-    \value AllDirs List all directories; i.e. don't apply the filters
-                   to directory names.
+    \value AllDirs  List all directories; i.e. don't apply the filters
+                    to directory names.
     \value Files   List files only.
-    \value  Drives List disk drives (ignored under Unix).
-    \value  NoSymLinks  Do not list symbolic links (ignored by operating
-    systems that don't support symbolic links).
-    \value All List directories, files, drives and symlinks (this does not list
-    broken symlinks unless you specify System).
-    NoSymLinks flags.
-    \value  Readable  List files for which the application has read access.
-    \value  Writable  List files for which the application has write access.
-    \value  Executable  List files for which the application has execute
-    access. Executables needs to be combined with Dirs or Files.
-    \value  Modified  Only list files that have been modified (ignored
-    under Unix).
-    \value  Hidden  List hidden files (on Unix, files starting with a .).
-    \value  System  List system files (on Unix, FIFOs, sockets and
-    device files)
+    \value Drives  List disk drives (ignored under Unix).
+    \value NoSymLinks  Do not list symbolic links (ignored by operating
+                       systems that don't support symbolic links).
+    \value All  List directories, files, drives and symlinks (this does not list
+                broken symlinks unless you specify System).
+                NoSymLinks flags.
+    \value Readable  List files for which the application has read access.
+    \value Writable  List files for which the application has write access.
+    \value Executable  List files for which the application has
+                       execute access. Executables needs to be
+                       combined with Dirs or Files.
+    \value Modified  Only list files that have been modified (ignored
+                     under Unix).
+    \value Hidden  List hidden files (on Unix, files starting with a .).
+    \value System  List system files (on Unix, FIFOs, sockets and
+                   device files)
+    \value CaseSensitive  The filter should be case sensitive if the file system
+                          is case sensitive.
 
     \omitvalue DefaultFilter
     \omitvalue TypeMask

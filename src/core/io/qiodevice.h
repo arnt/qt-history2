@@ -120,7 +120,6 @@ protected:
     void setFlags(int);
     void setType(int);
     void setMode(int);
-    void setBufferSize(int);
 
     QIODevicePrivate *d_ptr;
 

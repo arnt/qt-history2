@@ -365,30 +365,6 @@ QMetaCallEvent::~QMetaCallEvent()
     if (args_) qFree(args_);
 }
 
-
-
-
-/*!
-    \namespace Qt
-
-    \brief The Qt namespace contains miscellaneous identifiers
-    used throughout the Qt library.
-
-    \ingroup misc
-*/
-
-/*!
-    \enum Qt::Orientation
-
-    This type is used to signify an object's orientation.
-
-    \value Horizontal
-    \value Vertical
-
-    Orientation is used with QScrollBar for example.
-*/
-
-
 /*!
     \class QObject
     \brief The QObject class is the base class of all Qt objects.

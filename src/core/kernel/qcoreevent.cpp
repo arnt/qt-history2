@@ -155,6 +155,7 @@
     \value TabletPress  A Wacom Tablet Press Event
     \value TabletRelease  A Wacom Tablet Release Event
     \value Timer  Regular timer events, \l{QTimerEvent}.
+    \value ToolBarSwitch The toolbar button is toggled on Mac.
     \value ToolTip
     \value UpdateRequest The widget should be repainted.
     \value WhatsThis

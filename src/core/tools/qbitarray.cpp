@@ -683,7 +683,7 @@ QDataStream &operator<<(QDataStream &out, const QBitArray &ba)
     Q_UINT32 len = ba.size();
     out << len;
     if (len > 0)
-        out.writeRawBytes(ba.d.constData() + 1, ba.d.size() - 1);
+        out.writeRawData(ba.d.constData() + 1, ba.d.size() - 1);
     return out;
 }
 
@@ -706,7 +706,7 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
         if (ba.size() != int(len)) {
             qWarning("QDataStream: Not enough memory to read QBitArray");
         } else {
-            in.readRawBytes(ba.d.data() + 1, ba.d.size() - 1);
+            in.readRawData(ba.d.data() + 1, ba.d.size() - 1);
             *ba.d.data() = ba.d.size() * 8 - len;
         }
     }

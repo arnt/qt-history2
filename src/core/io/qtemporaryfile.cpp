@@ -209,7 +209,7 @@ void QTemporaryFile::setAutoRemove(bool b)
 QString QTemporaryFile::fileName() const
 {
     if(!isOpen())
-        return QString::null;
+        return QString();
     return fileEngine()->fileName(QFileEngine::DefaultName);
 }
 

@@ -904,27 +904,6 @@ void QCoreApplication::quit()
     exit(0);
 }
 
-#ifdef QT_COMPAT
-// ########### shouldn't these be inline?
-void QCoreApplication::lock()
-{
-}
-
-void QCoreApplication::unlock(bool)
-{
-}
-
-bool QCoreApplication::locked()
-{
-    return false;
-}
-
-bool QCoreApplication::tryLock()
-{
-    return false;
-}
-#endif //QT_COMPAT
-
 /*!
   \fn void QCoreApplication::aboutToQuit()
 
@@ -1248,7 +1227,8 @@ void QCoreApplication::setProductInfo(const QString &organization,
 }
 
 /*!
-    Returns the Internet domain of the \a organization which wrote this application.
+    Returns the Internet domain of the organization that wrote this
+    application.
 
     \sa setProductInfo(), application()
 */
@@ -1258,7 +1238,7 @@ QString QCoreApplication::organization() const
 }
 
 /*!
-    Returns the name of this \a application.
+    Returns the name of this application.
 
     \sa setProductInfo(), organization()
 */
@@ -1372,3 +1352,45 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 }
 
 #endif //QT_NO_COMPONENT
+
+#ifdef QT_COMPAT
+/*! \fn void QCoreApplication::lock()
+
+    In Qt 3, this function locked the Qt library mutex, allowing
+    non-GUI threads to perform basic printing operations using
+    QPainter.
+
+    In Qt 4, this is no longer supported, since painting is only
+    supported from within a paint event handler. This function does
+    nothing.
+
+    \sa QWidget::paintEvent()
+*/
+
+/*! \fn void QCoreApplication::unlock(bool wakeUpGui)
+
+    In Qt 3, this function unlocked the Qt library mutex. The mutex
+    allowed non-GUI threads to perform basic printing operations
+    using QPainter.
+
+    In Qt 4, this is no longer supported, since painting is only
+    supported from within a paint event handler. This function does
+    nothing.
+*/
+
+/*! \fn bool QCoreApplication::locked()
+
+    This function does nothing. It is there to keep old code working.
+    It always returns false.
+
+    See \l lock() for details.
+*/
+
+/*! \fn bool QCoreApplication::tryLock()
+
+    This function does nothing. It is there to keep old code working.
+    It always returns false.
+
+    See \l lock() for details.
+*/
+#endif

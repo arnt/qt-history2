@@ -260,6 +260,10 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 
 /*! \fn bool QFileEngine::link(const QString &newName)
 
+    Creates a link from the file currently specified by fileName() to
+    \a newName. What a link is depends on the underlying filesystem
+    (be it a shortcut on Windows or a symbolic link on Unix). Returns
+    true if successful; otherwise returns false.
 */
 
 /*! \enum QFileEngine::Type

@@ -474,7 +474,7 @@ QFSFileEngine::owner(FileOwner own) const
         if(gr)
             return QFile::decodeName(QByteArray(gr->gr_name));
     }
-    return QString::null;
+    return QString();
 }
 
 bool

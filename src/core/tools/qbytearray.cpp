@@ -2405,7 +2405,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     const Q_UINT32 Step = 1024 * 1024;
     Q_UINT32 allocated = 0;
 
-    while (allocated < len) {
+    do {
         int blockSize = qMin(Step, len - allocated);
         ba.resize(allocated + blockSize);
         if (in.readRawData(ba.data() + allocated, blockSize) != blockSize) {
@@ -2414,7 +2414,8 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
             return in;
         }
         allocated += blockSize;
-    }
+    } while (allocated < len);
+
     return in;
 }
 #endif //QT_NO_DATASTREAM

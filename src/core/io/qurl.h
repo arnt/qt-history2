@@ -28,7 +28,7 @@ class QUrlPrivate;
 class Q_CORE_EXPORT QUrl
 {
 public:
-    QUrl(const QString &url = QString::null);
+    QUrl(const QString &url = QString());
     QUrl(const QUrl &copy);
     ~QUrl();
 
