@@ -51,10 +51,12 @@ class Q_EXPORT QEvent: public Qt		// event base class
 public:
     enum Type {
 
-	// NOTE: if you get a strange compiler error on the line with "None",
-	//       it's probably because you're trying to include X11, which
-	//	 has a mess of #defines in it.  Put the messy X11 includes
-	//	 *AFTER* the nice clean Qt includes.
+	/*
+	  If you get a strange compiler error on the line with None,
+	  it's probably because you're also including X11 headers,
+	  which #define the symbol None. Put the X11 includes after
+	  the Qt includes to solve this problem.
+	*/
 
 	None = 0,				// invalid event
 
@@ -62,7 +64,7 @@ public:
 	Timer = 1,				// timer event
 	MouseButtonPress = 2,			// mouse button pressed
 	MouseButtonRelease = 3,			// mouse button released
-	MouseButtonDblClick= 4,			// mouse button double click
+	MouseButtonDblClick = 4,		// mouse button double click
 	MouseMove = 5,				// mouse move
 	KeyPress = 6,				// key pressed
 	KeyRelease = 7,				// key released
@@ -114,20 +116,20 @@ public:
 	ShowWindowRequest = 73,			// widget's window should be mapped
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
-	ContextMenu = 82,                       // context popup menu
+	ContextMenu = 82,			// context popup menu
 	IMStart = 83,				// input method composition start
 	IMCompose = 84,				// input method composition
 	IMEnd = 85,				// input method composition end
 	Accessibility = 86,			// accessibility information is requested
-	TabletMove = 87,			// Wacom Tablet Event
+	TabletMove = 87,			// Wacom tablet event
 	LocaleChange = 88,			// the system locale changed
 	LanguageChange = 89,			// the application language changed
 	LayoutDirectionChange = 90,		// the layout direction changed
-	Style = 91,                             // internal style event
-	TabletPress = 92,                       // Tablet Press
-	TabletRelease = 93,                     // Tablet Release
+	Style = 91,				// internal style event
+	TabletPress = 92,			// tablet press
+	TabletRelease = 93,			// tablet release
 	User = 1000,				// first user event id
-	MaxUser  = 65535                        // last user event id
+	MaxUser = 65535				// last user event id
     };
 
 
@@ -250,10 +252,10 @@ protected:
     QPoint mPos;
     QPoint mGPos;
     int mDev,
-        mPress,
-        mXT,
-        mYT,
-        mType,
+	mPress,
+	mXT,
+	mYT,
+	mType,
 	mPhy;
     bool mbAcc;
 
@@ -412,8 +414,8 @@ public:
 
     ButtonState state()	const	{ return (ButtonState) s; }
     bool    isAccepted() const	{ return accpt; }
-    bool    isConsumed() const  { return consum; }
-    void    consume()           { consum = TRUE; }
+    bool    isConsumed() const	{ return consum; }
+    void    consume()		{ consum = TRUE; }
     void    accept()		{ accpt = TRUE; consum = TRUE; }
     void    ignore()		{ accpt = FALSE; consum = FALSE; }
 
