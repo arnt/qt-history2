@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#31 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#31 $")
 
 
 /*----------------------------------------------------------------------------
@@ -68,15 +68,30 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#30 $")
   Default implementation of virtual functions
  *****************************************************************************/
 
+/*
+  <li> \> 0 (positive integer) if \e item1 \> \e item2
+  <li> \< 0 (negative integer) if \e item1 \< \e item2
+  */
+
 /*----------------------------------------------------------------------------
-  Compares two list items.
+  This virtual function compares two list items.
 
   Returns:
   <ul>
   <li> 0 if \e item1 == \e item2
-  <li> \> 0 (positive integer) if \e item1 > \e item2
-  <li> \< 0 (negative integer) if \e item1 < \e item2
+  <li> non-zero if \e item1 != \e item2
   </ul>
+
+  This function returns \e int rather than \e bool so that
+  reimplementations can return three values and use it to sort by:
+
+  <ul>
+  <li> 0 if \e item1 == \e item2
+  <li> \> 0 (positive integer) if \e item1 \> \e item2
+  <li> \< 0 (negative integer) if \e item1 \< \e item2
+  </ul>
+
+  We use this in several places inside Qt.
 
   Default implementation:
   \code
