@@ -397,6 +397,25 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	if ( d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed ) {
 	    if ( (d->moveOffset - mapToParent( e->pos() ) ).manhattanLength() >= 4 ) {
 		QPoint p = mapFromGlobal(e->globalPos());
+#ifndef QT_NO_WORKSPACE
+		if(d->window && d->window->parentWidget()->inherits("QWorkspaceChild")) {
+		    QWidget *w = d->window->parentWidget()->parentWidget();
+		    if(w && w->inherits("QWorkspace")) {
+			QWorkspace *workspace = (QWorkspace*)w;
+			p = workspace->mapFromGlobal( e->globalPos() );
+			if ( !workspace->rect().contains(p) ) {
+			    if ( p.x() < 0 )
+				p.rx() = 0;
+			    if ( p.y() < 0 )
+				p.ry() = 0;
+			    if ( p.x() > workspace->width() )
+				p.rx() = workspace->width();
+			    if ( p.y() > workspace->height() )
+				p.ry() = workspace->height();
+			}
+		    }
+		}
+#endif
 		QPoint pp = p - d->moveOffset;
 		parentWidget()->move( pp );
 	    }

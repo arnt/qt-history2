@@ -41,8 +41,6 @@
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"
-#include "qpainter.h"
-#include "qstyle.h"
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -54,17 +52,8 @@ static bool resizeVerticalDirectionFixed = FALSE;
 
 QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const char *name )
     : QObject( parent, name ), widget( parent ), childWidget( cw ? cw : parent ),
-      extrahei( 0 ), buttonDown( FALSE ), moveResizeMode( FALSE ), sizeprotect( TRUE ), moving( TRUE ), 
-      showContents( TRUE )
+      extrahei( 0 ), buttonDown( FALSE ), moveResizeMode( FALSE ), sizeprotect( TRUE ), moving( TRUE )
 {
-#if defined(Q_OS_TEMP)
-    showContents = TRUE;
-#elif defined(Q_WS_WIN)
-    BOOL dfw;
-    SystemParametersInfo( SPI_GETDRAGFULLWINDOWS, 0, &dfw, 0 );
-    showContents = dfw;
-#endif
-
     mode = Nowhere;
     widget->setMouseTracking( TRUE );
     range = widget->inherits( "QFrame" ) ? ((QFrame*)widget)->frameWidth() : RANGE;
@@ -85,39 +74,6 @@ static QWidget *childOf( QWidget *w, QWidget *child )
     return 0;
 }
 
-static void paintTempRect( const QRect &tempRect, QWidget *widget )
-{
-    if ( !tempRect.isValid() )
-	return;
-
-    QWidget *p = widget->parentWidget();
-    if ( !p )
-	return;
-
-    QWidget *pdev = p;
-    while (pdev) {
-	if ( pdev->testWFlags( Qt::WNoMousePropagation ) )
-	    break;
-	pdev = pdev->parentWidget();
-    }
-
-    QRect drawRect( tempRect );
-    QPoint globalTopLeft;
-    if ( !pdev ) {
-	pdev = qApp->desktop();
-	globalTopLeft = p->mapToGlobal( drawRect.topLeft() );
-    } else {
-	globalTopLeft = p->mapTo( pdev, drawRect.topLeft() );
-    }
-    drawRect.moveTopLeft( globalTopLeft );
-    drawRect.addCoords( 1, 1, -1, -1 );
-
-    QPainter paint( pdev, TRUE );
-    paint.setPen( QPen( Qt::gray, 3 ) );
-    paint.setRasterOp( Qt::XorROP );
-    paint.drawRect( drawRect );
-}
-
 bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 {
     if ( !active || !o->isWidgetType() )
@@ -127,8 +83,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	 ee->type() != QEvent::MouseButtonRelease &&
 	 ee->type() != QEvent::MouseMove &&
 	 ee->type() != QEvent::KeyPress &&
-	 ee->type() != QEvent::AccelOverride &&
-	 ee->type() != QEvent::ContextMenu )
+	 ee->type() != QEvent::AccelOverride )
 	return FALSE;
 
     QWidget *w = childOf( widget, (QWidget*)o );
@@ -137,24 +92,9 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	    buttonDown = FALSE;
 	return FALSE;
     }
-    bool widgetEvent = w == o;
-    bool titleBar = FALSE;
-    if ( !widgetEvent && o->inherits("QTitleBar") && (ee->type() == QEvent::MouseMove || ee->type() == QEvent::MouseButtonPress)) {
-	QWidget *tb = (QWidget*)o;
-	QPoint p = ((QMouseEvent*)ee)->pos();
-	titleBar = TRUE;
-	if ( !tb->rect().contains(p) || tb->style().querySubControl( QStyle::CC_TitleBar, tb, p ) == QStyle::SC_TitleBarLabel )
-	    widgetEvent = TRUE;
-	else
-	    return ee->type() == QEvent::MouseMove && buttonDown;
-    }
 
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
-    case QEvent::ContextMenu:
-	if ( buttonDown )
-	    return TRUE;
-	break;
     case QEvent::MouseButtonPress: {
 	if ( w->isMaximized() )
 	    break;
@@ -163,18 +103,12 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	if ( e->button() == LeftButton ) {
 	    emit activate();
 	    bool me = isMovingEnabled();
-	    setMovingEnabled( me && widgetEvent );
+	    setMovingEnabled( me && o == widget );
 	    mouseMoveEvent( e );
 	    setMovingEnabled( me );
 	    buttonDown = TRUE;
 	    moveOffset = widget->mapFromGlobal( e->globalPos() );
 	    invertedMoveOffset = widget->rect().bottomRight() - moveOffset;
-	    if ( !showContents && widgetEvent ) {
-		tempGeom = widget->geometry();
-		paintTempRect( tempGeom, widget );
-	    }
-	} else if ( buttonDown ) {
-	    return TRUE;
 	}
     } break;
     case QEvent::MouseButtonRelease:
@@ -185,22 +119,16 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	    buttonDown = FALSE;
 	    widget->releaseMouse();
 	    widget->releaseKeyboard();
-	    if ( tempGeom.isValid() && !showContents ) {
-		paintTempRect( tempGeom, widget );
-		widget->setGeometry( tempGeom );
-	    }
-	} else if ( buttonDown ) {
-	    return TRUE;
 	}
 	break;
     case QEvent::MouseMove: {
 	if ( w->isMaximized() )
 	    break;
 	bool me = isMovingEnabled();
-	setMovingEnabled( me && widgetEvent );
+	setMovingEnabled( me && o == widget );
 	mouseMoveEvent( e );
 	setMovingEnabled( me );
-	if ( buttonDown && ( mode != Center || titleBar ) )
+	if ( buttonDown && mode != Center )
 	    return TRUE;
     } break;
     case QEvent::KeyPress:
@@ -249,10 +177,8 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
 
-    if ( buttonDown && !isMovingEnabled() && mode == Center && !moveResizeMode ) {
-	tempGeom = QRect();
+    if ( buttonDown && !isMovingEnabled() && mode == Center && !moveResizeMode )
 	return;
-    }
 
     if ( widget->testWState( WState_ConfigPending ) )
  	return;
@@ -337,16 +263,10 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 
     if ( geom != widget->geometry() &&
 	( widget->isTopLevel() || widget->parentWidget()->rect().intersects( geom ) ) ) {
-	if ( showContents ) {
-	    if ( widget->isMinimized() )
-		widget->move( geom.topLeft() );
-	    else
-		widget->setGeometry( geom );
-	} else {
-	    paintTempRect( tempGeom, widget );
-	    tempGeom = geom;
-	    paintTempRect( tempGeom, widget );
-	}
+	if ( widget->isMinimized() )
+	    widget->move( geom.topLeft() );
+	else
+	    widget->setGeometry( geom );
     }
 
 #if defined(Q_WS_WIN)
