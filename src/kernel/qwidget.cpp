@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#90 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#89 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#90 $")
 
 
 /*----------------------------------------------------------------------------
@@ -122,8 +122,9 @@ inline bool QWidgetMapper::remove( WId id )
   Constructs a widget which is a child of \e parent, with the name \e name and
   widget flags set to \e f.
 
-  If \e parent is 0, the new widget will be a top level window. If \e parent
-  is another widget, the new widget will be a child window inside \e parent.
+  If \e parent is 0, the new widget is a top level window. If \e
+  parent is another widget, the new widget is a child window inside \e
+  parent.
 
   The \e name is sent to the QObject constructor.
 
@@ -380,7 +381,8 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 
 
 /*----------------------------------------------------------------------------
-  Enables the widget so that it can receive mouse and keyboard events.
+  Enables the widget so that it receives mouse and keyboard events.
+
   \sa disable(), setEnabled(), isEnabled(), isDisabled()
  ----------------------------------------------------------------------------*/
 
@@ -393,7 +395,9 @@ void QWidget::enable()				// enable events
 }
 
 /*----------------------------------------------------------------------------
-  Disables the widget so that it will not receive mouse and keyboard events.
+  Disables the widget so that it does not receive mouse and keyboard
+  events.
+
   \sa enable(), setEnabled(), isEnabled(), isDisabled()
  ----------------------------------------------------------------------------*/
 
@@ -599,9 +603,10 @@ QWidget *QWidget::topLevelWidget() const
   Returns the background color of this widget.
 
   The background color is independent of the color group.
-  The background color will be overwritten when setting a new palette.
 
-  \sa setBackgroundColor(), foregroundColor(), colorGroup()
+  Setting a new palette overwrites the background color.
+
+  \sa setBackgroundColor(), foregroundColor(), colorGroup(), setPalette()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -637,9 +642,9 @@ const QPixmap *QWidget::backgroundPixmap() const
 
   The color group is determined by the state of the widget.
 
-  A disabled widget returns the QPalette::disabled() color group.<br>
-  A widget in focus returns the QPalette::active() color group.<br>
-  A normale widget returns the QPalette::normal() color group.<br>
+  A disabled widget returns the QPalette::disabled() color group, a
+  widget in focus returns the QPalette::active() color group and a
+  normal widget returns the QPalette::normal() color group.
 
   \sa palette(), setPalette()
  ----------------------------------------------------------------------------*/
@@ -680,7 +685,7 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
 
   Returns the font currently set for the widget.
 
-  fontInfo() will tell you what font the window system is actually using.
+  fontInfo() tells you what font is actually being used.
 
   \sa setFont(), fontInfo(), fontMetrics()
  ----------------------------------------------------------------------------*/
@@ -711,11 +716,15 @@ void QWidget::setFont( const QFont &font )
 /*----------------------------------------------------------------------------
   \fn QFontMetrics QWidget::fontMetrics() const
   Returns the font metrics for the widget.
+
+  \sa font() fontInfo() setFont()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QFontInfo QWidget::fontInfo() const
   Returns the font info for the widget.
+
+  \sa font() fontMetrics() setFont()
  ----------------------------------------------------------------------------*/
 
 
@@ -732,7 +741,7 @@ const QCursor &QWidget::cursor() const
 
 /*----------------------------------------------------------------------------
   Returns the widget caption, or null if no caption has been set.
-  \sa setCaption()
+  \sa setCaption() icon() iconText()
  ----------------------------------------------------------------------------*/
 
 const char *QWidget::caption() const
@@ -742,7 +751,7 @@ const char *QWidget::caption() const
 
 /*----------------------------------------------------------------------------
   Returns the widget icon pixmap, or null if no icon has been set.
-  \sa setIcon()
+  \sa setIcon() caption() iconText()
  ----------------------------------------------------------------------------*/
 
 const QPixmap *QWidget::icon() const
@@ -752,7 +761,7 @@ const QPixmap *QWidget::icon() const
 
 /*----------------------------------------------------------------------------
   Returns the widget icon text, or null if no icon text has been set.
-  \sa setIconText()
+  \sa setIconText() icon() caption()
  ----------------------------------------------------------------------------*/
 
 const char *QWidget::iconText() const
@@ -765,12 +774,12 @@ const char *QWidget::iconText() const
   \fn bool QWidget::setMouseTracking( bool enable )
   Enables or disables mouse tracking and returns the previous setting.
 
-  If mouse tracking is disabled (default), the widget will only
-  receive mouse move events if at least one mouse button is pressed
-  down while the mouse is being moved.
+  If mouse tracking is disabled (default), the widget only receives
+  mouse move events if at least one mouse button is pressed down while
+  the mouse is being moved.
 
-  If mouse tracking is enabled, the widget will receive mouse move
-  events even if no buttons are pressed down.
+  If mouse tracking is enabled, the widget receives mouse move events
+  even if no buttons are pressed down.
 
   \sa mouseMoveEvent()
  ----------------------------------------------------------------------------*/
@@ -905,7 +914,7 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
   First it sends the widget a QCloseEvent, then, if the widget did accept
   that, or \e forceKill is TRUE, it deletes the widget and all its children.
 
-  The application will be terminated if the main widget is closed.
+  The application is terminated if the main widget is closed.
 
   \sa closeEvent(), QApplication::setMainWidget(), QApplication::quit()
  ----------------------------------------------------------------------------*/
@@ -1120,9 +1129,9 @@ bool QWidget::event( QEvent *e )		// receive event(),
   This event handler can be reimplemented in a subclass to receive
   mouse move events for the widget.
 
-  If mouse tracking is switched off, mouse move events will only occur if
-  a mouse button is down while the mouse is being moved.  If mouse
-  tracking is switched on, mouse move events will occur even if no mouse
+  If mouse tracking is switched off, mouse move events only occur if a
+  mouse button is down while the mouse is being moved.  If mouse
+  tracking is switched on, mouse move events occur even if no mouse
   button is down.
 
   The default implementation does nothing.
