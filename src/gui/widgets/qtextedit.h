@@ -203,7 +203,7 @@ private:
     Q_DISABLE_COPY(QTextEdit)
     Q_PRIVATE_SLOT(d, void update(const QRect &r))
     Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(d, void adjustScrollbars());
+    Q_PRIVATE_SLOT(d, void adjustScrollbars())
 
 signals:
     QT_MOC_COMPAT void textChanged();
