@@ -306,7 +306,7 @@ bool qt_wstate_iconified( WId )
     return FALSE;
 }
 
-void qAddPostRoutine( Q_CleanUpFunction p)
+void qAddPostRoutine( QtCleanUpFunction p)
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
@@ -316,7 +316,7 @@ void qAddPostRoutine( Q_CleanUpFunction p)
 }
 
 
-void qRemovePostRoutine( Q_CleanUpFunction p )
+void qRemovePostRoutine( QtCleanUpFunction p )
 {
     if ( !postRList ) return;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#456 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#457 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -691,7 +691,7 @@ static void msgHandler( QtMsgType t, const char* str )
 }
 
 
-Q_EXPORT void qAddPostRoutine( Q_CleanUpFunction p )
+Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;

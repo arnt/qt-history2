@@ -166,9 +166,14 @@ Q_EXPORT const char *qAppName();		// get application name
 
 // Misc functions
 
-typedef void (*Q_CleanUpFunction)();
-Q_EXPORT void qAddPostRoutine( Q_CleanUpFunction );
-Q_EXPORT void qRemovePostRoutine( Q_CleanUpFunction );
+typedef void (*QtCleanUpFunction)();
+Q_EXPORT void qAddPostRoutine( QtCleanUpFunction );
+Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
+
+#if !defined(QT_CLEAN_NAMESPACE)
+// source compatibility with Qt 2.x
+typedef QtCleanUpFunction Q_CleanUpFunction;
+#endif
 
 // ### remove 3.0
 Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );

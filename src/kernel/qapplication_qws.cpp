@@ -1336,7 +1336,7 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-void qAddPostRoutine( Q_CleanUpFunction p )
+void qAddPostRoutine( QtCleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
