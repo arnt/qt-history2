@@ -137,6 +137,7 @@ public:
     QString &prepend(QChar c);
     QString &prepend(const QString &s);
     inline QString &operator+=(QChar c) { return append(c); }
+    inline QString &operator+=(QChar::SpecialChars c ) { return append(QChar(c)); }
     inline QString &operator+=(const QString &s) { return append(s); }
 
     QString &remove(int i, int len);
