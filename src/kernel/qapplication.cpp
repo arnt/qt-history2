@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#272 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#273 $
 **
 ** Implementation of QApplication class
 **
@@ -800,17 +800,57 @@ QPalette QApplication::palette(const QWidget* w)
         while ( (name=it.currentKey()) != 0 ) {
 	    if ( w->isA(name) )
                 return *it.current();
-            ++it; // ### ++it at end of loop, not beginning
+            ++it;
         }
         it.toFirst();
         while ( (name=it.currentKey()) != 0 ) {
 	    if ( w->inherits( name ) )
 		return *it.current();
-            ++it; // ### ++it at end of loop, not beginning
+            ++it;
         }
     }
     return *app_pal;
 }
+
+
+#ifdef QT_BUILDER    
+/*!
+  Returns a pointer to the default application palette.	 There is
+  always an application palette, i.e. the returned pointer is
+  guaranteed to be non-null.
+
+  If a widget is passed as argument, the default palette for the
+  widget's class is returned. This may or may not be the application
+  palette, but in most cases there won't be a special palette for
+  certain types of widgets. An exception is the popup menu under
+  Windows, when the user defined a special background color for menus
+  in the display settings. Instead of a widget, you may also define the
+  \a className directly.
+
+  \sa setPalette(), QWidget::palette()
+*/
+
+QPalette	 QApplication::palette( const QWidget* w, const char* className  )
+{
+    if ( w )
+	return palette( w );
+    if ( !app_pal ) {
+        if ( !stdPalette )
+            create_palettes();
+        app_pal = new QPalette( *stdPalette );
+    }
+    if ( w && app_palettes ) {
+        QAsciiDictIterator<QPalette> it( *app_palettes );
+        const char* name;
+        while ( (name=it.currentKey()) != 0 ) {
+	    if ( qstrdup( className, name ) == 0 )
+		return *it.current();
+	    ++it; 
+        }
+    }
+    return *app_pal;
+}
+#endif // QT_BUILDER
 
 
 /*!
