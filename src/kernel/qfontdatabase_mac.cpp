@@ -34,15 +34,7 @@ void QFontDatabase::createDatabase()
 		qDebug("Qt: internal: WH0A, %s %d", __FILE__, __LINE__);
 	    if(!n[0] || n[1] == '.') //throw out ones starting with a .
 		continue;
-#ifndef QMAC_USE_ATSUFONT
-	    {
-		short fnum;
-		ATSUFontID fond;
-		GetFNum(n, &fnum);
-		if(ATSUFONDtoFontID(fnum, NULL, &fond) != noErr)
-		    continue;
-	    }
-#endif
+
 	    TextEncoding encoding;
 	    FMGetFontFamilyTextEncoding(fam, &encoding);
 	    TextToUnicodeInfo uni_info;

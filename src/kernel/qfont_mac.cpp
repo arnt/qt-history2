@@ -104,13 +104,8 @@ Qt::HANDLE QFont::handle() const
 {
     if ( ! d->engineData )
         d->load( QFont::NoScript );
-#ifdef QMAC_USE_ATSUFONT
     if (d->engineData && d->engineData->engine)
 	return (Qt::HANDLE)((QFontEngineMac*)d->engineData->engine)->fontref;
-#else
-    if (d->engineData && d->engineData->engine)
-	return (Qt::HANDLE)((UInt32)((QFontEngineMac*)d->engineData->engine)->fnum);
-#endif
     return 0;
 }
 
@@ -147,7 +142,6 @@ void QFontPrivate::load(QFont::Script script)
 
     engine = new QFontEngineMac;
     engineData->engine = engine;
-#ifdef QMAC_USE_ATSUFONT
     if(!engine->fontref) {
 	//find the font
 	QStringList family_list = QStringList::split( ',', request.family );
@@ -189,78 +183,6 @@ void QFontPrivate::load(QFont::Script script)
 		engine->fontDef.family = cfstring2qstring(actualName);
 	}
     }
-    bool got_metrics = false;
-    if(!engine->vmetrics) {
-	engine->vmetrics = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
-	memset(engine->vmetrics, 0, sizeof(ATSFontMetrics));
-	ATSFontGetVerticalMetrics(engine->fontref, kATSOptionFlagsDefault, engine->vmetrics);
-	got_metrics = true;
-    }
-    if(!engine->hmetrics) {
-	engine->hmetrics = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
-	memset(engine->hmetrics, 0, sizeof(ATSFontMetrics));
-	ATSFontGetHorizontalMetrics(engine->fontref, kATSOptionFlagsDefault, engine->hmetrics);
-	got_metrics = true;
-    }
-    if(go_metrics) 
-	engine->calculateCost();
-#else
-    if(engine->fnum == -1) {
-	//find the font
-	QStringList family_list = QStringList::split( ',', request.family );
-	// append the substitute list for each family in family_list
-	{
-	    QStringList subs_list;
-	    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-	    for ( ; it != end; ++it )
-		subs_list += QFont::substitutes( *it );
-	    family_list += subs_list;
-	}
-	// add QFont::defaultFamily() to the list, for compatibility with
-	// previous versions
-	family_list << QApplication::font().defaultFamily();
-	for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-	    Str255 request_str, actual_str;
-	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
-	    TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
-						       kTextEncodingDefaultVariant,
-						       kTextEncodingDefaultFormat);
-	    qstring2pstring((*it), request_str, encoding);
-
-	    short fnum;
-	    GetFNum(request_str, &fnum);
-	    GetFontName(fnum, actual_str);
-	    if(actual_str[0] == request_str[0] &&
-	       !strncasecmp((const char *)actual_str+1, (const char *)request_str+1, actual_str[0])) {
-		engine->fnum = fnum;
-		break;
-	    } else if(engine->fnum == -1) {
-		engine->fnum = fnum; //take the first one for now..
-	    }
-	}
-    }
-    { //fill in the engine's font definition
-	engine->fontDef = request; //copy..
-	if(engine->fontDef.pointSize == -1)
-	    engine->fontDef.pointSize = qt_mac_pointsize(engine->fontDef, paintdevice);
-	else
-	    engine->fontDef.pixelSize = qt_mac_pixelsize(engine->fontDef, paintdevice);
-	Str255 font;
-	Q_ASSERT(engine->type() == QFontEngine::Mac);
-	GetFontName(engine->fnum, font);
-	engine->fontDef.family = pstring2qstring(font);
-    }
-    if(!engine->info) {
-	engine->info = (FontInfo *)malloc(sizeof(FontInfo));
-	short face = normal;
-	if(engine->fontDef.italic)
-	    face |= italic;
-	if(engine->fontDef.weight == QFont::Bold)
-	    face |= bold;
-	FetchFontInfo(engine->fnum, engine->fontDef.pixelSize, face, engine->info);
-	engine->calculateCost();
-    }
-#endif
     QFontCache::instance->insertEngine(key, engine);
 }
 

@@ -495,7 +495,6 @@ private:
 #endif // QT_NO_XFTFREETYPE
 
 #elif defined(Q_WS_MAC)
-//#define QMAC_USE_ATSUFONT
 #include "qt_mac.h"
 #include <qmap.h>
 #include <qcache.h>
@@ -503,19 +502,13 @@ private:
 struct QATSUStyle;
 class QFontEngineMac : public QFontEngine
 {
-#if 0
     ATSFontRef fontref;
-    ATSFontMetrics *hmetrics, *vmetrics;
-#else
-    short fnum;
-    FontInfo *info;
-#endif
-    QATSUStyle *internal_fi;
+    mutable QATSUStyle *internal_fi;
     enum { widthCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
     friend class QFont;
     friend class QFontPrivate;
-    QATSUStyle *getFontStyle();
+    QATSUStyle *getFontStyle() const;
 
 public:
     QFontEngineMac();
@@ -529,17 +522,10 @@ public:
 			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-#ifdef QMAC_USE_ATSUFONT
-    int ascent() const { return FixRound(vmetrics->ascent); }
-    int descent() const { return FixRound(vmetrics->descent); }
-    int leading() const { return FixRound(vmetrics->leading); }
-    int maxCharWidth() const { return FixRound(hmetrics->maxAdvanceWidth); }
-#else
-    int ascent() const { return (int)info->ascent; }
-    int descent() const { return (int)info->descent; }
-    int leading() const { return (int)info->leading; }
-    int maxCharWidth() const { return info->widMax; }
-#endif
+    int ascent() const;
+    int descent() const;
+    int leading() const;
+    int maxCharWidth() const;
 
     const char *name() const { return "ATSUI"; }
 
