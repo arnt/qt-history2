@@ -76,6 +76,8 @@ public:
     mutable QTextBlockIterator currentBlock;
     int currentYPos;
 
+    int widthUsed;
+
     int blockTextFlags;
 
     void drawListItem(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
@@ -266,6 +268,7 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
     currentYPos = 0;
+    widthUsed = 0;
     QTextBlockIterator it = q->begin();
     while (!it.atEnd()) {
         // check if we are at a table
@@ -331,6 +334,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
 
         line.setPosition(QPoint(left, currentYPos-cy));
         currentYPos += line.ascent() + line.descent() + 1;
+        widthUsed = qMax(widthUsed, line.textWidth());
     }
 
     currentYPos += blockFormat.bottomMargin();
@@ -585,8 +589,7 @@ QSize QTextDocumentLayout::pageSize() const
 
 int QTextDocumentLayout::widthUsed() const
 {
-    // ###########
-    return d->pageSize.width();
+    return d->widthUsed;
 }
 
 // Pull this private function in from qglobal.cpp
