@@ -102,7 +102,7 @@ public:
     QPrinter::PrinterState printerState() const;
 
 private:
-    friend class QPrintDialogWin;
+    friend class QPrintDialog;
     friend class QPageSetupDialog;
 };
 

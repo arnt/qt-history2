@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qprintdialog_unix.h"
-
 #ifndef QT_NO_PRINTDIALOG
 
 #include <private/qabstractprintdialog_p.h>
@@ -71,11 +69,11 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-class QPrintDialogUnixButtonGroup : public QObject
+class QPrintDialogButtonGroup : public QObject
 {
     Q_OBJECT
 public:
-    QPrintDialogUnixButtonGroup(QObject *parent);
+    QPrintDialogButtonGroup(QObject *parent);
 
     inline void hide(){}
     void insert(QAbstractButton *, int id = -1);
@@ -88,19 +86,19 @@ private:
 };
 
 
-QPrintDialogUnixButtonGroup::QPrintDialogUnixButtonGroup(QObject *parent)
+QPrintDialogButtonGroup::QPrintDialogButtonGroup(QObject *parent)
     :QObject(parent)
 {
     connect(&mapper, SIGNAL(mapped(int)), this, SIGNAL(clicked(int)));
 }
 
-void QPrintDialogUnixButtonGroup::setButton(int id)
+void QPrintDialogButtonGroup::setButton(int id)
 {
     if (QAbstractButton *button = static_cast<QAbstractButton*>(mapper.mapping(id)))
         button->click();
 }
 
-void QPrintDialogUnixButtonGroup::insert(QAbstractButton *button, int id)
+void QPrintDialogButtonGroup::insert(QAbstractButton *button, int id)
 {
     group.addButton(button);
     mapper.setMapping(button, id);
@@ -189,11 +187,11 @@ QVariant QPrinterModel::headerData(int section, Qt::Orientation orientation, int
 }
 
 
-class QPrintDialogUnixPrivate : public QAbstractPrintDialogPrivate
+class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
-    Q_DECLARE_PUBLIC(QPrintDialogUnix)
+    Q_DECLARE_PUBLIC(QPrintDialog)
 public:
-    QPrintDialogUnixButtonGroup *printerOrFile;
+    QPrintDialogButtonGroup *printerOrFile;
 
     bool outputToFile;
     QList<QPrinterDescription> printers;
@@ -203,7 +201,7 @@ public:
     QLineEdit *fileName;
     QPushButton *browse, *ok;
 
-    QPrintDialogUnixButtonGroup *printRange;
+    QPrintDialogButtonGroup *printRange;
     QLabel *firstPageLabel;
     QSpinBox *firstPage;
     QLabel *lastPageLabel;
@@ -217,10 +215,10 @@ public:
     QPrinter::PageSize pageSize;
     QPrinter::Orientation orientation;
 
-    QPrintDialogUnixButtonGroup *pageOrder;
+    QPrintDialogButtonGroup *pageOrder;
     QPrinter::PageOrder pageOrder2;
 
-    QPrintDialogUnixButtonGroup *colorMode;
+    QPrintDialogButtonGroup *colorMode;
     QPrinter::ColorMode colorMode2;
 
     QSpinBox *copies;
@@ -234,7 +232,7 @@ public:
 };
 
 
-static void isc(QPrintDialogUnixPrivate *d, const QString & text,
+static void isc(QPrintDialogPrivate *d, const QString & text,
                  QPrinter::PageSize ps);
 
 
@@ -248,7 +246,7 @@ static void perhapsAddPrinter(QList<QPrinterDescription> *printers, const QStrin
             return;
 
     if (host.isEmpty())
-        host = QPrintDialogUnix::tr("locally connected");
+        host = QPrintDialog::tr("locally connected");
     printers->append(QPrinterDescription(name.simplified(), host.simplified(), comment.simplified(), aliases));
 }
 
@@ -269,7 +267,7 @@ static void parsePrinterDesc(QString printerDesc, QList<QPrinterDescription> *pr
             printerName = printerDesc.left(j);
             aliases = printerDesc.mid(j + 1, i - j - 1).split('|');
             // try extracting a comment from the aliases
-            printerComment = QPrintDialogUnix::tr("Aliases: %1")
+            printerComment = QPrintDialog::tr("Aliases: %1")
                              .arg(aliases.join(", "));
         } else {
             printerName = printerDesc.left(i);
@@ -472,7 +470,7 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
                 if (j > 0) {
                     // try extracting a comment from the aliases
                     aliases = printerDesc.mid(j + 1, i - j - 1).split('|');
-                    printerComment = QPrintDialogUnix::tr("Aliases: %1")
+                    printerComment = QPrintDialog::tr("Aliases: %1")
                                      .arg(aliases.join(", "));
                 }
                 // look for signs of this being a remote printer
@@ -691,7 +689,7 @@ static void parseEtcLpMember(QList<QPrinterDescription> *printers)
         // decent way to locate aliases and remote printers.
         if (printer.isFile())
             perhapsAddPrinter(printers, printer.fileName(),
-                               QPrintDialogUnix::tr("unknown"),
+                               QPrintDialog::tr("unknown"),
                                QLatin1String(""));
     }
 }
@@ -858,7 +856,7 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
         int n = 0;
         while (n < nd) {
             perhapsAddPrinter(printers, d[n].name,
-                               QPrintDialogUnix::tr("Unknown Location"), QString());
+                               QPrintDialog::tr("Unknown Location"), QString());
             if (d[n].is_default && !defaultPrinter)
                 defaultPrinter = qstrdup(d[n].instance);
             n++;
@@ -869,9 +867,9 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
 #endif
 
 /*!
-  \class QPrintDialogUnix qprintdialog.h
+  \class QPrintDialog qprintdialog.h
 
-  \brief The QPrintDialogUnix class provides a dialog for specifying
+  \brief The QPrintDialog class provides a dialog for specifying
   the printer's configuration.
 
   \internal
@@ -894,7 +892,7 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
   print-out and some print configuration setup.
 
   The easiest way to use the class is through the static
-  function getPrinterSetup().  You can also subclass the QPrintDialogUnix
+  function getPrinterSetup().  You can also subclass the QPrintDialog
   and add some custom buttons with addButton() to extend the
   functionality of the print dialog.
 
@@ -912,8 +910,8 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
 #define d d_func()
 #define q q_func()
 
-QPrintDialogUnix::QPrintDialogUnix(QPrinter *printer, QWidget *parent)
-    : QAbstractPrintDialog(*(new QPrintDialogUnixPrivate), printer, parent)
+QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
+    : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
 {
     d->init();
 }
@@ -923,17 +921,17 @@ QPrintDialogUnix::QPrintDialogUnix(QPrinter *printer, QWidget *parent)
   delete the associated QPrinter object.
 */
 
-QPrintDialogUnix::~QPrintDialogUnix()
+QPrintDialog::~QPrintDialog()
 {
 }
 
 
-QGroupBox *QPrintDialogUnix::setupPrinterSettings()
+QGroupBox *QPrintDialog::setupPrinterSettings()
 {
     QGroupBox *g = new QGroupBox(tr("Printer settings"), this);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    d->colorMode = new QPrintDialogUnixButtonGroup(this);
+    d->colorMode = new QPrintDialogButtonGroup(this);
     d->colorMode->hide();
     connect(d->colorMode, SIGNAL(clicked(int)),
             this, SLOT(colorModeSelected(int)));
@@ -951,12 +949,12 @@ QGroupBox *QPrintDialogUnix::setupPrinterSettings()
     return g;
 }
 
-QGroupBox *QPrintDialogUnix::setupDestination()
+QGroupBox *QPrintDialog::setupDestination()
 {
     QGroupBox *g = new QGroupBox(tr("Print destination"), this);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    d->printerOrFile = new QPrintDialogUnixButtonGroup(this);
+    d->printerOrFile = new QPrintDialogButtonGroup(this);
     d->printerOrFile->hide();
     connect(d->printerOrFile, SIGNAL(clicked(int)),
              this, SLOT(printerOrFileSelected(int)));
@@ -1031,7 +1029,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
         dollarPrinter = QLatin1String(t);
         if (!dollarPrinter.isEmpty())
             perhapsAddPrinter(&d->printers, dollarPrinter,
-                               QPrintDialogUnix::tr("unknown"),
+                               QPrintDialog::tr("unknown"),
                               QLatin1String(""));
     }
 
@@ -1112,18 +1110,18 @@ QGroupBox *QPrintDialogUnix::setupDestination()
 }
 
 
-QGroupBox *QPrintDialogUnix::setupOptions()
+QGroupBox *QPrintDialog::setupOptions()
 {
     QGroupBox *g = new QGroupBox(tr("Options"), this);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, lay);
 
-    d->printRange = new QPrintDialogUnixButtonGroup(this);
+    d->printRange = new QPrintDialogButtonGroup(this);
     d->printRange->hide();
     connect(d->printRange, SIGNAL(clicked(int)), this, SLOT(printRangeSelected(int)));
 
-    d->pageOrder = new QPrintDialogUnixButtonGroup(this);
+    d->pageOrder = new QPrintDialogButtonGroup(this);
     d->pageOrder->hide();
     connect(d->pageOrder, SIGNAL(clicked(int)), this, SLOT(pageOrderSelected(int)));
 
@@ -1208,7 +1206,7 @@ QGroupBox *QPrintDialogUnix::setupOptions()
 }
 
 
-void isc(QPrintDialogUnixPrivate *ptr, const QString & text, QPrinter::PageSize ps)
+void isc(QPrintDialogPrivate *ptr, const QString & text, QPrinter::PageSize ps)
 {
     if (ptr && !text.isEmpty() && ps < QPrinter::NPageSize) {
         ptr->sizeCombo->insertItem(text, -1);
@@ -1218,7 +1216,7 @@ void isc(QPrintDialogUnixPrivate *ptr, const QString & text, QPrinter::PageSize 
     }
 }
 
-QGroupBox *QPrintDialogUnix::setupPaper()
+QGroupBox *QPrintDialog::setupPaper()
 {
     QGroupBox *g = new QGroupBox(tr("Paper format"), this);
 
@@ -1282,7 +1280,7 @@ QGroupBox *QPrintDialogUnix::setupPaper()
 }
 
 
-void QPrintDialogUnix::printerOrFileSelected(int id)
+void QPrintDialog::printerOrFileSelected(int id)
 {
     d->outputToFile = id ? true : false;
     if (d->outputToFile) {
@@ -1319,38 +1317,38 @@ void QPrintDialogUnix::printerOrFileSelected(int id)
 }
 
 
-void QPrintDialogUnix::landscapeSelected(int id)
+void QPrintDialog::landscapeSelected(int id)
 {
     d->orientation = (QPrinter::Orientation)id;
 }
 
 
-void QPrintDialogUnix::paperSizeSelected(int id)
+void QPrintDialog::paperSizeSelected(int id)
 {
     if (id < QPrinter::NPageSize)
         d->pageSize = QPrinter::PageSize(d->indexToPageSize[id]);
 }
 
 
-void QPrintDialogUnix::orientSelected(int id)
+void QPrintDialog::orientSelected(int id)
 {
     d->orientation = (QPrinter::Orientation)id;
 }
 
 
-void QPrintDialogUnix::pageOrderSelected(int id)
+void QPrintDialog::pageOrderSelected(int id)
 {
     d->pageOrder2 = (QPrinter::PageOrder)id;
 }
 
 
-void QPrintDialogUnix::setNumCopies(int copies)
+void QPrintDialog::setNumCopies(int copies)
 {
     d->numCopies = copies;
 }
 
 
-void QPrintDialogUnix::browseClicked()
+void QPrintDialog::browseClicked()
 {
 #if 0 // ### Fix before 4.0
 #ifndef QT_NO_FILEDIALOG
@@ -1362,7 +1360,7 @@ void QPrintDialogUnix::browseClicked()
 }
 
 
-void QPrintDialogUnix::okClicked()
+void QPrintDialog::okClicked()
 {
     d->lastPage->interpretText();
     d->firstPage->interpretText();
@@ -1398,7 +1396,7 @@ void QPrintDialogUnix::okClicked()
 }
 
 
-void QPrintDialogUnix::printRangeSelected(int id)
+void QPrintDialog::printRangeSelected(int id)
 {
     bool enable = id == 2 ? true : false;
     d->firstPage->setEnabled(enable);
@@ -1408,7 +1406,7 @@ void QPrintDialogUnix::printRangeSelected(int id)
 }
 
 
-void QPrintDialogUnix::setFirstPage(int fp)
+void QPrintDialog::setFirstPage(int fp)
 {
     if (d->printer) {
         d->lastPage->setMinimum(fp);
@@ -1417,7 +1415,7 @@ void QPrintDialogUnix::setFirstPage(int fp)
 }
 
 
-void QPrintDialogUnix::setLastPage(int lp)
+void QPrintDialog::setLastPage(int lp)
 {
     if (d->printer) {
         d->firstPage->setMinimum(qMin(lp, minPage()));
@@ -1433,7 +1431,7 @@ void QPrintDialogUnix::setLastPage(int lp)
   default) the dialog keeps its old settings.
 */
 
-void QPrintDialogUnix::setPrinter(QPrinter *p, bool pickUpSettings)
+void QPrintDialog::setPrinter(QPrinter *p, bool pickUpSettings)
 {
     d->printer = p;
 
@@ -1524,13 +1522,13 @@ void QPrintDialogUnix::setPrinter(QPrinter *p, bool pickUpSettings)
 
 /*!  Returns a pointer to the printer this dialog configures, or 0 if
   this dialog does not operate on any printer. */
-QPrinter *QPrintDialogUnix::printer() const
+QPrinter *QPrintDialog::printer() const
 {
     return d->printer;
 }
 
 
-void QPrintDialogUnix::colorModeSelected(int id)
+void QPrintDialog::colorModeSelected(int id)
 {
     d->colorMode2 = (QPrinter::ColorMode)id;
 }
@@ -1541,23 +1539,23 @@ void QPrintDialogUnix::colorModeSelected(int id)
   buttons are arranged from the left to the right below the
   last groupbox of the printdialog.
 */
-void QPrintDialogUnix::addButton(QPushButton *but)
+void QPrintDialog::addButton(QPushButton *but)
 {
     d->customLayout->addWidget(but);
 }
 
-void QPrintDialogUnix::fileNameEditChanged(const QString &text)
+void QPrintDialog::fileNameEditChanged(const QString &text)
 {
     if (d->fileName->isEnabled())
         d->ok->setEnabled(!text.isEmpty());
 }
 
-int QPrintDialogUnix::exec()
+int QPrintDialog::exec()
 {
     return QDialog::exec();
 }
 
-void QPrintDialogUnixPrivate::init()
+void QPrintDialogPrivate::init()
 {
     numCopies = 1;
 

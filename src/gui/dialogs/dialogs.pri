@@ -23,20 +23,16 @@ win32 {
     SOURCES += dialogs/qfiledialog_win.cpp \
 	       dialogs/qpagesetupdialog_win.cpp \
 	       dialogs/qprintdialog_win.cpp 
-    HEADERS += dialogs/qprintdialog_win.h 
 }
 win32:LIBS += shell32.lib 	# the filedialog needs this library
 
 mac {
 	SOURCES += dialogs/qprintdialog_mac.cpp \
                    dialogs/qpagesetupdialog_mac.cpp
-	HEADERS += dialogs/qprintdialog_mac.h
 }
 !mac:unix {
 	SOURCES += dialogs/qprintdialog_unix.cpp \
 		   dialogs/qpagesetupdialog_unix.cpp \
-
-	HEADERS += dialogs/qprintdialog_unix.h
 }
 
 SOURCES += \
@@ -49,5 +45,4 @@ SOURCES += \
 	dialogs/qfontdialog.cpp \
 	dialogs/qinputdialog.cpp \
 	dialogs/qmessagebox.cpp \
-	dialogs/qprintdialog.cpp \
 	dialogs/qprogressdialog.cpp 

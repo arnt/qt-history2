@@ -14,7 +14,7 @@
 #ifndef QPRINTDIALOG_H
 #define QPRINTDIALOG_H
 
-#include <qabstractprintdialog.h>
+#include "qabstractprintdialog.h"
 
 class QPrintDialogPrivate;
 class QPrinter;

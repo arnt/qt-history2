@@ -11,24 +11,24 @@
 **
 ****************************************************************************/
 
-#include "qabstractprintdialog_p.h"
-#include "qprintdialog_win.h"
+#include "qprintdialog.h"
 #include "qprintengine_win.h"
-
-#include <private/qprintengine_win_p.h>
 
 #include <qwidget.h>
 #include <qapplication.h>
+
+#include <private/qabstractprintdialog_p.h>
+#include <private/qprintengine_win_p.h>
 
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget *);
 extern Q_GUI_EXPORT void qt_enter_modal(QWidget *);
 extern void qt_win_eatMouseMove();
 
-class QPrintDialogWinPrivate : public QAbstractPrintDialogPrivate
+class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
-    Q_DECLARE_PUBLIC(QPrintDialogWin)
+    Q_DECLARE_PUBLIC(QPrintDialog)
 public:
-    QPrintDialogWinPrivate()
+    QPrintDialogPrivate()
         : ep(0)
     {
     }
@@ -38,13 +38,13 @@ public:
 
 #define d d_func()
 
-QPrintDialogWin::QPrintDialogWin(QPrinter *printer, QWidget *parent)
-    : QAbstractPrintDialog( *(new QPrintDialogWinPrivate), printer, parent)
+QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
+    : QAbstractPrintDialog( *(new QPrintDialogPrivate), printer, parent)
 {
     d->ep = static_cast<QWin32PrintEngine *>(printer->paintEngine())->d;
 }
 
-int QPrintDialogWin::exec()
+int QPrintDialog::exec()
 {
     QWidget *parent = parentWidget();
     if (parent)

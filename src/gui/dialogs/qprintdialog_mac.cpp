@@ -11,31 +11,30 @@
 **
 ****************************************************************************/
 
-#include "qprintdialog_mac.h"
 #include <private/qt_mac_p.h>
 
 #include <qprintengine_mac.h>
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_mac_p.h>
 
-class QPrintDialogMacPrivate : public QAbstractPrintDialogPrivate
+class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 {
-    Q_DECLARE_PUBLIC(QPrintDialogMac)
+    Q_DECLARE_PUBLIC(QPrintDialog)
 public:
-    QPrintDialogMacPrivate() : ep(0) { }
+    QPrintDialogPrivate() : ep(0) { }
 
     QMacPrintEnginePrivate *ep;
 };
 
 #define d d_func()
 
-QPrintDialogMac::QPrintDialogMac(QPrinter *printer, QWidget *parent)
-    : QAbstractPrintDialog(*(new QPrintDialogMacPrivate), printer, parent)
+QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
+    : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
 {
     d->ep = static_cast<QMacPrintEngine *>(printer->paintEngine())->d;
 }
 
-int QPrintDialogMac::exec()
+int QPrintDialog::exec()
 {
     QMacBlockingFunction func;
     Boolean result;
