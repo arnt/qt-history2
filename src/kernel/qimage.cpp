@@ -4962,7 +4962,7 @@ bool qt_write_dib( QDataStream& s, QImage image )
 		p++;
 	    }
 	}
-	if ( bpl_bmp != (uint)d->writeBlock( (char*)buf, bpl_bmp ) ) {
+	if ( bpl_bmp != d->writeBlock( (char*)buf, bpl_bmp ) ) {
 	    delete[] buf;
 	    return FALSE;
 	}
