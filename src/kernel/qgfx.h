@@ -87,7 +87,7 @@ public:
     QScreen();
     virtual ~QScreen();
     virtual bool initCard();
-    virtual void connect();
+    virtual bool connect();
     virtual void disconnect();
     virtual int initCursor(void *,bool=false);
     virtual void shutdownCard();

@@ -196,19 +196,22 @@ public:
     QVoodooScreen() { qDebug("No slot specified!"); }
     QVoodooScreen(char *,unsigned char *);
     virtual ~QVoodooScreen();
+    virtual bool connect();
     virtual bool initCard();
     virtual void shutdownCard();
     
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-
-    bool success;
-
 };
 
 QVoodooScreen::QVoodooScreen(char * graphics_card_slot,
 			     unsigned char * config)
 {
-    success=false;
+}
+
+bool QVoodooScreen::connect()
+{
+    if (!QScreen::connect())
+	return FALSE;
 
     unsigned char * bar=config+0x10;
     unsigned long int * addr=(unsigned long int *)bar;
@@ -253,7 +256,7 @@ QVoodooScreen::QVoodooScreen(char * graphics_card_slot,
 	regbase=membase+0x100000;
     }
 
-    success=true;
+    return TRUE;
 }
 
 
@@ -296,7 +299,7 @@ extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
 {
     if ( !qt_screen && qws_accel && slot!=0 ) {
 	QVoodooScreen * ret=new QVoodooScreen(slot,config);
-	if(ret->success)
+	if(ret->connect())
 	    qt_screen=ret;
     }
     if ( !qt_screen )

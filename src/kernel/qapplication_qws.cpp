@@ -377,7 +377,6 @@ void QWSDisplayData::init()
     }
 
     qt_probe_bus();
-    qt_screen->connect();
 
     int offset=qt_screen->screenSize();
 

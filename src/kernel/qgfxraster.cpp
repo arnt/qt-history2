@@ -84,6 +84,14 @@ struct SWCursorData {
 		    endDraw(); \
 		}
 
+#if defined(QWS_DEPTH_8GRAYSCALE)
+    #define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
+#elif defined(QWS_DEPTH_8DIRECT)
+    #define GFX_8BPP_PIXEL(r,g,b) ((((r) >> 5) << 5) | (((g) >> 6) << 3) | ((b) >> 5))
+#else
+    #define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
+#endif
+
 static int optype;
 static int lastop;
 
@@ -401,13 +409,7 @@ void QScreenCursor::drawCursor()
 		    g+=og;
 		    b+=ob;
 
-#if defined(QWS_DEPTH_8GRAYSCALE)
-		    *(dptr+col) = qGray(r,g,b);
-#elif defined(QWS_DEPTH_8DIRECT)
-		    *(dptr+col) = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
-#else
-		    *(dptr+col) = QColor(r,g,b).alloc();
-#endif
+		    *(dptr+col) = GFX_8BPP_PIXEL(r,g,b);
 		}
 	    }
 	    srcptr += data->width;
@@ -1317,13 +1319,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	    int r = qRed(srcclut[loopc]);
 	    int g = qGreen(srcclut[loopc]);
 	    int b = qBlue(srcclut[loopc]);
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	    transclut[loopc] = qGray(r,g,b);
-#elif defined(QWS_DEPTH_8DIRECT)
-	    transclut[loopc] = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
-#else
-	    transclut[loopc] = QColor( srcclut[loopc] ).alloc();
-#endif
+	    transclut[loopc] = GFX_8BPP_PIXEL(r,g,b);
 	}
     }
 }
@@ -2727,13 +2723,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        g+=*(tmp+1);
 	        b+=*(tmp+0);
 	    }
-#if defined(QWS_DEPTH_8GRAYSCALE)
-	    alphabuf[loopc] = qGray(r,g,b);
-#elif defined(QWS_DEPTH_8DIRECT)
-	    alphabuf[loopc] = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
-#else
-	    alphabuf[loopc] = QColor( r, g, b ).alloc();
-#endif
+	    alphabuf[loopc] = GFX_8BPP_PIXEL(r,g,b);
 	}
 
 	// Now write it all out
@@ -3524,7 +3514,7 @@ QScreen::~QScreen()
 {
 }
 
-void QScreen::connect()
+bool QScreen::connect()
 {
     fd=open("/dev/fb0",O_RDWR);
     if(fd<0) {
@@ -3592,6 +3582,8 @@ void QScreen::connect()
     } else {
 	screencols=0;
     }
+
+    return TRUE;
 }
 
 void QScreen::disconnect()
@@ -3881,8 +3873,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 
 extern "C" QScreen * qt_get_screen(char *,unsigned char *)
 {
-    if ( !qt_screen )
+    if ( !qt_screen ) {
 	qt_screen=new QScreen();
+	qt_screen->connect();
+    }
     return qt_screen;
 }
 

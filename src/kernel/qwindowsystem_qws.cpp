@@ -1291,6 +1291,8 @@ void QWSServer::openMouse()
     if ( mice.isEmpty() ) {
 #ifdef __MIPSEL__
 	mice = "TPanel:/dev/tpanel";
+#elif defined(QWS_VFB)
+	mice = "QVFbMouse";
 #else
 	mice = "MouseMan:/dev/mouse";
 #endif
@@ -1346,7 +1348,6 @@ void QWSServer::openDisplay()
     fb_open=TRUE;
 
     QScreen * s=qt_probe_bus();
-    s->connect();
     s->initCard();
 
     swidth=s->width();

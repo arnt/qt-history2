@@ -45,7 +45,7 @@
 #endif
 
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
-                     Microsoft = 2, TPanel = 3 };
+                     Microsoft = 2, QVFBMouse = 3, TPanel = 4 };
 
 typedef struct {
     char *name;
@@ -56,6 +56,7 @@ static const MouseConfig mouseConfig[] = {
     { "MouseMan",	MouseMan },
     { "IntelliMouse",	IntelliMouse },
     { "Microsoft",      Microsoft },
+    { "QVFbMouse",      QVFBMouse },
     { "TPanel",         TPanel },
     { 0,		Unknown }
 };
@@ -67,6 +68,17 @@ static QPoint mousePos;
 /*
  * Standard mouse driver
  */
+
+typedef struct {
+    int bytesPerPacket;
+} MouseData;
+
+static const MouseData mouseData[] = {
+    { 3 },  // MouseMan
+    { 4 },  // intelliMouse
+    { 3 }   // Microsoft
+};
+
 
 class MouseHandlerPrivate : public MouseHandler {
     Q_OBJECT
@@ -86,17 +98,6 @@ private slots:
 
 private:
     int obstate;
-};
-
-
-typedef struct {
-    int bytesPerPacket;
-} MouseData;
-
-static const MouseData mouseData[] = {
-    { 3 },  // MouseMan
-    { 4 },  // intelliMouse
-    { 3 }   // Microsoft
 };
 
 
@@ -480,6 +481,94 @@ void TPanelHandlerPrivate::readMouseData()
 #endif
 }
 
+/*
+ * Virtual framebuffer mouse driver
+ */
+
+#ifdef QWS_VFB
+#include "../../util/qvfb/qvfbhdr.h"
+#endif
+
+class QVFbMouseHandlerPrivate : public MouseHandler {
+    Q_OBJECT
+public:
+    QVFbMouseHandlerPrivate(MouseProtocol, QString dev);
+    ~QVFbMouseHandlerPrivate();
+
+private:
+    int mouseFD;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
+private slots:
+    void readMouseData();
+};
+
+QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDev )
+{
+#ifdef QWS_VFB
+    if ( mouseDev.isEmpty() )
+	mouseDev = QT_VFB_MOUSE_PIPE;
+
+    static int init=0;
+    if ( !init && qt_screen ) {
+	init = 1;
+	mousePos = QPoint(qt_screen->width()/2,
+			  qt_screen->height()/2);
+    }
+
+    if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
+	qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
+		strerror(errno));
+    } else {
+	// Clear pending input
+	char buf[2];
+	while (read(mouseFD, buf, 1) > 0);
+
+	mouseIdx = 0;
+
+	QSocketNotifier *mouseNotifier;
+	mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read, this );
+	connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
+    }
+#endif
+}
+
+QVFbMouseHandlerPrivate::~QVFbMouseHandlerPrivate()
+{
+#ifdef QWS_VFB
+    if (mouseFD >= 0)
+	close(mouseFD);
+#endif
+}
+
+void QVFbMouseHandlerPrivate::readMouseData()
+{
+#ifdef QWS_VFB
+    int n;
+    do {
+	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
+	if ( n > 0 )
+	    mouseIdx += n;
+    } while ( n > 0 );
+
+    int idx = 0;
+    while ( mouseIdx-idx >= sizeof( QPoint ) + sizeof( int ) ) {
+	uchar *mb = mouseBuf+idx;
+	QPoint *p = (QPoint *) mb;
+	mb += sizeof( QPoint );
+	int *bstate = (int *)mb;
+	mousePos = *p;
+	limitToScreen( mousePos );
+	emit mouseChanged(mousePos, *bstate);
+	idx += sizeof( QPoint ) + sizeof( int );
+    }
+
+    int surplus = mouseIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	mouseBuf[i] = mouseBuf[idx+i];
+    mouseIdx = surplus;
+#endif
+}
 
 /*
  * return a MouseHandler that supports /a spec.
@@ -514,6 +603,10 @@ MouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	case IntelliMouse:
 	case Microsoft:
 	    handler = new MouseHandlerPrivate( mouseProtocol, mouseDev );
+	    break;
+	
+	case QVFBMouse:
+	    handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
 	    break;
 	
 	case TPanel:

@@ -1435,13 +1435,11 @@ public:
     QMachScreen() { qDebug("No slot specified!"); }
     QMachScreen(char *,unsigned char *);
     virtual ~QMachScreen();
+    virtual bool connect();
     virtual bool initCard();
     virtual int initCursor(void*, bool);
     virtual void shutdownCard();
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-
-    bool success;
-
 };
 
 class QMachCursor : public QScreenCursor
@@ -1473,7 +1471,12 @@ private:
 QMachScreen::QMachScreen(char * graphics_card_slot,unsigned char * config)
     : QScreen()
 {
-    success=false;
+}
+
+bool QMachScreen::connect()
+{
+    if ( !QScreen::connect() )
+	return FALSE;
 
     unsigned char * bar=config+0x10;
     unsigned long int * addr=(unsigned long int *)bar;
@@ -1516,7 +1519,7 @@ QMachScreen::QMachScreen(char * graphics_card_slot,unsigned char * config)
 	regbase2=membase;
     }
 
-    success=true;
+    return TRUE;
 }
 
 QMachScreen::~QMachScreen()
@@ -1673,11 +1676,13 @@ extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
 {
     if ( !qt_screen && qws_accel && slot!=0) {
 	QMachScreen * ret=new QMachScreen(slot,config);
-	if(ret->success)
+	if(ret->connect())
 	    qt_screen=ret;
     }
-    if( !qt_screen )
+    if( !qt_screen ) {
 	qt_screen=new QScreen();
+	qt_screen->connect();
+    }
     return qt_screen;
 }
 

@@ -525,14 +525,20 @@ DLLDESTDIR	= ../bin
 
 # Qt/Embedded:
 
-#TMAKE_LFLAGS    += -Wl,-Bsymbolic # may crash ld or executable?
-#TMAKE_CXXFLAGS   += -DQWS_MACH64
-TMAKE_CXXFLAGS    += -DQWS_DEPTH_8GRAYSCALE
+#TMAKE_LFLAGS    += -Wl,-Bsymbolic	    # may crash ld or executable?
+
+# graphics drivers
+#TMAKE_CXXFLAGS   += -DQWS_MACH64	    # Mach64 accelerated driver
+#TMAKE_CXXFLAGS   += -DQWS_VFB		    # use util/qvfb virtual framebuffer
+
+# supported display depths
+#TMAKE_CXXFLAGS    += -DQWS_DEPTH_8GRAYSCALE	# select only one 8bpp type
 #TMAKE_CXXFLAGS    += -DQWS_DEPTH_8DIRECT
-#TMAKE_CXXFLAGS    += -DQWS_DEPTH_8
-#TMAKE_CXXFLAGS    += -DQWS_DEPTH_15
-TMAKE_CXXFLAGS    += -DQWS_DEPTH_32
+TMAKE_CXXFLAGS    += -DQWS_DEPTH_8
+#TMAKE_CXXFLAGS    += -DQWS_DEPTH_15		# 15bpp unsupported
 TMAKE_CXXFLAGS    += -DQWS_DEPTH_16
+TMAKE_CXXFLAGS    += -DQWS_DEPTH_32
+
 TMAKE_CXXFLAGS    += -DQWS -fno-exceptions -fno-rtti
 TMAKE_CXXFLAGS    += -felide-constructors
 QNETWORK=../extensions/network/src
