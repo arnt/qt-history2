@@ -17,9 +17,7 @@
 #include <QtCore/qlist.h>
 #include <QtNetwork/qhostaddress.h>
 
-class QString;
 class QObject;
-class QDnsHostInfoPrivate;
 class QDnsHostInfo;
 
 class Q_NETWORK_EXPORT QDns
@@ -30,6 +28,7 @@ public:
     static QString getHostName();
 };
 
+class QDnsHostInfoPrivate;
 class Q_NETWORK_EXPORT QDnsHostInfo
 {
 public:
