@@ -1,0 +1,32 @@
+/*!
+    \quickclass QAssistantClient
+    \brief The QAssistantClient class provides a means of using Qt Assistant as an application's help tool.
+
+    Using Qt Assistant is simple: Create a QAssistantClient instance,
+    then call showPage() as often as necessary to show your help
+    pages. When you call showPage(), Qt Assistant will be launched if
+    it isn't already running.
+
+    The QAssistantClient instance can open (openAssistant()) or close
+    (closeAssistant()) Qt Assistant whenever required. If Qt Assistant
+    is open, the \c open property is true.
+
+    One QAssistantClient instance interacts with one Qt Assistant
+    instance, so every time you call openAssistant(), showPage() or
+    closeAssistant() they are applied to the particular Qt Assistant
+    instance associated with the QAssistantClient.
+
+    When you call openAssistant() the assistantOpened() signal is
+    emitted. Similarly when closeAssistant() is called,
+    assistantClosed() is emitted. In either case, if an error occurs,
+    error() is emitted.
+
+    This class is only available if your C++ application was linked
+    against \c libqassistantclient.so (Unix) or \c
+    qassistantclient.lib (Windows), which is built into \c INSTALL/lib
+    if you built the Qt tools (\c INSTALL is the directory where Qt is
+    installed).
+
+    See also "Adding Documentation to Qt Assistant" in the \link
+    assistant.book Qt Assistant manual\endlink.
+*/

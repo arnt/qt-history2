@@ -1,5 +1,6 @@
 /*!
     \quickclass QButton
+    \brief The QButton class is the abstract base class of button widgets, providing functionality common to buttons. 
 
     \bold{This is an abstract base class that you cannot instantiate.}
 
