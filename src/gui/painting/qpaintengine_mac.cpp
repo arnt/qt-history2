@@ -1232,13 +1232,6 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 
     //pattern
     int bs = ps->brush.style();
-    if(bs != CustomPattern && bs != NoBrush) {
-        const QColor &col = ps->brush.color();
-        CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                                 qt_mac_convert_color_to_cg(col.green()), 
-                                 qt_mac_convert_color_to_cg(col.blue()), 1.0);
-    }
-
     if(bs == LinearGradientPattern) {
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(&ps->brush, 1, 0, 4, 0, &callbacks);
@@ -1253,6 +1246,8 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
         int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
         qpattern->image = 0;
+        float components[4] = { 1.0, 1.0, 1.0, 1.0 };
+        CGColorSpaceRef base_colorspace = 0;
         if(bs == CustomPattern) {
             qpattern->as_mask = false;
             qpattern->pixmap = ps->brush.pixmap();
@@ -1280,9 +1275,14 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
             qpattern->mask.bytes = pat_tbl[bs-Dense1Pattern];
             qpattern->mask.pixels_per_line = 8;
             width = height = qpattern->mask.pixels_per_line;
-        }
 
-        CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(0);
+            const QColor &col = ps->brush.color();
+            components[0] = qt_mac_convert_color_to_cg(col.red());
+            components[1] = qt_mac_convert_color_to_cg(col.green());
+            components[2] = qt_mac_convert_color_to_cg(col.blue());
+            base_colorspace = CGColorSpaceCreateDeviceRGB();
+        }
+        CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(base_colorspace);
         CGContextSetFillColorSpace(d->hd, fill_colorspace);
 
         CGPatternCallbacks callbks;
@@ -1290,12 +1290,18 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
         callbks.drawPattern = qt_mac_draw_pattern;
         callbks.releaseInfo = qt_mac_dispose_pattern;
         CGPatternRef fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM(d->hd), width, height,
-                                                    kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
-        const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
-        CGContextSetFillPattern(d->hd, fill_pattern, &tmp_float);
+                                                    kCGPatternTilingNoDistortion, !base_colorspace, &callbks);
+        CGContextSetFillPattern(d->hd, fill_pattern, components);
 
         CGPatternRelease(fill_pattern);
         CGColorSpaceRelease(fill_colorspace);
+        if(base_colorspace)
+            CGColorSpaceRelease(base_colorspace);
+    } else if(bs != NoBrush) {
+        const QColor &col = ps->brush.color();
+        CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
+                                 qt_mac_convert_color_to_cg(col.green()), 
+                                 qt_mac_convert_color_to_cg(col.blue()), 1.0);
     }
 }
 
@@ -1676,8 +1682,8 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
                                        kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
     CGContextSetFillColorSpace(d->hd, cs);
-    const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
-    CGContextSetFillPattern(d->hd, pat, &tmp_float);
+    float component = 1.0; //just one
+    CGContextSetFillPattern(d->hd, pat, &component);
     CGContextSetPatternPhase(d->hd, CGSizeMake(r.x()-p.x(), r.y()-p.y()));
     //fill the rectangle
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
