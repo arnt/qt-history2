@@ -328,7 +328,7 @@ const unsigned char * p_str(const char * c, int len=-1)
 	qWarning( "p_str len must never exceed %d", maxlen );
 	len = maxlen;
     }
-    unsigned char *ret = malloc(len+2);
+    unsigned char *ret = (unsigned char*)malloc(len+2);
     *ret=len;
     memcpy(((char *)ret)+1,c,len);
     *(ret+len+1) = '\0';
