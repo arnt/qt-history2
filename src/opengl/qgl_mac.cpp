@@ -423,7 +423,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     FMGetFontFamilyName((FMFontFamily)((UInt32)fnt.handle()), name);
     short fnum;
     GetFNum(name, &fnum);
-    aglUseFont((AGLContext) d->cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
+    aglUseFont((AGLContext)d->cx, (int)fnum, fstyle, QFontInfo(fnt).pointSize(), 0, 256, listBase);
 }
 
 static CFBundleRef qt_getOpenGLBundle()
