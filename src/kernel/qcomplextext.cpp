@@ -874,10 +874,13 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	// first line
 	if( start != 0 )
 	    qDebug( "bidiReorderLine::internal error");
-	if( text.isRightToLeft() )
+	if( text.isRightToLeft() ) {
 	    context = new QBidiContext( 1, QChar::DirR );
-	else
+	    control->status.last = QChar::DirR;
+	} else {
 	    context = new QBidiContext( 0, QChar::DirL );
+	    control->status.last = QChar::DirL;
+	}
     }
 
     QBidiStatus status = control->status;
