@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#65 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#66 $
 #
 # this is a massive hack, written very quickly
 #
@@ -979,8 +979,6 @@ sub printclass {
     local ( $url ) = @_;
     local ( $class, $file, $tail, $fnheader, $fntail, %fndocs );
 
-    print "printclass: ", $name{$url}, ", ", $url, ", ", $type{$url}, "\n";
-
     $class = $name{$url};
 
     die "$class ($url) is not a class" if ( $type{$url} ne "class" );
@@ -1161,7 +1159,6 @@ sub printclass {
 			      ") ", $c);
 		    $fndocs{$u}++;
 		} else {
-		    print $u, "\n", $type{$u}, "\n";
 		    $_ = join("", &html($t), "<strong>", 
 			      &html($f), "</strong> (", 
 			      &html($a), ") ", $c);
