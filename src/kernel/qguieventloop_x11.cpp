@@ -26,8 +26,7 @@
 
 #include "qguieventloop_p.h"
 #include "qt_x11_p.h"
-#include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
+#include "qx11info_x11.h"
 
 #define d d_func()
 #define q q_func()
@@ -50,16 +49,16 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
     QApplication::sendPostedEvents();
 
     // Two loops so that posted events accumulate
-    while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
+    while ( XPending( QX11Info::appDisplay() ) ) {
 	// also flushes output buffer
-	while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
+	while ( XPending( QX11Info::appDisplay() ) ) {
 	    if ( d->shortcut ) {
 		return FALSE;
 	    }
 
 	    // process events from the X server
 	    XEvent event;
-	    XNextEvent( QPaintDevice::x11AppDisplay(), &event );
+	    XNextEvent( QX11Info::appDisplay(), &event );
 
 	    if ( flags & ExcludeUserInput ) {
 		switch ( event.type ) {
@@ -117,12 +116,12 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 bool QGuiEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
-    return ( qGlobalPostedEventsCount() || XPending( QPaintDevice::x11AppDisplay() ) );
+    return ( qGlobalPostedEventsCount() || XPending( QX11Info::appDisplay() ) );
 }
 
 void QGuiEventLoop::appStartingUp()
 {
-    d->xfd = XConnectionNumber( QPaintDevice::x11AppDisplay() );
+    d->xfd = XConnectionNumber( QX11Info::appDisplay() );
 }
 
 void QGuiEventLoop::appClosingDown()
@@ -142,5 +141,5 @@ void QGuiEventLoop::cleanup()
 
 void QGuiEventLoop::flush()
 {
-    XFlush( QPaintDevice::x11AppDisplay() );
+    XFlush( QX11Info::appDisplay() );
 }

@@ -61,7 +61,6 @@
 #include <private/qcrashhandler_p.h>
 
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
@@ -71,6 +70,7 @@
 #endif
 
 #include "qt_x11_p.h"
+#include "qx11info_x11.h"
 
 #if defined(QT_MODULE_OPENGL)
 #include <GL/glx.h>
@@ -719,7 +719,7 @@ bool QApplication::x11_apply_settings()
     QDateTime timestamp, settingsstamp;
     bool update_timestamp = FALSE;
 
-    if (XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow( 0 ),
+    if (XGetWindowProperty(X11->display, QX11Info::appRootWindow( 0 ),
 			   ATOM(_QT_SETTINGS_TIMESTAMP), 0, 0,
 			   False, AnyPropertyType, &type, &format, &nitems,
 			   &after, &data) == Success && format == 8) {
@@ -730,7 +730,7 @@ bool QApplication::x11_apply_settings()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow( 0 ),
+	    XGetWindowProperty(X11->display, QX11Info::appRootWindow( 0 ),
 			       ATOM(_QT_SETTINGS_TIMESTAMP),
 			       offset, 1024, False, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
@@ -932,7 +932,7 @@ bool QApplication::x11_apply_settings()
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
 	s << settingsstamp;
 
-	XChangeProperty(X11->display, QPaintDevice::x11AppRootWindow( 0 ),
+	XChangeProperty(X11->display, QX11Info::appRootWindow( 0 ),
 			ATOM(_QT_SETTINGS_TIMESTAMP), ATOM(_QT_SETTINGS_TIMESTAMP), 8,
 			PropModeReplace, (unsigned char *) stamp.buffer().data(),
 			stamp.buffer().size());
@@ -951,7 +951,7 @@ static void qt_set_input_encoding()
     ulong  nitems, after = 1;
     const char *data;
 
-    int e = XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(),
+    int e = XGetWindowProperty( X11->display, QX11Info::appRootWindow(),
 				ATOM(_QT_INPUT_ENCODING), 0, 1024,
 				False, XA_STRING, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
@@ -1003,7 +1003,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 
 	while (after > 0) {
 	    uchar *data;
-	    XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow( 0 ),
+	    XGetWindowProperty( X11->display, QX11Info::appRootWindow( 0 ),
 				ATOM(RESOURCE_MANAGER),
 				offset, 8192, False, AnyPropertyType,
 				&type, &format, &nitems, &after,
@@ -1101,7 +1101,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		if ( fnt.pointSize() <= 0 && fnt.pixelSize() <= 0 )
 		    // size is all wrong... fix it
 		    fnt.setPointSize( (int) ( ( fontinfo.pixelSize() * 72. /
-						(float) QPaintDevice::x11AppDpiY() ) +
+						(float) QX11Info::appDpiY() ) +
 					      0.5 ) );
 	    }
 	}
@@ -1187,7 +1187,7 @@ static void qt_get_net_supported()
     unsigned long nitems, after;
     unsigned char *data;
 
-    int e = XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
+    int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
 			       ATOM(_NET_SUPPORTED), 0, 0,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
@@ -1202,7 +1202,7 @@ static void qt_get_net_supported()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
+	    XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
 			       ATOM(_NET_SUPPORTED), offset, 1024,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
@@ -1262,7 +1262,7 @@ static void qt_get_net_virtual_roots()
     unsigned long nitems, after;
     unsigned char *data;
 
-    int e = XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
+    int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
 			       ATOM(_NET_VIRTUAL_ROOTS), 0, 0,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
@@ -1273,7 +1273,7 @@ static void qt_get_net_virtual_roots()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
+	    XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
 			       ATOM(_NET_VIRTUAL_ROOTS), offset, 1024,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
@@ -1300,7 +1300,7 @@ static void qt_get_net_virtual_roots()
 
 static void qt_net_update_user_time(QWidget *tlw)
 {
-    XChangeProperty(QPaintDevice::x11AppDisplay(), tlw->winId(), ATOM(_NET_WM_USER_TIME),
+    XChangeProperty(QX11Info::appDisplay(), tlw->winId(), ATOM(_NET_WM_USER_TIME),
 		    XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
 }
 
@@ -1556,17 +1556,17 @@ void qt_init( QApplicationPrivate *priv, int,
 	appScreen = DefaultScreen(X11->display);
 	appScreenCount = ScreenCount(X11->display);
 
-	QPaintDevice::x_appdisplay = X11->display;
-	QPaintDevice::x_appscreen = appScreen;
+	QX11Info::x_appdisplay = X11->display;
+	QX11Info::x_appscreen = appScreen;
 
 	// allocate the arrays for the QPaintDevice data
-	QPaintDevice::x_appdepth_arr = new int[ appScreenCount ];
-	QPaintDevice::x_appcells_arr = new int[ appScreenCount ];
-	QPaintDevice::x_approotwindow_arr = new Qt::HANDLE[ appScreenCount ];
-	QPaintDevice::x_appcolormap_arr = new Qt::HANDLE[ appScreenCount ];
-	QPaintDevice::x_appdefcolormap_arr = new bool[ appScreenCount ];
-	QPaintDevice::x_appvisual_arr = new void*[ appScreenCount ];
-	QPaintDevice::x_appdefvisual_arr = new bool[ appScreenCount ];
+	QX11Info::x_appdepth_arr = new int[ appScreenCount ];
+	QX11Info::x_appcells_arr = new int[ appScreenCount ];
+	QX11Info::x_approotwindow_arr = new Qt::HANDLE[ appScreenCount ];
+	QX11Info::x_appcolormap_arr = new Colormap[ appScreenCount ];
+	QX11Info::x_appdefcolormap_arr = new bool[ appScreenCount ];
+	QX11Info::x_appvisual_arr = new Visual*[ appScreenCount ];
+	QX11Info::x_appdefvisual_arr = new bool[ appScreenCount ];
 
 	int screen;
 	QString serverVendor( ServerVendor( X11->display) );
@@ -1574,9 +1574,9 @@ void qt_init( QApplicationPrivate *priv, int,
 	    qt_hebrew_keyboard_hack = TRUE;
 
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
-	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(X11->display, screen);
-	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(X11->display, screen);
-	    QPaintDevice::x_approotwindow_arr[ screen ] = RootWindow(X11->display, screen);
+	    QX11Info::x_appdepth_arr[ screen ] = DefaultDepth(X11->display, screen);
+	    QX11Info::x_appcells_arr[ screen ] = DisplayCells(X11->display, screen);
+	    QX11Info::x_approotwindow_arr[ screen ] = RootWindow(X11->display, screen);
 
 	    // setup the visual and colormap for each screen
 	    Visual *vis;
@@ -1587,7 +1587,7 @@ void qt_init( QApplicationPrivate *priv, int,
 		// figure out the depth of the visual we are using
 		ulong depth_bits = vis->red_mask | vis->green_mask | vis->blue_mask;
 		int depth = 0;
-		QPaintDevice::x_appdepth_arr[ screen ] = 0;
+		QX11Info::x_appdepth_arr[ screen ] = 0;
 		if ( !depth_bits ) {
 		    depth_bits = vis->map_entries-1;
 		    while ( depth_bits ) {
@@ -1599,14 +1599,14 @@ void qt_init( QApplicationPrivate *priv, int,
 		    depth_bits >>= 1;
 		}
 
-		QPaintDevice::x_appdepth_arr[ screen ] = depth;
-		QPaintDevice::x_appcells_arr[ screen ] = vis->map_entries;
-		QPaintDevice::x_appvisual_arr[ screen ] = vis;
-		QPaintDevice::x_appdefvisual_arr[ screen ] = FALSE;
+		QX11Info::x_appdepth_arr[ screen ] = depth;
+		QX11Info::x_appcells_arr[ screen ] = vis->map_entries;
+		QX11Info::x_appvisual_arr[ screen ] = vis;
+		QX11Info::x_appdefvisual_arr[ screen ] = FALSE;
 	    } else {
 		// use the default visual
 		vis = DefaultVisual(X11->display, screen);
-		QPaintDevice::x_appdefvisual_arr[ screen ] = TRUE;
+		QX11Info::x_appdefvisual_arr[ screen ] = TRUE;
 
 		if ( qt_visual_option == TrueColor ||
 		     QApplication::colorSpec() == QApplication::ManyColor ) {
@@ -1614,11 +1614,11 @@ void qt_init( QApplicationPrivate *priv, int,
 
 		    int dpth, c;
 		    vis = find_truecolor_visual( X11->display, screen, &dpth, &c );
-		    QPaintDevice::x_appdepth_arr[ screen ] = dpth;
-		    QPaintDevice::x_appcells_arr[ screen ] = c;
+		    QX11Info::x_appdepth_arr[ screen ] = dpth;
+		    QX11Info::x_appcells_arr[ screen ] = c;
 
-		    QPaintDevice::x_appvisual_arr[ screen ] = vis;
-		    QPaintDevice::x_appdefvisual_arr[ screen ] =
+		    QX11Info::x_appvisual_arr[ screen ] = vis;
+		    QX11Info::x_appdefvisual_arr[ screen ] =
 			(XVisualIDFromVisual(vis) ==
 			 XVisualIDFromVisual(DefaultVisual(X11->display, screen)));
 		}
@@ -1663,7 +1663,7 @@ void qt_init( QApplicationPrivate *priv, int,
 							    GLX_USE_GL, &useGL );
 				    if ( ret == 0 && useGL ) {
 					vis = visuals[i].visual;
-					QPaintDevice::x_appdefvisual_arr[ screen ] = FALSE;
+					QX11Info::x_appdefvisual_arr[ screen ] = FALSE;
 					break;
 				    }
 				}
@@ -1674,7 +1674,7 @@ void qt_init( QApplicationPrivate *priv, int,
 		    }
 		}
 #endif
-		QPaintDevice::x_appvisual_arr[ screen ] = vis;
+		QX11Info::x_appvisual_arr[ screen ] = vis;
 	    }
 
 	    // we assume that 8bpp == pseudocolor, but this is not
@@ -1682,45 +1682,45 @@ void qt_init( QApplicationPrivate *priv, int,
 	    // to make sure that our internal data is setup in a way
 	    // that is compatible with our assumptions
 	    if ( vis->c_class == TrueColor &&
-		 QPaintDevice::x_appdepth_arr[ screen ] == 8 &&
-		 QPaintDevice::x_appcells_arr[ screen ] == 8 )
-		QPaintDevice::x_appcells_arr[ screen ] = 256;
+		 QX11Info::x_appdepth_arr[ screen ] == 8 &&
+		 QX11Info::x_appcells_arr[ screen ] == 8 )
+		QX11Info::x_appcells_arr[ screen ] = 256;
 
 	    if ( colormap && screen == appScreen ) {
 		// use the provided colormap for the default screen only
-		QPaintDevice::x_appcolormap_arr[ screen ] = colormap;
-		QPaintDevice::x_appdefcolormap_arr[ screen ] = FALSE;
+		QX11Info::x_appcolormap_arr[ screen ] = colormap;
+		QX11Info::x_appdefcolormap_arr[ screen ] = FALSE;
 	    } else {
 		if ( vis->c_class == TrueColor ) {
-		    QPaintDevice::x_appdefcolormap_arr[ screen ] =
-			QPaintDevice::x_appdefvisual_arr[ screen ];
+		    QX11Info::x_appdefcolormap_arr[ screen ] =
+			QX11Info::x_appdefvisual_arr[ screen ];
 		} else {
-		    QPaintDevice::x_appdefcolormap_arr[ screen ] =
-			!qt_cmap_option && QPaintDevice::x_appdefvisual_arr[ screen ];
+		    QX11Info::x_appdefcolormap_arr[ screen ] =
+			!qt_cmap_option && QX11Info::x_appdefvisual_arr[ screen ];
 		}
 
-		if ( QPaintDevice::x_appdefcolormap_arr[ screen ] ) {
+		if ( QX11Info::x_appdefcolormap_arr[ screen ] ) {
 		    // use default colormap
 		    XStandardColormap *stdcmap;
 		    VisualID vid =
 			XVisualIDFromVisual((Visual *)
-					    QPaintDevice::x_appvisual_arr[ screen ]);
+					    QX11Info::x_appvisual_arr[ screen ]);
 		    int i, count;
 
-		    QPaintDevice::x_appcolormap_arr[ screen ] = 0;
+		    QX11Info::x_appcolormap_arr[ screen ] = 0;
 
 		    if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
 			// on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
 			// doesn't give us correct colors. Why this happens, I have
 			// no clue, so we disable this for HPUX
 			if (XGetRGBColormaps(X11->display,
-					     QPaintDevice::x11AppRootWindow( screen ),
+					     QX11Info::appRootWindow( screen ),
 					     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
 			    i = 0;
 			    while (i < count &&
-				   QPaintDevice::x_appcolormap_arr[ screen ] == 0) {
+				   QX11Info::x_appcolormap_arr[ screen ] == 0) {
 				if (stdcmap[i].visualid == vid) {
-				    QPaintDevice::x_appcolormap_arr[ screen ] =
+				    QX11Info::x_appcolormap_arr[ screen ] =
 					stdcmap[i].colormap;
 				}
 				i++;
@@ -1730,14 +1730,14 @@ void qt_init( QApplicationPrivate *priv, int,
 			}
 		    }
 
-		    if (QPaintDevice::x_appcolormap_arr[ screen ] == 0) {
-			QPaintDevice::x_appcolormap_arr[ screen ] =
+		    if (QX11Info::x_appcolormap_arr[ screen ] == 0) {
+			QX11Info::x_appcolormap_arr[ screen ] =
 			    DefaultColormap(X11->display, screen);
 		    }
 		} else {
 		    // create a custom colormap
-		    QPaintDevice::x_appcolormap_arr[ screen ] =
-			XCreateColormap(X11->display, QPaintDevice::x11AppRootWindow( screen ),
+		    QX11Info::x_appcolormap_arr[ screen ] =
+			XCreateColormap(X11->display, QX11Info::appRootWindow( screen ),
 					vis, AllocNone);
 		}
 	    }
@@ -1770,8 +1770,8 @@ void qt_init( QApplicationPrivate *priv, int,
 	    // default visual
 	    XRenderPictFormat *format =
 		XRenderFindVisualFormat(X11->display,
-					(Visual *) QX11GC::x11AppVisual(appScreen));
-	    X11->use_xrender = (format != 0) && (QX11GC::x11AppDepth(appScreen) != 8);
+					(Visual *) QX11Info::appVisual(appScreen));
+	    X11->use_xrender = (format != 0) && (QX11Info::appDepth(appScreen) != 8);
 	}
 #endif // QT_NO_XRENDER
 
@@ -1857,13 +1857,13 @@ void qt_init( QApplicationPrivate *priv, int,
 
 	int screen;
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
-	    XSelectInput( X11->display, QPaintDevice::x11AppRootWindow( screen ),
+	    XSelectInput( X11->display, QX11Info::appRootWindow( screen ),
 			  KeymapStateMask | EnterWindowMask | LeaveWindowMask |
 			  PropertyChangeMask );
 
 #ifndef QT_NO_XRANDR
 	    if (X11->use_xrandr)
-		XRRSelectInput( X11->display, QPaintDevice::x11AppRootWindow( screen ), True );
+		XRRSelectInput( X11->display, QX11Info::appRootWindow( screen ), True );
 #endif // QT_NO_XRANDR
 	}
     }
@@ -1880,8 +1880,8 @@ void qt_init( QApplicationPrivate *priv, int,
 	// At 95 DPI, a 12 point font should be 16 pixels tall - in which case a 17
 	// pixel font is a closer match than a 12 pixel font
 	int ptsz =
-	    (int) ( ( ( QPaintDevice::x11AppDpiY() >= 95 ? 17. : 12. ) *
-		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
+	    (int) ( ( ( QX11Info::appDpiY() >= 95 ? 17. : 12. ) *
+		      72. / (float) QX11Info::appDpiY() ) + 0.5 );
 
 	if ( !qt_app_has_font ) {
 	    QFont f( "Helvetica", ptsz );
@@ -2088,7 +2088,7 @@ void QApplication::x11_initialize_style()
     unsigned long length, after;
     uchar *data;
     if ( !app_style &&
-	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(), ATOM(KWIN_RUNNING),
+	 XGetWindowProperty( X11->display, QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
@@ -2098,14 +2098,14 @@ void QApplication::x11_initialize_style()
 	    app_style = QStyleFactory::create("windows");
     }
     if ( !app_style &&
-	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(), ATOM(KWM_RUNNING),
+	 XGetWindowProperty( X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
 	app_style = QStyleFactory::create("windows");
     }
     if ( !app_style &&
-	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(), ATOM(DTWM_IS_RUNNING),
+	 XGetWindowProperty( X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	// DTWM is running, meaning most likely CDE is running...
@@ -2114,7 +2114,7 @@ void QApplication::x11_initialize_style()
     }
     // maybe another desktop?
     if ( !app_style &&
-	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(),
+	 XGetWindowProperty( X11->display, QX11Info::appRootWindow(),
 			     ATOM(GNOME_BACKGROUND_PROPERTIES), 0, 1, False, AnyPropertyType,
 			     &type, &format, &length, &after, &data ) == Success &&
 	 length ) {
@@ -2160,9 +2160,9 @@ void qt_cleanup()
     if ( qt_is_gui_used ) {
 	int screen;
 	for ( screen = 0; screen < appScreenCount; screen++ ) {
-	    if ( ! QPaintDevice::x11AppDefaultColormap( screen ) )
-		XFreeColormap( QPaintDevice::x11AppDisplay(),
-			       QPaintDevice::x11AppColormap( screen ) );
+	    if ( ! QX11Info::appDefaultColormap( screen ) )
+		XFreeColormap( QX11Info::appDisplay(),
+			       QX11Info::appColormap( screen ) );
 	}
     }
 
@@ -2181,18 +2181,18 @@ void qt_cleanup()
 	XCloseDisplay( X11->display );		// close X display
     X11->display = 0;
 
-    if ( QPaintDevice::x_appdepth_arr )
-	delete [] QPaintDevice::x_appdepth_arr;
-    if ( QPaintDevice::x_appcells_arr )
-	delete [] QPaintDevice::x_appcells_arr;
-    if ( QPaintDevice::x_appcolormap_arr )
-	delete []QPaintDevice::x_appcolormap_arr;
-    if ( QPaintDevice::x_appdefcolormap_arr )
-	delete [] QPaintDevice::x_appdefcolormap_arr;
-    if ( QPaintDevice::x_appvisual_arr )
-	delete [] QPaintDevice::x_appvisual_arr;
-    if ( QPaintDevice::x_appdefvisual_arr )
-	delete [] QPaintDevice::x_appdefvisual_arr;
+    if ( QX11Info::x_appdepth_arr )
+	delete [] QX11Info::x_appdepth_arr;
+    if ( QX11Info::x_appcells_arr )
+	delete [] QX11Info::x_appcells_arr;
+    if ( QX11Info::x_appcolormap_arr )
+	delete []QX11Info::x_appcolormap_arr;
+    if ( QX11Info::x_appdefcolormap_arr )
+	delete [] QX11Info::x_appdefcolormap_arr;
+    if ( QX11Info::x_appvisual_arr )
+	delete [] QX11Info::x_appvisual_arr;
+    if ( QX11Info::x_appdefvisual_arr )
+	delete [] QX11Info::x_appdefvisual_arr;
 
     if ( X11->foreignDisplay ) {
 	delete [] (char *)appName;
@@ -2225,7 +2225,7 @@ void qt_save_rootinfo()				// save new root info
     uchar *data;
 
     if (ATOM(_XSETROOT_ID)) {			// kill old pixmap
-	if ( XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(),
+	if ( XGetWindowProperty( X11->display, QX11Info::appRootWindow(),
 				 ATOM(_XSETROOT_ID), 0, 1,
 				 True, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success ) {
@@ -2233,9 +2233,9 @@ void qt_save_rootinfo()				// save new root info
 		 after == 0 && data ) {
 		XKillClient( X11->display, *((Pixmap*)data) );
 	    }
-	    Pixmap dummy = XCreatePixmap( X11->display, QPaintDevice::x11AppRootWindow(),
+	    Pixmap dummy = XCreatePixmap( X11->display, QX11Info::appRootWindow(),
 					  1, 1, 1 );
-	    XChangeProperty( X11->display, QPaintDevice::x11AppRootWindow(),
+	    XChangeProperty( X11->display, QX11Info::appRootWindow(),
 			     ATOM(_XSETROOT_ID), XA_PIXMAP, 32,
 			     PropModeReplace, (uchar *)&dummy, 1 );
 	    XSetCloseDownMode( X11->display, RetainPermanent );
@@ -2291,7 +2291,7 @@ int qt_xscreen()				// get current X screen
 
 WId qt_xrootwin( int scrn )			// get X root window for screen
 {
-    return QPaintDevice::x11AppRootWindow( scrn );
+    return QX11Info::appRootWindow( scrn );
 }
 
 bool qt_nograb()				// application no-grab option
@@ -2311,17 +2311,17 @@ static GC create_gc( int scrn, bool monochrome )
 	gc = XCreateGC( X11->display, pm, 0, 0 );
 	XFreePixmap( X11->display, pm );
     } else {
-	if ( QPaintDevice::x11AppDefaultVisual( scrn ) ) {
+	if ( QX11Info::appDefaultVisual( scrn ) ) {
 	    gc = XCreateGC( X11->display, RootWindow( X11->display, scrn ), 0, 0 );
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
 	    a.background_pixel = QColor(Qt::black).pixel( scrn );
 	    a.border_pixel = QColor(Qt::black).pixel( scrn );
-	    a.colormap = QPaintDevice::x11AppColormap( scrn );
+	    a.colormap = QX11Info::appColormap( scrn );
 	    w = XCreateWindow( X11->display, RootWindow( X11->display, scrn ), 0, 0, 100, 100,
-			       0, QPaintDevice::x11AppDepth( scrn ), InputOutput,
-			       (Visual*)QPaintDevice::x11AppVisual( scrn ),
+			       0, QX11Info::appDepth( scrn ), InputOutput,
+			       QX11Info::appVisual( scrn ),
 			       CWBackPixel|CWBorderPixel|CWColormap, &a );
 	    gc = XCreateGC( X11->display, w, 0, 0 );
 	    XDestroyWindow( X11->display, w );
@@ -2592,12 +2592,12 @@ QWidget *QApplication::widgetAt(int x, int y)
 
     Window target;
     if ( !XTranslateCoordinates(X11->display,
-				QPaintDevice::x11AppRootWindow(screen),
-				QPaintDevice::x11AppRootWindow(screen),
+				QX11Info::appRootWindow(screen),
+				QX11Info::appRootWindow(screen),
 				x, y, &lx, &ly, &target) ) {
 	return 0;
     }
-    if ( !target || target == QPaintDevice::x11AppRootWindow(screen) )
+    if ( !target || target == QX11Info::appRootWindow(screen) )
 	return 0;
     QWidget *w, *c;
     w = QWidget::find( (WId)target );
@@ -2620,13 +2620,13 @@ QWidget *QApplication::widgetAt(int x, int y)
 		    Window wid = widget->winId();
 		    while ( ctarget && !w ) {
 			XTranslateCoordinates(X11->display,
-					      QPaintDevice::x11AppRootWindow(screen),
+					      QX11Info::appRootWindow(screen),
 					      ctarget, x, y, &lx, &ly, &ctarget);
 			if ( ctarget == wid ) {
 			    // Found
 			    w = widget;
 			    XTranslateCoordinates(X11->display,
-						  QPaintDevice::x11AppRootWindow(screen),
+						  QX11Info::appRootWindow(screen),
 						  ctarget, x, y, &lx, &ly, &ctarget);
 			}
 		    }
@@ -2750,7 +2750,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 #endif // QT_NO_WHATSTHIS
 	    } else if ( a == ATOM(_NET_WM_PING) ) {
 		// avoid send/reply loops
-		Window root = QPaintDevice::x11AppRootWindow( w->x11Screen() );
+		Window root = QX11Info::appRootWindow( w->x11Screen() );
 		if (event->xclient.window != root) {
                     event->xclient.window = root;
                     XSendEvent( event->xclient.display, event->xclient.window,
@@ -2911,12 +2911,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( qic && qic->composing && qic->focusWidget && qt_compose_emptied ) {
 	    XEvent event2;
 	    bool found = FALSE;
-	    if ( XCheckTypedEvent( QPaintDevice::x11AppDisplay(),
+	    if ( XCheckTypedEvent( QX11Info::appDisplay(),
 				   XKeyPress, &event2 ) ) {
 		if ( event2.xkey.keycode == 0 ) {
 		    // found a key event with the 'commit' string
 		    found = TRUE;
-		    XPutBackEvent( QPaintDevice::x11AppDisplay(), &event2 );
+		    XPutBackEvent( QX11Info::appDisplay(), &event2 );
 		}
 	    }
 
@@ -2944,7 +2944,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( event->type == PropertyNotify ) {	// some properties changed
-	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow( 0 ) ) {
+	if ( event->xproperty.window == QX11Info::appRootWindow( 0 ) ) {
 	    // root properties for the first screen
 	    if ( event->xproperty.atom == ATOM(_QT_CLIPBOARD_SENTINEL) ) {
 		if (qt_check_clipboard_sentinel() )
@@ -2959,7 +2959,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    QApplication::x11_apply_settings();
 	    }
 	}
-	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow() ) {
+	if ( event->xproperty.window == QX11Info::appRootWindow() ) {
 	    // root properties for the default screen
 	    if ( event->xproperty.atom == ATOM(_QT_INPUT_ENCODING) ) {
 		qt_set_input_encoding();
@@ -3269,7 +3269,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 					ReparentNotify,
 					event ) )
 	    ;	// skip old reparent events
-	if ( event->xreparent.parent == QPaintDevice::x11AppRootWindow() ) {
+	if ( event->xreparent.parent == QX11Info::appRootWindow() ) {
 	    if ( widget->isTopLevel() ) {
 		widget->d->topData()->parentWinId = event->xreparent.parent;
 		int idx = X11->deferred_map.indexOf(widget);
@@ -4218,12 +4218,12 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 		X11->deferred_map.take( this );
 		XMapWindow( X11->display, winId() );
 	    }
-	} else if (d->topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen())) {
+	} else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Screen())) {
 	    // the window manager has changed the WM State property...
 	    // we are wanting to see if we are withdrawn so that we
 	    // can reuse this window... we only do this check *IF* we
 	    // haven't been reparented to root - (the parentWinId !=
-	    // QPaintDevice::x11AppRootWindow(x11Screen())) check
+	    // QX11Info::x11AppRootWindow(x11Screen())) check
 	    // above
 
 	    e = XGetWindowProperty(X11->display, winId(), ATOM(WM_STATE), 0, 2, False, ATOM(WM_STATE),
@@ -5199,7 +5199,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
 	bool trust = (d->topData()->parentWinId == None ||
-		      d->topData()->parentWinId == QPaintDevice::x11AppRootWindow());
+		      d->topData()->parentWinId == QX11Info::appRootWindow());
 
 	if (event->xconfigure.send_event || trust ) {
 	    // if a ConfigureNotify comes from a real sendevent request, we can

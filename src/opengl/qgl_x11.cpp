@@ -22,9 +22,6 @@
 #include "qpixmap.h"
 #include "qhash.h"
 
-#include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
-
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
 #include <GL/glx.h>

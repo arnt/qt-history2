@@ -19,6 +19,7 @@
 #include <qpaintdevice.h>
 
 #include "qt_x11_p.h"
+#include "qx11info_x11.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -50,7 +51,6 @@ extern double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scre
 extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int screen);
 
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
 
 static inline void capitalize ( char *s )
 {
@@ -575,8 +575,8 @@ bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen )
     int r = atoi(tokens[ResolutionY]);
     fd->pixelSize = atoi(tokens[PixelSize]);
     // not "0" or "*", or required DPI
-    if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY( screen ) &&
-	 r != QPaintDevice::x11AppDpiY( screen ) ) {
+    if ( r && fd->pixelSize && QX11Info::appDpiY( screen ) &&
+	 r != QX11Info::appDpiY( screen ) ) {
 	// calculate actual pointsize for display DPI
 	fd->pointSize = qRound(qt_pointSize(fd->pixelSize, 0, screen) * 10.);
     } else if ( fd->pixelSize == 0 && fd->pointSize ) {
@@ -601,7 +601,7 @@ static bool qt_fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
     if ( fs && !XGetFontProperty( fs, XA_FONT, &value ) )
 	return FALSE;
 
-    char *n = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
+    char *n = XGetAtomName( QX11Info::appDisplay(), value );
     QByteArray xlfd( n );
     if ( n )
 	XFree( n );
@@ -666,7 +666,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
     xlfd_pattern += "-*-*-*-*-*-*-*-*-*-*-";
     xlfd_pattern += xlfd_for_id( encoding_id );
 
-    char **fontList = XListFonts( QPaintDevice::x11AppDisplay(),
+    char **fontList = XListFonts( QX11Info::appDisplay(),
 				  xlfd_pattern,
 				  0xffff, &fontCount );
     // qDebug("requesting xlfd='%s', got %d fonts", xlfd_pattern.data(), fontCount );
@@ -788,8 +788,8 @@ static void loadXft()
     FcBool scalable = FcTrue;
 
     fonts =
-	XftListFonts(QPaintDevice::x11AppDisplay(),
-		     QPaintDevice::x11AppScreen(),
+	XftListFonts(QX11Info::appDisplay(),
+		     QX11Info::appScreen(),
 		     (const char *)0,
 		     XFT_FAMILY, XFT_WEIGHT, XFT_SLANT,
 		     XFT_SPACING, XFT_FILE, XFT_INDEX,
@@ -1320,7 +1320,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 	size_value = MAXFONTSIZE_XFT;
     }
 
-    size_value = size_value*72./QPaintDevice::x11AppDpiY(fp->screen);
+    size_value = size_value*72./QX11Info::appDpiY(fp->screen);
     XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #  ifdef XFT_MATRIX
@@ -1361,12 +1361,12 @@ QFontEngine *loadEngine( QFont::Script script,
 	FM_DEBUG( "Loading XLFD (rawmode) '%s'", xlfd.data() );
 
 	XFontStruct *xfs;
-	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
+	if (! (xfs = XLoadQueryFont(QX11Info::appDisplay(), xlfd.data() ) ) )
 	    return 0;
 
 	QFontEngine *fe = new QFontEngineXLFD( xfs, xlfd.data(), 0 );
-	if ( ! qt_fillFontDef( xfs, &fe->fontDef, QPaintDevice::x11AppScreen() ) &&
-	     ! qt_fillFontDef( xlfd, &fe->fontDef, QPaintDevice::x11AppScreen() ) )
+	if ( ! qt_fillFontDef( xfs, &fe->fontDef, QX11Info::appScreen() ) &&
+	     ! qt_fillFontDef( xlfd, &fe->fontDef, QX11Info::appScreen() ) )
 	    fe->fontDef = QFontDef();
 
 	return fe;
@@ -1402,21 +1402,21 @@ QFontEngine *loadEngine( QFont::Script script,
 
 	XftResult res;
 	XftPattern *result =
-	    XftFontMatch( QPaintDevice::x11AppDisplay(), fp->screen, pattern, &res );
+	    XftFontMatch( QX11Info::appDisplay(), fp->screen, pattern, &res );
 	XftPatternDestroy(pattern);
 
 	// We pass a duplicate to XftFontOpenPattern because either xft font
 	// will own the pattern after the call or the pattern will be
 	// destroyed.
 	XftPattern *dup = XftPatternDuplicate( result );
-	XftFont *xftfs = XftFontOpenPattern( QPaintDevice::x11AppDisplay(), dup );
+	XftFont *xftfs = XftFontOpenPattern( QX11Info::appDisplay(), dup );
 
 	if ( ! xftfs ) // Xft couldn't find a font?
 	    return 0;
 
 	QFontEngine *fe = new QFontEngineXft( xftfs, result, symbol ? 1 : 0 );
 	if (fp->paintdevice
-	    && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY()) {
+	    && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY()) {
 	    double px;
 	    XftPatternGetDouble(result, XFT_PIXEL_SIZE, 0, &px);
 	    scale = (double)request.pixelSize/px;
@@ -1454,7 +1454,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	px = MAXFONTSIZE_XLFD;
     }
     if (fp && fp->paintdevice
-	&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY())
+	&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY())
 	scale = (double)request.pixelSize/(double)px;
 
     xlfd += QString::number( px ).latin1();
@@ -1476,7 +1476,7 @@ QFontEngine *loadEngine( QFont::Script script,
     FM_DEBUG( "    xlfd: '%s'", xlfd.data() );
 
     XFontStruct *xfs;
-    if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd ) ) )
+    if (! (xfs = XLoadQueryFont(QX11Info::appDisplay(), xlfd ) ) )
 	return 0;
 
     QFontEngine *fe = 0;
@@ -1632,13 +1632,13 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     if (font) {
 	XftResult res;
 	XftPattern *result =
-	    XftFontMatch( QPaintDevice::x11AppDisplay(), fp->screen, font, &res );
+	    XftFontMatch( QX11Info::appDisplay(), fp->screen, font, &res );
 
 	// We pass a duplicate to XftFontOpenPattern because either xft font
 	// will own the pattern after the call or the pattern will be
 	// destroyed.
 	XftPattern *dup = XftPatternDuplicate( result );
-	XftFont *xftfs = XftFontOpenPattern( QPaintDevice::x11AppDisplay(), dup );
+	XftFont *xftfs = XftFontOpenPattern( QX11Info::appDisplay(), dup );
 
 	if ( !xftfs ) {
 	    // Xft couldn't find a font?
@@ -1646,7 +1646,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 	} else {
 	    fe = new QFontEngineXft( xftfs, result, 0 );
 	    if (fp->paintdevice
-		&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY()) {
+		&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY()) {
 		double px;
 		XftPatternGetDouble(result, XFT_PIXEL_SIZE, 0, &px);
 		scale = request.pixelSize/px;

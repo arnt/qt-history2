@@ -36,9 +36,8 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
-
 #include "qt_x11_p.h"
+#include "qx11info_x11.h"
 
 #include <stdlib.h>
 
@@ -82,7 +81,7 @@ static void qt_cleanup_mitshm()
 {
     if ( xshmimg == 0 )
 	return;
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
     if ( xshmpm ) {
 	XFreePixmap( dpy, xshmpm );
 	xshmpm = 0;
@@ -272,31 +271,31 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 
     static int serial = 0;
 
-    if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
-	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
-	xd->x_screen = defaultScreen;
-	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
-	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
-	xd->x_colormap = QPaintDevice::x11AppColormap( xd->x_screen );
-	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
-	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
-	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
-	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
-    }
-
-    int dd = x11Depth();
-
-    if ( optim == DefaultOptim )		// use default optimization
-	optim = defOptim;
-
     data = new QPixmapData;
-
     memset( data, 0, sizeof(QPixmapData) );
     data->count  = 1;
     data->uninit = TRUE;
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
+    data->xinfo = new QX11Info;
+
+    if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
+	QX11InfoData* xd = data->xinfo->getX11Data(true);
+	xd->x_screen = defaultScreen;
+	xd->x_depth = QX11Info::appDepth( xd->x_screen );
+	xd->x_cells = QX11Info::appCells( xd->x_screen );
+	xd->x_colormap = QX11Info::appColormap( xd->x_screen );
+	xd->x_defcolormap = QX11Info::appDefaultColormap( xd->x_screen );
+	xd->x_visual = QX11Info::appVisual( xd->x_screen );
+	xd->x_defvisual = QX11Info::appDefaultVisual( xd->x_screen );
+	data->xinfo->setX11Data(xd);
+    }
+
+    int dd = x11Depth();
+
+    if ( optim == DefaultOptim )		// use default optimization
+	optim = defOptim;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -351,6 +350,7 @@ void QPixmap::deref()
 	    XFreePixmap( x11Display(), hd );
 	    hd = 0;
 	}
+	delete data->xinfo;
 	delete data;
 	delete deviceGC;
 	deviceGC = 0;
@@ -517,7 +517,7 @@ void QPixmap::fill( const QColor &fillColor )
 
 
 /*!
-  Internal implementation of the virtual QPaintDevice::metric() function.
+  Internal implementation of the virtual QX11Info::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
 
@@ -537,11 +537,11 @@ int QPixmap::metric( int m ) const
 	switch ( m ) {
 	    case QPaintDeviceMetrics::PdmDpiX:
 	    case QPaintDeviceMetrics::PdmPhysicalDpiX:
-		val = QPaintDevice::x11AppDpiX( scr );
+		val = QX11Info::appDpiX( scr );
 		break;
 	    case QPaintDeviceMetrics::PdmDpiY:
 	    case QPaintDeviceMetrics::PdmPhysicalDpiY:
-		val = QPaintDevice::x11AppDpiY( scr );
+		val = QX11Info::appDpiY( scr );
 		break;
 	    case QPaintDeviceMetrics::PdmWidthMM:
 		val = (DisplayWidthMM(dpy,scr)*width())/
@@ -1887,15 +1887,15 @@ void QPixmap::x11SetScreen( int screen )
 	return; // nothing to do
 
     if ( isNull() ) {
-	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	QX11InfoData* xd = data->xinfo->getX11Data( TRUE );
 	xd->x_screen = screen;
-	xd->x_depth = QPaintDevice::x11AppDepth( screen );
-	xd->x_cells = QPaintDevice::x11AppCells( screen );
-	xd->x_colormap = QPaintDevice::x11AppColormap( screen );
-	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( screen );
-	xd->x_visual = QPaintDevice::x11AppVisual( screen );
-	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( screen );
-    	setX11Data( xd );
+	xd->x_depth = QX11Info::appDepth( screen );
+	xd->x_cells = QX11Info::appCells( screen );
+	xd->x_colormap = QX11Info::appColormap( screen );
+	xd->x_defcolormap = QX11Info::appDefaultColormap( screen );
+	xd->x_visual = QX11Info::appVisual( screen );
+	xd->x_defvisual = QX11Info::appDefaultVisual( screen );
+    	data->xinfo->setX11Data( xd );
 	return;
     }
 #if 0
@@ -1904,15 +1904,15 @@ void QPixmap::x11SetScreen( int screen )
 
     QImage img = convertToImage();
     resize(0,0);
-    QPaintDeviceX11Data* xd = getX11Data( TRUE );
+    QX11InfoData* xd = data->xinfo->getX11Data( TRUE );
     xd->x_screen = screen;
-    xd->x_depth = QPaintDevice::x11AppDepth( screen );
-    xd->x_cells = QPaintDevice::x11AppCells( screen );
-    xd->x_colormap = QPaintDevice::x11AppColormap( screen );
-    xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( screen );
-    xd->x_visual = QPaintDevice::x11AppVisual( screen );
-    xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( screen );
-    setX11Data( xd );
+    xd->x_depth = QX11Info::appDepth( screen );
+    xd->x_cells = QX11Info::appCells( screen );
+    xd->x_colormap = QX11Info::appColormap( screen );
+    xd->x_defcolormap = QX11Info::appDefaultColormap( screen );
+    xd->x_visual = QX11Info::appVisual( screen );
+    xd->x_defvisual = QX11Info::appDefaultVisual( screen );
+    data->xinfo->setX11Data( xd );
     convertFromImage( img );
 }
 
@@ -1938,6 +1938,15 @@ bool QPixmap::hasAlpha() const
 bool QPixmap::hasAlphaChannel() const
 {
     return data->alphapm != 0;
+}
+
+/*!
+    Returns a pointer to a QX11Info object. This pointer is owned by
+    QPixmap and should not be deleted.
+*/
+QX11Info *QPixmap::x11Info() const
+{
+    return data->xinfo;
 }
 
 /*!

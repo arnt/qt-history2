@@ -15,9 +15,8 @@
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qt_x11_p.h"
-
+#include "qx11info_x11.h"
 #include "qgc_x11.h"
-#define QPaintDevice QX11GC // fix
 
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;
@@ -100,19 +99,19 @@ void QDesktopWidgetPrivate::init()
 #ifndef QT_NO_XINERAMA
     XineramaScreenInfo *xinerama_screeninfo = 0;
     int unused;
-    use_xinerama = (XineramaQueryExtension(QPaintDevice::x11AppDisplay(),
+    use_xinerama = (XineramaQueryExtension(QX11Info::appDisplay(),
 					   &unused, &unused) &&
-		    XineramaIsActive(QPaintDevice::x11AppDisplay()));
+		    XineramaIsActive(QX11Info::appDisplay()));
 
     if (use_xinerama) {
 	xinerama_screeninfo =
-	    XineramaQueryScreens(QPaintDevice::x11AppDisplay(), &screenCount);
+	    XineramaQueryScreens(QX11Info::appDisplay(), &screenCount);
 	defaultScreen = 0;
     } else
 #endif // QT_NO_XINERAMA
     {
-	defaultScreen = DefaultScreen(QPaintDevice::x11AppDisplay());
-	screenCount = ScreenCount(QPaintDevice::x11AppDisplay());
+	defaultScreen = DefaultScreen(QX11Info::appDisplay());
+	screenCount = ScreenCount(QX11Info::appDisplay());
     }
 
     delete [] rects;
@@ -135,8 +134,8 @@ void QDesktopWidgetPrivate::init()
 	    {
 		x = 0;
 		y = 0;
-		w = WidthOfScreen(ScreenOfDisplay(QPaintDevice::x11AppDisplay(), i));
-		h = HeightOfScreen(ScreenOfDisplay(QPaintDevice::x11AppDisplay(), i));
+		w = WidthOfScreen(ScreenOfDisplay(QX11Info::appDisplay(), i));
+		h = HeightOfScreen(ScreenOfDisplay(QX11Info::appDisplay(), i));
 	    }
 
 	rects[i].setRect(x, y, w, h);
@@ -224,8 +223,8 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 	unsigned char *data = 0;
 	unsigned long nitems, after;
 
-	e = XGetWindowProperty( QPaintDevice::x11AppDisplay(),
-				QPaintDevice::x11AppRootWindow( screen ),
+	e = XGetWindowProperty( QX11Info::appDisplay(),
+				QX11Info::appRootWindow( screen ),
 				ATOM(_NET_WORKAREA), 0, 4, False, XA_CARDINAL,
 				&ret, &format, &nitems, &after, &data );
 
@@ -281,7 +280,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
     }
 #endif // QT_NO_XINERAMA
 
-    return widget->x11Screen();
+    return x11Info()->screen();
 }
 
 int QDesktopWidget::screenNumber( const QPoint &point ) const

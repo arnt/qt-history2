@@ -43,6 +43,9 @@ class QOleDropTarget;
 class QMacDndExtra;
 class QMacCGExtra;
 #endif
+#if defined(Q_WS_X11)
+class QX11Info;
+#endif
 
 struct QTLWExtra {
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -139,8 +142,11 @@ public:
         ,layout(0)
 #endif
 #ifndef QT_NO_PALETTE
-        ,fg_role(QPalette::Foreground),
-	bg_role(QPalette::Background)
+        ,fg_role(QPalette::Foreground)
+	,bg_role(QPalette::Background)
+#endif
+#if defined(Q_WS_X11)
+	,xinfo(0)
 #endif
     {high_attributes[0] = 0;}
     ~QWidgetPrivate();
@@ -214,6 +220,9 @@ public:
     QPalette::ColorRole bg_role : 8;
 #endif
     uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
+#if defined(Q_WS_X11)
+    QX11Info *xinfo;
+#endif
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const
@@ -230,9 +239,5 @@ inline QTLWExtra *QWidgetPrivate::topData() const
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
 extern int qt_widget_tlw_gravity;
 #endif
-
-
-
-
 
 #endif

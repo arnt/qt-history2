@@ -109,7 +109,8 @@ kernel {
 
 	unix:x11 {
 	      HEADERS +=  $$KERNEL_H/qgc_x11.h \
-			  $$KERNEL_H/qgc_x11_p.h
+			  $$KERNEL_H/qgc_x11_p.h \
+			  $$KERNEL_H/qx11info_x11.h
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
 			  $$KERNEL_CPP/qcolor_x11.cpp \
@@ -126,7 +127,8 @@ kernel {
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp \
-		          $$KERNEL_CPP/qfontengine_x11.cpp
+		          $$KERNEL_CPP/qfontengine_x11.cpp \
+			  $$KERNEL_CPP/qx11info_x11.cpp
 	}
 
 	!x11:mac {

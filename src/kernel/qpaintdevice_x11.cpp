@@ -19,38 +19,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qt_x11_p.h"
-
-#include "qgc_x11.h" // ### remove the stuff below
-
-Display *QPaintDevice::x11Display() const
-{ return x11Data ? x11Data->x_display : QX11GC::x11AppDisplay(); }
-
-int QPaintDevice::x11Screen() const
-{ return x11Data ? x11Data->x_screen : QX11GC::x11AppScreen(); }
-
-void *QPaintDevice::x11Visual() const
-{ return x11Data ? x11Data->x_visual : QX11GC::x11AppVisual(); }
-
-int QPaintDevice::x11Depth() const
-{ return x11Data ? x11Data->x_depth : QX11GC::x11AppDepth(); }
-
-int QPaintDevice::x11Cells() const
-{ return x11Data ? x11Data->x_cells : QX11GC::x11AppCells(); }
-
-Qt::HANDLE QPaintDevice::x11Colormap() const
-{ return x11Data ? x11Data->x_colormap : QX11GC::x11AppColormap(); }
-
-bool QPaintDevice::x11DefaultColormap() const
-{ return x11Data ? x11Data->x_defcolormap : QX11GC::x11AppDefaultColormap(); }
-
-bool QPaintDevice::x11DefaultVisual() const
-{ return x11Data ? x11Data->x_defvisual : QX11GC::x11AppDefaultVisual(); }
-
-void *QPaintDevice::x11AppVisual(int screen)
-{ return QX11GC::x11AppVisual(screen); }
-
-Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
-{ return QX11GC::x11AppDefaultColormap(screen); }
+#include "qx11info_x11.h"
 
 /*!
     \class QPaintDevice qpaintdevice.h
@@ -99,23 +68,6 @@ Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
     an application object is created.
 */
 
-
-//
-// Some global variables - these are initialized by QColor::initialize()
-//
-
-Display *QPaintDevice::x_appdisplay = 0;
-int	 QPaintDevice::x_appscreen;
-
-// ### in 4.0, remove the above, and use the below
-int	 *QPaintDevice::x_appdepth_arr;
-int	 *QPaintDevice::x_appcells_arr;
-Qt::HANDLE *QPaintDevice::x_approotwindow_arr;
-Qt::HANDLE *QPaintDevice::x_appcolormap_arr;
-bool	 *QPaintDevice::x_appdefcolormap_arr;
-void	**QPaintDevice::x_appvisual_arr;
-bool	 *QPaintDevice::x_appdefvisual_arr;
-
 /*!
     \enum QPaintDevice::PDevCmd
     \internal
@@ -138,7 +90,6 @@ QPaintDevice::QPaintDevice( uint devflags )
     painters = 0;
     hd = 0;
     rendhd = 0;
-    x11Data = 0;
 }
 
 /*!
@@ -150,92 +101,7 @@ QPaintDevice::~QPaintDevice()
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
 		  "painted" );
-    if ( x11Data && x11Data->deref() ) {
-	delete x11Data;
-	x11Data = 0;
-    }
 }
-
-
-/*
-  \internal
-  Makes a shallow copy of the X11-specific data of \a fromDevice, if it is not
-  null. Otherwise this function sets it to null.
-*/
-
-void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
-{
-    setX11Data( fromDevice ? fromDevice->x11Data : 0 );
-}
-
-/*
-  \internal
-  Makes a deep copy of the X11-specific data of \a fromDevice, if it is not
-  null. Otherwise this function sets it to null.
-*/
-
-void QPaintDevice::cloneX11Data( const QPaintDevice *fromDevice )
-{
-    if ( fromDevice && fromDevice->x11Data ) {
-	QPaintDeviceX11Data *d = new QPaintDeviceX11Data;
-	*d = *fromDevice->x11Data;
-	d->count = 0;
-	setX11Data( d );
-    } else {
-	setX11Data( 0 );
-    }
-}
-
-/*
-  \internal
-  Makes a shallow copy of the X11-specific data \a d and assigns it to this
-  class. This function increments the reference code of \a d.
-*/
-
-void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
-{
-    if ( x11Data && x11Data->deref() )
-	delete x11Data;
-    x11Data = (QPaintDeviceX11Data*)d;
-    if ( x11Data )
-	x11Data->ref();
-}
-
-
-/*
-  \internal
-  If \a def is FALSE, returns a deep copy of the x11Data, or 0 if x11Data is 0.
-  If \a def is TRUE, makes a QPaintDeviceX11Data struct filled with the default
-  values.
-
-  In either case the caller is responsible for deleting the returned
-  struct. But notice that the struct is a shared class, so other
-  classes might also have a reference to it. The reference count of
-  the returned QPaintDeviceX11Data* is 0.
-*/
-
-QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
-{
-    QPaintDeviceX11Data* res = 0;
-    if ( def ) {
-	res = new QPaintDeviceX11Data;
-	res->x_display = x11AppDisplay();
-	res->x_screen = x11AppScreen();
-	res->x_depth = x11AppDepth();
-	res->x_cells = x11AppCells();
-	res->x_colormap = x11Colormap();
-	res->x_defcolormap = x11AppDefaultColormap();
-	res->x_visual = x11AppVisual();
-	res->x_defvisual = x11AppDefaultVisual();
-	res->deref();
-    } else if ( x11Data ) {
-	res = new QPaintDeviceX11Data;
-	*res = *x11Data;
-	res->count = 0;
-    }
-    return res;
-}
-
 
 /*!
     \fn int QPaintDevice::devType() const
@@ -1064,3 +930,106 @@ int QPaintDevice::resolution() const
 {
     return metric( QPaintDeviceMetrics::PdmDpiY );
 }
+
+#ifdef QT_COMPAT
+#include "qx11info_x11.h"
+
+Display *QPaintDevice::x11Display() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->display();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->display();
+    return QX11Info::appDisplay();
+}
+
+int QPaintDevice::x11Screen() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->screen();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->screen();
+    return QX11Info::appScreen();
+}
+
+void *QPaintDevice::x11Visual() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->visual();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->visual();
+    return QX11Info::appVisual();
+}
+
+int QPaintDevice::x11Depth() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->depth();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->depth();
+    return QX11Info::appDepth();
+}
+
+int QPaintDevice::x11Cells() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->cells();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->cells();
+    return QX11Info::appCells();
+}
+
+Qt::HANDLE QPaintDevice::x11Colormap() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->colormap();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->colormap();
+    return QX11Info::appColormap();
+}
+
+bool QPaintDevice::x11DefaultColormap() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->defaultColormap();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->defaultColormap();
+    return QX11Info::appDefaultColormap();
+}
+
+bool QPaintDevice::x11DefaultVisual() const
+{
+    if (devType() == QInternal::Widget)
+	return static_cast<const QWidget *>(this)->x11Info()->defaultVisual();
+    else if (devType() == QInternal::Pixmap)
+	return static_cast<const QPixmap *>(this)->x11Info()->defaultVisual();
+    return QX11Info::appDefaultVisual();
+}
+
+void *QPaintDevice::x11AppVisual(int screen)
+{ return QX11Info::appVisual(screen); }
+
+Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
+{ return QX11Info::appColormap(screen); }
+
+Display *QPaintDevice::x11AppDisplay()
+{ return QX11Info::appDisplay(); }
+
+int QPaintDevice::x11AppScreen()
+{ return QX11Info::appScreen(); }
+
+int QPaintDevice::x11AppDepth(int screen)
+{ return QX11Info::appDepth(screen); }
+
+int QPaintDevice::x11AppCells(int screen)
+{ return QX11Info::appCells(screen); }
+
+Qt::HANDLE QPaintDevice::x11AppRootWindow(int screen)
+{ return QX11Info::appRootWindow(screen); }
+
+bool QPaintDevice::x11AppDefaultColormap(int screen)
+{ return QX11Info::appDefaultColormap(screen); }
+
+bool QPaintDevice::x11AppDefaultVisual(int screen)
+{ return QX11Info::appDefaultVisual(screen); }
+#endif

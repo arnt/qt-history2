@@ -26,7 +26,6 @@
 #include "qgc_x11.h"
 #include "qgc_x11_p.h"
 #include "qpainter_p.h"
-#define QPaintDevice QX11GC // ### fix
 
 #include "qt_x11_p.h"
 
@@ -119,7 +118,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t
 
 void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const QScriptItem *si, int textFlags )
 {
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
     Qt::HANDLE hd = p->device()->handle();
     GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 
@@ -300,18 +299,18 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, int mib )
     // Hummingbird's Exceed X server will substitute 'fixed' for any
     // known fonts, and it doesn't seem to support transformations, so
     // we should never try to use xlfd transformations with it
-    if (strstr(ServerVendor(QPaintDevice::x11AppDisplay()), "Hummingbird"))
+    if (strstr(ServerVendor(QX11Info::appDisplay()), "Hummingbird"))
 	xlfd_transformations = XlfdTrUnsupported;
 #endif
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
 {
-    XFreeFont( QPaintDevice::x11AppDisplay(), _fs );
+    XFreeFont( QX11Info::appDisplay(), _fs );
     _fs = 0;
     TransformedFont *trf = transformed_fonts;
     while ( trf ) {
-	XUnloadFont( QPaintDevice::x11AppDisplay(), trf->xlfd_font );
+	XUnloadFont( QX11Info::appDisplay(), trf->xlfd_font );
 	TransformedFont *tmp = trf;
 	trf = trf->next;
 	delete tmp;
@@ -412,7 +411,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, si->num_glyphs );
 
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
     Qt::HANDLE hd = p->device()->handle();
     GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 
@@ -457,7 +456,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 		TransformedFont *tmp = trf;
 		trf = trf->next;
 		if (i > 10) {
-		    XUnloadFont( QPaintDevice::x11AppDisplay(), tmp->xlfd_font );
+		    XUnloadFont( QX11Info::appDisplay(), tmp->xlfd_font );
 		    delete tmp;
 		    prev->next = trf;
 		} else {
@@ -1293,7 +1292,6 @@ void QFontEngineLatinXLFD::setScale( double scale )
 // Xft cont engine
 // ------------------------------------------------------------------
 // #define FONTENGINE_DEBUG
-#undef QPaintDevice // ### fix
 
 #ifndef QT_NO_XFTFREETYPE
 class Q_HackPaintDevice : public QPaintDevice
@@ -1305,13 +1303,12 @@ public:
     }
 
 };
-#define QPaintDevice QX11GC // ### fix
 
 #ifdef QT_XFT2
 static inline void getGlyphInfo( XGlyphInfo *xgi, XftFont *font, int glyph )
 {
     FT_UInt x = glyph;
-    XftGlyphExtents( QPaintDevice::x11AppDisplay(), font, &x, 1, xgi );
+    XftGlyphExtents( QX11Info::appDisplay(), font, &x, 1, xgi );
 }
 #else
 static inline XftFontStruct *getFontStruct( XftFont *font )
@@ -1324,7 +1321,7 @@ static inline XftFontStruct *getFontStruct( XftFont *font )
 static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
 {
 
-    XftTextExtents32(QPaintDevice::x11AppDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
+    XftTextExtents32(QX11Info::appDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
 }
 #endif // QT_XFT2
 
@@ -1388,13 +1385,13 @@ QFontEngineXft::~QFontEngineXft()
     delete _openType;
     unlockFTFace( _font );
 
-    XftFontClose( QPaintDevice::x11AppDisplay(),_font );
+    XftFontClose( QX11Info::appDisplay(),_font );
     XftPatternDestroy( _pattern );
     _font = 0;
     _pattern = 0;
     TransformedFont *trf = transformed_fonts;
     while ( trf ) {
-	XftFontClose( QPaintDevice::x11AppDisplay(), trf->xft_font );
+	XftFontClose( QX11Info::appDisplay(), trf->xft_font );
 	TransformedFont *tmp = trf;
 	trf = trf->next;
 	delete tmp;
@@ -1414,7 +1411,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	    unsigned short uc = ::mirroredChar(str[i]).unicode();
 	    glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
 	    if ( !glyphs[i] ) {
-		glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
+		glyph_t glyph = XftCharIndex( QX11Info::appDisplay(), _font, uc );
 		glyphs[i] = glyph;
 		if ( uc < cmapCacheSize )
 		    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -1425,7 +1422,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	    unsigned short uc = str[i].unicode();
 	    glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
 	    if ( !glyphs[i] ) {
-		glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
+		glyph_t glyph = XftCharIndex( QX11Info::appDisplay(), _font, uc );
 		glyphs[i] = glyph;
 		if ( uc < cmapCacheSize )
 		    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -1439,7 +1436,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	    if ( !advances[i] ) {
 		XGlyphInfo gi;
-		XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
+		XftGlyphExtents( QX11Info::appDisplay(), _font, &glyph, 1, &gi );
 		advances[i] = gi.xOff;
 		if ( glyph < widthCacheSize && gi.xOff < 0x100 )
 		    ((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
@@ -1505,7 +1502,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	    if ( !advances[i] ) {
 		XGlyphInfo gi;
-		XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi);
+		XftTextExtents16(QX11Info::appDisplay(), _font, &glyph, 1, &gi);
 		advances[i] = gi.xOff;
 		if ( glyph < widthCacheSize && gi.xOff < 0x100 )
 		    ((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
@@ -1532,7 +1529,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 	advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	if ( !advances[i] ) {
 	    XGlyphInfo gi;
-	    XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
+	    XftGlyphExtents( QX11Info::appDisplay(), _font, &glyph, 1, &gi );
 	    advances[i] = gi.xOff;
 	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
 		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
@@ -1548,7 +1545,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 	advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	if ( !advances[i] ) {
 	    XGlyphInfo gi;
-	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi);
+	    XftTextExtents16(QX11Info::appDisplay(), _font, &glyph, 1, &gi);
 	    advances[i] = gi.xOff;
 	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
 		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
@@ -1568,7 +1565,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     if ( !si->num_glyphs )
 	return;
 
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
 
     int xorig = x;
     int yorig = y;
@@ -1642,7 +1639,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    TransformedFont *tmp = trf;
 	    trf = trf->next;
 	    if (i > 10) {
-		XftFontClose( QPaintDevice::x11AppDisplay(), tmp->xft_font );
+		XftFontClose( QX11Info::appDisplay(), tmp->xft_font );
 		delete tmp;
 		prev->next = trf;
 	    } else {
@@ -1994,7 +1991,7 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
 
 #ifdef QT_XFT2
     for ( int i = 0; i < len; i++ ) {
-	if ( ! XftCharExists( QPaintDevice::x11AppDisplay(), _font,
+	if ( ! XftCharExists( QX11Info::appDisplay(), _font,
 			      string[i].unicode() ) ) {
 	    allExist = FALSE;
 	    break;
@@ -2010,7 +2007,7 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
     }
 
     for ( int i = 0; i < nglyphs; i++ ) {
-	if ( !XftGlyphExists(QPaintDevice::x11AppDisplay(), _font, g[i]) ) {
+	if ( !XftGlyphExists(QX11Info::appDisplay(), _font, g[i]) ) {
 	    allExist = FALSE;
 	    break;
 	}

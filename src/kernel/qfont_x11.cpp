@@ -35,46 +35,40 @@
 #include "qtextengine_p.h"
 
 #include "qt_x11_p.h"
+#include "qx11info_x11.h"
 
 #include <time.h>
 #include <stdlib.h>
 #include <ctype.h>
-
-#include "qgc_x11.h"
 
 #define QFONTLOADER_DEBUG
 #define QFONTLOADER_DEBUG_VERBOSE
 
 double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 {
-#define QPaintDevice QX11GC // ### fix
     if (pointSize < 0) return -1.;
 
     double result = pointSize;
     if (paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != 75)
 	result *= QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
-    else if (QPaintDevice::x11AppDpiY( scr ) != 75)
-	result *= QPaintDevice::x11AppDpiY( scr ) / 72.;
+    else if (QX11Info::appDpiY( scr ) != 75)
+	result *= QX11Info::appDpiY( scr ) / 72.;
 
     return result;
 }
-#undef QPaintDevice
 
 double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
 {
-#define QPaintDevice QX11GC // ### fix
     if (pixelSize < 0) return -1.;
 
     double result = pixelSize;
     if ( paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != 75)
 	result *= 72. / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
-    else if (QPaintDevice::x11AppDpiY(scr) != 75)
-	result *= 72. / QPaintDevice::x11AppDpiY( scr );
+    else if (QX11Info::appDpiY(scr) != 75)
+	result *= 72. / QX11Info::appDpiY( scr );
 
     return result;
 }
-
-#undef QPaintDevice
 
 static inline double pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
 				int scr )
@@ -92,8 +86,6 @@ static inline double pointSize( const QFontDef &request, QPaintDevice *paintdevi
 	    (double)request.pointSize);
 }
 
-#define QPaintDevice QX11GC // ### fix
-
 /*
   Removes wildcards from an XLFD.
 
@@ -105,7 +97,7 @@ static QByteArray qt_fixXLFD( const QByteArray &xlfd )
     QByteArray ret = xlfd;
     int count = 0;
     char **fontNames =
-	XListFonts( QPaintDevice::x11AppDisplay(), xlfd, 32768, &count );
+	XListFonts( QX11Info::appDisplay(), xlfd, 32768, &count );
     if ( count > 0 )
 	ret = fontNames[0];
     XFreeFontNames( fontNames );
@@ -299,7 +291,7 @@ int QFont::x11Screen() const
 void QFont::x11SetScreen( int screen )
 {
     if ( screen < 0 ) // assume default
-	screen = QPaintDevice::x11AppScreen();
+	screen = QX11Info::appScreen();
 
     if ( screen == d->screen )
 	return; // nothing to do
@@ -561,7 +553,7 @@ static const char * const tryFonts[] = {
 static bool fontExists( const QString &fontName )
 {
     int count;
-    char **fontNames = XListFonts( QPaintDevice::x11AppDisplay(),
+    char **fontNames = XListFonts( QX11Info::appDisplay(),
 				   (char*)fontName.latin1(), 32768, &count );
     if ( fontNames ) XFreeFontNames( fontNames );
 

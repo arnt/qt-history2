@@ -41,21 +41,6 @@
 
 #include "qgc_x11_p.h"
 
-//
-// Some global variables - these are initialized by QColor::initialize()
-//
-
-Display *QX11GC::x_appdisplay = 0;
-int QX11GC::x_appscreen;
-
-int *QX11GC::x_appdepth_arr;
-int *QX11GC::x_appcells_arr;
-Qt::HANDLE *QX11GC::x_approotwindow_arr;
-Qt::HANDLE *QX11GC::x_appcolormap_arr;
-bool *QX11GC::x_appdefcolormap_arr;
-void **QX11GC::x_appvisual_arr;
-bool *QX11GC::x_appdefvisual_arr;
-
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
@@ -414,7 +399,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 			 int x, int y, int w, int h,
 			 const QBrush &brush, int xoff, int yoff)
 {
-    Display *dpy = QX11GC::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
     GC gc;
     void *penref = 0;
     ulong pixel = brush.color().pixel(screen);
@@ -501,11 +486,11 @@ QX11GC::QX11GC(const QPaintDevice *target)
 {
     d = new QX11GCPrivate;
 
-    d->dpy = QPaintDevice::x11AppDisplay();
-    d->scrn = QPaintDevice::x11AppScreen();
+    d->dpy = QX11Info::appDisplay();
+    d->scrn = QX11Info::appScreen();
     d->hd = target->handle();
     d->pdev = const_cast<QPaintDevice *>(target);
-    x11Data = 0; // prob. move to the d obj.
+    d->xinfo = 0;
 }
 
 QX11GC::~QX11GC()
@@ -522,7 +507,7 @@ void QX11GC::initialize()
 void QX11GC::cleanup()
 {
     cleanup_gc_cache();
-    cleanup_gc_array(QX11GC::x_appdisplay);
+    cleanup_gc_array(QX11Info::appDisplay());
     QPointArray::cleanBuffers();
 }
 
@@ -535,6 +520,12 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //	return false;
     }
     d->pdev = const_cast<QPaintDevice *>(pdev);
+    if (d->pdev->devType() == QInternal::Widget)
+	d->xinfo = static_cast<QWidget *>(d->pdev)->x11Info();
+    else if (d->pdev->devType() == QInternal::Pixmap)
+	d->xinfo = static_cast<QPixmap *>(d->pdev)->x11Info();
+
+    Q_ASSERT(d->xinfo != 0);
 
     if ( isActive() ) {                         // already active painting
         qWarning( "QX11GC::begin: Painter is already active."
@@ -544,7 +535,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
     setActive(true);
 
-    QPixmap::x11SetDefaultScreen(x11Screen());
+    QPixmap::x11SetDefaultScreen(d->xinfo->screen());
 
 //     bool reinit = flags != IsStartingUp;        // 2nd or 3rd etc. time called
     assignf(IsActive | DirtyFont);
@@ -552,12 +543,12 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     if (d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
 	static_cast<QPixmap *>(d->pdev)->detach();             // will modify it
 
-    d->dpy = x11Display();                   // get display variable
-    d->scrn = x11Screen();			// get screen variable
+    d->dpy = d->xinfo->display();                   // get display variable
+    d->scrn = d->xinfo->screen();			// get screen variable
     d->hd = d->pdev->handle();                       // get handle to drawable - NB! double buffering might change the handle
     d->rendhd = d->pdev->x11RenderHandle();
 
-    if (x11Depth() != x11AppDepth(d->scrn)) { // non-standard depth
+    if (d->xinfo->depth() != QX11Info::appDepth(d->scrn)) { // non-standard depth
         setf(NoCache);
         setf(UsePrivateCx);
     }
@@ -1023,87 +1014,6 @@ void QX11GC::updateBrush(QPainterState *ps)
         }
     }
     XSetFillStyle(d->dpy, d->gc_brush, s);
-}
-
-
-
-/*
-  \internal
-  Makes a shallow copy of the X11-specific data of \a fromDevice, if it is not
-  null. Otherwise this function sets it to null.
-*/
-
-void QX11GC::copyX11Data(const QX11GC *fromDevice)
-{
-    setX11Data(fromDevice ? fromDevice->x11Data : 0);
-}
-
-/*
-  \internal
-  Makes a deep copy of the X11-specific data of \a fromDevice, if it is not
-  null. Otherwise this function sets it to null.
-*/
-
-void QX11GC::cloneX11Data(const QX11GC *fromDevice)
-{
-    if (fromDevice && fromDevice->x11Data) {
-	QX11GCData *d = new QX11GCData;
-	*d = *fromDevice->x11Data;
-	d->count = 0;
-	setX11Data(d);
-    } else {
-	setX11Data(0);
-    }
-}
-
-/*
-  \internal
-  Makes a shallow copy of the X11-specific data \a d and assigns it to this
-  class. This function increments the reference code of \a d.
-*/
-
-void QX11GC::setX11Data(const QX11GCData* d)
-{
-    if (x11Data && x11Data->deref())
-	delete x11Data;
-    x11Data = (QX11GCData *)d;
-    if (x11Data)
-	x11Data->ref();
-}
-
-
-/*
-  \internal
-  If \a def is false, returns a deep copy of the x11Data, or 0 if x11Data is 0.
-  If \a def is true, makes a QX11GCData struct filled with the default
-  values.
-
-  In either case the caller is responsible for deleting the returned
-  struct. But notice that the struct is a shared class, so other
-  classes might also have a reference to it. The reference count of
-  the returned QX11GCData* is 0.
-*/
-
-QX11GCData* QX11GC::getX11Data(bool def) const
-{
-    QX11GCData* res = 0;
-    if (def) {
-	res = new QX11GCData;
-	res->x_display = x11AppDisplay();
-	res->x_screen = x11AppScreen();
-	res->x_depth = x11AppDepth();
-	res->x_cells = x11AppCells();
-	res->x_colormap = x11Colormap();
-	res->x_defcolormap = x11AppDefaultColormap();
-	res->x_visual = x11AppVisual();
-	res->x_defvisual = x11AppDefaultVisual();
-	res->deref();
-    } else if (x11Data) {
-	res = new QX11GCData;
-	*res = *x11Data;
-	res->count = 0;
-    }
-    return res;
 }
 
 void QX11GC::setRasterOp(RasterOp r)
@@ -1598,76 +1508,6 @@ Qt::HANDLE QX11GC::handle() const
     Q_ASSERT(isActive());
     Q_ASSERT(d->hd);
     return d->hd;
-}
-
-static int *dpisX=0, *dpisY=0;
-static void create_dpis()
-{
-    if ( dpisX )
-	return;
-
-    Display *dpy = QX11GC::x11AppDisplay();
-    if ( ! dpy )
-	return;
-
-    int i, screens =  ScreenCount( dpy );
-    dpisX = new int[ screens ];
-    dpisY = new int[ screens ];
-    for ( i = 0; i < screens; i++ ) {
-	dpisX[ i ] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
-
-		     / (DisplayWidthMM(dpy,i)*10);
-	dpisY[ i ] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
-		     / (DisplayHeightMM(dpy,i)*10);
-    }
-}
-
-int QX11GC::x11AppDpiX(int screen )
-{
-    create_dpis();
-    if ( ! dpisX )
-	return 0;
-    if ( screen < 0 )
-	screen = QX11GC::x11AppScreen();
-    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
-	return 0;
-    return dpisX[ screen ];
-}
-
-void QX11GC::x11SetAppDpiX(int screen, int xdpi)
-{
-    create_dpis();
-    if ( ! dpisX )
-	return;
-    if ( screen < 0 )
-	screen = QX11GC::x11AppScreen();
-    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
-	return;
-    dpisX[ screen ] = xdpi;
-}
-
-int QX11GC::x11AppDpiY(int screen )
-{
-    create_dpis();
-    if ( ! dpisY )
-	return 0;
-    if ( screen < 0 )
-	screen = QX11GC::x11AppScreen();
-    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
-	return 0;
-    return dpisY[ screen ];
-}
-
-void QX11GC::x11SetAppDpiY(int screen, int ydpi)
-{
-    create_dpis();
-    if ( ! dpisY )
-	return;
-    if ( screen < 0 )
-	screen = QX11GC::x11AppScreen();
-    if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
-	return;
-    dpisY[ screen ] = ydpi;
 }
 
 extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);

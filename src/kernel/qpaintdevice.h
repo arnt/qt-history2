@@ -31,6 +31,7 @@ class QString;
 class QTextItem;
 class QApplicationPrivate;
 class QAbstractGC;
+class QX11Info;
 
 #if defined(Q_WS_X11)
 struct QPaintDeviceX11Data;
@@ -41,9 +42,9 @@ class Q_GUI_EXPORT QPaintDevice				// device for QPainter
 public:
     virtual ~QPaintDevice();
 
-    int		devType() const;
-    bool	isExtDev() const;
-    bool	paintingActive() const;
+    int devType() const;
+    bool isExtDev() const;
+    bool paintingActive() const;
 
     virtual void setResolution( int );
     virtual int resolution() const;
@@ -51,43 +52,17 @@ public:
     // Windows:	  get device context
     // X-Windows: get drawable
 #if defined(Q_WS_WIN)
-    virtual HDC		handle() const;
+    virtual HDC handle() const;
 #elif defined(Q_WS_X11)
-    virtual Qt::HANDLE	handle() const;
-    virtual Qt::HANDLE  x11RenderHandle() const;
+    virtual Qt::HANDLE handle() const;
+    virtual Qt::HANDLE x11RenderHandle() const;
 #elif defined(Q_WS_MAC)
-    virtual Qt::HANDLE      handle() const;
-    virtual Qt::HANDLE      macCGHandle() const;
+    virtual Qt::HANDLE handle() const;
+    virtual Qt::HANDLE macCGHandle() const;
 #elif defined(Q_WS_QWS)
-    virtual Qt::HANDLE	handle() const;
+    virtual Qt::HANDLE handle() const;
 #endif
     virtual QAbstractGC *gc() const { return deviceGC; }
-
-#if defined(Q_WS_X11)
-    Display 	   *x11Display() const;
-    int		    x11Screen() const;
-    int		    x11Depth() const;
-    int		    x11Cells() const;
-    Qt::HANDLE	    x11Colormap() const;
-    bool	    x11DefaultColormap() const;
-    void	   *x11Visual() const;
-    bool	    x11DefaultVisual() const;
-
-    static Display *x11AppDisplay();
-    static int	    x11AppScreen();
-
-    static int	    x11AppDepth( int screen = -1);
-    static int	    x11AppCells( int screen = -1);
-    static Qt::HANDLE   x11AppRootWindow( int screen = -1);
-    static Qt::HANDLE   x11AppColormap( int screen = -1);
-    static void    *x11AppVisual( int screen = -1);
-    static bool     x11AppDefaultColormap( int screen =-1);
-    static bool	    x11AppDefaultVisual( int screen =-1);
-    static int      x11AppDpiX( int screen = -1);
-    static int      x11AppDpiY( int screen = -1 );
-    static void     x11SetAppDpiX( int, int );
-    static void     x11SetAppDpiY( int, int );
-#endif
 
 #if defined(Q_WS_QWS)
     static QWSDisplay *qwsDisplay();
@@ -104,11 +79,6 @@ protected:
 #elif defined(Q_WS_X11)
     Qt::HANDLE	hd;				// handle to drawable
     Qt::HANDLE  rendhd;                         // handle to RENDER pict
-
-    void		 copyX11Data( const QPaintDevice * );
-    void		 cloneX11Data( const QPaintDevice * );
-    virtual void	 setX11Data( const QPaintDeviceX11Data* );
-    QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
 #elif defined(Q_WS_MAC)
     Qt::HANDLE hd;
     Qt::HANDLE cg_hd;
@@ -146,34 +116,36 @@ protected:
 protected:
     QAbstractGC *deviceGC;
 
-private:
-#if defined(Q_WS_X11)
-    static Display *x_appdisplay;
-    static int	    x_appscreen;
-
-    static int	    x_appdepth;
-    static int	    x_appcells;
-    static Qt::HANDLE   x_approotwindow;
-    static Qt::HANDLE   x_appcolormap;
-    static bool	    x_appdefcolormap;
-    static void	   *x_appvisual;
-    static bool     x_appdefvisual;
-
-    static int	      *x_appdepth_arr;
-    static int	      *x_appcells_arr;
-    static Qt::HANDLE *x_approotwindow_arr;
-    static Qt::HANDLE *x_appcolormap_arr;
-    static bool	      *x_appdefcolormap_arr;
-    static void	     **x_appvisual_arr;
-    static bool       *x_appdefvisual_arr;
-
-    QPaintDeviceX11Data* x11Data;
-#endif
-
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPaintDevice( const QPaintDevice & );
     QPaintDevice &operator=( const QPaintDevice & );
+#endif
+
+#if defined(Q_WS_X11) && defined(QT_COMPAT)
+public:
+    QT_COMPAT Display *x11Display() const;
+    QT_COMPAT int x11Screen() const;
+    QT_COMPAT int x11Depth() const;
+    QT_COMPAT int x11Cells() const;
+    QT_COMPAT Qt::HANDLE x11Colormap() const;
+    QT_COMPAT bool x11DefaultColormap() const;
+    QT_COMPAT void *x11Visual() const;
+    QT_COMPAT bool x11DefaultVisual() const;
+
+    static QT_COMPAT Display *x11AppDisplay();
+    static QT_COMPAT int x11AppScreen();
+    static QT_COMPAT int x11AppDepth(int screen = -1);
+    static QT_COMPAT int x11AppCells(int screen = -1);
+    static QT_COMPAT Qt::HANDLE x11AppRootWindow(int screen = -1);
+    static QT_COMPAT Qt::HANDLE x11AppColormap(int screen = -1);
+    static QT_COMPAT void *x11AppVisual(int screen = -1);
+    static QT_COMPAT bool x11AppDefaultColormap(int screen =-1);
+    static QT_COMPAT bool x11AppDefaultVisual(int screen =-1);
+    static QT_COMPAT int x11AppDpiX(int screen = -1);
+    static QT_COMPAT int x11AppDpiY(int screen = -1);
+    static QT_COMPAT void x11SetAppDpiX(int, int);
+    static QT_COMPAT void x11SetAppDpiY(int, int);
 #endif
 };
 
@@ -188,22 +160,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
 	     int conversion_flags=0 );
 
-
-#if defined(Q_WS_X11)
-
-struct Q_GUI_EXPORT QPaintDeviceX11Data : public QShared {
-    Display*	x_display;
-    int		x_screen;
-    int		x_depth;
-    int		x_cells;
-    Qt::HANDLE	x_colormap;
-    bool	x_defcolormap;
-    void*	x_visual;
-    bool	x_defvisual;
-};
-
-#endif
-
 /*****************************************************************************
   Inline functions
  *****************************************************************************/
@@ -217,31 +173,6 @@ inline bool QPaintDevice::isExtDev() const
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
-#if defined(Q_WS_X11)
-inline Display *QPaintDevice::x11AppDisplay()
-{ return x_appdisplay; }
-
-inline int QPaintDevice::x11AppScreen()
-{ return x_appscreen; }
-
-inline int QPaintDevice::x11AppDepth( int screen )
-{ return x_appdepth_arr[ screen == -1 ? x_appscreen : screen ]; }
-
-inline int QPaintDevice::x11AppCells( int screen )
-{ return x_appcells_arr[ screen == -1 ? x_appscreen : screen ]; }
-
-inline Qt::HANDLE QPaintDevice::x11AppRootWindow( int screen )
-{ return x_approotwindow_arr[ screen == -1 ? x_appscreen : screen ]; }
-
-inline bool QPaintDevice::x11AppDefaultColormap( int screen )
-{ return x_appdefcolormap_arr[ screen == -1 ? x_appscreen : screen ]; }
-
-inline bool QPaintDevice::x11AppDefaultVisual( int screen )
-{ return x_appdefvisual_arr[ screen == -1 ? x_appscreen : screen ]; }
-
-#endif // Q_WS_X11
-
-
 Q_GUI_EXPORT
 inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
 		    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
@@ -250,8 +181,4 @@ inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
     bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
 	    rop, ignoreMask );
 }
-
-
-
-
 #endif // QPAINTDEVICE_H

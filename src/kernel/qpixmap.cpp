@@ -27,6 +27,11 @@
 #include "qevent.h"
 #include "qfile.h"
 
+#if defined(Q_WS_X11)
+#include "qgc_x11.h"
+#include "qx11info_x11.h"
+#endif
+
 /*!
     \class QPixmap qpixmap.h
     \brief The QPixmap class is an off-screen, pixel-based paint device.
@@ -325,7 +330,6 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 #elif defined(Q_WS_X11)
 	hd = pixmap.hd;				// copy X11 drawable
 	rendhd = pixmap.rendhd;
-	copyX11Data( &pixmap );			// copy x11Data
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
@@ -383,9 +387,6 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
 
     if ( !pm.isNull() ) {			// copy the bitmap
-#if defined(Q_WS_X11)
-	pm.cloneX11Data( this );
-#endif // Q_WS_X11
 
 	if ( ignoreMask )
 	    bitBlt( &pm, 0, 0, this, 0, 0, data->w, data->h, Qt::CopyROP, TRUE );
@@ -429,7 +430,6 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #elif defined(Q_WS_X11)
 	hd = pixmap.hd;				// copy QPaintDevice drawable
 	rendhd = pixmap.rendhd;
-	copyX11Data( &pixmap );			// copy x11Data
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif

@@ -22,8 +22,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
+#include "qx11info_x11.h"
 
 bool qt_compose_emptied = FALSE;
 
@@ -66,7 +65,7 @@ static XFontSet getFontSet( const QFont &f )
 	i += 4;
 
     if ( !fontsetCache[i] ) {
-	Display* dpy = QPaintDevice::x11AppDisplay();
+	Display* dpy = QX11Info::appDisplay();
 	int missCount;
 	char** missList;
 	fontsetCache[i] = XCreateFontSet(dpy, fontsetnames[i], &missList, &missCount, 0);
@@ -376,7 +375,7 @@ QInputContext::~QInputContext()
 	XDestroyIC((XIC) ic);
 
     if ( --fontsetRefCount == 0 ) {
-	Display *dpy = QPaintDevice::x11AppDisplay();
+	Display *dpy = QX11Info::appDisplay();
 	for ( int i = 0; i < 8; i++ ) {
 	    if ( fontsetCache[i] && fontsetCache[i] != (XFontSet)-1 ) {
 		XFreeFontSet(dpy, fontsetCache[i]);

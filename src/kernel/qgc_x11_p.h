@@ -16,6 +16,7 @@
 #define QX11GC_P_H
 
 #include "qregion.h"
+#include "qx11info_x11.h"
 
 static const short ropCodes[] = {                     // ROP translation table
     GXcopy, // CopyROP
@@ -60,6 +61,7 @@ struct QX11GCPrivate {
 	    clip_serial = 0;
 // 	    pfont = 0;
 // 	    block_ext = false;
+	    xinfo = 0;
 	}
     Display *dpy;
     int scrn;
@@ -89,6 +91,7 @@ struct QX11GCPrivate {
     void *wm_stack;
     uint clip_serial;
     QPaintDevice *pdev; // tmp - Q4PaintDevice
+    QX11Info *xinfo;
 };
 
 #endif // QX11GC_P_H

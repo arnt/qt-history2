@@ -421,6 +421,9 @@ public:
     Qt::HANDLE macCGHandle(bool) const;
     virtual Qt::HANDLE macCGHandle() const { return macCGHandle(TRUE); }
 #endif
+#if defined(Q_WS_X11)
+    QX11Info *x11Info() const;
+#endif
 
     enum WidgetAttribute {
 	WA_Disabled,

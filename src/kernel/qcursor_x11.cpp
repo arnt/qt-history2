@@ -25,8 +25,7 @@
 #  include <X11/Xcursor/Xcursor.h>
 #endif // QT_NO_XCURSOR
 
-#include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
+#include "qx11info_x11.h"
 
 // Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
 // use the ugly X11 cursors.
@@ -58,7 +57,7 @@ QCursorData::QCursorData( int s )
 
 QCursorData::~QCursorData()
 {
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
 
     // Add in checking for the display too as on HP-UX
     // we seem to get a core dump as the cursor data is
@@ -349,9 +348,9 @@ QPoint QCursor::pos()
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = QPaintDevice::x11AppDisplay();
+    Display* dpy = QX11Info::appDisplay();
     for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
-	if ( XQueryPointer( dpy, QPaintDevice::x11AppRootWindow( i ), &root, &child,
+	if ( XQueryPointer( dpy, QX11Info::appRootWindow( i ), &root, &child,
 			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
 
 	    return QPoint( root_x, root_y );
@@ -367,9 +366,9 @@ int QCursor::x11Screen()
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = QPaintDevice::x11AppDisplay();
+    Display* dpy = QX11Info::appDisplay();
     for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
-	if ( XQueryPointer( dpy, QPaintDevice::x11AppRootWindow( i ), &root, &child,
+	if ( XQueryPointer( dpy, QX11Info::appRootWindow( i ), &root, &child,
 			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
 	    return i;
     }
@@ -396,10 +395,10 @@ void QCursor::setPos( int x, int y )
     Window child;
     int root_x, root_y, win_x, win_y;
     uint buttons;
-    Display* dpy = QPaintDevice::x11AppDisplay();
+    Display* dpy = QX11Info::appDisplay();
     int screen;
     for ( screen = 0; screen < ScreenCount( dpy ); screen++ ) {
-	if ( XQueryPointer( dpy, QPaintDevice::x11AppRootWindow( screen ), &root, &child,
+	if ( XQueryPointer( dpy, QX11Info::appRootWindow( screen ), &root, &child,
 			    &root_x, &root_y, &win_x, &win_y, &buttons ) ) {
 	    current = QPoint( root_x, root_y );
 	    break;
@@ -416,8 +415,8 @@ void QCursor::setPos( int x, int y )
     if ( current == target )
 	return;
 
-    XWarpPointer( QPaintDevice::x11AppDisplay(), None,
-		  QPaintDevice::x11AppRootWindow( screen ),
+    XWarpPointer( QX11Info::appDisplay(), None,
+		  QX11Info::appRootWindow( screen ),
 		  0, 0, 0, 0, x, y );
 }
 
@@ -440,8 +439,8 @@ void QCursor::update() const
     if ( d->hcurs )				// already loaded
 	return;
 
-    Display *dpy = QPaintDevice::x11AppDisplay();
-    Window rootwin = QPaintDevice::x11AppRootWindow();
+    Display *dpy = QX11Info::appDisplay();
+    Window rootwin = QX11Info::appRootWindow();
 
     if ( d->cshape == BitmapCursor ) {
 	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),

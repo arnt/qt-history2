@@ -30,7 +30,9 @@ class QPixmapPrivate;
 // Internal pixmap memory optimization class for Windows 9x
 class QMultiCellPixmap;
 #endif
-
+#if defined(Q_WS_X11)
+class QX11Info;
+#endif
 
 class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt
 {
@@ -151,6 +153,7 @@ public:
 #elif defined(Q_WS_X11)
     static int x11SetDefaultScreen( int screen );
     void x11SetScreen( int screen );
+    QX11Info *x11Info() const;
 #endif
 
     inline bool operator!() const { return isNull(); }
@@ -196,6 +199,7 @@ protected:
 	void   *ximage;
 	void   *maskgc;
 	QPixmap *alphapm;
+	QX11Info *xinfo;
 #elif defined(Q_WS_MAC)
 	ColorTable *clut;
 	QPixmap *alphapm;

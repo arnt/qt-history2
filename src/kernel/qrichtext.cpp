@@ -40,8 +40,7 @@
 #include <stdlib.h>
 
 #if defined(Q_WS_X11)
-#include "qgc_x11.h"
-#define QPaintDevice QX11GC // ### fix
+#include "qx11info_x11.h"
 #endif
 
 static QTextCursor* richTextExportStart = 0;
@@ -70,7 +69,7 @@ static inline int scale( int value, QPainter *painter )
 	QPaintDeviceMetrics metrics( painter->device() );
 #if defined(Q_WS_X11)
 	value = value * metrics.logicalDpiY() /
-		QPaintDevice::x11AppDpiY( painter->device()->x11Screen() );
+		QX11Info::appDpiY( painter->device()->x11Screen() );
 #elif defined (Q_WS_WIN)
 	HDC hdc = GetDC( 0 );
 	int gdc = GetDeviceCaps( hdc, LOGPIXELSY );
@@ -6019,16 +6018,12 @@ QTextFormatCollection::~QTextFormatCollection()
     delete defFormat;
 }
 
-#if defined(Q_WS_X11)
-#undef QPaintDevice // ### fix
-#endif
 void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
 {
     paintdevice = pd;
 
 #if defined(Q_WS_X11)
-#define QPaintDevice QX11GC // ### fix
-    int scr = ( paintdevice ) ? paintdevice->x11Screen() : QPaintDevice::x11AppScreen();
+    int scr = ( paintdevice ) ? paintdevice->x11Screen() : QX11Info::appScreen();
 
     defFormat->fn.x11SetScreen( scr );
     defFormat->update();
