@@ -103,7 +103,11 @@ void DatabaseConnectionsEditor::doConnect()
 	conn->setUsername( connectionWidget->editUsername->text() );
 	conn->setPassword( connectionWidget->editPassword->text() );
 	conn->setHostname( connectionWidget->editHostname->text() );
-	conn->setPort( connectionWidget->editPort->text().toInt() );
+	bool b;
+	int port = connectionWidget->editPort->text().toInt( &b );
+	if ( !b )
+	    port = -1;
+	conn->setPort( port );
 	if ( conn->refreshCatalog() ) {
 	    project->addDatabaseConnection( conn );
 	    listConnections->insertItem( conn->name() );
@@ -124,7 +128,11 @@ void DatabaseConnectionsEditor::doConnect()
 	conn->setUsername( connectionWidget->editUsername->text() );
 	conn->setPassword( connectionWidget->editPassword->text() );
 	conn->setHostname( connectionWidget->editHostname->text() );
-	conn->setPort( connectionWidget->editPort->text().toInt() );
+	bool b;
+        int port = connectionWidget->editPort->text().toInt( &b );
+        if ( !b )
+            port = -1;	
+	conn->setPort( port );
 	conn->refreshCatalog();
 	project->saveConnections();
     }
