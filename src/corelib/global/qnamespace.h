@@ -100,7 +100,7 @@ public:
         Vertical = 0x2
     };
 
-    Q_DECLARE_FLAGS(Orientations, Orientation);
+    Q_DECLARE_FLAGS(Orientations, Orientation)
 
     enum FocusPolicy {
         NoFocus = 0,
