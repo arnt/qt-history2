@@ -47,7 +47,7 @@ public:
     static Profile* createDefaultProfile();
     static QString makeRelativePath( const QString &base, const QString &path );
 
-    int valid:1;
+    uint valid:1;
     ProfileType type;
     DocuParser *dparser;
     QMap<QString,QString> props;
