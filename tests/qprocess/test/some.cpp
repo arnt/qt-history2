@@ -15,7 +15,7 @@ static QLabel *out;
 static QLabel *err;
 
 Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int com )
-    : QObject( p )//, protocol( QString("Protocol\n\n"), 0 )
+    : QObject( p ), stdoutConnected( FALSE ), stderrConnected( FALSE ), exitConnected( FALSE )
 {
     proc = new QProcess( this );
     switch ( com ) {
@@ -193,16 +193,15 @@ void Some::wroteStdin()
 
 void Some::connectStdout( bool enable )
 {
-    static bool connected = FALSE;
     if ( enable ) {
-	if ( !connected )
+	if ( !stdoutConnected )
 	    QObject::connect( proc, SIGNAL(readyReadStdout()),
 		    this, SLOT(readyReadStdout()) );
-	connected = TRUE;
+	stdoutConnected = TRUE;
     } else {
 	QObject::disconnect( proc, SIGNAL(readyReadStdout()),
 		this, SLOT(readyReadStdout()) );
-	connected = FALSE;
+	stdoutConnected = FALSE;
     }
 }
 
@@ -215,20 +214,20 @@ void Some::readyReadStdout()
     protocol.setText( protocol.text() +
 	    QString( "read on stdout: %1 bytes\n" ).arg( s.length() ) );
     protocolReadStdout += s.length();
+//qDebug( "out: %d", protocolReadStdout );
 }
 
 void Some::connectStderr( bool enable )
 {
-    static bool connected = FALSE;
     if ( enable ) {
-	if ( !connected )
+	if ( !stderrConnected )
 	    QObject::connect( proc, SIGNAL(readyReadStderr()),
 		    this, SLOT(readyReadStderr()) );
-	connected = TRUE;
+	stderrConnected = TRUE;
     } else {
 	QObject::disconnect( proc, SIGNAL(readyReadStderr()),
 		this, SLOT(readyReadStderr()) );
-	connected = FALSE;
+	stderrConnected = FALSE;
     }
 }
 
@@ -241,20 +240,20 @@ void Some::readyReadStderr()
     protocol.setText( protocol.text() +
 	    QString( "read on stderr: %1 bytes\n" ).arg( s.length() ) );
     protocolReadStderr += s.length();
+//qDebug( "err: %d", protocolReadStderr );
 }
 
 void Some::connectExit( bool enable )
 {
-    static bool connected = FALSE;
     if ( enable ) {
-	if ( !connected )
+	if ( !exitConnected )
 	    QObject::connect( proc, SIGNAL(processExited()),
 		    this, SLOT(procExited()) );
-	connected = TRUE;
+	exitConnected = TRUE;
     } else {
 	QObject::disconnect( proc, SIGNAL(processExited()),
 		this, SLOT(procExited()) );
-	connected = FALSE;
+	exitConnected = FALSE;
     }
 }
 

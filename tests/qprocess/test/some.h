@@ -43,6 +43,9 @@ private:
     QLabel *exitStatusInfo;
     QProcess *proc;
     bool hideAfterExit;
+    bool stdoutConnected;
+    bool stderrConnected;
+    bool exitConnected;
 };
 
 
