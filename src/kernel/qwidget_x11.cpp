@@ -1261,20 +1261,20 @@ struct QX11DoubleBuffer
     int screen, depth;
     int width, height;
 };
-static QX11DoubleBuffer *qt_x11_double_buffer = 0;
+static QX11DoubleBuffer *global_double_buffer = 0;
 
 void qt_x11_discard_double_buffer()
 {
-    if (!qt_x11_discard_double_buffer) return;
+    if (!global_double_buffer) return;
 
-    XFreePixmap(QPaintDevice::x11AppDisplay(), qt_x11_double_buffer->hd);
+    XFreePixmap(QPaintDevice::x11AppDisplay(), global_double_buffer->hd);
 #ifndef QT_NO_XFTFREETYPE
     if (qt_use_xrender && qt_has_xft)
-	XftDrawDestroy((XftDraw *) qt_x11_double_buffer->rendhd);
+	XftDrawDestroy((XftDraw *) global_double_buffer->rendhd);
 #endif
 
-    delete qt_x11_double_buffer;
-    qt_x11_double_buffer = 0;
+    delete global_double_buffer;
+    global_double_buffer = 0;
 }
 
 static
@@ -1285,39 +1285,39 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
     width  = (( width / 128) + 1) * 128;
     height = ((height / 128) + 1) * 128;
 
-    if (qt_x11_double_buffer) {
-	if (qt_x11_double_buffer->screen == screen
-	    && qt_x11_double_buffer->depth == depth
-	    && qt_x11_double_buffer->width >= width
-	    && qt_x11_double_buffer->height >= height) {
-	    hd = qt_x11_double_buffer->hd;
-	    rendhd = qt_x11_double_buffer->rendhd;
+    if (global_double_buffer) {
+	if (global_double_buffer->screen == screen
+	    && global_double_buffer->depth == depth
+	    && global_double_buffer->width >= width
+	    && global_double_buffer->height >= height) {
+	    hd = global_double_buffer->hd;
+	    rendhd = global_double_buffer->rendhd;
 	    return;
 	}
 
-	width  = QMAX(qt_x11_double_buffer->width,  width);
-	height = QMAX(qt_x11_double_buffer->height, height);
+	width  = QMAX(global_double_buffer->width,  width);
+	height = QMAX(global_double_buffer->height, height);
 
 	qt_x11_discard_double_buffer();
     }
 
-    qt_x11_double_buffer = new QX11DoubleBuffer;
-    qt_x11_double_buffer->hd =
+    global_double_buffer = new QX11DoubleBuffer;
+    global_double_buffer->hd =
 	XCreatePixmap(QPaintDevice::x11AppDisplay(), hd, width, height, depth);
 
 #ifndef QT_NO_XFTFREETYPE
     if (qt_use_xrender && qt_has_xft)
-	qt_x11_double_buffer->rendhd =
+	global_double_buffer->rendhd =
 	    (Qt::HANDLE) XftDrawCreate(QPaintDevice::x11AppDisplay(),
-				       qt_x11_double_buffer->hd,
+				       global_double_buffer->hd,
 				       (Visual *) QPaintDevice::x11AppVisual(),
 				       QPaintDevice::x11AppColormap());
 #endif
 
-    qt_x11_double_buffer->screen = screen;
-    qt_x11_double_buffer->depth = depth;
-    qt_x11_double_buffer->width = width;
-    qt_x11_double_buffer->height = height;
+    global_double_buffer->screen = screen;
+    global_double_buffer->depth = depth;
+    global_double_buffer->width = width;
+    global_double_buffer->height = height;
 }
 
 void QWidget::repaint(const QRegion& rgn)
@@ -1335,7 +1335,7 @@ void QWidget::repaint(const QRegion& rgn)
     QRect br = rgn.boundingRect();
 
     QPoint dboff;
-    bool double_buffer = !testAttribute(WA_PaintOnScreen);
+    bool double_buffer = !testAttribute(WA_PaintOnScreen) && isActiveWindow();
 
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;
@@ -1349,11 +1349,9 @@ void QWidget::repaint(const QRegion& rgn)
 	QRegion region_in_pm(rgn);
 	region_in_pm.translate(-dboff);
 	qt_set_paintevent_clipping(this, region_in_pm);
-
     } else {
 	qt_set_paintevent_clipping(this, rgn);
     }
-
 
     if (testAttribute(WA_NoSystemBackground)) {
 	if (double_buffer) {
