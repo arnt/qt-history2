@@ -430,7 +430,7 @@ QHttpResponseHeader::QHttpResponseHeader()
   Constructs a HTTP response header with the status code \a code, the reason
   phrase \a text and the protocol-version \a majorVer and \a minorVer.
 */
-QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text = QString::null, int majorVer, int minorVer )
+QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int majorVer, int minorVer )
     : QHttpHeader(), statCode( code ), reasonPhr( text ), majVer( majorVer ), minVer( minorVer )
 {
 }
