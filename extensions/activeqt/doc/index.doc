@@ -763,30 +763,37 @@
 
     \section2 Supported and Unsupported ActiveX clients
 
-    The following sections list standard applications that have been reported
-    to work or not work with ActiveX controls developed with ActiveQt.
+    The following is largly based on our own experiements with ActiveX
+    controls and client applications, and is by no means complete.
 
     \section3 Supported Clients
+
+    These standard applications work with ActiveX controls developed with 
+    ActiveQt. Note that some clients support only in-process controls.
 
     \list
     \i Internet Explorer
     \i Microsoft ActiveX Control Test Container
-    \i Microsoft Visual Studio 6.0 (dialog editor)
-    \i Microsoft Visual Basic 6.0 (only in-process controls)
+    \i Microsoft Visual Studio 6.0
+    \i Microsoft Visual Studio.NET/2003
+    \i Microsoft Visual Basic 6.0
     \i MFC- and ATL-based containers
     \i Sybase PowerBuilder
     \i ActiveQt based containers
     \endlist
 
+    Microsoft Office applications are supported, but you need to register
+    the controls as "Insertable" objects. Reimplement \c QAxFactory::registerClass
+    to add this attribute to the COM class.
+
     \section3 Unsupported Clients
 
+    We have not managed to make ActiveQt based COM objects work with the
+    following client applications.
+
     \list
-    \i Visual Studio.NET - Microsoft's unmanged code wrapper is reported
-    to be buggy for C++ controls that don't expose a dual interface.
-    \i Borland Builder, Delphi - don't support C++ COM objects that don't 
-    expose a dual interface.
-    \i Microsoft Office Applications - these require aggregation
-    support
+    \i Borland C++ Builder (Versions 5 and 6)
+    \i Borland Delphi
     \endlist
 
     \section1 Enhanced features
