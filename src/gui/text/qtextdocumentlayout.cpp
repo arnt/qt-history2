@@ -268,7 +268,7 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
     currentYPos = 0;
-    widthUsed = 0;
+    widthUsed = pageSize.width();
     QTextBlockIterator it = q->begin();
     while (!it.atEnd()) {
         // check if we are at a table
