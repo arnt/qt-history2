@@ -355,7 +355,7 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 
 #ifdef Q_CC_MWERKS
 
-#include "qt_mac.h"
+#include <CoreServices/CoreServices.h>
 
 extern bool qt_is_gui_used;
 static void mac_default_handler( const char *msg )
