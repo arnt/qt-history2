@@ -52,8 +52,8 @@ protected:
     void init();
 
 protected slots:
-    void createDB();
-    void dropDB();
+    void createDatabase();
+    void dropDatabase();
 };
 
 #endif // DATABASEAPP_H

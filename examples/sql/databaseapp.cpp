@@ -25,6 +25,9 @@ DatabaseFrontEnd::DatabaseFrontEnd( QWidget * parent, const char * name )
     init();
 }
 
+/*!
+  Initialize the different widgets that appear in the database front-end.
+ */
 void DatabaseFrontEnd::init()
 {
     hSplitter   = new QSplitter( QSplitter::Horizontal, this );
@@ -158,22 +161,10 @@ void DatabaseFrontEnd::init()
 
 }
 
-void DatabaseFrontEnd::resizeEvent( QResizeEvent * )
-{
-    hSplitter->resize( width(), height() );
-}
-
-void DatabaseFrontEnd::insertCustomer()
-{
-    QSqlCursor * cr = customerTable->cursor();
-
-    GenericDialog dlg( cr->insertBuffer(), GenericDialog::Insert, this );
-    if( dlg.exec() == QDialog::Accepted ){
-	cr->insert();
-	customerTable->refresh();
-    }
-}
-
+/*!
+  When a new customer is selected in the customer table - update the
+  invoice table to show the invoices for the currently selected customer.
+ */
 void DatabaseFrontEnd::updateCustomerInfo( const QSqlRecord * fields )
 {
     QString cap;
@@ -189,12 +180,39 @@ void DatabaseFrontEnd::updateCustomerInfo( const QSqlRecord * fields )
     customerInfo->setMinimumSize( 0, customerInfo->height() );
 
     // Only show the invoice(s) for a particular customer
-    // Use the customer id to filter the invoice cursor
-    invoiceCr.select( "customerid = " +
-		      fields->value("id").toString() );
+    // Use the customer id as a filter
+    invoiceCr.select( "customerid = " + fields->value("id").toString() );
     invoiceTable->refresh();
 }
 
+/*!
+  Handle resizing properly.
+ */
+void DatabaseFrontEnd::resizeEvent( QResizeEvent * )
+{
+    hSplitter->resize( width(), height() );
+}
+
+/*!
+  Pops up a data entry form for inserting new customers into the
+  database.
+ */
+void DatabaseFrontEnd::insertCustomer()
+{
+    QSqlCursor * cr = customerTable->cursor();
+
+    GenericDialog dlg( cr->insertBuffer(), GenericDialog::Insert, this );
+    if( dlg.exec() == QDialog::Accepted ){
+	cr->insert();
+	customerTable->refresh();
+    }
+}
+
+/*!
+  Pops up a data entry form for editing an existing customer. The
+  fields in the form will contain the current values for the currently 
+  selected customer.
+ */
 void DatabaseFrontEnd::updateCustomer()
 {
     QSqlCursor * cr = customerTable->cursor();
@@ -206,6 +224,11 @@ void DatabaseFrontEnd::updateCustomer()
     }
 }
 
+/*!
+  Pops up a data entry form for deleting an existing customer. The
+  fields in the form will contain the current values for the currently
+  selected customer.
+ */
 void DatabaseFrontEnd::deleteCustomer()
 {
     QSqlCursor * cr = customerTable->cursor();
@@ -217,6 +240,9 @@ void DatabaseFrontEnd::deleteCustomer()
     }
 }
 
+/*!
+  Pops up a data entry form for inserting a new invoice for a customer.
+ */
 void DatabaseFrontEnd::insertInvoice()
 {
     QSqlRecord fl = customerTable->currentFieldSelection();
@@ -235,12 +261,18 @@ void DatabaseFrontEnd::insertInvoice()
 	invoiceTable->refresh( cr->primaryIndex( TRUE ) );
     }
 }
+
 void DatabaseFrontEnd::insertingInvoice( QSqlRecord* buf )
 {
     QSqlRecord fl = customerTable->currentFieldSelection();
     buf->setValue( "customerid", fl.field("id")->value() );
 }
 
+/*!
+  Pops up a data entry form for updating an invoice for a customer.
+  The fields in the form will contain the current values for the currently 
+  selected invoice. 
+*/
 void DatabaseFrontEnd::updateInvoice()
 {
     QSqlRecord r = invoiceTable->currentFieldSelection();
@@ -258,6 +290,11 @@ void DatabaseFrontEnd::updateInvoice()
     }
 }
 
+/*!
+  Pops up a data entry form for deleting an existing invoice. The
+  fields in the form will contain the current values for the currently
+  selected invoice.
+ */
 void DatabaseFrontEnd::deleteInvoice()
 {
     QSqlRecord r = invoiceTable->currentFieldSelection();
@@ -293,23 +330,25 @@ void DatabaseApp::init()
     DatabaseFrontEnd * frontend = new DatabaseFrontEnd( this );
     setCentralWidget( frontend );
 
-    QPopupMenu * p = new QPopupMenu( this );
-
-    // Menus
-    p->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
-    menuBar()->insertItem( "&File", p );
-    p = new QPopupMenu( this );
-    p->insertItem( "&Create database", this, SLOT( createDB()), CTRL+Key_O );
-    p->insertItem( "&Drop database", this, SLOT( dropDB()), CTRL+Key_D );
-    menuBar()->insertItem( "&Tools", p );
+    // Setup menus
+    QPopupMenu * menu = new QPopupMenu( this );
+    menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
+    menuBar()->insertItem( "&File", menu );
+    
+    menu = new QPopupMenu( this );
+    menu->insertItem( "&Create database", this, SLOT( createDatabase()), 
+		      CTRL+Key_O );
+    menu->insertItem( "&Drop database", this, SLOT( dropDatabase()), 
+		      CTRL+Key_D );
+    menuBar()->insertItem( "&Tools", menu );
 }
 
-void DatabaseApp::createDB()
+void DatabaseApp::createDatabase()
 {
     create_db();
 }
 
-void DatabaseApp::dropDB()
+void DatabaseApp::dropDatabase()
 {
     drop_db();
 }
