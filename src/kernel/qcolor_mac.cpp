@@ -32,7 +32,7 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include <private/qapplication_p.h>
+#include <qapplication_p.h>
 
 // NOT REVISED
 

@@ -46,7 +46,7 @@
 #include "qdatastream.h"
 #include "qpaintdevicemetrics.h"
 #ifndef QT_NO_SVG
-#include <private/qsvgdevice_p.h>
+#include <qsvgdevice_p.h>
 #endif
 
 /*!

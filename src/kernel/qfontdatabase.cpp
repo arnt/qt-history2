@@ -39,14 +39,14 @@
 
 #ifndef QT_NO_FONTDATABASE
 
-#include <private/qfontdata_p.h>
+#include <qfontdata_p.h>
 
 #include "qmap.h"
 #include "qdict.h"
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qapplication.h"
-#include <private/qapplication_p.h>
+#include <qapplication_p.h>
 #include "qpainter.h"
 #include <stdlib.h>
 #include <ctype.h>

@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include <private/qrichtext_p.h>
+#include <qrichtext_p.h>
 
 #ifndef QT_NO_RICHTEXT
 
@@ -59,7 +59,7 @@
 #include "qdrawutil.h"
 #include "qcursor.h"
 #include "qptrstack.h"
-#include <private/qcomplextext_p.h>
+#include <qcomplextext_p.h>
 
 #include <stdlib.h>
 

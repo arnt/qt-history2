@@ -32,10 +32,10 @@
 #include "qt_mac.h"
 
 #include "qapplication.h"
-#include "private/qapplication_p.h"
-#include "private/qcolor_p.h"
+#include "qapplication_p.h"
+#include "qcolor_p.h"
 #include "qwidget.h"
-#include "private/qwidget_p.h"
+#include "qwidget_p.h"
 #include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
