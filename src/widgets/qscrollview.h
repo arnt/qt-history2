@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#45 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#46 $
 **
 ** Definition of QScrollView class
 **
@@ -80,7 +80,9 @@ public:
     void	show();
 
     void	updateContents( int x, int y, int w, int h );
+    void	updateContents( const QRect& r );
     void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
+    void	repaintContents( const QRect& r, bool erase=TRUE );
 
     void	contentsToViewport(int x, int y, int& vx, int& vy);
     void	viewportToContents(int vx, int vy, int& x, int& y);

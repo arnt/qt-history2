@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#125 $
 **
 ** Implementation of QScrollView class
 **
@@ -1722,6 +1722,24 @@ void QScrollView::updateContents( int x, int y, int w, int h )
 
     vp->update( x, y, w, h );
 }
+
+/*!
+  \overload void QScrollView::updateContents( int x, int y, int w, int h )
+*/
+void QScrollView::updateContents( const QRect& r )
+{
+    updateContents(r.x(), r.y(), r.width(), r.height());
+}
+
+/*!
+  \overload void QScrollView::repainttContents( int x, int y, int w, int h, bool erase )
+*/
+void QScrollView::repaintContents( const QRect& r, bool erase )
+{
+    repaintContents(r.x(), r.y(), r.width(), r.height(), erase);
+}
+
+
 
 /*!
   Calls repaint() on rectangle defined by \a x, \a y, \a w, \a h,
