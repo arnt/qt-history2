@@ -121,7 +121,7 @@ public:
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
-    QSqlRecord   currentFieldSelection() const;
+    QSqlRecord*  currentRecord() const;
 
     void         installEditorFactory( QSqlEditorFactory * f );
     void         installPropertyMap( QSqlPropertyMap* m );

@@ -1695,21 +1695,17 @@ void QDataTable::setCurrentSelection( int row, int )
     emit currentChanged( sqlCursor() );
 }
 
-/*!  Returns the currently selected record, or an empty record if
-  there is no current selection.
+/*!  Returns a pointer to the currently selected record, or an 0 if
+  there is no current selection.  The table own the pointer, so do not
+  delete it.
 
 */
 
-QSqlRecord QDataTable::currentFieldSelection() const
+QSqlRecord* QDataTable::currentRecord() const
 {
-    QSqlRecord fil;
     if ( !sqlCursor() || currentRow() < 0 )
-	return fil;
-    int row = currentRow();
-    if ( !sqlCursor()->seek( row ) )
-	return fil;
-    fil = *sqlCursor();
-    return fil;
+	return 0;
+    return sqlCursor();
 }
 
 /*! Sorts column \a col in ascending order.
