@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#60 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,15 +18,15 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#60 $");
 
 
 /*****************************************************************************
   The color dictionary speeds up color allocation significantly for X11.
-  When there are no more colors, QColor::alloc() will set the colorAvail
-  flag to FALSE and try to find/approximate a close color.
-  NOTE: From deep within the event loop, the colorAvail flag is reset to
-  TRUE (calls the function qResetColorAvailFlag()), because some other
+  When there are no more colors, QColor::alloc() will set the color_avail
+  flag to FALSE and try to find the nearest color.
+  NOTE: From deep within the event loop, the color_avail flag is reset to
+  TRUE (calls the function qt_reset_color_avail()), because some other
   application might free its colors, thereby making them available for
   this Qt application.
  *****************************************************************************/
@@ -41,13 +41,15 @@ struct QColorData {
 typedef Q_DECLARE(QIntDictM,QColorData)		QColorDict;
 typedef Q_DECLARE(QIntDictIteratorM,QColorData) QColorDictIt;
 static QColorDict *colorDict  = 0;		// dict of allocated colors
-static bool	   colorAvail = TRUE;		// X colors available
 
-static bool	color_init = FALSE;		// module was initialized
+static bool	color_init    = FALSE;		// module was initialized
+static bool	color_avail   = TRUE;		// X colors available
 static bool	colors_frozen = FALSE;		// allocating disabled
 static int	current_alloc_context = 0;	// current color alloc context
 static Visual  *g_vis	= 0;			// visual
 static XColor  *g_carr	= 0;			// color array
+static bool	g_carr_fetch = TRUE;		// perform XQueryColors?
+static int	g_cells = 0;			// number of entries in g_carr
 static bool    *g_our_alloc = 0;		// our allocated colors
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
@@ -57,8 +59,9 @@ extern int	qt_ncols_option;		// defined in qapp_x11.cpp
 extern int	qt_visual_option;
 extern bool	qt_cmap_option;
 
+
 /*
-  This function is called from the event loop. It resets the colorAvail
+  This function is called from the event loop. It resets the color_avail
   flag so that the application can retry to allocate read-only colors
   that other applications may have deallocated lately.
 
@@ -68,13 +71,37 @@ extern bool	qt_cmap_option;
 
 void qt_reset_color_avail()
 {
-    colorAvail = TRUE;
-    if ( g_carr ) {				// color array was allocated
-	delete [] g_our_alloc;
-	g_our_alloc = 0;
-	delete [] g_carr;
-	g_carr = 0;
+    color_avail  = TRUE;
+    g_carr_fetch = TRUE;		// do XQueryColors if !color_avail
+}
+
+
+/*
+  Finds the nearest color.  If colors_frozen is TRUE, we only search among
+  the colors we have already allocated and not colors that have been
+  allocated by other applications.
+*/
+
+static int find_nearest_color( int r, int g, int b )
+{
+    int mincol = -1;
+    int mindist = 200000;
+    int rx, gx, bx, dist;
+    XColor *xc = &g_carr[0];
+    for ( int i=0; i<g_cells; i++ ) {
+	if ( colors_frozen && !g_our_alloc[i] )
+	    continue;
+	rx = r - (xc->red >> 8);
+	gx = g - (xc->green >> 8);
+	bx = b - (xc->blue>> 8);
+	dist = rx*rx + gx*gx + bx*bx;		// calculate distance
+	if ( dist < mindist ) {			// minimal?
+	    mindist = dist;
+	    mincol = i;
+	}
+	xc++;
     }
+    return mincol;
 }
 
 
@@ -195,7 +222,6 @@ void QColor::initialize()
     bool defVis = (XVisualIDFromVisual(g_vis) == 
 		   XVisualIDFromVisual(DefaultVisual(dpy,scr)));
     bool defCmap;
-
     if ( g_truecolor )
 	defCmap = defVis;
     else
@@ -205,6 +231,23 @@ void QColor::initialize()
 	cmap = DefaultColormap(dpy,scr);
     else
 	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone );
+
+    if ( !g_truecolor ) {
+	// Create the g_our_alloc array, which remembers which color pixels
+	// we allocated.
+	g_cells = QMIN(ncols,256);
+	g_carr  = new XColor[g_cells];
+	CHECK_PTR( g_carr );
+	memset( g_carr, 0, g_cells*sizeof(XColor) );
+	g_our_alloc = new bool[g_cells];	
+	CHECK_PTR( g_our_alloc );
+	memset( g_our_alloc, FALSE, g_cells*sizeof(bool) );
+	XColor *xc = &g_carr[0];
+	for ( int i=0; i<g_cells; i++ ) {
+	    xc->pixel = i;		// g_carr[i] = color i
+	    xc++;
+	}
+    }
 
     QPaintDevice::x_display   = dpy;
     QPaintDevice::x_screen    = scr;
@@ -308,11 +351,13 @@ void QColor::initialize()
 	    0x666600, 0x006600, 0xcc3300, 0x663300,
 	};
 
-	if (qt_ncols_option>216) qt_ncols_option=216;
+	if ( qt_ncols_option > 216 )
+	    qt_ncols_option = 216;
 
-	for ( int i = 0; i < qt_ncols_option; i++ ) {
-            QColor *c=new QColor(cmap[i]);
-	    c->alloc();
+	int i;
+	for ( i = 0; i < qt_ncols_option; i++ ) {
+	    QColor c(cmap[i]);
+	    c.alloc();
         }
 
 	// No more custom allocations: user has set limit
@@ -351,6 +396,8 @@ void QColor::cleanup()
     if ( !color_init )
 	return;
     color_init = FALSE;
+    delete [] g_carr;
+    delete [] g_our_alloc;
     if ( !QPaintDevice::x_defcmap )
 	XFreeColormap( QPaintDevice::x__Display(), QPaintDevice::x_colormap );
     if ( colorDict ) {
@@ -410,11 +457,10 @@ uint QColor::alloc()
 	    pix = 0;
 	return pix;
     }
-    int r, g, b;
+    int r = (int)(rgbVal & 0xff);
+    int g = (int)((rgbVal >> 8) & 0xff);
+    int b = (int)((rgbVal >> 16) & 0xff);
     if ( g_truecolor ) {			// truecolor: map to pixel
-	r = (int)(rgbVal & 0xff);
-	g = (int)((rgbVal >> 8) & 0xff);
-	b = (int)((rgbVal >> 16) & 0xff);
 	r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 	g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 	b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
@@ -422,74 +468,89 @@ uint QColor::alloc()
 	rgbVal &= RGB_MASK;
 	return pix;
     }
+    ASSERT( colorDict );
     QColorData *c = colorDict->find( (long)(rgbVal&RGB_MASK) );
     if ( c ) {					// found color in dictionary
 	rgbVal &= RGB_MASK;			// color ok
 	pix = c->pix;				// use same pixel value
-	if ( c->context != current_alloc_context )
-	    c->context = 0;			// convert to standard context
+	if ( c->context != current_alloc_context ) {
+	    c->context = 0;			// convert to default context
+	    g_our_alloc[pix] = TRUE; // !!!
+	}
 	return pix;
     }
     XColor col;
-    r = (int)(rgbVal & 0xff);
-    g = (int)((rgbVal >> 8) & 0xff);
-    b = (int)((rgbVal >> 16) & 0xff);
     col.red   = r << 8;
     col.green = g << 8;
     col.blue  = b << 8;
-    if ( !colors_frozen
-    && colorAvail && XAllocColor(dpy, QPaintDevice::x11Colormap(), &col) ) {
-	pix = (uint)col.pixel;			// allocated X11 color
-	rgbVal &= RGB_MASK;
-    } else {					// get closest color
-	int mincol = -1;
-	int mindist = 200000;
-	int rx, gx, bx, dist;
-	int i, maxi = QMIN(QPaintDevice::x11Cells(),256);
-	register XColor *xc;
-	if ( current_alloc_context != 0 ) {
-	    // Cannot use optimization
-	    // #### Haavard, can you explain why not?
-	    qt_reset_color_avail();
-	}
-	colorAvail = FALSE;			// no more avail colors
-	if ( !g_carr ) {			// get colors in colormap
-	    g_carr = new XColor[maxi];
-	    CHECK_PTR( g_carr );
-	    xc = &g_carr[0];
-	    for ( i=0; i<maxi; i++ ) {
-		xc->pixel = i;			// carr[i] = color i
-		xc++;
-	    }
-	    XQueryColors( dpy, QPaintDevice::x11Colormap(), g_carr, maxi );
-	    g_our_alloc = new bool[maxi];
-	    CHECK_PTR( g_our_alloc );
-	    memset( g_our_alloc, FALSE, maxi*sizeof(*g_our_alloc) );
-	}
 
-	xc = &g_carr[0];
-	for ( i=0; i<maxi; i++ ) {		// find closest color
-	    rx = r - (xc->red >> 8);
-	    gx = g - (xc->green >> 8);
-	    bx = b - (xc->blue>> 8);
-	    dist = rx*rx + gx*gx + bx*bx;	// calculate distance
-	    if ( dist < mindist ) {		// minimal?
-		mindist = dist;
-		mincol = i;
-	    }
-	    xc++;
-	}
-	if ( mincol == -1 ) {			// there are no colors, yuck
+    bool try_again = FALSE;
+    int  try_count = 0;
+
+    if ( colors_frozen ) {
+	// Find the nearest color we have already allocated
+	pix = find_nearest_color( r, g, b );
+	if ( (int)pix == -1 ) {			// no nearest color?!
 	    rgbVal |= RGB_INVALID;
 	    pix = BlackPixel( dpy, scr );
 	    return pix;
 	}
-	if ( !g_our_alloc[mincol] ) {		// we haven't allocated it
-	    XAllocColor( dpy, QPaintDevice::x11Colormap(), &g_carr[mincol] );
-	    g_our_alloc[mincol] = TRUE;
+    }
+
+    else  do {
+	// This loop is run until we manage to either allocate or
+	// find an approximate color, it stops after 100 iterations.
+
+	if ( color_avail && XAllocColor(dpy,QPaintDevice::x11Colormap(),&col)){
+
+	    // We could allocate the color
+	    pix = (uint)col.pixel;
+	    rgbVal &= RGB_MASK;
+	    g_carr[pix] = col;			// update color array
+	    if ( current_alloc_context == 0 )
+		g_our_alloc[pix] = TRUE;	// we allocated this pixel
+
+	} else {
+
+	    // No available colors
+	    int i;
+	    color_avail = FALSE;		// no more avail colors
+	    if ( g_carr_fetch ) {		// refetch color array
+		g_carr_fetch = FALSE;
+		XQueryColors( dpy, QPaintDevice::x11Colormap(), g_carr,
+			      g_cells );
+	    }
+	    i = find_nearest_color( r, g, b );
+	    if ( i == -1 ) {			// no nearest color?!
+		rgbVal |= RGB_INVALID;
+		pix = BlackPixel( dpy, scr );
+		return pix;
+	    }
+	    if ( g_our_alloc[i] ) {		// we've already allocated it
+		pix = g_carr[i].pixel;
+	    } else {
+		if ( XAllocColor(dpy,QPaintDevice::x11Colormap(),&g_carr[i])){
+		    if ( current_alloc_context == 0 )
+			g_our_alloc[i] = TRUE;	// only in the default context
+		} else {
+		    try_count++;
+		    try_again    = TRUE;
+		    color_avail  = TRUE;
+		    g_carr_fetch = TRUE;
+		}
+	    }
+	    if ( !try_again ) {			// got it
+		pix = g_carr[i].pixel;		// allocated X11 color
+		rgbVal &= RGB_MASK;
+	    }
 	}
-	pix = g_carr[mincol].pixel;		// allocated X11 color
-	rgbVal &= RGB_MASK;
+
+    } while ( try_again && try_count < 100 );
+
+    if ( try_again ) {				// no hope of allocating color
+	rgbVal |= RGB_INVALID;
+	pix = BlackPixel( dpy, scr );
+	return pix;
     }
     if ( colorDict->count() < colorDict->size() * 8 ) {
 	c = new QColorData;			// insert into color dict
@@ -505,7 +566,7 @@ uint QColor::alloc()
 void QColor::setSystemNamedColor( const char *name )
 {
     bool ok = FALSE;
-    if ( color_init	 ) {			// initialized
+    if ( color_init ) {				// initialized
 	XColor col, hw_col;
 	if ( XLookupColor(QPaintDevice::x__Display(),
 			  QPaintDevice::x11Colormap(), name, &col, &hw_col) ) {
