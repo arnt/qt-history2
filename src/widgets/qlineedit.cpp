@@ -1298,7 +1298,9 @@ void QLineEditPrivate::copy( bool clipboard ) const
     QString t = q->selectedText();
     if ( !t.isEmpty() && echoMode == QLineEdit::Normal ) {
 	q->disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), q, 0);
-	QApplication::clipboard()->setText( t, clipboard ? QClipboard::Clipboard : QClipboard::Selection );
+	QApplication::clipboard()->setText( t, clipboard
+					    ? QClipboard::Clipboard
+					    : QClipboard::Selection );
 	q->connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		 q, SLOT(clipboardChanged()) );
     }
@@ -1826,15 +1828,19 @@ void QLineEdit::drawContents( QPainter *p )
 	bg = QBrush( cg.background(), *paletteBackgroundPixmap() );
     else if ( !isEnabled() )
 	bg = cg.brush( QColorGroup::Background );
+
     p->save();
-    p->setClipRegion( QRegion(cr) - lineRect );
-    p->fillRect( cr, bg );
+    p->setClipRegion(QRegion(cr) - lineRect);
+    p->setBrushOrigin(-backgroundOffset());
+    p->fillRect(cr, bg);
     p->restore();
+
     QSharedDoubleBuffer buffer( p, lineRect.x(), lineRect.y(),
- 				lineRect.width(), lineRect.height(),
- 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
+  				lineRect.width(), lineRect.height(),
+  				hasFocus()
+				? QSharedDoubleBuffer::Default
+				: QSharedDoubleBuffer::InitBG );
     p = buffer.painter();
-    p->fillRect( lineRect, bg );
 
     // locate cursor position
     int cix = 0;
@@ -1895,7 +1901,8 @@ void QLineEdit::drawContents( QPainter *p )
 	if ( d->selstart < d->selend && (last >= d->selstart && first < d->selend ) ) {
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->selstart - first, 0 ) ),
 					     lineRect.top() ),
-				     QPoint( tix + ti.cursorToX( QMIN( d->selend - first, last - first + 1 ) ),
+				     QPoint( tix + ti.cursorToX( QMIN( d->selend - first,
+								       last - first + 1 ) ),
 					     lineRect.bottom() ) ).normalize();
 	    p->save();
   	    p->setClipRegion( QRegion( lineRect ) - highlight, QPainter::CoordPainter );
@@ -1911,8 +1918,11 @@ void QLineEdit::drawContents( QPainter *p )
 
 	// input method edit area
 	if ( d->imstart < d->imend && (last >= d->imstart && first < d->imend ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( QMIN( d->imend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imstart - first, 0 ) ),
+					     lineRect.top() ),
+				     QPoint( tix + ti.cursorToX( QMIN( d->imend - first,
+								       last - first + 1 ) ),
+					     lineRect.bottom() ) ).normalize();
 	    p->save();
  	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 
@@ -1928,8 +1938,11 @@ void QLineEdit::drawContents( QPainter *p )
 
 	// input method selection
 	if ( d->imselstart < d->imselend && (last >= d->imselstart && first < d->imselend ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imselstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( QMIN( d->imselend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imselstart - first, 0 ) ),
+					     lineRect.top() ),
+				     QPoint( tix + ti.cursorToX( QMIN( d->imselend - first,
+								       last - first + 1 ) ),
+					     lineRect.bottom() ) ).normalize();
 	    p->save();
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.text() );
@@ -1941,8 +1954,11 @@ void QLineEdit::drawContents( QPainter *p )
 	// overwrite cursor
 	if ( d->cursorVisible && d->maskData &&
 	     d->selend <= d->selstart && (last >= d->cursor && first <= d->cursor ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->cursor - first, 0 ) ), lineRect.top() ),
-				     QPoint( tix + ti.cursorToX( QMIN( d->cursor + 1 - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->cursor - first, 0 ) ),
+					     lineRect.top() ),
+				     QPoint( tix + ti.cursorToX( QMIN( d->cursor + 1 - first,
+								       last - first + 1 ) ),
+					     lineRect.bottom() ) ).normalize();
 	    p->save();
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.text() );
@@ -2310,7 +2326,7 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
     }
     updateMicroFocusHint();
     if ( mark ) {
-	if( !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected )) 
+	if( !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ))
 	    setCursorVisible( FALSE );
 	emit q->selectionChanged();
     }
@@ -2384,7 +2400,7 @@ void QLineEditPrivate::setText( const QString& txt )
 
 void QLineEditPrivate::setCursorVisible( bool visible )
 {
-    if ( (bool)cursorVisible == visible ) 
+    if ( (bool)cursorVisible == visible )
 	return;
     if ( cursorTimer )
 	cursorVisible = visible;
