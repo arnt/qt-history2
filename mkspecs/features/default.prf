@@ -1,2 +1,2 @@
-CONFIG = warn_on debug uic resources $$CONFIG
+CONFIG = lex yacc warn_on debug uic resources $$CONFIG
 
