@@ -67,7 +67,7 @@ public:
     virtual int formWindowCount() const;
     virtual AbstractFormWindow *formWindow(int index) const;
 
-    virtual AbstractFormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WFlags flags = 0);
+    virtual AbstractFormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WindowFlags flags = 0);
 
     virtual AbstractFormEditor *core() const;
 

@@ -13,7 +13,7 @@
 
 #include "abstractobjectinspector.h"
 
-AbstractObjectInspector::AbstractObjectInspector(QWidget *parent, Qt::WFlags flags)
+AbstractObjectInspector::AbstractObjectInspector(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }

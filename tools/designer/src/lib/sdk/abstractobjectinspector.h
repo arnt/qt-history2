@@ -25,7 +25,7 @@ class QT_SDK_EXPORT AbstractObjectInspector: public QWidget
 {
     Q_OBJECT
 public:
-    AbstractObjectInspector(QWidget *parent, Qt::WFlags flags = 0);
+    AbstractObjectInspector(QWidget *parent, Qt::WindowFlags flags = 0);
     virtual ~AbstractObjectInspector();
 
     virtual AbstractFormEditor *core() const;

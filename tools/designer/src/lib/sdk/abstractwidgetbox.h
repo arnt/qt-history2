@@ -65,7 +65,7 @@ public:
     };
     typedef QList<Category> CategoryList;
     
-    AbstractWidgetBox(QWidget *parent = 0, Qt::WFlags flags = 0);
+    AbstractWidgetBox(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~AbstractWidgetBox();
 
     virtual int categoryCount() const = 0;

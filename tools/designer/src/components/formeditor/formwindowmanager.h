@@ -62,7 +62,7 @@ public:
     int formWindowCount() const;
     AbstractFormWindow *formWindow(int index) const;
 
-    AbstractFormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WFlags flags = 0);
+    AbstractFormWindow *createFormWindow(QWidget *parentWidget = 0, Qt::WindowFlags flags = 0);
 
     bool eventFilter(QObject *o, QEvent *e);
 

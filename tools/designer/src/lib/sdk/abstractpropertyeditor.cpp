@@ -13,7 +13,7 @@
 
 #include "abstractpropertyeditor.h"
 
-AbstractPropertyEditor::AbstractPropertyEditor(QWidget *parent, Qt::WFlags flags)
+AbstractPropertyEditor::AbstractPropertyEditor(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }

@@ -21,7 +21,7 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QWorkspace>
 
-QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
+QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),
       m_workbench(workbench),
       m_saveSettings(false)

@@ -870,7 +870,7 @@ QPoint WidgetBoxDnDItem::hotSpot() const
 ** WidgetBox
 */
 
-WidgetBox::WidgetBox(AbstractFormEditor *core, QWidget *parent, Qt::WFlags flags)
+WidgetBox::WidgetBox(AbstractFormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     : AbstractWidgetBox(parent, flags), m_core(core)
 {
     m_core = core;

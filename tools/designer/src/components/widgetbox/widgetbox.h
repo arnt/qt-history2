@@ -40,8 +40,7 @@ class QT_WIDGETBOX_EXPORT WidgetBox : public AbstractWidgetBox
 public:
     enum ViewMode { TreeMode, FormMode };
 
-    WidgetBox(AbstractFormEditor *core, QWidget *parent = 0,
-              Qt::WFlags flags = 0);
+    WidgetBox(AbstractFormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~WidgetBox();
 
     AbstractFormEditor *core() const;
@@ -50,7 +49,7 @@ public:
     virtual Category category(int cat_idx) const;
     virtual void addCategory(const Category &cat);
     virtual void removeCategory(int cat_idx);
-    
+
     virtual int widgetCount(int cat_idx) const;
     virtual Widget widget(int cat_idx, int wgt_idx) const;
     virtual void addWidget(int cat_idx, const Widget &wgt);

@@ -128,7 +128,7 @@ AbstractFormWindow *AbstractFormWindowManager::formWindow(int index) const
     return 0;
 }
 
-AbstractFormWindow *AbstractFormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WFlags flags)
+AbstractFormWindow *AbstractFormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
 {
     Q_UNUSED(parentWidget);
     Q_UNUSED(flags);

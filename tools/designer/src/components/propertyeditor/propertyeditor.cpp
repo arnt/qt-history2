@@ -560,7 +560,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
 }
 
 PropertyEditor::PropertyEditor(AbstractFormEditor *core,
-            QWidget *parent, Qt::WFlags flags)
+            QWidget *parent, Qt::WindowFlags flags)
     : AbstractPropertyEditor(parent, flags),
       m_core(core),
       m_properties(0)

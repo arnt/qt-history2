@@ -647,7 +647,7 @@ void FormWindowManager::layoutContainerGrid()
         m_activeFormWindow->layoutGridContainer(w);
 }
 
-AbstractFormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WFlags flags)
+AbstractFormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Qt::WindowFlags flags)
 {
     FormWindow *formWindow = new FormWindow(qobject_cast<FormEditor*>(core()), parentWidget, flags);
     addFormWindow(formWindow);

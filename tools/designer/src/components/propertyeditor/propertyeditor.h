@@ -29,7 +29,7 @@ class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public AbstractPropertyEditor
 {
     Q_OBJECT
 public:
-    PropertyEditor(AbstractFormEditor *core, QWidget *parent = 0, Qt::WFlags flags = 0);
+    PropertyEditor(AbstractFormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~PropertyEditor();
 
     virtual AbstractFormEditor *core() const;

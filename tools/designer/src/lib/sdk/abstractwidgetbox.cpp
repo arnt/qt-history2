@@ -13,7 +13,7 @@
 
 #include "abstractwidgetbox.h"
 
-AbstractWidgetBox::AbstractWidgetBox(QWidget *parent, Qt::WFlags flags)
+AbstractWidgetBox::AbstractWidgetBox(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }

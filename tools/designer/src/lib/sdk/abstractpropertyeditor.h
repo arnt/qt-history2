@@ -26,7 +26,7 @@ class QT_SDK_EXPORT AbstractPropertyEditor: public QWidget
 {
     Q_OBJECT
 public:
-    AbstractPropertyEditor(QWidget *parent, Qt::WFlags flags = 0);
+    AbstractPropertyEditor(QWidget *parent, Qt::WindowFlags flags = 0);
     virtual ~AbstractPropertyEditor();
 
     virtual AbstractFormEditor *core() const;

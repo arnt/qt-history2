@@ -33,7 +33,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
+QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),
       m_editor(editor),
       m_workbench(workbench)

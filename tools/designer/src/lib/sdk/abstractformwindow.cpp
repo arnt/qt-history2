@@ -15,7 +15,7 @@
 
 #include <QtGui/QMainWindow>
 
-AbstractFormWindow::AbstractFormWindow(QWidget *parent, Qt::WFlags flags)
+AbstractFormWindow::AbstractFormWindow(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }

@@ -38,7 +38,7 @@ public:
     Q_DECLARE_FLAGS(Feature, FeatureFlag)
 
 public:
-    AbstractFormWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
+    AbstractFormWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~AbstractFormWindow();
 
     virtual bool hasFeature(Feature f) const = 0;
