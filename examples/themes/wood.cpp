@@ -755,7 +755,7 @@ static void get_combo_parameters( const QRect &r,
 				  int &ay, int &sh, int &dh,
 				  int &sy );
 
-static int get_combo_extra_width( int h, int *return_awh );
+static int get_combo_extra_width( int h, int *return_awh = 0 );
 
 enum { PointUp, PointDown, PointLeft, PointRight };
 
@@ -931,8 +931,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	
 	    QRegion internR = roundRectRegion( QRect(x + b, y + b,
 						       w - 2 * b,
-						       h - 2 * b),
-					       d - b );
+						       h - 2 * b), d - b );
 	    QPen oldPen = p->pen();
 	
 	    QBrush brush( flags & Style_Sunken ? cg.brush(QColorGroup::Mid) :
@@ -945,13 +944,15 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    QPoint p3( x + e, y + h - 1 - e );
 	
 	    QPointArray a;
-	    a.setPoints( 5, x,y, x+w-1, y, p2.x(),p2.y(), p3.x(),p3.y(), x, y+h-1 );
+	    a.setPoints( 5, x,y, x+w-1, y, p2.x(), p2.y(), p3.x(), p3.y(), 
+			 x, y + h - 1 );
 	    p->setClipRegion( QRegion(a) - internR );
 	
 	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.dark(), *sunkenDark)
 			                     : cg.brush(QColorGroup::Light)) );
 
-	    // A little inversion is needed the buttons ( but not flat)
+	    // A little inversion is needed the buttons 
+	    // ( but not flat)
 	    if ( flags & Style_Raised || flags & Style_Sunken ) {
 		a.setPoint( 0, x + w - 1, y + w - 1 );
 		p->setClipRegion( QRegion( a ) - internR );
@@ -1135,12 +1136,14 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    get_combo_parameters( subRect(SR_PushButtonContents, widget),
 				  ew, awh, ax, ay, sh, dh, sy );
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Default );
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Raised );
 	    QStyle *mstyle = QStyleFactory::create( "Motif" );
 	    if ( mstyle )
-		mstyle->drawPrimitive( PE_ArrowDown, p, QRect(ax, ay, awh, awh), cg, how );
+		mstyle->drawPrimitive( PE_ArrowDown, p,
+				       QRect(ax, ay, awh, awh), cg, how );
 	    else
-		drawPrimitive( PE_ArrowDown, p, QRect(ax, ay, awh, awh), cg, how );
+		drawPrimitive( PE_ArrowDown, p,
+			       QRect(ax, ay, awh, awh), cg, how );
 
 	    QPen oldPen = p->pen();
 	    p->setPen( cg.light() );
@@ -1150,88 +1153,16 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    p->drawLine( ax + 1, sy + sh - 1, ax + awh - 1, sy + sh - 1 );
 	    p->drawLine( ax + awh - 1, sy + 1, ax + awh - 1, sy + sh - 1 );
 	    p->setPen( oldPen );
+	    
+	    if ( cmb->editable() ) {
+		QRect r( querySubControlMetrics(CC_ComboBox, widget,
+						SC_ComboBoxEditField, data) );
+		qDrawShadePanel( p, r, cg, TRUE, 1,
+				 &cg.brush(QColorGroup::Button) );
+	    }
 
 	    break;
 	}
-	
-	// Scroll bar is FooBar'd just use the windows style one, for
-	// now
-//     case CC_ScrollBar:
-// 	{
-// 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
-// 	    QRect addline, subline, addpage, subpage, slider, first, last;
-// 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
-
-// 	    subline = querySubControlMetrics(cc, widget, SC_ScrollBarSubLine, data);
-// 	    addline = querySubControlMetrics(cc, widget, SC_ScrollBarAddLine, data);
-// 	    subpage = querySubControlMetrics(cc, widget, SC_ScrollBarSubPage, data);
-// 	    addpage = querySubControlMetrics(cc, widget, SC_ScrollBarAddPage, data);
-// 	    slider  = querySubControlMetrics(cc, widget, SC_ScrollBarSlider,  data);
-// 	    first   = querySubControlMetrics(cc, widget, SC_ScrollBarFirst,   data);
-// 	    last    = querySubControlMetrics(cc, widget, SC_ScrollBarLast,    data);
-
-// 	    if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
-// 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarSubPage) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-// 	    if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
-// 		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarAddPage) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-//        	    if ((sub & SC_ScrollBarFirst) && first.isValid())
-// 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarFirst) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-// 	    if ((sub & SC_ScrollBarLast) && last.isValid())
-// 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarLast) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-// 	    if ((sub & SC_ScrollBarSubLine) && subline.isValid())
-// 		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarSubLine) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-// 	    if ((sub & SC_ScrollBarAddLine) && addline.isValid())
-// 		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarAddLine) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-
-// 	    if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
-// 		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
-// 			      ((maxedOut) ? Style_Default : Style_Enabled) |
-// 			      ((subActive == SC_ScrollBarSlider) ?
-// 			       Style_Down : Style_Default) |
-// 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-// 			       Style_Horizontal : 0));
-
-// 		// ### perhaps this should not be able to accept focus if maxedOut?
-// 		if (scrollbar->hasFocus()) {
-// 		    QRect fr(slider.x() + 2, slider.y() + 2,
-// 			     slider.width() - 5, slider.height() - 5);
-// 		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
-// 		}
-// 	    }
-
-// 	    break;
-// 	}
-	
     default:
 	QWindowsStyle::drawComplexControl( cc, p, widget, r, cg, how,
 					   sub, subActive, data );
@@ -1340,6 +1271,14 @@ QRect NorwegianWoodStyle::subRect( SubRect sr, const QWidget * widget ) const
 	    else
 		r.setRect( r.x() + d, r.y() + b,
 			   r.width() - 2 * d, r.height() - 2 * b );
+	    break;
+	}
+    case SR_ComboBoxFocusRect:
+	{
+	    r = subRect( SR_PushButtonContents, widget );
+	    int ew = get_combo_extra_width( r.height() );
+	    r.setRect( r.x() + 1, r.y() + 1, r.width() - 2 - ew,
+		       r.height() - 2 );
 	    break;
 	}
     default:
