@@ -368,11 +368,14 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
     top-level widget.
 */
 bool QShortcutMap::correctSubWindow(const QWidget* w) {
-    if (!w->isVisible() || !w->isEnabled())
+    QWidget *wtlw = qApp->activeWindow();
+    Q_ASSERT(wtlw != 0);
+
+    if (!w->isVisible() || !w->isEnabled() || !wtlw)
         return false;
 
     QWidget *tlw = w->topLevelWidget();
-    QWidget *wtlw = qApp->activeWindow()->topLevelWidget();
+    wtlw = wtlw->topLevelWidget();
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
