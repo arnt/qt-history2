@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#27 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#27 $")
 
 
 // --------------------------------------------------------------------------
@@ -128,17 +128,11 @@ void QCursor::initialize()
 void QCursor::cleanup()
 {
     int shape = ArrowCursor;
-#if defined(CHECK_MEMORY)
-    bool mc = memchkSetReporting( FALSE );	// get rid of stupid messages
-#endif
     while ( cursorTable[shape] ) {
 	delete cursorTable[shape]->data;
 	cursorTable[shape]->data = 0;
 	shape++;
     }
-#if defined(CHECK_MEMORY)
-    memchkSetReporting( mc );
-#endif
 }
 
 

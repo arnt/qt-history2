@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#10 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#10 $")
 
 
 // --------------------------------------------------------------------------
@@ -102,17 +102,11 @@ void QCursor::initialize()
 void QCursor::cleanup()
 {
     int shape = ArrowCursor;
-#if defined(CHECK_MEMORY)
-    bool mc = memchkSetReporting( FALSE );	// get rid of stupid messages
-#endif
     while ( cursorTable[shape] ) {
 	delete cursorTable[shape]->data;
 	cursorTable[shape]->data = 0;
 	shape++;
     }
-#if defined(CHECK_MEMORY)
-    memchkSetReporting( mc );
-#endif
 }
 
 
@@ -278,28 +272,18 @@ void QCursor::update() const			// update/load cursor
 	    for ( i=0; i<len; i++ ) {
 		uchar b = ~bits[i];
 		uchar m = ~mask[i];
-		bits[i] = ~m;
+		bits[i] = ~m;			// convert to Qt bitmap/mask
 		mask[i] = b ^ m;
 	    }
 	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
 					w, h, bits, mask );
 	    delete [] bits;
 	    delete [] mask;
-/*
-	    QImage c, m;
-	    c = *data->bm;
-	    m = *data->bmm;
-	    c = c.convertBitOrder( QImage::BigEndian );
-	    m = m.convertBitOrder( QImage::BigEndian );
-	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
-					c.width(), c.height(),
-					c.bits(),  m.bits() );
-*/
 	    return;
 	    }
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QCursor::update: Invalid cursor shape %d", data->cshape );
+	    warning( "QCursor::update: Invalid cursor shape %d", data->cshape);
 #endif
 	    return;
     }
