@@ -160,7 +160,9 @@ public:
 #endif
     QImage	swapRGB() const;
 
+#ifdef QT_GUI
     static Endian systemBitOrder();
+#endif
     static Endian systemByteOrder();
 
 #ifndef QT_NO_IMAGEIO

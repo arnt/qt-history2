@@ -993,17 +993,15 @@ QImage::Endian QImage::systemByteOrder()
     return sbo;
 }
 
-
-#if defined(Q_WS_X11)
-#include <X11/Xlib.h>				// needed for systemBitOrder
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
-#if defined(Q_OS_WIN32)
-#undef open
-#undef close
-#undef read
-#undef write
+// Windows defines these
+#if defined(write)
+# undef write
 #endif
+#if defined(close)
+# undef close
+#endif
+#if defined(read)
+# undef read
 #endif
 
 // POSIX Large File Support redefines open -> open64
@@ -1015,23 +1013,6 @@ QImage::Endian QImage::systemByteOrder()
 #if defined(truncate)
 # undef truncate
 #endif
-
-/*!
-    Determines the bit order of the display hardware. Returns
-    QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
-
-    \sa systemByteOrder()
-*/
-
-QImage::Endian QImage::systemBitOrder()
-{
-#if defined(Q_WS_X11)
-    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
-#else
-    return BigEndian;
-#endif
-}
-
 
 /*!
     Resizes the color table to \a numColors colors.
