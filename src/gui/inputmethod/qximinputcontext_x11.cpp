@@ -478,8 +478,10 @@ void QXIMInputContext::reset()
     data->clear();
     if (data->ic) {
         char *mb = XmbResetIC(data->ic);
-        if (mb)
+        if (mb) {
+            sendIMEvent(QEvent::InputMethodEnd, QString::fromLocal8Bit(mb));
             XFree(mb);
+        }
     }
 }
 
@@ -523,6 +525,12 @@ bool QXIMInputContext::isComposing() const
 void QXIMInputContext::setFocusWidget(QWidget *w)
 {
     QWidget *oldFocus = focusWidget();
+    if (oldFocus == w)
+        return;
+
+    if (language() != QLatin1String("ja"))
+        reset();
+
     if (oldFocus) {
         ICData *data = ximData.value(oldFocus);
         if (data && data->ic)
