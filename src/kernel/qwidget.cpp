@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#74 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#73 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#74 $";
 #endif
 
 /*!
@@ -334,11 +334,13 @@ GUIStyle QWidget::style() const			// get widget GUI style
     return extra ? extra->guistyle : QApplication::style();
 }
 
-/*!  Sets the GUI style for this widget.  The valid values are listed
+/*!
+  Sets the GUI style for this widget.  The valid values are listed
   in qglobal.h, but everything except \c MotifStyle is masked out in
   the free linux version.
 
-  \sa style(), QApplication::setStyle(). */
+  \sa style(), QApplication::setStyle()
+*/
 
 void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 {
@@ -360,7 +362,7 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 
 void QWidget::enable()				// enable events
 {
-    if ( !testWFlags(WState_Disabled) ) {
+    if ( testWFlags(WState_Disabled) ) {
 	clearWFlags( WState_Disabled );
 	update();
     }
@@ -380,16 +382,17 @@ void QWidget::disable()				// disable events
 }
 
 /*!
+  \fn void QWidget::setEnabled( bool enable )
   Enables the widget if \e enable is TRUE, otherwise disables the widget.
   \sa enable(), disable(), isEnabled(), isDisabled()
 */
 
-void QWidget::setEnabled( bool enable )
+void QWidget::setEnabled( bool enableWidget )
 {
-    if ( enable )
-	this->enable();
+    if ( enableWidget )
+	enable();
     else
-	this->disable();
+	disable();
 }
 
 /*!
