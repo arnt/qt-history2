@@ -471,7 +471,7 @@ public:
   \ingroup model-view
 
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!
