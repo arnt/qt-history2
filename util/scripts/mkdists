@@ -303,6 +303,7 @@ done
 status "Creating moc files.."
 pushd $DISTDIR/qt/src/moc >/dev/null 2>&1
 $QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
+make moc_lex.cpp >/dev/null 2>&1
 make moc_yacc.cpp >/dev/null 2>&1
 rm -f Makefile
 popd >/dev/null 2>&1
