@@ -29,6 +29,7 @@ class QtGpRegion { };
 class QtGpPen { };
 class QtGpBrush { };
 class QtGpSolidFill : public QtGpBrush { };
+class QtGpPath { };
 
 struct QtGpStartupInput { Q_UINT32 version; void *cb; BOOL b1; BOOL b2; };
 

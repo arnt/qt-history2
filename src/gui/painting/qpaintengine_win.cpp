@@ -1056,10 +1056,10 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
 {
     Q_ASSERT(isActive());
-    if (d->usesGdiplus()) {
-        d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
-        return;
-    }
+//     if (d->usesGdiplus()) {
+//         d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
+//         return;
+//     }
 
     QPixmap *pm          = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
@@ -1621,9 +1621,13 @@ extern "C" {
     typedef int (__stdcall *PtrSetClipRegion) (QtGpGraphics *, QtGpRegion *, int);
     typedef int (__stdcall *PtrResetClip) (QtGpGraphics *);
     typedef int (__stdcall *PtrSetSmoothingMode)(QtGpGraphics *, int);
+    typedef int (__stdcall *PtrFillEllipse) (QtGpGraphics *, QtGpBrush *, int x, int y, int w, int h);
     typedef int (__stdcall *PtrFillRectangle) (QtGpGraphics *, QtGpBrush *, int x, int y, int w, int h);
+    typedef int (__stdcall *PtrFillPath) (QtGpGraphics *, QtGpBrush *, QtGpPath *);
     typedef int (__stdcall *PtrDrawRectangle) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
+    typedef int (__stdcall *PtrDrawEllipse) (QtGpGraphics *, QtGpPen *, int x, int y, int w, int h);
     typedef int (__stdcall *PtrDrawLine) (QtGpGraphics *, QtGpPen *, int x1, int y1, int x2, int y2);
+    typedef int (__stdcall *PtrDrawPath) (QtGpGraphics *, QtGpPen *, QtGpPath *);
 
     typedef int (__stdcall *PtrCreateMatrix) (float, float, float, float, float, float, QtGpMatrix **);
     typedef int (__stdcall *PtrDeleteMatrix) (QtGpMatrix *);
@@ -1641,22 +1645,31 @@ extern "C" {
     typedef int (__stdcall *PtrSetPenWidth) (QtGpPen *, float width);
     typedef int (__stdcall *PtrSetPenColor) (QtGpPen *, Q_UINT32 argb);
     typedef int (__stdcall *PtrSetPenDashStyle) (QtGpPen *, int dashStyle);
-#ifdef __cplusplus
+
+    typedef int (__stdcall *PtrCreatePath) (int fillMode, QtGpPath **path);
+    typedef int (__stdcall *PtrDeletePath) (QtGpPath *path);
+    typedef int (__stdcall *PtrAddPathLine) (QtGpPath *path, float x1, float y1, float x2, float y2);
+    typedef int (__stdcall *PtrAddPathArc) (QtGpPath *path, float x, float y, float w, float h,
+                                            float startAngle, float sweepAngle);
+    typedef int (__stdcall *PtrClosePathFigure) (QtGpPath *path);
 }
-#endif
 
 static PtrGdiplusStartup ptrGdiplusStartup = 0;         // GdiplusStartup
 static PtrGdiplusShutdown ptrGdiplusShutdown = 0;       // GdiplusStartup
 
 static PtrCreateFromHDC ptrCreateFromHDC = 0;           // Graphics::Graphics(hdc)
 static PtrDeleteGraphics ptrDeleteGraphics = 0;         // Graphics::~Graphics()
-static PtrSetTransform ptrSetTransform = 0;             // Graphics::SetTransform(matrix)
-static PtrSetClipRegion ptrSetClipRegion = 0;           // Graphics::SetClipRegion(region)
-static PtrResetClip ptrResetClip = 0;                   // Graphics::ResetClip()
-static PtrSetSmoothingMode ptrSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
-static PtrFillRectangle ptrFillRectangle = 0;           // Graphics::FillRectangle(brush, x, y, w, h)
-static PtrDrawRectangle ptrDrawRectangle = 0;           // Graphics::DrawRectangle(brush, x, y, w, h)
+static PtrDrawEllipse ptrDrawEllipse = 0;               // Graphics::DrawEllipse(pen, x, y, w, h)
 static PtrDrawLine ptrDrawLine = 0;                     // Graphics::DrawLine(pen, x1, y1, x2, y2)
+static PtrDrawPath ptrDrawPath = 0;                     // Graphics::DrawPath(pen, path);
+static PtrDrawRectangle ptrDrawRectangle = 0;           // Graphics::DrawRectangle(brush, x, y, w, h)
+static PtrFillEllipse ptrFillEllipse = 0;               // Graphics::FillEllipse(brush, x, y, w, h)
+static PtrFillPath ptrFillPath = 0;                     // Graphics::FillPath(brush, path)
+static PtrFillRectangle ptrFillRectangle = 0;           // Graphics::FillRectangle(brush, x, y, w, h)
+static PtrResetClip ptrResetClip = 0;                   // Graphics::ResetClip()
+static PtrSetClipRegion ptrSetClipRegion = 0;           // Graphics::SetClipRegion(region)
+static PtrSetSmoothingMode ptrSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
+static PtrSetTransform ptrSetTransform = 0;             // Graphics::SetTransform(matrix)
 
 static PtrCreateMatrix ptrCreateMatrix = 0;             // Matrix::Matrix(a, b, c, d, dx, dy)
 static PtrDeleteMatrix ptrDeleteMatrix = 0;             // Matrix::~Matrix()
@@ -1671,9 +1684,15 @@ static PtrSetSolidFillColor ptrSetSolidFillColor = 0;   // SolidBrush::SetColor(
 
 static PtrCreatePen1 ptrCreatePen1 = 0;                 // Pen::Pen(color, width)
 static PtrDeletePen ptrDeletePen = 0;                   // Pen::~Pen()
-static PtrSetPenWidth ptrSetPenWidth = 0;              // Pen::SetWidth(width)
+static PtrSetPenWidth ptrSetPenWidth = 0;               // Pen::SetWidth(width)
 static PtrSetPenColor ptrSetPenColor = 0;               // Pen::SetColor(argb)
 static PtrSetPenDashStyle ptrSetPenDashStyle = 0;       // Pen::SetDashStyle(style)
+
+static PtrCreatePath ptrCreatePath = 0;                 // Path::Path(fillMode)
+static PtrDeletePath ptrDeletePath = 0;                 // Path::~Path()
+static PtrAddPathLine ptrAddPathLine = 0;               // Path::AddLine(x1, y1, x2, y2)
+static PtrAddPathArc ptrAddPathArc = 0;                 // Path::AddArc(x, y, w, h, start, sweep);
+static PtrClosePathFigure ptrClosePathFigure = 0;       // Path::CloseFigure();
 
 static void qt_resolve_gdiplus()
 {
@@ -1694,9 +1713,13 @@ static void qt_resolve_gdiplus()
     ptrSetClipRegion            = (PtrSetClipRegion)      lib.resolve("GdipSetClipRegion");
     ptrResetClip                = (PtrResetClip)          lib.resolve("GdipResetClip");
     ptrSetSmoothingMode         = (PtrSetSmoothingMode)   lib.resolve("GdipSetSmoothingMode");
+    ptrFillEllipse              = (PtrFillEllipse)        lib.resolve("GdipFillEllipseI");
+    ptrFillPath                 = (PtrFillPath)           lib.resolve("GdipFillPath");
     ptrFillRectangle            = (PtrFillRectangle)      lib.resolve("GdipFillRectangleI");
-    ptrDrawRectangle            = (PtrDrawRectangle)      lib.resolve("GdipDrawRectangleI");
+    ptrDrawEllipse              = (PtrDrawEllipse)        lib.resolve("GdipDrawEllipseI");
     ptrDrawLine                 = (PtrDrawLine)           lib.resolve("GdipDrawLineI");
+    ptrDrawPath                 = (PtrDrawPath)           lib.resolve("GdipDrawPath");
+    ptrDrawRectangle            = (PtrDrawRectangle)      lib.resolve("GdipDrawRectangleI");
 
     // Matrix functions
     ptrCreateMatrix             = (PtrCreateMatrix)       lib.resolve("GdipCreateMatrix2");
@@ -1718,29 +1741,45 @@ static void qt_resolve_gdiplus()
     ptrSetPenColor              = (PtrSetPenColor)        lib.resolve("GdipSetPenColor");
     ptrSetPenDashStyle          = (PtrSetPenDashStyle)    lib.resolve("GdipSetPenDashStyle");
 
+    // Path functions
+    ptrCreatePath               = (PtrCreatePath)         lib.resolve("GdipCreatePath");
+    ptrDeletePath               = (PtrDeletePath)         lib.resolve("GdipDeletePath");
+    ptrAddPathLine              = (PtrAddPathLine)        lib.resolve("GdipAddPathLine");
+    ptrAddPathArc               = (PtrAddPathArc)         lib.resolve("GdipAddPathArc");
+    ptrClosePathFigure          = (PtrClosePathFigure)    lib.resolve("GdipClosePathFigure");
+
     if (ptrGdiplusStartup
-        || ptrGdiplusShutdown
-        || ptrCreateFromHDC
-        || ptrDeleteGraphics
-        || ptrSetTransform
-        || ptrSetClipRegion
-        || ptrResetClip
-        || ptrSetSmoothingMode
-        || ptrFillRectangle
-        || ptrDrawRectangle
-        || ptrDrawLine
-        || ptrCreateMatrix
-        || ptrDeleteMatrix
-        || ptrCreateRegionHrgn
-        || ptrDeleteRegion
-        || ptrDeleteBrush
-        || ptrCreateSolidFill
-        || ptrSetSolidFillColor
-        || ptrCreatePen1
-        || ptrDeletePen
-        || ptrSetPenWidth
-        || ptrSetPenColor
-        || ptrSetPenDashStyle
+        && ptrGdiplusShutdown
+        && ptrCreateFromHDC
+        && ptrDeleteGraphics
+        && ptrSetTransform
+        && ptrSetClipRegion
+        && ptrResetClip
+        && ptrSetSmoothingMode
+        && ptrFillEllipse
+        && ptrFillPath
+        && ptrFillRectangle
+        && ptrDrawEllipse
+        && ptrDrawLine
+        && ptrDrawPath
+        && ptrDrawRectangle
+        && ptrCreateMatrix
+        && ptrDeleteMatrix
+        && ptrCreateRegionHrgn
+        && ptrDeleteRegion
+        && ptrDeleteBrush
+        && ptrCreateSolidFill
+        && ptrSetSolidFillColor
+        && ptrCreatePen1
+        && ptrDeletePen
+        && ptrSetPenWidth
+        && ptrSetPenColor
+        && ptrSetPenDashStyle
+        && ptrCreatePath
+        && ptrDeletePath
+        && ptrAddPathLine
+        && ptrAddPathArc
+        && ptrClosePathFigure
         ) {
         qt_gdiplus_support = true;
         QGdiplusPaintEngine::initialize();
@@ -1804,18 +1843,16 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
     // Verify the presence of an HDC
     if (pdev->devType() == QInternal::Widget) {
         d->hdc = pdev->handle();
-        if (!d->hdc) {
-            QWidget *widget = static_cast<QWidget*>(pdev);
-            d->hdc = GetDC(widget->winId());
-            d->usesTempDC = true;
-        }
+        Q_ASSERT(d->hdc);
     }
 
 //     d->graphics = new Graphis(hdc);
+    Q_ASSERT(!d->graphics);
     (*ptrCreateFromHDC)(d->hdc, &d->graphics);
     Q_ASSERT(d->graphics);
 
 //     d->pen = new Pen(Color(0, 0, 0), 0);
+    Q_ASSERT(!d->pen);
     (*ptrCreatePen1)(0xff000000, 0, 0, &d->pen);
     Q_ASSERT(d->pen);
 
@@ -1842,14 +1879,6 @@ bool QGdiplusPaintEngine::end()
     d->pen = 0;
     d->cachedSolidBrush = 0;
     d->brush = 0;
-
-    if (d->pdev->devType() == QInternal::Widget) {
-        QWidget *widget = static_cast<QWidget*>(d->pdev);
-        if (!d->usesTempDC) {
-            ReleaseDC(widget->winId(), d->hdc);
-            d->usesTempDC = false;
-        }
-    }
 
     return true;
 }
@@ -1902,7 +1931,6 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
 //         d->brush = new LinearGradientBrush(conv(b.gradientStart()), conv(b.gradientStop()),
 //                                            conv(b.color()), conv(b.gradientColor()));
 //         d->temporaryBrush = true;
-        qDebug() << "QGdiplusPaintEngine::updateBrush(), style is gradient...";
         break;
     }
     case Qt::CustomPattern: {
@@ -2009,23 +2037,25 @@ void QGdiplusPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
 void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
 //     GraphicsPath path(FillModeAlternate);
+    QtGpPath *path = 0;
+    (*ptrCreatePath)(0, &path);
 
-//     int subtract = d->usePen ? 1 : 0;
+    int subtract = d->usePen ? 1 : 0;
 
-//     int top = r.y();
-//     int bottom = r.y() + r.height() - subtract;
-//     int left = r.x();
-//     int right = r.x() + r.width() - subtract;
+    int top = r.y();
+    int bottom = r.y() + r.height() - subtract;
+    int left = r.x();
+    int right = r.x() + r.width() - subtract;
 
-//     int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
-//     int horStart  = r.x() + r.width() / 2 - horLength / 2;
-//     int horEnd = horStart + horLength;
-//     int arcWidth = r.width() - horLength;
+    int horLength = (99 - xRnd) / 99.0 * r.width() / 1;
+    int horStart  = r.x() + r.width() / 2 - horLength / 2;
+    int horEnd = horStart + horLength;
+    int arcWidth = r.width() - horLength;
 
-//     int verLength = (99 - yRnd) / 99.0 * r.height() / 1;
-//     int verStart  = r.y() + r.height() / 2 - verLength / 2;
-//     int verEnd = verStart + verLength;
-//     int arcHeight = r.width() - horLength;
+    int verLength = (99 - yRnd) / 99.0 * r.height() / 1;
+    int verStart  = r.y() + r.height() / 2 - verLength / 2;
+    int verEnd = verStart + verLength;
+    int arcHeight = r.width() - horLength;
 
 //     path.AddLine(horStart, r.y(), horEnd, r.y());
 //     path.AddArc(right - arcWidth, top, arcWidth, arcHeight, 270, 90);
@@ -2036,19 +2066,40 @@ void QGdiplusPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 //     path.AddLine(left, verEnd, left, verStart);
 //     path.AddArc(left, top, arcWidth, arcHeight, 180, 90);
 //     path.CloseFigure();
-//     if (d->brush)
+
+    (*ptrAddPathLine)(path, horStart, r.y(), horEnd, r.y());
+    (*ptrAddPathArc) (path, right - arcWidth, top, arcWidth, arcHeight, 270, 90);
+    (*ptrAddPathLine)(path, right, verStart, right, verEnd);
+    (*ptrAddPathArc) (path, right - arcWidth, bottom - arcHeight, arcWidth, arcHeight, 0, 90);
+    (*ptrAddPathLine)(path, horEnd, bottom, horStart, bottom);
+    (*ptrAddPathArc) (path, left, bottom - arcHeight, arcWidth, arcHeight, 90, 90);
+    (*ptrAddPathLine)(path, left, verEnd, left, verStart);
+    (*ptrAddPathArc) (path, left, top, arcWidth, arcHeight, 180, 90);
+    (*ptrClosePathFigure)(path);
+
+    if (d->brush) {
 //         d->graphics->FillPath(d->brush, &path);
-//     if (d->usePen)
+        (*ptrFillPath)(d->graphics, d->brush, path);
+    }
+    if (d->usePen) {
 //         d->graphics->DrawPath(d->pen, &path);
+        (*ptrDrawPath)(d->graphics, d->pen, path);
+    }
+
+    (*ptrDeletePath)(path);
 }
 
 void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 {
-//     int subtract = d->usePen ? 1 : 0;
-//     if (d->brush)
+    int subtract = d->usePen ? 1 : 0;
+    if (d->brush) {
 //         d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
-//     if (d->usePen)
+        (*ptrFillEllipse)(d->graphics, d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+    }
+    if (d->usePen) {
 //         d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        (*ptrDrawEllipse)(d->graphics, d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+    }
 }
 
 void QGdiplusPaintEngine::drawArc(const QRect &r, int a, int alen)
