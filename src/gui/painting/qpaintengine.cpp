@@ -521,6 +521,7 @@ void QPaintEngine::drawPoint(const QPointF &pf)
 
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
+#ifndef Q_WS_X11
     bool useFontEngine = false;
     if (hasFeature(QPaintEngine::UsesFontEngine)) {
 	useFontEngine = true;
@@ -542,6 +543,9 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
             ti.fontEngine->draw(this, p.x(),  p.y(), ti, textFlags);
         }
     }
+#else
+    const bool useFontEngine = false;
+#endif
 
     if (!useFontEngine) {
         // Fallback: rasterize into a pixmap and draw the pixmap

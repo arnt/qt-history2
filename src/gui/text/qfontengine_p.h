@@ -89,7 +89,9 @@ public:
     virtual QOpenType *openType() const { return 0; }
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
+#ifndef Q_WS_X11
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
+#endif
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
@@ -294,6 +296,8 @@ public:
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
 
     FT_Face freetypeFace() const { return _face; }
+    XftFont *xftFont() const { return _font; }
+    XftFont *transformedFont(const QMatrix &matrix);
 private:
     friend class QFontPrivate;
     friend class QOpenType;
@@ -389,6 +393,7 @@ public:
     Type type() const { return LatinXLFD; }
 
     Qt::HANDLE handle() const { return ((QFontEngineXLFD *) _engines[0])->handle(); }
+    QFontEngine *engine(int i) { return _engines[i]; }
 
 private:
     void findEngine(const QChar &ch);

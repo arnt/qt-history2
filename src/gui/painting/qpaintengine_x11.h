@@ -32,6 +32,7 @@ public:
 
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateRenderHints(QPainter::RenderHints hints);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
@@ -50,15 +51,23 @@ public:
                             Qt::PixmapDrawingMode mode);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
 				 Qt::PixmapDrawingMode mode);
+    void drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::X11; }
+
+    QPainter::RenderHints supportedRenderHints() const;
 
     static void initialize();
     static void cleanup();
 
 protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr);
+
+    void drawBox(const QPoint &p, const QTextItem &si, int textFlags);
+    void drawXLFD(const QPoint &p, const QTextItem &si, int textFlags);
+    void drawLatinXLFD(const QPoint &p, const QTextItem &si, int textFlags);
+    void drawXft(const QPoint &p, const QTextItem &si, int textFlags);
 
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);
