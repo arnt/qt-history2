@@ -458,8 +458,8 @@ QFSFileInfoEngine::fileName(FileName file) const
 	}
     } else if(file == AbsoluteName || file == AbsoluteDirPath) {
         QString ret;
-        if(!d->file.length() || (d->file.at(0) != '/'
-				 && d->file.at(1) != ':')) {
+        if (d->file.isEmpty()
+            || (d->file.length() >=2 && d->file.at(0) != '/' && d->file.at(1) != ':')) {
             ret = QDir::currentDirPath();
         }
         if(!d->file.isEmpty() && d->file != ".") {
