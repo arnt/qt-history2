@@ -576,6 +576,10 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         case QCoreVariant::ByteArray:
             *str = QString::fromAscii(v_cast<QByteArray>(d)->constData());
             break;
+        case QCoreVariant::StringList:
+            if (v_cast<QStringList>(d)->count() == 1)
+                *str = v_cast<QStringList>(d)->at(0);
+            break;
         default:
             break;
         }
@@ -588,6 +592,9 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             const QCoreVariantList *list = v_cast<QCoreVariantList >(d);
             for (int i = 0; i < list->size(); ++i)
                 slst->append(list->at(i).toString());
+        } else if (d->type == QCoreVariant::String) {
+            QStringList *slst = static_cast<QStringList *>(result);
+            *slst = *v_cast<QString>(d);
         }
 #endif
         break;
@@ -883,6 +890,8 @@ static bool canCast(const QCoreVariant::Private *d, QCoreVariant::Type t)
             || d->type == QCoreVariant::Bool || d->type == QCoreVariant::UInt
             || d->type == QCoreVariant::LongLong || d->type == QCoreVariant::ULongLong;
     case QCoreVariant::String:
+        if (d->type == QCoreVariant::StringList && v_cast<QStringList>(d)->count() == 1)
+            return true;
         return d->type == QCoreVariant::ByteArray || d->type == QCoreVariant::Int
             || d->type == QCoreVariant::UInt || d->type == QCoreVariant::Bool
             || d->type == QCoreVariant::Double || d->type == QCoreVariant::Date
@@ -910,6 +919,8 @@ static bool canCast(const QCoreVariant::Private *d, QCoreVariant::Type t)
                 if (!varlist.at(i).canCast(QCoreVariant::String))
                     return false;
             }
+            return true;
+        } else if (d->type == QCoreVariant::String) {
             return true;
         }
         return false;
