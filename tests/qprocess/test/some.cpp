@@ -63,25 +63,24 @@ Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit ) : QObject( p )
     QObject::connect( close, SIGNAL(clicked()),
 	    proc, SLOT(closeStdin()) );
 
-    QCheckBox *cb;
     // signal dataStdout( const QString& )
-    cb = new QCheckBox( "Stdout", &main );
-    QObject::connect( cb, SIGNAL(toggled(bool)),
+    QCheckBox *cb1 = new QCheckBox( "Stdout", &main );
+    QObject::connect( cb1, SIGNAL(toggled(bool)),
 	    this, SLOT(connectStdout(bool)) );
-    if ( cStdout )
-	cb->toggle();
+    cb1->setChecked( cStdout );
+    connectStdout( cStdout );
     // signal dataStderr( const QString& )
-    cb = new QCheckBox( "Stderr", &main );
-    QObject::connect( cb, SIGNAL(toggled(bool)),
+    QCheckBox *cb2 = new QCheckBox( "Stderr", &main );
+    QObject::connect( cb2, SIGNAL(toggled(bool)),
 	    this, SLOT(connectStderr(bool)) );
-    if ( cStderr )
-	cb->toggle();
+    cb2->setChecked( cStderr );
+    connectStderr( cStderr );
     // signal processExited()
-    cb = new QCheckBox( "Exit Notify", &main );
-    QObject::connect( cb, SIGNAL(toggled(bool)),
+    QCheckBox *cb3 = new QCheckBox( "Exit Notify", &main );
+    QObject::connect( cb3, SIGNAL(toggled(bool)),
 	    this, SLOT(connectExit(bool)) );
-    if ( cExit )
-	cb->toggle();
+    cb3->setChecked( cExit );
+    connectExit( cExit );
 
     if ( !proc->start() ) {
 	qWarning( "Could not start process" );
@@ -187,12 +186,12 @@ void SomeFactory::quit()
 
 void SomeFactory::connectStdout( bool enable )
 {
-    cExit = enable;
+    cStdout = enable;
 }
 
 void SomeFactory::connectStderr( bool enable )
 {
-    cExit = enable;
+    cStderr = enable;
 }
 
 void SomeFactory::connectExit( bool enable )

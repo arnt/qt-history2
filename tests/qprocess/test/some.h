@@ -41,7 +41,7 @@ class SomeFactory : public QObject
     Q_OBJECT
 
 public:
-    SomeFactory()
+    SomeFactory() : cStdout(FALSE), cStderr(FALSE), cExit(FALSE)
     { parent = new QObject; };
     ~SomeFactory()
     { delete parent; };
