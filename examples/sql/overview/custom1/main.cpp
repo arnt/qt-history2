@@ -28,9 +28,7 @@ void CustomEdit::slotChanged( const QString &line )
 void CustomEdit::setUpperLine( const QString &line )
 {
     upper_line = line.upper();
-    blockSignals( true );
     setText( upper_line );
-    blockSignals( false );
 }
 
 
