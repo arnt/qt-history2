@@ -51,5 +51,11 @@ QSqlDialog::QSqlDialog( QWidget* parent, const char* name, bool modal, WFlags fl
 #define QT_SQLFORMNAV_CHILD QSqlDialog
 #include "qsqlnavigator_p.h"
 
+void QSqlDialog::clearFormValues()
+{
+    if ( form() )
+	form()->clearValues();
+}
+
 
 #endif

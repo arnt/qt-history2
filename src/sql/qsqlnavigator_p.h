@@ -80,14 +80,13 @@ QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, insertRecord, insert, () )
 QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, updateRecord, update, () )
 QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, deleteRecord, del, () )
 
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, firstRecord, (),  )
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, lastRecord, (),  )
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, nextRecord, (),  )
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, prevRecord, (),  )
+QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, firstRecord, first, () )
+QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, lastRecord, last, () )
+QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, nextRecord, next, () )
+QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, prevRecord, prev, () )
 
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, readFields, (), )
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, writeFields, (), )
-QT_SQLFORMNAV_FWD( void, QT_SQLFORMNAV_CHILD, clearFormValues, (), )
+QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, readFormFields, readFields, () )
+QT_SQLFORMNAV_DIF_FWD( void, QT_SQLFORMNAV_CHILD, writeFormFields, writeFields, () )
 
 #undef QT_SQLFORMNAV_CHILD
 

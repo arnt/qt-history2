@@ -58,10 +58,10 @@ public:
     QSqlCursorNavigator();
     virtual ~QSqlCursorNavigator();
 
-    void setSort( const QSqlIndex& sort );
-    void setSort( const QStringList& sort );
+    virtual void setSort( const QSqlIndex& sort );
+    virtual void setSort( const QStringList& sort );
     QStringList  sort() const;
-    void setFilter( const QString& filter );
+    virtual void setFilter( const QString& filter );
     QString filter() const;
     virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
     QSqlCursor* cursor() const;
@@ -102,22 +102,21 @@ public:
 	AfterEnd
     };
 
-    bool firstRecord();
-    bool lastRecord();
-    bool nextRecord();
-    bool prevRecord();
-    void clearValues();
+    virtual bool first();
+    virtual bool last();
+    virtual bool next();
+    virtual bool prev();
+    virtual void clearValues();
 
-    int insert();
-    int update();
-    int del();
+    virtual int insert();
+    virtual int update();
+    virtual int del();
 
-    void readFields();
-    void writeFields();
-    void clearFormValues();
+    virtual void readFields();
+    virtual void writeFields();
 
     Boundry boundry();
-    void setBoundryChecking( bool active );
+    virtual void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
     virtual void setForm( QSqlForm* form );

@@ -77,4 +77,10 @@ QSqlWidget::QSqlWidget( QWidget *parent, const char *name, WFlags fl )
 #define QT_SQLFORMNAV_CHILD QSqlWidget
 #include "qsqlnavigator_p.h"
 
+void QSqlWidget::clearFormValues()
+{
+    if ( form() )
+	form()->clearValues();
+}
+
 #endif

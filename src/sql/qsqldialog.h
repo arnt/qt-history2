@@ -59,13 +59,13 @@ class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
 public:
     QSqlDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
 
-    virtual void setBoundryChecking( bool active );
+    void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
-    virtual void setSort( const QSqlIndex& sort );
-    virtual void setSort( const QStringList& sort );
+    void setSort( const QSqlIndex& sort );
+    void setSort( const QStringList& sort );
     QStringList  sort() const;
-    virtual void setFilter( const QString& filter );
+    void setFilter( const QString& filter );
     QString filter() const;
 
     void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
@@ -97,8 +97,8 @@ public slots:
     virtual void nextRecord();
     virtual void prevRecord();
 
-    virtual void readFields();
-    virtual void writeFields();
+    virtual void readFormFields();
+    virtual void writeFormFields();
     virtual void clearFormValues();
 };
 

@@ -684,7 +684,7 @@ int QSqlFormNavigator::del()
     int ar = QSqlCursorNavigator::del();
     if ( ar ) {
 	if ( !cur->seek( n ) )
-	    lastRecord();
+	    last();
 	else
 	    updateBoundry();
 	cur->editBuffer();
@@ -705,19 +705,14 @@ void QSqlFormNavigator::writeFields()
 	form()->writeFields();
 }
 
-void QSqlFormNavigator::clearFormValues()
-{
-    if ( form() )
-	form()->clearValues();
-}
-
 /*!  Moves the default cursor to the first record and updates the
-default form.  Returns TRUE if the navigator successfully moved to the
-first record, otherwise FALSE is returned.
+default form.  If there is no default cursor, nothing happens and 0 is
+returned.  Otherwise, returns TRUE if the navigator successfully moved
+to the first record, otherwise FALSE is returned.
 
 */
 
-bool QSqlFormNavigator::firstRecord()
+bool QSqlFormNavigator::first()
 {
     QSqlCursor* cur = cursor();
     if ( !cur )
@@ -735,12 +730,13 @@ bool QSqlFormNavigator::firstRecord()
 }
 
 /*!  Moves the default cursor to the last record and updates the
-default form.  Returns TRUE if the navigator successfully moved to the
-last record, otherwise FALSE is returned.
+default form.  If there is no default cursor, nothing happens and 0 is
+returned.  Otherwise, returns TRUE if the navigator successfully moved
+to the last record, otherwise FALSE is returned.
 
 */
 
-bool QSqlFormNavigator::lastRecord()
+bool QSqlFormNavigator::last()
 {
     QSqlCursor* cur = cursor();
     if ( !cur )
@@ -758,13 +754,14 @@ bool QSqlFormNavigator::lastRecord()
 }
 
 /*!  Moves the default cursor to the next record and updates the
-default form.  Returns TRUE if the navigator successfully moved to the
-next record.  Otherwise, the navigator moves the default cursor to the
-last record and FALSE is returned.
+default form.  If there is no default cursor, nothing happens and 0 is
+returned.  Otherwise, returns TRUE if the navigator successfully moved
+to the next record.  Otherwise, the navigator moves the default cursor
+to the last record and FALSE is returned.
 
 */
 
-bool QSqlFormNavigator::nextRecord()
+bool QSqlFormNavigator::next()
 {
     QSqlCursor* cur = cursor();
     if ( !cur )
@@ -781,13 +778,14 @@ bool QSqlFormNavigator::nextRecord()
 }
 
 /*!  Moves the default cursor to the previous record and updates the
-default form.  Returns TRUE if the navigator successfully moved to the
-previous record.  Otherwise, the navigator moves the default cursor to
-the first record and FALSE is returned.
+default form.  If there is no default cursor, nothing happens and 0 is
+returned.  Otherwise, returns TRUE if the navigator successfully moved
+to the previous record.  Otherwise, the navigator moves the default
+cursor to the first record and FALSE is returned.
 
 */
 
-bool QSqlFormNavigator::prevRecord()
+bool QSqlFormNavigator::prev()
 {
     QSqlCursor* cur = cursor();
     if ( !cur )
