@@ -1822,8 +1822,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
   \code
     QString s = QFileDialog::getExistingDirectory(
                     this,
-                    "/home",
                     "Choose a directory",
+                    "/home",
                     DontResolveSymlinks);
   \endcode
 
@@ -1852,8 +1852,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 */
 
 QString QFileDialog::getExistingDirectory(QWidget *parent,
-                                          const QString &dir,
                                           const QString &caption,
+                                          const QString &dir,
                                           Options options)
 {
     bool save_qt_resolve_symlinks = qt_resolve_symlinks;
