@@ -327,6 +327,10 @@ QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
 static QRemoteInterface *remoteControl = 0;
 #endif //QT_NO_REMOTE
 
+#if defined(QT_TABLET_SUPPORT)
+bool chokeMouse = FALSE;
+#endif
+
 void qt_setMaxWindowRect(const QRect& r)
 {
     qt_maxWindowRect = r;
@@ -2219,6 +2223,8 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		    delete ev;
 		}
 	    }
+	    if ( tablet->isAccepted() )
+		chokeMouse = true;
 	}
 	break;
     default:

@@ -100,7 +100,7 @@ static int qt_thread_pipe[2];
 #include <locale.h>
 #include <errno.h>
 
-//#define X_NOT_BROKEN
+#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
 // Some X libraries are built with setlocale #defined to _Xsetlocale,
 // even though library users are then built WITHOUT such a definition.
@@ -315,6 +315,7 @@ static int xinput_button_release = INVALID_EVENT;
 // the pressure for the eraser and the stylus should be the same, if they aren't
 // well, they certainly have a strange pen then...
 static int max_pressure;
+extern bool chokeMouse;
 #endif
 
 typedef int (*QX11EventFilter) (XEvent*);
@@ -3597,7 +3598,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    ignore_settings_change = FALSE;
 		}
 	    }
-	} else if ( widget) {
+	} else if ( widget ) {
 	    if (event->xproperty.window == widget->winId()) { // widget properties
 		if (widget->isTopLevel()) { // top level properties
 		    Atom ret;
@@ -3791,7 +3792,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	// fall through intended
 
     case MotionNotify:
-	widget->translateMouseEvent( event );
+	if ( !chokeMouse )
+	    widget->translateMouseEvent( event );
+	else
+	    chokeMouse = FALSE;
 	break;
 
     case XKeyPress:				// keyboard event
@@ -3887,7 +3891,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	if ( !curWin )
 	    qt_dispatchEnterLeave( widget, 0 );
-	
+
 	qt_dispatchEnterLeave( enter, widget );
 	curWin = enter ? enter->winId() : 0;
     }
@@ -5008,16 +5012,18 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 #if defined (QT_TABLET_SUPPORT)
 bool QETWidget::translateXinputEvent( const XEvent *ev )
 {
+#if defined (Q_OS_IRIX)
     // Wacom has put defines in their wacom.h file so it would be quite wise
     // to use them, need to think of a decent way of not using
     // it when it doesn't exist...
     XDeviceState *s;
     XInputClass *iClass;
     XValuatorState *vs;
+    int j;
+#endif
     QWidget *w = this;
     QPoint global,
 	curr;
-    int j;
     static int pressure = 0;
     static int xTilt = 0,
 	       yTilt = 0;
