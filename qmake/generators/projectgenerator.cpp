@@ -58,7 +58,7 @@ ProjectGenerator::init()
     v["TEMPLATE_ASSIGN"] += Option::user_template.isEmpty() ? QString("app") : Option::user_template;
 
     //figure out target
-    if(Option::output.name() == "-" || Option::output.name().isEmpty()) 
+    if(Option::output.name() == "-" || Option::output.name().isEmpty())
 	v["TARGET"] = QStringList("unknown");
 
     //the scary stuff
@@ -126,7 +126,7 @@ ProjectGenerator::init()
 			    if(QFile::exists(src)) {
 				bool exists = FALSE;
 				QStringList &srcl = v["SOURCES"];
-				for(QStringList::Iterator src_it = srcl.begin()=; src_it != srcl.end(); ++src_it) {
+				for(QStringList::Iterator src_it = srcl.begin(); src_it != srcl.end(); ++src_it) {
 				    if((*src_it).lower() == src.lower()) {
 					exists = TRUE;
 					break;
@@ -161,17 +161,17 @@ ProjectGenerator::init()
 		bool found = FALSE;
 		for(QStringList::Iterator ui_it = u.begin(); ui_it != u.end(); ++ui_it) {
 		    QString s1 = (*val_it).right((*val_it).length() - ((*val_it).findRev(Option::dir_sep) + 1));
-		    if(s1.findRev('.') != -1) 
+		    if(s1.findRev('.') != -1)
 			s1 = s1.left(s1.findRev('.')) + Option::ui_ext;
 		    QString u1 = (*ui_it).right((*ui_it).length() - ((*ui_it).findRev(Option::dir_sep) + 1));
 		    if(s1 == u1) {
 			found = TRUE;
 			break;
-		    } 
+		    }
 		}
 		if(!found && (*val_it).right(Option::moc_ext.length()) == Option::moc_ext)
 		    found = TRUE;
-		if(found) 
+		if(found)
 		    val_it = l.remove(val_it);
 		else
 		    ++val_it;
