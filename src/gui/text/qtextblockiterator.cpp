@@ -48,8 +48,8 @@ QTextLayout *QTextBlockIterator::layout() const
 	    int lastTextPosition = 0;
 	    int textLength = 0;
 
-	    QTextPieceTable::FragmentIterator it = pt->find(start());
-	    QTextPieceTable::FragmentIterator e = pt->find(end());
+	    QTextPieceTable::FragmentIterator it = pt->find(position());
+	    QTextPieceTable::FragmentIterator e = pt->find(position() + length() - 1);
 	    int lastFormatIdx = it.value()->format;
 	    for (; it != e; ++it) {
 		const QTextFragment *fragment = it.value();
@@ -100,8 +100,8 @@ QString QTextBlockIterator::blockText() const
     QString text;
 
     // ######### looks wrong if a fragment spans a block boundary!
-    QTextPieceTable::FragmentIterator it = pt->find(start());
-    QTextPieceTable::FragmentIterator e = pt->find(end());
+    QTextPieceTable::FragmentIterator it = pt->find(position());
+    QTextPieceTable::FragmentIterator e = pt->find(position() + length() - 1);
 
     for (; it != e; ++it) {
 	const QTextFragment *fragment = it.value();

@@ -29,11 +29,6 @@ public:
     int position() const;
     int length() const;
 
-    int start() const { return position(); }
-    int end() const { return position() + length() - 1; }
-    // ###### remove me!
-    int key() const { return position(); }
-
     bool contains(int position) const;
 
     QTextLayout *layout() const;

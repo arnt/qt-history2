@@ -147,7 +147,7 @@ void QTextDocumentLayout::drawBlock(QPainter *painter, const PaintContext &conte
     int cursor = context.showCursor ? context.cursor.position() : -1;
 
     if (bl.contains(cursor))
-	cursor -= bl.start();
+	cursor -= bl.position();
     else
 	cursor = -1;
 
@@ -162,7 +162,7 @@ void QTextDocumentLayout::drawBlock(QPainter *painter, const PaintContext &conte
     if (context.cursor.hasSelection()) {
 	int selStart = context.cursor.selectionStart();
 	int selEnd = context.cursor.selectionEnd();
-	s.setRange(selStart - bl.start(), selEnd - selStart);
+	s.setRange(selStart - bl.position(), selEnd - selStart);
 	s.setType(QTextLayout::Highlight);
 	++nSel;
     }
@@ -347,21 +347,21 @@ int QTextDocumentLayout::hitTest(QTextBlockIterator bl, const QPoint &point, QTe
 	if (accuracy == QText::ExactHit)
 	    return -1;
 
-	return bl.start();
+	return bl.position();
     }
 
     QRect textrect = bl.layout()->boundingRect();
 
     if (pos.y() < textrect.top())
-	return bl.start();
+	return bl.position();
     if (pos.y() > textrect.bottom())
-	return bl.end();
+	return bl.position() + bl.length() - 1;
 
     for (int i = 0; i < tl->numLines(); ++i) {
 	QTextLine line = tl->lineAt(i);
 
 	if (line.rect().contains(pos))
-	    return bl.start() + line.xToCursor(point.x());
+	    return bl.position() + line.xToCursor(point.x());
     }
 
     return -1;

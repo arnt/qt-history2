@@ -73,7 +73,7 @@ void QTextCursorPrivate::setX()
 {
     QTextBlockIterator block = pieceTable->blocksFind(position);
     const QTextLayout *layout = block.layout();
-    int pos = position - block.start();
+    int pos = position - block.position();
 
     QTextLine line = layout->findLine(pos);
     if (line.isValid())
@@ -234,7 +234,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
     }
 
     const QTextLayout *layout = blockIt.layout();
-    int relativePos = position - blockIt.start();
+    int relativePos = position - blockIt.position();
     QTextLine line = layout->findLine(relativePos);
 
     switch(op) {
@@ -248,7 +248,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 
 	if (!line.isValid())
 	    break;
-	setPosition(blockIt.start() + line.from());
+	setPosition(blockIt.position() + line.from());
 
 	break;
     }
@@ -257,7 +257,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	    return false;
 	--blockIt;
 
-	setPosition(blockIt.start());
+	setPosition(blockIt.position());
 	break;
     }
     case QTextCursor::PreviousCharacter:
@@ -279,9 +279,9 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	}
 	if (layout->numLines()) {
 	    QTextLine line = layout->lineAt(i);
-	    setPosition(line.xToCursor(x) + blockIt.start());
+	    setPosition(line.xToCursor(x) + blockIt.position());
 	} else {
-	    setPosition(blockIt.start());
+	    setPosition(blockIt.position());
 	}
 	adjustX = false;
 	break;
@@ -295,7 +295,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	    break;
 	// currently we don't draw the space at the end, so move to the next
 	// reasonable position.
-	setPosition(blockIt.start() + line.from() + line.length() - 1);
+	setPosition(blockIt.position() + line.from() + line.length() - 1);
 
 	break;
     }
@@ -304,7 +304,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	if (blockIt.atEnd())
 	    return false;
 
-	setPosition(blockIt.start());
+	setPosition(blockIt.position());
 	break;
     }
     case QTextCursor::NextCharacter:
@@ -328,9 +328,9 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	}
 	if (layout->numLines()) {
 	    QTextLine line = layout->lineAt(i);
-	    setPosition(line.xToCursor(x) + blockIt.start());
+	    setPosition(line.xToCursor(x) + blockIt.position());
 	} else {
-	    setPosition(blockIt.start());
+	    setPosition(blockIt.position());
 	}
 	adjustX = false;
 	break;
@@ -763,7 +763,7 @@ bool QTextCursor::atBlockStart() const
     if (!d)
 	return false;
 
-    return d->position == d->block().start();
+    return d->position == d->block().position();
 }
 
 /*!

@@ -419,9 +419,8 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
     QTextBlockIterator blockIt = blocksFind(pos);
     QTextBlockIterator endIt = blocksFind(pos + length);
 
-    /* subtract one as start() returns key() + 1 */
-    const int startPos = blockIt.start() - 1;
-    const int endPos = endIt.end();
+    const int startPos = blockIt.position();
+    const int endPos = endIt.position() + endIt.length() - 1;
 
     if (!endIt.atEnd())
 	++endIt;
@@ -680,8 +679,8 @@ int QTextPieceTable::nextCursorPosition(int position, QTextLayout::CursorMode mo
 	return position;
 
     QTextBlockIterator it = blocksFind(position);
-    int start = it.start();
-    int end = it.end();
+    int start = it.position();
+    int end = start + it.length() - 1;
     if (position == end)
 	return end + 1;
 
@@ -694,7 +693,7 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
 	return position;
 
     QTextBlockIterator it = blocksFind(position);
-    int start = it.start();
+    int start = it.position();
     if (position == start)
 	return start - 1;
 

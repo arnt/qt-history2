@@ -66,8 +66,8 @@ public:
 	QVector<QTextBlockIterator> affectedBlocks = manager->blocksForObject(group);
 	for (int i = 0; i < affectedBlocks.size(); ++i) {
 	    const QTextBlockIterator &block = affectedBlocks.at(i);
-	    int start = block.start();
-	    int len = block.end() - start;
+	    int start = block.position();
+	    int len = block.length() - 1;
 	    layout->documentChange(start, len, len);
 	}
     }
