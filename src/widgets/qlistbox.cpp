@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#191 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#192 $
 **
 ** Implementation of QListBox widget class
 **
@@ -295,7 +295,6 @@ void QListBoxText::paint( QPainter *p )
 
 int QListBoxText::height() const
 {
-    debug( "lbi %s %d", text().ascii(), listBox() ? listBox()->fontMetrics().lineSpacing() + 2 : 0 );
     return listBox() ? listBox()->fontMetrics().lineSpacing() + 2 : 0;
 }
 
@@ -1742,7 +1741,6 @@ void QListBox::doLayout() const
     //    if ( y < viewport->height() )
     //	y = viewport->height();
     ((QListBox *)this)->resizeContents( x, y );
-    debug( "ended up at %d * %d", x, y );
 }
 
 
@@ -1817,7 +1815,6 @@ void QListBox::tryGeometry( int rows, int columns ) const
     int y = 0;
     for( r=0; r<=rows; r++ ) {
 	int h = d->rowPos[r];
-	debug( "row %d: pos %d h %d", r, y, h );
 	d->rowPos[r] = y;
 	y += h;
     }
