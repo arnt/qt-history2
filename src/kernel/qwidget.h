@@ -554,6 +554,7 @@ private:
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
     friend QPoint posInWindow(QWidget *);
+    friend void qt_mac_destroy_cg_hd(QWidget *, bool);
     friend bool qt_mac_update_sizer(QWidget *, int);
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend bool qt_paint_children(QWidget *,QRegion &, uchar ops);

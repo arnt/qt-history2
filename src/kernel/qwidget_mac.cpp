@@ -174,6 +174,24 @@ inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r, bool 
     return true;
 }
 
+inline void qt_mac_destroy_cg_hd(QWidget *w, bool children)
+{
+    if(w->cg_hd) { //just release it and another will be created later..
+	if(CFGetRetainCount(w->cg_hd) == 1)
+	    CGContextFlush((CGContextRef)w->cg_hd);
+	CGContextRelease((CGContextRef)w->cg_hd);
+	w->cg_hd = 0;
+    }
+    if(children) {
+	QObjectList chldrn = w->children();
+	for(int i = chldrn.size() - 1; i >= 0; --i) {
+	    QObject *obj = chldrn.at(i);
+	    if(obj->isWidgetType())
+		qt_mac_destroy_cg_hd(((QWidget*)obj), true);
+	}
+    }
+}
+
 bool qt_mac_update_sizer(QWidget *w, int up=0)
 {
     if(!w || !w->isTopLevel())
@@ -297,10 +315,7 @@ void qt_clean_root_win() {
 	    warning("%s:%d: %s (%s) had his handle taken away!", __FILE__, __LINE__,
 		     (*it)->name(), (*it)->className());
 #endif
-	    if(w->cg_hd) {
-		CGContextRelease((CGContextRef)w->cg_hd);
-		w->cg_hd = 0;
-	    }
+	    qt_mac_destroy_cg_hd(w, false);
 	    w->hd = 0; //at least now we'll just crash
 	}
     }
@@ -989,10 +1004,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         else if(testWFlags(WType_Popup))
             qApp->closePopup(this);
 	if(destroyWindow) {
-	    if(cg_hd) {
-		CGContextRelease((CGContextRef)cg_hd);
-		cg_hd = 0;
-	    }
+	    qt_mac_destroy_cg_hd(this, false);
 	    if(isTopLevel() && hd && own_id) {
 		mac_window_count--;
 		if(window_event) {
@@ -1072,10 +1084,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
 	    QWidget *w = (QWidget *)obj;
 	    if(((WindowPtr)w->hd) == old_hd) {
 		w->hd = hd; //all my children hd's are now mine!
-		if(w->cg_hd) {
-		    CGContextRelease((CGContextRef)w->cg_hd);
-		    w->cg_hd = 0;
-		}
+		qt_mac_destroy_cg_hd(w, false);
 		w->macWidgetChangedWindow();
 	    }
 	}
@@ -1804,6 +1813,8 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 				    olds.width(), olds.height(), Qt::CopyROP, true, true);
 		}
 	    }
+	    if(isTopLevel()) 
+		qt_mac_destroy_cg_hd(this, TRUE);
 	    if((!newreg_empty || !oldreg_empty) &&
 	       (isResize || !isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))) {
 		//finally issue "expose" event
@@ -2187,12 +2198,6 @@ void QWidget::setRegionDirty(bool child)
     QWExtra *extra = d->extraData();
     if(!extra)
 	return;
-    if(cg_hd) { //just release it and another will be created later..
-	if(CFGetRetainCount(cg_hd) == 1)
-	    CGContextFlush((CGContextRef)cg_hd);
-	CGContextRelease((CGContextRef)cg_hd);
-	cg_hd = 0;
-    }
     if(child) {
 	extra->clip_serial++;
 	extra->clip_dirty = true;
