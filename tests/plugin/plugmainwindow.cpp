@@ -99,18 +99,18 @@ void PlugMainWindow::fileClose()
     QHBoxLayout hl( &dialog );
     hl.setSpacing( 6 );
     hl.setMargin( 10 );
-    QListView box( &dialog );
-    box.setRootIsDecorated( TRUE );
-    QListViewItem* wplugins = new QListViewItem( &box, "Widgets" );
-    QListViewItem* aplugins = new QListViewItem( &box, "Actions" );
-    box.addColumn( "Name" );
-    box.addColumn( "Description" );
-    box.addColumn( "Author" );
-    box.addColumn( "File" );
+    QListView _box( &dialog );
+    _box.setRootIsDecorated( TRUE );
+    QListViewItem* wplugins = new QListViewItem( &_box, "Widgets" );
+    QListViewItem* aplugins = new QListViewItem( &_box, "Actions" );
+    _box.addColumn( "Name" );
+    _box.addColumn( "Description" );
+    _box.addColumn( "Author" );
+    _box.addColumn( "File" );
 
     QVBox v( &dialog );
     ((QVBoxLayout*)v.layout())->addStretch();
-    hl.addWidget( &box );
+    hl.addWidget( &_box );
     hl.addWidget( &v );
     QPushButton ok( "&Ok", &v );
     connect( &ok, SIGNAL( clicked() ), &dialog, SLOT( accept() ) );
@@ -150,8 +150,8 @@ void PlugMainWindow::fileClose()
 	++it;
     }
 
-    if ( dialog.exec() && box.currentItem() ) {
-	QListViewItem* item = box.currentItem();
+    if ( dialog.exec() && _box.currentItem() ) {
+	QListViewItem* item = _box.currentItem();
 
 	if ( !item )
 	    return;

@@ -14,4 +14,4 @@ public:
     virtual QAction* create( const QString&, bool& self, QObject* parent = 0 ) = 0;
 };
 
-#endif //QACTIONINTERFACE_H
+#endif // QACTIONINTERFACE_H

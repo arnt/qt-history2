@@ -171,7 +171,7 @@ QWidget* QWidgetFactory::create( const QString& description, QWidget* parent, co
     if ( description.isEmpty() )
 	return 0;
 
-    if ( description[0] == "<" ) {
+    if ( description[0] == '<' ) {
 	QWidget* w = 0;
 	if ( !that )
 	    installWidgetFactory( new QWidgetFactory );

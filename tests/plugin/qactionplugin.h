@@ -30,5 +30,4 @@ private:
     QAction* newAction( const QString& classname, bool& self, QObject* parent = 0 );
     QStringList actions();
 };
-
 #endif // QACTIONPLUGIN_H

@@ -117,7 +117,7 @@ QAction* QActionFactory::create( const QString &description, bool& self, QObject
 {
     if ( description.isEmpty() )
 	return 0;
-    if ( description[0] == "<" ) {
+    if ( description[0] == '<' ) {
 	QAction* a = 0;
 /*	if ( !that )
 	    installWidgetFactory( new QActionFactory );*/
