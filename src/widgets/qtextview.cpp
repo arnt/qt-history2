@@ -513,7 +513,6 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     tc.gotoParagraph( p, richText().getParBefore( cy ) );
     QTextParagraph* b = tc.paragraph;
 
-    // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
     while ( b && tc.y() <= cy + ch ) {
 
@@ -546,14 +545,6 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	p->fillRect(0, 0, visibleWidth(), visibleHeight(), paper() );
 
     p->setClipping( FALSE );
-
-    /*
-      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
-      p->setPen( DotLine );
-      p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
-      pagesize - oy );
-      }
-    */
 }
 
 /*!
@@ -617,7 +608,7 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 	d->scrollTimer->stop();
 	if ( d->dragSelection ) {
 #if defined(_WS_X11_)
-	copy();
+	    copy();
 #else
 	if ( style() == MotifStyle )
 	    copy();
@@ -685,7 +676,7 @@ void QTextView::copy()
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
-    QString t = QString::null; // TODO richText().selectedText();
+    QString t = selectedText();
 #if defined(_OS_WIN32_)
     // Need to convert NL to CRLF
     QRegExp nl("\\n");
