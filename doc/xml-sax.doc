@@ -229,6 +229,10 @@ When changing this behavior using \l QXmlSimpleReader::setFeature()
 note that the combination of both features set to
 FALSE is illegal.
 
+For a practical demonstration of how the two features affect the 
+output of the reader run the \link tagreader-with-features-example.html
+tagreader with features example. \endlink 
+
 <h3><a name="sax2namespaces">Summary</a></h3>
 
 \l QXmlSimpleReader implements the following behavior (the value in 

@@ -10,16 +10,13 @@ $Id$
  
   This example presents a small \link xml-sax.html SAX2 \endlink
   reader that outputs the qualified names and the
-  respective namespace URIs of all elements and attributes in a
-  valid XML file. 
+  respective namespace URIs of all elements and attributes in an
+  XML file. Additionally the tree structure of the document is displayed.
 
-  In three tables it presents the different output of the reader
+  In three listviews the program shows the different output of the reader
   depending on how the SAX2 \link xml-sax.html#namespaces features \endlink
   \e http://xml.org/sax/features/namespaces and
   \e http://xml.org/sax/features/namespace-prefixes are set.
-
-  The vertical header on the left hand side of each table shows
-  the nesting level of each element.
 
 <!-- 
   This example is thoroughly explained in a 

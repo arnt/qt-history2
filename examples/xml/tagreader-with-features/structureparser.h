@@ -3,24 +3,22 @@ $Id$
 */  
 
 #include <qxml.h>
+#include <qstack.h>
 
-class QTable;
+class QListView;
+class QListViewItem;
 class QString;
 
 class StructureParser: public QXmlDefaultHandler
 {
 public:
-    StructureParser( QTable * );
+    StructureParser( QListView * );
     bool startDocument();
     bool startElement( const QString&, const QString&, const QString& , 
                        const QXmlAttributes& );
     bool endElement( const QString&, const QString&, const QString& );
-    bool endDocument();
 
 private:
-    int generation;
-    int row;
-    int column;
-    QTable * table;
-
+    QStack<QListViewItem> stack;
+    QListView * table;
 };                   
