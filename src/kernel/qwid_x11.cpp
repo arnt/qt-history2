@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#86 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#85 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#86 $";
 #endif
 
 
@@ -54,9 +54,9 @@ const ulong stdWidgetEventMask =		// X event mask
 
 
 /*!
-\internal
-Creates the widget window.
-Usually called from the QWidget constructor.
+  \internal
+  Creates the widget window.
+  Usually called from the QWidget constructor.
 */
 
 bool QWidget::create()				// create widget
@@ -178,9 +178,9 @@ bool QWidget::create()				// create widget
 
 
 /*!
-\internal
-Destroys the widget window and frees up window system resources.
-Usually called from the QWidget destructor.
+  \internal
+  Destroys the widget window and frees up window system resources.
+  Usually called from the QWidget destructor.
 */
 
 bool QWidget::destroy()				// destroy widget
@@ -194,12 +194,11 @@ bool QWidget::destroy()				// destroy widget
 	focusChild = 0;
 	if ( children() ) {
 	    QObjectListIt it(*children());
-	    register QObject *object;
-	    while ( it ) {			// destroy all widget children
-		object = it.current();
-		if ( object->isWidgetType() )
-		    ((QWidget*)object)->destroy();
+	    register QObject *obj;
+	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
+		if ( obj->isWidgetType() )
+		    ((QWidget*)obj)->destroy();
 	    }
 	}
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
@@ -216,14 +215,14 @@ bool QWidget::destroy()				// destroy widget
 
 
 /*!
-This function is provided in case a widget should feel \e really
-bad, regret that it was even born.
+  This function is provided in case a widget should feel \e really
+  bad, regret that it was even born.
 
-It gives the widget a fresh start, new \e parent, new widget flags
-(\e f but as usual, use 0) at a new position in its new parent (\e p).
+  It gives the widget a fresh start, new \e parent, new widget flags
+  (\e f but as usual, use 0) at a new position in its new parent (\e p).
 
-If \e showIt is TRUE, show() is called once the widget has been
-recreated.
+  If \e showIt is TRUE, show() is called once the widget has been
+  recreated.
 */
 
 void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
@@ -1039,13 +1038,8 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 }
 
 
-/*! \fn void QWidget::drawText( const QPoint &pos, const char *str )
-  Writes \e str at position \e pos. The \e pos.y() position is the base line
-  position of the text.
-  The text is drawn using the current font and the current foreground color.
-
-  We recommend using a \link QPainter painter\endlink instead.
-  \sa setFont(), setPalette(), QPainter::drawText()
+/*!
+  \overload void QWidget::drawText( const QPoint &pos, const char *str )
 */
 
 /*!
