@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#204 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#205 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -648,6 +648,7 @@ void QPopupMenu::setFirstItemActive()
 	++it;
 	if ( !mi->isSeparator() ) {
 	    repaint( FALSE );
+	    hilitSig( mi->id() );
 	    return;
 	}
 	actItem++;
@@ -1561,7 +1562,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	if ( i != actItem ) {
 	    int lastActItem = actItem;
 	    actItem = i;
-	    if ( mi->id() >= 0 )
+	    if ( mi->id() != 0 )
 		hilitSig( mi->id() );
 	    updateRow( lastActItem );
 	    updateRow( actItem );
