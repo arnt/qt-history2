@@ -476,11 +476,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    fixEnvVariables(dstdir);
 
 	    sht << "#!/bin/sh" << endl;
-	    if(QDir::currentDirPath() != QDir::cleanDirPath(dstdir)) 
-		sht << "cp " << cpflags << "\"$BUILD_ROOT/" << targ << "\" " << "\"" <<
-		    dstdir << targ << "\"" << endl;
+	    //copy the actual target
+	    sht << "OUT_TARG=\"" << targ << "\"\n" 
+		<< "[ -z \"$BUILD_ROOT\" ] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
+	    sht << "[ \"$OUT_TARG\" = \"" << dstdir << targ << "\" ] || " 
+		<< "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << endl;
+	    //rename as a framework
 	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
 		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
+	    //create all the version symlinks (just to be like unixmake)
 	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
 		if(targ != (*it)) 
 		    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << (*it) << "\"" << endl;
