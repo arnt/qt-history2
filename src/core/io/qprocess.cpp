@@ -26,7 +26,8 @@
 #include <private/qwineventnotifier_p.h>
 #endif
 
-/*! \class QProcess
+/*! 
+    \class QProcess
 
     \brief The QProcess class is used to start external programs and
     to communicate with them.
