@@ -985,8 +985,8 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
     int w = cr.width();
     int h = cr.height();
 
-    table()->style().drawComboButton( p, 0, 0, w, h, cg, FALSE, TRUE, TRUE, selected ? &cg.brush( QColorGroup::Highlight ) : 0  );
-    QRect tmpR = table()->style().comboButtonRect( 0, 0, w, h );
+    // table()->style().drawComboButton( p, 0, 0, w, h, cg, FALSE, TRUE, TRUE, selected ? &cg.brush( QColorGroup::Highlight ) : 0  );
+    QRect tmpR(0, 0, w, h); // = table()->style().comboButtonRect( 0, 0, w, h );
     QRect textR( tmpR.x() + 1, tmpR.y() + 1, tmpR.width() - 2, tmpR.height() - 2 );
 
     if ( selected )
@@ -1185,17 +1185,17 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 		 selected ? cg.brush( QColorGroup::Highlight )
 			  : cg.brush( QColorGroup::Base ) );
 
-    int w = cr.width();
-    int h = cr.height();
-    QSize sz = table()->style().indicatorSize();
-    table()->style().drawIndicator( p, 0, ( h - sz.height() ) / 2, sz.width(), sz.height(), cg, checked ? QButton::On : QButton::Off, FALSE, TRUE );
-    int x = sz.width() + 6;
-    w = w - x;
-    if ( selected )
-	p->setPen( cg.highlightedText() );
-    else
-	p->setPen( cg.text() );
-    p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
+//     int w = cr.width();
+//     int h = cr.height();
+//     QSize sz = table()->style().indicatorSize();
+//     table()->style().drawIndicator( p, 0, ( h - sz.height() ) / 2, sz.width(), sz.height(), cg, checked ? QButton::On : QButton::Off, FALSE, TRUE );
+//     int x = sz.width() + 6;
+//     w = w - x;
+//     if ( selected )
+// 	p->setPen( cg.highlightedText() );
+//     else
+// 	p->setPen( cg.text() );
+//     p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#160 $
 **
 ** Implementation of QTab and QTabBar classes
 **
@@ -411,7 +411,8 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     QRect tr = r;
     if ( t->id == currentTab() )
-	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
+	tr.setBottom( tr.bottom() -
+		      style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 
     style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(),
 		      AlignCenter | ShowPrefix, colorGroup(), isEnabled() && t->enabled,

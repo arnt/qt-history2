@@ -42,12 +42,12 @@
 #include "qapplication.h"
 #include "qpluginmanager.h"
 #include "qwindowsstyle.h"
-#include "qmotifstyle.h"
-#include "qcdestyle.h"
-#include "qmotifplusstyle.h"
-#include "qplatinumstyle.h"
-#include "qsgistyle.h"
-#include "qcompactstyle.h"
+// #include "qmotifstyle.h"
+// #include "qcdestyle.h"
+// #include "qmotifplusstyle.h"
+// #include "qplatinumstyle.h"
+// #include "qsgistyle.h"
+// #include "qcompactstyle.h"
 #include "qapplication.h"
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
@@ -98,7 +98,7 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 
 #endif //QT_NO_COMPONENT
 
-/*! 
+/*!
   \class QStyleFactory qstylefactory.h
   \brief The QStyleFactory class creates QStyle objects.
   \internal
@@ -118,6 +118,8 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QWindowsStyle;
     else
 #endif
+
+#if 0
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
         return new QMotifStyle;
@@ -155,6 +157,7 @@ QStyle *QStyleFactory::create( const QString& s )
 #ifdef Q_WS_MAC
     if( style == "macintosh" )
 	return new QMacStyle;
+#endif
 #endif
 
 #ifndef QT_NO_COMPONENT

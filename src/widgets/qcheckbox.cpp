@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#161 $
 **
 ** Implementation of QCheckBox class
 **
@@ -156,8 +156,7 @@ static int extraWidth( int gs )
 */
 QSize QCheckBox::sizeHint() const
 {
-    // Any more complex, and we will use style().itemRect()
-    // NB: QCheckBox::sizeHint() is similar
+    // NB: QRadioButton::sizeHint() is similar
     constPolish();
 
     QPainter p(this);
@@ -230,7 +229,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
 	    pmpaint.begin( &bm );
-	    style().drawControl(QStyle::CE_CheckBoxMask, &pmpaint, this, irect, cg);
+	    style().drawControlMask(QStyle::CE_CheckBox, &pmpaint, this, irect);
 	    pmpaint.end();
 	    pm->setMask( bm );
 	}
@@ -257,23 +256,18 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 /*!
   \reimp
 */
-void QCheckBox::resizeEvent( QResizeEvent* )
+void QCheckBox::resizeEvent( QResizeEvent *e )
 {
-    int x, w, h;
-    GUIStyle gs = style().guiStyle();
-    QSize sz = style().indicatorSize();
-    x = sz.width() + extraWidth( gs );
-    w = width() - x;
-    if ( QApplication::reverseLayout() )
-	x = 0;
-    h = height();
+    QButton::resizeEvent(e);
 
     QPainter p(this);
-    QRect br = style().itemRect( &p, x, 0, w, h,
-				 AlignAuto|AlignVCenter|ShowPrefix,
-				 isEnabled(),
-				 pixmap(), text() );
-    update( br.right(), w, 0, h );
+    QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
+				 pixmap(), text()).size();
+    QSize wsz = (style().sizeFromContents(QStyle::CT_CheckBox, this, isz).
+		 expandedTo(QApplication::globalStrut()));
+
+    update(wsz.width(), isz.width(), 0, wsz.height());
+
     if ( autoMask() )
 	updateMask();
 }
@@ -289,9 +283,8 @@ void QCheckBox::updateMask()
     QPainter p( &bm, this );
     QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
     QRect crect = style().subRect(QStyle::SR_CheckBoxContents, this);
-    QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
-    style().drawControl(QStyle::CE_CheckBoxMask, &p, this, irect, cg);
+    style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
     p.fillRect(crect, color1);
 
     setMask(bm);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#81 $
 **
 ** Implementation of QTabWidget class
 **
@@ -196,7 +196,7 @@ void QTabWidget::init()
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    d->stack->setLineWidth( style().defaultFrameWidth() );
+    d->stack->setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     setFocusPolicy( TabFocus );
@@ -468,8 +468,8 @@ void QTabWidget::removePage( QWidget * w )
 	d->stack->removeWidget( w );
 	d->tabs->removeTab( d->tabs->tab(id) );
 	setUpLayout();
-	
-	if ( d->tabs->count() == 0 ) 
+
+	if ( d->tabs->count() == 0 )
 	    d->stack->setFrameStyle( QFrame::NoFrame );
     }
 }
@@ -506,7 +506,7 @@ QWidget * QTabWidget::currentPage() const
 }
 
 /*! \property QTabWidget::currentPage
-    \brief the id of the current tab page    
+    \brief the id of the current tab page
 
   \sa QTabBar::currentPage()
 */
@@ -523,7 +523,7 @@ void QTabWidget::setCurrentPage( int index )
 }
 
 
-/*!  
+/*!
   Returns the index of page \w, or -1 if the widget cannot be
   found.
  */
@@ -662,7 +662,7 @@ void QTabWidget::showEvent( QShowEvent * )
 
 /*! \property QTabWidget::tabPosition
     \brief the position of the tabs in this tab widget
-    
+
   Possible values for this property are QTabWidget::Top and
   QTabWidget::Bottom.
  */
@@ -727,7 +727,7 @@ void QTabWidget::setTabShape( TabShape s )
 
 /*! \property QTabWidget::margin
     \brief the margin in this tab widget
-    
+
   The margin is the distance between the innermost pixel of the frame
   and the outermost pixel of the pages.
 */
@@ -747,7 +747,7 @@ void QTabWidget::setMargin( int w )
  */
 void QTabWidget::styleChange( QStyle& old )
 {
-    d->stack->setLineWidth( style().defaultFrameWidth() );
+    d->stack->setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this));
     setUpLayout();
     QWidget::styleChange( old );
 }
@@ -780,7 +780,7 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
     return FALSE;
 }
 
-/*! 
+/*!
   Returns the tab page at the index \a index
 */
 QWidget *QTabWidget::page( int index ) const
@@ -788,8 +788,8 @@ QWidget *QTabWidget::page( int index ) const
     return d->stack->widget( index );
 }
 
-/*! 
-  Returns the label of the tab page at index \a index 
+/*!
+  Returns the label of the tab page at index \a index
 */
 QString QTabWidget::label( int index ) const
 {

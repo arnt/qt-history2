@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#344 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#345 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -335,13 +335,10 @@ void QComboBoxData::updateLinedGeometry()
 {
     if ( !ed || !combo )
 	return;
-    if ( current == 0 && combo->count() == 0 ) {
-	ed->setGeometry( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
-	return;
-    }
+    QRect r = combo->style().querySubControlMetrics(QStyle::CC_ComboBox, combo,
+						    QStyle::SC_ComboBoxEditField);
 
     const QPixmap *pix = current < combo->count() ? combo->pixmap( current ) : 0;
-    QRect r( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
     if ( pix && pix->width() < r.width() )
 	r.setLeft( r.left() + pix->width() + 4 );
     if ( r != ed->geometry() )
@@ -948,26 +945,33 @@ QSize QComboBox::sizeHint() const
 	if ( h > maxH )
 	    maxH = h;
     }
-    if ( maxH <= 20 && style() == WindowsStyle || parentWidget() &&
-	 ( parentWidget()->inherits( "QToolBar" ) ||
-	   parentWidget()->inherits( "QDialog" ) && d->ed ) )
-	maxH = 12;
 
-    int sw, sh;
-    if ( d->usingListBox() ) {
-	sw = 4 + 4 + maxW;
-	sh = 5 + 5 + maxH;
-	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
-	sw += sw - cr.width();
-	sw += sh - cr.height();
-    } else {
-	//hardcoded values for motif 1.x style
-	int extraW = 20+5;
-	sw = 4 + 4 + maxW + extraW;
-	sh = 5 + 5 + maxH;
-    }
 
-    d->sizeHint = QSize( sw, sh ).expandedTo( QApplication::globalStrut() );
+    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this,
+					    QSize(maxW, maxH)).
+		   expandedTo(QApplication::globalStrut()));
+
+//     if ( maxH <= 20 && style() == WindowsStyle || parentWidget() &&
+// 	 ( parentWidget()->inherits( "QToolBar" ) ||
+// 	   parentWidget()->inherits( "QDialog" ) && d->ed ) )
+// 	maxH = 12;
+
+//     int sw, sh;
+//     if ( d->usingListBox() ) {
+// 	sw = 4 + 4 + maxW;
+// 	sh = 5 + 5 + maxH;
+// 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
+// 	sw += sw - cr.width();
+// 	sw += sh - cr.height();
+//     } else {
+// 	//hardcoded values for motif 1.x style
+// 	int extraW = 20+5;
+// 	sw = 4 + 4 + maxW + extraW;
+// 	sh = 5 + 5 + maxH;
+//     }
+
+//     d->sizeHint = QSize( sw, sh ).expandedTo( QApplication::globalStrut() );
+
     return d->sizeHint;
 }
 
@@ -1099,10 +1103,12 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    xPos = w;
 	    x0 = 4;
 	}
-	qDrawShadePanel( &p, rect(), g, FALSE, style().defaultFrameWidth(),
+	qDrawShadePanel( &p, rect(), g, FALSE,
+			 style().pixelMetric(QStyle::PM_DefaultFrameWidth, this),
 			 &g.brush( QColorGroup::Button ) );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
-			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
+			 buttonW, buttonH, g, FALSE,
+			 style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 	QRect clip( x0, 2, w - 2 - 4 - 5, height() - 4 );
 	QString str = d->popup()->text( this->d->current );
 	if ( !str.isNull() ) {
@@ -1120,15 +1126,17 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
-	style().drawComboButton( &p, 0, 0, width(), height(),
-				 g, d->arrowDown, d->ed != 0 );
-	if ( hasFocus() ) {
-	    style().drawFocusRect(&p, style().
-				  comboButtonFocusRect(0,0,width(),height()),
-				  g, &g.button());
-	}
+	QStyle::PFlags flags = QStyle::PStyle_Default;
+
+	if ( d->arrowDown )
+	    flags |= QStyle::PStyle_Sunken;
+	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
+				    QStyle::CStyle_Default, QStyle::SC_None,
+				    flags );
+
 	if ( !d->ed ) {
-	    QRect clip = style().comboButtonRect( 0, 0, width(), height() );
+	    QRect clip = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
+							QStyle::SC_ComboBoxEditField);
 	    p.setPen( g.foreground() );
 	    p.setClipRect( clip );
 	    p.setPen( g.foreground() );
@@ -1139,7 +1147,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 		item->paint( &p );
 	    }
 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
-	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
+	    QRect r = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
+						     QStyle::SC_ComboBoxEditField);
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {
@@ -1150,7 +1159,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	p.setClipping( FALSE );
     } else {					// windows 95 style
 	QStyle::PFlags flags = QStyle::PStyle_Default;
-	
+
 	if ( d->arrowDown )
 	    flags |= QStyle::PStyle_Sunken;
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
@@ -1158,28 +1167,29 @@ void QComboBox::paintEvent( QPaintEvent * )
 				    flags );
 
 	QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
-					   QStyle::SC_ComboBoxEditField );
+						   QStyle::SC_ComboBoxEditField );
 	QRect textR;
 	textR.setRect( re.x()+2, re.y()+1, re.width()-4, re.height()-2 );
 	p.setClipRect( textR );
-	
+
 	if ( !d->ed ) {
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    if ( item ) {
 		int itemh = item->height( d->listBox() );
-		p.translate( textR.x(), textR.y() + 
+		p.translate( textR.x(), textR.y() +
 			     (textR.height() - itemh)/2  );
 		item->paint( &p );
 	    }
 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
 	    p.setClipping( FALSE );
-	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
+	    QRect r = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
+						     QStyle::SC_ComboBoxEditField);
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {
 		p.fillRect( r.x(), r.y(), pix->width() + 4, r.height(),
 			    colorGroup().brush( QColorGroup::Base ) );
-		p.drawPixmap( r.x() + 2, r.y() + 
+		p.drawPixmap( r.x() + 2, r.y() +
 			      ( r.height() - pix->height() ) / 2, *pix );
 	    }
 	}
@@ -1400,10 +1410,9 @@ void QComboBox::updateMask()
 
     {
 	QPainter p( &bm, this );
-	p.setPen( color1 );
-	p.setBrush( color1 );
-	style().drawComboButtonMask(&p, 0, 0, width(), height() );
+	style().drawComplexControlMask(QStyle::CC_ComboBox, &p, this, rect());
     }
+
     setMask( bm );
 }
 

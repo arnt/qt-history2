@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#824 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#825 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1918,16 +1918,20 @@ void QApplication::x11_initialize_style()
 	}
     }
     if ( seems_like_KDE_is_running ) {
-#if !defined(QT_NO_STYLE_WINDOWS)
-	app_style = new QWindowsStyle; // default to windowsstyle on KDE
+#ifndef QT_NO_STYLE_WINDOWS
+	// default to windowsstyle on KDE
+	app_style = new QWindowsStyle;
 #endif
     } else { // maybe another desktop?
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_gbackground_properties, 0, 1,
 				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success
 	     && length ) {
-#ifndef QT_NO_STYLE_CDE
-	    app_style = new QMotifPlusStyle( TRUE ); // default to MotifPlus with hovering
+#if 0
+#ifndef QT_NO_STYLE_MOTIFPLUS
+	    // default to MotifPlus with hovering
+	    app_style = new QMotifPlusStyle( TRUE );
+#endif
 #endif
 	    if ( data )
 		XFree( (char *)data );

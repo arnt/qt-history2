@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#23 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#24 $
 **
 ** Definition of Windows-like style class
 **
@@ -59,8 +59,25 @@ public:
     QWindowsStyle();
     virtual ~QWindowsStyle();
 
+    virtual void polish( QWidget * );
+    virtual void unPolish( QWidget * );
 
     // new stuff
+    void drawPrimitive( PrimitiveOperation op,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			PFlags flags = PStyle_Default,
+			void *data = 0 ) const;
+
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      CFlags how = CStyle_Default,
+		      void *data = 0 ) const;
+
     void drawComplexControl( ComplexControl control,
 			     QPainter* p,
 			     const QWidget* w,
@@ -80,27 +97,6 @@ public:
 			 SCFlags subActive = SC_None,
 			 void* data = 0 ) const;
 
-    // old stuff
-
-    void polish( QWidget * );
-    void unPolish( QWidget * );
-
-    // new
-    void drawPrimitive( PrimitiveOperation op,
-			QPainter *p,
-			const QRect &r,
-			const QColorGroup &cg,
-			PFlags flags = PStyle_Default,
-			void *data = 0 ) const;
-
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QColorGroup &cg,
-		      CFlags how = CStyle_Default,
-		      void *data = 0 ) const;
-
     int pixelMetric( PixelMetric metic, const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
@@ -108,52 +104,18 @@ public:
 			    const QSize &contentsSize,
 			    void *data ) const;
 
+
+
+
+
+
+
+    // old stuff
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
 
-    void drawPanel( QPainter *p, int x, int y, int w, int h,
-                    const QColorGroup &, bool sunken=FALSE,
-                    int lineWidth = 1, const QBrush *fill = 0 );
-
-    void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-                         const QColorGroup &,  int lineWidth = 2,
-                         const QBrush *fill = 0 );
-
-    void drawArrow( QPainter *p, ArrowType type, bool down,
-                    int x, int y, int w, int h,
-                    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
-
-    void drawToolButton( QPainter *p, int x, int y, int w, int h,
-			 const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
-			 const QBrush *fill = 0 );
-
-    void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
-			     const QBrush *fill = 0 );
-
-
-    void drawComboButton( QPainter *p, int x, int y, int w, int h,
-                          const QColorGroup &g, bool sunken = FALSE,
-                          bool editable = FALSE,
-                          bool enabled = TRUE,
-                          const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h) const;
-    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
-
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-
-    int sliderLength() const;
-    void drawSlider( QPainter *p,
-		     int x, int y, int w, int h,
-		     const QColorGroup &g,
-		     Orientation, bool tickAbove, bool tickBelow);
-    void drawSliderGroove( QPainter *p,
-                           int x, int y, int w, int h,
-                           const QColorGroup& g, QCOORD c,
-                           Orientation );
-
-    int maximumSliderDragDistance() const;
 
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
@@ -162,6 +124,7 @@ public:
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
 			const QColorGroup &g,
 			bool act, bool dis );
+
     void polishPopupMenu( QPopupMenu* );
 
     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
@@ -171,14 +134,6 @@ public:
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab,
                             QMenuItem* mi, const QPalette& pal, bool act,
                             bool enabled, int x, int y, int w, int h);
-
-    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-                          QMenuItem* mi, QColorGroup& g,
-                          bool active, bool down, bool hasFocus = FALSE );
-
-    int menuBarFrameWidth() const;
-
-    int spinBoxFrameWidth() const;
 
     // progressbar
     int progressChunkWidth() const;

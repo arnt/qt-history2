@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#227 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#228 $
 **
 ** Implementation of QScrollView class
 **
@@ -559,7 +559,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
              this, SLOT( updateScrollBars() ) );
 
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
-    setLineWidth( style().defaultFrameWidth() );
+    setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 

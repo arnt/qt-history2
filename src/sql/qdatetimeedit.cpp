@@ -1,4 +1,5 @@
 /****************************************************************************
+ ** $Id: //depot/qt/main/src/sql/qdatetimeedit.cpp#69 $
 **
 ** Implementation of date and time edit classes
 **
@@ -134,7 +135,7 @@ public:
     {
 	int fw = 0;
 	if ( frm )
-	    fw = style.defaultFrameWidth();
+	    fw = style.pixelMetric(QStyle::PM_DefaultFrameWidth);
 
 	parag->truncate( 0 );
 	parag->append( txt );
@@ -285,7 +286,7 @@ void QDateTimeEditBase::layout( const QSize& s )
 {
     int fw = 0;
     if ( frame() )
-	fw = style().defaultFrameWidth();
+	fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, this);
 
     QSize bs;
     bs.setHeight( height()/2 - fw );
@@ -339,8 +340,8 @@ void QDateTimeEditBase::paintEvent( QPaintEvent * )
     p.fillRect( 0, 0, width(), height(), bg );
     d->paint( txt, hasFocus(), p, colorGroup(), rect(), style() );
     if ( frame() ) {
-	style().drawPanel( &p, 0, 0, rect().width(), rect().height(), colorGroup(),
-			   TRUE, style().defaultFrameWidth() );
+	style().drawPrimitive(QStyle::PO_Panel, &p, rect(), colorGroup(),
+			      QStyle::PStyle_Sunken);
     }
     p.end();
     bitBlt( this, 0, 0, d->pixmap() );
@@ -1997,11 +1998,11 @@ public:
   move from section to section within the QDateTimeEdit widget, and the
   user can be moved automatically when they complete a section using
   setAutoAdvance(). The datetime can be set with setDateTime().
-  
+
   Dates appear in year, month, day order by default, see
   QDate::setOrder() to change this. Times appear in the order hours,
-  minutes, seconds using the 24 hour clock. 
-  
+  minutes, seconds using the 24 hour clock.
+
   It is recommended that the QDateTimeEdit is initialised with a
   datetime, e.g.
     \code

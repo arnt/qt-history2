@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#214 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#215 $
 **
 ** Implementation of QPushButton class
 **
@@ -491,8 +491,7 @@ void QPushButton::updateMask()
 
     {
 	QPainter p( &bm, this );
-	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
-	style().drawControl(QStyle::CE_PushButtonMask, &p, this, rect(), cg);
+	style().drawControlMask(QStyle::CE_PushButton, &p, this, rect());
     }
 
     setMask( bm );

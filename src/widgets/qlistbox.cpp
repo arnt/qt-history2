@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#465 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#466 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2669,7 +2669,7 @@ QSize QListBox::minimumSizeHint() const
     int x, y;
     x = QMIN( 200, d->columnPos[1] );
     x = QMAX( 10, x );
-    y = QMIN( 200, d->rowPos[1] + style().scrollBarExtent().height() );
+    y = QMIN( 200, d->rowPos[1] + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
     y = QMAX( 10, y );
 
     d->minimumSizeHint = QSize( x, y );

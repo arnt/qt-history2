@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#151 $
 **
 ** Implementation of QSlider class
 **
@@ -176,7 +176,7 @@ void QSlider::init()
 void QSlider::initTicks()
 {
     tickOffset = style().pixelMetric( QStyle::PM_SliderTickmarkOffset, this );
-    
+
 //     int space = (orient == Horizontal) ? height() : width();
 //     if ( ticks == Both ) {
 // 	tickOffset = ( space - thickness() ) / 2;
@@ -250,7 +250,7 @@ int QSlider::available() const
     if ( orient == Horizontal )
 	return width() - len;
     else
-	return height() - len; 
+	return height() - len;
 //
 // ### Some Motif specific stuff
 //     int a;
@@ -357,7 +357,7 @@ QRect QSlider::sliderRect() const
     void * data[1];
     data[0] = (void *) &sliderPos;
 
-    return style().querySubControlMetrics( QStyle::CC_Slider, this, 
+    return style().querySubControlMetrics( QStyle::CC_Slider, this,
 					   QStyle::SC_SliderHandle, data );
 
     // ### The Motif style will also need the motifBorder const..
@@ -418,16 +418,16 @@ void QSlider::paintEvent( QPaintEvent * )
 
     QPainter p( this );
     void * data[1];
-    
+
     data[0] = (void *) &sliderPos;
     style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(),
 				colorGroup(),
-				QStyle::CStyle_Default, 
+				QStyle::CStyle_Default,
 				QStyle::SC_None,
 				QStyle::SC_None,
 				data );
 
-    // ### focus rect drawing contains some Motif specific stuff    
+    // ### focus rect drawing contains some Motif specific stuff
 //     if ( hasFocus() ) {
 // 	QRect r;
 // 	if ( orient == Horizontal )
@@ -435,7 +435,7 @@ void QSlider::paintEvent( QPaintEvent * )
 // 	else
 // 	    r.setRect( tickOffset-1, 0, thickness()+2, height() );
 // 	r = r.intersect( rect() );
-	
+
 // 	if (style() == MotifStyle)
 // 	    style().drawFocusRect(&p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), g);
 // 	else
@@ -496,7 +496,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 	int m = style().pixelMetric( QStyle::PM_SliderMaximumDragDistance,
 				     this );
 	if ( m >= 0 ) {
-	    if ( orientation() == Horizontal ) 
+	    if ( orientation() == Horizontal )
 		r.setRect( r.x() - m, r.y() - 2*m/3,
 			   r.width() + 2*m, r.height() + 3*m );
 	    else
@@ -567,7 +567,7 @@ void QSlider::moveSlider( int pos )
     }
     if ( tracking() && sliderVal != value() ) {
 	setValue( sliderVal );
-	// ### Why do we emit the valueChanged signal here?  It will get emitted in 
+	// ### Why do we emit the valueChanged signal here?  It will get emitted in
 	// valueChange() anyway...
 	//emit valueChanged( sliderVal );
     }
@@ -739,7 +739,7 @@ QSize QSlider::sizeHint() const
 QSize QSlider::minimumSizeHint() const
 {
     QSize s = sizeHint();
-    int length = style().sliderLength();
+    int length = style().pixelMetric(QStyle::PM_SliderLength, this);
     if ( orient == Horizontal )
 	s.setWidth( length );
     else

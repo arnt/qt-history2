@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#59 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#60 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -94,17 +94,6 @@ QCommonStyle::~QCommonStyle()
 }
 
 /*! \reimp */
-void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				    QMenuItem* mi, QColorGroup& g,
-				    bool, bool, bool )
-{
-#ifndef QT_NO_COMPLEXWIDGETS
-    drawItem( p, QRect(x, y, w, h), AlignCenter|ShowPrefix|DontClip|SingleLine,
-	      g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
-#endif
-}
-
-/*! \reimp */
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 				  int& overlap) const
 {
@@ -193,15 +182,15 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, c
     case QFrame::StyledPanel:
 	if ( cstyle == QFrame::Plain )
 	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-	else
-	    drawPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
+	// else
+	// drawPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
 	break;
 
     case QFrame::PopupPanel:
 	if ( cstyle == QFrame::Plain )
 	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-	else
-	    drawPopupPanel( p, x, y, w, h, g, lwidth );
+	// else
+	// drawPopupPanel( p, x, y, w, h, g, lwidth );
 	break;
 
     case QFrame::Panel:
@@ -218,10 +207,10 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, c
 	    qDrawWinPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken );
 	break;
     case QFrame::MenuBarPanel:
-	drawMenuBarPanel( p, x, y, w, h, g );
+	// drawMenuBarPanel( p, x, y, w, h, g );
 	break;
     case QFrame::ToolBarPanel:
-	drawToolBarPanel( p, x, y, w, h, g );
+	// drawToolBarPanel( p, x, y, w, h, g );
 	break;
     case QFrame::HLine:
     case QFrame::VLine:
@@ -356,8 +345,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 		2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 	bool down = activeControl & TitleCloseButton;
 	QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
-	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-			tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	// drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
+	// tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	int xoff = 0, yoff = 0;
 	if (down) {
 	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -372,8 +361,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 
 	down = activeControl & TitleMaxButton;
 	pm = QPixmap(titleBarPixmap(tb, TitleMaxButton));
-	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-			tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	// drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
+	// tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	xoff = 0;
 	yoff = 0;
 	if(down) {
@@ -389,8 +378,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	QStyle::TitleControl ctrl = controls & TitleNormalButton ? TitleNormalButton : TitleMinButton;
 	down = activeControl & ctrl;
 	pm = QPixmap(titleBarPixmap(tb, ctrl));
-	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-			tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	// drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
+	// tb->colorGroup(), FALSE, down, TRUE, FALSE );
 	xoff=0, yoff=0;
 	if(down) {
 	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -467,7 +456,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  PFlags flags,
-				  void * data ) const
+				  void *data ) const
 {
     switch (op) {
     case PO_ButtonCommand:
@@ -670,36 +659,41 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_DockWindowPanel: {
-	// ### I guess drawPanel() should be a primitive as well?
-	QCommonStyle * that = (QCommonStyle *) this;
-	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg,
-			 FALSE, pixelMetric( PM_DockWindowFrameWidth ), 0 );
+	void **sdata = (void **) data;
+	int lw = pixelMetric(PM_DockWindowFrameWidth);
+	if (sdata)
+	    lw = *((int *) sdata[0]);
+
+	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
-    
+
     case PO_MenuBarPanel: {
-	QCommonStyle * that = (QCommonStyle *) this;
-	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg,
-			 FALSE, pixelMetric( PM_MenuBarFrameWidth ), 0 );
+	void **sdata = (void **) data;
+	int lw = pixelMetric(PM_MenuBarFrameWidth);
+	if (sdata)
+	    lw = *((int *) sdata[0]);
+
+	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
-    
+
     case PO_MenuBarItem: {
 	QMenuItem * mi;
 	void ** sdata = (void **) data;
 
 	if ( sdata ) {
 	    mi = (QMenuItem *) sdata[0];
-	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg, 
-		      mi->isEnabled(), mi->pixmap(), mi->text(), -1, 
+	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
+		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
 		      &cg.buttonText() );
 	}
 	break; }
-    
+
     default:
 	break;
     }
-} 
+}
 
-/*
+/*!
   Draws a control.
 */
 void QCommonStyle::drawControl( ControlElement element,
@@ -771,10 +765,6 @@ void QCommonStyle::drawControl( ControlElement element,
 			  cg, flags, data);
 	break; }
 
-    case CE_PushButtonMask:
-	drawPrimitive(PO_ButtonCommand, p, r, cg, PStyle_Default, data);
-	break;
-
     case CE_CheckBox: {
 	QCheckBox *checkbox = (QCheckBox *) widget;
 
@@ -801,10 +791,6 @@ void QCommonStyle::drawControl( ControlElement element,
 			  cg, flags, data);
 	break; }
 
-    case CE_CheckBoxMask:
-	drawPrimitive(PO_IndicatorMask, p, r, cg, PStyle_Default, data);
-	break;
-
     case CE_RadioButton: {
 	QRadioButton *radiobutton = (QRadioButton *) widget;
 
@@ -829,17 +815,45 @@ void QCommonStyle::drawControl( ControlElement element,
 			  cg, flags, data);
 	break; }
 
-    case CE_RadioButtonMask:
-	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
-	break;
 
     default:
 	break;
     }
 }
 
+/*!
+  Draws a control mask.
+*/
+void QCommonStyle::drawControlMask( ControlElement control,
+				    QPainter *p,
+				    const QWidget *widget,
+				    const QRect &r,
+				    void *data ) const
+{
+    Q_UNUSED(widget);
 
-/*
+    QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
+
+    switch (control) {
+    case CE_PushButton:
+	drawPrimitive(PO_ButtonCommand, p, r, cg, PStyle_Default, data);
+	break;
+
+    case CE_CheckBox:
+	drawPrimitive(PO_IndicatorMask, p, r, cg, PStyle_Default, data);
+	break;
+
+    case CE_RadioButton:
+	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
+	break;
+
+    default:
+	p->fillRect(r, color1);
+	break;
+    }
+}
+
+/*!
   Returns a contents(?) subrect.
 */
 QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
@@ -1092,6 +1106,23 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     default:
 	break;
     }
+}
+
+
+/*!
+  Draws a complex control mask.
+*/
+void QCommonStyle::drawComplexControlMask( ComplexControl control,
+					   QPainter *p,
+					   const QWidget *widget,
+					   const QRect &r,
+					   void *data ) const
+{
+    Q_UNUSED(control);
+    Q_UNUSED(widget);
+    Q_UNUSED(data);
+
+    p->fillRect(r, color1);
 }
 
 
@@ -1421,7 +1452,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_DockWindowFrameWidth:
 	ret = 1;
 	break;
-	
+
     case PM_MenuBarFrameWidth:
 	ret = 2;
 	break;
@@ -1480,6 +1511,11 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     case CT_ToolButton: {
 	sz = QSize(sz.width() + 7, sz.height() + 6);
     	break; }
+
+    case CT_ComboBox: {
+	int dfw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+	sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
+	break; }
 
     default:
 	break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/iconview/qiconview.cpp#95 $
+** $Id: //depot/qt/main/src/iconview/qiconview.cpp#96 $
 **
 ** Implementation of QIconView widget class
 **
@@ -5585,9 +5585,9 @@ QSize QIconView::sizeHint() const
     }
 
     d->dirty = TRUE;
-
-    return QSize( QMIN( 400, contentsWidth() + style().scrollBarExtent().width()),
-		  QMIN( 400, contentsHeight() + style().scrollBarExtent().height() ) );
+    int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, this);
+    return QSize( QMIN(400, contentsWidth() + sbextent),
+		  QMIN(400, contentsHeight() + sbextent) );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#167 $
 **
 ** Implementation of QRadioButton class
 **
@@ -227,7 +227,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
 	    pmpaint.begin( &bm );
-	    style().drawControl(QStyle::CE_RadioButtonMask, &pmpaint, this, irect, cg);
+	    style().drawControlMask(QStyle::CE_RadioButton, &pmpaint, this, irect);
 	    pmpaint.end();
 	    pm->setMask( bm );
 	}
@@ -259,25 +259,17 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 void QRadioButton::resizeEvent( QResizeEvent* e )
 {
     QButton::resizeEvent(e);
-    int x, w, h;
-    GUIStyle gs = style();
-    QSize sz = style().exclusiveIndicatorSize();
-    if ( gs == WindowsStyle )
-	sz.setWidth(sz.width()+1);
-    x = sz.width() + gutter;
-    w = width() - x;
-    if( QApplication::reverseLayout() )
-	x = 0;
-    h = height();
 
     QPainter p(this);
-    QRect br = style().itemRect( &p, x, 0, w, h,
-				 AlignAuto|AlignVCenter|ShowPrefix,
-				 isEnabled(),
-				 pixmap(), text() );
+    QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
+				 pixmap(), text()).size();
+    QSize wsz = (style().sizeFromContents(QStyle::CT_RadioButton, this, isz).
+	    expandedTo(QApplication::globalStrut()));
+
+    update(wsz.width(), isz.width(), 0, wsz.height());
+
     if ( autoMask() )
 	updateMask();
-    update( br.right(), w, 0, h );
 }
 
 
@@ -291,9 +283,8 @@ void QRadioButton::updateMask()
     QPainter p( &bm, this );
     QRect irect = style().subRect(QStyle::SR_RadioButtonIndicator, this);
     QRect crect = style().subRect(QStyle::SR_RadioButtonContents, this);
-    QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
-    style().drawControl(QStyle::CE_RadioButtonMask, &p, this, irect, cg);
+    style().drawControlMask(QStyle::CE_RadioButton, &p, this, irect);
     p.fillRect(crect, color1);
 
     setMask(bm);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#22 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#23 $
 **
 ** Definition of QCommonStyle class
 **
@@ -58,31 +58,6 @@ private:
 
 
 public:
-    // ### 8< - Make it compile!
-    QRect buttonRect( int x, int y, int w, int h ) const {
-	return QRect( x, y, w, h );
-    }
-    QRect pushButtonContentsRect( const QPushButton & b ) const {
-	return QRect( b.x(), b.y(), b.width(), b.height() );
-    }
-    int menuButtonIndicatorWidth( int h ) const {
-	return h;
-    }
-    void scrollBarMetrics( const QScrollBar*,
-			   int&, int&, int&, int&) const { }
-    void drawScrollBarControls( QPainter*,  const QScrollBar*,
-				int , uint ,
-				uint  )  { }
-    ScrollControl scrollBarPointOver( const QScrollBar *,
-				      int , const QPoint & ) { return NoScroll; }
-    QSize indicatorSize() const { return QSize(); }
-    void drawIndicator( QPainter *, int, int, int, int, const QColorGroup &,
-			int, bool = FALSE, bool = TRUE ) { }
-    QSize exclusiveIndicatorSize() const { return QSize(); }
-    void drawExclusiveIndicator(QPainter *, int, int, int, int, const QColorGroup &,
-				bool, bool = FALSE, bool = TRUE) { }
-    // ### 8<
-
     virtual void drawPrimitive( PrimitiveOperation op,
 				QPainter *p,
 				const QRect &r,
@@ -97,6 +72,11 @@ public:
 			      const QColorGroup &cg,
 			      CFlags how = CStyle_Default,
 			      void *data = 0 ) const;
+    virtual void drawControlMask( ControlElement element,
+				  QPainter *p,
+				  const QWidget *w,
+				  const QRect &r,
+				  void *data = 0 ) const;
 
     virtual QRect subRect( SubRect r, const QWidget *w ) const;
 
@@ -109,6 +89,11 @@ public:
 				     SCFlags sub = SC_None,
 				     SCFlags subActive = SC_None,
 				     void *data = 0 ) const;
+    virtual void drawComplexControlMask( ComplexControl control,
+					 QPainter *p,
+					 const QWidget *w,
+					 const QRect &r,
+					 void *data = 0 ) const;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *w,
@@ -140,13 +125,6 @@ public:
     // tabbars
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
-
-    //menubars
-    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-			  QMenuItem* mi, QColorGroup& g,
-			  bool active, bool down, bool hasFocus );
-
-    int menuBarFrameWidth() const { return 2; }
 
     // header
     void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#579 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#580 $
 **
 ** Implementation of QListView widget class
 **
@@ -964,7 +964,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     QListView *lv = listView();
     if ( !lv )
 	return;
-	
+
     if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
 	lv->repaintItem( lv->d->focusItem );
@@ -5585,7 +5585,7 @@ QSize QListView::sizeHint() const
 	buildDrawableList();
 
     QSize s( d->h->sizeHint() );
-    s.setWidth( s.width() + style().scrollBarExtent().width() );
+    s.setWidth( s.width() + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
     s += QSize(frameWidth()*2,frameWidth()*2);
     QListViewItem * l = d->r;
     while( l && !l->height() )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#109 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#110 $
 **
 ** Definition of QStyle class
 **
@@ -122,15 +122,14 @@ public:
 	PO_DockWindowHandle,
 	PO_DockWindowSeparator,
 	PO_DockWindowPanel,
-	
-	PO_MenuBarItem,
-	PO_MenuBarPanel
-	/*
-	  PO_Panel,
-	  PO_PanelPopup,
-	  PO_PanelMenu,
-	  PO_PanelToolbar,
 
+	PO_MenuBarItem,
+	PO_MenuBarPanel,
+
+	PO_Panel,
+	PO_PanelPopup
+
+	/*
 	  PO_CheckMark,
 
 	  PO_ScrollBarLineUp,
@@ -169,15 +168,13 @@ public:
     enum ControlElement {
 	CE_PushButton,
 	CE_PushButtonLabel,
-	CE_PushButtonMask,
 
 	CE_CheckBox,
 	CE_CheckBoxLabel,
-	CE_CheckBoxMask,
 
 	CE_RadioButton,
-	CE_RadioButtonLabel,
-	CE_RadioButtonMask,
+	CE_RadioButtonLabel
+
 	/*
 	  CE_Tab,
 	  CE_MenuBarItem,
@@ -201,6 +198,11 @@ public:
 			      const QColorGroup &cg,
 			      CFlags how = CStyle_Default,
 			      void *data = 0 ) const = 0;
+    virtual void drawControlMask( ControlElement element,
+				  QPainter *p,
+				  const QWidget *widget,
+				  const QRect &r,
+				  void *data = 0 ) const = 0;
 
     enum SubRect {
 	SR_PushButtonContents,
@@ -217,9 +219,9 @@ public:
 	SR_ComboBoxFocusRect,
 
 	SR_SliderFocusRect,
-	
+
 	SR_DockWindowHandleRect
-	
+
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
@@ -289,6 +291,11 @@ public:
 				     SCFlags sub = SC_None,
 				     SCFlags subActive = SC_None,
 				     void *data = 0 ) const = 0;
+    virtual void drawComplexControlMask( ComplexControl control,
+					 QPainter *p,
+					 const QWidget *widget,
+					 const QRect &r,
+					 void *data = 0 ) const = 0;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
@@ -318,13 +325,13 @@ public:
 	PM_SliderLength,
 	PM_SliderMaximumDragDistance,
 	PM_SliderTickmarkOffset,
-	
+
 	PM_DockWindowSeparatorExtent,
 	PM_DockWindowHandleExtent,
 	PM_DockWindowFrameWidth,
-	
+
 	PM_MenuBarFrameWidth
-	
+
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
@@ -344,8 +351,6 @@ public:
 
 	  PM_SpinWidgetAdditionalWidth,
 	  PM_SpinWidgetAdditionalHeight,
-
-	  PM_ScrollBarExtent
 	*/
     };
 
@@ -357,7 +362,8 @@ public:
 	CT_PushButton,
 	CT_CheckBox,
 	CT_RadioButton,
-	CT_ToolButton
+	CT_ToolButton,
+	CT_ComboBox
     };
 
     virtual QSize sizeFromContents( ContentsType contents,
@@ -429,43 +435,6 @@ public:
 				 int lineWidth = 1, int midLineWidth = 0,
 				 const QBrush *fill = 0 );
 
-    virtual void drawPanel( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &, bool sunken=FALSE,
-			    int lineWidth = 1, const QBrush *fill = 0 );
-
-    virtual void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &,  int lineWidth = 2,
-				 const QBrush *fill = 0 );
-
-    virtual void drawArrow( QPainter *p, Qt::ArrowType type, bool down,
-			    int x, int y, int w, int h,
-			    const QColorGroup &g, bool enabled, const QBrush *fill = 0 ) = 0;
-
-    // toolbutton
-    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &g, bool sunken,
-				 const QBrush *fill = 0 );
-    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
-				 const QBrush *fill = 0 );
-    virtual QRect toolButtonRect(  int x, int y, int w, int h);
-    virtual void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
-				     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
-				     const QBrush *fill = 0 );
-
-    // "radio button"
-    virtual QSize exclusiveIndicatorSize() const = 0;
-    virtual void drawExclusiveIndicator( QPainter* p, int x, int y, int w, int h,
-					 const QColorGroup &g, bool on, bool down = FALSE, bool enabled = TRUE ) = 0;
-    virtual void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
-
-    // "check box"
-    virtual QSize indicatorSize() const = 0;
-    virtual void drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g,
-				int state, bool down = FALSE, bool enabled = TRUE ) = 0;
-    virtual void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int state);
-
-
     // focus
     virtual void drawFocusRect( QPainter*, const QRect &,
 				const QColorGroup &, const QColor* bg = 0,
@@ -474,20 +443,6 @@ public:
 
     // concrete section depending on Qt's widget cluster ( The line is
     // hard to draw sometimes)
-
-    // "combo box"
-    // virtual void drawComboButton( QComboBox* cbx, QPainter* p ); // ### add, 3.0
-    virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
-				  const QColorGroup &g, bool sunken = FALSE,
-				  bool editable = FALSE,
-				  bool enabled = TRUE,
-				  const QBrush *fill = 0 );
-    virtual QRect comboButtonRect( int x, int y, int w, int h) const;
-    virtual QRect comboButtonFocusRect( int x, int y, int w, int h) const;
-    virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
-
-    // frame
-    virtual int defaultFrameWidth() const;
 
     // tab bars
     virtual void tabbarMetrics( const QTabBar*,
@@ -499,32 +454,6 @@ public:
     virtual void drawTabBarExtension( QPainter * p, int x, int y, int w, int h,
 				      const QColorGroup & cg,
 				      const QTabWidget * tw );
-
-    // scrollbars
-    enum ScrollControl { AddLine = 0x8001 , SubLine  = 0x8002 , AddPage = 0x8004,
-     			 SubPage = 0x8008 , First = 0x8010, Last = 0x8020,
-    			 Slider  = 0x8040, NoScroll = 0x8080 };
-    virtual void scrollBarMetrics( const QScrollBar*,
-     				   int&, int&, int&, int&) const = 0;
-    virtual void drawScrollBarControls( QPainter*,  const QScrollBar*,
-     					int sliderStart, uint controls,
-					uint activeControl ) = 0;
-    virtual ScrollControl scrollBarPointOver( const QScrollBar*,
- 					      int sliderStart, const QPoint& ) = 0;
-
-    // sliders
-    virtual int sliderLength() const = 0;
-    virtual int sliderThickness() const;
-    virtual void drawSlider( QPainter *p,
-			     int x, int y, int w, int h,
-			     const QColorGroup &g,
-			     Orientation, bool tickAbove, bool tickBelow) = 0;
-
-    virtual void drawSliderGroove( QPainter *p,
-				   int x, int y, int w, int h,
-				   const QColorGroup& g, QCOORD c,
-				   Orientation ) = 0;
-    virtual int maximumSliderDragDistance() const;
 
     // splitter
     virtual int splitterWidth() const = 0;
@@ -552,30 +481,6 @@ public:
 				    const QPalette& pal,
 				    bool act, bool enabled,
 				    int x, int y, int w, int h) = 0;
-    virtual QSize scrollBarExtent() const;
-
-    // menu bars
-    virtual void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				  QMenuItem* mi, QColorGroup& g, bool active,
-				  bool down, bool hasFocus = FALSE ) = 0;
-    virtual int  menuBarFrameWidth() const;
-    virtual void drawMenuBarPanel( QPainter *p, int x, int y, int w, int h,
-				   const QColorGroup &, const QBrush *fill = 0 );
-
-    // tool bars
-    virtual int  toolBarHandleExtent() const;
-    virtual void drawToolBarHandle( QPainter *p, const QRect &r,
-				    Qt::Orientation orientation,
-				    bool highlight, const QColorGroup &cg,
-				    bool drawBorder = FALSE );
-    virtual int  toolBarFrameWidth() const;
-    virtual void drawToolBarPanel( QPainter *p, int x, int y, int w, int h,
-				   const QColorGroup &, const QBrush *fill = 0 );
-    virtual void drawToolBarSeparator( QPainter *p, int x, int y, int w, int h,
-				       const QColorGroup & g,
-				       Orientation orientation );
-    virtual QSize toolBarSeparatorSize( Qt::Orientation orientation ) const;
-
 
     // title bar
     enum TitleControl { TitleNone = 0x00,
@@ -597,17 +502,6 @@ public:
 
     // header
     virtual void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;
-
-    // spinbox
-    virtual int spinBoxFrameWidth() const = 0;
-
-    // spin widget
-    //     virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
-    // 				       const QColorGroup &g, QSpinWidget* sw,
-    // 				       bool downbtn, bool enabled, bool down ) = 0;
-    //     virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-    // 				       const QColorGroup &g, QSpinWidget* sw,
-    // 				       bool downbtn, bool enabled, bool down ) = 0;
 
     // groupbox
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;

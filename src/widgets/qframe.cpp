@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#134 $
 **
 ** Implementation of QFrame widget class
 **
@@ -41,6 +41,7 @@
 #include "qdrawutil.h"
 #include "qframe.h"
 #include "qbitmap.h"
+#include "qstyle.h"
 
 // REVISED: warwick
 /*!
@@ -542,6 +543,12 @@ void QFrame::drawFrame( QPainter *p )
 #else
     const QColorGroup & g = colorGroup();
 
+#ifndef QT_NO_STYLE
+    int lw = lineWidth();
+    void *data[1];
+    data[0] = (void *) &lw;
+#endif // QT_NO_STYLE
+
     switch ( type ) {
 
     case Box:
@@ -552,12 +559,33 @@ void QFrame::drawFrame( QPainter *p )
                             midLineWidth() );
         break;
 
+    case MenuBarPanel:
+#ifndef QT_NO_STYLE
+	style().drawPrimitive(QStyle::PO_MenuBarPanel, p, r, g,
+			      ((cstyle == Sunken) ? QStyle::PStyle_Sunken :
+			       QStyle::PStyle_Default),
+			      data);
+	break;
+#endif // fall through to Panel if QT_NO_STYLE
+
+    case ToolBarPanel:
+#ifndef QT_NO_STYLE
+	style().drawPrimitive( QStyle::PO_DockWindowPanel, p, rect(), g,
+			       ((cstyle == Sunken) ? QStyle::PStyle_Sunken :
+				QStyle::PStyle_Default),
+			       data);
+        break;
+#endif // fall through to Panel if QT_NO_STYLE
+
     case StyledPanel:
 #ifndef QT_NO_STYLE
         if ( cstyle == Plain )
             qDrawPlainRect( p, r, g.foreground(), lwidth );
         else
-            style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
+	    style().drawPrimitive(QStyle::PO_Panel, p, r, g,
+				  ((cstyle == Sunken) ? QStyle::PStyle_Sunken :
+				   QStyle::PStyle_Default),
+				  data);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
@@ -566,7 +594,10 @@ void QFrame::drawFrame( QPainter *p )
         if ( cstyle == Plain )
             qDrawPlainRect( p, r, g.foreground(), lwidth );
         else
-            style().drawPopupPanel( p, r.x(), r.y(), r.width(), r.height(), g, lwidth );
+	    style().drawPrimitive(QStyle::PO_PanelPopup, p, r, g,
+				  ((cstyle == Sunken) ? QStyle::PStyle_Sunken :
+				   QStyle::PStyle_Default),
+				  data);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
@@ -582,14 +613,6 @@ void QFrame::drawFrame( QPainter *p )
             qDrawPlainRect( p, r, g.foreground(), wpwidth );
         else
             qDrawWinPanel( p, r, g, cstyle == Sunken );
-        break;
-    case MenuBarPanel:
-	style().drawPrimitive( QStyle::PO_MenuBarPanel, p, rect(), g );
-//        style().drawMenuBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
-        break;
-    case ToolBarPanel:
-	style().drawPrimitive( QStyle::PO_DockWindowPanel, p, rect(), g );
-//        style().drawToolBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
         break;
     case HLine:
     case VLine:
