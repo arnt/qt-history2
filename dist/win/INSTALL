@@ -23,7 +23,7 @@ A   USING THE INSTALLATION PROGRAM
        you accept the license.
 
     2. Select where you want to install Qt and which parts of Qt you want
-       to install. You also have to slect which development tools you want
+       to install. You also have to select which development tools you want
        to use with Qt. The wizard allows you to select only one, but you
        may set the system up to use any other development system later.
 
@@ -72,7 +72,11 @@ B   BUILDING THE LIBRARY MANUALLY
     1. Uncompress the files into the directory you want to use, e.g.
        C:\Qt\3.0.0\
 
-    2. You need to set up certain environment variables for Qt:
+    2. Copy the license file from your account on dist.trolltech.com
+       into the directory where you installed the Qt files and rename it
+       to .qt-license
+
+    3. You need to set up certain environment variables for Qt:
 
        a. Set QTDIR to the directory where the Qt files have been
 	  installed. All other paths needed by the build system or Qt
@@ -105,4 +109,4 @@ B   BUILDING THE LIBRARY MANUALLY
        command prompt and for Borland type "make". This builds all the
        different parts of the toolkit.
 
-    That is all. Qt and the Qt Designer are now installed.
+    That is all. Qt and Qt Designer are now installed.
