@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#69 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#70 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -50,6 +50,7 @@ class QPicture;
 class QPrinter;
 class QAccel;
 class QTimer;
+class QClipboard;
 
 
 // Window system setting
