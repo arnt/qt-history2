@@ -38,7 +38,7 @@
 
 #ifndef QT_NO_SQL
 
-QSqlWidget::QSqlWidget( QWidget *parent = 0, const char *name = 0 )
+QSqlWidget::QSqlWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
 }
