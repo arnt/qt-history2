@@ -155,6 +155,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 	pd = rpd;
     }
 
+    d->state->bgOrigin -= d->redirection_offset;
     d->device = pd;
     d->engine = pd->engine();
 

@@ -1221,7 +1221,7 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
 	}
     }
 #endif
-
+    SetBrushOrgEx(d->hdc, state->bgOrigin.x(), state->bgOrigin.y(), 0);
     SelectObject(d->hdc, d->hbrush);
 
     if (hbrush_old) {
