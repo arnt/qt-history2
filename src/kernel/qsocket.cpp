@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#13 $
 **
 ** Implementation of QSocket class
 **
@@ -431,11 +431,24 @@ int QSocket::port() const
 /*!
   \fn void QSocket::closed()
 
-  This signal is emitted after connectToHost() has been called and a
-  connection has been successfully established.  It is also emitted
-  when you call the close() function to close a connection.
+  This signal is emitted when the other end has closed the connection.
+  The read buffers may contain buffered input data which you can read
+  after the connection was closed.
 
   \sa connectToHost(), close()
+*/
+
+
+/*!
+  \fn void QSocket::delayedCloseFinished()
+
+  This signal is emitted when a delayed close is finished. If you call
+  close() and there is buffered output data to be written, QSocket goes
+  into the \c QSocket::Closing state and returns immediately.  It will
+  then keep writing to the socket until all the data has been written.
+  Then, the delayCloseFinished() signal is emitted.
+
+  \sa close()
 */
 
 
@@ -445,8 +458,8 @@ int QSocket::port() const
   This signal is emitted when there is incoming data to be read.
 
   When new data comes into the socket device, this signal is emitted
-  immediately.  Thereafter, as long as there is data in the internal
-  read buffer, this signal is emitted every 10 milliseconds.
+  immediately.  If QSocket has old incoming data that you have not read,
+  the signal is emitted once every second until you read everything.
 
   \sa readBlock(), readLine(), bytesAvailable()
 */
@@ -473,33 +486,45 @@ bool QSocket::open( int m )
 
 
 /*!
-  Closes the socket and sets the connection state to \c QSocket::Idle.
-  The mode to \c QSocket::Binary and both the read and write buffers
-  are cleared. The closed() signal is emitted.
-  \sa state(), setMode()
+  Closes the socket.
+  The mode to \c QSocket::Binary and the read buffer is cleared.
+
+  If the output buffer is empty, the state is set to \ QSocket::Idle
+  and the connection is terminated immediately.  If the output buffer
+  still contains data to be written, QSocket goes into the
+  \c QSocket::Closing state and the rest of the data will be written.
+  When all of the outgoing data have been written, the state is set
+  to \c QSocket::Idle and the connection is terminated.  At this
+  point, the delayedCloseFinished() signal is emitted.
+
+  \sa state(), setMode(), bytesToWrite()
 */
 
 void QSocket::close()
 {
-    if ( !isOpen() )				// already closed
+    if ( !isOpen() || d->state != Idle )	// already closed
 	return;
 #if defined(QSOCKET_DEBUG)
     debug( "QSocket: close socket" );
 #endif
-    if ( d->socket ) {
-	setFlags( IO_Sequential );
-	setStatus( IO_Ok );
-	// We must disable the socket notifiers before the socket
-	// disappears
-	if ( d->rsn )
-	    d->rsn->setEnabled( FALSE );
-	if ( d->wsn )
-	    d->wsn->setEnabled( FALSE );
-	d->socket->close();
+    d->mode = Binary;
+    if ( d->wsize ) {				// there's data to be written
+	d->state = Closing;
+	d->rsn->setEnabled( FALSE );
+	d->wsn->setEnabled( TRUE );
+	d->rba.clear();				// clear incoming data
+	d->rindex = d->rsize = 0;
+	return;
     }
+    setFlags( IO_Sequential );
+    setStatus( IO_Ok );
+    // We must disable the socket notifiers before the socket
+    // disappears
+    d->rsn->setEnabled( FALSE );
+    d->wsn->setEnabled( FALSE );
+    d->socket->close();
     d->reinit();				// reinitialize
     d->state = Idle;
-    d->mode = Binary;
 }
 
 
@@ -567,10 +592,8 @@ bool QSocket::skipWriteBuf( int nbytes )
 	    nbytes -= a->size() - d->windex;
 	    d->wba.remove();
 	    d->windex = 0;
-	    if ( nbytes == 0 ) {
-		ASSERT( d->wba.isEmpty() );
+	    if ( nbytes == 0 )
 		return TRUE;
-	    }
 	} else {
 	    d->windex += nbytes;
 	    return TRUE;
@@ -703,12 +726,26 @@ bool QSocket::atEnd() const
 
 
 /*!
-  Returns the number of incoming bytes that can be read, same as size().
+  Returns the number of incoming bytes that can be read, i.e. the
+  size of the input buffer.  Equivalent to size().
+  \sa bytesToWrite();
 */
 
 int QSocket::bytesAvailable() const
 {
     return d->rsize;
+}
+
+
+/*!
+  Returns the number of bytes that are waiting to be written, i.e. the
+  size of the output buffer.
+  \sa bytesAvailable.
+*/
+
+int QSocket::bytesToWrite() const
+{
+    return d->wsize;
 }
 
 
@@ -760,7 +797,12 @@ int QSocket::writeBlock( const char *data, uint len )
 	return -1;
     }
 #endif
-    if ( len == 0 )
+#if defined(CHECK_STATE)
+    if ( d->state == Closing ) {
+	warning( "QSocket::writeBlock: Cannot write, socket is closing" );
+    }
+#endif
+    if ( len == 0 || d->state == Closing )
 	return 0;
     QByteArray *a = d->wba.last();
     if ( a && a->size() + len < 128 ) {		// small buffer, resize
@@ -896,7 +938,7 @@ void QSocket::sn_read()
 	if ( d->mode == Ascii )
 	    d->newline = scanNewline();
 	if ( d->ready_read_timer == 0 )
-	    d->ready_read_timer = startTimer( 10 );
+	    d->ready_read_timer = startTimer( 1000 );
 	emit readyRead();
     }
 }
@@ -915,36 +957,61 @@ void QSocket::sn_write()
 #endif
 	d->state = Connection;
 	emit connected();
-/*
-	if ( d->socket->connect(d->addr) ) {
-	    d->state = Connection;
-	    emit connected();
-	} else {
-	    return;
-	}
-*/
+	/*
+	  if ( d->socket->connect(d->addr) ) {
+	  d->state = Connection;
+	  emit connected();
+	  } else {
+	  return;
+	  }
+	  */
     }
-    if ( d->state == Connection && d->wsize > 0 ) {
+    if ( (d->state == Connection || d->state == Closing) && d->wsize > 0 ) {
 #if defined(QSOCKET_DEBUG)
 	debug( "QSocket: sn_write: Write data to the socket" );
 #endif
 	QByteArray *a = d->wba.first();
-	int nwritten = d->socket->writeBlock( a->data() + d->windex,
-					      a->size() - d->windex );
-#if defined(QSOCKET_DEBUG)
-	QString s(a->data()+d->windex,nwritten);
-#endif
-	if ( nwritten == (int)a->size() - d->windex ) {
-	    d->wba.remove();
-	    d->windex = 0;
+	int nwritten;
+	if ( (int)a->size() - d->windex < 1480 ) {
+	    // Concatenate many smaller block
+	    QByteArray out(1480);
+	    int i = 0;
+	    int j = d->windex;
+	    int s = a->size() - j;
+	    while ( a && i+s < (int)out.size() ) {
+		memcpy( out.data()+i, a->data()+j, s );
+		j = 0;
+		i += s;
+		a = d->wba.next();
+		s = a ? a->size() : 0;		
+	    }
+	    nwritten = d->socket->writeBlock( out.data(), i );
 	} else {
-	    d->windex += nwritten;
+	    // Big block, write it immediately
+	    nwritten = d->socket->writeBlock( a->data() + d->windex,
+					      a->size() - d->windex );
 	}
-	d->wsize -= nwritten;
+	skipWriteBuf( nwritten );
 #if defined(QSOCKET_DEBUG)
-	debug( "QSocket: sn_write: wrote %d bytes (%s), %d left", nwritten,
-	       s.ascii(), d->wsize );
+	debug( "QSocket: sn_write: wrote %d bytes, %d left", nwritten,
+	       d->wsize );
 #endif
+	if ( d->state == Closing && d->wsize == 0 ) {
+#if defined(QSOCKET_DEBUG)
+	    debug( "QSocket: sn_write: Delayed close done. Terminating now" );
+#endif
+	    setFlags( IO_Sequential );
+	    setStatus( IO_Ok );
+	    // We must disable the socket notifiers before the socket
+	    // disappears
+	    d->rsn->setEnabled( FALSE );
+	    d->wsn->setEnabled( FALSE );
+	    d->socket->close();
+	    d->reinit();			// reinitialize
+	    d->state = Idle;
+	    emit delayedCloseFinished();
+	    return;
+	}
     }
     d->wsn->setEnabled( d->wsize > 0 );		// write if there's data
 }

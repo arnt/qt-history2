@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#8 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#9 $
 **
 ** Definition of QSocket class
 **
@@ -43,7 +43,7 @@ public:
     QSocket( int socket, QObject *parent=0, const char *name=0 );
    ~QSocket();
 
-    enum State { Idle, HostLookup, Connecting, Connection };
+    enum State { Idle, HostLookup, Connecting, Connection, Closing };
     State	 state() const;
 
     enum Mode { Binary, Ascii };
@@ -64,6 +64,8 @@ public:
     bool	 atEnd() const;    
 
     int		 bytesAvailable() const;
+    int		 bytesToWrite() const;
+
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
 
@@ -78,6 +80,7 @@ signals:
     void	 hostFound();
     void	 connected();
     void	 closed();
+    void	 delayedCloseFinished();
     void	 readyRead();
     void	 error();
 
