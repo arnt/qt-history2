@@ -2327,7 +2327,7 @@ QVariant QObject::property( const char *name ) const
     if ( !p || !p->isValid() ) {
 	qWarning( "%s::property( \"%s\" ) failed: property invalid or does not exist",
 		  className(), name );
-	return FALSE;
+	return QVariant( FALSE, 0 );
     }
     QObject* that = (QObject*) this; // moc ensures constness for the qt_property call
     that->qt_property( id, 1, &v );

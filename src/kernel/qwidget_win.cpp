@@ -557,7 +557,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setFontSys( QFont *f )
 {
-    QInputContext::setFont( this, f ? *f : font() );
+    QInputContext::setFont( this, (f ? *f : font()) );
 }
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f)
