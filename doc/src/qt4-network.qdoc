@@ -17,18 +17,18 @@
     benefits:
 
     \list
-    \i  The Qt 4 network classes have more intuitive names and APIs.
+    \o  The Qt 4 network classes have more intuitive names and APIs.
         For example, QServerSocket has been renamed QTcpServer.
-    \i  The entire network module is \l{reentrant}, making it
+    \o  The entire network module is \l{reentrant}, making it
         possible to use them simultaneously from multiple threads.
-    \i  It is now possible to send and receive UDP datagrams and to
+    \o  It is now possible to send and receive UDP datagrams and to
         use synchronous (i.e., blocking) sockets without having to
         use a low-level API (QSocketDevice in Qt 3).
-    \i  QHostAddress and QDns support internationalized domain names
+    \o  QHostAddress and QDns support internationalized domain names
         (RFC 3492).
-    \i  QUrl is more lightweight and fully supports the latest URI
+    \o  QUrl is more lightweight and fully supports the latest URI
         specification draft.
-    \i  UDP broadcasting is now supported.
+    \o  UDP broadcasting is now supported.
     \endlist
 
     The Qt 4 network module provides fundamental classes for writing
@@ -38,17 +38,17 @@
     Here's an overview of the TCP and UDP classes:
 
     \list
-    \i  QTcpSocket encapsulates a TCP socket. It inherits from
+    \o  QTcpSocket encapsulates a TCP socket. It inherits from
         QIODevice, so you can use QTextStream and QDataStream to read
         or write data. It is useful for writing both clients and
         servers.
-    \i  QTcpServer allows you to listen on a certain port on a
+    \o  QTcpServer allows you to listen on a certain port on a
         server. It emits a
         \l{QTcpServer::newConnection()}{newConnection()} signal every
         time a client tries to connect to the server. Once the
         connection is established, you can talk to the client using
         QTcpSocket.
-    \i  QUdpSocket is an API for sending and receiving UDP datagrams.
+    \o  QUdpSocket is an API for sending and receiving UDP datagrams.
     \endlist
     
     QTcpSocket and QUdpSocket inherit most of their functionality
@@ -138,7 +138,7 @@
     \printline connect(tcpServer
 
     When a client tries to connect to the server, the following code
-    in the \c sendFortune() slot is executed:
+    in the sendFortune() slot is executed:
 
     \skipto QByteArray block;
     \printuntil clientConnection->close()
@@ -161,7 +161,7 @@
     \skipto connect(udpSocket
     \printuntil );
 
-    Then in the \c processPendingDatagrams() slot:
+    Then in the processPendingDatagrams() slot:
 
     \skipto hasPendingDatagrams
     \printuntil }
@@ -189,11 +189,11 @@
     can connect to a slot.
 
     The QDns class has been redesigned to use the operating system's
-    \c getaddrinfo() function instead of implementing the DNS
-    protocol. Internally, QDns simply starts a thread and calls \c
-    getaddrinfo() in that thread. This wasn't possible in Qt 3
-    because \c getaddrinfo() is a blocking call and Qt 3 could be
-    configured without multithreading support.
+    getaddrinfo() function instead of implementing the DNS protocol.
+    Internally, QDns simply starts a thread and calls getaddrinfo()
+    in that thread. This wasn't possible in Qt 3 because
+    getaddrinfo() is a blocking call and Qt 3 could be configured
+    without multithreading support.
 
     The QSocketDevice class in Qt 3 is no longer part of the public
     Qt API. If you used QSocketDevice to send or receive UDP
@@ -207,7 +207,7 @@
 
     Internally, Qt 4 has a class called QSocketLayer that provides a
     cross-platform low-level socket API. It resembles the old
-    QSocketDevice class; we might make it public in a later release
+    QSocketDevice class. We might make it public in a later release
     if users ask for it.
 
     As an aid to porting to Qt 4, the \l{Qt 3 compatibility library}
