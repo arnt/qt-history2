@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#48 $
 **
 ** Implementation of QML classes
 **
@@ -3904,6 +3904,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 void QMLView::paletteChange( const QPalette & )
 {
     d->mypapcolgrp = palette().normal();
+    d->papcolgrp = d->mypapcolgrp;
 }
 
 
