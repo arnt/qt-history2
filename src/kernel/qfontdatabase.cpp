@@ -133,12 +133,13 @@ struct QtFontStyle
     };
 
     QtFontStyle( const Key &k )
-	: key( k ), bitmapScalable( FALSE ), smoothScalable( FALSE ), count( 0 ),
-	  pixelSizes( 0 )
-#ifdef Q_WS_X11
-	  , weightName( 0 ), setwidthName( 0 ) 
-#endif
-    { }
+	: key( k ), bitmapScalable( FALSE ), smoothScalable( FALSE ),
+	  fakeOblique( FALSE ), count( 0 ), pixelSizes( 0 )
+    {
+#if defined(Q_WS_X11)
+	weightName = setwidthName = 0;
+#endif // Q_WS_X11
+    }
 
     ~QtFontStyle() {
 	free( pixelSizes );
@@ -149,9 +150,10 @@ struct QtFontStyle
     }
 
     Key key;
-    bool bitmapScalable     : 1;
-    bool smoothScalable     : 1;
-    int count      : 30;
+    bool bitmapScalable : 1;
+    bool smoothScalable : 1;
+    bool fakeOblique    : 1;
+    int count           : 29;
     QtFontSize *pixelSizes;
 
 #ifdef Q_WS_X11

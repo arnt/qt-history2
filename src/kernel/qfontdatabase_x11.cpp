@@ -1020,6 +1020,49 @@ static void initializeDb()
 #ifndef QT_NO_XFTFREETYPE
     for ( int i = 0; i < db->count; i++ ) {
 	checkXftCoverage( db->families[i] );
+
+
+#ifdef XFT_MATRIX
+	for ( int j = 0; j < db->families[i]->count; ++j ) {	// each foundry
+	    QtFontFoundry *foundry = db->families[i]->foundries[j];
+	    for ( int k = 0; k < foundry->count; ++k ) {
+		QtFontStyle *style = foundry->styles[k];
+		if ( style->key.italic || style->key.oblique ) continue;
+
+		QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE );
+		if ( ! size ) continue; // should not happen
+		QtFontEncoding *enc = size->encodingID( -1, TRUE );
+		if ( ! enc ) continue; // should not happen either
+
+		QtFontStyle::Key key = style->key;
+
+		// does this style have an italic equivalent?
+		key.italic = TRUE;
+		QtFontStyle *equiv = foundry->style( key );
+		if ( equiv ) continue;
+
+		// does this style have an oblique equivalent?
+		key.italic = FALSE;
+		key.oblique = TRUE;
+		equiv = foundry->style( key );
+		if ( equiv ) continue;
+
+		// let's fake one...
+		equiv = foundry->style( key, TRUE );
+#ifndef QT_XFT2
+		// Xft2 seems to do this automatically for us
+		equiv->fakeOblique = TRUE;
+#endif // !QT_XFT2
+		equiv->smoothScalable = TRUE;
+
+		QtFontSize *equiv_size = equiv->pixelSize( SMOOTH_SCALABLE, TRUE );
+		QtFontEncoding *equiv_enc = equiv_size->encodingID( -1, TRUE );
+
+		// keep the same pitch
+		equiv_enc->pitch = enc->pitch;
+	    }
+	}
+#endif // XFT_MATRIX
     }
 #endif
 
@@ -1086,7 +1129,7 @@ void QFontDatabase::createDatabase()
 static inline
 QFontEngine *loadEngine( int styleStrategy, int styleHint,
 			 const QString &family, const QString &foundry,
-			 int weight, bool italic, bool oblique,
+			 int weight, bool italic, bool oblique, bool fake_oblique,
 			 int pixelSize, int stretch, char pitch, int x11Screen,
 			 const char *weight_string,
 			 const char *setwidth_string,
@@ -1174,10 +1217,16 @@ QFontEngine *loadEngine( int styleStrategy, int styleHint,
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #ifdef XFT_MATRIX
-	if ( stretch > 0 && stretch != 100 ) {
+	if ( ( stretch > 0 && stretch != 100 ) ||
+	     ( oblique && fake_oblique ) ) {
 	    XftMatrix matrix;
 	    XftMatrixInit( &matrix );
-	    XftMatrixScale( &matrix, double( stretch ) / 100.0, 1.0 );
+
+	    if ( stretch > 0 && stretch != 100 )
+		XftMatrixScale( &matrix, double( stretch ) / 100.0, 1.0 );
+	    if ( oblique && fake_oblique )
+		XftMatrixShear( &matrix, 0.20, 0.0 );
+
 	    XftPatternAddMatrix( pattern, XFT_MATRIX, &matrix );
 	}
 #endif // XFT_MATRIX
@@ -1455,7 +1504,7 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
 
     fe = loadEngine( styleStrategy, styleHint, best_fam->name, best_fnd->name,
 		     best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique,
-		     best_px, best_str, best_pt, x11Screen,
+		     best_sty->fakeOblique, best_px, best_str, best_pt, x11Screen,
 		     best_sty->weightName, best_sty->setwidthName,
 		     xlfd_for_id( best_encoding_id ) );
 
