@@ -1207,7 +1207,7 @@ void QImage::fill(uint pixel)
         }
         // Implicitly set the alpha buffer to true.
         // ######################### shouldn't this go?
-        if ((0xff000000 & pixel) != 0xff000000) {
+        if ((0xff000000 & pixel) != 0xff000000 && d->format == Format_RGB32) {
             d->format = Format_ARGB32;
         }
 #endif // QT_NO_IMAGE_TRUECOLOR
@@ -2132,6 +2132,7 @@ static void qt_image_ARGB_to_ARGB_PM(QImageData *image)
             ++p;
         }
     }
+    image->format = QImage::Format_ARGB32_Premultiplied;
 }
 
 static void qt_image_ARGB_PM_to_ARGB(QImageData *image)
@@ -2147,11 +2148,12 @@ static void qt_image_ARGB_PM_to_ARGB(QImageData *image)
                 *p = (alpha << 24)
                      | ((255*qRed(pixel)/alpha) << 16)
                      | ((255*qGreen(pixel)/alpha) << 8)
-                     | ((alpha*qBlue(pixel)/alpha) << 0);
+                     | ((255*qBlue(pixel)/alpha) << 0);
             }
             ++p;
         }
     }
+    image->format = QImage::Format_ARGB32;
 }
 
 
