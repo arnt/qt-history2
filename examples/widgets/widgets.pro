@@ -1,7 +1,6 @@
 TEMPLATE      = subdirs
 SUBDIRS       = analogclock \
                 charactermap \
-                configwidget \
                 digitalclock \
                 groupbox \
                 lineedits \
