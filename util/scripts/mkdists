@@ -769,7 +769,7 @@ for plat in mac win x11 qws; do
 	    [ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
 	    [ "$DO_BZIP" = "yes" ] && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
 	elif [ "$plat" = "win" ]; then
-	    find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
+	    find "${PLATNAME}" | zip -rml9 $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
 	fi
 	)
 
