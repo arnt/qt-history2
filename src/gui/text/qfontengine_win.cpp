@@ -253,6 +253,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     getGlyphIndexes(str, len, glyphs, flags & QTextEngine::RightToLeft);
 
     HDC hdc = dc();
+    HGDIOBJ oldFont = SelectObject(hdc, hfont);
     unsigned int glyph;
     int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
     for(register int i = 0; i < len; i++) {
@@ -272,6 +273,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     }
 
     *nglyphs = len;
+    SelectObject(hdc, oldFont);
     return true;
 }
 // ### Port properly
@@ -441,12 +443,15 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 #ifndef Q_OS_TEMP
     GLYPHMETRICS gm;
 
+    HDC hdc = dc();
+    HGDIOBJ oldFont = SelectObject(hdc, hfont);
     if(!ttf) {
         SIZE s = {0, 0};
         WCHAR ch = glyph;
-        BOOL res = GetTextExtentPoint32W(dc(), &ch, 1, &s);
+        BOOL res = GetTextExtentPoint32W(hdc, &ch, 1, &s);
         Q_UNUSED(res);
         int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
+        SelectObject(hdc, oldFont);
         return glyph_metrics_t(0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx-overhang, 0);
     } else {
         DWORD res = 0;
@@ -460,6 +465,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
         } , {
             res = GetGlyphOutlineA(dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat);
         });
+        SelectObject(hdc, oldFont);
         if (res != GDI_ERROR)
             return glyph_metrics_t(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y,
                                   gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY);
