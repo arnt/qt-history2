@@ -129,14 +129,34 @@
   \sa currentPage(), showPage(), tabLabel()
 */
 
+
+class QTabBarExtension : public QWidget
+{
+public:
+    QTabBarExtension( QWidget * parent = 0, const char * name = 0 )
+        : QWidget( parent, name ) {};
+protected:
+    void paintEvent( QPaintEvent * )
+    {
+        QObject * obj = parent();
+        if( obj && obj->inherits("QTabWidget") ){
+            QTabWidget * t = (QTabWidget *) obj;
+            QPainter p( this );
+            style().drawTabBarExtension( &p, x(), y(), width(), height(),
+                                         colorGroup(), t );
+        }
+    }
+};
+
 class QTabWidgetData
 {
 public:
     QTabWidgetData()
-	: tabs(0), stack(0), dirty( TRUE ), pos( QTabWidget::Top ), shape( QTabWidget::Rounded )
-	{};
+        : tabs(0), tabExtension(0), stack(0), dirty( TRUE ),
+          pos( QTabWidget::Top ), shape( QTabWidget::Rounded ) {};
     ~QTabWidgetData(){};
     QTabBar* tabs;
+    QTabBarExtension* tabExtension;
     QWidgetStack* stack;
     bool dirty;
     QTabWidget::TabPosition pos;
@@ -174,6 +194,7 @@ void QTabWidget::init()
 
     d->stack = new QWidgetStack( this, "tab pages" );
     d->stack->installEventFilter( this );
+    d->tabExtension = new QTabBarExtension( this, "tab extension" );
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
@@ -250,7 +271,7 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
     int id = d->tabs->addTab( tab );
     d->stack->addWidget( child, id );
     if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
-	d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+        d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setUpLayout();
 }
 
@@ -318,7 +339,7 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
     int id = d->tabs->insertTab( tab, index );
     d->stack->addWidget( child, id );
     if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
-	d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+        d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setUpLayout();
 }
 
@@ -332,10 +353,10 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
     //#### accelerators
     int id = d->stack->id( w );
     if ( id < 0 )
-	return;
+        return;
     QTab* t = d->tabs->tab( id );
     if ( !t )
-	return;
+        return;
     t->label = label;
     d->tabs->layoutTabs();
 
@@ -357,12 +378,12 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     //#### accelerators
     int id = d->stack->id( w );
     if ( id < 0 )
-	return;
+        return;
     QTab* t = d->tabs->tab( id );
     if ( !t )
-	return;
+        return;
     if ( t->iconset )
-	delete t->iconset;
+        delete t->iconset;
     t->label = label;
     t->iconset = new QIconSet( iconset );
     d->tabs->layoutTabs();
@@ -388,9 +409,9 @@ bool QTabWidget::isTabEnabled( QWidget* w ) const
 {
     int id = d->stack->id( w );
     if ( id >= 0 )
-	return w->isEnabled();
+        return w->isEnabled();
     else
-	return FALSE;
+        return FALSE;
 }
 
 /*!
@@ -411,8 +432,8 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 {
     int id = d->stack->id( w );
     if ( id >= 0 ) {
-	w->setEnabled( enable );
-	d->tabs->setTabEnabled( id, enable );
+        w->setEnabled( enable );
+        d->tabs->setTabEnabled( id, enable );
     }
 }
 
@@ -427,11 +448,11 @@ void QTabWidget::showPage( QWidget * w)
 {
     int id = d->stack->id( w );
     if ( id >= 0 ) {
-	d->stack->raiseWidget( w );
-	d->tabs->setCurrentTab( id );
-	// ### why overwrite the frame style?
-	if ( d->stack->frameStyle() != ( QFrame::StyledPanel|QFrame::Raised ) )
-	    d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+        d->stack->raiseWidget( w );
+        d->tabs->setCurrentTab( id );
+        // ### why overwrite the frame style?
+        if ( d->stack->frameStyle() != ( QFrame::StyledPanel|QFrame::Raised ) )
+            d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     }
 }
 
@@ -443,12 +464,12 @@ void QTabWidget::removePage( QWidget * w )
 {
     int id = d->stack->id( w );
     if ( id >= 0 ) {
-	d->tabs->setTabEnabled( id, FALSE );
-	d->stack->removeWidget( w );
-	d->tabs->removeTab( d->tabs->tab(id) );
-	setUpLayout();
-	if ( !currentPage() && d->stack->frameStyle() != QFrame::NoFrame )
-	    d->stack->setFrameStyle( QFrame::NoFrame );
+        d->tabs->setTabEnabled( id, FALSE );
+        d->stack->removeWidget( w );
+        d->tabs->removeTab( d->tabs->tab(id) );
+        setUpLayout();
+        if ( !currentPage() && d->stack->frameStyle() != QFrame::NoFrame )
+            d->stack->setFrameStyle( QFrame::NoFrame );
     }
 }
 
@@ -468,7 +489,7 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
 {
     QTab * t = d->tabs->tab( d->stack->id( w ) );
     if ( t )
-	t->label = l;
+        t->label = l;
     d->tabs->layoutTabs();
     d->tabs->update();
 }
@@ -517,11 +538,11 @@ void QTabWidget::resizeEvent( QResizeEvent * )
 void QTabWidget::setTabBar( QTabBar* tb)
 {
     if ( tb->parentWidget() != this )
-	tb->reparent( this, QPoint(0,0), TRUE );
+        tb->reparent( this, QPoint(0,0), TRUE );
     delete d->tabs;
     d->tabs = tb;
     connect( d->tabs, SIGNAL(selected(int)),
-	     this,    SLOT(showTab(int)) );
+             this,    SLOT(showTab(int)) );
     setUpLayout();
 }
 
@@ -542,9 +563,9 @@ QTabBar* QTabWidget::tabBar() const
 void QTabWidget::showTab( int i )
 {
     if ( d->stack->widget( i ) ) {
-	d->stack->raiseWidget( i );
-	emit selected( d->tabs->tab( i )->label );
-	emit currentChanged( d->stack->widget( i ) );
+        d->stack->raiseWidget( i );
+        emit selected( d->tabs->tab( i )->label );
+        emit currentChanged( d->stack->widget( i ) );
     }
 }
 
@@ -554,39 +575,46 @@ void QTabWidget::showTab( int i )
 void QTabWidget::setUpLayout( bool onlyCheck )
 {
     if ( onlyCheck && !d->dirty )
-	return; // nothing to do
+        return; // nothing to do
 
     if ( !isVisible() ) {
-	d->dirty = TRUE;
-	return; // we'll do it later
+        d->dirty = TRUE;
+        return; // we'll do it later
     }
     QSize t( d->tabs->sizeHint() );
     if ( t.width() > width() )
-	t.setWidth( width() );
+        t.setWidth( width() );
     int lw = d->stack->lineWidth();
     bool reverse = QApplication::reverseLayout();
-    int tabx, taby, stacky;
+    int tabx, taby, stacky, exty, extw, exth, overlap;
+
+    style().tabBarExtensionMetrics( this, extw, exth, overlap );
+
     if( reverse ) {
-	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
+        tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
     } else {
-	tabx = QMAX( 0, lw - 2 );
+        tabx = QMAX( 0, lw - 2 );
     }
     if ( d->pos == Bottom ) {
-	taby = height() - t.height() - lw;
-	stacky = 0;
+        taby = height() - t.height() - lw;
+        stacky = 0;
+        exty = taby - (exth - overlap);
     }
     else { // Top
-	taby = 0;
-	stacky = t.height()-lw, width();
+        taby = 0;
+        stacky = t.height()-lw + (exth - overlap), width();
+        exty = taby + t.height() - overlap;
     }
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
-    d->stack->setGeometry( 0, stacky, width(), height()-t.height()+QMAX(0, lw-2));
+    d->tabExtension->setGeometry( 0, exty, extw, exth );
+    d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
+                           t.height()+QMAX(0, lw-2));
 
     d->dirty = FALSE;
     if ( !onlyCheck )
-	update();
+        update();
     if ( autoMask() )
-	updateMask();
+        updateMask();
 }
 
 /*!\reimp
@@ -595,8 +623,8 @@ QSize QTabWidget::sizeHint() const
 {
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint() );
-    return QSize( QMAX( s.width(), t.width()),
-		  s.height() + t.height() );
+    return QSize( QMAX( QMAX( s.width(), t.width()), d->tabExtension->width()),
+                  s.height() + t.height() + d->tabExtension->height());
 }
 
 
@@ -607,8 +635,8 @@ QSize QTabWidget::minimumSizeHint() const
 {
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
-    return QSize( QMAX( s.width(), t.width()),
-		  s.height() + t.height() );
+    return QSize( QMAX( QMAX( s.width(), t.width()), d->tabExtension->width()),
+                  s.height() + t.height() + d->tabExtension->height() );
 }
 
 /*! \reimp
@@ -639,19 +667,19 @@ QTabWidget::TabPosition QTabWidget::tabPosition() const
 void QTabWidget::setTabPosition( TabPosition pos)
 {
     if (d->pos == pos)
-	return;
+        return;
     d->pos = pos;
     if (d->tabs->shape() == QTabBar::TriangularAbove || d->tabs->shape() == QTabBar::TriangularBelow ) {
-	if ( pos == Bottom )
-	    d->tabs->setShape( QTabBar::TriangularBelow );
-	else
-	    d->tabs->setShape( QTabBar::TriangularAbove );
+        if ( pos == Bottom )
+            d->tabs->setShape( QTabBar::TriangularBelow );
+        else
+            d->tabs->setShape( QTabBar::TriangularAbove );
     }
     else {
-	if ( pos == Bottom )
-	    d->tabs->setShape( QTabBar::RoundedBelow );
-	else
-	    d->tabs->setShape( QTabBar::RoundedAbove );
+        if ( pos == Bottom )
+            d->tabs->setShape( QTabBar::RoundedBelow );
+        else
+            d->tabs->setShape( QTabBar::RoundedAbove );
     }
     d->tabs->layoutTabs();
     setUpLayout();
@@ -675,18 +703,18 @@ QTabWidget::TabShape QTabWidget::tabShape() const
 void QTabWidget::setTabShape( TabShape s )
 {
     if ( d->shape == s )
-	return;
+        return;
     d->shape = s;
     if ( d->pos == Top ) {
-	if ( s == Rounded )
-	    d->tabs->setShape( QTabBar::RoundedAbove );
-	else
-	    d->tabs->setShape( QTabBar::TriangularAbove );
+        if ( s == Rounded )
+            d->tabs->setShape( QTabBar::RoundedAbove );
+        else
+            d->tabs->setShape( QTabBar::TriangularAbove );
     } else {
-	if ( s == Rounded )
-	    d->tabs->setShape( QTabBar::RoundedBelow );
-	else
-	    d->tabs->setShape( QTabBar::TriangularBelow );
+        if ( s == Rounded )
+            d->tabs->setShape( QTabBar::RoundedBelow );
+        else
+            d->tabs->setShape( QTabBar::TriangularBelow );
     }
     d->tabs->layoutTabs();
     setUpLayout();
@@ -731,7 +759,7 @@ void QTabWidget::styleChange( QStyle& old )
 void QTabWidget::updateMask()
 {
     if ( !autoMask() )
-	return;
+        return;
 
     QRect r;
     QRegion reg( r );
@@ -746,9 +774,9 @@ void QTabWidget::updateMask()
 bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 {
     if ( o == d->stack && e->type() == QEvent::ChildRemoved
-	 && ( (QChildEvent*)e )->child()->isWidgetType() ) {
-	removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
-	return TRUE;
+         && ( (QChildEvent*)e )->child()->isWidgetType() ) {
+        removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
+        return TRUE;
     }
     return FALSE;
 }

@@ -17,9 +17,9 @@
 ** Foundation and appearing in the file LICENSE.GPL included in the
 ** packaging of this file.
 **
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -145,6 +145,11 @@ public:
 
     void  drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool selected );
     QRect pushButtonContentsRect( QPushButton* btn ) const;
+
+    void  drawTabBarExtension( QPainter *, int, int, int, int,
+                               const QColorGroup &, const QTabWidget * );
+    void  tabBarExtensionMetrics( const QTabWidget * tw, int & w, int & h,
+                                  int & overlap ) const;
 
     void  drawToolBarHandle( QPainter *p, const QRect &r,
                              Qt::Orientation orientation,

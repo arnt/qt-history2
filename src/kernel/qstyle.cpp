@@ -679,6 +679,34 @@ TO DO.
 
 /*!
 
+ Sets the width and height of the area between the tab bar and the
+ tab pages (called the tab bar extension area). \a overlap contains the
+ number of pixels the tab bar overlaps the tab bar extension area.
+
+ \sa drawTabBarExtension()
+*/
+void QStyle::tabBarExtensionMetrics( const QTabWidget *, int & width,
+                                     int & height, int & overlap ) const
+{
+    width   = 0;
+    height  = 0;
+    overlap = 0;
+}
+
+/*!
+
+ Draws the area between the tab bar and the tab pages. Some GUI styles
+ use this area to draw special decorations.
+
+ \sa tabBarExtensionMetrics()
+*/
+void QStyle::drawTabBarExtension( QPainter *, int, int, int, int,
+                                  const QColorGroup &, const QTabWidget * )
+{
+}
+
+/*!
+
   \fn void QStyle::scrollBarMetrics( const QScrollBar*, int &, int &, int &, int& ) const
 
   Returns the metrics of the passed scroll bar: sliderMin, sliderMax,

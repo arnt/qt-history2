@@ -51,7 +51,7 @@ class QTab;
 class QPopupMenu;
 class QMenuItem;
 class QToolButton;
-
+class QTabWidget;
 
 class QStylePrivate;
 
@@ -190,13 +190,18 @@ public:
     // frame
     virtual int defaultFrameWidth() const;
 
-    // tabbars
+    // tab bars
     virtual void tabbarMetrics( const QTabBar*,
-                    int&, int&, int& ) const = 0;
+                                int&, int&, int& ) const = 0;
     virtual void drawTab( QPainter*, const QTabBar*, QTab*,
                           bool selected ) = 0;
     virtual void drawTabMask( QPainter*, const QTabBar*, QTab*,
                               bool selected ) = 0;
+    virtual void tabBarExtensionMetrics( const QTabWidget *, int & w, int & h,
+                                         int & overlap ) const;
+    virtual void drawTabBarExtension( QPainter * p, int x, int y, int w, int h,
+                                      const QColorGroup & cg,
+                                      const QTabWidget * tw );
 
     // scrollbars
     enum ScrollControl { AddLine = 0x1 , SubLine  = 0x2 , AddPage = 0x4,
