@@ -52,6 +52,7 @@ public:
     using QList<QObject*>::last;
     using QList<QObject*>::prepend;
     using QList<QObject*>::remove;
+    using QList<QObject*>::removeAt;
     using QList<QObject*>::setAutoDelete;
     using QList<QObject*>::size;
     using QList<QObject*>::take;
