@@ -17,8 +17,7 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    setMinimumSize(200, 120);
-    setMaximumSize(200, 120);
+    setFixedSize(200, 120);
 
     QPushButton *quit = new QPushButton("Quit", this);
     quit->setGeometry(62, 40, 75, 30);
