@@ -156,7 +156,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
     br[Dark]            = QBrush(dark);
     br[Mid]             = QBrush(mid);
     br[Text]            = QBrush(text);
-    br[BrightText]      = br[Text];
+    br[BrightText]      = br[Light];
     br[ButtonText]      = br[Text];
     br[Base]            = QBrush(base);
     br[Background]      = QBrush(button);

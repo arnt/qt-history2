@@ -49,6 +49,7 @@ public:
 			  const QBrush *fill = 0 );
     void drawPushButton( QPushButton* btn, QPainter *p);
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+    void getButtonShift( int &x, int &y);
 
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&);
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );

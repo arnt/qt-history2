@@ -1474,3 +1474,11 @@ void QPlatinumStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     QWindowsStyle::drawPopupMenuItem( p, checkable, maxpmw, tab, mi, pal, act, enabled, x, y, w, h);
 }
 
+/*!\reimp
+ */
+void QPlatinumStyle::getButtonShift( int &x, int &y)
+{
+    x = 0;
+    y = 0;
+}
+
