@@ -18,7 +18,6 @@
 #include "qevent.h"
 #include "qwidget.h"
 #include "qapplication.h"
-#include "qworkspace.h"
 #include "qvector.h"
 #include "qdockwindow.h"
 #include "qmenu.h"
@@ -547,7 +546,7 @@ bool QShortcutMap::checkWidgetContext(QWidget *w, QWidget *active_window)
     if (active_window  != tlw)
         return false;
 
-#ifndef QT_NO_WORKSPACE
+#if 0 // #ifndef QT_NO_WORKSPACE
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     const QWidget* sw = w;
