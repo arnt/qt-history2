@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#28 $
 **
 ** Implementation of QFileDialog class
 **
@@ -35,6 +35,7 @@ struct QNetworkProtocolPrivate
     QQueue< QNetworkOperation > operationQueue;
     QNetworkOperation *opInProgress;
     QTimer *opStartTimer;
+    QCString data;
 };
 
 // NOT REVISED
@@ -263,6 +264,8 @@ QNetworkProtocol::QNetworkProtocol()
 
     connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
 	     this, SLOT( emitData( const QCString &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
+	     this, SLOT( gotNewData( const QCString &, QNetworkOperation * ) ) );
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
     connect( this, SIGNAL( start( QNetworkOperation * ) ),
@@ -472,9 +475,14 @@ const QNetworkOperation *QNetworkProtocol::rename( const QString &on, const QStr
 
 const QNetworkOperation *QNetworkProtocol::copy( const QString &from, const QString &to, bool move )
 {
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpCopy,
-						    from, to, QString::null );
+    QString file = QUrl( from ).fileName();
+    file.prepend( "/" );
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
+						    from, QString::null, QString::null );
     addOperation( res );
+    QNetworkOperation *p = new QNetworkOperation( QNetworkProtocol::OpPut, to + file,
+						  QString::null, QString::null );
+    addOperation( p );
     if ( move ) {
 	QNetworkOperation *m = new QNetworkOperation( QNetworkProtocol::OpRemove, from,
 						      QString::null, QString::null );
@@ -722,6 +730,12 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
     }
 
     QNetworkOperation *op = d->operationQueue.head();
+    
+    if ( op && op->operation() == OpPut && !d->data.isEmpty() ) {
+	op->setArg2( QString::fromLatin1( d->data ) );
+	d->data = "";
+    }
+    
     d->opInProgress = 0;
 
     if ( !checkConnection( op ) ) {
@@ -771,6 +785,17 @@ void QNetworkProtocol::clearOperationQueue()
     d->operationQueue.setAutoDelete( TRUE );
     d->operationQueue.clear();
 }
+
+
+/*!
+  \internal
+*/
+
+void QNetworkProtocol::gotNewData( const QCString &data, QNetworkOperation * )
+{
+    d->data += data;
+}
+
 
 
 struct QNetworkOperationPrivate
@@ -854,6 +879,33 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
 void QNetworkOperation::setErrorCode( QNetworkProtocol::Error ec )
 {
     d->errorCode = ec;
+}
+
+/*!
+  Sets the first argument of the network operation to \a arg.
+*/
+
+void QNetworkOperation::setArg1( const QString &arg )
+{
+    d->arg1 = arg;
+}
+
+/*!
+  Sets the second argument of the network operation to \a arg.
+*/
+
+void QNetworkOperation::setArg2( const QString &arg )
+{
+    d->arg2 = arg;
+}
+
+/*!
+  Sets the third argument of the network operation to \a arg.
+*/
+
+void QNetworkOperation::setArg3( const QString &arg )
+{
+    d->arg3 = arg;
 }
 
 /*!

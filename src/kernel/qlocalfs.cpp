@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#4 $
 **
-** Implementation of QFileDialog class
+** Implementation of QLocalFs class
 **
 ** Created : 950429
 **
@@ -28,6 +28,7 @@
 #include "qfile.h"
 #include "qurlinfo.h"
 #include "qapplication.h"
+#include "qtextstream.h"
 
 // NOT REVISED
 
@@ -157,10 +158,9 @@ void QLocalFs::operationRename( QNetworkOperation *op )
 /*!
  */
 
-void QLocalFs::operationCopy( QNetworkOperation *op )
+void QLocalFs::operationGet( QNetworkOperation *op )
 {
     QString from = QUrl( op->arg1() ).path();
-    QString to = QUrl( op->arg2() ).path();
 
     QFile f( from );
     if ( !f.open( IO_ReadOnly ) ) {
@@ -171,57 +171,99 @@ void QLocalFs::operationCopy( QNetworkOperation *op )
 	emit finished( op );
 	return;
     }
+    
+    QTextStream ts( &f );
+    QCString s = ts.read().latin1();
+    emit data( s, op );
+    op->setState( StDone );
+    emit finished( op );
+}
 
-    QFileInfo fi( from );
-    if ( fi.exists() ) {
-	if ( !fi.isFile() ) {
-	    f.close();
-	    QString msg = tr( "Couldn´t write\n%1" ).arg( to );
-	    op->setState( StFailed );
-	    op->setProtocolDetail( msg );
-	    op->setErrorCode( ErrCopy );
-	    emit finished( op );
-	    return;
-	}
-    }
-
-    to += "/" + fi.fileName();
-    QFile f2( to );
-    if ( !f2.open( IO_WriteOnly ) ) {
-	f.close();
-	QString msg = tr( "Could not write to\n%1" ).arg( to );
+void QLocalFs::operationPut( QNetworkOperation *op )
+{
+    QString to = QUrl( op->arg1() ).path();
+    
+    QFile f( to );
+    if ( !f.open( IO_WriteOnly ) ) {
+	QString msg = tr( "Could not write\n%1" ).arg( to );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrCopy );
 	emit finished( op );
 	return;
     }
-
-    char *block = new char[ 1024 ];
-    bool error = FALSE;
-    int sum = 0;
-    emit copyProgress( -1, 100, op );
-    while ( !f.atEnd() ) {
-	int len = f.readBlock( block, 100 );
-	if ( len == -1 ) {
-	    error = TRUE;
-	    break;
-	}
-	sum += len;
-	emit copyProgress( ( sum * 100 ) / f.size(), 100, op );
-	f2.writeBlock( block, len );
-	qApp->processEvents();
-    }
-
-    delete[] block;
-
-    f.close();
-    f2.close();
-
+    
+    QTextStream ts( &f );
+    ts << op->arg2().latin1();
+    op->setState( StDone );
     emit finished( op );
 }
 
+// void QLocalFs::operationCopy( QNetworkOperation *op )
+// {
+//     QString from = QUrl( op->arg1() ).path();
+//     QString to = QUrl( op->arg2() ).path();
+
+//     QFile f( from );
+//     if ( !f.open( IO_ReadOnly ) ) {
+// 	QString msg = tr( "Could not open\n%1" ).arg( from );
+// 	op->setState( StFailed );
+// 	op->setProtocolDetail( msg );
+// 	op->setErrorCode( ErrCopy );
+// 	emit finished( op );
+// 	return;
+//     }
+
+//     QFileInfo fi( from );
+//     if ( fi.exists() ) {
+// 	if ( !fi.isFile() ) {
+// 	    f.close();
+// 	    QString msg = tr( "Couldn´t write\n%1" ).arg( to );
+// 	    op->setState( StFailed );
+// 	    op->setProtocolDetail( msg );
+// 	    op->setErrorCode( ErrCopy );
+// 	    emit finished( op );
+// 	    return;
+// 	}
+//     }
+
+//     to += "/" + fi.fileName();
+//     QFile f2( to );
+//     if ( !f2.open( IO_WriteOnly ) ) {
+// 	f.close();
+// 	QString msg = tr( "Could not write to\n%1" ).arg( to );
+// 	op->setState( StFailed );
+// 	op->setProtocolDetail( msg );
+// 	op->setErrorCode( ErrCopy );
+// 	emit finished( op );
+// 	return;
+//     }
+
+//     char *block = new char[ 1024 ];
+//     bool error = FALSE;
+//     int sum = 0;
+//     emit copyProgress( -1, 100, op );
+//     while ( !f.atEnd() ) {
+// 	int len = f.readBlock( block, 100 );
+// 	if ( len == -1 ) {
+// 	    error = TRUE;
+// 	    break;
+// 	}
+// 	sum += len;
+// 	emit copyProgress( ( sum * 100 ) / f.size(), 100, op );
+// 	f2.writeBlock( block, len );
+// 	qApp->processEvents();
+//     }
+
+//     delete[] block;
+
+//     f.close();
+//     f2.close();
+
+//     emit finished( op );
+// }
+
 int QLocalFs::supportedOperations() const
 {
-    return OpListChildren | OpMkdir | OpRemove | OpCopy | OpRename | OpMove;
+    return OpListChildren | OpMkdir | OpRemove | OpGet | OpPut;
 }

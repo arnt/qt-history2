@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#13 $
 **
 ** Implementation of QFileDialog class
 **
@@ -433,19 +433,25 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
     if ( !checkValid() )
 	return 0;
 
-    QNetworkProtocol::Operation o = move ? QNetworkProtocol::OpMove
-				    : QNetworkProtocol::OpCopy;
-
-    QNetworkOperation *res = new QNetworkOperation( o, from, to, QString::null );
-
+    QString file = QUrl( from ).fileName();
+    file.prepend( "/" );
     if ( d->networkProtocol &&
-	 d->networkProtocol->supportedOperations() & o ) {
+	 d->networkProtocol->supportedOperations()  ) {
+	QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
+							from, QString::null, QString::null );
 	d->networkProtocol->addOperation( res );
-	if ( move )
-	    d->networkProtocol->addOperation( new QNetworkOperation( QNetworkProtocol::OpRemove,
-								     from, QString::null, QString::null ) );
+	QNetworkOperation *p = new QNetworkOperation( QNetworkProtocol::OpPut, to + file,
+						      QString::null, QString::null );
+	d->networkProtocol->addOperation( p );
+	if ( move ) {
+	    QNetworkOperation *m = new QNetworkOperation( QNetworkProtocol::OpRemove, from,
+							  QString::null, QString::null );
+	    d->networkProtocol->addOperation( m );
+	}
 	return res;
     } else {
+	QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpCopy,
+							from, to, QString::null );
 	QString msg = tr( "The protocol `%1' is not supported\n"
 			  "or `%2' doesn't support copying or moving files or directories" ).
 		      arg( protocol() ).arg( protocol() );

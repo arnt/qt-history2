@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.h#1 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.h#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -32,21 +32,22 @@
 class QLocalFs : public QNetworkProtocol
 {
     Q_OBJECT
-    
+
 public:
     QLocalFs();
     virtual int supportedOperations() const;
-    
+
 protected:
     virtual void operationListChildren( QNetworkOperation *op );
     virtual void operationMkDir( QNetworkOperation *op );
     virtual void operationRemove( QNetworkOperation *op );
     virtual void operationRename( QNetworkOperation *op );
-    virtual void operationCopy( QNetworkOperation *op );
+    virtual void operationGet( QNetworkOperation *op );
+    virtual void operationPut( QNetworkOperation *op );
 
 private:
     QDir dir;
-    
+
 };
-    
+
 #endif
