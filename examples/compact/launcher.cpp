@@ -80,7 +80,7 @@ Clock::Clock( QWidget *parent )
  : QLabel( parent ) 
 {
     timerEvent(0);
-    //startTimer( 5000 );
+    startTimer( 5000 );
 }
 
 
