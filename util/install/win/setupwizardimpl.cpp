@@ -1488,7 +1488,8 @@ void SetupWizardImpl::showPageProgress()
 
     if( !filesCopied ) {
 	createDir( optionsPage->installPath->text() );
-	createDir( optionsPageQsa->installPath->text() );
+	if (optionsPageQsa)
+	    createDir( optionsPageQsa->installPath->text() );
 	progressPage->filesDisplay->append( "Installing files...\n" );
 
 	// install the right LICENSE file
