@@ -20,6 +20,7 @@
 
 class QModelIndex;
 class QItemSelection;
+class QFileDialogArgs;
 class QFileIconProvider;
 class QFileDialogPrivate;
 class QAbstractItemDelegate;
@@ -45,9 +46,8 @@ public:
     QFileDialog(QWidget *parent, Qt::WFlags f);
     explicit QFileDialog(QWidget *parent = 0,
                          const QString &caption = QString(),
-                         const QString &dir = QString(),
-                         const QString &filter = QString(),
-                         FileMode fileMode = AnyFile);
+                         const QString &directory = QString(),
+                         const QString &filter = QString());
     ~QFileDialog();
 
     void setDirectory(const QString &directory);
@@ -169,6 +169,7 @@ public:
 #endif // QT_COMPAT
 
 protected:
+    QFileDialog(const QFileDialogArgs &args);
     void done(int result);
     void accept();
 

@@ -147,14 +147,14 @@ public:
 
 struct QFileDialogArgs
 {
-    QFileDialogArgs() : parent(0) {}
+    QFileDialogArgs() : parent(0), mode(QFileDialog::AnyFile) {}
 
     QWidget *parent;
     QString caption;
     QString directory;
     QString selection;
     QString filter;
-    QFileDialog::Options options;
+    QFileDialog::FileMode mode;
 };
 
 #endif // QFILEDIALOG_P_H

@@ -334,22 +334,35 @@ QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
 
 /*!
     Constructs a file dialog with the given \a parent. The dialog has
-    the given \a caption, starts in directory \a dir, has the filters
+    the given \a caption, starts in the given \a directory, has the filters
     specified by \a filter, with the filter in \a selectedFilter
     selected, and with the \a selectedFile selected. The files that
     can be chosen are determined by the \a fileMode.
 */
 QFileDialog::QFileDialog(QWidget *parent,
                          const QString &caption,
-                         const QString &dir,
-                         const QString &filter,
-                         FileMode fileMode)
+                         const QString &directory,
+                         const QString &filter)
     : QDialog(*new QFileDialogPrivate, parent, 0)
 {
     setWindowTitle(caption);
     QStringList nameFilter = qt_make_filter_list(filter);
-    d->fileMode = fileMode;
-    d->setup(dir, nameFilter.isEmpty() ? QStringList(tr("All Files (*)")) : nameFilter);
+    if (nameFilter.isEmpty())
+        d->setup(directory, QStringList(tr("All Files (*)")));
+    else
+        d->setup(directory, nameFilter);
+}
+
+QFileDialog::QFileDialog(const QFileDialogArgs &args)
+    : QDialog(*new QFileDialogPrivate, args.parent, 0)
+{
+    d->fileMode = args.mode;
+    setWindowTitle(args.caption);
+    QStringList nameFilter = qt_make_filter_list(args.filter);
+    if (nameFilter.isEmpty())
+        d->setup(args.directory, QStringList(tr("All Files (*)")));
+    else
+        d->setup(args.directory, nameFilter);
 }
 
 /*!
@@ -575,10 +588,16 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 void QFileDialog::setFileMode(FileMode mode)
 {
     d->fileMode = mode;
+    // set selection mode and behavior
     QAbstractItemView::SelectionMode selectionMode = d->selectionMode(mode);
     d->listView->setSelectionMode(selectionMode);
+    d->listView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d->treeView->setSelectionMode(selectionMode);
-    d->model->setFilter(d->filterForMode(mode));
+    d->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // set filter
+    QDir::Filters filters = d->filterForMode(mode);
+    d->model->setFilter(filters);
+    // setup file type for directory
     if (mode == DirectoryOnly) {
         d->fileType->clear();
         d->fileType->insertItem(QFileDialog::tr("Directories"));
@@ -1228,8 +1247,7 @@ void QFileDialogPrivate::showHidden()
     setDirFilter(filters);
 }
 
-void QFileDialogPrivate::setup(const QString &directory,
-                               const QStringList &nameFilter)
+void QFileDialogPrivate::setup(const QString &directory, const QStringList &nameFilter)
 {
     q->setSizeGripEnabled(true);
     QGridLayout *grid = new QGridLayout(q);
@@ -1744,7 +1762,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     args.directory = qt_working_dir;
     args.selection = selection;
     args.filter = filter;
-    args.options = options;
+    args.mode = ExistingFile;
 
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
@@ -1764,17 +1782,14 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     }
 #endif
     // create a qt dialog
-    QFileDialog *dlg = new QFileDialog(parent,
-                                       caption.isEmpty() ? "Open" : caption,
-                                       qt_working_dir,
-                                       filter,
-                                       QFileDialog::ExistingFile);
+    args.caption = caption.isEmpty() ? "Open" : caption;
+    QFileDialog *dlg = new QFileDialog(args);
+    dlg->setModal(true);
+    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
     if (selectedFilter)
         dlg->selectFilter(*selectedFilter);
     if (!selection.isEmpty())
         dlg->selectFile(selection);
-    dlg->setModal(true);
-    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -1852,7 +1867,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     args.directory = qt_working_dir;
     args.selection = selection;
     args.filter = filter;
-    args.options = options;
+    args.mode = AnyFile;
     
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
@@ -1869,19 +1884,15 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     }
 #endif
 
-    QFileDialog *dlg = new QFileDialog(parent,
-                                       caption.isEmpty() ? "Save As" : caption,
-                                       qt_working_dir,
-                                       filter,
-                                       QFileDialog::AnyFile);
-
+    args.caption = caption.isEmpty() ? "Save As" : caption;
+    QFileDialog *dlg = new QFileDialog(args);
+    dlg->setModal(true);
+    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
+    dlg->setAcceptMode(AcceptSave);
     if (selectedFilter)
         dlg->selectFilter(*selectedFilter);
     if (!selection.isEmpty())
         dlg->selectFile(selection);
-    dlg->setModal(true);
-    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
-    dlg->setAcceptMode(QFileDialog::AcceptSave);
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -1938,11 +1949,13 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
                                           const QString &dir,
                                           Options options)
 {
+    qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
+
     QFileDialogArgs args;
     args.parent = parent;
     args.caption = caption;
     args.directory = qt_working_dir;
-    args.options = options;
+    args.mode = (options & ShowDirsOnly ? DirectoryOnly : Directory);
     
 #if defined(Q_WS_WIN)
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
@@ -1958,13 +1971,8 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     }
 #endif
 
-    qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
-
-    QFileDialog *dlg = new QFileDialog(parent,
-                                       caption.isEmpty() ? "Find Directory" : caption,
-                                       qt_working_dir,
-                                       QString(),
-                                       options & ShowDirsOnly ? DirectoryOnly : Directory);
+    args.caption = caption.isEmpty() ? "Find Directory" : caption;
+    QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
     dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
 
@@ -2049,7 +2057,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.caption = caption;
     args.directory = qt_working_dir;
     args.filter = filter;
-    args.options = options;
+    args.mode = ExistingFile;
     
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
@@ -2068,16 +2076,13 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
         return result;
     }
 #endif
-
-    QFileDialog *dlg = new QFileDialog(parent,
-                                       caption.isEmpty() ? "Open" : caption,
-                                       qt_working_dir,
-                                       filter,
-                                       QFileDialog::ExistingFiles);
-    if (selectedFilter)
-        dlg->selectFilter(*selectedFilter);
+    
+    args.caption = caption.isEmpty() ? "Open" : caption;
+    QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
     dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
+    if (selectedFilter)
+        dlg->selectFilter(*selectedFilter);
 
     QStringList result;
     if (dlg->exec() == QDialog::Accepted) {
