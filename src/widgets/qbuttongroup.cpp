@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#57 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -211,6 +211,13 @@ int QButtonGroup::insert( QButton *button, int id )
     return bi->id;
 }
 
+/*!
+  Returns the number of buttons in the group.
+*/
+int QButtonGroup::count() const
+{
+    return buttons->count();
+}
 
 /*!
   Removes a button from the button group.
