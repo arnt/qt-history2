@@ -92,6 +92,11 @@ public:
         return q_func()->palette().color(QPalette::Base);
     }
 
+    inline void releaseEditor(QWidget *editor) const {
+        editor->removeEventFilter(delegate);
+        editor->deleteLater();
+    }
+
     void removeSelectedRows();
 
     QPointer<QAbstractItemModel> model;

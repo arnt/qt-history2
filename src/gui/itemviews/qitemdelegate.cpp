@@ -194,30 +194,17 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     item \a index for editing. The \a parent widget and style \a option are
     used to control how the editor widget appears.
 
-    \sa QAbstractItemDelegate::editor()
+    \sa QAbstractItemDelegate::createEditor()
 */
 
-QWidget *QItemDelegate::editor(QWidget *parent,
-                               const QStyleOptionViewItem &,
-                               const QModelIndex &index) const
+QWidget *QItemDelegate::createEditor(QWidget *parent,
+                                     const QStyleOptionViewItem &,
+                                     const QModelIndex &index) const
 {
     QVariant::Type t = index.model()->data(index, QAbstractItemModel::EditRole).type();
     QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
     if (w) w->installEventFilter(const_cast<QItemDelegate *>(this));
     return w;
-}
-
-/*!
-    Releases the \a editor.
-
-    \sa QAbstractItemDelegate::releaseEditor()
-*/
-
-void QItemDelegate::releaseEditor(QWidget *editor, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    editor->removeEventFilter(this);
-    editor->deleteLater();
 }
 
 /*!

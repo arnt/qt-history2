@@ -47,11 +47,9 @@ public:
                            const QModelIndex &index) const = 0;
 
     // editing
-    virtual QWidget *editor(QWidget *parent,
-                            const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const;
-
-    virtual void releaseEditor(QWidget *editor, const QModelIndex &index);
+    virtual QWidget *createEditor(QWidget *parent,
+                                  const QStyleOptionViewItem &option,
+                                  const QModelIndex &index) const;
 
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 

@@ -157,38 +157,18 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
     Returns the editor to be used for editing the data item with the
     given \a index. Note that the index contains information about the
     model being used. The editor's parent widget is specified by \a parent,
-    and the item options by \a option. Ownership of the editor is remains
-    with the delegate. Subsequent calls to this function with the same
-    arguments are not guaranteed to return the same editor object.
-
-    Note: When the editor is no longer in use, call releaseEditor().
+    and the item options by \a option.
 
     The base implementation returns 0. If you want custom editing you
     will need to reimplement this function.
 
-    \sa setModelData() setEditorData() releaseEditor()
+    \sa setModelData() setEditorData()
 */
-QWidget *QAbstractItemDelegate::editor(QWidget *,
-                                       const QStyleOptionViewItem &,
-                                       const QModelIndex &) const
+QWidget *QAbstractItemDelegate::createEditor(QWidget *,
+                                             const QStyleOptionViewItem &,
+                                             const QModelIndex &) const
 {
     return 0;
-}
-
-/*!
-    Notifies the delegate that the given \a editor used to edit \a index
-    is no longer in use.
-    Typically the delegate should destroy the editor at this point.
-
-    The base implementation does nothing. If you want custom editing
-    you will probably need to reimplement this function.
-
-    \sa editor() setEditorData() setModelData()
-*/
-void QAbstractItemDelegate::releaseEditor(QWidget *,
-                                          const QModelIndex &)
-{
-    // do nothing
 }
 
 /*!

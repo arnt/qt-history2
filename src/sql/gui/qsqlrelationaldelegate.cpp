@@ -62,13 +62,13 @@ QSqlRelationalDelegate::~QSqlRelationalDelegate()
 /*!
     \reimp
 */
-QWidget *QSqlRelationalDelegate::editor(QWidget *parent,
-                                        const QStyleOptionViewItem &option,
-                                        const QModelIndex &index) const
+QWidget *QSqlRelationalDelegate::createEditor(QWidget *parent,
+                                              const QStyleOptionViewItem &option,
+                                              const QModelIndex &index) const
 {
     const QSqlRelationalTableModel *sqlModel = qt_cast<const QSqlRelationalTableModel *>(index.model());
     if (!sqlModel || !sqlModel->relationModel(index.column()))
-        return QItemDelegate::editor(parent, option, index);
+        return QItemDelegate::createEditor(parent, option, index);
 
     QComboBox *combo = new QComboBox(parent);
 //    combo->setModel(sqlModel->relationModel(index.column()));

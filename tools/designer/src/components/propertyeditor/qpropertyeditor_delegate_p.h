@@ -40,9 +40,9 @@ public:
     virtual QSize sizeHint(const QStyleOptionViewItem &option,
                            const QModelIndex &index) const;
 
-    virtual QWidget *editor(QWidget *parent,
-                            const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const;
+    virtual QWidget *createEditor(QWidget *parent,
+                                  const QStyleOptionViewItem &option,
+                                  const QModelIndex &index) const;
 
     virtual void setEditorData(QWidget *editor,
                                const QModelIndex &index) const;

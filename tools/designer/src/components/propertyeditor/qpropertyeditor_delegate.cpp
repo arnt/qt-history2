@@ -117,9 +117,9 @@ void Delegate::setReadOnly(bool readOnly)
     m_readOnly = readOnly;
 }
 
-QWidget *Delegate::editor(QWidget *parent,
-                          const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const
+QWidget *Delegate::createEditor(QWidget *parent,
+                                const QStyleOptionViewItem &option,
+                                const QModelIndex &index) const
 {
     Q_UNUSED(option);
 
