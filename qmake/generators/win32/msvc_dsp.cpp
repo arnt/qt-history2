@@ -202,7 +202,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "# Begin Custom Build - lupdate'ing " + (*it) + "...\n"
 				    "InputPath=.\\" + (*it) + "\n\n"
 				    "\"tmp\\" + (*it) + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lupdate " + project->projectFile() + " -ts " + (*it) + "\n"
+				    "\t$(QTDIR)\\bin\\lupdate -ts " + (*it) + " " + project->projectFile() + "\n"
 				    "\tcopy " + (*it) +" tmp\\" + (*it) + "\n"
 				    "# End Custom Build\n\n";
 

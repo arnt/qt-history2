@@ -15,6 +15,7 @@
 **********************************************************************/
 
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
@@ -178,7 +179,11 @@ int main( int argc, char **argv )
 	    }
 	} else {
 	    if ( metTsFlag ) {
-		tsFileNames.append( QString(argv[i]) );
+		QFileInfo fi( argv[i] );
+		if ( fi.permission( QFileInfo::WriteUser ) )
+		    tsFileNames.append( QString(argv[i]) );
+		else
+		    return -1;
 	    } else {
 		if ( QString(argv[i]).right(4).lower() == ".pro" ) {
 		    QMap<QString, QString> tagMap = proFileTagMap( fullText );
