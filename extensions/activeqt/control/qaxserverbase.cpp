@@ -27,6 +27,7 @@
 
 #include <qapplication.h>
 #include <qbuffer.h>
+#include <qeventloop.h>
 #include <qfocusdata.h>
 #include <qguardedptr.h>
 #include <qintdict.h>
@@ -589,13 +590,16 @@ private:
     unsigned long ref;
 };
 
-
+extern Q_EXPORT void qWinProcessConfigRequests();
 extern bool qax_ownQApp;
 extern HHOOK hhook;
 LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
-    if ( qApp )
+    if ( qApp ) {
 	qApp->sendPostedEvents();
+	qApp->eventLoop()->activateSocketNotifiers();
+	qWinProcessConfigRequests();
+    }
 
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
