@@ -32,7 +32,7 @@ public:
 private:
     QString       nm;
     int           num;
-    QVariant      val;    
+    QVariant      val;
 };
 
 class Q_EXPORT QSqlField : public QSqlResultField
@@ -123,7 +123,7 @@ public:
     const T& field( int i ) const { return fieldList[ i ]; }
     T& field( const QString& name ) { return fieldList[ position( name ) ]; }
     const T& field( const QString& name ) const { return fieldList[ position( name ) ]; }
-    void append( const T& field )
+    virtual void append( const T& field )
     {
 	if ( fieldListStr.isNull() )
 	    fieldListStr = field.name();
@@ -139,7 +139,7 @@ public:
 	posMap.clear();
     }
     uint count() const { return fieldList.count(); }
-    QString toString( const QString& prefix = QString::null ) const
+    virtual QString toString( const QString& prefix = QString::null ) const
     {
 	if ( prefix.isNull() )
 	    return fieldListStr;
@@ -149,7 +149,7 @@ public:
 	return pflist;
     }
 private:
-    QValueList< T > fieldList;    
+    QValueList< T > fieldList;
     QString fieldListStr;
     QMap< QString, int > posMap;
 };

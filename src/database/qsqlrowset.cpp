@@ -23,7 +23,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
 */
 QSqlRowset::QSqlRowset( const QString & name, const QString& databaseName )
-    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), nm( name )
+    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name )
 {
     if ( !nm.isNull() )
 	*this = driver()->fields( nm );
@@ -127,6 +127,7 @@ bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
     if ( sort.count() )
 	str += " order by " + sort.toString( nm );
     str += ";";
+    srt = sort;
     return query( str );
 }
 
@@ -195,9 +196,9 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 */
 bool QSqlRowset::query( const QString & str )
 {
-#ifdef CHECK_RANGE    
+#ifdef CHECK_RANGE
     qDebug( "\n### ROWSET SQL: " + str );
-#endif    
+#endif
     setQuery( str );
     return isActive();
 }

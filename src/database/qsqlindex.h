@@ -3,6 +3,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qvaluelist.h"
 #include "qsqlfield.h"
 #endif // QT_H
 
@@ -19,10 +20,19 @@ public:
     void             setTableName( const QString& tableName ) { table = tableName; }
     void             setName( const QString& name );
     QString          name() const;
+    
+    void             append( const QSqlField& field );
+    void             append( const QSqlField& field, bool desc );
+    
+    bool             isDescending( int i ) const;
+    void             setDescending( int i, bool desc );
+    
+    QString          toString( const QString& prefix = QString::null ) const;
 
 private:
     QString          table;
     QString          nm;
+    QValueList<bool> sorts;
 };
 
 #endif	// QT_NO_SQL

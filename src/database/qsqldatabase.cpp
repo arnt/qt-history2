@@ -17,10 +17,10 @@ protected:
     bool	fetch( int i ) { i = i; return FALSE; }
     bool	fetchFirst() { return FALSE; }
     bool	fetchLast() { return FALSE; }
-    bool	isNull( int i ) const {return FALSE;Q_UNUSED(i);}
+    bool	isNull( int i ) {return FALSE;Q_UNUSED(i);}
     QSqlFieldList   fields() {return QSqlFieldList();}
-    int             size() const {return 0;}
-    int             affectedRows() const {return 0;}
+    int             size()  {return 0;}
+    int             affectedRows() {return 0;}
 };
 
 class QNullDriver : public QSqlDriver
@@ -153,7 +153,7 @@ QSql QSqlDatabase::query( const QString & sqlquery ) const
 /*! Executes an SQL statement (i.e., INSERT, UPDATE, DELETE statement)
     on the database, and returns the number of affected rows.  Use
     lastError() to recover error information.
-    
+
     \sa query(), createResult()
 */
 

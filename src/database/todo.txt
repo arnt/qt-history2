@@ -18,10 +18,12 @@ QODBC
 - check out the easysoft Oracle ODBC driver, and see how useful it is
 
 QSqlIndex
-- Add ASC/DESC sorting
+- [done] Add ASC/DESC sorting
 - add proper name support for each driver
 - foreign indexes?  <= important for lookups
 
+QSqlFieldList
+- get rid of fieldStrList cache thing for now
 
 
 

@@ -34,6 +34,7 @@ public:
     bool select( const QSqlIndex& sort );
     bool select( const QSqlIndex & filter, const QSqlIndex & sort );
     bool select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
+    QSqlIndex sort() const { return srt; }
     void    setName( const QString& name );
     QString name() const { return nm; }
 
@@ -48,6 +49,7 @@ private:
     void      sync();
     int       lastAt;
     QString   nm;
+    QSqlIndex srt;
 };
 
 #endif // QT_NO_SQL
