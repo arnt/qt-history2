@@ -354,7 +354,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -705,13 +705,6 @@ while [ "$#" -gt 0 ]; do
     stl)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_STL="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
-	;;
-    ipv6)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_IPV6="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1900,9 +1893,6 @@ if [ "$OPT_HELP" = "yes" ]; then
     if [ "$CFG_IPV6" = "auto" ]; then
 	I6Y="*"
 	I6N=" "
-    else
-	I6Y=" "
-	I6N="*"
     fi
 
     cat <<EOF
@@ -1913,7 +1903,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
 	[-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
 	[-qt-libmng] [-system-libmng] [-no-nis] [-nis]
 	[-no-cups] [-cups] [-no-largefile] [-largefile]
-	[-no-stl] [-stl] [-no-ipv6 ] [-ipv6] [-Istring] [-lstring]
+	[-no-stl] [-stl] [-Istring] [-lstring]
 	[-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
 	[-without-<module setting>] [-fast] [-no-fast]
 
@@ -2035,9 +2025,6 @@ fi
 
  $SHN  -no-stl ............... Do not compile STL support.
  $SHY  -stl .................. Compile STL support.
-
- $I6N  -no-ipv6 .............. Do not compile IPv6 support.
- $I6Y  -ipv6 ................. Compile IPv6 support.
 
     -no-accessibility ..... Do not compile Accessibility support.
  *  -accessibility ........ Compile Accessibility support.

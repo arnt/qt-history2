@@ -90,6 +90,9 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "TABLET" ]	    = "no";
     dictionary[ "OPENGL" ]	    = "yes";
 
+    // Always yes, since it is loaded dynamically
+    dictionary[ "IPV6" ]            = "yes";
+
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_MOTIF" ]	    = "no";
     dictionary[ "STYLE_MOTIFPLUS" ] = "no";
@@ -840,6 +843,11 @@ void Configure::generateOutputVars()
     else if( dictionary[ "TABLET" ] == "no" )
 	qtConfig += "no-tablet";
 
+    if (dictionary["IPV6"] == "yes")
+        qtConfig += "ipv6";
+    else if (dictionary["IPV6"] == "no")
+        qtConfig += "no-ipv6";
+
     if ( dictionary[ "STYLE_WINDOWS" ] == "yes" )
 	qmakeStyles += "windows";
     else if ( dictionary[ "STYLE_WINDOWS" ] == "plugin" )
@@ -987,7 +995,7 @@ void Configure::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl" << endl;
-	cacheStream << "QT_CONFIG+=" << qtConfig.join( " " );
+	cacheStream << "QT_CONFIG+=" << qtConfig.join( " " ) << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	cacheStream << "ARCH=i386" << endl; //### need to detect platform
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
