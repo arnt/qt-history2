@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#237 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#238 $
 **
 ** Implementation of QListBox widget class
 **
@@ -174,7 +174,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
 
     // just something that'll look noticeable in the debugger
     x = y = 42;
-    
+
     if (listbox)
 	listbox->insertItem( this );
 }
@@ -479,10 +479,10 @@ int QListBoxPixmap::width() const
   then append itself. When deleteting an item, it will automatically
   be remove from the listbox again.
 
-  
-  
-  
-  
+
+
+
+
   The list of items can be arbitrarily big; if necessary, QListBox
   adds scroll bars.  It can be single-column (as most list boxes are)
   or multi-column, and offers both single and multiple selection.
@@ -510,7 +510,7 @@ highlighted.
 
   New items may be inserted using either insertItem(), insertStrList()
   and inSort().
-  
+
   By default, vertical and horizontal scroll bars are added and
   removed as necessary.	 setAutoScrollBar() can be used to force a
   specific policy.
@@ -2643,9 +2643,9 @@ void QListBox::takeItem( const QListBoxItem * item)
 {
     d->count--;
     if ( item->p && item->p->n == item )
-	item->p->n = item->p;
+	item->p->n = item->n;
     if ( item->n && item->n->p == item )
-	item->n->p = item->n;
-    
+	item->n->p = item->p;
+
     triggerUpdate( TRUE );
 }
