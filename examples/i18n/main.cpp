@@ -20,7 +20,9 @@
 #include <qsignalmapper.h>
 #include <qmemorymanager_qws.h>
 
+#if defined(UNIX)
 #include <unistd.h>
+#endif
 
 #include "mywidget.h"
 
@@ -98,7 +100,9 @@ int main( int argc, char** argv )
     const char* qm[]=
 	{ "de", "el", "en", "eo", "fr", "it", "jp", "ko", "no", "ru", 0 };
 
+#if defined(UNIX)
     srand(getpid()<<2);
+#endif
 
     //QFont font("i18n,unifont,cyberbit;helvetica",16,50,FALSE,QFont::Unicode);
     QFont font("unifont",16,50,FALSE,QFont::Unicode);
