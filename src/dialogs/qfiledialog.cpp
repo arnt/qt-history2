@@ -2846,9 +2846,11 @@ QString QFileDialog::dirPath() const
     return d->url.dirPath();
 }
 
-// why don't we use "\\([^\\)]*\\)$" instead?
-// mark: or "\\((\\*\\.[^ ;]+[ ;])*(\\*\\.[^ ;]+)\\)$"
-extern const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
+// This regex allows (*.a *.b *.c) and (*.a;*.b;*.c) which are OK, but
+// also allows (*.a *.b;*.c) which is not (the filter likes to have
+// only one kind of separator). The fix is long and tedious.
+extern const char qt_file_dialog_filter_reg_exp[] = 
+    "\\((?:\\*\\.[^ ;]+[ ;])*(?:\\*\\.[^ ;]+)\\)$";
 
 /*!
 
