@@ -603,6 +603,8 @@ protected:
     void		mouseMoveEvent( QMouseEvent* e );
     void		mouseReleaseEvent( QMouseEvent* e );
     void		mouseDoubleClickEvent( QMouseEvent* e );
+    void		enterEvent( QEvent* );
+    void		leaveEvent( QEvent* );
 
     
 private:
@@ -665,6 +667,16 @@ void QGLOverlayWidget::mouseReleaseEvent( QMouseEvent* e )
 }
 
 void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::enterEvent( QEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::leaveEvent( QEvent* e )
 {
     QApplication::sendEvent( realWidget, e );
 }
