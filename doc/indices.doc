@@ -655,7 +655,6 @@ seem heavyweight.
 
 These classes provide system-independent date and time abstractions.
 
-Also available: \link y2k.html Qt Year 2000 Compliance Statement \endlink.
 */
 
 
