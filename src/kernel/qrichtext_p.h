@@ -908,7 +908,7 @@ public:
     void updateStyleFlags();
     void setStyle( const QString &s );
     QString styleName() const { return style; }
-    
+
 private:
     void update();
     void generateKey();
@@ -932,7 +932,7 @@ private:
     QPainter *painter;
     QString style;
     int different;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1028,22 +1028,22 @@ class QTextFlow
 
 public:
     QTextFlow();
-    ~QTextFlow();
+    virtual ~QTextFlow();
 
-    void setWidth( int w );
-    void setPageSize( int ps ) { pagesize = ps; }
+    virtual void setWidth( int w );
+    virtual void setPageSize( int ps ) { pagesize = ps; }
     int pageSize() const { return pagesize; }
 
-    int adjustLMargin( int yp, int margin, int space );
-    int adjustRMargin( int yp, int margin, int space );
+    virtual int adjustLMargin( int yp, int margin, int space );
+    virtual int adjustRMargin( int yp, int margin, int space );
 
-    void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
-    void unregisterFloatingItem( QTextCustomItem* item );
-    void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
-    void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
+    virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
+    virtual void unregisterFloatingItem( QTextCustomItem* item );
+    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    virtual void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
 
-    bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
-    void updateHeight( QTextCustomItem *i );
+    virtual bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
+    virtual void updateHeight( QTextCustomItem *i );
 
 private:
     int width;
@@ -1194,7 +1194,7 @@ public:
     QStyleSheet *styleSheet() const { return sheet; }
     void setStyleSheet( QStyleSheet *s ) { sheet = s; }
     void updateStyles();
-    
+
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextFormat> cKey;
@@ -1204,7 +1204,7 @@ private:
     QString kof, knf;
     int cflags;
     QStyleSheet *sheet;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1718,7 +1718,7 @@ inline void QTextFormat::updateStyle()
 	fn.setUnderline( item->fontUnderline() );
     generateKey();
     update();
-    
+
 }
 
 inline void QTextFormat::updateStyleFlags()
