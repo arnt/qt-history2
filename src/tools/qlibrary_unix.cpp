@@ -118,16 +118,16 @@ bool QLibraryPrivate::freeLibrary()
 	return TRUE;
 
     int ec = dlclose( pHnd );
-    if ( !ec )
-	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    else {
+    if ( ec ) {
 	const char* error = dlerror();
 	if ( error )
 	    qWarning( "%s", error );
     }
 #endif
-    return pHnd == 0;
+
+    pHnd = 0;
+    return ec == 0;
 }
 
 void* QLibraryPrivate::resolveSymbol( const char* f )
