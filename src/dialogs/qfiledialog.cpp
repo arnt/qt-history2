@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#161 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#162 $
 **
 ** Implementation of QFileDialog class
 **
@@ -650,7 +650,7 @@ void QFileDialog::init()
     cwd.setMatchAllDirs( TRUE );
     cwd.setSorting( cwd.sorting() );
 
-    updateGeometry();
+    updateGeometries();
 
     d->cdToParent->setFocusPolicy( NoFocus );
     d->detailView->setFocusPolicy( NoFocus );
@@ -1149,7 +1149,7 @@ void QFileDialog::cancelClicked()
 
 void QFileDialog::resizeEvent( QResizeEvent * )
 {
-    updateGeometry();
+    updateGeometries();
 }
 
 /*
@@ -1200,7 +1200,7 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 /*!  Make sure the minimum and maximum sizes of everything are sane.
 */
 
-void QFileDialog::updateGeometry()
+void QFileDialog::updateGeometries()
 {
     if ( !d || !d->geometryDirty )
 	return;
@@ -1541,7 +1541,7 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 	d->extraWidgetsLayout->addWidget( b );
 
     d->topLevelLayout->activate();
-    updateGeometry();
+    updateGeometries();
 }
 
 
