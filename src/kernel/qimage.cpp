@@ -5217,7 +5217,7 @@ static void write_pbm_image( QImageIO *iio )
     switch (image.depth()) {
 	case 1: {
 	    str.insert(1, '4');
-	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+	    if (out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
 		return;
 	    }
@@ -5235,7 +5235,7 @@ static void write_pbm_image( QImageIO *iio )
 	case 8: {
 	    str.insert(1, gray ? '5' : '6');
 	    str.append("255\n");
-	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+	    if (out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
 		return;
 	    }
@@ -5271,7 +5271,7 @@ static void write_pbm_image( QImageIO *iio )
 	case 32: {
 	    str.insert(1, gray ? '5' : '6');
 	    str.append("255\n");
-	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+	    if (out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
 		return;
 	    }

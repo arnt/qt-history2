@@ -2435,11 +2435,11 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 	    }
 	    i = endIdx;
 	    // find end of word..
-	    while ( (uint) i < str.length() && !str[ i ].isSpace() ) {
+	    while ( i < str.length() && !str[ i ].isSpace() ) {
 		endIdx = ++i;
 	    }
 	    // ..and start of next
-	    while ( (uint) i < str.length() && str[ i ].isSpace() ) {
+	    while ( i < str.length() && str[ i ].isSpace() ) {
 		endIdx = ++i;
 	    }
 	    optimSetSelection( para, startIdx, para, endIdx );
@@ -4918,7 +4918,7 @@ void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 	t.replace( '\r', '\n' );
 #endif
 	QChar *uc = (QChar *)t.unicode();
-	for ( int i=0; (uint) i<t.length(); i++ ) {
+	for ( int i=0; i<t.length(); i++ ) {
 	    if ( uc[ i ] < ' ' && uc[ i ] != '\n' && uc[ i ] != '\t' )
 		uc[ i ] = ' ';
 	}
@@ -6385,13 +6385,13 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    QTextParagraph * parag = td->paragAt( paragS );
 	    if ( parag ) {
 		c1.setParagraph( parag );
-		if ( td->text( paragS ).length() >= (uint) idxStart )
+		if ( td->text( paragS ).length() >= idxStart )
 		    c1.setIndex( idxStart );
 	    }
 	    parag = td->paragAt( paragE );
 	    if ( parag ) {
 		c2.setParagraph( parag );
-		if ( td->text( paragE ).length() >= (uint) idxEnd )
+		if ( td->text( paragE ).length() >= idxEnd )
 		    c2.setIndex( idxEnd );
 	    }
 	} else if ( startLine > selStart && endLine < selEnd ) {
@@ -6406,7 +6406,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    QTextParagraph * parag = td->paragAt( paragE );
 	    if ( parag ) {
 		c2.setParagraph( parag );
-		if ( td->text( paragE ).length() >= (uint) idxEnd )
+		if ( td->text( paragE ).length() >= idxEnd )
 		    c2.setIndex( idxEnd );
 	    }
 	} else if ( startLine <= selStart && endLine < selEnd &&
@@ -6588,7 +6588,7 @@ void QTextEdit::optimDoAutoScroll()
 int QTextEdit::optimCharIndex( const QString &str, int mx ) const
 {
     QFontMetrics fm( QScrollView::font() );
-    uint i = 0;
+    int i = 0;
     int dd, dist = 10000000;
     int curpos = 0;
     mx = mx - 4; // ### get the real margin from somewhere

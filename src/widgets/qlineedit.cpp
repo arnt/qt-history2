@@ -1059,10 +1059,10 @@ bool QLineEdit::hasAcceptableInput() const
     if ( !d->maskData )
 	return TRUE;
 
-    if ( d->text.length() != (uint)d->maxLength )
+    if ( d->text.length() != d->maxLength )
  	return FALSE;
 
-    for ( uint i=0; i < (uint)d->maxLength; i++) {
+    for ( int i=0; i < d->maxLength; ++i ) {
 	if ( d->maskData[i].separator ) {
 	    if ( d->text[(int)i] != d->maskData[i].maskChar )
 		return FALSE;
@@ -2472,8 +2472,7 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
     // calculate maxLength / maskData length
     maxLength = 0;
     QChar c = 0;
-    uint i;
-    for ( i=0; i<inputMask.length(); i++ ) {
+    for ( int i=0; i<inputMask.length(); i++ ) {
 	c = inputMask.at(i);
 	if ( i > 0 && inputMask.at( i-1 ) == '\\' ) {
 	    maxLength++;
@@ -2494,7 +2493,7 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
     bool s;
     bool escape = FALSE;
     int index = 0;
-    for ( i = 0; i < inputMask.length(); i++ ) {
+    for ( int i = 0; i < inputMask.length(); i++ ) {
 	c = inputMask.at(i);
 	if ( escape ) {
 	    s = TRUE;
@@ -2617,7 +2616,7 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
     QString fill;
     fill = clear ? clearString( 0, maxLength ) : text;
 
-    uint strIndex = 0;
+    int strIndex = 0;
     QString s = QString::fromLatin1("");
     int i = pos;
     while ( i < maxLength ) {

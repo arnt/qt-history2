@@ -822,7 +822,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	    cry = lenToDouble( attr, "ry" );
 	    pt->drawEllipse( (int)(cx1-crx), (int)(cy1-cry), (int)(2*crx), (int)(2*cry) );
 	    break;
-	case LineElement: 
+	case LineElement:
 	    {
 		x1 = lenToInt( attr, "x1" );
 		x2 = lenToInt( attr, "x2" );
@@ -1256,7 +1256,7 @@ void QSvgDevice::drawPath( const QString &data )
     QValueList<int> subIndex;		// start indices for subpaths
     QPointArray quad( 4 ), bezier;	// for curve calculations
     int pcount = 0;			// current point array index
-    uint idx = 0;			// current data position
+    int idx = 0;			// current data position
     int mode = 0, lastMode = 0;		// parser state
     bool relative = FALSE;		// e.g. 'h' vs. 'H'
     QString commands( "MZLHVCSQTA" );	// recognized commands

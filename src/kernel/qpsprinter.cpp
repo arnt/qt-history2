@@ -1298,7 +1298,7 @@ static const struct {
 static QString wrapDSC( const QString &str )
 {
     QString dsc = str.simplifyWhiteSpace();
-    const uint wrapAt = 254;
+    const int wrapAt = 254;
     QString wrapped;
     if ( dsc.length() < wrapAt )
 	wrapped = dsc;
@@ -1495,7 +1495,7 @@ static QString makePSFontName( const QFontEngine *fe, int *listpos = 0, int *fty
   // try to make a "good" postscript name
   ps = family.simplifyWhiteSpace();
   i = 0;
-  while( (unsigned int)i < ps.length() ) {
+  while( i < ps.length() ) {
     if ( i != 0 && ps[i] == '[') {
       if ( ps[i-1] == ' ' )
 	ps.truncate (i-1);
@@ -4134,7 +4134,7 @@ QString QPSPrinterFontAsian::makePSFontName( const QFontEngine *f, int type ) co
     // try to make a "good" postscript name
     ps = family.simplifyWhiteSpace();
     i = 0;
-    while( (unsigned int)i < ps.length() ) {
+    while( i < ps.length() ) {
         if ( i != 0 && ps[i] == '[') {
           if ( ps[i-1] == ' ' )
 	    ps.truncate (i-1);
@@ -4254,7 +4254,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 		} else
 		    mb = "  ";
 
-		for ( unsigned int j = 0; j < mb.size (); j++ ) {
+		for ( int j = 0; j < mb.size (); j++ ) {
 		    if ( mb.at(j) == '(' || mb.at(j) == ')' || mb.at(j) == '\\' )
 			out += "\\";
 		    out += mb.at(j);
@@ -4273,7 +4273,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 		} else
 		    mb = "  ";
 
-		for ( unsigned int j = 0; j < mb.size(); j++ ) {
+		for ( int j = 0; j < mb.size(); j++ ) {
 		    if ( mb.at(j) == '(' || mb.at(j) == ')' || mb.at(j) == '\\' )
 			out += "\\";
 		    out += mb.at(j);

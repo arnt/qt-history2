@@ -288,7 +288,7 @@ bool QBuffer::at( Offset pos )
     }
 #endif
     // #### maybe resize if not readonly?
-    if ( pos > b.size() ) {
+    if ( pos > (Offset)b.size() ) {
 #if defined(QT_CHECK_RANGE)
 #if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
         qWarning( "QBuffer::at: Index %llu out of range", pos );
@@ -323,8 +323,8 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
         return -1;
     }
 #endif
-    if ( ioIndex + len > b.size() ) {   // overflow
-        if ( ioIndex >= b.size() ) {
+    if ( (int)(ioIndex + len) > b.size() ) {   // overflow
+        if ( (int)ioIndex >= b.size() ) {
             return 0;
         } else {
             len = b.size() - ioIndex;
@@ -374,9 +374,9 @@ Q_LONG QBuffer::writeBlock( const char *ptr, Q_ULONG len )
     }
 #endif
     BEGIN_BUFFER_WRITE;
-    if ( ioIndex + len >= p->size() ) {             // overflow
+    if ( (int)(ioIndex + len) >= p->size() ) {             // overflow
 	p->resize(ioIndex +len);
-        if ( p->size() != ioIndex +len ) {           // could not resize
+        if ( p->size() != (int)(ioIndex +len) ) {           // could not resize
 #if defined(QT_CHECK_NULL)
             qWarning( "QBuffer::writeBlock: Memory allocation error" );
 #endif
@@ -447,7 +447,7 @@ int QBuffer::getch()
         return -1;
     }
 #endif
-    if ( ioIndex+1 > b.size() ) {               // overflow
+    if ( (int)(ioIndex+1) > b.size() ) {               // overflow
         setStatus( IO_ReadError );
         return -1;
     }
@@ -479,7 +479,7 @@ int QBuffer::putch( int ch )
     }
 #endif
     BEGIN_BUFFER_WRITE;
-    if ( ioIndex + 1 >= p->size() ) {               // overflow
+    if ( (int)(ioIndex + 1) >= p->size() ) {               // overflow
         char buf[1];
         buf[0] = (char)ch;
         if ( writeBlock(buf,1) != 1 ) {

@@ -1318,7 +1318,7 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
     if ( payload.size() ) {
 	l.clear();
 	l.setAutoDelete(TRUE);
-	uint c=0;
+	int c=0;
 	const char* d = payload;
 	while (c < payload.size() && d[c]) {
 	    uint f = c;

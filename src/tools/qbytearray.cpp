@@ -403,18 +403,19 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 #endif
 	return QByteArray();
     }
-    ulong expectedSize = ( data[0] << 24 ) | ( data[1] << 16 ) | ( data[2] << 8 ) | data[3];
-    ulong len = QMAX( expectedSize,  1 );
+    ulong expectedSize = ( data[0] << 24 ) | ( data[1] << 16 ) |
+		       ( data[2] <<  8 ) | ( data[3]       );
+    ulong len = QMAX( expectedSize,  1ul );
     QByteArray baunzip;
     int res;
     do {
 	baunzip.resize( len );
 	res = ::uncompress( (uchar*)baunzip.data(), &len,
-				(uchar*)data+4, nbytes-4 );
+			    (uchar*)data+4, nbytes-4 );
 
 	switch ( res ) {
 	case Z_OK:
-	    if ( len != baunzip.size() )
+	    if ( (int)len != baunzip.size() )
 		baunzip.resize( len );
 	    break;
 	case Z_MEM_ERROR:
@@ -1093,13 +1094,13 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
 {
-    Q_UINT32 len;
+    Q_INT32 len;
     s >> len;					// read size of array
     if ( len == 0 || s.eof() ) {		// end of file reached
 	a.resize( 0 );
 	return s;
     }
-    a.resize( (uint)len );
+    a.resize( len );
     if (a.size() != len) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QDataStream: Not enough memory to read QByteArray" );

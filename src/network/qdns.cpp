@@ -1110,7 +1110,7 @@ void QDnsManager::transmitQuery( int i )
     // written by itself... so we write...
     // oh, and we assume that there's no funky characters in there.
     int pp = 12;
-    uint lp = 0;
+    int lp = 0;
     while( lp < q->l.length() ) {
 	int le = q->l.find( '.', lp );
 	if ( le < 0 )
@@ -2440,7 +2440,7 @@ static void doResInit()
 	QString line;
 	while( !i.atEnd() ) {
 	    line = i.readLine().simplifyWhiteSpace().lower();
-	    uint n = 0;
+	    int n = 0;
 	    while( n < line.length() && line[(int)n] != '#' )
 		n++;
 	    line.truncate( n );

@@ -1167,7 +1167,7 @@ void QTextCursor::splitAndInsertEmptyParagraph( bool ind, bool updateIds )
 	s->copyParagData( para );
 	s->remove( 0, 1 );
 	s->append( str, TRUE );
-	for ( uint i = 0; i < str.length(); ++i ) {
+	for ( int i = 0; i < str.length(); ++i ) {
 	    QTextStringChar* tsc = para->at( idx + i );
 	    s->setFormat( i, 1, tsc->format(), TRUE );
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -2832,7 +2832,7 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
     // widely understood \n. Makes copy and pasting code snipplets
     // from within Assistent possible
     QChar* uc = (QChar*) s.unicode();
-    for ( uint ii = 0; ii < s.length(); ii++ )
+    for ( int ii = 0; ii < s.length(); ii++ )
 	if ( uc[(int)ii] == QChar_linesep )
 	    uc[(int)ii] = QChar('\n');
     return s;
@@ -3943,7 +3943,7 @@ QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParag
       changed(FALSE), firstFormat(TRUE), firstPProcess(TRUE), needPreProcess(FALSE), fullWidth(TRUE),
       lastInFrame(FALSE), visible(TRUE), breakable(TRUE), movedDown(FALSE),
       mightHaveCustomItems(FALSE), hasdoc( d != 0 ), litem(FALSE), rtext(FALSE),
-      align( 0 ), invalid( 0 ), lstyle( QStyleSheetItem::ListDisc ), mSelections( 0 ),
+      align( 0 ), lstyle( QStyleSheetItem::ListDisc ), invalid( 0 ), mSelections( 0 ),
 #ifndef QT_NO_TEXTCUSTOMITEM
       mFloatingItems( 0 ),
 #endif
@@ -4473,7 +4473,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     // be fixed in QFont somewhere (under Windows you get ugly boxes
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
-    for ( uint ii = 0; ii < qstr.length(); ii++ )
+    for ( int ii = 0; ii < qstr.length(); ii++ )
 	if ( uc[(int)ii]== '\n' || uc[(int)ii] == QChar_linesep || uc[(int)ii] == '\t' )
 	    uc[(int)ii] = 0x20;
 

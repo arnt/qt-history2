@@ -3368,7 +3368,7 @@ QString &QString::sprintf(const char * cformat, ...)
 
     QRegExp escape("%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?");
     QString result;
-    uint last = 0;
+    int last = 0;
     int pos;
     int len = 0;
 
@@ -3388,7 +3388,7 @@ QString &QString::sprintf(const char * cformat, ...)
 
 	// Escape
 	QString f = format.mid(pos, len);
-	uint width, decimals;
+	int width, decimals;
 	int params = 0;
 	int wpos = f.find('*');
 	if (wpos >= 0) {

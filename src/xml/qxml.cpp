@@ -464,7 +464,7 @@ QString QXmlNamespaceSupport::uri( const QString& prefix ) const
 void QXmlNamespaceSupport::splitName( const QString& qname,
 	QString& prefix, QString& localname ) const
 {
-    uint pos;
+    int pos;
     // search the ':'
     for( pos=0; pos<qname.length(); pos++ ) {
 	if ( qname.at(pos) == ':' )
@@ -496,7 +496,7 @@ void QXmlNamespaceSupport::processName( const QString& qname,
 	bool isAttribute,
 	QString& nsuri, QString& localname ) const
 {
-    uint pos = qname.find( ':' );
+    int pos = qname.find( ':' );
     if ( pos < qname.length() ) {
 	// there was a ':'
 	nsuri = uri( qname.left( pos ) );

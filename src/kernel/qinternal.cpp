@@ -665,7 +665,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
     _size -= nbytes;
     for ( ;; ) {
 	QByteArray *a = buf->first();
-	if ( _index + nbytes >= a->size() ) {
+	if ( (int)(_index + nbytes) >= a->size() ) {
 	    // Here we skip the whole byte array and get the next later
 	    int len = a->size() - _index;
 	    if ( sink ) {

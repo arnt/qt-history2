@@ -613,7 +613,7 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
     d->wsize -= nbytes;
     for ( ;; ) {
 	QByteArray *a = d->wba.first();
-	if ( d->windex + nbytes >= a->size() ) {
+	if ( (int)(d->windex + nbytes) >= a->size() ) {
 	    nbytes -= a->size() - d->windex;
 	    d->wba.remove();
 	    d->windex = 0;

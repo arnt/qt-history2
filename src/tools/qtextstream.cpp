@@ -241,8 +241,8 @@ public:
 };
 inline char *QCircularBuffer::alloc(uint size)
 {
-    if(buf[curr_buff].size() < used+size+
-       (curr_buff == start_buff ? start_off : 0)) {
+    if(buf[curr_buff].size() <
+       (int)(used+size+(curr_buff == start_buff ? start_off : 0))) {
 	if(curr_buff == start_buff && buf[curr_buff].size()) {
 	    buf[curr_buff].resize(start_off + used);
 	    curr_buff = !curr_buff;
@@ -453,7 +453,7 @@ bool QStringBuffer::at( Offset pos )
 	return FALSE;
     }
 #endif
-    if ( pos >= s->length()*2 ) {
+    if ( (int)pos >= s->length()*2 ) {
 #if defined(QT_CHECK_RANGE)
 #if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
 	qWarning( "QStringBuffer::at: Index %llu out of range", pos );
@@ -536,7 +536,7 @@ int QStringBuffer::getch()
 	return -1;
     }
 #endif
-    if ( (uint)ioIndex >= s->length()*2 ) {           // overflow
+    if ( (int)ioIndex >= s->length()*2 ) {           // overflow
 	setStatus( IO_ReadError );
 	return -1;
     }
@@ -881,7 +881,7 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 	    QString s = d->decoder->toUnicode( buffer_data, need_num );
 	    d->cacheReadBuf.free(need_num);
 
-	    uint used_len = QMIN((len - rnum), s.length());
+	    uint used_len = QMIN((len - rnum), (uint)s.length());
 	    if(end_flags) {
 		for(uint i = 0; i < used_len; i++) {
 		    if(int end = ts_end(s.unicode()+i, used_len - i, end_flags)) {
@@ -896,7 +896,7 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 		buf += used_len;
 	    }
 	    rnum += used_len;
-	    if ( s.length() > used_len )
+	    if ( s.length() > (int)used_len )
 		d->ungetcBuf = s.mid( used_len );
 	} else
 #endif
@@ -1655,7 +1655,7 @@ QTextStream &QTextStream::operator>>( QByteArray &str )
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_SPACE, &l);
 	if(l) {
-	    if(used+l >= str.size())
+	    if((int)(used+l) >= str.size())
 		str.resize(used+l+1);
 	    for(uint i = 0; i < l; i++)
 		str[(int)(used+i)] = buf[i];

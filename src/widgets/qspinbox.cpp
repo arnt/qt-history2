@@ -76,7 +76,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     QString pref = spinBox->prefix();
     QString suff = spinBox->suffix();
     QString suffStriped = suff.stripWhiteSpace();
-    uint overhead = pref.length() + suff.length();
+    int overhead = pref.length() + suff.length();
     State state = Invalid;
 
     ((QIntValidator *) this)->setRange( spinBox->minValue(),
