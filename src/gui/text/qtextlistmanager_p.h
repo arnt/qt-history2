@@ -1,12 +1,13 @@
 #ifndef QTEXTLISTMANAGER_P_H
 #define QTEXTLISTMANAGER_P_H
 
+#ifndef QT_H
 #include <qobject.h>
 #include <qtextformat.h>
 #include <qmap.h>
-
 #include "qtextpiecetable_p.h"
 #include "qtextlist_p.h"
+#endif
 
 class QTextListManagerPrivate;
 class QTextPieceTable;
