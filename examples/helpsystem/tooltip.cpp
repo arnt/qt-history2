@@ -42,12 +42,12 @@ TableToolTip::TableToolTip( QTable *tipTable, QToolTipGroup *group )
 void TableToolTip::maybeTip ( const QPoint &p )
 {
     QPoint cp = table->viewportToContents( p );
-    int r = table->rowAt( cp.y() );
-    int c = table->columnAt( cp.x() );
+    int row = table->rowAt( cp.y() );
+    int col = table->columnAt( cp.x() );
    
-    QString tipString = table->text( r, c );
+    QString tipString = table->text( row, col );
 
-    QRect cr = table->cellGeometry( r, c );
+    QRect cr = table->cellGeometry( row, col );
     cr.moveTopLeft( table->contentsToViewport( cr.topLeft() ) );
     tip( cr, tipString, "This is a cell in a table" );
 }

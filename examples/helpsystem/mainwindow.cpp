@@ -17,6 +17,7 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qstatusbar.h>
+#include <qapplication.h>
 
 #include "mainwindow.h"
 #include "tooltip.h"
@@ -64,12 +65,14 @@ MainWindow::MainWindow()
     // populate toolbar
     QToolBar* toolbar = new QToolBar( this );
     QToolButton* assistantButton = new QToolButton( toolbar );
-    assistantButton->setIconSet( QPixmap( QString("%1/tools/assistant/images/appicon.png").arg(qInstallPath()) ) );
+    assistantButton->setIconSet
+	( QPixmap( QString("%1/tools/assistant/images/appicon.png").arg(qInstallPath()) ) );
     QWhatsThis::whatsThisButton ( toolbar );
 
     //create tooltipgroup
     QToolTipGroup * tipGroup = new QToolTipGroup( this );
-    connect( tipGroup, SIGNAL(showTip(const QString&)), statusBar(), SLOT(message(const QString&)) );
+    connect( tipGroup, SIGNAL(showTip(const QString&)), statusBar(), 
+	SLOT(message(const QString&)) );
     connect( tipGroup, SIGNAL(removeTip()), statusBar(), SLOT(clear()) );
 
     // setup tooltips
@@ -93,9 +96,12 @@ MainWindow::MainWindow()
 
     // connections    
     connect( assistantButton, SIGNAL(clicked()), this, SLOT(assistantSlot()) );
-    connect( horizontalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, SLOT(showPage(const QString&)) );
-    connect( verticalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, SLOT(showPage(const QString&)) );
-    connect( cellWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, SLOT(showPage(const QString&)) );
+    connect( horizontalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, 
+	SLOT(showPage(const QString&)) );
+    connect( verticalWhatsThis, SIGNAL(linkClicked(const QString&)), assistant,
+	SLOT(showPage(const QString&)) );
+    connect( cellWhatsThis, SIGNAL(linkClicked(const QString&)), assistant, 
+	SLOT(showPage(const QString&)) );
 }
 
 MainWindow::~MainWindow()
@@ -107,5 +113,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::assistantSlot()
 {
-    assistant->showPage( QString( "%1/html/qassistantclient.html" ).arg(qInstallPathDocs()) );
+    QString docsPath = qApp->applicationDirPath() + "/../../doc";
+    assistant->showPage( QString( "%1/html/qassistantclient.html" ).arg(docsPath ));
 }

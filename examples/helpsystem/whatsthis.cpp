@@ -8,6 +8,7 @@
 **
 *****************************************************************************/
 
+#include <qapplication.h>
 #include <qheader.h>
 #include <qtable.h>
 
@@ -41,9 +42,10 @@ QString HeaderWhatsThis::text( const QPoint & )
     QHeader *header = (QHeader*)parentWidget();
 
     QString orient = (header->orientation() == QObject::Horizontal) ? "horizontal" : "vertical";
+    QString docsPath = qApp->applicationDirPath() + "/../../doc";
     return QString("This is the %1 <a href=%2/html/qheader.html>header</a>.").
 	arg(orient).
-	arg(qInstallPathDocs());
+	arg(docsPath);
 }
 
 TableWhatsThis::TableWhatsThis( QTable *t ) 
@@ -51,30 +53,33 @@ TableWhatsThis::TableWhatsThis( QTable *t )
 {
 }
 
+
 QString TableWhatsThis::text( const QPoint &p )
 {
     QTable *table = (QTable*)parentWidget();
 
     QPoint cp = table->viewportToContents( p );
-    int r = table->rowAt( cp.y() );
-    int c = table->columnAt( cp.x() );
+    int row = table->rowAt( cp.y() );
+    int col = table->columnAt( cp.x() );
 
-    QTableItem* i = table->item( r,c  );
+    QTableItem* i = table->item( row,col  );
     if ( !i )
 	return "This is empty space.";
 
+    QString docsPath = qApp->applicationDirPath() + "/../../doc";
+
     switch ( i->rtti() ) {
-    case 0:
+    case 0: //QTableItem::RTTI
 	return QString("This is a <a href=%1/html/qtableitem.html>QTableItem</a>.").
-		       arg(qInstallPathDocs());
-    case 1:
+		       arg(docsPath);
+    case 1: //QComboTableItem::RTTI
 	return QString("This is a <a href=%1/html/qcombotableitem.html>QComboTableItem</a>."
 		       "<br>It can be used to provide multiple-choice items in a table.").
-		       arg(qInstallPathDocs());
-    case 2:
+		       arg(docsPath);
+    case 2: //QCheckTableItem::RTTI
 	return QString("This is a <a href=%1/html/qchecktableitem.html>QCheckTableItem</a>."
 		       "<br>It provide <a href=%1/html/qcheckbox.html>checkboxes</a> in tables.").
-		       arg(qInstallPathDocs()).arg(qInstallPathDocs());
+		       arg(docsPath).arg(docsPath);
     default:
 	break;
     }
