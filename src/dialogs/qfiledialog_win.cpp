@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#34 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -445,7 +445,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	    dispName = 0;
 	}
     } else if (uMsg == BFFM_SELCHANGED) {
-	if ( qt_winver & Qt::WV_DOS_based ) {
+	if ( qt_winver & Qt::WV_NT_based ) {
 	    TCHAR path[MAX_PATH];
 	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
 	    QString tmpStr = qt_winQString(path);
@@ -482,7 +482,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Select A Directory");
-    if ( qt_winver & WV_DOS_based ) {
+    if ( qt_winver & WV_NT_based ) {
 	QString initDir = QDir::convertSeparators(initialDirectory);
 	TCHAR path[MAX_PATH];
 	TCHAR initPath[MAX_PATH];
@@ -521,7 +521,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	BROWSEINFOA bi;
 	bi.hwndOwner = (parent ? parent->winId() : 0);
 	bi.pidlRoot = NULL;
-	bi.lpszTitle = title.data();
+	bi.lpszTitle = title.local8Bit();
 	bi.pszDisplayName = initPath;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS;
 	bi.lpfn = winGetExistDirCallbackProc;
