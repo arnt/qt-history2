@@ -56,6 +56,14 @@ public:
     static bool	     startingUp();
     static bool	     closingDown();
 
+
+#if defined(QT_THREAD_SUPPORT)
+    void	     lock();
+    void	     unlock(bool wakeUpGui = TRUE);
+    bool	     locked();
+    bool             tryLock();
+#endif
+
 public slots:
     void	     quit();
 

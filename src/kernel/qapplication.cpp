@@ -315,7 +315,6 @@ bool	  qt_app_has_font	       = FALSE;
 #ifndef QT_NO_CURSOR
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 #endif
-int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
@@ -2149,15 +2148,13 @@ bool QApplication::event( QEvent *e )
 
 
 /*!
+  \fn void QApplication::wakeUpGuiThread()
+\obsolete
 
-  Wakes up the GUI thread.
+Use QKernelApplication::wakeUpMainThread() instead
 
-  \sa guiThreadAwake() \link threads.html Thread Support in Qt\endlink
+  \sa QKernelApplication::wakeUpMainThread() \link threads.html Thread Support in Qt\endlink
 */
-void QApplication::wakeUpGuiThread()
-{
-    eventLoop()->wakeUp();
-}
 
 #if !defined(Q_WS_X11)
 
@@ -2690,76 +2687,6 @@ bool QApplication::desktopSettingsAware()
 {
     return obey_desktop_settings;
 }
-
-/*! \fn void QApplication::lock()
-
-  Lock the Qt Library Mutex. If another thread has already locked the
-  mutex, the calling thread will block until the other thread has
-  unlocked the mutex.
-
-  \sa unlock() locked() \link threads.html Thread Support in Qt\endlink
-*/
-
-
-/*! \fn void QApplication::unlock(bool wakeUpGui)
-
-  Unlock the Qt Library Mutex. If \a wakeUpGui is TRUE (the default),
-  then the GUI thread will be woken with QApplication::wakeUpGuiThread().
-
-  \sa lock(), locked() \link threads.html Thread Support in Qt\endlink
-*/
-
-
-/*! \fn bool QApplication::locked()
-
-  Returns TRUE if the Qt Library Mutex is locked by a different thread;
-  otherwise returns FALSE.
-
-  \warning Due to different implementations of recursive mutexes on
-  the supported platforms, calling this function from the same thread
-  that previously locked the mutex will give undefined results.
-
-  \sa lock() unlock() \link threads.html Thread Support in Qt\endlink
-*/
-
-/*! \fn bool QApplication::tryLock()
-
-  Attempts to lock the Qt Library Mutex, and returns immediately. If
-  the lock was obtained, this function returns TRUE. If another thread
-  has locked the mutex, this function returns FALSE, instead of
-  waiting for the lock to become available.
-
-  The mutex must be unlocked with unlock() before another thread can
-  successfully lock it.
-
-  \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
-*/
-
-#if defined(QT_THREAD_SUPPORT)
-void QApplication::lock()
-{
-    qt_mutex->lock();
-}
-
-void QApplication::unlock(bool wakeUpGui)
-{
-    qt_mutex->unlock();
-
-    if (wakeUpGui)
-	wakeUpGuiThread();
-}
-
-bool QApplication::locked()
-{
-    return qt_mutex->isLocked();
-}
-
-bool QApplication::tryLock()
-{
-    return qt_mutex->tryLock();
-}
-#endif
-
 
 /*!
   \fn bool QApplication::isSessionRestored() const

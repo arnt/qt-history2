@@ -800,7 +800,6 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
 	// we are awake, broadcast it
 	emit awake();
-	emit qApp->guiThreadAwake();
 
 	nevents += qt_activate_timers();
     } else if(canWait && !zero_timer_count) {

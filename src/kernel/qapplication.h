@@ -227,13 +227,6 @@ public:
     static void close_xim();
     static bool x11_apply_settings();
 #endif
-    void	     wakeUpGuiThread();
-#if defined(QT_THREAD_SUPPORT)
-    void	     lock();
-    void	     unlock(bool wakeUpGui = TRUE);
-    bool	     locked();
-    bool             tryLock();
-#endif
 
     bool notify(QObject *, QEvent *);
 
@@ -241,7 +234,6 @@ public:
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
-    void	     guiThreadAwake();
 
 public slots:
     void	     closeAllWindows();
@@ -298,8 +290,6 @@ private:
 #ifndef QT_NO_CURSOR
     static QCursor  *app_cursor;
 #endif
-    static bool	     app_exit_loop;
-    static int	     loop_level;
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
     static QWidget  *active_window;

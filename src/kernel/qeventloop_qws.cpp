@@ -217,7 +217,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     // we are awake, broadcast it
     emit awake();
-    emit qApp->guiThreadAwake();
 
     if ( nsel == -1 ) {
 	if ( errno != EINTR && errno != EAGAIN )

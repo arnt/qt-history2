@@ -569,7 +569,6 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     QMutexLocker locker( QApplication::qt_mutex );
 #endif
     emit awake();
-    emit qApp->guiThreadAwake();
 
     QApplication::sendPostedEvents();
 

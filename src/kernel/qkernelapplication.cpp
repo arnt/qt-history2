@@ -803,3 +803,73 @@ void QKernelApplication::quit()
 {
     exit( 0 );
 }
+
+
+/*! \fn void QKernelApplication::lock()
+
+  Lock the Qt Library Mutex. If another thread has already locked the
+  mutex, the calling thread will block until the other thread has
+  unlocked the mutex.
+
+  \sa unlock() locked() \link threads.html Thread Support in Qt\endlink
+*/
+
+
+/*! \fn void QKernelApplication::unlock(bool wakeUpMainThread)
+
+  Unlock the Qt Library Mutex. If \a wakeUpMainThread is TRUE (the default),
+  then the main thread will be woken up.
+
+  \sa lock(), locked() \link threads.html Thread Support in Qt\endlink
+*/
+
+
+/*! \fn bool QKernelApplication::locked()
+
+  Returns TRUE if the Qt Library Mutex is locked by a different thread;
+  otherwise returns FALSE.
+
+  \warning Due to different implementations of recursive mutexes on
+  the supported platforms, calling this function from the same thread
+  that previously locked the mutex will give undefined results.
+
+  \sa lock() unlock() \link threads.html Thread Support in Qt\endlink
+*/
+
+/*! \fn bool QKernelApplication::tryLock()
+
+  Attempts to lock the Qt Library Mutex, and returns immediately. If
+  the lock was obtained, this function returns TRUE. If another thread
+  has locked the mutex, this function returns FALSE, instead of
+  waiting for the lock to become available.
+
+  The mutex must be unlocked with unlock() before another thread can
+  successfully lock it.
+
+  \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
+*/
+
+#if defined(QT_THREAD_SUPPORT)
+void QKernelApplication::lock()
+{
+    qt_mutex->lock();
+}
+
+void QKernelApplication::unlock(bool wakeUpMainThread)
+{
+    qt_mutex->unlock();
+
+    if (wakeUpMainThread)
+	eventloop->wakeUp();
+}
+
+bool QKernelApplication::locked()
+{
+    return qt_mutex->isLocked();
+}
+
+bool QKernelApplication::tryLock()
+{
+    return qt_mutex->tryLock();
+}
+#endif
