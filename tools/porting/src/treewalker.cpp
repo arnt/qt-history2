@@ -14,6 +14,7 @@
 
 #include "treewalker.h"
 
+/*
 template <class T>
 inline void parseAll(TreeWalker *w, const List<T *> *l)
 {
@@ -23,10 +24,33 @@ inline void parseAll(TreeWalker *w, const List<T *> *l)
     foreach(T *e, *l)
         w->parseNode(e);
 }
+*/
+
+//Workaround for ICE on MSVC, use macro instead of template.
+#define PARSE_ALL(ListType, ListValueType) \
+inline void parseAll(TreeWalker *w, const ListType *l) \
+{ \
+    if (!l) \
+        return; \
+    foreach(ListValueType *e, *l) \
+        w->parseNode(e); \
+} \
+
+PARSE_ALL(List<AST *>, AST)
+PARSE_ALL(List<ClassOrNamespaceNameAST *>, ClassOrNamespaceNameAST)
+PARSE_ALL(List<BaseSpecifierAST *>, BaseSpecifierAST)
+PARSE_ALL(List<DeclarationAST *>, DeclarationAST)
+PARSE_ALL(List<EnumeratorAST *>, EnumeratorAST)
+PARSE_ALL(List<ParameterDeclarationAST *>, ParameterDeclarationAST)
+PARSE_ALL(List<InitDeclaratorAST *>, InitDeclaratorAST)
+PARSE_ALL(List<TemplateParameterAST *>, TemplateParameterAST)
+PARSE_ALL(List<StatementAST *>, StatementAST)
+
 
 void TreeWalker::parseTemplateArgumentList(TemplateArgumentListAST *node)
 {
-    parseAll(this, node->argumentList());
+    List<AST *> *arglist = node->argumentList();
+	parseAll(this, arglist);
 }
 
 void TreeWalker::parseClassOrNamespaceName(ClassOrNamespaceNameAST *node)

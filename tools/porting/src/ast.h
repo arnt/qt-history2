@@ -113,10 +113,6 @@ inline int length(List<T> *e)
     return e ? e->size() : 0;
 }
 
-template <typename T>
-inline List<T *> *snoc(List<T *> *e, T *d, pool *p)
-{ if (!e) e = new (p->allocate(sizeof(List<T*>))) List<T *>(p); e->append(d); return e; }
-
 class AST
 {
 public:
@@ -1504,7 +1500,7 @@ private:
 
 template <class T> T* CreateNode(pool *p)
 {
-    T* node(new (p->allocate(sizeof(T))) T);
+    T* node = new (p->allocate(sizeof(T))) T;
     node->setNodeType(T::Type);
     node->_pool = p;
     return node;
@@ -1512,10 +1508,32 @@ template <class T> T* CreateNode(pool *p)
 
 template <int kind> ExpressionAST<kind> *CreateExpression(pool *p)
 {
-    ExpressionAST<kind>* node(new (p->allocate(sizeof(ExpressionAST<kind>))) ExpressionAST<kind>);
+    ExpressionAST<kind>* node = new (p->allocate(sizeof(ExpressionAST<kind>))) ExpressionAST<kind>;
     node->setNodeType(kind);
     node->_pool = p;
     return node;
 }
+
+/*
+template <typename T>
+inline List<T *> *snoc(List<T *> *e, T *d, pool *p)
+{ if (!e) e = new (p->allocate(sizeof(List<T*>))) List<T *>(p); e->append(d); return e; }
+*/
+
+//Workaround for ICE on MSVC, use macro instead of template.
+#define SNOC(ListType, ListValueType) \
+inline ListType *snoc(ListType *e, ListValueType *d, pool *p) \
+{ if (!e) e = new (p->allocate(sizeof(ListType))) ListType(p); e->append(d); return e; }
+
+SNOC(List<AST *>, AST)
+SNOC(List<ClassOrNamespaceNameAST *>, ClassOrNamespaceNameAST)
+SNOC(List<BaseSpecifierAST *>, BaseSpecifierAST)
+SNOC(List<DeclarationAST *>, DeclarationAST)
+SNOC(List<EnumeratorAST *>, EnumeratorAST)
+SNOC(List<ParameterDeclarationAST *>, ParameterDeclarationAST)
+SNOC(List<InitDeclaratorAST *>, InitDeclaratorAST)
+SNOC(List<TemplateParameterAST *>, TemplateParameterAST)
+SNOC(List<StatementAST *>, StatementAST)
+
 
 #endif

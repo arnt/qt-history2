@@ -497,9 +497,10 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
     if (!d)
         return;
 
-    if (!d->subDeclarator() && d->parameterDeclarationClause())
-        return parseFunctionDeclaration(funSpec, storageSpec, typeSpec, decl);
-
+    if (!d->subDeclarator() && d->parameterDeclarationClause()) {
+        parseFunctionDeclaration(funSpec, storageSpec, typeSpec, decl);
+		return;
+	}
     if(!typeSpec || !typeSpec->name())
         return;
 
@@ -837,9 +838,9 @@ void Semantic::parseFunctionDefinition(FunctionDefinitionAST *ast)
     currentScope.pop();
 }
 
-void Semantic::parseStatementList(StatementListAST *list)
+void Semantic::parseStatementList(StatementListAST *statemenList)
 {
-    if(!list)
+    if(!statemenList)
         return;
     CodeModel::BlockScope *blockScope = CodeModel::Create<CodeModel::BlockScope>(m_storage);
     blockScope->setName("__QT_ANON_BLOCK_SCOPE");
@@ -847,7 +848,7 @@ void Semantic::parseStatementList(StatementListAST *list)
     currentScope.top()->addScope(blockScope);
 
     currentScope.push(blockScope);
-    TreeWalker::parseStatementList(list);
+    TreeWalker::parseStatementList(statemenList);
     currentScope.pop();
 }
 

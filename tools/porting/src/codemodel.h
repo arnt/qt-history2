@@ -84,9 +84,7 @@ struct Item
 {
     Item()  {}
     virtual ~Item() {}
-
     virtual QByteArray name() const = 0;
-    virtual Item *parent() const =0;
 protected:
 };
 
@@ -96,7 +94,6 @@ struct ItemCollection: public Item
     { return QByteArray(); }
 
     virtual int count() const = 0;
-    virtual Item *item(int index) const = 0;
     virtual int indexOf(Item *item) const = 0;
 };
 
@@ -509,9 +506,11 @@ struct AliasType: public Type // ### implement me
 {
     AliasType ()
         :m_parent(0) {}
-    virtual QByteArray name() const
+    
+	virtual QByteArray name() const
     {  return m_name;  }
-    virtual Item *parent() const
+    
+	virtual Scope *parent() const
     {  return m_parent;  }
 
     virtual AliasType *toAliasType() const

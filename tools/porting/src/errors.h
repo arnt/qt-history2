@@ -16,8 +16,9 @@
 
 #include <qstring.h>
 
-struct Error
+class Error
 {
+public:
     int code;
     int level;
     QString text;
