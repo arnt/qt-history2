@@ -765,10 +765,10 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     OpenRgn();
     uint loopc;
     MoveTo( a[0].x()+d->offx, a[0].y()+d->offy );
-    for ( loopc = 1; loopc < a.size(); loopc++ ) {
+    for ( loopc = 1; loopc < a.size(); loopc++ ) 
 	LineTo( a[loopc].x()+d->offx, a[loopc].y()+d->offy );
-    }
-    LineTo( a[0].x()+d->offx, a[0].y()+d->offy );
+    if( close )
+	LineTo( a[0].x()+d->offx, a[0].y()+d->offy );
     CloseRgn( polyRegion );
 
     if( close && this->brush().style() != NoBrush) {
@@ -1017,6 +1017,14 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	return;
 
     Rect rect;
+#if 0
+    if(this->brush().style() != NoBrush && cpen.style() == NoPen) { // Inset all points?
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+#endif
     SetRect( &rect, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy);
     if( this->brush().style() != NoBrush) {
 	updateBrush();
@@ -1198,6 +1206,14 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 	return;
 
     Rect rect;
+#if 0
+    if(this->brush().style() != NoBrush && cpen.style() == NoPen) { // Inset all points?
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+#endif
     SetRect( &rect, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy );
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
@@ -1245,19 +1261,24 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	return;
 
     Rect r;
+#if 1
+    if(this->brush().style() != NoBrush && cpen.style() == NoPen) { // Inset all points?
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+#endif
     SetRect( &r, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy );
-
     if( this->brush().style() != NoBrush) {
 	updateBrush();
-
 	if( this->brush().style() == SolidPattern ) {
 	    PaintOval( &r );
 	} else {
-
 	    QPixmap *pm = NULL;
-	    if(cbrush.style() == QBrush::CustomPattern)
+	    if(cbrush.style() == QBrush::CustomPattern) {
 		pm = cbrush.data->pixmap;
-	    else {
+	    } else {
 		pm = d->brush_style_pix;
 		if(bg_mode == OpaqueMode) {
 		    ::RGBColor f;
@@ -1268,7 +1289,6 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 		    PaintOval( &r );
 		}
 	    }
-
 	    if(pm && !pm->isNull()) {
 		//save the clip
 		bool clipon = testf(ClipOn);
@@ -1323,13 +1343,6 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    if ( !pdev->cmd( QPaintDevice::PdcDrawArc, this, param ) || !pdev->handle())
 		return;
 	}
-	if ( txop == TxRotShear ) {             // rotate/shear
-	    QPointArray pa;
-	    pa.makeArc( x, y, w, h, a, alen, xmat );    // arc polyline
-	    drawPolyInternal( pa, TRUE );
-	    return;
-	}
-	map( x, y, w, h, &x, &y, &w, &h );
     }
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
@@ -1338,7 +1351,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     }
     QPointArray pa;
     pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
-    drawPolyInternal( pa, FALSE );
+    drawPolyline( pa );
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
@@ -1397,16 +1410,6 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
             if ( !pdev->cmd(QPaintDevice::PdcDrawChord, this, param) || !pdev->handle() )
                 return;
         }
-        if ( txop == TxRotShear ) {             // rotate/shear
-            QPointArray pa;
-            pa.makeArc( x, y, w-1, h-1, a, alen, xmat ); // arc polygon
-            int n = pa.size();
-            pa.resize( n+1 );
-            pa.setPoint( n, pa.at(0) );         // connect endpoints
-            drawPolyInternal( pa );
-            return;
-        }
-        map( x, y, w, h, &x, &y, &w, &h );
     }
     QPointArray pa;
     pa.makeArc(x, y, w-1, h-1, a, alen);
@@ -1527,9 +1530,8 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     updateBrush();
     updatePen();
     MoveTo(pa[0].x() + d->offx, pa[0].y() + d->offy );
-    for( loopc = 1; loopc < (int)pa.size(); loopc++ ) {
+    for( loopc = 1; loopc < (int)pa.size(); loopc++ ) 
 	LineTo( pa[loopc].x() + d->offx ,pa[loopc].y() + d->offy );
-    }
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
