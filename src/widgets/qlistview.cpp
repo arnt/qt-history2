@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#247 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#248 $
 **
 ** Implementation of QListView widget class
 **
@@ -1451,6 +1451,18 @@ void QListViewPrivate::Root::setup()
   <li>setSorting() - decides whether the items should be sorted,
   whether it should be in ascending or descending order, and by what
   column it should be sorted.</ul>
+
+  To handle events such as mouse-presses on the listview, derived classes
+  can override the QScrollView functions
+\link QScrollView::contentsMousePressEvent() contentsMousePressEvent\endlink,
+\link QScrollView::contentsMouseReleaseEvent() contentsMouseReleaseEvent\endlink,
+\link QScrollView::contentsMouseDoubleClickEvent() contentsMouseDoubleClickEvent\endlink,
+\link QScrollView::contentsMouseMoveEvent() contentsMouseMoveEvent\endlink,
+\link QScrollView::contentsDragEnterEvent() contentsDragEnterEvent\endlink,
+\link QScrollView::contentsDragMoveEvent() contentsDragMoveEvent\endlink,
+\link QScrollView::contentsDragLeaveEvent() contentsDragLeaveEvent\endlink,
+\link QScrollView::contentsDropEvent() contentsDropEvent\endlink, and
+\link QScrollView::contentsWheelEvent() contentsWheelEvent\endlink.
 
   There are also several functions for mapping between items and
   coordinates.  itemAt() returns the item at a position on-screen,
