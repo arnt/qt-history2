@@ -732,6 +732,9 @@ void QListViewItem::startRename( int col )
     if ( !lv )
 	return;
 
+    if ( lv->d->renameTimer )
+	lv->d->renameTimer->stop();
+
     if ( lv->d->timer->isActive() ) {
 	// make sure that pending calculations get finished
 	lv->d->timer->stop();
