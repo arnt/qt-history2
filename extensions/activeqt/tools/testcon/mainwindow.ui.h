@@ -222,7 +222,6 @@ void MainWindow::fileSave()
 
 void MainWindow::updateGUI()
 {
-/*
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
 	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
@@ -265,7 +264,7 @@ void MainWindow::updateGUI()
 	}
 
 	++it;
-    }*/
+    }
 }
 
 
