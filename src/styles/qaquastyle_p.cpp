@@ -700,21 +700,21 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge) {
 	    if(sld->orientation() == Qt::Horizontal) {
-		w = qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
+		w = qt_mac_aqua_get_metric(kThemeMetricHSliderHeight);
 		if(sld->tickmarks() != QSlider::NoMarks) 
 		    w += qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
 	    } else {
-		w = qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
+		w = qt_mac_aqua_get_metric(kThemeMetricVSliderWidth);
 		if(sld->tickmarks() != QSlider::NoMarks) 
 		    w += qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
 	    }
 	} else {
 	    if(sld->orientation() == Qt::Horizontal) {
-		w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
+		w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderHeight);
 		if(sld->tickmarks() != QSlider::NoMarks) 
 		    w += qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
 	    } else {
-		w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
+		w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderWidth);
 		if(sld->tickmarks() != QSlider::NoMarks) 
 		    w += qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
 	    }
@@ -731,11 +731,11 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    else 
 		w = 18;
 	}
+#endif
 	if(sld->orientation() == Qt::Horizontal) 
 	    ret.setHeight(w);
 	else
 	    ret.setWidth(w);
-#endif
     } else if(ct == QStyle::CT_ProgressBar) {
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
