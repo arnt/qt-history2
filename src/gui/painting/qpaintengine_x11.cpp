@@ -934,7 +934,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     if (!hasClipping()) {
         QRegion sysClip = systemClip();
         if (!sysClip.isEmpty())
-            x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, sysClip);
+            x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, sysClip);
         else
             x11ClearClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd);
     }
