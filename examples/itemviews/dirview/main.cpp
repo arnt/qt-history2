@@ -8,7 +8,6 @@ int main(int argc, char *argv[])
 
     QTreeView *tree = new QTreeView;
     tree->setModel(model);
-    tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     tree->setWindowTitle(QObject::tr("Dir View"));
     app.setMainWidget(tree);
