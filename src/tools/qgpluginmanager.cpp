@@ -216,7 +216,7 @@ static int similarity( const QString& s1, const QString& s2 )
 
   It searches a specified directory for all shared libraries, queries for components that implement the specific interface and
   reads information about the features the plugin wants to add to the application. The component can provide the set of features
-  provided by implementing either the QFeatureListInterface or the QComponentInterface. The strings returned by the implementations
+  provided by implementing either the QFeatureListInterface or the QComponentInformationInterface. The strings returned by the implementations
   of
 
   \code
@@ -226,7 +226,7 @@ static int similarity( const QString& s1, const QString& s2 )
   or
 
   \code
-  QString QComponentInterface::name() const
+  QString QComponentInformationInterface::name() const
   \endcode
 
   respectively, can then be used to access the component that provides the requested feature:

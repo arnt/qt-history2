@@ -134,11 +134,11 @@ struct Q_EXPORT QObjectInterface
 };
 
 // {5F3968A5-F451-45b1-96FB-061AD98F926E}
-#ifndef IID_QComponent
-#define IID_QComponent QUuid(0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e)
+#ifndef IID_QComponentInformation
+#define IID_QComponentInformation QUuid(0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e)
 #endif
 
-struct Q_EXPORT QComponentInterface : public QUnknownInterface
+struct Q_EXPORT QComponentInformationInterface : public QUnknownInterface
 {
     virtual QString name() const = 0;
     virtual QString description() const = 0;
