@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#447 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#448 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2965,7 +2965,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
 	unsigned int xstate = event->xmotion.state;
-	while ( XCheckTypedWindowEvent( appDpy, winId(), MotionNotify, xevent ) ) {
+	while ( XCheckTypedWindowEvent( appDpy, event->xmotion.window, MotionNotify, xevent ) ) {
 	    // compress motion events
 	    if ( xevent->xmotion.state != xstate ) {
 		XPutBackEvent( appDpy, xevent );
@@ -3767,8 +3767,8 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-    
-    
+
+
     if ( !testWFlags(WType_TopLevel) || testWFlags( WType_Popup )
 	 || (!testWFlags( WStyle_DialogBorder ) && !testWFlags( WStyle_NormalBorder)) )
 	return TRUE;				// child widget or override_redirect
