@@ -29,30 +29,13 @@
 **
 **********************************************************************/
 
-#include "qwindowsystem_qws.h"
-#include "qwsutils_qws.h"
-#include "qgfx_qws.h"
 #include "qwskeyboard_qnx4.h"
- 
-#include <qapplication.h>
-#include <qsocketnotifier.h>
-#include <qnamespace.h>
-#include <qtimer.h>
- 
-#include <stdlib.h>
-#include <stdio.h>
- 
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <signal.h>
  
 #if defined(Q_OS_QNX6)
 
 #include <qkeyboard_qws.h>
+
+// This is Qnx6 code at the moment
 
 QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
     shift = 0;
@@ -62,6 +45,7 @@ QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
     prevuni = 0;
     prevkey = 0;
 
+    /*
     kbdFD = open("/dev/devi/keyboard0", O_RDONLY);
 
     if (kbdFD == -1) {
@@ -71,17 +55,20 @@ QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
     QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this );
     connect(kbdNotifier, SIGNAL(activated(int)),this, SLOT(readKbdData(int)));
     notifiers.append( kbdNotifier ); 
+    */
 }
 
 void QWSQnx4KeyboardHandler::readKbdData(int fd) {
+    /*
     _keyboard_packet *packet = (_keyboard_packet *)malloc(sizeof(_keyboard_packet));
     read(fd, (void *)packet, sizeof(_keyboard_packet));
     doKey(packet->data.key_scan);
     free((void *)packet);
+    */
 }
 
 QWSQnx4KeyboardHandler::~QWSQnx4KeyboardHandler() {
-    close(kbdFD);
+//    close(kbdFD);
 }
 
 #endif
