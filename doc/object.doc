@@ -316,12 +316,19 @@ to it. The meta object compiler enforces this.
 The type of a property can be any \l QVariant supported type or an
 enumeration type declared in the class itself. Since \c MyClass uses
 the enumeration type \c Priority for the property, this type must be
-registered with the property system as well. This way it will be
-possible to set a value by name, like this:
+registered with the property system as well.
 
+There are two exceptions to the above: The type of a property can also
+be either \l QValueList\<QVariant\> or \l QMap\<QString,QVariant\>. In
+these cases the type must be specified as \c QValueList or as \c QMap
+(i.e. without their template parameters).
+
+It is possible to set a value by name, like this:
 \code
     obj->setProperty( "priority", "VeryHigh" );
 \endcode
+In the case of \c QValueList and \c QMap properties the value passes
+is a QVariant whose value is the entire list or map.
 
 Enumeration types are registered with the \c Q_ENUMS macro. Here's the
 final class declaration including the property related declarations:
