@@ -1436,6 +1436,7 @@ void QListView::updateGeometries()
 
 QListViewPrivate::QListViewPrivate()
     : QAbstractItemViewPrivate(),
+      layoutMode(QListView::SinglePass),
       modeProperties(0),
       layoutStart(0),
       translate(0),
