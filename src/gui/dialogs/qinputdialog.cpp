@@ -110,7 +110,9 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     d->spinBox = 0;
     d->comboBox = 0;
 
-    QVBoxLayout *vbox = new QVBoxLayout(this, 6, 6);
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(6);
+    vbox->setSpacing(6);
 
     d->label = new QLabel(label, this, "qt_inputdlg_lbl");
     vbox->addWidget(d->label);
@@ -122,7 +124,8 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     d->comboBox = new QComboBox(false, d->stack, "qt_inputdlg_cb");
     d->editComboBox = new QComboBox(true, d->stack, "qt_inputdlg_editcb");
 
-    QHBoxLayout *hbox = new QHBoxLayout(6);
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->setSpacing(6);
     vbox->addLayout(hbox, Qt::AlignRight);
 
     d->ok = new QPushButton(tr("OK"), this, "qt_ok_btn");

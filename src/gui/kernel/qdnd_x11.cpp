@@ -213,7 +213,9 @@ public:
             clearMask();
         }
         resize(pm.width(),pm.height());
-        setErasePixmap(pm);
+	QPalette p = palette();
+	p.setBrush(backgroundRole(), QBrush(pm));
+	setPalette(p);
     }
 };
 
