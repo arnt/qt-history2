@@ -3754,6 +3754,63 @@ void QApplication::flush()
 {
 }
 
+#if defined(Q_OS_TEMP)
+#include <sipapi.h>
+#define SHFS_SHOWSIPBUTTON          0x0004
+#define SHFS_HIDESIPBUTTON          0x0008
+extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+
+bool QApplication::wceShowInputPanel( bool show )
+{
+    bool prev = showInputPanel;
+    return showInputPanel = SipShowIM( show ) ? show : prev;
+}
+
+bool QApplication::wceIsInputPanelVisible()
+{
+    SIPINFO sip;
+    memset(&sip, 0, sizeof(SIPINFO));
+    sip.cbSize = sizeof(SIPINFO);
+    if (!SipGetInfo(&sip))
+	return showInputPanel;
+    return (SipGetInfo(&sip) ? sip.fdwFlags & SIPF_ON : FALSE);
+}
+
+bool QApplication::wceShowInputPanelButton( bool show )
+{
+    bool prev = showInputPanelButton;
+    showInputPanelButton = show;
+    QWidget *aWidget = qApp->mainWidget();
+
+    if ( !aWidget ) {
+	QWidgetList  *list = QApplication::topLevelWidgets();
+	QWidgetListIt it( *list );
+	while ( QWidget *w = it.current() ) {
+	    if ( w->isVisible() ) {
+		aWidget = w;
+		break;
+	    }
+	    ++it;
+	}
+	delete list;
+    }
+
+    if ( aWidget )
+	SHFullScreen( aWidget->winId(), show ? SHFS_SHOWSIPBUTTON : SHFS_HIDESIPBUTTON );
+    else
+	showInputPanelButton = prev;
+
+    return prev;
+}
+
+bool QApplication::wceIsInputPanelButtonVisible()
+{
+    return showInputPanelButton;
+}
+
+#endif
+
+
 bool QSessionManager::allowsInteraction()
 {
     sm_blockUserInput = FALSE;

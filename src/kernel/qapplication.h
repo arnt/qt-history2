@@ -232,6 +232,12 @@ public:
     static void      qwsSetDecoration( QWSDecoration *);
 #endif
 #endif
+#if defined(Q_OS_TEMP)
+    bool	     wceShowInputPanel( bool );
+    bool	     wceShowInputPanelButton( bool );
+    bool	     wceIsInputPanelVisible();
+    bool	     wceIsInputPanelButtonVisible();
+#endif
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
     static WindowsVersion winVersion();
@@ -348,6 +354,10 @@ private:
     static bool	     animate_toolbox;
     static bool	     widgetCount; // Coupled with -widgetcount switch
     static bool	     metaComposeUnicode;
+#ifdef Q_OS_TEMP
+    static bool	     showInputPanel;
+    static bool	     showInputPanelButton;
+#endif
 
     QList<QTranslator*> *translators;
 #ifndef QT_NO_SESSIONMANAGER

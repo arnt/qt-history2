@@ -343,6 +343,11 @@ QStringList *QApplication::app_libpaths = 0;
 bool	  QApplication::metaComposeUnicode = FALSE;
 int	  QApplication::composedUnicode   = 0;
 
+#ifdef Q_OS_TEMP
+bool	  QApplication::showInputPanel	     = FALSE;
+bool	  QApplication::showInputPanelButton = TRUE;
+#endif
+
 #ifdef QT_THREAD_SUPPORT
 QMutex *QApplication::qt_mutex		= 0;
 static QMutex *postevent_mutex		= 0;
