@@ -1510,6 +1510,11 @@ then
     fi
 fi
 
+TEST_NT=test
+if echo $PLATFORM | grep -i solaris >/dev/null 2>&1
+then
+    TEST_NT=/usr/bin/test
+fi
 if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     echo "Creating qmake. Please wait..."
@@ -1529,7 +1534,7 @@ then
 	fi
 	in_mkfile=$relpath/qmake/$in_mkfile
 	mkfile=$outpath/qmake/$mkfile
-	[ $mkfile -nt $in_mkfile ] && continue #no need
+	$TEST_NT $mkfile -nt $in_mkfile && continue #no need
 
 	rm -f $mkfile
 	echo "########################################################################" >$mkfile
