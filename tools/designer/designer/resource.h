@@ -140,6 +140,7 @@ private:
     MetaDataBase::MetaInfo metaInfo;
     QMap<QString, QString> dbControls;
     QMap<QString, QStringList> dbTables;
+    QMap<QString, QWidget*> widgets;
     QString exportMacro;
     bool hadGeometry;
     QMap<QString, QValueList<MetaDataBase::Connection> > langConnections;

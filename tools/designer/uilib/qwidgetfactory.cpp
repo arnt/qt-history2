@@ -710,6 +710,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
     }
 
+    int idx = 0;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, layout );
@@ -758,6 +759,11 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( parent->inherits( "QTabWidget" ) ) {
 		if ( attrib == "title" )
 		    ( (QTabWidget*)parent )->insertTab( w, v.toString() );
+	    } else if ( parent->inherits( "QWidgetStack" ) ) {
+		if ( attrib == "id" ) {
+		    ( (QWidgetStack*)parent )->addWidget( w, v.toInt() );
+		    ( (QWidgetStack*)parent )->raiseWidget( w );
+		}
 	    } else if ( parent->inherits( "QWizard" ) ) {
 		if ( attrib == "title" )
 		    ( (QWizard*)parent )->addPage( w, v.toString() );
@@ -769,6 +775,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	}
 
 	n = n.nextSibling().toElement();
+	idx++;
     }
 
     return w;

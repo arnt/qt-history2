@@ -263,6 +263,18 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		      << trcall( label ) << " );" << endl;
 	    }
 	}
+    } else if ( objClass == "QWidgetStack" ) {
+	QString page;
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( tags.contains( n.tagName()  ) ) {
+		page = createObjectImpl( n, objClass, objName );
+		int id = DomTool::readAttribute( n, "id", "" ).toInt();
+		out << indent << objName << "->addWidget( " << page << ", " << id << " );" << endl;
+	    }
+	}
+	if ( !page.isNull() )
+	    out << indent << objName << "->raiseWidget( " << page << ")," << endl;
+	    
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName() ) )

@@ -879,6 +879,53 @@ void DeleteTabPageCommand::unexecute()
 
 // ------------------------------------------------------------
 
+AddWidgetStackPageCommand::AddWidgetStackPageCommand( const QString &n, FormWindow *fw,
+						      QDesignerWidgetStack *ws )
+    : Command( n, fw ), widgetStack( ws )
+{
+    stackPage = new QDesignerWidget( formWindow(), widgetStack, "page" );
+    stackPage->hide();
+    index = -1;
+    MetaDataBase::addEntry( stackPage );
+}
+
+void AddWidgetStackPageCommand::execute()
+{
+    index = widgetStack->insertPage( stackPage, index );
+    widgetStack->raiseWidget( stackPage );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+}
+
+void AddWidgetStackPageCommand::unexecute()
+{
+    index = widgetStack->removePage( stackPage );
+    stackPage->hide();
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+}
+
+DeleteWidgetStackPageCommand::DeleteWidgetStackPageCommand( const QString &n, FormWindow *fw,
+							    QDesignerWidgetStack *ws, QWidget *page )
+    : Command( n, fw), widgetStack( ws ), stackPage( page )
+{
+    index = -1;
+}
+
+void DeleteWidgetStackPageCommand::execute()
+{
+    index = widgetStack->removePage( stackPage );
+    stackPage->hide();
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+}
+
+void DeleteWidgetStackPageCommand::unexecute()
+{
+    index = widgetStack->insertPage( stackPage, index );
+    widgetStack->raiseWidget( stackPage );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+}
+
+// ------------------------------------------------------------
+
 AddWizardPageCommand::AddWizardPageCommand( const QString &n, FormWindow *fw,
 					    QWizard *w, const QString &label, int i, bool s )
     : Command( n, fw ), wizard( w ), pageLabel( label )

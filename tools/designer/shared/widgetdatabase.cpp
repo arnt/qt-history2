@@ -190,6 +190,14 @@ void WidgetDatabase::setupDataBase( int id )
 
     append( r );
 
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "widgetstack.xpm";
+    r->name = "QWidgetStack";
+    r->group = widgetGroup( "Containers" );
+    r->toolTip = "Widget Stack";
+    r->isContainer = TRUE;
+
+    append( r );
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "listbox.xpm";

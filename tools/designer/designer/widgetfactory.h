@@ -39,6 +39,7 @@
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qbuttongroup.h>
+#include <qwidgetstack.h>
 
 #include "metadatabase.h"
 #include "qwidgetfactory.h"
@@ -131,6 +132,29 @@ private:
     QWidget *dragPage;
     QString dragLabel;
      bool mousePressed;
+};
+
+class QDesignerWidgetStack : public QWidgetStack
+{
+    Q_OBJECT
+    Q_PROPERTY( int currentPage READ currentPage WRITE setCurrentPage STORED false DESIGNABLE true )
+    Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
+public:
+    QDesignerWidgetStack( QWidget *parent, const char *name );
+
+    int currentPage() const;
+    void setCurrentPage( int i );
+    QCString pageName() const;
+    void setPageName( const QCString& name );
+
+    int count() const;
+    QWidget* page( int i ) const;
+
+    int insertPage( QWidget *p, int i = -1 );
+    int removePage( QWidget *p );
+
+private:
+    QPtrList<QWidget> pages;
 };
 
 class QDesignerWizard : public QWizard
@@ -281,13 +305,17 @@ class QDesignerWidget : public QWidget
 
 public:
     QDesignerWidget( FormWindow *fw, QWidget *parent, const char *name )
-	: QWidget( parent, name, WResizeNoErase ), formwindow( fw ) {}
+	: QWidget( parent, name, WResizeNoErase ), formwindow( fw ) {
+	    need_frame = parent && parent->inherits("QDesignerWidgetStack" );
+    }
 
 protected:
+    void resizeEvent( QResizeEvent* e);
     void paintEvent( QPaintEvent *e );
 
 private:
     FormWindow *formwindow;
+    uint need_frame : 1;
 
 };
 

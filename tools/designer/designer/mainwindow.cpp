@@ -1612,6 +1612,20 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	}
 	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
+    } else if ( w->inherits( "QWidgetStack" ) ) {
+	if ( ids.isEmpty() )
+	    ids << rmbWidgets->insertSeparator( 0 );
+	if ( ( (QDesignerWidgetStack*)w )->count() > 1) {
+	    ids << ( id = rmbWidgets->insertItem( tr("Previous Page"), -1, 0 ) );
+	    commands.insert( "prevpage", id );
+	    ids << ( id = rmbWidgets->insertItem( tr("Next Page"), -1, 0 ) );
+	    ids << rmbWidgets->insertSeparator( 0 );
+	    commands.insert( "nextpage", id );
+	    ids << ( id = rmbWidgets->insertItem( tr("Delete Page"), -1, 0 ) );
+	    commands.insert( "remove", id );
+	}
+	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
+	commands.insert( "add", id );
     }
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	if ( ids.isEmpty() )
@@ -1731,6 +1745,40 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 		cmd->execute();
 	    }
 	}
+    } else if ( w->inherits( "QWidgetStack" ) ) {
+	QDesignerWidgetStack *ws = (QDesignerWidgetStack*)w;
+	if ( id == commands[ "add" ] ) {
+	    AddWidgetStackPageCommand *cmd = new AddWidgetStackPageCommand( tr( "Add Page to %1" ).arg( ws->name() ), formWindow(),
+									    ws );
+	    formWindow()->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	} else if ( id == commands[ "remove" ] ) {
+	    if ( ws->visibleWidget() ) {
+		DeleteWidgetStackPageCommand *cmd = new DeleteWidgetStackPageCommand( tr( "Delete Page %1 of %2" ).
+										      arg( ws->currentPage() ).arg( ws->name() ),
+										      formWindow(), ws, ws->visibleWidget() );
+		formWindow()->commandHistory()->addCommand( cmd );
+		cmd->execute();
+	    }
+	} else if ( id == commands[ "nextpage" ] ) {
+	    int currentPage = w->property( "currentPage" ).toInt();
+	    QString pn( tr( "Raise next page of '%2'" ).arg( w->name() ) );
+	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
+							      "currentPage", currentPage,
+							      currentPage + 1, QString::null, QString::null );
+	    cmd->execute();
+	    formWindow()->commandHistory()->addCommand( cmd );
+	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );	
+	} else if ( id == commands[ "prevpage" ] ) {
+	    int currentPage = w->property( "currentPage" ).toInt();
+	    QString pn( tr( "Raise previous page of '%2'" ).arg( w->name() ) );
+	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
+							      "currentPage", currentPage,
+							      currentPage -1, QString::null, QString::null );
+	    cmd->execute();
+	    formWindow()->commandHistory()->addCommand( cmd );
+	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );	
+	}
     }
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	if ( id == commands[ "edit" ] )
@@ -1765,14 +1813,14 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    bool ok = FALSE;
 	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
 	    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, dw->pageTitle(), &ok, this );
-	    if ( ok ) {
-		QString pn( tr( "Rename page %1 of %2" ).arg( dw->pageTitle() ).arg( wiz->name() ) );
+ 	    if ( ok ) {
+ 		QString pn( tr( "Rename page %1 of %2" ).arg( dw->pageTitle() ).arg( wiz->name() ) );
 		RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formWindow()
 									    , wiz, wiz->indexOf( wiz->currentPage() ), text );
 		formWindow()->commandHistory()->addCommand( cmd );
 		cmd->execute();
 	    }
-	}
+ 	}
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	QMainWindow *mw = (QMainWindow*)fw->mainContainer();
 	if ( id == commands[ "add_toolbar" ] ) {

@@ -271,6 +271,79 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     return FALSE;
 }
 
+
+QDesignerWidgetStack::QDesignerWidgetStack( QWidget *parent, const char *name )
+    : QWidgetStack( parent, name )
+{
+}
+
+int QDesignerWidgetStack::currentPage() const
+{
+    QDesignerWidgetStack* that = (QDesignerWidgetStack*) this;
+    return that->pages.find( visibleWidget() );
+}
+
+void QDesignerWidgetStack::setCurrentPage( int i )
+{
+    // help next/prev page commands
+    if ( i < 0 )
+	i += count();
+    if ( i >= count() )
+	i -= count();
+    
+    if ( i < 0 || i >= count() )
+	return;
+    raiseWidget( pages.at( i ) );
+}
+
+QCString QDesignerWidgetStack::pageName() const
+{
+    if ( !visibleWidget() )
+	return 0;
+    return visibleWidget()->name();
+}
+
+void QDesignerWidgetStack::setPageName( const QCString& name )
+{
+    if ( visibleWidget() )
+	visibleWidget()->setName( name );
+}
+
+int QDesignerWidgetStack::count() const
+{
+    return pages.count();
+}
+
+QWidget* QDesignerWidgetStack::page( int i ) const
+{
+    if ( i < 0 || i >= count() )
+	return 0;
+    QDesignerWidgetStack* that = (QDesignerWidgetStack*) this;
+    return that->pages.at( i );
+}
+
+
+int QDesignerWidgetStack::insertPage( QWidget *p, int i )
+{
+    if ( i < 0 )
+	pages.append( p );
+    else
+	pages.insert( (uint) i, p );
+    addWidget( p );
+    p->show();
+    raiseWidget( p );
+    return pages.find( p );
+}
+
+int QDesignerWidgetStack::removePage( QWidget *p )
+{
+    int i = pages.find( p );
+    pages.remove( p );
+    removeWidget( p );
+    return i;
+}	
+
+
 int QDesignerWizard::currentPageNum() const
 {
     for ( int i = 0; i < pageCount(); ++i ) {
@@ -707,11 +780,23 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    MetaDataBase::addEntry( w );
 	}
 	return tw;
+    } else if ( className == "QWidgetStack" ) {
+	QDesignerWidgetStack *ws = new QDesignerWidgetStack( parent, name );
+	if ( init ) {
+	    FormWindow *fw = find_formwindow( parent );
+	    QWidget *w = fw ? new QDesignerWidget( fw, ws, "page" ) : new QWidget( ws, "page" );
+	    ws->insertPage( w );
+	    MetaDataBase::addEntry( w );
+	    MetaDataBase::addEntry( ws );
+	}
+	return ws;
     } else if ( className == "QComboBox" ) {
 	return new QComboBox( FALSE, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( parent &&
-	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) || parent->inherits( "QTabWidget" ) || parent->inherits( "QMainWindow" ) ) ) {
+	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) || 
+	       parent->inherits( "QTabWidget" ) || parent->inherits( "QWidgetStack" ) || 
+	       parent->inherits( "QMainWindow" ) ) ) {
 	    FormWindow *fw = find_formwindow( parent );
 	    if ( fw ) {
 		QDesignerWidget *dw = new QDesignerWidget( fw, parent, name );
@@ -1006,6 +1091,8 @@ const char* WidgetFactory::classNameOf( QObject* o )
 {
     if ( o->inherits( "QDesignerTabWidget" ) )
 	return "QTabWidget";
+    else if ( o->inherits( "QDesignerWidgetStack" ) )
+	return "QWidgetStack";
     else if ( o->inherits( "QDesignerDialog" ) )
 	return "QDialog";
     else if ( o->inherits( "QDesignerWidget" ) )
@@ -1057,6 +1144,10 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "frameShape", TRUE );
     } else if ( o->inherits( "QTabWidget" ) || o->inherits( "QWizard" ) ) {
 	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
+	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
+    } else if ( o->inherits( "QWidgetStack" ) ) {
+	MetaDataBase::setPropertyChanged( o, "currentPage", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
 #ifndef QT_NO_TABLE
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
@@ -1272,8 +1363,23 @@ void QDesignerLabel::updateBuddy()
     delete l;
 }
 
+
+void QDesignerWidget::resizeEvent( QResizeEvent* e)
+{
+    if ( need_frame ) {
+	QPainter p(this);
+	p.setPen( backgroundColor() );
+	p.drawRect( QRect( QPoint(0,0), e->oldSize() ) );
+    }
+}
+
 void QDesignerWidget::paintEvent( QPaintEvent *e )
 {
+    if ( need_frame ) {
+	QPainter p(this);
+	p.setPen( backgroundColor().dark() );
+	p.drawRect( rect() );
+    }
     formwindow->paintGrid( this, e );
 }
 

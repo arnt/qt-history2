@@ -71,6 +71,8 @@ public:
 	AddTabPage,
 	DeleteTabPage,
 	MoveTabPage,
+	AddWidgetStackPage,
+	DeleteWidgetStackPage,
 	AddWizardPage,
 	DeleteWizardPage,
 	SwapWizardPages,
@@ -413,6 +415,40 @@ private:
     QString tabLabel;
 
 };
+class QDesignerWidgetStack;
+class AddWidgetStackPageCommand : public Command
+{
+public:
+    AddWidgetStackPageCommand( const QString &n, FormWindow *fw,
+			       QDesignerWidgetStack *ws );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddWidgetStackPage; }
+
+private:
+    QDesignerWidgetStack *widgetStack;
+    int index;
+    QWidget *stackPage;
+};
+
+class DeleteWidgetStackPageCommand : public Command
+{
+public:
+    DeleteWidgetStackPageCommand( const QString &n, FormWindow *fw,
+				  QDesignerWidgetStack *ws, QWidget *page );
+
+    void execute();
+    void unexecute();
+    Type type() const { return DeleteWidgetStackPage; }
+
+private:
+    QDesignerWidgetStack *widgetStack;
+    int index;
+    QWidget *stackPage;
+};
+
+
 
 class AddWizardPageCommand : public Command
 {
@@ -519,7 +555,7 @@ private:
 class AddSlotCommand : public Command
 {
 public:
-    AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString& spec, 
+    AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s, const QString& spec,
 		    const QString &a, const QString &l, const QString &rt );
 
     void execute();
