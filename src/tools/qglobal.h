@@ -1072,11 +1072,7 @@ Q_CORE_EXPORT int qWinVersion();
 //
 // Use to avoid "unused parameter" warnings
 //
-#if defined(Q_CC_MIPS)
-#define Q_UNUSED(x) x = x;
-#else
 #define Q_UNUSED(x) (void)x;
-#endif
 
 //
 // Debugging and error handling
