@@ -297,6 +297,27 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
     return pSize;
 }
 
+// class definition in qfontdata_p.h
+QFontX11Data::QFontX11Data()
+{
+    for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
+	fontstruct[i] = 0;
+    }
+}
+
+QFontX11Data::~QFontX11Data()
+{
+    QFontStruct *qfs;
+
+    for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
+	qfs = fontstruct[i];
+	fontstruct[i] = 0;
+
+	if ( qfs && qfs != (QFontStruct *) -1 ) {
+	    qfs->deref();
+	}
+    }
+}
 
 class QXFontName
 {

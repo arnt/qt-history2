@@ -125,6 +125,16 @@ public:
     float scale; // needed for printing, to correctly scale font metrics for bitmap fonts
 };
 
+class QFontX11Data  // used as a QFontPrivate member
+{
+public:
+    // X fontstruct handles for each character set
+    QFontStruct *fontstruct[QFont::LastPrivateScript];
+
+    QFontX11Data();
+    ~QFontX11Data();
+};
+
 #endif // Q_WS_X11
 
 
@@ -231,7 +241,7 @@ public:
     QFontPrivate(const QFontPrivate &fp);
     QFontPrivate( const QFontPrivate &fp, QPaintDevice *pd );
     ~QFontPrivate();
-    
+
     // requested font
     QFontDef request;
     // actual font
@@ -383,32 +393,7 @@ public:
 		   int x, int y, const TextRun *cache, int pdWidth );
     bool inFont( const QChar &ch );
 
-    class QFontX11Data {
-    public:
-	// X fontstruct handles for each character set
-	QFontStruct *fontstruct[QFont::LastPrivateScript];
-
-	QFontX11Data()
-	{
-	    for (int i = 0; i < QFont::LastPrivateScript; i++) {
-		fontstruct[i] = 0;
-	    }
-	}
-
-	~QFontX11Data()
-	{
-	    QFontStruct *qfs;
-
-	    for (int i = 0; i < QFont::LastPrivateScript; i++) {
-		qfs = fontstruct[i];
-		fontstruct[i] = 0;
-
-		if (qfs && qfs != (QFontStruct *) -1) {
-		    qfs->deref();
-		}
-	    }
-	}
-    } x11data;
+    QFontX11Data x11data;
     static QFont::Script defaultScript;
     int x11Screen;
 #endif // Q_WS_X11
