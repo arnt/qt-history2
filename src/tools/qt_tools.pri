@@ -1,6 +1,13 @@
 # Qt tools module
 
 tools {
+	message("Remove compat/* files into libqt3compat")
+
+	HEADERS += compat/q3cache.h \
+		   compat/qgcache.h \
+		   compat/qvaluevector.h
+	SOURCES += compat/qgcache.cpp
+
 	TOOLS_P		= tools
 	HEADERS +=  $$TOOLS_H/qmemarray.h \
 		  $$TOOLS_H/qasciicache.h \
