@@ -254,8 +254,8 @@ public:
     virtual int columnAt( int pos ) const;
     virtual int rowAt( int pos ) const;
 
-    int numRows() const;
-    int numCols() const;
+    virtual int numRows() const;
+    virtual int numCols() const;
 
     void updateCell( int row, int col );
 
