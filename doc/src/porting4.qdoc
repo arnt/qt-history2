@@ -10,6 +10,17 @@
 **
 ****************************************************************************/
 
+/*
+        WDestructiveClose      = 0x00010000,
+        WStaticContents        = 0x00400000,
+        WNoAutoErase           = 0x00800000,
+
+        WResizeNoErase = 0,
+        WPaintClever = 0,
+        WMacNoSheet = 0
+
+*/
+
 /*!
     \page porting.html
 
@@ -43,17 +54,17 @@
 
     \list 1
 
-    \i Briefly read the porting notes below to get an idea of what to expect.
+    \o Briefly read the porting notes below to get an idea of what to expect.
 
-    \i Be sure that your code compiles and runs well on all your target
+    \o Be sure that your code compiles and runs well on all your target
        platforms with Qt 3, with QT_NO_COMPAT defined.
 
-    \i Recompile with Qt 4. For each error, search below for related
+    \o Recompile with Qt 4. For each error, search below for related
        identifiers (e.g. function names, class names). This document
        mentions all relevant identifiers to help you get the information
        you need at the cost of being a little verbose.
 
-    \i If you get stuck, ask on the \link http://qt-interest.trolltech.com/
+    \o If you get stuck, ask on the \link http://qt-interest.trolltech.com/
        qt-interest \endlink mailing list, or Trolltech Technical Support if
        you're a registered licensee.
 
@@ -82,8 +93,8 @@
     ### New style of headers
 
     \table
-    \header \i Old header \i New header
-    \row \i \c{<qtl.h>} \i \c{<qalgorithms.h>} or \c{<QtAlgorithms>}
+    \header \o Old header \o New header
+    \row \o \c{<qtl.h>} \o \c{<qalgorithms.h>} or \c{<QtAlgorithms>}
     \endtable
 
     ### Some headers don't include each other anymore...
@@ -93,12 +104,12 @@
     \section1 Global Functions
 
     \table
-    \header \i Qt 3 function \i Qt 4 equivalent
-    \row \i cstrcmp() \i strcmp()
-    \row \i cstrcpy() \i strcpy()
-    \row \i cstrlen() \i strlen()
-    \row \i cstrncmp() \i strncmp()
-    \row \i qmemmove() \i memmove()
+    \header \o Qt 3 function \o Qt 4 equivalent
+    \row \o cstrcmp() \o strcmp()
+    \row \o cstrcpy() \o strcpy()
+    \row \o cstrlen() \o strlen()
+    \row \o cstrncmp() \o strncmp()
+    \row \o qmemmove() \o memmove()
     \endtable
 
     qGLVersion() ###
@@ -115,11 +126,53 @@
     QWidget::BackgroundOrigin compat
 \endomit
 
-\omit
+    \section1 Enum and Typedef Names
+
+    The table below lists the enums and typedefs that have been
+    renamed in Qt 4. If you compile your applications with \c
+    QT_COMPAT defined, the old names will be available.
+
+    Whenever you see an occurrence of the name on the left, you can
+    safely replace it with the Qt 4 equivalent in your program. The
+    \l{porting tool} handles performs the conversion automatically.
+
+    \table
+    \header \o Qt 3 name \o Qt 4 equivalent
+    \input porting4-enumandtypedefnames.qdocinc
+    \endtable
+
     \section1 Enum Values
 
-    ###
-\endomit
+    The table below lists the enum values that have been renamed in
+    Qt 4. If you compile your applications with \c QT_COMPAT defined,
+    the old names will be available.
+
+    Whenever you see an occurrence of the name on the left, you can
+    safely replace it with the Qt 4 equivalent in your program. The
+    \l{porting tool} handles performs the conversion automatically.
+
+    \table
+    \header \o Qt 3 name \o Qt 4 equivalent
+    \input porting4-enumvalues.qdocinc
+    \endtable
+
+    In addition, the following \l{Qt::WFlag}{window flags} have been
+    either replaced with \l{Qt::WidgetAttribute}{widget attributes}
+    or have been deprecated:
+
+    \table
+    \header \o Qt 3 names \o Qt 4 equivalent
+    \row \o Qt::WDestructiveClose \o Use Qt::WA_DeleteOnClose instead.
+    \row \o Qt::WStaticContents \o{1,2} Use Qt::WA_StaticContents instead.
+    \row \o Qt::WNorthWestGravity
+    \row \o Qt::WNoAutoErase \o{1,3} Use Qt::WA_NoBackground instead.
+    \row \o Qt::WResizeNoErase
+    \row \o Qt::WRepaintNoErase 
+    \row \o Qt::WPaintClever \o Unnecessary in Qt 4.
+         \omit ### Check with Matthias \endomit
+    \row \o Qt::WMacNoSheet \o Unnecessary in Qt 4.
+         \omit ### Check with Sam \endomit
+    \endtable
 
 \omit
     \section1 Null vs. Empty
@@ -135,11 +188,11 @@
     are \e implicitly shared in Qt 4:
 
     \list
-    \i QImage
-    \i QMovie
-    \i QBitArray
-    \i QByteArray
-    \i QPointArray
+    \o QImage
+    \o QMovie
+    \o QBitArray
+    \o QByteArray
+    \o QPointArray
     \endlist
 
     This means that if you took a copy of an instance of the class
@@ -181,10 +234,10 @@
     library}. In new applications, you have three options:
 
     \list 1
-    \i You can use QAction and set a key sequence using QAction::setShortcut().
-    \i You can use QShortcut, a class that provides similar
+    \o You can use QAction and set a key sequence using QAction::setShortcut().
+    \o You can use QShortcut, a class that provides similar
        functionality to QAccel.
-    \i You can use QWidget::grabShortcut() and process "shortcut"
+    \o You can use QWidget::grabShortcut() and process "shortcut"
        events by reimplementing QWidget::event().
     \endlist
 
@@ -210,7 +263,7 @@
     In addition, the following API change was made:
 
     \list 1
-    \i  QApplication::allWidgets() and QApplication::topLevelWidgets()
+    \o  QApplication::allWidgets() and QApplication::topLevelWidgets()
         used to return a pointer to a QWidgetList. Now they return a
         QWidgetList.
 
@@ -267,10 +320,10 @@
     four classes that you can use:
 
     \list
-    \i QMultiHash<QByteArray, T *>
-    \i QMultiHash<QByteArray, T *>
-    \i QHash<QByteArray, T>
-    \i QHash<QByteArray, T>
+    \o QMultiHash<QByteArray, T *>
+    \o QMultiHash<QByteArray, T *>
+    \o QHash<QByteArray, T>
+    \o QHash<QByteArray, T>
     \endlist
 
     For details, read the \l{#qdict.section}{section on QDict<T>},
@@ -331,12 +384,12 @@
     Q3ButtonGroup could be used in two ways:
 
     \list 1
-    \i The button group is the parent widget of a number of buttons,
+    \o The button group is the parent widget of a number of buttons,
         i.e. the button group is the parent argument in the button
         constructor. The buttons are assigned identifiers 0, 1, 2, etc.,
         in the order they are created. A Q3ButtonGroup can display a frame
         and a title because it inherits Q3GroupBox.
-    \i The button group is an invisible widget and the contained
+    \o The button group is an invisible widget and the contained
         buttons have some other parent widget. In this usage, each button
         must be manually inserted, using Q3ButtonGroup::insert(), into the button group
         and given an ID number.
@@ -362,7 +415,7 @@
     Here are the main issues to be aware of when porting to Qt 4:
 
     \list 1
-    \i  The QMemArray(int size) constructor has been replaced with
+    \o  The QMemArray(int size) constructor has been replaced with
         QByteArray(int size, char ch). The second argument specifies
         which character should be used for initializing the array;
         pass '\\0' if you have no specific needs.
@@ -373,7 +426,7 @@
         QByteArray ba(64, '\0');
         \endcode
 
-    \i  QMemArray::at() returned a non-const reference, whereas the
+    \o  QMemArray::at() returned a non-const reference, whereas the
         new QByteArray::at() returns a const value. Code like
 
         \code
@@ -386,7 +439,7 @@
         ba[0] = 'X';
         \endcode
 
-    \i  The QMemArray::contains(char) function has been renamed
+    \o  The QMemArray::contains(char) function has been renamed
         QByteArray::count(char). In addition, there now exists a
         QByteArray::contains(char) function that returns a boolean
         value. Replace old calls to contains() with either count() or
@@ -395,7 +448,7 @@
         only care about whether the array contains that character or
         not.
 
-    \i  The new QByteArray has no assign() function. Calls to
+    \o  The new QByteArray has no assign() function. Calls to
         QMemArray::assign(const QMemArray &) can be replaced by calls
         to QByteArray::operator=(). Calls to QMemArray::assign(const
         T *, uint) have no equivalent in Qt 4; if you use it, the
@@ -404,7 +457,7 @@
         QByteArray(const char *, int) constructor, which will take a
         deep copy of the data.
 
-    \i  QMemArray::bsearch() and QMemArray::sort() have no equivalent
+    \o  QMemArray::bsearch() and QMemArray::sort() have no equivalent
         in the new QByteArray class. Use \l qBinaryFind() and \l
         qHeapSort() if you need that functionality.
     \endlist
@@ -424,31 +477,31 @@
     differences.
 
     \table
-    \header \i Q3Cache<T> function \i QCache<QString, T> equivalent
-    \row \i Q3Cache::Q3Cache(int maxCost, int size, bool caseSensitive) \i See remark below
-    \row \i Q3Cache::autoDelete() \i N/A
-    \row \i Q3Cache::count() \i QCache::count() or QCache::size() (equivalent)
-    \row \i Q3Cache::setAutoDelete() \i See remark below
-    \row \i Q3Cache::size() \i N/A
-    \row \i Q3Cache::statistics() \i N/A
-    \row \i Q3Cache::operator=() \i See remark below
+    \header \o Q3Cache<T> function \o QCache<QString, T> equivalent
+    \row \o Q3Cache::Q3Cache(int maxCost, int size, bool caseSensitive) \o See remark below
+    \row \o Q3Cache::autoDelete() \o N/A
+    \row \o Q3Cache::count() \o QCache::count() or QCache::size() (equivalent)
+    \row \o Q3Cache::setAutoDelete() \o See remark below
+    \row \o Q3Cache::size() \o N/A
+    \row \o Q3Cache::statistics() \o N/A
+    \row \o Q3Cache::operator=() \o See remark below
     \endtable
 
     Remarks:
 
     \list 1
-    \i  Q3Cache requires the user to allocate a specific number of
+    \o  Q3Cache requires the user to allocate a specific number of
         buckets by passing a prime number (17 by default) to the
         constructor. In contrast, the new QCache's hash table
         automatically grows and shrinks as needed, and the
         constructor doesn't take a prime number.
 
-    \i  Q3Cache supportes case-insensitive lookups by passing false as
+    \o  Q3Cache supportes case-insensitive lookups by passing false as
         second argument to the constructor. This feature has no
         equivalent in QMultiHash. Instead, call QString::toLower()
         before you insert or lookup a key in the hash.
 
-    \i  The Q3Cache::insert() function returns a \c bool value that
+    \o  The Q3Cache::insert() function returns a \c bool value that
         indicates whether or not the item actually was inserted in
         the cache. If the item wasn't inserted, it was the caller's
         responsibility to delete the item. The new QCache::insert()
@@ -466,7 +519,7 @@
         cache.insert(key, object);
         \endcode
 
-    \i  The new QCache class \e always takes ownership of the items
+    \o  The new QCache class \e always takes ownership of the items
         it stores (i.e. auto-delete is always on). If you use Q3Cache
         with auto-delete turned off (the rarely useful default), you
         cannot use QCache as a direct substitute. One unelegant trick
@@ -576,22 +629,22 @@
     provided by the compatibility QCString class:
 
     \list
-    \i QCString::find(const QRegExp &, int)
-    \i QCString::findRev(const QRegExp &, int)
-    \i QCString::contains(const QRegExp &)
-    \i QCString::replace(const QRegExp &, const char *)
+    \o QCString::find(const QRegExp &, int)
+    \o QCString::findRev(const QRegExp &, int)
+    \o QCString::contains(const QRegExp &)
+    \o QCString::replace(const QRegExp &, const char *)
     \endlist
 
     The following functions have lost their last parameter, which
     specified whether the search was case sensitive or not:
 
     \list
-    \i QByteArray::find(char, int)
-    \i QByteArray::find(const char *, int)
-    \i QByteArray::findRev(char, int)
-    \i QByteArray::findRev(const char *, int)
-    \i QByteArray::contains(char)
-    \i QByteArray::contains(const char *)
+    \o QByteArray::find(char, int)
+    \o QByteArray::find(const char *, int)
+    \o QByteArray::findRev(char, int)
+    \o QByteArray::findRev(const char *, int)
+    \o QByteArray::contains(char)
+    \o QByteArray::contains(const char *)
     \endlist
 
     In both cases, the solution is to convert the QCString to a
@@ -609,32 +662,32 @@
     Qt 4 QByteArray and QString classes:
 
     \table
-    \header \i QCString function \i Qt 4 equivalent
-    \row \i QCString::QCString(const char *, uint) \i See remark below
-    \row \i QCString::QCString(int) \i QByteArray::QByteArray(int, char)
-    \row \i QCString::leftJustify() \i QString::leftJustified()
-    \row \i QCString::length() \i QByteArray::length() or QByteArray::size() (equivalent)
-    \row \i QCString::lower() \i QByteArray::toLower()
-    \row \i QCString::rightJustify() \i QString::rightJustified()
-    \row \i QCString::setExpand() \i See remark below
-    \row \i QCString::simplifyWhiteSpace() \i QByteArray::simplified()
-    \row \i QCString::sprintf() \i QString::sprintf()
-    \row \i QCString::stripWhiteSpace() \i QByteArray::trimmed()
-    \row \i QCString::toDouble() \i QString::toDouble()
-    \row \i QCString::toFloat() \i QString::toFloat()
-    \row \i QCString::toInt() \i QString::toInt()
-    \row \i QCString::toLong() \i QString::toLong()
-    \row \i QCString::toShort() \i QString::toShort()
-    \row \i QCString::toUInt() \i QString::toUInt()
-    \row \i QCString::toULong() \i QString::toULong()
-    \row \i QCString::toUShort() \i QString::toUShort()
-    \row \i QCString::upper() \i QByteArray::toUpper()
+    \header \o QCString function \o Qt 4 equivalent
+    \row \o QCString::QCString(const char *, uint) \o See remark below
+    \row \o QCString::QCString(int) \o QByteArray::QByteArray(int, char)
+    \row \o QCString::leftJustify() \o QString::leftJustified()
+    \row \o QCString::length() \o QByteArray::length() or QByteArray::size() (equivalent)
+    \row \o QCString::lower() \o QByteArray::toLower()
+    \row \o QCString::rightJustify() \o QString::rightJustified()
+    \row \o QCString::setExpand() \o See remark below
+    \row \o QCString::simplifyWhiteSpace() \o QByteArray::simplified()
+    \row \o QCString::sprintf() \o QString::sprintf()
+    \row \o QCString::stripWhiteSpace() \o QByteArray::trimmed()
+    \row \o QCString::toDouble() \o QString::toDouble()
+    \row \o QCString::toFloat() \o QString::toFloat()
+    \row \o QCString::toInt() \o QString::toInt()
+    \row \o QCString::toLong() \o QString::toLong()
+    \row \o QCString::toShort() \o QString::toShort()
+    \row \o QCString::toUInt() \o QString::toUInt()
+    \row \o QCString::toULong() \o QString::toULong()
+    \row \o QCString::toUShort() \o QString::toUShort()
+    \row \o QCString::upper() \o QByteArray::toUpper()
     \endtable
 
     Remarks:
 
     \list 1
-    \i  QCString(const char *str, uint max) constructs a string of
+    \o  QCString(const char *str, uint max) constructs a string of
         length strlen(str) or \e max - 1, whichever is shorter.
         QByteArray(const char *data, int size) constructs a byte
         array containing exactly \e size bytes.
@@ -648,7 +701,7 @@
             str2.truncate(n - 1);
         \endcode
 
-    \i  QCString::setExpand(uint index, char ch) has no equivalent in
+    \o  QCString::setExpand(uint index, char ch) has no equivalent in
         Qt 4.
 
         \oldcode
@@ -731,19 +784,19 @@
     classes that you can use:
 
     \table
-    \header \i Qt 4 class \i When to use it
-    \row \i QMultiHash<QString, T *>
-         \i Since QDict<T> is pointer-based and allows duplicate keys, this
+    \header \o Qt 4 class \o When to use it
+    \row \o QMultiHash<QString, T *>
+         \o Since QDict<T> is pointer-based and allows duplicate keys, this
             is usually the most straightforward conversion.
-    \row \i QMultiHash<QString, T>
-         \i If type \c T is an \l{assignable data type}, you can use
+    \row \o QMultiHash<QString, T>
+         \o If type \c T is an \l{assignable data type}, you can use
             \c T as the value type rather than \c{T *}. This often leads
             to nicer code.
-    \row \i QHash<QString, T *>
-         \i{1,2} If you don't use duplicate keys, you can use QHash
+    \row \o QHash<QString, T *>
+         \o{1,2} If you don't use duplicate keys, you can use QHash
                  instead of QMultiHash. QMultiHash inherits from
                  QHash.
-    \row \i QHash<QString, T>
+    \row \o QHash<QString, T>
     \endtable
 
     The APIs of QDict<T> and QMultiHash<QString, T *> are quite
@@ -756,45 +809,45 @@
     two classes:
 
     \table
-    \header \i QDict function \i QMultiHash equivalent
-    \row \i QDict::QDict(int size, bool caseSensitive) \i See remarks below
-    \row \i QDict::autoDelete() \i N/A
-    \row \i QDict::count() \i QMultiHash::count() or QMultiHash::size() (equivalent)
-    \row \i QDict::find(const QString &) \i QMultiHash::value(const QString &)
-    \row \i QDict::remove(const QString &) \i QMultiHash::take(const QString &)
-    \row \i QDict::resize(uint) \i QMultiHash::reserve(int)
-    \row \i QDict::setAutoDelete() \i See discussion below
-    \row \i QDict::size() \i QMultiHash::capacity()
-    \row \i QDict::statistics() \i N/A
-    \row \i QDict::operator[](const QString &) \i See remark below
+    \header \o QDict function \o QMultiHash equivalent
+    \row \o QDict::QDict(int size, bool caseSensitive) \o See remarks below
+    \row \o QDict::autoDelete() \o N/A
+    \row \o QDict::count() \o QMultiHash::count() or QMultiHash::size() (equivalent)
+    \row \o QDict::find(const QString &) \o QMultiHash::value(const QString &)
+    \row \o QDict::remove(const QString &) \o QMultiHash::take(const QString &)
+    \row \o QDict::resize(uint) \o QMultiHash::reserve(int)
+    \row \o QDict::setAutoDelete() \o See discussion below
+    \row \o QDict::size() \o QMultiHash::capacity()
+    \row \o QDict::statistics() \o N/A
+    \row \o QDict::operator[](const QString &) \o See remark below
     \endtable
 
     Remarks:
 
     \list 1
-    \i  QDict requires the user to allocate a specific number of
+    \o  QDict requires the user to allocate a specific number of
         buckets by passing a prime number (17 by default) to the
         constructor and/or calling QDict::resize() later on. In
         contrast, QMultiHash's hash table automatically grows and
         shrinks as needed, and the constructor doesn't take a prime
         number.
 
-    \i  QDict supportes case-insensitive lookups by passing false as
+    \o  QDict supportes case-insensitive lookups by passing false as
         second argument to the constructor. This feature has no
         equivalent in QMultiHash. Instead, call QString::toLower()
         before you insert or lookup a key in the hash.
 
-    \i  QDict::size() and QMultiHash::size() have different semantics.
+    \o  QDict::size() and QMultiHash::size() have different semantics.
         The former returns the number of buckets in the container, whereas
         the latter returns the number of \e items in the container.
 
-    \i  If there are multiple items with the same key,
+    \o  If there are multiple items with the same key,
         QDict::remove() removes only the most recently inserted item,
         whereas QMultiHash::remove() removes all items that share a
         particular key. To remove only the most recently inserted item,
         call QMultiHash::take().
 
-    \i  QDict has only one [] operator (QDict::operator[]()),
+    \o  QDict has only one [] operator (QDict::operator[]()),
         providing const access to an item's value. QMultiHash also
         has a non-const overload that can be used on the left side of
         the assignment operator. If you use the [] operator on a
@@ -817,35 +870,35 @@
     out for if you want to call \c delete yourself.
 
     \table
-    \header \i QDict idiom \i QMultiHash idiom
+    \header \o QDict idiom \o QMultiHash idiom
     \row
-        \i
+        \o
         \code
         dict.replace(key, value);
         \endcode
-        \i
+        \o
         \code
         delete hash.take(key);
         hash.insert(key, value);
         \endcode
     \row
-        \i
+        \o
         \code
         dict.remove(key, value);
         \endcode
-        \i
+        \o
         \code
         delete hash.take(key);
         \endcode
     \row
-        \i
+        \o
         \code
         dict.clear();
         \endcode
 
         (also called from QDict's destructor)
 
-        \i
+        \o
         \code
         while (!hash.isEmpty()) {
             T *value = *hash.begin();
@@ -880,15 +933,15 @@
     summarizes the API differences:
 
     \table
-    \header \i QDictIterator functions \i Qt 4 equivalent
-    \row \i QDictIterator::count() \i QHash::count() or QHash::size()
-    \row \i QDictIterator::current() \i QHashIterator::value()
-    \row \i QDictIterator::currentKey() \i QHashIterator::key()
-    \row \i QDictIterator::isEmpty() \i QHash::isEmpty()
-    \row \i QDictIterator::toFirst() \i QHashIterator::toFront()
-    \row \i QDictIterator::operator()() \i QHashIterator::value()
-    \row \i QDictIterator::operator*() \i QHashIterator::value()
-    \row \i QDictIterator::operator++() \i See remark below
+    \header \o QDictIterator functions \o Qt 4 equivalent
+    \row \o QDictIterator::count() \o QHash::count() or QHash::size()
+    \row \o QDictIterator::current() \o QHashIterator::value()
+    \row \o QDictIterator::currentKey() \o QHashIterator::key()
+    \row \o QDictIterator::isEmpty() \o QHash::isEmpty()
+    \row \o QDictIterator::toFirst() \o QHashIterator::toFront()
+    \row \o QDictIterator::operator()() \o QHashIterator::value()
+    \row \o QDictIterator::operator*() \o QHashIterator::value()
+    \row \o QDictIterator::operator++() \o See remark below
     \endtable
 
     Be aware that QHashIterator has a different way of iterating than
@@ -1001,47 +1054,47 @@
     removed in Qt 4.
 
     \table
-    \header \i Old function \i Qt 4 equivalent
-    \row \i Q3FileDialog::addFilter(const QString &) \i See remark below
-    \row \i Q3FileDialog::addLeftWidget(QWidget *) \i N/A
-    \row \i Q3FileDialog::addRightWidget(QWidget *) \i N/A
-    \row \i Q3FileDialog::addToolButton(QAbstractButton *, bool separator) \i N/A
-    \row \i Q3FileDialog::addWidgets(QLabel *, QWidget *, QPushButton *) \i N/A
-    \row \i Q3FileDialog::dir() \i QFileDialog::directory()
-    \row \i Q3FileDialog::dirPath() \i QFileDialog::directory().path()
-    \row \i Q3FileDialog::iconProvider() \i N/A
-    \row \i Q3FileDialog::isContentsPreviewEnabled() \i N/A
-    \row \i Q3FileDialog::isInfoPreviewEnabled() \i N/A
-    \row \i Q3FileDialog::previewMode() \i N/A
-    \row \i Q3FileDialog::rereadDir() \i N/A
-    \row \i Q3FileDialog::resortDir() \i N/A
-    \row \i Q3FileDialog::selectAll(bool) \i N/A
-    \row \i Q3FileDialog::setContentsPreview(QWidget *, Q3FilePreview *) \i N/A
-    \row \i Q3FileDialog::setContentsPreviewEnabled(bool) \i N/A
-    \row \i Q3FileDialog::setDir(const QString &) \i QFileDialog::setDirectory(const QString &)
-    \row \i Q3FileDialog::setFilters(const char **) \i Q3FileDialog::setFilters(const QStringList &)
-    \row \i Q3FileDialog::setIconProvider(Q3FileIconProvider *) \i N/A
-    \row \i Q3FileDialog::setInfoPreview(QWidget *, Q3FilePreview *) \i N/A
-    \row \i Q3FileDialog::setInfoPreviewEnabled(bool) \i N/A
-    \row \i Q3FileDialog::setPreviewMode(PreviewMode) \i N/A
-    \row \i Q3FileDialog::setSelectedFilter(const QString &) \i QFileDialog::selectFilter(const QString &)
-    \row \i Q3FileDialog::setSelectedFilter(int) \i See remark below
-    \row \i Q3FileDialog::setSelection(const QString &) \i QFileDialog::selectFile(const QString &)
-    \row \i Q3FileDialog::setShowHiddenFiles(bool) \i showHidden()
-    \row \i Q3FileDialog::setUrl(const QUrlOperator &) \i N/A
-    \row \i Q3FileDialog::showHiddenFiles() \i N/A
-    \row \i Q3FileDialog::url() \i QUrl::fromLocalFile(QFileDialog::directory())
-    \header \i Old signals \i Qt 4 equivalent
-    \row \i Q3FileDialog::fileHighlighted(const QString &) \i N/A
-    \row \i Q3FileDialog::fileSelected(const QString &) \i QFileDialog::filesSelected(const QStringList &)
-    \row \i Q3FileDialog::dirEntered(const QString &) \i N/A
-    \row \i Q3FileDialog::filterSelected(const QString &) \i N/A
+    \header \o Old function \o Qt 4 equivalent
+    \row \o Q3FileDialog::addFilter(const QString &) \o See remark below
+    \row \o Q3FileDialog::addLeftWidget(QWidget *) \o N/A
+    \row \o Q3FileDialog::addRightWidget(QWidget *) \o N/A
+    \row \o Q3FileDialog::addToolButton(QAbstractButton *, bool separator) \o N/A
+    \row \o Q3FileDialog::addWidgets(QLabel *, QWidget *, QPushButton *) \o N/A
+    \row \o Q3FileDialog::dir() \o QFileDialog::directory()
+    \row \o Q3FileDialog::dirPath() \o QFileDialog::directory().path()
+    \row \o Q3FileDialog::iconProvider() \o N/A
+    \row \o Q3FileDialog::isContentsPreviewEnabled() \o N/A
+    \row \o Q3FileDialog::isInfoPreviewEnabled() \o N/A
+    \row \o Q3FileDialog::previewMode() \o N/A
+    \row \o Q3FileDialog::rereadDir() \o N/A
+    \row \o Q3FileDialog::resortDir() \o N/A
+    \row \o Q3FileDialog::selectAll(bool) \o N/A
+    \row \o Q3FileDialog::setContentsPreview(QWidget *, Q3FilePreview *) \o N/A
+    \row \o Q3FileDialog::setContentsPreviewEnabled(bool) \o N/A
+    \row \o Q3FileDialog::setDir(const QString &) \o QFileDialog::setDirectory(const QString &)
+    \row \o Q3FileDialog::setFilters(const char **) \o Q3FileDialog::setFilters(const QStringList &)
+    \row \o Q3FileDialog::setIconProvider(Q3FileIconProvider *) \o N/A
+    \row \o Q3FileDialog::setInfoPreview(QWidget *, Q3FilePreview *) \o N/A
+    \row \o Q3FileDialog::setInfoPreviewEnabled(bool) \o N/A
+    \row \o Q3FileDialog::setPreviewMode(PreviewMode) \o N/A
+    \row \o Q3FileDialog::setSelectedFilter(const QString &) \o QFileDialog::selectFilter(const QString &)
+    \row \o Q3FileDialog::setSelectedFilter(int) \o See remark below
+    \row \o Q3FileDialog::setSelection(const QString &) \o QFileDialog::selectFile(const QString &)
+    \row \o Q3FileDialog::setShowHiddenFiles(bool) \o showHidden()
+    \row \o Q3FileDialog::setUrl(const QUrlOperator &) \o N/A
+    \row \o Q3FileDialog::showHiddenFiles() \o N/A
+    \row \o Q3FileDialog::url() \o QUrl::fromLocalFile(QFileDialog::directory())
+    \header \o Old signals \o Qt 4 equivalent
+    \row \o Q3FileDialog::fileHighlighted(const QString &) \o N/A
+    \row \o Q3FileDialog::fileSelected(const QString &) \o QFileDialog::filesSelected(const QStringList &)
+    \row \o Q3FileDialog::dirEntered(const QString &) \o N/A
+    \row \o Q3FileDialog::filterSelected(const QString &) \o N/A
     \endtable
 
     Remarks:
 
     \list 1
-    \i  The Q3FileDialog::addFilter(const QString &) function has no
+    \o  The Q3FileDialog::addFilter(const QString &) function has no
         direct equivalent in the new QFileDialog. Use
         QFileDialog::setFilters() instead.
 
@@ -1053,7 +1106,7 @@
         fileDialog->setFilters(filters);
         \endcode
 
-    \i  The Q3FileDialog::setSelectedFilter(int) overload has no direct
+    \o  The Q3FileDialog::setSelectedFilter(int) overload has no direct
         equivalent in the new QFileDialog. Use
         QFileDialog::selectFilter(const QString &) instead.
 
@@ -1074,9 +1127,9 @@
     Here's an overview of the changes:
 
     \list
-    \i  QFrame no longer has a \c margin property (which wasn't
+    \o  QFrame no longer has a \c margin property (which wasn't
         honored by Qt's layout managers anyway).
-    \i  QFrame used to have drawFrame(QPainter *),
+    \o  QFrame used to have drawFrame(QPainter *),
         drawContents(QPainter *), and frameChanged() virtual
         functions. These are now gone. If you want to change the way
         QFrame paints itself, reimplement QFrame:paintEvent().
@@ -1117,10 +1170,10 @@
     reason, the following members have been removed:
 
     \list
-    \i Q3GroupBox::setColumns(), Q3GroupBox::columns()
-    \i Q3GroupBox::setOrientation(), Q3GroupBox::orientation()
-    \i Q3GroupBox::setInsideMargin(), Q3GroupBox::insideMargin()
-    \i Q3GroupBox::addSpace()
+    \o Q3GroupBox::setColumns(), Q3GroupBox::columns()
+    \o Q3GroupBox::setOrientation(), Q3GroupBox::orientation()
+    \o Q3GroupBox::setInsideMargin(), Q3GroupBox::insideMargin()
+    \o Q3GroupBox::addSpace()
     \endlist
 
     Naturally, the \c columns and \c orientation properties have also
@@ -1198,10 +1251,10 @@
     four classes that you can use:
 
     \list
-    \i QMultiHash<int, T *>
-    \i QMultiHash<int, T *>
-    \i QHash<int, T>
-    \i QHash<int, T>
+    \o QMultiHash<int, T *>
+    \o QMultiHash<int, T *>
+    \o QHash<int, T>
+    \o QHash<int, T>
     \endlist
 
     For details, read the \l{#qdict.section}{section on QDict<T>},
@@ -1259,24 +1312,24 @@
     two classes.
 
     \table
-    \row \i QMemArray::assign(const QMemArray<T> &) \i QVector::operator=()
-    \row \i QMemArray::assign(const T *, uint) \i See remark below
-    \row \i QMemArray::duplicate(const QMemArray &) \i QVector::operator=()
-    \row \i QMemArray::duplicate(const T *, uint) \i See remark below
-    \row \i QMemArray::setRawData(const T *, uint) \i N/A
-    \row \i QMemArray::resetRawData(const T *, uint) \i N/A
-    \row \i QMemArray::find(const T &, uint) \i QVector::indexOf(const T &, int)
-    \row \i QMemArray::contains(const T &) \i QVector::count(const T &)
-    \row \i QMemArray::sort() \i \l qHeapSort()
-    \row \i QMemArray::bsearch(const T &d) \i \l qBinaryFind()
-    \row \i QMemArray::at(uint) \i QVector::operator[]()
-    \row \i QMemArray::operator const T *() \i QVector::constData()
+    \row \o QMemArray::assign(const QMemArray<T> &) \o QVector::operator=()
+    \row \o QMemArray::assign(const T *, uint) \o See remark below
+    \row \o QMemArray::duplicate(const QMemArray &) \o QVector::operator=()
+    \row \o QMemArray::duplicate(const T *, uint) \o See remark below
+    \row \o QMemArray::setRawData(const T *, uint) \o N/A
+    \row \o QMemArray::resetRawData(const T *, uint) \o N/A
+    \row \o QMemArray::find(const T &, uint) \o QVector::indexOf(const T &, int)
+    \row \o QMemArray::contains(const T &) \o QVector::count(const T &)
+    \row \o QMemArray::sort() \o \l qHeapSort()
+    \row \o QMemArray::bsearch(const T &d) \o \l qBinaryFind()
+    \row \o QMemArray::at(uint) \o QVector::operator[]()
+    \row \o QMemArray::operator const T *() \o QVector::constData()
     \endtable
 
     Remarks:
 
     \list 1
-    \i  QMemArray::assign(const T *, uint) and QMemArray::duplicate(const T *, uint)
+    \o  QMemArray::assign(const T *, uint) and QMemArray::duplicate(const T *, uint)
         can be replaced by QVector::resize() and qCopy().
 
         \oldcode
@@ -1290,7 +1343,7 @@
         qCopy(data, data + size, vector.begin());
         \endcode
 
-    \i  QMemArray is an explicitly shared class, whereas QVector is
+    \o  QMemArray is an explicitly shared class, whereas QVector is
         implicitly shared. See \l{Explicit Sharing} for more
         information.
     \endlist
@@ -1431,10 +1484,10 @@
     four classes that you can use:
 
     \list
-    \i QMultiHash<void *, T *>
-    \i QMultiHash<void *, T *>
-    \i QHash<void *, T>
-    \i QHash<void *, T>
+    \o QMultiHash<void *, T *>
+    \o QMultiHash<void *, T *>
+    \o QHash<void *, T>
+    \o QHash<void *, T>
     \endlist
 
     (You can naturally use other types than \c{void *} for the key
@@ -1461,27 +1514,27 @@
     QPtrList<T> and QList<T *>:
 
     \table
-    \header \i QPtrList function \i QList equivalent
-    \row \i QPtrList::contains(const T *) \i QList::count(T *)
-    \row \i QPtrList::containsRef(const T *) \i QList::count(T *)
-    \row \i QPtrList::find(const T *) \i See remark below
-    \row \i QPtrList::findRef(const T *) \i See remark below
-    \row \i QPtrList::getFirst() \i QList::first()
-    \row \i QPtrList::getLast() \i QList::last()
-    \row \i QPtrList::inSort(const T *) \i N/A
-    \row \i QPtrList::remove(const T *) \i QList::removeAll(T *)
-    \row \i QPtrList::remove(uint) \i QList::removeAt(int)
-    \row \i QPtrList::removeNode(QLNode *) \i N/A
-    \row \i QPtrList::removeRef(const T *) \i QList::removeAll(T *)
-    \row \i QPtrList::sort() \i See remark below
-    \row \i QPtrList::takeNode(QLNode *) \i N/A
-    \row \i QPtrList::toVector(QGVector *) \i See remark below
+    \header \o QPtrList function \o QList equivalent
+    \row \o QPtrList::contains(const T *) \o QList::count(T *)
+    \row \o QPtrList::containsRef(const T *) \o QList::count(T *)
+    \row \o QPtrList::find(const T *) \o See remark below
+    \row \o QPtrList::findRef(const T *) \o See remark below
+    \row \o QPtrList::getFirst() \o QList::first()
+    \row \o QPtrList::getLast() \o QList::last()
+    \row \o QPtrList::inSort(const T *) \o N/A
+    \row \o QPtrList::remove(const T *) \o QList::removeAll(T *)
+    \row \o QPtrList::remove(uint) \o QList::removeAt(int)
+    \row \o QPtrList::removeNode(QLNode *) \o N/A
+    \row \o QPtrList::removeRef(const T *) \o QList::removeAll(T *)
+    \row \o QPtrList::sort() \o See remark below
+    \row \o QPtrList::takeNode(QLNode *) \o N/A
+    \row \o QPtrList::toVector(QGVector *) \o See remark below
     \endtable
 
     Remarks:
 
     \list 1
-    \i  QPtrList::toVector(QGVector *) can be replaced by
+    \o  QPtrList::toVector(QGVector *) can be replaced by
         QVector::resize() and qCopy().
 
         \oldcode
@@ -1497,15 +1550,15 @@
         qCopy(list.begin(), list.end(), vector.begin());
         \endcode
 
-    \i  QPtrList::sort() relied on the virtual comparedItems() to
+    \o  QPtrList::sort() relied on the virtual comparedItems() to
         sort items. In Qt 4, you can use qHeapSort() instead and pass
         your "compare item" function as an argument.
 
-    \i  QPtrList::find(const T *) returns an iterator, whereas
+    \o  QPtrList::find(const T *) returns an iterator, whereas
         QList::indexOf(T *) returns an index. To convert an index
         into an iterator, add the index to QList::begin().
 
-    \i  QPtrList::removeFirst() and QPtrList::removeLast() return a \c
+    \o  QPtrList::removeFirst() and QPtrList::removeLast() return a \c
         bool that indicates whether the element was removed or not.
         The corresponding QList functions return \c void. You can
         achieve the same result by calling QList::isEmpty() before
@@ -1525,63 +1578,63 @@
     out for if you want to call \c delete yourself.
 
     \table
-    \header \i QPtrList idiom \i QList idiom
+    \header \o QPtrList idiom \o QList idiom
     \row
-        \i
+        \o
         \code
         list.replace(index, value);
         \endcode
-        \i
+        \o
         \code
         delete list[index];
         list[index] = value;
         \endcode
     \row
-        \i
+        \o
         \code
         list.removeFirst();
         \endcode
-        \i
+        \o
         \code
         delete list.takeFirst();
         \endcode
     \row
-        \i
+        \o
         \code
         list.removeLast();
         \endcode
-        \i
+        \o
         \code
         delete list.takeLast();
         \endcode
     \row
-        \i
+        \o
         \code
         list.remove(index);
         \endcode
-        \i
+        \o
         \code
         delete list.take(index);
         \endcode
     \row
-        \i
+        \o
         \code
         list.remove(value);
         \endcode
-        \i
+        \o
         \code
         int i = list.indexOf(value);
         if (i != -1)
             delete list.takeAt(i);
         \endcode
     \row
-        \i
+        \o
         \code
         list.remove();
         \endcode
         (removes the current item)
 
-        \i
+        \o
         \code
         QListMutableIterator<T *> i;
         ...
@@ -1589,14 +1642,14 @@
         i.remove();
         \endcode
     \row
-        \i
+        \o
         \code
         list.clear();
         \endcode
 
         (also called from QPtrList's destructor)
 
-        \i
+        \o
         \code
         while (!list.isEmpty())
             delete list.takeFirst();
@@ -1627,18 +1680,18 @@
     summarizes the API differences:
 
     \table
-    \header \i QPtrList function \i QListIterator equivalent
-    \row \i QPtrList::at() \i N/A
-    \row \i QPtrList::current() \i QListIterator::value()
-    \row \i QPtrList::currentNode() \i N/A
-    \row \i QPtrList::findNext(const T *) \i QListIterator::findNext(const T *)
-    \row \i QPtrList::findNextRef(const T *) \i QListIterator::findNext(const T *)
-    \row \i QPtrList::first() \i QPtrList::toFront()
-    \row \i QPtrList::last() \i QPtrList::toBack()
-    \row \i QPtrList::next() \i QPtrList::next()
-    \row \i QPtrList::prev() \i QPtrList::previous()
-    \row \i QPtrList::remove() \i QListMutableIterator::remove()
-    \row \i QPtrList::take() \i QListMutableIterator::remove()
+    \header \o QPtrList function \o QListIterator equivalent
+    \row \o QPtrList::at() \o N/A
+    \row \o QPtrList::current() \o QListIterator::value()
+    \row \o QPtrList::currentNode() \o N/A
+    \row \o QPtrList::findNext(const T *) \o QListIterator::findNext(const T *)
+    \row \o QPtrList::findNextRef(const T *) \o QListIterator::findNext(const T *)
+    \row \o QPtrList::first() \o QPtrList::toFront()
+    \row \o QPtrList::last() \o QPtrList::toBack()
+    \row \o QPtrList::next() \o QPtrList::next()
+    \row \o QPtrList::prev() \o QPtrList::previous()
+    \row \o QPtrList::remove() \o QListMutableIterator::remove()
+    \row \o QPtrList::take() \o QListMutableIterator::remove()
     \endtable
 
     Be aware that QListIterator has a different way of iterating than
@@ -1672,16 +1725,16 @@
     you don't). The following table summarizes the API differences:
 
     \table
-    \header \i QPtrListIterator function \i Qt 4 equivalent
-    \row \i QPtrListIterator::atFirst() \i !QListIterator::hasPrevious() (notice the \c{!})
-    \row \i QPtrListIterator::atLast() \i !QListIterator::hasNext() (notice the \c{!})
-    \row \i QPtrListIterator::count() \i QList::count() or QList::size()
-    \row \i QPtrListIterator::current() \i QListIterator::value()
-    \row \i QPtrListIterator::isEmpty() \i QList::isEmpty()
-    \row \i QPtrListIterator::toFirst() \i QListIterator::toFront()
-    \row \i QPtrListIterator::toLast() \i QListIterator::toBack()
-    \row \i QPtrListIterator::operator() \i QListIterator::value()
-    \row \i QPtrListIterator::operator*() \i QListIterator::value()
+    \header \o QPtrListIterator function \o Qt 4 equivalent
+    \row \o QPtrListIterator::atFirst() \o !QListIterator::hasPrevious() (notice the \c{!})
+    \row \o QPtrListIterator::atLast() \o !QListIterator::hasNext() (notice the \c{!})
+    \row \o QPtrListIterator::count() \o QList::count() or QList::size()
+    \row \o QPtrListIterator::current() \o QListIterator::value()
+    \row \o QPtrListIterator::isEmpty() \o QList::isEmpty()
+    \row \o QPtrListIterator::toFirst() \o QListIterator::toFront()
+    \row \o QPtrListIterator::toLast() \o QListIterator::toBack()
+    \row \o QPtrListIterator::operator() \o QListIterator::value()
+    \row \o QPtrListIterator::operator*() \o QListIterator::value()
     \endtable
 
     Again, be aware that QListIterator has a different way of
@@ -1721,12 +1774,12 @@
     QPtrQueue<T> and QQueue<T *>:
 
     \table
-    \header \i QPtrQueue function \i QQueue equivalent
-    \row \i QPtrQueue::autoDelete() \i See discussion below
-    \row \i QPtrQueue::count() \i QQueue::count() or QQueue::size() (equivalent)
-    \row \i QPtrQueue::current() \i QQueue::head()
-    \row \i QPtrQueue::remove() \i QQueue::dequeue()
-    \row \i QPtrQueue::setAutoDelete() \i See discussion below
+    \header \o QPtrQueue function \o QQueue equivalent
+    \row \o QPtrQueue::autoDelete() \o See discussion below
+    \row \o QPtrQueue::count() \o QQueue::count() or QQueue::size() (equivalent)
+    \row \o QPtrQueue::current() \o QQueue::head()
+    \row \o QPtrQueue::remove() \o QQueue::dequeue()
+    \row \o QPtrQueue::setAutoDelete() \o See discussion below
     \endtable
 
     If you use QPtrQueue's auto-delete feature (by calling
@@ -1739,34 +1792,34 @@
     the Qt 4 containers don't offer that feature.)
 
     \table
-    \header \i QPtrQueue idiom \i QQueue idiom
+    \header \o QPtrQueue idiom \o QQueue idiom
     \row
-        \i
+        \o
         \code
         queue.dequeue();
         \endcode
-        \i
+        \o
         \code
         delete queue.dequeue();
         \endcode
     \row
-        \i
+        \o
         \code
         queue.remove();
         \endcode
-        \i
+        \o
         \code
         delete queue.dequeue();
         \endcode
     \row
-        \i
+        \o
         \code
         queue.clear();
         \endcode
 
         (also called from QPtrQueue's destructor)
 
-        \i
+        \o
         \code
         while (!queue.isEmpty())
             delete queue.dequeue();
@@ -1793,12 +1846,12 @@
     QPtrStack<T> and QStack<T *>:
 
     \table
-    \header \i QPtrStack function \i QStack equivalent
-    \row \i QPtrStack::autoDelete() \i See discussion below
-    \row \i QPtrStack::count() \i QStack::count() or QStack::size() (equivalent)
-    \row \i QPtrStack::current() \i QStack::top()
-    \row \i QPtrStack::remove() \i QStack::pop()
-    \row \i QPtrStack::setAutoDelete() \i See discussion below
+    \header \o QPtrStack function \o QStack equivalent
+    \row \o QPtrStack::autoDelete() \o See discussion below
+    \row \o QPtrStack::count() \o QStack::count() or QStack::size() (equivalent)
+    \row \o QPtrStack::current() \o QStack::top()
+    \row \o QPtrStack::remove() \o QStack::pop()
+    \row \o QPtrStack::setAutoDelete() \o See discussion below
     \endtable
 
     If you use QPtrStack's auto-delete feature (by calling
@@ -1811,34 +1864,34 @@
     the Qt 4 containers don't offer that feature.)
 
     \table
-    \header \i QPtrStack idiom \i QStack idiom
+    \header \o QPtrStack idiom \o QStack idiom
     \row
-        \i
+        \o
         \code
         stack.pop();
         \endcode
-        \i
+        \o
         \code
         delete stack.pop();
         \endcode
     \row
-        \i
+        \o
         \code
         stack.remove();
         \endcode
-        \i
+        \o
         \code
         delete stack.pop();
         \endcode
     \row
-        \i
+        \o
         \code
         stack.clear();
         \endcode
 
         (also called from QPtrStack's destructor)
 
-        \i
+        \o
         \code
         while (!stack.isEmpty())
             delete stack.pop();
@@ -1872,37 +1925,37 @@
     two classes:
 
     \table
-    \header \i QPtrVector function \i QVector equivalent
-    \row \i QPtrVector::autoDelete() \i See discussion below
-    \row \i QPtrVector::bsearch(const T *) \i qBinaryFind()
-    \row \i QPtrVector::contains(const T *) \i QVector::count(T *)
-    \row \i QPtrVector::containsRef(const T *) \i QVector::count(T *)
-    \row \i QPtrVector::count() \i See remark below
-    \row \i QPtrVector::insert(uint, T *) \i See remark below
-    \row \i QPtrVector::isNull() \i N/A
-    \row \i QPtrVector::remove(uint) \i See remark below
-    \row \i QPtrVector::setAutoDelete() \i See discussion below
-    \row \i QPtrVector::sort() \i qHeapSort()
-    \row \i QPtrVector::take(uint) \i See remark below
-    \row \i QPtrVector::toList(QGList *) \i QList::QList(const QVector &)
+    \header \o QPtrVector function \o QVector equivalent
+    \row \o QPtrVector::autoDelete() \o See discussion below
+    \row \o QPtrVector::bsearch(const T *) \o qBinaryFind()
+    \row \o QPtrVector::contains(const T *) \o QVector::count(T *)
+    \row \o QPtrVector::containsRef(const T *) \o QVector::count(T *)
+    \row \o QPtrVector::count() \o See remark below
+    \row \o QPtrVector::insert(uint, T *) \o See remark below
+    \row \o QPtrVector::isNull() \o N/A
+    \row \o QPtrVector::remove(uint) \o See remark below
+    \row \o QPtrVector::setAutoDelete() \o See discussion below
+    \row \o QPtrVector::sort() \o qHeapSort()
+    \row \o QPtrVector::take(uint) \o See remark below
+    \row \o QPtrVector::toList(QGList *) \o QList::QList(const QVector &)
     \endtable
 
     Remarks:
 
     \list 1
-    \i  QPtrVector::insert(uint, T *) sets an item to store a certain
+    \o  QPtrVector::insert(uint, T *) sets an item to store a certain
         pointer value. This is \e not the same as QVector::insert(int, T *),
         which creates space for the item by moving following items by
         one position. Use \c{vect[i] = ptr} to set a QVector item to
         a particular value.
-    \i  QPtrVector::remove(uint) sets an item to be 0. This is \e not
+    \o  QPtrVector::remove(uint) sets an item to be 0. This is \e not
         the same as QVector::removeAt(int), which entirely erases the
         item, reducing the size of the vector. Use \c{vect[i] = 0} to
         set a QVector item to 0.
-    \i  Likewise, QPtrVector::take(uint) sets an item to be 0 and
+    \o  Likewise, QPtrVector::take(uint) sets an item to be 0 and
         returns the previous value of the item. Again, this is easy to
         achieve using QVector::operator[]().
-    \i  QPtrVector::count() returns the number of non-null items in
+    \o  QPtrVector::count() returns the number of non-null items in
         the vector, whereas QVector::count() (like QVector::size())
         returns the number of items (null or non-null) in the vector.
         Fortunately, it's not too hard to simulate QPtrVector::count().
@@ -1925,43 +1978,43 @@
     out for if you want to call \c delete yourself.
 
     \table
-    \header \i QPtrVector idiom \i QVector idiom
+    \header \o QPtrVector idiom \o QVector idiom
     \row
-        \i
+        \o
         \code
         vect.insert(i, ptr);
         \endcode
-        \i
+        \o
         \code
         delete vect[i];
         vect[i] = ptr;
         \endcode
     \row
-        \i
+        \o
         \code
         vect.remove(i);
         \endcode
-        \i
+        \o
         \code
         delete vect[i];
         vect[i] = 0;
         \endcode
     \row
-        \i
+        \o
         \code
         T *ptr = vect.take(i);
         \endcode
-        \i
+        \o
         \code
         T *ptr = vect[i];
         vect[i] = 0;
         \endcode
     \row
-        \i
+        \o
         \code
         vect.resize(n)
         \endcode
-        \i
+        \o
         \code
         while (n > vect.size())
             vect.append(0);
@@ -1972,14 +2025,14 @@
         }
         \endcode
     \row
-        \i
+        \o
         \code
         vect.clear();
         \endcode
 
         (also called from QPtrVector's destructor)
 
-        \i
+        \o
         \code
         for (int i = 0; i < vect.size(); ++i)
             T *ptr = vect[i];
@@ -2059,10 +2112,10 @@
     The following changes have been made to QRegion in Qt 4:
 
     \list
-    \i  There is no longer any difference between a \e null region and
+    \o  There is no longer any difference between a \e null region and
         an \e empty region. Use isEmpty() in most places where you
         would have used a null QRegion.
-    \i  QRegion::rects() used to return a QMemArray<QRect>. It now returns
+    \o  QRegion::rects() used to return a QMemArray<QRect>. It now returns
         a QVector<QRect>.
     \endlist
 
@@ -2192,11 +2245,11 @@
     The enum \c{Type} was renamed to \c{ErrorType}, The values were renamed as well:
 
     \list
-    \i None - use NoError instead
-    \i Connection - use ConnectionError instead
-    \i Statement - use StatementError instead
-    \i Transaction - use TransactionError instead
-    \i Unknown - use UnknownError instead
+    \o None - use NoError instead
+    \o Connection - use ConnectionError instead
+    \o Statement - use StatementError instead
+    \o Transaction - use TransactionError instead
+    \o Unknown - use UnknownError instead
     \endlist
 
     \section1 QSqlFieldInfo
@@ -2268,17 +2321,17 @@
     Qt 4:
 
     \list 1
-    \i  The QString::QString(QChar) constructor performed implicit
+    \o  The QString::QString(QChar) constructor performed implicit
         conversion in Qt 3. Now, you will need a cast to convert a
         QChar to a QString.
 
-    \i  The QString::QString(const QByteArray &) constructor used to
+    \o  The QString::QString(const QByteArray &) constructor used to
         stop at the first '\\0' it encountered, for compatibility
         with Qt 1. This quirk has now been fixed; in Qt 4, the
         resulting QString always has the same length as the
         QByteArray that was passed to the constructor.
 
-    \i  The QString::null static constant has been deprecated in Qt
+    \o  The QString::null static constant has been deprecated in Qt
         4. For compatibility, Qt 4 provides a QString::null symbol
         that behaves more or less the same as the old constant. The
         new idiom is to write QString() instead of QString::null, or
@@ -2294,7 +2347,7 @@
                 do_something(QString());
         \endcode
 
-    \i  QString::at() returned a non-const reference, whereas the
+    \o  QString::at() returned a non-const reference, whereas the
         new QString::at() returns a const value. Code like
 
         \code
@@ -2307,7 +2360,7 @@
         str[0] = 'X';
         \endcode
 
-    \i  The QString::contains(\e x) function (where \e x is a
+    \o  The QString::contains(\e x) function (where \e x is a
         character or a string) has been renamed QString::count(\e x).
         In addition, there now exists a set of QString::contains()
         functions that returns a boolean value. Replace old calls to
@@ -2316,7 +2369,7 @@
         a character in the string or only care about whether the
         string contains that character or not.
 
-    \i  Many functions in QString had a \c bool parameter that
+    \o  Many functions in QString had a \c bool parameter that
         specified case sensitivity. In Qt 4, in the interest of code
         readability and maintainability, the \c bool parameters have
         been replaced by the Qt::CaseSensitivity enum, which can take
@@ -2330,7 +2383,7 @@
                 ...
         \endcode
 
-    \i  The QString::setExpand(uint, QChar) function, which already
+    \o  The QString::setExpand(uint, QChar) function, which already
         was obsolete in Qt 3, is no longer available. Use
         QString::operator[] instead.
 
@@ -2340,27 +2393,27 @@
             str[32] = '$';
         \endcode
 
-    \i  The \c QT_NO_ASCII_CAST and \c QT_NO_CAST_ASCII macros have
+    \o  The \c QT_NO_ASCII_CAST and \c QT_NO_CAST_ASCII macros have
         been renamed \c QT_NO_CAST_TO_ASCII and \c
         QT_NO_CAST_FROM_ASCII, respectively.
 
-    \i  QString::ascii() and QString::latin1() now
+    \o  QString::ascii() and QString::latin1() now
         return "" (the empty string) rather than 0 (the null
         pointer). The new behavior prevents crashes when interfacing
         with the standard C++ library.
 
-    \i  QString::utf8() and QString::local8Bit() used to return a
+    \o  QString::utf8() and QString::local8Bit() used to return a
         QByteArray. They now return a \c{const char *}, to be
         consistent with QString::ascii() and QString::latin1(). Call
         QString::toUtf8() or QString::toLocal8Bit() if you want a
         QByteArray.
 
-    \i  The QString::data() used to return the same as
+    \o  The QString::data() used to return the same as
         QString::ascii(). It now returns a pointer to the Unicode
         data stored in the QString object. Call QString::ascii() if
         you want the old behavior.
 
-    \i  QString::simpleText() has been renamed
+    \o  QString::simpleText() has been renamed
         QString::isSimpleText().
 
     \endlist
@@ -2467,16 +2520,16 @@
     require you to change your code:
 
     \list
-    \i Q3Url::Q3Url(const Q3Url &, const QString &, bool) can be
+    \o Q3Url::Q3Url(const Q3Url &, const QString &, bool) can be
        simulated by combining the URLs manually (using
        QString::operator+(), for example).
-    \i Q3Url::setEncodedPathAndQuery(const QString &) is replaced by
+    \o Q3Url::setEncodedPathAndQuery(const QString &) is replaced by
        QUrl::setPath() and QUrl::setEncodedQuery().
-    \i Q3Url::encodedPathAndQuery() is replaced by QUrl::path() and
+    \o Q3Url::encodedPathAndQuery() is replaced by QUrl::path() and
        QUrl::encodedQuery().
-    \i Q3Url::isLocalFile() can be simulated by checking that
+    \o Q3Url::isLocalFile() can be simulated by checking that
        QUrl::protocol() is "file".
-    \i Q3Url::toString(bool, bool) is replaced by
+    \o Q3Url::toString(bool, bool) is replaced by
        QUrl::toString(int), where the \c int parameter specifies a
        combination of \l{QUrl::FormattingOptions}{formatting
        options}.
@@ -2510,15 +2563,15 @@
     Here's a list of problem functions:
 
     \list
-    \i  QValueList(const std::list<T> &) doesn't exist in QList or
+    \o  QValueList(const std::list<T> &) doesn't exist in QList or
         QLinkedList. You can simulate it by calling
         \l{QLinkedList::append()}{append()} in a loop.
 
-    \i  QValueList::insert(iterator, size_type, const T& x) doesn't
+    \o  QValueList::insert(iterator, size_type, const T& x) doesn't
         exist in QList or QLinkedList. Call
         \l{QLinkedList::insert()}{insert()} repeatedly instead.
 
-    \i  QValueList::fromLast() doesn't exist in QList or QLinkedList. Use
+    \o  QValueList::fromLast() doesn't exist in QList or QLinkedList. Use
         QValueList::end() instead.
 
         \oldcode
@@ -2532,16 +2585,16 @@
         }
         \endcode
 
-    \i  QValueList::append() and QValueList::prepend() return an
+    \o  QValueList::append() and QValueList::prepend() return an
         iterator to the inserted item. QList's and QLinkedList's
         corresponding functions don't, but it's not a problem because
         QValueList::prepend() always returns begin() and append()
         always returns QValueList::end() - 1.
 
-    \i  QValueList::at(\e i) return an iterator to the item at index
+    \o  QValueList::at(\e i) return an iterator to the item at index
         \e i. This corresponds to QList::begin() + \e i.
 
-    \i  QValueList::contains(const T &) corresponds to
+    \o  QValueList::contains(const T &) corresponds to
         QList::count(const T &) and QLinkedList::count(const T &).
     \endlist
 
@@ -2556,14 +2609,14 @@
     into the following incompatibilities:
 
     \list
-    \i QValueVector(const std::vector<T> &) doesn't exist in QVector.
+    \o QValueVector(const std::vector<T> &) doesn't exist in QVector.
        You can simulate it by calling QVector::append()} in a loop.
-    \i QValueVector::resize(int, const T &) doesn't exist in QVector.
+    \o QValueVector::resize(int, const T &) doesn't exist in QVector.
        If you want the new items to be initialized with a particular
        value, use QVector::insert() instead.
-    \i QValueVector::at() on a non-const vector returns a non-const
+    \o QValueVector::at() on a non-const vector returns a non-const
        reference. This corresponds to QVector::operator[]().
-    \i Both QValueVector::at() functions have an \e ok parameter of
+    \o Both QValueVector::at() functions have an \e ok parameter of
        type \c{bool *} that is set to true if the index is within
        bounds. This functionality doesn't exist in QVector; instead,
        check the index against QVector::size() yourself.
@@ -2583,11 +2636,11 @@
     implications on QVariant as well:
 
     \list 1
-    \i The \c QCoreVariant::ColorGroup enum value is defined only
+    \o The \c QCoreVariant::ColorGroup enum value is defined only
        if \c QT_COMPAT is defined.
-    \i The \c QCoreVariant::IconSet enum value has been renamed
+    \o The \c QCoreVariant::IconSet enum value has been renamed
        \c QCoreVariant::Icon.
-    \i The \c QCoreVariant::CString enum value is now a synonym for
+    \o The \c QCoreVariant::CString enum value is now a synonym for
        \c QCoreVariant::ByteArray.
     \endlist
 
@@ -2612,115 +2665,115 @@
     handling functions obsolete:
 
     \list
-    \i QWidget::repaint(bool noErase) - the \c noErase boolean parameter is gone
-    \i QWidget::setBackgroundMode(BackgroundMode m)
-    \i QWidget::backgroundBrush() const
-    \i QWidget::setBackgroundPixmap(const QPixmap &pm)
-    \i QWidget::backgroundPixmap() const
-    \i QWidget::setBackgroundColor(const QColor &c)
-    \i QWidget::backgroundColor() const
-    \i QWidget::foregroundColor() const
-    \i QWidget::eraseColor() const
-    \i QWidget::setEraseColor(const QColor &c)
-    \i QWidget::erasePixmap() const
-    \i QWidget::setErasePixmap(const QPixmap &p)
-    \i QWidget::paletteForegroundColor()
-    \i QWidget::setPaletteForegroundColor(const QColor &c)
-    \i QWidget::paletteBackgroundColor()
-    \i QWidget::setPaletteBackgroundColor(const QColor &c)
-    \i QWidget::paletteBackgroundPixmap() const
-    \i QWidget::setPaletteBackgroundPixmap(const QPixmap &p)
-    \i QWidget::erase()
-    \i QWidget::erase(const QRect &r)
-    \i QWidget::setBackgroundOrigin( BackgroundOrigin )
-    \i QWidget::BackgroundOrigin backgroundOrigin() const
-    \i QWidget::backgroundOffset()
+    \o QWidget::repaint(bool noErase) - the \c noErase boolean parameter is gone
+    \o QWidget::setBackgroundMode(BackgroundMode m)
+    \o QWidget::backgroundBrush() const
+    \o QWidget::setBackgroundPixmap(const QPixmap &pm)
+    \o QWidget::backgroundPixmap() const
+    \o QWidget::setBackgroundColor(const QColor &c)
+    \o QWidget::backgroundColor() const
+    \o QWidget::foregroundColor() const
+    \o QWidget::eraseColor() const
+    \o QWidget::setEraseColor(const QColor &c)
+    \o QWidget::erasePixmap() const
+    \o QWidget::setErasePixmap(const QPixmap &p)
+    \o QWidget::paletteForegroundColor()
+    \o QWidget::setPaletteForegroundColor(const QColor &c)
+    \o QWidget::paletteBackgroundColor()
+    \o QWidget::setPaletteBackgroundColor(const QColor &c)
+    \o QWidget::paletteBackgroundPixmap() const
+    \o QWidget::setPaletteBackgroundPixmap(const QPixmap &p)
+    \o QWidget::erase()
+    \o QWidget::erase(const QRect &r)
+    \o QWidget::setBackgroundOrigin( BackgroundOrigin )
+    \o QWidget::BackgroundOrigin backgroundOrigin() const
+    \o QWidget::backgroundOffset()
     \endlist
 
     A widget now receives change events in its QWidget::changeEvent()
     handler. This makes the following virtual change handlers obsolete:
 
     \list
-    \i QWidget::styleChange - use QEvent::StyleChange
-    \i QWidget::enabledChange - use QEvent::EnabledChange
-    \i QWidget::paletteChange - use QEvent::PaletteChange
-    \i QWidget::fontChange - use QEvent::FontChange
-    \i QWidget::windowActivationChange - use QEvent::ActivationChange
-    \i QWidget::languageChange - use QEvent::LanguageChange
+    \o QWidget::styleChange - use QEvent::StyleChange
+    \o QWidget::enabledChange - use QEvent::EnabledChange
+    \o QWidget::paletteChange - use QEvent::PaletteChange
+    \o QWidget::fontChange - use QEvent::FontChange
+    \o QWidget::windowActivationChange - use QEvent::ActivationChange
+    \o QWidget::languageChange - use QEvent::LanguageChange
     \endlist
 
     The following functions were slots, but are no more:
     \list
-    \i QWidget::clearFocus()
-    \i QWidget::setMouseTracking()
-    \i QWidget::stackUnder(QWidget*)
-    \i QWidget::move(int x, int y)
-    \i QWidget::move(const QPoint &)
-    \i QWidget::resize(int w, int h)
-    \i QWidget::resize(const QSize &)
-    \i QWidget::setGeometry(int x, int y, int w, int h)
-    \i QWidget::setGeometry(const QRect &)
-    \i QWidget::adjustSize()
-    \i QWidget::update(int x, int y, int w, int h)
-    \i QWidget::update(const QRect&)
-    \i QWidget::repaint(bool erase)
-    \i QWidget::repaint(int x, int y, int w, int h, bool erase)
-    \i QWidget::repaint(const QRect &, bool erase)
-    \i QWidget::repaint(const QRegion &, bool erase)
-    \i QWidget::setCaption(const QString &)
-    \i QWidget::setIcon(const QPixmap &)
-    \i QWidget::setIconText(const QString &)
+    \o QWidget::clearFocus()
+    \o QWidget::setMouseTracking()
+    \o QWidget::stackUnder(QWidget*)
+    \o QWidget::move(int x, int y)
+    \o QWidget::move(const QPoint &)
+    \o QWidget::resize(int w, int h)
+    \o QWidget::resize(const QSize &)
+    \o QWidget::setGeometry(int x, int y, int w, int h)
+    \o QWidget::setGeometry(const QRect &)
+    \o QWidget::adjustSize()
+    \o QWidget::update(int x, int y, int w, int h)
+    \o QWidget::update(const QRect&)
+    \o QWidget::repaint(bool erase)
+    \o QWidget::repaint(int x, int y, int w, int h, bool erase)
+    \o QWidget::repaint(const QRect &, bool erase)
+    \o QWidget::repaint(const QRegion &, bool erase)
+    \o QWidget::setCaption(const QString &)
+    \o QWidget::setIcon(const QPixmap &)
+    \o QWidget::setIconText(const QString &)
     \endlist
 
     The following functions were incorrectly marked as virtual:
 
     \list
-    \i QWidget::close(bool alsoDelete)
-    \i QWidget::create(WId, bool, bool)
-    \i QWidget::destroy(bool)
-    \i QWidget::move(int x, int y)
-    \i QWidget::reparent(QWidget *parent, WFlags, const QPoint &, bool)
-    \i QWidget::resize(int w, int h)
-    \i QWidget::setAcceptDrops(bool on)
-    \i QWidget::setActiveWindow()
-    \i QWidget::setAutoMask(bool)
-    \i QWidget::setBackgroundColor(const QColor &)
-    \i QWidget::setBackgroundMode(BackgroundMode)
-    \i QWidget::setBackgroundOrigin(BackgroundOrigin)
-    \i QWidget::setBackgroundPixmap(const QPixmap &)
-    \i QWidget::setCaption(const QString &)
-    \i QWidget::setCursor(const QCursor &)
-    \i QWidget::setEnabled(bool)
-    \i QWidget::setEraseColor(const QColor &)
-    \i QWidget::setErasePixmap(const QPixmap &)
-    \i QWidget::setFocus()
-    \i QWidget::setFocusPolicy(FocusPolicy)
-    \i QWidget::setFocusProxy(QWidget *)
-    \i QWidget::setFont(const QFont &)
-    \i QWidget::setGeometry(const QRect &)
-    \i QWidget::setGeometry(int x, int y, int w, int h)
-    \i QWidget::setIcon(const QPixmap &)
-    \i QWidget::setIconText(const QString &)
-    \i QWidget::setKeyCompression(bool)
-    \i QWidget::setMask(const QBitmap &)
-    \i QWidget::setMask(const QRegion &)
-    \i QWidget::setMaximumSize(int maxw, int maxh)
-    \i QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f)
-    \i QWidget::setMinimumSize(int minw, int minh)
-    \i QWidget::setMouseTracking(bool enable)
-    \i QWidget::setPalette(const QPalette &)
-    \i QWidget::setPaletteBackgroundColor(const QColor &)
-    \i QWidget::setPaletteBackgroundPixmap(const QPixmap &)
-    \i QWidget::setSizeIncrement(int w, int h)
-    \i QWidget::setSizePolicy(QSizePolicy)
-    \i QWidget::setUpdatesEnabled(bool enable)
-    \i QWidget::setWFlags(WFlags)
-    \i QWidget::setWState(uint)
-    \i QWidget::showFullScreen()
-    \i QWidget::showMaximized()
-    \i QWidget::showMinimized()
-    \i QWidget::showNormal()
-    \i QWidget::unsetCursor()
+    \o QWidget::close(bool alsoDelete)
+    \o QWidget::create(WId, bool, bool)
+    \o QWidget::destroy(bool)
+    \o QWidget::move(int x, int y)
+    \o QWidget::reparent(QWidget *parent, WFlags, const QPoint &, bool)
+    \o QWidget::resize(int w, int h)
+    \o QWidget::setAcceptDrops(bool on)
+    \o QWidget::setActiveWindow()
+    \o QWidget::setAutoMask(bool)
+    \o QWidget::setBackgroundColor(const QColor &)
+    \o QWidget::setBackgroundMode(BackgroundMode)
+    \o QWidget::setBackgroundOrigin(BackgroundOrigin)
+    \o QWidget::setBackgroundPixmap(const QPixmap &)
+    \o QWidget::setCaption(const QString &)
+    \o QWidget::setCursor(const QCursor &)
+    \o QWidget::setEnabled(bool)
+    \o QWidget::setEraseColor(const QColor &)
+    \o QWidget::setErasePixmap(const QPixmap &)
+    \o QWidget::setFocus()
+    \o QWidget::setFocusPolicy(FocusPolicy)
+    \o QWidget::setFocusProxy(QWidget *)
+    \o QWidget::setFont(const QFont &)
+    \o QWidget::setGeometry(const QRect &)
+    \o QWidget::setGeometry(int x, int y, int w, int h)
+    \o QWidget::setIcon(const QPixmap &)
+    \o QWidget::setIconText(const QString &)
+    \o QWidget::setKeyCompression(bool)
+    \o QWidget::setMask(const QBitmap &)
+    \o QWidget::setMask(const QRegion &)
+    \o QWidget::setMaximumSize(int maxw, int maxh)
+    \o QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f)
+    \o QWidget::setMinimumSize(int minw, int minh)
+    \o QWidget::setMouseTracking(bool enable)
+    \o QWidget::setPalette(const QPalette &)
+    \o QWidget::setPaletteBackgroundColor(const QColor &)
+    \o QWidget::setPaletteBackgroundPixmap(const QPixmap &)
+    \o QWidget::setSizeIncrement(int w, int h)
+    \o QWidget::setSizePolicy(QSizePolicy)
+    \o QWidget::setUpdatesEnabled(bool enable)
+    \o QWidget::setWFlags(WFlags)
+    \o QWidget::setWState(uint)
+    \o QWidget::showFullScreen()
+    \o QWidget::showMaximized()
+    \o QWidget::showMinimized()
+    \o QWidget::showNormal()
+    \o QWidget::unsetCursor()
     \endlist
 
     \section1 QWidgetIntDict
