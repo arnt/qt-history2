@@ -578,11 +578,11 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-void QWidget::setMicroFocusHint(int, int, int, int, bool )
+void QWidget::setMicroFocusHint(int, int, int, int, bool, QFont * )
 {
 }
 
-void QWidget::setFontSys()
+void QWidget::setFontSys( QFont * )
 {
 }
 

@@ -518,7 +518,7 @@ protected:
     QFocusData	*focusData();
 
     virtual void setKeyCompression(bool);
-    virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE);
+    virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
 
 #if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);
@@ -529,7 +529,7 @@ private slots:
     void	 focusProxyDestroyed();
 
 private:
-    void	 setFontSys();
+    void	 setFontSys( QFont *f = 0 );
 #ifndef QT_NO_LAYOUT
     void 	 setLayout( QLayout *l );
 #endif

@@ -733,7 +733,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
   \sa microFocusHint()
 */
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f )
 {
 #ifndef NO_XIM
     if ( text ) {
@@ -752,6 +752,10 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 	    XSetICValues(xic, XNPreeditAttributes, preedit_attr, 0);
 	    XFree(preedit_attr);
 	}
+#if 0
+	if ( f )
+	    setFontSys( f );
+#endif
     }
 #endif
     if ( QRect( x, y, width, height ) != microFocusHint() )
@@ -802,7 +806,7 @@ XFontSet xic_fontset(void* qfs, int pt)
 #endif // NO_XIM
 
 
-void QWidget::setFontSys()
+void QWidget::setFontSys( QFont * )
 {
 #ifndef NO_XIM
 
