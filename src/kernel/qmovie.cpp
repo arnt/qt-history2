@@ -269,10 +269,11 @@ void QMoviePrivate::init(bool fully)
 
 void QMoviePrivate::flushBuffer()
 {
+    int used;
     int off = 0;
     while (off < buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
-	int used = decoder->decode(buffer + off, buf_usage-off);
-	if (used<=0) {
+	used = decoder->decode(buffer + off, buf_usage-off);
+	if (used <= 0) {
 	    if ( used < 0 ) {
 		error = 1;
 		emit dataStatus(QMovie::UnrecognizedFormat);
@@ -281,22 +282,26 @@ void QMoviePrivate::flushBuffer()
 	}
 	off += used;
     }
-    if(off) {
+    if (off) {
 	buf_usage -= off;
-	if(buf_usage)
+	if (buf_usage)
 	    memcpy(buffer, buffer + off, buf_usage);
     }
 
     // Some formats, like MNG can make stuff happen without any extra data.
-    int used = decoder->decode(buffer, 0);
-    if (used <= 0) {
-	if ( used < 0 ) {
-	    error = 1;
-	    emit dataStatus(QMovie::UnrecognizedFormat);
+    // Some formats, like MNG, can make stuff happen without any extra data.
+    // Only do this if the movie hasn't ended, however or we'll never get the end of loop signal.
+    if (!movie_ended) {
+	used = decoder->decode(buffer, 0);
+	if (used <= 0) {
+	    if ( used < 0 ) {
+		error = 1;
+		emit dataStatus(QMovie::UnrecognizedFormat);
+	    }
 	}
     }
 
-    if(error) 
+    if (error) 
 	frametimer->stop();
 }
 
@@ -532,6 +537,7 @@ void QMoviePrivate::pollForData()
 	    decoder = new QImageDecoder(this);
 	    source->reset();
 	    framenumber = 0;
+	    movie_ended = FALSE;
 	} else {
 	    delete decoder;
 	    decoder = 0;

@@ -48,10 +48,15 @@ public:
 
     bool openstream()
     {
+	// ### We should figure out how many loops an MNG has, but for now always assume infinite.
+	if (consumer)
+	    consumer->setLooping(0);
 	return TRUE;
     }
     bool closestream( )
     {
+	if (consumer)
+	    consumer->end();
 	return TRUE;
     }
     bool readdata( mng_ptr pBuf, mng_uint32 iBuflen, mng_uint32p pRead )
