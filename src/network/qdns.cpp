@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
 #include "qdns.h"
 
 #ifndef QT_NO_DNS
@@ -52,8 +53,7 @@
 #include "qtextstream.h"
 #include "qsocketdevice.h"
 #include "qcleanuphandler.h"
-
-#include "qplatformdefs.h"
+#include <limits.h>
 
 // Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
