@@ -220,6 +220,8 @@ bool QPicture::load( const QString &fileName, const char *format )
 bool QPicture::load( QIODevice *dev, const char *format )
 {
     if(format) {
+#if 0
+	// ### disabled for now due to xml dependency
 #ifndef QT_NO_SVG
 	if ( qstrcmp( format, "svg" ) == 0 ) {
 	    QSVGPaintEngine svg;
@@ -230,6 +232,7 @@ bool QPicture::load( QIODevice *dev, const char *format )
 	    d->brect = svg.boundingRect();
 	    return b;
 	}
+#endif
 #endif
 #ifndef QT_NO_PICTUREIO
 	QPictureIO io( dev, format );
