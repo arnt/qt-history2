@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#19 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#20 $
 **
 ** Definition of the QWorkspace class
 **
@@ -26,26 +26,12 @@
 #ifndef QWORKSPACE_H
 #define QWORKSPACE_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-//  It is very unlikely that this code will be available in the final
-//  Qt 2.0 release.  It will be available soon after then, but a number
-//  of important API changes still need to be made.
-//
-//  Thus, it is important that you do NOT use this code in an application
-//  unless you are willing for your application to be dependent on the
-//  snapshot releases of Qt.
-//
-
 #ifndef QT_H
-#include <qframe.h>
-#include <qlist.h>
-#include "qworkspacechild.h"
+#include <qwidget.h>
+#include <qwidgetlist.h>
 #endif // QT_H
 
-
+class QWorkspaceChild;
 class QWorkspaceData;
 class QShowEvent;
 
@@ -56,12 +42,8 @@ public:
     QWorkspace( QWidget *parent=0, const char *name=0 );
     ~QWorkspace();
 
-    void activateClient( QWidget* w);
-    void showClient( QWidget* w);
-    void maximizeClient( QWidget* w);
-    void minimizeClient( QWidget* w);
-    void normalizeClient( QWidget* w);
     QWidget* activeClient() const;
+    QWidgetList clientList() const;
 
 signals:
     void clientActivated( QWidget* w);
@@ -71,7 +53,7 @@ protected:
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
     void showEvent( QShowEvent *e );
-    
+
 private slots:
     void closeActive();
     void normalizeActive();
@@ -86,6 +68,12 @@ private:
     void hideMaxHandles();
     void layoutIcons();
     QWorkspaceData* d;
+    void activateClient( QWidget* w);
+    void showClient( QWidget* w);
+    void maximizeClient( QWidget* w);
+    void minimizeClient( QWidget* w);
+    void normalizeClient( QWidget* w);
+    friend QWorkspaceChild;
 
 
 };

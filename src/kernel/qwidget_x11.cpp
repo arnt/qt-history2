@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#405 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#406 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -516,10 +516,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
     }
-    
+
     QCustomEvent e( QEvent::Reparent, 0 );
     QApplication::sendEvent( this, &e );
-    
+
 }
 
 
@@ -1261,6 +1261,9 @@ void QWidget::showMinimized()
     //### if the window is mapped (i.e. not WState_Withdrawn) we have
     // to show it with initial state Iconic! Right now the function only
     // works for widgets that are already visible.
+
+    QCustomEvent e( QEvent::ShowMinimized, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 /*!
@@ -1304,8 +1307,10 @@ void QWidget::showMaximized()
 	sw -= frameGeometry().width() - width();
 	sh -= frameGeometry().height() - height();
 	setGeometry( 0, 0, sw, sh );
-	show();
     }
+    show();
+    QCustomEvent e( QEvent::ShowMaximized, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 /*!
@@ -1328,8 +1333,10 @@ void QWidget::showNormal()
 		setGeometry( r );
 	    }
 	}
-	show();
     }
+    show();
+    QCustomEvent e( QEvent::ShowNormal, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 

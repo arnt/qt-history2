@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#44 $
 **
 ** Implementation of QStatusBar class
 **
@@ -260,7 +260,8 @@ void QStatusBar::message( const QString &message, int ms )
 	d->timer = new QTimer( this );
 	connect( d->timer, SIGNAL(timeout()), this, SLOT(clear()) );
     }
-    d->timer->start( ms );
+    if ( ms > 0 )
+	d->timer->start( ms );
     hideOrShow();
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#235 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -378,10 +378,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-    
+
     QCustomEvent e( QEvent::Reparent, 0 );
     QApplication::sendEvent( this, &e );
-    
+
 }
 
 
@@ -803,6 +803,8 @@ void QWidget::showMinimized()
 {
     if ( testWFlags(WType_TopLevel) )
 	ShowWindow( winId(), SW_SHOWMINIMIZED );
+    QCustomEvent e( QEvent::ShowMinimized, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 bool QWidget::isMinimized() const
@@ -820,7 +822,10 @@ void QWidget::showMaximized()
 	    show();
 	    qt_sw_do_show_maximize = FALSE;
 	}
-    }
+    }  else
+	show();
+    QCustomEvent e( QEvent::ShowMaximized, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 void QWidget::showNormal()
@@ -830,7 +835,10 @@ void QWidget::showNormal()
 	    ShowWindow( winId(), SW_SHOWNORMAL );
 	else
 	    show();
-    }
+    } else
+	show();
+    QCustomEvent e( QEvent::ShowNormal, 0 );
+    QApplication::sendEvent( this, &e );
 }
 
 

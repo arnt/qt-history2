@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#580 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#581 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4669,42 +4669,7 @@ const char *QSmSocketReceiver::className() const
     return "QSmSocketReceiver";
 }
 
-QMetaObject *QSmSocketReceiver::metaObj = 0;
-
-
-static QMetaObjectInit init_QSmSocketReceiver(&QSmSocketReceiver::staticMetaObject);
-
-void QSmSocketReceiver::initMetaObject()
-{
-    if ( metaObj )
-	return;
-    if ( strcmp(QObject::className(), "QObject") != 0 )
-	badSuperclassWarning("QSmSocketReceiver","QObject");
-
-    staticMetaObject();
-}
-
-QString QSmSocketReceiver::tr(const char* s)
-{
-    return qApp->translate("QSmSocketReceiver",s);
-}
-
-void QSmSocketReceiver::staticMetaObject()
-{
-    if ( metaObj )
-	return;
-    QObject::staticMetaObject();
-
-    typedef void(QSmSocketReceiver::*m1_t0)(int);
-    m1_t0 v1_0 = &QSmSocketReceiver::socketActivated;
-    QMetaData *slot_tbl = QMetaObject::new_metadata(1);
-    slot_tbl[0].name = "socketActivated(int)";
-    slot_tbl[0].ptr = *((QMember*)&v1_0);
-    metaObj = QMetaObject::new_metaobject(
-	"QSmSocketReceiver", "QObject",
-	slot_tbl, 1,
-	0, 0 );
-}
+#include "qapplication_x11.moc"
 
 class QSessionManagerData
 {

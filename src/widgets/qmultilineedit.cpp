@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#87 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1010,7 +1010,6 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    emit returnPressed();
 	    break;
 	case Key_Tab:
-	    qDebug("tab");
 	    insert( e->text() );
 	    break;
 	default:

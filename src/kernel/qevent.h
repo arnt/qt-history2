@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#90 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#91 $
 **
 ** Definition of event classes
 **
@@ -68,6 +68,9 @@ public:
 	Close = 19,				// request to close widget
 	Quit = 20,				// request to quit application
 	Reparent = 21,				// widget has been reparented
+	ShowMaximized = 21,		       	// widget is shown maximized
+	ShowMinimized = 22,		       	// widget is shown minimized
+	ShowNormal = 23,		       		// widget is shown normal
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
