@@ -53,10 +53,10 @@ public:
     QStringList &replace(const QRegExp &rx, const QString &after);
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT QStringList grep(const QString &str, bool cs) const
+    inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
 	{ return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
     inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }
-    inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs)
+    inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs = true)
 	{ return replace(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
     inline QT_COMPAT QStringList &gres(const QRegExp &rx, const QString &after)
 	{ return replace(rx, after); }
