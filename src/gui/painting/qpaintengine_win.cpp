@@ -448,6 +448,12 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     // force a call to switch advanced mode on/off
     d->setNativeMatrix(QMatrix());
+
+    // GDI does not support drawing on pixmaps with alpha channel so we
+    // try to use GDI+
+    if (d->pdev->devType() == QInternal::Pixmap && static_cast<QPixmap*>(d->pdev)->hasAlphaChannel())
+        d->forceGdiplus = true;
+
     return true;
 }
 
