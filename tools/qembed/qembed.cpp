@@ -8,7 +8,7 @@
 ** Author  : Haavard Nord
 ** Created : 951017
 **
-** Copyright (C) 1995-2001 by Trolltech AS.  All rights reserved.
+** Copyright (C) 1995-2002 Trolltech AS.  All rights reserved.
 **
 ** Permission to use, copy, modify, and distribute this software and its
 ** documentation for any purpose and without fee is hereby granted, provided

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator message files
 **
 **
-** Copyright (C) 1998 by Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include <qfile.h>
