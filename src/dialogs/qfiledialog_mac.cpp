@@ -177,13 +177,22 @@ static void cleanup_navProcUPP()
     DisposeNavEventUPP(mac_navProcUPP);
     mac_navProcUPP = NULL;
 }
+static bool g_nav_blocking=TRUE;
 static QMAC_PASCAL void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg, 
 						     NavCBRecPtr p, NavCallBackUserData myd)
 { 
-    if(msg == kNavCBPopupMenuSelect) {
+    switch(msg) {
+    case kNavCBPopupMenuSelect: {
 	qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
 	NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
 	t->index = s->menuType;
+	break; }
+    case kNavCBStart:
+	g_nav_blocking=TRUE;
+	break;
+    case kNavCBUserAction:
+	g_nav_blocking=FALSE;
+	break;
     }
 }
 static const NavEventUPP make_navProcUPP()
@@ -225,6 +234,10 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
     static const int w = 450, h = 350;
     options.location.h = options.location.v = -1;
     if(parent) {
+	if(!parent->topLevelWidget()->isDesktop()) {
+	    options.modality = kWindowModalityWindowModal;
+	    options.parentWindow = (WindowRef)parent->handle();
+	}
 	parent = parent->topLevelWidget();
 	QString s = parent->caption();
 	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
@@ -276,6 +289,13 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	}
     }
     NavDialogRun(dlg);
+    if(options.modality == kWindowModalityWindowModal) { //simulate modality
+	QWidget modal_widg(NULL, __FILE__ "__modal_dlg");
+	qt_enter_modal(&modal_widg);
+	while(g_nav_blocking) 
+	    qApp->processEvents();
+	qt_leave_modal(&modal_widg);
+    }
     if (!(NavDialogGetUserAction(dlg) & 
 	  (kNavUserActionOpen | kNavUserActionChoose | kNavUserActionNewFolder))) {
 	NavDialogDispose(dlg);
@@ -351,7 +371,10 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
 							   caption.length());
     if(parent) {
-	options.parentWindow = (WindowRef)parent->handle();
+	if(!parent->topLevelWidget()->isDesktop()) {
+	    options.modality = kWindowModalityWindowModal;
+	    options.parentWindow = (WindowRef)parent->handle();
+	}
 	parent = parent->topLevelWidget();
 	QString s = parent->caption();
 	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
@@ -379,6 +402,13 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 	return retstr;
     }
     NavDialogRun(dlg);
+    if(options.modality == kWindowModalityWindowModal) { //simulate modality
+	QWidget modal_widg(NULL, __FILE__ "__modal_dlg");
+	qt_enter_modal(&modal_widg);
+	while(g_nav_blocking) 
+	    qApp->processEvents();
+	qt_leave_modal(&modal_widg);
+    }
     if(NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {
 	NavDialogDispose(dlg);
 	return retstr;

@@ -45,6 +45,7 @@
 #include "qtextcodec.h"
 #include <qcursor.h>
 #include <qtimer.h>
+#include <qstyle.h>
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -439,6 +440,19 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     }
     return 0;
 }
+static bool qt_mac_is_macsheet(QWidget *w)
+{
+#ifdef Q_WS_MACX
+    if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
+       w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
+       w->parentWidget()->topLevelWidget()->isVisible() && 
+       (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
+	return TRUE;
+#else
+    Q_UNUSED(w);
+#endif
+    return FALSE;
+}
 
 /*****************************************************************************
   QWidget member functions
@@ -540,7 +554,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	WindowGroupRef grp = NULL;
 	WindowAttributes wattr = kWindowNoAttributes;
 	if( testWFlags(WStyle_Customize) ) {
-	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
+	    if(qt_mac_is_macsheet(this)) {
+		wclass = kSheetWindowClass;
+	    } else if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kFloatingWindowClass;
 		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass )
@@ -617,6 +633,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	macWidgetChangedWindow();
 	setWinId(id);
 	ReshapeCustomWindow((WindowPtr)hd);
+#ifdef Q_WS_MACX
+	if(qt_mac_is_macsheet(this)) 
+	    QMacSavedPortInfo::setAlphaTransparancy(this, 0.85);
+#endif
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
@@ -1032,6 +1052,7 @@ void QWidget::setActiveWindow()
 	ActivateWindow((WindowPtr)tlw->handle(), true);
     else
 	SelectWindow((WindowPtr)tlw->handle());
+    SetUserFocusWindow((WindowPtr)tlw->handle());
 }
 
 void QWidget::update()
@@ -1088,14 +1109,16 @@ void QWidget::showWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-#if defined( Q_WS_MACX ) && 0 //handle transition
-	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal))
+#if defined( Q_WS_MACX ) //handle transition
+	if(qt_mac_is_macsheet(this)) 
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
 #endif
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
+	if(testWFlags(WShowModal))
+	    BeginAppModalStateForWindow((WindowRef)hd);
 	setActiveWindow();
     } else {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
@@ -1109,6 +1132,8 @@ void QWidget::hideWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
+	if(testWFlags(WShowModal))
+	    EndAppModalStateForWindow((WindowRef)hd);
 	ShowHide((WindowPtr)hd, 0);
 
 	if(isActiveWindow()) {
