@@ -196,7 +196,6 @@ public:
     void setUpdatePeriod(int ms);
 
     void setDoubleBuffering(bool y);
-    void setRedrawAreaDisplay(bool y);
 
 public slots:
     virtual void advance();
@@ -399,7 +398,7 @@ protected:
     void drawRects(QPainter & p);
 
     void draw(class QPainter &);
-    virtual void drawShape(class QPainter &) = 0;
+    virtual void drawShape(QPainter &) = 0;
 
 private:
     void scanPolygon(const QPointArray& pa, int winding, QPolygonalProcessor& process) const;
@@ -436,7 +435,7 @@ public:
     int rtti() const;
 
 protected:
-    void drawShape(class QPainter &);
+    void drawShape(QPainter &);
 
 private:
     bool collidesWith(   const QCanvasSprite*,
@@ -461,7 +460,7 @@ public:
 
 protected:
     void movingBy(int dx, int dy);
-    void drawShape(class QPainter &);
+    void drawShape(QPainter &);
 };
 
 class Q_EXPORT QCanvasEllipse : public QCanvasPolygonalItem
@@ -488,7 +487,7 @@ public:
     int rtti() const;
 
 protected:
-    void drawShape(class QPainter &);
+    void drawShape(QPainter &);
 
 private:
     bool collidesWith(   const QCanvasSprite*,

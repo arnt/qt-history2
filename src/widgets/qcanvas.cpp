@@ -1118,21 +1118,17 @@ void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
     }
 }
 
+/*!
+  Turns double-buffering on or off. The default is \e on.
+  Calling setDoubleBuffering(TRUE) will cause the
+  redrawn areas to flicker. This can be useful in
+  understanding the optimizations made by QCanvas, but unless the small
+  performance increases warrants the drastically reduced quality for the
+  user, double buffering should be left on.
+*/
 void QCanvas::setDoubleBuffering(bool y)
 {
     dblbuf = y;
-}
-
-/*!
-  For experimentation, calling setRedrawAreaDisplay(TRUE) will cause the
-  redrawn rectangles to be shown with a red outline. This can be useful in
-  understanding the optimizations made by QCanvas.
-
-  This should not be used for end-user applications.
-*/
-void QCanvas::setRedrawAreaDisplay(bool s)
-{
-    debug_redraw_areas = s;
 }
 
 
@@ -1761,7 +1757,7 @@ static bool collision_double_dispatch(
 /*!
   \fn bool QCanvasItem::collidesWith( const QCanvasItem* other ) const
 
-  Returns TRUE if the item will collide with the \a other item \i after they
+  Returns TRUE if the item will collide with the \a other item \e after they
   have moved by their current velocities.
 
   \sa collisions()
@@ -1886,7 +1882,7 @@ bool QCanvasText::collidesWith(  const QCanvasSprite* s,
   In exact mode, items returned have been accurately tested to collide
   with the item.
 
-  In inexact mode, the items returned are only \i near the item and
+  In inexact mode, the items returned are only \e near the item and
   should be tested using collidesWith() if they are interesting collision
   candidates. By using this, you can ignore some items for which collisions
   are not interesting.
@@ -2010,7 +2006,7 @@ void QCanvasItem::changeChunks()
 */
 
 /*!
-  Returns the bounding rectangle of pixels that the item \i will cover
+  Returns the bounding rectangle of pixels that the item \e will cover
   after advance(1) is called.
 
   \sa boundingRect()
@@ -2125,6 +2121,15 @@ QCanvasPixmap::~QCanvasPixmap()
   the set of images a sprite will use, indexed by the sprite's
   frame.  This allows sprites to simply have animated forms.
 */
+
+/*!
+  Constructs a null array.  You should call readPixmaps() before using it
+  further.
+*/
+QCanvasPixmapArray::QCanvasPixmapArray()
+{
+    img = 0;
+}
 
 /*!
 Construct a QCanvasPixmapArray from files.
@@ -2340,7 +2345,7 @@ int QCanvasSprite::absY2(int ny) const
 }
 
 /*!
-  The image the sprite \i will have after advance(1) is called.
+  The image the sprite \e will have after advance(1) is called.
   Be default this is the same as image().
 */
 QCanvasPixmap* QCanvasSprite::imageAdvanced() const
@@ -2487,7 +2492,7 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
 }
 
 /*!
-  Destructs the view. The associated canvas is \i not deleted.
+  Destructs the view. The associated canvas is \e not deleted.
 */
 QCanvasView::~QCanvasView()
 {
@@ -2542,6 +2547,11 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
     }
 }
 
+/*!
+  Suggests a size sufficient to view the entire canvas.
+  \internal
+  Why not like this in QScrollView?
+*/
 QSize QCanvasView::sizeHint() const
 {
     return canvas()->size()+QSize(frameWidth(),frameWidth())*2;
@@ -2593,6 +2603,18 @@ QCanvasPolygonalItem::QCanvasPolygonalItem()
 QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
 }
+
+
+QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
+{
+    int dx = int(x()+xVelocity())-int(x());
+    int dy = int(y()+yVelocity())-int(y());
+    QPointArray r = areaPoints();
+    if ( dx || dy )
+	r.translate(dx,dy);
+    return r;
+}
+
 
 struct QPolygonalProcessor {
     QPolygonalProcessor(QCanvas* c, const QPointArray& pa) :
@@ -2733,10 +2755,18 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 
   Paints a polygon in a QBrush.
 */
+
+/*!
+  Constructs a pointless polygon.  You should call setPoints() before
+  using it further.
+*/
 QCanvasPolygon::QCanvasPolygon()
 {
 }
 
+/*!
+  Destructs the polygon.
+*/
 QCanvasPolygon::~QCanvasPolygon()
 {
     hide();
@@ -2752,6 +2782,10 @@ void QCanvasPolygon::drawShape(QPainter & p)
     p.drawPolygon(poly);
 }
 
+/*!
+  Sets the points of the polygon to be \a pa, which will be translated
+  by x(), y() as the polygon is moved.
+*/
 void QCanvasPolygon::setPoints(QPointArray pa)
 {
     removeFromChunks();
@@ -2760,19 +2794,12 @@ void QCanvasPolygon::setPoints(QPointArray pa)
     addToChunks();
 }
 
+/*!
+  \reimp
+*/
 void QCanvasPolygon::movingBy(int dx, int dy)
 {
     poly.translate(dx,dy);
-}
-
-QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
-{
-    int dx = int(x()+xVelocity())-int(x());
-    int dy = int(y()+yVelocity())-int(y());
-    QPointArray r = areaPoints();
-    if ( dx || dy )
-	r.translate(dx,dy);
-    return r;
 }
 
 
@@ -2794,12 +2821,19 @@ QPointArray QCanvasPolygon::areaPoints() const
 
   Paints a rectangle in a QBrush and QPen.
 */
+
+/*!
+  Constructs a rectangle (0,0,32,32).
+*/
 QCanvasRectangle::QCanvasRectangle() :
     w(32), h(32)
 {
     addToChunks();
 }
 
+/*!
+  Constructs a rectangle positioned and sized by \a r.
+*/
 QCanvasRectangle::QCanvasRectangle(const QRect& r) :
     w(r.width()), h(r.height())
 {
@@ -2807,6 +2841,10 @@ QCanvasRectangle::QCanvasRectangle(const QRect& r) :
     addToChunks();
 }
 
+/*!
+  Constructs a rectangle with position \a x, \a y
+  and size \a width by \a height.
+*/
 QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height) :
     w(width), h(height)
 {
@@ -2814,22 +2852,34 @@ QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height) :
     addToChunks();
 }
 
+/*!
+  Destructs the rectangle.
+*/
 QCanvasRectangle::~QCanvasRectangle()
 {
     hide();
 }
 
 
+/*!
+  Returns the width of the rectangle.
+*/
 int QCanvasRectangle::width() const
 {
     return w;
 }
 
+/*!
+  Returns the height of the rectangle.
+*/
 int QCanvasRectangle::height() const
 {
     return h;
 }
 
+/*!
+  Sets the \a width and \a height of the rectangle.
+*/
 void QCanvasRectangle::setSize(int width, int height)
 {
     removeFromChunks();
@@ -2838,6 +2888,9 @@ void QCanvasRectangle::setSize(int width, int height)
     addToChunks();
 }
 
+/*!
+  \reimp
+*/
 QPointArray QCanvasRectangle::areaPoints() const
 {
     QPointArray pa(4);
@@ -2848,6 +2901,9 @@ QPointArray QCanvasRectangle::areaPoints() const
     return pa;
 }
 
+/*!
+  Draws the rectangle on \a p.
+*/
 void QCanvasRectangle::drawShape(class QPainter & p)
 {
     p.drawRect(x(), y(), w, h);
@@ -2858,10 +2914,12 @@ void QCanvasRectangle::drawShape(class QPainter & p)
   \class QCanvasEllipse qcanvas.h
   \brief An ellipse with a movable center point.
 
-  Paints an ellipse in a QBrush and QPen.
+  Paints an ellipse or "pie segment" with a QBrush.
 */
 
-
+/*!
+  Constructs a 32x32 ellipse, centered at (0,0).
+*/
 QCanvasEllipse::QCanvasEllipse() :
     w(32), h(32),
     a1(0), a2(360*16)
@@ -2869,6 +2927,9 @@ QCanvasEllipse::QCanvasEllipse() :
     addToChunks();
 }
 
+/*!
+  Constructs a \a width by \a height pixel ellipse, centered at (0,0).
+*/
 QCanvasEllipse::QCanvasEllipse(int width, int height,
     int startangle, int angle) :
     w(width),h(height),
@@ -2876,21 +2937,33 @@ QCanvasEllipse::QCanvasEllipse(int width, int height,
 {
 }
 
+/*!
+  Destructs the ellipse.
+*/
 QCanvasEllipse::~QCanvasEllipse()
 {
     hide();
 }
 
+/*!
+  Returns the width of the ellipse.
+*/
 int QCanvasEllipse::width() const
 {
     return w;
 }
 
+/*!
+  Returns the height of the ellipse.
+*/
 int QCanvasEllipse::height() const
 {
     return h;
 }
 
+/*!
+  Sets the \a width and \a height of the ellipse.
+*/
 void QCanvasEllipse::setSize(int width, int height)
 {
     removeFromChunks();
@@ -2899,6 +2972,31 @@ void QCanvasEllipse::setSize(int width, int height)
     addToChunks();
 }
 
+/*!
+  \fn int QCanvasEllipse::angleStart() const
+
+  Returns the start angle in 1/16 degrees.  Initially this will be 0.
+
+  \sa setAngles(), angleLength()
+*/
+
+/*!
+  \fn int QCanvasEllipse::angleLength() const
+
+  Returns the length angle in 1/16 degrees.  Initially this will be
+  360*16 - ie. a solid ellipse.
+
+  \sa setAngles(), angleStart()
+*/
+
+/*!
+  Sets the angles for the ellipse to start at \a start and continue
+  for \a length units.  Each unit is 1/16 of a degree. By default
+  the ellipse will start at 0 and have length 360*16 - ie. a solid
+  ellipse.
+
+  \sa angleStart(), angleLength()
+*/
 void QCanvasEllipse::setAngles(int start, int length)
 {
     removeFromChunks();
@@ -2907,6 +3005,9 @@ void QCanvasEllipse::setAngles(int start, int length)
     addToChunks();
 }
 
+/*!
+  \reimp
+*/
 QPointArray QCanvasEllipse::areaPoints() const
 {
     QPointArray r;
@@ -2915,6 +3016,8 @@ QPointArray QCanvasEllipse::areaPoints() const
 }
 
 /*!
+  Draws the ellipse, centered at x(), y().
+
   Note that QCanvasPolygon does not support an outline (pen is
   always NoPen).
 */
@@ -2977,6 +3080,9 @@ QCanvasText::~QCanvasText()
 {
 }
 
+/*!
+  Returns the bounding rectangle of the text.
+*/
 QRect QCanvasText::boundingRect() const { return brect; }
 
 void QCanvasText::setRect()
@@ -3024,21 +3130,6 @@ void QCanvasText::setTextFlags(int f)
 }
 
 /*!
-  \fn int QCanvasText::x() const
-  Returns the X-position of the left edge of the text.
-*/
-
-/*!
-  \fn int QCanvasText::y() const
-  Returns the Y-position of the top edge of the text.
-*/
-
-/*!
-  \fn const QRect& QCanvasText::boundingRect() const
-  Returns the bounding rectangle of the text.
-*/
-
-/*!
   Sets the text to be displayed.  The text may contain newlines.
 */
 void QCanvasText::setText( const QString& t )
@@ -3070,6 +3161,9 @@ void QCanvasText::setColor(const QColor& c)
 }
 
 
+/*!
+  \reimp
+*/
 void QCanvasText::moveBy(double dx, double dy)
 {
     removeFromChunks();
@@ -3087,6 +3181,9 @@ void QCanvasText::draw(QPainter& painter)
     painter.drawText(brect, flags, text);
 }
 
+/*!
+  \reimp
+*/
 void QCanvasText::changeChunks()
 {
     if (visible() && canvas()) {
