@@ -162,15 +162,18 @@ void NodeItem::calcForce() {
     }
     double w = 1 + outList.count() + inList.count();
     w *= 10;
-    for ( EdgeItemList::Iterator it = outList.begin(); it != outList.end(); ++it ) {
-	EdgeItem * e = (*it);
-	NodeItem* n = e->to;
+    EdgeItemList::Iterator it2;
+    EdgeItem * e;
+    NodeItem* n;
+    for ( it2 = outList.begin(); it2 != outList.end(); ++it2 ) {
+	e = (*it2);
+	n = e->to;
  	xvel = xvel - ( x() - n->x() ) / w;
  	yvel = yvel - ( y() - n->y() ) / w;
     }
-    for ( EdgeItemList::Iterator it = inList.begin(); it != inList.end(); ++it ) {
-	EdgeItem * e = (*it);
-	NodeItem* n = e->from;
+    for ( it2 = inList.begin(); it2 != inList.end(); ++it2 ) {
+	e = (*it2);
+	n = e->from;
  	xvel = xvel - ( x() - n->x() ) / w;
  	yvel = yvel - ( y() - n->y() ) / w;
     }
