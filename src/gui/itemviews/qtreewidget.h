@@ -176,7 +176,7 @@ public:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
         { QTreeView::selectionChanged(selected, deselected); }
     void currentChanged(const QModelIndex &current, const QModelIndex &previous)
-        { QTreeView::currentChanged(current, previous); }
+        { QTreeView::currentChanged(current, previous); }
     void ensureVisible(const QModelIndex &index)
         { QTreeView::ensureVisible(index); }
 #else
