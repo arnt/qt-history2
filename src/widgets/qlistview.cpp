@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#69 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#69 $");
 
 
 const int Unsorted = 32767;
@@ -2065,12 +2065,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !i )
 	return;
 
-    int y = itemPos( i );
-    if ( y < -contentsY() )
-	verticalScrollBar()->setValue( y );
-    else if ( y + i->height() > viewport()->height() - contentsY() )
-	verticalScrollBar()->setValue( y+i->height() - viewport()->height() );
-
     if ( i->isSelectable() &&
 	 ((e->state() & ShiftButton) || !isMultiSelection()) )
 	setSelected( i, d->currentSelected
@@ -2078,6 +2072,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		     : TRUE );
 
     setCurrentItem( i );
+
+    ensureItemVisible( i );
 }
 
 
@@ -2901,4 +2897,20 @@ void QListView::setRootIsDecorated( bool enable )
 bool QListView::rootIsDecorated() const
 {
     return d->rootIsExpandable;
+}
+
+
+/*!  Ensures that \a i is makde visible, scrolling the list view
+  vertically as required.
+  
+  \sa itemRect() QSCrollView::ensureVisible()
+*/
+
+void QListView::ensureItemVisible( const QListViewItem * i )
+{
+    if ( !i )
+	return;
+    
+    int h = (i->height()+1)/2;
+    ensureVisible( -contentsX(), itemPos( i )+h, 0, h );
 }

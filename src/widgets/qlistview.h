@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#31 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#32 $
 **
 ** Definition of QListView widget class
 **
@@ -135,6 +135,8 @@ public:
     QListViewItem * itemAt( const QPoint & screenPos ) const;
     QRect itemRect( const QListViewItem * ) const;
     int itemPos( const QListViewItem * );
+
+    void ensureItemVisible( const QListViewItem * );
 
     void repaintItem( const QListViewItem * ) const;
 
