@@ -645,6 +645,11 @@ public:
     int y;
     int m;
     int d;
+    // remebers the last entry for the day.
+    // if the day is 31 and you cycle through the months,
+    // the day will be 31 again if you reach a month with 31 days
+    // otherwise it will be the highest day in the month
+    int dayCache;
     int yearSection;
     int monthSection;
     int daySection;
@@ -766,6 +771,7 @@ void QDateEdit::init()
     d->y = 0;
     d->m = 0;
     d->d = 0;
+    d->dayCache = 0;
     setOrder( localOrder() );
     setFocusSection( 0 );
     d->overwrite = TRUE;
@@ -1117,7 +1123,9 @@ void QDateEdit::setYear( int year )
     if ( !outOfRange( year, d->m, d->d ) ) {
 	d->y = year;
 	setMonth( d->m );
-	setDay( d->d );
+	int tmp = d->dayCache;
+	setDay( d->dayCache );
+	d->dayCache = tmp;
     }
 }
 
@@ -1135,7 +1143,9 @@ void QDateEdit::setMonth( int month )
 	month = 12;
     if ( !outOfRange( d->y, month, d->d ) ) {
 	d->m = month;
-	setDay( d->d );
+	int tmp = d->dayCache;
+	setDay( d->dayCache );
+	d->dayCache = tmp;
     }
 }
 
@@ -1163,6 +1173,7 @@ void QDateEdit::setDay( int day )
 		d->d = day;
 	}
     }
+    d->dayCache = d->d;
 }
 
 
@@ -1186,6 +1197,7 @@ void QDateEdit::setDate( const QDate& date )
 	d->y = 0;
 	d->m = 0;
 	d->d = 0;
+	d->dayCache = 0;
 	return;
     }
     if ( date > maxValue() || date < minValue() )
@@ -1193,6 +1205,7 @@ void QDateEdit::setDate( const QDate& date )
     d->y = date.year();
     d->m = date.month();
     d->d = date.day();
+    d->dayCache = d->d;
     emit valueChanged( date );
     d->changed = FALSE;
     d->ed->repaint( d->ed->rect(), FALSE );
@@ -1295,6 +1308,7 @@ void QDateEdit::addNumber( int sec, int num )
 	if ( d->overwrite || txt.length() == 2 ) {
 	    accepted = TRUE;
 	    d->d = num;
+	    d->dayCache = d->d;
 	} else {
 	    txt += QString::number( num );
 	    int temp = txt.toInt();
@@ -1305,6 +1319,7 @@ void QDateEdit::addNumber( int sec, int num )
 	    else {
 		accepted = TRUE;
 		d->d = temp;
+		d->dayCache = d->d;
 	    }
 	    if ( d->adv && txt.length() == 2 ) {
 		d->ed->setFocusSection( d->ed->focusSection()+1 );
@@ -1383,11 +1398,13 @@ void QDateEdit::fix()
     if ( changed && outOfRange( year, d->m, d->d ) ) {
 	if ( minValue().isValid() && date() < minValue() ) {
 	    d->d =  minValue().day();
+	    d->dayCache = d->d;
 	    d->m = minValue().month();
 	    d->y = minValue().year();
 	}
 	if ( date() > maxValue() ) {
 	    d->d =  maxValue().day();
+	    d->dayCache = d->d;
 	    d->m = maxValue().month();
 	    d->y = maxValue().year();
 	}
@@ -1438,6 +1455,7 @@ void QDateEdit::removeLastNumber( int sec )
 	txt = QString::number( d->d );
 	txt = txt.mid( 0, txt.length()-1 );
 	d->d = txt.toInt();
+	d->dayCache = d->d;
     }
     d->ed->repaint( d->ed->rect(), FALSE );
 }
