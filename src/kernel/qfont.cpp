@@ -1045,7 +1045,7 @@ void QFont::setStretch( int factor )
 */
 void QFont::setRawMode( bool enable )
 {
-    if ( ( d->request.mask & QFontDef::RawMode ) == enable ) return;
+    if ( (bool)( d->request.mask & QFontDef::RawMode ) == enable ) return;
 
     detach();
     if ( enable )
