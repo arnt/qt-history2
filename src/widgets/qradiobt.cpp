@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#6 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#6 $";
 #endif
 
 
@@ -72,6 +72,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    break;
     }
     y = sz.height()/2 - w/2;
+
 #define SAVE_RADIOBUTTON_PIXMAPS
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     QString pmkey;				// pixmap key
@@ -81,7 +82,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->drawPixMap( x, y, *pm );
 	if ( text() ) {				// draw text extra
 	    p->pen().setColor( foregroundColor() );
-	    p->drawText( QPoint(w+6,sz.height()/2+4), text() );
+	    p->drawText( w+6, sz.height()/2+4, text() );
 	}
 	return;
     }
@@ -100,6 +101,8 @@ void QRadioButton::drawButton( QPainter *paint )
     }
 #endif
 
+#define QCOOTARRLEN(x) sizeof(x)/(sizeof(QCOOT)*2)
+
     if ( gs == MacStyle || gs == WindowsStyle ){// Mac/Windows radio button
 	static QCOOT pts1[] = {			// normal circle
 	    5,0, 7,0, 8,1, 9,1, 11,3, 11,4, 12,5, 12,7,
@@ -111,17 +114,17 @@ void QRadioButton::drawButton( QPainter *paint )
 	    2,9, 2,8, 1,7, 1,5, 2,4, 2,3, 3,2, 4,2 };
 	static QCOOT pts3[] =  {		// check mark
 	    5,3, 7,3, 9,5, 9,7, 7,9, 5,9, 3,7, 3,5 };
-	QPointArray a( pts1, sizeof(pts1)/(sizeof(QCOOT)*2) );
+	QPointArray a( QCOOTARRLEN(pts1), pts1 );
 	a.move( x, y );
 	p->eraseRect( x, y, w, h );
 	p->drawPolyline( a );
 	if ( isDown() ) {			// draw fat circle
-	    a.setPoints( pts2, sizeof(pts2)/(sizeof(QCOOT)*2) );
+	    a.setPoints( QCOOTARRLEN(pts2), pts2 );
 	    a.move( x, y );
 	    p->drawPolyline( a );
 	}
 	if ( isOn() ) {				// draw check mark
-	    a.setPoints( pts3, sizeof(pts3)/(sizeof(QCOOT)*2) );
+	    a.setPoints( QCOOTARRLEN(pts3), pts3 );
 	    a.move( x, y );
 	    p->setBrush( QBrush(black) );
 	    p->drawPolygon( a );
@@ -149,7 +152,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    4,5, 5,4,  9,4, 10,5,  10,9, 9,10,	5,10, 4,9 };
 	QPen pen( darkGray );
 	p->setPen( pen );
-	QPointArray a( pts1, sizeof(pts1)/(sizeof(QCOOT)*2) );
+	QPointArray a( QCOOTARRLEN(pts1), pts1 );
 	a.move( x, y );
 	p->eraseRect( x, y, w, h );
 	p->drawPolyline( a );			// draw normal circle
@@ -160,20 +163,20 @@ void QRadioButton::drawButton( QPainter *paint )
 	    tc = darkGray;
 	    bc = white;
 	    bp = pts4;
-	    bl = sizeof(pts4)/(sizeof(QCOOT)*2);
+	    bl = QCOOTARRLEN(pts4);
 	}
 	else {					// released
 	    tc = white;
 	    bc = darkGray;
 	    bp = pts3;
-	    bl = sizeof(pts3)/(sizeof(QCOOT)*2);
+	    bl = QCOOTARRLEN(pts3);
 	}
 	pen.setColor( tc );
-	a.setPoints( pts2, sizeof(pts2)/(sizeof(QCOOT)*2) );
+	a.setPoints( QCOOTARRLEN(pts2), pts2 );
 	a.move( x, y );
 	p->drawLineSegments( a );		// draw top shadow
 	pen.setColor( bc );
-	a.setPoints( bp, bl );
+	a.setPoints( bl, bp );
 	a.move( x, y );
 	p->drawLineSegments( a );
 	if ( isOn() ) {				// draw check mark
@@ -185,12 +188,12 @@ void QRadioButton::drawButton( QPainter *paint )
 	    QBrush brush( black );
 	    p->setBrush( brush );
 	    pen.setColor( black );
-	    a.setPoints( pts5, sizeof(pts5)/(sizeof(QCOOT)*2) );
+	    a.setPoints( QCOOTARRLEN(pts5), pts5 );
 	    a.move( x1, y1 );
 	    p->drawPolygon( a );
 	    brush.setStyle( NoBrush );
 	    pen.setColor( darkGray );
-	    a.setPoints( pts6, sizeof(pts6)/(sizeof(QCOOT)*2) );
+	    a.setPoints( QCOOTARRLEN(pts6), pts6 );
 	    a.move( x1, y1 );
 	    p->drawLineSegments( a );
 	}
@@ -206,7 +209,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	bool   showUp = (isUp() && !isOn()) || (isDown() && isOn());
 	QColor bgc = backgroundColor();
 	QBrush brush( showUp ? bgc : darkGray );
-	QPointArray a( inner_pts, sizeof(inner_pts)/(sizeof(QCOOT)*2) );
+	QPointArray a( QCOOTARRLEN(inner_pts), inner_pts );
 	p->eraseRect( x, y, w, h );
 	p->setPen( pen );
 	p->setBrush( brush );
@@ -216,11 +219,11 @@ void QRadioButton::drawButton( QPainter *paint )
 	if ( showUp )
 	    pen.setColor( white );
 	brush.setStyle( NoBrush );
-	a.setPoints( top_pts, sizeof(top_pts)/(sizeof(QCOOT)*2)	 );
+	a.setPoints( QCOOTARRLEN(top_pts), top_pts );
 	a.move( x, y );
 	p->drawPolyline( a );			// draw top part
 	pen.setColor( showUp ? black : white );
-	a.setPoints( bottom_pts, sizeof(bottom_pts)/(sizeof(QCOOT)*2) );
+	a.setPoints( QCOOTARRLEN(bottom_pts), bottom_pts );
 	a.move( x, y );
 	p->drawPolyline( a );			// draw bottom part
     }
@@ -235,7 +238,7 @@ void QRadioButton::drawButton( QPainter *paint )
 #endif
     if ( text() ) {
 	p->pen().setColor( foregroundColor() );
-	p->drawText( QPoint(w+6,sz.height()/2+4), text() );
+	p->drawText( w+6, sz.height()/2+4, text() );
     }
 }
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#5 $
 **
 ** Implementation of QCheckBox class
 **
 ** Author  : Haavard Nord
 ** Created : 940222
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#5 $";
 #endif
 
 
@@ -56,18 +56,16 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	case MacStyle:
 	case WindowsStyle:
 	    w = h = 13;
-	    y = sz.height()/2-w/2;
 	    break;
 	case PMStyle:
 	    w = h = 16;
-	    y = sz.height()/2-w/2;
 	    break;
 	case MotifStyle:
 	    x = 1;
 	    w = h = 10;
-	    y = sz.height()/2-w/2;
-	    break;
     }
+    y = sz.height()/2 - w/2;
+
 #define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
@@ -77,7 +75,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	p->drawPixMap( x, y, *pm );
 	if ( text() ) {				// draw text extra
 	    p->pen().setColor( foregroundColor() );
-	    p->drawText( QPoint(x+w+6,sz.height()/2+4), text() );
+	    p->drawText( x+w+6, sz.height()/2+4, text() );
 	}
 	return;
     }
@@ -109,19 +107,15 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     }
     else if ( gs == PMStyle ) {			// PM check box
 	QPen pen( darkGray );
-	QBrush brush( backgroundColor(), SolidBrush );
+	QBrush brush( backgroundColor() );
 	p->setPen( pen );
 	p->setBrush( brush );
 	p->drawRect( x, y, w, h );
 	brush.setStyle( NoBrush );
 	int x1 = x+1, y1=y+1, x2=x+w-2, y2=y+h-2;
-	QPointArray atop(3), abottom(3);
-	atop.setPoint( 0, x1, y2-1 );
-	atop.setPoint( 1, x1, y1 );
-	atop.setPoint( 2, x2, y1 );
-	abottom.setPoint( 0, x1, y2 );
-	abottom.setPoint( 1, x2, y2 );
-	abottom.setPoint( 2, x2, y1+1 );
+	QPointArray atop, abottom;
+	atop.setPoints( 3, x1,y2-1, x1,y1, x2,y1 );
+	abottom.setPoints( 3, x1,y2, x2,y2, x2,y1+1 );
 	QColor tc, bc;
 	if ( isDown() ) {
 	    tc = darkGray;
@@ -153,8 +147,8 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 		x1++;
 		y1++;
 	    }
-	    QPointArray amark( check_mark,
-			       sizeof(check_mark)/(sizeof(QCOOT)*2) );
+	    QPointArray amark( sizeof(check_mark)/(sizeof(QCOOT)*2),
+			       check_mark );
 	    amark.move( x1, y1 );
 	    pen.setColor( black );
 	    p->drawLineSegments( amark );
@@ -165,17 +159,20 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	}
     }
     else if ( gs == MotifStyle ) {		// Motif check box
-	QColor tColor, bColor;
+	QColor tColor, bColor, fColor;
 	if ( (isUp() && !isOn()) || (isDown() && isOn()) ) {
 	    tColor = white;			// button is up
 	    bColor = darkGray;
+	    fColor = backgroundColor();
 	}
 	else {					// button is down
 	    tColor = black;
 	    bColor = white;
-	    p->setBackgroundColor( darkGray );
+	    fColor = darkGray;
 	}
+	p->setBrush( fColor );
 	p->drawShadePanel( x, y, w, h, tColor, bColor, 2, 2, TRUE );
+	p->setBrush( NoBrush );
     }
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
@@ -188,6 +185,6 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 #endif
     if ( text() ) {				// draw check box text
 	p->pen().setColor( foregroundColor() );
-	p->drawText( QPoint(w+x+6,sz.height()/2+4), text() );
+	p->drawText( w+x+6, sz.height()/2+4, text() );
     }
 }
