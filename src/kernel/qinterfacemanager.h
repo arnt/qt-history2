@@ -66,7 +66,6 @@ public:
 
     ~QInterfaceManager()
     {
-	qDebug( "Interface manager dies..." );
 	// Release all interfaces
 	QDictIterator<Type> it( interfaceDict );
 	while ( it.current() ) {
@@ -238,7 +237,7 @@ public:
 */
 private:
     QDict<Type> interfaceDict;	    // Dict to match requested feature with interface
-    QMap<Type*, QPlugIn*> plugDict;   // Map to match interface with plugin
+    QMap<Type*, QPlugIn*> plugMap;  // Map to match interface with plugin
     QDict<QPlugIn> libDict;	    // Dict to match library file with plugin
 
     QPlugIn::LibraryPolicy defPol;
