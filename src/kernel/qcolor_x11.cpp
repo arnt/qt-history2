@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#19 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#19 $";
 #endif
 
 
@@ -184,7 +184,7 @@ void QColor::alloc()				// allocate color
 {
     if ( (rgb & RGB_INVALID) || !colorDict ) {	// invalid color or state
 	rgb = _RGB( 0, 0, 0 );
-	pix = 0;
+	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
 	return;
     }
     int r, g, b;
@@ -277,7 +277,7 @@ void QColor::setNamedColor( const char *name )	// load color from database
     }
     if ( !ok ) {
 	rgb = RGB_INVALID;
-	pix = 0;
+	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
     }
 }
 
