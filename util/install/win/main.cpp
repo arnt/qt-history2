@@ -69,10 +69,12 @@ static bool addArchive( const QString& name )
 	return FALSE;
     }
 
+#if 0
     QMessageBox::information( 0,
 	    "Archive added",
 	    QString("Added the archive %1.\n").arg(name) + errorMsg
 	    );
+#endif
     return TRUE;
 }
 #endif
