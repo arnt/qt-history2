@@ -226,8 +226,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		 cmd = var((*it) + ".commands"), deps;
 	if(targ.isEmpty())
 	    targ = (*it);
-	QStringList &depends = project->variables()[(*it) + ".depends"];
-	for(QStringList::Iterator dep_it = depends.begin(); dep_it != depends.end(); ++dep_it) {
+	QStringList &deplist = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
 	    QString dep = var((*dep_it) + ".target");
 	    if(dep.isEmpty())
 		dep = (*dep_it);
