@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#92 $
 **
 ** Implementation of QTableView class
 **
@@ -2133,11 +2133,13 @@ void QTableView::updateFrameSize()
 	rh = 0;
     int fh = frameRect().height();
     int fw = frameRect().width();
-    if ( rw > fw )
-	update( fw - frameWidth(), 0, frameWidth(), fh );
-    if ( rh > fh )
-	update( 0, fh - frameWidth(), fw, frameWidth() );
+
     setFrameRect( QRect(0,0,rw,rh) );
+
+    if ( rw != fw )
+	repaint( QMIN(fw,rw) - frameWidth(), 0, frameWidth(), rh );
+    if ( rh != fh )
+	repaint( 0, QMIN(fh,rh) - frameWidth(), rw, frameWidth() );
 }
 
 
