@@ -525,7 +525,7 @@ QString HelpDialog::docHomePage( const QString &doc )
 {
     QFileInfo fi( doc );
     QValueList<ContentItem> &lst = *(contentList[doc]);
-    if ( lst.first().reference.isEmpty() )
+    if ( !contentList[doc] || lst.first().reference.isEmpty() )
 	return fi.dirPath( TRUE ) + "/index.html";
     return fi.dirPath( TRUE ) + "/" + lst.first().reference;
 }

@@ -395,8 +395,9 @@ void MainWindow::showLink( const QString &link )
     } else {
 	// ### Default 404 site!
 	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );
-	tabs->currentBrowser()->setText( tr( "The page could not be found!<br>"
-					     "'%1'").arg( link ) );
+	tabs->currentBrowser()->setText( tr( "<div align=\"center\"><h1>The page could not be found!</h1><br>"
+					     "<h3>'%1'</h3></div>").arg( link ) );
+	tabs->updateTitle( tr( "Error..." ) );
     }
 }
 
