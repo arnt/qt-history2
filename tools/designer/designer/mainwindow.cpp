@@ -3361,5 +3361,16 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
     actionGroupProjects->removeFrom( projectMenu );
     actionGroupProjects->removeFrom( projectToolBar );
     currentProject = eProject;
+
+    if ( !QFile::exists( projectName ) ) {
+	SourceFile *f = new SourceFile( "main.qs", FALSE, currentProject );
+	f->setText( "// This function is called first, when the script is executed.\n"
+		    "// Put the startup code for your script into this functions\n\n"
+		    "function main()\n"
+		    "{\n}\n" );
+	MainWindow::self->editSource( f );
+	f->setModified( TRUE );
+    }
+	
     return eProject;
 }
