@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#149 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1532,4 +1532,13 @@ void QLineEdit::setCursorPosition( int newPos )
 int QLineEdit::cursorPosition() const
 {
     return cursorPos;
+}
+
+
+/*! \reimp */
+
+void QLineEdit::setPalette( const QPalette & p )
+{
+    d->pmDirty = TRUE;
+    QWidget::setPalette( p );
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#54 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#55 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -61,6 +61,7 @@ public:
 
     void	setEnabled( bool );
     void	setFont( const QFont & );
+    void	setPalette( const QPalette & );
 
     void	setSelection( int, int );
     void	setCursorPosition( int );
