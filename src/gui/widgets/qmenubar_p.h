@@ -57,7 +57,7 @@ public:
     mutable QList<QAction*> actionList;
     void calcActionRects(int max_width, int start, QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const;
     QRect actionRect(QAction *) const;
-    void updateActions();
+    void updateGeometries();
 
     //selection
     QPointer<QAction>currentAction;

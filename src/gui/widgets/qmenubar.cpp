@@ -44,7 +44,7 @@ QAction *QMenuBarPrivate::actionAt(QPoint p) const
     return 0;
 }
 
-void QMenuBarPrivate::updateActions()
+void QMenuBarPrivate::updateGeometries()
 {
     Q_Q(QMenuBar);
     if(!itemsDirty)
@@ -134,9 +134,15 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
         QRect adjustedActionRect = actionRect(action);
         QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom() + 1)));
         QSize popup_size = activeMenu->sizeHint();
-        const int off = pos.x()+popup_size.width() - dh.right();
-        if(off > 0)
-            pos.setX(qMax(0, pos.x()-off));
+        if(q->isRightToLeft()) 
+            pos.setX(pos.x()-(popup_size.width()-adjustedActionRect.width()));
+        if(pos.x() < 0) {
+            pos.setX(0);
+        } else {
+            const int off = pos.x()+popup_size.width() - dh.right();
+            if(off > 0)
+                pos.setX(qMax(0, pos.x()-off));
+        }
         if(!defaultPopDown || (pos.y() + popup_size.height() > dh.bottom()))
             pos.setY(qMax(dh.y(), q->mapToGlobal(QPoint(0, adjustedActionRect.top()-popup_size.height())).y()));
         activeMenu->popup(pos);
@@ -612,7 +618,7 @@ void QMenuBar::resizeEvent(QResizeEvent *)
 {
     Q_D(QMenuBar);
     d->itemsDirty = true;
-    d->updateActions();
+    d->updateGeometries();
 }
 
 /*!
@@ -875,7 +881,7 @@ void QMenuBar::actionEvent(QActionEvent *e)
         e->action()->disconnect(this);
     }
     if (isVisible()) {
-        d->updateActions();
+        d->updateGeometries();
         update();
     }
 }
@@ -951,7 +957,7 @@ bool QMenuBar::event(QEvent *e)
                 d->internalShortcutActivated(j);
         }
     } else if (e->type() == QEvent::Show) {
-        d->updateActions();
+        d->updateGeometries();
     }
     return QWidget::event(e);
 }
@@ -1159,7 +1165,7 @@ void QMenuBarPrivate::updateLayout()
 {
     Q_Q(QMenuBar);
     itemsDirty = true;
-    updateActions();
+    updateGeometries();
     q->update();
 }
 
