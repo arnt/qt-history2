@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#35 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#36 $
 **
 ** Implementation of Network Extension Library
 **
@@ -140,8 +140,9 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     if ( lst.count() < 9 ) {
 	if ( buffer[ 0 ] == QChar( 'd' ) ||
 	     buffer[ 0 ] == QChar( '-' ) ||
-	     buffer[ 0 ] == QChar( 'l' ) )
-	    tmp = buffer.stripWhiteSpace();
+	     buffer[ 0 ] == QChar( 'l' ) ) {
+	    tmp = buffer.simplifyWhiteSpace();
+	}
 	return;
     }
     
@@ -162,11 +163,13 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	info.setDir( TRUE ); // #### todo
 	info.setFile( FALSE );
 	info.setSymLink( TRUE );
-    } else
+    } else {
 	return;
-
-    if ( lst.count() > 9 && !info.isSymLink() )
+    }
+    
+    if ( lst.count() > 9 && QString( "dl-" ).find( tmp_[ 0 ] ) == -1 ) {
 	return;
+    }
     
     // owner
     tmp_ = lst[ 2 ];
@@ -183,7 +186,15 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     // date, time #### todo
 
     // name
-    info.setName( lst[ 8 ].stripWhiteSpace() );
+    if ( info.isSymLink() )
+	info.setName( lst[ 8 ].stripWhiteSpace() );
+    else {
+	QString n;
+	for ( unsigned int i = 8; i < lst.count(); ++i )
+	    n += lst[ i ] + " ";
+	n = n.stripWhiteSpace();
+	info.setName( n );
+    }
 }
 
 void QFtp::hostFound()
@@ -219,7 +230,10 @@ void QFtp::readyRead()
     if ( !url() )
 	return;
 
-    int code = s.left( 3 ).toInt();
+    bool ok = FALSE;
+    int code = s.left( 3 ).toInt( &ok );
+    if ( !ok )
+	return;
     if ( s.left( 1 ) == "1" )
 	okButTryLater( code, s );
     else if ( s.left( 1 ) == "2" )
@@ -358,7 +372,7 @@ void QFtp::dataClosed()
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     // switch back to ASCII mode
     commandSocket->writeBlock( "TYPE A\r\n", 8 );
-    
+
     passiveMode = FALSE;
     emit finished( operationInProgress() );
 
@@ -395,6 +409,7 @@ void QFtp::dataReadyRead()
     switch ( operationInProgress()->operation() ) {
     case OpListChildren: { // parse directory entry
 	QString ss = QString::fromLatin1( s.copy() );
+	ss = ss.stripWhiteSpace();
 	if ( !tmp.isEmpty() )
 	    ss.prepend( tmp );
 	tmp = QString::null;
@@ -402,7 +417,7 @@ void QFtp::dataReadyRead()
 	QStringList::Iterator it = lst.begin();
 	for ( ; it != lst.end(); ++it ) {
 	    QUrlInfo inf;
-	    parseDir( *it, inf );
+	    parseDir( ( *it ).stripWhiteSpace(), inf );
 	    if ( !inf.name().isEmpty() ) {
 		if ( url() ) {
 		    QRegExp filt( url()->nameFilter(), FALSE, TRUE );
