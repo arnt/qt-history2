@@ -588,14 +588,14 @@ private:
     QTextCustomItem* selection_owner;
 };
 
-inline void QTextRichString::append( const QString& c,const  QTextCharFormat& fmt )
-{
-	insert( length(), c, fmt);
-}
-
 inline int QTextRichString::length() const
 {
     return len;
+}
+
+inline void QTextRichString::append( const QString& c,const  QTextCharFormat& fmt )
+{
+	insert( length(), c, fmt);
 }
 
 inline bool QTextRichString::isEmpty() const
