@@ -528,7 +528,7 @@ protected:
 };
 
 #ifdef QT_CHECK_RANGE
-# ifndef QT_NO_DEBUG && defined( QT_CHECK_MAP_RANGE )
+# if !defined( QT_NO_DEBUG ) && defined( QT_CHECK_MAP_RANGE )
 #  define QT_CHECK_INVALID_MAP_ELEMENT if ( empty() ) qWarning( "QMap: Warning invalid element" )
 #  define QT_CHECK_INVALID_MAP_ELEMENT_FATAL Q_ASSERT( !empty() );
 # else
