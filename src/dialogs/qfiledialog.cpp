@@ -2732,7 +2732,6 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 	trySetSelection( TRUE, d->url, FALSE );
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
-	nameEdit->setText( QString::fromLatin1("") );
     }
     d->checkForFilter = FALSE;
 }
