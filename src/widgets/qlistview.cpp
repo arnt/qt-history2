@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#126 $
 **
 ** Implementation of QListView widget class
 **
@@ -451,7 +451,6 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     if ( column < 0 )
 	return;
 
-    debug( "s %p %d/%d %d/%d", this, column, (int)lsc, ascending, lso );
     // more dubiously - only sort if the child items "exist"
     if ( !isOpen() )
 	return;
