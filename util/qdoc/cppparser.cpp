@@ -339,6 +339,9 @@ static bool matchFunctionDecl( Decl *context )
 	}
     }
 
+    if ( returnType == QString("Q_EXPLICIT") )
+	returnType = QString( "explicit" );
+
     if ( !match(Tok_LeftParen) )
 	return FALSE;
 
