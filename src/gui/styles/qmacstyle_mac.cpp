@@ -2377,15 +2377,14 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     bdi.adornment = kThemeAdornmentFocus;
                 else
                     bdi.adornment = kThemeAdornmentNone;
-                QRect uprect = QStyle::visualRect(opt->direction, opt->rect,
+                QRect updown = QStyle::visualRect(opt->direction, opt->rect,
                                                   q->subControlRect(QStyle::CC_SpinBox, sb,
                                                                     QStyle::SC_SpinBoxUp,
                                                                     widget));
-                QRect downrect = QStyle::visualRect(opt->direction, opt->rect,
-                                                  q->subControlRect(QStyle::CC_SpinBox, sb,
-                                                                    QStyle::SC_SpinBoxDown,
-                                                                    widget));
-                QRect updown = QRegion(uprect).unite(downrect).boundingRect();
+                updown |= QStyle::visualRect(opt->direction, opt->rect,
+                                             q->subControlRect(QStyle::CC_SpinBox, sb,
+                                                               QStyle::SC_SpinBoxDown,
+                                                               widget));
                 HIRect hirect = qt_hirectForQRect(updown, p);
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
             }
