@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#25 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -13,6 +13,7 @@
 #include "qpaintdc.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qimage.h"
 #include "qwidget.h"
 
 #if defined(_CC_BOOL_DEF_)
@@ -23,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#25 $");
 
 
 // QPrinter states
@@ -188,7 +189,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( state != PST_ACTIVE )		// aborted or error
 	    return FALSE;
 	ASSERT( hdc != 0 );
-	if ( c == PDC_DRAWPIXMAP || c == PDC_DRAWIMAGE){// can't bitblt pixmaps
+	if ( c == PDC_DRAWPIXMAP || c == PDC_DRAWIMAGE ) {
 	    QPoint  pos	   = *p[0].point;
 	    QPixmap pixmap;
 	    QImage  image;
@@ -202,7 +203,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		w = pixmap.width();
 		h = pixmap.height();
 		d = pixmap.depth();
-	    else 
+	    } else {
 		image = *p[1].image;
 		w = image.width();
 		h = image.height();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#130 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#130 $");
 
 
 /*!
@@ -1654,7 +1654,11 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	QPoint p(x,y);
 	param[0].point = &p;
 	param[1].image = &image;
+#if defined(_WS_WIN_)
+	if ( !pdev->cmd(PDC_DRAWIMAGE,this,param) || !hdc )
+#else
 	if ( !pdev->cmd(PDC_DRAWIMAGE,this,param) || !hd )
+#endif
 	    return;
     }
 
