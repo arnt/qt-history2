@@ -446,14 +446,14 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    Plugins are different from most other Qt classes with
 	    regards memory management. In Qt programming we often pass
 	    on responsibility for memory management to the containing
-	    widgets and ultimately to \c[qApp] itself by parenting our
-	    widgets. Plugins are different because they wrap interfaces
-	    which are not \class[QObject]s, so we cannot predict what
-	    their memory handling requirements are. This means that when
-	    you get a reference to a widget interface implementation
-	    object a reference count is incremented, and when you have
-	    no further use for the reference \i[you] must call
-	    \fn[release()]. The reference counting prevents the
+	    widgets and ultimately to \c[QApplication] itself by
+	    parenting our widgets. Plugins are different because they
+	    wrap interfaces which are not \class[QObject]s, so we cannot
+	    predict what their memory handling requirements are. This
+	    means that when you get a reference to a widget interface
+	    implementation object a reference count is incremented, and
+	    when you have no further use for the reference \i[you] must
+	    call \fn[release()]. The reference counting prevents the
 	    unloading of a library (plugin) that is still in use. If all
 	    of a plugin's reference counts are zero the library can be
 	    automatically unloaded.
@@ -580,10 +580,11 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 </programlisting></example>
 	Change the \c[HEADERS] line to list your plugin's header file
 	plus a header file for each of your widgets. Make the equivalent
-	change for the \c[SOURCES] line. If you create a Makefile and
-	make the project the plugin will be created and placed in a
-	directory where \qd can find it. The next time you run \qd it
-	will detect your new plugin and load it automatically. 
+	change for the \c[SOURCES] line. If you create a Makefile with
+	\cmd[qmake] and make the project the plugin will be created and
+	placed in a directory where \qd can find it. The next time you
+	run \qd it will detect your new plugin and load it
+	automatically. 
 	\P
 	</sect2>
 
