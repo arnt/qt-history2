@@ -1057,9 +1057,9 @@ static void unregWinClasses()
 {
     if ( !winclassNames )
 	return;
-    QHash<QString, int*>::Iterator it = winclassNames->begin();
-    const char *k;
-    while ( (k = it.key()) ) {
+    QHash<QString, int*>::ConstIterator it = winclassNames->begin();
+    while ( it != winclassNames->end() ) {
+	const char *k = it.key();
 	QT_WA( {
 	    UnregisterClass( (TCHAR*)QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
 	} , {

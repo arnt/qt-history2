@@ -791,11 +791,9 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 static
 void cleanup_mimes()
 {
-    QWindowsMime* wm;
-    while ( (wm = mimes.first()) )
-    {
-	delete wm;
-    }
+    while ( mimes.size() )
+ 	delete mimes.first();
+ 
     mimetypes.setAutoDelete(TRUE);
     mimetypes.clear();
 }
