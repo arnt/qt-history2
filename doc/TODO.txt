@@ -119,6 +119,7 @@ QFileDialog
   add signal when filter changes
   Make the combobox like on MS-Windows and add additional
   functionality for bookmarks and history
+  Provide more access to windows specific functions ( support/arc-09/19612 )
 
 QSizeGrip (Win32) (Volker)
   Outlined resize as set in the system properties
