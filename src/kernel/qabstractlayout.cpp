@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#7 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -27,6 +27,113 @@
 #include "qapplication.h"
 
 
+
+/*!
+  \class QLayoutItem qabstractlayout.h
+  \brief The abstract items with a QLayout manipulates.
+
+  For custom layouts.
+
+  \sa QLayout
+*/
+
+/*!
+  \class QSpacerItem qabstractlayout.h
+  \brief A QLayoutItem that represents blank space.
+
+  For custom layouts.
+
+  \sa QLayout
+*/
+
+/*!
+  \class QWidgetItem qabstractlayout.h
+  \brief A QLayoutItem that represents widget.
+
+  For custom layouts.
+
+  \sa QLayout
+*/
+
+/*!
+  \fn QLayoutItem::SearchResult QLayout::removeWidget (QWidget *w )
+  This function is implemented in subclasses to remove \a w from geometry
+  management.
+ */
+
+
+/*### \fn	 bool removeWidget( QWidget *w )
+
+  Remove \a w from geometry management. This function is called
+  automatically whenever a child widget is deleted.
+
+  This function is implemented in subclasses. It is the
+  responsibility of the reimplementor to propagate the call to
+  sub-layouts.	This function returns TRUE if the widget was found.
+ */
+
+
+/*! \fn QLayoutItem::QLayoutItem (int alignment) 
+  Constructs a layout item with alignment \a alignment.
+  Alignment may not be supported by all subclasses.
+ */
+
+/*! \fn int QLayoutItem::alignment () const
+  Returns the alignment of this item.
+*/
+
+/*! \fn QLayoutItem::setAlignment (int a) 
+  Sets the alignment of this item to \a a.
+*/
+
+
+
+/*! \fn  QSize QLayoutItem::maximumSize () const
+  Implemented in subclasses to return the maximum size of this item.
+*/
+  
+/*! \fn QSize QLayoutItem::minimumSize () const
+  Implemented in subclasses to return the minimum size of this item.
+*/
+  
+/*! \fn QSize QLayoutItem::sizeHint () const
+  Implemented in subclasses to return the preferred size of this item.
+*/
+  
+/*! \fn QSizePolicy::ExpandData QLayoutItem::expanding () const
+  Implemented in subclasses to return whether this item "wants" to expand.
+*/
+  
+/*! \fn SearchResult QLayoutItem::removeW (QWidget *w ) 
+  Implemented in subclasses to search for \a w, and remove it it if found.
+*/
+
+/*! \fn void QLayoutItem::setGeometry (const QRect &r ) 
+  Implemented in subclasses to set this item's geometry to \a r.
+*/
+
+
+/*! \fn virtual bool QLayoutItem::isEmpty () const
+  Implemented in subclasses to return whether this item is empty,
+  i.e. whether it contains any widgets.
+*/
+
+
+/*! \fn QSpacerItem::QSpacerItem (int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum, QSizePolicy::SizeType vData= QSizePolicy::Minimum) 
+
+  Constructs a spacer item with preferred width \a w, preferred height
+  \a h, horizontal size policy \a hData and vertical size policy \a
+  vData. The default values gives a space that is able to stre, if nothing else wants the space.
+*/
+
+/*! \fn QWidgetItem::QWidgetItem (QWidget * w) 
+  
+  Creates an item containing \a w.
+*/
+
+ /*!
+  Destructs the QLayoutItem.
+*/
 QLayoutItem::~QLayoutItem()
 {
 }
@@ -79,11 +186,16 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 
 
 
-
+/*!
+  This function does nothing.
+*/
 void QSpacerItem::setGeometry( const QRect& )
 {
 }
-
+/*!
+  Sets the geometry of this item's widget to be contained within \a r,
+  taking alignment and maximum size into account.
+*/
 void QWidgetItem::setGeometry( const QRect &r )
 {
     QSize s = r.size().boundedTo( smartMaxSize( wid ) );
@@ -109,42 +221,70 @@ void QWidgetItem::setGeometry( const QRect &r )
     wid->setGeometry( x, y, s.width(), s.height() );
 }
 
+/*!
+  Returns whether this space item is expanding.
+*/
 QSizePolicy::ExpandData QSpacerItem::expanding() const
 {
     return sizeP.expanding();
 }
+
+/*!
+  Returns whether this item's widget is expanding.
+*/
+
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
     return wid->sizePolicy().expanding();
 }
 
+/*!
+  Returns the minimum size of this space item.
+*/
 QSize QSpacerItem::minimumSize() const
 {
 	return QSize( sizeP.mayShrinkHorizontally() ? 0 : width,
 		      sizeP.mayShrinkVertically() ? 0 : height );;
 }
+
+/*!
+  Returns the minimum size of this item.
+*/
+
 QSize QWidgetItem::minimumSize() const
 {
 	return smartMinSize( wid );
 }
 
 
+/*!
+  Returns the maximum size of this space item.
+*/
 QSize QSpacerItem::maximumSize() const
 {
     return QSize( sizeP.mayGrowHorizontally() ? QCOORD_MAX : width,
 		  sizeP.mayGrowVertically() ? QCOORD_MAX : height );
 }
 
+/*!
+  Returns the maximum size of this item.
+*/
 QSize QWidgetItem::maximumSize() const
 {
 	return smartMaxSize( wid, align );
 }
 
+/*!
+  Returns the preferred size of this space item.
+*/
 QSize QSpacerItem::sizeHint() const
 {
 	return QSize( width, height );
 }
 
+/*!
+  Returns the preferred size of this item.
+*/
 QSize QWidgetItem::sizeHint() const
 {
     //########### Should minimumSize() override sizeHint ????????????
@@ -157,21 +297,35 @@ QSize QWidgetItem::sizeHint() const
 		  wid->sizeHint().height() : wid->minimumHeight() );
 }
 
+/*!
+  Returns FALSE, since a space item never contains widgets.
+*/
 bool QSpacerItem::isEmpty() const
 {
     return TRUE;
 }
+
+/*!
+  Returns TRUE, since a widget item always contains a widget!
+*/
 bool QWidgetItem::isEmpty() const
 {
     return FALSE;
 }
 
+
+/*!
+  Returns FoundAndDeleteable, if \a w is found in this item.
+*/
 QLayoutItem::SearchResult QWidgetItem::removeW( QWidget *w )
 {
     return wid == w ? FoundAndDeleteable : NotFound;
 }
 
 
+/*!
+  Returns NotFound, since a space item never contains widgets.
+*/
 QLayoutItem::SearchResult QSpacerItem::removeW( QWidget *)
 {
     return NotFound;
@@ -240,6 +394,20 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 	insideSpacing = autoBorder;
 }
 
+
+
+/*! \fn void QLayout::addItem (QLayoutItem *item ) 
+    Implemented in subclasses to add \a item. How it is
+    added is specific to each subclass.
+*/
+
+/*!
+  \fn void QLayout::add (QWidget * w) 
+
+  Adds \a w to this layout in a manner specific to the layout. This 
+  function uses addItem.
+*/
+  
 /*!
   \fn QString QLayout::name() const
 
@@ -257,46 +425,16 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 /*!
   \fn bool QLayout::isTopLevel () const
 
+  Returns TRUE if this layout is a top level layout, i.e. not a child
+  of another layout.
  */
 
 /*!
   \fn const QRect& QLayout::geometry ()
 
+  Returns the rectangle covered by this layout.
  */
 
-
-/*!
-  \class QLayoutItem qabstractlayout.h
-  \brief The abstract items with a QLayout manipulates.
-
-  For custom layouts.
-
-  \sa QLayout
-*/
-
-/*!
-  \class QSpacerItem qabstractlayout.h
-  \brief A QLayoutItem that represents blank space.
-
-  For custom layouts.
-
-  \sa QLayout
-*/
-
-/*!
-  \class QWidgetItem qabstractlayout.h
-  \brief A QLayoutItem that represents widget.
-
-  For custom layouts.
-
-  \sa QLayout
-*/
-
-/*!
-  \fn QLayoutItem::SearchResult QLayout::removeWidget (QWidget *w )
-  This function is implemented in subclasses to remove \a w from geometry
-  management.
- */
 
 
 /*!
@@ -340,6 +478,11 @@ QLayout::QLayout( int autoBorder, const char *name )
     insideSpacing = autoBorder;
 }
 
+
+/*!
+  Returns TRUE if this layout is empty.
+  The default implementation returns FALSE.
+*/
 bool QLayout::isEmpty() const
 {
     return FALSE; //### should check
@@ -383,22 +526,19 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
   Returns the minimum size this layout needs.
 */
 
-
+/*!
+  Searches all subitems, returning \c Found if \a w was found and
+  removed. Returns \c NotFound otherwise.
+  
+  Future versions may return FoundAndDeleteable if this removal caused the 
+  layout to become empty.
+ */
 QLayoutItem::SearchResult QLayout::removeW( QWidget *w)
 {
     return removeWidget( w ) ? Found : NotFound;
 }
 
 
-/*! \fn	 bool removeWidget( QWidget *w )
-
-  Remove \a w from geometry management. This function is called
-  automatically whenever a child widget is deleted.
-
-  This function is implemented in subclasses. It is the
-  responsibility of the reimplementor to propagate the call to
-  sub-layouts.	This function returns TRUE if the widget was found.
- */
 
 /*!
   This function is reimplemented in subclasses to

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#65 $
 **
 ** Implementation of layout classes
 **
@@ -765,7 +765,12 @@ void QGridLayout::init( int nRows, int nCols )
     array = new QLayoutArray( nRows, nCols );
 }
 
-
+/*!
+  Adds \a item to the end of this layout.
+  
+  \warning This function is not yet finished.
+*/
+  
 void QGridLayout::addItem( QLayoutItem *item )
 {
     int r =0;
