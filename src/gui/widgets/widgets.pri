@@ -64,8 +64,7 @@ HEADERS += \
         widgets/qviewport_p.h \
         widgets/qwidgetplugin.h \
         widgets/qwidgetresizehandler_p.h \
-        widgets/qwidgetview.h \
-        widgets/qworkspace.h 
+        widgets/qwidgetview.h
 
 SOURCES += \
         widgets/qabstractbutton.cpp \
@@ -123,8 +122,7 @@ SOURCES += \
         widgets/qviewport.cpp \
         widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \
-        widgets/qwidgetview.cpp \
-        widgets/qworkspace.cpp 
+        widgets/qwidgetview.cpp
 
 
 !embedded:mac:SOURCES += widgets/qmenu_mac.cpp
