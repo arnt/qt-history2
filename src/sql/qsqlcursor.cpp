@@ -66,6 +66,39 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString() )
     return str;
 }
 
+QString qWhereClause( const QString& prefix, QSqlField* field, const QSqlDriver* driver )
+{
+    QString f;
+    if ( field && driver ) {
+        f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
+        if ( field->isNull() ) {
+            f += " IS NULL";
+        } else {
+            f += " = " + driver->formatValue( field );
+        }
+    }
+    return f;
+}
+
+QString qWhereClause( QSqlRecord* rec, const QString& prefix, const QString& sep, 
+		      const QSqlDriver* driver )
+{
+    static QString blank( " " );
+    QString filter;
+    bool separator = FALSE;
+    for ( uint j = 0; j < rec->count(); ++j ) {
+        QSqlField* f = rec->field( j );
+        if ( rec->isGenerated( j ) ) {
+            if ( separator )
+                filter += sep + blank;
+            filter += qWhereClause( prefix, f, driver );
+            filter += blank;
+            separator = TRUE;
+        }
+    }
+    return filter;
+}
+
 /*!
     \class QSqlCursor qsqlcursor.h
     \brief The QSqlCursor class provides browsing and editing of SQL
@@ -1053,9 +1086,9 @@ QSqlRecord* QSqlCursor::primeUpdate()
     QSqlRecord* buf = editBuffer( TRUE );
     QSqlIndex idx = primaryIndex( FALSE );
     if ( !idx.isEmpty() )
-	d->editIndex = toString( primaryIndex( FALSE ), buf, d->nm, "=", "and" );
+	d->editIndex = toString( idx, buf, d->nm, "=", "and" );
     else
-	d->editIndex = toString( buf, d->nm, "=", "and" );
+	d->editIndex = qWhereClause( buf, d->nm, "and", driver() );
     return buf;
 }
 
