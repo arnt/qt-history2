@@ -9,6 +9,7 @@ int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
     QMainWindow * window = new QMainWindow;
+    window->setCaption("Qt Example - Toggleaction");
     QToolBar * toolbar = new QToolBar( window );
 
     QAction * labelonoffaction = new QAction( window, "labelonoff", TRUE );  

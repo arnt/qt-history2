@@ -124,6 +124,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
     ConnectWidget connect;
+    connect.setCaption( "Qt Example - Draw lines");
     a.setMainWidget( &connect );
     connect.show();
     return a.exec();

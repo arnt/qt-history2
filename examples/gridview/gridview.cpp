@@ -24,7 +24,7 @@ public:
 	setNumCols( ::numCols );
 	setCellWidth( fontMetrics().width( QString("%1 / %2").arg(numRows()).arg(numCols()))); 
 	setCellHeight( 2*fontMetrics().lineSpacing() );
-	setCaption( tr( "This is a grid with 100 x 100 cells" ) );
+	setCaption( tr( "Qt Example - This is a grid with 100 x 100 cells" ) );
     }
 
 protected:

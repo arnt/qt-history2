@@ -88,7 +88,7 @@ void ABCentralWidget::setupTabWidget()
     liLastName->resize( liLastName->sizeHint() );
     grid1->addWidget( liLastName, 0, 1 );
 
-    QLabel *liAddress = new QLabel( "&Address", input );
+    QLabel *liAddress = new QLabel( "Add&ress", input );
     liAddress->resize( liAddress->sizeHint() );
     grid1->addWidget( liAddress, 0, 2 );
 
@@ -96,7 +96,7 @@ void ABCentralWidget::setupTabWidget()
     liEMail->resize( liEMail->sizeHint() );
     grid1->addWidget( liEMail, 0, 3 );
 
-    add = new QPushButton( "&Add", input );
+    add = new QPushButton( "A&dd", input );
     add->resize( add->sizeHint() );
     grid1->addWidget( add, 0, 4 );
     connect( add, SIGNAL( clicked() ), this, SLOT( addEntry() ) );
@@ -143,7 +143,7 @@ void ABCentralWidget::setupTabWidget()
     grid2->addWidget( cLastName, 0, 1 );
     connect( cLastName, SIGNAL( clicked() ), this, SLOT( toggleLastName() ) );
 
-    cAddress = new QCheckBox( "&Address", search );
+    cAddress = new QCheckBox( "Add&ress", search );
     cAddress->resize( cAddress->sizeHint() );
     grid2->addWidget( cAddress, 0, 2 );
     connect( cAddress, SIGNAL( clicked() ), this, SLOT( toggleAddress() ) );
