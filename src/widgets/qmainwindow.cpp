@@ -2440,9 +2440,9 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
     Minimized and \c TornOff dock windows, to the text stream \a ts.
 
     This can be used, for example, in conjunction with QSettings to
-    save the user's layout.
+    save the user's layout when the \mainWindow receives a closeEvent.
 
-    \sa operator>>()
+    \sa operator>>() closeEvent()
 */
 
 QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
