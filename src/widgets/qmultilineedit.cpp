@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#90 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -983,7 +983,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 #if defined (_WS_WIN_)
 	case Key_Insert:
 	    copy();
-#endif	    
+#endif	
 	default:
 	    unknown++;
 	}
@@ -1016,7 +1016,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 		cut();
 		break;
 	    }
-#endif	    
+#endif	
 	    del();
 	    break;
 	case Key_Next:
@@ -1040,7 +1040,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    else
 		unknown++;
 	    break;
-#endif	    
+#endif	
 	default:
 	    unknown++;
 	}
@@ -1742,7 +1742,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	d->popup->setItemEnabled( d->id[ 1 ], hasMarkedText() );
 	d->popup->setItemEnabled( d->id[ 2 ], (bool)QApplication::clipboard()->text().length() );
 	d->popup->setItemEnabled( d->id[ 3 ], (bool)text().length() );
-	int id = d->popup->exec( QCursor::pos() );
+	int id = d->popup->exec( m->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    cut();
 	else if ( id == d->id[ 1 ] )
