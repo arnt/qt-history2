@@ -4450,30 +4450,21 @@ QPixmap qt_image_linear_gradient(const QRect &rect,
     }
 
     image.setAlphaBuffer(useAlpha);
-
     float t;
 
     for (int y=0; y<image.height(); ++y) {
-        uchar *scanLine = image.scanLine(y);
+        QRgb *scanLine = (QRgb*)image.scanLine(y);
         int oset = 0;
         for (int x=0; x<image.width(); ++x) {
             t = (gdx * (x-x1) + gdy * (y-y1)) / glen;
             if (t < 0) {
-                scanLine[oset++] = b1;
-                scanLine[oset++] = g1;
-                scanLine[oset++] = r1;
-                scanLine[oset++] = a1;
+                scanLine[oset++] = qRgba(r1, g1, b1, a1);
             } else if (t > glen) {
-                scanLine[oset++] = b2;
-                scanLine[oset++] = g2;
-                scanLine[oset++] = r2;
-                scanLine[oset++] = a2;
+                scanLine[oset++] = qRgba(r2, g2, b2, a2);
             } else {
                 t = t / glen;
-                scanLine[oset++] = b1 * (1-t) + b2 * t;
-                scanLine[oset++] = g1 * (1-t) + g2 * t;
-                scanLine[oset++] = r1 * (1-t) + r2 * t;
-                scanLine[oset++] = a1 * (1-t) + a2 * t;
+                scanLine[oset++] = qRgba(qRound(r1 * (1-t) + r2 * t), qRound(g1 * (1-t) + g2 * t),
+                                         qRound(b1 * (1-t) + b2 * t), qRound(a1 * (1-t) + a2 * t));
             }
         }
     }
