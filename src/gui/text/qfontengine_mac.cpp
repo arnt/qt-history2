@@ -176,7 +176,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
         p->painter()->setPen(Qt::NoPen);
         const float lw = lineThickness();
         if(textFlags & Qt::TextUnderline) 
-            p->painter()->drawRect(QRectF(req_x-1, req_y + underlinePosition(), si.width, lw));
+            p->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(), si.width, lw));
         if(textFlags & Qt::TextOverline)
             p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));
         if(textFlags & Qt::TextStrikeOut)
