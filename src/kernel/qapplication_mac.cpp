@@ -1691,7 +1691,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 
-	//finally send the event to the widget if its not the popup
 	if(widget) {
 	    if(ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) {
 		QWidget* w = widget;
