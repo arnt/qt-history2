@@ -747,7 +747,7 @@ void generateManualRules()
     addRenamedHeaderRule("qiconset.h", "qicon.h");
     addRenamedHeaderRule("qvbox.h", "qvboxwidget.h");
     addRenamedHeaderRule("qwmatrix.h", "qmatrix.h");
-    addRenamedHeaderRule("qguardedptr.h", "qobject.h");
+    addRenamedHeaderRule("qguardedptr.h", "qpointer.h");
 
     addRenamedHeaderRule("qlayout.h", "qabstractlayout.h");
     
