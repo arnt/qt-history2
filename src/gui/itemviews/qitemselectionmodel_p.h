@@ -23,10 +23,9 @@ public:
     QItemSelectionModelPrivate()
         : model(0), currentCommand(QItemSelectionModel::NoUpdate) {}
 
-    void init();
     QItemSelection expandSelection(const QItemSelection &selection,
                                    QItemSelectionModel::SelectionFlags command) const;
-    
+
     inline void remove(QList<QItemSelectionRange> &r)
     {
         QList<QItemSelectionRange>::const_iterator it = r.constBegin();

@@ -470,7 +470,6 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
     : QObject(*new QItemSelectionModelPrivate, parent)
 {
     d->model = model;
-    d->init();
 }
 
 /*!
@@ -481,7 +480,6 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
     : QObject(dd, parent)
 {
     d->model = model;
-    d->init();
 }
 
 /*!
@@ -926,12 +924,4 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &newSelectio
     }
 
     emit selectionChanged(selected, deselected);
-}
-
-void QItemSelectionModelPrivate::init()
-{
-    // ### This is only necessary until we move the selection model over to use QPersistentModelIndex
-    QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), q, SLOT(clear()));
-    QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(clear()));
-    QObject::connect(model, SIGNAL(reset()), q, SLOT(reset()));
 }
