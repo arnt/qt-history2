@@ -1063,7 +1063,7 @@ void UnixMakefileGenerator::init2()
             QString rpath_destdir = destdir;
             if(QDir::isRelativePath(rpath_destdir)) {
                 QFileInfo fi(Option::fixPathToLocalOS(rpath_destdir));
-                if(fi.makeAbsolute())  //strange, shouldn't really happen
+                if(!fi.makeAbsolute())  //strange, shouldn't really happen
                     rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
                 else
                     rpath_destdir = fi.filePath();
