@@ -43,7 +43,7 @@
 #include <qobject.h>
 #include <qpaintdevice.h>
 #endif // QT_H
-
+#include <limits.h>
 
 //
 //  W A R N I N G
