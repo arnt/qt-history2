@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#165 $
 **
 ** Implementation of QListView widget class
 **
@@ -1518,7 +1518,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		// find first interesting column, once
 		x = 0;
 		c = 0;
-		cs = d->h->cellSize( 0 );
+		cs = d->h->cellSize( 0 	);
 		while ( x + cs <= cx && c < d->h->count() ) {
 		    x += cs;
 		    c++;
@@ -1538,8 +1538,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		// if nothing would otherwise
 		if ( !d->focusItem && hasFocus() )
 		    d->focusItem = current->i;
-
-		debug( "fx %d fc %d", fx, fc );
 	    }
 
 	    x = fx;
@@ -1992,7 +1990,7 @@ void QListView::updateGeometries()
 void QListView::handleSizeChange( int section, int, int )
 {
     updateGeometries();
-    int left = d->h->cellPos(d->h->mapToActual( section ));
+    int left = d->h->cellPos( d->h->mapToActual( section ) - d->h->offset() );
     viewport()->repaint( left, 0, viewport()->width()-left,
                          viewport()->height(), FALSE );
 }
