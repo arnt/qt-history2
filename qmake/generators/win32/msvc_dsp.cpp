@@ -79,9 +79,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     } else {
 	dspfile = project->first("MSVCDSP_TEMPLATE");
     }
-    dspfile = findTemplate(dspfile);
+    QString dspfile_loc = findTemplate(dspfile);
 
-    QFile file(dspfile);
+    QFile file(dspfile_loc);
     if(!file.open(IO_ReadOnly)) {
 	fprintf(stderr, "Cannot open dsp file: %s\n", dspfile.latin1());
 	return FALSE;
@@ -506,8 +506,10 @@ QString
 DspMakefileGenerator::findTemplate(QString file)
 {
     QString ret;
-    if(!QFile::exists(ret = file) && !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))) &&
-	!QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc/" + file)))
+    if(!QFile::exists((ret = file)) && 
+       !QFile::exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
+       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc/" + file)) && 
+       !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))))
 	return "";
     return ret;
 }
