@@ -2875,7 +2875,7 @@ bool QRegion::contains( const QPoint &p ) const
 
 bool QRegion::contains( const QRect &r ) const
 {
-    return XRectInRegion( (Region)data->rgn, r.left(), r.right(), r.width(), r.height() ) != RectangleOut;
+    return XRectInRegion( (Region)data->rgn, r.left(), r.top(), r.width(), r.height() ) != RectangleOut;
 }
 
 /*
