@@ -201,6 +201,9 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	dataTypeFmt + "\\s*\\b([a-z][a-zA-Z_0-9]*)\\s*=(\\s*)(.*)" );
     static QRegExp ctorVarRegExp(
 	"(" + dataTypeFmt + ")\\s*\\b([a-z][a-zA-Z_0-9]*)\\((.*)\\);" );
+    static QRegExp qdebugRegExp(
+	"q(?:Debug|Warning|Fatal)\\(\\s*(\"(?:\\\\.|[^\"])*\")\\s*"
+	"(?:,\\s*(\\S(?:[^,]*\\S)?))?\\s*\\);" );
 
     if ( code.isEmpty() || code == "{" || code == "}" )
 	return code;
@@ -276,6 +279,42 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	    result += "new " + dataType;
 	    if ( !value.isEmpty() )
 		result += "( " + value + " )";
+	}
+	result += ";";
+    } else if ( qdebugRegExp.exactMatch(code) ) {
+	QString fmt = qdebugRegExp.cap( 1 );
+	QString arg1 = qdebugRegExp.cap( 2 );
+
+	result += "println ";
+	int i = 0;
+	while ( i < (int) fmt.length() ) {
+	    if ( fmt[i] == '%' ) {
+		int percent = i;
+		i++;
+		while ( i < (int) fmt.length() &&
+			QString("diouxXeEfFgGaAcsCSpn%\"").find(fmt[i]) == -1 )
+		    i++;
+		if ( fmt[i] == '%' ) {
+		    result += fmt[i++];		
+		} else if ( fmt[i] != '"' ) {
+		    if ( percent == 1 ) {
+			result.truncate( result.length() - 1 );
+		    } else {
+			result += "\" + ";
+		    }
+		    i++;
+		    if ( arg1.endsWith(".latin1()") )
+			arg1.truncate( arg1.length() - 9 );
+		    result += arg1;
+		    if ( i == (int) fmt.length() - 1 ) {
+			i++;
+		    } else {
+			result += " + \"";
+		    }
+		}
+	    } else {
+		result += fmt[i++];
+	    }
 	}
 	result += ";";
     } else {
