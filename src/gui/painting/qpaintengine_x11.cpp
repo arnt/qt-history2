@@ -520,7 +520,6 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
  */
 
 //#define QT_DEBUG_TESSELATOR
-
 #define FloatToXFixed(i) (int)((i) * 65536)
 #define IntToXFixed(i) ((i) << 16)
 
@@ -607,10 +606,10 @@ static XTrapezoid QT_FASTCALL toXTrapezoidRound(XFixed y1, XFixed y2, const QEdg
 }
 
 #ifdef QT_DEBUG_TESSELATOR
-static void dump_edges(const QList<QEdge> &et)
+static void dump_edges(const QList<const QEdge *> &et)
 {
     for (int x = 0; x < et.size(); ++x) {
-        qDebug() << "edge#" << x << et.at(x).p1 << et.at(x).p2 << "b: " << et.at(x).b << "m:" << et.at(x).m << &et.at(x);
+        qDebug() << "edge#" << x << et.at(x)->p1 << et.at(x)->p2 << "b: " << et.at(x)->b << "m:" << et.at(x)->m << et.at(x);
     }
 }
 
@@ -621,7 +620,7 @@ static void dump_trap(const XTrapezoid &t)
              << XFixedToDouble(t.left.p1.x) << ","<< XFixedToDouble(t.left.p1.y)
              << ")" << "\tleft p2: (" << XFixedToDouble(t.left.p2.x) << ","
              << XFixedToDouble(t.left.p2.y) << ")" << "\n\t\t\t\tright p1:("
-             << XFixedToDouble(.right.p1.x) << "," << XFixedToDouble(t.right.p1.y) << ")"
+             << XFixedToDouble(t.right.p1.x) << "," << XFixedToDouble(t.right.p1.y) << ")"
              << "\tright p2:(" << XFixedToDouble(t.right.p2.x) << ","
              << XFixedToDouble(t.right.p2.y) << ")";
 }
@@ -928,9 +927,17 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     if (isActive()) {                         // already active painting
         qWarning("QX11PaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
-        return true;
+        return false;
     }
 
+    // Set up the polygon clipper. Note: This will only work in
+    // polyline mode as long as we have a buffer zone, since a
+    // polyline may be clipped into several non-connected polylines.
+    const int BUFFERZONE = 100;
+    QRect devClipRect(-BUFFERZONE, -BUFFERZONE,
+                      pdev->width() + 2*BUFFERZONE, pdev->height() + 2 * BUFFERZONE);
+    d->polygonClipper.setBoundingRect(devClipRect);
+    d->floatClipper.setBoundingRect(devClipRect);
     setActive(true);
 
     QPixmap::x11SetDefaultScreen(d->xinfo->screen());
@@ -1030,7 +1037,8 @@ void QX11PaintEngine::drawRect(const QRectF &rect)
     if (!isActive())
         return;
 
-    QRect r = rect.toRect();
+    QRect r = rect.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
+
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
 
@@ -1382,7 +1390,9 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
 
 void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
 {
-    int npoints = pointCount;
+    int clippedCount = 0;
+    qt_XPoint *clippedPoints = 0;
+
     if (mode != PolylineMode) {
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
@@ -1414,29 +1424,30 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
                 attrs.poly_edge = smooth_edges ? PolyEdgeSmooth : PolyEdgeSharp;
                 XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
 
-                QVector<XTrapezoid> traps;
-                traps.reserve(128);
-                qt_tesselate_polygon(&traps, polygonPoints, pointCount, mode == WindingMode,
-                                     smooth_edges);
+                int cCount;
+                qt_float_point *cPoints;
+                d->floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
+                if (cCount > 0) {
+                    QVector<XTrapezoid> traps;
+                    traps.reserve(128);
+                    qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount, mode == WindingMode,
+                                         smooth_edges);
 
-                XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0,
-                                           x_offset, 0, traps.constData(), traps.size());
+                    XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0,
+                                               x_offset, 0, traps.constData(), traps.size());
+                }
             }
         } else
 #endif
             if (d->cbrush.style() != Qt::NoBrush) {
                 if (mode == WindingMode)
                     XSetFillRule(d->dpy, d->gc_brush, WindingRule);
-
-                int n = qMin(npoints, 65535);
-                QVarLengthArray<XPoint, 512> points(n);
-                for (int i = 0; i < n; ++i) {
-                    points[i].x = qRound(polygonPoints[i].x());
-                    points[i].y = qRound(polygonPoints[i].y());
-                }
-                XFillPolygon(d->dpy, d->hd, d->gc_brush,
-                             points.data(),
-                             npoints, mode == ConvexMode ? Convex : Complex, CoordModeOrigin);
+                d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+                                              &clippedPoints, &clippedCount);
+                if (clippedCount > 0)
+                    XFillPolygon(d->dpy, d->hd, d->gc_brush,
+                                 (XPoint *) clippedPoints, clippedCount,
+                                 mode == ConvexMode ? Convex : Complex, CoordModeOrigin);
 
                 if (mode == WindingMode)
                     XSetFillRule(d->dpy, d->gc_brush, EvenOddRule);
@@ -1444,19 +1455,11 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
     }
 
     if (d->cpen.style() != Qt::NoPen) {
-        int index = 0;
-        QVarLengthArray<XPoint, 512> points(512);
-        while(npoints > 0) {
-            int n = qMin(npoints, 65535);
-            points.resize(n);
-            for (int i = 0; i < n; ++i) {
-                points[i].x = qRound(polygonPoints[i+index].x());
-                points[i].y = qRound(polygonPoints[i+index].y());
-            }
-            XDrawLines(d->dpy, d->hd, d->gc, points.data(), n, CoordModeOrigin);
-            npoints -= n;
-            index += n;
-        }
+        if (!clippedPoints) // already clipped?
+            d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+                                          &clippedPoints, &clippedCount, false);
+        if (clippedCount > 0)
+            XDrawLines(d->dpy, d->hd, d->gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);
     }
 }
 

@@ -60,9 +60,10 @@ private:
     Type *buffer;
 };
 
+
 /* based on sutherland-hodgman line-by-line clipping, as described in
    Computer Graphics and Principles */
-template <typename InType, typename OutType> class QPolygonClipper
+template <typename InType, typename OutType, typename CastType> class QPolygonClipper
 {
 public:
     QPolygonClipper()
@@ -82,13 +83,17 @@ public:
         y2 = bounds.y() + bounds.height();
     }
 
+    QRect boundingRect()
+    {
+        return QRect(QPoint(x1, y1), QPoint(x2, y2));
+    }
 
     inline OutType intersectLeft(const OutType &p1, const OutType &p2)
     {
         OutType t;
         double dy = (p1.y - p2.y) / double(p1.x - p2.x);
         t.x = x1;
-        t.y = p2.y + (x1 - p2.x) * dy;
+        t.y = static_cast<CastType>(p2.y + (x1 - p2.x) * dy);
         return t;
     }
 
@@ -98,7 +103,7 @@ public:
         OutType t;
         double dy = (p1.y - p2.y) / double(p1.x - p2.x);
         t.x = x2;
-        t.y = p2.y + (x2 - p2.x) * dy;
+        t.y = static_cast<CastType>(p2.y + (x2 - p2.x) * dy);
         return t;
     }
 
@@ -107,7 +112,7 @@ public:
     {
         OutType t;
         double dx = (p1.x - p2.x) / double(p1.y - p2.y);
-        t.x = p2.x + (y1 - p2.y) * dx;
+        t.x = static_cast<CastType>(p2.x + (y1 - p2.y) * dx);
         t.y = y1;
         return t;
     }
@@ -117,13 +122,14 @@ public:
     {
         OutType t;
         double dx = (p1.x - p2.x) / double(p1.y - p2.y);
-        t.x = p2.x + (y2 - p2.y) * dx;
+        t.x = static_cast<CastType>(p2.x + (y2 - p2.y) * dx);
         t.y = y2;
         return t;
     }
 
 
-    void clipPolygon(const InType *inPoints, int inCount, OutType **outPoints, int *outCount)
+    void clipPolygon(const InType *inPoints, int inCount, OutType **outPoints, int *outCount,
+                     bool closePolygon = true)
     {
         Q_ASSERT(outPoints);
         Q_ASSERT(outCount);
@@ -255,6 +261,12 @@ public:
             }
         }
 
+        if (closePolygon && clipped->size() > 0) {
+            // close clipped polygon
+            if (clipped->at(0).x != clipped->at(clipped->size()-1).x ||
+                clipped->at(0).y != clipped->at(clipped->size()-1).y)
+                clipped->add(clipped->at(0));
+        }
         *outCount = clipped->size();
         *outPoints = clipped->data();
     }

@@ -28,11 +28,29 @@
 #include "qpaintengine.h"
 #include "qregion.h"
 #include "qpen.h"
+#include "qpoint.h"
 #include <private/qpaintengine_p.h>
 #include <private/qpainter_p.h>
+#include <private/qpolygonclipper_p.h>
 
 typedef struct _XftDraw XftDraw;
 #include "qx11info_x11.h"
+
+typedef struct qt_XPoint {
+    short x;
+    short y;
+};
+
+struct qt_float_point
+{
+    float x, y;
+    operator qt_XPoint() const
+    {
+        qt_XPoint pt = { static_cast<short>(qRound(x)),
+                         static_cast<short>(qRound(y)) };
+        return pt;
+    }
+};
 
 class QX11PaintEnginePrivate : public QPaintEnginePrivate {
 
@@ -43,7 +61,6 @@ public:
         scrn = -1;
         hd = 0;
         xft_hd = 0;
-        //              flags = Qt::IsStartingUp;
         bg_col = Qt::white;                             // default background color
         bg_mode = Qt::TransparentMode;                  // default background mode
         tabstops = 0;                               // default tabbing
@@ -53,11 +70,8 @@ public:
         wm_stack = 0;
         gc = gc_brush = 0;
         dpy  = 0;
-        //             txop = txinv = 0;
         penRef = brushRef = 0;
         clip_serial = 0;
-        //             pfont = 0;
-        //             block_ext = false;
         xinfo = 0;
         txop = QPainterPrivate::TxNone;
     }
@@ -90,6 +104,8 @@ public:
     const QX11Info *xinfo;
     QPointF bg_origin;
     QPainterPrivate::TransformationCodes txop;
+    QPolygonClipper<qt_float_point, qt_XPoint, short> polygonClipper;
+    QPolygonClipper<qt_float_point, qt_float_point, float> floatClipper;
 };
 
 class QX11PaintEngine : public QPaintEngine

@@ -184,7 +184,7 @@ public:
     QColor penColor;
     QColor brushColor;
 
-    QPolygonClipper<qt_float_point, qt_float_point> polygonClipper;
+    QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 
     uint usesTempDC : 1;
     uint usePen : 1;
@@ -256,7 +256,7 @@ public:
 
     QPaintEngine::PaintEngineFeatures oldFeatureSet;
 
-    QPolygonClipper<qt_float_point, POINT> polygonClipper;
+    QPolygonClipper<qt_float_point, POINT, float> polygonClipper;
 
     /*!
      Switches the paint engine into GDI+ mode
