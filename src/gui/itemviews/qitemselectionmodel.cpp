@@ -323,12 +323,13 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 	// return false if ranges in both currentSelection and the selection model
 	// intersect and have the same column contained
 	QList<QItemSelectionRange> toggle = d->currentSelection->ranges;
-	for (int i=0; i<toggle.count(); ++i)
-	    if (toggle.at(i).left() <= column && toggle.at(i).right() >= column)
-		for (int j=0; j<joined.count(); ++j)
+	for (int i=0; i<toggle.count(); ++i) {
+	    if (toggle.at(i).left() <= column && toggle.at(i).right() >= column) {
+		for (int j=0; j<joined.count(); ++j) {
 		    if (joined.at(j).left() <= column && joined.at(j).right() >= column
-			&& toggle.at(i).intersect(joined.at(j)).isValid())
+			&& toggle.at(i).intersect(joined.at(j)).isValid()) {
 			return false;
+		    }
 		}
 	    }
 	}
@@ -336,7 +337,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     QModelIndex item;
     QList<QItemSelectionRange>::const_iterator it;
     if (d->currentSelection)
-	joined += d->currentSelection->ranges;
+	joined += d->currentSelection->ranges;S
     for (int i = 0; i < model()->rowCount(parent); ++i) {
 	 item = model()->index(i, column, parent);
 	 for (it = joined.begin(); it != joined.end(); ++it) {
