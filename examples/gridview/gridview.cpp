@@ -14,6 +14,8 @@
 #include <qgridview.h>
 #include <qpainter.h>
 
+using namespace Qt;
+
 // Grid size
 const int numRows = 100;
 const int numCols = 100;

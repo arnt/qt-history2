@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, medium-config)"
 HEADERS		=
 SOURCES		= gridview.cpp
 
+QT	+= compat
