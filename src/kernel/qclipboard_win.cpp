@@ -417,9 +417,7 @@ void QClipboard::clear( Mode mode )
     if ( mode != Clipboard ) return;
 
     if ( OpenClipboard( clipboardOwner()->winId() ) ) {
-	ignore_empty_clipboard = TRUE;
 	EmptyClipboard();
-	ignore_empty_clipboard = FALSE;
 	CloseClipboard();
     }
 }
