@@ -1378,6 +1378,10 @@ QSize QSGIStyle::sizeFromContents( ContentsType contents,
 	    QMenuItem *mi = opt.menuItem();
 	    sz = QMotifStyle::sizeFromContents( contents, widget, contentsSize,
 						opt );
+	    // SGI checkmark items needs a bit more room
+	    const QPopupMenu *popup = (QPopupMenu *) widget;
+	    if ( popup && popup->isCheckable() )
+		sz.setWidth( sz.width() + 8 );
 	    // submenu indicator needs a bit more room
 	    if (mi->popup())
 		sz.setWidth( sz.width() + sgiTabSpacing );
