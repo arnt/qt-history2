@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#181 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#180 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#181 $");
 
 
 /*!
@@ -391,14 +391,16 @@ inline bool QWidgetMapper::remove( WId id )
 }
 
 
-// focus data class - documented in QWidget::focusData()
+// Focus data class - documented in QWidget::focusData()
 
 class QFocusData {
 public:
-    QFocusData(): it(focusWidgets) { focusWidgets.setAutoDelete( FALSE ); }
+    QFocusData()
+	: it(focusWidgets) {}
     QList<QWidget> focusWidgets;
     QListIterator<QWidget> it;
 };
+
 
 /*****************************************************************************
   QWidget member functions
@@ -587,13 +589,13 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     create();					// platform-dependent init
     deferMove( frect.topLeft() );
     deferResize( crect.size() );    
-    //ARNT du maa teste koden din
-    if ( testWFlags( WState_TabToFocus ) ) {	// focus was set using WFlags
-	QFocusData * fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef( this ) < 0 )
+    if ( testWFlags(WState_TabToFocus) ) {	// focus was set using WFlags
+	QFocusData *fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
     }
 }
+
 
 /*!
   Destroys the widget.
@@ -634,15 +636,15 @@ QWidget::~QWidget()
 	delete childObjects;
 	childObjects = 0;
     }
+
     // if I had focus, clear focus entirely.  this is probably a bad idea -
     // better to give focus to someone else
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;
-
     // remove myself from the can-take-focus list
-    QFocusData * f = focusData();
-    if ( f && f->focusWidgets.findRef( this ) >= 0 )
-	f->focusWidgets.take();
+    QFocusData *f = focusData();
+    if ( f )
+	f->focusWidgets.removeRef( this );
 
     destroy();					// platform-dependent cleanup
     if ( extra )
@@ -1147,7 +1149,8 @@ void QWidget::setFixedSize( int w, int h )
 }
 
 
-/*!  Sets the minimum width of the widget to \a w without changing the
+/*!
+  Sets the minimum width of the widget to \a w without changing the
   height.  Provided for convenience.
 
   \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
@@ -1159,7 +1162,8 @@ void QWidget::setMinimumWidth( int w )
 }
 
 
-/*!  Sets the minimum height of the widget to \a h without changing the
+/*!
+  Sets the minimum height of the widget to \a h without changing the
   width.  Provided for convenience.
 
   \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
@@ -1171,7 +1175,8 @@ void QWidget::setMinimumHeight( int h )
 }
 
 
-/*!  Sets the maximum width of the widget to \a w without changing the
+/*!
+  Sets the maximum width of the widget to \a w without changing the
   height.  Provided for convenience.
 
   \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
@@ -1183,7 +1188,8 @@ void QWidget::setMaximumWidth( int w )
 }
 
 
-/*!  Sets the maximum height of the widget to \a h without changing the
+/*!
+  Sets the maximum height of the widget to \a h without changing the
   width.  Provided for convenience.
 
   \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
@@ -1195,7 +1201,8 @@ void QWidget::setMaximumHeight( int h )
 }
 
 
-/*!  Sets both the minimum and maximum width of the widget to \a w
+/*!
+  Sets both the minimum and maximum width of the widget to \a w
   without changing the heights.  Provided for convenience.
 
   \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
@@ -1208,7 +1215,8 @@ void QWidget::setFixedWidth( int w )
 }
 
 
-/*!  Sets both the minimum and maximum heights of the widget to \a h
+/*!
+  Sets both the minimum and maximum heights of the widget to \a h
   without changing the widths.  Provided for convenience.
 
   \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
@@ -1611,14 +1619,13 @@ bool QWidget::hasFocus() const
 
 void QWidget::setFocus()
 {
-
     if ( testWFlags(WFocusSet) || !(isFocusEnabled() && isEnabled()) )
 	return;
 
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() )
 	f->it.current()->clearFocus();
-    if ( testWFlags( WState_TabToFocus ) ) {
+    if ( testWFlags(WState_TabToFocus) ) {
 	// move the tab focus pointer only if this widget can be
 	// tabbed to or from.
 	f->it.toFirst();
@@ -1628,8 +1635,7 @@ void QWidget::setFocus()
 	// does not, 'this' must not be in the list - an error, but
 	// perhaps possible.  fix it.
 	if ( f->it.current() != this ) {
-	    //ARNT du maa teste koden din
-	    //f->focuswidgets.append( this );
+	    f->focusWidgets.append( this );
 	    f->it.toLast();
 	}
     }
@@ -1678,23 +1684,22 @@ void QWidget::clearFocus()
   If \a next is true, this function searches "forwards", if \a next is
   FALSE, "backwards".
 
-  Reimplementing this function makes sense only top-level widgets, but
-  not for any other widgets.  
-
+  Reimplementing this function makes sense only to top-level widgets,
+  not for any other widgets.
 */
 
 bool QWidget::focusNextPrevChild( bool next )
 {
-    QFocusData * f = focusData( TRUE );
+    QFocusData *f = focusData( TRUE );
 
-    QWidget * startingPoint = f->it.current();
-    QWidget * candidate = 0;
-    QWidget * w = next ? f->focusWidgets.last() : f->focusWidgets.first();
+    QWidget *startingPoint = f->it.current();
+    QWidget *candidate = 0;
+    QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
 
     do {
 	if ( w && w != startingPoint &&
 	     w->testWFlags( WState_TabToFocus ) &&
-	     w->isReallyVisible() && w->isEnabled() )
+	     w->isVisibleToTLW() && w->isEnabled() )
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
     } while( w && !(candidate && w==startingPoint) );
@@ -1707,19 +1712,22 @@ bool QWidget::focusNextPrevChild( bool next )
 }
 
 
-/*!  Returns the focus widget in this widget's window.  This
+/*!
+  Returns the focus widget in this widget's window.  This
   is not the same as QApplication::focusWidget(), which returns the
   focus widget in the currently active window.
 */
 
-QWidget * QWidget::focusWidget()
+QWidget *QWidget::focusWidget() const
 {
-    QFocusData * f = focusData( FALSE );
+    QWidget *that = (QWidget *)this;		// mutable
+    QFocusData *f = that->focusData( FALSE );
     return f ? f->it.current() : 0;
 }
 
 
-/*!  Returns a pointer to the focus data for this widget's top-level
+/*!
+  Returns a pointer to the focus data for this widget's top-level
   widget, optionally creating focus data.
 
   Focus data always belongs to the top-level widget.  The focus data
@@ -1743,29 +1751,27 @@ QFocusData * QWidget::focusData( bool create )
 }
 
 
-void QWidget::insertIntoFocusChain( QWidget * after )
+void QWidget::insertIntoFocusChain( QWidget *after )
 {
-    QFocusData * f = focusData( TRUE );
+    QFocusData *f = focusData( TRUE );
     bool focusHere = (f->it.current() == this);
-    if ( f->focusWidgets.findRef( this ) >= 0 )
-	 f->focusWidgets.take();
+    f->focusWidgets.removeRef( this );
     if ( f->focusWidgets.findRef( after ) >= 0 )
 	f->focusWidgets.insert( f->focusWidgets.at() + 1, this );
     else
 	f->focusWidgets.append( this );
-    
     if ( focusHere ) // reset iterator so tab will work appropriately
 	while( f->it.current() && f->it.current() != this )
 	    ++f->it;
 }
 
-/*!  Moves the relevant widgets from the this window's tab chain to
+/*!
+  Moves the relevant widgets from the this window's tab chain to
   that of \a parent, if there's anything to move and we're really
   moving
 
   \sa recreate()
 */
-
 
 void QWidget::reparentFocusWidgets( QWidget * parent )
 {
@@ -2146,39 +2152,37 @@ bool QWidget::close( bool forceKill )
 }
 
 
-/*! \fn bool QWidget::isVisible() const
+/*!
+  \fn bool QWidget::isVisible() const
 
   Returns TRUE if the widget itself is set to visible status, or else
   FALSE.  Calling show() sets the widget to visible status; calling
   hide() sets it to hidden status.
 
   If a widget is set to visible status, but its parent widget is set
-  to hidden status, this function returns TRUE.  isReallyVisible()
-  looks at the visibility status if the parent widgets as well, and is
-  better suited to many purposes.
+  to hidden status, this function returns TRUE.  isVisibleToTLW()
+  looks at the visibility status of the parent widgets up to the
+  top level widget.
 
   This function returns TRUE if the widget it is obscured by other
   windows on the screen, but would be visible if moved.
 
-  Calling show() makes the widget visible, and calling hide() makes
-  the widget invisible.
-
-  \sa show() hide() isReallyVisible() iconified()
+  \sa show(), hide(), isVisibleToTLW(), iconified()
 */
 
 
 /*!
   Returns TRUE if this widget and every parent up to the \link
-  topLevelWidget() top level widget \endlink is visible, or else
-  FALSE.
+  topLevelWidget() top level widget \endlink is visible, otherwise
+  returns FALSE.
 
   This function returns TRUE if the widget it is obscured by other
   windows on the screen, but would be visible if moved.
 
-  \sa show() hide() isVisible() iconified()
+  \sa show(), hide(), isVisible(), iconified()
 */
 
-bool QWidget::isReallyVisible() const
+bool QWidget::isVisibleToTLW() const
 {
     const QWidget * w = this;
     while ( w && !w->isVisible() && !w->isTopLevel() && w->parentWidget() )

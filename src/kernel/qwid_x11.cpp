@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#187 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#186 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#187 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -63,15 +63,18 @@ const uint stdWidgetEventMask =			// X event mask
   The qt_ functions below are implemented in qt_x11.cpp.
 */
 
-Window qt_XCreateWindow( const QWidget *creator, Display *display, Window parent,
+Window qt_XCreateWindow( const QWidget *creator,
+			 Display *display, Window parent,
 			 int x, int y, uint w, uint h,
 			 int borderwidth, int depth,
 			 uint windowclass, Visual *visual,
 			 ulong valuemask, XSetWindowAttributes *attributes );
-Window qt_XCreateSimpleWindow( const QWidget *creator, Display *display, Window parent,
+Window qt_XCreateSimpleWindow( const QWidget *creator,
+			       Display *display, Window parent,
 			       int x, int y, uint w, uint h, int borderwidth,
 			       ulong border, ulong background );
-void qt_XDestroyWindow( const QWidget *destroyer, Display *display, Window window );
+void qt_XDestroyWindow( const QWidget *destroyer,
+			Display *display, Window window );
 
 
 
@@ -138,7 +141,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {					// child widget
 	frect.setRect( 0, 0, 100, 30 );
     }
-
     crect = frect;				// default client rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
@@ -575,6 +577,10 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 }
 
 
+#if QT_VERSION == 200
+#error "Make setBackgroundEmpty virtual"
+#endif
+
 /*!
   Sets the window-system background of the widget to nothing.
 
@@ -912,7 +918,8 @@ void QWidget::update( int x, int y, int w, int h )
 }
 
 
-/*! \overload void QWidget::repaint( bool erase )
+/*!
+  \overload void QWidget::repaint( bool erase )
 
   This version repaints the entire widget.
 */

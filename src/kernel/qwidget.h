@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#115 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#116 $
 **
 ** Definition of QWidget class
 **
@@ -97,7 +97,7 @@ public:
     const QPixmap *backgroundPixmap() const;
     virtual void setBackgroundPixmap( const QPixmap & );
 
-    void setBackgroundEmpty();
+    void	 setBackgroundEmpty();
 
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;
@@ -163,7 +163,7 @@ public:
 
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
-    bool	 isReallyVisible() const;
+    bool	 isVisibleToTLW() const;
 
     void	 raise();
     void	 lower();
@@ -277,10 +277,10 @@ private:
     void	 cancelMove();
     void	 cancelResize();
     void	 sendDeferredEvents();
-    QWidget * 	 focusWidget();
+    QWidget     *focusWidget() const;
     void 	 insertIntoFocusChain( QWidget * );
-    void 	 reparentFocusWidgets( QWidget * parent );
-    QFocusData * focusData( bool create = FALSE );
+    void 	 reparentFocusWidgets( QWidget *parent );
+    QFocusData  *focusData( bool create = FALSE );
 
     WId		 winid;
     WFlags	 flags;

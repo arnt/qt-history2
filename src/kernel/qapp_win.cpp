@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#97 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#97 $");
 
 
 /*****************************************************************************
@@ -878,10 +878,6 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 
 void QApplication::winFocus( QWidget *w, bool gotFocus )
 {
-    // ### 
-
-    // bogus stuff here.  may need to muck about with
-    // tlw->extra->focusData so tab works correctly.
     if ( gotFocus ) {
 	w = w->focusWidget();
 	if ( w != focus_widget && w->isFocusEnabled() ) {
@@ -982,6 +978,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ERASEBKGND: {			// erase window background
+	    const QPixmap *bgpm = widget->backgroundPixmap();
+	    if ( bgpm && bgpm->isNull() )	// empty background
+		break;
 	    HDC	     hdc = (HDC)wParam;
 	    RECT     rect;
 	    HBRUSH   brush;
@@ -991,19 +990,14 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
 		RealizePalette( hdc );
 	    }
-	    const QPixmap *bgpm = widget->backgroundPixmap();
 	    if ( bgpm )
-		if ( !bgpm.isNull() )
-		    brush = CreatePatternBrush( bgpm->hbm() );
+		brush = CreatePatternBrush( bgpm->hbm() );
 	    else
 		brush = CreateSolidBrush( widget->backgroundColor().pixel() );
-
-	    if ( !bgpm.isNull() ) {
-		HBRUSH oldBrush = SelectObject( hdc, brush );
-		PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
-		SelectObject( hdc, oldBrush );
-		DeleteObject( brush );
-	    }
+	    HBRUSH oldBrush = SelectObject( hdc, brush );
+	    PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
+	    SelectObject( hdc, oldBrush );
+	    DeleteObject( brush );
 	    if ( QColor::hPal() ) {
 		SelectPalette( hdc, oldPal, TRUE );
 		RealizePalette( hdc );
@@ -1345,6 +1339,7 @@ static TimerDict *timerDict = 0;		// timer dict
 
 bool qt_win_use_simple_timers = FALSE;
 
+
 //
 // Timer activation (called from the event loop when WM_TIMER arrives)
 //
@@ -1423,7 +1418,9 @@ static void cleanupTimers()			// remove pending timers
 //
 // Main timer functions for starting and killing timers
 //
-void CALLBACK qt_simple_timer_func( HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime )
+
+void CALLBACK qt_simple_timer_func( HWND hwnd, UINT uMsg, UINT idEvent,
+				    DWORD dwTime )
 {
     activateTimer( idEvent );
 }
@@ -1444,10 +1441,11 @@ int qStartTimer( int interval, QObject *obj )
 
     if ( qt_win_use_simple_timers ) {
 	t->zero = FALSE;
-	t->id = SetTimer( 0, 0, (uint)interval, (TIMERPROC)qt_simple_timer_func );
+	t->id = SetTimer( 0, 0, (uint)interval,
+			  (TIMERPROC)qt_simple_timer_func );
     } else {
 	t->zero = interval == 0;
-	if ( t->zero ) {				// add zero timer
+	if ( t->zero ) {			// add zero timer
 	    t->id = (uint)50000 + ind;		// unique, high id
 	    numZeroTimers++;
 	} else {

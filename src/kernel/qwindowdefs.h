@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#91 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#92 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -231,6 +231,7 @@ const uint WExportFontInfo	= 0x20000000;
 const uint WFocusSet		= 0x40000000;
 const uint WState_TabToFocus	= 0x80000000;
 
+
 class QFocusData;
 
 // Extra QWidget data
@@ -245,7 +246,7 @@ struct QWExtra {
     char    *iconText;				// widget icon text
     QPixmap *icon;				// widget icon
     QPixmap *bg_pix;				// background pixmap
-    QFocusData * focusData;			// like, it's... focus data
+    QFocusData *focusData;			// focus data (for TLW)
 };
 
 

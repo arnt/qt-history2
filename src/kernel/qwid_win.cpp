@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#71 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,8 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#71 $");
+
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -87,19 +88,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( window ) {
-	HBRUSH bgbrush = (HBRUSH)GetClassLong( window, GCL_HBRBACKGROUND );
-	LOGBRUSH bgbr;
-	GetObject(bgbrush, sizeof(LOGBRUSH), &bgbr);
-	if ( bgbr.lbStyle != BS_SOLID ) {
-	    // ### make a pixmap
-	} else {
-	    // ### set the color
-	}
-	// ### This lbColor is bogus.  0x0126a650 isn't white.
-	bg_col = QColor( GetRValue(bgbr.lbColor), GetGValue(bgbr.lbColor),
-			 GetBValue(bgbr.lbColor) );
+	// There's no way we can know the background color of the
+	// other window because it could be cleared using the WM_ERASEBKND
+	// message.  Therefore we assume white.
+	bg_col = white;
     } else {
-	bg_col = pal.normal().background();		// default background color
+	bg_col = pal.normal().background();	// default background color
     }
 
     if ( modal || popup || desktop ) {		// these are top-level, too
@@ -349,9 +343,7 @@ void QWidget::setBackgroundColor( const QColor &color )
     backgroundColorChange( old );
 }
 
-#if QT_VERSION == 200
-#error "Consider making setBackgroundEmpty virtual"
-#endif
+
 static int allow_null_pixmaps = 0;
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
@@ -374,13 +366,13 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
     backgroundPixmapChange( old );
 }
 
+
 void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
     allow_null_pixmaps--;
 }
-
 
 
 extern void qt_set_cursor( QWidget *, QCursor * ); // qapp_win.cpp
