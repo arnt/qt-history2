@@ -31,7 +31,7 @@ static bool encodingIsUtf8( const QXmlAttributes& atts )
             return ( atts.value(i) == QString("UTF-8") );
         }
     }
-    return FALSE;
+    return false;
 }
 
 class TsHandler : public QXmlDefaultHandler
@@ -39,8 +39,8 @@ class TsHandler : public QXmlDefaultHandler
 public:
     TsHandler( MetaTranslator *translator )
         : tor( translator ), type( MetaTranslatorMessage::Finished ),
-          inMessage( FALSE ), ferrorCount( 0 ), contextIsUtf8( FALSE ),
-          messageIsUtf8( FALSE ) { }
+          inMessage( false ), ferrorCount( 0 ), contextIsUtf8( false ),
+          messageIsUtf8( false ) { }
 
     virtual bool startElement( const QString& namespaceURI,
                                const QString& localName, const QString& qName,
@@ -92,7 +92,7 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
             translation.truncate( 0 );
             contextIsUtf8 = encodingIsUtf8( atts );
         } else if ( qName == QString("message") ) {
-            inMessage = TRUE;
+            inMessage = true;
             type = MetaTranslatorMessage::Finished;
             source.truncate( 0 );
             comment.truncate( 0 );
@@ -112,7 +112,7 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
         }
         accum.truncate( 0 );
     }
-    return TRUE;
+    return true;
 }
 
 bool TsHandler::endElement( const QString& /* namespaceURI */,
@@ -133,12 +133,12 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
             if ( contextIsUtf8 )
                 tor->insert( MetaTranslatorMessage(context.utf8(),
                              ContextComment,
-                             accum.utf8(), QString::null, TRUE,
+                             accum.utf8(), QString::null, true,
                              MetaTranslatorMessage::Unfinished) );
             else
                 tor->insert( MetaTranslatorMessage(context.ascii(),
                              ContextComment,
-                             accum.ascii(), QString::null, FALSE,
+                             accum.ascii(), QString::null, false,
                              MetaTranslatorMessage::Unfinished) );
         }
     } else if ( qName == QString("translation") ) {
@@ -147,14 +147,14 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
         if ( messageIsUtf8 )
             tor->insert( MetaTranslatorMessage(context.utf8(), source.utf8(),
                                                comment.utf8(), translation,
-                                               TRUE, type) );
+                                               true, type) );
         else
             tor->insert( MetaTranslatorMessage(context.ascii(), source.ascii(),
                                                comment.ascii(), translation,
-                                               FALSE, type) );
-        inMessage = FALSE;
+                                               false, type) );
+        inMessage = false;
     }
-    return TRUE;
+    return true;
 }
 
 bool TsHandler::characters( const QString& ch )
@@ -162,7 +162,7 @@ bool TsHandler::characters( const QString& ch )
     QString t = ch;
     t.replace( "\r", "" );
     accum += t;
-    return TRUE;
+    return true;
 }
 
 bool TsHandler::fatalError( const QXmlParseException& exception )
@@ -178,7 +178,7 @@ bool TsHandler::fatalError( const QXmlParseException& exception )
             QMessageBox::information( qApp->mainWidget(),
                                       QObject::tr("Qt Linguist"), msg );
     }
-    return FALSE;
+    return false;
 }
 
 static QString numericEntity( int ch )
@@ -237,7 +237,7 @@ static QString evilBytes( const QByteArray& str, bool utf8 )
 }
 
 MetaTranslatorMessage::MetaTranslatorMessage()
-    : utfeight( FALSE ), ty( Unfinished )
+    : utfeight( false ), ty( Unfinished )
 {
 }
 
@@ -247,7 +247,7 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
                                               const QString& translation,
                                               bool utf8, Type type )
     : QTranslatorMessage( context, sourceText, comment, translation ),
-      utfeight( FALSE ), ty( type )
+      utfeight( false ), ty( type )
 {
     /*
       Don't use UTF-8 if it makes no difference. UTF-8 should be
@@ -259,7 +259,7 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
             int i = 0;
             while ( sourceText[i] != '\0' ) {
                 if ( (uchar) sourceText[i] >= 0x80 ) {
-                    utfeight = TRUE;
+                    utfeight = true;
                     break;
                 }
                 i++;
@@ -269,7 +269,7 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
             int i = 0;
             while ( comment[i] != '\0' ) {
                 if ( (uchar) comment[i] >= 0x80 ) {
-                    utfeight = TRUE;
+                    utfeight = true;
                     break;
                 }
                 i++;
@@ -338,15 +338,15 @@ bool MetaTranslator::load( const QString& filename )
 {
     QFile f( filename );
     if ( !f.open(QIODevice::ReadOnly) )
-        return FALSE;
+        return false;
 
     QTextStream t( &f );
     QXmlInputSource in( t );
     QXmlSimpleReader reader;
-    reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
+    reader.setFeature( "http://xml.org/sax/features/namespaces", false );
+    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace"
-                       "-only-CharData", FALSE );
+                       "-only-CharData", false );
     QXmlDefaultHandler *hand = new TsHandler( this );
     reader.setContentHandler( hand );
     reader.setErrorHandler( hand );
@@ -363,7 +363,7 @@ bool MetaTranslator::save( const QString& filename ) const
 {
     QFile f( filename );
     if ( !f.open(QIODevice::WriteOnly) )
-        return FALSE;
+        return false;
 
     QTextStream t( &f );
     t.setCodec( QTextCodec::codecForName("ISO-8859-1") );
@@ -430,7 +430,7 @@ bool MetaTranslator::save( const QString& filename ) const
     }
     t << "</TS>\n";
     f.close();
-    return TRUE;
+    return true;
 }
 
 bool MetaTranslator::release( const QString& filename, bool verbose,

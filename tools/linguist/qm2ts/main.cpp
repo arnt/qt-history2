@@ -33,7 +33,7 @@ static void printUsage()
 
 int main( int argc, char **argv )
 {
-    bool verbose = FALSE;
+    bool verbose = false;
     int numQmFiles = 0;
 
     for ( int i = 1; i < argc; i++ ) {
@@ -41,7 +41,7 @@ int main( int argc, char **argv )
             printUsage();
             return 0;
         } else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
-            verbose = TRUE;
+            verbose = true;
             continue;
         } else if ( qstrcmp(argv[i], "-version") == 0 ) {
             fprintf( stderr, "qm2ts version %s\n", QT_VERSION_STR );
@@ -72,7 +72,7 @@ int main( int argc, char **argv )
                         context = "@default";
                     metator.insert( MetaTranslatorMessage(context,
                                     (*it).sourceText(), (*it).comment(),
-                                    (*it).translation(), FALSE,
+                                    (*it).translation(), false,
                                     MetaTranslatorMessage::Finished) );
                 }
             }

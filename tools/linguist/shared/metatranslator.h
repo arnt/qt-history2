@@ -30,7 +30,7 @@ public:
     MetaTranslatorMessage( const char *context, const char *sourceText,
                            const char *comment,
                            const QString& translation = QString::null,
-                           bool utf8 = FALSE, Type type = Unfinished );
+                           bool utf8 = false, Type type = Unfinished );
     MetaTranslatorMessage( const MetaTranslatorMessage& m );
 
     MetaTranslatorMessage& operator=( const MetaTranslatorMessage& m );
@@ -66,8 +66,8 @@ public:
     void clear();
     bool load( const QString& filename );
     bool save( const QString& filename ) const;
-    bool release( const QString& filename, bool verbose = FALSE,
-                  bool ignoreUnfinished = FALSE,
+    bool release( const QString& filename, bool verbose = false,
+                  bool ignoreUnfinished = false,
                   QTranslator::SaveMode mode = QTranslator::Stripped ) const;
 
     bool contains( const char *context, const char *sourceText,

@@ -87,10 +87,10 @@ static void releaseTsFile( const QString& tsFileName, bool verbose,
 
 int main( int argc, char **argv )
 {
-    bool verbose = FALSE;
+    bool verbose = false;
     bool ignoreUnfinished = false;
-    bool trimmed = TRUE;
-    bool metTranslations = FALSE;
+    bool trimmed = true;
+    bool metTranslations = false;
     MetaTranslator tor;
     QString outputFile;
     int numFiles = 0;
@@ -98,13 +98,13 @@ int main( int argc, char **argv )
 
     for ( i = 1; i < argc; i++ ) {
         if ( qstrcmp(argv[i], "-nocompress") == 0 ) {
-            trimmed = FALSE;
+            trimmed = false;
             continue;
         } else if ( qstrcmp(argv[i], "-nounfinished") == 0 ) {
-            ignoreUnfinished = TRUE;
+            ignoreUnfinished = true;
             continue;
         } else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
-            verbose = TRUE;
+            verbose = true;
             continue;
         } else if ( qstrcmp(argv[i], "-version") == 0 ) {
             fprintf( stderr, "lrelease version %s\n", QT_VERSION_STR );
@@ -170,7 +170,7 @@ int main( int argc, char **argv )
 
                 for ( t = toks.begin(); t != toks.end(); ++t ) {
                     if ( it.key() == QString("TRANSLATIONS") ) {
-                        metTranslations = TRUE;
+                        metTranslations = true;
                         releaseTsFile( *t, verbose, ignoreUnfinished,
                                        trimmed );
                     }

@@ -81,18 +81,18 @@ int main( int argc, char **argv )
     QByteArray codec;
     QStringList tsFileNames;
 
-    bool verbose = FALSE;
-    bool noObsolete = FALSE;
-    bool metSomething = FALSE;
+    bool verbose = false;
+    bool noObsolete = false;
+    bool metSomething = false;
     int numFiles = 0;
-    bool standardSyntax = TRUE;
-    bool metTsFlag = FALSE;
+    bool standardSyntax = true;
+    bool metTsFlag = false;
 
     int i;
 
     for ( i = 1; i < argc; i++ ) {
         if ( qstrcmp(argv[i], "-ts") == 0 )
-            standardSyntax = FALSE;
+            standardSyntax = false;
     }
 
     for ( i = 1; i < argc; i++ ) {
@@ -100,16 +100,16 @@ int main( int argc, char **argv )
             printUsage();
             return 0;
         } else if ( qstrcmp(argv[i], "-noobsolete") == 0 ) {
-            noObsolete = TRUE;
+            noObsolete = true;
             continue;
         } else if ( qstrcmp(argv[i], "-verbose") == 0 ) {
-            verbose = TRUE;
+            verbose = true;
             continue;
         } else if ( qstrcmp(argv[i], "-version") == 0 ) {
             fprintf( stderr, "lupdate version %s\n", QT_VERSION_STR );
             return 0;
         } else if ( qstrcmp(argv[i], "-ts") == 0 ) {
-            metTsFlag = TRUE;
+            metTsFlag = true;
             continue;
         }
 
@@ -147,17 +147,17 @@ int main( int argc, char **argv )
 
                 for ( t = toks.begin(); t != toks.end(); ++t ) {
                     if ( it.key() == "HEADERS" || it.key() == "SOURCES" ) {
-                        fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
-                        metSomething = TRUE;
+                        fetchtr_cpp( *t, &fetchedTor, defaultContext, true );
+                        metSomething = true;
                     } else if ( it.key() == "INTERFACES" ||
                                 it.key() == "FORMS" ) {
-                        fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
+                        fetchtr_ui( *t, &fetchedTor, defaultContext, true );
                         fetchtr_cpp( *t + ".h", &fetchedTor, defaultContext,
-                                     FALSE );
-                        metSomething = TRUE;
+                                     false );
+                        metSomething = true;
                     } else if ( it.key() == "TRANSLATIONS" ) {
                         tsFileNames.append( *t );
-                        metSomething = TRUE;
+                        metSomething = true;
                     } else if ( it.key() == "CODEC" ||
                                 it.key() == "DEFAULTCODEC" ) {
                         codec = (*t).latin1();
@@ -199,11 +199,11 @@ int main( int argc, char **argv )
             } else {
                 QFileInfo fi(argv[i]);
                 if ( QString(argv[i]).toLower().endsWith(".ui") ) {
-                    fetchtr_ui( fi.fileName(), &fetchedTor, defaultContext, TRUE );
+                    fetchtr_ui( fi.fileName(), &fetchedTor, defaultContext, true );
                     fetchtr_cpp( QString(fi.fileName()) + ".h", &fetchedTor,
-                                 defaultContext, FALSE );
+                                 defaultContext, false );
                 } else {
-                    fetchtr_cpp( fi.fileName(), &fetchedTor, defaultContext, TRUE );
+                    fetchtr_cpp( fi.fileName(), &fetchedTor, defaultContext, true );
                 }
             }
         }

@@ -53,14 +53,14 @@ static QByteArray zeroKey( const char *key )
     char *z = zeroed.data();
     int i = 0, j = 0;
     int len;
-    bool metSomething = FALSE;
+    bool metSomething = false;
 
     while ( key[i] != '\0' ) {
         len = numberLength( key + i );
         if ( len > 0 ) {
             i += len;
             z[j++] = '0';
-            metSomething = TRUE;
+            metSomething = true;
         } else {
             z[j++] = key[i++];
         }
@@ -105,7 +105,7 @@ static QString translationAttempt( const QString& oldTranslation,
             newNumbers.append( QByteArray(newSource + j, n + 1) );
             i += m;
             j += n;
-            met[k] = FALSE;
+            met[k] = false;
             matchedYet[k] = 0;
             k++;
         }
@@ -148,7 +148,7 @@ static QString translationAttempt( const QString& oldTranslation,
             if ( best != p ) {
                 attempt.truncate( attempt.length() - matchedYet[best] );
                 attempt += newNumbers[best];
-                met[best] = TRUE;
+                met[best] = true;
                 for ( k = 0; k < p; k++ )
                     matchedYet[k] = 0;
                 break;

@@ -255,8 +255,8 @@ static int getToken()
                         yyCh = getChar();
                     } while ( yyCh != EOF && yyCh != '\n' );
                 } else if ( yyCh == '*' ) {
-                    bool metAster = FALSE;
-                    bool metAsterSlash = FALSE;
+                    bool metAster = false;
+                    bool metAsterSlash = false;
 
                     while ( !metAsterSlash ) {
                         yyCh = getChar();
@@ -272,11 +272,11 @@ static int getToken()
                             yyComment[yyCommentLen++] = (char) yyCh;
 
                         if ( yyCh == '*' )
-                            metAster = TRUE;
+                            metAster = true;
                         else if ( metAster && yyCh == '/' )
-                            metAsterSlash = TRUE;
+                            metAsterSlash = true;
                         else
-                            metAster = FALSE;
+                            metAster = false;
                     }
                     yyCh = getChar();
                     yyCommentLen -= 2;
@@ -443,9 +443,9 @@ static bool matchEncoding( bool *utf8 )
         }
         *utf8 = QString( yyIdent ).endsWith( QString("UTF8") );
         yyTok = getToken();
-        return TRUE;
+        return true;
     } else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -459,8 +459,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
     QByteArray com;
     QByteArray functionContext = initialContext;
     QByteArray prefix;
-    bool utf8 = FALSE;
-    bool missing_Q_OBJECT = FALSE;
+    bool utf8 = false;
+    bool missing_Q_OBJECT = false;
 
     yyTok = getToken();
     while ( yyTok != Tok_Eof ) {
@@ -491,7 +491,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                 }
 
                 if ( yyTok == Tok_Colon ) {
-                    missing_Q_OBJECT = TRUE;
+                    missing_Q_OBJECT = true;
                 } else {
                     functionContext = defaultContext;
                 }
@@ -542,7 +542,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
             }
             break;
         case Tok_translate:
-            utf8 = FALSE;
+            utf8 = false;
             yyTok = getToken();
             if ( match(Tok_LeftParen) &&
                  matchString(&context) &&
@@ -561,7 +561,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
             }
             break;
         case Tok_Q_OBJECT:
-            missing_Q_OBJECT = FALSE;
+            missing_Q_OBJECT = false;
             yyTok = getToken();
             break;
         case Tok_Ident:
@@ -584,7 +584,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                     context = com.left( k );
                     com.remove( 0, k + 1 );
                     tor->insert( MetaTranslatorMessage(context, "", com,
-                                                       QString::null, FALSE) );
+                                                       QString::null, false) );
                 }
 
                 /*
@@ -627,7 +627,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                     }
                 }
                 functionContext = defaultContext;
-                missing_Q_OBJECT = FALSE;
+                missing_Q_OBJECT = false;
             }
             yyTok = getToken();
             break;
@@ -728,7 +728,7 @@ bool UiHandler::startElement( const QString& /* namespaceURI */,
             trString = false;
     }
     accum.truncate( 0 );
-    return TRUE;
+    return true;
 }
 
 bool UiHandler::endElement( const QString& /* namespaceURI */,
@@ -751,13 +751,13 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
     } else {
         flush();
     }
-    return TRUE;
+    return true;
 }
 
 bool UiHandler::characters( const QString& ch )
 {
     accum += ch;
-    return TRUE;
+    return true;
 }
 
 bool UiHandler::fatalError( const QXmlParseException& exception )
@@ -767,7 +767,7 @@ bool UiHandler::fatalError( const QXmlParseException& exception )
                  exception.lineNumber(), exception.columnNumber(),
                  exception.message().latin1() );
     fprintf( stderr, "XML error: %s\n", msg.latin1() );
-    return FALSE;
+    return false;
 }
 
 void UiHandler::flush()
@@ -775,7 +775,7 @@ void UiHandler::flush()
     if ( !context.isEmpty() && !source.isEmpty() )
         tor->insert( MetaTranslatorMessage(context.utf8(), source.utf8(),
                                            comment.utf8(), QString::null,
-                                           TRUE) );
+                                           true) );
     source.truncate( 0 );
     comment.truncate( 0 );
 }
@@ -794,10 +794,10 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
     QTextStream t( &f );
     QXmlInputSource in( t );
     QXmlSimpleReader reader;
-    reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
+    reader.setFeature( "http://xml.org/sax/features/namespaces", false );
+    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace"
-                       "-only-CharData", FALSE );
+                       "-only-CharData", false );
     QXmlDefaultHandler *hand = new UiHandler( tor, fileName );
     reader.setContentHandler( hand );
     reader.setErrorHandler( hand );

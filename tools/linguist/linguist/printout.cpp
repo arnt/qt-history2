@@ -79,7 +79,7 @@ void PrintOut::flushLine( bool /* mayBreak */ )
 
     nextRule = NoRule;
     cp = Paragraph( QPoint(hmargin, voffset) );
-    firstParagraph = FALSE;
+    firstParagraph = false;
 }
 
 void PrintOut::addBox( int percent, const QString& text, Style style,
@@ -88,9 +88,9 @@ void PrintOut::addBox( int percent, const QString& text, Style style,
     int align = halign | Qt::AlignTop;
     QFont f = f10;
     if ( style == Strong )
-        f.setBold( TRUE );
+        f.setBold( true );
     else if ( style == Emphasis )
-        f.setItalic( TRUE );
+        f.setItalic( true );
     int wd = hsize * percent / 100;
     QRect r( cp.rect.x() + cp.rect.width(), 0, wd, vsize );
     int ht = p.boundingRect( r, align, text ).height();
@@ -131,7 +131,7 @@ void PrintOut::breakPage()
     voffset += 4;
     p.drawLine( QPoint(hmargin, voffset), QPoint(hmargin + hsize, voffset) );
     voffset += 14;
-    firstParagraph = TRUE;
+    firstParagraph = true;
 }
 
 void PrintOut::drawRule( Rule rule )
