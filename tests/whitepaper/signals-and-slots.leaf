@@ -2,8 +2,8 @@
 
 \quote
 Signals and slots provide inter-object communication. They are easy to
-understand and use, simple to hand code, and are fully supported by \l{Qt
-Designer}.
+understand and use, simple to hand code, and are fully supported by
+\l{Qt Designer}.
 \endquote
 
 GUI applications respond to user actions. For example, when a user
