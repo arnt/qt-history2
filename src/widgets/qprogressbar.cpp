@@ -348,12 +348,11 @@ void QProgressBar::drawContents( QPainter *p )
 
     QPixmap pm( bar.size() );
     QPainter paint( &pm );
-    const QPixmap * bgPixmap = backgroundPixmap();
-    QBrush fbrush = ( bgPixmap ? QBrush( backgroundColor(), *bgPixmap ) :
-		      QBrush( backgroundColor() ) );
-    if ( bgPixmap && !isTopLevel() && (backgroundOrigin() != WidgetOrigin) )
-	paint.setBrushOrigin( -x(), -y() );
-    paint.fillRect( bar, fbrush );
+
+    QPoint pn = backgroundOffset();
+    paint.setBrushOrigin( -pn.x(), -pn.y() );
+
+    paint.fillRect( bar, backgroundBrush() );
     paint.setFont( p->font() );
 
     QStyle::SFlags flags = QStyle::Style_Default;
