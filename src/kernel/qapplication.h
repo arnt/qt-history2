@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#14 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#15 $
 **
 ** Definition of QApplication class
 **
@@ -27,7 +27,7 @@ public:
     QApplication();
     virtual ~QApplication();
 
-    static GUIStyle style()	{ return appStyle; }
+    static GUIStyle style();
     static void	    setStyle( GUIStyle );
 
     static QCursor *cursor();			// get/set application cursor
@@ -75,6 +75,22 @@ public:
     virtual bool x11EventFilter( XEvent * );	// X11 event filter
 #endif
 };
+
+
+inline GUIStyle QApplication::style()
+{
+    return appStyle;
+}
+
+inline QCursor *QApplication::cursor()
+{
+    return appCursor;
+}
+
+inline QFont *QApplication::font()
+{
+    return appFont;
+}
 
 
 #endif // QAPP_H
