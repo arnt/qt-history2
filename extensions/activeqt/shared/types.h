@@ -26,8 +26,8 @@ extern GUID IID_IAxServerBase;
 struct IAxServerBase : public IUnknown
 {
     virtual IUnknown *clientSite() const = 0;
-    virtual void emitPropertyChanged( const char*, long dispid = -1 ) = 0;
-    virtual bool emitRequestPropertyChange( const char*, long dispid = -1 ) = 0;
+    virtual void emitPropertyChanged(const char*) = 0;
+    virtual bool emitRequestPropertyChange(const char*) = 0;
     virtual QObject *qObject() const = 0;
 };
 

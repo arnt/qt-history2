@@ -184,8 +184,8 @@ public:
 	return m_spClientSite;
     }
 
-    void emitPropertyChanged( const char*, long dispid = -1 );
-    bool emitRequestPropertyChange( const char*, long dispid = -1 );
+    void emitPropertyChanged(const char*);
+    bool emitRequestPropertyChange(const char*);
     QObject *qObject() const
     {
 	return theObject;
@@ -367,9 +367,8 @@ private:
 
     QString class_name;
 
-    QHash<int, QMetaMember*>* slotlist;
+    QHash<long, int> indexCache;
     QMap<int,DISPID>* signallist;
-    QHash<int, QMetaProperty*>* proplist;
 
     IUnknown *m_outerUnknown;
     IAdviseSink *m_spAdviseSink;
@@ -943,8 +942,7 @@ HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
 */
 QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 : aggregatedObject(0), ref(0), ole_ref(0), class_name(classname),
-  slotlist(0), signallist(0),proplist(0),
-  m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
+  signallist(0), m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(outerUnknown)
 {
     init();
@@ -957,8 +955,7 @@ QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
 */
 QAxServerBase::QAxServerBase( QObject *o )
 : aggregatedObject(0), ref( 0), ole_ref(0),
-  slotlist(0), signallist(0),proplist(0),
-  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
+  signallist(0), m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(0)
 {
     init();
@@ -1058,9 +1055,7 @@ QAxServerBase::~QAxServerBase()
     DeleteCriticalSection( &createWindowSection );
 
     qAxUnlock();
-    delete slotlist;
     delete signallist;
-    delete proplist;
 }
 
 /*
@@ -1649,14 +1644,11 @@ extern bool ignoreProps( const char *test );
 */
 void QAxServerBase::readMetaData()
 {
-    if ( !theObject )
+    if (!theObject)
 	return;
-/*
-    if ( !slotlist ) {
-	slotlist = new QIntDict<QMetaData>;
+    if (!signallist) {
 	signallist = new QMap<int,DISPID>;
-	proplist = new QIntDict<QMetaProperty>;
-
+/*
 	int qtProps = 0;
 	int qtSlots = 0;
 
@@ -1676,7 +1668,7 @@ void QAxServerBase::readMetaData()
 	    DISPID dispId;
 	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
 	    if ( dispId >= 0 )
-		slotlist->insert( dispId, slot );
+		slotcache->insert( dispId, slot );
 	    SysFreeString( bstrNames );
 	}
 	IConnectionPointContainer *cpoints = 0;
@@ -1733,21 +1725,8 @@ void QAxServerBase::readMetaData()
 	    }
 	    cpoints->Release();
 	}
-	for ( int iproperty = mo->numProperties( TRUE )-1; iproperty >= 0; --iproperty ) {
-	    const QMetaProperty *property = mo->property( iproperty, TRUE );
-
-	    if (iproperty <= qtProps && ignoreProps( property->name() ))
-		continue;
-
-	    BSTR bstrNames = QStringToBSTR( property->name() );
-	    DISPID dispId;
-	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
-	    if ( dispId >= 0 && !proplist->find( dispId ) )
-		proplist->insert( dispId, property );
-	    SysFreeString( bstrNames );
-	}
-    }
 */
+    }
 }
 
 /*!
@@ -1767,14 +1746,14 @@ bool QAxServerBase::isPropertyExposed(int index)
     if (theObject->isWidgetType())
 	qtProps = QWidget::staticMetaObject.propertyCount();
     QMetaProperty property = mo->property(index);
-    if (index <= qtProps && ignoreProps( property.name() ))
+    if (index <= qtProps && ignoreProps(property.name()))
 	return result;
 
-    BSTR bstrNames = QStringToBSTR( property.name() );
+    BSTR bstrNames = QStringToBSTR(property.name());
     DISPID dispId;
-    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId );
+    GetIDsOfNames(IID_NULL, (BSTR*)&bstrNames, 1, LOCALE_USER_DEFAULT, &dispId);
     result = dispId != DISPID_UNKNOWN;
-    SysFreeString( bstrNames );
+    SysFreeString(bstrNames);
 
     return result;
 }
@@ -2045,8 +2024,10 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
     Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
-bool QAxServerBase::emitRequestPropertyChange( const char *property, long dispId )
+bool QAxServerBase::emitRequestPropertyChange( const char *property)
 {
+    long dispId = -1;
+
     IConnectionPoint *cpoint = 0;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
     if ( cpoint ) {
@@ -2059,16 +2040,9 @@ bool QAxServerBase::emitRequestPropertyChange( const char *property, long dispId
 	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
 	    if ( cc ) {
 		if ( dispId == -1 ) {
-		    if ( !proplist )
-			readMetaData();
-
-		    QHash<int, QMetaProperty*>::Iterator it( proplist );
-		    while ( it.value() && dispId < 0 ) {
-			QMetaProperty *mp = it.value();
-			if ( !qstrcmp( property, mp->name() ) )
-			    dispId = it.key();
-			++it;
-		    }
+		    BSTR bstr = QStringToBSTR(property);
+		    GetIDsOfNames(IID_NULL, &bstr, 1, LOCALE_USER_DEFAULT, &dispId);
+		    SysFreeString(bstr);
 		}
 		if ( dispId != -1 ) while ( cc ) {
 		    if ( c->pUnk ) {
@@ -2097,8 +2071,10 @@ bool QAxServerBase::emitRequestPropertyChange( const char *property, long dispId
     Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
-void QAxServerBase::emitPropertyChanged( const char *property, long dispId )
+void QAxServerBase::emitPropertyChanged(const char *property)
 {
+    long dispId = -1;
+
     IConnectionPoint *cpoint = 0;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
     if ( cpoint ) {
@@ -2111,15 +2087,9 @@ void QAxServerBase::emitPropertyChanged( const char *property, long dispId )
 	    clist->Next( cc, (CONNECTDATA*)&c, &cc );
 	    if ( cc ) {
 		if ( dispId == -1 ) {
-		    if ( !proplist )
-			readMetaData();
-		    QHash<int, QMetaProperty*>::Iterator it( proplist );
-		    while ( it.value() && dispId < 0 ) {
-			QMetaProperty *mp = it.value();
-			if ( !qstrcmp( property, mp->name() ) )
-			    dispId = it.key();
-			++it;
-		    }
+		    BSTR bstr = QStringToBSTR(property);
+		    GetIDsOfNames(IID_NULL, &bstr, 1, LOCALE_USER_DEFAULT, &dispId);
+		    SysFreeString(bstr);
 		}
 		if ( dispId != -1 ) while ( cc ) {
 		    if ( c->pUnk ) {
@@ -2231,6 +2201,21 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
     return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
 }
 
+static inline QString paramType(const QString ptype, bool *out)
+{
+    QString res = ptype;
+    *out = false;
+    if (res.endsWith("&")) {
+	*out = true;
+	res.truncate(res.length() - 1);
+    } else if (res.endsWith("**")) {
+	*out = true;
+	res.truncate(res.length() - 2);
+    }
+
+    return res;
+}
+
 /*
     Map the COM call to the Qt slot/property for \a dispidMember.
 */
@@ -2245,9 +2230,26 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
     HRESULT res = DISP_E_MEMBERNOTFOUND;
 
-    if ( !slotlist )
-	readMetaData();
+    int index = indexCache.value(dispidMember, -1);
+    QString name;
+    if (index == -1) {
+	if (!m_spTypeInfo) {
+	    qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID( class_name ), &m_spTypeInfo );
+	    m_spTypeInfo->AddRef();
+	}
 
+	BSTR bname;
+	UINT cname = 0;
+	if (m_spTypeInfo)
+	    m_spTypeInfo->GetNames(dispidMember, &bname, 1, &cname);
+	if (!cname)
+	    return res;
+
+	name = BSTRToQString(bname);
+	SysFreeString(bname);
+    }
+
+    const QMetaObject *mo = qt.object->metaObject();
     QSize oldSizeHint;
     if ( isWidget )
 	oldSizeHint = qt.widget->sizeHint();
@@ -2256,18 +2258,25 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
     case DISPATCH_PROPERTYGET|DISPATCH_METHOD:
     case DISPATCH_PROPERTYGET:
 	{
-	    const QMetaProperty *property = (*proplist)[dispidMember];
-	    if ( property ) {
+	    if (index == -1) {
+		index = mo->indexOfProperty(name.latin1());
+		if (index == -1)
+		    return res;
+	    }
+
+	    const QMetaProperty property = mo->property(index);
+	    if (property.isReadable()) {
 		if ( !pvarResult )
 		    return DISP_E_PARAMNOTOPTIONAL;
 		if ( pDispParams->cArgs ||
 		     pDispParams->cNamedArgs )
 		    return DISP_E_BADPARAMCOUNT;
 
-		QVariant var = qt.object->property( property->name() );
-		if ( !var.isValid() )
+		QVariant var = qt.object->property(property.name());
+		QString ptype(property.type());
+		if (!var.isValid())
 		    res =  DISP_E_MEMBERNOTFOUND;
-		else if ( !QVariantToVARIANT( var, *pvarResult, property->type() ) )
+		else if (!QVariantToVARIANT(var, *pvarResult, ptype))
 		    res = DISP_E_TYPEMISMATCH;
 		else
 		    res = S_OK;
@@ -2279,79 +2288,95 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	// FALLTHROUGH if wFlags == DISPATCH_PROPERTYGET|DISPATCH_METHOD AND not a property.
     case DISPATCH_METHOD:
 	{
-#if 0 XXX
-	    const QMetaData *slot = (*slotlist)[dispidMember];
-	    if ( !slot )
-		break;
-	    int index = qt.object->metaObject()->findSlot( slot->name, TRUE );
-	    if ( index == -1 )
-		break;
-	    // verify parameter count
-	    const QUParameter *params = slot->method->parameters;
-	    int pcount = slot->method->count;
-	    int retoff = 0;
-	    if ( pcount ) {
-		retoff = ( params[0].inOut == QUParameter::Out ) ? 1 : 0;
-		pcount -= retoff;
+	    int nameLength = name.length();
+	    name += "(";
+	    if (index == -1) {
+		// no parameter - shortcut
+		if (!pDispParams->cArgs)
+		    index = mo->indexOfSlot((name + ")").latin1());
+		// search
+		if (index == -1) {
+		    for (int i = 0; i < mo->slotCount(); ++i) {
+			if (QString(mo->slot(i).signature()).startsWith(name)) {
+			    index = i;
+			    break;
+			}
+		    }
+		    if (index == -1)
+			return res;
+		}
 	    }
-	    int argcount = pDispParams->cArgs;
-	    if ( pcount > argcount )
+
+	    // get slot info
+	    const QMetaMember slot = mo->slot(index);
+	    QString type = slot.type();
+	    name = slot.signature();
+	    QString prototype = name.mid(nameLength + 1);
+	    prototype.truncate(prototype.length() - 1);
+	    QStringList ptypes;
+	    if (!prototype.isEmpty())
+		ptypes = prototype.split(',');
+	    int pcount = ptypes.count();
+
+	    // verify parameter count
+	    if (pcount > pDispParams->cArgs)
 		return DISP_E_PARAMNOTOPTIONAL;
-	    else if ( pcount < argcount )
+	    else if (pcount < pDispParams->cArgs)
 		return DISP_E_BADPARAMCOUNT;
 
-	    // setup parameters
+	    // setup parameters (pcount + return)
 	    bool ok = TRUE;
-	    QUObject *objects = 0;
-	    if ( pcount ) {
-		objects = (QUObject*) malloc( (pcount+1) * sizeof(QUObject) );
-		for ( int p = 0; p < pcount; ++p ) {
-		    // map the VARIANT to the QUObject, and try to get the required type
-		    objects[p+1].payload.ptr = 0;
-		    if ( !VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p + retoff ) ) {
-			if ( puArgErr )
-			    *puArgErr = pcount-p-1;
-			ok = FALSE;
-		    }
+	    void **argv = pcount || !type.isEmpty() ? new void*[pcount + 1] : 0;
+	    QVariant *varp = pcount || !type.isEmpty() ? new QVariant[pcount + 1] : 0;
+	    for ( int p = 0; p < pcount; ++p ) {
+		// map the VARIANT to the QVariant
+		bool out;
+		QString ptype = paramType(ptypes.at(p), &out);
+		varp[p + 1] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
+		if (varp[p + 1].isValid()) {
+		    argv[p + 1] = varp[p + 1].data();
+		} else {
+		    if (puArgErr)
+			*puArgErr = pcount-p-1;
+		    ok = FALSE;
 		}
-	    } else if ( retoff ) {
-		objects = (QUObject*) malloc( sizeof(QUObject) );
 	    }
-	    if ( objects )
-		objects[0].payload.ptr = 0;
+	    if (!type.isEmpty()) {
+		varp[0] = QVariant(QVariant::nameToType(slot.type()));
+		argv[0] = varp[0].data();
+	    }
 
 	    // call the slot if everthing went fine.
 	    if ( ok ) {
-		qt.object->qt_invoke( index, objects );
+		qt.object->qt_metacall(QMetaObject::InvokeSlot, index, argv);
 
-		// update reference parameters and value
-		for ( int p = 0; p < pcount; ++p ) {
-		    const QUParameter *param = params + p + (retoff ? 1 : 0 );
-		    if ( param->inOut & QUParameter::Out ) {
-			if ( !QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], param ) )
+		// update reference parameters and return value
+		for (int p = 0; p < pcount; ++p) {
+		    bool out;
+		    QString ptype = paramType(ptypes.at(p), &out);
+		    if (out) {
+			if (!QVariantToVARIANT(varp[p + 1], pDispParams->rgvarg[pcount - p - 1], ptype, out))
 			    ok = FALSE;
 		    }
-		    clearQUObject( objects+p+1, param );
 		}
-		if ( retoff ) {
-		    if (pvarResult)
-			QUObjectToVARIANT( objects, *pvarResult, params );
-		    clearQUObject( objects, params );
-		}
+		if (!type.isEmpty() && pvarResult)
+		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
 	    }
 
-	    free( objects );
 	    res = ok ? S_OK : DISP_E_TYPEMISMATCH;
-#endif
 	}
 	break;
     case DISPATCH_PROPERTYPUT:
     case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
 	{
-	    const QMetaProperty *property = (*proplist)[dispidMember];
-	    if ( !property )
-		break;
-	    if ( !property->isWritable() )
+	    if (index == -1) {
+		index = mo->indexOfProperty(name.latin1());
+		if (index == -1)
+		    return res;
+	    }
+
+	    const QMetaProperty property = mo->property(index);
+	    if (!property.isWritable())
 		return DISP_E_MEMBERNOTFOUND;
 	    if ( !pDispParams->cArgs )
 		return DISP_E_PARAMNOTOPTIONAL;
@@ -2360,28 +2385,32 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
 		return DISP_E_BADPARAMCOUNT;
 
-	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg, property->type() );
-	    if ( !var.isValid() ) {
-		if ( puArgErr )
+	    QString ptype(property.type());
+	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, ptype);
+	    if (!var.isValid()) {
+		if (puArgErr)
 		    *puArgErr = 0;
 		return DISP_E_BADVARTYPE;
 	    }
-	    if ( !qt.object->setProperty( property->name(), var ) ) {
-		if ( puArgErr )
+	    if (!qt.object->setProperty(property.name(), var)) {
+		if (puArgErr)
 		    *puArgErr = 0;
 		return DISP_E_TYPEMISMATCH;
 	    }
 
 	    res = S_OK;
 
-	    if ( m_spAdviseSink )
-		m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, 0 );
+	    if (m_spAdviseSink)
+		m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, 0);
 	}
 	break;
 
     default:
 	break;
     }
+
+    if (index != -1)
+	indexCache.insert(dispidMember, index);
 
     if ( qAxException ) {
 	if ( pexcepinfo ) {
@@ -2474,22 +2503,20 @@ HRESULT WINAPI QAxServerBase::IsDirty()
 HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
 {
     STATSTG stat;
-    HRESULT hres = pStm->Stat( &stat, STATFLAG_NONAME );
+    HRESULT hres = pStm->Stat(&stat, STATFLAG_NONAME);
     QByteArray qtarray;
-    if ( hres != S_OK ) {
+    if (hres != S_OK) {
     } else {
 	ULONG read;
-	if ( stat.cbSize.HighPart )
+	if (stat.cbSize.HighPart)
 	    return S_FALSE;
-	qtarray.resize( stat.cbSize.LowPart );
-	pStm->Read( qtarray.data(), stat.cbSize.LowPart, &read );
+	qtarray.resize(stat.cbSize.LowPart);
+	pStm->Read(qtarray.data(), stat.cbSize.LowPart, &read);
     }
 
-    readMetaData();
-
-    QBuffer qtbuffer( qtarray );
-    qtbuffer.open( IO_ReadOnly | IO_Translate );
-    QDataStream qtstream( &qtbuffer );
+    QBuffer qtbuffer(qtarray);
+    qtbuffer.open(IO_ReadOnly | IO_Translate);
+    QDataStream qtstream(&qtbuffer);
     int version;
     qtstream >> version;
     qtstream.setVersion(version);
@@ -2497,7 +2524,7 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
     qtstream >> more;
 
     const QMetaObject *mo = qt.object->metaObject();
-    while ( !qtbuffer.atEnd() && more ) {
+    while (!qtbuffer.atEnd() && more) {
 	QString propname;
 	QVariant value;
 	qtstream >> propname;
@@ -2517,20 +2544,18 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
 HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
 {
     QBuffer qtbuffer;
-    qtbuffer.open( IO_WriteOnly | IO_Translate );
-    QDataStream qtstream( &qtbuffer );
+    qtbuffer.open(IO_WriteOnly | IO_Translate);
+    QDataStream qtstream(&qtbuffer);
     qtstream << qtstream.version();
-
-    readMetaData();
 
     const QMetaObject *mo = qt.object->metaObject();
 
     for ( int prop = 0; prop < mo->propertyCount(); ++prop ) {
-	if ( !isPropertyExposed( prop ) )
+	if (!isPropertyExposed(prop))
 	    continue;
 	QString property = mo->property(prop).name();
 	QVariant qvar = qt.object->property(property.latin1());
-	if ( qvar.isValid() ) {
+	if (qvar.isValid()) {
 	    qtstream << int(1);
 	    qtstream << property;
 	    qtstream << qvar;
@@ -2546,17 +2571,15 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
     ULARGE_INTEGER newsize;
     newsize.HighPart = 0;
     newsize.LowPart = qtarray.size();
-    pStm->SetSize( newsize );
-    pStm->Write( data, qtarray.size(), &written );
-    pStm->Commit( STGC_ONLYIFCURRENT );
+    pStm->SetSize(newsize);
+    pStm->Write(data, qtarray.size(), &written);
+    pStm->Commit(STGC_ONLYIFCURRENT);
 
     return S_OK;
 }
 
 HRESULT WINAPI QAxServerBase::GetSizeMax( ULARGE_INTEGER *pcbSize )
 {
-    readMetaData();
-
     const QMetaObject *mo = qt.object->metaObject();
 
     int np = mo->propertyCount();
@@ -2652,27 +2675,25 @@ HRESULT WINAPI QAxServerBase::InitNew()
 */
 HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 {
-    if ( !bag )
+    if (!bag)
 	return E_POINTER;
 
-    if ( InitNew() != S_OK )
+    if (InitNew() != S_OK)
 	return E_UNEXPECTED;
-
-    readMetaData();
 
     bool error = FALSE;
     const QMetaObject *mo = qt.object->metaObject();
-    for ( int prop = 0; prop < mo->propertyCount(); ++prop ) {
-	if ( !isPropertyExposed( prop ) )
+    for (int prop = 0; prop < mo->propertyCount(); ++prop) {
+	if (!isPropertyExposed(prop))
 	    continue;
 	QMetaProperty property = mo->property(prop);
 	const char* pname = property.name();
-	BSTR bstr = QStringToBSTR( pname );
+	BSTR bstr = QStringToBSTR(pname);
 	VARIANT var;
 	var.vt = VT_EMPTY;
-	HRESULT res = bag->Read( bstr, &var, 0 );
-	if ( property.isWritable() ) {
-	    if ( res != S_OK || !qt.object->setProperty( pname, VARIANTToQVariant( var, property.type() ) ) )
+	HRESULT res = bag->Read(bstr, &var, 0);
+	if (property.isWritable()) {
+	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.type())))
 		error = TRUE;
 	}
 	SysFreeString(bstr);
@@ -2688,17 +2709,15 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 */
 HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL /*saveAll*/ )
 {
-    if ( !bag )
+    if (!bag)
 	return E_POINTER;
 
-    readMetaData();
-
-    if ( clearDirty )
+    if (clearDirty)
 	dirtyflag = FALSE;
     bool error = FALSE;
     const QMetaObject *mo = qt.object->metaObject();
-    for ( int prop = 0; prop < mo->propertyCount(); ++prop ) {
-	if ( !isPropertyExposed( prop ) )
+    for (int prop = 0; prop < mo->propertyCount(); ++prop) {
+	if (!isPropertyExposed(prop))
 	    continue;
 	QMetaProperty property = mo->property(prop);
 	BSTR bstr = QStringToBSTR( property.name() );
