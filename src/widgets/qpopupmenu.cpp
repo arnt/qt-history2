@@ -1871,32 +1871,34 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 
     case Key_Return:
     case Key_Enter:
-	if ( actItem < 0 )
-	    break;
-	mi = mitems->at( actItem );
-	if ( !mi->isEnabled() )
-	    break;
-	popup = mi->popup();
-	if ( popup ) {
-	    hidePopups();
-	    popupSubMenuLater( 20, this );
-	    popup->setFirstItemActive();
-	} else {
-	    actItem = -1;
-	    updateItem( mi->id() );
-	    byeMenuBar();
+	{
+	    if ( actItem < 0 )
+		break;
 #ifndef QT_NO_WHATSTHIS
 	    bool b = QWhatsThis::inWhatsThisMode();
 #else
 	    const bool b = FALSE;
 #endif
-	    if ( mi->isEnabledAndVisible() || b ) {
-		active_popup_menu = this;
-		QGuardedPtr<QSignal> signal = mi->signal();
-		actSig( mi->id(), b );
-		if ( signal && !b )
-		    signal->activate();
-		active_popup_menu = 0;
+	    mi = mitems->at( actItem );
+	    if ( !mi->isEnabled() && !b )
+		break;
+	    popup = mi->popup();
+	    if ( popup ) {
+		hidePopups();
+		popupSubMenuLater( 20, this );
+		popup->setFirstItemActive();
+	    } else {
+		actItem = -1;
+		updateItem( mi->id() );
+		byeMenuBar();
+		if ( mi->isEnabledAndVisible() || b ) {
+		    active_popup_menu = this;
+		    QGuardedPtr<QSignal> signal = mi->signal();
+		    actSig( mi->id(), b );
+		    if ( signal && !b )
+			signal->activate();
+		    active_popup_menu = 0;
+		}
 	    }
 	}
 	break;
