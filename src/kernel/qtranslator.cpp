@@ -633,8 +633,6 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 
 void QTranslator::clear()
 {
-    bool wasEmpty = isEmpty();
-
     if ( d->unmapPointer && d->unmapLength ) {
 #if defined(QT_USE_MMAP)
 	munmap( d->unmapPointer, d->unmapLength );
