@@ -438,7 +438,8 @@ static inline char qToLower(char c)
 Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = {Q_ATOMIC_INIT(1), 0, 0, shared_null.array, {0} };
 QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_empty.array, {0} };
 
-/*! \class QByteArray
+/*! 
+    \class QByteArray
     \brief The QByteArray class provides an array of bytes.
 
     \ingroup tools
