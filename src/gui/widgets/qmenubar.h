@@ -32,7 +32,20 @@ public:
     QMenuBar(QWidget *parent = 0);
     ~QMenuBar();
 
+#ifdef Q_NO_USING_KEYWORD
+    void addAction(QAction *action) { QWidget::addAction(action); }
+#else
+    using QWidget::addAction;
+#endif
+    QAction *addAction(const QString &text);
+    QAction *addAction(const QIconSet &icon, const QString &text);
+    QAction *addAction(const QString &text, const QObject *receiver, const char* member, 
+                       const QKeySequence& shortcut = 0);
+    QAction *addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member, 
+                       const QKeySequence& shortcut = 0);
     QAction *addMenu(const QString &title, QMenu *menu);
+    QAction *addSeparator();
+
     QAction *insertMenu(QAction *before, const QString &title, QMenu *menu);
 
     void clear();

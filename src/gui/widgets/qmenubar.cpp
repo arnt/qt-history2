@@ -406,6 +406,78 @@ QMenuBar::~QMenuBar()
 }
 
 /*!
+    \overload
+
+    This convenience function creates a new action with \a text.
+    The function adds the newly created action to the menu's
+    list of actions, and returns it.
+
+    \sa QWidget::addAction()
+*/
+QAction *QMenuBar::addAction(const QString &text)
+{
+    QAction *ret = new QAction(text);
+    addAction(ret);
+    return ret;
+}
+
+/*!
+    \overload
+
+    This convenience function creates a new action with an \a icon
+    and some \a text. The function adds the newly created action to
+    the menu's list of actions, and returns it.
+
+    \sa QWidget::addAction()
+*/
+QAction *QMenuBar::addAction(const QIconSet &icon, const QString &text)
+{
+    QAction *ret = new QAction(icon, text);
+    addAction(ret);
+    return ret;
+}
+
+/*!
+    \overload
+
+    This convenience function creates a new action with the text \a
+    text and a keyboard shortcut of \a shortcut. The action's
+    triggered() signal is connected to the \a receiver's \a member
+    slot. The function adds the newly created action to the menu's
+    list of actions and returns it.
+
+    \sa QWidget::addAction()
+*/
+QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const char* member,
+                          const QKeySequence &shortcut)
+{
+    QAction *ret = new QAction(text, shortcut, this);
+    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
+    addAction(ret);
+    return ret;
+}
+
+/*!
+    \overload
+
+    This convenience function creates a new action with an \a icon,
+    some \a text, and a keyboard \a shortcut.
+    The action's triggered() signal is connected to the \a member
+    slot of the \a receiver object. The function adds the newly created
+    action to the menu's list of actions, and returns it.
+
+    \sa QWidget::addAction()
+*/
+QAction *QMenuBar::addAction(const QIconSet &icon, const QString &text, const QObject *receiver, 
+                          const char* member, const QKeySequence &shortcut)
+{
+    QAction *ret = new QAction(icon, text, shortcut, this);
+    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
+    addAction(ret);
+    return ret;
+}
+
+/*!
   Appends an action with text \a text and menu \a menu to the list of
   actions.
 
