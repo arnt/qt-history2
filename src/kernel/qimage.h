@@ -323,7 +323,7 @@ private:	// Disabled copy constructor and operator=
 #  if defined(Q_WS_WIN)
 #    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
 #  endif
-bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
+Q_KERNEL_EXPORT bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
 #endif
 
 Q_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,

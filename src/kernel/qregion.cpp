@@ -357,7 +357,7 @@ QRegion& QRegion::operator^=( const QRegion &r )
 
 
 #ifndef QT_NO_WMATRIX
-extern bool qt_old_transformations; //qwmatrix.cpp
+Q_KERNEL_EXPORT bool qt_old_transformations; //qwmatrix.cpp
 /*!
   \internal
 */

@@ -30,10 +30,12 @@
 #ifndef QT_H
 #endif // QT_H 
 
-extern uint qt_get_rgb_val( const char *name );
-extern bool qt_get_named_rgb( const char *, QRgb* );
-extern bool qt_get_hex_rgb(const char *, QRgb *);
-extern QStringList qt_get_colornames();
-extern void qt_reset_color_avail();
+#include <qglobal.h>
+
+Q_KERNEL_EXPORT uint qt_get_rgb_val( const char *name );
+Q_KERNEL_EXPORT bool qt_get_named_rgb( const char *, QRgb* );
+Q_KERNEL_EXPORT bool qt_get_hex_rgb(const char *, QRgb *);
+Q_KERNEL_EXPORT QStringList qt_get_colornames();
+Q_KERNEL_EXPORT void qt_reset_color_avail();
 
 #endif

@@ -30,7 +30,15 @@ kernel {
 		  $$KERNEL_H/qurlinfo.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_P/qinternal_p.h \
-		  $$KERNEL_H/qgplugin.h 
+		  $$KERNEL_H/qgplugin.h \
+#		  $$KERNEL_H/qasyncio.h \
+	 	  $$KERNEL_H/qcolor_p.h \
+		  $$KERNEL_H/qimage.h \
+		  $$KERNEL_P/qimageformatinterface_p.h \
+		  $$KERNEL_H/qimageformatplugin.h \
+		  $$KERNEL_H/qpointarray.h \
+		  $$KERNEL_H/qpolygonscanner.h
+
 
 		  
         win32:SOURCES += $$KERNEL_CPP/qprocess_win.cpp \
@@ -63,7 +71,16 @@ kernel {
 		  $$KERNEL_CPP/qurlinfo.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qinternal.cpp \
-		  $$KERNEL_CPP/qgplugin.cpp 
+		  $$KERNEL_CPP/qgplugin.cpp \
+#		  $$KERNEL_CPP/qasyncio.cpp \
+		  $$KERNEL_CPP/qasyncimageio.cpp \
+		  $$KERNEL_CPP/qcolor_p.cpp \
+		  $$KERNEL_CPP/qimage.cpp \
+		  $$KERNEL_CPP/qimageformatplugin.cpp \
+		  $$KERNEL_CPP/qpointarray.cpp \
+		  $$KERNEL_CPP/qpolygonscanner.cpp \
+		  $$KERNEL_CPP/qwmatrix.cpp
+	
 
 	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory_p.cpp
 }

@@ -28,8 +28,8 @@
 #include <shlobj.h>
 
 #ifndef QT_NO_IMAGEIO_BMP
-extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
-extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
+Q_KERNEL_EXPORT bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
+Q_KERNEL_EXPORT bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
 #endif
 
 static QList<QWindowsMime*> mimes;

@@ -9,7 +9,7 @@ include($$KERNEL_CPP/qt_kernel.pri)
 include($$THREAD_CPP/qt_thread.pri)
 include($$TOOLS_CPP/qt_tools.pri)
 include($$CODECS_CPP/qt_codecs.pri)
-# include($$KERNEL_CPP/qt_gfx.pri)
+include($$KERNEL_CPP/qt_gfx.pri)
 
 mac:LIBS += -framework CoreServices -framework CoreFoundation
 

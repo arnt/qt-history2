@@ -23,7 +23,6 @@ include($$ICONVIEW_CPP/qt_iconview.pri)
 include($$WORKSPACE_CPP/qt_workspace.pri)
 include($$STYLES_CPP/qt_styles.pri)
 include($$ACCESSIBLE_CPP/qt_accessible.pri)
-include($$KERNEL_CPP/qt_gfx.pri)
 embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
 qt_one_lib { #for compat
    #qnetwork
@@ -43,6 +42,7 @@ qt_one_lib { #for compat
    include($$THREAD_CPP/qt_thread.pri)
    include($$TOOLS_CPP/qt_tools.pri)
    include($$CODECS_CPP/qt_codecs.pri)
+   include($$KERNEL_CPP/qt_gfx.pri)
 
    #qcompat
    message("Move compat/* files into libqt3compat")

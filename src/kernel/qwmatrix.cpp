@@ -125,7 +125,7 @@
     \sa QPainter::setWorldMatrix(), QPixmap::xForm()
 */
 
-bool qt_old_transformations = TRUE;
+Q_KERNEL_EXPORT bool qt_old_transformations = TRUE;
 
 /*!
     \enum QWMatrix::TransformationMode
