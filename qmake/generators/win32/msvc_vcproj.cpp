@@ -345,18 +345,15 @@ void VcprojGenerator::initPostBuildEventTools()
 	if( project->isActiveConfig( "dll" ) ) { // In process
 	    vcProject.Configuration.postBuild.CommandLine = 
 		// call idc to generate .idl file from .dll
-		"@echo on \n " + idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; "+
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
-		"echo idc done &amp;&amp; " +
 		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir + 
 		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " + 
 		objdir + "dump.midl &amp;&amp; " +
 		// call idc to replace tlb...
-		"echo midl done &amp;&amp; " +
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// register server
-		"echo idc done again &amp;&amp; " +
-		"regsrv32 /s " + vcProject.Configuration.OutputDirectory + "\\" + nameext;		
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /regserver";
 	} else { // out of process
 	    vcProject.Configuration.postBuild.CommandLine =
 		// call application to dump idl
@@ -587,8 +584,10 @@ void VcprojGenerator::initOld()
 	    if ( project->isActiveConfig( "activeqt" ) ) {
 		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
 		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
-		if ( project->isActiveConfig( "dll" ) )
+		if ( project->isActiveConfig( "dll" ) ) {
 		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
+		    project->variables()["MSVCPROJ_LFLAGS"].append("/DEF:"+project->first("DEF_FILE"));
+		}
 	    }
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
