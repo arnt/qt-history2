@@ -2851,7 +2851,8 @@ void QTextEdit::setItalic( bool b )
 {
     QTextFormat f( *currentFormat );
     f.setItalic( b );
-    setFormat( &f, QTextFormat::Italic );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Italic );
 }
 
 /*!
@@ -2865,7 +2866,8 @@ void QTextEdit::setBold( bool b )
 {
     QTextFormat f( *currentFormat );
     f.setBold( b );
-    setFormat( &f, QTextFormat::Bold );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Bold );
 }
 
 /*!
@@ -2879,7 +2881,8 @@ void QTextEdit::setUnderline( bool b )
 {
     QTextFormat f( *currentFormat );
     f.setUnderline( b );
-    setFormat( &f, QTextFormat::Underline );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Underline );
 }
 
 /*!
@@ -2892,7 +2895,8 @@ void QTextEdit::setFamily( const QString &fontFamily )
 {
     QTextFormat f( *currentFormat );
     f.setFamily( fontFamily );
-    setFormat( &f, QTextFormat::Family );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Family );
 }
 
 /*!
@@ -2908,7 +2912,8 @@ void QTextEdit::setPointSize( int s )
 {
     QTextFormat f( *currentFormat );
     f.setPointSize( s );
-    setFormat( &f, QTextFormat::Size );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Size );
 }
 
 /*!
@@ -2921,7 +2926,8 @@ void QTextEdit::setColor( const QColor &c )
 {
     QTextFormat f( *currentFormat );
     f.setColor( c );
-    setFormat( &f, QTextFormat::Color );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Color );
 }
 
 /*!
@@ -2934,14 +2940,16 @@ void QTextEdit::setVerticalAlignment( VerticalAlignment a )
 {
     QTextFormat f( *currentFormat );
     f.setVAlign( (QTextFormat::VerticalAlignment)a );
-    setFormat( &f, QTextFormat::VAlign );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::VAlign );
 }
 
 void QTextEdit::setFontInternal( const QFont &f_ )
 {
     QTextFormat f( *currentFormat );
     f.setFont( f_ );
-    setFormat( &f, QTextFormat::Font );
+    QTextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, QTextFormat::Font );
 }
 
 
