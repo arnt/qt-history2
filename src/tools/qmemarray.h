@@ -93,6 +93,7 @@ public:
     void sort() { QGArray::sort(sizeof(type)); }
     int  bsearch( const type &d ) const
 	{ return QGArray::bsearch((const char*)&d,sizeof(type)); }
+    // ### Qt 4.0: maybe provide uint overload as work-around for MSVC bug
     type& operator[]( int i ) const
 	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }
     type& at( uint i ) const

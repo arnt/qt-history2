@@ -64,6 +64,7 @@ protected:
 
     virtual void detach()	{ duplicate(*this); }
 
+    // ### Qt 4.0: maybe provide two versions of data(), at(), etc.
     char       *data()	 const	{ return shd->data; }
     uint	nrefs()	 const	{ return shd->count; }
     uint	size()	 const	{ return shd->len; }
