@@ -2,13 +2,11 @@
 #ifndef QT_NO_COMPONENT
 #include "qmap.h"
 
-QGPluginManager::QGPluginManager( const QUuid& id, const QString& path, QLibrary::Policy pol, bool cs )
+QGPluginManager::QGPluginManager( const QUuid& id, QLibrary::Policy pol, bool cs )
     : interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
 {
     // Every QLibrary object is destroyed on destruction of the manager
     libDict.setAutoDelete( TRUE );
-    if ( !path.isEmpty() )
-	addLibraryPath( path );
 }
 
 QGPluginManager::~QGPluginManager()

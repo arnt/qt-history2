@@ -52,8 +52,10 @@ class Q_EXPORT QPluginManager : public QGPluginManager
 {
 public:
     QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
-	: QGPluginManager( id, path, pol, cs )
+	: QGPluginManager( id, pol, cs )
     {
+	if ( !path.isEmpty() )
+	    addLibraryPath( path );
     }
 
     QLibrary* addLibrary( const QString& file )
