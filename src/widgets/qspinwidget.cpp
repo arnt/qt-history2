@@ -40,7 +40,6 @@
 #include "qtimer.h"
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qlineedit.h"
 
 static uint theButton = 0;
 
