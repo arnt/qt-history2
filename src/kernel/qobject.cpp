@@ -2113,33 +2113,23 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
     if ( clist->count() == 1 ) { // save iterator
 	c = clist->first();
 	object = c->object();
-	QObject *oldSender;
-	if ( object->senderObjects ) {
-	    oldSender = ((QSenderObjectList *) object->senderObjects)->currentSender;
+	if ( object->senderObjects )
 	    ((QSenderObjectList *) object->senderObjects)->currentSender = this;
-	}
 	if ( c->memberType() == QSIGNAL_CODE )
 	    object->qt_emit( c->member(), o );
 	else
 	    object->qt_invoke( c->member(), o );
-	if ( object->senderObjects )
-	    ((QSenderObjectList *) object->senderObjects)->currentSender = oldSender;
     } else {
 	QConnectionListIt it(*clist);
 	while ( (c=it.current()) ) {
 	    ++it;
 	    object = c->object();
-	    QObject *oldSender;
-	    if ( object->senderObjects ) {
-		oldSender = ((QSenderObjectList *) object->senderObjects)->currentSender;
+	    if ( object->senderObjects )
 		((QSenderObjectList *) object->senderObjects)->currentSender = this;
-	    }
 	    if ( c->memberType() == QSIGNAL_CODE )
 		object->qt_emit( c->member(), o );
 	    else
 		object->qt_invoke( c->member(), o );
-	    if ( object->senderObjects )
-		((QSenderObjectList *) object->senderObjects)->currentSender = oldSender;
 	}
     }
 }
