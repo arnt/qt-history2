@@ -1,11 +1,15 @@
-####### This section is automatically generated from
-#######    /home/hanord/qt/tutorial/Makefile
+####### This section was automatically generated from
+#######    /home/agulbra/qt/Makefile for building on
+#######    linux-gcc-shared on Thu Feb 27 17:22:40 MET 1997
 
-INCDIR	=	$(QTDIR)/include
-CFLAGS	=	-O2
-LFLAGS	=	-L$(QTDIR)/lib -lqt
-CC	=	gcc
-MOC	=	moc
+INCDIR = /home/agulbra/qt/include
+CFLAGS = -O2 -fno-strength-reduce -Wall -W
+LIBCFLAGS = -fPIC
+YACCCFLAGS = -Wno-unused -Wno-parentheses
+LFLAGS = -L/home/agulbra/qt/lib -lqt
+CC = gcc
+MOC = /home/agulbra/qt/bin/moc
+SHELL =	/bin/sh
 
 ####### End of automatically generated section
 #
