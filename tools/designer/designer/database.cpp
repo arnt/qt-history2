@@ -45,7 +45,8 @@ bool QDesignerSqlWidget::event( QEvent* e )
 #endif
 	) {
 	if ( e->type() == QEvent::Show ) {
-	    (void)DatabaseSupport::defCursor();
+	    setSqlCursor( defCursor() );
+	    setForm( defForm() );
 	    refresh();
 	    firstRecord();
 	    return TRUE;
@@ -80,7 +81,8 @@ bool QDesignerSqlDialog::event( QEvent* e )
 #endif
 	) {
 	if ( e->type() == QEvent::Show ) {
-	    (void)DatabaseSupport::defCursor();
+	    setSqlCursor( defCursor() );
+	    setForm( defForm() );
 	    refresh();
 	    firstRecord();
 	    return TRUE;
