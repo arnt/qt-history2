@@ -6,7 +6,6 @@
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
 
-echo Writing ${QTDIR}/Makefile
 exec > Makefile
 
 cat <<EOF
@@ -18,13 +17,13 @@ cat <<EOF
 # The next few lines (until the CVS source directive) are
 # automatically overwritten whenever you configure Qt for a platform
 
-INCDIR = /home/agulbra/qt/include
+INCDIR = \${QTDIR}/include
 CFLAGS = -O2 -fno-strength-reduce -Wall -W
 LIBCFLAGS = -fPIC
 YACCCFLAGS = -Wno-unused -Wno-parentheses
-LFLAGS = -L/home/agulbra/qt/lib -lqt
+LFLAGS = -L\${QTDIR}/lib -lqt
 CC = gcc
-MOC = /home/agulbra/qt/bin/moc
+MOC = \${QTDIR}/bin/moc
 SHELL = /bin/sh
 
 # \$Source\$
