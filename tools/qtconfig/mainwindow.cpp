@@ -22,7 +22,6 @@
 #include <qstylefactory.h>
 #include <qfontdatabase.h>
 #include <qlineedit.h>
-#include <qlistbox.h>
 #include <qspinbox.h>
 #include <qcheckbox.h>
 #include <qfiledialog.h>
@@ -30,7 +29,6 @@
 #include <qstatusbar.h>
 #include <qsettings.h>
 #include <qmessagebox.h>
-#include <qtextview.h>
 #include <qstyle.h>
 #include <qevent.h>
 #include <q3valuelist.h>

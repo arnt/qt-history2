@@ -123,7 +123,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListBox" name="listIndex" >
+        <widget class="Q3ListBox" name="listIndex" >
          <property name="objectName" >
           <string notr="true">listIndex</string>
          </property>
@@ -300,7 +300,7 @@
         </widget>
        </item>
        <item row="5" column="0" >
-        <widget class="QListBox" name="resultBox" >
+        <widget class="Q3ListBox" name="resultBox" >
          <property name="objectName" >
           <string notr="true">resultBox</string>
          </property>

@@ -27,8 +27,6 @@
 #include <qpainter.h>
 #include <qeventloop.h>
 #include <qevent.h>
-#include <qsimplerichtext.h>
-#include <qpaintdevicemetrics.h>
 #include <qfontdatabase.h>
 #include <qwhatsthis.h>
 #include <qtextdocumentfragment.h>
@@ -363,9 +361,9 @@ void MainWindow::showLink(const QString &link)
     }
 
     QUrl url(link);
-    QFileInfo fi(url.toLocalFile());    
+    QFileInfo fi(url.toLocalFile());
     tabs->setSource(url.toString());
-    tabs->currentBrowser()->setFocus();    
+    tabs->currentBrowser()->setFocus();
 }
 
 void MainWindow::showLinks(const QStringList &links)

@@ -249,7 +249,7 @@
                                 <enum>Horizontal</enum>
                             </property>
                         </widget>
-                        <widget class="QTextView">
+                        <widget class="Q3TextView">
                             <property name="name">
                                 <cstring>textView</cstring>
                             </property>

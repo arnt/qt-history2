@@ -1,18 +1,18 @@
 # Qt compat module
 
-HEADERS +=      other/qdropsite.h \
+HEADERS +=      other/q3dropsite.h \
 		other/q3dragobject.h \
                 other/q3guardedptr.h \
                 other/q3accel.h \
-                other/qmimefactory.h \
+                other/q3mimefactory.h \
 		other/q3polygonscanner.h \
 		other/q3process.h \
 		other/q3membuf_p.h
 
-SOURCES +=      other/qdropsite.cpp \
+SOURCES +=      other/q3dropsite.cpp \
 		other/q3dragobject.cpp \
                 other/q3accel.cpp \
-                other/qmimefactory.cpp \
+                other/q3mimefactory.cpp \
 		other/q3polygonscanner.cpp \
 		other/q3process.cpp \
 		other/q3membuf.cpp

@@ -18,7 +18,6 @@
 #include <qcombobox.h>
 #include <qapplication.h>
 #include <qpushbutton.h>
-#include <qlistbox.h>
 #include <qpainter.h>
 #include <qgroupbox.h>
 

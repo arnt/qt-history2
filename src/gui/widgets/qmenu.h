@@ -337,7 +337,7 @@ private:
     friend class QMenuBar;
     friend class QMenuBarPrivate;
     friend class QTornOffMenu;
-    friend class QPopupMenu;
+    friend class Q3PopupMenu;
     friend class QComboBox;
 
 #ifdef Q_WS_MAC

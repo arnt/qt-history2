@@ -1,5 +1,5 @@
 SOURCES += \
-	painting/qpaintdevicemetrics.cpp
+	painting/q3paintdevicemetrics.cpp
 
 HEADERS += \
-	painting/qpaintdevicemetrics.h
+	painting/q3paintdevicemetrics.h

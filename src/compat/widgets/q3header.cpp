@@ -134,7 +134,7 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
 
     This class provides a header, e.g. a vertical header to display
     row labels, or a horizontal header to display column labels. It is
-    used by QTable and QListView for example.
+    used by Q3Table and Q3ListView for example.
 
     A header is composed of one or more \e sections, each of which can
     display a text label and an \link QIcon icon\endlink. A sort
@@ -199,7 +199,7 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
     the resizing is finished), use setTracking(). If the user moves a
     section the indexChange() signal is emitted.
 
-    \sa QListView QTable
+    \sa Q3ListView Q3Table
 */
 
 

@@ -142,7 +142,7 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
 
     This function is used internally by widgets that support
     QWidget::customWhatsThis(); applications do not usually call it.
-    An example of such a widget is QPopupMenu: menus still work
+    An example of such a widget is Q3PopupMenu: menus still work
     normally in "What's This?" mode but also provide help texts for
     individual menu items.
 

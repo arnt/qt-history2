@@ -13,7 +13,7 @@
 
 #include "q3textbrowser.h"
 #ifndef QT_NO_TEXTBROWSER
-#include <private/qrichtext_p.h>
+#include <private/q3richtext_p.h>
 
 #include "qevent.h"
 #include "qdesktopwidget.h"
@@ -29,8 +29,8 @@
 #include "qbitmap.h"
 #include "qtimer.h"
 #include "qimage.h"
-#include "qsimplerichtext.h"
-#include "qdragobject.h"
+#include "q3simplerichtext.h"
+#include "q3dragobject.h"
 #include "qurl.h"
 #include "qcursor.h"
 
@@ -59,9 +59,9 @@
     signal is emitted when the user clicks a link.
 
     By using Q3TextEdit::setMimeSourceFactory() you can provide your
-    own subclass of QMimeSourceFactory. This makes it possible to
+    own subclass of Q3MimeSourceFactory. This makes it possible to
     access data from anywhere, for example from a network or from a
-    database. See QMimeSourceFactory::data() for details.
+    database. See Q3MimeSourceFactory::data() for details.
 
     If you intend using the mime factory to read the data directly
     from the file system, you may have to specify the encoding for the
@@ -145,7 +145,7 @@ Q3TextBrowser::~Q3TextBrowser()
     encoding of specified files; otherwise no data will be available.
     The default factory handles a couple of common file extensions
     such as \c *.html and \c *.txt with reasonable defaults. See
-    QMimeSourceFactory::data() for details.
+    Q3MimeSourceFactory::data() for details.
 */
 
 QString Q3TextBrowser::source() const
@@ -224,7 +224,7 @@ void Q3TextBrowser::setSource(const QString& name)
             qWarning("Q3TextBrowser: no mimesource for %s", source.latin1());
         }
         else {
-            if (!QTextDrag::decode(m, txt)) {
+            if (!Q3TextDrag::decode(m, txt)) {
                 qWarning("Q3TextBrowser: cannot decode %s", source.latin1());
             }
         }
@@ -432,7 +432,7 @@ void Q3TextBrowser::popupDetail(const QString& contents, const QPoint& pos)
     QWidget* popup = new QTextDetailPopup;
     popup->setAttribute(Qt::WA_NoSystemBackground, true);
 
-    QSimpleRichText* doc = new QSimpleRichText(contents, popup->font());
+    Q3SimpleRichText* doc = new Q3SimpleRichText(contents, popup->font());
     doc->adjustSize();
     QRect r(0, 0, doc->width(), doc->height());
 

@@ -19,7 +19,7 @@
 #include "helpwindow.h"
 #include "docuparser.h"
 
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <q3listview.h>
 #include <qmap.h>
 #include <qstringlist.h>
@@ -31,10 +31,10 @@ class QProgressBar;
 class MainWindow;
 class QTextBrowser;
 
-class HelpNavigationListItem : public QListBoxText
+class HelpNavigationListItem : public Q3ListBoxText
 {
 public:
-    HelpNavigationListItem(QListBox *ls, const QString &txt);
+    HelpNavigationListItem(Q3ListBox *ls, const QString &txt);
 
     void addLink(const QString &link);
     QStringList links() const { return linkList; }
@@ -96,19 +96,19 @@ private slots:
     void on_termsEdit_returnPressed();
     void on_helpButton_clicked();
     void on_searchButton_clicked();
-    void on_resultBox_returnPressed(QListBoxItem*);
-    void on_resultBox_mouseButtonClicked(int, QListBoxItem*, const QPoint &);
+    void on_resultBox_returnPressed(Q3ListBoxItem*);
+    void on_resultBox_mouseButtonClicked(int, Q3ListBoxItem*, const QPoint &);
 
-    void showResultPage(QListBoxItem *);
+    void showResultPage(Q3ListBoxItem *);
 
-    void showTopic(int, QListBoxItem *, const QPoint &);
+    void showTopic(int, Q3ListBoxItem *, const QPoint &);
     void showTopic(int, Q3ListViewItem *, const QPoint &);
     void showTopic(Q3ListViewItem *);
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();
     void currentTabChanged(int index);
-    void currentIndexChanged(QListBoxItem *i);
+    void currentIndexChanged(Q3ListBoxItem *i);
     void showTopic();
     void searchInIndex(const QString &s);
     void currentBookmarkChanged(Q3ListViewItem *i);
@@ -119,7 +119,7 @@ private slots:
     void toggleSearch();
     void lastWinClosed();
     void setIndexingProgress(int prog);
-    void showItemMenu(QListBoxItem *item, const QPoint &pos);
+    void showItemMenu(Q3ListBoxItem *item, const QPoint &pos);
     void showItemMenu(Q3ListViewItem *item, const QPoint &pos);
     void insertBookmarks();
     void processEvents();

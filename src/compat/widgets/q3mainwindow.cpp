@@ -24,7 +24,7 @@
 #include "qmap.h"
 #include "qmenubar.h"
 #include "qpainter.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "q3scrollview.h"
 #include "qstatusbar.h"
 #include "qstringlist.h"
@@ -598,7 +598,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     Q3MainWindow provides functionality specific to the standard dock
     areas it provides.
 
-    \sa Q3ToolBar Q3DockWindow QStatusBar QAction QMenuBar QPopupMenu QToolTipGroup QDialog
+    \sa Q3ToolBar Q3DockWindow QStatusBar QAction QMenuBar Q3PopupMenu QToolTipGroup QDialog
 */
 
 /*! \enum Qt::ToolBarDock
@@ -1692,7 +1692,7 @@ void Q3MainWindow::triggerLayout(bool deleteLayout)
     be used for popup menus, for example:
 
     \code
-    QPopupMenu * help = new QPopupMenu(this);
+    Q3PopupMenu * help = new Q3PopupMenu(this);
     help->insertItem("What's &This", this , SLOT(enterWhatsThis()), Qt::SHIFT+Qt::Key_F1);
     \endcode
 
@@ -1977,13 +1977,13 @@ void Q3MainWindow::setDockMenuEnabled(bool b)
     useful.
 */
 
-QPopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
+Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
 {
     QObjectList l = queryList("Q3DockWindow");
     if (l.isEmpty())
         return 0;
 
-    QPopupMenu *menu = new QPopupMenu((Q3MainWindow*)this);
+    Q3PopupMenu *menu = new Q3PopupMenu((Q3MainWindow*)this);
     menu->setObjectName("qt_customize_menu");
     menu->setCheckable(true);
 
@@ -2057,7 +2057,7 @@ bool Q3MainWindow::showDockMenu(const QPoint &globalPos)
     if (!d->dockMenu)
         return false;
 
-    if(QPopupMenu *ret = createDockWindowMenu()) {
+    if(Q3PopupMenu *ret = createDockWindowMenu()) {
         ret->exec(globalPos);
         delete ret;
         return true;

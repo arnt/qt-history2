@@ -52,7 +52,7 @@ static QString convertToCIdentifier( const char *s )
         if ( !isalnum( (char)r[i] ) )
             r[i] = '_';
     }
-    
+
     return QString::fromAscii(r);
 }
 
@@ -128,8 +128,8 @@ void Ui3Reader::embed(const char *project, const QStringList &images)
 
     out << "#include <qimage.h>\n";
     out << "#include <qmime.h>\n";
-    out << "#include <qmimefactory.h>\n";
-    out << "#include <qdragobject.h>\n";
+    out << "#include <q3mimefactory.h>\n";
+    out << "#include <q3dragobject.h>\n";
     out << "\n";
 
     QList<EmbedImage*> list_image;
@@ -249,36 +249,36 @@ void Ui3Reader::embed(const char *project, const QStringList &images)
             "    return QImage();\n"
             "}\n\n";
 
-        out << "class MimeSourceFactory_" << cProject << " : public QMimeSourceFactory\n";
+        out << "class MimeSourceFactory_" << cProject << " : public Q3MimeSourceFactory\n";
         out << "{\n";
         out << "public:\n";
         out << "    MimeSourceFactory_" << cProject << "() {}\n";
         out << "    ~MimeSourceFactory_" << cProject << "() {}\n";
         out << "    const QMimeSource* data( const QString& abs_name ) const {\n";
-        out << "\tconst QMimeSource* d = QMimeSourceFactory::data( abs_name );\n";
+        out << "\tconst QMimeSource* d = Q3MimeSourceFactory::data( abs_name );\n";
         out << "\tif ( d || abs_name.isNull() ) return d;\n";
         out << "\tQImage img = uic_findImage( abs_name );\n";
         out << "\tif ( !img.isNull() )\n";
-        out << "\t    ((QMimeSourceFactory*)this)->setImage( abs_name, img );\n";
-        out << "\treturn QMimeSourceFactory::data( abs_name );\n";
+        out << "\t    ((Q3MimeSourceFactory*)this)->setImage( abs_name, img );\n";
+        out << "\treturn Q3MimeSourceFactory::data( abs_name );\n";
         out << "    };\n";
         out << "};\n\n";
 
-        out << "static QMimeSourceFactory* factory = 0;\n";
+        out << "static Q3MimeSourceFactory* factory = 0;\n";
         out << "\n";
 
         out << "void qInitImages_" << cProject << "()\n";
         out << "{\n";
         out << "    if ( !factory ) {\n";
         out << "\tfactory = new MimeSourceFactory_" << cProject << ";\n";
-        out << "\tQMimeSourceFactory::defaultFactory()->addFactory( factory );\n";
+        out << "\tQ3MimeSourceFactory::defaultFactory()->addFactory( factory );\n";
         out << "    }\n";
         out << "}\n\n";
 
         out << "void qCleanupImages_" << cProject << "()\n";
         out << "{\n";
         out << "    if ( factory ) {\n";
-        out << "\tQMimeSourceFactory::defaultFactory()->removeFactory( factory );\n";
+        out << "\tQ3MimeSourceFactory::defaultFactory()->removeFactory( factory );\n";
         out << "\tdelete factory;\n";
         out << "\tfactory = 0;\n";
         out << "    }\n";

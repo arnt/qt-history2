@@ -47,7 +47,7 @@
         <property name="spacing">
             <number>4</number>
         </property>
-        <widget class="QTextView">
+        <widget class="Q3TextView">
             <property name="name">
                 <cstring>helpview</cstring>
             </property>
@@ -512,7 +512,7 @@
                                     <string>Current Substitutions:</string>
                                 </property>
                             </widget>
-                            <widget class="QListBox">
+                            <widget class="Q3ListBox">
                                 <property name="name">
                                     <cstring>sublistbox</cstring>
                                 </property>
@@ -1083,7 +1083,7 @@
                                     <property name="spacing">
                                         <number>4</number>
                                     </property>
-                                    <widget class="QListBox" row="0" column="0" rowspan="1" colspan="3">
+                                    <widget class="Q3ListBox" row="0" column="0" rowspan="1" colspan="3">
                                         <property name="name">
                                             <cstring>libpathlistbox</cstring>
                                         </property>
@@ -1269,7 +1269,7 @@
                                             <string>Remove</string>
                                         </property>
                                     </widget>
-                                    <widget class="QListBox" row="0" column="0" rowspan="1" colspan="3">
+                                    <widget class="Q3ListBox" row="0" column="0" rowspan="1" colspan="3">
                                         <property name="name">
                                             <cstring>fontpathlistbox</cstring>
                                         </property>

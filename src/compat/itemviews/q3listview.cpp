@@ -19,7 +19,7 @@
 #include "qcleanuphandler.h"
 #include "qcursor.h"
 #include "qdatetime.h"
-#include "qdragobject.h"
+#include "q3dragobject.h"
 #include "qevent.h"
 #include "qhash.h"
 #include "q3header.h"
@@ -27,13 +27,11 @@
 #include "qlineedit.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
-#include "qpopupmenu.h"
 #include "qstack.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
-#include "qvbox.h"
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -7066,10 +7064,10 @@ void Q3ListView::contentsDropEvent(QDropEvent *e)
     drag object and a drag is started unless dragObject() returns 0.
 
     By default this function returns 0. You should reimplement it and
-    create a QDragObject depending on the selected items.
+    create a Q3DragObject depending on the selected items.
 */
 
-QDragObject *Q3ListView::dragObject()
+Q3DragObject *Q3ListView::dragObject()
 {
     return 0;
 }
@@ -7086,7 +7084,7 @@ void Q3ListView::startDrag()
     d->startDragItem = 0;
     d->buttonDown = false;
 
-    QDragObject *drag = dragObject();
+    Q3DragObject *drag = dragObject();
     if (!drag)
         return;
 

@@ -16,9 +16,9 @@
 #ifndef QT_NO_DATETIMEEDIT
 
 #include <private/qinternal_p.h>
-#include <private/qrichtext_p.h>
+#include <private/q3richtext_p.h>
 #include "qevent.h"
-#include "qrangecontrol.h"
+#include "q3rangecontrol.h"
 #include "qapplication.h"
 #include "qpixmap.h"
 #include "qapplication.h"
@@ -386,11 +386,11 @@ private:
     Q3DateTimeEditorPrivate* d;
 };
 
-class QDateTimeSpinWidget : public QSpinWidget
+class QDateTimeSpinWidget : public Q3SpinWidget
 {
 public:
     QDateTimeSpinWidget(QWidget *parent, const char *name)
-        : QSpinWidget(parent, name)
+        : Q3SpinWidget(parent, name)
     {
     }
 
@@ -422,7 +422,7 @@ protected:
 
         if (section == -1)
             return;
-        QSpinWidget::wheelEvent(e);
+        Q3SpinWidget::wheelEvent(e);
     }
 #endif
 };
@@ -810,7 +810,7 @@ public:
     QDate max;
     bool changed;
     Q3DateTimeEditor *ed;
-    QSpinWidget *controls;
+    Q3SpinWidget *controls;
 };
 
 
@@ -1743,7 +1743,7 @@ public:
     QTime max;
     bool changed;
     Q3DateTimeEditor *ed;
-    QSpinWidget *controls;
+    Q3SpinWidget *controls;
 };
 
 /*!

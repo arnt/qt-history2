@@ -21,21 +21,21 @@
 #include "qlist.h"
 
 class QWidget;
-class QTextDragPrivate;
-class QDragObjectPrivate;
-class QStoredDragPrivate;
-class QImageDragPrivate;
-class QImageDrag;
-class QTextDrag;
+class Q3TextDragPrivate;
+class Q3DragObjectPrivate;
+class Q3StoredDragPrivate;
+class Q3ImageDragPrivate;
+class Q3ImageDrag;
+class Q3TextDrag;
 class QImage;
 class QPixmap;
 
-class Q_COMPAT_EXPORT QDragObject : public QObject, public QMimeSource {
+class Q_COMPAT_EXPORT Q3DragObject : public QObject, public QMimeSource {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDragObject)
+    Q_DECLARE_PRIVATE(Q3DragObject)
 public:
-    QDragObject(QWidget * dragSource = 0, const char *name = 0);
-    virtual ~QDragObject();
+    Q3DragObject(QWidget * dragSource = 0, const char *name = 0);
+    virtual ~Q3DragObject();
 
     bool drag();
     bool dragMove();
@@ -53,19 +53,19 @@ public:
     enum DragMode { DragDefault, DragCopy, DragMove, DragLink, DragCopyOrMove };
 
 protected:
-    QDragObject(QDragObjectPrivate &, QWidget *dragSource = 0);
+    Q3DragObject(Q3DragObjectPrivate &, QWidget *dragSource = 0);
     virtual bool drag(DragMode);
 
 private:
-    Q_DISABLE_COPY(QDragObject)
+    Q_DISABLE_COPY(Q3DragObject)
 };
 
-class Q_COMPAT_EXPORT QStoredDrag: public QDragObject {
+class Q_COMPAT_EXPORT Q3StoredDrag: public Q3DragObject {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QStoredDrag)
+    Q_DECLARE_PRIVATE(Q3StoredDrag)
 public:
-    QStoredDrag(const char *mimeType, QWidget *dragSource = 0, const char *name = 0);
-    ~QStoredDrag();
+    Q3StoredDrag(const char *mimeType, QWidget *dragSource = 0, const char *name = 0);
+    ~Q3StoredDrag();
 
     virtual void setEncodedData(const QByteArray &);
 
@@ -73,19 +73,19 @@ public:
     virtual QByteArray encodedData(const char*) const;
 
 protected:
-    QStoredDrag(QStoredDragPrivate &, const char *mimeType, QWidget *dragSource = 0);
+    Q3StoredDrag(Q3StoredDragPrivate &, const char *mimeType, QWidget *dragSource = 0);
 
 private:
-    Q_DISABLE_COPY(QStoredDrag)
+    Q_DISABLE_COPY(Q3StoredDrag)
 };
 
-class Q_COMPAT_EXPORT QTextDrag: public QDragObject {
+class Q_COMPAT_EXPORT Q3TextDrag: public Q3DragObject {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextDrag)
+    Q_DECLARE_PRIVATE(Q3TextDrag)
 public:
-    QTextDrag(const QString &, QWidget *dragSource = 0, const char *name = 0);
-    QTextDrag(QWidget * dragSource = 0, const char * name = 0);
-    ~QTextDrag();
+    Q3TextDrag(const QString &, QWidget *dragSource = 0, const char *name = 0);
+    Q3TextDrag(QWidget * dragSource = 0, const char * name = 0);
+    ~Q3TextDrag();
 
     virtual void setText(const QString &);
     virtual void setSubtype(const QString &);
@@ -98,19 +98,19 @@ public:
     static bool decode(const QMimeSource* e, QString& s, QString& subtype);
 
 protected:
-    QTextDrag(QTextDragPrivate &, QWidget * dragSource = 0);
+    Q3TextDrag(Q3TextDragPrivate &, QWidget * dragSource = 0);
 
 private:
-    Q_DISABLE_COPY(QTextDrag)
+    Q_DISABLE_COPY(Q3TextDrag)
 };
 
-class Q_COMPAT_EXPORT QImageDrag: public QDragObject {
+class Q_COMPAT_EXPORT Q3ImageDrag: public Q3DragObject {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QImageDrag)
+    Q_DECLARE_PRIVATE(Q3ImageDrag)
 public:
-    QImageDrag(QImage image, QWidget * dragSource = 0, const char * name = 0);
-    QImageDrag(QWidget * dragSource = 0, const char * name = 0);
-    ~QImageDrag();
+    Q3ImageDrag(QImage image, QWidget * dragSource = 0, const char * name = 0);
+    Q3ImageDrag(QWidget * dragSource = 0, const char * name = 0);
+    ~Q3ImageDrag();
 
     virtual void setImage(QImage image);
 
@@ -122,20 +122,20 @@ public:
     static bool decode(const QMimeSource* e, QPixmap& i);
 
 protected:
-    QImageDrag(QImageDragPrivate &, QWidget * dragSource = 0);
+    Q3ImageDrag(Q3ImageDragPrivate &, QWidget * dragSource = 0);
 
 private:
-    Q_DISABLE_COPY(QImageDrag)
+    Q_DISABLE_COPY(Q3ImageDrag)
 };
 
 
-class Q_COMPAT_EXPORT QUriDrag: public QStoredDrag {
+class Q_COMPAT_EXPORT Q3UriDrag: public Q3StoredDrag {
     Q_OBJECT
 
 public:
-    QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0);
-    QUriDrag(QWidget * dragSource = 0, const char * name = 0);
-    ~QUriDrag();
+    Q3UriDrag(const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0);
+    Q3UriDrag(QWidget * dragSource = 0, const char * name = 0);
+    ~Q3UriDrag();
 
     void setFilenames(const QStringList & fnames) { setFileNames(fnames); }
     void setFileNames(const QStringList & fnames);
@@ -152,28 +152,24 @@ public:
     static bool decodeLocalFiles(const QMimeSource* e, QStringList& i);
 
 private:
-    Q_DISABLE_COPY(QUriDrag)
+    Q_DISABLE_COPY(Q3UriDrag)
 };
 
-class Q_COMPAT_EXPORT QColorDrag : public QStoredDrag
+class Q_COMPAT_EXPORT Q3ColorDrag : public Q3StoredDrag
 {
     Q_OBJECT
     QColor color;
 
 public:
-    QColorDrag(const QColor &col, QWidget *dragsource = 0, const char *name = 0);
-    QColorDrag(QWidget * dragSource = 0, const char * name = 0);
+    Q3ColorDrag(const QColor &col, QWidget *dragsource = 0, const char *name = 0);
+    Q3ColorDrag(QWidget * dragSource = 0, const char * name = 0);
     void setColor(const QColor &col);
 
     static bool canDecode(QMimeSource *);
     static bool decode(QMimeSource *, QColor &col);
 
 private:
-    Q_DISABLE_COPY(QColorDrag)
+    Q_DISABLE_COPY(Q3ColorDrag)
 };
-
-#ifdef QT_COMPAT
-typedef QUriDrag QUrlDrag;
-#endif
 
 #endif // Q3DRAGOBJECT_H

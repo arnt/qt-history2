@@ -884,7 +884,7 @@ bool QCoreApplication::event(QEvent *e)
 
   It's common to connect the QApplication::lastWindowClosed() signal
   to quit(), and you also often connect e.g. QButton::clicked() or
-  signals in QAction, QPopupMenu or QMenuBar to it.
+  signals in QAction, QMenu or QMenuBar to it.
 
   Example:
   \code

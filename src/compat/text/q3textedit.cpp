@@ -15,7 +15,7 @@
 
 #ifndef QT_NO_TEXTEDIT
 
-#include <private/qrichtext_p.h>
+#include <private/q3richtext_p.h>
 #include "qpainter.h"
 #include "qpen.h"
 #include "qbrush.h"
@@ -27,21 +27,20 @@
 #include "qevent.h"
 #include "qtimer.h"
 #include "qapplication.h"
-#include "qlistbox.h"
-#include "qvbox.h"
+#include "q3listbox.h"
 #include "qapplication.h"
 #include "qclipboard.h"
 #include "qcolordialog.h"
-#include "qstylesheet.h"
-#include "qdragobject.h"
+#include "q3stylesheet.h"
+#include "q3dragobject.h"
 #include "qurl.h"
 #include "qcursor.h"
 #include "qregexp.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "qstack.h"
 #include "qmetaobject.h"
 #include "q3textbrowser.h"
-#include "private/qsyntaxhighlighter_p.h"
+#include "private/q3syntaxhighlighter_p.h"
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -106,7 +105,7 @@ public:
 };
 
 #ifndef QT_NO_MIME
-class Q3RichTextDrag : public QTextDrag
+class Q3RichTextDrag : public Q3TextDrag
 {
 public:
     Q3RichTextDrag(QWidget *dragSource = 0, const char *name = 0);
@@ -127,7 +126,7 @@ private:
 };
 
 Q3RichTextDrag::Q3RichTextDrag(QWidget *dragSource, const char *name)
-    : QTextDrag(dragSource, name)
+    : Q3TextDrag(dragSource, name)
 {
 }
 
@@ -136,7 +135,7 @@ QByteArray Q3RichTextDrag::encodedData(const char *mime) const
     if (qstrcmp("application/x-qrichtext", mime) == 0) {
         return richTxt.toUtf8(); // #### perhaps we should use USC2 instead?
     } else
-        return QTextDrag::encodedData(mime);
+        return Q3TextDrag::encodedData(mime);
 }
 
 bool Q3RichTextDrag::decode(QMimeSource *e, QString &str, const QString &mimetype,
@@ -157,21 +156,21 @@ bool Q3RichTextDrag::decode(QMimeSource *e, QString &str, const QString &mimetyp
 
     // do a regular text decode
     QString st = subtype;
-    return QTextDrag::decode(e, str, st);
+    return Q3TextDrag::decode(e, str, st);
 }
 
 bool Q3RichTextDrag::canDecode(QMimeSource* e)
 {
     if (e->provides("application/x-qrichtext"))
         return true;
-    return QTextDrag::canDecode(e);
+    return Q3TextDrag::canDecode(e);
 }
 
 const char* Q3RichTextDrag::format(int i) const
 {
-    if (QTextDrag::format(i))
-        return QTextDrag::format(i);
-    if (QTextDrag::format(i-1))
+    if (Q3TextDrag::format(i))
+        return Q3TextDrag::format(i);
+    if (Q3TextDrag::format(i-1))
         return "application/x-qrichtext";
     return 0;
 }
@@ -253,16 +252,16 @@ static bool block_set_alignment = false;
     cursor.
     \endlist
 
-    Q3TextEdit can display images (using QMimeSourceFactory), lists and
+    Q3TextEdit can display images (using Q3MimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
     viewport, scrollbars will appear. The text edit can load both
     plain text and HTML files (a subset of HTML 3.2 and 4). The
     rendering style and the set of valid tags are defined by a
     styleSheet(). Custom tags can be created and placed in a custom
     style sheet. Change the style sheet with \l{setStyleSheet()}; see
-    QStyleSheet for details. The images identified by image tags are
+    Q3StyleSheet for details. The images identified by image tags are
     displayed if they can be interpreted using the text edit's
-    \l{QMimeSourceFactory}; see setMimeSourceFactory().
+    \l{Q3MimeSourceFactory}; see setMimeSourceFactory().
 
     If you want a text browser with more navigation use QTextBrowser.
     If you just need to display a small piece of rich text use QLabel
@@ -271,7 +270,7 @@ static bool block_set_alignment = false;
     If you create a new Q3TextEdit, and want to allow the user to edit
     rich text, call setTextFormat(Qt::RichText) to ensure that the
     text is treated as rich text. (Rich text uses HTML tags to set
-    text formatting attributes. See QStyleSheet for information on the
+    text formatting attributes. See Q3StyleSheet for information on the
     HTML tags that are supported.). If you don't call setTextFormat()
     explicitly the text edit will guess from the text itself whether
     it is rich text or plain text. This means that if the text looks
@@ -381,7 +380,7 @@ static bool block_set_alignment = false;
     within HTML \c{<title>} tags.
 
     The text displayed in a text edit has a \e context. The context is
-    a path which the text edit's QMimeSourceFactory uses to resolve
+    a path which the text edit's Q3MimeSourceFactory uses to resolve
     the locations of files and images. It is passed to the
     mimeSourceFactory() when quering data. (See Q3TextEdit() and
     \l{context()}.)
@@ -425,14 +424,14 @@ static bool block_set_alignment = false;
     \code
     Q3TextEdit * log = new Q3TextEdit(this);
     log->setTextFormat(Qt::LogText);
-    QStyleSheetItem * item = new QStyleSheetItem(log->styleSheet(), "mytag");
+    Q3StyleSheetItem * item = new Q3StyleSheetItem(log->styleSheet(), "mytag");
     item->setColor("red");
     item->setFontWeight(QFont::Bold);
     item->setFontUnderline(true);
     log->append("This is a <mytag>custom tag</mytag>!");
     \endcode
     Note that only the color, bold, underline and italic attributes of
-    a QStyleSheetItem is used in Qt::LogText mode.
+    a Q3StyleSheetItem is used in Qt::LogText mode.
 
     Note that you can use setMaxLogLines() to limit the number of
     lines the widget can hold in Qt::LogText mode.
@@ -875,16 +874,16 @@ Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
     Constructs a Q3TextEdit called \a name, with parent \a parent. The
     text edit will display the text \a text using context \a context.
 
-    The \a context is a path which the text edit's QMimeSourceFactory
+    The \a context is a path which the text edit's Q3MimeSourceFactory
     uses to resolve the locations of files and images. It is passed to
     the mimeSourceFactory() when quering data.
 
     For example if the text contains an image tag,
     \c{<img src="image.png">}, and the context is "path/to/look/in", the
-    QMimeSourceFactory will try to load the image from
+    Q3MimeSourceFactory will try to load the image from
     "path/to/look/in/image.png". If the tag was
     \c{<img src="/image.png">}, the context will not be used (because
-    QMimeSourceFactory recognizes that we have used an absolute path)
+    Q3MimeSourceFactory recognizes that we have used an absolute path)
     and will try to load "/image.png". The context is applied in exactly
     the same way to \e hrefs, for example,
     \c{<a href="target.html">Target</a>}, would resolve to
@@ -1381,7 +1380,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                         undoRedoInfo.type = UndoRedoInfo::Style;
                         undoRedoInfo.id = cursor->paragraph()->paragId();
                         undoRedoInfo.eid = undoRedoInfo.id;
-                        undoRedoInfo.styleInformation = QTextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
+                        undoRedoInfo.styleInformation = Q3TextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
                         cursor->paragraph()->setListDepth(cursor->paragraph()->listDepth() +1);
                         clearUndoRedo();
                         drawCursor(false);
@@ -1404,8 +1403,8 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                         undoRedoInfo.type = UndoRedoInfo::Style;
                         undoRedoInfo.id = cursor->paragraph()->paragId();
                         undoRedoInfo.eid = undoRedoInfo.id;
-                        undoRedoInfo.styleInformation = QTextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
-                        setParagType(QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc);
+                        undoRedoInfo.styleInformation = Q3TextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
+                        setParagType(Q3StyleSheetItem::DisplayListItem, Q3StyleSheetItem::ListDisc);
                         clearUndoRedo();
                         drawCursor(false);
                         repaintChanged();
@@ -1640,7 +1639,7 @@ void Q3TextEdit::doKeyboardAction(KeyboardAction action)
                 undoRedoInfo.type = UndoRedoInfo::Style;
                 undoRedoInfo.id = cursor->paragraph()->paragId();
                 undoRedoInfo.eid = undoRedoInfo.id;
-                undoRedoInfo.styleInformation = QTextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
+                undoRedoInfo.styleInformation = Q3TextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
             }
             int ldepth = cursor->paragraph()->listDepth();
             if (cursor->paragraph()->isListItem() && ldepth == 1) {
@@ -2439,7 +2438,7 @@ void Q3TextEdit::contentsMouseDoubleClickEvent(QMouseEvent * e)
 
 void Q3TextEdit::contentsDragEnterEvent(QDragEnterEvent *e)
 {
-    if (isReadOnly() || !QTextDrag::canDecode(e)) {
+    if (isReadOnly() || !Q3TextDrag::canDecode(e)) {
         e->ignore();
         return;
     }
@@ -2453,7 +2452,7 @@ void Q3TextEdit::contentsDragEnterEvent(QDragEnterEvent *e)
 
 void Q3TextEdit::contentsDragMoveEvent(QDragMoveEvent *e)
 {
-    if (isReadOnly() || !QTextDrag::canDecode(e)) {
+    if (isReadOnly() || !Q3TextDrag::canDecode(e)) {
         e->ignore();
         return;
     }
@@ -2567,7 +2566,7 @@ void Q3TextEdit::contentsContextMenuEvent(QContextMenuEvent *e)
 
     e->accept();
 #ifndef QT_NO_POPUPMENU
-    QPopupMenu *popup = createPopupMenu(e->pos());
+    Q3PopupMenu *popup = createPopupMenu(e->pos());
     if (!popup)
         popup = createPopupMenu();
     if (!popup)
@@ -3189,13 +3188,13 @@ void Q3TextEdit::repaintChanged()
 }
 
 #ifndef QT_NO_MIME
-QTextDrag *Q3TextEdit::dragObject(QWidget *parent) const
+Q3TextDrag *Q3TextEdit::dragObject(QWidget *parent) const
 {
     if (!doc->hasSelection(Q3TextDocument::Standard) ||
          doc->selectedText(Q3TextDocument::Standard).isEmpty())
         return 0;
     if (textFormat() != Qt::RichText)
-        return new QTextDrag(doc->selectedText(Q3TextDocument::Standard), parent);
+        return new Q3TextDrag(doc->selectedText(Q3TextDocument::Standard), parent);
     Q3RichTextDrag *drag = new Q3RichTextDrag(parent);
     drag->setPlainText(doc->selectedText(Q3TextDocument::Standard));
     drag->setRichText(doc->selectedText(Q3TextDocument::Standard, true));
@@ -3223,7 +3222,7 @@ void Q3TextEdit::cut()
 void Q3TextEdit::normalCopy()
 {
 #ifndef QT_NO_MIME
-    QTextDrag *drag = dragObject();
+    Q3TextDrag *drag = dragObject();
     if (!drag)
         return;
 #ifndef QT_NO_MIMECLIPBOARD
@@ -3357,14 +3356,14 @@ void Q3TextEdit::setFormat(Q3TextFormat *f, int flags)
   function will go away.
 
   Sets the paragraph style of the current paragraph
-  to \a dm. If \a dm is QStyleSheetItem::DisplayListItem, the
+  to \a dm. If \a dm is Q3StyleSheetItem::DisplayListItem, the
   type of the list item is set to \a listStyle.
 
   \sa setAlignment()
 */
 
-void Q3TextEdit::setParagType(QStyleSheetItem::DisplayMode dm,
-                              QStyleSheetItem::ListStyle listStyle)
+void Q3TextEdit::setParagType(Q3StyleSheetItem::DisplayMode dm,
+                              Q3StyleSheetItem::ListStyle listStyle)
 {
     if (isReadOnly())
         return;
@@ -3383,11 +3382,11 @@ void Q3TextEdit::setParagType(QStyleSheetItem::DisplayMode dm,
     undoRedoInfo.type = UndoRedoInfo::Style;
     undoRedoInfo.id = start->paragId();
     undoRedoInfo.eid = end->paragId();
-    undoRedoInfo.styleInformation = QTextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
+    undoRedoInfo.styleInformation = Q3TextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
 
     while (start != end->next()) {
         start->setListStyle(listStyle);
-        if (dm == QStyleSheetItem::DisplayListItem) {
+        if (dm == Q3StyleSheetItem::DisplayListItem) {
             start->setListItem(true);
             if(start->listDepth() == 0)
                 start->setListDepth(1);
@@ -3432,7 +3431,7 @@ void Q3TextEdit::setAlignment(int a)
     undoRedoInfo.type = UndoRedoInfo::Style;
     undoRedoInfo.id = start->paragId();
     undoRedoInfo.eid = end->paragId();
-    undoRedoInfo.styleInformation = QTextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
+    undoRedoInfo.styleInformation = Q3TextStyleCommand::readStyleInformation(doc, undoRedoInfo.id, undoRedoInfo.eid);
 
     while (start != end->next()) {
         start->setAlignment(a);
@@ -3641,12 +3640,12 @@ QString Q3TextEdit::text(int para) const
     i.e. the text edit auto-detects the format from \a text.
 
     For rich text the rendering style and available tags are defined
-    by a styleSheet(); see QStyleSheet for details.
+    by a styleSheet(); see Q3StyleSheet for details.
 
     The optional \a context is a path which the text edit's
-    QMimeSourceFactory uses to resolve the locations of files and
+    Q3MimeSourceFactory uses to resolve the locations of files and
     images. (See \l{Q3TextEdit::Q3TextEdit()}.) It is passed to the text
-    edit's QMimeSourceFactory when quering data.
+    edit's Q3MimeSourceFactory when quering data.
 
     Note that the undo/redo history is cleared by this function.
 
@@ -3976,13 +3975,13 @@ void Q3TextEdit::getSelection(int *paraFrom, int *indexFrom,
     the text edit inserts a hard line break and begins a new
     paragraph.
     \i Qt::RichText - rich text rendering. The available styles are
-    defined in the default stylesheet QStyleSheet::defaultSheet().
+    defined in the default stylesheet Q3StyleSheet::defaultSheet().
     \i Qt::LogText -  optimized mode for very large texts. Supports a very
     limited set of formatting tags (color, bold, underline and italic
     settings).
     \i Qt::AutoText - this is the default. The text edit autodetects which
     rendering style is best, \c Qt::PlainText or \c Qt::RichText. This is done
-    by using the QStyleSheet::mightBeRichText() function.
+    by using the Q3StyleSheet::mightBeRichText() function.
     \endlist
 */
 
@@ -4242,13 +4241,13 @@ void Q3TextEdit::startDrag()
 #ifndef QT_NO_DRAGANDDROP
     mousePressed = false;
     inDoubleClick = false;
-    QDragObject *drag = dragObject(viewport());
+    Q3DragObject *drag = dragObject(viewport());
     if (!drag)
         return;
     if (isReadOnly()) {
         drag->dragCopy();
     } else {
-        if (drag->drag() && QDragObject::target() != this && QDragObject::target() != viewport())
+        if (drag->drag() && Q3DragObject::target() != this && Q3DragObject::target() != viewport())
             removeSelectedText();
     }
 #endif
@@ -4289,13 +4288,13 @@ void Q3TextEdit::UndoRedoInfo::clear()
 {
     if (valid()) {
         if (type == Insert || type == Return)
-            doc->addCommand(new QTextInsertCommand(doc, id, index, d->text.rawData(), styleInformation));
+            doc->addCommand(new Q3TextInsertCommand(doc, id, index, d->text.rawData(), styleInformation));
         else if (type == Format)
             doc->addCommand(new Q3TextFormatCommand(doc, id, index, eid, eindex, d->text.rawData(), format, flags));
         else if (type == Style)
-            doc->addCommand(new QTextStyleCommand(doc, id, eid, styleInformation));
+            doc->addCommand(new Q3TextStyleCommand(doc, id, eid, styleInformation));
         else if (type != Invalid) {
-            doc->addCommand(new QTextDeleteCommand(doc, id, index, d->text.rawData(), styleInformation));
+            doc->addCommand(new Q3TextDeleteCommand(doc, id, index, d->text.rawData(), styleInformation));
         }
     }
     type = Invalid;
@@ -4353,17 +4352,17 @@ bool Q3TextEdit::UndoRedoInfo::valid() const
 void Q3TextEdit::resetFormat()
 {
     setAlignment(Qt::AlignAuto);
-    setParagType(QStyleSheetItem::DisplayBlock, QStyleSheetItem::ListDisc);
+    setParagType(Q3StyleSheetItem::DisplayBlock, Q3StyleSheetItem::ListDisc);
     setFormat(doc->formatCollection()->defaultFormat(), Q3TextFormat::Format);
 }
 
 /*!
-    Returns the QStyleSheet which is being used by this text edit.
+    Returns the Q3StyleSheet which is being used by this text edit.
 
     \sa setStyleSheet()
 */
 
-QStyleSheet* Q3TextEdit::styleSheet() const
+Q3StyleSheet* Q3TextEdit::styleSheet() const
 {
     return doc->styleSheet();
 }
@@ -4376,7 +4375,7 @@ QStyleSheet* Q3TextEdit::styleSheet() const
     \sa styleSheet()
 */
 
-void Q3TextEdit::setStyleSheet(QStyleSheet* styleSheet)
+void Q3TextEdit::setStyleSheet(Q3StyleSheet* styleSheet)
 {
     doc->setStyleSheet(styleSheet);
 }
@@ -4438,25 +4437,25 @@ bool Q3TextEdit::linkUnderline() const
 
 /*!
     Sets the text edit's mimesource factory to \a factory. See
-    QMimeSourceFactory for further details.
+    Q3MimeSourceFactory for further details.
 
     \sa mimeSourceFactory()
  */
 
 #ifndef QT_NO_MIME
-void Q3TextEdit::setMimeSourceFactory(QMimeSourceFactory* factory)
+void Q3TextEdit::setMimeSourceFactory(Q3MimeSourceFactory* factory)
 {
     doc->setMimeSourceFactory(factory);
 }
 
 /*!
-    Returns the QMimeSourceFactory which is being used by this text
+    Returns the Q3MimeSourceFactory which is being used by this text
     edit.
 
     \sa setMimeSourceFactory()
 */
 
-QMimeSourceFactory* Q3TextEdit::mimeSourceFactory() const
+Q3MimeSourceFactory* Q3TextEdit::mimeSourceFactory() const
 {
     return doc->mimeSourceFactory();
 }
@@ -4501,7 +4500,7 @@ void Q3TextEdit::append(const QString &text)
     doc->removeSelection(Q3TextDocument::Standard);
     Qt::TextFormat f = doc->textFormat();
     if (f == Qt::AutoText) {
-        if (QStyleSheet::mightBeRichText(text))
+        if (Q3StyleSheet::mightBeRichText(text))
             f = Qt::RichText;
         else
             f = Qt::PlainText;
@@ -4645,7 +4644,7 @@ bool Q3TextEdit::handleReadOnlyKeyEvent(QKeyEvent *e)
 
 /*!
     Returns the context of the text edit. The context is a path which
-    the text edit's QMimeSourceFactory uses to resolve the locations
+    the text edit's Q3MimeSourceFactory uses to resolve the locations
     of files and images.
 
     \sa text
@@ -5273,17 +5272,17 @@ bool Q3TextEdit::getFormat(int para, int index, QFont *font, QColor *color, Vert
   verticalAlignment to the paragraph's vertical alignment, \a
   alignment to the paragraph's alignment, \a displayMode to the
   paragraph's display mode, \a listStyle to the paragraph's list style
-  (if the display mode is QStyleSheetItem::DisplayListItem) and \a
+  (if the display mode is Q3StyleSheetItem::DisplayListItem) and \a
   listDepth to the depth of the list (if the display mode is
-  QStyleSheetItem::DisplayListItem).
+  Q3StyleSheetItem::DisplayListItem).
 
   Returns false if \a para is out of range otherwise returns true.
 */
 
 bool Q3TextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
                                     VerticalAlignment *verticalAlignment, int *alignment,
-                                    QStyleSheetItem::DisplayMode *displayMode,
-                                    QStyleSheetItem::ListStyle *listStyle,
+                                    Q3StyleSheetItem::DisplayMode *displayMode,
+                                    Q3StyleSheetItem::ListStyle *listStyle,
                                     int *listDepth)
 {
     if (!font || !color || !alignment || !displayMode || !listStyle)
@@ -5295,7 +5294,7 @@ bool Q3TextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
     *color = p->at(0)->format()->color();
     *verticalAlignment = (VerticalAlignment)p->at(0)->format()->vAlign();
     *alignment = p->alignment();
-    *displayMode = p->isListItem() ? QStyleSheetItem::DisplayListItem : QStyleSheetItem::DisplayBlock;
+    *displayMode = p->isListItem() ? Q3StyleSheetItem::DisplayListItem : Q3StyleSheetItem::DisplayBlock;
     *listStyle = p->listStyle();
     *listDepth = p->listDepth();
     return true;
@@ -5310,11 +5309,11 @@ bool Q3TextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
     menu. Ownership of the popup menu is transferred to the caller.
 */
 
-QPopupMenu *Q3TextEdit::createPopupMenu(const QPoint& pos)
+Q3PopupMenu *Q3TextEdit::createPopupMenu(const QPoint& pos)
 {
     Q_UNUSED(pos)
 #ifndef QT_NO_POPUPMENU
-    QPopupMenu *popup = new QPopupMenu(this, "qt_edit_menu");
+    Q3PopupMenu *popup = new Q3PopupMenu(this, "qt_edit_menu");
     if (!isReadOnly()) {
         d->id[IdUndo] = popup->insertItem(tr("&Undo") + ACCEL_KEY(Z));
         d->id[IdRedo] = popup->insertItem(tr("&Redo") + ACCEL_KEY(Y));
@@ -5366,7 +5365,7 @@ QPopupMenu *Q3TextEdit::createPopupMenu(const QPoint& pos)
     returns 0.
 */
 
-QPopupMenu *Q3TextEdit::createPopupMenu()
+Q3PopupMenu *Q3TextEdit::createPopupMenu()
 {
     return 0;
 }
@@ -6487,7 +6486,7 @@ void Q3TextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
     td->setSelectionStart(0, *cur);
     cur->setIndex(end);
     td->setSelectionEnd(0, *cur);
-    QStyleSheetItem * ssItem = styleSheet()->item(tag->tag);
+    Q3StyleSheetItem * ssItem = styleSheet()->item(tag->tag);
     if (!ssItem || tag->type == Q3TextEditOptimPrivate::Format) {
         f->setBold(tag->bold);
         f->setItalic(tag->italic);
@@ -7109,10 +7108,10 @@ Q3TextEdit::AutoFormatting Q3TextEdit::autoFormatting() const
     Returns the QSyntaxHighlighter set on this Q3TextEdit. 0 is
     returned if no syntax highlighter is set.
  */
-QSyntaxHighlighter * Q3TextEdit::syntaxHighlighter() const
+Q3SyntaxHighlighter * Q3TextEdit::syntaxHighlighter() const
 {
     if (document()->preProcessor())
-        return ((QSyntaxHighlighterInternal *) document()->preProcessor())->highlighter;
+        return ((Q3SyntaxHighlighterInternal *) document()->preProcessor())->highlighter;
     else
         return 0;
 }

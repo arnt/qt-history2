@@ -20,8 +20,8 @@
 
 class Q3ListView;
 class Q3TextEdit;
-class QIconView;
-class QListBox;
+class Q3IconView;
+class Q3ListBox;
 
 class Q3AccessibleScrollView : public QAccessibleWidget
 {
@@ -73,7 +73,7 @@ public:
     QVector<int> selection() const;
 
 protected:
-    QIconView *iconView() const;
+    Q3IconView *iconView() const;
 };
 #endif
 
@@ -130,7 +130,7 @@ public:
     QVector<int> selection() const;
 
 protected:
-    QListBox *listBox() const;
+    Q3ListBox *listBox() const;
 };
 
 

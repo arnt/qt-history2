@@ -15,9 +15,6 @@
 #include "qlayout.h"
 #include "private/qlayoutengine_p.h"
 
-#include "qbutton.h"
-#include "qbuttongroup.h"
-
 #include "qapplication.h"
 using namespace Qt;
 

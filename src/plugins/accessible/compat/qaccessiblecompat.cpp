@@ -16,8 +16,8 @@
 
 #include <q3listview.h>
 #include <q3textedit.h>
-#include <qiconview.h>
-#include <qlistbox.h>
+#include <q3iconview.h>
+#include <q3listbox.h>
 
 /*!
 \fn Q3AccessibleScrollView::Q3AccessibleScrollView(QWidget* widget, Role role)
@@ -287,10 +287,10 @@ QVector<int> QAccessibleListView::selection() const
   \brief The QAccessibleIconView class implements the QAccessibleInterface for icon views.
 */
 
-static QIconViewItem *findIVItem(QIconView *iconView, int child)
+static Q3IconViewItem *findIVItem(Q3IconView *iconView, int child)
 {
     int id = 1;
-    QIconViewItem *item = iconView->firstItem();
+    Q3IconViewItem *item = iconView->firstItem();
     while (item && id < child) {
         item = item->nextItem();
         ++id;
@@ -307,26 +307,26 @@ static QIconViewItem *findIVItem(QIconView *iconView, int child)
 QAccessibleIconView::QAccessibleIconView(QWidget *o)
     : Q3AccessibleScrollView(o, List)
 {
-    Q_ASSERT(widget()->inherits("QIconView"));
+    Q_ASSERT(widget()->inherits("Q3IconView"));
 }
 
 /*! Returns the icon view. */
-QIconView *QAccessibleIconView::iconView() const
+Q3IconView *QAccessibleIconView::iconView() const
 {
-    return (QIconView*)widget();
+    return (Q3IconView*)widget();
 }
 
 /*! \internal */
 int QAccessibleIconView::itemAt(int x, int y) const
 {
-    QIconViewItem *item = iconView()->findItem(QPoint(x, y));
+    Q3IconViewItem *item = iconView()->findItem(QPoint(x, y));
     return iconView()->index(item) + 1;
 }
 
 /*! \internal */
 QRect QAccessibleIconView::itemRect(int child) const
 {
-    QIconViewItem *item = findIVItem(iconView(), child);
+    Q3IconViewItem *item = findIVItem(iconView(), child);
 
     if (!item)
         return QRect();
@@ -345,7 +345,7 @@ QString QAccessibleIconView::text(Text t, int child) const
     if (!child || t != Name)
         return Q3AccessibleScrollView::text(t, child);
 
-    QIconViewItem *item = findIVItem(iconView(), child);
+    Q3IconViewItem *item = findIVItem(iconView(), child);
     if (!item)
         return QString();
     return item->text();
@@ -363,16 +363,16 @@ QAccessible::Role QAccessibleIconView::role(int child) const
 QAccessible::State QAccessibleIconView::state(int child) const
 {
     State state = Q3AccessibleScrollView::state(child);
-    QIconViewItem *item;
+    Q3IconViewItem *item;
     if (!child || !(item = findIVItem(iconView(), child)))
         return state;
 
     if (item->isSelectable()) {
-        if (iconView()->selectionMode() == QIconView::Multi)
+        if (iconView()->selectionMode() == Q3IconView::Multi)
             state |= MultiSelectable;
-        else if (iconView()->selectionMode() == QIconView::Extended)
+        else if (iconView()->selectionMode() == Q3IconView::Extended)
             state |= ExtSelectable;
-        else if (iconView()->selectionMode() == QIconView::Single)
+        else if (iconView()->selectionMode() == Q3IconView::Single)
             state |= Selectable;
         if (item->isSelected())
             state |= Selected;
@@ -391,7 +391,7 @@ QAccessible::State QAccessibleIconView::state(int child) const
 /* \reimp
 QAccessibleInterface *QAccessibleIconView::focusChild(int *child) const
 {
-    QIconViewItem *item = iconView()->currentItem();
+    Q3IconViewItem *item = iconView()->currentItem();
     if (!item)
         return 0;
 
@@ -406,7 +406,7 @@ bool QAccessibleIconView::setFocus(int child)
     if (!child || !res)
         return res;
 
-    QIconViewItem *item = findIVItem(iconView(), child);
+    Q3IconViewItem *item = findIVItem(iconView(), child);
     if (!item)
         return false;
     iconView()->setCurrentItem(item);
@@ -417,21 +417,21 @@ bool QAccessibleIconView::setFocus(int child)
 bool QAccessibleIconView::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
-        iconView()->selectionMode() != QIconView::Extended &&
-        iconView()->selectionMode() != QIconView::Multi))
+        iconView()->selectionMode() != Q3IconView::Extended &&
+        iconView()->selectionMode() != Q3IconView::Multi))
         return false;
 
-    QIconViewItem *item = findIVItem(iconView(), child);
+    Q3IconViewItem *item = findIVItem(iconView(), child);
     if (!item)
         return false;
     if (!extend) {
         iconView()->setSelected(item, on, true);
     } else {
-        QIconViewItem *current = iconView()->currentItem();
+        Q3IconViewItem *current = iconView()->currentItem();
         if (!current)
             return false;
         bool down = false;
-        QIconViewItem *temp = current;
+        Q3IconViewItem *temp = current;
         while ((temp = temp->nextItem())) {
             if (temp == item) {
                 down = true;
@@ -469,7 +469,7 @@ QVector<int> QAccessibleIconView::selection() const
     uint size = 0;
     int id = 1;
     array.resize(iconView()->count());
-    QIconViewItem *item = iconView()->firstItem();
+    Q3IconViewItem *item = iconView()->firstItem();
     while (item) {
         if (item->isSelected()) {
             ++size;
@@ -650,19 +650,19 @@ int QAccessibleWidgetStack::navigate(RelationFlag rel, int entry,
 QAccessibleListBox::QAccessibleListBox(QWidget *o)
     : Q3AccessibleScrollView(o, List)
 {
-    Q_ASSERT(widget()->inherits("QListBox"));
+    Q_ASSERT(widget()->inherits("Q3ListBox"));
 }
 
 /*! Returns the list box. */
-QListBox *QAccessibleListBox::listBox() const
+Q3ListBox *QAccessibleListBox::listBox() const
 {
-    return (QListBox*)widget();
+    return (Q3ListBox*)widget();
 }
 
 /*! \reimp */
 int QAccessibleListBox::itemAt(int x, int y) const
 {
-    QListBoxItem *item = listBox()->itemAt(QPoint(x, y));
+    Q3ListBoxItem *item = listBox()->itemAt(QPoint(x, y));
     return listBox()->index(item) + 1;
 }
 
@@ -684,7 +684,7 @@ QString QAccessibleListBox::text(Text t, int child) const
     if (!child || t != Name)
         return Q3AccessibleScrollView::text(t, child);
 
-    QListBoxItem *item = listBox()->item(child - 1);
+    Q3ListBoxItem *item = listBox()->item(child - 1);
     if (item)
         return item->text();
     return QString();
@@ -702,16 +702,16 @@ QAccessible::Role QAccessibleListBox::role(int child) const
 QAccessible::State QAccessibleListBox::state(int child) const
 {
     State state = Q3AccessibleScrollView::state(child);
-    QListBoxItem *item;
+    Q3ListBoxItem *item;
     if (!child || !(item = listBox()->item(child - 1)))
         return state;
 
     if (item->isSelectable()) {
-        if (listBox()->selectionMode() == QListBox::Multi)
+        if (listBox()->selectionMode() == Q3ListBox::Multi)
             state |= MultiSelectable;
-        else if (listBox()->selectionMode() == QListBox::Extended)
+        else if (listBox()->selectionMode() == Q3ListBox::Extended)
             state |= ExtSelectable;
-        else if (listBox()->selectionMode() == QListBox::Single)
+        else if (listBox()->selectionMode() == Q3ListBox::Single)
             state |= Selectable;
         if (item->isSelected())
             state |= Selected;
@@ -734,7 +734,7 @@ bool QAccessibleListBox::setFocus(int child)
     if (!child || !res)
         return res;
 
-    QListBoxItem *item = listBox()->item(child -1);
+    Q3ListBoxItem *item = listBox()->item(child -1);
     if (!item)
         return false;
     listBox()->setCurrentItem(item);
@@ -754,11 +754,11 @@ bool QAccessibleListBox::setFocus(int child)
 bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
-        listBox()->selectionMode() != QListBox::Extended &&
-        listBox()->selectionMode() != QListBox::Multi))
+        listBox()->selectionMode() != Q3ListBox::Extended &&
+        listBox()->selectionMode() != Q3ListBox::Multi))
         return false;
 
-    QListBoxItem *item = listBox()->item(child -1);
+    Q3ListBoxItem *item = listBox()->item(child -1);
     if (!item)
         return false;
     if (!extend) {

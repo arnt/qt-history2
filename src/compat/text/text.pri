@@ -1,21 +1,21 @@
 HEADERS += \
-	text/qsyntaxhighlighter.h \
-	text/qsyntaxhighlighter_p.h \
-	text/qtextview.h \
+	text/q3syntaxhighlighter.h \
+	text/q3syntaxhighlighter_p.h \
+	text/q3textview.h \
 	text/q3textbrowser.h \
 	text/q3textedit.h \
-	text/qmultilineedit.h \
-	text/qrichtext_p.h \
-	text/qsimplerichtext.h \
-        text/qstylesheet.h
+	text/q3multilineedit.h \
+	text/q3richtext_p.h \
+	text/q3simplerichtext.h \
+        text/q3stylesheet.h
 
 SOURCES += \
-	text/qsyntaxhighlighter.cpp \
-	text/qtextview.cpp \
+	text/q3syntaxhighlighter.cpp \
+	text/q3textview.cpp \
 	text/q3textbrowser.cpp \
 	text/q3textedit.cpp \
-	text/qmultilineedit.cpp \
-	text/qrichtext.cpp \
-	text/qrichtext_p.cpp \
-	text/qsimplerichtext.cpp \
-        text/qstylesheet.cpp
+	text/q3multilineedit.cpp \
+	text/q3richtext.cpp \
+	text/q3richtext_p.cpp \
+	text/q3simplerichtext.cpp \
+        text/q3stylesheet.cpp

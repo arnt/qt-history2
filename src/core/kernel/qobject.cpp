@@ -480,10 +480,9 @@ static inline bool isSpace(char x)
     Returns 0 if there is no such child.
 
     \code
-        QListBox *c = (QListBox *) qt_find_obj_child(myWidget, "QListBox",
-                                                      "my list box");
-        if (c)
-            c->insertItem("another string");
+        QQLineEdit *e = static_cast<QLineEdit *>(qt_find_obj_child(myWidget, "QLineEdit", "my line edit"));
+        if (e)
+            e->setText("another string");
     \endcode
 */
 

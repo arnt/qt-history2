@@ -25,7 +25,7 @@ class QStatusBar;
 class QToolTipGroup;
 class Q3MainWindowPrivate;
 class Q3MainWindowLayout;
-class QPopupMenu;
+class Q3PopupMenu;
 template<class T> class QList;
 
 class Q_COMPAT_EXPORT Q3MainWindow: public QWidget
@@ -115,7 +115,7 @@ public:
     bool appropriate(Q3DockWindow *dw) const;
 
     enum DockWindows { OnlyToolBars, NoToolBars, AllDockWindows };
-    virtual QPopupMenu *createDockWindowMenu(DockWindows dockWindows = AllDockWindows) const;
+    virtual Q3PopupMenu *createDockWindowMenu(DockWindows dockWindows = AllDockWindows) const;
 
 public slots:
     virtual void setRightJustification(bool);

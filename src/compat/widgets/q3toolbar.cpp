@@ -25,7 +25,7 @@
 #include "qlayout.h"
 #include "qmap.h"
 #include "qpainter.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtimer.h"
@@ -70,7 +70,7 @@ public:
 
     bool moving;
     Q3ToolBarExtensionWidget *extension;
-    QPopupMenu *extensionPopup;
+    Q3PopupMenu *extensionPopup;
 
     QMap<QAction *, QWidget *> actions;
 };
@@ -567,7 +567,7 @@ QSize Q3ToolBar::minimumSizeHint() const
 void Q3ToolBar::createPopup()
 {
     if (!d->extensionPopup) {
-        d->extensionPopup = new QPopupMenu(this, "qt_dockwidget_internal");
+        d->extensionPopup = new Q3PopupMenu(this, "qt_dockwidget_internal");
         connect(d->extensionPopup, SIGNAL(aboutToShow()), this, SLOT(createPopup()));
     }
 
@@ -581,7 +581,7 @@ void Q3ToolBar::createPopup()
     d->extensionPopup->clear();
 
     // delete submenus
-    QObjectList popups = d->extensionPopup->queryList("QPopupMenu", 0, false, true);
+    QObjectList popups = d->extensionPopup->queryList("Q3PopupMenu", 0, false, true);
     while (!popups.isEmpty())
         delete popups.takeFirst();
 
@@ -644,7 +644,7 @@ void Q3ToolBar::createPopup()
                     if (s.isEmpty())
                         s = c->currentText();
                     int maxItems = 0;
-                    QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
+                    Q3PopupMenu *cp = new Q3PopupMenu(d->extensionPopup);
                     cp->setEnabled(c->isEnabled());
                     d->extensionPopup->insertItem(s, cp);
                     connect(cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)));
@@ -659,7 +659,7 @@ void Q3ToolBar::createPopup()
                                 maxItems = QApplication::desktop()->height() * 10 / h;
                             }
                         } else if (cp->actions().count() >= maxItems - 1) {
-                            QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
+                            Q3PopupMenu* sp = new Q3PopupMenu(d->extensionPopup);
                             cp->insertItem(tr("More..."), sp);
                             cp = sp;
                             connect(cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)));

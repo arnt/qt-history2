@@ -112,8 +112,8 @@ QValidator::State SearchValidator::validate(QString &str, int &) const
     return QValidator::Acceptable;
 }
 
-HelpNavigationListItem::HelpNavigationListItem(QListBox *ls, const QString &txt)
-    : QListBoxText(ls, txt)
+HelpNavigationListItem::HelpNavigationListItem(Q3ListBox *ls, const QString &txt)
+    : Q3ListBoxText(ls, txt)
 {
 }
 
@@ -180,16 +180,16 @@ void HelpDialog::initialize()
     connect(ui.editIndex, SIGNAL(textChanged(const QString&)),
              this, SLOT(searchInIndex(const QString&)));
 
-    connect(ui.listIndex, SIGNAL(selectionChanged(QListBoxItem*)),
-             this, SLOT(currentIndexChanged(QListBoxItem*)));
-    connect(ui.listIndex, SIGNAL(returnPressed(QListBoxItem*)),
+    connect(ui.listIndex, SIGNAL(selectionChanged(Q3ListBoxItem*)),
+             this, SLOT(currentIndexChanged(Q3ListBoxItem*)));
+    connect(ui.listIndex, SIGNAL(returnPressed(Q3ListBoxItem*)),
              this, SLOT(showTopic()));
-    connect(ui.listIndex, SIGNAL(mouseButtonClicked(int, QListBoxItem*, const QPoint &)),
-             this, SLOT(showTopic(int, QListBoxItem *, const QPoint &)));
-    connect(ui.listIndex, SIGNAL(currentChanged(QListBoxItem*)),
-             this, SLOT(currentIndexChanged(QListBoxItem*)));
-    connect(ui.listIndex, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
-             this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
+    connect(ui.listIndex, SIGNAL(mouseButtonClicked(int, Q3ListBoxItem*, const QPoint &)),
+             this, SLOT(showTopic(int, Q3ListBoxItem *, const QPoint &)));
+    connect(ui.listIndex, SIGNAL(currentChanged(Q3ListBoxItem*)),
+             this, SLOT(currentIndexChanged(Q3ListBoxItem*)));
+    connect(ui.listIndex, SIGNAL(contextMenuRequested(Q3ListBoxItem*, const QPoint&)),
+             this, SLOT(showItemMenu(Q3ListBoxItem*, const QPoint&)));
 
     connect(ui.listBookmarks, SIGNAL(mouseButtonClicked(int, Q3ListViewItem*, const QPoint&, int)),
              this, SLOT(showTopic(int, Q3ListViewItem*, const QPoint &)));
@@ -201,8 +201,8 @@ void HelpDialog::initialize()
              this, SLOT(currentBookmarkChanged(Q3ListViewItem*)));
     connect(ui.listBookmarks, SIGNAL(contextMenuRequested(Q3ListViewItem*, const QPoint&, int)),
              this, SLOT(showItemMenu(Q3ListViewItem*, const QPoint&)));
-    connect(ui.resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
-             this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
+    connect(ui.resultBox, SIGNAL(contextMenuRequested(Q3ListBoxItem*, const QPoint&)),
+             this, SLOT(showItemMenu(Q3ListBoxItem*, const QPoint&)));
 
     cacheFilesPath = QDir::homePath() + QLatin1String("/.assistant"); //### Find a better location for the dbs
 
@@ -574,12 +574,12 @@ void HelpDialog::showInitDoneMessage()
     help->statusBar()->message(tr("Done"), 3000);
 }
 
-void HelpDialog::currentIndexChanged(QListBoxItem *)
+void HelpDialog::currentIndexChanged(Q3ListBoxItem *)
 {
 }
 
 
-void HelpDialog::showTopic(int button, QListBoxItem *item,
+void HelpDialog::showTopic(int button, Q3ListBoxItem *item,
                             const QPoint &)
 {
     if(button == Qt::LeftButton && item)
@@ -613,7 +613,7 @@ void HelpDialog::showTopic()
 
 void HelpDialog::showIndexTopic()
 {
-    QListBoxItem *i = ui.listIndex->item(ui.listIndex->currentItem());
+    Q3ListBoxItem *i = ui.listIndex->item(ui.listIndex->currentItem());
     if (!i)
         return;
 
@@ -643,7 +643,7 @@ void HelpDialog::showIndexTopic()
 
 void HelpDialog::searchInIndex(const QString &s)
 {
-    QListBoxItem *i = ui.listIndex->firstItem();
+    Q3ListBoxItem *i = ui.listIndex->firstItem();
     QString sl = s.toLower();
     while (i) {
         QString t = i->text();
@@ -660,7 +660,7 @@ void HelpDialog::searchInIndex(const QString &s)
 QString HelpDialog::titleOfLink(const QString &link)
 {
     QString s(link);
-    s.remove(s.indexOf(QLatin1Char('#')), s.length());    
+    s.remove(s.indexOf(QLatin1Char('#')), s.length());
     s = titleMap[ s ];
     if (s.isEmpty())
         return link;
@@ -765,7 +765,7 @@ void HelpDialog::showBookmarkTopic()
     if (!ui.listBookmarks->currentItem())
         return;
 
-    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listBookmarks->currentItem();    
+    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listBookmarks->currentItem();
     emit showLink(i->link());
 }
 
@@ -912,7 +912,7 @@ void HelpDialog::setupFullTextIndex()
     QStringList documentList;
     for (; it != titleMap.end(); ++it)
         documentList << it.key();
-    
+
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index(documentList, QDir::homePath()); // ### Is this correct ?
     if (!verifyDirectory(cacheFilesPath)) {
@@ -1042,26 +1042,26 @@ void HelpDialog::on_helpButton_clicked()
     emit showLink(Config::configuration()->assistantDocPath() + QLatin1String("/assistant-5.html"));
 }
 
-void HelpDialog::on_resultBox_mouseButtonClicked(int button, QListBoxItem *i, const QPoint &)
+void HelpDialog::on_resultBox_mouseButtonClicked(int button, Q3ListBoxItem *i, const QPoint &)
 {
     if(button == Qt::LeftButton) {
         showResultPage(i);
     }
 }
 
-void HelpDialog::on_resultBox_returnPressed(QListBoxItem *item)
+void HelpDialog::on_resultBox_returnPressed(Q3ListBoxItem *item)
 {
     showResultPage(item);
 }
 
-void HelpDialog::showResultPage(QListBoxItem *item)
+void HelpDialog::showResultPage(Q3ListBoxItem *item)
 {
     if (item)
         emit showSearchLink(foundDocs[ui.resultBox->index(item)], terms);
 }
 
 
-void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
+void HelpDialog::showItemMenu(Q3ListBoxItem *item, const QPoint &pos)
 {
     if (!item)
         return;

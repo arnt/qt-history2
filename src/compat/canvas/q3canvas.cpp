@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "q3polygonscanner.h"
 #include "qtimer.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 
 #include <stdlib.h>
 using namespace Qt;

@@ -14,7 +14,7 @@
 #include "topicchooser.h"
 
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 
 TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
@@ -61,13 +61,13 @@ void TopicChooser::on_buttonCancel_clicked()
     reject();
 }
 
-void TopicChooser::on_listbox_doubleClicked(QListBoxItem *item)
+void TopicChooser::on_listbox_doubleClicked(Q3ListBoxItem *item)
 {
     Q_UNUSED(item);
     accept();
 }
 
-void TopicChooser::on_listbox_returnPressed(QListBoxItem *item)
+void TopicChooser::on_listbox_returnPressed(Q3ListBoxItem *item)
 {
     Q_UNUSED(item);
     accept();

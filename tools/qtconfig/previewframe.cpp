@@ -13,11 +13,11 @@
 
 #include "previewframe.h"
 
-#include <qvbox.h>
+#include <qvboxwidget.h>
 #include <qpainter.h>
 
 PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
-    : QVBox( parent, name )
+    : QVBoxWidget( parent, name )
 {
     setMinimumSize(200, 200);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);

@@ -23,7 +23,7 @@ class QTimer;
 class Q3NetworkOperation;
 class QLineEdit;
 class Q3ListViewItem;
-class QListBoxItem;
+class Q3ListBoxItem;
 class Q3FileDialogPrivate;
 class Q3FileDialogQFileListView;
 
@@ -199,9 +199,9 @@ private slots:
     void updateFileNameEdit(Q3ListViewItem *);
     void selectDirectoryOrFile(Q3ListViewItem *);
     void popupContextMenu(Q3ListViewItem *, const QPoint &, int);
-    void popupContextMenu(QListBoxItem *, const QPoint &);
-    void updateFileNameEdit(QListBoxItem *);
-    void selectDirectoryOrFile(QListBoxItem *);
+    void popupContextMenu(Q3ListBoxItem *, const QPoint &);
+    void updateFileNameEdit(Q3ListBoxItem *);
+    void selectDirectoryOrFile(Q3ListBoxItem *);
     void fileNameEditDone();
 
     void okClicked();

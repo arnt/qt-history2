@@ -79,31 +79,31 @@ private:
     QButtonGroup group;
 };
 
-class Q_COMPAT_EXPORT QVButtonGroup : public Q3ButtonGroup
+class Q_COMPAT_EXPORT Q3VButtonGroup : public Q3ButtonGroup
 {
     Q_OBJECT
 public:
-    inline QVButtonGroup(QWidget* parent=0, const char* name=0)
+    inline Q3VButtonGroup(QWidget* parent=0, const char* name=0)
         : Q3ButtonGroup(1, Qt::Horizontal /* sic! */, parent, name) {}
-    inline QVButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
+    inline Q3VButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
         : Q3ButtonGroup(1, Qt::Horizontal /* sic! */, title, parent, name) {}
 
 private:
-    Q_DISABLE_COPY(QVButtonGroup)
+    Q_DISABLE_COPY(Q3VButtonGroup)
 };
 
 
-class Q_COMPAT_EXPORT QHButtonGroup : public Q3ButtonGroup
+class Q_COMPAT_EXPORT Q3HButtonGroup : public Q3ButtonGroup
 {
     Q_OBJECT
 public:
-    inline QHButtonGroup(QWidget* parent=0, const char* name=0)
+    inline Q3HButtonGroup(QWidget* parent=0, const char* name=0)
         : Q3ButtonGroup(1, Qt::Vertical /* sic! */, parent, name) {}
-    inline QHButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
+    inline Q3HButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
         : Q3ButtonGroup(1, Qt::Vertical /* sic! */, title, parent, name) {}
 
 private:
-    Q_DISABLE_COPY(QHButtonGroup)
+    Q_DISABLE_COPY(Q3HButtonGroup)
 };
 
 

@@ -49,11 +49,11 @@ using namespace Qt;
   Q3GridView is a very simple abstract class based on Q3ScrollView. It
   is designed to simplify the task of drawing many cells of the same
   size in a potentially scrollable canvas. If you need rows and
-  columns with different sizes, use a QTable instead. If you need a
-  simple list of items, use a QListBox. If you need to present
-  hierachical data use a QListView, and if you need random objects
-  at random positions, consider using either a QIconView or a
-  QCanvas.
+  columns with different sizes, use a Q3Table instead. If you need a
+  simple list of items, use a Q3ListBox. If you need to present
+  hierachical data use a Q3ListView, and if you need random objects
+  at random positions, consider using either a Q3IconView or a
+  Q3Canvas.
 */
 
 

@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "q3buttongroup.h"
-#include "qbutton.h"
+#include "qabstractbutton.h"
 #include "qmap.h"
 #include "qapplication.h"
 #include "qradiobutton.h"
@@ -21,7 +21,7 @@
 
 /*!
     \class Q3ButtonGroup q3buttongroup.h
-    \brief The Q3ButtonGroup widget organizes QButton widgets in a group.
+    \brief The Q3ButtonGroup widget organizes QAbstractButton widgets in a group.
 
     \compat
 
@@ -247,7 +247,7 @@ QAbstractButton *Q3ButtonGroup::find(int id) const
     \fn void Q3ButtonGroup::pressed(int id)
 
     This signal is emitted when a button in the group is \link
-    QButton::pressed() pressed\endlink. The \a id argument is the
+    QAbstractButton::pressed() pressed\endlink. The \a id argument is the
     button's identifier.
 
     \sa insert()
@@ -257,7 +257,7 @@ QAbstractButton *Q3ButtonGroup::find(int id) const
     \fn void Q3ButtonGroup::released(int id)
 
     This signal is emitted when a button in the group is \link
-    QButton::released() released\endlink. The \a id argument is the
+    QAbstractButton::released() released\endlink. The \a id argument is the
     button's identifier.
 
     \sa insert()
@@ -267,7 +267,7 @@ QAbstractButton *Q3ButtonGroup::find(int id) const
     \fn void Q3ButtonGroup::clicked(int id)
 
     This signal is emitted when a button in the group is \link
-    QButton::clicked() clicked\endlink. The \a id argument is the
+    QAbstractButton::clicked() clicked\endlink. The \a id argument is the
     button's identifier.
 
     \sa insert()
@@ -277,7 +277,7 @@ QAbstractButton *Q3ButtonGroup::find(int id) const
 /*!
   \internal
   This slot is activated when one of the buttons in the group emits the
-  QButton::pressed() signal.
+  QAbstractButton::pressed() signal.
 */
 
 void Q3ButtonGroup::buttonPressed()
@@ -292,7 +292,7 @@ void Q3ButtonGroup::buttonPressed()
 /*!
   \internal
   This slot is activated when one of the buttons in the group emits the
-  QButton::released() signal.
+  QAbstractButton::released() signal.
 */
 
 void Q3ButtonGroup::buttonReleased()
@@ -307,7 +307,7 @@ void Q3ButtonGroup::buttonReleased()
 /*!
   \internal
   This slot is activated when one of the buttons in the group emits the
-  QButton::clicked() signal.
+  QAbstractButton::clicked() signal.
 */
 
 void Q3ButtonGroup::buttonClicked()

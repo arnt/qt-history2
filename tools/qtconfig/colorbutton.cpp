@@ -17,7 +17,7 @@
 #include <qevent.h>
 #include <qcolordialog.h>
 #include <qpainter.h>
-#include <qdragobject.h>
+#include <q3dragobject.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 
@@ -102,7 +102,7 @@ void ColorButton::drawButtonLabel(QPainter *p)
 
 void ColorButton::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (! QColorDrag::canDecode(e)) {
+    if (! Q3ColorDrag::canDecode(e)) {
         e->ignore();
         return;
     }
@@ -111,7 +111,7 @@ void ColorButton::dragEnterEvent(QDragEnterEvent *e)
 
 void ColorButton::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (! QColorDrag::canDecode(e)) {
+    if (! Q3ColorDrag::canDecode(e)) {
         e->ignore();
         return;
     }
@@ -122,13 +122,13 @@ void ColorButton::dragMoveEvent(QDragMoveEvent *e)
 
 void ColorButton::dropEvent(QDropEvent *e)
 {
-    if (! QColorDrag::canDecode(e)) {
+    if (! Q3ColorDrag::canDecode(e)) {
         e->ignore();
         return;
     }
 
     QColor c;
-    QColorDrag::decode(e, c);
+    Q3ColorDrag::decode(e, c);
     setColor(c);
     emit colorChanged(color());
 }
@@ -158,7 +158,7 @@ void ColorButton::mouseMoveEvent(QMouseEvent *e)
         mousepressed = false;
         setDown(false);
 
-        QColorDrag *cd = new QColorDrag(color(), this);
+        Q3ColorDrag *cd = new Q3ColorDrag(color(), this);
         cd->dragCopy();
     }
 }

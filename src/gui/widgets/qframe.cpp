@@ -41,7 +41,7 @@ QFramePrivate::QFramePrivate()
     \ingroup abstractwidgets
     \mainclass
 
-    QPopupMenu uses this to "raise" the menu above the surrounding
+    QMenu uses this to "raise" the menu above the surrounding
     screen. QProgressBar has a "sunken" look. QLabel has a flat look.
     The frames of widgets like these can be changed.
 

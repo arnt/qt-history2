@@ -47,7 +47,7 @@ using namespace Qt;
     Example:
     \code
 	QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
-	QPopupMenu *fileMenu = new fileMenu(parent);
+	Q3PopupMenu *fileMenu = new fileMenu(parent);
 	fileMenu->insertItem("Undo", parent, SLOT(undo()), CTRL+Key_Z);
     \endcode
 
@@ -906,7 +906,7 @@ QString Q3Accel::keyToString(QKeySequence k)
   translations:
 
   \code
-    QPopupMenu *file = new QPopupMenu(this);
+    Q3PopupMenu *file = new Q3PopupMenu(this);
     file->insertItem(p1, tr("&Open..."), this, SLOT(open()),
 		      Q3Accel::stringToKey(tr("Ctrl+O", "File|Open")));
   \endcode

@@ -46,8 +46,9 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &Q3TimeEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QDateTimeEdit"))
         return &Q3DateTimeEdit::staticMetaObject;
-    else if (widgetName == QLatin1String("QListBox"))
-        return &QListBox::staticMetaObject;
+    else if (widgetName == QLatin1String("QListBox")
+             || widgetName == QLatin1String("Q3ListBox"))
+        return &Q3ListBox::staticMetaObject;
     else if (widgetName == QLatin1String("QListView") ||
              widgetName == QLatin1String("Q3ListView"))
         return &Q3ListView::staticMetaObject;
@@ -77,8 +78,9 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QLCDNumber::staticMetaObject;
     else if (widgetName == QLatin1String("QProgressBar"))
         return &QProgressBar::staticMetaObject;
-    else if (widgetName == QLatin1String("QTextView"))
-        return &QTextView::staticMetaObject;
+    else if (widgetName == QLatin1String("QTextView")
+             || widgetName == QLatin1String("Q3TextView"))
+        return &Q3TextView::staticMetaObject;
     else if (widgetName == QLatin1String("QTextBrowser"))
         return &QTextBrowser::staticMetaObject;
     else if (widgetName == QLatin1String("QDial"))

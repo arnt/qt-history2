@@ -25,7 +25,7 @@ HEADERS +=      tools/q3asciicache.h \
                 tools/q3sortedlist.h \
                 tools/q3strlist.h \
                 tools/q3strvec.h \
-                tools/qtl.h \
+                tools/q3tl.h \
                 tools/q3valuelist.h \ 
                 tools/q3valuestack.h \
                 tools/q3valuevector.h

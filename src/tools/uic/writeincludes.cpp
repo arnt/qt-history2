@@ -44,7 +44,7 @@ void WriteIncludes::acceptUI(DomUI *node)
 
     if (uic->hasExternalPixmap()
             && uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))
-        m_includes.insert(QLatin1String("qmimefactory.h"), true); //compat
+        m_includes.insert(QLatin1String("q3mimefactory.h"), true); //compat
 
     if (uic->databaseInfo()->connections().size()) {
         m_includes.insert(QLatin1String("qsqldatabase.h"), true);

@@ -15,8 +15,8 @@
 #define Q3TEXTEDIT_H
 
 #include "q3scrollview.h"
-#include "qstylesheet.h"
-#include "qmimefactory.h"
+#include "q3stylesheet.h"
+#include "q3mimefactory.h"
 #include "qmap.h"
 
 #ifndef QT_NO_TEXTEDIT
@@ -41,10 +41,10 @@ class Q3TextEdit;
 class QTextBrowser;
 class Q3TextString;
 struct QUndoRedoInfoPrivate;
-class QPopupMenu;
+class Q3PopupMenu;
 class Q3TextEditPrivate;
-class QSyntaxHighlighter;
-class QTextDrag;
+class Q3SyntaxHighlighter;
+class Q3TextDrag;
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 class Q3TextEditOptimPrivate
@@ -105,8 +105,8 @@ public:
 
 class Q_COMPAT_EXPORT Q3TextEdit : public Q3ScrollView
 {
-    friend class QTextBrowser;
-    friend class QSyntaxHighlighter;
+    friend class Q3TextBrowser;
+    friend class Q3SyntaxHighlighter;
 
     Q_OBJECT
     Q_ENUMS(WordWrap WrapPolicy)
@@ -216,9 +216,9 @@ public:
     int charAt(const QPoint &pos, int *para) const;
     int paragraphLength(int para) const;
 
-    QStyleSheet* styleSheet() const;
+    Q3StyleSheet* styleSheet() const;
 #ifndef QT_NO_MIME
-    QMimeSourceFactory* mimeSourceFactory() const;
+    Q3MimeSourceFactory* mimeSourceFactory() const;
 #endif
     QBrush paper() const;
     bool linkUnderline() const;
@@ -261,8 +261,8 @@ public:
     // do not use, will go away
     virtual bool getParagraphFormat(int para, QFont *font, QColor *color,
                                      VerticalAlignment *verticalAlignment, int *alignment,
-                                     QStyleSheetItem::DisplayMode *displayMode,
-                                     QStyleSheetItem::ListStyle *listStyle,
+                                     Q3StyleSheetItem::DisplayMode *displayMode,
+                                     Q3StyleSheetItem::ListStyle *listStyle,
                                      int *listDepth);
 
 
@@ -275,13 +275,13 @@ public:
 
     void setAutoFormatting(AutoFormatting);
     AutoFormatting autoFormatting() const;
-    QSyntaxHighlighter *syntaxHighlighter() const;
+    Q3SyntaxHighlighter *syntaxHighlighter() const;
 
 public slots:
 #ifndef QT_NO_MIME
-    virtual void setMimeSourceFactory(QMimeSourceFactory* factory);
+    virtual void setMimeSourceFactory(Q3MimeSourceFactory* factory);
 #endif
-    virtual void setStyleSheet(QStyleSheet* styleSheet);
+    virtual void setStyleSheet(Q3StyleSheet* styleSheet);
     virtual void scrollToAnchor(const QString& name);
     virtual void setPaper(const QBrush& pap);
     virtual void setLinkUnderline(bool);
@@ -328,7 +328,7 @@ public slots:
     virtual void setAlignment(int a);
 
     // do not use, will go away
-    virtual void setParagType(QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle);
+    virtual void setParagType(Q3StyleSheetItem::DisplayMode dm, Q3StyleSheetItem::ListStyle listStyle);
 
     virtual void setCursorPosition(int parag, int index);
     virtual void setSelection(int parag_from, int index_from, int parag_to, int index_to, int selNum = 0);
@@ -414,8 +414,8 @@ protected:
     Q3TextDocument *document() const;
     Q3TextCursor *textCursor() const;
     void setDocument(Q3TextDocument *doc);
-    virtual QPopupMenu *createPopupMenu(const QPoint& pos);
-    virtual QPopupMenu *createPopupMenu();
+    virtual Q3PopupMenu *createPopupMenu(const QPoint& pos);
+    virtual Q3PopupMenu *createPopupMenu();
     void drawCursor(bool visible);
 
 protected slots:
@@ -467,7 +467,7 @@ private:
     void copyToClipboard();
 #ifndef QT_NO_MIME
     QByteArray pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
-    QTextDrag *dragObject(QWidget *parent = 0) const;
+    Q3TextDrag *dragObject(QWidget *parent = 0) const;
 #endif
 #ifndef QT_NO_MIMECLIPBOARD
     void pasteSpecial(const QPoint&);

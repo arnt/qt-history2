@@ -65,7 +65,7 @@ public:
     QStringList disabledDocks;
     QHideDock *hideDock;
 
-    QPointer<QPopupMenu> rmbMenu, tbMenu, dwMenu;
+    QPointer<Q3PopupMenu> rmbMenu, tbMenu, dwMenu;
     QMap<Q3DockWindow*, bool> appropriate;
 };
 

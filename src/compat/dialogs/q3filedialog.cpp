@@ -29,21 +29,20 @@
 #include "q3cstring.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"
-#include "qdragobject.h"
+#include "q3dragobject.h"
 #include "qevent.h"
 #include "qfile.h"
-#include "qhbox.h"
 #include "qlabel.h"
 #include "qlayout.h"
 #include "qlibrary.h"
 #include "qlineedit.h"
-#include "qlistbox.h"
+#include "q3listbox.h"
 #include "qmap.h"
 #include "qmessagebox.h"
 #include "qmime.h"
 #include "qpainter.h"
 #include "qpointer.h"
-#include "qpopupmenu.h"
+#include "q3popupmenu.h"
 #include "q3progressbar.h"
 #include "q3ptrvector.h"
 #include "qpushbutton.h"
@@ -54,9 +53,9 @@
 #include "qtimer.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include "qvbox.h"
 #include "q3widgetstack.h"
 #include "q3urloperator.h"
+#include "qvboxwidget.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT
@@ -581,11 +580,7 @@ class QRenameEdit : public QLineEdit
     Q_OBJECT
 
 public:
-    QRenameEdit(QWidget *parent)
-        : QLineEdit(parent, "qt_rename_edit"), doRenameAlreadyEmitted(false)
-    {
-        connect(this, SIGNAL(returnPressed()), SLOT(slotReturnPressed()));
-    }
+    QRenameEdit(QWidget *parent);
 
 protected:
     void keyPressEvent(QKeyEvent *e);
@@ -602,7 +597,13 @@ private:
     bool doRenameAlreadyEmitted;
 };
 
-class QFileListBox : public QListBox
+QRenameEdit::QRenameEdit(QWidget *parent)
+    : QLineEdit(parent, "qt_rename_edit"), doRenameAlreadyEmitted(false)
+{
+    connect(this, SIGNAL(returnPressed()), SLOT(slotReturnPressed()));
+}
+
+class QFileListBox : public Q3ListBox
 {
     friend class Q3FileDialog;
 
@@ -641,12 +642,12 @@ private:
     Q3FileDialog *filedialog;
     bool renaming;
     QTimer* renameTimer;
-    QListBoxItem *renameItem, *dragItem;
+    Q3ListBoxItem *renameItem, *dragItem;
     QPoint pressPos, oldDragPos;
     bool mousePressed;
     int urls;
     QString startDragDir;
-    QListBoxItem *currDropItem;
+    Q3ListBoxItem *currDropItem;
     QTimer *changeDirTimer;
     bool firstMousePressEvent;
     Q3UrlOperator startDragUrl;
@@ -897,7 +898,7 @@ public:
     QString currentFileName;
     Q3ListViewItem *last;
 
-    QListBoxItem *lastEFSelected;
+    Q3ListBoxItem *lastEFSelected;
 
     struct File: public Q3ListViewItem {
         File(Q3FileDialogPrivate * dlgp,
@@ -919,18 +920,18 @@ public:
 
         QUrlInfo info;
         Q3FileDialogPrivate * d;
-        QListBoxItem *i;
+        Q3ListBoxItem *i;
         bool hasMimePixmap;
     };
 
-    class MCItem: public QListBoxItem {
+    class MCItem: public Q3ListBoxItem {
     public:
-        MCItem(QListBox *, Q3ListViewItem * item);
-        MCItem(QListBox *, Q3ListViewItem * item, QListBoxItem *after);
+        MCItem(Q3ListBox *, Q3ListViewItem * item);
+        MCItem(Q3ListBox *, Q3ListViewItem * item, Q3ListBoxItem *after);
         QString text() const;
         const QPixmap *pixmap() const;
-        int height(const QListBox *) const;
-        int width(const QListBox *) const;
+        int height(const Q3ListBox *) const;
+        int width(const Q3ListBox *) const;
         void paint(QPainter *);
         Q3ListViewItem * i;
     };
@@ -1111,12 +1112,12 @@ void QRenameEdit::slotReturnPressed()
  ************************************************************************/
 
 QFileListBox::QFileListBox(QWidget *parent, Q3FileDialog *dlg)
-    : QListBox(parent, "filelistbox"), filedialog(dlg),
+    : Q3ListBox(parent, "filelistbox"), filedialog(dlg),
       renaming(false), renameItem(0), mousePressed(false),
       firstMousePressEvent(true)
 {
     changeDirTimer = new QTimer(this);
-    QVBox *box = new QVBox(viewport(), "qt_vbox");
+    QVBoxWidget *box = new QVBoxWidget(viewport(), "qt_vbox");
     box->setFrameStyle(QFrame::Box | QFrame::Plain);
     lined = new QRenameEdit(box);
     lined->setFixedHeight(lined->sizeHint().height());
@@ -1141,7 +1142,7 @@ void QFileListBox::show()
 {
     setBackgroundRole(QPalette::Base);
     viewport()->setBackgroundRole(QPalette::Base);
-    QListBox::show();
+    Q3ListBox::show();
 }
 
 void QFileListBox::keyPressEvent(QKeyEvent *e)
@@ -1154,7 +1155,7 @@ void QFileListBox::keyPressEvent(QKeyEvent *e)
     QString keyPressed = ((QKeyEvent *)e)->text().toLower();
     QChar keyChar = keyPressed[0];
     if (keyChar.isLetterOrNumber()) {
-        QListBoxItem * i = 0;
+        Q3ListBoxItem * i = 0;
         if (currentItem())
         i = item(currentItem());
         else
@@ -1177,7 +1178,7 @@ void QFileListBox::keyPressEvent(QKeyEvent *e)
         }
     }
     cancelRename();
-    QListBox::keyPressEvent(e);
+    Q3ListBox::keyPressEvent(e);
 }
 
 void QFileListBox::viewportMousePressEvent(QMouseEvent *e)
@@ -1192,7 +1193,7 @@ void QFileListBox::viewportMousePressEvent(QMouseEvent *e)
         setFocus();
 
     if (e->button() != Qt::LeftButton) {
-        QListBox::viewportMousePressEvent(e);
+        Q3ListBox::viewportMousePressEvent(e);
         firstMousePressEvent = false;
         return;
     }
@@ -1201,7 +1202,7 @@ void QFileListBox::viewportMousePressEvent(QMouseEvent *e)
     bool wasSelected = false;
     if (i != -1)
         wasSelected = item(i)->isSelected();
-    QListBox::mousePressEvent(e);
+    Q3ListBox::mousePressEvent(e);
 
     Q3FileDialogPrivate::MCItem *i1 = (Q3FileDialogPrivate::MCItem*)item(currentItem());
     if (i1)
@@ -1225,14 +1226,14 @@ void QFileListBox::viewportMousePressEvent(QMouseEvent *e)
 void QFileListBox::viewportMouseReleaseEvent(QMouseEvent *e)
 {
     dragItem = 0;
-    QListBox::viewportMouseReleaseEvent(e);
+    Q3ListBox::viewportMouseReleaseEvent(e);
     mousePressed = false;
 }
 
 void QFileListBox::viewportMouseDoubleClickEvent(QMouseEvent *e)
 {
     renameTimer->stop();
-    QListBox::viewportMouseDoubleClickEvent(e);
+    Q3ListBox::viewportMouseDoubleClickEvent(e);
 }
 
 void QFileListBox::viewportMouseMoveEvent(QMouseEvent *e)
@@ -1242,12 +1243,12 @@ void QFileListBox::viewportMouseMoveEvent(QMouseEvent *e)
     renameTimer->stop();
 #ifndef QT_NO_DRAGANDDROP
     if ( (pressPos - e->pos()).manhattanLength() > QApplication::startDragDistance() && mousePressed) {
-        QListBoxItem *item = dragItem;
+        Q3ListBoxItem *item = dragItem;
         dragItem = 0;
         if (item) {
             if (!itemRect(item).contains(e->pos()))
                 return;
-            QUriDrag* drag = new QUriDrag(viewport());
+            Q3UriDrag* drag = new Q3UriDrag(viewport());
             QStringList files;
             if (filedialog->mode() == Q3FileDialog::ExistingFiles)
                 files = filedialog->selectedFiles();
@@ -1267,7 +1268,7 @@ void QFileListBox::viewportMouseMoveEvent(QMouseEvent *e)
     } else
 #endif
     {
-        QListBox::viewportMouseMoveEvent(e);
+        Q3ListBox::viewportMouseMoveEvent(e);
     }
 
 }
@@ -1287,13 +1288,13 @@ void QFileListBox::viewportDragEnterEvent(QDragEnterEvent *e)
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
 
-    if (!QUriDrag::canDecode(e)) {
+    if (!Q3UriDrag::canDecode(e)) {
         e->ignore();
         return;
     }
 
     QStringList l;
-    QUriDrag::decodeLocalFiles(e, l);
+    Q3UriDrag::decodeLocalFiles(e, l);
     urls = (int)l.count();
 
     if (acceptDrop(e->pos(), e->source())) {
@@ -1346,13 +1347,13 @@ void QFileListBox::viewportDropEvent(QDropEvent *e)
 {
     changeDirTimer->stop();
 
-    if (!QUriDrag::canDecode(e)) {
+    if (!Q3UriDrag::canDecode(e)) {
         e->ignore();
         return;
     }
 
     QList<QByteArray> l;
-    QUriDrag::decode(e, l);
+    Q3UriDrag::decode(e, l);
 
     bool move = e->action() == QDropEvent::Move;
 //     bool supportAction = move || e->action() == QDropEvent::Copy;
@@ -1376,7 +1377,7 @@ void QFileListBox::viewportDropEvent(QDropEvent *e)
 
 bool QFileListBox::acceptDrop(const QPoint &pnt, QWidget *source)
 {
-    QListBoxItem *item = itemAt(pnt);
+    Q3ListBoxItem *item = itemAt(pnt);
     if (!item || item && !itemRect(item).contains(pnt)) {
         if (source == viewport() && startDragDir == filedialog->dirPath())
             return false;
@@ -1394,7 +1395,7 @@ void QFileListBox::setCurrentDropItem(const QPoint &pnt)
 {
     changeDirTimer->stop();
 
-    QListBoxItem *item = 0;
+    Q3ListBoxItem *item = 0;
     if (pnt != QPoint(-1, -1))
         item = itemAt(pnt);
     if (item && !QUrlInfo(filedialog->d->url.info(item->text().isEmpty() ? "." : item->text())).isDir())
@@ -1456,7 +1457,7 @@ void QFileListBox::startRename(bool check)
 void QFileListBox::clear()
 {
     cancelRename();
-    QListBox::clear();
+    Q3ListBox::clear();
 }
 
 void QFileListBox::rename()
@@ -1501,7 +1502,7 @@ Q3FileDialogQFileListView::Q3FileDialogQFileListView(QWidget *parent, Q3FileDial
     firstMousePressEvent(true)
 {
     changeDirTimer = new QTimer(this);
-    QVBox *box = new QVBox(viewport(), "qt_vbox");
+    QVBoxWidget *box = new QVBoxWidget(viewport(), "qt_vbox");
     box->setFrameStyle(QFrame::Box | QFrame::Plain);
     lined = new QRenameEdit(box);
     lined->setFixedHeight(lined->sizeHint().height());
@@ -1664,7 +1665,7 @@ void Q3FileDialogQFileListView::viewportMouseMoveEvent(QMouseEvent *e)
         Q3ListViewItem *item = dragItem;
         dragItem = 0;
         if (item) {
-            QUriDrag* drag = new QUriDrag(viewport());
+            Q3UriDrag* drag = new Q3UriDrag(viewport());
             QStringList files;
             if (filedialog->mode() == Q3FileDialog::ExistingFiles)
                 files = filedialog->selectedFiles();
@@ -1700,13 +1701,13 @@ void Q3FileDialogQFileListView::viewportDragEnterEvent(QDragEnterEvent *e)
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
 
-    if (!QUriDrag::canDecode(e)) {
+    if (!Q3UriDrag::canDecode(e)) {
         e->ignore();
         return;
     }
 
     QStringList l;
-    QUriDrag::decodeLocalFiles(e, l);
+    Q3UriDrag::decodeLocalFiles(e, l);
     urls = (int)l.count();
 
     if (acceptDrop(e->pos(), e->source())) {
@@ -1759,13 +1760,13 @@ void Q3FileDialogQFileListView::viewportDropEvent(QDropEvent *e)
 {
     changeDirTimer->stop();
 
-    if (!QUriDrag::canDecode(e)) {
+    if (!Q3UriDrag::canDecode(e)) {
         e->ignore();
         return;
     }
 
     QStringList l;
-    QUriDrag::decodeToUnicodeUris(e, l);
+    Q3UriDrag::decodeToUnicodeUris(e, l);
 
     bool move = e->action() == QDropEvent::Move;
 //     bool supportAction = move || e->action() == QDropEvent::Copy;
@@ -1971,16 +1972,16 @@ const QPixmap * Q3FileDialogPrivate::File::pixmap(int column) const
     }
 }
 
-Q3FileDialogPrivate::MCItem::MCItem(QListBox * lb, Q3ListViewItem * item)
-    : QListBoxItem()
+Q3FileDialogPrivate::MCItem::MCItem(Q3ListBox * lb, Q3ListViewItem * item)
+    : Q3ListBoxItem()
 {
     i = item;
     if (lb)
         lb->insertItem(this);
 }
 
-Q3FileDialogPrivate::MCItem::MCItem(QListBox * lb, Q3ListViewItem * item, QListBoxItem *after)
-    : QListBoxItem()
+Q3FileDialogPrivate::MCItem::MCItem(Q3ListBox * lb, Q3ListViewItem * item, Q3ListBoxItem *after)
+    : Q3ListBoxItem()
 {
     i = item;
     if (lb)
@@ -1999,7 +2000,7 @@ const QPixmap *Q3FileDialogPrivate::MCItem::pixmap() const
 }
 
 
-int Q3FileDialogPrivate::MCItem::height(const QListBox * lb) const
+int Q3FileDialogPrivate::MCItem::height(const Q3ListBox * lb) const
 {
     int hf = lb->fontMetrics().height();
     int hp = pixmap() ? pixmap()->height() : 0;
@@ -2007,7 +2008,7 @@ int Q3FileDialogPrivate::MCItem::height(const QListBox * lb) const
 }
 
 
-int Q3FileDialogPrivate::MCItem::width(const QListBox * lb) const
+int Q3FileDialogPrivate::MCItem::width(const Q3ListBox * lb) const
 {
     QFontMetrics fm = lb->fontMetrics();
     int w = 2;
@@ -2427,17 +2428,17 @@ void Q3FileDialog::init()
     files->viewport()->installEventFilter(this);
 
     d->moreFiles = new QFileListBox(d->stack, this);
-    d->moreFiles->setRowMode(QListBox::FitToHeight);
+    d->moreFiles->setRowMode(Q3ListBox::FitToHeight);
     d->moreFiles->setVariableWidth(true);
 
-    connect(d->moreFiles, SIGNAL(selected(QListBoxItem*)),
-             this, SLOT(selectDirectoryOrFile(QListBoxItem*)));
+    connect(d->moreFiles, SIGNAL(selected(Q3ListBoxItem*)),
+             this, SLOT(selectDirectoryOrFile(Q3ListBoxItem*)));
     connect(d->moreFiles, SIGNAL(selectionChanged()),
              this, SLOT(listBoxSelectionChanged()));
-    connect(d->moreFiles, SIGNAL(highlighted(QListBoxItem*)),
-      this, SLOT(updateFileNameEdit(QListBoxItem*)));
-    connect(d->moreFiles, SIGNAL(contextMenuRequested(QListBoxItem*,QPoint)),
-             this, SLOT(popupContextMenu(QListBoxItem*,QPoint)));
+    connect(d->moreFiles, SIGNAL(highlighted(Q3ListBoxItem*)),
+      this, SLOT(updateFileNameEdit(Q3ListBoxItem*)));
+    connect(d->moreFiles, SIGNAL(contextMenuRequested(Q3ListBoxItem*,QPoint)),
+             this, SLOT(popupContextMenu(Q3ListBoxItem*,QPoint)));
 
     d->moreFiles->installEventFilter(this);
     d->moreFiles->viewport()->installEventFilter(this);
@@ -3899,8 +3900,8 @@ void Q3FileDialog::listBoxSelectionChanged()
 
     nameEdit->clear();
     QString str;
-    QListBoxItem * i = d->moreFiles->item(0);
-    QListBoxItem * j = 0;
+    Q3ListBoxItem * i = d->moreFiles->item(0);
+    Q3ListBoxItem * j = 0;
     int index = 0;
     files->blockSignals(true);
     while(i) {
@@ -3910,7 +3911,7 @@ void Q3FileDialog::listBoxSelectionChanged()
                 files->setSelected(mcitem->i, mcitem->isSelected());
 
                 // What happens here is that we want to emit signal highlighted for
-                // newly added items.  But QListBox apparently emits selectionChanged even
+                // newly added items.  But Q3ListBox apparently emits selectionChanged even
                 // when a user clicks on the same item twice.  So, basically emulate the behaivor
                 // we have in the "Details" view which only emits highlighted the first time we
                 // click on the item.  Perhaps at some point we should have a call to
@@ -3946,7 +3947,7 @@ void Q3FileDialog::listBoxSelectionChanged()
 
 /*! \overload */
 
-void Q3FileDialog::updateFileNameEdit(QListBoxItem * newItem)
+void Q3FileDialog::updateFileNameEdit(Q3ListBoxItem * newItem)
 {
     if (!newItem)
         return;
@@ -4028,7 +4029,7 @@ void Q3FileDialog::selectDirectoryOrFile(Q3ListViewItem * newItem)
 }
 
 
-void Q3FileDialog::selectDirectoryOrFile(QListBoxItem * newItem)
+void Q3FileDialog::selectDirectoryOrFile(Q3ListBoxItem * newItem)
 {
     if (!newItem)
         return;
@@ -4083,7 +4084,7 @@ void Q3FileDialog::popupContextMenu(Q3ListViewItem *item, const QPoint &p,
 
 }
 
-void Q3FileDialog::popupContextMenu(QListBoxItem *item, const QPoint & p)
+void Q3FileDialog::popupContextMenu(Q3ListBoxItem *item, const QPoint & p)
 {
     PopupAction action;
     popupContextMenu(item ? item->text() : QString(), false, action, p);
@@ -4125,7 +4126,7 @@ void Q3FileDialog::popupContextMenu(const QString &filename, bool,
 
     bool glob = filename.isEmpty();
 
-    QPopupMenu m(0, "file dialog context menu");
+    Q3PopupMenu m(0, "file dialog context menu");
     m.setCheckable(true);
 
     if (!glob) {
@@ -4164,7 +4165,7 @@ void Q3FileDialog::popupContextMenu(const QString &filename, bool,
     } else {
         int reload = m.insertItem(tr("R&eload"));
 
-        QPopupMenu m2(0, "sort menu");
+        Q3PopupMenu m2(0, "sort menu");
 
         int sname = m2.insertItem(tr("Sort by &Name"));
         //int stype = m2.insertItem(tr("Sort by &Type"));
@@ -4458,18 +4459,18 @@ void Q3FileDialog::setMode(Mode newMode)
         int maxnamelen = 255; // _POSIX_MAX_PATH
         if (isDirectoryMode(newMode)) {
             files->setSelectionMode(Q3ListView::Single);
-            d->moreFiles->setSelectionMode(QListBox::Single);
+            d->moreFiles->setSelectionMode(Q3ListBox::Single);
             if (sel.isNull())
                 sel = QString::fromLatin1(".");
             d->types->setEnabled(false);
         } else if (newMode == ExistingFiles) {
             maxnamelen = INT_MAX;
             files->setSelectionMode(Q3ListView::Extended);
-            d->moreFiles->setSelectionMode(QListBox::Extended);
+            d->moreFiles->setSelectionMode(Q3ListBox::Extended);
             d->types->setEnabled(true);
         } else {
             files->setSelectionMode(Q3ListView::Single);
-            d->moreFiles->setSelectionMode(QListBox::Single);
+            d->moreFiles->setSelectionMode(Q3ListBox::Single);
             d->types->setEnabled(true);
         }
         nameEdit->setMaxLength(maxnamelen);

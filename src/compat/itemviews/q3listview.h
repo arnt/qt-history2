@@ -29,7 +29,7 @@ struct Q3ListViewPrivate;
 struct Q3CheckListItemPrivate;
 class Q3ListViewItemIterator;
 struct Q3ListViewItemIteratorPrivate;
-class QDragObject;
+class Q3DragObject;
 class QMimeSource;
 class QLineEdit;
 class Q3ListViewToolTip;
@@ -387,7 +387,7 @@ protected:
     void contentsDragMoveEvent(QDragMoveEvent *e);
     void contentsDragLeaveEvent(QDragLeaveEvent *e);
     void contentsDropEvent(QDropEvent *e);
-    virtual QDragObject *dragObject();
+    virtual Q3DragObject *dragObject();
     virtual void startDrag();
 #endif
 

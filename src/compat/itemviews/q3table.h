@@ -33,7 +33,7 @@ class QTimer;
 class QResizeEvent;
 class QComboBox;
 class QCheckBox;
-class QDragObject;
+class Q3DragObject;
 
 struct Q3TablePrivate;
 struct Q3TableHeaderPrivate;
@@ -381,7 +381,7 @@ protected:
     virtual void contentsDragMoveEvent(QDragMoveEvent *e);
     virtual void contentsDragLeaveEvent(QDragLeaveEvent *e);
     virtual void contentsDropEvent(QDropEvent *e);
-    virtual QDragObject *dragObject();
+    virtual Q3DragObject *dragObject();
     virtual void startDrag();
 #endif
 

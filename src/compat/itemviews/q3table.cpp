@@ -28,13 +28,13 @@
 #include <qicon.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
-#include <qdragobject.h>
+#include <q3dragobject.h>
 #include <qevent.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qstyle.h>
 #include <q3datatable.h>
 #include <qvalidator.h>
-#include <qbutton.h>
+#include <q3button.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -3676,7 +3676,7 @@ void Q3Table::contentsMousePressEventEx(QMouseEvent* e)
 	Q3TableItem *itm = item(tmpRow, tmpCol);
 	if (itm && itm->editType() == Q3TableItem::WhenCurrent) {
 	    QWidget *w = cellWidget(tmpRow, tmpCol);
-	    if (::qt_cast<QComboBox*>(w) || ::qt_cast<QButton*>(w)) {
+	    if (::qt_cast<QComboBox*>(w) || ::qt_cast<QAbstractButton*>(w)) {
 		QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
 				e->globalPos(), e->button(), e->state());
 		QApplication::sendPostedEvents(w, 0);
@@ -6347,12 +6347,12 @@ void Q3Table::contentsDropEvent(QDropEvent *e)
     immediately unless dragObject() returns 0.
 
     By default this function returns 0. You might reimplement it and
-    create a QDragObject depending on the selected items.
+    create a Q3DragObject depending on the selected items.
 
     \sa dropped()
 */
 
-QDragObject *Q3Table::dragObject()
+Q3DragObject *Q3Table::dragObject()
 {
     return 0;
 }
@@ -6372,7 +6372,7 @@ void Q3Table::startDrag()
 
     startDragRow = startDragCol = -1;
 
-    QDragObject *drag = dragObject();
+    Q3DragObject *drag = dragObject();
     if (!drag)
 	return;
 
