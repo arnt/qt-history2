@@ -48,6 +48,14 @@ ControlCentral::ControlCentral() : QVBox()
     } else {
 	parseProtocolTS = new QTextStream( parseProtocolFile );
     }
+
+    parsePerformanceFile = new QFile( "parsePerformance" );
+    if ( !parsePerformanceFile->open( IO_WriteOnly | IO_Truncate ) ) {
+	parsePerformanceFile = 0;
+	parsePerformanceTS = 0;
+    } else {
+	parsePerformanceTS = new QTextStream( parsePerformanceFile );
+    }
 }
 
 ControlCentral::~ControlCentral()
@@ -56,6 +64,12 @@ ControlCentral::~ControlCentral()
 	parseProtocolFile->close();
 	delete parseProtocolFile;
 	delete parseProtocolTS;
+    }
+
+    if ( parsePerformanceFile != 0 ) {
+	parsePerformanceFile->close();
+	delete parsePerformanceFile;
+	delete parsePerformanceTS;
     }
 }
 
@@ -88,9 +102,9 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
     src->setTextFormat( PlainText );
 
     if ( incrementalSteps.isNull() ) {
-	*parseProtocolTS << endl << "******** "
-	    << filename << " ********" << endl;
-		 
+	*parseProtocolTS << endl
+	    << "******** " << filename << " ********" << endl;
+
 	QTime t;
 	t.start();
 	for ( int i=0; i<10; i++ ) {
@@ -100,6 +114,14 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	double ms = ((double)t.elapsed()) / 10;
 	time.setNum( ms );
 	time += " ms";
+
+	*parsePerformanceTS << endl
+	    << "************* " << filename << " *************" << endl
+	    << "TIME: " << time << endl
+	    << "    namespaces:                      " << (int)parser.feature( "http://xml.org/sax/features/namespaces" ) << endl
+	    << "    namespace-prefixes:              " << (int)parser.feature( "http://xml.org/sax/features/namespace-prefixes" ) << endl
+	    << "    report-whitespace-only-CharData: " << (int)parser.feature( "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) << endl
+	    << "    report-stat-end-entity:          " << (int)parser.feature( "http://trolltech.com/xml/features/report-start-end-entity" ) << endl;
 
 	file.reset();
 

@@ -33,4 +33,6 @@ private:
     QPushButton* quit;
     QFile *parseProtocolFile;
     QTextStream *parseProtocolTS;
+    QFile *parsePerformanceFile;
+    QTextStream *parsePerformanceTS;
 };
