@@ -255,6 +255,7 @@ void QOCIDriver::cleanup()
 
 QSql QOCIDriver::createResult() const
 {
+    qDebug("QOCIDriver::createResult() const");
     return QSql( new QOCIResult( this, d ) );
 }
 
@@ -319,6 +320,7 @@ public:
     QOCIResultPrivate( int size, QOCIPrivate* d )
     : data( size )
     {
+	qDebug("QOCIResultPrivate( int size, QOCIPrivate* d )");
 	ub4		dataSize(0);
 	OCIDefine 	*dfn;
 	int 		r;
@@ -389,6 +391,7 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
   cols(0),
   resultInfo(0)
 {
+    qDebug("QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )");
     d = new QOCIPrivate();
     (*d) = (*p);
 }
@@ -421,6 +424,7 @@ const QSqlResultInfo* QOCIResult::info()
 
 bool QOCIResult::reset ( const QString& query )
 {
+    qDebug("QOCIResult::reset ( const QString& query )");
     int r(0);
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
@@ -462,6 +466,7 @@ bool QOCIResult::reset ( const QString& query )
 #endif
 	return FALSE;
     }
+    qDebug("about to execute stmt");
     ub2 stmtType;
     r = OCIAttrGet( d->sql,
     			OCI_HTYPE_STMT,
@@ -479,6 +484,13 @@ bool QOCIResult::reset ( const QString& query )
 				(CONST OCISnapshot *) NULL,
 				(OCISnapshot *) NULL,
 				OCI_DEFAULT );
+	if ( r != 0 ) {
+#ifdef CHECK_RANGE
+	    qWarning( OraWarn( d ) );
+#endif
+	    setLastError( makeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    return FALSE;
+	}
     	ub4 parmCount;
     	r = OCIAttrGet( d->sql,
     			OCI_HTYPE_STMT,
