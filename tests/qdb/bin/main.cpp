@@ -22,15 +22,12 @@
 
 */
 
-#include <localsql.h>
+#include "../include/localsql.h"
 #include <qapplication.h>
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
 #include <xdb/xbase.h>
-
-
-#include <op.h> //## remove
 
 static QString appname;
 
@@ -298,7 +295,7 @@ int main( int argc, char** argv )
 	    line = sep;
 	    localsql::Record& rec = rs->currentRecord();
 	    for ( i = 0; i < fieldcount; ++i )
-		line += rec[i].toString().rightJustify( 15 ) + sep;
+		line += rec[i].toString().rightJustify( 15 ).mid( 0, 15 ) + sep;
 	    outstream << line << endl;
 	} while( rs->next() );
 	if ( verbose )

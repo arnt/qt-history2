@@ -357,13 +357,18 @@ bool ResultSet::setHeader( const localsql::List& list )
 	return FALSE;
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
-	localsql::List fieldDescription = list[i].toList();
-	if ( fieldDescription.count() != 4 ) {
-	    env->setLastError( "Internal error: Bad field description" );
-	    return FALSE;
+	if ( list[i].type() == QVariant::List ) { /* field description */
+	    localsql::List fieldDescription = list[i].toList();
+	    if ( fieldDescription.count() != 4 ) {
+		env->setLastError( "Internal error: Bad field description" );
+		return FALSE;
+	    }
+	    head->fields[i].name = fieldDescription[0].toString();
+	    head->fields[i].type = (QVariant::Type)fieldDescription[1].toInt();
+	} else { /*literal */
+	    head->fields[i].name = list[i].toString();
+	    head->fields[i].type = list[i].type();
 	}
-	head->fields[i].name = fieldDescription[0].toString();
-	head->fields[i].type = (QVariant::Type)fieldDescription[1].toInt();
     }
     return TRUE;
 }

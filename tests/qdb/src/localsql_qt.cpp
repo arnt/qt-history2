@@ -227,8 +227,25 @@ QStringList LocalSQLDriver::tables( const QString& /*user*/ ) const
 
 QSqlIndex LocalSQLDriver::primaryIndex( const QString& tablename ) const
 {
+    LocalSQL env;
+    env.addFileDriver( 0, databasePath + "/" + tablename );
+    localsql::FileDriver* driver = env.fileDriver( 0 );
+    if ( !driver->open() ) {
+	qWarning( "LocalSQLDriver::record: Unable to open table:" + tablename );
+	return QSqlIndex();
+    }
     QSqlIndex idx( tablename );
-    qWarning("LocalSQLDriver::primaryIndex:: not yet implemented!");
+    QStringList names = driver->columnNames();
+    QValueList<QVariant::Type> types = driver->columnTypes();
+    QStringList primaryIndexFields = driver->primaryIndex();
+    for ( uint i = 0; i < primaryIndexFields.count(); ++i ) {
+	for ( uint j = 0; j < names.count(); ++j ) {
+	    if ( names[j] == primaryIndexFields[i] ) {
+		QSqlField f( names[j], types[j] );
+		idx.append( f );
+	    }
+	}
+    }
     return idx;
 }
 
@@ -239,7 +256,7 @@ QSqlRecord LocalSQLDriver::record( const QString& tablename ) const
     localsql::FileDriver* driver = env.fileDriver( 0 );
     if ( !driver->open() ) {
 	qWarning( "LocalSQLDriver::record: Unable to open table:" + tablename );
-	return QSqlRecord();;
+	return QSqlRecord();
     }
     QSqlRecord fil;
     QStringList names = driver->columnNames();

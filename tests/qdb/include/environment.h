@@ -144,6 +144,7 @@ namespace localsql {
 	virtual bool fieldDescription( int i, QVariant& v ) = 0;
 	virtual bool clearMarked() = 0;
 	virtual QStringList indexNames() = 0;
+	virtual QStringList primaryIndex() = 0;
     };
 
 

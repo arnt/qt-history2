@@ -169,9 +169,14 @@ public:
 	case 'F': /* float */
 	    v = QString(buf).toDouble();
 	    break;
-	case 'D': /* date */
-	    v = QDate::fromString(QString(buf));
+	case 'D': { /* date */
+	    QString date( buf );
+	    int y = date.mid( 0, 4 ).toInt();
+	    int m = date.mid( 4, 2 ).toInt();
+	    int d = date.mid( 6, 2 ).toInt();
+	    v = QDate( y, m, d );
 	    break;
+	}
 	case 'L': /* logical */
 	    v = QVariant( QString(buf).toInt(), 1 );
 	    break;
@@ -346,6 +351,21 @@ QStringList FileDriver::columnNames() const
 uint FileDriver::count() const
 {
     return d->file.FieldCount();
+}
+
+QStringList FileDriver::primaryIndex()
+{
+    QStringList idx;
+    for ( uint i = 0; i < d->indexes.count(); ++i ) {
+	if ( d->indexes[i]->UniqueIndex() ) { /* first unique index */
+	    char buf[XB_MAX_NDX_NODE_SIZE];
+	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
+	    idx = QStringList::split( QString( buf ), "+" );
+	    break;
+	}
+    }
+    return idx;
+
 }
 
 QStringList FileDriver::indexNames()

@@ -73,6 +73,7 @@ public:
     QStringList columnNames() const;
     QValueList<QVariant::Type> columnTypes() const;
     QStringList indexNames();
+    QStringList primaryIndex();
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
@@ -205,7 +206,6 @@ private:
     void matchDataType();
     QStringList matchColumnList();
     void matchTableConstraintDef();
-    void matchColumnConstraintDef();
     void matchBaseTableElement();
     void matchBaseTableElementList();
     void matchCreateStatement();
