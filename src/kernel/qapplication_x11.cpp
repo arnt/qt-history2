@@ -83,11 +83,14 @@ static int qt_thread_pipe[2];
 
 #include "qt_x11.h"
 
+#if defined(QT_MODULE_OPENGL)
+#include <GL/glx.h>
+#endif
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
 #include <errno.h>
-
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
@@ -1609,9 +1612,52 @@ void qt_init_internal( int *argcptr, char **argv,
 	Visual *vis;
 	if (! visual) {
 	    // use the default visual
-	    vis = DefaultVisual(appDpy,appScreen);
-	    QPaintDevice::x_appvisual = vis;
+	    vis = DefaultVisual(appDpy,appScreen);	    
 	    QPaintDevice::x_appdefvisual = TRUE;
+	    
+#if defined( QT_MODULE_OPENGL )
+	    // If we are using OpenGL widgets we HAVE to make sure that
+	    // the default visual is GL enabled, otherwise it will wreck
+	    // havock when e.g trying to render to GLXPixmaps via QPixmap.
+	    // This is because QPixmap is always created with a 
+	    // QPaintDevice that uses x_appvisual per default.
+	    int useGL;
+	    int nvis;
+	    XVisualInfo * vi;
+	    XVisualInfo visInfo;
+	    memset( &visInfo, 0, sizeof(XVisualInfo) );
+	    visInfo.visualid = XVisualIDFromVisual( vis );
+	    visInfo.screen = appScreen;
+	    vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
+				 &visInfo, &nvis );
+	    if ( vi ) {
+		glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
+		if ( !useGL ) {
+		    // We have to find another visual that is GL capable
+		    int i;
+		    XVisualInfo * visuals;
+		    memset( &visInfo, 0, sizeof(XVisualInfo) );
+		    visInfo.screen = appScreen;
+		    visInfo.c_class = vi->c_class;
+		    visuals = XGetVisualInfo( appDpy, VisualClassMask | 
+					      VisualScreenMask, &visInfo, 
+					      &nvis );
+		    if ( visuals ) {
+			for ( i = 0; i < nvis; i++ ) {
+			    glXGetConfig( appDpy, &visuals[i], GLX_USE_GL, &useGL );
+			    if ( useGL ) {
+				vis = visuals[i].visual;
+				QPaintDevice::x_appdefvisual = FALSE;
+				break;
+			    }
+			}
+			XFree( visuals );
+		    }
+		}
+		XFree( vi );
+	    }
+#endif
+	    QPaintDevice::x_appvisual = vis;
 	} else {
 	    // use the provided visual
 	    vis = (Visual *) visual;
