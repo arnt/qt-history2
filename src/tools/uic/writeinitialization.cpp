@@ -286,9 +286,7 @@ void WriteInitialization::accept(DomLayout *node)
         output << centerWidget;
     } else if (isGroupBox) {
         output << driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()";
-    } else if (m_layoutChain.top()) {
-        output << driver->findOrInsertLayout(m_layoutChain.top());
-    } else {
+    } else if (!m_layoutChain.top()) {
         output << driver->findOrInsertWidget(m_widgetChain.top());
     }
 
