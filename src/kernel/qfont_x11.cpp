@@ -820,7 +820,7 @@ static inline XGlyphInfo *getGlyphInfo(QFontStruct *qfs, const QChar &ch)
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch, this );
+    SCRIPT_FOR_CHAR( script, ch );
 
     QFontStruct *qfs = 0;
     XCharStruct *xcs = 0;
@@ -879,7 +879,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     for (i = 0; i < len; i++) {
 	// no marks at unicode < 0x400
 	if (chars->unicode() < 0x400 || category( *chars ) != QChar::Mark_NonSpacing || pos + i == 0) {
-	    SCRIPT_FOR_CHAR( tmp, *chars, this );
+	    SCRIPT_FOR_CHAR( tmp, *chars );
 
 	    if (tmp != current) {
 		// new script, make sure the font is loaded
@@ -965,7 +965,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
     for (i = 0; i < len; i++) {
 	// no marks at unicode < 0x400
 	if (chars->unicode() < 0x400 || category( *chars ) != QChar::Mark_NonSpacing || pos + i == 0) {
-	    SCRIPT_FOR_CHAR( tmp, *chars, this );
+	    SCRIPT_FOR_CHAR( tmp, *chars );
 
 	    if (tmp != current ||
 		// X11 doesn't draw strings wider than 32768px
@@ -1086,7 +1086,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    // deal with all marks
 	    for (int n = 0; n < nmarks; n++) {
 		// make sure font is loaded for mark
-		SCRIPT_FOR_CHAR( tmp, *chars, this );
+		SCRIPT_FOR_CHAR( tmp, *chars );
 		if (tmp != QFont::UnknownScript) {
 		    load(tmp);
 		    qfs = x11data.fontstruct[tmp];
@@ -1179,8 +1179,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
     for (i = 0; i < len; i++) {
 	// no marks at unicode < 0x400
 	if (chars->unicode() < 0x400 || category( *chars ) != QChar::Mark_NonSpacing || pos + i == 0) {
-	    tmp = scriptForChar(*chars);
-	    SCRIPT_FOR_CHAR( tmp, *chars, this );
+	    SCRIPT_FOR_CHAR( tmp, *chars );
 
 	    if (tmp != current) {
 		// new script, make sure the font is loaded
@@ -1253,7 +1252,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 	    // deal with all marks
 	    for (int n = 0; n < nmarks; n++) {
 		// make sure font is loaded for mark
-		SCRIPT_FOR_CHAR( tmp, *chars, this );
+		SCRIPT_FOR_CHAR( tmp, *chars );
 		if (tmp != QFont::UnknownScript) {
 		    load(tmp);
 		    qfs = x11data.fontstruct[tmp];
@@ -1410,7 +1409,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 bool QFontPrivate::inFont( const QChar &ch )
 {
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch, this );
+    SCRIPT_FOR_CHAR( script, ch );
 
     if (script == QFont::UnknownScript)
 	return FALSE;
@@ -2963,7 +2962,7 @@ void QFont::initialize()
 	QFontPrivate *priv = new QFontPrivate;
 
 	for (uint i = 0; i < sample.length(); i++) {
-	    SCRIPT_FOR_CHAR( tmp, *uc, priv );
+	    SCRIPT_FOR_CHAR( tmp, *uc );
 	    uc++;
 	    if (tmp != cs && tmp != QFont::UnknownScript) {
 		cs = tmp;
@@ -3209,7 +3208,7 @@ bool QFontMetrics::inFont(QChar ch) const
 int QFontMetrics::leftBearing(QChar ch) const
 {
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch, d );
+    SCRIPT_FOR_CHAR( script, ch );
 
     if (script == QFont::UnknownScript)
 	return 0;
@@ -3239,7 +3238,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 int QFontMetrics::rightBearing(QChar ch) const
 {
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch, d );
+    SCRIPT_FOR_CHAR( script, ch );
 
     if (script == QFont::UnknownScript)
 	return 0;
@@ -3453,7 +3452,7 @@ int QFontMetrics::width(QChar ch) const
 {
     int w = 0;
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch, d );
+    SCRIPT_FOR_CHAR( script, ch );
 
     if (script == QFont::UnknownScript)
 	return d->actual.pixelSize * 3 / 4;
@@ -3517,7 +3516,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     const QChar &ch = str.unicode()[pos];
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch, d );
+    SCRIPT_FOR_CHAR( script, ch );
 
     if (script == QFont::UnknownScript)
 	return d->actual.pixelSize * 3 / 4;

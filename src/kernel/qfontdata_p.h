@@ -309,10 +309,6 @@ public:
     // drawing needs to take care to correctly position non spacing marks.
     int textWidth( const QString &str, int pos, int len );
 
-    // returns the script a certain character is in. Needed to separate the string
-    // into runs of different scripts as required for X11 and opentype.
-    QFont::Script scriptForChar(const QChar &c);
-
 #ifdef Q_WS_X11
     QFont::Script hanHack( const QChar & c );
     static char **getXFontNames(const char *, int *);

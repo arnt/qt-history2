@@ -22,6 +22,10 @@ public:
     static const Q_UINT16 symmetricPairs[];
     static const int symmetricPairsSize;
 #endif
+    static const unsigned char otherScripts[];
+    static const unsigned char indicScripts[];
+    static const unsigned char scriptTable[];
+    enum { SCRIPTS_INDIC = 0x7e };
 };
 
 
@@ -143,5 +147,36 @@ inline bool isSpace( const QChar &ch )
     return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
 }
 
+inline int scriptForChar( ushort uc )
+{
+    unsigned char script = QUnicodeTables::scriptTable[(uc>>8)];
+    if ( script >= QUnicodeTables::SCRIPTS_INDIC ) {
+	if ( script == QUnicodeTables::SCRIPTS_INDIC ) {
+	    script = QUnicodeTables::indicScripts[ (uc-0x0900)>>7 ];
+	} else {
+	    // 0x80 + SCRIPTS_xx
+	    unsigned char index = script-0x80;
+	    unsigned char cell = uc &0xff;
+	    while( QUnicodeTables::otherScripts[index++] < cell )
+		index++;
+	    script = QUnicodeTables::otherScripts[index];
+	}
+    }
+    return script;
+}
+
+#ifdef Q_WS_X11
+#define SCRIPT_FOR_CHAR( script, c ) 	\
+do { 						\
+    unsigned short _uc = (c).unicode(); 		\
+    if ( _uc < 0x100 ) {				\
+	script = QFont::Latin;		\
+    } else { 					\
+        script = (QFont::Script)scriptForChar( _uc ); 	\
+    } 						\
+} while( FALSE )
+#else
+#define SCRIPT_FOR_CHAR( script, c ) script = (QFont::Script)scriptForChar( c )
+#endif
 
 #endif

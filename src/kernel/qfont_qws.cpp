@@ -34,6 +34,7 @@
 #include "qpainter.h"
 #include "qfontdata_p.h"
 #include "qcomplextext_p.h"
+#include <private/qunicodetables_p.h>
 #include "qfontdatabase.h"
 #include "qstrlist.h"
 #include "qcache.h"
@@ -448,7 +449,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
     QPointArray pa;
     int nmarks = 0;
     for (i = 0; i < len; i++) {
-	tmp = scriptForChar(*uc);
+	tmp = (QFont::Script)scriptForChar(*uc);
 #ifndef QT_NO_COMPLEXTEXT
 	if ( uc->category() == QChar::Mark_NonSpacing && !nmarks && pos + i > 0 ) {
 	    if ( lasts >= 0 ) {
