@@ -1101,8 +1101,8 @@ static bool skip(png_uint_32& max, png_bytep& data)
 #endif
 */
 
-int QPNGFormat::user_chunk(png_structp /*png*/,
-	    png_bytep /*data*/, png_uint_32 /*length*/)
+int QPNGFormat::user_chunk(png_structp png,
+	    png_bytep data, png_uint_32 length)
 {
 #if 0 // NOT SUPPORTED: experimental PNG animation.
     // qDebug("Got %ld-byte %s chunk", length, png->chunk_name);
