@@ -88,7 +88,7 @@ static inline void qt_blend_pixel(ARGB src, ARGB *target, int coverage)
 {
     int alpha = qt_div_255(coverage * src.a);
     int rev_alpha = 255 - alpha;
-    int res_alpha = qMin(src.a + qt_div_255(rev_alpha * target->a), 255);
+    int res_alpha = qMin(alpha + qt_div_255(rev_alpha * target->a), 255);
 
     if (res_alpha == 0)
         return;
