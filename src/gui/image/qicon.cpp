@@ -352,7 +352,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
   You might also make use of the \c Active mode, perhaps making your
   widget \c Active when the mouse is over the widget (see \l
-  QWidget::underMouse()), while the mouse is pressed pending the
+  QWidget::enterEvent()), while the mouse is pressed pending the
   release that will activate the function, or when it is the currently
   selected item. If the widget can be toggled, the "On" mode might be
   used to draw a different icon.
