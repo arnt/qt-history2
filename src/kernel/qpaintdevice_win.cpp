@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#20 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -24,7 +24,9 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#19 $")
+extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#20 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -192,8 +194,12 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	mask = 0;
 
     if ( mask && !ignoreMask ) {
-	MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-		 sx, sy, 0xccaa0000 );		// CopyROP
+	if ( qt_winver == WV_NT ) {
+	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
+		     sx, sy, MAKEROP4(PATCOPY,ropCodes[rop]) );
+	} else {
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+	}
     }
     else {
 	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );

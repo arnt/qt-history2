@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#43 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -27,7 +27,9 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#42 $")
+extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#43 $")
 
 
 /*****************************************************************************
@@ -1771,10 +1773,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( tmp_dc )
 	pm->allocMemDC();
     if ( mask ) {
-	bool isNT = TRUE;
-	if ( isNT ) {
+	if ( qt_winver == WV_NT ) {
 	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
-		     sx, sy, 0xccaa0000 );
+		     sx, sy, 0xaacc0020 );
 	} else {
 	    if ( pm->depth() == 1 && pm->handle() == mask->handle() ) {
 		HBRUSH b = CreateSolidBrush( cpen.color().pixel() );
@@ -1782,13 +1783,15 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
 		DeleteObject( SelectObject(hdc, b) );
 	    } else {
+		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+#if 0
 		SetBkColor( pm->handle(), RGB(255,255,255) );
 		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, MERGEPAINT );
 		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
+#endif
 	    }
 	}
-    }
-    else {
+    } else {
 	if ( txop == TxScale ) {
 	    int w, h;
 	    map( x, y, sw, sh, &x, &y, &w, &h );
