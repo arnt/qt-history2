@@ -18,7 +18,6 @@
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_customwidget.h"
 #include "qdesigner_promotedwidget.h"
-#include "widgetdatabase.h"
 #include "formwindow.h"
 #include "layout.h"
 
@@ -26,6 +25,7 @@
 #include <propertysheet.h>
 #include <container.h>
 #include <qextensionmanager.h>
+#include <abstractwidgetdatabase.h>
 #include <abstractmetadatabase.h>
 #include <abstractformeditor.h>
 #include <layoutinfo.h>
