@@ -234,6 +234,7 @@ protected:
 
     QGLFormat		glFormat;
     QGLFormat		reqFormat;
+    static QGLContext*	currentCtx;
 
 private:
     class Private {
@@ -249,7 +250,6 @@ private:
 #endif
     };
     Private* d;
-    static QGLContext*	currentCtx;
 
     friend class QGLWidget;
 #ifdef Q_WS_MAC
