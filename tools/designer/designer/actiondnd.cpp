@@ -32,6 +32,7 @@ void QDesignerToolBar::addAction( QDesignerAction *a )
     doReinsert = FALSE;
     actionList.append( a );
     doReinsert = TRUE;
+    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -301,6 +302,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
     reInsert();
+    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
 }
 
 #endif
@@ -347,4 +349,10 @@ QPoint QDesignerPopupMenu::calcIndicatorPos( const QPoint &pos )
 void QDesignerPopupMenu::addAction( QDesignerAction *a )
 {
     actionList.append( a );
+    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
+}
+
+void QDesignerPopupMenu::actionRemoved()
+{
+    actionList.removeRef( (QDesignerAction*)sender() );
 }

@@ -117,6 +117,9 @@ protected:
     void dropEvent( QDropEvent * );
 #endif
 
+private slots:
+    void actionRemoved();
+
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );

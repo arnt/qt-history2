@@ -2123,7 +2123,7 @@ void MainWindow::showProperties( QObject *o )
 	hierarchyView->setFormWindow( 0, 0 );
     }
 
-    if ( currentTool() == POINTER_TOOL )
+    if ( currentTool() == POINTER_TOOL && fw )
 	fw->setFocus();
 }
 
