@@ -172,7 +172,7 @@ private:
                 = menuOption.icon.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4;
         menuOption.menuRect = option.rect;
         menuOption.rect = option.rect;
-        extern QHash<QString, QFont> *qt_app_fonts_hash();
+        extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
         menuOption.font = qt_app_fonts_hash()->value("QComboMenuItem", mCombo->font());
         return menuOption;
     }
