@@ -149,7 +149,7 @@ public:
     QAction *addAction(const QIconSet& icon, const QString& text, QKeySequence accel);
 #endif
     void removeAction(QAction *a);
-    QList<QAction*> actionList() const;
+    QList<QAction*> actions() const;
 
     QAction *checked() const;
     bool isExclusive() const;

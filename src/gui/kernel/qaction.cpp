@@ -353,7 +353,7 @@ void QActionGroup::removeAction(QAction *a)
     a->setActionGroup(0);
 }
 
-QList<QAction*> QActionGroup::actionList() const
+QList<QAction*> QActionGroup::actions() const
 {
     return d->actions;
 }
