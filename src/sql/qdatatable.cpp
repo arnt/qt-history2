@@ -241,7 +241,9 @@ QDataTable::~QDataTable()
 
 /*!  Adds \a fieldName as the next column to be diplayed.  If \a label
   is specified, it is used as the column header label, otherwise the
-  field's display label is used when setCursor() is called.
+  field's display label is used when setCursor() is called. The \a
+  iconset is used to set the icon used by the column header; by default
+  there is no icon.
 
   \sa setCursor() refresh()
 
