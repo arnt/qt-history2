@@ -35,7 +35,7 @@
 
 #include "qcolor.h"
 
-#ifdef QT_FEATURE_COLORNAMES
+#ifndef QT_NO_COLORNAMES
 
 #include <stdlib.h>
 
@@ -727,6 +727,6 @@ uint qt_get_rgb_val( const char * )
     return RGB_INVALID;
 }
 
-#endif // QT_FEATURE_COLORNAMES
+#endif // QT_NO_COLORNAMES
 
 #endif

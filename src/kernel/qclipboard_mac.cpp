@@ -1,6 +1,6 @@
 #include "qclipboard.h"
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 
 #include <stdio.h>
 
@@ -30,4 +30,4 @@ QMimeSource * QClipboard::data() const
     return 0;
 }
 
-#endif // QT_FEATURE_CLIPBOARD
+#endif // QT_NO_CLIPBOARD

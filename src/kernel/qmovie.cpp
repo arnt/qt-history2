@@ -34,7 +34,7 @@
 #include "qbuffer.h"
 #include "qshared.h"
 
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
 
 #ifdef _WS_QWS_
 #include "qgfx_qws.h"
@@ -921,4 +921,4 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 
 #include "qmovie.moc"
 
-#endif	// QT_FEATURE_MOVIE
+#endif	// QT_NO_MOVIE

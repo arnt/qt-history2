@@ -30,7 +30,7 @@
 #include "qdialog.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_PRINTDIALOG
+#ifndef QT_NO_PRINTDIALOG
 
 class QGroupBox;
 

@@ -1808,7 +1808,7 @@ QMetaObject *QObject::queryMetaObject() const
     return m;
 }
 
-#ifdef QT_FEATURE_TRANSLATION // Otherwise we have a simple inline version
+#ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
 /*!
   Returns a translated version of \a text, or \a text if there is
@@ -1863,7 +1863,7 @@ QMetaObject* QObject::staticMetaObject()
     QMetaData *signal_tbl = new QMetaData[1];
     signal_tbl[0].name = "destroyed()";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
     QMetaProperty *props_tbl = new QMetaProperty[1];
     typedef const char*(QObject::*m3_t0)()const;
     typedef void(QObject::*m3_t1)(const char*);
@@ -1919,7 +1919,7 @@ QMetaObject* QObject::staticMetaObject()
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1,
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 	props_tbl, 1,
 	enum_tbl, 3,
 #endif
@@ -2136,7 +2136,7 @@ void QObject::dumpObjectInfo()
 #endif
 }
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 
 /*!
   Sets the object's property \a name to \a value.
@@ -3209,4 +3209,4 @@ QVariant QObject::property( const char *name ) const
     return value;
 }
 
-#endif // QT_FEATURE_PROPERTIES
+#endif // QT_NO_PROPERTIES

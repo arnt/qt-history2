@@ -25,7 +25,7 @@
 
 #define	 INCLUDE_MENUITEM_DEF
 #include "qmenudata.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qpopupmenu.h"
 #include "qapplication.h"
 #include "qguardedptr.h"

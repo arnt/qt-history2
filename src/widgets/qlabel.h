@@ -30,7 +30,7 @@
 #include "qframe.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 class QSimpleRichText;
 class QLabelPrivate;
@@ -55,7 +55,7 @@ public:
 
     QString	 text()		const	{ return ltext; }
     QPixmap     *pixmap()	const	{ return lpixmap; }
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     QMovie      *movie()		const;
 #endif
 
@@ -87,7 +87,7 @@ public:
 public slots:
     virtual void setText( const QString &);
     virtual void setPixmap( const QPixmap & );
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     virtual void setMovie( const QMovie & );
 #endif
     virtual void setNum( int );
@@ -103,7 +103,7 @@ protected:
 private slots:
     void	 acceleratorSlot();
     void	 buddyDied();
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     void	 movieUpdated(const QRect&);
     void	 movieResized(const QSize&);
 #endif
@@ -115,7 +115,7 @@ private:
     QSize	sizeForWidth( int w ) const;
     QString	ltext;
     QPixmap    *lpixmap;
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     QMovie *	lmovie;
 #endif
     QWidget *	lbuddy;
@@ -136,6 +136,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QLABEL_H

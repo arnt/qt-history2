@@ -20,7 +20,7 @@
 
 #include "qprinter.h"
 
-#ifdef QT_FEATURE_PSPRINTER
+#ifndef QT_NO_PSPRINTER
 
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"
@@ -332,4 +332,4 @@ QSize QPrinter::margins() const
     return QSize( 36, 22 );
 }
 
-#endif // QT_FEATURE_PSPRINTER
+#endif // QT_NO_PSPRINTER

@@ -32,7 +32,7 @@
 #include "qsocket.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
 
 class QDnsPrivate;
 
@@ -128,6 +128,6 @@ private slots:
     virtual void answer();
 };
 
-#endif // QT_FEATURE_DNS
+#endif // QT_NO_DNS
 
 #endif // QDNS_H

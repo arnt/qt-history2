@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcheckbox.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"

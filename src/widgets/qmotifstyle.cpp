@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qmotifstyle.h"
-#ifdef QT_FEATURE_STYLE_MOTIF
+#ifndef QT_NO_STYLE_MOTIF
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now

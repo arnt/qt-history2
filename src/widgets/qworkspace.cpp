@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 #include "qworkspace.h"
-#ifdef QT_FEATURE_WORKSPACE
+#ifndef QT_NO_WORKSPACE
 #include "qapplication.h"
 #include "qobjectlist.h"
 #include "qlayout.h"
@@ -2462,4 +2462,4 @@ void QWorkspaceChildTitleLabel::setActive( bool a )
 }
 
 #include "qworkspace.moc"
-#endif // QT_FEATURE_WORKSPACE
+#endif // QT_NO_WORKSPACE

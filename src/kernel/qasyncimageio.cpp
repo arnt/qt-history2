@@ -25,7 +25,7 @@
 
 #include "qasyncimageio.h"
 
-#ifdef QT_FEATURE_ASYNC_IMAGE_IO
+#ifndef QT_NO_ASYNC_IMAGE_IO
 
 #include "qpainter.h"
 #include "qlist.h"
@@ -1227,4 +1227,4 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 
 #endif // QT_BUILTIN_GIF_READER
 
-#endif // QT_FEATURE_ASYNC_IMAGE_IO
+#endif // QT_NO_ASYNC_IMAGE_IO

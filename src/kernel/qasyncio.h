@@ -32,7 +32,7 @@
 #include "qtimer.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_ASYNC_IO
+#ifndef QT_NO_ASYNC_IO
 
 class QIODevice;
 
@@ -100,6 +100,6 @@ private slots:
     void tryToPump();
 };
 
-#endif	// QT_FEATURE_ASYNC_IO
+#endif	// QT_NO_ASYNC_IO
 
 #endif

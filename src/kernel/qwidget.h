@@ -413,7 +413,7 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
     virtual void closeEvent( QCloseEvent * );
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent( QDragEnterEvent * );
     virtual void dragMoveEvent( QDragMoveEvent * );
     virtual void dragLeaveEvent( QDragLeaveEvent * );

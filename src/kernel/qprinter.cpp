@@ -25,7 +25,7 @@
 
 #include "qprinter.h"
 
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
 
 // NOT REVISED
 /*!
@@ -650,4 +650,4 @@ bool QPrinter::fullPage() const
     return to_edge;
 }
 
-#endif // QT_FEATURE_PRINTER
+#endif // QT_NO_PRINTER

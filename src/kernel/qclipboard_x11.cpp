@@ -25,7 +25,7 @@
 
 #include "qclipboard.h"
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
 #include "qbitmap.h"
@@ -718,4 +718,4 @@ bool qt_check_selection_sentinel( XEvent* )
     return doIt;
 }
 
-#endif // QT_FEATURE_CLIPBOARD
+#endif // QT_NO_CLIPBOARD

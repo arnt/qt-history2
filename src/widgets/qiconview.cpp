@@ -25,7 +25,7 @@
 
 #include "qiconview.h"
 
-#ifdef QT_FEATURE_ICONVIEW
+#ifndef QT_NO_ICONVIEW
 
 #include "qpixmap.h"
 #include "qfontmetrics.h"
@@ -5413,4 +5413,4 @@ void QIconView::drawContents( QPainter * )
 
 #include "qiconview.moc"
 
-#endif // QT_FEATURE_ICONVIEW
+#endif // QT_NO_ICONVIEW

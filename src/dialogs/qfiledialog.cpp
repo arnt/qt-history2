@@ -25,7 +25,7 @@
 
 #include "qfiledialog.h"
 
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
 
 #include "qlineedit.h"
 #include "qcombobox.h"
@@ -566,7 +566,7 @@ private:
     void viewportMouseReleaseEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
     void viewportMouseMoveEvent( QMouseEvent *e );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     void viewportDragEnterEvent( QDragEnterEvent *e );
     void viewportDragMoveEvent( QDragMoveEvent *e );
     void viewportDragLeaveEvent( QDragLeaveEvent *e );
@@ -621,7 +621,7 @@ private:
     void keyPressEvent( QKeyEvent *e );
     void viewportMouseReleaseEvent( QMouseEvent *e );
     void viewportMouseMoveEvent( QMouseEvent *e );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     void viewportDragEnterEvent( QDragEnterEvent *e );
     void viewportDragMoveEvent( QDragMoveEvent *e );
     void viewportDragLeaveEvent( QDragLeaveEvent *e );
@@ -1094,7 +1094,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
     if ( !dragItem )
 	dragItem = itemAt( e->pos() );
     renameTimer->stop();
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     if (  ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() && mousePressed ) {
 	QListBoxItem *item = dragItem;
 	dragItem = 0;
@@ -1123,13 +1123,13 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 
 void QFileListBox::dragObjDestroyed()
 {
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     //#######
     //filedialog->rereadDir();
 #endif
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
 {
     startDragUrl = filedialog->d->url;
@@ -1263,11 +1263,11 @@ void QFileListBox::setCurrentDropItem( const QPoint &pnt )
 	setCurrentItem( currDropItem );
     changeDirTimer->start( 750 );
 }
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 void QFileListBox::changeDirDuringDrag()
 {
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
@@ -1340,7 +1340,7 @@ void QFileListBox::cancelRename()
 void QFileListBox::contentsMoved( int, int )
 {
     changeDirTimer->stop();
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     setCurrentDropItem( QPoint( -1, -1 ) );
 #endif
 }
@@ -1487,7 +1487,7 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
     renameTimer->stop();
     if ( !dragItem )
 	dragItem = itemAt( e->pos() );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     if (  ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() && mousePressed ) {
 	QListViewItem *item = dragItem;
 	dragItem = 0;
@@ -1510,13 +1510,13 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 
 void QFileListView::dragObjDestroyed()
 {
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     //######
     //filedialog->rereadDir();
 #endif
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
 {
     startDragUrl = filedialog->d->url;
@@ -1647,18 +1647,18 @@ void QFileListView::setCurrentDropItem( const QPoint &pnt )
 
     changeDirTimer->start( 750 );
 }
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 void QFileListView::changeDirDuringDrag()
 {
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
     QUrl u( filedialog->d->url, currDropItem->text( 0 ) );
     filedialog->setDir( u );
     currDropItem = 0;
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 }
 
 
@@ -1727,7 +1727,7 @@ void QFileListView::cancelRename()
 void QFileListView::contentsMoved( int, int )
 {
     changeDirTimer->stop();
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     setCurrentDropItem( QPoint( -1, -1 ) );
 #endif
 }

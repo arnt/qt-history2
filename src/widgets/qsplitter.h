@@ -30,7 +30,7 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 class QSplitterHandle;
 class QSplitterData;
@@ -116,6 +116,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QSPLITTER_H

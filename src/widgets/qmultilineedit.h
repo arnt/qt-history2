@@ -32,7 +32,7 @@
 #include "qlist.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 struct QMultiLineData;
 class QMultiLineEditCommand;
@@ -162,7 +162,7 @@ public slots:
     void       append( const QString &);
     void       deselect();
     void       selectAll();
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
     void       paste();
     void       copyText() const;
     void       copy() const;
@@ -194,7 +194,7 @@ protected:
     void	leaveEvent( QEvent * );
     void	resizeEvent( QResizeEvent * );
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     void	dragMoveEvent( QDragMoveEvent* );
     void	dragEnterEvent( QDragEnterEvent * );
     void	dropEvent( QDropEvent* );
@@ -294,7 +294,7 @@ private:
     bool	afterMark( int posx, int posy ) const;
     int		setNumRowsAndTruncate();
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     void	doDrag();
 #endif
     void	startAutoScroll();
@@ -361,6 +361,6 @@ inline int QMultiLineEdit::numLines() const
     return contents->count();
 }
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QMULTILINED_H

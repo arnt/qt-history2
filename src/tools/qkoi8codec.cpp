@@ -25,7 +25,7 @@
 
 #include "qkoi8codec.h"
 
-#ifdef QT_FEATURE_I18N
+#ifndef QT_NO_I18N
 
 int QKoi8Codec::mibEnum() const
 {

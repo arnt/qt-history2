@@ -225,7 +225,7 @@ void HelpWindow::aboutQt()
 
 void HelpWindow::openFile()
 {
-#ifdef QT_FEATURE_FILEDIALOG 
+#ifndef QT_NO_FILEDIALOG 
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	browser->setSource( fn );
@@ -239,7 +239,7 @@ void HelpWindow::newWindow()
 
 void HelpWindow::print()
 {
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
     QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup() ) {

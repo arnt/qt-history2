@@ -32,7 +32,7 @@
 #include "qrangecontrol.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_DIAL
+#ifndef QT_NO_DIAL
 
 //class QTimer;
 class QDialPrivate;
@@ -118,6 +118,6 @@ private: // Disabled copy constructor and operator=
 
 };
 
-#endif  // QT_FEATURE_DIAL
+#endif  // QT_NO_DIAL
 
 #endif

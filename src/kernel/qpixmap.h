@@ -87,7 +87,7 @@ public:
     static  QPixmap grabWidget( QWidget * widget,
 				int x=0, int y=0, int w=-1, int h=-1 );
 
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     QPixmap	    xForm( const QWMatrix & ) const;
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 #endif

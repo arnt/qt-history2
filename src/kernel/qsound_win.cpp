@@ -25,7 +25,7 @@
 
 #include "qsound.h"
 
-#ifdef QT_FEATURE_SOUND
+#ifndef QT_NO_SOUND
 
 #include <qsocknot.h>
 #include <qapplication.h>
@@ -106,4 +106,4 @@ QAuServer* qt_new_audio_server()
 
 #include "qsound_win.moc"
 
-#endif // QT_FEATURE_SOUND
+#endif // QT_NO_SOUND

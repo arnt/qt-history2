@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qplatinumstyle.h"
-#ifdef QT_FEATURE_STYLE_PLATINUM
+#ifndef QT_NO_STYLE_PLATINUM
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now

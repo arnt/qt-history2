@@ -26,7 +26,7 @@
 
 #include "qtranslator.h"
 
-#ifdef QT_FEATURE_TRANSLATION
+#ifndef QT_NO_TRANSLATION
 
 #include "qfileinfo.h"
 
@@ -1303,4 +1303,4 @@ uint QTranslatorMessage::rehash()
     return h;
 }
 
-#endif // QT_FEATURE_TRANSLATION
+#endif // QT_NO_TRANSLATION

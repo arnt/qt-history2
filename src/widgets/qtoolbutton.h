@@ -33,7 +33,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 
 class QToolButtonPrivate;
@@ -141,6 +141,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QTOOLBUTTON_H

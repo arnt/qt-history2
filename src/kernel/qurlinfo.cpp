@@ -25,7 +25,7 @@
 
 #include "qurlinfo.h"
 
-#ifdef QT_FEATURE_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORKPROTOCOL
 
 #include "qurloperator.h"
 #include "qdir.h"
@@ -466,4 +466,4 @@ bool QUrlInfo::operator==( const QUrlInfo &i ) const
 	     d->isExecutable == i.d->isExecutable );
 }
 
-#endif // QT_FEATURE_NETWORKPROTOCOL
+#endif // QT_NO_NETWORKPROTOCOL

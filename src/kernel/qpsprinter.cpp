@@ -25,7 +25,7 @@
 
 #include "qpsprinter_p.h"
 
-#ifdef QT_FEATURE_PSPRINTER
+#ifndef QT_NO_PSPRINTER
 
 #include "qpainter.h"
 #include "qpaintdevicemetrics.h"
@@ -2535,7 +2535,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 
 void QPSPrinter::matrixSetup( QPainter *paint )
 {
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     QWMatrix tmp;
     if ( paint->hasViewXForm() ) {
 	QRect viewport = paint->viewport();

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtabwidget.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qtabbar.h"

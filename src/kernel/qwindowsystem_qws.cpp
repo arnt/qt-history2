@@ -521,7 +521,7 @@ void QWSServer::doClient( QWSClient *client )
 
 void QWSServer::showCursor()
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
 #endif
 }
@@ -575,7 +575,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     QWSWindow *win = mouseGrabber ? mouseGrabber : windowAt( pos );
     event.simpleData.window = win ? win->id : 0;
 
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     // Arrow cursor over desktop
     if (!win) {
 	if ( !mouseGrabber )
@@ -894,7 +894,7 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
 
 void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client )
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     if (cmd->simpleData.height > 64 || cmd->simpleData.width > 64) {
 	qDebug("Cannot define cursor size > 64x64");
 	return;
@@ -912,7 +912,7 @@ void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *clie
 
 void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client )
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     int id = cmd->simpleData.id;
     QWSCursor *curs = 0;
     if (id <= LastCursor) {
@@ -1278,7 +1278,7 @@ void QWSServer::openMouse()
     if ( mice.isEmpty() ) {
 #if defined(__MIPSEL__)
 	mice = "TPanel:/dev/tpanel";
-#elif defined(QT_FEATURE_QWS_VFB)
+#elif !defined(QT_NO_QWS_VFB)
 	extern bool qvfbEnabled;
 	if ( qvfbEnabled )
 	    mice = "QVFbMouse";
@@ -1318,7 +1318,7 @@ void QWSServer::openKeyboard()
     if ( keyboards.isEmpty() ) {
 #ifdef __MIPSEL__
 	keyboards = "Buttons";
-#elif defined(QT_FEATURE_QWS_VFB)
+#elif !defined(QT_NO_QWS_VFB)
 	extern bool qvfbEnabled;
 	if ( qvfbEnabled )
 	    keyboards = "QVFbKeyboard";

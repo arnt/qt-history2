@@ -25,7 +25,7 @@
 
 #include "qwizard.h"
 
-#ifdef QT_FEATURE_WIZARD
+#ifndef QT_NO_WIZARD
 
 #include "qlayout.h"
 #include "qpushbutton.h"
@@ -701,4 +701,4 @@ QWidget* QWizard::page( int pos ) const
     return d->pages[ pos ]->w;
 }
 
-#endif // QT_FEATURE_WIZARD
+#endif // QT_NO_WIZARD

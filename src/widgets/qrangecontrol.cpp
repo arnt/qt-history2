@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qrangecontrol.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qglobal.h"
 #include <limits.h>
 

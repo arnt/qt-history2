@@ -25,7 +25,7 @@
 
 #include "qlist.h"
 #include "qtextcodec.h"
-#ifdef QT_FEATURE_I18N
+#ifndef QT_NO_I18N
 #include "qutfcodec.h"
 #include "qgbkcodec.h"
 #include "qeucjpcodec.h"
@@ -1268,7 +1268,7 @@ const char* QTextCodec::locale()
 
 
 
-#ifdef QT_FEATURE_I18N
+#ifndef QT_NO_I18N
 
 class QSimpleTextCodec: public QTextCodec
 {

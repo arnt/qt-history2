@@ -25,7 +25,7 @@
 
 #include "qinputdialog.h"
 
-#ifdef QT_FEATURE_INPUTDIALOG
+#ifndef QT_NO_INPUTDIALOG
 
 #include <qlayout.h>
 #include <qlabel.h>

@@ -25,7 +25,7 @@
 
 #include "qvariant.h"
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 
 #include "qstring.h"
 #include "qfont.h"
@@ -2016,4 +2016,4 @@ bool QVariant::operator!=( const QVariant &v ) const
     return !( v == *this );
 }
 
-#endif // QT_FEATURE_PROPERTIES
+#endif // QT_NO_PROPERTIES

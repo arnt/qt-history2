@@ -115,10 +115,10 @@ QFontManager::QFontManager()
     //######## memory leak instead of segfault:
     //diskfonts.setAutoDelete(true);
 
-#ifdef QT_FEATURE_TRUETYPE
+#ifndef QT_NO_TRUETYPE
     factories.append(new QFontFactoryTTF());
 #endif
-#ifdef QT_FEATURE_BDF
+#ifndef QT_NO_BDF
     factories.append(new QFontFactoryBDF());
 #endif
 

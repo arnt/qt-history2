@@ -54,7 +54,7 @@ public:
     int			rindex, windex;		// read/write index
     bool		newline;		// has newline/can read line
     int			ready_read_timer;	// timer for emit read signals
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
     QDns	       *dns;
 #endif
 };
@@ -65,7 +65,7 @@ QSocketPrivate::QSocketPrivate()
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
       newline(FALSE), ready_read_timer(0)
 {
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
     dns = 0;
 #endif
     rba.setAutoDelete( TRUE );
@@ -249,7 +249,7 @@ void QSocket::setMode( Mode mode )
 	d->newline = scanNewline();
 }
 
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
 
 /*!
   Attempts to make a connection to \a host on the specified \a port.
@@ -316,7 +316,7 @@ void QSocket::connectToLocalFile( const QString &filename )
     d->state = HostLookup;
     d->host = QString::null;
     d->port = 0;
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
     d->dns = 0;
 #endif
 
@@ -341,7 +341,7 @@ void QSocket::connectToLocalFile( const QString &filename )
 
 void QSocket::tryConnecting()
 {
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
     QValueList<QHostAddress> l = d->dns->addresses();
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s)::tryConnecting: host %s, port %d, %d addresses",

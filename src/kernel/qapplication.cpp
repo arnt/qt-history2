@@ -344,51 +344,51 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	QCString arg = argv[i];
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
-#ifdef QT_FEATURE_STYLE_WINDOWS
+#ifndef QT_NO_STYLE_WINDOWS
 	} else if ( stricmp(arg, "-style=windows") == 0 ) {
 	    setStyle( new QWindowsStyle );
 #endif
-#ifdef QT_FEATURE_STYLE_MOTIF
+#ifndef QT_NO_STYLE_MOTIF
 	} else if ( stricmp(arg, "-style=motif") == 0 ) {
 	    setStyle( new QMotifStyle );
 #endif
-#ifdef QT_FEATURE_STYLE_PLATINUM
+#ifndef QT_NO_STYLE_PLATINUM
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
 	    setStyle( new QPlatinumStyle );
 #endif
-#ifdef QT_FEATURE_STYLE_CDE
+#ifndef QT_NO_STYLE_CDE
 	} else if ( stricmp(arg, "-style=cde") == 0 ) {
 	    setStyle( new QCDEStyle );
 #endif
-#ifdef QT_FEATURE_STYLE_SGI
+#ifndef QT_NO_STYLE_SGI
 	} else if ( stricmp(arg, "-style=sgi") == 0 ) {
 	    setStyle( new QSGIStyle );
 #endif
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
-#ifdef QT_FEATURE_STYLE_WINDOWS
+#ifndef QT_NO_STYLE_WINDOWS
 	    if ( s == "windows" )
 		setStyle( new QWindowsStyle );
 	    else
 #endif
-#ifdef QT_FEATURE_STYLE_MOTIF
+#ifndef QT_NO_STYLE_MOTIF
 	    if ( s == "motif" )
 		setStyle( new QMotifStyle );
 	    else
 #endif
-#ifdef QT_FEATURE_STYLE_PLATINUM
+#ifndef QT_NO_STYLE_PLATINUM
 	    if ( s == "platinum" )
 		setStyle( new QPlatinumStyle );
 	    else
 #endif
-#ifdef QT_FEATURE_STYLE_CDE
+#ifndef QT_NO_STYLE_CDE
 	    if ( s == "cde" )
 		setStyle( new QCDEStyle );
 	    else
 #endif
-#ifdef QT_FEATURE_STYLE_SGI
+#ifndef QT_NO_STYLE_SGI
 	    if ( s == "sgi" )
 		setStyle( new QSGIStyle );
 	    else
@@ -591,29 +591,25 @@ void QApplication::initialize( int argc, char **argv )
     (void) palette();  // trigger creation of application palette
     is_app_running = TRUE; // no longer starting up
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     if (!app_style) {
 
 // Somewhat complicated compile-time search for default style
 //
-#if defined(_WS_WIN_) && defined(QT_FEATURE_STYLE_WINDOWS)
+#if defined(_WS_WIN_) && !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
-#elif defined(_WS_X11_) && defined(_OS_IRIX_) && defined(QT_FEATURE_STYLE_SGI)
+#elif defined(_WS_X11_) && defined(_OS_IRIX_) && !defined(QT_NO_STYLE_SGI)
 	app_style = new QSGIStyle; // default comment
-#elif defined(_WS_X11_) && defined(QT_FEATURE_STYLE_MOTIF)
+#elif defined(_WS_X11_) && !defined(QT_NO_STYLE_MOTIF)
 	app_style = new QMotifStyle; // default style for X Windows
-#elif defined(_WS_MAC_) && defined(QT_FEATURE_STYLE_PLATINUM)
+#elif defined(_WS_MAC_) && !defined(QT_NO_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
-#elif defined(QT_FEATURE_STYLE_WINDOWS)
+#elif !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
-#elif defined(QT_FEATURE_STYLE_MOTIF)
+#elif !defined(QT_NO_STYLE_MOTIF)
 	app_style = new QMotifStyle; // default style for X Windows
-#elif defined(QT_FEATURE_STYLE_PLATINUM)
+#elif !defined(QT_NO_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
-#elif defined(QT_FEATURE_STYLE_CDE)
-	app_style = new QCDEStyle;
-#elif defined(QT_FEATURE_STYLE_SGI)
-	app_style = new QSGIStyle;
 #else
 #error "No styles defined"
 #endif
@@ -621,16 +617,16 @@ void QApplication::initialize( int argc, char **argv )
     }
 #endif
 
-#ifdef QT_FEATURE_IMAGEIO_PNG
+#ifndef QT_NO_IMAGEIO_PNG
     qInitPngIO();
 #endif
 #ifdef _WS_QWS_
-#ifdef QT_FEATURE_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORKPROTOCOL
     qInitNetworkProtocols();
 #endif
 #endif
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     app_style->polish( *app_pal );
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #endif
@@ -740,7 +736,7 @@ QApplication::~QApplication()
 
     qApp = 0;
     is_app_running = FALSE;
-#ifdef QT_FEATURE_TRANSLATION
+#ifndef QT_NO_TRANSLATION
     delete translators;
 #endif
     // Cannot delete codecs until after QDict destructors
@@ -824,7 +820,7 @@ QApplication::~QApplication()
 
 void QApplication::setStyle( QStyle *style )
 {
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     QStyle* old = app_style;
     app_style = style;
 
@@ -1218,7 +1214,7 @@ void QApplication::polish( QWidget *w )
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
 #endif
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     w->style().polish( w );
 #endif
 }
@@ -1691,7 +1687,7 @@ const QColor& QApplication::winStyleHighlightColor()
   of Qt only.
 */
 
-#ifdef QT_FEATURE_TRANSLATION
+#ifndef QT_NO_TRANSLATION
 
 /*!
   Adds \a mf to the list of message files to be used for

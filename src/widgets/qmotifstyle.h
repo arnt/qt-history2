@@ -31,7 +31,7 @@
 #include "qpalette.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_STYLE_MOTIF
+#ifndef QT_NO_STYLE_MOTIF
 
 class Q_EXPORT QMotifStyle : public QCommonStyle
 {
@@ -123,6 +123,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_STYLE_MOTIF
+#endif // QT_NO_STYLE_MOTIF
 
 #endif // QMOTIFSTYLE_H

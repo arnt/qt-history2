@@ -31,7 +31,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #include <math.h>
 #endif
 
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 
 // NOT REVISED
 /*!
@@ -521,5 +521,5 @@ QDataStream &operator>>( QDataStream &s, QWMatrix &m )
     return s;
 }
 
-#endif // QT_FEATURE_TRANSFORMATIONS
+#endif // QT_NO_TRANSFORMATIONS
 

@@ -31,7 +31,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
 
 #if defined(B0)
 #undef B0 // Terminal hang-up.  We assume that you do not want that.
@@ -184,6 +184,6 @@ inline int QPrinter::maxPage() const
 inline int QPrinter::numCopies() const
 { return ncopies; }
 
-#endif // QT_FEATURE_PRINTER
+#endif // QT_NO_PRINTER
 
 #endif // QPRINTER_H

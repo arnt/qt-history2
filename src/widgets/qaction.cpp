@@ -25,7 +25,7 @@
 
 #include "qaction.h"
 
-#ifdef QT_FEATURE_ACTION
+#ifndef QT_NO_ACTION
 
 #include <qlist.h>
 #include <qpopupmenu.h>

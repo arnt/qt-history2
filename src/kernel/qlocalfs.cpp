@@ -25,7 +25,7 @@
 
 #include "qlocalfs.h"
 
-#ifdef QT_FEATURE_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORKPROTOCOL
 
 #include "qfileinfo.h"
 #include "qfile.h"
@@ -334,4 +334,4 @@ int QLocalFs::calcBlockSize( int totalSize ) const
     return s;
 }
 
-#endif // QT_FEATURE_NETWORKPROTOCOL
+#endif // QT_NO_NETWORKPROTOCOL

@@ -1,6 +1,6 @@
 #include "qdragobject.h"
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 #include <stdio.h>
 
@@ -34,4 +34,4 @@ void QDragManager::timerEvent ( QTimerEvent * e )
 {
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP

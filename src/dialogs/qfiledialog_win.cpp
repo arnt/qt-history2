@@ -25,7 +25,7 @@
 
 #include "qfiledialog.h"
 
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
 
 #include "qapplication.h"
 #include "qt_windows.h"

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qvalidator.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qwidget.h"
 #include "qregexp.h"
 

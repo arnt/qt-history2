@@ -32,7 +32,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 struct QHeaderData;
 
@@ -163,6 +163,6 @@ inline QHeader::Orientation QHeader::orientation() const
 inline void QHeader::setTracking( bool enable ) { trackingIsOn = enable; }
 inline bool QHeader::tracking() const { return trackingIsOn; }
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QHEADER_H

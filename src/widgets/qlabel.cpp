@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlabel.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -182,7 +182,7 @@ QLabel::~QLabel()
 void QLabel::init()
 {
     lpixmap = 0;
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     lmovie = 0;
 #endif
     lbuddy = 0;
@@ -193,7 +193,7 @@ void QLabel::init()
     autoresize = FALSE;
     scaledcontents = FALSE;
     textformat = Qt::AutoText;
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     doc = 0;
 #endif
 
@@ -251,7 +251,7 @@ void QLabel::setText( const QString &text )
 			    this, SLOT(acceleratorSlot()) );
     }
 
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     if ( textformat == RichText ||
 	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
 	doc = new QSimpleRichText( ltext, font() );
@@ -472,7 +472,7 @@ QSize QLabel::sizeForWidth( int w ) const
     QFontMetrics fm = fontMetrics();
     QRect br;
     QPixmap *pix = pixmap();
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     QMovie *mov = movie();
 #endif
     int fw = frameWidth();
@@ -486,12 +486,12 @@ QSize QLabel::sizeForWidth( int w ) const
     if ( pix ) {
 	br = pix->rect();
     }
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     else if ( mov ) {
 	br = mov->framePixmap().rect();
     }
 #endif
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     else if ( doc ) {
 	if ( w < 0 )
 	    doc->adjustSize();
@@ -655,7 +655,7 @@ void QLabel::drawContents( QPainter *p )
 	    cr.setBottom( cr.bottom() - m );
     }
 
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     QMovie *mov = movie();
     if ( mov ) {
 	// ### should add movie to qDrawItem
@@ -668,7 +668,7 @@ void QLabel::drawContents( QPainter *p )
     }
     else
 #endif
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     if ( doc ) {
 	doc->setWidth(p, cr.width() );
 	int rw = doc->widthUsed();
@@ -751,7 +751,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	    cr.setBottom( cr.bottom() - m );
     }
 
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     QMovie *mov = movie();
     if ( mov ) {
 	// ### could add movie to qDrawItem
@@ -795,7 +795,7 @@ void QLabel::drawContentsMask( QPainter *p )
 	}
     }
 
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     if ( doc ) {
 	doc->setWidth(p, cr.width() );
 	int rw = doc->widthUsed();
@@ -953,7 +953,7 @@ QWidget * QLabel::buddy() const
 }
 
 
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
 void QLabel::movieUpdated(const QRect& rect)
 {
     QMovie *mov = movie();
@@ -1002,7 +1002,7 @@ void QLabel::setMovie( const QMovie& movie )
 	updateLabel( osh );	// resize/update signals will come soon enough
 }
 
-#endif // QT_FEATURE_MOVIE
+#endif // QT_NO_MOVIE
 
 /*!
   \internal
@@ -1012,7 +1012,7 @@ void QLabel::setMovie( const QMovie& movie )
 
 void QLabel::clearContents()
 {
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
     delete doc;
     doc = 0;
 #endif
@@ -1029,7 +1029,7 @@ void QLabel::clearContents()
     if ( accel )
 	accel->clear();
 
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
     if ( lmovie ) {
 	lmovie->disconnectResize(this, SLOT(movieResized(const QSize&)));
 	lmovie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
@@ -1040,7 +1040,7 @@ void QLabel::clearContents()
 }
 
 
-#ifdef QT_FEATURE_MOVIE
+#ifndef QT_NO_MOVIE
 
 /*!
   If the label contains a movie, returns a pointer to it. Otherwise,
@@ -1054,7 +1054,7 @@ QMovie* QLabel::movie() const
     return lmovie;
 }
 
-#endif  // QT_FEATURE_MOVIE
+#endif  // QT_NO_MOVIE
 
 /*!
   Returns the current text format.

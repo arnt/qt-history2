@@ -31,7 +31,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_CLIPBOARD 
+#ifndef QT_NO_CLIPBOARD 
 
 class QMimeSource;
 
@@ -76,6 +76,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_CLIPBOARD
+#endif // QT_NO_CLIPBOARD
 
 #endif // QCLIPBOARD_H

@@ -28,7 +28,7 @@
 #include "qtimer.h"
 #include <stdlib.h>
 
-#ifdef QT_FEATURE_ASYNC_IO
+#ifndef QT_NO_ASYNC_IO
 
 // NOT REVISED
 /*!
@@ -334,5 +334,5 @@ void QDataPump::tryToPump()
     timer.start(0, TRUE);
 }
 
-#endif // QT_FEATURE_ASYNC_IO
+#endif // QT_NO_ASYNC_IO
 

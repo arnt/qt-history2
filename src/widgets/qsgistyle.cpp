@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qsgistyle.h"
-#ifdef QT_FEATURE_STYLE_SGI
+#ifndef QT_NO_STYLE_SGI
 #include "qapplication.h"
 #include "qbutton.h"
 #include "qpainter.h"
@@ -1301,4 +1301,4 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
     return QMotifStyle::eventFilter( o, e );
 }
 
-#endif // QT_FEATURE_STYLE_SGI
+#endif // QT_NO_STYLE_SGI

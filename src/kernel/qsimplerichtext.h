@@ -32,7 +32,7 @@
 #include "qregion.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
 
 class QPainter;
 class QWidget;
@@ -76,6 +76,6 @@ private:
     QSimpleRichTextData* d;
 };
 
-#endif // QT_FEATURE_RICHTEXT
+#endif // QT_NO_RICHTEXT
 
 #endif // QSIMPLERICHTEXT_H

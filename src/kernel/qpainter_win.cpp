@@ -1048,7 +1048,7 @@ void QPainter::setClipping( bool enable )
 	QRegion rgn = crgn;
 	if ( pdev == paintEventDevice )
 	    rgn = rgn.intersect( *paintEventClipRegion );
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
 	if ( pdev->devType() == QInternal::Printer ) {
 	    QPrinter* printer = (QPrinter*)pdev;
 	    if ( printer->fullPage() ) {	// must adjust for margins

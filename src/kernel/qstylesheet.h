@@ -32,7 +32,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
 
 class QStyleSheet;
 class QStyleSheetItemData;
@@ -183,6 +183,6 @@ private:
     QStyleSheetItem* nullstyle;
 };
 
-#endif // QT_FEATURE_RICHTEXT
+#endif // QT_NO_RICHTEXT
 
 #endif // QSTYLESHEET_H

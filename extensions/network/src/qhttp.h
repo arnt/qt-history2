@@ -35,7 +35,7 @@
 #include "qurloperator.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_NETWORKPROTOCOL_HTTP
+#ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
 class QHttp : public QNetworkProtocol
 {
@@ -65,6 +65,6 @@ protected slots:
 
 };
 
-#endif // QT_FEATURE_NETWORKPROTOCOL_HTTP
+#endif // QT_NO_NETWORKPROTOCOL_HTTP
 
 #endif // QHTTP_H

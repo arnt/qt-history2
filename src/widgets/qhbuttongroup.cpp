@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qhbuttongroup.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 // NOT REVISED
 /*!

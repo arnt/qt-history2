@@ -33,7 +33,7 @@
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORKPROTOCOL
 
 struct QUrlOperatorPrivate;
 class QUrlInfo;
@@ -107,6 +107,6 @@ private:
 
 };
 
-#endif // QT_FEATURE_NETWORKPROTOCOL
+#endif // QT_NO_NETWORKPROTOCOL
 
 #endif // QURLOPERATOR_H

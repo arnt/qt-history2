@@ -520,14 +520,14 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
  * Virtual framebuffer keyboard driver
  */
 
-#ifdef QT_FEATURE_QWS_VFB
+#ifndef QT_NO_QWS_VFB
 #include "qvfbhdr_qws.h"
 #endif
 
 QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
 {
     kbdFD = -1;
-#ifdef QT_FEATURE_QWS_VFB
+#ifndef QT_NO_QWS_VFB
     kbdIdx = 0;
     kbdBufferLen = sizeof( QVFbKeyData ) * 5;
     kbdBuffer = new unsigned char [kbdBufferLen];
@@ -550,7 +550,7 @@ QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
 
 QWSVFbKeyboardHandler::~QWSVFbKeyboardHandler()
 {
-#ifdef QT_FEATURE_QWS_VFB
+#ifndef QT_NO_QWS_VFB
     if ( kbdFD >= 0 )
 	close( kbdFD );
     delete [] kbdBuffer;
@@ -560,7 +560,7 @@ QWSVFbKeyboardHandler::~QWSVFbKeyboardHandler()
 
 void QWSVFbKeyboardHandler::readKeyboardData()
 {
-#ifdef QT_FEATURE_QWS_VFB
+#ifndef QT_NO_QWS_VFB
     int n;
     do {
 	n  = read(kbdFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx );

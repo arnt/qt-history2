@@ -34,7 +34,7 @@
 #include <qptrdict.h>
 #endif // QT_H
 
-#ifdef QT_FEATURE_CANVAS
+#ifndef QT_NO_CANVAS
 
 class QCanvasSprite;
 class QCanvasPolygonalItem;
@@ -608,6 +608,6 @@ private:
 };
 
 
-#endif // QT_FEATURE_CANVAS
+#endif // QT_NO_CANVAS
 
 #endif // QCANVAS_H

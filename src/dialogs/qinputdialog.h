@@ -32,7 +32,7 @@
 #include <qlineedit.h>
 #endif // QT_H
 
-#ifdef QT_FEATURE_INPUTDIALOG
+#ifndef QT_NO_INPUTDIALOG
 
 class QInputDialogPrivate;
 
@@ -93,6 +93,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_INPUTDIALOG
+#endif // QT_NO_INPUTDIALOG
 
 #endif // QINPUTDIALOG_H

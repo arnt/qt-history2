@@ -25,7 +25,7 @@
 
 #include "qtabdialog.h"
 
-#ifdef QT_FEATURE_TABDIALOG
+#ifndef QT_NO_TABDIALOG
 
 #include "qobjectlist.h"
 #include "qobjectdict.h"

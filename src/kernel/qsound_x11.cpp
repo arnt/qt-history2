@@ -26,7 +26,7 @@
 
 #include "qsound.h"
 
-#ifdef QT_FEATURE_SOUND
+#ifndef QT_NO_SOUND
 
 #include <qsocknot.h>
 #include <qapplication.h>
@@ -164,4 +164,4 @@ QAuServer* qt_new_audio_server()
     return new QAuServerNull(qApp);
 }
 
-#endif // QT_FEATURE_SOUND
+#endif // QT_NO_SOUND

@@ -25,7 +25,7 @@
 
 #include "qftp.h"
 
-#ifdef QT_FEATURE_NETWORKPROTOCOL_FTP
+#ifndef QT_NO_NETWORKPROTOCOL_FTP
 
 #include "qurlinfo.h"
 #include <stdlib.h>
@@ -849,4 +849,4 @@ void QFtp::error( int code )
     }
 }
 
-#endif // QT_FEATURE_NETWORKPROTOCOL_FTP
+#endif // QT_NO_NETWORKPROTOCOL_FTP

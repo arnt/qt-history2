@@ -111,7 +111,7 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
 class QMetaObjectPrivate
 {
 public:
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
     QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
     QMetaProperty *propData;                    // property meta data
@@ -195,7 +195,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d = new QMetaObjectPrivate;
     reserved = 0;
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
     d->enumData = 0;
     d->numEnumData = 0;
     d->propData = 0;
@@ -211,7 +211,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 			  QMetaProperty *prop_data, int n_props,
 			  QMetaEnum *enum_data, int n_enums,
 #endif
@@ -234,7 +234,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     d = new QMetaObjectPrivate;
     reserved = 0;
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
     d->propData = prop_data;
     d->numPropData = n_props;
     d->enumData = enum_data;
@@ -257,7 +257,7 @@ QMetaObject::~QMetaObject()
 	delete [] slotData;			// delete arrays created in
     if ( signalData )
 	delete [] signalData;			//   initMetaObject()
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
     if ( d->enumData )
 	delete [] d->enumData;
     if ( d->propData )
@@ -390,7 +390,7 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  const char *superclassname,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 					  QMetaProperty *prop_data, int n_props,
 					  QMetaEnum *enum_data, int n_enums,
 #endif
@@ -398,7 +398,7 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 {
     return new QMetaObject( classname, superclassname, slot_data, n_slots,
 			    signal_data, n_signals,
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 			    prop_data, n_props,
 			    enum_data, n_enums,
 #endif
@@ -477,7 +477,7 @@ QMetaData::Access QMetaObject::slot_access(int index, bool super )
 #endif
 }
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 /*!\internal
  */
 QMetaEnum *QMetaObject::new_metaenum( int numEntries )
@@ -637,7 +637,7 @@ const char* QMetaObject::classInfo( const char* name, bool super ) const
     return superclass->classInfo( name, super );
 }
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 /*!\internal
  */
 void QMetaObject::resolveProperty( QMetaProperty* prop )
@@ -760,7 +760,7 @@ QStrList QMetaObject::propertyNames( bool super ) const
     return l;
 }
 
-#endif // QT_FEATURE_PROPERTIES
+#endif // QT_NO_PROPERTIES
 
 /*!
   Returns a list with the names of all signals for this class.
@@ -796,7 +796,7 @@ QStrList QMetaObject::slotNames( bool super ) const
     return l;
 }
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 /*!\internal
  */
 QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
@@ -827,7 +827,7 @@ bool QMetaObject::inherits( const char* clname ) const
     return FALSE;
 }
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
 /*!
   \class QMetaProperty qmetaobject.h
 
@@ -1055,7 +1055,7 @@ bool QMetaProperty::stored( QObject* o ) const
   \internal
 */
 
-#endif // QT_FEATURE_PROPERTIES
+#endif // QT_NO_PROPERTIES
 
 QMetaObjectInit::QMetaObjectInit(void(*)()) // ### remove 3.0
 {

@@ -25,7 +25,7 @@
 
 #include "qfontdatabase.h"
 
-#ifdef QT_FEATURE_FONTDATABASE
+#ifndef QT_NO_FONTDATABASE
 
 #ifdef _WS_QWS_
 #include "qfontmanager_qws.h"
@@ -1973,4 +1973,4 @@ void QFontDatabase::createDatabase()
 
 #endif
 
-#endif // QT_FEATURE_FONTDATABASE
+#endif // QT_NO_FONTDATABASE

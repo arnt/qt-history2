@@ -1,6 +1,6 @@
 #include "qprinter.h"
 
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
 
 #include <stdio.h>
 
@@ -43,4 +43,4 @@ int QPrinter::metric( int m ) const
     return 0;
 }
 
-#endif // QT_FEATURE_PRINTER
+#endif // QT_NO_PRINTER

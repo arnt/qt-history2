@@ -31,7 +31,7 @@
 #include "qbuffer.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_PICTURE
+#ifndef QT_NO_PICTURE
 
 class Q_EXPORT QPicture : public QPaintDevice		// picture class
 {
@@ -98,6 +98,6 @@ inline const char* QPicture::data() const
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
 
-#endif // QT_FEATURE_PICTURE
+#endif // QT_NO_PICTURE
 
 #endif // QPICTURE_H

@@ -6,7 +6,7 @@
 #include "qwindowsystem_qws.h"
 #include "qwscursor_qws.h"
 
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
 static QWSCursor *systemCursorTable[15];
 
 // 16 x 16
@@ -225,7 +225,7 @@ static uchar size_all_mask_bits[] = {
 void QWSServer::initializeCursor()
 {
     // setup system cursors
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     qt_screen->initCursor(sharedram + ramlen,TRUE);
 
     for ( int i = 0; i <= LastCursor; i++ )
@@ -241,7 +241,7 @@ void QWSServer::initializeCursor()
 
 void QWSServer::setCursor(QWSCursor *curs)
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     //if (cursor == curs)
     //	return;
 
@@ -256,7 +256,7 @@ void QWSServer::setCursor(QWSCursor *curs)
 
 void QWSServer::setMouse(const QPoint& p,int bstate)
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     qt_screencursor->move(p.x(),p.y());
 #endif
     sendMouseEvent( p, bstate );
@@ -265,7 +265,7 @@ void QWSServer::setMouse(const QPoint& p,int bstate)
 
 void QWSCursor::createSystemCursor( int id )
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     switch ( id ) {
 	// 16x16 cursors
 	case ArrowCursor:
@@ -354,7 +354,7 @@ void QWSCursor::createSystemCursor( int id )
 QWSCursor *QWSCursor::systemCursor(int id)
 {
     QWSCursor *cursor = 0;
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     if (id >= 0 && id <= LastCursor) {
 	if ( !systemCursorTable[id] )
 	    createSystemCursor(id);
@@ -373,7 +373,7 @@ QWSCursor *QWSCursor::systemCursor(int id)
 void QWSCursor::set(const uchar *data, const uchar *mask,
 		    int width, int height, int hx, int hy)
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     hot.setX(hx);
     hot.setY(hy);
 
@@ -431,7 +431,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 // ### now we're really silly
 void QWSCursor::createDropShadow(int dropx, int dropy)
 {
-#ifdef QT_FEATURE_QWS_CURSOR
+#ifndef QT_NO_QWS_CURSOR
     if (cursor.width() + dropx > 64 || cursor.height() + dropy > 64)
 	return;
 

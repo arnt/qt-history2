@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlineedit.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qfontmetrics.h"
@@ -55,7 +55,7 @@ struct QLineEditUndoItem
 enum {
     IdUndo,
     IdRedo,
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
     IdCut,
     IdCopy,
     IdPaste,
@@ -219,7 +219,7 @@ void QLineEdit::init()
     d = new QLineEditPrivate( this );
     connect( &d->blinkTimer, SIGNAL(timeout()),
 	     this, SLOT(blinkSlot()) );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     connect( &d->dragTimer, SIGNAL(timeout()),
 	     this, SLOT(dragScrollSlot()) );
     connect( &d->dndTimer, SIGNAL(timeout()),
@@ -489,7 +489,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_B:
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 	case Key_C:
 	    copy();
 	    break;
@@ -519,7 +519,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		validateAndSet( t, cursorPos, cursorPos, cursorPos );
 	    }
 	    break;
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 	case Key_V:
 	    if ( !d->readonly )
 		insert( QApplication::clipboard()->text() );
@@ -626,7 +626,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
 {
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
     if ( style() == WindowsStyle ) {
 #if defined(_WS_X11_)
 	// X11 users are very accustomed to "auto-copy"
@@ -648,7 +648,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 */
 void QLineEdit::leaveEvent( QEvent * )
 {
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 #if defined(_WS_X11_)
     if ( style() == WindowsStyle )
 	copy(); // X11 users are very accustomed to "auto-copy"
@@ -785,7 +785,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
 	popup->insertSeparator();
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
 	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
 	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
@@ -797,7 +797,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 				  !this->d->readonly && !this->d->undoList.isEmpty() );
 	popup->setItemEnabled( id[ IdRedo ],
 				  !this->d->readonly && !this->d->redoList.isEmpty() );
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 	popup->setItemEnabled( id[ IdCut ],
 				  !this->d->readonly && !this->d->readonly && hasMarkedText() );
 	popup->setItemEnabled( id[ IdCopy ], hasMarkedText() );
@@ -818,7 +818,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	    undoInternal();
 	else if ( r == id[ IdRedo ] )
 	    redoInternal();
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 	else if ( r == id[ IdCut ] )
 	    cut();
 	else if ( r == id[ IdCopy ] )
@@ -837,7 +837,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int newCP = xPosToCursorPos( e->pos().x() );
     int m1 = minMark();
     int m2 = maxMark();
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     if ( hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
 	 e->button() == LeftButton && m1 < newCP && m2 > newCP ) {
 	d->dndTimer.start( QApplication::startDragTime(), TRUE );
@@ -860,7 +860,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     d->mousePressed = TRUE;
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 /*
   \internal
@@ -875,13 +875,13 @@ void QLineEdit::doDrag()
     }
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 /*!\reimp
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     if ( d->dndTimer.isActive() ) {
 	d->dndTimer.stop();
 	return;
@@ -939,7 +939,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	return;
     d->mousePressed = FALSE;
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 #if defined(_WS_X11_)
     copy();
 #else
@@ -1096,7 +1096,7 @@ void QLineEdit::newMark( int pos, bool c )
 	d->pmDirty = TRUE;
     markDrag = pos;
     setCursorPosition( pos );
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
     if ( c && style() == MotifStyle )
 	copy();
 #endif
@@ -1122,13 +1122,13 @@ void QLineEdit::markWord( int pos )
     int newDrag = i;
     setSelection( newAnchor, newDrag - newAnchor );
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
     if ( style() == MotifStyle )
 	copy();
 #endif
 }
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 
 /*! Copies the marked text to the clipboard, if there is any and
   if echoMode() is Normal.
@@ -1440,7 +1440,7 @@ void QLineEdit::clearValidator()
     setValidator( 0 );
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 /*! \reimp
 */
@@ -1468,7 +1468,7 @@ void QLineEdit::dropEvent( QDropEvent *e )
     }
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 /*!  This private slot handles cursor blinking. */
 

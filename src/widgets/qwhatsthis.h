@@ -28,7 +28,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 #include "qcursor.h"
 
@@ -57,6 +57,6 @@ public:
 
 };
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QWHATSTHIS_H

@@ -30,7 +30,7 @@
 #include "qcommonstyle.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_STYLE_WINDOWS
+#ifndef QT_NO_STYLE_WINDOWS
 
 
 class Q_EXPORT QWindowsStyle : public QCommonStyle
@@ -135,6 +135,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_STYLE_WINDOWS
+#endif // QT_NO_STYLE_WINDOWS
 
 #endif // QWINDOWSSTYLE_H

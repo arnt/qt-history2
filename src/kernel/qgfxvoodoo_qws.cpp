@@ -20,6 +20,8 @@
 
 #include "qgfxvoodoodefs_qws.h"
 
+#ifndef QT_NO_QWS_VOODOO3
+
 unsigned char * regbase=0;
 
 //#define DEBUG_INIT
@@ -307,11 +309,4 @@ extern "C" QScreen * qt_get_screen(char * slot,unsigned char * config)
     return qt_screen;
 }
 
-
-
-
-
-
-
-
-
+#endif // QT_NO_VOODOO3

@@ -20,7 +20,7 @@
 
 #include "qmime.h"
 
-#ifdef QT_FEATURE_MIME
+#ifndef QT_NO_MIME
 
 #include "qstrlist.h"
 #include "qimage.h"
@@ -785,4 +785,4 @@ QList<QWindowsMime> QWindowsMime::all()
   All subclasses must reimplement this purely virtual function.
 */
 
-#endif // QT_FEATURE_MIME
+#endif // QT_NO_MIME

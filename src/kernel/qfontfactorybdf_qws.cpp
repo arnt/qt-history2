@@ -25,7 +25,7 @@
 
 #include "qfontfactorybdf_qws.h"
 
-#ifdef QT_FEATURE_BDF
+#ifndef QT_NO_BDF
 
 #include "qfontdata_p.h"
 #include "qtextcodec.h"
@@ -248,4 +248,4 @@ bool QFontFactoryBDF::unicode(QRenderedFont *,int &)
     return TRUE;
 }
 
-#endif // QT_FEATURE_BDF
+#endif // QT_NO_BDF

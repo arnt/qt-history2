@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcombobox.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qpopupmenu.h"
 #include "qlistbox.h"
 #include "qpainter.h"

@@ -34,7 +34,7 @@
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
 
-#ifdef QT_FEATURE_TRANSLATION
+#ifndef QT_NO_TRANSLATION
 #define QT_TR_FUNCTION static QString tr(const char*);
 #else
 #define QT_TR_FUNCTION // inherit the one from QObject

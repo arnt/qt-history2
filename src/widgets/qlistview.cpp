@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlistview.h"
-#ifdef QT_FEATURE_LISTVIEW
+#ifndef QT_NO_LISTVIEW
 #include "qtimer.h"
 #include "qheader.h"
 #include "qpainter.h"
@@ -5518,4 +5518,4 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	emit selectionChanged();
     }
 }
-#endif // QT_FEATURE_LISTVIEW
+#endif // QT_NO_LISTVIEW

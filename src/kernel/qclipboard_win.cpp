@@ -20,7 +20,7 @@
 
 #include "qclipboard.h"
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
 #include "qpixmap.h"
@@ -338,4 +338,4 @@ void QClipboard::setData( QMimeSource* src )
     CloseClipboard();
 }
 
-#endif // QT_FEATURE_CLIPBOARD
+#endif // QT_NO_CLIPBOARD

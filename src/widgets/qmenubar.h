@@ -30,7 +30,7 @@
 #include "qpopupmenu.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
@@ -133,6 +133,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QMENUBAR_H

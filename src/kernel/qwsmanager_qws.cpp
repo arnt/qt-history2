@@ -17,7 +17,7 @@
 
 // #### merge two copies of pixmaps
 
-#ifdef QT_FEATURE_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEIO_XPM
 static const char * const menu_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "21 16 213 2",
@@ -362,7 +362,7 @@ QWSManager::QWSManager(QWidget *w)
 
 QWSManager::~QWSManager()
 {
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     if (popup)
 	delete popup;
 #endif
@@ -617,7 +617,7 @@ void QWSManager::paintEvent(QPaintEvent *)
 
 void QWSManager::menu(const QPoint &pos)
 {
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     if (!popup) {
 	popup = QApplication::qwsDecorator().menu(managed, managed->pos());
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
@@ -754,7 +754,7 @@ void QWSButton::paint()
 
 const QPixmap* QWSDefaultDecorator::pixmapFor(const QWidget* w, QWSManager::Region type, bool on, int& xoff, int& /*yoff*/)
 {
-#ifdef QT_FEATURE_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEIO_XPM
     static QPixmap *menuPixmap=0;
     static QPixmap *closePixmap=0;
     static QPixmap *minimizePixmap=0;
@@ -979,7 +979,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
     return region;
 }
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 QPopupMenu *QWSDecorator::menu(const QWidget *, const QPoint &)
 {
     QPopupMenu *m = new QPopupMenu();
@@ -1005,7 +1005,7 @@ QPopupMenu *QWSDecorator::menu(const QWidget *, const QPoint &)
 
 void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 {
-#ifdef QT_FEATURE_WIDGETS // implies style    
+#ifndef QT_NO_WIDGETS // implies style    
     QStyle &style = QApplication::style();
 #endif
     const QColorGroup &cg = widget->palette().active();
@@ -1015,7 +1015,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 	    widget->rect().width() + 2*BORDER_WIDTH,
 	    widget->rect().height() + 2*BORDER_WIDTH + TITLE_HEIGHT);
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     style.drawPanel(painter, r.x(), r.y(), r.width(),
 		    r.height(), cg, FALSE, 2,
 		    &cg.brush(QColorGroup::Background));
@@ -1038,7 +1038,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 	    titlePen   = cg.color(QColorGroup::Text);
 	}
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 	style.drawPanel(painter, TITLE_HEIGHT, -TITLE_HEIGHT,
 			titleWidth, TITLE_HEIGHT - 1,
 			cg, TRUE, 1, &titleBrush);
@@ -1068,7 +1068,7 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
 			QWSManager::Region type, int state)
 {
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
     QStyle &style = QApplication::style();
 #endif
     const QColorGroup &cg = w->palette().active();
@@ -1079,7 +1079,7 @@ void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
     const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
 
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 	style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
 		    brect.height()-1, cg, TRUE,
 		    &cg.brush(QColorGroup::Background));

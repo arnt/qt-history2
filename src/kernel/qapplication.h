@@ -139,7 +139,7 @@ public:
 
     static void	     beep();
 
-#ifdef QT_FEATURE_TRANSLATION
+#ifndef QT_NO_TRANSLATION
     void	     setDefaultCodec( QTextCodec* );
     QTextCodec*	     defaultCodec() const;
     void	     installTranslator( QTranslator * );

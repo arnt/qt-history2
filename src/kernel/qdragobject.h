@@ -35,7 +35,7 @@ class QWidget;
 #include "qcolor.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_MIME
+#ifndef QT_NO_MIME
 
 class Q_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
@@ -43,7 +43,7 @@ public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
     virtual ~QDragObject();
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     bool drag();
     bool dragMove();
     void dragCopy();
@@ -59,7 +59,7 @@ public:
 
     static void setTarget(QWidget*);
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     enum DragMode { DragDefault, DragCopy, DragMove, DragCopyOrMove };
 
 protected:
@@ -173,7 +173,7 @@ public:
 typedef QUriDrag QUrlDrag;
 #endif
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 // QDragManager is not part of the public API.  It is defined in a
 // header file simply so different .cpp files can implement different
@@ -218,6 +218,6 @@ private:
 
 #endif
 
-#endif // QT_FEATURE_MIME
+#endif // QT_NO_MIME
 
 #endif // QDRAGOBJECT_H

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlcdnumber.h"
-#ifdef QT_FEATURE_LCDNUMBER
+#ifndef QT_NO_LCDNUMBER
 #include "qbitarray.h"
 #include "qpainter.h"
 
@@ -1153,4 +1153,4 @@ QSizePolicy QLCDNumber::sizePolicy() const
     //### removeme 3.0
     return QWidget::sizePolicy();
 }
-#endif // QT_FEATURE_LCDNUMBER
+#endif // QT_NO_LCDNUMBER

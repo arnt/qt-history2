@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtoolbutton.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 #include "qdrawutil.h"
 #include "qpainter.h"

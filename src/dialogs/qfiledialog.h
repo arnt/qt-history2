@@ -44,7 +44,7 @@ class QNetworkOperation;
 #include "qurlinfo.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
 
 class Q_EXPORT QFileIconProvider : public QObject
 {

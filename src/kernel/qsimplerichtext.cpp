@@ -25,7 +25,7 @@
 
 #include "qrichtext_p.h"
 
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
 
 #include "qsimplerichtext.h"
 #include "qpainter.h"
@@ -324,4 +324,4 @@ bool QSimpleRichText::inText( const QPoint& pos ) const
     return it.goTo( pos );
 }
 
-#endif // QT_FEATURE_RICHTEXT
+#endif // QT_NO_RICHTEXT

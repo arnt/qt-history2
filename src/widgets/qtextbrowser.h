@@ -34,7 +34,7 @@
 #include "qtextview.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_TEXTBROWSER
+#ifndef QT_NO_TEXTBROWSER
 
 class QTextBrowserData;
 
@@ -85,6 +85,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_TEXTBROWSER
+#endif // QT_NO_TEXTBROWSER
 
 #endif // QTEXTBROWSER_H

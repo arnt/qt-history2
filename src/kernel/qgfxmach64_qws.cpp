@@ -160,7 +160,7 @@ public:
     virtual void drawRect(int,int,int,int);
     virtual void blt( int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
-#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
 #endif
     virtual void drawText(int,int,const QString &);
@@ -668,7 +668,7 @@ void QGfxMach64<depth,type>::scroll( int rx,int ry,int w,int h,int sx,int sy )
     blt(rx,ry,w,h);
 }
 
-#if defined(QT_FEATURE_MOVIE) || defined(QT_FEATURE_TRANSFORMATIONS)
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 					int sw,int sh)

@@ -3845,7 +3845,7 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    }
 	    break;
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 	case QEvent::Drop:
 	    dropEvent( (QDropEvent*) e);
 	    break;
@@ -4248,7 +4248,7 @@ void QWidget::closeEvent( QCloseEvent *e )
 }
 
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 /*!
   This event handler is called when a drag is in progress and the
@@ -4303,7 +4303,7 @@ void QWidget::dropEvent( QDropEvent * )
 {
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   This event handler can be reimplemented in a subclass to receive

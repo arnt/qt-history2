@@ -40,7 +40,7 @@
 
 #include "qstylesheet.h"
 
-#ifdef QT_FEATURE_RICHTEXT
+#ifndef QT_NO_RICHTEXT
 
 #include "qstring.h"
 #include "qpixmap.h"
@@ -718,6 +718,6 @@ inline QTextCharFormat* QRichTextFormatter::format() const
     return paragraph->text.formatAt( current );
 }
 
-#endif QT_FEATURE_RICHTEXT
+#endif // QT_FEATURE_RICHTEXT
 
 #endif // QRICHTEXT_P_H

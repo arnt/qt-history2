@@ -29,7 +29,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_SOUND
+#ifndef QT_NO_SOUND
 
 class QSoundData;
 class QAuServer;
@@ -74,6 +74,6 @@ public:
     virtual bool okay()=0;
 };
 
-#endif // QT_FEATURE_SOUND
+#endif // QT_NO_SOUND
 
 #endif

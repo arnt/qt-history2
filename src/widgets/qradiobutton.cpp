@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qradiobutton.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qbuttongroup.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

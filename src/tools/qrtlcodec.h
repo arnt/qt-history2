@@ -24,7 +24,7 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_I18N
+#ifndef QT_NO_I18N
 
 class Q_EXPORT QHebrewCodec : public QTextCodec {
 public:

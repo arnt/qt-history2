@@ -47,7 +47,7 @@ Editor::Editor( QWidget * parent , const char * name )
     save_as = new QPopupMenu();
     file->insertItem( "Save &as",  save_as );
     file->insertItem( "Add &encoding", this, SLOT(addEncoding()) );
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
     file->insertSeparator();
     file->insertItem( "&Print", this, SLOT(print()),    ALT+Key_P );
 #endif
@@ -119,7 +119,7 @@ void Editor::newDoc()
 
 void Editor::load()
 {
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	load( fn, -1 );
@@ -167,7 +167,7 @@ void Editor::load( const QString& fileName, int code )
 
 void Editor::openAsEncoding( int code )
 {
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
@@ -177,7 +177,7 @@ void Editor::openAsEncoding( int code )
 
 bool Editor::save()
 {
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
@@ -188,7 +188,7 @@ bool Editor::save()
 
 void Editor::saveAsEncoding( int code )
 {
-#ifdef QT_FEATURE_FILEDIALOG
+#ifndef QT_NO_FILEDIALOG
     //storing filename (proper save) is left as an exercise...
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
@@ -198,7 +198,7 @@ void Editor::saveAsEncoding( int code )
 
 void Editor::addEncoding()
 {
-#ifdef QT_FEATURE_FILEDIALOG    
+#ifndef QT_NO_FILEDIALOG    
     QString fn = QFileDialog::getOpenFileName( QString::null, "*.map", this );
     if ( !fn.isEmpty() ) {
 	QFile f(fn);
@@ -252,7 +252,7 @@ bool Editor::saveAs( const QString& fileName, int code )
 
 void Editor::print()
 {
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
     if ( printer.setup(this) ) {		// opens printer dialog
 	printer.setFullPage(TRUE);		// we'll set our own margins
 	QPainter p;

@@ -30,7 +30,7 @@
 #include "qstyle.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 class Q_EXPORT QCommonStyle: public QStyle
 {
@@ -99,6 +99,6 @@ private:	// Disabled copy constructor and operator=
 
 
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QCOMMONSTYLE_H

@@ -31,7 +31,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_TABDIALOG
+#ifndef QT_NO_TABDIALOG
 
 class  QTabBar;
 struct QTabPrivate;
@@ -127,6 +127,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_TABDIALOG
+#endif // QT_NO_TABDIALOG
 
 #endif // QTABDIALOG_H

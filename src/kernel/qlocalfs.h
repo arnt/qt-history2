@@ -31,7 +31,7 @@
 #include "qdir.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_NETWORKPROTOCOL
+#ifndef QT_NO_NETWORKPROTOCOL
 
 class Q_EXPORT QLocalFs : public QNetworkProtocol
 {
@@ -55,6 +55,6 @@ private:
 
 };
 
-#endif // QT_FEATURE_NETWORKPROTOCOL
+#endif // QT_NO_NETWORKPROTOCOL
 
 #endif // QLOCALFS_H

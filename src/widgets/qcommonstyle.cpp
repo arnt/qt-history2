@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcommonstyle.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
@@ -357,7 +357,7 @@ void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled )
 {
-#ifdef QT_FEATURE_STYLE_SGI
+#ifndef QT_NO_STYLE_SGI
     if ( inherits("QSGIStyle" ) ) {
 	QSGIStyle* sg = (QSGIStyle*) this;
 	sg->drawMenuBarItem( p, x, y, w, h, mi, g, enabled );
@@ -368,7 +368,7 @@ void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 #else
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 	g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
-#endif	// QT_FEATURE_STYLE_SGI
+#endif	// QT_NO_STYLE_SGI
 
 }
 #endif

@@ -25,7 +25,7 @@
 
 #include "qsound.h"
 
-#ifdef QT_FEATURE_SOUND
+#ifndef QT_NO_SOUND
 
 #include "qapplication.h"
 #include "qlist.h"
@@ -182,4 +182,4 @@ bool QSound::available()
     return QSoundData::server().okay();
 }
 
-#endif // QT_FEATURE_SOUND
+#endif // QT_NO_SOUND

@@ -30,7 +30,7 @@
 #include "qdialog.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_MESSAGEBOX
+#ifndef QT_NO_MESSAGEBOX
 
 class  QLabel;
 class  QPushButton;
@@ -152,6 +152,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_MESSAGEBOX
+#endif // QT_NO_MESSAGEBOX
 
 #endif // QMESSAGEBOX_H

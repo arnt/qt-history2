@@ -29,7 +29,7 @@
 #include "qtimer.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 
 class QTipManager;
@@ -121,6 +121,6 @@ private:
 };
 
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QTOOLTIP_H

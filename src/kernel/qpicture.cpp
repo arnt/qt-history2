@@ -25,7 +25,7 @@
 
 #include "qpicture.h"
 
-#ifdef QT_FEATURE_PICTURE
+#ifndef QT_NO_PICTURE
 
 #include "qpainter.h"
 #include "qpixmap.h"
@@ -299,7 +299,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
     QPen	pen;
     QBrush	brush;
     QRegion	rgn;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     QWMatrix	matrix;
 #endif
 
@@ -464,35 +464,35 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcSetVXform:
 		s >> i_8;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 		painter->setViewXForm( i_8 );
 #endif
 		break;
 	    case PdcSetWindow:
 		s >> r;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 		painter->setWindow( r );
 #endif
 		break;
 	    case PdcSetViewport:
 		s >> r;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 		painter->setViewport( r );
 #endif
 		break;
 	    case PdcSetWXform:
 		s >> i_8;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 		painter->setWorldXForm( i_8 );
 #endif
 		break;
 	    case PdcSetWMatrix:
-#ifdef QT_FEATURE_TRANSFORMATIONS	// #### fix me!
+#ifndef QT_NO_TRANSFORMATIONS	// #### fix me!
 		s >> matrix >> i_8;
 		painter->setWorldMatrix( matrix, i_8 );
 #endif
 		break;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 	    case PdcSaveWMatrix:
 		painter->saveWorldMatrix();
 		break;
@@ -659,7 +659,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	case PdcSetClip:
 	    s << (Q_INT8)p[0].ival;
 	    break;
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
 	case PdcSetWindow:
 	case PdcSetViewport:
 	    s << *p[0].rect;
@@ -830,5 +830,5 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     return s;
 }
 
-#endif // QT_FEATURE_PICTURE
+#endif // QT_NO_PICTURE
 

@@ -31,7 +31,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 
 class Q_EXPORT QValidator: public QObject
@@ -122,6 +122,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QVALIDATOR_H

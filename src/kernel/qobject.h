@@ -105,10 +105,10 @@ public:
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
 
-#ifdef QT_FEATURE_PROPERTIES
+#ifndef QT_NO_PROPERTIES
     bool setProperty( const char *name, const QVariant& value ); // virtual in Qt 3.0
     QVariant property( const char *name ) const;    // virtual in Qt 3.0
-#endif // QT_FEATURE_PROPERTIES
+#endif // QT_NO_PROPERTIES
 
 signals:
     void	 destroyed();
@@ -218,7 +218,7 @@ public:
     void setSender( QObject *s ) { sigSender=s; }
 };
 
-#ifndef QT_FEATURE_TRANSLATION
+#ifdef QT_NO_TRANSLATION
 inline QString QObject::tr(const char* s) { return QString(s); }
 #endif
 

@@ -30,7 +30,7 @@
 #include "qscrollbar.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 
 struct QScrollViewData;
 
@@ -47,7 +47,7 @@ class Q_EXPORT QScrollView : public QFrame
     Q_PROPERTY( int contentsHeight READ contentsHeight )
     Q_PROPERTY( int contentsX READ contentsX )
     Q_PROPERTY( int contentsY READ contentsY )
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     Q_PROPERTY( bool dragAutoScroll READ dragAutoScroll WRITE setDragAutoScroll )
 #endif
 
@@ -115,7 +115,7 @@ public:
 
     void	removeChild(QObject* child);
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     void	setDragAutoScroll( bool b ); // #### virtual in 3.0
     bool	dragAutoScroll() const;
 #endif
@@ -144,7 +144,7 @@ protected:
     virtual void contentsMouseReleaseEvent( QMouseEvent* );
     virtual void contentsMouseDoubleClickEvent( QMouseEvent* );
     virtual void contentsMouseMoveEvent( QMouseEvent* );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     virtual void contentsDragEnterEvent( QDragEnterEvent * );
     virtual void contentsDragMoveEvent( QDragMoveEvent * );
     virtual void contentsDragLeaveEvent( QDragLeaveEvent * );
@@ -158,7 +158,7 @@ protected:
     virtual void viewportMouseReleaseEvent( QMouseEvent* );
     virtual void viewportMouseDoubleClickEvent( QMouseEvent* );
     virtual void viewportMouseMoveEvent( QMouseEvent* );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     virtual void viewportDragEnterEvent( QDragEnterEvent * );
     virtual void viewportDragMoveEvent( QDragMoveEvent * );
     virtual void viewportDragLeaveEvent( QDragLeaveEvent * );
@@ -191,7 +191,7 @@ private:
 private slots:
     void hslide(int);
     void vslide(int);
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     void doDragAutoScroll();
     void startDragAutoScroll();
     void stopDragAutoScroll();
@@ -205,6 +205,6 @@ private:	// Disabled copy constructor and operator=
     void changeFrameRect(const QRect&);
 };
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS
 
 #endif // QSCROLLVIEW_H

@@ -793,7 +793,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     QWMatrix	matrix;				// xform matrix
 #endif
     bool vertical = type == Qt::UpArrow || type == Qt::DownArrow;
@@ -844,7 +844,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     }
 
     if ( type == Qt::UpArrow || type == Qt::LeftArrow ) {
-#ifdef QT_FEATURE_TRANSFORMATIONS	// #### fix me!
+#ifndef QT_NO_TRANSFORMATIONS	// #### fix me!
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( 0, h - 1 );
@@ -860,7 +860,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 	    colspec = horizontal ? 0x1443 : 0x1434;
     }
     else if ( type == Qt::DownArrow || type == Qt::RightArrow ) {
-#ifdef QT_FEATURE_TRANSFORMATIONS	// #### fix me!
+#ifndef QT_NO_TRANSFORMATIONS	// #### fix me!
 	matrix.translate( x, y );
 	if ( vertical ) {
 	    matrix.translate( w-1, 0 );
@@ -886,7 +886,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 
     QPen     savePen   = p->pen();		// save current pen
     QBrush   saveBrush = p->brush();		// save current brush
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     QWMatrix wxm = p->worldMatrix();
 #endif
     QPen     pen( Qt::NoPen );
@@ -894,7 +894,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 
     p->setPen( pen );
     p->setBrush( brush );
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
 #endif
     p->drawPolygon( bFill );			// fill arrow
@@ -907,7 +907,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     p->setPen( CBOT );
     p->drawLineSegments( bBot );
 
-#ifdef QT_FEATURE_TRANSFORMATIONS
+#ifndef QT_NO_TRANSFORMATIONS
     p->setWorldMatrix( wxm );
 #endif
     p->setBrush( saveBrush );			// restore brush

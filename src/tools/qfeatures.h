@@ -26,141 +26,137 @@
 #ifndef QFEATURES_H
 #define QFEATURES_H
 
-/*
-    *************************************************************
-
-    WARNING:  Modifying this file makes your Qt installation
-              incompatible with other Qt installations. Such
-              modification is only supported on Qt/Embedded
-              platforms, where reducing the size of Qt is
-              important and the application-set is often fixed.
-
-    *************************************************************
-*/
-
 /*! \page features....html
     ...
 */
 
-// images
-#define QT_FEATURE_IMAGEIO_BMP
-#define QT_FEATURE_IMAGEIO_PPM
-#define QT_FEATURE_IMAGEIO_XBM
-#define QT_FEATURE_IMAGEIO_XPM
-#define QT_FEATURE_IMAGEIO_PNG
-#define QT_FEATURE_IMAGEIO_JPEG // currently also requires QT_JPEG_SUPPORT
+#include <qconfig.h>
 
-#define QT_FEATURE_ASYNC_IO
-#define QT_FEATURE_ASYNC_IMAGE_IO
-#if defined(QT_FEATURE_ASYNC_IO) && defined(QT_FEATURE_ASYNC_IMAGE_IO)
-    #define QT_FEATURE_MOVIE
+// images
+//#define QT_NO_IMAGEIO_BMP
+//#define QT_NO_IMAGEIO_PPM
+//#define QT_NO_IMAGEIO_XBM
+//#define QT_NO_IMAGEIO_XPM
+//#define QT_NO_IMAGEIO_PNG
+//#define QT_NO_IMAGEIO_JPEG // currently also requires QT_JPEG_SUPPORT
+
+//#define QT_NO_ASYNC_IO
+//#define QT_NO_ASYNC_IMAGE_IO
+#if defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO)
+    #define QT_NO_MOVIE
 #endif
 
 // fonts
-#define QT_FEATURE_TRUETYPE
-#define QT_FEATURE_BDF
-#define QT_FEATURE_FONTDATABASE
+//#define QT_NO_TRUETYPE
+//#define QT_NO_BDF
+//#define QT_NO_FONTDATABASE
 
 // i18n
 
-#define QT_FEATURE_TRANSLATION
-#if !defined(QT_NO_CODECS)
-    #define QT_FEATURE_I18N
+//#define QT_NO_TRANSLATION
+#if defined(QT_NO_CODECS)
+    #define QT_NO_I18N
 #endif
-#if !defined(QT_LITE_UNICODE)
-    #define QT_FEATURE_UNICODETABLES
+
+#if defined(QT_LITE_UNICODE)
+    #define QT_NO_UNICODETABLES
 #endif
 
 // misc
-#define QT_FEATURE_MIME
-#if defined(QT_FEATURE_MIME)
-    #define QT_FEATURE_RICHTEXT
-    #define QT_FEATURE_DRAGANDDROP
-    #define QT_FEATURE_CLIPBOARD
+//#define QT_NO_MIME
+#if defined(QT_NO_MIME)
+    #define QT_NO_RICHTEXT
+    #define QT_NO_DRAGANDDROP
+    #define QT_NO_CLIPBOARD
 #endif
 
-#define QT_FEATURE_SOUND
+//#define QT_NO_SOUND
 
-#define QT_FEATURE_PROPERTIES
+//#define QT_NO_PROPERTIES
 
-#if defined(_WS_QWS_)
-    #define QT_FEATURE_QWS_CURSOR
-    //#define QT_FEATURE_QWS_MACH64
-    #define QT_FEATURE_QWS_VFB
-    //#define QT_FEATURE_QWS_DEPTH_8GRAYSCALE
-    #define QT_FEATURE_QWS_DEPTH_8
-    //#define QT_FEATURE_QWS_DEPTH_15
-    #define QT_FEATURE_QWS_DEPTH_16
-    #define QT_FEATURE_QWS_DEPTH_32
-#endif
+// Qt/Embedded-specific
+//#define QT_NO_QWS_CURSOR
+#define QT_NO_QWS_MACH64
+#define QT_NO_QWS_VOODOO3
+//#define QT_NO_QWS_VFB
+#define QT_NO_QWS_DEPTH_8GRAYSCALE
+//#define QT_NO_QWS_DEPTH_8
+#define QT_NO_QWS_DEPTH_15
+//#define QT_NO_QWS_DEPTH_16
+//#define QT_NO_QWS_DEPTH_32
 
 // network
-#define QT_FEATURE_DNS
-#define QT_FEATURE_NETWORKPROTOCOL
-#if defined(QT_FEATURE_NETWORKPROTOCOL) && defined(QT_FEATURE_DNS)
-    #define QT_FEATURE_NETWORKPROTOCOL_FTP
-    #define QT_FEATURE_NETWORKPROTOCOL_HTTP
+//#define QT_NO_DNS
+//#define QT_NO_NETWORKPROTOCOL
+#if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
+    #define QT_NO_NETWORKPROTOCOL_FTP
+    #define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 // painting
-#define QT_FEATURE_COLORNAMES
-#define QT_FEATURE_TRANSFORMATIONS
+//#define QT_NO_COLORNAMES
+//#define QT_NO_TRANSFORMATIONS
 
-#define QT_FEATURE_PSPRINTER
-#if defined(_WS_WIN_) || defined(QT_FEATURE_PSPRINTER)
-    #define QT_FEATURE_PRINTER
+//#define QT_NO_PSPRINTER
+#if defined(QT_NO_PSPRINTER) && !defined(_WS_WIN_)
+    #define QT_NO_PRINTER
 #endif
 
-#define QT_FEATURE_PICTURE
+//#define QT_NO_PICTURE
 
 // widgets
-#define QT_FEATURE_WIDGETS
+//#define QT_NO_WIDGETS
 
-#if defined(QT_FEATURE_WIDGETS)
-    #if defined(QT_FEATURE_RICHTEXT)
-	#define QT_FEATURE_TEXTVIEW
-	#if defined(QT_FEATURE_TEXTVIEW)
-	    #define QT_FEATURE_TEXTBROWSER
-	#endif
-    #endif
-    #if defined(QT_FEATURE_DRAGANDDROP)
-	#define QT_FEATURE_ICONVIEW
-    #endif
-    #define QT_FEATURE_LISTVIEW
-    #define QT_FEATURE_CANVAS
-    #define QT_FEATURE_DIAL
-    #define QT_FEATURE_WORKSPACE
-    #define QT_FEATURE_LCDNUMBER
-    #define QT_FEATURE_ACTION
+#if defined(QT_NO_WIDGETS) || defined(QT_NO_RICHTEXT)
+    #define QT_NO_TEXTVIEW
+#endif
+#if defined(QT_NO_TEXTVIEW)
+    #define QT_NO_TEXTBROWSER
+#endif
+
+#if defined(QT_NO_WIDGETS) || defined(QT_NO_DRAGANDDROP)
+    #define QT_NO_ICONVIEW
+#endif
+
+#if defined(QT_NO_WIDGETS)
+    #define QT_NO_LISTVIEW
+    #define QT_NO_CANVAS
+    #define QT_NO_DIAL
+    #define QT_NO_WORKSPACE
+    #define QT_NO_LCDNUMBER
+    #define QT_NO_ACTION
+    #define QT_NO_DIALOGS
 
     // styles
-    #define QT_FEATURE_STYLE_WINDOWS
-    #define QT_FEATURE_STYLE_MOTIF
-    #define QT_FEATURE_STYLE_PLATINUM
-    #if defined(QT_FEATURE_STYLE_MOTIF)
-	#define QT_FEATURE_STYLE_CDE
-	#define QT_FEATURE_STYLE_SGI
-    #endif
+    #define QT_NO_STYLE_WINDOWS
+    #define QT_NO_STYLE_MOTIF
+    #define QT_NO_STYLE_PLATINUM
+#endif
 
-    // dialogs
-    #define QT_FEATURE_DIALOGS
-    #if defined(QT_FEATURE_DIALOGS)
-	#if defined(QT_FEATURE_LISTVIEW) && defined(QT_FEATURE_NETWORKPROTOCOL)
-	    #define QT_FEATURE_FILEDIALOG
-	#endif
-	#if defined(QT_FEATURE_FONTDATABASE)
-	    #define QT_FEATURE_FONTDIALOG
-	#endif
-	#define QT_FEATURE_COLORDIALOG
-	#if defined(QT_FEATURE_LISTVIEW) && defined(QT_FEATURE_PRINTER)
-	    #define QT_FEATURE_PRINTDIALOG
-	#endif
-	#define QT_FEATURE_INPUTDIALOG
-	#define QT_FEATURE_MESSAGEBOX
-	#define QT_FEATURE_PROGRESSDIALOG
-	#define QT_FEATURE_TABDIALOG
-	#define QT_FEATURE_WIZARD
-    #endif
+#if defined(QT_NO_STYLE_MOTIF)
+    #define QT_NO_STYLE_CDE
+    #define QT_NO_STYLE_SGI
+#endif
+
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL)
+    #define QT_NO_FILEDIALOG
+#endif
+
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_FONTDATABASE)
+    #define QT_NO_FONTDIALOG
+#endif
+
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER)
+    #define QT_NO_PRINTDIALOG
+#endif
+
+#if defined(QT_NO_DIALOGS)
+    #define QT_NO_COLORDIALOG
+    #define QT_NO_INPUTDIALOG
+    #define QT_NO_MESSAGEBOX
+    #define QT_NO_PROGRESSDIALOG
+    #define QT_NO_TABDIALOG
+    #define QT_NO_WIZARD
 #endif
 
 #endif // QFEATURES_H

@@ -31,7 +31,7 @@
 #include <qwidgetlist.h>
 #endif // QT_H
 
-#ifdef QT_FEATURE_WORKSPACE
+#ifndef QT_NO_WORKSPACE
 
 class QWorkspaceChild;
 class QWorkspaceData;
@@ -104,6 +104,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_FEATURE_WORKSPACE
+#endif // QT_NO_WORKSPACE
 
 #endif // QWORKSPACE_H

@@ -30,7 +30,7 @@
 #include <qdialog.h>
 #endif // QT_H
 
-#ifdef QT_FEATURE_COLORDIALOG
+#ifndef QT_NO_COLORDIALOG
 
 class QColorDialogPrivate;
 

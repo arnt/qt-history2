@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtextview.h"
-#ifdef QT_FEATURE_TEXTVIEW
+#ifndef QT_NO_TEXTVIEW
 #include "../kernel/qrichtext_p.h"
 
 #include "qapplication.h"
@@ -97,7 +97,7 @@ public:
     QColor paplinkcol;
     bool linkunderline;
     QTimer* resizeTimer;
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     QTimer* dragTimer;
 #endif
     QTimer* scrollTimer;
@@ -169,7 +169,7 @@ void QTextView::init()
 
     d->resizeTimer = new QTimer( this, "qt_resizetimer" );
     connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     d->dragTimer = new QTimer( this );
     connect( d->dragTimer, SIGNAL( timeout() ), this, SLOT( doStartDrag() ));
 #endif
@@ -648,7 +648,7 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 	d->selstart = d->selorigin;
 	d->selend = d->selstart;
 	d->dragselection = TRUE;
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     } else {
 	d->dragTimer->start( QApplication::startDragTime(), TRUE );
 #endif
@@ -662,7 +662,7 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
 	d->scrollTimer->stop();
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 	if ( d->dragselection ) {
 #if !defined(_WS_X11_)
 	    if ( style() == MotifStyle )
@@ -727,7 +727,7 @@ QString QTextView::selectedText() const
     return txt;
 }
 
-#ifdef QT_FEATURE_CLIPBOARD
+#ifndef QT_NO_CLIPBOARD
 /*!
   Copies the marked text to the clipboard.
 */
@@ -778,7 +778,7 @@ void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 	if (d->dragselection ) {
 	    doSelection( e->pos() );
 	    ensureVisible( d->cursor.x(), d->cursor.y() );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 	} else if ( d->dragTimer->isActive() ) {
 	    d->dragTimer->stop();
 	    doStartDrag();
@@ -818,7 +818,7 @@ void QTextView::keyPressEvent( QKeyEvent * e)
     case Key_PageDown:
 	scrollBy( 0, visibleHeight() );
 	break;
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     case Key_C:
 	if ( e->state() & ControlButton )
 	    copy();
@@ -923,7 +923,7 @@ void QTextView::showEvent( QShowEvent* )
 
 void QTextView::clearSelection()
 {
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     d->dragTimer->stop();
 #endif
     if ( !d->selection )
@@ -944,7 +944,7 @@ void QTextView::clearSelection()
     }
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 void QTextView::doStartDrag()
 {
     QTextDrag* drag = new QTextDrag( selectedText(), this ) ;
@@ -1017,4 +1017,4 @@ void QTextView::focusInEvent( QFocusEvent * )
 void QTextView::focusOutEvent( QFocusEvent * )
 {
 }
-#endif  // QT_FEATURE_TEXTVIEW
+#endif  // QT_NO_TEXTVIEW

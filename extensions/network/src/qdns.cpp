@@ -25,7 +25,7 @@
 
 #include "qdns.h"
 
-#ifdef QT_FEATURE_DNS
+#ifndef QT_NO_DNS
 
 #include "qdatetime.h"
 #include "qdict.h"

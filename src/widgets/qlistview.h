@@ -39,7 +39,7 @@ class QListViewItemIterator;
 #include "qscrollview.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_LISTVIEW
+#ifndef QT_NO_LISTVIEW
 
 
 class Q_EXPORT QListViewItem: public Qt
@@ -431,6 +431,6 @@ private:
 
 };
 
-#endif // QT_FEATURE_LISTVIEW
+#endif // QT_NO_LISTVIEW
 
 #endif // QLISTVIEW_H

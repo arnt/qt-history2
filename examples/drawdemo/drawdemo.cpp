@@ -200,7 +200,7 @@ DrawView::DrawView()
 //
 DrawView::~DrawView()
 {
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
     delete printer;
 #endif
 }
@@ -232,7 +232,7 @@ void DrawView::drawIt( QPainter *p )
 
 void DrawView::printIt()
 {
-#ifdef QT_FEATURE_PRINTER
+#ifndef QT_NO_PRINTER
     if ( printer->setup( this ) ) {
         QPainter paint( printer );
         drawIt( &paint );

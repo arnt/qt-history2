@@ -25,7 +25,7 @@
 
 #include "qfontfactoryttf_qws.h"
 
-#ifdef QT_FEATURE_TRUETYPE
+#ifndef QT_NO_TRUETYPE
 
 #include "qfontdata_p.h"
 #include <string.h>
@@ -247,4 +247,4 @@ void QFontFactoryTTF::load(QDiskFont * qdf) const
 }
 
 
-#endif // QT_FEATURE_TRUETYPE
+#endif // QT_NO_TRUETYPE

@@ -31,7 +31,7 @@
 #include "qmotifstyle.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_STYLE_CDE
+#ifndef QT_NO_STYLE_CDE
 
 class Q_EXPORT QCDEStyle : public QMotifStyle
 {
@@ -53,6 +53,6 @@ public:
     
 };
 
-#endif // QT_FEATURE_STYLE_CDE
+#endif // QT_NO_STYLE_CDE
 
 #endif // QCDESTYLE_H

@@ -20,7 +20,7 @@
 
 #include "qapplication.h"
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 #include "qwidget.h"
 #include "qintdict.h"
@@ -122,4 +122,4 @@ void QDragManager::updatePixmap()
 {
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP

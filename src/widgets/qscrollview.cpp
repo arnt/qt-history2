@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qwidget.h"
-#ifdef QT_FEATURE_WIDGETS
+#ifndef QT_NO_WIDGETS
 #include "qscrollbar.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
@@ -106,7 +106,7 @@ struct QScrollViewData {
 	clipped_viewport( 0 ),
 	flags( vpwflags ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 	, autoscroll_timer( parent ), drag_autoscroll( TRUE )
 #endif
     {
@@ -256,7 +256,7 @@ struct QScrollViewData {
     QScrollView::ResizePolicy policy;
     QScrollView::ScrollBarMode	vMode;
     QScrollView::ScrollBarMode	hMode;
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     QPoint cpDragStart;
     QTimer autoscroll_timer;
     int autoscroll_time;
@@ -476,7 +476,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 {
     d = new QScrollViewData(this,WResizeNoErase |
 	    (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity) );
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
 #endif
@@ -1184,7 +1184,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 	case QEvent::DragEnter:
 	    viewportDragEnterEvent( (QDragEnterEvent*)e );
 	    break;
@@ -1209,7 +1209,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    stopDragAutoScroll();
 	    viewportDropEvent( (QDropEvent*)e );
 	    break;
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 	case QEvent::Wheel:
 	    viewportWheelEvent( (QWheelEvent*)e );
 	    break;
@@ -1267,7 +1267,7 @@ void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
 {
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 /*!
   This event handler is called whenever the QScrollView receives a
@@ -1305,7 +1305,7 @@ void QScrollView::contentsDropEvent( QDropEvent * )
 {
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   This event handler is called whenever the QScrollView receives a
@@ -1430,7 +1430,7 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
     contentsMouseMoveEvent(&ce);
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 /*!
   To provide simple processing of events on the contents,
@@ -1497,7 +1497,7 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
     e->setPoint(contentsToViewport(e->pos()));
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   To provide simple processing of events on the contents,
@@ -2283,7 +2283,7 @@ void QScrollView::drawContents( QPainter * )
 {
 }
 
-#ifdef QT_FEATURE_DRAGANDDROP
+#ifndef QT_NO_DRAGANDDROP
 
 /*!
   \internal
@@ -2365,6 +2365,6 @@ bool QScrollView::dragAutoScroll() const
     return d->drag_autoscroll;
 }
 
-#endif // QT_FEATURE_DRAGANDDROP
+#endif // QT_NO_DRAGANDDROP
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_NO_WIDGETS

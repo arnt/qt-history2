@@ -30,7 +30,7 @@
 #include "qfontmanager_qws.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_TRUETYPE
+#ifndef QT_NO_TRUETYPE
 
 extern "C" {
 #include <freetype.h>
@@ -57,6 +57,6 @@ private:
     FT_Library library;
 };
 
-#endif // QT_FEATURE_TRUETYPE
+#endif // QT_NO_TRUETYPE
 
 #endif // QFONTFACTORY_TTF_H

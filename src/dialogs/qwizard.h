@@ -31,7 +31,7 @@
 #include "qdialog.h"
 #endif // QT_H
 
-#ifdef QT_FEATURE_WIZARD
+#ifndef QT_NO_WIZARD
 
 class QWizardPrivate;
 class QWizardPagePrivate;
@@ -116,6 +116,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_FEATURE_WIZARD
+#endif // QT_NO_WIZARD
 
 #endif // QWIZARD_H
