@@ -2002,7 +2002,7 @@ void QWorkspaceChild::drawFrame( QPainter *p )
     QStyle::SFlags flags = QStyle::Style_Default;
     QStyleOption opt(lineWidth(),midLineWidth());
 
-    if ( titlebar->isActive() )
+    if ( titlebar && titlebar->isActive() )
 	flags |= QStyle::Style_Active;
 
     style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
