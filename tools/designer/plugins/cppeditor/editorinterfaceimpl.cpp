@@ -186,10 +186,10 @@ QMap<QString, QString> EditorInterfaceImpl::functions() const
     int j = 0;
     int k = 0;
     while ( i != -1 ) {
-	i = text.find( "function", i );
+	i = text.find( "::", i );
 	if ( i == -1 )
 	    break;
-	for ( j = i + QString( "function").length(); j < (int)text.length(); ++j ) {
+	for ( j = i + QString( "::").length(); j < (int)text.length(); ++j ) {
 	    if ( text[ j ] != ' ' && text[ j ] != '\t' )
 		break;
 	}
