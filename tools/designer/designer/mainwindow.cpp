@@ -2001,7 +2001,7 @@ void MainWindow::editProjectSettings()
     dia.exec();
 
     delete senderObject;
-    for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
+    for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
 	Tab t = *it;
 	dia.tabWidget->removePage( t.w );
 	t.w->reparent( 0, QPoint(0,0), FALSE );
