@@ -9,7 +9,6 @@ dialogs {
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
-		  $$DIALOGS_H/qsemimodal.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
 		  $$DIALOGS_H/qinputdialog.h \
