@@ -19,9 +19,14 @@
 #include <qpixmap.h>
 #include <qvariant.h>
 
+class QItemDelegatePrivate;
+class QItemEditorFactory;
+
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QItemDelegate)
+
 public:
     QItemDelegate(QObject *parent = 0);
     ~QItemDelegate();
@@ -47,6 +52,10 @@ public:
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                               const QAbstractItemModel *model, const QModelIndex &index) const;
+
+    // editor factory
+    QItemEditorFactory *itemEditorFactory() const;
+    void setItemEditorFactory(QItemEditorFactory *factory);
 
 protected:
     virtual void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option,

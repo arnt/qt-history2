@@ -25,6 +25,8 @@
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qpixmapcache.h>
+#include <qitemeditorfactory.h>
+#include <private/qobject_p.h>
 
 static const int border = 1;
 
@@ -70,6 +72,22 @@ static const char * const checked_xpm[] = {
 "                ",
 "                ",};
 
+class QItemDelegatePrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QItemDelegate)
+
+public:
+    QItemDelegatePrivate() : f(0) {}
+
+    inline const QItemEditorFactory *editorFactory() const
+        { return f ? f : QItemEditorFactory::defaultFactory(); }
+
+    QItemEditorFactory *f;
+};
+
+#define d d_func()
+#define q q_func()
+
 /*!
     \class QItemDelegate
 
@@ -112,7 +130,7 @@ static const char * const checked_xpm[] = {
 */
 
 QItemDelegate::QItemDelegate(QObject *parent)
-    : QAbstractItemDelegate(parent)
+    : QAbstractItemDelegate(*new QItemDelegatePrivate(), parent)
 {
 
 }
@@ -211,13 +229,13 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
 QWidget *QItemDelegate::editor(QWidget *parent,
                                const QStyleOptionViewItem &,
-                               const QAbstractItemModel *,
-                               const QModelIndex &)
+                               const QAbstractItemModel *model,
+                               const QModelIndex &index)
 {
-    QLineEdit *lineEdit = new QLineEdit(parent);
-    lineEdit->setFrame(false);
-    lineEdit->installEventFilter(this);
-    return lineEdit;
+    QVariant::Type t = model->data(index, QAbstractItemModel::EditRole).type();
+    QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
+    if (w) w->installEventFilter(this);
+    return w;
 }
 
 /*!
@@ -240,10 +258,12 @@ void QItemDelegate::setEditorData(QWidget *editor,
                                   const QAbstractItemModel *model,
                                   const QModelIndex &index) const
 {
-    QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit) {
-        lineEdit->setText(model->data(index, QAbstractItemModel::EditRole).toString());
-        lineEdit->selectAll();
+    QVariant v = model->data(index, QAbstractItemModel::EditRole);
+    QByteArray n = d->editorFactory()->valuePropertyName(v.type());
+    if (!n.isEmpty()) {
+        editor->setProperty(n, v);
+//         qDebug("value type %d property name %s", v.type(), n.data());
+//         qDebug("text %s", v.toString().latin1());
     }
 }
 
@@ -256,9 +276,10 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
-    QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit)
-        model->setData(index, QAbstractItemModel::EditRole, lineEdit->text());
+    QVariant::Type t = model->data(index, QAbstractItemModel::EditRole).type();
+    QByteArray n = d->editorFactory()->valuePropertyName(t);
+    if (!n.isEmpty())
+        model->setData(index, QAbstractItemModel::EditRole, editor->property(n));
 }
 
 /*!
@@ -280,6 +301,24 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         doLayout(option, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
+}
+
+/*!
+  Returns the editor factory used by the item delegate.
+  If no editor factory is set, the function will return null.
+*/
+QItemEditorFactory *QItemDelegate::itemEditorFactory() const
+{
+    return d->f;
+}
+
+/*!
+  Sets the editor factory to be used by the item delegate.
+  If no editor factory is set, the item delegate will use the default editor factory.
+*/
+void QItemDelegate::setItemEditorFactory(QItemEditorFactory *factory)
+{
+    d->f = factory;
 }
 
 /*!

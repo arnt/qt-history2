@@ -68,6 +68,15 @@ QAbstractItemDelegate::QAbstractItemDelegate(QObject *parent)
 }
 
 /*!
+    Creates a new abstract item delegate with the given \a parent.
+*/
+QAbstractItemDelegate::QAbstractItemDelegate(QObjectPrivate &dd, QObject *parent)
+    : QObject(dd, parent)
+{
+
+}
+
+/*!
     Destroys the abstract item delegate.
 */
 QAbstractItemDelegate::~QAbstractItemDelegate()
