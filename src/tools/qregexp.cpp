@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#38 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#38 $");
 
 
 /*!
@@ -273,9 +273,9 @@ int QRegExp::match( const char *str, int index, int *len ) const
     ushort *d  = rxdata;
     char   *ep = 0;
 
-    if ( *d == BOL )				// match from beginning of line
+    if ( *d == BOL ) {				// match from beginning of line
 	ep = matchstr( d, p, p );
-    else {
+    } else {
 	if ( *d & CHR ) {
 	    if ( cs ) {				// case sensitive
 		while ( *p && *p != (char)*d )
