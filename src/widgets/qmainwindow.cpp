@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#14 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#14 $");
 
 /*notready
   \class QMainWindow
@@ -94,8 +94,8 @@ public:
 
 /*!  Constructs an empty main window. */
 
-QMainWindow::QMainWindow( QWidget * parent, const char * name )
-    : QWidget( parent, name )
+QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
+    : QWidget( parent, name, f )
 {
     d = new QMainWindowPrivate;
     d->timer = new QTimer( this );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#9 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#10 $
 **
 ** Definition of QMainWindow class
 **
@@ -28,7 +28,7 @@ class QMainWindow: public QWidget
 {
     Q_OBJECT
 public:
-    QMainWindow( QWidget * parent = 0, const char * name = 0 );
+    QMainWindow( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
     ~QMainWindow();
 
     virtual void setCentralWidget( QWidget * );
