@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#54 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -238,7 +238,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    while( --i > 0 )
 			::close( i );
 #endif // _WS_X11_
-		    (void)execlp( print_prog, print_prog.ascii(), pr.ascii(), 0 );
+		    (void)execlp( print_prog, print_prog.ascii(),
+				  pr.ascii(), 0 );
 		    // if execlp returns EACCES it couldn't find the
 		    // program.  if no special print program has been
 		    // set, let's try a little harder...
