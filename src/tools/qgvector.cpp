@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#5 $
 **
 ** Implementation of QGVector class
 **
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#5 $";
 #endif
 
 
@@ -257,67 +257,38 @@ bool QGVector::fill( GCI d, int flen )		// resize and fill vector
 }
 
 
-void QGVector::sort()				// sort vector
+static QGVector *sort_vec=0;			// current sort vector
+
+static int cmp_vec( GCI *n1, GCI *n2 )
 {
-    int i = len - 1;
-    while ( i > 0 && vec[i] == 0 )		// skip nulls items at end
-	i--;
-    if ( i > 0 )
-	qsort( &vec[0], &vec[i+1] );
+    return sort_vec->compareItems( *n1, *n2 );
 }
 
-void QGVector::qsort( GCI *n1, GCI *n2 )	// quicksorts vector
+typedef int (*cmp_func)(...);
+
+void QGVector::sort()				// sort vector
 {
-    register GCI *i;
-    register GCI *j;
+    if ( count() == 0 )				// no elements
+	return;
+    register GCI *start = &vec[0];
+    register GCI *end	= &vec[len-1];
     GCI tmp;
-    while ( n2 > n1 + 1 ) {
-	i = n1;
-	j = n2;
-	while ( TRUE ) {
-	    if ( !*n1 )				// take null items into account
-		i = n2;
-	    else
-	    while ( ++i < n2 ) {
-		if ( !*i || compareItems( *i, *n1 ) > 0 )
-		    break;
-	    }
-	    if ( !*n1 ) {
-		while ( --j > n1 && !*j )
-		    ;
-	    }
-	    else
-	    while ( --j > n1 ) {		// same as above; reversed
-		if ( !*j )
-		    continue;
-		else
-		if ( compareItems( *j, *n1 ) < 0 )
-		    break;
-	    }
-	    if ( i >= j )
-		break;
-	    tmp = *i;				// swap items
-	    *i = *j;
-	    *j = tmp;
+    while ( TRUE ) {				// put all zero elements behind
+	while ( start < end && *start != 0 )
+	    start++;
+	while ( end > start && *end == 0 )
+	    end--;
+	if ( start < end ) {
+	    tmp = *start;
+	    *start = *end;
+	    *end = tmp;
 	}
-	if ( j == n1 ) {
-	    n1++;
-	    continue;
-	}
-	tmp = *n1;				// swap items
-	*n1 = *j;
-	*j = tmp;
-	if ( j - n1 < n2 - j - 1 ) {
-	    if ( j - n1 > 1 )
-		qsort( n1, j );			// quicksort left items
-	    n1 = j + 1;
-	}
-	else {
-	    if ( n2 > j + 2 )
-		qsort( j + 1, n2 );		// quicksort right items
-	    n2 = j;
-	}
+	else
+	    break;
     }
+    sort_vec = (QGVector*)this;
+    qsort( vec, count(), sizeof(GCI), (cmp_func)cmp_vec );
+    sort_vec = 0;
 }
 
 int QGVector::bsearch( GCI d ) const		// binary search; when sorted

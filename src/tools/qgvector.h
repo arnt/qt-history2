@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#5 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#6 $
 **
 ** Definition of QGVector class
 **
@@ -22,6 +22,8 @@ friend class QGList;				// needed by QGList::toVector
 public:
     QDataStream &read( QDataStream & );		// read vector from stream
     QDataStream &write( QDataStream & ) const;	// write vector to stream
+
+    virtual int compareItems( GCI, GCI );
 
 protected:
     QGVector();					// create empty vector
@@ -64,13 +66,10 @@ protected:
 
     int	 apply( GCF, void * ) const;		// apply function to all items
 
-    virtual int compareItems( GCI, GCI );
-
     virtual QDataStream &read( QDataStream &, GCI & );
     virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
-    void  qsort( GCI*, GCI* );			// vector quicksort
     GCI	 *vec;
     uint  len;
     uint  numItems;
