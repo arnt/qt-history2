@@ -34,6 +34,8 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
+#include <math.h>
+
 #ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/ipc.h>
 #include <sys/shm.h>
