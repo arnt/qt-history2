@@ -22,6 +22,7 @@
 #define GLOBALDEFS_H
 
 #include <qcolor.h>
+#include <qapplication.h>
 
 #define BOXLAYOUT_DEFAULT_MARGIN 11
 #define BOXLAYOUT_DEFAULT_SPACING 6
@@ -35,8 +36,15 @@ static void init_colors()
 {
     if ( backColor1 )
 	return;
-    backColor1 = new QColor( 232, 231, 241 );
-    backColor2 = new QColor( 254, 254, 254 );
+    QColorGroup myCg = qApp->palette().active();
+    int h1, s1, v1;
+    int h2, s2, v2;
+    myCg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
+    myCg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
+    QColor c( h1, s1, ( v1 + v2 ) / 2, QColor::Hsv );
+
+    backColor1 = new QColor( c );
+    backColor2 = new QColor( 255, 255, 255 );
     selectedBack = new QColor( 230, 230, 230 );
 }
 
