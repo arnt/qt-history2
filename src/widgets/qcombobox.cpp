@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#215 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#216 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -176,7 +176,7 @@ struct QComboData
     QPopupMenu * popup() { ASSERT(!usingLBox); return pop; }
 
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE; }
-    void setPopupMenu( QPopupMenu * p ) { pop = p; usingLBox = FALSE; }
+    void setPopupMenu( QPopupMenu * pm ) { pop = pm; usingLBox = FALSE; }
 
     int		current;
     int		maxCount;
