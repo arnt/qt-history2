@@ -154,6 +154,7 @@ void Q4MenuPrivate::updateActions()
 	return;
     for(QList<Q4MenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
 	delete (*it);
+    sloppyAction = 0;
     actionItems = calcActionRects();
     ncols = 1;
     if(!scroll) {
@@ -175,8 +176,8 @@ QRect Q4MenuPrivate::actionRect(Q4MenuAction *act)
 	ret.moveBy(0, scroll->scrollOffset);
     if(tearoff)
 	ret.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, q));
-     const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q);
-     ret.moveBy(fw, fw);
+    const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q);
+    ret.moveBy(fw, fw);
     return ret;
 }
 
@@ -246,20 +247,23 @@ void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, int popup, bool activ
     d->tearoffHighlighted = 0;
     if(action == currentAction)
 	return;
-    if(activeMenu) {
-	Q4Menu *menu = activeMenu;
-	activeMenu = NULL;
-	menu->hide();
-    }
     if(currentAction)
 	q->update(actionRect(currentAction));
 
+    d->sloppyAction = 0;
+    if(!sloppyRegion.isEmpty()) 
+	sloppyRegion = QRegion();
     currentAction = action;
     if(action && !action->action->isSeparator()) {
 	action->action->activate(QAction::Hover);
 	if(popup != -1)
 	    popupAction(d->currentAction, popup, activateFirst);
 	q->update(actionRect(action));
+    } 
+    if(activeMenu && (!action || !action->action->menu())) { //otherwise done in popupAction
+	Q4Menu *menu = activeMenu;
+	activeMenu = NULL;
+	menu->hide();
     }
 }
 
@@ -675,6 +679,7 @@ void Q4Menu::hideEvent(QHideEvent *)
 #endif
     if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(d->causedPopup))
 	mb->d->setCurrentAction(0);
+    d->mouseDown = false;
     d->causedPopup = 0;
 }
 
@@ -1060,14 +1065,35 @@ void Q4Menu::mouseMoveEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
 	return;
-    d->mouseDown = e->state() & LeftButton;
 
     Q4MenuAction *action = d->actionAt(e->pos());
-    d->setCurrentAction(action, style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this));
+    if(!action) {
+	const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q);
+	if(e->pos().x() <= fw || e->pos().x() >= width()-fw ||
+	   e->pos().y() <= fw || e->pos().y() >= height()-fw) 
+	    return; //mouse over frame
+    } else {
+	d->mouseDown = e->state() & LeftButton;
+    }
+    if(d->sloppyRegion.contains(e->pos())) {
+	static QTimer *sloppyDelayTimer = 0;
+	if(!sloppyDelayTimer) 
+	    sloppyDelayTimer = new QTimer(qApp, "menu sloppy timer");
+	sloppyDelayTimer->disconnect(SIGNAL(timeout()));
+	QObject::connect(sloppyDelayTimer, SIGNAL(timeout()), 
+			 q, SLOT(internalSetSloppyAction()));
+	sloppyDelayTimer->start(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this)*6, true);
+	d->sloppyAction = action;
+    } else {
+	d->setCurrentAction(action, style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this));
+    }
 }
 
 void Q4Menu::leaveEvent(QEvent *)
 {
+    d->sloppyAction = 0;
+    if(!d->sloppyRegion.isEmpty()) 
+	d->sloppyRegion = QRegion();
 #if 0
     if(!d->tornoff)
 	d->setCurrentAction(0);
@@ -1099,33 +1125,67 @@ void Q4Menu::actionEvent(QActionEvent *e)
     update();
 }
 
+void Q4Menu::internalSetSloppyAction()
+{
+    if(d->sloppyAction)
+	d->setCurrentAction(d->sloppyAction, 0);
+}
+
 void Q4Menu::internalDelayedPopup()
 {
+    //hide the current item
+    if(Q4Menu *menu = d->activeMenu) {
+	d->activeMenu = NULL;
+	menu->hide();
+    }
+
     //setup
+    QRect actionRect(d->actionRect(d->currentAction));
+    QPoint pos(mapToGlobal(QPoint(width(), actionRect.top())));
     d->activeMenu = d->currentAction->action->menu();
     d->activeMenu->d->causedPopup = this;
     if(d->activeMenu->parent() != this)
 	d->activeMenu->setParent(this, d->activeMenu->getWFlags());
 
     bool on_left = false;     //find "best" position
-    const QSize size(d->activeMenu->sizeHint());
+    const QSize menuSize(d->activeMenu->sizeHint());
     if(QApplication::reverseLayout()) {
 	on_left = true;
 	Q4Menu *caused = qt_cast<Q4Menu*>(d->causedPopup);
-	if(caused && caused->x() < x() || x() - size.width() < 0)
+	if(caused && caused->x() < x() || x() - menuSize.width() < 0)
 	    on_left = false;
     } else {
 	Q4Menu *caused = qt_cast<Q4Menu*>(d->causedPopup);
 	if(caused && caused->x() > x() || 
-	   x() + width() + size.width() > QApplication::desktop()->width())
+	   x() + width() + menuSize.width() > QApplication::desktop()->width())
 	    on_left = true;
+    }
+    if(on_left) 
+	pos.setX(-menuSize.width());
+
+    //calc sloppy focus buffer
+    if(style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this)) {
+	QPoint cur = QCursor::pos();
+	if(actionRect.contains(mapFromGlobal(cur))) {
+	    QPoint pts[4];
+	    pts[0] = QPoint(cur.x(), cur.y() - 2);
+	    pts[3] = QPoint(cur.x(), cur.y() + 2);
+	    if(pos.x() >= cur.x())	{
+		pts[1] = QPoint(geometry().right(), pos.y());
+		pts[2] = QPoint(geometry().right(), pos.y() + menuSize.height());
+	    } else {
+		pts[1] = QPoint(pos.x() + menuSize.width(), pos.y());
+		pts[2] = QPoint(pos.x() + menuSize.width(), pos.y() + menuSize.height());
+	    }
+	    QPointArray points(4);
+	    for(int i = 0; i < 4; i++)
+		points.setPoint(i, mapFromGlobal(pts[i]));
+	    d->sloppyRegion = QRegion(points);
+	}
     }
 
     //do the popup
-    QPoint pos(width(), d->actionRect(d->currentAction).top());
-    if(on_left) 
-	pos.setX(-size.width());
-    d->activeMenu->popup(mapToGlobal(pos));
+    d->activeMenu->popup(pos);
 }
 
 void Q4Menu::internalActionActivated()

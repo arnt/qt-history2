@@ -19,7 +19,7 @@ class Q4MenuPrivate : public QWidgetPrivate
 public:
     Q4MenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0), 
 		      currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
-		      checkable(0)  { }  
+		      checkable(0), sloppyAction(0)  { }  
     ~Q4MenuPrivate() 
     { 
 	for(QList<Q4MenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it) 
@@ -77,6 +77,10 @@ public:
 
     //checkable
     uint checkable : 1;
+
+    //sloppy selection
+    Q4MenuAction *sloppyAction;
+    QRegion sloppyRegion;
 };
 
 class Q4MenuBarPrivate : public QWidgetPrivate

@@ -61,6 +61,7 @@ protected:
     bool event(QEvent *);
 
 private slots:
+    void internalSetSloppyAction();
     void internalDelayedPopup();
     void internalActionActivated();
     void internalActionHighlighted();
