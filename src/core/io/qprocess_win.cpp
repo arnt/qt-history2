@@ -171,7 +171,7 @@ static void qt_create_pipes(QProcessPrivate *that)
         if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
                          &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
         return;
-        
+
     } else {
         if (!CreatePipe(&tmpStdout, &that->standardReadPipe[1], &secAtt, 0))
             return;
@@ -333,7 +333,7 @@ void QProcessPrivate::startProcess()
     qDebug("   args : %s", args.latin1());
     qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
 #endif
-    
+
 #ifdef UNICODE
     if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
 	STARTUPINFOW startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
@@ -361,7 +361,7 @@ void QProcessPrivate::startProcess()
                                      0, 0, 0,
                                      writePipe[0], standardReadPipe[1], errorReadPipe[1]
 	};
-     
+
 	success = CreateProcessA(0, args.toLocal8Bit().data(),
                                  0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.toLocal8Bit(), &startupInfo, pid);
@@ -664,47 +664,6 @@ void QProcessPrivate::notified()
         canReadStandardError();
 
     notifier->start(NOTIFYTIMEOUT);
-}
-
-bool QProcessPrivate::execute(const QString &program, const QStringList &arguments,
-                             const QString &workingDir, const QStringList &environment)
-{
-    QString args = qt_create_commandline(program, arguments);
-    QByteArray envlist = qt_create_environment(environment);
-
-    bool success = false;
-
-    PROCESS_INFORMATION pinfo;
-
-#ifdef UNICODE
-    if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-        STARTUPINFOW startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
-	                             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-	                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                                   };
-        success = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
-                                 environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDir.isEmpty() ? 0 : (WCHAR*)workingDir.utf16(),
-                                 &startupInfo, &pinfo);
-    } else
-#endif // UNICODE
-    {
-#ifndef Q_OS_TEMP
-	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
-                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	                           };
-	success = CreateProcessA(0, args.toLocal8Bit().data(),
-                                 0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDir.isEmpty() ? 0 : workingDir.toLocal8Bit(),
-                                 &startupInfo, &pinfo);
-#endif // Q_OS_TEMP
-    }
-
-    return success;
 }
 
 #include "qprocess_win.moc"

@@ -121,9 +121,6 @@ public:
     qint64 writeToStdin(const char *data, qint64 maxlen);
 
     void cleanup();
-
-    static bool execute(const QString &program, const QStringList &arguments,
-                       const QString &workingDir, const QStringList &environment);
 };
 
 #endif // QPROCESS_P_H

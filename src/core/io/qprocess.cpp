@@ -1144,20 +1144,34 @@ int QProcess::exitCode() const
 }
 
 /*!
-    Executes \a program as a new process, passing the command line
-    \a arguments. It is also possible to modify the \a workingDir and
-    \a environment for the process. The new process is detached and there
-    is no way to interact with it from QProcess.
-
-    This function will return true if the process was execute successfully,
-    this does not reflect the exit vaue of the process.
-
-    \sa start()
+    Starts the program \a program with the arguments \a arguments in a
+    new process, waits for it to finish, and then returns the exit
+    code of the process. Any data the new process writes to the
+    console is forwarded to the calling process.
 */
-bool QProcess::execute(const QString &program, const QStringList &arguments,
-                      const QString &workingDir, const QStringList &environment)
+int QProcess::execute(const QString &program, const QStringList &arguments)
 {
-    return QProcessPrivate::execute(program, arguments, workingDir, environment);
+    QProcess process;
+    process.setReadChannelMode(ForwardedChannels);
+    process.start(program, arguments);
+    process.waitForFinished(-1);
+    return process.exitCode();
+}
+
+/*!
+    \overload
+
+    Starts the program \a program in a new process. \a program is a
+    single string of text containing both the program name and its
+    arguments. The arguments are separated by one or more spaces.
+*/
+int QProcess::execute(const QString &program)
+{
+    QProcess process;
+    process.setReadChannelMode(ForwardedChannels);
+    process.start(program);
+    process.waitForFinished(-1);
+    return process.exitCode();
 }
 
 #define d d_func()

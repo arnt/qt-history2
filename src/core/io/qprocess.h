@@ -98,8 +98,9 @@ public:
     bool canReadLine() const;
     void close();
 
-    static bool execute(const QString &program, const QStringList &arguments = QStringList(),
-        const QString &workingDir = QString::null, const QStringList &environment = QStringList());
+    static int execute(const QString &program, const QStringList &arguments);
+    static int execute(const QString &program);
+
 signals:
     void started();
     void finished(int exitCode);
