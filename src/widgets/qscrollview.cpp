@@ -109,8 +109,8 @@ public:
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
 	viewport->ensurePolished();
-	viewport->setPalettePolicy( QPalette::Dark );
-	parent->setPalettePolicy( QPalette::Background );
+	viewport->setBackgroundRole( QPalette::Dark );
+	parent->setBackgroundRole( QPalette::Background );
 	vMode = QScrollView::Auto;
 	hMode = QScrollView::Auto;
 	corner = 0;

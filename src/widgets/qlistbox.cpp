@@ -984,7 +984,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(ensureCurrentVisible()) );
     connect( d->resizeTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
-    viewport()->setPalettePolicy( QPalette::Base );
+    viewport()->setBackgroundRole( QPalette::Base );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 }
@@ -4024,7 +4024,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     p->save();
     if ( i->s ) {
 	if ( i->custom_highlight ) {
-	    p->fillRect( 0, 0, cw, ch, pal.brush( viewport()->palettePolicy().foreground() ) );
+	    p->fillRect( 0, 0, cw, ch, pal.brush( viewport()->foregroundRole() ) );
 	    p->setPen( pal.highlightedText() );
 	    p->setBackgroundColor( pal.highlight() );
 	} else if ( numColumns()  == 1 ) {
@@ -4034,12 +4034,12 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	} else {
 	    int iw = i->width( this );
 	    p->fillRect( 0, 0, iw, ch, pal.brush( QPalette::Highlight ) );
-	    p->fillRect( iw, 0, cw - iw + 1, ch, pal.brush( viewport()->palettePolicy().background() ) );
+	    p->fillRect( iw, 0, cw - iw + 1, ch, viewport()->background() );
 	    p->setPen( pal.highlightedText() );
 	    p->setBackgroundColor( pal.highlight() );
 	}
     } else {
-	p->fillRect( 0, 0, cw, ch, pal.brush( viewport()->palettePolicy().background() ) );
+	p->fillRect( 0, 0, cw, ch, viewport()->background());
     }
 
     i->paint( p );

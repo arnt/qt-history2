@@ -1134,7 +1134,7 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     lined = new QRenameEdit( box );
     lined->setFixedHeight( lined->sizeHint().height() );
     box->hide();
-    box->setPalettePolicy( QPalette::Base );
+    box->setBackgroundRole( QPalette::Base );
     renameTimer = new QTimer( this );
     connect( lined, SIGNAL( doRename() ),
 	     this, SLOT (rename() ) );
@@ -1152,8 +1152,8 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
 
 void QFileListBox::show()
 {
-    setPalettePolicy( QPalette::Base );
-    viewport()->setPalettePolicy( QPalette::Base );
+    setBackgroundRole( QPalette::Base );
+    viewport()->setBackgroundRole( QPalette::Base );
     QListBox::show();
 }
 
@@ -1519,7 +1519,7 @@ QFileDialogQFileListView::QFileDialogQFileListView( QWidget *parent, QFileDialog
     lined = new QRenameEdit( box );
     lined->setFixedHeight( lined->sizeHint().height() );
     box->hide();
-    box->setPalettePolicy( QPalette::Base );
+    box->setBackgroundRole( QPalette::Base );
     renameTimer = new QTimer( this );
     connect( lined, SIGNAL( doRename() ),
 	     this, SLOT (rename() ) );

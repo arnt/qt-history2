@@ -824,8 +824,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	    // or else we cannot see the progress...
 	    QPalette pal2 = pal;
 	    if ( pal2.highlight() == pal2.background() )
-		pal2.setColor( QPalette::Highlight, 
-			       progressbar->palette().color(QPalette::Active, 
+		pal2.setColor( QPalette::Highlight,
+			       progressbar->palette().color(QPalette::Active,
 							    QPalette::Highlight ));
 	    bool reverse = QApplication::reverseLayout();
 	    int fw = 2;
@@ -1507,7 +1507,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 
 	    QPalette pal2 = pal;
-	    if ( toolbutton->palettePolicy().background() != QPalette::Button )
+	    if ( toolbutton->backgroundRole() != QPalette::Button )
 		pal2.setBrush( QPalette::Button,
 			    toolbutton->paletteBackgroundColor() );
 	    QRect button, menuarea;

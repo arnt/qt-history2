@@ -125,7 +125,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup ) 
+    if ( popup )
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
 
     if ( sw < 0 ) {				// get the (primary) screen size
@@ -546,7 +546,7 @@ void QWidget::setCursor( const QCursor &cursor )
 	delete d->extra->curs;
 	d->extra->curs = new QCursor(cursor);
     }
-    setWState( WState_OwnCursor );
+    setAttribute( WA_SetCursor );
     qt_set_cursor( this, QWidget::cursor() );
 }
 
@@ -557,7 +557,7 @@ void QWidget::unsetCursor()
 	d->extra->curs = 0;
     }
     if ( !isTopLevel() )
-	clearWState( WState_OwnCursor );
+	setAttribute(WA_SetCursor, false);
     qt_set_cursor( this, cursor() );
 }
 

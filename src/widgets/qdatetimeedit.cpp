@@ -443,7 +443,7 @@ QDateTimeEditor::~QDateTimeEditor()
 
 void QDateTimeEditor::init()
 {
-    setPalettePolicy(QPalette::Base);
+    setBackgroundRole(QPalette::Base);
     setFocusSection( -1 );
     installEventFilter( this );
     setFocusPolicy( WheelFocus );

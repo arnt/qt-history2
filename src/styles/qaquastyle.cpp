@@ -295,7 +295,7 @@ void QAquaStyle::unPolish(QWidget * w)
 
     if(!w->isTopLevel()) {
         if(!w->inherits("QSplitter") && w->backgroundPixmap() &&
-            (w->palettePolicy().background() == QPalette::Background))
+            (w->backgroundRole() == QPalette::Background))
             w->setBackgroundOrigin(QWidget::WidgetOrigin);
     }
 }
@@ -1125,7 +1125,7 @@ void QAquaStyle::drawControl(ControlElement element,
 	    w -= pixw + 4;
 	}
 
-	QWindowsStyle::drawItem(p, QRect(x, y, w, h), AlignCenter|ShowPrefix, pal, 
+	QWindowsStyle::drawItem(p, QRect(x, y, w, h), AlignCenter|ShowPrefix, pal,
 				btn->isEnabled(), btn->pixmap(), btn->text(), -1);
 #endif
 	break; }
@@ -1486,7 +1486,7 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		qAquaPixmap("win_fill", fill);
 		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
 		QPalette pal2 = tb->palette();
-		pal2.setCurrentSelection(tb->usesActiveColor() ? QPalette::Active : 
+		pal2.setCurrentSelection(tb->usesActiveColor() ? QPalette::Active :
 					 QPalette::Inactive);
 		p->setPen(pal.highlightedText());
 		p->save();
@@ -1520,7 +1520,7 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		if(y + child->height() > 0) {
 		    if(child->isExpandable() || child->childCount())
 			drawPrimitive(child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
-				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), 
+				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9),
 				      pal2);
 		}
 	    }
@@ -1614,7 +1614,7 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    }
 	    if(qAquaActive(pal))
 		qAquaPixmap("sldr_act_pty_" + dir + "_" + hstr, px);
-	    else 
+	    else
 		qAquaPixmap("sldr_dis_pty_" + dir + "_" + hstr, px);
 	    sldr->erase(re.x(), re.y(), px.width(), px.height());
 	    p->drawPixmap(re.x(), re.y(), px);

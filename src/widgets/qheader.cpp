@@ -375,7 +375,7 @@ void QHeader::init( int n )
 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
-    setPalettePolicy( QPalette::Button );
+    setBackgroundRole( QPalette::Button );
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 }
 

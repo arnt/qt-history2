@@ -186,7 +186,7 @@ public slots:
     void destroyedObject(QObject *);
 };
 #include "qmacstyle_mac.moc"
-void QMacStylePrivate::PolicyState::watchObject(QObject *o) 
+void QMacStylePrivate::PolicyState::watchObject(QObject *o)
 {
     static QGuardedPtr<QMacStylePrivateObjectWatcher> watcher;
     if(!watcher)
@@ -387,12 +387,12 @@ void QMacStyle::polish(QWidget* w)
 	pal.setBrush(QPalette::Background, background);
 	pal.setBrush(QPalette::Button, background);
 	w->setPalette(pal);
-    } 
+    }
 #endif
 
 #if QT_MACOSX_VERSION >= 0x1020
-    if(w->inherits("QGroupBox")) 
-	w->setAttribute(QWidget::WA_ContentsInherited, true);
+    if(w->inherits("QGroupBox"))
+	w->setAttribute(QWidget::WA_ContentsPropagated, true);
 #endif
 
     if(w->inherits("QLineEdit")) {
@@ -1500,7 +1500,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 		bkind = kThemeArrowButtonSmall;
 #endif
-	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)), 
+	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)),
 			    bkind, &info, NULL, NULL, NULL, 0);
 	} else {
 	    info.adornment |= kThemeAdornmentArrowLeftArrow;
@@ -1671,9 +1671,9 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	const int spinner_w = 15, spinner_h = 10; //isn't there some way to get this from the AppMan?
 	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
 	switch(sc) {
-	case SC_SpinWidgetUp: 
+	case SC_SpinWidgetUp:
 	    return QRect(x, y + (((w->height()-(fw*2)) / 2) - spinner_h), spinner_w, spinner_h);
-	case SC_SpinWidgetDown: 
+	case SC_SpinWidgetDown:
 	    return QRect(x, y + ((w->height()-(fw*2)) / 2), spinner_w, spinner_h);
 	case SC_SpinWidgetButtonField:
 	    return QRect(x, y, spinner_w, w->height() - (fw*2));

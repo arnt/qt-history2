@@ -136,7 +136,7 @@ public:
 	WState_Visible		= 0x00000004,
 	WState_Hidden		= 0x00000008,
 	WState_ForceHide	= WState_Hidden,
-	WState_OwnCursor	= 0x00000010,
+	WState_Reserve6		= 0x00000010,
 	WState_Reserve5		= 0x00000020, // was MouseTracking
 	WState_CompressKeys	= 0x00000040,
 	WState_BlockUpdates	= 0x00000080,

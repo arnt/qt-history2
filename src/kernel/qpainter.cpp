@@ -3572,7 +3572,7 @@ QBrush::QBrush()
 
 QBrush::QBrush(const QPixmap &pixmap)
 {
-    init(Qt::black, CustomPattern);
+    init(Qt::green, CustomPattern);
     setPixmap(pixmap);
 }
 

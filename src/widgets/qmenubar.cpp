@@ -267,7 +267,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
     installEventFilter( this );
 
-    setPalettePolicy( QPalette::Button );
+    setBackgroundRole( QPalette::Button );
     setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
 
     QFontMetrics fm = fontMetrics();

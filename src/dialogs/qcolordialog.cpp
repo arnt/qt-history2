@@ -125,7 +125,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     setFocusPolicy( StrongFocus );
     setVScrollBarMode(AlwaysOff);
     setHScrollBarMode(AlwaysOff);
-    viewport()->setPalettePolicy( QPalette::Background );
+    viewport()->setBackgroundRole( QPalette::Background );
     setNumCols( 7 );
     setNumRows( 7 );
     setCellWidth( 24 );

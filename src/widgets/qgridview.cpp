@@ -70,8 +70,8 @@ QGridView::QGridView( QWidget *parent, const char *name, WFlags f )
     :QScrollView( parent, name, f | WStaticContents ),
      nrows( 5 ), ncols( 5 ), cellw( 12 ), cellh( 12 )
 {
-    viewport()->setPalettePolicy( QPalette::Base );
-    setPalettePolicy( QPalette::Background );
+    viewport()->setBackgroundRole( QPalette::Base );
+    setBackgroundRole( QPalette::Background );
     viewport()->setFocusProxy( this );
 }
 

@@ -998,7 +998,7 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     dirtyClippedRegion(TRUE);
 
     QCursor oldcurs;
-    bool setcurs=testWState(WState_OwnCursor);
+    bool setcurs=testAttribute(WA_SetCursor);
     if(setcurs) {
 	oldcurs = cursor();
 	unsetCursor();
@@ -1131,7 +1131,7 @@ void QWidget::setCursor(const QCursor &cursor)
     d->createExtra();
     delete d->extraData()->curs;
     d->extraData()->curs = new QCursor(cursor);
-    setWState(WState_OwnCursor);
+    setAttribute(WA_SetCursor);
 
     if(qApp && qApp->activeWindow() &&
        QApplication::widgetAt(QCursor::pos(), TRUE) == this) {
@@ -1154,7 +1154,7 @@ void QWidget::unsetCursor()
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
-	clearWState(WState_OwnCursor);
+	setAttribute(WA_SetCursor, false);
     }
 
     if(qApp && qApp->activeWindow() &&
@@ -1852,14 +1852,12 @@ void QWidget::erase(const QRegion& reg)
 {
     if(testAttribute(WA_NoErase) || isDesktop() || !isVisible())
 	return;
-    if(!testWFlags(WType_TopLevel|WSubWindow) && 
-       palettePolicy().background() == QPalette::Inherited) {
+    if(d->isBackgroundInherited()) {
 	QPoint offset(pos());
 	QStack<QWidget*> parents;
-	for(QWidget *p = parentWidget(); p; p = p->parentWidget()) { 
+	for(QWidget *p = parentWidget(); p; p = p->parentWidget()) {
 	    parents.push(p);
-	    if(p->testWFlags(WType_TopLevel|WSubWindow) ||
-	       p->palettePolicy().background() != QPalette::Inherited)
+	    if(!p->d->isBackgroundInherited())
 		break;
 	    offset += p->pos();
 	}
@@ -1871,7 +1869,7 @@ void QWidget::erase(const QRegion& reg)
 	    qt_erase_region(p, preg);
 	    qt_clear_paintevent_clipping(p);
 	    for(;;) {
-		if(p->testAttribute(WA_ContentsInherited)) {
+		if(p->testAttribute(WA_ContentsPropagated)) {
 		    p->setWState(WState_InPaintEvent);
 		    qt_set_paintevent_clipping(p, preg, this);
 		    QPaintEvent e(preg);

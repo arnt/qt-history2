@@ -1385,8 +1385,8 @@ static void qt_set_qws_resources()
 	    pal.setColor( QPalette::HighlightedText, Qt::white );
 	    pal.setColor( QPalette::Highlight, Qt::darkBlue );
 	}
-	pal.setColor(QPalette::Disabled, QPalette::Foreground, 
-		     QColor( (fg.red()+btn.red())/2, (fg.green()+btn.green())/2, 
+	pal.setColor(QPalette::Disabled, QPalette::Foreground,
+		     QColor( (fg.red()+btn.red())/2, (fg.green()+btn.green())/2,
 			     (fg.blue()+btn.blue())/2));
 	pal.setColor(QPalette::Disabled, QPalette::Light, btn.light(125));
 	pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
@@ -1872,7 +1872,7 @@ void QApplication::restoreOverrideCursor()
 	delete cursorStack;
 	cursorStack = 0;
 	qws_overrideCursor = FALSE;
-	if ( w->testWState(WState_OwnCursor) )
+	if ( w->testAttribute(WA_SetCursor) )
 	    QPaintDevice::qwsDisplay()->selectCursor(w, (int)w->cursor().handle());
 	else
 	    QPaintDevice::qwsDisplay()->selectCursor(w, ArrowCursor);

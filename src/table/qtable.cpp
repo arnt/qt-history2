@@ -2004,7 +2004,7 @@ void QTable::init( int rows, int cols )
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 
-    viewport()->setPalettePolicy( QPalette::Base );
+    viewport()->setBackgroundRole( QPalette::Base );
 
 #ifndef QT_NO_DRAGANDDROP
     setDragAutoScroll( FALSE );
@@ -2668,9 +2668,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	return;
     }
 
-    drawActiveSelection = hasFocus() || viewport()->hasFocus() || d->inMenuMode 
-			|| is_child_of( qApp->focusWidget(), viewport() ) 
-			|| !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ); 
+    drawActiveSelection = hasFocus() || viewport()->hasFocus() || d->inMenuMode
+			|| is_child_of( qApp->focusWidget(), viewport() )
+			|| !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this );
     if ( rowlast == -1 )
 	rowlast = numRows() - 1;
     if ( collast == -1 )
@@ -4185,8 +4185,8 @@ void QTable::focusOutEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );
     if (style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )) {
-	d->inMenuMode = 
-	    QFocusEvent::reason() == QFocusEvent::Popup || 
+	d->inMenuMode =
+	    QFocusEvent::reason() == QFocusEvent::Popup ||
 	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
 	if ( !d->inMenuMode )
 	    repaintSelections();
@@ -5316,12 +5316,12 @@ void QTable::activateNextCell()
     int nextCol = curCol;
     while ( d->hiddenRows.find( ++nextRow ) );
     if ( nextRow >= numRows() ) {
-	nextRow = firstRow;	    
+	nextRow = firstRow;
 	while ( d->hiddenCols.find( ++nextCol ) );
 	if ( nextCol >= numCols() )
 		nextCol = firstCol;
     }
-    
+
     if ( !currentSel || !currentSel->isActive() ||
 	 ( currentSel->leftCol() == currentSel->rightCol() &&
 	   currentSel->topRow() == currentSel->bottomRow() ) ) {
@@ -6255,11 +6255,11 @@ QTableHeader::QTableHeader( int i, QTable *t,
 #ifndef NO_LINE_WIDGET
     line1 = new QWidget( table->viewport(), "qt_line1" );
     line1->hide();
-    line1->setPalettePolicy( QPalette::Text );
+    line1->setBackgroundRole( QPalette::Text );
     table->addChild( line1 );
     line2 = new QWidget( table->viewport(), "qt_line2" );
     line2->hide();
-    line2->setPalettePolicy( QPalette::Text );
+    line2->setBackgroundRole( QPalette::Text );
     table->addChild( line2 );
 #else
     d = new QTableHeaderPrivate;

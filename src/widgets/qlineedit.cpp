@@ -2216,7 +2216,7 @@ void QLineEditPrivate::init( const QString& txt )
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
     q->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-    q->setPalettePolicy( QPalette::Base );
+    q->setBackgroundRole( QPalette::Base );
     q->setAttribute(QWidget::WA_KeyCompression, true);
     q->setMouseTracking( TRUE );
     q->setAcceptDrops( TRUE );

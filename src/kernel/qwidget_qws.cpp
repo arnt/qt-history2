@@ -249,7 +249,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	if ( initializeWindow ) {
 	    //XXX XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
 	}
-	setWState( WState_OwnCursor );
+	setAttribute( WA_SetCursor );
     }
 
     if ( topLevel ) {
@@ -343,7 +343,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 {
 #ifndef QT_NO_CURSOR
     QCursor oldcurs;
-    bool setcurs=testWState(WState_OwnCursor);
+    bool setcurs=testAttribute(WA_SetCursor);
     if ( setcurs ) {
 	oldcurs = cursor();
 	unsetCursor();
@@ -459,7 +459,7 @@ void QWidget::setCursor( const QCursor &cursor )
     d->createExtra();
     delete d->extra->curs;
     d->extra->curs = new QCursor(cursor);
-    setWState( WState_OwnCursor );
+    setAttribute( WA_SetCursor );
     if ( isVisible() )
 	updateCursor( paintableRegion() );
 }
@@ -470,7 +470,7 @@ void QWidget::unsetCursor()
 	delete d->extra->curs;
 	d->extra->curs = 0;
     }
-    clearWState( WState_OwnCursor );
+    setAttribute(WA_SetCursor, false);
     if ( isVisible() )
 	updateCursor( paintableRegion() );
 }

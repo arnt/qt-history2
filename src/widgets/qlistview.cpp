@@ -2044,9 +2044,8 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    const QPalette::ColorRole crole = lv->palettePolicy().foreground();
-    if ( pal.brush( crole ) != lv->palette().brush( crole ) )
-	p->fillRect( 0, 0, width, height(), pal.brush( crole ) );
+    if (pal.foreground() != lv->foreground())
+	p->fillRect( 0, 0, width, height(), pal.foreground());
     else
 	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
@@ -2650,7 +2649,7 @@ void QListView::init()
 
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
-    viewport()->setPalettePolicy( QPalette::Base );
+    viewport()->setBackgroundRole( QPalette::Base );
 }
 
 /*!
@@ -4548,8 +4547,8 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
-    if ( i != d->highlighted && 
-	 !(d->pressedItem && 
+    if ( i != d->highlighted &&
+	 !(d->pressedItem &&
 	   ( d->pressedItem->isSelected() || d->selectionMode == NoSelection ) &&
 	   d->pressedItem->dragEnabled() )) {
 
@@ -6566,7 +6565,7 @@ void QCheckListItem::paintCell( QPainter * p, const QPalette & pal,
     if ( !lv )
 	return;
 
-    const QPalette::ColorRole crole = lv->palettePolicy().foreground();
+    const QPalette::ColorRole crole = lv->foregroundRole();
     if ( pal.brush( crole ) != lv->palette().brush( crole ) )
 	p->fillRect( 0, 0, width, height(), pal.brush( crole ) );
     else

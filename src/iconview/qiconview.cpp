@@ -2772,7 +2772,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
-    viewport()->setPalettePolicy( QPalette::Base );
+    viewport()->setBackgroundRole( QPalette::Base );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( QWidget::WheelFocus );
 

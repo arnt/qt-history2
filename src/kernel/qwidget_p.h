@@ -133,8 +133,10 @@ public:
     QWidgetPrivate() :
 	QObjectPrivate(), extra(0), focus_child(0),
 #ifndef QT_NO_LAYOUT
-	layout(0)
+	layout(0),
 #endif
+	fg_role(QPalette::Foreground),
+	bg_role(QPalette::Background)
 	{high_attributes[0] = 0;}
     ~QWidgetPrivate();
 
@@ -151,6 +153,9 @@ public:
     void setBackgroundBrush(const QBrush &);
     void propagatePaletteChange();
 
+    bool isForegroundInherited() const;
+    bool isBackgroundInherited() const;
+
 #if defined(Q_WS_X11)
     void createInputContext();
     void destroyInputContext();
@@ -163,13 +168,13 @@ public:
     QWidget *focus_child;
     QColor fg_color;
     QBrush bg_brush;
-
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
+    QPalette::ColorRole fg_role : 8;
+    QPalette::ColorRole bg_role : 8;
 
-#define WA_MAX 32
-    uint high_attributes[WA_MAX/sizeof(uint)]; // the low ones are in QWidget::widget_attributes
+    uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

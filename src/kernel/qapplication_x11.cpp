@@ -2691,7 +2691,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 
     for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	register QWidget *w = *it;
-	if ( w->testWState( WState_OwnCursor ) )
+	if ( w->testAttribute( QWidget::WA_SetCursor ) )
 	    qt_x11_enforce_cursor( w );
     }
     XFlush( appDpy );				// make X execute it NOW
@@ -2717,7 +2717,7 @@ void QApplication::restoreOverrideCursor()
     if ( QWidget::mapper != 0 && !closingDown() ) {
 	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
 	    register QWidget *w = *it;
-	    if ( w->testWState( WState_OwnCursor ) )
+	    if ( w->testAttribute( QWidget::WA_SetCursor ) )
 		qt_x11_enforce_cursor( w );
 	}
 	XFlush( appDpy );

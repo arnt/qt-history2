@@ -939,8 +939,9 @@ void QTextEdit::init()
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
 
-    setPalettePolicy( QPalette::Base );
-    viewport()->setPalettePolicy( QPalette::Base );
+    setBackgroundRole( QPalette::Base );
+    viewport()->setBackgroundRole( QPalette::Base );
+
     viewport()->setAcceptDrops( TRUE );
     resizeContents( 0, doc->lastParagraph() ?
 		    ( doc->lastParagraph()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
@@ -1005,17 +1006,16 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 	isReadOnly() || !cursorVisible )
 	drawCur = FALSE;
     QPalette pal = palette();
-    const QPalette::ColorRole backRole = palettePolicy().background();
     if ( doc->paper() )
-	pal.setBrush( backRole, *doc->paper() );
+	pal.setBrush( QPalette::Base, *doc->paper() );
 
     if ( contentsY() < doc->y() ) {
 	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
-		     pal.brush( backRole ) );
+		     pal.base() );
     }
     if ( drawAll && doc->width() - contentsX() < cx + cw ) {
 	p->fillRect( doc->width() - contentsX(), cy, cx + cw - doc->width() + contentsX(), ch,
-		     pal.brush( backRole ) );
+		     pal.base() );
     }
 
     p->setBrushOrigin( -contentsX(), -contentsY() );
@@ -1027,7 +1027,7 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
 
     if ( contentsHeight() < visibleHeight() && ( !doc->lastParagraph() || doc->lastParagraph()->isValid() ) && drawAll )
 	p->fillRect( 0, contentsHeight(), visibleWidth(),
-		     visibleHeight() - contentsHeight(), pal.brush( backRole ) );
+		     visibleHeight() - contentsHeight(), pal.base());
 }
 
 /*!
@@ -2071,7 +2071,7 @@ void QTextEdit::drawCursor( bool visible )
     p.translate( -contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY() );
     QPixmap *pix = 0;
     QPalette pal( palette() );
-    const QPalette::ColorRole backRole = palettePolicy().background();
+    const QPalette::ColorRole backRole = backgroundRole();
     if ( cursor->paragraph()->background() )
 	pal.setBrush( backRole, *cursor->paragraph()->background() );
     else if ( doc->paper() )
@@ -2441,19 +2441,19 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 	QTextParagraph *para = cursor->paragraph();
 	if ( cursor->isValid() ) {
 	    if ( para->at( cursor->index() )->c.isLetterOrNumber() ) {
-		while ( c1.index() > 0 && 
+		while ( c1.index() > 0 &&
 		        c1.paragraph()->at( c1.index()-1 )->c.isLetterOrNumber() )
 		    c1.gotoPreviousLetter();
 		while ( c2.paragraph()->at( c2.index() )->c.isLetterOrNumber() &&
 		        !c2.atParagEnd() )
 		    c2.gotoNextLetter();
 	    } else if ( para->at( cursor->index() )->c.isSpace() ) {
-		while ( c1.index() > 0 && 
+		while ( c1.index() > 0 &&
 		        c1.paragraph()->at( c1.index()-1 )->c.isSpace() )
 		    c1.gotoPreviousLetter();
 		while ( c2.paragraph()->at( c2.index() )->c.isSpace() &&
 		        !c2.atParagEnd() )
-		    c2.gotoNextLetter();		
+		    c2.gotoNextLetter();
 	    } else if ( !c2.atParagEnd() ) {
 		c2.gotoNextLetter();
 	    }
@@ -2463,7 +2463,7 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 	    c1.gotoPreviousWord();
 	if ( !cursor->paragraph()->at( cursor->index() )->c.isSpace() && !cursor->atParagEnd() )
 	    c2.gotoNextWord();
-#endif 
+#endif
 	doc->setSelectionStart( QTextDocument::Standard, c1 );
 	doc->setSelectionEnd( QTextDocument::Standard, c2 );
 

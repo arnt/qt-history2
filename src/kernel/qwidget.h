@@ -58,20 +58,6 @@ class QHideEvent;
 
 struct QWidgetPrivate;
 
-class Q_EXPORT QPalettePolicy
-{
-    uint bg : 6;
-    uint fg : 6;
-public:
-    QPalettePolicy();
-    QPalettePolicy(const QPalettePolicy &p);
-    QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f);
-    QPalettePolicy(QPalette::ColorRole b);
-
-    inline QPalette::ColorRole background() const { return (QPalette::ColorRole)bg; }
-    inline QPalette::ColorRole foreground() const { return (QPalette::ColorRole)fg; }
-};
-
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
@@ -94,7 +80,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect rect READ rect )
     Q_PROPERTY( QRect childrenRect READ childrenRect )
     Q_PROPERTY( QRegion childrenRegion READ childrenRegion )
-    Q_PROPERTY( QPalettePolicy palettePolicy READ palettePolicy WRITE setPalettePolicy DESIGNABLE false)
     Q_PROPERTY( QSizePolicy sizePolicy READ sizePolicy WRITE setSizePolicy )
     Q_PROPERTY( QSize minimumSize READ minimumSize WRITE setMinimumSize )
     Q_PROPERTY( QSize maximumSize READ maximumSize WRITE setMaximumSize )
@@ -104,16 +89,13 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false DESIGNABLE false )
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
-    Q_PROPERTY( QColor foreground READ foreground WRITE setForeground )
-    Q_PROPERTY( QBrush background READ background WRITE setBackground )
-    Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette  STORED ownPalette )
+    Q_PROPERTY( QColor foreground READ foreground WRITE setForeground RESET unsetForeground )
+    Q_PROPERTY( QBrush background READ background WRITE setBackground RESET unsetBackground )
+    Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
     Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
-    Q_PROPERTY( bool ownPalette READ ownPalette )
-    Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont STORED ownFont )
-    Q_PROPERTY( bool ownFont READ ownFont )
+    Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
 #ifndef QT_NO_CURSOR
-    Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor STORED ownCursor )
-    Q_PROPERTY( bool ownCursor READ ownCursor )
+    Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
     Q_PROPERTY( QString caption READ caption WRITE setCaption )
@@ -226,21 +208,24 @@ public:
 
     // Widget appearance functions
     const QPalette &	palette()    const;
-    bool		ownPalette() const;
     void	setPalette( const QPalette & );
     void		unsetPalette();
 
-    void setPalettePolicy(const QPalettePolicy &);
-    const QPalettePolicy &palettePolicy() const;
+    void setBackgroundRole(QPalette::ColorRole);
+    QPalette::ColorRole backgroundRole() const;
+
+    void setForegroundRole(QPalette::ColorRole);
+    QPalette::ColorRole foregroundRole() const;
 
     const QBrush &background() const;
     void setBackground(const QBrush &);
+    void unsetBackground();
 
     const QColor &foreground() const;
     void setForeground(const QColor &);
+    void unsetForeground();
 
     QFont		font() const;
-    bool		ownFont() const;
     void setFont( const QFont & );
     void		unsetFont();
     QFontMetrics	fontMetrics() const;
@@ -248,7 +233,6 @@ public:
 
 #ifndef QT_NO_CURSOR
     const QCursor      &cursor() const;
-    bool		ownCursor() const;
     void setCursor( const QCursor & );
     void unsetCursor();
 #endif
@@ -458,16 +442,22 @@ public:
 	WA_Disabled,
 	WA_UnderMouse,
 	WA_MouseTracking,
-	WA_ContentsInherited,
+	WA_ContentsPropagated,
 	WA_NoErase,
+	WA_ForegroundInherited,
+	WA_BackgroundInherited,
 
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,
 	WA_PendingMoveEvent,
 	WA_PendingResizeEvent,
-	WA_OwnPalette,
-	WA_OwnPalettePolicy,
-	WA_OwnFont
+	WA_SetPalette,
+	WA_SetFont,
+	WA_SetCursor,
+	WA_SetForeground,
+	WA_SetBackground,
+	WA_SetForegroundRole,
+	WA_SetBackgroundRole
     };
     void setAttribute(WidgetAttribute, bool = true);
     bool testAttribute(WidgetAttribute) const;
@@ -566,6 +556,11 @@ protected:
 
 #ifndef QT_NO_COMPAT
 public:
+#ifndef QT_NO_CURSOR
+    bool		ownCursor() const { return testAttribute(WA_SetCursor); }
+#endif
+    bool		ownFont() const  { return testAttribute(WA_SetFont); }
+    bool		ownPalette() const  { return testAttribute(WA_SetPalette); }
     BackgroundMode	backgroundMode() const;
     void setBackgroundMode( BackgroundMode );
     void 		setBackgroundMode( BackgroundMode, BackgroundMode );
@@ -634,7 +629,6 @@ private:
     void	 reparentFocusWidgets( QWidget * );
     void         setBackgroundEmpty();
     void	 updateFrameStrut() const;
-    const QWidget *findInheritedPalettePolicyWidget() const;
 
     WId		 winid;
     uint	 widget_state; // will go away, eventually
@@ -649,7 +643,6 @@ private:
     uint	 fstrut_dirty : 1;
     uint	 im_enabled : 1;
     QRect	 crect;
-    QPalettePolicy pal_policy;
 #ifndef QT_NO_PALETTE
     mutable QPalette	 pal;
 #endif
@@ -718,9 +711,6 @@ inline Qt::WState QWidget::testWState( WState s ) const
 
 inline Qt::WFlags QWidget::testWFlags( WFlags f ) const
 { return (widget_flags & f); }
-
-inline const QPalettePolicy &QWidget::palettePolicy() const
-{ return pal_policy; }
 
 inline WId QWidget::winId() const
 { return winid; }
@@ -890,23 +880,6 @@ inline void QWidget::setWFlags( WFlags f )
 inline void QWidget::clearWFlags( WFlags f )
 { widget_flags &= ~f; }
 
-#ifndef QT_NO_CURSOR
-inline bool QWidget::ownCursor() const
-{
-    return testWState( WState_OwnCursor );
-}
-#endif
-inline bool QWidget::ownFont() const
-{
-    return testAttribute(WA_OwnFont);
-}
-#ifndef QT_NO_PALETTE
-inline bool QWidget::ownPalette() const
-{
-    return testAttribute(WA_OwnPalette);
-}
-#endif
-
 inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 {
     setSizePolicy( QSizePolicy( hor, ver, hfw) );
@@ -919,7 +892,7 @@ inline bool QWidget::isInputMethodEnabled() const
 
 inline bool QWidget::testAttribute(WidgetAttribute attribute) const
 {
-    if (attribute < (1<<sizeof(uint)))
+    if (attribute <= int(8*sizeof(uint)))
 	return widget_attributes & (1<<attribute);
     return testAttribute_helper(attribute);
 }

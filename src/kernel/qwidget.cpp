@@ -66,120 +66,6 @@ void QWidgetPrivate::propagatePaletteChange()
     q->paletteChange(q->palette()); // compatibility
 }
 
-
-/*!
-    \class QPalettePolicy qwidget.h
-    \brief The QPalettePolicy class is used to set the background used for a QWidget.
-
-    \ingroup abstractwidgets
-
-    This class can be used to enum describes how the background of a widget changes, as the
-    widget's palette changes.
-
-    The background is what the widget contains when \link
-    QWidget::paintEvent() paintEvent()\endlink is called. To minimize
-    flicker, this should be the most common color or pixmap in the
-    widget. There are also two special values, listed at the end:
-
-    \value QPalette::Foreground
-    \value QPalette::Background
-    \value QPalette::Button
-    \value QPalette::Light
-    \value QPalette::Midlight
-    \value QPalette::Dark
-    \value QPalette::Mid
-    \value QPalette::Text
-    \value QPalette::BrightText
-    \value QPalette::ButtonText
-    \value QPalette::Base
-    \value QPalette::Shadow
-    \value QPalette::Highlight
-    \value QPalette::HighlightedText
-    \value QPalette::Link
-    \value QPalette::LinkVisited
-    \value QPalette::Overridden the widget is cleared to a fixed color
-    or pixmap, normally different from all the ones in the
-    palette(). Set using \link QWidget::setPaletteBackgroundColor()
-    setPaletteBackgroundColor()\endlink.
-    \value QPalette::Inherited the widget will allow a parent without
-    this palette policy (or top level) to shine through as if it was
-    the QWidget's background.
-
-    Although QPalette::Overridden is sometimes just right, if you use
-    them, make sure that you test your application when the desktop
-    color scheme has been changed. (On X11, a quick way to test this
-    is e.g. "./myapp -bg paleblue". On Windows, you must use the
-    control panel.)
-
-    \sa QWidget::setPalettePolicy() QWidget::palettePolicy()
-    QWidget::setBackgroundPixmap() QWidget::setPaletteBackgroundColor()
-*/
-
-/*!
-    Constructs a palette policy with a background role of \a b and a foreground role of \a f.
-
-    \sa QPalettePolicy::foreground(), QPalettePolicy::background()
-*/
-QPalettePolicy::QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f) : bg(b), fg(f)
-{
-}
-
-/*!
-    Constructs a palette policy with a background role of \a b an appropriate foreground
-    role for the background will be calculated..
-*/
-QPalettePolicy::QPalettePolicy(QPalette::ColorRole b) : bg(b)
-{
-    switch (bg) {
-    case QPalette::Button:
-	fg = QPalette::ButtonText;
-	break;
-    case QPalette::Base:
-	fg = QPalette::Text;
-	break;
-    case QPalette::Dark:
-    case QPalette::Shadow:
-	fg = QPalette::Light;
-	break;
-    case QPalette::Highlight:
-	fg = QPalette::HighlightedText;
-	break;
-    default:
-	fg = QPalette::Foreground;
-	break;
-    }
-}
-
-/*!
-    Constructs a default palette policy with a background role of Inherited and foreground
-    role of Foreground.
-*/
-QPalettePolicy::QPalettePolicy() : bg(QPalette::Inherited), fg(QPalette::Foreground)
-{
-}
-
-QPalettePolicy::QPalettePolicy(const QPalettePolicy &p) : bg(p.bg), fg(p.fg)
-{
-}
-
-
-/*!
-    \fn QPalette::ColoreRole QPalettePolicy::foreground() const
-
-    Returns the foreground colore role set in the policy.
-
-    \sa QPalettePolicy::background()
-*/
-
-/*!
-    \fn QPalette::ColoreRole QPalettePolicy::background() const
-
-    Returns the background colore role set in the policy.
-
-    \sa QPalettePolicy::foreground()
-*/
-
-
 /*!
     \class QWidget qwidget.h
     \brief The QWidget class is the base class of all user interface objects.
@@ -586,7 +472,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
   \i WState_Hidden The widget is hidden, i.e. it won't
   become visible unless you call show() on it. WState_Hidden
   implies !WState_Visible.
-  \i WState_OwnCursor A cursor has been set for this widget.
   \i WState_MouseTracking Mouse tracking is enabled.
   \i WState_CompressKeys Compress keyboard events.
   \i WState_BlockUpdates Repaints and updates are disabled.
@@ -781,7 +666,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_Created
     \value WState_Visible
     \value WState_Hidden
-    \value WState_OwnCursor
     \value WState_MouseTracking
     \value WState_CompressKeys
     \value WState_BlockUpdates
@@ -863,7 +747,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #endif // Q_WS_X11
 
     if ( !isDesktop() )
-	d->setBackgroundBrush(background()); //### parts of this are done in create but not all (see reparent(...) )
+	d->setBackgroundBrush(pal.background()); //### parts of this are done in create but not all (see reparent(...) )
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
 	d->createTLExtra();
@@ -921,9 +805,6 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     in_show = 0;
     in_show_maximized = 0;
     im_enabled = FALSE;
-#ifndef QT_NO_PALETTE
-    d->bg_brush = pal.brush(QPalette::Active, QPalette::Background);		// default background color
-#endif
     create();					// platform-dependent init
 #ifndef QT_NO_PALETTE
     pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
@@ -935,7 +816,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 #endif // Q_WS_X11
 
     if ( !isDesktop() )
-	d->setBackgroundBrush(background()); //### parts of this are done in create but not all (see reparent(...) )
+	d->setBackgroundBrush(pal.background()); //### parts of this are done in create but not all (see reparent(...) )
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
 	d->createTLExtra();
@@ -1123,6 +1004,45 @@ void QWidgetPrivate::deleteExtra()
 	extra = 0;
     }
 }
+
+/*
+  Returns true if the foreground is inherited; otherwise returns
+  false.
+
+  A widget does not inherit its parents foreground if setForeground(),
+  setPalette() or setForegroundRole() was called, unless the
+  WA_ForegroundInherited attribute is set explicitely.
+*/
+
+bool QWidgetPrivate::isForegroundInherited() const
+{
+    return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
+	    && !q->testAttribute(QWidget::WA_SetForeground)
+	    && (q->testAttribute(QWidget::WA_ForegroundInherited)
+		|| (!q->testAttribute(QWidget::WA_SetPalette)
+		    && !q->testAttribute(QWidget::WA_SetForegroundRole)
+		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
+}
+
+
+/*
+  Returns true if the background is inherited; otherwise returns
+  false.
+
+  A widget does not inherit its parents background if setBackground(),
+  setPalette() or setBackgroundRole() was called, unless the
+  WA_BackgroundInherited attribute is set explicitely.
+*/
+
+bool QWidgetPrivate::isBackgroundInherited() const
+{
+    return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
+	    && !q->testAttribute(QWidget::WA_SetBackground)
+	    && (q->testAttribute(QWidget::WA_BackgroundInherited)
+		|| (!q->testAttribute(QWidget::WA_SetPalette)
+		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
+}
+
 
 
 /*!
@@ -1473,7 +1393,7 @@ void QWidget::setEnabled_helper(bool enable)
 	    w->setEnabled_helper(enable);
     }
 #if defined(Q_WS_X11)
-    if ( testWState( WState_OwnCursor ) ) {
+    if ( testAttribute( WA_SetCursor ) ) {
 	// enforce the windows behavior of clearing the cursor on
 	// disabled widgets
 	extern void qt_x11_enforce_cursor( QWidget * w ); // defined in qwidget_x11.cpp
@@ -1549,7 +1469,7 @@ void QWidget::windowActivationChange( bool )
     for(int role=0; role < (int)QPalette::NColorRoles; role++) {
 	if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
 	   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
-	    QPalette::ColorRole bg_role = pal_policy.background();
+	    QPalette::ColorRole bg_role = backgroundRole();
 	    if ( !testAttribute(WA_NoErase) && bg_role < QPalette::NColorRoles &&
 		 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) !=
 					 pal.brush(QPalette::Inactive, bg_role ))))
@@ -2101,55 +2021,61 @@ QWidget *QWidget::topLevelWidget() const
     \property QWidget::foreground
     \brief the foreground color of the widget
 
-    \sa background palette QApplication::setPalette() palettePolicy
+    \sa background palette QApplication::setPalette() setForegroundMode()
 */
 const QColor &QWidget::foreground() const
 {
     const QWidget *w = this;
-    QPalette::ColorRole role = pal_policy.foreground();
-    if(role == QPalette::Inherited) {
-	w = findInheritedPalettePolicyWidget();
-	role = w->pal_policy.foreground();
-	if(role == QPalette::Inherited)
-	    role = QPalette::Foreground;
-    }
-    if(role == QPalette::Overridden)
+    while (w->d->isForegroundInherited())
+	w = w->parentWidget();
+    if(w->testAttribute(WA_SetForeground))
 	return w->d->fg_color;
-    return w->pal.color( role );
+    return w->pal.color(w->d->fg_role);
 }
 
 void QWidget::setForeground(const QColor &color)
 {
     d->fg_color = color;
-    setPalettePolicy(QPalettePolicy(pal_policy.background(), QPalette::Overridden));
+    setAttribute(WA_SetForeground);
+    d->propagatePaletteChange();
 }
+
+void QWidget::unsetForeground()
+{
+    setAttribute(WA_SetForeground, false);
+    d->propagatePaletteChange();
+}
+
 
 /*!
     \property QWidget::background
     \brief the background color of the widget
 
-    \sa foreground palette QApplication::setPalette() palettePolicy
+    \sa foreground palette QApplication::setPalette() setBackgroundMode()
 */
 const QBrush &QWidget::background() const
 {
     const QWidget *w = this;
-    QPalette::ColorRole role = pal_policy.background();
-    if(role == QPalette::Inherited) {
-	w = findInheritedPalettePolicyWidget();
-	role = w->pal_policy.background();
-	if(role == QPalette::Inherited)
-	    role = QPalette::Background;
-    }
-    if(role == QPalette::Overridden)
+    while ( w->d->isBackgroundInherited() )
+	w = w->parentWidget();
+    if(w->testAttribute(WA_SetBackground))
 	return w->d->bg_brush;
-    return w->pal.brush(role);
+    return w->pal.brush(w->d->bg_role);
 }
 
 void QWidget::setBackground(const QBrush &brush)
 {
     d->bg_brush = brush;
+    setAttribute(WA_SetBackground);
     d->setBackgroundBrush(brush);
-    setPalettePolicy(QPalettePolicy(QPalette::Overridden, pal_policy.foreground()));
+    d->propagatePaletteChange();
+}
+
+void QWidget::unsetBackground()
+{
+    setAttribute(WA_SetBackground, false);
+    d->setBackgroundBrush(background());
+    d->propagatePaletteChange();
 }
 
 /*!
@@ -2168,13 +2094,14 @@ void QWidget::setBackgroundEmpty()
 #ifndef QT_NO_COMPAT
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-    if(testAttribute(WA_NoErase))
+    if (testAttribute(WA_NoErase))
 	return NoBackground;
-    switch(pal_policy.background()) {
-    case QPalette::Overridden:
+    if (testAttribute(WA_SetBackground)){
 	if(d->bg_brush.pixmap())
 	    return FixedPixmap;
 	return FixedColor;
+    }
+    switch(backgroundRole()) {
     case QPalette::Foreground:
 	return PaletteForeground;
     case QPalette::Button:
@@ -2207,8 +2134,6 @@ Qt::BackgroundMode QWidget::backgroundMode() const
 	return PaletteLink;
     case QPalette::LinkVisited:
 	return PaletteLinkVisited;
-    case QPalette::Inherited:
-	return X11ParentRelative;
     default:
 	break;
     }
@@ -2227,7 +2152,6 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     switch(m) {
     case FixedColor:
     case FixedPixmap:
-	role = QPalette::Overridden;
 	break;
     case PaletteForeground:
 	role = QPalette::Foreground;
@@ -2277,58 +2201,96 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     case PaletteLinkVisited:
 	role = QPalette::LinkVisited;
 	break;
-    case X11ParentRelative:
-	role = QPalette::Inherited;
-	break;
     default:
 	break;
     }
-    setPalettePolicy(QPalettePolicy(role));
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	update();
+    setAttribute(WA_SetForegroundRole, false);
+    setBackgroundRole(role);
 }
 #endif
 
+
 /*!
-    \property QWidget::palettePolicy
-    \brief the QPalettePolicy used for finding the background of the widget
+  Returns the background role.
 
-    setPaletteBackgroundColor() reads this property to determine which
-    entry of the \link QWidget::palette palette\endlink to set.
+  If an explicit background is set, returns QPalette::Invalid.
 
-    For most widgets the default suffices (\c QPalette::Inherited,
-    QPalette::Foreground), but some need to use \c PaletteBase (the
-    background color for text output, typically white) or another
-    role.
-
-    You will never need to set the palette policy of a built-in widget
-    in Qt, but you might consider setting it in your custom widgets,
-    so that setPaletteBackgroundColor() works as expected.
-
-    Note that setting the palette policy to QPalette::Overridden makes
-    no sense for setPalettePolicy(). You must call
-    setBackgroundPixmap() and setPaletteBackgroundColor() instead.
-*/
-
-void QWidget::setPalettePolicy(const QPalettePolicy &pp)
+  \sa setBackgroundRole(), foregroundRole()
+ */
+QPalette::ColorRole QWidget::backgroundRole() const
 {
-    pal_policy = pp;
-    setAttribute(WA_OwnPalettePolicy, true);
+    const QWidget *w = this;
+    while (w->d->isBackgroundInherited())
+	w = w->parentWidget();
+    if (w->testAttribute(WA_SetBackground))
+ 	return QPalette::Invalid;
+    return w->d->bg_role;
+}
+
+/*!
+
+  Sets the background role of the widget to \a role.
+
+  \sa backgroundRole(), foregroundRole()
+ */
+void QWidget::setBackgroundRole(QPalette::ColorRole role)
+{
+    d->bg_role = role;
+    setAttribute(WA_SetBackgroundRole);
+    if (!testAttribute(WA_SetForegroundRole))
+	switch (role) {
+	case QPalette::Button:
+	    d->fg_role = QPalette::ButtonText;
+	    break;
+	case QPalette::Base:
+	    d->fg_role = QPalette::Text;
+	    break;
+	case QPalette::Dark:
+	case QPalette::Shadow:
+	    d->fg_role = QPalette::Light;
+	    break;
+	case QPalette::Highlight:
+	    d->fg_role = QPalette::HighlightedText;
+	    break;
+	default:
+	    d->fg_role = QPalette::Foreground;
+	    break;
+	}
     d->setBackgroundBrush(background());
     d->propagatePaletteChange();
 }
 
-/*!\internal
+/*!
+  Returns the foreground role.
+
+  If no explicit foreground role is set, returns a role that contrasts
+  with the backgroundRole(). If an explicit foreground is set, returns
+  QPalette::Invalid.
+
+  \sa setForegroundRole(), backgroundRole()
  */
-const QWidget *QWidget::findInheritedPalettePolicyWidget() const
+QPalette::ColorRole QWidget::foregroundRole() const
 {
-    for(const QWidget *w = this; w; w = w->parentWidget(TRUE)) {
-	if(w->testWFlags(WType_TopLevel|WSubWindow) ||
-	   w->palettePolicy().background() != QPalette::Inherited)
-	    return w;
-    }
-    return NULL;
+    const QWidget *w = this;
+    while (w->d->isForegroundInherited())
+	w = w->parentWidget();
+    if (w->testAttribute(WA_SetForeground))
+ 	return QPalette::Invalid;
+    return w->d->fg_role;
 }
+
+/*!
+  Sets the foreground role of the widget to \a role \sa
+  backgroundRole(), setForegroundRole()
+ */
+void QWidget::setForegroundRole(QPalette::ColorRole role)
+{
+    d->bg_role = role;
+    setAttribute(WA_SetForegroundRole);
+    d->setBackgroundBrush(background());
+    d->propagatePaletteChange();
+}
+
 
 #ifndef QT_NO_PALETTE
 /*!
@@ -2362,10 +2324,8 @@ const QPalette &QWidget::palette() const
 
 void QWidget::setPalette( const QPalette &palette )
 {
-    setAttribute(WA_OwnPalette, true);
+    setAttribute(WA_SetPalette, true);
     setPalette_helper(palette);
-    if (!testAttribute(WA_OwnPalettePolicy))
-	setPalettePolicy(QPalette::Background);
 }
 
 void QWidget::setPalette_helper( const QPalette &palette )
@@ -2380,7 +2340,7 @@ void QWidget::setPalette_helper( const QPalette &palette )
 
 void QWidget::unsetPalette()
 {
-    setAttribute(WA_OwnPalette, false);
+    setAttribute(WA_SetPalette, false);
     setPalette_helper( qt_naturalWidgetPalette( this ) );
 }
 
@@ -2430,12 +2390,12 @@ void QWidget::paletteChange( const QPalette & )
     In addition to setting the font, setFont() informs all children
     about the change.
 
-    \sa fontChange() fontInfo() fontMetrics() ownFont()
+    \sa fontChange() fontInfo() fontMetrics()
 */
 
 void QWidget::setFont( const QFont &font )
 {
-    setAttribute(WA_OwnFont, true);
+    setAttribute(WA_SetFont, true);
     setFont_helper(font);
 }
 
@@ -2464,7 +2424,7 @@ void QWidget::setFont_helper( const QFont &font )
 
 void QWidget::unsetFont()
 {
-    setAttribute(WA_OwnFont, false);
+    setAttribute(WA_SetFont, false);
     setFont_helper( qt_naturalWidgetFont( this ) );
 }
 
@@ -2540,7 +2500,7 @@ void QWidget::fontChange( const QFont & )
 #ifndef QT_NO_CURSOR
 const QCursor &QWidget::cursor() const
 {
-    if ( testWState(WState_OwnCursor) )
+    if ( testAttribute(WA_SetCursor) )
 	return (d->extra && d->extra->curs)
 	    ? *d->extra->curs
 	    : arrowCursor;
@@ -4146,7 +4106,7 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // fall through
 	case QEvent::ApplicationFontChange:
-	    if (testAttribute(WA_OwnFont))
+	    if (testAttribute(WA_SetFont))
 		setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
 	    else
 		unsetFont();
@@ -4155,14 +4115,14 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ParentPaletteChange:
 	    if(isTopLevel())
 		break;
-	    if(!testAttribute(WA_OwnPalette))
+	    if(!testAttribute(WA_SetPalette))
 		pal = qt_naturalWidgetPalette(this);
 	    d->setBackgroundBrush(background());
 	    d->propagatePaletteChange();
 	    break;
 
 	case QEvent::ApplicationPaletteChange:
-	    if (!testAttribute(WA_OwnPalette) && !isDesktop())
+	    if (!testAttribute(WA_SetPalette) && !isDesktop())
 		unsetPalette();
 	    break;
 
@@ -4524,10 +4484,8 @@ void QWidget::leaveEvent( QEvent * )
     are a couple of exceptions and QPaintEvent::erased() tells you
     whether the widget has been erased or not.
 
-    The background can be set using setPalettePolicy(),
-    setPaletteBackgroundColor() or setBackgroundPixmap(). The
-    documentation for setPalettePolicy() elaborates on the
-    background; we recommend reading it.
+    The background can be set using setBackground() or
+    setBackgroundRole().
 
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
@@ -4933,7 +4891,7 @@ void QWidget::setAutoMask( bool enable )
     seamlessly when an ancestor of the widget has an origin other than
     \c QWindowOrigin.
 
-    \sa backgroundPixmap(), setPalettePolicy()
+    \sa background()
 */
 QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
 {
@@ -4963,8 +4921,6 @@ void QWidget::updateMask()
 /*!
   \internal
   Returns the offset of the widget from the backgroundOrigin.
-
-  \sa setPalettePolicy(), palettePolicy(),
 */
 QPoint QWidget::backgroundOffset() const
 {
@@ -5197,11 +5153,11 @@ void QWidget::reparent(QWidget *parent, WFlags f)
     reparentSys( parent, f, QPoint(0,0), false);
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
-    if (!testAttribute(WA_OwnFont))
+    if (!testAttribute(WA_SetFont))
 	unsetFont();
     else
 	setFont_helper( fnt.resolve( qt_naturalWidgetFont( this ) ) );
-    if (!testAttribute(WA_OwnPalette))
+    if (!testAttribute(WA_SetPalette))
 	unsetPalette();
 }
 
@@ -5306,39 +5262,10 @@ bool QWidget::isFullScreen() const
     return isTopLevel() && that->d->topData()->fullscreen;
 }
 
-/*!
-    \property QWidget::ownCursor
-    \brief whether the widget uses its own cursor
-
-    If FALSE, the widget uses its parent widget's cursor.
-
-    \sa cursor
-*/
-
-/*!
-    \property QWidget::ownFont
-    \brief whether the widget uses its own font
-
-    If FALSE, the widget uses its parent widget's font.
-
-    \sa font
-*/
-
-/*!
-    \property QWidget::ownPalette
-    \brief whether the widget uses its own palette
-
-    If FALSE, the widget uses its parent widget's palette.
-
-    \sa palette
-*/
-
-
 void QWidget::repaint( bool erase )
 {
     repaint( visibleRect(), erase );
 }
-
 
 
 /*!
@@ -5421,10 +5348,9 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     it does not receive any mouse or keyboard events. There is also a
     getter functions QWidget::isEnabled().  \i Qt kernel
 
-    \row \i WA_ContentsInherited \i Allows the contents painted in a
+    \row \i WA_ContentsPropagated \i Allows the contents painted in a
     QWidget::paintEvent() to be used as the background for children
-    that use QPalettePolicy::InheritsBackground. \i widget author or
-    style
+    that inherit their background. \i widget author or style
 
     \row \i WA_ForceDisabled \i Indicates that the widget is
     explicitely disabled, i.e. it will remain disabled even when all
@@ -5432,16 +5358,29 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     WA_Disabled. \i Function QWidget::setEnabled() and
     QWidget::setDisabled()
 
-    \row \i WA_OwnPalette \i Indicates that the widgets has a palette
+    \row \i WA_SetPalette \i Indicates that the widgets has a palette
     of its own.  \i Functions QWidget::setPalette() and
     QWidget::unsetPalette()
 
-    \row \i WA_OwnPalettePolicy \i Indicates that either
-    setPalettePolicy() or setPalette() was called on the widget. \i
-    Functions QWidget::setPalette() and QWidget::setPalettePolicy()
-
-    \row \i WA_OwnFont \i Indicates that the widgets has a font of its
+    \row \i WA_SetFont \i Indicates that the widgets has a font of its
     own. \i Functions QWidget::setFont() and QWidget::unsetFont()
+
+    \row \i WA_SetCursor \i Indicates that the widgets has a cursor of its
+    own. \i Functions QWidget::setCursor() and QWidget::unsetCursorz()
+
+    \row \i WA_SetForeground \i Indicates that the widgets has an
+    explicit foreground \i Functions QWidget::setForeground() and
+    QWidget::unsetForeground()
+
+    \row \i WA_SetBackground \i Indicates that the widgets has an
+    explicit background \i Functions QWidget::setBackground() and
+    QWidget::unsetBackground()
+
+    \row \i WA_SetForegroundRole \i Indicates that the widgets has an
+    explicit foreground role \i Function QWidget::setForegroundRole()
+
+    \row \i WA_SetBackgroundRole \i Indicates that the widgets has an
+    explicit background role\i Function QWidget::setBackgroundRole()
 
     \endtable
 */
@@ -5453,17 +5392,17 @@ void QWidget::drawText(const QPoint &p, const QString &str)
  */
 void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 {
-    if (attribute < (1<<sizeof(uint))) {
+    if (attribute <= int(8*sizeof(uint))) {
 	if (b)
 	    widget_attributes |= (1<<attribute);
 	else
 	    widget_attributes &= ~(1<<attribute);
     } else {
-	int x = attribute - (1<<sizeof(uint));
+	int x = attribute - 8*sizeof(uint);
 	if (b)
-	    d->high_attributes[x / (1<<sizeof(uint))] |= (1<<x);
+	    d->high_attributes[x / (8*sizeof(uint))] |= (1<<x);
 	else
-	    d->high_attributes[x / (1<<sizeof(uint))] &= ~(1<<x);
+	    d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
     }
 }
 
@@ -5476,6 +5415,6 @@ void QWidget::setAttribute(WidgetAttribute attribute, bool b)
  */
 bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
 {
-    int x = attribute - (1<<sizeof(uint));
-    return (d->high_attributes[x / (1<<sizeof(uint))] & (1<<x));
+    int x = attribute - 8*sizeof(uint);
+    return (d->high_attributes[x / (8*sizeof(uint))] & (1<<x));
 }
