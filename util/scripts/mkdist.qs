@@ -77,9 +77,6 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^dist"),
 			  new RegExp("^doc/src"),
 			  new RegExp("^config.tests"),
-			  new RegExp("^include/.*<"),
-			  new RegExp("^include/QtMotif"),
-			  new RegExp("^include/QtNsPlugin"),
 			  new RegExp("^extensions/motif"),
 			  new RegExp("^extensions/nsplugin"),
 			  new RegExp("^src/plugins/gfxdrivers"),
@@ -104,10 +101,6 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^dist"),
 			  new RegExp("^doc/src"),
 			  new RegExp("^extensions"),
-			  new RegExp("^include/.*<"),
-			  new RegExp("^include/ActiveQt"),
-			  new RegExp("^include/QtNsPlugin"),
-			  new RegExp("^include/QtMotif"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("_win"),
@@ -117,7 +110,7 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/styles/mac"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^bin/syncqt"),
+			  new RegExp("^bin/syncqt.bat"),
 			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["x11"] = [ new RegExp(".") ];
@@ -126,10 +119,6 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^dist"),
 			  new RegExp("^doc/src"),
 			  new RegExp("^extensions"),
-			  new RegExp("^include/.*<"),
-			  new RegExp("^include/ActiveQt"),
-			  new RegExp("^include/QtNsPlugin"),
-			  new RegExp("^include/QtMotif"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("_win"),
@@ -138,7 +127,7 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_x11"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^bin/syncqt"),
+			  new RegExp("^bin/syncqt.bat"),
 			  new RegExp("^.LICENSE"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["mac"] = [ new RegExp(".") ];
@@ -147,17 +136,13 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^dist"),
 			       new RegExp("^doc/src"),
 			       new RegExp("^extensions"),
-			       new RegExp("^include/.*<"),
-			       new RegExp("^include/ActiveQt"),
-			       new RegExp("^include/QtNsPlugin"),
-			       new RegExp("^include/QtMotif"),
 			       new RegExp("_win"),
 			       new RegExp("_wce"),
 			       new RegExp("_mac"),
 			       new RegExp("^src/plugins/styles/mac"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
-			       new RegExp("^bin/syncqt"),
+			       new RegExp("^bin/syncqt.bat"),
 			       new RegExp("^.LICENSE"),
 			       new RegExp("^bin/configure.exe") ];
 platformKeep["embedded"] = [ new RegExp(".") ];
@@ -233,10 +218,6 @@ for (var p in validPlatforms) {
 	    print("Copying dist files...");
 	    copyDist(platDir, platform, edition);
 
-	    // run syncqt
-  	    print("Running syncqt...");
-  	    syncqt(platDir, platform);
-
 	    // run qdoc
   	    print("Running qdoc...");
   	    qdoc(platDir, edition);
@@ -247,6 +228,10 @@ for (var p in validPlatforms) {
 		       getFileList(platDir),
   		       [].concat(platformRemove[platform]).concat(editionRemove[edition]),
   		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
+
+	    // run syncqt
+  	    print("Running syncqt...");
+  	    syncqt(platDir, platform);
 
 	    // replace tags (like THISYEAR etc.)
 	    print("Traversing all txt files and replacing tags...");
