@@ -10,11 +10,10 @@ The new platform needs Xlib for X11R5 or newer.  Motif is not required.
 If it is not a Unix system (for instance VMS) things may get complicated.
 Porting to other Unixes is generally straight-forward.
 
-Qt requires that your C++ compiler supports multiple inheritance.
-Template support is strongly recommended, but not a necessity.  The
-compiler must recognize the .cpp extension.  Exception handling and RTTI
-(Run-Time Type Information) are not required.  Expect problems with old
-CFront-based compilers.
+Qt requires that your C++ compiler supports multiple inheritance and
+templates. The compiler must recognize the .cpp extension.  Exception
+handling and RTTI (Run-Time Type Information) are not required.
+Expect problems with old CFront-based compilers.
 
 			       PATCHES
 
