@@ -50,11 +50,8 @@
     used as an input source for QXmlReader or for generating data to
     be uploaded using QFtp.
 
-    Just before the process exits, QProcess enters the \l Finishing
-    state and emits finishing(), allowing you to read any pending
-    output from the process before the process dies. Finally,
-    QProcess reenters the NotRunning state (the initial state) and
-    emits finished().
+    When the process exits, QProcess reenters the NotRunning state
+    (the initial state) and emits finished().
 
     The finished() signal provides the exit code of the process as an
     argument, and you can also call exitCode(), which returns the
@@ -343,10 +340,6 @@ void QProcessPrivate::processDied()
 
     findExitCode();
 
-    processState = QProcess::Finishing;
-    emit q->stateChanged(processState);
-    emit q->finishing();
-
     if (crashed) {
         processError = QProcess::Crashed;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process crashed"));
@@ -555,15 +548,19 @@ void QProcess::close()
 }
 
 /*! \reimp
+
+    Calling this function is equivalent to calling
+    waitForBytesWritten() until bytesToWrite() returns false.
+
+    \sa waitForBytesWritten()
 */
 bool QProcess::flush()
 {
     Q_D(QProcess);
 
     while (!d->writeBuffer.isEmpty()) {
-        if (!d->waitForWrite())
+        if (!d->waitForBytesWritten(0))
             return false;
-        d->canWrite();
     }
     return true;
 }

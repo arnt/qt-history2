@@ -41,8 +41,7 @@ public:
     enum ProcessState {
         NotRunning,
         Starting,
-        Running,
-        Finishing
+        Running
     };
     enum ProcessChannel {
         StandardOutput,
@@ -92,7 +91,6 @@ public:
 
 signals:
     void started();
-    void finishing();
     void finished(int exitCode);
     void error(QProcess::ProcessError error);
     void stateChanged(QProcess::ProcessState state);

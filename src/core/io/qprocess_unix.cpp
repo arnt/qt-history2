@@ -462,13 +462,14 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
                 readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
             if (FD_ISSET(errorReadPipe[0], &fdread))
                 readyReadEmitted = canReadStandardError() ? true : readyReadEmitted;
+            if (readyReadEmitted)
+                return true;
+
             if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
                 QProcessManager::instance().deadChildNotification(0);
                 if (processState != QProcess::Running)
                     return readyReadEmitted;
             }
-            if (readyReadEmitted)
-                return true;
         }
     }
     return false;
