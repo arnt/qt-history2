@@ -1631,8 +1631,10 @@ int QHttp::setSocket(QSocket *socket)
     return addRequest(new QHttpSetSocketRequest(socket));
 }
 
-/* ###
-
+/*!
+    Enables proxy support, using the proxy server \a host on port \a
+    port. \a username and \a password can be provided if the proxy
+    server requires authentication.
 */
 int QHttp::setProxy(const QString &host, int port,
                     const QString &username, const QString &password)

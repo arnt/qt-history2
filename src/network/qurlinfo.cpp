@@ -346,9 +346,6 @@ void QUrlInfo::setSize(QIODevice::Offset size)
     d->size = size;
 }
 
-
-// ### reggie - what's the permission type? As in Unix?
-
 /*!
     Specifies that the URL has access permisions, \a p.
 

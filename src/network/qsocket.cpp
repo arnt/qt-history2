@@ -1158,7 +1158,7 @@ void QSocket::sn_read(bool force)
 #if defined(QSOCKET_DEBUG)
             qDebug("QSocket (%s): sn_read: Connection closed", name());
 #endif
-            // ### we should rather ask the socket device if it is closed
+            // we should rather ask the socket device if it is closed
             d->internalConnectionClosed();
             goto end;
         } else {
@@ -1184,7 +1184,6 @@ void QSocket::sn_read(bool force)
         qDebug("QSocket (%s): sn_read: %ld incoming bytes", name(), nbytes);
 #endif
         if (nbytes > (int)sizeof(buf)) {
-            // big
             a = new QByteArray;
             a->resize(nbytes);
             nread = d->socket->readBlock(a->data(), maxToRead ? qMin(nbytes,maxToRead) : nbytes);
@@ -1192,7 +1191,6 @@ void QSocket::sn_read(bool force)
             a = 0;
             nread = d->socket->readBlock(buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf));
             if (nread > 0) {
-                // ##### could setRawData
                 a = new QByteArray;
                 a->resize(nread);
                 memcpy(a->data(), buf, nread);
@@ -1202,7 +1200,6 @@ void QSocket::sn_read(bool force)
 #if defined(QSOCKET_DEBUG)
             qDebug("QSocket (%s): sn_read: Connection closed", name());
 #endif
-            // ### we should rather ask the socket device if it is closed
             d->internalConnectionClosed();
             goto end;
         } else if (nread < 0) {

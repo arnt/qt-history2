@@ -70,7 +70,7 @@ typedef struct {
 #undef SOCKLEN_T
 #endif
 
-#define SOCKLEN_T int // #### Winsock 1.1
+#define SOCKLEN_T int // Winsock 1.1
 
 #define d d_func()
 #define q q_func()
@@ -186,9 +186,7 @@ int QSocketDevicePrivate::createNewSocket()
                 e = QSocketDevice::Impossible;
                 break;
             case WSAENETDOWN:
-                // ### what to use here?
                 e = QSocketDevice::NetworkFailure;
-                // e = QSocketDevice::Inaccessible;
                 break;
             case WSAEMFILE:
                 e = QSocketDevice::NoFiles; // special case for this
@@ -348,7 +346,7 @@ void QSocketDevicePrivate::setOption(Option opt, int v)
                 break;
             case WSAENETRESET:
             case WSAENOTCONN:
-                e = QSocketDevice::Impossible; // ### ?
+                e = QSocketDevice::Impossible;
                 break;
             case WSAENOTSOCK:
                 e = QSocketDevice::Impossible;
@@ -416,13 +414,12 @@ bool QSocketDevice::connect(const QHostAddress &addr, Q_UINT16 port)
                 d->e = NoResources;
                 break;
             case WSAEINTR:
-                d->e = UnknownError; // ### ?
+                d->e = UnknownError;
                 break;
             case WSAEALREADY:
-                // ### ?
                 break;
             case WSAEADDRNOTAVAIL:
-                d->e = ConnectionRefused; // ### ?
+                d->e = ConnectionRefused;
                 break;
             case WSAEAFNOSUPPORT:
             case WSAEFAULT:
@@ -607,6 +604,18 @@ Q_LONG QSocketDevice::bytesAvailable() const
     u_long nbytes = 0;
     if (::ioctlsocket(d->fd, FIONREAD, &nbytes) < 0)
         return -1;
+
+    // ioctlsocket sometimes reports 1 byte available for datagrams
+    // while the following recvfrom returns -1 and claims connection
+    // was reset (udp is connectionless). so we peek one byte to
+    // catch this case and return 0 bytes available if recvfrom
+    // fails.
+    if (d->t == Datagram) {
+        char c;
+        if (::recvfrom(d->fd, &c, sizeof(c), MSG_PEEK, 0, 0) == SOCKET_ERROR)
+            return 0;
+    }
+
     return nbytes;
 }
 
@@ -698,7 +707,6 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
                 d->device->d->e = QSocketDevice::Impossible;
                 break;
             case WSAEINTR:
-                // ### ?
                 r = 0;
                 break;
             case WSAEINPROGRESS:
@@ -708,15 +716,14 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
                 d->device->d->e = QSocketDevice::Impossible;
                 break;
             case WSAEOPNOTSUPP:
-                d->device->d->e = QSocketDevice::InternalError; // ### ?
+                d->device->d->e = QSocketDevice::InternalError;
                 break;
             case WSAEWOULDBLOCK:
                 break;
-            case WSAEMSGSIZE:
-                d->device->d->e = QSocketDevice::NoResources; // ### ?
+           case WSAEMSGSIZE:
+                d->device->d->e = QSocketDevice::NoResources;
                 break;
             case WSAEISCONN:
-                // ### ?
                 r = 0;
                 break;
             default:
@@ -763,14 +770,12 @@ Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
                     break;
                 case WSAEINPROGRESS:
                     d->device->d->e = QSocketDevice::NoResources;
-                    // ### perhaps try it later?
                     break;
                 case WSAEFAULT:
                 case WSAEOPNOTSUPP:
                     d->device->d->e = QSocketDevice::InternalError;
                     break;
                 case WSAENOBUFS:
-                    // ### try later?
                     break;
                 case WSAEMSGSIZE:
                     d->device->d->e = QSocketDevice::NoResources;
@@ -875,7 +880,6 @@ Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len, const QHostAddres
                     break;
                 case WSAEINPROGRESS:
                     d->e = NoResources;
-                    // ### perhaps try it later?
                     break;
                 case WSAEFAULT:
                 case WSAEOPNOTSUPP:

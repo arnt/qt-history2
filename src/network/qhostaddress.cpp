@@ -115,10 +115,11 @@ QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
 {
 }
 
-// ### DOC: Can only make this public if we specify precisely the
-// format of the address string.
 /*!
     \internal
+
+    DOC: We can only make this public if we specify precisely the
+    format of the address string.
 */
 QHostAddress::QHostAddress(const QString &address)
     : d(new QHostAddressPrivate)

@@ -456,7 +456,7 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
         info->setFile(true);
         info->setSymLink(false);
     } else if (tmp[0] == QChar('l')) {
-        info->setDir(true); // #### todo
+        info->setDir(true);
         info->setFile(false);
         info->setSymLink(true);
     } else {
@@ -489,7 +489,7 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
     tmp = lst[3];
     info->setGroup(tmp);
 
-    // ### not correct
+    // detect permissions
     info->setWritable((userName == info->owner() && perms[user][writable]) ||
         perms[other][writable]);
     info->setReadable((userName == info->owner() && perms[user][readable]) ||
@@ -622,7 +622,8 @@ void QFtpDTP::socketReadyRead()
             ba.resize(socket->bytesAvailable());
             Q_LONG bytesRead = socket->readBlock(ba.data(), ba.size());
             if (bytesRead < 0) {
-                // ### error handling
+                // a readBlock following a readyRead() singal will
+                // never fail.
                 return;
             }
             ba.resize(bytesRead);
@@ -834,7 +835,7 @@ void QFtpPI::readyRead()
         QString line = commandSocket.readLine();
         if (replyText.isEmpty()) {
             if (line.length() < 3) {
-                // ### protocol error
+                // protocol error
                 return;
             }
             const int lowerLimit[3] = {1,0,0};
@@ -842,7 +843,7 @@ void QFtpPI::readyRead()
             for (int i=0; i<3; i++) {
                 replyCode[i] = line[i].digitValue();
                 if (replyCode[i]<lowerLimit[i] || replyCode[i]>upperLimit[i]) {
-                    // ### protocol error
+                    // protocol error
                     return;
                 }
             }
@@ -925,7 +926,7 @@ bool QFtpPI::processReply()
                 emit finished(QFtp::tr("Connected to host %1").arg(commandSocket.peerName()));
                 break;
             }
-            // ### error handling
+            // reply codes not starting with 1 or 2 are not handled.
             return true;
         case Waiting:
             if (replyCode[0]<0 || replyCode[0]>5)
@@ -934,7 +935,7 @@ bool QFtpPI::processReply()
                 state = table[replyCode[0] - 1];
             break;
         default:
-            // ### spontaneous message
+            // ignore unrequested message
             return true;
     }
 #if defined(QFTPPI_DEBUG)
@@ -957,7 +958,7 @@ bool QFtpPI::processReply()
 #if defined(QFTPPI_DEBUG)
             qDebug("QFtp: bad 227 response -- address and port information missing");
 #endif
-            // ### error handling
+            // this error should be reported
         } else {
             QStringList lst = addrPortPattern.capturedTexts();
             QString host = lst[1] + "." + lst[2] + "." + lst[3] + "." + lst[4];
@@ -984,10 +985,10 @@ bool QFtpPI::processReply()
     // react on new state
     switch (state) {
         case Begin:
-            // ### should never happen
+            // should never happen
             break;
         case Success:
-            // ### success handling
+            // success handling
             state = Idle;
             // no break!
         case Idle:
@@ -998,7 +999,7 @@ bool QFtpPI::processReply()
             startNextCmd();
             break;
         case Waiting:
-            // ### do nothing
+            // do nothing
             break;
         case Failure:
             emit error(QFtp::UnknownError, replyText);
@@ -2091,9 +2092,7 @@ void QFtp::startNextCommand()
             d->state = QFtp::Closing;
             emit stateChanged(d->state);
         }
-        if (!d->pi.sendCommands(c->rawCmds)) {
-            // ### error handling (this case should not happen)
-        }
+        d->pi.sendCommands(c->rawCmds);
     }
 }
 

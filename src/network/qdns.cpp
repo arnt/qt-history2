@@ -97,7 +97,7 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 #endif
 
 #if defined Q_OS_WIN32
-    QSocketDevice bust; // ### makes sure WSAStartup was callled
+    QSocketDevice bust; // makes sure WSAStartup was callled
 #endif
 
     // Don't start a thread if we don't have to do any lookup.
