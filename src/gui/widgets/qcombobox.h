@@ -115,6 +115,8 @@ public:
 
     virtual void popup();
 
+    void hide();
+
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
     QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);

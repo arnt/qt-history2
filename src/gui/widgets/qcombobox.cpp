@@ -1202,6 +1202,19 @@ void QComboBox::popup()
 }
 
 /*!
+    \reimp
+*/
+
+void QComboBox::hide()
+{
+    QWidget::hide();
+
+    if (d->container->isVisible())
+        d->container->hide();
+}
+
+
+/*!
     \internal
 
     Clears the combobox, removing all items.
