@@ -455,6 +455,12 @@ void QLabel::setAlignment( int alignment )
   AlignRight, to the top edge if alignment() is \c AlignTop, and to to
   the bottom edge if alignment() is \c AlignBottom.
 
+  If indent is negative, or if no indent has been set, the label
+  computes the effective indent as follows: If frameWidth() is 0, the
+  effective indent becomes 0. If frameWidth() is greater than 0, the
+  effective indent becomes half the width of the "x" character of the
+  widget's current font().
+
   \sa alignment, frameWidth(), font()
 */
 
@@ -527,16 +533,15 @@ QSize QLabel::sizeForWidth( int w ) const
     QFontMetrics fm( fontMetrics() );
     int xw = fm.width( 'x' );
     if ( !mov && !pix && !pic ) {
-	if ( hextra > 0 )  { // we have a frame
-	    hextra += 2*(xw/2);
-	    vextra = hextra;
-	}
-	if ( indent() >= 0 ) {
+	int m = indent();
+	if ( m < 0 && hextra ) // no indent, but we do have a frame
+	    m = xw / 2 - margin();
+	if ( m >= 0 ) {
 	    int horizAlign = QApplication::horizontalAlignment( align );
 	    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
-		hextra += indent();
+		hextra += m;
 	    if ( (align & AlignTop) || (align & AlignBottom ) )
-		vextra += indent();
+		vextra += m;
 	}
     }
 
@@ -723,22 +728,20 @@ void QLabel::drawContents( QPainter *p )
 #endif
 
     if ( !mov && !pix && !pic ) {
-	if ( frameWidth() > 0 ) {
-	    int xw = fontMetrics().width('x')/2;
-	    cr.addCoords( xw, xw, -xw, -xw );
-	}
-	if ( indent() > 0 ) {
+	int m = indent();
+	if ( m < 0 && frameWidth() ) // no indent, but we do have a frame
+	    m = fontMetrics().width('x') / 2 - margin();
+	if ( m > 0 ) {
 	    int hAlign = QApplication::horizontalAlignment( align );
 	    if ( hAlign & AlignLeft )
-		cr.setLeft( cr.left() + indent() );
+		cr.setLeft( cr.left() + m );
 	    if ( hAlign & AlignRight )
-		cr.setRight( cr.right() - indent() );
+		cr.setRight( cr.right() - m );
 	    if ( align & AlignTop )
-		cr.setTop( cr.top() + indent() );
+		cr.setTop( cr.top() + m );
 	    if ( align & AlignBottom )
-		cr.setBottom( cr.bottom() - indent() );
+		cr.setBottom( cr.bottom() - m );
 	}
-	
     }
 
 #ifndef QT_NO_MOVIE
