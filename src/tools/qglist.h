@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#29 $
+** $Id: //depot/qt/main/src/tools/qglist.h#30 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -64,7 +64,7 @@ public:
 protected:
     QGList();					// create empty list
     QGList( const QGList & );			// make copy of other list
-   ~QGList();
+    virtual ~QGList();
 
     QGList &operator=( const QGList & );	// assign from other list
 
