@@ -815,7 +815,7 @@ void QWindowsMime::initialize()
 #endif
 	new QWindowsMimeAnyMime;
 	new QWindowsMimeUri;
-	
+
 	qAddPostRoutine(cleanup_mimes);
     }
 }
