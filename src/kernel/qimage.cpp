@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#159 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#158 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#159 $");
 
 
 /*!
@@ -305,6 +305,15 @@ QImage QImage::copy() const
 */
 QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 {
+    // Parameter correction
+    if ( w < 0 ) w = width();
+    if ( h < 0 ) h = height();
+    if ( x < 0 ) { w += x; x = 0; }
+    if ( y < 0 ) { h += y; y = 0; }
+    if ( x + w > width() ) w = width() - x;
+    if ( y + h > height() ) h = height() - y;
+    if ( w <= 0 || h <= 0 ) return QImage(); // Nothing left to copy
+
     QImage image( w, h, depth(), numColors(), bitOrder() );
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     image.setAlphaBuffer(hasAlphaBuffer());

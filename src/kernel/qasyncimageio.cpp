@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#31 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -95,8 +95,6 @@
 
   \ingroup images
 
-  \internal
-
   New formats are installed by creating objects of class
   QImageFormatDecoderFactory.
 */
@@ -111,10 +109,15 @@ struct QImageDecoderPrivate {
 
     static QList<QImageFormatDecoderFactory> factories;
 
+    // Builtins...
+    static QGIFDecoderFactory gif_decoder_factory;
+
     uchar header[max_header];
     int count;
 };
+
 QList<QImageFormatDecoderFactory> QImageDecoderPrivate::factories;
+QGIFDecoderFactory QImageDecoderPrivate::gif_decoder_factory;
 
 /*!
   Constructs a QImageDecoder which will send change information to
@@ -257,7 +260,10 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatDecoderFactory* f)
 
   \ingroup images
 
-  \internal
+  By making derived classes of QImageFormatDecoder, you can add
+  support for more incremental image formats, allowing such formats to
+  be sources for a QMovie, or for the first frame of the image stream
+  to be loaded as a QImage or QPixmap.
 */
 
 /*!
@@ -276,8 +282,9 @@ QImageFormatDecoder::~QImageFormatDecoder()
 
   Image decoders for specific image formats must override this method.
   It should decode some or all of the bytes in the given buffer into the
-  given image, calling the given consumer as the decoding proceeds.
-  The consumer may be 0.
+  given image, calling the methods of \a consumer as the decoding proceeds.
+  The consumer may be 0.  Note that the decoder must store enough state
+  to be able to continue in subsequent calls to this method.
 */
 
 /*!
@@ -286,11 +293,16 @@ QImageFormatDecoder::~QImageFormatDecoder()
 
   \ingroup images
 
-  \internal
-
   New image file formats are installed by creating objects of derived
   classes of QImageFormatDecoderFactory.  They must implement decoderFor()
   and formatName().
+
+  The factories for formats built into Qt
+  (currently only GIF)
+  are automatically defined before any other factory is initialized.
+  If two factories would recognize an image format, the factory created
+  last will override the earlier one, thus you can override current
+  and future built-in formats.
 */
 
 /*!
@@ -333,7 +345,8 @@ QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
 
   \ingroup images
 
-  \internal
+  This subclass of QImageFormatDecoder decodes GIF format images,
+  including animated GIFs.  Internally in 
 */
 
 /*!
@@ -360,14 +373,17 @@ QGIFDecoder::~QGIFDecoder()
 }
 
 
-class QGIFDecoderFactory : public QImageFormatDecoderFactory {
-    QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
-    const char* formatName() const;
-};
+/*!
+  \class QGIFDecoderFactory qasyncimageio.h
+  \brief Incremental image decoder for GIF image format.
 
-// this variable must exist to read gifs, and if it's static sgi cc 7
-// complains... so give it an obscure name and make it non-static
-QGIFDecoderFactory qt_internal_gif_decoder_factory;
+  \ingroup images
+
+  This subclass of QImageFormatDecoderFactory recognizes GIF
+  format images, creating a QGIFDecoder when required.  An instance
+  of this class is created automatically before any other factories,
+  so you should have no need for such objects.
+*/
 
 QImageFormatDecoder* QGIFDecoderFactory::decoderFor(
     const uchar* buffer, int length)

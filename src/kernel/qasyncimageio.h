@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#15 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#16 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -144,6 +144,12 @@ private:
     bool digress;
     void nextY(QImage& img, QImageConsumer* consumer);
     void disposePrevious( QImage& img, QImageConsumer* consumer );
+};
+
+class QGIFDecoderFactory : public QImageFormatDecoderFactory
+{
+    QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
+    const char* formatName() const;
 };
 
 

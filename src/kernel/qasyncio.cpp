@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#8 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -22,7 +22,8 @@
   mechanism to allow large files or slow datasources to be processed
   without using large amounts of memory, or blocking the user interface.
 
-  This facility is used in Qt to drive animated images.  See QAsyncImageIO.
+  This facility is used in Qt to drive animated images.  See QImageConsumer
+  and QImageSource.
 */
 
 
