@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#80 $
 **
 ** Implementation of QAccel class
 **
@@ -403,7 +403,7 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
     if ( d->enabled &&
 	 ( e->type() == QEvent::Accel || e->type() == QEvent::AccelAvailable) &&
 	 parent() && parent()->isWidgetType() &&
-	 ((QWidget *)parent())->isVisibleToTLW() ) {
+	 ((QWidget *)parent())->isVisible() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
 	if ( k->state() & ShiftButton )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#271 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#272 $
 **
 ** Implementation of QApplication class
 **
@@ -639,7 +639,7 @@ void QApplication::setStyle( QStyle *style )
 		    if ( w->testWState(WState_Polished) )
 			app_style->polish(w); // repolish
 		    w->styleChange( *old );
-		    if ( w->isVisibleToTLW() ){
+		    if ( w->isVisible() ){
 			w->update();
 		    }
 		}
@@ -1707,7 +1707,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    QResizeEvent e(newsize, oldsize);
 	    sendEvent( receiver, &e );
 	} else if ( event_type == QEvent::Paint ) {
-	    if ( receiver->isWidgetType() && ( (QWidget*) receiver )->isVisibleToTLW() ) {
+	    if ( receiver->isWidgetType() && ( (QWidget*) receiver )->isVisible() ) {
 		QWidget* w = (QWidget*)receiver;
 		if ( !erasePaintRegion.isEmpty() )
 		    w->repaint( erasePaintRegion, TRUE );

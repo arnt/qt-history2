@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#454 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#455 $
 **
 ** Implementation of QWidget class
 **
@@ -138,13 +138,11 @@
   <li> Mode:
 	isVisible(),
 	isVisibleTo(),
-	isVisibleToTLW(),
 	visibleRect(),
 	isMinimized(),
 	isDesktop(),
 	isEnabled(),
 	isEnabledTo(),
-	isEnabledToTLW(),
 	isModal(),
 	isPopup(),
 	isTopLevel(),
@@ -593,6 +591,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
+    } else {
+	if ( !parentWidget()->isEnabled() )
+	    setWState( WState_Disabled );
     }
 }
 
@@ -1013,8 +1014,13 @@ void QWidget::styleChange( QStyle& )
 
 
 /*!
-  Returns TRUE if this widget and every parent up to but excluding
-  \a ancestor is enabled, otherwise returns FALSE.
+  Returns TRUE if this widget would become enabled if \a ancestor is
+  enabled.
+  
+  This is the case if neither the widget itself nor every parent up to
+  but excluding \a ancestor has been explicitely disabled.
+
+  isEnabledTo(0) is equivalent to isEnabled().
 
   \sa setEnabled() isEnabled()
 */
@@ -1032,12 +1038,9 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 }
 
 
-/*!
-  Returns TRUE if this widget and every parent up to the \link
-  topLevelWidget() top level widget \endlink is enabled, otherwise
-  returns FALSE.
-
-  This is equivalent to isEnabledTo(0).
+/*!\obsolete
+  
+  This function is deprecated. It is equivalent to isEnabled()
 
   \sa setEnabled() isEnabled()
 */
@@ -1057,20 +1060,41 @@ bool QWidget::isEnabledToTLW() const
   events only when it is in focus.
 
   Some widgets display themselves differently when they are disabled.
-  For example a button might draw its label grayed out.
+  For example a button might draw its label grayed out. If your widget
+  needs to know when it becomes enabled or disabled, you can
+  reimplement the enabledChange() function.
+  
+  Disabling a widget implicitely disables all its children.  Enabling
+  respectively enables all child widgets unless they have been
+  explicitely disabled.
 
-  \sa isEnabled(), QKeyEvent, QMouseEvent
+  \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
 */
 
 void QWidget::setEnabled( bool enable )
 {
-    if ( isEnabled() == enable) // nothing to do
-	return;
+    if ( enable ) 
+	clearWState( WState_ForceDisabled );
+    else
+	setWState( WState_ForceDisabled );
+    
+    if ( !isTopLevel() && !parentWidget()->isEnabled() && enable ) 
+	return; // nothing we can do
+    
     if ( enable ) {
 	if ( testWState(WState_Disabled) ) {
 	    clearWState( WState_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( TRUE );
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QWidget *w;
+		while( (w=(QWidget *)it.current()) != 0 ) {
+		    ++it;
+		    if ( w->isWidgetType() && !w->testWState( WState_ForceDisabled ) )
+			w->setEnabled( TRUE );
+		}
+	    }
 	}
     } else {
 	if ( !testWState(WState_Disabled) ) {
@@ -1079,6 +1103,17 @@ void QWidget::setEnabled( bool enable )
 	    setWState( WState_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( FALSE );
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QWidget *w;
+		while( (w=(QWidget *)it.current()) != 0 ) {
+		    ++it;
+		    if ( w->isWidgetType() && w->isEnabled() ) {
+			w->setEnabled( FALSE );
+			w->clearWState( WState_ForceDisabled );
+		    }
+		}
+	    }
 	}
     }
 }
@@ -2334,7 +2369,7 @@ bool QWidget::focusNextPrevChild( bool next )
     do {
 	if ( w && w != startingPoint &&
 	     ( ( w->focusPolicy() & TabFocus ) == TabFocus )
-	     && !w->focusProxy() && w->isVisibleToTLW() && w->isEnabledToTLW())
+	     && !w->focusProxy() && w->isVisible() && w->isEnabled())
 	    candidate = w;
 #if defined(_WS_X11_)
 	if  (w == startingPoint )
@@ -2875,16 +2910,22 @@ bool qt_modal_state();				// --- "" ---
 
 void QWidget::show()
 {
+    clearWState( WState_ForceHide );
+    
     if ( testWState(WState_Visible) )
-	return;
+	return; // nothing to do
+    if ( !isTopLevel() && !parentWidget()->isVisible() )
+	return; // nothing we can do
 
-    if ( children() ) {
+    setWState( WState_Visible );
+    
+     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
 	QWidget *widget;
 	while ( it ) {				// show all widget children
 	    object = it.current();		//   (except popups and other toplevels)
-	    ++it;
+	    ++it;   
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->testWState(WState_ForceHide) && !widget->isTopLevel() )
@@ -2892,12 +2933,12 @@ void QWidget::show()
 	    }
 	}
     }
-
-    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    if ( parentWidget() )
-	QApplication::sendPostedEvents( parentWidget(),
-					QEvent::ChildInserted );
-
+     
+     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+     if ( parentWidget() )
+	 QApplication::sendPostedEvents( parentWidget(),
+					 QEvent::ChildInserted );
+     
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 	QSize s = sizeHint();
 	QSizePolicy::ExpandData exp;
@@ -2943,7 +2984,11 @@ void QWidget::show()
     if ( !testWState(WState_Polished) )
 	polish();
 
-    bool sendLayoutHint = testWState( WState_ForceHide ) && !isTopLevel();
+    bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
+
+    clearWState( WState_Withdrawn );
+    QShowEvent e(FALSE);
+    QApplication::sendEvent( this, &e );
 
     if ( testWFlags(WType_Modal) ) {
 	// qt_enter_modal *before* show, otherwise the initial
@@ -2997,9 +3042,58 @@ void QWidget::hide()
 
     QHideEvent e(FALSE);
     QApplication::sendEvent( this, &e );
+    
     if ( !isTopLevel() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
+    
+    sendHideEventsToChildren( FALSE );
+    
+}
+
+
+void QWidget::sendShowEventsToChildren( bool sponaneous )
+{
+     if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {
+	    object = it.current();
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->isVisible() && !widget->testWState(WState_ForceHide) ) {
+		    widget->setWState( WState_Visible );
+		    widget->sendShowEventsToChildren( sponaneous );
+		    QShowEvent e( sponaneous );
+		    QApplication::sendEvent( widget, &e );
+		}
+	    }
+	}
+    }
+}
+
+void QWidget::sendHideEventsToChildren( bool sponaneous )
+{
+     if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {
+	    object = it.current();
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( widget->isVisible() ) {
+		    widget->clearWState( WState_Visible );
+		    widget->sendHideEventsToChildren( sponaneous );
+		    QHideEvent e( sponaneous );
+		    QApplication::sendEvent( widget, &e );
+		}
+	    }
+	}
+    }
 }
 
 
@@ -3099,29 +3193,38 @@ bool QWidget::close( bool alsoDelete )
 /*!
   \fn bool QWidget::isVisible() const
 
-  Returns TRUE if the widget itself is set to visible status, or else
-  FALSE.  Calling show() sets the widget to visible status; calling
-  hide() sets it to hidden status. Iconified top-level widgets also
-  have hidden status, as well as having isMinimized() return TRUE.
-
-  If a widget is set to visible status, but its parent widget is set
-  to hidden status, this function returns TRUE.  isVisibleToTLW()
-  looks at the visibility status of the parent widgets up to the
-  top level widget.
+  Returns TRUE if the widget itself is visible, or else FALSE.
+  
+  Calling show() sets the widget to visible status if all its parent
+  widgets up to the toplevel widget are visible. If an ancestor is not
+  visible, the widget won't become visible until all its ancestors are
+  shown.
+  
+  Calling hide() hides a widget explicitly. An explicitly hidden
+  widget will never become visible, even if all its ancestors become
+  visible.
+  
+  Iconified top-level widgets also have hidden status, as well as
+  having isMinimized() return TRUE.
 
   This function returns TRUE if the widget currently is obscured by
   other windows on the screen, but would be visible if moved.
 
-  \sa show(), hide(), isVisibleToTLW(), isMinimized()
+  \sa show(), hide(), isVisibleTo(), isMinimized()
 */
 
 
 /*!
-  Returns TRUE if this widget and every parent up to but excluding
-  \a ancestor is visible, otherwise returns FALSE.
+  Returns TRUE if this widget would become visible if \a ancestor is
+  shown.
+  
+  This is the case if neither the widget itself nor every parent up to
+  but excluding \a ancestor has been explicitely hidden.
 
   This function returns TRUE if the widget it is obscured by other
   windows on the screen, but would be visible if moved.
+  
+  isVisibleTo(0) is equivalent to isVisible().
 
   \sa show() hide() isVisible()
 */
@@ -3130,31 +3233,25 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
     while ( w
-	    && w->isVisible()
+	    && !testWState( WState_ForceHide )
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget()!=ancestor )
 	w = w->parentWidget();
-    return w->isVisible();
+    return !testWState( WState_ForceHide );
 }
 
 
-/*!
-  Returns TRUE if this widget and every parent up to the \link
-  topLevelWidget() top level widget \endlink is visible, otherwise
-  returns FALSE.
-
-  This function returns TRUE if the widget it is obscured by other
-  windows on the screen, but would be visible if moved.
-
-  This is equivalent to isVisibleTo(0).
-
+/*!\obsolete
+  
+  This function is deprecated. It is equivalent to isVisible()
+  
   \sa show(), hide(), isVisible()
 */
 
 bool QWidget::isVisibleToTLW() const
 {
-    return isVisibleTo( 0 );
+    return isVisible();
 }
 
 
@@ -3274,9 +3371,14 @@ QSize QWidget::minimumSizeHint() const
   Widget state flags:
   <dl compact>
   <dt>WState_Created<dd> The widget has a valid winId().
-  <dt>WState_Disabled<dd> Disables mouse and keyboard events.
-  <dt>WState_Visible<dd> show() has been called.
-  <dt>WState_ForceHide<dd> hide() has been called before first show().
+  <dt>WState_Disabled<dd> The widget does not receive any mouse 
+       or keyboard events.
+  <dt>WState_ForceDisabled<dd> The widget is explicitely disabled, i.e. it will remain
+        disabled even when all its ancestors are set to enabled
+	state. This implies WState_Disabled.
+  <dt>WState_Visible<dd> The widget is currently visible.
+  <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e.it will remain invisible
+       even when all its ancestors are shown. This implies !WState_Visible
   <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
   <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
   <dt>WState_CompressKeys<dd> Compress keyboard events.
@@ -3330,8 +3432,8 @@ QSize QWidget::minimumSizeHint() const
   <dt>WPaintClever<dd> The widget wants every update rectangle.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
 			 This allows smart-repainting to avoid flicker.
-  <dt>WRepaintNoErase<dd> The Widget paints all its pixels. Scrolling and focus 
-			 changes should therefore not erase the widget. 
+  <dt>WRepaintNoErase<dd> The Widget paints all its pixels. Scrolling and focus
+			 changes should therefore not erase the widget.
 			 This allows smart-repainting to avoid flicker.
   <dt>WResizeNoErase<dd> Same as WPaintAllPixels.
   <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
@@ -3491,7 +3593,7 @@ bool QWidget::event( QEvent *e )
 
 	case QEvent::Paint:
 	    // At this point the event has to be delivered, regardless
-	    // whether the widget isVisibleToTLW() or not because it
+	    // whether the widget isVisible() or not because it
 	    // already went through the filters
 	    paintEvent( (QPaintEvent*)e );
 	    break;
@@ -3742,7 +3844,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 
   The default implementation calls repaint( visibleRect() ) since the
   widget's \link QColorGroup color group\endlink changes from active
-  to normal.  
+  to normal.
 
   \sa focusInEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -3930,7 +4032,7 @@ void QWidget::dropEvent( QDropEvent * )
   This event handler can be reimplemented in a subclass to receive
   widget show events.
 
-  Non-sponaneous show events are sent to widgets right before they are
+  Non-spontaneous show events are sent to widgets right before they are
   shown. Spontaneous show events of toplevel widgets are delivered
   afterwards, naturally.
 
@@ -4252,6 +4354,9 @@ void QWidget::updateGeometry()
     if ( !isTopLevel() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
+    else if ( FALSE && layout() )
+	layout()->activate();
+	
 }
 
 
@@ -4264,7 +4369,7 @@ void QWidget::updateGeometry()
   QApplication::style() instead.
 
   Setting a widget's style has no effect on existing or future
-  childwidgets.
+  child widgets.
 
   \warning This function is particularly useful for demonstration
   purposes, where you want to show Qt's styling capabilities.  Real
@@ -4305,7 +4410,7 @@ bool QWidget::configure( const QDomElement& element )
 	return FALSE;
     }
   }
-  
+
   if ( !QObject::configure( element ) )
     return FALSE;
 

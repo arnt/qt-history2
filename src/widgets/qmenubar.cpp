@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#161 $
 **
 ** Implementation of QMenuBar class
 **
@@ -304,7 +304,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     }
 
     if ( style() != WindowsStyle ||
-	 !isVisibleToTLW() ||
+	 !isVisible() ||
 	 !object->isWidgetType() ||
 	 !( event->type() == QEvent::Accel ||
 	    event->type() == QEvent::KeyPress ||
@@ -1193,4 +1193,4 @@ bool QMenuBar::configure( const QDomElement& element )
   return QObject::configure( element );
 }
 #endif // QT_BUILDER
- 
+

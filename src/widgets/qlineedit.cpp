@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#231 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#232 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1329,8 +1329,6 @@ void QLineEdit::repaintArea( int from, int to )
 
 void QLineEdit::setEnabled( bool e )
 {
-    if ( e == isEnabled() )
-	return;
     d->pmDirty = TRUE;
     QWidget::setEnabled( e );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#116 $
 **
 ** Implementation of QScrollView class
 **
@@ -1913,7 +1913,7 @@ bool QScrollView::focusNextPrevChild( bool next )
     while( !candidate && w != startingPoint ) {
 	if ( w != startingPoint &&
 	     (w->focusPolicy() & TabFocus) == TabFocus
-	     && w->isEnabledToTLW() &&!w->focusProxy() && w->isVisibleToTLW() )
+	     && w->isEnabled() &&!w->focusProxy() && w->isVisible() )
 	    candidate = w;
 	w = next ? f->next() : f->prev();
     }

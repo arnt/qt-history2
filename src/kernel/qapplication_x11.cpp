@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#547 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#548 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2335,8 +2335,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( widget->isVisible() ) {
 	    widget->clearWState( WState_Visible );
 	    widget->clearWState( WState_Withdrawn );
-	    QHideEvent e(TRUE);
+	    QHideEvent e( TRUE );
 	    QApplication::sendEvent( widget, &e );
+	    widget->sendHideEventsToChildren( TRUE );
 	}
 	break;
 	
@@ -2344,7 +2345,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( !widget->isVisible() )  {
 	    widget->setWState( WState_Visible );
 	    widget->clearWState( WState_Withdrawn );
-	    QShowEvent e(TRUE);
+	    widget->sendShowEventsToChildren( TRUE );
+	    QShowEvent e( TRUE );
 	    QApplication::sendEvent( widget, &e );
 	}
 	break;
@@ -3983,8 +3985,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     int y = event->xconfigure.y;
 
     if (event->xconfigure.send_event ||
-	( extra && extra->topextra && 
-	  ( extra->topextra->parentWinId == None || 
+	( extra && extra->topextra &&
+	  ( extra->topextra->parentWinId == None ||
 	    extra->topextra->parentWinId == appRootWin ) ) ) {
 	// nothing to do, x and y is correct
     } else {

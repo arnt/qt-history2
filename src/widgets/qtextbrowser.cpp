@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#13 $
 **
 ** Implementation of the QTextView class
 **
@@ -138,7 +138,7 @@ QTextBrowser::~QTextBrowser()
 */
 void QTextBrowser::setSource(const QString& name)
 {
-    if ( isVisibleToTLW() )
+    if ( isVisible() )
 	qApp->setOverrideCursor( waitCursor );
     QString source = name;
     QString mark;
@@ -166,7 +166,7 @@ void QTextBrowser::setSource(const QString& name)
 	    }
 	}
 
-	if ( isVisibleToTLW() ) {
+	if ( isVisible() ) {
 	    QString firstTag = txt.left( txt.find('>' )+1 );
 	    QRichText tmp( firstTag );
 	    static QString s_type = QString::fromLatin1("type");
@@ -201,7 +201,7 @@ void QTextBrowser::setSource(const QString& name)
     else
 	setContentsPos( contentsX(), 0 );
 
-    if ( isVisibleToTLW() )
+    if ( isVisible() )
 	qApp->restoreOverrideCursor();
 }
 
@@ -406,7 +406,7 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int vMargin = 8;
-    const int hMargin = 12; 
+    const int hMargin = 12;
 
     QWidget* popup = new QTextDetailPopup;
     popup->setBackgroundMode( QWidget::NoBackground );

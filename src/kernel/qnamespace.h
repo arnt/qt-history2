@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#33 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#34 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -107,7 +107,7 @@ public:
 	WState_Reparented	= 0x00000200,
 	WState_ConfigPending	= 0x00000400,
 	WState_Resized		= 0x00000800,
-	WState_AutoMask		= 0x00001000,
+	WState_AutoMask	= 0x00001000,
 	WState_Polished		= 0x00002000,
 	WState_DND		= 0x00004000,
 	WState_USPositionX	= 0x00008000,
@@ -115,7 +115,8 @@ public:
 	WState_PaletteFixed	= 0x00020000,
 	WState_FontSet		= 0x00040000,
 	WState_FontFixed	= 0x00080000,
-	WState_Withdrawn	= 0x00100000
+	WState_Withdrawn	= 0x00100000,
+	WState_ForceDisabled	= 0x00200000
     };
 
     // Widget flags

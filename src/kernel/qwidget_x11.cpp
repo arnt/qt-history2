@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#393 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#394 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1206,11 +1206,6 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    setWState( WState_Visible );
-    clearWState( WState_ForceHide );
-    clearWState( WState_Withdrawn );
-    QShowEvent e(FALSE);
-    QApplication::sendEvent( this, &e );
     if ( testWFlags(WType_TopLevel) &&
 	 extra &&
 	 extra->topextra &&

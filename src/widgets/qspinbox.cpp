@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#74 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -819,12 +819,12 @@ QString QSpinBox::currentValueText()
 
 void QSpinBox::setEnabled( bool on )
 {
-    if ( on == isEnabled() )
-	return;
+    bool b = isEnabled();
     QFrame::setEnabled( on );
-    vi->setEnabled( on );
-    updateDisplay();
-    update();
+    if ( isEnabled() != b ) {
+	// ## enabledChange() might have been a better choice
+	updateDisplay();
+    }
 }
 
 

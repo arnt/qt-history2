@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#318 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#319 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -115,6 +115,7 @@ static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG * );
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
+QWidget	       *qt_spontaneous_show	 = 0;		// widget is shown spontaneously
 
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
@@ -1576,7 +1577,7 @@ void qt_leave_modal( QWidget *widget )
     app_do_modal = modal_stack != 0;
 }
 
-static bool qt_blocked_modal( QWidget *widget ) 
+static bool qt_blocked_modal( QWidget *widget )
 {
     if ( !app_do_modal )
 	return FALSE;
@@ -2646,23 +2647,25 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		// being "hidden"
+		extra->topextra->iconic = 1;
 		if ( isVisible() ) {
 		    clearWState( WState_Visible );
 		    clearWState( WState_Withdrawn );
-		    QHideEvent e(TRUE);
+		    QHideEvent e( TRUE );
 		    QApplication::sendEvent( this, &e );
-		    extra->topextra->iconic = 1;
+		    widget->sendHideEventsToChildren( TRUE );
 		}
 	    } else if ( extra->topextra->iconic ) {
 		// being shown
+		extra->topextra->iconic = 0;
 		if ( !isVisible() ) {
 		    setWState( WState_Visible );
 		    clearWState( WState_Withdrawn );
 		    clearWState( WState_ForceHide );
-		    QShowEvent e(TRUE);
+		    widget->sendShowEventsToChildren( TRUE );
+		    QShowEvent e( TRUE );
 		    QApplication::sendEvent( this, &e );
 		}
-		extra->topextra->iconic = 0;
 	    }
 	    QString txt;
 	    if ( IsIconic(winId()) && !!iconText() )

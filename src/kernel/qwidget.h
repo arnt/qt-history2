@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#237 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#238 $
 **
 ** Definition of QWidget class
 **
@@ -190,7 +190,7 @@ public slots:
 
 public:
     enum FocusPolicy {
-	NoFocus = 0, 
+	NoFocus = 0,
 	TabFocus = 0x1,
 	ClickFocus = 0x2,
 	StrongFocus = 0x3,
@@ -396,6 +396,8 @@ private:
     void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
+    void	 sendShowEventsToChildren( bool sponaneous );
+    void	 sendHideEventsToChildren( bool sponaneous );
     void	 createTLExtra();
     void	 createExtra();
     void	 deleteExtra();

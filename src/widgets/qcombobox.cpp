@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#222 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#223 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -127,7 +127,7 @@
 
   <li> \c AtCurrent means to replace the previously selected item with
   the typed string.
-  
+
   <li> \c AtBottom means to insert the string at the bottom of the
   combo box.
 
@@ -1710,8 +1710,6 @@ void QComboBox::returnPressed()
 
 void QComboBox::setEnabled( bool enable )
 {
-    if ( d && d->ed )
-	d->ed->setEnabled( enable );
     QWidget::setEnabled( enable );
 }
 

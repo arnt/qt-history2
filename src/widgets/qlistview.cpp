@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#290 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#291 $
 **
 ** Implementation of QListView widget class
 **
@@ -2211,7 +2211,7 @@ void QListView::show()
 
 void QListView::updateContents()
 {
-    if ( !isVisibleToTLW() )
+    if ( !isVisible() )
 	return;
     // ### this function is probably very inefficient, and it is also
     // ### central to the smooth operation of QListView.  need fixing.
@@ -2591,7 +2591,7 @@ void QListViewItem::widthChanged( int c ) const
 
   This signal is emitted whenever the user clicks on an listview item.
   \a item is the pointer to the clicked listview item.
-  
+
   Note that you may not delete any QListViewItem objects in slots
   connected to this signal.
 */
@@ -3397,7 +3397,7 @@ void QListView::setItemMargin( int m )
     if ( d->margin == m )
 	return;
     d->margin = m;
-    if ( isVisibleToTLW() ) {
+    if ( isVisible() ) {
 	if ( d->drawables )
 	    d->drawables->clear();
 	triggerUpdate();
@@ -3980,7 +3980,7 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 
 QSize QListView::sizeHint() const
 {
-    if ( !isVisibleToTLW() &&
+    if ( !isVisible() &&
 	 (!d->drawables || d->drawables->isEmpty()) )
 	// force the column widths to sanity, if possible
 	buildDrawableList();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#24 $
 **
 ** Implementation of the QTextView class
 **
@@ -536,7 +536,7 @@ void QTextView::resizeEvent( QResizeEvent* e )
 			    richText().width),
 		      richText().height );
       QScrollView::resizeEvent( e );
-      if ( viewport()->isVisibleToTLW() )
+      if ( viewport()->isVisible() )
 	  viewport()->repaint( FALSE );
     }
 }

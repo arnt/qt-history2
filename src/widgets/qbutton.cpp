@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#148 $
 **
 ** Implementation of QButton widget class
 **
@@ -289,8 +289,8 @@ QButton::~QButton()
 
 /*!
   \fn QString QButton::text() const
-  Returns the button text, or 
-  \link QString::operator!() null string\endlink  
+  Returns the button text, or
+  \link QString::operator!() null string\endlink
   if the button has no text.
   \sa setText()
 */
@@ -709,8 +709,8 @@ bool QButton::focusNextPrevChild( bool next )
 		((QButton*)w)->group() == group() ) &&
 	     ( ( w->focusPolicy() & TabFocus ) == TabFocus ) &&
 	     !w->focusProxy() &&
-	     w->isVisibleToTLW() &&
-	     w->isEnabledToTLW() )
+	     w->isVisible() &&
+	     w->isEnabled() )
 	    candidate = w;
 	w = next ? f->prev() : f->next();
     } while( w && !(candidate && w==startingPoint) );
