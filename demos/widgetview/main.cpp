@@ -34,6 +34,7 @@ public:
     void mousePressEvent(QMouseEvent *e) {
         QPushButton *button = new QPushButton(this);
         button->setText(QString("%1/%2").arg(e->x()).arg(e->y()));
+        button->adjustSize();
         button->move(e->pos() - button->rect().center());
         button->show();
     }
