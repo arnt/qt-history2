@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#113 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#113 $");
 
 
 /*!
@@ -1119,8 +1119,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( 0 );
 	e->accept();
     } else if ( style() == MotifStyle &&
-		!d->usingListBox &&
-		e->key() == Key_Space ) {
+		!d->ed && e->key() == Key_Space ) {
 	e->accept();
 	d->popup->setActiveItem( d->current );
 	popup();
