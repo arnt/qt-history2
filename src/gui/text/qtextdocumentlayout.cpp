@@ -57,6 +57,7 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
     Q_DECLARE_PUBLIC(QTextDocumentLayout);
 public:
     struct Float {
+        QTextBlockIterator block;
         QRect rect;
     };
     QHash<QTextFormatGroup *, Float> floats;
@@ -71,7 +72,6 @@ public:
 
     QSize pageSize;
     bool pagedLayout;
-    bool inLayout;
     mutable QTextBlockIterator currentBlock;
     int currentYPos;
 
@@ -84,7 +84,8 @@ public:
     void relayoutDocument();
     void layoutBlock(const QTextBlockIterator block);
 
-    void floatMargins(int *left, int *right);
+    void floatMargins(int y, int *left, int *right);
+    void removeFloatsForBlock(const QTextBlockIterator &b);
 };
 
 #define d d_func()
@@ -291,48 +292,60 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl)
     int l = blockFormat.leftMargin() + indent(bl);
     int r = d->pageSize.width() - blockFormat.rightMargin();
 
+    removeFloatsForBlock(bl);
+    tl->setPosition(QPoint(0, cy));
+
     while (1) {
         QTextLine line = tl->createLine();
         if (!line.isValid())
             break;
-        bool firstTime = true;
 
         int left, right;
-        floatMargins(&left, &right);
+        floatMargins(d->currentYPos, &left, &right);
     redo:
         left = qMax(left, l);
         right = qMax(right, r);
-        inLayout = firstTime;
+//         qDebug() << "layout line y=" << currentYPos;
         line.layout(right-left);
-        inLayout = firstTime;
 
-        floatMargins(&left, &right);
+        floatMargins(d->currentYPos, &left, &right);
         if (line.width() > right-left) {
             // float has been added in the meantime, redo
-            firstTime = false;
+//             qDebug() << "    redo";
             goto redo;
         }
 
         line.setPosition(QPoint(left, currentYPos-cy));
         currentYPos += line.ascent() + line.descent() + 1;
     }
-    tl->setPosition(QPoint(0, cy));
 
     currentYPos += blockFormat.bottomMargin();
 }
 
-void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
+void QTextDocumentLayoutPrivate::floatMargins(int y, int *left, int *right)
 {
     *left = 0;
     *right = d->pageSize.width();
     for (QHash<QTextFormatGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
-        if (it->rect.y() <= currentYPos && it->rect.bottom() > currentYPos) {
+        QRect r = it->rect;
+        r.moveBy(it->block.layout()->position());
+        if (r.y() <= y && r.bottom() > y) {
             QTextFloatFormat::Position pos = it.key()->commonFormat().toFloatFormat().position();
             if (pos == QTextFloatFormat::Left)
                 *left = qMax(*left, it->rect.right());
             else
                 *right = qMin(*right, it->rect.left());
         }
+    }
+}
+
+void QTextDocumentLayoutPrivate::removeFloatsForBlock(const QTextBlockIterator &b)
+{
+    for (QHash<QTextFormatGroup *, Float>::iterator it = floats.begin(); it != floats.constEnd();) {
+        if (it->block == b)
+            it = floats.erase(it);
+        else
+            ++it;
     }
 }
 
@@ -408,9 +421,6 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
 
 void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
 {
-    if (!d->inLayout)
-        return;
-
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
@@ -429,7 +439,7 @@ void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
 
 void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
-    if (item.width() || !d->inLayout)
+    if (item.width())
         return;
 
     QTextCharFormat f = format.toCharFormat();
@@ -444,11 +454,19 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     if (pos == QTextFloatFormat::None)
         return;
 
+    if (d->floats.contains(group))
+        return;
+
     QSize s = handler.iface->intrinsicSize(format);
 
+    int left, right;
+    d->floatMargins(d->currentYPos, &left, &right);
     QTextDocumentLayoutPrivate::Float fl;
-    fl.rect = QRect((pos == QTextFloatFormat::Left ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
-                    s.width(), s.height());
+    QPoint fposition = QPoint((pos == QTextFloatFormat::Left ? left : right - s.width()), d->currentYPos);
+    fl.block = d->currentBlock;
+    fposition -= fl.block.layout()->position();
+    fl.rect = QRect(fposition.x(), fposition.y(), s.width(), s.height());
+//     qDebug() << "layoutObject: " << fl.rect;
 
     d->floats[group] = fl;
 }
@@ -460,10 +478,15 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject
     Q_ASSERT(f.isValid());
     QTextFloatFormat::Position pos = QTextFloatFormat::None;
     QTextFormatGroup *group = f.group();
-    if (group)
+    QRect r = rect;
+    if (group) {
         pos = group->commonFormat().toFloatFormat().position();
-    QRect r = pos != QTextFloatFormat::None ? d->floats.value(group).rect : rect;
-
+        if (pos != QTextFloatFormat::None) {
+            const QTextDocumentLayoutPrivate::Float &f = d->floats.value(group);
+            r = f.rect;
+            r.moveBy(f.block.layout()->position());
+        }
+    }
 //     qDebug() << "drawObject at" << r;
     QAbstractTextDocumentLayout::drawObject(p, r, item, format, selType);
 }
