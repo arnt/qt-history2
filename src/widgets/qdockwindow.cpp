@@ -910,14 +910,23 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 	    da->moveDockWindow( this );
 	mw = da->parentWidget();
     }
-    // added the !dockArea check because if you, for example, create a dockwindow
-    // with the leftDock() of a main window as parent, from the code above, you
-    // get mw set to the QMainWindow, so your dockwindow gets moved to the
-    // top dock.  As a result, this dockwindow is docked on the TopDock,
-    // not exactly what the person is looking for...
-    if ( mw && mw->inherits( "QMainWindow" ) && !dockArea ) {
-	if ( place() == InDock )
-	    ( (QMainWindow*)mw )->addDockWindow( this, Qt::DockTop );
+    if ( mw && mw->inherits( "QMainWindow" ) ) {
+	if ( place() == InDock ) {
+	    Dock myDock = Qt::DockTop;
+	    // make sure we put the window in the correct dock.
+	    if ( dockArea ) {
+		QMainWindow *mainw = (QMainWindow*)mw;
+		// I'm not checking if it matches the top because I've
+		// done the assignment to it above.
+		if ( dockArea == mainw->leftDock() )
+		    myDock = Qt::DockLeft;
+		else if ( dockArea == mainw->rightDock() )
+		    myDock = Qt::DockRight;
+		else if ( dockArea == mainw->bottomDock() )
+		    myDock = Qt::DockBottom;
+	    }
+	    ( (QMainWindow*)mw )->addDockWindow( this, myDock );
+	}
 	moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
 	opaque = ((QMainWindow*)mw)->opaqueMoving();
     }
@@ -1777,7 +1786,7 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
     if ( parentWidget() == o ) {
 	if ( (e->type() == QEvent::WindowDeactivate ||
 	      e->type() == QEvent::WindowActivate )
-	     && place() == OutsideDock && isTopLevel()  
+	     && place() == OutsideDock && isTopLevel()
 	     && !isActiveWindow() )
 	    event( e );
     } else if ( e->type() == QEvent::KeyPress ) {
@@ -1791,7 +1800,7 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     }
-    
+
     return FALSE;
 }
 
@@ -1800,12 +1809,12 @@ bool QDockWindow::event( QEvent *e )
 {
     switch ( e->type() ) {
     case QEvent::WindowDeactivate:
-	if ( place() == OutsideDock && isTopLevel() && parentWidget() 
-	     && parentWidget()->isActiveWindow() ) 
+	if ( place() == OutsideDock && isTopLevel() && parentWidget()
+	     && parentWidget()->isActiveWindow() )
 	    return TRUE;
-	break;	
+	break;
     case QEvent::Accel:
-    case QEvent::AccelAvailable: { 
+    case QEvent::AccelAvailable: {
 	if ( place() == OutsideDock && isTopLevel() && parentWidget() ) {
 	    // if we are floating and active, we still want our
 	    // parent's accelerators to work
@@ -1819,7 +1828,7 @@ bool QDockWindow::event( QEvent *e )
 		return TRUE;
 	    }
 	}
-    } 
+    }
     break;
     default:
 	break;
