@@ -47,7 +47,7 @@ public:
 	Q_ASSERT(idx >= 0 && idx < s);
 	return ptr[idx];
     }
-    inline const T operator[](int idx) const {
+    inline const T &operator[](int idx) const {
 	Q_ASSERT(idx >= 0 && idx < s);
 	return ptr[idx];
     }
