@@ -1210,8 +1210,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
             // save the flow positon of this row
             flowPositions->append(flowPosition);
             // prepare for the next row
-            deltaWrapPosition = (deltaWrapHint > deltaWrapPosition
-                                 ? deltaWrapHint : deltaWrapPosition);
+            deltaWrapPosition = qMax(deltaWrapHint, deltaWrapPosition);
             flowPosition += spacing + deltaFlowPosition;
         }
     }
