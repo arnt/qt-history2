@@ -179,7 +179,7 @@ void QVFb::setZoom4()
 void QVFb::saveImage()
 {
     QImage img = view->image();
-    QString filename = imagesave->getSaveFileName("snapshot.png", "*.png", this, "", "Save Image...");
+    QString filename = imagesave->getSaveFileName("snapshot.png", "*.png", this, "", "Save Image");
     if ( !!filename )
 	img.save(filename,"PNG");
 }
@@ -189,7 +189,7 @@ void QVFb::toggleAnimation()
     if ( view->animating() ) {
 	view->stopAnimation();
     } else {
-	QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation...");
+	QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation");
 	if ( !filename ) {
 	    view->stopAnimation();
 	} else {
@@ -374,6 +374,6 @@ void QVFb::updateGammaLabels()
 
 QSize QVFb::sizeHint() const
 {
-    return QSize(view->displayWidth()*view->zoom(),
-	    menuBar()->height()+view->displayHeight()*view->zoom());
+    return QSize((int)view->displayWidth()*view->zoom(),
+	    (int)menuBar()->height()+view->displayHeight()*view->zoom());
 }
