@@ -34,12 +34,13 @@
 **
 **********************************************************************/
 
-#include "qapplication.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
 #include "qsqlform.h"
+#include "qapplication.h"
 #include "qlayout.h"
+#include "qpainter.h"
 #include "qpopupmenu.h"
 #include "qmessagebox.h"
 
@@ -58,25 +59,22 @@ class QSqlTablePrivate
 {
 public:
     QSqlTablePrivate()
-	: nullTxt(),
-	  haveAllRows(FALSE),
-	  continuousEdit(FALSE),
-	  ro(TRUE),
-	  editorFactory(0),
-	  propertyMap(0),
-	  cursor(0),
+	: haveAllRows( FALSE ),
+	  continuousEdit( FALSE ),
+	  ro( TRUE ),
+	  editorFactory( 0 ),
+	  propertyMap( 0 ),
+	  cursor( 0 ),
 	  mode( QSqlTable::None ),
-	  editRow(-1),
-	  editCol(-1),
-	  insertRowLast(-1),
-	  insertHeaderLabelLast(),
-	  insertPreRows(-1),
-	  editBuffer(0),
+	  editRow( -1 ),
+	  editCol( -1 ),
+	  insertRowLast( -1 ),
+	  insertPreRows( -1 ),
+	  editBuffer( 0 ),
 	  confEdits( FALSE ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
-	  autoDelete( FALSE ),
-	  lastAt()
+	  autoDelete( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -549,9 +547,12 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
 	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );
 	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
-	popup->setItemEnabled( id[ IdInsert ], d->cursor->canInsert() );
-	popup->setItemEnabled( id[ IdUpdate ], currentRow()>-1 && d->cursor->canUpdate() );
-	popup->setItemEnabled( id[ IdDelete ], currentRow()>-1 && d->cursor->canDelete() );
+	bool enableInsert = d->cursor->canInsert();
+	popup->setItemEnabled( id[ IdInsert ], enableInsert );
+	bool enableUpdate = currentRow() > -1 && d->cursor->canUpdate();
+	popup->setItemEnabled( id[ IdUpdate ], enableUpdate );
+	bool enableDelete = currentRow() > -1 && d->cursor->canDelete();
+	popup->setItemEnabled( id[ IdDelete ], enableDelete );
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 	if ( r == id[ IdInsert ] )

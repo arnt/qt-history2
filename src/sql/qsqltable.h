@@ -41,19 +41,18 @@
 #include "qstring.h"
 #include "qvariant.h"
 #include "qtable.h"
-#include "qpainter.h"
-#include "qsqldatabase.h"
-#include "qsqlquery.h"
 #include "qsqlcursor.h"
-#include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
-#include "qsqlform.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
+class QPainter;
+class QSqlField;
+class QSqlPropertyMap;
 class QSqlTablePrivate;
+
 class Q_EXPORT QSqlTable : public QTable
 {
     Q_OBJECT

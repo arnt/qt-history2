@@ -38,8 +38,6 @@
 #define QSQLINDEX_H
 
 #ifndef QT_H
-#include "qstring.h"
-#include "qvaluelist.h"
 #include "qsqlfield.h"
 #include "qsqlrecord.h"
 #endif // QT_H

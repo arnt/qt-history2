@@ -38,9 +38,8 @@
 #define QSQLCURSOR_H
 
 #ifndef QT_H
-#include "qstring.h"
-#include "qstringlist.h"
 #include "qsqlrecord.h"
+#include "qstringlist.h"
 #include "qsqlquery.h"
 #include "qsqlindex.h"
 #endif // QT_H
