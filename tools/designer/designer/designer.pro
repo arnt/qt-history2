@@ -12,10 +12,10 @@ include( ../../../src/qt_professional.pri )
 
 TARGET	= designer
 win32:TARGET = designerlib
-DEPENDPATH	+= $(QTDIR)/include
+DEPENDPATH	+= $$QT_SOURCE_TREE/include
 VERSION  	= 1.0.0
-DESTDIR		= $(QTDIR)/lib
-DLLDESTDIR	= $(QTDIR)/bin
+DESTDIR		= $$QT_BUILD_TREE/lib
+DLLDESTDIR	= $$QT_BUILD_TREE/bin
 
 aix-g++ {
 	QMAKE_CFLAGS += -mminimal-toc
@@ -37,11 +37,12 @@ FORMS	+= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listviewed
 CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
 INCLUDEPATH	+= ../shared ../uilib ../../../src/3rdparty/zlib/
-win32:LIBS	+= $(QTDIR)/lib/qui.lib
+win32:LIBS	+= $$QT_BUILD_TREE/lib/qui.lib
 unix {
-	LIBS	+= -L$(QTDIR)/lib -lqui
+	LIBS	+= -L$$QT_BUILD_TREE/lib -lqui
 	system-zlib:LIBS += -lz
 }
+
 
 TRANSLATIONS	= designer_de.ts \
 		  designer_fr.ts
@@ -52,11 +53,9 @@ LANGUAGE	= C++
 PROJECTNAME	= Qt Designer
 
 target.path=$$libs.path
-isEmpty(target.path):target.path=$$QT_PREFIX/lib
-INSTALLS        += target
+INSTALLS += target
 
-isEmpty(data.path):data.path=$$QT_PREFIX
+
 templates.path=$$data.path/templates
 templates.files = ../templates/*
 INSTALLS += templates
-

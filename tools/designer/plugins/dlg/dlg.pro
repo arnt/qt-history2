@@ -8,6 +8,6 @@ include( ../../../../src/qt_professional.pri )
 TARGET		= dlgplugin
 INCLUDEPATH	+= ../../interfaces
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/designer
 INSTALLS 	+= target

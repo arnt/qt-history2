@@ -14,9 +14,8 @@ DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 TARGET		= lupdate
-INCLUDEPATH	= ../shared
+INCLUDEPATH	+= ../shared
 DESTDIR		= ../../../bin
 
-target.path=$$bin.path
-isEmpty(target.path):target.path=$$QT_PREFIX/bin
+target.path=$$bins.path
 INSTALLS	+= target

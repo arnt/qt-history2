@@ -23,6 +23,6 @@ unix:system-zlib:LIBS += -lz
 
 unix {
 	target.path=$$libs.path
-	isEmpty(target.path):target.path=$$QT_PREFIX/lib
+
 	INSTALLS        += target
 }

@@ -11,9 +11,9 @@ DESTDIR	= ../../bin
 
 win32:RC_FILE = assistant.rc
 
-target.path=$$bin.path
-isEmpty(target.path):target.path=$$QT_PREFIX/bin
-INSTALLS        += target
+target.path=$$bins.path
+INSTALLS += target
+
 PROJECTNAME	= Assistant
 FORMS	= mainwindow.ui topicchooser.ui finddialog.ui helpdialog.ui settingsdialog.ui 
 

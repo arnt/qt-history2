@@ -3,4 +3,4 @@ CONFIG		+= qt warn_on release
 HEADERS		= 
 SOURCES		= main.cpp
 TARGET		= uictest
-TMAKE_UIC 	=  $(QTDIR)/bin/uic
+TMAKE_UIC 	=  $$QT_BUILD_TREE/bin/uic

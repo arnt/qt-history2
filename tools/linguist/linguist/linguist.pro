@@ -34,11 +34,14 @@ include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../bin
 TARGET		= linguist
-INCLUDEPATH	= ../pics \
+INCLUDEPATH	+= ../pics \
 		  ../shared
 
 PROJECTNAME	= Qt Linguist
 
-target.path=$$bin.path
-isEmpty(target.path):target.path=$$QT_PREFIX/bin
+target.path=$$bins.path
 INSTALLS	+= target
+
+phrasebooks.path=$$data.path/phrasebooks
+phrasebooks.files = ../phrasebooks/*
+INSTALLS += phrasebooks
