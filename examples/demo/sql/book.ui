@@ -234,7 +234,7 @@
     <function name="editClicked()" >{
     EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
     QSqlCursor cur( "book" );
-    dialog-&gt;BookDataBrowser-&gt;setCursor( &amp;cur );
+    dialog-&gt;BookDataBrowser-&gt;setSqlCursor( &amp;cur );
     dialog-&gt;BookDataBrowser-&gt;setFilter( BookDataTable-&gt;filter() );
     dialog-&gt;BookDataBrowser-&gt;setSort(QSqlIndex::fromStringList(
 	BookDataTable-&gt;sort(), &amp;cur ) );
@@ -266,14 +266,14 @@
     } 
     if ( !ok ) {
 	editButton-&gt;setEnabled( FALSE ); 
-	BookDataTable-&gt;setCursor( 0 );
-	AuthorDataTable-&gt;setCursor( 0 );
+	BookDataTable-&gt;setSqlCursor( 0 );
+	AuthorDataTable-&gt;setSqlCursor( 0 );
     }  else {
 	editButton-&gt;setEnabled( TRUE );
 	QSqlCursor* authorCursor = new QSqlCursor( "author" );
-	AuthorDataTable-&gt;setCursor( authorCursor, FALSE, TRUE );
+	AuthorDataTable-&gt;setSqlCursor( authorCursor, FALSE, TRUE );
 	QSqlCursor* bookCursor = new QSqlCursor( "book" );	
-	BookDataTable-&gt;setCursor( bookCursor, FALSE, TRUE );
+	BookDataTable-&gt;setSqlCursor( bookCursor, FALSE, TRUE );
 	AuthorDataTable-&gt;refresh( QDataTable::RefreshAll );
 	BookDataTable-&gt;refresh( QDataTable::RefreshAll );	
     }
