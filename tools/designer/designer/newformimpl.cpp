@@ -316,7 +316,8 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 		si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
 		si->setDragEnabled( FALSE );
 	    }
-	}
+	    iface->release();
+	}	
     }
 
     QStringList sourceTemplates = MainWindow::self->sourceTemplates();
@@ -330,6 +331,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	si->setLanguage( siface->language( *sit ) );
 	si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
 	si->setDragEnabled( FALSE );
+	siface->release();
     }
 
     templateView->viewport()->setFocus();
