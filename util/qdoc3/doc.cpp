@@ -943,24 +943,43 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
             }
             break;
         default:
-	    if ( paraState == OutsidePara ) {
-		if ( !ch.isSpace() ) {
-		    enterPara();
-		    appendChar( ch );
-		}
-		pos++;
-	    } else {
-		pos++;
-                if (ch.isSpace()) {
-		    if ((ch == '\n') && (paraState == InsideSingleLinePara || isBlankLine())) {
-			leavePara();
-		    } else {
-			appendChar( ' ' );
-		    }
+            {
+                bool newWord;
 
+                switch (priv->text.lastAtom()->type()) {
+                case Atom::ParaLeft:
+                    newWord = true;
+                    break;
+                default:
+                    newWord = false;
+                }
+
+	        if ( paraState == OutsidePara ) {
+		    if (ch.isSpace()) {
+                        ++pos;
+                        newWord = false;
+                    } else {
+		        enterPara();
+                        newWord = true;
+                    }
+	        } else {
+                    if (ch.isSpace()) {
+                        ++pos;
+		        if ((ch == '\n') && (paraState == InsideSingleLinePara || isBlankLine())) {
+			    leavePara();
+                            newWord = false;
+		        } else {
+			    appendChar(' ');
+                            newWord = true;
+		        }
+		    } else {
+                        newWord = true;
+                    }
+	        }
+
+                if (newWord) {
                     int startPos = pos;
                     int numInternalUppercase = 0;
-                    int numInternalDigits = 0;
                     int numLowercase = 0;
                     int numStrangeSymbols = 0;
 
@@ -1006,7 +1025,12 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                         }
                     }
 
-                    if (pos != startPos) {
+                    if (pos == startPos) {
+                        if (!ch.isSpace()) {
+                            appendChar(ch);
+                            ++pos;
+                        }
+                    } else {
                         QString word = in.mid(startPos, pos - startPos);
 
                         // is word a C++ symbol or an English word?
@@ -1017,10 +1041,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                             appendWord(word);
                         }
                     }
-		} else {
-		    appendChar(ch);
-		}
-	    }
+                }
+            }
 	}
     }
     leaveValueList();

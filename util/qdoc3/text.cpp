@@ -132,7 +132,7 @@ void Text::dump() const
 	str.replace( QRegExp("[^\x20-\x7e]"), "?" );
 	if ( !str.isEmpty() )
 	    str = " \"" + str + "\"";
-	qDebug( "    %-15s%s", atom->typeString().latin1(), str.latin1() );
+	fprintf(stderr, "    %-15s%s\n", atom->typeString().latin1(), str.latin1() );
 	atom = atom->next();
     }
 }
