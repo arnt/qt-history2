@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#14 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -22,7 +22,7 @@
 #define PDC_RESERVED_STOP	99		//   for Troll Tech
 
 #define PDC_NOP			0		//  <void>
-#define PDC_DRAW_START		1
+#define PDC_DRAW_FIRST		1
 #define PDC_DRAWPOINT		1		// point
 #define PDC_MOVETO		2		// point
 #define PDC_LINETO		3		// point
@@ -40,7 +40,7 @@
 #define PDC_DRAWTEXT		15		// point,str
 #define PDC_DRAWTEXTFRMT	16		// rect,ival,str
 #define PDC_DRAWPIXMAP		17		// rect,point,pixmap
-#define PDC_DRAW_STOP		17
+#define PDC_DRAW_LAST		17
 #define PDC_BEGIN		30		//  <void>
 #define PDC_END			31		//  <void>
 #define PDC_SAVE		32		//  <void>
@@ -86,7 +86,7 @@ union QPDevCmdParam {
 #define PDM_WIDTHMM		3
 #define PDM_HEIGHTMM		4
 #define PDM_NUMCOLORS		5
-#define PDM_NUMPLANES		6
+#define PDM_DEPTH		6
 
 
 #endif // QPAINTDC_H
