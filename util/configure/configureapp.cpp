@@ -99,6 +99,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_OCI" ]	    = "no";
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
+    dictionary[ "SQL_DB2" ]	    = "no";
 
     dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentDirPath() );
     dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( dictionary[ "QT_SOURCE_TREE" ] );
@@ -327,6 +328,12 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-no-sql-tds" )
 	    dictionary[ "SQL_TDS" ] = "no";
 
+	else if( (*args) == "-qt-sql-db2" )
+	    dictionary[ "SQL_DB2" ] = "yes";
+	else if( (*args) == "-plugin-sql-db2" )
+	    dictionary[ "SQL_DB2" ] = "plugin";
+	else if( (*args) == "-no-sql-db2" )
+	    dictionary[ "SQL_DB2" ] = "no";
 
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
@@ -811,6 +818,10 @@ void Configure::generateOutputVars()
     else if ( dictionary[ "SQL_TDS" ] == "plugin" )
 	qmakeSqlPlugins += "tds";
 
+    if ( dictionary[ "SQL_DB2" ] == "yes" )
+	qmakeSql += "db2";
+    else if ( dictionary[ "SQL_DB2" ] == "plugin" )
+	qmakeSqlPlugins += "db2";
 
     if ( dictionary[ "SHARED" ] == "yes" )
 	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
@@ -1143,7 +1154,8 @@ void Configure::displayConfig()
     cout << "MySQL......................." << dictionary[ "SQL_MYSQL" ] << endl;
     cout << "OCI........................." << dictionary[ "SQL_OCI" ] << endl;
     cout << "PostgreSQL.................." << dictionary[ "SQL_PSQL" ] << endl;
-    cout << "TDS........................." << dictionary[ "SQL_TDS" ] << endl << endl;
+    cout << "TDS........................." << dictionary[ "SQL_TDS" ] << endl;
+    cout << "DB2........................." << dictionary[ "SQL_DB2" ] << endl << endl;
 
     cout << "Sources are in.............." << dictionary[ "QT_SOURCE_TREE" ] << endl;
     cout << "Install prefix.............." << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
