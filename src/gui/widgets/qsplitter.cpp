@@ -253,17 +253,20 @@ void QSplitterPrivate::recalc(bool update)
     if (maxt < mint)
         maxt = mint;
 
-    if (orient == Qt::Horizontal) {
-        q->setMaximumSize(maxl, maxt);
-        q->setMinimumSize(minl, mint);
-    } else {
-        q->setMaximumSize(maxt, maxl);
-        q->setMinimumSize(mint, minl);
-    }
-    if (update)
+    if (update) {
+        if (orient == Qt::Horizontal) {
+            q->setMaximumSize(maxl, maxt);
+            if (q->isTopLevel())
+                q->setMinimumSize(minl,mint);
+        } else {
+            q->setMaximumSize(maxt, maxl);
+            if (q->isTopLevel())
+                q->setMinimumSize(mint,minl);
+        }
         doResize();
-    else
+    } else {
         firstShow = true;
+    }
 }
 
 void QSplitterPrivate::doResize()
@@ -286,6 +289,9 @@ void QSplitterPrivate::doResize()
     for (i = 0; i < n; ++i) {
         a[i].init();
         QSplitterLayoutStruct *s = list.at(i);
+#ifdef QSPLITTER_DEBUG
+        qDebug("widget %d hidden: %d collapsed: %d handle: %d", i, s->wid->isHidden(), s->collapsed, s->isHandle);
+#endif
         if (s->wid->isHidden() || s->collapsed) {
             a[i].maximumSize = 0;
         } else if (s->isHandle) {
@@ -512,7 +518,7 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool spl
     */
     int minSize = pick(verySmartMinSize(w));
     if (!w->isHidden() && s <= 0 && minSize > 0) {
-        sls->collapsed = (minSize > 1);
+        sls->collapsed = splitterMoved && minSize > 1;
         r.moveTopLeft(QPoint(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX));
     }
     w->setGeometry(r);
