@@ -216,6 +216,8 @@ protected:
     }
 
 signals:
+    QT_COMPAT void aboutToHide();
+    QT_COMPAT void aboutToShow();
     QT_COMPAT void activated(int itemId);
     QT_COMPAT void highlighted(int itemId);
 
@@ -236,6 +238,7 @@ private:
     friend class QTornOffMenu;
 
 #ifdef Q_WS_MAC
+    friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef, void *);
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=

@@ -293,21 +293,36 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                     handled_event = false;
             }
 #endif
-#ifdef QT_COMPAT
         } else if(ekind == kEventMenuOpening || ekind == kEventMenuClosed) {
             MenuRef mr;
             GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
                               0, sizeof(mr), 0, &mr);
-            if(ekind == kEventMenuOpening) {
-                Boolean first;
-                GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
-                                  0, sizeof(first), 0, &first);
-                if(first && !Q3MenuBar::macUpdatePopup(mr))
-                    handled_event = false;
+
+            QWidget *widget = 0;
+            if(GetMenuItemProperty(mr, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget) == noErr) {
+                if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
+                    handled_event = true;
+#ifdef QT_COMPAT
+                    if(ekind == kEventMenuOpening) 
+                        emit qmenu->aboutToShow();
+                    else 
+                        emit qmenu->aboutToHide();
+#endif
+                }
             }
-            if(handled_event) {
-                if(!Q3MenuBar::macUpdatePopupVisible(mr, ekind == kEventMenuOpening))
-                    handled_event = false;
+#ifdef QT_COMPAT
+            if(!handled_event) {
+                if(ekind == kEventMenuOpening) {
+                    Boolean first;
+                    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
+                                      0, sizeof(first), 0, &first);
+                    if(first && !Q3MenuBar::macUpdatePopup(mr))
+                        handled_event = false;
+                }
+                if(handled_event) {
+                    if(!Q3MenuBar::macUpdatePopupVisible(mr, ekind == kEventMenuOpening))
+                        handled_event = false;
+                }
             }
 #endif
         } else {
@@ -580,6 +595,12 @@ QMenuPrivate::macMenu(MenuRef merge)
     QList<QAction*> items = q->actions();
     for(int i = 0; i < items.count(); i++) 
         mac_menu->addAction(items[i]);
+
+    
+    if(!CountMenuItems(mac_menu->menu) && !q->receivers(SIGNAL(aboutToShow()))) {
+        ReleaseMenu(mac_menu->menu);
+        mac_menu->menu = 0;
+    }
     return mac_menu->menu;
 }
 

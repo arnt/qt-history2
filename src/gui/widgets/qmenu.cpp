@@ -986,6 +986,9 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     } else
 #endif
     {
+#ifdef QT_COMPAT
+        emit aboutToShow();
+#endif
         show();
     }
 
@@ -1102,6 +1105,9 @@ QAction *QMenu::exec(QList<QAction*> actions, const QPoint &pos, QAction *at)
 */
 void QMenu::hideEvent(QHideEvent *)
 {
+#ifdef QT_COMPAT
+    emit aboutToHide();
+#endif
     if(d->sync)
         qApp->exit_loop();
     d->setCurrentAction(0);
