@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#151 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#150 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#151 $");
 
 
 /*!
@@ -106,6 +106,7 @@ hide(),
 
 isFocusEnabled(),
 setFocusPolicy(),
+focusPolicy(),
 hasFocus(),
 setFocus(),
 clearFocus(),
@@ -302,7 +303,7 @@ raise(),
   when a key has been held down long enough for it to auto-repeat.
 
   <li> focusInEvent() - called when the widget gains keyboard focus
-  (assuming you have called setFocusEnabled(), of course).  Well
+  (assuming you have called setFocusPolicy(), of course).  Well
   written widgets indicate that they own the keyboard focus in a clear
   but discreet way.
 
@@ -1383,9 +1384,9 @@ void QWidget::setMouseTracking( bool enable )
   Returns TRUE if this widget (not one of its children) has the
   keyboard input focus, otherwise FALSE.
 
-  Equivalent with <code>qApp->focusWidget() == this</code>.
+  Equivalent to <code>qApp->focusWidget() == this</code>.
 
-  \sa setFocus(), clearFocus(), setFocusEnabled(), QApplication::focusWidget()
+  \sa setFocus(), clearFocus(), setFocusPolicy(), QApplication::focusWidget()
 */
 
 bool QWidget::hasFocus() const
@@ -1402,14 +1403,14 @@ bool QWidget::hasFocus() const
   this widget to tell it that it just received the focus.
 
   This widget must enable focus setting in order to get the keyboard input
-  focus, i.e. it must call setFocusEnabled(TRUE).
+  focus, i.e. it must call setFocusPolicy().
 
   \warning If you call setFocus() in a function which may itself be
   called from focusOutEvent() or focusInEvent(), you may see infinite
   recursion.
 
   \sa hasFocus(), clearFocus(), focusInEvent(), focusOutEvent(),
-  setFocusEnabled(), QApplication::focusWidget()
+  setFocusPolicy(), QApplication::focusWidget()
 */
 
 void QWidget::setFocus()
@@ -1457,13 +1458,13 @@ void QWidget::setFocus()
   widget to tell it that it is about to loose the focus.
 
   This widget must enable focus setting in order to get the keyboard input
-  focus, i.e. it must call setFocusEnabled(TRUE).
+  focus, i.e. it must call setFocusPolicy().
 
   \warning If you call clearFocus() in a function which may itself be
   called from focusOutEvent(), you may see infinite recursion.
 
   \sa hasFocus(), setFocus(), focusInEvent(), focusOutEvent(),
-  setFocusEnabled(), QApplication::focusWidget()
+  setFocusPolicy(), QApplication::focusWidget()
 */
 
 void QWidget::clearFocus()
@@ -1526,7 +1527,7 @@ bool QWidget::focusNextPrevChild( bool next )
 	    return FALSE;
 	if ( it.current()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)it.current();
-	    if ( w->isFocusEnabled() & TabFocus && w->isEnabled() ) {
+	    if ( w->focusPolicy() & TabFocus && w->isEnabled() ) {
 		w->setFocus();
 		return TRUE;
 	    }
@@ -1587,11 +1588,23 @@ void QWidget::setCRect( const QRect &r )
   Focus events are initially disabled.
   You need to enable focus events for a widget if it processes keyboard
   events. This is normally done from the widget's constructor.
-  For instance, the QLineEdit constructor calls setFocusEnabled(TRUE).
+  For instance, the QLineEdit constructor calls setFocusPolicy(StrongFocus).
 
-  \sa setFocusEnabled(), focusInEvent(), focusOutEvent(), keyPressEvent(),
+  \sa setFocusPolicy(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
 */
+
+/*!
+  \fn QWidget::FocusPolicy QWidget::focusPolicy() const
+
+  Returns \c TabFocus if the widget accepts focus by tabbing, \c ClickFocus
+  if the widget accepts focus by clicking, \c StrongFocus if it accepts both
+  and \c NoFocus if it accepts neither. 
+
+  \sa isFocusEnabled(), setFocusPolicy(), focusInEvent(), focusOutEvent(), 
+  keyPressEvent(), keyReleaseEvent(), isEnabled()
+*/
+
 
 /*!
   Enables or disables the keyboard input focus events for the widget.
@@ -1599,7 +1612,12 @@ void QWidget::setCRect( const QRect &r )
   Focus events are initially disabled.
   You need to enable focus events for a widget if it processes keyboard
   events. This is normally done from the widget's constructor.
-  For instance, the QLineEdit constructor calls setFocusEnabled(TRUE).
+  For instance, the QLineEdit constructor calls setFocusPolicy(StrongFocus).
+
+  If \a policy is \c TabFocus  the widget accepts focus by tabbing, 
+  \c ClickFocus it accepts focus by clicking, \c StrongFocus it accepts both
+  and \c NoFocus it does not accept focus.
+
 
   \sa isFocusEnabled(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
@@ -2018,7 +2036,7 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
   This event handler can be reimplemented in a subclass to receive
   key press events for the widget.
 
-  A widget must \link setFocusEnabled() accept focus\endlink initially
+  A widget must \link setFocusPolicy() accept focus\endlink initially
   and \link hasFocus() have focus\endlink in order to receive a key press
   event.
 
@@ -2028,7 +2046,7 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyReleaseEvent(), QKeyEvent::ignore(), setFocusEnabled(),
+  \sa keyReleaseEvent(), QKeyEvent::ignore(), setFocusPolicy(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
 
@@ -2041,7 +2059,7 @@ void QWidget::keyPressEvent( QKeyEvent *e )
   This event handler can be reimplemented in a subclass to receive
   key release events for the widget.
 
-  A widget must \link setFocusEnabled() accept focus\endlink initially
+  A widget must \link setFocusPolicy() accept focus\endlink initially
   and \link hasFocus() have focus\endlink in order to receive a key
   release event.
 
@@ -2051,7 +2069,7 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyPressEvent(), QKeyEvent::ignore(), setFocusEnabled(),
+  \sa keyPressEvent(), QKeyEvent::ignore(), setFocusPolicy(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
 
@@ -2064,14 +2082,14 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus received) for the widget.
 
-  A widget must \link setFocusEnabled() accept focus\endlink initially in
+  A widget must \link setFocusPolicy() accept focus\endlink initially in
   order to receive focus events.
 
   The default implementation calls repaint() since the widget's \link
   QColorGroup color group\endlink changes from normal to active.  You
   may want to call repaint(FALSE) to reduce flicker in any reimplementation.
 
-  \sa focusOutEvent(), setFocusEnabled(),
+  \sa focusOutEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
 */
 
@@ -2084,14 +2102,14 @@ void QWidget::focusInEvent( QFocusEvent * )
   This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus lost) for the widget.
 
-  A widget must \link setFocusEnabled() accept focus\endlink initially in
+  A widget must \link setFocusPolicy() accept focus\endlink initially in
   order to receive focus events.
 
   The default implementation calls repaint() since the widget's \link
   QColorGroup color group\endlink changes from active to normal.  You
   may want to call repaint(FALSE) to reduce flicker in any reimplementation.
 
-  \sa focusInEvent(), setFocusEnabled(),
+  \sa focusInEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#101 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#102 $
 **
 ** Definition of QWidget class
 **
@@ -121,7 +121,8 @@ public:
 
     bool	 isActiveWindow() const;
     void	 setActiveWindow();
-    FocusPolicy	 isFocusEnabled() const;
+    bool	 isFocusEnabled() const;
+    FocusPolicy	 focusPolicy() const;
     void	 setFocusPolicy( FocusPolicy );
     bool	 hasFocus() const;
     void	 setFocus();
@@ -355,7 +356,10 @@ inline QFontInfo QWidget::fontInfo() const
 inline bool QWidget::hasMouseTracking() const
 { return testWFlags(WState_TrackMouse); }
 
-inline QWidget::FocusPolicy QWidget::isFocusEnabled() const
+inline bool  QWidget::isFocusEnabled() const
+{ return testWFlags(WState_TabToFocus) || testWFlags(WState_ClickToFocus); }
+
+inline QWidget::FocusPolicy QWidget::focusPolicy() const
 { return (FocusPolicy)((testWFlags(WState_TabToFocus) ? TabFocus : 0)
 		       + (testWFlags(WState_ClickToFocus) ? ClickFocus : 0)); }
 
