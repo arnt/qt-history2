@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#49 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -495,6 +495,8 @@ public:
 	QByteArray targets = getDataInFormat(xa_targets);
 	if ( targets.size()/sizeof(Atom) > (uint)n ) {
 	    Atom* target = (Atom*)targets.data();
+	    if ( *target == XA_PIXMAP )
+		return "image/ppm";
 	    const char* fmt = qt_xdnd_atom_to_str(target[n]);
 	    return fmt;
 	} else {
