@@ -33,142 +33,145 @@ extend @DiagSetup @Diag
 macro @WidgetNode	{ @Node paint { @WidgetColour } }
 extend @DiagSetup @Diag
 macro @XmlNode		{ @Node paint { @XMLColour } }
-# TODO If there's no reply to the lout newsgroup question swap the
-# layouts and the last 3 database classes.
-# TODO Put the text, images, etc. back in!
 @Doc 
 //
 @Text @Begin
-###@Place x { 4.05c } y { 15.05c }
-###{
-###1.75 @Scale @WatermarkColour @Colour 0d @Rotate
-###{ 0.75 1.0 } @Scale @F @Verbatim { connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) ); }
-###}
-###@Place
-###    x { 3.25c }
-###    y { 18.0c }
-###{
-###0.75 @Scale @WatermarkColour @Colour 90d @Rotate
-###{ Qt"/"Embedded @CDot Qt"/"Mac @CDot Qt"/"Windows @CDot Qt"/"X11 }
-###}
-###@Place 
-###    x { 26.30c }
-###    y { 1c }
-###{
-###0.80 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
-###}
-###@Place 
-###    x { 25.15c }
-###    y { 11.25c }
-###{
-###1.5 @Scale 90d @Rotate
-###{ 0.75 1.0 } @Scale @F { info@trolltech.com }
-###}
-###@Place 
-###    x { 23.90c }
-###    y { 1.5c }
-###{
-###0.75 @Scale black @Colour 90d @Rotate
-###Slope @Font 11.5c @Wide {
-###Qt is a C++ toolkit for cross-platform GUI and application
-###development. In addition to the Qt C++ class library, the 
-###toolkit includes tools like Qt Designer that make writing applications
-###fast and straightforward. Qt's cross-platform capabilities and
-###extensive internationalization support ensure that Qt applications
-###can reach the widest possible darkgrey @Colour{mark}et. 
-###}
-###}
-###@Place 
-###    x { 15.70c }
-###    y { 24.55c }
-###{
-###0.75 @Scale 90d @Rotate @WatermarkColour @Colour 
-###{ 0.75 1.0 } @Scale @F @Verbatim @Begin 
-####include <qapplication.h>
-####include <qlabel.h>
-###
-###int main( int argc, char **argv )
-###{
-###    QApplication app( argc, argv );
-###    QLabel *hello = new QLabel( 
-###                 "<font color=blue>"
-###                 "Hello <i>Qt!</i>"
-###                 "</font>", 0 );
-###    app.setMainWidget( hello );
-###    hello->show();
-###    return app.exec();
-###}
-###@End @Verbatim
-###}
-###@Place x { 3.9c } y { 5.5c }
-###{ 0.5 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
-###AIX
-###BSDI
-###FreeBSD
-###HP-UX
-###Irix
-###Linux
-###Mac OS X
-###NetBSD
-###OpenBSD
-###Solaris
-###Tru64
-###UnixWare
-###Windows 95
-###Windows 98
-###Windows NT 4
-###Windows ME
-###Windows 2000
-###Windows XP
-###}
-###}
-###@Place x { 3.0c } y { 31.00c }
-###{ 0.5 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
-###utf16 @CDot Unicode
-###utf8 @CDot Unicode
-###Big5 @CDot Chinese
-###GBK @CDot Chinese
-###eucJP @CDot Japanese
-###JIS7 @CDot Japanese
-###Shift-JIS @CDot Japanese
-###eucKR @CDot Korean
-###KO18-R @CDot Russian
-###TSCII @CDot Tamil
-###TIS-620 @CDot Thai
-###KO18-U @CDot Ukranian
-###CP 874
-###CP 1250 @CDot Central Europe
-###CP 1251 @CDot Cyrillic
-###CP 1252 @CDot Western
-###CP 1253 @CDot Greek
-###CP 1254 @CDot Turkish
-###CP 1255 @CDot Hebrew
-###CP 1256 @CDot Arabic
-###CP 1257 @CDot Baltic
-###CP 1258
-###ISO8859-15 @CDot Western
-###ISO8859-14
-###ISO8859-13
-###ISO8859-10
-###ISO8859-9 @CDot Turkish
-###ISO8859-8-i @CDot Hebrew
-###ISO8859-8 @CDot Hebrew
-###ISO8859-7 @CDot Greek
-###ISO8859-6 @CDot Arabic
-###ISO8859-5 @CDot Cyrillic
-###ISO8859-4 @CDot Baltic
-###ISO8859-3 @CDot Central Europe
-###ISO8859-2 @CDot Central Europe
-###ISO8859-1 @CDot Western
-###Apple Roman
-###} 
-###}
-###@Place x { 27.90c } y { 26.15c }
-###{ 0.5 @Scale grey @Colour 90d @Rotate
-###{ Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved. @Sup{VX}} }
-###@Place x { 23.15c } y { 37.5c }
-###{ 0.175 @Scale 90d @Rotate
-###@IncludeGraphic { logo_face_trolltech.eps.gz } }
+@Place x { 4.50c } y { 15.25c }
+{
+2.0 @Scale @WatermarkColour @Colour 0d @Rotate
+{ 0.75 1.0 } @Scale @F @Verbatim { connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) ); }
+}
+@Place
+    x { 3.125c }
+    y { 18.0c }
+{
+0.75 @Scale @WatermarkColour @Colour 90d @Rotate
+{ Qt"/"Embedded @CDot Qt"/"Mac @CDot Qt"/"Windows @CDot Qt"/"X11 }
+}
+@Place 
+    x { 27.375c }
+    y { 29.0c }
+{
+0.75 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
+}
+@Place 
+    x { 26.375c }
+    y { 11.5c }
+{
+1.5 @Scale 90d @Rotate
+{ 0.75 1.0 } @Scale @F { info@trolltech.com }
+}
+@Place 
+    x { 26.50c }
+    y { 3.65c }
+{
+0.75 @Scale black @Colour 90d @Rotate
+Slope @Font 9.25c @Wide ragged @Break {
+Qt is a C++ toolkit for cross-platform GUI and application
+development. In addition to the Qt C++ class library, the toolkit
+includes tools like Qt Designer that make writing applications fast
+and straightforward. Qt's multiplatform abilities and
+internationalization support ensure that Qt applications can reach the
+widest possible darkgrey @Colour{mark}et. 
+}
+}
+@Place
+    x { 27.75c }
+    y { 12.35c }
+{
+90d @Rotate 2.2 @Scale { www.trolltech.com   @CDot   doc.trolltech.com }
+}
+@Place 
+    x { 15.00c }
+    y { 24.30c }
+{
+0.75 @Scale 90d @Rotate @WatermarkColour @Colour 
+{ 0.75 1.0 } @Scale @F @Verbatim @Begin 
+#include <qapplication.h>
+#include <qlabel.h>
+int main( int argc, char **argv )
+{
+    QApplication app( argc, argv );
+    QLabel *hello = new QLabel( 
+                 "<font color=blue>"
+                 "Hello <i>Qt!</i>"
+                 "</font>", 0 );
+    app.setMainWidget( hello );
+    hello->show();
+    return app.exec();
+}
+@End @Verbatim
+}
+@Place x { 3.5c } y { 4.9c }
+{ 0.75 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
+AIX
+BSDI
+FreeBSD
+HP-UX
+Irix
+Linux
+Mac OS X
+NetBSD
+OpenBSD
+Solaris
+Tru64
+UnixWare
+Windows 95
+Windows 98
+Windows NT 4
+Windows ME
+Windows 2000
+Windows XP
+}
+}
+@Place x { 3.07c } y { 30.50c }
+{ 0.5 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
+utf16 @CDot Unicode
+utf8 @CDot Unicode
+Big5 @CDot Chinese
+GBK @CDot Chinese
+eucJP @CDot Japanese
+JIS7 @CDot Japanese
+Shift-JIS @CDot Japanese
+eucKR @CDot Korean
+KO18-R @CDot Russian
+TSCII @CDot Tamil
+TIS-620 @CDot Thai
+KO18-U @CDot Ukranian
+CP 1258
+CP 1257 @CDot Baltic
+CP 1256 @CDot Arabic
+CP 1255 @CDot Hebrew
+CP 1254 @CDot Turkish
+CP 1253 @CDot Greek
+CP 1252 @CDot Western
+CP 1251 @CDot Cyrillic
+CP 1250 @CDot Central Europe
+CP 874
+ISO8859-15 @CDot Western
+ISO8859-14
+ISO8859-13
+ISO8859-10
+ISO8859-9 @CDot Turkish
+ISO8859-8-i @CDot Hebrew
+ISO8859-8 @CDot Hebrew
+ISO8859-7 @CDot Greek
+ISO8859-6 @CDot Arabic
+ISO8859-5 @CDot Cyrillic
+ISO8859-4 @CDot Baltic
+/0.75v
+ISO8859-3 @CDot Central Europe
+ISO8859-2 @CDot Central Europe
+ISO8859-1 @CDot Western
+Apple Roman
+} 
+}
+@Place x { 26.7c } y { 32.50c }
+{ 0.75 @Scale grey @Colour 90d @Rotate
+{ Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved. @Sup{1.0}} }
+@Place x { 26.5c } y { 1c }
+{ 0.25 @Scale 90d @Rotate
+@IncludeGraphic { square_trolltech.eps.gz } }
 @CD 
 {} @Scale 
 @Diag 
@@ -227,6 +230,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QACTION:: @ObjectNode { QAction } } 
 	    I { QCOMBOBOX:: @WidgetNode { QComboBox } } 
 	    K { QTOOLBUTTON:: @WidgetNode { QToolButton } } 
+	    M { QXMLATTRIBUTES:: @XmlNode { QXmlAttributes } }
 	    O { QASYNCIO:: @MiscNode { QAsyncIO } } 
 	    Q { QMETAOBJECT:: @MiscNode { QMetaObject } }
 	    S { QPOINTARRAY:: @CollectionNode { QPointArray } }
@@ -236,7 +240,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QAPPLICATION:: @ObjectNode { QApplication } } 
 	    I { QDATEEDIT:: @WidgetNode { QDateEdit } } 
 	    K { QPUSHBUTTON:: @WidgetNode { QPushButton } } 
-	    M { QXMLATTRIBUTES:: @XmlNode { QXmlAttributes } }
+	    M { QXMLCONTENTHANDLER:: @XmlNode { QXmlContentHandler } }
 	    O { QCHAR:: @MiscNode { QChar } } 
 	    Q { QMETAPROPERTY:: @MiscNode { QMetaProperty } }
 	    S { QBITARRAY:: @CollectionNode { QBitArray } }
@@ -246,7 +250,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QCANVAS:: @ObjectNode { QCanvas } } 
 	    I { QDATETIMEEDIT:: @WidgetNode { QDateTimeEdit } } 
 	    K { QRADIOBUTTON:: @WidgetNode { QRadioButton } } 
-	    M { QXMLCONTENTHANDLER:: @XmlNode { QXmlContentHandler } }
+	    M { QXMLDECLHANDLER:: @XmlNode { QXmlDeclHandler } }
 	    O { QCOLOR:: @MiscNode { QColor } } 
 	    Q { QMOVIE:: @MiscNode { QMovie } }
 	    S { QCSTRING:: @CollectionNode { QCString } }
@@ -255,7 +259,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    E { QDROPEVENT:: @EventNode { QDropEvent } } 
 	    G { QCLIPBOARD:: @ObjectNode { QClipboard } } 
 	    I { QDESKTOPWIDGET:: @WidgetNode { QDesktopWidget } } 
-	    M { QXMLDECLHANDLER:: @XmlNode { QXmlDeclHandler } }
+	    M { QXMLDTDHANDLER:: @XmlNode { QXmlDTDHandler } }
 	    O { QCOLORGROUP:: @MiscNode { QColorGroup } } 
 	    Q { QMIMESOURCE:: @MiscNode { QMimeSource } }
 	    S { QMIMESOURCEFACTORY:: @MiscNode { QMimeSourceFactory } }
@@ -265,7 +269,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QDNS:: @ObjectNode { QDns } } 
 	    I { QDIALOG:: @DialogNode { QDialog } } 
 	    K { QWIZARD:: @DialogNode { QWizard } } 
-	    M { QXMLDTDHANDLER:: @XmlNode { QXmlDTDHandler } }
+	    M { QXMLENTITYRESOLVER:: @XmlNode { QXmlEntityResolver } }
 	    O { QDATASTREAM:: @MiscNode { QDataStream } } 
 	    Q { QMUTEX:: @MiscNode { QMutex } }
 	    S { QMUTEXLOCKER:: @MiscNode { QMutexLocker } }
@@ -275,7 +279,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QDRAGOBJECT:: @ObjectNode { QDragObject } } 
 	    I { QDIAL:: @WidgetNode { QDial } } 
 	    K { QTABDIALOG:: @DialogNode { QTabDialog } } 
-	    M { QXMLENTITYRESOLVER:: @XmlNode { QXmlEntityResolver } }
+	    M { QXMLLEXICALHANDLER:: @XmlNode { QXmlLexicalHandler } }
 	    O { QDATE:: @MiscNode { QDate } } 
 	    Q { QPAINTDEVICE:: @MiscNode { QPaintDevice } }
 	@Rowa
@@ -284,7 +288,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QEVENTLOOP:: @ObjectNode { QEventLoop } } 
 	    I { QDOCKAREA:: @WidgetNode { QDockArea } } 
 	    K { QFILEDIALOG:: @DialogNode { QFileDialog } } 
-	    M { QXMLLEXICALHANDLER:: @XmlNode { QXmlLexicalHandler } }
+	    M { QXMLLOCATOR:: @XmlNode { QXmlLocator } }
 	    O { QDATETIME:: @MiscNode { QDateTime } } 
 	    Q { QPAINTDEVICEMETRICS:: @MiscNode { QPaintDeviceMetrics } }
 	    S { QPRINTER:: @MiscNode { QPrinter } }
@@ -294,7 +298,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QPROCESS:: @ObjectNode { QProcess } } 
 	    I { QWORKSPACE:: @WidgetNode { QWorkspace } } 
 	    K { QFONTDIALOG:: @DialogNode { QFontDialog } } 
-	    M { QXMLLOCATOR:: @XmlNode { QXmlLocator } }
+	    M { QXMLNAMESPACESUPPORT:: @XmlNode { QXmlNamespace... } }
 	    O { QDEEPCOPY:: @MiscNode { QDeepCopy } } 
 	    Q { QPAIR:: @CollectionNode { QPair } }
 	    S { QPICTURE:: @MiscNode { QPicture } }
@@ -304,7 +308,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSERVERSOCKET:: @ObjectNode { QServerSocket } } 
 	    I { QGLWIDGET:: @WidgetNode { QGLWidget } } 
 	    K { QINPUTDIALOG:: @DialogNode { QInputDialog } } 
-	    M { QXMLNAMESPACESUPPORT:: @XmlNode { QXmlNamespace... } }
+	    M { QXMLREADER:: @XmlNode { QXmlReader } }
 	    O { QDIR:: @MiscNode { QDir } } 
 	    Q { QPALETTE:: @MiscNode { QPalette } }
 	    S { QPIXMAP:: @MiscNode { QPixmap } }
@@ -314,7 +318,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSESSIONMANAGER:: @ObjectNode { QSessionManager } } 
 	    I { QHEADER:: @WidgetNode { QHeader } } 
 	    K { QCOLORDIALOG:: @DialogNode { QColorDialog } } 
-	    M { QXMLREADER:: @XmlNode { QXmlReader } }
+	    M { QDOMATTR:: @XmlNode { QDomAttr } } 
 	    O { QDOMNODE:: @XmlNode { QDomNode } } 
 	    Q { QPIXMAPCACHE:: @CollectionNode { QPixmapCache } }
 	    S { QBITMAP:: @MiscNode { QBitmap } }
@@ -324,6 +328,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSIGNAL:: @ObjectNode { QSignal } } 
 	    I { QMAINWINDOW:: @WidgetNode { QMainWindow } } 
 	    K { QMESSAGEBOX:: @DialogNode { QMessageBox } } 
+	    M { QDOMENTITY:: @XmlNode { QDomEntity } } 
 	    O { QFILEINFO:: @MiscNode { QFileInfo } } 
 	    Q { QPOINT:: @MiscNode { QPoint } }
 	@Rowa
@@ -332,7 +337,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSIGNALMAPPER:: @ObjectNode { QSignalMapper } } 
 	    I { QSCROLLBAR:: @WidgetNode { QScrollBar } } 
 	    K { QERRORMESSAGE:: @DialogNode { QErrorMessage } } 
-	    M { QDOMATTR:: @XmlNode { QDomAttr } } 
+	    M { QDOMELEMENT:: @XmlNode { QDomElement } } 
 	    O { QFONT:: @MiscNode { QFont } } 
 	    Q { QPTRCOLLECTION:: @CollectionNode { QPtrCollection } }
 	@Rowa
@@ -341,7 +346,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSOCKET:: @ObjectNode { QSocket } } 
 	    I { QSLIDER:: @WidgetNode { QSlider } } 
 	    K { QPROGRESSDIALOG:: @DialogNode { QProgressDialog } } 
-	    M { QDOMENTITY:: @XmlNode { QDomEntity } } 
+	    M { QDOMDOCUMENT:: @XmlNode { QDomDocument } } 
 	    O { QFONTDATABASE:: @MiscNode { QFontDatabase } } 
 	    Q { QPTRQUEUE:: @CollectionNode { QPtrQueue } }
 	    S { QDICT:: @CollectionNode { QDict } }
@@ -350,7 +355,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    E { QRESIZEEVENT:: @EventNode { QResizeEvent } } 
 	    G { QSOUND:: @ObjectNode { QSound } } 
 	    I { QFRAME:: @WidgetNode { QFrame } } 
-	    M { QDOMELEMENT:: @XmlNode { QDomElement } } 
+	    M { QDOMCHARACTERDATA:: @XmlNode { QDomCharacterData } } 
 	    O { QFONTINFO:: @MiscNode { QFontInfo } } 
 	    Q { QPTRSTACK:: @CollectionNode { QPtrStack } }
 	    S { QCACHE:: @CollectionNode { QCache } }
@@ -360,7 +365,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QTIMER:: @ObjectNode { QTimer } } 
 	    I { QSIZEGRIP:: @WidgetNode { QSizeGrip } } 
 	    K { QGRID:: @WidgetNode { QGrid } } 
-	    M { QDOMDOCUMENT:: @XmlNode { QDomDocument } } 
+	    M { QGLFORMAT:: @MiscNode { QGLFormat } } 
 	    O { QFONTMANAGER:: @MiscNode { QFontManager } } 
 	    Q { QRANGECONTROL:: @MiscNode { QRangeControl } }
 	    S { QPTRLIST:: @CollectionNode { QPtrList } }
@@ -370,7 +375,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QTRANSLATOR:: @ObjectNode { QTranslator } } 
 	    I { QSPINBOX:: @WidgetNode { QSpinBox } } 
 	    K { QLABEL:: @WidgetNode { QLabel } } 
-	    M { QDOMCHARACTERDATA:: @XmlNode { QDomCharacterData } } 
+	    M { QGLCONTEXT:: @MiscNode { QGLContext } } 
 	    O { QFONTMETRICS:: @MiscNode { QFontMetrics } } 
 	    Q { QRECT:: @MiscNode { QRect } }
 	    S { QINTDICT:: @CollectionNode { QIntDict } }
@@ -387,7 +392,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSTYLE:: @StyleNode { QStyle } } 
 	    I { QTABBAR:: @WidgetNode { QTabBar } } 
 	    K { QVBOX:: @WidgetNode { QVBox } } 
-	    M { QGLFORMAT:: @MiscNode { QGLFormat } } 
 	    O { QGLCOLORMAP:: @MiscNode { QGLColormap } } 
 	    Q { QREGION:: @MiscNode { QRegion } }
 	    S { QASCIIDICT:: @CollectionNode { QAsciiDict } }
@@ -396,7 +400,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QURLOPERATOR:: @ObjectNode { QUrlOperator } } 
 	    I { QTABWIDGET:: @WidgetNode { QTabWidget } } 
 	    K { QSPLITTER:: @WidgetNode { QSplitter } } 
-	    M { QGLCONTEXT:: @MiscNode { QGLContext } } 
 	    O { QGUARDEDPTR:: @MiscNode { QGuardedPtr } } 
 	    Q { QSEMAPHORE:: @MiscNode { QSemaphore } }
 	    S { QPTRVECTOR:: @CollectionNode { QPtrVector } }
@@ -431,7 +434,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QDOUBLEVALIDATOR:: @ObjectNode { QDoubleValidator } } 
 	    I { QGRIDVIEW:: @WidgetNode { QGridView } } 
 	    K { QPOPUPMENU:: @WidgetNode { QPopupMenu } } 
-	    M { QFILE:: @MiscNode { QFile } } 
 	    O { QIMAGEFORMATPLUGIN:: @MiscNode { QImageFormatPlugin } } 
 	    Q { QSIZEPOLICY:: @MiscNode { QSizePolicy } }
 	    S { QSTRINGLIST:: @CollectionNode { QStringList } }
@@ -441,7 +443,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QINTVALIDATOR:: @ObjectNode { QIntValidator } } 
 	    I { QICONVIEW:: @WidgetNode { QIconView } } 
 	    K { QPROGRESSBAR:: @WidgetNode { QProgressBar } } 
-	    M { QBUFFER:: @MiscNode { QBuffer } } 
+	    M { QFILE:: @MiscNode { QFile } } 
 	    O { QIMAGEIO:: @MiscNode { QImageIO } } 
 	    Q { QSTRING:: @MiscNode { QString } }
 	    S { QVALUESTACK:: @CollectionNode { QValueStack } }
@@ -451,7 +453,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QREGEXPVALIDATOR:: @ObjectNode { QRegExpValidator } } 
 	    I { QLISTVIEW:: @WidgetNode { QListView } } 
 	    K { QLCDNUMBER:: @WidgetNode { QLCDNumber } } 
-	    M { QSOCKETDEVICE:: @MiscNode { QSocketDevice } } 
+	    M { QBUFFER:: @MiscNode { QBuffer } } 
 	    O { QINTCACHE:: @CollectionNode { QIntCache } } 
 	    Q { QCONSTSTRING:: @MiscNode { QConstString } }
 	    S { QVALUEVECTOR:: @CollectionNode { QValueVector } }
@@ -460,12 +462,13 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QEDITORFACTORY:: @ObjectNode { QEditorFactory } } 
 	    I { QLISTBOX:: @WidgetNode { QListBox } } 
 	    K { QWIDGETSTACK:: @WidgetNode { QWidgetStack } } 
+	    M { QSOCKETDEVICE:: @MiscNode { QSocketDevice } } 
 	    O { QIODEVICE:: @MiscNode { QIODevice } } 
 	    Q { QTEXTCODEC:: @MiscNode { QTextCodec } }
 	    S { QURL:: @MiscNode { QUrl } }
 	@Rowa
 	    C { QSTYLEPLUGIN:: @StyleNode { QStylePlugin } } 
-	    E { QSQLEDITORFACTORY:: @SqlNode { QSqlEditorFactory } } 
+	    E { QSQLFIELD:: @SqlNode { QSqlField } } 
 	    G { QLAYOUT:: @ObjectNode { QLayout } } 
 	    I { QTEXTEDIT:: @WidgetNode { QTextEdit } } 
 	    K { QDOCKWINDOW:: @WidgetNode { QDockWindow } } 
@@ -474,7 +477,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    Q { QTEXTCODECPLUGIN:: @MiscNode { QTextCodecPlugin } }
 	    S { QURLINFO:: @MiscNode { QUrlInfo } }
 	@Rowa
-	    E { QSQLFIELD:: @SqlNode { QSqlField } } 
+	    E { QSQLFIELDINFO:: @SqlNode { QSqlFieldInfo } } 
 	    I { QTEXTBROWSER:: @WidgetNode { QTextBrowser } } 
 	    K { QTOOLBAR:: @WidgetNode QToolBar }
 	    M { QCUSTOMMENUITEM:: @QtNode QCustomMenuItem }
@@ -482,7 +485,8 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    Q { QTEXTSTREAM:: @MiscNode { QTextStream } }
 	    S { QVARIANT:: @MiscNode { QVariant } }
 	@Rowa
-	    E { QSQLFIELDINFO:: @SqlNode { QSqlFieldInfo } } 
+	    C { QSQLEDITORFACTORY:: @SqlNode { QSqlEditorFactory } } 
+	    E { QSQLRECORD:: @SqlNode { QSqlRecord } } 
 	    G { QSQLDATABASE:: @SqlNode { QSqlDatabase } } 
 	    I { QTABLE:: @WidgetNode { QTable } } 
 	    K { QICONVIEWITEM:: @QtNode QIconViewItem }
@@ -491,16 +495,18 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    Q { QTIME:: @MiscNode { QTime } }
 	    S { QWMATRIX:: @MiscNode { QWMatrix } }
 	@Rowa
-	    E { QSQLRECORD:: @SqlNode { QSqlRecord } } 
+	    C { QSQL:: @SqlNode { QSql } } 
+	    E { QSQLRECORDINFO:: @SqlNode { QSqlRecordInfo } } 
 	    G { QSQLDRIVER:: @SqlNode { QSqlDriver } } 
+	    I { QDATATABLE:: @SqlNode { QDataTable } } 
 	    K { QLISTVIEWITEM:: @QtNode QListViewItem }
 	    M { QLISTBOXTEXT:: @MiscNode QListBoxText }
 	    O { QASCIICACHEITERATOR:: @CollectionNode QAsciiCacheIterator }
 	    Q { QPTRDICTITERATOR:: @CollectionNode QPtrDictIterator }
 	    S { QHBUTTONGROUP:: @WidgetNode { QHButtonGroup } }
 	@Rowa
-	    C { QSQL:: @SqlNode { QSql } } 
-	    E { QSQLRECORDINFO:: @SqlNode { QSqlRecordInfo } } 
+	    C { QSQLRESULT:: @SqlNode { QSqlResult } } 
+	    E { QSQLCURSOR:: @SqlNode { QSqlCursor } } 
 	    G { QSQLFORM:: @SqlNode { QSqlForm } } 
 	    I { QGRIDLAYOUT:: @ObjectNode { QGridLayout } } 
 	    K { QCHECKLISTITEM:: @QtNode QCheckListItem }
@@ -509,8 +515,8 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    Q { QMAPITERATOR:: @CollectionNode QMapIterator }
 	    S { QVBUTTONGROUP:: @WidgetNode { QVButtonGroup } }
 	@Rowa
-	    C { QSQLRESULT:: @SqlNode { QSqlResult } } 
-	    E { QSQLCURSOR:: @SqlNode { QSqlCursor } } 
+	    C { QSQLPROPERTYMAP:: @SqlNode { QSqlPropertyMap } } 
+	    E { QSQLINDEX:: @SqlNode { QSqlIndex } } 
 	    G { QDATABROWSER:: @SqlNode { QDataBrowser } } 
 	    I { QBOXLAYOUT:: @ObjectNode { QBoxLayout } } 
 	    K { QTABLEITEM:: @QtNode QTableItem }
@@ -519,8 +525,8 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    Q { QVALUELISTITERATOR:: @CollectionNode QValueListIterator }
 	    S { QBUTTONGROUP:: @WidgetNode { QButtonGroup } }
 	@Rowa
-	    C { QSQLPROPERTYMAP:: @SqlNode { QSqlPropertyMap } } 
-	    E { QSQLINDEX:: @SqlNode { QSqlIndex } } 
+	    C { QSQLDRIVERPLUGIN:: @SqlNode { QSqlDriverPlugin } } 
+	    E { QSQLQUERY:: @SqlNode { QSqlQuery } } 
 	    G { QDATAVIEW:: @SqlNode { QDataView } } 
 	    I { QHBOXLAYOUT:: @ObjectNode { QHBoxLayout } } 
 	    K { QCHECKTABLEITEM:: @QtNode QCheckTableItem }
@@ -529,9 +535,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    Q { QPTRLISTITERATOR:: @CollectionNode QPtrListIterator }
 	    S { QHGROUPBOX:: @WidgetNode { QHGroupBox } }
 	@Rowa
-	    C { QSQLDRIVERPLUGIN:: @SqlNode { QSqlDriverPlugin } } 
-	    E { QSQLQUERY:: @SqlNode { QSqlQuery } } 
-	    G { QDATATABLE:: @SqlNode { QDataTable } } 
 	    I { QVBOXLAYOUT:: @ObjectNode { QVBoxLayout } } 
 	    K { QCOMBOTABLEITEM:: @QtNode QComboTableItem }
 	    M { QWIDGETITEM:: @MiscNode QWidgetItem }
@@ -540,8 +543,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    S { QVGROUPBOX:: @WidgetNode { QVGroupBox } }
     }
     //
-    # TODO Avoid collision
-    @VHCurveArrow from { QTABLE } to { QDATATABLE } radius { 50f }
+    @RVLCurveArrow from { QTABLE } to { QDATATABLE } 
     @VHCurveArrow from { QT } to { QBRUSH }
     @VHCurveArrow from { QT } to { QCANVASITEM }
     @VHCurveArrow from { QT } to { QCURSOR }
@@ -661,13 +663,11 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
     @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRVECTOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QPTRLIST } to { QOBJECTLIST } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QPTRLIST } to { QSORTEDLIST } bias { 1.5f } zindent { 0.2f }
-    #@HVHCurveArrow from { QSTYLE } to { QCOMMONSTYLE } hfrac { 0 } hbias { 1.15f } radius { 0.5f }
     @HVCurveArrow from { QSTYLE } to { QCOMMONSTYLE } 
     @HVHCurveArrow from { QBUTTON } to { QCHECKBOX } hfrac { 0 } hbias { 4.5f }
     @HVHCurveArrow from { QBUTTON } to { QTOOLBUTTON } hfrac { 0 } hbias { 4.5f }
     @HVHCurveArrow from { QBUTTON } to { QPUSHBUTTON } hfrac { 0 } hbias { 4.5f }
     @HVHCurveArrow from { QBUTTON } to { QRADIOBUTTON } hfrac { 0 } hbias { 4.5f }
-    #@HVHCurveArrow from { QDIALOG } to { QWIZARD } hfrac { 0 } hbias { 4.5f }
     @Arrow from { QDIALOG } to { QWIZARD }
     @HVHCurveArrow from { QDIALOG } to { QTABDIALOG } hfrac { 0 } hbias { 4.5f }
     @HVHCurveArrow from { QDIALOG } to { QFILEDIALOG } hfrac { 0 } hbias { 4.5f }
@@ -721,7 +721,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
     @LVRCurveArrow from { QBOXLAYOUT } to { QVBOXLAYOUT } bias { 1.5f } zindent { 0.2f }
     @DWrapCurveArrow from { QLAYOUT } to { QBOXLAYOUT } bias { 5.88f } fbias { 1.5f } tbias { 2.2f }
     @DWrapCurveArrow from { QLAYOUT } to { QGRIDLAYOUT } bias { 8.0f } fbias { 1.5f }
-    #@VHCurveArrow from { QDOCKWINDOW } to { QTOOLBAR } bias { 1.5f }
     @LVRCurveArrow from { QDOCKWINDOW } to { QTOOLBAR } bias { 0.9f } zindent { 0.05f }
     @LVRCurveArrow from { QHBOX } to { QVBOX } bias { 1.5f } zindent { 0.2f }
     @DWrapCurveArrow from { QGROUPBOX } to { QBUTTONGROUP } bias { 5.8f } fbias { 1.7f } tbias { 1.3f }
@@ -733,6 +732,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
     @LVRCurveArrow from { QVALIDATOR } to { QDOUBLEVALIDATOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QVALIDATOR } to { QINTVALIDATOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QVALIDATOR } to { QREGEXPVALIDATOR } bias { 1.5f } zindent { 0.2f }
-    @HVCurveArrow from { QEDITORFACTORY } to { QSQLEDITORFACTORY }
+    @HVHCurveArrow from { QEDITORFACTORY } to { QSQLEDITORFACTORY }
+    hfrac { 0 } hbias { 15.0f }
 }
 @End @Text
