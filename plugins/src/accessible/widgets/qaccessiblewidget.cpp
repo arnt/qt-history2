@@ -30,7 +30,7 @@
 #include <private/qtitlebar_p.h>
 
 
-QString buddyString( QWidget *widget ) 
+QString buddyString( QWidget *widget )
 {
     QWidget *parent = widget->parentWidget();
     QObjectList *ol = parent->queryList( "QLabel", 0, FALSE, FALSE );
@@ -101,15 +101,15 @@ QString hotKey( const QString &text )
 ulong QAccessibleWidget::objects = 0;
 
 /*!
-  Creates a QAccessibleWidget object for \a o. 
-  \a role, \a name, \a description, \a value, \a help, \a defAction, 
+  Creates a QAccessibleWidget object for \a o.
+  \a role, \a name, \a description, \a value, \a help, \a defAction,
   \a accelerator and \a state are optional parameters for static values
   of the object's property.
 */
-QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name, 
+QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name,
     QString description, QString value, QString help, QString defAction, QString accelerator, State state )
-    : QAccessibleObject( o ), role_(role), name_(name), 
-      description_(description),value_(value),help_(help), 
+    : QAccessibleObject( o ), role_(role), name_(name),
+      description_(description),value_(value),help_(help),
       defAction_(defAction), accelerator_(accelerator), state_(state)
 {
     objects++;
@@ -139,7 +139,7 @@ int QAccessibleWidget::controlAt( int x, int y ) const
 
     QPoint rp = w->mapFromGlobal( QPoint( x, y ) );
 
-    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE ); 
+    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
 
     if ( !list || list->isEmpty() )
 	return 0;
@@ -184,18 +184,17 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
     Q_UNUSED(startControl);
 #endif
     QWidget *w = widget();
-    QObject *o = 0;
     switch ( dir ) {
     case NavFirstChild:
 	{
-	    QObjectList *list = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+	    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
 	    bool has = !list->isEmpty();
 	    delete list;
 	    return has ? 1 : -1;
 	}
     case NavLastChild:
 	{
-	    QObjectList *list = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+	    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
 	    bool has = !list->isEmpty();
 	    delete list;
 	    return has ? childCount() : -1;
@@ -248,7 +247,7 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 	    int index = list->findRef( w2 );
 	    delete list;
 	    return ( index != -1 ) ? index+1 : -1;
-	}	
+	}
     default:
 	qWarning( "QAccessibleWidget::navigate: unhandled request" );
 	break;
@@ -277,7 +276,7 @@ QRESULT QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface
 	return QS_FALSE;
 
     QObject *o = 0;
-    if ( cl->count() >= (uint)control ) 
+    if ( cl->count() >= (uint)control )
 	o = cl->at( control-1 );
     delete cl;
 
@@ -398,7 +397,7 @@ QAccessible::State QAccessibleWidget::state( int control ) const
 	state |= Moveable;
 	if ( w->minimumSize() != w->maximumSize() )
 	    state |= Sizeable;
-    }   
+    }
 
     return (State)state;
 }
@@ -494,7 +493,7 @@ QRESULT QAccessibleWidgetStack::queryChild( int control, QAccessibleInterface **
 */
 QAccessibleButton::QAccessibleButton( QObject *o, Role role, QString description,
 				     QString help )
-: QAccessibleWidget( o, role, QString::null, description, QString::null, 
+: QAccessibleWidget( o, role, QString::null, description, QString::null,
 		    QString::null, QString::null, QString::null )
 {
     Q_ASSERT(o->inherits("QButton"));
@@ -537,7 +536,7 @@ QString QAccessibleButton::text( Text t, int control ) const
 	    return QButton::tr("Check");
 	default:
 	    return QButton::tr("Press");
-	}	
+	}
     case Accelerator:
 	tx = hotKey( ((QButton*)widget())->text() );
 	if ( !!tx ) {
@@ -578,22 +577,22 @@ QAccessible::State QAccessibleButton::state( int control ) const
 	QPushButton *pb = (QPushButton*)b;
 	if ( pb->isDefault() )
 	    state |= Default;
-    } 
-    
+    }
+
     return (State)state;
 }
 
-/*! 
+/*!
   \class QAccessibleRangeControl qaccessiblewidget.h
   \brief The QAccessibleRangeControl class implements the QAccessibleInterface for range controls.
 */
 
-/*! 
-  Constructs a QAccessibleRangeControl object for \a o. 
-  \a role, \a name, \a description, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleRangeControl object for \a o.
+  \a role, \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleRangeControl::QAccessibleRangeControl( QObject *o, Role role, QString name, 
+QAccessibleRangeControl::QAccessibleRangeControl( QObject *o, Role role, QString name,
 						 QString description, QString help, QString defAction, QString accelerator )
 : QAccessibleWidget( o, role, name, description, QString::null, help, defAction, accelerator )
 {
@@ -643,7 +642,7 @@ QString QAccessibleRangeControl::text( Text t, int control ) const
   \brief The QAccessibleText class implements the QAccessibleInterface for up/down widgets.
 */
 
-/*! 
+/*!
   Constructs a QAccessibleSpinWidget object for \a o.
 */
 QAccessibleSpinWidget::QAccessibleSpinWidget( QObject *o )
@@ -811,9 +810,9 @@ bool QAccessibleSpinWidget::doDefaultAction( int control )
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for scroll bars.
 */
 
-/*! 
-  Constructs a QAccessibleScrollBar object for \a o. 
-  \a name, \a description, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleScrollBar object for \a o.
+  \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleRangeControl constructor.
 */
 QAccessibleScrollBar::QAccessibleScrollBar( QObject *o, QString name,
@@ -1008,9 +1007,9 @@ bool QAccessibleScrollBar::doDefaultAction( int control )
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for sliders.
 */
 
-/*! 
-  Constructs a QAccessibleScrollBar object for \a o. 
-  \a name, \a description, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleScrollBar object for \a o.
+  \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleRangeControl constructor.
 */
 QAccessibleSlider::QAccessibleSlider( QObject *o, QString name,
@@ -1113,7 +1112,7 @@ int QAccessibleSlider::childCount() const
 QRESULT	QAccessibleSlider::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
-    return QS_FALSE;    
+    return QS_FALSE;
 }
 
 /*! \reimp */
@@ -1180,9 +1179,9 @@ bool QAccessibleSlider::doDefaultAction( int control )
   \brief The QAccessibleText class implements the QAccessibleInterface for widgets with editable text.
 */
 
-/*! 
-  Constructs a QAccessibleText object for \a o. 
-  \a role, \a name, \a description, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleText object for \a o.
+  \a role, \a name, \a description, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
 QAccessibleText::QAccessibleText( QObject *o, Role role, QString name, QString description, QString help, QString defAction, QString accelerator )
@@ -1218,7 +1217,7 @@ QString QAccessibleText::text( Text t, int control ) const
 QAccessible::State QAccessibleText::state( int control ) const
 {
     int state = QAccessibleWidget::state( control );
-    
+
     if ( widget()->inherits( "QLineEdit" ) ) {
 	QLineEdit *l = (QLineEdit*)widget();
 	if ( l->isReadOnly() )
@@ -1238,9 +1237,9 @@ QAccessible::State QAccessibleText::state( int control ) const
   \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display static information.
 */
 
-/*! 
-  Constructs a QAccessibleDisplay object for \a o. 
-  \a role, \a description, \a value, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleDisplay object for \a o.
+  \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
 QAccessibleDisplay::QAccessibleDisplay( QObject *o, Role role, QString description, QString value, QString help, QString defAction, QString accelerator )
@@ -1294,17 +1293,17 @@ QString QAccessibleDisplay::text( Text t, int control ) const
 }
 
 
-/*! 
+/*!
   \class QAccessibleHeader qaccessiblewidget.h
   \brief The QAccessibleHeader class implements the QAccessibleInterface for header widgets.
 */
 
-/*! 
-  Constructs a QAccessibleHeader object for \a o. 
-  \a role, \a description, \a value, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleHeader object for \a o.
+  \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleHeader::QAccessibleHeader( QObject *o, QString description, 
+QAccessibleHeader::QAccessibleHeader( QObject *o, QString description,
     QString value, QString help, QString defAction, QString accelerator )
     : QAccessibleWidget( o, NoRole, description, value, help, defAction, accelerator )
 {
@@ -1419,17 +1418,17 @@ QAccessible::State QAccessibleHeader::state( int control ) const
 }
 
 
-/*! 
+/*!
   \class QAccessibleTabBar qaccessiblewidget.h
   \brief The QAccessibleTabBar class implements the QAccessibleInterface for tab bars.
 */
 
-/*! 
-  Constructs a QAccessibleTabBar object for \a o. 
-  \a role, \a description, \a value, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleTabBar object for \a o.
+  \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleTabBar::QAccessibleTabBar( QObject *o, QString description, 
+QAccessibleTabBar::QAccessibleTabBar( QObject *o, QString description,
     QString value, QString help, QString defAction, QString accelerator )
     : QAccessibleWidget( o, NoRole, description, value, help, defAction, accelerator )
 {
@@ -1580,7 +1579,7 @@ QAccessible::State QAccessibleTabBar::state( int control ) const
     QTab *tab = tabBar()->tabAt( control - 1 );
     if ( !tab )
 	return (State)st;
-    
+
     if ( !tab->isEnabled() )
 	st |= Unavailable;
     else
@@ -1639,13 +1638,13 @@ QMemArray<int> QAccessibleTabBar::selection() const
     return array;
 }
 
-/*! 
+/*!
   \class QAccessibleComboBox qaccessiblewidget.h
   \brief The QAccessibleComboBox class implements the QAccessibleInterface for editable and read-only combo boxes.
 */
 
 
-/*! 
+/*!
   Constructs a QAccessibleComboBox object for \a o.
 */
 QAccessibleComboBox::QAccessibleComboBox( QObject *o )
@@ -1695,7 +1694,7 @@ QRect QAccessibleComboBox::rect( int control ) const
     default:
 	return QAccessibleWidget::rect( control );
     }
-    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );    
+    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );
 }
 
 /*! \reimp */
@@ -1758,7 +1757,7 @@ QString QAccessibleComboBox::text( Text t, int control ) const
 	if ( control < 2 ) {
 	    if ( comboBox()->editable() )
 		return comboBox()->lineEdit()->text();
-	    return comboBox()->currentText();	
+	    return comboBox()->currentText();
 	}
 	break;
     case DefaultAction:
@@ -1786,7 +1785,7 @@ QAccessible::Role QAccessibleComboBox::role( int control ) const
 	return PushButton;
     default:
 	return List;
-    }    
+    }
 }
 
 /*! \reimp */
@@ -1804,12 +1803,12 @@ bool QAccessibleComboBox::doDefaultAction( int control )
     return TRUE;
 }
 
-/*! 
+/*!
   \class QAccessibleTitleBar qaccessiblewidget.h
   \brief The QAccessibleTitleBar class implements the QAccessibleInterface for title bars.
 */
 
-/*! 
+/*!
   Constructs a QAccessibleComboBox object for \a o.
 */
 QAccessibleTitleBar::QAccessibleTitleBar( QObject *o )
@@ -1936,7 +1935,7 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 	    return QTitleBar::tr("Minimize");
 	case 4:
 	    if ( titleBar()->window()->isMaximized() )
-		return QTitleBar::tr("Restore down");	
+		return QTitleBar::tr("Restore down");
 	    return QTitleBar::tr("Maximize");
 	case 5:
 	    return QTitleBar::tr("Close");
@@ -2003,13 +2002,13 @@ bool QAccessibleTitleBar::doDefaultAction( int control )
     case 3:
 	if ( titleBar()->window()->isMinimized() )
 	    titleBar()->window()->showNormal();
-	else 
+	else
 	    titleBar()->window()->showMinimized();
 	return TRUE;
     case 4:
 	if ( titleBar()->window()->isMaximized() )
 	    titleBar()->window()->showNormal();
-	else 
+	else
 	    titleBar()->window()->showMaximized();
 	return TRUE;
     case 5:
@@ -2022,7 +2021,7 @@ bool QAccessibleTitleBar::doDefaultAction( int control )
 }
 
 
-/*! 
+/*!
   \class QAccessibleViewport qaccessiblewidget.h
   \brief The QAccessibleViewport class hides the viewport of scrollviews for accessibility.
   \internal
@@ -2133,17 +2132,17 @@ QMemArray<int> QAccessibleViewport::selection() const
     return scrollView()->selection();
 }
 
-/*! 
+/*!
   \class QAccessibleScrollView qaccessiblewidget.h
   \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
 */
 
-/*! 
-  Constructs a QAccessibleScrollView object for \a o. 
-  \a role, \a description, \a value, \a help, \a defAction and \a accelerator 
+/*!
+  Constructs a QAccessibleScrollView object for \a o.
+  \a role, \a description, \a value, \a help, \a defAction and \a accelerator
   are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleScrollView::QAccessibleScrollView( QObject *o, Role role, QString name, 
+QAccessibleScrollView::QAccessibleScrollView( QObject *o, Role role, QString name,
     QString description, QString value, QString help, QString defAction, QString accelerator )
     : QAccessibleWidget( o, role, name, description, value, help, defAction, accelerator )
 {
@@ -2161,7 +2160,7 @@ QString QAccessibleScrollView::text( Text t, int control ) const
     default:
 	break;
     }
-	
+
     return str;
 }
 
@@ -2189,13 +2188,13 @@ int QAccessibleScrollView::itemCount() const
     return 0;
 }
 
-/*! 
+/*!
   \class QAccessibleListBox qaccessiblewidget.h
   \brief The QAccessibleListBox class implements the QAccessibleInterface for list boxes.
 */
 
-/*! 
-  Constructs a QAccessibleListBox object for \a o. 
+/*!
+  Constructs a QAccessibleListBox object for \a o.
 */
 QAccessibleListBox::QAccessibleListBox( QObject *o )
     : QAccessibleScrollView( o, List )
@@ -2205,7 +2204,7 @@ QAccessibleListBox::QAccessibleListBox( QObject *o )
 
 /*! Returns the list box. */
 QListBox *QAccessibleListBox::listBox() const
-{    
+{
     return (QListBox*)widget();
 }
 
@@ -2294,8 +2293,8 @@ bool QAccessibleListBox::setFocus( int control )
 /*! \reimp */
 bool QAccessibleListBox::setSelected( int control, bool on, bool extend )
 {
-    if ( !control || ( extend && 
-	listBox()->selectionMode() != QListBox::Extended && 
+    if ( !control || ( extend &&
+	listBox()->selectionMode() != QListBox::Extended &&
 	listBox()->selectionMode() != QListBox::Multi ) )
 	return FALSE;
 
@@ -2339,7 +2338,7 @@ QMemArray<int> QAccessibleListBox::selection() const
     return array;
 }
 
-/*! 
+/*!
   \class QAccessibleListView qaccessiblewidget.h
   \brief The QAccessibleListView class implements the QAccessibleInterface for list views.
 */
@@ -2357,8 +2356,8 @@ static QListViewItem *findLVItem( QListView* listView, int control )
     return item;
 }
 
-/*! 
-  Constructs a QAccessibleListView object for \a o. 
+/*!
+  Constructs a QAccessibleListView object for \a o.
 */
 QAccessibleListView::QAccessibleListView( QObject *o )
     : QAccessibleScrollView( o, Outline )
@@ -2508,8 +2507,8 @@ bool QAccessibleListView::setFocus( int control )
 /*! \reimp */
 bool QAccessibleListView::setSelected( int control, bool on, bool extend )
 {
-    if ( !control || ( extend && 
-	listView()->selectionMode() != QListView::Extended && 
+    if ( !control || ( extend &&
+	listView()->selectionMode() != QListView::Extended &&
 	listView()->selectionMode() != QListView::Multi ) )
 	return FALSE;
 
@@ -2564,7 +2563,7 @@ QMemArray<int> QAccessibleListView::selection() const
 }
 
 #ifndef QT_NO_ICONVIEW
-/*! 
+/*!
   \class QAccessibleIconView qaccessiblewidget.h
   \brief The QAccessibleIconView class implements the QAccessibleInterface for icon views.
 */
@@ -2581,8 +2580,8 @@ static QIconViewItem *findIVItem( QIconView *iconView, int control )
     return item;
 }
 
-/*! 
-  Constructs a QAccessibleIconView object for \a o. 
+/*!
+  Constructs a QAccessibleIconView object for \a o.
 */
 QAccessibleIconView::QAccessibleIconView( QObject *o )
     : QAccessibleScrollView( o, Outline )
@@ -2668,7 +2667,7 @@ QAccessible::State QAccessibleIconView::state( int control ) const
     return (State)state;
 }
 
-/*! \reimp 
+/*! \reimp
 QAccessibleInterface *QAccessibleIconView::focusChild( int *control ) const
 {
     QIconViewItem *item = iconView()->currentItem();
@@ -2696,8 +2695,8 @@ bool QAccessibleIconView::setFocus( int control )
 /*! \reimp */
 bool QAccessibleIconView::setSelected( int control, bool on, bool extend  )
 {
-    if ( !control || ( extend && 
-	iconView()->selectionMode() != QIconView::Extended && 
+    if ( !control || ( extend &&
+	iconView()->selectionMode() != QIconView::Extended &&
 	iconView()->selectionMode() != QIconView::Multi ) )
 	return FALSE;
 
@@ -2764,7 +2763,7 @@ QMemArray<int> QAccessibleIconView::selection() const
 #endif
 
 
-/*! 
+/*!
   \class QAccessibleTextEdit qaccessiblewidget.h
   \brief The QAccessibleTextEdit class implements the QAccessibleInterface for richtext editors.
 */
