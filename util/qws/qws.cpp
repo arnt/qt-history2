@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#3 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#4 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -19,6 +19,8 @@
 *****************************************************************************/
 
 #include "qws.h"
+#include "qwscommand.h"
+
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qimage.h>
@@ -29,52 +31,49 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-class QtFBClient : public QSocket {
-    int s; // XXX QSocket::d::socket->socket() is this value
-    QDataStream stream;
-    QTime timer;
+// make a unique window id
+static int get_window_id()
+{
+    static int win_id = 0;
+    return ++win_id;
+}
 
-public:
-    QtFBClient( int socket, int shmid ) :
-	QSocket(socket),
-	s(socket),
-	stream(this)
-    {
-	stream.setByteOrder(QDataStream::LittleEndian); // XXX per client
-	stream << SWIDTH << SHEIGHT << 32 << shmid;
-	stream.device()->flush();
-    }
+/*********************************************************************
+ *
+ * Class: QWSClient
+ *
+ *********************************************************************/
 
-    int socket() const { return s; }
+QWSClient::QWSClient( int socket, int shmid ) :
+    QSocket(socket),
+    s(socket),
+    stream(this)
+{
+    stream.setByteOrder(QDataStream::LittleEndian); // XXX per client
+    stream << SWIDTH << SHEIGHT << 32 << shmid;
+    stream.device()->flush();
+}
 
-    void sendMouseEvent(const QPoint& pos, int state)
-    {
-	int window = 0; // not used yet
-	int time=timer.elapsed();
-	stream << INT8('M') << window << (int)pos.x() << (int)pos.y() << state << time;
-	stream.device()->flush();
-    }
-};
+int QWSClient::socket() const 
+{ 
+    return s; 
+}
 
-struct NewWindowStruct {
-    static void invoke(QtFBClient*)
-    {
-	qFatal("Not implemented");
-    }
-    ushort x, y, w, h;
-    ushort flags;
-};
+void QWSClient::sendMouseEvent(const QPoint& pos, int state)
+{
+    int window = 0; // not used yet
+    int time=timer.elapsed();
+    stream << INT8('M') << window << (int)pos.x() << (int)pos.y() << state << time;
+    stream.device()->flush();
+}
 
-static struct Command {
-    void (*invoke)(QtFBClient*);
-    int size;
-    char cmd;
-} command[] = {
-    { &NewWindowStruct::invoke, sizeof(NewWindowStruct), 'N' }
-};
+/*********************************************************************
+ *
+ * Class: QWSServer
+ *
+ *********************************************************************/
 
-
-QtFBServer::QtFBServer( QObject *parent=0, const char *name=0 ) :
+QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,parent,name)
 {
     shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
@@ -92,39 +91,37 @@ QtFBServer::QtFBServer( QObject *parent=0, const char *name=0 ) :
 	qFatal("Failed to bind to port %d",QTFB_PORT);
 }
 
-QtFBServer::~QtFBServer()
+QWSServer::~QWSServer()
 {
     // XXX destroy all clients
 }
 
-void QtFBServer::newConnection( int socket )
+void QWSServer::newConnection( int socket )
 {
     qDebug("New client...");
-    client[socket] = new QtFBClient(socket,shmid);
+    client[socket] = new QWSClient(socket,shmid);
     connect( client[socket], SIGNAL(readyRead()),
 	     this, SLOT(doClient()) );
 }
 
-void QtFBServer::doClient()
+void QWSServer::doClient()
 {
-    QtFBClient* c = (QtFBClient*)sender();
+    QWSClient* c = (QWSClient*)sender();
     int cmd = c->getch();
-    for (int i=0; i<int(sizeof(command)/sizeof(Command)); i++) {
-	if ( cmd == command[i].cmd ) {
-	    command[i].invoke(c);
-	    goto validcmd;
-	}
+    QWSCommand *command = QWSCommand::getCommand( cmd, this, c );
+    if ( !command ) {
+	qWarning( "Protocol error - got: %c", cmd );
+// 	qDebug( "got: %c", cmd );
+// 	client[c->socket()] = 0;
+// 	delete c;
+	return;
     }
-    qWarning("Protocol error - disconnecting client");
-    client[c->socket()] = 0;
-    delete c;
-    return;
 
-validcmd:
-    ;
+    command->readData();
+    command->execute();
 }
 
-void QtFBServer::sendMouseEvent(const QPoint& pos, int state)
+void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	(*it)->sendMouseEvent(pos,state);
@@ -134,7 +131,7 @@ void QtFBServer::sendMouseEvent(const QPoint& pos, int state)
 
 class Main : public QWidget {
     QImage img;
-    QtFBServer server;
+    QWSServer server;
 
 public:
     Main() :
@@ -182,6 +179,8 @@ main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
+    qwsRegisterCommands();
+    
     Main m;
     app.setMainWidget(&m);
     m.show();

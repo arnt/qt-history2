@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#1 $
+** $Id: //depot/qt/main/util/qws/qws.h#2 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -23,20 +23,27 @@
 
 #include <qserversocket.h>
 #include <qmap.h>
+#include <qdatetime.h>
 
 const int SWIDTH=640;
 const int SHEIGHT=480;
 const int QTFB_PORT=0x4642; // FB
 
-class QtFBClient;
+class QWSClient;
 
 
-class QtFBServer : public QServerSocket {
+/*********************************************************************
+ *
+ * Class: QWSServer
+ *
+ *********************************************************************/
+
+class QWSServer : public QServerSocket {
     Q_OBJECT
 
 public:
-    QtFBServer( QObject *parent=0, const char *name=0 );
-    ~QtFBServer();
+    QWSServer( QObject *parent=0, const char *name=0 );
+    ~QWSServer();
     void newConnection( int socket );
 
     uchar* frameBuffer() { return framebuffer; }
@@ -46,12 +53,33 @@ public:
 private slots:
     void doClient();
 private:
-    typedef QMapIterator<int,QtFBClient*> ClientIterator;
-    typedef QMap<int,QtFBClient*> ClientMap;
+    typedef QMapIterator<int,QWSClient*> ClientIterator;
+    typedef QMap<int,QWSClient*> ClientMap;
 
     int shmid;
     uchar* framebuffer;
     ClientMap client;
+};
+
+/*********************************************************************
+ *
+ * Class: QWSClient
+ *
+ *********************************************************************/
+
+class QWSClient : public QSocket {
+public:
+    QWSClient( int socket, int shmid );
+
+    int socket() const;
+
+    void sendMouseEvent(const QPoint& pos, int state);
+
+public:
+    int s; // XXX QSocket::d::socket->socket() is this value
+    QDataStream stream;
+    QTime timer;
+
 };
 
 #endif
