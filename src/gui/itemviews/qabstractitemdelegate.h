@@ -84,7 +84,8 @@ public:
     };
 
     // painting
-    virtual void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &index) const = 0;
+    virtual void paint(QPainter *painter, const QItemOptions &options,
+                       const QModelIndex &index) const = 0;
     virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
                            const QModelIndex &index) const = 0;
 
@@ -94,15 +95,18 @@ public:
                                   const QItemOptions &options, const QModelIndex &index);
     virtual void setContentFromEditor(QWidget *editor, const QModelIndex &index) const;
     virtual void updateEditorContents(QWidget *editor, const QModelIndex &index) const;
-    virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &index) const;
+    virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
+                                      const QModelIndex &index) const;
     virtual void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
     // events for non-widget editors
     virtual bool event(QEvent *e, const QModelIndex &index);
     
 protected:
-    QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model, QObject *parent = 0);
-    QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align, const QString &org) const;
+    QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model,
+                          QObject *parent = 0);
+    QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
+                         const QString &org) const;
 };
 
 #endif

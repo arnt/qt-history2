@@ -250,12 +250,14 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
 {
-    d->viewport->setAcceptDrops(true);
+    d->init();
 }
 
-QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
+QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model,
+                                   QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
+    d->init();
 }
 
 QGenericListView::~QGenericListView()
@@ -354,17 +356,9 @@ QSize QGenericListView::gridSize() const
     return d->gridSize;
 }
 
-QRect QGenericListView::itemViewportRect(const QModelIndex &item) const
+QRect QGenericListView::itemViewportRect(const QModelIndex &index) const
 {
-    QRect rect = itemRect(item);
-    rect.moveLeft(rect.left() - horizontalScrollBar()->value());
-    rect.moveTop(rect.top() - verticalScrollBar()->value());
-    if (!d->wrap && d->movement == QGenericListView::Static)
-        if (d->flow == QGenericListView::TopToBottom)
-            rect.setWidth(d->viewport->width());
-        else
-            rect.setHeight(d->viewport->height());
-    return rect;
+    return d->mapToViewport(itemRect(index));
 }
 
 void QGenericListView::ensureItemVisible(const QModelIndex &item)
@@ -464,19 +458,18 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
     }
 
     QPoint pos = e->pos();
-    d->draggedItemsPos = pos;
-    d->viewport->update(d->draggedItemsRect);
+    QAbstractItemView::autoScroll(pos);
+    d->draggedItemsPos = e->pos();
+    d->viewport->update(d->draggedItemsRect); // erase area
 
     QModelIndex item = itemAt(pos.x(), pos.y());
-    if (item.isValid()) {
+    if (item.isValid())
         if (model()->isDropEnabled(item))
             e->accept();
         else
             e->ignore();
-    } else {
+    else
         e->accept();
-    }
-
     qApp->processEvents(); // make sure we can draw items
 }
 
@@ -488,17 +481,20 @@ void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
 
 void QGenericListView::dropEvent(QDropEvent *e)
 {
-    if (e->source() == this && d->movement != Static /*&& e->action() == QDropEvent::Move*/) {
-        QPoint start = d->viewport->mapFromGlobal(d->rubberBand->pos());
-        QPoint delta = (d->movement == Snap ? d->snapToGrid(e->pos()) - d->snapToGrid(start) : e->pos() - start);
-        QList<QModelIndex> items = selectionModel()->selectedItems();
-        int i;
-        for (i = 0; i < items.count(); ++i) {
-            QModelIndex item = items.at(i);
-            QRect rect = itemRect(item);
-            moveItem(item.row(), rect.topLeft() + delta);
-            d->viewport->update(rect);
-            updateItem(item);
+    if (e->source() == this && d->movement != Static) {
+        QPoint offset = QPoint(horizontalScrollBar()->value(),
+                               verticalScrollBar()->value());
+        QPoint end = e->pos() + offset;
+        QPoint start = d->pressedPosition;
+        QPoint delta = (d->movement == Snap ?
+                        d->snapToGrid(end) - d->snapToGrid(start) : end - start);
+        QList<QModelIndex> indices = selectionModel()->selectedItems();
+        for (int i = 0; i < indices.count(); ++i) {
+            QModelIndex index = indices.at(i);
+            QRect rect = itemRect(index);
+            moveItem(index.row(), rect.topLeft() + delta);
+            d->viewport->update(d->mapToViewport(rect));
+            updateItem(index);
         }
     } else {
         QAbstractItemView::dropEvent(e);
@@ -522,7 +518,6 @@ void QGenericListView::startDrag()
     QAbstractItemView::startDrag();
     // clear dragged items
     d->draggedItems.clear();
-    d->viewport->update(d->draggedItemsRect);
 }
 
 void QGenericListView::getViewOptions(QItemOptions *options) const
@@ -565,8 +560,14 @@ void QGenericListView::paintEvent(QPaintEvent *e)
         delegate->paint(&painter, options, *it);
     }
 
-    if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos))
-        d->drawDraggedItems(&painter, d->draggedItemsPos);
+    if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
+        QPoint delta = (d->movement == Snap
+                        ? d->snapToGrid(d->draggedItemsPos) - d->snapToGrid(d->pressedPosition)
+                        : d->draggedItemsPos - d->pressedPosition);
+        painter.translate(delta.x(), delta.y());
+        d->draggedItemsRect = d->drawItems(&painter, d->draggedItems);
+        d->draggedItemsRect.moveBy(delta.x(), delta.y());
+    }
 }
 
 QModelIndex QGenericListView::itemAt(int x, int y) const
@@ -576,7 +577,8 @@ QModelIndex QGenericListView::itemAt(int x, int y) const
         d->intersectingStaticSet(rect);
     else
         d->intersectingDynamicSet(rect);
-    QModelIndex index = d->intersectVector.count() > 0 ? d->intersectVector.first() :  QModelIndex();
+    QModelIndex index = d->intersectVector.count() > 0
+                        ? d->intersectVector.first() : QModelIndex();
     if (index.isValid() && itemViewportRect(index).contains(QPoint(x, y)))
         return index;
     return QModelIndex();
@@ -704,15 +706,13 @@ QRect QGenericListView::itemRect(const QModelIndex &item) const
 
 void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
 {
-    QRect crect(rect.left() + horizontalScrollBar()->value(), rect.top() + verticalScrollBar()->value(),
+    QRect crect(rect.left() + horizontalScrollBar()->value(),
+                rect.top() + verticalScrollBar()->value(),
                 rect.width(), rect.height());
-
     if (d->movement == Static)
         d->intersectingStaticSet(crect);
     else
         d->intersectingDynamicSet(crect);
-
-    //qHeapSort(items); // FIXME: should be sorted by row
 
     QItemSelection selection;
     QModelIndex tl;
@@ -812,8 +812,7 @@ bool QGenericListView::doItemsLayout(int delta)
     return false; // not done
 }
 
-void QGenericListView::doItemsLayout(const QRect &bounds,
-                                     const QModelIndex &first,
+void QGenericListView::doItemsLayout(const QRect &bounds, const QModelIndex &first,
                                      const QModelIndex &last)
 {
     if (first.row() >= last.row() || !first.isValid() || !last.isValid())
@@ -1045,6 +1044,33 @@ void QGenericListView::updateGeometries()
     verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height());
 }
 
+/*
+ * private object implementation
+ */
+
+QGenericListViewPrivate::QGenericListViewPrivate()
+    : QAbstractItemViewPrivate(),
+      flow(QGenericListView::TopToBottom),
+      movement(QGenericListView::Static),
+      size(QGenericListView::Small),
+      resizeMode(QGenericListView::Fixed),
+      layoutMode(QGenericListView::Instant),
+      wrap(false),
+      spacing(5),
+      arrange(false),
+      layoutStart(0),
+      translate(0),
+      layoutWraps(0),
+      layoutTimer(0)
+{}
+
+void QGenericListViewPrivate::init()
+{
+    rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
+    rubberBand->hide();
+    viewport->setAcceptDrops(true);
+}
+    
 void QGenericListViewPrivate::prepareItemsLayout()
 {
     // initailization of data structs
@@ -1137,29 +1163,21 @@ void QGenericListViewPrivate::createItems(int to)
     }
 }
 
-void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &pos) const
+QRect QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indices) const
 {
-    // FIXME: should we move this to QAbstractItemView?
-    // draw the drag items
-    int x = 0, y = 0;
-    int cx = q->horizontalScrollBar()->value();
-    int cy = q->verticalScrollBar()->value();
     QItemOptions options;
     q->getViewOptions(&options);
     QAbstractItemDelegate *delegate = q->itemDelegate();
-    QPoint start = viewport->mapFromGlobal(rubberBand->pos());
-    QPoint delta = (movement == QGenericListView::Snap ? snapToGrid(pos) - snapToGrid(start) : pos - start);
-    QVector<QModelIndex>::const_iterator it = draggedItems.begin();
+    QVector<QModelIndex>::const_iterator it = indices.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
-    draggedItemsRect.setRect(item.x + delta.x() - cx, item.y + delta.y() - cy, item.w, item.h);
-    for (; it != draggedItems.end(); ++it) {
+    QRect rect(item.x, item.y, item.w, item.h);
+    for (; it != indices.end(); ++it) {
         item = indexToListViewItem(*it);
-        x = item.x + delta.x() - cx;
-        y = item.y + delta.y() - cy;
-        options.itemRect.setRect(x, y, item.w, item.h);
+        options.itemRect.setRect(item.x, item.y, item.w, item.h);
         delegate->paint(painter, options, *it);
-        draggedItemsRect |= options.itemRect;
+        rect |= options.itemRect;
     }
+    return rect;
 }
 
 QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIndex &item) const
@@ -1319,4 +1337,17 @@ QPoint QGenericListViewPrivate::snapToGrid(const QPoint &pos) const
     int x = pos.x() - (pos.x() % gridSize.width());
     int y = pos.y() - (pos.y() % gridSize.height());
     return QPoint(x, y);
+}
+
+QRect QGenericListViewPrivate::mapToViewport(const QRect &rect) const
+{
+    QRect result(rect.left() - q->horizontalScrollBar()->value(),
+                 rect.top() - q->verticalScrollBar()->value(),
+                 rect.width(), rect.height());
+    if (!wrap && movement == QGenericListView::Static)
+        if (flow == QGenericListView::TopToBottom)
+            result.setWidth(viewport->width());
+        else
+            result.setHeight(viewport->height());
+    return result;
 }

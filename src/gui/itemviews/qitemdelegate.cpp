@@ -62,7 +62,8 @@ QItemDelegate::~QItemDelegate()
 {
 }
 
-void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const
+void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
+                          const QModelIndex &item) const
 {
 #if 0
     static unsigned char r = 0;
@@ -85,21 +86,21 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const 
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
     doLayout(options, &pixmapRect, &textRect, false);
     
-    drawPixmap(painter, options, pixmapRect, pixmap);
-    drawText(painter, options, textRect, text);
+    drawDecoration(painter, options, pixmapRect, pixmap);
+    drawDisplay(painter, options, textRect, text);
     drawFocus(painter, options, textRect);
 #endif
 }
 
 QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
-                              const QModelIndex &item) const
+                              const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border << 1, border << 1);
 
-    QVariant variant = model()->data(item, QAbstractItemModel::Decoration);
+    QVariant variant = model()->data(index, QAbstractItemModel::Decoration);
     QPixmap pixmap = decoration(options, variant);
-    QString text = model()->data(item, QAbstractItemModel::Display).toString();
+    QString text = model()->data(index, QAbstractItemModel::Display).toString();
     
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, fontMetrics.size(0, text) + sz);
@@ -114,17 +115,17 @@ QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
 }
 
 QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
-                                     const QItemOptions &options, const QModelIndex &item)
+                                     const QItemOptions &options, const QModelIndex &index)
 {
-    if (item.type() != QModelIndex::View)
+    if (index.type() != QModelIndex::View)
         return 0;
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked | AlwaysEdit)
-        || (options.focus && editType(item) == WidgetWhenCurrent)) {
+        || (options.focus && editType(index) == WidgetWhenCurrent)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
-        lineEdit->setText(model()->data(item, QAbstractItemModel::Edit).toString());
+        lineEdit->setText(model()->data(index, QAbstractItemModel::Edit).toString());
         lineEdit->selectAll();
-        updateEditorGeometry(lineEdit, options, item);
+        updateEditorGeometry(lineEdit, options, index);
         return lineEdit;
     }
     return 0;
@@ -135,26 +136,27 @@ void QItemDelegate::removeEditor(EndEditAction, QWidget *editor, const QModelInd
     delete editor;
 }
 
-void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &item) const
+void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-        model()->setData(item, QAbstractItemModel::Edit, lineEdit->text());
+        model()->setData(index, QAbstractItemModel::Edit, lineEdit->text());
 }
 
-void QItemDelegate::updateEditorContents(QWidget *editor, const QModelIndex &item) const
+void QItemDelegate::updateEditorContents(QWidget *editor, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-        lineEdit->setText(model()->data(item, QAbstractItemModel::Edit).toString());
+        lineEdit->setText(model()->data(index, QAbstractItemModel::Edit).toString());
 }
 
-void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const
+void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &options,
+                                         const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     if (editor) {
-        QPixmap pixmap = decoration(options, model()->data(item, QAbstractItemModel::Decoration));
-        QString text = model()->data(item, QAbstractItemModel::Display).toString();
+        QPixmap pixmap = decoration(options, model()->data(index, QAbstractItemModel::Decoration));
+        QString text = model()->data(index, QAbstractItemModel::Display).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(pt, editor->fontMetrics().size(0, text));
         doLayout(options, &pixmapRect, &textRect, false);
@@ -162,8 +164,8 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &op
     }
 }
 
-void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, const QRect &rect,
-                             const QString &text) const
+void QItemDelegate::drawDisplay(QPainter *painter, const QItemOptions &options, const QRect &rect,
+                                const QString &text) const
 {
     QPen old = painter->pen();
     if (options.selected) {
@@ -182,8 +184,8 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     painter->setPen(old);
 }
 
-void QItemDelegate::drawPixmap(QPainter *painter, const QItemOptions &options,
-                               const QRect &rect, const QPixmap &pixmap) const
+void QItemDelegate::drawDecoration(QPainter *painter, const QItemOptions &options,
+                                   const QRect &rect, const QPixmap &pixmap) const
 {
     if (options.selected && !options.smallItem)
         painter->fillRect(rect, QBrush(options.palette.highlight(), QBrush::Dense4Pattern));
@@ -298,7 +300,6 @@ QPixmap QItemDelegate::decoration(const QItemOptions &options, const QVariant &v
         static QPixmap checked(checked_xpm);
         static QPixmap unchecked(unchecked_xpm);
         return variant.toBool() ? checked : unchecked; }
-
     default:
         break;
     }

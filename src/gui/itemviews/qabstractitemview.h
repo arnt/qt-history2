@@ -119,16 +119,22 @@ signals:
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
 
-    enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight, MoveHome, MoveEnd, MovePageUp, MovePageDown };
-    virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0;
+    enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
+                        MoveHome, MoveEnd, MovePageUp, MovePageDown };
+    virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+                                   ButtonState state) = 0;
 
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
+    
+    inline void autoScroll(const QPoint &p) { autoScroll(p.x(), p.y()); }
+    virtual void autoScroll(int x, int y);
 
     virtual void setSelection(const QRect&, int command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
-    virtual bool startEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
+    virtual bool startEdit(const QModelIndex &item,
+                           QAbstractItemDelegate::StartEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &item, bool accept);
     QWidget *currentEditor() const;
 
@@ -156,6 +162,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void dragEnterEvent(QDragEnterEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
     void dropEvent(QDropEvent *e);
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);

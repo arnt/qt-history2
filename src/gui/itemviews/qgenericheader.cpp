@@ -695,6 +695,12 @@ int QGenericHeader::verticalOffset() const
     return 0;
 }
 
+void QGenericHeader::autoScroll(int, int)
+{
+    QRect area = d->viewport->geometry();
+    qDebug("QGenericHeader::autoScroll");
+}
+
 QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, ButtonState)
 {
     return QModelIndex();
@@ -847,7 +853,8 @@ int QGenericHeader::stretchSectionCount() const
 
 void QGenericHeader::setSortIndicator(int section, SortOrder order)
 {
-    updateSection(d->sortIndicatorSection);
+    if (section != d->sortIndicatorSection)
+        updateSection(d->sortIndicatorSection);
     d->sortIndicatorSection = section;
     d->sortIndicatorOrder = order;
     updateSection(section);

@@ -29,7 +29,6 @@ public:
     mutable QAbstractItemDelegate *delegate;
     QItemSelectionModel *selectionModel;
     int selectionMode, selectionBehavior;
-    QRubberBand *rubberBand;
 
     // #### this datastructur is far to inefficient. We need a faster
     // #### way to associate data with an item and look it up.

@@ -48,8 +48,8 @@ QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemModel *model, QObject 
     d->model = model;
 }
 
-QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd, QAbstractItemModel *model,
-                                             QObject *parent)
+QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd,
+                                             QAbstractItemModel *model, QObject *parent)
     : QObject(dd, parent)
 {
     d->model = model;
@@ -86,7 +86,8 @@ void QAbstractItemDelegate::updateEditorContents(QWidget *, const QModelIndex &)
     // do nothing
 }
 
-void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &, const QModelIndex &) const
+void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &,
+                                                 const QModelIndex &) const
 {
     // do nothing
 }

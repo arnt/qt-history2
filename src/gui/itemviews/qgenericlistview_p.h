@@ -2,6 +2,7 @@
 #define QGENERICLISTVIEW_P_H
 
 #include <private/qabstractitemview_p.h>
+#include <qrubberband.h>
 
 template <class T>
 class BinTree
@@ -95,27 +96,15 @@ class QGenericListViewPrivate: public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QGenericListView)
 public:
-    QGenericListViewPrivate()
-        : QAbstractItemViewPrivate(),
-            flow(QGenericListView::TopToBottom),
-            movement(QGenericListView::Static),
-            size(QGenericListView::Small),
-            resizeMode(QGenericListView::Fixed),
-            layoutMode(QGenericListView::Instant),
-            wrap(false),
-            spacing(5),
-            arrange(false),
-            layoutStart(0),
-            translate(0),
-            layoutWraps(0),
-            layoutTimer(0) {}
+    QGenericListViewPrivate();
     ~QGenericListViewPrivate() {}
 
+    void init();
     void prepareItemsLayout();
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
     void createItems(int to);
-    void drawDraggedItems(QPainter *painter, const QPoint &pos) const;
+    QRect drawItems(QPainter *painter, const QVector<QModelIndex> &indices) const;
 
     QGenericListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QGenericListViewItem item) const
@@ -130,6 +119,7 @@ public:
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing);
 
     QPoint snapToGrid(const QPoint &pos) const;
+    QRect mapToViewport(const QRect &rect) const;
 
     QGenericListView::Flow flow;
     QGenericListView::Movement movement;
@@ -159,6 +149,7 @@ public:
     mutable QRect draggedItemsRect;
     mutable QPoint draggedItemsPos;
     QSize itemSize; // used when all items are of the same height
+    QRubberBand *rubberBand;
 };
 
 #endif //QGENERICLISTVIEW_P_H

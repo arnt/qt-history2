@@ -15,23 +15,23 @@ public:
     // painting
     void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const;
     QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
-                   const QModelIndex &item) const;
+                   const QModelIndex &index) const;
 
     // editing
     QAbstractItemDelegate::EditType editType(const QModelIndex &item) const;
     QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
                           const QItemOptions &options, const QModelIndex &item);
-    void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
-    void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
+    void setContentFromEditor(QWidget *editor, const QModelIndex &index) const;
+    void updateEditorContents(QWidget *editor, const QModelIndex &index) const;
     void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
-                              const QModelIndex &item) const;
-    void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &item);
+                              const QModelIndex &index) const;
+    void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
 protected:
-    void drawText(QPainter *painter, const QItemOptions &options, const QRect &rect,
-                  const QString &text) const;
-    void drawPixmap(QPainter *painter, const QItemOptions &options, const QRect &rect,
-                    const QPixmap &pixmap) const;
+    void drawDisplay(QPainter *painter, const QItemOptions &options, const QRect &rect,
+                     const QString &text) const;
+    void drawDecoration(QPainter *painter, const QItemOptions &options, const QRect &rect,
+                        const QPixmap &pixmap) const;
     void drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const;
     void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const;
     void doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const;
