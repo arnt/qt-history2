@@ -54,9 +54,6 @@
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
-#ifdef QT_EVAL_COPY
-#include "qmessagebox.h"
-#endif
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -325,7 +322,19 @@ void qt_event_request_menubarupdate()
 }
 #endif
 
+static const int non_gui_event_count = 4;
 static EventTypeSpec events[] = {
+    /* Since non-gui Qt is a subset of gui qt app I put the non-GUI
+       events at the top and only pass those in as part of the event
+       handler, if you add more to the top you must increase the 
+       non_gui_event_count
+    */
+    { kEventClassQt, kEventQtRequestMenubarUpdate },
+    { kEventClassQt, kEventQtRequestSelect },
+    { kEventClassQt, kEventQtRequestContext },
+    { kEventClassQt, kEventQtRequestTimer },
+    { kEventClassQt, kEventQtRequestPropagate },
+
     { kEventClassWindow, kEventWindowUpdate },
     { kEventClassWindow, kEventWindowActivated },
     { kEventClassWindow, kEventWindowDeactivated },
@@ -333,11 +342,6 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowHidden },
     { kEventClassWindow, kEventWindowBoundsChanged },
 
-    { kEventClassQt, kEventQtRequestPropagate },
-    { kEventClassQt, kEventQtRequestMenubarUpdate },
-    { kEventClassQt, kEventQtRequestSelect },
-    { kEventClassQt, kEventQtRequestContext },
-    { kEventClassQt, kEventQtRequestTimer },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -421,17 +425,20 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 #if defined(QT_THREAD_SUPPORT)
 	qt_mac_port_mutex = new QMutex(TRUE);
 #endif
+
+	RegisterAppearanceClient();
     }
 
     if(!app_proc_handler) {
-	RegisterAppearanceClient();
 	app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
 	InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
-			     GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
+			     qt_is_gui_used ? non_gui_event_count : GetEventTypeCount(events), 
+			     events, (void *)qApp, &app_proc_handler);
     }
 
 #ifndef QT_NO_STYLE_AQUA
-    QAquaStyle::appearanceChanged();
+    if(qt_is_gui_used)
+	QAquaStyle::appearanceChanged();
 #endif
 }
 
@@ -1063,22 +1070,6 @@ bool QApplication::processNextEvent( bool canWait )
     sendPostedEvents();
     activateNullTimers(); //try to send null timers..
 
-#ifdef QT_EVAL_COPY
-    static bool in = FALSE;
-    if(!in && (QDate::currentDate().month() > 10 || QDate::currentDate().year() != 2001)) {
-	if(QWidgetList *list   = qApp->topLevelWidgets()) {
-	    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) 
-		widget->hide();
-	}
-	in = TRUE;
-	QMessageBox::critical(NULL, "Expired", "<b>This evaluation of Qt/Mac has expired.</b><br>"
-			   "Please contact sales@trolltech.com for further licensing, or try:<br>"
-			   "<em>http://www.trolltech.com</em>");
-	exit(1);
-	in = FALSE;
-    }
-#endif
-    
     EventRef event;
     OSStatus ret;
     do {
