@@ -1,10 +1,10 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/cube/glcube.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/cube/glcube.cpp#2 $
 **
 ** Implementation of GLCube
 ** This is a simple QGLWidget displaying an openGL wireframe cube
 **
-** The OpenGL code is borrowed from Brian Pauls "spin" example
+** The OpenGL code is mostly borrowed from Brian Pauls "spin" example
 ** in the Mesa distribution
 **
 ****************************************************************************/
@@ -25,9 +25,7 @@ GLCube::GLCube( QWidget* parent, const char* name )
     makeCurrent();
     object = makeObject();		// Generate an OpenGL display list
     glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
-    glDisable( GL_DITHER );
     glShadeModel( GL_FLAT );
-    glColor3f( 1.0, 1.0, 1.0 );
 }
 
 
@@ -40,8 +38,7 @@ void GLCube::paintGL()
 {
     glClear( GL_COLOR_BUFFER_BIT );
 
-    glPushMatrix();
-
+    glLoadIdentity();
     glTranslatef( 0.0, 0.0, -10.0 );
     glScalef( scale, scale, scale );
 
@@ -49,14 +46,13 @@ void GLCube::paintGL()
     glRotatef( yRot, 0.0, 1.0, 0.0 ); 
     glRotatef( zRot, 0.0, 0.0, 1.0 );
 
+    glColor3f( 1.0, 1.0, 1.0 );
     glCallList( object );
-
-    glPopMatrix();
 }
 
 
 /*!
-  Set up the OpenGL view port, frustrum etc. to match the window size
+  Set up the OpenGL view port, matrix mode, etc.
 */
 
 void GLCube::resizeGL( int w, int h )
@@ -109,7 +105,7 @@ GLuint GLCube::makeObject()
 
 
 /*!
-  Set the rotation angle of the object to \a degrees around the X axis.
+  Set the rotation angle of the object to \e degrees around the X axis.
 */
 
 void GLCube::setXRotation( int degrees )
@@ -120,7 +116,7 @@ void GLCube::setXRotation( int degrees )
 
 
 /*!
-  Set the rotation angle of the object to \a degrees around the Y axis.
+  Set the rotation angle of the object to \e degrees around the Y axis.
 */
 
 void GLCube::setYRotation( int degrees )
@@ -131,7 +127,7 @@ void GLCube::setYRotation( int degrees )
 
 
 /*!
-  Set the rotation angle of the object to \a degrees around the Z axis.
+  Set the rotation angle of the object to \e degrees around the Z axis.
 */
 
 void GLCube::setZRotation( int degrees )
