@@ -1,6 +1,5 @@
 TEMPLATE	= lib
 CONFIG		= qt staticlib release
-unix:TMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
 HEADERS		= qdns.h \
 		  qftp.h \
 		  qhostaddress.h \
@@ -18,7 +17,6 @@ SOURCES		= qdns.cpp \
 		  qsocket.cpp \
 		  qsocketdevice.cpp
 TARGET		= qnetwork
-TMAKE_CXXFLAGS	= -fno-exceptions -fno-rtti
 DESTINCDIR	= ../../../include
 DESTDIR		= ../../../lib
 VERSION		= 0.8
