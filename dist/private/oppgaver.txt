@@ -70,6 +70,11 @@ Ferdigstilling:
     Clipboard
 
     Tastaturfokus/default knapp
+	Doc: Hvem stjeler tastevents og i hvilken rekkefoelge
+		(grabber, eventfiltre, accel, etc.)
+	Sending av events oppover i hierarkiet, boer vaere i
+	treet og ikke direkte til toppnivaa som i dag.
+
 
     Postscript generering
 	- Font metrics
@@ -87,3 +92,4 @@ Ferdigstilling:
     Innebygget fontfamilie matching
 
     Tilgang paa scrollbarene i QTableView
+
