@@ -57,8 +57,7 @@ enum { Tok_Eof, Tok_class, Tok_tr, Tok_translate, Tok_Ident, Tok_Comment,
   The tokenizer maintains the following global variables. The names
   should be self-explanatory.
 */
-static QCString yyName;
-static FILE *yyIn;
+static QCString yyFileName;
 static int yyCh;
 static char yyIdent[32];
 static size_t yyIdentLen;
@@ -71,32 +70,42 @@ static int yyParenDepth;
 static int yyLineNo;
 static int yyCurLineNo;
 
-static inline int getChar()
+// the file to read from (if reading from a file)
+static FILE *yyInFile;
+
+// the string to read from and current position in the string (otherwise)
+static QString yyInStr;
+static int yyInPos;
+
+static int (*getChar)();
+
+static int getCharFromFile()
 {
-    int c = getc( yyIn );
+    int c = getc( yyInFile );
     if ( c == '\n' )
 	yyCurLineNo++;
     return c;
 }
 
-static void startTokenizer( const char *name )
+static int getCharFromString()
 {
-    yyName = name;
-    yyIn = fopen( name, "r" );
-    if ( yyIn == 0 ) {
-	qWarning( "lupdate error: cannot open C++ source file '%s': %s",
-		  name, strerror(errno) );
-	return;
+    if ( yyInPos == (int) yyInStr.length() ) {
+	return EOF;
+    } else {
+	return yyInStr[yyInPos++].latin1();
     }
+}
+
+static void startTokenizer( const char *fileName, int (*getCharFunc)() )
+{
+    yyInPos = 0;
+    getChar = getCharFunc;
+
+    yyFileName = fileName;
     yyCh = getChar();
     yyBraceDepth = 0;
     yyParenDepth = 0;
     yyCurLineNo = 1;
-}
-
-static void stopTokenizer()
-{
-    fclose( yyIn );
 }
 
 static int getToken()
@@ -158,7 +167,7 @@ static int getToken()
 			yyCh = getChar();
 			if ( yyCh == EOF ) {
 			    qWarning( "%s: Unterminated C++ comment starting at"
-				      " line %d", (const char *) yyName,
+				      " line %d", (const char *) yyFileName,
 				      yyLineNo );
 			    yyComment[yyCommentLen] = '\0';
 			    return Tok_Comment;
@@ -222,7 +231,7 @@ static int getToken()
 		yyString[yyStringLen] = '\0';
 		if ( yyCh == EOF ) {
 		    qWarning( "%s: Unterminated C++ string starting at line %d",
-			      (const char *) yyName, yyLineNo );
+			      (const char *) yyFileName, yyLineNo );
 		    return Tok_Eof;
 		} else {
 		    yyCh = getChar();
@@ -273,12 +282,6 @@ static int getToken()
 	    }
 	}
     }
-    if ( yyBraceDepth != 0 )
-	qWarning( "%s: Brace depth is %d at end of file (should be 0 in C++)",
-		  (const char *) yyName, yyBraceDepth );
-    if ( yyParenDepth != 0 )
-	qWarning( "%s: Parenthesis depth is %d at end of file (should be 0 in"
-		  " C++)", (const char *) yyName, yyParenDepth );
     return Tok_Eof;
 }
 
@@ -313,16 +316,14 @@ static bool matchString( QCString *s )
     return matches;
 }
 
-void fetchtr_cpp( const char *name, MetaTranslator *tor,
-		  const char *defaultContext )
+static void parse( MetaTranslator *tor, const char *initialContext,
+		   const char *defaultContext )
 {
-    QCString context, text, com;
-    QCString functionContext;
+    QCString context;
+    QCString text;
+    QCString com;
+    QCString functionContext = initialContext;
     QCString prefix;
-
-    startTokenizer( name );
-    if ( yyIn == 0 )
-	return;
 
     yyTok = getToken();
     while ( yyTok != Tok_Eof ) {
@@ -410,18 +411,48 @@ void fetchtr_cpp( const char *name, MetaTranslator *tor,
 	    yyTok = getToken();
 	}
     }
-    stopTokenizer();
+
+    if ( yyBraceDepth != 0 )
+	qWarning( "%s: Unbalanced braces in C++ code",
+		  (const char *) yyFileName );
+    if ( yyParenDepth != 0 )
+	qWarning( "%s: Unbalanced parentheses in C++ code"
+		  " C++)", (const char *) yyFileName );
+}
+
+void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
+		  const char *defaultContext )
+{
+    yyInFile = fopen( fileName, "r" );
+    if ( yyInFile == 0 ) {
+	qWarning( "lupdate error: cannot open C++ source file '%s': %s",
+		  fileName, strerror(errno) );
+	return;
+    }
+
+    startTokenizer( fileName, getCharFromFile );
+    parse( tor, 0, defaultContext );
+    fclose( yyInFile );
 }
 
 /*
   In addition to C++, we support Qt Designer UI files.
 */
 
+void fetchtr_inlined_cpp( const char *fileName, const QString& in,
+			  MetaTranslator *tor, const char *context )
+{
+    yyInStr = in;
+    startTokenizer( fileName, getCharFromString );
+    parse( tor, context, 0 );
+    yyInStr = QString::null;
+}
+
 class UiHandler : public QXmlDefaultHandler
 {
 public:
-    UiHandler( MetaTranslator *translator )
-	: tor( translator ), comment( "" ) { }
+    UiHandler( MetaTranslator *translator, const char *fileName )
+	: tor( translator ), fname( fileName ), comment( "" ) { }
 
     virtual bool startElement( const QString& namespaceURI,
 			       const QString& localName, const QString& qName,
@@ -435,6 +466,7 @@ private:
     void flush();
 
     MetaTranslator *tor;
+    QCString fname;
     QString context;
     QString source;
     QString comment;
@@ -465,6 +497,9 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
     } else if ( qName == QString("comment") ) {
 	comment = accum;
 	flush();
+    } else if ( qName == QString("function") ) {
+	fetchtr_inlined_cpp( (const char *) fname, accum, tor,
+			     context.latin1() );
     } else {
 	flush();
     }
@@ -490,35 +525,35 @@ bool UiHandler::fatalError( const QXmlParseException& exception )
 void UiHandler::flush()
 {
     if ( !context.isEmpty() && !source.isEmpty() )
-	tor->insert( MetaTranslatorMessage(context, source, comment) );
+	tor->insert( MetaTranslatorMessage(context.latin1(), source.latin1(),
+					   comment.latin1()) );
     source.truncate( 0 );
     comment.truncate( 0 );
 }
 
-void fetchtr_ui( const char *name, MetaTranslator *tor,
+void fetchtr_ui( const char *fileName, MetaTranslator *tor,
 		 const char * /* defaultContext */ )
 {
-    QFile f( name );
+    QFile f( fileName );
     if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "lupdate error: cannot open UI source file '%s': %s", name,
-		  strerror(errno) );
+	qWarning( "lupdate error: cannot open UI source file '%s': %s",
+		  fileName, strerror(errno) );
 	return;
     }
 
     QTextStream t( &f );
     QXmlInputSource in( t );
     QXmlSimpleReader reader;
-    // don't click on these!
     reader.setFeature( "http://xml.org/sax/features/namespaces", FALSE );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace"
 		       "-only-CharData", FALSE );
-    QXmlDefaultHandler *hand = new UiHandler( tor );
+    QXmlDefaultHandler *hand = new UiHandler( tor, fileName );
     reader.setContentHandler( hand );
     reader.setErrorHandler( hand );
 
     if ( !reader.parse(in) )
-	qWarning( "%s: Parse error in UI file", name );
+	qWarning( "%s: Parse error in UI file", fileName );
     reader.setContentHandler( 0 );
     reader.setErrorHandler( 0 );
     delete hand;

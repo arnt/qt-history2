@@ -25,9 +25,9 @@
 #include <string.h>
 
 // defined in fetchtr.cpp
-extern void fetchtr_cpp( const char *name, MetaTranslator *tor,
+extern void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
 			 const char *defaultContext );
-extern void fetchtr_ui( const char *name, MetaTranslator *tor,
+extern void fetchtr_ui( const char *fileName, MetaTranslator *tor,
 			 const char *defaultContext );
 
 // defined in merge.cpp
