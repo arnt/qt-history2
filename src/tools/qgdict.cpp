@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#54 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#54 $");
 
 
 /*!
@@ -35,6 +35,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#53 $");
   Normally, you do not have to reimplement any of these functions.
 */
 
+static const int op_find = 0;
+static const int op_insert = 1;
+static const int op_replace = 2;
 
 Q_DECLARE(QListM,QGDictIterator);		// list of iterators: QGDItList
 
@@ -172,7 +175,7 @@ QGDict::QGDict( const QGDict & dict )
     triv  = dict.triv;
     QGDictIterator it( dict );
     while ( it.get() ) {			// copy from other dict
-	look( it.getKey(), it.get(), TRUE );
+	look( it.getKey(), it.get(), op_insert );
 	++it;
     }
 }
@@ -207,7 +210,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
     clear();
     QGDictIterator it( dict );
     while ( it.get() ) {			// copy from other dict
-	look( it.getKey(), it.get(), TRUE );
+	look( it.getKey(), it.get(), op_insert );
 	++it;
     }
     return *this;
@@ -229,7 +232,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
 
 /*!
   \internal
-  The do-it-all function; find (op==0), insert (op==1), replace (op==2)
+  The do-it-all function; op is one of op_find, op_insert, op_replace
 */
 
 GCI QGDict::look( const char *key, GCI d, int op )
@@ -238,7 +241,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
     int	 index;
     if ( triv ) {				// key is a long/ptr
 	index = (int)(long(key) % vlen);	// simple hash
-	if ( op == 0 ) {			// find
+	if ( op == op_find ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( n->getKey() == key )
 		    return n->getData();	// item found
@@ -247,7 +250,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
 	}
     } else {					// key is a string
 	index = hashKey( key ) % vlen;
-	if ( op == 0 ) {			// find
+	if ( op == op_find ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( (cases ? strcmp(n->getKey(),key)
 			 : stricmp(n->getKey(),key)) == 0 )
@@ -256,7 +259,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
 	    return 0;				// did not find the item
 	}
     }
-    if ( op == 2 ) {				// replace
+    if ( op == op_replace ) {			// replace
 	if ( vec[index] != 0 )			// maybe something there
 	    remove( key );
     }
@@ -297,7 +300,7 @@ void QGDict::resize( uint newsize )
     for ( uint index = 0; index < old_vlen; index++ ) {
 	QBucket *n=old_vec[index];
 	while ( n ) {
-	    look( n->getKey(), n->getData(), 2 );
+	    look( n->getKey(), n->getData(), op_insert );
 	    QBucket *t=n->getNext();
 	    delete n;
 	    n = t;
@@ -520,7 +523,7 @@ QDataStream &QGDict::read( QDataStream &s )
 	    s >> k;				// key is string
 	}
 	read( s, d );				// read data
-	look( k, d, TRUE );
+	look( k, d, op_insert );
     }
     return s;
 }
