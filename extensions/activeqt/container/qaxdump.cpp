@@ -45,37 +45,53 @@ static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
     return docu;
 }
 
-static QString namedPrototype(const QString &signature, const QString &names)
+static QString namedPrototype(const QString &signature, const QString &names, int numDefArgs = 0)
 {
+    QString prototype;
     if (names.isEmpty()) {
-        QString prototype(signature);
+        prototype = signature;
         prototype.replace(',', ", ");
+    } else {
+        prototype = signature.left(signature.indexOf('(') + 1);
+
+        QString sigTypes(signature);
+        sigTypes = sigTypes.mid(prototype.length());
+        sigTypes.truncate(sigTypes.length() - 1);
+
+        QString paramNames(names);
+
+        while (!paramNames.isEmpty()) {
+            QString paramName = paramNames.left(paramNames.indexOf(','));
+            if (paramName.isEmpty())
+                paramName = paramNames;
+            paramNames = paramNames.mid(paramName.length() + 1);
+            QString sigType = sigTypes.left(sigTypes.indexOf(','));
+            if (sigType.isEmpty())
+                sigType = sigTypes;
+            sigTypes = sigTypes.mid(sigType.length() + 1);
+
+            prototype += sigType + " " + paramName;
+            if (!paramNames.isEmpty())
+                prototype += ", ";
+        }
+        prototype += ")";
+    }
+
+    // no default arguments
+    if (!numDefArgs)
         return prototype;
+
+    int numArgs = prototype.count(',') + 1;
+    // default arguments
+    int comma = -1;
+    while (numDefArgs > 1) {
+        comma = prototype.lastIndexOf(',', comma);
+        prototype.replace(comma, 1, " = 0,");
+        --numDefArgs;
     }
 
-    QString prototype(signature.left(signature.indexOf('(') + 1));
-
-    QString sigTypes(signature);
-    sigTypes = sigTypes.mid(prototype.length());
-    sigTypes.truncate(sigTypes.length() - 1);
-
-    QString paramNames(names);
-
-    while (!paramNames.isEmpty()) {
-        QString paramName = paramNames.left(paramNames.indexOf(','));
-        if (paramName.isEmpty())
-            paramName = paramNames;
-        paramNames = paramNames.mid(paramName.length() + 1);
-        QString sigType = sigTypes.left(sigTypes.indexOf(','));
-        if (sigType.isEmpty())
-            sigType = sigTypes;
-        sigTypes = sigTypes.mid(sigType.length() + 1);
-
-        prototype += sigType + " " + paramName;
-        if (!paramNames.isEmpty())
-            prototype += ", ";
-    }
-    prototype += ")";
+    // last argument
+    prototype.replace(')', " = 0)");
 
     return prototype;
 }
@@ -147,13 +163,19 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	stream << "<h2>Public Slots:</h2>" << endl;
 	stream << "<ul>" << endl;
 
+        int defArgCount = 0;
 	for (int islot = mo->slotOffset(); islot < slotCount; ++islot) {
 	    const QMetaMember slot = mo->slot(islot);
+
+            if (slot.isCloned()) {
+                ++defArgCount;
+                continue;
+            }
 
 	    QString returntype(slot.type());
             if (returntype.isEmpty())
                 returntype = "void";
-            QString prototype = namedPrototype(slot.signature(), slot.parameters());
+            QString prototype = namedPrototype(slot.signature(), slot.parameters(), defArgCount);
             QString signature = slot.signature();
 	    QString name = signature.left(signature.indexOf('('));
 	    QString params = prototype.mid(name.length());
@@ -188,6 +210,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	    }
 
 	    methodDetails << detail;
+            defArgCount = 0;
 	}
 
 	stream << "</ul>" << endl;
