@@ -1480,7 +1480,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( dx == 0 && dy == 0 )
 	return;
-    if ( w > 0 && h > 0 )
+    if ( w > 0 && h > 0 ) 
 	bitBlt(this,x2,y2,this,x1,y1,w,h);
 
     if ( !valid_rect && children() ) {	// scroll children
@@ -1498,17 +1498,18 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     }
 
     QPoint p(posInWindow(this));
-    QRegion copied(clippedRegion());
+    QRegion update_rgn(false);
+    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)update_rgn.handle());
+    update_rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
+    QRegion copied(clippedRegion() - update_rgn);
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
-#if defined( Q_WS_MACX ) && !defined(QMAC_NO_QUARTZ)
     if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
 	QRegion clean(copied);
 	clean.translate(p.x(), p.y());
 	QMacSavedPortInfo::flush(this, clean, TRUE);
     }
-#endif
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
 }
 
