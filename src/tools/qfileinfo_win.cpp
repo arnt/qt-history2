@@ -218,7 +218,7 @@ QString QFileInfo::owner() const
 	}
 #else
 	if ( ptrGetNamedSecurityInfoA && ptrLookupAccountSidA ) {
-	    if ( ptrGetNamedSecurityInfoA( (LPSTR)fn.local8Bit(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
+	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lowner = 0, ldomain = 0; 
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0'). 
@@ -280,7 +280,7 @@ QString QFileInfo::group() const
 	}
 #else
 	if ( ptrGetNamedSecurityInfoA && ptrLookupAccountSidA ) {
-	    if ( ptrGetNamedSecurityInfoA( (LPSTR)fn.local8Bit(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
+	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lgroup = 0, ldomain = 0; 
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0'). 
@@ -405,7 +405,7 @@ bool QFileInfo::permission( int p ) const
         TRUSTEE_A trustee;
 	PTRUSTEE_A pTrustee = &trustee;
 	if ( ptrGetNamedSecurityInfoA && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidA && ptrGetEffectiveRightsFromAclA ) {
-	    if ( ptrGetNamedSecurityInfoA( (LPSTR)fn.local8Bit(), SE_FILE_OBJECT, 
+	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT, 
 			OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
 			&pOwner, &pGroup, &pDacl, NULL, &pSD ) == ERROR_SUCCESS ) {
 
