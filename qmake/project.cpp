@@ -1908,6 +1908,16 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
             file = file.right(file.length() - slsh - 1);
         }
         return QDir(dirstr).entryList(QStringList(file)).count();
+    } else if(func == "clear") {
+        if(args.count() != 1) {
+            fprintf(stderr, "%s:%d: clear(variable) requires one argument.\n", parser.file.toLatin1().constData(),
+                    parser.line_no);
+            return false;
+        }
+        if(!place.contains(args[0]))
+            return false;
+        place[args[0]].clear();
+        return true;
     } else if(func == "unset") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: unset(variable) requires one argument.\n", parser.file.toLatin1().constData(),
