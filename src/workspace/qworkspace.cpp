@@ -330,7 +330,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 {
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( !w || !w->testWFlags( WStyle_NormalBorder | WStyle_DialogBorder )
+	if ( !w || !w->testWFlags( WStyle_Title | WStyle_NormalBorder | WStyle_DialogBorder )
 	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar || w == d->corner )
 	    return;	    // nothing to do
 
@@ -663,6 +663,10 @@ void QWorkspace::hideEvent( QHideEvent * )
 void QWorkspace::minimizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
+
+    if ( !w || w && (!w->testWFlags( WStyle_Minimize ) || w->testWFlags( WStyle_Tool) ) )
+	return;
+
     if ( c ) {
 	setUpdatesEnabled( FALSE );
 	bool wasMax = FALSE;
@@ -693,6 +697,8 @@ void QWorkspace::minimizeWindow( QWidget* w)
 void QWorkspace::normalizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
+    if ( !w || w && (!w->testWFlags( WStyle_MinMax ) || w->testWFlags( WStyle_Tool) ) )
+	return;
     if ( c ) {
 	if ( d->maxWindow )
 	    hideMaximizeControls();
@@ -722,7 +728,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
 
-    if ( !w || w && (!w->testWFlags( WStyle_MinMax ) || w->testWFlags( WStyle_Tool) ) )
+    if ( !w || w && (!w->testWFlags( WStyle_Maximize ) || w->testWFlags( WStyle_Tool) ) )
 	return;
 
     if ( c ) {
@@ -762,7 +768,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 
 void QWorkspace::showWindow( QWidget* w)
 {
-    if ( d->maxWindow && w->testWFlags( WStyle_MinMax ) && !w->testWFlags( WStyle_Tool) )
+    if ( d->maxWindow && w->testWFlags( WStyle_Maximize ) && !w->testWFlags( WStyle_Tool) )
 	maximizeWindow( w );
     else if ( !w->testWFlags( WStyle_Tool ) )
 	normalizeWindow( w );
@@ -903,6 +909,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 void QWorkspace::showMaximizeControls()
 {
 #ifndef QT_NO_MENUBAR
+    Q_ASSERT(d->maxWindow);
     QMenuBar* b = 0;
 
     // Do a breadth-first search first, and query recoursively if nothing is found.
@@ -925,14 +932,17 @@ void QWorkspace::showMaximizeControls()
 	d->maxcontrols = new QFrame( topLevelWidget(), "qt_maxcontrols" );
 	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols,
 					  d->maxcontrols->frameWidth(), 0 );
-	QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
-	QToolTip::add( iconB, tr( "Minimize" ) );
-	l->addWidget( iconB );
-	iconB->setFocusPolicy( NoFocus );
-	iconB->setIconSet(style().stylePixmap(QStyle::SP_TitleBarMinButton));
-	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( iconB, SIGNAL( clicked() ),
-		 this, SLOT( minimizeActiveWindow() ) );
+	if ( d->maxWindow->windowWidget()->testWFlags(WStyle_Minimize) ) {
+	    QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
+	    QToolTip::add( iconB, tr( "Minimize" ) );
+	    l->addWidget( iconB );
+	    iconB->setFocusPolicy( NoFocus );
+	    iconB->setIconSet(style().stylePixmap(QStyle::SP_TitleBarMinButton));
+	    iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	    connect( iconB, SIGNAL( clicked() ),
+		     this, SLOT( minimizeActiveWindow() ) );
+	}
+
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
 	QToolTip::add( restoreB, tr( "Restore Down" ) );
 	l->addWidget( restoreB );
@@ -952,8 +962,7 @@ void QWorkspace::showMaximizeControls()
 	connect( closeB, SIGNAL( clicked() ),
 		 this, SLOT( closeActiveWindow() ) );
 
-	d->maxcontrols->setFixedSize( 3* BUTTON_WIDTH+2+2*d->maxcontrols->frameWidth(),
-				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
+	d->maxcontrols->setFixedSize( d->maxcontrols->minimumSizeHint() );
     }
 
     if ( d->controlId == -1 || b->indexOf( d->controlId ) == -1 ) {
@@ -1046,6 +1055,7 @@ void QWorkspace::showOperationMenu()
 {
     if  ( !d->active || !d->active->windowWidget() )
 	return;
+    Q_ASSERT( d->active->windowWidget()->testWFlags( WStyle_SysMenu ) );
     QPoint p( d->active->windowWidget()->mapToGlobal( QPoint(0,0) ) );
     if ( !d->active->isVisible() ) {
 	p = d->active->iconWidget()->mapToGlobal( QPoint(0,0) );
@@ -1071,8 +1081,11 @@ void QWorkspace::operationMenuAboutToShow()
 	d->popup->setItemEnabled( i, enable );
     }
 
-    if ( !d->active )
+    if ( !d->active || !d->active->windowWidget() )
 	return;
+
+    d->popup->setItemEnabled( 4, d->active->windowWidget()->testWFlags( WStyle_Minimize ) );
+    d->popup->setItemEnabled( 5, d->active->windowWidget()->testWFlags( WStyle_Maximize ) );
 
     if ( d->active == d->maxWindow ) {
 	d->popup->setItemEnabled( 2, FALSE );
@@ -1085,17 +1098,11 @@ void QWorkspace::operationMenuAboutToShow()
 	d->popup->setItemEnabled( 3, FALSE );
 	d->popup->setItemEnabled( 4, FALSE );
     }
-
-    if ( !d->active->windowWidget()->testWFlags( WStyle_MinMax ) ||
-	  d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
-	d->popup->setItemEnabled( 4, FALSE );
-	d->popup->setItemEnabled( 5, FALSE );
-    }
 }
 
 void QWorkspace::toolMenuAboutToShow()
 {
-    if ( !d->active )
+    if ( !d->active || !d->active->windowWidget() )
 	return;
 
     // ### Why aren't we using QStyle::SP_TitleBarUnshadeButton?
@@ -1105,11 +1112,8 @@ void QWorkspace::toolMenuAboutToShow()
 				      QWMatrix().rotate( -180 ))), tr("&Unshade") );
     else
 	d->toolPopup->changeItem( 6, QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton)), tr("Sh&ade") );
-
-    QWorkspace* w = (QWorkspace*)d->active->windowWidget();
-    if ( !w )
-	return;
-    d->toolPopup->setItemChecked( 7, w->testWFlags( WStyle_StaysOnTop ) );
+    d->toolPopup->setItemEnabled( 6, d->active->windowWidget()->testWFlags( WStyle_MinMax ) );
+    d->toolPopup->setItemChecked( 7, d->active->windowWidget()->testWFlags( WStyle_StaysOnTop ) );
 }
 
 void QWorkspace::operationMenuActivated( int a )
@@ -1806,18 +1810,21 @@ QWidget* QWorkspaceChild::iconWidget() const
 
 void QWorkspaceChild::showMinimized()
 {
+    Q_ASSERT( windowWidget()->testWFlags( WStyle_Minimize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
     widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::showMaximized()
 {
+    Q_ASSERT( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
     widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::showNormal()
 {
+    Q_ASSERT( windowWidget()->testWFlags( WStyle_MinMax ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
     widgetResizeHandler->setActive( TRUE );
 }
@@ -1826,8 +1833,12 @@ void QWorkspaceChild::showShaded()
 {
     if ( !titlebar)
 	return;
+    Q_ASSERT( windowWidget()->testWFlags( WStyle_MinMax ) && windowWidget()->testWFlags( WStyle_Tool ) );
     ((QWorkspace*)parentWidget())->activateWindow( windowWidget() );
     if ( shademode ) {
+	QWorkspaceChild* fake = (QWorkspaceChild*)windowWidget();
+	fake->clearWState( WState_Minimized );
+
 	shademode = FALSE;
 	resize( shadeRestore );
 	setMinimumSize( shadeRestoreMin );
@@ -1836,6 +1847,9 @@ void QWorkspaceChild::showShaded()
 	shadeRestoreMin = minimumSize();
 	setMinimumHeight(0);
 	shademode = TRUE;
+	QWorkspaceChild* fake = (QWorkspaceChild*)windowWidget();
+	fake->setWState( WState_Minimized );
+
 	resize( width(), titlebar->height() + TITLEBAR_SEPARATION + 2*lineWidth() );
     }
     widgetResizeHandler->setActive( !shademode );
@@ -1846,14 +1860,13 @@ void QWorkspaceChild::titleBarDoubleClicked()
     if ( !windowWidget() )
 	return;
     if ( windowWidget()->testWFlags( WStyle_MinMax ) ) {
-	if ( iconw )
+	if ( windowWidget()->testWFlags( WStyle_Tool ) )
+	    showShaded();
+	else if ( iconw )
 	    showNormal();
 	else
 	    showMaximized();
-    } else {
-	showShaded();
     }
-
 }
 
 void QWorkspaceChild::adjustToFullscreen()
