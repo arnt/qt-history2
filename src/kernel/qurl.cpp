@@ -113,7 +113,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
     \row \i \l protocol()   \i "http"
     \row \i \l host()	    \i "www.trolltech.com"
     \row \i \l port()	    \i 80
-    \row \i \l path()	    \i "cgi-bin"
+    \row \i \l path()	    \i "/cgi-bin/test&nbsp;me.pl"
     \row \i \l fileName()   \i "test&nbsp;me.pl"
     \row \i \l query()	    \i "cmd=Hello%20you"
     \endtable
