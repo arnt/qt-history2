@@ -1,9 +1,12 @@
 #include <qaxobject.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qapplication.h>
 
 int main(int argc, char **argv)
 {
+    QApplication app(argc, argv, FALSE);
+
     enum State {
         Default = 0,
             OutOption
