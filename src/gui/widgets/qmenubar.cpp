@@ -429,6 +429,7 @@ void QMenuBarPrivate::init()
 {
     Q_Q(QMenuBar);
     QWidget *parent = q->parentWidget();
+    q->setAttribute(Qt::WA_CustomWhatsThis);
 #ifdef Q_WS_MAC
     macCreateMenuBar(parent);
 #endif

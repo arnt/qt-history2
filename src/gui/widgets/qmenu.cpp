@@ -574,7 +574,8 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 
 void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
-    if (!action || !action->isEnabled() || !q->isEnabled())
+    bool inWhatsThisMode = QWhatsThis::inWhatsThisMode();
+    if (!action || !q->isEnabled() || (!inWhatsThisMode && !action->isEnabled()))
         return;
 
     /* I have to save the caused stack here because it will be undone after popup execution (ie in the hide).
@@ -587,10 +588,16 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             widget = qmenu->d->causedPopup;
         break;
     }
-    if (action_e == QAction::Trigger)
+    if (action_e == QAction::Trigger) {
         hideUpToMenuBar();
+        if (inWhatsThisMode) {
+            QWhatsThis::showText(q->mapToGlobal(actionRect(action).center()), action->whatsThis(), q);
+            return;
+        }
+    }
 
     action->activate(action_e);
+
     for(int i = 0; i < causedStack.size(); ++i) {
         QPointer<QWidget> widget = causedStack.at(i);
         if (!widget)
@@ -782,6 +789,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 QMenu::QMenu(QWidget *parent)
     : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
 {
+    setAttribute(Qt::WA_CustomWhatsThis);
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
     if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
@@ -804,6 +812,7 @@ QMenu::QMenu(QWidget *parent)
 QMenu::QMenu(const QString &title, QWidget *parent)
     : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
 {
+    setAttribute(Qt::WA_CustomWhatsThis);
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking));
     if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
@@ -1573,14 +1582,10 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
             break;
         }
     }
-    if (action && action->isEnabled()) {
-        if (action->menu())
-            action->menu()->d->setFirstActionActive();
-        else
-            d->activateAction(action, QAction::Trigger);
-    } else if (d->motions > 6) {
+    if (action)
+        d->activateAction(action, QAction::Trigger);
+    else if (d->motions > 6)
         d->hideUpToMenuBar();
-    }
 }
 
 /*!
@@ -1827,10 +1832,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     case Qt::Key_F1:
         if (!d->currentAction || d->currentAction->whatsThis().isNull())
             break;
-        if (!QWhatsThis::inWhatsThisMode())
-            QWhatsThis::enterWhatsThisMode();
-        QWhatsThis::leaveWhatsThisMode();
-        //fall-through!
+        QWhatsThis::enterWhatsThisMode();
+        d->activateAction(d->currentAction, QAction::Trigger);
+        return;
 #endif
     default:
         key_consumed = false;

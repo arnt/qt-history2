@@ -31,6 +31,7 @@
 #include "qtextdocument.h"
 #include "../text/qtextdocumentlayout_p.h"
 #include "qtoolbutton.h"
+#include "qdebug.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -409,8 +410,9 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
         if (me->button() == Qt::RightButton || customWhatsThis)
             return false;
         QHelpEvent e(QEvent::WhatsThis, me->pos(), me->globalPos());
-        if (!QApplication::sendEvent(w, &e))
+        if (!QApplication::sendEvent(w, &e) || !e.isAccepted())
             QWhatsThis::leaveWhatsThisMode();
+
     } break;
 
     case QEvent::MouseButtonRelease:
@@ -426,7 +428,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
         if (kev->key() == Qt::Key_Escape) {
             QWhatsThis::leaveWhatsThisMode();
             return true;
-        } else if (o->isWidgetType() && ((QWidget*)o)->testAttribute(Qt::WA_CustomWhatsThis)) {
+        } else if (customWhatsThis) {
             return false;
         } else if (kev->key() == Qt::Key_Menu ||
                     (kev->key() == Qt::Key_F10 &&
@@ -444,7 +446,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     return true;
 }
 
-QWhatsThisAction::QWhatsThisAction() : QAction(tr("What's this?"))
+QWhatsThisAction::QWhatsThisAction(QObject *parent) : QAction(tr("What's this?"), parent)
 {
     QPixmap p((const char**)button_image);
     setIcon(p);
