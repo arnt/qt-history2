@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#19 $
+** $Id: //depot/qt/main/src/moc/moc.l#20 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -315,7 +315,7 @@ extern void addExpressionString( char * );
 			      unput(c);
 			}
 
-[ \t]+			;
+[ \t\r\b\f]+   		;
 <IN_CLASS>.		;
 <IN_FCT>.		;
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
