@@ -92,7 +92,7 @@ overview.
 \section2 Database support
 
 One of the major new features in Qt 3.0 is the \link sql.html SQL
-module\endlink that provides cross-platform access to SQL databases,
+module\endlink that provides multiplatform access to SQL databases,
 making database application programming with Qt seamless and portable.
 The API, built with standard SQL, is database-neutral and software
 development is independent of the underlying database.

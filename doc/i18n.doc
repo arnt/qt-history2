@@ -52,7 +52,7 @@ See also the \link linguist-manual.book Qt Linguist\endlink manual.
 
 \section1 Step by Step
 
-Writing cross-platform international software with Qt is a gentle,
+Writing multiplatform international software with Qt is a gentle,
 incremental process. Your software can become internationalized in
 the following stages:
 

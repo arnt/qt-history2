@@ -36,7 +36,7 @@
 /*! \page aboutqt.html
 \title About Qt
 
-Qt is a cross-platform C++ GUI application framework. It provides
+Qt is a multiplatform C++ GUI application framework. It provides
 application developers with all the functionality needed to build
 state-of-the-art graphical user interfaces. Qt is fully
 object-oriented, easily extensible, and allows true component

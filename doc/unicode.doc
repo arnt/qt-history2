@@ -41,7 +41,7 @@ Unicode is a 16-bit character set, portable across all major computing
 platforms and with decent coverage over most of the world.  It is
 also single-locale; it includes no code pages or other complexities
 that make software harder to write and test. There is
-no competing character set that's reasonably cross-platform.  For
+no competing character set that's reasonably multiplatform.  For
 these reasons, Trolltech has chosen to make Unicode the native
 character set of Qt starting with version 2.0.
 
