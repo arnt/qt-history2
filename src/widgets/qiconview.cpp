@@ -815,7 +815,7 @@ void QIconViewItem::setIcon( const QPixmap &icon )
 
 /*!
   Sets \a text as text of the iconview item. Using \a recalc you can
-  specify, if the iconview should be recalculated and using \a redraw if it 
+  specify, if the iconview should be recalculated and using \a redraw if it
   should be repainted or not.
 */
 
@@ -835,7 +835,7 @@ void QIconViewItem::setText( const QString &text, bool recalc, bool redraw )
 
 /*!
   Sets \a icon as item icon of the iconview item. Using \a recalc you can
-  specify, if the iconview should be recalculated and using \a redraw if it 
+  specify, if the iconview should be recalculated and using \a redraw if it
   should be repainted or not.
 */
 
@@ -2216,7 +2216,7 @@ void QIconView::slotUpdate()
 	    h += d->spacing;
 	resizeContents( w, h );
     }
-    viewport()->repaint( FALSE );
+    //viewport()->repaint( FALSE );
 
     int cx = d->cachedContentsX == -1 ? contentsX() : d->cachedContentsX;
     int cy = d->cachedContentsY == -1 ? contentsY() : d->cachedContentsY;
