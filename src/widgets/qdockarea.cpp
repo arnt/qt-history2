@@ -574,8 +574,8 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	    dockWindow->setOffset( width() - dockWindow->minimumWidth() );
     } else {
 	int offs = dockWindow->offset();
-	if ( width() - offs < dockWindow->minimumHeight() )
-	    dockWindow->setOffset( width() - dockWindow->minimumHeight() );
+	if ( height() - offs < dockWindow->minimumHeight() )
+	    dockWindow->setOffset( height() - dockWindow->minimumHeight() );
     }
 
     if ( dockWindows->isEmpty() ) {
