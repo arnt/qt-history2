@@ -2742,7 +2742,7 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 }
 
 /*!
-  Constructs an invalid regular expression (which never matches).
+  Constructs an empty expression.
 
   \sa isValid()
 */
@@ -2750,10 +2750,12 @@ QRegExp::QRegExp()
 {
     eng = new QRegExpEngine( TRUE );
     priv = new QRegExpPrivate;
+    priv->pattern = QString::null;
 #ifndef QT_NO_REGEXP_WILDCARD
     priv->wc = FALSE;
 #endif
     priv->min = FALSE;
+    compile( TRUE );
 }
 
 /*!
@@ -2845,8 +2847,19 @@ bool QRegExp::operator==( const QRegExp& rx ) const
   \sa operator==()
 */
 
-/*!  \fn bool QRegExp::isValid() const
+/*!
+  Returns TRUE if the pattern string is empty, otherwise FALSE.  An empty
+  pattern matches an empty string.
 
+  This is the same as pattern().\link QString::isEmpty() isEmpty() \endlink.
+*/
+
+bool QRegExp::isEmpty() const
+{
+    return priv->pattern.isEmpty();
+}
+
+/*!
   Returns TRUE if the regular expression is valid, or FALSE if it's invalid.  An
   invalid regular expression never matches.
 
@@ -3107,6 +3120,7 @@ int QRegExp::searchRev( const QString& str, int start )
     priv->capturedCache.clear();
 #endif
     if ( start < 0 || start > (int) str.length() ) {
+        priv->captured.detach();
 	priv->captured.fill( -1 );
 	return -1;
     }
@@ -3175,8 +3189,7 @@ QStringList QRegExp::capturedTexts()
   Returns the text captured by the \a nth parenthesized subexpression in the
   regular expression.  Subexpressions are numbered in the order of occurrence of
   their left parenthesis, starting at 1.  The whole regular expression is given
-  number 0 (the default), making it possible to retrieve the full matched text
-  easily.
+  number 0 (the default), making it easy to retrieve the full matched text.
 
   Example 1:
   \code
@@ -3196,9 +3209,6 @@ QStringList QRegExp::capturedTexts()
     QString t3 = rx.cap( 3 );           // 4
   \endcode
 
-  Notice the behavior of subexpressions governed by a quantifier (here,
-  <b>*</b>).
-
   \sa pos()
 */
 QString QRegExp::cap( int nth )
@@ -3213,13 +3223,15 @@ QString QRegExp::cap( int nth )
   Returns the position of the \a nth captured text in the searched string.  If
   \a nth is 0 (the default), returns the position of the whole match.
 
+  Zero-length matches are considered as non-matches.
+
   Example:
   \code
     QRegExp rx( "/([a-z]+)/([a-z]+)" );
-    rx.search( "to /dev/null maybe?" ); // 3 (position of /dev/null)
-    rx.pos( 0 );		        // 3 (position of /dev/null)
-    rx.pos( 1 );		        // 4 (position of dev)
-    rx.pos( 2 );		        // 8 (position of null)
+    rx.search( "to /dev/null now" );    // 3 (position of /dev/null)
+    rx.pos( 0 );                        // 3 (position of /dev/null)
+    rx.pos( 1 );                        // 4 (position of dev)
+    rx.pos( 2 );                        // 8 (position of null)
   \endcode
 
   \sa capturedTexts() cap()
@@ -3236,17 +3248,13 @@ int QRegExp::pos( int nth )
 void QRegExp::compile( bool caseSensitive )
 {
     derefEngine( eng, priv->rxpattern );
-    if ( priv->pattern.isNull() ) {
-	eng = new QRegExpEngine( caseSensitive );
-    } else {
 #ifndef QT_NO_REGEXP_WILDCARD
-	if ( priv->wc )
-	    priv->rxpattern = wc2rx( priv->pattern );
-	else
+    if ( priv->wc )
+	priv->rxpattern = wc2rx( priv->pattern );
+    else
 #endif
-	    priv->rxpattern = priv->pattern;
-	eng = newEngine( priv->rxpattern, caseSensitive );
-    }
+	priv->rxpattern = priv->pattern;
+    eng = newEngine( priv->rxpattern, caseSensitive );
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = QString::null;
     priv->capturedCache.clear();

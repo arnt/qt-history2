@@ -148,7 +148,6 @@ All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
     <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
     <li>QCheckListItem::paintBranches
     <li>QString::visual, QString::basicDirection
-    <li>QRegExp::isEmpty
 </ul>
 
 <h3><a name="QRegExp">QRegExp</a></h3>
@@ -159,14 +158,17 @@ interface were modified.
 
 Be also aware that <code>&lt;qregexp.h&gt;</code> is no longer included
 automatically when you include <code>&lt;qstringlist.h&gt;</code>. See
-<a href="#Headers">above</a> for details.
+<a href="#Headers">above</a> for details.  <!-- In Qt 3.0, qregexp.h has to
+include qstringlist.h, so it's no good to have qstringlist.h include qregexp.h,
+unless one wants to achieve an Escher effect. -->
 
 <dl>
 <p><dt><b>New special characters</b></dt>
 <dd> There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
 <tt>|</tt> and <tt>}</tt> (parentheses, braces and pipe).  When porting old
-regular expressions, you have to add <tt>&#92;</tt> (backslash) in front of it
-(actually, <tt>&#92;&#92;</tt> in C++ strings), unless it is already there.
+regular expressions, you have to add <tt>&#92;</tt> (backslash) in front of any
+of these (actually, <tt>&#92;&#92;</tt> in C++ strings), unless it is already
+there.
 
 Example:  Old code like
 
@@ -197,18 +199,11 @@ it is subtle: as first argument to \l QString::replace().  Code like
 
 \code
     QString text = fetch_it_from_somewhere();
-    text.replace( "([^)]*)", "" );
+    text.replace( QString("([^)]*)"), "" );
 \endcode
 
 involves an implicit QRegExp (namely, <code>"([^)]*)"</code>) that should be
 changed.
-</dd>
-
-<p><dt><b>QRegExp::QRegExp ()</b></dt>
-<dd>
-This function used to create a regular expression that matches anywhere (i.e,
-whose pattern is "").  Now it creates one that matches nowhere (i.e., whose
-pattern is QString::null).
 </dd>
 
 <p><dt><b>QRegExp& QRegExp::operator= ( const QString & pattern )</b></dt>
@@ -225,22 +220,17 @@ such as
 
 still compiles with Qt 3, but produces a different result (the case sensitivity
 and wildcard options are forgotten).  This way,
-
 \code
     rx = "beta";
 \endcode
 
 is the same as
-
 \code
     rx = QRegExp( "beta" );
 \endcode
-</dd>
 
-<p><dt><b>bool QRegExp::isEmpty () const</b></dt>
-<dd>
-This function was removed.  Use
-\l QRegExp::pattern()\link QString::isEmpty() .isEmpty\endlink() instead.
+which is what one would expect.
+
 </dd>
 
 <p><dt><b>bool QRegExp::match ( const QString & str, int index = 0,
@@ -274,18 +264,18 @@ interface.
 
 <p><dt><b>int QRegExp::find ( const QString & str, int index )</b></dt>
 <dd>
-This function was removed, after a brief appearance in Qt 2.2.  Use
-\l QRegExp::search() or \l QString::find() instead.
+This function was removed, after a brief appearance in Qt 2.2.  Its name is
+confusing.  Use \l QRegExp::search() or \l QString::find() instead.
 </dd>
 </dl>
 
 <h3><a name="QTranslator">QTranslator</a></h3>
 
 The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
-new interface.  This interface is used mainly by translation tools (such as Qt
-Linguist).  For source compatibility, no member function was effectively
-removed.  The \l QTranslator documentation points out which functions are
-obsolete.
+new interface.  This interface is used mainly by translation tools (such as <a
+href="http://www.trolltech.com/linguist/">Qt Linguist</a>).  For source
+compatibility, no member function was effectively removed.  The \l QTranslator
+documentation points out which functions are obsolete.
 
 However, the following function is no longer virtual:
 
@@ -295,7 +285,7 @@ However, the following function is no longer virtual:
 <dd>
 If you have a class that inherits QTranslator and that reimplements
 QTranslator::find(), you should reimplement QTranslator::findMessage() instead.
-In fact, find() is defined in terms of QTranslator::findMessage().  By doing the
+In fact, find() is now defined in terms of findMessage().  By doing the
 conversion, you will also gain support for translator comments and for any
 future extension.
 </dd>

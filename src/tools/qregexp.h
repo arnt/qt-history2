@@ -58,6 +58,7 @@ public:
     bool operator==( const QRegExp& rx ) const;
     bool operator!=( const QRegExp& rx ) const { return !operator==( rx ); }
 
+    bool isEmpty() const;
     bool isValid() const;
     QString pattern() const;
     void setPattern( const QString& pattern );
