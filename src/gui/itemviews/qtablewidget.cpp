@@ -458,6 +458,8 @@ public:
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
+    void emitReturnPressed(const QModelIndex &index);
+    void emitSpacePressed(const QModelIndex &index);    
 };
 
 void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -468,6 +470,16 @@ void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 {
     emit q->doubleClicked(model()->item(index), button);
+}
+
+void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+{
+    emit q->returnPressed(model()->item(index));
+}
+
+void QTableWidgetPrivate::emitSpacePressed(const QModelIndex &index)
+{
+    emit q->spacePressed(model()->item(index));
 }
 
 /*!
@@ -500,6 +512,10 @@ QTableWidget::QTableWidget(QWidget *parent)
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
+            SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
+            SLOT(emitSpacePressed(const QModelIndex&)));
 }
 
 /*!

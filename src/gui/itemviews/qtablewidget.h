@@ -112,6 +112,7 @@ public:
 
     void setRowCount(int rows);
     int rowCount() const;
+
     void setColumnCount(int columns);
     int columnCount() const;
 
@@ -143,6 +144,8 @@ public:
 signals:
     void clicked(QTableWidgetItem *item, int button);
     void doubleClicked(QTableWidgetItem *item, int button);
+    void returnPressed(QTableWidgetItem *item);
+    void spacePressed(QTableWidgetItem *item);
 
 protected:
     void removeItem(QTableWidgetItem *item);
@@ -151,6 +154,8 @@ protected:
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitSpacePressed(const QModelIndex &index));
 };
 
 #endif
