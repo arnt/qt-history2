@@ -1445,8 +1445,7 @@ QActionGroup::~QActionGroup()
     If exclusive is TRUE only one toggle action in the action group
     can ever be active at any one time. If the user chooses another
     toggle action in the group the one they chose becomes active and
-    the one that was active becomes inactive. By default this property
-    is FALSE.
+    the one that was active becomes inactive.
 
     \sa QAction::toggleAction
 */
