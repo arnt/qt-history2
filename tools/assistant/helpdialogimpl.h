@@ -25,7 +25,6 @@
 #include <qvalidator.h>
 #include <qpopupmenu.h>
 #include <qhash.h>
-#include <q3popupmenu.h>
 
 class QProgressBar;
 class MainWindow;
@@ -142,8 +141,12 @@ private:
     bool initDoneMsgShown;
     void getAllContents();
     QHash<QString, ContentList> contentList;
-    Q3PopupMenu *itemPopup;
+    QPopupMenu *itemPopup;
     QString cacheFilesPath;
+
+    QAction *actionOpenCurrentTab;
+    QAction *actionOpenLinkInNewWindow;
+    QAction *actionOpenLinkInNewTab;
 };
 
 #endif

@@ -213,10 +213,19 @@ void HelpDialog::initialize()
 
     termsEdit->setValidator(new SearchValidator(termsEdit));
 
-    itemPopup = new Q3PopupMenu(this);
-    itemPopup->insertItem(tr("Open Link in Current Tab"), 0);
-    itemPopup->insertItem(tr("Open Link in New Window"), 1);
-    itemPopup->insertItem(tr("Open Link in New Tab"), 2);
+    actionOpenCurrentTab = new QAction(this);
+    actionOpenCurrentTab->setText(tr("Open Link in Current Tab"));
+
+    actionOpenLinkInNewWindow = new QAction(this);
+    actionOpenLinkInNewWindow->setText(tr("Open Link in New Window"));
+
+    actionOpenLinkInNewTab = new QAction(this);
+    actionOpenLinkInNewTab->setText(tr("Open Link in New Tab"));
+
+    itemPopup = new QPopupMenu(this);
+    itemPopup->addAction(actionOpenCurrentTab);
+    itemPopup->addAction(actionOpenLinkInNewWindow);
+    itemPopup->addAction(actionOpenLinkInNewTab);
 
     contentList.clear();
 
@@ -1024,14 +1033,14 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
 {
     if (!item)
         return;
-    int id = itemPopup->exec(pos);
-    if (id == 0) {
+    QAction *action = itemPopup->exec(pos);
+    if (action == actionOpenCurrentTab) {
         if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index")))
             showTopic();
         else {
             showResultPage(item);
         }
-    } else if (id > 0) {
+    } else if (action) {
         HelpWindow *hw = help->browsers()->currentBrowser();
         if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index"))) {
             editIndex->blockSignals(true);
@@ -1042,7 +1051,7 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
 
             QStringList links = hi->links();
             if (links.count() == 1) {
-                if (id == 1)
+                if (action == actionOpenLinkInNewWindow)
                     hw->openLinkInNewWindow(links.first());
                 else
                     hw->openLinkInNewPage(links.first());
@@ -1056,7 +1065,7 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
                 }
                 QString link = TopicChooser::getLink(this, linkNames, linkList, item->text());
                 if (!link.isEmpty()) {
-                    if (id == 1)
+                    if (action == actionOpenLinkInNewWindow)
                         hw->openLinkInNewWindow(link);
                     else
                         hw->openLinkInNewPage(link);
@@ -1064,7 +1073,7 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
             }
         } else {
             QString link = foundDocs[ resultBox->index(item) ];
-            if (id == 1)
+            if (action == actionOpenLinkInNewWindow)
                 hw->openLinkInNewWindow(link);
             else
                 hw->openLinkInNewPage(link);
@@ -1076,15 +1085,15 @@ void HelpDialog::showItemMenu(QListViewItem *item, const QPoint &pos)
 {
     if (!item)
         return;
-    int id = itemPopup->exec(pos);
-    if (id == 0) {
+    QAction *action = itemPopup->exec(pos);
+    if (action == actionOpenCurrentTab) {
         if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Contents")))
             showContentsTopic();
         else
             showBookmarkTopic();
-    } else if (id > 0) {
+    } else if (action) {
         HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)item;
-        if (id == 1)
+        if (action == actionOpenLinkInNewWindow)
             help->browsers()->currentBrowser()->openLinkInNewWindow(i->link());
         else
             help->browsers()->currentBrowser()->openLinkInNewPage(i->link());
