@@ -32,7 +32,7 @@ public:
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
-    void updateClipRegion(const QRegion &region, bool clipEnbled);
+    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
 
     void drawLine(const QLineF &line);
     void drawRect(const QRectF &r);

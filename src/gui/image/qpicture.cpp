@@ -503,7 +503,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 break;
             case PdcDrawPolygon:
                 s >> a >> i_8;
-                painter->drawPolygon(a, i_8);
+                painter->drawPolygon(a, i_8 ? Qt::WindingFill : Qt::OddEvenFill);
                 break;
             case PdcDrawCubicBezier: {
                 s >> a;

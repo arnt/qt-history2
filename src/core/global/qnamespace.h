@@ -1013,9 +1013,16 @@ public:
         CopyPixmapNoMask // compatibility
     };
 
+    // Documented in qpainter.cpp
     enum FillRule {
         OddEvenFill,
         WindingFill
+    };
+
+    enum ClipOperation {
+        ReplaceClip,
+        IntersectClip,
+        UniteClip
     };
 
     enum TransformationMode {

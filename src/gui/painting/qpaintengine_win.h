@@ -38,8 +38,8 @@ public:
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
-    void updateClipRegion(const QRegion &region, bool clipEnabled);
-    void updateClipPath(const QPainterPath &path, bool clipEnabled);
+    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QLineF &line);
@@ -91,7 +91,8 @@ public:
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
-    void updateClipRegion(const QRegion &region, bool clipEnabled);
+    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QLineF &line);

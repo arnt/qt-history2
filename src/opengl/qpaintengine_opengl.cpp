@@ -419,8 +419,9 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     glLoadMatrixf(&mat[0][0]);
 }
 
-void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, bool clip)
+void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, Qt::ClipOperation op)
 {
+    bool clip = !rgn.isEmpty();
     bool useStencilBuffer = dgl->format().stencil();
     bool useDepthBuffer = dgl->format().depth() && !useStencilBuffer;
 

@@ -321,8 +321,9 @@ void QWSPaintEngine::updateMatrix(const QMatrix &)
 {
 //    qDebug("QWSPaintEngine::updateMatrix");
 }
-void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
+void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
+    bool clipEnabled = !clipRegion.isEmpty();
 //    qDebug("QWSPaintEngine::updateClipRegion");
 
     Q_ASSERT(isActive());

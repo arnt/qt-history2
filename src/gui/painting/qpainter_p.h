@@ -29,8 +29,6 @@ class QPaintEngine;
 class QPainterState
 {
 public:
-    enum ClipType { RegionClip, PathClip };
-
     QPainterState() {
         init(0);
     }
@@ -43,11 +41,9 @@ public:
         brush = QBrush(s->brush);
         bgOrigin = s->bgOrigin;
         bgBrush = QBrush(s->bgBrush);
-        clipRegion = QRegion(s->clipRegion);
-        clipPath = s->clipPath;
-        clipMatrix = s->clipMatrix;
-        clipEnabled = s->clipEnabled;
-        clipType = s->clipType;
+        tmpClipRegion = QRegion(s->tmpClipRegion);
+        tmpClipPath = s->tmpClipPath;
+        tmpClipOp = s->tmpClipOp;
         bgMode = s->bgMode;
         VxF = s->VxF;
         WxF = s->WxF;
@@ -78,7 +74,6 @@ public:
     void init(QPainter *p) {
         bgBrush = Qt::white;
         bgMode = Qt::TransparentMode;
-        clipEnabled = false;
         WxF = false;
         VxF = false;
         wx = wy = ww = wh = 0;
@@ -90,10 +85,9 @@ public:
         bgOrigin = QPoint(0, 0);
         brush = bgBrush = QBrush();
         font = deviceFont = QFont();
-        clipRegion = QRegion();
-        clipPath = QPainterPath();
-        clipMatrix.reset();
-        clipType = RegionClip;
+        tmpClipRegion;
+        tmpClipPath;
+        tmpClipOp = Qt::ReplaceClip;
 #ifndef QT_NO_TRANSFORMATIONS
         worldMatrix.reset();
         matrix.reset();
@@ -110,10 +104,9 @@ public:
     QPen pen;
     QBrush brush;
     QBrush bgBrush;             // background brush
-    QRegion clipRegion;
-    QMatrix clipMatrix;
-    QPainterPath clipPath;
-    ClipType clipType;
+    QRegion tmpClipRegion;
+    QPainterPath tmpClipPath;
+    Qt::ClipOperation tmpClipOp;
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix worldMatrix;       // World transformation matrix, not window and viewport
     QMatrix matrix;            // Complete transformation matrix, including win and view.
@@ -125,7 +118,6 @@ public:
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle
 
-    uint clipEnabled:1;
     uint WxF:1;                 // World transformation
     uint VxF:1;                 // View transformation
 
@@ -190,7 +182,7 @@ public:
                      DrawOperation operation = StrokeAndFillDraw);
 
     // Refactored draw_helper functionallity
-    void draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType type);
+    QRect draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType type);
     void draw_helper_fill_lineargradient(const void *data, Qt::FillRule fillRule, ShapeType type);
     void draw_helper_fill_alpha(const void *data, Qt::FillRule fillRule, ShapeType type);
     void draw_helper_fill_pattern(const void *data, Qt::FillRule fillRule, ShapeType type);

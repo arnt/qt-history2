@@ -835,7 +835,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
     if (d->pen.color().alpha() != 255 && pixmap.isQBitmap()) {
         QRegion region(*static_cast<const QBitmap*>(&pixmap));
         region.translate(r.x(), r.y());
-        updateClipRegion(region, true);
+        updateClipRegion(region, Qt::IntersectClip);
         d->fillAlpha(r.toRect(), d->pen.color());
         setDirty(DirtyClip);
         return;
@@ -1296,25 +1296,35 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
     }
 }
 
+static const int qt_clip_operations[] = {
+    RGN_COPY,       // Qt::ReplaceClip
+    RGN_AND,        // Qt::IntersectClip
+    RGN_OR          // Qt::UniteClip
+};
 
-void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
+void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
-    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, [%d %d %d %d], calls=%d\n",
+    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, [%d %d %d %d], op=%d, calls=%d\n",
            region.rects().size(),
            region.boundingRect().x(),
            region.boundingRect().y(),
            region.boundingRect().width(),
            region.boundingRect().height(),
+           op,
            ++counter);
 #endif
+    // Sanity check since we use it blindly below.
+    Q_ASSERT(op >= 0 && op <= Qt::UniteClip);
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateClipRegion(region, clipEnabled);
+        d->gdiplusEngine->updateClipRegion(region, op);
         return;
     }
 
+
+#ifndef QT_NO_NATIVE_XFORM
     if (d->txop >= QPainterPrivate::TxScale) {
         BeginPath(d->hdc);
         QVector<QRect> rects = region.rects();
@@ -1328,41 +1338,33 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
             CloseFigure(d->hdc);
         }
         EndPath(d->hdc);
-        SelectClipPath(d->hdc, RGN_COPY);
+        SelectClipPath(d->hdc, qt_clip_operations[op]);
         return;
     }
-
-    if (clipEnabled) {
-        QRegion rgn = region
-#ifndef QT_NO_NATIVE_XFORM
-            * d->matrix
 #endif
-            ;
 
-        // Setting an empty region as clip region on Win just dmainisables clipping completely.
-        // To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
-        // clip region far out in coordinate space in this case.
-        if (rgn.isEmpty())
-            rgn = QRect(-0x1000000, -0x1000000, 1, 1);
-        SelectClipRgn(d->hdc, rgn.handle());
-    } else {
-        SelectClipRgn(d->hdc, 0);
-    }
+    QRegion rgn = region
+#ifndef QT_NO_NATIVE_XFORM
+                  * d->matrix
+#endif
+                  ;
+    ExtSelectClipRgn(d->hdc, rgn.handle(), qt_clip_operations[op]);
 }
 
-void QWin32PaintEngine::updateClipPath(const QPainterPath &path, bool clipEnabled)
+void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
 #ifdef QT_NO_NATIVE_PATH
     Q_ASSERT(!"QWin32PaintEngine::updateClipPath()");
     return;
 #endif
+    // Sanity check since we use it blindly below.
+    Q_ASSERT(op >= 0 && op <= Qt::UniteClip);
 
-    if (clipEnabled && !path.isEmpty()) {
-        d->composeGdiPath(path);
-        SelectClipPath(d->hdc, RGN_AND);
+    if (op == Qt::ReplaceClip && path.isEmpty()) {
+        SelectClipRgn(d->hdc, 0);
     } else {
-        updateClipRegion(QRegion(), false);
-        setDirty(DirtyClip);
+        d->composeGdiPath(path);
+        SelectClipPath(d->hdc, qt_clip_operations[op]);
     }
 }
 
@@ -2177,19 +2179,26 @@ void QGdiplusPaintEngine::updateMatrix(const QMatrix &qm)
     GdipDeleteMatrix(m);
 }
 
-void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, bool enabled)
+void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, Qt::ClipOperation op)
 {
-    if (enabled) {
-//         Region r(ps->clipRegion.handle());
-//         d->graphics->SetClip(&r, CombineModeReplace);
+    if (qtClip.isEmpty()) {
+        if (op == Qt::ReplaceClip)
+            GdipResetClip(d->graphics);
+    } else {
         QtGpRegion *region = 0;
         GdipCreateRegionHrgn(qtClip.handle(), &region);
-        GdipSetClipRegion(d->graphics, region, 0);
+        GdipSetClipRegion(d->graphics, region, op); // CombineMode in GDI+ has same layout as ours
         GdipDeleteRegion(region);
-    } else {
-//         d->graphics->ResetClip();
-        GdipResetClip(d->graphics);
+
     }
+}
+
+void QGdiplusPaintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOperation op)
+{
+    Q_UNUSED(clipPath);
+    Q_UNUSED(op);
+
+    // ### Implement me...
 }
 
 void QGdiplusPaintEngine::drawLine(const QLineF &line)

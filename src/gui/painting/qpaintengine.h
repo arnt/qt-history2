@@ -105,9 +105,9 @@ public:
     virtual void updateFont(const QFont &font) = 0;
     virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush) = 0;
     virtual void updateMatrix(const QMatrix &matrix) = 0;
-    virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
+    virtual void updateClipRegion(const QRegion &region, Qt::ClipOperation op) = 0;
     virtual void updateRenderHints(QPainter::RenderHints hints);
-    virtual void updateClipPath(const QPainterPath &path, bool enabled);
+    virtual void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
 
     virtual void drawEllipse(const QRectF &r);
     virtual void drawLine(const QLineF &line);

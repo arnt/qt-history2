@@ -72,7 +72,7 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
 /*
   Sets the shape as a clipregion on the painter
 */
-void QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType shape)
+QRect QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType shape)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -98,6 +98,7 @@ void QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRul
     if (!currentClip.isEmpty())
         clip &= currentClip;
     q->setClipRegion(clip);
+    return clip.boundingRect();
 }
 
 
@@ -113,8 +114,7 @@ void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, Qt::Fill
         printf(" -> fill_lineargradient()\n");
 #endif
     q->save();
-    draw_helper_setclip(data, fillRule, type);
-    QRect bounds = state->clipRegion.boundingRect();
+    QRect bounds = draw_helper_setclip(data, fillRule, type);
     qt_fill_linear_gradient(bounds, q, state->brush);
     q->restore();
 }
@@ -141,8 +141,7 @@ void QPainterPrivate::draw_helper_fill_alpha(const void *data, Qt::FillRule fill
 
     if (type != RectangleShape) {
         q->save();
-        draw_helper_setclip(data, fillRule, type);
-        bounds = state->clipRegion.boundingRect();
+        bounds = draw_helper_setclip(data, fillRule, type);
     } else {
         bounds = reinterpret_cast<const QRectF *>(data)->toRect();
     }
@@ -168,8 +167,7 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, Qt::FillRule fi
 
     QRect bounds;
     if (type != RectangleShape) {
-        draw_helper_setclip(data, fillRule, type);
-        bounds = state->clipRegion.boundingRect();
+        bounds = draw_helper_setclip(data, fillRule, type);
     } else {
         bounds = reinterpret_cast<const QRectF *>(data)->toRect();
     }
@@ -1184,7 +1182,7 @@ const QBrush &QPainter::background() const
 
 bool QPainter::hasClipping() const
 {
-    return d->state->clipEnabled;
+    return !d->state->tmpClipRegion.isEmpty() || !d->state->tmpClipPath.isEmpty();
 }
 
 
@@ -1206,11 +1204,14 @@ void QPainter::setClipping(bool enable)
         return;
     }
 
-    if (d->state->clipEnabled == enable)
+    if (hasClipping() == enable)
         return;
 
-    d->state->clipEnabled = enable;
-    if (d->engine) {
+    if (enable) {
+        // ### missing what to do...
+    } else {
+        d->state->tmpClipRegion = QRegion();
+        d->state->tmpClipOp = Qt::ReplaceClip;
         d->engine->setDirty(QPaintEngine::DirtyClip);
         d->engine->updateState(d->state);
     }
@@ -1231,10 +1232,8 @@ QRegion QPainter::clipRegion() const
         qWarning("QPainter::clipRegion(), painter not active");
         return QRegion();
     }
-    if (d->state->txop > QPainterPrivate::TxNone)
-	return d->state->clipRegion * d->state->clipMatrix * d->state->matrix.invert();
-    else
-	return d->state->clipRegion;
+    // ### Implementation missing for now.
+    return QRegion();
 }
 
 /*!
@@ -1251,9 +1250,9 @@ QRegion QPainter::clipRegion() const
 
     Sets the clip region of the rectange \a rect.
 */
-void QPainter::setClipRect(const QRect &rect)
+void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
 {
-    setClipRegion(QRegion(rect));
+    setClipRegion(QRegion(rect), op);
 }
 
 /*!
@@ -1266,7 +1265,7 @@ void QPainter::setClipRect(const QRect &rect)
     \sa setClipRect(), clipRegion(), setClipping()
 */
 
-void QPainter::setClipRegion(const QRegion &r)
+void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 {
 #ifdef QT_DEBUG_DRAW
     QRect rect = r.boundingRect();
@@ -1279,14 +1278,11 @@ void QPainter::setClipRegion(const QRegion &r)
         return;
     }
 
-    if (!d->state->clipEnabled && r.isEmpty())
+    if (!hasClipping() && r.isEmpty())
         return;
 
-    d->state->clipRegion = r;
-    d->state->clipEnabled = !r.isEmpty();
-    d->state->clipMatrix = d->state->matrix;
-    d->state->clipType = QPainterState::RegionClip;
-
+    d->state->tmpClipRegion = r;
+    d->state->tmpClipOp = op;
     d->engine->setDirty(QPaintEngine::DirtyClip);
     d->engine->updateState(d->state);
 }
@@ -1567,42 +1563,37 @@ void QPainter::translate(double dx, double dy)
 
     \warning This function is not yet implemented.
 */
-void QPainter::setClipPath(const QPainterPath &path)
+void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
-#if 0
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::setClipPath(), size=%d\n", path.elementCount());
+        printf("QPainter::setClipPath(), size=%d, op=%d\n", path.elementCount(), op);
 #endif
 
-    if (!isActive())
+    if (!isActive()
+        || (!hasClipping() && path.isEmpty()))
         return;
 
     if (!d->engine->hasFeature(QPaintEngine::PainterPaths)) {
-        QPolygon p = path.toFillPolygon();
-
         if (d->state->txop > QPainterPrivate::TxNone
             && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-            p = p * d->state->matrix;
+            QPainterPath xformed = path * d->state->matrix;
+            QPolygon p = xformed.toFillPolygon();
             QMatrix oldMatrix = d->state->matrix;
             d->state->matrix = QMatrix();
-            setClipRegion(QRegion(p.toPointArray(), path.fillMode());
+            setClipRegion(QRegion(p.toPointArray(), path.fillRule()));
             d->state->matrix = oldMatrix;
             d->engine->setDirty(QPaintEngine::DirtyTransform);
         } else {
-            setClipRegion(QRegion(p.toPointArray(), path.fillMode());
+            setClipRegion(QRegion(path.toFillPolygon().toPointArray(), path.fillRule()));
         }
         return;
     }
 
-    d->state->clipEnabled = true;
-    d->state->clipPath = path;
-    d->state->clipMatrix = d->state->matrix;
-    d->state->clipType = QPainterState::PathClip;
+    d->state->tmpClipPath = path;
+    d->state->tmpClipOp = op;
     d->engine->setDirty(QPaintEngine::DirtyClipPath);
-#else
-    Q_UNUSED(path);
-#endif
+    d->engine->updateState(d->state);
 }
 
 /*!

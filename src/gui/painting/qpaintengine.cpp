@@ -454,6 +454,31 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     }
     state = s;
 
+
+    if (testDirty(DirtyTransform)) {
+        updateMatrix(s->matrix);
+        clearDirty(DirtyTransform);
+
+        if (state->txop >= QPainterPrivate::TxTranslate && !hasFeature(CoordTransform))
+            emulationSpecifier |= CoordTransform;
+        else
+            emulationSpecifier &= ~CoordTransform;
+
+        if (state->txop >= QPainterPrivate::TxTranslate
+            && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+            emulationSpecifier |= PenWidthTransform;
+        else
+            emulationSpecifier &= ~PenWidthTransform;
+
+        if ((s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern
+             || s->brush.style() == Qt::CustomPattern)
+            && s->txop > QPainterPrivate::TxTranslate && !hasFeature(PatternTransform))
+            emulationSpecifier |= PatternTransform;
+        else
+            emulationSpecifier &= ~PatternTransform;
+    }
+
+
     if (testDirty(DirtyPen)) {
         updatePen(s->pen);
         clearDirty(DirtyPen);
@@ -472,10 +497,12 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier &= ~PenWidthTransform;
     }
 
+
     if (testDirty(DirtyBackground)) {
         updateBackground(s->bgMode, s->bgBrush);
         clearDirty(DirtyBackground);
     }
+
 
     if (testDirty(DirtyBrush)) {
         updateBrush(s->brush, s->bgOrigin);
@@ -500,63 +527,45 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier &= ~PatternTransform;
     }
 
+
     if (testDirty(DirtyFont)) {
         updateFont(s->font);
         clearDirty(DirtyFont);
     }
 
+
     if (testDirty(DirtyClipPath)) {
-        // Assume for now that painterpaths implies native clip xform.
-        if (s->clipType == QPainterState::PathClip && hasFeature(PainterPaths)) {
-            updateMatrix(s->clipMatrix);
-            updateClipPath(s->clipPath, s->clipEnabled);
-            setDirty(DirtyTransform);
+        Q_ASSERT(hasFeature(PainterPaths));
+        if (hasFeature(ClipTransform)) {
+            updateClipPath(s->tmpClipPath, s->tmpClipOp);
+        } else {
+            QPainterPath path = s->txop > QPainterPrivate::TxNone
+                                ? (s->tmpClipPath * s->matrix)
+                                : s->tmpClipPath;
+            updateClipPath(path, s->tmpClipOp);
         }
         clearDirty(DirtyClipPath);
     }
+
+
     if (testDirty(DirtyClip)) {
         if (hasFeature(ClipTransform)) {
-            updateMatrix(s->clipMatrix);
-            updateClipRegion(s->clipRegion, s->clipEnabled);
-            if (s->clipMatrix != s->matrix)
-                setDirty(DirtyTransform);
+            updateClipRegion(s->tmpClipRegion, s->tmpClipOp);
         } else {
             QRegion region = s->txop > QPainterPrivate::TxNone
-                             ? (s->clipRegion * s->clipMatrix)
-                             : s->clipRegion;
-            updateClipRegion(region, s->clipEnabled);
+                             ? (s->tmpClipRegion * s->matrix)
+                             : s->tmpClipRegion;
+            updateClipRegion(region, s->tmpClipOp);
         }
         clearDirty(DirtyClip);
     }
 
-    if (testDirty(DirtyTransform)) {
-        updateMatrix(s->matrix);
-        clearDirty(DirtyTransform);
-
-        if (state->txop >= QPainterPrivate::TxTranslate && !hasFeature(CoordTransform))
-            emulationSpecifier |= CoordTransform;
-        else
-            emulationSpecifier &= ~CoordTransform;
-
-        if (state->txop >= QPainterPrivate::TxTranslate
-            && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
-            emulationSpecifier |= PenWidthTransform;
-        else
-            emulationSpecifier &= ~PenWidthTransform;
-
-        if ((s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern
-             || s->brush.style() == Qt::CustomPattern)
-            && s->txop > QPainterPrivate::TxTranslate && !hasFeature(PatternTransform))
-            emulationSpecifier |= PatternTransform;
-        else
-            emulationSpecifier &= ~PatternTransform;
-
-    }
 
     if (testDirty(DirtyHints)) {
         updateRenderHints(d->renderhints);
         clearDirty(DirtyHints);
     }
+
 
     // It might be the case that a update call flags a previously
     // updated state to dirty. For this case we need to call
@@ -748,10 +757,10 @@ void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
     the new clip \a path. The value of \a enabled signifies whether or
     not the clippath should be enabled.
 */
-void QPaintEngine::updateClipPath(const QPainterPath &path, bool enabled)
+void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
     Q_UNUSED(path);
-    Q_UNUSED(enabled);
+    Q_UNUSED(op);
 }
 
 /*!

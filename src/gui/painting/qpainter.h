@@ -92,12 +92,11 @@ public:
     const QBrush &background() const;
 
     QRegion clipRegion() const;
-    void setClipRect(const QRect &);
-    inline void setClipRect(int x, int y, int w, int h);
-    void setClipRegion(const QRegion &);
+    void setClipRect(const QRect &, Qt::ClipOperation op = Qt::ReplaceClip);
+    inline void setClipRect(int x, int y, int w, int h, Qt::ClipOperation op = Qt::ReplaceClip);
+    void setClipRegion(const QRegion &, Qt::ClipOperation op = Qt::ReplaceClip);
     void setClipping(bool enable);
     bool hasClipping() const;
-
 
     void save();
     void restore();
@@ -133,7 +132,7 @@ public:
     void fillPath(const QPainterPath &path, const QBrush &brush);
     void drawPath(const QPainterPath &path);
 
-    void setClipPath(const QPainterPath &path);
+    void setClipPath(const QPainterPath &path, Qt::ClipOperation op = Qt::ReplaceClip);
 
     inline void drawLine(int x1, int y1, int x2, int y2);
     void drawLine(const QPoint &p1, const QPoint &p2);
@@ -351,9 +350,9 @@ inline void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
     drawChord(QRect(x, y, w, h), a, alen);
 }
 
-inline void QPainter::setClipRect(int x, int y, int w, int h)
+inline void QPainter::setClipRect(int x, int y, int w, int h, Qt::ClipOperation op)
 {
-    setClipRect(QRect(x, y, w, h));
+    setClipRect(QRect(x, y, w, h), op);
 }
 
 inline void QPainter::eraseRect(int x, int y, int w, int h)

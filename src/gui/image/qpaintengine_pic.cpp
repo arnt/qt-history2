@@ -159,7 +159,7 @@ void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
+void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
     int pos;
     SERIALIZE_CMD(PdcSetClipRegion);
@@ -167,7 +167,7 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, bool clipEnabl
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetClip);
-    d->s << (Q_INT8) clipEnabled;
+    d->s << (Q_INT8) !region.isEmpty();
     writeCmdLength(pos, QRect(), false);
 }
 
