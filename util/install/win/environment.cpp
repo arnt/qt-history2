@@ -109,6 +109,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	}
     }
     if( envBlock & LocalEnv ) {
+	// ### This fails if compiled with Borland! (Unicode issue)
 	putenv( varName + QString( "=" ) + varValue );
     }
 }
