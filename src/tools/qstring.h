@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#107 $
+** $Id: //depot/qt/main/src/tools/qstring.h#108 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -337,6 +337,7 @@ public:
     const char* ascii() const;
     QCString utf8() const;
     static QString fromUtf8(const char*, int len=-1);
+    bool operator!() const { return isNull(); }
     operator const char *() const { return ascii(); }
 
     static QChar* asciiToUnicode( const char*, uint * len, uint maxlen=(uint)-1 );

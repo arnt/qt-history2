@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#206 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#207 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -15214,6 +15214,24 @@ void QString::setExpand( uint index, QChar c )
   QString name = getName();
   if ( !name )
     name = "Rodney";
+\endcode
+
+  Note that if you say:
+
+\code
+  QString name = getName();
+  if ( name )
+    doSomethingWith(name);
+\endcode
+
+  Then this will call <tt>operator const char*()</tt>, which will do what
+  you want, but rather inefficiently.  Better, use <tt>!isNull()</tt>
+  or even <tt>!!</tt>:
+
+\code
+  QString name = getName();
+  if ( !!name )
+    doSomethingWith(name);
 \endcode
 */
 
