@@ -61,86 +61,72 @@ Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024)
 #endif
 
 /*!
-    \class QPixmap qpixmap.h
+    \class QPixmap
     \brief The QPixmap class is an off-screen, pixel-based paint device.
 
     \ingroup multimedia
     \ingroup shared
     \mainclass
 
-    QPixmap is one of the two classes Qt provides for dealing with
-    images; the other is QImage. QPixmap is designed and optimized
-    for drawing; QImage is designed and optimized for I/O and for
-    direct pixel access/manipulation. There are (slow) functions to
-    convert between QImage and QPixmap: convertToImage() and
-    convertFromImage().
+    QPixmap is one of the three classes Qt provides for dealing with
+    images, the others being QImage and QPicture. QPixmap is designed
+    and optimized for drawing on screen; QImage is designed for I/O
+    and for direct pixel access; QPicture provides a scalable,
+    vectorial picture. There are (slow) functions to convert between
+    QImage and QPixmap: toImage() and fromImage(). There's also a
+    QIcon class that stores various versions of an icon.
 
-    One common use of the QPixmap class is to enable smooth updating
-    of widgets. Whenever something complex needs to be drawn, you can
-    use a pixmap to obtain flicker-free drawing, like this:
+    A common way to create a pixmap is to use the constructor that
+    takes a file name. For example:
 
-    \list 1
-    \i Create a pixmap with the same size as the widget.
-    \i Fill the pixmap with the widget background color.
-    \i Paint the pixmap.
-    \i QPainter::drawPixmap() the pixmap contents onto the widget.
-    \endlist
+    \code
+        label->setPixmap(QPixmap("paste.png"));
+    \endcode
+
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how
+    to embed images and other resource files in the application's
+    executable.
 
     Pixel data in a pixmap is internal and is managed by the
     underlying window system. Pixels can be accessed only through
-    QPainter functions and by converting the
-    QPixmap to a QImage.
+    QPainter functions and by converting the QPixmap to a QImage.
 
-    You can easily display a QPixmap on the screen using
-    QLabel::setPixmap(). For example, all the QAbstractButton subclasses
-    support pixmap use.
+    You can easily display a QPixmap on the screen using QLabel or
+    one of QAbstractButton's subclasses (such as QPushButton and
+    QToolButton). QLabel has a \l{QLabel::pixmap}{pixmap} property,
+    whereas QAbstractButton has an \l{QLabel::icon}{icon} property.
 
-    The QPixmap class uses \link shclass.html copy-on-write\endlink,
-    so it is practical to pass QPixmap objects by value.
+    The QPixmap class uses \l{shclass.html}{implicit sharing}, so you
+    can pass QPixmap objects around by value.
 
-    You can retrieve the width(), height(), depth() and size() of a
+    You can retrieve the width(), height(), depth(), and size() of a
     pixmap. The enclosing rectangle can be determined with rect().
     Pixmaps can be filled with fill() and resized with resize(). You
     can create and set a mask with createHeuristicMask() and setMask().
     Use selfMask() to see if the pixmap is identical to its mask.
 
     In addition to loading a pixmap from file using load() you can
-    also loadFromData(). You can control optimization with
-    setOptimization() and obtain a transformed version of the pixmap
-    using xForm()
+    also loadFromData(). You can obtain a transformed version of the
+    pixmap using transform().
 
-    Note regarding Windows 95 and 98: on Windows 9x the system crashes
-    if you create more than about 1000 pixmaps, independent of the
-    size of the pixmaps or installed RAM. Windows NT-systems (including
-    2000, XP and following versions) do not have the same limitation,
-    but depending on the graphics equipment the system will fail to
-    allocate pixmap objects at some point (due to system running out of
-    GDI resources).
+    \section1 Note Regarding Windows 95 and 98
+
+    The system may crash if you create more than about 1000 pixmaps,
+    independent of the size of the pixmaps or installed RAM. Windows
+    NT systems (including Windows 2000 and XP) do not have the same
+    limitation, but depending on the graphics equipment the system
+    will fail to allocate pixmap objects when it runs out of GDI
+    resources.
 
     Qt tries to work around the resource limitation. If you set the
-    pixmap optimization to \c QPixmap::MemoryOptim and the width of
+    pixmap optimization to QPixmap::MemoryOptim and the width of
     your pixmap is less than or equal to 128 pixels, Qt stores the
     pixmap in a way that is very memory-efficient when there are many
     pixmaps.
 
-    If your application uses dozens or hundreds of pixmaps (for
-    example on tool bar buttons and in popup menus), and you plan to
-    run it on Windows 95 or Windows 98, we recommend using code like
-    this:
-
-    \code
-        QPixmap::setDefaultOptimization(QPixmap::MemoryOptim);
-        while (...) {
-            // load tool bar pixmaps etc.
-            QPixmap *pixmap = new QPixmap(fileName);
-        }
-        QPixmap::setDefaultOptimization(QPixmap::NormalOptim);
-    \endcode
-
-    In general it is recommended to make as much use of QPixmap's
-    implicit sharing and the QPixmapCache as possible.
-
-    \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
+    \sa QBitmap, QImage, QImageIO, {shclass.html}{Shared Classes}
 */
 
 /*!
@@ -202,8 +188,7 @@ QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
     and a screen.
 */
 
-QPixmap::QPixmap(int w, int h, int depth, bool bitmap,
-                  Optimization optimization)
+QPixmap::QPixmap(int w, int h, int depth, bool bitmap, Optimization optimization)
     : QPaintDevice(QInternal::Pixmap)
 {
     init(w, h, depth, bitmap, optimization);
@@ -225,7 +210,7 @@ QPixmap::QPixmap()
 /*!
     Constructs a pixmap from the QImage \a image.
 
-    \sa convertFromImage()
+    \sa fromImage()
 */
 
 QPixmap::QPixmap(const QImage& image)
@@ -282,6 +267,12 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     path (e.g. the filename only) the relevant file must be found
     relative to the runtime working directory.
 
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how
+    to embed images and other resource files in the application's
+    executable.
+
     The way the pixmap is handled is specified by \a optimization.
 
     If the image needs to be modified to fit in a lower-resolution
@@ -316,7 +307,6 @@ QPixmap::QPixmap(const QPixmap &pixmap)
         devFlags = pixmap.devFlags;                // copy QPaintDevice flags
     }
 }
-
 
 #ifndef QT_NO_IMAGEIO_XPM
 // helper
@@ -437,7 +427,7 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
     Converts the image \a image to a pixmap that is assigned to this
     pixmap. Returns a reference to the pixmap.
 
-    \sa convertFromImage().
+    \sa fromImage().
 */
 
 QPixmap &QPixmap::operator=(const QImage &image)
@@ -457,24 +447,25 @@ QPixmap &QPixmap::operator=(const QImage &image)
 /*!
     \fn QPixmap::operator QImage() const
 
-    \internal
-
     Returns the pixmap as a QImage.
+
+    This automatic conversion is disabled when \c QT_COMPAT is not
+    defined. Use toImage() instead.
 */
 
 /*!
     Returns the actual matrix used for transforming a pixmap with \a w
     width and \a h height and matrix \a m.
 
-    When transforming a pixmap with xForm(), the transformation matrix
+    When transforming a pixmap with transform(), the transformation matrix
     is internally adjusted to compensate for unwanted translation,
-    i.e. xForm() returns the smallest pixmap containing all
+    i.e. transform() returns the smallest pixmap containing all
     transformed points of the original pixmap.
 
     This function returns the modified matrix, which maps points
     correctly from the original pixmap into the new pixmap.
 
-    \sa xForm(), QMatrix
+    \sa transform(), QMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
@@ -772,11 +763,17 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
     (default), the loader reads a few bytes from the header to guess
     the file's format.
 
-    See the convertFromImage() documentation for a description of the
+    See the fromImage() documentation for a description of the
     \a flags argument.
 
     The QImageIO documentation lists the supported image formats and
     explains how to add extra formats.
+
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how
+    to embed images and other resource files in the application's
+    executable.
 
     \sa loadFromData(), save(), imageFormat(), QImage::load(),
     QImageIO
@@ -826,7 +823,7 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     (default), the loader reads a few bytes from the header to guess
     the file's format.
 
-    See the convertFromImage() documentation for a description of the
+    See the fromImage() documentation for a description of the
     \a flags argument.
 
     The QImageIO documentation lists the supported image formats and
@@ -1133,17 +1130,9 @@ static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 }
 
 /*!
-    Constructs a pixmap from the file \a fileName. If the file does
-    not exist or is of an unknown format, the pixmap becomes a null
-    pixmap.
+    Use the constructor that takes a Qt::ImageConversionFlag instead.
 
-    The \a fileName, \a format and \a mode parameters are passed on to
-    load(). This means that the data in \a fileName is not compiled
-    into the binary. If \a fileName contains a relative path (e.g. the
-    filename only) the relevant file must be found relative to the
-    runtime working directory.
-
-    \sa QPixmap::ColorMode isNull(), load(), loadFromData(), save(), imageFormat()
+    \sa ColorMode, Qt::ImageConversionFlag
 */
 
 QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
@@ -1154,18 +1143,9 @@ QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
 }
 
 /*!
-    \overload
+    Use the load() function that takes a Qt::ImageConversionFlag instead.
 
-    Loads a pixmap from the file \a fileName at runtime.
-
-    If \a format is specified, the loader attempts to read the pixmap
-    using the specified format. If \a format is not specified
-    (default), the loader reads a few bytes from the header to guess
-    the file's format.
-
-    The \a mode is used to specify the color mode of the pixmap.
-
-    \sa QPixmap::ColorMode
+    \sa ColorMode, Qt::ImageConversionFlag
 */
 
 bool QPixmap::load(const QString &fileName, const char *format, ColorMode mode)
@@ -1174,18 +1154,9 @@ bool QPixmap::load(const QString &fileName, const char *format, ColorMode mode)
 }
 
 /*!
-    \overload
+    Use the loadFromData() function that takes a Qt::ImageConversionFlag instead.
 
-    Loads a pixmap from the binary data in \a buf (\a len bytes) using
-    color mode \a mode. Returns true if successful; otherwise returns
-    false.
-
-    If \a format is specified, the loader attempts to read the pixmap
-    using the specified format. If \a format is not specified
-    (default), the loader reads a few bytes from the header to guess
-    the file's format.
-
-    \sa QPixmap::ColorMode
+    \sa ColorMode, Qt::ImageConversionFlag
 */
 
 bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, ColorMode mode)
@@ -1195,17 +1166,8 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Color
 #endif
 
 /*!
-    \fn bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
-    \overload
-    \compat
-
-    Creates a pixmap from the given \a image with the color mode specified
-    by \a mode.
-    Returns true if successful; otherwise returns false.
-
-    \sa QPixmap::ColorMode
+    Use fromImage() instead.
 */
-
 bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 {
     return fromImage(image, colorModeToFlags(mode));
@@ -1284,29 +1246,21 @@ void QPixmap::deref()
 
 /*!
     \fn QImage QPixmap::convertToImage() const
-    \compat
 
-    Converts the pixmap to a device-independent image and returns the result
-    as a new image.
+    Use toImage() instead.
 */
 
 /*!
     \fn bool QPixmap::convertFromImage(const QImage &image, Qt::ImageConversionFlags flags)
-    \compat
 
-    Creates a pixmap from the given \a image using the conversion flags
-    specified by \a flags.
+    Use fromImage() instead.
 */
 
 /*!
     \fn QPixmap QPixmap::xForm(const QMatrix &matrix) const
-    \compat
 
-    Transforms the pixmap using the given \a matrix and returns the result
-    as a new pixmap.
+    Use transform() instead.
 */
-
-
 
 /*!
     \fn QPixmap QPixmap::scale(int w, int h, Qt::AspectRatioMode aspectRatioMode,
@@ -1329,7 +1283,7 @@ void QPixmap::deref()
     If either the width \a w or the height \a h is zero or negative,
     this function returns a \l{isNull()}{null} pixmap.
 
-    \sa scaleWidth() scaleHeight() xForm()
+    \sa scaleWidth() scaleHeight() transform()
 */
 
 /*!
@@ -1369,7 +1323,7 @@ QPixmap QPixmap::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Trans
     If \a w is 0 or negative a \link isNull() null\endlink pixmap is
     returned.
 
-    \sa scale() scaleHeight() xForm()
+    \sa scale() scaleHeight() transform()
 */
 QPixmap QPixmap::scaleWidth(int w) const
 {
@@ -1394,7 +1348,7 @@ QPixmap QPixmap::scaleWidth(int w) const
     If \a h is 0 or negative a \link isNull() null\endlink pixmap is
     returned.
 
-    \sa scale() scaleWidth() xForm()
+    \sa scale() scaleWidth() transform()
 */
 QPixmap QPixmap::scaleHeight(int h) const
 {
