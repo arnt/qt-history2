@@ -1,16 +1,7 @@
 TEMPLATE = app
 
-CONFIG	+= uic3
+CONFIG	+= uic3 qaxserver qaxserver_no_postlink qaxcontainer
 QT += compat
-
-QMAKE_LIBS_QT_ENTRY =
-
-CONFIG(debug, debug|release) {
-    LIBS += -lQAxServerd
-} else {
-    LIBS += -lQAxServer
-}
-CONFIG += qaxcontainer
 
 # ui_qaxselect.h
 INCLUDEPATH += ../../container/debug \

@@ -7,39 +7,41 @@ equals(TEMPLATE, "vcapp"):ACTIVEQT_IDE = VisualStudio
 equals(TEMPLATE, "vclib"):ACTIVEQT_IDE = VisualStudio
 
 equals(ACTIVEQT_IDE, "VisualStudio") {
-	ACTIVEQT_IDC = $${QMAKE_IDC}
-	ACTIVEQT_IDL = $${QMAKE_IDL}
-	ACTIVEQT_NEWLINE = \t
-	ACTIVEQT_TARGET = $(TargetPath)
-	ACTIVEQT_OUTPUT = $(IntDir)/$${TARGET}
-        ACTIVEQT_TLBOUT = $(TargetDir)/$${TARGET}.tlb
-	GENERATED += $${OBJECTS_DIR}/$${TARGET}.idl $${ACTIVEQT_TLBOUT}
+    ACTIVEQT_IDC = $${QMAKE_IDC}
+    ACTIVEQT_IDL = $${QMAKE_IDL}
+    ACTIVEQT_NEWLINE = \t
+    ACTIVEQT_TARGET = $(TargetPath)
+    ACTIVEQT_OUTPUT = $(IntDir)/$${TARGET}
+    ACTIVEQT_TLBOUT = $(TargetDir)/$${TARGET}.tlb
+    GENERATED += $${OBJECTS_DIR}/$${TARGET}.idl $${ACTIVEQT_TLBOUT}
 }
 equals(ACTIVEQT_IDE, "makefile") {
-	ACTIVEQT_IDC = -$(IDC)
-	ACTIVEQT_IDL = -$(IDL)
-	ACTIVEQT_NEWLINE = \n\t
-	ACTIVEQT_TARGET = $(TARGET)
-	ACTIVEQT_OUTPUT = $(OBJECTS_DIR)/$${TARGET}
-        isEmpty(DESTDIR) {
-            ACTIVEQT_TLBOUT = $${TARGET}.tlb
-        } else {
-            ACTIVEQT_TLBOUT = $${DESTDIR}/$${TARGET}.tlb
-        }
+    ACTIVEQT_IDC = -$(IDC)
+    ACTIVEQT_IDL = -$(IDL)
+    ACTIVEQT_NEWLINE = \n\t
+    ACTIVEQT_TARGET = $(TARGET)
+    ACTIVEQT_OUTPUT = $(OBJECTS_DIR)/$${TARGET}
+    isEmpty(DESTDIR) {
+        ACTIVEQT_TLBOUT = $${TARGET}.tlb
+    } else {
+        ACTIVEQT_TLBOUT = $${DESTDIR}/$${TARGET}.tlb
+    }
 }
 
-!isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += $$quote($$ACTIVEQT_NEWLINE)
-QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /idl $${ACTIVEQT_OUTPUT}.idl -version $$ACTIVEQT_VERSION$$ACTIVEQT_NEWLINE)
-!isEmpty(RC_FILE) {
-    QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDL $${ACTIVEQT_OUTPUT}.idl /nologo /tlb $${ACTIVEQT_OUTPUT}.tlb$$ACTIVEQT_NEWLINE)
-    QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /tlb $${ACTIVEQT_OUTPUT}.tlb$$ACTIVEQT_NEWLINE)
-} else {
-    QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDL $${ACTIVEQT_OUTPUT}.idl /nologo /tlb $${ACTIVEQT_TLBOUT}$$ACTIVEQT_NEWLINE)
-    message("No rc-file linked into project; type library will be a separate file.")
+!qaxserver_no_postlink {
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += $$quote($$ACTIVEQT_NEWLINE)
+    QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /idl $${ACTIVEQT_OUTPUT}.idl -version $$ACTIVEQT_VERSION$$ACTIVEQT_NEWLINE)
+    !isEmpty(RC_FILE) {
+        QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDL $${ACTIVEQT_OUTPUT}.idl /nologo /tlb $${ACTIVEQT_OUTPUT}.tlb$$ACTIVEQT_NEWLINE)
+        QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /tlb $${ACTIVEQT_OUTPUT}.tlb$$ACTIVEQT_NEWLINE)
+    } else {
+        QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDL $${ACTIVEQT_OUTPUT}.idl /nologo /tlb $${ACTIVEQT_TLBOUT}$$ACTIVEQT_NEWLINE)
+        message("No rc-file linked into project; type library will be a separate file.")
+    }
+    QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /regserver)
+    QMAKE_CLEAN += $${ACTIVEQT_OUTPUT}.idl $${ACTIVEQT_OUTPUT}.tlb
 }
-QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /regserver)
 
-QMAKE_CLEAN += $${ACTIVEQT_OUTPUT}.idl $${ACTIVEQT_OUTPUT}.tlb
 qt:!target_qt {
    CONFIG(debug, debug|release) {
       QMAKE_LIBS_QT_ENTRY = -lQAxServerd
