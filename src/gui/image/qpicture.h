@@ -28,7 +28,7 @@ public:
     QPicture(const QPicture &);
     ~QPicture();
 
-    inline bool isNull() const;
+    bool isNull() const;
 
     uint size() const;
     const char* data() const;
