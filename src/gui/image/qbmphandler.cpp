@@ -580,15 +580,15 @@ bool Q_GUI_EXPORT qt_read_dib(QDataStream &s, QImage &image)
     return read_dib(s,-1,-BMP_FILEHDR_SIZE,image);
 }
 
-bool QBmpHandler::canLoadImage() const
+bool QBmpHandler::canRead() const
 {
-    return canLoadImage(device());
+    return canRead(device());
 }
 
-bool QBmpHandler::canLoadImage(QIODevice *device)
+bool QBmpHandler::canRead(QIODevice *device)
 {
     if (!device) {
-        qWarning("QBmpHandler::canLoadImage() called with 0 pointer");
+        qWarning("QBmpHandler::canRead() called with 0 pointer");
         return false;
     }
 
@@ -616,7 +616,7 @@ bool QBmpHandler::canLoadImage(QIODevice *device)
     return (qstrncmp(head, "BM", 2) == 0);
 }
 
-bool QBmpHandler::load(QImage *image)
+bool QBmpHandler::read(QImage *image)
 {
     QIODevice *d = device();
     QDataStream s(d);
@@ -643,7 +643,7 @@ bool QBmpHandler::load(QImage *image)
     return true;
 }
 
-bool QBmpHandler::save(const QImage &image)
+bool QBmpHandler::write(const QImage &image)
 {
     QIODevice *d = device();
     QDataStream s(d);

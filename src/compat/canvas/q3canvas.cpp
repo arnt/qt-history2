@@ -2646,7 +2646,7 @@ QRect Q3CanvasItem::boundingRectAdvanced() const
     The pixmap is a QPixmap and can only be set in the constructor.
     There are three different constructors, one taking a QPixmap, one
     a QImage and one a file name that refers to a file in any
-    supported file format (see QImageIO).
+    supported file format (see QImageReader).
 
     Q3CanvasPixmap can have a hotspot which is defined in terms of an (x,
     y) offset. When you create a Q3CanvasPixmap from a PNG file or from

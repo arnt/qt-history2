@@ -7,8 +7,9 @@ HEADERS += \
 	image/qbitmap.h \
 	image/qicon.h \
 	image/qimage.h \
-	image/qimageio.h \
 	image/qimageiohandler.h \
+	image/qimagereader.h \
+	image/qimagewriter.h \
 	image/qpaintengine_pic_p.h \
 	image/qpicture.h \
 	image/qpicture_p.h \
@@ -24,8 +25,9 @@ SOURCES += \
 	image/qbitmap.cpp \
 	image/qicon.cpp \
 	image/qimage.cpp \
-	image/qimageio.cpp \
 	image/qimageiohandler.cpp \
+	image/qimagereader.cpp \
+	image/qimagewriter.cpp \
 	image/qpaintengine_pic.cpp \
 	image/qpicture.cpp \
 	image/qpictureformatplugin.cpp \
@@ -40,7 +42,7 @@ unix:x11:SOURCES += image/qpixmap_x11.cpp
 !embedded:!x11:mac:SOURCES += image/qpixmap_mac.cpp
 embedded:SOURCES += image/qpixmap_qws.cpp
 
-# Build-in image format support
+# Built-in image format support
 HEADERS += \
 	image/qbmphandler_p.h \
 	image/qppmhandler_p.h \
@@ -53,7 +55,7 @@ SOURCES += \
 	image/qxbmhandler.cpp \
         image/qxpmhandler.cpp
 
-# png support
+# 3rd party / system PNG support
 !contains(QT_CONFIG, no-png) {
     HEADERS += image/qpnghandler_p.h
     SOURCES += image/qpnghandler.cpp

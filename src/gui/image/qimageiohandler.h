@@ -37,30 +37,34 @@ public:
 
     virtual QByteArray name() const = 0;
 
-    virtual bool canLoadImage() const = 0;
-    virtual bool load(QImage *image) = 0;
-    virtual bool save(const QImage &image);
+    virtual bool canRead() const = 0;
+    virtual bool read(QImage *image) = 0;
+    virtual bool write(const QImage &image);
 
-    enum ImageProperty {
+    enum ImageOption {
+        Size,
+        ClipRect,
+        Description,
+        ScaledClipRect,
+        ScaledSize,
+        CompressionRatio,
         Gamma,
         Quality,
-        Resolution,
-        Region,
         Name,
-        Subtype,
+        SubType,
         Parameters,
-        Size,
-        IncrementalLoading
+        IncrementalReading,
+        Endianness
     };
-    virtual QVariant property(ImageProperty property) const;
-    virtual void setProperty(ImageProperty property, const QVariant &value);
-    virtual bool supportsProperty(ImageProperty property) const;
+    virtual QVariant option(ImageOption option) const;
+    virtual void setOption(ImageOption option, const QVariant &value);
+    virtual bool supportsOption(ImageOption option) const;
 
     // incremental loading
     virtual int loopCount() const;
-    virtual int frameCount() const;
-    virtual int nextFrameDelay() const;
-    virtual int currentFrameNumber() const;
+    virtual int imageCount() const;
+    virtual int nextImageDelay() const;
+    virtual int currentImageNumber() const;
 
 protected:
     QImageIOHandler(QImageIOHandlerPrivate &dd);
@@ -83,9 +87,9 @@ public:
     inline virtual ~QImageIOPlugin() { }
 
     enum Capability {
-        CanLoad = 0x1,
-        CanSave = 0x2,
-        CanLoadIncremental = 0x4
+        CanRead = 0x1,
+        CanWrite = 0x2,
+        CanReadIncremental = 0x4
     };
     Q_DECLARE_FLAGS(Capabilities, Capability)
 

@@ -20,6 +20,7 @@
 #include "QtCore/qstring.h" // char*->QString conversion
 #include "QtGui/qimage.h"
 
+class QImageWriter;
 class QPixmapPrivate;
 class QColor;
 class QX11Info;
@@ -164,7 +165,7 @@ private:
     QPixmapData *data;
 private:
 #ifndef QT_NO_IMAGEIO
-    bool doImageIO(QImageIO* io, int quality) const;
+    bool doImageIO(QImageWriter *io, int quality) const;
 #endif
     QPixmap(int w, int h, int depth, bool, Optimization);
     void init(int, int, int, bool, Optimization);

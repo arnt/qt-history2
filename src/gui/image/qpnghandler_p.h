@@ -21,17 +21,17 @@ class Q_GUI_EXPORT QPngHandler : public QImageIOHandler
 public:
     QPngHandler();
 
-    bool canLoadImage() const;
-    bool load(QImage *image);
-    bool save(const QImage &image);
+    bool canRead() const;
+    bool read(QImage *image);
+    bool write(const QImage &image);
 
     QByteArray name() const;
 
-    QVariant property(ImageProperty property) const;
-    void setProperty(ImageProperty property, const QVariant &value);
-    bool supportsProperty(ImageProperty property) const;
+    QVariant option(ImageOption option) const;
+    void setOption(ImageOption option, const QVariant &value);
+    bool supportsOption(ImageOption option) const;
 
-    static bool canLoadImage(QIODevice *device);
+    static bool canRead(QIODevice *device);
 
 private:
     float gamma;

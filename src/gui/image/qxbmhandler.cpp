@@ -186,12 +186,12 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
     return true;
 }
 
-bool QXbmHandler::canLoadImage() const
+bool QXbmHandler::canRead() const
 {
-    return canLoadImage(device());
+    return canRead(device());
 }
 
-bool QXbmHandler::canLoadImage(QIODevice *device)
+bool QXbmHandler::canRead(QIODevice *device)
 {
     QImage image;
 
@@ -208,29 +208,29 @@ bool QXbmHandler::canLoadImage(QIODevice *device)
     return success;
 }
 
-bool QXbmHandler::load(QImage *image)
+bool QXbmHandler::read(QImage *image)
 {
     return read_xbm_image(device(), image);
 }
 
-bool QXbmHandler::save(const QImage &image)
+bool QXbmHandler::write(const QImage &image)
 {
     return write_xbm_image(image, device(), fileName);
 }
 
-bool QXbmHandler::supportsProperty(ImageProperty property) const
+bool QXbmHandler::supportsOption(ImageOption option) const
 {
-    return property == Name;
+    return option == Name;
 }
 
-QVariant QXbmHandler::property(ImageProperty property) const
+QVariant QXbmHandler::option(ImageOption option) const
 {
-    return property == Name ? fileName : QString();
+    return option == Name ? fileName : QString();
 }
 
-void QXbmHandler::setProperty(ImageProperty property, const QVariant &value)
+void QXbmHandler::setOption(ImageOption option, const QVariant &value)
 {
-    if (property == Name)
+    if (option == Name)
         fileName = value.toString();
 }
 

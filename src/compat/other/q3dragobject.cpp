@@ -24,7 +24,8 @@
 #include "qpoint.h"
 #include "qwidget.h"
 #include "qbuffer.h"
-#include "qimageio.h"
+#include "qimagereader.h"
+#include "qimagewriter.h"
 #include "qimage.h"
 #include "qregexp.h"
 #include "qdir.h"
@@ -780,7 +781,7 @@ Q3ImageDrag::~Q3ImageDrag()
 void Q3ImageDrag::setImage(QImage image)
 {
     d->img = image;
-    QList<QByteArray> formats = QImageIO::outputFormats();
+    QList<QByteArray> formats = QImageWriter::supportedImageFormats();
     formats.removeAll("PBM"); // remove non-raw PPM
     if (image.depth()!=32) {
         // BMP better than PPM for paletted images
@@ -819,9 +820,8 @@ QByteArray Q3ImageDrag::encodedData(const char* fmt) const
         QByteArray dat;
         QBuffer w(&dat);
         w.open(QIODevice::WriteOnly);
-        QImageIO io(&w, f.toUpper());
-        io.setImage(d->img);
-        if (!io.save())
+        QImageWriter writer(&w, f.toUpper());
+        if (!writer.write(d->img))
             return QByteArray();
         w.close();
         return dat;
@@ -840,7 +840,7 @@ QByteArray Q3ImageDrag::encodedData(const char* fmt) const
 */
 bool Q3ImageDrag::canDecode(const QMimeSource* e)
 {
-    const QList<QByteArray> fileFormats = QImageIO::inputFormats();
+    const QList<QByteArray> fileFormats = QImageReader::supportedImageFormats();
 
     for (int i = 0; i < fileFormats.count(); ++i) {
         if (e->provides("image" + fileFormats.at(i).toLower()))
@@ -864,7 +864,7 @@ bool Q3ImageDrag::decode(const QMimeSource* e, QImage& img)
         return false;
 
     QByteArray payload;
-    QList<QByteArray> fileFormats = QImageIO::inputFormats();
+    QList<QByteArray> fileFormats = QImageReader::supportedImageFormats();
     // PNG is best of all
     if (fileFormats.removeAll("PNG")) // move to front
         fileFormats.prepend("PNG");

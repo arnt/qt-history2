@@ -46,7 +46,7 @@
 #include "qevent.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
-#include "qimageio.h"
+#include "qimagewriter.h"
 #include "qvariant.h"
 
 /*****************************************************************************
@@ -1237,8 +1237,9 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
             if (! xpm)
                 return QByteArray();
             XGetGeometry(dpy,xpm, &r,&x,&y,&w,&h,&bw,&d);
-            QImageIO iio;
+            QImageWriter imageWriter;
             GC gc = XCreateGC(dpy, xpm, 0, 0);
+            QImage imageToWrite;
             if (d == 1) {
                 QBitmap qbm(w,h);
                 XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
@@ -1246,21 +1247,21 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
                     return qVariant(qbm);
                 if (type == QVariant::Pixmap)
                     return qVariant(QPixmap(qbm));
-                iio.setFormat("PBMRAW");
-                iio.setImage(qbm.toImage());
+                imageWriter.setFormat("PBMRAW");
+                imageToWrite = qbm.toImage();
             } else {
                 QPixmap qpm(w,h);
                 XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Pixmap)
                     return qVariant(qpm);
-                iio.setFormat("PPMRAW");
-                iio.setImage(qpm.toImage());
+                imageWriter.setFormat("PPMRAW");
+                imageToWrite = qpm.toImage();
             }
             XFreeGC(dpy,gc);
             QBuffer buf;
             buf.open(QIODevice::WriteOnly);
-            iio.setDevice(&buf);
-            iio.save();
+            imageWriter.setDevice(&buf);
+            imageWriter.write(imageToWrite);
             return buf.buffer();
         } else {
             fmtatom = X11->xdndStringToAtom(fmt.toLatin1().data());

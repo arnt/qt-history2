@@ -22,7 +22,6 @@
 #include "qpoint.h"
 #include "qwidget.h"
 #include "qbuffer.h"
-#include "qimageio.h"
 #include "qimage.h"
 #include "qregexp.h"
 #include "qdir.h"
@@ -303,7 +302,7 @@ bool QDragManager::hasCustomDragCursors() const
     return d && !d->customCursors.isEmpty();
 }
 
-Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions, 
+Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions,
                                            Qt::KeyboardModifiers modifiers) const
 {
     Qt::DropAction defaultAction = Qt::CopyAction;

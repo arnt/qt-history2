@@ -337,15 +337,15 @@ static void write_xpm_image(const QImage &sourceImage, QIODevice *device, const 
     s << "};" << endl;
 }
 
-bool QXpmHandler::canLoadImage() const
+bool QXpmHandler::canRead() const
 {
-    return canLoadImage(device());
+    return canRead(device());
 }
 
-bool QXpmHandler::canLoadImage(QIODevice *device)
+bool QXpmHandler::canRead(QIODevice *device)
 {
     if (!device) {
-        qWarning("QXpmHandler::canLoadImage() called with no device");
+        qWarning("QXpmHandler::canRead() called with no device");
         return false;
     }
 
@@ -373,30 +373,30 @@ bool QXpmHandler::canLoadImage(QIODevice *device)
     return qstrncmp(head, "/* XPM", 6) == 0;
 }
 
-bool QXpmHandler::load(QImage *image)
+bool QXpmHandler::read(QImage *image)
 {
     return qt_read_xpm_image_or_array(device(), 0, *image);
 }
 
-bool QXpmHandler::save(const QImage &image)
+bool QXpmHandler::write(const QImage &image)
 {
     write_xpm_image(image, device(), fileName);
     return !image.isNull();
 }
 
-bool QXpmHandler::supportsProperty(ImageProperty property) const
+bool QXpmHandler::supportsOption(ImageOption option) const
 {
-    return property == Name;
+    return option == Name;
 }
 
-QVariant QXpmHandler::property(ImageProperty property) const
+QVariant QXpmHandler::option(ImageOption option) const
 {
-    return property == Name ? fileName : QString();
+    return option == Name ? fileName : QString();
 }
 
-void QXpmHandler::setProperty(ImageProperty property, const QVariant &value)
+void QXpmHandler::setOption(ImageOption option, const QVariant &value)
 {
-    if (property == Name)
+    if (option == Name)
         fileName = value.toString();
 }
 

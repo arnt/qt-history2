@@ -16,7 +16,8 @@
 #include "qbuffer.h"
 #include "qmap.h"
 #include "qmatrix.h"
-#include "qimageio.h"
+#include "qimagereader.h"
+#include "qimagewriter.h"
 #include "qstringlist.h"
 #include <ctype.h>
 #include <stdlib.h>
@@ -94,7 +95,7 @@ struct QImageData {        // internal image data
     }
 #endif
 #ifndef QT_NO_IMAGEIO
-    bool doImageIO(const QImage *image, QImageIO* io, int quality) const;
+    bool doImageIO(const QImage *image, QImageWriter* io, int quality) const;
 #endif
 
 };
@@ -236,7 +237,8 @@ QImageData::~QImageData()
     are saved to a file with save(). Images are loaded from a file
     with load() (or in the constructor) or from an array of data with
     loadFromData(). The lists of supported formats are available from
-    QImageIO::inputFormats() and QImageIO::outputFormats().
+    QImageReader::supportedImageFormats() and
+    QImageWriter::supportedImageFormat().
 
     When loading an image, the file name can be either refer to an
     actual file on disk or to one of the application's embedded
@@ -252,7 +254,7 @@ QImageData::~QImageData()
     New image formats can be added as \link plugins-howto.html
     plugins\endlink.
 
-    \sa QImageIO QPixmap QColor {shclass.html}{Shared Classes}
+    \sa QImageReader, QImageWriter, QPixmap QColor {shclass.html}{Shared Classes}
 */
 
 /*!
@@ -378,7 +380,7 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
     If the loading of the image failed, this object is a \link
     isNull() null\endlink image.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
     The file name can be either refer to an actual file on disk or to
@@ -387,7 +389,7 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
     to embed images and other resource files in the application's
     executable.
 
-    \sa load(), isNull(), QImageIO
+    \sa load(), isNull(), QImageReader
 */
 
 QImage::QImage(const QString &fileName, const char *format)
@@ -409,7 +411,7 @@ QImage::QImage(const QString &fileName, const char *format)
     If the loading of the image failed, this object is a \link
     isNull() null\endlink image.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
     The file name can be either refer to an actual file on disk or to
@@ -423,7 +425,7 @@ QImage::QImage(const QString &fileName, const char *format)
     can be useful if you want to ensure that all user-visible strings
     go through QObject::tr(), for example.
 
-    \sa QString::fromAscii(),     \sa load(), isNull(), QImageIO
+    \sa QString::fromAscii(),     \sa load(), isNull(), QImageReader
 */
 QImage::QImage(const char *fileName, const char *format)
 {
@@ -3007,7 +3009,7 @@ QImage QImage::swapRGB() const
     is the default), the loader reads a few bytes from the header to
     guess the file format.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
     The file name can be either refer to an actual file on disk or to
@@ -3016,16 +3018,17 @@ QImage QImage::swapRGB() const
     to embed images and other resource files in the application's
     executable.
 
-    \sa loadFromData() save() imageFormat() QPixmap::load() QImageIO
+    \sa loadFromData() save() imageFormat() QPixmap::load() QImageReader
 */
 
 bool QImage::load(const QString &fileName, const char* format)
 {
-    QImageIO io(fileName, format);
-    bool result = io.load();
-    if (result)
-        operator=(io.image());
-    return result;
+    QImage image = QImageReader(fileName, format).read();
+    if (!image.isNull()) {
+        operator=(image);
+        return true;
+    }
+    return false;
 }
 
 /*!
@@ -3038,10 +3041,10 @@ bool QImage::load(const QString &fileName, const char* format)
     is the default), the loader reads a few bytes from the header to
     guess the file format.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    \sa load() save() imageFormat() QPixmap::loadFromData() QImageIO
+    \sa load() save() imageFormat() QPixmap::loadFromData() QImageReader
 */
 
 bool QImage::loadFromData(const uchar *data, int len, const char *format)
@@ -3060,12 +3063,12 @@ bool QImage::loadFromData(const QByteArray &data, const char *format)
     QBuffer b;
     b.setData(data);
     b.open(QIODevice::ReadOnly);
-    QImageIO io(&b, format);
-    bool result = io.load();
-    b.close();
-    if (result)
-        operator=(io.image());
-    return result;
+    QImage image = QImageReader(&b, format).read();
+    if (!image.isNull()) {
+        operator=(image);
+        return true;
+    }
+    return false;
 }
 
 /*!
@@ -3080,10 +3083,10 @@ bool QImage::loadFromData(const QByteArray &data, const char *format)
     is the default), the loader reads a few bytes from the header to
     guess the file format.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    \sa load() save() imageFormat() QPixmap::loadFromData() QImageIO
+    \sa load() save() imageFormat() QPixmap::loadFromData() QImageReader
 */
 
 /*!
@@ -3104,14 +3107,14 @@ bool QImage::loadFromData(const QByteArray &data, const char *format)
     Returns true if the image was successfully saved; otherwise
     returns false.
 
-    \sa load() loadFromData() imageFormat() QPixmap::save() QImageIO
+    \sa load() loadFromData() imageFormat() QPixmap::save() QImageReader
 */
 bool QImage::save(const QString &fileName, const char *format, int quality) const
 {
     if (isNull())
         return false;
-    QImageIO io(fileName, format);
-    return d->doImageIO(this, &io, quality);
+    QImageWriter writer(fileName, format);
+    return d->doImageIO(this, &writer, quality);
 }
 
 /*!
@@ -3134,23 +3137,20 @@ bool QImage::save(QIODevice* device, const char* format, int quality) const
 {
     if (isNull())
         return false;                                // nothing to save
-    QImageIO io(device, format);
-    return d->doImageIO(this, &io, quality);
+    QImageWriter writer(device, format);
+    return d->doImageIO(this, &writer, quality);
 }
 
 /* \internal
 */
 
-bool QImageData::doImageIO(const QImage *image, QImageIO* io, int quality) const
+bool QImageData::doImageIO(const QImage *image, QImageWriter *writer, int quality) const
 {
-    if (!io)
-        return false;
-    io->setImage(*image);
     if (quality > 100  || quality < -1)
         qWarning("QPixmap::save: quality out of range [-1,100]");
     if (quality >= 0)
-        io->setQuality(qMin(quality,100));
-    return io->save();
+        writer->setQuality(qMin(quality,100));
+    return writer->write(*image);
 }
 #endif //QT_NO_IMAGEIO
 
@@ -3181,15 +3181,8 @@ QDataStream &operator<<(QDataStream &s, const QImage &image)
             // continue ...
         }
     }
-    QImageIO io;
-    io.setDevice(s.device());
-    if (s.version() == 1)
-        io.setFormat("BMP");
-    else
-        io.setFormat("PNG");
-
-    io.setImage(image);
-    io.save();
+    QImageWriter writer(s.device(), s.version() == 1 ? "bmp" : "png");
+    writer.write(image);
     return s;
 }
 
@@ -3212,9 +3205,7 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
             return s;
         }
     }
-    QImageIO io(s.device(), 0);
-    if (io.load())
-        image = io.image();
+    image = QImageReader(s.device(), 0).read();
     return s;
 }
 #endif

@@ -19,13 +19,13 @@
 class Q_GUI_EXPORT QBmpHandler : public QImageIOHandler
 {
 public:
-    bool canLoadImage() const;
-    bool load(QImage *image);
-    bool save(const QImage &image);
+    bool canRead() const;
+    bool read(QImage *image);
+    bool write(const QImage &image);
 
     QByteArray name() const;
 
-    static bool canLoadImage(QIODevice *device);
+    static bool canRead(QIODevice *device);
 };
 
 #endif

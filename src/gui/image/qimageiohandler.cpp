@@ -80,36 +80,36 @@ QByteArray QImageIOHandler::format() const
     return d->format;
 }
 
-bool QImageIOHandler::canLoadImage() const
+bool QImageIOHandler::canRead() const
 {
     return false;
 }
 
-bool QImageIOHandler::save(const QImage &)
+bool QImageIOHandler::write(const QImage &)
 {
     return false;
 }
 
-QVariant QImageIOHandler::property(ImageProperty /* property */) const
+QVariant QImageIOHandler::option(ImageOption /* option */) const
 {
     return QVariant();
 }
 
-void QImageIOHandler::setProperty(ImageProperty /* property */, const QVariant & /* value */)
+void QImageIOHandler::setOption(ImageOption /* option */, const QVariant & /* value */)
 {
 }
 
-bool QImageIOHandler::supportsProperty(ImageProperty /* property */) const
+bool QImageIOHandler::supportsOption(ImageOption /* option */) const
 {
     return false;
 }
 
-int QImageIOHandler::currentFrameNumber() const
+int QImageIOHandler::currentImageNumber() const
 {
     return 0;
 }
 
-int QImageIOHandler::frameCount() const
+int QImageIOHandler::imageCount() const
 {
     return 0;
 }
@@ -119,7 +119,7 @@ int QImageIOHandler::loopCount() const
     return 0;
 }
 
-int QImageIOHandler::nextFrameDelay() const
+int QImageIOHandler::nextImageDelay() const
 {
     return 0;
 }

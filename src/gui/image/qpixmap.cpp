@@ -27,8 +27,8 @@
 #include "qfileinfo.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
-#include "qimageio.h"
-#include "qimageiohandler.h"
+#include "qimagereader.h"
+#include "qimagewriter.h"
 
 #if defined(Q_WS_X11)
 #include "qx11info_x11.h"
@@ -101,7 +101,7 @@
     pixmap in a way that is very memory-efficient when there are many
     pixmaps.
 
-    \sa QBitmap, QImage, QImageIO, {shclass.html}{Shared Classes}
+    \sa QBitmap, QImage, QImageReader, {shclass.html}{Shared Classes}
 */
 
 /*!
@@ -756,7 +756,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     See the fromImage() documentation for a description of the
     \a flags argument.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
     The file name can be either refer to an actual file on disk or to
@@ -766,7 +766,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     executable.
 
     \sa loadFromData(), save(), imageFormat(), QImage::load(),
-    QImageIO
+    QImageReader
 */
 
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
@@ -776,8 +776,8 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
 
     if (QPixmapCache::find(key, *this))
             return true;
-    QImageIO io(fileName, format);
-    if (io.load() && fromImage(io.image(), flags)) {
+    QImage image = QImageReader(fileName, format).read();
+    if (!image.isNull() && fromImage(image, flags)) {
         QPixmapCache::insert(key, *this);
         return true;
     }
@@ -796,11 +796,11 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     See the fromImage() documentation for a description of the
     \a flags argument.
 
-    The QImageIO documentation lists the supported image formats and
+    The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
     \sa load(), save(), imageFormat(), QImage::loadFromData(),
-    QImageIO
+    QImageReader
 */
 
 bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::ImageConversionFlags flags)
@@ -808,12 +808,11 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
     QByteArray a = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), len);
     QBuffer b(&a);
     b.open(QIODevice::ReadOnly);
-    QImageIO io(&b, format);
-    bool result = io.load();
-    b.close();
-    if (result)
-        result = fromImage(io.image(), flags);
-    return result;
+
+    QImage image = QImageReader(&b, format).read();
+    if (!image.isNull())
+        return fromImage(image, flags);
+    return false;
 }
 
 /*!
@@ -836,15 +835,15 @@ bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
     returns false.
 
     \sa load(), loadFromData(), imageFormat(), QImage::save(),
-    QImageIO
+    QImageReader
 */
 
 bool QPixmap::save(const QString &fileName, const char *format, int quality) const
 {
     if (isNull())
         return false;                                // nothing to save
-    QImageIO io(fileName, format);
-    return doImageIO(&io, quality);
+    QImageWriter writer(fileName, format);
+    return doImageIO(&writer, quality);
 }
 
 /*!
@@ -866,23 +865,20 @@ bool QPixmap::save(QIODevice* device, const char* format, int quality) const
 {
     if (isNull())
         return false;                                // nothing to save
-    QImageIO io(device, format);
-    return doImageIO(&io, quality);
+    QImageWriter writer(device, format);
+    return doImageIO(&writer, quality);
 }
 
 /*! \internal
 */
 
-bool QPixmap::doImageIO(QImageIO* io, int quality) const
+bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
 {
-    if (!io)
-        return false;
-    io->setImage(toImage());
     if (quality > 100  || quality < -1)
         qWarning("QPixmap::save: quality out of range [-1,100]");
     if (quality >= 0)
-        io->setQuality(qMin(quality,100));
-    return io->save();
+        writer->setQuality(qMin(quality,100));
+    return writer->write(toImage());
 }
 
 #endif //QT_NO_IMAGEIO

@@ -40,15 +40,15 @@ QStringList QJpegPlugin::keys() const
 QImageIOPlugin::Capabilities QJpegPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
     if (format == "jpeg" || format == "jpg")
-        return Capabilities(CanLoad | CanSave);
+        return Capabilities(CanRead | CanWrite);
     if (!device->isOpen())
         return 0;
 
     Capabilities cap;
-    if (device->isReadable() && QJpegHandler::canLoadImage(device))
-        cap |= CanLoad;
+    if (device->isReadable() && QJpegHandler::canRead(device))
+        cap |= CanRead;
     if (device->isWritable())
-        cap |= CanSave;
+        cap |= CanWrite;
     return cap;
 }
 

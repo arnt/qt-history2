@@ -14,19 +14,19 @@
 /*! \class QMovie
 
     \brief The QMovie class is a convenience class for playing movies
-    with QImageIO.
+    with QImageReader.
 
     \ingroup multimedia
     \module gui
 
 
-   \sa QLabel, QImageIO
+   \sa QLabel, QImageReader
 */
 
 #include "qmovie.h"
 
 #include <qimage.h>
-#include <qimageio.h>
+#include <qimagereader.h>
 #include <qpixmap.h>
 #include <qrect.h>
 #include <qtimer.h>
@@ -41,7 +41,7 @@ public:
     // private slots
     void loadNextFrame();
 
-    QImageIO *io;
+    QImageReader *reader;
     int speed;
     QMovie::MovieState movieState;
     QRect frameRect;
@@ -49,7 +49,7 @@ public:
     QPixmap framePixmap;
     QColor backgroundColor;
 
-    QTimer nextFrameTimer;
+    QTimer nextImageTimer;
 };
 
 QMoviePrivate::QMoviePrivate(QMovie *qq)
@@ -57,23 +57,23 @@ QMoviePrivate::QMoviePrivate(QMovie *qq)
     Q_Q(QMovie);
     q = qq;
 
-    io = 0;
+    reader = 0;
     movieState = QMovie::NotRunning;
-    nextFrameTimer.setSingleShot(true);
+    nextImageTimer.setSingleShot(true);
 }
 
 void QMoviePrivate::loadNextFrame()
 {
     Q_Q(QMovie);
-    if (io->hasNextFrame()) {
-        if (io->load()) {
+    if (reader->canRead()) {
+        frameImage = reader->read();
+        if (!frameImage.isNull()) {
             if (movieState == QMovie::NotRunning) {
                 movieState = QMovie::Running;
                 emit q->stateChanged(movieState);
                 emit q->started();
             }
 
-            frameImage = io->image();
             framePixmap = frameImage;
             if (frameRect.size() != frameImage.rect().size()) {
                 frameRect = frameImage.rect();
@@ -82,7 +82,7 @@ void QMoviePrivate::loadNextFrame()
 
             emit q->updated(frameRect);
 
-            nextFrameTimer.start(io->nextFrameDelay());
+            nextImageTimer.start(reader->nextImageDelay());
         } else {
             emit q->error();
             if (movieState != QMovie::NotRunning) {
@@ -103,51 +103,51 @@ QMovie::QMovie(QObject *parent)
     : QObject(*new QMoviePrivate(this), parent)
 {
     Q_D(QMovie);
-    d->io = new QImageIO;
+    d->reader = new QImageReader;
 }
 
 QMovie::QMovie(QIODevice *device, const QByteArray &format, QObject *parent)
     : QObject(*new QMoviePrivate(this), parent)
 {
     Q_D(QMovie);
-    d->io = new QImageIO(device, format);
+    d->reader = new QImageReader(device, format);
 }
 
 QMovie::QMovie(const QString &fileName, const QByteArray &format, QObject *parent)
     : QObject(*new QMoviePrivate(this), parent)
 {
     Q_D(QMovie);
-    d->io = new QImageIO(fileName, format);
+    d->reader = new QImageReader(fileName, format);
 }
 
 QMovie::~QMovie()
 {
     Q_D(QMovie);
-    delete d->io;
+    delete d->reader;
 }
 
 void QMovie::setDevice(QIODevice *device)
 {
     Q_D(QMovie);
-    d->io->setDevice(device);
+    d->reader->setDevice(device);
 }
 
 QIODevice *QMovie::device() const
 {
     Q_D(const QMovie);
-    return d->io->device();
+    return d->reader->device();
 }
 
 void QMovie::setFileName(const QString &fileName)
 {
     Q_D(QMovie);
-    d->io->setFileName(fileName);
+    d->reader->setFileName(fileName);
 }
 
 QString QMovie::fileName() const
 {
     Q_D(const QMovie);
-    return d->io->fileName();
+    return d->reader->fileName();
 }
 
 void QMovie::setBackgroundColor(const QColor &color)
@@ -189,7 +189,7 @@ QImage QMovie::frameImage() const
 bool QMovie::isValid() const
 {
     Q_D(const QMovie);
-    return d->io->hasNextFrame();
+    return d->reader->canRead();
 }
 
 bool QMovie::isRunning() const
@@ -201,25 +201,25 @@ bool QMovie::isRunning() const
 int QMovie::frameCount() const
 {
     Q_D(const QMovie);
-    return d->io->frameCount();
+    return d->reader->imageCount();
 }
 
 int QMovie::nextFrameDelay() const
 {
     Q_D(const QMovie);
-    return d->io->nextFrameDelay();
+    return d->reader->nextImageDelay();
 }
 
 int QMovie::currentFrameNumber() const
 {
     Q_D(const QMovie);
-    return d->io->currentFrameNumber();
+    return d->reader->currentImageNumber();
 }
 
 int QMovie::loopCount() const
 {
     Q_D(const QMovie);
-    return d->io->loopCount();
+    return d->reader->loopCount();
 }
 
 void QMovie::setPaused(bool paused)
@@ -256,7 +256,7 @@ void QMovie::start()
         return;
     }
 
-    connect(&d->nextFrameTimer, SIGNAL(timeout()), this, SLOT(loadNextFrame()));
+    connect(&d->nextImageTimer, SIGNAL(timeout()), this, SLOT(loadNextFrame()));
     d->loadNextFrame();
 }
 
@@ -269,7 +269,7 @@ void QMovie::pause()
     }
     emit stateChanged(Paused);
     d->movieState = Paused;
-    d->nextFrameTimer.stop();
+    d->nextImageTimer.stop();
 }
 
 void QMovie::unpause()
@@ -281,7 +281,7 @@ void QMovie::unpause()
     }
     emit stateChanged(Running);
     d->movieState = Running;
-    d->nextFrameTimer.start(d->io->nextFrameDelay());
+    d->nextImageTimer.start(d->reader->nextImageDelay());
 }
 
 void QMovie::stop()
@@ -293,7 +293,7 @@ void QMovie::stop()
     }
     emit stateChanged(NotRunning);
     d->movieState = NotRunning;
-    d->nextFrameTimer.stop();
+    d->nextImageTimer.stop();
 }
 
 #define d d_func()

@@ -22,7 +22,7 @@
 #include "qdir.h"
 #include "q3dragobject.h"
 #include "qpixmap.h"
-#include "qimageio.h"
+#include "qimagereader.h"
 #include "qcleanuphandler.h"
 #include "private/qtextimagehandler_p.h"
 
@@ -165,7 +165,7 @@ QMimeSource* Q3MimeSourceFactory::dataInternal(const QString& abs_name, const QM
         QByteArray mimetype("application/octet-stream");
         if (extensions.contains(e))
             mimetype = extensions[e].latin1();
-        QByteArray imgfmt = QImageIO::imageFormatForFileName(abs_name);
+        QByteArray imgfmt = QImageReader::imageFormat(abs_name);
         if (!imgfmt.isEmpty())
             mimetype = "image/" + imgfmt.toLower();
 
@@ -206,7 +206,7 @@ QMimeSource* Q3MimeSourceFactory::dataInternal(const QString& abs_name, const QM
     it in all defined paths (see \l{setFilePath()}).
 
     The factory understands all the image formats supported by
-    QImageIO. Any other mime types are determined by the file name
+    QImageReader. Any other mime types are determined by the file name
     extension. The default settings are
     \code
     setExtensionType("html", "text/html;charset=iso8859-1");

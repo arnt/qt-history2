@@ -648,15 +648,15 @@ QPngHandler::QPngHandler()
     quality = 2;
 }
 
-bool QPngHandler::canLoadImage() const
+bool QPngHandler::canRead() const
 {
-    return canLoadImage(device());
+    return canRead(device());
 }
 
-bool QPngHandler::canLoadImage(QIODevice *device)
+bool QPngHandler::canRead(QIODevice *device)
 {
     if (!device) {
-        qWarning("QPngHandler::canLoadImage() called with no device");
+        qWarning("QPngHandler::canRead() called with no device");
         return false;
     }
 
@@ -684,35 +684,35 @@ bool QPngHandler::canLoadImage(QIODevice *device)
     return qstrncmp(head + 1, "PNG", 3) == 0;
 }
 
-bool QPngHandler::load(QImage *image)
+bool QPngHandler::read(QImage *image)
 {
     return read_png_image(device(), image, gamma);
 }
 
-bool QPngHandler::save(const QImage &image)
+bool QPngHandler::write(const QImage &image)
 {
     return write_png_image(image, device(), quality, gamma);
 }
 
-bool QPngHandler::supportsProperty(ImageProperty property) const
+bool QPngHandler::supportsOption(ImageOption option) const
 {
-    return property == Gamma || property == Quality;
+    return option == Gamma || option == Quality;
 }
 
-QVariant QPngHandler::property(ImageProperty property) const
+QVariant QPngHandler::option(ImageOption option) const
 {
-    if (property == Gamma)
+    if (option == Gamma)
         return gamma;
-    else if (property == Quality)
+    else if (option == Quality)
         return quality;
     return 0;
 }
 
-void QPngHandler::setProperty(ImageProperty property, const QVariant &value)
+void QPngHandler::setOption(ImageOption option, const QVariant &value)
 {
-    if (property == Gamma)
+    if (option == Gamma)
         gamma = value.toDouble();
-    else if (property == Quality)
+    else if (option == Quality)
         quality = value.toInt();
 }
 

@@ -315,15 +315,15 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
     return true;
 }
 
-bool QPpmHandler::canLoadImage() const
+bool QPpmHandler::canRead() const
 {
-    return canLoadImage(device());
+    return canRead(device());
 }
 
-bool QPpmHandler::canLoadImage(QIODevice *device)
+bool QPpmHandler::canRead(QIODevice *device)
 {
     if (!device) {
-        qWarning("QPpmHandler::canLoadImage() called with no device");
+        qWarning("QPpmHandler::canRead() called with no device");
         return false;
     }
 
@@ -356,29 +356,29 @@ bool QPpmHandler::canLoadImage(QIODevice *device)
         || qstrncmp(head, "P6", 2) == 0;
 }
 
-bool QPpmHandler::load(QImage *image)
+bool QPpmHandler::read(QImage *image)
 {
     return read_pbm_image(device(), image);
 }
 
-bool QPpmHandler::save(const QImage &image)
+bool QPpmHandler::write(const QImage &image)
 {
     return write_pbm_image(device(), image, subType);
 }
 
-bool QPpmHandler::supportsProperty(ImageProperty property) const
+bool QPpmHandler::supportsOption(ImageOption option) const
 {
-    return property == Subtype;
+    return option == SubType;
 }
 
-QVariant QPpmHandler::property(ImageProperty property) const
+QVariant QPpmHandler::option(ImageOption option) const
 {
-    return property == Subtype ? subType : QByteArray();
+    return option == SubType ? subType : QByteArray();
 }
 
-void QPpmHandler::setProperty(ImageProperty property, const QVariant &value)
+void QPpmHandler::setOption(ImageOption option, const QVariant &value)
 {
-    if (property == Subtype)
+    if (option == SubType)
         subType = value.toByteArray().toUpper();
 }
 

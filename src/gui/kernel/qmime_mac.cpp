@@ -28,7 +28,7 @@
 # include <sys/fcntl.h>
 #endif
 
-#include "qimageio.h"
+#include "qimagewriter.h"
 #include "qpixmap.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
@@ -527,7 +527,7 @@ int QMacMimeImage::flavor(int)
 int QMacMimeImage::flavorFor(const QString &mime)
 {
     if(mime.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ofmts = QImageIO::outputFormats();
+        QList<QByteArray> ofmts = QImageWriter::supportedImageFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (!qstricmp(ofmts.at(i), mime.mid(6).toLatin1()))
                 return kScrapFlavorTypePicture;
@@ -546,7 +546,7 @@ QString QMacMimeImage::mimeFor(int flav)
 bool QMacMimeImage::canConvert(const QString &mime, int flav)
 {
     if(flav == kScrapFlavorTypePicture && mime.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ofmts = QImageIO::outputFormats();
+        QList<QByteArray> ofmts = QImageWriter:supportedImageFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (!qstricmp(ofmts.at(i), mime.mid(6).toLatin1()))
                 return true;
@@ -577,9 +577,8 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const QString &m
         QBuffer iod(&ret);
         iod.open(QIODevice::WriteOnly);
         QImage img = px.toImage();
-        QImageIO iio(&iod, mime.mid(6).toUpper().toLatin1());
-        iio.setImage(img);
-        if(iio.save())
+        QImageWriter writer(&iod, mime.mid(6).toUpper().toLatin1());
+        if(writer.write(img))
             iod.close();
     }
     DisposeHandle((Handle)pic);

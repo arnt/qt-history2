@@ -551,15 +551,15 @@ QJpegHandler::QJpegHandler()
     quality = 75;
 }
 
-bool QJpegHandler::canLoadImage() const
+bool QJpegHandler::canRead() const
 {
-    return canLoadImage(device());
+    return canRead(device());
 }
 
-bool QJpegHandler::canLoadImage(QIODevice *device)
+bool QJpegHandler::canRead(QIODevice *device)
 {
     if (!device) {
-        qWarning("QJpegHandler::canLoadImage() called with no device");
+        qWarning("QJpegHandler::canRead() called with no device");
         return false;
     }
 
@@ -587,35 +587,35 @@ bool QJpegHandler::canLoadImage(QIODevice *device)
     return qstrncmp(head, "\377\330", 2) == 0;
 }
 
-bool QJpegHandler::load(QImage *image)
+bool QJpegHandler::read(QImage *image)
 {
     return read_jpeg_image(device(), image, parameters);
 }
 
-bool QJpegHandler::save(const QImage &image)
+bool QJpegHandler::write(const QImage &image)
 {
     return write_jpeg_image(image, device(), quality);
 }
 
-bool QJpegHandler::supportsProperty(ImageProperty property) const
+bool QJpegHandler::supportsOption(ImageOption option) const
 {
-    return property == Quality || property == Parameters;
+    return option == Quality || option == Parameters;
 }
 
-QVariant QJpegHandler::property(ImageProperty property) const
+QVariant QJpegHandler::option(ImageOption option) const
 {
-    if (property == Quality)
+    if (option == Quality)
         return quality;
-    else if (property == Parameters)
+    else if (option == Parameters)
         return parameters;
     return QVariant();
 }
 
-void QJpegHandler::setProperty(ImageProperty property, const QVariant &value)
+void QJpegHandler::setOption(ImageOption option, const QVariant &value)
 {
-    if (property == Name)
+    if (option == Name)
         quality = value.toInt();
-    else if (property == Parameters)
+    else if (option == Parameters)
         parameters = value.toByteArray();
 }
 

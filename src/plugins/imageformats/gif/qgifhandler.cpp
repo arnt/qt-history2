@@ -730,15 +730,17 @@ QGifHandler::~QGifHandler()
     delete gifFormat;
 }
 
-bool QGifHandler::canLoadImage() const
+bool QGifHandler::canRead() const
 {
-    return canLoadImage(device());
+    if (nextDelay)
+        return true;
+    return canRead(device());
 }
 
-bool QGifHandler::canLoadImage(QIODevice *device)
+bool QGifHandler::canRead(QIODevice *device)
 {
     if (!device) {
-        qWarning("QGifHandler::canLoadImage() called with no device");
+        qWarning("QGifHandler::canRead() called with no device");
         return false;
     }
 
@@ -767,7 +769,7 @@ bool QGifHandler::canLoadImage(QIODevice *device)
         || qstrncmp(head, "GIF89a", 6) == 0;
 }
 
-bool QGifHandler::load(QImage *image)
+bool QGifHandler::read(QImage *image)
 {
     const int GifChunkSize = 4096;
 
@@ -798,32 +800,31 @@ bool QGifHandler::load(QImage *image)
     return false;
 }
 
-bool QGifHandler::save(const QImage &image)
+bool QGifHandler::write(const QImage &image)
 {
     Q_UNUSED(image);
-    qDebug("QGifHandler::save()");
     return false;
 }
 
-bool QGifHandler::supportsProperty(ImageProperty property) const
+bool QGifHandler::supportsOption(ImageOption option) const
 {
-    return property == Size;
+    return option == Size;
 }
 
-QVariant QGifHandler::property(ImageProperty property) const
+QVariant QGifHandler::option(ImageOption option) const
 {
-    if (property == Size)
+    if (option == Size)
         return nextSize;
     return QVariant();
 }
 
-void QGifHandler::setProperty(ImageProperty property, const QVariant &value)
+void QGifHandler::setOption(ImageOption option, const QVariant &value)
 {
-    Q_UNUSED(property);
+    Q_UNUSED(option);
     Q_UNUSED(value);
 }
 
-int QGifHandler::nextFrameDelay() const
+int QGifHandler::nextImageDelay() const
 {
     return nextDelay;
 }
@@ -833,7 +834,7 @@ int QGifHandler::loopCount() const
     return loopCnt;
 }
 
-int QGifHandler::currentFrameNumber() const
+int QGifHandler::currentImageNumber() const
 {
     return frameNumber;
 }

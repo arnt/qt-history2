@@ -15,7 +15,8 @@
 
 #ifndef QT_NO_MIME
 
-#include "qimageio.h"
+#include "qimagereader.h"
+#include "qimagewriter.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
 #include "qt_windows.h"
@@ -792,7 +793,7 @@ QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, co
     QVector<FORMATETC> formatetcs;
     if (!qVariant_to<QPixmap>(mimeData->imageData()).isNull()
         && mimeType.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ofmts = QImageIO::outputFormats();
+        QList<QByteArray> ofmts = QImageWriter::supportedImageFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (qstricmp(ofmts.at(i),mimeType.toLatin1().data()+6)==0) {
                 formatetcs += setCf(CF_DIB);
@@ -815,7 +816,7 @@ bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, struct IDataOb
 {
     bool haveDecoder = false;
     if (mimeType.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ifmts = QImageIO::inputFormats();
+        QList<QByteArray> ifmts = QImageReader::supportedImageFormats();
         for (int i = 0; i < ifmts.count(); ++i) {
             if (qstricmp(ifmts.at(i),mimeType.toLatin1().data()+6)==0) {
                 haveDecoder = true;
@@ -906,12 +907,12 @@ QBuiltInMimes::QBuiltInMimes()
     outFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
     inFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
 
-    QList<QByteArray> ifmts = QImageIO::outputFormats();
+    QList<QByteArray> ifmts = QImageWriter::supportedImageFormats();
     for (int i=0; i<ifmts.count(); ++i) {
         QString imgformat = QLatin1String("image/") + ifmts.at(i).toLower();
         outFormats.insert(QWindowsMime::registerMimeType(imgformat), imgformat);
     }
-    ifmts = QImageIO::inputFormats();
+    ifmts = QImageReader::supportedImageFormats();
     for (int i=0; i<ifmts.count(); ++i) {
         QString imgformat = QLatin1String("image/") + ifmts.at(i).toLower();
         inFormats.insert(QWindowsMime::registerMimeType(imgformat), imgformat);

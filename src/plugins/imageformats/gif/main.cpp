@@ -50,8 +50,8 @@ QStringList QGifPlugin::keys() const
 
 QImageIOPlugin::Capabilities QGifPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
-    if (format == "gif" || (device && device->isReadable() && QGifHandler::canLoadImage(device)))
-        return Capabilities(CanLoad);
+    if (format == "gif" || (device && device->isReadable() && QGifHandler::canRead(device)))
+        return Capabilities(CanRead);
     return 0;
 }
 

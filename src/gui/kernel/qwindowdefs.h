@@ -44,7 +44,6 @@ class QPixmap;
 class QBitmap;
 class QMovie;
 class QImage;
-class QImageIO;
 class QPicture;
 class QPrinter;
 class QTimer;
