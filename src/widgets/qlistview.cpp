@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#141 $
 **
 ** Implementation of QListView widget class
 **
@@ -242,7 +242,8 @@ struct QListViewPrivate
   <img src="treeview.gif" width="256" height="216" alt="Example Tree View">
 */
 
-/*!  Create a new list view item in the QListView \a parent */
+/*!  Create a new list view item in the QListView \a parent and first
+  in the parent's list of children. */
 
 QListViewItem::QListViewItem( QListView * parent )
 {
@@ -251,12 +252,37 @@ QListViewItem::QListViewItem( QListView * parent )
 }
 
 
-/*!  Create a new list view item which is a child of \a parent */
+/*!  Create a new list view item which is a child of \a parent and first
+  in the parent's list of children. */
 
 QListViewItem::QListViewItem( QListViewItem * parent )
 {
     init();
     parent->insertItem( this );
+}
+
+
+
+
+/*!  Constructs an empty list view item which is a child of \a parent
+  and is after \a after in the parent's list of children */
+
+QListViewItem::QListViewItem( QListView * parent, QListViewItem * after )
+{
+    init();
+    parent->insertItem( this );
+    moveToJustAfter( after );
+}
+
+
+/*!  Constructs an empty list view item which is a child of \a parent
+  and is after \a after in the parent's list of children */
+
+QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
+{
+    init();
+    parent->insertItem( this );
+    moveToJustAfter( after );
 }
 
 
@@ -314,6 +340,72 @@ QListViewItem::QListViewItem( QListViewItem * parent,
 {
     init();
     parent->insertItem( this );
+
+    setText( 0, label1 );
+    setText( 1, label2 );
+    setText( 2, label3 );
+    setText( 3, label4 );
+    setText( 4, label5 );
+    setText( 5, label6 );
+    setText( 6, label7 );
+    setText( 7, label8 );
+}
+
+/*!  Creates a new list view item in the QListView \a parent,
+  after item \a after, with at most 8 constant strings as contents.
+  
+  Note that the order is changed according to QListViewItem::key()
+  unless the list view's sorting is disabled using
+  QListView::setSorting( -1 ).
+*/
+
+QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
+			      const char * label1,
+			      const char * label2,
+			      const char * label3,
+			      const char * label4,
+			      const char * label5,
+			      const char * label6,
+			      const char * label7,
+			      const char * label8 )
+{
+    init();
+    parent->insertItem( this );
+    moveToJustAfter( after );
+
+    setText( 0, label1 );
+    setText( 1, label2 );
+    setText( 2, label3 );
+    setText( 3, label4 );
+    setText( 4, label5 );
+    setText( 5, label6 );
+    setText( 6, label7 );
+    setText( 7, label8 );
+}
+
+
+/*!  Creates a new list view item that's a child of the QListViewItem
+  \a parent, after item \a after, with at most 8 constant strings as
+  contents.
+  
+  Note that the order is changed according to QListViewItem::key()
+  unless the list view's sorting is disabled using
+  QListView::setSorting( -1 ).
+*/
+
+QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
+			      const char * label1,
+			      const char * label2,
+			      const char * label3,
+			      const char * label4,
+			      const char * label5,
+			      const char * label6,
+			      const char * label7,
+			      const char * label8 )
+{
+    init();
+    parent->insertItem( this );
+    moveToJustAfter( after );
 
     setText( 0, label1 );
     setText( 1, label2 );
@@ -1198,8 +1290,9 @@ void QListViewPrivate::Root::setup()
   children are indented relative to their parent.  The default is 20.
   This is mostly a matter of taste.
 
-  <li>setSorting() - decides whether the items should be sorted in
-  ascending or descending order, and by what column.</ul>
+  <li>setSorting() - decides whether the items should be sorted,
+  whether it should be in ascending or descending order, and by what
+  column it should be sorted.</ul>
 
   There are also several functions for mapping between items and
   coordinates.  itemAt() returns the item at a position on-screen,
@@ -2319,13 +2412,13 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
 
     QListViewItem * i = itemAt( e->pos() );
 
-    if ( !i ) {
-	// nothing
-    } else if ( i->isSelectable() )
-	emit doubleClicked( i );
-    else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
+    if ( !i )
+	return;
+
+    emit doubleClicked( i );
+    if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	setOpen( i, TRUE );
-    else if ( i->isOpen() && i->childItem )
+    if ( i->isOpen() && i->childItem )
 	setOpen( i, FALSE );
 }
 
@@ -2343,9 +2436,9 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    if ( isMultiSelection() && d->currentSelected ) {
+    if ( isMultiSelection() && d->focusItem ) {
 	// also (de)select the ones in between
-	QListViewItem * b = d->currentSelected;
+	QListViewItem * b = d->focusItem;
 	bool below = ( itemPos( i ) > itemPos( b ) );
 	while( b && b != i ) {
 	    if ( b->isSelectable() )
@@ -2774,6 +2867,8 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 /*!  Set the list view to be sorted by \a column and to be sorted
   in ascending order if \a ascending is TRUE or descending order if it
   is FALSE.
+  
+  If \a column is -1, sorting is disabled.
 */
 
 void QListView::setSorting( int column, bool ascending )
@@ -3667,4 +3762,27 @@ QHeader * QListView::header() const
 int QListView::childCount() const
 {
     return d->r->childCount();
+}
+
+
+/*!  Moves this item to just after \a olderSibling.  \a olderSibling
+  and this object must have the same parent.
+*/
+
+void QListViewItem::moveToJustAfter( QListViewItem * olderSibling )
+{
+    if ( parentItem && olderSibling &&
+	 olderSibling->parentItem == parentItem ) {
+	if ( parentItem->childItem == this ) {
+	    parentItem->childItem = siblingItem;
+	} else {
+	    QListViewItem * i = parentItem->childItem;
+	    while( i && i->siblingItem != this )
+		i = i->siblingItem;
+	    if ( i )
+		i->siblingItem = siblingItem;
+	}
+	siblingItem = olderSibling->siblingItem;
+	olderSibling->siblingItem = this;
+    }
 }

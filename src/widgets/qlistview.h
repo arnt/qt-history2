@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#55 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#56 $
 **
 ** Definition of QListView widget class
 **
@@ -43,12 +43,26 @@ class QListViewItem
 public:
     QListViewItem( QListView * parent );
     QListViewItem( QListViewItem * parent );
+    QListViewItem( QListView * parent, QListViewItem * after );
+    QListViewItem( QListViewItem * parent, QListViewItem * after );
+
     QListViewItem( QListView * parent,
 		   const char *,     const char * = 0,
 		   const char * = 0, const char * = 0,
 		   const char * = 0, const char * = 0,
 		   const char * = 0, const char * = 0 );
     QListViewItem( QListViewItem * parent,
+		   const char *,     const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0 );
+
+    QListViewItem( QListView * parent, QListViewItem * after,
+		   const char *,     const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0,
+		   const char * = 0, const char * = 0 );
+    QListViewItem( QListViewItem * parent, QListViewItem * after,
 		   const char *,     const char * = 0,
 		   const char * = 0, const char * = 0,
 		   const char * = 0, const char * = 0,
@@ -115,6 +129,7 @@ protected:
 
 private:
     void init();
+    void moveToJustAfter( QListViewItem * );
     int ownHeight;
     int maybeTotalHeight;
     int nChildren;
