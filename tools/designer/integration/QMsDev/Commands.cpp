@@ -612,7 +612,7 @@ void CCommands::runDesigner( const CString &file )
 
     // Run the designer with options -client and "file"
 
-    if ( spawnl(_P_NOWAIT, path+"\\"+command, command, "-client", file, 0 ) == -1 ) {
+    if ( spawnl(_P_NOWAIT, path+"\\"+command, command, "-client", "\"" + file + "\"" , 0 ) == -1 ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
 	::MessageBox(NULL, "Failed to run Qt Designer: "+command, 
 			   "Start Designer", MB_OK | MB_ICONINFORMATION);
@@ -652,7 +652,7 @@ void CCommands::runLinguist( const CString &file )
 
     // Run the linguist with option "file"
 
-    if ( spawnl(_P_NOWAIT, path+"\\"+command, command, file, 0 ) == -1 ) {
+    if ( spawnl(_P_NOWAIT, path+"\\"+command, command, "\"" + file + "\"" , 0 ) == -1 ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
 	::MessageBox(NULL, "Failed to run Qt Linguist: "+command, 
 			   "Start Designer", MB_OK | MB_ICONINFORMATION);
@@ -1247,8 +1247,8 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     if ( ::MessageBox( NULL, "Do you want me to add a basic implementation for your dialog?", 
 	"Question", MB_YESNOCANCEL | MB_ICONQUESTION ) == IDYES ) {
 	m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating implementation...") );
-	int error = system( "uic -subdecl "+classname+" "+filename+".h "+filepath+filename+".ui -o "+filepath+filename+"impl.h" );
-	error +=    system( "uic -subimpl "+classname+" "+filename+"impl.h "+filepath+filename+".ui -o "+filepath+filename+"impl.cpp" );
+	int error = system( "uic -subdecl "+classname+" "+filename+".h "+ "\"" + filepath+filename+".ui\" -o "+ "\"" + filepath+filename+"impl.h\"" );
+	error +=    system( "uic -subimpl "+classname+" "+filename+"impl.h " + "\"" +filepath+filename+".ui\" -o "+ "\"" + filepath+filename+"impl.cpp\"" );
 	if ( error ) {
 	    ::MessageBox( NULL, "Failed to create subclass implementation!", "Error", MB_OK );
 	    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
