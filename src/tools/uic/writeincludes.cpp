@@ -39,6 +39,8 @@ void WriteIncludes::accept(DomUI *node)
     m_includes.insert("qvariant.h", true);
     m_includes.insert("qaction.h", true);
 
+    m_includes.insert("qbuttongroup.h", true);
+
     if (uic->hasExternalPixmap()
             && uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))
         m_includes.insert("qmimefactory.h", true); //compat

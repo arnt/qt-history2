@@ -109,6 +109,7 @@ private:
     QStack<DomActionGroup*> m_actionGroupChain;
     QList<Buddy> m_buddies;
 
+    QHash<QString, QString> m_buttonGroups;
     QHash<QString, DomWidget*> m_registeredWidgets;
     int m_defaultMargin;
     int m_defaultSpacing;

@@ -961,6 +961,11 @@ public:
     inline void setAttributeName(const QString & a) { m_aName = a; m_hasName = true; }
     inline void clearAttributeName() { m_hasName = false; }
 
+    inline QString attributeButtonGroup() const { return m_aButtonGroup; }
+    inline bool hasAttributeButtonGroup() const { return m_hasButtonGroup; }
+    inline void setAttributeButtonGroup(const QString & a) { m_aButtonGroup = a; m_hasButtonGroup = true; }
+    inline void clearAttributeButtonGroup() { m_hasButtonGroup = false; }
+
     inline QStringList elementClass() const { return m_eClass; }
     inline void setElementClass(const QStringList & a) { m_eClass = a; };
 
@@ -1006,6 +1011,8 @@ private:
     bool m_hasClass;
     QString m_aName;
     bool m_hasName;
+    QString m_aButtonGroup;
+    bool m_hasButtonGroup;
 
     // elements
     QStringList m_eClass;
@@ -1790,6 +1797,7 @@ inline DomWidget::DomWidget()
 {
     m_hasClass = false;
     m_hasName = false;
+    m_hasButtonGroup = false;
 }
 
 inline DomSpacer::DomSpacer()
@@ -2491,6 +2499,7 @@ inline void DomWidget::read(const QDomElement &node)
     // attributes
     if (node.hasAttribute(QString("class").toLower())) setAttributeClass(node.attribute(QString("class").toLower()));
     if (node.hasAttribute(QString("name").toLower())) setAttributeName(node.attribute(QString("name").toLower()));
+    if (node.hasAttribute(QString("buttonGroup").toLower())) setAttributeButtonGroup(node.attribute(QString("buttonGroup").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -3308,6 +3317,9 @@ inline QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
 
     if (m_hasName)
         node.setAttribute(QString("name").toLower(), m_aName);
+
+    if (m_hasButtonGroup)
+        node.setAttribute(QString("buttonGroup").toLower(), m_aButtonGroup);
 
 
     QDomElement child;
@@ -4136,6 +4148,7 @@ inline void DomWidget::reset(bool full)
     if (full) {
     m_hasClass = false;
     m_hasName = false;
+    m_hasButtonGroup = false;
     }
 
     qDeleteAll(m_eProperty);

@@ -151,6 +151,30 @@ void WriteInitialization::accept(DomWidget *node)
     } else if (uic->customWidgetsInfo()->extends(className, "QDataBrowser")) {
         initializeSqlDataBrowser(node);
     }
+    
+    if (uic->customWidgetsInfo()->extends(className, "QGroupBox")) {
+        QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
+        if (attributes.contains("buttonGroup")) {
+            DomProperty *prop = attributes.value("buttonGroup");
+            QString groupName = prop->elementString();
+            if (!m_buttonGroups.contains(groupName)) {
+                m_buttonGroups.insert(groupName, driver->findOrInsertName(groupName));
+                QString g = m_buttonGroups.value(groupName);
+                output << option.indent << "QButtonGroup *" << g << " = new QButtonGroup(" << m_generatedClass << ");\n";
+            }
+        }
+    } else if (uic->customWidgetsInfo()->extends(className, "QRadioButton") &&
+            uic->customWidgetsInfo()->extends(parentClass, "QGroupBox")) {
+            
+        QHash<QString, DomProperty*> attributes = propertyMap(m_widgetChain.top()->elementAttribute());
+        if (attributes.contains("buttonGroup")) {
+            DomProperty *prop = attributes.value("buttonGroup");
+            QString groupName = prop->elementString();
+
+            QString g = m_buttonGroups.value(groupName);
+            output << option.indent << g << "->addButton(" << varName << ");\n";
+        }
+    }
 
     writeProperties(varName, className, node->elementProperty());
 
