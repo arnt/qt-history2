@@ -1,17 +1,20 @@
 #include "qtrayicon.h"
+#include "qwidget.h"
+#include "qapplication.h"
+#include "qimage.h"
+#include "qcursor.h"
 
 class QTrayIcon::QTrayIconPrivate : public QWidget
 {
     Q_OBJECT
 
 public:
-    QTrayIconPrivate()
-	: QWidget()
+    QTrayIconPrivate(QTrayIcon *) : QWidget()
     {
     }
 };
 
-#include "qtrayicon_x11.moc"
+#include "qtrayicon_mac.moc"
 
 void QTrayIcon::sysInstall()
 {
