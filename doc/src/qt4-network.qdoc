@@ -79,7 +79,7 @@
     QUrl is used by QTextBrowser, it is part of the QtCore library and
     not of QtNetwork.)
 
-    See the \l{network.html}{Network Module Overview} for a more
+    See the \l{networking.html}{Network Module Overview} for a more
     detailed overview of the module.
 
     \section1 Example Code
