@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#16 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#17 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#17 $")
 
 
 /*----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ void QFileDialog::setDir( const QDir &dir )
 
 void QFileDialog::rereadDir()
 {
-    qApp ->setCursor( waitCursor );
+    qApp ->setOverrideCursor( waitCursor );
     dirs ->setAutoUpdate( FALSE );
     files->setAutoUpdate( FALSE );
     dirs ->clear();
@@ -260,7 +260,7 @@ void QFileDialog::rereadDir()
     dirs ->repaint();
     files->repaint();
     updatePathBox( d.path() );
-    qApp->restoreCursor();
+    qApp->restoreOverrideCursor();
 }
 
 
