@@ -273,7 +273,7 @@ public:
     void setScale( double scale );
     Type type() const;
 
-    Qt::HANDLE handle() const { return (Qt::HANDLE) _fs; }
+    Qt::HANDLE handle() const { return (Qt::HANDLE) _fs->fid; }
 
 private:
     friend class QFontPrivate;
