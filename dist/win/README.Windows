@@ -4,17 +4,14 @@ Qt now works well on Windows NT.  There are still a few problems on
 Windows 95 due to limitations of its drawing engine.  We believe this
 list to be complete:
 
-* Rotation and shearing of text does not work on Windows 95.
-  It works very well on Windows NT. Rotation of all other drawing
-  primitives works on both. Rotation of pixmaps has been fixed since 1.0.
+* Rotation and shearing of text does not work on Windows 95, but it
+  works on Windows NT.  Rotation of all other drawing primitives works
+  on both systems.
 
 * QPixmap::setClipMask() does not work on Windows 95.  Any workaround
   is likely to be much slower than on Windows NT.
 
 There are also glitches in two of the example programs:
-
-* Dragging windows in tetris doesn't work.  They seem to caused by
-  bugs in tetris rather than Qt or Windows, but we aren't sure yet.
 
 * The timestamp example does not work on Windows; it uses stdout and
   /home, both of which are unix-specific.  The fix is left as an
