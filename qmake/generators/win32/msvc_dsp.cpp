@@ -389,7 +389,11 @@ DspMakefileGenerator::init()
     MakefileGenerator::init();
     project->variables()["MSVCDSP_VER"] = "6.00";
     project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
-    project->variables()["MSVCDSP_PROJECT"].append(Option::output.name());
+    QString msvcdsp_project = Option::output.name();
+    msvcdsp_project = msvcdsp_project.right( msvcdsp_project.length() - msvcdsp_project.findRev( "\\" ) - 1 );
+    msvcdsp_project = msvcdsp_project.left( msvcdsp_project.findRev( "." ) );
+
+    project->variables()["MSVCDSP_PROJECT"].append(msvcdsp_project);
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
 
     for(it = proj.begin(); it != proj.end(); ++it)
