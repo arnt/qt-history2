@@ -10,25 +10,34 @@
 class QTrayApplication::QTrayApplicationPrivate 
 {
 public:
-    QTrayApplicationPrivate() : has_icon( FALSE ), current_popup( 0 ), hIcon( 0 ) 
+    QTrayApplicationPrivate() : has_icon( FALSE ), current_popup( 0 ), hIcon( 0 ), hWnd( 0 )
     {
     }
 
     ~QTrayApplicationPrivate()
     {
+	remove();
 	if ( hIcon )
 	    DestroyIcon( hIcon );
     }
 
-    bool update()
+    bool update( bool show = FALSE )
     {
-	if ( current_popup || qApp->mainWidget() ) {
-	    bool res = trayMessage( has_icon ? NIM_MODIFY : NIM_ADD );
-	    has_icon = TRUE;
-	    return res;
-	}
+	if ( !has_icon && !show || !(current_popup || qApp->mainWidget()) )
+	    return FALSE;
 
-	return FALSE;
+	bool res;
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    res = trayMessageW( has_icon ? NIM_MODIFY : NIM_ADD );
+	else
+#endif
+	    res = trayMessageA( has_icon ? NIM_MODIFY : NIM_ADD );
+
+	if ( res )
+	    has_icon = TRUE;
+
+	return res;
     }
 
     bool remove()
@@ -37,31 +46,71 @@ public:
 	    return TRUE;
 
 	has_icon = FALSE;
-	return trayMessage( NIM_DELETE );	
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    return trayMessageW( NIM_DELETE );
+	else
+#endif
+	    return trayMessageA( NIM_DELETE );
     }
 
-    bool trayMessage( DWORD msg ) 
+    // the unavoidable A/W versions. Don't forget to keep them in sync!
+    bool trayMessageA( DWORD msg ) 
     {
 	bool res;
 
-	NOTIFYICONDATA tnd;
-	memset( &tnd, 0, sizeof(NOTIFYICONDATA) );
+	NOTIFYICONDATAA tnd;
+	memset( &tnd, 0, sizeof(NOTIFYICONDATAA) );
+	tnd.cbSize		= sizeof(NOTIFYICONDATAA);
+	tnd.hWnd		= hWnd ? hWnd : ( current_popup ? current_popup->winId() : 
+						( qApp->mainWidget() ? qApp->mainWidget()->winId() : 0 ) );
+	hWnd = tnd.hWnd;
 
-	tnd.cbSize		= sizeof(NOTIFYICONDATA);
-	tnd.hWnd		= current_popup ? current_popup->winId() : ( qApp->mainWidget() ? qApp->mainWidget()->winId() : 0 );
-	if ( !tnd.hWnd )
-	    qFatal( "No widget available for notification! Call setMainWidget or setPopup first!" );
+	if ( msg != NIM_DELETE ) {	    
+	    if ( !tnd.hWnd )
+		qFatal( "No widget available for notification! Call setMainWidget or setPopup first!" );
 
-	tnd.uFlags		= NIF_MESSAGE|NIF_ICON|NIF_TIP;
-	tnd.uCallbackMessage	= MYWM_NOTIFYICON;
-	tnd.hIcon		= hIcon;
-	if ( !current_tip.isNull() ) {
-	    lstrcpyn(tnd.szTip, (TCHAR*)qt_winTchar( current_tip, TRUE ), sizeof(tnd.szTip));
-	} else {
-	    tnd.szTip[0] = '\0';
+	    tnd.uFlags		= NIF_MESSAGE|NIF_ICON|NIF_TIP;
+	    tnd.uCallbackMessage= MYWM_NOTIFYICON;
+	    tnd.hIcon		= hIcon;
+	    if ( !current_tip.isNull() ) {
+		// Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
+		QString tip = current_tip.left( 63 ) + QChar();
+		lstrcpynA(tnd.szTip, (const char*)tip, QMIN( tip.length()+1, 64 ) );
+	    }
 	}
 
-	res = Shell_NotifyIcon(msg, &tnd);
+	res = Shell_NotifyIconA(msg, &tnd);
+
+	return res;
+    }
+
+    bool trayMessageW( DWORD msg ) 
+    {
+	bool res;
+
+	NOTIFYICONDATAW tnd;
+	memset( &tnd, 0, sizeof(NOTIFYICONDATAW) );
+	tnd.cbSize		= sizeof(NOTIFYICONDATAW);
+	tnd.hWnd		= hWnd ? hWnd : ( current_popup ? current_popup->winId() : 
+						( qApp->mainWidget() ? qApp->mainWidget()->winId() : 0 ) );
+	hWnd = tnd.hWnd;
+
+	if ( msg != NIM_DELETE ) {
+	    if ( !tnd.hWnd )
+		qFatal( "No widget available for notification! Call setMainWidget or setPopup first!" );
+
+	    tnd.uFlags		= NIF_MESSAGE|NIF_ICON|NIF_TIP;
+	    tnd.uCallbackMessage= MYWM_NOTIFYICON;
+	    tnd.hIcon		= hIcon;
+	    if ( !current_tip.isNull() ) {
+		// Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
+		QString tip = current_tip.left( 63 ) + QChar();
+		lstrcpynW(tnd.szTip, (const unsigned short*)qt_winTchar( tip, FALSE ), QMIN( tip.length()+1, 64 ) );
+	    }
+	}
+
+	res = Shell_NotifyIconW(msg, &tnd);
 
 	return res;
     }
@@ -72,18 +121,24 @@ public:
 	    return FALSE;
 
 	DrawIconEx(lpdi->hDC, lpdi->rcItem.left, lpdi->rcItem.top, hIcon,
-		16, 16, 0, NULL, DI_NORMAL);
+		0, 0, 0, NULL, DI_NORMAL );
 
 	return TRUE;
     }
 
     bool		has_icon;
+
     QString		current_tip;
     QPixmap		current_icon;
     QPopupMenu*		current_popup;
 
-    HICON		hIcon;    
+    HICON		hIcon;
+    HWND		hWnd;
 };
+
+/*!
+  \class QTrayApplication qtrayapplication.h
+*/
 
 /*!
   Creates a QTrayApplication object. \a argc and \a argv are propagated
@@ -100,13 +155,32 @@ QTrayApplication::QTrayApplication( int argc, char **argv )
 */
 QTrayApplication::~QTrayApplication()
 {
-    d->remove();
     delete d;
 }
 
 /*!
-  Sets the system tray icon to \a icon.
-  If \a icon is a NULL pixmap, the current icon will be removed from the system tray.
+  Shows the current icon in the system tray if \a on is TRUE, otherwise hides
+  the tray icon.
+*/
+void QTrayApplication::showInTray( bool on )
+{
+    if ( on )
+	d->update( TRUE );
+    else
+	d->remove();
+}
+
+/*!
+  Returns whether the system tray icon is currently visible.
+*/
+bool QTrayApplication::isInTray() const
+{
+    return d->has_icon;
+}
+
+/*!
+  Sets the system tray icon to \a icon and replaces any previous entry in the tray.
+  Setting the icon to a NULL pixmap removes the system tray entry.
 */
 void QTrayApplication::setTrayIcon( const QPixmap &icon )
 {
@@ -130,7 +204,7 @@ void QTrayApplication::setTrayIcon( const QPixmap &icon )
 */
 QPixmap QTrayApplication::trayIcon() const
 {
-    return d->current_tip;
+    return d->current_icon;
 }
 
 /*!
@@ -140,6 +214,7 @@ QPixmap QTrayApplication::trayIcon() const
 void QTrayApplication::setPopup( QPopupMenu *popup )
 {
     d->current_popup = popup;
+    d->hWnd = 0;
 
     d->update();
 }
@@ -153,7 +228,8 @@ QPopupMenu *QTrayApplication::popup() const
 }
 
 /*!
-  Sets the tooltip for the system tray entry to \a tip.
+  Sets the tooltip for the system tray entry to \a tip. On some systems, the 
+  tooltip's length is limited and will be truncated as necessary.
 */
 void QTrayApplication::setToolTip( const QString &tip )
 {
@@ -175,7 +251,7 @@ QString QTrayApplication::toolTip() const
 */
 bool QTrayApplication::winEventFilter( MSG *m )
 {
-    if (!d->has_icon)
+    if (!d->has_icon || m->hwnd != d->hWnd )
 	return QApplication::winEventFilter( m );
 
     switch(m->message) {
@@ -194,6 +270,8 @@ bool QTrayApplication::winEventFilter( MSG *m )
 	case WM_CONTEXTMENU:
 	    if ( d->current_popup ) {
 		d->current_popup->grabMouse();
+		if ( mainWidget() )
+		    mainWidget()->setActiveWindow();
 		d->current_popup->exec( QCursor::pos() );
 		d->current_popup->releaseMouse();
 	    }
@@ -210,13 +288,26 @@ bool QTrayApplication::winEventFilter( MSG *m )
 }
 
 /*!
-  Removes the icon from the system tray and quits the application.
+  \reimp
+
+  Removes the entry from the system tray and quits the application.
 */
 void QTrayApplication::quit()
 {
     d->remove();
 
     QApplication::quit();
+}
+
+/*!
+  \reimp
+*/
+void QTrayApplication::setMainWidget( QWidget *w )
+{
+    d->hWnd = 0;
+    d->update();
+
+    QApplication::setMainWidget( w );
 }
 
 /*!

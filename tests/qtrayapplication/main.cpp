@@ -25,18 +25,25 @@ static const char * const edit_xpm[]={
 #include "qtrayapplication.h"
 #include <qpixmap.h>
 #include <qpopupmenu.h>
+#include <qcheckbox.h>
 
 int main( int argc, char **argv )
 {
 	QTrayApplication app( argc, argv );
 	app.setTrayIcon( QPixmap( (const char**)edit_xpm ) );
 	app.setToolTip( "QTrayApplication" );
+
+	QCheckBox cb( "Show in System Tray", 0 );
+	cb.show();
+	app.setMainWidget( &cb );
+
 	QPopupMenu menu;
-	menu.insertItem( "&Dummy Item" );
+	menu.insertItem( "&Hide in System Tray", &cb, SLOT( animateClick() ) );
 	menu.insertSeparator();
 	menu.insertItem( "&Quit", &app, SLOT(quit()), Qt::CTRL+Qt::Key_Q );
-
 	app.setPopup( &menu );
+
+	QObject::connect( &cb, SIGNAL(toggled(bool)), &app, SLOT(showInTray(bool)) );
 
 	return app.exec();
 }

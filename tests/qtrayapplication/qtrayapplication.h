@@ -9,12 +9,15 @@ class QPixmap;
 class QTrayApplication : public QApplication
 {
     Q_OBJECT
+    Q_PROPERTY( bool isInTray READ isInTray WRITE showInTray )
     Q_PROPERTY( QPixmap trayIcon READ trayIcon WRITE setTrayIcon )
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
 
 public:
     QTrayApplication( int argc, char **argv );
     ~QTrayApplication();
+
+    bool		isInTray() const;
 
 			// Set a popup menu to handle RMB
     void		setPopup( QPopupMenu * );
@@ -23,16 +26,17 @@ public:
     QPixmap		trayIcon() const;
     QString		toolTip() const;
 
-signals:
-    void		clicked( const QPoint& );
-    void		doubleClicked( const QPoint& );
+    void		quit();
+    void		setMainWidget( QWidget *widget );
 
 public slots:
+    void		showInTray( bool );
     void		setTrayIcon( const QPixmap &icon );
     void		setToolTip( const QString &tip );
 
-			// Provided for removal of the icon
-    void		quit();
+signals:
+    void		clicked( const QPoint& );
+    void		doubleClicked( const QPoint& );
 
 protected:
     bool		winEventFilter( MSG * );
