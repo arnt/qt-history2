@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#22 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#22 $";
 #endif
 
 
@@ -187,19 +187,6 @@ bool QObject::eventFilter( QObject *, QEvent * )// filter event
 }
 
 
-/*!
-Relink a child object to become the first object in the list of children.
-The purpose is to make searching fast.
-\internal This function was implemented to make accelerators efficient.
-*/
-
-void QObject::setToFirstChild( QObject *child )	// relink child object
-{
-    if ( childObjects && childObjects->findRef(child) >= 0 )
-	childObjects->insert( childObjects->take() );
-}
-
-
 bool QObject::activate_filters( QEvent *e )	// activate event filters
 {
     register QObject *obj = eventFilters ? eventFilters->first() : 0;
@@ -271,7 +258,10 @@ void QObject::insertChild( QObject *obj )	// add object object
     }
 #endif
     obj->parentObj = this;
-    childObjects->append( obj );
+    if ( obj->hiPriority )
+	childObjects->insert( obj );		// high priority inserts
+    else
+	childObjects->append( obj );		// normal priority appends
 }
 
 void QObject::removeChild( QObject *obj )	// remove child object
