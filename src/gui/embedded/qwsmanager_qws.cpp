@@ -28,81 +28,17 @@
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
-#include "qdecorationdefault_qws.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
 
 #include <private/qwidget_p.h>
 
 #include "qpaintengine_qws.h"
-
-enum WMStyle {
-    Default_WMStyle = 1, /* Starting at zero stuffs up menus */
-    KDE_WMStyle,
-    KDE2_WMStyle,
-    BeOS_WMStyle,
-    Windows_WMStyle,
-    Hydro_WMStyle,
-};
+#include "qdecorationfactory_qws.h"
 
 
-#ifndef QT_NO_QWS_WINDOWS_WM_STYLE
-#include "qdecorationwindows_qws.h"
-QDecorationDefault *new_Windows_WMDecorations() { return new QDecorationWindows(); }
-#endif // QT_NO_QWS_WINDOWS_WM_STYLE
-#ifndef QT_NO_QWS_KDE_WM_STYLE
-#include "qdecorationkde_qws.h"
-QDecorationDefault *new_KDE_WMDecorations() { return new QDecorationKDE(); }
-#endif // QT_NO_QWS_KDE_WM_STYLE
-#ifndef QT_NO_QWS_KDE2_WM_STYLE
-#include "qdecorationkde2_qws.h"
-QDecorationDefault *new_KDE2_WMDecorations() { return new QDecorationKDE2(); }
-#endif // QT_NO_QWS_KDE2_WM_STYLE
-#ifndef QT_NO_QWS_BEOS_WM_STYLE
-#include "qdecorationbeos_qws.h"
-QDecorationDefault *new_BeOS_WMDecorations() { return new QDecorationBeOS(); }
-#endif // QT_NO_QWS_BEOS_WM_STYLE
-#ifndef QT_NO_QWS_HYDRO_WM_STYLE
-#include "qdecorationhydro_qws.h"
-QDecorationDefault *new_Hydro_WMDecorations() { return new QDecorationHydro(); }
-#endif // QT_NO_QWS_HYDRO_WM_STYLE
-
-#include "qdecorationdefault_qws.h"
-QDecorationDefault *new_Default_WMDecorations() { return new QDecorationDefault(); }
 #define d d_func()
 #define q q_func()
-
-
-struct WMStyleFactoryItem {
-        WMStyle WMStyleType;
-        QString WMStyleName;
-        QDecorationDefault *(*new_WMDecorations)();
-} WMStyleList[] = {
-#ifndef QT_NO_QWS_WINDOWS_WM_STYLE
-    { Windows_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "Windows"), new_Windows_WMDecorations },
-#endif // QT_NO_QWS_WINDOWS_WM_STYLE
-#ifndef QT_NO_QWS_KDE_WM_STYLE
-    { KDE_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "KDE"), new_KDE_WMDecorations },
-#endif // QT_NO_QWS_KDE_WM_STYLE
-#ifndef QT_NO_QWS_KDE2_WM_STYLE
-    { KDE2_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "KDE2"), new_KDE2_WMDecorations },
-#endif // QT_NO_QWS_KDE2_WM_STYLE
-#ifndef QT_NO_QWS_BEOS_WM_STYLE
-    { BeOS_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "BeOS"), new_BeOS_WMDecorations },
-#endif // QT_NO_QWS_BEOS_WM_STYLE
-#ifndef QT_NO_QWS_HYDRO_WM_STYLE
-    { Hydro_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "Hydro"), new_Hydro_WMDecorations },
-#endif // QT_NO_QWS_HYDRO_WM_STYLE
-
-    { Default_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "Default"), new_Default_WMDecorations },
-    { Default_WMStyle, QString::null, NULL }
-};
-
-
-QDecoration *QWSManager::newDefaultDecoration()
-{
-    return new QDecorationDefault;
-}
 
 
 class QWSManagerPrivate : public QObjectPrivate
@@ -511,11 +447,13 @@ void QWSManager::menu(const QPoint &pos)
 
         // Add Style menu
         QMenu *styleMenu = new QMenu("Style");
+/*
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
             styleMenu->addAction(qApp->translate("QDecoration", WMStyleList[i].WMStyleName.latin1()));
         connect(styleMenu, SIGNAL(triggered(QAction*)), this, SLOT(styleMenuTriggered(QAction*)));
         d->popup->addSeparator();
         d->popup->addAction(styleMenu->menuAction());
+*/
     }
 
     d->menuActions[QWSManagerPrivate::MaximizeAction]->setEnabled(!d->managed->isMaximized());
@@ -535,11 +473,12 @@ void QWSManager::menu(const QPoint &pos)
 
 void QWSManager::styleMenuTriggered(QAction *item)
 {
+/*
     for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++) {
         if (item->text() == qApp->translate("QDecoration", WMStyleList[i].WMStyleName.latin1()))
             qApp->qwsSetDecoration(WMStyleList[i].new_WMDecorations());
     }
-
+*/
     // Force a repaint of the WM regions
     const QSize s = d->managed->size();
     d->managed->resize(s.width() + 1, s.height());

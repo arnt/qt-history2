@@ -14,6 +14,7 @@
 #include "qglobal.h"
 
 #include "qbitmap.h"
+#include "qcolormap.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qmatrix.h"
@@ -822,7 +823,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         if (qt_screen->isTransformed())
             destImg.fill(0x00FFFFFF);
         else
-            pm.fill(QColor(0x00FFFFFF,0x00FFFFFF));
+            pm.fill(QColor(0x00FFFFFF));
     } else
         memset(dptr, 0xff, dbytes);
 

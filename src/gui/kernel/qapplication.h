@@ -163,7 +163,8 @@ public:
     void             qwsSetCustomColors(QRgb *colortable, int start, int numColors);
 #ifndef QT_NO_QWS_MANAGER
     static QDecoration &qwsDecoration();
-    static void      qwsSetDecoration(QDecoration *);
+    static void qwsSetDecoration(QDecoration *);
+    static QDecoration *qwsSetDecoration(const QString &decoration);
 #endif
 #endif
 

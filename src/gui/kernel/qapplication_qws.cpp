@@ -52,6 +52,7 @@
 #include "qfile.h"
 #include "qhash.h"
 #include "qdesktopwidget.h"
+#include "qcolormap.h"
 
 //### convert interlace style
 //#include "qinterlacestyle.h"
@@ -125,6 +126,7 @@ static int mouse_state = 0;
 bool qws_overrideCursor = false;
 static bool qws_regionRequest = false;
 #ifndef QT_NO_QWS_MANAGER
+#include "qdecorationfactory_qws.h"
 static QDecoration *qws_decoration = 0;
 #endif
 #undef gettimeofday
@@ -1436,6 +1438,7 @@ static void qt_set_qws_resources()
 #endif // QT_NO_PALETTE
 }
 
+
 static void init_display()
 {
     if (qt_fbdpy) return; // workaround server==client case
@@ -1451,15 +1454,12 @@ static void init_display()
     // XXX initial info sent from server
     // Misc. initialization
 
-    QColor::initialize();
+    QColormap::initialize();
     QFont::initialize();
 #ifndef QT_NO_CURSOR
     QCursor::initialize();
 #endif
     QWSPaintEngine::initialize();
-#ifndef QT_NO_QWS_MANAGER
-    qws_decoration = QWSManager::newDefaultDecoration();
-#endif
 
     qApp->setObjectName(appName);
 
@@ -1514,6 +1514,7 @@ void qt_init(QApplicationPrivate *priv, int type)
     // Get command line params
 
     j = argc ? 1 : 0;
+    QString decoration;
     for (int i=1; i<argc; i++) {
         if (argv[i] && *argv[i] != '-') {
             argv[j++] = argv[i];
@@ -1568,10 +1569,14 @@ void qt_init(QApplicationPrivate *priv, int type)
         } else if (arg == "-display") {
             if (++i < argc)
                 qws_display_spec = argv[i];
+        } else if (arg == "-decoration") {
+            if (++i < argc)
+                decoration = argv[i];
         } else {
             argv[j++] = argv[i];
         }
     }
+
 
     priv->argc = j;
 
@@ -1593,8 +1598,13 @@ void qt_init(QApplicationPrivate *priv, int type)
         setenv("QWS_DISPLAY", qws_display_spec, 0);
     }
 
-    if(qt_is_gui_used)
+    if(qt_is_gui_used) {
         init_display();
+#ifndef QT_NO_QWS_MANAGER
+        qws_decoration = QApplication::qwsSetDecoration(
+            decoration.isEmpty()?QLatin1String("default"):decoration);
+#endif
+    }
 
 #ifndef QT_NO_STYLE_INTERLACE
 /*### convert interlace style
@@ -1621,7 +1631,7 @@ void qt_cleanup()
     QCursor::cleanup();
 #endif
     QFont::cleanup();
-    QColor::cleanup();
+    QColormap::cleanup();
 
     if (qws_single_process) {
         QWSServer::closedown();
@@ -2331,7 +2341,7 @@ void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors
 
     This method is non-portable. It is available \e only in Qt/Embedded.
 
-    \sa QWSDecoration
+    \sa QDecoration
 */
 QDecoration &QApplication::qwsDecoration()
 {
@@ -2345,7 +2355,7 @@ QDecoration &QApplication::qwsDecoration()
     This method is non-portable. It is available \e only in
     Qt/Embedded.
 
-    \sa QWSDecoration
+    \sa QDecoration
 */
 void QApplication::qwsSetDecoration(QDecoration *dec)
 {
@@ -2364,6 +2374,34 @@ void QApplication::qwsSetDecoration(QDecoration *dec)
         }
     }
 }
+
+/*!
+  \overload
+
+  Requests a QDecoration object for \a decoration from the QDecorationFactory.
+
+  The string must be one of the QStyleFactory::keys(), typically one
+  of "windows", "motif", "cde", "motifplus", "platinum", "sgi" and
+  "compact". Depending on the platform, "windowsxp", "aqua" or
+  "macintosh" may be available.
+
+  A later call to the QApplication constructor will override the
+  requested style when a "-style" option is passed in as a commandline
+  parameter.
+
+  Returns 0 if an unknown \a style is passed, otherwise the QStyle object
+  returned is set as the application's GUI style.
+*/
+QDecoration* QApplication::qwsSetDecoration(const QString &decoration)
+{
+    QDecoration *decore = QDecorationFactory::create(decoration);
+    if (!decore)
+        return 0;
+
+    qwsSetDecoration(decore);
+    return decore;
+}
+
 #endif
 
 bool qt_modal_state()
@@ -3001,7 +3039,7 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if (QColor::numBitPlanes() < 16 || !animate_ui)
+    if (QColormap::instance().depth() < 16 || !animate_ui)
         return false;
 
     switch(effect) {

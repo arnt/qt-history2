@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qcolormap.h"
-
+#include "qcolor.h"
 
 class QColormapPrivate
 {
@@ -21,7 +21,7 @@ public:
         : mode(QColormap::Direct), depth(0)
     { ref = 0; }
     ~QColormapPrivate()
-    { delete cells; }
+    {}
 
     QAtomic ref;
 
@@ -40,6 +40,7 @@ void QColormap::cleanup()
 
 QColormap QColormap::instance(int screen)
 {
+    return QColormap();
 }
 
 QColormap::QColormap()
@@ -64,12 +65,15 @@ int QColormap::depth() const
 
 int QColormap::size() const
 {
+    return 0;
 }
 
 uint QColormap::pixel(const QColor &color) const
 {
+    return 0;
 }
 
 QColor QColormap::colorAt(uint pixel) const
 {
+    return QColor();
 }
