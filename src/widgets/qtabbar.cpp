@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#9 $
 **
 ** Implementation of QTabBar class
 **
@@ -8,8 +8,9 @@
 *****************************************************************************/
 
 #include "qtabbar.h"
+#include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#9 $");
 
 
 QTab::~QTab()
@@ -19,7 +20,8 @@ QTab::~QTab()
 
 // this struct can be expanded without breaking binary compatibility
 struct QTabPrivate {
-    unsigned int id;
+    int id;
+    int focus;
     QTab * pressed;
 };
 
@@ -51,8 +53,10 @@ QTabBar::QTabBar( QWidget * parent, const char * name )
 {
     d = new QTabPrivate;
     d->id = 0;
+    d->focus = 0;
     l = new QListT<QTab>;
     l->setAutoDelete( TRUE );
+    setFocusPolicy( TabFocus );
 }
 
 
@@ -159,8 +163,12 @@ QSize QTabBar::sizeHint() const
 }
 
 
-/*!
-  Don't mess wit da clip rect and it won't mess with you, okay?
+/*!  Paint the single tab \a t using \a p.  If and only if \a selected
+  is TRUE, \a t is currently selected.
+
+  This virtual function may be reimplemented to change the look of
+  QTabBar.  If you decide to reimplement it, you may also need to
+  reimplement sizeHint().
 */
 
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
@@ -209,8 +217,21 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     else
 	p->setPen( palette().disabled().foreground() );
 
-    p->drawText( t->r.left()+2, t->r.top(), t->r.width() - 6, t->r.height(),
-		 AlignCenter, t->label );
+    QRect br = p->fontMetrics().boundingRect( t->label );
+    br.setHeight( p->fontMetrics().height() );
+    br.setRect( t->r.left() + (t->r.width()-br.width())/2 - 3,
+		t->r.top() + (t->r.height()-br.height())/2,
+		br.width() + 5,
+		br.height() + 2 );
+
+    p->drawText( br, AlignCenter, t->label );
+
+    if ( t->id != keyboardFocusTab() )
+	return;
+    if ( style() == WindowsStyle )
+	p->drawWinFocusRect( br );
+    else
+	p->drawRect( br );
 }
 
 
@@ -300,6 +321,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 	if ( l->findRef( t ) >= 0 )
 	    l->append( l->take() );
 
+	d->focus = t->id;
 	if ( t->r.intersects( r ) ) {
 	    repaint( r.unite( t->r ) );
 	} else {
@@ -345,3 +367,85 @@ int QTabBar::currentTab() const
     return t ? t->id : -1;
 }
 
+
+
+/*!  If this tab control has keyboard focus, returns the ID of the
+  tab Space will select.  Otherwise, returns -1.
+*/
+
+int QTabBar::keyboardFocusTab() const
+{
+    return hasFocus() ? d->focus : -1;
+}
+
+
+/*!
+
+*/
+
+void QTabBar::keyPressEvent( QKeyEvent * e )
+{
+    int old = d->focus;
+
+    if ( e->key() == Key_Left ) {
+	// left - skip past any disabled ones
+	if ( d->focus > 0 ) {
+	    QTab * t;
+	    do {
+		d->focus--;
+		t = l->first();
+		while ( t && t->id != d->focus )
+		    t = l->next();
+	    } while ( d->focus >= 0 && t && !t->enabled );
+	}
+	if ( d->focus < 0 )
+	    d->focus = old;
+	e->accept();
+    } else if ( e->key() == Key_Right ) {
+	// right - ditto
+	if ( d->focus < d->id-1 ) {
+	    QTab * t;
+	    do {
+		d->focus++;
+		t = l->first();
+		while ( t && t->id != d->focus )
+		    t = l->next();
+	    } while ( d->focus < d->id && t && !t->enabled );
+	}
+	if ( d->focus >= d->id )
+	    d->focus = old;
+	e->accept();
+    } else if ( e->key() == Key_Space ) {
+	// space - select
+	QTab * t = l->last();
+	QRect r( 0,0, -1, -1 );
+	if ( t )
+	    r = t->r;
+	while ( t && t->id != d->focus )
+	    t = l->prev();
+	if ( t ) {
+	    l->append( l->take() );
+	    r = r.unite( t->r );
+	    e->accept();
+	    if ( r.isValid() )
+		repaint( r );
+	    emit selected( t->id );
+	}
+    } else {
+	// other keys - ignore
+	e->ignore();
+    }
+
+    // if the focus moved, repaint a bit
+    if ( old != d->focus ) {
+	QRect r( 0,0, -1,-1 );
+	QTab * t = l->first();
+	while ( t ) {
+	    if ( t->id == d->focus || t->id == old )
+		r = r.unite( t->r );
+	    t = l->next();
+	}
+	if ( r.isValid() )
+	    repaint( r );
+    }
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#4 $
 **
 ** Definition of QTabBar class
 **
@@ -47,6 +47,7 @@ public:
     QSize sizeHint() const;
 
     int currentTab() const;
+    int keyboardFocusTab() const;
 
 signals:
     void  selected( int );
@@ -55,9 +56,10 @@ protected:
     virtual void paint( QPainter *, QTab *, bool ) const;
     virtual QTab * selectTab( const QPoint & p ) const;
 
-    void  paintEvent( QPaintEvent * );
-    void  mousePressEvent ( QMouseEvent * );
-    void  mouseReleaseEvent ( QMouseEvent * );
+    void paintEvent( QPaintEvent * );
+    void mousePressEvent ( QMouseEvent * );
+    void mouseReleaseEvent ( QMouseEvent * );
+    void keyPressEvent( QKeyEvent * );
 
 private:
     QListT<QTab> * l;
