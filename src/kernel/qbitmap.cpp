@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#12 $
 **
 ** Implementation of QBitmap class
 **
@@ -11,9 +11,10 @@
 *****************************************************************************/
 
 #include "qbitmap.h"
+#include "qimage.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#12 $";
 #endif
 
 
@@ -123,6 +124,33 @@ QBitmap::QBitmap( const QBitmap &bitmap )
   Assigns the bitmap \e bitmap to this bitmap and returns a reference to this
   bitmap.
 */
+
+/*!
+  Assigns the pixmap \e pixmap to this bitmap and returns a reference to this
+  bitmap.
+
+  Dithering will be performed if the pixmap has a depth > 1.
+*/
+
+QBitmap &QBitmap::operator=( const QPixmap &pixmap )
+{
+    if ( pixmap.depth() == 1 ) {		// 1-bit pixmap
+	if ( pixmap.isQBitmap() ) {		// another QBitmap
+	    *this = pixmap;			// shallow assignment
+	}
+        else {					// not a QBitmap
+	    QBitmap bm( pixmap.size() );
+	    bitBlt( &bm, 0,0, &pixmap, 0,0,-1,-1 );
+	    *this = bm;
+	}
+    }
+    else {					// n-bit depth pixmap
+	QImage image;
+	image = pixmap;				// pixmap -> image
+	*this = image;				// will dither image
+    }
+    return *this;
+}
 
 /*!
   Converts the image \e image to a bitmap that is assigned to this bitmap.

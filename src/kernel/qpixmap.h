@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#34 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#35 $
 **
 ** Definition of QPixmap class
 **
@@ -59,15 +59,16 @@ public:
     bool    load( const char *fileName, const char *format=0 );
     bool    save( const char *fileName, const char *format ) const;
 
-protected:
-    QPixmap( int w, int h, const char *data, bool isXbitmap );
-    long    metric( int ) const;		// get metric information
-
-    virtual void detach();
-
 #if defined(_WS_WIN_) || defined(_WS_PM_)
     HANDLE  hbm() const;
 #endif
+
+    bool    isQBitmap()	  const;
+
+protected:
+    QPixmap( int w, int h, const char *data, bool isXbitmap );
+    long    metric( int ) const;		// get metric information
+    virtual void detach();
 
 #if defined(_WS_WIN_)
     HANDLE allocMemDC();
@@ -119,6 +120,11 @@ inline HANDLE QPixmap::hbm() const
     return data->hbm;
 }
 #endif
+
+bool QPixmap::isQBitmap() const
+{
+    return data->bitmap;
+}
 
 
 // --------------------------------------------------------------------------
