@@ -105,6 +105,10 @@
 #  undef BSD_COMP
 #endif
 
+#if defined(_OS_SCO_)
+#  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
+#endif
+
 static int qt_thread_pipe[2];
 #endif
 
@@ -3069,10 +3073,10 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	modal = widget;
     if ( !top || modal == top )			// don't block event
 	return TRUE;
-    
+
     while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
 	groupLeader = groupLeader->parentWidget();
-    
+
     if ( groupLeader ) {
 	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
@@ -3085,8 +3089,8 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    modal = qt_modal_stack->next();
 	    if ( p == groupLeader ) unrelated = FALSE;
 	}
-	
-	if ( unrelated ) 
+
+	if ( unrelated )
 	    return TRUE;		// don't block event
     }
 
