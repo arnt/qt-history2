@@ -762,27 +762,30 @@ void QTextCursor::processNesting( Operation op )
     string->lineHeightOfChar( idx, &bl, &y );
     oy = y + string->rect().y();
     nested = TRUE;
+    bool ok = FALSE;
 
     switch ( op ) {
     case EnterBegin:
-	string->at( idx )->customItem()->enter( this, doc, string, idx, ox, oy );
+	ok = string->at( idx )->customItem()->enter( this, doc, string, idx, ox, oy );
 	break;
     case EnterEnd:
-	string->at( idx )->customItem()->enter( this, doc, string, idx, ox, oy, TRUE );
+	ok = string->at( idx )->customItem()->enter( this, doc, string, idx, ox, oy, TRUE );
 	break;
     case Next:
-	string->at( idx )->customItem()->next( this, doc, string, idx, ox, oy );
+	ok = string->at( idx )->customItem()->next( this, doc, string, idx, ox, oy );
 	break;
     case Prev:
-	string->at( idx )->customItem()->prev( this, doc, string, idx, ox, oy );
+	ok = string->at( idx )->customItem()->prev( this, doc, string, idx, ox, oy );
 	break;
     case Down:
-	string->at( idx )->customItem()->down( this, doc, string, idx, ox, oy );
+	ok = string->at( idx )->customItem()->down( this, doc, string, idx, ox, oy );
 	break;
     case Up:
-	string->at( idx )->customItem()->up( this, doc, string, idx, ox, oy );
+	ok = string->at( idx )->customItem()->up( this, doc, string, idx, ox, oy );
 	break;
     }
+    if ( !ok )
+	pop();
 }
 
 void QTextCursor::gotoRight()
@@ -3859,7 +3862,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    }
 	}
     }
-    
+
     QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
 
     if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
@@ -6478,18 +6481,16 @@ void QTextTable::addCell( QTextTableCell* cell )
 			  cell->column(), cell->column() + cell->colspan()-1 );
 }
 
-void QTextTable::enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd )
+bool QTextTable::enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd )
 {
     currCell.remove( c );
-    if ( !atEnd ) {
-	next( c, doc, parag, idx, ox, oy );
-    } else {
-	currCell.insert( c, cells.count() );
-	prev( c, doc, parag, idx, ox, oy );
-    }
+    if ( !atEnd )
+	return next( c, doc, parag, idx, ox, oy );
+    currCell.insert( c, cells.count() );
+    return prev( c, doc, parag, idx, ox, oy );
 }
 
-void QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos )
+bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos )
 {
     currCell.remove( c );
     int lastCell = -1;
@@ -6515,21 +6516,26 @@ void QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
     if ( currCell.find( c ) == currCell.end() ) {
 	if ( lastY != -1 )
 	    currCell.insert( c, lastCell );
+	else
+	    return FALSE;
     }
 
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( !cell )
-	return;
+	return FALSE;
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
     ox += cell->geometry().x() + outerborder + parent->x();
     oy += cell->geometry().y() + outerborder;
+    return TRUE;
 }
 
-void QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
+bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
 {
-    int cc = *currCell.find( c );
+    int cc = -1;
+    if ( currCell.find( c ) != currCell.end() )
+	cc = *currCell.find( c );
     if ( cc > (int)cells.count() - 1 || cc < 0 )
 	cc = -1;
     currCell.remove( c );
@@ -6539,25 +6545,30 @@ void QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	QTextCustomItem::next( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
 	if ( !cell )
-	    return;
+	    return FALSE;
 	doc = cell->richText();
 	idx = -1;
-	return;
+	return TRUE;
     }
 
+    if ( currCell.find( c ) == currCell.end() )
+	return FALSE;
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( !cell )
-	return;
+	return FALSE;
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
     ox += cell->geometry().x() + outerborder + parent->x();
     oy += cell->geometry().y() + outerborder;
+    return TRUE;
 }
 
-void QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
+bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
 {
-    int cc = *currCell.find( c );
+    int cc = -1;
+    if ( currCell.find( c ) != currCell.end() )
+	cc = *currCell.find( c );
     if ( cc > (int)cells.count() - 1 || cc < 0 )
 	cc = cells.count();
     currCell.remove( c );
@@ -6567,38 +6578,45 @@ void QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	QTextCustomItem::prev( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
 	if ( !cell )
-	    return;
+	    return FALSE;
 	doc = cell->richText();
 	idx = -1;
-	return;
+	return TRUE;
     }
 
+    if ( currCell.find( c ) == currCell.end() )
+	return FALSE;
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( !cell )
-	return;
+	return FALSE;
     doc = cell->richText();
     parag = doc->firstParag();
     idx = parag->length() - 1;
     ox += cell->geometry().x() + outerborder + parent->x();
     oy += cell->geometry().y() + outerborder;
+    return TRUE;
 }
 
-void QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
+bool QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
 {
+    if ( currCell.find( c ) == currCell.end() )
+	return FALSE;
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( cell->row_ == layout->numRows() - 1 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::down( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
 	if ( !cell )
-	    return;
+	    return FALSE;
 	doc = cell->richText();
 	idx = -1;
-	return;
+	return TRUE;
     }
 
     int oldRow = cell->row_;
     int oldCol = cell->col_;
+    if ( currCell.find( c ) == currCell.end() )
+	return FALSE;
     int cc = *currCell.find( c );
     for ( int i = cc; i < (int)cells.count(); ++i ) {
 	cell = cells.at( i );
@@ -6609,29 +6627,34 @@ void QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     }
     doc = cell->richText();
     if ( !cell )
-	return;
+	return FALSE;
     parag = doc->firstParag();
     idx = 0;
     ox += cell->geometry().x() + outerborder + parent->x(),
     oy += cell->geometry().y() + outerborder;
+    return TRUE;
 }
 
-void QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
+bool QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy )
 {
+    if ( currCell.find( c ) == currCell.end() )
+	return FALSE;
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
     if ( cell->row_ == 0 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::up( c, doc, parag, idx, ox, oy );
 	QTextTableCell *cell = cells.at( 0 );
 	if ( !cell )
-	    return;
+	    return FALSE;
 	doc = cell->richText();
 	idx = -1;
-	return;
+	return TRUE;
     }
 
     int oldRow = cell->row_;
     int oldCol = cell->col_;
+    if ( currCell.find( c ) == currCell.end() )
+	return FALSE;
     int cc = *currCell.find( c );
     for ( int i = cc; i >= 0; --i ) {
 	cell = cells.at( i );
@@ -6642,11 +6665,12 @@ void QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
     }
     doc = cell->richText();
     if ( !cell )
-	return;
+	return FALSE;
     parag = doc->lastParag();
     idx = parag->length() - 1;
     ox += cell->geometry().x() + outerborder + parent->x();
     oy += cell->geometry().y() + outerborder;
+    return TRUE;
 }
 
 QTextTableCell::QTextTableCell( QTextTable* table,
