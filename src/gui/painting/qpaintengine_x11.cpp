@@ -1001,8 +1001,8 @@ void QX11PaintEngine::updateBrush(QPainterState *ps)
                 pm = QBitmap(dd, dd, pat, true);
                 QPixmapCache::insert(key, pm);
             }
-	    if ( d->cbrush.pixmap() )
-		delete d->cbrush.pixmap();
+	    if ( d->cbrush.d->pixmap )
+		delete d->cbrush.d->pixmap;
 	    d->cbrush.d->pixmap = new QPixmap( pm );
         }
 	pm = *d->cbrush.d->pixmap;

@@ -67,6 +67,7 @@ private:
 	QPixmap	 *pixmap;
     };
     QBrushData *d;
+    QBrushData *d_func() { return d; }
     void cleanUp(QBrushData *x);
     static QBrushData *shared_default;
 };
