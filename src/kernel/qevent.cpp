@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#108 $
 **
 ** Implementation of event classes
 **
@@ -86,7 +86,50 @@
   </ul>
 */
 
+/*! \enum QEvent::Type
 
+  This enum type defines the valid event types in Qt.  The currently
+  defined event types, and the specialized types for each type, are: <ul>
+
+  <li> \c None - not an event
+  <li> \c Timer - regular timer events, QTimerEvent
+  <li> \c MouseButtonPress - mouse press, QMouseEvent
+  <li> \c MouseButtonRelease - mouse release, QMouseEvent
+  <li> \c MouseButtonDblClick - mouse press again, QMouseEvent
+  <li> \c MouseMove - mouse move, QMouseEvent
+  <li> \c KeyPress - key press (including e.g. shift), QKeyEvent
+  <li> \c KeyRelease - key release, QKeyEvent
+  <li> \c FocusIn - widget gains keyboard focus, QFocusEvent
+  <li> \c FocusOut - widget loses keyboard focus, QFocusEvent
+  <li> \c Enter - mouse enters widget's space
+  <li> \c Leave - mouse leaves widget's soace
+  <li> \c Paint - screen update necessary, QPaintEvent
+  <li> \c Move - widget's position changed, QMoveEvent
+  <li> \c Resize - widget's size changed, QResizeEvent
+  <li> \c Create - 
+  <li> \c Destroy - 
+  <li> \c Show - widget was shown on screen, QShowEvent
+  <li> \c Hide - widget was removed from screen, QHideEvent
+  <li> \c Close - widget was closed (permanently), QCloseEvent
+  <li> \c Quit - 
+  <li> \c Accel - key press in child, for shortcut key handling, QKeyEvent
+  <li> \c Wheel - mouse wheel rolled, QWheelEvent
+  <li> \c AccelAvailable - 
+  <li> \c CaptionChange - 
+  <li> \c Clipboard - 
+  <li> \c SockAct - 
+  <li> \c DragEnter - 
+  <li> \c DragMove - 
+  <li> \c DragLeave - 
+  <li> \c Drop - 
+  <li> \c DragResponse - 
+  <li> \c ChildInserted - 
+  <li> \c ChildRemoved - 
+  <li> \c LayoutHint - 
+  <li> \c ActivateControl - 
+  <li> \c DeactivateControl - 
+  <li> \c User - 
+*/
 /*!
   \fn QEvent::QEvent( Type type )
   Contructs an event object with a \a type. The file qevent.h lists
@@ -739,7 +782,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   the close event really wants to.
 
   The main widget of the application - QApplication::mainWidget() - is
-  a special case. When it accepts the close event, Qt leaves the main
+  a special case.  When it accepts the close event, Qt leaves the main
   event loop and the application is immediately terminated (i.e. it
   returns back from the call to QApplication::exec() in your main()
   function).
