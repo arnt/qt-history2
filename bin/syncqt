@@ -92,15 +92,15 @@ sub checkUnix {
 }
 
 ######################################################################
-# Syntax:  syncClassNames(iheader, library)
+# Syntax:  classNames(iheader)
 # Params:  iheader, string, filename to parse for classname "symlinks"
 #          library, string, library subdirectory in include directory
 #
 # Purpose: All classnames found in iheader are synced into library's
 #          include structure
 ######################################################################
-sub syncClassNames {
-    my $ret = 0;
+sub classNames {
+    my @ret;
     my ($iheader, $library) = @_;
 
     my $parsable = "";
@@ -173,16 +173,11 @@ sub syncClassNames {
                 $symbol = $4;
             }
             if($symbol && $symbol =~ /^Q/) {
-                if($showonly) {
-                    print "SYMBOL: $symbol\n";
-                } else {
-		    $ret += syncHeader("$includedir/$library/$symbol", $iheader);		    
-                }
+		push @ret, $symbol;
             }
         }
     }
-    print "SYMBOLS: Found $ret\n" if($showonly);
-    return $ret;
+    return @ret;
 }
 
 ######################################################################
@@ -454,12 +449,17 @@ while ( @ARGV ) {
 mkpath $includedir, 0777;
 
 my @ignore_headers = ();
-my @ignore_master_headers = ( "qt.h", "qpaintdevicedefs.h" );
+my @ignore_for_master_contents = ( "qt.h", "qpaintdevicedefs.h" );
 
 foreach (@modules_to_sync) {
+    #iteration info
     my $lib = $_;
     my $dir = "$modules{$lib}";
-    my $master_header_out = "";
+
+    #information used after the syncing
+    my $master_contents = "";
+    my $install_classes = "";
+    my $install_files = "";
 
     #remove the old files
     if($remove_stale) {
@@ -523,29 +523,49 @@ foreach (@modules_to_sync) {
 		    if($public_header =~ /_p.h$/) {
 			$public_header = 0;
 		    } else {
-			foreach (@ignore_master_headers) {
+			foreach (@ignore_for_master_contents) {
 			    $public_header = 0 if("$header" eq "$_");
 			}
 		    }
 
                     my $iheader = $subdir . "/" . $header;
+		    my @classes = $public_header ? classNames($iheader) : ();
                     if($showonly) {
                         print "$header [$lib]\n";
+			foreach(@classes) {
+			    print "SYMBOL: $_\n";			    
+			}
                     } else {
-                        #put it into the master file
-			$master_header_out .= "#include \"$public_header\"\n" if($public_header && !($header =~ /_/));
-                        #now sync the header file
+			#find out all the places it goes..
 			my @headers;
 			if ($public_header) {
 			    @headers = ( "$includedir/Qt/$header", "$includedir/$lib/$header" );
 			} else {
 			    @headers = ( "$includedir/Qt/private/$header", "$includedir/$lib/private/$header" );
 			}
+			foreach(@classes) {
+			    push @headers, "$includedir/$lib/$_";
+			}
+                        #do the syncing..
 			foreach(@headers) {
-			    $header_copies += syncHeader($_, $iheader);
+			    $header_copies++ if(syncHeader($_, $iheader));
+			}
+
+			if($public_header) {
+			    #put it into the master file
+			    $master_contents .= "#include \"$public_header\"\n" unless($header =~ /_/);
+
+			    #deal with the install file
+			    if($public_header) {
+				foreach(@classes) {
+				    $install_classes .= " \\\n  \$\$quote(\"" . 
+					(length($install_classes) ? "\\n\\t" : "") . 
+					"-\$(INSTALL_FILE) \"$iheader\" \"PREFIXPATH/$_\"\")";
+				}
+				$install_files .= "$iheader ";
+			    }
 			}
                     }
-		    $header_copies += syncClassNames($iheader, $lib) if($public_header);
 		    print "header created for $iheader ($header_copies)\n" if($header_copies > 0);
                 }
             }
@@ -553,8 +573,9 @@ foreach (@modules_to_sync) {
     }
 
     unless($showonly) {
-        #finally generate the "master" include file
+        #generate the "master" include file
         my $master_include = "$includedir/$lib/$lib";
+	$install_files .= "$master_include "; #get the master file installed too
         if(-e "$master_include") {
             open MASTERINCLUDE, "<$master_include";
             local $/;
@@ -562,15 +583,38 @@ foreach (@modules_to_sync) {
             my $oldmaster = <MASTERINCLUDE>;
             close MASTERINCLUDE;
             $oldmaster =~ s/\r//g; # remove \r's , so comparison is ok on all platforms
-            $master_include = 0 if($oldmaster eq $master_header_out);
+            $master_include = 0 if($oldmaster eq $master_contents);
         }
         if($master_include) {
             my $master_dir = dirname($master_include);
             mkpath $master_dir, 0777;
             print "header (master) created for $lib\n";
             open MASTERINCLUDE, ">$master_include";
-            print MASTERINCLUDE "$master_header_out";
+            print MASTERINCLUDE "$master_contents";
             close MASTERINCLUDE;
+        }
+
+        #handle the install.pri for each module
+	my $install_contents = "";
+	$install_contents .= "HEADER_FILES = $install_files\n";
+	$install_contents .= "CLASSES_COPY = $install_classes\n";
+        my $install_file = "$includedir/$lib/install.pri";
+        if(-e "$install_file") {
+            open INSTALLFILE, "<$install_file";
+            local $/;
+            binmode INSTALLFILE;
+            my $oldinstall = <INSTALLFILE>;
+            close INSTALLFILE;
+            $oldinstall =~ s/\r//g; # remove \r's , so comparison is ok on all platforms
+            $install_file = 0 if($oldinstall eq $install_contents);
+        }
+        if($install_file) {
+            my $install_dir = dirname($install_file);
+            mkpath $install_dir, 0777;
+            print "install file created for $lib\n";
+            open INSTALLFILE, ">$install_file";
+            print INSTALLFILE "$install_contents";
+            close INSTALLFILE;
         }
     }
 }
