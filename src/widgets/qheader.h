@@ -109,7 +109,7 @@ private:
     int		pPos( int i ) const;
     int		pSize( int i ) const;
     int		pHeight( int i ) const;
-
+    void	setPHeight( int i, int h );
     int 	findLine( int );
 
     void	handleColumnResize(int, int, bool);

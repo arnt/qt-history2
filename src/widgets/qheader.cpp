@@ -110,27 +110,30 @@ QHeader::~QHeader()
 }
 
 /*!
-  \fn void QHeader::sectionClicked (int logical)
+  \fn void QHeader::sectionClicked (int actual)
 
-  This signal is emitted when a part of the header is clicked. In a
-  list view, this signal would typically be connected to a slot which sorts
-  the specified column.
+  This signal is emitted when a part of the header is clicked. \a
+  actual is the actual index of the clicked section.  
+  
+  In a list view, this signal would typically be connected to a slot
+  which sorts the specified column.
 */
 
 /*!
-  \fn void QHeader::sizeChange( int section, int oldSize, int newSize )
+  \fn void QHeader::sizeChange( int logicalSection, int oldSize, int newSize )
 
   This signal is emitted when the user has changed the size of some
   of the parts of the header. This signal is typically connected to a slot
-  that repaints the table. \a section is the logical section resized.
+  that repaints the table. \a logicalSection is the logical section resized.
 */
 
 /*!
   \fn void QHeader::moved (int from, int to)
 
   This signal is emitted when the user has moved column \a from to
-  position \a to.
-  */
+  position \a to. \a from is the actual index of the column before the
+  move and \a to is the new actual index.
+*/
 
 /*!
   Returns the size in pixels of section \a i of the header. \a i is the
@@ -241,28 +244,14 @@ void QHeader::init( int n )
     data->move = TRUE;
     data->sortColumn = -1;
     data->sortDirection = TRUE;
-    /*
-    setFrameStyle( QFrame::NoFrame );
 
-    if ( orient == Horizontal ) {
-	setCellWidth( 0 );
-	setCellHeight( height() );
-	setNumCols( n );
-	setNumRows( 1 );
-    } else {
-	setCellWidth( width() );
-	setCellHeight( 0 );
-	setNumCols( 1 );
-	setNumRows( n );
-    }
-    */
     handleIdx = 0;
-    //################ ??? What's that supposed to be, Paul?
+    //### We use an extra dummy item at the end:
     data->sizes[n] = 0;
     data->heights[n] = 0;
     data->a2l[n] = 0;
     data->l2a[n] = 0;
-    //#############
+
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
     setBackgroundMode( PaletteButton );
@@ -380,7 +369,7 @@ int QHeader::findLine( int c )
 {
     int i = cellAt( c );
     if ( i == -1 )
-	return handleIdx; //####### frustrating, but safe behavior.
+	return handleIdx; //### frustrating, but safe behavior.
     if ( i == handleIdx )
 	return i;
     if ( i == handleIdx - 1 &&  pPos( handleIdx ) - c > MARKSIZE/2 )
@@ -695,7 +684,7 @@ QIconSet *QHeader::iconSet( int i) const
 */
 int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 {
-    int n = count() + 1; //########### Paul? Why hashes?
+    int n = count() + 1;
     data->iconsets.resize( n + 1 );
     data->iconsets.insert( n - 1, new QIconSet( iconset ) );
     return addLabel( s, size );
@@ -713,11 +702,13 @@ void QHeader::removeLabel( int index )
     if ( index < count() - 1 ) {
 	for ( int i = index; i < count() - 1; ++i ) {
 	    int ns = cellSize( i + 1 );
+	    int nh = pHeight( i + 1 );
 	    if ( iconSet( i + 1 ) )
 		setLabel( i, *iconSet( i + 1 ), label( i + 1 ) );
 	    else
 		setLabel( i, label( i + 1 ) );
 	    setCellSize( i, ns );
+	    setPHeight( i, nh );
 	}
     }
 
@@ -873,14 +864,26 @@ int QHeader::pSize( int i ) const
 }
 
 /*!
-  Returns the height of actual section \a i.
- */
+  Returns the height of actual section \a i if orientation() is horizontal ,
+  returns the width if vertical.
+  
+*/
 int QHeader::pHeight( int i ) const
 {
     if ( i < 0 || i >= count() )
 	return 0;
 
     return data->heights[mapToLogical(i)];
+}
+
+/*!
+  Sets the height of actual section \a i to \a h if orientation() is
+  horizontal. Sets the width if vertical.
+*/
+void QHeader::setPHeight( int i, int h )
+{
+    if ( i >= 0 && i < count() )
+	data->heights[mapToLogical(i)] = h;
 }
 
 
