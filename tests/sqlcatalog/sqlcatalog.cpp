@@ -27,44 +27,11 @@ int main( int argc, char** argv )
 	qDebug( "..." + tables[i] );
 	QSqlRecord fil = database->record( tables[i] );
 	for ( uint j = 0; j < fil.count(); ++j ) {
-	    qDebug("......" + fil.field(j)->name() );
-	    if ( fil.field(j)->isPrimaryIndex() )
+	    qDebug("......" + fil.field(j)->name() + " " + QString( fil.field(j)->value().typeName() ) );
+	    if ( database->primaryIndex( tables[i] ).field( fil.field(j)->name() ) )
 		qDebug(".........PRIMARY INDEX" );
 	}
     }
-
-    qDebug("Creating rowset...");
-    QSqlCursor v( "key_test" );
-
-    // insert a value
-    v.clearValues( TRUE );
-    v["id"] = 999;
-    v["name"] = "xxxx";
-    if ( v.insert() != 1 )
-	qDebug("ERROR:" + v.lastError().databaseText());
-    qDebug("after insert, ID:" + v["id"].toString() );
-    qDebug("after insert, name:" + v["name"].toString() );
-
-    v.select( v.primaryIndex(), v.primaryIndex() );
-    Q_ASSERT( v.next() );
-    qDebug("after next, ID:" + v["id"].toString() );
-    qDebug("after next, name:" + v["name"].toString() );
-    Q_ASSERT( v["id"].toInt() == 999 );
-
-    // put back a new value
-    v["name"] = "barf";
-    Q_ASSERT( v.update( v.primaryIndex() ) == 1 );
-    v.select( v.primaryIndex(), v.primaryIndex() );
-    Q_ASSERT( v.next() );
-    qDebug("after next, ID:" + v["id"].toString() );
-    qDebug("after next, name:" + v["name"].toString() );
-    Q_ASSERT( v["id"].toInt() == 999 );
-
-    // delete the record
-    v["id"] = 999;
-    Q_ASSERT( v.del( v.primaryIndex() ) == 1 );
-    v.select( v.primaryIndex(), v.primaryIndex() );
-    Q_ASSERT( !v.next() );
 
     qDebug("Done.");
     return 0;
