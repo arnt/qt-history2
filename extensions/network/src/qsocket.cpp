@@ -174,8 +174,8 @@ void QSocket::timerEvent( QTimerEvent *e )
   <li> \c QSocket::HostLookup during a host lookup,
   <li> \c QSocket::Connecting during an attempt to connect to a host, and
   <li> \c QSocket::Connection when there is a connection.
-  <li> \c QSocket::Listening ???
-  <li> \c QSocket::Closing ???
+  <li> \c QSocket::Closing if the socket is about to close but not all data is
+          written to the socket yet
   </ul>
 */
 
@@ -979,16 +979,6 @@ QString QSocket::readLine()
 
 void QSocket::sn_read()
 {
-    if ( state() == Listening ) {
-	int fd = d->socket->accept();
-	if ( fd >= 0 ) {
-	    setSocket( fd );
-	    emit connected();
-	}
-	// if it doesn't work, we will retry later
-	return;
-    }
-
     char buf[4096];
     int  nbytes = d->socket->bytesAvailable();
     int  nread;
@@ -1103,21 +1093,6 @@ void QSocket::tryConnection()
 	emit error( ErrConnectionRefused );
 	return;
     }
-}
-
-
-/*!
-  Listens for and accepts a single inbound connection on address \a a,
-  port \a p.  \a a must be supplied (although you can use the default
-  constructor for QHostAddress).  \a p defaults to 0, which lets the
-  operating system select a port.
-*/
-
-bool QSocket::listen( const QHostAddress &a, int p )
-{
-    setSocket( -1 );
-    d->socket->bind( a, p );
-    return d->socket->listen( 1 );
 }
 
 

@@ -64,8 +64,6 @@ public:
     virtual void connectToLocalFile( const QString &file );
     QString	 peerName() const;
 
-    virtual bool listen( const QHostAddress &, int port = 0 );
-
     // Implementation of QIODevice abstract virtual functions
     bool	 open( int mode );
     void	 close();
