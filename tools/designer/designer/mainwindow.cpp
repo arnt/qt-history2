@@ -1287,6 +1287,7 @@ void MainWindow::setupActionEditor()
     QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
     actionWindowActionEditor->setOn( FALSE );
     dw->hide();
+    setAppropriate( dw, FALSE );
 }
 
 void MainWindow::setupRMBMenus()
@@ -3045,6 +3046,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		formWindow()->clearSelection();
 	}
 	formlist()->activeFormChanged( (FormWindow*)w );
+	setAppropriate( (QDockWindow*)actionEditor->parentWidget(), lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	actionWindowActionEditor->setOn( lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	actionEditor->setFormWindow( lastActiveFormWindow );
 	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
