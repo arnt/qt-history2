@@ -218,7 +218,8 @@
     bitBlt(this, 0, 0, &buffer);
     \endcode
 
-    Since the double-buffering is handled by QWidget internally this now becomes:
+    Since the double-buffering is handled by QWidget internally this
+    now becomes:
 
     \code
     QPainter painter(this);
@@ -235,6 +236,20 @@
     unbufferedWidget->setAttribute(Qt::WA_PaintOnScreen);
     \endcode
 
+    \section2 Pen and Brush Transformation
+
+    In Qt 3, pens and brushes weren't affected by the painter's
+    transformation matrix. For example, if you drew a rectangle with a
+    pen width of 1 using a scaled painter, the resulting line width
+    would still be 1. This made it difficult to implement features
+    such as zooming and high-resolution printing.
+    
+    In Qt 4, pens and brushes honor the painter's transformation
+    matrix.
+
+    Note that this feature is still in development and not yet
+    supported on all platforms.
+
     \section1 More to Come
 
     The Qt 4 Paint Subsystem is mostly completed, but there is still
@@ -247,7 +262,6 @@
 
     \list
     \i Gradients cannot have alpha color on X11.
-    \i Transformation of fill patterns.
     \i Support for querying for supported features (such as if
        antialiasing is available)
     \endlist
