@@ -3512,6 +3512,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
     }
 
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
+	setCurrentCell( tmpRow, tmpCol, selMode == SingleRow, TRUE );
 	if ( selMode != NoSelection && selMode != SingleRow ) {
 	    if ( !currentSel ) {
 		currentSel = new QTableSelection();
@@ -3529,8 +3530,8 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	    repaintSelections( &oldSelection, currentSel );
 	    emit selectionChanged();
 	}
-	setCurrentCell( tmpRow, tmpCol, selMode == SingleRow, TRUE );
     } else if ( ( e->state() & ControlButton ) == ControlButton ) {
+	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
 	if ( selMode != NoSelection ) {
 	    if ( selMode == Single || selMode == SingleRow && !isSelected( tmpRow, tmpCol, FALSE ) )
 		clearSelection();
@@ -3548,7 +3549,6 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 		emit selectionChanged();
 	    }
 	}
-	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE, TRUE );
 	QTableItem *itm = item( tmpRow, tmpCol );
