@@ -1,11 +1,14 @@
 <chapter>
 <title id="subclassingdynamicdialogs">
 Subclassing and Dynamic Dialogs</title>
-<para>
+<para id="amuw">
+\x[Subclassing]
+\x[Dynamic Dialogs]
+\x[Dialogs|Dynamic]
 This chapter describes two different approaches that you can take to
 creating forms with \qd. Subclassing is used to extend the functionality
 of a form by creating your own class based upon a form you create in
-\qd. Dynamic dialogs are <filename>.ui</filename> files which can be
+\qd. Dynamic dialogs are \f[.ui] files which can be
 executed by a Qt application; this keeps the GUI design and the code
 separate and is useful in environments where the GUI may have to
 change more often than the underlying application logic.
@@ -16,17 +19,17 @@ change more often than the underlying application logic.
 <!--
 <sidebar id="subclassingvscodinginqtdesigner">
 <title>Subclassing vs Coding in Qt Designer</title>
-<para>
+<para id="amvl">
 Adding slots directly in \qd is a useful technique suitable for most
 situations. But in some cases we want to use our own constructor or
-destructor rather than the supplied <function>init()</function> and
-<function>destroy()</function> functions. Also, for more complex
+destructor rather than the supplied \fn[init()] and
+\fn[destroy()] functions. Also, for more complex
 applications, it may be easier to debug the code in separate files since
 the line numbers in error messages refer to the lines where our code
 appears in the generated code rather where they appear in \qd's code
 editor.
 </para>
-<para>
+<para id="amvv">
 Many applications consist of a main window plus dialogs, where most of
 the functionality is in the main window, and where the dialogs are used
 to get preferences from the user. In such cases the most convenient
@@ -35,33 +38,34 @@ the dialogs wholly within \qd.
 </para>
 </sidebar>
 -->
-<para>
+<para id="amwe">
 We'll start with a general description of how to subclass a form and
 follow with a short example.
 </para>
 
 <sect2 id="turningdesignersuifilesintosourcecode">
 <title>Generating Source Code from Qt Designer .ui Files</title>
-<para>
-\qd reads and writes \cmd[qmake] <filename>.pro</filename> (project)
+<para id="amwl">
+\qd reads and writes \cmd[qmake] \f[.pro] (project)
 files which are used to record the files used to build the application
 and from which Makefiles are generated. \qd also reads and writes
-<function>.ui</function> (user interface) files. These are XML files
+\f[.ui] (user interface) files. These are XML files
 that record the widgets, layouts, source code and settings you've used
-for a form. Every <filename>.ui</filename> file is converted by
-the \cmd[uic] (user interface compiler) into a C++ <filename>.h</filename>
-file and a C++ <filename>.cpp</filename> file. These C++ files are then
+for a form. Every \f[.ui] file is converted by
+the \cmd[uic] (user interface compiler) into a C++ \f[.h]
+file and a C++ \f[.cpp] file. These C++ files are then
 read by \cmd[moc] (meta object compiler), and finally compiled by your
 compiler into a working application.
 </para>
 
-<para>
+<para id="amwy">
+\x[Makefiles]
 If you create applications wholly within \qd you only need to create a
-<filename>main.cpp</filename> and add 
+\f[main.cpp] and add 
 <programlisting>
 SOURCES += main.cpp
 </programlisting>
-at the end of your project's <filename>.pro</filename> file. You can
+at the end of your project's \f[.pro] file. You can
 then use \cmd[qmake] to generate the Makefile. (For example
 <literal>qmake -o Makefile myproject.pro</literal>.) Running \cmd[make]
 (Linux, Unix or Borland compilers), or \cmd[nmake] (Visual C++), will
@@ -69,18 +73,22 @@ then call \cmd[uic], \cmd[moc] and your compiler as necessary to build
 your application.
 </para>
 
-<para>
+<para id="amxm">
+\x[Errors|Undefined reference]
+\x[Undefined references, Error]
+\x[qmake|HEADERS]
+\x[qmake|SOURCES]
 If you use \qd to create your main window and dialogs, but also add
 other C++ files, or if you subclass any of your forms you will need to
-add these files to the <filename>.pro</filename> file so that they are
+add these files to the \f[.pro] file so that they are
 compiled with the rest of your application's source files. Each
-<filename>.h</filename> file that you create separately from \qd should
+\f[.h] file that you create separately from \qd should
 be added to the <literal>HEADERS</literal> line, and each
-<filename>.cpp</filename> file should be added to the
+\f[.cpp] file should be added to the
 <literal>SOURCES</literal> line, just as we've done for
-<filename>main.cpp</filename>. If you get undefined reference errors it
+\f[main.cpp]. If you get undefined reference errors it
 is worth checking that you've added the names of all your header and
-implementation files to the <filename>.pro</filename> file.
+implementation files to the \f[.pro] file.
 </para>
 
 </sect2>
@@ -89,38 +97,42 @@ implementation files to the <filename>.pro</filename> file.
 <sect2 id="subclassingaform">
 <title>Subclassing a Form </title>
 
-<para>
+<para id="amyg">
+\[Subclassing]
 When subclassing a form it is helpful to use a naming convention 
 to help us identify which files are generated from \qd's
-<filename>.ui</filename> files and which are hand coded. 
+\f[.ui] files and which are hand coded. 
 </para>
-<para>
+<para id="amyl">
 Suppose, for example, that we are developing a dialog and writing the
 code directly in \qd. We might call our dialog 'OptionsForm' and the
-<filename>.ui</filename> file, <filename>optionsform.ui</filename>. The
-automatically generated files will be <filename>optionsform.h</filename>
-and <filename>optionsform.cpp</filename>.
+\f[.ui] file, \f[optionsform.ui]. The
+automatically generated files will be \f[optionsform.h]
+and \f[optionsform.cpp].
 </para>
-<para>
+<para id="amys">
 If we were developing another dialog, but this time one that we intended
 to subclass, we want to make it easy to distinguish between the
 automatically generated files and our hand coded files. For example, we
 might call our dialog 'SettingsFormBase' and the
-<filename>.ui</filename> file <filename>settingsformbase.ui</filename>.
+\f[.ui] file \f[settingsformbase.ui].
 The automatically generated files would then be called
-<filename>settingsformbase.h</filename> and
-<filename>settingsformbase.cpp</filename>. We would then call our
+\f[settingsformbase.h] and
+\f[settingsformbase.cpp]. We would then call our
 subclass 'SettingsForm' and code it in the files
-<filename>settingsform.h</filename> and
-<filename>settingsform.cpp</filename>. 
+\f[settingsform.h] and
+\f[settingsform.cpp]. 
 </para>
-<para>
+<para id="amzf">
+\x[Q_OBJECT macro]
+\x[Macros|Q_OBJECT]
+\x[Signals and Slots|Q_OBJECT macro]
 Any subclass of a form should include the <literal>Q_OBJECT</literal>
 macro so that slots and signals will work correctly. Once you've created
-your subclass be sure to add the <filename>.h</filename> and the
-<filename>.cpp</filename> files to the <filename>.pro</filename> project
+your subclass be sure to add the \f[.h] and the
+\f[.cpp] files to the \f[.pro] project
 file. For example we would add the following lines for our subclassed
-'SettingsForm' at the end of the <filename>.pro</filename> file:
+'SettingsForm' at the end of the \f[.pro] file:
 <programlisting>
 HEADERS += settingsform.h
 SOURCES += settingsform.cpp
@@ -129,61 +141,62 @@ SOURCES += settingsform.cpp
 <programlisting>
 INTERFACES = settingsformbase.ui
 </programlisting>
-to the project file. The <filename>settingsformbase.h</filename> and
-<filename>settingsformbase.cpp</filename> files will be generated from
-the <filename>.ui</filename> file automatically.
+to the project file. The \f[settingsformbase.h] and
+\f[settingsformbase.cpp] files will be generated from
+the \f[.ui] file automatically.
 </para>
 </sect2>
 
 
 <sect2 id="asubclassingexample">
 <title>A Subclassing Example </title>
-<para>
+<para id="anad">
 We will write a small example dialog to show the use of subclassing in
 practice. The dialog will present a choice of customer credit ratings
 with an option of choosing a 'special' rating for which a specific
 amount must be given. We'll implement the functionality in a subclass.
 We'll start by creating the base form and connecting its signals and
 slots, then we'll create the subclass and a simple
-<filename>main.cpp</filename> so that we can test it.
+\f[main.cpp] so that we can test it.
 </para>
 
 <sect3>
 <title>Designing the Form </title>
 
-<para>
+<para id="anaq">
 We'll begin by creating a new project.
-Click <guimenuitem>File|New Project</guimenuitem> and type in a project
+Click \menu[File|New Project] to invoke the \dlg[Project Settings]
+dialog, and type in a project
 name of 'credit' and a project file name of 'credit.pro' then click
 \ok. Now we'll add a form to the project.
-Click <guimenuitem>File|New</guimenuitem> to invoke the New Form
+Click \menu[File|New] to invoke the \dlg[New Form]
 dialog. The default form is Dialog which is what we want; click \ok.
 Resize the form to make it smaller; it should be about 2 inches (5 cm)
 square. Change the form's name to 'CustomerFormBase' and the caption to
 'Credit Rating'. Save the form as 'customerformbase.ui'.
 </para>
-<para>
+<para id="anbb">
 We'll now add the widgets we need.
 <orderedlist numeration="arabic">
 <listitem>
-<para>
-Click the <guibutton>Button Group</guibutton> toolbar button, then click
+<para id="anbf">
+Click the \toolbutton[Button Group] toolbar button, then click
 near the top left of the form. Resize the button group so that it takes
-up approximately half the form. Change the button group's name to
-'creditButtonGroup' and its title property to 'Credit Rating'.
+up approximately half the form. Change the button group's \prop[name] to
+'creditButtonGroup' and its \prop[title] property to 'Credit Rating'.
 </para>
 </listitem>
 <listitem>
-<para>
+<para id="anbn">
 We'll now add some radio buttons. <emphasis>Double</emphasis> click the
-<guibutton>Radio Button</guibutton> toolbar button. Click towards the
+\toolbutton[Radio Button] toolbar button. Click towards the
 top of the Credit Rating button group and a radio button will appear.
 Click below this button, to create a second radio button, then click
 below the second button to create a third. Click the
-<guibutton>Pointer</guibutton> (arrow) toolbar button to stop clicking
+\toolbutton[Pointer] (arrow) toolbar button to stop clicking
 the form from adding any more radio buttons. 
-Change the first radio button's name to
-'stdRadioButton' and its text to '&amp;Standard'. Change its checked
+Change the first radio button's \prop[name] to
+'stdRadioButton' and its text to '&amp;Standard'. Change its \prop[checked]
 property to True. Change the second
 button's name to 'noneRadioButton' and its text to '&amp;None'. Change
 the third radio button's properties to 'specialRadioButton' and
@@ -191,118 +204,121 @@ the third radio button's properties to 'specialRadioButton' and
 </para>
 </listitem>
 <listitem>
-<para>
+<para id="ance">
 If the user chooses the special credit rating they must specify an amount.
-Click the <guibutton>SpinBox</guibutton> toolbar button and click the
-form just below the button group. Change the spin box's name to
-'amountSpinBox'. Change its prefix to '$ ' (note the space), its
-maxValue to '100000' and its lineStep to '10000'. Change its enabled
-property to False.
+Click the \toolbutton[SpinBox] toolbar button and click the
+form just below the button group. Change the spin box's \prop[name] to
+'amountSpinBox'. Change its \prop[prefix] to '$ ' (note the space), its
+\prop[maxValue] to '100000' and its \prop[lineStep] to '10000'. 
+Change its \prop[enabled] property to False.
 </para>
 </listitem>
 <listitem>
-<para>
-Click the <guibutton>Push Button</guibutton> toolbar button and click
-the form below the spin box. Change the button's name to
-'okPushButton', its text to 'OK' and its default property to 'True'. Add
+<para id="anco">
+Click the \toolbutton[Push Button] toolbar button and click
+the form below the spin box. Change the button's \prop[name] to
+'okPushButton', its \prop[text] to 'OK' and its \prop[default] 
+property to 'True'. Add
 a second button to the right of the first. Change the second button's
-name to 'cancelPushButton' and its text to 'Cancel'.
+\prop[name] to 'cancelPushButton' and its \prop[text] to 'Cancel'.
 </para>
 </listitem>
 </orderedlist>
 </para>
 
-<para>
+<para id="ancz">
 We'll lay out the widgets and connect up the slots we need.
 <orderedlist numeration="arabic">
 <listitem>
-<para>
-Click the form so that no widgets are selected. Ctrl+Click the Standard
+<para id="andd">
+Click the form so that no widgets are selected. \key[Ctrl+Click] the Standard
 radio button and drag the rubber band so that it touches the other two
-radio buttons, then release. Press <keycap>Ctrl+L</keycap> (lay out
+radio buttons, then release. Press \key[Ctrl+L] (lay out
 vertically). Click the Credit Rating button group, then press
-<keycap>Ctrl+H</keycap> (lay out horizontally).
+\key[Ctrl+H] (lay out horizontally).
 </para>
 </listitem>
 <listitem>
-<para>
+<para id="andm">
 Click the form so that the button group is no longer selected.
-Ctrl+Click the OK button and drag the rubber band to touch the Cancel
-button, then release. Press <keycap>Ctrl+H</keycap>.
+\key[Ctrl+Click] the OK button and drag the rubber band to touch the Cancel
+button, then release. Press \key[Ctrl+H].
 </para>
 </listitem>
 <listitem>
-<para>
-Click the form, then press <keycap>Ctrl+L</keycap>.
+<para id="andt">
+Click the form, then press \key[Ctrl+L].
 </para>
-<para>
+<para id="andw">
+\x[Layout|Spacers]
 The buttons expand to take up the full width of the form. It might look
 more attractive to use spacers with them. Click the OK button, then
-press <keycap>Ctrl+B</keycap> (break layout). Resize both buttons to
+press \key[Ctrl+B] (break layout). Resize both buttons to
 make them narrower leaving space on either side of them. Click the
-<guibutton>Spacer</guibutton> toolbar button then click to the left of
+\toolbutton[Spacer] toolbar button then click to the left of
 the OK button; click Horizontal from the pop up spacer menu. Copy this
 spacer and place the copy between the two buttons. Copy the spacer again
 and place the copy to the right of the Cancel button. (For the second
 and third spacers, click on the first spacer, press
-<keycap>Ctrl+C</keycap> then <keycap>Ctrl+V</keycap>. Drag the new
+\key[Ctrl+C] then \key[Ctrl+V]. Drag the new
 spacer to the desired position.) Ctrl+Click the left most spacer and
 drag the rubber band so that it touches the buttons and the spacers,
-then release. Press <keycap>Ctrl+H</keycap>.
-Click the form then press <keycap>Ctrl+L</keycap>.
+then release. Press \key[Ctrl+H].
+Click the form then press \key[Ctrl+L].
 </para>
 </listitem>
 </orderedlist>
 </para>
 
-<para>
-We'll now connect the signals and slots. Press <keycap>F3</keycap>
+<para id="aneq">
+\x[Signals and Slots]
+We'll now connect the signals and slots. Press \key[F3]
 (connect signals/slots), then click the OK button. Drag to the form and
-release. In the Edit
-Connections dialog that pops up
-connect the <function>clicked()</function> signal to the
-<function>accept()</function> slot. (Click the
-<function>clicked()</function> signal, click the
-<function>accept()</function> slot, then click \ok.) Connect the Cancel
-button to the <function>reject()</function> slot using the same
+release. In the \dlg[Edit Connections] dialog that pops up connect the
+\fs[clicked()] signal to the \fs[accept()] slot. (Click the
+\fs[clicked()] signal, click the \fs[accept()] slot, then click \ok.)
+Connect the Cancel button to the \fs[reject()] slot using the same
 technique. 
 </para>
-<para>
+<para id="anfc">
 We want the amount spin box to be enabled only if the special radio
-button is checked. Press <keycap>F3</keycap> (connect signals/slots),
+button is checked. Press \key[F3] (connect signals/slots),
 then click the
-special radio button. Drag to the spin box and release. In the Edit
-Connections dialog that pops up click the <function>toggled()</function>
-signal and the <function>setEnabled()</function> slot. 
+special radio button. Drag to the spin box and release. In the 
+\dlg[Edit Connections] dialog that pops up click the \fs[toggled()]
+signal and the \fs[setEnabled()] slot. 
 </para>
-<para>
+<para id="anfk">
 If the user checks the standard or none radio buttons we want to set the
-amount accordingly. Press <keycap>F3</keycap>,
+amount accordingly. Press \key[F3],
 then click the credit rating button group. Drag to the form and release.
-Click the <function>clicked()</function> signal.
+Click the \fs[clicked()] signal.
 We want to connect this signal to our own custom slot, but we
-haven't created one yet. Click the <guibutton>Edit Slots</guibutton>
+haven't created one yet. Click the \button[Edit Slots]
 button and the Edit Slots dialog will pop up. Click
-<guibutton>New Slot</guibutton> and change the Slot's name to
+\button[New Slot] and change the Slot's name to
 'setAmount()'. Click \ok. This new slot is now
 available in the list of slots. Click the
-<function>setAmount()</function> slot then click \ok.
+\fs[setAmount()] slot then click \ok.
 </para>
 
-<para>
+<para id="anfy">
 We'll subclass the form to set the amount in the spin box depending on
 which radio button is checked. Save the form as 'creditformbase.ui' (press
-<keycap>Ctrl+S</keycap>). 
+\key[Ctrl+S]). 
 </para>
 </sect3>
 
 
 <sect3 id="creatingthetestharness">
 <title>Creating the Test Harness </title>
-<para>
+<para id="angi">
+\x[Forms|Creating a test harness]
+\x[Creating a test harness, Forms]
+\x[Subclassing]
 Although we intend our dialog to be used within an application it is
 useful to create a test harness so that we can develop and test it
-stand-alone. We'll create a standard <filename>main.cpp</filename> as
+stand-alone. We'll create a standard \f[main.cpp] as
 follows:
 <programlisting>
 #include &lt;qapplication.h&gt;
@@ -319,13 +335,13 @@ int main( int argc, char *argv[] )
     return app.exec();
 }
 </programlisting>
-Note that we're including <filename>creditformbase.h</filename> and
+Note that we're including \f[creditformbase.h] and
 instantiating a CreditFormBase object; once
 we've written our subclass we'll replace the header with our subclass,
-<filename>creditform.h</filename>, and instantiate a CreditForm.
+\f[creditform.h], and instantiate a CreditForm.
 </para>
-<para>
-Add <filename>main.cpp</filename> to the <filename>credit.pro</filename>
+<para id="anhh">
+Add \f[main.cpp] to the \f[credit.pro]
 project file by adding the following line at the end:
 <programlisting>
 SOURCES += main.cpp
@@ -339,36 +355,39 @@ The form should run fine, but doesn't yet have the behaviour we require.
 
 <sect3 id="creatingthesubclass">
 <title>Creating the Subclass </title>
-<para>
+<para id="anhw">
 We need to create a header and an implementation file for our subclass.
 The code for our subclass is minimal. The header file is
-<filename>qt/tools/designer/eg/credit/creditform.h</filename>:
+\f[qt/tools/designer/eg/credit/creditform.h]:
 <programlisting>
 \scan eg/credit/creditform.h
 </programlisting>
-We've declared the slot, <function>setAmount()</function>,
+We've declared the slot, \fs[setAmount()],
 that we created in \qd. The <literal>Q_OBJECT</literal> macro is
 included because it is essential for classes that use signals and slots.
 </para>
-<para>
+<para id="anih">
 The implementation in 
-<filename>qt/tools/designer/eg/credit/creditform.cpp</filename> is
+\f[qt/tools/designer/eg/credit/creditform.cpp] is
 simple:
 <programlisting>
 \scan eg/credit/creditform.cpp
 </programlisting>
-We call <function>setAmount()</function> in the constructor to ensure
+We call \fs[setAmount()] in the constructor to ensure
 that the correct amount is shown when the form starts based on whichever
-radio button we checked in \qd. In <function>setAmount()</function> we
+radio button we checked in \qd. In \fs[setAmount()] we
 set the amount if the standard or none radio button is checked. If the
 user has checked the special radio button they are free to change the
 amount themselves.
 </para>
 
-<para>
-To be able to test our subclass we change <filename>main.cpp</filename>
-to include <filename>creditform.h</filename> rather than
-<filename>creditformbase.h</filename> and change the instantiation of
+<para id="aniw">
+\x[Makefiles]
+\x[qmake|HEADERS]
+\x[qmake|SOURCES]
+To be able to test our subclass we change \f[main.cpp]
+to include \f[creditform.h] rather than
+\f[creditformbase.h] and change the instantiation of
 the creditForm object:
 <programlisting>
 \scan eg/credit/main.cpp /#include/ 1
@@ -383,7 +402,7 @@ To test the form rerun \cmd[qmake] to regenerate the Makefile, then make
 and run.
 </para>
 
-<para>
+<para id="anjo">
 The subclassing example we've used is simple, but this reflects
 subclassing forms in Qt: it is easy to do. 
 </para>
@@ -396,23 +415,25 @@ subclassing forms in Qt: it is easy to do.
 
 <sect1 id="creatingdynamicdialogsfromuifiles">
 <title>Creating Dynamic Dialogs from .ui Files </title>
-<para>
+<para id="ankb">
+\x[Dynamic Dialogs]
+\x[Dialogs|Dynamic]
 Qt programs are capable of
-loading \qd <filename>.ui</filename> files and instantiating the forms
-represented by the <filename>.ui</filename> files. Since the
-<filename>.ui</filename> file is not compiled it
+loading \qd \f[.ui] files and instantiating the forms
+represented by the \f[.ui] files. Since the
+\f[.ui] file is not compiled it
 cannot include any C++ code, (e.g. slot implementations). In this
 section we will explain how to load a dynamic dialog and how to create a
 class that can be used to implement the dynamic dialog's custom slots.
 </para>
-<para>
+<para id="ankk">
 We will use the credit form that we created in the subclassing section
 as our example form. We will start by simply instantiating and running
 the form and then we'll cover how to implement custom slots. 
 </para>
 
-<para>
-We'll create a <filename>main.cpp</filename> file to use as a test
+<para id="ankq">
+We'll create a \f[main.cpp] file to use as a test
 harness, and manually create a project file. 
 </para>
 
@@ -420,9 +441,10 @@ harness, and manually create a project file.
 <sect2 id="creatingtheprojectfile">
 <title>Creating the Project File </title>
 
-<para>
+<para id="ankz">
+\x[Project Files|Examples]
 The project file
-<filename>qt/tools/designer/eg/receiver1/receiver.pro</filename> looks like
+\f[qt/tools/designer/eg/receiver1/receiver.pro] looks like
 this:
 <programlisting>
 TEMPLATE    = app
@@ -435,9 +457,9 @@ INTERFACES  = mainform.ui
 PROJECTNAME = receiver
 </programlisting>
 We do <emphasis>not</emphasis> include the
-<filename>creditformbase.ui</filename> file since this file will be read
+\f[creditformbase.ui] file since this file will be read
 at runtime, as we'll see shortly. We must include the
-<filename>qresource</filename> library since the functionality we
+\fn[qresource] library since the functionality we
 require is not part of the standard Qt library.
 </para>
 </sect2>
@@ -446,8 +468,8 @@ require is not part of the standard Qt library.
 <sect2 id="creatingmaincpp">
 <title>Creating main.cpp </title>
 
-<para>
-The <filename>main.cpp</filename> is quite standard. It will invoke the
+<para id="anlz">
+The \f[main.cpp] is quite standard. It will invoke the
 form we're going to create in \qd as its main form. This form will then
 load and execute the dynamic dialog. 
 <programlisting>
@@ -457,7 +479,7 @@ load and execute the dynamic dialog.
 </programlisting>
 We create a new instance of our MainForm class, set it to be the main
 widget, show it and enter the event loop in the
-<function>app.exec()</function> call.
+\f[app.exec()] call.
 </para>
 </sect2>
 
@@ -468,61 +490,63 @@ widget, show it and enter the event loop in the
 <sect3 id="designingtheform">
 <title>Designing the Form </title>
 
-<para>
+<para id="anmv">
     <orderedlist numeration="arabic">
     <listitem>
-	<para>
-	Open the <filename>receiver.pro</filename> project file in \qd. We'll
-	create a dialog as our main window which we'll use to invoke the dynamic
-	dialog. Press <keycap>Ctrl+N</keycap> to launch the New Form dialog and
-	click \ok to get the default which is a dialog. Change the dialog's name
-	to 'MainForm' and its caption to 'Main Form'. Add two buttons, one
-	called 'creditPushButton' with the text '&amp;Credit Dialog', and the
-	other called 'quitPushButton' with the text '&amp;Quit'. (For each
-	button click the <guibutton>Push Button</guibutton> toolbar button, then
-	click the form. Change the properties in the property window to those
-	we've just described.)
+	<para id="anmy">
+	Open the \f[receiver.pro] project file in \qd. We'll create a
+	dialog as our main window which we'll use to invoke the dynamic
+	dialog. Press \key[Ctrl+N] to launch the \dlg[New Form] dialog and
+	click \ok to get the default which is a dialog. Change the
+	dialog's name to 'MainForm' and its caption to 'Main Form'. Add
+	two buttons, one called 'creditPushButton' with the text
+	'&amp;Credit Dialog', and the other called 'quitPushButton' with
+	the text '&amp;Quit'. (For each button click the
+	\toolbutton[Push Button] toolbar button, then click the form.
+	Change the properties in the property window to those we've just
+	described.)
 	</para>
     </listitem>
     <listitem>
-	<para>
-	We will now add a couple of labels so that we can show the settings the
-	user chose in the dynamic dialog. Click the <guibutton>Text
-	Label</guibutton> toolbar button, then click the form below the Credit
-	Dialog button. Change the label's text to 'Credit Rating'. Add another
-	text label below the Quit button. Change its name to 'ratingTextLabel'
-	and its text to 'Unrated'. 
+	<para id="annm">
+	We will now add a couple of labels so that we can show the
+	settings the user chose in the dynamic dialog. Click the
+	\toolbutton[Text Label] toolbar button, then click the
+	form below the Credit Dialog button. Change the label's \prop[text] to
+	'Credit Rating'. Add another text label below the Quit button.
+	Change its \prop[name] to 'ratingTextLabel' and its \prop[text]
+	to 'Unrated'. 
 	</para>
     </listitem>
     <listitem>
-	<para>
+	<para id="annw">
 	We'll now lay out the widgets. Click the form then press
-	<keycap>Ctrl+G</keycap> (lay out in a grid).
+	\key[Ctrl+G] (lay out in a grid).
 	</para>
     </listitem>
     <listitem>
-	<para>
+	<para id="anoc">
 	We'll now handle the signals and slots connections. Press
-	<keycap>F3</keycap> (connect signals/slots). Click the Credit Dialog
+	\key[F3] (connect signals/slots). Click the Credit Dialog
 	button, drag to the form and release. Click the
-	<function>clicked()</function> signal. We'll need to implement a custom
-	slot. Click <guibutton>Edit Slots</guibutton> to invoke the Edit Slots
-	dialog. Click <guibutton>New Slot</guibutton> and type in the Slot name
+	\fs[clicked()] signal. We'll need to implement a custom
+	slot. Click \button[Edit Slots] to invoke the \dlg[Edit Slots]
+	dialog. Click \button[New Slot] and type in the Slot name
 	'creditDialog()'. Click \ok. The new slot is now in
-	the list of slots; click the <function>creditDialog()</function> slot to
+	the list of slots; click the \fs[creditDialog()] slot to
 	make the connection then click \ok. Connect the Quit button's
-	<function>clicked()</function> signal to the
-	dialog's <function>accept()</function> function. (Press
-	<keycap>F3</keycap>. Click the Quit button and drag to the form;
-	release. Click the <function>clicked()</function> signal and the
-	<function>accept()</function> slot, then click \ok.)
+	\fs[clicked()] signal to the
+	dialog's \fs[accept()] function. (Press
+	\key[F3]. Click the Quit button and drag to the form;
+	release. Click the \fs[clicked()] signal and the
+	\fs[accept()] slot, then click \ok.)
 	</para>
     </listitem>
     </orderedlist>
 </para>
-<para>
-Save the form and call it <filename>mainform.ui</filename>. (Press
-<keycap>Ctrl+S</keycap> and enter the filename.) In the next section
+<para id="anov">
+Save the form and call it \f[mainform.ui]. (Press
+\key[Ctrl+S] and enter the filename.) In the next section
 we'll write the code for loading and launching the dynamic dialog
 directly in \qd.
 </para>
@@ -531,61 +555,64 @@ directly in \qd.
 
 <sect3 id="loadingandexecutingadynamicdialog">
 <title>Loading and Executing a Dynamic Dialog </title>
-<para>
+<para id="anpg">
+\x[Dynamic Dialogs|Loading and Executing]
+\x[Dialogs|Dynamic]
+\x[Forms|Forward declarations]
 We'll now add the code to invoke the credit dialog. Before we can do
 this we need to add the widget factory's header file to the form. Click
 the Source tab in the Object Hierarchy. Right click Included (in
-Implementation), then click <guibutton>New</guibutton>. Type in
+Implementation), then click \button[New]. Type in
 '<literal>&lt;qwidgetfactory.h&gt;</literal>', then press
-<keycap>Return</keycap>. Because we will need to access the spin box in
+\key[Return]. Because we will need to access the spin box in
 the dynamic dialog we must add its header file. Right click Included
 (in Implmentation), then click New. Type in
 '<literal>&lt;qspinbox.h&gt;</literal>', then press
-<keycap>Return</keycap>. 
+\key[Return]. 
 </para>
 
-<para>
+<para id="anpt">
 In our main form we created a slot called
-<function>creditDialog()</function>. We will implement this slot
+\fs[creditDialog()]. We will implement this slot
 directly in \qd and use it to load and execute the dynamic dialog. The
-code is taken from <filename>qt/tools/designer/eg/receiver1/mainform.cpp</filename> which is generated from <filename>mainform.ui</filename>.
+code is taken from \f[qt/tools/designer/eg/receiver1/mainform.cpp] which is generated from \f[mainform.ui].
 <programlisting>
 \scan eg/receiver1/mainform.cpp /::creditDialog/ /^}/
 </programlisting>
-The <function>create()</function> function is a static
-<classname>QWidgetFactory</classname> function. It loads the specified
-<filename>.ui</filename> file and returns a pointer to the toplevel
-<classname>QWidget</classname> created from the <filename>.ui</filename>
-file. We have cast the pointer to <classname>QDialog</classname> since
-we know that the <filename>creditformbase.ui</filename> file defines a
-<classname>QDialog</classname>. After creating the dialog we
-<function>exec()</function> it. If the user clicked
-<guibutton>OK</guibutton> the dialog returns Accepted and we enter the
+The \fn[create()] function is a static
+\class[QWidgetFactory] function. It loads the specified
+\f[.ui] file and returns a pointer to the toplevel
+\class[QWidget] created from the \f[.ui]
+file. We have cast the pointer to \class[QDialog] since
+we know that the \f[creditformbase.ui] file defines a
+\class[QDialog]. After creating the dialog we
+\fn[exec()] it. If the user clicked
+\button[OK] the dialog returns Accepted and we enter the
 body of the <literal>if</literal> statement. We want to know the amount
 of credit that the user selected. We call the
-<function>child()</function> function on the dialog passing it the name
-of the widget we're interested in. The <function>child()</function>
+\fn[child()] function on the dialog passing it the name
+of the widget we're interested in. The \fn[child()]
 function returns a pointer to the widget with the name we passed, or
 returns 0 if no widget of that name was found. In the example we call
-<function>child()</function> to get a pointer to the 'amountSpinBox'. If
+\fn[child()] to get a pointer to the 'amountSpinBox'. If
 the pointer we get back is not 0 we set the rating text to the amount in
 the dialog's spin box. At the end we delete the dynamic dialog. Deleting
 the dialog ensures that we free up its resources as soon as it is no
 longer required.
 </para>
 
-<para>
-We used the <function>child()</function> to gain access to a widget
+<para id="anqx">
+We used the \fn[child()] to gain access to a widget
 within the dynamic dialog, passing it the name of the widget we were
 interested in. In some situations we might not know what a widget is
 called. We can access the first widget of a specified class by calling
-<function>child()</function> with a null widget name and a classname,
+\fn[child()] with a null widget name and a classname,
 e.g. <literal>child(0,"QPushButton")</literal>. This will return a
-pointer to the first <classname>QPushButton</classname> it finds (or 0
+pointer to the first \class[QPushButton] it finds (or 0
 if there isn't one). If you want pointers to all the widgets of a given
-class you can call the <function>QObject::queryList()</function>
+class you can call the \fn[QObject::queryList()]
 function, passing it the name of the class. It returns a
-<classname>QObjectList</classname> pointer which points to every object
+\class[QObjectList] pointer which points to every object
 in the dialog that is derived from the given class. See the online
 <ulink url="http://doc.trolltech.com/qobject.html">QObject</>
 documentation for further details.
@@ -596,96 +623,98 @@ documentation for further details.
 <title>Implementing Slots for Dynamic Dialogs </title>
 
 
-<para>
+<para id="anrt">
+\x[Signals and Slots|Dynamic Dialogs]
 There is one outstanding issue that we haven't addressed: the dynamic
 dialog does not have the behaviour of the original credit dialog because
-we have not implemented the <function>setAmount()</function> slot. We
+we have not implemented the \fs[setAmount()] slot. We
 can implement slots for dynamic dialogs by creating a
-<classname>QObject</classname> subclass. We then create an instance of
+\class[QObject] subclass. We then create an instance of
 this subclass and pass a pointer to it to the
-<function>QWidgetFactory::create()</function>
+\fn[QWidgetFactory::create()]
 function which will connect the dynamic dialog's signals to the slots
 implemented in our subclass.
 </para>
 
-<para>
-We need to create a <classname>QObject</classname> subclass and
-change our <function>creditDialog()</function> to create an instance of
+<para id="ansf">
+We need to create a \class[QObject] subclass and
+change our \fn[creditDialog()] to create an instance of
 our subclass that can be passed to the
-<function>QWidgetFactory::create()</function>
-function. Here is the modified <function>creditDialog()</function>
+\fn[QWidgetFactory::create()]
+function. Here is the modified \fn[creditDialog()]
 function from the
-<filename>qt/tools/designer/eg/receiver2/mainform.cpp</filename> file
-generated by <filename>mainform.ui</filename>.
+\f[qt/tools/designer/eg/receiver2/mainform.cpp] file
+generated by \f[mainform.ui].
 <programlisting>
 \scan eg/receiver2/mainform.cpp /::creditDialog/ /^}/
 </programlisting>
 We create a new instance of our 'Receiver' subclass. (We'll write the
 code for this class shortly.) We then create the
-<classname>QDialog</classname> using
-<function>QWidgetFactory::create</function>. This call differs from our
+\class[QDialog] using
+\fn[QWidgetFactory::create]. This call differs from our
 previous example because we pass in the subclass object so that the
-<function>create()</function> function can set up the signals/slots
+\fn[create()] function can set up the signals/slots
 connections automatically for us. Since our slot must access the widgets
 in the dynamic form we pass a pointer to the form to the receiver object
-through our <function>setParent()</function> function. The remainder of
+through our \fn[setParent()] function. The remainder of
 the function is the same as before except that we delete our receiver
 object.
 </para>
 
-<para>
+<para id="ante">
 We'll now look at the implementation of our 'Receiver' subclass. The code
 is taken from
-<filename>qt/tools/designer/eg/receiver2/receiver.h</filename> and the
-corresponding <filename>receiver.cpp</filename> file. We'll start with
+\f[qt/tools/designer/eg/receiver2/receiver.h] and the
+corresponding \f[receiver.cpp] file. We'll start with
 the header file.
 <programlisting>
 \scan eg/receiver2/receiver.h
 </programlisting>
-Our class must be a <classname>QObject</classname> subclass and because
+\x[Macros|Q_OBJECT]
+Our class must be a \class[QObject] subclass and because
 we're using signals and slots it must include the
 <literal>Q_OBJECT</literal> macro. We declare a function and the
-<function>setAmount()</function> slot that we wish to implement as well
-as a private <classname>QDialog</classname> pointer.
+\fn[setAmount()] slot that we wish to implement as well
+as a private \class[QDialog] pointer.
 </para>
 
-<para>
+<para id="antu">
 We'll look at the implementation of each function separately.
 <programlisting>
 \scan eg/receiver2/receiver.cpp /::setParent/ /^}/
 </programlisting>
-The <function>setParent()</function> function assigns a pointer to the
+The \fn[setParent()] function assigns a pointer to the
 dynamic dialog to our private pointer. We could not do this in a
 constructor call because we have to construct our Receiver object before
-we call <function>QWidgetFactory::create()</function>, since we must
-pass the Receiver object to the <function>create()</function> function.
-Once we've called <function>create()</function> we then have a pointer
+we call \fn[QWidgetFactory::create()], since we must
+pass the Receiver object to the \fn[create()] function.
+Once we've called \fn[create()] we then have a pointer
 to the dynamic dialog which we can then pass via
-<function>setParent()</function> to our Receiver class. In the subclass
-version of this example we called <function>setAmount()</function> in
+\fn[setParent()] to our Receiver class. In the subclass
+version of this example we called \fn[setAmount()] in
 the constructor; but we cannot do that here because the implementation
-of <function>setAmount()</function> depends on knowledge of the dynamic
+of \fn[setAmount()] depends on knowledge of the dynamic
 dialog which is not available at construction time. Because of this we
-call <function>setAmount()</function> in the
-<function>setParent()</function> function. 
+call \fn[setAmount()] in the
+\fn[setParent()] function. 
 </para>
 
-<para>
+<para id="anup">
 <programlisting>
 \scan eg/receiver2/receiver.cpp /::setAmount/ /^}/
 </programlisting>
 Since we may be updating the amount spin box we need to get a pointer to
-it. We call <function>child()</function> on the pointer
+it. We call \fn[child()] on the pointer
 <literal>p</literal> which points to the dynamic dialog assigned in the
-<function>setParent()</function> call. We cast the resulting pointer to
+\fn[setParent()] call. We cast the resulting pointer to
 the correct type so that we can call any functions relevant to that
-type. In the example we call <function>child()</function> to get a
+type. In the example we call \fn[child()] to get a
 pointer to the amount spin box, and then call
-<function>child()</function> again to get a pointer to the
+\fn[child()] again to get a pointer to the
 'stdRadioButton'. If we get a pointer to the radio button and the  
 button is checked we set the amount providing we have a pointer to the
 amount spin box. If this radio button was checked we're finished so we
-<function>return</function>. If the 'stdRadioButton' isn't checked we
+\fn[return]. If the 'stdRadioButton' isn't checked we
 get a pointer to the 'noneRadioButton' and set the amount if this button
 is checked. We do nothing if the 'specialRadioButton' is checked because
 the user is free to enter a value of their choice. 
@@ -693,35 +722,38 @@ the user is free to enter a value of their choice.
 
 <sidebar id="complingvsdynamicallyloadingdialogs">
 <title>Compiling vs Dynamically Loading Dialogs</title>
-<para>
-The differences between using a 'compiled in' <filename>.ui</filename>
-file and a dynamically loaded <filename>.ui</filename> file are these:
+<para id="anvm">
+\x[Dynamic Dialogs|Compared with Compiling]
+\x[Dynamic Dialogs|Subclassing]
+\x[Subclassing|Dynamic Dialogs]
+The differences between using a 'compiled in' \f[.ui]
+file and a dynamically loaded \f[.ui] file are these:
 <itemizedlist>
 <listitem>
-<para>
-Dynamic dialogs cannot have any C++ code in the <filename>.ui</filename>
+<para id="anvr">
+Dynamic dialogs cannot have any C++ code in the \f[.ui]
 file; any custom slots must be implemented via a
-<classname>QObject</classname> subclass. Compiled dialogs can contain
-code either in the <filename>.ui</filename> file or in a subclass.
+\class[QObject] subclass. Compiled dialogs can contain
+code either in the \f[.ui] file or in a subclass.
 </para>
 </listitem>
 <listitem>
-<para>
-Dynamic dialogs will load slower because the <filename>.ui</filename>
-file must be read and a <classname>QWidget</classname> instance
-instantiated based on the <filename>.ui</filename> file's parse tree.
+<para id="anvz">
+Dynamic dialogs will load slower because the \f[.ui]
+file must be read and a \class[QWidget] instance
+instantiated based on the \f[.ui] file's parse tree.
 Compiled code will load much faster because no file reading or parsing
 is necessary. Note that the user may not notice any difference in speed
 since the difference may be mere fractions of a second.
 </para>
 </listitem>
 <listitem>
-<para>
-Dynamic dialogs allow you to change the <filename>.ui</filename> file
+<para id="anwj">
+Dynamic dialogs allow you to change the \f[.ui] file
 independently of the code so long as none of the changes impact the
 code. This means that you can change the appearance of the form, e.g.
 move widgets and lay them out differently. If you want to change a
-compiled dialog you must change the <filename>.ui</filename> file and
+compiled dialog you must change the \f[.ui] file and
 recompile. If you are building an application and want your customers to
 be able to customize aspects of the user interface you can give them a
 copy of \qd and use dynamic dialogs.

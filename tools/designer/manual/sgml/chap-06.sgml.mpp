@@ -1,7 +1,7 @@
 <chapter>
 <title>Menus And Toolbars</title>
 
-    <para>
+    <para id="aaad">
     This chapter identifies the various icons and explains the use of
     features on the menus. We take each in the order they appear in
     the menu; you can, of course, reorder your own toolbars to suit
@@ -15,7 +15,7 @@
 	    <varlistentry>
 		<term>New</term>
 		<listitem>
-		<para>
+		<para id="aaar">
 		Creates a new form. A dialog is opened that lets you
 		select a number of base settings for the form, like a
 		configuration dialog or a plain old widget.
@@ -28,8 +28,8 @@
 	    <varlistentry>
 		<term>Open</term>
 		<listitem>
-		<para>
-		Opens a <filename>.ui</> file with a form. You can use
+		<para id="aabe">
+		Opens a \f[.ui] file with a form. You can use
 		this to load an already existing form that you created
 		in a previous Qt Designer session. Depending on
 		whether any Qt Designer extensions are installed, you
@@ -43,7 +43,7 @@
 	    <varlistentry>
 		<term>Save</term>
 		<listitem>
-		<para>
+		<para id="aabt">
 		Saves the currently active form. If you have not yet
 		specified a filename for this form, you will be
 		prompted for one.
@@ -56,7 +56,7 @@
 	    <varlistentry>
 		<term>Save As</term>
 		<listitem>
-		<para>
+		<para id="aacg">
 		Saves the currently active form under a new name. You
 		will be prompted to select the new name.
 		</para>
@@ -68,7 +68,7 @@
 	    <varlistentry>
 		<term>Save All</term>
 		<listitem>
-		<para>
+		<para id="aacs">
 		Saves all currently open forms. You will be prompted a
 		filename if you have not yet assigned one to any given
 		form.
@@ -81,7 +81,7 @@
 	    <varlistentry>
 		<term>Exit</term>
 		<listitem>
-		<para>
+		<para id="aadf">
 		Terminates this session with Qt Designer. If you have
 		unsaved forms, you will be asked whether you want to
 		save them.
@@ -98,7 +98,7 @@
 	    <varlistentry>
 		<term>Undo</term>
 		<listitem>
-		<para>
+		<para id="aadw">
 		Undoes the last action. Text next to the word
 		<guilabel>Undo</> indicates what this action was. You
 		can undo an unlimited number of steps.
@@ -111,7 +111,7 @@
 	    <varlistentry>
 		<term>Redo</term>
 		<listitem>
-		<para>
+		<para id="aaej">
 		Redoes the last action. This menu item is only
 		available if you just undid one or more actions.
 		</para>
@@ -123,7 +123,7 @@
 	    <varlistentry>
 		<term>Cut</term>
 		<listitem>
-		<para>
+		<para id="aaev">
 		Removes the currently selected GUI element (or
 		elements) from its form and puts it into the
 		clipboard. You can then paste it back into the same or
@@ -136,7 +136,7 @@
 	    </varlistentry>
 	</variablelist>
 
-	<para>
+	<para id="aafi">
 	This menu item is not available if no GUI element is currently
 	selected.
 	</para>
@@ -145,7 +145,7 @@
 	    <varlistentry>
 		<term>Copy</term>
 		<listitem>
-		<para>
+		<para id="aafr">
 		Copies the currently selected GUI element (or
 		elements) from its form into the clipboard. You can
 		then paste it into the same or another form with the
@@ -158,7 +158,7 @@
 	    </varlistentry>
 	</variablelist>
 
-	<para>
+	<para id="aage">
 	This menu item is not available if no GUI element is currently
 	selected.
 	</para>
@@ -167,7 +167,7 @@
 	    <varlistentry>
 		<term>Paste</term>
 		<listitem>
-		<para>
+		<para id="aagn">
 		Pastes the GUI element (or elements) that is currently
 		in the clipboard into the currently active form. The
 		position is the position the GUI element had before it
@@ -180,7 +180,7 @@
 	    </varlistentry>
 	</variablelist>
 
-	<para>
+	<para id="aaha">
 	This menu item is only available if the clipboard contains a
 	GUI element that was copied there from Qt Designer.
 	</para>
@@ -189,7 +189,7 @@
 	    <varlistentry>
 		<term>Delete</term>
 		<listitem>
-		<para>
+		<para id="aahj">
 		Removes the currently selected GUI element (or
 		elements) from its form without putting it into the
 		clipboard.
@@ -202,7 +202,7 @@
 	    <varlistentry>
 		<term>Select All</term>
 		<listitem>
-		<para>
+		<para id="aahw">
 		Selects all GUI elements in the currently active form.
 		</para>
 		</listitem>
@@ -213,7 +213,7 @@
 	    <varlistentry>
 		<term>Check Accelerators</term>
 		<listitem>
-		<para>
+		<para id="aaih">
 		Checks whether the accelerators in the currently
 		active form are consistent, i.e., that no accelerator
 		is used twice.
@@ -226,7 +226,7 @@
 	    <varlistentry>
 		<term>Slots</term>
 		<listitem>
-		<para>
+		<para id="aaiu">
 		Opens the dialog that lets you edit the slots for the
 		currently active form and add new slots.
 		</para>
@@ -238,7 +238,7 @@
 	    <varlistentry>
 		<term>Connections</term>
 		<listitem>
-		<para>
+		<para id="aajg">
 		Opens the dialog that shows you the connections
 		between signals and slots on the currently active form
 		and lets you edit them.
@@ -251,7 +251,7 @@
 	    <varlistentry>
 		<term>Form Settings</term>
 		<listitem>
-		<para>
+		<para id="aajt">
 		Opens a dialog that lets you make certain settings
 		that apply only to the currently active form.
 		</para>
@@ -263,7 +263,7 @@
 	    <varlistentry>
 		<term>Preferences</term>
 		<listitem>
-		<para>
+		<para id="aakf">
 		Opens a dialog that lets you make settings that apply
 		to Qt Designer as a whole.
 		</para>
@@ -279,7 +279,7 @@
 	    <varlistentry>
 		<term>Pointer</term>
 		<listitem>
-		<para>
+		<para id="aakv">
 		Selects the pointer tool that lets you choose GUI
 		elements. This is the standard tool that is active
 		right after starting Qt Designer.
@@ -292,7 +292,7 @@
 	    <varlistentry>
 		<term>Connect Signals/Slots</term>
 		<listitem>
-		<para>
+		<para id="aali">
 		Lets Qt Designer go into the mode where you can
 		connect signals and slots by dragging the mouse.
 		</para>
@@ -304,7 +304,7 @@
 	    <varlistentry>
 		<term>Tab Order</term>
 		<listitem>
-		<para>
+		<para id="aalu">
 		Lets Qt Designer go into tab order mode, where you can
 		define the tab order of the widgets on your form.
 		</para>
@@ -316,10 +316,10 @@
 	    <varlistentry>
 		<term>Button/PushButton</term>
 		<listitem>
-		<para>
+		<para id="aamg">
 		Turns on the insertion mode for push buttons. Clicking
 		or dragging on a form inserts a push button (a
-		<classname>QPushButton</> object) while Qt Designer is in
+		\class[QPushButton] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -330,10 +330,10 @@
 	    <varlistentry>
 		<term>Button/ToolButton</term>
 		<listitem>
-		<para>
+		<para id="aamu">
 		Turns on the insertion mode for tool buttons. Clicking
 		or dragging on a form inserts a tool button (a
-		<classname>QToolButton</> object) while Qt Designer is in
+		\class[QToolButton] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -344,10 +344,10 @@
 	    <varlistentry>
 		<term>Button/RadioButton</term>
 		<listitem>
-		<para>
+		<para id="aani">
 		Turns on the insertion mode for radio buttons.
 		Clicking or dragging on a form inserts a radio button
-		(a <classname>QRadioButton</> object) while Qt Designer is
+		(a \class[QRadioButton] object) while Qt Designer is
 		in this mode.
 		</para>
 		</listitem>
@@ -358,10 +358,10 @@
 	    <varlistentry>
 		<term>Button/CheckBox</term>
 		<listitem>
-		<para>
+		<para id="aanw">
 		Turns on the insertion mode for check boxes. Clicking
 		or dragging on a form inserts a check box (a
-		<classname>QCheckBox</> object) while Qt Designer is in
+		\class[QCheckBox] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -372,10 +372,10 @@
 	    <varlistentry>
 		<term>Container/GroupBox</term>
 		<listitem>
-		<para>
+		<para id="aaok">
 		Turns on the insertion mode for group boxes. Clicking
 		or dragging on a form inserts a group box (a
-		<classname>QGroupBox</> object) while Qt Designer is in
+		\class[QGroupBox] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -386,10 +386,10 @@
 	    <varlistentry>
 		<term>Container/ButtonGroup</term>
 		<listitem>
-		<para>
+		<para id="aaoy">
 		Turns on the insertion mode for button groups.
 		Clicking or dragging on a form inserts a button group
-		(a <classname>QButtonGroup</> object) while Qt Designer is
+		(a \class[QButtonGroup] object) while Qt Designer is
 		in this mode.
 		</para>
 		</listitem>
@@ -400,9 +400,9 @@
 	    <varlistentry>
 		<term>Container/Frame</term>
 		<listitem>
-		<para>
+		<para id="aapm">
 		Turns on the insertion mode for frames. Clicking or
-		dragging on a form inserts a frame (a <classname>QFrame</>
+		dragging on a form inserts a frame (a \class[QFrame]
 		object) while Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -413,10 +413,10 @@
 	    <varlistentry>
 		<term>Container/TabWidget</term>
 		<listitem>
-		<para>
+		<para id="aapz">
 		Turns on the insertion mode for tab widgets. Clicking
 		or dragging on a form inserts a tab widget (a
-		<classname>QTabWidget</> object) while Qt Designer is in
+		\class[QTabWidget] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -427,10 +427,10 @@
 	    <varlistentry>
 		<term>Views/ListBox</term>
 		<listitem>
-		<para>
+		<para id="aaqn">
 		Turns on the insertion mode for list boxes. Clicking
 		or dragging on a form inserts a list box (a
-		<classname>QListBox</> object) while Qt Designer is in
+		\class[QListBox] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -441,10 +441,10 @@
 	    <varlistentry>
 		<term>Views/ListView</term>
 		<listitem>
-		<para>
+		<para id="aarb">
 		Turns on the insertion mode for list views. Clicking
 		or dragging on a form inserts a list view (a
-		<classname>QListView</> object) while Qt Designer is in
+		\class[QListView] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -455,10 +455,10 @@
 	    <varlistentry>
 		<term>Views/IconView</term>
 		<listitem>
-		<para>
+		<para id="aarp">
 		Turns on the insertion mode for icon views. Clicking
 		or dragging on a form inserts an icon view (a
-		<classname>QIconView</> object) while Qt Designer is in
+		\class[QIconView] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -469,9 +469,9 @@
 	    <varlistentry>
 		<term>Views/Table</term>
 		<listitem>
-		<para>
+		<para id="aasd">
 		Turns on the insertion mode for tables. Clicking or
-		dragging on a form inserts a table (a <classname>QTable</>
+		dragging on a form inserts a table (a \class[QTable]
 		object) while Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -482,10 +482,10 @@
 	    <varlistentry>
 		<term>Input/LineEdit</term>
 		<listitem>
-		<para>
+		<para id="aasq">
 		Turns on the insertion mode for line edits. Clicking
 		or dragging on a form inserts a line edit (a
-		<classname>QLineEdit</> object) while Qt Designer is in
+		\class[QLineEdit] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -496,10 +496,10 @@
 	    <varlistentry>
 		<term>Input/SpinBox</term>
 		<listitem>
-		<para>
+		<para id="aate">
 		Turns on the insertion mode for spin boxes. Clicking
 		or dragging on a form inserts a spin box (a
-		<classname>QSpinBox</> object) while Qt Designer is in
+		\class[QSpinBox] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -510,10 +510,10 @@
 	    <varlistentry>
 		<term>Input/MultiLineEdit</term>
 		<listitem>
-		<para>
+		<para id="aats">
 		Turns on the insertion mode for multiline edit fields.
 		Clicking or dragging on a form inserts a multiline
-		edit field (a <classname>QMultiLineEdit</> object) while
+		edit field (a \class[QMultiLineEdit] object) while
 		Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -524,10 +524,10 @@
 	    <varlistentry>
 		<term>Input/ComboBox</term>
 		<listitem>
-		<para>
+		<para id="aaug">
 		Turns on the insertion mode for combo boxes. Clicking
 		or dragging on a form inserts a combo box (a
-		<classname>QComboBox</> object) while Qt Designer is in
+		\class[QComboBox] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -538,10 +538,10 @@
 	    <varlistentry>
 		<term>Input/Slider</term>
 		<listitem>
-		<para>
+		<para id="aauu">
 		Turns on the insertion mode for sliders. Clicking or
 		dragging on a form inserts a slider (a
-		<classname>QSlider</> object) while Qt Designer is in this
+		\class[QSlider] object) while Qt Designer is in this
 		mode.
 		</para>
 		</listitem>
@@ -552,9 +552,9 @@
 	    <varlistentry>
 		<term>Input/Dial</term>
 		<listitem>
-		<para>
+		<para id="aavi">
 		Turns on the insertion mode for dials. Clicking or
-		dragging on a form inserts a dial (a <classname>QDial</>
+		dragging on a form inserts a dial (a \class[QDial]
 		object) while Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -565,10 +565,10 @@
 	    <varlistentry>
 		<term>Display/TextLabel</term>
 		<listitem>
-		<para>
+		<para id="aavv">
 		Turns on the insertion mode for text labels. Clicking
 		or dragging on a form inserts a text label (a
-		<classname>QLabel</> object configured to display text)
+		\class[QLabel] object configured to display text)
 		while Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -579,10 +579,10 @@
 	    <varlistentry>
 		<term>Display/PixmapLabel</term>
 		<listitem>
-		<para>
+		<para id="aawj">
 		Turns on the insertion mode for pixmap labels.
 		Clicking or dragging on a form inserts a pixmap label
-		(a <classname>QLabel</> object configured to display a
+		(a \class[QLabel] object configured to display a
 		pixmap) while Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -593,10 +593,10 @@
 	    <varlistentry>
 		<term>Display/LCDNumber</term>
 		<listitem>
-		<para>
+		<para id="aawx">
 		Turns on the insertion mode for seven-segment
 		displays. Clicking or dragging on a form inserts a
-		seven-segment display (a <classname>QLCDNumber</> object)
+		seven-segment display (a \class[QLCDNumber] object)
 		while Qt Designer is in this mode.
 		</para>
 		</listitem>
@@ -607,9 +607,9 @@
 	    <varlistentry>
 		<term>Display/Line</term>
 		<listitem>
-		<para>
+		<para id="aaxl">
 		Turns on the insertion mode for lines. Clicking or
-		dragging on a form inserts a line (a <classname>QFrame</>
+		dragging on a form inserts a line (a \class[QFrame]
 		configured to appear as a line) while Qt Designer is
 		in this mode.
 		</para>
@@ -621,10 +621,10 @@
 	    <varlistentry>
 		<term>Display/ProgressBar</term>
 		<listitem>
-		<para>
+		<para id="aaxz">
 		Turns on the insertion mode for progress bars.
 		Clicking or dragging on a form inserts a progress bar
-		(a <classname>QProgressBar</> object) while Qt Designer is
+		(a \class[QProgressBar] object) while Qt Designer is
 		in this mode.
 		</para>
 		</listitem>
@@ -635,10 +635,10 @@
 	    <varlistentry>
 		<term>Display/TextView</term>
 		<listitem>
-		<para>
+		<para id="aayn">
 		Turns on the insertion mode for text views. Clicking
 		or dragging on a form inserts a text view (a
-		<classname>QTextView</> object) while Qt Designer is in
+		\class[QTextView] object) while Qt Designer is in
 		this mode.
 		</para>
 		</listitem>
@@ -649,10 +649,10 @@
 	    <varlistentry>
 		<term>Display/TextBrowser</term>
 		<listitem>
-		<para>
+		<para id="aazb">
 		Turns on the insertion mode for text browsers.
 		Clicking or dragging on a form inserts a text browser
-		(a <classname>QTextBrowser</> object) while Qt Designer is
+		(a \class[QTextBrowser] object) while Qt Designer is
 		in this mode.
 		</para>
 		</listitem>
@@ -663,7 +663,7 @@
 	    <varlistentry>
 		<term>Custom/Edit Custom Widgets</term>
 		<listitem>
-		<para>
+		<para id="aazp">
 		Opens the dialog for configuring custom widgets. If
 		custom widgets are already defined, the
 		<guilabel>Custom</> submenu will contain these as
@@ -681,7 +681,7 @@
 	    <varlistentry>
 		<term>Adjust Size</term>
 		<listitem>
-		<para>
+		<para id="abah">
 		Resizes the currently selected GUI elements to the
 		minimum size they need to display their contents
 		properly. You do not need to use this function if you
@@ -695,7 +695,7 @@
 	    <varlistentry>
 		<term>Lay Out Horizontally</term>
 		<listitem>
-		<para>
+		<para id="abav">
 		Assigns a horizontal box layout to the currently
 		selected widget container, or if a number of GUI
 		elements are selected, inserts a new logical container
@@ -710,7 +710,7 @@
 	    <varlistentry>
 		<term>Lay Out Vertically</term>
 		<listitem>
-		<para>
+		<para id="abbk">
 		Assigns a vertical box layout to the currently
 		selected widget container, or if a number of GUI
 		elements are selected, inserts a new logical container
@@ -725,7 +725,7 @@
 	    <varlistentry>
 		<term>Lay Out In A Grid</term>
 		<listitem>
-		<para>
+		<para id="abbz">
 		Assigns a grid layout to the currently selected widget
 		container, or if a number of GUI elements are
 		selected, inserts a new logical container containing
@@ -740,7 +740,7 @@
 	    <varlistentry>
 		<term>Break Layout</term>
 		<listitem>
-		<para>
+		<para id="abco">
 		Breaks the currently selected layout. Use this
 		function if you want to add widgets or spacers to a
 		layout or remove them.
@@ -753,7 +753,7 @@
 	    <varlistentry>
 		<term>Add Spacer</term>
 		<listitem>
-		<para>
+		<para id="abdb">
 		Turns on the spacer insertion mode. Clicking on a form
 		inserts a spacer. A context menu will pop up that lets
 		you select whether you want a vertical or a horizontal
@@ -771,7 +771,7 @@
 	    <varlistentry>
 		<term>Preview Form</term>
 		<listitem>
-		<para>
+		<para id="abdt">
 		Displays the currently active form as it will look in
 		your program in the default style of your platform
 		(Motif style on Unix systems, Windows style on Windows
@@ -785,7 +785,7 @@
 	    <varlistentry>
 		<term>Preview Form in Motif Style</term>
 		<listitem>
-		<para>
+		<para id="abeh">
 		Displays the currently active form as it will look in
 		your program in Motif style.
 		</para>
@@ -797,7 +797,7 @@
 	    <varlistentry>
 		<term>Preview Form in Motif Plus Style</term>
 		<listitem>
-		<para>
+		<para id="abet">
 		Displays the currently active form as it will look in
 		your program in Motif Plus style (gtk-like).
 		</para>
@@ -809,7 +809,7 @@
 	    <varlistentry>
 		<term>Preview Form in Windows Style</term>
 		<listitem>
-		<para>
+		<para id="abff">
 		Displays the currently active form as it will look in
 		your program in Windows style.
 		</para>
@@ -821,7 +821,7 @@
 	    <varlistentry>
 		<term>Preview Form in Platinum Style</term>
 		<listitem>
-		<para>
+		<para id="abfr">
 		Displays the currently active form as it will look in
 		your program in Platinum style.
 		</para>
@@ -833,7 +833,7 @@
 	    <varlistentry>
 		<term>Preview Form in CDE Style</term>
 		<listitem>
-		<para>
+		<para id="abgd">
 		Displays the currently active form as it will look in
 		your program in CDE style.
 		</para>
@@ -845,7 +845,7 @@
 	    <varlistentry>
 		<term>Preview Form in SGI Style</term>
 		<listitem>
-		<para>
+		<para id="abgp">
 		Displays the currently active form as it will look in
 		your program in SGI style.
 		</para>
@@ -861,7 +861,7 @@
 	    <varlistentry>
 		<term>Close</term>
 		<listitem>
-		<para>
+		<para id="abhf">
 		Closes the currently active window.
 		</para>
 		</listitem>
@@ -872,7 +872,7 @@
 	    <varlistentry>
 		<term>Close All</term>
 		<listitem>
-		<para>
+		<para id="abhq">
 		Closes all windows, including the property editor.
 		</para>
 		</listitem>
@@ -883,7 +883,7 @@
 	    <varlistentry>
 		<term>Next</term>
 		<listitem>
-		<para>
+		<para id="abib">
 		Activates the next window in the order in which the
 		windows were created.
 		</para>
@@ -895,7 +895,7 @@
 	    <varlistentry>
 		<term>Previous</term>
 		<listitem>
-		<para>
+		<para id="abin">
 		Activates the previous window in the order in which
 		the windows were created.
 		</para>
@@ -907,7 +907,7 @@
 	    <varlistentry>
 		<term>Tile</term>
 		<listitem>
-		<para>
+		<para id="abiz">
 		Tiles all windows so that no two windows overlap.
 		</para>
 		</listitem>
@@ -918,7 +918,7 @@
 	    <varlistentry>
 		<term>Cascade</term>
 		<listitem>
-		<para>
+		<para id="abjk">
 		Cascades all windows so that only the title bar shows
 		for all but the topmost window.
 		</para>
@@ -930,7 +930,7 @@
 	    <varlistentry>
 		<term>Property Editor</term>
 		<listitem>
-		<para>
+		<para id="abjw">
 		Raises or opens the property editor window.
 		</para>
 		</listitem>
@@ -941,7 +941,7 @@
 	    <varlistentry>
 		<term>Object Hierarchy</term>
 		<listitem>
-		<para>
+		<para id="abkh">
 		Raises or opens the object hierarchy window.
 		</para>
 		</listitem>
@@ -952,7 +952,7 @@
 	    <varlistentry>
 		<term>Form List</term>
 		<listitem>
-		<para>
+		<para id="abks">
 		Raises or opens the form list window.
 		</para>
 		</listitem>
@@ -967,7 +967,7 @@
 	    <varlistentry>
 		<term>Contents</term>
 		<listitem>
-		<para>
+		<para id="ablh">
 		Shows the start page for Qt Designer help.
 		</para>
 		</listitem>
@@ -978,7 +978,7 @@
 	    <varlistentry>
 		<term>Manual</term>
 		<listitem>
-		<para>
+		<para id="abls">
 		Shows an online version of this manual.
 		</para>
 		</listitem>
@@ -989,7 +989,7 @@
 	    <varlistentry>
 		<term>About</term>
 		<listitem>
-		<para>
+		<para id="abmd">
 		Shows some information about Qt Designer.
 		</para>
 		</listitem>
@@ -1000,7 +1000,7 @@
 	    <varlistentry>
 		<term>About Qt</term>
 		<listitem>
-		<para>
+		<para id="abmo">
 		Shows some information about the Qt Toolkit.
 		</para>
 		</listitem>
@@ -1011,7 +1011,7 @@
 	    <varlistentry>
 		<term>What's This</term>
 		<listitem>
-		<para>
+		<para id="abmz">
 		Enables What's This mode. Clicking with the mouse on a
 		user interface element will pop up a small window that
 		describes this element.

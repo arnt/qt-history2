@@ -1,7 +1,7 @@
 <chapter>
 <title>The Dialogs</title>
 
-    <para>
+    <para id="abnm">
     This chapter lists all the dialogs in Qt Designer. Whenever you
     open a dialog during your work and are not exactly sure how to
     operate it, you can either use the What's This help or the online
@@ -11,9 +11,9 @@
     easily.
     </para>
 
-    <para>
-    Since the meaning of the <guilabel>Help</>, <guibutton>OK</>, and
-    <guibutton>Cancel</> buttons should be self-explanatory, they are
+    <para id="abnw">
+    Since the meaning of the <guilabel>Help</>, \button[OK], and
+    \button[Cancel] buttons should be self-explanatory, they are
     not included in the individual dialogs unless there is something
     particular about them.
     </para>
@@ -26,7 +26,7 @@
 	    \img[about-dlg]
 	</figure>
 
-	<para>
+	<para id="abol">
 	This dialog shows Qt Designer's introductory screen and
 	version number. Use this dialog if you want to report a bug
 	but are not sure which version of Qt Designer you are using.
@@ -41,7 +41,7 @@
 	    \img[connection-editor]
 	</figure>
 
-	<para>
+	<para id="abpa">
 	This dialog is shown when you use the connection tool to
 	connect two GUI elements together and have &ldquo;drawn&rdquo;
 	a connection with the mouse. You can also open this dialog by
@@ -54,7 +54,7 @@
 	    <varlistentry>
 		<term>Signals</term>
 		<listitem>
-		<para>
+		<para id="abpn">
 		This list box shows all the signals of the outgoing
 		GUI element, i.e., the element where you started to
 		drag the mouse. Click on one of the signals to select
@@ -68,7 +68,7 @@
 	    <varlistentry>
 		<term>Slots</term>
 		<listitem>
-		<para>
+		<para id="abqb">
 		This list box shows all the slots of the incoming GUI
 		element, i.e., the element you released the mouse
 		button over. Click on one of the slots to make a
@@ -86,7 +86,7 @@
 	    <varlistentry>
 		<term>Connections</term>
 		<listitem>
-		<para>
+		<para id="abqt">
 		This list box shows all connections that already exist
 		between the outgoing and the incoming GUI element. The
 		outgoing GUI elements, the signal name, the incoming
@@ -101,7 +101,7 @@
 	    <varlistentry>
 		<term>Connect</term>
 		<listitem>
-		<para>
+		<para id="abri">
 		Click on this button to make a connection between the
 		selected signal and the selected slot. Since clicking
 		on a slot makes a connection, you only need this
@@ -115,7 +115,7 @@
 	    <varlistentry>
 		<term>Edit Slots</term>
 		<listitem>
-		<para>
+		<para id="abrw">
 		This button lets you edit an existing connection.
 		</para>
 		</listitem>
@@ -126,7 +126,7 @@
 	    <varlistentry>
 		<term>Disconnect</term>
 		<listitem>
-		<para>
+		<para id="absh">
 		Removes the connection that is currently selected in
 		the <guilabel>Connections</>list box.
 		</para>
@@ -143,9 +143,9 @@
 	    \img[connection-viewer]
 	</figure>
 
-	<para>
+	<para id="absy">
 	This dialog is invoked by selecting
-	<guimenuitem>Edit|Connections</> from the menu bar. It shows
+	\menu[Edit|Connections] from the menu bar. It shows
 	the connections between signals and slots that are in place
 	for the currently active form. The central, unlabeled list box
 	shows the outgoing GUI element, the signal name, the incoming
@@ -156,7 +156,7 @@
 	    <varlistentry>
 		<term>Edit</term>
 		<listitem>
-		<para>
+		<para id="abtl">
 		Brings up the Connection Editor dialog (see Section
 		7.2), which lets you edit all connections between the
 		outgoing and incoming GUI elements in the currently
@@ -170,7 +170,7 @@
 	    <varlistentry>
 		<term>Disconnect</term>
 		<listitem>
-		<para>
+		<para id="abtz">
 		Removes the currently selected connection.
 		</para>
 		</listitem>
@@ -186,7 +186,7 @@
 	    \img[customwidget-dlg]
 	</figure>
 
-	<para>
+	<para id="abup">
 	This dialog lets you create descriptions for custom widgets,
 	i.e., widgets that are not included in Qt but that you have
 	written yourself or purchased from a third-party manufacturer.
@@ -199,7 +199,7 @@
 	    <varlistentry>
 		<term>New Widget</term>
 		<listitem>
-		<para>
+		<para id="abvc">
 		Click on this button to start the description of a new
 		custom widget. Qt Designer will create a new
 		description with some default values for a widget
@@ -213,7 +213,7 @@
 	    <varlistentry>
 		<term>Delete Widget</term>
 		<listitem>
-		<para>
+		<para id="abvq">
 		Deletes the description for the currently selected
 		custom widget.
 		</para>
@@ -225,7 +225,7 @@
 	    <varlistentry>
 		<term>Load Descriptions</term>
 		<listitem>
-		<para>
+		<para id="abwc">
 		Loads a file with descriptions for custom widgets.
 		Chapters 9 and 10 explain the format of these files.
 		</para>
@@ -237,7 +237,7 @@
 	    <varlistentry>
 		<term>Save Descriptions</term>
 		<listitem>
-		<para>
+		<para id="abwo">
 		Saves the descriptions for the custom widgets to a
 		file.
 		</para>
@@ -249,7 +249,7 @@
     <sect1>
     <title>The Definitions Tab Page</title>
 
-	<para>
+	<para id="abxa">
 	On this tab page you specify some general properties of the
 	custom widget, such as what the class is called and how it
 	should be represented in Qt Designer.
@@ -259,7 +259,7 @@
 	    <varlistentry>
 		<term>Class</term>
 		<listitem>
-		<para>
+		<para id="abxk">
 		Fill in the class name of the custom widget in this
 		field.
 		</para>
@@ -271,7 +271,7 @@
 	    <varlistentry>
 		<term>Header file</term>
 		<listitem>
-		<para>
+		<para id="abxw">
 		Fill in the name of the header file for the custom
 		widget class in this field. By clicking on the button
 		labeled <guilabel>...</> next to the entry
@@ -292,7 +292,7 @@
 	    <varlistentry>
 		<term>Pixmap</term>
 		<listitem>
-		<para>
+		<para id="abyr">
 		The row labeled <guilabel>pixmap</> shows the pixmap
 		that Qt Designer uses to represent your custom widget
 		(in the menu and in the toolbar). The Qt logo is used
@@ -308,7 +308,7 @@
 	    <varlistentry>
 		<term>Size Hint</term>
 		<listitem>
-		<para>
+		<para id="abzh">
 		In this row you can specify the size hint for the
 		custom widget, i.e., the size at which the widget
 		displays best. If there is no such size for your
@@ -325,7 +325,7 @@
 	    <varlistentry>
 		<term>Size Policy</term>
 		<listitem>
-		<para>
+		<para id="abzy">
 		In this row you can specify the horizontal and
 		vertical size policies for the custom widget. For an
 		explanation of the possible values, please see the Qt
@@ -339,7 +339,7 @@
     <sect1>
     <title>The Signals Tab Page</title>
 
-	<para>
+	<para id="acam">
 	On this tab page you specify the signals of your custom
 	widget. The central, unlabeled list box lists all the signals
 	together with their parameters.
@@ -349,7 +349,7 @@
 	    <varlistentry>
 		<term>New Signal</term>
 		<listitem>
-		<para>
+		<para id="acaw">
 		Click on this button to insert a new signal entry. By
 		default the signal will be called <literal>signal</>
 		and will have no parameters.
@@ -362,7 +362,7 @@
 	    <varlistentry>
 		<term>Delete Signal</term>
 		<listitem>
-		<para>
+		<para id="acbj">
 		Clicking on this button removes the currently selected
 		signal from the list.
 		</para>
@@ -374,7 +374,7 @@
 	    <varlistentry>
 		<term>Signal</term>
 		<listitem>
-		<para>
+		<para id="acbv">
 		In this edit field you can edit the name and the
 		parameter types of the currently selected signal. Just
 		fill in the name of the signal and write the parameter
@@ -388,7 +388,7 @@
     <sect1>
     <title>The Slots Tab Page</title>
 
-	<para>
+	<para id="accj">
 	On this tab page you specify the slots of your custom widget.
 	The central, unlabeled list box lists all the slots together
 	with their parameters and their access specifiers.
@@ -398,7 +398,7 @@
 	    <varlistentry>
 		<term>New Slot</term>
 		<listitem>
-		<para>
+		<para id="acct">
 		Click on this button to insert a new slot entry. By
 		default the slot will be called <literal>slot</>. It
 		will have no parameters, and the access specifier is
@@ -412,7 +412,7 @@
 	    <varlistentry>
 		<term>Delete Slot</term>
 		<listitem>
-		<para>
+		<para id="acdh">
 		Clicking on this button removes the currently selected
 		slot from the list.
 		</para>
@@ -424,7 +424,7 @@
 	    <varlistentry>
 		<term>Slot</term>
 		<listitem>
-		<para>
+		<para id="acdt">
 		In this edit field you can edit the name and the
 		parameter types of the currently selected slot. Just
 		fill in the name of the slot and write the parameter
@@ -438,7 +438,7 @@
 	    <varlistentry>
 		<term>Access</term>
 		<listitem>
-		<para>
+		<para id="aceh">
 		Here you can specify the access specifier of the slot,
 		either <literal>public</> or <literal>protected</>.
 		</para>
@@ -450,7 +450,7 @@
     <sect1>
     <title>The Properties Tab Page</title>
 
-	<para>
+	<para id="acet">
 	On this tab page you specify the properties of your custom
 	widget. The central, unlabeled list box lists all the
 	properties together with their types.
@@ -460,7 +460,7 @@
 	    <varlistentry>
 		<term>New Property</term>
 		<listitem>
-		<para>
+		<para id="acfd">
 		Click on this button to insert a new property entry.
 		By default, the property will be called
 		<literal>property</> and will have the type
@@ -474,7 +474,7 @@
 	    <varlistentry>
 		<term>Delete Property</term>
 		<listitem>
-		<para>
+		<para id="acfr">
 		Clicking on this button removes the currently selected
 		property from the list.
 		</para>
@@ -486,7 +486,7 @@
 	    <varlistentry>
 		<term>Property</term>
 		<listitem>
-		<para>
+		<para id="acgd">
 		In this edit field you can edit the name of the
 		currently selected property. Just fill in the name of
 		the property.
@@ -499,7 +499,7 @@
 	    <varlistentry>
 		<term>Type</term>
 		<listitem>
-		<para>
+		<para id="acgq">
 		Here you can specify the type of the property. The
 		following types are available: <literal>String</> (a
 		Unicode string), <literal>CString</> (an 8-bit
@@ -523,14 +523,14 @@
 	    \img[iconview-editor]
 	</figure>
 
-	<para>
+	<para id="acho">
 	This dialog lets you edit the icons that are displayed in a
-	<classname>QIconView</> that you have inserted in a form. You
+	\class[QIconView] that you have inserted in a form. You
 	reach it by selecting <guilabel>Edit</> from the context menu
 	of an icon view.
 	</para>
 
-	<para>
+	<para id="achv">
 	The unlabeled list box on the left-hand side shows all
 	currently inserted icons together with their labels. By
 	default there will be one folder-like icon with the label
@@ -541,7 +541,7 @@
 	    <varlistentry>
 		<term>New Item</term>
 		<listitem>
-		<para>
+		<para id="acig">
 		Click this button to insert a new icon into the icon
 		view.
 		</para>
@@ -553,7 +553,7 @@
 	    <varlistentry>
 		<term>Delete Item</term>
 		<listitem>
-		<para>
+		<para id="acis">
 		Click this button to delete the currently selected
 		icon from the icon view.
 		</para>
@@ -565,7 +565,7 @@
 	    <varlistentry>
 		<term>Item Properties</term>
 		<listitem>
-		<para>
+		<para id="acje">
 		In this area you can specify the pixmap and the label
 		to be displayed for the currently selected icon. To
 		change the label, enter the new text in the
@@ -589,7 +589,7 @@
 	    \img[listbox-editor]
 	</figure>
 
-	<para>
+	<para id="ackc">
 	This dialog lets you edit entries that are displayed in a list
 	box. Access it by selecting <guilabel>Edit</> in the context
 	menu of a list box. In the unlabeled list box on the left-hand
@@ -601,7 +601,7 @@
 	    <varlistentry>
 		<term>New Item</term>
 		<listitem>
-		<para>
+		<para id="acko">
 		Click on this button to insert a new entry. By default
 		it will have the text <literal>New Item</> and no
 		icon.
@@ -614,7 +614,7 @@
 	    <varlistentry>
 		<term>Delete Item</term>
 		<listitem>
-		<para>
+		<para id="aclb">
 		Click on this button to delete the currently selected
 		entry.
 		</para>
@@ -626,7 +626,7 @@
 	    <varlistentry>
 		<term>Arrow Buttons</term>
 		<listitem>
-		<para>
+		<para id="acln">
 		With the arrow buttons you can change the order of the
 		entries in the list box. Clicking on the up-arrow
 		button moves the currently selected entry one position
@@ -641,7 +641,7 @@
 	    <varlistentry>
 		<term>Item Properties</term>
 		<listitem>
-		<para>
+		<para id="acmc">
 		In this area you can specify the pixmap and the label
 		to be displayed for the currently selected entry. To
 		change the label, enter the new text in the
@@ -665,14 +665,14 @@
 	    \img[listview-editor]
 	</figure>
 
-	<para>
+	<para id="acna">
 	This dialog lets you edit both the entries that are displayed
 	in a list view and the columns of the list view. You reach it
 	by selecting <guilabel>Edit</> from the context menu of a list
 	view.
 	</para>
 
-	<para>
+	<para id="acnh">
 	The dialog is made up of two tab pages: <guilabel>Items</>,
 	where you can add, delete, and modify items; and
 	<guilabel>Columns</>, where you can do the same with columns.
@@ -682,7 +682,7 @@
     <sect1>
     <title>The Items Tab Page</title>
 
-	<para>
+	<para id="acnr">
 	The unlabeled list view on the left-hand side of the dialog
 	shows the items similarly to how they will be shown in the
 	actual list view in your application. The columns you see here
@@ -695,7 +695,7 @@
 	    <varlistentry>
 		<term>New Item</term>
 		<listitem>
-		<para>
+		<para id="acoe">
 		Click on this button to insert a new top-level item
 		into the list view. By default it will have the name
 		<literal>New Item</>.
@@ -708,7 +708,7 @@
 	    <varlistentry>
 		<term>New Subitem</term>
 		<listitem>
-		<para>
+		<para id="acor">
 		Click on this button to insert a new item that is a
 		child of the currently selected item. By default it
 		will have the name <literal>Subitem</>.
@@ -717,11 +717,11 @@
 	    </varlistentry>
 	</variablelist>
 
-	<para>
+	<para id="acpa">
 	<guilabel>Delete Item</>
 	</para>
 
-	<para>
+	<para id="acpe">
 	Click on this button to delete the currently selected item. Be
 	careful: if this item has child items, they are deleted as
 	well. This is the default behavior of QListView, which is why
@@ -732,7 +732,7 @@
 	    <varlistentry>
 		<term>Arrow Buttons</term>
 		<listitem>
-		<para>
+		<para id="acpp">
 		With the up and down buttons you can move an entry up
 		and down but not out of its hierarchical level.
 		</para>
@@ -740,7 +740,7 @@
 	    </varlistentry>
 	</variablelist>
 
-	<para>
+	<para id="acpx">
 	With the left and right buttons you can move an entry one
 	level up or down in the hierarchy.
 	</para>
@@ -749,7 +749,7 @@
 	    <varlistentry>
 		<term>Item Properties</term>
 		<listitem>
-		<para>
+		<para id="acqg">
 		In this area you can specify the pixmap and the label
 		to be displayed for any of the columns of the
 		currently selected item. To change anything, you first
@@ -770,7 +770,7 @@
     <sect1>
     <title>The Columns Tab Page</title>
 
-	<para>
+	<para id="acrb">
 	The unlabeled list box on the left-hand side of this tab page
 	shows all the currently defined columns in the order in which
 	they will appear in the list box.
@@ -780,7 +780,7 @@
 	    <varlistentry>
 		<term>New Column</term>
 		<listitem>
-		<para>
+		<para id="acrl">
 		Click on this button to insert a new column into the
 		list view.
 		</para>
@@ -792,7 +792,7 @@
 	    <varlistentry>
 		<term>Delete Column</term>
 		<listitem>
-		<para>
+		<para id="acrx">
 		Click on this button to delete the currently selected
 		column from the list view.
 		</para>
@@ -804,7 +804,7 @@
 	    <varlistentry>
 		<term>Arrow Buttons</term>
 		<listitem>
-		<para>
+		<para id="acsj">
 		With the arrow buttons you can change the order of the
 		columns in the list view. Clicking on the up-arrow
 		button moves the currently selected entry one position
@@ -819,7 +819,7 @@
 	    <varlistentry>
 		<term>Column Properties</term>
 		<listitem>
-		<para>
+		<para id="acsy">
 		In this area you can specify the pixmap and the label
 		to be displayed in the header of the currently
 		selected column. To change the label, enter the new
@@ -849,13 +849,13 @@
 	    \img[multiline-editor]
 	</figure>
 
-	<para>
+	<para id="acuc">
 	This dialog lets you edit the text to appear in a multiline
 	edit. You reach it by selecting <guilabel>Edit</> from the
 	context menu of a multiline edit.
 	</para>
 
-	<para>
+	<para id="acui">
 	This dialog is pretty simple: just enter the text you want
 	displayed in the multiline edit in the <guilabel>Text</>
 	field.
@@ -870,9 +870,9 @@
 	    \img[editslots-dlg]
 	</figure>
 
-	<para>
+	<para id="acux">
 	In this dialog, which is available from the menu entry
-	<guimenuitem>Edit|Slots</> or via the toolbar, you can edit
+	\menu[Edit|Slots] or via the toolbar, you can edit
 	the slots of the currently active form. The unlabeled central
 	list box lists all the slots of this form, together with their
 	access specifiers and whether they are in use, i.e., whether
@@ -883,10 +883,10 @@
 	    <varlistentry>
 		<term>New Slot</term>
 		<listitem>
-		<para>
+		<para id="acvk">
 		Click this button to insert a new slot into the list.
 		By default it will be called
-		<function>new&lowbar;slot()</>, will have no
+		\fn[new&lowbar;slot()], will have no
 		parameters, will have the access specifier
 		<literal>public</>, and of course will not be in use.
 		</para>
@@ -898,7 +898,7 @@
 	    <varlistentry>
 		<term>Delete Slot</term>
 		<listitem>
-		<para>
+		<para id="acvz">
 		Click this button to delete the currently selected
 		slot.
 		</para>
@@ -910,7 +910,7 @@
 	    <varlistentry>
 		<term>Slot</term>
 		<listitem>
-		<para>
+		<para id="acwl">
 		In this edit field you can change the name and the
 		parameters of the currently selected slot. Simply edit
 		the name and enter the parameter types between the
@@ -924,7 +924,7 @@
 	    <varlistentry>
 		<term>Access</term>
 		<listitem>
-		<para>
+		<para id="acwz">
 		Here you can provide the access specifier for the
 		slot, which may be either <literal>public</> or
 		<literal>protected</>. The access specifier
@@ -944,7 +944,7 @@
 	    \img[formsettings-dlg]
 	</figure>
 
-	<para>
+	<para id="acxt">
 	The form settings dialog lets you specify some things that
 	apply to the form as a whole. Most of these settings are used
 	when generating the code with <command>uic</>.
@@ -954,7 +954,7 @@
 	    <varlistentry>
 		<term>Class Name</term>
 		<listitem>
-		<para>
+		<para id="acyd">
 		Enter here the name that the generated class should
 		have. Choose a name that describes the purpose of the
 		form well, i.e., follow the same rules you follow for
@@ -968,9 +968,9 @@
 	    <varlistentry>
 		<term>Comment</term>
 		<listitem>
-		<para>
+		<para id="acyr">
 		Here you can enter a comment about the form. The
-		comment will be saved in the XML <filename>.ui</> file
+		comment will be saved in the XML \f[.ui] file
 		but will not show up in the generated code.
 		</para>
 		</listitem>
@@ -981,7 +981,7 @@
 	    <varlistentry>
 		<term>Author</term>
 		<listitem>
-		<para>
+		<para id="acze">
 		This field is similar to the <guilabel>Comment</>
 		field. You can enter your name or your employer's name
 		here.
@@ -994,7 +994,7 @@
 	    <varlistentry>
 		<term>Save Inline</term>
 		<listitem>
-		<para>
+		<para id="aczr">
 		If you check this option, any pixmaps that are used in
 		the dialog (e.g., in pixmap labels) will be stored
 		inline in the generated code. The advantage is that
@@ -1012,14 +1012,14 @@
 	    <varlistentry>
 		<term>Use Function</term>
 		<listitem>
-		<para>
+		<para id="adaj">
 		This option is the opposite of the <guilabel>Save
 		Inline</> option. If you check it, no pixmaps will be
 		saved with the source code&mdash;but <command>uic</>
 		will insert calls to a function that you specify in
 		the edit field of this option whenever it needs to
 		access a pixmap. This function should return a
-		<classname>QPixmap</> object.
+		\class[QPixmap] object.
 		</para>
 		</listitem>
 	    </varlistentry>
@@ -1029,7 +1029,7 @@
 	    <varlistentry>
 		<term>Includes</term>
 		<listitem>
-		<para>
+		<para id="adba">
 		The <guilabel>Includes</> list box shows all the
 		header files that will be included in the generated
 		source code in addition to the header files needed
@@ -1045,10 +1045,10 @@
 	    <varlistentry>
 		<term>New Include</term>
 		<listitem>
-		<para>
+		<para id="adbq">
 		Click on this button to insert a new entry in the
 		include list. By default the header file will be
-		called <filename>include.h</> and will be included
+		called \f[include.h] and will be included
 		globally. You can change the filename and the
 		inclusion locality in the fields below. Globally means
 		that the header file name will be surrounded with
@@ -1063,7 +1063,7 @@
 	    <varlistentry>
 		<term>Delete Include</term>
 		<listitem>
-		<para>
+		<para id="adci">
 		Click on this button to delete the currently selected
 		header file from the list.
 		</para>
@@ -1080,9 +1080,9 @@
 	    \img[help-dlg]
 	</figure>
 
-	<para>
+	<para id="adcz">
 	You reach the help dialog by selecting
-	<guimenuitem>Go|Topics|Index</>from the menu of the help
+	\menu[Go|Topics|Index]from the menu of the help
 	browser that you might access via e.g. <guilabel>F1</>. This
 	lets you access various parts of the Qt Designer and Qt
 	Reference documentation quickly and easily.
@@ -1092,7 +1092,7 @@
     <sect1>
     <title>Contents tab page</title>
 
-	<para>
+	<para id="addl">
 	This tab page gives you a hierarchical view of all chapters of
 	the Qt Designer and Qt Reference documentation. Double-click
 	on a topic to display it in the help browser.
@@ -1102,7 +1102,7 @@
     <sect1>
     <title>Index tab page</title>
 
-	<para>
+	<para id="addv">
 	The Index tab page shows a list of topics that are described
 	in the Qt documentation. You can scroll through the list to
 	find a topic you are looking for or enter a search word in the
@@ -1113,7 +1113,7 @@
     <sect1>
     <title>Bookmarks tab page</title>
 
-	<para>
+	<para id="adeg">
 	On this tab page you can set and delete bookmarks as well as
 	jump to a previously created bookmark. The list on the
 	left-hand side shows all bookmarks that you have defined;
@@ -1133,24 +1133,24 @@
 	    \img[newform-dlg]
 	</figure>
 
-	<para>
+	<para id="adfa">
 	This dialog appears when you create a new form, e.g., by
-	selecting <guimenuitem>File|New</> from the menu bar. It lets
+	selecting \menu[File|New] from the menu bar. It lets
 	you select one of several base classes and styles for the new
 	form. To create the form, just click on one of the items
-	provided and click <guibutton>OK</>. Classes and styles
+	provided and click \button[OK]. Classes and styles
 	currently available are shown below. Future editions of Qt
 	Designer may provide additional templates; but you can easily
 	make your own by designing a form, saving it as a
-	<filename>.ui</> file, and copying this file into the
-	<guimenuitem>&dollar;QTDIR|tools|designer|templates</>directory.
+	\f[.ui] file, and copying this file into the
+	\menu[&dollar;QTDIR|tools|designer|templates]directory.
 	</para>
 
 	<variablelist>
 	    <varlistentry>
 		<term>Dialog</term>
 		<listitem>
-		<para>
+		<para id="adfr">
 		Use this style for an ordinary dialog, modal or
 		modeless. If the dialog has a row of push buttons, it
 		is easier to choose one of the other dialog styles
@@ -1164,7 +1164,7 @@
 	    <varlistentry>
 		<term>Wizard</term>
 		<listitem>
-		<para>
+		<para id="adgf">
 		Use this style to create a wizard, i.e., a series of
 		dialog pages that guide the user through a certain
 		task.
@@ -1177,7 +1177,7 @@
 	    <varlistentry>
 		<term>Widget</term>
 		<listitem>
-		<para>
+		<para id="adgs">
 		This is the most common style, without any presets.
 		Use it if none of the other styles fit your needs.
 		</para>
@@ -1189,7 +1189,7 @@
 	    <varlistentry>
 		<term>Configuration Dialog</term>
 		<listitem>
-		<para>
+		<para id="adhe">
 		This is a style that can be used for configuration
 		dialogs with lots of options. It consists of a list
 		box on the left-hand side and a number of tab pages.
@@ -1205,10 +1205,10 @@
 	    <varlistentry>
 		<term>Dialog with Buttons (Bottom)</term>
 		<listitem>
-		<para>
+		<para id="adhu">
 		This style is a dialog with four buttons
-		(<guilabel>Apply</>, <guibutton>OK</>,
-		<guibutton>Cancel</>, and <guilabel>Help</>) nicely
+		(<guilabel>Apply</>, \button[OK],
+		\button[Cancel], and <guilabel>Help</>) nicely
 		arranged at the bottom. Using this style instead of
 		the standard dialog style gives you a head start.
 		</para>
@@ -1220,7 +1220,7 @@
 	    <varlistentry>
 		<term>Dialog with Buttons (Right)</term>
 		<listitem>
-		<para>
+		<para id="adij">
 		This style is similar to the previous one but arranges
 		the buttons at the far right of the dialog.
 		</para>
@@ -1232,7 +1232,7 @@
 	    <varlistentry>
 		<term>Tab Dialog</term>
 		<listitem>
-		<para>
+		<para id="adiv">
 		This style creates a tab dialog, i.e., a dialog with a
 		number of different tab pages (by default, two) on
 		which you can distribute the GUI elements.
@@ -1250,16 +1250,16 @@
 	    \img[paletteeditor-dlg]
 	</figure>
 
-	<para>
+	<para id="adjn">
 	This dialog appears when you want to edit the palette of a GUI
 	element in the property editor and click on the button labeled
 	<guilabel>...</>. To understand its use, you should
 	be familiar with how Qt handles palettes and widget colors.
 	When in doubt, refer to the Qt Reference Documentation for
-	<classname>QPalette</>.
+	\class[QPalette].
 	</para>
 
-	<para>
+	<para id="adjw">
 	A palette consists of three color sets: one for the
 	<emphasis>active</> state (when the widget is in use, e.g., it
 	might have the focus), one for the <emphasis>inactive</> state
@@ -1274,7 +1274,7 @@
 	    <varlistentry>
 		<term>Build Palette From Colors</term>
 		<listitem>
-		<para>
+		<para id="adkl">
 		Checking this box is the easiest way to get to a
 		good-looking palette. You select two colors, a color
 		for the 3-D effects and a color for the background; Qt
@@ -1290,7 +1290,7 @@
 	    <varlistentry>
 		<term>3-D Effects</term>
 		<listitem>
-		<para>
+		<para id="adlb">
 		Click on this button to bring up a color selector that
 		lets you select a 3-D effect color for the
 		automatically computed palette.
@@ -1303,7 +1303,7 @@
 	    <varlistentry>
 		<term>Background</term>
 		<listitem>
-		<para>
+		<para id="adlo">
 		Click on this button to bring up a color selector that
 		lets you select a background color for the
 		automatically computed palette.
@@ -1316,10 +1316,10 @@
 	    <varlistentry>
 		<term>Central Color Roles</term>
 		<listitem>
-		<para>
+		<para id="admb">
 		In this area you can select pixmaps and colors for the
 		color role currently selected in the color role combo
-		box. Refer to the documentation for <classname>QPalette</>
+		box. Refer to the documentation for \class[QPalette]
 		or <emphasis>Programming with Qt</> for a description
 		of the color roles. Make sure to choose colors with
 		good contrast!
@@ -1332,7 +1332,7 @@
 	    <varlistentry>
 		<term>3-D Shadow Effects</term>
 		<listitem>
-		<para>
+		<para id="admr">
 		In this area you can select a color for the 3-D shadow
 		effects. You have two options: either have the shadow
 		effects based on the button color in <guilabel>Central
@@ -1351,7 +1351,7 @@
 	    <varlistentry>
 		<term>Preview</term>
 		<listitem>
-		<para>
+		<para id="adnk">
 		The preview area gives a good example of how your
 		palette selections will look in reality. By using the
 		arrow buttons you can cycle through several previews
@@ -1365,7 +1365,7 @@
     <sect1>
     <title>The Pixmap Function Dialog</title>
 
-	<para>
+	<para id="adny">
 	This dialog appears if you specify a pixmap-loading function
 	in the <guilabel>Form Settings</>dialog and then select a
 	pixmap (i.e., by inserting a pixmap label and choosing
@@ -1383,17 +1383,17 @@
 	    \img[preferences-dlg]
 	</figure>
 
-	<para>
+	<para id="adoq">
 	You configure Qt Designer's general behavior in this dialog,
 	which you reach via the menu item
-	<guimenuitem>Edit|Preferences</>,
+	\menu[Edit|Preferences],
 	</para>
 
 	<variablelist>
 	    <varlistentry>
 		<term>Background/Color</term>
 		<listitem>
-		<para>
+		<para id="adpa">
 		Check this option to have a monochrome background. The
 		color button next to the option lets you select a
 		color.
@@ -1406,7 +1406,7 @@
 	    <varlistentry>
 		<term>Background/Pixmap</term>
 		<listitem>
-		<para>
+		<para id="adpn">
 		Check this option to have a textured background. The
 		button next to the option lets you select a pixmap.
 		</para>
@@ -1418,7 +1418,7 @@
 	    <varlistentry>
 		<term>Restore last workspace on startup</term>
 		<listitem>
-		<para>
+		<para id="adpz">
 		If this option is checked, the next time Qt Designer
 		starts up it will restore all the windows that were
 		open when you last closed it. This is useful if you
@@ -1433,7 +1433,7 @@
 	    <varlistentry>
 		<term>Show Splash Screen on startup</term>
 		<listitem>
-		<para>
+		<para id="adqo">
 		If this option is checked, Qt Designer's splash screen
 		will be shown at startup. Uncheck it to reduce Qt
 		Designer's startup time.
@@ -1446,7 +1446,7 @@
 	    <varlistentry>
 		<term>Documentation Path</term>
 		<listitem>
-		<para>
+		<para id="adrb">
 		This field should contain the location of your Qt
 		documentation. It should be filled in correctly unless
 		you have moved your Qt installation somehow and
@@ -1467,7 +1467,7 @@
 	    <varlistentry>
 		<term>Show Grid</term>
 		<listitem>
-		<para>
+		<para id="adrw">
 		If this box is checked Qt Designer shows a grid in the
 		form of evenly spaced dots on the background of each
 		form. This is useful if you use absolute positions
@@ -1483,7 +1483,7 @@
 	    <varlistentry>
 		<term>Snap To Grid</term>
 		<listitem>
-		<para>
+		<para id="adsm">
 		If this box is checked Qt Designer will let you
 		position windows only at grid points, not in between
 		them.
@@ -1496,7 +1496,7 @@
 	    <varlistentry>
 		<term>Grid-X</term>
 		<listitem>
-		<para>
+		<para id="adsz">
 		Here you can specify the horizontal distance between
 		two grid points.
 		</para>
@@ -1508,7 +1508,7 @@
 	    <varlistentry>
 		<term>Grid-Y</term>
 		<listitem>
-		<para>
+		<para id="adtl">
 		Here you can specify the vertical distance between two
 		grid points.
 		</para>
@@ -1520,7 +1520,7 @@
 	    <varlistentry>
 		<term>Show Text Labels</term>
 		<listitem>
-		<para>
+		<para id="adtx">
 		If this option is checked, each toolbar icon has a
 		small text label beneath it explaining its purpose.
 		</para>
@@ -1537,7 +1537,7 @@
 	    \img[topicchooser-dlg]
 	</figure>
 
-	<para>
+	<para id="aduo">
 	You will rarely see this dialog. It is used when you select a
 	topic from the index list in the help browser and there is
 	more than one entry for the topic. The dialog then lets you
