@@ -1219,7 +1219,17 @@ void TrWindow::updateTranslation( const QString& translation )
     QListViewItem *item = slv->currentItem();
     if ( item != 0 ) {
 	MessageLVI *m = (MessageLVI *) item;
-	QString stripped = translation.stripWhiteSpace();
+
+	/*
+          Remove trailing '\n's, as they were probably inserted by
+          mistake. Don't dare to strip all white-space though, as some
+          idioms require them. Whether these idioms are recommendable
+          is beyond the scope of this comment.
+	*/
+	QString stripped = translation;
+	while ( stripped.endsWith(QChar('\n')) )
+            stripped.truncate( stripped.length() - 1 );
+
 	if ( stripped != m->translation() ) {
 	    bool dngr;
 	    m->setTranslation( stripped );
