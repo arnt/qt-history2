@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+
+$scope = "";
+
+foreach $file ( @ARGV ) {
+    next unless open( I, "< $file" );
+
+    $source = join( "", <I> );
+    $source =~ s/\"\s*\n\s*\"//gs;
+    while( $source =~ /(?:(?:\n(?:[a-zA-Z][a-zA-Z: ]*[\&\*]?\s*)?\b([A-Z][a-zA-Z]+)::(?:[A-Za-z0-9]+)\((?:(?:[^\n])|(?:\n[^\{]))*\)\s*\n\{)|(?:\btr\s*\(\s*\"([^\"]+)\"\s*\)))/gs ) {
+	if ( defined( $1 ) ) {
+	    if ( $scope ne $1 ) {
+		$scope = $1;
+		print "scope changed to $scope\n";
+	    }
+	} elsif ( defined( $2 ) ) {
+	    print "saw string $2 in $scope\n";
+	}
+    }
+}
