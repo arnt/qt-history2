@@ -75,99 +75,160 @@ static bool block_set_alignment = FALSE;
 
 /*!
   \class QTextView qtextview.h
-  \brief The QTextView class provides a sophisticated, single-page rich text viewer.
+  \brief The QTextView class provides a sophisticated rich text viewer.
   \ingroup basic
   \ingroup helpsystem
 
-  Unlike QSimpleRichText, which merely draws small pieces of rich
-  text, a QTextView is a real widget with scroll bars, when necessary,
-  to show large text documents.
+    QTextView is a widget which can show large amounts of read-only text
+    with varying fonts and font attributes, e.g. different point sizes,
+    colors, bold, italic etc. Paragraphs can have different alignments
+    and word-wrap policies. QTextView can also show images (using
+    QMimeSourceFactory), lists and tables. If the text is too large to
+    view within the widget's viewport, scrollbars will appear. The text
+    view can load both plain text and HTML files (a subset of HTML 4 and
+    CSS1 is supported). 
+    The rendering style and valid tags are defined by a styleSheet().
+    Currently a subset of HTML 3.2 and 4, and CSS1 is supported, see
+    setStyleSheet() and QStyleSheet for details. The images identified
+    by image tags are displayed if they can be interpreted using the
+    text view's QMimeSourceFactory. (See setMimeSourceFactory() for
+    details.)
 
-  The rendering style and available tags are defined by a
-  styleSheet(). Currently, a small XML/CSS1 subset including embedded
-  images and tables is supported. See QStyleSheet for
-  details. Possible images within the text document are resolved by
-  using a QMimeSourceFactory.  See setMimeSourceFactory() for details.
+    If you want to provide your users with editable rich text use
+    QTextEdit. If you want a text browser with more navigation use
+    QTextBrowser. If you just need to display a small piece of rich text
+    use QSimpleRichText or QLabel. 
 
-  Using QTextView is quite similar to QLabel. It's mainly a call to
-  setText() to set the contents. Setting the background color is
-  slightly different from other widgets, because a text view is a
-  scrollable widget that naturally provides a scrolling
-  background. You can specify the paper background with
-  setPaper(). QTextView supports both plain color and complex pixmap
-  backgrounds.
+    Set the text with setText(). You can include rich text directly in
+    code since it is based on HTML tags, e.g. 
+    \code
+	textView->setText( "<font color=\"red\">Red</font>" );
+    \endcode
+    The text can also be set to the contents of a file using load(). You
+    can append text with append(), for example to display an output log.   
 
-  The API also offers functions to set different word-wrapping modes,
-  using setWordWrap(), setWrapPolicy() and setWrapColumnOrWidth().
+    By default the text view will try to guess the format of the text
+    (plain text or HTML) and render accordingly, but you can control
+    this with setTextFormat().
 
-  To get information about the length of the text, use paragraphs(),
-  lines() and length().
+    By default the text view wraps words at whitespace at the width of
+    the text view widget. The setWordWrap() function is used to specify
+    the kind of word wrap you want, or \c NoWrap.
+    Call setWordWrap() to set a fixed pixel width \c FixedPixelWidth, or
+    character column (e.g. 80 column) \c FixedColumnWidth with the
+    pixels or columns specified with setWrapColumnOrWidth(). If you use
+    word wrap to the widget's width \c WidgetWidth, you can specify
+    whether to break on whitespace or anywhere with setWrapPolicy().
 
-  It is also possible to get the currently selected text by
-  selectedText(). hasSelection() tells you, if there is currently a
-  selection at all. Using getSelection() it is possible to get the
-  exact position of the selection.
+    The background color is set differently from other widgets, using
+    setPaper(). You specify a brush style which could be a plain color
+    or a complex pixmap. Hypertext links are automatically
+    underlined; this can be changed with setLinkUnderline(). The tab
+    stop width is set with setTabStops(). The zoomIn() and zoomOut()
+    functions can be used to resize the text by increasing (decreasing
+    for zoomOut()) the point size by one point per call. Images are not
+    affected.
 
-  To find an expression in the text and select this one, use
-  find(). Other functions like documentTitle(), context() and
-  fileName() give you more information about the displayed document.
+    The entire text is returned by text(), and the text of a particular
+    paragraph by text(int).
+
+    The user can select text in the text view using the mouse. If
+    they've selected text hasSelectedText() will return TRUE. The
+    selection's position can be obtained with getSelection(), and the
+    selection itself is returned by selectedText(). The selection can be
+    copied to the clipboard with copy(). The entire text can be selected
+    (or deselected) with selectAll().
+
+    The lines() function returns the number of lines in the text,
+    paragraphs() returns the number of paragraphs. The number of lines
+    within a particular paragraph is returned by linesOfParagraph(). The
+    length of the text in characters is returned by length().
+
+    You can scroll to an anchor in the text, e.g. \c{<a name="anchor">} 
+    with scrollToAnchor(). The find() function can be used to find and
+    highlight (select) a given string within the text.
+
+    The user can navigate the text view by using the scrollbars and by
+    clicking hypertext links with the mouse. The following keyboard
+    shortcuts are also supported:
+
+    <ul>
+    <li><i> Up Arrow </i> Move one line up
+    <li><i> Down Arrow </i> Move one line down
+    <li><i> Page Up </i> Move one (viewport) page up
+    <li><i> Page Down </i> Move one (viewport) page down
+    <li><i> Home </i> Move to the beginning of the text
+    <li><i> End </i> Move to the end of the text
+    </ul>
+    
+    The text view may be able to provide some meta-information. The
+    documentTitle() function will return the text from within HTML
+    \c{<title>} tags. If the file was loaded with load() the filename is
+    available from fileName().
 
   Note that we do not intend to add a full-featured web browser widget
   to Qt (because that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
-  support in Qt is supposed to provide a fast, portable and efficient
+  support in Qt is designed to provide a fast, portable and efficient
   way to add reasonable online help facilities to applications. We
   will, however, extend it to some degree in future versions of Qt.
 
-  For more, including hypertext capabilities, see QTextBrowser.
-
-  The richtext engine that is used by QTextView also provides the
-  possibility to edit the document using QTextEdit.
 */
 
 /*!  \fn void QTextView::copyAvailable (bool yes)
 
-  This signal is emitted when the availability of cut/copy changes.
-  If \a yes is TRUE, then cut() and copy() will work until
-  copyAvailable( FALSE ) is next emitted.
+  This signal is emitted when text is selected or deselected in the text
+  view. 
+  
+  When text is selected this signal will be emitted with \a yes set to
+  TRUE. If no text has been selected or if the selected text is
+  deselected this signal is emitted with \a yes set to FALSE.
+    
+    If \a yes is TRUE, copy() can be used to copy the selection to the
+    clipboard. If \a yes is FALSE copy() does nothing.
+
+    \sa selectionChanged()
 */
 
 
 /*!  \fn void QTextView::textChanged()
 
-  This signal is always emitted when the contents of the view changed.
+  This signal is emitted whenever the text in the view changes.
+
+  \sa setText() load() append()
  */
 
 /*!  \fn void QTextView::selectionChanged()
 
-  This signal is always emitted when the selection is changed.
+  This signal is emitted whenever the selection changes.
+
+  \sa copyAvailable()
 */
 
 /*!  \fn QTextDocument *QTextView::document() const
 
-  This function returns the QTextDocument which is used by the
-  view. QTextDocument is a class, which is not in the public API. If
-  you want to do more specialized stuff, you might use that
-  anyway. But be aware that the API of QTextDocument might change in a
+  This function returns the QTextDocument which is used by the text
+  view. 
+  
+  QTextDocument is not in the public API and its API might change in an
   incompatible manner in the future.
 */
 
 /*!  \fn void QTextView::setDocument( QTextDocument *doc )
 
-  This function sets the QTextDocument which should be used by this
-  view. This can be used if you e.g. want to display one document in
-  multiple views. Just create a QTextDocument and set it to the views
-  which should display it. But you need then connect to textChanged()
-  and selectionChanged() of all the views and update the others
-  (preferable a bit delayed for efficiece reasons).
+  This function sets the QTextDocument which should be used by the text
+  view. This can be used, for example, if you want to display a document
+  using multiple views. You would create a QTextDocument and set it to
+  the text views which should display it. You would need to connect to
+  the textChanged() and selectionChanged() signals of all the text views
+  and update them all accordingly (preferably with a slight delay for
+  efficiency reasons).
 
-  Note that QTextDocument is a class, which is not in the public
-  API. If you want to do more specialized stuff (like described), you
-  might use that anyway. But be aware that the API of QTextDocument
-  might change in a incompatible manner in the future.
+  QTextDocument is not in the public API and its API might change in an
+  incompatible manner in the future.
 */
 
-/*!  Constructs an empty QTextView with the standard \a parent and \a
+/*!  Constructs an empty QTextView with the usual \a parent and \a
   name optional arguments.
 */
 
@@ -178,8 +239,8 @@ QTextView::QTextView( QWidget *parent, const char *name )
     init();
 }
 
-/*!  Constructs a QTextView displaying the contents \a text with
-  context \a context, with the standard \a parent and \a name optional
+/*!  Constructs a QTextView displaying the text \a text with
+  context \a context, with the usual \a parent and \a name optional
   arguments.
 */
 
@@ -1547,8 +1608,10 @@ void QTextView::checkUndoRedoInfo( UndoRedoInfo::Type t )
     undoRedoInfo.type = t;
 }
 
-/*! Repaints the changed paragraphs. This is needed for many
-  operations, but you normally never need to call that yourself.
+/*! Repaints changed paragraphs. 
+
+    Although used extensively internally you shouldn't need to call it
+    yourself.
 */
 
 void QTextView::repaintChanged()
@@ -1575,7 +1638,9 @@ void QTextView::cut()
     }
 }
 
-/*! Copies the selected text (if there is any) to the clipboard.
+/*! Copies any selected text to the clipboard.
+
+    \sa hasSelectedText() copyAvailable()
  */
 
 void QTextView::copy()
@@ -1854,13 +1919,15 @@ void QTextView::setFontInternal( const QFont &f_ )
     setFormat( &f, QTextFormat::Font );
 }
 
-/*! Returns the contents of the view.
+/*! Returns the text of the text view.
 
-  If the view is readonly (i.e. it is a QTextView or QTextBrowser),
-  exactly the same contents as you did set is returned. If it is
-  editable (i.e. it is a QTextEdit), the current contens is set, and
-  depending on textFormat() the text will contain HTML formatting tags
-  or not.
+  If the text view is readonly (i.e. it is a QTextView or QTextBrowser),
+  the text set with setText() or load() plus any append() additions
+  is returned.
+
+  If the text view is editable (i.e. it is a QTextEdit), the current
+  text is returned. If textFormat() is \c RichText the text will
+  contain HTML formatting tags.
  */
 
 QString QTextView::text() const
@@ -1870,18 +1937,20 @@ QString QTextView::text() const
     return doc->text();
 }
 
-/*! Returns the text of the paragraph \a parag. Depending on
-  textFormat(), the returned string contains formatting HTML tags or
-  not.
+/*! 
+    Returns the text of the paragraph \a para. 
+
+    If textFormat() is \c RichText the text will contain HTML
+    formatting tags.
 */
 
-QString QTextView::text( int parag ) const
+QString QTextView::text( int para ) const
 {
-    return doc->text( parag );
+    return doc->text( para );
 }
 
-/*!  Changes the contents of the view to the string \a text and the
-  context to \a context.
+/*!  Changes the text of the view to the string \a text and the
+  context to \a context. Any previous text is deleted.
 
   \a text may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
@@ -1919,9 +1988,9 @@ void QTextView::setText( const QString &text, const QString &context )
     updateCurrentFormat();
 }
 
-/*! If you used load() to load and set the contents, this function
-  returnes the filename you specified there. Else an empty string is
-  returned.
+/*! 
+    Returns the name of the file loaded with load() or an empty string
+    if load() hasn't been called.
 */
 
 QString QTextView::fileName() const
@@ -1929,8 +1998,12 @@ QString QTextView::fileName() const
     return doc->fileName();
 }
 
-/*! Loads the file \a fn and displayes its contents. The contents is
-  interprated depending to textFormat()
+/*! Loads the file \a fn and displays its text. 
+
+    The format of the text is interpreted as plain text or as rich
+    text depending on textFormat(). The default setting is \c AutoText,
+    i.e. the text view autodetects the format from the contents of the
+    file.
 */
 
 void QTextView::load( const QString &fn )
@@ -1950,25 +2023,34 @@ void QTextView::save( const QString &fn )
     doc->save( fn );
 }
 
-/*!  Finds the next occurance of \a expr after \a parag and \a
-  index. If they are 0, the first occurance of \a expr os searched.
-  \a parag and index are set to the position where \a expr has been
-  found, if they are not 0. If \a expr couldn't be found, FALSE is
-  returned, else TRUE is returned and the found part in the text is
-  highlighted. \a cs specifies if the search should be case sensitive,
-  \a wo specifies of only whole words are searched, and \a forward
-  secifies the search direction.
+/*!  Finds the next occurrence of the string, \a expr, starting from
+    character position \a index within paragraph \a para.
+
+    If \a para and \a index are both 0 the search begins from the start
+    of the text. If \a cs is TRUE the search is case sensitive,
+    otherwise it is case insensitive. If \a wo is TRUE the search looks
+    for whole word matches only; otherwise it searches for any matching
+    text. If \a forward is TRUE (the default) the search works forward
+    from the starting position, otherwise it works backwards.
+
+    If \a expr is found the function returns TRUE and overwrites \a para
+    with the number of the paragraph in which the first character of the
+    match was found and \a index with the index position of that
+    character within the \a para.
+
+    If \a expr is not found the function returns FALSE and the contents
+    of \a index and \a para are undefined.
 */
 
 bool QTextView::find( const QString &expr, bool cs, bool wo, bool forward,
-		      int *parag, int *index )
+		      int *para, int *index )
 {
     drawCursor( FALSE );
     doc->removeSelection( QTextDocument::Standard );
 #ifndef QT_NO_CURSOR
     viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
-    bool found = doc->find( expr, cs, wo, forward, parag, index, cursor );
+    bool found = doc->find( expr, cs, wo, forward, para, index, cursor );
     ensureCursorVisible();
     drawCursor( TRUE );
     repaintChanged();
@@ -2037,40 +2119,50 @@ void QTextView::setSelection( int parag_from, int index_from,
     drawCursor( TRUE );
 }
 
-/*!  Sets the specified parameters to the currently selection
-  (selection start and end). If there is currently now selection, all
-  parameters are set to -1
+/*! 
+    If there is a selection \a paraFrom is set to the number of the
+    paragraph in which the selection begins and \a paraTo is set to the
+    number of the paragraph in which the selection ends. (They could be
+    the same.) \a indexFrom is set to the index at which the selection
+    begins within \a paraFrom, and \a indexTo is set to the index at
+    which the selection ends within \a paraTo.
+
+    If there is no selection \a paraFrom, \a indexFrom, \a paraTo and
+    \a indexTo are all set to -1.
+
+    \sa selectedText()
+
 */
 
-void QTextView::getSelection( int &parag_from, int &index_from,
-			      int &parag_to, int &index_to, int selNum ) const
+void QTextView::getSelection( int &paraFrom, int &indexFrom,
+			      int &paraTo, int &indexTo, int selNum ) const
 {
     if ( !doc->hasSelection( selNum ) ) {
-	parag_from = -1;
-	index_from = -1;
-	parag_to = -1;
-	index_to = -1;
+	paraFrom = -1;
+	indexFrom = -1;
+	paraTo = -1;
+	indexTo = -1;
 	return;
     }
 
-    doc->selectionStart( selNum, parag_from, index_from );
-    doc->selectionEnd( selNum, parag_from, index_from );
+    doc->selectionStart( selNum, paraFrom, indexFrom );
+    doc->selectionEnd( selNum, paraFrom, indexFrom );
 }
 
-/*!  Sets the text format to \a format. Possible choices are
+/*!  Sets the text format to \a format. The options are:
 
   <ul>
 
-  <li> \c PlainText - all characters are displayed verbatim, including
-  all blanks and linebreaks.
+  <li> \c PlainText - all characters except newlines are displayed
+  verbatim, including spaces. New lines are started in the display where
+  newlines appear in the text.
 
   <li> \c RichText - rich text rendering. The available styles are
   defined in the default stylesheet QStyleSheet::defaultSheet().
 
-  <li> \c AutoText - this is also the default. The view autodetects
-  which rendering style suits best, \c PlainText or \c
-  RichText. Technically, this is done by using the
-  QStyleSheet::mightBeRichText() heuristic.
+  <li> \c AutoText - this is the default. The text view autodetects
+  which rendering style is best, \c PlainText or \c RichText. This is
+  done by using the QStyleSheet::mightBeRichText() heuristic.
 
   </ul>
 */
@@ -2090,7 +2182,7 @@ Qt::TextFormat QTextView::textFormat() const
     return doc->textFormat();
 }
 
-/*! Returns the number of paragraphs of the contents
+/*! Returns the number of paragraphs in the text.
  */
 
 int QTextView::paragraphs() const
@@ -2098,23 +2190,23 @@ int QTextView::paragraphs() const
     return doc->lastParag()->paragId() + 1;
 }
 
-/*! Returns the number of lines of the paragraph \a parag.
+/*! Returns the number of lines in paragraph \a para.
  */
 
-int QTextView::linesOfParagraph( int parag ) const
+int QTextView::linesOfParagraph( int para ) const
 {
-    QTextParag *p = doc->paragAt( parag );
+    QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return -1;
     return p->lines();
 }
 
-/*! Returns the number of lines in the view.
+/*! Returns the number of lines in the text view.
 
-  WARNING: This function is slow. As lines change all the time during
-  word wrapping, this function has to iterate over all paragraphs and
-  ask for the number of lines of that.
- */
+  WARNING: This function may be slow. Lines change all the time during
+  word wrapping, so this function has to iterate over all the paragraphs
+  and get the number of lines from each one individually.
+*/
 
 int QTextView::lines() const
 {
@@ -2128,18 +2220,20 @@ int QTextView::lines() const
     return l;
 }
 
-/*! returns in which line of the paragraph \a parag the index \a chr
-  is
+/*! 
+    Returns the line number in paragraph \a para that contains the
+    character with index \a index. If there is no such paragraph or no
+    such character (e.g. the index is out of range) -1 is returned.
 */
 
-int QTextView::lineOfChar( int parag, int chr )
+int QTextView::lineOfChar( int para, int index )
 {
-    QTextParag *p = doc->paragAt( parag );
+    QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return -1;
 
     int idx, line;
-    QTextStringChar *c = p->lineStartOfChar( chr, &idx, &line );
+    QTextStringChar *c = p->lineStartOfChar( index, &idx, &line );
     if ( !c )
 	return -1;
 
@@ -2227,8 +2321,10 @@ void QTextView::startDrag()
 #endif
 }
 
-/*! Selectes the whole text, if \a select is TRUE, else clears the
-  selection
+/*! 
+    If \a select is TRUE (the default) all the text is selected.
+    If \a select is FALSE any selected text is deselected (i.e. the
+    selection is cleared).
 */
 
 void QTextView::selectAll( bool select )
@@ -2267,7 +2363,7 @@ void QTextView::UndoRedoInfo::clear()
     oldAligns.resize( 0 );
 }
 
-/*! Deletes the character on the right side of the text cursor. If a
+/*! Deletes the character to the right of the text cursor. If 
   text has been marked by the user (e.g. by clicking and dragging) the
   cursor is put at the beginning of the marked text and the marked
   text is removed.
@@ -2310,7 +2406,7 @@ void QTextView::resetFormat()
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }
 
-/*! Returns the QStyleSheet which is currently used in this view.
+/*! Returns the QStyleSheet which is currently used in this text view.
  */
 
 QStyleSheet* QTextView::styleSheet() const
@@ -2318,7 +2414,7 @@ QStyleSheet* QTextView::styleSheet() const
     return doc->styleSheet();
 }
 
-/*! Sets the styleheet which should be used by this view.
+/*! Sets the stylesheet to use with this text view.
  */
 
 void QTextView::setStyleSheet( QStyleSheet* styleSheet )
@@ -2326,7 +2422,8 @@ void QTextView::setStyleSheet( QStyleSheet* styleSheet )
     doc->setStyleSheet( styleSheet );
 }
 
-/*! Sets the paper which should be used for drawing the background.
+/*! 
+    Sets the background (paper) to be drawn with brush \a pap.
  */
 
 void QTextView::setPaper( const QBrush& pap )
@@ -2337,7 +2434,7 @@ void QTextView::setPaper( const QBrush& pap )
 }
 
 /*! Returns the brush which is used for the background, or an empty
-  one of there is none
+  brush if setPaper() has never been called. 
 */
 
 QBrush QTextView::paper() const
@@ -2347,16 +2444,19 @@ QBrush QTextView::paper() const
     return QBrush();
 }
 
-/*! Specifies whether links should be displayed underlined or
-  not. This defaults to TRUE.
- */
+/*! 
+    If \b is TRUE links will be displayed underlined. If \b is FALSE
+    links will not be displayed underlined.
+
+*/
 
 void QTextView::setLinkUnderline( bool b )
 {
     doc->setUnderlineLinks( b );
 }
 
-/*! Returns whether links are displayed underlined or not
+/*! Returns TRUE if links will be displayed underlined, otherwise
+ returns FALSE. 
  */
 
 bool QTextView::linkUnderline() const
@@ -2364,7 +2464,8 @@ bool QTextView::linkUnderline() const
     return doc->underlineLinks();
 }
 
-/*! Sets the mimesource factory which should be used by this view.
+/*! Sets the text view's mimesource factory to \a factory. See
+    QMimeSourceFactory for further details.
  */
 
 void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
@@ -2373,7 +2474,7 @@ void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
 }
 
 /*! Returns the QMimeSourceFactory which is currently used by this
-  view.
+  text view. 
 */
 
 QMimeSourceFactory* QTextView::mimeSourceFactory() const
@@ -2381,8 +2482,9 @@ QMimeSourceFactory* QTextView::mimeSourceFactory() const
     return doc->mimeSourceFactory();
 }
 
-/*! Returns how many pixles height are needed for this document of it
-  would be \a w pixels wide.
+/*! 
+    Returns how many pixels high the text view needs to be to display
+    the text if the text view is \a w pixels wide.
 */
 
 int QTextView::heightForWidth( int w ) const
@@ -2396,7 +2498,7 @@ int QTextView::heightForWidth( int w ) const
     return h;
 }
 
-/*! Appends \a text at the end of the view.
+/*! Appends the text \a text at the end of the text view.
  */
 
 void QTextView::append( const QString &text )
@@ -2420,7 +2522,7 @@ void QTextView::append( const QString &text )
     }
 }
 
-/*! Returns whether there is some text selected.
+/*! Returns TRUE if some text is selected, otherwise returns FALSE.
  */
 
 bool QTextView::hasSelectedText() const
@@ -2428,10 +2530,13 @@ bool QTextView::hasSelectedText() const
     return doc->hasSelection( QTextDocument::Standard );
 }
 
-/*! Returns the selected text, if there is one, else an empty
- string. Up to now only plain text is supported here. In the future
- some kind of HTML subset might be returned here depending on
- textFormat().
+/*! 
+   Returns the selected text or an empty string if there is no currently
+   selected text.
+
+   The text is always returned as \c PlainText regardless of the text
+   format. In a future release of Qt an HTML subset may be returned
+   depending on the text format.
  */
 
 QString QTextView::selectedText() const
@@ -2491,7 +2596,12 @@ QString QTextView::context() const
     return doc->context();
 }
 
-/*!  Returns the document title parsed from the content.
+/*!  Returns the document title parsed from the text.
+
+    For \c PlainText the title will be an empty string. For \c RichText
+    the title will be the text between the \c{<title>} tags, if present,
+    otherwise an empty string.
+
 */
 
 QString QTextView::documentTitle() const
@@ -2504,8 +2614,9 @@ void QTextView::makeParagVisible( QTextParag *p )
     setContentsPos( contentsX(), QMIN( p->rect().y(), contentsHeight() - visibleHeight() ) );
 }
 
-/*! Scrolls the view to make the anchor \a name visible, if it can be
-  found in the document.
+/*! Scrolls the text view to make the anchor called \a name visible, if
+ it can be found in the document. An anchor is defined using the HTML 
+ anchor tag, e.g. \c{<a name="target">}.
 */
 
 void QTextView::scrollToAnchor( const QString& name )
@@ -2537,8 +2648,9 @@ void QTextView::scrollToAnchor( const QString& name )
     }
 }
 
-/*! If there is an anchor at the position \a pos (in contents
-  coordinates), this one is returned, else an empty string
+/*! If there is an anchor at position \a pos (in contents
+  coordinates), its name is returned, otherwise an empty string is
+  returned.
 */
 
 QString QTextView::anchorAt( const QPoint& pos )
@@ -2555,8 +2667,9 @@ void QTextView::setRealWidth( int w )
     QScrollView::setHScrollBarMode( setMode );
 }
 
-/*! If you changed something in the styleSheet(), use this function to
-  tell the document to update all formats, etc.
+/*! 
+    Updates all the rendering styles used to display the text. Call this
+    function after you change the styleSheet().
 */
 
 void QTextView::updateStyles()
@@ -2577,9 +2690,9 @@ void QTextView::setDocument( QTextDocument *dc )
 #ifndef QT_NO_CLIPBOARD
 
 /*!
-  Copies text in MIME subtype \a subtype from the clipboard onto the current
-  cursor position.
-  Any marked text is first deleted.
+  Copies text in MIME subtype \a subtype from the clipboard (if there is
+  any) into the text view at the current text cursor position.
+  Any selected (marked) text is first deleted.
 */
 void QTextView::pasteSubType( const QCString& subtype )
 {
@@ -2602,9 +2715,10 @@ void QTextView::pasteSubType( const QCString& subtype )
 
 #ifndef QT_NO_MIMECLIPBOARD
 /*!
-  Prompts the user for a type from a list of text types available,
-  Then copies text from the clipboard onto the current cursor position.
-  Any marked text is first deleted.
+  Prompts the user to choose a type from a list of text types available,
+  then copies text from the clipboard (if there is any) into the text
+  view at the current text cursor position. Any selected (marked) text
+  is first deleted.
 */
 void QTextView::pasteSpecial( const QPoint& pt )
 {
@@ -2647,32 +2761,38 @@ QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 
 /*! \enum QTextView::WordWrap
 
-  This enum describes the QTextView's word wrap mode.  The following
+  This enum describes the QTextView's word wrap modes.  The following
   values are valid:
 
-  \value NoWrap  no word wrap at all.
+  \value NoWrap  Do not wrap the text. 
 
-  \value WidgetWidth word wrap depending on the current width of the
-  widget
+  \value WidgetWidth Wrap the text at the current width of the
+  widget (this is the default). Wrapping is at whitespace by default;
+  this can be changed with setWrapPolicy().
 
-  \value FixedPixelWidth wrap according to a fixed amount of pixels
-  (see wrapColumnOrWidth() )
+  \value FixedPixelWidth Wrap at a fixed number of pixels from the
+  widget's left side. The number of pixels is set with
+  wrapColumnOrWidth().
 
-  \value FixedColumnWidth wrap according to a fixed character
-  column. This is useful whenever you need formatted text that can
-  also be displayed gracefully on devices with monospaced fonts, for
-  example a standard VT100 terminal. In that case wrapColumnOrWidth()
-  should typically be set to 80.
+  \value FixedColumnWidth Wrap at a fixed number of character columns
+  from the widget's left side. The number of characters is set with
+  wrapColumnOrWidth().
+  This is useful whenever you need formatted text that can also be
+  displayed gracefully on devices with monospaced fonts, for example a
+  standard VT100 terminal, where you might set wrapColumnOrWidth() to
+  80.
 
  \sa setWordWrap()
 */
 
 /*!  Sets the word wrap mode.
 
-  Per default, wrapping keeps words intact. To allow breaking within
-  words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
-
-  The default wrap mode is \c WidgetWidth.
+    The default mode is \c WidgetWidth which causes words to be wrapped
+    at the right edge of the widget. Wrapping occurs at spaces, keeping
+    whole words intact. If you want wrapping to occur within words use
+    setWrapPolicy(). If you set a wrap mode of \c FixedPixelWidth or \c
+    FixedColumnWidth you should also call setWrapColumnOrWidth() to set
+    the width you want.
 
   \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
 */
@@ -2712,8 +2832,12 @@ QTextView::WordWrap QTextView::wordWrap() const
     return wrapMode;
 }
 
-/*!  Sets the wrap column or wrap width, depending on the word wrap
-  mode.
+/*!  
+    If the wrap mode is \c FixedPixelWidth, the \a value is the number
+    of pixels from the left edge of the widget at which text should be
+    wrapped. If the wrap mode is \c FixedColumnWidth, the \a value is
+    the column number (in character columns) from the left edge of the
+    widget at which text should be wrapped. 
 
   \sa setWordWrap()
  */
@@ -2735,8 +2859,12 @@ void QTextView::setWrapColumnOrWidth( int value )
     }
 }
 
-/*!  Returns the wrap column or wrap width, depending on the word wrap
-  mode.
+/*!  
+    If the wrap mode is \c FixedPixelWidth, returns the number of pixels
+    from the left edge of the widget at which text is wrapped. If the
+    wrap mode is \c FixedColumnWidth, returns the column number (in
+    character columns) from the left edge of the widget at which text is
+    wrapped. 
 
   \sa setWordWrap(), setWrapColumnOrWidth()
  */
@@ -2751,15 +2879,16 @@ int QTextView::wrapColumnOrWidth() const
   Defines where text can be wrapped in word wrap mode.
 
   The following values are valid:
-  \value AtWhiteSpace  break only after whitespace
-  \value Anywhere  break anywhere
+  \value AtWhiteSpace  Break lines at whitespace, e.g. spaces or
+  newlines.
+  \value Anywhere  Break anywhere, including within words.
 
    \sa setWrapPolicy()
 */
 
-/*!  Defines where text can be wrapped in word wrap mode.
-
-   The default is \c AtWhiteSpace.
+/*!  Defines where text can be wrapped when word wrap mode is not \a
+    NoWrap. The choices are \c AtWhiteSpace (the default) and \c
+    Anywhere.
 
   \sa setWordWrap(), wrapPolicy()
  */
@@ -2794,7 +2923,7 @@ QTextView::WrapPolicy QTextView::wrapPolicy() const
     return wPolicy;
 }
 
-/*! Clears the view.
+/*! Deletes the contents of the text view.
  */
 
 void QTextView::clear()
@@ -2820,7 +2949,7 @@ int QTextView::length() const
     return document()->length();
 }
 
-/*! Returns the width of a tab as used be the view.
+/*! Returns the tab width used by the text view.
  */
 
 int QTextView::tabStopWidth() const
@@ -2833,7 +2962,7 @@ void QTextView::setUndoDepth( int d )
     document()->setUndoDepth( d );
 }
 
-/*! Sets the tabstop width to \a ts.
+/*! Sets the tab width used by the text view to \a ts.
  */
 
 void QTextView::setTabStops( int ts )
@@ -2876,9 +3005,9 @@ bool QTextView::getFormat( int parag, int index, QFont &font, QColor &color )
 }
 
 /*! This function is called to create the popup menu which is shown
-  when the user clicks on the textview with the right mouse button. If
+  when the user clicks on the text view with the right mouse button. If
   you want to create a custom popup menu, reimplement this function
-  and return the created popup menu. The ownership is transferred to
+  and return the created popup menu. Ownership is transferred to
   the caller.
 */
 
@@ -2926,9 +3055,11 @@ void QTextView::setFont( const QFont &f )
     repaintChanged();
 }
 
-/*! Zooms in the text by making the standard font size one point larger
-  and recalculating all fontsizes. This does not change the size of
-  images.
+/*! 
+
+    Zooms in on the text by by making the standard font size one point
+    larger and recalculating all font sizes. This does not change the
+    size of images.
 */
 
 void QTextView::zoomIn()
@@ -2938,8 +3069,8 @@ void QTextView::zoomIn()
     setFont( f );
 }
 
-/*! Zooms out the text by making the standard font size one point
-  smaller and recalculating all fontsizes. This does not change the
+/*! Zooms out on the text by making the standard font size one point
+  smaller and recalculating all font sizes. This does not change the
   size of images.
 */
 
