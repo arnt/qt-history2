@@ -238,7 +238,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         if (relativePos == 0)
             return false;
-        while (relativePos > 0 && !attributes[relativePos].wordStop && !attributes[relativePos].whiteSpace)
+        while (relativePos > 0 && !attributes[relativePos].wordStop && !attributes[relativePos - 1].whiteSpace)
             relativePos--;
 
         newPosition = blockIt.position() + relativePos;
