@@ -19,7 +19,6 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qmainwindow.h"
-#include "qpushbutton.h"
 #include "qtooltip.h"
 #include "qcursor.h"
 #include "qlayout.h"
@@ -66,13 +65,11 @@ class QToolBarPrivate
 {
 public:
     QToolBarPrivate() : moving( FALSE ) {
-	extensionSubMenues.setAutoDelete(TRUE);
     }
 
     bool moving;
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
-    QObjectList extensionSubMenues;
 };
 
 
@@ -567,7 +564,11 @@ void QToolBar::createPopup()
     }
 
     d->extensionPopup->clear();
-    d->extensionSubMenues.clear();
+    // clear doesn't delete submenus, so do this explicitly
+    {
+    	QObjectList popups = d->extensionPopup->queryList( "QPopupMenu", 0, FALSE, TRUE );
+    	popups.setAutoDelete(TRUE);
+    }
 
     QObjectList childlist = queryList( "QWidget", 0, FALSE, TRUE );
     bool hide = FALSE;
@@ -632,11 +633,9 @@ void QToolBar::createPopup()
 		    if ( s.isEmpty() )
 		        s = c->currentText();
 		    uint maxItems = 0;
-		    QPopupMenu *cp = new QPopupMenu;
-		    d->extensionSubMenues.append( cp );
+		    QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
 		    d->extensionPopup->insertItem( s, cp );
-		    connect( cp, SIGNAL( activated( int ) ),
-		        c, SLOT( internalActivate( int ) ) );
+		    connect( cp, SIGNAL( activated( int ) ), c, SLOT( internalActivate( int ) ) );
 		    for ( int i = 0; i < c->count(); ++i ) {
 		        QString tmp = c->text( i );
 			cp->insertItem( tmp, i );
@@ -648,12 +647,10 @@ void QToolBar::createPopup()
 			        maxItems = QApplication::desktop()->height() * 10 / h;
 			    }
 			} else if ( cp->count() >= maxItems - 1 ) {
-			    QPopupMenu* sp = new QPopupMenu;
-			    d->extensionSubMenues.append( sp );
+			    QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
 			    cp->insertItem( tr( "More..." ), sp );
 			    cp = sp;
-			    connect( cp, SIGNAL( activated( int ) ),
-			        c, SLOT( internalActivate( int ) ) );
+			    connect( cp, SIGNAL( activated( int ) ), c, SLOT( internalActivate( int ) ) );
 			}
 		    }
 		}
@@ -675,6 +672,9 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 
 void QToolBar::checkForExtension( const QSize &sz )
 {
+    if (!isVisible())
+	return;
+
     bool tooSmall;
     if ( orientation() == Horizontal )
 	tooSmall = sz.width() < sizeHint().width();
