@@ -56,7 +56,6 @@ public:
     virtual bool setFocusSection( int sec ) = 0;
     virtual QString sectionFormattedText( int sec ) = 0;
     virtual void addNumber( int sec, int num ) = 0;
-    virtual void removeFirstNumber( int sec ) = 0;
     virtual void removeLastNumber( int sec ) = 0;
 
 public slots:
@@ -110,6 +109,9 @@ public:
     QString separator() const;
     virtual void setSeparator( const QString& s );
 
+    // Make removeFirstNumber() virtual in QDateTimeEditBase in 4.0
+    void removeFirstNumber( int sec );
+
 signals:
     void valueChanged( const QDate& date );
 
@@ -121,7 +123,7 @@ protected:
     void stepDown();
     QString sectionFormattedText( int sec );
     void addNumber( int sec, int num );
-    void removeFirstNumber( int sec );
+    
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
 
@@ -194,6 +196,9 @@ public:
     uint display() const;
     void setDisplay( uint disp );
 
+    // Make removeFirstNumber() virtual in QDateTimeEditBase in 4.0
+    void removeFirstNumber( int sec );
+
 signals:
     void valueChanged( const QTime& time );
 
@@ -205,7 +210,6 @@ protected:
     void stepDown();
     QString sectionFormattedText( int sec );
     void addNumber( int sec, int num );
-    void removeFirstNumber( int sec );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
     

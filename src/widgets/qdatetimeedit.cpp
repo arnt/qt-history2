@@ -566,7 +566,10 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		cw->stepDown();
 		return TRUE;
 	    case Key_Backspace:
-		cw->removeFirstNumber( d->focusSection() );
+		if ( cw->inherits( "QDateEdit" ) )
+		    ((QDateEdit*)cw)->removeFirstNumber( d->focusSection() );
+		else if ( cw->inherits( "QTimeEdit" ) )
+		    ((QTimeEdit*)cw)->removeFirstNumber( d->focusSection() );
 		return TRUE;
 	    case Key_Delete:
 		cw->removeLastNumber( d->focusSection() );
@@ -761,13 +764,6 @@ bool QDateTimeEditor::setFocusSection( int sec )
 
   Pure virtual function which is called whenever the user tries to
   remove the last number from \a sec by pressing the delete key.
-*/
-
-/*! \fn void QDateTimeEditBase::removeFirstNumber( int sec )
-    \internal
-
-  Pure virtual function which is called whenever the user tries to
-  remove the first number from \a sec by pressing the backspace key.
 */
 
 ////////////////
@@ -1642,8 +1638,11 @@ bool QDateEdit::event( QEvent *e )
     return QDateTimeEditBase::event( e );
 }
 
-/*! \reimp
+/*!
+  \internal
 
+  Function which is called whenever the user tries to
+  remove the first number from \a sec by pressing the backspace key.
 */
 
 void QDateEdit::removeFirstNumber( int sec )
@@ -2431,8 +2430,11 @@ void QTimeEdit::addNumber( int sec, int num )
 }
 
 
-/*! \reimp
+/*!
+  \internal
 
+  Function which is called whenever the user tries to
+  remove the first number from \a sec by pressing the backspace key.
 */
 
 void QTimeEdit::removeFirstNumber( int sec )
