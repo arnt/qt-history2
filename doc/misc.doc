@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.36 1999/03/11 20:54:14 agulbra Exp $
+** $Id: misc.doc,v 2.37 1999/03/23 06:30:26 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.36 1999/03/11 20:54:14 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.37 1999/03/23 06:30:26 agulbra Exp $";
 #endif
 
 
@@ -323,7 +323,7 @@ SparcWorks, Sun, SunOS, SunPRO, Symantec, Tetris, Visual C++</tt> and
 </head><body bgcolor="#ffffff">
 
 <center><h1>Congratulations!<br>
-You've found our easter egg</h1><br clear="all">
+You've found our oldest easter egg</h1><br clear="all">
 <p><small>No prizes, though</small>
 </center>
 
@@ -361,7 +361,7 @@ Amen!
 </head><body bgcolor="#ffffff">
 
 <center><h1>Congratulations!<br>
-You've found our easter egg</h1><br clear="all">
+You've found our oldest easter egg</h1><br clear="all">
 <p><small>No prizes, though</small>
 </center>
 
@@ -461,7 +461,7 @@ about e.g. dialog layout.
 <a href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
 (Read more or buy it.)</a>
 
-This book too is available on the web, but has occasionally been
+<p>This book too is available on the web, but has occasionally been
 hidden in an impenetrable maze of javascript.
 <a href="http://www.microsoft.com/win32dev/uiguide/">Try and see.</a>
 
@@ -476,11 +476,14 @@ four or five.
 <h2><nobr>Buying these books from</nobr>
 <a href="http://www.amazon.com/text">Amazon.com.</a></h2>
 
-<p>These books are made available in association with Amazon.com,
-our favorite on-line bookstore.  Here is more information about
-<a href="http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t">
-Amazon.com's shipping options</a> and its
-<a href="http://www.amazon.com/exec/obidos/subst/help/desk.html/t">
-customer service.</a>
+<p>These books are made available in association with Amazon.com, our
+favorite on-line bookstore.  Here is more information about <a
+href="http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t">
+Amazon.com's shipping options</a> and its <a
+href="http://www.amazon.com/exec/obidos/subst/help/desk.html/t">
+customer service.</a> When you buy a book by following one of these
+links, Amazon.com gives about 15% of the purchase price to Amnesty
+International.
+
 
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.13 1999/03/18 05:23:47 warwick Exp $
+** $Id: i18n.doc,v 1.14 1999/03/23 06:30:25 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -91,22 +91,22 @@ in the following stages:
 	<p>
 	Provided with Qt is a utility program, findtr, that will extract
 	information about text to be translated.  It recognizes the constructs
-	above, plus two additions: qt_tr_noop() and qt_translate_noop(),
+	above, plus two additions: QT_TR_NOOP() and QT_TRANSLATE_NOOP(),
        	for use in code where it is convenient to put the strings
 	outside the tr() parameters:
 	\code
 	QString FriendlyConversation::greeting(int greet_type)
 	{
 	    static const char* greeting_strings[] = {
-		qt_tr_noop("Hello"),
-		qt_tr_noop("Goodbye")
+		QT_TR_NOOP("Hello"),
+		QT_TR_NOOP("Goodbye")
 	    };
 	    return tr(greeting_strings[greet_type]);
 	}
 
 	static const char* greeting_strings[] = {
-	    qt_translate_noop("FriendlyConversation","Hello"),
-	    qt_translate_noop("FriendlyConversation","Goodbye")
+	    QT_TRANSLATE_NOOP("FriendlyConversation","Hello"),
+	    QT_TRANSLATE_NOOP("FriendlyConversation","Goodbye")
 	};
 	QString FriendlyConversation::greeting(int greet_type)
 	{

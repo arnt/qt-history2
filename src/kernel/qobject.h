@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#65 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#66 $
 **
 ** Definition of QObject class
 **
@@ -34,8 +34,8 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
-#define qt_tr_noop(x) (x)
-#define qt_translate_noop(scope,x) (x)
+#define QT_TR_NOOP(x) (x)
+#define QT_TRANSLATE_NOOP(scope,x) (x)
 
 class Q_EXPORT QObject: public Qt
 {
