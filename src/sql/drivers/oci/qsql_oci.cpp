@@ -726,11 +726,15 @@ public:
 
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
+#ifdef SQLT_INTERVAL_YM
+#ifdef SQLT_INTERVAL_DS
 	    if ( ofi.oraType == SQLT_INTERVAL_YM || ofi.oraType == SQLT_INTERVAL_DS )
 		// since we are binding interval datatype as string,
 		// we are not interested in the number of bytes but characters.
 		dataSize = 50;  // magic number
 	    else
+#endif //SQLT_INTERVAL_DS
+#endif //SQLT_INTERVAL_YM
 		dataSize = ofi.oraLength;
 	    QVariant::Type type = ofi.type;
 	    createType( count-1, type );
