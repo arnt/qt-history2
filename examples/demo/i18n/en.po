@@ -502,7 +502,7 @@ msgstr "&Define Custom Colors >>"
 
 #: none:0
 msgid "&Add To Custom Colors"
-msgstr &Add To Custom Colors"
+msgstr "&Add To Custom Colors"
 
 #: none:0
 msgid "Select color"
