@@ -61,7 +61,10 @@ void WriteInitialization::accept(DomUI *node)
     output << "inline void " << className << "::setupUi(" << widgetClassName << " *" << varName << ")\n"
            << "{\n";
 
-    foreach (QString connection, uic->databaseInfo()->connections()) {
+    QStringList connections = uic->databaseInfo()->connections();
+    for (int i=0; i<connections.size(); ++i) {
+        QString connection = connections.at(i);
+
         if (connection == QLatin1String("(default)"))
             continue;
 
@@ -582,8 +585,9 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
         case DomProperty::StringList:
             propertyValue = QLatin1String("QStringList()");
             if (p->elementStringList()->elementString().size()) {
-                foreach (QString s, p->elementStringList()->elementString()) {
-                    propertyValue += QLatin1String(" << ") + fixString(s);
+                QStringList lst = p->elementStringList()->elementString();
+                for (int i=0; i<lst.size(); ++i) {
+                    propertyValue += QLatin1String(" << ") + fixString(lst.at(i));
                 }
             }
             break;

@@ -39,11 +39,11 @@ void TreeWalker::accept(DomTabStops *tabStops)
 
 void TreeWalker::accept(DomLayout *layout)
 {
-    foreach(DomProperty *p, layout->elementProperty())
-        accept(p);
+    for (int i=0; i<layout->elementProperty().size(); ++i)
+        accept(layout->elementProperty().at(i));
 
-    foreach(DomLayoutItem *i, layout->elementItem())
-        accept(i);
+    for (int i=0; i<layout->elementItem().size(); ++i)
+        accept(layout->elementItem().at(i));
 }
 
 void TreeWalker::accept(DomLayoutItem *layoutItem)
@@ -51,13 +51,13 @@ void TreeWalker::accept(DomLayoutItem *layoutItem)
     switch (layoutItem->kind()) {
         case DomLayoutItem::Widget:
             accept(layoutItem->elementWidget());
-	    return;
+            return;
         case DomLayoutItem::Layout:
             accept(layoutItem->elementLayout());
-	    return;
+            return;
         case DomLayoutItem::Spacer:
             accept(layoutItem->elementSpacer());
-	    return;
+            return;
         case DomLayoutItem::Unknown:
             break;
     }
@@ -67,23 +67,20 @@ void TreeWalker::accept(DomLayoutItem *layoutItem)
 
 void TreeWalker::accept(DomWidget *widget)
 {
-    foreach(DomAction *action, widget->elementAction())
-        accept(action);
+    for (int i=0; i<widget->elementAction().size(); ++i)
+        accept(widget->elementAction().at(i));
 
-    foreach(DomActionGroup *actionGroup, widget->elementActionGroup())
-        accept(actionGroup);
+    for (int i=0; i<widget->elementActionGroup().size(); ++i)
+        accept(widget->elementActionGroup().at(i));
 
-    foreach(DomActionRef *actionRef, widget->elementAddAction())
-        accept(actionRef);
+    for (int i=0; i<widget->elementAddAction().size(); ++i)
+        accept(widget->elementAddAction().at(i));
 
-    foreach(DomProperty *p, widget->elementProperty())
-        accept(p);
+    for (int i=0; i<widget->elementProperty().size(); ++i)
+        accept(widget->elementProperty().at(i));
 
-    foreach(DomProperty *p, widget->elementProperty())
-        accept(p);
-
-    foreach(DomWidget *w, widget->elementWidget())
-        accept(w);
+    for (int i=0; i<widget->elementWidget().size(); ++i)
+        accept(widget->elementWidget().at(i));
 
     if (!widget->elementLayout().isEmpty())
         accept(widget->elementLayout().at(0));
@@ -91,8 +88,8 @@ void TreeWalker::accept(DomWidget *widget)
 
 void TreeWalker::accept(DomSpacer *spacer)
 {
-    foreach(DomProperty *p, spacer->elementProperty())
-        accept(p);
+    for (int i=0; i<spacer->elementProperty().size(); ++i)
+        accept(spacer->elementProperty().at(i));
 }
 
 void TreeWalker::accept(DomColor *color)
@@ -183,8 +180,8 @@ void TreeWalker::accept(DomProperty *property)
 
 void TreeWalker::accept(DomCustomWidgets *customWidgets)
 {
-    foreach (DomCustomWidget *w, customWidgets->elementCustomWidget())
-        accept(w);
+    for (int i=0; i<customWidgets->elementCustomWidget().size(); ++i)
+        accept(customWidgets->elementCustomWidget().at(i));
 }
 
 void TreeWalker::accept(DomCustomWidget *customWidget)
@@ -199,11 +196,11 @@ void TreeWalker::accept(DomAction *action)
 
 void TreeWalker::accept(DomActionGroup *actionGroup)
 {
-    foreach (DomAction *action, actionGroup->elementAction())
-        accept(action);
+    for (int i=0; i<actionGroup->elementAction().size(); ++i)
+        accept(actionGroup->elementAction().at(i));
 
-    foreach (DomActionGroup *g, actionGroup->elementActionGroup())
-        accept(g);
+    for (int i=0; i<actionGroup->elementActionGroup().size(); ++i)
+        accept(actionGroup->elementActionGroup().at(i));
 }
 
 void TreeWalker::accept(DomActionRef *actionRef)
@@ -213,8 +210,8 @@ void TreeWalker::accept(DomActionRef *actionRef)
 
 void TreeWalker::accept(DomImages *images)
 {
-    foreach (DomImage *image, images->elementImage())
-        accept(image);
+    for (int i=0; i<images->elementImage().size(); ++i)
+        accept(images->elementImage().at(i));
 }
 
 void TreeWalker::accept(DomImage *image)
@@ -224,8 +221,8 @@ void TreeWalker::accept(DomImage *image)
 
 void TreeWalker::accept(DomIncludes *includes)
 {
-    foreach(DomInclude *incl, includes->elementInclude())
-        accept(incl);
+    for (int i=0; i<includes->elementInclude().size(); ++i)
+        accept(includes->elementInclude().at(i));
 }
 
 void TreeWalker::accept(DomInclude *incl)

@@ -35,7 +35,10 @@ void WriteDeclaration::accept(DomUI *node)
     output << "struct " << className << "\n"
            << "{\n";
 
-    foreach (QString connection, uic->databaseInfo()->connections()) {
+    QStringList connections = uic->databaseInfo()->connections();
+    for (int i=0; i<connections.size(); ++i) {
+        QString connection = connections.at(i);
+
         if (connection == QLatin1String("(default)"))
             continue;
 

@@ -1,5 +1,4 @@
 
-DEFINES += QT_KEYWORDS
 INCLUDEPATH += $$PWD
 
 HEADERS += $$PWD/uic.h \
