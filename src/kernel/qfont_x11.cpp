@@ -1385,7 +1385,8 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
     QFontDatabase::parseFontName(request.family, foundryName, familyName);
     XftPattern *match = bestXftPattern(familyName, foundryName);
 
-    match = checkXftFont( match, familyName, sample );
+    if ( match )
+	match = checkXftFont( match, familyName, sample );
 
     *exact = TRUE;
 
@@ -1405,7 +1406,8 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
 	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
 	    match = bestXftPattern(familyName, foundryName);
 
-	    match = checkXftFont( match, familyName, sample );
+	    if ( match )
+		match = checkXftFont( match, familyName, sample );
 	}
     }
 
