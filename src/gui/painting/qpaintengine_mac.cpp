@@ -294,9 +294,7 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
             PaintRect(&rect);
         } else {
             QPixmap *pm = 0;
-            if(d->current.brush.style() == QBrush::CustomPattern) {
-                pm = d->current.brush.pixmap();
-            } else {
+            if(d->brush_style_pix) {
                 pm = d->brush_style_pix;
                 if(d->current.bg.mode == OpaqueMode) {
                     ::RGBColor f;
@@ -306,6 +304,8 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
                     RGBForeColor(&f);
                     PaintRect(&rect);
                 }
+            } else {
+                pm = d->current.brush.pixmap();
             }
             if(pm && !pm->isNull()) {
                 //save the clip
@@ -407,9 +407,7 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
             PaintPoly(polyHandle);
         } else {
             QPixmap *pm = 0;
-            if(d->current.brush.style() == QBrush::CustomPattern) {
-                pm = d->current.brush.pixmap();
-            } else {
+            if(d->brush_style_pix) {
                 pm = d->brush_style_pix;
                 if(d->current.bg.mode == OpaqueMode) {
                     ::RGBColor f;
@@ -419,6 +417,8 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
                     RGBForeColor(&f);
                     PaintPoly(polyHandle);
                 }
+            } else {
+                pm = d->current.brush.pixmap();
             }
 
             if(pm && !pm->isNull()) {
@@ -465,9 +465,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
             PaintOval(&mac_r);
         } else {
             QPixmap *pm = 0;
-            if(d->current.brush.style() == QBrush::CustomPattern) {
-                pm = d->current.brush.pixmap();
-            } else {
+            if(d->brush_style_pix) {
                 pm = d->brush_style_pix;
                 if(d->current.bg.mode == OpaqueMode) {
                     ::RGBColor f;
@@ -477,6 +475,8 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
                     RGBForeColor(&f);
                     PaintOval(&mac_r);
                 }
+            } else {
+                pm = d->current.brush.pixmap();
             }
             if(pm && !pm->isNull()) {
                 //save the clip
@@ -720,11 +720,11 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     case Qt::CopyROP:   copymode = srcCopy; break;
     case Qt::OrROP:     copymode = notSrcBic; break;
     case Qt::XorROP:    copymode = srcXor; break;
-    case Qt::NotAndROP: copymode = srcBic; break;
+    case Qt::NotAndROP: copymode = notSrcOr; break;
     case Qt::NotCopyROP:copymode = notSrcCopy; break;
-    case Qt::NotOrROP:  copymode = notSrcOr; break;
+    case Qt::NotOrROP:  copymode = srcBic; break;
     case Qt::NotXorROP: copymode = notSrcXor; break;
-    case Qt::AndROP:    copymode = notSrcBic; break;
+    case Qt::AndROP:    copymode = srcOr; break;
     }
 
     Rect srcr;
@@ -818,15 +818,20 @@ void
 QQuickDrawPaintEngine::setupQDBrush()
 {
     //pattern
+    delete d->brush_style_pix;
     d->brush_style_pix = 0;
     int bs = d->current.brush.style();
     if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
-        if (!d->brush_style_pix)
-            d->brush_style_pix = new QPixmap(8, 8);
+        d->brush_style_pix = new QPixmap(8, 8);
         d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
         d->brush_style_pix->fill(d->current.brush.color());
-    } else { //unset
-        d->brush_style_pix = 0;
+    } else if(bs == CustomPattern) {
+        if(d->current.brush.pixmap()->isQBitmap()) {
+            d->brush_style_pix = new QPixmap(d->current.brush.pixmap()->width(), 
+                                             d->current.brush.pixmap()->height());
+            d->brush_style_pix->setMask(*((QBitmap*)d->current.brush.pixmap()));
+            d->brush_style_pix->fill(d->current.brush.color());
+        }
     }
 
     //forecolor
@@ -967,26 +972,30 @@ inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 
 
 //pattern handling (tiling)
 struct QMacPattern {
-    QPixmap pixmap;
-    Qt::BrushStyle bs;
+    QMacPattern() : as_mask(false), image(0) { data.pixmap = 0; }
+    //input
+    bool as_mask;
+    union {
+        const QPixmap *pixmap;
+        const uchar *bytes;
+    } data;
+    //output
     CGImageRef image;
 };
-
 static void qt_mac_draw_pattern(void *info, CGContextRef c)
 {
     QMacPattern *pat = (QMacPattern*)info;
     int w = 0, h = 0;
     if (!pat->image) {
-        if (pat->bs != Qt::CustomPattern) {
+        if (pat->as_mask) {
             w = h = 8;
-            CGDataProviderRef provider
-                = CGDataProviderCreateWithData(0, qt_patternForBrush(pat->bs, false), w * h, 0);
-            pat->image = CGImageMaskCreate(w, h, 1, 1, w / 8, provider, 0, false);
+            CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->data.bytes, 64, 0);
+            pat->image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
             CGDataProviderRelease(provider);
         } else {
-            w = pat->pixmap.width();
-            h = pat->pixmap.height();
-            pat->image = qt_mac_create_cgimage(pat->pixmap, false);
+            w = pat->data.pixmap->width();
+            h = pat->data.pixmap->height();
+            pat->image = qt_mac_create_cgimage(*pat->data.pixmap, false);
         }
     }
     CGRect rect = CGRectMake(0, 0, w, h);
@@ -998,6 +1007,16 @@ static void qt_mac_dispose_pattern(void *info)
     if(pat->image)
         CGImageRelease(pat->image);
     delete pat;
+}
+
+//just so I don't see a million of these
+static void qt_mac_cg_no_rasterop()
+{
+    static bool first = true;
+    if(first) {
+        qWarning("QCoreGraphics: Cannot support any raster ops other than Copy!");
+        first = false;
+    }
 }
 
 //gradiant callback
@@ -1193,15 +1212,22 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     } else if(bs != SolidPattern && bs != NoBrush) {
         int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
-        qpattern->image = 0;
-        qpattern->bs = bs;
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
         if (bs == CustomPattern) {
-            qpattern->pixmap = *ps->brush.pixmap();
-            width = qpattern->pixmap.width();
-            height = qpattern->pixmap.height();
+            qpattern->data.pixmap = ps->brush.pixmap();
+            if(qpattern->data.pixmap->isQBitmap()) {
+                const QColor &col = ps->brush.color();
+                components[0] = qt_mac_convert_color_to_cg(col.red());
+                components[1] = qt_mac_convert_color_to_cg(col.green());
+                components[2] = qt_mac_convert_color_to_cg(col.blue());
+                base_colorspace = CGColorSpaceCreateDeviceRGB();
+            }
+            width = qpattern->data.pixmap->width();
+            height = qpattern->data.pixmap->height();
         } else {
+            qpattern->as_mask = true;
+            qpattern->data.bytes = qt_patternForBrush(bs, true);
             width = height = 8;
             const QColor &col = ps->brush.color();
             components[0] = qt_mac_convert_color_to_cg(col.red());
@@ -1246,8 +1272,8 @@ void
 QCoreGraphicsPaintEngine::updateRasterOp(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-    if(ps->rasterOp != CopyROP)
-        qDebug("Cannot support any raster ops other than Copy!");
+    if(ps->rasterOp != CopyROP) 
+        qt_mac_cg_no_rasterop();
 }
 
 void
@@ -1292,8 +1318,8 @@ void
 QCoreGraphicsPaintEngine::setRasterOp(RasterOp r)
 {
     Q_ASSERT(isActive());
-    if(r != CopyROP)
-        qDebug("Cannot support any raster ops other than Copy!");
+    if(r != CopyROP) 
+        qt_mac_cg_no_rasterop();
 }
 
 void
@@ -1571,9 +1597,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGContextSaveGState(d->hd);
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
-    qpattern->bs = Qt::CustomPattern;
-    qpattern->image = 0;
-    qpattern->pixmap = pixmap;
+    qpattern->data.pixmap = &pixmap;
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;

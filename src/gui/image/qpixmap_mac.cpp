@@ -855,40 +855,45 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 {
     const uint bpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)px.handle()));
     char *addr = GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)px.handle()));
-    if(!imask) {
-        if(const QPixmap *alpha = px.data->alphapm) {
-            char *drow;
-            long *aptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)alpha->handle())), *arow;
-            unsigned short abpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)alpha->handle()));
-            const int h = alpha->height(), w = alpha->width();
-            for(int yy=0; yy<h; yy++) {
-                arow = (long*)(((char*)aptr) + (yy * abpr));
-                drow = addr + (yy * bpl);
-                for(int xx=0;xx<w;xx++) 
-                    *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
-            }
-        } else if(const QBitmap *mask = px.mask()) {
-            char *drow;
-            long *mptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)mask->handle())), *mrow;
-            unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)mask->handle()));
-            const int h = mask->height(), w = mask->width();
-            for(int yy=0; yy<h; yy++) {
-                mrow = (long*)(((char*)mptr) + (yy * mbpr));
-                drow = addr + (yy * bpl);
-                for(int xx=0;xx<w;xx++) 
-                    *(drow + (xx*4)) = *(mrow + xx) ? 0 : 255;
-            }
-        } else {
-            imask = true;
-        }
-    }
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGDataProviderRef provider = CGDataProviderCreateWithData(0, addr, bpl*px.height(), 0);
-    CGImageRef image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace,
-                                     imask ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaFirst,
-                                     provider, 0, 0, kCGRenderingIntentDefault);
+    CGImageRef image = 0;
+    if(px.isQBitmap()) {
+        image = CGImageMaskCreate(px.width(), px.height(), 1, 1, 1, provider, 0, false);
+    } else {
+        if(!imask) {
+            if(const QPixmap *alpha = px.data->alphapm) {
+                char *drow;
+                long *aptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)alpha->handle())), *arow;
+                unsigned short abpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)alpha->handle()));
+                const int h = alpha->height(), w = alpha->width();
+                for(int yy=0; yy<h; yy++) {
+                    arow = (long*)(((char*)aptr) + (yy * abpr));
+                    drow = addr + (yy * bpl);
+                    for(int xx=0;xx<w;xx++) 
+                        *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
+                }
+            } else if(const QBitmap *mask = px.mask()) {
+                char *drow;
+                long *mptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)mask->handle())), *mrow;
+                unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)mask->handle()));
+                const int h = mask->height(), w = mask->width();
+                for(int yy=0; yy<h; yy++) {
+                    mrow = (long*)(((char*)mptr) + (yy * mbpr));
+                    drow = addr + (yy * bpl);
+                    for(int xx=0;xx<w;xx++) 
+                        *(drow + (xx*4)) = *(mrow + xx) ? 0 : 255;
+                }
+            } else {
+                imask = true; //there isn't really a "mask"
+            }
+        }
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace,
+                              imask ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaFirst,
+                              provider, 0, 0, kCGRenderingIntentDefault);
+        CGColorSpaceRelease(colorspace);
+    }
     CGDataProviderRelease(provider);
-    CGColorSpaceRelease(colorspace);
     return image;
 }
 
