@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjpunicode.h#3 $
+** $Id: //depot/qt/main/src/tools/qjpunicode.h#4 $
 **
 ** Definition of QJpUnicodeConv class
 **
@@ -58,6 +58,7 @@
 #include "qglobal.h"
 
 
+// "ASCII" is ANSI X.3.4-1986, a.k.a. US-ASCII here.
 #define	JU_Default		0x0000
 
 #define	JU_Unicode		0x0001
@@ -65,8 +66,8 @@
 #define	JU_Unicode_ASCII	0x0002
 #define	JU_JISX0221_JISX0201	0x0003
 #define	JU_JISX0221_ASCII	0x0004
-#define	JU_Sun			0x0005
-#define	JU_Microsoft		0x0006
+#define JU_Sun_JDK117           0x0005
+#define JU_Microsoft_CP932      0x0006
 
 #define	JU_NEC_VDC	0x0100		// NEC Vender Defined Char
 #define	JU_UDC		0x0200		// User Defined Char
