@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#204 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1079,11 +1079,11 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		}
 		if (endian) {
 		    for (x=0; x<sw; x++) {
-			*b++ = INDEXOF(pv[2][x],pv[1][x],pv[0][x]);
+			*b++ = INDEXOF(pv[0][x],pv[1][x],pv[2][x]);
 		    }
 		} else {
 		    for (x=0; x<sw; x++) {
-			*b++ = INDEXOF(pv[0][x],pv[1][x],pv[2][x]);
+			*b++ = INDEXOF(pv[2][x],pv[1][x],pv[0][x]);
 		    }
 		}
 	    }
