@@ -670,7 +670,7 @@ QByteArray QIODevice::readAll()
 
     Writes a number of characters from \a data to the I/O device. At most,
     the \a maximum of characters will be written. If successful,
-    the number of characters written is returned; otherwise EOF is
+    the number of characters written is returned; otherwise -1 is
     returned.
 
     This virtual function must be reimplemented by all subclasses.

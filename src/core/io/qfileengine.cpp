@@ -212,45 +212,83 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 */
 
 /*! \fn bool QFileEngine::close()
+
+    Closes the file.
 */
 
 /*! \fn void QFileEngine::flush()
+
+    Flushes the open file.
 */
 
-/*! \fn QIODevice::QFileEngine::Offset size() const
+/*! \fn QIODevice::Offset QFileEngine::size() const
+
+    Returns the size of the file.
 */
 
-/*! \fn QIODevice::QFileEngine::Offset at() const
+/*! \fn QIODevice::Offset QFileEngine::at() const
+
+    Returns the current file position.
+
+    This is the position of the data read/write head of the file.
 */
 
-/*! \fn bool QFileEngine::seek(QIODevice::Offset off)
+/*! \fn bool QFileEngine::seek(QIODevice::Offset offset)
+
+    Sets the file position to the given \a offset. Returns true if
+    the position was successfully set; otherwise returns false.
+
+    The offset is from the beginning of the file, unless the
+    file is sequential.
+
+    \sa isSequential()
 */
 
 /*! \fn bool QFileEngine::isSequential() const
+
+    Returns true if the file is a sequential access device; returns
+    false if the file is a direct access device.
+
+    Operations involving size() and seek(int) are not valid on
+    sequential devices.
 */
 
-/*! \fn Q_LONGLONG QFileEngine::read(char *data, Q_LONGLONG maxlen)
+/*! \fn Q_LONGLONG QFileEngine::read(char *data, Q_LONGLONG maxSize)
+
+    Reads a number of characters from the file into \a data. At most
+    \a maxSize characters will be read.
+
+    Returns -1 if a fatal error occurs, or 0 if there are no bytes to
+    read.
 */
 
-/*! \fn Q_LONGLONG QFileEngine::write(const char *data, Q_LONGLONG len)
+/*! \fn Q_LONGLONG QFileEngine::write(const char *data, Q_LONGLONG size)
+
+    Writes \a size bytes from \a data to the file. Returns the number
+    of characters written on success; otherwise returns -1.
 */
 
 /*! \fn bool QFileEngine::link(const QString &newName)
+
 */
 
 /*! \enum QFileEngine::Type
 
-    \value File
-    \value Resource
+    \value File  The file is an actual file on the file system.
+    \value Resource  The file is a Qt resource.
 
-    \value User
-    \value MaxUser
+    \value User  The first value to be used for custom engine types.
+    \value MaxUser  The last value to be used for custom engine types.
 
     \sa type()
 */
 
 /*! \fn Type QFileEngine::type() const
 
+    Returns the type of engine.
+
+    If you reimplement this function, the value you return should be
+    between \c User and \c MaxUser.
 */
 
 /*!
@@ -267,14 +305,14 @@ QIODevice::Status QFileEngine::errorStatus() const
 
 /*!
   Returns the human-readable message appropriate to the current error
-  reported by errorStatus(). If no suitable string is available, a null
-  string is returned.
+  reported by errorStatus(). If no suitable string is available, an
+  empty string is returned.
 
-  \sa errorStatus(), QString::isNull()
+  \sa errorStatus()
  */
 QString QFileEngine::errorString() const
 {
-    return QString::null;
+    return QString();
 }
 
 /*!
