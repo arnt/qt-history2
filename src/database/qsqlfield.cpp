@@ -35,31 +35,16 @@ QSqlField::~QSqlField()
 }
 
 /*!
-  Returns the value of the field.  If the field is null, a QVariant 
-  of type QVariant::Invalid is returned.
-  
-  \sa isNull() setIsNull()
+  Returns a reference to the internal value of the field.  To determine if the field
+  is null use isNull().  To determine if the field is read only, use isReadOnly().
+
+  \sa isNull() setIsNull() isReadOnly() setReadOnly()
 
 */
 
-QVariant QSqlField::value() const
+QVariant& QSqlField::value()
 {
-    if ( !nul )
-	return val;
-    return QVariant();
-}
-
-/*!
-  If isReadOnly() is FALSE, this method sets the internal value
-  of the field to \a v.  Otherwise, this method has no effect.
-
-  \sa setReadOnly() isReadOnly()
-*/
-
-void QSqlField::setValue( const QVariant& v )
-{
-    if ( !ro )
-	val = v;
+    return val;
 }
 
 //////////
@@ -102,29 +87,48 @@ QSqlFieldList::~QSqlFieldList()
 }
 
 /*!
-  Returns a reference to a field located at position \a i in the list.
+  Returns a reference to the field located at position \a i in the list.
   It is up to you to check wether this item really exists.
 
 */
 
-QSqlField& QSqlFieldList::operator[]( int i )
+QVariant& QSqlFieldList::operator[]( int i )
 {
-    return QValueList<QSqlField>::operator[](i);
+    return QValueList<QSqlField>::operator[](i).value();
 }
 
 /*!
-  Returns a reference to a field named \a name in the list.
+  Returns a reference to the field named \a name in the list.
   It is up to you to check wether this item really exists.
 
 */
 
-QSqlField& QSqlFieldList::operator[]( const QString& name )
+QVariant& QSqlFieldList::operator[]( const QString& name )
 {
-    return QValueList<QSqlField>::operator[]( position( name ) );
+    return QValueList<QSqlField>::operator[]( position( name ) ).value();
 }
 
-#endif
+/*!
+  Returns a reference to the value of the field located at position \a i in the list.
+  It is up to you to check wether this item really exists.
 
+*/
+
+QSqlField& QSqlFieldList::field( int i )
+{
+    return QValueList<QSqlField>::operator[](i);    
+}
+
+/*!
+  Returns a reference to the value of the field named \a name in the list.
+  It is up to you to check wether this item really exists.
+
+*/
+
+QSqlField& QSqlFieldList::field( const QString& name )
+{
+    return QValueList<QSqlField>::operator[]( position( name ) );    
+}
 
 /*!
   Returns the position of the field named \a name within the list,
@@ -141,3 +145,4 @@ int QSqlFieldList::position( const QString& name )
     return -1;
 }
 
+#endif

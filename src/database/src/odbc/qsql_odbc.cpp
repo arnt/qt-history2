@@ -215,7 +215,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 	//	int length = qGetIntData( hStmt, 6, isNull ); // column size
 	//	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
 	fi.setName( fieldname );
-	fi.setValue( QVariant( qDecodeODBCType( type ) ) );
+	fi.value() = QVariant( qDecodeODBCType( type ) );
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return fi;

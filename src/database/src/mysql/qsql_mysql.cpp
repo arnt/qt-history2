@@ -308,7 +308,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     while ( i.isActive() && i.next() ) {
 	if ( i[2].toString() == "PRIMARY" ) {
 	    QSqlFieldList fil = fields( tablename );
-	    idx.append( fil[ i[3].toInt()-1 ] );
+	    idx.append( fil.field( i[3].toInt()-1 ) );
 	    break;
 	}
     }

@@ -45,7 +45,7 @@ public:
 	    setNumRows(10);
 	QHeader* h = horizontalHeader();
 	for ( int j = 0; j < numCols(); ++j )
-	    h->setLabel( j, flist[j].name() );
+	    h->setLabel( j, flist.field(j).name() );
     }
 protected:
     void paintCell ( QPainter * p, int row, int col, const QRect & cr, bool selected )

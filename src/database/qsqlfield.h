@@ -15,8 +15,7 @@ public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     virtual ~QSqlField();
 
-    QVariant      value() const;
-    void          setValue( const QVariant& v );
+    QVariant&     value();
 
     void          setName( const QString& name ) { nm = name; }
     QString       name() const { return nm; }
@@ -49,8 +48,10 @@ public:
     QSqlFieldList();
     QSqlFieldList ( const QSqlFieldList& l );
     virtual ~QSqlFieldList();
-    QSqlField& operator[]( int i );
-    QSqlField& operator[]( const QString& name );
+    QVariant& operator[]( int i );
+    QVariant& operator[]( const QString& name );
+    QSqlField& field( int i );
+    QSqlField& field( const QString& name );
     int position( const QString& name );
 };
 

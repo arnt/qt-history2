@@ -30,7 +30,7 @@ int main( int argc, char** argv )
 	qDebug( "..." + tables[i] );
 	QSqlFieldList fil = database->fields( tables[i] );
 	for ( uint j = 0; j < fil.count(); ++j )
-	    qDebug("......" + fil[j].name() );
+	    qDebug("......" + fil.field(j).name() );
     }
 
     qDebug("Getting list of table primary index...");
@@ -39,7 +39,7 @@ int main( int argc, char** argv )
 	qDebug( "..." + tables[i] );
 	QSqlFieldList fil = pk.fields();
 	for ( uint j = 0; j < fil.count(); ++j )
-	    qDebug("......" + fil[j].name() );
+	    qDebug("......" + fil.field(j).name() );
     }
 
     qDebug("Closing database...");
