@@ -124,7 +124,7 @@
 
   </ul>
 
-  The <a href="simple-application.html">Application walk-trough
+  The <a href="simple-application.html">Application walk-through
   example</a> contains a typical complete main() that does the usual
   things with QApplication.
 
