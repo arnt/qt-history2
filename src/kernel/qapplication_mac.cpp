@@ -1939,6 +1939,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			widget->propagateUpdates();
 		}
 	    }
+	} else if(ekind == kEventWindowShown) {
+	    widget->topLevelWidget()->setActiveWindow();
 	} else if(ekind == kEventWindowActivated) {
 	    if(QApplication::app_style) {
 		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
@@ -1947,13 +1949,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
 	    }
 
-	    if(app_do_modal && !qt_try_modal(widget, event))
+	    if(app_do_modal && !qt_try_modal(widget, event)) 
 		break;
 
 	    if(widget) {
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
-							    !tlw->testWFlags(WStyle_Tool)))
+							    !tlw->testWFlags(WStyle_Tool))) 
 		    app->setActiveWindow(tlw);
 		if(widget->focusWidget())
 		    widget->focusWidget()->setFocus();

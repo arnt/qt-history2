@@ -1251,10 +1251,16 @@ void QWidget::setActiveWindow()
     QWidget *tlw = topLevelWidget();
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
 	return;
-    if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool) || IsWindowActive((WindowPtr)tlw->handle()))
+    if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool)) {
 	ActivateWindow((WindowPtr)tlw->handle(), true);
-    else
-	SelectWindow((WindowPtr)tlw->handle());
+    } else {
+	if(IsWindowActive((WindowPtr)tlw->handle())) {
+	    ActivateWindow((WindowPtr)tlw->handle(), true);
+	    qApp->setActiveWindow(tlw);
+	} else {
+	    SelectWindow((WindowPtr)tlw->handle());
+	}
+    }
     SetUserFocusWindow((WindowPtr)tlw->handle());
 }
 
@@ -1338,7 +1344,10 @@ void QWidget::showWindow()
 	if(testWFlags(WShowModal))
 	    DisableMenuCommand(NULL, kHICommandQuit);
 #endif
+#if 0
+	/* For now this will happen in the event loop (so that the window is actually visible by then) */
 	setActiveWindow();
+#endif
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
     }
