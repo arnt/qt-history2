@@ -2498,6 +2498,11 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
 
 */
 
+/*!
+    \reimp
+
+    \fn void QCanvasSprite::move(double x, double y)
+*/
 
 /*!
   \reimp

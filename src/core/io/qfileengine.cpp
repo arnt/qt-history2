@@ -48,25 +48,35 @@
     \class QFileEngineHandler qfileengine.h
     \reentrant
 
-    \brief The QFileEngineHandler class allows new filesystems to be plugged into Qt
+    \brief The QFileEngineHandler class allows custom QFileEngines to be
+    plugged into Qt.
 
     \ingroup io
     \mainclass
 
-    Using the QFileEngineHandler allows new QFileEngines to be created
-    based on a filepath. Subclassing QFileEngineHandler and
-    reimplementing createFileEngine() will cause your new QFileEngine
-    to be used for a given path. Once instaniated it will
-    automatically be added to the list of known file handlers.
+    You can create your own QFileEngine subclass to handle the files
+    in particular paths. To make Qt aware of your QFileEngine
+    subclass, create a QFileEngineHandler subclass and reimplement
+    createFileEngine() to return an instance of your QFileEngine for
+    the paths you are interested in. This will add your QFileEngine to
+    Qt's list of file handlers and will ensure that your QFileEngine
+    is used for files with paths that your createFileEngine()
+    recognises.
+
+    One way to instantiate your QFileEngineHandler is to make it a
+    global static.
 */
 
 static QList<QFileEngineHandler*> *fileHandlers;
 
 /*!
-   Constructs a QFileEngineHandler. Once created this handler will be
-   consulted via the QFileEngineHandler::createFileEngine for any paths used.
+   Constructs a QFileEngineHandler. Once created this handler's
+   createFileEngine() function will be called (along with all the
+   other handlers) for any paths used. The first handler (most
+   recently created) that handles the given path (i.e. that returns a
+   QFileEngine) is used for the new path.
 
-   \sa createFileEngine
+   \sa createFileEngine()
  */
 QFileEngineHandler::QFileEngineHandler()
 {
@@ -88,16 +98,19 @@ QFileEngineHandler::~QFileEngineHandler()
     }
 }
 
-/* 
+/*!
     \fn QFileEngine *QFileEngineHandler::createFileEngine(const QString &path)
-  
-    This function will be called when a path is used, if \a path is a
-    path for your QFileEngine return a new instance to it, the caller
-    is responsible for destruction. If you do not handle paths that
-    look like \a path then just return 0 and a default QFileEngine to
-    handle the filesystem will be used.
 
-    This virtual function must be reimplemented by all subclasses.
+    This function is called when a new \a path is used. If \a path is
+    a path for your QFileEngine subclass your reimplementation of this
+    function must return a new instance of your subclass; the caller
+    will take ownership and be responsible for the instance's
+    destruction. If \a path is not a path that is handled by your
+    subclass simply return 0; in this case a default QFileEngine will
+    be used to handle the \a path.
+
+    This virtual function must be reimplemented by all
+    QFileEngineHandler subclasses.
  */
 
 
@@ -106,32 +119,37 @@ QFileEngineHandler::~QFileEngineHandler()
     \class QFileEngine qfileengine.h
     \reentrant
 
-    \brief The QFileEngine class provides an abstraction for filesystem information.
+    \brief The QFileEngine class provides an abstraction for accessing
+    the filesystem.
 
     \ingroup io
     \mainclass
 
-    QFileEngine is an abstraction for basic file system operations. A
-    QFileEngine is consulted internally in QFile, QFileInfo, and
-    QDir. Plugging in a new QFileEngine is normally a matter of
-    subclassing QFileEngine and creating a subclass of
-    QFileEngineHandler for your type of files. Finally instantiate
-    your QFileEngineHandler (often via a global static) and your new
-    subclass will be used internally.
+    The QDir, QFile, and QFileInfo classes all make use of a
+    QFileEngine internally. If you create your own QFileEngine
+    subclass (and register it with Qt by creating a QFileEngineHandler
+    subclass), your file engine will be used when the path is one that
+    your file engine handles.
 
-    A QFileEngine can reference a file or a directory, several of the
-    functions will have only have meaning when pointing to either
-    however.
+    A QFileEngine refers to one file or one directory. If the referent
+    is a file the setFileName(), rename(), and remove()
+    functions are applicable. If the referent is a directory the
+    mkdir(), rmdir(), entryList(), and isRoot() functions are
+    applicable. In all cases the caseSensitive(), isRelativePath(),
+    fileFlags(), ownerId(), owner(), and fileTime() functions are
+    applicable.
 
-    QFileEngine can be created to do syncronous network IO based file
-    system operations, local file system information, or even a
-    resource system to access file based resources.
+    A QFileEngine subclass can be created to do syncronous network I/O
+    based file system operations, local file system operations, or
+    to operate as a resource system to access file based resources.
 
-   \sa QFileEngineHandler, setFileName
+   \sa QFileEngineHandler, setFileName()
 */
 
 /*!
-   Constructs a QFileEngine.
+   Constructs a new QFileEngine that does not refer to any file or directory.
+
+   \sa setFileName()
  */
 QFileEngine::QFileEngine() : QIOEngine(*new QFileEnginePrivate)
 {
@@ -155,9 +173,10 @@ QFileEngine::~QFileEngine()
 }
 
 /*!
-   Creates a new QFileEngine instance for \a file. This function will
-   always return a valid QFileEngine, the default file engine created
-   will consult the local filesystem.
+   Creates a new QFileEngine instance for the given \a file. This
+   function will always return a valid QFileEngine. The default file
+   engine that is created if no custom file engine handles files of
+   \a{file}'s path is one that operates on the local file system.
  */
 QFileEngine *QFileEngine::createFileEngine(const QString &file)
 {
@@ -171,247 +190,286 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 }
 
 
-/* 
+/*!
     \fn void QFileEngine::setFileName(const QString &file)
-  
-    Sets the filename in your QFileEngine to \a file. This filename
-    will be the file that the rest of the virtual functions will
-    operate on.
+
+    Sets the file engine's file name to \a file. This file name is the
+    file that the rest of the virtual functions will operate on.
 
     This virtual function must be reimplemented by all subclasses.
+
+    \sa rename()
  */
 
-/* 
+/*!
     \fn bool QFileEngine::remove()
-  
-    Requests that the file be removed. If the operation fails return
-    is false, otherwise true.
+
+    Requests that the file is deleted from the file system. If the
+    operation succeeds return true; otherwise return false.
 
     This virtual function must be reimplemented by all subclasses.
 
-    \sa setFileName
+    \sa setFileName() rmdir()
  */
 
-/* 
+/*!
     \fn bool QFileEngine::rename(const QString &newName)
-  
-    Requests that the file be renamed to \a newName. If the
-    operation fails return is false, otherwise true.
+
+    Requests that the file be renamed to \a newName in the file
+    system. If the operation succeeds return true; otherwise return
+    false.
 
     This virtual function must be reimplemented by all subclasses.
 
-    \sa setFileName
+    \sa setFileName()
  */
 
-/* 
+/*!
     \fn bool QFileEngine::mkdir(const QString &dirName, QDir::Recursion recurse) const
-  
-    Requests that the directory \a dirName be created. When \a recurse is
-    \b QDir::Recursive then all subpaths in \a dirname must be
-    created, otherwise it is expected all the subpaths already
-    exist. If the operation fails return is false, otherwise true.
+
+    Requests that the directory \a dirName be created. If \a recurse
+    is \c QDir::Recursive then any sub-directories in \a dirName that don't
+    exist must be created. If \a recurse is \c QDir::NonRecursive then
+    any sub-directories in \a dirName must already exist for the function to
+    succeed. If the operation succeeds return true; otherwise return
+    false.
 
     This virtual function must be reimplemented by all subclasses.
 
-    \sa setFileName
+    \sa setFileName() rmdir() isRelativePath()
  */
 
-/* 
+/*!
     \fn bool QFileEngine::rmdir(const QString &dirName, QDir::Recursion recurse) const
-  
-    Requests that the directory \a dirName be removed. When \a recurse
-    is \b QDir::Recursive then all subpaths in \a dirname will be
-    removed if empty, otherwise only \a dirname is removed. If the
-    operation fails return is false, otherwise true.
+
+    Requests that the directory \a dirName is deleted from the file
+    system. When \a recurse is \c QDir::Recursive then any empty
+    sub-directories in \a dirName must also be deleted. If \a recurse is \c
+    QDir::NonRecursive then only \a dirName should be deleted. In most
+    file systems a directory cannot be deleted using this function if
+    it is non-empty. If the operation succeeds return true; otherwise
+    return false.
 
     This virtual function must be reimplemented by all subclasses.
 
-    \sa setFileName
+    \sa setFileName() remove() mkdir() isRelativePath()
  */
 
-/* 
+// ### DOC: Since the file-directory distinction is so important,
+// shouldn't we have an isDirectory() function?
+
+/*!
     \fn QStringList QFileEngine::entryList(int filterSpec, const QStringList &filters) const
-  
-    Requests that a list of all files matching \a filters based on \a
-    filterSpec in the directory be returned. If the file pointed to is
-    not a directory then an empty list should be returned.
 
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName
- */
-
-/* 
-    \fn bool QFileEngine::caseSensitive() const
-  
-    Determines if the file system referenced by the QFileEngine is
-    case sensitive; if your file system is case sensitive return true,
-    otherwise false.
-
-    This virtual function must be reimplemented by all subclasses.
- */
-
-/* 
-    \fn bool QFileEngine::isRoot() const
-  
-    Determines if the file pointed to is the root of your file system,
-    this is used to determine if the file has a parent directory.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName
- */
-
-/* 
-    \fn bool QFileEngine::isRelativePath() const
-  
-    Determines if the file current pointed to is considered relative
-    by your file system; if the file is relative return true,
-    otherwise false.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName
- */
-
-/* 
-    \fn uint QFileEngine::fileFlags(uint type) const
-  
-    This function is used to gather information about the file based
-    on the \a type. The type will be set to several or'd together
-    members of \b QFileEngine::FileInfo being requested this function
-    will returned another set of or'd together QFileEngine::FileInfo
-    members that are currently on in the file pointed to.
-
-    The \a type could be considered an optimization so it can be
-    ignored and the return value to the same set for all calls, it is
-    provided as a hint to which data will be actually used (and thus
-    lookup can be avoided).
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName, FileInfo
- */
-
-
-/* 
-    \fn QString QFileEngine::fileName(FileName file) const 
-  
-    Requests that different format of the file name pointed to be
-    returned based on \a file. For any QFileEngine::FileName not
-    handled return the file name set in QFileEngine::setFileName.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName, FileName
- */
-
-/* 
-    \fn uint QFileEngine::ownerId(FileOwner id) const
-  
-    Request that the owning user or group id be returned based on \a
-    id. If no owner can be determined -2 should be returned.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName, FileOwner
- */
-
-/* 
-    \fn QString QFileEngine::owner(FileOwner id) const
-  
-    Request that the owning user or group name be returned based on \a
-    id. If no owner can be determined a null QString should be returned.
-
-    This virtual function must be reimplemented by all subclasses.
-
-    \sa setFileName, QString::isNull, FileOwner
- */
-
-/* 
-    \fn QDateTime QFileEngine::fileTime(FileTime time) const
-  
-    Request that date information be returned about the file. If a
-    file time cannot be determined a invalid QDateTime should be
+    Requests that a list of all the files matching the \a filters list
+    based on the \a filterSpec in the file engine's directory are
     returned.
 
+    Should return an empty list if the file engine refers to a file
+    rather than a directory, or if the directory is unreadable or does
+    not exist or if nothing matches the specifications.
+
     This virtual function must be reimplemented by all subclasses.
 
-    \sa setFileName, QDateTime, QDateTime::isValid, FileTime
+    \sa setFileName()
  */
 
+/*!
+    \fn bool QFileEngine::caseSensitive() const
+
+    Should return true if the underlying file system is case-sensitive;
+    otherwise return false.
+
+    This virtual function must be reimplemented by all subclasses.
+ */
+
+/*!
+    \fn bool QFileEngine::isRoot() const
+
+    Return true if the file referred to by this file engine is the
+    root of the file system; otherwise return false.
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa setFileName()
+ */
+
+/*!
+    \fn bool QFileEngine::isRelativePath() const
+
+    Return true if the file referred to by this file engine has a
+    relative path; otherwise return false.
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa setFileName()
+ */
+
+/*!
+    \fn uint QFileEngine::fileFlags(uint type) const
+
+    This function should return the set of OR'd \c
+    QFileEngine::FileInfo members that are true for the file engine's
+    file, and that are in the \a type's OR'd members.
+
+    In your reimplementation you can use the \a type argument as an
+    optimization hint and only return the OR'd set of members that are
+    true and that match those in \a type; in other words you can
+    ignore any members not mentioned in \a type, thus avoiding some
+    potentially expensive lookups or system calls.
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa setFileName(), FileInfo
+ */
+
+
+/*!
+    \fn QString QFileEngine::fileName(FileName file) const
+
+    Return  the file engine's current file name in the format
+    specified by \a file.
+
+    If you don't handle some \c FileName possibilities, return the
+    file name set in setFileName() when an unhandled format is
+    requested.
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa setFileName(), FileName
+ */
+
+/*!
+    \fn uint QFileEngine::ownerId(FileOwner owner) const
+
+    If \a owner is \c OwnerUser return the ID of the user who owns
+    the file. If \a owner is \c OwnerGroup return the ID of the group
+    that own the file. If you can't determine the owner return -2.
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa owner() setFileName(), FileOwner
+ */
+
+/*!
+    \fn QString QFileEngine::owner(FileOwner owner) const
+
+    If \a owner is \c OwnerUser return the name of the user who owns
+    the file. If \a owner is \c OwnerGroup return the name of the group
+    that own the file. If you can't determine the owner return
+    QString().
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa ownerId() setFileName(), FileOwner
+ */
+
+/*!
+    \fn QDateTime QFileEngine::fileTime(FileTime time) const
+
+    If \a time is \c CreationTime, return when the file was created.
+    If \a time is \c ModificationTime, return when the file was most
+    recently modified. If \a time is \c AccessTime, return when the
+    file was most recently accessed (e.g. read or written).
+    If the time cannot be determined return QDateTime() (an invalid
+    date time).
+
+    This virtual function must be reimplemented by all subclasses.
+
+    \sa setFileName(), QDateTime, QDateTime::isValid(), FileTime
+ */
+
+// ### DOC: LinkName is a complete mystery:
+// Does it mean: The full file name of the file that this file is a
+// link to. (This will be empty if this file is not a link.)
 /*!
     \enum QFileEngine::FileName
 
-    These values will be used when requesting different format for a filename.
+    These values are used to request a file name in a particular
+    format.
 
-    \value DefaultName The same filename as passed into the QFileEngine
-    \value BaseName The name of the file excluding the path
-    \value PathName The path to the file excluding the BaseName
-    \value AbsoluteName The absolute path to the file (including BaseName)
-    \value AbsolutePathName The absolute path to the file (excluding BaseName) 
+    \value DefaultName The same filename that was passed to the
+    QFileEngine.
+    \value BaseName The name of the file excluding the path.
+    \value PathName The path to the file excluding the BaseName.
+    \value AbsoluteName The absolute path to the file (including
+    the BaseName).
+    \value AbsolutePathName The absolute path to the file (excluding
+    the BaseName).
     \value LinkName Where the file is linked to if a link is referenced in the path
     \value CanonicalName Often very similar to LinkName will return the true path to the file
 
-    \sa fileName, setFileName
+    \sa fileName(), setFileName()
 */
 
+// ### DOC: I recast all these as positives, i.e. assuming an absence
+// means it isn't true and presence means it is.
 /*!
     \enum QFileEngine::FileInfo
 
-    These flags will be passed and returned by the fileFlags function. They can be or'd together to
-    reflect a single set of information about a file.
+    The permissions and types of a file, suitable for OR'ing together.
 
-    \value ReadOwnerPerm If the owner of the file has permission to read from it
-    \value WriteOwnerPerm If the owner of the file has permission to write to it
-    \value ExeOwnerPerm If the owner of the file has permission to execute it
-    \value ReadUserPerm If the current user has permission to read from the file
-    \value WriteUserPerm If the current user has permission to write to the file
-    \value ExeUserPerm If the current user has permission to execute the file
-    \value ReadGroupPerm If the current user's group has permission to read from the file
-    \value WriteGroupPerm If the current user's group has permission to write to the file
-    \value ExeGroupPerm If the current user's group has permission to execute the file
-    \value ReadOtherPerm If the all users have permission to read from the file
-    \value WriteOtherPerm If the all users have permission to write to the  file
-    \value ExeOtherPerm If the all users have permission to execute the file
+    \value ReadOwnerPerm The owner of the file has permission to read
+    it.
+    \value WriteOwnerPerm The owner of the file has permission to
+    write to it.
+    \value ExeOwnerPerm The owner of the file has permission to
+    execute it.
+    \value ReadUserPerm The current user has permission to read the
+    file.
+    \value WriteUserPerm The current user has permission to write to
+    the file.
+    \value ExeUserPerm The current user has permission to execute the
+    file.
+    \value ReadGroupPerm Members of the current user's group have
+    permission to read the file.
+    \value WriteGroupPerm Members of the current user's group have
+    permission to write to the file.
+    \value ExeGroupPerm Members of the current user's group have
+    permission to execute the file.
+    \value ReadOtherPerm All users have permission to read the file.
+    \value WriteOtherPerm All users have permission to write to the
+    file.
+    \value ExeOtherPerm All users have permission to execute the file.
 
-    \value LinkType If the file is a considered a link to the file system
-    \value FileType If the file is a considered a regular file to the file system
-    \value DirectoryType If the file is a considered a directory to the file system
+    \value LinkType The file is a link to another file (or link) in
+    the file system (i.e. not a file or directory).
+    \value FileType The file is a regular file to the file system
+    (i.e. not a link or directory)
+    \value DirectoryType The file is a directory in the file system
+    (i.e. not a link or file).
 
-    \value HiddenFlag If the file is determined to not be visible
-    \value ExistsFlag If the file actually exists
+    \value HiddenFlag The file is hidden.
+    \value ExistsFlag The file actually exists in the file system.
 
     \omitvalue PermsMask
     \omitvalue TypesMask
     \omitvalue FlagsMask
     \omitvalue FileInfoAll
 
-    \sa fileFlags, setFileName
+    \sa fileFlags(), setFileName()
 */
 
 /*!
     \enum QFileEngine::FileTime
 
-    These values will be passed to fileTime to determine date
-    information about the file.
+    These are used by the fileTime() function.
 
-    \value CreationTime Creation of the file
-    \value ModificationTime Last time the file was modified
-    \value AccessTime Last time the file was access
+    \value CreationTime When the file was created.
+    \value ModificationTime When the file was most recently modified.
+    \value AccessTime When the file was most recently accessed (e.g.
+    read or written to).
 
-    \sa fileTime, setFileName
+    \sa setFileName()
 */
 
 /*!
     \enum QFileEngine::FileOwner
 
-    These values will be passed to determine ownership of a file.
+    \value OwnerUser The user who owns the file.
+    \value OwnerGroup The group who owns the file.
 
-    \value OwnerUser The user who owns a file
-    \value OwnerGroup The group who owns a file
-
-    \sa owner, ownerId, setFileName
+    \sa owner(), ownerId(), setFileName()
 */
 
 

@@ -172,7 +172,7 @@ QIODevicePrivate::~QIODevicePrivate()
     \value ReadWrite    The device can be both read from and written to.
     \value Append       Data written to the device is appended to the end of
                         existing data.
-    \value Truncate     
+    \value Truncate
     \value Translate    Translate line ending conventions.
     \omitvalue ModeMask
 */
@@ -915,7 +915,7 @@ QIODevice::putch(int ch)
 
     This function is normally called to "undo" a getch() operation.
 
-    Returns \a ch, or -1 if an error occurred.
+    Returns \a character, or -1 if an error occurred.
 
     \sa getch(), putch()
 */
