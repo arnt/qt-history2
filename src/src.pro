@@ -18,7 +18,9 @@ unix {
      EXTRA_DEBUG_TARGETS =
      EXTRA_RELEASE_TARGETS =
      for(sub, SUBDIRS) {
-        !isEqual(sub, moc):!isEqual(sub, plugins):!isEqual(sub, tools) {
+        sub_pro = $$sub/$${basename(sub)}.pro
+        !exists($$sub_pro):next()
+        isEqual($$list($$fromfile($$sub_pro, TEMPLATE)), lib) {
             #debug
             eval(debug-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
             eval(debug-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) debug))
