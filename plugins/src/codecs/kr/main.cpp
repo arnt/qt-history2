@@ -1,29 +1,19 @@
-#include <qtextcodecinterface.h>
+#include <qtextcodecplugin.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
-#include <qapplication.h>
 
 #include <qeuckrcodec.h>
 #include <private/qfontcodecs_p.h>
 
 
-class KRTextCodecs : public QTextCodecFactoryInterface
+class KRTextCodecs : public QTextCodecPlugin
 {
 public:
     KRTextCodecs();
-    virtual ~KRTextCodecs();
 
-    // unknown interface
-    QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    Q_REFCOUNT
-
-    // feature list interface
-    QStringList featureList() const;
-
-    // text codec interface
+    QStringList keys() const;
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
 
 private:
     QPtrList<QTextCodec> codecs;
@@ -35,29 +25,7 @@ KRTextCodecs::KRTextCodecs()
 }
 
 
-KRTextCodecs::~KRTextCodecs()
-{
-}
-
-
-QRESULT KRTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (uuid == IID_QUnknown )
-	*iface = (QUnknownInterface *) this;
-    else if (uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface *) this;
-    else if (uuid == IID_QTextCodecFactory )
-	*iface = (QTextCodecFactoryInterface*) this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList KRTextCodecs::featureList() const
+QStringList KRTextCodecs::keys() const
 {
     QStringList list;
     list << "eucKR" << "ksc5601.1987-0";
@@ -125,7 +93,4 @@ QTextCodec *KRTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( KRTextCodecs );
-}
+Q_EXPORT_PLUGIN( KRTextCodecs );
