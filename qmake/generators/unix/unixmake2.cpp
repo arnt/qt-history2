@@ -806,48 +806,89 @@ void UnixMakefileGenerator::init2()
 	if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
 							project->first("TARGET") + "." + project->first("QMAKE_EXTENSION_SHLIB"));
-	    project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
-						    project->first("QMAKE_EXTENSION_SHLIB") +
-						    "." + project->first("VER_MAJ"));
+	    if(project->isActiveConfig("lib_version_first"))
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+							project->first("VER_MAJ") + "." + 
+							project->first("QMAKE_EXTENSION_SHLIB"));
+	    else
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+							project->first("QMAKE_EXTENSION_SHLIB") +
+							"." + project->first("VER_MAJ"));
+
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	    if(project->isActiveConfig("qt"))
 		project->variables()["DEFINES"].append("QT_PLUGIN");
 	} else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".sl");
-	    project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." + project->first("VER_MAJ"));
+	    if(project->isActiveConfig("lib_version_first"))
+		project->variables()["TARGET_x"].append("lib" + project->first("VER_MAJ") + "." + 
+							project->first("TARGET"));
+	    else
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." + 
+							project->first("VER_MAJ"));
 	    project->variables()["TARGET"] = project->variables()["TARGET_x"];
 	} else if ( !project->variables()["QMAKE_AIX_SHLIB"].isEmpty() ) {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + ".a");
-	    project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
-						    project->first("QMAKE_EXTENSION_SHLIB") +
-						    "." + project->first("VER_MAJ"));
-	    project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
-						      project->first("QMAKE_EXTENSION_SHLIB")
-						      + "." + project->first("VER_MAJ") +
-						      "." + project->first("VER_MIN"));
-	    project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
-							project->first("QMAKE_EXTENSION_SHLIB") + "." +
+	    if(project->isActiveConfig("lib_version_first")) {
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
 							project->first("VER_MAJ") + "." +
-							project->first("VER_MIN") + "." +
-							project->first("VER_PAT"));
+							project->first("QMAKE_EXTENSION_SHLIB"));
+		project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+							  project->first("VER_MAJ") +
+							  "." + project->first("VER_MIN") + "." +
+							  project->first("QMAKE_EXTENSION_SHLIB"));
+		project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
+							    project->first("VER_MAJ") + "." +
+							    project->first("VER_MIN") + "." +
+							    project->first("VER_PAT") + "." +
+							    project->first("QMAKE_EXTENSION_SHLIB"));
+	    } else {
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+							project->first("QMAKE_EXTENSION_SHLIB") +
+							"." + project->first("VER_MAJ"));
+		project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+							  project->first("QMAKE_EXTENSION_SHLIB") +
+							  "." + project->first("VER_MAJ") +
+							  "." + project->first("VER_MIN"));
+		project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
+							    project->first("QMAKE_EXTENSION_SHLIB") + "." +
+							    project->first("VER_MAJ") + "." +
+							    project->first("VER_MIN") + "." +
+							    project->first("VER_PAT"));
+	    }
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	} else {
 	    project->variables()["TARGET_"].append("lib" + project->first("TARGET") + "." +
 						   project->first("QMAKE_EXTENSION_SHLIB"));
-	    project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
-						    project->first("QMAKE_EXTENSION_SHLIB") +
-						    "." + project->first("VER_MAJ"));
-	    project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+	    if(project->isActiveConfig("lib_version_first")) {
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+							project->first("VER_MAJ") + "." +
+							project->first("QMAKE_EXTENSION_SHLIB"));
+		project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
+							  project->first("VER_MAJ") +
+							  "." + project->first("VER_MIN") + "." +
+							  project->first("QMAKE_EXTENSION_SHLIB"));
+		project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") + "." +
+							    project->first("VER_MAJ") + "." +
+							    project->first("VER_MIN") +  "." +
+							    project->first("VER_PAT") + "." +
+							    project->variables()["QMAKE_EXTENSION_SHLIB"].first());
+	    } else {
+		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
+							project->first("QMAKE_EXTENSION_SHLIB") +
+							"." + project->first("VER_MAJ"));
+		project->variables()["TARGET_x.y"].append("lib" + project->first("TARGET") + "." +
 						      project->first("QMAKE_EXTENSION_SHLIB")
 						      + "." + project->first("VER_MAJ") +
 						      "." + project->first("VER_MIN"));
-	    project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") +
-							"." +
-							project->variables()[
-							    "QMAKE_EXTENSION_SHLIB"].first() + "." +
-							project->first("VER_MAJ") + "." +
-							project->first("VER_MIN") +  "." +
-							project->first("VER_PAT"));
+		project->variables()["TARGET_x.y.z"].append("lib" + project->first("TARGET") +
+							    "." +
+							    project->variables()[
+								"QMAKE_EXTENSION_SHLIB"].first() + "." +
+							    project->first("VER_MAJ") + "." +
+							    project->first("VER_MIN") +  "." +
+							    project->first("VER_PAT"));
+	    }
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
 	}
 	project->variables()["QMAKE_LN_SHLIB"].append("-ln -s");
