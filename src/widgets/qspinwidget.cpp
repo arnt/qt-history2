@@ -289,11 +289,21 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
 
-    QStyle::SCFlags active = QStyle::SC_None;
+    QStyle::SCFlags active;
     if (theButton & 1)
 	active = QStyle::SC_SpinWidgetDown;
     else if (theButton & 2)
 	active = QStyle::SC_SpinWidgetUp;
+    else
+	active = QStyle::SC_None;
+
+    QRect fr = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
+								   QStyle::SC_SpinWidgetFrame ), this );
+    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
+				fr, colorGroup(),
+				QStyle::CStyle_Default,
+				QStyle::SC_SpinWidgetFrame,
+				active );
 
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				d->up,
@@ -310,13 +320,6 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 				QStyle::CStyle_Default,
 				QStyle::SC_SpinWidgetDown,
 				active );
-
-    QRect fr = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
-								   QStyle::SC_SpinWidgetFrame ), this );
-    style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
-				fr, colorGroup(),
-				QStyle::CStyle_Default,
-				QStyle::SC_SpinWidgetFrame );
 }
 
 
