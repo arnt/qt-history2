@@ -21,9 +21,14 @@ manual: $(targets)
 
 ps: manual.ps
 
+html: manual.html
+
 manual.ps: $(targets)
 	sgmltools -b ps manual.sgml > /dev/null 
 	
+manual.html: $(targets)
+	sgmltools -b html manual.sgml > /dev/null 
+
 clean:
 	rm -f $(targets) *.ps
 
