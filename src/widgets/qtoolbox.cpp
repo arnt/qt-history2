@@ -570,7 +570,12 @@ void QToolBox::removePage( QWidget *page )
 
 QWidget *QToolBox::currentPage() const
 {
-    return (QWidget*)( (QScrollView*)d->currentPage )->viewport()->children()->getFirst();
+    QScrollView *sv = (QScrollView*)d->currentPage;
+    if ( !sv )
+	return 0;
+    if ( !sv->viewport()->children() )
+	return 0;
+    return (QWidget*)sv->viewport()->children()->getFirst();
 }
 
 /*!
