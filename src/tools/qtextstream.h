@@ -276,6 +276,32 @@ Q_EXPORT QTextStream &flush( QTextStream &s );	// flush output
 Q_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
 Q_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
 
+Q_EXPORT inline QTSManip qSetW( int w )
+{
+    QTSMFI func = &QTextStream::width;
+    return QTSManip(func,w);
+}
+
+Q_EXPORT inline QTSManip qSetFill( int f )
+{
+    QTSMFI func = &QTextStream::fill;
+    return QTSManip(func,f);
+}
+
+Q_EXPORT inline QTSManip qSetPrecision( int p )
+{
+    QTSMFI func = &QTextStream::precision;
+    return QTSManip(func,p);
+}
+
+
+#ifndef QT_ALTERNATE_QTSMANIP
+
+// These will go away in Qt 3.0, as they conflict with std libs
+//
+// If you get conflicts now, #define QT_ALTERNATE_QTSMANIP before
+// including this file.
+
 Q_EXPORT inline QTSManip setw( int w )
 {
     QTSMFI func = &QTextStream::width;
@@ -293,6 +319,6 @@ Q_EXPORT inline QTSManip setprecision( int p )
     QTSMFI func = &QTextStream::precision;
     return QTSManip(func,p);
 }
-
+#endif
 
 #endif // QTEXTSTREAM_H
