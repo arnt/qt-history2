@@ -235,8 +235,6 @@
 /*!
     \enum Qt::DayOfWeek
 
-    \internal
-
     \value Monday
     \value Tuesday
     \value Wednesday
