@@ -281,7 +281,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
-#endif	
+#endif
 	xd->x_screen = defaultScreen;
 	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
 	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
@@ -293,7 +293,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
-#endif	
+#endif
     }
 
     int dd = x11Depth();
@@ -364,6 +364,10 @@ void QPixmap::deref()
 	    hd = 0;
 	}
 	delete data;
+#ifdef Q_Q4PAINTER
+	delete deviceGC;
+	deviceGC = 0;
+#endif
     }
 }
 

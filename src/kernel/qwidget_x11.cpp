@@ -778,6 +778,10 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	extern void qPRCleanup( QWidget *widget ); // from qapplication_x11.cpp
 	if ( testWState(WState_Reparented) )
 	    qPRCleanup(this);
+#ifdef Q_Q4PAINTER
+	delete deviceGC;
+	deviceGC = 0;
+#endif
     }
 }
 
