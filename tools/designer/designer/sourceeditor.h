@@ -45,6 +45,13 @@ public:
     QString language() const;
     void setLanguage( const QString &l );
 
+    void editCut();
+    void editCopy();
+    void editPaste();
+    void editUndo();
+    void editRedo();
+    void editSelectAll();
+
 protected:
     void closeEvent( QCloseEvent *e );
 

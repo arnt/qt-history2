@@ -93,3 +93,33 @@ void SourceEditor::setLanguage( const QString &l )
 {
     lang = l;
 }
+
+void SourceEditor::editCut()
+{
+    iFace->cut();
+}
+
+void SourceEditor::editCopy()
+{
+    iFace->copy();
+}
+
+void SourceEditor::editPaste()
+{
+    iFace->paste();
+}
+
+void SourceEditor::editUndo()
+{
+    iFace->undo();
+}
+
+void SourceEditor::editRedo()
+{
+    iFace->redo();
+}
+
+void SourceEditor::editSelectAll()
+{
+    iFace->selectAll();
+}

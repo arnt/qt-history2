@@ -137,6 +137,17 @@ const QString toolbarHelp = "<p>Toolbars contain a number of buttons to "
 
 MainWindow *MainWindow::self = 0;
 
+static QString textNoAccel( const QString& text)
+{
+    QString t = text;
+    int i;
+    while ( (i = t.find('&') )>= 0 ) {
+	t.remove(i,1);
+    }
+    return t;
+}
+
+
 MainWindow::MainWindow( bool asClient )
 #if defined(HAVE_KDE)
     : KMainWindow( 0, "mainwindow", WType_TopLevel | WDestructiveClose ),
@@ -1562,30 +1573,55 @@ void MainWindow::fileCreateTemplate()
 
 void MainWindow::editUndo()
 {
+    if ( workSpace()->activeWindow() &&
+	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)workSpace()->activeWindow() )->editUndo();
+	return;
+    }
     if ( formWindow() )
 	formWindow()->undo();
 }
 
 void MainWindow::editRedo()
 {
+    if ( workSpace()->activeWindow() &&
+	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)workSpace()->activeWindow() )->editRedo();
+	return;
+    }
     if ( formWindow() )
 	formWindow()->redo();
 }
 
 void MainWindow::editCut()
 {
+    if ( workSpace()->activeWindow() &&
+	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)workSpace()->activeWindow() )->editCut();
+	return;
+    }
     editCopy();
     editDelete();
 }
 
 void MainWindow::editCopy()
 {
+    if ( workSpace()->activeWindow() &&
+	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)workSpace()->activeWindow() )->editCopy();
+	return;
+    }
     if ( formWindow() )
 	qApp->clipboard()->setText( formWindow()->copy() );
 }
 
 void MainWindow::editPaste()
 {
+    if ( workSpace()->activeWindow() &&
+	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)workSpace()->activeWindow() )->editPaste();
+	return;
+    }
     if ( !formWindow() )
 	return;
 
@@ -1618,6 +1654,11 @@ void MainWindow::editDelete()
 
 void MainWindow::editSelectAll()
 {
+    if ( workSpace()->activeWindow() &&
+	 workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	( (SourceEditor*)workSpace()->activeWindow() )->editSelectAll();
+	return;
+    }
     if ( formWindow() )
 	formWindow()->selectAll();
 }
@@ -2617,19 +2658,22 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionEditUndo->setEnabled( FALSE );
 	actionEditRedo->setEnabled( FALSE );
     }
+
     selectionChanged();
-}
 
-static QString textNoAccel( const QString& text)
-{
-    QString t = text;
-    int i;
-    while ( (i = t.find('&') )>= 0 ) {
-	t.remove(i,1);
+    if ( w->inherits( "SourceEditor" ) ) {
+	actionEditUndo->setEnabled( TRUE );
+	actionEditRedo->setEnabled( TRUE );
+	actionEditCut->setEnabled( TRUE );
+	actionEditCopy->setEnabled( TRUE );
+	actionEditPaste->setEnabled( TRUE );
+	actionEditSelectAll->setEnabled( TRUE );
+	actionEditUndo->setMenuText( tr( "&Undo" ) );
+	actionEditUndo->setToolTip( textNoAccel( actionEditUndo->menuText()) );
+	actionEditRedo->setMenuText( tr( "&Redo" ) );
+	actionEditRedo->setToolTip( textNoAccel( actionEditRedo->menuText()) );
     }
-    return t;
 }
-
 
 void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
 				 const QString &undoCmd, const QString &redoCmd )
