@@ -53,11 +53,13 @@ MetaMakefileGenerator::init()
                 warn_msg(WarnLogic, "QMAKESPEC does not support multiple BUILDS.");
                 clearBuilds();
                 use_single_build = true;
+                break;
+            } else {
+                Build *build = new Build;
+                build->name = (*it);
+                build->makefile = makefile;
+                makefiles += build;
             }
-            Build *build = new Build;
-            build->name = (*it);
-            build->makefile = makefile;
-            makefiles += build;
         }
     }
     if(use_single_build) {
