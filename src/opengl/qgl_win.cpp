@@ -80,8 +80,8 @@ public:
 
 
 
-#ifndef QCOLORMAP_H
-#define QCOLORMAP_H
+#ifndef QGLCOLORMAP_H
+#define QGLCOLORMAP_H
 
 #include <qcolor.h>
 
