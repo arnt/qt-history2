@@ -53,10 +53,10 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     if (!qNotifyAccessibilityUpdate)
         return;
 
-    QAccessibleInterface *iface = 0;
-    QAccessible::queryAccessibleInterface(o, &iface);
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(o);
     if (iface)
         qNotifyAccessibilityUpdate(reason, iface, who);
+    delete iface;
 }
 
 void QAccessible::setRootObject(QObject *o)
@@ -70,11 +70,11 @@ void QAccessible::setRootObject(QObject *o)
     if (!qSetRootObject)
         return;
 
-    QAccessibleInterface *iface = 0;
-    if (o)
-        QAccessible::queryAccessibleInterface(o, &iface);
+    if (!o)
+        return;
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(o);
     qSetRootObject(iface);
-    iface->release();
+    delete iface;
 }
 
 #endif
