@@ -18,3 +18,5 @@
 9) Legg til void QTableView::setCellSize() og evt. QSize cellSize().
 
 10) QPainter::drawShade... skal ha bool invert-flagg.
+
+10) sentrer pixmaps i QComboBox
