@@ -16,6 +16,9 @@
 #include <qpainter.h>
 #include <private/qlistview_p.h>
 
+// workaround for VC++ 6.0 linker bug (?)
+typedef bool(*LessThan)(const QListWidgetItem *left, const QListWidgetItem *right);
+
 class QListModel : public QAbstractListModel
 {
 public:
@@ -186,10 +189,8 @@ void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
 {
     if (column != 0 || parent.isValid())
         return;
-    if (order == Qt::AscendingOrder)
-        qHeapSort(lst.begin(), lst.end(), &lessThan);
-    else
-        qHeapSort(lst.begin(), lst.end(), &greaterThan);
+    LessThan compare = (order == Qt::AscendingOrder ? &lessThan : &greaterThan);
+    qHeapSort(lst.begin(), lst.end(), compare);
     emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
 }
 

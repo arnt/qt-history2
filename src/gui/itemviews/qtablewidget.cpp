@@ -19,6 +19,9 @@
 #include <private/qabstractitemmodel_p.h>
 #include <private/qtableview_p.h>
 
+// workaround for VC++ 6.0 linker bug (?)
+typedef bool(*LessThan)(const QTableWidgetItem *left, const QTableWidgetItem *right);
+
 class QTableModel : public QAbstractTableModel
 {
 public:
@@ -302,10 +305,8 @@ void QTableModel::sort(int column, const QModelIndex &parent, Qt::SortOrder orde
     QVector<QTableWidgetItem*> sorting(rowCount());
     for (int i = 0; i < sorting.count(); ++i)
         sorting[i] = item(i, column);
-    if (order == Qt::AscendingOrder)
-        qHeapSort(sorting.begin(), sorting.end(), &lessThan);
-    else
-        qHeapSort(sorting.begin(), sorting.end(), &greaterThan);
+    LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
+    qHeapSort(sorting.begin(), sorting.end(), compare);
     for (int j = 0; j < sorting.count(); ++j)
         table[tableIndex(j, column)] = sorting.at(j);
 }
