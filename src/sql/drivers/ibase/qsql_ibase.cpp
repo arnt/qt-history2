@@ -142,35 +142,6 @@ static QCoreVariant::Type qIBaseTypeName(int iType)
     return QCoreVariant::Invalid;
 }
 
-static QCoreVariant::Type qIBaseTypeName2(int iType)
-{
-    switch(iType & ~1) {
-    case SQL_VARYING:
-    case SQL_TEXT:
-        return QCoreVariant::String;
-    case SQL_LONG:
-    case SQL_SHORT:
-        return QCoreVariant::Int;
-    case SQL_INT64:
-        return QCoreVariant::LongLong;
-    case SQL_FLOAT:
-    case SQL_DOUBLE:
-        return QCoreVariant::Double;
-    case SQL_TIMESTAMP:
-        return QCoreVariant::DateTime;
-    case SQL_TYPE_TIME:
-        return QCoreVariant::Time;
-    case SQL_TYPE_DATE:
-        return QCoreVariant::Date;
-    case SQL_ARRAY:
-        return QCoreVariant::List;
-    case SQL_BLOB:
-        return QCoreVariant::ByteArray;
-    default:
-        return QCoreVariant::Invalid;
-    }
-}
-
 static int qIBaseTypeLength(int iType, int scale)
 {
     switch(iType & ~1) {
