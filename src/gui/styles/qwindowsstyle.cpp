@@ -1644,6 +1644,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setBrushOrigin(p->brushOrigin() - QPoint(1, 1));
                 }
             }
+            newMbi.rect.addCoords(0, -1, 0, 0);
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
