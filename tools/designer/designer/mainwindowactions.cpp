@@ -725,10 +725,15 @@ void MainWindow::setupFileActions()
 
     a = new QAction( this, 0 );
     actionFileExit = a;
-    a->setText( tr( "Exit" ) );
-    a->setMenuText( tr( "E&xit" ) );
-    a->setStatusTip( tr( "Quits the application and prompts to save any changed forms, source files or project settings" ) );
-    a->setWhatsThis( whatsThisFrom( "File|Exit" ) );
+    if  ( !singleProjectMode() ) {
+	a->setText( tr( "Exit" ) );
+	a->setMenuText( tr( "E&xit" ) );
+	a->setStatusTip( tr( "Quits the application and prompts to save any changed forms, source files or project settings" ) );
+	a->setWhatsThis( whatsThisFrom( "File|Exit" ) );
+    } else {
+	a->setText( tr( "Close" ) );
+	a->setMenuText( tr( "&Close" ) );
+    }
     connect( a, SIGNAL( activated() ), this, SLOT( fileQuit() ) );
     a->addTo( fileMenu );
 }
@@ -1040,7 +1045,8 @@ void MainWindow::fileNewFile()
 void MainWindow::fileQuit()
 {
     close();
-    qApp->closeAllWindows();
+    if ( !singleProjectMode() )
+	qApp->closeAllWindows();
 }
 
 void MainWindow::fileClose()
