@@ -168,7 +168,7 @@ void ChangeProperties::init()
     activex = 0;
 }
 
-void ChangeProperties::editRequestChanged( Q3CheckListItem *item )
+void ChangeProperties::editRequestChanged( QCheckListItem *item )
 {
     if ( !item )
 	return;
