@@ -267,7 +267,7 @@ BorlandMakefileGenerator::init()
 	} else {
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		int hver = findHighestVersion(QString(getenv("QTDIR")) + "/lib", "qt");
+		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d.lib", hver);
