@@ -20,6 +20,10 @@
 # include "qcoreapplication.h"
 #endif
 
+#ifdef Q_OS_WIN
+#include "qt_windows.h"
+#endif
+
 #include "qconfig.cpp"
 
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
