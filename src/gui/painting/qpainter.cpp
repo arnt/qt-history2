@@ -25,10 +25,10 @@
 #include "qpaintengine_win.h"
 #endif
 #include "qpaintdevicemetrics.h"
+#include <private/qwidget_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qtextlayout_p.h>
-#include <private/qwidget_p.h>
 
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
