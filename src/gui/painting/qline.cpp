@@ -47,7 +47,7 @@
     but not within the range of lines. This will be the case if lines
     are not parallel.
 
-    \img qlinefloat-unbounded.png
+    \img qlinef-unbounded.png
 
     \value BoundedIntersection Indicates that the two lines
     intersected with within the the start and end points of each
@@ -55,7 +55,7 @@
     the intersection occurs between the start and end points of each
     line.
 
-    \img qlinefloat-bounded.png
+    \img qlinef-bounded.png
 
 */
 
@@ -146,7 +146,7 @@
     Returns a line that is perpendicular to this line with the same starting
     point and length.
 
-    \img qlinefloat-normalvector.png
+    \img qlinef-normalvector.png
 */
 
 /*!
@@ -255,18 +255,17 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 
 
 /*!
-    \fn void QLineF::moveBy(const QLineF &l)
+    \fn void QLineF::moveBy(const QLineF &line)
 
-    Translates this line by the vector specified by the line \a l.
-
+    Translates this line by the vector specified by the \a line given.
 */
 
 /*!
+  \fn float QLineF::angle(const QLineF &line) const
 
-  Returns the smallest angel between the this line and \a l, not
-  taking into accound wether the lines intersect or not. The angle is
+  Returns the smallest angle between the given \a line and this line, not
+  taking into account whether the lines intersect or not. The angle is
   specified in degrees.
-
 */
 float QLineF::angle(const QLineF &l) const
 {
