@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#18 $
 **
 ** Global functions
 **
@@ -15,7 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#18 $")
 
 
 /*----------------------------------------------------------------------------
@@ -280,13 +280,6 @@ void fatal( const char *msg, ... )
 
   \sa warning(), \link debug.html Debugging\endlink
  ----------------------------------------------------------------------------*/
-
-void ASSERT( bool test )
-{
-    test = FALSE;
-}
-
-#undef ASSERT
 
 
 /*----------------------------------------------------------------------------
