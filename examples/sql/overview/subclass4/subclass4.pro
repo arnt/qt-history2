@@ -6,3 +6,5 @@ HEADERS	    =
 SOURCES	    =	main.cpp 
 
 
+TARGET		= test
+PROJECTNAME	= test
