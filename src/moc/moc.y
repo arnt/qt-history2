@@ -298,8 +298,12 @@ public:
 		break;
 	    }
 
-	    // we musn't convert 'char * const *' into 'const char **'
-	    if ( leftType[i] == '&' || leftType[i] == '*' )
+	    /*
+	      We musn't convert 'char * const *' into 'const char **'
+	      and we must beware of 'Bar<const Bla>'.
+	    */
+	    if ( leftType[i] == '&' || leftType[i] == '*' ||
+		 leftType[i] == '<' )
 		break;
 	}
 
