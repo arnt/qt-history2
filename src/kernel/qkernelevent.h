@@ -103,6 +103,8 @@ public:
 	StyleChange = 100,                      // style has changed
 	IconTextChange = 101,                   // icon text has changed
 	ModifiedChange = 102,                   // modified state has changed
+	EnterModal = 103,			// widget is about to enter modal blocking
+	LeaveModal = 104,			// widget has left modal blocking
 
 #ifndef QT_NO_COMPAT
 	CaptionChange = WindowTitleChange,
