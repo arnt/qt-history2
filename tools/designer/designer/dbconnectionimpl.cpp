@@ -24,6 +24,7 @@
 #include "asciivalidator.h"
 #include <qgroupbox.h>
 #include <qcombobox.h>
+#include <qspinbox.h>
 #include <qlineedit.h>
 #include <qlayout.h>
 #include <qsqldatabase.h>
@@ -58,8 +59,8 @@ void DatabaseConnectionEditor::init()
     connectionWidget->editName->setText( conn->name() );
     connectionWidget->comboDriver->setEnabled( FALSE );
     connectionWidget->comboDriver->lineEdit()->setText( conn->driver() );
-    connectionWidget->comboDatabase->setEnabled( FALSE );
-    connectionWidget->comboDatabase->lineEdit()->setText( conn->database() );
+    connectionWidget->editDatabase->setEnabled( FALSE );
+    connectionWidget->editDatabase->setText( conn->database() );
     connectionWidget->editUsername->setEnabled( TRUE );
     connectionWidget->editUsername->setText( conn->username() );
     connectionWidget->editPassword->setEnabled( TRUE );
@@ -67,7 +68,7 @@ void DatabaseConnectionEditor::init()
     connectionWidget->editHostname->setEnabled( TRUE );
     connectionWidget->editHostname->setText( conn->hostname() );
     connectionWidget->editPort->setEnabled( TRUE );
-    connectionWidget->editPort->setText( QString::number( conn->port() ) );
+    connectionWidget->editPort->setValue( conn->port() );
     connectionWidget->editUsername->setFocus();
     connectionWidget->editUsername->selectAll();
 }

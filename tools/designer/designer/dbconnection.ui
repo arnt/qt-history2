@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>199</width>
-            <height>187</height>
+            <width>218</width>
+            <height>240</height>
         </rect>
     </property>
     <property name="caption">
@@ -20,22 +20,11 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>0</number>
+            <number>11</number>
         </property>
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QComboBox" row="2" column="1">
-            <property name="name">
-                <cstring>comboDatabase</cstring>
-            </property>
-            <property name="enabled">
-                <bool>false</bool>
-            </property>
-            <property name="editable">
-                <bool>true</bool>
-            </property>
-        </widget>
         <widget class="QLabel" row="2" column="0">
             <property name="name">
                 <cstring>TextLabel3</cstring>
@@ -44,18 +33,7 @@
                 <string>&amp;Database Name:</string>
             </property>
             <property name="buddy" stdset="0">
-                <cstring>comboDatabase</cstring>
-            </property>
-        </widget>
-        <widget class="QLineEdit" row="4" column="1">
-            <property name="name">
-                <cstring>editPassword</cstring>
-            </property>
-            <property name="enabled">
-                <bool>false</bool>
-            </property>
-            <property name="echoMode">
-                <enum>Password</enum>
+                <cstring>editDatabase</cstring>
             </property>
         </widget>
         <widget class="QLabel" row="3" column="0">
@@ -132,9 +110,9 @@
                 <cstring>editName</cstring>
             </property>
         </widget>
-        <widget class="QLineEdit" row="3" column="1">
+        <widget class="QLineEdit" row="5" column="1">
             <property name="name">
-                <cstring>editUsername</cstring>
+                <cstring>editHostname</cstring>
             </property>
             <property name="enabled">
                 <bool>false</bool>
@@ -145,40 +123,75 @@
                 <cstring>TextLabel1_2</cstring>
             </property>
             <property name="text">
-                <string>&amp;Port</string>
+                <string>P&amp;ort</string>
             </property>
             <property name="buddy" stdset="0">
                 <cstring>editPort</cstring>
             </property>
         </widget>
-        <widget class="QLineEdit" row="5" column="1">
+        <widget class="QLineEdit" row="3" column="1">
             <property name="name">
-                <cstring>editHostname</cstring>
+                <cstring>editUsername</cstring>
             </property>
             <property name="enabled">
                 <bool>false</bool>
             </property>
         </widget>
-        <widget class="QLineEdit" row="6" column="1">
+        <widget class="QLineEdit" row="4" column="1">
+            <property name="name">
+                <cstring>editPassword</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+            <property name="echoMode">
+                <enum>Password</enum>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="2" column="1">
+            <property name="name">
+                <cstring>editDatabase</cstring>
+            </property>
+            <property name="enabled">
+                <bool>false</bool>
+            </property>
+        </widget>
+        <widget class="QSpinBox" row="6" column="1">
             <property name="name">
                 <cstring>editPort</cstring>
             </property>
             <property name="enabled">
                 <bool>false</bool>
             </property>
+            <property name="specialValueText">
+                <string>Default</string>
+            </property>
+            <property name="maxValue">
+                <number>65535</number>
+            </property>
+            <property name="minValue">
+                <number>-1</number>
+            </property>
+            <property name="value">
+                <number>-1</number>
+            </property>
         </widget>
     </grid>
 </widget>
 <connections>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 <tabstops>
     <tabstop>editName</tabstop>
     <tabstop>comboDriver</tabstop>
-    <tabstop>comboDatabase</tabstop>
+    <tabstop>editDatabase</tabstop>
     <tabstop>editUsername</tabstop>
     <tabstop>editPassword</tabstop>
     <tabstop>editHostname</tabstop>
+    <tabstop>editPort</tabstop>
 </tabstops>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

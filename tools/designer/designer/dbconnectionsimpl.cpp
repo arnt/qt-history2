@@ -25,6 +25,7 @@
 #include "project.h"
 #include <qlistbox.h>
 #include <qcombobox.h>
+#include <qspinbox.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qsqldatabase.h>
@@ -103,15 +104,11 @@ void DatabaseConnectionsEditor::doConnect()
 	DatabaseConnection *conn = new DatabaseConnection( project );
 	conn->setName( connectionWidget->editName->text() );
 	conn->setDriver( connectionWidget->comboDriver->lineEdit()->text() );
-	conn->setDatabase( connectionWidget->comboDatabase->lineEdit()->text() );
+	conn->setDatabase( connectionWidget->editDatabase->text() );
 	conn->setUsername( connectionWidget->editUsername->text() );
 	conn->setPassword( connectionWidget->editPassword->text() );
 	conn->setHostname( connectionWidget->editHostname->text() );
-	bool b;
-	int port = connectionWidget->editPort->text().toInt( &b );
-	if ( !b )
-	    port = -1;
-	conn->setPort( port );
+	conn->setPort( connectionWidget->editPort->value() );
 	if ( conn->refreshCatalog() ) {
 	    project->addDatabaseConnection( conn );
 	    listConnections->insertItem( conn->name() );
@@ -128,15 +125,11 @@ void DatabaseConnectionsEditor::doConnect()
 	DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
 	conn->setName( connectionWidget->editName->text() );
 	conn->setDriver( connectionWidget->comboDriver->lineEdit()->text() );
-	conn->setDatabase( connectionWidget->comboDatabase->lineEdit()->text() );
+	conn->setDatabase( connectionWidget->editDatabase->text() );
 	conn->setUsername( connectionWidget->editUsername->text() );
 	conn->setPassword( connectionWidget->editPassword->text() );
 	conn->setHostname( connectionWidget->editHostname->text() );
-	bool b;
-        int port = connectionWidget->editPort->text().toInt( &b );
-        if ( !b )
-            port = -1;	
-	conn->setPort( port );
+	conn->setPort( connectionWidget->editPort->value() );
 	conn->refreshCatalog();
 	project->saveConnections();
     }
@@ -157,12 +150,11 @@ void DatabaseConnectionsEditor::currentConnectionChanged( const QString &s )
     connectionWidget->editName->setText( conn->name() );
     blockChanges = FALSE;
     connectionWidget->comboDriver->lineEdit()->setText( conn->driver() );
-    connectionWidget->comboDatabase->lineEdit()->setText( conn->database() );
+    connectionWidget->editDatabase->setText( conn->database() );
     connectionWidget->editUsername->setText( conn->username() );
     connectionWidget->editPassword->setText( conn->password() );
     connectionWidget->editHostname->setText( conn->hostname() );
-    if ( conn->port() )
-	connectionWidget->editPort->setText( QString::number( conn->port() ) );
+    connectionWidget->editPort->setValue( conn->port() );
 #endif
 }
 
@@ -179,8 +171,8 @@ void DatabaseConnectionsEditor::enableAll( bool b )
     connectionWidget->editName->setText( "" );
     connectionWidget->comboDriver->setEnabled( b );
     connectionWidget->comboDriver->lineEdit()->setText( "" );
-    connectionWidget->comboDatabase->setEnabled( b );
-    connectionWidget->comboDatabase->clear();
+    connectionWidget->editDatabase->setEnabled( b );
+    connectionWidget->editDatabase->setText( "" );
     connectionWidget->editUsername->setEnabled( b );
     connectionWidget->editUsername->setText( "" );
     connectionWidget->editPassword->setEnabled( b );
@@ -188,6 +180,6 @@ void DatabaseConnectionsEditor::enableAll( bool b )
     connectionWidget->editHostname->setEnabled( b );
     connectionWidget->editHostname->setText( "" );
     connectionWidget->editPort->setEnabled( b );
-    connectionWidget->editPort->setText( "" );
+    connectionWidget->editPort->setValue( -1 );
     buttonConnect->setEnabled( b );
 }
