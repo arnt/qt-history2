@@ -79,6 +79,9 @@ static bool qt_resolved_gdiplus = false;
 
 static void qt_resolve_gdiplus();
 static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features();
+static void qDrawTransparentPixmap(HDC hdc_dest, int dx, int dy,
+				   HDC hdc_src, int src_width, int src_height,
+				   HDC hdc_mask, int sx, int sy, int sw, int sh);
 
 #define COLOR_VALUE(c) RGB(c.red(),c.green(),c.blue())
 
@@ -728,7 +731,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
     QPixmap *pm = (QPixmap*)pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
     if (!mask && pixmap->isQBitmap() && d->bgMode == Qt::TransparentMode)
-       mask = (QBitmap*) pm;
+        mask = (QBitmap*) pm;
 
     HDC pm_dc = pm->getDC();
 
@@ -759,8 +762,8 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
                              tmpbm, sr, Qt::CopyPixmapNoMask);
             }
             QMatrix xform = QMatrix(r.width()/(double)sr.width(), 0,
-                                      0, r.height()/(double)sr.height(),
-                                      0, 0);
+                                    0, r.height()/(double)sr.height(),
+                                    0, 0);
             bm = bm.transform(xform);
             QRegion region(bm);
             region.translate(r.x(), r.y());
@@ -774,10 +777,18 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
                        SRCCOPY);
             state->painter->restore();
         } else {
-            if (!MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
-                         pm_dc, sr.x(), sr.y(), mask->hbm(), sr.x(), sr.y(),
-                         MAKEROP4(0x00aa0000, SRCCOPY)))
-                qErrnoWarning("QWin32PaintEngine::drawPixmap: MaskBlt failed");
+            QT_WA( {
+                if (!MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+                             pm_dc, sr.x(), sr.y(), mask->hbm(), sr.x(), sr.y(),
+                             MAKEROP4(0x00aa0000, SRCCOPY)))
+                    qErrnoWarning("QWin32PaintEngine::drawPixmap: MaskBlt failed");
+            }, {
+                HDC maskdc = mask->getDC();
+                qDrawTransparentPixmap(d->hdc, r.x(), r.y(),
+                                       pm_dc, pm->width(), pm->height(),
+                                       maskdc, sr.x(), sr.y(), sr.width(), sr.height());
+                mask->releaseDC(maskdc);
+            });
         }
     } else {
         if (stretch) {
@@ -1562,8 +1573,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
             BitBlt(hdc, rect.x(), rect.y(), rw, rh, memdc, 0, 0, SRCCOPY);
         }
 
-        DeleteObject(bitmap);
         DeleteDC(memdc);
+        DeleteObject(bitmap);
     }
 }
 
@@ -1580,6 +1591,7 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
     HDC memdc = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
     SelectObject(memdc, bitmap);
+
     SelectObject(memdc, CreateSolidBrush(RGB(color.red(), color.green(), color.blue())));
     SelectObject(memdc, stock_nullPen);
 
@@ -1590,8 +1602,8 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
         qErrnoWarning("QWin32PaintEngine::fillAlpha: AlphaBlend failed");
 
     DeleteObject(SelectObject(memdc, stock_nullBrush));
-    DeleteObject(bitmap);
     DeleteDC(memdc);
+    DeleteObject(bitmap);
 }
 
 void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
@@ -1734,15 +1746,13 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 #endif
         ;
 
-    int shadeCaps = GetDeviceCaps(qt_display_dc(), SHADEBLENDCAPS);
-
 #ifndef QT_NO_NATIVE_GRADIENT
-    if (shadeCaps & SB_GRAD_TRI)
+    if (qGradientFill)
         commonFeatures |= QPaintEngine::LinearGradients;
 #endif
 
 #ifndef QT_NO_NATIVE_ALPHA
-    if ((shadeCaps & SB_CONST_ALPHA) || qt_gdiplus_support)
+    if (qAlphaBlend)
         commonFeatures |= QPaintEngine::AlphaFill;
     if (qt_gdiplus_support)
         commonFeatures |= QPaintEngine::AlphaFill | QPaintEngine::AlphaStroke;
@@ -2634,3 +2644,33 @@ QtGpPath *QGdiplusPaintEnginePrivate::composeGdiplusPath(const QPainterPath &p)
 }
 
 
+
+static void qDrawTransparentPixmap(HDC hdcDest, int dx, int dy,
+                                   HDC hdcSrc, int src_width, int src_height,
+                                   HDC hdcMask, int sx, int sy, int sw, int sh)
+{
+    Q_UNUSED(sx);
+    Q_UNUSED(sy);
+    Q_UNUSED(sw);
+    Q_UNUSED(sh);
+#if 0
+    SetTextColor(hdcDest, RGB(255, 255, 255));
+    SetBkColor(hdcDest, RGB(0, 0, 0));
+#else
+    SetBkColor(hdcDest, RGB(255, 255, 255));
+    SetTextColor(hdcDest, RGB(0, 0, 0));
+#endif
+
+//     SetBkColor(hdcSrc, RGB(0, 0, 0));
+//     SetTextColor(hdcSrc, RGB(255, 255, 255));
+
+//     BitBlt(hdcSrc, dx, dy, src_width, src_height, hdcMask, 0, 0, SRCAND);
+
+//     BitBlt(hdcDest, dx, dy, src_width, src_height, hdcMask, 0, 0, SRCAND);
+//     BitBlt(hdcDest, dx, dy, src_width, src_height, hdcSrc, 0, 0, SRCPAINT);
+
+    BitBlt(hdcDest, dx, dy, src_width, src_height, hdcSrc, 0, 0, SRCINVERT);
+    BitBlt(hdcDest, dx, dy, src_width, src_height, hdcMask, 0, 0, SRCAND);
+    BitBlt(hdcDest, dx, dy, src_width, src_height, hdcSrc, 0, 0, SRCINVERT);
+
+}
