@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qftp.cpp#2 $
+** $Id: //depot/qt/main/tests/url/qftp.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -30,50 +30,129 @@
 #include <qstringlist.h>
 #include <qregexp.h>
 
-void QFtp::hostFound()
+QFtp::QFtp()
+    : QNetworkProtocol(), connectionReady( FALSE )
 {
+    commandSocket = new QSocket( this );
+    dataSocket = new QSocket( this );
+    
+    connect( commandSocket, SIGNAL( hostFound() ),
+	     this, SLOT( hostFound() ) );
+    connect( commandSocket, SIGNAL( connected() ),
+	     this, SLOT( connected() ) );
+    connect( commandSocket, SIGNAL( closed() ),
+	     this, SLOT( closed() ) );
+    connect( commandSocket, SIGNAL( readyRead() ),
+	     this, SLOT( readyRead() ) );
+
+    connect( dataSocket, SIGNAL( hostFound() ),
+	     this, SLOT( dataHostFound() ) );
+    connect( dataSocket, SIGNAL( connected() ),
+	     this, SLOT( dataConnected() ) );
+    connect( dataSocket, SIGNAL( closed() ),
+	     this, SLOT( dataClosed() ) );
+    connect( dataSocket, SIGNAL( readyRead() ),
+	     this, SLOT( dataReadyRead() ) );
 }
 
-void QFtp::connected()
+QFtp::~QFtp()
 {
+    close();
+    delete commandSocket;
+    delete dataSocket;
+}
+    
+void QFtp::openConnection( QUrl *u )
+{
+    QNetworkProtocol::openConnection( u );
+    connectionReady = FALSE;
+    commandSocket->connectToHost( url->host(), 21 /*url->port()*/ ); //####
+    if ( !dataSocket->host().isEmpty() )
+	dataSocket->close();
+    extraData = QString::null;
 }
 
-void QFtp::closed()
+bool QFtp::isOpen()
 {
+    return !commandSocket->host().isEmpty();
 }
 
-void QFtp::dataHostFound()
+void QFtp::close()
 {
-}
-
-void QFtp::dataConnected()
-{
-    qDebug( "data host connected" );
-    QString cmd = "CWD " + path + "\r\n";
-    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-}
-
-void QFtp::dataClosed()
-{
-    emit listFinished();
-    qDebug( "CLOOOOSED" );
-}
-
-void QFtp::dataReadyRead()
-{
-    qDebug( "dataReadyRead" );
-    QCString s;
-    s.resize( dataSocket->bytesAvailable() );
-    dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-    QString ss = s.copy();
-    QStringList lst = QStringList::split( '\n', ss );
-    QStringList::Iterator it = lst.begin();
-    for ( ; it != lst.end(); ++it ) {
-	QUrlInfo inf;
-	parseDir( *it, inf );
-	if ( !inf.name().isEmpty() )
-	    emit newEntry( inf );
+    if ( !dataSocket->host().isEmpty() )
+	dataSocket->close();
+    if ( !commandSocket->host().isEmpty() ) {
+ 	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
+ 	commandSocket->close();
     }
+}
+
+void QFtp::listEntries( const QString &/*nameFilter*/, int /*filterSpec*/, int /*sortSpec*/ )
+{
+    if ( !isOpen() ) {
+	if ( url )
+	    openConnection( url );
+	else {
+	    qWarning( "Cannnot open FTP connection, URL is NULL!" );
+	    return;
+	}
+    }
+    
+    command = List;
+    if ( connectionReady )
+	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+}
+
+void QFtp::mkdir( const QString &dirname )
+{
+    if ( !isOpen() ) {
+	if ( url )
+	    openConnection( url );
+	else {
+	    qWarning( "Cannnot open FTP connection, URL is NULL!" );
+	    return;
+	}
+    }
+
+    command = Mkdir;
+    extraData = dirname;
+    if ( connectionReady ) {
+	QString cmd( "MKD " + extraData + "\r\n" );
+	commandSocket->writeBlock( cmd, cmd.length() );
+    }
+}
+
+void QFtp::remove( const QString &/*filename*/ )
+{
+}
+
+void QFtp::rename( const QString &/*oldname*/, const QString &/*newname*/ )
+{
+}
+
+void QFtp::copy( const QStringList &/*files*/, const QString &/*dest*/, bool /*move*/ )
+{
+}
+
+QUrlInfo QFtp::makeInfo() const
+{
+    return QUrlInfo();
+}
+
+QNetworkProtocol *QFtp::copy() const
+{
+    return new QFtp;
+}
+
+QString QFtp::toString() const
+{
+    if ( !url->user().isEmpty() )
+	return url->protocol() + "://" + url->user() + ":" + url->pass() + "@" + url->host() + 
+	    QDir::cleanDirPath( url->path() ).stripWhiteSpace(); // #### todo
+    else
+	return url->protocol() + "://" + url->host() + QDir::cleanDirPath( url->path() ).stripWhiteSpace(); // #### todo
+    
+    return QString::null;
 }
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
@@ -105,7 +184,18 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 
     // name
     info.setName( lst[ 8 ].stripWhiteSpace() );
+}
 
+void QFtp::hostFound()
+{
+}
+
+void QFtp::connected()
+{
+}
+
+void QFtp::closed()
+{
 }
 
 void QFtp::readyRead()
@@ -114,148 +204,78 @@ void QFtp::readyRead()
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 	
-    if ( s.contains( "220" ) ) {
-	QString cmd = "USER " + username + "\r\n";
+    if ( !url )
+	return;
+    
+    if ( s.contains( "220" ) ) { // expect USERNAME
+	QString user = url->user().isEmpty() ? QString( "anonymous" ) : url->user();
+	QString cmd = "USER " + user + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
-    } else if ( s.contains( "331" ) ) {
-	QString cmd = "PASS " + passwd + "\r\n";
+	connectionReady = FALSE;
+    } else if ( s.contains( "331" ) ) { // expect PASSWORD
+	QString pass = url->pass().isEmpty() ? QString( "info@troll.no" ) : url->pass();
+	QString cmd = "PASS " + pass + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
-    } else if ( s.contains( "230" ) ) {
+	connectionReady = FALSE;
+    } else if ( s.contains( "230" ) ) { // succesfully logged in
+	connectionReady = TRUE;
 	switch ( command ) {
 	case List:
 	    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 	    break;
-	case Mkdir:
+	case Mkdir: {
 	    QString cmd( "MKD " + extraData + "\r\n" );
-	    qDebug( "mkdir: %s", extraData.latin1() );
 	    commandSocket->writeBlock( cmd, cmd.length() );
+	    } break;
+	case None:
 	    break;
 	}
-    } else if ( s.contains( "227" ) ) {
+    } else if ( s.contains( "227" ) ) { // open the data connection for LIST
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
 	s = s.mid( i + 1, i2 - i - 1 );
 	if ( !dataSocket->host().isEmpty() )
-	    return;//dataSocket->close();
+	    dataSocket->close();
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
-	qDebug( "url: %s port: %d", QString( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3] ).latin1(),
-		port );
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } else if ( s.contains( "250" ) ) {
-	qDebug( "cwd successfully" );
+    } else if ( s.contains( "250" ) ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
     } else
-	qDebug( "unknown result: %s", s.data() );
-	
+	qWarning( "unknown result: %s", s.data() );
 }
 
-QFtp::QFtp()
+void QFtp::dataHostFound()
 {
-    commandSocket = new QSocket( this );
-    dataSocket = new QSocket( this );
-    connect( commandSocket, SIGNAL( hostFound() ),
-	     this, SLOT( hostFound() ) );
-    connect( commandSocket, SIGNAL( connected() ),
-	     this, SLOT( connected() ) );
-    connect( commandSocket, SIGNAL( closed() ),
-	     this, SLOT( closed() ) );
-    connect( commandSocket, SIGNAL( readyRead() ),
-	     this, SLOT( readyRead() ) );
-
-    connect( dataSocket, SIGNAL( hostFound() ),
-	     this, SLOT( dataHostFound() ) );
-    connect( dataSocket, SIGNAL( connected() ),
-	     this, SLOT( dataConnected() ) );
-    connect( dataSocket, SIGNAL( closed() ),
-	     this, SLOT( dataClosed() ) );
-    connect( dataSocket, SIGNAL( readyRead() ),
-	     this, SLOT( dataReadyRead() ) );
-
 }
 
-void QFtp::open( const QString &host_, int port, const QString &path_,
-		const QString &username_, const QString &passwd_,
-		Command cmd, const QString &extraData_ )
-
+void QFtp::dataConnected()
 {
-    commandSocket->connectToHost( host_, port );
-    if ( !dataSocket->host().isEmpty() )
-	dataSocket->close();
-    host = host_;
-    path = path_;
-    username = username_;
-    passwd = passwd_;
-    command = cmd;
-    extraData = extraData_;
+    QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
+    QString cmd = "CWD " + path + "\r\n";
+    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
-void QFtp::close()
-{	
-    if ( !commandSocket->host().isEmpty() ) {
-	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
-	commandSocket->close();
+void QFtp::dataClosed()
+{
+    if ( url )
+	url->emitFinished();
+}
+
+void QFtp::dataReadyRead()
+{
+    QCString s;
+    s.resize( dataSocket->bytesAvailable() );
+    dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
+    QString ss = s.copy();
+    QStringList lst = QStringList::split( '\n', ss );
+    QStringList::Iterator it = lst.begin();
+    for ( ; it != lst.end(); ++it ) {
+	QUrlInfo inf;
+	parseDir( *it, inf );
+	if ( !inf.name().isEmpty() ) {
+	    if ( url )
+		url->emitEntry( inf );
+	}
     }
-}
-
-QFtp::~QFtp()
-{
-    if ( !commandSocket->host().isEmpty() ) {
-	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
-	commandSocket->close();
-    }
-    delete commandSocket;
-    commandSocket = 0;
-}
-
-QFtp &QFtp::operator=( const QFtp &ftp )
-{
-    disconnect( commandSocket, SIGNAL( hostFound() ),
-		this, SLOT( hostFound() ) );
-    disconnect( commandSocket, SIGNAL( connected() ),
-		this, SLOT( connected() ) );
-    disconnect( commandSocket, SIGNAL( closed() ),
-		this, SLOT( closed() ) );
-    disconnect( commandSocket, SIGNAL( readyRead() ),
-	     this, SLOT( readyRead() ) );
-    commandSocket = new QSocket( this );
-    connect( commandSocket, SIGNAL( hostFound() ),
-	     this, SLOT( hostFound() ) );
-    connect( commandSocket, SIGNAL( connected() ),
-	     this, SLOT( connected() ) );
-    connect( commandSocket, SIGNAL( closed() ),
-	     this, SLOT( closed() ) );
-    connect( commandSocket, SIGNAL( readyRead() ),
-	     this, SLOT( readyRead() ) );
-
-    disconnect( dataSocket, SIGNAL( hostFound() ),
-	     this, SLOT( dataHostFound() ) );
-    disconnect( dataSocket, SIGNAL( connected() ),
-	     this, SLOT( dataConnected() ) );
-    disconnect( dataSocket, SIGNAL( closed() ),
-	     this, SLOT( dataClosed() ) );
-    disconnect( dataSocket, SIGNAL( readyRead() ),
-	     this, SLOT( dataReadyRead() ) );
-    dataSocket = new QSocket( this );
-    connect( dataSocket, SIGNAL( hostFound() ),
-	     this, SLOT( dataHostFound() ) );
-    connect( dataSocket, SIGNAL( connected() ),
-	     this, SLOT( dataConnected() ) );
-    connect( dataSocket, SIGNAL( closed() ),
-	     this, SLOT( dataClosed() ) );
-    connect( dataSocket, SIGNAL( readyRead() ),
-	     this, SLOT( dataReadyRead() ) );
-
-
-    if ( !ftp.commandSocket->host().isEmpty() )
-	commandSocket->connectToHost( ftp.commandSocket->host(),
-				      ftp.commandSocket->port() );
-    if ( !ftp.dataSocket->host().isEmpty() )
-	dataSocket->connectToHost( ftp.dataSocket->host(),
-				   ftp.dataSocket->port() );
-    host = ftp.host;
-    path = ftp.path;
-    buffer = ftp.buffer;
-
-    return *this;
 }

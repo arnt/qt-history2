@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#31 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#32 $
 **
 ** Implementation of QFileDialog class
 **
@@ -25,6 +25,7 @@
 
 #include "qurl.h"
 #include "qurlinfo.h"
+#include "qnetprotocol.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -49,6 +50,7 @@ struct QUrlPrivate
     QString nameFilter;
     QDir dir;
     QMap<QString, QUrlInfo> entryMap;
+    QNetworkProtocol *networkProtocol;
 };
 
 /*!
@@ -78,6 +80,7 @@ QUrl::QUrl()
     d = new QUrlPrivate;
     d->isMalformed = TRUE;
     d->nameFilter = "*";
+    d->networkProtocol = 0;
 }
 
 QUrl::QUrl( const QString& url )
@@ -87,6 +90,7 @@ QUrl::QUrl( const QString& url )
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
+    d->networkProtocol = 0;
     QString tmp = url.stripWhiteSpace();
     parse( tmp );
 }
@@ -96,12 +100,15 @@ QUrl::QUrl( const QUrl& url )
 {
     d = new QUrlPrivate;
     *d = *url.d;
+    getNetworkProtocol();
 }
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
     d = new QUrlPrivate;
     QString relUrl = relUrl_.stripWhiteSpace();
+    getNetworkProtocol();
+
     // relUrl starts in the root ?
     if ( relUrl[0] == '/' ) {
 	*this = url;
@@ -147,6 +154,8 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 
 QUrl::~QUrl()
 {
+//     if ( d->networkProtocol )
+// 	delete d->networkProtocol;
     delete d;
 }
 
@@ -218,6 +227,8 @@ void QUrl::setPort( int port )
 void QUrl::setPath( const QString& path )
 {
     d->path = path;
+    if ( d->networkProtocol )
+	d->networkProtocol->setUrl( this );
 }
 
 bool QUrl::hasPath() const
@@ -267,6 +278,9 @@ void QUrl::reset()
     d->refEncoded = "";
     d->isMalformed = FALSE;
     d->port = -1;
+//     if ( d->networkProtocol )
+// 	delete d->networkProtocol;
+    d->networkProtocol = 0;
 }
 
 void QUrl::parse( const QString& url )
@@ -440,12 +454,16 @@ NodeOk:
     if ( d->path.isEmpty() )
 	d->path = "/";
     delete []orig;
+//     if ( d->networkProtocol )
+// 	delete d->networkProtocol;
+    getNetworkProtocol();
+
     return;
 
 NodeErr:
     if ( d->path.isEmpty() )
 	d->path = "/";
-    qDebug( "Error in parsing \"%s\"", url.ascii() );
+    qWarning( "Error in parsing \"%s\"", url.ascii() );
     delete []orig;
     d->isMalformed = true;
 
@@ -454,15 +472,6 @@ NodeErr:
 QUrl& QUrl::operator=( const QString& url )
 {
     reset();
-
-//     d->protocol = "file";
-//     d->port = -1;
-//     d->nameFilter = "*";
-
-//     QString tmp = url.stripWhiteSpace();
-//     parse( tmp );
-//     d->url = tmp;
-
     parse( url );
 
     return *this;
@@ -471,6 +480,9 @@ QUrl& QUrl::operator=( const QString& url )
 QUrl& QUrl::operator=( const QUrl& url )
 {
     *d = *url.d;
+//     if ( d->networkProtocol )
+// 	delete d->networkProtocol;
+    getNetworkProtocol();
     return *this;
 }
 
@@ -536,6 +548,8 @@ void QUrl::setFileName( const QString& name )
     if ( len == 0 ) {
 	d->path = "/";
 	d->path += name.mid( start );
+	if ( d->networkProtocol )
+	    d->networkProtocol->setUrl( this );
 	return;
     }
 
@@ -549,11 +563,15 @@ void QUrl::setFileName( const QString& name )
 	if ( len == 0 && d->path[ 1 ] == '/' ) {
 	    d->path = "/";
 	    d->path += name.mid( start );
+	    if ( d->networkProtocol )
+		d->networkProtocol->setUrl( this );
 	    return;
 	}
 
 	// Just append the filename
 	d->path += name.mid( start );
+	if ( d->networkProtocol )
+	    d->networkProtocol->setUrl( this );
 	return;
     }
 
@@ -564,12 +582,17 @@ void QUrl::setFileName( const QString& name )
     if ( i == -1 ) {
 	d->path = "/";
 	d->path += name.mid( start );
+	if ( d->networkProtocol )
+	    d->networkProtocol->setUrl( this );
 	return;
     }
 
     // #### these two lines are not correct!
     //d->path.truncate( i + 1 );
     d->path += "/" + name.mid( start );
+
+    if ( d->networkProtocol )
+	d->networkProtocol->setUrl( this );
 }
 
 QString QUrl::encodedPathAndQuery( int trailing, bool noEmptyPath )
@@ -600,6 +623,8 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
     }
 
     decode( d->path );
+    if ( d->networkProtocol )
+	d->networkProtocol->setUrl( this );
 }
 
 QString QUrl::path() const
@@ -738,6 +763,8 @@ void QUrl::addPath( const QString& txt )
 	    start++;
 
     d->path += txt.mid( start );
+    if ( d->networkProtocol )
+	d->networkProtocol->setUrl( this );
 }
 
 QString QUrl::directory( bool stripTrailingSlashFromResult,
@@ -855,7 +882,7 @@ void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
 }
 
 void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
-			int sortSpec   = QDir::DefaultSort )
+			int sortSpec = QDir::DefaultSort )
 {
     clearEntries();
     if ( isLocalFile() ) {
@@ -882,7 +909,10 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    addEntry( inf );
 	}
 	emit finished();
-    }
+    } else if ( d->networkProtocol ) {
+	emit start();
+	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
+    }	
 }
 
 void QUrl::mkdir( const QString &dirname )
@@ -900,25 +930,35 @@ void QUrl::mkdir( const QString &dirname )
 	    QString msg = QUrl::tr( "Could not create directory\n" + dirname );
 	    emit error( CreateDir, msg );
 	}
+    } else if ( d->networkProtocol ) {
+	d->networkProtocol->mkdir( dirname );
     }
 }
 
 void QUrl::remove( const QString &filename )
 {
-    QDir dir( d->path );
-    if ( dir.remove( filename ) )
-	emit removed( filename );
-    else {
-	QString msg = QUrl::tr( "Could not delete file\n" + filename );
-	emit error( DeleteFile, msg );
+    if ( isLocalFile() ) {
+	QDir dir( d->path );
+	if ( dir.remove( filename ) )
+	    emit removed( filename );
+	else {
+	    QString msg = QUrl::tr( "Could not delete file\n" + filename );
+	    emit error( DeleteFile, msg );
+	}
+    } else if ( d->networkProtocol ) {
+	d->networkProtocol->remove( filename );
     }
 }
 
 void QUrl::rename( const QString &oldname, const QString &newname )
 {
-    QDir dir( d->path );
-    if ( dir.rename( oldname, newname ) )
-	emit itemChanged( oldname, newname );
+    if ( isLocalFile() ) {
+	QDir dir( d->path );
+	if ( dir.rename( oldname, newname ) )
+	    emit itemChanged( oldname, newname );
+    } else if ( d->networkProtocol ) {
+	d->networkProtocol->rename( oldname, newname );
+    }
 }
 
 void QUrl::copy( const QString &from, const QString &to )
@@ -963,19 +1003,22 @@ void QUrl::copy( const QString &from, const QString &to )
 
 void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 {
-    QString de = dest;
-    if ( de.left( QString( "file:" ).length() ) == "file:" )
-	de.remove( 0, QString( "file:" ).length() );
-    QStringList::ConstIterator it = files.begin();
-    for ( ; it != files.end(); ++it ) {
-	if ( TRUE /*isFile*/) {
-	    copy( *it, de + "/" + QFileInfo( *it ).fileName() );
-	    if ( move )
-		QFile::remove( *it );
+    if ( isLocalFile() ) {
+	QString de = dest;
+	if ( de.left( QString( "file:" ).length() ) == "file:" )
+	    de.remove( 0, QString( "file:" ).length() );
+	QStringList::ConstIterator it = files.begin();
+	for ( ; it != files.end(); ++it ) {
+	    if ( TRUE /*isFile*/) {
+		copy( *it, de + "/" + QFileInfo( *it ).fileName() );
+		if ( move )
+		    QFile::remove( *it );
+	    }
 	}
+    } else if ( d->networkProtocol ) {
+	d->networkProtocol->copy( files, dest, move );
     }
 
-    return;
 }
 
 void QUrl::setNameFilter( const QString &nameFilter )
@@ -998,6 +1041,8 @@ QUrlInfo QUrl::makeInfo() const
 	return QUrlInfo( inf.fileName(), 0/*permissions*/, inf.owner(), inf.group(),
 			 inf.size(), inf.lastModified(), inf.lastRead(), inf.isDir(), inf.isFile(),
 			 inf.isSymLink(), inf.isWritable(), inf.isReadable(), inf.isExecutable() );
+    } else if ( d->networkProtocol ) {
+	return d->networkProtocol->makeInfo();
     }
 
     return QUrlInfo();
@@ -1007,6 +1052,8 @@ QString QUrl::toString() const
 {
     if ( isLocalFile() )
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
+    else if ( d->networkProtocol )
+	return d->networkProtocol->toString();
 
     return QString::null;
 }
@@ -1018,15 +1065,10 @@ QUrl::operator QString() const
 
 bool QUrl::cdUp()
 {
-//    addPath( ".." );
     d->path += "/..";
+    if ( d->networkProtocol )
+	d->networkProtocol->setUrl( this );
     return TRUE;
-}
-
-void QUrl::sendNewEntry( const QUrlInfo &i )
-{
-    emit entry( i );
-    addEntry( i );
 }
 
 void QUrl::clearEntries()
@@ -1044,7 +1086,19 @@ QUrlInfo QUrl::info( const QString &entry ) const
     return d->entryMap[ entry ];
 }
 
-void QUrl::listFinished()
+void QUrl::getNetworkProtocol()
 {
-    emit finished();
+    if ( isLocalFile() || !qNetworkProtocolRegister ) {
+	d->networkProtocol = 0;
+	return;
+    }
+    
+    QNetworkProtocol *p = qGetNetworkProtocol( d->protocol );
+    if ( !p ) {
+	d->networkProtocol = 0;
+	return;
+    }
+    
+    d->networkProtocol = p;
+    d->networkProtocol->setUrl( this );
 }

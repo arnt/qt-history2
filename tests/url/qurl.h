@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.h#16 $
+** $Id: //depot/qt/main/tests/url/qurl.h#17 $
 **
 ** Implementation of QFileDialog class
 **
@@ -29,10 +29,11 @@
 #include <qstring.h>
 #include <qdir.h>
 #include <qobject.h>
+#include <qmap.h>
 
 struct QUrlPrivate;
 class QUrlInfo;
-class QWidget;
+class QNetworkProtocol;
 
 class QUrl : public QObject
 {
@@ -130,6 +131,14 @@ public:
 
     virtual bool cdUp();
 
+    void emitEntry( const QUrlInfo & );
+    void emitFinished();
+    void emitStart();
+    void emitCreatedDirectory( const QUrlInfo & );
+    void emitRemoved( const QString & );
+    void emitItemChanged( const QString &oldname, const QString &newname );
+    void emitError( int ecode, const QString &msg );
+    
 signals:
     void entry( const QUrlInfo & );
     void finished();
@@ -146,15 +155,47 @@ protected:
     virtual void clearEntries();
 
     static char hex2int( char c );
-
-protected slots:
-    virtual void sendNewEntry( const QUrlInfo &i );
-    virtual void listFinished();
-
+    void getNetworkProtocol();
+    
 private:
     QUrlPrivate *d;
 
 };
 
+inline void QUrl::emitEntry( const QUrlInfo &i )
+{
+    addEntry( i );
+    emit entry( i );
+}
+
+inline void QUrl::emitFinished()
+{
+    emit finished();
+}
+
+inline void QUrl::emitStart()
+{
+    emit start();
+}
+
+inline void QUrl::emitCreatedDirectory( const QUrlInfo &i )
+{
+    emit createdDirectory( i );
+}
+
+inline void QUrl::emitRemoved( const QString &s )
+{
+    emit removed( s );
+}
+
+inline void QUrl::emitItemChanged( const QString &oldname, const QString &newname )
+{
+    emit itemChanged( oldname, newname );
+}
+
+inline void QUrl::emitError( int ecode, const QString &msg )
+{
+    emit error( ecode, msg );
+}
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qftp.h#3 $
+** $Id: //depot/qt/main/tests/url/qnetprotocol.h#1 $
 **
 ** Implementation of QFileDialog class
 **
@@ -23,66 +23,51 @@
 **
 *****************************************************************************/
 
-#ifndef QFTP_H
-#define QFTP_H
+#ifndef QNETWORKPROTOCOL_H
+#define QNETWORKPROTOCOL_H
 
-#include <qsocket.h>
-#include <qapplication.h>
-#include <qstring.h>
-#include <qstringlist.h>
-
+#include "qurl.h"
 #include "qurlinfo.h"
-#include "qnetprotocol.h"
 
-class QFtp : public QNetworkProtocol
+#include <qstring.h>
+#include <qmap.h>
+#include <qdir.h>
+#include <qstringlist.h>
+#include <qobject.h>
+
+class QNetworkProtocol;
+
+extern Q_EXPORT QMap< QString, QNetworkProtocol* > *qNetworkProtocolRegister;
+void qRegisterNetworkProtocol( const QString &protocol, QNetworkProtocol *nprotocol );
+QNetworkProtocol *qGetNetworkProtocol( const QString &protocol );
+
+
+class QNetworkProtocol : public QObject
 {
     Q_OBJECT
     
 public:
-    QFtp();
-    virtual ~QFtp();
+    QNetworkProtocol();
+    virtual ~QNetworkProtocol();
     
-    virtual void openConnection( QUrl *url );
+    virtual void openConnection( QUrl *u );
     virtual bool isOpen();
     virtual void close();
+    virtual void setUrl( QUrl *u );
+    
     virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 			      int sortSpec = QDir::DefaultSort );
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-
+    
     virtual QUrlInfo makeInfo() const;
     virtual QNetworkProtocol *copy() const;
     virtual QString toString() const;
     
 protected:
-    enum Command {
-	List = 0,
-	Mkdir,
-	None = -1
-    };
-
-    void parseDir( const QString &buffer, QUrlInfo &info );
-
-    QSocket *commandSocket, *dataSocket;
-    QString extraData;
-    Command command;
-    bool connectionReady;
-    
-protected slots:
-    void hostFound();
-    void connected();
-    void closed();
-    void readyRead();
-    void dataHostFound();
-    void dataConnected();
-    void dataClosed();
-    void dataReadyRead();
-
-signals:
-    void newEntry( const QUrlInfo & );
-    void listFinished();
+    QUrl *url;
     
 };
 
