@@ -177,8 +177,6 @@ public:
     void manageWidget(QWidget *w);
     void unmanageWidget(QWidget *w);
 
-    void widgetChanged(QObject *w);
-
     inline QtUndoStack *commandHistory() const
     { return m_commandHistory; }
 
@@ -245,6 +243,8 @@ private slots:
     void selectionChangedTimerDone();
     void invalidCheckedSelections();
     void updateDirty();
+    void checkSelection();
+    void checkSelectionNow();
 
 private:
     void init();
@@ -345,6 +345,7 @@ private:
     QRubberBand *m_rubberBand;
 
     QTimer *m_selectionChangedTimer;
+    QTimer *m_checkSelectionTimer;
     int m_dirty;
     int m_lastIndex;
 

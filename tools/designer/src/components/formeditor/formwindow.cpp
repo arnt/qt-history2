@@ -286,6 +286,9 @@ void FormWindow::init()
     m_selectionChangedTimer = new QTimer(this);
     connect(m_selectionChangedTimer, SIGNAL(timeout()), this, SLOT(selectionChangedTimerDone()));
 
+    m_checkSelectionTimer = new QTimer(this);
+    connect(m_checkSelectionTimer, SIGNAL(timeout()), this, SLOT(checkSelectionNow()));
+
     m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
     m_rubberBand->hide();
 
@@ -311,6 +314,8 @@ void FormWindow::init()
     m_commandHistory = new QtUndoStack(this);
     connect(m_commandHistory, SIGNAL(commandExecuted()), this, SLOT(updateDirty()));
     connect(m_commandHistory, SIGNAL(commandExecuted()), this, SIGNAL(changed()));
+
+    connect(commandHistory(), SIGNAL(commandExecuted()), this, SLOT(checkSelection()));
 
     core()->metaDataBase()->add(this);
 
@@ -1059,12 +1064,6 @@ void FormWindow::raiseSelection(QWidget *w)
     WidgetSelection *s = usedSelections.value(w);
     if (s)
         s->show();
-}
-
-void FormWindow::widgetChanged(QObject *o)
-{
-    if (o->isWidgetType())
-        updateSelection(static_cast<QWidget*>(o));
 }
 
 void FormWindow::selectWidgets()
@@ -2117,6 +2116,23 @@ void FormWindow::initializeCoreTools()
     m_tools.append(widgetEditor);
 
     m_currentTool = m_tools.indexOf(widgetEditor);
+}
+
+void FormWindow::checkSelection()
+{
+    m_checkSelectionTimer->start(0);
+}
+
+void FormWindow::checkSelectionNow()
+{
+    m_checkSelectionTimer->stop();
+
+    foreach (QWidget *widget, selectedWidgets()) {
+        updateSelection(widget);
+
+        if (LayoutInfo::layoutType(core(), widget) != LayoutInfo::NoLayout)
+            updateChildSelections(widget);
+    }
 }
 
 #include "formwindow.moc"
