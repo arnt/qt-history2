@@ -1,2 +1,3 @@
 TEMPLATE      = subdirs
-SUBDIRS       = hellogl
+SUBDIRS       = hellogl \
+                textures
