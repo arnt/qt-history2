@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#63 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -106,6 +106,35 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
 QButtonGroup::QButtonGroup( const QString &title, QWidget *parent,
 			    const char *name )
     : QGroupBox( title, parent, name )
+{
+    init();
+}
+
+/*!
+  Constructs a button group with no title. Child widgets will be arranged
+  in \a strips rows or columns (depending on \a orientation).
+
+  The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QButtonGroup::QButtonGroup( int strips, Orientation orientation,
+			    QWidget *parent, const char *name )
+    : QGroupBox( strips, orientation, parent, name )
+{
+    init();
+}
+
+/*!
+  Constructs a button group with a \a title. Child widgets will be arranged
+  in \a strips rows or columns (depending on \a orientation).
+
+  The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QButtonGroup::QButtonGroup( int strips, Orientation orientation,
+			    const QString &title, QWidget *parent,
+			    const char *name )
+    : QGroupBox( strips, orientation, title, parent, name )
 {
     init();
 }

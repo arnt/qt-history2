@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#50 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qgroupbox.h"
+#include "qlayout.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qaccel.h"
@@ -77,6 +78,38 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
     setTitle( title );
 }
 
+/*!
+  Constructs a group box with no title. Child widgets will be arranged
+  in \a strips rows or columns (depending on \a orientation).
+
+  The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QGroupBox::QGroupBox( int strips, Orientation orientation,
+		    QWidget *parent, const char *name )
+    : QFrame( parent, name )
+{
+    init();
+    setColumnLayout( strips, orientation );
+}
+
+/*!
+  Constructs a group box with a \a title. Child widgets will be arranged
+  in \a strips rows or columns (depending on \a orientation).
+
+  The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QGroupBox::QGroupBox( int strips, Orientation orientation,
+		    const QString &title, QWidget *parent,
+		    const char *name )
+    : QFrame( parent, name )
+{
+    init();
+    setTitle( title );
+    setColumnLayout( strips, orientation );
+}
+
 void QGroupBox::init()
 {
     int fs;
@@ -84,6 +117,8 @@ void QGroupBox::init()
     fs = QFrame::Box | QFrame::Sunken;
     setFrameStyle( fs );
     accel = 0;
+    vbox = 0;
+    grid = 0;
 }
 
 
@@ -281,6 +316,74 @@ void QGroupBox::updateMask(){
 
     setMask( bm );
 
+}
+
+void QGroupBox::setColumnLayout(int columns, Orientation direction)
+{
+#if defined(CHECK_RANGE)
+    if ( children() ) {
+	fatal("QGroupBox::setColumnLayout() must only be called before adding children");
+    }
+#endif
+
+    delete vbox;
+    delete grid;
+    if ( columns == 0 ) {
+	// No layout
+	grid = 0;
+    } else {
+	vbox = new QVBoxLayout( this, 8, 0 );
+
+	if ( str ) {
+	    QFontMetrics fm = fontMetrics();
+	    vbox->addSpacing( fm.lineSpacing() );
+	}
+
+	dir = direction;
+	if ( dir == Horizontal ) {
+	    nCols = columns;
+	    nRows = 1;
+	} else {
+	    nCols = 1;
+	    nRows = columns;
+	}
+	grid = new QGridLayout( nRows, nCols, 5 );
+	row = col = 0;
+
+	vbox->addLayout( grid );
+    }
+}
+
+void QGroupBox::childEvent( QChildEvent *c )
+{
+    // Similar to QGrid::childEvent()
+    if ( !c->inserted() || !c->child()->isWidgetType() )
+        return;
+    QWidget *w = (QWidget*)c->child();
+    if ( row >= nRows || col >= nCols )
+        grid->expand( row+1, col+1 );
+    grid->addWidget( w, row, col );
+    skip();
+}
+
+void QGroupBox::skip()
+{
+    // Same as QGrid::skip()
+    if ( dir == Horizontal ) {
+	if ( col+1 < nCols ) {
+	    col++;
+	} else {
+	    col = 0;
+	    row++;
+	}
+    } else { //Vertical
+	if ( row+1 < nRows ) {
+	    row++;
+	} else {
+	    row = 0;
+	    col++;
+	}
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -67,6 +67,7 @@ QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
  */
 void QGrid::childEvent( QChildEvent *c )
 {
+    // Similar to QGroupBox::childEvent()
     if ( !c->inserted() || !c->child()->isWidgetType() )
 	return;
     QWidget *w = (QWidget*)c->child();
@@ -83,6 +84,7 @@ void QGrid::childEvent( QChildEvent *c )
 
 void QGrid::skip()
 {
+    // Same as QGroupBox::skip()
     if ( dir == Horizontal ) {
 	if ( col+1 < nCols ) {
 	    col++;

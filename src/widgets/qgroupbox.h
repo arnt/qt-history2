@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#23 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#24 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -33,6 +33,8 @@
 
 class QAccel;
 class QGroupBoxPrivate;
+class QVBoxLayout;
+class QGridLayout;
 
 
 class Q_EXPORT QGroupBox : public QFrame
@@ -41,6 +43,8 @@ class Q_EXPORT QGroupBox : public QFrame
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
     QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );
+    QGroupBox( int columns, Orientation o, QWidget *parent=0, const char *name=0 );
+    QGroupBox( int columns, Orientation o, const QString &title, QWidget *parent=0, const char* name=0 );
 
     QString title() const { return str; }
     virtual void setTitle( const QString &);
@@ -49,6 +53,7 @@ public:
     virtual void setAlignment( int );
 
 protected:
+    void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );
     void updateMask();
@@ -57,12 +62,21 @@ private slots:
     void fixFocus();
 
 private:
-    void	init();
+    void skip();
+    void init();
+    void setColumnLayout(int columns, Orientation o);
 
     QString str;
     int align;
     QAccel * accel;
     QGroupBoxPrivate * d;
+
+    QVBoxLayout *vbox;
+    QGridLayout *grid;
+    int row;
+    int col;
+    int nRows, nCols;
+    Orientation dir;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
