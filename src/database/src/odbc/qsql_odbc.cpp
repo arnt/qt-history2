@@ -383,7 +383,7 @@ QVariant QODBCResult::data( int field )
     SQLINTEGER lengthIndicator = 0;
     bool isNull = FALSE;
     int current = fieldCache.count();
-    for ( ; current < (field + 1); current++ ) {
+    for ( ; current < (field + 1); ++current ) {
 	QSqlResultField info = qMakeField( d, field );
 	switch ( info.type() ) {
 	case QVariant::Int:
@@ -846,6 +846,7 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 	SQLINTEGER lengthIndicator(0);
 	QString fieldname = qGetStringData( hStmt, 3, lengthIndicator, isNull );
 	QSqlField f = qMakeField( d, tablename, fieldname );
+	f.setFieldNumber( count );
 	fil.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
