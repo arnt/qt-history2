@@ -17,11 +17,10 @@ bool create_connections();
 int main( int argc, char *argv[] )
 {
     if ( create_connections() ) {
-    	QSqlCursor cur( "prices" ); 
-	cur.select( "id=999" );
-	if ( cur.next() ) {
-	    cur.del();
-	}
+	QSqlCursor cur( "prices" );
+	QSqlRecord* buf = cur.primeDelete();
+	buf->setValue( "id", 999 );
+	cur.del();
     }
 
     return 0;
@@ -36,8 +35,8 @@ bool create_connections()
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -49,7 +48,7 @@ bool create_connections()
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return FALSE;
@@ -57,6 +56,3 @@ bool create_connections()
 
     return TRUE;
 }
-
-
-

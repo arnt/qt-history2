@@ -11,6 +11,7 @@
 #include "main.h"
 
 FormDialog::FormDialog()
+    : staffCursor( "staff" )
 {
     QLabel	*forenameLabel = new QLabel( "Forename:", this );
     QLineEdit	*forenameEdit  = new QLineEdit( this );
@@ -31,13 +32,12 @@ FormDialog::FormDialog()
     grid->addWidget( saveButton,    3, 0 );
     grid->activate();
 
-    staffCursor = new QSqlCursor( "staff" );
-    idIndex = staffCursor->index( "id" );
-    staffCursor->select( idIndex );
-    staffCursor->first();
+    idIndex = staffCursor.index( "id" );
+    staffCursor.select( idIndex );
+    staffCursor.first();
 
     sqlForm = new QSqlForm( this );
-    sqlForm->setRecord( staffCursor->primeUpdate() );
+    sqlForm->setRecord( staffCursor.primeUpdate() );
     sqlForm->insert( forenameEdit, "forename" );
     sqlForm->insert( surnameEdit, "surname" );
     sqlForm->insert( salaryEdit, "salary" );
@@ -47,16 +47,16 @@ FormDialog::FormDialog()
 
 FormDialog::~FormDialog()
 {
-    delete staffCursor;
+
 }
 
 
 void FormDialog::save()
 {
     sqlForm->writeFields();
-    staffCursor->update();
-    staffCursor->select( idIndex );
-    staffCursor->first();
+    staffCursor.update();
+    staffCursor.select( idIndex );
+    staffCursor.first();
 }
 
 
@@ -83,8 +83,8 @@ bool create_connections()
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -96,7 +96,7 @@ bool create_connections()
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return FALSE;
@@ -104,6 +104,3 @@ bool create_connections()
 
     return TRUE;
 }
-
-
-

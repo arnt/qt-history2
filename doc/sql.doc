@@ -147,21 +147,23 @@ users can interact directly with these widgets to browse or edit
 data. <em>Qt Designer</em> is fully integrated with the SQL classes and
 can be used to create data-aware forms. The data-aware widgets can also
 be programmed directly with your own C++ code. The classes that support
-this layer include QSqlDialog, QSqlEditorFactory, QSqlForm,
-QSqlPropertyMap, QSqlTable and QSqlWidget.
+this layer include \l QSqlDialog, \l QSqlEditorFactory, \l QSqlForm,
+\l QSqlPropertyMap, \l QSqlTable and \l QSqlWidget.
 
 <em>SQL API Layer.</em> These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
 interaction is achieved either by using the QSqlQuery class and
-executing SQL commands directly or by using the high level \l
-QSqlCursor class which composes SQL commands automatically. In addition
-to QSqlDatabase, QSqlCursor and QSqlQuery, the SQL API layer is
-supported by QSqlError, QSqlField, QSqlIndex and QSqlRecord.
+executing SQL commands directly or by using the higher level \l
+QSqlCursor class which composes SQL commands automatically. In
+addition to \l QSqlDatabase, \l QSqlCursor and \l QSqlQuery, the SQL
+API layer is supported by QSqlError, QSqlField, QSqlIndex and
+QSqlRecord.
 
-<em>Driver Layer.</em> This comprises three classes, \l QSqlResult,
-\l QSqlDriver and \l QSqlDriverInterface. This layer provides the low
+<em>Driver Layer.</em> This comprises three classes, \l QSqlResult, \l
+QSqlDriver and \l QSqlDriverInterface. This layer provides the low
 level bridge between the database and the SQL classes. This layer is
-documented separately since it is only relevant to driver writers.
+documented separately since it is only relevant to driver writers, and
+is rarely used in standard database application programming.
 
 This overview comprises five sections:
 
@@ -190,19 +192,19 @@ way of achieving the same thing.  See the <em>Qt Designer</em> manual,
 
 <a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
-used to provide default and calculated values for fields, and to
-display calculated data, e.g. showing names rather than ids of foreign
-keys. 
+used to provide default and calculated values for fields (such as
+auto-numbered primary index fields), and to display calculated data,
+e.g. showing names rather than ids of foreign keys.
 
 <h1><a name="Connecting_to_Databases">Connecting to Databases</a></h1> 
 
-If the application only needs a single database connection the
-\l QSqlDatabase class can create a connection which is used by default
-for all SQL operations. If multiple database connections are required
-these can easily be set up. 
-
 At least one database connection must be created and opened before the
 \l QSqlQuery or \l QSqlCursor classes can be used.
+
+If the application only needs a single database connection, the \l
+QSqlDatabase class can create a connection which is used by default
+for all SQL operations. If multiple database connections are required
+these can easily be set up.
 
 \l QSqlDatabase requires the \c qsqldatabase.h header file.
 
@@ -223,15 +225,16 @@ First we activate the driver by calling \l
 QSqlDatabase::addDatabase(), passing the name of the driver we wish to
 use for this connection. The drivers currently available are: QODBC
 (Open Database Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6),
-QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). This connection is the
-application's default database connection and will be used if no other
-database is specified when using \l QSqlCursor or \l QSqlQuery.
+QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). Th connection which is
+created becomes the application's default database connection and will
+be used by the Qt SQL classes if no other database is specified. 
 
 Second we call setDatabaseName(), setUserName(), setPassword() and
-setHostName() to set up the connection information.
+setHostName() to initialize the connection information.
 
-Third we call open() to give us access to the data. If this call fails
-it will return FALSE. 
+Third we call open() to open the database abd give us access to the
+data. If this call fails it will return FALSE; error information can
+be determined using \l QSqlDatabase::lastError();
 
 <h2>Connecting to Multiple Databases</h2>
 
@@ -255,15 +258,19 @@ parameter it will return the default connection. If called with the
 identifier we've used for a connection, e.g. "ORACLE", in the above
 example, it will return a pointer to the specified connection.
 
-Note that in the code above we did not need to retrieve a pointer to the
-ODBC connection. This connection was not named and is therefore used as
-the default connection. 
+Note that in the code above the ODBC connection was not named and is
+therefore used as the default connection.  \l QSqlDatabase maintains
+ownership of the pointers returned by the addDatabase() static
+function.  To remove a database from the list of maintained
+connections, first close the database with QSqlDatabase::close(), and
+then remove it using the static function
+QSqlDatabase::removeDatabase().
 
 <h1><a name="Executing_SQL_commands">Executing SQL Commands Using QSqlQuery</a></h1> 
 
 The \l QSqlQuery class provides an interface for executing SQL commands.
 It also has functions for navigating through the result sets of \c SELECT
-queries and for retrieving individual records and fields.
+queries and for retrieving individual records and field values.
 
 The \l QSqlCursor class described in the next section inherits from \l
 QSqlQuery and provides a higher level interface that composes SQL
@@ -289,12 +296,12 @@ the "ORACLE" database that we want to retrieve records from. Both the
 database connections were set up in the create_connections() function we
 wrote earlier.
 
-After creating the initial \c SELECT statement we call \l isActive() to
-see if it executed successfully. The \l next() function is used to
-iterate through the query results. The value() function returns the
-contents of fields as QVariants. The insertions are achieved by
-creating and executing queries against the default database using the \c
-target QSqlQuery.
+After creating the initial \c SELECT statement, \l isActive() is
+checked to see if the query executed successfully. The \l next()
+function is used to iterate through the query results. The value()
+function returns the contents of fields as QVariants. The insertions
+are achieved by creating and executing queries against the default
+database using the \c target QSqlQuery.
 
 \dontinclude sql/overview/basicbrowsing2/main.cpp
 \skipto count
@@ -328,13 +335,13 @@ such as <tt>CREATE TABLE</tt> and <tt>CREATE INDEX</tt>.
 
 <h2><a name="Navigating_Result_Sets">Navigating Result Sets</a></h2> 
 
-Once a \c SELECT query has been executed successfully we have
-access to the result set of records that matched the query criteria. We
-have already used one of the navigation functions, next(), which can be
+Once a \c SELECT query has been executed successfully we have access
+to the result set of records that matched the query criteria. We have
+already used one of the navigation functions, next(), which can be
 used alone to step sequentially through the records. \l QSqlQuery also
 provides \l first(), \l last(), \l next() and \l prev(). After any of
-these commands we can check that we are on a valid record by calling \l
-isValid(). 
+these commands we can check that we are on a valid record location by
+calling \l isValid().
 
 We can also navigate to any arbitrary record using \l seek(). The
 first record in the dataset is zero. The number of the last record is
@@ -448,7 +455,9 @@ to value() and setValue().
 
 To specify a subset of records to retrieve we can pass filtering
 criteria to the select() function.  Each record that is returned will
-meet the criteria of the filter.  
+meet the criteria of the filter (the filter corresponds to the SQL
+statement WHERE clause).
+
 \code
     cur.select( "id > 100" );
 \endcode
@@ -462,7 +471,7 @@ This select() call will execute the SQL<br>
 This will retrieve only those staff whose \c id is greater than 100.
 
 In addition to retrieving selected records we often want to specify a
-sort order for the returned records. We achieve this by creating a \l
+sort order for the returned records. This is achieved by creating a \l
 QSqlIndex object which contains the names of the field(s) we wish to
 sort by and pass this object to the select() call.
 
@@ -484,11 +493,14 @@ clause of the select statement.  The SQL executed here is
 
 Combining the retrieval of a subset of records and ordering the results
 is straightforward.
+
 \code
     cur.select( "surname LIKE 'A%'", nameIndex );
 \endcode
+
 We pass in a criteria string (the WHERE clause), and the \l QSqlIndex
 object to sort by (the ORDER BY clause). This produces
+
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid
     FROM staff WHERE staff.surname LIKE 'A%' ORDER BY staff.surname ASC;
@@ -576,10 +588,34 @@ Records can be inserted, updated or deleted in a table or view using a
 that uniquely distinguishes each record. If this is not the case a \l
 QSqlQuery must be used instead.
 
-Once we've called insert(), update() or del() the cursor will be
+Each cursor has an internal 'edit buffer' which is used by all edit
+operations (insert, update and delete).  For example, when inserting a
+record using a cursor, first you must initialize the fields in the
+cursor's edit buffer.  Then, calling QSQlCursor::insert() will insert
+the contents of the edit buffer into the database.  Similarly, when
+updating (or deleting) a record, the values of the fields in the edit
+buffer are used to update (or delete) a record in the database.  The
+'edit buffer' is completely unaffected by any <a
+href="#Navigating_Result_Sets">cursor navigation</a> functions.
+
+The primeInsert(), primeUpdate() and primeDelete() methods all return
+a pointer to the internal edit buffer, however each method can
+potentially perform different operations on the edit buffer before
+returning it.  By default, \l QSqlCursor::primeInsert() clears all the
+field values in the edit buffer (see \l QSqlRecord::clearValues()).
+Both \l QSqlCursor::primeUpdate() and QSqlCursor::primeDelete()
+initialize the edit buffer with the current contents of the cursor
+before returning it.  All three of these functions are virtual, so you
+can redefine the behavior (for example, reimplementing primeInsert()
+to auto-number fields in the edit buffer).  See <a
+href="#Subclassing_QSqlCursor">subclassing QSqlCursor</a> for more
+information.
+
+Once insert(), update() or del() is called on a cursor, it will be
 invalidated and will no longer be positioned on a valid record. If we
 need to move to another record after performing an insert(), update()
-or del() we must make a fresh select() call.
+or del() we must make a fresh select() call.  This ensures that
+changes to the database are accurately reflected in the cursor.
 
 <h3><a name="Inserting_Records">Inserting Records</a></h3>
 
@@ -590,11 +626,13 @@ or del() we must make a fresh select() call.
 <h5 align="center">From \l sql/overview/insert/main.cpp
 </h5>
 
-In this example we create a cursor on the "prices" table. Next we create
-a list of product names which we iterate over. For each iteration we
-call the cursor's \l primeInsert() method. This method returns a pointer
-to a \l QSqlRecord buffer in which all the fields are set to \c NULL. Next
-we call setValue() for each field that requires a value. Finally we call
+In this example we create a cursor on the "prices" table. Next we
+create a list of product names which we iterate over. For each
+iteration we call the cursor's \l primeInsert() method. This method
+returns a pointer to a \l QSqlRecord buffer in which all the fields
+are set to \c NULL (Note that QSqlCursor::primeInsert() is virtual,
+and can be customized by derived classes.  See \l QSqlCursor). Next we
+call setValue() for each field that requires a value. Finally we call
 insert() to insert the record. The insert() call returns the number of
 rows inserted.
 
@@ -641,8 +679,9 @@ with \l QSqlQuery is more efficient, e.g.
 <h5 align="center">From \l sql/overview/del/main.cpp
 </h5>
 
-We create the cursor, select the record we want to delete, move to the
-record, and call del(). 
+To delete records, simply initialize the edit buffer with the primary
+index values that identify the record to be deleted (in this example,
+the \c prices.id field), and call \l QSqlCursor::del().
 
 As with update(), if multiple deletions need to be made with some common
 criteria it is more efficient to do so using a single SQL statement,
@@ -802,10 +841,9 @@ populated by the readFields() call as before.
 \printline FormDialog::
 \printuntil }
 
-In the destructor we delete the \l QSqlCursor we created in the
-constructor. We don't have to worry about the widgets or QSqlForm since
-they are children of the form and will be deleted by Qt at the right
-time.
+In the destructor we don't have to worry about the widgets or QSqlForm
+since they are children of the form and will be deleted by Qt at the
+right time.
 
 \skipto save
 \printline save

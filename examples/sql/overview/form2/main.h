@@ -30,9 +30,7 @@ class FormDialog : public QDialog
     public slots:
 	void save();
     private:
-	QSqlCursor *staffCursor;
+	QSqlCursor staffCursor;
 	QSqlForm *sqlForm;
 	QSqlIndex idIndex;
 };
-
-
