@@ -3,14 +3,43 @@
 #include <private/qobject_p.h>
 
 QListModelItem::QListModelItem(QListModel *model)
-    : edit(true), select(true)
 {
     if (model)
 	model->append(this);
 }
 
+bool QListModelItem::operator ==(const QListModelItem &other) const
+{
+    if (values.count() != other.values.count())
+	return false;
 
+    for (int i=0; values.count(); ++i)
+	if (values.at(i) != other.values.at(i))
+	    return false;
 
+    return true;
+}
+
+QVariant QListModelItem::data(int role) const
+{
+    for (int i=0; i<values.count(); ++i) {
+	if (values.at(i).role == role)
+	    return values.at(i).value;
+    }
+    return QVariant();
+}
+
+void QListModelItem::setData(int role, const QVariant &value)
+{
+    for (int i=0; i<values.count(); ++i) {
+	if (values.at(i).role == role) {
+	    values[i].value = value;
+	    return;
+	}
+    }
+    values.append(Data(role, value));
+    return;
+}
 
 class QListModelPrivate : public QObjectPrivate
 {
