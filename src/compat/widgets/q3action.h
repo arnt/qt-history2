@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QACTION_H
-#define QACTION_H
+#ifndef Q3ACTION_H
+#define Q3ACTION_H
 
 #ifndef QT_H
 #include "qobject.h"
