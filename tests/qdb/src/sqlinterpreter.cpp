@@ -422,7 +422,9 @@ bool ResultSet::append( const Record& buf )
 	return FALSE;
     }
     if ( head->fields.count() != buf.count() ) {
-	env->setLastError( "Internal error: Unable to save result data, incorrect number of buffer fields" );
+	env->setLastError( "Internal error: Unable to save result data, incorrect number of buffer fields, "
+			   "expected " + QString::number( head->fields.count() ) + " got " +
+			   QString::number( buf.count() ) );
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {

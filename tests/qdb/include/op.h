@@ -1310,7 +1310,9 @@ public:
 	QVariant v;
 	if ( !drv->star( v ) )
 	    return FALSE;
-	env->stack()->push( v );
+	List list = v.toList();
+	for ( uint i = 0; i < list.count(); ++i )
+	    env->stack()->push( list[i] );
 	return TRUE;
     }
 };
