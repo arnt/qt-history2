@@ -142,6 +142,12 @@ private:
 
 };
 
+#ifdef _WS_QWS_
+# define NO_LINE_WIDGET
+#endif
+
+
+
 struct QTablePrivate
 {
     QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ) {}
@@ -151,6 +157,9 @@ struct QTablePrivate
 
 struct QTableHeaderPrivate
 {
+#ifdef NO_LINE_WIDGET
+    int oldLinePos;
+#endif
 };
 
 static bool isRowSelection( QTable::SelectionMode selMode )
@@ -5493,6 +5502,7 @@ QTableHeader::QTableHeader( int i, QTable *t,
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
+#ifndef NO_LINE_WIDGET
     line1 = new QWidget( table->viewport(), "qt_line1" );
     line1->hide();
     line1->setBackgroundMode( PaletteText );
@@ -5501,7 +5511,10 @@ QTableHeader::QTableHeader( int i, QTable *t,
     line2->hide();
     line2->setBackgroundMode( PaletteText );
     table->addChild( line2 );
-
+#else
+    d = new QTableHeaderPrivate;
+    d->oldLinePos = -1; //outside, in contents coords
+#endif
     connect( this, SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( sectionWidthChanged( int, int, int ) ) );
     connect( this, SIGNAL( indexChange( int, int, int ) ),
@@ -5808,8 +5821,19 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
     mousePressed = FALSE;
     setCaching( FALSE );
     QHeader::mouseReleaseEvent( e );
+#ifndef NO_LINE_WIDGET
     line1->hide();
     line2->hide();
+#else
+    if ( d->oldLinePos >= 0 )
+	if ( orientation() == Horizontal )
+	    table->updateContents( d->oldLinePos, table->contentsY(),
+				   1, table->visibleHeight() );
+	else
+	    table->updateContents(  table->contentsX(), d->oldLinePos,
+				    table->visibleWidth(), 1 );
+    d->oldLinePos = -1;
+#endif
     if ( resizedSection != -1 ) {
 	emit sectionSizeChanged( resizedSection );
 	updateStretches();
@@ -5987,6 +6011,7 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 {
     resizedSection = col;
     if ( orientation() == Horizontal ) {
+#ifndef NO_LINE_WIDGET
 	table->moveChild( line1, QHeader::sectionPos( col ) - 1,
 			  table->contentsY() );
 	line1->resize( 1, table->visibleHeight() );
@@ -5998,7 +6023,24 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 	line2->resize( 1, table->visibleHeight() );
 	line2->show();
 	line2->raise();
+#else
+	QPainter p( table->viewport() );
+	int lx = QHeader::sectionPos( col ) + QHeader::sectionSize( col ) - 1;
+	int ly = table->contentsY();
+
+	if ( lx != d->oldLinePos ) {
+	    QPoint pt = table->contentsToViewport( QPoint( lx, ly ) );
+	    p.drawLine( pt.x(), pt.y()+1,
+			pt.x(), pt.y()+ table->visibleHeight() );
+	    if ( d->oldLinePos >= 0 )
+		table->repaintContents( d->oldLinePos, table->contentsY(), 
+				       1, table->visibleHeight() );
+
+	    d->oldLinePos = lx;
+	}
+#endif
     } else {
+#ifndef NO_LINE_WIDGET
 	table->moveChild( line1, table->contentsX(),
 			  QHeader::sectionPos( col ) - 1 );
 	line1->resize( table->visibleWidth(), 1 );
@@ -6009,6 +6051,23 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 	line2->resize( table->visibleWidth(), 1 );
 	line2->show();
 	line2->raise();
+
+#else
+	QPainter p( table->viewport() );
+	int lx = table->contentsX();
+	int ly = QHeader::sectionPos( col ) + QHeader::sectionSize( col ) - 1;
+
+	if ( ly != d->oldLinePos ) {
+	    QPoint pt = table->contentsToViewport( QPoint( lx, ly ) );
+	    p.drawLine( pt.x()+1, pt.y(),
+			pt.x() + table->visibleWidth(), pt.y() );
+	    if ( d->oldLinePos >= 0 )
+		table->repaintContents(  table->contentsX(), d->oldLinePos, 
+					table->visibleWidth(), 1 );
+	    d->oldLinePos = ly;
+	}
+
+#endif
     }
 }
 
