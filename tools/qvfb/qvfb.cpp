@@ -374,6 +374,6 @@ void QVFb::updateGammaLabels()
 
 QSize QVFb::sizeHint() const
 {
-    return QSize((int)view->displayWidth()*view->zoom(),
-	    (int)menuBar()->height()+view->displayHeight()*view->zoom());
+    return QSize((int)(view->displayWidth()*view->zoom()),
+	    (int)(menuBar()->height()+view->displayHeight()*view->zoom()));
 }
