@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#179 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#180 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -43,6 +43,9 @@
 #include "qbitarray.h"
 #include "qptrvector.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessiblewidget.h"
+#endif
 
 static const int GRIPMARGIN  = 4;		//half the size of the resize area
 static const int MARKSIZE = 32;
@@ -1735,5 +1738,13 @@ bool QHeader::isStretchEnabled( int section ) const
 {
     return d->fullSize == section;
 }
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+/*! \reimp */
+QAccessibleInterface *QHeader::accessibleInterface()
+{
+    return new QAccessibleHeader( this );
+}
+#endif
 
 #endif // QT_NO_HEADER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#70 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#71 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -141,6 +141,10 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
 
 private:
     void adjustHeaderSize( int diff );

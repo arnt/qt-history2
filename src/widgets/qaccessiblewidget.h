@@ -8,6 +8,8 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
 class QButton;
+class QScrollView;
+class QHeader;
 
 class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 {
@@ -94,6 +96,48 @@ public:
 
     QString name( int who ) const;
     Role    role( int who ) const;
+};
+
+class Q_EXPORT QAccessibleScrollView : public QAccessibleWidget
+{
+public:
+    QAccessibleScrollView( QScrollView *w, Role role, QString description = QString::null, 
+	QString value = QString::null, QString help = QString::null, 
+	QString defAction = QString::null, QString accelerator = QString::null );
+
+    QAccessibleInterface* hitTest( int x, int y, int *who ) const;
+    QRect	location( int who ) const;
+    QAccessibleInterface* navigate( NavDirection direction, int *target ) const;
+    int		childCount() const;
+    QAccessibleInterface *child( int who ) const;
+
+    QString name( int who ) const;
+    Role    role( int who ) const;
+
+protected:
+    QScrollView *scrollView() const;
+};
+
+class Q_EXPORT QAccessibleHeader : public QAccessibleWidget
+{
+public:
+    QAccessibleHeader( QHeader *h, QString description = QString::null, 
+	QString value = QString::null, QString help = QString::null, 
+	QString defAction = QString::null, QString accelerator = QString::null );
+
+    QAccessibleInterface* hitTest( int x, int y, int *who ) const;
+    QRect location( int who ) const;
+    QAccessibleInterface* navigate( NavDirection direction, int *target ) const;
+    int childCount() const;
+    QAccessibleInterface *child( int who ) const;
+
+    QString name( int who ) const;
+
+    Role role( int who ) const;
+    State state( int who ) const;
+
+protected:
+    QHeader *header() const;
 };
 
 #endif // QT_ACCESSIBILITY_SUPPORT

@@ -16,6 +16,8 @@
 #include "qgroupbox.h"
 #include "qtoolbutton.h"
 #include "qwhatsthis.h"
+#include "qscrollview.h"
+#include "qheader.h"
 
 static QString buddyString( QWidget *widget ) 
 {
@@ -125,7 +127,7 @@ QRect	QAccessibleWidget::location( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::location: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::location: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     QWidget *widget = (QWidget*)object();
     QPoint wpos = widget->mapToGlobal( QPoint( 0, 0 ) );
@@ -138,7 +140,7 @@ QRect	QAccessibleWidget::location( int who ) const
 
   For widgets with subelements, e.g. item views, this function has to be reimplemented.
 */
-QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target ) const
+QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *startEnd ) const
 {
     QWidget *widget = (QWidget*)object();
     QObject *o = 0;
@@ -187,7 +189,7 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 	}
 	break;
     default:
-	qDebug( "QAccessibleWidget::navigate: unhandled request" );
+	qWarning( "QAccessibleWidget::navigate: unhandled request" );
 	break;
     };
     return 0;
@@ -253,7 +255,7 @@ bool	QAccessibleWidget::doDefaultAction( int who )
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::doDefaultAction: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::doDefaultAction: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     return FALSE;
 }
@@ -266,7 +268,7 @@ QString	QAccessibleWidget::defaultAction( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::defaultAction: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::defaultAction: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     return defAction_;
 }
@@ -279,7 +281,7 @@ QString	QAccessibleWidget::description( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::description: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::description: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     return description_;
 }
@@ -292,7 +294,7 @@ QString	QAccessibleWidget::help( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::help: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::help: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     if ( help_.isNull() ) {
 	QString help = QWhatsThis::textFor( (QWidget*)object() );
@@ -310,7 +312,7 @@ QString	QAccessibleWidget::accelerator( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::accelerator: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::accelerator: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     return accelerator_;
 }
@@ -328,7 +330,7 @@ QString	QAccessibleWidget::name( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::name: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::name: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     QWidget *widget = (QWidget*)object();
     if ( name_.isNull() && widget->isTopLevel() )
@@ -344,7 +346,7 @@ QString	QAccessibleWidget::value( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::value: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::value: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     return value_;
 }
@@ -357,7 +359,7 @@ QAccessible::Role	QAccessibleWidget::role( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::role: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::role: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
     return role_;
 }
@@ -374,7 +376,7 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
     Q_UNUSED(who)
 #if defined(QT_DEBUG)
     if ( who )
-	qWarning( "QAccessibleWidget::state: This implementation does not support subelements!" );
+	qWarning( "QAccessibleWidget::state: This implementation does not support subelements! (ID %d unknown for %s)", who, object()->className() );
 #endif
 
     if ( state_ != Normal )
@@ -730,6 +732,215 @@ QString QAccessibleDisplay::name( int who ) const
     }
 
     return stripAmp( n );
+}
+
+/*! 
+  \class QAccessibleScrollView qaccessiblewidget.h
+  \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
+  \preliminary
+*/
+
+/*! 
+  Constructs a QAccessibleScrollView object for the widget \a w. \a role, \a description,
+  \a value, \a help, \a defAction and \a accelerator are propagated to the QAccessibleWidget constructor.
+*/
+QAccessibleScrollView::QAccessibleScrollView( QScrollView *w, Role role, QString description, 
+    QString value, QString help, QString defAction, QString accelerator )
+    : QAccessibleWidget( w, role, description, value, help, defAction, accelerator )
+{
+}
+
+/*! Returns the scrollview. */
+QScrollView *QAccessibleScrollView::scrollView() const
+{
+    return (QScrollView *)object();
+}
+
+/*! \reimp */
+QAccessibleInterface* QAccessibleScrollView::hitTest( int x, int y, int *who ) const
+{
+    return QAccessibleWidget::hitTest( x, y, who );
+}
+
+/*! \reimp */
+QRect QAccessibleScrollView::location( int who ) const
+{
+    return QAccessibleWidget::location( who );
+}
+
+/*! \reimp */
+QAccessibleInterface* QAccessibleScrollView::navigate( NavDirection direction, int *startEnd ) const
+{
+    return QAccessibleWidget::navigate( direction, startEnd );
+}
+
+/*! \reimp */
+int QAccessibleScrollView::childCount() const
+{
+    return QAccessibleWidget::childCount();
+}
+
+/*! \reimp */
+QAccessibleInterface *QAccessibleScrollView::child( int who ) const
+{
+    return QAccessibleWidget::child( who );
+}
+
+/*! \reimp */
+QString QAccessibleScrollView::name( int who ) const
+{
+    return QAccessibleWidget::name( who );
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleScrollView::role( int who ) const
+{
+    return QAccessibleWidget::role( who );
+}
+
+/*! 
+  \class QAccessibleScrollView qaccessiblewidget.h
+  \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
+  \preliminary
+*/
+
+/*! 
+  Constructs a QAccessibleHeader object for the widget \a w. \a role, \a description,
+  \a value, \a help, \a defAction and \a accelerator are propagated to the QAccessibleWidget constructor.
+*/
+QAccessibleHeader::QAccessibleHeader( QHeader *h, QString description, 
+    QString value, QString help, QString defAction, QString accelerator )
+    : QAccessibleWidget( h, NoRole, description, value, help, defAction, accelerator )
+{
+}
+
+/*! Returns the QHeader. */
+QHeader *QAccessibleHeader::header() const
+{
+    return (QHeader *)object();
+}
+
+/*! \reimp */
+QAccessibleInterface* QAccessibleHeader::hitTest( int x, int y, int *who ) const
+{
+    *who = 0;
+    QPoint point = header()->mapFromGlobal( QPoint( x, y ) );
+    for ( int i = 0; i < header()->count(); i++ ) {
+	if ( header()->sectionRect( i ).contains( point ) ) {
+	    *who = i+1;
+	    break;
+	}
+    }
+    return QAccessible::accessibleInterface( object() );
+}
+
+/*! \reimp */
+QRect QAccessibleHeader::location( int who ) const
+{
+    QPoint zero = header()->mapToGlobal( QPoint ( 0,0 ) );
+    QRect sect = header()->sectionRect( who - 1 );
+    return QRect( sect.x() + zero.x(), sect.y() + zero.y(), sect.width(), sect.height() );
+}
+
+/*! \reimp */
+QAccessibleInterface* QAccessibleHeader::navigate( NavDirection direction, int *startEnd ) const
+{
+    if ( direction != NavFirstChild && direction != NavLastChild && !*startEnd )
+	return QAccessibleWidget::navigate( direction, startEnd );
+
+    int count = header()->count();
+    switch ( direction ) {
+    case NavFirstChild:
+	*startEnd = 1;
+	break;
+    case NavLastChild:
+	*startEnd = count;
+	break;
+    case NavNext:
+	*startEnd += 1;
+	if ( *startEnd > count )
+	    return 0;
+	break;
+    case NavPrevious:
+	*startEnd -= 1;
+	if ( *startEnd < 1 )
+	    return 0;
+	break;
+    case NavUp:
+	if ( header()->orientation() == Vertical ) {
+	    *startEnd -= 1;
+	    if ( *startEnd < 1 )
+		return 0;
+	} else {
+	    return 0;
+	}
+	break;
+    case NavDown:
+	if ( header()->orientation() == Vertical ) {
+	    *startEnd += 1;
+	    if ( *startEnd > count )
+		return 0;
+	} else {
+	    return 0;
+	}
+	break;
+    case NavLeft:
+	if ( header()->orientation() == Horizontal ) {
+	    *startEnd -= 1;
+	    if ( *startEnd < 1 )
+		return 0;
+	} else {
+	    return 0;
+	}
+	break;
+    case NavRight:
+	if ( header()->orientation() == Horizontal ) {
+	    *startEnd += 1;
+	    if ( *startEnd > count )
+		return 0;
+	} else {
+	    return 0;
+	}
+	break;
+    default:
+	break;
+    }
+    return QAccessible::accessibleInterface( object() );
+}
+
+/*! \reimp */
+int QAccessibleHeader::childCount() const
+{
+    return header()->count();
+}
+
+/*! \reimp */
+QAccessibleInterface *QAccessibleHeader::child( int who ) const
+{
+    if ( !who )
+	return QAccessible::accessibleInterface( object() );
+    return 0;
+}
+
+/*! \reimp */
+QString QAccessibleHeader::name( int who ) const
+{
+    return header()->label( who - 1 );
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleHeader::role( int who ) const
+{
+    if ( header()->orientation() == Qt::Horizontal )
+	return ColumnHeader;
+    else
+	return RowHeader;
+}
+
+/*! \reimp */
+QAccessible::State QAccessibleHeader::state( int /*who*/ ) const
+{
+    return QAccessibleWidget::state( 0 );
 }
 
 #endif
