@@ -267,11 +267,6 @@ public:
     inline uint resolve() const { return resolve_mask; }
     inline void resolve(uint mask) { resolve_mask = mask; }
 
-protected:
-    // why protected?
-    bool dirty() const;
-    int deciPointSize() const;
-
 private:
     QFont(QFontPrivate *);
 
@@ -284,6 +279,9 @@ private:
     void x11SetScreen(int screen = -1);
     int x11Screen() const;
 #endif
+
+    bool dirty() const;
+    int deciPointSize() const;
 
     friend class QFontMetrics;
     friend class QFontInfo;
