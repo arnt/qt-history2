@@ -1,11 +1,11 @@
 #include <widgetinterface.h>
 #include <qcleanuphandler.h>
 
-class FileChooserInterface : public WidgetInterface
+class CustomWidgetInterface : public WidgetInterface
 {
 public:
-    FileChooserInterface();
-    virtual ~FileChooserInterface() {}
+    CustomWidgetInterface();
+    virtual ~CustomWidgetInterface() {}
 
     QUnknownInterface *queryInterface( const QUuid& );
     ulong addRef();

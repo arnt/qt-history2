@@ -1,19 +1,19 @@
 #include "plugin.h"
 #include "../widget/filechooser.h"
 
-FileChooserInterface::FileChooserInterface()
+CustomWidgetInterface::CustomWidgetInterface()
     : ref( 0 )
 {
 }
 
-QStringList FileChooserInterface::featureList() const
+QStringList CustomWidgetInterface::featureList() const
 {
     QStringList list;
     list << "FileChooser";
     return list;
 }
 
-QWidget* FileChooserInterface::create( const QString &description, QWidget* parent, const char* name )
+QWidget* CustomWidgetInterface::create( const QString &description, QWidget* parent, const char* name )
 {
     QWidget* w = 0;
 
@@ -24,52 +24,52 @@ QWidget* FileChooserInterface::create( const QString &description, QWidget* pare
     return w;
 }
 
-QString FileChooserInterface::group( const QString& description ) const
+QString CustomWidgetInterface::group( const QString& description ) const
 {
     if ( description == "FileChooser" )
 	return "Input";
     return QString::null;
 }
 
-QString FileChooserInterface::iconSet( const QString& description ) const
+QString CustomWidgetInterface::iconSet( const QString& description ) const
 {
     if ( description == "FileChooser" )
 	return "lineedit.xpm";
     return QString::null;
 }
 
-QIconSet FileChooserInterface::iconset( const QString& ) const
+QIconSet CustomWidgetInterface::iconset( const QString& ) const
 {
     return QIconSet();
 }
 
-QString FileChooserInterface::includeFile( const QString& description ) const
+QString CustomWidgetInterface::includeFile( const QString& description ) const
 {
     if ( description == "FileChooser" )
 	return "filechooser.h";
     return QString::null;
 }
 
-QString FileChooserInterface::toolTip( const QString& description ) const
+QString CustomWidgetInterface::toolTip( const QString& description ) const
 {
     if ( description == "FileChooser" )
 	return "File Chooser Widget";
     return QString::null;
 }
 
-QString FileChooserInterface::whatsThis( const QString& description ) const
+QString CustomWidgetInterface::whatsThis( const QString& description ) const
 {
     if ( description == "FileChooser" )
 	return "A widget to choose a file or directory";
     return QString::null;
 }
 
-bool FileChooserInterface::isContainer( const QString& ) const
+bool CustomWidgetInterface::isContainer( const QString& ) const
 {
     return FALSE;
 }
 
-QUnknownInterface *FileChooserInterface::queryInterface( const QUuid& uuid )
+QUnknownInterface *CustomWidgetInterface::queryInterface( const QUuid& uuid )
 {
     QUnknownInterface *iface = 0;
 
@@ -84,12 +84,12 @@ QUnknownInterface *FileChooserInterface::queryInterface( const QUuid& uuid )
     return iface;
 }
 
-unsigned long FileChooserInterface::addRef()
+unsigned long CustomWidgetInterface::addRef()
 {
     return ref++;
 }
 
-unsigned long FileChooserInterface::release()
+unsigned long CustomWidgetInterface::release()
 {
     if ( !--ref ) {
 	delete this;
@@ -100,5 +100,5 @@ unsigned long FileChooserInterface::release()
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( FileChooserInterface );
+    Q_CREATE_INSTANCE( CustomWidgetInterface );
 }
