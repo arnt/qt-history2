@@ -1402,7 +1402,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	QPaintEvent e( reg );
+	QPaintEvent e( reg , erase );
 	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase(reg);
