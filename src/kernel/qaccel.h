@@ -100,6 +100,7 @@ private:
     QAccel &operator=( const QAccel & );
 #endif
     friend class QAccelPrivate;
+    friend class QAccelManager;
 };
 
 #endif // QT_NO_ACCEL

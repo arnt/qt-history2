@@ -202,7 +202,6 @@ private:
     friend class QBaseApplication;
     friend class QWidget;
     friend class QSignal;
-    friend class QAccelManager;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
