@@ -982,12 +982,11 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
         ncols = 256;
     }
     else if ( d > 8 ) {
-	// some windows printer drivers can't handle 32 bit DIBs, so we have to use 
-	// 24 bits here.
-	// the pixmap.isNull() case should not happen here, as all 32 bit images should get converted to pixmaps.
-// 	if ( !pixmap.isNull() )
-// 	    d = 24;
-// 	else
+	// some windows printer drivers on 95/98 can't handle 32 bit DIBs, 
+	// so we have to use 24 bits in that case.
+	if ( qt_winver & Qt::WV_DOS_based )
+	    d = 24;
+	else
 	    d = 32;
         ncols = 0;
     }
@@ -1175,13 +1174,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #endif
             }
 
-	    // some drivers don't like 32 bit DIBs, so we convert to a pixmap and
-	    // use 24 bit there.
-// 	    if ( image.depth() == 32 ) {
-// 		pixmap = image;
-// 		image = QImage();
-// 	    }
-
             int dw = qRound( xs * rect.width() );
             int dh = qRound( ys * rect.height() );
             BITMAPINFO *bmi = getWindowsBITMAPINFO( image );
@@ -1206,7 +1198,24 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		paint->setClipRegion( r );
 	    }
 
-            bits = image.bits();
+            if ( bmh->biBitCount == 24 ) {
+		bits = new uchar[bmh->biSizeImage];
+		int height = image.height();
+		int width = image.width();
+		uchar *b = bits;
+		for( int y=0; y < height; y++ ) {
+		    QRgb *s = (QRgb*)(image.scanLine( y ));
+		    for( int x=0; x < width; x++ ) {
+			*b++ = qBlue( *s );
+			*b++ = qGreen( *s );
+			*b++ = qRed( *s );
+			s++;
+		    }
+		}
+
+	    } else {
+		bits = image.bits();
+	    }
 
             int rc = GetDeviceCaps(hdc,RASTERCAPS);
 	    if ( (rc & RC_STRETCHDIB) != 0 ) {
@@ -1225,7 +1234,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 DeleteObject( hbm );
                 DeleteObject( hdcPrn );
             }
-            if ( image.isNull() ) {
+	    if ( bmh->biBitCount == 24 ) {
                 delete [] bits;
             }
             free( bmi );
