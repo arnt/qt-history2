@@ -1535,10 +1535,10 @@ then
 
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
         -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKEPATH@,$QMAKEPATH,g" \
-	$relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
+	$relpath/qmake/GNUmakefile.in >>$outpath/qmake/GNUmakefile
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	-e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKEPATH@,$QMAKEPATH,g" \
-	$relpath/qmake/Makefile.unix >$outpath/qmake/Makefile
+	$relpath/qmake/Makefile.unix >>$outpath/qmake/Makefile
 
     (cd $outpath/qmake; /bin/sh -c $MAKE || \
 	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
