@@ -197,7 +197,8 @@ void QBitArray::pad0()
 
 /*!
     Resizes the bit array to \a size bits and returns TRUE if the bit
-    array could be resized; otherwise returns FALSE.
+    array could be resized; otherwise returns FALSE. The array becomes
+    a null array if \a size == 0.
 
     If the array is expanded, the new bits are set to 0.
 
