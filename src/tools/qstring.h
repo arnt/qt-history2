@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#134 $
+** $Id: //depot/qt/main/src/tools/qstring.h#135 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -286,8 +286,8 @@ public:
     QString    &operator=( const char * );	// deep copy
 #endif
     QString    &operator=( const QCString& );	// deep copy
-    QString    &operator=( QChar c ) { return *this = QString(c); }
-    QString    &operator=( char c ) { return *this = QString(QChar(c)); }
+    QString    &operator=( QChar c );
+    QString    &operator=( char c );
 
     QT_STATIC_CONST QString null;
 
@@ -317,22 +317,18 @@ public:
 	;
 
     int		find( QChar c, int index=0, bool cs=TRUE ) const;
-    int		find( char c, int index=0, bool cs=TRUE ) const
-		    { return find(QChar(c), index, cs); }
+    int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const QString &str, int index=0, bool cs=TRUE ) const;
     int		find( const QRegExp &, int index=0 ) const;
 #ifndef QT_NO_CAST_ASCII
-    int		find( const char* str, int index=0 ) const
-		    { return find(QString::fromLatin1(str), index); }
+    int		find( const char* str, int index=0 ) const;
 #endif
     int		findRev( QChar c, int index=-1, bool cs=TRUE) const;
-    int		findRev( char c, int index=-1, bool cs=TRUE) const
-		    { return findRev( QChar(c), index, cs ); }
+    int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const QString &str, int index=-1, bool cs=TRUE) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
 #ifndef QT_NO_CAST_ASCII
-    int		findRev( const char* str, int index=-1 ) const
-		    { return findRev(QString::fromLatin1(str), index); }
+    int		findRev( const char* str, int index=-1 ) const;
 #endif
     int		contains( QChar c, bool cs=TRUE ) const;
     int		contains( char c, bool cs=TRUE ) const
@@ -560,6 +556,11 @@ inline QString::~QString()
 	d->deleteSelf();
 }
 
+inline QString &QString::operator=( QChar c ) 
+{ return *this = QString(c); }
+
+inline QString &QString::operator=( char c ) 
+{ return *this = QString(QChar(c)); }
 
 //inline QString &QString::operator=( const QString &s )
 //{ return (const QString &)assign( s ); }
@@ -621,6 +622,20 @@ inline QString QString::arg(short a, int fieldwidth, int base) const
 inline QString QString::arg(ushort a, int fieldwidth, int base) const
 { return arg((ulong)a, fieldwidth, base); }
 
+inline int QString::find( char c, int index, bool cs ) const
+{ return find(QChar(c), index, cs); }
+
+inline int QString::findRev( char c, int index, bool cs) const
+{ return findRev( QChar(c), index, cs ); }
+
+
+#ifndef QT_NO_CAST_ASCII
+inline int QString::find( const char* str, int index ) const
+{ return find(QString::fromLatin1(str), index); }
+
+inline int QString::findRev( const char* str, int index ) const
+{ return findRev(QString::fromLatin1(str), index); }
+#endif
 
 
 /*****************************************************************************
