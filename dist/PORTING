@@ -1,0 +1,18 @@
+                        PORTING QT TO OTHER PLATFORMS
+
+If you want to port Qt a new platform or C++, this file instructs you how
+to proceed.
+
+                               REQUIREMENTS
+
+The new platform needs Xlib for X11R5 or newer. Motif is not required. If
+it is not a Unix system (for instance VMS) things may get complicated.
+Porting to other Unixes is pretty straight-forward.
+
+Qt requires that your C++ compiler supports multiple inheritance. Template
+support is recommended but not a necessity. It must recognize the .cpp
+extension. Exception handling and RTTI (Run-Time Type Information) are
+not required. Expect problems with old CFront-based compilers.
+
+We would like the patches so we can support this new platforms in future
+releases of Qt.
