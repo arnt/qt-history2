@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#72 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#73 $
 **
 ** Definition of QListBox widget class
 **
@@ -154,7 +154,12 @@ protected:
 
     void updateItem( int index );
     void updateItem( QListBoxItem * );
-    void updateCellWidth();
+
+#ifndef QT_NO_COMPAT
+    void updateCellWidth() { }
+    int totalWidth() const { return contentsWidth(); }
+    int totalHeight() const { return contentsHeight(); }
+#endif
 
     void toggleCurrentItem();
 

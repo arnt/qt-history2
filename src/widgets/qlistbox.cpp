@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#192 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#193 $
 **
 ** Implementation of QListBox widget class
 **
@@ -527,7 +527,7 @@ QListBox::~QListBox()
 
 void QListBox::setFont( const QFont &font )
 {
-    QWidget::setFont( font );
+    QScrollView::setFont( font );
     triggerUpdate( TRUE );
 }
 
