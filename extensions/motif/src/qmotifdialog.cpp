@@ -194,165 +194,6 @@ public:
     passed to the constructor, instead of a QWidget parent.
 */
 
-/*! \obsolete
-    \enum QMotifDialog::DialogType
-
-    This enum lists the predefined Motif dialog types.
-
-    \value Prompt
-    \value Selection
-    \value Command
-    \value FileSelection
-    \value Template
-    \value Error
-    \value Information
-    \value Message
-    \value Question
-    \value Warning
-    \value Working
-*/
-
-/*! \obsolete
-
-    Creates a QMotifDialog using one of the predefined Motif dialog
-    types. The \a name, \a modal and \a flags arguments are passed to
-    the QDialog constructor.
-
-    This constructor creates a Shell widget, which is a special
-    subclass of XmDialogShell. The \a parent, \a args and \a argcount
-    arguments are passed to XtCreatePopupShell() when creating the
-    subclass. You can access the Shell widget with the shell() member
-    function.
-
-    This constructor also creates the dialog widget with the Shell
-    widget as its parent. The type of the dialog created is specified
-    by the \a dialogtype argument. See the DialogType enum for a list
-    of available dialog types. You can access the dialog widget with
-    the dialog() member function.
-
-    \warning QMotifDialog takes ownership of the child widget and
-    destroys it during destruction. You should not destroy the dialog
-    widget yourself.
-
-    \sa DialogType shell() dialog()
-*/
-QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
-			    ArgList args, Cardinal argcount,
-			    const char *name, bool modal, Qt::WFlags flags )
-    : QDialog( 0, modal ? Qt::WShowModal | flags : flags )
-{
-    setObjectName(name);
-
-    init( parent, args, argcount );
-
-    // get the widget class for the dialog type
-    WidgetClass widgetclass;
-    int dtype;
-    switch ( dialogtype ) {
-    case Prompt:
-	dtype = XmDIALOG_PROMPT;
-	widgetclass = xmSelectionBoxWidgetClass;
-	break;
-
-    case Selection:
-	dtype = XmDIALOG_SELECTION;
-	widgetclass = xmSelectionBoxWidgetClass;
-	break;
-
-    case Command:
-	dtype = XmDIALOG_COMMAND;
-	widgetclass = xmCommandWidgetClass;
-	break;
-
-    case FileSelection:
-	dtype = XmDIALOG_FILE_SELECTION;
-	widgetclass = xmFileSelectionBoxWidgetClass;
-	break;
-
-    case Template:
-	dtype = XmDIALOG_TEMPLATE;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-
-    case Error:
-	dtype = XmDIALOG_ERROR;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-
-    case Information:
-	dtype = XmDIALOG_INFORMATION;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-
-    case Message:
-	dtype = XmDIALOG_MESSAGE;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-
-    case Question:
-	dtype = XmDIALOG_QUESTION;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-
-    case Warning:
-	dtype = XmDIALOG_WARNING;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-
-    case Working:
-	dtype = XmDIALOG_WORKING;
-	widgetclass = xmMessageBoxWidgetClass;
-	break;
-    }
-
-    // set the dialog type
-    Arg *realargs = new Arg[ argcount + 1 ];
-    memcpy( realargs, args, argcount * sizeof(Arg) );
-    XtSetArg(realargs[argcount], XmNdialogType, dtype);
-    ++argcount;
-
-    d->dialog = XtCreateWidget( name, widgetclass, d->shell, realargs, argcount );
-
-    delete [] realargs;
-    realargs = 0;
-}
-
-/*! \obsolete
-
-    Creates a QMotifDialog which allows the application programmer to
-    use the Motif-based \a parent for a custom QDialog. The \a name,
-    \a modal and \a flags arguments are passed to the QDialog
-    constructor.
-
-    This constructor creates a Shell widget, which is a special
-    subclass of XmDialogShell. The \a args and \a argcount arguments
-    are passed to XtCreatePopupShell() when creating the subclass.
-    You can access the Shell widget with the shell() member function.
-
-    The dialog widget is not created by the constructor. You must
-    create the dialog widget as a child of the the widget returned by
-    shell(). You can access the child widget with the dialog() member
-    function.
-
-    A dialog widget is not created by this constructor. Instead, you
-    should create the dialog widget as a child of this
-    dialog. QMotifDialog will take ownership of your custom dialog,
-    and you can access it with the dialog() member function.
-
-    \warning QMotifDialog takes ownership of the child widget and
-    destroys it during destruction. You should not destroy the dialog
-    widget yourself.
-
-    \sa shell() dialog()
-*/
-QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
-			    const char *name, bool modal, Qt::WFlags flags )
-    : QDialog( 0, modal ? Qt::WShowModal | flags : flags )
-{
-    setObjectName(name);
-    init( parent, args, argcount );
-}
-
 /*!
     Creates a QMotifDialog which allows the application programmer to
     use the Motif-based \a parent for a custom QDialog. The \a name,
@@ -365,10 +206,9 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 
     \sa shell()
 */
-QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, Qt::WFlags flags )
-    : QDialog( 0, modal ? Qt::WShowModal | flags : flags )
+QMotifDialog::QMotifDialog( Widget parent, Qt::WFlags flags )
+    : QDialog( 0, flags )
 {
-    setObjectName(name);
     init( parent );
 }
 
@@ -393,11 +233,9 @@ QMotifDialog::QMotifDialog( Widget parent, const char *name, bool modal, Qt::WFl
 
     \sa shell() dialog()
 */
-QMotifDialog::QMotifDialog( QWidget *parent, const char *name,
-			    bool modal, Qt::WFlags flags )
-    : QDialog( parent, modal ? Qt::WShowModal | flags : flags )
+QMotifDialog::QMotifDialog( QWidget *parent, Qt::WFlags flags )
+    : QDialog( parent, flags )
 {
-    setObjectName(name);
     init();
 }
 
@@ -424,10 +262,10 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 
     // create the dialog shell
     if ( parent ) {
-	d->shell = XtCreatePopupShell( objectName(), qmotifDialogWidgetClass, parent,
+	d->shell = XtCreatePopupShell( "QMotifDialog", qmotifDialogWidgetClass, parent,
 				       realargs, argcount );
     } else {
-	d->shell = XtAppCreateShell( objectName(), objectName(), qmotifDialogWidgetClass,
+	d->shell = XtAppCreateShell( "QMotifDialog", "QMotifDialog", qmotifDialogWidgetClass,
 				     QMotif::display(), realargs, argcount );
     }
 
