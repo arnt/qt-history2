@@ -626,6 +626,9 @@ void qt_init( QApplicationPrivate *priv, int )
 #endif
 
     // Misc. initialization
+#if defined(QT_DEBUG)
+    GdiSetBatchLimit(1);
+#endif
 
     QWindowsMime::initialize();
     QColor::initialize();
