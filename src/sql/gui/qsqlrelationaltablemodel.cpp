@@ -234,6 +234,19 @@ bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant 
 /*!
     Lets the specified \a column be a foreign index specified by \a relation.
 
+    Example:
+
+    \quotefromfile sql/relationaltablemodel/relationaltablemodel.cpp
+    \skipto model->setTable
+    \printline model->setTable
+    \skipto setRelation
+    \printline setRelation
+
+    The setRelation() call specifies that column 2 in table \c
+    employee is a foreign key that maps with field \c id of table \c
+    city, and that the view should present the \c{city}'s \c name
+    field to the user.
+
     \sa relation()
 */
 void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relation)
