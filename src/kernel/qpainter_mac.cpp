@@ -174,6 +174,22 @@ void QPainter::updatePen()
     if ( dot < 1 )
 	dot = 1;
     PenSize( dot, dot );
+
+    int	ps = cpen.style();
+    Pattern pat;
+    switch ( ps ) {
+	case DashLine:
+	case DashDotLine:
+	case DashDotDotLine:
+	    qDebug( "Penstyle not implemented %s - %d", __FILE__, __LINE__ );
+	case DotLine:
+	    GetQDGlobalsGray( &pat );
+	    break;
+	default:
+            GetQDGlobalsBlack( &pat );
+            break;
+    }    
+    PenPat( &pat );
 }
 
 
@@ -741,6 +757,75 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
     drawWinFocusRect( x, y, w, h, FALSE, bgColor);
 }
 
+void QPainter::drawWinFocusRect( int x, int y, int w, int h,
+                                 bool xorPaint, const QColor &bgColor )
+{
+    if ( !isActive() )
+        return;
+#ifndef QT_NO_TRANSFORMATIONS
+    if ( txop == TxRotShear )
+        return;
+#endif
+    QPen    old_pen = cpen;
+    QBrush  old_brush = cbrush;
+    RasterOp old_rop = (RasterOp)rop;
+
+    setBrush( QBrush() );
+
+    if ( xorPaint ) {
+        if ( QColor::numBitPlanes() <= 8 )
+            setPen( color1 );
+        else
+            setPen( white );
+        setRasterOp( XorROP );
+    } else {
+        if ( qGray( bgColor.rgb() ) < 128 )
+            setPen( white );
+        else
+            setPen( black );
+    }
+
+#ifndef QT_NO_TRANSFORMATIONS
+    if ( testf(ExtDev|VxF|WxF) ) {
+        if ( testf(ExtDev) ) {
+            QPDevCmdParam param[1];
+            QRect r( x, y, w, h );
+            param[0].rect = &r;
+            if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param )) {
+                setRasterOp( old_rop );
+                setPen( old_pen );
+                return;
+            }
+        }
+        map( x, y, w, h, &x, &y, &w, &h );
+    }
+#else
+    map( x, y, w, h, &x, &y, &w, &h );
+#endif
+    if ( w <= 0 || h <= 0 ) {
+        if ( w == 0 || h == 0 )
+            return;
+        fix_neg_rect( &x, &y, &w, &h );
+    }
+
+    cpen.setStyle( DashLine );
+    updatePen();
+    if ( cpen.style() != NoPen ) {
+	drawLine(x,y,x+(w-1),y);
+	drawLine(x+(w-1),y,x+(w-1),y+(h-1));
+	drawLine(x,y+(h-1),x+(w-1),y+(h-1));
+	drawLine(x,y,x,y+(h-1));
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+//    fillRect(x,y,w,h);
+
+    setRasterOp( old_rop );
+    setPen( old_pen );
+    setBrush( old_brush );
+}
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 {
