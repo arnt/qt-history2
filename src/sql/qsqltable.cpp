@@ -78,7 +78,6 @@ public:
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
 	  autoDelete( FALSE ),
-	  refreshing( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -108,7 +107,6 @@ public:
     QStringList fld;
     QStringList fldLabel;
     QValueList< QIconSet > fldIcon;
-    bool refreshing;
 };
 
 /*! \enum QSqlTable::Confirm
@@ -999,16 +997,21 @@ void QSqlTable::deleteCurrent()
     }
     if ( !sqlCursor()->canDelete() )
 	return;
-    if ( !sqlCursor()->seek( currentRow() ) )
-	return;
+            
     int b = 0;
     int conf = Yes;
     if ( confirmEdits() || confirmDelete() )
 	conf = confirmEdit( QSqlTable::Delete );
+    
+    // Have to have this here - the confirmEdit() might pop up a
+    // dialog that causes a repaint -> moves the cursor to the
+    // record it have to repaint..
+    if ( !sqlCursor()->seek( currentRow() ) )
+	return;
     switch ( conf ) {
-    case Yes:
+	case Yes:{
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	emit beforeDelete( d->editBuffer );
+	emit beforeDelete( sqlCursor()->primeDelete() );
 	b = sqlCursor()->del();
 	QApplication::restoreOverrideCursor();
 	if ( !b )
@@ -1017,6 +1020,7 @@ void QSqlTable::deleteCurrent()
 	emit cursorChanged( QSqlCursor::Delete );
 	setCurrentCell( currentRow(), currentColumn() );
 	updateRow( currentRow() );
+	}
 	break;
     case No:
 	setEditMode( NotEditing, -1, -1 );
@@ -1365,8 +1369,10 @@ QVariant QSqlTable::value ( int row, int col ) const
 }
 
 /*!  \internal
+  Used to update the table when there is no way of knowing the size of
+  the result set - divide the result set into pages and load the pages
+  as the user moves around in the table.
 */
-
 void QSqlTable::loadNextPage()
 {
     if ( d->haveAllRows )
@@ -1383,6 +1389,7 @@ void QSqlTable::loadNextPage()
     int endIdx = startIdx + pageSize + lookAhead;
     if ( endIdx < numRows() || endIdx < 0 )
 	return;
+
     while ( endIdx > 0 && !sqlCursor()->seek( endIdx ) )
 	endIdx--;
     if ( endIdx != ( startIdx + pageSize + lookAhead ) )
@@ -1462,8 +1469,6 @@ void QSqlTable::repaintCell( int row, int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    if ( d->refreshing )
-	return;
     QTable::paintCell(p,row,col,cr, false);  // empty cell
 
     if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){
@@ -1490,8 +1495,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 		paintField( p, sqlCursor()->field( indexOf( col ) ), cr,
 			    selected );
 	}
-    }
-    else {
+    } else {
 	if ( sqlCursor()->seek( row ) ) {
 	    paintField( p, sqlCursor()->field( indexOf( col ) ), cr, selected );
 	}
@@ -1554,6 +1558,7 @@ void QSqlTable::setSize( QSqlCursor* sql )
 //     if ( !sql->isActive() ) {
 //	sql->select( sql->filter(), sql->sort() );
 //     }
+    // ### what are the connect/disconnect calls doing here!? move to refresh()
     if ( sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -1563,6 +1568,8 @@ void QSqlTable::setSize( QSqlCursor* sql )
 	setVScrollBarMode( AlwaysOn );
 	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadLine(int) ) );
+	verticalScrollBar()->setValue( 0 );
+	setNumRows( 0 );
 	loadNextPage();
     }
 }
@@ -1757,16 +1764,19 @@ void QSqlTable::refresh()
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return;
-    d->refreshing = TRUE;
+    viewport()->setUpdatesEnabled( FALSE );
     setNumCols( 0 );
+    d->haveAllRows = FALSE;
     d->colIndex.clear();
     QSqlCursorNavigator::refresh();
     if ( d->fld.count() ) {
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
 	    field = cur->field( d->fld[ i ] );
-	    if ( field && ( cur->isGenerated( field->name() ) || cur->isCalculated( field->name() ) ) &&
-		 !cur->primaryIndex().contains( field->name() ) ) {
+	    if ( field && ( cur->isGenerated( field->name() ) || 
+			    cur->isCalculated( field->name() ) ) &&
+		 !cur->primaryIndex().contains( field->name() ) )
+	    {
 		setNumCols( numCols() + 1 );
 		d->colIndex.append( cur->position( field->name() ) );
 		setColumnReadOnly( numCols()-1, field->isReadOnly() );
@@ -1777,7 +1787,7 @@ void QSqlTable::refresh()
 	    }
 	}
     }
-    d->refreshing = FALSE;
+    viewport()->setUpdatesEnabled( TRUE );
     setSize( cur );
 }
 

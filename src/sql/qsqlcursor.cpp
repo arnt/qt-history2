@@ -929,7 +929,8 @@ int QSqlCursor::del( bool invalidate )
 {
     if ( !isActive() || !isValid() ||  primaryIndex().isEmpty() )
 	return 0;
-    return del( toString( primaryIndex(), this, d->nm, "=", "and" ), invalidate );
+    return del( toString( primaryIndex(), &d->editBuffer, d->nm, 
+			  "=", "and" ), invalidate );
 }
 
 /*! \overload
