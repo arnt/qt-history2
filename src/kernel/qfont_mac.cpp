@@ -215,7 +215,7 @@ QMacSetFontInfo::setMacFont(const QMacFontInfo *fi, QMacSetFontInfo *sfi)
 }
 
 /* utility functions */
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
 static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncoding encoding)
 {
     UnicodeMapping mapping;

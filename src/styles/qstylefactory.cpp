@@ -59,7 +59,7 @@
 #endif
 
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
 #include "qt_mac.h"
 #include "qmacstyle_mac.h"
 #endif

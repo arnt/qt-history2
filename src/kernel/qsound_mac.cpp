@@ -106,7 +106,7 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
     Movie aMovie = nil;
 
     FSRef fref;
-    QCString utfs = filename.utf8();
+    QByteArray utfs = filename.toUtf8();
     err = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
     if(err != noErr) {
 	qDebug("Qt: internal: bogus %d", __LINE__);

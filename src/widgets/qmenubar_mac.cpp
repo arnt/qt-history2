@@ -49,7 +49,7 @@
 //#define DEBUG_MENUBAR_ACTIVATE
 
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
-QCString p2qstring(const unsigned char *); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 bool qt_modal_state(); //qapplication_mac.cpp
 

@@ -250,7 +250,8 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	    GetScrapFlavorSize(scrap, scrap_map[sm].mac_type, &flavorsize);
 	    buffer = (char *)malloc(buffersize = flavorsize);
 	    GetScrapFlavorData(scrap, scrap_map[sm].mac_type, &flavorsize, buffer);
-	    ret.assign(buffer, flavorsize);
+	    ret.duplicate(buffer, flavorsize);
+	    free(buffer);
 	    return ret;
 	}
     }
@@ -282,7 +283,8 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 #endif
 	    int len = flavorsize-(mimesz+sizeof(mimesz));
 	    memcpy(buffer, buffer+(mimesz+sizeof(mimesz)), len);
-	    ret.assign(buffer, len);
+	    ret.duplicate(buffer, len);
+	    free(buffer);
 	    break;
 	}
     }

@@ -14,7 +14,7 @@
 #endif
 
 //Externals
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp
 
 //Generic engine

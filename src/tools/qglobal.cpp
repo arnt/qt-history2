@@ -387,11 +387,11 @@ unsigned char * p_str(const QString &s)
     return p_str(s, s.length());
 }
 
-QCString p2qstring(const unsigned char *c) {
+QByteArray p2qstring(const unsigned char *c) {
        char *arr = (char *)malloc(c[0] + 1);
        memcpy(arr, c+1, c[0]);
        arr[c[0]] = '\0';
-       QCString ret = arr;
+       QByteArray ret( arr );
        delete arr;
        return ret;
 }

@@ -50,7 +50,6 @@
 #endif
 #include <stdlib.h>
 
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 
 /*****************************************************************************

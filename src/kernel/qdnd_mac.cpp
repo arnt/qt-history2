@@ -286,7 +286,8 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 		    if(info == kScrapFlavorTypeUnicode || info == kScrapFlavorTypeText) {
 			buffer = (char *)malloc(flavorsize);
 			GetFlavorData(current_dropobj, ref, info, buffer, &flavorsize, 0);
-			ret.assign(buffer, flavorsize);
+			ret.duplicate(buffer, flavorsize);
+			free(buffer);
 			return ret;
 		    } else if(info == kDragFlavorTypeHFS) {
 			UInt16 cnt_items;
@@ -312,7 +313,7 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 			    FSpMakeFSRef(&hfs.fileSpec, &fsref);
 			    buffer = (char *)malloc(1024);
 			    FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
-			    QCString s = QUriDrag::localFileToUri(QString::fromUtf8(
+			    QByteArray s = QUriDrag::localFileToUri(QString::fromUtf8(
 				(const char *)buffer));
 			    free(buffer);
 			    buffer = NULL;
@@ -327,7 +328,7 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 		    } else if(info == typeFileURL) {
 			UInt16 cnt_items;
 			CountDragItems(current_dropobj, &cnt_items);
-			QCString qstr;
+			QByteArray qstr;
 			for(int i = 1, done = 0, buffer_size = 0; i <= cnt_items; i++) {
 			    if(i > 1) {
 				if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
@@ -347,12 +348,12 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 				    buffer = (char*)malloc(buffer_size);
 			    }
 			    GetFlavorData(current_dropobj, ref, info, buffer, &flavorsize, 0);
-			    QCString tmp_str(QString::fromUtf8((const char *)buffer, flavorsize));
+			    QString tmp_str(QString::fromUtf8((const char *)buffer, flavorsize));
 			    if(tmp_str.left(17) == "file://localhost/") //mac encodes a differently
 				tmp_str = "file:///" + tmp_str.mid(17);
 			    int l = tmp_str.length();
 			    ret.resize(ret.size()+(l+2));
-			    memcpy(ret.data()+done,tmp_str.data(),l);
+			    memcpy(ret.data()+done,tmp_str.latin1(),l);
 			    memcpy(ret.data()+l+done,"\r\n",2);
 			    done += l + 2;
 			}
@@ -382,7 +383,8 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 		if(!qstrnicmp(buffer+sizeof(mimesz), fmt, mimesz)) {
 		    int size = flavorsize - (mimesz + sizeof(mimesz));
 		    memcpy(buffer, buffer + mimesz + sizeof(mimesz), size);
-		    ret.assign(buffer, size);
+		    ret.duplicate(buffer, size);
+		    free(buffer);
 		    return ret;
 		}
 		free(buffer);
@@ -572,9 +574,9 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 				       &hfs, sizeof(hfs), 0);
 		} else if(drag_map[sm].mac_type == typeFileURL) {
 		    ar = o->encodedData(drag_map[sm].qt_type);
-		    uint len = 0;
+		    int len = 0;
 		    char *buffer = (char *)malloc(ar.size());
-		    for(uint i = 0; i < ar.size(); i++) {
+		    for(int i = 0; i < ar.size(); i++) {
 			if(ar[i] == '\r' && i < ar.size()-1 && ar[i+1] == '\n')
 			    break;
 			buffer[len++] = ar[i];

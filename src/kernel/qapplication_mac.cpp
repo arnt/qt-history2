@@ -151,7 +151,7 @@ extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString d, QString file=QString::null); //qsettings_mac.cpp
-QCString p2qstring(const unsigned char *); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
 
 /* Unicode input entry magic */
@@ -696,7 +696,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	QCString arg = argv[i];
+	QByteArray arg( argv[i] );
 #if defined(QT_DEBUG)
 	if(arg == "-nograb")
 	    appNoGrab = !appNoGrab;
@@ -704,13 +704,13 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #endif // QT_DEBUG
 	    if(arg == "-inputstyle") {
 		if(++i < argc) {
-		    QCString s = QCString(argv[i]).lower();
+		    QByteArray s = QByteArray(argv[i]).lower();
 		    if(s == "onthespot")
 			qt_mac_input_spot = QT_MAC_ONTHESPOT;
 		    else if(s == "offthespot")
 			qt_mac_input_spot = QT_MAC_OFFTHESPOT;
 		    else
-			qDebug("Qt: internal: Misunderstood input style '%s'", s.data());
+			qDebug("Qt: internal: Misunderstood input style '%s'", s.constData());
 		}
 	    } else
 
