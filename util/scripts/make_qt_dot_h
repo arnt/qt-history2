@@ -3,6 +3,7 @@
 use File::Find;
 
 @IGNORE = qw {
+    qfontdata_p.h
     qfiledefs_p.h
     qaccessible.h
     qaccessiblewidget.h
