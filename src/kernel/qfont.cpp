@@ -1826,7 +1826,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
 
     QRect rb;
     QRect r(x, y, w, h);
-    qt_format_text( QFont( d, (bool)FALSE ), r, flgs|Qt::DontPrint, str, len, &rb,
+    qt_format_text( QFont( d, d->paintdevice ), r, flgs|Qt::DontPrint, str, len, &rb,
 		    tabstops, tabarray, tabarraylen, intern, 0 );
 
     return rb;
