@@ -1436,7 +1436,7 @@ bool QAbstractSocket::isSequential() const
  */
 bool QAbstractSocket::atEnd() const
 {
-    return (d->state == UnconnectedState && d->readBuffer.isEmpty());
+    return !isOpen() || d->readBuffer.isEmpty();
 }
 
 /*! \reimp

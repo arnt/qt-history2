@@ -814,7 +814,7 @@ bool QProcess::atEnd() const
     const QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
                                     ? &d->errorReadBuffer
                                     : &d->outputReadBuffer;
-    return readBuffer->isEmpty() && d->processState == NotRunning;
+    return !isOpen() || readBuffer->isEmpty();
 }
 
 /*! \reimp
