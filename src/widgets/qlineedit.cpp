@@ -403,7 +403,7 @@ void QLineEdit::setMaxLength( int m )
   Converts a key press into a line edit action.
 
   If return or enter is pressed and the current text is valid (or can be
-  \link QValidator::fixup() made valid\endlink bt the validator),
+  \link QValidator::fixup() made valid\endlink by the validator),
   the signal returnPressed is emitted.
 
   The default key bindings are:
@@ -423,13 +423,21 @@ void QLineEdit::setMaxLength( int m )
   <li><i> Control-E </i> Move the cursor to the end of the line.
   <li><i> Control-F </i> Move the cursor one character rightwards.
   <li><i> Control-H </i> Delete the character to the left of the cursor.
+  <li><i> Control-K </i> Delete to end of line
   <li><i> Control-V </i> Paste the clipboard text into line edit.
   <li><i> Control-X </i> Move the marked text to the clipboard.
   <li><i> Control-Z </i> Undo the last operation.
   <li><i> Control-Y </i> Redo the last undone operation.
   </ul>
+  </ul>
+  In addition, the following key bindings are used on Windows:
+  <ul>
+  <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
+  <li><i> Shift - Insert </i> Paste the clipboard text into line edit
+  <li><i> Control - Insert </i> Copy the marked text to the clipboard
+  </ul>
 
-  All other keys producing text insert the text into the line.
+  All other keys with valid ASCII codes insert themselves into the line.
 */
 
 void QLineEdit::keyPressEvent( QKeyEvent *e )
