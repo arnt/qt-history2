@@ -1228,6 +1228,8 @@ void QByteArray::realloc(int alloc)
         ::memcpy(x->array, d->data, x->size);
         x->array[x->size] = '\0';
         x->ref = 1;
+        x->alloc = alloc;
+        x->data = x->array;
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             qFree(x);
@@ -1235,10 +1237,10 @@ void QByteArray::realloc(int alloc)
         Data *x = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc));
         if (!x)
             return;
+        x->alloc = alloc;
+        x->data = x->array;
         d = x;
     }
-    d->alloc = alloc;
-    d->data = d->array;
 }
 
 void QByteArray::expand(int i)
