@@ -56,7 +56,7 @@ sub-codecs: sub-src .qmake.cache FORCE
 sub-tutorial: sub-src FORCE
 	cd tutorial; $(MAKE)
 
-sub-examples: sub-src FORCE
+sub-examples: sub-tools FORCE
 	cd examples; $(MAKE)
 
 clean:
