@@ -16,6 +16,7 @@
 #include "demoviewer.h"
 #include "introscreen.h"
 #include "paths.h"
+#include "roads.h"
 #include "rotatinggradient.h"
 #include "warpix.h"
 #ifndef QT_NO_OPENGL
@@ -35,6 +36,7 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("Rotating Gradient", new RotatingGradient);
     viewer.addDemoWidget("Clip Regions", new Clipping);
     viewer.addDemoWidget("Paths", new Paths);
+    viewer.addDemoWidget("On the road", new Roads);
     viewer.addDemoWidget("Stretched Pixmap", new Warpix);
 #ifndef QT_NO_OPENGL
     if (QGLFormat::hasOpenGL())
