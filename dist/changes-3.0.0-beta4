@@ -44,3 +44,10 @@ QString
 
 Removed function:
 	int similarityWith( const QString& target ) const;
+
+QDataTable, QDataBrowser
+------------------------
+
+ - the setCursor() function is obsolete and will be removed for Qt3 release
+   due to the incompatibility with some compilers. Use setSqlCursor()
+   instead.
