@@ -574,7 +574,10 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     //set the drag image
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
-        pixRegion = QRegion(0, 0, pix.width(), pix.height());
+        if(pix.mask())
+            pixRegion = QRegion(*pix.mask());
+        else
+            pixRegion = QRegion(0, 0, pix.width(), pix.height());
         SetDragImage(dragRef, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(true), boundsPoint, 0);
     }
 
