@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#406 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#407 $
 **
 ** Implementation of QWidget class
 **
@@ -2949,25 +2949,19 @@ void QWidget::polish()
   Closes this widget. Returns TRUE if the widget was closed, otherwise
   FALSE.
 
-  First it sends the widget a QCloseEvent. The widget is \link hide()
-  hidden\endlink if it \link QCloseEvent::accept() accepts\endlink the
-  close event. The default implementation of QWidget::closeEvent()
-  accepts the close event.
+  If \a alsoDelete is TRUE or the widget has the \c WDestructiveClose
+  widget flag, the widget is also deleted.  Otherwise, the widget can
+  prevent itself from being closed by rejecting the QCloseEvent it
+  gets.
 
-  If \e forceKill is TRUE, the widget is deleted whether it accepts
-  the close event or not.
-
-  The application is \link QApplication::quit() terminated\endlink when
-  the \link QApplication::setMainWidget() main widget\endlink is closed.
-
-  The QApplication::lastWindowClosed() signal is emitted when the last
-  visible top level widget is closed.
+  Note that closing the \l QApplication::mainWidget() terminates the
+  application.
 
   \sa closeEvent(), QCloseEvent, hide(), QApplication::quit(),
-  QApplication::setMainWidget()
+  QApplication::setMainWidget(), QApplication::lastWindowClosed()
 */
 
-bool QWidget::close( bool forceKill )
+bool QWidget::close( bool alsoDelete )
 {
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
@@ -2978,13 +2972,13 @@ bool QWidget::close( bool forceKill )
 	    qApp->quit();
 	return TRUE;
     }
-    if ( forceKill )
+    if ( alsoDelete || testWFlags(WDestructiveClose) )
 	accept = TRUE;
     if ( accept ) {
 	hide();
 	if ( isMain )
 	    qApp->quit();
-	else if ( forceKill || testWFlags(WDestructiveClose) )
+	else if ( alsoDelete || testWFlags(WDestructiveClose) )
 	    delete this;
     }
     return accept;
