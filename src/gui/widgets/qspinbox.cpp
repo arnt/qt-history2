@@ -37,6 +37,7 @@ public:
     virtual QString textFromValue(const QVariant &n) const;
     QVariant validateAndInterpret(QString &input, int &pos,
                                   QValidator::State &state) const;
+    QChar thousand;
 };
 
 class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
@@ -572,6 +573,18 @@ QValidator::State QSpinBox::validate(QString &text, int &pos) const
     return state;
 }
 
+
+/*!
+  \reimp
+*/
+void QSpinBox::fixup(QString &input) const
+{
+    Q_D(const QSpinBox);
+
+    input.remove(d->thousand);
+}
+
+
 // --- QDoubleSpinBox ---
 
 /*!
@@ -1043,6 +1056,13 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     value = minimum;
     singlestep = QVariant((int)1);
     type = QVariant::Int;
+    const QString str = QLocale().toString(4567);
+    if (str.size() == 5) {
+        thousand = QChar(str.at(1));
+        if (thousand.isSpace())
+            thousand = QLatin1Char(' '); // to avoid problems with 0xA0
+    }
+
 }
 
 /*!
@@ -1118,12 +1138,18 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
     } else {
 	bool ok = false;
+        bool removedThousand = false;
         num = QLocale().toInt(copy, &ok, 10);
+        if (!ok && copy.contains(thousand)) {
+            copy.remove(thousand);
+            removedThousand = true;
+            num = QLocale().toInt(copy, &ok, 10);
+        }
         QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
 	if (!ok || (num < 0 && b >= 0)) {
 	    state = QValidator::Invalid;
         } else if (num >= b && num <= t) {
-	    state = QValidator::Acceptable;
+	    state = removedThousand ? QValidator::Intermediate : QValidator::Acceptable;
         } else {
 	    if (num >= 0) {
 		if (num > b) {

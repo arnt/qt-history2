@@ -73,6 +73,8 @@ protected:
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual int valueFromText(const QString &text) const;
     virtual QString textFromValue(int v) const;
+    virtual void fixup(QString &str) const;
+
 
 public slots:
     void setValue(int val);
