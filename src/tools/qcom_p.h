@@ -34,7 +34,7 @@
 **********************************************************************/
 
 #ifndef QCOM_P_H
-#define QCOMP_H
+#define QCOM_P_H
 
 //
 //  W A R N I N G
