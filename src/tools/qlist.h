@@ -391,8 +391,11 @@ Q_OUTOFLINE_TEMPLATE bool QList<T>::operator== (const QList<T> &l) const
 template <typename T>
 Q_OUTOFLINE_TEMPLATE void QList<T>::free(QListData::Data *data)
 {
-    node_destruct((Node*)(data->array + data->begin),
-		  (Node*)(data->array + data->end),
+    int db = data->begin;
+    int de = data->end;
+    data->end=data->begin; // re-entrancy protection
+    node_destruct((Node*)(data->array + db),
+		  (Node*)(data->array + de),
 		  (data->autoDelete == this));
     data->autoDelete = 0;
     if (data->ref == 0)
