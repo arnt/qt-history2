@@ -34,9 +34,8 @@ public:
     };  
     
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model,
-                   const QModelIndex &index) const;
+               const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     bool editorEvent(QEvent *event, const QStyleOptionViewItem &option,
                      QAbstractItemModel* model, const QModelIndex &index);
 
@@ -54,11 +53,12 @@ DownloadDelegate::~DownloadDelegate()
 }
 
 void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                             const QAbstractItemModel *model, const QModelIndex &index) const
+                             const QModelIndex &index) const
 {
     if (index.column() < 2 || index.column() > 3) {
-        QItemDelegate::paint(painter, option, model, index);
+        QItemDelegate::paint(painter, option, index);
     } else {
+        const QAbstractItemModel *model = index.model();
         QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
                                   ? QPalette::Normal : QPalette::Disabled;
         if (option.state & QStyle::Style_Selected)
@@ -97,7 +97,7 @@ bool DownloadDelegate::editorEvent(QEvent *event, const QStyleOptionViewItem &op
     bool typeOk = event && (event->type() == QEvent::MouseButtonPress
                             || event->type() == QEvent::MouseButtonDblClick);
     if (!typeOk || index.column() != 0)
-        return QItemDelegate::editorEvent(event, option, model, index);
+        return QItemDelegate::editorEvent(event, option, index);
 
     if ((static_cast<QMouseEvent*>(event)->x() - option.rect.x()) < 20) {
         bool checked = model->data(index, DownloadDelegate::CheckedRole).toBool();
@@ -109,18 +109,17 @@ bool DownloadDelegate::editorEvent(QEvent *event, const QStyleOptionViewItem &op
 }
 
 QSize DownloadDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                 const QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
     if (index.column() == 2)
         return QSize();
 
     if (index.column() == 3) {
-        int rating = model->data(index, QAbstractItemModel::DisplayRole).toInt();
+        int rating = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
         return QSize(rating * star.width(), star.height());
     }
     
-    return QItemDelegate::sizeHint(option, model, index);    
+    return QItemDelegate::sizeHint(option, index);    
 }
 
 int main(int argc, char *argv[])

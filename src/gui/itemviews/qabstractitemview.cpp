@@ -1258,7 +1258,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     options.rect = itemViewportRect(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
-    if (event && itemDelegate()->editorEvent(event, options, model(), buddy))
+    if (event && itemDelegate()->editorEvent(event, options, buddy))
         return true; // the delegate handled the event
 
     if (!d->shouldEdit(action, buddy))
@@ -1287,7 +1287,7 @@ void QAbstractItemView::updateEditorData()
 {
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it)
-        itemDelegate()->setEditorData(it.value(), model(), it.key());
+        itemDelegate()->setEditorData(it.value(), it.key());
 }
 
 /*!
@@ -1303,7 +1303,7 @@ void QAbstractItemView::updateEditorGeometries()
             it.value()->show();
         else
             it.value()->hide();
-        itemDelegate()->updateEditorGeometry(it.value(), option, d->model, it.key());
+        itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
     }
 }
 
@@ -1531,7 +1531,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 */
 QSize QAbstractItemView::itemSizeHint(const QModelIndex &index) const
 {
-    return itemDelegate()->sizeHint(viewOptions(), model(), index);
+    return itemDelegate()->sizeHint(viewOptions(), index);
 }
 
 /*!
@@ -1546,7 +1546,7 @@ int QAbstractItemView::rowSizeHint(int row) const
     QModelIndex index;
     for (int c = 0; c < colCount; ++c) {
         index = d->model->index(row, c, root());
-        height = qMax(height, delegate->sizeHint(option, d->model, index).height());
+        height = qMax(height, delegate->sizeHint(option, index).height());
     }
     return height;
 }
@@ -1563,7 +1563,7 @@ int QAbstractItemView::columnSizeHint(int column) const
     QModelIndex index;
     for (int r = 0; r < rows; ++r) {
         index = d->model->index(r, column, root());
-        width = qMax(width, delegate->sizeHint(option, d->model, index).width());
+        width = qMax(width, delegate->sizeHint(option, index).width());
     }
     return width;
 }
@@ -1622,7 +1622,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->editors.contains(topLeft))
-            itemDelegate()->setEditorData(d->editors.value(topLeft), d->model, topLeft);
+            itemDelegate()->setEditorData(d->editors.value(topLeft), topLeft);
         else
             d->viewport->update(itemViewportRect(topLeft));
         return;
@@ -2043,11 +2043,11 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
 {
     QWidget *w = editors.value(index);
     if (!w) {
-        w = q->itemDelegate()->editor(viewport, options, q->model(), index);
+        w = q->itemDelegate()->editor(viewport, options, index);
         if (w) {
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));
-            q->itemDelegate()->setEditorData(w, q->model(), index);
-            q->itemDelegate()->updateEditorGeometry(w, options, q->model(), index);
+            q->itemDelegate()->setEditorData(w, index);
+            q->itemDelegate()->updateEditorGeometry(w, options, index);
             editors.insert(index, w);
         }
     }

@@ -106,13 +106,15 @@ QItemDelegate::~QItemDelegate()
     the item specified by the \a model and the item \a index.
 */
 
-void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                          const QAbstractItemModel *model, const QModelIndex &index) const
+void QItemDelegate::paint(QPainter *painter,
+                          const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
 
     QStyleOptionViewItem opt = option;
+    const QAbstractItemModel *model = index.model();
 
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
@@ -156,11 +158,12 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 */
 
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
-                              const QAbstractItemModel *model,
                               const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
+
+    const QAbstractItemModel *model = index.model();
 
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
     QFont fnt = value.isValid() ? value.toFont() : option.font;
@@ -186,10 +189,9 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
 QWidget *QItemDelegate::editor(QWidget *parent,
                                const QStyleOptionViewItem &,
-                               const QAbstractItemModel *model,
                                const QModelIndex &index)
 {
-    QVariant::Type t = model->data(index, QAbstractItemModel::EditRole).type();
+    QVariant::Type t = index.model()->data(index, QAbstractItemModel::EditRole).type();
     QWidget *w = QItemEditorFactory::defaultFactory()->createEditor(t, parent);
     if (w) w->installEventFilter(this);
     return w;
@@ -211,11 +213,9 @@ void QItemDelegate::releaseEditor(QWidget *editor)
     item specified by the \a model and item \a index.
 */
 
-void QItemDelegate::setEditorData(QWidget *editor,
-                                  const QAbstractItemModel *model,
-                                  const QModelIndex &index) const
+void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    QVariant v = model->data(index, QAbstractItemModel::EditRole);
+    QVariant v = index.model()->data(index, QAbstractItemModel::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
     if (!n.isEmpty())
         editor->setProperty(n, v);
@@ -243,11 +243,11 @@ void QItemDelegate::setModelData(QWidget *editor,
 
 void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
-                                         const QAbstractItemModel *model,
                                          const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     if (editor) {
+        const QAbstractItemModel *model = index.model();
         QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::DecorationRole));
         QString text = model->data(index, QAbstractItemModel::EditRole).toString();
         QRect pixmapRect = pixmap.rect();

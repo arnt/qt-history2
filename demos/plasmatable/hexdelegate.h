@@ -23,10 +23,11 @@ public:
     HexDelegate(QObject *parent);
     ~HexDelegate();
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QAbstractItemModel *model, const QModelIndex &index) const;
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QAbstractItemModel *model, const QModelIndex &index) const;
+                   const QModelIndex &index) const;
 private:
     mutable QString textHex;
     QSize sz;

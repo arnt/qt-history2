@@ -27,24 +27,15 @@ HexDelegate::~HexDelegate()
 {
 }
 
-QSize HexDelegate::sizeHint(const QStyleOptionViewItem &option,
-                            const QAbstractItemModel *,
-                            const QModelIndex &) const
-{
-    static QString textSize("0xFFFFFFFF");
-    return QFontMetrics(option.font).size(0, textSize) + sz;
-}
-
 void HexDelegate::paint(QPainter *painter,
                         const QStyleOptionViewItem &option,
-                        const QAbstractItemModel *model,
                         const QModelIndex &index) const
 {
     static QRect emptyRect;
     static QPoint pt;
 
     textHex.resize(2);
-    uint col = model->data(index, QAbstractItemModel::DisplayRole).toInt();
+    uint col = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
     textHex += QString::number(col, 16).toUpper();
 
     // Layout text
@@ -53,4 +44,11 @@ void HexDelegate::paint(QPainter *painter,
 
     // draw the item
     drawDisplay(painter, option, textRect, textHex);
+}
+
+QSize HexDelegate::sizeHint(const QStyleOptionViewItem &option,
+                            const QModelIndex &) const
+{
+    static QString textSize("0xFFFFFFFF");
+    return QFontMetrics(option.font).size(0, textSize) + sz;
 }

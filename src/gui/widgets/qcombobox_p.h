@@ -115,16 +115,17 @@ public:
     MenuDelegate(QObject *parent, QComboBox *cmb) : QAbstractItemDelegate(parent), mCombo(cmb) {}
 
 protected:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QAbstractItemModel *model, const QModelIndex &index) const {
-        QStyleOptionMenuItem opt = getStyleOption(option, model, index);
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const {
+        QStyleOptionMenuItem opt = getStyleOption(option, index);
         painter->eraseRect(option.rect);
         QApplication::style()->drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QStyleOptionViewItem &option,
-                           const QAbstractItemModel *model, const QModelIndex &index) const {
-        QStyleOptionMenuItem opt = getStyleOption(option, model, index);
-        QVariant value = model->data(index, QAbstractItemModel::FontRole);
+                   const QModelIndex &index) const {
+        QStyleOptionMenuItem opt = getStyleOption(option, index);
+        QVariant value = index.model()->data(index, QAbstractItemModel::FontRole);
         QFont fnt = value.isValid() ? value.toFont() : option.font;
         return QApplication::style()->sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), QFontMetrics(fnt), 0);
@@ -132,7 +133,6 @@ protected:
 
 private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
-                                        const QAbstractItemModel *model,
                                         const QModelIndex &index) const {
         QStyleOptionMenuItem menuOption;
         menuOption.palette = option.palette;
@@ -144,8 +144,8 @@ private:
         menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
         menuOption.checked = mCombo->currentItem() == index.row();
         menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-        menuOption.icon = model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
-        menuOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+        menuOption.icon = index.model()->data(index, QAbstractItemModel::DecorationRole).toIconSet();
+        menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
         menuOption.tabWidth = 0;
         menuOption.maxIconWidth = 0;
         if (!menuOption.icon.isNull())

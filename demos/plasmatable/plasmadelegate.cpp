@@ -25,11 +25,12 @@ PlasmaDelegate::~PlasmaDelegate()
 
 }
 
-void PlasmaDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                           const QAbstractItemModel *model, const QModelIndex &index) const
+void PlasmaDelegate::paint(QPainter *painter,
+                           const QStyleOptionViewItem &option,
+                           const QModelIndex &index) const
 {
     unsigned char s = option.state & QStyle::Style_Selected ? 63 : 0;
-    unsigned int color = model->data(index, QAbstractItemModel::DisplayRole).toInt();
+    unsigned int color = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
     unsigned char r = ((color & 0x00FF0000) >> 16) + s;
     unsigned char g = ((color & 0x0000FF00) >> 8) + s;
     unsigned char b = (color & 0x000000FF) + s;
@@ -39,9 +40,7 @@ void PlasmaDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
     painter->drawRect(option.rect);
 }
 
-QSize PlasmaDelegate::sizeHint(const QStyleOptionViewItem &,
-                               const QAbstractItemModel *,
-                               const QModelIndex &) const
+QSize PlasmaDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const
 {
     return QSize(4, 4);
 }

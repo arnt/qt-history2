@@ -866,7 +866,7 @@ void QListView::paintEvent(QPaintEvent *e)
         option.state |= (focus && current == *it ? QStyle::Style_HasFocus : QStyle::Style_None);
         if (alternate)
             option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
-        delegate->paint(&painter, option, d->model, *it);
+        delegate->paint(&painter, option, *it);
     }
 
     area = e->rect();
@@ -1191,7 +1191,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
             if (!hiddenRows.contains(i)) {
                 index = model->index(i, d->column, root());
                 if (!grid.isValid())
-                    hint = delegate->sizeHint(option, model, index);
+                    hint = delegate->sizeHint(option, index);
                 dx = hint.width();
                 if (wrap && (x + spacing >= w))
                     d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
@@ -1214,7 +1214,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
             if (!hiddenRows.contains(i)) {
                 index = model->index(i, d->column, root());
                 if (!grid.isValid())
-                    hint = delegate->sizeHint(option, model, index);
+                    hint = delegate->sizeHint(option, index);
                 dy = hint.height();
                 if (wrap && (y + spacing >= h))
                     d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
@@ -1369,7 +1369,7 @@ void QListView::updateGeometries()
         return;
     QModelIndex index = model()->index(0, d->column, root());
     QStyleOptionViewItem option = viewOptions();
-    QSize size = itemDelegate()->sizeHint(option, model(), index);
+    QSize size = itemDelegate()->sizeHint(option, index);
 
     horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
     horizontalScrollBar()->setPageStep(d->viewport->width());
@@ -1528,7 +1528,7 @@ void QListViewPrivate::createItems(int to)
     QStyleOptionViewItem option = q->viewOptions();
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
-        size = delegate->sizeHint(option, model, model->index(i, d->column, root));
+        size = delegate->sizeHint(option, model->index(i, d->column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
         tree.appendItem(item);
     }
@@ -1542,7 +1542,7 @@ void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &
     for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
         option.rect.setRect(item.x, item.y, item.w, item.h);
-        delegate->paint(painter, option, model, *it);
+        delegate->paint(painter, option, *it);
     }
 }
 
@@ -1589,7 +1589,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 
     QStyleOptionViewItem option = q->viewOptions();
     QAbstractItemDelegate *del = q->itemDelegate();
-    QSize size = del->sizeHint(option, model, index);
+    QSize size = del->sizeHint(option, index);
     return QListViewItem(QRect(pos, size), index.row());
 }
 

@@ -41,17 +41,19 @@ public:
     {
     }
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &options,
-                       const QAbstractItemModel *model, const QModelIndex &index) const;
+    virtual void paint(QPainter *painter,
+                       const QStyleOptionViewItem &options,
+                       const QModelIndex &index) const;
     virtual QSize sizeHint(const QStyleOptionViewItem &,
-                           const QAbstractItemModel *, const QModelIndex &) const
+                           const QModelIndex &) const
     {
         return QSize(100, 30);
     }
 };
 
-void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
-                         const QAbstractItemModel *model, const QModelIndex &index) const
+void ItemDelegate::paint(QPainter *painter,
+                         const QStyleOptionViewItem &options,
+                         const QModelIndex &index) const
 {
     QColor base = qApp->palette().color(QPalette::Base);
 
@@ -75,7 +77,7 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     QRect textRect = r;
     if (selected)
         textRect.translate(1, 1);
-    painter->drawText(textRect, Qt::AlignCenter, model->data(index).toString());
+    painter->drawText(textRect, Qt::AlignCenter, index.model()->data(index).toString());
 
     painter->setPen(selected ? Qt::white : Qt::black);
     painter->drawLine(r.left(), r.bottom(), r.right(), r.bottom());

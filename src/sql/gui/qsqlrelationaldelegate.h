@@ -22,11 +22,9 @@ public:
     QSqlRelationalDelegate(QObject *parent = 0);
     ~QSqlRelationalDelegate();
 
-    QWidget *editor(QWidget *parent, const QStyleOptionViewItem &option,
-                    const QAbstractItemModel *model, const QModelIndex &index);
+    QWidget *editor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index);
 
-    void setEditorData(QWidget *editor,
-                       const QAbstractItemModel *model, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
 

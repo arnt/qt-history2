@@ -39,23 +39,21 @@ public:
     virtual ~QAbstractItemDelegate();
 
     // painting
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QAbstractItemModel *model, const QModelIndex &index) const = 0;
+    virtual void paint(QPainter *painter,
+                       const QStyleOptionViewItem &option,
+                       const QModelIndex &index) const = 0;
 
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model,
+    virtual QSize sizeHint(const QStyleOptionViewItem &option,
                            const QModelIndex &index) const = 0;
 
     // editing
     virtual QWidget *editor(QWidget *parent,
                             const QStyleOptionViewItem &option,
-                            const QAbstractItemModel *model,
                             const QModelIndex &index);
 
     virtual void releaseEditor(QWidget *editor);
 
-    virtual void setEditorData(QWidget *editor,
-                               const QAbstractItemModel *model,
-                               const QModelIndex &index) const;
+    virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 
     virtual void setModelData(QWidget *editor,
                               QAbstractItemModel *model,
@@ -63,12 +61,12 @@ public:
 
     virtual void updateEditorGeometry(QWidget *editor,
                                       const QStyleOptionViewItem &option,
-                                      const QAbstractItemModel* model,
                                       const QModelIndex &index) const;
 
     // for non-widget editors
-    virtual bool editorEvent(QEvent *e, const QStyleOptionViewItem &option,
-                             QAbstractItemModel* model, const QModelIndex &index);
+    virtual bool editorEvent(QEvent *event,
+                             const QStyleOptionViewItem &option,
+                             const QModelIndex &index);
 
 signals:
     void commitData(QWidget *editor);

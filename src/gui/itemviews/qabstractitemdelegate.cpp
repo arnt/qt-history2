@@ -166,8 +166,9 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 
     \sa setModelData() setEditorData() releaseEditor()
 */
-QWidget *QAbstractItemDelegate::editor(QWidget *, const QStyleOptionViewItem &,
-                                       const QAbstractItemModel *, const QModelIndex &)
+QWidget *QAbstractItemDelegate::editor(QWidget *,
+                                       const QStyleOptionViewItem &,
+                                       const QModelIndex &)
 {
     return 0;
 }
@@ -196,7 +197,6 @@ void QAbstractItemDelegate::releaseEditor(QWidget *)
     \sa editor() setModelData() releaseEditor()
 */
 void QAbstractItemDelegate::setEditorData(QWidget *,
-                                          const QAbstractItemModel *,
                                           const QModelIndex &) const
 {
     // do nothing
@@ -231,7 +231,6 @@ void QAbstractItemDelegate::setModelData(QWidget *,
  */
 void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
                                                  const QStyleOptionViewItem &,
-                                                 const QAbstractItemModel *,
                                                  const QModelIndex &) const
 {
     // do nothing
@@ -244,8 +243,9 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
     The base implementation returns false (indicating that it has not
     handled the event).
 */
-bool QAbstractItemDelegate::editorEvent(QEvent *, const QStyleOptionViewItem &,
-                                        QAbstractItemModel *, const QModelIndex &)
+bool QAbstractItemDelegate::editorEvent(QEvent *,
+                                        const QStyleOptionViewItem &,
+                                        const QModelIndex &)
 {
     // do nothing
     return false;

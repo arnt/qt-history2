@@ -624,7 +624,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.rect.setRect(position, y, width, height);
             painter->fillRect(position, y, width, height, base);
         }
-        itemDelegate()->paint(painter, opt, d->model, modelIndex);
+        itemDelegate()->paint(painter, opt, modelIndex);
     }
 }
 
@@ -737,7 +737,7 @@ void QTreeView::doItemsLayout()
     QModelIndex parent = root();
     if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
         QModelIndex index = model()->index(0, 0, root());
-        d->itemHeight = itemDelegate()->sizeHint(option, model(), index).height();
+        d->itemHeight = itemDelegate()->sizeHint(option, index).height();
         d->layout(-1);
         d->reopenChildren(parent, false);
     }
@@ -771,7 +771,7 @@ int QTreeView::verticalOffset() const
     // gives an estimate
     QStyleOptionViewItem option = viewOptions();
     QModelIndex index = model()->index(0, 0, root());
-    int iheight = itemDelegate()->sizeHint(option, model(), index).height();
+    int iheight = itemDelegate()->sizeHint(option, index).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
 }
@@ -859,7 +859,7 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     }
 
     QStyleOptionViewItem option = viewOptions();
-    int bottomHeight = itemDelegate()->sizeHint(option, model(), bottomIndex).height();
+    int bottomHeight = itemDelegate()->sizeHint(option, bottomIndex).height();
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
 
@@ -1091,7 +1091,7 @@ int QTreeView::columnSizeHint(int column) const
     while (y < h && i < c) {
         index = viewItems.at(i).index;
         index = d->model->sibling(index.row(), column, index);
-        size = delegate->sizeHint(option, d->model, index);
+        size = delegate->sizeHint(option, index);
         w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
         y += size.height();
         ++i;
@@ -1134,7 +1134,7 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     for (int column = start; column <= end; ++column) {
         QModelIndex index = d->model->index(left.row(), column, parent);
-        height = qMax(height, delegate->sizeHint(option, d->model, index).height());
+        height = qMax(height, delegate->sizeHint(option, index).height());
     }
 
     return height;
@@ -1145,8 +1145,7 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
 */
 bool QTreeView::isIndexHidden(const QModelIndex &index) const
 {
-    return (isColumnHidden(index.column())
-            ||isRowHidden(index.row(), index.parent()));
+    return (isColumnHidden(index.column()) || isRowHidden(index.row(), index.parent()));
 }
 
 /*
