@@ -1131,7 +1131,7 @@ if [ "$CFG_MNG" = "auto" ]; then
 fi
 
 if [ "$CFG_LIBMNG" = "auto" ]; then
-    if $unixtests/checkavail "libmng" $OPT_VERBOSE -lmng; then
+    if $unixtests/checkavail "libmng" $OPT_VERBOSE -lmng libmng.h; then
        CFG_LIBMNG=system
     else
        CFG_LIBMNG=qt
@@ -1151,7 +1151,7 @@ if [ "$CFG_JPEG" = "auto" ]; then
     fi
 fi
 if [ "$CFG_LIBJPEG" = "auto" ]; then
-    if $unixtests/checkavail "libjpeg" $OPT_VERBOSE -ljpeg; then
+    if $unixtests/checkavail "libjpeg" $OPT_VERBOSE -ljpeg jpeglib.h; then
        CFG_LIBJPEG=system
     else
        CFG_LIBJPEG=qt
@@ -1160,7 +1160,7 @@ fi
 
 #detect zlib
 if [ "$CFG_ZLIB" = "auto" ]; then
-    if $unixtests/checkavail "libzlib" $OPT_VERBOSE -lz; then
+    if $unixtests/checkavail "libzlib" $OPT_VERBOSE -lz zlib.h; then
        CFG_ZLIB=system
     else
        CFG_ZLIB=yes
@@ -1178,7 +1178,7 @@ if [ "$CFG_PNG" = "auto" ]; then
     fi
 fi
 if [ "$CFG_LIBPNG" = "auto" ]; then
-    if $unixtests/checkavail "libpng" $OPT_VERBOSE -lpng; then
+    if $unixtests/checkavail "libpng" $OPT_VERBOSE -lpng png.h; then
        CFG_LIBPNG=system
     else
        CFG_LIBPNG=qt
