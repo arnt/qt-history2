@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#19 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#20 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -126,7 +126,7 @@ export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
 # Generate and check-in [changes to] the X11 makefiles/build files
 rsync -avz --delete bahamas:/local/lib/cvs/qt/configs $base/cvs/qt
 cd $base/head/qt
-for B in `util/scripts/makeunixmake -p`
+for B in `util/scripts/makeunixmake -p -s`
 do
   [ -f $base/cvs/qt/\$B,v ] && rcs -l $base/cvs/qt/\$B,v
   ci -q -mnone -t-'' -u \$B $base/cvs/qt/\$B,v

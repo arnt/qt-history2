@@ -6,12 +6,14 @@
 VERBOSE=
 LIST=
 SUBARGS=
+SYMLINKS=
 while [ -n "$1" ]
 do
     case "$1" in
        -v) VERBOSE=1
     ;; -p) LIST=1
 	    SUBARGS="$SUBARGS $1"
+    ;; -s) SYMLINKS="symlinks "
     esac
     shift
 done
@@ -31,7 +33,7 @@ cat <<EOF
 # Read PORTING for instructions how to port Qt to a new platform.
 
 
-all: moc src tutorial examples
+all: $SYMLINKS moc src tutorial examples
 	@echo
 	@echo "The Qt library is now built in ./lib"
 	@echo "The Qt examples are built in the directories in ./examples"
@@ -43,6 +45,9 @@ all: moc src tutorial examples
 moc: variables FORCE
 	cd src/moc; \$(MAKE)
 	cp src/moc/moc bin/moc
+
+symlinks:
+	cd include; rm q*.h; ln -s ../src/*/q*.h .
 
 src: moc variables FORCE
 	cd \$@; \$(MAKE)

@@ -9,6 +9,7 @@ do
        -v) VERBOSE=1
     ;; -p) LIST=1
 	    SUBARGS="$SUBARGS $1"
+    ;; -s)  SUBARGS="$SUBARGS $1"
     esac
     shift
 done
