@@ -32,6 +32,7 @@
 #include "qstyleoption.h"
 #include "qvalidator.h"
 #include "qmime.h"
+#include "qspinbox.h"
 
 #ifdef Q_WS_MAC
 QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent);
@@ -420,7 +421,7 @@ static void initRGB()
                 stdrgb[i++] = qRgb(r*255/3, g*255/3, b*255/2);
 
     for (i = 0; i < 2*8; i++)
-        cusrgb[i] = qRgb(0xff,0xff,0xff);
+        cusrgb[i] = 0xffffffff;
 }
 
 /*!
@@ -621,7 +622,7 @@ private:
     QPixmap *pix;
 };
 
-static int pWidth = 200;
+static int pWidth = 220;
 static int pHeight = 200;
 
 class QColorLuminancePicker : public QWidget
@@ -835,59 +836,20 @@ void QColorPicker::paintEvent(QPaintEvent* )
 
 }
 
-class QColorShowLabel;
-
-
-
-class QColIntValidator: public QIntValidator
+class QColSpinBox : public QSpinBox
 {
 public:
-    QColIntValidator(int bottom, int top, QWidget * parent)
-        : QIntValidator(bottom, top, parent)
-        {}
-
-    QValidator::State validate(QString &, int &) const;
-};
-
-QValidator::State QColIntValidator::validate(QString &s, int &pos) const
-{
-    State state = QIntValidator::validate(s,pos);
-    if (state == Intermediate) {
-        long int val = s.toLong();
-        // This is not a general solution, assumes that top() > 0 and
-        // bottom >= 0
-        if (val < 0) {
-            s = "0";
-            pos = 1;
-        } else if (val > top()) {
-            s.setNum(top());
-            pos = s.length();
-        }
-    }
-    return state;
-}
-
-
-
-class QColNumLineEdit : public QLineEdit
-{
-public:
-    QColNumLineEdit(QWidget *parent)
-        : QLineEdit(parent) { setMaxLength(3);}
-    QSize sizeHint() const {
-        return QSize(fontMetrics().width("999") + (hasFrame()?4:0),
-                      QLineEdit::sizeHint().height()); }
-    void setNum(int i) {
-        QString s;
-        s.setNum(i);
+    QColSpinBox(QWidget *parent)
+        : QSpinBox(parent) { setRange(0, 255); }
+    void setValue(int i) {
         bool block = signalsBlocked();
         blockSignals(true);
-        setText(s);
+        QSpinBox::setValue(i);
         blockSignals(block);
     }
-    int val() const { return text().toInt(); }
 };
 
+class QColorShowLabel;
 
 class QColorShower : public QWidget
 {
@@ -898,8 +860,8 @@ public:
     //things that don't emit signals
     void setHsv(int h, int s, int v);
 
-    int currentAlpha() const { return alphaEd->val(); }
-    void setCurrentAlpha(int a) { alphaEd->setNum(a); }
+    int currentAlpha() const { return alphaEd->value(); }
+    void setCurrentAlpha(int a) { alphaEd->setValue(a); }
     void showAlpha(bool b);
 
 
@@ -917,13 +879,13 @@ private:
     void showCurrentColor();
     int hue, sat, val;
     QRgb curCol;
-    QColNumLineEdit *hEd;
-    QColNumLineEdit *sEd;
-    QColNumLineEdit *vEd;
-    QColNumLineEdit *rEd;
-    QColNumLineEdit *gEd;
-    QColNumLineEdit *bEd;
-    QColNumLineEdit *alphaEd;
+    QColSpinBox *hEd;
+    QColSpinBox *sEd;
+    QColSpinBox *vEd;
+    QColSpinBox *rEd;
+    QColSpinBox *gEd;
+    QColSpinBox *bEd;
+    QColSpinBox *alphaEd;
     QLabel *alphaLab;
     QColorShowLabel *lab;
     bool rgbOriginal;
@@ -1046,8 +1008,6 @@ QColorShower::QColorShower(QWidget *parent)
     :QWidget(parent)
 {
     curCol = qRgb(-1, -1, -1);
-    QColIntValidator *val256 = new QColIntValidator(0, 255, this);
-    QColIntValidator *val360 = new QColIntValidator(0, 360, this);
 
     QGridLayout *gl = new QGridLayout(this);
     gl->setMargin(6);
@@ -1059,56 +1019,56 @@ QColorShower::QColorShower(QWidget *parent)
     connect(lab, SIGNAL(colorDropped(QRgb)),
              this, SLOT(setRgb(QRgb)));
 
-    hEd = new QColNumLineEdit(this);
-    hEd->setValidator(val360);
+    hEd = new QColSpinBox(this);
+    hEd->setRange(0, 355);
     QLabel *l = new QLabel(QColorDialog::tr("Hu&e:"), this);
     l->setBuddy(hEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 0, 1);
     gl->addWidget(hEd, 0, 2);
 
-    sEd = new QColNumLineEdit(this);
-    sEd->setValidator(val256);
+    sEd = new QColSpinBox(this);
+    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Sat:"), this);
     l->setBuddy(sEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 1, 1);
     gl->addWidget(sEd, 1, 2);
 
-    vEd = new QColNumLineEdit(this);
-    vEd->setValidator(val256);
+    vEd = new QColSpinBox(this);
+    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Val:"), this);
     l->setBuddy(vEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 2, 1);
     gl->addWidget(vEd, 2, 2);
 
-    rEd = new QColNumLineEdit(this);
-    rEd->setValidator(val256);
+    rEd = new QColSpinBox(this);
+    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Red:"), this);
     l->setBuddy(rEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 0, 3);
     gl->addWidget(rEd, 0, 4);
 
-    gEd = new QColNumLineEdit(this);
-    gEd->setValidator(val256);
+    gEd = new QColSpinBox(this);
+    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("&Green:"), this);
     l->setBuddy(gEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 1, 3);
     gl->addWidget(gEd, 1, 4);
 
-    bEd = new QColNumLineEdit(this);
-    bEd->setValidator(val256);
+    bEd = new QColSpinBox(this);
+    hEd->setRange(0, 255);
     l = new QLabel(QColorDialog::tr("Bl&ue:"), this);
     l->setBuddy(bEd);
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 2, 3);
     gl->addWidget(bEd, 2, 4);
 
-    alphaEd = new QColNumLineEdit(this);
-    alphaEd->setValidator(val256);
+    alphaEd = new QColSpinBox(this);
+    hEd->setRange(0, 255);
     alphaLab = new QLabel(QColorDialog::tr("A&lpha channel:"), this);
     l->setBuddy(alphaEd);
     alphaLab->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1117,14 +1077,14 @@ QColorShower::QColorShower(QWidget *parent)
     alphaEd->hide();
     alphaLab->hide();
 
-    connect(hEd, SIGNAL(textChanged(QString)), this, SLOT(hsvEd()));
-    connect(sEd, SIGNAL(textChanged(QString)), this, SLOT(hsvEd()));
-    connect(vEd, SIGNAL(textChanged(QString)), this, SLOT(hsvEd()));
+    connect(hEd, SIGNAL(valueChanged(int)), this, SLOT(hsvEd()));
+    connect(sEd, SIGNAL(valueChanged(int)), this, SLOT(hsvEd()));
+    connect(vEd, SIGNAL(valueChanged(int)), this, SLOT(hsvEd()));
 
-    connect(rEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()));
-    connect(gEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()));
-    connect(bEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()));
-    connect(alphaEd, SIGNAL(textChanged(QString)), this, SLOT(rgbEd()));
+    connect(rEd, SIGNAL(valueChanged(int)), this, SLOT(rgbEd()));
+    connect(gEd, SIGNAL(valueChanged(int)), this, SLOT(rgbEd()));
+    connect(bEd, SIGNAL(valueChanged(int)), this, SLOT(rgbEd()));
+    connect(alphaEd, SIGNAL(valueChanged(int)), this, SLOT(rgbEd()));
 }
 
 void QColorShower::showCurrentColor()
@@ -1137,15 +1097,15 @@ void QColorShower::rgbEd()
 {
     rgbOriginal = true;
     if (alphaEd->isVisible())
-        curCol = qRgba(rEd->val(), gEd->val(), bEd->val(), currentAlpha());
+        curCol = qRgba(rEd->value(), gEd->value(), bEd->value(), currentAlpha());
     else
-        curCol = qRgb(rEd->val(), gEd->val(), bEd->val());
+        curCol = qRgb(rEd->value(), gEd->value(), bEd->value());
 
     rgb2hsv(currentColor(), hue, sat, val);
 
-    hEd->setNum(hue);
-    sEd->setNum(sat);
-    vEd->setNum(val);
+    hEd->setValue(hue);
+    sEd->setValue(sat);
+    vEd->setValue(val);
 
     showCurrentColor();
     emit newCol(currentColor());
@@ -1154,17 +1114,17 @@ void QColorShower::rgbEd()
 void QColorShower::hsvEd()
 {
     rgbOriginal = false;
-    hue = hEd->val();
-    sat = sEd->val();
-    val = vEd->val();
+    hue = hEd->value();
+    sat = sEd->value();
+    val = vEd->value();
 
     QColor c;
     c.setHsv(hue, sat, val);
     curCol = c.rgb();
 
-    rEd->setNum(qRed(currentColor()));
-    gEd->setNum(qGreen(currentColor()));
-    bEd->setNum(qBlue(currentColor()));
+    rEd->setValue(qRed(currentColor()));
+    gEd->setValue(qGreen(currentColor()));
+    bEd->setValue(qBlue(currentColor()));
 
     showCurrentColor();
     emit newCol(currentColor());
@@ -1177,13 +1137,13 @@ void QColorShower::setRgb(QRgb rgb)
 
     rgb2hsv(currentColor(), hue, sat, val);
 
-    hEd->setNum(hue);
-    sEd->setNum(sat);
-    vEd->setNum(val);
+    hEd->setValue(hue);
+    sEd->setValue(sat);
+    vEd->setValue(val);
 
-    rEd->setNum(qRed(currentColor()));
-    gEd->setNum(qGreen(currentColor()));
-    bEd->setNum(qBlue(currentColor()));
+    rEd->setValue(qRed(currentColor()));
+    gEd->setValue(qGreen(currentColor()));
+    bEd->setValue(qBlue(currentColor()));
 
     showCurrentColor();
 }
@@ -1199,13 +1159,13 @@ void QColorShower::setHsv(int h, int s, int v)
     c.setHsv(hue, sat, val);
     curCol = c.rgb();
 
-    hEd->setNum(hue);
-    sEd->setNum(sat);
-    vEd->setNum(val);
+    hEd->setValue(hue);
+    sEd->setValue(sat);
+    vEd->setValue(val);
 
-    rEd->setNum(qRed(currentColor()));
-    gEd->setNum(qGreen(currentColor()));
-    bEd->setNum(qBlue(currentColor()));
+    rEd->setValue(qRed(currentColor()));
+    gEd->setValue(qGreen(currentColor()));
+    bEd->setValue(qBlue(currentColor()));
 
     showCurrentColor();
 }
@@ -1551,7 +1511,7 @@ QColorDialog::~QColorDialog()
         QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
         settings.beginGroup(QLatin1String("Qt"));
         for (int i = 0; i < 2*8; ++i)
-            settings.setValue(QLatin1String("customColors/") + QString::number(i), (int)cusrgb[i]);
+            settings.setValue(QLatin1String("customColors/") + QString::number(i), cusrgb[i]);
         settings.endGroup();
     }
 #endif
