@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#35 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#35 $";
 #endif
 
 
@@ -561,7 +561,7 @@ Norway<br>
 
 <h2>Electronically</h2>
 
-Fax: +47 22 66 69 49.
+Fax: +47 22 64 69 49.
 
 <p>
 
