@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#150 $
 **
 ** Implementation of QButton widget class
 **
@@ -673,12 +673,11 @@ void QButton::keyPressEvent( QKeyEvent *e )
     if ( e->key() == Key_Space ) {
 	animateClick();
     } else if ( group() &&
-	 ( e->key() == Key_Up ||
-	   e->key() == Key_Left ||
-	   e->key() == Key_Down ||
-	   e->key() == Key_Right ) ) {
+		( e->key() == Key_Up ||
+		  e->key() == Key_Left ||
+		  e->key() == Key_Down ||
+		  e->key() == Key_Right ) ) {
 	group()->moveFocus( e->key() );
-	return;
     } else if ( e->key() == Key_Up || e->key() == Key_Left ) {
 	focusNextPrevChild( FALSE );
     } else if ( e->key() == Key_Down || e->key() == Key_Right ) {
