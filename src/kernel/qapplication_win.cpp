@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#385 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#386 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1615,7 +1615,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    // What's This? Windows wants to do something for
 		    // us....naaa
 		    QWhatsThis::enterWhatsThisMode();
-		    DefWindowProc( hwnd, WM_NCPAINT, 1, 0);
+		    if ( qt_winver & Qt::WV_NT_based )
+			DefWindowProc( hwnd, WM_NCPAINT, 1, 0 );
+		    else
+			DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
 		} else
 		    result = FALSE;
 		break;
