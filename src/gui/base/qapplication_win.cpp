@@ -320,6 +320,8 @@ public:
     void	repolishStyle( QStyle &style ) { setStyle(&style); }
     void	reparentWorkaround();
     void eraseWindowBackground(HDC);
+    inline void showChildren(bool spontaneous) { QWidget::showChildren(spontaneous); }
+    inline void hideChildren(bool spontaneous) { QWidget::hideChildren(spontaneous); }
 };
 
 void QETWidget::reparentWorkaround()
@@ -1478,12 +1480,23 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case SC_MINIMIZE:
 		window_state_change = TRUE;
 		widget->setWState(Qt::WState_Minimized);
+		if ( widget->isVisible() ) {
+		    QHideEvent e;
+		    qt_sendSpontaneousEvent( widget, &e );
+		    widget->hideChildren( TRUE );
+		}
 		result = FALSE;
 		break;
 	    case SC_RESTORE:
 		window_state_change = TRUE;
-		widget->clearWState(Qt::WState_Minimized);
-		widget->clearWState(Qt::WState_Maximized);
+		if (widget->isMinimized()) {
+		    widget->clearWState(Qt::WState_Minimized);
+		    widget->showChildren( TRUE );
+		    QShowEvent e;
+		    qt_sendSpontaneousEvent( widget, &e );
+		} else {
+		    widget->clearWState(Qt::WState_Maximized);
+		}
 		result = FALSE;
 		break;
 	    default:
@@ -3169,21 +3182,6 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    data->crect = cr;
 	if ( isTopLevel() ) {			// update caption/icon text
 	    d->createTLExtra();
-	    if ( msg.wParam == SIZE_MINIMIZED ) {
-		// being "hidden"
-		setWState(WState_Minimized);
-		if ( isVisible() ) {
-		    QHideEvent e;
-		    QApplication::sendSpontaneousEvent( this, &e );
-		    hideChildren( TRUE );
-		}
-	    } else if (testWState(WState_Minimized)) {
-		// being shown
-		clearWState(WState_Minimized);
-		showChildren( TRUE );
-		QShowEvent e;
-		QApplication::sendSpontaneousEvent( this, &e );
-	    }
 	    QString txt;
 #ifndef Q_OS_TEMP
 	    if ( IsIconic(winId()) && !!windowIconText() )
