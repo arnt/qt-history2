@@ -38,7 +38,7 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 
-#define QT_VERSION_STR   "3.2.0-snapshot"
+#define QT_VERSION_STR   "3.2.0-beta1"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
