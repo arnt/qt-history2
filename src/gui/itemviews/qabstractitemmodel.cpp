@@ -821,7 +821,10 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
         return 0;
     QMimeData *data = new QMimeData();
     QString format = mimeTypes().at(0);
-    data->setData(format, encodedData(indexes));
+    QByteArray encoded;
+    QDataStream stream(&encoded, QIODevice::WriteOnly);
+    encodeData(indexes, stream);
+    data->setData(format, encoded);
     return data;
 }
 
@@ -842,7 +845,9 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
     if (columnCount(parent) <= 0)
         return false;
     // decode and insert
-    return decodeData(row, parent, data->data(format));
+    QByteArray encoded = data->data(format);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    return decodeData(row, parent, stream);
 }
 
 /*!
@@ -1180,10 +1185,8 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
 /*!
   \internal
 */
-QByteArray QAbstractItemModel::encodedData(const QModelIndexList &indexes) const
+void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream &stream) const
 {
-    QByteArray encoded;
-    QDataStream stream(&encoded, QIODevice::WriteOnly);
     QModelIndexList::ConstIterator it = indexes.begin();
     for (; it != indexes.end(); ++it) {
         QMap<int, QVariant> data = itemData(*it);
@@ -1196,15 +1199,36 @@ QByteArray QAbstractItemModel::encodedData(const QModelIndexList &indexes) const
         stream << rowCount(*it); // children
         stream << columnCount(*it); // children
     }
-    return encoded;
 }
 
 /*!
   \internal
 */
-bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QByteArray encoded)
+void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stream) const
 {
-    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    for (int row = 0; row < rowCount(parent); ++row) {
+        for (int column = 0; column < columnCount(parent); ++column) {
+            QModelIndex idx = index(row, column, parent);
+            QMap<int, QVariant> data = itemData(idx);
+            stream << data.count(); // roles
+            QMap<int, QVariant>::ConstIterator it2 = data.begin();
+            for (; it2 != data.end(); ++it2) {
+                stream << it2.key();
+                stream << it2.value();
+            }
+            stream << rowCount(idx); // children
+            stream << columnCount(idx); // children
+            if (hasChildren(idx)) // recursive
+                encodeData(idx, stream);
+        }
+    }
+}
+
+/*!
+  \internal
+*/
+bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStream &stream)
+{
     int count, role, rows, columns;
     QVariant value;
     QModelIndex idx;

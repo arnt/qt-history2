@@ -235,8 +235,9 @@ protected:
     inline QModelIndex createIndex(int row, int column, void *data = 0) const
         { return QModelIndex(row, column, data, this); }
 
-    QByteArray encodedData(const QModelIndexList &indexes) const;
-    bool decodeData(int row, const QModelIndex &parent, QByteArray encoded);
+    void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
+    void encodeData(const QModelIndex &parent, QDataStream &stream) const;
+    bool decodeData(int row, const QModelIndex &parent, QDataStream &stream);
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
     int persistentIndexesCount() const;
