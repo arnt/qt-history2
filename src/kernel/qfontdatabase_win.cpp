@@ -31,9 +31,119 @@
 
 // #define QFONTDATABASE_DEBUG
 
+// see the Unicode subset bitfields in the MSDN docs
+static int requiredUnicodeBits[QFont::Unicode][2] = {
+    //Latin,
+    { 0, 1 },
+    //Greek,
+    { 7, 127 },
+    //Cyrillic,
+    { 9, 127 },
+    //Armenian,
+    { 10, 127 },
+    //Georgian,
+    { 26, 127 },
+    //Runic,
+    { 79, 127 },
+    //Ogham,
+    { 78, 127 },
+    //SpacingModifiers,
+    { 5, 127 },
+    //CombiningMarks,
+    { 6, 127 },
+
+    // Middle Eastern Scripts
+    //Hebrew,
+    { 11, 127 },
+    //Arabic,
+    { 13, 67 },
+    //Syriac,
+    { 71, 127 },
+    //Thaana,
+    { 72, 127 },
+
+    // South and Southeast Asian Scripts
+    //Devanagari,
+    { 15, 127 },
+    //Bengali,
+    { 16, 127 },
+    //Gurmukhi,
+    { 17, 127 },
+    //Gujarati,
+    { 18, 127 },
+    //Oriya,
+    { 19, 127 },
+    //Tamil,
+    { 20, 127 },
+    //Telugu,
+    { 21, 127 },
+    //Kannada,
+    { 22, 127 },
+    //Malayalam,
+    { 23, 127 },
+    //Sinhala,
+    { 73, 127 },
+    //Thai,
+    { 24, 127 },
+    //Lao,
+    { 25, 127 },
+    //Tibetan,
+    { 70, 127 },
+    //Myanmar,
+    { 74, 127 },
+    //Khmer,
+    { 80, 127 },
+
+    // East Asian Scripts
+    //Han,
+    { 59, 127 },
+    //Hiragana,
+    { 49, 127 },
+    //Katakana,
+    { 50, 127 },
+    //Hangul,
+    { 56, 127 },
+    //Bopomofo,
+    { 51, 127 },
+    //Yi,
+    { 83, 127 },
+
+    // Additional Scripts
+    //Ethiopic,
+    { 75, 127 },
+    //Cherokee,
+    { 76, 127 },
+    //CanadianAboriginal,
+    { 77, 127 },
+    //Mongolian,
+    { 81, 127 },
+
+    // Symbols
+    //CurrencySymbols,
+    { 33, 127 },
+    //LetterlikeSymbols,
+    { 35, 127 },
+    //NumberForms,
+    { 36, 127 },
+    //MathematicalOperators,
+    { 38, 127 },
+    //TechnicalSymbols,
+    { 39, 127 },
+    //GeometricSymbols,
+    { 43, 127 },
+    //MiscellaneousSymbols,
+    { 46, 127 },
+    //EnclosedAndSquare,
+    { 42, 127 },
+    //Braille,
+    { 82, 127 },
+
+};
+
+
 static
 int CALLBACK
-storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int /*type*/, LPARAM /*p*/ )
+storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/ )
 {
     const int script = QFont::Unicode;
     const QString foundryName;
@@ -104,6 +214,35 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int /*type*/, LPARAM /
 	}
 
 	family->fixedPitch = fixed;
+	
+	bool hasScript = false;
+	if ( type & TRUETYPE_FONTTYPE ) {
+	    FONTSIGNATURE signature;
+	    QT_WA( {
+		signature = textmetric->ntmFontSig;
+	    }, {
+		signature = ((NEWTEXTMETRICEXA *)textmetric)->ntmFontSig;
+	    } );
+	    int i;
+	    //qDebug("family %s:", familyName.latin1() );
+	    for( i = 0; i < QFont::Unicode; i++ ) {
+		int bit = requiredUnicodeBits[i][0];
+		int index = bit/32;
+		int flag =  1 << (bit&31);
+		if ( signature.fsUsb[index] & flag ) {
+		    bit = requiredUnicodeBits[i][1];
+		    index = bit/32;
+		    flag =  1 << (bit&31);
+		    if ( bit == 127 || signature.fsUsb[index] & flag ) {
+			family->scripts[i] = TRUE;
+			hasScript = true;
+			//qDebug( "i=%d, flag=%8x font supports script %d", index, flag, i );
+		    }
+		}
+	    }
+	}
+	if( !hasScript )
+	    family->scripts[QFont::Unicode] = TRUE;
     }
 
     // keep on enumerating
