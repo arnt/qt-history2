@@ -3,58 +3,58 @@
 # the format is 'xlfd mib script,...'
 #
 # Latin
-iso8859-1 0 Ascii,Latin
-iso8859-2 5 Ascii,Latin
-iso8859-3 6 Ascii,Latin
-iso8859-4 7 Ascii,Latin
-iso8859-14 110 Ascii,Latin
-iso8859-15 111 Ascii,Latin
+iso8859-1 0 Latin
+iso8859-2 5 Latin
+iso8859-3 6 Latin
+iso8859-4 7 Latin
+iso8859-14 110 Latin
+iso8859-15 111 Latin
 #
 # Cyrillic
-iso8859-5 8 Ascii,Cyrillic
-*-cp1251 2251 Ascii,Cyrillic
-koi8-ru 2084 Cyrillic Ascii
-koi8-u 2088 Cyrillic Ascii
-koi8-r 2084 Cyrillic Ascii
+iso8859-5 8 Cyrillic
+*-cp1251 2251 Cyrillic
+koi8-ru 2084 Cyrillic 
+koi8-u 2088 Cyrillic 
+koi8-r 2084 Cyrillic 
 #
 # Greek
-iso8859-7 10 Ascii,Greek
+iso8859-7 10 Greek
 #
 # Arabic
-iso8859-6 82 Ascii,Arabic
+iso8859-6 82 Arabic
 #
 # Hebrew
-iso8859-8 85 Ascii,Hebrew
+iso8859-8 85 Hebrew
 #
 # China, Mainland
-gb18030-0 -114 Ascii,Han,Bopomofo
-gb18030.2000-0 -113 Ascii,Han
-gbk-0 -113 Ascii,Han
-gb2312.*-0 57 Ascii,Han
+gb18030-0 -114 Han,Bopomofo
+gb18030.2000-0 -113 Han
+gbk-0 -113 Han
+gb2312.*-0 57 Han
 #
 # Japan
-jisx0201*-0 15 Ascii
-jisx0208*-0 63 Ascii,Hiragana,Katakana,Han
+jisx0201*-0 15 
+jisx0208*-0 63 Hiragana,Katakana,Han
 #
 # Korea
-ksc5601.1987-0 36 Ascii,Hangul
+ksc5601.1987-0 36 Hangul
 #
 # Hong Kong
-big5hkscs-0 -2101 Ascii,Han
-hkscs-1 -2101 Ascii,Han
+big5hkscs-0 -2101 Han
+hkscs-1 -2101 Han
 #
 # Taiwan
-big5*-* -2026 Ascii,Han
+big5*-* -2026 Han
 #
 # Tamil
 tscii-* 2028 Tamil
 #
 # Thai
-tis620*-0 2259 Ascii
-iso8859-11 2259 Ascii
+tis620*-* 2259 Thai
+iso8859-11 2259 Thai
 #
 # Lao
-mulelao-1 -4242
+mulelao-1 -4242 Lao
 #
 # Ethiopic
 ethiopic-unicode 0 Ethiopic

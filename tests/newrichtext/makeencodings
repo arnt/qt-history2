@@ -57,7 +57,6 @@ my @qscripts = (
 	"Braille",
 	"Unicode",
 	"UnknownScript",
-	"Ascii",
 );
 
 my $num_scripts = @qscripts;
