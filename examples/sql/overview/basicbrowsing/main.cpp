@@ -24,12 +24,12 @@ int main( int argc, char *argv[] )
 	// Copy data from the oracle database to the ODBC (default)
 	// database
 	QSqlQuery target;
-	QSqlQuery query( "SELECT id, name FROM people;", oracledb );
+	QSqlQuery query( "SELECT id, name FROM people", oracledb );
 	if ( query.isActive() ) {
 	    while ( query.next() ) {
 		target.exec( "INSERT INTO people ( id, name ) VALUES ( " + 
 			      query.value(0).toString() + 
-			      ", '" + query.value(1).toString() +  "' );" );
+			      ", '" + query.value(1).toString() +  "' )" );
 	    }
 	}
     }

@@ -20,7 +20,7 @@ int main( int argc, char *argv[] )
     QApplication app( argc, argv, FALSE );
 
     if ( createConnections() ) {
-	QSqlQuery query( "SELECT id, name FROM people ORDER BY name;" );
+	QSqlQuery query( "SELECT id, name FROM people ORDER BY name" );
 	if ( ! query.isActive() ) return 1; // Query failed
 	int i;
 	i = query.size();		// In this example we have 9 records; i == 9.

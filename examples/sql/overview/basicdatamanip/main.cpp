@@ -26,13 +26,13 @@ int main( int argc, char *argv[] )
 
     if ( createConnections() ) {
 	QSqlQuery query( "INSERT INTO staff ( id, forename, surname, salary ) "
-		     "VALUES ( 1155, 'Ginger', 'Davis', 50000 );" );
+		     "VALUES ( 1155, 'Ginger', 'Davis', 50000 )" );
 	if ( query.isActive() ) rows += query.numRowsAffected() ;
 
-	query.exec( "UPDATE staff SET salary=60000 WHERE id=1155;" );
+	query.exec( "UPDATE staff SET salary=60000 WHERE id=1155" );
 	if ( query.isActive() ) rows += query.numRowsAffected() ;
 
-	query.exec( "DELETE FROM staff WHERE id=1155;" ); 
+	query.exec( "DELETE FROM staff WHERE id=1155" ); 
 	if ( query.isActive() ) rows += query.numRowsAffected() ;
     }
 

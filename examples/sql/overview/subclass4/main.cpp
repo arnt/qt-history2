@@ -35,19 +35,19 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
 
     if ( name == "productname" ) {
 	QSqlQuery query( "SELECT name FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return query.value( 0 );
     }
     else if ( name == "price" ) {
 	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return query.value( 0 );
     }
     else if ( name == "cost" ) {
 	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return QVariant( query.value( 0 ).toDouble() *
 			     value( "quantity").toDouble() );

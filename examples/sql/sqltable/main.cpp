@@ -32,7 +32,7 @@ protected:
     {
 	/* a real-world application would use sequences, or the like */
 	QSqlRecord* buf = QSqlCursor::primeInsert();
-	QSqlQuery q( "select max(id)+1 from simpletable;" );
+	QSqlQuery q( "select max(id)+1 from simpletable" );
 	if ( q.next() )
 	       buf->setValue( "id", q.value(0) );
 	return buf;

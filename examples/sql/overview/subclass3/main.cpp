@@ -26,7 +26,7 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
 {
     if ( name == "productname" ) {
 	QSqlQuery query( "SELECT name FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return query.value( 0 );
     }

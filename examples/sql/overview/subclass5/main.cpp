@@ -35,19 +35,19 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
 
     if ( name == "productname" ) {
 	QSqlQuery query( "SELECT name FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return query.value( 0 );
     }
     else if ( name == "price" ) {
 	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return query.value( 0 );
     }
     else if ( name == "cost" ) {
 	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
-		     field( "pricesid" )->value().toString() + ";" );
+		     field( "pricesid" )->value().toString() );
 	if ( query.next() )
 	    return QVariant( query.value( 0 ).toDouble() *
 			     value( "quantity").toDouble() );
@@ -60,7 +60,7 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
 QSqlRecord *InvoiceItemCursor::primeInsert()
 {
     QSqlRecord *buffer = editBuffer();
-    QSqlQuery query( "SELECT NEXTVAL( 'invoiceitem_seq' );" );
+    QSqlQuery query( "SELECT NEXTVAL( 'invoiceitem_seq' )" );
     if ( query.next() )
 	buffer->setValue( "id", query.value( 0 ) );
     buffer->setValue( "paiddate", QDate::currentDate() );

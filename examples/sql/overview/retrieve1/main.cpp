@@ -20,7 +20,7 @@ int main( int argc, char *argv[] )
     QApplication app( argc, argv, FALSE );
 
     if ( createConnections() ) {
-	QSqlQuery query( "SELECT id, surname FROM staff;" );
+	QSqlQuery query( "SELECT id, surname FROM staff" );
 	if ( query.isActive() ) {
 	    while ( query.next() ) {
 		qDebug( query.value(0).toString() + ": " +
