@@ -131,9 +131,9 @@ void StartDialog::setRecentlyProjects( QStringList &projects )
 
 void StartDialog::insertRecentItems( QStringList &files, bool isProject )
 {
-    QString iconName = "images/newform.png";
+    QString iconName = "newform.png";
     if ( isProject )
-	iconName = "images/project.png";
+	iconName = "project.png";
     QIconViewItem *item;
     QStringList::iterator it = files.begin();
     for( ; it != files.end(); ++it ) {

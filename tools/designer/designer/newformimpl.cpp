@@ -237,7 +237,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    ProjectItem *pi = new ProjectItem( tView, *it + " " + tr( "Project" ) );
 	    allItems.append( pi );
 	    pi->setLanguage( *it );
-	    pi->setPixmap( QPixmap::fromMimeSource( "images/project.png" ) );
+	    pi->setPixmap( QPixmap::fromMimeSource( "project.png" ) );
 	    pi->setDragEnabled( FALSE );
 	}
     }
@@ -245,24 +245,24 @@ void NewForm::insertTemplates( QIconView *tView,
     FormItem *fi = new FormItem( tView,tr( "Dialog" ) );
     allItems.append( fi );
     fi->setFormType( FormItem::Dialog );
-    fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
+    fi->setPixmap( QPixmap::fromMimeSource( "newform.png" ) );
     fi->setDragEnabled( FALSE );
     cur = fi;
     if ( !MainWindow::self->singleProjectMode() ) {
 	fi = new FormItem( tView,tr( "Wizard" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Wizard );
-	fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
+	fi->setPixmap( QPixmap::fromMimeSource( "newform.png" ) );
 	fi->setDragEnabled( FALSE );
 	fi = new FormItem( tView, tr( "Widget" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::Widget );
-	fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
+	fi->setPixmap( QPixmap::fromMimeSource( "newform.png" ) );
 	fi->setDragEnabled( FALSE );
 	fi = new FormItem( tView, tr( "Main Window" ) );
 	allItems.append( fi );
 	fi->setFormType( FormItem::MainWindow );
-	fi->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
+	fi->setPixmap( QPixmap::fromMimeSource( "newform.png" ) );
 	fi->setDragEnabled( FALSE );
 
 	QString templPath = templatePath;
@@ -295,7 +295,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		    CustomFormItem *ci = new CustomFormItem( tView, name );
 		    allItems.append( ci );
 		    ci->setDragEnabled( FALSE );
-		    ci->setPixmap( QPixmap::fromMimeSource( "images/newform.png" ) );
+		    ci->setPixmap( QPixmap::fromMimeSource( "newform.png" ) );
 		    ci->setTemplateFile( fi->absFilePath() );
 		}
 	    }
@@ -313,7 +313,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		allItems.append( si );
 		si->setExtension( eit.key() );
 		si->setLanguage( *it );
-		si->setPixmap( QPixmap::fromMimeSource( "images/filenew.png" ) );
+		si->setPixmap( QPixmap::fromMimeSource( "filenew.png" ) );
 		si->setDragEnabled( FALSE );
 	    }
 	    iface->release();
@@ -330,7 +330,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    allItems.append( si );
 	    si->setTemplate( *sit );
 	    si->setLanguage( siface->language( *sit ) );
-	    si->setPixmap( QPixmap::fromMimeSource( "images/filenew.png" ) );
+	    si->setPixmap( QPixmap::fromMimeSource( "filenew.png" ) );
 	    si->setDragEnabled( FALSE );
 	    siface->release();
 	}

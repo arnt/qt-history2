@@ -152,7 +152,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	dia.editArguments->setText( MetaDataBase::pixmapArgument( fw, old.serialNumber() ) );
 	dia.editArguments->setFocus();
 	if ( dia.exec() == QDialog::Accepted ) {
-	    QPixmap pix( QPixmap::fromMimeSource( "images/image.png" ) );
+	    QPixmap pix( QPixmap::fromMimeSource( "image.png" ) );
 	    MetaDataBase::setPixmapArgument( fw, pix.serialNumber(), dia.editArguments->text() );
 	    return pix;
 	}
@@ -166,7 +166,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 }
 
 ImageIconProvider::ImageIconProvider( QWidget *parent, const char *name )
-    : QFileIconProvider( parent, name ), imagepm( QPixmap::fromMimeSource( "images/image.png" ) )
+    : QFileIconProvider( parent, name ), imagepm( QPixmap::fromMimeSource( "image.png" ) )
 {
     fmts = QImage::inputFormats();
 }

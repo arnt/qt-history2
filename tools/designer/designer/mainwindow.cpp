@@ -121,6 +121,9 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
+    extern void qInitImages_designer();
+    qInitImages_designer();
+
     self = this;
     setPluginDirectory( plgDir );
     customWidgetToolBar = customWidgetToolBar2 = 0;
@@ -143,7 +146,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     if ( !single )
 	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
-    setIcon( QPixmap::fromMimeSource( "images/logo.png" ) );
+    setIcon( QPixmap::fromMimeSource( "logo.png" ) );
 
     actionGroupTools = 0;
     prefDia = 0;

@@ -949,11 +949,11 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 	if ( mainwindow && mainwindow->currProject() )
 	    pix = mainwindow->currProject()->pixmapCollection()->pixmap( arg );
 	else
-	    pix = QPixmap::fromMimeSource( "images/image.png" );
+	    pix = QPixmap::fromMimeSource( "image.png" );
 	MetaDataBase::setPixmapKey( formwindow, pix.serialNumber(), arg );
 	return pix;
     }
-    QPixmap pix = QPixmap::fromMimeSource( "images/image.png" );
+    QPixmap pix = QPixmap::fromMimeSource( "image.png" );
     MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
     return pix;
 }

@@ -50,7 +50,7 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
 	QListViewItem *i = new QListViewItem( functionListView );
 
-	i->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
+	i->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
 	i->setText( 0, (*it).function );
 	i->setText( 1, (*it).returnType );
 	i->setText( 2, (*it).specifier );
@@ -231,7 +231,7 @@ void EditFunctions::okClicked()
 void EditFunctions::functionAdd( const QString &access, const QString &type )
 {
     QListViewItem *i = new QListViewItem( functionListView );
-    i->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
+    i->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
     i->setText( 1, "void" );
     i->setText( 2, "virtual" );
     if ( access.isEmpty() )
@@ -463,7 +463,7 @@ void EditFunctions::displaySlots( bool justSlots )
 	    continue;
 	QListViewItem *i = new QListViewItem( functionListView );
 	functionIds.insert( i, (*it).id );
-	i->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
+	i->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
 	i->setText( 0, (*it).newName );
 	i->setText( 1, (*it).retTyp );
 	i->setText( 2, (*it).spec );

@@ -612,7 +612,7 @@ QIconSet WidgetDatabase::iconSet( int id )
 	return QIconSet();
 #if !defined(UIC) && !defined(RESOURCE)
     if ( !r->icon ) {
-	QPixmap pix = QPixmap::fromMimeSource( "images/" + r->iconSet );
+	QPixmap pix = QPixmap::fromMimeSource( r->iconSet );
 	if ( pix.isNull() )
 	    pix = QPixmap( r->iconSet );
 	r->icon = new QIconSet( pix );

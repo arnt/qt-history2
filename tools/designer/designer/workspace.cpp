@@ -387,7 +387,7 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     header()->hide();
     setSorting( 0 );
     setResizePolicy( QScrollView::Manual );
-    setIcon( QPixmap::fromMimeSource( "images/logo.png" ) );
+    setIcon( QPixmap::fromMimeSource( "logo.png" ) );
     QPalette p( palette() );
     p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack
@@ -409,7 +409,7 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
 	filePixmap = new QPixmap( file_xpm );
-	formPixmap = new QPixmap( QPixmap::fromMimeSource( "images/form.png" ) );
+	formPixmap = new QPixmap( QPixmap::fromMimeSource( "form.png" ) );
 	objectPixmap = new QPixmap( object_xpm );
     }
 }
@@ -704,23 +704,23 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case WorkspaceItem::SourceFileType:
 	menu.insertItem( tr( "&Open source file" ), OPEN_SOURCE );
 	menu.insertSeparator();
-	menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ),
+	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
 	break;
     case WorkspaceItem::FormFileType:
 	menu.insertItem( tr( "&Open form" ), OPEN_FORM );
 	menu.insertSeparator();
-	menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ),
+	menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::FormSourceType:
 	menu.insertItem( tr( "&Open form source" ), OPEN_FORM_SOURCE );
 	menu.insertSeparator();
 	if ( project->isCpp() )
-	    menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ),
+	    menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
 			     tr( "&Remove source file from form" ), REMOVE_FORM_SOURCE );
 	else
-	    menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ),
+	    menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ),
 	                     tr( "&Remove form from project" ), REMOVE_FORM );
 	break;
     case WorkspaceItem::ProjectType:

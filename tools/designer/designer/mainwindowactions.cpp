@@ -99,8 +99,8 @@ const QString toolbarHelp = "<p>Toolbars contain a number of buttons to "
 
 static QIconSet createIconSet( const QString &name )
 {
-    QIconSet ic( QPixmap::fromMimeSource( "images/" + name ) );
-    ic.setPixmap( QPixmap::fromMimeSource( "images/disabled_" + name ), QIconSet::Small, QIconSet::Disabled );
+    QIconSet ic( QPixmap::fromMimeSource( "" + name ) );
+    ic.setPixmap( QPixmap::fromMimeSource( "disabled_" + name ), QIconSet::Small, QIconSet::Disabled );
     return ic;
 }
 

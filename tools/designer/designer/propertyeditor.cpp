@@ -376,7 +376,7 @@ void PropertyItem::createResetButton()
     hbox->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     hbox->setLineWidth( 1 );
     resetButton = new QPushButton( hbox );
-    resetButton->setPixmap( QPixmap::fromMimeSource( "images/resetproperty.png" ) );
+    resetButton->setPixmap( QPixmap::fromMimeSource( "resetproperty.png" ) );
     resetButton->setFixedWidth( resetButton->sizeHint().width() );
     hbox->layout()->setAlignment( Qt::AlignRight );
     listview->addChild( hbox );
@@ -2304,23 +2304,23 @@ QComboBox *PropertyCursorItem::combo()
     comb->hide();
     QBitmap cur;
 
-    comb->insertItem( QPixmap::fromMimeSource( "images/arrow.png" ), tr("Arrow"), QObject::ArrowCursor);
-    comb->insertItem( QPixmap::fromMimeSource( "images/uparrow.png" ), tr("Up-Arrow"), QObject::UpArrowCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/cross.png" ), tr("Cross"), QObject::CrossCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/wait.png" ), tr("Waiting"), QObject::WaitCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/ibeam.png" ), tr("iBeam"), QObject::IbeamCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/sizev.png" ), tr("Size Vertical"), QObject::SizeVerCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/sizeh.png" ), tr("Size Horizontal"), QObject::SizeHorCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/sizef.png" ), tr("Size Slash"), QObject::SizeBDiagCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/sizeb.png" ), tr("Size Backslash"), QObject::SizeFDiagCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/sizeall.png" ), tr("Size All"), QObject::SizeAllCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "arrow.png" ), tr("Arrow"), QObject::ArrowCursor);
+    comb->insertItem( QPixmap::fromMimeSource( "uparrow.png" ), tr("Up-Arrow"), QObject::UpArrowCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "cross.png" ), tr("Cross"), QObject::CrossCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "wait.png" ), tr("Waiting"), QObject::WaitCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "ibeam.png" ), tr("iBeam"), QObject::IbeamCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "sizev.png" ), tr("Size Vertical"), QObject::SizeVerCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "sizeh.png" ), tr("Size Horizontal"), QObject::SizeHorCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "sizef.png" ), tr("Size Slash"), QObject::SizeBDiagCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "sizeb.png" ), tr("Size Backslash"), QObject::SizeFDiagCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "sizeall.png" ), tr("Size All"), QObject::SizeAllCursor );
     cur = QBitmap( 25, 25, 1 );
     cur.setMask( cur );
     comb->insertItem( cur, tr("Blank"), QObject::BlankCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/vsplit.png" ), tr("Split Vertical"), QObject::SplitVCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/hsplit.png" ), tr("Split Horizontal"), QObject::SplitHCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/hand.png" ), tr("Pointing Hand"), QObject::PointingHandCursor );
-    comb->insertItem( QPixmap::fromMimeSource( "images/no.png" ), tr("Forbidden"), QObject::ForbiddenCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "vsplit.png" ), tr("Split Vertical"), QObject::SplitVCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "hsplit.png" ), tr("Split Horizontal"), QObject::SplitHCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "hand.png" ), tr("Pointing Hand"), QObject::PointingHandCursor );
+    comb->insertItem( QPixmap::fromMimeSource( "no.png" ), tr("Forbidden"), QObject::ForbiddenCursor );
 
     connect( comb, SIGNAL( activated( int ) ),
 	     this, SLOT( setValue() ) );
@@ -3399,7 +3399,7 @@ void EventList::setup()
 		continue;
 	    HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
 						     (*cit).slot, QString::null, QString::null );
-	    item->setPixmap( 0, QPixmap::fromMimeSource( "images/editslots.png" ) );
+	    item->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
 	}
 	++it;
     }
@@ -3423,7 +3423,7 @@ void EventList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	s = QString( editor->widget()->name() ) + "_" + i->text( 0 );
     }
 
-    insertEntry( i, QPixmap::fromMimeSource( "images/editslots.png" ), s );
+    insertEntry( i, QPixmap::fromMimeSource( "editslots.png" ), s );
 }
 
 void EventList::setCurrent( QWidget * )
@@ -3444,8 +3444,8 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
-    menu.insertItem( QPixmap::fromMimeSource( "images/filenew.png" ), tr( "New Signal Handler" ), NEW_ITEM );
-    menu.insertItem( QPixmap::fromMimeSource( "images/editcut.png" ), tr( "Delete Signal Handler" ), DEL_ITEM );
+    menu.insertItem( QPixmap::fromMimeSource( "filenew.png" ), tr( "New Signal Handler" ), NEW_ITEM );
+    menu.insertItem( QPixmap::fromMimeSource( "editcut.png" ), tr( "Delete Signal Handler" ), DEL_ITEM );
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
 	QString s;
@@ -3458,7 +3458,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	} else {
 	    s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
 	}
-	insertEntry( i->parent() ? i->parent() : i, QPixmap::fromMimeSource( "images/editslots.png" ), s );
+	insertEntry( i->parent() ? i->parent() : i, QPixmap::fromMimeSource( "editslots.png" ), s );
     } else if ( res == DEL_ITEM && i->parent() ) {
 	MetaDataBase::Connection conn;
 	conn.sender = editor->widget();
@@ -3551,7 +3551,7 @@ PropertyEditor::PropertyEditor( QWidget *parent )
 		  WStyle_StaysOnTop | WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
 {
     setCaption( tr( "Property Editor" ) );
-    setIcon( QPixmap::fromMimeSource( "images/logo.png" ) );
+    setIcon( QPixmap::fromMimeSource( "logo.png" ) );
     wid = 0;
     formwindow = 0;
     listview = new PropertyList( this );
