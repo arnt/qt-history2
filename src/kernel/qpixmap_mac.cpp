@@ -385,7 +385,6 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		   Qt::RasterOp rop, bool imask);
 
-QWidget *oinko = NULL;
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
     int	   w, h;				// size of target pixmap
@@ -426,6 +425,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
+//FIXME this code is needed to  optimize for the scaling case
+#if 0
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
@@ -449,12 +450,13 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
 
     } else {					// rotation or shearing
+#endif
 	QPointArray a( QRect(0,0,ws,hs) );
 	a = mat.map( a );
 	QRect r = a.boundingRect().normalize();
 	w = r.width();
 	h = r.height();
-    }
+//    }
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
 
@@ -470,10 +472,13 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws=width();
     hs=height();
 
-    QImage destImg;
-    QPixmap pm( 1, 1, depth(), data->bitmap, NormalOptim );
-    pm.data->uninit = FALSE;
-    destImg.create( w, h, srcImg.depth(), srcImg.numColors(), srcImg.bitOrder() );
+    QImage destImg( w, h, srcImg.depth(), srcImg.numColors(), srcImg.bitOrder() );
+    //FIXME: we don't want a static color here it belongs in image creation
+    if (destImg.depth() == 1) {
+	destImg.setNumColors( 2 );
+	destImg.setColor( 0, qRgba(255,255,255, 0) );
+	destImg.setColor( 1, qRgba(0,0,0, 0) );
+    }
     dptr=destImg.scanLine(0);
     dbpl=destImg.bytesPerLine();
     bpp=destImg.depth();
@@ -600,6 +605,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	p += p_inc;
     }
 
+    QPixmap pm( destImg.width(), destImg.height(), depth(), data->bitmap, NormalOptim );
     pm.convertFromImage( destImg );
     if ( depth1 ) {
 	if ( data->mask ) {
