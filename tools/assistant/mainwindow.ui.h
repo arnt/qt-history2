@@ -248,17 +248,19 @@ void MainWindow::about()
     QMessageBox box( this );
     box.setText( "<center><img src=\"splash.png\">"
 		 "<p>Version " + QString(QT_VERSION_STR) + "</p>"
-		 "<p>Copyright (C) 2001-2003 Trolltech AS. All rights reserved.</p>"
-		 "</center><p></p>"
-		 "<p>This program is licensed to you under the terms of the GNU General "
-		 "Public License Version 2 as published by the Free Software Foundation. This "
-		 "gives you legal permission to copy, distribute and/or modify this software "
-		 "under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
-		 "this software distribution. If you did not get the file, send email to "
-		 "info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
-		 "OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
-		 "FOR A PARTICULAR PURPOSE.</p>"
-		 );
+		 "<p>Copyright (C) 2000-2003 Trolltech AS. All rights reserved."
+		 "</p></center><p></p>"
+		 "<p>Qt Commercial Edition license holders: This program is"
+		 " licensed to you under the terms of the Qt Commercial License"
+		 " Agreement. For details, see the file LICENSE that came with"
+		 " this software distribution.</p><p></p>"
+		 "<p>Qt Free Edition users: This program is licensed to you"
+		 " under the terms of the GNU General Public License Version 2."
+		 " For details, see the file LICENSE.GPL that came with this"
+		 " software distribution.</p><p>The program is provided AS IS"
+		 " with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF"
+		 " DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
+		 "</p>" );
     box.setCaption( tr( "About Qt Assistant" ) );
     box.setIcon( QMessageBox::NoIcon );
     box.exec();
