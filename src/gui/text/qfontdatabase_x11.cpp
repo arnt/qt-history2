@@ -1455,7 +1455,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 
 	XftPattern *pattern = XftPatternDuplicate(font);
 	// add properties back in as the font selected from the list doesn't contain them.
-	addPatternProps(pattern, key, false, fp, request);
+	addPatternProps(pattern, key, false, fp, request, script);
 
 	XftPattern *result =
 	    XftFontMatch( QX11Info::appDisplay(), fp->screen, pattern, &res );
