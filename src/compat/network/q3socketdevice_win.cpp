@@ -621,7 +621,7 @@ qint64 Q3SocketDevice::bytesAvailable() const
 }
 
 
-qint64 Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
+Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
@@ -842,7 +842,7 @@ qint64 Q3SocketDevice::writeData( const char *data, qint64 len )
 }
 
 
-qint64 Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
+Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
 			       const QHostAddress & host, quint16 port )
 {
     if ( t != Datagram ) {
