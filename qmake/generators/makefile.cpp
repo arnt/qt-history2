@@ -1521,6 +1521,8 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 		impl_dir.prepend(Option::output_dir + Option::dir_sep);
 	    if (QDir::isRelativePath(decl_dir))
 		decl_dir.prepend(Option::output_dir + Option::dir_sep);
+	    createDir(impl_dir);
+	    createDir(decl_dir);
 	}
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
