@@ -1544,7 +1544,8 @@ QString QTextStream::readLine()
 
 
 /*!
-    Reads the entire stream and returns a string containing the text.
+    Reads the entire stream from the current position, and returns a
+    string containing the text.
 
     \sa QIODevice::readLine()
 */
