@@ -68,6 +68,11 @@ AbstractFormEditor *ObjectInspector::core() const
     return m_core;
 }
 
+bool ObjectInspector::sortEntry(const QObject *a, const QObject *b)
+{
+    return a->objectName() < b->objectName();
+}
+
 void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 {
     if (m_ignoreUpdate)
@@ -122,6 +127,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             }
         } else {
             QList<QObject*> children = object->children();
+            qSort(children.begin(), children.end(), ObjectInspector::sortEntry);
             foreach (QObject *child, children) {
                 if (!child->isWidgetType() || !fw->isManaged(static_cast<QWidget*>(child)))
                     continue;

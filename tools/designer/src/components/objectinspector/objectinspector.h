@@ -38,6 +38,9 @@ private slots:
     void slotSelectionChanged();
 
 private:
+    static bool sortEntry(const QObject *a, const QObject *b);
+
+private:
     AbstractFormEditor *m_core;
     TreeWidget *m_treeWidget;
     QPointer<AbstractFormWindow> m_formWindow;
