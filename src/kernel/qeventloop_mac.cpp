@@ -770,7 +770,8 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 		if(qt_replay_event) {	//ick
 		    EventRef ev = qt_replay_event;
 		    qt_replay_event = NULL;
-		    qt_mac_send_event(flags, ev, (WindowPtr)qt_mac_safe_pdev->handle());
+		    // DS: Disabled, task #11582
+		    // qt_mac_send_event(flags, ev, (WindowPtr)qt_mac_safe_pdev->handle());
 		    ReleaseEvent(ev);
 		}
 	    } while(GetNumEventsInQueue(GetMainEventQueue()));
