@@ -38,8 +38,9 @@
 #include "qlayout.h"
 
 #ifndef QT_NO_LAYOUT
-#include "qmenubar.h"
 #include "qapplication.h"
+#include "qlayoutengine_p.h"
+#include "qmenubar.h"
 
 /*!
     \class QLayoutItem
@@ -314,67 +315,6 @@ int QLayoutItem::heightForWidth( int /* w */ ) const
     return -1;
 }
 
-static QSize smartMinSize( const QWidgetItem *i )
-{
-    QWidget *w = ((QWidgetItem *)i)->widget();
-
-    QSize s( 0, 0 );
-    if ( w->layout() ) {
-	s = w->layout()->totalMinimumSize();
-    } else {
-	QSize sh;
-
-	if ( w->sizePolicy().mayShrinkHorizontally() ) {
-	    s.setWidth( w->minimumSizeHint().width() );
-	} else {
-	    sh = w->sizeHint();
-	    s.setWidth( sh.width() );
-	}
-
-	if ( w->sizePolicy().mayShrinkVertically() ) {
-	    s.setHeight( w->minimumSizeHint().height() );
-	} else {
-	    s.setHeight( sh.isValid() ? sh.height() : w->sizeHint().height() );
-	}
-    }
-    s = s.boundedTo( w->maximumSize() );
-    QSize min = w->minimumSize();
-    if ( min.width() > 0 )
-	s.setWidth( min.width() );
-    if ( min.height() > 0 )
-	s.setHeight( min.height() );
-
-    if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
-	s.setHeight( i->heightForWidth( s.width()) );
-
-    s = s.expandedTo( QSize(1, 1) );
-    return s;
-}
-
-// Returns the max size of a box containing \a w with alignment \a align.
-static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
-{
-    QWidget *w = ( (QWidgetItem*)i )->widget();
-    if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
-	return QSize( QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX );
-    QSize s = w->maximumSize();
-    if ( s.width() == QWIDGETSIZE_MAX && !(align&Qt::AlignHorizontal_Mask) )
-	if ( !w->sizePolicy().mayGrowHorizontally() )
-	    s.setWidth( w->sizeHint().width() );
-
-    if ( s.height() ==  QWIDGETSIZE_MAX && !(align&Qt::AlignVertical_Mask) )
-	if ( !w->sizePolicy().mayGrowVertically() )
-	    s.setHeight( w->sizeHint().height() );
-
-    s = s.expandedTo( w->minimumSize() );
-
-    if (align & Qt::AlignHorizontal_Mask )
-	s.setWidth( QLAYOUTSIZE_MAX );
-    if (align & Qt::AlignVertical_Mask )
-	s.setHeight( QLAYOUTSIZE_MAX );
-    return s;
-}
-
 /*!
     Stores the spacer item's rect \a r so that it can be returned by
     geometry().
@@ -390,7 +330,7 @@ void QSpacerItem::setGeometry( const QRect &r )
 */
 void QWidgetItem::setGeometry( const QRect &r )
 {
-    QSize s = r.size().boundedTo( smartMaxSize( this ) );
+    QSize s = r.size().boundedTo( qSmartMaxSize( this ) );
     int x = r.x();
     int y = r.y();
     if ( align & (Qt::AlignHorizontal_Mask | Qt::AlignVertical_Mask) ) {
@@ -523,7 +463,7 @@ QSize QWidgetItem::minimumSize() const
 {
     if ( isEmpty() )
 	return QSize( 0, 0 );
-    return smartMinSize( this );
+    return qSmartMinSize( this );
 }
 
 /*!
@@ -542,7 +482,7 @@ QSize QWidgetItem::maximumSize() const
 {
     if ( isEmpty() )
 	return QSize( 0, 0 );
-    return smartMaxSize( this, align );
+    return qSmartMaxSize( this, align );
 }
 
 /*!

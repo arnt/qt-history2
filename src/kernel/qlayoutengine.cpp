@@ -60,8 +60,8 @@ static inline int fRound( int i ) {
   count is the count of items in the chain,
   pos and space give the interval (relative to parentWidget topLeft).
 */
-Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
-		int space, int spacer )
+Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
+			 int pos, int space, int spacer )
 {
     typedef int fixed;
     int cHint = 0;
@@ -228,6 +228,79 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, 
 	if ( !chain[i].empty )
 	    p += spacer+extra;
     }
+}
+
+Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i )
+{
+    QWidget *w = ((QWidgetItem *)i)->widget();
+
+    QSize s( 0, 0 );
+    if ( w->layout() ) {
+	s = w->layout()->totalMinimumSize();
+    } else {
+	QSize sh;
+
+	if ( w->sizePolicy().mayShrinkHorizontally() ) {
+	    s.setWidth( w->minimumSizeHint().width() );
+	} else {
+	    sh = w->sizeHint();
+	    s.setWidth( sh.width() );
+	}
+
+	if ( w->sizePolicy().mayShrinkVertically() ) {
+	    s.setHeight( w->minimumSizeHint().height() );
+	} else {
+	    s.setHeight( sh.isValid() ? sh.height() : w->sizeHint().height() );
+	}
+    }
+    s = s.boundedTo( w->maximumSize() );
+    QSize min = w->minimumSize();
+    if ( min.width() > 0 )
+	s.setWidth( min.width() );
+    if ( min.height() > 0 )
+	s.setHeight( min.height() );
+
+    if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
+	s.setHeight( i->heightForWidth( s.width()) );
+
+    s = s.expandedTo( QSize(1, 1) );
+    return s;
+}
+
+Q_EXPORT QSize qSmartMinSize( QWidget *w )
+{
+    QWidgetItem item( w );
+    return qSmartMinSize( &item );
+}
+
+// Returns the max size of a box containing \a w with alignment \a align.
+Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, int align )
+{
+    QWidget *w = ( (QWidgetItem*)i )->widget();
+    if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
+	return QSize( QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX );
+    QSize s = w->maximumSize();
+    if ( s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask) )
+	if ( !w->sizePolicy().mayGrowHorizontally() )
+	    s.setWidth( w->sizeHint().width() );
+
+    if ( s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask) )
+	if ( !w->sizePolicy().mayGrowVertically() )
+	    s.setHeight( w->sizeHint().height() );
+
+    s = s.expandedTo( w->minimumSize() );
+
+    if ( align & Qt::AlignHorizontal_Mask )
+	s.setWidth( QLAYOUTSIZE_MAX );
+    if ( align & Qt::AlignVertical_Mask )
+	s.setHeight( QLAYOUTSIZE_MAX );
+    return s;
+}
+
+Q_EXPORT QSize qSmartMaxSize( QWidget *w, int align )
+{
+    QWidgetItem item( w );
+    return qSmartMaxSize( &item, align );
 }
 
 #endif // QT_NO_LAYOUT

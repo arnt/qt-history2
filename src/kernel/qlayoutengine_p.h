@@ -80,9 +80,12 @@ struct QLayoutStruct
 };
 
 
-Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
-		      int space, int spacer );
-
+Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
+			 int pos, int space, int spacer );
+Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i );
+Q_EXPORT QSize qSmartMinSize( QWidget *w );
+Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, int align = 0 );
+Q_EXPORT QSize qSmartMaxSize( QWidget *w, int align = 0 );
 
 
 /*
@@ -92,7 +95,7 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, 
   Expansive boxes win over non-expansive boxes.
 */
 static inline void qMaxExpCalc( QCOORD & max, bool &exp,
-			       QCOORD boxmax, bool boxexp )
+				QCOORD boxmax, bool boxexp )
 {
     if ( exp ) {
 	if ( boxexp )
