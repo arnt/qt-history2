@@ -2758,7 +2758,7 @@ HRESULT WINAPI QAxServerBase::Load(IPropertyBag *bag, IErrorLog * /*log*/)
 	VARIANT var;
 	var.vt = VT_EMPTY;
 	HRESULT res = bag->Read(bstr, &var, 0);
-	if (property.isWritable()) {
+	if (property.isWritable() && var.vt != VT_EMPTY) {
 	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.type())))
 		error = true;
 	}
@@ -2790,6 +2790,8 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
 	QCoreVariant qvar = qt.object->property(property.name());
 	if (!qvar.isValid())
 	    error = true;
+        if (qvar.type() == QCoreVariant::UserType)
+            continue;
 	VARIANT var;
 	QVariantToVARIANT(qvar, var, property.type());
 	bag->Write(bstr, &var);
