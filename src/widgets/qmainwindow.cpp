@@ -1857,14 +1857,23 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 	moveToolBar( toolBar, edge, (QToolBar*)0, QMainWindowPrivate::After );
     } else {
 	QMainWindowPrivate::ToolBar *tb = 0;
-	if ( index >= (int)dl->count() )
+	bool after = FALSE;
+	if ( index >= (int)dl->count() ) {
 	    tb = 0;
-	else
-	    tb = dl->at( index );
+	} else {
+	    if ( index > 0 && !nl ) {
+		after = TRUE;
+		tb = dl->at( index - 1 );
+	    } else {
+		tb = dl->at( index );
+	    }
+	}
+
 	if ( !tb )
 	    moveToolBar( toolBar, edge, (QToolBar*)0, QMainWindowPrivate::After );
 	else
-	    moveToolBar( toolBar, edge, tb->t, QMainWindowPrivate::Before );
+	    moveToolBar( toolBar, edge, tb->t, 
+			 after ? QMainWindowPrivate::After : QMainWindowPrivate::Before );
     }
 }
 
