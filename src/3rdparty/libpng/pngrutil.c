@@ -286,10 +286,8 @@ png_decompress_chunk(png_structp png_ptr, int comp_type,
       png_warning(png_ptr, "Unknown zTXt compression type");
 #endif
 
-      /* Copy what we can of the error message into the text chunk */
-      text_size = (png_size_t)(chunklength - (text - chunkdata));
-      text_size = sizeof(msg) > text_size ? text_size : sizeof(msg);
-/*      png_memcpy(text, msg, text_size); */
+      *(chunkdata + prefix_size) = 0x00;
+      *newlength=prefix_size;
    }
 
    return chunkdata;
@@ -1900,6 +1898,11 @@ png_handle_zTXt(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
    else
    {
        comp_type = *(++text);
+       if (comp_type != PNG_TEXT_COMPRESSION_zTXt)
+       {
+          png_warning(png_ptr, "Unknown compression type in zTXt chunk");
+          comp_type = PNG_TEXT_COMPRESSION_zTXt;
+       }
        text++;        /* skip the compression_method byte */
    }
    prefix_len = text - chunkdata;
