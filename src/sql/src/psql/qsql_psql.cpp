@@ -45,15 +45,14 @@
 #include <libpq/libpq-fs.h>
 #include <catalog/pg_type.h>
 #include <utils/geo_decls.h>
-#include <utils/timestamp.h>
 #include <math.h>
 
 class QPSQLPrivate
 {
 public:
   QPSQLPrivate():connection(0), result(0){}
-    PGconn 	*connection;
-    PGresult 	*result;
+    PGconn	*connection;
+    PGresult	*result;
 };
 
 QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
@@ -177,8 +176,7 @@ QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
 
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 : QSqlResult( db ),
-  currentSize( 0 ),
-  binary(FALSE)
+  currentSize( 0 )
 {
     d =   new QPSQLPrivate();
     (*d) = (*p);
@@ -197,16 +195,15 @@ void QPSQLResult::cleanup()
     d->result = 0;
     setAt( -1 );
     currentSize = 0;
-    binary = FALSE;
     setActive( FALSE );
 }
 
 bool QPSQLResult::fetch( int i )
 {
     if ( !isActive() )
-        return FALSE;
+	return FALSE;
     if ( at() == i )
-        return TRUE;
+	return TRUE;
     if ( i >= currentSize )
 	return FALSE;
     if ( i < 0 )
@@ -256,181 +253,100 @@ QTime qTimeFromDouble( double tm )
 QVariant QPSQLResult::data( int i )
 {
     QVariant::Type type = qFieldType( d, i );
-    if ( binary ) {
-	char* rawdata = PQgetvalue( d->result, at(), i );
-	int rawsize = PQfsize( d->result, i );
-	switch ( type ) {
-	case QVariant::Bool:
-	    { // ###
-		QString bs( rawdata );
-		bool b = ( bs == "t" );
-		return QVariant( b );
-	    }
-	case QVariant::String:
-    	    return QVariant( QString(rawdata) );
-	case QVariant::Int:
-	    {
-		int* i = (int*)rawdata;
-		return QVariant( (*i) );
-	    }
-	case QVariant::Double:
-	    {
-		double* dbl = (double*)rawdata;
-		return QVariant( (*dbl) );
-	    }
-	case QVariant::Date:
-	    {
-		uint dt = *((uint*)rawdata) + QDate::greg2jul(2000,1,1);
- 		return QVariant( qDateFromUInt( dt ) );
-	    }
-	case QVariant::Time:
-	    {
-		double tm = *((double*)rawdata);
-		return QVariant( qTimeFromDouble( tm ) );
-	    }
-	case QVariant::DateTime:
-	    {
-		Timestamp* ts = (Timestamp*)rawdata;
-		double time, date;
-		double ds = (double)(24*60*60);
-		time = *ts;
-		date = ( time < 0 ) ? ceil( time / ds ) : floor ( time / ds );
-		if ( date != 0 )
-		    time -= rint( date * ds );
-		if ( time < 0 ) {
-		    time += ds;
-		    date -= 1;
-		}
-		uint dt = (uint)date + QDate::greg2jul(2000,1,1);
-		return QVariant( QDateTime( qDateFromUInt( dt ), qTimeFromDouble( time ) ) );
-	    }
-	case QVariant::Point:
-	    {
-		Point* p = (Point*) rawdata;
-		return QVariant( QPoint( p->x, p->y ) );
-	    }
-	case QVariant::Rect:
-	    {
-		BOX* b = (BOX*) rawdata;
-		return QVariant( QRect( QPoint(b->high.x, b->high.y), QPoint(b->low.x, b->low.y) ) );
-	    }
-	case QVariant::PointArray:
-	    {
-		POLYGON* p = (POLYGON *) rawdata;
-		QPointArray pa( p->size );
-		for ( int i = 0; i < p->size; ++i )
-		    pa[i] = QPoint( p->p[i].x, p->p[i].y );
-		return QVariant( pa );
-	    }
-	case QVariant::ByteArray:
-	    {
-		QByteArray ba;
-		ba.duplicate( rawdata, rawsize );
-		return QVariant( ba );
-	    }
-	default:
-	case QVariant::Invalid:
-#ifdef QT_CHECK_RANGE
-	    qWarning("QPSQLResult::data Warning: unknown data type");
-#endif
-	    return QVariant();
-	}
-    } else {
-	QString val( PQgetvalue( d->result, at(), i ) );
-	switch ( type ) {
-	case QVariant::Bool:
-	    {
+    QString val( PQgetvalue( d->result, at(), i ) );
+    switch ( type ) {
+    case QVariant::Bool:
+	{
 	    QVariant b ( (bool)(val == "t"), 0 );
 	    return ( b );
-	    }
-	case QVariant::String:
-	    return QVariant( val );
-	case QVariant::Int:
-	    return QVariant( val.toInt() );
-	case QVariant::Double:
-	    return QVariant( val.toDouble() );
-	case QVariant::Date:
-	    return QVariant( QDate::fromString( val, Qt::ISODate ) );
-	case QVariant::Time:
-	    return QVariant( QTime::fromString( val, Qt::ISODate ) );
-	case QVariant::DateTime:
-	    return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
-	case QVariant::Point:
-	    return QVariant( pointFromString( val ) );
-	case QVariant::Rect: // format '(x,y),(x',y')'
-	    {
-		int pivot = val.find( QRegExp( "\\),\\(" ) );
-		if ( pivot != -1 )
-		    return QVariant( QRect( pointFromString( val.mid(0,pivot+1) ), pointFromString( val.mid(pivot+2,val.length()) ) ) );
-		return QVariant( QRect() );
-	    }
-	case QVariant::PointArray: // format '((x,y),(x1,y1),...,(xn,yn))'
-	    {
-		QRegExp pointPattern("\\([0-9-]*,[0-9-]*\\)");
-		int points = val.contains( pointPattern );
-		QPointArray parray( points );
-		int idx = 1;
-		for ( int i = 0; i < points; i++ ){
-		    int start = val.find( pointPattern, idx );
-		    int end = -1;
-		    if ( start != -1 ) {
-			end = val.find( QRegExp("\\)"), start+1 );
-			if ( end != -1 ) {
-			    parray.setPoint( i, pointFromString( val.mid(idx, end-idx+1) ) );
-			}
-			else
-			    parray.setPoint( i, QPoint() );
-		    } else {
-			parray.setPoint( i, QPoint() );
-			break;
+	}
+    case QVariant::String:
+	return QVariant( val );
+    case QVariant::Int:
+	return QVariant( val.toInt() );
+    case QVariant::Double:
+	return QVariant( val.toDouble() );
+    case QVariant::Date:
+	return QVariant( QDate::fromString( val, Qt::ISODate ) );
+    case QVariant::Time:
+	return QVariant( QTime::fromString( val, Qt::ISODate ) );
+    case QVariant::DateTime:
+	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+    case QVariant::Point:
+	return QVariant( pointFromString( val ) );
+    case QVariant::Rect: // format '(x,y),(x',y')'
+	{
+	    int pivot = val.find( QRegExp( "\\),\\(" ) );
+	    if ( pivot != -1 )
+		return QVariant( QRect( pointFromString( val.mid(0,pivot+1) ), pointFromString( val.mid(pivot+2,val.length()) ) ) );
+	    return QVariant( QRect() );
+	}
+    case QVariant::PointArray: // format '((x,y),(x1,y1),...,(xn,yn))'
+	{
+	    QRegExp pointPattern("\\([0-9-]*,[0-9-]*\\)");
+	    int points = val.contains( pointPattern );
+	    QPointArray parray( points );
+	    int idx = 1;
+	    for ( int i = 0; i < points; i++ ){
+		int start = val.find( pointPattern, idx );
+		int end = -1;
+		if ( start != -1 ) {
+		    end = val.find( QRegExp("\\)"), start+1 );
+		    if ( end != -1 ) {
+			parray.setPoint( i, pointFromString( val.mid(idx, end-idx+1) ) );
 		    }
-		    idx = end+2;
+		    else
+			parray.setPoint( i, QPoint() );
+		} else {
+		    parray.setPoint( i, QPoint() );
+		    break;
 		}
-		return QVariant( parray );
+		idx = end+2;
 	    }
-	case QVariant::ByteArray: {
-	    QByteArray ba;
-	    ((QSqlDriver*)driver())->beginTransaction();
-	    Oid oid = val.toInt();
-	    int fd = lo_open( d->connection, oid, INV_READ );
+	    return QVariant( parray );
+	}
+    case QVariant::ByteArray: {
+	QByteArray ba;
+	((QSqlDriver*)driver())->beginTransaction();
+	Oid oid = val.toInt();
+	int fd = lo_open( d->connection, oid, INV_READ );
 #ifdef QT_CHECK_RANGE
-	    if ( fd < 0) {
-		qWarning( "QPSQLResult::data: unable to open large object for read" );
-		((QSqlDriver*)driver())->commitTransaction();
-		return QVariant( ba );
-	    }
+	if ( fd < 0) {
+	    qWarning( "QPSQLResult::data: unable to open large object for read" );
+	    ((QSqlDriver*)driver())->commitTransaction();
+	    return QVariant( ba );
+	}
 #endif
-	    int size = 0;
-	    int retval = lo_lseek( d->connection, fd, 0L, SEEK_END );
-	    if ( retval >= 0 ) {
-		size = lo_tell( d->connection, fd );
-		lo_lseek( d->connection, fd, 0L, SEEK_SET );
-	    }
-	    if ( size == 0 ) {
-		lo_close( d->connection, fd );
-		((QSqlDriver*)driver())->commitTransaction();
-		return QVariant( ba );
-	    }
-	    char buf[ size ];
-	    retval = lo_read( d->connection, fd, buf, size );
-	    if (retval < 0) {
-		qWarning( "QPSQLResult::data: unable to read large object" );
-		lo_close( d->connection, fd );
-		((QSqlDriver*)driver())->commitTransaction();
-		return QVariant( ba );
-	    }
-	    ba.duplicate( buf, size );
+	int size = 0;
+	int retval = lo_lseek( d->connection, fd, 0L, SEEK_END );
+	if ( retval >= 0 ) {
+	    size = lo_tell( d->connection, fd );
+	    lo_lseek( d->connection, fd, 0L, SEEK_SET );
+	}
+	if ( size == 0 ) {
 	    lo_close( d->connection, fd );
 	    ((QSqlDriver*)driver())->commitTransaction();
 	    return QVariant( ba );
 	}
-	default:
-	case QVariant::Invalid:
-#ifdef QT_CHECK_RANGE
-	    qWarning("QPSQLResult::data: unknown data type");
-#endif
-	    return QVariant();
+	char buf[ size ];
+	retval = lo_read( d->connection, fd, buf, size );
+	if (retval < 0) {
+	    qWarning( "QPSQLResult::data: unable to read large object" );
+	    lo_close( d->connection, fd );
+	    ((QSqlDriver*)driver())->commitTransaction();
+	    return QVariant( ba );
 	}
+	ba.duplicate( buf, size );
+	lo_close( d->connection, fd );
+	((QSqlDriver*)driver())->commitTransaction();
+	return QVariant( ba );
+    }
+    default:
+    case QVariant::Invalid:
+#ifdef QT_CHECK_RANGE
+	qWarning("QPSQLResult::data: unknown data type");
+#endif
+	return QVariant();
     }
     return QVariant();
 }
@@ -445,19 +361,18 @@ bool QPSQLResult::reset ( const QString& query )
 {
     cleanup();
     if ( !driver() )
-        return FALSE;
+	return FALSE;
     if ( !driver()-> isOpen() || driver()->isOpenError() )
-        return FALSE;
+	return FALSE;
     setActive( FALSE );
     setAt( BeforeFirst );
     if ( d->result )
-    	PQclear( d->result );
+	PQclear( d->result );
     d->result = PQexec( d->connection, (const char*)query );
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	setSelect( (status == PGRES_TUPLES_OK) );
 	currentSize = PQntuples( d->result );
-	binary = PQbinaryTuples( d->result );
 	setActive( TRUE );
 	return TRUE;
     }
@@ -512,12 +427,12 @@ bool QPSQLDriver::canEditBinaryFields() const
 }
 
 bool QPSQLDriver::open( const QString & db,
-    			const QString & user,
+			const QString & user,
 			const QString & password,
 			const QString & host)
 {
     if ( isOpen() )
-        close();
+	close();
     QString connectString;
     if ( host.length() )
 	connectString += QString("host=%1 ").arg( host );
@@ -530,8 +445,8 @@ bool QPSQLDriver::open( const QString & db,
     d->connection = PQconnectdb( connectString.local8Bit().data() );
     if ( PQstatus( d->connection) == CONNECTION_BAD ) {
 	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
-        setOpenError( TRUE );
-        return FALSE;
+	setOpenError( TRUE );
+	return FALSE;
     }
     PGresult* dateResult;
     switch( pro ) {
@@ -594,7 +509,7 @@ bool QPSQLDriver::rollbackTransaction()
 {
     PGresult* res = PQexec( d->connection, "ROLLBACK" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
-    	setLastError( qMakeError( "Could not rollback transaction", QSqlError::Transaction, d ) );
+	setLastError( qMakeError( "Could not rollback transaction", QSqlError::Transaction, d ) );
 	PQclear( res );
 	return FALSE;
     }
@@ -655,9 +570,9 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     case QPSQLDriver::Version7:
 	stmt = "select a.attname "
 	       "from pg_user u, pg_class c, pg_attribute a, pg_type t "
-               "where c.relname = '%1' "
-               "and int4out(u.usesysid) = int4out(c.relowner) "
-               "and c.oid= a.attrelid "
+	       "where c.relname = '%1' "
+	       "and int4out(u.usesysid) = int4out(c.relowner) "
+	       "and c.oid= a.attrelid "
 	       "and a.atttypid = t.oid "
 	       "and (a.attnum > 0);";
 	break;

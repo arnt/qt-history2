@@ -51,19 +51,18 @@ public:
     QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p );
     ~QPSQLResult();
 protected:
-    void 		cleanup();
-    bool 		fetch( int i );
-    bool 		fetchFirst();
-    bool 		fetchLast();
+    void		cleanup();
+    bool		fetch( int i );
+    bool		fetchFirst();
+    bool		fetchLast();
     QVariant            data( int i );
     bool		isNull( int field );
-    bool 		reset ( const QString& query );
+    bool		reset ( const QString& query );
     int                 size();
     int                 numRowsAffected();
 private:
     int			currentSize;
-    QPSQLPrivate* 	d;
-    bool                binary;
+    QPSQLPrivate*	d;
 };
 
 class QPSQLDriver : public QSqlDriver
@@ -73,32 +72,32 @@ public:
 	Version6 = 6,
 	Version7 = 7
     };
-    
+
     QPSQLDriver( Protocol protocol, QObject * parent=0, const char * name=0 );
     ~QPSQLDriver();
-    bool    	        hasTransactionSupport() const;
+    bool	        hasTransactionSupport() const;
     bool                hasQuerySizeSupport() const;
     bool                canEditBinaryFields() const;
-    bool        	open( const QString & db,
-    			const QString & user = QString::null,
+    bool	open( const QString & db,
+			const QString & user = QString::null,
 			const QString & password = QString::null,
 			const QString & host = QString::null );
-    void 		close();
+    void		close();
     QSqlQuery		createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
-    
+
     Protocol            protocol() const { return pro; }
 protected:
-    bool    		beginTransaction();
-    bool    		commitTransaction();
-    bool    		rollbackTransaction();
+    bool		beginTransaction();
+    bool		commitTransaction();
+    bool		rollbackTransaction();
 private:
     void		init();
     Protocol            pro;
-    QPSQLPrivate* 	d;
+    QPSQLPrivate*	d;
 };
 
 #endif
