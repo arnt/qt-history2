@@ -17,6 +17,8 @@
 #include <qapplication.h>
 #include <qlayout.h>
 
+using namespace Qt;
+
 Rot13::Rot13()
 {
     left = new QMultiLineEdit( this, "left" );
