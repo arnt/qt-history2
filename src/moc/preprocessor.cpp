@@ -716,7 +716,6 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
     // phase 3: preprocess conditions and substitute macros
     symbols = preprocess(filename, symbols, macros);
 
-
     // final phase: compose string for the C++ scanner
     int lineNum = 1;
     PP_Token last = PP_NOTOKEN;
@@ -741,7 +740,7 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
             else
                 break;
             output += sym.lexem().mid(1);
-            continue;
+            break;
         default:
             break;
         }
