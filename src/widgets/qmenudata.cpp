@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#101 $
 **
 ** Implementation of QMenuData class
 **
@@ -221,6 +221,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     mi->ident = id;
     if ( widget != 0 ) {
 	mi->widget_item = widget;
+	mi->is_separator = !widget->isFocusEnabled();
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
 	mi->ident	 = -1;
@@ -696,8 +697,30 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 
 /*!
-  to be documented #####
- */
+  Inserts a menu item that consists of the widget \a widget.
+  Ownership of \a widget is transferred to the popup menu.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+  
+  Theoretically, any widget can be inserted into a popup menu. In
+  practise, this only makes sense with certain widgets.
+  
+  TODO### describe them (focus policy, size hint, keyboard handling
+  with close on enter/exit etc.)
+  
+  If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
+  the menu treats it as a separator. This means, the item is not
+  selectable and will never get focus. This way you can for example
+  simply insert a QLabel if you need a popup menu with a title.
+
+  \sa removeItem()
+*/
 int QMenuData::insertItem( QWidget* widget, int id, int index )
 {
     return insertAny( 0, 0, 0, 0, id, index, widget );

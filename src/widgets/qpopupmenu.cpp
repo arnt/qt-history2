@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#259 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#260 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -826,7 +826,7 @@ void QPopupMenu::hide()
 {	
     if ( !isVisible() )
  	return;
-    
+
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
     hidePopups();
@@ -1490,21 +1490,9 @@ void QPopupMenu::setActiveItem( int i )
     QMenuItem *mi = mitems->at( actItem );
     if ( !mi )
 	return;
-    if ( mi->widget() ) {
-	QWidget* w = mi->widget();
-	if ( !w->isFocusEnabled() ) {
-	    QObjectList *list = w->queryList( "QWidget" );
-	    QObjectListIt it( *list );
-	    while ( it.current() ) {
-		w = (QWidget*)it.current();
-		++it;
-		if ( w->isFocusEnabled() )
-		    break;
-	    }
-	    delete list;
-	}
-	w->setFocus();
-    }  else
+    if ( mi->widget() && mi->widget()->isFocusEnabled() )
+	mi->widget()->setFocus();
+    else
 	setFocus();
     if ( mi->id() != 0 )
 	hilitSig( mi->id() );
