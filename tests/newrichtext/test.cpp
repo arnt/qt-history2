@@ -29,16 +29,19 @@ void MyWidget::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
-    QFont f("Diwani Letter");
+    QFont f("Traditional Arabic");
     f.setPointSize( 48 );
     p.setFont( f );
     p.drawText( 10, 60, string );
     f.setFamily("Times New Roman");
     p.setFont( f );
     p.drawText( 10, 120, string );
-    f.setFamily("Diwani Bent");
+    f.setFamily("Diwani Letter");
     p.setFont( f );
     p.drawText( 10, 180, string );
+    f.setFamily("Urdu Nastaliq Unicode");
+    p.setFont( f );
+    p.drawText( 10, 240, string );
 }
 
 //const char *s = "some string";
