@@ -126,7 +126,7 @@ bool validUType( QCString ctype )
     return isEnumType( ctype );
 }
 
-QCString referencePlainUType( QCString ctype )
+QCString castToUType( QCString ctype )
 {
      if ( ctype.right(1) == "&" )
 	 ctype = ctype.left( ctype.length() - 1 );
@@ -142,7 +142,7 @@ QCString referencePlainUType( QCString ctype )
 QCString uType( QCString ctype )
 {
     if ( !validUType( ctype ) ) {
-	if ( isVariantType( referencePlainUType(ctype) ) )
+	if ( isVariantType( castToUType(ctype) ) )
 	    return "varptr";
 	else
 	    return "ptr";
@@ -181,10 +181,10 @@ QCString uTypeExtra( QCString ctype )
 {
     QCString typeExtra = "0";
     if ( !validUType( ctype ) ) {
-	if ( isVariantType( referencePlainUType(ctype) ) )
-	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( referencePlainUType(ctype) ) );
+	if ( isVariantType( castToUType(ctype) ) )
+	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( castToUType(ctype) ) );
 	else
-	    typeExtra.sprintf( "\"%s\"", referencePlainUType(ctype).data() );
+	    typeExtra.sprintf( "\"%s\"", castToUType(ctype).data() );
 	return typeExtra;
     }
     if ( ctype.left(6) == "const " )
@@ -3221,9 +3221,10 @@ void generateClass()		      // generate C++ source code for a class
 		    if ( utype == "ptr" || utype == "varptr" || utype == "enum" )
 			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
-			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
+			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
+			     castToUType( type) .data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
@@ -3289,9 +3290,10 @@ void generateClass()		      // generate C++ source code for a class
 		    if ( utype == "ptr" || utype == "varptr" || utype == "enum" )
 			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
-			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
+			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType(type).data(), offset+1 );
+		    fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
+			     castToUType(type).data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
