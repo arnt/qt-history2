@@ -1506,16 +1506,17 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
 fi
 
 # determine the system architecture
-ARCH=$UNAME_MACHINE
+ARCH=`uname -p`
 case $ARCH in
-i?86)
+i[456]86)
     ARCH=i386
     ;;
-sun4u)
-    ARCH=sparc64
-    ;;
-sun4m)
-    ARCH=sparc
+sparc)
+    case $UNAME_MACHINE in
+    sun4u)
+        ARCH=sparc64
+        ;;
+    esac
     ;;
 esac
 test -d "$relpath/arch/$ARCH" || ARCH="generic"
