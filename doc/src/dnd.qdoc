@@ -27,10 +27,9 @@
     \section1 Dragging
 
     To start a drag, for example in a \link QWidget::mouseMoveEvent()
-    mouse motion event\endlink, create an object of the QDragObject
-    subclass appropriate for your media, such as QTextDrag for text and
-    QImageDrag for images. Then call the drag() method. This is all you
-    need for simple dragging of existing types.
+    mouse motion event\endlink, create a QDrag object, and call its
+    start() function. This is all you need to enable simple dragging
+    from widgets.
 
     For example, to start dragging some text from a widget:
     \quotefromfile snippets/dragging/window.cpp
@@ -38,41 +37,44 @@
     \skipto QDrag
     \printuntil drag->start()
 
-    Note that the QDragObject is not deleted after the drag. The
-    QDragObject needs to persist after the drag is apparently finished
-    since it may still be communicating with another process. Eventually
-    Qt will delete the object. If the widget owning the drag object is
-    deleted before then, any pending drop will be canceled and the drag
-    object deleted. For this reason, you should be careful what the object
-    references.
-
-    \section1 Dropping
+    Although the user may take some time to complete the dragging operation,
+    as far as the application is concerned the start() function returns
+    immediately with \l{QDrag::DropActions}{one of several values}. These
+    indicate how the operation ended, and are described in more detail below.
 
     To be able to receive media dropped on a widget, call
-    \link QWidget::setAcceptDrops() setAcceptDrops(true)\endlink
-    for the widget (e.g. in its constructor), and override the
-    event handler methods
-    \link QWidget::dragEnterEvent() dragEnterEvent()\endlink and
-    \link QWidget::dropEvent() dropEvent()\endlink.
-    For more sophisticated applications overriding
-    \link QWidget::dragMoveEvent() dragMoveEvent()\endlink and
-    \link QWidget::dragLeaveEvent() dragLeaveEvent()\endlink will also be
-    necessary.
+    \l{QWidget::setAcceptDrops()}{setAcceptDrops(true)} for the widget
+    (e.g. in its constructor), and override the event handler methods.
 
-    For example, to accept text and image drops:
-    \code
-    MyWidget::MyWidget(...) :
-        QWidget(...)
-    {
-        ...
-        setAcceptDrops(true);
-    }
+    It is possible to enable drops in an entire widget by implementing only
+    \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()}. The dragEnterEvent() function
+    is typically used to inform Qt about the types of data that the widget
+    accepts; the dropEvent() is used to unpack dropped data and handle it
+    in way that is suitable for your application.
 
-    void MyWidget::dragEnterEvent(QDragEnterEvent* event)
-    {
-        event->accept(QTextDrag::canDecode(event)
-                      || QImageDrag::canDecode(event));
-    }
+    For more sophisticated applications, reimplementing
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
+    \l{QWidget::dragLeaveEvent()}{dragLeaveEvent()} will let you make
+    certain parts of your widgets sensitive to drops, and give you more
+    control over drag and drop in your application.
+
+    For example, to accept drops, we enable this feature in a widget's
+    constructor:
+
+    \quotefromfile snippets/dropevents/window.cpp
+    \skipto Window::Window
+    \printuntil /^\{/
+    \skipto ...
+    \printuntil setAcceptDrops(true);
+    \skipto /^\}/
+    \printuntil /^\}/
+
+    We reimplement dragEnterEvent() to indicate that we can only handle
+    plain text:
+
+    \skipto dragEnterEvent
+    \printuntil /^\}/
 
     void MyWidget::dropEvent(QDropEvent* event)
     {
