@@ -23,6 +23,7 @@
 #include "qcoreapplication.h"
 #include "qtextcodecplugin.h"
 #include "private/qfactoryloader_p.h"
+#include "qstringlist.h"
 
 #include "qutfcodec_p.h"
 #include "qsimplecodec_p.h"
@@ -52,24 +53,55 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/codecs")))
 #endif
 
-static QTextCodec *createForName(const QString &name)
+
+static bool nameMatch(const QByteArray &name, const QByteArray &test)
 {
-#ifndef QT_NO_COMPONENT
-    if (QTextCodecFactoryInterface *factory =
-        qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
-        return factory->create(name);
-#endif
+    // if they're the same, return a perfect score
+    if (qstricmp(name, test) == 0)
+        return true;
+
+    const char *n = name.constData();
+    const char *h = test.constData();
+
+    // if the letters and numbers are the same, we have a match
+    while (*n != '\0') {
+        if (isalnum((uchar)*n)) {
+            for (;;) {
+                if (*h == '\0')
+                    return false;
+                if (isalnum((uchar)*h))
+                    break;
+                ++h;
+            }
+            if (tolower((uchar)*n) != tolower((uchar)*h))
+                return false;
+            ++h;
+        }
+        ++n;
+    }
+    return (*h == '\0');
+}
+
+
+static QTextCodec *createForName(const QByteArray &name)
+{
+    QFactoryLoader *l = loader();
+    if (QTextCodecFactoryInterface *factory = qt_cast<QTextCodecFactoryInterface*>(l->instance(name))) {
+        QStringList keys = l->keys();
+        for (int i = 0; i < keys.size(); ++i) {
+            if (nameMatch(name, keys.at(i).toLatin1()))
+                return factory->create(keys.at(i).toLatin1());
+        }
+    }
     return 0;
 }
 
 static QTextCodec *createForMib(int mib)
 {
-#ifndef QT_NO_COMPONENT
     QString name = QLatin1String("MIB: ") + QString::number(mib);
-    if (QTextCodecFactoryInterface *factory =
-        qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+    if (QTextCodecFactoryInterface *factory
+        = qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
         return factory->create(name);
-#endif
     return 0;
 }
 
@@ -655,35 +687,6 @@ QTextCodec::~QTextCodec()
         all->removeAll(this);
 }
 
-
-static bool simpleHeuristicNameMatch(const QByteArray &name, const QByteArray &test)
-{
-    // if they're the same, return a perfect score
-    if (qstricmp(name, test) == 0)
-        return true;
-
-    const char *n = name.constData();
-    const char *h = test.constData();
-
-    // if the letters and numbers are the same, we have a match
-    while (*n != '\0') {
-        if (isalnum((uchar)*n)) {
-            for (;;) {
-                if (*h == '\0')
-                    return false;
-                if (isalnum((uchar)*h))
-                    break;
-                ++h;
-            }
-            if (tolower((uchar)*n) != tolower((uchar)*h))
-                return false;
-            ++h;
-        }
-        ++n;
-    }
-    return (*h == '\0');
-}
-
 /*!
     Searches all installed QTextCodec objects and returns the one
     which best matches \a name; the match is case-insensitive. Returns
@@ -698,11 +701,11 @@ QTextCodec *QTextCodec::codecForName(const QByteArray &name)
 
     for (int i = 0; i < all->size(); ++i) {
         QTextCodec *cursor = all->at(i);
-        if (simpleHeuristicNameMatch(cursor->name(), name))
+        if (nameMatch(cursor->name(), name))
             return cursor;
         QList<QByteArray> aliases = cursor->aliases();
         for (int i = 0; i < aliases.size(); ++i)
-            if (simpleHeuristicNameMatch(aliases.at(i), name))
+            if (nameMatch(aliases.at(i), name))
                 return cursor;
     }
 
