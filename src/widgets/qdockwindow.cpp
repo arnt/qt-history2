@@ -1584,7 +1584,9 @@ QSize QDockWindow::minimumSizeHint() const
 /*! \internal */
 void QDockWindow::undock( QWidget *w )
 {
-    QMainWindow *mw = (QMainWindow*)area()->parentWidget();
+    QMainWindow *mw = 0;
+    if ( area() )
+	mw = (QMainWindow*)area()->parentWidget();
     if ( mw && mw->inherits("QMainWindow") && !mw->isDockEnabled( this, DockTornOff ) )
 	return;
     if ( (place() == OutsideDock && !w) )
