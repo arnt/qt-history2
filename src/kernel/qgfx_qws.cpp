@@ -51,14 +51,32 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
     return qt_screen->createGfx( buffer, w, h, depth, offs );
 }
 
+/*!
+\fn QScreen::setDirty( const QRect& )
+Indicates section of the screen has been altered. Used by the VNC 
+and VFB displays; the QScreen version does nothing.
+*/
+
 void QScreen::setDirty( const QRect& )
 {
 }
+
+/*!
+  \fn QScreen::isTransformed() const
+Returns true if the screen is transformed (for instance, rotated
+90 degrees). QScreen's version always returns false.
+*/
 
 bool QScreen::isTransformed() const
 {
     return FALSE;
 }
+
+/*!
+  \fn QScreen::isInterlaced() const
+Returns true if the display is interlaced (for instance a television
+screen). If true drawing is altered to look better on such displays.
+*/
 
 bool QScreen::isInterlaced() const
 {
@@ -78,8 +96,8 @@ QSize QScreen::mapToDevice( const QSize &s ) const
 
 /*!
   \fn QScreen::mapFromDevice( const QSize &s ) const
-  Map a framebuffer coordinate to the coordinate space used by the 
-  application. Used by the rotated driver; the QScreen implementation simply 
+  Map a framebuffer coordinate to the coordinate space used by the
+  application. Used by the rotated driver; the QScreen implementation simply
   returns \a s.
 */
 
@@ -102,8 +120,9 @@ QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
 
 /*!
   \fn QScreen::mapFromDevice( const QPoint &, const QSize & ) const
-  Map a framebuffer coordinate to the coordinate space used by the 
-  application. Used by the rotated driver; the QScreen implementation simply 
+  \overload
+  Map a framebuffer coordinate to the coordinate space used by the
+  application. Used by the rotated driver; the QScreen implementation simply
   returns the point.
 */
 
@@ -127,8 +146,8 @@ QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
 /*!
   \fn QScreen::mapFromDevice( const QRect &r, const QSize & ) const
   \overload
-  Map a framebuffer coordinate to the coordinate space used by the 
-  application. Used by the rotated driver; the QScreen implementation simply 
+  Map a framebuffer coordinate to the coordinate space used by the
+  application. Used by the rotated driver; the QScreen implementation simply
   returns \a r.
 */
 
@@ -154,7 +173,7 @@ QImage QScreen::mapToDevice( const QImage &i ) const
   \fn QScreen::mapFromDevice( const QImage &i ) const
   \overload
   Transforms an image so that it matches the application coordinate space
-  (e.g. rotating it 90 degrees anticlockwise). The QScreen implementation 
+  (e.g. rotating it 90 degrees anticlockwise). The QScreen implementation
   simply returns \a i.
 */
 
@@ -180,7 +199,7 @@ QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
   \fn QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
   \overload
   Transforms a region so that it matches the application coordinate space
-  (e.g. rotating it 90 degrees anticlockwise). The QScreen implementation 
+  (e.g. rotating it 90 degrees anticlockwise). The QScreen implementation
   simply returns \a r.
 */
 
@@ -188,6 +207,11 @@ QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
 {
     return r;
 }
+
+/*!
+  \fn QScreen::transformOrientation() const
+  Used by the rotated server. QScreeen implementation returns 0.
+*/
 
 int QScreen::transformOrientation() const
 {
