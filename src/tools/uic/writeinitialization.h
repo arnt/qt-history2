@@ -66,8 +66,8 @@ private:
     QString pixCall(const QString &pix) const;
     QString trCall(const QString &str, const QString &className) const;
 
-    void writePropertiesImpl(const QString &objName, const QString &objClass,
-                             const QList<DomProperty*> &lst);
+    void writeProperties(const QString &varName, const QString &className,
+                         const QList<DomProperty*> &lst);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
 
     QString translate(const QString &text, const QString &className=QString::null) const;

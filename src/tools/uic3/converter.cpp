@@ -598,7 +598,9 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             name = prop->attributeName(); // sync the name
 
-            if (className.size() && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))) {
+            if (className.size()
+                    && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))
+                    && !(name == QLatin1String("buttonGroupId"))) {
                 if (prop->kind() == DomProperty::Enum
                             && !WidgetInfo::isValidEnumerator(className, prop->elementEnum().latin1())) {
                     fprintf(stderr, "enumerator '%s' for widget '%s' is not supported\n",

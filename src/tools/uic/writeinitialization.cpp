@@ -144,7 +144,7 @@ void WriteInitialization::accept(DomWidget *node)
         initializeListView(node);
     }
 
-    writePropertiesImpl(varName, className, node->elementProperty());
+    writeProperties(varName, className, node->elementProperty());
 
     if (node->elementLayout().isEmpty())
         m_layoutChain.push(0);
@@ -255,7 +255,7 @@ void WriteInitialization::accept(DomLayout *node)
     if (!properties.contains("spacing"))
         output << option.indent << varName << "->setSpacing(" << m_defaultMargin << ");\n";
 
-    writePropertiesImpl(varName, className, node->elementProperty());
+    writeProperties(varName, className, node->elementProperty());
 
     m_layoutChain.push(node);
     TreeWalker::accept(node);
@@ -353,7 +353,7 @@ void WriteInitialization::accept(DomActionGroup *node)
 
     output << option.indent << actionName << " = new QActionGroup(" << varName << ");\n";
     output << option.indent << actionName << "->setExclusive(false);\n";
-    writePropertiesImpl(actionName, "QActionGroup", node->elementProperty());
+    writeProperties(actionName, "QActionGroup", node->elementProperty());
 
     m_actionGroupChain.push(node);
     TreeWalker::accept(node);
@@ -369,7 +369,7 @@ void WriteInitialization::accept(DomAction *node)
         varName = driver->findOrInsertActionGroup(m_actionGroupChain.top());
 
     output << option.indent << actionName << " = new QAction(" << varName << ");\n";
-    writePropertiesImpl(actionName, "QAction", node->elementProperty());
+    writeProperties(actionName, "QAction", node->elementProperty());
 }
 
 void WriteInitialization::accept(DomActionRef *node)
@@ -394,39 +394,40 @@ void WriteInitialization::accept(DomActionRef *node)
     output << option.indent << varName << "->addAction(" << node->attributeName() << ");\n";
 }
 
-void WriteInitialization::writePropertiesImpl(const QString &objName, const QString &objClass,
+void WriteInitialization::writeProperties(const QString &varName, const QString &className,
                                      const QList<DomProperty*> &lst)
 {
     bool isTopLevel = m_widgetChain.count() == 1;
 
 
     for (int i=0; i<lst.size(); ++i) {
-        QString setFunction;
-        bool stdset = m_stdsetdef;
-        QString propertyName;
-        QString propertyValue;
         DomProperty *p = lst.at(i);
-        propertyName = p->attributeName();
+        QString propertyName = p->attributeName();
+        QString propertyValue;
 
         // special case for the property `geometry'
         if (isTopLevel && propertyName == QLatin1String("geometry") && p->elementRect()) {
             DomRect *r = p->elementRect();
             int w = r->elementWidth();
             int h = r->elementHeight();
-            output << option.indent << objName << "->resize(QSize(" << w << ", " << h << ").expandedTo("
-                << objName << "->minimumSizeHint()));\n";
+            output << option.indent << varName << "->resize(QSize(" << w << ", " << h << ").expandedTo("
+                << varName << "->minimumSizeHint()));\n";
+            continue;
+        } else if (propertyName == QLatin1String("buttonGroupId")
+                    && p->elementNumber()
+                    && m_widgetChain.top() && m_widgetChain.top()->attributeClass() == QLatin1String("Q3ButtonGroup")) {
+            output << option.indent << driver->findOrInsertWidget(m_widgetChain.top()) << "->insert("
+                   << varName << ", " << p->elementNumber() << ");\n";
             continue;
         }
 
-        stdset = m_stdsetdef;
+        bool stdset = m_stdsetdef;
         if (p->hasAttributeStdset())
             stdset = p->attributeStdset();
 
-        if (stdset)
-            setFunction = "->set" + propertyName.left(1).toUpper()
-                          + propertyName.mid(1) + "(";
-        else
-            setFunction = "->setProperty(\"" + propertyName + "\", QVariant(";
+        QString setFunction = stdset
+                ? QLatin1String("->set") + propertyName.left(1).toUpper() + propertyName.mid(1) + QLatin1String("(")
+                : QLatin1String("->setProperty(\"") + propertyName + QLatin1String("\", QVariant(");
 
         switch (p->kind()) {
         case DomProperty::Bool: {
@@ -441,8 +442,8 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
                   .arg(c->elementBlue()); }
             break;
         case DomProperty::Cstring:
-            if (propertyName == QLatin1String("buddy") && objClass == QLatin1String("QLabel")) {
-                m_buddies.append(Buddy(objName, p->elementCstring()));
+            if (propertyName == QLatin1String("buddy") && className == QLatin1String("QLabel")) {
+                m_buddies.append(Buddy(varName, p->elementCstring()));
             } else {
                 propertyValue = fixString(p->elementCstring());
             }
@@ -453,7 +454,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             break;
         case DomProperty::Enum:
             propertyValue = QString("%1::%2")
-                            .arg(objClass)
+                            .arg(className)
                             .arg(p->elementEnum());
             break;
         case DomProperty::Font: {
@@ -516,7 +517,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             propertyValue = "int(";
             QStringList::ConstIterator it = lst.begin();
             for (int i = 0; i < lst.count(); ++i ) {
-                propertyValue += objClass + "::" + lst.value(i);
+                propertyValue += className + "::" + lst.value(i);
                 if (i != lst.count()-1)
                     propertyValue += " | ";
             }
@@ -532,7 +533,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
                             .arg(sp->elementVSizeType())
                             .arg(sp->elementHorStretch())
                             .arg(sp->elementVerStretch())
-                            .arg(objName);
+                            .arg(varName);
             break;
         }
         case DomProperty::Size: {
@@ -542,7 +543,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
             break;
         }
         case DomProperty::String: {
-            propertyValue = translate(fixString(p->elementString()), objClass);
+            propertyValue = translate(fixString(p->elementString()), className);
             break;
         }
         case DomProperty::Number:
@@ -582,7 +583,7 @@ void WriteInitialization::writePropertiesImpl(const QString &objName, const QStr
         }
 
         if (propertyValue.size()) {
-            output << option.indent << objName << setFunction << propertyValue;
+            output << option.indent << varName << setFunction << propertyValue;
             if (!stdset)
                 output << ")";
             output << ");\n";
