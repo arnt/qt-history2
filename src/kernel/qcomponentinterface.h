@@ -35,6 +35,7 @@ public:
 
 protected:
     void insertChild( QUnknownInterface * );
+    void removeChild( QUnknownInterface * );
     bool ref();
 
 private:

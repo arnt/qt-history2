@@ -22,6 +22,20 @@ QUnknownInterface::QUnknownInterface( QUnknownInterface *p )
 
 QUnknownInterface::~QUnknownInterface()
 {
+    if ( par )
+	par->removeChild( this );
+
+    if ( children ) {
+	QListIterator<QUnknownInterface> it( *children );
+	while ( it.current() ) {
+	    QUnknownInterface *obj = it.current();
+	    ++it;
+	    obj->par = 0;
+	    children->removeRef( obj );
+	    delete obj;
+	}
+	delete children;
+    }
 }
 
 void QUnknownInterface::insertChild( QUnknownInterface *child )
@@ -30,6 +44,20 @@ void QUnknownInterface::insertChild( QUnknownInterface *child )
 	children = new QInterfaceList;
     
     children->append( child );
+}
+
+void QUnknownInterface::removeChild( QUnknownInterface *child )
+{
+    if ( !children )
+	return;
+
+    child->par = 0;
+    children->removeRef( child );
+
+    if ( children->isEmpty() ) {
+	delete children;
+	children = 0;
+    }
 }
 
 QUnknownInterface* QUnknownInterface::parent() const
@@ -56,6 +84,9 @@ bool QUnknownInterface::ref()
 
 bool QUnknownInterface::release()
 {
+    if ( !refcount )
+	return TRUE;
+
     if ( parent() )
 	parent()->release();
 
