@@ -803,7 +803,7 @@ bool QTextCursor::place( const QPoint &p, QTextParag *s, bool link )
 	if ( oldDoc == doc )
 	    return TRUE;
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
-	if ( !place( p, document()->firstParag() ) )
+	if ( !place( p, document()->firstParag(), link ) )
 	    pop();
     }
 #endif
