@@ -20,14 +20,11 @@
 #include "qnamespace.h"
 #include "qpaintdevice.h"
 #include "qstring.h" // char*->QString conversion
-# ifdef QT_INCLUDE_COMPAT
-#  include "qimage.h"
-# endif
+#include "qimage.h"
 #endif // QT_H
 
 class QGfx;
 class QPixmapPrivate;
-class QImage;
 
 #if defined(Q_WS_WIN)
 // Internal pixmap memory optimization class for Windows 9x
