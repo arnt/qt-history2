@@ -3,6 +3,7 @@
 #include <qtextformat.h>
 #include "qtextdocumentlayout_p.h"
 #include "qtextdocumentfragment.h"
+#include <qdebug.h>
 
 #include "qtextdocument_p.h"
 #define d d_func()
@@ -215,3 +216,59 @@ QString QTextDocument::anchorAt(const QPoint& pos) const
     QTextCharFormat fmt = d->pieceTable->formatCollection()->charFormat(it->format);
     return fmt.anchorName();
 }
+
+/*!
+    Finds the next occurrence of the string, \a expr. Returns a cursor
+    having the match selected if \a expr was found; otherwise returns
+    a null cursor.
+
+    If \a startPosition is a null cursor (the default) the search begins at the
+    beginning of the document; otherwise it starts at the position of the cursor
+    within the document. If the cursor has a selection then the search starts
+    at the end of the selection. This allows re-using the same cursor for subsequent
+    searches.
+
+    If \a cs is QString::CaseSensitive (the default), the search is case sensitive; 
+    otherwise the search is case insensitive. If \a mode is FindAnything 
+    the default) the search looks for any matching; otherwise it searches
+    for whole matches only.
+ */
+QTextCursor QTextDocument::find(const QString &expr, QString::CaseSensitivity cs, FindMode mode, const QTextCursor &start) const
+{
+    if (expr.isEmpty())
+        return QTextCursor();
+
+    const QString buffer = d->pieceTable->buffer();
+
+    int pos = (start.isNull() ? 0 : start.selectionEnd());
+    const int end = d->pieceTable->length();
+    Q_ASSERT(pos >= 0 && pos < end);
+
+    while (pos < end) {
+        QTextPieceTable::FragmentIterator fragIt = d->pieceTable->find(pos);
+        const QTextFragment * const frag = fragIt.value();
+
+        const QString fragText = QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
+
+        const int offsetInsideFragment = qMax(0, pos - fragIt.position());
+
+        // ### not imlpemented, yet
+        Q_ASSERT(offsetInsideFragment + expr.length() <= (int)frag->size);
+
+        const int index = fragText.indexOf(expr, offsetInsideFragment, cs);
+
+        // ### not imlpemented, yet
+        Q_ASSERT(mode == FindAnything);
+
+        if (index >= 0) {
+            QTextCursor cursor(d->pieceTable, fragIt.position() + index);
+            cursor.moveTo(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+            return cursor;
+        }
+
+        pos += frag->size;
+    }
+
+    return QTextCursor();
+}
+

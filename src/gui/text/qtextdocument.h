@@ -3,6 +3,7 @@
 
 #ifndef QT_H
 #include <qobject.h>
+#include <qtextcursor.h>
 #endif // QT_H
 
 class QTextFormatCollection;
@@ -13,6 +14,7 @@ class QRect;
 class QPainter;
 class QAbstractTextDocumentLayout;
 class QPoint;
+class QTextCursor;
 
 namespace QText
 {
@@ -69,6 +71,15 @@ public:
     void setHtml(const QString &html);
 
     QString anchorAt(const QPoint& pos) const;
+
+    enum FindMode
+    {
+        FindWords,
+        FindAnything
+    };
+
+    QTextCursor find(const QString &exp, QString::CaseSensitivity cs = QString::CaseSensitive,
+                     FindMode mode = FindAnything, const QTextCursor &start = QTextCursor()) const;
 
 signals:
     void contentsChanged();
