@@ -1,3 +1,12 @@
+1.02a -
+
+  Dependancy / Mocable caching. qmake can cache these expensive operations with qmake_cache
+  CONFIG.
+
+  The parser has been improved to cover more error cases, as well as more forgiving 
+
+  qmake now includes a special else scope to invert the previous test
+
 1.01a -
 
  New system for library linking. This system allows a user several different features:
