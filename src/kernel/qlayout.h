@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#5 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#6 $
 **
 ** Definition of layout classes
 **
@@ -66,7 +66,8 @@ private:	// Disabled copy constructor and operator=
 class QBoxLayout : public QLayout
 {
 public:
-    enum Direction { LeftToRight, RightToLeft, Down, Up };
+    enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop, 
+		     Down = TopToBottom, Up = BottomToTop };
 
     QBoxLayout( QWidget *parent, Direction, int border=0,
 		int autoBorder = -1, const char *name=0 );
