@@ -30,7 +30,7 @@
 class QMenu;
 class QToolBarButtonPrivate;
 
-class QToolBarButton : public QAbstractButton
+class Q_GUI_EXPORT QToolBarButton : public QAbstractButton
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QToolBarButton)
