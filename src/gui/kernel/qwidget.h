@@ -626,6 +626,7 @@ private:
     friend class QLayout;
     friend class QWidgetItem;
     friend class QGuiEventLoop;
+    friend class QGLContext;
 
 #ifdef Q_WS_MAC
     friend class QMacSavedPortInfo;

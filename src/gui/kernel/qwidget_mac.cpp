@@ -331,10 +331,6 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
             widget = QWidget::find((WId)hiview);
         if(ekind == kEventControlDraw) {
             if(widget) {
-#if 0
-                qDebug("asked to draw %p [%s::%s] %p", hiview, widget->className(), widget->objectName(),
-                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1));
-#endif
                 //update clip
                 widget->d->clp_serial++;
                 RgnHandle rgn;
@@ -366,6 +362,10 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 if(qdref)
                     widget->hd = GetWindowFromPort(qdref);
 
+#if 0
+                qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->className(), widget->objectName(),
+                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1), widget->hd, widget->cg_hd);
+#endif
                 if((widget->data->widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {  //process the actual paint event.
                     if(widget->testWState(Qt::WState_InPaintEvent))
                         qWarning("QWidget::repaint: recursive repaint detected.");
