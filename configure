@@ -101,7 +101,7 @@ then
     rm -f $outpath/tools/designer/templates
     ln -s $relpath/tools/designer/templates $outpath/tools/designer/templates
 
-    # create the include directory (will hold links and a real qconfig.h)
+    # create the include directory (will hold real qconfig.h and qmodules.h)
     if [ ! -d $outpath/include ]
     then
 	mkdir $outpath/include
@@ -110,9 +110,6 @@ then
     # symlink the doc directory
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
-
-    # let qt.h see "../*/*_p.h" files
-    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$relpath/src/kernel\""
 
     #binaries from qt
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
@@ -1250,6 +1247,12 @@ fi
 if [ -x "$relpath/bin/syncqt" ]
 then
     QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
+
+    # when doing shadow builds, make sure we have includes there too
+    if [ "$relpath" != `pwd` ]
+    then
+	QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
+    fi
 fi
 
 if true #[ '!' -f "$outpath/bin/qmake" ]
