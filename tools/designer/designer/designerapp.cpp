@@ -99,8 +99,19 @@ QString DesignerApplication::settingsKey()
 
 QString DesignerApplication::oldSettingsKey()
 {
-    if ( !old_settings_key )
-	old_settings_key = new QString( "/Qt Designer/3.0/" );
+    if ( !old_settings_key ) {
+	int majorVer = (QT_VERSION >> 16) & 0xff;
+	int minorVer = (QT_VERSION >> 8) & 0xff;
+	
+	// If minorVer is 0 (e.g. 4.0) then we don't want to read the
+	// old settings, too much might have changed.
+	if ( !minorVer == 0 )
+	    minorVer--;
+
+	old_settings_key = new QString( "/Qt Designer/" +
+				    QString::number( majorVer ) +
+	                            "." + QString::number( minorVer ) + "/" );
+    }
     return *old_settings_key;
 }
 
