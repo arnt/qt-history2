@@ -45,6 +45,7 @@
  *****************************************************************************/
 //#define DEBUG_WINDOW_RGNS
 //#define DEBUG_WINDOW_CREATE
+//#define DEBUG_WINDOW_STATE
 //#define DEBUG_WIDGET_PAINT
 
 /*****************************************************************************
@@ -1370,7 +1371,8 @@ void QWidget::setActiveWindow()
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
         return;
     qt_event_remove_activate();
-    qt_mac_set_fullscreen_mode(tlw->windowState() & Qt::WindowFullScreen);
+    qt_mac_set_fullscreen_mode((tlw->windowState() & Qt::WindowFullScreen) && 
+                               !qApp->desktop()->screenNumber(this));
     WindowPtr window = qt_mac_window_for(tlw);
     if(tlw->isPopup() || tlw->testWFlags(Qt::WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
         ActivateWindow(window, true);
@@ -1515,47 +1517,56 @@ void QWidget::setWindowState(uint newstate)
             if(newstate & Qt::WindowFullScreen) {
                 if(QTLWExtra *tlextra = d->topData()) {
                     if(tlextra->normalGeometry.width() < 0) {
-                        if(testAttribute(Qt::WA_Resized))
+                        if(testAttribute(Qt::WA_Resized)) 
                             tlextra->normalGeometry = geometry();
-                        else
+                        else 
                             tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
                     }
                     tlextra->savedFlags = getWFlags();
                 }
                 needShow = isVisible();
+                const QRect fullscreen(qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this)));
                 setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
                           (getWFlags() & 0xffff0000));                           // preserve some widget flags
-
-                setGeometry(qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this)));
-                qt_mac_set_fullscreen_mode(true);
+                setGeometry(fullscreen);
+                if(!qApp->desktop()->screenNumber(this))
+                    qt_mac_set_fullscreen_mode(true);
             } else {
                 needShow = isVisible();
                 setParent(0, d->topData()->savedFlags);
                 setGeometry(d->topData()->normalGeometry);
-                qt_mac_set_fullscreen_mode(false);
+                if(!qApp->desktop()->screenNumber(this))
+                    qt_mac_set_fullscreen_mode(false);
                 d->topData()->normalGeometry.setRect(0, 0, -1, -1);
             }
         }
 
-        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
+        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) 
             CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
 
-        if(newstate & Qt::WindowMaximized) {
+        if((newstate & Qt::WindowMaximized) && !((newstate & Qt::WindowFullScreen))) {
             if(QTLWExtra *tlextra = d->topData()) {
                 if(tlextra->normalGeometry.width() < 0) {
-                    if(testAttribute(Qt::WA_Resized))
+                    if(testAttribute(Qt::WA_Resized)) 
                         tlextra->normalGeometry = geometry();
-                    else
+                    else 
                         tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
                 }
             }
         } else if(!(newstate & Qt::WindowFullScreen)) {
-            d->topData()->normalGeometry = QRect(0, 0, -1, -1);
+//            d->topData()->normalGeometry = QRect(0, 0, -1, -1);
         }
 
-        if(!(newstate & Qt::WindowMinimized) &&
-            (((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)))
-             || (oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) {
+#ifdef DEBUG_WINDOW_STATE
+#define WSTATE(x) qDebug("%s -- %s -- %s", #x, (newstate & x) ? "true" : "false", (oldstate & x) ? "true" : "false")
+        WSTATE(Qt::WindowMinimized);
+        WSTATE(Qt::WindowMaximized);
+        WSTATE(Qt::WindowFullScreen);
+#undef WSTATE
+#endif
+        if(!(newstate & (Qt::WindowMinimized|Qt::WindowFullScreen)) &&
+           ((oldstate & Qt::WindowFullScreen) || (oldstate & Qt::WindowMinimized) ||
+            (oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized))) {
             if(newstate & Qt::WindowMaximized) {
                 Rect bounds;
                 data->fstrut_dirty = true;
@@ -1594,19 +1605,14 @@ void QWidget::setWindowState(uint newstate)
 
                     SetWindowStandardState(window, &bounds);
                     ZoomWindow(window, inZoomOut, false);
-                    data->crect = nrect;
-
-                    if(isVisible()) {
-                        //issue a resize
-                        QResizeEvent qre(size(), orect.size());
-                        QApplication::sendEvent(this, &qre);
-                        //issue a move
-                        QMoveEvent qme(pos(), orect.topLeft());
-                        QApplication::sendEvent(this, &qme);
-                    }
+                    setGeometry(nrect);
                 }
-            } else {
+            } else if(oldstate & Qt::WindowMaximized) {
                 ZoomWindow(window, inZoomIn, false);
+                if(QTLWExtra *tlextra = d->topData()) {
+                    setGeometry(tlextra->normalGeometry);
+                    tlextra->normalGeometry.setRect(0, 0, -1, -1);
+                }
             }
         }
     }
@@ -1813,9 +1819,8 @@ void QWidgetPrivate::setWSGeometry()
 
 void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
-    if(isTopLevel() && isMove) {
+    if(isTopLevel() && isMove) 
         d->topData()->is_moved = 1;
-    }
     if(isDesktop())
         return;
     if(QWExtra *extra = d->extraData()) {        // any size restrictions?
