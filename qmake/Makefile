@@ -76,6 +76,8 @@ QTOBJS= \
 	quuid.obj \
 	qvector.obj 
 
+first all: qmake.exe
+
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
 	-copy qmake.exe ..\bin\qmake.exe
