@@ -152,11 +152,11 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* p )
     case SQL_BIGINT:
 	type = QVariant::Int;
 	break;
-//     case SQL_BINARY:
-//     case SQL_VARBINARY:
-//     case SQL_LONGVARBINARY:
-//	type = QVariant::ByteArray;
-//	break;
+    case SQL_BINARY:
+    case SQL_VARBINARY:
+    case SQL_LONGVARBINARY:
+	type = QVariant::ByteArray;
+	break;
     case SQL_DATE:
     case SQL_TYPE_DATE:
 	type = QVariant::Date;
@@ -240,6 +240,76 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 	}
     }
     delete[] buf;
+    return fieldVal;
+}
+
+QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
+{
+    QByteArray fieldVal;
+    SQLSMALLINT colNameLen;
+    SQLSMALLINT colType;
+    SQLUINTEGER colSize;
+    SQLSMALLINT colScale;
+    SQLSMALLINT nullable;
+    SQLRETURN r = SQL_ERROR;
+
+    SQLCHAR colName[255];
+    r = SQLDescribeCol( hStmt,
+			column+1,
+			colName,
+			sizeof(colName),
+			&colNameLen,
+			&colType,
+			&colSize,
+			&colScale,
+			&nullable);
+#ifdef QT_CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qWarning( QString("qGetBinaryData: Unable to describe column %1").arg(column) );
+#endif
+    // SQLDescribeCol may return 0 if size cannot be determined
+    if (!colSize) {
+	colSize = 255;
+    }
+    if ( colSize > 65536 ) { // read the field in 64 KB chunks
+	colSize = 65536;
+    }
+    SQLCHAR* buf = new SQLTCHAR[ colSize ];
+    while ( TRUE ) {
+	r = SQLGetData( hStmt,
+			column+1,
+			SQL_C_BINARY,
+			(SQLPOINTER) buf,
+			colSize,
+			&lengthIndicator );
+	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+	    if ( lengthIndicator == SQL_NULL_DATA ) {
+ 		isNull = TRUE;
+		break;
+	    } else {
+		int rSize;
+		r == SQL_SUCCESS ? rSize = lengthIndicator : rSize = colSize;
+		if ( lengthIndicator == SQL_NO_TOTAL ) { // size cannot be determined
+		    rSize = colSize;
+		}
+		// NB! This is not a memleak - the mem will be deleted by QByteArray when
+		// no longer ref'd
+		char * tmp = (char *) malloc( rSize + fieldVal.size() );
+		if ( fieldVal.size() ) {
+		    memcpy( tmp, fieldVal.data(), fieldVal.size() );
+		}
+		memcpy( tmp + fieldVal.size(), buf, rSize );
+		fieldVal = fieldVal.assign( tmp, fieldVal.size() + rSize );
+
+		if ( r == SQL_SUCCESS ) { // the whole field was read in one chunk
+		    break;
+		}
+	    }
+	} else {
+	    break;
+	}
+    }
+    delete [] buf;
     return fieldVal;
 }
 
@@ -632,6 +702,12 @@ QVariant QODBCResult::data( int field )
 		nullCache[ current ] = TRUE;
 	    }
 	    break;
+        case QVariant::ByteArray: {
+	    isNull = FALSE;
+	    QByteArray val = qGetBinaryData( d->hStmt, current, lengthIndicator, isNull );
+	    fieldCache[ current ] = QVariant( val );
+	    nullCache[ current ] = isNull;
+	    break; }
 	case QVariant::String:
 	    isNull = FALSE;
 	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
@@ -961,7 +1037,7 @@ bool QODBCDriver::hasFeature( DriverFeature f ) const
     case QuerySize:
 	return FALSE;
     case BLOB:
-	return FALSE;
+	return TRUE;
     case Unicode:
 	return d->unicode;
     case PreparedQueries:
@@ -1486,9 +1562,9 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 				  bool trimStrings ) const
 {
     QString r;
-    if ( field->isNull() )
+    if ( field->isNull() ) {
 	r = nullText();
-    else if ( field->type() == QVariant::DateTime ) {
+    } else if ( field->type() == QVariant::DateTime ) {
 	// Use an escape sequence for the datetime fields
 	if ( field->value().toDateTime().isValid() ){
 	    QDate dt = field->value().toDateTime().date();
@@ -1502,6 +1578,16 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 		"' }";
 	} else
 	    r = nullText();
+    } else if ( field->type() == QVariant::ByteArray ) {	
+	QByteArray ba = field->value().toByteArray();
+	QString res;
+	static const char hexchars[] = "0123456789abcdef";
+	for ( uint i = 0; i < ba.size(); ++i ) {
+	    uchar s = (uchar) ba[(int)i];
+	    res += hexchars[s >> 4];
+	    res += hexchars[s & 0x0f];
+	}
+	r = "0x" + res;
     } else {
 	r = QSqlDriver::formatValue( field, trimStrings );
     }
