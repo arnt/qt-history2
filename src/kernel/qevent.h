@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#28 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#29 $
 **
 ** Definition of event classes
 **
@@ -183,6 +183,16 @@ protected:
 };
 
 #define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
+
+
+class QClipboardEvent : public QEvent
+{
+public:
+    QClipboardEvent( void *d ) : QEvent(Event_Clipboard), data(d) {}
+private:
+    void       *data;
+    friend class QClipboard;
+};
 
 
 #endif // QEVENT_H
